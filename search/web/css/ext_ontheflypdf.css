@@ -1,0 +1,33 @@
+#ext_ontheflypdf_generate, #ext_ontheflypdf_generateDisabled {
+    background-color: #F6F7F8;
+    border: 0;
+    color: #4B4F4A;
+    cursor: pointer;
+    font: normal 11px Verdana,Arial,Helvetica;
+    height: 20px;
+    margin-right: 4px;
+    margin-top: 0px;
+    padding: 0;
+    text-decoration: underline;
+    width: 60px;
+}
+#ext_ontheflypdf_generateDisabled {
+    color: #9B9F9A;
+    text-decoration: none;
+}
+#ext_ontheflypdf_generate:hover{
+    text-decoration: none;
+}
+#ext_ontheflypdf_formStartInput,#ext_ontheflypdf_formEndInput{
+    padding: 0 3px;
+    text-align: right;
+    margin: 1px 10px;
+}
+#ext_ontheflypdf_downloadLink {
+    background: url("../img/ext_ontheflypdf_pdf_icon.png") left top no-repeat;
+    padding: 0 0 5px 20px;
+}
+#ext_ontheflypdf_form{
+    padding:2px;
+    margin:0;
+}

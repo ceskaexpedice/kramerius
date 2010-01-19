@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE web-app PUBLIC "-//Sun Microsystems, Inc.//DTD Web Application 2.3//EN" "http://java.sun.com/dtd/web-app_2_3.dtd">
+<web-app>
+    <servlet>
+        <servlet-name>GetRelsExt</servlet-name>
+        <servlet-class>cz.incad.Kramerius.GetRelsExt</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>GetPageInfo</servlet-name>
+        <servlet-class>cz.incad.Kramerius.GetPageInfo</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>GetUnitInfo</servlet-name>
+        <servlet-class>cz.incad.Kramerius.GetUnitInfo</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>GetTotalPages</servlet-name>
+        <servlet-class>cz.incad.Kramerius.GetTotalPages</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>IndexModel</servlet-name>
+        <servlet-class>cz.incad.Kramerius.IndexModel</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>GetRelsExt</servlet-name>
+        <url-pattern>/GetRelsExt</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>GetPageInfo</servlet-name>
+        <url-pattern>/GetPageInfo</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>GetUnitInfo</servlet-name>
+        <url-pattern>/GetUnitInfo</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>GetTotalPages</servlet-name>
+        <url-pattern>/GetTotalPages</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>IndexModel</servlet-name>
+        <url-pattern>/IndexModel</url-pattern>
+    </servlet-mapping>
+    <welcome-file-list>
+        <welcome-file>search.jsp</welcome-file>
+    </welcome-file-list>
+    
+
+</web-app>

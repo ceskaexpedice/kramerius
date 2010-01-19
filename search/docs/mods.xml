@@ -1,0 +1,86 @@
+<mods:modsCollection xmlns:mods="http://www.loc.gov/mods/v3">
+                    <mods:mods version="3.3">
+                        <mods:identifier type="urn">0eaa6730-9068-11dd-97de-000d606f5dc6</mods:identifier>
+                        <mods:identifier type="sici"></mods:identifier>
+                        <mods:identifier type="isbn"></mods:identifier>
+                        <mods:identifier type="issn"></mods:identifier>
+                        <mods:titleInfo>
+                            <mods:title>Drobnůstky</mods:title>
+
+                            <mods:subTitle></mods:subTitle>
+                        </mods:titleInfo>
+                        <mods:titleInfo type="alternative">
+                            <mods:title></mods:title>
+                        </mods:titleInfo>
+                        <mods:subject>
+                            <mods:topic></mods:topic>
+                            <mods:cartographics>
+                                <mods:scale></mods:scale>
+
+                            </mods:cartographics>
+                        </mods:subject>
+                        <mods:abstract></mods:abstract>
+                        <mods:location>
+                            <mods:physicalLocation>ABA000</mods:physicalLocation>
+                            <mods:shelfLocator>54 G 000887</mods:shelfLocator>
+                        </mods:location>
+                        <mods:name type="personal">
+
+                            <mods:namePart type="family">Doucha</mods:namePart>
+                            <mods:namePart type="given">František</mods:namePart>
+                            <mods:role>
+                                <mods:roleTerm type="code">cre</mods:roleTerm>
+                                <mods:roleTerm type="text">Author</mods:roleTerm>
+                            </mods:role>
+                        </mods:name>
+
+                        <mods:name type="personal">
+                            <mods:namePart type="family">***Donator NF***</mods:namePart>
+                            <mods:role>
+                                <mods:roleTerm type="code">cre</mods:roleTerm>
+                                <mods:roleTerm type="text">Other</mods:roleTerm>
+                            </mods:role>
+                        </mods:name>
+
+                        <mods:typeOfResource>text</mods:typeOfResource>
+                        <mods:originInfo transliteration="publisher">
+                            <mods:place>
+                                <mods:placeTerm type="text">V Praze</mods:placeTerm>
+                            </mods:place>
+                            <mods:publisher>Mikoláš Lehmann</mods:publisher>
+                            <mods:dateIssued>1862</mods:dateIssued>
+
+                        </mods:originInfo>
+                        <mods:originInfo transliteration="printer">
+                            <mods:place>
+                                <mods:placeTerm>Ve Stuttgartě</mods:placeTerm>
+                            </mods:place>
+                            <mods:publisher>Vilém Nitzschke</mods:publisher>
+                            <mods:dateCreated></mods:dateCreated>
+                        </mods:originInfo>
+
+                        <mods:originInfo>
+                            <mods:issuance>monographic</mods:issuance>
+                        </mods:originInfo>
+                        <mods:physicalDescription>
+                            <mods:form type="technique"></mods:form>
+                            <mods:form type="material"></mods:form>
+                            <mods:extent>7 l.,17 cm</mods:extent>
+                            <mods:note></mods:note>
+
+                        </mods:physicalDescription>
+                        <mods:physicalDescription>
+                            <mods:note type="action"></mods:note>
+                            <mods:note type="preservationStateOfArt">nekvalitní předloha;</mods:note>
+                        </mods:physicalDescription>
+                        <mods:classification authority="ddc">neuvedeno neuvedeno</mods:classification>
+                        <mods:classification authority="udc">821-93 821.162.3-1</mods:classification>
+
+                        <mods:relatedItem type="series">
+                            <mods:titleInfo>
+                                <mods:title></mods:title>
+                            </mods:titleInfo>
+                        </mods:relatedItem>
+                        <mods:accessCondition type="restrictionOnAccess"></mods:accessCondition>
+                    </mods:mods>
+                </mods:modsCollection>

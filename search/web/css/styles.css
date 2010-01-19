@@ -1,0 +1,85 @@
+body {
+	font-family:Verdana, Arial, Helvetica, Tahoma;
+	font-size:11px;
+	color:#4B4F4A;
+	background-color:#ffffff;
+}
+td {
+	font-family:Verdana, Arial, Helvetica, Tahoma;
+	font-size:11px;
+	color:#4B4F4A;
+	background-color:#ffffff;
+}
+input {
+	border:1px solid #A7A9A7;
+	font-family:Verdana, Arial, Helvetica, Tahoma;
+	font-size:11px;
+	color:#4B4F4A;
+}
+input.checkbox {
+	border:0px solid #A7A9A7;
+	margin:0px;
+	font-family:Verdana, Arial, Helvetica, Tahoma;
+	font-size:11px;
+	color:#4B4F4A;
+}
+
+
+input.submit {
+	border:1px solid #A7A9A7;
+	font-family:Verdana, Arial, Helvetica, Tahoma;
+	font-size:10px;
+	color:#ffffff;
+	background-color:#A7A9A7
+}
+
+input.disabled {
+  color: #b8b8b8;
+  cursor: default;
+}
+
+a:link, a:active, a:visited {
+	font-family:Verdana, Arial, Helvetica, Tahoma;
+	font-size:11px;
+	color:#4B4F4A;
+	text-decoration:underline;
+}
+a:hover {
+	font-family:Verdana, Arial, Helvetica, Tahoma;
+	font-size:11px;
+	color:#4B4F4A;
+	text-decoration:none;
+}
+a.image:link, a.image:active, a.image:visited {
+	font-family:Verdana, Arial, Helvetica, Tahoma;
+	font-size:11px;
+	color:#4B4F4A;
+	text-decoration:none;
+}
+a.image:hover {
+	font-family:Verdana, Arial, Helvetica, Tahoma;
+	font-size:11px;
+	color:#4B4F4A;
+	text-decoration:underline;
+}
+
+
+/* Logo */
+.mainHeader{
+    font-size: 15px;
+}
+/* end Logo */
+
+/* facets */
+.facet{
+    padding:15px;
+    
+    
+}
+.facetTitle{
+    background: #eeeeee;
+}
+
+/* end facets */
+
+
