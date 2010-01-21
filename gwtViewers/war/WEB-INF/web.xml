@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE web-app
+    PUBLIC "-//Sun Microsystems, Inc.//DTD Web Application 2.3//EN"
+    "http://java.sun.com/dtd/web-app_2_3.dtd">
+
+<web-app>
+  
+  <!-- Servlets -->
+  <servlet>
+    <servlet-name>pageService</servlet-name>
+    <servlet-class>cz.i.kramerius.gwtviewers.server.PageServiceImpl</servlet-class>
+    <init-param>
+    	<!--  bude tahano z fedory, vlastnosti asi pres JNDI -->
+		<param-name>imgFolder</param-name>
+		<param-value>/home/pavels/Projects/viewer2/war/data</param-value>
+    </init-param>
+    <init-param>
+    	<param-name>noPage</param-name>
+		<param-value>/home/pavels/Projects/viewer2/war/data/</param-value>
+    </init-param>
+  </servlet>
+  
+  <servlet-mapping>
+    <servlet-name>pageService</servlet-name>
+    <url-pattern>/viewer2/page</url-pattern>
+  </servlet-mapping>
+  
+  <!-- Default page to serve -->
+  <welcome-file-list>
+    <welcome-file>GwtViewers.html</welcome-file>
+  </welcome-file-list>
+
+</web-app>

@@ -1,0 +1,15 @@
+com.google.gwt.user.client.rpc.IncompatibleRemoteServiceException, true, true, true, true, com.google.gwt.user.client.rpc.IncompatibleRemoteServiceException/3936916533, 3936916533
+cz.i.kramerius.gwtviewers.client.PageService, false, false, false, false, _, 3024478531
+cz.i.kramerius.gwtviewers.client.SimpleImageTO, true, true, false, false, cz.i.kramerius.gwtviewers.client.SimpleImageTO/2238634315, 2238634315
+java.lang.Exception, true, false, true, false, java.lang.Exception/1920171873, 1920171873
+java.lang.Integer, true, true, false, false, java.lang.Integer/3438268394, 3438268394
+java.lang.Number, true, false, false, false, java.lang.Number/300033342, 300033342
+java.lang.RuntimeException, true, false, true, false, java.lang.RuntimeException/515124647, 515124647
+java.lang.String, true, true, true, true, java.lang.String/2004016611, 2004016611
+[Ljava.lang.String;, true, true, false, false, [Ljava.lang.String;/2600011424, 2600011424
+java.lang.Throwable, true, false, true, false, java.lang.Throwable/2953622131, 2953622131
+java.util.ArrayList, true, true, false, false, java.util.ArrayList/3821976829, 3821976829
+java.util.Arrays$ArrayList, true, true, false, false, java.util.Arrays$ArrayList/1243019747, 1243019747
+java.util.LinkedList, true, true, false, false, java.util.LinkedList/1060625595, 1060625595
+java.util.Stack, true, true, false, false, java.util.Stack/1031431137, 1031431137
+java.util.Vector, true, true, false, false, java.util.Vector/3125574444, 3125574444
