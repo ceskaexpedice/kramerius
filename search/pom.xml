@@ -5,8 +5,8 @@
 	<artifactId>search</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<packaging>war</packaging>
-	
-	
+
+
 	<repositories>
 		<repository>
 			<id>maven2-repository.dev.java.net</id>
@@ -46,9 +46,32 @@
 			<artifactId>jakarta-taglibs</artifactId>
 			<version>1.1.2</version>
 		</dependency>
+
+		<dependency>
+			<groupId>xalan</groupId>
+			<artifactId>xalan</artifactId>
+			<version>2.7.1</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.apache</groupId>
+			<artifactId>xalan</artifactId>
+			<version>2.5.D1</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.apache</groupId>
+			<artifactId>xalan</artifactId>
+			<version>2.5.D1</version>
+		</dependency>
+
+		<dependency>
+		<groupId>org.apache</groupId>
+		 <artifactId>xercesImpl</artifactId>
+		 <version>2.7.1</version>
+		</dependency>
 		
 	</dependencies>
-
 	<build>
 		<sourceDirectory>${basedir}/src/java</sourceDirectory>
 		<resources>
