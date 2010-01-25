@@ -4,6 +4,10 @@ import com.google.gwt.user.client.ui.Image;
 import com.google.gwt.user.client.ui.Widget;
 
 
+/**
+ * Basic properties for image
+ * @author pavels
+ */
 public class ImageCore {
 
 	private int x;
@@ -11,20 +15,26 @@ public class ImageCore {
 	private int width;
 	private int height;
 	private String url;
-	private Image image = new Image();
 	private String imageIdent;
-	
-	public ImageCore(int x, int y, int width, int height, String url, String imageIdent) {
-		super();
+
+	// TODO: Vyhodit, udelat jinak
+	private Image image = null;
+
+	public ImageCore(int x, int y, int width, int height, String imageIdent) {
 		this.x = x;
 		this.y = y;
 		this.width = width;
 		this.height = height;
-		this.url = url;
-		this.image.setUrl(url);
 		this.imageIdent = imageIdent;
 	}
-	
+	public ImageCore(int x, int y, int width, int height, String url, String imageIdent) {
+		this(x,y,width,height,imageIdent);
+		this.url = url;
+		if (this.image == null) {
+			getImage().setUrl(url);
+		}
+	}
+
 
 	public void setImageIdent(String imageIdent) {
 		this.imageIdent = imageIdent;
@@ -69,11 +79,18 @@ public class ImageCore {
 
 	public void setUrl(String url) {
 		this.url = url;
-		this.image.setUrl(url);
+		this.getImage().setUrl(url);
 	}
 
-	public Widget getWidget() {
+	public Image getImage() {
+		if (this.image == null) {
+			this.image = new Image();
+		}
 		return image;
+	}
+	
+	public Widget getWidget() {
+		return getImage();
 	}
 
 	public void setImage(Image image) {

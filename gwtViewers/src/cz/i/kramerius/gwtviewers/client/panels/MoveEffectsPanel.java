@@ -6,9 +6,14 @@ import com.google.gwt.user.client.ui.AbsolutePanel;
 import com.google.gwt.user.client.ui.Composite;
 
 import cz.i.kramerius.gwtviewers.client.panels.fx.Rotate;
+import cz.i.kramerius.gwtviewers.client.panels.utils.Helper;
 import cz.i.kramerius.gwtviewers.client.panels.utils.ImageRotateCalculatedPositions;
 import cz.i.kramerius.gwtviewers.client.panels.utils.ImageRotatePool;
 
+/**
+ * FX panel for moving pictures
+ * @author pavels
+ */
 public class MoveEffectsPanel extends  Composite {
 	
 	private ImageRotatePool imageRotatePool;
@@ -17,25 +22,39 @@ public class MoveEffectsPanel extends  Composite {
 	
 	private CoreConfiguration configuration;
 	
-	public MoveEffectsPanel( ImageMoveWrapper[] imgs, ImageMoveWrapper[] noVisibleImgs,  CoreConfiguration conf) {
+	public MoveEffectsPanel( ImageMoveWrapper[] viewPortImages, 
+							ImageMoveWrapper[] noVisibleImgs, 
+							ImageMoveWrapper left, 
+							ImageMoveWrapper right,   
+							CoreConfiguration conf) {
 		super();
-		this.imageRotateCalculatedPositions = new ImageRotateCalculatedPositions(imgs);
-		this.imageRotatePool = new ImageRotatePool(imgs, noVisibleImgs);
+
+		this.imageRotateCalculatedPositions = new ImageRotateCalculatedPositions(viewPortImages, noVisibleImgs, left, right);
+		this.imageRotatePool = new ImageRotatePool(viewPortImages, noVisibleImgs, left, right, 5 /* ! View port size !*/);
 		
 		this.configuration = conf;
 
 		this.calulateNextPositions();
 		this.storeCalculatedPositions();
-		
-		ArrayList<ImageMoveWrapper> viewPortImages = this.imageRotatePool.getViewPortImages();
-		for (int i = 0; i < viewPortImages.size(); i++) {
-			ImageMoveWrapper img = viewPortImages.get(i);
-			ImageMoveWrapper calculated = this.imageRotateCalculatedPositions.getCaclulatePosition(i);
+		for (int i = 0; i < viewPortImages.length; i++) {
+			ImageMoveWrapper img = viewPortImages[i];
+			ImageMoveWrapper calculated = this.imageRotateCalculatedPositions.getViewPortCalulcatedPosition(i);
 			img.setX(calculated.getX());
 			img.setY(calculated.getY());
 			this.absolutePanel.add(img.getWidget(), img.getX(), img.getY());
 		}
 		
+		
+		ImageMoveWrapper leftSideImage = this.imageRotatePool.getLeftSideImage();
+		this.absolutePanel.add(leftSideImage.getWidget(), leftSideImage.getX(), leftSideImage.getY());
+
+		ImageMoveWrapper rightSideImage = this.imageRotatePool.getRightSideImage();
+		this.absolutePanel.add(rightSideImage.getWidget(), rightSideImage.getX(), rightSideImage.getY());
+
+		for (int i = 0; i < noVisibleImgs.length; i++) {
+			ImageMoveWrapper img = noVisibleImgs[i];
+			this.absolutePanel.add(img.getWidget(), img.getX(), img.getY());
+		}		
 		this.absolutePanel.setWidth(this.configuration.getViewPortWidth()+"px");
 		this.absolutePanel.setHeight(this.configuration.getViewPortHeight()+"px");
 		initWidget(this.absolutePanel);
@@ -53,6 +72,7 @@ public class MoveEffectsPanel extends  Composite {
 			left.play();
 			this.storeCalculatedPositions();
 		}
+		
 	}
 	
 	
@@ -74,57 +94,14 @@ public class MoveEffectsPanel extends  Composite {
 
 
 	public void calulateNextPositions() {
-		ArrayList<ImageMoveWrapper> viewPortImages = this.imageRotatePool.getViewPortImages();
-		int previousImgWidth = 0;
-		for (int i = 0; i < viewPortImages.size(); i++) {
-			ImageMoveWrapper imageDTO = viewPortImages.get(i);
-			int x =  previousImgWidth +this.configuration.getImgDistances() ;
-			int y = 0;
-			ImageMoveWrapper calculatedPosition = this.imageRotateCalculatedPositions.getCaclulatePosition(i);
-			calculatedPosition.setX(x);
-			calculatedPosition.setY(y);
-			calculatedPosition.setImageIdent(imageDTO.getImageIdent());
-			previousImgWidth =  x+imageDTO.getWidth() ;
-		}
-			
-		previousImgWidth = 0;
-		ArrayList<ImageMoveWrapper> leftImages = this.imageRotatePool.getLeftSideImages();
-		for (int i = 0; i<leftImages.size(); i++) {
-			ImageMoveWrapper imageDTO = leftImages.get(i);
-			int x =  -imageDTO.getWidth() ;
-			int y = 0;
-			ImageMoveWrapper calculatedLeftPosition = this.imageRotateCalculatedPositions.getCaclulateLeftPosition(i);
-			calculatedLeftPosition.setX(x);
-			calculatedLeftPosition.setY(y);
-			calculatedLeftPosition.setImageIdent(imageDTO.getImageIdent());
-			previousImgWidth =  x-imageDTO.getWidth() ;
-			
-		}
+		Helper.computePositions(this.imageRotatePool, this.imageRotateCalculatedPositions,this.configuration);
 	}
-	
+
+
 	public void storeCalculatedPositions() {
-
-		
-		ArrayList<ImageMoveWrapper> viewPortImages = this.imageRotatePool.getViewPortImages();
-		ArrayList<ImageMoveWrapper> calclulatedPositions = this.imageRotateCalculatedPositions.getCalclulatedPositions();
-		for (int i = 0; i < viewPortImages.size(); i++) {
-			ImageMoveWrapper calculatedCopy = calclulatedPositions.get(i);
-			ImageMoveWrapper viewPortImage = viewPortImages.get(i);
-			viewPortImage.setX(calculatedCopy.getX());
-			viewPortImage.setY(calculatedCopy.getY());
-		}
-
-		ArrayList<ImageMoveWrapper> leftSide = this.imageRotatePool.getLeftSideImages();
-		for (int i = leftSide.size()-1; i >= 0; i--) {
-			ImageMoveWrapper viewPortImage = leftSide.get(i);
-			ImageMoveWrapper calculatedCopy = this.imageRotateCalculatedPositions.getCaclulateLeftPosition(i);
-			viewPortImage.setX(calculatedCopy.getX());
-			viewPortImage.setY(calculatedCopy.getY());
-			
-		}
+		Helper.storePositions(this.imageRotatePool, this.imageRotateCalculatedPositions, this.configuration);
 	}
-	
-	
+
 	public void debugViewPort(String where) {
 		System.out.println("--"+where);
 		ArrayList<ImageMoveWrapper> imgs = this.imageRotatePool.getViewPortImages();

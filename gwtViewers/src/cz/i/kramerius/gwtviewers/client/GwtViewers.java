@@ -12,6 +12,7 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.ChangeListener;
 import com.google.gwt.user.client.ui.Image;
+import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.PushButton;
 import com.google.gwt.user.client.ui.RootPanel;
 import com.google.gwt.user.client.ui.VerticalPanel;
@@ -40,7 +41,10 @@ public class GwtViewers implements EntryPoint {
 	private final PageServiceAsync pageService = GWT.create(PageService.class);
 	private VerticalPanel _emptyVerticalPanel = new VerticalPanel();
 	
-	private SliderBar sliderBar = new SliderBar(0, 10); {
+	private Label nLabel = new Label();
+	
+	
+	private SliderBar sliderBar = new SliderBar(0, 110); {
 		sliderBar.setStepSize(1.0);
 		sliderBar.setCurrentValue(0);
 	    sliderBar.setNumLabels(10);
@@ -48,7 +52,8 @@ public class GwtViewers implements EntryPoint {
 			
 			@Override
 			public void onChange(Widget sender) {
-				fxPane.rollToPage(sliderBar.getCurrentValue());
+				//fxPane.rollToPage(sliderBar.getCurrentValue());
+				rollToPage(sliderBar.getCurrentValue());
 			}
 		});
 	}
@@ -70,12 +75,22 @@ public class GwtViewers implements EntryPoint {
 		});
 	}
 	
+	public void rollToPage(double currentValue) {
+		fxPane.rollToPage(sliderBar.getCurrentValue());
+	}
+
 	private void simplePaneContent(ArrayList<SimpleImageTO> itos) {
 		RootPanel.get("container").remove(_emptyVerticalPanel);
 		createSimpleEffectsPanel(itos);
 		RootPanel.get("container").add(this.fxPane);
 	}
 
+	
+	public native String getVariable() /*-{
+		return $wnd.firstName;
+	}-*/;
+	
+	
 	private void createSimpleEffectsPanel(ArrayList<SimpleImageTO> itos) {
 		final HashMap<String, Object> resultMap = new HashMap<String, Object>();
 		
@@ -87,14 +102,18 @@ public class GwtViewers implements EntryPoint {
 			conf.setViewPortWidth(700);
 		}
 
-		ImageMoveWrapper[] viewPortImages = new ImageMoveWrapper[itos.size()];
+		ImageMoveWrapper[] viewPortImages = new ImageMoveWrapper[6];
 		for (int i = 0; i < viewPortImages.length; i++) {
-			SimpleImageTO oneIto = itos.get(i);
-			viewPortImages[i] = new ImageMoveWrapper(0,0, oneIto.getWidth(), oneIto.getHeight(), oneIto.getUrl(), oneIto.getIdentification());
+			viewPortImages[i] = new ImageMoveWrapper(0,0, 301, 401, "data/"+(i+1)+".png",i+".png");
 		}
-
-		ImageMoveWrapper[] noVisibleImages = new ImageMoveWrapper[0];
-		this.fxPane = new MoveEffectsPanel( viewPortImages, noVisibleImages, conf);
+		ImageMoveWrapper[] noVisibleImages = new ImageMoveWrapper[6];
+		for (int i = 0; i < noVisibleImages.length; i++) {
+			noVisibleImages[i] = new ImageMoveWrapper(0,0, 301, 401, "data/nv"+(i+1)+".png","nv"+i+".png");
+		}
+		ImageMoveWrapper lcopy = new ImageMoveWrapper(0,0, 301, 401, "data/L.png","L.png");
+		ImageMoveWrapper rcopy = new ImageMoveWrapper(0,0, 301, 401, "data/R.png","R.png");
+		
+		this.fxPane = new MoveEffectsPanel( viewPortImages, noVisibleImages, lcopy, rcopy, conf);
 	}
 
 	/**
@@ -102,6 +121,9 @@ public class GwtViewers implements EntryPoint {
 	 */
 	public void onModuleLoad() {
 
+//		RootPanel.get("label").add(nLabel);
+//		nLabel.setText(getVariable());
+		
 		final PushButton left = new PushButton(new Image("small_left.png"));
 		left.addClickHandler(new ClickHandler() {
 			
@@ -130,4 +152,6 @@ public class GwtViewers implements EntryPoint {
 		RootPanel.get("slider").add(sliderBar);
 
 	}
+
+	
 }

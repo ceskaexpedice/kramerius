@@ -1,5 +1,10 @@
 package cz.i.kramerius.gwtviewers.client.panels;
 
+/**
+ * Konfigurace viewPanelu
+ * @author pavels
+ *
+ */
 public class CoreConfiguration {
 
 	private int viewPortWidth;

@@ -5,6 +5,10 @@ import java.util.Vector;
 import org.adamtacy.client.ui.effects.core.NMorphStyle;
 import org.adamtacy.client.ui.effects.impl.css.Rule;
 
+/**
+ * Custom move image
+ * @author pavels
+ */
 public class CustomMove extends NMorphStyle {
 
 

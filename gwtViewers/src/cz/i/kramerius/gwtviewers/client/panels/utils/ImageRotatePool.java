@@ -6,43 +6,69 @@ import cz.i.kramerius.gwtviewers.client.panels.ImageMoveWrapper;
 
 
 
+/**
+ * Pool of images.  
+ * @author pavels
+ */
 public class ImageRotatePool {
 
-	
+	// visible images
 	private ArrayList<ImageMoveWrapper> viewPortImages = new ArrayList<ImageMoveWrapper>();
-	private ArrayList<ImageMoveWrapper> leftSide = new ArrayList<ImageMoveWrapper>();
+	private ArrayList<ImageMoveWrapper> noVisible = new ArrayList<ImageMoveWrapper>();
+	// leftSide
+	private ImageMoveWrapper left = null;
+	// right side
+	private ImageMoveWrapper right = null;
 	
 	private int viewPortSize=2;
 	
 	private int ukazovatko = 0;
 	
-	public ImageRotatePool(ImageMoveWrapper[] viewPortImages, ImageMoveWrapper[] novisibles) {
+	public ImageRotatePool(ImageMoveWrapper[] viewPortImages, ImageMoveWrapper[] novisibles, ImageMoveWrapper left, ImageMoveWrapper right, int viewPortSize) {
 		super();
 		for (ImageMoveWrapper img : viewPortImages) {
 			this.viewPortImages.add(img);
 		}
+		for (ImageMoveWrapper img : novisibles) {
+			this.noVisible.add(img);
+		}
+		this.left = left;
+		this.right = right;
 	}
 
 	
 	
-	
 	public boolean rollLeft() {
 		this.ukazovatko +=1;
-		if (this.viewPortImages.size() > this.viewPortSize) {
-			ImageMoveWrapper removed = this.viewPortImages.remove(0);
-			this.leftSide.add(removed);
-			return true;
-		} else return false;
+		// pravy do viewPort
+		this.viewPortImages.add(this.right);
 		
+		// posledni z novisible do pravy
+		ImageMoveWrapper lastNoVisible = this.noVisible.remove(this.noVisible.size()-1);
+		this.right = lastNoVisible;	
+		// levy do novisible
+		this.noVisible.add(0,this.left);
+		// posledni z viewPort do levy
+		this.left = this.viewPortImages.remove(0);
+		
+		assert(this.viewPortImages.size() == this.noVisible.size());
+		
+		return true;
 	}
 	
 	public boolean rollRight() {
 		this.ukazovatko -=1;
-		if (this.leftSide.size()>0) {
-			ImageMoveWrapper removed = this.leftSide.remove(leftSide.size()-1);
-			this.viewPortImages.add(0,removed);
-			return true;
-		} else return false;
+		// levy do viewPort
+		this.viewPortImages.add(0,this.left);
+		// prvni z novisible do levy
+		ImageMoveWrapper lastNoVisible = this.noVisible.remove(0);
+		this.left = lastNoVisible;	
+		// pravy do novisible
+		this.noVisible.add(this.right);
+		this.right = this.viewPortImages.remove(this.viewPortImages.size()-1);
+
+		assert(this.viewPortImages.size() == this.noVisible.size());
+		return true;
 	}
 
 	public ArrayList<ImageMoveWrapper> getViewPortImages() {
@@ -58,31 +84,28 @@ public class ImageRotatePool {
 	}
 
 
-
-
-	public ImageMoveWrapper getLeftSideImage(int i) {
-		return this.leftSide.get(i);
+	public ImageMoveWrapper getLeftSideImage() {
+		return this.left;
 	}
-
-
-
-
-	public ArrayList<ImageMoveWrapper> getLeftSideImages() {
-		return new ArrayList<ImageMoveWrapper>(this.leftSide);
+	
+	public ImageMoveWrapper getRightSideImage() {
+		return this.right;
 	}
+	
 
-
+	public ArrayList<ImageMoveWrapper> getNoVisibleImages() {
+		return new ArrayList<ImageMoveWrapper>(this.noVisible);
+	}
+	
 
 
 	public boolean canRollLeft() {
-		return (this.viewPortImages.size() > this.viewPortSize);
+		return true;
 	}
 
 
-
-
 	public boolean canRollRight() {
-		return this.leftSide.size() > 0;
+		return true;
 	}
 
 	

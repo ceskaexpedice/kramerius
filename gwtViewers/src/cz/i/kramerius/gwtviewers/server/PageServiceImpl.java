@@ -37,17 +37,6 @@ public class PageServiceImpl extends RemoteServiceServlet implements
 		pageMapping.put(7, "uuid_ce5c9630-a9b2-11dd-b265-000d606f5dc8");
 	}
 
-	// sample data
-	// uuid_ce5c9630-a9b2-11dd-b265-000d606f5dcA.jpg
-	// uuid_ce5c9630-a9b2-11dd-b265-000d606f5dc1.jpg
-	// uuid_ce5c9630-a9b2-11dd-b265-000d606f5dc2.jpg
-	// uuid_ce5c9630-a9b2-11dd-b265-000d606f5dc3.jpg
-	// uuid_ce5c9630-a9b2-11dd-b265-000d606f5dc4.jpg
-	// uuid_ce5c9630-a9b2-11dd-b265-000d606f5dc5.jpg
-	// uuid_ce5c9630-a9b2-11dd-b265-000d606f5dc6.jpg
-	// uuid_ce5c9630-a9b2-11dd-b265-000d606f5dc7.jpg
-	// uuid_ce5c9630-a9b2-11dd-b265-000d606f5dc8.jpg
-	// uuid_ce5c9630-a9b2-11dd-b265-000d606f5dc9.jpg
 
 	public Integer getNumberOfPages(String uuid) {
 		File folder = new File(this.imgFolder);

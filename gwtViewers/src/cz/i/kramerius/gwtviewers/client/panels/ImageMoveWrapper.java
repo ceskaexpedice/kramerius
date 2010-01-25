@@ -17,6 +17,9 @@ import com.google.gwt.user.client.ui.Widget;
 import cz.i.kramerius.gwtviewers.client.panels.fx.CustomMove;
 import cz.i.kramerius.gwtviewers.client.panels.utils.Point;
 
+/**
+ * Wrap image core and adds other new properties and fuctions
+ */
 public class ImageMoveWrapper  implements EffectSteppingHandler, EffectStartingHandler, EffectCompletedHandler {
 
 	private ImageCore imageCore;
@@ -26,6 +29,7 @@ public class ImageMoveWrapper  implements EffectSteppingHandler, EffectStartingH
 	public ImageMoveWrapper(int x, int y, int width, int height, String url, String imageIdent) {
 		this.imageCore = new ImageCore(x, y, width, height, url, imageIdent);
 	}
+
 	
 	public void setImageIdent(String imageIdent) {
 		imageCore.setImageIdent(imageIdent);
@@ -76,28 +80,14 @@ public class ImageMoveWrapper  implements EffectSteppingHandler, EffectStartingH
 		this.imageCore.setUrl(url);
 	}
 	
-	
-	
-	
-	public CustomMove moveRight(int x, int y) {
-		return null;
-	}
-	
-	public CustomMove moveRight() {
-		CustomMove customMove = new CustomMove(this.getX(), this.getY(), this.getX()-this.getWidth(), this.getY());
-		customMove.addEffectElement(this.imageCore.getWidget().getElement());
-		customMove.addEffectStartingHandler(this);
-		this.setX(this.getX() - this.getWidth());
-		return customMove;
-	}
 
 	public void disable() {
 		
 	}
 	
 	public void debugXY() {
-		System.out.println("X == "+this.getX());
-		System.out.println("Y =="+ this.getY());
+		String str = ""+this.getImageIdent()+" x,y = ["+this.getX()+","+this.getY()+"]";
+		System.out.println(str);
 	}
 
 	public boolean isVisible(int viewPortWidth, int viewPortHeight) {
@@ -127,18 +117,20 @@ public class ImageMoveWrapper  implements EffectSteppingHandler, EffectStartingH
 		return false;
 	}
 
-	public CustomMove moveLeft(int x, int y) {
+	public NEffect move(int x, int y) {
 		CustomMove customMove = new CustomMove(this.getX(), this.getY(), x, y);
 		customMove.addEffectElement(this.imageCore.getWidget().getElement());
+		customMove.setDuration(0.7);
 		this.setX(x);
 		this.setY(y);
 		return customMove;
 	}
 
-	public CustomMove moveLeft(Point point) {
+	public NEffect move(Point point) {
 		CustomMove customMove = new CustomMove(this.getX(), this.getY(), point.x, point.y);
 		customMove.addEffectElement(this.imageCore.getWidget().getElement());
 		customMove.addEffectStartingHandler(this);
+		customMove.setDuration(0.7);
 		this.setX(this.getX() + this.getWidth());
 		return customMove;
 	}
