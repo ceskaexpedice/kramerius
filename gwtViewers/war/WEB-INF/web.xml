@@ -22,7 +22,7 @@
   
   <servlet-mapping>
     <servlet-name>pageService</servlet-name>
-    <url-pattern>/viewer2/page</url-pattern>
+    <url-pattern>/gwtviewers/page</url-pattern>
   </servlet-mapping>
   
   <!-- Default page to serve -->
