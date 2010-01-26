@@ -66,11 +66,29 @@
 		</dependency>
 
 		<dependency>
-		<groupId>org.apache</groupId>
-		 <artifactId>xercesImpl</artifactId>
-		 <version>2.7.1</version>
+			<groupId>org.apache</groupId>
+			<artifactId>xercesImpl</artifactId>
+			<version>2.7.1</version>
 		</dependency>
-		
+
+		<dependency>
+			<groupId>com.foxtrottechnologies</groupId>
+			<artifactId>javadjvu</artifactId>
+			<version>0.8.09</version>
+		</dependency>
+
+		<dependency>
+			<groupId>com.foxtrottechnologies</groupId>
+			<artifactId>javadjvu</artifactId>
+			<version>0.8.09</version>
+		</dependency>
+
+		<dependency>
+			<groupId>com.foxtrottechnologies</groupId>
+			<artifactId>djvuframe</artifactId>
+			<version>0.8.09</version>
+
+		</dependency>
 	</dependencies>
 	<build>
 		<sourceDirectory>${basedir}/src/java</sourceDirectory>
