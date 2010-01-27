@@ -13,6 +13,8 @@ public class SimpleImageTO implements IsSerializable {
 	private int height;
 	private String identification;
 	private boolean lastPage;
+	private boolean firstPage;
+	private int index;
 	
 	public String getUrl() {
 		return url;
@@ -44,5 +46,18 @@ public class SimpleImageTO implements IsSerializable {
 	public void setLastPage(boolean lastPage) {
 		this.lastPage = lastPage;
 	}
-	
+	public boolean isFirstPage() {
+		return firstPage;
+	}
+	public void setFirstPage(boolean firstPage) {
+		this.firstPage = firstPage;
+	}
+	public int getIndex() {
+		return index;
+	}
+	public void setIndex(int index) {
+		this.index = index;
+	}
+
+	 
 }

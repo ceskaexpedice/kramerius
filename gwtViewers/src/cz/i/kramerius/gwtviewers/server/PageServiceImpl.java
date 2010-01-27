@@ -7,49 +7,126 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Set;
+import java.util.StringTokenizer;
+import java.util.WeakHashMap;
 
 import javax.imageio.ImageIO;
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.xpath.XPath;
+import javax.xml.xpath.XPathConstants;
+import javax.xml.xpath.XPathExpression;
+import javax.xml.xpath.XPathExpressionException;
+import javax.xml.xpath.XPathFactory;
+
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.NodeList;
+import org.xml.sax.SAXException;
 
 import com.google.gwt.user.server.rpc.RemoteServiceServlet;
 
 import cz.i.kramerius.gwtviewers.client.PageService;
 import cz.i.kramerius.gwtviewers.client.SimpleImageTO;
 
-public class PageServiceImpl extends RemoteServiceServlet implements
-		PageService {
+
+public class PageServiceImpl extends RemoteServiceServlet implements PageService {
+
+    public static String fedoraUrl = "http://194.108.215.227:8080/fedora";
+    public static String thumbnailUrl ="http://localhost:8080/search/thumb";
+	public static String defaultScale ="0.3";
 
 	private String imgFolder;
+	private String defaultUuid = "0eaa6730-9068-11dd-97de-000d606f5dc6";
+//	private String relsExtCommand = "http://194.108.215.227:8080/fedora/get/uuid:0eaa6730-9068-11dd-97de-000d606f5dc6/RELS-EXT";
+//	private String relsExtCommand = "http://194.108.215.227:8080/fedora/get/uuid:0eaa6730-9068-11dd-97de-000d606f5dc6/RELS-EXT";
+	
 
-	private HashMap<Integer, String> pageMapping = new HashMap<Integer, String>(); {
-		pageMapping.put(0, "uuid_ce5c9630-a9b2-11dd-b265-000d606f5dc1");
-		pageMapping.put(1, "uuid_ce5c9630-a9b2-11dd-b265-000d606f5dc2");
-		pageMapping.put(2, "uuid_ce5c9630-a9b2-11dd-b265-000d606f5dc3");
-		pageMapping.put(3, "uuid_ce5c9630-a9b2-11dd-b265-000d606f5dc4");
-		pageMapping.put(4, "uuid_ce5c9630-a9b2-11dd-b265-000d606f5dc5");
-		pageMapping.put(5, "uuid_ce5c9630-a9b2-11dd-b265-000d606f5dc6");
-		pageMapping.put(6, "uuid_ce5c9630-a9b2-11dd-b265-000d606f5dc7");
-		pageMapping.put(7, "uuid_ce5c9630-a9b2-11dd-b265-000d606f5dc8");
+	// dodelat nejakou vlastni implementaci !!
+	private WeakHashMap<String, ArrayList<SimpleImageTO>> cachedPages = new WeakHashMap<String, ArrayList<SimpleImageTO>>();
+
+	// 
+	public ArrayList<SimpleImageTO> getPages(String masterUuid) {
+		if (!this.cachedPages.containsKey(masterUuid)) {
+			this.cachedPages.put(masterUuid, readPage(masterUuid));
+		}
+		return this.cachedPages.get(masterUuid);
+	}
+	
+	public static String relsExtUrl(String uuid) {
+		return fedoraUrl +"/get/uuid:"+uuid+"/RELS-EXT";
+	}
+	
+	public static String thumbnail(String uuid, String scale) {
+		return thumbnailUrl+"?scale="+scale+"&uuid="+uuid;
+	}
+	
+	
+	public ArrayList<SimpleImageTO> readPage(String uuid) {
+		ArrayList<SimpleImageTO> pages = new ArrayList<SimpleImageTO>();
+		try {
+			URL url = new URL(relsExtUrl(uuid));
+			DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+			DocumentBuilder builder = factory.newDocumentBuilder();
+			Document parsed = builder.parse(url.openStream());
+
+			XPathFactory xpfactory = XPathFactory.newInstance();
+            XPath xpath = xpfactory.newXPath();
+            String xPathStr = "/RDF/Description/hasPage";
+            XPathExpression expr = xpath.compile(xPathStr);
+            NodeList nodes = (NodeList) expr.evaluate(parsed, XPathConstants.NODESET);
+            for (int i = 0,lastIndex=nodes.getLength()-1; i <= lastIndex; i++) {
+				Element elm = (Element) nodes.item(i);
+				//info:fedora/uuid:4308eb80-b03b-11dd-a0f6-000d606f5dc6
+				String attribute = elm.getAttribute("rdf:resource");
+				StringTokenizer tokenizer = new StringTokenizer(attribute,"/");
+				if (tokenizer.hasMoreTokens()) {
+					// CUNARNA - > parser dle EBNF - viz http://www.fedora-commons.org/confluence/display/FCR30/Fedora+Identifiers
+					String infoPart = tokenizer.nextToken();
+					String uuidPart = "";
+					if (tokenizer.hasMoreTokens()) uuidPart = tokenizer.nextToken(); 
+					uuidPart = uuidPart.substring(uuidPart.indexOf(':')+1);
+
+					SimpleImageTO imageTO = new SimpleImageTO();
+					imageTO.setFirstPage(i==0);
+					imageTO.setLastPage(i==lastIndex);
+					imageTO.setIdentification(uuidPart);
+					imageTO.setUrl(thumbnail(uuidPart, defaultScale));
+					// jak to dostat aniz bych to musel zase cist 
+					imageTO.setWidth(142);
+					imageTO.setHeight(200);
+					
+					pages.add(imageTO);
+				}
+            }
+			
+            
+		} catch (ParserConfigurationException e) {
+			e.printStackTrace();
+		} catch (MalformedURLException e) {
+			e.printStackTrace();
+		} catch (SAXException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		} catch (XPathExpressionException e) {
+			e.printStackTrace();
+		}
+		return pages;
 	}
 
-
 	public Integer getNumberOfPages(String uuid) {
-		File folder = new File(this.imgFolder);
-		File[] listFiles = folder.listFiles(new FileFilter() {
-			@Override
-			public boolean accept(File pathname) {
-				if ((pathname.getName().endsWith(".jpg"))
-						&& (pathname.isFile())) {
-					return true;
-				} else return false;
-			}
-		});
-		return listFiles.length;
+		List<SimpleImageTO> pages = getPages(uuid);
+		return pages.size();	
 	}
 
 	@Override
@@ -59,46 +136,13 @@ public class PageServiceImpl extends RemoteServiceServlet implements
 	}
 
 	public SimpleImageTO getPage(String uuid, int index) {
-		try {
-			String imgUuid = digestUUID(index);
-			return getPage(imgUuid);
-		} catch (IOException e) {
-			throw new RuntimeException(e);
-		}
+		throw new UnsupportedOperationException();
 	}
 
 	private SimpleImageTO getPage(String imgUuid) throws IOException {
-		String url = digestURL(imgUuid);
-		
-		InputStream is = readStream(imgUuid);
-		BufferedImage read = ImageIO.read(is);
-		int height = read.getHeight();
-		int width = read.getWidth();
-
-		SimpleImageTO ito = new SimpleImageTO(); {
-			ito.setUrl(url);
-			ito.setHeight(height);
-			ito.setWidth(width);
-		}
-		return ito;
+		throw new UnsupportedOperationException();
 	}
 
-	private String digestURL(String imgUuid) {
-		return "data/"+imgUuid+".jpg";
-	}
-
-	private String digestUUID(int index) {
-		return this.pageMapping.get(index);
-	}
-
-	private InputStream readStream(String imgUuid) {
-		try {
-			File imgFile = new File(this.imgFolder, imgUuid+".jpg");
-			return new FileInputStream(imgFile);
-		} catch (FileNotFoundException e) {
-			throw new RuntimeException("illegal uuid "+imgUuid);
-		}
-	}
 
 	public List<String> getPagesUUIDs(String masterUuid) {
 		String[] list = new File(this.imgFolder).list();
@@ -109,11 +153,12 @@ public class PageServiceImpl extends RemoteServiceServlet implements
 		return uuids;
 	}
 
+
+	
+	
+	@Override
 	public String getUUId(String masterUuid, int index) {
-		Set<Integer> keySet = pageMapping.keySet();
-		for (Integer key : keySet) {
-			if (key == index) return pageMapping.get(key);
-		}
+		// TODO Auto-generated method stub
 		return null;
 	}
 
@@ -125,17 +170,8 @@ public class PageServiceImpl extends RemoteServiceServlet implements
 
 	@Override
 	public ArrayList<SimpleImageTO> getPagesSet(String masterUuid) {
-		try {
-			List<String> pagesUUIDs = getPagesUUIDs("any-uuid");
-			ArrayList<SimpleImageTO> itos = new ArrayList<SimpleImageTO>();
-			for (String string : pagesUUIDs) {
-				string = string.substring(0, string.length()-4);
-				itos.add(getPage(string));
-			}
-			return itos;
-		} catch (IOException e) {
-			throw new RuntimeException(e.getMessage());
-		}
+		ArrayList<SimpleImageTO> pgs = getPages(masterUuid);
+		return pgs;
 	}
 	
 	
