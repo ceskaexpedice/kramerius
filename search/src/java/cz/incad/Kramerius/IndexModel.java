@@ -61,9 +61,22 @@ public class IndexModel extends HttpServlet {
             String pid = request.getParameter("pid");
             String model = request.getParameter("model");
             if (pid != null) {
-                IndexParams params = new IndexParams(pid, model);
-
-                indexByPid(pid, out, params);
+                boolean withParams = Boolean.parseBoolean(request.getParameter("params"));
+                if (withParams) {
+                    IndexParams params = new IndexParams(pid, model,
+                            request.getParameter("path"), 
+                            request.getParameter("parent_model"), 
+                            request.getParameter("parent_pid"), 
+                            request.getParameter("datum"),
+                            request.getParameter("root_pid"), 
+                            request.getParameter("root_model"),
+                            request.getParameter("root_title"),
+                            request.getParameter("language"));
+                    indexByPid(pid, out, params);
+                } else {
+                    IndexParams params = new IndexParams(pid, model);
+                    indexByPid(pid, out, params);
+                }
             } else {
                 doIndexModel(model, out);
             }
@@ -131,38 +144,34 @@ public class IndexModel extends HttpServlet {
                     if (!nodeName.contains("hasModel")) {
                         pids.add(childnode.getAttributes().getNamedItem("rdf:resource").getNodeValue().split("/")[1]);
                         models.add(KrameriusModels.toString(RDFModels.convertRDFToModel(nodeName)));
-                    }else{
-                        
+                    } else {
                     }
                 }
-                
-                for (int i=0; i<pids.size();i++) {
+
+                for (int i = 0; i < pids.size(); i++) {
                     String relpid = pids.get(i);
                     String model = models.get(i);
                     //if(model.equals("page")){
                     //    num += indexByPid(relpid, out, params);
                     //}else{
-                        IndexParams childParams = new IndexParams(relpid, model);
-                        childParams.merge(params);
-                        num += indexByPid(relpid, out, childParams);
-                    //}
-                    //    break;
+                    IndexParams childParams = new IndexParams(relpid, model);
+                    childParams.merge(params);
+                    num += indexByPid(relpid, out, childParams);
+                //}
+                //    break;
                 }
             }
             //out.println(params.toUrlString());
             urlStr = fedoraGSearch + "/rest?operation=updateIndex&action=fromPid&value=" + pid +
                     "&restXslt=updateOnlyResult&PAGESCOUNT=" + num + params.toUrlString();
-            out.print(totalIndexed + ", ");
+            out.println(totalIndexed);
             //out.println(urlStr);
             url = new java.net.URL(urlStr);
             java.io.BufferedReader in = new java.io.BufferedReader(new java.io.InputStreamReader(url.openStream()));
             String inputLine = in.readLine();
             while ((inputLine = in.readLine()) != null) {
-                
             }
             in.close();
-            /*
-             */
             totalIndexed++;
 
         } catch (Exception e) {

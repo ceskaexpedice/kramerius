@@ -17,7 +17,7 @@ import org.xml.sax.InputSource;
  * @author Administrator
  */
 public class UrlReader {
-    public static Document getDocument(String urlStr) {
+    public static Document getDocument(String urlStr) throws Exception {
         try {
             StringBuffer result = new StringBuffer();
             java.net.URL url = new java.net.URL(urlStr);
@@ -37,7 +37,7 @@ public class UrlReader {
 
         } catch (Exception e) {
             e.printStackTrace();
-            return null;
+            throw new Exception(e);
         }
     }
     

@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<setup>
+    <properties>
+        
+        <property name="fedoraHost" value="http://194.108.215.227:8080/fedora"/>
+        <property name="fedoraSolr" value="http://194.108.215.227:8080/solr/select/select"/>
+        
+    </properties>
+</setup>

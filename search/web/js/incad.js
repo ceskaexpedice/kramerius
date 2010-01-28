@@ -21,6 +21,7 @@ function showMoreLess(nav){
     $("#more" + nav).toggle();
 
 }
+
 function removeFilters()
 {
     var page = new PageQuery(window.location.search);
@@ -51,6 +52,39 @@ function addNavigation(navigator, value){
     window.location = searchPage + "?" + 
         page.toString() + "&fq=" + navigator + ":\"" + value + "\"";
     
+}
+
+function gotoPageOffsetInTree(value,div,fq){
+    //$("#s_"+div).fadeOut('normal');
+    $("#s_"+div).animate({marginLeft:'-500px'},'slow', loadPageOffsetInTree(value,div,fq));
+    
+}
+
+function  loadPageOffsetInTree(value,div,fq){
+    var page = new PageQuery(window.location.search);
+    page.setValue("offset", value);
+    	
+    var url = searchInTreePage + "?" + 
+        page.toString() + "&d="+div+ fq;
+    //$.post(url, function(xml) {
+    //    $("#"+div).html(xml).slideDown();
+    //});
+    $("#"+div).load(url, '', showNewContent(div));
+}
+
+ function showNewContent(div) {  
+        //$("#"+div).fadeIn('normal');  
+        $("#"+div).animate({marginLeft:'0px'},'slow');
+    }  
+
+function searchInTree(navigator, value, div){
+    var page = new PageQuery(window.location.search);
+    page.setValue("offset", "0");
+    var url = searchInTreePage + "?" + 
+        page.toString() + "&d="+div+"&fq=" + navigator + ":\"" + value + "\"";
+    $.post(url, function(xml) {
+        $("#"+div).html(xml);
+    });
 }
 /* odebrani navigace z url
  *

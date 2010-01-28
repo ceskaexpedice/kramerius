@@ -2,8 +2,16 @@
 <%
 // zaklad od kamila 
             String expandedPaginationStr = "";
-            int numHits = 10;
+            int numHits = Integer.parseInt((String) request.getAttribute("rows"));
             int numDocs = Integer.parseInt((String) request.getAttribute("numDocs"));
+            String div = (String) request.getParameter("d");
+            String filters = (String) request.getAttribute("filters");
+            String offsetUrl = "";
+            if(div==null){
+                offsetUrl = "javascript:gotoPageOffset(%s);";
+            }else{
+                offsetUrl = "javascript:gotoPageOffsetInTree(%s, '"+div+"', '"+filters+"');";
+            }
             if (numDocs > numHits) {
                 String navigationPageTemplate = "";
                 int N_WIDTH = 10;
@@ -30,7 +38,7 @@
                 }
                 StringBuffer navigationPages = new StringBuffer();
                 if (nStart > 1) { // skok na zacatek
-                    navigationPages.append("<a href='javascript:gotoPageOffset(0)'>&laquo;</a> ");
+                    navigationPages.append("<a href='"+String.format(offsetUrl, "0")+"'>&laquo;</a> ");
                 }
                 /*
                  *             if (offset >= numHits) { // predesla strana
@@ -51,14 +59,13 @@
                         navigationPages.append("<b>" + pageIndex + "</b> ");
                     } else {
                         //navigationPages.append("<a href=\"javascript:gotoPageOffset(" + String.valueOf(nStart) + ");\">" + (nStart + 1) + "-" + nEnd + "</a>");
-                        navigationPages.append("<a href='javascript:gotoPageOffset(" +
-                                String.valueOf(nStart) + ");'>" + pageIndex + "</a> ");
+                        
+                        navigationPages.append("<a href=\""+String.format(offsetUrl, String.valueOf(nStart))+"\">" + pageIndex + "</a> ");
                     }
                 }
                 if (offset < (numDocs - numHits)) { // dalsi strana
                     //navigationPages.append(" | <a href=\"").append(navigationPageTemplate.replace("INSERT_OFFSET", String.valueOf(offset + numHits))).append("\">&gt;</a>");
-                    navigationPages.append("<a class=\"next\" href=\"javascript:gotoPageOffset(" +
-                            (offset + numHits) + ");\">&gt;&gt;</a> ");
+                    navigationPages.append("<a class=\"next\" href=\""+String.format(offsetUrl, (offset + numHits))+"\">&gt;&gt;</a> ");
                 }
                 expandedPaginationStr = navigationPages.toString();
             }

@@ -1,0 +1,158 @@
+<!-- 
+    Document   : dateAxis
+    Created on : 20.1.2010, 14:10:20
+    Author     : Administrator
+-->
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+    <title>date axis vertical</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <link rel="stylesheet" href="css/styles.css" type="text/css">
+    <link type="text/css" href="css/themes/base/ui.base.css" rel="stylesheet" />
+    <link type="text/css" href="css/themes/base/ui.theme.css" rel="stylesheet" />
+    <link type="text/css" href="css/themes/base/ui.dialog.css" rel="stylesheet" />
+    <link type="text/css" href="css/themes/base/ui.slider.css" rel="stylesheet" />
+    <link rel="stylesheet" href="css/dateAxisV.css" type="text/css">
+        
+        
+    <script type="text/javascript" src="js/jquery-1.3.2.min.js"></script>
+    <script src="js/jquery-ui-1.7.2.custom.min.js" language="javascript" type="text/javascript"></script>
+    
+    <script src="js/incad.js" language="JavaScript" type="text/javascript"></script>
+    <script src="js/pageQuery.js" language="JavaScript" type="text/javascript"></script>
+    <script src="js/dateAxis_formatV.js" language="javascript" type="text/javascript"></script>
+    <script src="js/dateAxisV.js" language="javascript" type="text/javascript"></script>
+    
+ 
+ 
+ <script language="JavaScript" type="text/javascript">
+        var pagesTitle = "Stránka";
+        var unitsTitle = "Volná část monografie";
+        var volumesTitle = "svazek";
+        var issuesTitle = "???Issue???";
+        var internalPartTitle = "Vnitřní součást";
+        var readingPages = "Načítám stránky";
+        var readingUnits = "Načítám části";
+        var readingVolumes = "Načítám ročníky";
+        var readingIssues = "Načítám ročníky";
+        var readingIntarnalParts = "???Načítám kapitoly???";
+        var language = "";
+        var searchPage = "./";
+        
+        var searchInTreePage = "inc/searchWithoutFacets.jsp";
+        
+        var fromField = "f1";
+        var toField = "f2";
+        var dateAxisAdditionalParams = "";
+        var fromStr = "od";
+        var toStr = "do";
+        var selectStart = "";
+        var selectEnd = "";
+    </script>
+<script>
+    var times = new Array();
+    var sizes = new Array();
+    var maximums = new Array();
+    times[0] = {"1800":[160695, '1800','1899'], "1900":[79589, '1900','1999']};
+    maximums[0] = 160695;  
+    times[1] = {"1810":[381, '1810','1819'], "1820":[1507, '1820','1829'], "1830":[9317, '1830','1839'], "1840":[13172, '1840','1849'], "1850":[6011, '1850','1859'], "1860":[20933, '1860','1869'], "1870":[40521, '1870','1879'], "1880":[31289, '1880','1889'], "1890":[37564, '1890','1899'], "1900":[46241, '1900','1909'], "1910":[20879, '1910','1919'], "1920":[12469, '1920','1929']};
+    maximums[1] = 46241;  
+    times[2] = {"1810":[0, '1810', '1810'], "1811":[0, '1811', '1811'], "1812":[0, '1812', '1812'], "1813":[193, '1813', '1813'], "1814":[188, '1814', '1814'], "1815":[0, '1815', '1815'], "1816":[0, '1816', '1816'], "1817":[0, '1817', '1817'], "1818":[0, '1818', '1818'], "1819":[0, '1819', '1819'], "1820":[0, '1820', '1820'], "1821":[0, '1821', '1821'], "1822":[0, '1822', '1822'], "1823":[0, '1823', '1823'], "1824":[0, '1824', '1824'], "1825":[0, '1825', '1825'], "1826":[500, '1826', '1826'], "1827":[588, '1827', '1827'], "1828":[0, '1828', '1828'], "1829":[419, '1829', '1829'], "1830":[0, '1830', '1830'], "1831":[533, '1831', '1831'], "1832":[1016, '1832', '1832'], "1833":[967, '1833', '1833'], "1834":[985, '1834', '1834'], "1835":[1375, '1835', '1835'], "1836":[910, '1836', '1836'], "1837":[882, '1837', '1837'], "1838":[1760, '1838', '1838'], "1839":[889, '1839', '1839'], "1840":[973, '1840', '1840'], "1841":[884, '1841', '1841'], "1842":[1012, '1842', '1842'], "1843":[1579, '1843', '1843'], "1844":[1138, '1844', '1844'], "1845":[1097, '1845', '1845'], "1846":[1289, '1846', '1846'], "1847":[2172, '1847', '1847'], "1848":[2032, '1848', '1848'], "1849":[996, '1849', '1849'], "1850":[733, '1850', '1850'], "1851":[1747, '1851', '1851'], "1852":[552, '1852', '1852'], "1853":[0, '1853', '1853'], "1854":[0, '1854', '1854'], "1855":[448, '1855', '1855'], "1856":[778, '1856', '1856'], "1857":[729, '1857', '1857'], "1858":[566, '1858', '1858'], "1859":[458, '1859', '1859'], "1860":[742, '1860', '1860'], "1861":[1515, '1861', '1861'], "1862":[1222, '1862', '1862'], "1863":[2503, '1863', '1863'], "1864":[2619, '1864', '1864'], "1865":[2341, '1865', '1865'], "1866":[2277, '1866', '1866'], "1867":[2129, '1867', '1867'], "1868":[2472, '1868', '1868'], "1869":[3113, '1869', '1869'], "1870":[3562, '1870', '1870'], "1871":[4094, '1871', '1871'], "1872":[3774, '1872', '1872'], "1873":[4181, '1873', '1873'], "1874":[4782, '1874', '1874'], "1875":[4602, '1875', '1875'], "1876":[3569, '1876', '1876'], "1877":[4441, '1877', '1877'], "1878":[3426, '1878', '1878'], "1879":[4090, '1879', '1879'], "1880":[3373, '1880', '1880'], "1881":[3556, '1881', '1881'], "1882":[3401, '1882', '1882'], "1883":[2593, '1883', '1883'], "1884":[3132, '1884', '1884'], "1885":[2883, '1885', '1885'], "1886":[2873, '1886', '1886'], "1887":[2549, '1887', '1887'], "1888":[2679, '1888', '1888'], "1889":[4250, '1889', '1889'], "1890":[5997, '1890', '1890'], "1891":[4269, '1891', '1891'], "1892":[3849, '1892', '1892'], "1893":[4960, '1893', '1893'], "1894":[2891, '1894', '1894'], "1895":[3065, '1895', '1895'], "1896":[3653, '1896', '1896'], "1897":[3527, '1897', '1897'], "1898":[2492, '1898', '1898'], "1899":[2861, '1899', '1899'], "1900":[2618, '1900', '1900'], "1901":[4601, '1901', '1901'], "1902":[5417, '1902', '1902'], "1903":[5508, '1903', '1903'], "1904":[2720, '1904', '1904'], "1905":[3665, '1905', '1905'], "1906":[7171, '1906', '1906'], "1907":[2856, '1907', '1907'], "1908":[2870, '1908', '1908'], "1909":[8815, '1909', '1909'], "1910":[2769, '1910', '1910'], "1911":[3936, '1911', '1911'], "1912":[3375, '1912', '1912'], "1913":[2623, '1913', '1913'], "1914":[2073, '1914', '1914'], "1915":[1116, '1915', '1915'], "1916":[1363, '1916', '1916'], "1917":[1072, '1917', '1917'], "1918":[2204, '1918', '1918'], "1919":[348, '1919', '1919'], "1920":[300, '1920', '1920'], "1921":[640, '1921', '1921'], "1922":[489, '1922', '1922'], "1923":[850, '1923', '1923'], "1924":[1009, '1924', '1924'], "1925":[1376, '1925', '1925'], "1926":[7805, '1926', '1926'], "1927":[0, '1927', '1927'], "1928":[0, '1928', '1928'], "1929":[0, '1929', '1929']};
+    maximums[2] = 8815;
+    var level = 1;
+    var levels = 2;
+    var zooms = new Array();
+    zooms[0] = [1810, 1929];
+    zooms[1] = [1810, 1929];
+    var startTime = 1813;
+    var endTime = 1926;
+    var shortMonths= ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    var longMonths= ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+    var shortDays= ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+    var longDays= ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+    dateAxisActive = true;
+    
+    var showStaticAxis = true;
+    var maxCount;
+    startTime = zooms[0][0];
+    endTime = zooms[0][1];
+
+
+$(document).ready(function(){
+ 
+        $("#content-slider").slider({
+            animate: false,
+            step: 1,
+            orientation: 'vertical',
+            change: scrollSliderChange,
+            slide: scrollSliderSlide
+        });
+        $("#select-handle-top").draggable({
+            containment: '#constraint_bottom',
+            axis:'y',
+            drag: selectHandleChangeLeft,
+            stop: setSelectContainmentBottom
+        });
+        $("#select-handle-bottom").draggable({
+            containment: '#constraint_top',
+            axis:'y',
+            drag: selectHandleChangeRight,
+            stop: setSelectContainmentTop
+        });
+      
+        initDateAxis();
+
+    });
+    
+    var resizeTimer = null;
+    $(window).bind('resize', function() {
+        if(dateAxisActive){
+            if (resizeTimer) clearTimeout(resizeTimer);
+            resizeTimer = setTimeout(positionCurtains, 100);
+        }
+    });
+    
+    
+</script>
+
+</head>
+<body>
+<div id="select-handle-top" class="da_select_handle" ><img src="img/resize.png" style="top:-8px;position:absolute;left:0px;" /></div>
+<div id="select-handle-bottom" class="da_select_handle"><img src="img/resize.png" style="top:-8px;position:absolute;left:0px;" /></div>
+<div id="resizable-top" class="ui-state-active"></div>
+<div id="resizable-bottom" class="ui-state-active"></div>
+<div id="bubbleDiv" class="da_bubble" ><div id="bubbleText" ></div></div>
+<div id="test"></div>
+<div id="img_resize_bottom" class="da_resize"></div>
+<div id="img_resize_top" class="da_resize"></div>
+<div id="constraint_bottom" style="border:1px red solid;position:absolute;z-index:0;visibility:hidden;"></div>
+<div id="constraint_top" style="border:1px red solid;position:absolute;z-index:0;visibility:hidden;"></div>
+
+<div id="selectDiv" class="da_select" style="display:none;" ></div>
+Od: <input class="da_input" id="f1" 
+        size="4" type="text" value="" />
+        
+        Do: <input class="da_input" id="f2" 
+        size="4" type="text" value=""  /> 
+<a href="javascript:doFilter();" class="navEntryLink">použit</a>
+
+<br />
+<div style="position:relative;">
+<div id="content-scroll" style="float:left;" >
+    <div class="da_container" id="da_container">
+    </div>
+    <div class="da_range_container" id="da_range_container">
+    </div>
+</div>
+<div id="content-slider" style="float:left;"></div>
+</div>
+<div id="da_zoom" style="display:none;" >
+<a href="javascript:zoomOut();" >zoom out</a>
+</div>
+
+
+
+
+</body>
+</html>

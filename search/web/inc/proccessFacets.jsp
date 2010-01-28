@@ -1,17 +1,13 @@
-<%@ page contentType="text/html" pageEncoding="UTF-8" %>
+<%@ page pageEncoding="UTF-8" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/xml" prefix="x" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt" %>
 <%@ page isELIgnored="false" %>
 <%@ page import="java.util.*, cz.incad.Solr.CzechComparator, cz.incad.Solr.*" %>
-
 <%
             Map<String, Facet> facets = new HashMap<String, Facet>();
-            java.util.Comparator czechComparator = new CzechComparator();
-
             String abeceda = "A,Á,B,C,Č,D,Ď,E,É,Ě,F,G,H,CH,I,Í,J,K,L,M,N,Ň,O,Ó,P,Q,R,Ř,S,Š,T,Ť,U,Ú,Ů,V,W,X,Y,Ý,Z,Ž,0,1,2,3,4,5,6,7,8,9";
             String[] abecedaArray = abeceda.split(",");
-            
 %>
 <x:forEach var="nav" select="$doc/response/lst[@name='facet_counts']/lst[@name='facet_fields']/lst">
     <c:set var="facetName"><x:out select="@name"/></c:set>
@@ -45,10 +41,7 @@
             <c:set var="facetUrl" >
                 javascript:addNavigation('<x:out select="$nav/@name"/>', '<x:out select="@name"/>');
             </c:set>
-            <jsp:useBean id="facetUrl" type="java.lang.String" />
-            
-            
-            <%
+            <jsp:useBean id="facetUrl" type="java.lang.String" /><%
             FacetInfo facetInfo = new FacetInfo(facetLabel, Integer.parseInt(facetCount), facetUrl);
             facet.addFacetInfo(facetInfo);
             %>
@@ -78,6 +71,4 @@
     <%
             facets.put(facetName, facet);
     %>
-    
 </x:forEach>
-  

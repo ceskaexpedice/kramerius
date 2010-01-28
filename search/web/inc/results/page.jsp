@@ -11,10 +11,10 @@
                     ./item.jsp?pid=<x:out select="./str[@name='PID']"/>
                 </c:set>
                 <c:set var="itemUrl" >
-                    <c:out value="${itemUrl}" escapeXml="false" />&parentPid=<x:out select="substring-after(./str[@name='parent_pid'], 'info:fedora/')"/>
+                    <c:out value="${itemUrl}" escapeXml="false" />&parentPid=<x:out select="./str[@name='root_pid']"/>
                 </c:set>
                 <c:set var="itemUrl" >
-                    <c:out value="${itemUrl}" escapeXml="false" />&parentModel=<x:out select="substring-after(./str[@name='parent_model'], 'info:fedora/')"/>
+                    <c:out value="${itemUrl}" escapeXml="false" />&parentModel=<x:out select="./str[@name='parent_model']"/>
                 </c:set>
                 <c:set var="itemUrl" >
                     <c:out value="${itemUrl}" escapeXml="false" />&model=info:fedora/model:page&page=<x:out select="./arr[@name='dc.title']"/>
@@ -45,5 +45,5 @@
             </x:otherwise>
             </x:choose>
     </span>
-    <span class="textpole"><a target="_blank" href="http://194.108.215.227:8080/fedoragsearch/rest?operation=updateIndex&action=fromPid&value=<x:out select="./str[@name='PID']"/>">re-index</a></span>
+    
 </div>

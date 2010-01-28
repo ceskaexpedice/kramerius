@@ -1,8 +1,9 @@
-<%@ page contentType="text/html" pageEncoding="UTF-8" %>
+<%@ page pageEncoding="UTF-8" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/xml" prefix="x" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt" %>
 <%@ page isELIgnored="false"%>
+
 <%
             String fromField = "f1";
             String toField = "f2";
@@ -23,21 +24,20 @@
     <link type="text/css" href="css/themes/base/ui.base.css" rel="stylesheet" />
     <link type="text/css" href="css/themes/base/ui.theme.css" rel="stylesheet" />
     <link type="text/css" href="css/themes/base/ui.dialog.css" rel="stylesheet" />
-    <link rel="stylesheet" href="css/dateAxis.css" type="text/css">
+    <link type="text/css" href="css/themes/base/ui.slider.css" rel="stylesheet" />
+    <link rel="stylesheet" href="css/dateAxisV.css" type="text/css">
     <link rel="stylesheet" href="css/dtree.css" type="text/css">
     
-    <script language="JavaScript" type="text/javascript" src="js/add.js"></script>
-    <script language="JavaScript" type="text/javascript" src="js/ext_ontheflypdf.js"></script>
-    <script type="text/javascript" src="js/jquery-1.3.2.min.js"></script>
+    <script src="js/jquery-1.3.2.min.js" type="text/javascript"></script>
     <script src="js/jquery-ui-1.7.2.custom.min.js" language="javascript" type="text/javascript"></script>
-    <script type="text/javascript" src="js/jquery.cookie.js"></script>
-    <script type="text/javascript" src="js/jquery.history.js"></script>
-    <script type="text/javascript" src="js/jquery.scrollTo.js"></script>
+    <script src="js/jquery.cookie.js" type="text/javascript"></script>
+    <script  src="js/jquery.history.js" type="text/javascript"></script>
+    <script  src="js/jquery.scrollTo.js" type="text/javascript"></script>
     
-    <script language="JavaScript" type="text/javascript" src="js/incad.js"></script>
-    <script language="JavaScript" type="text/javascript" src="js/pageQuery.js"></script>
-    <script src="js/dateAxis_format.js" language="javascript" type="text/javascript"></script>
-    <script src="js/dateAxis_jquery.js" language="javascript" type="text/javascript"></script>
+    <script src="js/pageQuery.js" language="JavaScript" type="text/javascript"></script>
+    <script src="js/incad.js" language="JavaScript" type="text/javascript"></script>
+    <script src="js/dateAxis_formatV.js" language="javascript" type="text/javascript"></script>
+    <script src="js/dateAxisV.js" language="javascript" type="text/javascript"></script>
     <script src="js/dtree.js" language="javascript" type="text/javascript"></script>
     
     <title>Kramerius 4</title>
@@ -54,6 +54,8 @@
         var readingIntarnalParts = "<fmt:message>Načítám kapitoly</fmt:message>";
         var language = "<c:out value="${param.language}" />";
         var searchPage = "./";
+        
+        var searchInTreePage = "inc/searchWithoutFacets.jsp";
         
         var fromField = "<%=fromField%>";
         var toField = "<%=toField%>";

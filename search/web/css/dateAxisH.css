@@ -121,7 +121,7 @@
       position: absolute;
       top: 0px;
       left: 0px;
-      background: transparent url(../img/scrollbar-handle-horizontal.png) no-repeat;
+      background: transparent url(../img/scrollbar-handle-vertical.png) no-repeat;
       background:#457AB1;
       overflow:hidden;
     }

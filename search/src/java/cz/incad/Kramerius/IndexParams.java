@@ -4,14 +4,12 @@
  */
 package cz.incad.Kramerius;
 
-import java.lang.reflect.Field;
+
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.Map;
 import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpression;
@@ -19,7 +17,6 @@ import javax.xml.xpath.XPathFactory;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
 
 /**
  *
@@ -39,6 +36,24 @@ public class IndexParams {
 
     public IndexParams(String pid, String model) {
         init(pid, model);
+    }
+
+    public IndexParams(String pid, String model,
+            String path, String _parent_model, String _parent_pid, String _datum,
+            String _root_pid, String _root_model, String _root_title, String _language) {
+
+        paramsMap.put("PATH", path);
+
+        paramsMap.put("PARENT_MODEL", _parent_model);
+        paramsMap.put("PARENT_PID", _parent_pid);
+
+        paramsMap.put("DATUM", _datum);
+        parseDatum(_datum);
+
+        paramsMap.put("ROOT_PID", _root_pid);
+        paramsMap.put("ROOT_MODEL", _root_model);
+        paramsMap.put("ROOT_TITLE", _root_title);
+        paramsMap.put("LANGUAGE", _language);
     }
 
     public String toUrlString() {
@@ -63,6 +78,8 @@ public class IndexParams {
             } else {
                 paramsMap.put("PATH", parentParams.paramsMap.get("PATH"));
             }
+            
+            paramsMap.put("LEVEL", Integer.toString(paramsMap.get("PATH").split("/").length - 1));
             paramsMap.put("PARENT_MODEL", parentParams.paramsMap.get("MODEL"));
             paramsMap.put("PARENT_PID", parentParams.paramsMap.get("PID"));
 
@@ -73,6 +90,9 @@ public class IndexParams {
             paramsMap.put("ROOT_PID", parentParams.paramsMap.get("ROOT_PID"));
             paramsMap.put("ROOT_MODEL", parentParams.paramsMap.get("ROOT_MODEL"));
             paramsMap.put("ROOT_TITLE", parentParams.paramsMap.get("ROOT_TITLE"));
+            if (parentParams.paramsMap.containsKey("LANGUAGE")) {
+                paramsMap.put("LANGUAGE", parentParams.paramsMap.get("LANGUAGE"));
+            }
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -97,6 +117,7 @@ public class IndexParams {
                 paramsMap.put("DATUM_BEGIN", begin);
                 paramsMap.put("DATUM_END", end);
             } catch (NumberFormatException ex) {
+                
             }
         }
 
@@ -115,6 +136,8 @@ public class IndexParams {
         try {
             //System.out.println(model);
             paramsMap.put("PATH", model);
+            paramsMap.put("LEVEL", "0");
+            
             paramsMap.put("PID", pid);
             paramsMap.put("ROOT_PID", pid);
             paramsMap.put("MODEL", model);
@@ -150,7 +173,15 @@ public class IndexParams {
                 paramsMap.put("ROOT_TITLE", node.getNodeValue());
             }
 
+            xPathStr = "/modsCollection/mods/language/languageTerm/text()";
+            expr = xpath.compile(xPathStr);
+            node = (Node) expr.evaluate(contentDom, XPathConstants.NODE);
+            if (node != null) {
+                paramsMap.put("LANGUAGE", node.getNodeValue());
+            }
+
         } catch (Exception e) {
+            System.out.println("IndexParams.init error: " + model + " " + pid);
             e.printStackTrace();
         }
     }

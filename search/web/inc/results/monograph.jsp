@@ -15,7 +15,5 @@
     <a href="./item.jsp?pid=<c:out value="${uuid}"/>&model=info:fedora/model:monograph"><b><x:out select="./arr[@name='dc.title']"/></b></a>
     <span class="textpole">(<fmt:message><x:out select="./str[@name='fedora.model']"/></fmt:message>)</span>
     <span id="pages_<c:out value="${uuidSimple}"/>" class="pages"><x:out select="./str[@name='pages_count']"/></span>
-    <span class="textpole"><a href="javascript:reIndex('<c:out value="${uuid}"/>', '<c:out value="${uuidSimple}"/>', false);">re-index</a></span>
-    <span class="textpole"><a href="javascript:reIndex('<c:out value="${uuid}"/>', '<c:out value="${uuidSimple}"/>', true);">re-index full</a></span>
-    <span id="reindex_<c:out value="${uuidSimple}"/>"></span>
+    
 </div>

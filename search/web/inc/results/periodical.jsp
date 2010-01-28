@@ -25,6 +25,5 @@
     </span>
     <span class="textpole">(<fmt:message>info:fedora/model:periodical</fmt:message>)</span>
     <span id="pages_<c:out value="${uuidSimple}"/>" class="pages"><x:out select="./str[@name='pages_count']"/> </span>
-    <span class="textpole"><a href="javascript:reIndex('<c:out value="${uuid}"/>', '<c:out value="${uuidSimple}"/>');">re-index</a></span>
-    <span id="reindex_<c:out value="${uuidSimple}"/>"></span>
+    
 </div>

@@ -1,0 +1,155 @@
+#content-scroll {
+    width: 300px;
+    height: 400px;
+    margin-left: 10px;
+    overflow: hidden;
+    border: solid 1px #dddddd;
+    background: white;
+}
+
+.da_container{
+    border:solid 1px #CCCCCC;
+    height:400px;
+    width:150px;
+    padding:2px;
+    margin:0px;
+    float:left;
+    z-index:2;
+}
+
+.da_range_container{
+    position:relative;
+    height:400px;
+    padding:2px;
+    margin:0px;
+    float:left;
+    z-index:2;
+}
+
+.da_range_bar{
+    background:green;
+    width: 3px;
+    top: 2px;
+    cursor: pointer;
+    overflow:hidden;
+    margin:0px;
+    position:absolute;
+}
+
+.da_group{
+    padding:0px;
+    margin:0px;
+    position:relative;
+    left:80px;
+    border-top:solid 1px #EEEEEE;
+    border-right:solid 1px #EEEEEE;
+    width: 70px;
+    z-index:2;
+}
+
+.da_group_title{
+    vertical-align:middle;
+    border-top:solid 1px #EEEEEE;
+    position:absolute;
+    top:1px;
+    left:-70px;
+    width: 70px;
+}
+
+.da_bar_container{
+    
+    height: 5px;
+    padding:0px;
+    margin:0px;
+    cursor: pointer;
+    overflow:hidden;
+    width:100%;
+}
+
+.da_bar{
+    background:blue;
+    height: 5px;
+    padding:0px;
+    margin:0px;
+    cursor: pointer;
+    overflow:hidden;
+}
+
+
+.da_space{
+    overflow:hidden;
+    height: 2px;
+    width: 20px;
+    padding:0px;
+    margin:0px;
+}
+
+.da_bubble{
+    position: absolute;
+    background:green;
+    color:white;
+    border: 1px solid #333333;
+    left:-100px;
+    top:-10px;
+    
+    padding:2px;
+    z-index:3;
+}
+
+.clear{
+    float:none;
+    clear:both;
+}
+
+/* scroll elements */
+.da_select_handle{
+    height:3px;
+    left:0px;
+    position:absolute;
+    z-index:4;
+    cursor:n-resize;
+}
+
+#content-slider {
+    width: 6px;
+    background: #BBBBBB;
+    position: relative;
+    /*background: transparent url(../img/scrollbar-track.png);*/
+    height: 110px;
+    font-size:21px;
+    margin-left:4px;
+}
+
+.ui-slider .ui-slider-handle {
+    width: 1.0em;
+    height: 1.0em;
+}
+
+#resizable-top, #resizable-bottom { 
+    background-position: top left; 
+    width: 14px; 
+    height: 0px; 
+    background:#a9ff03;
+    filter:alpha(opacity=50);
+    opacity:.50;
+    position: absolute;
+    top: 0px;
+    left: 0px; 
+}
+#resizable-top{
+    border-bottom: 1px solid #004400;
+}
+#resizable-bottom{
+    border-top: 1px solid #004400;
+}
+.da_resize{
+    top: -20px;
+    left: -20px; 
+    position: absolute;
+    padding:0px;
+    margin:0px;
+    width:10px;
+}
+
+/* end scroll elements */
+

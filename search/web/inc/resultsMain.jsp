@@ -8,14 +8,16 @@
 <c:set var="PIDquerys" scope="request"></c:set>
 <c:set var="PIDs" scope="request"></c:set>
 <c:set var="title_origs" scope="request"></c:set>
-<ul>
-<x:forEach select="$doc/response/result/doc">
-    <li>
+<div id="results_main">
+    <x:forEach varStatus="status" select="$doc/response/result/doc">
+    
+        <div id="result" class="r<c:out value="${status.count % 2}" />">
         <c:set var="uuid" >
             <x:out select="./str[@name='PID']"/>
         </c:set>
         <c:set var="uuidSimple" >
             <x:out select="substring-after(./str[@name='PID'], 'uuid:')"/>
+        </c:set>
             
             <c:set var="urlBiblioMods" >
                 <c:out value="${fedoraHost}" />/get/<c:out value="${uuid}" />/BIBLIO_MODS
@@ -23,7 +25,9 @@
             <c:set var="urlSolr" >
                 <c:out value="${fedoraSolr}" />?q=PID:"<c:out value="${uuid}" />"
             </c:set>
-        </c:set>
+            <c:set var="urlReindex" >
+                IndexModel?full=true&model=<x:out select="substring(./str[@name='fedora.model'], 19)" />&pid=<c:out value="${uuid}" />
+            </c:set>
     <x:choose>
         
         <x:when select="./str[@name='fedora.model'] = 'info:fedora/model:monograph'">
@@ -49,10 +53,11 @@
         </x:otherwise>
     </x:choose>
     <a href='<c:out value="${urlBiblioMods}" />' target="fedora">biblio_mods</a> 
-    <a href='<c:out value="${urlSolr}" />' target="fedora">solr</a>
-    </li>
+    <a href='<c:out value="${urlSolr}" />' target="solr">solr</a>
+    <a href='<c:out value="${urlReindex}" />' target="reindex">reindex</a>
+    </div>
 </x:forEach>
-</ul>
+</div>
 
 <script type="text/javascript"> 
         $(document).ready(function(){

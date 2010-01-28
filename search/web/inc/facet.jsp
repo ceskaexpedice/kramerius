@@ -5,7 +5,9 @@
 <%@ page isELIgnored="false" %>
 <%@ page import="java.util.*, cz.incad.Solr.CzechComparator, cz.incad.Solr.*" %>
 
-<% if(currentFacet.getFacetsNumber()>0){%>
+<% 
+Facet currentFacet = facets.get(currentFacetName);
+if(currentFacet.getFacetsNumber()>0){%>
 <div class="facet">
     <div class="facetTitle">
         <a title="" href="">
@@ -14,13 +16,14 @@
     </div>    
     <%
             try {
-                if (currentFacet.name.contains("abeceda") || currentFacet.name.contains("rok")) {
-                    Collections.sort(currentFacet.infos, czechComparator);
+                if (currentFacet.name.contains("abeceda") || 
+                        currentFacet.name.contains("rok") ||
+                        currentFacet.name.equals("path")) {
+                    Collections.sort(currentFacet.infos, new CzechComparator());
                 }
                 Iterator stepper = currentFacet.infos.iterator();
                 while (stepper.hasNext()) {
                     FacetInfo current = (FacetInfo) stepper.next();
-
                     if (current != null) {
     %>
     <div>
