@@ -37,6 +37,8 @@ import com.google.gwt.user.server.rpc.RemoteServiceServlet;
 
 import cz.i.kramerius.gwtviewers.client.PageService;
 import cz.i.kramerius.gwtviewers.client.SimpleImageTO;
+import cz.i.kramerius.gwtviewers.server.pid.LexerException;
+import cz.i.kramerius.gwtviewers.server.pid.PIDParser;
 
 
 public class PageServiceImpl extends RemoteServiceServlet implements PageService {
@@ -86,25 +88,21 @@ public class PageServiceImpl extends RemoteServiceServlet implements PageService
 				Element elm = (Element) nodes.item(i);
 				//info:fedora/uuid:4308eb80-b03b-11dd-a0f6-000d606f5dc6
 				String attribute = elm.getAttribute("rdf:resource");
-				StringTokenizer tokenizer = new StringTokenizer(attribute,"/");
-				if (tokenizer.hasMoreTokens()) {
-					// CUNARNA - > parser dle EBNF - viz http://www.fedora-commons.org/confluence/display/FCR30/Fedora+Identifiers
-					String infoPart = tokenizer.nextToken();
-					String uuidPart = "";
-					if (tokenizer.hasMoreTokens()) uuidPart = tokenizer.nextToken(); 
-					uuidPart = uuidPart.substring(uuidPart.indexOf(':')+1);
-
-					SimpleImageTO imageTO = new SimpleImageTO();
-					imageTO.setFirstPage(i==0);
-					imageTO.setLastPage(i==lastIndex);
-					imageTO.setIdentification(uuidPart);
-					imageTO.setUrl(thumbnail(this.thumbnailUrl, uuidPart, defaultScale));
-					// jak to dostat aniz bych to musel zase cist 
-					imageTO.setWidth(142);
-					imageTO.setHeight(200);
-					
-					pages.add(imageTO);
-				}
+				PIDParser pidParser= new PIDParser(attribute);
+				pidParser.disseminationURI();
+				String objectId = pidParser.getObjectId();
+				
+				
+				SimpleImageTO imageTO = new SimpleImageTO();
+				imageTO.setFirstPage(i==0);
+				imageTO.setLastPage(i==lastIndex);
+				imageTO.setIdentification(objectId);
+				imageTO.setUrl(thumbnail(this.thumbnailUrl, objectId, defaultScale));
+				// jak to dostat aniz bych to musel zase cist 
+				imageTO.setWidth(142);
+				imageTO.setHeight(200);
+				
+				pages.add(imageTO);
             }
 			
             
@@ -117,6 +115,9 @@ public class PageServiceImpl extends RemoteServiceServlet implements PageService
 		} catch (IOException e) {
 			e.printStackTrace();
 		} catch (XPathExpressionException e) {
+			e.printStackTrace();
+		} catch (LexerException e) {
+			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		return pages;
