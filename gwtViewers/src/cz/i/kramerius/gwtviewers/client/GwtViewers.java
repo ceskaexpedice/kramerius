@@ -5,17 +5,21 @@ package cz.i.kramerius.gwtviewers.client;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+import org.adamtacy.client.ui.effects.impl.SlideBase;
+
 import com.google.gwt.core.client.EntryPoint;
 import com.google.gwt.core.client.GWT;
-import com.google.gwt.event.dom.client.ClickEvent;
-import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.gen2.logging.handler.client.PopupLogHandler;
+import com.google.gwt.gen2.logging.handler.client.SimpleLogHandler;
+import com.google.gwt.gen2.logging.shared.Level;
+import com.google.gwt.gen2.logging.shared.Log;
+import com.google.gwt.gen2.logging.shared.LogHandler;
+import com.google.gwt.gen2.logging.shared.SmartLogHandler;
+import com.google.gwt.gen2.widgetbase.client.Gen2CssInjector;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
-import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.ChangeListener;
-import com.google.gwt.user.client.ui.Image;
 import com.google.gwt.user.client.ui.Label;
-import com.google.gwt.user.client.ui.PushButton;
 import com.google.gwt.user.client.ui.RootPanel;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
@@ -24,6 +28,8 @@ import com.google.gwt.widgetideas.client.SliderBar;
 import cz.i.kramerius.gwtviewers.client.panels.CoreConfiguration;
 import cz.i.kramerius.gwtviewers.client.panels.ImageMoveWrapper;
 import cz.i.kramerius.gwtviewers.client.panels.MoveEffectsPanel;
+import cz.i.kramerius.gwtviewers.client.panels.MoveListener;
+import cz.i.kramerius.gwtviewers.client.panels.utils.ImageRotatePool;
 
 /**
  * Entry point classes define <code>onModuleLoad()</code>.
@@ -52,7 +58,7 @@ public class GwtViewers implements EntryPoint {
 	
 	private SliderBar sliderBar = new SliderBar(1, 10); {
 		sliderBar.setStepSize(1.0);
-		sliderBar.setCurrentValue(1);
+		sliderBar.setCurrentValue(0);
 	    sliderBar.setNumLabels(10);
 	    sliderBar.addChangeListener(new ChangeListener() {
 			
@@ -67,9 +73,7 @@ public class GwtViewers implements EntryPoint {
 	private void doInitImages() {
 		String pid = getViewersUUID();
 		String uuid = pid.substring("uuid:".length());
-		Window.alert("pageService is "+pageService);
 		pageService.getNumberOfPages(uuid, new AsyncCallback<Integer>() {
-
 			@Override
 			public void onFailure(Throwable caught) {
 				Window.alert(caught.getMessage());
@@ -78,18 +82,17 @@ public class GwtViewers implements EntryPoint {
 
 			@Override
 			public void onSuccess(Integer result) {
-				System.out.println("Result is "+result);
-				Window.alert("Result is "+result);
 				sliderBar.setMaxValue(result);
 				sliderBar.setNumLabels(result);
-				sliderBar.setCurrentValue(1);
+				sliderBar.setNumTicks(result);
+				sliderBar.setMinValue(0);
+				sliderBar.setCurrentValue(0);
 			}
 		});
 		pageService.getPagesSet(uuid, new AsyncCallback<ArrayList<SimpleImageTO>>() {
 
 			@Override
 			public void onFailure(Throwable caught) {
-				Window.alert(caught.getMessage());
 				GWT.log(caught.getMessage(), caught);
 				initialized = false;
 			}
@@ -118,36 +121,62 @@ public class GwtViewers implements EntryPoint {
 
 	
 	
-	
 	private void createSimpleEffectsPanel(ArrayList<SimpleImageTO> itos) {
-		final HashMap<String, Object> resultMap = new HashMap<String, Object>();
-		
+		// cele pole v pameti .. posuvatko v ramci pameti
 		
 		CoreConfiguration conf = new CoreConfiguration();
 		{
-			conf.setImgDistances(5);
-			conf.setViewPortHeight(447);
-			conf.setViewPortWidth(700);
+			conf.setImgDistances(getConfigurationDistance());
+			conf.setViewPortHeight(getConfigurationHeight());
+			conf.setViewPortWidth(getConfigurationWidth());
 		}
-
-		ImageMoveWrapper[] viewPortImages = new ImageMoveWrapper[itos.size()];
+		
+		ImageMoveWrapper[] viewPortImages = new ImageMoveWrapper[3];
 		for (int i = 0; i < viewPortImages.length; i++) {
 			SimpleImageTO ito = itos.get(i);
-			viewPortImages[i] = new ImageMoveWrapper(0,0, ito.getWidth(), ito.getHeight(), ito.getUrl(),ito.getIdentification());
+			ImageMoveWrapper wrapper = createImageMoveWrapper(ito,""+i);
+			viewPortImages[i] = wrapper;
 		}
-		ImageMoveWrapper[] noVisibleImages = new ImageMoveWrapper[itos.size()];
-		for (int i = 0; i < noVisibleImages.length; i++) {
-			SimpleImageTO ito = itos.get(i);
-			noVisibleImages[i] = new ImageMoveWrapper(0,0, ito.getWidth(), ito.getHeight(), ito.getUrl(),ito.getIdentification());
-		}
-		ImageMoveWrapper lcopy = new ImageMoveWrapper(0,0, 301, 401, "data/L.png","L.png");
-		ImageMoveWrapper rcopy = new ImageMoveWrapper(0,0, 301, 401, "data/R.png","R.png");
 		
+		
+		SimpleImageTO rito = itos.get(3);
+		ImageMoveWrapper rcopy = createImageMoveWrapper(rito,"R");
+
+		ImageMoveWrapper[] noVisibleImages = new ImageMoveWrapper[3];
+		for (int i = 0; i < noVisibleImages.length; i++) {
+			SimpleImageTO ito = itos.get(i+4);
+			ImageMoveWrapper wrapper = createImageMoveWrapper(ito,"n"+i);
+			noVisibleImages[i] = wrapper;
+		}
+		
+		ImageMoveWrapper lcopy = createImageMoveWrapper(rito,"L");
 		this.fxPane = new MoveEffectsPanel( viewPortImages, noVisibleImages, lcopy, rcopy, conf);
+		
+		MoveHandler handler = new MoveHandler(itos);
+		this.fxPane.setMoveHandler(handler);
 	}
 
+
+	private ImageMoveWrapper createImageMoveWrapper(SimpleImageTO ito, String id) {
+		ImageMoveWrapper wrapper = new ImageMoveWrapper(0,0, ito.getWidth(), ito.getHeight(), ito.getUrl(),ito.getIdentification());
+		wrapper.setFirst(ito.isFirstPage());
+		wrapper.setLast(ito.isLastPage());
+		wrapper.getWidget().getElement().setAttribute("id", id);
+		return wrapper;
+	}
+	
+	private void modifyImageMoveWrapper(ImageMoveWrapper wrapper, SimpleImageTO ito, String id) {
+		wrapper.setWidth(ito.getWidth());
+		wrapper.setHeight(ito.getHeight());
+		wrapper.setFirst(ito.isFirstPage());
+		wrapper.setLast(ito.isLastPage());
+		wrapper.setUrl(ito.getUrl());
+		wrapper.setImageIdent(ito.getIdentification());
+		wrapper.getWidget().getElement().setId(id);
+	}
+	
+
 	public static void gwtViewers() {
-		System.out.println("Callled .... ");
 		RootPanel.get("container").add(_sharedInstance._emptyVerticalPanel);	
 		_sharedInstance.doInitImages();
 		RootPanel.get("slider").add(_sharedInstance.sliderBar);
@@ -158,42 +187,89 @@ public class GwtViewers implements EntryPoint {
 	 */
 	public void onModuleLoad() {
 		_sharedInstance = this;
-		Window.alert("Jsem v onModuleLoad ... ");
-		
-//		RootPanel.get("label").add(nLabel);
-//		nLabel.setText(getVariable());
-//		final PushButton left = new PushButton(new Image("small_left.png"));
-//		left.addClickHandler(new ClickHandler() {
-//			
-//			@Override
-//			public void onClick(ClickEvent event) {
-//				fxPane.moveLeft();
-//			}
-//		});
-//		RootPanel.get("left").add(left);
-		
-//		PushButton right = new PushButton(new Image("small_right.png"));
-//		right.addClickHandler(new ClickHandler() {
-//			
-//			@Override
-//			public void onClick(ClickEvent event) {
-//				fxPane.moveRight();
-//			}
-//		});
-//		RootPanel.get("right").add(right);
-
 		RootPanel.get("container").add(this._emptyVerticalPanel);	
 		doInitImages();
 		RootPanel.get("slider").add(sliderBar);
-		
-		exportMethod();
 	}
 	
+	class MoveHandler implements MoveListener {
+		ArrayList<SimpleImageTO> sito;
+		
+		public MoveHandler(ArrayList<SimpleImageTO> sito) {
+			super();
+			this.sito = sito;
+		}
+
+		@Override
+		public void onMoveLeft(ImageRotatePool pool) {
+			int current = pool.getPointer();
+			int right = current + pool.getViewPortImages().size();
+			int loadingIndex = right +1;
+			ArrayList<ImageMoveWrapper> nvis = pool.getNoVisibleImages();
+			for (int i=pool.getNoVisibleImages().size()-1;i>=0;i--) {
+				if (loadingIndex < sito.size()) {
+					SimpleImageTO sit = sito.get(loadingIndex);
+					modifyImageMoveWrapper(nvis.get(i), sit, "_"+loadingIndex);
+					loadingIndex += 1;
+				} else {
+					SimpleImageTO sit = new SimpleImageTO();
+					sit.setFirstPage(false);
+					sit.setLastPage(false);
+					sit.setUrl("na.png");
+					sit.setWidth(130);
+					sit.setHeight(200);
+					sit.setIdentification("NA");
+					modifyImageMoveWrapper(nvis.get(i), sit, "_na");
+				}
+			}
+		}
+
+		@Override
+		public void onMoveRight(ImageRotatePool pool) {
+			int current = pool.getPointer();
+			int left = current-1;
+			int loadingImageIndex = left-1;
+			ArrayList<ImageMoveWrapper> nvis = pool.getNoVisibleImages();
+			for (int i=0;i<pool.getNoVisibleImages().size()-1;i++) {
+				if (loadingImageIndex >=0) {
+					SimpleImageTO sit = sito.get(loadingImageIndex);
+					modifyImageMoveWrapper(nvis.get(i), sit, "_"+loadingImageIndex);
+					loadingImageIndex -=1;
+				} else {
+					SimpleImageTO sit = new SimpleImageTO();
+					sit.setFirstPage(false);
+					sit.setLastPage(false);
+					sit.setUrl("na.png");
+					sit.setWidth(130);
+					sit.setHeight(200);
+					sit.setIdentification("NA");
+					modifyImageMoveWrapper(nvis.get(i), sit, "_na");
+					// noImage();
+				}
+			}
+		}
+	}
+	
+
 	/// ========= Nativni metody =========
 	public native String getViewersUUID() /*-{
 		return $wnd.__gwtViewersUUID;
 	}-*/;
 
+
+	public native int getConfigurationWidth() /*-{
+		return $wnd.__confWidth;
+	}-*/;
+
+	public native int getConfigurationHeight() /*-{
+		return $wnd.__confHeight;
+	}-*/;
+
+	public native int getConfigurationDistance() /*-{
+		return $wnd.__confDistance;
+	}-*/;
+
+	
 	public static native void exportMethod() /*-{
 	   $wnd.loadMyBusinessWidget = @cz.i.kramerius.gwtviewers.client.GwtViewers::gwtViewers();
 	}-*/;}
