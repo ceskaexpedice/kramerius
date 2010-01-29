@@ -16,10 +16,12 @@
 	<inherits name="org.adamtacy.GWTEffects"></inherits>
 	<!-- SlideBar - Incubator -->
 	<inherits name='com.google.gwt.widgetideas.WidgetIdeas' />
+    <inherits name='com.google.gwt.gen2.logging.Logging'/>
 	
 	
 	<!-- Specify the app entry point class.                         -->
 	<entry-point class='cz.i.kramerius.gwtviewers.client.GwtViewers'/>
+
 	
 	<!-- Specify the paths for translatable code                    -->
 	<source path='client'/>
