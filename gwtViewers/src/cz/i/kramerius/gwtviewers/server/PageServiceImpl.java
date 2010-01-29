@@ -42,13 +42,11 @@ import cz.i.kramerius.gwtviewers.client.SimpleImageTO;
 public class PageServiceImpl extends RemoteServiceServlet implements PageService {
 
     public static String fedoraUrl = "http://194.108.215.227:8080/fedora";
-    public static String thumbnailUrl ="http://localhost:8080/search/thumb";
 	public static String defaultScale ="0.3";
 
+    private String thumbnailUrl ="thumb";
+
 	private String imgFolder;
-	private String defaultUuid = "0eaa6730-9068-11dd-97de-000d606f5dc6";
-//	private String relsExtCommand = "http://194.108.215.227:8080/fedora/get/uuid:0eaa6730-9068-11dd-97de-000d606f5dc6/RELS-EXT";
-//	private String relsExtCommand = "http://194.108.215.227:8080/fedora/get/uuid:0eaa6730-9068-11dd-97de-000d606f5dc6/RELS-EXT";
 	
 
 	// dodelat nejakou vlastni implementaci !!
@@ -66,8 +64,8 @@ public class PageServiceImpl extends RemoteServiceServlet implements PageService
 		return fedoraUrl +"/get/uuid:"+uuid+"/RELS-EXT";
 	}
 	
-	public static String thumbnail(String uuid, String scale) {
-		return thumbnailUrl+"?scale="+scale+"&uuid="+uuid;
+	public static String thumbnail(String thumbUrl, String uuid, String scale) {
+		return thumbUrl+"?scale="+scale+"&uuid="+uuid;
 	}
 	
 	
@@ -100,7 +98,7 @@ public class PageServiceImpl extends RemoteServiceServlet implements PageService
 					imageTO.setFirstPage(i==0);
 					imageTO.setLastPage(i==lastIndex);
 					imageTO.setIdentification(uuidPart);
-					imageTO.setUrl(thumbnail(uuidPart, defaultScale));
+					imageTO.setUrl(thumbnail(this.thumbnailUrl, uuidPart, defaultScale));
 					// jak to dostat aniz bych to musel zase cist 
 					imageTO.setWidth(142);
 					imageTO.setHeight(200);
@@ -133,6 +131,7 @@ public class PageServiceImpl extends RemoteServiceServlet implements PageService
 	public void init(ServletConfig config) throws ServletException {
 		super.init(config);
 		this.imgFolder = config.getInitParameter("imgFolder");
+		this.thumbnailUrl = config.getInitParameter("thumbUrl");
 	}
 
 	public SimpleImageTO getPage(String uuid, int index) {

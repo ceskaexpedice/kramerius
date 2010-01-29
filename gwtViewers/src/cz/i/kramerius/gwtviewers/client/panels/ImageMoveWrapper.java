@@ -12,6 +12,8 @@ import org.adamtacy.client.ui.effects.impl.Fade;
 
 import com.google.gwt.dom.client.Style.Position;
 import com.google.gwt.user.client.ui.Image;
+import com.google.gwt.user.client.ui.Label;
+import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 
 import cz.i.kramerius.gwtviewers.client.panels.fx.CustomMove;
@@ -26,13 +28,45 @@ public class ImageMoveWrapper  implements EffectSteppingHandler, EffectStartingH
 	private int relative;
 	private int absolute;
 	
+	private boolean first=false;
+	private boolean last = false;
+	
+	private Label label = new Label();
+	
+	public boolean isLast() {
+		return last;
+	}
+
+
+	public void setLast(boolean last) {
+		this.last = last;
+	}
+
+
+	public boolean isFirst() {
+		return first;
+	}
+
+
+	public void setFirst(boolean first) {
+		this.first = first;
+	}
+
+
 	public ImageMoveWrapper(int x, int y, int width, int height, String url, String imageIdent) {
 		this.imageCore = new ImageCore(x, y, width, height, url, imageIdent);
+		appendAlt(imageIdent);
+	}
+
+
+	private void appendAlt(String imageIdent) {
+		this.imageCore.getImage().getElement().setAttribute("alt", imageIdent);
 	}
 
 	
 	public void setImageIdent(String imageIdent) {
 		imageCore.setImageIdent(imageIdent);
+		this.appendAlt(imageIdent);
 	}
 
 	public int getX() {

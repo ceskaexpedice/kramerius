@@ -51,7 +51,6 @@ public class ImageRotatePool {
 		// posledni z viewPort do levy
 		this.left = this.viewPortImages.remove(0);
 		
-		assert(this.viewPortImages.size() == this.noVisible.size());
 		
 		return true;
 	}
@@ -67,7 +66,7 @@ public class ImageRotatePool {
 		this.noVisible.add(this.right);
 		this.right = this.viewPortImages.remove(this.viewPortImages.size()-1);
 
-		assert(this.viewPortImages.size() == this.noVisible.size());
+
 		return true;
 	}
 
@@ -111,5 +110,26 @@ public class ImageRotatePool {
 	
 	public int getPointer() {
 		return this.ukazovatko;
+	}
+	
+	public void debugPool() {
+		System.out.println("=========> Left <=========");
+		System.out.println("\t"+this.left.getImageIdent());
+		System.out.println("=========> Visible <=========");
+		StringBuffer buf = new StringBuffer();
+		for (ImageMoveWrapper mv : this.viewPortImages) {
+			buf.append(mv.getImageIdent()+",");
+		}
+		System.out.println("\t"+buf.toString());
+		System.out.println("=========> NoVisible <=========");
+		buf = new StringBuffer();
+		for (ImageMoveWrapper mv : this.noVisible) {
+			buf.append(mv.getImageIdent()+",");
+		}
+		System.out.println("\t"+buf.toString());
+		System.out.println("=========> Right <=========");
+		System.out.println("\t"+this.right.getImageIdent());
+		
+		System.out.println("___________________________________________________________");
 	}
 }

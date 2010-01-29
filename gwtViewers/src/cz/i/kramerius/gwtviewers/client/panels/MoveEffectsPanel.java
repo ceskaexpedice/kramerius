@@ -22,6 +22,8 @@ public class MoveEffectsPanel extends  Composite {
 	
 	private CoreConfiguration configuration;
 	
+	private MoveListener moveHandler;
+	
 	public MoveEffectsPanel( ImageMoveWrapper[] viewPortImages, 
 							ImageMoveWrapper[] noVisibleImgs, 
 							ImageMoveWrapper left, 
@@ -64,30 +66,41 @@ public class MoveEffectsPanel extends  Composite {
 	
 	public void moveLeft() {
 		ArrayList<ImageMoveWrapper> viewPortImages = this.imageRotatePool.getViewPortImages();
-		boolean rollLeft = this.imageRotatePool.rollLeft();
-		if (rollLeft) {
-			this.calulateNextPositions();
-			Rotate left = new Rotate(this.configuration, this.imageRotatePool,this.imageRotateCalculatedPositions, viewPortImages);
-			left.initCompositeEffect();
-			left.play();
-			this.storeCalculatedPositions();
+		if (!viewPortImages.get(0).isLast()) {
+			boolean rollLeft = this.imageRotatePool.rollLeft();
+			if (rollLeft) {
+				this.calulateNextPositions();
+				Rotate left = new Rotate(this.configuration, this.imageRotatePool,this.imageRotateCalculatedPositions, viewPortImages);
+				left.initCompositeEffect();
+				left.play();
+				this.storeCalculatedPositions();
+			}
+			if (this.moveHandler != null) {
+				this.moveHandler.onMoveLeft(this.imageRotatePool);
+			}
+			this.imageRotatePool.debugPool();
 		}
-		
 	}
 	
 	
 
-
+	
 	public void moveRight() {
 		ArrayList<ImageMoveWrapper> viewPortImages = this.imageRotatePool.getViewPortImages();
-		boolean rollRight = this.imageRotatePool.rollRight();
-		if (rollRight) {
-			this.calulateNextPositions();
-			Rotate left = new Rotate(this.configuration, this.imageRotatePool,this.imageRotateCalculatedPositions, viewPortImages);
-			left.initCompositeEffect();
-			left.play();
-			this.storeCalculatedPositions();
+		if (!viewPortImages.get(0).isFirst()) {
+			boolean rollRight = this.imageRotatePool.rollRight();
+			if (rollRight) {
+				this.calulateNextPositions();
+				Rotate left = new Rotate(this.configuration, this.imageRotatePool,this.imageRotateCalculatedPositions, viewPortImages);
+				left.initCompositeEffect();
+				left.play();
+				this.storeCalculatedPositions();
+			}
+			if (this.moveHandler != null) {
+				this.moveHandler.onMoveRight(this.imageRotatePool);
+			}
 		}
+		
 	}
 	
 
@@ -130,7 +143,19 @@ public class MoveEffectsPanel extends  Composite {
 		if (pocetKroku < 0) {
 			for (int i = pocetKroku; i < 0; i++) { moveRight(); }
 		}
-		//this.rollToPage(currentValue);
-		
 	}
+
+
+
+	public MoveListener getMoveHandler() {
+		return moveHandler;
+	}
+
+
+
+	public void setMoveHandler(MoveListener moveHandler) {
+		this.moveHandler = moveHandler;
+	}
+	
+	
 }
