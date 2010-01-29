@@ -13,12 +13,27 @@
 			<name>Java.net Repository for Maven 2</name>
 			<url>http://download.java.net/maven/2/</url>
 		</repository>
+
+		<repository>
+			<id>gwt-maven</id>
+			<url>
+            http://gwt-maven.googlecode.com/svn/trunk/mavenrepo/
+          </url>
+		</repository>
 	</repositories>
+
+
 	<pluginRepositories>
 		<pluginRepository>
 			<id>maven2-repository.dev.java.net</id>
 			<url>http://download.java.net/maven/2/</url>
 		</pluginRepository>
+
+		<pluginRepository>
+			<id>gwt-maven</id>
+			<url>http://gwt-maven.googlecode.com/svn/trunk/mavenrepo</url>
+		</pluginRepository>
+
 	</pluginRepositories>
 	<dependencies>
 		<dependency>
@@ -71,10 +86,25 @@
 			<version>2.7.1</version>
 		</dependency>
 
+		<!-- DJVU dependencies -->
 		<dependency>
 			<groupId>com.foxtrottechnologies</groupId>
 			<artifactId>javadjvu</artifactId>
 			<version>0.8.09</version>
+		</dependency>
+
+
+		<dependency>
+			<groupId>log4j</groupId>
+			<artifactId>log4j</artifactId>
+			<version>1.2.14</version>
+		</dependency>
+
+		<dependency>
+			<groupId>junit</groupId>
+			<artifactId>junit</artifactId>
+			<version>4.1</version>
+			<scope>test</scope>
 		</dependency>
 
 		<dependency>
@@ -90,6 +120,13 @@
 
 		</dependency>
 	</dependencies>
+
+	<!--  convenience to define GWT version in one place -->
+	<properties>
+		<gwtVersion>2.0</gwtVersion>
+	</properties>
+
+
 	<build>
 		<sourceDirectory>${basedir}/src/java</sourceDirectory>
 		<resources>
@@ -134,4 +171,5 @@
 			</plugin>
 		</plugins>
 	</build>
+	
 </project>
