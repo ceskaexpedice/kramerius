@@ -75,6 +75,10 @@ a.image:hover {
 .main{
     width:98%;
 }
+
+.leftMenu{
+    width:350px;
+}
 /* end layout */
 
 /* facets */
