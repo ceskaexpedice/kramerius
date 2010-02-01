@@ -54,6 +54,7 @@
                 </td>
                 <td>
                     <%@ include file="item_1.jsp" %>
+               		<%@ include file="gwtView.jsp" %>
                 </td>
             </tr>
         </table>
