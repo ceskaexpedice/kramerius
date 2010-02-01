@@ -47,10 +47,6 @@ public class ThumbnailServlet extends HttpServlet {
 	}	
 
 	
-	public Config getConfiguration() {
-		return new Config();
-	}
-
 
 
 
