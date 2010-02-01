@@ -34,20 +34,21 @@ function initDateAxis(){
 
 function initDateAxisDelayed(){
     fillDateAxis(currentLevel);
-    
-    
     $('#da_loading').css("visibility", "hidden");
     
     bars = $('.da_bar_container');
+    checkScrollBar();
     setBarsPositions();
     selectTime();
     dateAxisVisible = true;
+    maxScroll = $("#content-scroll").attr("scrollHeight") - $("#content-scroll").height();
+    $("#content-slider").slider("value", 0);
+    positionResizes();
     positionCurtainsOnLoad();
     setSelectHandles();
     setSelectContainmentBottom();
     setSelectContainmentTop();
-    maxScroll = $("#content-scroll").attr("scrollHeight") - $("#content-scroll").height();
-    $("#content-slider").slider("value", 0);
+    setBarsPositions();
     getRanges();
     initialized =true;
 }
@@ -183,16 +184,7 @@ function selectTime(){
 
 }
 
-function filterOnRange(e){
-    if(window.event){ // IE check
-        el = window.event.srcElement;
-    }else if(e && e.target){ // standard-compliant browsers
-        el = e.target;
-    }
-    
-    alert(el.item);
-    addNavigation("datum", el.item);
-}
+
 
 function doFilter(){  
   
@@ -268,6 +260,7 @@ function onShowBubble(e){
     }else if(e && e.target){ // standard-compliant browsers
         el = e.target;
         y = e.pageY;
+        
     }
     if(!el.bubble) el = el.offsetParent;
     
@@ -343,17 +336,18 @@ function setSelectContainmentTop(){
     hideBubble(null);
 }
 
-function selectHandleChangeLeft(e, ui){
+function selectHandleChangeTop(e, ui){
     var wTop = ui.position.top - $('#content-scroll').offset().top;
     $("#resizable-top").css("height", wTop);
     selectTime();
     var bar = findActiveBar(ui.position.top);
     if(bar){
-        showBubble(bar);
+        //var y = $("#" + bar.id).offset().top;
+        showBubble(bar, ui.position.top);
     } 
 }
 
-function selectHandleChangeRight(e, ui){
+function selectHandleChangeBottom(e, ui){
     var pBottom = ui.position.top;
     var wBottom = $('#content-scroll').height() + $('#content-scroll').offset().top - pBottom;
     $('#resizable-bottom').css("top", pBottom);
@@ -361,7 +355,8 @@ function selectHandleChangeRight(e, ui){
     selectTime();
     var bar = findActiveBar(ui.position.top);
     if(bar){
-        showBubble(bar);
+        //var y = $("#" + bar.id).offset().top;
+        showBubble(bar, ui.position.top);
     }
 }
 
@@ -403,22 +398,22 @@ function checkScrollBar(){
 function positionCurtainsOnLoad(){
     positionCurtains();
     var wTop = $('#da_bar_' + firstBar).offset().top - $('#content-scroll').offset().top;
+    if(wTop<1) wTop = 10;
     if(wTop < $('#content-scroll').height()){
         $("#resizable-top").css("height", wTop);
     }else{
         var newscroll = ($('#content-scroll').height() + $('#da_container').height()) / wTop;
         $("#content-slider").slider("value", newscroll);
+        $("#resizable-top").css("height", wTop);
     }
-
-    var pBottom = $('#da_bar_' + lastBar).offset().top + barContainerHeight + 2;
+    
+    var pBottom = $('#da_bar_' + lastBar).offset().top + barContainerHeight;
     var bottomSide = $('#content-scroll').height() + $('#content-scroll').offset().top;
     if(pBottom < bottomSide){
         var hBottom = bottomSide - pBottom;
         $('#resizable-bottom').css("top", pBottom);
         $('#resizable-bottom').css("height", hBottom);
     }
-    positionResizes();
-    checkScrollBar();
 }
 function positionCurtains(){
     
@@ -507,11 +502,13 @@ function createBar(title, groupStart, groupEnd, item, w){
     if (document.addEventListener != null){ // e.g. Firefox, Opera, Safari
         barContainer.addEventListener("mouseover", onShowBubble, true);
         barContainer.addEventListener("mouseout", hideBubble, true);
+        barContainer.addEventListener("click", filterOnItem, true);
         //bar.addEventListener("mouseover", onShowBubble, true);
         //bar.addEventListener("mouseout", hideBubble, true);
     }else{ // e.g. Internet Explorer (also would work on Opera)
         barContainer.attachEvent("onmouseover", onShowBubble);
         barContainer.attachEvent("onmouseout", hideBubble);
+        bar.attachEvent("onclick", filterOnItem);
         bar.attachEvent("onmouseover", onShowBubble);
         bar.attachEvent("onmouseout", hideBubble);
     }
@@ -655,8 +652,9 @@ function createRangeBar(datum, beginDate, endDate, count, i){
 
 
 function getRanges(){
+    var url = "inc/dateRangeResults.jsp?" + (new PageQuery(window.location.search)).toString();
     //$.getJSON("inc/dateRangeFacet.jsp", function(data){
-    $.getJSON("inc/dateRangeResults.jsp", function(data){
+    $.getJSON(url, function(data){
             //alert(data);
         $.each(data.items, function(i,item){
             
@@ -665,6 +663,17 @@ function getRanges(){
     //alert(usedRangeBarPos);
     });
     // writeRanges();
+}
+
+function filterOnRange(e){
+    if(window.event){ // IE check
+        el = window.event.srcElement;
+    }else if(e && e.target){ // standard-compliant browsers
+        el = e.target;
+    }
+    
+    alert(el.item);
+    addNavigation("datum", el.item);
 }
 
 /* end ranges */
