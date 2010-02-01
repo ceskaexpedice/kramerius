@@ -36,11 +36,19 @@ KConfiguration kconfig = (KConfiguration) getServletContext().getAttribute("conf
 <jsp:useBean id="pageType" type="java.lang.String" />
 <c:url var="url" value="${fedoraSolr}" >
     <c:choose>
+        <c:when test="${param.rows != null}" >
+            <c:set var="rows" value="${param.rows}" scope="request" />
+        </c:when>
+        <c:when test="${empty param.fq && empty param.q && param.f1 == null}">
+            <c:set var="rows" value="0" scope="request" />
+        </c:when>
+        <c:otherwise>
+            <c:set var="rows" value="20" scope="request" />
+        </c:otherwise>
+    </c:choose>
+    <c:choose>
         <c:when test="${empty param.q}" >
             <c:param name="q" value="*:*" />
-            <c:if test="${empty param.fq}">
-                <c:param name="rows" value="0" />
-            </c:if>
         </c:when>
         <c:when test="${param.q != null}" >
             <c:if test="${fn:containsIgnoreCase(param.q, '*')}" >
@@ -50,14 +58,6 @@ KConfiguration kconfig = (KConfiguration) getServletContext().getAttribute("conf
         </c:when>
         
     </c:choose>
-    <c:choose>
-        <c:when test="${param.rows != null}" >
-            <c:set var="rows" value="${param.rows}" scope="request" />
-        </c:when>
-        <c:otherwise>
-            <c:set var="rows" value="20" scope="request" />
-        </c:otherwise>
-    </c:choose>
     <c:param name="rows" value="${rows}" />
     <c:param name="facet.field" value="fedora.model" />
     <%--
@@ -66,9 +66,11 @@ KConfiguration kconfig = (KConfiguration) getServletContext().getAttribute("conf
     <c:param name="facet.field" value="path" />
     <c:param name="f.path.facet.sort" value="false" />
     <c:param name="facet.field" value="language" />
+    
     <c:param name="facet.field" value="rok" />
     <c:param name="f.rok.facet.limit" value="-1" />
     <c:param name="f.rok.facet.sort" value="false" />
+    
     <c:param name="facet" value="true" />
     <c:param name="facet.mincount" value="1" />
     <c:forEach var="fqs" items="${paramValues.fq}">

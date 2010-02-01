@@ -42,6 +42,12 @@ fq=fedora.model:%22info:fedora/model:page%22
     <c:param name="fq" value="datum_begin:[1 TO 3010]" />
     <c:param name="fq" value="level:0" />
     <c:param name="fq2" value="fedora.model:\"info:fedora/model:periodical\"" />
+    <c:forEach var="fqs" items="${paramValues.fq}">
+        <c:param name="fq" value="${fqs}" />
+    </c:forEach>
+    <c:if test="${param.f1 != null}">
+        <c:param name="fq" value="rok:[${param.f1} TO ${param.f2}]" />
+    </c:if>
 </c:url>
 <c:catch var="exceptions"> 
     <c:import url="${url}" var="xml" charEncoding="UTF-8" />

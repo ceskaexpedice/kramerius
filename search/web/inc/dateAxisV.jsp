@@ -9,10 +9,10 @@
             if ((dateAxisFacet != null) &&
                     (dateAxisFacet.infos.size() > 1)){
                 
-            ArrayList dates = new ArrayList();
-            ArrayList modCounts = new ArrayList();
+            //ArrayList dates = new ArrayList();
+            //ArrayList modCounts = new ArrayList();
             String dateStr = "";
-            
+            /*
             for (int k = 0; k < dateAxisFacet.infos.size(); k++) {
                 try {
                     dates.add(dateAxisFacet.infos.get(k).displayName);
@@ -22,7 +22,7 @@
                     continue;
                 }
             }
-            
+            */
             String startMod = dateAxisFacet.infos.get(0).displayName;
             if(startMod.equals("0")){
                 startMod = dateAxisFacet.infos.get(1).displayName;
@@ -82,13 +82,16 @@
             int currentInt = modMin;
             int modCount = 0;
             String currentDay = "01";
+            FacetInfo currentFacet;
 
             while (Integer.parseInt(current) <= modMax) {
-
-                index = dates.indexOf(current);
-                if (index > -1) {
-                    //from = dates.get(index);
-                    modCount = ((Integer) modCounts.get(index)).intValue();
+                index = dateAxisFacet.infos.indexOf(current);                
+                //index = dates.indexOf(current);
+                //if (index > -1) {
+                    //modCount = ((Integer) modCounts.get(index)).intValue();
+                currentFacet = dateAxisFacet.getFacetInfoByName(current);
+                if(currentFacet!=null){
+                    modCount = currentFacet.count;
                 } else {
                     modCount = 0;
                 }
@@ -204,13 +207,13 @@ $(document).ready(function(){
         $("#select-handle-top").draggable({
             containment: '#constraint_bottom',
             axis:'y',
-            drag: selectHandleChangeLeft,
+            drag: selectHandleChangeTop,
             stop: setSelectContainmentBottom
         });
         $("#select-handle-bottom").draggable({
             containment: '#constraint_top',
             axis:'y',
-            drag: selectHandleChangeRight,
+            drag: selectHandleChangeBottom,
             stop: setSelectContainmentTop
         });
       

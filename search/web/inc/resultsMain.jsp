@@ -49,10 +49,12 @@
             <%@ include file="results/periodicalitem.jsp" %>
         </x:when>
         <x:otherwise>
+            <x:out select="./str[@name='fedora.model']" />
             <%@ include file="results/default.jsp" %>
         </x:otherwise>
     </x:choose>
-    <a href='<c:out value="${urlBiblioMods}" />' target="fedora">biblio_mods</a> 
+    <a href='<c:out value="${urlReindex}" />' target="fedora">reindex</a>
+    <a href='<c:out value="${urlBiblioMods}" />' target="biblio_mods">biblio_mods</a> 
     <a href='<c:out value="${urlSolr}" />' target="solr">solr</a>
     <a href='<c:out value="${urlReindex}" />' target="reindex">reindex</a>
     </div>

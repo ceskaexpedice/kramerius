@@ -7,30 +7,22 @@
 <div>
     <!-- rdf.kramerius.hasPage:"info:fedora/PID" -->
     <span>
-            <x:choose>
-            <x:when select="./str[@name='title_to_show']">
                 <c:set var="itemUrl" >
                     ./item.jsp?pid=<x:out select="./str[@name='PID']"/>
                 </c:set>
                 <c:set var="itemUrl" >
-                    <c:out value="${itemUrl}" escapeXml="false" />&parentPid=<x:out select="substring-after(substring-after(substring-after(./str[@name='title_to_show'], '###'), '###'), 'info:fedora/')"/>
+                    <c:out value="${itemUrl}" escapeXml="false" />&parentPid=<x:out select="./str[@name='parent_pid']" />
                 </c:set>
                 <c:set var="itemUrl" >
                     <c:out value="${itemUrl}" escapeXml="false" />&model=info:fedora/model:periodicalvolume&page=<x:out select="./arr[@name='dc.title']"/>
                 </c:set>
                 <a href="<c:out value="${itemUrl}" escapeXml="false" />" >
-                    <b><x:out select="substring-before(./str[@name='title_to_show'], '###')"/></b>a
+                    <b><x:out select="./str[@name='root_title']"/></b>
                 </a>
                 
                 (<fmt:message><x:out select="./str[@name='fedora.model']"/></fmt:message>)
                 <br/>
-                <fmt:message><x:out select="./str[@name='fedora.model']"/></fmt:message>: <x:out select="./arr[@name='dc.title']"/>
-            </x:when>
-            <x:otherwise>
-                <a href="<c:out value="${fedoraHost}" />/get/<x:out select="./str[@name='PID']"/>">
-                <b><x:out select="./arr[@name='dc.title']"/></b>
-                </a> 
-            </x:otherwise>
-            </x:choose>
+                <fmt:message>Datum vydání ročníku</fmt:message>: <x:out select="./int[@name='rok']"/><br/>
+                <fmt:message>Číslo ročníku</fmt:message>: <x:out select="./arr[@name='dc.title']"/>
     </span>
 </div>

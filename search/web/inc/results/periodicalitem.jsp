@@ -6,44 +6,22 @@
 <%@ page isELIgnored="false"%>
 <div>
     <span>
-        <c:set var="itemPid" >
-            <x:out select="./str[@name='PID']"/>
-        </c:set>
-        <%--
-        <x:choose>
-            
-            <x:when select="./str[@name='title_to_show2']">
                 <c:set var="itemUrl" >
                     ./item.jsp?pid=<x:out select="./str[@name='PID']"/>
                 </c:set>
                 <c:set var="itemUrl" >
-                    <c:out value="${itemUrl}" escapeXml="false" />&parentPid=<x:out select="substring-after(substring-after(substring-after(./str[@name='title_to_show'], '###'), '###'), 'info:fedora/')"/>
+                    <c:out value="${itemUrl}" escapeXml="false" />&parentPid=<x:out select="./str[@name='parent_pid']"/>
                 </c:set>
                 <c:set var="itemUrl" >
-                    <c:out value="${itemUrl}" escapeXml="false" />&model=info:fedora/model:page&page=<x:out select="./arr[@name='dc.title']"/>
+                    <c:out value="${itemUrl}" escapeXml="false" />&model=info:fedora/model:periodicalitem 
                 </c:set>
                 <a href="<c:out value="${itemUrl}" escapeXml="false" />" >
-                <b><x:out select="substring-before(./str[@name='title_to_show'], '###')"/></b></a> <x:out select="substring-after(./str[@name='title_to_show'], '###')"/>
-                
-                (<fmt:message>info:fedora/model:periodicalitem</fmt:message> <fmt:message>info:fedora/model:periodical</fmt:message>)
+                    <b><x:out select="./str[@name='root_title']"/></b>
+                </a>
                 <br/>
-                <fmt:message><x:out select="./str[@name='fedora.model']"/></fmt:message>: <x:out select="./arr[@name='dc.title']"/>
-            </x:when>
-            <x:otherwise>
-                <a href="<c:out value="${fedoraHost}" />/get/<x:out select="./str[@name='PID']"/>">
-                    <b><x:out select="./arr[@name='dc.title']"/></b>
-                </a> (<fmt:message><x:out select="./str[@name='fedora.model']"/></fmt:message>)
-            </x:otherwise>
-        </x:choose>
-        --%>
-        <a href="<c:out value="${fedoraHost}" />/get/<x:out select="./str[@name='PID']"/>">
-            <b><x:out select="./arr[@name='dc.title']"/></b>
-        </a> (<fmt:message><x:out select="./str[@name='fedora.model']"/></fmt:message> 
-        <fmt:message>info:fedora/model:periodical</fmt:message>)
-        <br/>
-        
+                <fmt:message>Datum vydání výtisku</fmt:message>: <x:out select="./str[@name='datum']"/><br/>
         <c:set var="urlStr" >
-            <c:out value="${fedoraHost}" />/get/<c:out value="${itemPid}" />/BIBLIO_MODS
+            <c:out value="${fedoraHost}" />/get/<x:out select="./str[@name='PID']"/>/BIBLIO_MODS
         </c:set>
         <c:url var="urlGet" value="${urlStr}" >
         </c:url>
