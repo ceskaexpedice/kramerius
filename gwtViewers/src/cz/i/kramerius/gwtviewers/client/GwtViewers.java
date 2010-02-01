@@ -202,15 +202,34 @@ public class GwtViewers implements EntryPoint {
 
 		@Override
 		public void onMoveLeft(ImageRotatePool pool) {
+			rightNoVisible(pool);
+			leftNoVisible(pool);
+		}
+
+
+		
+		
+		@Override
+		public void onMoveRight(ImageRotatePool pool) {
+			rightNoVisible(pool);
+			leftNoVisible(pool);
+		}
+		
+
+		private void leftNoVisible(ImageRotatePool pool) {
+			// ukazovatko pozice 
 			int current = pool.getPointer();
-			int right = current + pool.getViewPortImages().size();
-			int loadingIndex = right +1;
+			// levy je pozice -1
+			int left = current-1;
 			ArrayList<ImageMoveWrapper> nvis = pool.getNoVisibleImages();
-			for (int i=pool.getNoVisibleImages().size()-1;i>=0;i--) {
-				if (loadingIndex < sito.size()) {
+			int size = nvis.size();
+			int maxIndex = size / 2;
+			for (int i = 1; i <= maxIndex; i++) {
+				int loadingIndex = left - i;
+				int nvisPosition = i-1;
+				if (loadingIndex >=0) {
 					SimpleImageTO sit = sito.get(loadingIndex);
-					modifyImageMoveWrapper(nvis.get(i), sit, "_"+loadingIndex);
-					loadingIndex += 1;
+					modifyImageMoveWrapper(nvis.get(nvisPosition), sit, "_"+loadingIndex);
 				} else {
 					SimpleImageTO sit = new SimpleImageTO();
 					sit.setFirstPage(false);
@@ -219,22 +238,26 @@ public class GwtViewers implements EntryPoint {
 					sit.setWidth(130);
 					sit.setHeight(200);
 					sit.setIdentification("NA");
-					modifyImageMoveWrapper(nvis.get(i), sit, "_na");
+					modifyImageMoveWrapper(nvis.get(nvisPosition), sit, "_na");
 				}
 			}
 		}
 
-		@Override
-		public void onMoveRight(ImageRotatePool pool) {
+		private void rightNoVisible(ImageRotatePool pool) {
+			// ukazovatko pozice 
 			int current = pool.getPointer();
+			// levy je pozice -1
 			int left = current-1;
-			int loadingImageIndex = left-1;
+			int right = pool.getPointer()+ pool.getViewPortSize();
 			ArrayList<ImageMoveWrapper> nvis = pool.getNoVisibleImages();
-			for (int i=0;i<pool.getNoVisibleImages().size()-1;i++) {
-				if (loadingImageIndex >=0) {
-					SimpleImageTO sit = sito.get(loadingImageIndex);
-					modifyImageMoveWrapper(nvis.get(i), sit, "_"+loadingImageIndex);
-					loadingImageIndex -=1;
+			int size = nvis.size();
+			int maxIndex = size / 2; maxIndex += size % 2;
+			for (int i = 1; i <= maxIndex; i++) {
+				int loadingIndex = right + i;
+				int nvisPosition = size -i;
+				if (loadingIndex < 15) {
+					SimpleImageTO sit = sito.get(loadingIndex);
+					modifyImageMoveWrapper(nvis.get(nvisPosition), sit, "_"+loadingIndex);
 				} else {
 					SimpleImageTO sit = new SimpleImageTO();
 					sit.setFirstPage(false);
@@ -243,8 +266,7 @@ public class GwtViewers implements EntryPoint {
 					sit.setWidth(130);
 					sit.setHeight(200);
 					sit.setIdentification("NA");
-					modifyImageMoveWrapper(nvis.get(i), sit, "_na");
-					// noImage();
+					modifyImageMoveWrapper(nvis.get(nvisPosition), sit, "_na");
 				}
 			}
 		}

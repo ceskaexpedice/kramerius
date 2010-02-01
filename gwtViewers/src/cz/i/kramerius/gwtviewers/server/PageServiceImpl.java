@@ -67,7 +67,8 @@ public class PageServiceImpl extends RemoteServiceServlet implements PageService
 	}
 	
 	public static String thumbnail(String thumbUrl, String uuid, String scale) {
-		return thumbUrl+"?scale="+scale+"&uuid="+uuid;
+		String url = thumbUrl+"?scale="+scale+"&uuid="+uuid;
+		return url;
 	}
 	
 	
@@ -91,7 +92,6 @@ public class PageServiceImpl extends RemoteServiceServlet implements PageService
 				PIDParser pidParser= new PIDParser(attribute);
 				pidParser.disseminationURI();
 				String objectId = pidParser.getObjectId();
-				
 				
 				SimpleImageTO imageTO = new SimpleImageTO();
 				imageTO.setFirstPage(i==0);

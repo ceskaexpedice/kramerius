@@ -70,8 +70,8 @@ public class Lexer {
 		if (((ch>='A') && (ch<='Z')) || 
 			((ch >= 'a') && (ch<='z')))	{
 			this.consumeChar();
-		}
-		return new Token(TokenType.ALPHA, ""+(char)ch);
+			return new Token(TokenType.ALPHA, ""+(char)ch);
+		} else throw new LexerException("");
 	}
 	
 	
@@ -147,6 +147,9 @@ public class Lexer {
 			}
 			case '%': {
 				this.matchChar('%');
+				if (Character.isDigit(charLookAhead(2)) && hexDigitPostfix(charLookAhead(3))) {
+					return matchHexDigit();
+				} else 
 				return new Token(TokenType.PERCENT,"%");
 			}
 			case '_': {
@@ -154,9 +157,6 @@ public class Lexer {
 				return new Token(TokenType.UNDERSCOPE,"_");
 			}
 			default: {
-				if ((Character.isDigit(ch)) && (hexDigitPostfix(this.charLookAhead(2)))) {
-					return matchHexDigit();
-				} 
 				if (Character.isDigit(ch)) {
 					return matchDigit();
 				}

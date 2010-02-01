@@ -51,7 +51,7 @@ public class PIDParser {
 
 	public void disseminationURI() throws LexerException {
 		this.lexer.matchString("info:fedora/");
-		objectId();
+		this.objectPid();
 	}
 
 	
@@ -107,7 +107,8 @@ public class PIDParser {
 				TokenType.DOT,
 				TokenType.TILDA,
 				TokenType.UNDERSCOPE,
-				TokenType.PERCENT
+				TokenType.PERCENT,
+				TokenType.HEXDIGIT
 		});
 		StringBuffer buffer = new StringBuffer();
 		if (!types.contains(this.token.getType())) throw new LexerException("expecting ALPHA, DIGIT, MINUS or DOT");
