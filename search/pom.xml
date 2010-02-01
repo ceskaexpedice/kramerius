@@ -117,15 +117,40 @@
 			<groupId>com.foxtrottechnologies</groupId>
 			<artifactId>djvuframe</artifactId>
 			<version>0.8.09</version>
-
+		</dependency>
+		
+		<!-- GWT prohlizecka -->
+		<dependency>
+			<groupId>gwt.com.google</groupId>
+			<artifactId>gwt-incubator</artifactId>
+			<version>2.0</version>
+		</dependency>
+		<dependency>
+			<groupId>gwt.com.google</groupId>
+			<artifactId>gwt-incubator</artifactId>
+			<version>2.0</version>
+		</dependency>
+		<dependency>
+			<groupId>gwt.com.google</groupId>
+			<artifactId>gwt-servlet</artifactId>
+			<version>2.0</version>
+		</dependency>
+		<dependency>
+			<groupId>gwt.org.adamtacy</groupId>
+			<artifactId>gwtFX</artifactId>
+			<version>0.5.0</version>
+		</dependency>
+		<dependency>
+			<groupId>gwt.org.adamtacy</groupId>
+			<artifactId>gwtFX</artifactId>
+			<version>0.5.0</version>
+		</dependency>
+		<dependency>
+			<groupId>gwt.cz.incad</groupId>
+			<artifactId>gwtviewers</artifactId>
+			<version>1.0-SNAPSHOT</version>
 		</dependency>
 	</dependencies>
-
-	<!--  convenience to define GWT version in one place -->
-	<properties>
-		<gwtVersion>2.0</gwtVersion>
-	</properties>
-
 
 	<build>
 		<sourceDirectory>${basedir}/src/java</sourceDirectory>
