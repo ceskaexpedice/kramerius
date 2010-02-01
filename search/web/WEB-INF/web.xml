@@ -5,6 +5,31 @@
         <servlet-name>GetRelsExt</servlet-name>
         <servlet-class>cz.incad.Kramerius.GetRelsExt</servlet-class>
     </servlet>
+    
+      <!-- Servlets -->
+  <servlet>
+    <servlet-name>pageService</servlet-name>
+    <servlet-class>cz.i.kramerius.gwtviewers.server.PageServiceImpl</servlet-class>
+    <init-param>
+    	<!--  bude tahano z fedory, vlastnosti asi pres JNDI -->
+		<param-name>imgFolder</param-name>
+		<param-value>/home/pavels/Projects/viewer2/war/data</param-value>
+		    	<!--  bude tahano z fedory, vlastnosti asi pres JNDI -->
+		<param-name>thumbUrl</param-name>
+		<param-value>http://localhost:8080/search/thumb</param-value>
+    </init-param>
+    <init-param>
+    	<param-name>noPage</param-name>
+		<param-value>/home/pavels/Projects/viewer2/war/data/</param-value>
+    </init-param>
+  </servlet>
+  
+  <servlet-mapping>
+    <servlet-name>pageService</servlet-name>
+    <url-pattern>/gwtviewers/page</url-pattern>
+  </servlet-mapping>
+    
+    
     <servlet>
         <servlet-name>GetPageInfo</servlet-name>
         <servlet-class>cz.incad.Kramerius.GetPageInfo</servlet-class>
@@ -21,6 +46,13 @@
         <servlet-name>IndexModel</servlet-name>
         <servlet-class>cz.incad.Kramerius.IndexModel</servlet-class>
     </servlet>
+ 
+     <servlet>
+        <servlet-name>thumb</servlet-name>
+        <servlet-class>cz.incad.Kramerius.ThumbnailServlet</servlet-class>
+        <load-on-startup>1</load-on-startup>
+    </servlet>
+    
     <servlet-mapping>
         <servlet-name>GetRelsExt</servlet-name>
         <url-pattern>/GetRelsExt</url-pattern>
@@ -41,6 +73,12 @@
         <servlet-name>IndexModel</servlet-name>
         <url-pattern>/IndexModel</url-pattern>
     </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>thumb</servlet-name>
+        <url-pattern>/thumb</url-pattern>
+    </servlet-mapping>
+
     <welcome-file-list>
         <welcome-file>search.jsp</welcome-file>
     </welcome-file-list>
