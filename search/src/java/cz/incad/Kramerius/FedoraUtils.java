@@ -48,5 +48,14 @@ public class FedoraUtils {
         return pids;
     }
     
-    
+
+    /**
+     * Vraci url na stream s DJVU
+     * @param uuid objektu
+     * @return
+     */
+    public static String getDjVuImage(String uuid) {
+    	String imagePath = fedoraUrl+"/get/uuid:"+uuid+"/IMG_FULL";
+    	return imagePath;
+    }
 }
