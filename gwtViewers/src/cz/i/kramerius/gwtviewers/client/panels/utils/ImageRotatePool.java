@@ -2,6 +2,8 @@ package cz.i.kramerius.gwtviewers.client.panels.utils;
 
 import java.util.ArrayList;
 
+import com.google.gwt.user.client.ui.Widget;
+
 import cz.i.kramerius.gwtviewers.client.panels.ImageMoveWrapper;
 
 
@@ -36,6 +38,21 @@ public class ImageRotatePool {
 		this.right = right;
 	}
 
+	public ImageMoveWrapper getWrapper(Widget widget) {
+		for (ImageMoveWrapper wrap : this.viewPortImages) {
+			if (wrap.getWidget() == widget) {
+				return wrap;
+			}
+		}
+		for (ImageMoveWrapper wrap : this.noVisible) {
+			if (wrap.getWidget() == widget) {
+				return wrap;
+			}
+		};
+		if (this.left.getWidget() == widget) return this.left;
+		if (this.right.getWidget() == widget) return this.right;
+		return null;
+	}
 	
 	
 	public boolean rollLeft() {

@@ -101,11 +101,11 @@ public class PageServiceImpl extends RemoteServiceServlet implements PageService
 				// jak to dostat aniz bych to musel zase cist 
 				imageTO.setWidth(142);
 				imageTO.setHeight(200);
-				
+				imageTO.setIndex(i);
 				pages.add(imageTO);
             }
 			
-            
+            System.out.println(pages.size());
 		} catch (ParserConfigurationException e) {
 			e.printStackTrace();
 		} catch (MalformedURLException e) {

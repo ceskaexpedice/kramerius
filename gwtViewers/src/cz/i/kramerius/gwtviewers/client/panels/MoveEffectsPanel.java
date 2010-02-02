@@ -66,19 +66,16 @@ public class MoveEffectsPanel extends  Composite {
 	
 	public void moveLeft() {
 		ArrayList<ImageMoveWrapper> viewPortImages = this.imageRotatePool.getViewPortImages();
-		if (!viewPortImages.get(0).isLast()) {
-			boolean rollLeft = this.imageRotatePool.rollLeft();
-			if (rollLeft) {
-				this.calulateNextPositions();
-				Rotate left = new Rotate(this.configuration, this.imageRotatePool,this.imageRotateCalculatedPositions, viewPortImages);
-				left.initCompositeEffect();
-				left.play();
-				this.storeCalculatedPositions();
-			}
-			if (this.moveHandler != null) {
-				this.moveHandler.onMoveLeft(this.imageRotatePool);
-			}
-			this.imageRotatePool.debugPool();
+		boolean rollLeft = this.imageRotatePool.rollLeft();
+		if (rollLeft) {
+			this.calulateNextPositions();
+			Rotate left = new Rotate(this.configuration, this.imageRotatePool,this.imageRotateCalculatedPositions, viewPortImages);
+			left.initCompositeEffect();
+			left.play();
+			this.storeCalculatedPositions();
+		}
+		if (this.moveHandler != null) {
+			this.moveHandler.onMoveLeft(this.imageRotatePool);
 		}
 	}
 	
@@ -87,7 +84,6 @@ public class MoveEffectsPanel extends  Composite {
 	
 	public void moveRight() {
 		ArrayList<ImageMoveWrapper> viewPortImages = this.imageRotatePool.getViewPortImages();
-		if (!viewPortImages.get(0).isFirst()) {
 			boolean rollRight = this.imageRotatePool.rollRight();
 			if (rollRight) {
 				this.calulateNextPositions();
@@ -99,12 +95,12 @@ public class MoveEffectsPanel extends  Composite {
 			if (this.moveHandler != null) {
 				this.moveHandler.onMoveRight(this.imageRotatePool);
 			}
-		}
 		
 	}
 	
-
-
+	public ImageRotatePool getRotatePool() {
+		return this.imageRotatePool;
+	}
 
 	public void calulateNextPositions() {
 		Helper.computePositions(this.imageRotatePool, this.imageRotateCalculatedPositions,this.configuration);

@@ -9,6 +9,8 @@ import org.adamtacy.client.ui.effects.events.EffectStartingHandler;
 import org.adamtacy.client.ui.effects.events.EffectSteppingEvent;
 import org.adamtacy.client.ui.effects.events.EffectSteppingHandler;
 import org.adamtacy.client.ui.effects.impl.Fade;
+import org.adamtacy.client.ui.effects.transitionsphysics.LinearTransitionPhysics;
+import org.adamtacy.client.ui.effects.transitionsphysics.TransitionPhysics;
 
 import com.google.gwt.dom.client.Style.Position;
 import com.google.gwt.user.client.ui.Image;
@@ -31,7 +33,6 @@ public class ImageMoveWrapper  implements EffectSteppingHandler, EffectStartingH
 	private boolean first=false;
 	private boolean last = false;
 	
-	private Label label = new Label();
 	
 	public boolean isLast() {
 		return last;
@@ -116,7 +117,6 @@ public class ImageMoveWrapper  implements EffectSteppingHandler, EffectStartingH
 	
 
 	public void disable() {
-		
 	}
 	
 	public void debugXY() {
@@ -163,8 +163,9 @@ public class ImageMoveWrapper  implements EffectSteppingHandler, EffectStartingH
 	public NEffect move(Point point) {
 		CustomMove customMove = new CustomMove(this.getX(), this.getY(), point.x, point.y);
 		customMove.addEffectElement(this.imageCore.getWidget().getElement());
+		customMove.setTransitionType(new LinearTransitionPhysics());
 		customMove.addEffectStartingHandler(this);
-		customMove.setDuration(0.7);
+		customMove.setDuration(0.4);
 		this.setX(this.getX() + this.getWidth());
 		return customMove;
 	}
@@ -209,4 +210,16 @@ public class ImageMoveWrapper  implements EffectSteppingHandler, EffectStartingH
 		fade.addEffectElement(this.imageCore.getWidget().getElement());
 		return fade;
 	}
+
+
+	public int getIndex() {
+		return imageCore.getIndex();
+	}
+
+
+	public void setIndex(int index) {
+		imageCore.setIndex(index);
+	}
+	
+	
 }
