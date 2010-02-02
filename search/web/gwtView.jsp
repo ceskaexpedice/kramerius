@@ -16,7 +16,6 @@
 
 </script>
  
-<h2> GWT Prohlizecka</h2>
 <table align="center">
 	<tr>
 		<td colspan="3" id="label"></td>
