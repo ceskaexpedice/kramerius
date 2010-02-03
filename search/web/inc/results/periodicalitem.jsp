@@ -17,7 +17,7 @@
                 </c:set>
                 <a href="<c:out value="${itemUrl}" escapeXml="false" />" >
                     <b><x:out select="./str[@name='root_title']"/></b>
-                </a>
+                </a>&nbsp;<x:out select="./str[@name='dc.title']"/>&nbsp;(<fmt:message>info:fedora/model:periodicalitem</fmt:message>)
                 <br/>
                 <fmt:message>Datum vydání výtisku</fmt:message>: <x:out select="./str[@name='datum']"/><br/>
         <c:set var="urlStr" >

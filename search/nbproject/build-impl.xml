@@ -513,24 +513,54 @@ or ant -Dj2ee.platform.classpath=&lt;server_classpath&gt; (where no properties f
         <basename file="${libs.jstl11.classpath.libfile.1}" property="included.lib.libs.jstl11.classpath.1"/>
         <copy-ear-war file="${libs.jstl11.classpath.libfile.2}" propname="included.lib.libs.jstl11.classpath.2.X"/>
         <copy-ear-war file="${libs.jstl11.classpath.libfile.1}" propname="included.lib.libs.jstl11.classpath.1.X"/>
-        <basename file="${file.reference.xalan.jar}" property="included.lib.file.reference.xalan.jar"/>
-        <copy-ear-war file="${file.reference.xalan.jar}" propname="included.lib.file.reference.xalan.jar.X"/>
-        <basename file="${file.reference.xercesImpl.jar}" property="included.lib.file.reference.xercesImpl.jar"/>
-        <copy-ear-war file="${file.reference.xercesImpl.jar}" propname="included.lib.file.reference.xercesImpl.jar.X"/>
         <basename file="${file.reference.log4j.jar}" property="included.lib.file.reference.log4j.jar"/>
         <copy-ear-war file="${file.reference.log4j.jar}" propname="included.lib.file.reference.log4j.jar.X"/>
+        <basename file="${libs.djvu.classpath.libfile.2}" property="included.lib.libs.djvu.classpath.2"/>
+        <basename file="${libs.djvu.classpath.libfile.1}" property="included.lib.libs.djvu.classpath.1"/>
+        <copy-ear-war file="${libs.djvu.classpath.libfile.2}" propname="included.lib.libs.djvu.classpath.2.X"/>
+        <copy-ear-war file="${libs.djvu.classpath.libfile.1}" propname="included.lib.libs.djvu.classpath.1.X"/>
+        <basename file="${libs.xalan2.7.1.classpath.libfile.4}" property="included.lib.libs.xalan2.7.1.classpath.4"/>
+        <basename file="${libs.xalan2.7.1.classpath.libfile.3}" property="included.lib.libs.xalan2.7.1.classpath.3"/>
+        <basename file="${libs.xalan2.7.1.classpath.libfile.2}" property="included.lib.libs.xalan2.7.1.classpath.2"/>
+        <basename file="${libs.xalan2.7.1.classpath.libfile.1}" property="included.lib.libs.xalan2.7.1.classpath.1"/>
+        <copy-ear-war file="${libs.xalan2.7.1.classpath.libfile.4}" propname="included.lib.libs.xalan2.7.1.classpath.4.X"/>
+        <copy-ear-war file="${libs.xalan2.7.1.classpath.libfile.3}" propname="included.lib.libs.xalan2.7.1.classpath.3.X"/>
+        <copy-ear-war file="${libs.xalan2.7.1.classpath.libfile.2}" propname="included.lib.libs.xalan2.7.1.classpath.2.X"/>
+        <copy-ear-war file="${libs.xalan2.7.1.classpath.libfile.1}" propname="included.lib.libs.xalan2.7.1.classpath.1.X"/>
+        <basename file="${libs.Fedora.classpath.libfile.2}" property="included.lib.libs.Fedora.classpath.2"/>
+        <basename file="${libs.Fedora.classpath.libfile.1}" property="included.lib.libs.Fedora.classpath.1"/>
+        <copy-ear-war file="${libs.Fedora.classpath.libfile.2}" propname="included.lib.libs.Fedora.classpath.2.X"/>
+        <copy-ear-war file="${libs.Fedora.classpath.libfile.1}" propname="included.lib.libs.Fedora.classpath.1.X"/>
+        <basename file="${file.reference.gwt-incubator-2.0.jar}" property="included.lib.file.reference.gwt-incubator-2.0.jar"/>
+        <copy-ear-war file="${file.reference.gwt-incubator-2.0.jar}" propname="included.lib.file.reference.gwt-incubator-2.0.jar.X"/>
+        <basename file="${file.reference.gwt-servlet-2.0.jar}" property="included.lib.file.reference.gwt-servlet-2.0.jar"/>
+        <copy-ear-war file="${file.reference.gwt-servlet-2.0.jar}" propname="included.lib.file.reference.gwt-servlet-2.0.jar.X"/>
+        <basename file="${file.reference.gwtFX-0.5.0.jar}" property="included.lib.file.reference.gwtFX-0.5.0.jar"/>
+        <copy-ear-war file="${file.reference.gwtFX-0.5.0.jar}" propname="included.lib.file.reference.gwtFX-0.5.0.jar.X"/>
+        <basename file="${file.reference.gwtviewers-1.0-SNAPSHOT.jar}" property="included.lib.file.reference.gwtviewers-1.0-SNAPSHOT.jar"/>
+        <copy-ear-war file="${file.reference.gwtviewers-1.0-SNAPSHOT.jar}" propname="included.lib.file.reference.gwtviewers-1.0-SNAPSHOT.jar.X"/>
         <mkdir dir="${build.web.dir}/META-INF"/>
         <manifest file="${build.web.dir}/META-INF/MANIFEST.MF" mode="update">
-            <attribute name="Class-Path" value="${included.lib.libs.jstl11.classpath.1.X} ${included.lib.libs.jstl11.classpath.2.X} ${included.lib.file.reference.xalan.jar} ${included.lib.file.reference.xercesImpl.jar} ${included.lib.file.reference.log4j.jar} "/>
+            <attribute name="Class-Path" value="${included.lib.libs.jstl11.classpath.1.X} ${included.lib.libs.jstl11.classpath.2.X} ${included.lib.file.reference.log4j.jar} ${included.lib.libs.djvu.classpath.1.X} ${included.lib.libs.djvu.classpath.2.X} ${included.lib.libs.xalan2.7.1.classpath.1.X} ${included.lib.libs.xalan2.7.1.classpath.2.X} ${included.lib.libs.xalan2.7.1.classpath.3.X} ${included.lib.libs.xalan2.7.1.classpath.4.X} ${included.lib.libs.Fedora.classpath.1.X} ${included.lib.libs.Fedora.classpath.2.X} ${included.lib.file.reference.gwt-incubator-2.0.jar} ${included.lib.file.reference.gwt-servlet-2.0.jar} ${included.lib.file.reference.gwtFX-0.5.0.jar} ${included.lib.file.reference.gwtviewers-1.0-SNAPSHOT.jar} "/>
         </manifest>
         <delete dir="${dist.ear.dir}/temp"/>
     </target>
     <target depends="init" name="library-inclusion-in-archive" unless="dist.ear.dir">
         <copy file="${libs.jstl11.classpath.libfile.2}" todir="${build.web.dir}/WEB-INF/lib"/>
         <copy file="${libs.jstl11.classpath.libfile.1}" todir="${build.web.dir}/WEB-INF/lib"/>
-        <copy file="${file.reference.xalan.jar}" todir="${build.web.dir}/WEB-INF/lib"/>
-        <copy file="${file.reference.xercesImpl.jar}" todir="${build.web.dir}/WEB-INF/lib"/>
         <copy file="${file.reference.log4j.jar}" todir="${build.web.dir}/WEB-INF/lib"/>
+        <copy file="${libs.djvu.classpath.libfile.2}" todir="${build.web.dir}/WEB-INF/lib"/>
+        <copy file="${libs.djvu.classpath.libfile.1}" todir="${build.web.dir}/WEB-INF/lib"/>
+        <copy file="${libs.xalan2.7.1.classpath.libfile.4}" todir="${build.web.dir}/WEB-INF/lib"/>
+        <copy file="${libs.xalan2.7.1.classpath.libfile.3}" todir="${build.web.dir}/WEB-INF/lib"/>
+        <copy file="${libs.xalan2.7.1.classpath.libfile.2}" todir="${build.web.dir}/WEB-INF/lib"/>
+        <copy file="${libs.xalan2.7.1.classpath.libfile.1}" todir="${build.web.dir}/WEB-INF/lib"/>
+        <copy file="${libs.Fedora.classpath.libfile.2}" todir="${build.web.dir}/WEB-INF/lib"/>
+        <copy file="${libs.Fedora.classpath.libfile.1}" todir="${build.web.dir}/WEB-INF/lib"/>
+        <copy file="${file.reference.gwt-incubator-2.0.jar}" todir="${build.web.dir}/WEB-INF/lib"/>
+        <copy file="${file.reference.gwt-servlet-2.0.jar}" todir="${build.web.dir}/WEB-INF/lib"/>
+        <copy file="${file.reference.gwtFX-0.5.0.jar}" todir="${build.web.dir}/WEB-INF/lib"/>
+        <copy file="${file.reference.gwtviewers-1.0-SNAPSHOT.jar}" todir="${build.web.dir}/WEB-INF/lib"/>
     </target>
     <target depends="init,compile,compile-jsps,-pre-dist,library-inclusion-in-manifest" name="do-ear-dist">
         <dirname file="${dist.ear.war}" property="dist.jar.dir"/>

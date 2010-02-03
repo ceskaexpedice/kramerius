@@ -68,7 +68,7 @@
             <span>
                 <b><fmt:message>Hlavní název</fmt:message>:</b><br/>
                 <dd><a>
-                        <xsl:attribute name="href">./item.jsp?pid=uuid:<xsl:value-of select="./mods:identifier[@type='urn']"/>&amp;model=info:fedora/model:monograph</xsl:attribute><xsl:value-of select="mods:titleInfo/mods:title" /></a></dd>
+                <xsl:attribute name="href">./item.jsp?pid=<c:out value="${param.parentPid}" />&amp;model=info:fedora/model:monograph</xsl:attribute><xsl:value-of select="mods:titleInfo/mods:title" /></a></dd>
             </span>
             <c:if test="${display == 'none'}"><a onclick="$('#moreDetails').toggle();" href="#">more</a></c:if>
         </div>

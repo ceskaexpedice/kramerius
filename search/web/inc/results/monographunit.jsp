@@ -18,7 +18,7 @@
 </c:set>
 <div>
     <a href="./item.jsp?pid=<c:out value="${uuid}"/>&model=info:fedora/model:monographunit">
-                <b><x:out select="./arr[@name='dc.title']"/></b>
+                <b><x:out select="./str[@name='dc.title']"/></b>
                 </a>
     <span class="textpole">(<fmt:message><x:out select="./str[@name='fedora.model']"/></fmt:message>)</span>
     <span id="pages_<c:out value="${uuidSimple}"/>" class="pages"><x:out select="./str[@name='pages_count']"/></span>

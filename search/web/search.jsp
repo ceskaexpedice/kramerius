@@ -35,9 +35,10 @@
         </table>
         <table class="main">
             <tr valign='top'>
-                <td>
+                <td class="leftMenu">
                     <%@ include file="inc/dateAxisV.jsp" %>
-                    <%//@ include file="inc/facets.jsp" %>
+                    
+                    <%@ include file="inc/facets.jsp" %>
                 </td>
                 <td>
                     <c:out value="${numDocs}" />

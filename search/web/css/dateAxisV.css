@@ -8,8 +8,6 @@
 }
 
 .da_container{
-    border:solid 1px #CCCCCC;
-    height:400px;
     width:150px;
     padding:2px;
     margin:0px;
@@ -19,7 +17,6 @@
 
 .da_range_container{
     position:relative;
-    height:400px;
     padding:2px;
     margin:0px;
     float:left;

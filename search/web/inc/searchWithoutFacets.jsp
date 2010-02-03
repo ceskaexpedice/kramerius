@@ -42,7 +42,7 @@
             <c:set var="rows" value="${param.rows}" scope="request" />
         </c:when>
         <c:otherwise>
-            <c:set var="rows"  value="5" scope="request" />
+            <c:set var="rows"  value="55" scope="request" />
         </c:otherwise>
     </c:choose>
     <c:param name="rows" value="${rows}" />
@@ -55,27 +55,35 @@
         <c:param name="fq" value="rok:[${param.f1} TO ${param.f2}]" />
     </c:if>
     <c:param name="start" value="${param.offset}" />
-    <c:param name="sort" value="${param.sort}" />
+    
+    <c:param name="sort" value="title asc" />
+    
 </c:url>
 <c:catch var="exceptions"> 
     <c:import url="${url}" var="xml" charEncoding="UTF-8" />
 </c:catch>
-<c:if test="${exceptions != null}" >
-    <c:import url="empty.xml" var="xml" />
-</c:if>
+<c:choose>
+    <c:when test="${exceptions != null}">
+        <c:import url="empty.xml" var="xml" />
+        <c:out value="${exceptions}" />
+        <c:out value="${xml}" />
+    </c:when>
+    <c:otherwise>
+        <x:parse var="doc" xml="${xml}"  />
+        <c:set var="numDocs" scope="request" >
+            <x:out select="$doc/response/result/@numFound" />
+        </c:set>
+        <div id="s_<c:out value="${param.d}" />">
+            <x:forEach select="$doc/response/result/doc">
+                <div id="<x:out select="./str[@name='PID']"/>" class="inTree">
+                    <a href="./item.jsp?pid=<x:out select="./str[@name='PID']"/>&&model=<x:out select="./str[@name='fedora.model']"/>">
+                    <x:out select="./str[@name='dc.title']"/></a> 
+                </div>
+            </x:forEach>
+        </div>
+        <div id="paginationInTree" align="right">
+            <%@ include file="paginationPageNum.jsp" %>
+        </div> 
+    </c:otherwise>
+</c:choose>
 
-<x:parse var="doc" xml="${xml}"  />
-<c:set var="numDocs" scope="request" >
-    <x:out select="$doc/response/result/@numFound" />
-</c:set>
-<div id="s_<c:out value="${param.d}" />">
-<x:forEach select="$doc/response/result/doc">
-    <div id="<x:out select="./str[@name='PID']"/>" class="inTree">
-        <a href="./item.jsp?pid=<x:out select="./str[@name='PID']"/>&&model=<x:out select="./str[@name='fedora.model']"/>">
-        <x:out select="./arr[@name='dc.title']"/></a> 
-    </div>
-</x:forEach>
-</div>
-<div id="paginationInTree" align="right">
-    <%@ include file="paginationPageNum.jsp" %>
-</div>

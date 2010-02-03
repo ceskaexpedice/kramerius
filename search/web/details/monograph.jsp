@@ -33,9 +33,9 @@
         <xsl:variable name="uuid" ><xsl:value-of select="./mods:identifier[@type='urn']"/></xsl:variable>
         <div><span valign="top">*</span>
             <span>
-                <b><fmt:message>Hlavní název</fmt:message>:</b><br/>
-                <dd><a>
-                        <xsl:attribute name="href">./item.jsp?pid=uuid:<xsl:value-of select="$uuid"/>&amp;model=info:fedora/model:monograph</xsl:attribute><xsl:value-of select="mods:titleInfo/mods:title" /></a></dd>
+                <fmt:message>Hlavní název</fmt:message>:<br/>
+                <div class="resultValue"><a>
+                        <xsl:attribute name="href">./item.jsp?pid=uuid:<xsl:value-of select="$uuid"/>&amp;model=info:fedora/model:monograph</xsl:attribute><xsl:value-of select="mods:titleInfo/mods:title" /></a></div>
             </span>
             <c:if test="${display == 'none'}"><a onclick="$('#moreDetails').toggle();" href="#">more</a></c:if>
         </div>
@@ -43,45 +43,45 @@
             <xsl:attribute name="style">display:<c:out value="${param.display}" />;</xsl:attribute>
         <div><span valign="top">*</span>
             <span>
-                <b><fmt:message>Autor</fmt:message>:</b><br/>
+                <fmt:message>Autor</fmt:message>:<br/>
                 <xsl:for-each select="mods:name[@type='personal']">
                     <xsl:if test="./mods:role/mods:roleTerm = 'Author'">
-                        <dd>
-                            <b>Příjmení: </b>&#160;<xsl:value-of select="./mods:namePart[@type='family']" />&#160;&#160;
-                            <b>Jméno: </b>&#160;<xsl:value-of select="./mods:namePart[@type='given']" />
-                        </dd>
+                        <div class="resultValue">
+                            Příjmení: &#160;<xsl:value-of select="./mods:namePart[@type='family']" />&#160;&#160;
+                            Jméno: &#160;<xsl:value-of select="./mods:namePart[@type='given']" />
+                        </div>
                     </xsl:if>
                 </xsl:for-each>
             </span>
         </div>
         <div><span valign="top">*</span>
             <span>
-                <b><fmt:message>Druh dokumentu</fmt:message>:</b><br/>
-                <dd>
+                <fmt:message>Druh dokumentu</fmt:message>:<br/>
+                <div class="resultValue">
                     <fmt:message>info:fedora/model:monograph</fmt:message>
-                </dd>
+                </div>
             </span>
         </div>
         <xsl:for-each select="mods:originInfo[@transliteration='publisher']">
             <div><span valign="top">*</span>
                 <span>
-                    <b><fmt:message>Název vydavatele</fmt:message>:</b><br/>
+                    <fmt:message>Název vydavatele</fmt:message>:<br/>
                     <xsl:if test="./mods:publisher">
-                        <dd>
+                        <div class="resultValue">
                             <xsl:value-of select="./mods:publisher" />
-                        </dd>
+                        </div>
                     </xsl:if>
-                    <b><fmt:message>Datum vydání</fmt:message>:</b><br/>
+                    <fmt:message>Datum vydání</fmt:message>:<br/>
                     <xsl:if test="./mods:dateIssued">
-                        <dd>
+                        <div class="resultValue">
                             <xsl:value-of select="./mods:dateIssued" />
-                        </dd>
+                        </div>
                     </xsl:if>
-                    <b><fmt:message>Místo vydání</fmt:message>:</b><br/>
+                    <fmt:message>Místo vydání</fmt:message>:<br/>
                     <xsl:if test="./mods:place/mods:placeTerm">
-                        <dd>
+                        <div class="resultValue">
                             <xsl:value-of select="./mods:place/mods:placeTerm" />
-                        </dd>
+                        </div>
                     </xsl:if>
                 </span>
             </div>
@@ -89,39 +89,52 @@
         <xsl:if test="mods:originInfo[@transliteration='printer']">
             <div><span valign="top">*</span>
                 <span>
-                    <b><fmt:message>Název tiskaře</fmt:message>:</b><br/> 
-                    <dd>
+                    <fmt:message>Název tiskaře</fmt:message>:<br/> 
+                    <div class="resultValue">
                         <xsl:value-of select="mods:originInfo[@transliteration='printer']/mods:publisher" />
-                    </dd>
+                    </div>
                     <br/> 
-                    <b><fmt:message>Místo tisku</fmt:message>:</b><br/>
-                    <dd> 
+                    <fmt:message>Místo tisku</fmt:message>:<br/>
+                    <div class="resultValue"> 
                         <xsl:value-of select="mods:originInfo[@transliteration='printer']/mods:place/mods:placeTerm" />
-                    </dd>
+                    </div>
                 </span>
             </div>
         </xsl:if>
         <xsl:if test="mods:physicalDescription/mods:extent">
             <div><span valign="top">*</span>
                 <span>
-                    <b><fmt:message>Fyzický popis</fmt:message>:</b><br/>
+                    <fmt:message>Fyzický popis</fmt:message>:<br/>
                     
-                    <b><fmt:message>Rozměry</fmt:message>:</b><br/> 
-                    <dd><xsl:value-of select="substring-after(mods:physicalDescription/mods:extent, ',')" /></dd>
-                    <br/>
-                    <b><fmt:message>Rozsah</fmt:message>:</b><br/> 
-                    <dd><xsl:value-of select="substring-before(mods:physicalDescription/mods:extent, ',')" /></dd>
+                    <xsl:if test="contains(mods:physicalDescription/mods:extent, ',')">
+                        <fmt:message>Rozměry</fmt:message>:<br/> 
+                        <div class="resultValue"><xsl:value-of select="substring-after(mods:physicalDescription/mods:extent, ',')" /></div>
+                        <br/>
+                    </xsl:if>
+                    <xsl:choose>
+                        <xsl:when test="contains(mods:physicalDescription/mods:extent, ',')">
+                            <fmt:message>Rozměry</fmt:message>:<br/> 
+                            <div class="resultValue"><xsl:value-of select="substring-after(mods:physicalDescription/mods:extent, ',')" /></div>
+                            <br/>
+                            <fmt:message>Rozsah</fmt:message>:<br/> 
+                            <div class="resultValue"><xsl:value-of select="substring-before(mods:physicalDescription/mods:extent, ',')" /></div>
+                        </xsl:when>
+                        <xsl:otherwise>
+                            <fmt:message>Rozsah</fmt:message>:<br/> 
+                            <div class="resultValue"><xsl:value-of select="mods:physicalDescription/mods:extent" /></div>
+                        </xsl:otherwise>
+                    </xsl:choose>
                 </span>
             </div>
         </xsl:if>
         <xsl:if test="mods:physicalDescription/mods:note[@type='preservationStateOfArt']">
             <div><span valign="top">*</span>
                 <span>
-                    <b><fmt:message>Stav z hlediska ochrany fondů</fmt:message>:</b><br/>
-                    <dd>
-                        <b><fmt:message>Aktuální stav</fmt:message>:</b><br/> 
+                    <fmt:message>Stav z hlediska ochrany fondů</fmt:message>:<br/>
+                    <div class="resultValue">
+                        <fmt:message>Aktuální stav</fmt:message>:<br/> 
                         <xsl:value-of select="mods:physicalDescription/mods:note[@type='preservationStateOfArt']" />
-                    </dd>
+                    </div>
                 </span>
             </div>
         </xsl:if>
@@ -129,20 +142,20 @@
         <xsl:if test="mods:location/mods:physicalLocation">
             <div><span valign="top">*</span>
                 <span>
-                    <b><fmt:message>Místo uložení</fmt:message>:</b><br/>
-                    <dd>
+                    <fmt:message>Místo uložení</fmt:message>:<br/>
+                    <div class="resultValue">
                         <xsl:value-of select="mods:location/mods:physicalLocation" />
-                    </dd>
+                    </div>
                 </span>
             </div>
         </xsl:if>
         <xsl:if test="mods:location/mods:shelfLocator">
             <div><span valign="top">*</span>
                 <span>
-                    <b><fmt:message>Signatura</fmt:message>:</b><br/>
-                    <dd>
+                    <fmt:message>Signatura</fmt:message>:<br/>
+                    <div class="resultValue">
                         <xsl:value-of select="mods:location/mods:shelfLocator" />
-                    </dd>
+                    </div>
                 </span>
             </div>
         </xsl:if>

@@ -20,7 +20,7 @@
     <!-- rdf.kramerius.hasPage:"info:fedora/PID" -->
     <span>
                 <a href="./item.jsp?pid=<x:out select="./str[@name='PID']"/>&model=info:fedora/model:periodical">
-                <b><x:out select="./arr[@name='dc.title']"/></b>
+                <b><x:out select="./str[@name='dc.title']"/></b>
                 </a> 
     </span>
     <span class="textpole">(<fmt:message>info:fedora/model:periodical</fmt:message>)</span>

@@ -1,6 +1,6 @@
 /* Interface variables */
-var containerWidth = 300;
-var containerHeight = 100;
+var containerWidth = 200;
+var containerHeight = 300;
 var groupTitleHeight = 20;
 var maxHeight = 60;
 var barContainerHeight = 5;
@@ -563,7 +563,8 @@ function fillDateAxis(level){
     } 
     
     
-    //$("#content-scroll").css("width", containerWidth + "px");
+    $("#content-scroll").css("width", containerWidth + "px");
+    $("#content-scroll").css("height", containerHeight + "px");
     $("#content-slider").css("height", $("#content-scroll").height() + "px");
     $('.da_bar').css('zIndex', 3);
 }

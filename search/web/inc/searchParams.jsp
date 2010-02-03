@@ -22,6 +22,7 @@ if(session.getAttribute("configuration")==null)
 	session.setAttribute( "configuration", kconfig);
 	session.setAttribute( "fedoraSolr", kconfig.getProperty("fedoraSolr") );
 	session.setAttribute( "fedoraHost", kconfig.getProperty("fedoraHost"));
+	session.setAttribute( "indexerHost", kconfig.getProperty("indexerHost"));
 }
 KConfiguration kconfig = (KConfiguration) getServletContext().getAttribute("configuration");
 
@@ -77,7 +78,7 @@ KConfiguration kconfig = (KConfiguration) getServletContext().getAttribute("conf
         <c:param name="fq" value="${fqs}" />
     </c:forEach>
     <c:if test="${param.f1 != null}">
-        <c:param name="fq" value="rok:[${param.f1} TO ${param.f2}]" />
+        <c:param name="fq" value="rok:[${param.f1} TO ${param.f2}] OR (datum_begin:[1 TO ${param.f1}] AND datum_end:[${param.f2} TO 3000])" />
     </c:if>
     <c:param name="start" value="${param.offset}" />
     <c:choose>

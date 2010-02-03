@@ -26,7 +26,10 @@
                 <c:out value="${fedoraSolr}" />?q=PID:"<c:out value="${uuid}" />"
             </c:set>
             <c:set var="urlReindex" >
+                <%--
                 IndexModel?full=true&model=<x:out select="substring(./str[@name='fedora.model'], 19)" />&pid=<c:out value="${uuid}" />
+                --%>
+                <c:out value="${indexerHost}" />/rest?operation=updateIndex&action=fromKrameriusModel&value=<c:out value="${uuid}" />
             </c:set>
     <x:choose>
         

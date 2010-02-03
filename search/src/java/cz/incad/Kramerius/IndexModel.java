@@ -46,6 +46,7 @@ public class IndexModel extends HttpServlet {
     XPathExpression expr;
     long startTime;
     int totalIndexed;
+    int startFrom = -1;
 
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
@@ -60,15 +61,19 @@ public class IndexModel extends HttpServlet {
             xpath = factory.newXPath();
             String pid = request.getParameter("pid");
             String model = request.getParameter("model");
+            try {
+                startFrom = Integer.parseInt(request.getParameter("startFrom"));
+            } catch (NumberFormatException nex) {
+            }
             if (pid != null) {
                 boolean withParams = Boolean.parseBoolean(request.getParameter("params"));
                 if (withParams) {
                     IndexParams params = new IndexParams(pid, model,
-                            request.getParameter("path"), 
-                            request.getParameter("parent_model"), 
-                            request.getParameter("parent_pid"), 
+                            request.getParameter("path"),
+                            request.getParameter("parent_model"),
+                            request.getParameter("parent_pid"),
                             request.getParameter("datum"),
-                            request.getParameter("root_pid"), 
+                            request.getParameter("root_pid"),
                             request.getParameter("root_model"),
                             request.getParameter("root_title"),
                             request.getParameter("language"));
@@ -162,16 +167,18 @@ public class IndexModel extends HttpServlet {
                 }
             }
             //out.println(params.toUrlString());
-            urlStr = fedoraGSearch + "/rest?operation=updateIndex&action=fromPid&value=" + pid +
-                    "&restXslt=updateOnlyResult&PAGESCOUNT=" + num + params.toUrlString();
-            out.println(totalIndexed);
-            //out.println(urlStr);
-            url = new java.net.URL(urlStr);
-            java.io.BufferedReader in = new java.io.BufferedReader(new java.io.InputStreamReader(url.openStream()));
-            String inputLine = in.readLine();
-            while ((inputLine = in.readLine()) != null) {
+            if (startFrom < totalIndexed) {
+                urlStr = fedoraGSearch + "/rest?operation=updateIndex&action=fromPid&value=" + pid +
+                        "&restXslt=updateOnlyResult&PAGESCOUNT=" + num + params.toUrlString();
+                //out.println(urlStr);
+                url = new java.net.URL(urlStr);
+                java.io.BufferedReader in = new java.io.BufferedReader(new java.io.InputStreamReader(url.openStream()));
+                String inputLine = in.readLine();
+                while ((inputLine = in.readLine()) != null) {
+                }
+                in.close();
             }
-            in.close();
+            out.println(totalIndexed);
             totalIndexed++;
 
         } catch (Exception e) {

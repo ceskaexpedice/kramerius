@@ -18,8 +18,7 @@
                 </c:set>
                 <a href="<c:out value="${itemUrl}" escapeXml="false" />" >
                     <b><x:out select="./str[@name='root_title']"/></b>
-                </a>
-                
+                </a>&nbsp;<x:out select="./str[@name='dc.title']/str"/>&nbsp;
                 (<fmt:message><x:out select="./str[@name='fedora.model']"/></fmt:message>)
                 <br/>
                 <fmt:message>Datum vydání ročníku</fmt:message>: <x:out select="./int[@name='rok']"/><br/>

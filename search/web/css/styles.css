@@ -114,4 +114,9 @@ a.image:hover {
     background: #efefee;
 }
 
+.resultValue{
+    margin-left:10px;
+    font-weight:bold;
+}
+
 /* end results */

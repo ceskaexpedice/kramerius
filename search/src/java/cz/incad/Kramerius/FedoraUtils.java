@@ -21,9 +21,11 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 public class FedoraUtils {
+    
     public static String fedoraUrl = "http://194.108.215.227:8080/fedora";
     
     
+        
     public static ArrayList<String> getRdfPids(String pid, String relation) {
         ArrayList<String> pids = new ArrayList<String>();
         try {
