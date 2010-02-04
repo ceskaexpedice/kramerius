@@ -60,4 +60,15 @@ public class FedoraUtils {
     	String imagePath = fedoraUrl+"/get/uuid:"+uuid+"/IMG_FULL";
     	return imagePath;
     }
+    
+    /**
+     * Vraci url na stream THUMB
+     * @param uuid
+     * @return
+     */
+    public static String getThumbnailFromFedora(String uuid) {
+    	String imagePath = fedoraUrl+"/get/uuid:"+uuid+"/THUMB";
+    	return imagePath;
+    }
+    
 }
