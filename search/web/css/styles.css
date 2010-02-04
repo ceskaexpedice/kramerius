@@ -42,13 +42,13 @@ a:link, a:active, a:visited {
 	font-family:Verdana, Arial, Helvetica, Tahoma;
 	font-size:11px;
 	color:#4B4F4A;
-	text-decoration:underline;
+	text-decoration:none;
 }
 a:hover {
 	font-family:Verdana, Arial, Helvetica, Tahoma;
 	font-size:11px;
 	color:#4B4F4A;
-	text-decoration:none;
+	text-decoration:underline;
 }
 a.image:link, a.image:active, a.image:visited {
 	font-family:Verdana, Arial, Helvetica, Tahoma;
@@ -117,6 +117,14 @@ a.image:hover {
 .resultValue{
     margin-left:10px;
     font-weight:bold;
+}
+
+.resultsInTree{
+    padding-left:20px;
+}
+
+.resultInTree{
+    padding-left:0px;
 }
 
 /* end results */

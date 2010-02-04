@@ -17,8 +17,10 @@
    vertical-align: middle;
 }
 .dtree a {
-   color: #333;
    text-decoration: none;
+}
+.dtree a:hover {
+   text-decoration: underline;
 }
 .dtree a.node, .dtree a.nodeSel {
    white-space: nowrap;

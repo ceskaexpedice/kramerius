@@ -26,8 +26,11 @@
             <br/>
             <c:out value="${exceptions}" />
         </c:if>
+        <table border="0" cellpadding="0" cellspacing="0" width="100%">
+        <tbody><tr><td>
         <%@ include file="templates/logo.jsp" %>
         <%@ include file="inc/searchForm.jsp" %>
+        </td></tr></tbody></table>
         <table>
             <tr valign='top'>
                 <td><%@ include file="usedFilters.jsp" %></td>
@@ -37,8 +40,8 @@
             <tr valign='top'>
                 <td class="leftMenu">
                     <%@ include file="inc/dateAxisV.jsp" %>
-                    
-                    <%@ include file="inc/facets.jsp" %>
+                    <% currentFacetName = "language"; %>
+                    <%@ include file="inc/facet.jsp" %>
                 </td>
                 <td>
                     <c:out value="${numDocs}" />

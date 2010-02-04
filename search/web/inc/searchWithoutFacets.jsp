@@ -42,7 +42,7 @@
             <c:set var="rows" value="${param.rows}" scope="request" />
         </c:when>
         <c:otherwise>
-            <c:set var="rows"  value="55" scope="request" />
+            <c:set var="rows"  value="5" scope="request" />
         </c:otherwise>
     </c:choose>
     <c:param name="rows" value="${rows}" />
@@ -64,7 +64,6 @@
 </c:catch>
 <c:choose>
     <c:when test="${exceptions != null}">
-        <c:import url="empty.xml" var="xml" />
         <c:out value="${exceptions}" />
         <c:out value="${xml}" />
     </c:when>
@@ -76,14 +75,17 @@
         <div id="s_<c:out value="${param.d}" />">
             <x:forEach select="$doc/response/result/doc">
                 <div id="<x:out select="./str[@name='PID']"/>" class="inTree">
-                    <a href="./item.jsp?pid=<x:out select="./str[@name='PID']"/>&&model=<x:out select="./str[@name='fedora.model']"/>">
+                    <a target="item" href="./item.jsp?pid=<x:out select="./str[@name='PID']"/>&model=<x:out select="./str[@name='fedora.model']"/>">
                     <x:out select="./str[@name='dc.title']"/></a> 
+                    <a href="javascript:browseInTree('<x:out select="./str[@name='PID']"/>', '<x:out select="./str[@name='fedora.model']"/>', 'sub_<c:out value="${param.d}"/>');">
+                    browse</a> 
                 </div>
             </x:forEach>
         </div>
         <div id="paginationInTree" align="right">
             <%@ include file="paginationPageNum.jsp" %>
         </div> 
+        <div id="sub_<c:out value="${param.d}" />"></div>
     </c:otherwise>
 </c:choose>
 

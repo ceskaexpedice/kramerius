@@ -77,12 +77,20 @@ function  loadPageOffsetInTree(value,div,fq){
         $("#"+div).animate({marginLeft:'0px'},'slow');
     }  
 
-function searchInTree(navigator, value, div){
+function searchInTree(filter, div){
+    
     var page = new PageQuery(window.location.search);
     page.setValue("offset", "0");
     var url = searchInTreePage + "?" + 
-        page.toString() + "&d="+div+"&fq=" + navigator + ":\"" + value + "\"";
-    $.post(url, function(xml) {
+        page.toString() + "&d="+div+"&fq=" + filter;
+    $.get(url, function(xml) {
+        $("#"+div).html(xml);
+    });
+}
+
+function browseInTree(pid, model, div){
+    var url ="./inc/getItemForBrowse.jsp?pid="+pid+"&model="+model;
+    $.get(url, function(xml) {
         $("#"+div).html(xml);
     });
 }

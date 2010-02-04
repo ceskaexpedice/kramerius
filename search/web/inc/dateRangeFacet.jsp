@@ -59,8 +59,6 @@ fq=fedora.model:%22info:fedora/model:page%22
                     (datumFacet.infos.size() > 0) &&
                     !((datumFacet.infos.size() == 1) && (datumFacet.infos.get(0).displayName.equals("0")))) {
 
-                String dateStr = "";
-
                 for (int k = 0; k < datumFacet.infos.size(); k++) {
                     try {
                         int beginDate = Integer.parseInt(datumFacet.infos.get(k).displayName.split("-")[0].trim());

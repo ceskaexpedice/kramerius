@@ -5,7 +5,7 @@
             while (it.hasNext()) {
                 //Map.Entry pairs = (Map.Entry) it.next();
                 //Facet currentFacet = (Facet) pairs.getValue();
-                String currentFacetName = (String) it.next();
+                currentFacetName = (String) it.next();
                 //if (currentFacet.name.contains("abeceda")) {
 %>
 <%@ include file="facet.jsp" %>

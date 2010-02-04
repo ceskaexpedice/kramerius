@@ -8,12 +8,13 @@
             Map<String, Facet> facets = new HashMap<String, Facet>();
             String abeceda = "A,Á,B,C,Č,D,Ď,E,É,Ě,F,G,H,CH,I,Í,J,K,L,M,N,Ň,O,Ó,P,Q,R,Ř,S,Š,T,Ť,U,Ú,Ů,V,W,X,Y,Ý,Z,Ž,0,1,2,3,4,5,6,7,8,9";
             String[] abecedaArray = abeceda.split(",");
+            String currentFacetName = "";
 %>
 <%out.clear();%>
 <x:forEach var="nav" select="$doc/response/lst[@name='facet_counts']/lst[@name='facet_fields']/lst">
     <c:set var="facetName"><x:out select="@name"/></c:set><jsp:useBean id="facetName" type="java.lang.String" /><%
             Facet facet = new Facet(facetName);
-    %><x:if select="count(./int) > 1">
+    %><x:if select="count(./int) > 0">
         <c:choose>
             <c:when test="${facetName == 'fedora.model'}">
                 <c:set var="displayName">
