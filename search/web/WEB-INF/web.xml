@@ -66,7 +66,6 @@
         <servlet-name>IndexModel</servlet-name>
         <url-pattern>/IndexModel</url-pattern>
     </servlet-mapping>
-
     <servlet-mapping>
         <servlet-name>thumb</servlet-name>
         <url-pattern>/thumb</url-pattern>
@@ -75,6 +74,19 @@
     <welcome-file-list>
         <welcome-file>search.jsp</welcome-file>
     </welcome-file-list>
-    
 
+	<!-- 
+		Promenne pro Krameria !!  TODO: Dat do context.xml 	
+	 -->    
+	<env-entry>
+		<env-entry-name>fedoraAdminUser</env-entry-name>
+		<env-entry-value>fedoraAdmin</env-entry-value>
+		<env-entry-type>java.lang.String</env-entry-type>
+	</env-entry>
+
+	<env-entry>
+		<env-entry-name>fedoraAdminPassword</env-entry-name>
+		<env-entry-value>fedoraAdmin</env-entry-value>
+		<env-entry-type>java.lang.String</env-entry-type>
+	</env-entry>
 </web-app>
