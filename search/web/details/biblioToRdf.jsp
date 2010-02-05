@@ -16,12 +16,30 @@
 <fmt:setBundle basename="labels" />
 <fmt:setBundle basename="labels" var="bundleVar" />
 
-<c:set var="fedoraHost" value="http://194.108.215.227:8080/fedora" />
-<c:set var="urlPageStr" >
-    <c:out value="${fedoraHost}" />/get/<c:out value="${param.pid}" />/BIBLIO_MODS
-</c:set>
+<c:choose>
+    <c:when test="${uuid==null || uuid==''}">
+        <c:set var="urlPageStr" >
+            <c:out value="${fedoraHost}" />/get/<c:out value="${param.pid}" />/BIBLIO_MODS
+        </c:set>
+    </c:when>
+    <c:otherwise>
+        <c:set var="urlPageStr" >
+            <c:out value="${fedoraHost}" />/get/<c:out value="${uuid}" />/BIBLIO_MODS
+        </c:set>
+    </c:otherwise>
+</c:choose>
+
 <c:url var="urlPage" value="${urlPageStr}" />
-<c:url var="xslPage" value="xsl/${param.xsl}" >
+
+<c:choose>
+    <c:when test="${xsl==null || xsl==''}">
+        <c:set var="xsl" value="xsl/${param.xsl}" scope="request" />
+    </c:when>
+    <c:otherwise>
+        <c:set var="xsl" value="${xsl}" scope="request" />
+    </c:otherwise>
+</c:choose>
+<c:url var="xslPage" value="${xsl}" >
     <c:param name="language" value="${param.language}" />
     <c:param name="title" value="${param.title}" />
 </c:url>
@@ -34,6 +52,17 @@
         <c:out value="${exceptions}" /><br/><br/>
     </c:when>
     <c:otherwise>
-        <x:transform doc="${xmlPage}"  xslt="${xsltPage}"  />
+        <c:catch var="exceptions"> 
+            <x:transform doc="${xmlPage}"  xslt="${xsltPage}"  />
+        </c:catch>
+        <c:choose>
+            <c:when test="${exceptions != null}" >
+                <c:out value="${exceptions}" /><br/>
+                xsl --- <c:out value="${xsl}" /><br/>
+                xslPage --- <c:out value="${xslPage}" /><br/>
+                xsltPage --- <c:out value="${xsltPage}" />
+            </c:when>
+            <c:otherwise></c:otherwise>
+        </c:choose>
     </c:otherwise>
 </c:choose>

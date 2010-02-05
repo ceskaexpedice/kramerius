@@ -10,7 +10,7 @@
             if(div==null){
                 offsetUrl = "javascript:gotoPageOffset(%s);";
             }else{
-                offsetUrl = "javascript:gotoPageOffsetInTree(%s, '"+div+"', '"+filters+"');";
+                offsetUrl = "javascript:gotoPageOffsetInTree(%s, '"+div+"', '"+filters+"', '"+request.getParameter("pid")+"');";
             }
             if (numDocs > numHits && numHits > 0) {
                 String navigationPageTemplate = "";

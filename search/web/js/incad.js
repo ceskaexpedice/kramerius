@@ -54,35 +54,40 @@ function addNavigation(navigator, value){
     
 }
 
-function gotoPageOffsetInTree(value,div,fq){
-    //$("#s_"+div).fadeOut('normal');
-    $("#s_"+div).animate({marginLeft:'-500px'},'slow', loadPageOffsetInTree(value,div,fq));
+function gotoPageOffsetInTree(value,div,fq,pid){
+    //$("#"+div).animate({marginLeft:'-500px'},'slow', loadPageOffsetInTree(value,div,fq,pid));
+    
+    
+    var page = new PageQuery(window.location.search);
+    page.setValue("offset", value);
+     var url = searchInTreePage + "?" + 
+        page.toString() + "&d="+div+"&pid="+pid+ fq;
+    $.get(url, function(xml){
+        $("#"+div).html(xml);
+    });
+    //$("#"+div).load(url);
     
 }
 
-function  loadPageOffsetInTree(value,div,fq){
+function  loadPageOffsetInTree(value,div,fq,pid){
     var page = new PageQuery(window.location.search);
     page.setValue("offset", value);
     	
     var url = searchInTreePage + "?" + 
-        page.toString() + "&d="+div+ fq;
-    //$.post(url, function(xml) {
-    //    $("#"+div).html(xml).slideDown();
-    //});
+        page.toString() + "&d="+div+"&pid="+pid+ fq;
     $("#"+div).load(url, '', showNewContent(div));
 }
 
  function showNewContent(div) {  
-        //$("#"+div).fadeIn('normal');  
         $("#"+div).animate({marginLeft:'0px'},'slow');
     }  
 
-function searchInTree(filter, div){
+function searchInTree(pid, filter, div){
     
     var page = new PageQuery(window.location.search);
     page.setValue("offset", "0");
     var url = searchInTreePage + "?" + 
-        page.toString() + "&d="+div+"&fq=" + filter;
+        page.toString() + "&d="+div+"&pid=" + pid+"&fq=" + filter;
     $.get(url, function(xml) {
         $("#"+div).html(xml);
     });

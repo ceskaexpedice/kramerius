@@ -7,19 +7,19 @@
 <div>
     <!-- rdf.kramerius.hasPage:"info:fedora/PID" -->
     <span>
-                <c:set var="itemUrl" >
-                    ./item.jsp?pid=<x:out select="./str[@name='PID']"/>
-                </c:set>
-                <c:set var="itemUrl" >
-                    <c:out value="${itemUrl}" escapeXml="false" />&parentPid=<x:out select="./str[@name='root_pid']"/>
-                </c:set>
-                <c:set var="itemUrl" >
-                    <c:out value="${itemUrl}" escapeXml="false" />&parentModel=<x:out select="./str[@name='parent_model']"/>
-                </c:set>
-                <c:set var="itemUrl" >
-                    <c:out value="${itemUrl}" escapeXml="false" />&model=info:fedora/model:page&page=<x:out select="./arr[@name='dc.title']"/>
-                </c:set>
-            <x:choose>
+        <c:set var="itemUrl" >
+            ./item.jsp?pid=<x:out select="./str[@name='PID']"/>
+        </c:set>
+        <c:set var="itemUrl" >
+            <c:out value="${itemUrl}" escapeXml="false" />&parentPid=<x:out select="./str[@name='root_pid']"/>
+        </c:set>
+        <c:set var="itemUrl" >
+            <c:out value="${itemUrl}" escapeXml="false" />&parentModel=<x:out select="./str[@name='parent_model']"/>
+        </c:set>
+        <c:set var="itemUrl" >
+            <c:out value="${itemUrl}" escapeXml="false" />&model=info:fedora/model:page&page=<x:out select="./arr[@name='dc.title']"/>
+        </c:set>
+        <x:choose>
             <x:when select="./str[@name='title_to_show']/text()">
                 <a href="<c:out value="${itemUrl}" escapeXml="false" />" >
                     <b><x:out select="./str[@name='title_to_show']"/></b>
@@ -40,10 +40,10 @@
             </x:when>
             <x:otherwise>
                 <a href="<c:out value="${fedoraHost}" />/get/<x:out select="./str[@name='PID']"/>">
-                <b><x:out select="./arr[@name='dc.title']"/></b>
+                    <b><x:out select="./arr[@name='dc.title']"/></b>
                 </a> 
             </x:otherwise>
-            </x:choose>
+        </x:choose>
     </span>
     
 </div>

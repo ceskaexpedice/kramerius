@@ -14,6 +14,7 @@
 <fmt:setBundle basename="labels" />
 <fmt:setBundle basename="labels" var="bundleVar" />
 
+
 <c:url var="url" value="${fedoraSolr}" >
     <c:param name="q" value="parent_pid:\"${param.pid}\" OR PID:\"${param.pid}\"" />
     <c:choose>
@@ -45,72 +46,67 @@
         <x:parse var="doc" xml="${xml}"  />
         <%@ include file="proccessFacets.jsp" %>
         <c:set var="prefix" value="uuid:" />
-        <c:set var="uuidSimple" >
-            ${fn:replace(param.pid, "uuid:", "")}
-        </c:set>
+        <c:set var="uuidSimple" >${fn:replace(param.pid, "uuid:", "")}</c:set>
         <c:set var="numDocs" scope="request" >
             <x:out select="$doc/response/result/@numFound" />
         </c:set><%//out.clear();%>
         <div class="resultsInTree" >
-        <x:forEach varStatus="status" select="$doc/response/result/doc">
-            <div class="resultInTree" >
-                <c:set var="uuid" >
-                    <x:out select="./str[@name='PID']"/>
-                </c:set>
-                <c:set var="uuidSimple" >
-                    <x:out select="substring-after(./str[@name='PID'], 'uuid:')"/>
-                </c:set>
-                <x:choose>
-                    <x:when select="./str[@name='fedora.model'] = 'info:fedora/model:monograph'">
-                        <%@ include file="results/monograph.jsp" %>
-                    </x:when>
-                    <x:when select="./str[@name='fedora.model'] = 'info:fedora/model:monographunit'">
-                        <%@ include file="results/monographunit.jsp" %>
-                    </x:when>
-                    <x:when select="./str[@name='fedora.model'] = 'info:fedora/model:page'">
-                        <%@ include file="results/page.jsp" %>
-                    </x:when>
-                    <x:when select="./str[@name='fedora.model'] = 'info:fedora/model:periodical'">
-                        <%@ include file="results/periodical.jsp" %>
-                    </x:when>
-                    <x:when select="./str[@name='fedora.model'] = 'info:fedora/model:periodicalvolume'">
-                        <%@ include file="results/periodicalvolume.jsp" %>
-                    </x:when>
-                    <x:when select="./str[@name='fedora.model'] = 'info:fedora/model:periodicalitem'">
-                        <%@ include file="results/periodicalitem.jsp" %>
-                    </x:when>
-                    <x:otherwise>
-                        <x:out select="./str[@name='fedora.model']" />
-                        <%@ include file="results/default.jsp" %>
-                    </x:otherwise>
-                </x:choose>
-            </div>
-        </x:forEach>    
-        
-        <div id="paths"><%
+            <x:forEach varStatus="status" select="$doc/response/result/doc">
+                <div class="resultInTree" >
+                    <c:set var="uuid" >
+                        <x:out select="./str[@name='PID']"/>
+                    </c:set>
+                    <c:set var="uuidSimple" >
+                        <x:out select="substring-after(./str[@name='PID'], 'uuid:')"/>
+                    </c:set>
+                    <x:choose>
+                        <x:when select="./str[@name='fedora.model'] = 'info:fedora/model:monograph'">
+                            <%@ include file="results/monograph.jsp" %>
+                        </x:when>
+                        <x:when select="./str[@name='fedora.model'] = 'info:fedora/model:monographunit'">
+                            <%@ include file="results/monographunit.jsp" %>
+                        </x:when>
+                        <x:when select="./str[@name='fedora.model'] = 'info:fedora/model:page'">
+                            <%@ include file="results/page.jsp" %>
+                        </x:when>
+                        <x:when select="./str[@name='fedora.model'] = 'info:fedora/model:periodical'">
+                            <%@ include file="results/periodical.jsp" %>
+                        </x:when>
+                        <x:when select="./str[@name='fedora.model'] = 'info:fedora/model:periodicalvolume'">
+                            <%@ include file="results/periodicalvolume.jsp" %>
+                        </x:when>
+                        <x:when select="./str[@name='fedora.model'] = 'info:fedora/model:periodicalitem'">
+                            <%@ include file="results/periodicalitem.jsp" %>
+                        </x:when>
+                        <x:otherwise>
+                            <x:out select="./str[@name='fedora.model']" />
+                            <%@ include file="results/default.jsp" %>
+                        </x:otherwise>
+                    </x:choose>
+                </div>
+            </x:forEach>    
+            
+            <div id="paths"><%
 
             Facet f = facets.get("fedora.model");
+            String filter;
             if ((f != null) && (f.infos.size() > 0)) {
                 for (int k = 0; k < f.infos.size(); k++) {
-                    try {
-                        String filter = "fedora.model:\\\"" + f.infos.get(k).name + "\\\"" ;
-            %>
-            <div>
-            <a href='javascript:searchInTree("<%=filter%>", "node_<%=k%>_<c:out value="${uuidSimple}"/>" );'><%=f.infos.get(k).displayName%> (<%=f.infos.get(k).count%>)</a>
-            </div>
-            <div id="node_<%=k%>_<c:out value="${uuidSimple}"/>"></div>
-            <%
-                    } catch (Exception ex) {
-                        System.out.println(f.infos.get(k).displayName);
-                        System.out.println(ex.toString());
-                    } finally {
-                        continue;
+                    if (!f.infos.get(k).name.equals(request.getParameter("model"))) {
+                        filter = "fedora.model:\\\"" + f.infos.get(k).name + "\\\" AND " +
+                                "parent_pid:\\\"" + request.getParameter("pid") + "\\\"";
+                %>
+                <div>
+                    <a href='javascript:searchInTree("<c:out value="${uuid}"/>", "<%=filter%>", "node_<%=k%>_<c:out value="${uuidSimple}"/>" );'><%=f.infos.get(k).displayName%> (<%=f.infos.get(k).count%>)</a>
+                <div class="resultsInTree" id="node_<%=k%>_<c:out value="${uuidSimple}"/>"></div>
+                </div>
+                <%
                     }
                 }
             }
-            %>
+                %>
             </div>
-            </div>
+        </div>
     </c:otherwise>
 </c:choose>
 

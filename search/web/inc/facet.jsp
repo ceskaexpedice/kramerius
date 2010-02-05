@@ -7,7 +7,7 @@
 
 <% 
 Facet currentFacet = facets.get(currentFacetName);
-if(currentFacet.getFacetsNumber()>0){%>
+if(currentFacet!= null && currentFacet.getFacetsNumber()>0){%>
 <div class="facet">
     <div class="facetTitle">
         <a title="" href="">

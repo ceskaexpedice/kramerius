@@ -19,18 +19,7 @@
             <x:out select="substring-after(./str[@name='PID'], 'uuid:')"/>
         </c:set>
             
-            <c:set var="urlBiblioMods" >
-                <c:out value="${fedoraHost}" />/get/<c:out value="${uuid}" />/BIBLIO_MODS
-            </c:set>
-            <c:set var="urlSolr" >
-                <c:out value="${fedoraSolr}" />?q=PID:"<c:out value="${uuid}" />"
-            </c:set>
-            <c:set var="urlReindex" >
-                <%--
-                IndexModel?full=true&model=<x:out select="substring(./str[@name='fedora.model'], 19)" />&pid=<c:out value="${uuid}" />
-                --%>
-                <c:out value="${indexerHost}" />/rest?operation=updateIndex&action=fromKrameriusModel&value=<c:out value="${uuid}" />
-            </c:set>
+            
     <x:choose>
         
         <x:when select="./str[@name='fedora.model'] = 'info:fedora/model:monograph'">
@@ -56,10 +45,7 @@
             <%@ include file="results/default.jsp" %>
         </x:otherwise>
     </x:choose>
-    <a href='<c:out value="${urlReindex}" />' target="fedora">reindex</a>
-    <a href='<c:out value="${urlBiblioMods}" />' target="biblio_mods">biblio_mods</a> 
-    <a href='<c:out value="${urlSolr}" />' target="solr">solr</a>
-    <a href='<c:out value="${urlReindex}" />' target="reindex">reindex</a>
+    <%@ include file="../admin/resultOptions.jsp" %>
     </div>
 </x:forEach>
 </div>

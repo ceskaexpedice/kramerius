@@ -51,6 +51,9 @@
         <c:param name="fq" value="${fqs}" />
         <c:set var="filters" scope="request"><c:out value="${filters}" />&fq=<c:out value="${fqs}" /></c:set>
     </c:forEach>
+    <c:if test="${param.pid != null && param.pid != 'undefined' && param.pid != ''}" >
+        <c:param name="fq" >parent_pid:"<c:out value="${param.pid}" />"</c:param>
+    </c:if>
     <c:if test="${param.f1 != null}">
         <c:param name="fq" value="rok:[${param.f1} TO ${param.f2}]" />
     </c:if>
@@ -73,6 +76,8 @@
             <x:out select="$doc/response/result/@numFound" />
         </c:set>
         <div id="s_<c:out value="${param.d}" />">
+            <%--  
+
             <x:forEach select="$doc/response/result/doc">
                 <div id="<x:out select="./str[@name='PID']"/>" class="inTree">
                     <a target="item" href="./item.jsp?pid=<x:out select="./str[@name='PID']"/>&model=<x:out select="./str[@name='fedora.model']"/>">
@@ -81,6 +86,55 @@
                     browse</a> 
                 </div>
             </x:forEach>
+            --%>
+
+            <x:forEach varStatus="status" select="$doc/response/result/doc">
+                <div class="resultInTree" >
+                    <c:set var="uuid" >
+                        <x:out select="./str[@name='PID']"/>
+                    </c:set>
+                    <jsp:useBean id="uuid" type="java.lang.String" />
+                    <c:set var="uuidSimple" >
+                        <x:out select="substring-after(./str[@name='PID'], 'uuid:')"/>
+                    </c:set>
+                    <x:choose>
+                        <x:when select="./str[@name='fedora.model'] = 'info:fedora/model:monograph'">
+                            <%@ include file="results/monograph.jsp" %>
+                        </x:when>
+                        <x:when select="./str[@name='fedora.model'] = 'info:fedora/model:monographunit'">
+                            <% 
+                            //'details/biblioToRdf.jsp?&pid=' + pid + "&xsl=unit_from_biblio_mods.jsp&language=" + language;
+                            request.setAttribute("xsl", "../details/xsl/unit_from_biblio_mods.jsp");
+                            %>        
+                            <%@ include file="../details/biblioToRdf.jsp" %>
+                            <%//@ include file="results/monographunit.jsp" %>
+                        </x:when>
+                        <x:when select="./str[@name='fedora.model'] = 'info:fedora/model:page'">
+                            <% 
+                            //'details/biblioToRdf.jsp?&pid=' + pid + "&xsl=unit_from_biblio_mods.jsp&language=" + language;
+                            request.setAttribute("xsl", "../details/xsl/page_from_biblio_mods.jsp");
+                            %>        
+                            <%@ include file="../details/biblioToRdf.jsp" %>
+                            <%//@ include file="results/page.jsp" %>
+                        </x:when>
+                        <x:when select="./str[@name='fedora.model'] = 'info:fedora/model:periodical'">
+                            <%@ include file="results/periodical.jsp" %>
+                        </x:when>
+                        <x:when select="./str[@name='fedora.model'] = 'info:fedora/model:periodicalvolume'">
+                            <%@ include file="results/periodicalvolume.jsp" %>
+                        </x:when>
+                        <x:when select="./str[@name='fedora.model'] = 'info:fedora/model:periodicalitem'">
+                            <%@ include file="results/periodicalitem.jsp" %>
+                        </x:when>
+                        <x:otherwise>
+                            <x:out select="./str[@name='fedora.model']" />
+                            <%@ include file="results/default.jsp" %>
+                        </x:otherwise>
+                    </x:choose>
+                    <a href="javascript:browseInTree('<x:out select="./str[@name='PID']"/>', '<x:out select="./str[@name='fedora.model']"/>', 'sub_<c:out value="${param.d}"/>');">
+                    browse</a> 
+                </div>
+            </x:forEach>  
         </div>
         <div id="paginationInTree" align="right">
             <%@ include file="paginationPageNum.jsp" %>
@@ -88,4 +142,8 @@
         <div id="sub_<c:out value="${param.d}" />"></div>
     </c:otherwise>
 </c:choose>
+ <c:if test="${param.debug}" >
+    <c:out value="${url}" /><br/>
+    <c:out value="${param.parentPid}" />
+</c:if>
 

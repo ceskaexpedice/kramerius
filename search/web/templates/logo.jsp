@@ -1,2 +1,2 @@
 <%@ page pageEncoding="UTF-8"%>
-<span class="mainHeader">Kramerius 4</span>
+<a href="./"><span class="mainHeader">Kramerius 4</span></a>
