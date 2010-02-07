@@ -41,7 +41,7 @@ public class ConfigurationPanel extends Composite implements ClickHandler {
 		this.horizontalPanel.add(moduloPane);
 		this.horizontalPanel.setCellHorizontalAlignment(moduloPane, HorizontalPanel.ALIGN_RIGHT);
 
-		this.disclosurePanel = new DisclosurePanel("Nastaveni ... ");
+		this.disclosurePanel = new DisclosurePanel("Vice ... ");
 		this.disclosurePanel.setContent(this.horizontalPanel);
 		this.disclosurePanel.setVisible(true);
 		this.disclosurePanel.setAnimationEnabled(true);

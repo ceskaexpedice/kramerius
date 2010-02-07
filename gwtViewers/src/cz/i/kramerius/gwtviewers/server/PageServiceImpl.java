@@ -93,12 +93,12 @@ public class PageServiceImpl extends RemoteServiceServlet implements PageService
 	public ArrayList<SimpleImageTO> readPage(String uuid) {
 		ArrayList<SimpleImageTO> pages = new ArrayList<SimpleImageTO>();
 		try {
-			URL url = null;
-			if (uuid.equals("8f526130-8b0d-11de-8994-000d606f5dc6")) {
-				url = new URL(homeExtUrl(uuid));
-			} else {
-				url = new URL(homeExtUrlBig(uuid));
-			}
+			URL url = new URL(relsExtUrl(uuid));
+//			if (uuid.equals("8f526130-8b0d-11de-8994-000d606f5dc6")) {
+//				url = new URL(homeExtUrl(uuid));
+//			} else {
+//				url = new URL(homeExtUrlBig(uuid));
+//			}
 			DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
 			DocumentBuilder builder = factory.newDocumentBuilder();
 			Document parsed = builder.parse(url.openStream());
