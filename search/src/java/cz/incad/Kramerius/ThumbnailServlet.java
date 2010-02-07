@@ -37,7 +37,6 @@ import com.lizardtech.djvu.DjVuPage;
 import com.lizardtech.djvubean.DjVuBean;
 import com.lizardtech.djvubean.DjVuImage;
 
-import cz.i.kramerius.gwtviewers.client.CalcTest;
 import cz.i.kramerius.gwtviewers.server.pid.LexerException;
 import cz.incad.Kramerius.ThumbnailStorage.Type;
 import cz.incad.utils.IOUtils;
