@@ -8,10 +8,12 @@
 <script type="text/javascript">
 	var __gwtViewersUUID = "${param.pid}";
 
-	var __confHeight = 200;
+
+	var __confHeight = 220;
 	var __confWidth = 400;
 	var __confDistance = 5;
 	var __confDistance = 5;
+
 	var __thumbUrl = 'http://localhost:8080/search/thumb';
 
 </script>
