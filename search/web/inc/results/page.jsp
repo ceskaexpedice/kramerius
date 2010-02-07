@@ -27,7 +27,7 @@
                 (<fmt:message><x:out select="./str[@name='fedora.model']"/></fmt:message> 
                 <fmt:message><x:out select="./str[@name='title_to_show']"/></fmt:message>)
                 <br/>
-                <fmt:message>info:fedora/model:<x:out select="./str[@name='fedora.model']"/></fmt:message>: <x:out select="./arr[@name='dc.title']"/>
+                <fmt:message>info:fedora/model:<x:out select="./str[@name='fedora.model']"/></fmt:message>: <x:out select="./str[@name='dc.title']"/>
             </x:when>
             <x:when select="./str[@name='root_title']/text()">
                 <a href="<c:out value="${itemUrl}" escapeXml="false" />" >
@@ -36,11 +36,11 @@
                 (<fmt:message><x:out select="./str[@name='fedora.model']"/></fmt:message> 
                 <fmt:message>info:fedora/model:<x:out select="./str[@name='root_model']"/></fmt:message>)
                 <br/>
-                <fmt:message><x:out select="./str[@name='fedora.model']"/></fmt:message>: <x:out select="./arr[@name='dc.title']"/>
+                <fmt:message><x:out select="./str[@name='fedora.model']"/></fmt:message>: <x:out select="./str[@name='dc.title']"/>
             </x:when>
             <x:otherwise>
                 <a href="<c:out value="${fedoraHost}" />/get/<x:out select="./str[@name='PID']"/>">
-                    <b><x:out select="./arr[@name='dc.title']"/></b>
+                    <b><x:out select="./str[@name='dc.title']"/></b>
                 </a> 
             </x:otherwise>
         </x:choose>

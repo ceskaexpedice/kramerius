@@ -673,7 +673,6 @@ function filterOnRange(e){
         el = e.target;
     }
     
-    alert(el.item);
     addNavigation("datum", el.item);
 }
 

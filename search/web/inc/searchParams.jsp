@@ -14,25 +14,7 @@
 
 <fmt:setBundle basename="labels" />
 <fmt:setBundle basename="labels" var="bundleVar" />
-<%
-if(session.getAttribute("configuration")==null)
-{
-        String configfile = getServletContext().getRealPath("WEB-INF/config/config.xml");
-        KConfiguration kconfig =  new KConfiguration(configfile);
-	session.setAttribute( "configuration", kconfig);
-	session.setAttribute( "fedoraSolr", kconfig.getProperty("fedoraSolr") );
-	session.setAttribute( "fedoraHost", kconfig.getProperty("fedoraHost"));
-	session.setAttribute( "indexerHost", kconfig.getProperty("indexerHost"));
-}
-KConfiguration kconfig = (KConfiguration) getServletContext().getAttribute("configuration");
-
-//c:url var="url" value="http://localhost:8983/solr/select/select" 
-//http://194.108.215.227:8080/solr/select?indent=on&version=2.2&q=fedora.model%3A%22info%3Afedora%2Fmodel%3Apage%22&start=0&rows=10&fl=*%2Cscore&qt=standard&wt=xslt&explainOther=&hl.fl=&facet=true&facet.field=fedora.model&tr=example.xsl
-
-//<c:set var="fedoraSolr" value="http://194.108.215.227:8080/solr/select/select" />
-//<c:set var="fedoraHost" value="http://194.108.215.227:8080/fedora" />
-
-%> 
+<%@ include file="initVars.jsp" %>
 <c:set var="pageType" value="search" />
 <jsp:useBean id="pageType" type="java.lang.String" />
 <c:url var="url" value="${fedoraSolr}" >

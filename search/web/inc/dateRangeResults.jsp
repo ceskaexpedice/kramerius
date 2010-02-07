@@ -68,7 +68,7 @@ fq=fedora.model:%22info:fedora/model:page%22
     "datum": "<x:out select="./str[@name='datum']"/>",
     "beginDate": <x:out select="./int[@name='datum_begin']"/>,
     "endDate": <x:out select="./int[@name='datum_end']"/>,
-    "count": "<x:out select="./arr[@name='dc.title']/str"/>"
+    "count": "<x:out select="./str[@name='dc.title']"/>"
 }<c:if test="${status.count < numDocs}" >,</c:if>
 </x:forEach>
 ]

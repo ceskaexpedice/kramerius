@@ -14,14 +14,14 @@
                     <c:out value="${itemUrl}" escapeXml="false" />&parentPid=<x:out select="./str[@name='parent_pid']" />
                 </c:set>
                 <c:set var="itemUrl" >
-                    <c:out value="${itemUrl}" escapeXml="false" />&model=info:fedora/model:periodicalvolume&page=<x:out select="./arr[@name='dc.title']"/>
+                    <c:out value="${itemUrl}" escapeXml="false" />&model=info:fedora/model:periodicalvolume&page=<x:out select="./str[@name='dc.title']"/>
                 </c:set>
                 <a href="<c:out value="${itemUrl}" escapeXml="false" />" >
                     <b><x:out select="./str[@name='root_title']"/></b>
-                </a>&nbsp;<x:out select="./str[@name='dc.title']/str"/>&nbsp;
+                </a>&nbsp;<x:out select="./str[@name='dc.title']"/>&nbsp;
                 (<fmt:message><x:out select="./str[@name='fedora.model']"/></fmt:message>)
                 <br/>
                 <fmt:message>Datum vydání ročníku</fmt:message>: <x:out select="./int[@name='rok']"/><br/>
-                <fmt:message>Číslo ročníku</fmt:message>: <x:out select="./arr[@name='dc.title']"/>
+                <fmt:message>Číslo ročníku</fmt:message>: <x:out select="./str[@name='dc.title']"/>
     </span>
 </div>

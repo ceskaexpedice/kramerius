@@ -13,7 +13,7 @@
 
 <fmt:setBundle basename="labels" />
 <fmt:setBundle basename="labels" var="bundleVar" />
-
+<%@ include file="initVars.jsp" %>
 
 <c:url var="url" value="${fedoraSolr}" >
     <c:param name="q" value="parent_pid:\"${param.pid}\" OR PID:\"${param.pid}\"" />

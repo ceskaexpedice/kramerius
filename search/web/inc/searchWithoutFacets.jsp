@@ -13,14 +13,13 @@
 
 <fmt:setBundle basename="labels" />
 <fmt:setBundle basename="labels" var="bundleVar" />
+<%@ include file="initVars.jsp" %>
 <%//c:url var="url" value="http://localhost:8983/solr/select/select" 
 //http://194.108.215.227:8080/solr/select?indent=on&version=2.2&q=fedora.model%3A%22info%3Afedora%2Fmodel%3Apage%22&start=0&rows=10&fl=*%2Cscore&qt=standard&wt=xslt&explainOther=&hl.fl=&facet=true&facet.field=fedora.model&tr=example.xsl
 %> 
 <c:set var="filters" scope="request" ></c:set>
 <c:set var="pageType" value="search" />
 <jsp:useBean id="pageType" type="java.lang.String" />
-
-
 <c:url var="url" value="${fedoraSolr}" >
     <c:choose>
         <c:when test="${empty param.q}" >
@@ -110,12 +109,11 @@
                             <%//@ include file="results/monographunit.jsp" %>
                         </x:when>
                         <x:when select="./str[@name='fedora.model'] = 'info:fedora/model:page'">
-                            <% 
-                            //'details/biblioToRdf.jsp?&pid=' + pid + "&xsl=unit_from_biblio_mods.jsp&language=" + language;
+                            <%-- 
                             request.setAttribute("xsl", "../details/xsl/page_from_biblio_mods.jsp");
-                            %>        
                             <%@ include file="../details/biblioToRdf.jsp" %>
-                            <%//@ include file="results/page.jsp" %>
+                            --%>        
+                            <%@ include file="results/page.jsp" %>
                         </x:when>
                         <x:when select="./str[@name='fedora.model'] = 'info:fedora/model:periodical'">
                             <%@ include file="results/periodical.jsp" %>

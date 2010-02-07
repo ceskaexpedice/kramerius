@@ -9,7 +9,7 @@
         <fmt:setLocale value="${param.language}" />
     </c:when>
 </c:choose>
-    
+    <%@ include file="inc/initVars.jsp" %>
 <c:set var="pageType" value="search" />
 <jsp:useBean id="pageType" type="java.lang.String" />
 <fmt:setBundle basename="labels" />
