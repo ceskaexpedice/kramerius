@@ -8,6 +8,7 @@ public class SliderBarFormatter implements LabelFormatter {
 	private double min;
 	private double max;
 	
+	private double epsilon = 0.01;
 	
 	
 	public SliderBarFormatter(double min, double max) {
@@ -16,15 +17,20 @@ public class SliderBarFormatter implements LabelFormatter {
 		this.max = max;
 	}
 
+	public boolean equalsNumber(double value, double expected) {
+		double minBounds = expected - this.epsilon;
+		double maxBounds = expected + this.epsilon;
+		return value > minBounds && value < maxBounds;
+	}
 
 
 	@Override
 	public String formatLabel(SliderBar slider, double value) {
 		// ?? 
-		System.out.println("value == "+value);
-		if (this.min == value) {
+
+		if (this.equalsNumber(value, this.min)) {
 			return "1";
-		} else if (this.max == value) {
+		} else if (this.equalsNumber(value, this.max)) {
 			return ""+((int)this.max+1);
 		}
 		return null;

@@ -2,18 +2,18 @@ package cz.i.kramerius.gwtviewers.client.panels.utils;
 
 import java.util.ArrayList;
 
-import cz.i.kramerius.gwtviewers.client.panels.CoreConfiguration;
+import cz.i.kramerius.gwtviewers.client.panels.Configuration;
 import cz.i.kramerius.gwtviewers.client.panels.ImageMoveWrapper;
 
-public class Helper {
+public class CalculationHelper {
 
-	public static void computePositions(ImageRotatePool imageRotatePool, ImageRotateCalculatedPositions imageRotateCalculatedPositions, CoreConfiguration configuration) {
+	public static void computePositions(ImageRotatePool imageRotatePool, ImageRotateCalculatedPositions imageRotateCalculatedPositions, Configuration configuration) {
 		ArrayList<ImageMoveWrapper> viewPortImages = imageRotatePool.getViewPortImages();
 		int previousImgWidth = 0;
 		for (int i = 0; i < viewPortImages.size(); i++) {
 			ImageMoveWrapper imageDTO = viewPortImages.get(i);
 			int x =  previousImgWidth +configuration.getImgDistances() ;
-			int y = 0;
+			int y = configuration.getTop();
 			ImageMoveWrapper calculatedPosition = imageRotateCalculatedPositions.getViewPortCalulcatedPosition(i);
 			calculatedPosition.setX(x);
 			calculatedPosition.setY(y);
@@ -24,26 +24,31 @@ public class Helper {
 		ImageMoveWrapper left = imageRotatePool.getLeftSideImage();
 		ImageMoveWrapper calculatedLeft = imageRotateCalculatedPositions.getLeft();
 		calculatedLeft.setX(-left.getWidth());
-		calculatedLeft.setY(0);
+		calculatedLeft.setY(configuration.getTop());
 		calculatedLeft.setImageIdent(left.getImageIdent());
 		
 		ImageMoveWrapper right = imageRotatePool.getRightSideImage();
 		ImageMoveWrapper calculatedRight = imageRotateCalculatedPositions.getRight();
 		calculatedRight.setX(configuration.getViewPortWidth());
-		calculatedRight.setY(0);
+		calculatedRight.setY(configuration.getTop());
 		calculatedRight.setImageIdent(right.getImageIdent());
 	
 		previousImgWidth = 0;
 		ArrayList<ImageMoveWrapper> noVisibleImages = imageRotatePool.getNoVisibleImages();
 		for (int i = 0; i < noVisibleImages.size(); i++) {
 			ImageMoveWrapper noVisib = noVisibleImages.get(i);
-			int x =  previousImgWidth +configuration.getImgDistances() ;
-			if (i == 0) x = -noVisib.getWidth()-configuration.getCenterWidth();
-			if (i == noVisibleImages.size()-1) x = configuration.getViewPortWidth();
-			int y = -noVisib.getHeight() - 10;
-			noVisib.setX(x);
-			noVisib.setY(y);
-			previousImgWidth =  x+noVisibleImages.get(i).getWidth() ;
+			noVisib.setX(viewPortImages.get(i).getX());
+			noVisib.setY(-500);
+			
+//			int x =  previousImgWidth +configuration.getImgDistances() ;
+//			if (i == 0) x = -noVisib.getWidth()-configuration.getCenterWidth();
+//			if (i == noVisibleImages.size()-1) x = configuration.getViewPortWidth();
+//			int y = -noVisib.getHeight() - 10;
+//			noVisib.setX(x);
+//			//noVisib.propagateXToElement();
+//			noVisib.setY(y);
+//			noVisib.propagateYToElement();
+//			previousImgWidth =  x+noVisibleImages.get(i).getWidth() ;
 		}
 //		for (ImageMoveWrapper noVisible : noVisibleImages) {
 //			noVisible.setX(-500);
@@ -52,7 +57,7 @@ public class Helper {
 //		}
 	}
 
-	public static void storePositions(ImageRotatePool imageRotatePool, ImageRotateCalculatedPositions imageRotateCalculatedPositions, CoreConfiguration configuration) {
+	public static void storePositions(ImageRotatePool imageRotatePool, ImageRotateCalculatedPositions imageRotateCalculatedPositions, Configuration configuration) {
 		ArrayList<ImageMoveWrapper> viewPortImages = imageRotatePool.getViewPortImages();
 		ArrayList<ImageMoveWrapper> calclulatedPositions = imageRotateCalculatedPositions.getViewPortImages();
 		for (int i = 0; i < viewPortImages.size(); i++) {

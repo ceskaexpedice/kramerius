@@ -6,6 +6,8 @@ import java.util.List;
 import com.google.gwt.user.client.rpc.RemoteService;
 import com.google.gwt.user.client.rpc.RemoteServiceRelativePath;
 
+import cz.i.kramerius.gwtviewers.client.panels.utils.Dimension;
+
 /**
  * Nastrel sluzby, ktera bude vracet stranky z objektu
  * @author pavels
@@ -13,7 +15,22 @@ import com.google.gwt.user.client.rpc.RemoteServiceRelativePath;
 @RemoteServiceRelativePath("page")
 public interface PageService extends RemoteService {
 
+	/**
+	 * Vraci pocet stranek objektu
+	 * @param uuid
+	 * @return
+	 */
 	public Integer getNumberOfPages(String uuid);
+	
+	/**
+	 * Vraci vsechny stranky
+	 * @param masterUuid
+	 * @return
+	 */
+	public ArrayList<SimpleImageTO> getPagesSet(String masterUuid);
+
+	//public Dimension getMaxDimension(String masterUuid);
+	
 	
 	public SimpleImageTO getPage(String uuid, int index);
 	
@@ -23,5 +40,4 @@ public interface PageService extends RemoteService {
 	
 	public SimpleImageTO getNoPage();
 	
-	public ArrayList<SimpleImageTO> getPagesSet(String masterUuid);
 }

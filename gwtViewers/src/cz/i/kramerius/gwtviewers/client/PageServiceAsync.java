@@ -5,6 +5,8 @@ import java.util.List;
 
 import com.google.gwt.user.client.rpc.AsyncCallback;
 
+import cz.i.kramerius.gwtviewers.client.panels.utils.Dimension;
+
 public interface PageServiceAsync {
 
 	void getPage(String uuid, int index, AsyncCallback<SimpleImageTO> callback);
@@ -19,5 +21,6 @@ public interface PageServiceAsync {
 
 	void getPagesSet(String masterUuid,
 			AsyncCallback<ArrayList<SimpleImageTO>> callback);
+
 
 }

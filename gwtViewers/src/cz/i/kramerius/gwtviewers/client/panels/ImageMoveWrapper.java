@@ -13,11 +13,13 @@ import org.adamtacy.client.ui.effects.transitionsphysics.LinearTransitionPhysics
 import org.adamtacy.client.ui.effects.transitionsphysics.TransitionPhysics;
 
 import com.google.gwt.dom.client.Style.Position;
+import com.google.gwt.dom.client.Style.Unit;
 import com.google.gwt.user.client.ui.Image;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 
+import cz.i.kramerius.gwtviewers.client.panels.fx.ChangeZIndex;
 import cz.i.kramerius.gwtviewers.client.panels.fx.CustomMove;
 import cz.i.kramerius.gwtviewers.client.panels.utils.Point;
 
@@ -32,6 +34,8 @@ public class ImageMoveWrapper  implements EffectSteppingHandler, EffectStartingH
 	
 	private boolean first=false;
 	private boolean last = false;
+	
+	private int zIndex = 1;
 	
 	
 	public boolean isLast() {
@@ -133,11 +137,11 @@ public class ImageMoveWrapper  implements EffectSteppingHandler, EffectStartingH
 		return true;
 	}
 
-	public int getVisibleRightRest(CoreConfiguration configuration) {
+	public int getVisibleRightRest(Configuration configuration) {
 		return configuration.getViewPortWidth() - getX();
 	}
 
-	public int getVisibleLeftSideRest(CoreConfiguration configuration) {
+	public int getVisibleLeftSideRest(Configuration configuration) {
 		return getX() + getWidth();
 	}
 
@@ -154,7 +158,7 @@ public class ImageMoveWrapper  implements EffectSteppingHandler, EffectStartingH
 	public NEffect move(int x, int y) {
 		CustomMove customMove = new CustomMove(this.getX(), this.getY(), x, y);
 		customMove.addEffectElement(this.imageCore.getWidget().getElement());
-		customMove.setDuration(0.7);
+		//customMove.setDuration(0.7);
 		this.setX(x);
 		this.setY(y);
 		return customMove;
@@ -165,9 +169,15 @@ public class ImageMoveWrapper  implements EffectSteppingHandler, EffectStartingH
 		customMove.addEffectElement(this.imageCore.getWidget().getElement());
 		customMove.setTransitionType(new LinearTransitionPhysics());
 		customMove.addEffectStartingHandler(this);
-		customMove.setDuration(0.4);
+		//customMove.setDuration(0.4);
 		this.setX(this.getX() + this.getWidth());
 		return customMove;
+	}
+	
+	public NEffect changeZIndex(int zindex) {
+		ChangeZIndex index = new ChangeZIndex(getzIndex(), zindex);
+		index.addEffectElement(this.imageCore.getWidget().getElement());
+		return	index;
 	}
 
 	public String getImageIdent() {
@@ -220,6 +230,27 @@ public class ImageMoveWrapper  implements EffectSteppingHandler, EffectStartingH
 	public void setIndex(int index) {
 		imageCore.setIndex(index);
 	}
+
+
+	public void propagateXToElement() {
+		getWidget().getElement().getStyle().setLeft(getX(), Unit.PX);
+	}
+
+
+	public void propagateYToElement() {
+		getWidget().getElement().getStyle().setRight(getY(), Unit.PX);
+	}
+
+
+	public int getzIndex() {
+		return zIndex;
+	}
+
+
+	public void setzIndex(int zIndex) {
+		this.zIndex = zIndex;
+	}
+	
 	
 	
 }

@@ -1,14 +1,20 @@
 package cz.i.kramerius.gwtviewers.client.panels;
 
 import java.util.ArrayList;
+import java.util.Collections;
+
+import org.adamtacy.client.ui.effects.transitionsphysics.LinearTransitionPhysics;
+import org.adamtacy.client.ui.effects.transitionsphysics.TransitionPhysics;
 
 import com.google.gwt.user.client.ui.AbsolutePanel;
 import com.google.gwt.user.client.ui.Composite;
 
 import cz.i.kramerius.gwtviewers.client.panels.fx.Rotate;
-import cz.i.kramerius.gwtviewers.client.panels.utils.Helper;
+import cz.i.kramerius.gwtviewers.client.panels.utils.CalculationHelper;
 import cz.i.kramerius.gwtviewers.client.panels.utils.ImageRotateCalculatedPositions;
 import cz.i.kramerius.gwtviewers.client.panels.utils.ImageRotatePool;
+import cz.i.kramerius.gwtviewers.client.selections.MiddleImgSelector;
+import cz.i.kramerius.gwtviewers.client.selections.Selector;
 
 /**
  * FX panel for moving pictures
@@ -19,20 +25,21 @@ public class MoveEffectsPanel extends  Composite {
 	private ImageRotatePool imageRotatePool;
 	private ImageRotateCalculatedPositions imageRotateCalculatedPositions;
 	private AbsolutePanel absolutePanel = new AbsolutePanel();
+	private Configuration configuration;
+	//private MoveListener moveHandler;
+
+	private Selector imgSelector;
+	private ArrayList<MoveListener> listeners = new ArrayList<MoveListener>();
 	
-	private CoreConfiguration configuration;
-	
-	private MoveListener moveHandler;
-	
-	public MoveEffectsPanel( ImageMoveWrapper[] viewPortImages, 
+	public MoveEffectsPanel(ImageMoveWrapper[] viewPortImages, 
 							ImageMoveWrapper[] noVisibleImgs, 
 							ImageMoveWrapper left, 
 							ImageMoveWrapper right,   
-							CoreConfiguration conf) {
+							Configuration conf) {
 		super();
 
 		this.imageRotateCalculatedPositions = new ImageRotateCalculatedPositions(viewPortImages, noVisibleImgs, left, right);
-		this.imageRotatePool = new ImageRotatePool(viewPortImages, noVisibleImgs, left, right, 5 /* ! View port size !*/);
+		this.imageRotatePool = new ImageRotatePool(viewPortImages, noVisibleImgs, left, right, 3 /* ! View port size !*/);
 		
 		this.configuration = conf;
 
@@ -59,41 +66,76 @@ public class MoveEffectsPanel extends  Composite {
 		}		
 		this.absolutePanel.setWidth(this.configuration.getViewPortWidth()+"px");
 		this.absolutePanel.setHeight(this.configuration.getViewPortHeight()+"px");
+		
+		this.imgSelector = new MiddleImgSelector(configuration.getCenterWidth());
 		initWidget(this.absolutePanel);
 	}
 	
 
 	
-	public void moveLeft() {
+	public Rotate moveLeft(double duration) {
 		ArrayList<ImageMoveWrapper> viewPortImages = this.imageRotatePool.getViewPortImages();
 		boolean rollLeft = this.imageRotatePool.rollLeft();
 		if (rollLeft) {
 			this.calulateNextPositions();
 			Rotate left = new Rotate(this.configuration, this.imageRotatePool,this.imageRotateCalculatedPositions, viewPortImages);
 			left.initCompositeEffect();
+			left.setDuration(duration);
 			left.play();
 			this.storeCalculatedPositions();
+			fireMoveLeft(true);
+			return left;
+		} else {
+			return null;
 		}
-		if (this.moveHandler != null) {
-			this.moveHandler.onMoveLeft(this.imageRotatePool);
-		}
+		
 	}
 	
 	
+	void fireMoveLeft(boolean effectsPlayed) {
+		for (MoveListener listener : this.listeners) {
+			listener.onMoveLeft(this.imageRotatePool, effectsPlayed);
+		}
+	}
 
+	void fireMoveRight(boolean effectsPlayed ) {
+		for (MoveListener listener : this.listeners) {
+			listener.onMoveRight(this.imageRotatePool,effectsPlayed);
+		}
+	}
 	
-	public void moveRight() {
+	public void moveRightWithoutEffect() {
+		boolean rollRight = this.imageRotatePool.rollRight();
+		if (rollRight) {
+			this.calulateNextPositions();
+			this.storeCalculatedPositions();
+			fireMoveRight(false);
+		}
+	}
+
+	public void moveLeftWithoutEffect() {
+		boolean rollLeft = this.imageRotatePool.rollLeft();
+		if (rollLeft) {
+			this.calulateNextPositions();
+			this.storeCalculatedPositions();
+			fireMoveLeft(false);
+		}
+	}
+
+	public Rotate moveRight(double duration) {
 		ArrayList<ImageMoveWrapper> viewPortImages = this.imageRotatePool.getViewPortImages();
 			boolean rollRight = this.imageRotatePool.rollRight();
 			if (rollRight) {
 				this.calulateNextPositions();
-				Rotate left = new Rotate(this.configuration, this.imageRotatePool,this.imageRotateCalculatedPositions, viewPortImages);
-				left.initCompositeEffect();
-				left.play();
+				Rotate right = new Rotate(this.configuration, this.imageRotatePool,this.imageRotateCalculatedPositions, viewPortImages);
+				right.initCompositeEffect();
+				right.setDuration(duration);
+				right.play();
 				this.storeCalculatedPositions();
-			}
-			if (this.moveHandler != null) {
-				this.moveHandler.onMoveRight(this.imageRotatePool);
+				fireMoveRight(true);
+				return right;
+			} else {
+				return null;
 			}
 		
 	}
@@ -103,12 +145,12 @@ public class MoveEffectsPanel extends  Composite {
 	}
 
 	public void calulateNextPositions() {
-		Helper.computePositions(this.imageRotatePool, this.imageRotateCalculatedPositions,this.configuration);
+		CalculationHelper.computePositions(this.imageRotatePool, this.imageRotateCalculatedPositions,this.configuration);
 	}
 
 
 	public void storeCalculatedPositions() {
-		Helper.storePositions(this.imageRotatePool, this.imageRotateCalculatedPositions, this.configuration);
+		CalculationHelper.storePositions(this.imageRotatePool, this.imageRotateCalculatedPositions, this.configuration);
 	}
 
 	public void debugViewPort(String where) {
@@ -131,27 +173,37 @@ public class MoveEffectsPanel extends  Composite {
 
 
 
-	public void rollToPage(double currentValue) {
-		int pocetKroku = (int)currentValue - this.imageRotatePool.getPointer();
+	public void rollToPage(int currentValue, double duration,boolean playEffect) {
+		int pocetKroku = currentValue - this.imageRotatePool.getPointer();
 		if (pocetKroku > 0) {
-			for (int i = 0; i < pocetKroku; i++) { moveLeft(); }
+			for (int i = 0; i < pocetKroku; i++) { 
+				if (playEffect)  {moveLeft(duration);} else  {moveLeftWithoutEffect();}
+			}
 		}
 		if (pocetKroku < 0) {
-			for (int i = pocetKroku; i < 0; i++) { moveRight(); }
+			for (int i = pocetKroku; i < 0; i++) { 
+				if (playEffect) {moveRight(duration);}  else {moveRightWithoutEffect();}
+			}
 		}
 	}
+	
+	
+	public void addMoveListener(MoveListener listner) {
+		this.listeners.add(listner);
+	}
 
-
-
-	public MoveListener getMoveHandler() {
-		return moveHandler;
+	public void removeMoveListener(MoveListener listener) {
+		this.listeners.remove(listener);
+	}
+	
+	public Selector getImgSelector() {
+		return imgSelector;
 	}
 
 
 
-	public void setMoveHandler(MoveListener moveHandler) {
-		this.moveHandler = moveHandler;
+	public void setImgSelector(Selector imgSelector) {
+		this.imgSelector = imgSelector;
 	}
-	
-	
+
 }

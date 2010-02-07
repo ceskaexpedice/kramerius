@@ -1,5 +1,8 @@
 package cz.i.kramerius.gwtviewers.client.panels.utils;
 
+import static cz.i.kramerius.gwtviewers.client.panels.utils.NoVisibleFillHelper.fillLeftNoVisible;
+import static cz.i.kramerius.gwtviewers.client.panels.utils.NoVisibleFillHelper.fillRightNoVisible;
+
 import java.util.ArrayList;
 
 import com.google.gwt.user.client.ui.Widget;
@@ -14,6 +17,11 @@ import cz.i.kramerius.gwtviewers.client.panels.ImageMoveWrapper;
  */
 public class ImageRotatePool {
 
+	public static int VIEW_IMAGES_Z_INDEX = 100;
+	public static int LEFTRIGNT_IMAGES_Z_INDEX = 10;
+	public static int NOVIEW_IMAGES_Z_INDEX = 1;
+	
+	
 	// visible images
 	private ArrayList<ImageMoveWrapper> viewPortImages = new ArrayList<ImageMoveWrapper>();
 	private ArrayList<ImageMoveWrapper> noVisible = new ArrayList<ImageMoveWrapper>();
@@ -36,6 +44,8 @@ public class ImageRotatePool {
 		}
 		this.left = left;
 		this.right = right;
+		
+		fillNoVisibleImages();
 	}
 
 	public ImageMoveWrapper getWrapper(Widget widget) {
@@ -68,8 +78,13 @@ public class ImageRotatePool {
 		// posledni z viewPort do levy
 		this.left = this.viewPortImages.remove(0);
 		
-		
+		fillNoVisibleImages();
 		return true;
+	}
+	
+	public void fillNoVisibleImages() {
+		fillRightNoVisible(this);
+		fillLeftNoVisible(this);
 	}
 	
 	public boolean rollRight() {
@@ -83,7 +98,7 @@ public class ImageRotatePool {
 		this.noVisible.add(this.right);
 		this.right = this.viewPortImages.remove(this.viewPortImages.size()-1);
 
-
+		fillNoVisibleImages();
 		return true;
 	}
 
@@ -114,7 +129,6 @@ public class ImageRotatePool {
 	}
 	
 
-
 	public boolean canRollLeft() {
 		return true;
 	}
@@ -131,21 +145,21 @@ public class ImageRotatePool {
 	
 	public void debugPool() {
 		System.out.println("=========> Left <=========");
-		System.out.println("\t"+this.left.getImageIdent());
+		System.out.println("\t"+this.left.getIndex());
 		System.out.println("=========> Visible <=========");
 		StringBuffer buf = new StringBuffer();
 		for (ImageMoveWrapper mv : this.viewPortImages) {
-			buf.append(mv.getImageIdent()+",");
+			buf.append(mv.getIndex()+",");
 		}
 		System.out.println("\t"+buf.toString());
 		System.out.println("=========> NoVisible <=========");
 		buf = new StringBuffer();
 		for (ImageMoveWrapper mv : this.noVisible) {
-			buf.append(mv.getImageIdent()+",");
+			buf.append(mv.getIndex()+",");
 		}
 		System.out.println("\t"+buf.toString());
 		System.out.println("=========> Right <=========");
-		System.out.println("\t"+this.right.getImageIdent());
+		System.out.println("\t"+this.right.getIndex());
 		
 		System.out.println("___________________________________________________________");
 	}

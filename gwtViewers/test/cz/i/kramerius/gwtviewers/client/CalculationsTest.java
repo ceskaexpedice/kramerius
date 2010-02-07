@@ -5,13 +5,13 @@ import java.util.ArrayList;
 
 import com.google.gwt.junit.client.GWTTestCase;
 
-import cz.i.kramerius.gwtviewers.client.panels.CoreConfiguration;
+import cz.i.kramerius.gwtviewers.client.panels.Configuration;
 import cz.i.kramerius.gwtviewers.client.panels.ImageMoveWrapper;
-import cz.i.kramerius.gwtviewers.client.panels.utils.Helper;
+import cz.i.kramerius.gwtviewers.client.panels.utils.CalculationHelper;
 import cz.i.kramerius.gwtviewers.client.panels.utils.ImageRotateCalculatedPositions;
 import cz.i.kramerius.gwtviewers.client.panels.utils.ImageRotatePool;
 
-public class CalcTest extends GWTTestCase {
+public class CalculationsTest extends GWTTestCase {
 
 	@Override
 	public String getModuleName() {
@@ -70,38 +70,38 @@ public class CalcTest extends GWTTestCase {
 		ImageMoveWrapper[] noVisible = generateCopies(wrappers);
 		ImageMoveWrapper left = generateLeft(noVisible);
 		ImageMoveWrapper right = generateRight(noVisible);
-		CoreConfiguration coreConfiguration = generateConfiguration();
+		Configuration coreConfiguration = generateConfiguration();
 		
 		ImageRotateCalculatedPositions imageRotateCalculatedPositions = new ImageRotateCalculatedPositions(wrappers, noVisible, left, right);
 		ImageRotatePool imageRotatePool = new ImageRotatePool(wrappers, noVisible, left, right,2);
 		
-		Helper.computePositions(imageRotatePool, imageRotateCalculatedPositions, coreConfiguration);
-		Helper.storePositions(imageRotatePool, imageRotateCalculatedPositions, coreConfiguration);
+		CalculationHelper.computePositions(imageRotatePool, imageRotateCalculatedPositions, coreConfiguration);
+		CalculationHelper.storePositions(imageRotatePool, imageRotateCalculatedPositions, coreConfiguration);
 		
 		deb(imageRotatePool);
 		System.out.println("==================");
 	
 		imageRotatePool.rollRight();
-		Helper.computePositions(imageRotatePool, imageRotateCalculatedPositions, coreConfiguration);
-		Helper.storePositions(imageRotatePool, imageRotateCalculatedPositions, coreConfiguration);
+		CalculationHelper.computePositions(imageRotatePool, imageRotateCalculatedPositions, coreConfiguration);
+		CalculationHelper.storePositions(imageRotatePool, imageRotateCalculatedPositions, coreConfiguration);
 		System.out.println("---- >> AFTER RIGHT ----");
 		deb(imageRotatePool);
 		
 		imageRotatePool.rollRight();
-		Helper.computePositions(imageRotatePool, imageRotateCalculatedPositions, coreConfiguration);
-		Helper.storePositions(imageRotatePool, imageRotateCalculatedPositions, coreConfiguration);
+		CalculationHelper.computePositions(imageRotatePool, imageRotateCalculatedPositions, coreConfiguration);
+		CalculationHelper.storePositions(imageRotatePool, imageRotateCalculatedPositions, coreConfiguration);
 		System.out.println("---- >> AFTER RIGHT ----");
 		deb(imageRotatePool);
 
 		imageRotatePool.rollLeft();
-		Helper.computePositions(imageRotatePool, imageRotateCalculatedPositions, coreConfiguration);
-		Helper.storePositions(imageRotatePool, imageRotateCalculatedPositions, coreConfiguration);
+		CalculationHelper.computePositions(imageRotatePool, imageRotateCalculatedPositions, coreConfiguration);
+		CalculationHelper.storePositions(imageRotatePool, imageRotateCalculatedPositions, coreConfiguration);
 		System.out.println("---- << AFTER LEFT ----");
 		deb(imageRotatePool);
 
 		imageRotatePool.rollLeft();
-		Helper.computePositions(imageRotatePool, imageRotateCalculatedPositions, coreConfiguration);
-		Helper.storePositions(imageRotatePool, imageRotateCalculatedPositions, coreConfiguration);
+		CalculationHelper.computePositions(imageRotatePool, imageRotateCalculatedPositions, coreConfiguration);
+		CalculationHelper.storePositions(imageRotatePool, imageRotateCalculatedPositions, coreConfiguration);
 		System.out.println("---- << AFTER LEFT ----");
 		deb(imageRotatePool);
 
@@ -109,8 +109,8 @@ public class CalcTest extends GWTTestCase {
 
 	
 	
-	private CoreConfiguration generateConfiguration() {
-		CoreConfiguration coreConfiguration = new CoreConfiguration();
+	private Configuration generateConfiguration() {
+		Configuration coreConfiguration = new Configuration();
 		coreConfiguration.setViewPortHeight(100);
 		coreConfiguration.setViewPortWidth(300);
 		return coreConfiguration;

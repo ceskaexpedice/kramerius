@@ -1,5 +1,6 @@
 package cz.i.kramerius.gwtviewers.server;
 
+import java.awt.Image;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FileFilter;
@@ -9,6 +10,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -37,18 +39,21 @@ import com.google.gwt.user.server.rpc.RemoteServiceServlet;
 
 import cz.i.kramerius.gwtviewers.client.PageService;
 import cz.i.kramerius.gwtviewers.client.SimpleImageTO;
+import cz.i.kramerius.gwtviewers.client.panels.utils.Dimension;
 import cz.i.kramerius.gwtviewers.server.pid.LexerException;
 import cz.i.kramerius.gwtviewers.server.pid.PIDParser;
 
 
 public class PageServiceImpl extends RemoteServiceServlet implements PageService {
 
-    public static String fedoraUrl = "http://194.108.215.227:8080/fedora";
-	public static String defaultScale ="0.3";
+    public static String FEDORA_URL = "http://194.108.215.227:8080/fedora";
+	public static String DEFAULT_SCALE_PERCENTAGE ="0.3";
+	public static String DEFAULT_SCALE_HEIGHT ="220";
 
     private String thumbnailUrl ="thumb";
-
 	private String imgFolder;
+	private String scaledHeight;
+	private String maxInitWidth;
 	
 
 	// dodelat nejakou vlastni implementaci !!
@@ -63,11 +68,24 @@ public class PageServiceImpl extends RemoteServiceServlet implements PageService
 	}
 	
 	public static String relsExtUrl(String uuid) {
-		return fedoraUrl +"/get/uuid:"+uuid+"/RELS-EXT";
+		String url = FEDORA_URL +"/get/uuid:"+uuid+"/RELS-EXT";
+		System.out.println(url);
+		return url;
 	}
 	
-	public static String thumbnail(String thumbUrl, String uuid, String scale) {
-		String url = thumbUrl+"?scale="+scale+"&uuid="+uuid;
+	public static String homeExtUrl(String uuid) {
+		String url = "file:///home/pavels/RELS-EXT";
+		return url;
+	}
+	
+	public static String homeExtUrlBig(String uuid) {
+		String url = "file:///home/pavels/Plocha/RELS-EXT.full.xml";
+		return url;
+	}
+	
+	
+	public static String thumbnail(String thumbUrl, String uuid, String scaledHeight) {
+		String url = thumbUrl+"?scaledHeight="+scaledHeight+"&uuid="+uuid;
 		return url;
 	}
 	
@@ -75,7 +93,12 @@ public class PageServiceImpl extends RemoteServiceServlet implements PageService
 	public ArrayList<SimpleImageTO> readPage(String uuid) {
 		ArrayList<SimpleImageTO> pages = new ArrayList<SimpleImageTO>();
 		try {
-			URL url = new URL(relsExtUrl(uuid));
+			URL url = null;
+			if (uuid.equals("8f526130-8b0d-11de-8994-000d606f5dc6")) {
+				url = new URL(homeExtUrl(uuid));
+			} else {
+				url = new URL(homeExtUrlBig(uuid));
+			}
 			DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
 			DocumentBuilder builder = factory.newDocumentBuilder();
 			Document parsed = builder.parse(url.openStream());
@@ -97,15 +120,14 @@ public class PageServiceImpl extends RemoteServiceServlet implements PageService
 				imageTO.setFirstPage(i==0);
 				imageTO.setLastPage(i==lastIndex);
 				imageTO.setIdentification(objectId);
-				imageTO.setUrl(thumbnail(this.thumbnailUrl, objectId, defaultScale));
-				// jak to dostat aniz bych to musel zase cist 
-				imageTO.setWidth(142);
-				imageTO.setHeight(200);
+				String thumbnailURL = thumbnail(this.thumbnailUrl, objectId, this.scaledHeight);
+				imageTO.setUrl(thumbnailURL);
+				imageTO.setHeight(Integer.parseInt(scaledHeight));
+				imageTO.setWidth(Integer.parseInt(maxInitWidth));
 				imageTO.setIndex(i);
 				pages.add(imageTO);
             }
 			
-            System.out.println(pages.size());
 		} catch (ParserConfigurationException e) {
 			e.printStackTrace();
 		} catch (MalformedURLException e) {
@@ -117,12 +139,26 @@ public class PageServiceImpl extends RemoteServiceServlet implements PageService
 		} catch (XPathExpressionException e) {
 			e.printStackTrace();
 		} catch (LexerException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		return pages;
 	}
 
+	//TODO: Zjisteni velikosti... nic vic.
+	private Image readThumbnail(String thumbnailURL) {
+		try {
+			URL url = new URL(thumbnailURL);
+			URLConnection connection = url.openConnection();
+			return ImageIO.read(connection.getInputStream());
+		} catch (MalformedURLException e) {
+			e.printStackTrace();
+			return null;
+		} catch (IOException e) {
+			e.printStackTrace();
+			return null;
+		} 
+	}
+	
 	public Integer getNumberOfPages(String uuid) {
 		List<SimpleImageTO> pages = getPages(uuid);
 		return pages.size();	
@@ -133,6 +169,8 @@ public class PageServiceImpl extends RemoteServiceServlet implements PageService
 		super.init(config);
 		this.imgFolder = config.getInitParameter("imgFolder");
 		this.thumbnailUrl = config.getInitParameter("thumbUrl");
+		this.scaledHeight = config.getInitParameter("scaledHeight");
+		this.maxInitWidth = config.getInitParameter("maxWidth");
 	}
 
 	public SimpleImageTO getPage(String uuid, int index) {
@@ -173,6 +211,6 @@ public class PageServiceImpl extends RemoteServiceServlet implements PageService
 		ArrayList<SimpleImageTO> pgs = getPages(masterUuid);
 		return pgs;
 	}
-	
+
 	
 }

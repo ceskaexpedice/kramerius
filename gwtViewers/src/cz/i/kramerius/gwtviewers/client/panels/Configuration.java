@@ -5,13 +5,14 @@ package cz.i.kramerius.gwtviewers.client.panels;
  * @author pavels
  *
  */
-public class CoreConfiguration {
+public class Configuration {
 
 	private int viewPortWidth;
 	private int viewPortHeight;
 	
 	private int imgDistances;
-
+	private int top = 0;
+	
 	
 	public int getViewPortWidth() {
 		return viewPortWidth;
@@ -40,4 +41,13 @@ public class CoreConfiguration {
 	public int getCenterWidth() {
 		return this.viewPortWidth / 2;
 	}
+
+	public int getTop() {
+		return top;
+	}
+
+	public void setTop(int top) {
+		this.top = top;
+	}
+	
 }
