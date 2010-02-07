@@ -15,6 +15,15 @@
 		<param-name>thumbUrl</param-name>
 		<param-value>thumb</param-value>
     </init-param>
+    
+    <init-param>
+    	<param-name>maxWidth</param-name>
+		<param-value>180</param-value>
+    </init-param>
+    <init-param>
+    	<param-name>scaledHeight</param-name>
+		<param-value>220</param-value>
+    </init-param>
   </servlet>
   
   <servlet-mapping>
