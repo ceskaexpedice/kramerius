@@ -14,7 +14,7 @@
 <jsp:useBean id="pageType" type="java.lang.String" />
 <fmt:setBundle basename="labels" />
 <fmt:setBundle basename="labels" var="bundleVar" />
-<c:url var="url" value="${fedoraSolr}" >
+<c:url var="url" value="${kconfig.solrHost}" >
     <c:param name="q" value="PID:\"${param.pid}\"" />
     <c:param name="facet.field" value="fedora.model" />
 </c:url>

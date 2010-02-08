@@ -20,7 +20,7 @@
 <c:set var="filters" scope="request" ></c:set>
 <c:set var="pageType" value="search" />
 <jsp:useBean id="pageType" type="java.lang.String" />
-<c:url var="url" value="${fedoraSolr}" >
+<c:url var="url" value="${kconfig.solrHost}" >
     <c:choose>
         <c:when test="${empty param.q}" >
             <c:param name="q" value="*:*" />
@@ -45,7 +45,10 @@
         </c:otherwise>
     </c:choose>
     <c:param name="rows" value="${rows}" />
-    <c:param name="facet" value="false" />
+    <c:param name="facet" value="true" />
+    <c:param name="facet.mincount" value="1" />
+    <c:param name="facet.field" value="abeceda_title" />
+    <c:param name="f.abeceda_title.facet.sort" value="false" />
     <c:forEach var="fqs" items="${paramValues.fq}">
         <c:param name="fq" value="${fqs}" />
         <c:set var="filters" scope="request"><c:out value="${filters}" />&fq=<c:out value="${fqs}" /></c:set>
@@ -71,22 +74,11 @@
     </c:when>
     <c:otherwise>
         <x:parse var="doc" xml="${xml}"  />
+        <%@ include file="proccessFacets.jsp" %>
         <c:set var="numDocs" scope="request" >
             <x:out select="$doc/response/result/@numFound" />
         </c:set>
         <div id="s_<c:out value="${param.d}" />">
-            <%--  
-
-            <x:forEach select="$doc/response/result/doc">
-                <div id="<x:out select="./str[@name='PID']"/>" class="inTree">
-                    <a target="item" href="./item.jsp?pid=<x:out select="./str[@name='PID']"/>&model=<x:out select="./str[@name='fedora.model']"/>">
-                    <x:out select="./str[@name='dc.title']"/></a> 
-                    <a href="javascript:browseInTree('<x:out select="./str[@name='PID']"/>', '<x:out select="./str[@name='fedora.model']"/>', 'sub_<c:out value="${param.d}"/>');">
-                    browse</a> 
-                </div>
-            </x:forEach>
-            --%>
-
             <x:forEach varStatus="status" select="$doc/response/result/doc">
                 <div class="resultInTree" >
                     <c:set var="uuid" >
@@ -105,7 +97,7 @@
                             //'details/biblioToRdf.jsp?&pid=' + pid + "&xsl=unit_from_biblio_mods.jsp&language=" + language;
                             request.setAttribute("xsl", "../details/xsl/unit_from_biblio_mods.jsp");
                             %>        
-                            <%@ include file="../details/biblioToRdf.jsp" %>
+                            <%@ include file="../details/biblioToRdf.jsp" %> (<x:out select="./str[@name='pages_count']"/>)
                             <%//@ include file="results/monographunit.jsp" %>
                         </x:when>
                         <x:when select="./str[@name='fedora.model'] = 'info:fedora/model:page'">

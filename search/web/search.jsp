@@ -42,6 +42,8 @@
                     <%@ include file="inc/dateAxisV.jsp" %>
                     <% currentFacetName = "language"; %>
                     <%@ include file="inc/facet.jsp" %>
+                    <% currentFacetName = "abeceda_title"; %>
+                    <%@ include file="inc/facet.jsp" %>
                 </td>
                 <td>
                     <c:out value="${numDocs}" />

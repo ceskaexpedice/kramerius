@@ -13,8 +13,6 @@
 
 <fmt:setBundle basename="labels" />
 <fmt:setBundle basename="labels" var="bundleVar" />
-<c:set var="fedoraSolr" value="http://194.108.215.227:8080/solr/select/select" />
-<c:set var="fedoraHost" value="http://194.108.215.227:8080/fedora" />
 <%--
 http://194.108.215.227:8080/solr/select?
 q=datum_begin%3A[1+TO+3010]
@@ -27,7 +25,7 @@ fq=root_model:periodical
 fq=fedora.model:%22info:fedora/model:page%22
 --%>
 
-<c:url var="url" value="${fedoraSolr}" >
+<c:url var="url" value="${kconfig.solrHost}" >
     <c:choose>
         <c:when test="${empty param.q}" >
             <c:param name="q" value="*:*" />

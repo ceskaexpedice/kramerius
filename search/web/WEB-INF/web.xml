@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE web-app PUBLIC "-//Sun Microsystems, Inc.//DTD Web Application 2.3//EN" "http://java.sun.com/dtd/web-app_2_3.dtd">
-
 <web-app>
     <servlet>
         <servlet-name>GetRelsExt</servlet-name>
@@ -27,7 +26,12 @@
     </init-param>
   </servlet>
   
-  <servlet-mapping>
+    <servlet>
+        <servlet-name>InitServlet</servlet-name>
+        <servlet-class>cz.incad.utils.InitServlet</servlet-class>
+         <load-on-startup>1</load-on-startup>
+    </servlet>
+    <servlet-mapping>
     <servlet-name>pageService</servlet-name>
     <url-pattern>/gwtviewers/page</url-pattern>
   </servlet-mapping>
@@ -81,6 +85,10 @@
         <url-pattern>/thumb</url-pattern>
     </servlet-mapping>
 
+    <servlet-mapping>
+        <servlet-name>InitServlet</servlet-name>
+        <url-pattern>/InitServlet</url-pattern>
+    </servlet-mapping>
     <welcome-file-list>
         <welcome-file>search.jsp</welcome-file>
     </welcome-file-list>

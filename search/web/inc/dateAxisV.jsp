@@ -82,16 +82,16 @@
             int currentInt = modMin;
             int modCount = 0;
             String currentDay = "01";
-            FacetInfo currentFacet;
+            FacetInfo fInfo;
 
             while (Integer.parseInt(current) <= modMax) {
                 index = dateAxisFacet.infos.indexOf(current);                
                 //index = dates.indexOf(current);
                 //if (index > -1) {
                     //modCount = ((Integer) modCounts.get(index)).intValue();
-                currentFacet = dateAxisFacet.getFacetInfoByName(current);
-                if(currentFacet!=null){
-                    modCount = currentFacet.count;
+                fInfo = dateAxisFacet.getFacetInfoByName(current);
+                if(fInfo!=null){
+                    modCount = fInfo.count;
                 } else {
                     modCount = 0;
                 }

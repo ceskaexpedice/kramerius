@@ -14,7 +14,8 @@ import java.util.Locale;
  */
 public class CzechComparator implements Comparator {
 
-    Collator czCollator = Collator.getInstance(new Locale("cs", "CS"));
+    //Collator czCollator = Collator.getInstance(new Locale("cs", "CS"));
+    Collator czCollator = Collator.getInstance(new Locale("cs"));
 
     public int compare(Object o1, Object o2) {
         if (o1.getClass().getSimpleName().equalsIgnoreCase("String")) {

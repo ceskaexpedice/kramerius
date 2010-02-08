@@ -32,6 +32,11 @@ public class KConfiguration {
 
     Logger logger = Logger.getLogger(this.getClass().getName());
     public HashMap<String, String> properties = new HashMap<String, String>();
+    public String fedoraHost;
+    private String solrHost;
+    public String indexerHost;
+    public String fedoraUser;
+    public String fedoraPass;
 
     public KConfiguration(String file) {
         try {
@@ -68,6 +73,16 @@ public class KConfiguration {
             logger.error("Can't load configuration");
             throw new RuntimeException(ex.toString());
         }
+    }
+    
+    public String getFedoraHost(){
+        return getProperty("fedoraHost");
+    }
+    public String getSolrHost(){
+        return getProperty("solrHost");
+    }
+    public String getIndexerHost(){
+        return getProperty("indexerHost");
     }
     
     public String getProperty(String key) {

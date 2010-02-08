@@ -4,10 +4,7 @@
 Facet pathFacet = facets.get("path");
             if ((pathFacet != null) &&
                     (pathFacet.infos.size() > 1)){
-                
-                
-int totalCount = 0;
-int a=0;
+
 try{
     for (int k = 0; k < pathFacet.infos.size(); k++) {
         FacetInfo facetInfo = pathFacet.infos.get(k);

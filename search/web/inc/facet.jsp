@@ -6,13 +6,11 @@
 <%@ page import="java.util.*, cz.incad.Solr.CzechComparator, cz.incad.Solr.*" %>
 
 <% 
-Facet currentFacet = facets.get(currentFacetName);
+currentFacet = facets.get(currentFacetName);
 if(currentFacet!= null && currentFacet.getFacetsNumber()>0){%>
 <div class="facet">
     <div class="facetTitle">
-        <a title="" href="">
-            <span><%=currentFacet.displayName%></span>
-        </a>
+        <%=currentFacet.displayName%>
     </div>    
     <%
             try {
@@ -28,10 +26,7 @@ if(currentFacet!= null && currentFacet.getFacetsNumber()>0){%>
     %>
     <div>
         <a title="<fmt:message >Add_navigator</fmt:message>" 
-           href="<%=current.url%>"><%=current.displayName%></a> (<%=current.count%>/<%
-
-
-        %>)
+           href="<%=current.url%>"><%=current.displayName%></a> (<%=current.count%>)
     </div>
     <%
 

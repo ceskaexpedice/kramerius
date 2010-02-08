@@ -13,11 +13,6 @@
 
 <fmt:setBundle basename="labels" />
 <fmt:setBundle basename="labels" var="bundleVar" />
-<c:set var="fedoraHost" value="http://194.108.215.227:8080/fedora" />
-<%--
-var indexUrl = "http://194.108.215.227:8080/fedoragsearch/rest?operation=updateIndex&action=fromPid&value=" + pid +
-        "&pagesCount=" + count;
---%> 
 <c:url var="url" value="http://194.108.215.227:8080/fedoragsearch/rest" >
     <c:param name="operation" value="updateIndex" />
     <c:param name="action" value="fromPid" />

@@ -39,7 +39,7 @@
                 <fmt:message><x:out select="./str[@name='fedora.model']"/></fmt:message>: <x:out select="./str[@name='dc.title']"/>
             </x:when>
             <x:otherwise>
-                <a href="<c:out value="${fedoraHost}" />/get/<x:out select="./str[@name='PID']"/>">
+                <a href="<c:out value="${kconfig.fedoraHost}" />/get/<x:out select="./str[@name='PID']"/>">
                     <b><x:out select="./str[@name='dc.title']"/></b>
                 </a> 
             </x:otherwise>

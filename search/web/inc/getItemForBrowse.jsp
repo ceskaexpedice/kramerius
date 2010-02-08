@@ -15,7 +15,7 @@
 <fmt:setBundle basename="labels" var="bundleVar" />
 <%@ include file="initVars.jsp" %>
 
-<c:url var="url" value="${fedoraSolr}" >
+<c:url var="url" value="${kconfig.solrHost}" >
     <c:param name="q" value="parent_pid:\"${param.pid}\" OR PID:\"${param.pid}\"" />
     <c:choose>
         <c:when test="${param.rows != null}" >

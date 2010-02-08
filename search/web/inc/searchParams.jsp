@@ -17,7 +17,7 @@
 <%@ include file="initVars.jsp" %>
 <c:set var="pageType" value="search" />
 <jsp:useBean id="pageType" type="java.lang.String" />
-<c:url var="url" value="${fedoraSolr}" >
+<c:url var="url" value="${kconfig.solrHost}" >
     <c:choose>
         <c:when test="${param.rows != null}" >
             <c:set var="rows" value="${param.rows}" scope="request" />
@@ -53,6 +53,7 @@
     <c:param name="facet.field" value="rok" />
     <c:param name="f.rok.facet.limit" value="-1" />
     <c:param name="f.rok.facet.sort" value="false" />
+    <c:param name="facet.field" value="abeceda_title" />
     
     <c:param name="facet" value="true" />
     <c:param name="facet.mincount" value="1" />

@@ -55,4 +55,23 @@ public class Facet {
         }
         return null;
     }
+    
+    public String getDisplayNameByAcumulatedCount(int offset, int pageSize){
+        int total=0;
+        String result = "";
+        for (int i = 0; i < infos.size(); i++) {
+            if(infos.get(i).displayName.equals("")) continue;
+            total += infos.get(i).count;
+            if(total>offset){
+                result += infos.get(i).displayName;
+            }
+            if(total>=(offset+pageSize)){
+                break;
+            }else if(total>offset && i<infos.size()-1){
+                result += ",";
+            }
+        }
+        
+        return result;
+    }
 }

@@ -19,12 +19,12 @@
 <c:choose>
     <c:when test="${uuid==null || uuid==''}">
         <c:set var="urlPageStr" >
-            <c:out value="${fedoraHost}" />/get/<c:out value="${param.pid}" />/BIBLIO_MODS
+            <c:out value="${kconfig.fedoraHost}" />/get/<c:out value="${param.pid}" />/BIBLIO_MODS
         </c:set>
     </c:when>
     <c:otherwise>
         <c:set var="urlPageStr" >
-            <c:out value="${fedoraHost}" />/get/<c:out value="${uuid}" />/BIBLIO_MODS
+            <c:out value="${kconfig.fedoraHost}" />/get/<c:out value="${uuid}" />/BIBLIO_MODS
         </c:set>
     </c:otherwise>
 </c:choose>

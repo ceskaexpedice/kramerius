@@ -1,4 +1,5 @@
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
+<%@ page import="java.util.*, cz.incad.Solr.CzechComparator, cz.incad.Solr.*" %>
 <%
 // zaklad od kamila 
             String expandedPaginationStr = "";
@@ -7,11 +8,17 @@
             String div = (String) request.getParameter("d");
             String filters = (String) request.getAttribute("filters");
             String offsetUrl = "";
+            boolean includeAbeceda = false;
+            Facet abecedaFacet = null;
             if(div==null){
                 offsetUrl = "javascript:gotoPageOffset(%s);";
             }else{
                 offsetUrl = "javascript:gotoPageOffsetInTree(%s, '"+div+"', '"+filters+"', '"+request.getParameter("pid")+"');";
+                includeAbeceda = true;
+                abecedaFacet = facets.get("abeceda_title");
+                abecedaFacet.sortByName();
             }
+            
             if (numDocs > numHits && numHits > 0) {
                 String navigationPageTemplate = "";
                 int N_WIDTH = 10;
@@ -47,6 +54,7 @@
                 }
                  */
                 maxPageIndex = nEnd;
+                String pismeno;
                 for (pageIndex = nStart; pageIndex <= maxPageIndex; pageIndex++) {
                     navigationPages.append((pageIndex == nStart) ? "" : " ");
                     nStart = (pageIndex - 1) * numHits;
@@ -59,8 +67,14 @@
                         navigationPages.append("<b>" + pageIndex + "</b> ");
                     } else {
                         //navigationPages.append("<a href=\"javascript:gotoPageOffset(" + String.valueOf(nStart) + ");\">" + (nStart + 1) + "-" + nEnd + "</a>");
-                        
-                        navigationPages.append("<a href=\""+String.format(offsetUrl, String.valueOf(nStart))+"\">" + pageIndex + "</a> ");
+                        navigationPages.append("<a href=\""+String.format(offsetUrl, String.valueOf(nStart))+"\">" + pageIndex);
+                        if(includeAbeceda){
+                            pismeno = abecedaFacet.getDisplayNameByAcumulatedCount(nStart, numHits);
+                            if (!pismeno.equals(""))
+                            navigationPages.append(" (" + pismeno + ")");
+                            //navigationPages.append(" [" + String.valueOf(nStart) + ", " + String.valueOf(numHits) + "] ");
+                        }
+                        navigationPages.append("</a> ");
                     }
                 }
                 if (offset < (numDocs - numHits)) { // dalsi strana

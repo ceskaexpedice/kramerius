@@ -21,7 +21,7 @@
                 <br/>
                 <fmt:message>Datum vydání výtisku</fmt:message>: <x:out select="./str[@name='datum']"/><br/>
         <c:set var="urlStr" >
-            <c:out value="${fedoraHost}" />/get/<x:out select="./str[@name='PID']"/>/BIBLIO_MODS
+            <c:out value="${kconfig.fedoraHost}" />/get/<x:out select="./str[@name='PID']"/>/BIBLIO_MODS
         </c:set>
         <c:url var="urlGet" value="${urlStr}" >
         </c:url>

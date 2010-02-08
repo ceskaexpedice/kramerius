@@ -12,9 +12,8 @@
 
 <fmt:setBundle basename="labels" />
 <fmt:setBundle basename="labels" var="bundleVar" />
-<c:set var="fedoraHost" value="http://194.108.215.227:8080/fedora" />
 <c:set var="pageUrl">
-    <c:out value="${fedoraHost}" />/get/<c:out value="${param.pid}" />/IMG_FULL
+    <c:out value="${kconfig.fedoraHost}" />/get/<c:out value="${param.pid}" />/IMG_FULL
 </c:set>
 
 <div>

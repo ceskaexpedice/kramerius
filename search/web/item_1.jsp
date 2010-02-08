@@ -13,16 +13,15 @@
 <fmt:setBundle basename="labels" />
 <fmt:setBundle basename="labels" var="bundleVar" />
 <table width="100%">
-    <c:set var="fedoraHost" value="http://194.108.215.227:8080/fedora" />
-    <c:set var="fedoraSolr" value="http://194.108.215.227:8080/solr/select/select" />
+    <c:set var="kconfig.fedoraHost" value="http://194.108.215.227:8080/fedora" />
     <c:set var="others" value="" />
     
     
     <c:set var="urlBiblioMods" >
-        <c:out value="${fedoraHost}" />/get/<c:out value="${param.pid}" />/BIBLIO_MODS
+        <c:out value="${kconfig.fedoraHost}" />/get/<c:out value="${param.pid}" />/BIBLIO_MODS
     </c:set>
     <c:set var="urlSolr" >
-        <c:out value="${fedoraSolr}" />?q=PID:"<c:out value="${param.pid}" />"
+        <c:out value="${kconfig.solrHost}" />?q=PID:"<c:out value="${param.pid}" />"
     </c:set>
     <c:set var="urlReindex" >
         IndexModel?full=false&model=<c:out value="${param.model}" />&pid=<c:out value="${param.pid}" />
@@ -32,7 +31,7 @@
     <c:set var="urlStr" >
         <c:choose>
             <c:when test="${param.model == 'info:fedora/model:page'}">
-                <c:out value="${fedoraHost}" />/get/<c:out value="${param.parentPid}" />/BIBLIO_MODS
+                <c:out value="${kconfig.fedoraHost}" />/get/<c:out value="${param.parentPid}" />/BIBLIO_MODS
                 <c:set var="display" value="none"/>
                 <c:choose>
                     <c:when test="${param.parentModel == 'info:fedora/model:monograph'}">
@@ -47,27 +46,27 @@
                 </c:choose>
             </c:when>
             <c:when test="${param.model == 'info:fedora/model:monograph'}">
-                <c:out value="${fedoraHost}" />/get/<c:out value="${param.pid}" />/BIBLIO_MODS
+                <c:out value="${kconfig.fedoraHost}" />/get/<c:out value="${param.pid}" />/BIBLIO_MODS
                 <c:set var="display" value="block"/>
                 <c:set var="modelForInfo" value="monograph"/>
             </c:when>
             <c:when test="${param.model == 'info:fedora/model:monographunit'}">
-                <c:out value="${fedoraHost}" />/get/<c:out value="${param.pid}" />/BIBLIO_MODS
+                <c:out value="${kconfig.fedoraHost}" />/get/<c:out value="${param.pid}" />/BIBLIO_MODS
                 <c:set var="display" value="block"/>
                 <c:set var="modelForInfo" value="monographunit"/>
             </c:when>
             <c:when test="${param.model == 'info:fedora/model:periodical'}">
-                <c:out value="${fedoraHost}" />/get/<c:out value="${param.pid}" />/BIBLIO_MODS
+                <c:out value="${kconfig.fedoraHost}" />/get/<c:out value="${param.pid}" />/BIBLIO_MODS
                 <c:set var="display" value="block"/>
                 <c:set var="modelForInfo" value="periodical"/>
             </c:when>
             <c:when test="${param.model == 'info:fedora/model:periodicalvolume'}">
-                <c:out value="${fedoraHost}" />/get/<c:out value="${param.pid}" />/BIBLIO_MODS
+                <c:out value="${kconfig.fedoraHost}" />/get/<c:out value="${param.pid}" />/BIBLIO_MODS
                 <c:set var="display" value="none"/>
                 <c:set var="modelForInfo" value="periodicalvolume"/>
             </c:when>
             <c:when test="${param.model == 'info:fedora/model:periodicalitem'}">
-                <c:out value="${fedoraHost}" />/get/<c:out value="${param.pid}" />/BIBLIO_MODS
+                <c:out value="${kconfig.fedoraHost}" />/get/<c:out value="${param.pid}" />/BIBLIO_MODS
                 <c:set var="display" value="none"/>
                 <c:set var="modelForInfo" value="periodicalitem"/>
             </c:when>
