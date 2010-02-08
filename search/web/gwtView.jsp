@@ -30,15 +30,6 @@
 	</tr>
 </table>
 
-<script type="text/javascript"> 
-		$(document).ready(function(){
-			if ((window.loadMyBusinessWidget != 'undefined') && 
-				(window.loadMyBusinessWidget != null)) {
-				alert(' metoda definovana ...');	
-			}	
-			window.loadMyBusinessWidget();                        
-		});
-</script>
 
 
 
