@@ -11,6 +11,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.security.NoSuchAlgorithmException;
 
+import javax.management.RuntimeErrorException;
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -79,11 +80,11 @@ public class ThumbnailFedoraStorage implements ThumbnailStorage {
 			String adminPswd = getJNDIValue(FEDORA_ADMIN_USER_PSWD);
 			uploadThumbnailAsDatastream(adminName, adminPswd, "uuid:"+uuid, request);
 		} catch (NoSuchAlgorithmException e) {
-			e.printStackTrace();
+			throw new RuntimeException(e);
 		} catch (LexerException e) {
-			e.printStackTrace();
+			throw new RuntimeException(e);
 		} catch (IOException e) {
-			e.printStackTrace();
+			throw new RuntimeException(e);
 		}
 	}
 

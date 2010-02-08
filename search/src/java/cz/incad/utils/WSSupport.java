@@ -13,6 +13,9 @@ import java.net.URLConnection;
 import java.security.DigestInputStream;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.security.Provider;
+import java.security.Security;
+import java.util.logging.Logger;
 
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
@@ -23,14 +26,20 @@ import javax.xml.ws.BindingProvider;
 import org.fedora.api.FedoraAPIM;
 import org.fedora.api.FedoraAPIMService;
 
+import sun.misc.BASE64Decoder;
+import sun.misc.BASE64Encoder;
+
 import com.google.gwt.user.server.Base64Utils;
 
 import cz.i.kramerius.gwtviewers.server.pid.LexerException;
 import cz.i.kramerius.gwtviewers.server.pid.PIDParser;
+import cz.incad.Kramerius.FedoraUtils;
 import cz.incad.Kramerius.ThumbnailServlet;
 
 public class WSSupport {
 
+	static Logger LOGGER = Logger.getLogger(WSSupport.class.getName());
+	
 	public static void uploadThumbnailAsDatastream(final String user, final String pwd, final String pid, final HttpServletRequest request) throws LexerException, NoSuchAlgorithmException, IOException {
 		FedoraAPIMService service = null;
 		FedoraAPIM port = null;
@@ -53,24 +62,61 @@ public class WSSupport {
 	
 	    PIDParser parser = new PIDParser(pid);
 	    parser.objectPid();
-	    
+
+
+
 	    String rawContent = ThumbnailServlet.rawContent(parser.getObjectId(), request);
-		port.addDatastream(pid, null, null, "THUMB", false, "image/jpeg", "HTTP", rawContent, "E", "A", "MD5",WSSupport.calcMD5SUM(rawContent) , "none");
+		String nds = port.addDatastream(pid, FedoraUtils.IMG_THUMB, null, "Thumbnail", false, "image/jpeg", "HTTP", rawContent, "M", "A", "MD5",null, "none");
+		
 	}
 
+	
 	public static String calcMD5SUM(String surl) throws IOException, NoSuchAlgorithmException {
 		URL url = new URL(surl);
 		URLConnection connection = url.openConnection();
 		InputStream is = connection.getInputStream();
-		DigestInputStream digestInput = new DigestInputStream(is, MessageDigest.getInstance("MD5"));
-		digestInput.on(true);
+		MessageDigest instance = MessageDigest.getInstance("MD5");
+
 		ByteArrayOutputStream bos = new ByteArrayOutputStream();
-		IOUtils.copyStreams(digestInput, bos);
-		byte[] digest = digestInput.getMessageDigest().digest();
-		digestInput.close();
-		is.close();
-		String base64 = Base64Utils.toBase64(digest);
-		return base64;
+		IOUtils.copyStreams(is, bos, instance);
+		byte[] digest = instance.digest();
+
+		String hexString = convertToHexa(digest);
+		return hexString;
+	}
+
+
+	private static String md5string(byte[] bytes)
+			throws NoSuchAlgorithmException {
+		MessageDigest instance = MessageDigest.getInstance("MD5");
+		byte[] digest = instance.digest(bytes);
+		String hexString = convertToHexa(digest);
+		return hexString;
+	}
+
+
+	private static byte[] imageBytes(InputStream is) throws IOException {
+		ByteArrayOutputStream bos = new ByteArrayOutputStream();
+		IOUtils.copyStreams(is, bos);
+		is.close(); bos.flush();
+		return bos.toByteArray();
+	}
+
+
+	private static InputStream imageInputStream(String surl)
+			throws MalformedURLException, IOException {
+		URL url = new URL(surl);
+		URLConnection connection = url.openConnection();
+		InputStream is = connection.getInputStream();
+		return is;
+	}
+
+	private static String convertToHexa(byte[] digest) {
+		StringBuffer hexString = new StringBuffer();
+    	for (int i=0;i<digest.length;i++) {
+    		hexString.append(Integer.toHexString(0xFF & digest[i]));
+    	}
+		return hexString.toString();
 	}
 
 	public static void redirectFromFedora(HttpServletResponse resp, URL url)

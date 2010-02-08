@@ -22,8 +22,9 @@ import org.w3c.dom.NodeList;
 
 public class FedoraUtils {
     
-    public static String fedoraUrl = "http://194.108.215.227:8080/fedora";
+	public static String fedoraUrl = "http://194.108.215.227:8080/fedora";
     
+    public static final String IMG_THUMB = "IMG_THUMB";
     
         
     public static ArrayList<String> getRdfPids(String pid, String relation) {
@@ -67,7 +68,7 @@ public class FedoraUtils {
      * @return
      */
     public static String getThumbnailFromFedora(String uuid) {
-    	String imagePath = fedoraUrl+"/get/uuid:"+uuid+"/THUMB";
+    	String imagePath = fedoraUrl+"/get/uuid:"+uuid+"/" + IMG_THUMB;
     	return imagePath;
     }
     

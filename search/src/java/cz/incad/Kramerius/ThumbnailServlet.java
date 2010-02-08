@@ -32,6 +32,7 @@ import javax.swing.JPanel;
 
 import org.fedora.api.ObjectFactory;
 
+import com.google.gwt.gen2.logging.shared.Log;
 import com.lizardtech.djvu.DjVuInfo;
 import com.lizardtech.djvu.DjVuPage;
 import com.lizardtech.djvubean.DjVuBean;
@@ -57,7 +58,7 @@ public class ThumbnailServlet extends HttpServlet {
 	private static final String SCALED_HEIGHT_PARAMETER ="scaledHeight";
 	private static final String DS_LOCATION = "";
 
-	protected ThumbnailStorage.Type type = ThumbnailStorage.Type.DISK;
+	protected ThumbnailStorage.Type type = ThumbnailStorage.Type.FEDORA;
 	
 	@Override
 	public void init() throws ServletException {}	
@@ -92,16 +93,6 @@ public class ThumbnailServlet extends HttpServlet {
 
 	}
 
-//	public static void redirectFromDisk(HttpServletResponse resp, URL url, String pid) {
-//		String homeFolder = System.getProperty("user.home");
-//		File imgFolders = new File(homeFolder+File.pathSeparator+"images");
-//		imgFolders.mkdirs();
-//		File imgFile = new File(imgFolders, pid+".jpeg");
-//		InputStream inputStream = n;
-//		resp.setContentType("image/jpeg");
-//		ServletOutputStream outputStream = resp.getOutputStream();
-//		IOUtils.copyStreams(inputStream, outputStream);
-// 	}
 
 	private void rawImage(HttpServletRequest req, HttpServletResponse resp,
 			String uuid, int page) throws IOException, MalformedURLException {
@@ -189,7 +180,7 @@ public class ThumbnailServlet extends HttpServlet {
 		//String returnURI = requestURI + "&"+RAWDATA_PARAMETER+"=true";
 		
 		//return "http://194.108.215.84:8080/search/thumb?scaledHeight=220&uuid="+uuid+"&rawdata=true";
-		return "http://localhost:8080/search/thumb?scaledHeight=220&uuid="+uuid+"&rawdata=true";
+		return "http://194.108.215.84:8080/search/thumb?scaledHeight=220&uuid="+uuid+"&rawdata=true";
 	}
 	
 }

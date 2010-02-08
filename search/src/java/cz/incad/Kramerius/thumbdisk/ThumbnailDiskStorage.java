@@ -37,7 +37,6 @@ public class ThumbnailDiskStorage implements ThumbnailStorage {
 	}
 
 	@Override
-
 	public void redirectToServlet(String uuid, HttpServletResponse response) {
 		InputStream inputStream = null;
 		try {
