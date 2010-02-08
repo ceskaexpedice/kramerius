@@ -8,14 +8,12 @@
 <script type="text/javascript">
 	var __gwtViewersUUID = "${param.pid}";
 
-
 	var __confHeight = 220;
 	var __confWidth = 400;
 	var __confDistance = 5;
 	var __confDistance = 5;
 
 	var __thumbUrl = 'http://localhost:8080/search/thumb';
-
 </script>
  
 <table align="center">
@@ -26,11 +24,7 @@
 		<td id="container"></td>
 	</tr>
 	<tr>
-	<td><div id="slider" style="width: 100%"></div> </td>
+		<td><div id="slider" style="width: 100%"></div> </td>
 	</tr>
 </table>
 
-
-
-
-</table>
