@@ -84,6 +84,12 @@ public class KConfiguration {
     public String getIndexerHost(){
         return getProperty("indexerHost");
     }
+    public String getFedoraUser(){
+        return getProperty("fedoraUser");
+    }
+    public String getFedoraPass(){
+        return getProperty("fedoraPass");
+    }
     
     public String getProperty(String key) {
         if (properties.containsKey(key)) {

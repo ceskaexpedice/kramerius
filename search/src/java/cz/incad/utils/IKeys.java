@@ -15,4 +15,6 @@ public interface IKeys {
     String PORT = "port";
     String CONFIGURATION = "kconfig";
     String VISITED_RECORDS = "visitedrecords";
+    String FEDORAUSER = "fedorauser";
+    String FEDORAPASS = "fedorapass";
 }
