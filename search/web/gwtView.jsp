@@ -13,7 +13,6 @@
 	var __confDistance = 5;
 	var __confDistance = 5;
 
-	var __thumbUrl = 'http://localhost:8080/search/thumb';
 </script>
  
 <table align="center">
