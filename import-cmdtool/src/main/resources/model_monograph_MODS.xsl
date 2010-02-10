@@ -119,7 +119,7 @@
 			<mods:issuance>monographic</mods:issuance>
 		</mods:originInfo>
 
-		<xsl:for-each select="/Monograph/Language">
+		<xsl:for-each select="/Monograph/MonographBibliographicRecord/Language">
 			<mods:language>
 				<mods:languageTerm type="code" authority="iso639-2b"><xsl:value-of select="." /></mods:languageTerm>
 			</mods:language>
