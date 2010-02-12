@@ -6,5 +6,10 @@
         <property name="solrHost" value="http://194.108.215.227:8080/solr/select/select"/>
         <property name="fedoraUser" value="fedoraAdmin"/>
         <property name="fedoraPass" value="fedoraAdmin"/>
+    
+		<!-- Image thumbnail -->
+        <property name="thumbUrl" value="http://194.108.215.84:8080/search/thumb"/>
+        <property name="scaledHeight" value="128"/>
+        <property name="djvuUrl" value="http://194.108.215.84:8080/search/djvu"/>
     </properties>
 </setup>
