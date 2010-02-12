@@ -10,10 +10,10 @@ import cz.i.kramerius.gwtviewers.client.selections.Selector;
 public class MovePointerPanel extends Composite implements MoveListener {
 
 	private AbsolutePanel absolutePanel = new AbsolutePanel();
-	private Configuration configuration;
+	private ViewConfiguration configuration;
 	private Selector selector;
 	
-	public MovePointerPanel(Configuration configuration, Selector selector) {
+	public MovePointerPanel(ViewConfiguration configuration, Selector selector) {
 		super();
 		this.configuration = configuration;
 		this.selector = selector;

@@ -8,7 +8,7 @@ import com.google.gwt.user.client.ui.Widget;
  * Basic properties for image
  * @author pavels
  */
-public class ImageCore {
+public class ImageWrapper {
 
 	private int x;
 	private int y;
@@ -21,14 +21,14 @@ public class ImageCore {
 	// TODO: Vyhodit, udelat jinak
 	private Image image = null;
 
-	public ImageCore(int x, int y, int width, int height, String imageIdent) {
+	public ImageWrapper(int x, int y, int width, int height, String imageIdent) {
 		this.x = x;
 		this.y = y;
 		this.width = width;
 		this.height = height;
 		this.imageIdent = imageIdent;
 	}
-	public ImageCore(int x, int y, int width, int height, String url, String imageIdent) {
+	public ImageWrapper(int x, int y, int width, int height, String url, String imageIdent) {
 		this(x,y,width,height,imageIdent);
 		this.url = url;
 		if (this.image == null) {

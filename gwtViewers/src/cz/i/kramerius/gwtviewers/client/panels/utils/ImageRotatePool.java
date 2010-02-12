@@ -18,6 +18,9 @@ import cz.i.kramerius.gwtviewers.client.panels.ImageMoveWrapper;
 public class ImageRotatePool {
 
 	public static int VIEW_IMAGES_Z_INDEX = 100;
+	
+	public static int PANE_VIEW_Z_INDEX = 95;
+	
 	public static int LEFTRIGNT_IMAGES_Z_INDEX = 10;
 	public static int NOVIEW_IMAGES_Z_INDEX = 1;
 	

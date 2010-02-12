@@ -2,12 +2,12 @@ package cz.i.kramerius.gwtviewers.client.panels.utils;
 
 import java.util.ArrayList;
 
-import cz.i.kramerius.gwtviewers.client.panels.Configuration;
+import cz.i.kramerius.gwtviewers.client.panels.ViewConfiguration;
 import cz.i.kramerius.gwtviewers.client.panels.ImageMoveWrapper;
 
 public class CalculationHelper {
 
-	public static void computePositions(ImageRotatePool imageRotatePool, ImageRotateCalculatedPositions imageRotateCalculatedPositions, Configuration configuration) {
+	public static void computePositions(ImageRotatePool imageRotatePool, ImageRotateCalculatedPositions imageRotateCalculatedPositions, ViewConfiguration configuration) {
 		ArrayList<ImageMoveWrapper> viewPortImages = imageRotatePool.getViewPortImages();
 		int previousImgWidth = 0;
 		for (int i = 0; i < viewPortImages.size(); i++) {
@@ -57,7 +57,7 @@ public class CalculationHelper {
 //		}
 	}
 
-	public static void storePositions(ImageRotatePool imageRotatePool, ImageRotateCalculatedPositions imageRotateCalculatedPositions, Configuration configuration) {
+	public static void storePositions(ImageRotatePool imageRotatePool, ImageRotateCalculatedPositions imageRotateCalculatedPositions, ViewConfiguration configuration) {
 		ArrayList<ImageMoveWrapper> viewPortImages = imageRotatePool.getViewPortImages();
 		ArrayList<ImageMoveWrapper> calclulatedPositions = imageRotateCalculatedPositions.getViewPortImages();
 		for (int i = 0; i < viewPortImages.size(); i++) {

@@ -5,13 +5,15 @@ package cz.i.kramerius.gwtviewers.client.panels;
  * @author pavels
  *
  */
-public class Configuration {
+public class ViewConfiguration {
 
 	private int viewPortWidth;
 	private int viewPortHeight;
 	
 	private int imgDistances;
 	private int top = 0;
+	
+	private int numberOfVisibleImages  = 3;
 	
 	
 	public int getViewPortWidth() {
@@ -49,5 +51,14 @@ public class Configuration {
 	public void setTop(int top) {
 		this.top = top;
 	}
+
+	public int getNumberOfVisibleImages() {
+		return numberOfVisibleImages;
+	}
+
+	public void setNumberOfVisibleImages(int numberOfVisibleImages) {
+		this.numberOfVisibleImages = numberOfVisibleImages;
+	}
+
 	
 }

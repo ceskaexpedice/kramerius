@@ -26,8 +26,6 @@ public class SliderBarFormatter implements LabelFormatter {
 
 	@Override
 	public String formatLabel(SliderBar slider, double value) {
-		// ?? 
-
 		if (this.equalsNumber(value, this.min)) {
 			return "1";
 		} else if (this.equalsNumber(value, this.max)) {

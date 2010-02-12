@@ -5,7 +5,7 @@ import java.util.ArrayList;
 
 import com.google.gwt.junit.client.GWTTestCase;
 
-import cz.i.kramerius.gwtviewers.client.panels.Configuration;
+import cz.i.kramerius.gwtviewers.client.panels.ViewConfiguration;
 import cz.i.kramerius.gwtviewers.client.panels.ImageMoveWrapper;
 import cz.i.kramerius.gwtviewers.client.panels.utils.CalculationHelper;
 import cz.i.kramerius.gwtviewers.client.panels.utils.ImageRotateCalculatedPositions;
@@ -70,7 +70,7 @@ public class CalculationsTest extends GWTTestCase {
 		ImageMoveWrapper[] noVisible = generateCopies(wrappers);
 		ImageMoveWrapper left = generateLeft(noVisible);
 		ImageMoveWrapper right = generateRight(noVisible);
-		Configuration coreConfiguration = generateConfiguration();
+		ViewConfiguration coreConfiguration = generateConfiguration();
 		
 		ImageRotateCalculatedPositions imageRotateCalculatedPositions = new ImageRotateCalculatedPositions(wrappers, noVisible, left, right);
 		ImageRotatePool imageRotatePool = new ImageRotatePool(wrappers, noVisible, left, right,2);
@@ -109,8 +109,8 @@ public class CalculationsTest extends GWTTestCase {
 
 	
 	
-	private Configuration generateConfiguration() {
-		Configuration coreConfiguration = new Configuration();
+	private ViewConfiguration generateConfiguration() {
+		ViewConfiguration coreConfiguration = new ViewConfiguration();
 		coreConfiguration.setViewPortHeight(100);
 		coreConfiguration.setViewPortWidth(300);
 		return coreConfiguration;

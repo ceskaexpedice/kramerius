@@ -6,7 +6,7 @@ import java.util.List;
 import org.adamtacy.client.ui.effects.NEffect;
 import org.adamtacy.client.ui.effects.ParallellCompositeEffect;
 
-import cz.i.kramerius.gwtviewers.client.panels.Configuration;
+import cz.i.kramerius.gwtviewers.client.panels.ViewConfiguration;
 import cz.i.kramerius.gwtviewers.client.panels.ImageMoveWrapper;
 import cz.i.kramerius.gwtviewers.client.panels.utils.ImageRotateCalculatedPositions;
 import cz.i.kramerius.gwtviewers.client.panels.utils.ImageRotatePool;
@@ -19,10 +19,12 @@ import cz.i.kramerius.gwtviewers.client.panels.utils.Point;
 public class Rotate extends ParallellCompositeEffect {
 	
 	
-	public Rotate(Configuration conf, ImageRotatePool rotatePool, ImageRotateCalculatedPositions calcPos,ArrayList<ImageMoveWrapper> oldViewPortImages) {
+	
+	public Rotate(ViewConfiguration conf, ImageRotatePool rotatePool, ImageRotateCalculatedPositions calcPos,ArrayList<ImageMoveWrapper> oldViewPortImages) {
 		super();
 		
-		for (int i = 0; i < rotatePool.getViewPortSize(); i++) {
+		
+		for (int i = 0; i <rotatePool.getViewPortSize(); i++) {
 			ImageMoveWrapper viewPortImage = rotatePool.getViewPortImage(i);
 			ImageMoveWrapper calculated = calcPos.getViewPortCalulcatedPosition(i);
 			NEffect move = viewPortImage.move(new Point(calculated.getX(), calculated.getY()));

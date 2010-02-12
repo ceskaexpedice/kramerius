@@ -28,7 +28,7 @@ import cz.i.kramerius.gwtviewers.client.panels.utils.Point;
  */
 public class ImageMoveWrapper  implements EffectSteppingHandler, EffectStartingHandler, EffectCompletedHandler {
 
-	private ImageCore imageCore;
+	private ImageWrapper imageCore;
 	private int relative;
 	private int absolute;
 	
@@ -59,7 +59,7 @@ public class ImageMoveWrapper  implements EffectSteppingHandler, EffectStartingH
 
 
 	public ImageMoveWrapper(int x, int y, int width, int height, String url, String imageIdent) {
-		this.imageCore = new ImageCore(x, y, width, height, url, imageIdent);
+		this.imageCore = new ImageWrapper(x, y, width, height, url, imageIdent);
 		appendAlt(imageIdent);
 	}
 
@@ -137,11 +137,11 @@ public class ImageMoveWrapper  implements EffectSteppingHandler, EffectStartingH
 		return true;
 	}
 
-	public int getVisibleRightRest(Configuration configuration) {
+	public int getVisibleRightRest(ViewConfiguration configuration) {
 		return configuration.getViewPortWidth() - getX();
 	}
 
-	public int getVisibleLeftSideRest(Configuration configuration) {
+	public int getVisibleLeftSideRest(ViewConfiguration configuration) {
 		return getX() + getWidth();
 	}
 

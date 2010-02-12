@@ -38,7 +38,7 @@ import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.gwt.widgetideas.client.SliderBar;
 
-import cz.i.kramerius.gwtviewers.client.panels.Configuration;
+import cz.i.kramerius.gwtviewers.client.panels.ViewConfiguration;
 import cz.i.kramerius.gwtviewers.client.panels.ConfigurationChanged;
 import cz.i.kramerius.gwtviewers.client.panels.ConfigurationPanel;
 import cz.i.kramerius.gwtviewers.client.panels.ImageMoveWrapper;
@@ -51,24 +51,10 @@ import cz.i.kramerius.gwtviewers.client.panels.utils.ImageRotatePool;
 import cz.i.kramerius.gwtviewers.client.selections.SelectionDecorator;
 import cz.i.kramerius.gwtviewers.client.selections.Selector;
 
-/**
- * Entry point classes define <code>onModuleLoad()</code>.
- */
 public class GwtViewers implements EntryPoint, ClickHandler, ConfigurationChanged {
 	
 	public static GwtViewers _sharedInstance = null;
-	/**
-	 * The message displayed to the user when the server cannot be reached or
-	 * returns an error.
-	 */
-	private static final String SERVER_ERROR = "An error occurred while "
-			+ "attempting to contact the server. Please check your network "
-			+ "connection and try again.";
 
-	
-
-	
-	
 	private MoveEffectsPanel fxPane;
 	private MovePointerPanel mvPane;
 	private ConfigurationPanel confPanel;
@@ -81,9 +67,12 @@ public class GwtViewers implements EntryPoint, ClickHandler, ConfigurationChange
 	
 	private boolean initialized = false;
 	private int modulo = 1;
+	private double duration = 0.3; 
 	
 	private SliderDirection direction = SliderDirection.RIGHT;
-	private SliderBar sliderBar = new SliderBar(1, 10); {
+
+	private SliderBar sliderBar = new SliderBar(1, 10);
+	{
 		sliderBar.setStepSize(1.0);
 		sliderBar.setCurrentValue(0);
 	    sliderBar.setNumLabels(0);
@@ -96,15 +85,12 @@ public class GwtViewers implements EntryPoint, ClickHandler, ConfigurationChange
 				double currentValue = sliderBar.getCurrentValue();
 				int round = (int) Math.round(currentValue);
 				if (round != previous) {
-			
 					if ((round % modulo) != 0) {
-						onlyOnePageAnimation(round);
-						label.setText("rotate pool = " + fxPane.getRotatePool().getPointer()+", step ="+round);
+						animateOneJump(round);
 						previous = round;
 					}
 				}
 			}
-
 		});
 
 
@@ -118,7 +104,8 @@ public class GwtViewers implements EntryPoint, ClickHandler, ConfigurationChange
 				if (round != previous) {
 					previous = round;
 					if ((round % modulo) == 0) {
-						rollToPage(round, 0.3, true);
+						rollToPage(round, duration, true);
+						rollToPage(round, duration, false);
 						label.setText("strana:"+round+" - posun");
 					} else {
 						rollToPage(round, 0.0, false);
@@ -129,7 +116,7 @@ public class GwtViewers implements EntryPoint, ClickHandler, ConfigurationChange
 		});
 	}
 
-	private void onlyOnePageAnimation(int round) {
+	private void animateOneJump(int round) {
 		if (direction == SliderDirection.LEFT) {
 			fxPane.getRotatePool().rollRight(); 
 			fxPane.calulateNextPositions();
@@ -139,8 +126,7 @@ public class GwtViewers implements EntryPoint, ClickHandler, ConfigurationChange
 			fxPane.calulateNextPositions();
 			fxPane.storeCalculatedPositions();
 		}
-		
-		rollToPage(round,0.3, true);
+		rollToPage(round,duration, true);
 	}
 
 	
@@ -159,19 +145,9 @@ public class GwtViewers implements EntryPoint, ClickHandler, ConfigurationChange
 			public void onSuccess(Integer result) {
 				// posledni pozice n-2|n-1|na
 				// urcuje to co bude nejvice vlevo
-				sliderBar.setMaxValue(result-2);
-				sliderBar.setNumLabels(0);
-				sliderBar.setNumTicks(0);
-				// prvni pozice  na|0|1
-				// urcuje, co bude nejvice vlevo
-				sliderBar.setMinValue(-1);
-				sliderBar.setCurrentValue(0);
-				Double n = result.doubleValue();
-				Double divider = new Double(20000);
-				sliderBar.setStepSize(n/divider);
-				
-				sliderBar.setLabelFormatter(new SliderBarFormatter(-1, result-2));
+				modifySliderBar(result);
 			}
+
 		});
 		pageService.getPagesSet(uuid, new AsyncCallback<ArrayList<SimpleImageTO>>() {
 
@@ -202,8 +178,15 @@ public class GwtViewers implements EntryPoint, ClickHandler, ConfigurationChange
 			ImageMoveWrapper selection = this.fxPane.getImgSelector().getSelection(rotatePool);
 			int index = selection.getIndex();
 			int current = index + intMoveToSelect;
-			int currentLeft = this.fxPane.getImgSelector().selectionToSliderPosition(rotatePool,current);
-			sliderBar.setCurrentValue(currentLeft);
+			int move = this.fxPane.getImgSelector().selectionToSliderPosition(rotatePool,current);
+			if (move != 0) {
+				rollToPage(move, duration, true);
+				sliderBar.setCurrentValue(move);
+			} else {
+				//openDialog();
+			}
+		} else {
+			//openDialog();
 		}
 	}
 
@@ -222,9 +205,8 @@ public class GwtViewers implements EntryPoint, ClickHandler, ConfigurationChange
 		int jump = Integer.parseInt(to)-1;
 		int translated = this.fxPane.getImgSelector().selectionToSliderPosition(this.fxPane.getRotatePool(), jump);
 		rollToPage(translated, 0.0, false);
-		onlyOnePageAnimation(translated);
+		animateOneJump(translated);
 		this.sliderBar.setCurrentValue(translated);
-		//this.sliderBar.setCurrentValue(jump);
 	}
 
 
@@ -248,14 +230,30 @@ public class GwtViewers implements EntryPoint, ClickHandler, ConfigurationChange
 		fxPane.getRotatePool().debugPool();
 	}
 
-	
+
+	private void modifySliderBar(Integer result) {
+		int maxImage = result-2;
+		sliderBar.setMaxValue(maxImage);
+		sliderBar.setNumLabels(0);
+		sliderBar.setNumTicks(0);
+		// prvni pozice  na|0|1
+		// urcuje, co bude nejvice vlevo
+		sliderBar.setMinValue(-1);
+		sliderBar.setCurrentValue(0);
+		Double n = result.doubleValue();
+		Double divider = new Double(20000);
+		sliderBar.setStepSize(n/divider);
+		
+		sliderBar.setLabelFormatter(new SliderBarFormatter(-1, maxImage));
+		sliderBar.setEnabled(!(getNumberOfImages() >= maxImage));
+	}
+
 	
 	private void createSimpleEffectsPanel() {
 		// cele pole v pameti .. posuvatko v ramci pameti
 		
 		List<SimpleImageTO> itos = DataHandler.getData();
-		
-		ImageMoveWrapper[] viewPortImages = new ImageMoveWrapper[3];
+		ImageMoveWrapper[] viewPortImages = new ImageMoveWrapper[getNumberOfImages()];
 		for (int i = 0; i < viewPortImages.length; i++) {
 			SimpleImageTO ito = itos.get(i);
 			ImageMoveWrapper wrapper = createImageMoveWrapper(ito,""+i);
@@ -269,19 +267,21 @@ public class GwtViewers implements EntryPoint, ClickHandler, ConfigurationChange
 			width +=  imw.getWidth();
 			width += getConfigurationDistance();
 		}
-		Configuration conf = new Configuration();
+		ViewConfiguration conf = new ViewConfiguration();
 		{
 			conf.setImgDistances(getConfigurationDistance());
 			conf.setViewPortHeight(getConfigurationHeight());
 			conf.setViewPortWidth(width);
 			
-			sliderBar.setWidth(""+width+"px");
 		}
-
-		ImageMoveWrapper rcopy = createImageMoveWrapper(DataHandler.getData().get(3),"R");
+		sliderBar.setWidth(""+conf.getViewPortWidth()+"px");
+		
+		// prava neviditelna strana
+		//TODO: Zmenit
+		ImageMoveWrapper rcopy = createImageMoveWrapper(DataHandler.getData().get(getNumberOfImages()),"R");
 		appendClickHandler(rcopy);
 
-		ImageMoveWrapper[] noVisibleImages = new ImageMoveWrapper[3];
+		ImageMoveWrapper[] noVisibleImages = new ImageMoveWrapper[getNumberOfImages()];
 		for (int i = 0; i < noVisibleImages.length; i++) {
 			SimpleImageTO ito = itos.get(i+4);
 			ImageMoveWrapper wrapper = createImageMoveWrapper(ito,"n"+i);
@@ -335,7 +335,6 @@ public class GwtViewers implements EntryPoint, ClickHandler, ConfigurationChange
 		_sharedInstance = this;
 		RootPanel.get("container").add(this._emptyVerticalPanel);	
 		doInitImages();
-		//RootPanel.get("slider").add(sliderBar);
 	}
 
 
@@ -405,11 +404,53 @@ public class GwtViewers implements EntryPoint, ClickHandler, ConfigurationChange
 		return $wnd.__confHeight;
 	}-*/;
 
+	public native void openDialog() /*-{
+		$wnd._jqueryDialog();
+	}-*/;
+	
 	public native int getConfigurationDistance() /*-{
 		return $wnd.__confDistance;
 	}-*/;
-
 	
-	public static native void exportMethod() /*-{
-	   $wnd.loadMyBusinessWidget = @cz.i.kramerius.gwtviewers.client.GwtViewers::gwtViewers();
-	}-*/;}
+	public native int getNumberOfImages() /*-{
+		return $wnd.__confNumberOfImages;
+	}-*/;
+	
+	public native void setNumberOfImages(int n) /*-{
+		$wnd.__confNumberOfImages = n;
+	}-*/;
+	
+
+	//TODO: Zrusit !!
+	public native int getDialogWidth() /*-{
+		return $wnd.__dialog_width;
+	}-*/;
+	
+	public native void setDialogWidth(int width) /*-{
+		$wnd.__dialog_width = width;
+	}-*/;
+
+	public native int getDialogHeight() /*-{
+		return $wnd.__dialog_height;
+	}-*/;
+
+	public native void setDialogHeight(int height) /*-{
+		$wnd.__dialog_height = height;
+	}-*/;
+
+	public native int getDialogTitle() /*-{
+		return $wnd.__dialog_title;
+	}-*/;
+
+	public native void setDialogTitle(String title) /*-{
+		$wnd.__dialog_title = title;
+	}-*/;
+
+	public native int getFullImageUrl() /*-{
+		return $wnd.__dialog_full_image_url;
+	}-*/;
+
+	public native void setFullImageUrl(String url) /*-{
+		$wnd.__dialog_full_image_url = url;
+	}-*/;
+}

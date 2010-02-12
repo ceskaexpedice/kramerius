@@ -6,8 +6,22 @@ import java.util.Collections;
 import org.adamtacy.client.ui.effects.transitionsphysics.LinearTransitionPhysics;
 import org.adamtacy.client.ui.effects.transitionsphysics.TransitionPhysics;
 
+import com.google.gwt.dom.client.DivElement;
+import com.google.gwt.dom.client.Style.Unit;
+import com.google.gwt.event.dom.client.HasAllMouseHandlers;
+import com.google.gwt.event.dom.client.MouseMoveEvent;
+import com.google.gwt.event.dom.client.MouseMoveHandler;
+import com.google.gwt.event.dom.client.MouseOutEvent;
+import com.google.gwt.event.dom.client.MouseOutHandler;
+import com.google.gwt.event.dom.client.MouseOverEvent;
+import com.google.gwt.event.dom.client.MouseOverHandler;
 import com.google.gwt.user.client.ui.AbsolutePanel;
 import com.google.gwt.user.client.ui.Composite;
+import com.google.gwt.user.client.ui.Image;
+import com.google.gwt.user.client.ui.RootPanel;
+import com.google.gwt.user.client.ui.SimplePanel;
+import com.google.gwt.user.client.ui.VerticalPanel;
+import com.google.gwt.user.client.ui.Widget;
 
 import cz.i.kramerius.gwtviewers.client.panels.fx.Rotate;
 import cz.i.kramerius.gwtviewers.client.panels.utils.CalculationHelper;
@@ -20,13 +34,12 @@ import cz.i.kramerius.gwtviewers.client.selections.Selector;
  * FX panel for moving pictures
  * @author pavels
  */
-public class MoveEffectsPanel extends  Composite {
+public class MoveEffectsPanel extends  Composite implements MouseOutHandler, MouseOverHandler {
 	
 	private ImageRotatePool imageRotatePool;
 	private ImageRotateCalculatedPositions imageRotateCalculatedPositions;
 	private AbsolutePanel absolutePanel = new AbsolutePanel();
-	private Configuration configuration;
-	//private MoveListener moveHandler;
+	private ViewConfiguration configuration;
 
 	private Selector imgSelector;
 	private ArrayList<MoveListener> listeners = new ArrayList<MoveListener>();
@@ -35,7 +48,7 @@ public class MoveEffectsPanel extends  Composite {
 							ImageMoveWrapper[] noVisibleImgs, 
 							ImageMoveWrapper left, 
 							ImageMoveWrapper right,   
-							Configuration conf) {
+							ViewConfiguration conf) {
 		super();
 
 		this.imageRotateCalculatedPositions = new ImageRotateCalculatedPositions(viewPortImages, noVisibleImgs, left, right);
@@ -51,23 +64,36 @@ public class MoveEffectsPanel extends  Composite {
 			img.setX(calculated.getX());
 			img.setY(calculated.getY());
 			this.absolutePanel.add(img.getWidget(), img.getX(), img.getY());
+			
+			((HasAllMouseHandlers)img.getWidget()).addMouseOverHandler(this); 
 		}
 		
 		
 		ImageMoveWrapper leftSideImage = this.imageRotatePool.getLeftSideImage();
 		this.absolutePanel.add(leftSideImage.getWidget(), leftSideImage.getX(), leftSideImage.getY());
+		
 
+		
 		ImageMoveWrapper rightSideImage = this.imageRotatePool.getRightSideImage();
 		this.absolutePanel.add(rightSideImage.getWidget(), rightSideImage.getX(), rightSideImage.getY());
 
 		for (int i = 0; i < noVisibleImgs.length; i++) {
 			ImageMoveWrapper img = noVisibleImgs[i];
 			this.absolutePanel.add(img.getWidget(), img.getX(), img.getY());
+
+
 		}		
 		this.absolutePanel.setWidth(this.configuration.getViewPortWidth()+"px");
 		this.absolutePanel.setHeight(this.configuration.getViewPortHeight()+"px");
 		
+		SimplePanel gpane = new SimplePanel();
+		gpane.setWidth(this.configuration.getViewPortWidth()+"px");
+		gpane.setHeight(this.configuration.getViewPortHeight()+"px");
+		this.absolutePanel.add(gpane, 0, 0);
+		gpane.getElement().getStyle().setZIndex(ImageRotatePool.PANE_VIEW_Z_INDEX);
+		
 		this.imgSelector = new MiddleImgSelector(configuration.getCenterWidth());
+
 		initWidget(this.absolutePanel);
 	}
 	
@@ -206,4 +232,19 @@ public class MoveEffectsPanel extends  Composite {
 		this.imgSelector = imgSelector;
 	}
 
+
+
+	
+	public void onMouseOver(MouseOverEvent event) {
+		//TODO: Sipky
+	}
+
+
+
+	@Override
+	public void onMouseOut(MouseOutEvent event) {
+		//TODO: Sipky
+	}
+
+	
 }

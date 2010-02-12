@@ -17,6 +17,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.StringTokenizer;
 import java.util.WeakHashMap;
+import java.util.logging.Level;
 
 import javax.imageio.ImageIO;
 import javax.servlet.ServletConfig;
@@ -35,6 +36,8 @@ import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
+import sun.nio.cs.KOI8_R;
+
 import com.google.gwt.user.server.rpc.RemoteServiceServlet;
 
 import cz.i.kramerius.gwtviewers.client.PageService;
@@ -42,20 +45,23 @@ import cz.i.kramerius.gwtviewers.client.SimpleImageTO;
 import cz.i.kramerius.gwtviewers.client.panels.utils.Dimension;
 import cz.i.kramerius.gwtviewers.server.pid.LexerException;
 import cz.i.kramerius.gwtviewers.server.pid.PIDParser;
+import cz.incad.kramerius.utils.JNDIUtils;
+import cz.incad.kramerius.utils.RESTHelper;
+import cz.incad.kramerius.utils.conf.KConfiguration;
 
 
 public class PageServiceImpl extends RemoteServiceServlet implements PageService {
-
-    public static String FEDORA_URL = "http://194.108.215.227:8080/fedora";
-	public static String DEFAULT_SCALE_PERCENTAGE ="0.3";
-	public static String DEFAULT_SCALE_HEIGHT ="220";
+	
+	public static final java.util.logging.Logger LOGGER = java.util.logging.Logger.getLogger(PageServiceImpl.class.getName());
 
     private String thumbnailUrl ="thumb";
 	private String imgFolder;
 	private String scaledHeight;
 	private String maxInitWidth;
 	
-
+	
+	private KConfiguration kConfiguration;
+	
 	// dodelat nejakou vlastni implementaci !!
 	private WeakHashMap<String, ArrayList<SimpleImageTO>> cachedPages = new WeakHashMap<String, ArrayList<SimpleImageTO>>();
 
@@ -67,9 +73,8 @@ public class PageServiceImpl extends RemoteServiceServlet implements PageService
 		return this.cachedPages.get(masterUuid);
 	}
 	
-	public static String relsExtUrl(String uuid) {
-		String url = FEDORA_URL +"/get/uuid:"+uuid+"/RELS-EXT";
-		System.out.println(url);
+	public static String relsExtUrl(KConfiguration configuration, String uuid) {
+		String url = configuration.getFedoraHost() +"/get/uuid:"+uuid+"/RELS-EXT";
 		return url;
 	}
 	
@@ -85,23 +90,20 @@ public class PageServiceImpl extends RemoteServiceServlet implements PageService
 	
 	
 	public static String thumbnail(String thumbUrl, String uuid, String scaledHeight) {
-		String url = thumbUrl+"?scaledHeight="+scaledHeight+"&uuid="+uuid;
+		String url = KConfiguration.getKConfiguration().getThumbServletUrl()+"?scaledHeight="+scaledHeight+"&uuid="+uuid;
 		return url;
 	}
 	
 	
 	public ArrayList<SimpleImageTO> readPage(String uuid) {
 		ArrayList<SimpleImageTO> pages = new ArrayList<SimpleImageTO>();
+		InputStream docStream = null;
 		try {
-			URL url = new URL(relsExtUrl(uuid));
-//			if (uuid.equals("8f526130-8b0d-11de-8994-000d606f5dc6")) {
-//				url = new URL(homeExtUrl(uuid));
-//			} else {
-//				url = new URL(homeExtUrlBig(uuid));
-//			}
+			//URL url = new URL(relsExtUrl(uuid));
+			docStream = RESTHelper.inputStream(relsExtUrl(kConfiguration, uuid), kConfiguration.getFedoraUser(), kConfiguration.getFedoraPass());
 			DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
 			DocumentBuilder builder = factory.newDocumentBuilder();
-			Document parsed = builder.parse(url.openStream());
+			Document parsed = builder.parse(docStream);
 
 			XPathFactory xpfactory = XPathFactory.newInstance();
             XPath xpath = xpfactory.newXPath();
@@ -129,17 +131,22 @@ public class PageServiceImpl extends RemoteServiceServlet implements PageService
             }
 			
 		} catch (ParserConfigurationException e) {
-			e.printStackTrace();
+			LOGGER.log(Level.SEVERE, e.getMessage(), e);
+			throw new RuntimeException(e);
 		} catch (MalformedURLException e) {
-			e.printStackTrace();
+			LOGGER.log(Level.SEVERE, e.getMessage(), e);
+			throw new RuntimeException(e);
 		} catch (SAXException e) {
-			e.printStackTrace();
+			LOGGER.log(Level.SEVERE, e.getMessage(), e);
+			throw new RuntimeException(e);
 		} catch (IOException e) {
-			e.printStackTrace();
+			LOGGER.log(Level.SEVERE, e.getMessage(), e);
+			throw new RuntimeException(e);
 		} catch (XPathExpressionException e) {
-			e.printStackTrace();
+			LOGGER.log(Level.SEVERE, e.getMessage(), e);
+			throw new RuntimeException(e);
 		} catch (LexerException e) {
-			e.printStackTrace();
+			throw new RuntimeException(e);
 		}
 		return pages;
 	}
@@ -167,9 +174,20 @@ public class PageServiceImpl extends RemoteServiceServlet implements PageService
 	@Override
 	public void init(ServletConfig config) throws ServletException {
 		super.init(config);
+		this.kConfiguration = (KConfiguration) getServletContext().getAttribute("kconfig");
+		try {
+			if (kConfiguration == null) {
+				String configFile = JNDIUtils.getJNDIValue("configPath", System.getProperty("configPath"));
+			    kConfiguration = KConfiguration.getKConfiguration(configFile);
+			}
+		} catch (Exception e) {
+			LOGGER.log(Level.SEVERE, e.getMessage(), e);
+			throw new RuntimeException(e);
+		}
+		
 		this.imgFolder = config.getInitParameter("imgFolder");
 		this.thumbnailUrl = config.getInitParameter("thumbUrl");
-		this.scaledHeight = config.getInitParameter("scaledHeight");
+		this.scaledHeight = KConfiguration.getKConfiguration().getScaledHeight();
 		this.maxInitWidth = config.getInitParameter("maxWidth");
 	}
 
