@@ -27,14 +27,37 @@
 </c:if>
 
 
+<%
+	String url = (String)pageContext.getAttribute("url");
+	log(url);
+	InputStream is = RESTHelper.inputStream(url,kconfig.getFedoraUser(), kconfig.getFedoraPass());
+	ByteArrayOutputStream bos = new ByteArrayOutputStream();
+	IOUtils.copyStreams(is, bos);
+	byte[] bytes= bos.toByteArray();
+	String str = new String(bytes,"UTF-8");
+	log(str);
+	System.out.println("TEST >>> "+str);
+%>
+
+<c:set var="xml"><%=str%></c:set>
+<x:parse doc="${xml}" var="doc"/>
+
+<!--  
 <x:parse var="doc" xml="${xml}"  />
+-->
+
 <c:set var="numDocs" scope="request" >
     <x:out select="$doc/response/result/@numFound" />
 </c:set>
 
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
 <%@ include file="inc/proccessFacets.jsp" %>
-<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="cs" lang="cs">
+
+<%@page import="java.io.InputStream"%>
+<%@page import="java.io.InputStreamReader"%>
+<%@page import="cz.incad.kramerius.utils.RESTHelper"%>
+<%@page import="cz.incad.kramerius.utils.IOUtils"%>
+<%@page import="java.io.ByteArrayOutputStream"%><html xmlns="http://www.w3.org/1999/xhtml" xml:lang="cs" lang="cs">
     <%@ include file="inc/html_header.jsp" %>
     <body >
         <c:if test="${param.debug}" >

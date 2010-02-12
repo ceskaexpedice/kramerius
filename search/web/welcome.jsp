@@ -13,6 +13,7 @@
 
 <fmt:setBundle basename="labels" />
 <fmt:setBundle basename="labels" var="bundleVar" />
+
 <c:set var="fedoraHost" value="http://194.108.215.227:8080/fedora" />
 <%//c:url var="url" value="http://localhost:8983/solr/select/select" 
 //http://194.108.215.227:8080/solr/select?indent=on&version=2.2&q=fedora.model%3A%22info%3Afedora%2Fmodel%3Apage%22&start=0&rows=10&fl=*%2Cscore&qt=standard&wt=xslt&explainOther=&hl.fl=&facet=true&facet.field=fedora.model&tr=example.xsl
@@ -68,6 +69,8 @@
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="cs" lang="cs">
     <%@ include file="header.jsp" %>
     <body >
+    
+    
         <c:if test="${param.debug}" >
             <c:out value="${url}" />
         </c:if>
