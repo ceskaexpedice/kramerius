@@ -126,4 +126,15 @@ a.image:hover {
     padding-left:0px;
 }
 
+.plus{
+    background-image: url('../img/nolines_plus.gif');
+    width:18px;
+    height:18px;
+}
+
+.minus{
+    background-image: url('../img/nolines_minus.gif');
+    width:18px;
+    height:18px;
+}
 /* end results */

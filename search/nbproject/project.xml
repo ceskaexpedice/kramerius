@@ -22,10 +22,6 @@
                     <file>${libs.xalan2.7.1.classpath}</file>
                     <path-in-war>WEB-INF/lib</path-in-war>
                 </library>
-                <library files="2">
-                    <file>${libs.Fedora.classpath}</file>
-                    <path-in-war>WEB-INF/lib</path-in-war>
-                </library>
                 <library files="1">
                     <file>${file.reference.gwt-incubator-2.0.jar}</file>
                     <path-in-war>WEB-INF/lib</path-in-war>
@@ -40,6 +36,10 @@
                 </library>
                 <library files="1">
                     <file>${file.reference.gwtviewers-1.0-SNAPSHOT.jar}</file>
+                    <path-in-war>WEB-INF/lib</path-in-war>
+                </library>
+                <library files="1">
+                    <file>${file.reference.kramerius-common-0.0.1-SNAPSHOT.jar}</file>
                     <path-in-war>WEB-INF/lib</path-in-war>
                 </library>
             </web-module-libraries>

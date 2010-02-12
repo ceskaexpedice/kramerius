@@ -6,6 +6,7 @@
 <%@ page isELIgnored="false"%>
 <div>
     <!-- rdf.kramerius.hasPage:"info:fedora/PID" -->
+    <img src="<c:out value="${kconfig.fedoraHost}" />/get/uuid:<x:out select="./str[@name='PID']"/>/IMG_THUMB" onerror="this.src='img/empty.gif'" />
     <span>
         <c:set var="itemUrl" >
             ./item.jsp?pid=<x:out select="./str[@name='PID']"/>

@@ -42,7 +42,7 @@ public class IndexParams {
 
     public IndexParams(String pid, String model,
             String path, String _parent_model, String _parent_pid, String _datum,
-            String _root_pid, String _root_model, String _root_title, String _language) {
+            String _root_pid, String _root_model, String _root_title, String _level, String _language) {
 
         paramsMap.put("PATH", path);
 
@@ -56,6 +56,7 @@ public class IndexParams {
         paramsMap.put("ROOT_MODEL", _root_model);
         paramsMap.put("ROOT_TITLE", _root_title);
         paramsMap.put("LANGUAGE", _language);
+        paramsMap.put("LEVEL", _level);
     }
 
     public String toUrlString() {

@@ -2,14 +2,12 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-
 package cz.incad.Kramerius;
 
 /**
  *
  * @author incad
  */
-
 import java.util.ArrayList;
 import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathConstants;
@@ -23,14 +21,14 @@ import org.w3c.dom.NodeList;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 
 public class FedoraUtils {
-    
+
     
     public static final String IMG_THUMB = "IMG_THUMB";
-    
-        
+
     public static ArrayList<String> getRdfPids(String pid, String relation) {
         ArrayList<String> pids = new ArrayList<String>();
         try {
+            
             String command = KConfiguration.getKConfiguration().getFedoraHost() + "/get/" + pid + "/RELS-EXT";
             Document contentDom = UrlReader.getDocument(command);
             XPathFactory factory = XPathFactory.newInstance();
@@ -40,7 +38,7 @@ public class FedoraUtils {
             NodeList nodes = (NodeList) expr.evaluate(contentDom, XPathConstants.NODESET);
             for (int i = 0; i < nodes.getLength(); i++) {
                 Node childnode = nodes.item(i);
-                if(!childnode.getNodeName().contains("hasModel")){
+                if (!childnode.getNodeName().contains("hasModel")) {
                     pids.add(childnode.getNodeName() + " " +
                             childnode.getAttributes().getNamedItem("rdf:resource").getNodeValue().split("/")[1]);
                 }
@@ -51,7 +49,34 @@ public class FedoraUtils {
         }
         return pids;
     }
-    
+
+    public static String findFirstPagePid(String pid) {
+
+        ArrayList<String> pids = new ArrayList<String>();
+        try {
+            String command = KConfiguration.getKConfiguration().getFedoraHost() + "/get/" + pid + "/RELS-EXT";
+            Document contentDom = UrlReader.getDocument(command);
+            XPathFactory factory = XPathFactory.newInstance();
+            XPath xpath = factory.newXPath();
+            XPathExpression expr = xpath.compile("/RDF/Description/*");
+            NodeList nodes = (NodeList) expr.evaluate(contentDom, XPathConstants.NODESET);
+            for (int i = 0; i < nodes.getLength(); i++) {
+                Node childnode = nodes.item(i);
+                String nodeName = childnode.getNodeName();
+                if (nodeName.contains("hasPage")) {
+                    return childnode.getAttributes().getNamedItem("rdf:resource").getNodeValue().split("/")[1];
+                } else if(!nodeName.contains("hasModel")) {
+                    pids.add(childnode.getAttributes().getNamedItem("rdf:resource").getNodeValue().split("/")[1]);
+                }
+            }
+            for (String relpid : pids) {
+                return FedoraUtils.findFirstPagePid(relpid);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
 
     /**
      * Vraci url na stream s DJVU
@@ -62,7 +87,7 @@ public class FedoraUtils {
     	String imagePath = configuration.getFedoraHost()+"/get/uuid:"+uuid+"/IMG_FULL";
     	return imagePath;
     }
-    
+
     /**
      * Vraci url na stream THUMB
      * @param uuid
@@ -72,5 +97,4 @@ public class FedoraUtils {
     	String imagePath = configuration.getFedoraHost()+"/get/uuid:"+uuid+"/" + IMG_THUMB;
     	return imagePath;
     }
-    
 }

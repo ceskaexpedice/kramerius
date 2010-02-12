@@ -4,7 +4,9 @@
  */
 package cz.incad.Kramerius;
 
+import cz.incad.kramerius.utils.conf.KConfiguration;
 import cz.incad.utils.Formating;
+import cz.incad.utils.IKeys;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
@@ -50,6 +52,9 @@ public class IndexModel extends HttpServlet {
 
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
+        KConfiguration kconfig = (KConfiguration) this.getServletContext().getAttribute(IKeys.CONFIGURATION);
+        fedoraUrl = kconfig.getFedoraHost();
+        fedoraGSearch = kconfig.getIndexerHost();
         totalIndexed = 0;
         startTime = (new Date()).getTime();
         base = request.getRequestURL().substring(0, request.getRequestURL().indexOf("IndexModel"));
@@ -76,6 +81,7 @@ public class IndexModel extends HttpServlet {
                             request.getParameter("root_pid"),
                             request.getParameter("root_model"),
                             request.getParameter("root_title"),
+                            request.getParameter("level"),
                             request.getParameter("language"));
                     indexByPid(pid, out, params);
                 } else {
@@ -116,15 +122,34 @@ public class IndexModel extends HttpServlet {
             String inputLine = in.readLine();
             while ((inputLine = in.readLine()) != null) {
                 out.println(inputLine);
-                String pid = inputLine.split("/")[1];
-                IndexParams params = new IndexParams(pid, model);
-                indexByPid(pid, out, params);
+                sendToIndex(inputLine.split("/")[1]);
+            //String pid = inputLine.split("/")[1];
+            //IndexParams params = new IndexParams(pid, model);
+            //indexByPid(pid, out, params);
 
             }
             in.close();
 
         } catch (Exception e) {
             e.printStackTrace();
+        }
+    }
+
+    private void sendToIndex(String pid) throws Exception {
+        //http://194.108.215.227:8080/fedoragsearch/rest?operation=updateIndex&action=fromKrameriusModel&value=uuid:46b60b20-28da-11dd-9fbf-000d606f5dc6
+        try {
+            urlStr = fedoraGSearch + "/rest?operation=updateIndex&action=fromKrameriusModel&value=" + pid;
+
+            //out.println(urlStr);
+            url = new java.net.URL(urlStr);
+            java.io.BufferedReader in = new java.io.BufferedReader(new java.io.InputStreamReader(url.openStream()));
+            String inputLine = in.readLine();
+            while ((inputLine = in.readLine()) != null) {
+            }
+            in.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new Exception(e);
         }
     }
     String urlStr;

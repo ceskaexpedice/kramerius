@@ -23,7 +23,7 @@
             <c:set var="rows" value="${param.rows}" scope="request" />
         </c:when>
         <c:when test="${empty param.fq && empty param.q && param.f1 == null}">
-            <c:set var="rows" value="0" scope="request" />
+            <c:set var="rows" value="20" scope="request" />
         </c:when>
         <c:otherwise>
             <c:set var="rows" value="20" scope="request" />
@@ -42,7 +42,7 @@
         
     </c:choose>
     <c:param name="rows" value="${rows}" />
-    <c:param name="facet.field" value="fedora.model" />
+    <c:param name="facet.field" value="document_type" />
     <%--
     <c:param name="f.fedora.model.facet.sort" value="false" />
     --%>
@@ -54,6 +54,9 @@
     <c:param name="f.rok.facet.limit" value="-1" />
     <c:param name="f.rok.facet.sort" value="false" />
     <c:param name="facet.field" value="abeceda_title" />
+    <c:param name="f.abeceda_title.facet.sort" value="false" />
+    <c:param name="facet.field" value="abeceda_autor" />
+    <c:param name="f.abeceda_autor.facet.sort" value="false" />
     
     <c:param name="facet" value="true" />
     <c:param name="facet.mincount" value="1" />
@@ -67,6 +70,9 @@
     <c:choose>
         <c:when test="${param.sort != null}" >
             <c:param name="sort" value="${param.sort}" />
+        </c:when>
+        <c:when test="${empty param.q}" >
+            <c:param name="sort" value="level asc, title asc, score desc" />
         </c:when>
         <c:otherwise>
             <c:param name="sort" value="level asc, score desc" />

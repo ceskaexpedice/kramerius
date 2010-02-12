@@ -15,7 +15,9 @@
 <fmt:setBundle basename="labels" var="bundleVar" />
 <%@ include file="inc/searchParams.jsp" %>
 
-<% out.clear(); %>
+<% 
+out.clear(); 
+%>
 <%@ include file="inc/proccessFacets.jsp" %>
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="cs" lang="cs">
@@ -41,15 +43,19 @@
                 <td class="leftMenu">
                     <%@ include file="inc/dateAxisV.jsp" %>
                     <% currentFacetName = "language"; %>
-                    <%@ include file="inc/facet.jsp" %>
-                    <% currentFacetName = "abeceda_title"; %>
-                    <%@ include file="inc/facet.jsp" %>
                 </td>
                 <td>
                     <c:out value="${numDocs}" />
                     <%@ include file="inc/paginationPageNum.jsp" %>
+                    <%@ include file="inc/facet.jsp" %>
+                    <% currentFacetName = "abeceda_title"; %>
+                    <%@ include file="inc/facet.jsp" %>
+                    <% currentFacetName = "abeceda_autor"; %>
+                    <%@ include file="inc/facet.jsp" %>
+                    <% currentFacetName = "document_type"; %>
+                    <%@ include file="inc/facet.jsp" %>
                     <%@ include file="inc/resultsMain.jsp" %>
-                    <%@ include file="inc/modelsTree.jsp" %>
+                    <%//@ include file="inc/modelsTree.jsp" %>
                 </td>
             </tr>
         </table>

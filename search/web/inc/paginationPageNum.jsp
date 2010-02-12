@@ -10,13 +10,16 @@
             String offsetUrl = "";
             boolean includeAbeceda = false;
             Facet abecedaFacet = null;
+            abecedaFacet = facets.get("abeceda_title");
+            if(abecedaFacet!=null){
+                includeAbeceda = true;
+                abecedaFacet.sortByName();
+            }
             if(div==null){
                 offsetUrl = "javascript:gotoPageOffset(%s);";
             }else{
                 offsetUrl = "javascript:gotoPageOffsetInTree(%s, '"+div+"', '"+filters+"', '"+request.getParameter("pid")+"');";
-                includeAbeceda = true;
-                abecedaFacet = facets.get("abeceda_title");
-                abecedaFacet.sortByName();
+                
             }
             
             if (numDocs > numHits && numHits > 0) {

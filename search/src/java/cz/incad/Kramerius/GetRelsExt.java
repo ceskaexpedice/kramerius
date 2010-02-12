@@ -24,6 +24,8 @@ import javax.xml.xpath.XPathFactory;
 import java.io.StringReader;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -44,14 +46,49 @@ public class GetRelsExt extends HttpServlet {
 
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        response.setContentType("text/plain;charset=UTF-8");
         PrintWriter out = response.getWriter();
         try {
             String pid = request.getParameter("pid");
             String relation = request.getParameter("relation");
+            String format = request.getParameter("format");
             ArrayList<String> pids = getRdfPids(pid, relation);
-            for (String unitpid : pids) {
-                out.print(unitpid + "#");
+            if(format==null){
+                response.setContentType("text/plain;charset=UTF-8");
+                for (String relpid : pids) {
+                    out.print(relpid + "#");
+                }
+            }else if(format.equals("json")){
+                response.setContentType("application/x-javascript");
+                out.println("({\"items\": [");
+                HashMap<String, ArrayList<String>> models = new HashMap<String, ArrayList<String>>();
+                String model;
+                String res;
+                for (String relpid : pids) {
+                    model = relpid.split(" ")[0];
+                    res = "\"" + relpid.split(" ")[1].substring(5) + "\"";
+                    if(models.containsKey(model)){
+                        models.get(model).add(res);
+                    }else{
+                        ArrayList<String> a = new ArrayList<String>();
+                        a.add(res);
+                        models.put(model, a);
+                    }
+                }
+                Iterator iterator = models.keySet().iterator();
+                
+                while (iterator.hasNext()) {
+                    String key = (String) iterator.next();
+                    out.print("{\"");
+                    out.print(KrameriusModels.toString(RDFModels.convertRDFToModel(key)));
+                    out.print("\":[");
+                    for (int i=0; i<models.get(key).size()-1;i++){
+                        out.println(models.get(key).get(i) + ",");
+                    }
+                    out.print(models.get(key).get(models.get(key).size()-1));
+                    out.println("]}");
+                    if(iterator.hasNext())out.println (",");
+                }
+                out.println("]})");
             }
         //writeBiblioModsInfo(pids, out);
         } catch (Exception e) {

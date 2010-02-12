@@ -658,7 +658,6 @@ function getRanges(){
     $.getJSON(url, function(data){
             //alert(data);
         $.each(data.items, function(i,item){
-            
             $("#da_range_container").append(createRangeBar(item.datum, item.beginDate, item.endDate, item.count, i));
         });
     //alert(usedRangeBarPos);

@@ -24,6 +24,7 @@
                 </a> 
     </span>
     <span class="textpole">(<fmt:message>info:fedora/model:periodical</fmt:message>)</span>
-    <span id="pages_<c:out value="${uuidSimple}"/>" class="pages"><x:out select="./str[@name='pages_count']"/> </span>
-    
+    <span id="pages_<c:out value="${uuidSimple}"/>" class="pages"><x:out select="./int[@name='pages_count']"/> </span>
+    <br/>
+    <x:out select="./str[@name='datum']"/>
 </div>

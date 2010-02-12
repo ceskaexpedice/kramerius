@@ -19,39 +19,39 @@
             <x:out select="substring-after(./str[@name='PID'], 'uuid:')"/>
         </c:set>
             
-            
+    <%@ include file="../admin/resultOptions.jsp" %>
     <x:choose>
         
-        <x:when select="./str[@name='fedora.model'] = 'info:fedora/model:monograph'">
+        <x:when select="./str[@name='fedora.model'] = 'monograph'">
             <%@ include file="results/monograph.jsp" %>
         </x:when>
-        <x:when select="./str[@name='fedora.model'] = 'info:fedora/model:monographunit'">
+        <x:when select="./str[@name='fedora.model'] = 'monographunit'">
             <%@ include file="results/monographunit.jsp" %>
         </x:when>
-        <x:when select="./str[@name='fedora.model'] = 'info:fedora/model:page'">
+        <x:when select="./str[@name='fedora.model'] = 'page'">
             <%@ include file="results/page.jsp" %>
         </x:when>
-        <x:when select="./str[@name='fedora.model'] = 'info:fedora/model:periodical'">
+        <x:when select="./str[@name='fedora.model'] = 'periodical'">
             <%@ include file="results/periodical.jsp" %>
         </x:when>
-        <x:when select="./str[@name='fedora.model'] = 'info:fedora/model:periodicalvolume'">
+        <x:when select="./str[@name='fedora.model'] = 'periodicalvolume'">
             <%@ include file="results/periodicalvolume.jsp" %>
         </x:when>
-        <x:when select="./str[@name='fedora.model'] = 'info:fedora/model:periodicalitem'">
+        <x:when select="./str[@name='fedora.model'] = 'periodicalitem'">
             <%@ include file="results/periodicalitem.jsp" %>
         </x:when>
         <x:otherwise>
-            <x:out select="./str[@name='fedora.model']" />
             <%@ include file="results/default.jsp" %>
         </x:otherwise>
     </x:choose>
-    <%@ include file="../admin/resultOptions.jsp" %>
     </div>
 </x:forEach>
 </div>
 
 <script type="text/javascript"> 
+    /*
         $(document).ready(function(){
                 getTotalPagesInResults();
         });
+    */
 </script>

@@ -8,8 +8,8 @@
         <property name="fedoraPass" value="fedoraAdmin"/>
     
 		<!-- Image thumbnail -->
-        <property name="thumbUrl" value="http://194.108.215.84:8080/search/thumb"/>
+        <property name="thumbUrl" value="http://194.108.215.201:8080/Kramerius_Search/thumb"/>
         <property name="scaledHeight" value="128"/>
-        <property name="djvuUrl" value="http://194.108.215.84:8080/search/djvu"/>
+        <property name="djvuUrl" value="http://194.108.215.201:8080/Kramerius_Search/djvu"/>
     </properties>
 </setup>

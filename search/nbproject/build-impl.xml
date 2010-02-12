@@ -531,10 +531,6 @@ or ant -Dj2ee.platform.classpath=&lt;server_classpath&gt; (where no properties f
         <copy-ear-war file="${libs.xalan2.7.1.classpath.libfile.3}" propname="included.lib.libs.xalan2.7.1.classpath.3.X"/>
         <copy-ear-war file="${libs.xalan2.7.1.classpath.libfile.2}" propname="included.lib.libs.xalan2.7.1.classpath.2.X"/>
         <copy-ear-war file="${libs.xalan2.7.1.classpath.libfile.1}" propname="included.lib.libs.xalan2.7.1.classpath.1.X"/>
-        <basename file="${libs.Fedora.classpath.libfile.2}" property="included.lib.libs.Fedora.classpath.2"/>
-        <basename file="${libs.Fedora.classpath.libfile.1}" property="included.lib.libs.Fedora.classpath.1"/>
-        <copy-ear-war file="${libs.Fedora.classpath.libfile.2}" propname="included.lib.libs.Fedora.classpath.2.X"/>
-        <copy-ear-war file="${libs.Fedora.classpath.libfile.1}" propname="included.lib.libs.Fedora.classpath.1.X"/>
         <basename file="${file.reference.gwt-incubator-2.0.jar}" property="included.lib.file.reference.gwt-incubator-2.0.jar"/>
         <copy-ear-war file="${file.reference.gwt-incubator-2.0.jar}" propname="included.lib.file.reference.gwt-incubator-2.0.jar.X"/>
         <basename file="${file.reference.gwt-servlet-2.0.jar}" property="included.lib.file.reference.gwt-servlet-2.0.jar"/>
@@ -543,9 +539,11 @@ or ant -Dj2ee.platform.classpath=&lt;server_classpath&gt; (where no properties f
         <copy-ear-war file="${file.reference.gwtFX-0.5.0.jar}" propname="included.lib.file.reference.gwtFX-0.5.0.jar.X"/>
         <basename file="${file.reference.gwtviewers-1.0-SNAPSHOT.jar}" property="included.lib.file.reference.gwtviewers-1.0-SNAPSHOT.jar"/>
         <copy-ear-war file="${file.reference.gwtviewers-1.0-SNAPSHOT.jar}" propname="included.lib.file.reference.gwtviewers-1.0-SNAPSHOT.jar.X"/>
+        <basename file="${file.reference.kramerius-common-0.0.1-SNAPSHOT.jar}" property="included.lib.file.reference.kramerius-common-0.0.1-SNAPSHOT.jar"/>
+        <copy-ear-war file="${file.reference.kramerius-common-0.0.1-SNAPSHOT.jar}" propname="included.lib.file.reference.kramerius-common-0.0.1-SNAPSHOT.jar.X"/>
         <mkdir dir="${build.web.dir}/META-INF"/>
         <manifest file="${build.web.dir}/META-INF/MANIFEST.MF" mode="update">
-            <attribute name="Class-Path" value="${included.lib.libs.jstl11.classpath.1.X} ${included.lib.libs.jstl11.classpath.2.X} ${included.lib.file.reference.log4j.jar} ${included.lib.libs.djvu.classpath.1.X} ${included.lib.libs.djvu.classpath.2.X} ${included.lib.libs.xalan2.7.1.classpath.1.X} ${included.lib.libs.xalan2.7.1.classpath.2.X} ${included.lib.libs.xalan2.7.1.classpath.3.X} ${included.lib.libs.xalan2.7.1.classpath.4.X} ${included.lib.libs.Fedora.classpath.1.X} ${included.lib.libs.Fedora.classpath.2.X} ${included.lib.file.reference.gwt-incubator-2.0.jar} ${included.lib.file.reference.gwt-servlet-2.0.jar} ${included.lib.file.reference.gwtFX-0.5.0.jar} ${included.lib.file.reference.gwtviewers-1.0-SNAPSHOT.jar} "/>
+            <attribute name="Class-Path" value="${included.lib.libs.jstl11.classpath.1.X} ${included.lib.libs.jstl11.classpath.2.X} ${included.lib.file.reference.log4j.jar} ${included.lib.libs.djvu.classpath.1.X} ${included.lib.libs.djvu.classpath.2.X} ${included.lib.libs.xalan2.7.1.classpath.1.X} ${included.lib.libs.xalan2.7.1.classpath.2.X} ${included.lib.libs.xalan2.7.1.classpath.3.X} ${included.lib.libs.xalan2.7.1.classpath.4.X} ${included.lib.file.reference.gwt-incubator-2.0.jar} ${included.lib.file.reference.gwt-servlet-2.0.jar} ${included.lib.file.reference.gwtFX-0.5.0.jar} ${included.lib.file.reference.gwtviewers-1.0-SNAPSHOT.jar} ${included.lib.file.reference.kramerius-common-0.0.1-SNAPSHOT.jar} "/>
         </manifest>
         <delete dir="${dist.ear.dir}/temp"/>
     </target>
@@ -559,12 +557,11 @@ or ant -Dj2ee.platform.classpath=&lt;server_classpath&gt; (where no properties f
         <copy file="${libs.xalan2.7.1.classpath.libfile.3}" todir="${build.web.dir}/WEB-INF/lib"/>
         <copy file="${libs.xalan2.7.1.classpath.libfile.2}" todir="${build.web.dir}/WEB-INF/lib"/>
         <copy file="${libs.xalan2.7.1.classpath.libfile.1}" todir="${build.web.dir}/WEB-INF/lib"/>
-        <copy file="${libs.Fedora.classpath.libfile.2}" todir="${build.web.dir}/WEB-INF/lib"/>
-        <copy file="${libs.Fedora.classpath.libfile.1}" todir="${build.web.dir}/WEB-INF/lib"/>
         <copy file="${file.reference.gwt-incubator-2.0.jar}" todir="${build.web.dir}/WEB-INF/lib"/>
         <copy file="${file.reference.gwt-servlet-2.0.jar}" todir="${build.web.dir}/WEB-INF/lib"/>
         <copy file="${file.reference.gwtFX-0.5.0.jar}" todir="${build.web.dir}/WEB-INF/lib"/>
         <copy file="${file.reference.gwtviewers-1.0-SNAPSHOT.jar}" todir="${build.web.dir}/WEB-INF/lib"/>
+        <copy file="${file.reference.kramerius-common-0.0.1-SNAPSHOT.jar}" todir="${build.web.dir}/WEB-INF/lib"/>
     </target>
     <target depends="init,compile,compile-jsps,-pre-dist,library-inclusion-in-manifest" name="do-ear-dist">
         <dirname file="${dist.ear.war}" property="dist.jar.dir"/>

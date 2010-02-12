@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Context path="/Kramerius_Search">
 
-	<Environment name="configPath" value="conf/kk.xml"
+	<Environment name="configPath" value="E:\\NetBeansProjects\\Kramerius\\Kramerius_Search\\web\\WEB-INF\\config\\config.xml"
         	 type="java.lang.String" override="false"/>
 
   

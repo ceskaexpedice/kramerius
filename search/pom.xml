@@ -1,7 +1,7 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 	<modelVersion>4.0.0</modelVersion>
-	<groupId>cz.i.kramerius</groupId>
+	<groupId>cz.incad.kramerius</groupId>
 	<artifactId>search</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<name>kramerius_search</name>
@@ -157,7 +157,7 @@
 
 		<!-- kramerius komon -->
 		<dependency>
-			<groupId>cz.i.kramerius</groupId>
+			<groupId>cz.incad.kramerius</groupId>
 			<artifactId>kramerius-common</artifactId>
 			<version>0.0.1-SNAPSHOT</version>
 		</dependency>
@@ -185,9 +185,8 @@
 					<warSourceDirectory>${basedir}/web</warSourceDirectory>
 					<update>true</update>
 					<mode>context</mode>
-					<!--
-						<contextFile>${basedir}/src/main/webapp/WEB-INF/classes/context.xml</contextFile>
-					-->
+						<contextFile>${basedir}/target/search-0.0.1-SNAPSHOT/META-INF/context.xml</contextFile>
+				
 				</configuration>
 			</plugin>
 			<plugin>
@@ -226,8 +225,8 @@
 								</goals>
 								<configuration>
 									<wsdlUrls>
-										<wsdlUrl>http://localhost:8080/fedora/wsdl?api=API-M</wsdlUrl>
-										<wsdlUrl>http://localhost:8080/fedora/wsdl?api=API-A</wsdlUrl>
+										<wsdlUrl>http://194.108.215.227:8080/fedora/wsdl?api=API-M</wsdlUrl>
+										<wsdlUrl>http://194.108.215.227:8080/fedora/wsdl?api=API-A</wsdlUrl>
 									</wsdlUrls>
 									<packageName>org.fedora.api</packageName>
 								</configuration>

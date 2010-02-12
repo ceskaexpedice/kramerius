@@ -94,10 +94,31 @@ function searchInTree(pid, filter, div){
 }
 
 function browseInTree(pid, model, div){
+    /*
     var url ="./inc/getItemForBrowse.jsp?pid="+pid+"&model="+model;
     $.get(url, function(xml) {
-        $("#"+div).html(xml);
+        if(div!=''){
+            $("#"+div).html(xml);
+        }else{
+            $("#"+pid.substring(5)+":parent").append(xml);
+        }
+        
     });
+    */
+    var url ="GetRelsExt?relation=*&format=json&pid="+pid;
+    $.getJSON(url, function(data){
+        $.each(data.items, function(i,item){
+            $.each(item, function(j,model2){
+               
+                $("#"+div).append(j + ": " + model2.length + "<br/>");
+            });
+            
+            //
+        });
+    //alert(usedRangeBarPos);
+    });
+    
+    
 }
 /* odebrani navigace z url
  *
@@ -139,7 +160,7 @@ function openPage(pid, model, pageLabel){
     
 }
 
-function openUnit(pid){
+function openUnit(pid, obj){
     var itemDetailUrl = "item.jsp";
     var page = new PageQuery(window.location.search);
     var parentPid = page.getValue("pid");

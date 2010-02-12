@@ -6,15 +6,18 @@
 <script type="text/javascript" language="javascript" src="gwtviewers/gwtviewers.nocache.js"></script>
  
 <script type="text/javascript">
-	var __gwtViewersUUID = "${param.pid}";
+	var __gwtViewersUUID = "uuid:${param.pid}";
 
 	var __confHeight = 125;
 	var __confWidth = 400;
 	var __confDistance = 5;
-	var __confDistance = 5;
 
 	var __confNumberOfImages = 7;	
 	var __confMoveStep = 1;
+        
+       function selectPage(uuid){
+           alert("selectuju " + uuid);
+       }
 	
 </script>
  
