@@ -1,7 +1,7 @@
 package cz.incad.Kramerius;
 
 import static cz.incad.Kramerius.FedoraUtils.*;
-import static cz.incad.utils.JNDIUtils.*;
+import static cz.incad.kramerius.utils.JNDIUtils.*;
 import static cz.incad.utils.WSSupport.*;
 
 import java.awt.BorderLayout;
@@ -40,7 +40,9 @@ import com.lizardtech.djvubean.DjVuImage;
 
 import cz.i.kramerius.gwtviewers.server.pid.LexerException;
 import cz.incad.Kramerius.ThumbnailStorage.Type;
-import cz.incad.utils.IOUtils;
+import cz.incad.kramerius.utils.IOUtils;
+import cz.incad.kramerius.utils.conf.KConfiguration;
+import cz.incad.utils.IKeys;
 import cz.incad.utils.WSSupport;
 
 
@@ -50,13 +52,13 @@ import cz.incad.utils.WSSupport;
  */
 public class ThumbnailServlet extends HttpServlet {
 
-	private static final String UUID_PARAMETER = "uuid";
+	
 	private static final String SCALE_PARAMETER = "scale";
 	private static final String PAGE_PARAMETER = "page";
 	private static final String RAWDATA_PARAMETER = "rawdata";
 	
 	private static final String SCALED_HEIGHT_PARAMETER ="scaledHeight";
-	private static final String DS_LOCATION = "";
+	//private static final String DS_LOCATION = "";
 
 	protected ThumbnailStorage.Type type = ThumbnailStorage.Type.FEDORA;
 	
@@ -65,10 +67,9 @@ public class ThumbnailServlet extends HttpServlet {
 
 	@Override
 	protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-		String uuid = req.getParameter(UUID_PARAMETER);
+		String uuid = req.getParameter(IKeys.UUID_PARAMETER);
 		String raw = req.getParameter(RAWDATA_PARAMETER);
 		if (uuid == null) throw new ServletException("uuid cannot be null!");
-		
 		String spage = req.getParameter(PAGE_PARAMETER); 
 		// default je djvu s jednou straknou... tudiz index 0
 		if (spage == null) spage="0";
@@ -86,6 +87,7 @@ public class ThumbnailServlet extends HttpServlet {
 			if (thumbStorage.checkExists(uuid)) {
 				thumbStorage.redirectToServlet(uuid, resp);
 			} else {
+				
 				thumbStorage.uploadThumbnail(uuid, req);
 				thumbStorage.redirectToServlet(uuid, resp);
 			}
@@ -96,17 +98,14 @@ public class ThumbnailServlet extends HttpServlet {
 
 	private void rawImage(HttpServletRequest req, HttpServletResponse resp,
 			String uuid, int page) throws IOException, MalformedURLException {
-		String imageUrl = getDjVuImage(uuid);
+		String imageUrl = getDJVUServlet(uuid);
 		DjVuBean bean = new DjVuBean();
 		bean.setURL(new URL(imageUrl));
 		// TODO !! Pozastavi thread
 		DjVuImage djvuImage = bean.getImageWait();
-
 		Rectangle pageBounds = djvuImage.getPageBounds(page);
 		Image[] images = djvuImage.getImage(new JPanel(), new Rectangle(pageBounds.width,pageBounds.height));
-
 		if (images.length == 1) {
-			
 			
 			Image img = images[0];
 			Image scaledImage = scale(img,pageBounds, req);
@@ -125,6 +124,11 @@ public class ThumbnailServlet extends HttpServlet {
 
 
 
+
+	private String getDJVUServlet(String uuid) {
+    	String imagePath = KConfiguration.getKConfiguration().getDJVUServletUrl()+"?"+IKeys.UUID_PARAMETER+"="+uuid;
+    	return imagePath;
+	}
 
 	private Image scale(Image img, Rectangle pageBounds, HttpServletRequest req) {
 		String spercent = req.getParameter(SCALE_PARAMETER);
@@ -173,14 +177,8 @@ public class ThumbnailServlet extends HttpServlet {
 	}
 
 	
-	public static String rawContent(String uuid, HttpServletRequest request) {
-		//http://localhost:8080/search/thumb?scale=0.3&uuid=17ba56f0-96f7-11de-a20b-000d606f5dc6
-		//http://194.108.215.84:8080/search/thumb?scaledHeight=220&uuid=17ba56f0-96f7-11de-a20b-000d606f5dc6&rawdata=true
-		//String requestURI = request.getRequestURI();
-		//String returnURI = requestURI + "&"+RAWDATA_PARAMETER+"=true";
-		
-		//return "http://194.108.215.84:8080/search/thumb?scaledHeight=220&uuid="+uuid+"&rawdata=true";
-		return "http://194.108.215.84:8080/search/thumb?scaledHeight=220&uuid="+uuid+"&rawdata=true";
+	public static String rawContent(KConfiguration configuration, String uuid, HttpServletRequest request) {
+		return configuration.getThumbServletUrl()+"?scaledHeight=" + KConfiguration.getKConfiguration().getScaledHeight() + "&uuid="+uuid+"&rawdata=true";
 	}
 	
 }

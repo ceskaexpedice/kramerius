@@ -5,6 +5,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import cz.incad.Kramerius.thumbdisk.ThumbnailDiskStorage;
 import cz.incad.Kramerius.thumbfedora.ThumbnailFedoraStorage;
+import cz.incad.kramerius.utils.conf.KConfiguration;
 
 public interface ThumbnailStorage {
 	

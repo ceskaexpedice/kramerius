@@ -4,7 +4,9 @@
  */
 package cz.incad.utils;
 
-import cz.incad.Kramerius.KConfiguration;
+import cz.incad.kramerius.utils.JNDIUtils;
+import cz.incad.kramerius.utils.conf.KConfiguration;
+
 import java.io.IOException;
 import java.io.PrintWriter;
 import javax.servlet.ServletConfig;
@@ -49,11 +51,12 @@ public class InitServlet extends HttpServlet {
         KConfiguration config = (KConfiguration) ctx.getAttribute(IKeys.CONFIGURATION);
         try{
         if (config == null) {
-            String configFile = ctx.getRealPath("WEB-INF/config/config.xml");
+        	String configFile = JNDIUtils.getJNDIValue(IKeys.CONFIG_PATH);
+        	//String configFile = ctx.getRealPath("WEB-INF/config/config.xml");
             ctx.log("loading configuration from: " + configFile);
-            config = new KConfiguration(configFile);
+            config = KConfiguration.getKConfiguration(configFile);
         }
-        ctx.setAttribute(IKeys.CONFIGURATION, config);
+        ctx.setAttribute(IKeys.CONFIGURATION, config); 
         }catch(Exception ex){
             ctx.log(ex.toString());
         }

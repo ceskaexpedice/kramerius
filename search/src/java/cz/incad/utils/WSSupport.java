@@ -1,6 +1,5 @@
 package cz.incad.utils;
 
-import static cz.incad.Kramerius.FedoraUtils.fedoraUrl;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -15,13 +14,17 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.Provider;
 import java.security.Security;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.logging.Logger;
 
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.xml.namespace.QName;
+import javax.xml.ws.Binding;
 import javax.xml.ws.BindingProvider;
+import javax.xml.ws.handler.Handler;
 
 import org.fedora.api.FedoraAPIM;
 import org.fedora.api.FedoraAPIMService;
@@ -35,39 +38,60 @@ import cz.i.kramerius.gwtviewers.server.pid.LexerException;
 import cz.i.kramerius.gwtviewers.server.pid.PIDParser;
 import cz.incad.Kramerius.FedoraUtils;
 import cz.incad.Kramerius.ThumbnailServlet;
+import cz.incad.kramerius.utils.IOUtils;
+import cz.incad.kramerius.utils.conf.KConfiguration;
 
 public class WSSupport {
 
 	static Logger LOGGER = Logger.getLogger(WSSupport.class.getName());
 	
-	public static void uploadThumbnailAsDatastream(final String user, final String pwd, final String pid, final HttpServletRequest request) throws LexerException, NoSuchAlgorithmException, IOException {
+	public static void uploadThumbnailAsDatastream(final KConfiguration configuration, final String pid, final HttpServletRequest request) throws LexerException, NoSuchAlgorithmException, IOException {
 		FedoraAPIMService service = null;
 		FedoraAPIM port = null;
 		Authenticator.setDefault(new Authenticator() { 
 	        protected PasswordAuthentication getPasswordAuthentication() { 
-	           return new PasswordAuthentication(user, pwd.toCharArray()); 
+	           return new PasswordAuthentication(configuration.getFedoraUser(), configuration.getFedoraPass().toCharArray()); 
 	         } 
 	       }); 
 	
+		LOGGER.info("fedoraUser:"+configuration.getFedoraUser());
+		LOGGER.info("fedoraPass:"+configuration.getFedoraPass());
+        String spec = configuration.getFedoraHost()+"/wsdl?api=API-M";
+		LOGGER.info("API-M"+spec);
 	    try {
-	        service = new FedoraAPIMService(new URL(fedoraUrl+"/wsdl?api=API-M"),
+			service = new FedoraAPIMService(new URL(spec),
 	                new QName("http://www.fedora.info/definitions/1/0/api/", "Fedora-API-M-Service"));
 	    } catch (MalformedURLException e) {
 	        System.out.println(e);
 	        e.printStackTrace();
 	    }
 	    port = service.getPort(FedoraAPIM.class);
-	    ((BindingProvider) port).getRequestContext().put(BindingProvider.USERNAME_PROPERTY, user);
-	    ((BindingProvider) port).getRequestContext().put(BindingProvider.PASSWORD_PROPERTY, pwd);
-	
+	    ((BindingProvider) port).getRequestContext().put(BindingProvider.USERNAME_PROPERTY, configuration.getFedoraUser());
+	    ((BindingProvider) port).getRequestContext().put(BindingProvider.PASSWORD_PROPERTY, configuration.getFedoraPass());
+	    Binding binding = ((BindingProvider) port).getBinding();
+	    List<Handler> chain = binding.getHandlerChain();
+	    if (chain == null) {
+	    	chain = new ArrayList<Handler>();
+	    }
+    	chain.add(new LoggingHandler());
+	    LOGGER.info("adding logger to chain ");
+	    binding.setHandlerChain(chain);
+	    
+	    
 	    PIDParser parser = new PIDParser(pid);
 	    parser.objectPid();
+	    LOGGER.info("parsed object pid  ="+parser.getObjectId());
 
+	    String rawContent = rawImage(configuration, parser.getObjectId(), request);
+	    LOGGER.info("rawcontent  ="+rawContent);
+	    //byte[] objectXML = port.getObjectXML(pid);
+		//LOGGER.severe("port = "+new String(objectXML));
 
-
-	    String rawContent = ThumbnailServlet.rawContent(parser.getObjectId(), request);
 		String nds = port.addDatastream(pid, FedoraUtils.IMG_THUMB, null, "Thumbnail", false, "image/jpeg", "HTTP", rawContent, "M", "A", "MD5",null, "none");
-		
+	}
+	
+	public static String rawImage(KConfiguration configuration, String uuid, HttpServletRequest request) {
+		return configuration.getThumbServletUrl()+"?scaledHeight="+KConfiguration.getKConfiguration().getScaledHeight()+"&uuid="+uuid+"&rawdata=true";
 	}
 
 	
@@ -119,12 +143,12 @@ public class WSSupport {
 		return hexString.toString();
 	}
 
-	public static void redirectFromFedora(HttpServletResponse resp, URL url)
-			throws IOException {
-		InputStream inputStream = url.openStream();
-		resp.setContentType("image/jpeg");
-		ServletOutputStream outputStream = resp.getOutputStream();
-		IOUtils.copyStreams(inputStream, outputStream);
-	}
+//	public static void redirectFromFedora(HttpServletResponse resp, URL url)
+//			throws IOException {
+//		InputStream inputStream = url.openStream();
+//		resp.setContentType("image/jpeg");
+//		ServletOutputStream outputStream = resp.getOutputStream();
+//		IOUtils.copyStreams(inputStream, outputStream);
+//	}
 
 }

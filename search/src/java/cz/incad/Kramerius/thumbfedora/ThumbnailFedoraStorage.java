@@ -1,8 +1,9 @@
 package cz.incad.Kramerius.thumbfedora;
 
 import static cz.incad.Kramerius.FedoraUtils.getThumbnailFromFedora;
-import static cz.incad.utils.JNDIUtils.getJNDIValue;
 import static cz.incad.utils.WSSupport.uploadThumbnailAsDatastream;
+import static cz.incad.kramerius.utils.RESTHelper.*;
+
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -10,6 +11,7 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.security.NoSuchAlgorithmException;
+import java.util.logging.Level;
 
 import javax.management.RuntimeErrorException;
 import javax.servlet.ServletOutputStream;
@@ -19,7 +21,8 @@ import javax.servlet.http.HttpServletResponse;
 import cz.i.kramerius.gwtviewers.server.pid.LexerException;
 import cz.i.kramerius.gwtviewers.server.pid.PIDParser;
 import cz.incad.Kramerius.ThumbnailStorage;
-import cz.incad.utils.IOUtils;
+import cz.incad.kramerius.utils.IOUtils;
+import cz.incad.kramerius.utils.conf.KConfiguration;
 
 /**
  * Nahledy ulozene ve fedore
@@ -27,32 +30,33 @@ import cz.incad.utils.IOUtils;
  */
 public class ThumbnailFedoraStorage implements ThumbnailStorage {
 
-	// TODO! Dat do jndi
-	private static final String FEDORA_ADMIN_USER_KEY="fedoraAdminUser";
-	private static final String FEDORA_ADMIN_USER_PSWD="fedoraAdminPassword";
-
+	public static final java.util.logging.Logger LOGGER = java.util.logging.Logger
+			.getLogger(ThumbnailFedoraStorage.class.getName());
+	
 	private HttpURLConnection connection;
 
 	@Override
 	public boolean checkExists(String uuid) {
 		try {
-			HttpURLConnection con = createConnection(uuid);
+			KConfiguration configuration = KConfiguration.getKConfiguration();
+			HttpURLConnection con = createConnection(configuration ,uuid);
 			int responseCode = con.getResponseCode();
 			if (responseCode == HttpURLConnection.HTTP_OK) {
 				return true;
 			} else return false;
 		} catch (MalformedURLException e) {
+			LOGGER.log(Level.SEVERE, e.getMessage(), e);
 			return false;
 		} catch (IOException e) {
+			LOGGER.log(Level.SEVERE, e.getMessage(), e);
 			return false;
 		}
 	}
 
-	private HttpURLConnection createConnection(String uuid) throws MalformedURLException,
+	private HttpURLConnection createConnection(KConfiguration configuration, String uuid) throws MalformedURLException,
 			IOException {
 		if (connection == null) {
-			URL url = new URL(getThumbnailFromFedora(uuid));
-			connection = (HttpURLConnection) url.openConnection();
+			connection = (HttpURLConnection) openConnection(getThumbnailFromFedora(configuration ,uuid),configuration.getFedoraUser(), configuration.getFedoraPass());
 		}
 		return connection;
 	}
@@ -60,30 +64,37 @@ public class ThumbnailFedoraStorage implements ThumbnailStorage {
 	@Override
 	public void redirectToServlet(String uuid, HttpServletResponse response) {
 		try {
-			HttpURLConnection con = createConnection(uuid);
+			KConfiguration configuration = KConfiguration.getKConfiguration();
+			HttpURLConnection con = createConnection(configuration, uuid);
 			InputStream inputStream = con.getInputStream();
 			response.setContentType("image/jpeg");
 			ServletOutputStream outputStream = response.getOutputStream();
 			IOUtils.copyStreams(inputStream, outputStream);
 		} catch (MalformedURLException e) {
-			e.printStackTrace();
+			LOGGER.log(Level.SEVERE, e.getMessage(), e);
+			throw new RuntimeException(e);
 		} catch (IOException e) {
-			e.printStackTrace();
+			LOGGER.log(Level.SEVERE, e.getMessage(), e);
+			throw new RuntimeException(e);
 		}
 	}
 
 	@Override
 	public void uploadThumbnail(String uuid, HttpServletRequest request) {
-		// fedora stream
+		LOGGER.info("uploading to fedora");
 		try {
-			String adminName = getJNDIValue(FEDORA_ADMIN_USER_KEY);
-			String adminPswd = getJNDIValue(FEDORA_ADMIN_USER_PSWD);
-			uploadThumbnailAsDatastream(adminName, adminPswd, "uuid:"+uuid, request);
+			uploadThumbnailAsDatastream(KConfiguration.getKConfiguration(), "uuid:"+uuid, request);
 		} catch (NoSuchAlgorithmException e) {
+			LOGGER.log(Level.SEVERE, e.getMessage(), e);
 			throw new RuntimeException(e);
 		} catch (LexerException e) {
+			LOGGER.log(Level.SEVERE, e.getMessage(), e);
 			throw new RuntimeException(e);
 		} catch (IOException e) {
+			LOGGER.log(Level.SEVERE, e.getMessage(), e);
+			throw new RuntimeException(e);
+		} catch(Exception e) {
+			LOGGER.log(Level.SEVERE, e.getMessage(), e);
 			throw new RuntimeException(e);
 		}
 	}

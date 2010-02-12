@@ -18,6 +18,8 @@ import javax.xml.xpath.XPathFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 
+import cz.incad.kramerius.utils.conf.KConfiguration;
+
 /**
  *
  * @author Administrator
@@ -142,7 +144,7 @@ public class IndexParams {
             paramsMap.put("ROOT_PID", pid);
             paramsMap.put("MODEL", model);
             paramsMap.put("ROOT_MODEL", model);
-            String command = FedoraUtils.fedoraUrl + "/get/" + pid + "/BIBLIO_MODS";
+            String command = KConfiguration.getKConfiguration().getFedoraHost() + "/get/" + pid + "/BIBLIO_MODS";
             Document contentDom = UrlReader.getDocument(command);
             XPathFactory factory = XPathFactory.newInstance();
             XPath xpath = factory.newXPath();

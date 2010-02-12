@@ -20,9 +20,10 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
+import cz.incad.kramerius.utils.conf.KConfiguration;
+
 public class FedoraUtils {
     
-	public static String fedoraUrl = "http://194.108.215.227:8080/fedora";
     
     public static final String IMG_THUMB = "IMG_THUMB";
     
@@ -30,7 +31,7 @@ public class FedoraUtils {
     public static ArrayList<String> getRdfPids(String pid, String relation) {
         ArrayList<String> pids = new ArrayList<String>();
         try {
-            String command = fedoraUrl + "/get/" + pid + "/RELS-EXT";
+            String command = KConfiguration.getKConfiguration().getFedoraHost() + "/get/" + pid + "/RELS-EXT";
             Document contentDom = UrlReader.getDocument(command);
             XPathFactory factory = XPathFactory.newInstance();
             XPath xpath = factory.newXPath();
@@ -57,8 +58,8 @@ public class FedoraUtils {
      * @param uuid objektu
      * @return
      */
-    public static String getDjVuImage(String uuid) {
-    	String imagePath = fedoraUrl+"/get/uuid:"+uuid+"/IMG_FULL";
+    public static String getDjVuImage(KConfiguration configuration, String uuid) {
+    	String imagePath = configuration.getFedoraHost()+"/get/uuid:"+uuid+"/IMG_FULL";
     	return imagePath;
     }
     
@@ -67,8 +68,8 @@ public class FedoraUtils {
      * @param uuid
      * @return
      */
-    public static String getThumbnailFromFedora(String uuid) {
-    	String imagePath = fedoraUrl+"/get/uuid:"+uuid+"/" + IMG_THUMB;
+    public static String getThumbnailFromFedora(KConfiguration configuration, String uuid) {
+    	String imagePath = configuration.getFedoraHost()+"/get/uuid:"+uuid+"/" + IMG_THUMB;
     	return imagePath;
     }
     

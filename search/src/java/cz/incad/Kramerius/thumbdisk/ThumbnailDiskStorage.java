@@ -1,6 +1,7 @@
 package cz.incad.Kramerius.thumbdisk;
 
-import static cz.incad.utils.IOUtils.*;
+import static cz.incad.kramerius.utils.IOUtils.*;
+import static cz.incad.kramerius.utils.RESTHelper.*;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -12,6 +13,7 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
+import java.util.logging.Level;
 
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
@@ -19,10 +21,16 @@ import javax.servlet.http.HttpServletResponse;
 
 import cz.incad.Kramerius.ThumbnailServlet;
 import cz.incad.Kramerius.ThumbnailStorage;
-import cz.incad.utils.IOUtils;
+import cz.incad.Kramerius.thumbfedora.ThumbnailFedoraStorage;
+import cz.incad.kramerius.utils.IOUtils;
+import cz.incad.kramerius.utils.conf.KConfiguration;
+import cz.incad.utils.WSSupport;
 
 public class ThumbnailDiskStorage implements ThumbnailStorage {
-
+	
+	public static final java.util.logging.Logger LOGGER = java.util.logging.Logger
+			.getLogger(ThumbnailDiskStorage.class.getName());
+	
 	private File imgFolder() {
 		File f = new File(System.getProperty("user.dir")+File.separator+"thmbs");
 		if (!f.exists()) f.mkdirs();
@@ -45,11 +53,11 @@ public class ThumbnailDiskStorage implements ThumbnailStorage {
 			ServletOutputStream outputStream = response.getOutputStream();
 			IOUtils.copyStreams(inputStream, outputStream);
 		} catch (FileNotFoundException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			LOGGER.log(Level.SEVERE, e.getMessage(), e);
+			throw new RuntimeException(e);
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			LOGGER.log(Level.SEVERE, e.getMessage(), e);
+			throw new RuntimeException(e);
 		} finally {
 			if (inputStream != null)
 				try { inputStream.close(); } catch (IOException e) { e.printStackTrace(); }
@@ -63,19 +71,19 @@ public class ThumbnailDiskStorage implements ThumbnailStorage {
 		try {
 			File file = imgFile(uuid);
 			fos = new FileOutputStream(file);
-			String rawContent = ThumbnailServlet.rawContent(uuid, request);
-			URL url = new URL(rawContent);
-			URLConnection con = url.openConnection();
+			KConfiguration configuration = KConfiguration.getKConfiguration();
+			String rawContent = WSSupport.rawImage(configuration, uuid, request);
+			URLConnection con = openConnection(rawContent, configuration.getFedoraUser(), configuration.getFedoraPass());
 			copyStreams(con.getInputStream(), fos);
 		} catch (FileNotFoundException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			LOGGER.log(Level.SEVERE, e.getMessage(), e);
+			throw new RuntimeException(e);
 		} catch (MalformedURLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			LOGGER.log(Level.SEVERE, e.getMessage(), e);
+			throw new RuntimeException(e);
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			LOGGER.log(Level.SEVERE, e.getMessage(), e);
+			throw new RuntimeException(e);
 		}finally {
 			if (fos != null)
 				try { fos.close(); } catch (IOException e) { e.printStackTrace(); }
