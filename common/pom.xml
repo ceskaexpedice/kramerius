@@ -24,6 +24,31 @@
 			<artifactId>gwt-servlet</artifactId>
 			<version>2.0</version>
 		</dependency>
+
+		<dependency>
+			<groupId>xalan</groupId>
+			<artifactId>xalan</artifactId>
+			<version>2.7.1</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.apache</groupId>
+			<artifactId>xalan</artifactId>
+			<version>2.5.D1</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.apache</groupId>
+			<artifactId>xalan</artifactId>
+			<version>2.5.D1</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.apache</groupId>
+			<artifactId>xercesImpl</artifactId>
+			<version>2.7.1</version>
+		</dependency>
+		
 	</dependencies>
 	<build>
 		<plugins>

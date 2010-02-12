@@ -31,6 +31,8 @@ public class KConfiguration {
 
 	public static java.util.logging.Logger LOGGER = java.util.logging.Logger.getLogger(KConfiguration.class.getName());
 	
+	private static KConfiguration _sharedInstance = null;
+	
     public HashMap<String, String> properties = new HashMap<String, String>();
     public String fedoraHost;
     private String solrHost;
@@ -38,7 +40,8 @@ public class KConfiguration {
     public String fedoraUser;
     public String fedoraPass;
 
-    public KConfiguration(String file) {
+    
+    private KConfiguration(String file) {
         try {
             LOGGER.info("Loading configuration");
             DocumentBuilderFactory domFactory = DocumentBuilderFactory.newInstance();
@@ -91,6 +94,19 @@ public class KConfiguration {
         return getProperty("fedoraPass");
     }
     
+    public String getThumbServletUrl() {
+    	return getProperty("thumbUrl");
+    }
+
+    public String getDJVUServletUrl() {
+    	return getProperty("djvuUrl");
+    }
+
+    public String getScaledHeight() {
+    	return getProperty("scaledHeight");
+    }
+    
+    
     public String getProperty(String key) {
         if (properties.containsKey(key)) {
             return properties.get(key);
@@ -107,5 +123,16 @@ public class KConfiguration {
             return defaultValue;
         }
     }
+    
+    public synchronized static KConfiguration getKConfiguration(String path) {
+    	if (_sharedInstance == null) {
+    		_sharedInstance = new KConfiguration(path);
+    	}
+    	return getKConfiguration();
+    }
+
+	public static KConfiguration getKConfiguration() {
+		return _sharedInstance;
+	}
 }
 

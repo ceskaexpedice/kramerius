@@ -17,13 +17,19 @@ import com.google.gwt.user.server.Base64Utils;
 public class RESTHelper {
 
 
-	public InputStream inputStream(String urlString, String user, String pass) throws IOException {
+	public static InputStream inputStream(String urlString, String user, String pass) throws IOException {
+		URLConnection uc = openConnection(urlString, user, pass);
+		return uc.getInputStream();
+	}
+
+	public static URLConnection openConnection(String urlString, String user,
+			String pass) throws MalformedURLException, IOException {
 		URL url = new URL(urlString);
 		String userPassword = user + ":" + pass;
 		String encoded = Base64Utils.toBase64(userPassword.getBytes()); 
 		URLConnection uc = url.openConnection();
 		uc.setRequestProperty ("Authorization", "Basic " + encoded);
-		return uc.getInputStream();
+		return uc;
 	}
-	
+
 }
