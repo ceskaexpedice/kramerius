@@ -18,14 +18,16 @@
     
     <init-param>
     	<param-name>maxWidth</param-name>
-		<param-value>180</param-value>
-    </init-param>
-    <init-param>
-    	<param-name>scaledHeight</param-name>
-		<param-value>220</param-value>
+		<param-value>95</param-value>
     </init-param>
   </servlet>
   
+
+  <servlet>
+    <servlet-name>djvuServlet</servlet-name>
+    <servlet-class>cz.incad.Kramerius.DJVUServlet</servlet-class>
+  </servlet>
+
     <servlet>
         <servlet-name>InitServlet</servlet-name>
         <servlet-class>cz.incad.utils.InitServlet</servlet-class>
@@ -89,6 +91,12 @@
         <servlet-name>InitServlet</servlet-name>
         <url-pattern>/InitServlet</url-pattern>
     </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>djvuServlet</servlet-name>
+        <url-pattern>/djvu</url-pattern>
+    </servlet-mapping>
+
     <welcome-file-list>
         <welcome-file>search.jsp</welcome-file>
     </welcome-file-list>
