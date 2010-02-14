@@ -4,7 +4,6 @@ usePlugin('maven')
 
 
 def artifactoryUid = "admin"
-def artifactoryPwd = "utopence"
 def artifactoryURL = "http://svn:8080/artifactory"
 
 println System.properties['user.home']
