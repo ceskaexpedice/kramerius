@@ -1,9 +1,6 @@
-import org.gradle.api.tasks.*
 
 usePlugin('java')
-//usePlugin('war')
 usePlugin('maven')
-
 
 def artifactoryUid = System.properties["user"]
 def artifactoryPwd = System.properties["pswd"]
@@ -22,15 +19,6 @@ repositories {
         mavenRepo urls: "${artifactoryURL}/libs-releases"
 }
 
-
-configurations {
-	gwtCompile
-	deployerJars
-}
-
-artifacts {
-	
-}
 
 dependencies {
   compile (
@@ -72,35 +60,7 @@ uploadArchives  {
    }
 }
 
-/*
-war {
-    fileSet(dir: file('war')) // adds a file-set to the root of the archive
-    webInf(dir: file('war/WEB-INF')) // adds a file-set to the WEB-INF dir.
-    webXml = file('war/WEB-INF/web.xml') // copies a file to WEB-INF/web.xml
-}*/
 
-
-task gwtCompile << { 
-	sourceSets.main.java.srcDirs.each{ sourceDir->
-		println "Building source $sourceDir"	
-		ant.java(classname:'com.google.gwt.dev.Compiler', failOnError: 'false', fork: 'true') {
-		jvmarg(value: '-Xmx184M')
-		arg(line: '-war war')
-		arg(line: '-logLevel INFO')
-		arg(line: '-treeLogger')
-		arg(line: '-style PRETTY')
-		arg(value: gwtApplicationName)
-		classpath {
-			pathElement(location: sourceDir)
-				pathElement(path: configurations.compile.asPath)
-				pathElement(path: configurations.gwtCompile.asPath)
-			}
-		}
-	}
-
-}
-
-jar.dependsOn gwtCompile
 
 
 
