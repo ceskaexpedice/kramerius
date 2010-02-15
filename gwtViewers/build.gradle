@@ -102,13 +102,6 @@ task gwtCompile << {
 
 jar.dependsOn gwtCompile
 
-task serverSideJar(type: Jar) {
-	fileSet(dir:sourceSets.main.classesDir)
-}
-
-artifacts {
-	archives serverSideJar
-}
 
 
 
