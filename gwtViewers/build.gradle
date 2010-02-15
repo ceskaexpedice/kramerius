@@ -1,7 +1,7 @@
 import org.gradle.api.tasks.*
 
 usePlugin('java')
-usePlugin('war')
+//usePlugin('war')
 usePlugin('maven')
 
 
@@ -72,12 +72,12 @@ uploadArchives  {
    }
 }
 
-
+/*
 war {
     fileSet(dir: file('war')) // adds a file-set to the root of the archive
     webInf(dir: file('war/WEB-INF')) // adds a file-set to the WEB-INF dir.
     webXml = file('war/WEB-INF/web.xml') // copies a file to WEB-INF/web.xml
-}
+}*/
 
 
 task gwtCompile << { 
@@ -100,10 +100,9 @@ task gwtCompile << {
 
 }
 
-war.dependsOn gwtCompile
+jar.dependsOn gwtCompile
 
 task serverSideJar(type: Jar) {
-	baseName = 'gwtViewers_server'
 	fileSet(dir:sourceSets.main.classesDir)
 }
 
