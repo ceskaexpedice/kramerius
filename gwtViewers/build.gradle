@@ -11,6 +11,7 @@ def gwtApplicationName="cz.i.kramerius.gwtviewers.GwtViewers"
 project.group='gwt.cz.incad.gwtviewers'
 project.version='1.0-SNAPSHOT'
 project.artifact='gwtviewers_server'
+archivesBaseName = 'gwtviewers_server'
 
 
 
