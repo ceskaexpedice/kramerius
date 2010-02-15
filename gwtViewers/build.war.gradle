@@ -17,6 +17,7 @@ def deployingWarDir="tmpWar"
 project.group='gwt.cz.incad.gwtviewers'
 project.version='1.0-SNAPSHOT'
 project.artifact='gwtviewers_client'
+archivesBaseName = 'gwtviewers_client'
 
 
 
