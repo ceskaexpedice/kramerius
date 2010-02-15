@@ -73,8 +73,8 @@ uploadArchives  {
 
 war {
     fileSet(dir: file(deployingWarDir)) // adds a file-set to the root of the archive
-    webInf(dir: file('deployingWarDir/WEB-INF')) // adds a file-set to the WEB-INF dir.
-    webXml = file('deployingWarDir/WEB-INF/web.xml') // copies a file to WEB-INF/web.xml
+    webInf(dir: file("$deployingWarDir/WEB-INF")) // adds a file-set to the WEB-INF dir.
+    webXml = file("$deployingWarDir/WEB-INF/web.xml") // copies a file to WEB-INF/web.xml
 }
 
 
