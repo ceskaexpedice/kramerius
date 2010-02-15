@@ -1,13 +1,18 @@
+import org.gradle.api.tasks.*
+
 usePlugin('java')
 usePlugin('war')
 usePlugin('maven')
 
 
-def artifactoryUid = "admin"
+def artifactoryUid = System.properties["user"]
+def artifactoryPwd = System.properties["pswd"]
 def artifactoryURL = "http://svn:8080/artifactory"
+def gwtBuildDir = "gwtBuild"
+def gwtApplicationName="cz.i.kramerius.gwtviewers.GwtViewers"
 
-println System.properties['user.home']
-
+println "${artifactoryUid}"
+println "${artifactoryPwd}"
 
 project.group='gwt.cz.incad.gwtviewers'
 project.version='1.0-SNAPSHOT'
@@ -18,7 +23,6 @@ project.artifact='gwtviewers'
 repositories {
         mavenRepo urls: "${artifactoryURL}/libs-snapshots"
         mavenRepo urls: "${artifactoryURL}/libs-releases"
-        mavenRepo urls: (new File("${System.properties['user.home']}/.m2/repository")).toURL()
 }
 
 
@@ -27,6 +31,9 @@ configurations {
 	deployerJars
 }
 
+artifacts {
+	
+}
 
 dependencies {
   compile (
@@ -34,7 +41,14 @@ dependencies {
           [group: 'gwt.com.google.gwt.sdk', name: 'gwt-dev', version: '2.0.0'],
           [group: 'gwt.org.adamtacy', name: 'gwtFX', version: '0.5.0'],
           [group: 'gwt.com.google', name: 'gwt-incubator', version: '2.0'],
-          [group: 'cz.i.kramerius', name: 'kramerius-common', version: '0.0.1-SNAPSHOT'],
+          [group: 'cz.incad.kramerius', name: 'kramerius-common', version: '0.0.1-SNAPSHOT'],
+          )
+
+  gwtCompile (
+          [group: 'gwt.com.google.gwt.sdk', name: 'gwt-user', version: '2.0.0'],
+          [group: 'gwt.com.google.gwt.sdk', name: 'gwt-dev', version: '2.0.0'],
+          [group: 'gwt.org.adamtacy', name: 'gwtFX', version: '0.5.0'],
+          [group: 'gwt.com.google', name: 'gwt-incubator', version: '2.0'],
           )
 	
 }
@@ -48,8 +62,7 @@ sourceSets{
 	}
 }
 
-
-uploadArchives {
+uploadArchives  {
    repositories.mavenDeployer {
       name = 'httpDeployer'
       configuration = configurations.deployerJars
@@ -62,21 +75,36 @@ uploadArchives {
    }
 }
 
-task gwtCompile << {
-  created = (new File(gwtBuildDir)).mkdirs()
-  ant.java(classname:'com.google.gwt.dev.Compiler', failOnError: 'true', fork: 'true') {
-    jvmarg(value: '-Xmx184M')
-    arg(line: '-war ' + gwtBuildDir)
-    arg(line: '-logLevel INFO')
-    arg(line: '-style PRETTY')
-    arg(value: 'me.trond.app.MyApp')
-    classpath {
-      pathElement(location: srcRootName + '/' + srcDirNames[0])
-      pathElement(path: configurations.compile.asPath)
-      pathElement(path: configurations.gwtCompile.asPath)
-    }
-  }
+
+war {
+    fileSet(dir: file('war')) // adds a file-set to the root of the archive
+    webInf(dir: file('war/WEB-INF')) // adds a file-set to the WEB-INF dir.
+    webXml = file('war/WEB-INF/web.xml') // copies a file to WEB-INF/web.xml
 }
+
+
+task gwtCompile << { 
+	sourceSets.main.java.srcDirs.each{ sourceDir->
+		println "Building source $sourceDir"	
+		ant.java(classname:'com.google.gwt.dev.Compiler', failOnError: 'false', fork: 'true') {
+		jvmarg(value: '-Xmx184M')
+		arg(line: '-war war')
+		arg(line: '-logLevel INFO')
+		arg(line: '-treeLogger')
+		arg(line: '-style PRETTY')
+		arg(value: gwtApplicationName)
+		classpath {
+			pathElement(location: sourceDir)
+				pathElement(path: configurations.compile.asPath)
+				pathElement(path: configurations.gwtCompile.asPath)
+			}
+		}
+	}
+
+}
+
+war.dependsOn gwtCompile
+
 
 
 
