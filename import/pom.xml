@@ -37,8 +37,8 @@
 						</goals>
 						<configuration>
 							<wsdlUrls>
-								<wsdlUrl>http://localhost:8080/fedora/wsdl?api=API-M</wsdlUrl>
-								<wsdlUrl>http://localhost:8080/fedora/wsdl?api=API-A</wsdlUrl>
+								<wsdlUrl>http://194.108.215.227:8080/fedora/wsdl?api=API-M</wsdlUrl>
+								<wsdlUrl>http://194.108.215.227:8080/fedora/wsdl?api=API-A</wsdlUrl>
 							</wsdlUrls>
 							<packageName>org.fedora.api</packageName>
 						</configuration>
