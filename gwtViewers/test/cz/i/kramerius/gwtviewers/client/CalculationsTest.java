@@ -73,7 +73,7 @@ public class CalculationsTest extends GWTTestCase {
 		ViewConfiguration coreConfiguration = generateConfiguration();
 		
 		ImageRotateCalculatedPositions imageRotateCalculatedPositions = new ImageRotateCalculatedPositions(wrappers, noVisible, left, right);
-		ImageRotatePool imageRotatePool = new ImageRotatePool(wrappers, noVisible, left, right,2);
+		ImageRotatePool imageRotatePool = new ImageRotatePool(wrappers, noVisible, left, right);
 		
 		CalculationHelper.computePositions(imageRotatePool, imageRotateCalculatedPositions, coreConfiguration);
 		CalculationHelper.storePositions(imageRotatePool, imageRotateCalculatedPositions, coreConfiguration);
@@ -110,7 +110,7 @@ public class CalculationsTest extends GWTTestCase {
 	
 	
 	private ViewConfiguration generateConfiguration() {
-		ViewConfiguration coreConfiguration = new ViewConfiguration();
+		ViewConfiguration coreConfiguration = ViewConfiguration.getConfiguration();
 		coreConfiguration.setViewPortHeight(100);
 		coreConfiguration.setViewPortWidth(300);
 		return coreConfiguration;
