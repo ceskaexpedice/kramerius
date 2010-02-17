@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- 
+	Konfigurace pro system kramerius
+ -->
+<setup>
+    <properties>
+        <property name="indexerHost" value="http://localhost:8080/fedoragsearch"/>
+        <property name="solrHost" value="http://localhost:8080/solr/select/select"/>
+				
+        <property name="fedoraHost" value="http://localhost:8080/fedora"/>
+        <property name="fedoraUser" value="fedoraAdmin"/>
+        <property name="fedoraPass" value="fedoraAdmin"/>
+
+		<!-- Cesta k servletu pro nahledy -->
+        <property name="thumbUrl" value="http://localhost:8080/search/thumb"/>
+		<!-- Cesta k servletu pro DJVU -->
+        <property name="djvuUrl" value="http://localhost:8080/search/djvu"/>
+		<!-- Vyska nahledu -->
+        <property name="scaledHeight" value="128"/>
+    </properties>
+</setup>
