@@ -222,7 +222,7 @@
 					<warSourceDirectory>${basedir}/web</warSourceDirectory>
 					<update>true</update>
 					<mode>context</mode>
-					<contextFile>${basedir}/target/search-0.0.1-SNAPSHOT/META-INF/context.xml</contextFile>
+					<contextFile>${basedir}/web/META-INF/context.xml</contextFile>
 
 				</configuration>
 			</plugin>
