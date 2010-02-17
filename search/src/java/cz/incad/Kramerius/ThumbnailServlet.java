@@ -1,49 +1,27 @@
 package cz.incad.Kramerius;
 
-import static cz.incad.Kramerius.FedoraUtils.*;
-import static cz.incad.kramerius.utils.JNDIUtils.*;
-import static cz.incad.utils.WSSupport.*;
-
-import java.awt.BorderLayout;
-import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Image;
 import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
-import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
-import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.security.NoSuchAlgorithmException;
 
 import javax.imageio.ImageIO;
-import javax.naming.Context;
-import javax.naming.InitialContext;
-import javax.naming.NamingException;
 import javax.servlet.ServletException;
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.swing.JFrame;
 import javax.swing.JPanel;
 
-import org.fedora.api.ObjectFactory;
-
-import com.google.gwt.gen2.logging.shared.Log;
-import com.lizardtech.djvu.DjVuInfo;
-import com.lizardtech.djvu.DjVuPage;
 import com.lizardtech.djvubean.DjVuBean;
 import com.lizardtech.djvubean.DjVuImage;
 
-import cz.i.kramerius.gwtviewers.server.pid.LexerException;
-import cz.incad.Kramerius.ThumbnailStorage.Type;
-import cz.incad.kramerius.utils.IOUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 import cz.incad.utils.IKeys;
-import cz.incad.utils.WSSupport;
+
 
 
 /** 
