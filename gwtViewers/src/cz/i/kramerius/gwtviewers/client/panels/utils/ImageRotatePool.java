@@ -1,12 +1,14 @@
 package cz.i.kramerius.gwtviewers.client.panels.utils;
 
-import static cz.i.kramerius.gwtviewers.client.panels.utils.NoVisibleFillHelper.fillLeftNoVisible;
-import static cz.i.kramerius.gwtviewers.client.panels.utils.NoVisibleFillHelper.fillRightNoVisible;
+import static cz.i.kramerius.gwtviewers.client.panels.utils.NoVisibleFillHelper.*;
 
 import java.util.ArrayList;
 
+
 import com.google.gwt.user.client.ui.Widget;
 
+import cz.i.kramerius.gwtviewers.client.SimpleImageTO;
+import cz.i.kramerius.gwtviewers.client.data.DataHandler;
 import cz.i.kramerius.gwtviewers.client.panels.ImageMoveWrapper;
 
 
@@ -33,11 +35,10 @@ public class ImageRotatePool {
 	// right side
 	private ImageMoveWrapper right = null;
 	
-	private int viewPortSize=2;
 	
 	private int ukazovatko = 0;
 	
-	public ImageRotatePool(ImageMoveWrapper[] viewPortImages, ImageMoveWrapper[] novisibles, ImageMoveWrapper left, ImageMoveWrapper right, int viewPortSize) {
+	public ImageRotatePool(ImageMoveWrapper[] viewPortImages, ImageMoveWrapper[] novisibles, ImageMoveWrapper left, ImageMoveWrapper right) {
 		super();
 		for (ImageMoveWrapper img : viewPortImages) {
 			this.viewPortImages.add(img);
@@ -69,7 +70,7 @@ public class ImageRotatePool {
 	
 	
 	public boolean rollLeft() {
-		this.ukazovatko +=1;
+		rollLeftPointer();
 		// pravy do viewPort
 		this.viewPortImages.add(this.right);
 		
@@ -84,6 +85,10 @@ public class ImageRotatePool {
 		fillNoVisibleImages();
 		return true;
 	}
+
+	public void rollLeftPointer() {
+		this.ukazovatko +=1;
+	}
 	
 	public void fillNoVisibleImages() {
 		fillRightNoVisible(this);
@@ -91,7 +96,7 @@ public class ImageRotatePool {
 	}
 	
 	public boolean rollRight() {
-		this.ukazovatko -=1;
+		rollRightPointer();
 		// levy do viewPort
 		this.viewPortImages.add(0,this.left);
 		// prvni z novisible do levy
@@ -103,6 +108,10 @@ public class ImageRotatePool {
 
 		fillNoVisibleImages();
 		return true;
+	}
+
+	public void rollRightPointer() {
+		this.ukazovatko -=1;
 	}
 
 	public ArrayList<ImageMoveWrapper> getViewPortImages() {
@@ -145,6 +154,29 @@ public class ImageRotatePool {
 	public int getPointer() {
 		return this.ukazovatko;
 	}
+	
+	public void initWithPointer(int pointer) {
+		if (pointer < 0) return;
+		int maxImage = DataHandler.getMax();
+		int visibleImages = this.viewPortImages.size();
+		int maxLeft = maxImage - visibleImages;
+		this.ukazovatko = Math.min(pointer, maxLeft);
+
+		// prenastavit viewport images
+		for (int i = 0, ll= this.viewPortImages.size(); i < ll; i++) {
+			SimpleImageTO ito = DataHandler.getData().get(ukazovatko+i);
+			modifyImageMoveWrapper(this.viewPortImages.get(i), ito, ito.getIdentification());
+		}
+		
+		// prenastavit levy a pravy
+		SimpleImageTO lito = this.ukazovatko > 1 ?  DataHandler.getData().get(ukazovatko-1) : DataHandler.getNaImage();
+		modifyImageMoveWrapper(this.left, lito, lito.getIdentification());
+		int rightImageIndex = this.ukazovatko+this.viewPortImages.size();
+		SimpleImageTO rito = rightImageIndex < DataHandler.getMax() ? DataHandler.getData().get(rightImageIndex) : DataHandler.getNaImage();  
+		modifyImageMoveWrapper(this.right, rito, rito.getIdentification());
+		this.fillNoVisibleImages();
+	}
+	
 	
 	public void debugPool() {
 		System.out.println("=========> Left <=========");

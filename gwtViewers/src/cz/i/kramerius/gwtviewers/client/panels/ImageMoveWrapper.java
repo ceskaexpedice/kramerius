@@ -61,6 +61,7 @@ public class ImageMoveWrapper  implements EffectSteppingHandler, EffectStartingH
 	public ImageMoveWrapper(int x, int y, int width, int height, String url, String imageIdent) {
 		this.imageCore = new ImageWrapper(x, y, width, height, url, imageIdent);
 		appendAlt(imageIdent);
+		getWidget().setStyleName("page_not_selected");
 	}
 
 

@@ -14,8 +14,25 @@ public class ViewConfiguration {
 	private int top = 0;
 	
 	private int numberOfVisibleImages  = 3;
+
 	
+	private static ViewConfiguration _instance;
 	
+	public static ViewConfiguration getConfiguration() {
+		if (_instance == null) {
+			_instance = new ViewConfiguration();
+		}
+		return _instance;
+	}
+
+	
+	private ViewConfiguration() {
+		super();
+		// TODO Auto-generated constructor stub
+	}
+
+
+
 	public int getViewPortWidth() {
 		return viewPortWidth;
 	}

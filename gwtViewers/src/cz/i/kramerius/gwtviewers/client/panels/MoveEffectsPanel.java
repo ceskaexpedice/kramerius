@@ -27,14 +27,14 @@ import cz.i.kramerius.gwtviewers.client.panels.fx.Rotate;
 import cz.i.kramerius.gwtviewers.client.panels.utils.CalculationHelper;
 import cz.i.kramerius.gwtviewers.client.panels.utils.ImageRotateCalculatedPositions;
 import cz.i.kramerius.gwtviewers.client.panels.utils.ImageRotatePool;
-import cz.i.kramerius.gwtviewers.client.selections.MiddleImgSelector;
 import cz.i.kramerius.gwtviewers.client.selections.Selector;
+import cz.i.kramerius.gwtviewers.client.selections.SelectorImpl;
 
 /**
  * FX panel for moving pictures
  * @author pavels
  */
-public class MoveEffectsPanel extends  Composite implements MouseOutHandler, MouseOverHandler {
+public class MoveEffectsPanel extends  Composite {
 	
 	private ImageRotatePool imageRotatePool;
 	private ImageRotateCalculatedPositions imageRotateCalculatedPositions;
@@ -52,20 +52,19 @@ public class MoveEffectsPanel extends  Composite implements MouseOutHandler, Mou
 		super();
 
 		this.imageRotateCalculatedPositions = new ImageRotateCalculatedPositions(viewPortImages, noVisibleImgs, left, right);
-		this.imageRotatePool = new ImageRotatePool(viewPortImages, noVisibleImgs, left, right, 3 /* ! View port size !*/);
+		this.imageRotatePool = new ImageRotatePool(viewPortImages, noVisibleImgs, left, right);
 		
 		this.configuration = conf;
 
 		this.calulateNextPositions();
 		this.storeCalculatedPositions();
+		
 		for (int i = 0; i < viewPortImages.length; i++) {
 			ImageMoveWrapper img = viewPortImages[i];
 			ImageMoveWrapper calculated = this.imageRotateCalculatedPositions.getViewPortCalulcatedPosition(i);
 			img.setX(calculated.getX());
 			img.setY(calculated.getY());
 			this.absolutePanel.add(img.getWidget(), img.getX(), img.getY());
-			
-			((HasAllMouseHandlers)img.getWidget()).addMouseOverHandler(this); 
 		}
 		
 		
@@ -92,7 +91,7 @@ public class MoveEffectsPanel extends  Composite implements MouseOutHandler, Mou
 		this.absolutePanel.add(gpane, 0, 0);
 		gpane.getElement().getStyle().setZIndex(ImageRotatePool.PANE_VIEW_Z_INDEX);
 		
-		this.imgSelector = new MiddleImgSelector(configuration.getCenterWidth());
+		//this.imgSelector = new MiddleImgSelector(configuration.getCenterWidth());
 
 		initWidget(this.absolutePanel);
 	}
@@ -117,6 +116,17 @@ public class MoveEffectsPanel extends  Composite implements MouseOutHandler, Mou
 		
 	}
 	
+	void fireMovePointerLeft() {
+		for (MoveListener listener : this.listeners) {
+			listener.onPointerLeft(this.imageRotatePool);
+		}
+	}
+
+	void fireMovePointerRight() {
+		for (MoveListener listener : this.listeners) {
+			listener.onPointerRight(this.imageRotatePool);
+		}
+	}
 	
 	void fireMoveLeft(boolean effectsPlayed) {
 		for (MoveListener listener : this.listeners) {
@@ -128,6 +138,20 @@ public class MoveEffectsPanel extends  Composite implements MouseOutHandler, Mou
 		for (MoveListener listener : this.listeners) {
 			listener.onMoveRight(this.imageRotatePool,effectsPlayed);
 		}
+	}
+	
+	public void moveLeftOnlyPointer() {
+		this.imageRotatePool.rollLeftPointer();
+		this.fireMovePointerLeft();
+	}
+	
+	public void rollToPointer() {
+		this.imageRotatePool.initWithPointer(this.imageRotatePool.getPointer());
+	}
+	
+	public void moveRightOnlyPointer() {
+		this.imageRotatePool.rollRightPointer();
+		this.fireMovePointerRight();
 	}
 	
 	public void moveRightWithoutEffect() {
@@ -147,6 +171,7 @@ public class MoveEffectsPanel extends  Composite implements MouseOutHandler, Mou
 			fireMoveLeft(false);
 		}
 	}
+	
 
 	public Rotate moveRight(double duration) {
 		ArrayList<ImageMoveWrapper> viewPortImages = this.imageRotatePool.getViewPortImages();
@@ -200,15 +225,28 @@ public class MoveEffectsPanel extends  Composite implements MouseOutHandler, Mou
 
 
 	public void rollToPage(int currentValue, double duration,boolean playEffect) {
+		System.out.println("Roll to page "+currentValue);
+		System.out.println("Play effect "+playEffect);
+		System.out.println("Pointer points to "+this.imageRotatePool.getPointer());
 		int pocetKroku = currentValue - this.imageRotatePool.getPointer();
 		if (pocetKroku > 0) {
 			for (int i = 0; i < pocetKroku; i++) { 
-				if (playEffect)  {moveLeft(duration);} else  {moveLeftWithoutEffect();}
+				if (playEffect)  {
+					moveLeft(duration);
+				} else  {
+					moveLeftOnlyPointer();
+					//moveLeftWithoutEffect();
+				}
 			}
 		}
 		if (pocetKroku < 0) {
 			for (int i = pocetKroku; i < 0; i++) { 
-				if (playEffect) {moveRight(duration);}  else {moveRightWithoutEffect();}
+				if (playEffect) {
+					moveRight(duration);
+				}  else {
+					moveRightOnlyPointer();
+					//moveRightWithoutEffect();
+				}
 			}
 		}
 	}
@@ -223,6 +261,9 @@ public class MoveEffectsPanel extends  Composite implements MouseOutHandler, Mou
 	}
 	
 	public Selector getImgSelector() {
+		if (imgSelector == null) {
+			this.imgSelector = new SelectorImpl();
+		}
 		return imgSelector;
 	}
 
@@ -231,20 +272,5 @@ public class MoveEffectsPanel extends  Composite implements MouseOutHandler, Mou
 	public void setImgSelector(Selector imgSelector) {
 		this.imgSelector = imgSelector;
 	}
-
-
-
-	
-	public void onMouseOver(MouseOverEvent event) {
-		//TODO: Sipky
-	}
-
-
-
-	@Override
-	public void onMouseOut(MouseOutEvent event) {
-		//TODO: Sipky
-	}
-
 	
 }

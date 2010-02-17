@@ -1,6 +1,8 @@
-package cz.i.kramerius.gwtviewers.client;
+package cz.i.kramerius.gwtviewers.client.data;
 
 import java.util.List;
+
+import cz.i.kramerius.gwtviewers.client.SimpleImageTO;
 
 public class DataHandler {
 
@@ -37,6 +39,4 @@ public class DataHandler {
 	public static void setMax(int max) {
 		DataHandler.max = max;
 	}
-
-	
 }

@@ -25,19 +25,11 @@ public interface Selector {
 	 */
 	public boolean isSelected(ImageMoveWrapper wrapper, ImageRotatePool pool);
 	
-	/**
-	 * Factory metoda -> vytvari dekorator selekce
-	 * @return
-	 */
-	public SelectionDecorator createSelectionDecorator();
 
-
-	public SelectionDecorator getSelectionDecorator();
-
-	public int moveToSelect(ImageMoveWrapper wrapper, ImageRotatePool pool);
-
-	public int selectionToSliderPosition(ImageRotatePool pool, int what);
-
-	public  int sliderPositionToSelection(ImageRotatePool pool, int what);
-
+	public void changeSelection(ImageMoveWrapper wrapper);
+	
+	public void markUnselect();
+	
+	public void markSelect();
+	
 }

@@ -2,8 +2,8 @@ package cz.i.kramerius.gwtviewers.client.panels.utils;
 
 import java.util.ArrayList;
 
-import cz.i.kramerius.gwtviewers.client.DataHandler;
 import cz.i.kramerius.gwtviewers.client.SimpleImageTO;
+import cz.i.kramerius.gwtviewers.client.data.DataHandler;
 import cz.i.kramerius.gwtviewers.client.panels.ImageMoveWrapper;
 
 public class NoVisibleFillHelper {

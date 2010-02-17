@@ -1,4 +1,4 @@
-package cz.i.kramerius.gwtviewers.client;
+package cz.i.kramerius.gwtviewers.client.slider;
 
 import com.google.gwt.widgetideas.client.SliderBar;
 import com.google.gwt.widgetideas.client.SliderBar.LabelFormatter;
