@@ -37,20 +37,20 @@
 		</pluginRepository>
 
 	</pluginRepositories>
-	
-<distributionManagement>  
-  <repository>  
-    <id>artifactory.internal</id>  
-    <name>Internal Release Repository</name>  
-    <url>dav:http://svn:8080/artifactory/libs-releases-local/</url>  
-  </repository>  
-  <snapshotRepository>  
-    <id>artifactory.snapshots</id>  
-    <name>Internal Snapshot Repository</name>  
-    <url>dav:http://svn:8080/artifactory/libs-snapshots-local/</url>  
-  </snapshotRepository>  
-</distributionManagement>
-	
+
+	<distributionManagement>
+		<repository>
+			<id>artifactory.internal</id>
+			<name>Internal Release Repository</name>
+			<url>dav:http://svn:8080/artifactory/libs-releases-local/</url>
+		</repository>
+		<snapshotRepository>
+			<id>artifactory.snapshots</id>
+			<name>Internal Snapshot Repository</name>
+			<url>dav:http://svn:8080/artifactory/libs-snapshots-local/</url>
+		</snapshotRepository>
+	</distributionManagement>
+
 	<dependencies>
 		<dependency>
 			<groupId>javax.servlet</groupId>
@@ -168,7 +168,6 @@
 			<artifactId>gwtviewers_server</artifactId>
 			<version>1.0-SNAPSHOT</version>
 		</dependency>
-		
 		<!-- ws support -->
 		<dependency>
 			<groupId> com.sun.xml.ws</groupId>
@@ -180,6 +179,11 @@
 		<dependency>
 			<groupId>cz.incad.kramerius</groupId>
 			<artifactId>kramerius-common</artifactId>
+			<version>0.0.1-SNAPSHOT</version>
+		</dependency>
+		<dependency>
+			<groupId>cz.incad.kramerius</groupId>
+			<artifactId>fedora_api</artifactId>
 			<version>0.0.1-SNAPSHOT</version>
 		</dependency>
 	</dependencies>
@@ -206,8 +210,8 @@
 					<warSourceDirectory>${basedir}/web</warSourceDirectory>
 					<update>true</update>
 					<mode>context</mode>
-						<contextFile>${basedir}/target/search-0.0.1-SNAPSHOT/META-INF/context.xml</contextFile>
-				
+					<contextFile>${basedir}/target/search-0.0.1-SNAPSHOT/META-INF/context.xml</contextFile>
+
 				</configuration>
 			</plugin>
 			<plugin>
@@ -231,32 +235,5 @@
 		</plugins>
 	</build>
 
-	<profiles>
-		<profile>
-			<id>generatews</id>
-			<build>
-				<plugins>
-					<plugin>
-						<groupId>org.codehaus.mojo</groupId>
-						<artifactId>jaxws-maven-plugin</artifactId>
-						<executions>
-							<execution>
-								<goals>
-									<goal>wsimport</goal>
-								</goals>
-								<configuration>
-									<wsdlUrls>
-										<wsdlUrl>http://194.108.215.227:8080/fedora/wsdl?api=API-M</wsdlUrl>
-										<wsdlUrl>http://194.108.215.227:8080/fedora/wsdl?api=API-A</wsdlUrl>
-									</wsdlUrls>
-									<packageName>org.fedora.api</packageName>
-								</configuration>
-							</execution>
-						</executions>
-					</plugin>
-				</plugins>
-			</build>
-		</profile>
-	</profiles>
 
 </project>
