@@ -43,7 +43,7 @@ public class KConfiguration {
     
     private KConfiguration(String file) {
         try {
-            LOGGER.info("Loading configuration");
+            LOGGER.info("Loading configuration from file '"+file+"'");
             DocumentBuilderFactory domFactory = DocumentBuilderFactory.newInstance();
             domFactory.setNamespaceAware(false); // never forget this!
 
