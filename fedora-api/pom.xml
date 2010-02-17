@@ -1,0 +1,76 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<groupId>cz.incad.kramerius</groupId>
+	<artifactId>fedora_api</artifactId>
+	<version>0.0.1-SNAPSHOT</version>
+	<name>kramerius_fedora_api</name>
+	<packaging>jar</packaging>
+	<description>FEDORA API</description>
+	<developers>
+		<developer>
+			<id>alberto.el.vlasim</id>
+			<name>Alberto Hernandez</name>
+		</developer>
+		<developer>
+			<id>pavel.el.ltm</id>
+			<name>Pavel Stastny</name>
+		</developer>
+		<developer>
+			<id>vlada.el</id>
+			<name>Vlada Lahoda</name>
+		</developer>
+	</developers>
+
+
+
+	
+<distributionManagement>  
+  <repository>  
+    <id>artifactory.internal</id>  
+    <name>Internal Release Repository</name>  
+    <url>dav:http://svn:8080/artifactory/libs-releases-local/</url>  
+  </repository>  
+  <snapshotRepository>  
+    <id>artifactory.snapshots</id>  
+    <name>Internal Snapshot Repository</name>  
+    <url>dav:http://svn:8080/artifactory/libs-snapshots-local/</url>  
+  </snapshotRepository>  
+</distributionManagement>
+	
+	<dependencies>
+	</dependencies>
+
+	<build>
+		<plugins>
+			<plugin>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<version>2.0.2</version>
+				<configuration>
+					<source>1.6</source>
+					<target>1.6</target>
+				</configuration>
+			</plugin>
+			
+			<plugin>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>jaxws-maven-plugin</artifactId>
+				<executions>
+					<execution>
+						<goals>
+							<goal>wsimport</goal>
+						</goals>
+						<configuration>
+							<wsdlUrls>
+								<wsdlUrl>http://194.108.215.227:8080/fedora/wsdl?api=API-M</wsdlUrl>
+								<wsdlUrl>http://194.108.215.227:8080/fedora/wsdl?api=API-A</wsdlUrl>
+							</wsdlUrls>
+							<packageName>org.fedora.api</packageName>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+		</plugins>
+	</build>
+
+</project>
