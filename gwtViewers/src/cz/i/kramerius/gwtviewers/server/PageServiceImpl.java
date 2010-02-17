@@ -43,11 +43,11 @@ import com.google.gwt.user.server.rpc.RemoteServiceServlet;
 import cz.i.kramerius.gwtviewers.client.PageService;
 import cz.i.kramerius.gwtviewers.client.SimpleImageTO;
 import cz.i.kramerius.gwtviewers.client.panels.utils.Dimension;
-import cz.i.kramerius.gwtviewers.server.pid.LexerException;
-import cz.i.kramerius.gwtviewers.server.pid.PIDParser;
 import cz.incad.kramerius.utils.JNDIUtils;
 import cz.incad.kramerius.utils.RESTHelper;
 import cz.incad.kramerius.utils.conf.KConfiguration;
+import cz.incad.kramerius.utils.pid.LexerException;
+import cz.incad.kramerius.utils.pid.PIDParser;
 
 
 public class PageServiceImpl extends RemoteServiceServlet implements PageService {
