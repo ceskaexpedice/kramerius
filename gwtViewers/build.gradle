@@ -50,4 +50,6 @@ uploadArchives  {
       }
    }
 }
+
+println configurations.each { println it }
 	
