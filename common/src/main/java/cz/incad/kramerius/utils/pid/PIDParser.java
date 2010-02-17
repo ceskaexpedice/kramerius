@@ -97,7 +97,6 @@ public class PIDParser {
 	
 
 	private String objectId() throws LexerException {
-		
 		List<TokenType> types = Arrays.asList(new TokenType[] {
 				TokenType.ALPHA,
 				TokenType.DIGIT,
@@ -124,5 +123,4 @@ public class PIDParser {
 		}
 		return buffer.toString();
 	}
-	
 }
