@@ -223,7 +223,7 @@
 					<update>true</update>
 					<mode>context</mode>
 					<contextFile>${basedir}/web/META-INF/context.xml</contextFile>
-
+					<port>9998</port>
 				</configuration>
 			</plugin>
 			<plugin>
