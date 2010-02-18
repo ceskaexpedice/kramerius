@@ -15,9 +15,12 @@
 	var __confNumberOfImages = 7;	
 	var __confMoveStep = 1;
         
-       function selectPage(uuid){
-           alert("selectuju " + uuid);
-       }
+	function selectPage(uuid){
+	    alert("selectuju " + uuid);
+	}
+
+	function pages(from, to) {
+	}
 	
 </script>
  
@@ -34,26 +37,5 @@
 </table>
 
 
-<script type="text/javascript">
-
-	function _jqueryDialog() {
-		$("#view").attr("src","na.png");
-		$("#dialog").dialog({
-			bgiframe: true,
-			height: 140,
-			modal: true,
-			title:__dialog_title;
-		});
-	};
-
-	
-</script>
-
-
-<button id="ahoj" onclick="_jqueryDialog();"> AHOJ </button>
-
-<div id="dialog" title="Basic modal dialog">
-	<img id="view" alt="" src=""></img>
-</div>
 
 
