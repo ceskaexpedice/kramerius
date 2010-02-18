@@ -1,6 +1,10 @@
 package cz.i.kramerius.gwtviewers.client.selections;
 
+import com.google.gwt.dev.GwtVersion;
+
+import cz.i.kramerius.gwtviewers.client.GwtViewers;
 import cz.i.kramerius.gwtviewers.client.panels.ImageMoveWrapper;
+import cz.i.kramerius.gwtviewers.client.panels.MoveListener;
 import cz.i.kramerius.gwtviewers.client.panels.utils.ImageRotatePool;
 
 /**
@@ -8,7 +12,7 @@ import cz.i.kramerius.gwtviewers.client.panels.utils.ImageRotatePool;
  * @author pavels
  *
  */
-public interface Selector {
+public interface Selector extends MoveListener{
 
 	/**
 	 * Vraci prave vybrany wrapper
@@ -26,10 +30,10 @@ public interface Selector {
 	public boolean isSelected(ImageMoveWrapper wrapper, ImageRotatePool pool);
 	
 
-	public void changeSelection(ImageMoveWrapper wrapper);
+	public void changeSelection(ImageMoveWrapper wrapper, GwtViewers gwtViewers);
 	
-	public void markUnselect();
+	public void markUnselect(ImageRotatePool pool);
 	
-	public void markSelect();
+	public void markSelect(ImageRotatePool pool);
 	
 }

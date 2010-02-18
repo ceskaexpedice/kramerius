@@ -19,6 +19,7 @@ import com.google.gwt.user.client.Command;
 import com.google.gwt.user.client.DeferredCommand;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
+import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.ChangeListener;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.RootPanel;
@@ -56,6 +57,9 @@ public class GwtViewers implements EntryPoint, ClickHandler, ConfigurationChange
 	
 
 	private ModuloCreator moduloCreator = GWT.create(ModuloCreator.class);
+	private Button leftButton;
+	private Button rightButton;
+	
 	
 	private SliderBar sliderBar = new SliderBar(1, 10);
 	{
@@ -104,16 +108,14 @@ public class GwtViewers implements EntryPoint, ClickHandler, ConfigurationChange
 		
 	}
 	
-
 	@Override
 	public void onClick(ClickEvent event) {
 		ImageMoveWrapper wrapper = this.fxPane.getRotatePool().getWrapper((Widget) event.getSource());
-		fxPane.getImgSelector().markUnselect();
-		fxPane.getImgSelector().changeSelection(wrapper);
-		fxPane.getImgSelector().markSelect();
+		fxPane.getImgSelector().markUnselect(fxPane.getRotatePool());
+		fxPane.getImgSelector().changeSelection(wrapper, this);
+		fxPane.getImgSelector().markSelect(fxPane.getRotatePool());
 	}
 
-	
 	
 	@Override
 	public void onJumpChange(String to) {
@@ -350,7 +352,7 @@ public class GwtViewers implements EntryPoint, ClickHandler, ConfigurationChange
 	
 
 	public native void changeGWTSelection(String uuid) /*-{
-		selectPage(uuid);
+		$wnd.selectPage(uuid);
 	}-*/;
 
 
@@ -358,6 +360,4 @@ public class GwtViewers implements EntryPoint, ClickHandler, ConfigurationChange
 	@Override
 	public void onMouseMove(MouseMoveEvent event) {
 	}
-	
-	
 }

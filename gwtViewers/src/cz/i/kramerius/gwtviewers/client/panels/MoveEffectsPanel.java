@@ -263,6 +263,7 @@ public class MoveEffectsPanel extends  Composite {
 	public Selector getImgSelector() {
 		if (imgSelector == null) {
 			this.imgSelector = new SelectorImpl();
+			this.addMoveListener(this.imgSelector);
 		}
 		return imgSelector;
 	}

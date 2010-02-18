@@ -93,6 +93,7 @@ public class ImageRotatePool {
 	public void fillNoVisibleImages() {
 		fillRightNoVisible(this);
 		fillLeftNoVisible(this);
+		
 	}
 	
 	public boolean rollRight() {
