@@ -1,6 +1,5 @@
 package cz.i.kramerius.gwtviewers.client.selections;
 
-import com.google.gwt.dev.GwtVersion;
 
 import cz.i.kramerius.gwtviewers.client.GwtViewers;
 import cz.i.kramerius.gwtviewers.client.panels.ImageMoveWrapper;
