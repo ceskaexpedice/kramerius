@@ -2,10 +2,8 @@ package cz.i.kramerius.gwtviewers.client.selections;
 
 import java.util.ArrayList;
 
-import com.google.gwt.dev.GwtVersion;
 import com.google.gwt.user.client.Command;
 import com.google.gwt.user.client.DeferredCommand;
-import com.google.gwt.user.client.Window;
 
 import cz.i.kramerius.gwtviewers.client.GwtViewers;
 import cz.i.kramerius.gwtviewers.client.panels.ImageMoveWrapper;
