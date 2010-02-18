@@ -8,7 +8,6 @@ public class MozillaModuloCreator extends ModuloCreator {
 	
 	@Override
 	public int createModulo(int numberOfPages) {
-		Window.alert("Mozilla ");
 		if (numberOfPages > MOZILLAMXPAGES) {
 			return numberOfPages / MOZILLAMXPAGES;
 		} else {

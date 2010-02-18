@@ -8,7 +8,6 @@ public class IEModuloCreator extends ModuloCreator {
 	
 	@Override
 	public int createModulo(int numberOfPages) {
-		Window.alert("Internet Explorer");
 		if (numberOfPages > IEMXPAGES) {
 			return numberOfPages / IEMXPAGES;
 		} else {
