@@ -104,6 +104,11 @@ public class SelectorImpl implements Selector, MoveListener  {
 						setUnselectStyle(wrapper);
 					}
 				}
+				ArrayList<ImageMoveWrapper> noVisibleImages = pool.getNoVisibleImages();
+				for (ImageMoveWrapper nWrap : noVisibleImages) {
+					setUnselectStyle(nWrap);
+				}
+				
 			}
 		});
 	}
