@@ -31,6 +31,7 @@ import javax.xml.xpath.XPathExpression;
 import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
 
+import org.mortbay.log.Log;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
@@ -99,17 +100,19 @@ public class PageServiceImpl extends RemoteServiceServlet implements PageService
 		ArrayList<SimpleImageTO> pages = new ArrayList<SimpleImageTO>();
 		InputStream docStream = null;
 		try {
+			String relsExtUrl = relsExtUrl(kConfiguration, uuid);
+			LOGGER.info("Reading rels ext +"+relsExtUrl);
 			//URL url = new URL(relsExtUrl(uuid));
-			docStream = RESTHelper.inputStream(relsExtUrl(kConfiguration, uuid), kConfiguration.getFedoraUser(), kConfiguration.getFedoraPass());
+			docStream = RESTHelper.inputStream(relsExtUrl, kConfiguration.getFedoraUser(), kConfiguration.getFedoraPass());
 			DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
 			DocumentBuilder builder = factory.newDocumentBuilder();
 			Document parsed = builder.parse(docStream);
-
 			XPathFactory xpfactory = XPathFactory.newInstance();
             XPath xpath = xpfactory.newXPath();
             String xPathStr = "/RDF/Description/hasPage";
             XPathExpression expr = xpath.compile(xPathStr);
             NodeList nodes = (NodeList) expr.evaluate(parsed, XPathConstants.NODESET);
+            LOGGER.info("Iterating through pages ...");
             for (int i = 0,lastIndex=nodes.getLength()-1; i <= lastIndex; i++) {
 				Element elm = (Element) nodes.item(i);
 				//info:fedora/uuid:4308eb80-b03b-11dd-a0f6-000d606f5dc6
