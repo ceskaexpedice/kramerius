@@ -41,9 +41,11 @@
 	<!-- IE has a completely different popup implementation -->
 	<replace-with class="cz.i.kramerius.gwtviewers.client.IEModuloCreator">
 		<when-type-is class="cz.i.kramerius.gwtviewers.client.ModuloCreator" />
-		<when-property-is name="user.agent" value="ie6" />
-		<when-property-is name="user.agent" value="ie7" />
-		<when-property-is name="user.agent" value="troll" />
+		<any>
+			<when-property-is name="user.agent" value="ie6" />
+			<when-property-is name="user.agent" value="ie7" />
+			<when-property-is name="user.agent" value="ie8" />
+		</any>
 	</replace-with>
 
 	 

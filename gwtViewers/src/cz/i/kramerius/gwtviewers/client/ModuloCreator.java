@@ -4,7 +4,7 @@ import com.google.gwt.user.client.Window;
 
 public class ModuloCreator {
 
-	public static final int MXPAGES = 300;
+	public static final int MXPAGES = 200;
 	
 	public int createModulo(int numberOfPages) {
 		if (numberOfPages > MXPAGES) {
