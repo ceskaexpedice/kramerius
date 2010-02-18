@@ -49,8 +49,10 @@ public class SelectorImpl implements Selector, MoveListener  {
 	}
 
 	private void setSelectedStyle(ImageMoveWrapper foundWrapper) {
-		foundWrapper.getWidget().setStyleName(SELECTED_CLASS);
-		foundWrapper.getWidget().setStylePrimaryName(SELECTED_CLASS);
+		if (foundWrapper != null) {
+			foundWrapper.getWidget().setStyleName(SELECTED_CLASS);
+			foundWrapper.getWidget().setStylePrimaryName(SELECTED_CLASS);
+		}
 	}
 
 	private ImageMoveWrapper findWrapper(ImageRotatePool pool) {
@@ -70,8 +72,10 @@ public class SelectorImpl implements Selector, MoveListener  {
 	}
 
 	private void setUnselectStyle(ImageMoveWrapper foundWrapper) {
-		foundWrapper.getWidget().setStyleName(NOT_SELECTED_CLASS);
-		foundWrapper.getWidget().setStylePrimaryName(NOT_SELECTED_CLASS);
+		if (foundWrapper != null) {
+			foundWrapper.getWidget().setStyleName(NOT_SELECTED_CLASS);
+			foundWrapper.getWidget().setStylePrimaryName(NOT_SELECTED_CLASS);
+		}
 	}
 
 	public static void markUnselect(ImageMoveWrapper wrapper) {

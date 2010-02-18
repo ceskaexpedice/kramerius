@@ -130,6 +130,7 @@ public class GwtViewers implements EntryPoint, ClickHandler, ConfigurationChange
 	@Override
 	public void onModuleStepChange(String step) {
 		this.modulo = Integer.parseInt(step);
+		this.sliderChangeListener.setModulo(this.modulo);
 	}
 
 

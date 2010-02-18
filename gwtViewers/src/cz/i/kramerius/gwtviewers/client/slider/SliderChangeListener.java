@@ -10,7 +10,8 @@ import cz.i.kramerius.gwtviewers.client.panels.MoveEffectsPanel;
 
 public class SliderChangeListener implements ChangeListener, MouseUpHandler  {
 
-	private int previous = -5;
+	private int previousSliderMove = -5;
+	private int previousSliderUp = -5;
 
 	private int modulo = 1;
 	private double duration = 0.3;
@@ -33,13 +34,14 @@ public class SliderChangeListener implements ChangeListener, MouseUpHandler  {
 		if (fxPane == null) return;
 		double currentValue = ((SliderBar)sender).getCurrentValue();
 		int round = (int) Math.round(currentValue);
-		if (round != previous) {
-			if (round > previous) this.direction = SliderDirection.RIGHT;
+		if (round != previousSliderMove) {
+			if (round > previousSliderMove) this.direction = SliderDirection.RIGHT;
 			else this.direction = SliderDirection.LEFT;
-			previous = round;
+			previousSliderMove = round;
 			if ((round % modulo) == 0) {
-//				if (modulo != 1) 
-					fxPane.rollToPointer();
+//				if (modulo != 1) {
+				fxPane.rollToPointer();
+//				}
 				rollToPage(round, duration, true);
 				//rollToPage(round, duration, false);
 //				label.setText("strana:"+round+" - posun");
@@ -58,28 +60,27 @@ public class SliderChangeListener implements ChangeListener, MouseUpHandler  {
 		if (modulo == 1) return;
 		double currentValue = ((SliderBar)event.getSource()).getCurrentValue();
 		int round = (int) Math.round(currentValue);
-		if (round != previous) {
+		if (round != previousSliderUp) {
 			if ((round % modulo) != 0) {
-				System.out.println("Pointer before rollToPointer "+fxPane.getRotatePool().getPointer());
-				System.out.println("Round "+round);
 				fxPane.rollToPointer();
-				System.out.println("Pointer after rollToPointer "+fxPane.getRotatePool().getPointer());
 				//fxPane.getRotatePool().debugPool();
 				animateOneJump(round);
-				previous = round;
+				previousSliderUp = round;
+			} else {
+				System.out.println("Kaslu na to 2!!");
 			}
+		} else {
+			System.out.println("Kaslu na to 1!! ("+round+"=="+previousSliderUp+")");
 		}
 	}
 		
 	private void animateOneJump(int round) {
 		if (direction == SliderDirection.LEFT) {
-			System.out.println(" <= LEFT ...");
-			fxPane.getRotatePool().rollRight(); 
+			fxPane.getRotatePool().rollLeft(); 
 			fxPane.calulateNextPositions();
 			fxPane.storeCalculatedPositions();
 		} else {
-			System.out.println(" => RIGHT ...");
-			fxPane.getRotatePool().rollLeft(); 
+			fxPane.getRotatePool().rollRight(); 
 			fxPane.calulateNextPositions();
 			fxPane.storeCalculatedPositions();
 		}
@@ -91,4 +92,16 @@ public class SliderChangeListener implements ChangeListener, MouseUpHandler  {
 	public void rollToPage(int currentValue, double duration, boolean playEffect) {
 		fxPane.rollToPage(currentValue,duration, playEffect);
 	}
+
+
+	public int getModulo() {
+		return modulo;
+	}
+
+
+	public void setModulo(int modulo) {
+		this.modulo = modulo;
+	}
+	
+	
 }
