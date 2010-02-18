@@ -43,7 +43,7 @@
 		<when-type-is class="cz.i.kramerius.gwtviewers.client.ModuloCreator" />
 		<when-property-is name="user.agent" value="ie6" />
 		<when-property-is name="user.agent" value="ie7" />
-		<when-property-is name="user.agent" value="ie8" />
+		<when-property-is name="user.agent" value="troll" />
 	</replace-with>
 
 	 
