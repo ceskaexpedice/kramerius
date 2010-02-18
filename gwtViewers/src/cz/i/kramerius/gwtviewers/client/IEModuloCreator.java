@@ -8,10 +8,8 @@ public class IEModuloCreator extends ModuloCreator {
 	
 	@Override
 	public int createModulo(int numberOfPages) {
-		Window.alert("IE");
 		if (numberOfPages > IEMXPAGES) {
 			int i = numberOfPages / IEMXPAGES;
-			Window.alert("modulo is "+i);
 			return i;
 		} else {
 			return 1;
