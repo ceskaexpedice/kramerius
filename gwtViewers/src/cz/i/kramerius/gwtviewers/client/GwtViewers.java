@@ -276,7 +276,14 @@ public class GwtViewers implements EntryPoint, ClickHandler, ConfigurationChange
 			ImageMoveWrapper selection = fxPane.getRotatePool().getViewPortImages().get(0);
 			confPanel.initConfiguration(""+(selection.getIndex()+1), ""+modulo);
 			modifyIds(pool);
+			informAboutPagesRange();
 			//GwtViewers.this.direction = SliderDirection.LEFT;
+		}
+
+		private void informAboutPagesRange() {
+			int from = fxPane.getRotatePool().getPointer();
+			int to = from + fxPane.getRotatePool().getViewPortSize();
+			pages(from+1, to+1);
 		}
 
 		private void modifyIds(ImageRotatePool pool) {
@@ -308,17 +315,20 @@ public class GwtViewers implements EntryPoint, ClickHandler, ConfigurationChange
 			modifyIds(pool);
 			ImageMoveWrapper selection = fxPane.getRotatePool().getViewPortImages().get(0);
 			confPanel.initConfiguration(""+(selection.getIndex()+1), ""+modulo);
+			informAboutPagesRange();
 			//GwtViewers.this.direction = SliderDirection.RIGHT;
 		}
 
 		@Override
 		public void onPointerLeft(ImageRotatePool pool) {
 			//GwtViewers.this.direction = SliderDirection.LEFT;
+			informAboutPagesRange();
 		}
 
 		@Override
 		public void onPointerRight(ImageRotatePool pool) {
 			//GwtViewers.this.direction = SliderDirection.RIGHT;
+			informAboutPagesRange();
 		}
 		
 	}
@@ -356,6 +366,9 @@ public class GwtViewers implements EntryPoint, ClickHandler, ConfigurationChange
 		$wnd.selectPage(uuid);
 	}-*/;
 
+	public native void pages(int from, int to) /*-{
+		$wnd.pages(from, to);
+	}-*/;
 
 
 	@Override
