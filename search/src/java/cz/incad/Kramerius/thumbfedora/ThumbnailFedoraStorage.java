@@ -18,8 +18,6 @@ import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import cz.i.kramerius.gwtviewers.server.pid.LexerException;
-import cz.i.kramerius.gwtviewers.server.pid.PIDParser;
 import cz.incad.Kramerius.ThumbnailStorage;
 import cz.incad.kramerius.utils.IOUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
@@ -85,9 +83,6 @@ public class ThumbnailFedoraStorage implements ThumbnailStorage {
 		try {
 			uploadThumbnailAsDatastream(KConfiguration.getKConfiguration(), "uuid:"+uuid, request);
 		} catch (NoSuchAlgorithmException e) {
-			LOGGER.log(Level.SEVERE, e.getMessage(), e);
-			throw new RuntimeException(e);
-		} catch (LexerException e) {
 			LOGGER.log(Level.SEVERE, e.getMessage(), e);
 			throw new RuntimeException(e);
 		} catch (IOException e) {

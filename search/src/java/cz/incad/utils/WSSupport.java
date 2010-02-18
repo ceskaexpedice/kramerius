@@ -34,12 +34,12 @@ import sun.misc.BASE64Encoder;
 
 import com.google.gwt.user.server.Base64Utils;
 
-import cz.i.kramerius.gwtviewers.server.pid.LexerException;
-import cz.i.kramerius.gwtviewers.server.pid.PIDParser;
 import cz.incad.Kramerius.FedoraUtils;
 import cz.incad.Kramerius.ThumbnailServlet;
 import cz.incad.kramerius.utils.IOUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
+import cz.incad.kramerius.utils.pid.LexerException;
+import cz.incad.kramerius.utils.pid.PIDParser;
 
 public class WSSupport {
 
