@@ -14,11 +14,13 @@
 
 	var __confNumberOfImages = 7;	
 	var __confMoveStep = 1;
-        
+
+    // informace o vyberu   
 	function selectPage(uuid){
 	    alert("selectuju " + uuid);
 	}
 
+	// informace o prave zobrazovanych strankach
 	function pages(from, to) {
 	}
 	
