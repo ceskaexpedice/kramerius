@@ -29,13 +29,8 @@ import javax.xml.ws.handler.Handler;
 import org.fedora.api.FedoraAPIM;
 import org.fedora.api.FedoraAPIMService;
 
-import sun.misc.BASE64Decoder;
-import sun.misc.BASE64Encoder;
-
-import com.google.gwt.user.server.Base64Utils;
 
 import cz.incad.Kramerius.FedoraUtils;
-import cz.incad.Kramerius.ThumbnailServlet;
 import cz.incad.kramerius.utils.IOUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 import cz.incad.kramerius.utils.pid.LexerException;
