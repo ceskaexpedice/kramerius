@@ -57,6 +57,7 @@ public class NoVisibleFillHelper {
 		wrapper.setUrl(ito.getUrl());
 		wrapper.setImageIdent(ito.getIdentification());
 		wrapper.setIndex(ito.getIndex());
+		wrapper.modifyHeightAndWidth();
 	}
 
 }

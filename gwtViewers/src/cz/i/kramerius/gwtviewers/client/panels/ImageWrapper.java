@@ -107,5 +107,9 @@ public class ImageWrapper {
 	public void setIndex(int index) {
 		this.index = index;
 	}
+	public void modifyHeightAndWidth() {
+		this.image.setWidth(this.width+"px");
+		this.image.setHeight(this.height+"px");
+	}
 	
 }

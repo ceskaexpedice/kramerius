@@ -251,7 +251,10 @@ public class ImageMoveWrapper  implements EffectSteppingHandler, EffectStartingH
 	public void setzIndex(int zIndex) {
 		this.zIndex = zIndex;
 	}
-	
-	
+
+
+	public void modifyHeightAndWidth() {
+		this.imageCore.modifyHeightAndWidth();
+	}
 	
 }

@@ -239,6 +239,7 @@ public class GwtViewers implements EntryPoint, ClickHandler, ConfigurationChange
 		wrapper.setLast(ito.isLastPage());
 		wrapper.getWidget().getElement().setAttribute("id", id);
 		wrapper.setIndex(ito.getIndex());
+		wrapper.modifyHeightAndWidth();
 		return wrapper;
 	}
 	
