@@ -14,6 +14,7 @@ import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Properties;
 import java.util.Set;
 import java.util.StringTokenizer;
 import java.util.WeakHashMap;
@@ -53,6 +54,8 @@ public class PageServiceImpl extends RemoteServiceServlet implements PageService
 	
 	public static final java.util.logging.Logger LOGGER = java.util.logging.Logger.getLogger(PageServiceImpl.class.getName());
 
+	
+	
     private String thumbnailUrl ="thumb";
 	private String imgFolder;
 	private String scaledHeight;
@@ -63,7 +66,9 @@ public class PageServiceImpl extends RemoteServiceServlet implements PageService
 	
 	// dodelat nejakou vlastni implementaci !!
 	private WeakHashMap<String, ArrayList<SimpleImageTO>> cachedPages = new WeakHashMap<String, ArrayList<SimpleImageTO>>();
-
+	private MetadataStore metadataStore = new MetadataStore();
+	
+	
 	// 
 	public ArrayList<SimpleImageTO> getPages(String masterUuid) {
 		if (!this.cachedPages.containsKey(masterUuid)) {
@@ -130,7 +135,15 @@ public class PageServiceImpl extends RemoteServiceServlet implements PageService
 				imageTO.setIndex(i);
 				pages.add(imageTO);
             }
-			
+			LOGGER.info("Reading image sizes");
+            Properties props = metadataStore.loadCollected(uuid);
+            if (props.isEmpty()) {
+    			LOGGER.info("Disecting image sizes");
+                props = disetSizes(uuid, pages);
+            }
+            for (SimpleImageTO sit : pages) {
+				sit.setWidth(Integer.parseInt(props.getProperty(sit.getIdentification())));
+			}
 		} catch (ParserConfigurationException e) {
 			LOGGER.log(Level.SEVERE, e.getMessage(), e);
 			throw new RuntimeException(e);
@@ -231,5 +244,22 @@ public class PageServiceImpl extends RemoteServiceServlet implements PageService
 		return pgs;
 	}
 
-	
+	// parallelize
+	public Properties disetSizes(String uuid, ArrayList<SimpleImageTO> sits ) throws FileNotFoundException, IOException {
+		int mwidth = 0;
+		Properties collected = new Properties();
+		for (SimpleImageTO sit : sits) {
+			try {
+				Image readthumbs = readThumbnail(sit.getUrl());
+				int width = readthumbs.getWidth(null);
+				if (mwidth < width) mwidth = width;
+				collected.setProperty(sit.getIdentification(), ""+width);
+			} catch (Exception e) {
+				e.printStackTrace();
+				collected.setProperty(sit.getIdentification(), ""+mwidth);
+			}
+		}
+		this.metadataStore.storeCollected(uuid, ""+mwidth, collected);
+		return collected;
+	}
 }

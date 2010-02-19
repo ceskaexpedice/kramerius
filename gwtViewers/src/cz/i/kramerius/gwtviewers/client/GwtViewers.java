@@ -187,8 +187,7 @@ public class GwtViewers implements EntryPoint, ClickHandler, ConfigurationChange
 		List<SimpleImageTO> itos = DataHandler.getData();
 		ImageMoveWrapper[] viewPortImages = new ImageMoveWrapper[getNumberOfImages()];
 		for (int i = 0; i < viewPortImages.length; i++) {
-			SimpleImageTO ito = itos.get(i);
-			ImageMoveWrapper wrapper = createImageMoveWrapper(ito,""+i);
+			ImageMoveWrapper wrapper = createImageMoveWrapper(i,""+i);
 			viewPortImages[i] = wrapper;
 			appendClickHandler(viewPortImages[i]);
 		}
@@ -208,18 +207,17 @@ public class GwtViewers implements EntryPoint, ClickHandler, ConfigurationChange
 		
 		// prava neviditelna strana
 		//TODO: Zmenit
-		ImageMoveWrapper rcopy = createImageMoveWrapper(DataHandler.getData().get(getNumberOfImages()),"R");
+		ImageMoveWrapper rcopy = createImageMoveWrapper(getNumberOfImages(),"R");
 		appendClickHandler(rcopy);
 
 		ImageMoveWrapper[] noVisibleImages = new ImageMoveWrapper[getNumberOfImages()];
 		for (int i = 0; i < noVisibleImages.length; i++) {
-			SimpleImageTO ito = itos.get(i+getNumberOfImages()+1);
-			ImageMoveWrapper wrapper = createImageMoveWrapper(ito,"n"+i);
+			ImageMoveWrapper wrapper = createImageMoveWrapper(i+getNumberOfImages()+1,"n"+i);
 			noVisibleImages[i] = wrapper;
 			appendClickHandler(noVisibleImages[i]);
 		}
 		
-		ImageMoveWrapper lcopy = createImageMoveWrapper(DataHandler.getNaImage(),"L");
+		ImageMoveWrapper lcopy = createImageMoveWrapper(DataHandler.getMax(),"L");
 		appendClickHandler(lcopy);
 		this.fxPane = new MoveEffectsPanel( viewPortImages, noVisibleImages, lcopy, rcopy, conf);
 		
@@ -238,7 +236,8 @@ public class GwtViewers implements EntryPoint, ClickHandler, ConfigurationChange
 	}
 
 
-	public static ImageMoveWrapper createImageMoveWrapper(SimpleImageTO ito, String id) {
+	public static ImageMoveWrapper createImageMoveWrapper(int itoIndex, String id) {
+		SimpleImageTO ito = itoIndex< DataHandler.getMax() ? DataHandler.getData().get(itoIndex) : DataHandler.getNaImage();
 		ImageMoveWrapper wrapper = new ImageMoveWrapper(0,0, ito.getWidth(), ito.getHeight(), ito.getUrl(),ito.getIdentification());
 		wrapper.setFirst(ito.isFirstPage());
 		wrapper.setLast(ito.isLastPage());
