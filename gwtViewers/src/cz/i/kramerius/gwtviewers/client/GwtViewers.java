@@ -152,15 +152,8 @@ public class GwtViewers implements EntryPoint, ClickHandler, ConfigurationChange
 				sliderChangeListener = new SliderChangeListener(modulo, duration, fxPane);
 				sliderBar.addChangeListener(sliderChangeListener);
 				sliderBar.addMouseUpHandler(sliderChangeListener);
-				
-				//sliderBar.setCurrentValue(0);
-
-				System.out.println("Slider pos");
 			}
 		});
-
-		
-		System.out.println("Pointer = "+this.fxPane.getRotatePool().getPointer());
 	}
 
 
@@ -184,10 +177,10 @@ public class GwtViewers implements EntryPoint, ClickHandler, ConfigurationChange
 	
 	private void createSimpleEffectsPanel() {
 		// pozice 0
-		List<SimpleImageTO> itos = DataHandler.getData();
 		ImageMoveWrapper[] viewPortImages = new ImageMoveWrapper[getNumberOfImages()];
 		for (int i = 0; i < viewPortImages.length; i++) {
 			ImageMoveWrapper wrapper = createImageMoveWrapper(i,""+i);
+			wrapper.getWidget().getElement().getStyle().setZIndex(ImageRotatePool.VIEW_IMAGES_Z_INDEX);
 			viewPortImages[i] = wrapper;
 			appendClickHandler(viewPortImages[i]);
 		}
@@ -208,16 +201,19 @@ public class GwtViewers implements EntryPoint, ClickHandler, ConfigurationChange
 		// prava neviditelna strana
 		//TODO: Zmenit
 		ImageMoveWrapper rcopy = createImageMoveWrapper(getNumberOfImages(),"R");
+		rcopy.getWidget().getElement().getStyle().setZIndex(ImageRotatePool.LEFTRIGNT_IMAGES_Z_INDEX);
 		appendClickHandler(rcopy);
 
 		ImageMoveWrapper[] noVisibleImages = new ImageMoveWrapper[getNumberOfImages()];
 		for (int i = 0; i < noVisibleImages.length; i++) {
 			ImageMoveWrapper wrapper = createImageMoveWrapper(i+getNumberOfImages()+1,"n"+i);
+			wrapper.getWidget().getElement().getStyle().setZIndex(ImageRotatePool.NOVIEW_IMAGES_Z_INDEX);
 			noVisibleImages[i] = wrapper;
 			appendClickHandler(noVisibleImages[i]);
 		}
 		
 		ImageMoveWrapper lcopy = createImageMoveWrapper(DataHandler.getMax(),"L");
+		lcopy.getWidget().getElement().getStyle().setZIndex(ImageRotatePool.LEFTRIGNT_IMAGES_Z_INDEX);
 		appendClickHandler(lcopy);
 		this.fxPane = new MoveEffectsPanel( viewPortImages, noVisibleImages, lcopy, rcopy, conf);
 		
