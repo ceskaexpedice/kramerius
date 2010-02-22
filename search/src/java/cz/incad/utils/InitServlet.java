@@ -4,6 +4,7 @@
  */
 package cz.incad.utils;
 
+import cz.incad.Kramerius.backend.guice.GuiceServlet;
 import cz.incad.kramerius.utils.JNDIUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 
@@ -16,12 +17,17 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.google.inject.Inject;
+
 /**
  *
  * @author Administrator
  */
-public class InitServlet extends HttpServlet {
+public class InitServlet extends GuiceServlet  {
 
+	@Inject
+	KConfiguration configuration;
+	
     /** 
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code> methods.
      * @param request servlet request
@@ -29,37 +35,13 @@ public class InitServlet extends HttpServlet {
      */
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        response.setContentType("text/html;charset=UTF-8");
-        PrintWriter out = response.getWriter();
-        try {
-            /* TODO output your page here
-            out.println("<html>");
-            out.println("<head>");
-            out.println("<title>Servlet InitServlet</title>");  
-            out.println("</head>");
-            out.println("<body>");
-            out.println("<h1>Servlet InitServlet at " + request.getContextPath () + "</h1>");
-            out.println("</body>");
-            out.println("</html>");
-             */
-        } finally {
-            out.close();
-        }
     }
 
     private void doInit(ServletContext ctx) {
-        KConfiguration config = (KConfiguration) ctx.getAttribute(IKeys.CONFIGURATION);
-        try{
-        if (config == null) {
-        	String configFile = JNDIUtils.getJNDIValue(IKeys.CONFIG_PATH);
-        	//String configFile = ctx.getRealPath("WEB-INF/config/config.xml");
-            ctx.log("loading configuration from: " + configFile);
-            config = KConfiguration.getKConfiguration(configFile);
-        }
-        ctx.setAttribute(IKeys.CONFIGURATION, config); 
-        }catch(Exception ex){
-            ctx.log(ex.toString());
-        }
+    	if (this.configuration != null) {
+    		log("adding configuration to servlet context");
+    		ctx.setAttribute(IKeys.CONFIGURATION, this.configuration); 
+    	}
     }
 
     @Override
@@ -95,4 +77,13 @@ public class InitServlet extends HttpServlet {
     public String getServletInfo() {
         return "Short description";
     }// </editor-fold>
+
+	public KConfiguration getConfiguration() {
+		return configuration;
+	}
+
+	public void setConfiguration(KConfiguration configuration) {
+		this.configuration = configuration;
+	}
+    
 }

@@ -19,6 +19,8 @@ import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.google.inject.Inject;
+
 import cz.incad.Kramerius.ThumbnailServlet;
 import cz.incad.Kramerius.ThumbnailStorage;
 import cz.incad.Kramerius.thumbfedora.ThumbnailFedoraStorage;
@@ -30,6 +32,9 @@ public class ThumbnailDiskStorage implements ThumbnailStorage {
 	
 	public static final java.util.logging.Logger LOGGER = java.util.logging.Logger
 			.getLogger(ThumbnailDiskStorage.class.getName());
+
+	@Inject
+	KConfiguration configuration;
 	
 	private File imgFolder() {
 		File f = new File(System.getProperty("user.dir")+File.separator+"thmbs");
@@ -89,6 +94,13 @@ public class ThumbnailDiskStorage implements ThumbnailStorage {
 				try { fos.close(); } catch (IOException e) { e.printStackTrace(); }
 		}
 	}
+	public KConfiguration getConfiguration() {
+		return configuration;
+	}
+	public void setConfiguration(KConfiguration configuration) {
+		this.configuration = configuration;
+	}
 
+	
 	
 }

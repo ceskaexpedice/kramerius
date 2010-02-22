@@ -18,7 +18,10 @@ import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.google.inject.Inject;
+
 import cz.incad.Kramerius.ThumbnailStorage;
+import cz.incad.kramerius.FedoraAccess;
 import cz.incad.kramerius.utils.IOUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 
@@ -30,18 +33,19 @@ public class ThumbnailFedoraStorage implements ThumbnailStorage {
 
 	public static final java.util.logging.Logger LOGGER = java.util.logging.Logger
 			.getLogger(ThumbnailFedoraStorage.class.getName());
-	
-	private HttpURLConnection connection;
 
+	@Inject
+	FedoraAccess fedoraAccess;
+	@Inject
+	KConfiguration configuration;
+	
+	private InputStream is;
+	
 	@Override
 	public boolean checkExists(String uuid) {
 		try {
-			KConfiguration configuration = KConfiguration.getKConfiguration();
-			HttpURLConnection con = createConnection(configuration ,uuid);
-			int responseCode = con.getResponseCode();
-			if (responseCode == HttpURLConnection.HTTP_OK) {
-				return true;
-			} else return false;
+			is = fedoraAccess.getThumbnail(uuid);
+			return is!=null;
 		} catch (MalformedURLException e) {
 			LOGGER.log(Level.SEVERE, e.getMessage(), e);
 			return false;
@@ -51,23 +55,15 @@ public class ThumbnailFedoraStorage implements ThumbnailStorage {
 		}
 	}
 
-	private HttpURLConnection createConnection(KConfiguration configuration, String uuid) throws MalformedURLException,
-			IOException {
-		if (connection == null) {
-			connection = (HttpURLConnection) openConnection(getThumbnailFromFedora(configuration ,uuid),configuration.getFedoraUser(), configuration.getFedoraPass());
-		}
-		return connection;
-	}
 
 	@Override
 	public void redirectToServlet(String uuid, HttpServletResponse response) {
 		try {
-			KConfiguration configuration = KConfiguration.getKConfiguration();
-			HttpURLConnection con = createConnection(configuration, uuid);
-			InputStream inputStream = con.getInputStream();
-			response.setContentType("image/jpeg");
-			ServletOutputStream outputStream = response.getOutputStream();
-			IOUtils.copyStreams(inputStream, outputStream);
+			if (this.is != null) {
+				response.setContentType("image/jpeg");
+				ServletOutputStream outputStream = response.getOutputStream();
+				IOUtils.copyStreams(is, outputStream);
+			}
 		} catch (MalformedURLException e) {
 			LOGGER.log(Level.SEVERE, e.getMessage(), e);
 			throw new RuntimeException(e);
@@ -81,7 +77,7 @@ public class ThumbnailFedoraStorage implements ThumbnailStorage {
 	public void uploadThumbnail(String uuid, HttpServletRequest request) {
 		LOGGER.info("uploading to fedora");
 		try {
-			uploadThumbnailAsDatastream(KConfiguration.getKConfiguration(), "uuid:"+uuid, request);
+			uploadThumbnailAsDatastream(configuration, "uuid:"+uuid, request);
 		} catch (NoSuchAlgorithmException e) {
 			LOGGER.log(Level.SEVERE, e.getMessage(), e);
 			throw new RuntimeException(e);
@@ -94,5 +90,22 @@ public class ThumbnailFedoraStorage implements ThumbnailStorage {
 		}
 	}
 
+	public KConfiguration getConfiguration() {
+		return configuration;
+	}
+
+	public void setConfiguration(KConfiguration configuration) {
+		this.configuration = configuration;
+	}
+
+
+	public FedoraAccess getFedoraAccess() {
+		return fedoraAccess;
+	}
+
+
+	public void setFedoraAccess(FedoraAccess fedoraAccess) {
+		this.fedoraAccess = fedoraAccess;
+	}
 	
 }
