@@ -84,16 +84,11 @@
 			<version>2.7.1</version>
 		</dependency>
 
+  
 		<dependency>
-			<groupId>org.apache</groupId>
-			<artifactId>xalan</artifactId>
-			<version>2.5.D1</version>
-		</dependency>
-
-		<dependency>
-			<groupId>org.apache</groupId>
-			<artifactId>xalan</artifactId>
-			<version>2.5.D1</version>
+			<groupId>cz.incad.kramerius</groupId>
+			<artifactId>kramerius3_patched</artifactId>
+			<version>3.0</version>
 		</dependency>
 
 		<dependency>
