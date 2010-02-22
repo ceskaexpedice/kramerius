@@ -85,11 +85,6 @@
 		</dependency>
 
   
-		<dependency>
-			<groupId>cz.incad.kramerius</groupId>
-			<artifactId>kramerius3_patched</artifactId>
-			<version>3.0</version>
-		</dependency>
 
 		<dependency>
 			<groupId>org.apache</groupId>
@@ -192,6 +187,28 @@
 			<groupId>cz.incad.kramerius</groupId>
 			<artifactId>fedora_api</artifactId>
 			<version>0.0.1-SNAPSHOT</version>
+		</dependency>
+
+		<!--  generating pdf -->
+		<dependency>
+			<groupId>com.qbizm.kramerius</groupId>
+			<artifactId>kramerius3_patched</artifactId>
+			<version>3.3</version>
+		</dependency>
+		<dependency>
+			<groupId>com.qbizm.kramerius.itext</groupId>
+			<artifactId>itext</artifactId>
+			<version>1.4.1</version>
+		</dependency>
+		<dependency>
+			<groupId>com.qbizm.kramerius.org.apache.commons</groupId>
+			<artifactId>commons-logging</artifactId>
+			<version>1.0.4</version>
+		</dependency>
+		<dependency>
+		    <groupId>org.antlr</groupId>
+		    <artifactId>stringtemplate</artifactId>
+		    <version>3.2.1</version>
 		</dependency>
 	</dependencies>
 
