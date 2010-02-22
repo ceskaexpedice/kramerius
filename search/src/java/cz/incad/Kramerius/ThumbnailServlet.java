@@ -16,9 +16,14 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.swing.JPanel;
 
+import com.google.inject.Inject;
+import com.google.inject.Injector;
+import com.google.inject.servlet.GuiceServletContextListener;
 import com.lizardtech.djvubean.DjVuBean;
 import com.lizardtech.djvubean.DjVuImage;
 
+import cz.incad.Kramerius.backend.guice.GuiceServlet;
+import cz.incad.kramerius.FedoraAccess;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 import cz.incad.utils.IKeys;
 
@@ -28,7 +33,7 @@ import cz.incad.utils.IKeys;
  * Servlet na ziskavani nahledu
  * @author pavels
  */
-public class ThumbnailServlet extends HttpServlet {
+public class ThumbnailServlet extends GuiceServlet {
 
 	
 	private static final String SCALE_PARAMETER = "scale";
@@ -39,9 +44,15 @@ public class ThumbnailServlet extends HttpServlet {
 	//private static final String DS_LOCATION = "";
 
 	protected ThumbnailStorage.Type type = ThumbnailStorage.Type.FEDORA;
+
+	@Inject
+	protected KConfiguration configuration;
+	@Inject
+	protected FedoraAccess fedoraAccess;
 	
 	@Override
-	public void init() throws ServletException {}	
+	public void init() throws ServletException {
+	}
 
 	@Override
 	protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
@@ -62,10 +73,10 @@ public class ThumbnailServlet extends HttpServlet {
 			rawImage(req, resp, uuid, page);
 		} else {
 			ThumbnailStorage thumbStorage = this.type.createStorage();
+			getInjector().injectMembers(thumbStorage);
 			if (thumbStorage.checkExists(uuid)) {
 				thumbStorage.redirectToServlet(uuid, resp);
 			} else {
-				
 				thumbStorage.uploadThumbnail(uuid, req);
 				thumbStorage.redirectToServlet(uuid, resp);
 			}
@@ -104,7 +115,7 @@ public class ThumbnailServlet extends HttpServlet {
 
 
 	private String getDJVUServlet(String uuid) {
-    	String imagePath = KConfiguration.getKConfiguration().getDJVUServletUrl()+"?"+IKeys.UUID_PARAMETER+"="+uuid;
+    	String imagePath = this.configuration.getDJVUServletUrl()+"?"+IKeys.UUID_PARAMETER+"="+uuid;
     	return imagePath;
 	}
 
@@ -158,5 +169,20 @@ public class ThumbnailServlet extends HttpServlet {
 	public static String rawContent(KConfiguration configuration, String uuid, HttpServletRequest request) {
 		return configuration.getThumbServletUrl()+"?scaledHeight=" + KConfiguration.getKConfiguration().getScaledHeight() + "&uuid="+uuid+"&rawdata=true";
 	}
-	
+
+	public KConfiguration getConfiguration() {
+		return configuration;
+	}
+
+	public void setConfiguration(KConfiguration configuration) {
+		this.configuration = configuration;
+	}
+
+	public FedoraAccess getFedoraAccess() {
+		return fedoraAccess;
+	}
+
+	public void setFedoraAccess(FedoraAccess fedoraAccess) {
+		this.fedoraAccess = fedoraAccess;
+	}
 }
