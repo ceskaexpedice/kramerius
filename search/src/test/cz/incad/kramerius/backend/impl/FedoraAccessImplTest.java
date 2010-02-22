@@ -1,4 +1,4 @@
-package cz.i.kramerius.backend.impl;
+package cz.incad.kramerius.backend.impl;
 
 import static org.junit.Assert.*;
 
