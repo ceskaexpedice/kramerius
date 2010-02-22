@@ -1,39 +1,49 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE web-app PUBLIC "-//Sun Microsystems, Inc.//DTD Web Application 2.3//EN" "http://java.sun.com/dtd/web-app_2_3.dtd">
 <web-app>
+
+	<!-- Guice -->
+	<filter>
+		<filter-name>guiceFilter</filter-name>
+		<filter-class>com.google.inject.servlet.GuiceFilter</filter-class>
+	</filter>
+	<filter-mapping>
+		<filter-name>guiceFilter</filter-name>
+		<url-pattern>/*</url-pattern>
+	</filter-mapping>
+	<listener>
+		<listener-class>cz.incad.Kramerius.backend.guice.GuiceConfigBean</listener-class>
+	</listener>
+
+	<!-- Servlets -->
 	<servlet>
 		<servlet-name>GetRelsExt</servlet-name>
 		<servlet-class>cz.incad.Kramerius.GetRelsExt</servlet-class>
 	</servlet>
-
-	<!-- Servlets -->
+	<!-- Servlet pro gwt prohlizecku -->
 	<servlet>
 		<servlet-name>pageService</servlet-name>
 		<servlet-class>cz.i.kramerius.gwtviewers.server.PageServiceImpl</servlet-class>
 		<init-param>
-			<!--  bude tahano z fedory, vlastnosti asi pres JNDI -->
 			<param-name>thumbUrl</param-name>
 			<param-value>thumb</param-value>
 		</init-param>
-
 		<init-param>
 			<param-name>maxWidth</param-name>
 			<param-value>95</param-value>
 		</init-param>
 	</servlet>
-
-
+	<!-- Pro snadny pristup k djvu (bez autentizace) -->
 	<servlet>
 		<servlet-name>djvuServlet</servlet-name>
 		<servlet-class>cz.incad.Kramerius.DJVUServlet</servlet-class>
 	</servlet>
-
+	<!-- Servlet pridava konfiguraci do servlet kontextu -->
 	<servlet>
 		<servlet-name>InitServlet</servlet-name>
 		<servlet-class>cz.incad.utils.InitServlet</servlet-class>
 		<load-on-startup>1</load-on-startup>
 	</servlet>
-	
 	<servlet>
 		<servlet-name>GetPageInfo</servlet-name>
 		<servlet-class>cz.incad.Kramerius.GetPageInfo</servlet-class>
@@ -50,15 +60,19 @@
 		<servlet-name>IndexModel</servlet-name>
 		<servlet-class>cz.incad.Kramerius.IndexModel</servlet-class>
 	</servlet>
-
+	<!-- Servlet pro ziskavani nahledu -->
 	<servlet>
 		<servlet-name>thumb</servlet-name>
 		<servlet-class>cz.incad.Kramerius.ThumbnailServlet</servlet-class>
-		<!--  
-			load-on-startup>1</load-on-startup
-		-->
+	</servlet>
+	<servlet>
+		<servlet-name>pdf</servlet-name>
+		<servlet-class>cz.incad.Kramerius.backend.pdf.GeneratePDFServlet</servlet-class>
 	</servlet>
 
+	<!-- 
+		// Mapovani servletu
+	 -->
 	<servlet-mapping>
 		<servlet-name>pageService</servlet-name>
 		<url-pattern>/gwtviewers/page</url-pattern>
@@ -96,6 +110,10 @@
 	<servlet-mapping>
 		<servlet-name>djvuServlet</servlet-name>
 		<url-pattern>/djvu</url-pattern>
+	</servlet-mapping>
+	<servlet-mapping>
+		<servlet-name>pdf</servlet-name>
+		<url-pattern>/pdf</url-pattern>
 	</servlet-mapping>
 
 	<welcome-file-list>
