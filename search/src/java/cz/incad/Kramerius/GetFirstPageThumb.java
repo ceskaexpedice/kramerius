@@ -4,6 +4,8 @@
  */
 package cz.incad.Kramerius;
 
+import cz.incad.Kramerius.backend.guice.GuiceServlet;
+import cz.incad.kramerius.FedoraAccess;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 import cz.incad.utils.IKeys;
 import java.io.IOException;
@@ -34,15 +36,19 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
 
+import com.google.inject.Inject;
+
 /**
  *
  * @author Administrator
  */
-public class GetFirstPageThumb extends HttpServlet {
+public class GetFirstPageThumb extends GuiceServlet {
 
     private static final String UUID_PARAMETER = "uuid";
-    String fedoraUrl;
 
+    @Inject
+    FedoraAccess fedoraAccess;
+    
     /** 
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code> methods.
      * @param request servlet request
@@ -56,8 +62,6 @@ public class GetFirstPageThumb extends HttpServlet {
             if (uuid == null) {
                 throw new ServletException("uuid cannot be null!");
             }
-            KConfiguration kconfig = (KConfiguration) this.getServletContext().getAttribute(IKeys.CONFIGURATION);
-            fedoraUrl = kconfig.getFedoraHost();
             factory = XPathFactory.newInstance();
             xpath = factory.newXPath();
             String page_uuid = findPagePid(uuid);
@@ -78,7 +82,7 @@ public class GetFirstPageThumb extends HttpServlet {
         int num = 0;
         ArrayList<String> pids = new ArrayList<String>();
         try {
-            command = fedoraUrl + "/get/" + pid + "/RELS-EXT";
+            Document contentDom = fedoraAccess.getRelsExt(pid);
             contentDom = UrlReader.getDocument(command);
             expr = xpath.compile("/RDF/Description/*");
             NodeList nodes = (NodeList) expr.evaluate(contentDom, XPathConstants.NODESET);
@@ -127,4 +131,15 @@ public class GetFirstPageThumb extends HttpServlet {
     public String getServletInfo() {
         return "Short description";
     }// </editor-fold>
+
+    
+	public FedoraAccess getFedoraAccess() {
+		return fedoraAccess;
+	}
+
+	public void setFedoraAccess(FedoraAccess fedoraAccess) {
+		this.fedoraAccess = fedoraAccess;
+	}
+
+    
 }
