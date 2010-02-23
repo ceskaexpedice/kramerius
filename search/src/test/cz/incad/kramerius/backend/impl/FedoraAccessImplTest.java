@@ -16,7 +16,9 @@ import org.w3c.dom.Element;
 import org.xml.sax.SAXException;
 
 import cz.incad.Kramerius.backend.impl.FedoraAccessImpl;
-import cz.incad.utils.XMLUtils;
+import cz.incad.kramerius.FedoraRelationship;
+import cz.incad.kramerius.RelsExtHandler;
+import cz.incad.kramerius.utils.XMLUtils;
 
 
 public class FedoraAccessImplTest {
@@ -30,5 +32,24 @@ public class FedoraAccessImplTest {
 		assertNotNull(pages);
 		assertTrue(!pages.isEmpty());
 		assertTrue(pages.size() == 16);
+	}
+
+	@Test
+	public void processRelsExt() throws ParserConfigurationException, SAXException, IOException {
+		InputStream stream = this.getClass().getResourceAsStream("rels-ext.xml");
+		Document document = XMLUtils.parseDocument(stream, true);	
+		FedoraAccessImpl fi = new FedoraAccessImpl(null);
+		fi.processRelsExt(document, new RelsExtHandler() {
+			
+			@Override
+			public void handle(Element elm, FedoraRelationship relation) {
+				//System.out.println(elm);
+			}
+			
+			@Override
+			public boolean accept(FedoraRelationship relation) {
+				return relation.equals(FedoraRelationship.hasPage);
+			}
+		});
 	}
 }
