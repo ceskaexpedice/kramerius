@@ -1,7 +1,8 @@
 
- Hlavní název:
- Druh dokumentu:
+ Hlavní název: $dc.title$
+ Druh dokumentu: 
  ISBN:
- Autor:
+ Autor: $dc.creator; separator="\n"$
+ Pubhlisher:$dc.publisher$ 
  
    

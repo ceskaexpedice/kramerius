@@ -10,13 +10,6 @@ import java.util.List;
  */
 public interface GeneratePDFService {
 
-	/**
-	 * Generate pdf 
-	 * @param uuid  UUID of object
-	 * @param os Outputstream to generate pdf
-	 * @throws IOException 
-	 */
-	public void generatePDF(String uuid, OutputStream os) throws IOException;
 
 	/**
 	 * Generate pdf

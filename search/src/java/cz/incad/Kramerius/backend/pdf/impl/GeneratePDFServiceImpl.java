@@ -10,21 +10,32 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.ResourceBundle;
+import java.util.Set;
 import java.util.logging.Level;
 
+import org.antlr.stringtemplate.StringTemplate;
+import org.antlr.stringtemplate.StringTemplateGroup;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 import com.google.inject.Inject;
+import com.qbizm.kramerius.ext.ontheflypdf.edi.Cell;
 import com.qbizm.kramerius.ext.ontheflypdf.edi.Document;
 import com.qbizm.kramerius.ext.ontheflypdf.edi.EdiException;
 import com.qbizm.kramerius.ext.ontheflypdf.edi.Image;
+import com.qbizm.kramerius.ext.ontheflypdf.edi.Line;
 import com.qbizm.kramerius.ext.ontheflypdf.edi.Page;
+import com.qbizm.kramerius.ext.ontheflypdf.edi.PageLayer;
+import com.qbizm.kramerius.ext.ontheflypdf.edi.Table;
+import com.qbizm.kramerius.ext.ontheflypdf.edi.TextBlock;
+import com.qbizm.kramerius.ext.ontheflypdf.edi.font.Font;
 import com.qbizm.kramerius.ext.ontheflypdf.edi.generating.PdfDocumentGenerator;
 
 import cz.incad.Kramerius.backend.pdf.GeneratePDFService;
 import cz.incad.kramerius.FedoraAccess;
+import cz.incad.kramerius.FedoraNamespaces;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 import cz.incad.kramerius.utils.pid.LexerException;
 import cz.incad.kramerius.utils.pid.PIDParser;
@@ -45,9 +56,9 @@ public class GeneratePDFServiceImpl implements GeneratePDFService {
 			throws IOException {
 		try {
 			Document doc = new Document();
-//			if (!uuids.isEmpty()) {
-//				doc.addPage(createFirstPage(parentUUID));
-//			}
+			if (!uuids.isEmpty()) {
+				doc.addPage(createFirstPage(doc, parentUUID));
+			}
 			for (String uuid : uuids) {
 				String url = createDJVUUrl(uuid);
 				Image imgElem = new Image(url);
@@ -65,35 +76,109 @@ public class GeneratePDFServiceImpl implements GeneratePDFService {
 		
 	}
 
-	@Override
-	public void generatePDF(String uuid, OutputStream os) throws IOException {
-		List<Element> pages = fedoraAccess.getPages(uuid,false);
-		for (Element element : pages) {
-			
-		}
+	private Font getDocumentFont() {
+        String fontFile = "resources"
+            + "/"
+            + "ext_ontheflypdf_ArialCE.ttf";
+        
+        String fontFilePath = getClass().getClassLoader()
+            .getResource(fontFile).getPath();
+        return new Font(fontFilePath);
 	}
 
-	private Page createFirstPage(String uuid) throws IOException {
+	private Page createFirstPage(Document doc, String uuid) throws IOException {
 		org.w3c.dom.Document biblioMods = this.fedoraAccess.getDC(uuid);
 		Element root = biblioMods.getDocumentElement();
-		Map<String, List<String>> stModel = new HashMap<String, List<String>>();
+		Map stModel = prepareDCModel(root);
+		StringTemplateGroup grp = new StringTemplateGroup("pdf-metadata");
+		StringTemplate stMetadata = grp.getInstanceOf("cz/incad/Kramerius/backend/pdf/impl/metadata");
+		stMetadata.setAttribute("dc", stModel);
+		String metadata = stMetadata.toString();
+
+		StringTemplate stDescription = grp.getInstanceOf("cz/incad/Kramerius/backend/pdf/impl/description");
+		String description = stDescription.toString();
+
+        PageLayer layer = new PageLayer();
+
+        //line
+        int lineX = 5;
+        int lineY = 140;
+        Line line = new Line(lineX, doc.getHeight() - lineY,
+                doc.getWidth() - lineX, doc.getHeight() - lineY);
+        layer.addElement(line);
+        
+//        //logo image
+//        String logoFile = "resources"
+//                + "/" 
+//                + getProperties().getProperty("firstpage.logo.image");
+//        int logoX = Integer.parseInt(getProperties().getProperty("firstpage.logo.x"));
+//        int logoY = Integer.parseInt(getProperties().getProperty("firstpage.logo.y"));
+//        
+//        if(logoFile != null) {
+//            String logoFilePath = getClass().getClassLoader()
+//                .getResource(logoFile).getPath();
+//            
+//            if(new File(logoFilePath).exists()) {
+//                elem = new Image(logoFilePath);
+//                elem.setPosition(logoX, logoY);
+//                layer.addElement(elem);
+//            }
+//        }
+        
+        
+        //licence condreitions text
+
+        TextBlock txtBlock = new TextBlock(description, getDocumentFont());
+        Table table = new Table(1);
+        Cell cell = new Cell(txtBlock);
+        int paddingX = 5;
+        int paddingY = 25;
+        table.setWidth(doc.getWidth() - (2*lineX) - paddingX);
+        table.setBorderWidth(0f);
+        table.setPosition(lineX + paddingX, doc.getHeight() - lineY - paddingY);
+        table.addCell(cell);
+        layer.addElement(table);
+        
+        //put metadata to the right position
+        Table tab = new Table(1);
+        cell = new Cell(new TextBlock(metadata,getDocumentFont()));
+        tab.addCell(cell);
+        tab.setWidth(200);
+        tab.setBorderWidth(0f);
+        layer.addElement(tab);
+        
+        //return complete first page for the periodical item
+        return new Page(layer);
+	}
+
+
+	private Map prepareDCModel(Element root) {
+		Map stModel = new HashMap();
 		NodeList nlist = root.getChildNodes();
 		for (int i = 0,ll=nlist.getLength(); i < ll; i++) {
 			Node item = nlist.item(i);
 			if (item.getNodeType() == Node.ELEMENT_NODE) {
-				String name = item.getNodeName();
-				String value = item.getTextContent();
-				List<String> vals = stModel.get(name);
-				if (vals == null) {
-					vals = new ArrayList<String>();
-					stModel.put(name, vals);
+				if (item.getNamespaceURI().equals(FedoraNamespaces.DC_NAMESPACE_URI)) {
+					String name = item.getLocalName();
+					String value = item.getTextContent();
+					if (stModel.containsKey(name)) {
+						Object obj = stModel.get(name);
+						List<String> vals = null;
+						if (obj instanceof String) {
+							vals = new ArrayList<String>();
+							vals.add(obj.toString());
+							stModel.put(name, vals);
+						} else {
+							vals = (List<String>) obj;
+						}
+						vals.add(value);
+					} else {
+						stModel.put(name, value);
+					}
 				}
-				vals.add(value);
 			}
 		}
-		
-		
-		return null;
+		return stModel;
 	}
 
 
