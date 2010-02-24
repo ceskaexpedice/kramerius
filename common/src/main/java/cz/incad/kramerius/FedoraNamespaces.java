@@ -15,4 +15,9 @@ public interface FedoraNamespaces {
 	 */
 	public static final String ONTOLOGY_RELATIONSHIP_NAMESPACE_URI = "http://www.nsdl.org/ontologies/relationships#";
 
+	/**
+	 * Dublin core namespace
+	 */
+	public static final String DC_NAMESPACE_URI = "http://purl.org/dc/elements/1.1/";
+	
 }
