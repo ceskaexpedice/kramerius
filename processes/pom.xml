@@ -1,0 +1,80 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<groupId>cz.incad.kramerius</groupId>
+	<artifactId>kramerius_services</artifactId>
+	<version>0.0.1-SNAPSHOT</version>
+	<name>kramerius_services</name>
+	<packaging>jar</packaging>
+
+	<description>Kramerius services</description>
+	<developers>
+		<developer>
+			<id>alberto.el.vlasim</id>
+			<name>Alberto Hernandez</name>
+		</developer>
+		<developer>
+			<id>pavel.el.ltm</id>
+			<name>Pavel Stastny</name>
+		</developer>
+		<developer>
+			<id>vlada.el</id>
+			<name>Vlada Lahoda</name>
+		</developer>
+	</developers>
+
+
+	<distributionManagement>
+		<repository>
+			<id>artifactory.internal</id>
+			<name>Internal Release Repository</name>
+			<url>dav:http://svn:8080/artifactory/libs-releases-local/</url>
+		</repository>
+		<snapshotRepository>
+			<id>artifactory.snapshots</id>
+			<name>Internal Snapshot Repository</name>
+			<url>dav:http://svn:8080/artifactory/libs-snapshots-local/</url>
+		</snapshotRepository>
+	</distributionManagement>
+
+	<dependencies>
+
+		<!-- kramerius komon -->
+		<dependency>
+			<groupId>cz.incad.kramerius</groupId>
+			<artifactId>kramerius-common</artifactId>
+			<version>0.0.1-SNAPSHOT</version>
+		</dependency>
+		<dependency>
+			<groupId>cz.incad.kramerius</groupId>
+			<artifactId>fedora_api</artifactId>
+			<version>0.0.1-SNAPSHOT</version>
+		</dependency>
+		
+
+		<!--  generating pdf -->
+		<dependency>
+			<groupId>com.qbizm.kramerius</groupId>
+			<artifactId>kramerius3_patched</artifactId>
+			<version>3.3</version>
+		</dependency>
+		<dependency>
+			<groupId>com.qbizm.kramerius.itext</groupId>
+			<artifactId>itext</artifactId>
+			<version>1.4.1</version>
+		</dependency>
+		<dependency>
+			<groupId>com.qbizm.kramerius.org.apache.commons</groupId>
+			<artifactId>commons-logging</artifactId>
+			<version>1.0.4</version>
+		</dependency>
+		<dependency>
+		    <groupId>org.antlr</groupId>
+		    <artifactId>stringtemplate</artifactId>
+		    <version>3.2.1</version>
+		</dependency>
+	</dependencies>
+
+
+</project>
+
