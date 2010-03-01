@@ -41,7 +41,8 @@ public class KConfiguration {
     public String fedoraPass;
 
     
-    private KConfiguration(String file) {
+    
+    KConfiguration(String file) {
         try {
             LOGGER.info("Loading configuration from file '"+file+"'");
             DocumentBuilderFactory domFactory = DocumentBuilderFactory.newInstance();
@@ -107,6 +108,19 @@ public class KConfiguration {
     }
     
     
+    public String getJdbcUrl() {
+    	return getProperty("jdbcUrl");
+    }
+    
+    
+    public String getJdbcUserName() {
+    	return getProperty("jdbcUserName");
+    }
+    
+    public String getJdbcUserPass() {
+    	return getProperty("jdbcUserPass");
+    }
+    
     public String getProperty(String key) {
         if (properties.containsKey(key)) {
             return properties.get(key);
@@ -133,6 +147,10 @@ public class KConfiguration {
 
 	public static KConfiguration getKConfiguration() {
 		return _sharedInstance;
+	}
+
+	public String getLongRunningProcessDefiniton() {
+    	return getProperty("longRunningProcessDefinition");
 	}
 }
 

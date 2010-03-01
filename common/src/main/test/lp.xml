@@ -1,0 +1,9 @@
+<processes>
+	<process>
+		<id>generovani_pdf</id>
+		<description>Generovani pdf dokumentu</description>
+		<mainClass>cz.incad.kramerius.processes.mock.MockLPProcess</mainClass>
+		<standardOs>standard.txt</standardOs>
+		<errOs>err.txt</errOs>
+	</process>
+</processes>
