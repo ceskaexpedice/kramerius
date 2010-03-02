@@ -15,7 +15,7 @@
 		<!-- Sekce pro dlouhotrvajici procesy -->        
         <property name="longRunningProcessDefinition" value="src/main/test/lp.xml" />
         
-        <!-- lp database connection! TODO: Presunout jinam !! -->
+        <!-- lp database connection! TODO: Presunout jinam !! V tomcatu pres context.xml -->
 		<property name="jdbcUrl" value="jdbc:postgresql://localhost:5432/kramerius_test"/>
 		<property name="jdbcUserName" value="postgres"/>
 		<property name="jdbcUserPass" value="postgres"/>
