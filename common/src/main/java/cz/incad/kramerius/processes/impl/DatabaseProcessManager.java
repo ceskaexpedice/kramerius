@@ -97,6 +97,28 @@ public class DatabaseProcessManager implements LRProcessManager {
 		}
 	}
 
+	
+	
+	@Override
+	public void updateLongRunningProcessState(LRProcess lrProcess) {
+		Connection connection = null;
+		try {
+			List<LRProcess> processes = new ArrayList<LRProcess>();
+			connection = provider.get();
+			DatabaseUtils.updateProcessState(connection, lrProcess.getUUID(), lrProcess.getProcessState());
+		} catch (SQLException e) {
+			LOGGER.log(Level.SEVERE, e.getMessage(), e);
+		} finally {
+			if (connection != null) {
+				try {
+					connection.close();
+				} catch (SQLException e) {
+					LOGGER.log(Level.SEVERE, e.getMessage(), e);
+				}
+			}
+		}
+	}
+
 	@Override
 	public List<LRProcess> getLongRunningProcesses() {
 		Connection connection = null;

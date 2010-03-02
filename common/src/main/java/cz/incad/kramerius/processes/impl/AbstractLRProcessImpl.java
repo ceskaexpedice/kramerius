@@ -15,6 +15,8 @@ import cz.incad.kramerius.processes.LRProcess;
 import cz.incad.kramerius.processes.LRProcessDefinition;
 import cz.incad.kramerius.processes.LRProcessManager;
 import cz.incad.kramerius.processes.States;
+import cz.incad.kramerius.processes.database.ConfigurationConnectionProvider;
+import cz.incad.kramerius.processes.database.PropertyConnectionProvider;
 import cz.incad.kramerius.processes.impl.io.FollowStreamThread;
 import cz.incad.kramerius.utils.IOUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
@@ -89,9 +91,9 @@ public abstract class AbstractLRProcessImpl implements LRProcess{
 			command.add("java");
 			command.add("-D"+ProcessStarter.MAIN_CLASS_KEY+"="+this.definition.getMainClass());
 			command.add("-D"+ProcessStarter.UUID_KEY+"="+this.uuid);
-			command.add("-D"+ProcessStarter.JDBC_URL+"="+configuration.getJdbcUrl());
-			command.add("-D"+ProcessStarter.JDBC_USER_NAME+"="+configuration.getJdbcUserName());
-			command.add("-D"+ProcessStarter.JDBC_USER_PASS+"="+configuration.getJdbcUserPass());
+			command.add("-D"+PropertyConnectionProvider.JDBC_URL+"="+configuration.getJdbcUrl());
+			command.add("-D"+PropertyConnectionProvider.JDBC_USER_NAME+"="+configuration.getJdbcUserName());
+			command.add("-D"+PropertyConnectionProvider.JDBC_USER_PASS+"="+configuration.getJdbcUserPass());
 			command.add(ProcessStarter.class.getName());
 			List<String> params = this.definition.getParameters();
 			for (String par : params) {
@@ -147,6 +149,8 @@ public abstract class AbstractLRProcessImpl implements LRProcess{
 		if (this.pid == null) {
 			throw new IllegalStateException("cannot stop this process! No PID associated");
 		}
+		this.setProcessState(States.KILLED);
+		this.manager.updateLongRunningProcessState(this);
 		this.stopMeOsDependent();
 	}
 

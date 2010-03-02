@@ -16,7 +16,6 @@ import org.junit.Before;
 import org.junit.Test;
 
 
-import com.google.inject.Injector;
 
 import cz.incad.kramerius.processes.AbstractGuiceTestCase;
 import cz.incad.kramerius.processes.States;
@@ -32,15 +31,6 @@ public class DatabaseUtilsTest extends AbstractGuiceTestCase {
 	@After
 	public void doAfter() {
 		dropTables();
-	}
-
-	private void dropTables() {
-		try {
-			Connection connection = connection();
-			connection.createStatement().execute("drop table PROCESSES");
-		} catch (SQLException e) {
-			e.printStackTrace();
-		}
 	}
 
 	@Test
@@ -124,14 +114,5 @@ public class DatabaseUtilsTest extends AbstractGuiceTestCase {
 		Assert.assertTrue(rs.next());
 		int status = rs.getInt("STATUS");
 		Assert.assertTrue(expectingVal== status);
-	}
-
-
-	
-	
-	private Connection connection() {
-		Injector inj = injector();
-		Connection connection = inj.getInstance(Connection.class);
-		return connection;
 	}
 }

@@ -7,24 +7,25 @@ import java.util.logging.Level;
 
 import com.google.inject.Inject;
 import com.google.inject.Provider;
+import com.google.inject.internal.Nullable;
 import com.google.inject.name.Named;
 
 import cz.incad.kramerius.utils.conf.KConfiguration;
 
-public class StandardConnectionProvider implements Provider<Connection>{
+public class ConfigurationConnectionProvider implements Provider<Connection>{
 
 	public static final java.util.logging.Logger LOGGER = java.util.logging.Logger
-			.getLogger(StandardConnectionProvider.class.getName());
+			.getLogger(ConfigurationConnectionProvider.class.getName());
 	
 	
 	private String url;
 	private String userName;
 	private String userPass;
-	
+
 	
 	
 	@Inject
-	public StandardConnectionProvider(KConfiguration configuration) {
+	public ConfigurationConnectionProvider(KConfiguration configuration) {
 		super();
 		this.url = configuration.getJdbcUrl();
 		this.userName = configuration.getJdbcUserName();
@@ -33,6 +34,8 @@ public class StandardConnectionProvider implements Provider<Connection>{
 
 
 
+	
+	
 	@Override
 	public Connection get() {
 		try {

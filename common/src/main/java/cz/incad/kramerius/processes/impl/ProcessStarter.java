@@ -26,11 +26,7 @@ public class ProcessStarter {
 	public static final String MAIN_CLASS_KEY="mainClass";
 	public static final String UUID_KEY="uuid";
 	public static final String CLASSPATH_NAME="CLASSPATH";
-	public static final String JDBC_USER_PASS = "jdbcUserPass";
-	public static final String JDBC_USER_NAME = "jdbcUserName";
-	public static final String JDBC_URL = "jdbcUrl";
-	
-	
+
 	public static void main(String[] args) throws ClassNotFoundException, SecurityException, NoSuchMethodException, IllegalArgumentException, IllegalAccessException, InvocationTargetException, SQLException {
 		String mainClass = System.getProperty(MAIN_CLASS_KEY);
 		try {
@@ -81,10 +77,6 @@ public class ProcessStarter {
 		}
 	}
 
-	public static void updateOkStatus() {
-		String uuid = System.getProperty(UUID_KEY);
-		
-	}
 
 	public static String getPID() {
 		String pid = null;
