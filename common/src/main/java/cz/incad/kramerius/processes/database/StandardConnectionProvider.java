@@ -9,6 +9,8 @@ import com.google.inject.Inject;
 import com.google.inject.Provider;
 import com.google.inject.name.Named;
 
+import cz.incad.kramerius.utils.conf.KConfiguration;
+
 public class StandardConnectionProvider implements Provider<Connection>{
 
 	public static final java.util.logging.Logger LOGGER = java.util.logging.Logger
@@ -20,13 +22,13 @@ public class StandardConnectionProvider implements Provider<Connection>{
 	private String userPass;
 	
 	
+	
 	@Inject
-	public StandardConnectionProvider(@Named("jdbcUrl")String url, @Named("jdbcUserName")String userName,
-			@Named("jdbcUserPass")String userPass) {
+	public StandardConnectionProvider(KConfiguration configuration) {
 		super();
-		this.url = url;
-		this.userName = userName;
-		this.userPass = userPass;
+		this.url = configuration.getJdbcUrl();
+		this.userName = configuration.getJdbcUserName();
+		this.userPass = configuration.getJdbcUserPass();
 	}
 
 
