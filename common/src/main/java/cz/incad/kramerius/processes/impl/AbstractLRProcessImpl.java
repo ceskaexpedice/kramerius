@@ -7,6 +7,8 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 import java.util.logging.Level;
 
 import cz.incad.kramerius.processes.LRProcess;
@@ -17,8 +19,9 @@ import cz.incad.kramerius.processes.impl.io.FollowStreamThread;
 import cz.incad.kramerius.utils.IOUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 
-public abstract class AbstractLRProcessImpl implements LRProcess {
+public abstract class AbstractLRProcessImpl implements LRProcess{
 
+	
 	public static final java.util.logging.Logger LOGGER = java.util.logging.Logger
 			.getLogger(AbstractLRProcessImpl.class.getName());
 	
@@ -30,7 +33,8 @@ public abstract class AbstractLRProcessImpl implements LRProcess {
 	private long startTime;
 	private String uuid;
 	private States state = States.NOT_RUNNING;
-	
+
+	private List<String> parameters = new ArrayList<String>();
 	
 	public AbstractLRProcessImpl(
 			LRProcessDefinition definition,
@@ -53,14 +57,23 @@ public abstract class AbstractLRProcessImpl implements LRProcess {
 	public String getUUID() {
 		return this.uuid;
 	}
+	
+	@Override
+	public List<String> getParameters() {
+		return this.parameters;
+	}
 
 
 	@Override
-	public boolean canBeStopped() {
-		// TODO Auto-generated method stub
-		return false;
+	public void setParameters(List<String> params) {
+		this.parameters = new ArrayList<String>(params);
 	}
+	
 
+	@Override
+	public boolean canBeStopped() {
+		return getPid() != null;
+	}
 
 	@Override
 	public long getStart() {
@@ -84,6 +97,10 @@ public abstract class AbstractLRProcessImpl implements LRProcess {
 			for (String par : params) {
 				command.add(par);
 			}
+			List<String> runtimeParams = this.getParameters();
+			for (String par : runtimeParams) {
+				command.add(par);
+			}
 			
 			//create CLASSPATH
 			StringBuffer buffer = new StringBuffer();
@@ -105,17 +122,19 @@ public abstract class AbstractLRProcessImpl implements LRProcess {
 			processBuilder.environment().put(ProcessStarter.CLASSPATH_NAME, buffer.toString());
 			Process process = processBuilder.start();
 			File errStreamFile = new File(this.definition.getErrStreamFile());
-			LOGGER.info("errorStream > "+errStreamFile.getAbsolutePath());
 			new FollowStreamThread(process.getErrorStream(), new FileOutputStream(errStreamFile)).start();
 			File standardStreamFile = new File(this.definition.getStandardStreamFile());
-			LOGGER.info("standardStream > "+standardStreamFile.getAbsolutePath());
 			new FollowStreamThread(process.getInputStream(), new FileOutputStream(standardStreamFile)).start();
 			//TODO: Synchronizace ?? Jak na to ?
+			//
 			this.state = States.RUNNING;
 			manager.registerLongRunningProcess(this);
+
+			// pokracuje dal.. rozhoduje se, jestli pocka na vysledek procesu
 			if (wait) {
 				int val = process.waitFor();
 			}
+			
 		} catch (IOException e) {
 			LOGGER.log(Level.SEVERE, e.getMessage(), e);
 		} catch (InterruptedException e) {
@@ -188,4 +207,6 @@ public abstract class AbstractLRProcessImpl implements LRProcess {
 	public States getProcessState() {
 		return this.state;
 	}
+
+	
 }

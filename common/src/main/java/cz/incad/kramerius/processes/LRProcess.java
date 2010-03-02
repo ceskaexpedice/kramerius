@@ -1,11 +1,23 @@
 package cz.incad.kramerius.processes;
 
+import java.util.List;
+
 /**
  * Represents one running process
  * @author pavels
  */
 public interface LRProcess {
+	
+	
+	/**
+	 * Parameters to process
+	 * @return
+	 */
+	public List<String> getParameters();
 
+	public void setParameters(List<String> params);
+	
+	
 	/**
 	 * Return unique identifier of LRPprocess
 	 * @return

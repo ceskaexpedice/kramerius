@@ -9,6 +9,8 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.sql.Timestamp;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.logging.Level;
 
 import com.google.inject.Inject;
@@ -95,4 +97,41 @@ public class DatabaseProcessManager implements LRProcessManager {
 		}
 	}
 
+	@Override
+	public List<LRProcess> getLongRunningProcesses() {
+		Connection connection = null;
+		try {
+			List<LRProcess> processes = new ArrayList<LRProcess>();
+			connection = provider.get();
+			if (connection != null) {
+				PreparedStatement stm = connection.prepareStatement("select * from PROCESSES");
+				ResultSet rs = stm.executeQuery();
+				while(rs.next()) {
+					//CREATE TABLE PROCESSES(DEFID VARCHAR, UUID VARCHAR ,PID VARCHAR,STARTED timestamp, STATUS int
+					String definitionId = rs.getString("DEFID");
+					String pid = rs.getString("PID");
+					String uuid = rs.getString("UUID");
+					int status = rs.getInt("STATUS");
+					Timestamp stmp = rs.getTimestamp("STARTED");
+					LRProcessDefinition definition = this.lrpdm.getLongRunningProcessDefinition(definitionId);
+					LRProcess process = definition.loadProcess(uuid, pid, stmp.getTime(), States.load(status));
+					processes.add(process);
+				} 
+			}
+			return processes;
+		} catch (SQLException e) {
+			LOGGER.log(Level.SEVERE, e.getMessage(), e);
+		} finally {
+			if (connection != null) {
+				try {
+					connection.close();
+				} catch (SQLException e) {
+					LOGGER.log(Level.SEVERE, e.getMessage(), e);
+				}
+			}
+		}
+		return new ArrayList<LRProcess>();
+	}
+
+	
 }

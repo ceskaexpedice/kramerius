@@ -21,4 +21,5 @@ public interface LRProcessManager {
 	 */
 	public LRProcess getLongRunningProcess(String uuid);
 	
+	public List<LRProcess> getLongRunningProcesses();
 }

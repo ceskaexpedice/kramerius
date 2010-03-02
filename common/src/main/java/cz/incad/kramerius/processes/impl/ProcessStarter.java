@@ -33,7 +33,6 @@ public class ProcessStarter {
 	
 	public static void main(String[] args) throws ClassNotFoundException, SecurityException, NoSuchMethodException, IllegalArgumentException, IllegalAccessException, InvocationTargetException, SQLException {
 		String mainClass = System.getProperty(MAIN_CLASS_KEY);
-		LOGGER.info("starting main class '"+mainClass+"'");
 		try {
 			Class<?> clz = Class.forName(mainClass);
 			Method method = clz.getMethod("main", args.getClass());
@@ -88,16 +87,17 @@ public class ProcessStarter {
 	}
 
 	public static String getPID() {
+		String pid = null;
 		String name = ManagementFactory.getRuntimeMXBean().getName();
 		String[] split = name.split("@");
 		if ((split != null) && (split.length > 1)) {
-			return split[0];
-		} else return null;
+			pid = split[0];
+		}
+		return pid;
 	}
 	
 	public static Injector microProcessModule() {
 		Injector injector = Guice.createInjector(new ProcessMicroModule());
 		return injector;
 	}
-
 }

@@ -14,7 +14,9 @@ public class DefinitionTestCase extends AbstractGuiceTestCase {
 		DefinitionManager defMgr = inj.getInstance(DefinitionManager.class);
 		defMgr.load();
 		
+		
 		LRProcessDefinition definition = defMgr.getLongRunningProcessDefinition("generovani_pdf");
+		
 		LRProcess process = definition.createNewProcess();
 		process.startMe(false);
 		System.out.println("Test");
