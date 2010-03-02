@@ -27,11 +27,11 @@ public class TestModule extends AbstractModule {
 		//jdbc:hsqldb:hsql://localhost/
 		//bind(String.class).annotatedWith(Names.named("jdbcUrl")).toInstance("jdbc:hsqldb:file:data/processes");
 //		bind(String.class).annotatedWith(Names.named("jdbcUrl")).toInstance("jdbc:hsqldb:hsql://localhost/");
-		bind(String.class).annotatedWith(Names.named("jdbcUrl")).toInstance("jdbc:postgresql://localhost:5432/kramerius_test");
+//		bind(String.class).annotatedWith(Names.named("jdbcUrl")).toInstance("jdbc:postgresql://localhost:5432/kramerius_test");
 		
 //		bind(String.class).annotatedWith(Names.named("jdbcUserName")).toInstance("sa");
 //		bind(String.class).annotatedWith(Names.named("jdbcUserPass")).toInstance("");
-		bind(String.class).annotatedWith(Names.named("jdbcUserName")).toInstance("postgres");
-		bind(String.class).annotatedWith(Names.named("jdbcUserPass")).toInstance("postgres");
+//		bind(String.class).annotatedWith(Names.named("jdbcUserName")).toInstance("postgres");
+//		bind(String.class).annotatedWith(Names.named("jdbcUserPass")).toInstance("postgres");
 	}
 }
