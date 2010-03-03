@@ -30,13 +30,21 @@ public class LRProcessDefinitionManagerImpl implements DefinitionManager {
 	public static final java.util.logging.Logger LOGGER = java.util.logging.Logger
 			.getLogger(LRProcessDefinitionManagerImpl.class.getName());
 	
-	@Inject
 	private KConfiguration configuration;
-	@Inject
 	private LRProcessManager processManager;
+
 	
 	
-	
+	@Inject
+	public LRProcessDefinitionManagerImpl(KConfiguration configuration,
+			LRProcessManager processManager) {
+		super();
+		this.configuration = configuration;
+		this.processManager = processManager;
+		this.load();
+	}
+
+
 	private HashMap<String, LRProcessDefinition> definitions = new HashMap<String, LRProcessDefinition>();
 
 

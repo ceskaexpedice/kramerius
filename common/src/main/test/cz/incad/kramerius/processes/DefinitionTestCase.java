@@ -2,6 +2,7 @@ package cz.incad.kramerius.processes;
 
 import org.junit.After;
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
 
 import com.google.inject.Injector;
@@ -9,6 +10,11 @@ import com.google.inject.Injector;
 
 public class DefinitionTestCase extends AbstractGuiceTestCase {
 
+	@Before
+	public void doBefore() {
+		dropTables();
+	}
+	
 	@After
 	public void doAfter() {
 		dropTables();
@@ -19,7 +25,6 @@ public class DefinitionTestCase extends AbstractGuiceTestCase {
 	public void testDefinition() throws InterruptedException {
 		Injector inj = injector();
 		DefinitionManager defMgr = inj.getInstance(DefinitionManager.class);
-		defMgr.load();
 		
 		LRProcessDefinition definition = defMgr.getLongRunningProcessDefinition("generovani_pdf");
 		
