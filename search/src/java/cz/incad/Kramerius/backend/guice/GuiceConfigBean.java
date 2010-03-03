@@ -16,7 +16,7 @@ public class GuiceConfigBean extends GuiceServletContextListener {
 
 	@Override
 	protected Injector getInjector() {
-	    Injector injector = Guice.createInjector(new KrameriusModule());
+	    Injector injector = Guice.createInjector(new BaseModule(), new LongRunninProcessModul());
 	    return injector;
 	}
 }

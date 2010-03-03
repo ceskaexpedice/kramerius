@@ -1,4 +1,4 @@
-package cz.incad.Kramerius.backend.pdf;
+package cz.incad.Kramerius;
 
 import static cz.incad.kramerius.FedoraNamespaces.*;
 
@@ -21,6 +21,7 @@ import org.w3c.dom.Element;
 import com.google.inject.Inject;
 
 import cz.incad.Kramerius.backend.guice.GuiceServlet;
+import cz.incad.Kramerius.backend.pdf.GeneratePDFService;
 import cz.incad.kramerius.FedoraAccess;
 import cz.incad.kramerius.FedoraNamespaces;
 import cz.incad.kramerius.FedoraRelationship;
