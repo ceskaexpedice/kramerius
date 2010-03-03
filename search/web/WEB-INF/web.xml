@@ -67,7 +67,12 @@
 	</servlet>
 	<servlet>
 		<servlet-name>pdf</servlet-name>
-		<servlet-class>cz.incad.Kramerius.backend.pdf.GeneratePDFServlet</servlet-class>
+		<servlet-class>cz.incad.Kramerius.GeneratePDFServlet</servlet-class>
+	</servlet>
+	<!-- lr processes -->
+	<servlet>
+		<servlet-name>lr</servlet-name>
+		<servlet-class>cz.incad.Kramerius.LongRunningProcessServlet</servlet-class>
 	</servlet>
 
 	<!-- 
@@ -114,6 +119,11 @@
 	<servlet-mapping>
 		<servlet-name>pdf</servlet-name>
 		<url-pattern>/pdf</url-pattern>
+	</servlet-mapping>
+
+	<servlet-mapping>
+		<servlet-name>lr</servlet-name>
+		<url-pattern>/lr</url-pattern>
 	</servlet-mapping>
 
 	<welcome-file-list>
