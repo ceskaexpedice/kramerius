@@ -3,17 +3,12 @@ package cz.incad.kramerius.processes.impl;
 import java.lang.management.ManagementFactory;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
 import java.sql.Connection;
 import java.sql.SQLException;
-import java.util.Arrays;
 import java.util.logging.Level;
-
-import sun.font.CreatedFontTracker;
 
 import com.google.inject.Guice;
 import com.google.inject.Injector;
-import com.google.inject.Provider;
 
 import cz.incad.kramerius.processes.States;
 import cz.incad.kramerius.processes.database.DatabaseUtils;
