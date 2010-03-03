@@ -39,9 +39,12 @@ public class SliderChangeListener implements ChangeListener, MouseUpHandler  {
 			else this.direction = SliderDirection.LEFT;
 			previousSliderMove = round;
 			if ((round % modulo) == 0) {
-//				if (modulo != 1) {
-				fxPane.rollToPointer();
-//				}
+				// Tohle jsem uz jednou zakmentovaval... ale uz nevim proc? 
+				// Ted odkomentovano, protoze na drobnustkach blbne nasledujici scenar:
+				// Krok Doleva -> Krok zpet
+				if (modulo != 1) {
+					fxPane.rollToPointer();
+				}
 				rollToPage(round, duration, true);
 				//rollToPage(round, duration, false);
 //				label.setText("strana:"+round+" - posun");
