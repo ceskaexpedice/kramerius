@@ -1,4 +1,4 @@
-package cz.i.kramerius.gwtviewers.server;
+package cz.i.kramerius.gwtviewers.server.utils;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -31,7 +31,7 @@ public class MetadataStore {
 		File folder = prepareFolder(uuid);
 		Properties props = loadPropertiesFile(folder);
 		props.setProperty(WIDTH_KEY, width);
-		storeProperteis(folder, props);
+		storeProperties(folder, props);
 	}
 
 
@@ -61,7 +61,7 @@ public class MetadataStore {
 	}
 	
 	
-	private void storeProperteis(File folder, Properties props) throws IOException {
+	private void storeProperties(File folder, Properties props) throws IOException {
 		File data = new File(folder, DATA_FILE_NAME);
 		FileOutputStream outStream = null;
 		try {
@@ -78,7 +78,7 @@ public class MetadataStore {
 		return props.getProperty(WIDTH_KEY);
 	}
 	
-	public void storeCollected(String uuid, String maxWidth, Properties props) throws FileNotFoundException, IOException {
+	public void storeCollected(String uuid,Properties props) throws FileNotFoundException, IOException {
 		File folder = prepareFolder(uuid);
 		Properties loadedProps = loadPropertiesFile(folder);
 		Set<Object> keySet = props.keySet();
@@ -87,8 +87,7 @@ public class MetadataStore {
 			String value = props.getProperty(key);
 			loadedProps.setProperty(key, value);
 		}
-		loadedProps.setProperty(WIDTH_KEY, maxWidth);
-		storeProperteis(folder, loadedProps);
+		storeProperties(folder, loadedProps);
 	}
 
 

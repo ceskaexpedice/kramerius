@@ -80,9 +80,13 @@ public class ImageRotatePool {
 		// levy do novisible
 		this.noVisible.add(0,this.left);
 		// posledni z viewPort do levy
+
+		System.out.println("0x"+Integer.toHexString(System.identityHashCode(this.left)) +"->");
 		this.left = this.viewPortImages.remove(0);
-		
+		System.out.println("0x"+Integer.toHexString(System.identityHashCode(this.left)));
 		fillNoVisibleImages();
+
+		System.out.println(this.left.getImageIdent());
 		return true;
 	}
 
@@ -102,12 +106,17 @@ public class ImageRotatePool {
 		this.viewPortImages.add(0,this.left);
 		// prvni z novisible do levy
 		ImageMoveWrapper lastNoVisible = this.noVisible.remove(0);
+		System.out.println("0x"+Integer.toHexString(System.identityHashCode(this.left)) +"->");
 		this.left = lastNoVisible;	
+		System.out.println("0x"+Integer.toHexString(System.identityHashCode(this.left)));
+
 		// pravy do novisible
 		this.noVisible.add(this.right);
 		this.right = this.viewPortImages.remove(this.viewPortImages.size()-1);
 
 		fillNoVisibleImages();
+		System.out.println(this.left.getImageIdent());
+
 		return true;
 	}
 
@@ -157,6 +166,7 @@ public class ImageRotatePool {
 	}
 	
 	public void initWithPointer(int pointer) {
+		if (true) throw new IllegalStateException("KURVAA");
 		if (pointer < 0) return;
 		int maxImage = DataHandler.getMax();
 		int visibleImages = this.viewPortImages.size();
@@ -181,21 +191,21 @@ public class ImageRotatePool {
 	
 	public void debugPool() {
 		System.out.println("=========> Left <=========");
-		System.out.println("\t"+this.left.getIndex());
+		System.out.println("\t"+this.left.getIndex()+"("+this.left.getImageIdent()+")");
 		System.out.println("=========> Visible <=========");
 		StringBuffer buf = new StringBuffer();
 		for (ImageMoveWrapper mv : this.viewPortImages) {
-			buf.append(mv.getIndex()+",");
+			buf.append(mv.getIndex()+"("+mv.getImageIdent()+"),");
 		}
 		System.out.println("\t"+buf.toString());
 		System.out.println("=========> NoVisible <=========");
 		buf = new StringBuffer();
 		for (ImageMoveWrapper mv : this.noVisible) {
-			buf.append(mv.getIndex()+",");
+			buf.append(mv.getIndex()+"("+mv.getImageIdent()+"),");
 		}
 		System.out.println("\t"+buf.toString());
 		System.out.println("=========> Right <=========");
-		System.out.println("\t"+this.right.getIndex());
+		System.out.println("\t"+this.right.getIndex()+"("+right.getImageIdent()+")");
 		
 		System.out.println("___________________________________________________________");
 	}

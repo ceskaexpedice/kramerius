@@ -1,30 +1,27 @@
 package cz.i.kramerius.gwtviewers.server;
 
-import java.awt.Image;
+import static cz.i.kramerius.gwtviewers.server.utils.UtilsDecorator.*;
+
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FileFilter;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
-import java.net.URL;
-import java.net.URLConnection;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Properties;
 import java.util.Set;
+import java.util.Stack;
 import java.util.StringTokenizer;
 import java.util.WeakHashMap;
 import java.util.logging.Level;
 
-import javax.imageio.ImageIO;
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathConstants;
@@ -32,9 +29,6 @@ import javax.xml.xpath.XPathExpression;
 import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
 
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
 
@@ -43,18 +37,21 @@ import com.google.gwt.user.server.rpc.RemoteServiceServlet;
 import cz.i.kramerius.gwtviewers.client.PageService;
 import cz.i.kramerius.gwtviewers.client.SimpleImageTO;
 import cz.i.kramerius.gwtviewers.client.panels.utils.Dimension;
+import cz.i.kramerius.gwtviewers.server.utils.MetadataStore;
+import cz.i.kramerius.gwtviewers.server.utils.ThumbnailServerUtils;
+import cz.i.kramerius.gwtviewers.server.utils.Utils;
+import cz.i.kramerius.gwtviewers.server.utils.UtilsDecorator;
+import cz.incad.kramerius.FedoraModels;
+import cz.incad.kramerius.FedoraRelationship;
 import cz.incad.kramerius.utils.JNDIUtils;
-import cz.incad.kramerius.utils.RESTHelper;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 import cz.incad.kramerius.utils.pid.LexerException;
-import cz.incad.kramerius.utils.pid.PIDParser;
 
 
 public class PageServiceImpl extends RemoteServiceServlet implements PageService {
 	
 	public static final java.util.logging.Logger LOGGER = java.util.logging.Logger.getLogger(PageServiceImpl.class.getName());
 
-	
 	
     private String thumbnailUrl ="thumb";
 	private String imgFolder;
@@ -65,16 +62,15 @@ public class PageServiceImpl extends RemoteServiceServlet implements PageService
 	private KConfiguration kConfiguration;
 	
 	// dodelat nejakou vlastni implementaci !!
-	private WeakHashMap<String, ArrayList<SimpleImageTO>> cachedPages = new WeakHashMap<String, ArrayList<SimpleImageTO>>();
+	//private WeakHashMap<String, ArrayList<SimpleImageTO>> cachedPages = new WeakHashMap<String, ArrayList<SimpleImageTO>>();
 	private MetadataStore metadataStore = new MetadataStore();
 	
 	
 	// 
-	public ArrayList<SimpleImageTO> getPages(String masterUuid) {
-		if (!this.cachedPages.containsKey(masterUuid)) {
-			this.cachedPages.put(masterUuid, readPage(masterUuid));
-		}
-		return this.cachedPages.get(masterUuid);
+	public ArrayList<SimpleImageTO> getPages(String pidpath) {
+		String[] path = pidpath.split("/");
+		LOGGER.info("path = "+Arrays.asList(path));
+		return readPages(path);
 	}
 	
 	public static String relsExtUrl(KConfiguration configuration, String uuid) {
@@ -92,57 +88,49 @@ public class PageServiceImpl extends RemoteServiceServlet implements PageService
 		return url;
 	}
 	
-	
 	public static String thumbnail(String thumbUrl, String uuid, String scaledHeight) {
 		String url = KConfiguration.getKConfiguration().getThumbServletUrl()+"?scaledHeight="+scaledHeight+"&uuid="+uuid;
 		return url;
 	}
 	
-	
-	public ArrayList<SimpleImageTO> readPage(String uuid) {
-		ArrayList<SimpleImageTO> pages = new ArrayList<SimpleImageTO>();
+	public ArrayList<SimpleImageTO> readPages(String[] uuidPath) {
+		System.out.println("Reading pages ... ");
+		ArrayList<SimpleImageTO> pages = null;
 		InputStream docStream = null;
 		try {
-			String relsExtUrl = relsExtUrl(kConfiguration, uuid);
-			LOGGER.info("Reading rels ext +"+relsExtUrl);
-			//URL url = new URL(relsExtUrl(uuid));
-			docStream = RESTHelper.inputStream(relsExtUrl, kConfiguration.getFedoraUser(), kConfiguration.getFedoraPass());
-			DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-			DocumentBuilder builder = factory.newDocumentBuilder();
-			Document parsed = builder.parse(docStream);
-			XPathFactory xpfactory = XPathFactory.newInstance();
-            XPath xpath = xpfactory.newXPath();
-            String xPathStr = "/RDF/Description/hasPage";
-            XPathExpression expr = xpath.compile(xPathStr);
-            NodeList nodes = (NodeList) expr.evaluate(parsed, XPathConstants.NODESET);
-            LOGGER.info("Iterating through pages ...");
-            for (int i = 0,lastIndex=nodes.getLength()-1; i <= lastIndex; i++) {
-				Element elm = (Element) nodes.item(i);
-				//info:fedora/uuid:4308eb80-b03b-11dd-a0f6-000d606f5dc6
-				String attribute = elm.getAttribute("rdf:resource");
-				PIDParser pidParser= new PIDParser(attribute);
-				pidParser.disseminationURI();
-				String objectId = pidParser.getObjectId();
-				
-				SimpleImageTO imageTO = new SimpleImageTO();
-				imageTO.setFirstPage(i==0);
-				imageTO.setLastPage(i==lastIndex);
-				imageTO.setIdentification(objectId);
-				String thumbnailURL = thumbnail(this.thumbnailUrl, objectId, this.scaledHeight);
-				imageTO.setUrl(thumbnailURL);
-				imageTO.setHeight(Integer.parseInt(scaledHeight));
-				imageTO.setWidth(Integer.parseInt(maxInitWidth));
-				imageTO.setIndex(i);
-				pages.add(imageTO);
-            }
+			Stack<String> uuidStack = new Stack<String>();
+			for (String uuid : uuidPath) { uuidStack.push(uuid); }
+			String currentProcessinguuid = null;
+			while(!uuidStack.isEmpty()) {
+				currentProcessinguuid = uuidStack.pop();
+				LOGGER.info("Current uuid:"+currentProcessinguuid);
+				FedoraModels model = Utils.getModel(kConfiguration, currentProcessinguuid);
+				if (model.equals(FedoraModels.page)) continue;
+				pages = UtilsDecorator.getPages(kConfiguration, currentProcessinguuid); 
+			}
+			
+			if (pages == null) pages = new ArrayList<SimpleImageTO>();
+			if (!pages.isEmpty()) {
+				// nastaveni indexu
+				for (int i = 0; i < pages.size(); i++) {
+					pages.get(i).setIndex(i);
+				}
+				// nastaveni priznaku
+				pages.get(0).setFirstPage(true);
+				pages.get(pages.size()-1).setLastPage(true);
+			}
+			
 			LOGGER.info("Reading image sizes");
-            Properties props = metadataStore.loadCollected(uuid);
-            if (props.isEmpty()) {
+			Properties props = metadataStore.loadCollected(currentProcessinguuid);
+            /*if (props.isEmpty()) */ {
     			LOGGER.info("Disecting image sizes");
-                props = disetSizes(uuid, pages);
+                props = ThumbnailServerUtils.disectSizes(currentProcessinguuid, pages);
+                metadataStore.storeCollected(currentProcessinguuid, props);
             }
             for (SimpleImageTO sit : pages) {
-				sit.setWidth(Integer.parseInt(props.getProperty(sit.getIdentification())));
+				String property = props.getProperty(sit.getIdentification());
+				if (property == null) throw new RuntimeException("not width property !");
+				sit.setWidth(Integer.parseInt(property));
 			}
 		} catch (ParserConfigurationException e) {
 			LOGGER.log(Level.SEVERE, e.getMessage(), e);
@@ -156,33 +144,16 @@ public class PageServiceImpl extends RemoteServiceServlet implements PageService
 		} catch (IOException e) {
 			LOGGER.log(Level.SEVERE, e.getMessage(), e);
 			throw new RuntimeException(e);
-		} catch (XPathExpressionException e) {
-			LOGGER.log(Level.SEVERE, e.getMessage(), e);
-			throw new RuntimeException(e);
 		} catch (LexerException e) {
 			throw new RuntimeException(e);
 		}
 		return pages;
 	}
 
-	//TODO: Zjisteni velikosti... nic vic.
-	private Image readThumbnail(String thumbnailURL) {
-		try {
-			URL url = new URL(thumbnailURL);
-			URLConnection connection = url.openConnection();
-			return ImageIO.read(connection.getInputStream());
-		} catch (MalformedURLException e) {
-			e.printStackTrace();
-			return null;
-		} catch (IOException e) {
-			e.printStackTrace();
-			return null;
-		} 
-	}
-	
-	public Integer getNumberOfPages(String uuid) {
-		List<SimpleImageTO> pages = getPages(uuid);
-		return pages.size();	
+	public Integer getNumberOfPages(String pidpath) {
+		LOGGER.info("Get number of images "+pidpath);
+		List<SimpleImageTO> pages = getPages(pidpath);
+		return pages.size();
 	}
 
 	@Override
@@ -239,27 +210,8 @@ public class PageServiceImpl extends RemoteServiceServlet implements PageService
 	}
 
 	@Override
-	public ArrayList<SimpleImageTO> getPagesSet(String masterUuid) {
-		ArrayList<SimpleImageTO> pgs = getPages(masterUuid);
+	public ArrayList<SimpleImageTO> getPagesSet(String uuidPath) {
+		ArrayList<SimpleImageTO> pgs = getPages(uuidPath);
 		return pgs;
-	}
-
-	// parallelize
-	public Properties disetSizes(String uuid, ArrayList<SimpleImageTO> sits ) throws FileNotFoundException, IOException {
-		int mwidth = 0;
-		Properties collected = new Properties();
-		for (SimpleImageTO sit : sits) {
-			try {
-				Image readthumbs = readThumbnail(sit.getUrl());
-				int width = readthumbs.getWidth(null);
-				if (mwidth < width) mwidth = width;
-				collected.setProperty(sit.getIdentification(), ""+width);
-			} catch (Exception e) {
-				e.printStackTrace();
-				collected.setProperty(sit.getIdentification(), ""+mwidth);
-			}
-		}
-		this.metadataStore.storeCollected(uuid, ""+mwidth, collected);
-		return collected;
 	}
 }

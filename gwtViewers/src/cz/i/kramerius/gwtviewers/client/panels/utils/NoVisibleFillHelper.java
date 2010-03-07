@@ -22,10 +22,14 @@ public class NoVisibleFillHelper {
 			int nvisPosition = size -i;
 			if (loadingIndex < DataHandler.getMax()) {
 				SimpleImageTO sit = DataHandler.getData().get(loadingIndex);
-				modifyImageMoveWrapper(nvis.get(nvisPosition), sit, "nvis_right_"+nvisPosition);
+				ImageMoveWrapper wrapper = nvis.get(nvisPosition);
+				System.out.println("modified wrapper 0x"+Integer.toHexString(System.identityHashCode(wrapper)));
+				modifyImageMoveWrapper(wrapper, sit, "nvis_right_"+nvisPosition);
 			} else {
 				SimpleImageTO sit = DataHandler.getNaImage();
-				modifyImageMoveWrapper(nvis.get(nvisPosition), sit, "nvis_right_"+nvisPosition);
+				ImageMoveWrapper wrapper = nvis.get(nvisPosition);
+				System.out.println("modified wrapper 0x"+Integer.toHexString(System.identityHashCode(wrapper)));
+				modifyImageMoveWrapper(wrapper, sit, "nvis_right_"+nvisPosition);
 			}
 		}
 	}
@@ -41,10 +45,14 @@ public class NoVisibleFillHelper {
 			int nvisPosition = i-1;
 			if (loadingIndex >=0) {
 				SimpleImageTO sit = DataHandler.getData().get(loadingIndex);
-				modifyImageMoveWrapper(nvis.get(nvisPosition), sit, "nvis_left_"+nvisPosition);
+				ImageMoveWrapper wrapper = nvis.get(nvisPosition);
+				System.out.println("modified wrapper 0x"+Integer.toHexString(System.identityHashCode(wrapper)));
+				modifyImageMoveWrapper(wrapper, sit, "nvis_left_"+nvisPosition);
 			} else {
 				SimpleImageTO sit = DataHandler.getNaImage();
-				modifyImageMoveWrapper(nvis.get(nvisPosition), sit, "nvis_left_"+nvisPosition);
+				ImageMoveWrapper wrapper = nvis.get(nvisPosition);
+				System.out.println("modified wrapper 0x"+Integer.toHexString(System.identityHashCode(wrapper)));
+				modifyImageMoveWrapper(wrapper, sit, "nvis_left_"+nvisPosition);
 			}
 		}
 	}
@@ -55,6 +63,7 @@ public class NoVisibleFillHelper {
 		wrapper.setFirst(ito.isFirstPage());
 		wrapper.setLast(ito.isLastPage());
 		wrapper.setUrl(ito.getUrl());
+		System.out.println("\t change indentification to "+Integer.toHexString(System.identityHashCode(wrapper)));
 		wrapper.setImageIdent(ito.getIdentification());
 		wrapper.setIndex(ito.getIndex());
 		wrapper.modifyHeightAndWidth();

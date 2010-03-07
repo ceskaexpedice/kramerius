@@ -73,21 +73,23 @@ public class GwtViewers implements EntryPoint, ClickHandler, ConfigurationChange
 	
 	
 	private void doInitImages() {
-		String pid = getViewersUUID();
-		String uuid = pid.substring("uuid:".length());
-		pageService.getNumberOfPages(uuid, new AsyncCallback<Integer>() {
+		System.out.println("Initializing images ... ");
+		String uuidPath = getUUIDPath();
+		pageService.getNumberOfPages(uuidPath, new AsyncCallback<Integer>() {
 			@Override
 			public void onFailure(Throwable caught) {
+				System.out.println("False initialisation.. ");
 				initialized = false;
 			}
 
 			@Override
 			public void onSuccess(Integer result) {
+				System.out.println("Got result ");
 				modulo = moduloCreator.createModulo(result);
 			}
 
 		});
-		pageService.getPagesSet(uuid, new AsyncCallback<ArrayList<SimpleImageTO>>() {
+		pageService.getPagesSet(uuidPath, new AsyncCallback<ArrayList<SimpleImageTO>>() {
 
 			@Override
 			public void onFailure(Throwable caught) {
@@ -96,16 +98,16 @@ public class GwtViewers implements EntryPoint, ClickHandler, ConfigurationChange
 
 			@Override
 			public void onSuccess(ArrayList<SimpleImageTO> result) {
-				System.out.println("SUCCESS - initializing images");
+				System.out.println("Got images ... ");
+				ArrayList<String> alist = new ArrayList<String>();
+				for (SimpleImageTO sit : result) {
+					alist.add(sit.getIdentification());
+				}
 				DataHandler.setData(result);
 				simplePaneContent();
 				initialized = true;
 			}
 		});
-		
-		
-		
-		
 	}
 	
 	@Override
@@ -331,20 +333,31 @@ public class GwtViewers implements EntryPoint, ClickHandler, ConfigurationChange
 	
 
 	/// ========= Nativni metody =========
-	public native String getViewersUUID() /*-{
-		return $wnd.__gwtViewersUUID;
+	public native String getUUIDPath() /*-{
+		return $wnd.__gwtViewersUUIDPATH;
 	}-*/;
 
+	public native void setUUIDPath(String uuid) /*-{
+		$wnd.__gwtViewersUUID = uuid;
+	}-*/;
 
+	
 	public native int getConfigurationWidth() /*-{
 		return $wnd.__confWidth;
 	}-*/;
 
+	public native void setConfigurationWidth(int width) /*-{
+		$wnd.__confWidth = width;
+	}-*/;
+	
 	public native int getConfigurationHeight() /*-{
 		return $wnd.__confHeight;
 	}-*/;
 
-	
+	public native void setConfigurationHeight(int height) /*-{
+		$wnd.__confHeight  = height;
+	}-*/;
+
 	public native int getConfigurationDistance() /*-{
 		return $wnd.__confDistance;
 	}-*/;

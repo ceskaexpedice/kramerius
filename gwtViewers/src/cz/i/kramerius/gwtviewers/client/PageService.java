@@ -31,7 +31,6 @@ public interface PageService extends RemoteService {
 
 	//public Dimension getMaxDimension(String masterUuid);
 	
-	
 	public SimpleImageTO getPage(String uuid, int index);
 	
 	public List<String> getPagesUUIDs(String masterUuid);

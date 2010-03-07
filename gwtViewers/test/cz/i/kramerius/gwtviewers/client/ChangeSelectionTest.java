@@ -6,6 +6,7 @@ import com.google.gwt.junit.client.GWTTestCase;
 
 import cz.i.kramerius.gwtviewers.client.data.DataHandler;
 import cz.i.kramerius.gwtviewers.client.panels.ImageMoveWrapper;
+import cz.i.kramerius.gwtviewers.client.panels.ViewConfiguration;
 import cz.i.kramerius.gwtviewers.client.panels.utils.ImageRotatePool;
 import cz.i.kramerius.gwtviewers.client.panels.utils.NoVisibleFillHelper;
 
@@ -16,47 +17,59 @@ public class ChangeSelectionTest extends GWTTestCase {
 		return "cz.i.kramerius.gwtviewers.GwtViewers";
 	}
 
-	public void testToLeftToRight() {
-		ImageRotatePool pool = createPool(100);
-		checkRightSide(pool);
+	
+	public void testLeftRight() {
+		ImageRotatePool pool = createDrobnustkyPool();
 		pool.debugPool();
-		for (int i = 0; i < 96; i++) { 
-			pool.rollLeft(); 
-			checkRightSide(pool);
-			if (i > 0) checkLeftSide(pool);
-			if (i>1) checkNoVisibleLeft(pool);
-			if (i < 95) checkNoVisibleRight(pool);
-		}
-		for (int i = 0; i < 96; i++) { 
-			pool.rollRight(); 
-			checkRightSide(pool);
-			if (i < 95) checkLeftSide(pool);
-		}
+//		checkRightSide(pool);
+//		pool.debugPool();
+		pool.rollLeft();
+		pool.debugPool();
+		pool.rollRight();
+		pool.debugPool();
 	}
-
-	public void testInit() {
-		ImageRotatePool poolToRotate = createPool(100);
-		checkRightSide(poolToRotate);
-		ImageRotatePool poolToInit = createPool(100);
-		poolToRotate.debugPool();
-		for (int i = 0; i < 96; i++) { 
-			poolToRotate.rollLeft(); 
-			checkRightSide(poolToRotate);
-			if (i > 0) checkLeftSide(poolToRotate);
-			if (i>1) checkNoVisibleLeft(poolToRotate);
-			if (i < 95) checkNoVisibleRight(poolToRotate);
-		}
-		for (int i = 0; i < 96; i++) {
-			poolToInit.rollLeftPointer();
-		}
-		poolToInit.initWithPointer(poolToInit.getPointer());
-
-		assertTrue(poolToRotate.getPointer() == poolToInit.getPointer());
-		assertTrue(poolToRotate.getLeftSideImage().getImageIdent().equals(poolToInit.getLeftSideImage().getImageIdent()));
-		assertTrue(poolToRotate.getRightSideImage().getImageIdent().equals(poolToInit.getRightSideImage().getImageIdent()));
-		testIWCollections(poolToRotate.getViewPortImages(), poolToInit.getViewPortImages());
-		testIWCollections(poolToRotate.getNoVisibleImages(), poolToInit.getNoVisibleImages());
-	}
+	
+//	public void testToLeftToRight() {
+//		ImageRotatePool pool = createPool(100);
+//		checkRightSide(pool);
+//		pool.debugPool();
+//		for (int i = 0; i < 96; i++) { 
+//			pool.rollLeft(); 
+//			checkRightSide(pool);
+//			if (i > 0) checkLeftSide(pool);
+//			if (i>1) checkNoVisibleLeft(pool);
+//			if (i < 95) checkNoVisibleRight(pool);
+//		}
+//		for (int i = 0; i < 96; i++) { 
+//			pool.rollRight(); 
+//			checkRightSide(pool);
+//			if (i < 95) checkLeftSide(pool);
+//		}
+//	}
+//
+//	public void testInit() {
+//		ImageRotatePool poolToRotate = createPool(100);
+//		checkRightSide(poolToRotate);
+//		ImageRotatePool poolToInit = createPool(100);
+//		poolToRotate.debugPool();
+//		for (int i = 0; i < 96; i++) { 
+//			poolToRotate.rollLeft(); 
+//			checkRightSide(poolToRotate);
+//			if (i > 0) checkLeftSide(poolToRotate);
+//			if (i>1) checkNoVisibleLeft(poolToRotate);
+//			if (i < 95) checkNoVisibleRight(poolToRotate);
+//		}
+//		for (int i = 0; i < 96; i++) {
+//			poolToInit.rollLeftPointer();
+//		}
+//		poolToInit.initWithPointer(poolToInit.getPointer());
+//
+//		assertTrue(poolToRotate.getPointer() == poolToInit.getPointer());
+//		assertTrue(poolToRotate.getLeftSideImage().getImageIdent().equals(poolToInit.getLeftSideImage().getImageIdent()));
+//		assertTrue(poolToRotate.getRightSideImage().getImageIdent().equals(poolToInit.getRightSideImage().getImageIdent()));
+//		testIWCollections(poolToRotate.getViewPortImages(), poolToInit.getViewPortImages());
+//		testIWCollections(poolToRotate.getNoVisibleImages(), poolToInit.getNoVisibleImages());
+//	}
 
 	private void testIWCollections(
 			ArrayList<ImageMoveWrapper> rotateViewImages,
@@ -92,6 +105,40 @@ public class ChangeSelectionTest extends GWTTestCase {
 		assertTrue(minLeftVisibleIndex-1 == leftSideIndex);
 	}
 
+	
+	private ImageRotatePool createDrobnustkyPool() {
+		String idsString = "4308eb80-b03b-11dd-a0f6-000d606f5dc6, 4a79bd50-af36-11dd-a60c-000d606f5dc6, 430d7f60-b03b-11dd-82fa-000d606f5dc6, 4a7c2e50-af36-11dd-9643-000d606f5dc6, 43101770-b03b-11dd-8673-000d606f5dc6, 4a7ec660-af36-11dd-a782-000d606f5dc6, 4314ab50-b03b-11dd-89db-000d606f5dc6, 4a80c230-af36-11dd-ace4-000d606f5dc6, 43171c50-b03b-11dd-b0c2-000d606f5dc6, 4a835a40-af36-11dd-b951-000d606f5dc6, 4319b460-b03b-11dd-83ca-000d606f5dc6, 4a85f250-af36-11dd-8535-000d606f5dc6, 431e4840-b03b-11dd-8818-000d606f5dc6, 4a8a8630-af36-11dd-ae9c-000d606f5dc6, 4320e050-b03b-11dd-9b4a-000d606f5dc6, 4a8cf730-af36-11dd-ae88-000d606f5dc6";
+		String[] ids = idsString.split(",");
+		ArrayList<SimpleImageTO> itos = DataUtils.createImages(ids);
+		DataHandler.setData(itos);
+		// pozice 0
+		int numberOfImages = 7;
+		
+		ImageMoveWrapper[] viewPortImages = new ImageMoveWrapper[7];
+		for (int i = 0; i < viewPortImages.length; i++) {
+			ImageMoveWrapper wrapper = GwtViewers.createImageMoveWrapper(i,""+i);
+			wrapper.getWidget().getElement().getStyle().setZIndex(ImageRotatePool.VIEW_IMAGES_Z_INDEX);
+			viewPortImages[i] = wrapper;
+		}
+		
+
+		//TODO: Zmenit
+		ImageMoveWrapper rcopy = GwtViewers.createImageMoveWrapper(numberOfImages,"R");
+		rcopy.getWidget().getElement().getStyle().setZIndex(ImageRotatePool.LEFTRIGNT_IMAGES_Z_INDEX);
+
+		ImageMoveWrapper[] noVisibleImages = new ImageMoveWrapper[numberOfImages];
+		for (int i = 0; i < noVisibleImages.length; i++) {
+			ImageMoveWrapper wrapper = GwtViewers.createImageMoveWrapper(i+numberOfImages+1,"n"+i);
+			wrapper.getWidget().getElement().getStyle().setZIndex(ImageRotatePool.NOVIEW_IMAGES_Z_INDEX);
+			noVisibleImages[i] = wrapper;
+		}
+		
+		ImageMoveWrapper lcopy = GwtViewers.createImageMoveWrapper(DataHandler.getMax(),"L");
+		lcopy.getWidget().getElement().getStyle().setZIndex(ImageRotatePool.LEFTRIGNT_IMAGES_Z_INDEX);
+		
+		ImageRotatePool pool = new ImageRotatePool(viewPortImages, noVisibleImages, lcopy, rcopy);
+		return pool;
+	}
 	
 	private ImageRotatePool createPool(int max) {
 	
