@@ -13,6 +13,8 @@ def gwtApplicationName="cz.i.kramerius.gwtviewers.GwtViewers"
 
 def deployingWarDir="tmpWar"
 
+def gwtVersion = '2.0.0'
+
 
 project.group='gwt.cz.incad.gwtviewers'
 project.version='1.0-SNAPSHOT'
@@ -22,8 +24,9 @@ archivesBaseName = 'gwtviewers_client'
 
 
 repositories {
-        mavenRepo urls: "${artifactoryURL}/libs-snapshots"
-        mavenRepo urls: "${artifactoryURL}/libs-releases"
+        mavenRepo urls: "${artifactoryURL}/libs-releases-local"
+        mavenRepo urls: "${artifactoryURL}/libs-snapshots-local"
+        mavenRepo urls: "${artifactoryURL}/repo"
 }
 
 configurations {
@@ -33,19 +36,32 @@ configurations {
 
 
 dependencies {
+
   providedCompile (
-          [group: 'gwt.com.google.gwt.sdk', name: 'gwt-user', version: '2.0.0'],
-          [group: 'gwt.com.google.gwt.sdk', name: 'gwt-dev', version: '2.0.0'],
+          [group: 'gwt.com.google.gwt.sdk', name: 'gwt-user', version: gwtVersion],
+          [group: 'gwt.com.google.gwt.sdk', name: 'gwt-dev', version: gwtVersion],
           [group: 'gwt.org.adamtacy', name: 'gwtFX', version: '0.5.0'],
           [group: 'gwt.com.google', name: 'gwt-incubator', version: '2.0'],
-          [group: 'cz.incad.kramerius', name: 'kramerius-common', version: '0.0.1-SNAPSHOT']
+          [group: 'cz.incad.kramerius', name: 'kramerius-common', version: '0.0.1-SNAPSHOT'],
+
+          [group: 'com.google.inject', name: 'guice', version: '2.0'],
+          [group: 'com.google.inject', name: 'guice-servlet', version: '2.0'],
+          [group: 'com.google.inject', name: 'guice-jndi', version: '2.0'],
+          [group: 'com.google.inject', name: 'guice-throwingproviders', version: '2.0'],
+          [group: 'com.google.inject', name: 'aopalliance', version: '2.0']
       )
 
   gwtCompile (
-          [group: 'gwt.com.google.gwt.sdk', name: 'gwt-user', version: '2.0.0'],
-          [group: 'gwt.com.google.gwt.sdk', name: 'gwt-dev', version: '2.0.0'],
+          [group: 'gwt.com.google.gwt.sdk', name: 'gwt-user', version: gwtVersion],
+          [group: 'gwt.com.google.gwt.sdk', name: 'gwt-dev', version: gwtVersion],
           [group: 'gwt.org.adamtacy', name: 'gwtFX', version: '0.5.0'],
           [group: 'gwt.com.google', name: 'gwt-incubator', version: '2.0'],
+          
+		  [group: 'com.google.inject', name: 'guice', version: '2.0'],
+          [group: 'com.google.inject', name: 'guice-servlet', version: '2.0'],
+          [group: 'com.google.inject', name: 'guice-jndi', version: '2.0'],
+          [group: 'com.google.inject', name: 'guice-throwingproviders', version: '2.0'],
+          [group: 'com.google.inject', name: 'aopalliance', version: '2.0']
           )
 	
 }
