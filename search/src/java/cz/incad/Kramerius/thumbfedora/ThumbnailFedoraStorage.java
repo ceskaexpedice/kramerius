@@ -70,6 +70,14 @@ public class ThumbnailFedoraStorage implements ThumbnailStorage {
 		} catch (IOException e) {
 			LOGGER.log(Level.SEVERE, e.getMessage(), e);
 			throw new RuntimeException(e);
+		} finally {
+			if (is !=  null) {
+				try { is.close(); } catch (IOException e) { 
+					LOGGER.log(Level.SEVERE, e.getMessage(), e);
+					throw new RuntimeException(e);
+				}
+				is = null;
+			}
 		}
 	}
 
