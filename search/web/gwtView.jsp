@@ -6,8 +6,11 @@
 <script type="text/javascript" language="javascript" src="gwtviewers/gwtviewers.nocache.js"></script>
  
 <script type="text/javascript">
-	var __gwtViewersUUID = "uuid:${param.pid}";
+	//var __gwtViewersUUID = "uuid:${param.pid}";
+	//pid_path=0eaa6730-9068-11dd-97de-000d606f5dc6&
+	var __gwtViewersUUIDPATH = "${empty param.pid_path ? param.pid : param.pid_path };
 
+	
 	var __confHeight = 125;
 	var __confWidth = 400;
 	var __confDistance = 5;
