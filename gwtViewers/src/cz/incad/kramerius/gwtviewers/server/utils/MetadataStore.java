@@ -20,7 +20,7 @@ public class MetadataStore {
 
 	public static final String WIDTH_KEY = "maxWidth";
 	public static final String STANDARD_FOLDER_PATH=System.getProperty("user.home")+File.separator+".kramerius";
-	public static final String DATA_FILE_NAME="data.properties";
+	public static final String DATA_FILE_NAME="thumbnails.properties";
 	
 	public File getFolder() {
 		return new File(STANDARD_FOLDER_PATH);
