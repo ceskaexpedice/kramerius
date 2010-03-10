@@ -23,7 +23,7 @@
 	<!-- Servlet pro gwt prohlizecku -->
 	<servlet>
 		<servlet-name>pageService</servlet-name>
-		<servlet-class>cz.i.kramerius.gwtviewers.server.PageServiceImpl</servlet-class>
+		<servlet-class>cz.incad.kramerius.gwtviewers.server.PageServiceImpl</servlet-class>
 		<init-param>
 			<param-name>thumbUrl</param-name>
 			<param-value>thumb</param-value>
