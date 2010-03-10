@@ -5,18 +5,20 @@
 <%@ page isELIgnored="false"%>
 <script type="text/javascript" language="javascript" src="gwtviewers/gwtviewers.nocache.js"></script>
 <script type="text/javascript">
+
 	var __gwtViewersUUIDPATH = "${empty param.pid_path ? param.pid : param.pid_path }";
 	var __confHeight = 125;
 	var __confWidth = 400;
 	var __confDistance = 10;
 	var __confNumberOfImages = 7;	
 	var __confMoveStep = 1;
+	var __debug = false;
+	
 
 	function changeSelection(uuid) {}
-
 	// callbacks from component
-	function selectPage(uuid){ alert("selectuju " + uuid); }
-	function pages(from, to){ alert("from=" + from+", to="+to); }
+	function selectPage(uuid){ }
+	function pages(from, to){  }
 </script>
  
 <table align="center">
