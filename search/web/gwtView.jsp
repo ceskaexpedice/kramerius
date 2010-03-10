@@ -8,19 +8,15 @@
 	var __gwtViewersUUIDPATH = "${empty param.pid_path ? param.pid : param.pid_path }";
 	var __confHeight = 125;
 	var __confWidth = 400;
-	var __confDistance = 5;
+	var __confDistance = 10;
 	var __confNumberOfImages = 7;	
 	var __confMoveStep = 1;
 
-    // informace o vyberu   
-	function selectPage(uuid){
-	    alert("selectuju " + uuid);
-	}
+	function changeSelection(uuid) {}
 
-	// informace o prave zobrazovanych strankach
-	function pages(from, to) {
-	}
-	
+	// callbacks from component
+	function selectPage(uuid){ alert("selectuju " + uuid); }
+	function pages(from, to){ alert("from=" + from+", to="+to); }
 </script>
  
 <table align="center">
@@ -34,7 +30,3 @@
 		<td><div id="slider" style="width: 100%"></div> </td>
 	</tr>
 </table>
-
-
-
-
