@@ -20,6 +20,7 @@ public class DataHandler {
 	}
 	public void setData(List<SimpleImageTO> data) {
 		this.data = data;
+		System.out.println("Data velikost = "+data.size());
 		naImage = createNASiTO(data.get(0));
 		max = data.size();
 	}
@@ -61,10 +62,7 @@ public class DataHandler {
 		this.currentIndex = currentIndex;
 	}
 
-
-
 	private static DataHandler _instance = new DataHandler();
-
 	public static DataHandler get() {
 		return _instance;
 	}

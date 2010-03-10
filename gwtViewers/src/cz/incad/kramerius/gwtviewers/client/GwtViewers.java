@@ -42,10 +42,12 @@ public class GwtViewers implements EntryPoint, ClickHandler, ConfigurationChange
 	
 	public static GwtViewers _sharedInstance = null;
 
+	// panel s efekty
 	private MoveEffectsPanel fxPane;
+	// konfigurace skoku
 	private ConfigurationPanel confPanel;
 	
-	
+	// sluzba pro podavani stranek
 	private final PageServiceAsync pageService = GWT.create(PageService.class);
 	private VerticalPanel _emptyVerticalPanel = new VerticalPanel();
 	private VerticalPanel container = new VerticalPanel();
@@ -57,8 +59,8 @@ public class GwtViewers implements EntryPoint, ClickHandler, ConfigurationChange
 	
 
 	private ModuloCreator moduloCreator = GWT.create(ModuloCreator.class);
-	private Button leftButton;
-	private Button rightButton;
+	private MoveHandler moveHandler = new MoveHandler();
+	
 	
 	
 	private SliderBar sliderBar = new SliderBar(1, 10);
@@ -73,18 +75,15 @@ public class GwtViewers implements EntryPoint, ClickHandler, ConfigurationChange
 	
 	
 	private void doInitImages() {
-		System.out.println("Initializing images ... ");
 		String uuidPath = getUUIDPath();
 		pageService.getNumberOfPages(uuidPath, new AsyncCallback<Integer>() {
 			@Override
 			public void onFailure(Throwable caught) {
-				System.out.println("False initialisation.. ");
 				initialized = false;
 			}
 
 			@Override
 			public void onSuccess(Integer result) {
-				System.out.println("Got result ");
 				modulo = moduloCreator.createModulo(result);
 			}
 
@@ -98,11 +97,9 @@ public class GwtViewers implements EntryPoint, ClickHandler, ConfigurationChange
 
 			@Override
 			public void onSuccess(PagesResultSet result) {
-				DataHandler.get().setData(result.getData());
-				DataHandler.get().setCurrentIndex(result.getCurrentSimpleImageTOIndex());
+				DataHandler.get().setData(result.data);
 				DataHandler.get().setCurrentId(result.getCurrentSimpleImageTOId());
-				System.out.println("Current selected index :"+result.getCurrentSimpleImageTOIndex());
-				System.out.println("Current selected id :"+result.getCurrentSimpleImageTOId());
+				DataHandler.get().setCurrentIndex(result.getCurrentSimpleImageTOIndex());
 				simplePaneContent();
 				initialized = true;
 			}
@@ -147,25 +144,33 @@ public class GwtViewers implements EntryPoint, ClickHandler, ConfigurationChange
 		
 		DeferredCommand.addCommand(new Command() { 
 			public void execute() {
-				modifySliderBar(DataHandler.get().getMax());
+				modifySliderBar();
 				sliderChangeListener = new SliderChangeListener(modulo, duration, fxPane);
 				sliderBar.addChangeListener(sliderChangeListener);
 				sliderBar.addMouseUpHandler(sliderChangeListener);
+				
+				ImageMoveWrapper wrapper = fxPane.getRotatePool().getWrapper(DataHandler.get().getCurrentId());
+				if (wrapper != null) {
+					fxPane.getImgSelector().changeSelection(wrapper, _sharedInstance);
+					fxPane.getImgSelector().markSelect(fxPane.getRotatePool());
+				}
+				
+				moveHandler.informAboutPagesRange();
 			}
 		});
 	}
 
 
-	private void modifySliderBar(Integer result) {
-		int maxImage = result-2;
+	private void modifySliderBar() {
+		int maxImage = DataHandler.get().getMax()-2;
 		sliderBar.setMaxValue(maxImage-getNumberOfImages()+2);
 		sliderBar.setNumLabels(0);
 		sliderBar.setNumTicks(0);
 		// prvni pozice  na|0|1
 		// urcuje, co bude nejvice vlevo
 		sliderBar.setMinValue(0);
-		sliderBar.setCurrentValue(0);
-		Double n = result.doubleValue();
+		sliderBar.setCurrentValue(createWindowStart());
+		Double n = new Integer(DataHandler.get().getMax()).doubleValue();
 		Double divider = new Double(20000);
 		sliderBar.setStepSize(n/divider);
 		
@@ -190,8 +195,7 @@ public class GwtViewers implements EntryPoint, ClickHandler, ConfigurationChange
 		appendClickHandler(rotatePool.getLeftSideImage());
 		this.fxPane = new MoveEffectsPanel(rotatePool, conf);
 		
-		MoveHandler handler = new MoveHandler();
-		this.fxPane.addMoveListener(handler);
+		this.fxPane.addMoveListener(this.moveHandler);
 		
 		this.confPanel = new ConfigurationPanel();
 		this.confPanel.initConfiguration("0",Integer.toString(this.modulo));
@@ -201,29 +205,55 @@ public class GwtViewers implements EntryPoint, ClickHandler, ConfigurationChange
 
 	private ImageRotatePool createImageRotatePool() {
 		// zacatek
-		ImageMoveWrapper[] viewPortImages = new ImageMoveWrapper[getNumberOfImages()];
-		for (int i = 0; i < viewPortImages.length; i++) {
+		ImageMoveWrapper[] visibleImages = new ImageMoveWrapper[getNumberOfImages()];
+		
+		int indexStart = createWindowStart();
+		System.out.println("Index start =="+indexStart);
+		int indexStop = createWindowStop(visibleImages, indexStart);
+		System.out.println("Index stop == "+indexStop);
+		
+		for (int i = indexStart, j=0; i < indexStop; i++,j++) {
 			ImageMoveWrapper wrapper = createImageMoveWrapper(i,""+i);
 			wrapper.getWidget().getElement().getStyle().setZIndex(ImageRotatePool.VIEW_IMAGES_Z_INDEX);
-			viewPortImages[i] = wrapper;
-			appendClickHandler(viewPortImages[i]);
+			visibleImages[j] = wrapper;
+			appendClickHandler(visibleImages[j]);
 		}
+		
 		ImageMoveWrapper rcopy = createImageMoveWrapper(getNumberOfImages(),"R");
 		rcopy.getWidget().getElement().getStyle().setZIndex(ImageRotatePool.LEFTRIGNT_IMAGES_Z_INDEX);
 		appendClickHandler(rcopy);
 
+		// neni dulezite ImageRotatePool si preusporada
 		ImageMoveWrapper[] noVisibleImages = new ImageMoveWrapper[getNumberOfImages()];
-		for (int i = 0; i < noVisibleImages.length; i++) {
-			ImageMoveWrapper wrapper = createImageMoveWrapper(i+getNumberOfImages()+1,"n"+i);
+		for (int i = indexStart,j=0; i < indexStop; i++,j++) {
+			ImageMoveWrapper wrapper = createImageMoveWrapper(i,"n"+i);
 			wrapper.getWidget().getElement().getStyle().setZIndex(ImageRotatePool.NOVIEW_IMAGES_Z_INDEX);
-			noVisibleImages[i] = wrapper;
-			appendClickHandler(noVisibleImages[i]);
+			noVisibleImages[j] = wrapper;
+			appendClickHandler(noVisibleImages[j]);
 		}
 		
 		ImageMoveWrapper lcopy = createImageMoveWrapper(DataHandler.get().getMax(),"L");
 		lcopy.getWidget().getElement().getStyle().setZIndex(ImageRotatePool.LEFTRIGNT_IMAGES_Z_INDEX);
-		ImageRotatePool rotatePool = new ImageRotatePool(viewPortImages, noVisibleImages, lcopy, rcopy);
+		ImageRotatePool rotatePool = new ImageRotatePool(visibleImages, noVisibleImages, lcopy, rcopy, indexStart);
 		return rotatePool;
+	}
+
+	private int createWindowStop(ImageMoveWrapper[] visibleImages,int windowStart) {
+		return Math.min(windowStart + visibleImages.length, DataHandler.get().getMax());
+	}
+
+	private int createWindowStart() {
+		int firstArg = Math.max(DataHandler.get().getMax()-getNumberOfImages(),0);
+		int secondArg = getCurIndexFromData();
+		int min = Math.min(firstArg, secondArg);
+		System.out.println("createWindowStart("+firstArg+","+secondArg+") = "+min);
+		return min;
+	}
+
+	private int getCurIndexFromData() {
+		int indexFromData = Math.max(DataHandler.get().getCurrentIndex(), 0);
+		System.out.println("Index from data :"+indexFromData);
+		return indexFromData;
 	}
 
 	private void appendClickHandler(ImageMoveWrapper wrap) {
@@ -276,10 +306,10 @@ public class GwtViewers implements EntryPoint, ClickHandler, ConfigurationChange
 			//GwtViewers.this.direction = SliderDirection.LEFT;
 		}
 
-		private void informAboutPagesRange() {
+		public void informAboutPagesRange() {
 			int from = fxPane.getRotatePool().getPointer();
 			int to = from + fxPane.getRotatePool().getVisibleImageSize();
-			pages(from+1, to+1);
+			pages(from+1, to);
 		}
 
 		private void modifyIds(ImageRotatePool pool) {
@@ -326,7 +356,6 @@ public class GwtViewers implements EntryPoint, ClickHandler, ConfigurationChange
 			//GwtViewers.this.direction = SliderDirection.RIGHT;
 			informAboutPagesRange();
 		}
-		
 	}
 	
 

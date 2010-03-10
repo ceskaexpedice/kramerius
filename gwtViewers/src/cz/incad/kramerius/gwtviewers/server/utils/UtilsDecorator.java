@@ -18,7 +18,7 @@ public class UtilsDecorator {
 	public static final java.util.logging.Logger LOGGER = java.util.logging.Logger
 			.getLogger(UtilsDecorator.class.getName());
 
-	public static FedoraModels getModel(KConfiguration kConfiguration, String uuid) throws LexerException, ParserConfigurationException, IOException, SAXException {
+	public synchronized static FedoraModels getModel(KConfiguration kConfiguration, String uuid) throws LexerException, ParserConfigurationException, IOException, SAXException {
 		String callIdentification = CallCache.makeIdent(UtilsDecorator.class.getName(), "getModel", uuid);
 		if (CallCache.isInCache(callIdentification)) {
 			return (FedoraModels) CallCache.valueFromCache(callIdentification);
@@ -29,12 +29,12 @@ public class UtilsDecorator {
 		}
 	}
 	
-	public static ArrayList<SimpleImageTO> getPages(KConfiguration kConfiguration,String currentProcessinguuid) throws IOException,
+	public synchronized static ArrayList<SimpleImageTO> getPages(KConfiguration kConfiguration,String currentProcessinguuid) throws IOException,
 			ParserConfigurationException, SAXException, LexerException {
 		String callIdentification = CallCache.makeIdent(UtilsDecorator.class.getName(), "getPages", currentProcessinguuid);
 		if (CallCache.isInCache(callIdentification)) {
 			ArrayList<SimpleImageTO> valueFromCache = (ArrayList<SimpleImageTO>) CallCache.valueFromCache(callIdentification);
-			LOGGER.info("Value from cache. Size of list "+(valueFromCache == null ? "null" : valueFromCache.size()));
+			LOGGER.info("Value from cache for argument("+currentProcessinguuid+")"+(valueFromCache == null ? "null" : valueFromCache.size()));
 			return valueFromCache;
 		} else {
 			ArrayList<SimpleImageTO> pages = Utils.getPages(kConfiguration, currentProcessinguuid);

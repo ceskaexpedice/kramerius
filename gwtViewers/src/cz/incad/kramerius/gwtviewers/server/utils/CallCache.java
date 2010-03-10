@@ -2,15 +2,17 @@ package cz.incad.kramerius.gwtviewers.server.utils;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Queue;
 import java.util.WeakHashMap;
+
 
 public class CallCache {
 	
 	public static final int MAX_CALL = 1000;
 	
-	private static WeakHashMap<String, Object> callCache = new WeakHashMap<String, Object>();
+	private static HashMap<String, Object> callCache = new HashMap<String, Object>();
 	private static List<String> identList = new ArrayList<String>();
 	
 	public static String parametersHash(Object...args) {
@@ -33,14 +35,14 @@ public class CallCache {
 		makeNew(ident);
 		callCache.put(ident, value);
 	}
-	public synchronized static Object valueFromCache(String ident) {
+	public static Object valueFromCache(String ident) {
 		if (identList.contains(ident)) {
 			makeNew(ident);
 			return callCache.get(ident);
 		} else return null;
 	}
 
-	public synchronized static boolean isInCache(String ident) {
+	public static boolean isInCache(String ident) {
 		return identList.contains(ident);
 	}
 
@@ -56,5 +58,10 @@ public class CallCache {
 	private static void makeNew(String ident) {
 		identList.remove(ident);
 		identList.add(ident);
+	}
+
+	public static void dumpCache() {
+		System.out.println(identList);
+		System.out.println(callCache);
 	}
 }

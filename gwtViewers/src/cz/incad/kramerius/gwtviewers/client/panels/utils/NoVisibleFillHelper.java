@@ -15,6 +15,7 @@ public class NoVisibleFillHelper {
 		int left = current-1;
 		int right = pool.getPointer()+ pool.getVisibleImageSize();
 		ArrayList<ImageMoveWrapper> nvis = pool.getNoVisibleImages();
+		System.out.println(nvis);
 		int size = nvis.size();
 		int maxIndex = size / 2; maxIndex += size % 2;
 		for (int i = 1; i <= maxIndex; i++) {
@@ -23,12 +24,12 @@ public class NoVisibleFillHelper {
 			if (loadingIndex < DataHandler.get().getMax()) {
 				SimpleImageTO sit = DataHandler.get().getData().get(loadingIndex);
 				ImageMoveWrapper wrapper = nvis.get(nvisPosition);
-				System.out.println("modified wrapper 0x"+Integer.toHexString(System.identityHashCode(wrapper)));
+				System.out.println("modified wrapper["+nvisPosition+"] 0x"+Integer.toHexString(System.identityHashCode(wrapper)));
 				modifyImageMoveWrapper(wrapper, sit, "nvis_right_"+nvisPosition);
 			} else {
 				SimpleImageTO sit = DataHandler.get().getNaImage();
 				ImageMoveWrapper wrapper = nvis.get(nvisPosition);
-				System.out.println("modified wrapper 0x"+Integer.toHexString(System.identityHashCode(wrapper)));
+				System.out.println("modified wrapper["+nvisPosition+"] 0x"+Integer.toHexString(System.identityHashCode(wrapper)));
 				modifyImageMoveWrapper(wrapper, sit, "nvis_right_"+nvisPosition);
 			}
 		}

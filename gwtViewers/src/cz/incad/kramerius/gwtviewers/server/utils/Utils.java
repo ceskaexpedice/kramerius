@@ -95,8 +95,7 @@ public class Utils {
 					imageTO.setUrl(thumbnailURL);
 					imageTO.setHeight(Integer.parseInt(kConfiguration.getScaledHeight()));
 					imageTO.setWidth(Integer.parseInt(kConfiguration.getScaledHeight()));
-					pages.add(imageTO);
-					
+					pages.add(0,imageTO);
 				}
 			}
 			

@@ -40,6 +40,7 @@ import cz.incad.kramerius.gwtviewers.client.PageService;
 import cz.incad.kramerius.gwtviewers.client.PagesResultSet;
 import cz.incad.kramerius.gwtviewers.client.SimpleImageTO;
 import cz.incad.kramerius.gwtviewers.client.panels.utils.Dimension;
+import cz.incad.kramerius.gwtviewers.server.utils.CallCache;
 import cz.incad.kramerius.gwtviewers.server.utils.MetadataStore;
 import cz.incad.kramerius.gwtviewers.server.utils.ThumbnailServerUtils;
 import cz.incad.kramerius.gwtviewers.server.utils.Utils;
@@ -53,25 +54,21 @@ public class PageServiceImpl extends RemoteServiceServlet implements PageService
 	
 	public static final java.util.logging.Logger LOGGER = java.util.logging.Logger.getLogger(PageServiceImpl.class.getName());
 
-	
-    private String thumbnailUrl ="thumb";
-	private String imgFolder;
-	private String scaledHeight;
-	private String maxInitWidth;
-	
-	
 	private KConfiguration kConfiguration;
-	
-	// dodelat nejakou vlastni implementaci !!
-	//private WeakHashMap<String, ArrayList<SimpleImageTO>> cachedPages = new WeakHashMap<String, ArrayList<SimpleImageTO>>();
 	private MetadataStore metadataStore = new MetadataStore();
-	
-	
-	// 
+
 	public PagesResultSet getPages(String pidpath) {
 		String[] path = pidpath.split("/");
-		LOGGER.info("path = "+Arrays.asList(path));
-		return readPages(path);
+		PagesResultSet readPages = readPages(path);
+		ArrayList<SimpleImageTO> data = readPages.getData();
+		for (SimpleImageTO simpleImageTO : data) {
+			System.out.println(simpleImageTO.getIdentification());
+		}
+		System.out.println("Pages size =="+data.size());
+		System.out.println("index =="+readPages.getCurrentSimpleImageTOIndex());
+		System.out.println("id =="+readPages.getCurrentSimpleImageTOId());
+		
+		return readPages;
 	}
 	
 	public static String relsExtUrl(KConfiguration configuration, String uuid) {
@@ -95,7 +92,6 @@ public class PageServiceImpl extends RemoteServiceServlet implements PageService
 	}
 	
 	public PagesResultSet readPages(String[] uuidPath) {
-		System.out.println("Reading pages ... ");
 		ArrayList<SimpleImageTO> images = null;
 		//PagesResultSet pages = null;
 		InputStream docStream = null;
@@ -141,6 +137,7 @@ public class PageServiceImpl extends RemoteServiceServlet implements PageService
             }
             PagesResultSet rs = new PagesResultSet();
             rs.setData(images);
+            LOGGER.info("SIZE = "+rs.getData().size());
             rs.setCurrentSimpleImageTOId(identification);
             rs.setCurrentSimpleImageTOIndex(index);
             return rs;
@@ -162,8 +159,8 @@ public class PageServiceImpl extends RemoteServiceServlet implements PageService
 	}
 
 	public Integer getNumberOfPages(String pidpath) {
-		LOGGER.info("Get number of images "+pidpath);
 		PagesResultSet pages = getPages(pidpath);
+		LOGGER.info("PagesResultSet : "+pages.getData().size());
 		return pages.getData().size();
 	}
 
@@ -180,11 +177,6 @@ public class PageServiceImpl extends RemoteServiceServlet implements PageService
 			LOGGER.log(Level.SEVERE, e.getMessage(), e);
 			throw new RuntimeException(e);
 		}
-		
-		this.imgFolder = config.getInitParameter("imgFolder");
-		this.thumbnailUrl = config.getInitParameter("thumbUrl");
-		this.scaledHeight = KConfiguration.getKConfiguration().getScaledHeight();
-		this.maxInitWidth = config.getInitParameter("maxWidth");
 	}
 
 	@Override

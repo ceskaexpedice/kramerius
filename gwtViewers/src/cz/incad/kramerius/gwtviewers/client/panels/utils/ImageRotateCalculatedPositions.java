@@ -15,6 +15,8 @@ public class ImageRotateCalculatedPositions {
 	private ImageMoveWrapper right = null;
 	
 	public ImageRotateCalculatedPositions( ImageRotatePool pool) {
+		System.out.println("Calculated positions  = pool = "+pool);
+		System.out.println("Calculated positions  = visible images = "+pool.getVisibleImages());
 		for (ImageMoveWrapper imageMoveWrapper : pool.getVisibleImages()) {
 			ImageMoveWrapper copy = imageMoveWrapper.copy(); {
 //				copy.setUrl("no-image.png");
@@ -25,14 +27,12 @@ public class ImageRotateCalculatedPositions {
 
 		for (ImageMoveWrapper nvOrig : pool.getNoVisibleImages()) {
 			ImageMoveWrapper nv = nvOrig.copy(); {
-//				nv.setUrl("no-image.png");
-//				nv.setImageIdent("no-ident");
 			}
 			this.noVisible.add(nv);
 		}
 		
-		this.left = left.copy();
-		this.right = right.copy();
+		this.left = pool.getLeftSideImage().copy();
+		this.right = pool.getRightSideImage().copy();
 	}
 
 	public ArrayList<ImageMoveWrapper> getViewPortImages() {

@@ -38,7 +38,7 @@ public class ImageRotatePool {
 	
 	private int ukazovatko = 0;
 	
-	public ImageRotatePool(ImageMoveWrapper[] viewPortImages, ImageMoveWrapper[] novisibles, ImageMoveWrapper left, ImageMoveWrapper right) {
+	public ImageRotatePool(ImageMoveWrapper[] viewPortImages, ImageMoveWrapper[] novisibles, ImageMoveWrapper left, ImageMoveWrapper right, int pointer) {
 		super();
 		for (ImageMoveWrapper img : viewPortImages) {
 			this.visible.add(img);
@@ -48,8 +48,30 @@ public class ImageRotatePool {
 		}
 		this.left = left;
 		this.right = right;
-		
+		this.ukazovatko = pointer;
 		fillNoVisibleImages();
+		this.debugPool();
+	}
+	
+	public ImageRotatePool(ImageMoveWrapper[] viewPortImages, ImageMoveWrapper[] novisibles, ImageMoveWrapper left, ImageMoveWrapper right) {
+		this(viewPortImages, novisibles, left, right, 0);
+	}
+	
+	public ImageMoveWrapper getWrapper(String id) {
+		for (ImageMoveWrapper wrap : this.visible) {
+			if (wrap.getImageIdent().equals(id)) {
+				return wrap;
+			}
+		}
+		for (ImageMoveWrapper wrap : this.noVisible) {
+			if (wrap.getImageIdent().equals(id)) {
+				return wrap;
+			}
+		};
+		if (this.left.getImageIdent().equals(id)) return this.left;
+		if (this.right.getImageIdent().equals(id)) return this.right;
+		return null;
+		
 	}
 
 	public ImageMoveWrapper getWrapper(Widget widget) {
@@ -164,7 +186,11 @@ public class ImageRotatePool {
 	public int getPointer() {
 		return this.ukazovatko;
 	}
-	
+
+	public void setPointer(int ukazovatko) {
+		this.ukazovatko = ukazovatko;
+	}
+
 	public void initWithPointer(int pointer) {
 		if (true) throw new IllegalStateException("KURVAA");
 		if (pointer < 0) return;
