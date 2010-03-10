@@ -9,7 +9,7 @@ def artifactoryUid = System.properties["user"]
 def artifactoryPwd = System.properties["pswd"]
 def artifactoryURL = "http://svn:8080/artifactory"
 def gwtBuildDir = "gwtBuild"
-def gwtApplicationName="cz.i.kramerius.gwtviewers.GwtViewers"
+def gwtApplicationName="cz.incad.kramerius.gwtviewers.GwtViewers"
 
 def deployingWarDir="tmpWar"
 
