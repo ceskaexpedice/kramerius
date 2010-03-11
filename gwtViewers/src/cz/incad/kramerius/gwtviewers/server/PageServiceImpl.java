@@ -60,14 +60,6 @@ public class PageServiceImpl extends RemoteServiceServlet implements PageService
 	public PagesResultSet getPages(String pidpath) {
 		String[] path = pidpath.split("/");
 		PagesResultSet readPages = readPages(path);
-		ArrayList<SimpleImageTO> data = readPages.getData();
-		for (SimpleImageTO simpleImageTO : data) {
-			System.out.println(simpleImageTO.getIdentification());
-		}
-		System.out.println("Pages size =="+data.size());
-		System.out.println("index =="+readPages.getCurrentSimpleImageTOIndex());
-		System.out.println("id =="+readPages.getCurrentSimpleImageTOId());
-		
 		return readPages;
 	}
 	

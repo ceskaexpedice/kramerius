@@ -73,17 +73,19 @@ public class GwtViewers implements EntryPoint, ClickHandler, ConfigurationChange
 	}
 	private SliderChangeListener sliderChangeListener;
 	
-	
 	private void doInitImages() {
+		message("Initializing images ...");
 		String uuidPath = getUUIDPath();
 		pageService.getNumberOfPages(uuidPath, new AsyncCallback<Integer>() {
 			@Override
 			public void onFailure(Throwable caught) {
+				message("Initialization fails");
 				initialized = false;
 			}
 
 			@Override
 			public void onSuccess(Integer result) {
+				message("received number of images");
 				modulo = moduloCreator.createModulo(result);
 			}
 
@@ -92,11 +94,13 @@ public class GwtViewers implements EntryPoint, ClickHandler, ConfigurationChange
 
 			@Override
 			public void onFailure(Throwable caught) {
+				message("initialization failure");
 				initialized = false;
 			}
 
 			@Override
 			public void onSuccess(PagesResultSet result) {
+				message("received page resulset");
 				DataHandler.get().setData(result.data);
 				DataHandler.get().setCurrentId(result.getCurrentSimpleImageTOId());
 				DataHandler.get().setCurrentIndex(result.getCurrentSimpleImageTOIndex());
@@ -109,11 +113,21 @@ public class GwtViewers implements EntryPoint, ClickHandler, ConfigurationChange
 	@Override
 	public void onClick(ClickEvent event) {
 		ImageMoveWrapper wrapper = this.fxPane.getRotatePool().getWrapper((Widget) event.getSource());
+		changeSelection(wrapper);
+	}
+
+	private void changeSelection(ImageMoveWrapper wrapper) {
 		fxPane.getImgSelector().markUnselect(fxPane.getRotatePool());
 		fxPane.getImgSelector().changeSelection(wrapper, this);
 		fxPane.getImgSelector().markSelect(fxPane.getRotatePool());
 	}
 
+	
+	public void requestToChangeSelection(String uuid) {
+		ImageMoveWrapper wrapper = fxPane.getRotatePool().getWrapper(uuid);
+		changeSelection(wrapper);
+	}
+	
 	
 	@Override
 	public void onJumpChange(String to) {
@@ -285,9 +299,11 @@ public class GwtViewers implements EntryPoint, ClickHandler, ConfigurationChange
 	 * This is the entry point method.
 	 */
 	public void onModuleLoad() {
+		message("Loading module ...");
 		_sharedInstance = this;
 		RootPanel.get("container").add(this._emptyVerticalPanel);	
 		doInitImages();
+		exportMethods(this);
 	}
 
 
@@ -406,6 +422,36 @@ public class GwtViewers implements EntryPoint, ClickHandler, ConfigurationChange
 		$wnd.pages(from, to);
 	}-*/;
 
+	
+	public native boolean debugEnabled() /*-{
+		if (typeof($wnd.__debug) == "undefined") {
+			return false;
+		} else {
+			return $wnd.__debug;
+		}
+	}-*/;
+
+	/**
+	 * Exports some methods to pure js
+	 * @param gwtV
+	 */
+	public native void exportMethods(GwtViewers gwtV) /*-{
+	   $wnd.requestToSelect = function (uuid) {
+	       gwtV.@cz.incad.kramerius.gwtviewers.client.GwtViewers::requestToChangeSelection(Ljava/lang/String;)(uuid);
+	   };
+	   
+	   $wnd.testExport = function (uuid) {
+			alert("Exporeted function");
+	   };
+	   
+	}-*/;
+	
+	public void message(String messge) {
+		if (debugEnabled()) {
+			Window.alert(messge);
+		}
+	}
+	
 
 	@Override
 	public void onMouseMove(MouseMoveEvent event) {
