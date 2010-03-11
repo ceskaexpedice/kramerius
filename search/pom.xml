@@ -84,7 +84,7 @@
 			<version>2.7.1</version>
 		</dependency>
 
-  
+
 
 		<dependency>
 			<groupId>org.apache</groupId>
@@ -152,7 +152,7 @@
 			<version>1.0-SNAPSHOT</version>
 			<type>war</type>
 			<exclusions>
-				<exclusion>  
+				<exclusion>
 					<groupId>gwt.com.google.gwt.sdk</groupId>
 					<artifactId>gwt-user</artifactId>
 				</exclusion>
@@ -164,7 +164,7 @@
 			<artifactId>gwtviewers_server</artifactId>
 			<version>1.0-SNAPSHOT</version>
 			<exclusions>
-				<exclusion>  
+				<exclusion>
 					<groupId>gwt.com.google.gwt.sdk</groupId>
 					<artifactId>gwt-user</artifactId>
 				</exclusion>
@@ -188,7 +188,7 @@
 			<artifactId>fedora_api</artifactId>
 			<version>0.0.1-SNAPSHOT</version>
 		</dependency>
-		
+
 
 		<!--  generating pdf -->
 		<dependency>
@@ -207,9 +207,9 @@
 			<version>1.0.4</version>
 		</dependency>
 		<dependency>
-		    <groupId>org.antlr</groupId>
-		    <artifactId>stringtemplate</artifactId>
-		    <version>3.2.1</version>
+			<groupId>org.antlr</groupId>
+			<artifactId>stringtemplate</artifactId>
+			<version>3.2.1</version>
 		</dependency>
 	</dependencies>
 
@@ -225,7 +225,14 @@
 					<exclude>**/*.java</exclude>
 				</excludes>
 			</resource>
+			<resource>
+				<directory>${basedir}/src/java</directory>
+				<includes>
+					<include>*.properties</include>
+				</includes>
+			</resource>
 		</resources>
+
 		<plugins>
 			<plugin>
 				<groupId>org.codehaus.mojo</groupId>
