@@ -10,12 +10,56 @@
   <head>
     <meta http-equiv="content-type" content="text/html; charset=UTF-8">
 	<script type="text/javascript">
-		var __gwtViewersUUID = "uuid:0eaa6730-9068-11dd-97de-000d606f5dc6";
-		var __confHeight = 200;
+		//var __gwtViewersUUIDPATH = "775211f0-9280-11de-9660-000d606f5dc6/4ff703f0-66f6-11de-abff-000d606f5dc6";
+		//var __gwtViewersUUIDPATH = "0eaa6730-9068-11dd-97de-000d606f5dc6/4308eb80-b03b-11dd-a0f6-000d606f5dc6";
+		//var __gwtViewersUUIDPATH = "0eaa6730-9068-11dd-97de-000d606f5dc6/4319b460-b03b-11dd-83ca-000d606f5dc6";
+
+		/*
+		var __gwtViewersUUIDPATH = "4ff703f0-66f6-11de-abff-000d606f5dc6";
+		var __confHeight = 140;
 		var __confWidth = 400;
-		var __confDistance = 5;
-		var __confDistance = 5;
-		var __thumbUrl = 'http://localhost:8080/search/thumb';
+		var __confDistance = 10;
+		var __confDistance = 10;
+
+		var __confNumberOfImages = 7;	
+		var __confMoveStep = 5;
+		
+		var __dialog_width = 200;
+		var __dialog_height = 200;
+		var __dialog_title = "";
+		var __dialog_full_image_url="na.png";		
+
+		function changeSelection(uuid) {
+		}
+		
+		function selectPage(uuid){
+		    alert("selectuju " + uuid);
+		}
+
+		function pages(from, to){
+		    alert("from=" + from+", to="+to);
+		}*/
+
+		var __gwtViewersUUIDPATH = "8f526130-8b0d-11de-8994-000d606f5dc6";
+		
+		//var __gwtViewersUUIDPATH = "4ff703f0-66f6-11de-abff-000d606f5dc6";
+		var __confHeight = 140;
+		var __confWidth = 400;
+		var __confDistance = 10;
+		var __confNumberOfImages = 7;	
+		var __confMoveStep = 1;
+		var __debug = true;
+
+		function changeSelection(uuid) {
+			requestToSelect(uuid);
+
+		}
+
+		// callbacks from component
+		function selectPage(uuid){  }
+		function pages(from, to){  }
+
+	
 	</script>
 
     <!--                                                               -->
@@ -42,7 +86,7 @@
   <!-- to create a completely dynamic UI.        -->
   <!--                                           -->
   <body>
-
+	<button onclick="nevim();"> Test </button>
     <!-- OPTIONAL: include this if you want history support -->
     <iframe src="javascript:''" id="__gwt_historyFrame" tabIndex='-1' style="position:absolute;width:0;height:0;border:0"></iframe>
     
@@ -54,13 +98,13 @@
       </div>
     </noscript>
 
-    <h1>FX testing page</h1>
+	<h1>.. Test stranka .. </h1>
 
     <table align="center">
-      
       <tr>
-      	<td colspan="3" id="label"></td>
-      </tr>
+      	<td></td>
+      	<td id="label" align="left" style="font-size: 20px;"></td> </tr>
+
       
       <tr>
         <td id="left"></td>
@@ -68,20 +112,8 @@
         <td id="right"></td>
       </tr>
       
-      <tr>
-      	<td id="runButton"></td>	
-      	<td id="debugButton"></td>
-      </tr>
-      
+	<tr></tr>
 	</table>
-    
 	<div id="slider" style="width: 100%"></div>
-	
-	<div id="test"  style="background: gray;width: 200px;height:300px">
-	</div> 
-	
-	<div id="logger">
-	</div>	
-	  
   </body>
 </html>
