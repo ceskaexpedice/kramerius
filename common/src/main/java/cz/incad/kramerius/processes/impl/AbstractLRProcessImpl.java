@@ -123,9 +123,9 @@ public abstract class AbstractLRProcessImpl implements LRProcess{
 			ProcessBuilder processBuilder = new ProcessBuilder(command);
 			processBuilder.environment().put(ProcessStarter.CLASSPATH_NAME, buffer.toString());
 			Process process = processBuilder.start();
-			File errStreamFile = new File(this.definition.getErrStreamFile());
+			File errStreamFile = new File(createFolderIfNotExists(this.definition.getErrStreamFolder()),this.uuid+".out");
 			new FollowStreamThread(process.getErrorStream(), new FileOutputStream(errStreamFile)).start();
-			File standardStreamFile = new File(this.definition.getStandardStreamFile());
+			File standardStreamFile = new File(createFolderIfNotExists(this.definition.getStandardStreamFolder()),this.uuid+".err");
 			new FollowStreamThread(process.getInputStream(), new FileOutputStream(standardStreamFile)).start();
 			//TODO: Synchronizace ?? Jak na to ?
 			//
@@ -142,6 +142,13 @@ public abstract class AbstractLRProcessImpl implements LRProcess{
 		} catch (InterruptedException e) {
 			LOGGER.log(Level.SEVERE, e.getMessage(), e);
 		}
+	}
+
+
+	private File createFolderIfNotExists(String folder) {
+		File fldr= new File(folder);
+		fldr.mkdirs();
+		return fldr;
 	}
 
 	@Override
