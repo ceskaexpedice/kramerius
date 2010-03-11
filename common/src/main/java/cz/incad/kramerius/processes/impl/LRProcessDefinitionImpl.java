@@ -27,8 +27,8 @@ public class LRProcessDefinitionImpl implements LRProcessDefinition {
 	private String id;
 	private String mainClass;
 	private String description;
-	private String standardStreamFile;
-	private String errStreamFile;
+	private String standardStreamFolder;
+	private String errStreamFolder;
 	
 	private List<String> parameters = new ArrayList<String>();
 	
@@ -71,10 +71,10 @@ public class LRProcessDefinitionImpl implements LRProcessDefinition {
 					this.libsDir = item.getTextContent();
 				}
 				if (nodeName.equals("standardOs")) {
-					this.standardStreamFile = item.getTextContent();
+					this.standardStreamFolder = item.getTextContent();
 				}
 				if (nodeName.equals("errOs")) {
-					this.errStreamFile = item.getTextContent();
+					this.errStreamFolder = item.getTextContent();
 				}
 				if (nodeName.equals("parameters")) {
 					parameters(item);
@@ -148,20 +148,20 @@ public class LRProcessDefinitionImpl implements LRProcessDefinition {
 		this.pm = pm;
 	}
 
-	public String getStandardStreamFile() {
-		return standardStreamFile;
+	public String getStandardStreamFolder() {
+		return standardStreamFolder;
 	}
 
-	public void setStandardStreamFile(String standardStreamFile) {
-		this.standardStreamFile = standardStreamFile;
+	public void setStandardStreamFolder(String standardStreamFolder) {
+		this.standardStreamFolder = standardStreamFolder;
 	}
 
-	public String getErrStreamFile() {
-		return errStreamFile;
+	public String getErrStreamFolder() {
+		return errStreamFolder;
 	}
 
-	public void setErrStreamFile(String errStreamFile) {
-		this.errStreamFile = errStreamFile;
+	public void setErrStreamFolder(String errStreamFolder) {
+		this.errStreamFolder = errStreamFolder;
 	}
 	
 	

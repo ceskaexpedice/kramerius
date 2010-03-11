@@ -57,12 +57,12 @@ public interface LRProcessDefinition {
 	 * Returns file error stream file 
 	 * @return
 	 */
-	public String getErrStreamFile();
+	public String getErrStreamFolder();
 	
 	/**
 	 * Returns standard stream file
 	 * @return
 	 */
-	public String getStandardStreamFile();
+	public String getStandardStreamFolder();
 
 }
