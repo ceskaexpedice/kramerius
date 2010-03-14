@@ -192,7 +192,6 @@ public class ImageRotatePool {
 	}
 
 	public void initWithPointer(int pointer) {
-		if (true) throw new IllegalStateException("KURVAA");
 		if (pointer < 0) return;
 		int maxImage = DataHandler.get().getMax();
 		int visibleImages = this.visible.size();
