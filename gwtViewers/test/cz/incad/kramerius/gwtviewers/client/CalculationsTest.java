@@ -5,6 +5,7 @@ import java.util.ArrayList;
 
 import com.google.gwt.junit.client.GWTTestCase;
 
+import cz.incad.kramerius.gwtviewers.client.data.DataHandler;
 import cz.incad.kramerius.gwtviewers.client.panels.ImageMoveWrapper;
 import cz.incad.kramerius.gwtviewers.client.panels.ViewConfiguration;
 import cz.incad.kramerius.gwtviewers.client.panels.utils.CalculationHelper;
@@ -15,7 +16,7 @@ public class CalculationsTest extends GWTTestCase {
 
 	@Override
 	public String getModuleName() {
-		return "cz.i.kramerius.gwtviewers.GwtViewers";
+		return "cz.incad.kramerius.gwtviewers.GwtViewers";
 	}
 
 //	public void testRight() {
@@ -66,8 +67,10 @@ public class CalculationsTest extends GWTTestCase {
 
 
 	public void testCase() {
-		ImageMoveWrapper[] wrappers = generateImages();
-		ImageMoveWrapper[] noVisible = generateCopies(wrappers);
+		
+		ArrayList<ImageMoveWrapper> wrappers = generateImages();
+		ArrayList<ImageMoveWrapper>  noVisible = generateCopies(wrappers);
+		//DataHandler.get().setData();
 		ImageMoveWrapper left = generateLeft(noVisible);
 		ImageMoveWrapper right = generateRight(noVisible);
 		ViewConfiguration coreConfiguration = generateConfiguration();
@@ -116,36 +119,39 @@ public class CalculationsTest extends GWTTestCase {
 		return coreConfiguration;
 	}
 
-	private ImageMoveWrapper generateRight(ImageMoveWrapper[] noVisible) {
-		ImageMoveWrapper right = noVisible[0].copy();
+	private ImageMoveWrapper generateRight(ArrayList<ImageMoveWrapper> noVisible) {
+		ImageMoveWrapper right = noVisible.get(0).copy();
 		{
 			right.setImageIdent("right");
 		}
 		return right;
 	}
 
-	private ImageMoveWrapper generateLeft(ImageMoveWrapper[] noVisible) {
-		ImageMoveWrapper left = noVisible[0].copy();
+	private ImageMoveWrapper generateLeft(ArrayList<ImageMoveWrapper> noVisible) {
+		ImageMoveWrapper left = noVisible.get(0).copy();
 		{
 			left.setImageIdent("left");
 		}
 		return left;
 	}
 
-	private ImageMoveWrapper[] generateCopies(ImageMoveWrapper[] wrappers) {
-		ImageMoveWrapper[] noVisible = new ImageMoveWrapper[10];
-		for (int i = 0; i < noVisible.length; i++) {
-			noVisible[i] = wrappers[i].copy();
-			noVisible[i].setImageIdent("novisible["+i+"]");
-			noVisible[i].debugXY();
+	private ArrayList<ImageMoveWrapper> generateCopies(ArrayList<ImageMoveWrapper> wrappers) {
+		int size = 10;
+		ArrayList<ImageMoveWrapper> noVisible = new ArrayList<ImageMoveWrapper>(size);
+		for (int i = 0; i < size; i++) {
+			ImageMoveWrapper copy = wrappers.get(i).copy();
+			copy.setImageIdent("novisible["+i+"]");
+			copy.debugXY();
+			noVisible.add(copy);
 		}
 		return noVisible;
 	}
 
-	private ImageMoveWrapper[] generateImages() {
-		ImageMoveWrapper[] wrappers = new ImageMoveWrapper[10];
-		for (int i = 0; i < wrappers.length; i++) {
-			wrappers[i] = new ImageMoveWrapper(0, 0, 100, 100, "nourl", "visible["+i+"]");
+	private ArrayList<ImageMoveWrapper> generateImages() {
+		int size = 10;
+		ArrayList<ImageMoveWrapper> wrappers = new ArrayList<ImageMoveWrapper>(size);
+		for (int i = 0; i < size; i++) {
+			wrappers.add(new ImageMoveWrapper(0, 0, 100, 100, "nourl", "visible["+i+"]"));
 		}
 		return wrappers;
 	}

@@ -24,12 +24,10 @@ public class NoVisibleFillHelper {
 			if (loadingIndex < DataHandler.get().getMax()) {
 				SimpleImageTO sit = DataHandler.get().getData().get(loadingIndex);
 				ImageMoveWrapper wrapper = nvis.get(nvisPosition);
-				System.out.println("modified wrapper["+nvisPosition+"] 0x"+Integer.toHexString(System.identityHashCode(wrapper)));
 				modifyImageMoveWrapper(wrapper, sit, "nvis_right_"+nvisPosition);
 			} else {
 				SimpleImageTO sit = DataHandler.get().getNaImage();
 				ImageMoveWrapper wrapper = nvis.get(nvisPosition);
-				System.out.println("modified wrapper["+nvisPosition+"] 0x"+Integer.toHexString(System.identityHashCode(wrapper)));
 				modifyImageMoveWrapper(wrapper, sit, "nvis_right_"+nvisPosition);
 			}
 		}
@@ -47,12 +45,10 @@ public class NoVisibleFillHelper {
 			if (loadingIndex >=0) {
 				SimpleImageTO sit = DataHandler.get().getData().get(loadingIndex);
 				ImageMoveWrapper wrapper = nvis.get(nvisPosition);
-				System.out.println("modified wrapper 0x"+Integer.toHexString(System.identityHashCode(wrapper)));
 				modifyImageMoveWrapper(wrapper, sit, "nvis_left_"+nvisPosition);
 			} else {
 				SimpleImageTO sit = DataHandler.get().getNaImage();
 				ImageMoveWrapper wrapper = nvis.get(nvisPosition);
-				System.out.println("modified wrapper 0x"+Integer.toHexString(System.identityHashCode(wrapper)));
 				modifyImageMoveWrapper(wrapper, sit, "nvis_left_"+nvisPosition);
 			}
 		}
@@ -64,7 +60,6 @@ public class NoVisibleFillHelper {
 		wrapper.setFirst(ito.isFirstPage());
 		wrapper.setLast(ito.isLastPage());
 		wrapper.setUrl(ito.getUrl());
-		System.out.println("\t change indentification to "+Integer.toHexString(System.identityHashCode(wrapper)));
 		wrapper.setImageIdent(ito.getIdentification());
 		wrapper.setIndex(ito.getIndex());
 		wrapper.modifyHeightAndWidth();

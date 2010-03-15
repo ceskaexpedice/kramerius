@@ -15,8 +15,6 @@ public class ImageRotateCalculatedPositions {
 	private ImageMoveWrapper right = null;
 	
 	public ImageRotateCalculatedPositions( ImageRotatePool pool) {
-		System.out.println("Calculated positions  = pool = "+pool);
-		System.out.println("Calculated positions  = visible images = "+pool.getVisibleImages());
 		for (ImageMoveWrapper imageMoveWrapper : pool.getVisibleImages()) {
 			ImageMoveWrapper copy = imageMoveWrapper.copy(); {
 //				copy.setUrl("no-image.png");

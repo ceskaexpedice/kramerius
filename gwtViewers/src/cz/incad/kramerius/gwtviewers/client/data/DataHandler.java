@@ -20,7 +20,6 @@ public class DataHandler {
 	}
 	public void setData(List<SimpleImageTO> data) {
 		this.data = data;
-		System.out.println("Data velikost = "+data.size());
 		naImage = createNASiTO(data.get(0));
 		max = data.size();
 	}

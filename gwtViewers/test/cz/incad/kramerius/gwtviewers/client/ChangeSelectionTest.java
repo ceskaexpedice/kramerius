@@ -16,7 +16,7 @@ public class ChangeSelectionTest extends GWTTestCase {
 
 	@Override
 	public String getModuleName() {
-		return "cz.i.kramerius.gwtviewers.GwtViewers";
+		return "cz.incad.kramerius.gwtviewers.GwtViewers";
 	}
 
 	
@@ -116,11 +116,12 @@ public class ChangeSelectionTest extends GWTTestCase {
 		// pozice 0
 		int numberOfImages = 7;
 		
-		ImageMoveWrapper[] viewPortImages = new ImageMoveWrapper[7];
-		for (int i = 0; i < viewPortImages.length; i++) {
+		ArrayList<ImageMoveWrapper> viewPortImages = new ArrayList<ImageMoveWrapper>(numberOfImages);
+		for (int i = 0; i < numberOfImages; i++) {
 			ImageMoveWrapper wrapper = GwtViewers.createImageMoveWrapper(i,""+i);
 			wrapper.getWidget().getElement().getStyle().setZIndex(ImageRotatePool.VIEW_IMAGES_Z_INDEX);
-			viewPortImages[i] = wrapper;
+			viewPortImages.add(wrapper);
+			//viewPortImages[i] = wrapper;
 		}
 		
 
@@ -128,11 +129,12 @@ public class ChangeSelectionTest extends GWTTestCase {
 		ImageMoveWrapper rcopy = GwtViewers.createImageMoveWrapper(numberOfImages,"R");
 		rcopy.getWidget().getElement().getStyle().setZIndex(ImageRotatePool.LEFTRIGNT_IMAGES_Z_INDEX);
 
-		ImageMoveWrapper[] noVisibleImages = new ImageMoveWrapper[numberOfImages];
-		for (int i = 0; i < noVisibleImages.length; i++) {
+		ArrayList<ImageMoveWrapper> noVisibleImages = new ArrayList<ImageMoveWrapper>();
+		//ImageMoveWrapper[] noVisibleImages = new ImageMoveWrapper[numberOfImages];
+		for (int i = 0; i < numberOfImages; i++) {
 			ImageMoveWrapper wrapper = GwtViewers.createImageMoveWrapper(i+numberOfImages+1,"n"+i);
 			wrapper.getWidget().getElement().getStyle().setZIndex(ImageRotatePool.NOVIEW_IMAGES_Z_INDEX);
-			noVisibleImages[i] = wrapper;
+			noVisibleImages.add(wrapper);
 		}
 		
 		ImageMoveWrapper lcopy = GwtViewers.createImageMoveWrapper(DataHandler.get().getMax(),"L");
@@ -146,10 +148,10 @@ public class ChangeSelectionTest extends GWTTestCase {
 		ArrayList<SimpleImageTO> itos = DataUtils.createImages(max);
 		DataHandler.get().setData(itos);
 		
-		ImageMoveWrapper[] viewPortImages = new ImageMoveWrapper[3];
-		for (int i = 0; i < viewPortImages.length; i++) {
+		ArrayList<ImageMoveWrapper> viewPortImages = new ArrayList<ImageMoveWrapper>();
+		for (int i = 0; i < 3; i++) {
 			ImageMoveWrapper wrapper = GwtViewers.createImageMoveWrapper(i,""+i);
-			viewPortImages[i] = wrapper;
+			viewPortImages.add(wrapper);
 		}
 		
 
@@ -161,10 +163,10 @@ public class ChangeSelectionTest extends GWTTestCase {
 
 		ImageMoveWrapper rcopy = GwtViewers.createImageMoveWrapper(3,"R");
 
-		ImageMoveWrapper[] noVisibleImages = new ImageMoveWrapper[3];
-		for (int i = 0; i < noVisibleImages.length; i++) {
+		ArrayList<ImageMoveWrapper> noVisibleImages = new ArrayList<ImageMoveWrapper>(3);
+		for (int i = 0; i < 3; i++) {
 			ImageMoveWrapper wrapper = GwtViewers.createImageMoveWrapper(i+4,"n"+i);
-			noVisibleImages[i] = wrapper;
+			viewPortImages.add(wrapper);
 		}
 		
 		ImageMoveWrapper lcopy = GwtViewers.createImageMoveWrapper(DataHandler.get().getMax(),"L");

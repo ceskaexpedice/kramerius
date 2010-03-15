@@ -222,10 +222,6 @@ public class MoveEffectsPanel extends  Composite {
 
 
 	public void rollToPage(int currentValue, double duration,boolean playEffect) {
-		System.out.println("Roll to page "+currentValue);
-		System.out.println("Play effect "+playEffect);
-		System.out.println("Pointer points to "+this.imageRotatePool.getPointer());
-		this.imageRotatePool.debugPool();
 		int pocetKroku = currentValue - this.imageRotatePool.getPointer();
 		if (pocetKroku > 0) {
 			for (int i = 0; i < pocetKroku; i++) { 

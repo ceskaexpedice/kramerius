@@ -38,9 +38,9 @@ public class ImageRotatePool {
 	
 	private int ukazovatko = 0;
 	
-	public ImageRotatePool(ImageMoveWrapper[] viewPortImages, ImageMoveWrapper[] novisibles, ImageMoveWrapper left, ImageMoveWrapper right, int pointer) {
+	public ImageRotatePool(ArrayList<ImageMoveWrapper> visibleImgs, ArrayList<ImageMoveWrapper> novisibles, ImageMoveWrapper left, ImageMoveWrapper right, int pointer) {
 		super();
-		for (ImageMoveWrapper img : viewPortImages) {
+		for (ImageMoveWrapper img : visibleImgs) {
 			this.visible.add(img);
 		}
 		for (ImageMoveWrapper img : novisibles) {
@@ -53,7 +53,7 @@ public class ImageRotatePool {
 		this.debugPool();
 	}
 	
-	public ImageRotatePool(ImageMoveWrapper[] viewPortImages, ImageMoveWrapper[] novisibles, ImageMoveWrapper left, ImageMoveWrapper right) {
+	public ImageRotatePool(ArrayList<ImageMoveWrapper> viewPortImages, ArrayList<ImageMoveWrapper> novisibles, ImageMoveWrapper left, ImageMoveWrapper right) {
 		this(viewPortImages, novisibles, left, right, 0);
 	}
 	
@@ -103,12 +103,8 @@ public class ImageRotatePool {
 		this.noVisible.add(0,this.left);
 		// posledni z viewPort do levy
 
-		System.out.println("0x"+Integer.toHexString(System.identityHashCode(this.left)) +"->");
 		this.left = this.visible.remove(0);
-		System.out.println("0x"+Integer.toHexString(System.identityHashCode(this.left)));
 		fillNoVisibleImages();
-
-		System.out.println(this.left.getImageIdent());
 		return true;
 	}
 
@@ -128,16 +124,13 @@ public class ImageRotatePool {
 		this.visible.add(0,this.left);
 		// prvni z novisible do levy
 		ImageMoveWrapper lastNoVisible = this.noVisible.remove(0);
-		System.out.println("0x"+Integer.toHexString(System.identityHashCode(this.left)) +"->");
 		this.left = lastNoVisible;	
-		System.out.println("0x"+Integer.toHexString(System.identityHashCode(this.left)));
 
 		// pravy do novisible
 		this.noVisible.add(this.right);
 		this.right = this.visible.remove(this.visible.size()-1);
 
 		fillNoVisibleImages();
-		System.out.println(this.left.getImageIdent());
 
 		return true;
 	}

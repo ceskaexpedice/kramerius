@@ -69,12 +69,8 @@ public class SliderChangeListener implements ChangeListener, MouseUpHandler  {
 				//fxPane.getRotatePool().debugPool();
 				animateOneJump(round);
 				previousSliderUp = round;
-			} else {
-				System.out.println("Kaslu na to 2!!");
-			}
-		} else {
-			System.out.println("Kaslu na to 1!! ("+round+"=="+previousSliderUp+")");
-		}
+			} else {}
+		} else {}
 	}
 		
 	private void animateOneJump(int round) {
