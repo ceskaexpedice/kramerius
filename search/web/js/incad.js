@@ -1,8 +1,15 @@
 var enableAjax = true; // jestli se ma strankovat s pomoci ajaxu
 
-/*saveHistory ... da se zakazat aby <back> neuklada  znova
- *
- */
+function uncollapse(pid, div, offset){
+    var page = new PageQuery(window.location.search);
+    page.setValue("offset", offset);
+    var url =  "uncollapse.jsp?rows=10&" + page.toString() + 
+        "&type=uncollapse&d="+div+"&collapsed=false&root_pid=" + pid + "&fq=root_pid:\"" + pid + "\"";
+    $.get(url, function(xml) {
+        $("#"+div).html(xml);
+    });
+}
+
 function gotoItemDetail(id){
     var itemDetailUrl = "itemDetail.jsp";
     
@@ -40,10 +47,25 @@ function sortBy( value ){
     window.location = window.location.protocol + window.location.pathname + "?" + page.toString();
 }
 
-function gotoPageOffset( value ){
+function gotoPageOffset2( value ){
     var page = new PageQuery(window.location.search);
     page.setValue("offset", value);
     window.location = searchPage + "?" + page.toString();
+}
+
+function gotoPageOffset( value, div, baseUrl ){
+    if(div){
+        var page = new PageQuery(window.location.search);
+        page.setValue("offset", value);
+        var url = baseUrl + "?" + page.toString() + "&d="+div+"&base="+baseUrl;
+      $.get(url, function(xml){
+          $("#"+div).html(xml);
+      });
+    }else{
+      var page = new PageQuery(window.location.search);
+      page.setValue("offset", value);
+      window.location = searchPage + "?" + page.toString();
+    }
 }
 
 function addNavigation(navigator, value){
@@ -93,8 +115,12 @@ function searchInTree(pid, filter, div){
     });
 }
 
+function checkLastRelsExt(model){
+    
+}
+
 function browseInTree(pid, model, div){
-    /*
+    
     var url ="./inc/getItemForBrowse.jsp?pid="+pid+"&model="+model;
     $.get(url, function(xml) {
         if(div!=''){
@@ -104,25 +130,26 @@ function browseInTree(pid, model, div){
         }
         
     });
-    */
-    var url ="GetRelsExt?relation=*&format=json&pid="+pid;
-    $.getJSON(url, function(data){
-        $.each(data.items, function(i,item){
-            $.each(item, function(j,model2){
-               
-                $("#"+div).append(j + ": " + model2.length + "<br/>");
-            });
-            
-            //
-        });
-    //alert(usedRangeBarPos);
-    });
     
     
 }
 /* odebrani navigace z url
  *
  */
+function removeNavigation2(name, value){
+    
+    removeNavigation(name + ":\"" + value + "\"" );
+    
+     var page = new PageQuery(window.location.search);
+    
+    page.setValue("offset", "0");
+    page.removeParam(name);
+    var url = searchPage + "?" + page.toString();
+    
+    window.location = url;
+    
+}
+
 function removeNavigation(value){
     
     var page = new PageQuery(window.location.search);
@@ -137,9 +164,16 @@ function removeNavigation(value){
     url = url.replace(new RegExp(modToRemove, "gi"), '');
     modToRemove = encodeURI("&fq=" + value);
     url = url.replace(new RegExp(modToRemove, "gi"), '');
+    window.location = url;
+}
+
+function removeQuery(){
     
+    var page = new PageQuery(window.location.search);
     
-    
+    page.setValue("offset", "0");
+    page.setValue("q", "");
+    var url = searchPage + "?" + page.toString();
     window.location = url;
 }
 
@@ -150,7 +184,9 @@ function setLanguage(language){
         page.toString();
     
 }
-
+function toggleAdv(){
+    $('#advSearch').toggle();
+}
 function openPage(pid, model, pageLabel){
     var itemDetailUrl = "item.jsp";
     var page = new PageQuery(window.location.search);
@@ -340,7 +376,7 @@ function getUnitsList(pid){
 }
 
 function getUnitInfo(pid, index){
-    var url = 'details/biblioToRdf.jsp?&pid=' + pid + "&xsl=unit_from_biblio_mods.jsp&language=" + language;
+    var url = 'inc/details/biblioToRdf.jsp?&pid=' + pid + "&xsl=monographunit_from_biblio_mods.jsp&language=" + language;
     $.post(url, {}, function(xml) {
         $("#unit_"+index).html(xml)
     });
@@ -444,6 +480,7 @@ function getTotalPages(pid, div){
      */
 }
 
+
 function getTotalPagesInResults(){
     
     
@@ -462,7 +499,7 @@ function getTotalPagesInResults(){
  * Dual licensed under the MIT and GPL licenses.
  */
 
-(function($) {
+;(function($) {
     $.scrollToElement = function( $element, speed ) {
 
         speed = speed || 750;

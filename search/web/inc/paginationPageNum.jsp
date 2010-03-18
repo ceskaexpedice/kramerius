@@ -7,16 +7,21 @@
             int numDocs = Integer.parseInt((String) request.getAttribute("numDocs"));
             String div = (String) request.getParameter("d");
             String filters = (String) request.getAttribute("filters");
+            String type = (String) request.getParameter("type");
             String offsetUrl = "";
             boolean includeAbeceda = false;
             Facet abecedaFacet = null;
-            abecedaFacet = facets.get("abeceda_title");
-            if(abecedaFacet!=null){
-                includeAbeceda = true;
-                abecedaFacet.sortByName();
+            if(facets!=null){
+                abecedaFacet = facets.get("abeceda_title");
+                if(abecedaFacet!=null){
+                    includeAbeceda = true;
+                    abecedaFacet.sortByName();
+                }
             }
-            if(div==null){
+            if(type==null){
                 offsetUrl = "javascript:gotoPageOffset(%s);";
+            }else if(type.equals("uncollapse")){                
+                offsetUrl = "javascript:uncollapse('" + request.getParameter("root_pid") + "', '" + div + "', %s);";
             }else{
                 offsetUrl = "javascript:gotoPageOffsetInTree(%s, '"+div+"', '"+filters+"', '"+request.getParameter("pid")+"');";
                 

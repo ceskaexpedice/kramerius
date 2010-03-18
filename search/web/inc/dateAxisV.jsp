@@ -229,8 +229,8 @@ $(document).ready(function(){
         }
     });    
 </script>
-<div id="select-handle-top" class="da_select_handle" ><img src="img/resize.png" style="top:-8px;position:absolute;left:0px;" /></div>
-<div id="select-handle-bottom" class="da_select_handle"><img src="img/resize.png" style="top:-8px;position:absolute;left:0px;" /></div>
+<div id="select-handle-top" class="da_select_handle" ><img src="img/resize.png" style="top:-4px;position:absolute;left:0px;" /></div>
+<div id="select-handle-bottom" class="da_select_handle"><img src="img/resize.png" style="top:-4px;position:absolute;left:0px;" /></div>
 <div id="resizable-top" class="ui-state-active"></div>
 <div id="resizable-bottom" class="ui-state-active"></div>
 <div id="bubbleDiv" class="da_bubble" ><div id="bubbleText" ></div></div>

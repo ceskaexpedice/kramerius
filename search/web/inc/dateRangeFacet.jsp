@@ -25,7 +25,7 @@ fq=root_model:periodical
 fq=fedora.model:%22info:fedora/model:page%22
 --%>
 
-<c:url var="url" value="${kconfig.solrHost}" >
+<c:url var="url" value="${kconfig.solrHost}/select/select" >
     <c:param name="q" value="datum_begin:[1 TO 3010]" />
     <c:param name="rows" value="0" />
     <c:param name="facet" value="true" />

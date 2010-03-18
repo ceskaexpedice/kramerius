@@ -25,7 +25,7 @@ fq=root_model:periodical
 fq=fedora.model:%22info:fedora/model:page%22
 --%>
 
-<c:url var="url" value="${kconfig.solrHost}" >
+<c:url var="url" value="${kconfig.solrHost}/select/select" >
     <c:choose>
         <c:when test="${empty param.q}" >
             <c:param name="q" value="*:*" />

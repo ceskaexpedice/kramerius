@@ -20,7 +20,7 @@
 <c:set var="filters" scope="request" ></c:set>
 <c:set var="pageType" value="search" />
 <jsp:useBean id="pageType" type="java.lang.String" />
-<c:url var="url" value="${kconfig.solrHost}" >
+<c:url var="url" value="${kconfig.solrHost}/select/select" >
     <c:choose>
         <c:when test="${empty param.q}" >
             <c:param name="q" value="*:*" />

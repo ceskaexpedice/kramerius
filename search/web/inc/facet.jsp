@@ -8,10 +8,8 @@
 <% 
 currentFacet = facets.get(currentFacetName);
 if(currentFacet!= null && currentFacet.getFacetsNumber()>0){%>
-<div class="facet">
-    <div class="facetTitle">
-        <%=currentFacet.displayName%>
-    </div>    
+
+    <div class="facetTitle"><div><%=currentFacet.displayName%></div></div> <div class="facet">   
     <%
             try {
                 if (currentFacet.name.contains("abeceda") || 
@@ -24,7 +22,7 @@ if(currentFacet!= null && currentFacet.getFacetsNumber()>0){%>
                     FacetInfo current = (FacetInfo) stepper.next();
                     if (current != null) {
     %>
-    <div>
+    <div class="facetItem">
         <a title="<fmt:message >Add_navigator</fmt:message>" 
            href="<%=current.url%>"><%=current.displayName%></a> (<%=current.count%>)
     </div>

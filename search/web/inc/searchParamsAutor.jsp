@@ -17,9 +17,18 @@
 <%@ include file="initVars.jsp" %>
 <c:set var="pageType" value="search" />
 <jsp:useBean id="pageType" type="java.lang.String" />
-    <c:set var="rowsdefault" value="40" scope="request" />
-    <c:set var="rows" value="0" scope="request" />
 <c:url var="url" value="${kconfig.solrHost}/select/select" >
+    <c:choose>
+        <c:when test="${param.rows != null}" >
+            <c:set var="rows" value="${param.rows}" scope="request" />
+        </c:when>
+        <c:when test="${empty param.fq && empty param.q && param.f1 == null}">
+            <c:set var="rows" value="20" scope="request" />
+        </c:when>
+        <c:otherwise>
+            <c:set var="rows" value="20" scope="request" />
+        </c:otherwise>
+    </c:choose>
     <c:choose>
         <c:when test="${empty param.q}" >
             <c:param name="q" value="*:*" />
@@ -29,10 +38,11 @@
                 <c:param name="qt" value="czparser" />
             </c:if>
             <c:param name="q" value="${param.q}" />
-            <c:set var="rows" value="${rowsdefault}" scope="request" />
         </c:when>
         
     </c:choose>
+    <c:param name="rows" value="${rows}" />
+    <c:param name="facet.field" value="dc.creator" />
     <c:param name="facet.field" value="document_type" />
     <%--
     <c:param name="f.fedora.model.facet.sort" value="false" />
@@ -44,26 +54,23 @@
     <c:param name="facet.field" value="rok" />
     <c:param name="f.rok.facet.limit" value="-1" />
     <c:param name="f.rok.facet.sort" value="false" />
+    <c:param name="facet.field" value="abeceda_title" />
+    <c:param name="f.abeceda_title.facet.sort" value="false" />
+    <c:param name="facet.field" value="abeceda_autor" />
+    <c:param name="f.abeceda_autor.facet.sort" value="false" />
     
-    
-    <c:param name="fl" value="PID,score,root_title,pages_count,path,pid_path,root_pid,dc.title,details,fedora.model,path,dc.creator,datum,page_format" />
     <c:param name="facet" value="true" />
     <c:param name="facet.mincount" value="1" />
     <c:forEach var="fqs" items="${paramValues.fq}">
         <c:param name="fq" value="${fqs}" />
-            <c:set var="rows" value="${rowsdefault}" scope="request" />
     </c:forEach>
     <c:if test="${param.f1 != null}">
         <c:param name="fq" value="rok:[${param.f1} TO ${param.f2}] OR (datum_begin:[1 TO ${param.f1}] AND datum_end:[${param.f2} TO 3000])" />
-            <c:set var="rows" value="${rowsdefault}" scope="request" />
     </c:if>
     <c:param name="start" value="${param.offset}" />
     <c:choose>
         <c:when test="${param.sort != null}" >
             <c:param name="sort" value="${param.sort}" />
-        </c:when>
-        <c:when test="${sort != null}" >
-            <c:param name="sort" value="${sort}" />
         </c:when>
         <c:when test="${empty param.q}" >
             <c:param name="sort" value="level asc, title asc, score desc" />
@@ -72,58 +79,9 @@
             <c:param name="sort" value="level asc, score desc" />
         </c:otherwise>
     </c:choose>
-    
-    <c:if test="${param.collapsed != 'false'}">
     <c:param name="collapse.field" value="root_pid" />
     <c:param name="collapse.type" value="normal" />
     <c:param name="collapse.threshold" value="1" />
-    <c:param name="collapse.facet" value="before" />
-    </c:if>
-    
-    <%-- advanced params --%>
-    <c:if test="${!empty param.issn}">
-        <c:param name="fq" value="issn:${param.issn}" />
-            <c:set var="rows" value="${rowsdefault}" scope="request" />
-    </c:if>
-    <c:if test="${!empty param.title}">
-        <c:param name="fq" value="dc.title:${param.title}" />
-            <c:set var="rows" value="${rowsdefault}" scope="request" />
-    </c:if>
-    <c:if test="${!empty param.author}">
-        <c:param name="fq" value="dc.creator:${param.author}" />
-            <c:set var="rows" value="${rowsdefault}" scope="request" />
-    </c:if>
-    <c:if test="${!empty param.rok}">
-        <c:param name="fq" value="rok:${param.rok}" />
-            <c:set var="rows" value="${rowsdefault}" scope="request" />
-    </c:if>
-    <c:if test="${!empty param.udc}">
-        <c:param name="fq" value="udc:${param.udc}" />
-            <c:set var="rows" value="${rowsdefault}" scope="request" />
-    </c:if>
-    <c:if test="${!empty param.ddc}">
-        <c:param name="fq" value="ddc:${param.ddc}" />
-            <c:set var="rows" value="${rowsdefault}" scope="request" />
-    </c:if>
-    <c:if test="${!empty param.onlyPublic}">
-        <c:param name="fq" value="dostupnost:${param.onlyPublic}" />
-            <c:set var="rows" value="${rowsdefault}" scope="request" />
-    </c:if>
-
-        <c:if test="${param.rows != null}" >
-            <c:set var="rows" value="${param.rows}" scope="request" />
-        </c:if>
-    <c:param name="rows" value="${rows}" />
-    <c:if test="${rows!='0'}">
-        <c:param name="facet.field" value="facet_autor" />
-        <c:param name="f.facet_autor.facet.sort" value="false" />
-    <%--
-    <c:param name="facet.field" value="abeceda_autor" />
-    <c:param name="facet.field" value="abeceda_title" />
-    <c:param name="f.abeceda_title.facet.sort" value="false" />
-    <c:param name="f.abeceda_autor.facet.sort" value="false" />
-    --%>
-    </c:if>
 </c:url>
 
 <c:catch var="exceptions"> 

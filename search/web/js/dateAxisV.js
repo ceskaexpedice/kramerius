@@ -409,7 +409,7 @@ function positionCurtainsOnLoad(){
     
     var pBottom = $('#da_bar_' + lastBar).offset().top + barContainerHeight;
     var bottomSide = $('#content-scroll').height() + $('#content-scroll').offset().top;
-    if(pBottom < bottomSide){
+    if(pBottom < bottomSide && bottomSide - pBottom>10 ){
         var hBottom = bottomSide - pBottom;
         $('#resizable-bottom').css("top", pBottom);
         $('#resizable-bottom').css("height", hBottom);

@@ -22,40 +22,58 @@ out.clear();
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="cs" lang="cs">
     <%@ include file="inc/html_header.jsp" %>
-    <body >
+    <body>
+        <table style="width:100%"><tr><td align="center">
         <c:if test="${param.debug}" >
-            <c:out value="${url}" />
-            <br/>
-            <c:out value="${exceptions}" />
+        <c:out value="${url}" />
+        <br/>
+        <c:out value="${exceptions}" />
         </c:if>
-        <table border="0" cellpadding="0" cellspacing="0" width="100%">
-        <tbody><tr><td>
-        <%@ include file="templates/logo.jsp" %>
         <%@ include file="inc/searchForm.jsp" %>
-        </td></tr></tbody></table>
-        <table>
+        <table class="main usedFilters">
             <tr valign='top'>
-                <td><%@ include file="usedFilters.jsp" %></td>
+                <td><%@ include file="inc/usedFilters.jsp" %></td>
             </tr>
         </table>
         <table class="main">
             <tr valign='top'>
-                <td class="leftMenu">
-                    <%@ include file="inc/dateAxisV.jsp" %>
-                    <% currentFacetName = "language"; %>
-                </td>
+                    <c:if test="${rows!='0'}">
+                    <td class="leftMenu">
+                            <% currentFacetName = "language"; %>
+                            <%@ include file="inc/facet.jsp" %>
+                            <% currentFacetName = "document_type"; %>
+                            <%@ include file="inc/facet.jsp" %>
+                            <% currentFacetName = "facet_autor"; %>
+                            <%@ include file="inc/facet.jsp" %>
+                    </td>
+                    </c:if>
                 <td>
                     <c:out value="${numDocs}" />
                     <%@ include file="inc/paginationPageNum.jsp" %>
-                    <%@ include file="inc/facet.jsp" %>
-                    <% currentFacetName = "abeceda_title"; %>
-                    <%@ include file="inc/facet.jsp" %>
-                    <% currentFacetName = "abeceda_autor"; %>
-                    <%@ include file="inc/facet.jsp" %>
-                    <% currentFacetName = "document_type"; %>
-                    <%@ include file="inc/facet.jsp" %>
-                    <%@ include file="inc/resultsMain.jsp" %>
                     <%//@ include file="inc/modelsTree.jsp" %>
+                    
+                     <c:choose>
+                        <c:when test="${rows == 0}" >
+                            <%@ include file="inc/suggest.jsp" %>
+                            <table width="100%"><tr><td>
+                            <% currentFacetName = "language"; %>
+                            <%@ include file="inc/facet.jsp" %>
+                            </td><td><% currentFacetName = "document_type"; %>
+                            <%@ include file="inc/facet.jsp" %>
+                            </td></tr></table>
+                            <img src="img/intro.png" />
+                        </c:when>
+                        <c:otherwise >
+                            <%@ include file="inc/resultsMain.jsp" %>
+                        </c:otherwise>
+
+                    </c:choose>
+                </td>
+                <td class="rightMenu">
+                    <div class="facetTitle"><div><fmt:message key="Časová osa" />&nbsp;&nbsp;</div></div> 
+                    <div class="facet">
+                    <%@ include file="inc/dateAxisV.jsp" %>
+                    </div>
                 </td>
             </tr>
         </table>
@@ -64,4 +82,5 @@ out.clear();
                 <td><%@ include file="templates/footer.jsp" %></td>
             </tr>
         </table>
+        </td></tr></table>
 </body></html>

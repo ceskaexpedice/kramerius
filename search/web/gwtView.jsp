@@ -15,9 +15,29 @@
 	var __debug = false;
 	
 
-	function changeSelection(uuid) {}
+	function changeSelection(uuid) {
+            requestToSelect(uuid);
+        }
 	// callbacks from component
-	function selectPage(uuid){ }
+	function selectPage(uuid, format){
+            //changeSelection(uuid);
+            var pageUrl = fedoraImg + uuid + '/IMG_FULL';
+            var img = '';
+            if(format=='image/djvu' || format =="" || format==null){
+                img = '<div style="width:100%; height:500px;">'+
+                '<object width="100%" border="0" height="100%" style="border: 0px none ;" codebase="http://www.lizardtech.com/download/files/win/djvuplugin/en_US/DjVuControl_en_US.cab" classid="clsid:0e8d0700-75df-11d3-8b4a-0008c7450c4a" id="docframe" name="docframe">'+
+                '<param name="src" value="'+pageUrl+'" />'+
+                '<param name="zoom" value="100" />'+ 
+                '<embed width="100%" height="100%" ' +  
+                'src="'+pageUrl+'" type="image/vnd.djvu" id="docframe2" name="docframe2"/>'+
+                '<br/></object></div>';
+            }else if(format=='image/jpeg'){
+                img = '<div align="center"><img src="'+pageUrl+'" width="400px" /></div>';
+            }else{
+                img = '<div align="center"><img src="'+pageUrl+'" width="400px" /></div>';
+            }
+            $('#mainContent').html(img);
+	}
 	function pages(from, to){  }
 </script>
  
