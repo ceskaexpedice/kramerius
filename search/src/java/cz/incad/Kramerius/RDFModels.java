@@ -31,4 +31,25 @@ public class RDFModels {
             return null;
         }
     }
+    
+    public static String convertToRdf(KrameriusModels km){
+        switch(km){
+            case MONOGRAPH:
+                return "monograph";
+            case MONOGRAPHUNIT:
+                return "hasUnit";
+            case PERIODICAL:
+                return "periodical";
+            case PERIODICALVOLUME:
+                return "hasVolume";
+            case PERIODICALITEM:
+                return "hasItem";
+            case INTERNALPART:
+                return "hasIntCompPart";
+            case PAGE:
+                return "hasPage";
+            default:
+                return km.toString();
+        }
+    }
 }

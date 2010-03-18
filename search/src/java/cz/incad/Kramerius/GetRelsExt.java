@@ -4,15 +4,14 @@
  */
 package cz.incad.Kramerius;
 
+import cz.incad.kramerius.utils.conf.KConfiguration;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.PrintWriter;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-
-
-
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -26,6 +25,9 @@ import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.Locale;
+import java.util.Properties;
+import java.util.ResourceBundle;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -42,53 +44,34 @@ public class GetRelsExt extends HttpServlet {
      * @param request servlet request
      * @param response servlet response
      */
-    private static final String fedoraUrl = "http://194.108.215.227:8080/fedora";
+    ResourceBundle res;
 
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
+                response.setCharacterEncoding("UTF-8");
         PrintWriter out = response.getWriter();
         try {
+            KConfiguration configuration = KConfiguration.getKConfiguration();
+            String language = request.getParameter("language");
+            if(language==null || language.equals("")) language = "cs";
+            res = ResourceBundle.getBundle("labels", new Locale(language));
+
             String pid = request.getParameter("pid");
             String relation = request.getParameter("relation");
             String format = request.getParameter("format");
-            ArrayList<String> pids = getRdfPids(pid, relation);
-            if(format==null){
+            ArrayList<String> pids = getRdfPids(configuration, pid, relation);
+            if (format == null) {
                 response.setContentType("text/plain;charset=UTF-8");
                 for (String relpid : pids) {
                     out.print(relpid + "#");
                 }
-            }else if(format.equals("json")){
-                response.setContentType("application/x-javascript");
-                out.println("({\"items\": [");
-                HashMap<String, ArrayList<String>> models = new HashMap<String, ArrayList<String>>();
-                String model;
-                String res;
-                for (String relpid : pids) {
-                    model = relpid.split(" ")[0];
-                    res = "\"" + relpid.split(" ")[1].substring(5) + "\"";
-                    if(models.containsKey(model)){
-                        models.get(model).add(res);
-                    }else{
-                        ArrayList<String> a = new ArrayList<String>();
-                        a.add(res);
-                        models.put(model, a);
-                    }
-                }
-                Iterator iterator = models.keySet().iterator();
-                
-                while (iterator.hasNext()) {
-                    String key = (String) iterator.next();
-                    out.print("{\"");
-                    out.print(KrameriusModels.toString(RDFModels.convertRDFToModel(key)));
-                    out.print("\":[");
-                    for (int i=0; i<models.get(key).size()-1;i++){
-                        out.println(models.get(key).get(i) + ",");
-                    }
-                    out.print(models.get(key).get(models.get(key).size()-1));
-                    out.println("]}");
-                    if(iterator.hasNext())out.println (",");
-                }
-                out.println("]})");
+            } else if (format.equals("json")) {
+                //response.setContentType("application/x-javascript");
+                response.setContentType("text/plain");
+                outputAsJson(out, pids);
+            } else if (format.equals("tabs")) {
+                response.setContentType("text/html;charset=UTF-8");
+                outputAsTabs(out, pids);
             }
         //writeBiblioModsInfo(pids, out);
         } catch (Exception e) {
@@ -98,19 +81,97 @@ public class GetRelsExt extends HttpServlet {
         }
     }
 
-    private ArrayList getRdfPids(String pid, String relation) {
+    private void outputAsTabs(PrintWriter out, ArrayList<String> pids) {
+        out.println("({\"items\": [");
+        HashMap<String, ArrayList<String>> models = new HashMap<String, ArrayList<String>>();
+        String model;
+        String res;
+        for (String relpid : pids) {
+            model = relpid.split(" ")[0];
+            res = "\"" + relpid.split(" ")[1].substring(5) + "\"";
+            if (models.containsKey(model)) {
+                models.get(model).add(res);
+            } else {
+                ArrayList<String> a = new ArrayList<String>();
+                a.add(res);
+                models.put(model, a);
+            }
+        }
+        Iterator iterator = models.keySet().iterator();
+
+        while (iterator.hasNext()) {
+            String key = (String) iterator.next();
+            out.print("{\"");
+            out.print(KrameriusModels.toString(RDFModels.convertRDFToModel(key)));
+            out.print("\":[");
+            for (int i = 0; i < models.get(key).size() - 1; i++) {
+                out.println(models.get(key).get(i) + ",");
+            }
+            out.print(models.get(key).get(models.get(key).size() - 1));
+            out.println("]}");
+            if (iterator.hasNext()) {
+                out.println(",");
+            }
+        }
+        out.println("]})");
+    }
+
+    private void outputAsJson(PrintWriter out, ArrayList<String> pids) {
+        out.println("({\"items\": [");
+        HashMap<String, ArrayList<String>> models = new HashMap<String, ArrayList<String>>();
+        String model;
+        String rels;
+        for (String relpid : pids) {
+            model = relpid.split(" ")[0];
+            rels = "\"" + relpid.split(" ")[1].substring(5) + "\"";
+            if (models.containsKey(model)) {
+                models.get(model).add(rels);
+            } else {
+                ArrayList<String> a = new ArrayList<String>();
+                a.add(rels);
+                models.put(model, a);
+            }
+        }
+        Iterator iterator = models.keySet().iterator();
+
+        while (iterator.hasNext()) {
+            String key = (String) iterator.next();
+            out.print("{\"");
+            
+            out.print(KrameriusModels.toString(RDFModels.convertRDFToModel(key)));
+            out.print("\":[\"");
+            out.print(res.getString(KrameriusModels.toString(RDFModels.convertRDFToModel(key))));
+            out.print("\",");
+            for (int i = 0; i < models.get(key).size() - 1; i++) {
+                out.println(models.get(key).get(i) + ",");
+            }
+            out.print(models.get(key).get(models.get(key).size() - 1));
+            out.println("]}");
+            if (iterator.hasNext()) {
+                out.println(",");
+            }
+        }
+        out.println("]})");
+    }
+
+    private ArrayList getRdfPids(KConfiguration configuration, String pid, String relation) {
         ArrayList<String> pids = new ArrayList<String>();
         try {
-            String command = fedoraUrl + "/get/" + pid + "/RELS-EXT";
+            String command = configuration.getFedoraHost() + "/get/" + pid + "/RELS-EXT";
             Document contentDom = getDocument(command);
             XPathFactory factory = XPathFactory.newInstance();
             XPath xpath = factory.newXPath();
-            String xPathStr = "/RDF/Description/" + relation;
+            String xPathStr = "/RDF/Description/";
+            if (relation.endsWith("*")) {
+                xPathStr += relation;
+            } else {
+                xPathStr += RDFModels.convertToRdf(KrameriusModels.parseString(relation));
+            }
             XPathExpression expr = xpath.compile(xPathStr);
             NodeList nodes = (NodeList) expr.evaluate(contentDom, XPathConstants.NODESET);
             for (int i = 0; i < nodes.getLength(); i++) {
                 Node childnode = nodes.item(i);
-                if(!childnode.getNodeName().contains("hasModel")){
+                if (!childnode.getNodeName().contains("hasModel")) {
                     pids.add(childnode.getNodeName() + " " +
                             childnode.getAttributes().getNamedItem("rdf:resource").getNodeValue().split("/")[1]);
                 }
