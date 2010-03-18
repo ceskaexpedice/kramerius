@@ -1,35 +1,67 @@
-<%@ page contentType="text/html" pageEncoding="UTF-8" %>
+<?xml version="1.0" encoding="UTF-8"?><%@ page pageEncoding="UTF-8" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/xml" prefix="x" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt" %>
 <%@ page isELIgnored="false"%>
-
 <c:choose>
     <c:when test="${param.language != null}" >
         <fmt:setLocale value="${param.language}" />
     </c:when>
 </c:choose>
-
 <fmt:setBundle basename="labels" />
 <fmt:setBundle basename="labels" var="bundleVar" />
-<c:set var="pageUrl">
-    <c:out value="${kconfig.fedoraHost}" />/get/<c:out value="${param.pid}" />/IMG_FULL
-</c:set>
-
-<div>
-    <b><fmt:message>Číslo stránky</fmt:message>:</b><br/>
-    <dd>
-        <c:out value="${param.page}" />
-    </dd>
-</div>
-<div style="width:100%; height:500px;">
-    <object width="100%" border="0" height="100%" style="border: 0px none ;" codebase="http://www.lizardtech.com/download/files/win/djvuplugin/en_US/DjVuControl_en_US.cab" classid="clsid:0e8d0700-75df-11d3-8b4a-0008c7450c4a" id="docframe" name="docframe">
-        <param name="src" 
-               value="<c:out value="${pageUrl}" />" />
-        <param name="zoom" value="100" /> 
-        <embed width="100%" height="100%"  
-               src="<c:out value="${pageUrl}" />" type="image/vnd.djvu" id="docframe2" name="docframe2"/>
-        If you don't see picture, your browser has no plugin to view DjVu picture files. You can install plugin from <a target="_blank" href="http://www.celartem.com/en/download/djvu.asp"><b>LizardTech</b></a>.<br/>
-        <a href="<c:out value="${pageUrl}" />">File download</a><br/> <br/> <br/> 
-    </object>
-</div>
+<c:choose>
+    <c:when test="${param.display != null}">
+        <c:set var="display" value="${param.display}"/>
+    </c:when>
+    <c:otherwise>
+        <c:set var="display" value="block"/>
+    </c:otherwise>
+</c:choose>
+<xsl:stylesheet  version="1.0" 
+   xmlns:xsl="http://www.w3.org/1999/XSL/Transform" 
+   xmlns:mods="http://www.loc.gov/mods/v3"
+    exclude-result-prefixes="mods" >
+    <xsl:output method="xml" indent="yes" encoding="UTF-8" />
+    <!-- TODO customize transformation rules 
+    syntax recommendation http://www.w3.org/TR/xslt 
+    -->
+    <xsl:template match="/">
+        <xsl:apply-templates mode="info"/>
+    </xsl:template>
+    <xsl:template match="/mods:modsCollection/mods:mods" mode="info">
+        <xsl:variable name="uuid" ><xsl:value-of select="./mods:identifier[@type='urn']"/></xsl:variable>
+        <div><span valign="top">*</span>
+            <span>
+                <fmt:message>Hlavní název</fmt:message>:<br/>
+                <div class="resultValue"><a>
+                        <xsl:attribute name="href">./item.jsp?pid=uuid:<xsl:value-of select="$uuid"/></xsl:attribute><xsl:value-of select="mods:titleInfo/mods:title" /></a></div>
+            </span>
+            <c:if test="${display == 'none'}"><a onclick="$('#moreDetails').toggle();" href="#">more</a></c:if>
+        </div>
+        <div id="moreDetails">
+            <xsl:attribute name="style">display:<c:out value="${param.display}" />;</xsl:attribute>
+        <div><span valign="top">*</span>
+            <span>
+                <fmt:message>Autor</fmt:message>:<br/>
+                <xsl:for-each select="mods:name[@type='personal']">
+                    <xsl:if test="./mods:role/mods:roleTerm = 'Author'">
+                        <div class="resultValue">
+                            Příjmení: &#160;<xsl:value-of select="./mods:namePart[@type='family']" />&#160;&#160;
+                            Jméno: &#160;<xsl:value-of select="./mods:namePart[@type='given']" />
+                        </div>
+                    </xsl:if>
+                </xsl:for-each>
+            </span>
+        </div>
+        <div><span valign="top">*</span>
+            <span>
+                <fmt:message>Druh dokumentu</fmt:message>:<br/>
+                <div class="resultValue">
+                    <fmt:message>info:fedora/model:monograph</fmt:message>
+                </div>
+            </span>
+        </div>
+        </div>
+    </xsl:template>
+</xsl:stylesheet>

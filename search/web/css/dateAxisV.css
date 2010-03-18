@@ -24,7 +24,7 @@
 }
 
 .da_range_bar{
-    background:green;
+    background:#8a2d28;
     width: 3px;
     top: 2px;
     cursor: pointer;
@@ -64,7 +64,7 @@
 }
 
 .da_bar{
-    background:blue;
+    background:#c8af64;
     height: 5px;
     padding:0px;
     margin:0px;
@@ -117,19 +117,19 @@
     margin-left:4px;
 }
 
-.ui-slider .ui-slider-handle {
-    width: 1.0em;
-    height: 1.0em;
-}
+
 
 #resizable-top, #resizable-bottom { 
     background-position: top left; 
     width: 14px; 
-    height: 0px; 
-    background:#a9ff03;
+    height: 10px; 
+    background:#cccccc;
+    
+    /*background:#ffffff url('../img/facet_bg.png') bottom repeat-x;*/
     filter:alpha(opacity=50);
     opacity:.50;
-    position: absolute;
+    
+        position: absolute;
     top: 0px;
     left: 0px; 
 }

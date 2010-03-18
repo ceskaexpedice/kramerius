@@ -17,18 +17,16 @@
 <fmt:setBundle basename="labels" var="bundleVar" />
 
 <c:choose>
-    <c:when test="${uuid==null || uuid==''}">
-        <c:set var="urlPageStr" >
-            <c:out value="${kconfig.fedoraHost}" />/get/<c:out value="${param.pid}" />/BIBLIO_MODS
-        </c:set>
+    <c:when test="${empty uuid || uuid==null || uuid==''}">
+        <c:set var="pid" ><c:out value="${param.pid}" /></c:set>
     </c:when>
     <c:otherwise>
-        <c:set var="urlPageStr" >
-            <c:out value="${kconfig.fedoraHost}" />/get/<c:out value="${uuid}" />/BIBLIO_MODS
-        </c:set>
+        <c:set var="pid" ><c:out value="${uuid}" /></c:set>
     </c:otherwise>
 </c:choose>
-
+<c:set var="urlPageStr" >
+    <c:out value="${kconfig.fedoraHost}" />/get/<c:out value="${pid}" />/BIBLIO_MODS
+</c:set>
 <c:url var="urlPage" value="${urlPageStr}" />
 
 <c:choose>
@@ -49,18 +47,26 @@
 </c:catch>
 <c:choose>
     <c:when test="${exceptions != null}" >
-        <c:out value="${exceptions}" /><br/><br/>
+        <jsp:useBean id="exceptions" type="java.lang.Exception" />
+        <% System.out.println(exceptions); %>
     </c:when>
     <c:otherwise>
-        <c:catch var="exceptions"> 
-            <x:transform doc="${xmlPage}"  xslt="${xsltPage}"  />
+        <c:catch var="exceptions2"> 
+            <% out.clear(); %>
+            <x:transform doc="${xmlPage}"  xslt="${xsltPage}"  >
+                <x:param name="pid" value="${pid}"/>
+            </x:transform>
         </c:catch>
         <c:choose>
-            <c:when test="${exceptions != null}" >
+            <c:when test="${exceptions2 != null}" >
+                <%--
                 <c:out value="${exceptions}" /><br/>
                 xsl --- <c:out value="${xsl}" /><br/>
                 xslPage --- <c:out value="${xslPage}" /><br/>
                 xsltPage --- <c:out value="${xsltPage}" />
+                --%>
+                <jsp:useBean id="exceptions2" type="java.lang.Exception" />
+                <% System.out.println(exceptions2); %>
             </c:when>
             <c:otherwise></c:otherwise>
         </c:choose>

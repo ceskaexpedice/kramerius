@@ -22,22 +22,25 @@
    xmlns:xsl="http://www.w3.org/1999/XSL/Transform" 
    xmlns:mods="http://www.loc.gov/mods/v3"
     exclude-result-prefixes="mods" >
-    <xsl:output method="html" indent="yes" encoding="UTF-8" />
+    <xsl:output method="xml" indent="yes" encoding="UTF-8" />
     <!-- TODO customize transformation rules 
     syntax recommendation http://www.w3.org/TR/xslt 
     -->
+    <xsl:param name="pid" select="pid"/>
     <xsl:template match="/">
         <xsl:apply-templates mode="info"/>
     </xsl:template>
     <xsl:template match="/mods:modsCollection/mods:mods" mode="info">
         <xsl:variable name="uuid" ><xsl:value-of select="./mods:identifier[@type='urn']"/></xsl:variable>
-        <div>
+        <div><c:if test="${display == 'none'}">
+                    <xsl:attribute name="onclick" >
+                        javascript:showMainContent('<xsl:value-of select="$pid"/>', 'monograph')
+                    </xsl:attribute></c:if><span valign="top">*</span>
             <span>
-                <div class="resultValue"><fmt:message>Hlavní název</fmt:message>:
-                <a>
-                        <xsl:attribute name="href">./item.jsp?pid=uuid:<xsl:value-of select="$uuid"/>&amp;model=monograph</xsl:attribute><xsl:value-of select="mods:titleInfo/mods:title" /></a></div>
+                <fmt:message>Hlavní název</fmt:message>:<br/>
+                <div class="resultValue"><xsl:value-of select="mods:titleInfo/mods:title" /></div>
             </span>
-            <c:if test="${display == 'none'}"><a href="javascript:showMainContent('<c:out value="${param.pid}"/>', '<c:out value="${param.path}"/>');">more</a></c:if>
+            
         </div>
         <div id="moreDetails">
             <xsl:attribute name="style">display:<c:out value="${param.display}" />;</xsl:attribute>

@@ -21,6 +21,7 @@
 	// callbacks from component
 	function selectPage(uuid, format){
             //changeSelection(uuid);
+            
             var pageUrl = fedoraImg + uuid + '/IMG_FULL';
             var img = '';
             if(format=='image/djvu' || format =="" || format==null){
@@ -37,6 +38,8 @@
                 img = '<div align="center"><img src="'+pageUrl+'" width="400px" /></div>';
             }
             $('#mainContent').html(img);
+            
+            changeSelectedPage(uuid);
 	}
 	function pages(from, to){  }
 </script>

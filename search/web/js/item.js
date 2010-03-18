@@ -7,9 +7,11 @@ function getBiblioInfo(pid, model, div){
 
 function scrollElement(container, element){
     $(container).animate({
-        scrollTop: $(element).offset().top - $(container).offset().top,
+        scrollTop: $(element).offset().top - $(container).offset().top + $(container).scrollTop(),
         scrollLeft: $(element).offset().left
     }, 750);
+    //$(container).scrollTop($(element).offset().top - $(container).offset().top + $(container).scrollTop());
+    //$(container).scrollLeft($(element).offset().left);
         
 }
 
@@ -38,6 +40,15 @@ function selectingPage(obj, level, model){
     $(d1 + ">div>div[id=info-"+model+"]").html($(obj).text());
     changeSelection($(obj).attr("id"));
     //selectPage($(obj).attr("id"), $(obj).attr("title")); 
+}
+
+function changeSelectedPage(pid){
+    var obj = $("#" + pid);
+    //alert($(obj).length);
+    $(obj).parent().children(".relItem").removeClass('selected');
+    $(obj).addClass('selected');
+    //setTimeout("scrollElement", 100, obj.parent(), obj);
+    scrollElement($(obj).parent(), $(obj));
 }
 
 function selectItem(obj, level, model){
@@ -123,6 +134,7 @@ function getItemRels(pid, selectedpid, level, recursive){
         if(selectedpid!=""){
             $('#'+selectedpid).addClass('selected');
             //setTimeout("scrollElement('#"+selectedpid+":parent', '#"+selectedpid+"')", 100);
+            scrollElement($('#'+selectedpid).parent(), $('#'+selectedpid));
         }else{
             list = obj+">div>div[class=relList]>div:first";
             var img = $(obj+">ul>li>img");
@@ -146,6 +158,9 @@ function showList(obj, tab, model){
     //$(tab + ">div>div"+).toggle();
     $(tab + ">div>div[id=info-"+model+"]").toggle();
     $(tab + ">div>div[id=list-"+model+"]").toggle();
+    
+    var selected = $(tab+">div>div[id=list-"+model+"]>div.selected");
+    scrollElement($(selected).parent(), $(selected));
 }
 
 function showMainContent(pid, path){
