@@ -83,7 +83,7 @@ public class ConfigurationPanel extends Composite implements ClickHandler {
 	
 	public void fireModuleChnaged() {
 		for (ConfigurationChanged conf : this.listeners) {
-			conf.onModuleStepChange(this.stepTextBox.getText());
+			conf.onModuloStepChange(this.stepTextBox.getText());
 		}
 	}
 }

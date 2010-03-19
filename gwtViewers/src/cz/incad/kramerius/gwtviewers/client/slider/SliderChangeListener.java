@@ -10,6 +10,7 @@ import cz.incad.kramerius.gwtviewers.client.panels.MoveEffectsPanel;
 
 public class SliderChangeListener implements ChangeListener, MouseUpHandler  {
 
+	
 	private int previousSliderMove = -5;
 	private int previousSliderUp = -5;
 
@@ -18,11 +19,12 @@ public class SliderChangeListener implements ChangeListener, MouseUpHandler  {
 	private MoveEffectsPanel fxPane;
 
 	private SliderDirection direction = SliderDirection.RIGHT;
-
+	private SliderBar sliderBar;
 	
-	public SliderChangeListener(int modulo, double duration,
+	public SliderChangeListener(int modulo, double duration,SliderBar sliderBar,
 			MoveEffectsPanel fxPane) {
 		super();
+		this.sliderBar = sliderBar;
 		this.modulo = modulo;
 		this.duration = duration;
 		this.fxPane = fxPane;
@@ -31,6 +33,7 @@ public class SliderChangeListener implements ChangeListener, MouseUpHandler  {
 
 	@Override
 	public void onChange(Widget sender) {
+		System.out.println("On change event >>> ");
 		if (fxPane == null) return;
 		double currentValue = ((SliderBar)sender).getCurrentValue();
 		int round = (int) Math.round(currentValue);
@@ -43,14 +46,11 @@ public class SliderChangeListener implements ChangeListener, MouseUpHandler  {
 				// Ted odkomentovano, protoze na drobnustkach blbne nasledujici scenar:
 				// Krok Doleva -> Krok zpet
 				if (modulo != 1) {
-					fxPane.rollToPointer();
+					fxPane.modifyImagesToPointer();
 				}
 				rollToPage(round, duration, true);
-				//rollToPage(round, duration, false);
-//				label.setText("strana:"+round+" - posun");
 			} else {
 				rollToPage(round, 0.0, false);
-//				label.setText("strana:"+round +"-zadny posun");
 			}
 		}
 	}
@@ -61,11 +61,11 @@ public class SliderChangeListener implements ChangeListener, MouseUpHandler  {
 	@Override
 	public void onMouseUp(MouseUpEvent event) {
 		if (modulo == 1) return;
-		double currentValue = ((SliderBar)event.getSource()).getCurrentValue();
+		double currentValue = this.sliderBar.getCurrentValue();
 		int round = (int) Math.round(currentValue);
 		if (round != previousSliderUp) {
 			if ((round % modulo) != 0) {
-				fxPane.rollToPointer();
+				fxPane.modifyImagesToPointer();
 				//fxPane.getRotatePool().debugPool();
 				animateOneJump(round);
 				previousSliderUp = round;

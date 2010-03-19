@@ -4,5 +4,5 @@ public interface ConfigurationChanged {
 
 	public void onJumpChange(String to);
 	
-	public void onModuleStepChange(String step);
+	public void onModuloStepChange(String step);
 }

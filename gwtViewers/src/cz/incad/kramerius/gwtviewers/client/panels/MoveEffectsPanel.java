@@ -142,7 +142,7 @@ public class MoveEffectsPanel extends  Composite {
 		this.fireMovePointerLeft();
 	}
 	
-	public void rollToPointer() {
+	public void modifyImagesToPointer() {
 		this.imageRotatePool.initWithPointer(this.imageRotatePool.getPointer());
 	}
 	

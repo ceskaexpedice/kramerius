@@ -104,6 +104,7 @@ public class GwtViewers implements EntryPoint, ClickHandler, ConfigurationChange
 				DataHandler.get().setData(result.data);
 				DataHandler.get().setCurrentId(result.getCurrentSimpleImageTOId());
 				DataHandler.get().setCurrentIndex(result.getCurrentSimpleImageTOIndex());
+				// dosud v pohode
 				simplePaneContent();
 				initialized = true;
 			}
@@ -135,15 +136,22 @@ public class GwtViewers implements EntryPoint, ClickHandler, ConfigurationChange
 			}
 		}
 		if (dataPosition != -1) {
-			message("zvolena pozice je "+dataPosition);
-			int windowStart = createWindowStart();
+			int windowStart = this.fxPane.getRotatePool().getPointer();
 			int windowStop = createWindowStop(windowStart, getNumberOfImages());
+			message("windowStart, windowStop "+windowStart+","+windowStop);
+			message("dataposition "+dataPosition);
+
+			message("dataPosition <= windowStart"+(dataPosition <= windowStart));
+			message("dataPosition >= windowStop"+(dataPosition >= windowStop));
 			
-			ImageRotatePool rotatePool = this.fxPane.getRotatePool();
-			if ((dataPosition >= windowStart) && (dataPosition <= windowStop)) {
+			if ((dataPosition <= windowStart) || (dataPosition >= windowStop)) {
 				this.sliderBar.setCurrentValue(dataPosition);
-				message("rotate pool pointer "+rotatePool.getPointer());
-			}
+				message("data positon "+dataPosition);
+				message("slider position "+this.sliderBar.getCurrentValue());
+				if (modulo != 1) {
+					this.sliderChangeListener.onMouseUp(null);
+				}
+			}	
 			ImageMoveWrapper wrapper = fxPane.getRotatePool().getWrapper(uuid);
 			changeSelection(wrapper);
 		}
@@ -161,7 +169,7 @@ public class GwtViewers implements EntryPoint, ClickHandler, ConfigurationChange
 
 
 	@Override
-	public void onModuleStepChange(String step) {
+	public void onModuloStepChange(String step) {
 		this.modulo = Integer.parseInt(step);
 		this.sliderChangeListener.setModulo(this.modulo);
 	}
@@ -170,6 +178,7 @@ public class GwtViewers implements EntryPoint, ClickHandler, ConfigurationChange
 	private void simplePaneContent() {
 		RootPanel.get("container").remove(_emptyVerticalPanel);
 		createSimpleEffectsPanel();
+
 		this.container.add(this.fxPane);
 		this.container.add(this.sliderBar);
 		this.container.add(this.label);
@@ -180,7 +189,7 @@ public class GwtViewers implements EntryPoint, ClickHandler, ConfigurationChange
 		DeferredCommand.addCommand(new Command() { 
 			public void execute() {
 				modifySliderBar();
-				sliderChangeListener = new SliderChangeListener(modulo, duration, fxPane);
+				sliderChangeListener = new SliderChangeListener(modulo, duration, sliderBar, fxPane);
 				sliderBar.addChangeListener(sliderChangeListener);
 				sliderBar.addMouseUpHandler(sliderChangeListener);
 				
@@ -215,6 +224,7 @@ public class GwtViewers implements EntryPoint, ClickHandler, ConfigurationChange
 
 	
 	private void createSimpleEffectsPanel() {
+		// vytvoreni imagerotate pool -> v pohode
 		ImageRotatePool rotatePool = createImageRotatePool();
 		int width = getConfigurationDistance();
 		for (ImageMoveWrapper imw : rotatePool.getVisibleImages()) {
@@ -226,7 +236,9 @@ public class GwtViewers implements EntryPoint, ClickHandler, ConfigurationChange
 			conf.setViewPortHeight(getConfigurationHeight());
 			conf.setViewPortWidth(width);
 		}
+		// slide bar set width v pohde
 		sliderBar.setWidth(""+conf.getViewPortWidth()+"px");
+
 		appendClickHandler(rotatePool.getLeftSideImage());
 		this.fxPane = new MoveEffectsPanel(rotatePool, conf);
 		
@@ -241,19 +253,14 @@ public class GwtViewers implements EntryPoint, ClickHandler, ConfigurationChange
 	private ImageRotatePool createImageRotatePool() {
 		// zacatek
 		ArrayList<ImageMoveWrapper> visibleImages = new ArrayList<ImageMoveWrapper>(getNumberOfImages());
-		
 		int indexStart = createWindowStart();
-		System.out.println("Index start =="+indexStart);
 		int indexStop = createWindowStop(indexStart, getNumberOfImages());
-		System.out.println("Index stop == "+indexStop);
-		
 		for (int i = indexStart, j=0; i < indexStop; i++,j++) {
 			ImageMoveWrapper wrapper = createImageMoveWrapper(i,""+i);
 			wrapper.getWidget().getElement().getStyle().setZIndex(ImageRotatePool.VIEW_IMAGES_Z_INDEX);
 			visibleImages.add(wrapper);
 			appendClickHandler(wrapper);
 		}
-		System.out.println("Visible images =="+visibleImages.size());
 		
 		ImageMoveWrapper rcopy = createImageMoveWrapper(getNumberOfImages(),"R");
 		rcopy.getWidget().getElement().getStyle().setZIndex(ImageRotatePool.LEFTRIGNT_IMAGES_Z_INDEX);
