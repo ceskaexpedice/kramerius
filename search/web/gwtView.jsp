@@ -13,13 +13,12 @@
 	var __confNumberOfImages = 7;	
 	var __confMoveStep = 1;
 	var __debug = false;
-	
 
-	function changeSelection(uuid) {
-            requestToSelect(uuid);
+	function changeSelection(masterUuid, selection) {
+            requestToSelect(masterUuid, selection);
         }
 	// callbacks from component
-	function selectPage(uuid, format){
+	function selectPage(masterUuid, format){
             //changeSelection(uuid);
             
             var pageUrl = fedoraImg + uuid + '/IMG_FULL';
@@ -39,7 +38,7 @@
             }
             $('#mainContent').html(img);
             
-            changeSelectedPage(uuid);
+            changeSelectedPage(masterUuid, selection);
 	}
 	function pages(from, to){  }
 </script>
