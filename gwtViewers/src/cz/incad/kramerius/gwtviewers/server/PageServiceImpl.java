@@ -57,12 +57,21 @@ public class PageServiceImpl extends RemoteServiceServlet implements PageService
 	private KConfiguration kConfiguration;
 	private MetadataStore metadataStore = new MetadataStore();
 
-	public PagesResultSet getPages(String pidpath) {
-		String[] path = pidpath.split("/");
-		PagesResultSet readPages = readPages(path);
+	public PagesResultSet getPages(String parentUUID, String selectedUUID) {
+		PagesResultSet readPages = readPages(parentUUID, selectedUUID);
 		return readPages;
 	}
 	
+	
+	
+	
+	@Override
+	public PagesResultSet getPagesSet(String parentUUID, String selectedUUID) {
+		PagesResultSet pgs = getPages(parentUUID, selectedUUID);
+		return pgs;
+	}
+
+
 	public static String relsExtUrl(KConfiguration configuration, String uuid) {
 		String url = configuration.getFedoraHost() +"/get/uuid:"+uuid+"/RELS-EXT";
 		return url;
@@ -83,21 +92,15 @@ public class PageServiceImpl extends RemoteServiceServlet implements PageService
 		return url;
 	}
 	
-	public PagesResultSet readPages(String[] uuidPath) {
+	public PagesResultSet readPages(String parentUUID, String selectedUUID) {
 		ArrayList<SimpleImageTO> images = null;
 		//PagesResultSet pages = null;
 		InputStream docStream = null;
 		try {
-			Stack<String> uuidStack = new Stack<String>();
-			for (String uuid : uuidPath) { uuidStack.push(uuid); }
-			String currentProcessinguuid = null;
-			while(!uuidStack.isEmpty()) {
-				currentProcessinguuid = uuidStack.pop();
-				LOGGER.info("Current uuid:"+currentProcessinguuid);
-				FedoraModels model = Utils.getModel(kConfiguration, currentProcessinguuid);
-				if (model.equals(FedoraModels.page)) continue;
-				images = UtilsDecorator.getPages(kConfiguration, currentProcessinguuid); 
-			}
+			LOGGER.info("Current uuid:"+parentUUID);
+			FedoraModels model = Utils.getModel(kConfiguration, parentUUID);
+			//if (model.equals(FedoraModels.page)) continue;
+			images = UtilsDecorator.getPages(kConfiguration, parentUUID); 
 			
 			if (images == null) images = new ArrayList<SimpleImageTO>();
 			if (!images.isEmpty()) {
@@ -109,29 +112,30 @@ public class PageServiceImpl extends RemoteServiceServlet implements PageService
 			}
 			
 			LOGGER.info("Reading image sizes");
-			Properties props = metadataStore.loadCollected(currentProcessinguuid);
+			Properties props = metadataStore.loadCollected(parentUUID);
             if (props.isEmpty()) {
     			LOGGER.info("Disecting image sizes");
-                props = ThumbnailServerUtils.disectSizes(currentProcessinguuid, images);
-                metadataStore.storeCollected(currentProcessinguuid, props);
+                props = ThumbnailServerUtils.disectSizes(parentUUID, images);
+                metadataStore.storeCollected(parentUUID, props);
             }
             
-            String identification = uuidPath[uuidPath.length - 1];
+//            String identification = uuidPath[uuidPath.length - 1];
             int index = -1;
             for (int i = 0; i < images.size(); i++) {
             	SimpleImageTO sit = images.get(i);
 				String property = props.getProperty(sit.getIdentification());
 				if (property == null) throw new RuntimeException("not width property !");
 				sit.setWidth(Integer.parseInt(property));
-				if (identification.equals(sit.getIdentification())) {
+				if (selectedUUID.equals(sit.getIdentification())) {
 					index = i;
 				}
             }
             PagesResultSet rs = new PagesResultSet();
             rs.setData(images);
             LOGGER.info("SIZE = "+rs.getData().size());
-            rs.setCurrentSimpleImageTOId(identification);
+            rs.setCurrentSimpleImageTOId(selectedUUID);
             rs.setCurrentSimpleImageTOIndex(index);
+            rs.setMasterSimpleImageTOId(parentUUID);
             return rs;
 		} catch (ParserConfigurationException e) {
 			LOGGER.log(Level.SEVERE, e.getMessage(), e);
@@ -150,8 +154,9 @@ public class PageServiceImpl extends RemoteServiceServlet implements PageService
 		}
 	}
 
-	public Integer getNumberOfPages(String pidpath) {
-		PagesResultSet pages = getPages(pidpath);
+	public Integer getNumberOfPages(String parentUUID, String selectedUUID) {
+		LOGGER.info("getNumberOfPages("+parentUUID+","+selectedUUID+")");
+		PagesResultSet pages = getPages(parentUUID, selectedUUID);
 		LOGGER.info("PagesResultSet : "+pages.getData().size());
 		return pages.getData().size();
 	}
@@ -176,9 +181,4 @@ public class PageServiceImpl extends RemoteServiceServlet implements PageService
 		return null;
 	}
 
-	@Override
-	public PagesResultSet getPagesSet(String uuidPath) {
-		PagesResultSet pgs = getPages(uuidPath);
-		return pgs;
-	}
 }

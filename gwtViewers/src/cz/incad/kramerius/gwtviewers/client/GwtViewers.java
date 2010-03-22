@@ -40,18 +40,13 @@ import cz.incad.kramerius.gwtviewers.client.slider.SliderChangeListener;
 
 public class GwtViewers implements EntryPoint, ClickHandler, ConfigurationChanged, MouseMoveHandler {
 	
-	public static GwtViewers _sharedInstance = null;
 
 	// panel s efekty
 	private MoveEffectsPanel fxPane;
-	// konfigurace skoku
-	private ConfigurationPanel confPanel;
 	
 	// sluzba pro podavani stranek
 	private final PageServiceAsync pageService = GWT.create(PageService.class);
-	private VerticalPanel _emptyVerticalPanel = new VerticalPanel();
 	private VerticalPanel container = new VerticalPanel();
-	private Label label = new Label();
 	
 	private boolean initialized = false;
 	private int modulo = 1;
@@ -73,10 +68,9 @@ public class GwtViewers implements EntryPoint, ClickHandler, ConfigurationChange
 	}
 	private SliderChangeListener sliderChangeListener;
 	
-	private void doInitImages() {
+	private void doInitImages(String masterUuid, String selection) {
 		message("Initializing images ...");
-		String uuidPath = getUUIDPath();
-		pageService.getNumberOfPages(uuidPath, new AsyncCallback<Integer>() {
+		pageService.getNumberOfPages(masterUuid, selection, new AsyncCallback<Integer>() {
 			@Override
 			public void onFailure(Throwable caught) {
 				message("Initialization fails");
@@ -90,7 +84,7 @@ public class GwtViewers implements EntryPoint, ClickHandler, ConfigurationChange
 			}
 
 		});
-		pageService.getPagesSet(uuidPath, new AsyncCallback<PagesResultSet>() {
+		pageService.getPagesSet(masterUuid, selection, new AsyncCallback<PagesResultSet>() {
 
 			@Override
 			public void onFailure(Throwable caught) {
@@ -104,6 +98,7 @@ public class GwtViewers implements EntryPoint, ClickHandler, ConfigurationChange
 				DataHandler.get().setData(result.data);
 				DataHandler.get().setCurrentId(result.getCurrentSimpleImageTOId());
 				DataHandler.get().setCurrentIndex(result.getCurrentSimpleImageTOIndex());
+				DataHandler.get().setMasterId(result.getMasterSimpleImageTOId());
 				// dosud v pohode
 				simplePaneContent();
 				initialized = true;
@@ -124,49 +119,47 @@ public class GwtViewers implements EntryPoint, ClickHandler, ConfigurationChange
 	}
 
 	
-	public void requestToChangeSelection(String uuid) {
-		int dataPosition = -1;
-		List<SimpleImageTO> data = DataHandler.get().getData();
-		for (int i = 0; i < data.size(); i++) {
-			SimpleImageTO sit = data.get(i);
-			if (sit.getIdentification().equals(uuid)) {
-				//this.sliderBar.setCurrentValue(i);
-				dataPosition = i;
-				break;
-			}
-		}
-		if (dataPosition != -1) {
-			int windowStart = this.fxPane.getRotatePool().getPointer();
-			int windowStop = createWindowStop(windowStart, getNumberOfImages());
-			message("windowStart, windowStop "+windowStart+","+windowStop);
-			message("dataposition "+dataPosition);
-
-			message("dataPosition <= windowStart"+(dataPosition <= windowStart));
-			message("dataPosition >= windowStop"+(dataPosition >= windowStop));
-			
-			if ((dataPosition <= windowStart) || (dataPosition >= windowStop)) {
-				this.sliderBar.setCurrentValue(dataPosition);
-				message("data positon "+dataPosition);
-				message("slider position "+this.sliderBar.getCurrentValue());
-				if (modulo != 1) {
-					this.sliderChangeListener.onMouseUp(null);
+	public void requestToChangeSelection(String masterUuid, String selection) {
+		if (DataHandler.get().anyData() && DataHandler.get().getMasterUUID().equals(masterUuid)) {
+			// zmena selekce v mem reviru
+			int dataPosition = -1;
+			List<SimpleImageTO> data = DataHandler.get().getData();
+			for (int i = 0; i < data.size(); i++) {
+				SimpleImageTO sit = data.get(i);
+				if (sit.getIdentification().equals(selection)) {
+					dataPosition = i;
+					break;
 				}
-			}	
-			ImageMoveWrapper wrapper = fxPane.getRotatePool().getWrapper(uuid);
-			changeSelection(wrapper);
+			}
+			if (dataPosition != -1) {
+				int windowStart = this.fxPane.getRotatePool().getPointer();
+				int windowStop = createWindowStop(windowStart, getNumberOfImages());
+				message("windowStart, windowStop "+windowStart+","+windowStop);
+				message("dataposition "+dataPosition);
+
+				message("dataPosition <= windowStart"+(dataPosition <= windowStart));
+				message("dataPosition >= windowStop"+(dataPosition >= windowStop));
+				
+				if ((dataPosition <= windowStart) || (dataPosition >= windowStop)) {
+					this.sliderBar.setCurrentValue(dataPosition);
+					message("data positon "+dataPosition);
+					message("slider position "+this.sliderBar.getCurrentValue());
+					if (modulo != 1) {
+						this.sliderChangeListener.onMouseUp(null);
+					}
+				}	
+				ImageMoveWrapper wrapper = fxPane.getRotatePool().getWrapper(selection);
+				changeSelection(wrapper);
+			}
+		} else {
+			// zmena master
+			doInitImages(masterUuid, selection);
 		}
 	}
 	
 	
 	@Override
-	public void onJumpChange(String to) {
-//		int jump = Integer.parseInt(to)-1;
-//		int translated = this.fxPane.getImgSelector().selectionToSliderPosition(this.fxPane.getRotatePool(), jump);
-//		rollToPage(translated, 0.0, false);
-//		animateOneJump(translated);
-//		this.sliderBar.setCurrentValue(translated);
-	}
-
+	public void onJumpChange(String to) {}
 
 	@Override
 	public void onModuloStepChange(String step) {
@@ -176,14 +169,17 @@ public class GwtViewers implements EntryPoint, ClickHandler, ConfigurationChange
 
 
 	private void simplePaneContent() {
-		RootPanel.get("container").remove(_emptyVerticalPanel);
+		if (this.container != null) {
+			if (this.fxPane != null) this.container.remove(this.fxPane);
+			this.fxPane = null;  
+		
+			RootPanel.get("container").remove(this.container);	
+		}
+		
 		createSimpleEffectsPanel();
-
 		this.container.add(this.fxPane);
 		this.container.add(this.sliderBar);
-		this.container.add(this.label);
-		this.container.add(this.confPanel);
-		this.confPanel.setHeight("50px");
+
 		RootPanel.get("container").add(this.container);
 		
 		DeferredCommand.addCommand(new Command() { 
@@ -195,7 +191,7 @@ public class GwtViewers implements EntryPoint, ClickHandler, ConfigurationChange
 				
 				ImageMoveWrapper wrapper = fxPane.getRotatePool().getWrapper(DataHandler.get().getCurrentId());
 				if (wrapper != null) {
-					fxPane.getImgSelector().changeSelection(wrapper, _sharedInstance);
+					fxPane.getImgSelector().changeSelection(wrapper, GwtViewers.this);
 					fxPane.getImgSelector().markSelect(fxPane.getRotatePool());
 				}
 				
@@ -241,12 +237,8 @@ public class GwtViewers implements EntryPoint, ClickHandler, ConfigurationChange
 
 		appendClickHandler(rotatePool.getLeftSideImage());
 		this.fxPane = new MoveEffectsPanel(rotatePool, conf);
-		
 		this.fxPane.addMoveListener(this.moveHandler);
 		
-		this.confPanel = new ConfigurationPanel();
-		this.confPanel.initConfiguration("0",Integer.toString(this.modulo));
-		this.confPanel.addConfigurationChanged(this);
 	}
 
 
@@ -276,7 +268,6 @@ public class GwtViewers implements EntryPoint, ClickHandler, ConfigurationChange
 			appendClickHandler(wrapper);
 		}
 		
-		System.out.println("No visible images == "+noVisibleImages.size());
 		ImageMoveWrapper lcopy = createImageMoveWrapper(DataHandler.get().getMax(),"L");
 		lcopy.getWidget().getElement().getStyle().setZIndex(ImageRotatePool.LEFTRIGNT_IMAGES_Z_INDEX);
 		ImageRotatePool rotatePool = new ImageRotatePool(visibleImages, noVisibleImages, lcopy, rcopy, indexStart);
@@ -321,20 +312,12 @@ public class GwtViewers implements EntryPoint, ClickHandler, ConfigurationChange
 	
 	
 
-	public static void gwtViewers() {
-		RootPanel.get("container").add(_sharedInstance._emptyVerticalPanel);	
-		_sharedInstance.doInitImages();
-		RootPanel.get("slider").add(_sharedInstance.sliderBar);
-	}
 	
 	/**
 	 * This is the entry point method.
 	 */
 	public void onModuleLoad() {
-		message("Loading module ...");
-		_sharedInstance = this;
-		RootPanel.get("container").add(this._emptyVerticalPanel);	
-		doInitImages();
+		//doInitImages(getUUIDPath());
 		exportMethods(this);
 	}
 
@@ -347,8 +330,6 @@ public class GwtViewers implements EntryPoint, ClickHandler, ConfigurationChange
 
 		@Override
 		public void onMoveLeft(ImageRotatePool pool, boolean effectsPlayed) {
-			ImageMoveWrapper selection = fxPane.getRotatePool().getVisibleImages().get(0);
-			confPanel.initConfiguration(""+(selection.getIndex()+1), ""+modulo);
 			modifyIds(pool);
 			informAboutPagesRange();
 			//GwtViewers.this.direction = SliderDirection.LEFT;
@@ -387,8 +368,6 @@ public class GwtViewers implements EntryPoint, ClickHandler, ConfigurationChange
 		@Override
 		public void onMoveRight(ImageRotatePool pool, boolean effectsPlayed) {
 			modifyIds(pool);
-			ImageMoveWrapper selection = fxPane.getRotatePool().getVisibleImages().get(0);
-			confPanel.initConfiguration(""+(selection.getIndex()+1), ""+modulo);
 			informAboutPagesRange();
 			//GwtViewers.this.direction = SliderDirection.RIGHT;
 		}
@@ -468,14 +447,13 @@ public class GwtViewers implements EntryPoint, ClickHandler, ConfigurationChange
 	 * @param gwtV
 	 */
 	public native void exportMethods(GwtViewers gwtV) /*-{
-	   $wnd.requestToSelect = function (uuid) {
-	       gwtV.@cz.incad.kramerius.gwtviewers.client.GwtViewers::requestToChangeSelection(Ljava/lang/String;)(uuid);
-	   };
-	   
-	   $wnd.testExport = function (uuid) {
-			alert("Exporeted function");
-	   };
-	   
+		$wnd.requestToSelect = function (masterUuid, selection) {
+			gwtV.@cz.incad.kramerius.gwtviewers.client.GwtViewers::requestToChangeSelection(Ljava/lang/String;Ljava/lang/String;)(masterUuid, selection);
+		};
+		
+		$wnd.reloadParentUUID = function (masterUuid, selection) {
+			gwtV.@cz.incad.kramerius.gwtviewers.client.GwtViewers::doInitImages(Ljava/lang/String;Ljava/lang/String;)(masterUuid, selection);
+		};
 	}-*/;
 	
 	public void message(String messge) {

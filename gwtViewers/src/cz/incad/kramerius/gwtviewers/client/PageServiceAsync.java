@@ -9,11 +9,11 @@ import cz.incad.kramerius.gwtviewers.client.panels.utils.Dimension;
 
 public interface PageServiceAsync {
 
-	void getNumberOfPages(String uuid, AsyncCallback<Integer> callback);
+	void getNumberOfPages(String masterUuid, String selection, AsyncCallback<Integer> callback);
 
 	void getNoPage(AsyncCallback<SimpleImageTO> callback);
 
-	void getPagesSet(String masterUuid,
+	void getPagesSet(String masterUuid, String selection,
 			AsyncCallback<PagesResultSet> callback);
 
 }

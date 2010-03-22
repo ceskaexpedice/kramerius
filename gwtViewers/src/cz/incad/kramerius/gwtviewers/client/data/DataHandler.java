@@ -6,7 +6,8 @@ import cz.incad.kramerius.gwtviewers.client.SimpleImageTO;
 
 public class DataHandler {
 
-	
+
+	private String masterUUID;
 	private List<SimpleImageTO> data;
 	private SimpleImageTO naImage;
 	private int max;
@@ -60,6 +61,18 @@ public class DataHandler {
 	public void setCurrentIndex(int currentIndex) {
 		this.currentIndex = currentIndex;
 	}
+
+	public String getMasterUUID() {
+		return masterUUID;
+	}
+	public void setMasterId(String masterUUID) {
+		this.masterUUID = masterUUID;
+	}
+
+	public boolean anyData() {
+		return this.data != null && !this.data.isEmpty();
+	}
+
 
 	private static DataHandler _instance = new DataHandler();
 	public static DataHandler get() {

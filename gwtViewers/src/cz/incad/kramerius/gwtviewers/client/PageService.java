@@ -15,9 +15,9 @@ import cz.incad.kramerius.gwtviewers.client.panels.utils.Dimension;
 @RemoteServiceRelativePath("page")
 public interface PageService extends RemoteService {
 
-	public Integer getNumberOfPages(String uuid);
+	public Integer getNumberOfPages(String masterUuid, String selection);
 
-	public PagesResultSet getPagesSet(String masterUuid);
+	public PagesResultSet getPagesSet(String masterUuid, String selection);
 
 	public SimpleImageTO getNoPage();
 }

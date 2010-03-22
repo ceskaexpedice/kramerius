@@ -6,7 +6,11 @@ import com.google.gwt.user.client.rpc.IsSerializable;
 
 public class PagesResultSet implements IsSerializable {
 
+	// data
 	ArrayList<SimpleImageTO> data;
+	// koren stromu
+	String masterSimpleImageTOId;
+	// prave vybrany
 	String currentSimpleImageTOId;
 	int currentSimpleImageTOIndex;
 	
@@ -37,4 +41,14 @@ public class PagesResultSet implements IsSerializable {
 	public void setCurrentSimpleImageTOIndex(int currentSimpleImageTOIndex) {
 		this.currentSimpleImageTOIndex = currentSimpleImageTOIndex;
 	}
+
+	public String getMasterSimpleImageTOId() {
+		return masterSimpleImageTOId;
+	}
+
+	public void setMasterSimpleImageTOId(String masterSimpleImageTOId) {
+		this.masterSimpleImageTOId = masterSimpleImageTOId;
+	}
+	
+	
 }
