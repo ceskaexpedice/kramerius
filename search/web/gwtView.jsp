@@ -19,8 +19,6 @@
         }
 	// callbacks from component
 	function selectPage(masterUuid, format){
-            //changeSelection(uuid);
-            
             var pageUrl = fedoraImg + uuid + '/IMG_FULL';
             var img = '';
             if(format=='image/djvu' || format =="" || format==null){
