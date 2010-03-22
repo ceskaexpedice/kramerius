@@ -45,12 +45,15 @@ Get Biblio mods
 </c:if>
 
 <c:forEach var="uuid" varStatus="status" items="${pids}">
+    <c:choose>
+        <c:when test="${level==0 || status.count>1}">
     <c:set var="cur_level" value="${status.count + level}"/>
     <c:set var="obj" value="#tabs_${cur_level}"/>
     <script language="javascript">
         $(document).ready(function(){
             var obj = "<c:out value="${obj}" />";
-            $(obj).tabs({ tabTemplate: '<li><a href="<c:out value="${href}" />"><c:out value="${label}" /></a><img width="12px" src="img/empty.gif" class="op_list" onclick="showList(this, \''+obj+'\', \'<c:out value="${label}" />\')" /></li>' });
+            var tabTemp = '<li><a href="<c:out value="${href}" />"><c:out value="${label}" /></a><img width="12px" src="img/empty.gif" class="op_list" onclick="showList(this, \''+obj+'\', \'<c:out value="${href}" />\')" /></li>';
+            $(obj).tabs({ tabTemplate: tabTemp });
            
            getItemRels("<c:out value="${pids[status.count-1]}" />",
                 "<c:out value="${pids[status.count]}" />",
@@ -88,7 +91,15 @@ Get Biblio mods
         </c:otherwise>
     </c:choose>
     
+            
+        </c:when>
+    </c:choose>
 </c:forEach>
 <c:forEach var="model" varStatus="status" items="${models}">
+    <c:choose>
+        <c:when test="${level==0 || status.count>1}">
     </div></div>
+            
+        </c:when>
+    </c:choose>
 </c:forEach>

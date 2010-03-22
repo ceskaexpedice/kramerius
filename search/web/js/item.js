@@ -81,23 +81,28 @@ function selectItem(obj, level, model){
     $(obj).parent().children(".relItem").removeClass('selected');
     $(obj).addClass('selected');
     var d1 = "#tabs_" + level;
-    //$(d1 + ">div>div[id=info-"+model+"]").html($(obj).text());
-    //var d2 = "#tabs_" + (level+1);
-    //var l = $(d2).tabs('length');
-    //for(var i=0;i<l;i++){
-    //    $(d2).tabs("remove", 0);
-    //}
+    $(d1 + ">div>div[id=info-"+model+"]").html($(obj).text());
+    var d2 = "#tabs_" + (level+1);
+    var l = $(d2).tabs('length');
+    for(var i=0;i<l;i++){
+        $(d2).tabs("remove", 0);
+    }
     //$(d2 + ">div").remove();
-    //showList(obj, d1, model);
-    var target = level-1;
-    var p = $(d1).parent();
-    $(d1).remove();
+    showList(obj, d1, model);
     //getItemRels($(obj).attr("id"), "", level, true);
+    
+    var target = level-1;
+    var p = $(d2).parent();
+    //$(d1).remove();
+    //
+    $(d2).remove();
     //if(!pid) return;
     var url ="itemMenu.jsp?language="+language+"&pid_path="+$(obj).attr("id")+"&path="+model+"&level="+target;
     $.get(url, function(data){
         $(p).append(data);
+        getItemRels($(obj).attr("id"), "", level, true);
     });
+    
 }
 
 function getItemRels(pid, selectedpid, level, recursive){
@@ -110,7 +115,13 @@ function getItemRels(pid, selectedpid, level, recursive){
             
             if($(obj).length==0){
                 $("#tabs_" + level + ">div").append('<div id="tabs_' + target_level +'" pid="' + pid +'"><ul></ul></div>');
-                $(obj).tabs({ tabTemplate: '<li><a href="#{href}">#{label}</a><img width="12" src="img/empty.gif" class="op_list" onclick="showList(this, \''+obj+'\', \'#{href}\')" /></li>' });
+                var t = "#tab"+target_level+"-";
+                t="";
+                //alert(t);
+                $(obj).tabs({ 
+                    tabTemplate: '<li><a href="'+t+'#{href}">#{label}</a><img width="12" src="img/empty.gif" class="op_list" onclick="showList(this, \''+obj+'\', \'#{href}\')" /></li>',
+                    panelTemplate: '<li></li>'
+                });
             }
             var list;
             var str_div = "";
@@ -118,13 +129,15 @@ function getItemRels(pid, selectedpid, level, recursive){
                 list = obj + ">div>div[id=list-"+m+"]";
                 //alert(list + " length: " + $(list).length);
                 if($(list).length==0){
+                    //alert(m);
+                    //alert($(obj).tabs('option' ,'tabTemplate'));
                     str_div ='<div id="tab'+target_level+'-'+m+'">';
-                    str_div +='<div class="relInfo"  id="info-'+m+'"></div>';
+                    str_div +='<div class="relInfo"  id="info-'+m+'">a</div>';
                     str_div +='<div style="display:none;" id="list-'+m+'" class="relList"></div>';
                     str_div +='</div>';
                     $(obj).append(str_div);
-                    //$(obj).tabs("add", "#tab"+target_level+"-"+m, model2[0]);
-                    $(obj).tabs("add", "#tab"+target_level+"-"+m, m);
+                    $(obj).tabs("add", "#tab"+target_level+"-"+m, model2[0]);
+                    //$(obj).tabs("add", m, model2[0]);
                     
                     $(obj+">ul>li>img."+m).toggleClass('op_info');
                     
@@ -177,6 +190,9 @@ function getItemRels(pid, selectedpid, level, recursive){
             //showList(img, obj, $(obj+">ul>li:first").text());
         }
         if(recursive){
+            //alert($(obj+">div:first>div[class=relList]>div:first").attr("id"));
+            //alert($(obj).attr("id"));
+            if($(obj).length>0)
             getItemRels($(obj+">div:first>div[class=relList]>div:first").attr("id"), "", level+1, recursive);
         }
     });
@@ -188,19 +204,20 @@ function showInfo(obj, tab, model){
 }
 
 function showList(obj, tab, model){
-    if(model.indexOf("-")>-1){
-        model = model.split("-")[1];
+    var m = model;
+    if(m.indexOf("-")>-1){
+        m = m.split("-")[1];
     }
-    $(obj).toggleClass('op_info','op_list');
+    $(obj).toggleClass('op_info');
     //alert($(tab + ">div>div[id=info-"+model+"]").length);
-    if($(tab + ">div>div[id=info-"+model+"]").text()==""){
-        $(tab + ">div>div[id=info-"+model+"]").html($(tab+">div>div[id=list-"+model+"]>div.selected").text());
+    if($(tab + ">div>div[id=info-"+m+"]").text()==""){
+        $(tab + ">div>div[id=info-"+m+"]").html($(tab+">div>div[id=list-"+m+"]>div.selected").text());
     }
     
     //$(tab + ">div>div[id=info-"+model+"]").toggle();
-    $(tab + ">div>div[id=list-"+model+"]").toggle();
+    $(tab + ">div>div[id=list-"+m+"]").toggle();
     
-    var selected = $(tab+">div>div[id=list-"+model+"]>div.selected");
+    var selected = $(tab+">div>div[id=list-"+m+"]>div.selected");
     scrollElement($(selected).parent(), $(selected));
 }
 
