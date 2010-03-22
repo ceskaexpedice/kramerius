@@ -60,6 +60,7 @@ public class GetRelsExt extends HttpServlet {
             String relation = request.getParameter("relation");
             String format = request.getParameter("format");
             ArrayList<String> pids = getRdfPids(configuration, pid, relation);
+            
             if (format == null) {
                 response.setContentType("text/plain;charset=UTF-8");
                 for (String relpid : pids) {

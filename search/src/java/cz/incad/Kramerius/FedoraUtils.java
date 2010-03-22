@@ -50,6 +50,37 @@ public class FedoraUtils {
         return pids;
     }
 
+    public static boolean fillFirstPagePid(ArrayList<String> pids, ArrayList<String> models) {
+        
+        String pid= pids.get(pids.size()-1);
+        try {
+            String command = KConfiguration.getKConfiguration().getFedoraHost() + "/get/uuid:" + pid + "/RELS-EXT";
+            Document contentDom = UrlReader.getDocument(command);
+            XPathFactory factory = XPathFactory.newInstance();
+            XPath xpath = factory.newXPath();
+            XPathExpression expr = xpath.compile("/RDF/Description/*");
+            NodeList nodes = (NodeList) expr.evaluate(contentDom, XPathConstants.NODESET);
+            for (int i = 0; i < nodes.getLength(); i++) {
+                Node childnode = nodes.item(i);
+                String nodeName = childnode.getNodeName();
+                if (nodeName.contains("hasPage")) {
+                    pids.add(childnode.getAttributes().getNamedItem("rdf:resource").getNodeValue().split("uuid:")[1]);
+                    models.add("page");
+                    return true;
+                } else if(!nodeName.contains("hasModel")) {
+                    pids.add(childnode.getAttributes().getNamedItem("rdf:resource").getNodeValue().split("uuid:")[1]);
+                    models.add(KrameriusModels.toString(RDFModels.convertRDFToModel(nodeName)));
+                    
+                    return FedoraUtils.fillFirstPagePid(pids, models);
+                }
+            }
+            
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+    
     public static String findFirstPagePid(String pid) {
 
         ArrayList<String> pids = new ArrayList<String>();
