@@ -49,7 +49,7 @@ function initDateAxisDelayed(){
     setSelectContainmentBottom();
     setSelectContainmentTop();
     setBarsPositions();
-    getRanges();
+    //getRanges();
     initialized =true;
 }
 

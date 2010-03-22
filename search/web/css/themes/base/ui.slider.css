@@ -11,7 +11,16 @@
 .ui-slider-horizontal .ui-slider-range-max { right: 0; }
 
 .ui-slider-vertical { width: .8em; height: 100px; }
-.ui-slider-vertical .ui-slider-handle { left: -.5em; margin-left: 0; margin-bottom: -.6em; }
+
+.ui-slider-vertical .ui-slider-handle {
+        /*left: -.5em; */
+        margin-left: 0; 
+        margin-bottom: -.6em; 
+        background: #ffffff/*{bgColorActive}*/ url(../../../img/scroll_handler.png)/*{bgImgUrlActive}*/ 50%/*{bgActiveXPos}*/ 50%/*{bgActiveYPos}*/ repeat-x/*{bgActiveRepeat}*/; 
+        width:12px;
+        left: -4px;
+        height:36px;
+}
 .ui-slider-vertical .ui-slider-range { left: 0; width: 100%; }
 .ui-slider-vertical .ui-slider-range-min { bottom: 0; }
 .ui-slider-vertical .ui-slider-range-max { top: 0; }

@@ -1,8 +1,31 @@
-function getBiblioInfo(pid, model, div){
+function getFirstAndContinue(pid, model, div, list, models){
     var url = 'inc/details/biblioToRdf.jsp?&pid=uuid:' + pid + "&xsl="+model+".jsp&language=" + language;
     $.get(url, function(xml) {
         $(div).html(xml);
+        if($(div).hasClass("selected")){
+            $(div).parent().parent().children(".relInfo").html(xml);
+        }
+        alert(xml);
+        var pid2;
+        for(var i=1;i<models.length;i++){
+            pid2 = models[i]; 
+            getBiblioInfo(pid2, model, list+">div[id="+pid2+"]");
+        }
     });
+}
+
+function getBiblioInfo(pid, model, div){
+    var url = 'inc/details/biblioToRdf.jsp?&pid=uuid:' + pid + "&xsl="+model+".jsp&language=" + language;
+    
+        
+      $.get(url, function(xml) {
+          $(div).html(xml);
+          //if($(div).hasClass("selected")){
+          //    $(div).parent().parent().children(".relInfo").html(xml);
+          //}
+
+      });
+    
 }
 
 function scrollElement(container, element){
@@ -38,8 +61,10 @@ function selectingPage(obj, level, model){
     $(obj).addClass('selected');
     var d1 = "#tabs_" + level;
     $(d1 + ">div>div[id=info-"+model+"]").html($(obj).text());
-    changeSelection($(obj).attr("id"));
-    //selectPage($(obj).attr("id"), $(obj).attr("title")); 
+    
+    changeSelection($(obj).attr("id"), $(d1).attr("pid"));
+    showInfo($(d1+">ul>li>img"), d1, model);
+    
 }
 
 function changeSelectedPage(pid){
@@ -56,15 +81,23 @@ function selectItem(obj, level, model){
     $(obj).parent().children(".relItem").removeClass('selected');
     $(obj).addClass('selected');
     var d1 = "#tabs_" + level;
-    $(d1 + ">div>div[id=info-"+model+"]").html($(obj).text());
-    var d2 = "#tabs_" + (level+1);
-    var l = $(d2).tabs('length');
-    for(var i=0;i<l;i++){
-        $(d2).tabs("remove", 0);
-    }
-    $(d2 + ">div").remove();
-    
-    getItemRels($(obj).attr("id"), "", level, true);
+    //$(d1 + ">div>div[id=info-"+model+"]").html($(obj).text());
+    //var d2 = "#tabs_" + (level+1);
+    //var l = $(d2).tabs('length');
+    //for(var i=0;i<l;i++){
+    //    $(d2).tabs("remove", 0);
+    //}
+    //$(d2 + ">div").remove();
+    //showList(obj, d1, model);
+    var target = level-1;
+    var p = $(d1).parent();
+    $(d1).remove();
+    //getItemRels($(obj).attr("id"), "", level, true);
+    //if(!pid) return;
+    var url ="itemMenu.jsp?language="+language+"&pid_path="+$(obj).attr("id")+"&path="+model+"&level="+target;
+    $.get(url, function(data){
+        $(p).append(data);
+    });
 }
 
 function getItemRels(pid, selectedpid, level, recursive){
@@ -76,8 +109,8 @@ function getItemRels(pid, selectedpid, level, recursive){
         $.each(data.items, function(i,item){
             
             if($(obj).length==0){
-                $("#tabs_" + level + ">div").append('<div id="tabs_' + target_level +'"><ul></ul></div>');
-                $(obj).tabs({ tabTemplate: '<li><a href="#{href}">#{label}</a><img src="img/empty.gif" class="op_list #{label}" onclick="showList(this, \''+obj+'\', \'#{label}\')" /></li>' });
+                $("#tabs_" + level + ">div").append('<div id="tabs_' + target_level +'" pid="' + pid +'"><ul></ul></div>');
+                $(obj).tabs({ tabTemplate: '<li><a href="#{href}">#{label}</a><img width="12" src="img/empty.gif" class="op_list" onclick="showList(this, \''+obj+'\', \'#{href}\')" /></li>' });
             }
             var list;
             var str_div = "";
@@ -86,11 +119,13 @@ function getItemRels(pid, selectedpid, level, recursive){
                 //alert(list + " length: " + $(list).length);
                 if($(list).length==0){
                     str_div ='<div id="tab'+target_level+'-'+m+'">';
-                    str_div +='<div style="display:none;" class="relInfo"  id="info-'+m+'"></div>';
-                    str_div +='<div id="list-'+m+'" class="relList"></div>';
+                    str_div +='<div class="relInfo"  id="info-'+m+'"></div>';
+                    str_div +='<div style="display:none;" id="list-'+m+'" class="relList"></div>';
                     str_div +='</div>';
                     $(obj).append(str_div);
-                    $(obj).tabs("add", "#tab"+target_level+"-"+m, model2[0]);
+                    //$(obj).tabs("add", "#tab"+target_level+"-"+m, model2[0]);
+                    $(obj).tabs("add", "#tab"+target_level+"-"+m, m);
+                    
                     $(obj+">ul>li>img."+m).toggleClass('op_info');
                     
                 }else{
@@ -107,7 +142,6 @@ function getItemRels(pid, selectedpid, level, recursive){
                 var pid2;
                 for(var i=1;i<model2.length;i++){
                     pid2 = model2[i]; 
-                //$.each(model2, function(p, pid2){
                     item = '<div id="'+pid2+'" class="relItem" title=""' ;
                     if(m=='page'){
                         item+= ' onclick="selectingPage(this, '+target_level+', \''+ m +'\')" ';
@@ -115,17 +149,15 @@ function getItemRels(pid, selectedpid, level, recursive){
                         item+= ' onclick="selectItem(this, '+target_level+', \''+ m +'\')" ';
                     }
                         
-                    item += '><img src="img/item_loading.gif" /></div>';
-                    //item += '>'+pid2+'</div>';
+                    //item += '><img src="img/item_loading.gif" /></div>';
+                    item += '>'+pid2+'</div>';
                         
                     $(list).append(item);
-                //});
                 }
+                
                 for(var i=1;i<model2.length;i++){
                     pid2 = model2[i]; 
-                //$.each(model2, function(p, pid2){
-                    getBiblioInfo(pid2, m, list+">div[id="+pid2+"]");
-                //});
+                    //getBiblioInfo(pid2, m, list+">div[id="+pid2+"]", false);
                 }
                   
             });
@@ -137,8 +169,11 @@ function getItemRels(pid, selectedpid, level, recursive){
             scrollElement($('#'+selectedpid).parent(), $('#'+selectedpid));
         }else{
             list = obj+">div>div[class=relList]>div:first";
-            var img = $(obj+">ul>li>img");
+            var info = obj+">div>div[class=relInfo]";
+            //var img = $(obj+">ul>li>img");
             $(list).addClass('selected');
+            //alert($(list).html());
+            $(info).html($(list).html());
             //showList(img, obj, $(obj+">ul>li:first").text());
         }
         if(recursive){
@@ -147,16 +182,22 @@ function getItemRels(pid, selectedpid, level, recursive){
     });
 }
 
+function showInfo(obj, tab, model){
+    $(obj).toggleClass('op_info','op_list');
+    $(tab + ">div>div[id=list-"+model+"]").toggle();
+}
+
 function showList(obj, tab, model){
+    if(model.indexOf("-")>-1){
+        model = model.split("-")[1];
+    }
     $(obj).toggleClass('op_info','op_list');
     //alert($(tab + ">div>div[id=info-"+model+"]").length);
     if($(tab + ">div>div[id=info-"+model+"]").text()==""){
-        //alert($(tab+">div>div[class=relList]>div.selected").text());
         $(tab + ">div>div[id=info-"+model+"]").html($(tab+">div>div[id=list-"+model+"]>div.selected").text());
     }
     
-    //$(tab + ">div>div"+).toggle();
-    $(tab + ">div>div[id=info-"+model+"]").toggle();
+    //$(tab + ">div>div[id=info-"+model+"]").toggle();
     $(tab + ">div>div[id=list-"+model+"]").toggle();
     
     var selected = $(tab+">div>div[id=list-"+model+"]>div.selected");

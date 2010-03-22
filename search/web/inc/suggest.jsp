@@ -14,9 +14,7 @@
 <fmt:setBundle basename="labels" />
 <fmt:setBundle basename="labels" var="bundleVar" />
 <form name="suggestForm" method="GET" action="./" autocomplete="Off">
-<table width="100%">
-<tr>
-    <td><div style="float:left; margin:5px;"><div class="suggestTitle"><div><fmt:message key="Hlavní název" /></div></div>    
+<div style="float:left; margin:5px;"><div class="suggestTitle"><div><fmt:message key="Hlavní název" /></div></div>    
             <div class="suggest_box"><div style="position:relative;" class="facetItem">
             <input name="queryT" id="queryT" type="text" size="20" class="suggest_input"
             onkeyup="doAutocomplete(this.value, 'root_title', event , '#autocompleteT', '#queryT');" /><br/>
@@ -33,7 +31,7 @@
             </div></div>
                 <div id="autocompleteA" class="autocomplete" >
                 </div>
-</td>
+
 <%--
 <td>
         <div class="suggestTitle"><div><fmt:message key="Datum" /></div></div>    
@@ -46,5 +44,4 @@
             </div>
     </td>
 --%>
-</tr></table>
 </form>

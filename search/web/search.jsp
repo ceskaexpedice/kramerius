@@ -54,11 +54,8 @@ out.clear();
                     
                      <c:choose>
                         <c:when test="${rows == 0}" >
-                            <%@ include file="inc/suggest.jsp" %>
-                            <table width="100%"><tr><td>
-                            <% currentFacetName = "language"; %>
-                            <%@ include file="inc/facet.jsp" %>
-                            </td><td><% currentFacetName = "document_type"; %>
+                            <table width="100%"><tr><td valign="top"><%@ include file="inc/suggest.jsp" %>
+                            </td><td valign="top"><% currentFacetName = "document_type"; %>
                             <%@ include file="inc/facet.jsp" %>
                             </td></tr></table>
                             <img src="img/intro.png" />

@@ -70,10 +70,12 @@
                 <td>
                     <%//@ include file="item_1.jsp" %>
                     <div id="mainContent"></div>
-               	    <%@ include file="gwtView.jsp" %>
+               	    <%//@ include file="gwtView.jsp" %>
                 </td>
                 <td class="itemMenu">
+                    <div id="itemTree">
                     <%@ include file="inc/details/itemMenu.jsp" %>
+                    </div>
                 </td>
             </tr>
         </table>

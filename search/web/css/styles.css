@@ -113,7 +113,7 @@ a.image:hover {
     background-position:bottom;
     background-repeat:repeat-x;
     margin-bottom:5px;
-    width:316px;
+    width:216px;
     
 }
 
@@ -232,8 +232,12 @@ td.rightMenu .facet{
     _height: expression(this.scrollHeight > 75? "75px" : "auto" );
     overflow:auto;
     width: 200px;
-    position:relative;
+    position:absolute;
+    z-index:3;
     font-size:10px;
+    background:white;
+    border:1px solid silver;
+    margin-left:10px;
 }
 
 .relInfo{
@@ -253,19 +257,17 @@ td.rightMenu .facet{
 }
 
 .ui-widget-header { 
-        border: 1px solid #aaaaaa/*{borderColorHeader}*/; 
+        border: 0px solid #aaaaaa/*{borderColorHeader}*/; 
         color: #222222/*{fcHeader}*/; 
         font-weight: bold; 
  }
 
  .op_list{
-    background-image: url('../img/list.png');
+    background-image: url('../img/down.png');
     background-repeat: no-repeat;
-    width:16px;
-    height:16px;
     cursor:pointer;
-    margin-top:5px;
-    margin-right:3px;
+    margin-top:7px;
+    margin-right:1px;
 }
 
 .op_info{
@@ -359,6 +361,3 @@ div.suggest:hover{
 .page_selected{
     border: 1px solid red;
 }
-
-
-
