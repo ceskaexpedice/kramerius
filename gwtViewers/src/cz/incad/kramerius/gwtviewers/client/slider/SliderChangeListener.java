@@ -33,7 +33,6 @@ public class SliderChangeListener implements ChangeListener, MouseUpHandler  {
 
 	@Override
 	public void onChange(Widget sender) {
-		System.out.println("On change event >>> ");
 		if (fxPane == null) return;
 		double currentValue = ((SliderBar)sender).getCurrentValue();
 		int round = (int) Math.round(currentValue);
