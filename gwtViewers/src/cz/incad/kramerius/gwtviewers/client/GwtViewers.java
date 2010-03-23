@@ -238,7 +238,6 @@ public class GwtViewers implements EntryPoint, ClickHandler, ConfigurationChange
 		appendClickHandler(rotatePool.getLeftSideImage());
 		this.fxPane = new MoveEffectsPanel(rotatePool, conf);
 		this.fxPane.addMoveListener(this.moveHandler);
-		
 	}
 
 
@@ -264,7 +263,6 @@ public class GwtViewers implements EntryPoint, ClickHandler, ConfigurationChange
 			ImageMoveWrapper wrapper = createImageMoveWrapper(i,"n"+i);
 			wrapper.getWidget().getElement().getStyle().setZIndex(ImageRotatePool.NOVIEW_IMAGES_Z_INDEX);
 			noVisibleImages.add(wrapper);
-			//noVisibleImages[j] = wrapper;
 			appendClickHandler(wrapper);
 		}
 		
@@ -317,7 +315,6 @@ public class GwtViewers implements EntryPoint, ClickHandler, ConfigurationChange
 	 * This is the entry point method.
 	 */
 	public void onModuleLoad() {
-		//doInitImages(getUUIDPath());
 		exportMethods(this);
 	}
 
