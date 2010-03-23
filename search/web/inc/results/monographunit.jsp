@@ -13,14 +13,34 @@
 <c:set var="uuid" >
     <x:out select="./str[@name='PID']"/>
 </c:set>
-<c:set var="uuidSimple" >
-    <x:out select="substring-after(./str[@name='PID'], 'uuid:')"/>
-</c:set>
-<div>
-    <a href="./item.jsp?pid=<c:out value="${uuid}"/>&model=info:fedora/model:monographunit">
-                <b><x:out select="./str[@name='dc.title']"/></b>
-                </a>
+
+
+<div id="res_<c:out value="${uuid}"/>">
+    <img src="img/empty.gif" 
+    <c:if test="${status.count > 5}" >
+    class="plus" onclick="$('#more_<c:out value="${uuid}"/>').toggle();$(this).toggleClass('minus')" 
+    </c:if>
+    />
+    <a href="<c:out value="${itemUrl}" escapeXml="false" />" ><b><x:out select="./str[@name='root_title']"/></b></a>
     <span class="textpole">(<fmt:message><x:out select="./str[@name='fedora.model']"/></fmt:message>)</span>
-    <span id="pages_<c:out value="${uuidSimple}"/>" class="pages"><x:out select="./str[@name='pages_count']"/></span>
-    
+    <span><x:out select="./int[@name='pages_count']"/></span>
+    <div id="more_<c:out value="${uuid}"/>" 
+    <c:if test="${status.count > 5}" >
+        style="display:none;"
+    </c:if>
+    ><% 
+    String imagePid = FedoraUtils.findFirstPagePid("uuid:" + uuid);
+    if(imagePid!=null){
+        %>
+    <img  src="thumb?uuid=<%=imagePid.substring(5) %>" height="75px" onerror="this.src='img/empty.gif'" />
+    <%
+    }
+    %>
+    <x:forEach select="./arr[@name='dc.creator']/str">
+        <x:out select="."/>;&#160;
+    </x:forEach>
+    <br/><x:out select="./str[@name='datum']"/>
+    </div>
+    <br/><x:out select="./str[@name='details']"/>
+    <br/>
 </div>

@@ -11,15 +11,15 @@
         <fmt:setLocale value="${param.language}" />
     </c:when>
 </c:choose>
-<jsp:useBean id="uuid" type="java.lang.String" />
+
 <div id="res_<c:out value="${uuid}"/>">
     <img src="img/empty.gif" 
     <c:if test="${status.count > 5}" >
     class="plus" onclick="$('#more_<c:out value="${uuid}"/>').toggle();$(this).toggleClass('minus')" 
     </c:if>
     />
-    <a href="./item.jsp?pid=<c:out value="${uuid}"/>&model=info:fedora/model:monograph"><b><x:out select="./str[@name='dc.title']"/></b></a>
-    <span class="textpole">(<fmt:message><x:out select="./str[@name='fedora.model']"/></fmt:message>)</span>
+    <a href="<c:out value="${itemUrl}" escapeXml="false" />" ><b><x:out select="./str[@name='dc.title']"/></b></a>
+    <span class="textpole">(<fmt:message>monograph</fmt:message>)</span>
     <span id="pages_<c:out value="${uuid}"/>" class="pages"><x:out select="./int[@name='pages_count']"/></span>
     <div id="more_<c:out value="${uuid}"/>" 
     <c:if test="${status.count > 5}" >

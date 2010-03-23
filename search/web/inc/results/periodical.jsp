@@ -10,21 +10,34 @@
         <fmt:setLocale value="${param.language}" />
     </c:when>
 </c:choose>
-<c:set var="uuid" >
-    <x:out select="./str[@name='PID']"/>
-</c:set>
-<c:set var="uuidSimple" >
-    <x:out select="substring-after(./str[@name='PID'], 'uuid:')"/>
-</c:set>
-<div>
-    <!-- rdf.kramerius.hasPage:"info:fedora/PID" -->
-    <span>
-                <a href="./item.jsp?pid=<x:out select="./str[@name='PID']"/>&model=info:fedora/model:periodical">
-                <b><x:out select="./str[@name='dc.title']"/></b>
-                </a> 
-    </span>
-    <span class="textpole">(<fmt:message>info:fedora/model:periodical</fmt:message>)</span>
-    <span id="pages_<c:out value="${uuidSimple}"/>" class="pages"><x:out select="./int[@name='pages_count']"/> </span>
+<div id="res_<c:out value="${uuid}"/>">
+    <img src="img/empty.gif" 
+    <c:if test="${status.count > 5}" >
+    class="plus" onclick="$('#more_<c:out value="${uuid}"/>').toggle();$(this).toggleClass('minus')" 
+    </c:if>
+    />
+    <a href="./item.jsp?pid=<c:out value="${uuid}"/>&model=info:fedora/model:monograph"><b><x:out select="./str[@name='dc.title']"/></b></a>
+    <span class="textpole">(<fmt:message>monograph</fmt:message>)</span>
+    <span id="pages_<c:out value="${uuid}"/>" class="pages"><x:out select="./int[@name='pages_count']"/></span>
+    <div id="more_<c:out value="${uuid}"/>" 
+    <c:if test="${status.count > 5}" >
+        style="display:none;"
+    </c:if>
+    ><% 
+    {
+    String imagePid = FedoraUtils.findFirstPagePid("uuid:" + uuid);
+    if(imagePid!=null){
+        %>
+    <img  src="thumb?uuid=<%=imagePid.substring(5) %>&scaledHeight=100&rawdata=true" onerror="this.src='img/empty.gif'" />
+    <%
+    }
+    }
+    %>
+    <x:forEach select="./arr[@name='dc.creator']/str">
+        <x:out select="."/>;&#160;
+    </x:forEach>
+    <br/><x:out select="./str[@name='datum']"/>
+    </div>
     <br/>
-    <x:out select="./str[@name='datum']"/>
+    
 </div>

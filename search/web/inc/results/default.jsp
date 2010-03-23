@@ -5,11 +5,34 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn" %>
 <%@ page isELIgnored="false"%>
 
-<div id="<c:out value="${uuidSimple}"/>">
-    <a href="./item.jsp?pid=<c:out value="${uuid}"/>&model=<x:out select="./str[@name='fedora.model']"/>"><b><x:out select="./str[@name='dc.title']"/></b></a>
-    <span class="textpole">(<fmt:message><x:out select="./str[@name='fedora.model']"/></fmt:message>)</span>
-    <span id="pages_<c:out value="${uuidSimple}"/>" class="pages"><x:out select="./int[@name='pages_count']"/></span>
+    
+    <div id="more_<c:out value="${uuid}"/>" 
+    <c:if test="${status.count > 5}" >
+        style="display:none;"
+    </c:if>
+    >
+    <%--
+    <% 
+    //String imagePid = FedoraUtils.findFirstPagePid("uuid:" + uuid);
+    String imagePid = "uuid:" + uuid;
+    if(imagePid!=null){
+        %>
+    <img  src="thumb?uuid=<%=imagePid.substring(5) %>" height="75px" onerror="this.src='img/empty.gif'" />
+    <%
+    }
+    %>
+    --%>
+    <x:if select="./arr[@name='dc.creator']/str">
+    <x:forEach select="./arr[@name='dc.creator']/str">
+        <x:out select="."/>;&#160;
+    </x:forEach><br/>
+    </x:if>
+    <x:if select="./str[@name='datum']">
+    <x:out select="./str[@name='datum']"/><br/>
+    </x:if>
+    <x:forEach select="./arr[@name='details']/str">
+        <c:set var="s"><fmt:message><x:out select="."/></fmt:message></c:set>
+        <c:out value="${fn:replace(s, '???', '')}" />&#160;
+    </x:forEach>
+    </div>
     <br/>
-<a href="javascript:browseInTree('<c:out value="${uuid}"/>', '<x:out select="./str[@name='fedora.model']"/>', '<c:out value="${uuidSimple}"/>');">
-                    browse</a> 
-</div>
