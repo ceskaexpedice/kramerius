@@ -60,9 +60,11 @@ function selectingPage(obj, level, model){
     $(obj).parent().children(".relItem").removeClass('selected');
     $(obj).addClass('selected');
     var d1 = "#tabs_" + level;
+    var d2 = "#tabs_" + (level-1);
     $(d1 + ">div>div[id=info-"+model+"]").html($(obj).text());
     
-    changeSelection($(obj).attr("id"), $(d1).attr("pid"));
+    //changeSelection($(obj).attr("id"), $(d1).attr("pid"));
+    changeSelection($(d2).attr("pid"),$(obj).attr("id"));
     showInfo($(d1+">ul>li>img"), d1, model);
     
 }
