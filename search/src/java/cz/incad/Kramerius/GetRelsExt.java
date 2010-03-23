@@ -6,7 +6,6 @@ package cz.incad.Kramerius;
 
 import cz.incad.kramerius.utils.conf.KConfiguration;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.PrintWriter;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -26,7 +25,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Locale;
-import java.util.Properties;
 import java.util.ResourceBundle;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
@@ -70,51 +68,13 @@ public class GetRelsExt extends HttpServlet {
                 //response.setContentType("application/x-javascript");
                 response.setContentType("text/plain");
                 outputAsJson(out, pids);
-            } else if (format.equals("tabs")) {
-                response.setContentType("text/html;charset=UTF-8");
-                outputAsTabs(out, pids);
-            }
+            } 
         //writeBiblioModsInfo(pids, out);
         } catch (Exception e) {
             out.println(e.toString());
         } finally {
             out.close();
         }
-    }
-
-    private void outputAsTabs(PrintWriter out, ArrayList<String> pids) {
-        out.println("({\"items\": [");
-        HashMap<String, ArrayList<String>> models = new HashMap<String, ArrayList<String>>();
-        String model;
-        String res;
-        for (String relpid : pids) {
-            model = relpid.split(" ")[0];
-            res = "\"" + relpid.split(" ")[1].substring(5) + "\"";
-            if (models.containsKey(model)) {
-                models.get(model).add(res);
-            } else {
-                ArrayList<String> a = new ArrayList<String>();
-                a.add(res);
-                models.put(model, a);
-            }
-        }
-        Iterator iterator = models.keySet().iterator();
-
-        while (iterator.hasNext()) {
-            String key = (String) iterator.next();
-            out.print("{\"");
-            out.print(KrameriusModels.toString(RDFModels.convertRDFToModel(key)));
-            out.print("\":[");
-            for (int i = 0; i < models.get(key).size() - 1; i++) {
-                out.println(models.get(key).get(i) + ",");
-            }
-            out.print(models.get(key).get(models.get(key).size() - 1));
-            out.println("]}");
-            if (iterator.hasNext()) {
-                out.println(",");
-            }
-        }
-        out.println("]})");
     }
 
     private void outputAsJson(PrintWriter out, ArrayList<String> pids) {
