@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <setup>
     <properties>
-        <property name="indexerHost" value="http://localhost:8080/fedoragsearch"/>
-        <property name="fedoraHost" value="http://localhost:8080/fedora"/>
-        <property name="solrHost" value="http://localhost:8080/solr/select/select"/>
+        <property name="indexerHost" value="http://194.108.215.227:8080/fedoragsearch"/>
+        <property name="fedoraHost" value="http://194.108.215.227:8080/fedora"/>
+        <property name="solrHost" value="http://194.108.215.227:8080/solr/select/select"/>
         <property name="fedoraUser" value="fedoraAdmin"/>
         <property name="fedoraPass" value="fedoraAdmin"/>
 
