@@ -15,11 +15,14 @@
 	var __debug = false;
 
 	function changeSelection(masterUuid, selection) {
-            requestToSelect(masterUuid, selection);
+			alert(masterUuid);
+			alert(selection);
+			
+		requestToSelect(masterUuid, selection);
         }
 	// callbacks from component
 	function selectPage(masterUuid, format){
-            var pageUrl = fedoraImg + uuid + '/IMG_FULL';
+            var pageUrl = fedoraImg + masterUuid + '/IMG_FULL';
             var img = '';
             if(format=='image/djvu' || format =="" || format==null){
                 img = '<div style="width:100%; height:500px;">'+
@@ -36,7 +39,7 @@
             }
             $('#mainContent').html(img);
             
-            changeSelectedPage(masterUuid, selection);
+            changeSelectedPage(masterUuid);
 	}
 	function pages(from, to){  }
 </script>
