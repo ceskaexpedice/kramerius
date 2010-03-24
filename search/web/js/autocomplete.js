@@ -29,9 +29,10 @@
 //adresa kde se hledaji autocomplete
 //obcas nutne pouzit proxy pro povoleni ajaxu
 //var completeUrl="http://tomas02.incadsbs.local:8084/cpojHelpKC/proxy.jsp?http://tomasesp.incad.cz:15200/search?q=";
-var completeUrl = "/terms.jsp?";
+var completeUrl = "terms.jsp?";
+var autoCompleteDiv = '#autocomplete';
 
-function doAutocomplete(text, lookupField, key, div, queryField){
+function doAutocomplete(text, lookupField, key, queryField){
     //autoCompleteDiv="#autocomplete";
     if( key.keyCode >=16 && key.keyCode <= 19 ){
         return;
@@ -48,13 +49,13 @@ function doAutocomplete(text, lookupField, key, div, queryField){
         window.location = searchPage + "?q=" + lookupField + ":" + value;
         return;
     }
-    json(text, lookupField, div, queryField);
+    json(text, lookupField, queryField);
 //ajax(text);
 }
 /** pohybuje v seznamu slov
  * 
  */
-function moveSelected(key, autoCompleteDiv, queryField){
+function moveSelected(key, queryField){
     var cur = $(autoCompleteDiv +" .selected:first");
     if(cur.length >0 ){
         cur.toggleClass("selected");
@@ -74,7 +75,7 @@ function moveSelected(key, autoCompleteDiv, queryField){
 }
 // pouze pro testovani - pouzivat json(lepsi ale neudela error)
 
-function ajax(text, lookupField, autoCompleteDiv){
+function ajax(text, lookupField){
     $.ajax({
         type: "POST",
         url: url + "field="+lookupField+"&t=" + text,
@@ -85,18 +86,17 @@ function ajax(text, lookupField, autoCompleteDiv){
     });
 
 }
-function json(text, lookupField, autoCompleteDiv){
+function json(text, lookupField){
     $.ajaxSetup({
         cache: false,
         type: "POST"
     });
-    var url = searchPage + completeUrl + "field="+lookupField+"&t=" + text;
+    var url = searchPage + completeUrl + "field="+lookupField+"&t=" + text.value;
     $.getJSON(url, function(data) {
-        parseData(data, lookupField, autoCompleteDiv);
+        parseData(data, lookupField, text);
     });
 }
-
-function parseData(data, lookupField, autoCompleteDiv){
+function parseData(data, lookupField, text){
     if(data == "" ){
         $(autoCompleteDiv).hide();
         return;
@@ -112,6 +112,10 @@ function parseData(data, lookupField, autoCompleteDiv){
     }
     if(outText.length>0){
         $(autoCompleteDiv).html( outText );
+        var y = $(text).offset().top + $(text).height();
+        var x = $(text).offset().left;
+        $(autoCompleteDiv).css("left", x);
+        $(autoCompleteDiv).css("top", y);
         $(autoCompleteDiv).show();
     }else{
         $(autoCompleteDiv).hide();

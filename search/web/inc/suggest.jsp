@@ -14,25 +14,20 @@
 <fmt:setBundle basename="labels" />
 <fmt:setBundle basename="labels" var="bundleVar" />
 <form name="suggestForm" method="GET" action="./" autocomplete="Off">
-<div style="float:left; margin:5px;"><div class="suggestTitle"><div><fmt:message key="Hlavní název" /></div></div>    
-            <div class="suggest_box"><div style="position:relative;" class="facetItem">
+    <div class="suggestTitle"><div><fmt:message key="Procházet" /></div></div>
+    <div class="facet"><div style="position:relative;" class="facetItem">    
+            <fmt:message key="Hlavní název" /><br/>
             <input name="queryT" id="queryT" type="text" size="20" class="suggest_input"
-            onkeyup="doAutocomplete(this.value, 'root_title', event , '#autocompleteT', '#queryT');" /><br/>
-            </div>
-            </div>
-                <div id="autocompleteT" class="autocomplete" >
-                </div>
-        </div> <div style="float:left; margin:5px;">
-            <div class="suggestTitle"><div><fmt:message key="Autor" /></div></div>    
-            <div class="suggest_box"><div style="position:relative;" class="facetItem">
+                   onkeyup="doAutocomplete(this, 'root_title', event, '#queryT');"
+                   onfocus="$(autoCompleteDiv).hide();" /><br/>
+            <fmt:message key="Autor" /><br/>
             <input name="queryA" id="queryA" size="20" type="text" class="suggest_input"
-            onkeyup="doAutocomplete(this.value, 'facet_autor', event , '#autocompleteA', '#queryA');" /><br/>
-            </div>
-            </div></div>
-                <div id="autocompleteA" class="autocomplete" >
-                </div>
-
-<%--
+                   onkeyup="doAutocomplete(this, 'facet_autor', event, '#queryA');" /><br/><br/>
+        </div>
+    </div>
+    <div id="autocomplete" class="autocomplete" >
+    </div>
+    <%--
 <td>
         <div class="suggestTitle"><div><fmt:message key="Datum" /></div></div>    
             <div class="suggest_box"><div style="position:relative;" class="facetItem">
@@ -43,5 +38,5 @@
             </div>
             </div>
     </td>
---%>
+    --%>
 </form>

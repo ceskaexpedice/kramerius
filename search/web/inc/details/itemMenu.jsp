@@ -28,6 +28,7 @@ FedoraUtils.fillFirstPagePid(pids, models);
 
 getServletContext().setAttribute("pids", pids);
 getServletContext().setAttribute("models", models);
+getServletContext().setAttribute("pathsize", models.size());
 %>
 
 <%--
@@ -103,3 +104,8 @@ Get Biblio mods
         </c:when>
     </c:choose>
 </c:forEach>
+<script language="javascript">
+        $(document).ready(function(){
+            changeSelection('<c:out value="${pids[pathsize -2]}" />','<c:out value="${pids[pathsize -1]}" />');
+        });
+    </script>

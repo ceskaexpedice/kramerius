@@ -16,15 +16,14 @@ function getFirstAndContinue(pid, model, div, list, models){
 
 function getBiblioInfo(pid, model, div){
     var url = 'inc/details/biblioToRdf.jsp?&pid=uuid:' + pid + "&xsl="+model+".jsp&language=" + language;
-    
         
-      $.get(url, function(xml) {
-          $(div).html(xml);
-          //if($(div).hasClass("selected")){
-          //    $(div).parent().parent().children(".relInfo").html(xml);
-          //}
+    $.get(url, function(xml) {
+        $(div).html(xml);
+        //if($(div).hasClass("selected")){
+        //    $(div).parent().parent().children(".relInfo").html(xml);
+        //}
 
-      });
+    });
     
 }
 
@@ -70,6 +69,7 @@ function selectingPage(obj, level, model){
 }
 
 function changeSelectedPage(pid){
+    alert(pid);
     var obj = $("#" + pid);
     //alert($(obj).length);
     $(obj).parent().children(".relItem").removeClass('selected');
@@ -83,6 +83,7 @@ function selectItem(obj, level, model){
     $(obj).parent().children(".relItem").removeClass('selected');
     $(obj).addClass('selected');
     var d1 = "#tabs_" + level;
+    $(d1).attr('pid', $(obj).attr("id"));
     $(d1 + ">div>div[id=info-"+model+"]").html($(obj).text());
     var d2 = "#tabs_" + (level+1);
     var l = $(d2).tabs('length');
@@ -195,7 +196,7 @@ function getItemRels(pid, selectedpid, level, recursive){
             //alert($(obj+">div:first>div[class=relList]>div:first").attr("id"));
             //alert($(obj).attr("id"));
             if($(obj).length>0)
-            getItemRels($(obj+">div:first>div[class=relList]>div:first").attr("id"), "", level+1, recursive);
+                getItemRels($(obj+">div:first>div[class=relList]>div:first").attr("id"), "", level+1, recursive);
         }
     });
 }
@@ -206,6 +207,7 @@ function showInfo(obj, tab, model){
 }
 
 function showList(obj, tab, model){
+    
     var m = model;
     if(m.indexOf("-")>-1){
         m = m.split("-")[1];
