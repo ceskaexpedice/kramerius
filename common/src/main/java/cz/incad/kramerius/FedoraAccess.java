@@ -4,6 +4,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
 
+import javax.xml.xpath.XPathExpressionException;
+
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
@@ -81,12 +83,22 @@ public interface FedoraAccess {
 	 */
 	public InputStream getThumbnail(String uuid) throws IOException;
 
+	Document getThumbnailProfile(String uuid) throws IOException;
+	public String getThumbnailMimeType(String uuid) throws IOException, XPathExpressionException;
+
 	/**
 	 * Returns djvu image of the object
 	 * @param uuid
 	 * @return
 	 * @throws IOException
 	 */
-	public InputStream getDJVU(String uuid) throws IOException;
+	public InputStream getImageFULL(String uuid) throws IOException;
+
+	public Document getImageFULLProfile(String uuid) throws IOException;
+
+	public String getImageFULLMimeType(String uuid) throws IOException, XPathExpressionException;
+
+	
+
 
 }
