@@ -14,7 +14,7 @@
 <fmt:setBundle basename="labels" />
 <fmt:setBundle basename="labels" var="bundleVar" />
 <form name="suggestForm" method="GET" action="./" autocomplete="Off">
-    <div class="suggestTitle"><div><fmt:message key="Procházet" /></div></div>
+    <div id="suggestDiv" ><div class="suggestTitle"><div><fmt:message key="Procházet" /></div></div>
     <div class="facet"><div style="position:relative;" class="facetItem">    
             <fmt:message key="Hlavní název" /><br/>
             <input name="queryT" id="queryT" type="text" size="20" class="suggest_input"
@@ -26,6 +26,7 @@
         </div>
     </div>
     <div id="autocomplete" class="autocomplete" >
+    </div>
     </div>
     <%--
 <td>
@@ -40,3 +41,24 @@
     </td>
     --%>
 </form>
+<script language="javascript">
+    var canHide = true;
+    function hideDelayed(){
+        if(canHide){
+            $(autoCompleteDiv).hide();
+        }
+    }
+    function breakHide(){
+        canHide = false;
+    }
+    function fireHide(){
+        $(autoCompleteDiv).hide();
+        //canHide = true;
+        //setTimeout('hideDelayed()', 1000);
+    }
+    $(document).ready(function(){
+        $('body').click(function() {
+          $(autoCompleteDiv).hide();
+        });
+    });
+</script>

@@ -105,7 +105,7 @@ Get Biblio mods
     </c:choose>
 </c:forEach>
 <script language="javascript">
-        $(document).ready(function(){
-            changeSelection('<c:out value="${pids[pathsize -2]}" />','<c:out value="${pids[pathsize -1]}" />');
-        });
-    </script>
+    $(document).ready(function(){
+        changeSelection('<c:out value="${pids[pathsize -2]}" />','<c:out value="${pids[pathsize -1]}" />');
+    });
+</script>

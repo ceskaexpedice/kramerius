@@ -56,11 +56,11 @@ function trim10 (str) {
 }
 
 function selectingPage(obj, level, model){
-    $(obj).parent().children(".relItem").removeClass('selected');
-    $(obj).addClass('selected');
+    //$(obj).parent().children(".relItem").removeClass('selected');
+    //$(obj).addClass('selected');
     var d1 = "#tabs_" + level;
     var d2 = "#tabs_" + (level-1);
-    $(d1 + ">div>div[id=info-"+model+"]").html($(obj).text());
+    //$(d1 + ">div>div[id=info-"+model+"]").html($(obj).text());
     
     //changeSelection($(obj).attr("id"), $(d1).attr("pid"));
     changeSelection($(d2).attr("pid"),$(obj).attr("id"));
@@ -69,11 +69,11 @@ function selectingPage(obj, level, model){
 }
 
 function changeSelectedPage(pid){
-    alert(pid);
     var obj = $("#" + pid);
     //alert($(obj).length);
     $(obj).parent().children(".relItem").removeClass('selected');
     $(obj).addClass('selected');
+    $(obj).parent().parent().children("[id=info-page]").html($(obj).text());
     //setTimeout("scrollElement", 100, obj.parent(), obj);
     scrollElement($(obj).parent(), $(obj));
 }
@@ -91,7 +91,8 @@ function selectItem(obj, level, model){
         $(d2).tabs("remove", 0);
     }
     //$(d2 + ">div").remove();
-    showList(obj, d1, model);
+    var img = d1 + ">ul>li.ui-tabs-selected>img";
+    showList(img, d1, model);
     //getItemRels($(obj).attr("id"), "", level, true);
     
     var target = level-1;
@@ -202,27 +203,25 @@ function getItemRels(pid, selectedpid, level, recursive){
 }
 
 function showInfo(obj, tab, model){
-    $(obj).toggleClass('op_info','op_list');
+    $(obj).toggleClass('op_info');
     $(tab + ">div>div[id=list-"+model+"]").toggle();
 }
 
 function showList(obj, tab, model){
-    
     var m = model;
     if(m.indexOf("-")>-1){
         m = m.split("-")[1];
     }
-    $(obj).toggleClass('op_info');
-    //alert($(tab + ">div>div[id=info-"+model+"]").length);
+    
     if($(tab + ">div>div[id=info-"+m+"]").text()==""){
         $(tab + ">div>div[id=info-"+m+"]").html($(tab+">div>div[id=list-"+m+"]>div.selected").text());
     }
     
-    //$(tab + ">div>div[id=info-"+model+"]").toggle();
     $(tab + ">div>div[id=list-"+m+"]").toggle();
     
     var selected = $(tab+">div>div[id=list-"+m+"]>div.selected");
     scrollElement($(selected).parent(), $(selected));
+    $(obj).toggleClass('op_info');
 }
 
 function showMainContent(pid, path){

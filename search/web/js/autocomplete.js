@@ -1,8 +1,6 @@
 /**
  * tomas.dockal@incad.cz
  * slouzi pro autocomplete pri vyhledavani
- * postaveno pro ESP - Query Completion Server completionserver
- *  ->server:15200
  *
  * na zacatku kodu je definice elementu a url pro ziskani autocomplete
  *
@@ -17,18 +15,10 @@
  * }
  */
 
-//var queryField="#query";
-//var completeUrl="http://tomas02.incadsbs.local:8084/cpojHelpKC/proxy.jsp?http://tomasesp.incad.cz:15200/search?q=";
 
-// id kam se vlozi autocomplete
-//var autoCompleteDiv="#autocomplete";
-
-//var lookupField = "facet_autor";
-//lookupField = "title";
 
 //adresa kde se hledaji autocomplete
 //obcas nutne pouzit proxy pro povoleni ajaxu
-//var completeUrl="http://tomas02.incadsbs.local:8084/cpojHelpKC/proxy.jsp?http://tomasesp.incad.cz:15200/search?q=";
 var completeUrl = "terms.jsp?";
 var autoCompleteDiv = '#autocomplete';
 
@@ -111,7 +101,7 @@ function parseData(data, lookupField, text){
         
     }
     if(outText.length>0){
-        $(autoCompleteDiv).html( outText );
+        $(autoCompleteDiv).html("<div><img src=\"img/x.png\" align=\"right\"/><br/>" + outText + "</div>");
         var y = $(text).offset().top + $(text).height();
         var x = $(text).offset().left;
         $(autoCompleteDiv).css("left", x);
