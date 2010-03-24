@@ -46,8 +46,8 @@ public class WSSupport {
 		Authenticator.setDefault(new Authenticator() { 
 	        protected PasswordAuthentication getPasswordAuthentication() { 
 	           return new PasswordAuthentication(configuration.getFedoraUser(), configuration.getFedoraPass().toCharArray()); 
-	         } 
-	       }); 
+	         }
+        });
 	
 		LOGGER.info("fedoraUser:"+configuration.getFedoraUser());
 		LOGGER.info("fedoraPass:"+configuration.getFedoraPass());
@@ -79,9 +79,6 @@ public class WSSupport {
 
 	    String rawContent = rawImage(configuration, parser.getObjectId(), request);
 	    LOGGER.info("rawcontent  ="+rawContent);
-	    //byte[] objectXML = port.getObjectXML(pid);
-		//LOGGER.severe("port = "+new String(objectXML));
-
 		String nds = port.addDatastream(pid, FedoraUtils.IMG_THUMB, null, "Thumbnail", false, "image/jpeg", "HTTP", rawContent, "M", "A", "MD5",null, "none");
 	}
 	
@@ -89,7 +86,6 @@ public class WSSupport {
 		return configuration.getThumbServletUrl()+"?scaledHeight="+KConfiguration.getKConfiguration().getScaledHeight()+"&uuid="+uuid+"&rawdata=true";
 	}
 
-	
 	public static String calcMD5SUM(String surl) throws IOException, NoSuchAlgorithmException {
 		URL url = new URL(surl);
 		URLConnection connection = url.openConnection();
