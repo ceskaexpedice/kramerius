@@ -310,14 +310,23 @@ public class GwtViewers implements EntryPoint, ClickHandler, ConfigurationChange
 	
 
 	public void moveLeft() {
+		double oldDuration = this.duration;
+		this.duration = this.duration *2;
+		double prevValue = this.sliderBar.getCurrentValue();
 		if (this.fxPane != null) {
-			this.fxPane.moveLeft(this.duration*3);
+			double curValue = prevValue-1.0;
+			this.sliderBar.setCurrentValue(curValue);
+			//this.fxPane.moveLeft(this.duration*3);
 		}
+		this.duration = oldDuration;
 	}
 
 	public void moveRight() {
+		double prevValue = this.sliderBar.getCurrentValue();
 		if (this.fxPane != null) {
-			this.fxPane.moveRight(this.duration*3);
+			double curValue = prevValue+1.0;
+			this.sliderBar.setCurrentValue(curValue);
+			//this.fxPane.moveLeft(this.duration*3);
 		}
 	}
 	
