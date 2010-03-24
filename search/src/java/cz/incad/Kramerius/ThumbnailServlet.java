@@ -34,15 +34,12 @@ import cz.incad.utils.IKeys;
  * @author pavels
  */
 public class ThumbnailServlet extends GuiceServlet {
-
 	
 	private static final String SCALE_PARAMETER = "scale";
 	private static final String PAGE_PARAMETER = "page";
 	private static final String RAWDATA_PARAMETER = "rawdata";
 	
 	private static final String SCALED_HEIGHT_PARAMETER ="scaledHeight";
-	//private static final String DS_LOCATION = "";
-
 	protected ThumbnailStorage.Type type = ThumbnailStorage.Type.FEDORA;
 
 	@Inject
@@ -51,8 +48,7 @@ public class ThumbnailServlet extends GuiceServlet {
 	protected FedoraAccess fedoraAccess;
 	
 	@Override
-	public void init() throws ServletException {
-	}
+	public void init() throws ServletException {}
 
 	@Override
 	protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
@@ -76,14 +72,11 @@ public class ThumbnailServlet extends GuiceServlet {
 			getInjector().injectMembers(thumbStorage);
 			if (thumbStorage.checkExists(uuid)) {
 				thumbStorage.redirectToServlet(uuid, resp);
-			} else {
-				thumbStorage.uploadThumbnail(uuid, req);
-				thumbStorage.redirectToServlet(uuid, resp);
+			}  else {
+				resp.setStatus(HttpServletResponse.SC_NOT_FOUND);
 			}
 		}
-
 	}
-
 
 	private void rawImage(HttpServletRequest req, HttpServletResponse resp,
 			String uuid, int page) throws IOException, MalformedURLException {
@@ -112,10 +105,8 @@ public class ThumbnailServlet extends GuiceServlet {
 
 
 
-
-
 	private String getDJVUServlet(String uuid) {
-    	String imagePath = this.configuration.getDJVUServletUrl()+"?"+IKeys.UUID_PARAMETER+"="+uuid;
+		String imagePath = this.configuration.getDJVUServletUrl()+"?"+IKeys.UUID_PARAMETER+"="+uuid;
     	return imagePath;
 	}
 
