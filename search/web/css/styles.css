@@ -282,7 +282,7 @@ td.rightMenu .facet{
  /* main content */
 #mainContent{
     font-size:10px;
-    background:white;
+    /*background:white;*/
     background-image: url('../img/facet_bg.png');
     background-position:bottom;
     background-repeat:repeat-x;
@@ -359,5 +359,5 @@ div.suggest:hover{
 
 /* gwtView */
 .page_selected{
-    border: 1px solid red;
+    border: 2px solid rgb(160,44,44);
 }
