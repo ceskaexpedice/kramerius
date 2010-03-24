@@ -19,5 +19,6 @@ public interface GeneratePDFService {
 	 */
 	public void generatePDF(String parentUuid, List<String> uuids, OutputStream os) throws IOException;
 	
+	public void generatePDFOutlined(String parentUUID, List<String> uuids, OutputStream os) throws IOException;
 }
 
