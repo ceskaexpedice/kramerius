@@ -1,10 +1,12 @@
 package cz.incad.Kramerius.backend.pdf.impl;
 
 import static cz.incad.kramerius.FedoraNamespaces.*;
+import static cz.incad.kramerius.utils.XMLUtils.*;
 
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -12,6 +14,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.ResourceBundle;
 import java.util.Set;
+import java.util.Stack;
 import java.util.logging.Level;
 
 import org.antlr.stringtemplate.StringTemplate;
@@ -20,7 +23,10 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
+
+
 import com.google.inject.Inject;
+import com.lizardtech.djvubean.outline.Outline;
 import com.qbizm.kramerius.ext.ontheflypdf.edi.Cell;
 import com.qbizm.kramerius.ext.ontheflypdf.edi.Document;
 import com.qbizm.kramerius.ext.ontheflypdf.edi.EdiException;
@@ -36,6 +42,12 @@ import com.qbizm.kramerius.ext.ontheflypdf.edi.generating.PdfDocumentGenerator;
 import cz.incad.Kramerius.backend.pdf.GeneratePDFService;
 import cz.incad.kramerius.FedoraAccess;
 import cz.incad.kramerius.FedoraNamespaces;
+import cz.incad.kramerius.pdf.PdfDocumentGeneratorPatched;
+import cz.incad.kramerius.pdf.model.Outlineable;
+import cz.incad.kramerius.pdf.model.OutlinedImage;
+import cz.incad.kramerius.pdf.model.OutlineItem;
+import cz.incad.kramerius.pdf.model.OutlinedTextBlock;
+import cz.incad.kramerius.utils.DCUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 import cz.incad.kramerius.utils.pid.LexerException;
 import cz.incad.kramerius.utils.pid.PIDParser;
@@ -50,31 +62,116 @@ public class GeneratePDFServiceImpl implements GeneratePDFService {
 	@Inject
 	KConfiguration configuration;
 	
-	
 	@Override
 	public void generatePDF(String parentUUID, List<String> uuids, OutputStream os)
 			throws IOException {
 		try {
 			Document doc = new Document();
+			List<Page> pages = new ArrayList<Page>();
 			if (!uuids.isEmpty()) {
-				doc.addPage(createFirstPage(doc, parentUUID));
+				Page firstPage = createFirstPage(doc, parentUUID);
+				pages.add(firstPage);
 			}
+			
 			for (String uuid : uuids) {
-				String url = createDJVUUrl(uuid);
-				Image imgElem = new Image(url);
-				imgElem.setPosition(2, 2);
-				doc.addPage(new Page(imgElem));
+				if (containsDJVU(uuid)) {
+					String url = createDJVUUrl(uuid);
+					Image imgElem = new Image(url);
+					imgElem.setPosition(2, 2);
+					Page imagePage = new Page(imgElem);
+					pages.add(imagePage);
+				} else {
+					//TextBlock 
+				}
+				//doc.addPage(imagePage);
 			}
-			if (doc.getPagesCount() > 0) {
-				PdfDocumentGenerator pdfDocumentGenerator = new PdfDocumentGenerator(doc);
+
+			if (pages.isEmpty()) {
+				for (Page page : pages) { doc.addPage(page);}
+				PdfDocumentGeneratorPatched pdfDocumentGenerator = new PdfDocumentGeneratorPatched(doc);
+				//PdfDocumentGenerator pdfDocumentGenerator = new PdfDocumentGenerator(doc);
 				pdfDocumentGenerator.setDisector(new KrameriusImageFormatDisector());
 				pdfDocumentGenerator.generateDocument(os);
 			}
 		} catch (EdiException e) {
 			LOGGER.log(Level.SEVERE, e.getMessage(), e);
 		}
-		
 	}
+
+
+	private boolean containsDJVU(String uuid) throws IOException {
+		InputStream djvu = null;
+		try {
+			djvu = fedoraAccess.getDJVU(uuid);
+			return djvu != null;
+		}finally {
+			if (djvu != null) { djvu.close(); }
+		}
+	}
+
+	
+	@Override
+	public void generatePDFOutlined(String parentUUID, List<String> uuids, OutputStream os) throws IOException {
+		try {
+			String parentTitle = DCUtils.titleFromDC(fedoraAccess.getDC(parentUUID));
+			Document doc = new Document();
+			Page firstPage = createFirstPage(doc, parentUUID);
+			List<Outlineable<? extends com.qbizm.kramerius.ext.ontheflypdf.edi.Element>> imgs = new ArrayList<Outlineable<? extends com.qbizm.kramerius.ext.ontheflypdf.edi.Element>>();
+			
+			List<Page> pages = new ArrayList<Page>();
+			for (String uuid : uuids) {
+				org.w3c.dom.Document dc = fedoraAccess.getDC(uuid);
+				String title = DCUtils.titleFromDC(dc);
+				if (containsDJVU(uuid)) {
+					String url = createDJVUUrl(uuid);
+					Image imgElem = new Image(url);
+					imgElem.setPosition(2, 2);
+	
+					OutlinedImage imgWithDesc = new OutlinedImage(title,imgElem);
+					Page imagePage = new Page(imgWithDesc);
+					pages.add(imagePage);
+
+					imgs.add( imgWithDesc);
+				} else {
+					TextBlock block = new TextBlock("No Image Available");
+					OutlinedTextBlock outlinedTextBlock = new OutlinedTextBlock(title, block);
+					Page page = new Page(outlinedTextBlock);
+					pages.add(page);
+
+					imgs.add(outlinedTextBlock);
+				}
+			}
+			Page outlinePage = generateOutline(parentTitle, imgs);
+			if (pages.size() > 0) {
+				doc.addPage(firstPage);
+				doc.addPage(outlinePage);
+				for (Page page : pages) { doc.addPage(page); }
+				PdfDocumentGeneratorPatched pdfDocumentGenerator = new PdfDocumentGeneratorPatched(doc);
+				pdfDocumentGenerator.setDisector(new KrameriusImageFormatDisector());
+				pdfDocumentGenerator.generateDocument(os);
+			}
+		} catch (EdiException e) {
+			LOGGER.log(Level.SEVERE, e.getMessage(), e);
+		}
+	}
+
+
+	private Page generateOutline(String parentTitle, List<Outlineable<? extends com.qbizm.kramerius.ext.ontheflypdf.edi.Element>> imgs) {
+		// TODO Auto-generated method stub
+		cz.incad.kramerius.pdf.model.Outline outline = new cz.incad.kramerius.pdf.model.Outline();
+		OutlineItem root = new OutlineItem();
+		/*
+		for (ImageWithTitle dscImage : imgs) {
+			String title = dscImage.getTitle();
+			OutlineItem item = new OutlineItem();
+			item.setTitle(parentTitle + "  "+ title);
+			item.setDestination(title);
+			outline.addItem(item);
+		}*/
+		Page page = new Page(outline);
+		return page;
+	}
+
 
 	private Font getDocumentFont() {
         String fontFile = "resources"
@@ -97,7 +194,6 @@ public class GeneratePDFServiceImpl implements GeneratePDFService {
 
 		StringTemplate stDescription = grp.getInstanceOf("cz/incad/Kramerius/backend/pdf/impl/description");
 		String description = stDescription.toString();
-
         PageLayer layer = new PageLayer();
 
         //line
@@ -146,7 +242,7 @@ public class GeneratePDFServiceImpl implements GeneratePDFService {
         tab.setWidth(200);
         tab.setBorderWidth(0f);
         layer.addElement(tab);
-        
+
         //return complete first page for the periodical item
         return new Page(layer);
 	}
@@ -188,10 +284,12 @@ public class GeneratePDFServiceImpl implements GeneratePDFService {
 	}
 
 	private String createDJVUUrl(String objectId) {
-		String imgUrl = this.configuration.getDJVUServletUrl() +"?uuid="+objectId+"";
-		return imgUrl;
+//		String imgUrl = this.configuration.getDJVUServletUrl() +"?uuid="+objectId+"";
+//		return imgUrl;
+		return null;
 	}
 
+	
 
 	public FedoraAccess getFedoraAccess() {
 		return fedoraAccess;
