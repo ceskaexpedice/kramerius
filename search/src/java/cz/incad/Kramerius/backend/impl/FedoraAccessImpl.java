@@ -110,7 +110,6 @@ public class FedoraAccessImpl implements FedoraAccess {
 		}	
 	}
 
-
 	
 	@Override
 	public void processRelsExt(Document relsExtDocument, RelsExtHandler handler) throws IOException{
@@ -201,13 +200,101 @@ public class FedoraAccessImpl implements FedoraAccess {
 		InputStream thumbInputStream = con.getInputStream();
 		return thumbInputStream;
 	}
+
+	@Override
+	public Document getThumbnailProfile(String uuid) throws IOException {
+		HttpURLConnection con = (HttpURLConnection) openConnection(thumbImageProfile(configuration ,uuid),configuration.getFedoraUser(), configuration.getFedoraPass());
+		InputStream stream = con.getInputStream();
+		try {
+			return XMLUtils.parseDocument(stream, true);
+		} catch (ParserConfigurationException e) {
+			LOGGER.log(Level.SEVERE, e.getMessage(), e);
+			throw new IOException(e);
+		} catch (SAXException e) {
+			LOGGER.log(Level.SEVERE, e.getMessage(), e);
+			throw new IOException(e);
+		}	
+	}
 	
-	public InputStream getDJVU(String uuid) throws IOException {
+	
+	@Override
+	public String getThumbnailMimeType(String uuid) throws IOException,XPathExpressionException {
+		Document profileDoc = getThumbnailProfile(uuid);
+        return mimetypeFromProfile(profileDoc);
+	}
+
+	public InputStream getImageFULL(String uuid) throws IOException {
 		HttpURLConnection con = (HttpURLConnection) openConnection(getDjVuImage(configuration ,uuid),configuration.getFedoraUser(), configuration.getFedoraPass());
 		InputStream thumbInputStream = con.getInputStream();
 		return thumbInputStream;
 	}
 
+	public String getImageFULLMimeType(String uuid) throws IOException, XPathExpressionException {
+		Document profileDoc = getImageFULLProfile(uuid);
+        return mimetypeFromProfile(profileDoc);
+	}
+
+	
+	private String mimetypeFromProfile(Document profileDoc)
+			throws XPathExpressionException {
+		XPathFactory factory = XPathFactory.newInstance();
+        XPath xpath = factory.newXPath();
+        XPathExpression expr = xpath.compile("/datastreamProfile/dsMIME");
+        Node oneNode = (Node) expr.evaluate(profileDoc, XPathConstants.NODE);
+        if (oneNode != null) {
+        	Element elm = (Element) oneNode;
+        	String mimeType = elm.getTextContent();
+        	if ((mimeType != null) && (!mimeType.trim().equals(""))) {
+            	mimeType = mimeType.trim();
+            	return mimeType;
+        	}
+        }
+        return null;
+	}
+	
+	
+	@Override
+	public Document getImageFULLProfile(String uuid) throws IOException {
+		HttpURLConnection con = (HttpURLConnection) openConnection(fullImageProfile(configuration ,uuid),configuration.getFedoraUser(), configuration.getFedoraPass());
+		InputStream stream = con.getInputStream();
+		try {
+			return XMLUtils.parseDocument(stream, true);
+		} catch (ParserConfigurationException e) {
+			LOGGER.log(Level.SEVERE, e.getMessage(), e);
+			throw new IOException(e);
+		} catch (SAXException e) {
+			LOGGER.log(Level.SEVERE, e.getMessage(), e);
+			throw new IOException(e);
+		}	
+	}
+	
+
+	public static String fullImageProfile(KConfiguration configuration, String uuid) {
+		return dsProfile(configuration, "IMG_FULL", uuid);
+	}
+
+	public static String thumbImageProfile(KConfiguration configuration, String uuid) {
+		return dsProfile(configuration, "IMG_THUMB", uuid);
+	}
+
+	public static String dcProfile(KConfiguration configuration, String uuid) {
+		return dsProfile(configuration, "DC", uuid);
+	}
+	public static String biblioModsProfile(KConfiguration configuration, String uuid) {
+		return dsProfile(configuration, "BIBLIO_MODS", uuid);
+	}
+
+	public static String relsExtProfile(KConfiguration configuration, String uuid) {
+		return dsProfile(configuration, "RELS-EXT", uuid);
+	}
+	
+	public static String dsProfile(KConfiguration configuration, String ds, String uuid) {
+		//http://194.108.215.227:8080/fedora/objects/uuid:1c0a2377-e642-11de-a504-001143e3f55c/datastreams/IMG_FULL?format=text/xml
+		String fedoraObject = configuration.getFedoraHost() +"/objects/uuid:"+uuid;
+		return fedoraObject + "/datastreams/"+ds+"?format=text/xml";
+	}
+
+	
 	public static String biblioMods(KConfiguration configuration, String uuid) {
 		String fedoraObject = configuration.getFedoraHost() +"/get/uuid:"+uuid;
 		return fedoraObject + "/BIBLIO_MODS";

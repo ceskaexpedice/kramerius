@@ -102,7 +102,7 @@ public class GeneratePDFServiceImpl implements GeneratePDFService {
 	private boolean containsDJVU(String uuid) throws IOException {
 		InputStream djvu = null;
 		try {
-			djvu = fedoraAccess.getDJVU(uuid);
+			djvu = fedoraAccess.getImageFULL(uuid);
 			return djvu != null;
 		}finally {
 			if (djvu != null) { djvu.close(); }
