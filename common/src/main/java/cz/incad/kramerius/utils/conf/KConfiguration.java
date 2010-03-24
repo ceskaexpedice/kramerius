@@ -99,6 +99,10 @@ public class KConfiguration {
     	return getProperty("thumbUrl");
     }
 
+    public String getDJVUServletUrl() {
+    	return getProperty("djvuUrl");
+    }
+
     public String getScaledHeight() {
     	return getProperty("scaledHeight");
     }
