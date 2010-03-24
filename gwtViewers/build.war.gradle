@@ -126,6 +126,7 @@ task warCopy(type: Copy,dependsOn:gwtCompile) {
 	into deployingWarDir
 	include('gwtviewers/**')
 	include('WEB-INF/web.xml')
+	exclude('gwtviewers/gwt/**')
 }
 
 
