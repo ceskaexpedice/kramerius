@@ -88,7 +88,7 @@ public class PageServiceImpl extends RemoteServiceServlet implements PageService
 	}
 	
 	public static String thumbnail(String thumbUrl, String uuid, String scaledHeight) {
-		String url = KConfiguration.getKConfiguration().getThumbServletUrl()+"?scaledHeight="+scaledHeight+"&uuid="+uuid;
+		String url = KConfiguration.getKConfiguration().getThumbServletUrl()+"?outputFormat=RAW&uuid="+uuid;
 		return url;
 	}
 	
