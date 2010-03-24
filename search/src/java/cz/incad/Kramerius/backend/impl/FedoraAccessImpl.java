@@ -8,7 +8,9 @@ import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Queue;
 import java.util.Stack;
 import java.util.logging.Level;
 
@@ -58,8 +60,6 @@ public class FedoraAccessImpl implements FedoraAccess {
 		Document relsExt = getRelsExt(uuid);
 		return getPages(uuid, relsExt.getDocumentElement());
 	}
-	
-
 	
 	@Override
 	public Document getRelsExt(String uuid) throws IOException {
@@ -112,8 +112,6 @@ public class FedoraAccessImpl implements FedoraAccess {
 
 
 	
-	
-	
 	@Override
 	public void processRelsExt(Document relsExtDocument, RelsExtHandler handler) throws IOException{
 		try {
@@ -127,13 +125,13 @@ public class FedoraAccessImpl implements FedoraAccess {
 					FedoraRelationship relation = FedoraRelationship.valueOf(nodeName);
 					if (relation != null) {
 						if (handler.accept(relation)) {
-							handler.handle(topElem, relation);
+							handler.handle(topElem, relation, processingStack);
 							// deep
 							String attVal = topElem.getAttributeNS(FedoraNamespaces.RDF_NAMESPACE_URI, "resource");
 							PIDParser pidParser = new PIDParser(attVal);
 							pidParser.disseminationURI();
 							String objectId = pidParser.getObjectId();
-							LOGGER.info("processing uuid =" +objectId);
+							//LOGGER.info("processing uuid =" +objectId);
 							Document relsExt = getRelsExt(objectId);
 							processingStack.push(relsExt.getDocumentElement());
 						}
