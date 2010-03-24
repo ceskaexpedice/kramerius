@@ -163,7 +163,4 @@ public class LRProcessDefinitionImpl implements LRProcessDefinition {
 	public void setErrStreamFolder(String errStreamFolder) {
 		this.errStreamFolder = errStreamFolder;
 	}
-	
-	
-	
 }

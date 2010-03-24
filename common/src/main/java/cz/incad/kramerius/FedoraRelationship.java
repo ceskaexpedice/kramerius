@@ -11,7 +11,8 @@ public enum FedoraRelationship {
 	hasVolume,
 	hasItem,
 	hasUnit,
-	hasInternalPart
+	hasInternalPart,
+	hasIntCompPart
 	
 	//relationship defined in  Fedora Ontology Relationship
 	// http://www.fedora-commons.org/definitions/1/0/fedora-relsext-ontology.rdfs

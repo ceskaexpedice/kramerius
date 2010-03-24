@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Stack;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -39,6 +40,26 @@ public class XMLUtils {
 			}
 		}
 		return retVals;
+	}
+	
+	public static Element findElement(Element topElm, String localName , String namespace) {
+		Stack<Element> stack = new Stack<Element>();
+		stack.push(topElm);
+		while(!stack.isEmpty()) {
+			Element curElm = stack.pop();
+			if ((curElm.getLocalName().equals(localName)) && 
+				(curElm.getNamespaceURI().equals(namespace))) {
+				return curElm;
+			}
+			NodeList childNodes = curElm.getChildNodes();
+			for (int i = 0,ll=childNodes.getLength(); i < ll; i++) {
+				Node item = childNodes.item(i);
+				if (item.getNodeType() == Node.ELEMENT_NODE) {
+					stack.push((Element) item);
+				}
+			}
+		}
+		return null;
 	}
 	
 }

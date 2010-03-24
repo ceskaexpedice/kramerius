@@ -1,5 +1,7 @@
 package cz.incad.kramerius;
 
+import java.util.Stack;
+
 import org.w3c.dom.Element;
 
 /**
@@ -24,5 +26,5 @@ public interface RelsExtHandler {
 	 * @param elm Processing element 
 	 * @param relation Type of relation
 	 */
-	public void handle(Element elm, FedoraRelationship relation);
+	public void handle(Element elm, FedoraRelationship relation, Stack<Element> processingStack);
 }
