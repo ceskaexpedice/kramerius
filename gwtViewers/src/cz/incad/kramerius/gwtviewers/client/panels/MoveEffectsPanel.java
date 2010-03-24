@@ -220,6 +220,7 @@ public class MoveEffectsPanel extends  Composite {
 	}
 
 
+	
 
 	public void rollToPage(int currentValue, double duration,boolean playEffect) {
 		int pocetKroku = currentValue - this.imageRotatePool.getPointer();

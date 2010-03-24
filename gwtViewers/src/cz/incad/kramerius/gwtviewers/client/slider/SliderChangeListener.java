@@ -10,7 +10,6 @@ import cz.incad.kramerius.gwtviewers.client.panels.MoveEffectsPanel;
 
 public class SliderChangeListener implements ChangeListener, MouseUpHandler  {
 
-	
 	private int previousSliderMove = -5;
 	private int previousSliderUp = -5;
 
@@ -86,6 +85,7 @@ public class SliderChangeListener implements ChangeListener, MouseUpHandler  {
 	}
 
 
+	
 
 	public void rollToPage(int currentValue, double duration, boolean playEffect) {
 		fxPane.rollToPage(currentValue,duration, playEffect);

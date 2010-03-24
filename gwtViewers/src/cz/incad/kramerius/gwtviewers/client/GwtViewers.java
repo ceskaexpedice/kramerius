@@ -308,8 +308,18 @@ public class GwtViewers implements EntryPoint, ClickHandler, ConfigurationChange
 		return wrapper;
 	}
 	
-	
 
+	public void moveLeft() {
+		if (this.fxPane != null) {
+			this.fxPane.moveLeft(this.duration*3);
+		}
+	}
+
+	public void moveRight() {
+		if (this.fxPane != null) {
+			this.fxPane.moveRight(this.duration*3);
+		}
+	}
 	
 	/**
 	 * This is the entry point method.
@@ -451,6 +461,15 @@ public class GwtViewers implements EntryPoint, ClickHandler, ConfigurationChange
 		$wnd.reloadParentUUID = function (masterUuid, selection) {
 			gwtV.@cz.incad.kramerius.gwtviewers.client.GwtViewers::doInitImages(Ljava/lang/String;Ljava/lang/String;)(masterUuid, selection);
 		};
+		
+		$wnd.moveLeft = function() {
+			gwtV.@cz.incad.kramerius.gwtviewers.client.GwtViewers::moveLeft()();
+		};
+		
+		$wnd.moveRight = function() {
+			gwtV.@cz.incad.kramerius.gwtviewers.client.GwtViewers::moveRight()();
+		};
+		
 	}-*/;
 	
 	public void message(String messge) {
