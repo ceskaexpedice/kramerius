@@ -4,7 +4,7 @@ import com.google.gwt.user.client.Window;
 
 public class MozillaModuloCreator extends ModuloCreator {
 	
-	public static final int MOZILLAMXPAGES = 250;
+	public static final int MOZILLAMXPAGES = 200;
 	
 	@Override
 	public int createModulo(int numberOfPages) {
@@ -14,6 +14,4 @@ public class MozillaModuloCreator extends ModuloCreator {
 			return 1;
 		}
 	}
-
-	
 }
