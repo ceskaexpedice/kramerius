@@ -4,6 +4,7 @@ body {
 	color:#0B0F0A;
         background-image: url('../img/background.png');
         background-repeat:repeat-x;
+        margin:0px;
 }
 td {
 	font-family:Verdana, Arial, Helvetica, Tahoma;
@@ -25,6 +26,8 @@ form{
 }
 input.searchQuery{
     width:270px;
+    height:2.0em;
+    padding:2px 5px;
 }
 
 input.checkbox {
@@ -111,30 +114,31 @@ a.image:hover {
 }
 
 #intro{
-    margin-top:5px;
+    margin-top:0px;
 }
 #intro1, #intro3, #intro2{
     padding:5px;
 }
 #timeLineBody{
-    padding-bottom:22px;
+    padding-bottom:32px;
 }
 /* end layout */
 
 /* facets */
 
 .facet{
-    padding:0px;
     background-image: url('../img/facet_bg.png');
     background-position:bottom;
     background-repeat:repeat-x;
     margin-bottom:5px;
-    width:216px;
     
 }
 
-.facet{
+.leftMenu .facet{
     width:216px;
+}
+.centralCell .facetBody{
+    height:98px;
 }
 .facetTitle{
     color:white;
@@ -350,7 +354,8 @@ td.rightMenu .facet{
 
 #suggestBody{
     padding:2px 5px;
-    height:88px;
+    padding-top:8px;
+    height:89px;
 }
 
 .suggestTitle div{

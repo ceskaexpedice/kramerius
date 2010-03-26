@@ -90,7 +90,7 @@ function json(text, lookupField){
         cache: false,
         type: "POST"
     });
-    var url = searchPage + completeUrl + "field="+lookupField+"&t=" + text.value;
+    var url = completeUrl + "field="+lookupField+"&t=" + text.value;
     $.getJSON(url, function(data) {
         parseData(data, lookupField, text);
     });

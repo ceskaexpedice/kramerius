@@ -49,7 +49,7 @@ out.clear();
                             <%@ include file="inc/facet.jsp" %>
                     </td>
                     </c:if>
-                <td>
+                <td class="centralCell">
                     <%//@ include file="inc/modelsTree.jsp" %>
                     
                      <c:choose>
