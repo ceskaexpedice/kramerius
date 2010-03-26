@@ -120,7 +120,7 @@ a.image:hover {
     padding:5px;
 }
 #timeLineBody{
-    padding-bottom:32px;
+    padding-bottom:26px;
 }
 /* end layout */
 
@@ -315,11 +315,11 @@ td.rightMenu .facet{
  /* main content */
 #mainContent{
     font-size:10px;
-    /*background:white;*/
     background-image: url('../img/facet_bg.png');
     background-position:bottom;
     background-repeat:repeat-x;
     vertical-align:top;
+    background-color:white;
 }
 #mainContent *{
     font-size:10px;

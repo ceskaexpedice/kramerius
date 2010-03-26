@@ -39,6 +39,7 @@ function scrollElement(container, element){
 
 
 var imgLoading = "<img src=\"img/loading.gif\" />";
+var imgLoadingBig = '<div align="center" style="height:300px;padding:50%;"><img src="img/item_loading.gif" /></div>';
 function trim10 (str) {
     var whitespace = ' \n\r\t\f\x0b\xa0\u2000\u2001\u2002\u2003\u2004\u2005\u2006\u2007\u2008\u2009\u200a\u200b\u2028\u2029\u3000';
     for (var i = 0; i < str.length; i++) {
@@ -121,6 +122,9 @@ function selectItem(obj, level, model){
     $(d2).remove();
     //if(!pid) return;
     var url ="itemMenu.jsp?language="+language+"&pid_path="+$(obj).attr("id")+"&path="+model+"&level="+target;
+    $('#mainContent').html(imgLoadingBig);
+    //$('#mainContent').html('imgLoadingBig');
+    //alert(imgLoadingBig);
     $.get(url, function(data){
         $(p).append(data);
         getItemRels($(obj).attr("id"), "", level, true);
@@ -246,7 +250,7 @@ function showList(obj, tab, model){
 
 function showMainContent(pid, path){
     if(path=="") return;
-    $('#mainContent').html(imgLoading);
+    $('#mainContent').html(imgLoadingBig);
     //var url = "inc/details/"+path.toString().split('/')[0]+".jsp?display=block&language=";
     var url = "inc/details/biblioToRdf.jsp?pid=uuid:"+pid+"&xsl="+path.toString().split('/')[0]+".jsp&display=block&language=";
     //var url = 'item_1.jsp?pid='+pid+'&path='+path;

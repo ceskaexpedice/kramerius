@@ -54,7 +54,7 @@ out.clear();
                     
                      <c:choose>
                         <c:when test="${rows == 0}" >
-                            <table width="100%"><tr><td valign="top"><%@ include file="inc/suggest.jsp" %>
+                            <table width="100%" cellspacing="0" cellpadding="0"><tr><td valign="top"><%@ include file="inc/suggest.jsp" %>
                             </td><td valign="top"><% currentFacetName = "document_type"; %>
                             <%@ include file="inc/facet.jsp" %>
                             </td></tr></table><br/>

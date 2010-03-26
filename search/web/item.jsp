@@ -69,7 +69,7 @@
             <tr valign='top'>
                 <td>
                     <%//@ include file="item_1.jsp" %>
-                    <div id="mainContent"></div>
+                    <div id="mainContent"><div align="center" style="height:300px;padding:50%;"><img src="img/item_loading.gif" /></div></div>
                 </td>
                 <td class="itemMenu">
                     <div id="itemTree">
