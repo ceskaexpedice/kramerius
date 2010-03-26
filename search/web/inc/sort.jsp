@@ -4,7 +4,7 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn" %>
 <%@ page isELIgnored="false"%>
-<div style="float:right;">
+<div style="float:right;padding-right:3px;">
 <c:if test="${fn:containsIgnoreCase(param.sort ,'root_title')}" >
    <b>
        <c:if test="${fn:containsIgnoreCase(param.sort ,'desc')}" >

@@ -142,3 +142,11 @@
 <c:set var="numDocs" scope="request" >
     <x:out select="$doc/response/result/@numFound" />
 </c:set>
+<c:set var="numDocsStr" scope="request" >
+    <c:choose>
+        <c:when test="${numDocs==1}"><fmt:message>dokument</fmt:message></c:when>
+        <c:when test="${numDocs>1 && numDocs<5}"><fmt:message>dokumenty</fmt:message></c:when>
+        <c:when test="${numDocs>4}"><fmt:message>dokumentů</fmt:message></c:when>
+    </c:choose>
+    
+</c:set>

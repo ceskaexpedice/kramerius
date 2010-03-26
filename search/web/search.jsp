@@ -64,7 +64,7 @@ out.clear();
                             <div id="resultsDiv" class="ui-tabs ui-widget ui-widget-content ui-corner-all" >
                             <ul class="ui-helper-reset ui-helper-clearfix ui-widget-header ui-corner-all" style="padding:0 0.1em 0 0;">
                                 <li class="ui-state-default ui-corner-top ui-tabs-selected ui-state-active " style="width:100%;">
-                                    <c:out value="${numDocs}" />
+                                    &#160;<c:out value="${numDocs}" />&#160;<c:out value="${numDocsStr}" />
                                     <%@ include file="inc/paginationPageNum.jsp" %>
                                     <%@ include file="inc/sort.jsp" %>
                                 </li>
