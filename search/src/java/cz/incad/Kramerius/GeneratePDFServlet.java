@@ -99,8 +99,8 @@ public class GeneratePDFServlet extends GuiceServlet {
 				});
 			    
 			    // generovani pdf
-			    //service.generatePDF(uuid, pages, resp.getOutputStream());
-			    service.generatePDFOutlined(uuid, pages, resp.getOutputStream());
+			    service.generatePDF(uuid, pages, resp.getOutputStream());
+			    //service.generatePDFOutlined(uuid, pages, resp.getOutputStream());
 			}
 		} catch (Exception e) {
 			LOGGER.log(Level.SEVERE, e.getMessage(), e);
