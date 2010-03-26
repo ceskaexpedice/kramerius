@@ -44,11 +44,8 @@ import cz.incad.kramerius.utils.conf.KConfiguration;
  */
 public class FullImageServlet extends AbstracThumbnailServlet {
 
-	
 	private static final String DEFAULT_MIMETYPE = "image/x.djvu";
-
-	public static final java.util.logging.Logger LOGGER = java.util.logging.Logger
-			.getLogger(FullImageServlet.class.getName());
+	public static final java.util.logging.Logger LOGGER = java.util.logging.Logger.getLogger(FullImageServlet.class.getName());
 
 	@Override
 	protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {

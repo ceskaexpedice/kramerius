@@ -11,7 +11,7 @@ import cz.incad.Kramerius.backend.pdf.impl.GeneratePDFServiceImpl;
 import cz.incad.kramerius.FedoraAccess;
 import cz.incad.kramerius.processes.DefinitionManager;
 import cz.incad.kramerius.processes.LRProcessManager;
-import cz.incad.kramerius.processes.database.ConfigurationConnectionProvider;
+import cz.incad.kramerius.processes.database.DefaultConnectionProvider;
 import cz.incad.kramerius.processes.impl.DatabaseProcessManager;
 import cz.incad.kramerius.processes.impl.LRProcessDefinitionManagerImpl;
 import cz.incad.kramerius.utils.JNDIUtils;
@@ -30,6 +30,6 @@ public class BaseModule extends AbstractModule {
 		bind(GeneratePDFService.class).to(GeneratePDFServiceImpl.class).in(Scopes.SINGLETON);
 		bind(KConfiguration.class).toInstance(KConfiguration.getKConfiguration(JNDIUtils.getJNDIValue(IKeys.CONFIG_PATH)));
 		// konekce.. vymenit za jndi
-		bind(Connection.class).toProvider(ConfigurationConnectionProvider.class);
+		bind(Connection.class).toProvider(DefaultConnectionProvider.class);
 	}
 }
