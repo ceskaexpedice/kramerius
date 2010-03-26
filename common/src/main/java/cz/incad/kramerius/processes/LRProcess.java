@@ -30,6 +30,8 @@ public interface LRProcess {
 	 */
 	public String getPid();
 
+	public void setPid(String pid);
+	
 	/**
 	 * Process definintion id
 	 * @see LRProcessDefinition
@@ -66,4 +68,6 @@ public interface LRProcess {
 	 * @return
 	 */
 	public States getProcessState();
+	
+	public void setProcessState(States st);
 }

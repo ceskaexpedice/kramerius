@@ -24,4 +24,6 @@ public interface LRProcessManager {
 	public List<LRProcess> getLongRunningProcesses();
 
 	public void updateLongRunningProcessState(LRProcess lrProcess);
+	public void updateLongRunningProcessPID(LRProcess lrProcess);
+
 }

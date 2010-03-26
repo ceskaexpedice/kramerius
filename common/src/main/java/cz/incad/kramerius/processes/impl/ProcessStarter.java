@@ -1,14 +1,16 @@
 package cz.incad.kramerius.processes.impl;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.lang.management.ManagementFactory;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.URLConnection;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.logging.Level;
-
-import com.google.inject.Guice;
-import com.google.inject.Injector;
 
 import cz.incad.kramerius.processes.States;
 import cz.incad.kramerius.processes.database.DatabaseUtils;
@@ -21,8 +23,10 @@ public class ProcessStarter {
 	public static final String MAIN_CLASS_KEY="mainClass";
 	public static final String UUID_KEY="uuid";
 	public static final String CLASSPATH_NAME="CLASSPATH";
-
-	public static void main(String[] args) throws ClassNotFoundException, SecurityException, NoSuchMethodException, IllegalArgumentException, IllegalAccessException, InvocationTargetException, SQLException {
+	public static final String LR_SERVLET_URL="LR_SERVLET_URL";
+	
+	
+	public static void main(String[] args) throws ClassNotFoundException, SecurityException, NoSuchMethodException, IllegalArgumentException, IllegalAccessException, InvocationTargetException, SQLException, MalformedURLException, IOException {
 		String mainClass = System.getProperty(MAIN_CLASS_KEY);
 		try {
 			Class<?> clz = Class.forName(mainClass);
@@ -38,38 +42,30 @@ public class ProcessStarter {
 			updateStatus(States.FAILED);
 		}
 	}
+
 	
-	private static void updateStatus(States state) throws SQLException {
+	private static void updateStatus(States state) throws  MalformedURLException, IOException {
 		String uuid = System.getProperty(UUID_KEY);
-		if (uuid != null) {
-			Connection con = null;
-			try {
-				Injector inj = microProcessModule();
-				con = inj.getInstance(Connection.class);
-				DatabaseUtils.updateProcessState(con, uuid, state);
-			} catch (SQLException e) {
-				LOGGER.log(Level.SEVERE, e.getMessage(), e);
-			} finally {
-				if (con != null) con.close();
-			}
-		}
+		String lrURl = System.getProperty(LR_SERVLET_URL);
+		String restURL = lrURl + "?action=updateStatus&uuid="+uuid+"&state="+state;
+		httpGet(restURL);
 	}
 
-	private static void updatePID(String pid) throws SQLException {
+	private static void updatePID(String pid) throws IOException {
 		String uuid = System.getProperty(UUID_KEY);
-		if (uuid != null) {
-			LOGGER.info("updating database. Pid =  '"+pid+"'");
-			Connection con = null;
-			try {
-				Injector inj = microProcessModule();
-				con = inj.getInstance(Connection.class);
-				DatabaseUtils.updateProcessPID(con, pid, uuid);
-			} catch (SQLException e) {
-				LOGGER.log(Level.SEVERE, e.getMessage(), e);
-			} finally {
-				if (con != null) con.close();
-			}
-		}
+		String lrURl = System.getProperty(LR_SERVLET_URL);
+		String restURL = lrURl + "?action=updatePID&uuid="+uuid+"&pid="+pid;
+		httpGet(restURL);
+	}
+
+	private static void httpGet(String restURL) throws MalformedURLException,
+			IOException {
+		URL url = new URL(restURL);
+		URLConnection connection = url.openConnection();
+		InputStream inputStream = connection.getInputStream();
+		byte[] buffer = new byte[1<<12];
+		int read = -1;
+		while((read=inputStream.read(buffer)) > 0) {};
 	}
 
 
@@ -83,8 +79,4 @@ public class ProcessStarter {
 		return pid;
 	}
 	
-	public static Injector microProcessModule() {
-		Injector injector = Guice.createInjector(new ProcessMicroModule());
-		return injector;
-	}
 }

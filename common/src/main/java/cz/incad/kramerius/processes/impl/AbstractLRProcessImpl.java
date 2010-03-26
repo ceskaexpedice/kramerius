@@ -15,8 +15,7 @@ import cz.incad.kramerius.processes.LRProcess;
 import cz.incad.kramerius.processes.LRProcessDefinition;
 import cz.incad.kramerius.processes.LRProcessManager;
 import cz.incad.kramerius.processes.States;
-import cz.incad.kramerius.processes.database.ConfigurationConnectionProvider;
-import cz.incad.kramerius.processes.database.PropertyConnectionProvider;
+import cz.incad.kramerius.processes.database.DefaultConnectionProvider;
 import cz.incad.kramerius.processes.impl.io.FollowStreamThread;
 import cz.incad.kramerius.utils.IOUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
@@ -74,7 +73,7 @@ public abstract class AbstractLRProcessImpl implements LRProcess{
 
 	@Override
 	public boolean canBeStopped() {
-		return getPid() != null;
+		return getPid() != null && getProcessState().equals(States.RUNNING);
 	}
 
 	@Override
@@ -91,9 +90,7 @@ public abstract class AbstractLRProcessImpl implements LRProcess{
 			command.add("java");
 			command.add("-D"+ProcessStarter.MAIN_CLASS_KEY+"="+this.definition.getMainClass());
 			command.add("-D"+ProcessStarter.UUID_KEY+"="+this.uuid);
-			command.add("-D"+PropertyConnectionProvider.JDBC_URL+"="+configuration.getJdbcUrl());
-			command.add("-D"+PropertyConnectionProvider.JDBC_USER_NAME+"="+configuration.getJdbcUserName());
-			command.add("-D"+PropertyConnectionProvider.JDBC_USER_PASS+"="+configuration.getJdbcUserPass());
+			command.add("-D"+ProcessStarter.LR_SERVLET_URL+"="+KConfiguration.getKConfiguration().getLRServletURL());
 			command.add(ProcessStarter.class.getName());
 			List<String> params = this.definition.getParameters();
 			for (String par : params) {
@@ -123,9 +120,11 @@ public abstract class AbstractLRProcessImpl implements LRProcess{
 			ProcessBuilder processBuilder = new ProcessBuilder(command);
 			processBuilder.environment().put(ProcessStarter.CLASSPATH_NAME, buffer.toString());
 			Process process = processBuilder.start();
-			File errStreamFile = new File(createFolderIfNotExists(this.definition.getErrStreamFolder()),this.uuid+".out");
+			File errStreamFile = new File(createFolderIfNotExists(this.definition.getErrStreamFolder()),this.uuid+".err");
+			LOGGER.info("error stream file:"+errStreamFile.getAbsolutePath());
 			new FollowStreamThread(process.getErrorStream(), new FileOutputStream(errStreamFile)).start();
-			File standardStreamFile = new File(createFolderIfNotExists(this.definition.getStandardStreamFolder()),this.uuid+".err");
+			File standardStreamFile = new File(createFolderIfNotExists(this.definition.getStandardStreamFolder()),this.uuid+".out");
+			LOGGER.info("error stream file:"+standardStreamFile.getAbsolutePath());
 			new FollowStreamThread(process.getInputStream(), new FileOutputStream(standardStreamFile)).start();
 			//TODO: Synchronizace ?? Jak na to ?
 			//
@@ -167,7 +166,7 @@ public abstract class AbstractLRProcessImpl implements LRProcess{
 	public String getPid() {
 		return pid;
 	}
-
+	
 
 	public void setPid(String pid) {
 		this.pid = pid;

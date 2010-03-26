@@ -1,5 +1,7 @@
 package cz.incad.kramerius.processes.database;
 
+import static cz.incad.kramerius.Constants.*;
+
 import java.sql.Connection;
 import java.sql.Date;
 import java.sql.DriverManager;
@@ -19,11 +21,10 @@ import cz.incad.kramerius.processes.States;
  */
 public class DatabaseUtils {
 
-	public static final String CONNECTION_STRING="jdbc:hsqldb:file:processes";
 	
-	public static Connection openConnection() throws InstantiationException, IllegalAccessException, ClassNotFoundException, SQLException {
-		Class.forName("org.hsqldb.jdbcDriver").newInstance();
-		Connection con = DriverManager.getConnection(CONNECTION_STRING);
+	public static Connection openConnection() throws  ClassNotFoundException, SQLException {
+		Class.forName(DERBY_DRIVER);
+		Connection con = DriverManager.getConnection(WORKING_DB_JDBC_URL);
 		return con;
 	}
 
@@ -44,7 +45,7 @@ public class DatabaseUtils {
 	}
 	
 	public static void createTable(Connection con) throws SQLException {
-		PreparedStatement prepareStatement = con.prepareStatement("CREATE TABLE PROCESSES(DEFID VARCHAR, UUID VARCHAR ,PID VARCHAR,STARTED timestamp, STATUS int)");
+		PreparedStatement prepareStatement = con.prepareStatement("CREATE TABLE PROCESSES(DEFID VARCHAR(255), UUID VARCHAR(255) ,PID VARCHAR(255),STARTED timestamp, STATUS int)");
 		int r = prepareStatement.executeUpdate();
 	}
 	

@@ -40,8 +40,6 @@ public class KConfiguration {
     public String fedoraUser;
     public String fedoraPass;
 
-    
-    
     KConfiguration(String file) {
         try {
             LOGGER.info("Loading configuration from file '"+file+"'");
@@ -151,6 +149,10 @@ public class KConfiguration {
 
 	public String getLongRunningProcessDefiniton() {
     	return getProperty("longRunningProcessDefinition");
+	}
+
+	public String getLRServletURL() {
+    	return getProperty("lrControlUrl");
 	}
 }
 

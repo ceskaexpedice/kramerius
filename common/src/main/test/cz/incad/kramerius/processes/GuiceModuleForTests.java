@@ -8,7 +8,7 @@ import com.google.inject.AbstractModule;
 import com.google.inject.Scopes;
 import com.google.inject.name.Names;
 
-import cz.incad.kramerius.processes.database.ConfigurationConnectionProvider;
+import cz.incad.kramerius.processes.database.DefaultConnectionProvider;
 import cz.incad.kramerius.processes.impl.DatabaseProcessManager;
 import cz.incad.kramerius.processes.impl.LRProcessDefinitionManagerImpl;
 import cz.incad.kramerius.utils.conf.KConfiguration;
@@ -22,6 +22,6 @@ public class GuiceModuleForTests extends AbstractModule {
 		bind(KConfiguration.class).toInstance(testConf);
 		bind(DefinitionManager.class).to(LRProcessDefinitionManagerImpl.class).in(Scopes.SINGLETON);
 		bind(LRProcessManager.class).to(DatabaseProcessManager.class).in(Scopes.SINGLETON);
-		bind(Connection.class).toProvider(ConfigurationConnectionProvider.class);
+		bind(Connection.class).toProvider(DefaultConnectionProvider.class);
 	}
 }

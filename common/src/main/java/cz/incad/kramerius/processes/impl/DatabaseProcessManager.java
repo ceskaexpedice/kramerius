@@ -97,14 +97,37 @@ public class DatabaseProcessManager implements LRProcessManager {
 		}
 	}
 
+
+	public void updateLongRunningProcessPID(LRProcess lrProcess) {
+		Connection connection = null;
+		try {
+			connection = provider.get();
+			if (!tableExists(connection)) {
+				createTable(connection);
+			}
+			DatabaseUtils.updateProcessPID(connection,  lrProcess.getPid(),lrProcess.getUUID());
+		} catch (SQLException e) {
+			LOGGER.log(Level.SEVERE, e.getMessage(), e);
+		} finally {
+			if (connection != null) {
+				try {
+					connection.close();
+				} catch (SQLException e) {
+					LOGGER.log(Level.SEVERE, e.getMessage(), e);
+				}
+			}
+		}
+	}
 	
 	
 	@Override
 	public void updateLongRunningProcessState(LRProcess lrProcess) {
 		Connection connection = null;
 		try {
-			List<LRProcess> processes = new ArrayList<LRProcess>();
 			connection = provider.get();
+			if (!tableExists(connection)) {
+				createTable(connection);
+			}
 			DatabaseUtils.updateProcessState(connection, lrProcess.getUUID(), lrProcess.getProcessState());
 		} catch (SQLException e) {
 			LOGGER.log(Level.SEVERE, e.getMessage(), e);
@@ -126,6 +149,9 @@ public class DatabaseProcessManager implements LRProcessManager {
 			List<LRProcess> processes = new ArrayList<LRProcess>();
 			connection = provider.get();
 			if (connection != null) {
+				if (!tableExists(connection)) {
+					createTable(connection);
+				}
 				PreparedStatement stm = connection.prepareStatement("select * from PROCESSES");
 				ResultSet rs = stm.executeQuery();
 				while(rs.next()) {
@@ -154,6 +180,4 @@ public class DatabaseProcessManager implements LRProcessManager {
 		}
 		return new ArrayList<LRProcess>();
 	}
-
-	
 }
