@@ -17,7 +17,7 @@
 <%@ include file="initVars.jsp" %>
 <c:set var="pageType" value="search" />
 <jsp:useBean id="pageType" type="java.lang.String" />
-    <c:set var="rowsdefault" value="40" scope="request" />
+    <c:set var="rowsdefault" value="20" scope="request" />
     <c:set var="rows" value="0" scope="request" />
 <c:url var="url" value="${kconfig.solrHost}/select/select" >
     <c:choose>
@@ -105,6 +105,10 @@
         <c:param name="fq" value="ddc:${param.ddc}" />
             <c:set var="rows" value="${rowsdefault}" scope="request" />
     </c:if>
+    <c:if test="${!empty param.keywords}">
+        <c:param name="fq" value="keywords:${param.keywords}" />
+            <c:set var="rows" value="${rowsdefault}" scope="request" />
+    </c:if>
     <c:if test="${!empty param.onlyPublic}">
         <c:param name="fq" value="dostupnost:${param.onlyPublic}" />
             <c:set var="rows" value="${rowsdefault}" scope="request" />
@@ -116,6 +120,7 @@
     <c:param name="rows" value="${rows}" />
     <c:if test="${rows!='0'}">
         <c:param name="facet.field" value="facet_autor" />
+        <c:param name="facet.field" value="dostupnost" />
         <c:param name="f.facet_autor.facet.sort" value="false" />
     <%--
     <c:param name="facet.field" value="abeceda_autor" />

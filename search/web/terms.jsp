@@ -15,7 +15,8 @@
                     term = java.net.URLEncoder.encode(term, "UTF-8");
                     String reqUrl = kconfig.getSolrHost() + "/terms?terms.fl=" +
                             request.getParameter("field") +
-                            "&wt=json&omitHeader=true&terms.regex.flag=case_insensitive&terms.limit=40&terms.regex=" +
+                            "&wt=json&omitHeader=true&terms.regex.flag=case_insensitive" +
+                            "&terms.sort=index&terms.limit=40&terms.regex=" +
                             term + ".*";
                     //String reqUrl = "http://194.108.215.227:8080/solr/terms?terms.fl="+request.getParameter("field")+
                     //        "&wt=json&omitHeader=true&terms.regex.flag=case_insensitive&terms.prefix=" + 

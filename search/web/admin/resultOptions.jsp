@@ -7,7 +7,7 @@
 
 <% 
 String remoteUserID = request.getRemoteUser();
-remoteUserID = "ja";
+//remoteUserID = "ja";
         if(remoteUserID!=null){ 
 %>
 <c:set var="urlBiblioMods" >

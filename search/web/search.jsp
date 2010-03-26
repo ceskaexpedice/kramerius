@@ -39,17 +39,17 @@ out.clear();
             <tr valign='top'>
                     <c:if test="${rows!='0'}">
                     <td class="leftMenu">
-                            <% currentFacetName = "language"; %>
+                            <% currentFacetName = "dostupnost"; %>
                             <%@ include file="inc/facet.jsp" %>
                             <% currentFacetName = "document_type"; %>
                             <%@ include file="inc/facet.jsp" %>
                             <% currentFacetName = "facet_autor"; %>
                             <%@ include file="inc/facet.jsp" %>
+                            <% currentFacetName = "language"; %>
+                            <%@ include file="inc/facet.jsp" %>
                     </td>
                     </c:if>
                 <td>
-                    <c:out value="${numDocs}" />
-                    <%@ include file="inc/paginationPageNum.jsp" %>
                     <%//@ include file="inc/modelsTree.jsp" %>
                     
                      <c:choose>
@@ -57,19 +57,34 @@ out.clear();
                             <table width="100%"><tr><td valign="top"><%@ include file="inc/suggest.jsp" %>
                             </td><td valign="top"><% currentFacetName = "document_type"; %>
                             <%@ include file="inc/facet.jsp" %>
-                            </td></tr></table>
+                            </td></tr></table><br/>
                             <%@ include file="inc/intro.jsp" %>
                         </c:when>
                         <c:otherwise >
-                            <%@ include file="inc/resultsMain.jsp" %>
+                            <div id="resultsDiv" class="ui-tabs ui-widget ui-widget-content ui-corner-all" >
+                            <ul class="ui-helper-reset ui-helper-clearfix ui-widget-header ui-corner-all" style="padding:0 0.1em 0 0;">
+                                <li class="ui-state-default ui-corner-top ui-tabs-selected ui-state-active " style="width:100%;">
+                                    <c:out value="${numDocs}" />
+                                    <%@ include file="inc/paginationPageNum.jsp" %>
+                                    <%@ include file="inc/sort.jsp" %>
+                                </li>
+                            </ul>
+                            <div id="resultsBody" class="ui-tabs-panel ui-widget-content ui-corner-bottom">
+                                <%@ include file="inc/resultsMain.jsp" %>
+                            </div>
+                            </div>
                         </c:otherwise>
 
                     </c:choose>
                 </td>
                 <td class="rightMenu">
-                    <div class="facetTitle"><div><fmt:message key="Časová osa" />&nbsp;&nbsp;</div></div> 
-                    <div class="facet">
-                    <%@ include file="inc/dateAxisV.jsp" %>
+                    <div id="timeLineDiv" class="ui-tabs ui-widget ui-widget-content ui-corner-all" >
+                    <ul class="ui-tabs-nav ui-helper-reset ui-helper-clearfix ui-widget-header ui-corner-all" style="padding:0 0.1em 0 0;">
+                        <li class="ui-state-default ui-corner-top ui-tabs-selected ui-state-active " style="width:100%;"><a class="box"><fmt:message key="Časová osa" /></a></li>
+                    </ul>
+                    <div id="timeLineBody" class="ui-tabs-panel ui-widget-content ui-corner-bottom">
+                        <%@ include file="inc/dateAxisV.jsp" %>
+                    </div>
                     </div>
                 </td>
             </tr>

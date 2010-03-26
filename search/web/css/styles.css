@@ -1,7 +1,7 @@
 body {
 	font-family:Verdana, Arial, Helvetica, Tahoma;
 	font-size:12px;
-	color:#4B4F4A;
+	color:#0B0F0A;
         background-image: url('../img/background.png');
         background-repeat:repeat-x;
 }
@@ -13,7 +13,7 @@ input {
 	border:0px solid #A7A9A7;
 	font-family:Verdana, Arial, Helvetica, Tahoma;
 	font-size:11px;
-	color:#4B4F4A;
+	color:#0B0F0A;
         vertical-align:middle;
 }
 .advancedSearch input {
@@ -54,25 +54,16 @@ input.disabled {
 a:link, a:active, a:visited {
 	font-family:Verdana, Arial, Helvetica, Tahoma;
 	font-size:11px;
-	color:#4B4F4A;
+	color:#0B0F0A;
 	text-decoration:none;
 }
 a:hover {
-	font-family:Verdana, Arial, Helvetica, Tahoma;
-	font-size:11px;
-	color:#4B4F4A;
 	text-decoration:underline;
 }
 a.image:link, a.image:active, a.image:visited {
-	font-family:Verdana, Arial, Helvetica, Tahoma;
-	font-size:11px;
-	color:#4B4F4A;
 	text-decoration:none;
 }
 a.image:hover {
-	font-family:Verdana, Arial, Helvetica, Tahoma;
-	font-size:11px;
-	color:#4B4F4A;
 	text-decoration:underline;
 }
 
@@ -108,21 +99,30 @@ a.image:hover {
 
 /* layout */
 
+.clear{
+    display:block;
+}
 .main{
     width:960px;
 }
 
 .leftMenu{
+    
+}
+
+#intro{
+    margin-top:5px;
+}
+#intro1, #intro3, #intro2{
+    padding:5px;
+}
+#timeLineBody{
+    padding-bottom:22px;
 }
 /* end layout */
 
 /* facets */
 
-.box {
-    padding: 0.5em 1em;
-    line-height:1.3em;
-    outline: medium none;
-}
 .facet{
     padding:0px;
     background-image: url('../img/facet_bg.png');
@@ -133,25 +133,37 @@ a.image:hover {
     
 }
 
-.leftMenu .facet{
-    
+.facet{
     width:216px;
 }
 .facetTitle{
-    background-image: url('../img/facet_title_bg.png');
-    background-repeat:no-repeat;
-    vertical-align:middle;
     color:white;
-    margin:0px;
-    height:35px;
 }
-.facetTitle div{
-    padding-top:10px;
-    padding-left:20px;
+li.facetTitle a{
+    cursor:pointer;
  }
+a.box {
+    padding: 0.5em 1em;
+    line-height:1.3em;
+    outline: medium none;
+    cursor:pointer;
+}
+.facetBody{
+    background-image: url('../img/facet_bg2.png');
+    background-position:bottom;
+    background-repeat:repeat-x;
+    
+}
 .facetItem{
     padding-left:15px;
  }
+ 
+.count{
+    color:#6B6F6A;
+}
+.leftMenu .moreFacets{
+    display:none;
+}
     
 /* end facets */
 
@@ -176,12 +188,12 @@ a.image:hover {
 #results_main{
     width:100%;
     padding: 5px;
+    margin:0;
+    
 }
 
-#result{
+.result{
     width:100%;
-    padding: 5px;
-    border-bottom: solid 1px #0000dd;
 }
 
 .uncollapsed{
@@ -193,6 +205,10 @@ a.image:hover {
 
 .r1{
     background: #efefee;
+}
+
+.uncollapsed .r1{
+    background: transparent;
 }
 
 .resultValue{
@@ -230,8 +246,6 @@ a.image:hover {
 td.rightMenu{
     text-align:right;
     width:240px;
-    
-    padding: 5px;
 }
 td.rightMenu .facet{
     height:450px;
@@ -337,6 +351,7 @@ td.rightMenu .facet{
 
 #suggestBody{
     padding:2px 5px;
+    height:88px;
 }
 
 .suggestTitle div{
@@ -380,8 +395,11 @@ div.suggest:hover{
     display:none;
     border:solid 1px gray;
     position:absolute;
-    z-index:2;
+    z-index:8;
     background:white;
+}
+table.advancedSearch td{
+    color:#0B0F0A;;
 }
 /* end advanced search */
 

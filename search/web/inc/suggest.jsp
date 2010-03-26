@@ -25,7 +25,7 @@
                    onfocus="$(autoCompleteDiv).hide();" /><br/>
             <fmt:message key="Autor" /><br/>
             <input name="queryA" id="queryA" size="20" type="text" class="suggest_input"
-                   onkeyup="doAutocomplete(this, 'facet_autor', event, '#queryA');" /><br/><br/>
+                   onkeyup="doAutocomplete(this, 'facet_autor', event, '#queryA');" />
         </div>
         <div id="autocomplete" class="autocomplete" >
         </div>

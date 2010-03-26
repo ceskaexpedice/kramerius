@@ -1,5 +1,10 @@
 var enableAjax = true; // jestli se ma strankovat s pomoci ajaxu
 
+function toggleFacet(facet){
+    $('#facet_'+facet+' .moreFacets').toggle();
+}
+
+
 function uncollapse(pid, div, offset){
     var page = new PageQuery(window.location.search);
     page.setValue("offset", offset);
@@ -185,6 +190,10 @@ function setLanguage(language){
     
 }
 function toggleAdv(){
+    var y = $('#q').offset().top + $('#q').height() + 10;
+    var x = $('#q').offset().left;
+    $('#advSearch').css('left', x);
+    $('#advSearch').css('top', y);
     $('#advSearch').toggle();
 }
 function openPage(pid, model, pageLabel){
