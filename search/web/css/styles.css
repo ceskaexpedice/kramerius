@@ -36,13 +36,14 @@ input.checkbox {
 }
 
 
-input.submit {
+.submit {
 	border:0px solid #A7A9A7;
 	font-size:10px;
 	color:#ffffff;
-	background-image: url('../img/hledat.png');
-        width:81px;
-        height:27px;
+	background: url('../img/lupa.png') no-repeat scroll 0 0 transparent;
+        width:25px;
+        height:26px;
+        cursor:pointer;
 }
 
 input.disabled {
@@ -78,7 +79,8 @@ a.image:hover {
 
 /* Logo */
 
-.mainHeader{
+
+.header{
     border:0px;
     padding:none;
     margin:none; 
@@ -87,13 +89,21 @@ a.image:hover {
     text-align:center;
     vertical-align:middle;
     font-size: 15px;
-    background-image: url('../img/header.png');
+    background-image: url("../img/bg_orange.png");
+}
+.ui-corner-top-8 {
+    -moz-border-radius-topleft: 8px/*{cornerRadius}*/;
+    -webkit-border-top-left-radius: 8px/*{cornerRadius}*/; 
+    -moz-border-radius-topright: 8px/*{cornerRadius}*/; 
+    -webkit-border-top-right-radius: 8px/*{cornerRadius}*/; 
 }
 
-.mainHeader td a{
-    
+.header td a, .header td a:hover, .header td{
     color:white;
+    vertical-align:middle;
+    
 }
+
 /* end Logo */
 
 /* layout */
@@ -107,6 +117,12 @@ a.image:hover {
 /* end layout */
 
 /* facets */
+
+.box {
+    padding: 0.5em 1em;
+    line-height:1.3em;
+    outline: medium none;
+}
 .facet{
     padding:0px;
     background-image: url('../img/facet_bg.png');
@@ -286,9 +302,11 @@ td.rightMenu .facet{
     background-image: url('../img/facet_bg.png');
     background-position:bottom;
     background-repeat:repeat-x;
+    vertical-align:top;
 }
 #mainContent *{
     font-size:10px;
+    vertical-align:middle;
 }
  
 /* suggest */
@@ -304,6 +322,10 @@ td.rightMenu .facet{
     background-repeat:repeat-x;
 }
 
+.suggestDiv{
+    width:100%;
+}
+
 .suggestTitle{
     background-image: url('../img/suggest_title_bg.png');
     background-repeat:no-repeat;
@@ -311,6 +333,10 @@ td.rightMenu .facet{
     color:white;
     margin:0px;
     height:35px;
+}
+
+#suggestBody{
+    padding:2px 5px;
 }
 
 .suggestTitle div{
@@ -321,6 +347,7 @@ td.rightMenu .facet{
 .suggest_input{
     border:1px solid silver;
     margin-bottom:10px;
+    width:98%;
 }
 .autocomplete {
     border:1px solid silver;
@@ -329,6 +356,7 @@ td.rightMenu .facet{
     background:white;
     padding:7px;
     padding-left:1px;
+    z-index:90;
 }
 .autocomplete div{
     padding: 0px 0px 0px 5px;

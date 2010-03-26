@@ -70,13 +70,19 @@
                 <td>
                     <%//@ include file="item_1.jsp" %>
                     <div id="mainContent"></div>
-               	    <%@ include file="gwtView.jsp" %>
                 </td>
                 <td class="itemMenu">
                     <div id="itemTree">
                     <%@ include file="inc/details/itemMenu.jsp" %>
                     </div>
                 </td>
+            </tr>
+            <tr valign='top'>
+                <td colspan="2" valign="middle">
+                    <div style="float:left;padding:10px;cursor:pointer;" onclick="selectPrevious();"><img src="img/la.png" /></div>
+                    <div style="float:left;"><%@ include file="gwtView.jsp" %></div>
+                    <div style="float:left;padding:10px;cursor:pointer;" onclick="selectNext();"><img src="img/ra.png" /></div>
+                    </td>
             </tr>
         </table>
         <table>

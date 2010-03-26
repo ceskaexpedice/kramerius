@@ -58,7 +58,7 @@ out.clear();
                             </td><td valign="top"><% currentFacetName = "document_type"; %>
                             <%@ include file="inc/facet.jsp" %>
                             </td></tr></table>
-                            <img src="img/intro.png" />
+                            <%@ include file="inc/intro.jsp" %>
                         </c:when>
                         <c:otherwise >
                             <%@ include file="inc/resultsMain.jsp" %>

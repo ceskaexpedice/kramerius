@@ -9,7 +9,13 @@
 currentFacet = facets.get(currentFacetName);
 if(currentFacet!= null && currentFacet.getFacetsNumber()>0){%>
 
-    <div class="facetTitle"><div><%=currentFacet.displayName%></div></div> <div class="facet">   
+
+
+<div id="facet_<%=currentFacetName%>" class="ui-tabs ui-widget ui-widget-content ui-corner-all" >
+        <ul class="ui-tabs-nav ui-helper-reset ui-helper-clearfix ui-widget-header ui-corner-all" style="padding:0 0.1em 0 0;">
+            <li class="ui-state-default ui-corner-top ui-tabs-selected ui-state-active " style="width:100%;"><a class="box"><fmt:message><%=currentFacet.displayName%></fmt:message></a></li>
+        </ul>
+        <div id="suggestBody" class="ui-tabs-panel ui-widget-content ui-corner-bottom">  
     <%
             try {
                 if (currentFacet.name.contains("abeceda") || 
@@ -37,4 +43,5 @@ if(currentFacet!= null && currentFacet.getFacetsNumber()>0){%>
             }
     %>
 </div>
+        </div>
 <%}%>

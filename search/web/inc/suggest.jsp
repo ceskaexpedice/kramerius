@@ -14,8 +14,11 @@
 <fmt:setBundle basename="labels" />
 <fmt:setBundle basename="labels" var="bundleVar" />
 <form name="suggestForm" method="GET" action="./" autocomplete="Off">
-    <div id="suggestDiv" ><div class="suggestTitle"><div><fmt:message key="Procházet" /></div></div>
-    <div class="facet"><div style="position:relative;" class="facetItem">    
+    <div id="suggestDiv" class="ui-tabs ui-widget ui-widget-content ui-corner-all" >
+        <ul class="ui-tabs-nav ui-helper-reset ui-helper-clearfix ui-widget-header ui-corner-all" style="padding:0 0.1em 0 0;">
+            <li class="ui-state-default ui-corner-top ui-tabs-selected ui-state-active " style="width:100%;"><a class="box"><fmt:message key="Procházet" /></a></li>
+        </ul>
+        <div id="suggestBody" class="ui-tabs-panel ui-widget-content ui-corner-bottom">    
             <fmt:message key="Hlavní název" /><br/>
             <input name="queryT" id="queryT" type="text" size="20" class="suggest_input"
                    onkeyup="doAutocomplete(this, 'root_title', event, '#queryT');"
@@ -24,9 +27,8 @@
             <input name="queryA" id="queryA" size="20" type="text" class="suggest_input"
                    onkeyup="doAutocomplete(this, 'facet_autor', event, '#queryA');" /><br/><br/>
         </div>
-    </div>
-    <div id="autocomplete" class="autocomplete" >
-    </div>
+        <div id="autocomplete" class="autocomplete" >
+        </div>
     </div>
     <%--
 <td>

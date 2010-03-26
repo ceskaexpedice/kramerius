@@ -37,6 +37,7 @@ function scrollElement(container, element){
         
 }
 
+
 var imgLoading = "<img src=\"img/loading.gif\" />";
 function trim10 (str) {
     var whitespace = ' \n\r\t\f\x0b\xa0\u2000\u2001\u2002\u2003\u2004\u2005\u2006\u2007\u2008\u2009\u200a\u200b\u2028\u2029\u3000';
@@ -68,6 +69,22 @@ function selectingPage(obj, level, model){
     
 }
 
+
+function selectPrevious(){
+     var obj = $('#' + currentSelectedPage).prev();
+     if($(obj).length>0){
+         changeSelection(currentSelectedParent, $(obj).attr("id"));
+     }
+    
+}
+
+function selectNext(){
+     var obj = $('#' + currentSelectedPage).next();
+     if($(obj).length>0){
+         changeSelection(currentSelectedParent, $(obj).attr("id"));
+     }
+}
+
 function changeSelectedPage(pid){
     var obj = $("#" + pid);
     //alert($(obj).length);
@@ -77,6 +94,8 @@ function changeSelectedPage(pid){
     //setTimeout("scrollElement", 100, obj.parent(), obj);
     scrollElement($(obj).parent(), $(obj));
 }
+
+
 
 function selectItem(obj, level, model){
     if($(obj).hasClass("selected")) return;
@@ -105,6 +124,7 @@ function selectItem(obj, level, model){
     $.get(url, function(data){
         $(p).append(data);
         getItemRels($(obj).attr("id"), "", level, true);
+        changeSelection(initParent, initPage);
     });
     
 }

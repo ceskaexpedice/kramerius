@@ -27,26 +27,35 @@ function doAutocomplete(text, lookupField, key, queryField){
     if( key.keyCode >=16 && key.keyCode <= 19 ){
         return;
     }
+    //arrows
     if( key.keyCode >=37 && key.keyCode <= 40){
-        moveSelected(key.keyCode, div, queryField);
+        moveSelected(key.keyCode, queryField);
         return;
     }
     if( key.keyCode == 13){
         //$("form").submit();
-        var value = $(queryField).val().toLowerCase() + "*";
-        if(lookupField=='facet_autor') lookupField = 'search_autor';
-        if(lookupField=='root_title') lookupField = 'search_title';
-        window.location = searchPage + "?q=" + lookupField + ":" + value;
+        var value = $(queryField).val();
+        if(cur==null){
+            value = value.toLowerCase() + "*";
+            if(lookupField=='facet_autor') lookupField = 'search_autor';
+            if(lookupField=='root_title'){
+                lookupField = 'search_title';
+            } 
+        }else{
+            value = "\"" + value + "\""
+        }
+        window.location = searchPage + "?q=" + lookupField + ":" + value; 
         return;
     }
     json(text, lookupField, queryField);
-//ajax(text);
+    //ajax(text);
 }
+
 /** pohybuje v seznamu slov
  * 
  */
 function moveSelected(key, queryField){
-    var cur = $(autoCompleteDiv +" .selected:first");
+    cur = $(autoCompleteDiv +">div>div.selected:first");
     if(cur.length >0 ){
         cur.toggleClass("selected");
         if(key>38){//dolu a vpravo
@@ -59,8 +68,8 @@ function moveSelected(key, queryField){
         $(queryField).val(next.attr("title"));
     }else{
         //$(queryField).val($(autoCompleteDiv +" div:first").text());
-        $(queryField).val($(autoCompleteDiv +" div:first").attr("title"));
-        $(autoCompleteDiv +" div:first").toggleClass("selected");
+        $(queryField).val($(autoCompleteDiv +">div>div:first").attr("title"));
+        $(autoCompleteDiv +">div>div:first").toggleClass("selected");
     }
 }
 // pouze pro testovani - pouzivat json(lepsi ale neudela error)
@@ -107,6 +116,7 @@ function parseData(data, lookupField, text){
         $(autoCompleteDiv).css("left", x);
         $(autoCompleteDiv).css("top", y);
         $(autoCompleteDiv).show();
+        
     }else{
         $(autoCompleteDiv).hide();
     }

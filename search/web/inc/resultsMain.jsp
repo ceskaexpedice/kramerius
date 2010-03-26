@@ -35,10 +35,15 @@
        
     <img src="img/empty.gif" 
     <c:if test="${status.count > 5}" >
-    class="plus" onclick="$('#more_<c:out value="${uuid}"/>').toggle();$(this).toggleClass('minus')" 
+    class="plus" onclick="$('#more_<c:out value="${uuid}"/>').toggle();$('#img_<c:out value="${uuid}"/>').toggle();$(this).toggleClass('minus')" 
     </c:if>
     />
-    <img src="<c:out value="${kconfig.fedoraHost}" />/get/uuid:<x:out select="./str[@name='PID']"/>/IMG_THUMB" height="72px" onerror="this.src='img/empty.gif';this.height='1px';" />
+    <img id="img_<c:out value="${uuid}"/>" 
+    <c:if test="${status.count > 5}" >
+        style="display:none;"
+    </c:if>
+    src="<c:out value="${kconfig.fedoraHost}" />/get/uuid:<x:out select="./str[@name='PID']"/>/IMG_THUMB" 
+    width="45px" height="64px" border="1" onerror="this.src='img/empty.gif';" />
     <a href="<c:out value="${itemUrl}" escapeXml="false" />" ><b><x:out select="./str[@name='root_title']"/></b></a>
     <span class="textpole">(<fmt:message><x:out select="./str[@name='fedora.model']"/></fmt:message>)</span>
     <x:if select="./int[@name='pages_count'] != '0'">

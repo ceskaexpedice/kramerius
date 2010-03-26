@@ -106,6 +106,18 @@ Get Biblio mods
 </c:forEach>
 <script language="javascript">
     $(document).ready(function(){
-        changeSelection('<c:out value="${pids[pathsize -2]}" />','<c:out value="${pids[pathsize -1]}" />');
+        //changeSelection('<c:out value="${pids[pathsize -2]}" />','<c:out value="${pids[pathsize -1]}" />');
+        startPage();
     });
+    initParent = '<c:out value="${pids[pathsize -2]}" />';
+    initPage = '<c:out value="${pids[pathsize -1]}" />';
+    function startPage(){
+        if(typeof window.requestToSelect == 'function') {
+        // function exists, so we can now call it
+        //alert(window.requestToSelect);
+            changeSelection(initParent, initPage);
+        }else{
+            setTimeout('startPage()', 200);
+        }
+    }
 </script>

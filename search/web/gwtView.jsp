@@ -15,15 +15,25 @@
 	var __confMoveStep = 1;
 	var __debug = false;
 
+	
+        var currentSelectedPage;
+        var currentSelectedParent;
+        
 	function changeSelection(masterUuid, selection) {
+            currentSelectedPage = selection;
+            currentSelectedParent = masterUuid;
 		requestToSelect(masterUuid, selection);
         }
-	// callbacks from component
-	function selectPage(masterUuid, format){
-            var pageUrl = "<%=KConfiguration.getKConfiguration().getDJVUServletUrl()%>?uuid="+masterUuid+"&scaledHeight=600";
-            var img = '<div align="center"><img src="'+pageUrl+'" height="600px" /></div>';
-            $('#mainContent').html(img);
-            changeSelectedPage(masterUuid);
+        
+        // callbacks from component
+        
+        var prev = '<span style="padding:15px;cursor:pointer;" onclick="selectPrevious();"><img src="img/la.png" /></span>';
+        var next = '<span style="padding:15px;cursor:pointer;" onclick="selectNext();"><img src="img/ra.png" /></span>';
+	function selectPage(uuid){
+            var pageUrl = "<%=KConfiguration.getKConfiguration().getDJVUServletUrl()%>?uuid="+uuid+"&scaledHeight=600";
+            var img = '<img src="'+pageUrl+'" height="600px" />';
+            $('#mainContent').html('<div align="center" style="">' + prev + img + next + '</div>');
+            changeSelectedPage(uuid);
 	}
 	function pages(from, to){  }
 </script>
