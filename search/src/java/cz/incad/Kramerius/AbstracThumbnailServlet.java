@@ -19,6 +19,7 @@ import javax.xml.xpath.XPathExpressionException;
 import org.w3c.dom.Document;
 
 import com.google.inject.Inject;
+import com.lizardtech.djvu.DjVuPage;
 import com.lizardtech.djvubean.DjVuBean;
 import com.lizardtech.djvubean.DjVuImage;
 
@@ -102,10 +103,13 @@ public class AbstracThumbnailServlet extends GuiceServlet {
 		} else if ((mimetype.equals(OutputFormats.DJVU.getMimeType())) || 
 				  (mimetype.equals(OutputFormats.XDJVU.getMimeType()))){
 			String imageUrl = getDJVUServlet(uuid);
-			DjVuBean bean = new DjVuBean();
-			bean.setURL(new URL(imageUrl));
-			// TODO !! Pozastavi thread
-			DjVuImage djvuImage = bean.getImageWait();
+	        com.lizardtech.djvu.Document doc = new com.lizardtech.djvu.Document(new URL(imageUrl));
+	        doc.setAsync(true);
+	        DjVuPage[] p = new DjVuPage[1];
+	        //read page from the document - index 0, priority 1, favorFast true
+	        p[0] = doc.getPage(0, 1, true);
+	        p[0].setAsync(true);
+	        DjVuImage djvuImage = new DjVuImage(p, true);
 			Rectangle pageBounds = djvuImage.getPageBounds(0);
 			Image[] images = djvuImage.getImage(new JPanel(), new Rectangle(pageBounds.width,pageBounds.height));
 			if (images.length == 1) {
