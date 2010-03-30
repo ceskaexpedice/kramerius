@@ -93,6 +93,7 @@ public class PageServiceImpl extends RemoteServiceServlet implements PageService
 	}
 	
 	public PagesResultSet readPages(String parentUUID, String selectedUUID) {
+		long start = System.currentTimeMillis();
 		ArrayList<SimpleImageTO> images = null;
 		//PagesResultSet pages = null;
 		InputStream docStream = null;
@@ -136,6 +137,7 @@ public class PageServiceImpl extends RemoteServiceServlet implements PageService
             rs.setCurrentSimpleImageTOId(selectedUUID);
             rs.setCurrentSimpleImageTOIndex(index);
             rs.setMasterSimpleImageTOId(parentUUID);
+            LOGGER.info("_TIME == "+(System.currentTimeMillis() - start));
             return rs;
 		} catch (ParserConfigurationException e) {
 			LOGGER.log(Level.SEVERE, e.getMessage(), e);
