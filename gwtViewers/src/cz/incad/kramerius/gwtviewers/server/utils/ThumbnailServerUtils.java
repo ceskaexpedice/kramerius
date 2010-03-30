@@ -67,6 +67,8 @@ public class ThumbnailServerUtils {
 					new Thread(new Worker(j, sits.get(j), collected, barrier)).start();
 				}
 				barrier.await();
+				long iStop = System.currentTimeMillis();
+				collected.put("iterace("+i+")", (iStop-iStart));
 			}
 			return collected;
 		} catch (Exception e) {
@@ -109,12 +111,9 @@ public class ThumbnailServerUtils {
 		@Override
 		public void run() {
 			try {
-				long iStart = System.currentTimeMillis();
 				Image readthumbs = ThumbnailServerUtils.readThumbnail(sit.getUrl());
 				int width = readthumbs.getWidth(null);
 				this.properties.setProperty(sit.getIdentification(), ""+width);
-				long iStop = System.currentTimeMillis();
-				properties.put(""+index, ""+iStop);
 				if (barrier != null) this.barrier.await();
 			} catch (InterruptedException e) {
 				LOGGER.log(Level.SEVERE, e.getMessage(), e);
