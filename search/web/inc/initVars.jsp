@@ -4,6 +4,8 @@
 <%
 
 KConfiguration kconfig = (KConfiguration) getServletContext().getAttribute(IKeys.CONFIGURATION);
+
 Map<String, Facet> facets = new HashMap<String, Facet>();
 int facetsCollapsed = 5;
+String imagePid = "";
 %> 

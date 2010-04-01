@@ -58,20 +58,7 @@
             <c:set var="rows" value="${rowsdefault}" scope="request" />
     </c:if>
     <c:param name="start" value="${param.offset}" />
-    <c:choose>
-        <c:when test="${param.sort != null}" >
-            <c:param name="sort" value="${param.sort}" />
-        </c:when>
-        <c:when test="${sort != null}" >
-            <c:param name="sort" value="${sort}" />
-        </c:when>
-        <c:when test="${empty param.q}" >
-            <c:param name="sort" value="level asc, title asc, score desc" />
-        </c:when>
-        <c:otherwise>
-            <c:param name="sort" value="level asc, score desc" />
-        </c:otherwise>
-    </c:choose>
+    
     
     <c:if test="${param.collapsed != 'false'}">
     <c:param name="collapse.field" value="root_pid" />
@@ -80,43 +67,54 @@
     <c:param name="collapse.facet" value="before" />
     </c:if>
     
+    <c:set var="fieldedSearch" value="false" scope="request" />
     <%-- advanced params --%>
     <c:if test="${!empty param.issn}">
         <c:param name="fq" value="issn:${param.issn}" />
-            <c:set var="rows" value="${rowsdefault}" scope="request" />
+        <c:set var="rows" value="${rowsdefault}" scope="request" />
+        <c:set var="fieldedSearch" value="true" scope="request" />
     </c:if>
     <c:if test="${!empty param.title}">
         <c:param name="fq" value="dc.title:${param.title}" />
-            <c:set var="rows" value="${rowsdefault}" scope="request" />
+        <c:set var="rows" value="${rowsdefault}" scope="request" />
+        <c:set var="fieldedSearch" value="true" scope="request" />
     </c:if>
     <c:if test="${!empty param.author}">
         <c:param name="fq" value="dc.creator:${param.author}" />
-            <c:set var="rows" value="${rowsdefault}" scope="request" />
+        <c:set var="rows" value="${rowsdefault}" scope="request" />
+        <c:set var="fieldedSearch" value="true" scope="request" />
     </c:if>
     <c:if test="${!empty param.rok}">
         <c:param name="fq" value="rok:${param.rok}" />
-            <c:set var="rows" value="${rowsdefault}" scope="request" />
+        <c:set var="rows" value="${rowsdefault}" scope="request" />
+        <c:set var="fieldedSearch" value="true" scope="request" />
     </c:if>
     <c:if test="${!empty param.udc}">
         <c:param name="fq" value="udc:${param.udc}" />
-            <c:set var="rows" value="${rowsdefault}" scope="request" />
+        <c:set var="rows" value="${rowsdefault}" scope="request" />
+        <c:set var="fieldedSearch" value="true" scope="request" />
     </c:if>
     <c:if test="${!empty param.ddc}">
         <c:param name="fq" value="ddc:${param.ddc}" />
-            <c:set var="rows" value="${rowsdefault}" scope="request" />
+        <c:set var="rows" value="${rowsdefault}" scope="request" />
+        <c:set var="fieldedSearch" value="true" scope="request" />
     </c:if>
     <c:if test="${!empty param.keywords}">
         <c:param name="fq" value="keywords:${param.keywords}" />
-            <c:set var="rows" value="${rowsdefault}" scope="request" />
+        <c:set var="rows" value="${rowsdefault}" scope="request" />
+        <c:set var="fieldedSearch" value="true" scope="request" />
     </c:if>
     <c:if test="${!empty param.onlyPublic}">
         <c:param name="fq" value="dostupnost:${param.onlyPublic}" />
-            <c:set var="rows" value="${rowsdefault}" scope="request" />
+        <c:set var="rows" value="${rowsdefault}" scope="request" />
+        <c:set var="fieldedSearch" value="true" scope="request" />
     </c:if>
 
-        <c:if test="${param.rows != null}" >
-            <c:set var="rows" value="${param.rows}" scope="request" />
-        </c:if>
+    <c:if test="${param.rows != null}" >
+        <c:set var="rows" value="${param.rows}" scope="request" />
+        <c:set var="fieldedSearch" value="true" scope="request" />
+    </c:if>
+        
     <c:param name="rows" value="${rows}" />
     <c:if test="${rows!='0'}">
         <c:param name="facet.field" value="facet_autor" />
@@ -129,6 +127,25 @@
     <c:param name="f.abeceda_autor.facet.sort" value="false" />
     --%>
     </c:if>
+    
+    <%-- sort param --%>    
+    <c:choose>
+        <c:when test="${param.sort != null}" >
+            <c:param name="sort" value="${param.sort}" />
+        </c:when>
+        <c:when test="${sort != null}" >
+            <c:param name="sort" value="${sort}" />
+        </c:when>
+        <c:when test="${fieldedSearch}">
+            <c:param name="sort" value="level asc, title asc, score desc" />
+        </c:when>
+        <c:when test="${empty param.q}" >
+            <c:param name="sort" value="level asc, title asc, score desc" />
+        </c:when>
+        <c:otherwise>
+            <c:param name="sort" value="level asc, score desc" />
+        </c:otherwise>
+    </c:choose>
 </c:url>
 
 <c:catch var="exceptions"> 
@@ -142,6 +159,15 @@
 <c:set var="numDocs" scope="request" >
     <x:out select="$doc/response/result/@numFound" />
 </c:set>
+<c:set var="numCollapsed" scope="request" value="0" />
+<x:forEach select="//response/lst[@name='collapse_counts']/lst[@name='results']/lst">
+    <c:set var="collapseCount" >
+        <a href="javascript:uncollapse('<c:out value="${root_pid}" />', 'uncollapsed_<c:out value="${uuid}"/>', 0)"><img src="img/collapsed.png" 
+           alt="<x:out select="./int[@name='collapseCount']/text()"/> <fmt:message>collapsed</fmt:message>"
+           title="<x:out select="./int[@name='collapseCount']/text()"/> <fmt:message>collapsed</fmt:message>" border="0" /></a>
+    </c:set>
+</x:forEach>
+
 <c:set var="numDocsStr" scope="request" >
     <c:choose>
         <c:when test="${numDocs==1}"><fmt:message>dokument</fmt:message></c:when>

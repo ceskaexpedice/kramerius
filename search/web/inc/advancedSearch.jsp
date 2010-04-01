@@ -22,16 +22,16 @@
                 <td><input type="text" value="<c:out value="${param.rok}" />" size="10" name="rok"></td>
             </tr>
             <tr>
+                <td>Klíčová slova</td>
+                <td><input type="text" value="<c:out value="${param.keywords}" />" size="20" name="keywords"></td>
+            </tr>
+            <tr>
                 <td>MDT</td>
                 <td><input type="text" value="<c:out value="${param.udc}" />" size="20" name="udc"></td>
             </tr>
             <tr>
                 <td>DDT</td>
                 <td><input type="text" value="<c:out value="${param.ddc}" />" size="20" name="ddc"></td>
-            </tr>
-            <tr>
-                <td>Klíčová slova</td>
-                <td><input type="text" value="<c:out value="${param.keywords}" />" size="20" name="keywords"></td>
             </tr>
             <tr>
                 <td>Pouze veřejné dokumenty</td>

@@ -15,6 +15,10 @@
             <x:out select="./str[@name='root_pid']"/>
         </c:set>
         <jsp:useBean id="uuid" type="java.lang.String" />
+        <c:set var="fedora_model" >
+            <x:out select="./str[@name='fedora.model']"/>
+        </c:set>
+        <jsp:useBean id="fedora_model" type="java.lang.String" />
         <c:set var="itemUrl" >
             ./item.jsp?pid=<c:out value="${uuid}"/>&pid_path=<x:out select="./str[@name='pid_path']"/>&path=<x:out select="./str[@name='path']"/>
         </c:set>
@@ -42,12 +46,19 @@
     />
     </td>
     <td>
+    <% 
+    if(fedora_model.equals("page")){
+        imagePid = kconfig.getThumbServletUrl() + "?uuid=" + uuid;
+    }else{
+        imagePid = kconfig.getThumbServletUrl() + "?uuid=" + FedoraUtils.findFirstPagePid("uuid:" + uuid);
+    }
+    %>
     <img id="img_<c:out value="${uuid}"/>" 
     <c:if test="${status.count > 5}" >
         style="display:none;"
     </c:if>
-    src="<c:out value="${kconfig.fedoraHost}" />/get/uuid:<x:out select="./str[@name='PID']"/>/IMG_THUMB" 
-    width="45px" height="64px" border="1" onerror="this.src='img/empty.gif';"  />
+    src="<%=imagePid%>&scaledHeight=64" 
+    border="1"   />
     </td>
     <td>
     <a href="<c:out value="${itemUrl}" escapeXml="false" />" ><b><x:out select="./str[@name='root_title']"/></b></a>
@@ -56,8 +67,10 @@
     <span class="count"><x:out select="./int[@name='pages_count']"/></span>
     </x:if>
     <span><c:out value="${collapseCount}" escapeXml="false" /></span>
+    <%@ include file="results/default.jsp" %>
+    <%--
     <x:choose>
-        <x:when select="./str[@name='fedora.model'] = 'monograph2'">
+        <x:when select="./str[@name='fedora.model'] == 'monograph2'">
             <%@ include file="results/monograph.jsp" %>
         </x:when>
         <x:when select="./str[@name='fedora.model'] = 'monographunit2'">
@@ -79,7 +92,9 @@
             <%@ include file="results/default.jsp" %>
         </x:otherwise>
     </x:choose>
+    --%>
     </td>
+    
     </tr>
     <tr class="uncollapsed r<c:out value="${status.count % 2}"/>"><td></td><td></td>
     <td id="uncollapsed_<c:out value="${uuid}"/>"></td>

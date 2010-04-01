@@ -1,5 +1,6 @@
 <%@ page import="java.util.*, cz.incad.Solr.CzechComparator, cz.incad.Solr.*" %>
 <%@ page pageEncoding="UTF-8"%>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt" %>
 <%
             
             Facet dateAxisFacet = facets.get("rok");
@@ -241,22 +242,21 @@ $(document).ready(function(){
 <div id="constraint_top" style="border:1px red solid;position:absolute;z-index:0;visibility:hidden;"></div>
 
 <div id="selectDiv" class="da_select" style="display:none;" ></div>
-Od: <input class="da_input" id="f1" 
-        size="4" type="text" value="" />
-        
-        Do: <input class="da_input" id="f2" 
-        size="4" type="text" value=""  /> 
-<a href="javascript:doFilter();" class="navEntryLink">použit</a>
 
-<br />
+<div id="da-inputs">
+<fmt:message>Od</fmt:message>: <input class="da_input" id="f1" size="4" type="text" value="" />
+<fmt:message>Do</fmt:message>: <input class="da_input" id="f2" size="4" type="text" value=""  /> 
+<a href="javascript:doFilter();" ><img align="top" src="img/filter.png" border="0" alt="<fmt:message>použit</fmt:message>" title="<fmt:message>použit</fmt:message>" /></a>
+</div>
 <div style="position:relative;float:none;">
 <div id="content-scroll" style="float:left;" >
     <div class="da_container" id="da_container">
     </div>
-    <div class="da_range_container" id="da_range_container">
-    </div>
+    <!--
+    <div class="da_range_container" id="da_range_container"></div>
+    -->
 </div>
-<div id="content-slider" style="float:left;"></div>
+<div id="content-slider2" style="float:left;" class="ui-slider ui-slider-vertical ui-widget ui-widget-content ui-corner-all"><div id="content-slider" ></div></div>
 </div><div class="clear"></div>
 <div id="da_zoom" style="display:none;" >
 <a href="javascript:zoomOut();" >zoom out</a>

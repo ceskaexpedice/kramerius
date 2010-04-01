@@ -30,9 +30,32 @@
     <x:if select="./str[@name='datum']">
     <x:out select="./str[@name='datum']"/><br/>
     </x:if>
-    <x:forEach select="./arr[@name='details']/str">
-        <c:set var="s"><fmt:message><x:out select="."/></fmt:message></c:set>
-        <c:out value="${fn:replace(s, '???', '')}" />&#160;
-    </x:forEach>
+    
+        <x:choose>
+            <x:when select="./str[@name='fedora.model'] = 'monograph'">
+                
+            </x:when>
+            <x:when select="./str[@name='fedora.model'] = 'monographunit'">
+                
+            </x:when>
+            <x:when select="./str[@name='fedora.model'] = 'page'">
+                <fmt:message>page</fmt:message>
+                  
+            </x:when>
+            <x:when select="./str[@name='fedora.model'] = 'periodical2'">
+                
+            </x:when>
+            <x:when select="./str[@name='fedora.model'] = 'periodicalvolume2'">
+                
+            </x:when>
+            <x:when select="./str[@name='fedora.model'] = 'periodicalitem'">
+                
+            </x:when>
+        </x:choose>
+        
+        <x:forEach select="./arr[@name='details']/str">
+            <c:set var="s"><fmt:message><x:out select="."/></fmt:message></c:set>
+            <c:out value="${fn:replace(s, '???', '')}" />&#160;
+        </x:forEach>  
     </div>
     <br/>
