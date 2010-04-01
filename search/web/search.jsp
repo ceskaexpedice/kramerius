@@ -57,7 +57,7 @@ out.clear();
                             <table width="100%" cellspacing="0" cellpadding="0"><tr><td valign="top"><%@ include file="inc/suggest.jsp" %>
                             </td><td valign="top"><% currentFacetName = "document_type"; %>
                             <%@ include file="inc/facet.jsp" %>
-                            </td></tr></table><br/>
+                            </td></tr></table>
                             <%@ include file="inc/intro.jsp" %>
                         </c:when>
                         <c:otherwise >

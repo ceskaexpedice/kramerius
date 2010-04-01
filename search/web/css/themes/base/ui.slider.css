@@ -15,7 +15,7 @@
 .ui-slider-vertical .ui-slider-handle {
         /*left: -.5em; */
         margin-left: 0; 
-        margin-bottom: -.6em; 
+        margin-bottom: 0; 
         background: #ffffff/*{bgColorActive}*/ url(../../../img/scroll_handler.png)/*{bgImgUrlActive}*/ 50%/*{bgActiveXPos}*/ 50%/*{bgActiveYPos}*/ repeat-x/*{bgActiveRepeat}*/; 
         width:12px;
         left: -4px;

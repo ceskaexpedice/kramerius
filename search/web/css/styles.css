@@ -247,7 +247,6 @@ a.box {
 
 /* Right menu */
 td.rightMenu{
-    text-align:right;
     width:240px;
 }
 td.rightMenu .facet{

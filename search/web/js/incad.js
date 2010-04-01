@@ -1,5 +1,15 @@
 var enableAjax = true; // jestli se ma strankovat s pomoci ajaxu
 
+function showHelp(language, part){
+    if(language=='') language = 'cs';
+    var url = 'help/'+language+'.html';
+    if (part!=null && part!='')
+     url=url+'#'+part;
+     temp=window.open(url,'HELP','width=608,height=574,menubar=0,resizable=0,scrollbars=1,status=0,titlebar=0,toolbar=0,z-lock=0,left=200,top=20');
+     temp.opener=this;
+     temp.focus(); 
+}
+
 function toggleFacet(facet){
     $('#facet_'+facet+' .moreFacets').toggle();
 }

@@ -2,7 +2,7 @@
 var containerWidth = 200;
 var containerHeight = 300;
 var groupTitleHeight = 20;
-var maxHeight = 60;
+var maxHeight = 80;
 var barContainerHeight = 5;
 var barContainerMargin = 1;
 var spaceWidth = 14;
@@ -39,7 +39,6 @@ function initDateAxisDelayed(){
     bars = $('.da_bar_container');
     checkScrollBar();
     setBarsPositions();
-    selectTime();
     dateAxisVisible = true;
     maxScroll = $("#content-scroll").attr("scrollHeight") - $("#content-scroll").height();
     $("#content-slider").slider("value", 0);
@@ -48,9 +47,10 @@ function initDateAxisDelayed(){
     setSelectHandles();
     setSelectContainmentBottom();
     setSelectContainmentTop();
-    setBarsPositions();
     //getRanges();
     initialized =true;
+    setBarsPositions();
+    selectTime();
 }
 
 function cloneElements(){
@@ -151,13 +151,15 @@ function windowResized(){
    
     
 function selectTime(){
-    if(!dateAxisVisible) return;
-    var endX = $('#resizable-bottom').offset().top + $('#content-scroll').scrollTop();
+    //if(!dateAxisVisible) return;
+    var endX = $('#resizable-bottom').offset().top;// + $('#content-scroll').scrollTop();
     var startX = $('#resizable-top').height() + 
-        $('#content-scroll').scrollTop() +
+        //$('#content-scroll').scrollTop() +
         $('#resizable-top').offset().top;
-    
+    //$('#test').html(startX + " - " + endX);
+    //alert(startX);
     var from = findActiveBar(startX);
+    //alert(from);
     if(from){
         if(parseInt(times[currentLevel+1][from.item][0]>0) || from.item>firstBar){
             selectStart = times[currentLevel+1][from.item][1];
@@ -565,7 +567,10 @@ function fillDateAxis(level){
     
     $("#content-scroll").css("width", containerWidth + "px");
     $("#content-scroll").css("height", containerHeight + "px");
-    $("#content-slider").css("height", $("#content-scroll").height() + "px");
+    var sliderh = $("#content-scroll").height();
+    $("#content-slider2").css("height", sliderh + "px");
+    sliderh = sliderh - $(".ui-slider-handle").height() + 5;
+    $("#content-slider").css("height", sliderh + "px");
     $('.da_bar').css('zIndex', 3);
 }
 

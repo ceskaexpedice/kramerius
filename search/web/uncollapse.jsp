@@ -27,13 +27,21 @@
         </x:if>
         <x:set select="./str[@name='PID']" var="pid" />
        
+       <x:choose>
+           <x:when select="./str[@name='dc.title'] = ''">
+               <a href="<c:out value="${itemUrl}" escapeXml="false" />" ><b>none</b></a>
+           </x:when>
+           <x:otherwise>
+            <a href="<c:out value="${itemUrl}" escapeXml="false" />" ><b><x:out select="./str[@name='dc.title']"/></b></a>
+           </x:otherwise>
+       </x:choose>
     
-    <a href="<c:out value="${itemUrl}" escapeXml="false" />" ><b><x:out select="./str[@name='dc.title']"/></b></a>
     <span class="textpole">(<fmt:message><x:out select="./str[@name='fedora.model']"/></fmt:message>)</span>
     <x:if select="./int[@name='pages_count'] != '0'">
     <span><x:out select="./int[@name='pages_count']"/></span>
     </x:if>
     <span><c:out value="${collapseCount}" escapeXml="false" /></span>
+    <%--
     <x:choose>
         <x:when select="./str[@name='fedora.model'] = 'monograph2'">
             <%@ include file="inc/results/monograph.jsp" %>
@@ -50,13 +58,14 @@
         <x:when select="./str[@name='fedora.model'] = 'periodicalvolume2'">
             <%@ include file="inc/results/periodicalvolume.jsp" %>
         </x:when>
-        <x:when select="./str[@name='fedora.model'] = 'periodicalitem'">
+        <x:when select="./str[@name='fedora.model'] = 'periodicalitem2'">
             <%@ include file="inc/results/periodicalitem.jsp" %>
         </x:when>
         <x:otherwise>
             <%@ include file="inc/results/default.jsp" %>
         </x:otherwise>
     </x:choose>
+    --%>
     </div>
 </x:forEach>
     <%@ include file="inc/paginationPageNum.jsp" %>

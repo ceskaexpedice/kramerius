@@ -8,7 +8,7 @@
 }
 
 .da_container{
-    width:150px;
+    width:195px;
     padding:2px;
     margin:0px;
     float:left;
@@ -40,7 +40,7 @@
     left:80px;
     border-top:solid 1px #EEEEEE;
     border-right:solid 1px #EEEEEE;
-    width: 70px;
+    width: 100px;
     z-index:2;
 }
 
@@ -93,6 +93,19 @@
     z-index:3;
 }
 
+#selectDiv{
+    
+}
+
+#da-inputs{
+  width:100%;
+  text-align:left;
+  padding:5px 4px;
+}
+#da-inputs input{
+  border: 1px solid #333333;
+}
+
 .clear{
     float:none;
     clear:both;
@@ -107,14 +120,24 @@
     cursor:n-resize;
 }
 
-#content-slider {
+#content-slider2 {
     width: 6px;
     background: #BBBBBB;
     position: relative;
     /*background: transparent url(../img/scrollbar-track.png);*/
-    height: 110px;
+    height: 80px;
     font-size:21px;
     margin-left:4px;
+}
+
+#content-slider {
+    width: 6px;
+    position: relative;
+    margin-top:36px;
+    background: #BBBBBB;
+    /*background: transparent url(../img/scrollbar-track.png);*/
+    height: 80px;
+    font-size:21px;
 }
 
 
