@@ -70,10 +70,7 @@ a.image:hover {
 	text-decoration:underline;
 }
 
-
-/* Logo */
-
-
+/* Header */
 .header{
     border:0px;
     padding:none;
@@ -85,6 +82,11 @@ a.image:hover {
     font-size: 15px;
     background-image: url("../img/bg_orange.png");
 }
+#help.header{
+    width:100%;
+    text-align:left;
+}
+
 .ui-corner-top-8 {
     -moz-border-radius-topleft: 8px/*{cornerRadius}*/;
     -webkit-border-top-left-radius: 8px/*{cornerRadius}*/; 
