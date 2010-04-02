@@ -98,7 +98,7 @@ public interface FedoraAccess {
 
 	public String getImageFULLMimeType(String uuid) throws IOException, XPathExpressionException;
 
+
+	public boolean isImageFULLAvailable(String uuid) throws IOException;
 	
-
-
 }

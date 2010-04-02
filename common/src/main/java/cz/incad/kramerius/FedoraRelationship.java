@@ -12,7 +12,9 @@ public enum FedoraRelationship {
 	hasItem,
 	hasUnit,
 	hasInternalPart,
-	hasIntCompPart
+	hasIntCompPart,
+	
+	isOnPage
 	
 	//relationship defined in  Fedora Ontology Relationship
 	// http://www.fedora-commons.org/definitions/1/0/fedora-relsext-ontology.rdfs
