@@ -1,3 +1,25 @@
+/**
+ * Skupina je urcena pro generovani prvni stranky
+ */
+group firstpage;
+
+/**
+ * Generovani metadata na prvni strance
+ * formalni parametr dc = Dublin core metadata zplostena do hashtable
+ */ 
+metadata(dc) ::= <<
+Hlavní název: $dc.title$
+Druh dokumentu: 
+ISBN:
+Autor: $dc.creator; separator=","$
+Pubhlisher:$dc.publisher$
+>>
+
+
+/**
+ * Podminky pouziti
+ */
+description() ::= <<
 
  Podmínky využití
  
@@ -13,3 +35,5 @@
  Klementinum 190
  110 00 Praha 1
  kramerius@nkp.cz
+
+>>

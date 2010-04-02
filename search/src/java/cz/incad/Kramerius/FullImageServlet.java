@@ -64,11 +64,14 @@ public class FullImageServlet extends AbstracThumbnailServlet {
 					writeImage(resp, scale, OutputFormats.JPEG);
 				} else resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
 			} else {
+				String mimeType = this.fedoraAccess.getImageFULLMimeType(uuid);
+				if (mimeType == null) mimeType = DEFAULT_MIMETYPE;
+
 				InputStream is = this.fedoraAccess.getImageFULL(uuid);
+				int available = is.available();
 				if (outputFormat.equals(OutputFormats.RAW)) {
-					String mimeType = this.fedoraAccess.getImageFULLMimeType(uuid);
-					if (mimeType == null) mimeType = DEFAULT_MIMETYPE;
 					resp.setContentType(mimeType);
+					int available2 = is.available();
 					copyStreams(is, resp.getOutputStream());
 				} else {
 					Image rawImage = rawFullImage(uuid);

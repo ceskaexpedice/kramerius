@@ -225,8 +225,23 @@ public class FedoraAccessImpl implements FedoraAccess {
 
 	public InputStream getImageFULL(String uuid) throws IOException {
 		HttpURLConnection con = (HttpURLConnection) openConnection(getDjVuImage(configuration ,uuid),configuration.getFedoraUser(), configuration.getFedoraPass());
-		InputStream thumbInputStream = con.getInputStream();
-		return thumbInputStream;
+		con.connect();
+		if (con.getResponseCode() == HttpURLConnection.HTTP_OK) {
+			InputStream thumbInputStream = con.getInputStream();
+			return thumbInputStream;
+		} throw new IOException("404");
+	}
+
+	
+	@Override
+	public boolean isImageFULLAvailable(String uuid) throws IOException {
+		HttpURLConnection con = (HttpURLConnection) openConnection(getDjVuImage(configuration ,uuid),configuration.getFedoraUser(), configuration.getFedoraPass());
+		con.connect();
+		try {
+			return con.getResponseCode() == HttpURLConnection.HTTP_OK;
+		} finally {
+			con.disconnect();
+		}
 	}
 
 	public String getImageFULLMimeType(String uuid) throws IOException, XPathExpressionException {

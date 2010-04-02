@@ -49,58 +49,9 @@ public class GeneratePDFServlet extends GuiceServlet {
 				resp.setContentType("application/pdf");
 				SimpleDateFormat sdate = new SimpleDateFormat("yyyyMMdd_mmhhss");
 			    resp.setHeader("Content-disposition","inline; filename="+sdate.format(new Date())+".pdf");
-			    Document relsExt = fedoraAccess.getRelsExt(uuid);
-			    final List<String> pages = new ArrayList<String>();
-			    fedoraAccess.processRelsExt(relsExt, new RelsExtHandler() {
-					
-			    	
-					@Override
-					public void handle(Element elm, FedoraRelationship relation,Stack<Element> processingStack) {
-						try {
-							if (relation.equals(FedoraRelationship.hasPage)) {
-								String pid = elm.getAttributeNS(RDF_NAMESPACE_URI, "resource");
-								PIDParser pidParse = new PIDParser(pid);
-								pidParse.disseminationURI();
-								String objectId = pidParse.getObjectId();
-								pages.add(0,objectId);
-								
-							} else if ((relation.equals(FedoraRelationship.hasIntCompPart)) || 
-										(relation.equals(FedoraRelationship.hasInternalPart)) || 
-										(relation.equals(FedoraRelationship.hasItem)) || 
-										(relation.equals(FedoraRelationship.hasUnit)) || 
-										(relation.equals(FedoraRelationship.hasVolume))) {
-								
-								try {
-								
-									String pid = elm.getAttributeNS(RDF_NAMESPACE_URI, "resource");
-									PIDParser pidParse = new PIDParser(pid);
-									pidParse.disseminationURI();
-									String objectId = pidParse.getObjectId();
-									Document childExts = fedoraAccess.getRelsExt(objectId);
-									processingStack.push(childExts.getDocumentElement());
-								
-								} catch (IOException e) {
-									LOGGER.log(Level.SEVERE, e.getMessage(), e);
-								}
-							}
-							
-						} catch (DOMException e) {
-							LOGGER.log(Level.SEVERE, e.getMessage(), e);
-							throw new RuntimeException(e);
-						} catch (LexerException e) {
-							LOGGER.log(Level.SEVERE, e.getMessage(), e);
-							throw new RuntimeException(e);
-						}
-					}
-					@Override
-					public boolean accept(FedoraRelationship relation) {
-						return true;
-					}
-				});
-			    
 			    // generovani pdf
-			    service.generatePDF(uuid, pages, resp.getOutputStream());
-			    //service.generatePDFOutlined(uuid, pages, resp.getOutputStream());
+			    //service.generatePDF(uuid,  resp.getOutputStream());
+			    service.generatePDFOutlined(uuid,resp.getOutputStream());
 			}
 		} catch (Exception e) {
 			LOGGER.log(Level.SEVERE, e.getMessage(), e);

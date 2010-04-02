@@ -27,6 +27,7 @@ public class BaseModule extends AbstractModule {
 	@Override
 	protected void configure() {
 		bind(FedoraAccess.class).to(FedoraAccessImpl.class).in(Scopes.SINGLETON);
+		//bind(GeneratePDFService.class).to(GeneratePDFServiceImpl.class).in(Scopes.SINGLETON);
 		bind(GeneratePDFService.class).to(GeneratePDFServiceImpl.class).in(Scopes.SINGLETON);
 		bind(KConfiguration.class).toInstance(KConfiguration.getKConfiguration(JNDIUtils.getJNDIValue(IKeys.CONFIG_PATH)));
 		// konekce.. vymenit za jndi

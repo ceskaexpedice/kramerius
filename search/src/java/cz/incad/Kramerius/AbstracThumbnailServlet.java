@@ -1,11 +1,10 @@
 package cz.incad.Kramerius;
 
-import java.awt.Graphics;
 import java.awt.Image;
 import java.awt.Rectangle;
-import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 
@@ -26,6 +25,7 @@ import com.lizardtech.djvubean.DjVuImage;
 import cz.incad.Kramerius.backend.guice.GuiceServlet;
 import cz.incad.kramerius.FedoraAccess;
 import cz.incad.kramerius.utils.conf.KConfiguration;
+import cz.incad.kramerius.utils.imgs.KrameriusImageSupport;
 import cz.incad.utils.IKeys;
 
 public class AbstracThumbnailServlet extends GuiceServlet {
@@ -77,6 +77,7 @@ public class AbstracThumbnailServlet extends GuiceServlet {
 			(mimetype.equals(OutputFormats.PNG.getMimeType())))	{
 			InputStream imageFULL = fedoraAccess.getThumbnail(uuid);
 			return ImageIO.read(imageFULL);
+			
 		} else if ((mimetype.equals(OutputFormats.XDJVU.getMimeType())) ||
 				  (mimetype.equals(OutputFormats.DJVU.getMimeType()))){
 			String imageUrl = getDJVUServlet(uuid);
@@ -132,14 +133,9 @@ public class AbstracThumbnailServlet extends GuiceServlet {
 	protected void writeImage(HttpServletResponse resp, Image scaledImage, OutputFormats format) throws IOException {
 		if ((format.equals(OutputFormats.JPEG)) || 
 			(format.equals(OutputFormats.PNG))) {
-			BufferedImage bufImage = new BufferedImage(scaledImage.getWidth(null), scaledImage.getHeight(null), BufferedImage.TYPE_INT_RGB);
-			Graphics gr = bufImage.getGraphics();
-			gr.drawImage(scaledImage,0,0,null);
-			gr.dispose();
-			
 			resp.setContentType(format.getMimeType());
-			ServletOutputStream outputStream = resp.getOutputStream();
-			ImageIO.write(bufImage, format.getJavaFormat(), outputStream);
+			OutputStream os = resp.getOutputStream();
+			KrameriusImageSupport.writeImageToStream(scaledImage, format.getJavaFormat(), os);
 		} else throw new IllegalArgumentException("unsupported mimetype '"+format+"'");
 	}
 
@@ -161,7 +157,7 @@ public class AbstracThumbnailServlet extends GuiceServlet {
 	}
 
 
-	enum OutputFormats {
+	public enum OutputFormats {
 		JPEG("image/jpeg","jpg"),
 		PNG("image/png","png"),
 		XDJVU("image/x.djvu",null),
