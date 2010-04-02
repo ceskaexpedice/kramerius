@@ -107,6 +107,20 @@
 			<artifactId>itext</artifactId>
 			<version>1.4.1</version>
 		</dependency>
+		
+		<!-- DJVU dependencies -->
+		<dependency>
+			<groupId>com.foxtrottechnologies</groupId>
+			<artifactId>javadjvu</artifactId>
+			<version>0.8.09</version>
+		</dependency>
+
+		<dependency>
+			<groupId>com.foxtrottechnologies</groupId>
+			<artifactId>djvuframe</artifactId>
+			<version>0.8.09</version>
+		</dependency>
+
 	</dependencies>
 	<build>
 		<testSourceDirectory>${basedir}/src/main/test</testSourceDirectory>
