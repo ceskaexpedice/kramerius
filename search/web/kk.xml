@@ -8,9 +8,9 @@
         <property name="fedoraPass" value="fedoraAdmin"/>
 
 	<!-- Image thumbnail -->
-        <property name="thumbUrl" value="http://194.108.215.230:8080/k_search/thumb"/>
+        <property name="thumbUrl" value="thumb"/>
         <property name="scaledHeight" value="128"/>
-        <property name="djvuUrl" value="http://194.108.215.230:8080/k_search/djvu"/>
+        <property name="djvuUrl" value="djvu"/>
 
 
 	<!-- Sekce pro dlouhotrvajici procesy -->        
