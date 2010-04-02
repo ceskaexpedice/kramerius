@@ -52,6 +52,7 @@
 	</distributionManagement>
 
 	<dependencies>
+	
 		<dependency>
 			<groupId>javax.servlet</groupId>
 			<artifactId>servlet-api</artifactId>
@@ -188,13 +189,7 @@
 			<artifactId>fedora_api</artifactId>
 			<version>0.0.1-SNAPSHOT</version>
 		</dependency>
-
-		<!-- import -->
-		<dependency>
-			<groupId>kramerius4import</groupId>
-			<artifactId>kramerius4import</artifactId>
-			<version>0.0.1-SNAPSHOT</version>
-		</dependency>
+				
 
 		<!--  generating pdf -->
 		<dependency>
