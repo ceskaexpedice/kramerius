@@ -1,0 +1,16 @@
+<processes>
+	<process>
+		<!-- identifikator  -->
+		<id>generovani_pdf</id>
+		<!-- jenom popis -->
+		<description>Generovani pdf dokumentu</description>
+		<!-- spoustena trida -->
+		<mainClass>cz.incad.kramerius.processes.mock.MockLPProcess</mainClass>
+		<!-- standardni vystup -->
+		<standardOs>standard</standardOs>
+		<!-- err vystup -->
+		<errOs>err</errOs>
+		<!--  Cesta ke kninovnam, ktere process potrebuje -->
+		<lib>lib</lib>
+	</process>
+</processes>
