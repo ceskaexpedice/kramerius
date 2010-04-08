@@ -25,6 +25,7 @@ public class WindowsLRProcessImpl extends AbstractLRProcessImpl {
 			// taskkill /PID  <pid>
 			List<String> command = new ArrayList<String>();
 			command.add("taskkill");
+			command.add("/f");
 			command.add("/PID");
 			command.add(getPid());
 			ProcessBuilder processBuilder = new ProcessBuilder(command);
