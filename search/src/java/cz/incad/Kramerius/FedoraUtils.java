@@ -18,6 +18,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
+import cz.incad.kramerius.KrameriusModels;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 
 public class FedoraUtils {

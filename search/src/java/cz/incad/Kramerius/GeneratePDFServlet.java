@@ -48,7 +48,7 @@ public class GeneratePDFServlet extends GuiceServlet {
 			if (uuid != null) {
 				resp.setContentType("application/pdf");
 				SimpleDateFormat sdate = new SimpleDateFormat("yyyyMMdd_mmhhss");
-			    resp.setHeader("Content-disposition","inline; filename="+sdate.format(new Date())+".pdf");
+			    resp.setHeader("Content-disposition","attachment; filename="+sdate.format(new Date())+".pdf");
 			    // generovani pdf
 			    //service.generatePDF(uuid,  resp.getOutputStream());
 			    service.generatePDFOutlined(uuid,resp.getOutputStream());

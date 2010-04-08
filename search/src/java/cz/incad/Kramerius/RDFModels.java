@@ -4,6 +4,8 @@
  */
 package cz.incad.Kramerius;
 
+import cz.incad.kramerius.KrameriusModels;
+
 /**
  *
  * @author Administrator

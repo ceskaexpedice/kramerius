@@ -4,6 +4,7 @@
  */
 package cz.incad.Kramerius;
 
+import cz.incad.kramerius.KrameriusModels;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 import cz.incad.utils.Formating;
 import cz.incad.utils.IKeys;
