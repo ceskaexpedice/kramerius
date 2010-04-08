@@ -2,14 +2,17 @@ package cz.incad.Kramerius.backend.pdf.impl;
 
 import static cz.incad.kramerius.FedoraNamespaces.RDF_NAMESPACE_URI;
 import static cz.incad.kramerius.utils.imgs.KrameriusImageSupport.*;
+import static cz.incad.kramerius.utils.BiblioModsUtils.*;
 
 import java.awt.Image;
+import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.StringReader;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -24,6 +27,7 @@ import javax.xml.xpath.XPathExpressionException;
 import org.w3c.dom.DOMException;
 import org.w3c.dom.Element;
 
+import com.google.gwt.user.client.Command;
 import com.google.inject.Inject;
 import com.lowagie.text.BadElementException;
 import com.lowagie.text.Chunk;
@@ -44,6 +48,8 @@ import com.lowagie.text.pdf.PdfPTable;
 import com.lowagie.text.pdf.PdfPTableEvent;
 import com.lowagie.text.pdf.PdfTable;
 import com.lowagie.text.pdf.PdfWriter;
+import com.lowagie.text.pdf.draw.LineSeparator;
+import com.lowagie.text.pdf.draw.VerticalPositionMark;
 import com.qbizm.kramerius.ext.ontheflypdf.edi.Page;
 import com.qbizm.kramerius.ext.ontheflypdf.edi.PageLayer;
 import com.qbizm.kramerius.ext.ontheflypdf.edi.TextBlock;
@@ -52,10 +58,19 @@ import com.qbizm.kramerius.ext.ontheflypdf.edi.generating.ImageSuck;
 
 import cz.incad.Kramerius.backend.impl.FedoraAccessImpl;
 import cz.incad.Kramerius.backend.pdf.GeneratePDFService;
+import cz.incad.Kramerius.backend.pdf.impl.pdfpages.AbstractPage;
+import cz.incad.Kramerius.backend.pdf.impl.pdfpages.AbstractRenderedDocument;
+import cz.incad.Kramerius.backend.pdf.impl.pdfpages.ImagePage;
+import cz.incad.Kramerius.backend.pdf.impl.pdfpages.OutlineItem;
+import cz.incad.Kramerius.backend.pdf.impl.pdfpages.RenderedDocument;
+import cz.incad.Kramerius.backend.pdf.impl.pdfpages.TextPage;
 import cz.incad.kramerius.FedoraAccess;
 import cz.incad.kramerius.FedoraNamespaces;
 import cz.incad.kramerius.FedoraRelationship;
+import cz.incad.kramerius.KrameriusModels;
 import cz.incad.kramerius.RelsExtHandler;
+import cz.incad.kramerius.pdf.Outline;
+import cz.incad.kramerius.utils.BiblioModsUtils;
 import cz.incad.kramerius.utils.DCUtils;
 import cz.incad.kramerius.utils.XMLUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
@@ -77,77 +92,150 @@ public class GeneratePDFServiceImpl implements GeneratePDFService {
 	@Inject
 	KConfiguration configuration;
 	
-
 	
-
 	@Override
-	public void generatePDFOutlined(String parentUUID, List<String> uuids,String titlePage,
-			OutputStream os) throws IOException {
+	public void generatePDFOutlined(AbstractRenderedDocument rdoc, String parentUUID, OutputStream os) throws IOException {
 		try {
-			if (!uuids.isEmpty()) {
-				Document doc = createDocument();
-				PdfWriter writer = PdfWriter.getInstance(doc, os);
-				doc.open();
-				
-				Map<String, String> mappingsJumpsToTitles = new HashMap<String, String>();
-				insertFirstPage(parentUUID, titlePage == null ? uuids.get(0) : uuids.get(0), writer, doc);
+			Document doc = createDocument();
+			PdfWriter writer = PdfWriter.getInstance(doc, os);
+			doc.open();
+			insertFirstPage(rdoc, parentUUID, rdoc.getUuidTitlePage(), writer, doc);
+			doc.newPage();
+			for (AbstractPage page : rdoc.getPages()) {
 				doc.newPage();
-				for (String uuid : uuids) { 
-					doc.newPage();
-					Map<String, String> map = insertOutlinedPage(uuid,writer, doc);
-					mappingsJumpsToTitles.putAll(map);
+				if (page instanceof ImagePage) {
+					ImagePage iPage = (ImagePage) page;
+					insertOutlinedImagePage(iPage, writer, doc);
+				} else {
+					TextPage tPage = (TextPage) page;
+					insertOutlinedTextPage(tPage, writer, doc, rdoc.getDocumentTitle());
 				}
-				
-				PdfContentByte cb = writer.getDirectContent();
-				PdfOutline pdfRoot = cb.getRootOutline();
-				for (String uuid : uuids) {
-					String title = mappingsJumpsToTitles.get(uuid);
-					PdfOutline pdfOutline = new PdfOutline(pdfRoot, PdfAction.gotoLocalPage(uuid, false),title);
-				}
-				
-				
-				
-				doc.close();
-				doc.close();
-				os.flush();
 			}
-		} catch (XPathExpressionException e) {
-			LOGGER.log(Level.SEVERE, e.getMessage(), e);
-			throw new IOException(e);
+
+			PdfContentByte cb = writer.getDirectContent();
+			PdfOutline pdfRoot = cb.getRootOutline();
+			OutlineItem rDocRoot = rdoc.getOutlineItemRoot();
+			fillOutline(pdfRoot, rDocRoot);
+
+			doc.close();
+			doc.close();
+			os.flush();
+
 		} catch (DocumentException e) {
 			LOGGER.log(Level.SEVERE, e.getMessage(), e);
-			throw new IOException(e);
+		} catch (XPathExpressionException e) {
+			LOGGER.log(Level.SEVERE, e.getMessage(), e);
 		}
 		
 	}
+
+
+	private void fillOutline(PdfOutline pdfRoot, OutlineItem rDocRoot) {
+		OutlineItem[] children = rDocRoot.getChildren();
+		for (OutlineItem outlineItem : children) {
+			PdfOutline pdfOutline = new PdfOutline(pdfRoot, PdfAction.gotoLocalPage(outlineItem.getDestination(), false),outlineItem.getTitle());
+			fillOutline(pdfOutline, outlineItem);
+		}
+	}
+
 
 
 
 	@Override
 	public void generatePDFOutlined(String parentUUID, OutputStream os) throws IOException {
 		org.w3c.dom.Document relsExt = this.fedoraAccess.getRelsExt(parentUUID);
-		final List<String> images = new ArrayList<String>();
-		final List<String> titlePages = new ArrayList<String>();
-
+		KrameriusModels model = this.fedoraAccess.getKrameriusModel(relsExt);
+		
+		final AbstractRenderedDocument renderedDocument = new RenderedDocument(model, parentUUID);
+		renderedDocument.setDocumentTitle(DCUtils.titleFromDC(this.fedoraAccess.getDC(parentUUID)));
+		
+		TextPage dpage = new TextPage(model, parentUUID);
+		dpage.setOutlineDestination("desc");
+		dpage.setOutlineTitle("Popis");
+		renderedDocument.addPage(dpage);
+		OutlineItem item = new OutlineItem();
+		item.setLevel(1); item.setParent(renderedDocument.getOutlineItemRoot()); 
+		item.setTitle("Popis"); item.setDestination("desc");
+		renderedDocument.getOutlineItemRoot().addChild(item);
+		
 		fedoraAccess.processRelsExt(relsExt, new RelsExtHandler() {
+			
+				private int previousLevel = -1;
+				private OutlineItem currOutline = null;
+				
 				@Override
-				public void handle(Element elm, FedoraRelationship relation,Stack<Element> processingStack) {
+				public void handle(Element elm, FedoraRelationship relation, int level) {
 					try {
+						
 						String pid = elm.getAttributeNS(RDF_NAMESPACE_URI, "resource");
 						PIDParser pidParse = new PIDParser(pid);
 						pidParse.disseminationURI();
 						String objectId = pidParse.getObjectId();
+						
+						org.w3c.dom.Document biblioMods = fedoraAccess.getBiblioMods(objectId);
+						AbstractPage page = null;
 						if (relation.equals(FedoraRelationship.hasPage)) {
-							images.add(0,objectId);
-							if (titlePages.isEmpty()) {
-								org.w3c.dom.Document biblioMods = fedoraAccess.getBiblioMods(objectId);
+							
+							page = new ImagePage(KrameriusModels.PAGE, objectId);
+							page.setOutlineDestination(objectId);
+							String pageNumber = getPageNumber(biblioMods);
+							if (pageNumber.trim().equals("")) {
+								throw new IllegalStateException(objectId);
+							}
+							page.setOutlineTitle(pageNumber);
+							renderedDocument.addPage(page);
+							
+							if (renderedDocument.getUuidTitlePage() == null) {
 								Element part = XMLUtils.findElement(biblioMods.getDocumentElement(), "part", FedoraNamespaces.BIBILO_MODS_URI);
 								String attribute = part.getAttribute("type");
 								if ("TitlePage".equals(attribute)) {
-									titlePages.add(objectId);
+									renderedDocument.setUuidTitlePage(objectId);
 								}
 							}
+						} else {
+							page = new TextPage(relation.getPointingModel(), objectId);
+							page.setOutlineDestination(objectId);
+							page.setOutlineTitle(getTitle(biblioMods));
+							renderedDocument.addPage(page);
 						}
+						
+						if (previousLevel == -1) {
+							// first
+							this.currOutline = createOutlineItem(renderedDocument.getOutlineItemRoot(), page.getOutlineDestination(), page.getOutlineTitle(), level);
+							StringBuffer buffer = new StringBuffer();
+							this.currOutline.debugInformations(buffer, 0);
+							System.out.println(buffer.toString());
+						} else if (previousLevel == level) {
+							this.currOutline = this.currOutline.getParent();
+							this.currOutline = createOutlineItem(this.currOutline, page.getOutlineDestination(), page.getOutlineTitle(), level);
+
+							StringBuffer buffer = new StringBuffer();
+							this.currOutline.debugInformations(buffer, 0);
+							System.out.println(buffer.toString());
+
+						} else if (previousLevel < level) {
+							// dolu
+							this.currOutline = createOutlineItem(this.currOutline, page.getOutlineDestination(), page.getOutlineTitle(), level);
+
+							StringBuffer buffer = new StringBuffer();
+							this.currOutline.debugInformations(buffer, 0);
+							System.out.println(buffer.toString());
+
+						} else if (previousLevel > level) {
+							// nahoru // za poslednim smerem nahoru
+							this.currOutline = this.currOutline.getParent();
+							
+							StringBuffer buffer = new StringBuffer();
+							this.currOutline.debugInformations(buffer, 0);
+							System.out.println(buffer.toString());
+							
+							this.currOutline = this.currOutline.getParent();
+							this.currOutline = createOutlineItem(this.currOutline, page.getOutlineDestination(), page.getOutlineTitle(), level);
+							
+						}
+
+						
+						previousLevel = level;
 					} catch (DOMException e) {
 						LOGGER.log(Level.SEVERE, e.getMessage(), e);
 						throw new RuntimeException(e);
@@ -159,14 +247,25 @@ public class GeneratePDFServiceImpl implements GeneratePDFService {
 						throw new RuntimeException(e);
 					}
 				}
+
+				private OutlineItem createOutlineItem(OutlineItem parent, String objectId, String biblioModsTitle, int level) {
+					OutlineItem item = new OutlineItem();
+					item.setDestination(objectId);
+					item.setTitle(biblioModsTitle);
+					
+					parent.addChild(item);
+					item.setParent(parent);
+					item.setLevel(level);
+					return item;
+				}
+				
 				@Override
 				public boolean accept(FedoraRelationship relation) {
 					return relation.name().startsWith("has");
 				}
 			});
-			
-			generatePDFOutlined(parentUUID, images, titlePages.isEmpty() ? images.get(0) : titlePages.get(0),os);
-			
+		
+		generatePDFOutlined(renderedDocument, parentUUID,os);
 	}
 	
 
@@ -175,9 +274,37 @@ public class GeneratePDFServiceImpl implements GeneratePDFService {
 		Document doc = new Document(new Rectangle(DEFAULT_WIDTH, DEFAULT_HEIGHT));
 		return doc;
 	}
-	
 
-	public void insertFirstPage(String parentUuid, String titlePageUuid, PdfWriter pdfWriter , Document document) throws IOException, DocumentException {
+	public PdfPTable insertTitleAndAuthors(AbstractRenderedDocument document) throws DocumentException, IOException {
+		PdfPTable pdfPTable = new PdfPTable(new float[] {1.0f});
+		
+		pdfPTable.setSpacingBefore(3f);
+		pdfPTable.getDefaultCell().disableBorderSide(PdfPCell.TOP);
+		pdfPTable.getDefaultCell().disableBorderSide(PdfPCell.LEFT);
+		pdfPTable.getDefaultCell().disableBorderSide(PdfPCell.RIGHT);
+		pdfPTable.getDefaultCell().disableBorderSide(PdfPCell.BOTTOM);
+		pdfPTable.getDefaultCell().setBorderWidth(15f);
+
+		Font bigFont = getFont();
+		bigFont.setSize(20f);
+		Chunk titleChunk = new Chunk(document.getDocumentTitle(), bigFont);
+
+
+		Font smallFont = getFont();
+		smallFont.setSize(12f);
+		StringBuffer buffer = new StringBuffer();
+		String[] creatorsFromDC = DCUtils.creatorsFromDC(fedoraAccess.getDC(document.getUuidTitlePage()));
+		for (String string : creatorsFromDC) {
+			buffer.append(string).append('\n');
+		}
+		Chunk creatorsChunk = new Chunk(buffer.toString(), smallFont);
+		pdfPTable.addCell(new Paragraph(titleChunk));
+		pdfPTable.addCell(new Paragraph(creatorsChunk));
+		
+		return pdfPTable;
+	}
+
+	public void insertFirstPage(AbstractRenderedDocument model, String parentUuid, String titlePageUuid , PdfWriter pdfWriter, Document pdfDoc) throws IOException, DocumentException {
 		try {
 			PdfPTable pdfPTable = new PdfPTable(new float[] {0.2f, 0.8f});
 			pdfPTable.setSpacingBefore(3f);
@@ -188,9 +315,10 @@ public class GeneratePDFServiceImpl implements GeneratePDFService {
 			pdfPTable.getDefaultCell().disableBorderSide(PdfPCell.BOTTOM);
 			pdfPTable.getDefaultCell().setBorderWidth(15f);
 
-			Paragraph parMetadata = new Paragraph(TemplatesUtils.metadata(fedoraAccess, parentUuid), getFont());
+			
 			insertTitleImage(pdfPTable, titlePageUuid);
-			pdfPTable.addCell(parMetadata);
+			pdfPTable.addCell(insertTitleAndAuthors(model));
+			
 			final float[] mheights = new float[2];
 			pdfPTable.setTableEvent(new PdfPTableEvent() {
 				@Override
@@ -199,15 +327,15 @@ public class GeneratePDFServiceImpl implements GeneratePDFService {
 					mheights[1] = heights[1];
 				}
 			});
-			document.add(pdfPTable);
+			pdfDoc.add(pdfPTable);
 			
-			lineInFirstPage(pdfWriter, document, mheights[1]);
+			lineInFirstPage(pdfWriter, pdfDoc, mheights[1]);
 
-			document.add(new Paragraph(" "));
-			document.add(new Paragraph(" "));
+			pdfDoc.add(new Paragraph(" "));
+			pdfDoc.add(new Paragraph(" "));
 			
 			Paragraph parDesc = new Paragraph(TemplatesUtils.description(), getFont());		
-			document.add(parDesc);
+			pdfDoc.add(parDesc);
 		} catch (XPathExpressionException e) {
 			LOGGER.log(Level.SEVERE, e.getMessage(), e);
 		}
@@ -218,38 +346,88 @@ public class GeneratePDFServiceImpl implements GeneratePDFService {
 		PdfContentByte cb = pdfWriter.getDirectContent();
 
 		cb.moveTo(5f, y-10);
-		cb.lineTo(document.getPageSize().width()-10, y - 10);
+		cb.lineTo(document.getPageSize().getWidth()-10, y - 10);
 		cb.stroke();
 	}
 	
+	public void insertOutlinedTextPage(TextPage page, PdfWriter pdfWriter, Document document, String title) throws XPathExpressionException, IOException, DocumentException {
+		String text = TemplatesUtils.textPage(this.fedoraAccess, page.getUuid(), page.getModel(), title);
+		BufferedReader strReader = new BufferedReader(new StringReader(text));
+		
+		StringBuffer oneChunkBuffer = new StringBuffer();
+		String line = null;
+		while((line = strReader.readLine()) != null) {
+			SimpleTextCommands command = SimpleTextCommands.findCommand(line);
+			if (command == SimpleTextCommands.LINE) {
+				insertPara(page, pdfWriter, document, oneChunkBuffer.toString(), getFont());
+				document.add(new Paragraph(" "));
+				VerticalPositionMark vsep = new LineSeparator();
+				document.add(vsep);
+				document.add(new Paragraph(" "));
+				
+				
+				oneChunkBuffer = new StringBuffer();
+				
+			} else if (command == SimpleTextCommands.PARA) {
+				insertPara(page, pdfWriter, document, oneChunkBuffer.toString(),getFont());
+				oneChunkBuffer = new StringBuffer();
+			} else if (command == SimpleTextCommands.FONT) {
+				oneChunkBuffer.append(line);
+				Font font = getFont();
+				String oneChunkText = oneChunkBuffer.toString();
+				Map<String, String> parameters = command.parameters(oneChunkText);
+				if (parameters.containsKey("size")) {
+					font.setSize(Integer.parseInt(parameters.get("size")));
+				}
+				insertPara(page, pdfWriter, document, oneChunkText.substring(0, command.indexStart(oneChunkText)), font);
+				oneChunkBuffer = new StringBuffer();
+			} else {
+				oneChunkBuffer.append(line).append("\n");
+			}
+		}
+		
+		if (oneChunkBuffer.length() > 0 ) {
+			insertPara(page, pdfWriter, document, oneChunkBuffer.toString(), getFont());
+		}
+	}
 
-	public Map<String, String> insertOutlinedPage(String uuid, PdfWriter pdfWriter, Document document) throws XPathExpressionException, IOException, DocumentException {
-		org.w3c.dom.Document dc = fedoraAccess.getDC(uuid);
-		String title = DCUtils.titleFromDC(dc);
-		Map<String, String> mappingJumpToTitle = new HashMap<String, String>();
-		mappingJumpToTitle.put(uuid, title);
-		insertImage(uuid, pdfWriter, document, 0.7f);
+
+	private void insertPara(TextPage page, PdfWriter pdfWriter,
+			Document document, String text, Font font)
+			throws DocumentException, IOException {
+
+		System.out.println("Emmiting text '"+text+"'");
+		
+		Chunk chunk = new Chunk(text, font);
+		chunk.setLocalDestination(page.getOutlineDestination());
+		pdfWriter.setOpenAction(page.getOutlineDestination());
+
+		Paragraph para = new Paragraph(chunk);
+		document.add(para);
+	}
+
+	public void insertOutlinedImagePage(ImagePage page, PdfWriter pdfWriter, Document document) throws XPathExpressionException, IOException, DocumentException {
+		String title = page.getOutlineTitle();
+		insertImage(page.getUuid(), pdfWriter, document, 0.7f);
 		
 		Font font = getFont();
 		Chunk chunk = new Chunk(title);
-		chunk.setLocalDestination(uuid);
-		float fontSize = chunk.font().getCalculatedSize();
+		chunk.setLocalDestination(page.getOutlineDestination());
+		float fontSize = chunk.getFont().getCalculatedSize();
 		float chwidth = chunk.getWidthPoint();
-		int choffsetx = (int) ((document.getPageSize().width() - chwidth) / 2);
+		int choffsetx = (int) ((document.getPageSize().getWidth() - chwidth) / 2);
 		int choffsety = (int) ( 10 - fontSize);
 
 		PdfContentByte cb = pdfWriter.getDirectContent();
 		cb.saveState();
 		cb.beginText();
-		cb.localDestination(uuid, new PdfDestination(PdfDestination.FIT));
-		pdfWriter.setOpenAction(uuid);
+		cb.localDestination(page.getOutlineDestination(), new PdfDestination(PdfDestination.FIT));
+		pdfWriter.setOpenAction(page.getOutlineDestination());
 		
 		cb.setFontAndSize(font.getBaseFont(), 14f);
 		cb.showTextAligned(com.lowagie.text.Element.ALIGN_LEFT, title,choffsetx, choffsety + 10, 0);
 		cb.endText();
 		cb.restoreState();
-		
-		return mappingJumpToTitle;
 	}
 
 	private Font getFont() throws DocumentException, IOException {
@@ -258,9 +436,9 @@ public class GeneratePDFServiceImpl implements GeneratePDFService {
 	}
 
 	
-	public void insertImagePage(String uuid, PdfWriter pdfWriter, Document document) throws XPathExpressionException, IOException, DocumentException { 
-		insertImage(uuid, pdfWriter, document, 1.0f);
-	}
+//	public void insertImagePage(String uuid, PdfWriter pdfWriter, Document document) throws XPathExpressionException, IOException, DocumentException { 
+//		insertImage(uuid, pdfWriter, document, 1.0f);
+//	}
 	
 	public void insertTitleImage(PdfPTable pdfPTable, String uuid) throws IOException, BadElementException, XPathExpressionException {
 		String imgUrl = createIMGFULL(uuid);
@@ -274,9 +452,10 @@ public class GeneratePDFServiceImpl implements GeneratePDFService {
 				writeImageToStream(javaImg, "jpeg", bos);
 
 				com.lowagie.text.Image img = com.lowagie.text.Image.getInstance(bos.toByteArray());
+				System.out.println(img.getClass().getResource("Image.class"));
 				
-				img.scaleAbsoluteHeight(smallImage * img.height());
-				img.scaleAbsoluteWidth(smallImage * img.width());
+				img.scaleAbsoluteHeight(smallImage * img.getHeight());
+				img.scaleAbsoluteWidth(smallImage * img.getWidth());
 				pdfPTable.addCell(img);
 			}
 		} else {
@@ -297,21 +476,21 @@ public class GeneratePDFServiceImpl implements GeneratePDFService {
 
 				com.lowagie.text.Image img = com.lowagie.text.Image.getInstance(bos.toByteArray());
 
-				Float wratio = document.getPageSize().width()/ javaImg.getWidth(null);
-				Float hratio = document.getPageSize().height()/ javaImg.getHeight(null);
+				Float wratio = document.getPageSize().getWidth()/ javaImg.getWidth(null);
+				Float hratio = document.getPageSize().getHeight()/ javaImg.getHeight(null);
 				Float ratio = Math.min(wratio, hratio);
 				if (percentage != 1.0) { ratio = ratio * percentage; }
 				
 				int fitToPageWidth = (int) (javaImg.getWidth(null) * ratio);
 				int fitToPageHeight = (int) (javaImg.getHeight(null) * ratio);
 				
-				int offsetX = ((int)document.getPageSize().width() - fitToPageWidth) / 2;
-				int offsetY = ((int)document.getPageSize().height() - fitToPageHeight) / 2;
+				int offsetX = ((int)document.getPageSize().getWidth() - fitToPageWidth) / 2;
+				int offsetY = ((int)document.getPageSize().getHeight() - fitToPageHeight) / 2;
 
-				img.scaleAbsoluteHeight(ratio * img.height());
+				img.scaleAbsoluteHeight(ratio * img.getHeight());
 				
-				img.scaleAbsoluteWidth(ratio * img.width());
-				img.setAbsolutePosition((offsetX), document.getPageSize().height() - offsetY - (ratio * img.height()));
+				img.scaleAbsoluteWidth(ratio * img.getWidth());
+				img.setAbsolutePosition((offsetX), document.getPageSize().getHeight() - offsetY - (ratio * img.getHeight()));
 				document.add(img);
 			}
 		} else {

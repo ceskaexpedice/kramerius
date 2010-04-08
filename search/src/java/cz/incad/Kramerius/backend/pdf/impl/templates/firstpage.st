@@ -8,11 +8,8 @@ group firstpage;
  * formalni parametr dc = Dublin core metadata zplostena do hashtable
  */ 
 metadata(dc) ::= <<
-Hlavní název: $dc.title$
-Druh dokumentu: 
-ISBN:
-Autor: $dc.creator; separator=","$
-Pubhlisher:$dc.publisher$
+		$dc.title$
+		$dc.creator; separator=","$
 >>
 
 

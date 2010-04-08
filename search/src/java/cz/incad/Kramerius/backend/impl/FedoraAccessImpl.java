@@ -33,8 +33,10 @@ import org.xml.sax.SAXException;
 import com.google.inject.Inject;
 
 import cz.incad.kramerius.FedoraAccess;
+import cz.incad.kramerius.FedoraModels;
 import cz.incad.kramerius.FedoraNamespaces;
 import cz.incad.kramerius.FedoraRelationship;
+import cz.incad.kramerius.KrameriusModels;
 import cz.incad.kramerius.RelsExtHandler;
 import cz.incad.kramerius.utils.RESTHelper;
 import cz.incad.kramerius.utils.XMLUtils;
@@ -78,6 +80,32 @@ public class FedoraAccessImpl implements FedoraAccess {
 	}
 
 	
+	
+	@Override
+	public KrameriusModels getKrameriusModel(Document relsExt) {
+		try {
+			Element foundElement = XMLUtils.findElement(relsExt.getDocumentElement(), "hasModel", FedoraNamespaces.FEDORA_MODELS_URI);
+			if (foundElement != null) {
+				String sform = foundElement.getAttributeNS(FedoraNamespaces.RDF_NAMESPACE_URI, "resource");
+				PIDParser pidParser = new PIDParser(sform);
+				pidParser.disseminationURI();
+				KrameriusModels model = KrameriusModels.parseString(pidParser.getObjectId());
+				return model;
+			} else throw new IllegalArgumentException("cannot find model of ");
+		} catch (DOMException e) {
+			LOGGER.log(Level.SEVERE, e.getMessage(), e);
+			throw new IllegalArgumentException(e);
+		} catch (LexerException e) {
+			LOGGER.log(Level.SEVERE, e.getMessage(), e);
+			throw new IllegalArgumentException(e);
+		}
+	}
+
+	@Override
+	public KrameriusModels getKrameriusModel(String uuid) throws IOException {
+		return getKrameriusModel(getRelsExt(uuid));
+	}	
+
 	@Override
 	public Document getBiblioMods(String uuid) throws IOException {
 		String biblioModsUrl = biblioMods(KConfiguration.getKConfiguration(), uuid);
@@ -110,50 +138,49 @@ public class FedoraAccessImpl implements FedoraAccess {
 		}	
 	}
 
+	void processRelsExtInternal(Element topElem, RelsExtHandler handler, int level) throws IOException, LexerException{
+		String namespaceURI = topElem.getNamespaceURI();
+		if (namespaceURI.equals(FedoraNamespaces.ONTOLOGY_RELATIONSHIP_NAMESPACE_URI)) {
+			String nodeName = topElem.getLocalName();
+			FedoraRelationship relation = FedoraRelationship.valueOf(nodeName);
+			if (relation != null) {
+				if (handler.accept(relation)) {
+					handler.handle(topElem, relation, level);
+					// deep
+					String attVal = topElem.getAttributeNS(FedoraNamespaces.RDF_NAMESPACE_URI, "resource");
+					PIDParser pidParser = new PIDParser(attVal);
+					pidParser.disseminationURI();
+					String objectId = pidParser.getObjectId();
+					//LOGGER.info("processing uuid =" +objectId);
+					Document relsExt = getRelsExt(objectId);
+					processRelsExtInternal(relsExt.getDocumentElement(), handler, level+1);
+				}
+			} else {
+				LOGGER.severe("Unsupported type of relation");
+			}
+			NodeList childNodes = topElem.getChildNodes();
+			for (int i = 0,ll=childNodes.getLength(); i < ll; i++) {
+				Node item = childNodes.item(i);
+				if (item.getNodeType() == Node.ELEMENT_NODE) {
+					processRelsExtInternal((Element) item, handler, level);
+				}
+			}
+		} else if (namespaceURI.equals(FedoraNamespaces.RDF_NAMESPACE_URI)) {
+			NodeList childNodes = topElem.getChildNodes();
+			for (int i = 0,ll=childNodes.getLength(); i < ll; i++) {
+				Node item = childNodes.item(i);
+				if (item.getNodeType() == Node.ELEMENT_NODE) {
+					processRelsExtInternal((Element) item, handler, level);
+				}
+			}
+		}
+		
+	}
 	
 	@Override
 	public void processRelsExt(Document relsExtDocument, RelsExtHandler handler) throws IOException{
 		try {
-			Stack<Element> processingStack = new Stack<Element>();
-			processingStack.push(relsExtDocument.getDocumentElement());
-			while(!processingStack.isEmpty()) {
-				Element topElem = processingStack.pop();
-				String namespaceURI = topElem.getNamespaceURI();
-				if (namespaceURI.equals(FedoraNamespaces.ONTOLOGY_RELATIONSHIP_NAMESPACE_URI)) {
-					String nodeName = topElem.getLocalName();
-					FedoraRelationship relation = FedoraRelationship.valueOf(nodeName);
-					if (relation != null) {
-						if (handler.accept(relation)) {
-							handler.handle(topElem, relation, processingStack);
-							// deep
-							String attVal = topElem.getAttributeNS(FedoraNamespaces.RDF_NAMESPACE_URI, "resource");
-							PIDParser pidParser = new PIDParser(attVal);
-							pidParser.disseminationURI();
-							String objectId = pidParser.getObjectId();
-							//LOGGER.info("processing uuid =" +objectId);
-							Document relsExt = getRelsExt(objectId);
-							processingStack.push(relsExt.getDocumentElement());
-						}
-					} else {
-						LOGGER.severe("Unsupported type of relation");
-					}
-					NodeList childNodes = topElem.getChildNodes();
-					for (int i = 0,ll=childNodes.getLength(); i < ll; i++) {
-						Node item = childNodes.item(i);
-						if (item.getNodeType() == Node.ELEMENT_NODE) {
-							processingStack.push((Element) item);
-						}
-					}
-				} else if (namespaceURI.equals(FedoraNamespaces.RDF_NAMESPACE_URI)) {
-					NodeList childNodes = topElem.getChildNodes();
-					for (int i = 0,ll=childNodes.getLength(); i < ll; i++) {
-						Node item = childNodes.item(i);
-						if (item.getNodeType() == Node.ELEMENT_NODE) {
-							processingStack.push((Element) item);
-						}
-					}
-				}
-			}
+			processRelsExtInternal(relsExtDocument.getDocumentElement(), handler, 1);
 		} catch (DOMException e) {
 			LOGGER.log(Level.SEVERE, e.getMessage(), e);
 			throw new IOException(e);
