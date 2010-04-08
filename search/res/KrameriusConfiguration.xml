@@ -23,6 +23,8 @@
 		
 		<!-- Sekce pro dlouhotrvajici procesy -->        
         <property name="longRunningProcessDefinition" value="conf/lp.xml" />
+                <property name="lrControlUrl" value="http://localhost:8080/search/lr" />
+        
         
     </properties>
 </setup>
