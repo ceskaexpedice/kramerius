@@ -101,13 +101,22 @@
 			<artifactId>kramerius3_patched</artifactId>
 			<version>3.3</version>
 		</dependency>
-
+		<!-- 
 		<dependency>
 			<groupId>com.qbizm.kramerius.itext</groupId>
 			<artifactId>itext</artifactId>
 			<version>1.4.1</version>
 		</dependency>
+		 -->
+		 
+		 	<dependency>
+	    <groupId>com.lowagie</groupId>
+    	<artifactId>itext</artifactId>
+    	<version>2.1.7</version>
+	</dependency>
 		
+		 
+		 
 		<!-- DJVU dependencies -->
 		<dependency>
 			<groupId>com.foxtrottechnologies</groupId>
