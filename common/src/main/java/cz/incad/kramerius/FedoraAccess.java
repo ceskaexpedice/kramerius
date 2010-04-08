@@ -9,6 +9,8 @@ import javax.xml.xpath.XPathExpressionException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
+import cz.incad.kramerius.utils.imgs.KrameriusImageSupport;
+
 /**
  * This service allows to access to fedora through REST-API
  * @author pavels
@@ -24,6 +26,10 @@ public interface FedoraAccess {
 	 */
 	public Document getRelsExt(String uuid) throws IOException;
 
+	public KrameriusModels getKrameriusModel(Document relsExt);
+	
+	public KrameriusModels getKrameriusModel(String uuid) throws IOException;
+	
 	/**
 	 * Recursive processing fedora objects
 	 * @param uuid UUID of top level object

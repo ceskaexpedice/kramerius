@@ -27,7 +27,8 @@ public class KrameriusImageSupport {
 			return ImageIO.read(url.openStream());
 		} else if ((type.equals(ImageMimeType.DJVU)) || 
 				  (type.equals(ImageMimeType.XDJVU))){
-	        com.lizardtech.djvu.Document doc = new com.lizardtech.djvu.Document(url);
+	        System.out.println("url = "+url);
+			com.lizardtech.djvu.Document doc = new com.lizardtech.djvu.Document(url);
 	        doc.setAsync(false);
 	        DjVuPage[] p = new DjVuPage[1];
 	        //read page from the document - index 0, priority 1, favorFast true
