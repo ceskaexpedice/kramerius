@@ -47,7 +47,9 @@
     
     <script  src="js/autocomplete.js" language="javascript" type="text/javascript"></script>
 
-
+<%  if(remoteUserID!=null){  %>
+    <script  src="js/admin.js" language="javascript" type="text/javascript"></script>
+<% } %>
     <title>Kramerius 4</title>
     <script language="JavaScript" type="text/javascript">
         var pagesTitle = "<fmt:message>Stránka</fmt:message>";
@@ -74,6 +76,9 @@
         var selectEnd = "";
         var initParent = "";
         var initPage = "";
+        var generatePdfTitle = "<fmt:message>generatePdfTitle</fmt:message>";
+        var generatePdfErrorText = "<fmt:message>generatePdfErrorText</fmt:message>";
+        var generatePdfMaxRange = <%=kconfig.getProperty("generatePdfMaxRange")%>;
     </script>
     
 </head>

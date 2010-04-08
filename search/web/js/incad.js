@@ -69,15 +69,14 @@ function gotoPageOffset2( value ){
 }
 
 function gotoPageOffset( value, div, baseUrl ){
+    var page = new PageQuery(window.location.search);
     if(div){
-        var page = new PageQuery(window.location.search);
         page.setValue("offset", value);
         var url = baseUrl + "?" + page.toString() + "&d="+div+"&base="+baseUrl;
       $.get(url, function(xml){
           $("#"+div).html(xml);
       });
     }else{
-      var page = new PageQuery(window.location.search);
       page.setValue("offset", value);
       window.location = searchPage + "?" + page.toString();
     }

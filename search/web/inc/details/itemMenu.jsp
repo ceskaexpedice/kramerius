@@ -59,7 +59,6 @@ Get Biblio mods
            getItemRels("<c:out value="${pids[status.count-1]}" />",
                 "<c:out value="${pids[status.count]}" />",
                 <c:out value="${cur_level}" />,
-                //    false
                 <c:out value="${status.count == fn:length(models)}" />
             );
         });
@@ -86,7 +85,11 @@ Get Biblio mods
         </c:when>
         <c:otherwise>
             <div class="relList" style="display:none;" id="list-<c:out value="${models[status.count -1]}" />"></div>
-            <div id="info-<c:out value="${models[status.count -1]}" />"><x:transform doc="${xml2}"  xslt="${xslt}"  >
+            <c:if test="${models[status.count -1] != 'page'}" >
+                <%@ include file="../../admin/itemOptions.jsp" %>
+            </c:if>
+            <div id="info-<c:out value="${models[status.count -1]}" />">
+            <x:transform doc="${xml2}"  xslt="${xslt}"  >
                 <x:param name="pid" value="${uuid}"/>
             </x:transform></div>
         </c:otherwise>
@@ -104,10 +107,12 @@ Get Biblio mods
         </c:when>
     </c:choose>
 </c:forEach>
+
 <script language="javascript">
     $(document).ready(function(){
         //changeSelection('<c:out value="${pids[pathsize -2]}" />','<c:out value="${pids[pathsize -1]}" />');
         startPage();
+        startItemMenu();
     });
     initParent = '<c:out value="${pids[pathsize -2]}" />';
     initPage = '<c:out value="${pids[pathsize -1]}" />';
@@ -120,4 +125,40 @@ Get Biblio mods
             setTimeout('startPage()', 200);
         }
     }
+    
+    function startItemMenu(){
+        //alert('kk2');
+        $('.item_options').each(function(){
+           $(this).css('left',($(this).parent().width() + $(this).parent().offset().left )-9);
+        });
+        $('.menu_activation').unbind('mouseenter');
+        $('.item_options').unbind('mouseleave');
+        
+        $('.menu_activation').bind('mouseenter', function(){
+            $('.item_options').stop();
+           var il = $(this).parent().parent().width() + $(this).parent().parent().offset().left - 9;
+           if($(this).parent().offset().left == il){
+               $(this).parent().animate({
+                   width: 129,
+                   left: '-=120'
+               }, 50);
+           }
+        });
+        
+        $('.item_options').bind('mouseleave', function(){
+            $('.menu_activation').stop();
+           var il = $(this).parent().width() + $(this).parent().offset().left -9;
+           var fl = il - 120;
+           if($(this).offset().left == fl){
+               $(this).animate({
+                   width: 9,
+                   left: '+=120'
+               }, 50);
+           }else{
+               $(this).css('left',il);
+               $(this).css('width',9);
+           }
+        });
+    }
+    
 </script>

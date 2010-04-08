@@ -32,6 +32,7 @@
     </xsl:template>
     <xsl:template match="/mods:modsCollection/mods:mods" mode="info">
         <xsl:variable name="uuid" ><xsl:value-of select="./mods:identifier[@type='urn']"/></xsl:variable>
+        
         <div><c:if test="${display == 'none'}">
                     <xsl:attribute name="onclick" >
                         javascript:showMainContent('<xsl:value-of select="$pid"/>', 'monograph')

@@ -1,3 +1,4 @@
+
 function getFirstAndContinue(pid, model, div, list, models){
     var url = 'inc/details/biblioToRdf.jsp?&pid=uuid:' + pid + "&xsl="+model+".jsp&language=" + language;
     $.get(url, function(xml) {
@@ -19,10 +20,6 @@ function getBiblioInfo(pid, model, div){
         
     $.get(url, function(xml) {
         $(div).html(xml);
-        //if($(div).hasClass("selected")){
-        //    $(div).parent().parent().children(".relInfo").html(xml);
-        //}
-
     });
     
 }
@@ -70,20 +67,19 @@ function selectingPage(obj, level, model){
     
 }
 
-
 function selectPrevious(){
-     var obj = $('#' + currentSelectedPage).prev();
-     if($(obj).length>0){
-         changeSelection(currentSelectedParent, $(obj).attr("id"));
-     }
+    var obj = $('#' + currentSelectedPage).prev();
+    if($(obj).length>0){
+        changeSelection(currentSelectedParent, $(obj).attr("id"));
+    }
     
 }
 
 function selectNext(){
-     var obj = $('#' + currentSelectedPage).next();
-     if($(obj).length>0){
-         changeSelection(currentSelectedParent, $(obj).attr("id"));
-     }
+    var obj = $('#' + currentSelectedPage).next();
+    if($(obj).length>0){
+        changeSelection(currentSelectedParent, $(obj).attr("id"));
+    }
 }
 
 function changeSelectedPage(pid){
@@ -95,8 +91,6 @@ function changeSelectedPage(pid){
     //setTimeout("scrollElement", 100, obj.parent(), obj);
     scrollElement($(obj).parent(), $(obj));
 }
-
-
 
 function selectItem(obj, level, model){
     if($(obj).hasClass("selected")) return;
@@ -226,6 +220,66 @@ function getItemRels(pid, selectedpid, level, recursive){
     });
 }
 
+function generatePdf(level){
+    //show options window
+    openGeneratePdfDialog(level);
+}
+
+var dialogSummary;
+function openGeneratePdfDialog(level){
+    var pagesCount = $("#list-page>div.relItem").length;
+    $("#genPdfEnd").val(pagesCount);
+    $("#genPdfStart").val(1);
+    if(dialogSummary){
+        dialogSummary.dialog('open');
+    }else{
+        dialogSummary = $("#pdf_options").dialog({
+            bgiframe: true,
+            width: 200,
+            height: 100,
+            modal: true,
+            title: generatePdfTitle,
+            
+            buttons: {
+                "Ok": function() {
+                   
+                    var from = $("#genPdfStart").val();
+                    var to = $("#genPdfEnd").val();
+                   
+                    if(isNaN(from) || isNaN(to)) {
+                        alert(generatePdfErrorText);
+                        return;
+                    }
+                    from = parseInt(from);
+                    to = parseInt(to); 
+
+                    if(to - from + 1 > generatePdfMaxRange){
+                        alert("Maximalne "+generatePdfMaxRange+"!");
+                    }else if(to>pagesCount  || isNaN(from) || isNaN(to)) {
+                        alert(generatePdfErrorText);
+                    }else if(to==pagesCount && from == '1'){
+                        var url = "pdf?uuid=" + $("#tabs_"+level).attr('pid');
+                    
+                        //window.location.href = url;
+                        alert(url);
+                        $(this).dialog("close");
+                    }else{
+                        alert($("#genPdfEnd").val() - $("#genPdfStart").val());
+                        $(this).dialog("close");
+                    }
+                    
+
+                } ,
+                "Cancel": function() {
+                    $(this).dialog("close"); 
+                } 
+            } 
+              
+        });
+    }
+}
+$( ".selector" ).dialog( { buttons: { "Ok": function() { $(this).dialog("close"); } } } );
+
 function showInfo(obj, tab, model){
     $(obj).toggleClass('op_info');
     $(tab + ">div>div[id=list-"+model+"]").toggle();
@@ -238,6 +292,7 @@ function showList(obj, tab, model){
     }
     
     if($(tab + ">div>div[id=info-"+m+"]").text()==""){
+        
         $(tab + ">div>div[id=info-"+m+"]").html($(tab+">div>div[id=list-"+m+"]>div.selected").text());
     }
     
@@ -259,169 +314,3 @@ function showMainContent(pid, path){
     });
     
 }
-
-/* stare funce */
-/*
- *
- *
-
-
-function updateRelsExt(pid, model, div, recursive, target){
-    $("#"+target).html('');
-    getRelsExt(pid, model, div, recursive);
-}
-
-function getRelsExt(pid, model, div, recursive){    
-    var url ="GetRelsExt?relation="+model+"&format=json&pid=uuid:"+pid;
-    $.getJSON(url, function(data){
-        var data_clean = trim10(data.toString());
-        if(data_clean!=""){
-            var obj;
-            obj = $("#"+div);
-            var str = '<div id="stabs_'+pid+'"><ul>';
-            var str_li = "";
-            var str_div = "";
-            $.each(data.items, function(i,item){
-                $.each(item, function(m,model2){
-                    str_li +='<li>';
-                    str_li +='<a href="#stabs-'+m+'">'+m+'</a> <a onclick="showList(this, \'info-'+m+'\', \'list-'+m+'\')" >&nbsp;</a>';
-                    str_li +='<img src="img/empty.gif" class="plus" onclick="showList(this, \'info-'+m+'\', \'list-'+m+'\')" />';
-                    str_li +='</li>';
-                    str_div +='<div id="stabs-'+m+'" class="relList">';
-                    str_div +='<div id="info-'+m+'">tady info</div>';
-                    str_div +='<div style="display:none;" id="list-'+m+'" class="relList"></div>';
-                    str_div +='</div>';
-                });
-            });
-            str +=  str_li +'</ul>' + str_div + '</div>';
-            $(obj).html(str);
-          
-            $.each(data.items, function(i,item){
-                $.each(item, function(m,model2){
-                    $.each(model2, function(p, pid2){
-                        $("#"+div+">div>div>div[id=list-"+m+"]").append('<div id="'+pid2+'" class="relItem" title="" >'+pid2+'</div>'); 
-                    });
-                    $.each(model2, function(p, pid2){
-                        getBiblioInfo(pid2, m, div+">div>div>div[id=list-"+m+"]>div[id="+pid2+"]");
-                    });
-                  
-                });
-            });
-            $("#"+div+">div[id=stabs_"+pid+"]").tabs();
-        }
-    });
-}
-
-
-function getRelsExt_(pid, model, div, recursive){    
-    var url ="GetRelsExt?relation="+model+"&format=json&pid=uuid:"+pid;
-    $.getJSON(url, function(data){
-        $.each(data.items, function(i,item){
-            $.each(item, function(m,model2){
-                var obj;
-                if($("#m_"+m).length > 0 && !recursive){
-                    obj = "#m_"+m;
-                }else{
-                    obj = $("#"+div);
-                }
-                if($("#in_"+m).length > 0){
-                    $("#in_"+m).html('');
-                }else{
-                    $(obj).append("<div id=\"in_"+m+"\"></div>");
-                }
-                
-                obj = "#in_"+m;
-                $(obj).append("<span>"+m+": </span>");
-                var selectFn = "updateRelsExt(this.value, '*', 'smrec_" + m + "'," + recursive + ",'in_"+m+"')";
-                $(obj).append("<select id=\"sel_"+m+"_"+pid+"\" onchange=\""+selectFn+"\"></select>");
-                $.each(model2, function(p, pid2){
-                    $("#sel_"+m+"_"+pid).
-                        append($("<option></option>").
-                        attr("value",pid2).
-                        text(p)); 
-                });
-                $.each(model2, function(p, pid2){
-                    getBiblioInfo(pid2, m, "sel_"+m+"_"+pid, pid2);
-                });
-                if(recursive && m != 'page'){
-                    $(obj).append("<div id=\"smrec_"+m+"\">continuing... "+model2[0]+"</div>");
-                    getRelsExt(model2[0], '*', "smrec_"+m, recursive);
-                }
-            });
-        });
-    });
-}
-
-
-function recTest(pid, selectedpid, selectedmodel, div, format){
-    
-    $("#"+div).append(imgLoading);
-    if(selectedmodel=='page'){
-        selectPage(selectedpid, format);
-    }else{
-        // showMainContent(pid, selectedmodel);
-    }
-    var url ="inc/details/itemMenuRels.jsp?pid="+pid+"&selectedpid="+selectedpid+"&selectedmodel="+selectedmodel;
-    $.get(url, function(data){
-        var data_clean = trim10(data.toString());
-        $("#"+div).html(data_clean);
-        if(data_clean!=""){
-          
-            var $tabs = $("#tabs_"+pid).tabs();
-            if(selectedpid!=""){
-                $('#'+selectedpid).addClass('selected');
-                $tabs.tabs('select', 'tabs-'+selectedmodel);
-                setTimeout("scrollElement('#"+div+">div>div.relList', '#"+selectedpid+"')", 100);
-            }else{
-                $( "#"+div+">div>div.relList").each(function(){
-                    //$('#'+selectedpid).addClass('selected');
-                    var id = $(this).attr("id");
-                    $('#'+id+">div:first").addClass('selected');
-                });
-            }
-            $( "#"+div+">div>div.relList").each(function(){
-                //$('#'+selectedpid).addClass('selected');
-                var id = $(this).attr("id");
-                if(id=='tabs-page'){
-                    //alert($('#'+id+">div").length);
-                    $('#'+id+">div").click(function () {
-                      
-                        selectingPage($(this).attr("id"), $(this).attr("title"), div); 
-                    });
-                }else{
-                    $('#'+id+">div").click(function () {
-                        selectItem($(this).attr("id"), $(this).text(), id.toString().substr(5), div); 
-                    });
-                }
-            });
-        }
-    });
-    
-}
-
-function selectingPage_(pid, format, div){
-    $("#"+div+">div>div.relList>div").removeClass('selected');
-    selectPage(pid, format); 
-    $('#'+pid).addClass('selected');
-}
-
-function selectItem_(pid, info, model, div){
-    //alert(pid);
-    //alert(div+"_"+model);
-    //alert(info);
-    var d = div+"_"+model;
-    $("#"+d).html(info);
-    $("#"+div+">div>div.relList>div").removeClass('selected');
-    $('#'+pid).addClass('selected');
-    
-    if($("#"+ d).length==0){
-        $("#"+ div).append("<div id=\""+d+"\"></div>");
-    }
-    if(model=='internalpart'){
-        getRelsExt(pid, "*", d, true);
-    }else{
-        showMainContent(pid, model);
-        recTest(pid, "", "", d, "");
-    }
-}
- */

@@ -74,14 +74,17 @@
                 <td class="itemMenu">
                     <div id="itemTree">
                     <%@ include file="inc/details/itemMenu.jsp" %>
+                    
                     </div>
                 </td>
             </tr>
             <tr valign='top'>
-                <td colspan="2" valign="middle">
-                    <div style="float:left;padding:10px;cursor:pointer;" onclick="selectPrevious();"><img src="img/la.png" /></div>
-                    <div style="float:left;"><%@ include file="gwtView.jsp" %></div>
-                    <div style="float:left;padding:10px;cursor:pointer;" onclick="selectNext();"><img src="img/ra.png" /></div>
+                <td colspan="2" valign="middle" align="center">
+                    <table><tr>
+                        <td><a style="padding:10px;" href="javascript:selectPrevious();"><img src="img/la.png" border="0" /></a></td>
+                        <td><%@ include file="gwtView.jsp" %></td>
+                        <td><a style="padding:10px;" href="javascript:selectNext();"><img src="img/ra.png" border="0" /></a></td>
+                    </tr></table>
                     </td>
             </tr>
         </table>
@@ -91,4 +94,9 @@
             </tr>
         </table>
         </td></tr></table>
+<div id="pdf_options" style="display:none;">
+        <span>rozsah stran:&nbsp;(max.&nbsp;<%=kconfig.getProperty("generatePdfMaxRange")%>)</span><br>&nbsp;&nbsp;                           
+        <input type="text" id="genPdfStart" value="1" name="genPdfStart" size="3"> -
+        <input type="text" id="genPdfEnd" value="1" name="genPdfEnd" size="3">
+</div>
 </body></html>

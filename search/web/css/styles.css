@@ -305,12 +305,30 @@ td.rightMenu .facet{
 }
 
 .op_info{
-    background-image: url('../img/info.png');
+    background-image: url('../img/up.png');
     width:16px;
     height:16px;
     cursor:pointer;
 }
- 
+
+.item_options{
+  overflow:hidden;
+  width:9px;
+  position:absolute;
+  z-index:4;
+}
+.item_options div{
+  background:#eeeeee;
+  margin-left:8px;
+  border:1px solid silver;
+  width:120px;
+}
+.item_options img.menu_activation{
+  margin:3px;
+  float:left;
+  /*background:url(../img/menu.png) no-repeat;*/
+}
+
 /* end Right menu */
 
  /* main content */
@@ -369,6 +387,10 @@ td.rightMenu .facet{
     margin-bottom:10px;
     width:98%;
 }
+#pdf_options input{
+    border:1px solid silver;
+}
+
 .autocomplete {
     border:1px solid silver;
     position:absolute;

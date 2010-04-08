@@ -6,7 +6,7 @@
 <%@ page isELIgnored="false"%>
 
 <% 
-String remoteUserID = request.getRemoteUser();
+
 //remoteUserID = "ja";
         if(remoteUserID!=null){ 
 %>
