@@ -94,7 +94,7 @@ public class GeneratePDFServiceImpl implements GeneratePDFService {
 	
 	
 	@Override
-	public void generatePDFOutlined(AbstractRenderedDocument rdoc, String parentUUID, OutputStream os) throws IOException {
+	public void generateCustomPDF(AbstractRenderedDocument rdoc, String parentUUID, OutputStream os) throws IOException {
 		try {
 			Document doc = createDocument();
 			PdfWriter writer = PdfWriter.getInstance(doc, os);
@@ -140,14 +140,36 @@ public class GeneratePDFServiceImpl implements GeneratePDFService {
 
 
 
+	
 
 	@Override
-	public void generatePDFOutlined(String parentUUID, OutputStream os) throws IOException {
+	public void dynamicPDFExport(List<String> path, String uuidFrom, String uuidTo, String titlePage, OutputStream os) throws IOException {
+		if (!path.isEmpty()) {
+			String lastUuid = path.get(path.size() -1);
+
+			org.w3c.dom.Document relsExt = this.fedoraAccess.getRelsExt(lastUuid);
+			KrameriusModels model = this.fedoraAccess.getKrameriusModel(relsExt);
+			
+			final AbstractRenderedDocument renderedDocument = new RenderedDocument(model, lastUuid);
+			renderedDocument.setDocumentTitle(DCUtils.titleFromDC(this.fedoraAccess.getDC(lastUuid)));
+			renderedDocument.setUuidTitlePage(titlePage);
+			renderedDocument.setUuidMainTitle(path.get(0));
+			
+			buildRenderingDocumentAsFlat(relsExt, renderedDocument, uuidFrom, uuidTo);
+			generateCustomPDF(renderedDocument, lastUuid,os);
+
+		}
+	}
+
+
+	@Override
+	public void fullPDFExport(String parentUUID, OutputStream os) throws IOException {
 		org.w3c.dom.Document relsExt = this.fedoraAccess.getRelsExt(parentUUID);
 		KrameriusModels model = this.fedoraAccess.getKrameriusModel(relsExt);
 		
 		final AbstractRenderedDocument renderedDocument = new RenderedDocument(model, parentUUID);
 		renderedDocument.setDocumentTitle(DCUtils.titleFromDC(this.fedoraAccess.getDC(parentUUID)));
+		renderedDocument.setUuidMainTitle(parentUUID);
 		
 		TextPage dpage = new TextPage(model, parentUUID);
 		dpage.setOutlineDestination("desc");
@@ -158,6 +180,55 @@ public class GeneratePDFServiceImpl implements GeneratePDFService {
 		item.setTitle("Popis"); item.setDestination("desc");
 		renderedDocument.getOutlineItemRoot().addChild(item);
 		
+		buildRenderingDocumentAsTree(relsExt, renderedDocument);
+		generateCustomPDF(renderedDocument, parentUUID,os);
+	}
+
+
+	
+	private void buildRenderingDocumentAsFlat(org.w3c.dom.Document relsExt, final AbstractRenderedDocument renderedDocument, final String uuidFrom, final String uuidTo ) throws IOException {
+		fedoraAccess.processRelsExt(relsExt, new RelsExtHandler() {
+	
+			private boolean acceptingState = false;
+			
+			@Override
+			public boolean accept(FedoraRelationship relation) {
+				return relation == FedoraRelationship.hasPage;
+			}
+
+			@Override
+			public void handle(Element elm, FedoraRelationship relation, int level) {
+				if (relation == FedoraRelationship.hasPage) {
+					try {
+						String pid = elm.getAttributeNS(RDF_NAMESPACE_URI, "resource");
+						PIDParser pidParse = new PIDParser(pid);
+						pidParse.disseminationURI();
+						String objectId = pidParse.getObjectId();
+						if (!acceptingState) {
+							if (objectId.equals(uuidFrom)) {
+								acceptingState = true;
+								renderedDocument.addPage(createPage(renderedDocument, elm, relation));
+							}
+						} else {
+							if (objectId.equals(uuidTo)) {
+								acceptingState = false;
+							}
+							renderedDocument.addPage(createPage(renderedDocument, elm, relation));
+						}
+						
+					} catch (LexerException e) {
+						LOGGER.log(Level.SEVERE, e.getMessage(), e);
+					} catch (IOException e) {
+						LOGGER.log(Level.SEVERE, e.getMessage(), e);
+					}
+				}
+			}
+			
+		});
+	}
+	
+	private void buildRenderingDocumentAsTree(org.w3c.dom.Document relsExt,
+			final AbstractRenderedDocument renderedDocument ) throws IOException {
 		fedoraAccess.processRelsExt(relsExt, new RelsExtHandler() {
 			
 				private int previousLevel = -1;
@@ -166,52 +237,19 @@ public class GeneratePDFServiceImpl implements GeneratePDFService {
 				@Override
 				public void handle(Element elm, FedoraRelationship relation, int level) {
 					try {
-						
-						String pid = elm.getAttributeNS(RDF_NAMESPACE_URI, "resource");
-						PIDParser pidParse = new PIDParser(pid);
-						pidParse.disseminationURI();
-						String objectId = pidParse.getObjectId();
-						
-						org.w3c.dom.Document biblioMods = fedoraAccess.getBiblioMods(objectId);
-						AbstractPage page = null;
-						if (relation.equals(FedoraRelationship.hasPage)) {
-							
-							page = new ImagePage(KrameriusModels.PAGE, objectId);
-							page.setOutlineDestination(objectId);
-							String pageNumber = getPageNumber(biblioMods);
-							if (pageNumber.trim().equals("")) {
-								throw new IllegalStateException(objectId);
-							}
-							page.setOutlineTitle(pageNumber);
-							renderedDocument.addPage(page);
-							
-							if (renderedDocument.getUuidTitlePage() == null) {
-								Element part = XMLUtils.findElement(biblioMods.getDocumentElement(), "part", FedoraNamespaces.BIBILO_MODS_URI);
-								String attribute = part.getAttribute("type");
-								if ("TitlePage".equals(attribute)) {
-									renderedDocument.setUuidTitlePage(objectId);
-								}
-							}
-						} else {
-							page = new TextPage(relation.getPointingModel(), objectId);
-							page.setOutlineDestination(objectId);
-							page.setOutlineTitle(getTitle(biblioMods));
-							renderedDocument.addPage(page);
-						}
-						
+						AbstractPage page = createPage(renderedDocument, elm, relation);
+						renderedDocument.addPage(page);
 						if (previousLevel == -1) {
 							// first
 							this.currOutline = createOutlineItem(renderedDocument.getOutlineItemRoot(), page.getOutlineDestination(), page.getOutlineTitle(), level);
 							StringBuffer buffer = new StringBuffer();
 							this.currOutline.debugInformations(buffer, 0);
-							System.out.println(buffer.toString());
 						} else if (previousLevel == level) {
 							this.currOutline = this.currOutline.getParent();
 							this.currOutline = createOutlineItem(this.currOutline, page.getOutlineDestination(), page.getOutlineTitle(), level);
 
 							StringBuffer buffer = new StringBuffer();
 							this.currOutline.debugInformations(buffer, 0);
-							System.out.println(buffer.toString());
 
 						} else if (previousLevel < level) {
 							// dolu
@@ -219,7 +257,6 @@ public class GeneratePDFServiceImpl implements GeneratePDFService {
 
 							StringBuffer buffer = new StringBuffer();
 							this.currOutline.debugInformations(buffer, 0);
-							System.out.println(buffer.toString());
 
 						} else if (previousLevel > level) {
 							// nahoru // za poslednim smerem nahoru
@@ -227,14 +264,12 @@ public class GeneratePDFServiceImpl implements GeneratePDFService {
 							
 							StringBuffer buffer = new StringBuffer();
 							this.currOutline.debugInformations(buffer, 0);
-							System.out.println(buffer.toString());
 							
 							this.currOutline = this.currOutline.getParent();
 							this.currOutline = createOutlineItem(this.currOutline, page.getOutlineDestination(), page.getOutlineTitle(), level);
 							
 						}
 
-						
 						previousLevel = level;
 					} catch (DOMException e) {
 						LOGGER.log(Level.SEVERE, e.getMessage(), e);
@@ -247,6 +282,7 @@ public class GeneratePDFServiceImpl implements GeneratePDFService {
 						throw new RuntimeException(e);
 					}
 				}
+
 
 				private OutlineItem createOutlineItem(OutlineItem parent, String objectId, String biblioModsTitle, int level) {
 					OutlineItem item = new OutlineItem();
@@ -264,10 +300,47 @@ public class GeneratePDFServiceImpl implements GeneratePDFService {
 					return relation.name().startsWith("has");
 				}
 			});
-		
-		generatePDFOutlined(renderedDocument, parentUUID,os);
 	}
 	
+
+	protected AbstractPage createPage(
+			final AbstractRenderedDocument renderedDocument,
+			Element elm, FedoraRelationship relation)
+			throws LexerException, IOException {
+		String pid = elm.getAttributeNS(RDF_NAMESPACE_URI, "resource");
+		PIDParser pidParse = new PIDParser(pid);
+		pidParse.disseminationURI();
+		String objectId = pidParse.getObjectId();
+		
+		org.w3c.dom.Document biblioMods = fedoraAccess.getBiblioMods(objectId);
+		AbstractPage page = null;
+		if (relation.equals(FedoraRelationship.hasPage)) {
+			
+			page = new ImagePage(KrameriusModels.PAGE, objectId);
+			page.setOutlineDestination(objectId);
+			String pageNumber = getPageNumber(biblioMods);
+			if (pageNumber.trim().equals("")) {
+				throw new IllegalStateException(objectId);
+			}
+			page.setOutlineTitle(pageNumber);
+			//renderedDocument.addPage(page);
+			
+			if (renderedDocument.getUuidTitlePage() == null) {
+				Element part = XMLUtils.findElement(biblioMods.getDocumentElement(), "part", FedoraNamespaces.BIBILO_MODS_URI);
+				String attribute = part.getAttribute("type");
+				if ("TitlePage".equals(attribute)) {
+					renderedDocument.setUuidTitlePage(objectId);
+				}
+			}
+			
+		} else {
+			page = new TextPage(relation.getPointingModel(), objectId);
+			page.setOutlineDestination(objectId);
+			page.setOutlineTitle(getTitle(biblioMods));
+			//renderedDocument.addPage(page);
+		}
+		return page;
+	}
 
 
 	private static Document createDocument() {
@@ -293,7 +366,7 @@ public class GeneratePDFServiceImpl implements GeneratePDFService {
 		Font smallFont = getFont();
 		smallFont.setSize(12f);
 		StringBuffer buffer = new StringBuffer();
-		String[] creatorsFromDC = DCUtils.creatorsFromDC(fedoraAccess.getDC(document.getUuidTitlePage()));
+		String[] creatorsFromDC = DCUtils.creatorsFromDC(fedoraAccess.getDC(document.getUuidMainTitle()));
 		for (String string : creatorsFromDC) {
 			buffer.append(string).append('\n');
 		}

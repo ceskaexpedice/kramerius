@@ -11,11 +11,33 @@ import cz.incad.Kramerius.backend.pdf.impl.pdfpages.AbstractRenderedDocument;
  * @author pavels
  */
 public interface GeneratePDFService {
-
-	public void generatePDFOutlined(String parentUUID, OutputStream os) throws IOException;
-
-	//public void generatePDFOutlined(String parentUUIDm,List<String> uuids, String titlePage, OutputStream os) throws IOException;
 	
-	public void generatePDFOutlined(AbstractRenderedDocument doc, String parentUUID, OutputStream os) throws IOException;
+	/**
+	 * Vygeneruje cely obsah do jednoho outputstreamu
+	 * @param parentUUID
+	 * @param os
+	 * @throws IOException
+	 */
+	public void fullPDFExport(String parentUUID, OutputStream os) throws IOException;
+
+	/**
+	 * Vygeneruje jenom zadane stranky
+	 * @param path TODO
+	 * @param uuidFrom
+	 * @param uuidTo
+	 * @param titlePage
+	 * @param os
+	 * @throws IOException
+	 */
+	public void dynamicPDFExport(List<String> path,String uuidFrom, String uuidTo, String titlePage, OutputStream os) throws IOException;
+	
+	/**
+	 * Vygeneruje vlastni strukturu
+	 * @param doc
+	 * @param parentUUID
+	 * @param os
+	 * @throws IOException
+	 */
+	public void generateCustomPDF(AbstractRenderedDocument doc, String parentUUID, OutputStream os) throws IOException;
 }
 

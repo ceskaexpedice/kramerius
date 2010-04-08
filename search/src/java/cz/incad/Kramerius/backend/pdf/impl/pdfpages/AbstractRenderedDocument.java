@@ -8,13 +8,15 @@ import cz.incad.kramerius.KrameriusModels;
 public abstract class AbstractRenderedDocument extends AbstractObject {
 
 	private String uuidTitlePage;
+	private String uuidMainTitle;
+	
 	protected OutlineItem outlineItemRoot;
 	private List<AbstractPage> pages = new ArrayList<AbstractPage>();
+
 	private String documentTitle;
 
 	public AbstractRenderedDocument(KrameriusModels model, String uuid) {
 		super(model, uuid);
-		// TODO Auto-generated constructor stub
 	}
 
 	public String getUuidTitlePage() {
@@ -65,5 +67,14 @@ public abstract class AbstractRenderedDocument extends AbstractObject {
 		this.documentTitle = documentTitle;
 	}
 
+	public String getUuidMainTitle() {
+		return uuidMainTitle;
+	}
+
+	public void setUuidMainTitle(String uuidMainTitle) {
+		this.uuidMainTitle = uuidMainTitle;
+	}
+
+	
 	
 }
