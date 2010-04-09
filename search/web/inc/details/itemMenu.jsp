@@ -4,7 +4,7 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt" %>
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 <%@ page isELIgnored="false"%>
-<%@ page import="java.util.*, cz.incad.Kramerius.*, cz.incad.Solr.*" %>
+<%@ page import="java.util.*, cz.incad.Kramerius.*, cz.incad.Solr.*, cz.incad.kramerius.*,cz.incad.kramerius.utils.*" %>
 <c:choose>
     <c:when test="${param.language != null}" >
         <fmt:setLocale value="${param.language}" />
