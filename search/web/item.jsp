@@ -94,9 +94,17 @@
             </tr>
         </table>
         </td></tr></table>
+
 <div id="pdf_options" style="display:none;">
         <span>rozsah stran:&nbsp;(max.&nbsp;<%=kconfig.getProperty("generatePdfMaxRange")%>)</span><br>&nbsp;&nbsp;                           
         <input type="text" id="genPdfStart" value="1" name="genPdfStart" size="3"> -
         <input type="text" id="genPdfEnd" value="1" name="genPdfEnd" size="3">
 </div>
+
+<div id="process_started" style="display:none;">
+	<ul>
+		<li id="processState"></li>
+	</ul>
+</div>
+
 </body></html>
