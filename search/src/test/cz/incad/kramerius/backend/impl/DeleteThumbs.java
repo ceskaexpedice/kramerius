@@ -15,7 +15,7 @@ import javax.xml.ws.handler.Handler;
 import org.fedora.api.FedoraAPIM;
 import org.fedora.api.FedoraAPIMService;
 
-import cz.incad.Kramerius.FedoraUtils;
+import cz.incad.kramerius.utils.FedoraUtils;
 import cz.incad.kramerius.utils.pid.PIDParser;
 import cz.incad.utils.LoggingHandler;
 

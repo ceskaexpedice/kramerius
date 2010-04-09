@@ -1,8 +1,8 @@
 package cz.incad.Kramerius;
 
-import static cz.incad.Kramerius.FedoraUtils.*;
 import static cz.incad.utils.IKeys.*;
 import static cz.incad.kramerius.utils.RESTHelper.*;
+import static cz.incad.kramerius.utils.FedoraUtils.*;
 import static cz.incad.kramerius.utils.IOUtils.*;
 
 import java.awt.Image;

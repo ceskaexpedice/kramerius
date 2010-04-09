@@ -18,9 +18,9 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.xml.sax.SAXException;
 
-import cz.incad.Kramerius.backend.impl.FedoraAccessImpl;
 import cz.incad.kramerius.FedoraRelationship;
 import cz.incad.kramerius.RelsExtHandler;
+import cz.incad.kramerius.impl.FedoraAccessImpl;
 import cz.incad.kramerius.utils.DCUtils;
 import cz.incad.kramerius.utils.XMLUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;

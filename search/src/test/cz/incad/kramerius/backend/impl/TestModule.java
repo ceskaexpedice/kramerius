@@ -5,10 +5,10 @@ import java.sql.Connection;
 import com.google.inject.AbstractModule;
 import com.google.inject.Scopes;
 
-import cz.incad.Kramerius.backend.impl.FedoraAccessImpl;
-import cz.incad.Kramerius.backend.pdf.GeneratePDFService;
-import cz.incad.Kramerius.backend.pdf.impl.GeneratePDFServiceImpl;
 import cz.incad.kramerius.FedoraAccess;
+import cz.incad.kramerius.impl.FedoraAccessImpl;
+import cz.incad.kramerius.pdf.GeneratePDFService;
+import cz.incad.kramerius.pdf.impl.GeneratePDFServiceImpl;
 import cz.incad.kramerius.processes.database.DefaultConnectionProvider;
 import cz.incad.kramerius.utils.JNDIUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
