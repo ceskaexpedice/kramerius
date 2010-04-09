@@ -5,6 +5,8 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.logging.Level;
 
+import org.w3c.dom.Document;
+
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 
@@ -26,7 +28,9 @@ public class PDFExport {
 	public static void main(String[] args) throws IOException {
 		// adresar pro vystup
 		// uuid
-		if (args.length == 2) {
+		if (args.length == 3) {
+			System.out.println("Parameters "+args[0]+", "+args[1]+","+ args[2]);
+			System.setProperty(PDFModule.KK_PATH, args[1]);
 			File outputFolder = new File(args[0]);
 			if (!outputFolder.exists()) { outputFolder.mkdirs(); }
 			//DecoratedOutputStream fos = new DecoratedOutputStream("static.pdf");
@@ -34,10 +38,19 @@ public class PDFExport {
 			FedoraAccess fa = injector.getInstance(FedoraAccess.class);
 			FileOutputStream fos = null;
 			try {
-				File file = new File(outputFolder, DCUtils.titleFromDC(fa.getDC(args[1]))+".pdf");
+				LOGGER.info("fedoraAccess.getDC("+args[2]+")");
+				Document dc = fa.getDC(args[2]);
+				LOGGER.info("dcUtils.titleFromDC("+dc+")");
+				String title = DCUtils.titleFromDC(dc);
+				LOGGER.info("title is "+title);
+				File file = new File(outputFolder, title+".pdf");
+				boolean created = file.createNewFile();
+				if (!created) throw new IllegalArgumentException("cannot create file '"+file.getAbsolutePath()+"'");
+				LOGGER.info("created file "+file.getAbsolutePath());
 				fos = new FileOutputStream(file);
 				GeneratePDFService generatePDF = injector.getInstance(GeneratePDFService.class);
-				generatePDF.fullPDFExport(args[1], fos);
+				LOGGER.info("calling fullExport method to service paremters = ("+args[2]+","+fos+")");
+				generatePDF.fullPDFExport(args[2], fos);
 			} catch (IOException e) {
 				LOGGER.log(Level.SEVERE, e.getMessage(), e);
 			} finally {
