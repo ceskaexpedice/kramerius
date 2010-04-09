@@ -5,6 +5,7 @@ import static cz.incad.kramerius.FedoraNamespaces.*;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Stack;
@@ -36,6 +37,10 @@ public class GeneratePDFServlet extends GuiceServlet {
 	public static final java.util.logging.Logger LOGGER = java.util.logging.Logger
 			.getLogger(GeneratePDFServlet.class.getName());
 	
+	public static final String UUID_FROM="uuidFrom";
+	public static final String UUID_TO="uuidTo";
+	public static final String PATH="path";
+	
 	@Inject
 	GeneratePDFService service;
 	@Inject
@@ -44,18 +49,16 @@ public class GeneratePDFServlet extends GuiceServlet {
 	@Override
 	protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException {
 		try {
-			String from = req.getParameter(IKeys.UUID_FROM);
-			String to = req.getParameter(IKeys.UUID_TO);
 			
-			String uuid = req.getParameter(IKeys.UUID_PARAMETER);
-			if (uuid != null) {
 				resp.setContentType("application/pdf");
 				SimpleDateFormat sdate = new SimpleDateFormat("yyyyMMdd_mmhhss");
 			    resp.setHeader("Content-disposition","attachment; filename="+sdate.format(new Date())+".pdf");
-			    // generovani pdf
-			    //service.generatePDF(uuid,  resp.getOutputStream());
-			    service.fullPDFExport(uuid,resp.getOutputStream());
-			}
+				String from = req.getParameter(UUID_FROM);
+				String to = req.getParameter(UUID_TO);
+				String path = req.getParameter(PATH);
+				List<String> pathList = Arrays.asList(path.split("/"));
+				service.dynamicPDFExport(pathList, from, to, from, resp.getOutputStream());
+
 		} catch (Exception e) {
 			LOGGER.log(Level.SEVERE, e.getMessage(), e);
 			throw new RuntimeException(e);

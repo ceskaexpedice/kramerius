@@ -64,21 +64,26 @@ public class LongRunningProcessServlet extends GuiceServlet {
 			public void doAction(HttpServletRequest req, HttpServletResponse resp, DefinitionManager defManager, LRProcessManager lrProcessManager) {
 				try {
 					String def = req.getParameter("def");
+					String out = req.getParameter("out");
 					String parametersString = req.getParameter("params");
 					if (parametersString == null) parametersString="";
 					String[] params = parametersString.split(",");
 					LRProcess nprocess = startNewProcess(def, defManager, params);
-					StringBuffer buffer = new StringBuffer();
-					buffer.append("<html><body>");
-					buffer.append("<ul>");
-					buffer.append("<li>").append(nprocess.getDefinitionId());
-					buffer.append("<li>").append(nprocess.getUUID());
-					buffer.append("<li>").append(nprocess.getPid());
-					buffer.append("<li>").append(new Date(nprocess.getStart()));
-					buffer.append("<li>").append(nprocess.getProcessState());
-					buffer.append("</ul>");
-					buffer.append("</body></html>");
-					resp.getOutputStream().println(buffer.toString());
+					if ((out != null) && (out.equals("text"))) {
+						resp.getOutputStream().print(nprocess.getProcessState().name());
+					} else {
+	 					StringBuffer buffer = new StringBuffer();
+						buffer.append("<html><body>");
+						buffer.append("<ul>");
+						buffer.append("<li>").append(nprocess.getDefinitionId());
+						buffer.append("<li>").append(nprocess.getUUID());
+						buffer.append("<li>").append(nprocess.getPid());
+						buffer.append("<li>").append(new Date(nprocess.getStart()));
+						buffer.append("<li>").append(nprocess.getProcessState());
+						buffer.append("</ul>");
+						buffer.append("</body></html>");
+						resp.getOutputStream().println(buffer.toString());
+					}
 				} catch (IOException e) {
 					LOGGER.log(Level.SEVERE, e.getMessage(), e);
 				}
