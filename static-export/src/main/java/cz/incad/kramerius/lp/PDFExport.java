@@ -44,6 +44,7 @@ public class PDFExport {
 				String title = DCUtils.titleFromDC(dc);
 				LOGGER.info("title is "+title);
 				File file = new File(outputFolder, title+".pdf");
+				if (file.exists()) file.delete();
 				boolean created = file.createNewFile();
 				if (!created) throw new IllegalArgumentException("cannot create file '"+file.getAbsolutePath()+"'");
 				LOGGER.info("created file "+file.getAbsolutePath());
