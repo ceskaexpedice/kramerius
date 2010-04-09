@@ -6,7 +6,8 @@
 <%@ page isELIgnored="false"%>
 
 
-<table id="results_main" cellspacing="0" cellpadding="0" border="0">
+
+<%@page import="cz.incad.kramerius.utils.FedoraUtils"%><table id="results_main" cellspacing="0" cellpadding="0" border="0">
     <x:forEach varStatus="status" select="$doc/response/result/doc">
         <c:set var="uuid" >
             <x:out select="./str[@name='PID']"/>
