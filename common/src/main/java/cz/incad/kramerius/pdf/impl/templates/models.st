@@ -1,5 +1,13 @@
 group internalpart;		
 
+PERIODICAL(title,bibliomods) ::=<<
+Titul: $title$ {font}(size=20)
+{line}
+
+Bibliomods metadata{font}(size=16)
+	DOPLNIT SABLONU...
+>>
+
 PERIODICALVOLUME(title,bibliomods) ::=<<
 Titul: $title$ {font}(size=20)
 {line}
