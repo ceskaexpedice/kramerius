@@ -101,6 +101,11 @@ public abstract class AbstractLRProcessImpl implements LRProcess{
 				command.add(par);
 			}
 			
+			File standardStreamFile = new File(createFolderIfNotExists(this.definition.getStandardStreamFolder()),this.uuid+".out");
+			command.add(">"+standardStreamFile.getAbsolutePath());
+			File errStreamFile = new File(createFolderIfNotExists(this.definition.getErrStreamFolder()),this.uuid+".err");
+			command.add("2>"+errStreamFile.getAbsolutePath());
+
 			//create CLASSPATH
 			StringBuffer buffer = new StringBuffer();
 			String libsDirPath = this.definition.getLibsDir();
@@ -120,14 +125,12 @@ public abstract class AbstractLRProcessImpl implements LRProcess{
 			ProcessBuilder processBuilder = new ProcessBuilder(command);
 			processBuilder.environment().put(ProcessStarter.CLASSPATH_NAME, buffer.toString());
 			this.state = States.RUNNING;
-                        manager.registerLongRunningProcess(this);
+			manager.registerLongRunningProcess(this);
                         
 			Process process = processBuilder.start();
 			//File errStreamFile = new File(createFolderIfNotExists(this.definition.getErrStreamFolder()),this.uuid+".err");
 			//LOGGER.info("error stream file:"+errStreamFile.getAbsolutePath());
 			//new FollowStreamThread(process.getErrorStream(), new FileOutputStream(errStreamFile)).start();
-			File standardStreamFile = new File(createFolderIfNotExists(this.definition.getStandardStreamFolder()),this.uuid+".out");
-			LOGGER.info("error stream file:"+standardStreamFile.getAbsolutePath());
 			//new FollowStreamThread(process.getInputStream(), new FileOutputStream(standardStreamFile)).start();
 			//TODO: Synchronizace ?? Jak na to ?
 			//
