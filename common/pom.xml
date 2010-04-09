@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>cz.incad.kramerius</groupId>
 	<artifactId>kramerius-common</artifactId>
@@ -20,22 +21,22 @@
 		</pluginRepository>
 	</pluginRepositories>
 
-<distributionManagement>  
-  <repository>  
-    <id>artifactory.internal</id>  
-    <name>Internal Release Repository</name>  
-    <url>dav:http://svn:8080/artifactory/libs-releases-local/</url>  
-  </repository>  
-  <snapshotRepository>  
-    <id>artifactory.snapshots</id>  
-    <name>Internal Snapshot Repository</name>  
-    <url>dav:http://svn:8080/artifactory/libs-snapshots-local/</url>  
-  </snapshotRepository>  
-</distributionManagement>
-	
-	
-		<dependencies>
-			<dependency>
+	<distributionManagement>
+		<repository>
+			<id>artifactory.internal</id>
+			<name>Internal Release Repository</name>
+			<url>dav:http://svn:8080/artifactory/libs-releases-local/</url>
+		</repository>
+		<snapshotRepository>
+			<id>artifactory.snapshots</id>
+			<name>Internal Snapshot Repository</name>
+			<url>dav:http://svn:8080/artifactory/libs-snapshots-local/</url>
+		</snapshotRepository>
+	</distributionManagement>
+
+
+	<dependencies>
+		<dependency>
 			<groupId>gwt.com.google</groupId>
 			<artifactId>gwt-servlet</artifactId>
 			<version>2.0</version>
@@ -84,7 +85,7 @@
 		<dependency>
 			<groupId>com.google.inject</groupId>
 			<artifactId>aopalliance</artifactId>
-			<version>2.0</version>		
+			<version>2.0</version>
 		</dependency>
 
 		<!-- junit -->
@@ -94,29 +95,31 @@
 			<version>4.1</version>
 			<scope>test</scope>
 		</dependency>
-		
+
 
 		<dependency>
 			<groupId>com.qbizm.kramerius</groupId>
 			<artifactId>kramerius3_patched</artifactId>
 			<version>3.3</version>
 		</dependency>
-		<!-- 
+		<!--
+			<dependency> <groupId>com.qbizm.kramerius.itext</groupId>
+			<artifactId>itext</artifactId> <version>1.4.1</version> </dependency>
+		-->
+
 		<dependency>
-			<groupId>com.qbizm.kramerius.itext</groupId>
+			<groupId>com.lowagie</groupId>
 			<artifactId>itext</artifactId>
-			<version>1.4.1</version>
+			<version>2.1.7</version>
 		</dependency>
-		 -->
-		 
-		 	<dependency>
-	    <groupId>com.lowagie</groupId>
-    	<artifactId>itext</artifactId>
-    	<version>2.1.7</version>
-	</dependency>
-		
-		 
-		 
+
+		<dependency>
+			<groupId>org.antlr</groupId>
+			<artifactId>stringtemplate</artifactId>
+			<version>3.2.1</version>
+		</dependency>
+
+
 		<!-- DJVU dependencies -->
 		<dependency>
 			<groupId>com.foxtrottechnologies</groupId>
@@ -132,7 +135,18 @@
 
 	</dependencies>
 	<build>
+		<!--
 		<testSourceDirectory>${basedir}/src/main/test</testSourceDirectory>
+		-->
+		<resources>
+			<resource>
+				<directory>${basedir}/src/main/java</directory>
+				<includes>
+					<include>**/*.properties</include>
+					<include>**/*.st</include>
+				</includes>
+			</resource>
+		</resources>
 		<plugins>
 			<plugin>
 				<artifactId>maven-compiler-plugin</artifactId>
