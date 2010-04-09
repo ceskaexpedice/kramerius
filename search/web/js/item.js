@@ -212,8 +212,6 @@ function getItemRels(pid, selectedpid, level, recursive){
             //showList(img, obj, $(obj+">ul>li:first").text());
         }
         if(recursive){
-            //alert($(obj+">div:first>div[class=relList]>div:first").attr("id"));
-            //alert($(obj).attr("id"));
             if($(obj).length>0)
                 getItemRels($(obj+">div:first>div[class=relList]>div:first").attr("id"), "", level+1, recursive);
         }
@@ -258,16 +256,20 @@ function openGeneratePdfDialog(level){
                     }else if(to>pagesCount  || isNaN(from) || isNaN(to)) {
                         alert(generatePdfErrorText);
                     }else if(to==pagesCount && from == '1'){
-                        var url = "pdf?uuid=" + $("#tabs_"+level).attr('pid');
-                    
-                        //window.location.href = url;
-                        alert(url);
+                        var path ="";
+                        for(var i =0;i<level;i++) {
+                        	path = path+$("#tabs_"+level).attr('pid');
+                        	if (i != level-1) { path = path +"/"; }
+                        }
+                        var fromUuid = $("#list-page>div.relItem")[$("#genPdfStart").val()-1].attributes['id'].value;
+        				var toUuid = $("#list-page>div.relItem")[$("#genPdfEnd").val()-1].attributes['id'].value;
+                        var url = "pdf?uuidFrom=" + fromUuid+"&uuidTo="+toUuid+"&path="+path;
+                        window.location.href = url;
                         $(this).dialog("close");
                     }else{
                         alert($("#genPdfEnd").val() - $("#genPdfStart").val());
                         $(this).dialog("close");
                     }
-                    
 
                 } ,
                 "Cancel": function() {
