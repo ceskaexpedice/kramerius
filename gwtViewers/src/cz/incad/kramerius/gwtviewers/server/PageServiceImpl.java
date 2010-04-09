@@ -116,7 +116,7 @@ public class PageServiceImpl extends RemoteServiceServlet implements PageService
 			Properties props = metadataStore.loadCollected(parentUUID);
             if (props.isEmpty()) {
     			LOGGER.info("Disecting image sizes");
-                props = ThumbnailServerUtils.disectSizes(parentUUID, images);
+                props = ThumbnailServerUtils.disectSizesOldStyle(parentUUID, images);
                 metadataStore.storeCollected(parentUUID, props);
             }
             
