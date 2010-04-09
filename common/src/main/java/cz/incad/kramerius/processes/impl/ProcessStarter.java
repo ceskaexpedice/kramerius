@@ -1,7 +1,10 @@
 package cz.incad.kramerius.processes.impl;
 
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.PrintStream;
 import java.lang.management.ManagementFactory;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -25,9 +28,16 @@ public class ProcessStarter {
 	public static final String CLASSPATH_NAME="CLASSPATH";
 	public static final String LR_SERVLET_URL="LR_SERVLET_URL";
 	
+	public static final String SOUT_FILE = "SOUT";
+	public static final String SERR_FILE = "SERR";
+	
 	
 	public static void main(String[] args) throws ClassNotFoundException, SecurityException, NoSuchMethodException, IllegalArgumentException, IllegalAccessException, InvocationTargetException, SQLException, MalformedURLException, IOException {
 		String mainClass = System.getProperty(MAIN_CLASS_KEY);
+		PrintStream outStream = createPrintStream(System.getProperty(SOUT_FILE));
+		PrintStream errStream = createPrintStream(System.getProperty(SERR_FILE));
+		System.setErr(errStream);
+		System.setOut(outStream);
 		try {
 			Class<?> clz = Class.forName(mainClass);
 			Method method = clz.getMethod("main", args.getClass());
@@ -40,10 +50,29 @@ public class ProcessStarter {
 		} catch (Throwable e) {
 			LOGGER.log(Level.SEVERE, e.getMessage(), e);
 			updateStatus(States.FAILED);
+			if (outStream != null) {
+				try {
+					outStream.close();
+				} catch (Exception e1) {
+					LOGGER.log(Level.SEVERE, e.getMessage(), e);
+				}
+			}
+			if (errStream != null) {
+				try {
+					errStream.close();
+				} catch (Exception e1) {
+					LOGGER.log(Level.SEVERE, e.getMessage(), e);
+				}
+			}
 		}
 	}
 
 	
+	private static PrintStream createPrintStream(String file) throws FileNotFoundException {
+		return new PrintStream(new FileOutputStream(file));
+	}
+
+
 	private static void updateStatus(States state) throws  MalformedURLException, IOException {
 		String uuid = System.getProperty(UUID_KEY);
 		String lrURl = System.getProperty(LR_SERVLET_URL);
@@ -78,5 +107,6 @@ public class ProcessStarter {
 		}
 		return pid;
 	}
+	
 	
 }

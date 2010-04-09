@@ -91,6 +91,12 @@ public abstract class AbstractLRProcessImpl implements LRProcess{
 			command.add("-D"+ProcessStarter.MAIN_CLASS_KEY+"="+this.definition.getMainClass());
 			command.add("-D"+ProcessStarter.UUID_KEY+"="+this.uuid);
 			command.add("-D"+ProcessStarter.LR_SERVLET_URL+"="+KConfiguration.getKConfiguration().getLRServletURL());
+
+			File standardStreamFile = new File(createFolderIfNotExists(this.definition.getStandardStreamFolder()),this.uuid+".out");
+			File errStreamFile = new File(createFolderIfNotExists(this.definition.getErrStreamFolder()),this.uuid+".err");
+
+			command.add("-D"+ProcessStarter.SOUT_FILE+"="+standardStreamFile.getAbsolutePath());
+			command.add("-D"+ProcessStarter.SERR_FILE+"="+errStreamFile.getAbsolutePath());
 			command.add(ProcessStarter.class.getName());
 			List<String> params = this.definition.getParameters();
 			for (String par : params) {
@@ -101,10 +107,6 @@ public abstract class AbstractLRProcessImpl implements LRProcess{
 				command.add(par);
 			}
 			
-			File standardStreamFile = new File(createFolderIfNotExists(this.definition.getStandardStreamFolder()),this.uuid+".out");
-			command.add(">"+standardStreamFile.getAbsolutePath());
-			File errStreamFile = new File(createFolderIfNotExists(this.definition.getErrStreamFolder()),this.uuid+".err");
-			command.add("2>"+errStreamFile.getAbsolutePath());
 
 			//create CLASSPATH
 			StringBuffer buffer = new StringBuffer();
