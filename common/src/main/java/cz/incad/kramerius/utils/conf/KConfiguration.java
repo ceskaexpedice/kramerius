@@ -40,9 +40,13 @@ public class KConfiguration {
     public String fedoraUser;
     public String fedoraPass;
 
+    private String path;
+    
     KConfiguration(String file) {
         try {
             LOGGER.info("Loading configuration from file '"+file+"'");
+            this.path = file;
+            
             DocumentBuilderFactory domFactory = DocumentBuilderFactory.newInstance();
             domFactory.setNamespaceAware(false); // never forget this!
 
@@ -154,5 +158,12 @@ public class KConfiguration {
 	public String getLRServletURL() {
     	return getProperty("lrControlUrl");
 	}
+
+	public String getPath() {
+		return path;
+	}
+	
+	
+	
 }
 
