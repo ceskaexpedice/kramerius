@@ -20,11 +20,14 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 import cz.incad.kramerius.FedoraNamespaceContext;
+import cz.incad.kramerius.KrameriusModels;
 
 public class BiblioModsUtils {
 	
 	public static final java.util.logging.Logger LOGGER = java.util.logging.Logger
 			.getLogger(BiblioModsUtils.class.getName());
+	
+	
 	
 	
 
@@ -44,8 +47,19 @@ public class BiblioModsUtils {
 			return null;
 		}
 	}
+
+
+	public static String getTitle(Document doc, KrameriusModels model) {
+		String title = titleFromBiblioMods(doc);
+		if ((title == null) || (title.equals(""))) {
+			switch(model) {
+				case PERIODICALITEM: return PeriodicalItemUtils.getItemNumber(doc) + " ("+PeriodicalItemUtils.getDate(doc)+")";
+				default: throw new UnsupportedOperationException("");
+			}
+		} else return title;
+	}
 	
-	public static String getTitle(Document doc) {
+	public static String titleFromBiblioMods(Document doc) {
 		try {
 			XPathFactory xpfactory = XPathFactory.newInstance();
 			XPath xpath = xpfactory.newXPath();

@@ -2,6 +2,7 @@ package cz.incad.kramerius.pdf.pdfpages;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Stack;
 
 import cz.incad.kramerius.KrameriusModels;
 
@@ -75,6 +76,9 @@ public abstract class AbstractRenderedDocument extends AbstractObject {
 		this.uuidMainTitle = uuidMainTitle;
 	}
 
+	public void removeTill(String uuid) {
+		while(!this.pages.remove(0).getUuid().equals(uuid));
+	}
 	
 	
 }

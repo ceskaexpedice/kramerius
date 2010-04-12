@@ -5,7 +5,13 @@ Titul: $title$ {font}(size=20)
 {line}
 
 Bibliomods metadata{font}(size=16)
-	DOPLNIT SABLONU...
+Titul: $bibliomods.modsCollection.mods.titleInfo.content$
+$if(bibliomods.modsCollection.mods.titleInfo.subTitle.content)$
+Podtitul: $bibliomods.modsCollection.mods.titleInfo.subTitle.content$
+$endif$
+Urn: $bibliomods.modsCollection.mods.identifierurn$
+Typ zdroje:  $bibliomods.modsCollection.mods.typeOfResource.content$
+Model: PERIODICAL
 >>
 
 PERIODICALVOLUME(title,bibliomods) ::=<<
@@ -19,8 +25,9 @@ Podtitul: $bibliomods.modsCollection.mods.titleInfo.subTitle.content$
 $endif$
 Urn: $bibliomods.modsCollection.mods.identifierurn$
 Typ zdroje:  $bibliomods.modsCollection.mods.typeOfResource.content$
-Číslo: $bibliomods.modsCollection.mods.partPeriodicalIssue.detailissue.number$
-Datum: $bibliomods.modsCollection.mods.partPeriodicalIssue.date$
+Číslo: $bibliomods.modsCollection.mods.part.detaitype.number$
+Datum: $bibliomods.modsCollection.mods.part.date$
+Model: PERIODICALVOLUME
 >>
 
 
@@ -41,6 +48,7 @@ Urn: $bibliomods.modsCollection.mods.identifierurn$
 Typ zdroje:  $bibliomods.modsCollection.mods.typeOfResource.content$
 Číslo: $bibliomods.modsCollection.mods.partPeriodicalIssue.detailissue.number$
 Datum: $bibliomods.modsCollection.mods.partPeriodicalIssue.date$
+Model: INTERNALPART
 >>
 
 
@@ -60,7 +68,7 @@ Urn: $bibliomods.modsCollection.mods.identifierurn$
 Typ zdroje:  $bibliomods.modsCollection.mods.typeOfResource.content$
 Číslo: $bibliomods.modsCollection.mods.partPeriodicalIssue.detailissue.number$
 Datum: $bibliomods.modsCollection.mods.partPeriodicalIssue.date$
-
+Model: PERIODICALITEM
 >>
 
 
@@ -92,8 +100,8 @@ $if(bibliomods.modsCollection.mods.namepersonal)$
 $_creators(creatorsmods=bibliomods.modsCollection.mods.namepersonal)$	
 
 $endif$
-
 Typ zdroje:  $bibliomods.modsCollection.mods.typeOfResource.content$
+Model: MONOGRAPH
 >>
 
 _creators(creatorsmods)  ::=<<

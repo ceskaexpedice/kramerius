@@ -123,7 +123,6 @@ public abstract class AbstractLRProcessImpl implements LRProcess{
 			}
 
 			
-			
 			ProcessBuilder processBuilder = new ProcessBuilder(command);
 			processBuilder.environment().put(ProcessStarter.CLASSPATH_NAME, buffer.toString());
 			this.state = States.RUNNING;
@@ -224,6 +223,4 @@ public abstract class AbstractLRProcessImpl implements LRProcess{
 	public States getProcessState() {
 		return this.state;
 	}
-
-	
 }

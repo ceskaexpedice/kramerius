@@ -40,5 +40,7 @@ public interface GeneratePDFService {
 	 * @throws IOException
 	 */
 	public void generateCustomPDF(AbstractRenderedDocument doc, String parentUUID, OutputStream os) throws IOException;
+
+	public void generateCustomPDF(AbstractRenderedDocument doc, String parentUUID, OutputStream os, Break brk) throws IOException;
 }
 

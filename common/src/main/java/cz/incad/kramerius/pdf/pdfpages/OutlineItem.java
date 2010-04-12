@@ -68,4 +68,30 @@ public class OutlineItem {
 			item.debugInformations(buffer, level+1);
 		}
 	}	
+	
+	public OutlineItem createNewTill(String uuid) {
+		OutlineItem thisItem = new OutlineItem();
+		for (OutlineItem itm : this.children) {
+			if (itm.getDestination().equals(uuid)) {
+				OutlineItem chItm = new OutlineItem();
+				chItm.setLevel(itm.getLevel());
+				chItm.setParent(thisItem);
+				chItm.setTitle(itm.getTitle());
+				thisItem.addChild(chItm);
+				// zahodit vsechny stranky
+				return thisItem;
+			} else {
+				thisItem.addChild(itm.createNewTill(uuid));
+			}
+		}
+		return thisItem;
+	}
+	
+	
+	public boolean removeTill(String uuid) {
+		for (int i = 0; i < this.children.size(); i++) {
+			//OutlineItem item = 
+		}
+		return false;
+	}
 }

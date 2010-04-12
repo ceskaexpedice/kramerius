@@ -48,6 +48,7 @@ import cz.incad.kramerius.FedoraNamespaces;
 import cz.incad.kramerius.FedoraRelationship;
 import cz.incad.kramerius.KrameriusModels;
 import cz.incad.kramerius.RelsExtHandler;
+import cz.incad.kramerius.pdf.Break;
 import cz.incad.kramerius.pdf.GeneratePDFService;
 import cz.incad.kramerius.pdf.pdfpages.AbstractPage;
 import cz.incad.kramerius.pdf.pdfpages.AbstractRenderedDocument;
@@ -55,6 +56,7 @@ import cz.incad.kramerius.pdf.pdfpages.ImagePage;
 import cz.incad.kramerius.pdf.pdfpages.OutlineItem;
 import cz.incad.kramerius.pdf.pdfpages.RenderedDocument;
 import cz.incad.kramerius.pdf.pdfpages.TextPage;
+import cz.incad.kramerius.utils.BiblioModsUtils;
 import cz.incad.kramerius.utils.DCUtils;
 import cz.incad.kramerius.utils.XMLUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
@@ -76,8 +78,9 @@ public class GeneratePDFServiceImpl implements GeneratePDFService {
 	KConfiguration configuration;
 	
 	
+	
 	@Override
-	public void generateCustomPDF(AbstractRenderedDocument rdoc, String parentUUID, OutputStream os) throws IOException {
+	public void generateCustomPDF(AbstractRenderedDocument rdoc, String parentUUID, OutputStream os, Break brk) throws IOException {
 		try {
 			Document doc = createDocument();
 			PdfWriter writer = PdfWriter.getInstance(doc, os);
@@ -93,11 +96,61 @@ public class GeneratePDFServiceImpl implements GeneratePDFService {
 					TextPage tPage = (TextPage) page;
 					insertOutlinedTextPage(tPage, writer, doc, rdoc.getDocumentTitle());
 				}
+				if (brk.broken()) {
+					// zlomit do dalsiho souboru
+					//page.
+					rdoc.removeTill(page.getUuid());
+				}
 			}
 
 			PdfContentByte cb = writer.getDirectContent();
 			PdfOutline pdfRoot = cb.getRootOutline();
 			OutlineItem rDocRoot = rdoc.getOutlineItemRoot();
+			StringBuffer buffer = new StringBuffer();
+			rDocRoot.debugInformations(buffer, 1);
+			System.out.println(buffer.toString());
+			fillOutline(pdfRoot, rDocRoot);
+
+			doc.close();
+			doc.close();
+			os.flush();
+
+		} catch (DocumentException e) {
+			LOGGER.log(Level.SEVERE, e.getMessage(), e);
+		} catch (XPathExpressionException e) {
+			LOGGER.log(Level.SEVERE, e.getMessage(), e);
+		}
+		
+		
+	}
+
+
+	@Override
+	public void generateCustomPDF(AbstractRenderedDocument rdoc, String parentUUID, OutputStream os) throws IOException {
+		try {
+			Document doc = createDocument();
+			PdfWriter writer = PdfWriter.getInstance(doc, os);
+			doc.open();
+			insertFirstPage(rdoc, parentUUID, rdoc.getUuidTitlePage(), writer, doc);
+			doc.newPage();
+			for (AbstractPage page : rdoc.getPages()) {
+				doc.newPage();
+				if (page instanceof ImagePage) {
+					ImagePage iPage = (ImagePage) page;
+					insertOutlinedImagePage(iPage, writer, doc);
+				} else {
+					TextPage tPage = (TextPage) page;
+					if (tPage.getOutlineTitle().trim().equals("")) throw new IllegalArgumentException(page.getUuid());
+					insertOutlinedTextPage(tPage, writer, doc, rdoc.getDocumentTitle());
+				}
+			}
+
+			PdfContentByte cb = writer.getDirectContent();
+			PdfOutline pdfRoot = cb.getRootOutline();
+			OutlineItem rDocRoot = rdoc.getOutlineItemRoot();
+			StringBuffer buffer = new StringBuffer();
+			rDocRoot.debugInformations(buffer, 1);
+			System.out.println(buffer.toString());
 			fillOutline(pdfRoot, rDocRoot);
 
 			doc.close();
@@ -296,6 +349,8 @@ public class GeneratePDFServiceImpl implements GeneratePDFService {
 		String objectId = pidParse.getObjectId();
 		
 		org.w3c.dom.Document biblioMods = fedoraAccess.getBiblioMods(objectId);
+		org.w3c.dom.Document dc = fedoraAccess.getDC(objectId);
+		
 		AbstractPage page = null;
 		if (relation.equals(FedoraRelationship.hasPage)) {
 			
@@ -319,7 +374,12 @@ public class GeneratePDFServiceImpl implements GeneratePDFService {
 		} else {
 			page = new TextPage(relation.getPointingModel(), objectId);
 			page.setOutlineDestination(objectId);
-			page.setOutlineTitle(getTitle(biblioMods));
+			String title = DCUtils.titleFromDC(dc);
+			if ((title == null) || title.equals("")) {
+				title = BiblioModsUtils.getTitle(biblioMods, relation.getPointingModel());
+			}
+			if (title.trim().equals("")) throw new IllegalArgumentException(objectId+" has no title ");
+			page.setOutlineTitle(title);
 			//renderedDocument.addPage(page);
 		}
 		return page;
@@ -581,6 +641,8 @@ public class GeneratePDFServiceImpl implements GeneratePDFService {
 		String imgUrl = this.configuration.getDJVUServletUrl() +"?uuid="+objectId+"&outputFormat=RAW";
 		return imgUrl;
 	}
+	
+	
 	
 	
 }
