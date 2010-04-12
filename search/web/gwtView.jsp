@@ -14,13 +14,12 @@
 	var __confNumberOfImages = 7;	
 	var __confMoveStep = 1;
 	var __debug = false;
-
 	
         var currentSelectedPage;
         var currentSelectedParent;
         
 	function changeSelection(masterUuid, selection) {
-            currentSelectedPage = selection;
+          currentSelectedPage = selection;
             currentSelectedParent = masterUuid;
 		requestToSelect(masterUuid, selection);
         }

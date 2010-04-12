@@ -4,6 +4,12 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt" %>
 <%@ page isELIgnored="false"%>
 
+<%
+	Injector inj = (Injector)application.getAttribute(Injector.class.getName());
+	pageContext.setAttribute("lrProcessManager",inj.getInstance(LRProcessManager.class));
+	pageContext.setAttribute("dfManager",inj.getInstance(DefinitionManager.class));
+%>
+
 <c:choose>
     <c:when test="${param.language != null}" >
         <fmt:setLocale value="${param.language}" />
@@ -50,7 +56,10 @@
 <%@page import="java.io.InputStreamReader"%>
 <%@page import="cz.incad.kramerius.utils.RESTHelper"%>
 <%@page import="cz.incad.kramerius.utils.IOUtils"%>
-<%@page import="java.io.ByteArrayOutputStream"%><html xmlns="http://www.w3.org/1999/xhtml" xml:lang="cs" lang="cs">
+<%@page import="java.io.ByteArrayOutputStream"%>
+<%@page import="com.google.inject.Injector"%>
+<%@page import="cz.incad.kramerius.processes.LRProcessManager"%>
+<%@page import="cz.incad.kramerius.processes.DefinitionManager"%><html xmlns="http://www.w3.org/1999/xhtml" xml:lang="cs" lang="cs">
     <%@ include file="inc/html_header.jsp" %>
     <body >
         <table style="width:100%"><tr><td align="center">
@@ -95,6 +104,7 @@
         </table>
         </td></tr></table>
 
+<!-- dialogs -->
 <div id="pdf_options" style="display:none;">
         <span>rozsah stran:&nbsp;(max.&nbsp;<%=kconfig.getProperty("generatePdfMaxRange")%>)</span><br>&nbsp;&nbsp;                           
         <input type="text" id="genPdfStart" value="1" name="genPdfStart" size="3"> -
@@ -102,9 +112,38 @@
 </div>
 
 <div id="process_started" style="display:none;">
-	<ul>
-		<li id="processState"></li>
-	</ul>
+	<div id="process_started_waiting" style="display:none;margin: 16px; font-family: sans-serif; font-size: 10px; ">
+    	<table>
+    		<tr><td align="center"><img src="img/loading2.gif" height="16px" width="16px"/></td></tr>
+			<tr><td align="center">Prosím vyčkejte, spouští se proces generovaní PDF.</td></tr>
+    	</table>
+	</div>
+	<div id="process_started_ok" style="display:none;margin: 12px;">
+		<p style="font-family: sans-serif; font-size: 12px; font-weight: bold;">Export spuštěn<br/></p>
+	</div>
+	<div id="process_started_failed" style="display:none;margin: 12px;">
+		<p style="font-family: sans-serif; font-size: 12px; font-weight: bold;">Export do PDF selhal, prosim, zkontrolujte tabulku procesů.</p>
+		<p><a href="#"> Tabulka procesu</a></p>
+	</div>
 </div>
+
+<div id="processes" style="display:none;">
+	<table width="100%">
+		<thead style="border-bottom: dashed 1px;" class="result r1">
+			<tr><td><strong>Název procesu</strong></td><td><strong>Popis</strong></td><td><strong>Stav</strong></td><td><strong>Akce</strong></td></tr>
+		</thead>
+		<tbody>
+		<c:forEach var="lrProc" items="${lrProcessManager.longRunningProcesses}" varStatus="i">
+				<tr class="${(i.index mod 2 == 0) ? 'result r0': 'result r1'}">
+					<td>${lrProc.definition.id}</td>
+					<td>${lrProc.definition.description}</td>
+					<td>${lrProc.processState}</td>
+					<td><a href="#">Zastavit</a></td>
+				</tr>
+			</c:forEach>
+		</tbody>
+	</table>
+</div>
+
 
 </body></html>
