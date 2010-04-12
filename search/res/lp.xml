@@ -13,4 +13,19 @@
 		<!--  Cesta ke kninovnam, ktere process potrebuje -->
 		<lib>lib</lib>
 	</process>
+	
+	<!-- Staticky export do pdf -->	
+	<process>
+		<id>static_export_CD</id>
+		<description>Statický export do PDF na CD</description>
+		<mainClass>cz.incad.kramerius.lp.PDFExport</mainClass>
+		<standardOs>lrOut</standardOs>
+		<errOs>lrErr</errOs>
+		<lib>lr-runtime-lib</lib>
+		<parameters>
+			<parameter>pdfs_out</parameter>		
+			<parameter>conf/kk.xml</parameter>		
+		</parameters>
+	</process>
+	
 </processes>
