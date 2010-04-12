@@ -72,6 +72,7 @@ public class AbstracThumbnailServlet extends GuiceServlet {
 	}
 
 	
+	
 	protected Image rawThumbnailImage(String uuid) throws XPathExpressionException, IOException {
 		String mimetype = fedoraAccess.getThumbnailMimeType(uuid);
 		if ((mimetype.equals(OutputFormats.JPEG.getMimeType())) ||

@@ -170,7 +170,6 @@ public class LongRunningProcessServlet extends GuiceServlet {
 			}
 		};
 
-
 		
 		abstract void doAction(HttpServletRequest req, HttpServletResponse resp, DefinitionManager defManager, LRProcessManager processManager);
 	}
