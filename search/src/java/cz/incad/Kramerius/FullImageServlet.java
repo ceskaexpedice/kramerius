@@ -44,7 +44,9 @@ import cz.incad.kramerius.utils.conf.KConfiguration;
  */
 public class FullImageServlet extends AbstracThumbnailServlet {
 
-	private static final String DEFAULT_MIMETYPE = "image/x.djvu";
+	public static final String DEFAULT_MIMETYPE = "image/x.djvu";
+	public static final String IMAGE_TYPE="imageType"; 
+	
 	public static final java.util.logging.Logger LOGGER = java.util.logging.Logger.getLogger(FullImageServlet.class.getName());
 
 	@Override
@@ -55,23 +57,29 @@ public class FullImageServlet extends AbstracThumbnailServlet {
 		if (outputFormatParam != null) {
 			outputFormat= OutputFormats.valueOf(outputFormatParam);
 		}
+		String imageType = req.getParameter(IMAGE_TYPE);
 		try {
-			if (outputFormat == null) {
+			// dotaz na image type
+			if (imageType != null) {
+				String type = this.fedoraAccess.getImageFULLMimeType(uuid);
+				//resp.setContentType("plain/text");
+				resp.getWriter().print(type);
+			// pozadavek na zmenseni (prsou?)
+			} else if (outputFormat == null) {
 				Image image = rawFullImage(uuid);
 				Rectangle rectangle = new Rectangle(image.getWidth(null), image.getHeight(null));
 				Image scale = scale(image, rectangle, req);
 				if (scale != null) {
 					writeImage(resp, scale, OutputFormats.JPEG);
 				} else resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+			// transformace	
 			} else {
 				String mimeType = this.fedoraAccess.getImageFULLMimeType(uuid);
 				if (mimeType == null) mimeType = DEFAULT_MIMETYPE;
 
 				InputStream is = this.fedoraAccess.getImageFULL(uuid);
-				int available = is.available();
 				if (outputFormat.equals(OutputFormats.RAW)) {
 					resp.setContentType(mimeType);
-					int available2 = is.available();
 					copyStreams(is, resp.getOutputStream());
 				} else {
 					Image rawImage = rawFullImage(uuid);
