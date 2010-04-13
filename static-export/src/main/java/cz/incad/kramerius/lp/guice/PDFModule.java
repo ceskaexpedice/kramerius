@@ -14,7 +14,6 @@ import cz.incad.kramerius.utils.conf.KConfiguration;
 
 public class PDFModule extends AbstractModule {
 
-
 	@Override
 	protected void configure() {
 		bind(FedoraAccess.class).to(FedoraAccessImpl.class).in(Scopes.SINGLETON);

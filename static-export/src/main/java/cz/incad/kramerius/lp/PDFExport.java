@@ -30,7 +30,6 @@ public class PDFExport {
 		// uuid
 		if (args.length == 3) {
 			System.out.println("Parameters "+args[0]+", "+args[1]+","+ args[2]);
-			System.setProperty(PDFModule.KK_PATH, args[1]);
 			File outputFolder = new File(args[0]);
 			if (!outputFolder.exists()) { outputFolder.mkdirs(); }
 			//DecoratedOutputStream fos = new DecoratedOutputStream("static.pdf");
