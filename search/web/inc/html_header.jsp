@@ -27,7 +27,9 @@
     <link type="text/css" href="css/themes/base/ui.theme.css" rel="stylesheet" />
     <link type="text/css" href="css/themes/base/ui.dialog.css" rel="stylesheet" />
     <link type="text/css" href="css/themes/base/ui.slider.css" rel="stylesheet" />
+    <!--
     <link type="text/css" href="js/jquery.lightbox-0.5/css/jquery.lightbox-0.5.css" rel="stylesheet" />
+    -->
     <link rel="stylesheet" href="css/dateAxisV.css" type="text/css"/>
     <link rel="stylesheet" href="css/dtree.css" type="text/css"/>
     <link rel="StyleSheet" href="css/styles.css" type="text/css"/>
@@ -37,8 +39,11 @@
     <script src="js/jquery-ui-1.7.2.custom.min.js" language="javascript" type="text/javascript"></script>
     <script src="js/jquery.cookie.js" type="text/javascript"></script>
     <script  src="js/jquery.history.js" type="text/javascript"></script>
+    <!--
     <script  src="js/jquery.lightbox-0.5/js/jquery.lightbox-0.5.js" type="text/javascript"></script>
-    <!----script  src="js/jquery.scrollTo.js" type="text/javascript"></script-->
+    <script  src="js/jquery.scrollTo.js" type="text/javascript"></script>
+    -->
+    
     
     <script src="js/pageQuery.js" language="JavaScript" type="text/javascript"></script>
     <script src="js/item.js" language="JavaScript" type="text/javascript"></script>
