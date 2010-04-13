@@ -78,7 +78,7 @@
             <tr valign='top'>
                 <td>
                     <%//@ include file="item_1.jsp" %>
-                    <div id="mainContent"><div align="center" style="height:300px;padding:50%;"><img src="img/item_loading.gif" /></div></div>
+                    <div id="mainContent"><div align="center" style="height:300px;"><img src="img/item_loading.gif" /></div></div>
                 </td>
                 <td class="itemMenu">
                     <div id="itemTree">
@@ -134,16 +134,29 @@
 		</thead>
 		<tbody>
 		<c:forEach var="lrProc" items="${lrProcessManager.longRunningProcesses}" varStatus="i">
-				<tr class="${(i.index mod 2 == 0) ? 'result r0': 'result r1'}">
-					<td>${lrProc.definition.id}</td>
-					<td>${lrProc.definition.description}</td>
-					<td>${lrProc.processState}</td>
-					<td><a href="#">Zastavit</a></td>
-				</tr>
-			</c:forEach>
+                    <tr class="${(i.index mod 2 == 0) ? 'result r0': 'result r1'}">
+                        <td>${lrProc.definition.id} : ${lrProc.pid}</td>
+                        <td>${lrProc.definition.description}</td>
+                        <td>${lrProc.processState}</td>
+                        <td><a href="#">Zastavit</a></td>
+                    </tr>
+                </c:forEach>
 		</tbody>
 	</table>
 </div>
 
 
+<div id="fullImageContainer" style="display:none;">
+    <div id="djvuContainer" style="display:none;">
+        <object width="100%" border="0" height="100%" style="border: 0px none ;" codebase="http://www.lizardtech.com/download/files/win/djvuplugin/en_US/DjVuControl_en_US.cab" classid="clsid:0e8d0700-75df-11d3-8b4a-0008c7450c4a" id="docframe" name="docframe">
+            <param name="src" value="" />
+            <embed width="100%" height="100%" src="" type="image/vnd.djvu" id="docframe2" name="docframe2"/>
+            If you don't see picture, your browser has no plugin to view DjVu picture files. You can install plugin from <a target="_blank" href="http://www.celartem.com/en/download/djvu.asp"><b>LizardTech</b></a>.<br/>
+            <a href="http://www.celartem.com/en/download/djvu.asp">File download</a><br/> <br/> <br/> 
+        </object>
+    </div>
+    <div id="imgContainer" style="display:none;" align="center">
+        <img src="img/empty.gif" />
+    </div>
+</div>
 </body></html>

@@ -316,16 +316,21 @@ td.rightMenu .facet{
   width:9px;
   position:absolute;
   z-index:4;
+  height:16px;
+  display:none;
 }
-.item_options div{
+.item_options span{
   background:#eeeeee;
-  margin-left:8px;
+  
   border:1px solid silver;
-  width:120px;
-}
-.item_options img.menu_activation{
-  margin:3px;
+  width:100px;
   float:left;
+}
+.item_options span.menu_activation{
+  margin:3px;
+  width:16px;
+  float:left;
+  border:none;
   /*background:url(../img/menu.png) no-repeat;*/
 }
 
@@ -434,3 +439,6 @@ table.advancedSearch td{
 .page_selected{
     border: 2px solid rgb(160,44,44);
 }
+
+.ui-dialog-titlebar-prev { position: absolute; right: 50px; top: 50%; width: 19px; margin: -10px 0 0 0; padding: 1px; height: 18px; }
+.ui-dialog-titlebar-next { position: absolute; right: 30px; top: 50%; width: 19px; margin: -10px 0 0 0; padding: 1px; height: 18px; }

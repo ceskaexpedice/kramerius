@@ -70,7 +70,9 @@ function generateStatic(level, exportType){
 		if (action) {
 			setTimeout(action, 3000);
 		}
+                return true;
 	});
+        
 }
 
 /**
