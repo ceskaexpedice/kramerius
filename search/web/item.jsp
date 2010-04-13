@@ -62,7 +62,7 @@
 <%@page import="cz.incad.kramerius.processes.DefinitionManager"%><html xmlns="http://www.w3.org/1999/xhtml" xml:lang="cs" lang="cs">
     <%@ include file="inc/html_header.jsp" %>
     <body >
-        <table style="width:100%"><tr><td align="center">
+        <table style="width:100%" id="mainItemTable"><tr><td align="center">
         <c:if test="${param.debug}" >
         <c:out value="${url}" />
         <br/>
@@ -76,6 +76,15 @@
         </table>
         <table class="main">
             <tr valign='top'>
+                <td colspan="2" valign="middle" align="center">
+                    <table><tr>
+                        <td><a style="padding:10px;" href="javascript:selectPrevious();"><img src="img/la.png" border="0" /></a></td>
+                        <td><%@ include file="gwtView.jsp" %></td>
+                        <td><a style="padding:10px;" href="javascript:selectNext();"><img src="img/ra.png" border="0" /></a></td>
+                    </tr></table>
+                    </td>
+            </tr>
+            <tr valign='top'>
                 <td>
                     <%//@ include file="item_1.jsp" %>
                     <div id="mainContent"><div align="center" style="height:300px;"><img src="img/item_loading.gif" /></div></div>
@@ -86,15 +95,6 @@
                     
                     </div>
                 </td>
-            </tr>
-            <tr valign='top'>
-                <td colspan="2" valign="middle" align="center">
-                    <table><tr>
-                        <td><a style="padding:10px;" href="javascript:selectPrevious();"><img src="img/la.png" border="0" /></a></td>
-                        <td><%@ include file="gwtView.jsp" %></td>
-                        <td><a style="padding:10px;" href="javascript:selectNext();"><img src="img/ra.png" border="0" /></a></td>
-                    </tr></table>
-                    </td>
             </tr>
         </table>
         <table>
