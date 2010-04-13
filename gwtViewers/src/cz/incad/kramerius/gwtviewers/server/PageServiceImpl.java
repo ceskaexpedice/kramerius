@@ -169,8 +169,8 @@ public class PageServiceImpl extends RemoteServiceServlet implements PageService
 		this.kConfiguration = (KConfiguration) getServletContext().getAttribute("kconfig");
 		try {
 			if (kConfiguration == null) {
-				String configFile = JNDIUtils.getJNDIValue("configPath", System.getProperty("configPath"));
-			    kConfiguration = KConfiguration.getKConfiguration(configFile);
+				//String configFile = JNDIUtils.getJNDIValue("configPath", System.getProperty("configPath"));
+			    kConfiguration = KConfiguration.getKConfiguration();
 			}
 		} catch (Exception e) {
 			LOGGER.log(Level.SEVERE, e.getMessage(), e);
