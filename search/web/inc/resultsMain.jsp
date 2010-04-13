@@ -28,7 +28,7 @@
         </x:if>
         <x:set select="./str[@name='PID']" var="pid" />
     <tr id="res_<c:out value="${uuid}"/>" class="result r<c:out value="${status.count % 2}" />">
-        <%@ include file="../admin/resultOptions.jsp" %>
+        <%//@ include file="../admin/resultOptions.jsp" %>
         <x:forEach select="//response/lst[@name='collapse_counts']/lst[@name='results']/lst">
             <x:if select="./@name=$pid">
             <c:set var="collapseCount" >

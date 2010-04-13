@@ -35,7 +35,13 @@
         %>
         <div class="facetItem <%=more%> ">
             <a title="<fmt:message >Add_navigator</fmt:message>" 
-               href="<%=current.url%>"><%if (currentFacet.name.equals("document_type")){%><fmt:message ><%=current.displayName%></fmt:message><%}else{%><%=current.displayName%><%}%></a> <span class="count">(<%=current.count%>)</span>
+               href="<%=current.url%>"><%
+               
+               if (currentFacet.name.equals("document_type")){
+                   %><fmt:message ><%=current.displayName%></fmt:message><%
+               }else if(current.displayName.equals("")) {
+               %><fmt:message >neuvedeno</fmt:message><%
+               }else{%><%=current.displayName%><%}%></a> <span class="count">(<%=current.count%>)</span>
         </div>
         <%
 

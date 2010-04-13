@@ -112,6 +112,7 @@ Get Biblio mods
     $(document).ready(function(){
         //changeSelection('<c:out value="${pids[pathsize -2]}" />','<c:out value="${pids[pathsize -1]}" />');
         startPage();
+        //setTimeout('startItemMenu()', 2000);
         startItemMenu();
     });
     initParent = '<c:out value="${pids[pathsize -2]}" />';
@@ -128,12 +129,14 @@ Get Biblio mods
     
     function startItemMenu(){
         //alert('kk2');
-        $('.item_options').each(function(){
-           $(this).css('left',($(this).parent().width() + $(this).parent().offset().left )-9);
-        });
+        $('.item_options').show();
         $('.menu_activation').unbind('mouseenter');
         $('.item_options').unbind('mouseleave');
         
+        $('.item_options').each(function(){
+            var l = $(this).parent().width() + $($(this).parent()).offset().left - 9;
+           $(this).css('left',l);
+        });
         $('.menu_activation').bind('mouseenter', function(){
             $('.item_options').stop();
            var il = $(this).parent().parent().width() + $(this).parent().parent().offset().left - 9;
