@@ -204,7 +204,7 @@ public class GeneratePDFServiceImpl implements GeneratePDFService {
 		KrameriusModels model = this.fedoraAccess.getKrameriusModel(relsExt);
 		
 		final AbstractRenderedDocument renderedDocument = new RenderedDocument(model, parentUUID);
-		renderedDocument.setDocumentTitle(DCUtils.titleFromDC(this.fedoraAccess.getDC(parentUUID)));
+		renderedDocument.setDocumentTitle(getTitle(this.fedoraAccess.getDC(parentUUID), model));
 		renderedDocument.setUuidMainTitle(parentUUID);
 		
 		TextPage dpage = new TextPage(model, parentUUID);

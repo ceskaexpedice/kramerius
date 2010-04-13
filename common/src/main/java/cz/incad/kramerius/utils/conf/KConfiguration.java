@@ -5,81 +5,40 @@
 
 package cz.incad.kramerius.utils.conf;
 
-/**
- *
- * @author Administrator
- */
+import static cz.incad.kramerius.Constants.*;
+	
 import java.io.File;
 import java.io.FileInputStream;
-import java.util.HashMap;
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.xpath.XPath;
-import javax.xml.xpath.XPathConstants;
-import javax.xml.xpath.XPathExpression;
-import javax.xml.xpath.XPathFactory;
-import org.w3c.dom.Document;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
-import org.xml.sax.InputSource;
+import java.util.Properties;
 
-/**
- *
- * @author Incad
- */
+
 public class KConfiguration {
-
-	public static java.util.logging.Logger LOGGER = java.util.logging.Logger.getLogger(KConfiguration.class.getName());
 	
+	public static final java.util.logging.Logger LOGGER = java.util.logging.Logger.getLogger(KConfiguration.class.getName());
+	public static final String CONFIGURATION = WORKING_DIR+File.separator+"configuration.properties";
 	private static KConfiguration _sharedInstance = null;
-	
-    public HashMap<String, String> properties = new HashMap<String, String>();
-    public String fedoraHost;
-    private String solrHost;
-    public String indexerHost;
-    public String fedoraUser;
-    public String fedoraPass;
 
-    private String path;
+	public Properties properties = new Properties();
     
-    KConfiguration(String file) {
-        try {
-            LOGGER.info("Loading configuration from file '"+file+"'");
-            this.path = file;
-            
-            DocumentBuilderFactory domFactory = DocumentBuilderFactory.newInstance();
-            domFactory.setNamespaceAware(false); // never forget this!
-
-            DocumentBuilder builder = domFactory.newDocumentBuilder();
-
-            
-            InputSource source = new InputSource(new FileInputStream(new File(file)));
-            Document contentDom = builder.parse(source);
-
-            XPathFactory factory = XPathFactory.newInstance();
-            XPath xpath = factory.newXPath();
-            
-            //Loading properties
-            XPathExpression expr = xpath.compile("//setup/properties/property");
-            NodeList propertiesNodes = (NodeList) expr.evaluate(contentDom, XPathConstants.NODESET);
-            for (int i = 0; i < propertiesNodes.getLength(); i++) {
-                Node node = propertiesNodes.item(i);
-                properties.put(node.getAttributes().getNamedItem("name").getNodeValue(),
-                        node.getAttributes().getNamedItem("value").getNodeValue());
-            }
-            
-            //Loading tables
-            //expr = xpath.compile("//setup/document_definitions/document_definition");
-            //NodeList nodes = (NodeList) expr.evaluate(contentDom, XPathConstants.NODESET);
-            //for (int i = 0; i < nodes.getLength(); i++) {
-                //DocumentDefinition dd = DocumentDefinition.Load(nodes.item(i), this);
-                //documentDefinitions.add(dd);
-            //}
-        } catch (Exception ex) {
-            LOGGER.severe("Can't load configuration");
-            throw new RuntimeException(ex.toString());
-        }
-    }
+	KConfiguration() {
+	    try {
+	        LOGGER.info(" Loading configuration from file '"+CONFIGURATION+"'");
+	    	this.properties.load(new FileInputStream(CONFIGURATION));
+	    } catch (Exception ex) {
+	    	LOGGER.severe("Can't load configuration");
+	        throw new RuntimeException(ex.toString());
+	    }
+	}
+	
+	KConfiguration(Properties props) {
+	    try {
+	        LOGGER.info(" Loading configuration from properties ");
+	    	this.properties.putAll(props);
+	    } catch (Exception ex) {
+	    	LOGGER.severe("Can't load configuration");
+	        throw new RuntimeException(ex.toString());
+	    }
+	}
     
     public String getFedoraHost(){
         return getProperty("fedoraHost");
@@ -124,33 +83,28 @@ public class KConfiguration {
     }
     
     public String getProperty(String key) {
-        if (properties.containsKey(key)) {
-            return properties.get(key);
-        } else {
-            LOGGER.warning("Can't get property " + key);
-            return null;
-        }
+    	return this.properties.getProperty(key);
     }
 
     public String getProperty(String key, String defaultValue) {
-        if (properties.containsKey(key)) {
-            return properties.get(key);
-        } else {
-            return defaultValue;
-        }
+        return properties.getProperty(key, defaultValue);
     }
     
-    public synchronized static KConfiguration getKConfiguration(String path) {
+    public synchronized static KConfiguration getKConfiguration() {
     	if (_sharedInstance == null) {
-    		_sharedInstance = new KConfiguration(path);
+    		_sharedInstance = new KConfiguration();
     	}
-    	return getKConfiguration();
+    	return _sharedInstance;
     }
 
-	public static KConfiguration getKConfiguration() {
-		return _sharedInstance;
-	}
-
+    
+    public synchronized static KConfiguration getKConfiguration(Properties properties) {
+    	if (_sharedInstance == null) {
+    		_sharedInstance = new KConfiguration(properties);
+    	}
+    	return _sharedInstance;
+    }
+    
 	public String getLongRunningProcessDefiniton() {
     	return getProperty("longRunningProcessDefinition");
 	}
@@ -158,12 +112,5 @@ public class KConfiguration {
 	public String getLRServletURL() {
     	return getProperty("lrControlUrl");
 	}
-
-	public String getPath() {
-		return path;
-	}
-	
-	
-	
 }
 

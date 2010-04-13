@@ -1,5 +1,6 @@
 package cz.incad.kramerius.processes.impl;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -19,6 +20,7 @@ import org.xml.sax.SAXException;
 import com.google.inject.Inject;
 
 
+import cz.incad.kramerius.Constants;
 import cz.incad.kramerius.processes.LRProcess;
 import cz.incad.kramerius.processes.LRProcessDefinition;
 import cz.incad.kramerius.processes.DefinitionManager;
@@ -29,6 +31,8 @@ public class LRProcessDefinitionManagerImpl implements DefinitionManager {
 	
 	public static final java.util.logging.Logger LOGGER = java.util.logging.Logger
 			.getLogger(LRProcessDefinitionManagerImpl.class.getName());
+
+	public static final String CONFIGURATION_FILE = Constants.WORKING_DIR+File.separator+"lp.xml";
 	
 	private KConfiguration configuration;
 	private LRProcessManager processManager;
@@ -57,8 +61,9 @@ public class LRProcessDefinitionManagerImpl implements DefinitionManager {
 	@Override
 	public void load() {
 		try {
+			LOGGER.info("Loading file from '"+CONFIGURATION_FILE+"'");
 			DocumentBuilder builder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
-			Document parsed = builder.parse(this.configuration.getLongRunningProcessDefiniton());
+			Document parsed = builder.parse(CONFIGURATION_FILE);
 			NodeList childNodes = parsed.getDocumentElement().getChildNodes();
 			for (int i = 0,ll=childNodes.getLength(); i < ll; i++) {
 				Node item = childNodes.item(i);
@@ -72,10 +77,7 @@ public class LRProcessDefinitionManagerImpl implements DefinitionManager {
 			LOGGER.log(Level.SEVERE, e.getMessage(), e);
 		} catch (SAXException e) {
 			LOGGER.log(Level.SEVERE, e.getMessage(), e);
-		} catch (IOException
-				
-				
-				e) {
+		} catch (IOException e) {
 			LOGGER.log(Level.SEVERE, e.getMessage(), e);
 		}
 	}
@@ -105,5 +107,4 @@ public class LRProcessDefinitionManagerImpl implements DefinitionManager {
 		this.processManager = processManager;
 	}
 
-	
 }
