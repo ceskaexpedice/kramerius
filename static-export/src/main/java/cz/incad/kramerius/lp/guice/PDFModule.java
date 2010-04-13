@@ -14,7 +14,6 @@ import cz.incad.kramerius.utils.conf.KConfiguration;
 
 public class PDFModule extends AbstractModule {
 
-	public static final String KK_PATH = "kk.path";
 
 	@Override
 	protected void configure() {
