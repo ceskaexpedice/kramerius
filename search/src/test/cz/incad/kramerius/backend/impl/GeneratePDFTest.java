@@ -1,9 +1,13 @@
 package cz.incad.kramerius.backend.impl;
 
 import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.util.Arrays;
+import java.util.logging.Level;
 
 import junit.framework.Assert;
 import junit.framework.TestCase;
@@ -14,10 +18,30 @@ import com.google.inject.Guice;
 import com.google.inject.Injector;
 
 import cz.incad.kramerius.pdf.GeneratePDFService;
+import cz.incad.kramerius.pdf.impl.OutputStreams;
 
 
 public class GeneratePDFTest extends TestCase {
+	public static final java.util.logging.Logger LOGGER = java.util.logging.Logger
+			.getLogger(GeneratePDFTest.class.getName());
+	
+	class Oss implements OutputStreams {
 
+		private int pocitadlo = 0;
+		
+		@Override
+		public OutputStream newOutputStream() {
+			try {
+				pocitadlo += 1;
+				return new FileOutputStream(new File("_"+pocitadlo+".pdf"));
+			} catch (FileNotFoundException e) {
+				LOGGER.log(Level.SEVERE, e.getMessage(), e);
+				return null;
+			}
+		}
+		
+	}
+	
 	@Test
 	public void testGen() throws IOException {
 		//ByteArrayOutputStream bos = new ByteArrayOutputStream();
@@ -32,10 +56,17 @@ public class GeneratePDFTest extends TestCase {
 		
 		//430d7f60-b03b-11dd-82fa-000d606f5dc6&scaledHeight=600
 		//4314ab50-b03b-11dd-89db-000d606f5dc6&scaledHeight=600
-		instance.fullPDFExport("0eaa6730-9068-11dd-97de-000d606f5dc6",fos);
+		//instance.fullPDFExport("0eaa6730-9068-11dd-97de-000d606f5dc6",fos);
 		//instance.dynamicPDFExport(Arrays.asList("0eaa6730-9068-11dd-97de-000d606f5dc6"), "430d7f60-b03b-11dd-82fa-000d606f5dc6", "4314ab50-b03b-11dd-89db-000d606f5dc6", "430d7f60-b03b-11dd-82fa-000d606f5dc6", fos);
 		//instance.fullPDFExport("974d3b6c-e640-11de-a504-001143e3f55c", fos);
+		//instance.fullPDFExport("e3a6a694-2eda-48c9-97f9-76bcadfb291d", fos);
+
+		instance.fullPDFExport("966dfeb3-e640-11de-a504-001143e3f55c", new Oss());
+		//instance.fullPDFExport("9a2c4008-e640-11de-a504-001143e3f55c", fos);
+		//instance.fullPDFExport("9a2c671a-e640-11de-a504-001143e3f55c",new Oss());
 		
+		//http://194.108.215.227:8080/fedora/get/uuid:e3a6a694-2eda-48c9-97f9-76bcadfb291d/RELS-EXT
+
 		fos.close();
 		
 		// item

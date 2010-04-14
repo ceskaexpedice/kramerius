@@ -21,7 +21,7 @@ public class TestModule extends AbstractModule {
 		bind(FedoraAccess.class).to(FedoraAccessImpl.class).in(Scopes.SINGLETON);
 		//bind(GeneratePDFService.class).to(GeneratePDFServiceImpl.class).in(Scopes.SINGLETON);
 		bind(GeneratePDFService.class).to(GeneratePDFServiceImpl.class).in(Scopes.SINGLETON);
-		bind(KConfiguration.class).toInstance(KConfiguration.getKConfiguration("web/kk.xml"));
+		bind(KConfiguration.class).toInstance(KConfiguration.getKConfiguration());
 		// konekce.. vymenit za jndi
 		bind(Connection.class).toProvider(DefaultConnectionProvider.class);
 	}
