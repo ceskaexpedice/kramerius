@@ -7,9 +7,9 @@
 		<!-- spoustena trida -->
 		<mainClass>cz.incad.kramerius.processes.mock.MockLPProcess</mainClass>
 		<!-- standardni vystup -->
-		<standardOs>standard.txt</standardOs>
+		<standardOs>standard</standardOs>
 		<!-- err vystup -->
-		<errOs>err.txt</errOs>
+		<errOs>err</errOs>
 		<!--  Cesta ke kninovnam, ktere process potrebuje -->
 		<lib>lib</lib>
 	</process>

@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.util.List;
 
+import cz.incad.kramerius.pdf.impl.OutputStreams;
 import cz.incad.kramerius.pdf.pdfpages.AbstractRenderedDocument;
 
 
@@ -19,7 +20,7 @@ public interface GeneratePDFService {
 	 * @param os
 	 * @throws IOException
 	 */
-	public void fullPDFExport(String parentUUID, OutputStream os) throws IOException;
+	public void fullPDFExport(String parentUUID, OutputStreams outputs) throws IOException;
 
 	/**
 	 * Vygeneruje jenom zadane stranky
@@ -41,6 +42,6 @@ public interface GeneratePDFService {
 	 */
 	public void generateCustomPDF(AbstractRenderedDocument doc, String parentUUID, OutputStream os) throws IOException;
 
-	public void generateCustomPDF(AbstractRenderedDocument doc, String parentUUID, OutputStream os, Break brk) throws IOException;
+	public AbstractRenderedDocument generateCustomPDF(AbstractRenderedDocument doc, String parentUUID, OutputStream os, Break brk) throws IOException;
 }
 

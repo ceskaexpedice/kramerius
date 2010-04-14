@@ -18,7 +18,7 @@ public class GuiceModuleForTests extends AbstractModule {
 
 	@Override
 	protected void configure() {
-		KConfiguration testConf = KConfiguration.getKConfiguration("src/main/test/kk.xml");
+		KConfiguration testConf = KConfiguration.getKConfiguration();
 		bind(KConfiguration.class).toInstance(testConf);
 		bind(DefinitionManager.class).to(LRProcessDefinitionManagerImpl.class).in(Scopes.SINGLETON);
 		bind(LRProcessManager.class).to(DatabaseProcessManager.class).in(Scopes.SINGLETON);

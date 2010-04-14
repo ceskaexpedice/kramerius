@@ -69,23 +69,15 @@ public class OutlineItem {
 		}
 	}	
 	
-	public OutlineItem createNewTill(String uuid) {
-		OutlineItem thisItem = new OutlineItem();
-		for (OutlineItem itm : this.children) {
-			if (itm.getDestination().equals(uuid)) {
-				OutlineItem chItm = new OutlineItem();
-				chItm.setLevel(itm.getLevel());
-				chItm.setParent(thisItem);
-				chItm.setTitle(itm.getTitle());
-				thisItem.addChild(chItm);
-				// zahodit vsechny stranky
-				return thisItem;
-			} else {
-				thisItem.addChild(itm.createNewTill(uuid));
-			}
-		}
-		return thisItem;
+	public OutlineItem copy() {
+		OutlineItem item = new OutlineItem();
+		item.setDestination(this.destination);
+		item.setLevel(this.level);
+		//item.setParent(item)
+		item.setTitle(this.title);
+		return item;
 	}
+	
 	
 	
 	public boolean removeTill(String uuid) {
@@ -94,4 +86,19 @@ public class OutlineItem {
 		}
 		return false;
 	}
+
+	public OutlineItem getChild(String uuid) {
+		for (OutlineItem itm : this.children) {
+			if (itm.getDestination().equals(uuid)) {
+				return itm;
+			}
+		}
+		return null;
+		
+	}
+
+	public void addChild(int i, OutlineItem chCopy) {
+		this.children.add(i, chCopy);
+	}
+	
 }

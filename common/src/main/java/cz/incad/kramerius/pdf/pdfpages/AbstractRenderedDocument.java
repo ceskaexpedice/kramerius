@@ -76,9 +76,69 @@ public abstract class AbstractRenderedDocument extends AbstractObject {
 		this.uuidMainTitle = uuidMainTitle;
 	}
 
-	public void removeTill(String uuid) {
-		while(!this.pages.remove(0).getUuid().equals(uuid));
+	public void removePagesTill(String uuid) {
+		int pocitadlo = 0;
+		while(!this.pages.remove(0).getUuid().equals(uuid)) {
+			pocitadlo += 1;
+		};
+		System.out.println("Vymazanych stranek "+pocitadlo);
 	}
 	
+
+	public void divide(OutlineItem leftRoot, OutlineItem rightRoot, String uuid) {
+		State state = State.COPY_TO_RIGHT;
+		Stack<OutlineItem> stack = new Stack<OutlineItem>();
+		stack.push(this.outlineItemRoot);
+		while(!stack.isEmpty()) {
+			OutlineItem	orig = stack.pop();
+			OutlineItem[] children = orig.getChildren();
+			if (children.length == 0) {
+				if (orig.getDestination().equals(uuid)) {
+					state = State.COPY_TO_LEFT; 
+				}
+				if (state == State.COPY_TO_LEFT) {
+					addToCopyRoot(leftRoot, orig);
+				} else {
+					addToCopyRoot(rightRoot, orig);
+				}
+			} else {
+				for (OutlineItem chOrig : children) {
+					stack.push(chOrig);
+				}
+			}
+		}
+	}
+	
+	private void addToCopyRoot(OutlineItem rootCopy, OutlineItem orig) {
+		List<String> uuidPath = new ArrayList<String>();
+		OutlineItem origParent = orig;
+		while(origParent.getParent() != null) { 
+			uuidPath.add(0,origParent.getDestination());
+			origParent = origParent.getParent(); 
+		}
+		OutlineItem currentCopy = rootCopy;
+		OutlineItem currentOrig = origParent;
+		for (String uuid : uuidPath) {
+			OutlineItem chCopy = currentCopy.getChild(uuid);
+			OutlineItem chOrig = currentOrig.getChild(uuid);
+			if (chCopy == null)  {
+				chCopy = chOrig.copy();
+				currentCopy.addChild(0,chCopy);
+				chCopy.setParent(currentCopy);
+			}
+			currentCopy = chCopy;
+			currentOrig = chOrig;
+		}
+	}
+
+	public void removePages() {
+		this.pages.clear();
+	}
+
+	public static enum State {
+		COPY_TO_LEFT, 
+		COPY_TO_RIGHT;	
+	}
+
 	
 }

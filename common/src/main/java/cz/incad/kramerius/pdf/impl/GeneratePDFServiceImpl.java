@@ -14,6 +14,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.StringReader;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
@@ -80,14 +81,20 @@ public class GeneratePDFServiceImpl implements GeneratePDFService {
 	
 	
 	@Override
-	public void generateCustomPDF(AbstractRenderedDocument rdoc, String parentUUID, OutputStream os, Break brk) throws IOException {
+	public AbstractRenderedDocument generateCustomPDF(AbstractRenderedDocument rdoc, String parentUUID, OutputStream os, Break brk) throws IOException {
 		try {
+			String brokenPage = null;
 			Document doc = createDocument();
 			PdfWriter writer = PdfWriter.getInstance(doc, os);
 			doc.open();
 			insertFirstPage(rdoc, parentUUID, rdoc.getUuidTitlePage(), writer, doc);
 			doc.newPage();
-			for (AbstractPage page : rdoc.getPages()) {
+			int pocetStranek = 0;
+			List<AbstractPage> pages = new ArrayList<AbstractPage>(rdoc.getPages());
+			while(!pages.isEmpty()) {
+				pocetStranek += 1;
+				AbstractPage page = pages.remove(0);
+				System.out.println("\t"+page.getUuid());
 				doc.newPage();
 				if (page instanceof ImagePage) {
 					ImagePage iPage = (ImagePage) page;
@@ -96,21 +103,33 @@ public class GeneratePDFServiceImpl implements GeneratePDFService {
 					TextPage tPage = (TextPage) page;
 					insertOutlinedTextPage(tPage, writer, doc, rdoc.getDocumentTitle());
 				}
-				if (brk.broken()) {
-					// zlomit do dalsiho souboru
-					//page.
-					rdoc.removeTill(page.getUuid());
+				//os.flush();
+				if (brk.broken(page.getUuid())) {
+					brokenPage = page.getUuid();
+					rdoc.removePagesTill(page.getUuid());
+					break;
 				}
 			}
+			
+			if (brokenPage == null) {
+				rdoc.removePages();
+			}
 
+			
+			OutlineItem root = rdoc.getOutlineItemRoot();
+			if (brokenPage != null) {
+				OutlineItem right = rdoc.getOutlineItemRoot().copy();
+				OutlineItem left = rdoc.getOutlineItemRoot().copy();
+				rdoc.divide(left, right, brokenPage);
+				root = left;
+				rdoc.setOutlineItemRoot(right);
+			}
+			
 			PdfContentByte cb = writer.getDirectContent();
 			PdfOutline pdfRoot = cb.getRootOutline();
-			OutlineItem rDocRoot = rdoc.getOutlineItemRoot();
 			StringBuffer buffer = new StringBuffer();
-			rDocRoot.debugInformations(buffer, 1);
-			System.out.println(buffer.toString());
-			fillOutline(pdfRoot, rDocRoot);
-
+			root.debugInformations(buffer, 1);
+			fillOutline(pdfRoot, root);
 			doc.close();
 			doc.close();
 			os.flush();
@@ -121,7 +140,7 @@ public class GeneratePDFServiceImpl implements GeneratePDFService {
 			LOGGER.log(Level.SEVERE, e.getMessage(), e);
 		}
 		
-		
+		return rdoc;
 	}
 
 
@@ -150,7 +169,6 @@ public class GeneratePDFServiceImpl implements GeneratePDFService {
 			OutlineItem rDocRoot = rdoc.getOutlineItemRoot();
 			StringBuffer buffer = new StringBuffer();
 			rDocRoot.debugInformations(buffer, 1);
-			System.out.println(buffer.toString());
 			fillOutline(pdfRoot, rDocRoot);
 
 			doc.close();
@@ -193,18 +211,17 @@ public class GeneratePDFServiceImpl implements GeneratePDFService {
 			
 			buildRenderingDocumentAsFlat(relsExt, renderedDocument, uuidFrom, uuidTo);
 			generateCustomPDF(renderedDocument, lastUuid,os);
-
 		}
 	}
 
 
 	@Override
-	public void fullPDFExport(String parentUUID, OutputStream os) throws IOException {
+	public void fullPDFExport(String parentUUID, OutputStreams streams) throws IOException {
 		org.w3c.dom.Document relsExt = this.fedoraAccess.getRelsExt(parentUUID);
 		KrameriusModels model = this.fedoraAccess.getKrameriusModel(relsExt);
 		
 		final AbstractRenderedDocument renderedDocument = new RenderedDocument(model, parentUUID);
-		renderedDocument.setDocumentTitle(getTitle(this.fedoraAccess.getDC(parentUUID), model));
+		renderedDocument.setDocumentTitle(getTitle(this.fedoraAccess.getBiblioMods(parentUUID), model));
 		renderedDocument.setUuidMainTitle(parentUUID);
 		
 		TextPage dpage = new TextPage(model, parentUUID);
@@ -217,7 +234,33 @@ public class GeneratePDFServiceImpl implements GeneratePDFService {
 		renderedDocument.getOutlineItemRoot().addChild(item);
 		
 		buildRenderingDocumentAsTree(relsExt, renderedDocument);
-		generateCustomPDF(renderedDocument, parentUUID,os);
+		
+		AbstractRenderedDocument restOfDoc = renderedDocument;
+		OutputStream os = null;
+		boolean konec = false;
+		Break br = new Break() {
+			int pocitadlo = 0;
+			@Override
+			public boolean broken(String uuid) {
+				pocitadlo += 1;
+				int modulo = pocitadlo % 1000;
+				boolean rovnonule = modulo == 0;
+				return rovnonule;
+			}
+		};
+		while(!konec) {
+			if (!restOfDoc.getPages().isEmpty()) {
+				os = streams.newOutputStream();
+				restOfDoc = generateCustomPDF(restOfDoc, parentUUID, os, br);
+				
+				StringBuffer buffer = new StringBuffer();
+				restOfDoc.getOutlineItemRoot().debugInformations(buffer, 1);
+				os.close();
+			} else {
+				konec = true;
+				break;
+			}
+		}
 	}
 
 
@@ -259,12 +302,10 @@ public class GeneratePDFServiceImpl implements GeneratePDFService {
 					}
 				}
 			}
-			
 		});
 	}
 	
-	private void buildRenderingDocumentAsTree(org.w3c.dom.Document relsExt,
-			final AbstractRenderedDocument renderedDocument ) throws IOException {
+	private void buildRenderingDocumentAsTree(org.w3c.dom.Document relsExt, final AbstractRenderedDocument renderedDocument ) throws IOException {
 		fedoraAccess.processRelsExt(relsExt, new RelsExtHandler() {
 			
 				private int previousLevel = -1;
@@ -469,7 +510,6 @@ public class GeneratePDFServiceImpl implements GeneratePDFService {
 	public void insertOutlinedTextPage(TextPage page, PdfWriter pdfWriter, Document document, String title) throws XPathExpressionException, IOException, DocumentException {
 		String text = TemplatesUtils.textPage(this.fedoraAccess, page.getUuid(), page.getModel(), title);
 		BufferedReader strReader = new BufferedReader(new StringReader(text));
-		
 		StringBuffer oneChunkBuffer = new StringBuffer();
 		String line = null;
 		while((line = strReader.readLine()) != null) {
