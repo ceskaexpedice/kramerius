@@ -24,39 +24,68 @@ public class PDFExport {
 	public static final java.util.logging.Logger LOGGER = java.util.logging.Logger
 			.getLogger(PDFExport.class.getName());
 	
-	
 	public static void main(String[] args) throws IOException {
-		// adresar pro vystup
-		// uuid
 		if (args.length == 3) {
-			System.out.println("Parameters "+args[0]+", "+args[1]+","+ args[2]);
-			File outputFolder = new File(args[0]);
-			if (!outputFolder.exists()) { outputFolder.mkdirs(); }
-			//DecoratedOutputStream fos = new DecoratedOutputStream("static.pdf");
-			Injector injector = Guice.createInjector(new PDFModule());
-			FedoraAccess fa = injector.getInstance(FedoraAccess.class);
-			FileOutputStream fos = null;
-			try {
-				LOGGER.info("fedoraAccess.getDC("+args[2]+")");
-				Document dc = fa.getDC(args[2]);
-				LOGGER.info("dcUtils.titleFromDC("+dc+")");
-				String title = DCUtils.titleFromDC(dc);
-				LOGGER.info("title is "+title);
-				File file = new File(outputFolder, title+".pdf");
-				if (file.exists()) file.delete();
-				boolean created = file.createNewFile();
-				if (!created) throw new IllegalArgumentException("cannot create file '"+file.getAbsolutePath()+"'");
-				LOGGER.info("created file "+file.getAbsolutePath());
-				fos = new FileOutputStream(file);
-				GeneratePDFService generatePDF = injector.getInstance(GeneratePDFService.class);
-				LOGGER.info("calling fullExport method to service paremters = ("+args[2]+","+fos+")");
-				generatePDF.fullPDFExport(args[2], fos);
-			} catch (IOException e) {
-				LOGGER.log(Level.SEVERE, e.getMessage(), e);
-			} finally {
-				if (fos != null) fos.close();
-			}
-		}
+			LOGGER.info("Parameters "+args[0]+", "+args[1]+", "+args[2]);
 
+			String outputFolderName = args[0];
+			Medium medium = Medium.valueOf(args[1]);
+			String uuid = args[2];
+
+			File uuidFolder = new File(getTmpDir(), uuid);
+			if (uuidFolder.exists()) { uuidFolder.delete(); }
+			
+			Injector injector = Guice.createInjector(new PDFModule());
+			generatePDFs(uuid, uuidFolder, injector);
+			createFSStructure(uuidFolder, new File(outputFolderName), medium);
+		}
+	}
+
+	private static void createFSStructure(File pdfsFolder, File outputFodler, Medium medium) {
+		int pocitadlo = 0;
+		long bytes = 0;
+		File currentFolder = createFolder(outputFodler, medium, ++pocitadlo);
+		File[] listFiles = pdfsFolder.listFiles();
+		for (File file : listFiles) {
+			if ((bytes+file.length()) > medium.getSize()) {
+				currentFolder = createFolder(outputFodler, medium, ++pocitadlo);
+				bytes = 0;
+			}
+			file.renameTo(new File(currentFolder, file.getName()));
+			bytes += file.length();
+		}
+	}
+
+	private static File createFolder(File outputFodler, Medium medium, int pocitadlo) {
+		return new File(outputFodler, medium.name()+"_"+pocitadlo);
+	}
+
+
+	private static void generatePDFs(String uuid, File uuidFolder, Injector injector) {
+		try {
+			if (!uuidFolder.exists()) { 
+				uuidFolder.mkdirs(); 
+			} else {
+					File[] files = uuidFolder.listFiles(); 
+					if (files != null) {
+						for (File file : files) { file.deleteOnExit(); }
+					}
+			}
+			FedoraAccess fa = injector.getInstance(FedoraAccess.class);
+			GeneratePDFService generatePDF = injector.getInstance(GeneratePDFService.class);
+			LOGGER.info("fedoraAccess.getDC("+uuid+")");
+			Document dc = fa.getDC(uuid);
+			LOGGER.info("dcUtils.titleFromDC("+dc+")");
+			String title = DCUtils.titleFromDC(dc);
+			LOGGER.info("title is "+title);
+			GenerateController controller = new GenerateController(uuidFolder, title);
+			generatePDF.fullPDFExport(uuid, controller, controller);
+		} catch (IOException e) {
+			LOGGER.log(Level.SEVERE, e.getMessage(), e);
+		}
+	}
+
+	private static File getTmpDir() {
+		return new File(System.getProperty("java.io.tmpdir"));
 	}
 }
