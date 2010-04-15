@@ -20,7 +20,7 @@ public interface GeneratePDFService {
 	 * @param os
 	 * @throws IOException
 	 */
-	public void fullPDFExport(String parentUUID, OutputStreams outputs) throws IOException;
+	public void fullPDFExport(String parentUUID, OutputStreams outputs, Break brk) throws IOException;
 
 	/**
 	 * Vygeneruje jenom zadane stranky

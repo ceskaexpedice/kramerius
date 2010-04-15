@@ -94,7 +94,6 @@ public class GeneratePDFServiceImpl implements GeneratePDFService {
 			while(!pages.isEmpty()) {
 				pocetStranek += 1;
 				AbstractPage page = pages.remove(0);
-				System.out.println("\t"+page.getUuid());
 				doc.newPage();
 				if (page instanceof ImagePage) {
 					ImagePage iPage = (ImagePage) page;
@@ -103,7 +102,7 @@ public class GeneratePDFServiceImpl implements GeneratePDFService {
 					TextPage tPage = (TextPage) page;
 					insertOutlinedTextPage(tPage, writer, doc, rdoc.getDocumentTitle());
 				}
-				//os.flush();
+				os.flush();
 				if (brk.broken(page.getUuid())) {
 					brokenPage = page.getUuid();
 					rdoc.removePagesTill(page.getUuid());
@@ -216,7 +215,7 @@ public class GeneratePDFServiceImpl implements GeneratePDFService {
 
 
 	@Override
-	public void fullPDFExport(String parentUUID, OutputStreams streams) throws IOException {
+	public void fullPDFExport(String parentUUID, OutputStreams streams, Break brk) throws IOException {
 		org.w3c.dom.Document relsExt = this.fedoraAccess.getRelsExt(parentUUID);
 		KrameriusModels model = this.fedoraAccess.getKrameriusModel(relsExt);
 		
@@ -238,20 +237,10 @@ public class GeneratePDFServiceImpl implements GeneratePDFService {
 		AbstractRenderedDocument restOfDoc = renderedDocument;
 		OutputStream os = null;
 		boolean konec = false;
-		Break br = new Break() {
-			int pocitadlo = 0;
-			@Override
-			public boolean broken(String uuid) {
-				pocitadlo += 1;
-				int modulo = pocitadlo % 1000;
-				boolean rovnonule = modulo == 0;
-				return rovnonule;
-			}
-		};
 		while(!konec) {
 			if (!restOfDoc.getPages().isEmpty()) {
 				os = streams.newOutputStream();
-				restOfDoc = generateCustomPDF(restOfDoc, parentUUID, os, br);
+				restOfDoc = generateCustomPDF(restOfDoc, parentUUID, os, brk);
 				
 				StringBuffer buffer = new StringBuffer();
 				restOfDoc.getOutlineItemRoot().debugInformations(buffer, 1);
@@ -463,6 +452,13 @@ public class GeneratePDFServiceImpl implements GeneratePDFService {
 
 	public void insertFirstPage(AbstractRenderedDocument model, String parentUuid, String titlePageUuid , PdfWriter pdfWriter, Document pdfDoc) throws IOException, DocumentException {
 		try {
+			URL resource = this.getClass().getResource("res/kramerius_logo.png");
+			com.lowagie.text.Image img = com.lowagie.text.Image.getInstance(resource);
+			Paragraph paragraph = new Paragraph();
+			paragraph.add(img);
+			pdfDoc.add(paragraph);
+			pdfDoc.add(new Paragraph(" "));
+			
 			PdfPTable pdfPTable = new PdfPTable(new float[] {0.2f, 0.8f});
 			pdfPTable.setSpacingBefore(3f);
 
@@ -608,7 +604,6 @@ public class GeneratePDFServiceImpl implements GeneratePDFService {
 				writeImageToStream(javaImg, "jpeg", bos);
 
 				com.lowagie.text.Image img = com.lowagie.text.Image.getInstance(bos.toByteArray());
-				System.out.println(img.getClass().getResource("Image.class"));
 				
 				img.scaleAbsoluteHeight(smallImage * img.getHeight());
 				img.scaleAbsoluteWidth(smallImage * img.getWidth());
