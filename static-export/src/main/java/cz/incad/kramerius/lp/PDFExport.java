@@ -3,6 +3,9 @@ package cz.incad.kramerius.lp;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.Comparator;
+import java.util.Date;
 import java.util.logging.Level;
 
 import org.w3c.dom.Document;
@@ -36,7 +39,7 @@ public class PDFExport {
 			if (uuidFolder.exists()) { uuidFolder.delete(); }
 			
 			Injector injector = Guice.createInjector(new PDFModule());
-			generatePDFs(uuid, uuidFolder, injector);
+			//generatePDFs(uuid, uuidFolder, injector);
 			createFSStructure(uuidFolder, new File(outputFolderName), medium);
 		}
 	}
@@ -45,19 +48,32 @@ public class PDFExport {
 		int pocitadlo = 0;
 		long bytes = 0;
 		File currentFolder = createFolder(outputFodler, medium, ++pocitadlo);
+		System.out.println(currentFolder.getAbsolutePath());
 		File[] listFiles = pdfsFolder.listFiles();
-		for (File file : listFiles) {
-			if ((bytes+file.length()) > medium.getSize()) {
-				currentFolder = createFolder(outputFodler, medium, ++pocitadlo);
-				bytes = 0;
+		if (listFiles != null) {
+			Arrays.sort(listFiles, new Comparator<File>() {
+				@Override
+				public int compare(File o1, File o2) {
+					Date modified1 = new Date(o1.lastModified());
+					Date modified2 = new Date(o2.lastModified());
+					return modified1.compareTo(modified2);
+				}
+			});
+			for (File file : listFiles) {
+				if ((bytes+file.length()) > medium.getSize()) {
+					currentFolder = createFolder(outputFodler, medium, ++pocitadlo);
+					bytes = 0;
+				}
+				bytes += file.length();
+				file.renameTo(new File(currentFolder, file.getName()));
 			}
-			file.renameTo(new File(currentFolder, file.getName()));
-			bytes += file.length();
 		}
 	}
 
 	private static File createFolder(File outputFodler, Medium medium, int pocitadlo) {
-		return new File(outputFodler, medium.name()+"_"+pocitadlo);
+		File dir = new File(outputFodler, medium.name()+"_"+pocitadlo);
+		if (!dir.exists()) {dir.mkdirs();}
+		return dir;
 	}
 
 
