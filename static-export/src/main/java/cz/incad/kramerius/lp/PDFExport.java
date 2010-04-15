@@ -39,7 +39,7 @@ public class PDFExport {
 			if (uuidFolder.exists()) { uuidFolder.delete(); }
 			
 			Injector injector = Guice.createInjector(new PDFModule());
-			//generatePDFs(uuid, uuidFolder, injector);
+			generatePDFs(uuid, uuidFolder, injector);
 			createFSStructure(uuidFolder, new File(outputFolderName), medium);
 		}
 	}
