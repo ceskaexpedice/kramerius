@@ -1,5 +1,6 @@
 package cz.incad.kramerius.processes.impl.io;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -24,11 +25,16 @@ public class FollowStreamThread extends Thread {
 	public void run() {
 		LOGGER.info("start following stream ");
 		try {
-			while(!isInterrupted()) {
+			while(followStream.available() != 0) {
 				byte[] buffer = new byte[1<<12];
 				int bread = -1;
 				while((bread = followStream.read(buffer)) > 0) {
+					System.out.println("read  "+bread);
 					this.os.write(buffer, 0, bread);
+					if (os instanceof ByteArrayOutputStream) {
+						ByteArrayOutputStream bos = (ByteArrayOutputStream) os;
+						System.out.println(bos.toByteArray().length);
+					}
 				}
 			}
 			LOGGER.info(" end ");

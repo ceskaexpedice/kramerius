@@ -70,4 +70,6 @@ public interface LRProcess {
 	public States getProcessState();
 	
 	public void setProcessState(States st);
+
+	public boolean isLiveProcess();
 }

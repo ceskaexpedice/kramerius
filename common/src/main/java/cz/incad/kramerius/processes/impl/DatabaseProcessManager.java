@@ -166,13 +166,24 @@ public class DatabaseProcessManager implements LRProcessManager {
 					processes.add(process);
 				} 
 			}
+			for (LRProcess lrProcess : processes) {
+				LOGGER.info("process '"+lrProcess.getUUID()+"' state "+lrProcess.getProcessState());
+				if (lrProcess.getProcessState().equals(States.RUNNING)) {
+					LOGGER.info("process '"+lrProcess.getUUID()+" ' is running");
+					if (!lrProcess.isLiveProcess()) {
+						lrProcess.setProcessState(States.FAILED);
+						this.updateLongRunningProcessPID(lrProcess);
+					}
+				}
+			}
 			return processes;
 		} catch (SQLException e) {
 			LOGGER.log(Level.SEVERE, e.getMessage(), e);
 		} finally {
 			if (connection != null) {
 				try {
-					connection.close();
+					connection.close()
+					;
 				} catch (SQLException e) {
 					LOGGER.log(Level.SEVERE, e.getMessage(), e);
 				}

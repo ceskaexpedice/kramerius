@@ -1,17 +1,26 @@
 package cz.incad.kramerius.processes.os.impl.unix;
 
-import java.io.File;
+import java.io.BufferedReader;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.StringReader;
+import java.lang.management.ManagementFactory;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
-import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.logging.Level;
 
 import cz.incad.kramerius.processes.LRProcessDefinition;
 import cz.incad.kramerius.processes.LRProcessManager;
 import cz.incad.kramerius.processes.impl.AbstractLRProcessImpl;
 import cz.incad.kramerius.processes.impl.ProcessStarter;
+import cz.incad.kramerius.utils.IOUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
+
 
 public class UnixLRProcessImpl extends AbstractLRProcessImpl {
 
@@ -38,5 +47,84 @@ public class UnixLRProcessImpl extends AbstractLRProcessImpl {
 		} catch (IOException e) {
 			LOGGER.log(Level.SEVERE, e.getMessage(), e);
 		}
+	}
+
+	@Override
+	public boolean isLiveProcess() {
+		try {
+			LOGGER.info("is alive");
+			if (getPid() != null) {
+				List<String> command = new ArrayList<String>();
+				command.add("ps");
+				command.add("-p");
+				command.add(getPid());
+				command.add("-o");
+				command.add("pid,time,cmd");
+				ProcessBuilder processBuilder = new ProcessBuilder(command);
+				Process psProcess = processBuilder.start();
+				InputStream inputStream = psProcess.getInputStream();
+				// pockam az bude konec
+				int exitValue = psProcess.waitFor();
+				if (exitValue != 0) {
+					LOGGER.warning("ps exiting with value '"+exitValue+"'");
+				}
+				List<String[]> data = new ArrayList<String[]>();
+				// pak ctu vypis procesu
+				ByteArrayOutputStream bos = new ByteArrayOutputStream();
+				IOUtils.copyStreams(inputStream, bos);
+				//System.out.println(new String(bos.toByteArray()));
+				BufferedReader reader = new BufferedReader(new StringReader(new String(bos.toByteArray())));
+				String line = null;
+				boolean firstLine = false;
+				while((line = reader.readLine()) != null) {
+					if (!firstLine) firstLine = true;
+					else {
+						String[] array = line.split(" ");
+						data.add(array);
+					}
+				}
+				return data.size() == 1;
+			}
+		} catch (IOException e) {
+			LOGGER.log(Level.SEVERE, e.getMessage(), e);
+		} catch (InterruptedException e) {
+			LOGGER.log(Level.SEVERE, e.getMessage(), e);
+		}
+		return false;
+	}
+
+
+	
+//	public static void main(String[] args) throws IOException, InterruptedException, MonitorException, URISyntaxException {
+//		String name = ManagementFactory.getRuntimeMXBean().getName();
+//		MonitoredHost local = MonitoredHost.getMonitoredHost("localhost");
+//        /* Take all active VM’s on Host, LocalHost here */
+//        Set vmlist = new HashSet(local.activeVms());
+//        for (Object id : vmlist) {
+//        	MonitoredVm vm = local.getMonitoredVm(new VmIdentifier(""+id));
+//            String processname = MonitoredVmUtil.mainClass(vm, true);
+//            System.out.println(id + " ——> " + processname);
+//        }
+//	}
+
+	public static void main(String[] args) throws IOException, InterruptedException {
+		test();
+	}
+	private static void test() throws IOException, InterruptedException {
+//		List<String> command = new ArrayList<String>();
+//		command.add("ps");
+//		command.add("-p");
+//		command.add(getPid());
+//		command.add("-o");
+//		command.add("pid,time,cmd");
+//		ProcessBuilder processBuilder = new ProcessBuilder(command);
+//		Process psProcess = processBuilder.start();
+//		InputStream inputStream = psProcess.getInputStream();
+//		// pockam az bude konec
+//		int exitValue = psProcess.waitFor();
+//		// pak ctu vypis procesu
+//		ByteArrayOutputStream bos = new ByteArrayOutputStream();
+//		IOUtils.copyStreams(inputStream, System.out);
+//		System.out.println(new String(bos.toByteArray()));
 	}
 }

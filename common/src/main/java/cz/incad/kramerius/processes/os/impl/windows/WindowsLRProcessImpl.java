@@ -34,4 +34,10 @@ public class WindowsLRProcessImpl extends AbstractLRProcessImpl {
 			LOGGER.log(Level.SEVERE, e.getMessage(), e);
 		}
 	}
+
+	@Override
+	public boolean isLiveProcess() {
+		// TODO Auto-generated method stub
+		return false;
+	}
 }
