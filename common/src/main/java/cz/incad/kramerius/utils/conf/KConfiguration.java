@@ -9,7 +9,11 @@ import static cz.incad.kramerius.Constants.*;
 	
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.InputStream;
 import java.util.Properties;
+
+import cz.incad.kramerius.utils.IOUtils;
 
 
 public class KConfiguration {
@@ -23,8 +27,23 @@ public class KConfiguration {
 	KConfiguration() {
 	    try {
 	        LOGGER.info(" Loading configuration from file '"+CONFIGURATION+"'");
-	    	this.properties.load(new FileInputStream(CONFIGURATION));
+	    	File confFile = new File(CONFIGURATION);
+			if (!confFile.exists()) {
+	    		if (confFile.createNewFile()) {
+	    			FileOutputStream fos = new FileOutputStream(confFile);
+	    			InputStream is = this.getClass().getResourceAsStream("res/configuration.properties");
+	    			try {
+						IOUtils.copyStreams(is, fos);
+					} finally {
+						if (fos != null) fos.close();
+						if (is != null) is.close();
+					}
+	    			
+	    		} else throw new RuntimeException("cannot create conf file");
+	    	}
+	        this.properties.load(new FileInputStream(CONFIGURATION));
 	    } catch (Exception ex) {
+	    	ex.printStackTrace();
 	    	LOGGER.severe("Can't load configuration");
 	        throw new RuntimeException(ex.toString());
 	    }
