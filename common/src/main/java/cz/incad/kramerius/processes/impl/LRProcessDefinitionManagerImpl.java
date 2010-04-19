@@ -131,7 +131,6 @@ public class LRProcessDefinitionManagerImpl implements DefinitionManager {
 
 	public static void main(String[] args) {
 		LRProcessDefinitionManagerImpl impl = new LRProcessDefinitionManagerImpl(KConfiguration.getKConfiguration(), null);
-		impl.load();
 		
 	}
 }
