@@ -8,7 +8,6 @@ public class JQuerySliderValue extends SliderValue {
 
 	@Override
 	public double getValue() {
-		Window.alert("getting value from slider");
 		int jQuerySliderValue = getJQuerySliderValue();
 		return new Double(jQuerySliderValue).doubleValue();
 	}
@@ -20,7 +19,6 @@ public class JQuerySliderValue extends SliderValue {
 	}
 
 	public native int getJQuerySliderValue() /*-{
-		alert("getting value from slider");
 		if (!$wnd.getSliderValue) {
 			alert("expect function getSliderValue");
 		} else {
