@@ -15,7 +15,7 @@ import junit.framework.TestCase;
 public class UtilsTest extends TestCase {
 
 	public void testPages() throws IOException, ParserConfigurationException, SAXException, LexerException {
-		KConfiguration kConfiguration = KConfiguration.getKConfiguration("/home/pavels/Programs/fedora-commons/tomcat/conf/kk.xml");
+		KConfiguration kConfiguration = KConfiguration.getKConfiguration();
 		ArrayList<SimpleImageTO> pages = Utils.getPages(kConfiguration, "966dfeb3-e640-11de-a504-001143e3f55c");
 		System.out.println(pages.size());
 	}

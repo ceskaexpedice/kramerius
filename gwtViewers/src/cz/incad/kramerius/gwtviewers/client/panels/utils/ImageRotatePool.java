@@ -50,7 +50,6 @@ public class ImageRotatePool {
 		this.right = right;
 		this.ukazovatko = pointer;
 		fillNoVisibleImages();
-		this.debugPool();
 	}
 	
 	public ImageRotatePool(ArrayList<ImageMoveWrapper> viewPortImages, ArrayList<ImageMoveWrapper> novisibles, ImageMoveWrapper left, ImageMoveWrapper right) {

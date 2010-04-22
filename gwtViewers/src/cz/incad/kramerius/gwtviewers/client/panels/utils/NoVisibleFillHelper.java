@@ -15,7 +15,6 @@ public class NoVisibleFillHelper {
 		int left = current-1;
 		int right = pool.getPointer()+ pool.getVisibleImageSize();
 		ArrayList<ImageMoveWrapper> nvis = pool.getNoVisibleImages();
-		System.out.println(nvis);
 		int size = nvis.size();
 		int maxIndex = size / 2; maxIndex += size % 2;
 		for (int i = 1; i <= maxIndex; i++) {

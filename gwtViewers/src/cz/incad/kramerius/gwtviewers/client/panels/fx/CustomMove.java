@@ -26,6 +26,7 @@ public class CustomMove extends NMorphStyle {
 			effectElement.getStyle().setProperty("left",
 					thePanel.getElement().getStyle().getProperty("left"));
 		}
+		
 	}
 
 

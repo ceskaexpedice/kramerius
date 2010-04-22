@@ -27,6 +27,11 @@
 
 
 
+	<replace-with class="cz.incad.kramerius.gwtviewers.client.slider.SliderFactory">
+		<when-type-is class="cz.incad.kramerius.gwtviewers.client.slider.SliderFactory" />
+	</replace-with>
+
+
 	<!-- Fall through to this rule is the browser isn't IE or Mozilla -->
 	<replace-with class="cz.incad.kramerius.gwtviewers.client.ModuloCreator">
 		<when-type-is class="cz.incad.kramerius.gwtviewers.client.ModuloCreator" />

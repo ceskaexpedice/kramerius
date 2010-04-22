@@ -2,10 +2,12 @@ package cz.incad.kramerius.gwtviewers.client.panels;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 
 import org.adamtacy.client.ui.effects.transitionsphysics.LinearTransitionPhysics;
 import org.adamtacy.client.ui.effects.transitionsphysics.TransitionPhysics;
 
+import com.google.gwt.dev.GwtVersion;
 import com.google.gwt.dom.client.DivElement;
 import com.google.gwt.dom.client.Style.Unit;
 import com.google.gwt.event.dom.client.HasAllMouseHandlers;
@@ -23,6 +25,11 @@ import com.google.gwt.user.client.ui.SimplePanel;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 
+import cz.incad.kramerius.gwtviewers.client.GwtViewers;
+import cz.incad.kramerius.gwtviewers.client.events.Barrier;
+import cz.incad.kramerius.gwtviewers.client.events.BarrierAction;
+import cz.incad.kramerius.gwtviewers.client.events.MovingEvent;
+import cz.incad.kramerius.gwtviewers.client.events.EventBus;
 import cz.incad.kramerius.gwtviewers.client.panels.fx.Rotate;
 import cz.incad.kramerius.gwtviewers.client.panels.utils.CalculationHelper;
 import cz.incad.kramerius.gwtviewers.client.panels.utils.ImageRotateCalculatedPositions;
@@ -95,12 +102,12 @@ public class MoveEffectsPanel extends  Composite {
 	
 
 	
-	public Rotate moveLeft(double duration) {
+	public Rotate moveLeft(double duration, Barrier barrier, MovingEvent evt) {
 		ArrayList<ImageMoveWrapper> viewPortImages = this.imageRotatePool.getVisibleImages();
 		boolean rollLeft = this.imageRotatePool.rollLeft();
 		if (rollLeft) {
 			this.calulateNextPositions();
-			Rotate left = new Rotate(this.configuration, this.imageRotatePool,this.imageRotateCalculatedPositions, viewPortImages);
+			Rotate left = new Rotate(this.configuration, this.imageRotatePool,this.imageRotateCalculatedPositions, viewPortImages, barrier, evt);
 			left.initCompositeEffect();
 			left.setDuration(duration);
 			left.play();
@@ -170,12 +177,12 @@ public class MoveEffectsPanel extends  Composite {
 	}
 	
 
-	public Rotate moveRight(double duration) {
+	public Rotate moveRight(double duration, Barrier barrier, MovingEvent evt) {
 		ArrayList<ImageMoveWrapper> viewPortImages = this.imageRotatePool.getVisibleImages();
 			boolean rollRight = this.imageRotatePool.rollRight();
 			if (rollRight) {
 				this.calulateNextPositions();
-				Rotate right = new Rotate(this.configuration, this.imageRotatePool,this.imageRotateCalculatedPositions, viewPortImages);
+				Rotate right = new Rotate(this.configuration, this.imageRotatePool,this.imageRotateCalculatedPositions, viewPortImages, barrier, evt);
 				right.initCompositeEffect();
 				right.setDuration(duration);
 				right.play();
@@ -222,29 +229,41 @@ public class MoveEffectsPanel extends  Composite {
 
 	
 
-	public void rollToPage(int currentValue, double duration,boolean playEffect) {
+	public void rollToPage(int currentValue, double duration,boolean playEffect, final MovingEvent evt) {
 		int pocetKroku = currentValue - this.imageRotatePool.getPointer();
 		if (pocetKroku > 0) {
+			Barrier barrier = new Barrier(pocetKroku, new BarrierAction() {
+				@Override
+				public void action() {
+					//TODO: Figure it out.
+				}
+			});
 			for (int i = 0; i < pocetKroku; i++) { 
 				if (playEffect)  {
-					moveLeft(duration);
+					moveLeft(duration, barrier, evt);
 				} else  {
 					moveLeftOnlyPointer();
-					//moveLeftWithoutEffect();
 				}
 			}
 		}
+		
 		if (pocetKroku < 0) {
+			Barrier barrier = new Barrier(pocetKroku, new BarrierAction() {
+				
+				@Override
+				public void action() {
+					//TODO: Figure it out.
+				}
+			});
 			for (int i = pocetKroku; i < 0; i++) { 
 				if (playEffect) {
-					moveRight(duration);
+					moveRight(duration, barrier,evt);
 				}  else {
 					moveRightOnlyPointer();
-					//moveRightWithoutEffect();
 				}
 			}
 		}
-		this.imageRotatePool.debugPool();
+		//this.imageRotatePool.debugPool();
 	}
 	
 	
@@ -265,9 +284,11 @@ public class MoveEffectsPanel extends  Composite {
 	}
 
 
-
 	public void setImgSelector(Selector imgSelector) {
 		this.imgSelector = imgSelector;
 	}
-	
+
+	public ViewConfiguration getViewConfiguration() {
+		return configuration;
+	}
 }

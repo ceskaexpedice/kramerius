@@ -23,7 +23,7 @@ public class DisectSizesTest extends TestCase {
 	//private static String UUID = "775211f0-9280-11de-9660-000d606f5dc6";
 
 	public void testDisectOld() throws IOException, ParserConfigurationException, SAXException, LexerException {
-		KConfiguration configuration = KConfiguration.getKConfiguration("/home/pavels/Programs/fedora-commons/tomcat/conf/kk.xml");
+		KConfiguration configuration = KConfiguration.getKConfiguration();
 		int sum = 0;
 		for (int i = 0; i < ITERATIONS; i++) {
 			long start = System.currentTimeMillis();
@@ -38,7 +38,7 @@ public class DisectSizesTest extends TestCase {
 	}
 	
 	public void testDisect() throws FileNotFoundException, IOException, ParserConfigurationException, SAXException, LexerException {
-		KConfiguration configuration = KConfiguration.getKConfiguration("/home/pavels/Programs/fedora-commons/tomcat/conf/kk.xml");
+		KConfiguration configuration = KConfiguration.getKConfiguration();
 		int sum = 0;
 		for (int i = 0; i < ITERATIONS; i++) {
 			long start = System.currentTimeMillis();
