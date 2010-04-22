@@ -88,3 +88,23 @@ h1 {
 .gwt-SliderBar-shell .gwt-SliderBar-line-sliding {
 	cursor: pointer;
 }
+
+
+.page_selected {
+	background: rgb(135,170,222);
+	margin: 2px;
+	padding: 4px;
+}
+
+.page_not_selected {
+	background: rgb(239,246,247);
+	margin: 2px;
+	padding: 3px;
+}
+
+.gwtPagesContainer {
+	background: gray;
+	border: 1px solid black;
+	margin: 2px;
+	padding: 3px;
+}
