@@ -347,7 +347,7 @@ td.rightMenu .facet{
 }
 #mainContent *{
     font-size:10px;
-    vertical-align:middle;
+    vertical-align:top;
 }
  
 /* suggest */
@@ -442,3 +442,5 @@ table.advancedSearch td{
 
 .ui-dialog-titlebar-prev { position: absolute; right: 50px; top: 50%; width: 19px; margin: -10px 0 0 0; padding: 1px; height: 18px; }
 .ui-dialog-titlebar-next { position: absolute; right: 30px; top: 50%; width: 19px; margin: -10px 0 0 0; padding: 1px; height: 18px; }
+.ui-dialog-titlebar-zoom {position: absolute; right: 75px;}
+.ui-dialog-titlebar-zoom select {border:solid 1px silver;}

@@ -316,3 +316,7 @@ function showMainContent(pid, path){
     });
     
 }
+
+function getPageTitle(pid){
+    return $("#" + pid).text();
+}

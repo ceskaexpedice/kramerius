@@ -30,6 +30,7 @@
         var next = '<span style="padding:15px;cursor:pointer;" onclick="selectNext();"><img src="img/ra.png" /></span>';
         var currentMime = "unknown";
 	function selectPage(uuid, mimetype){
+            currentSelectedPage = uuid;
             var pageUrl = "djvu?uuid="+uuid+"&scaledHeight=600";
             var mimeUrl = "djvu?uuid="+uuid+"&imageType=ask";
             //var fullUrl = "<%=KConfiguration.getKConfiguration().getDJVUServletUrl()%>?uuid="+uuid+"&outputFormat=RAW";
@@ -45,29 +46,37 @@
             changeSelectedPage(uuid);
 	}
         var fullDialog;
+        var vertMargin = 20;
+        var horMargin = 17;
+        var fullImageWidth;
+        var fullImageHeight;
         function showFullImage(uuid){
             
             var fullUrl = "djvu?uuid="+currentSelectedPage+"&outputFormat=RAW";
             $('#mainItemTable').hide();
             //return;
             if(fullDialog){
+                fullDialog.dialog("option","title", getPageTitle(currentSelectedPage));
                 fullDialog.dialog('open');
             }
             else{
                 fullDialog = $('#fullImageContainer').dialog({
                     left:0, 
                     top:0, 
-                    height:$(window).height()-20, 
-                    width:$(window).width()-17,
+                    height:$(window).height()-vertMargin, 
+                    width:$(window).width()-horMargin,
                     modal:true,
                     resizable:false,
                     draggable:false,
-                    close: function(event, ui) {$('#mainItemTable').show(); }
+                    title:getPageTitle(currentSelectedPage),
+                    close: function(event, ui) {$('#mainItemTable').show();  $('#imgContainer>img').attr('src', 'img/empty.gif');}
 
                 });
-                $('.ui-dialog-titlebar').append('<a href="javascript:previousFull();" class=" ui-corner-all ui-dialog-titlebar-prev"><span class="ui-icon ui-icon-arrowthick-1-w">prev</span></a>' +
-                                                '<a href="javascript:nextFull();" class=" ui-corner-all ui-dialog-titlebar-next"><span class="ui-icon ui-icon-arrowthick-1-e">next</span></a>');
-
+                $('.ui-dialog-titlebar').append('<a href="javascript:previousFull();" class=" ui-corner-all ui-dialog-titlebar-prev"><span class="ui-icon ui-icon-arrowthick-1-w">prev</span></a>');
+                $('.ui-dialog-titlebar').append('<a href="javascript:nextFull();" class=" ui-corner-all ui-dialog-titlebar-next"><span class="ui-icon ui-icon-arrowthick-1-e">next</span></a>');
+                if(currentMime!= 'image/djvu'){
+                    $('#imgContainer').show();
+                }
             }
             //alert(currentMime);
             if(currentMime== 'image/djvu'){
@@ -76,16 +85,39 @@
                 $('#djvuContainer>object>embed').attr('src', fullUrl);
                 $('#djvuContainer').show();
             }else{
+                $('.ui-dialog-titlebar').append($('#divFullImageZoom').html());
                 $('#imgContainer>img').attr('src', fullUrl);
-                $('#imgContainer').show();
+                
+                
+            }
+        }
+        function changeFullImageZoom(){
+        //alert($('#fullImageZoom').val());
+            var zoom = $('#fullImageZoom').val();
+            if(zoom=="width"){
+                $('#imgContainer>img').css({'width': $('#imgContainer').width(), 'height': ''});
+                
+            }else if(zoom=="height"){
+                //var w = 
+                $('#imgContainer>img').css({'height': $(window).height()-vertMargin-$('.ui-dialog-titlebar').height()-5,
+                    'width': ''});
+            }else{
+                var w = Math.round(document.getElementById('imgFullImage').naturalWidth * parseFloat(zoom));
+                var h = Math.round(document.getElementById('imgFullImage').naturalHeight * parseFloat(zoom));
+                $('#imgContainer>img').css({'width': w, 'height': h});
+                //$('#imgContainer>img').css('height', $('#fullImageZoom').val());
             }
         }
         function previousFull(){
+            //$('#imgContainer>img').attr('src', 'img/loading.gif').css({'width': '', 'height': 'h'});
             selectPrevious();
+            //setTimeout('showFullImage()', 100);
             showFullImage();
         }
         function nextFull(){
+            //$('#imgContainer>img').attr('src', 'img/loading.gif').css({'width': '', 'height': 'h'});
             selectNext();
+            //setTimeout('showFullImage()', 100);
             showFullImage();
         }
 	function pages(from, to){  }

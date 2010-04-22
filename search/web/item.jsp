@@ -156,7 +156,22 @@
         </object>
     </div>
     <div id="imgContainer" style="display:none;" align="center">
-        <img src="img/empty.gif" />
+        <img id="imgFullImage" src="img/empty.gif" style="width:50%" />
+    </div>
+    <div id="divFullImageZoom" style="display:none;">
+        <span class="ui-dialog-titlebar-zoom">zoom: <select onchange="changeFullImageZoom()" id="fullImageZoom">
+            <option value="width">Fit width</option>
+            <option value="height">Fit height</option>
+            <option value="0.1">10%</option>
+    <option value="0.2" >20%</option>
+    <option value="0.3" >30%</option>
+    <option value="0.4" >40%</option>
+    <option value="0.5" selected="selected" >50%</option>
+    <option value="0.6" >60%</option>
+    <option value="0.7" >70%</option>
+    <option value="0.8" >80%</option>
+    <option value="0.9" >90%</option>
+    <option value="1" >100%</option></select></span>
     </div>
 </div>
 </body></html>
