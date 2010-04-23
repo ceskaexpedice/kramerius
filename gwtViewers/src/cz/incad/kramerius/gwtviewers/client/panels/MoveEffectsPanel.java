@@ -1,35 +1,14 @@
 package cz.incad.kramerius.gwtviewers.client.panels;
 
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
 
-import org.adamtacy.client.ui.effects.transitionsphysics.LinearTransitionPhysics;
-import org.adamtacy.client.ui.effects.transitionsphysics.TransitionPhysics;
-
-import com.google.gwt.dev.GwtVersion;
-import com.google.gwt.dom.client.DivElement;
-import com.google.gwt.dom.client.Style.Unit;
-import com.google.gwt.event.dom.client.HasAllMouseHandlers;
-import com.google.gwt.event.dom.client.MouseMoveEvent;
-import com.google.gwt.event.dom.client.MouseMoveHandler;
-import com.google.gwt.event.dom.client.MouseOutEvent;
-import com.google.gwt.event.dom.client.MouseOutHandler;
-import com.google.gwt.event.dom.client.MouseOverEvent;
-import com.google.gwt.event.dom.client.MouseOverHandler;
 import com.google.gwt.user.client.ui.AbsolutePanel;
 import com.google.gwt.user.client.ui.Composite;
-import com.google.gwt.user.client.ui.Image;
-import com.google.gwt.user.client.ui.RootPanel;
 import com.google.gwt.user.client.ui.SimplePanel;
-import com.google.gwt.user.client.ui.VerticalPanel;
-import com.google.gwt.user.client.ui.Widget;
 
-import cz.incad.kramerius.gwtviewers.client.GwtViewers;
 import cz.incad.kramerius.gwtviewers.client.events.Barrier;
 import cz.incad.kramerius.gwtviewers.client.events.BarrierAction;
 import cz.incad.kramerius.gwtviewers.client.events.MovingEvent;
-import cz.incad.kramerius.gwtviewers.client.events.EventBus;
 import cz.incad.kramerius.gwtviewers.client.panels.fx.Rotate;
 import cz.incad.kramerius.gwtviewers.client.panels.utils.CalculationHelper;
 import cz.incad.kramerius.gwtviewers.client.panels.utils.ImageRotateCalculatedPositions;
