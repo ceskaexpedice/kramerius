@@ -5,7 +5,9 @@
 <%@ page isELIgnored="false"%>
 
 <%
-            String fromField = "f1";
+			//String remoteUserID = request.getRemoteUser();
+
+			String fromField = "f1";
             String toField = "f2";
             String fromValue = "";
             String toValue = "";
