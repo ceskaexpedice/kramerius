@@ -144,7 +144,7 @@
         <web-resource-collection>
             <web-resource-name>Protected area</web-resource-name>
             <description>no description</description>
-            <url-pattern>/main/*</url-pattern>
+            <url-pattern>/redirect.jsp</url-pattern>
         </web-resource-collection>
         <auth-constraint>
             <description>no description</description>
