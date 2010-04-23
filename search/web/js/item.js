@@ -254,7 +254,7 @@ function openGeneratePdfDialog(level){
                     if(to - from + 1 > generatePdfMaxRange){
                         alert("Maximalne "+generatePdfMaxRange+"!");
                     }else if(to>pagesCount  || isNaN(from) || isNaN(to)) {
-                        alert(generatePdfErrorText);
+                    	alert(generatePdfErrorText);
                     }else if(to==pagesCount && from == '1'){
                         var path ="";
                         for(var i =0;i<level;i++) {
@@ -267,7 +267,16 @@ function openGeneratePdfDialog(level){
                         window.location.href = url;
                         $(this).dialog("close");
                     }else{
-                        alert($("#genPdfEnd").val() - $("#genPdfStart").val());
+                        var path ="";
+                        for(var i =0;i<level;i++) {
+                        	path = path+$("#tabs_"+level).attr('pid');
+                        	if (i != level-1) { path = path +"/"; }
+                        }
+                        //alert($("#genPdfEnd").val() - $("#genPdfStart").val());
+                        var fromUuid = $("#list-page>div.relItem")[$("#genPdfStart").val()-1].attributes['id'].value;
+        				var toUuid = $("#list-page>div.relItem")[$("#genPdfEnd").val()-1].attributes['id'].value;
+                        var url = "pdf?uuidFrom=" + fromUuid+"&uuidTo="+toUuid+"&path="+path;
+                        window.location.href = url;
                         $(this).dialog("close");
                     }
 
