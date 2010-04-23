@@ -45,12 +45,12 @@ function generateStatic(level, exportType){
 	var pid = $("#tabs_"+level).attr('pid');
 	var url = "lr?action=start&def="+exportType+"&out=text&params="+pid;
 	if (_waitingDialog) {
-    	$("#process_started_ok").css("display","none");
-    	$("#process_started_failed").css("display","none");
-    	$("#process_started_waiting").css("display","block");
+    	$("#process_started_ok").hide();
+    	$("#process_started_failed").hide();
+    	$("#process_started_waiting").show();
     	_waitingDialog.dialog('open');
 	} else {
-    	$("#process_started_waiting").css("display","block");
+    	$("#process_started_waiting").show();
 		_waitingDialog = $("#process_started").dialog({
 	        bgiframe: true,
 	        width: 400,
