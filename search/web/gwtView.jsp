@@ -120,7 +120,74 @@
             //setTimeout('showFullImage()', 100);
             showFullImage();
         }
-	function pages(from, to){  }
+	
+   	/*--- callback from component - page range changed ---*/
+	function onChangePages(from, to){  
+		var previous = $("#range").html();
+		$("#range").html(""+(from+1)+" - "+to);	
+	}
+   	/*--- end of callback from component ---*/
+	
+	
+	/*--- JQuery slider ---*/
+	function createSlider(mmin, mmax, mcur, width) {
+   		$("#slider").slider({
+			max: mmax,
+			min:mmin,
+			value:mcur
+		});
+		
+		$("#slider").css("width",width);
+		$("#slider").bind( "slide", function(event, ui) {
+			showPages();
+			jQuerySliderChange(ui.value);
+		});
+
+		$("#slider").bind("slidestop", function(event, ui) {
+			hidePages();
+			jQuerySliderMouseUp();
+		});
+	}
+
+	function getSliderValue() {
+		var vl = $("#slider").slider("value");
+		return vl;
+	}
+	
+	function setSliderValue(value) {
+		$("#slider").slider("value", value);
+		jQuerySliderChange(value);
+	}
+	/*--- end of JQuery slider ---*/
+
+	
+	/*--- pages range dialog ---*/
+	var pagesWindow = null;
+	function hidePages() {
+		if (pagesWindow) {
+			pagesWindow.dialog("close");
+		}
+	}
+
+	function showPages() {
+		$("#pages").show();
+		if (pagesWindow) {
+			pagesWindow.dialog("open");
+		} else {
+			pagesWindow =  $("#pages").dialog({
+		        bgiframe: false,
+		        width: 350,
+		        height: 60,
+		        minHeight:60,
+		        modal: false,
+		        draggable:false,
+		        resizable:false,
+		        title:"rozsah stránek"
+		    });
+		}
+	}
+	/*--- end of pages range dialog ---*/
+	
 </script>
  
 <table align="center">
