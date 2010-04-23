@@ -1,5 +1,4 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE web-app PUBLIC "-//Sun Microsystems, Inc.//DTD Web Application 2.3//EN" "http://java.sun.com/dtd/web-app_2_3.dtd">
 <web-app>
 
 	<!-- Guice -->
@@ -136,6 +135,37 @@
 		<servlet-name>mimetype</servlet-name>
 		<url-pattern>/mimetype</url-pattern>
 	</servlet-mapping>
+
+    <security-role>
+        <role-name>tomcat</role-name>
+    </security-role>
+
+    <security-constraint>
+        <web-resource-collection>
+            <web-resource-name>Protected area</web-resource-name>
+            <description>no description</description>
+            <url-pattern>/main/*</url-pattern>
+        </web-resource-collection>
+        <auth-constraint>
+            <description>no description</description>
+            <role-name>tomcat</role-name>
+        </auth-constraint>
+        <!--
+        <user-data-constraint>
+            <description>no description</description>
+            <transport-guarantee>NONE</transport-guarantee>
+        </user-data-constraint>
+        -->
+    </security-constraint>
+
+    <login-config>
+        <auth-method>FORM</auth-method>
+        <realm-name>Neco</realm-name>
+        <form-login-config>
+            <form-login-page>/login.jsp</form-login-page>
+            <form-error-page>/loginError.jsp</form-error-page>
+        </form-login-config>
+    </login-config>
 
 	<welcome-file-list>
 		<welcome-file>search.jsp</welcome-file>
