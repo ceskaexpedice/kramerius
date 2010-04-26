@@ -170,7 +170,7 @@
 	}
 
 	function showPages() {
-		$("#pages").show();
+		//alert("Test");
 		if (pagesWindow) {
 			pagesWindow.dialog("open");
 		} else {
@@ -198,6 +198,10 @@
             <td id="container"></td>
 	</tr>
 	<tr>
-            <td><div id="slider" style="width: 100%"></div> </td>
+    	<td><div id="slider" style="width: 100%"></div> </td>
 	</tr>
 </table>
+
+<div id="pages" style="display: none">
+	<div id="range" style="text-align: center;"></div>
+</div>
