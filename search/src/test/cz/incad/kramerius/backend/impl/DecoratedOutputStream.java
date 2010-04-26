@@ -9,7 +9,6 @@ import java.io.OutputStream;
 
 public class DecoratedOutputStream extends FileOutputStream {
 
-	private long size;
 	private long actualSize;
 	
 	public DecoratedOutputStream(File file, boolean append)
@@ -38,21 +37,22 @@ public class DecoratedOutputStream extends FileOutputStream {
 	public void write(byte[] b, int off, int len) throws IOException {
 		super.write(b, off, len);
 		this.actualSize += len;
-		System.out.println("Actual size "+this.actualSize);
 	}
 
 	@Override
 	public void write(byte[] b) throws IOException {
 		super.write(b);
 		this.actualSize += b.length;
-		System.out.println("Actual size "+this.actualSize);
 	}
 
 	@Override
 	public void write(int b) throws IOException {
 		super.write(b);
 		this.actualSize +=1; 
-		System.out.println("Actual size "+this.actualSize);
+	}
+
+	public long getActualSize() {
+		return actualSize;
 	}
 	
 }
