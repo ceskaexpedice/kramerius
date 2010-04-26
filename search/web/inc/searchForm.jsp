@@ -5,6 +5,10 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn" %>
 <%@ page isELIgnored="false"%>
 
+<%
+	pageContext.setAttribute("remoteUser",request.getRemoteUser());
+%>
+
 <form name="searchForm" method="GET" action="./">
     <table class="header ui-corner-top-8" >
         <tbody><tr>
@@ -29,6 +33,7 @@
                     <c:when test="${param.language == 'cs'}"><c:set var="lid" value="en" /><c:set var="lname" value="english"  /></c:when>
                     <c:otherwise><c:set var="lid" value="en" /><c:set var="lname" value="english"  /></c:otherwise>
                 </c:choose><a href="javascript:setLanguage('<c:out value="${lid}" />')"><c:out value="${lname}" /></a> :: 
-            <fmt:message>přihlášení</fmt:message> :: </td>
+            	<a href="redirect.jsp" /><fmt:message>přihlášení</fmt:message></a> :: <c:out value="${remoteUser}"></c:out> </td>
+            	
     </tr></tbody></table>
 </form>
