@@ -5,12 +5,10 @@ import static cz.incad.kramerius.utils.XMLUtils.findElement;
 
 import java.util.ArrayList;
 
-import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
-import sun.font.CreatedFontTracker;
 
 public class DCUtils {
 
