@@ -4,8 +4,20 @@
 .ui-slider .ui-slider-handle { position: absolute; z-index: 2; width: 0.5em; height: 0.5em; cursor: default; }
 .ui-slider .ui-slider-range { position: absolute; z-index: 1; font-size: .7em; display: block; border: 0; }
 
-.ui-slider-horizontal { height: .8em; }
-.ui-slider-horizontal .ui-slider-handle { top: -.3em; margin-left: -.6em; }
+.ui-slider-horizontal { 
+        height: .4em; 
+ }
+.ui-slider-horizontal .ui-slider-handle { 
+        background: #ffffff/*{bgColorActive}*/ url(../../../img/scroll_handler_h.png)/*{bgImgUrlActive}*/ 50%/*{bgActiveXPos}*/ 50%/*{bgActiveYPos}*/ repeat-x/*{bgActiveRepeat}*/;        
+        
+        margin-left: -.6em; 
+        margin-left: 0; 
+        margin-bottom: 0; 
+        width:36px;
+        top: -5px;
+        left: -8px;
+        height:12px;
+}
 .ui-slider-horizontal .ui-slider-range { top: 0; height: 100%; }
 .ui-slider-horizontal .ui-slider-range-min { left: 0; }
 .ui-slider-horizontal .ui-slider-range-max { right: 0; }
