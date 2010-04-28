@@ -4,7 +4,7 @@
  */
 
 var _processDialog; // dialog na zobrazovani proceus
-function processes(){
+function openProcessDialog() {
 	if (_processDialog) {
     	_processDialog.dialog('open');
 	} else {
@@ -22,11 +22,26 @@ function processes(){
 	    });
 	}
 }
+function processes(){
+	var url = "_processes.jsp?ordering=NAME&offset=0&size=5&type=DESC";
+	$.get(url, function(data) {
+		$("#processes").html(data);
+	});
+	openProcessDialog();
+}
+
+function modifyProcessDialogData(ordering, offset, size, type) {
+	var url = "_processes.jsp?ordering="+ordering+"&offset="+offset+"&size="+size+"&type="+type;
+	$.get(url, function(data) {
+		$("#processes").html(data);
+	});
+}
 
 /**
  * Promenne ve scriptu
  */
 var _waitingDialog; //cekaci dialog na spusteni procesu
+// Command pattern
 var _actions=function() {
 	var intArr = new Array(); {
 		intArr["RUNNING"]=_showProcessStarted;
