@@ -128,23 +128,8 @@
 </div>
 
 <div id="processes" style="display:none;">
-	<table width="100%">
-		<thead style="border-bottom: dashed 1px;" class="result r1">
-			<tr><td><strong>Název procesu</strong></td><td><strong>Popis</strong></td><td><strong>Stav</strong></td><td><strong>Akce</strong></td></tr>
-		</thead>
-		<tbody>
-		<c:forEach var="lrProc" items="${lrProcessManager.longRunningProcesses}" varStatus="i">
-                    <tr class="${(i.index mod 2 == 0) ? 'result r0': 'result r1'}">
-                        <td>${lrProc.definition.id} : ${lrProc.pid}</td>
-                        <td>${lrProc.definition.description}</td>
-                        <td>${lrProc.processState}</td>
-                        <td><a href="#">Zastavit</a></td>
-                    </tr>
-                </c:forEach>
-		</tbody>
-	</table>
-</div>
 
+</div>
 
 <div id="fullImageContainer" style="display:none;">
     <div id="djvuContainer" style="display:none;">
