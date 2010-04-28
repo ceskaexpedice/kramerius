@@ -16,6 +16,7 @@ import com.google.inject.Injector;
 import cz.incad.kramerius.FedoraAccess;
 import cz.incad.kramerius.lp.guice.PDFModule;
 import cz.incad.kramerius.pdf.GeneratePDFService;
+import cz.incad.kramerius.processes.impl.ProcessStarter;
 import cz.incad.kramerius.utils.DCUtils;
 
 /**
@@ -39,9 +40,18 @@ public class PDFExport {
 			if (uuidFolder.exists()) { uuidFolder.delete(); }
 			
 			Injector injector = Guice.createInjector(new PDFModule());
+			updateProcessName(uuid, injector, medium);
 			generatePDFs(uuid, uuidFolder, injector);
 			createFSStructure(uuidFolder, new File(outputFolderName), medium);
 		}
+	}
+
+	private static void updateProcessName(String uuid, Injector injector, Medium medium)
+			throws IOException {
+		FedoraAccess fa = injector.getInstance(FedoraAccess.class);
+		Document dc = fa.getDC(uuid);
+		String titleFromDC = DCUtils.titleFromDC(dc);
+		ProcessStarter.updateName("Generování '"+titleFromDC+"' na "+medium);
 	}
 
 	private static void createFSStructure(File pdfsFolder, File outputFodler, Medium medium) {
