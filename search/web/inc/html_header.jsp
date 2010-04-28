@@ -3,6 +3,7 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/xml" prefix="x" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt" %>
 <%@ page isELIgnored="false"%>
+<%@ page trimDirectiveWhitespaces="true"%>
 
 <%
 			//String remoteUserID = request.getRemoteUser();
