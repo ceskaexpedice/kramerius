@@ -1,12 +1,22 @@
 package cz.incad.kramerius.utils;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.nio.channels.FileChannel;
 import java.security.MessageDigest;
+import java.util.logging.Level;
 
 public class IOUtils {
 	
+	
+	public static final java.util.logging.Logger LOGGER = java.util.logging.Logger
+			.getLogger(IOUtils.class.getName());
+	
+	private IOUtils() {}
 	
 	/**
 	 * Kopirovani ze vstupniho proudo do vystupniho
@@ -38,4 +48,30 @@ public class IOUtils {
 		}
 	}
 	
+	public static void copyFile(File src, File dst) throws IOException {
+		LOGGER.info("Copying file '"+src.getAbsolutePath()+"' to '"+dst.getAbsolutePath()+"'");
+		FileChannel in = null;
+		FileChannel out = null;
+		try {
+			FileInputStream fis = new FileInputStream(src);
+			in = fis.getChannel();
+			FileOutputStream fos = new FileOutputStream(dst);
+			out = fos.getChannel();
+		    out.transferFrom(in, 0, in.size());
+		} finally  {
+			try {
+				if (in != null) in.close();
+			} catch (IOException e) {
+				LOGGER.log(Level.SEVERE, e.getMessage(), e);
+			}
+			if (out != null) {
+				try {
+					out.close();
+				} catch (IOException e) {
+					LOGGER.log(Level.SEVERE, e.getMessage(), e);
+				}
+			}
+		}
+	}
+
 }

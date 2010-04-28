@@ -20,7 +20,10 @@ import cz.incad.kramerius.processes.LRProcess;
 import cz.incad.kramerius.processes.LRProcessDefinition;
 import cz.incad.kramerius.processes.DefinitionManager;
 import cz.incad.kramerius.processes.LRProcessManager;
+import cz.incad.kramerius.processes.LRProcessOffset;
+import cz.incad.kramerius.processes.LRProcessOrdering;
 import cz.incad.kramerius.processes.States;
+import cz.incad.kramerius.processes.TypeOfOrdering;
 import cz.incad.kramerius.processes.database.DatabaseUtils;
 
 public class DatabaseProcessManager implements LRProcessManager {
@@ -50,11 +53,12 @@ public class DatabaseProcessManager implements LRProcessManager {
 				if(rs.next()) {
 					//CREATE TABLE PROCESSES(DEFID VARCHAR, UUID VARCHAR ,PID VARCHAR,STARTED timestamp, STATUS int
 					String definitionId = rs.getString("DEFID");
-					String pid = rs.getString("PID");
+					int pid = rs.getInt("PID");
 					int status = rs.getInt("STATUS");
 					Timestamp stmp = rs.getTimestamp("STARTED");
+					String name = rs.getString("NAME");
 					LRProcessDefinition definition = this.lrpdm.getLongRunningProcessDefinition(definitionId);
-					LRProcess process = definition.loadProcess(uuid, pid, stmp.getTime(), States.load(status));
+					LRProcess process = definition.loadProcess(uuid, ""+pid, stmp.getTime(), States.load(status), name);
 					return process;
 				} 
 			}
@@ -84,7 +88,6 @@ public class DatabaseProcessManager implements LRProcessManager {
 				registerProcess(connection, lp);
 			}
 		} catch (SQLException e) {
-			System.out.println(e.getErrorCode());
 			LOGGER.log(Level.SEVERE, e.getMessage(), e);
 		} finally {
 			if (connection != null) {
@@ -120,6 +123,30 @@ public class DatabaseProcessManager implements LRProcessManager {
 	}
 	
 	
+	
+	
+	@Override
+	public void updateLongRunningProcessName(LRProcess lrProcess) {
+		Connection connection = null;
+		try {
+			connection = provider.get();
+			if (!tableExists(connection)) {
+				createTable(connection);
+			}
+			DatabaseUtils.updateProcessName(connection, lrProcess.getUUID(), lrProcess.getProcessName());
+		} catch (SQLException e) {
+			LOGGER.log(Level.SEVERE, e.getMessage(), e);
+		} finally {
+			if (connection != null) {
+				try {
+					connection.close();
+				} catch (SQLException e) {
+					LOGGER.log(Level.SEVERE, e.getMessage(), e);
+				}
+			}
+		}
+	}
+
 	@Override
 	public void updateLongRunningProcessState(LRProcess lrProcess) {
 		Connection connection = null;
@@ -141,9 +168,48 @@ public class DatabaseProcessManager implements LRProcessManager {
 			}
 		}
 	}
+	
+	
+
+	
+	
+	
+	
+	@Override
+	public int getNumberOfLongRunningProcesses() {
+		Connection connection = null;
+		try {
+			connection = provider.get();
+			if (connection != null) {
+				if (!tableExists(connection)) {
+					createTable(connection);
+				}
+				StringBuffer buffer = new StringBuffer("select count(*) from PROCESSES ");
+				
+				PreparedStatement stm = connection.prepareStatement(buffer.toString());
+				ResultSet rs = stm.executeQuery();
+				int count = 0;
+				if(rs.next()) {
+					count = rs.getInt(1);
+				} 
+				return count;
+			} else return 0;
+		} catch (SQLException e) {
+			LOGGER.log(Level.SEVERE, e.getMessage(), e);
+		} finally {
+			if (connection != null) {
+				try {
+					connection.close();
+				} catch (SQLException e) {
+					LOGGER.log(Level.SEVERE, e.getMessage(), e);
+				}
+			}
+		}
+		return 0;
+	}
 
 	@Override
-	public List<LRProcess> getLongRunningProcesses() {
+	public List<LRProcess> getLongRunningProcesses(LRProcessOrdering ordering, TypeOfOrdering typeOfOrdering,LRProcessOffset offset) {
 		Connection connection = null;
 		try {
 			List<LRProcess> processes = new ArrayList<LRProcess>();
@@ -152,7 +218,18 @@ public class DatabaseProcessManager implements LRProcessManager {
 				if (!tableExists(connection)) {
 					createTable(connection);
 				}
-				PreparedStatement stm = connection.prepareStatement("select * from PROCESSES");
+				StringBuffer buffer = new StringBuffer("select * from PROCESSES ");
+				if (ordering  != null) {
+					buffer.append(ordering.getOrdering()).append(' ');
+				}
+				if (typeOfOrdering != null) {
+					buffer.append(typeOfOrdering.getTypeOfOrdering()).append(' ');
+				}
+				if (offset != null) {
+					buffer.append(offset.getSQLOffset());
+				}
+				
+				PreparedStatement stm = connection.prepareStatement(buffer.toString());
 				ResultSet rs = stm.executeQuery();
 				while(rs.next()) {
 					//CREATE TABLE PROCESSES(DEFID VARCHAR, UUID VARCHAR ,PID VARCHAR,STARTED timestamp, STATUS int
@@ -161,8 +238,9 @@ public class DatabaseProcessManager implements LRProcessManager {
 					String uuid = rs.getString("UUID");
 					int status = rs.getInt("STATUS");
 					Timestamp stmp = rs.getTimestamp("STARTED");
+					String name = rs.getString("NAME");
 					LRProcessDefinition definition = this.lrpdm.getLongRunningProcessDefinition(definitionId);
-					LRProcess process = definition.loadProcess(uuid, pid, stmp.getTime(), States.load(status));
+					LRProcess process = definition.loadProcess(uuid, pid, stmp.getTime(), States.load(status), name);
 					processes.add(process);
 				} 
 			}
@@ -172,7 +250,7 @@ public class DatabaseProcessManager implements LRProcessManager {
 					LOGGER.info("process '"+lrProcess.getUUID()+" ' is running");
 					if (!lrProcess.isLiveProcess()) {
 						lrProcess.setProcessState(States.FAILED);
-						this.updateLongRunningProcessPID(lrProcess);
+						this.updateLongRunningProcessState(lrProcess);
 					}
 				}
 			}
@@ -182,13 +260,17 @@ public class DatabaseProcessManager implements LRProcessManager {
 		} finally {
 			if (connection != null) {
 				try {
-					connection.close()
-					;
+					connection.close();
 				} catch (SQLException e) {
 					LOGGER.log(Level.SEVERE, e.getMessage(), e);
 				}
 			}
 		}
 		return new ArrayList<LRProcess>();
+	}
+
+	@Override
+	public List<LRProcess> getLongRunningProcesses() {
+		return getLongRunningProcesses(null, null, null);
 	}
 }

@@ -11,6 +11,7 @@ import java.lang.reflect.Method;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
+import java.net.URLEncoder;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.logging.Level;
@@ -73,21 +74,29 @@ public class ProcessStarter {
 	}
 
 
-	private static void updateStatus(States state) throws  MalformedURLException, IOException {
+	public static void updateStatus(States state) throws  MalformedURLException, IOException {
 		String uuid = System.getProperty(UUID_KEY);
 		String lrURl = System.getProperty(LR_SERVLET_URL);
 		String restURL = lrURl + "?action=updateStatus&uuid="+uuid+"&state="+state;
 		httpGet(restURL);
 	}
 
-	private static void updatePID(String pid) throws IOException {
+	public static void updatePID(String pid) throws IOException {
 		String uuid = System.getProperty(UUID_KEY);
 		String lrURl = System.getProperty(LR_SERVLET_URL);
 		String restURL = lrURl + "?action=updatePID&uuid="+uuid+"&pid="+pid;
 		httpGet(restURL);
 	}
 
-	private static void httpGet(String restURL) throws MalformedURLException,
+	public static void updateName(String name) throws IOException {
+		String uuid = System.getProperty(UUID_KEY);
+		String lrURl = System.getProperty(LR_SERVLET_URL);
+		String restURL = lrURl + "?action=updateName&uuid="+uuid+"&name="+URLEncoder.encode(name, "UTF-8");
+		LOGGER.info("requesting url :"+restURL);
+		httpGet(restURL);
+	}
+	
+	public static void httpGet(String restURL) throws MalformedURLException,
 			IOException {
 		URL url = new URL(restURL);
 		URLConnection connection = url.openConnection();

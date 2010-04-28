@@ -37,7 +37,6 @@ public class WindowsLRProcessImpl extends AbstractLRProcessImpl {
 
 	@Override
 	public boolean isLiveProcess() {
-		// TODO Auto-generated method stub
-		return false;
+		return true;
 	}
 }

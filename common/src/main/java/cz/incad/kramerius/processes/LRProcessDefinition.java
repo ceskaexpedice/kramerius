@@ -51,7 +51,7 @@ public interface LRProcessDefinition {
 	 * @param start Timestamp when process has been started
 	 * @return
 	 */
-	public LRProcess loadProcess(String uuid, String pid, long start, States state);
+	public LRProcess loadProcess(String uuid, String pid, long start, States state, String name);
 	
 	/**
 	 * Returns file error stream file 

@@ -15,6 +15,10 @@ public interface LRProcess {
 	 */
 	public List<String> getParameters();
 
+	/**
+	 * Runtime parameters of this process
+	 * @param params
+	 */
 	public void setParameters(List<String> params);
 	
 	
@@ -30,6 +34,10 @@ public interface LRProcess {
 	 */
 	public String getPid();
 
+	/**
+	 * Method for setting proceses's pid
+	 * @param pid
+	 */
 	public void setPid(String pid);
 	
 	/**
@@ -69,7 +77,20 @@ public interface LRProcess {
 	 */
 	public States getProcessState();
 	
+	/**
+	 * Setting process's state
+	 * @param st
+	 */
 	public void setProcessState(States st);
 
+	/**
+	 * Returns true, if the process is alive
+	 * @return
+	 */
 	public boolean isLiveProcess();
+
+	
+	public String getProcessName();
+	
+	public void setProcessName(String nm);
 }

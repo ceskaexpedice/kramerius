@@ -1,7 +1,10 @@
 package cz.incad.kramerius.processes.impl;
 
+import static cz.incad.kramerius.utils.IOUtils.*;
+
 import java.io.ByteArrayInputStream;
 import java.io.File;
+import java.io.FileFilter;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.charset.Charset;
@@ -23,6 +26,7 @@ import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
 import com.google.inject.Inject;
+import com.google.inject.name.Named;
 
 
 import cz.incad.kramerius.Constants;
@@ -39,18 +43,20 @@ public class LRProcessDefinitionManagerImpl implements DefinitionManager {
 			.getLogger(LRProcessDefinitionManagerImpl.class.getName());
 
 	public static final String CONFIGURATION_FILE = Constants.WORKING_DIR+File.separator+"lp.xml";
+	public static final String DEFAULT_LP_WORKDIR = Constants.WORKING_DIR+File.separator+"lp";
 	
 	private KConfiguration configuration;
 	private LRProcessManager processManager;
 
-	
+	private String realLibsDir = null;
 	
 	@Inject
 	public LRProcessDefinitionManagerImpl(KConfiguration configuration,
-			LRProcessManager processManager) {
+			LRProcessManager processManager, @Named("LIBS")String defaultLibsdir) {
 		super();
 		this.configuration = configuration;
 		this.processManager = processManager;
+		this.realLibsDir = defaultLibsdir;
 		this.load();
 	}
 
@@ -67,12 +73,41 @@ public class LRProcessDefinitionManagerImpl implements DefinitionManager {
 	@Override
 	public void load() {
 		try {
-			
+			File defaultWorkDir = new File(DEFAULT_LP_WORKDIR);
+			if (!defaultWorkDir.exists()) {
+				defaultWorkDir.mkdirs();
+			}
+
+			boolean copyJars = false;
+			File defaultLibDir = new File(DEFAULT_LP_WORKDIR, "default-lib");
+			if (!defaultLibDir.exists()) {
+				defaultLibDir.mkdirs();
+				copyJars = true;
+			}
+			if (copyJars) {
+				File[] listFiles = new File(this.realLibsDir).listFiles(new FileFilter() {
+					@Override
+					public boolean accept(File pathname) {
+						if (pathname.getName().endsWith(".jar")) {
+							return true;
+						} else return false;
+					}
+				});
+				if (listFiles != null) {
+					LOGGER.info("Copying libraries to default dir");
+					for (File jarFile : listFiles) {
+						File destFile = new File(defaultLibDir, jarFile.getName());
+						copyFile(jarFile, destFile);
+					}
+				}
+				
+			}
 			File conFile = new File(CONFIGURATION_FILE);
 			if (!conFile.exists()) {
 				StringTemplateGroup grp = new StringTemplateGroup("m");
 				StringTemplate template = grp.getInstanceOf("cz/incad/kramerius/processes/res/lp");
 				template.setAttribute("user_home", System.getProperties().getProperty("user.home"));
+				template.setAttribute("default_lp_work_dir", DEFAULT_LP_WORKDIR);
 				String string = template.toString();
 				conFile.createNewFile();
 				FileOutputStream fos = new FileOutputStream(conFile);
@@ -130,7 +165,6 @@ public class LRProcessDefinitionManagerImpl implements DefinitionManager {
 	}
 
 	public static void main(String[] args) {
-		LRProcessDefinitionManagerImpl impl = new LRProcessDefinitionManagerImpl(KConfiguration.getKConfiguration(), null);
-		
+		//LRProcessDefinitionManagerImpl impl = new LRProcessDefinitionManagerImpl(KConfiguration.getKConfiguration(), null);
 	}
 }

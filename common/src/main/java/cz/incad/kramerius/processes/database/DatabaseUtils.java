@@ -45,7 +45,7 @@ public class DatabaseUtils {
 	}
 	
 	public static void createTable(Connection con) throws SQLException {
-		PreparedStatement prepareStatement = con.prepareStatement("CREATE TABLE PROCESSES(DEFID VARCHAR(255), UUID VARCHAR(255) ,PID VARCHAR(255),STARTED timestamp, STATUS int)");
+		PreparedStatement prepareStatement = con.prepareStatement("CREATE TABLE PROCESSES(DEFID VARCHAR(255), UUID VARCHAR(255) ,PID int,STARTED timestamp, STATUS int, NAME VARCHAR(1024))");
 		int r = prepareStatement.executeUpdate();
 	}
 	
@@ -65,10 +65,17 @@ public class DatabaseUtils {
 		prepareStatement.setString(2, uuid);
 		prepareStatement.executeUpdate();
 	}
-	
+
+	public static void updateProcessName(Connection con, String uuid, String name) throws SQLException {
+		PreparedStatement prepareStatement = con.prepareStatement("update processes set NAME = ? where UUID=?");
+		prepareStatement.setString(1, name);
+		prepareStatement.setString(2, uuid);
+		prepareStatement.executeUpdate();
+	}
+
 	public static void updateProcessPID(Connection con, String pid, String uuid) throws SQLException {
 		PreparedStatement prepareStatement = con.prepareStatement("update processes set PID = ? where UUID=?");
-		prepareStatement.setString(1, pid);
+		prepareStatement.setInt(1, Integer.parseInt(pid));
 		prepareStatement.setString(2, uuid);
 		prepareStatement.executeUpdate();
 	}

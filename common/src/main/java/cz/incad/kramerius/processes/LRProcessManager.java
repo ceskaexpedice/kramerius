@@ -2,6 +2,7 @@ package cz.incad.kramerius.processes;
 
 import java.util.List;
 
+
 /**
  * Implemenations manages LR processes
  * @author pavels
@@ -22,8 +23,12 @@ public interface LRProcessManager {
 	public LRProcess getLongRunningProcess(String uuid);
 	
 	public List<LRProcess> getLongRunningProcesses();
+	public List<LRProcess> getLongRunningProcesses(LRProcessOrdering ordering,TypeOfOrdering typeOfOrdering, LRProcessOffset offset);
 
+	public int getNumberOfLongRunningProcesses();
+	
 	public void updateLongRunningProcessState(LRProcess lrProcess);
+	public void updateLongRunningProcessName(LRProcess lrProcess);
 	public void updateLongRunningProcessPID(LRProcess lrProcess);
 
 }

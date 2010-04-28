@@ -1,6 +1,9 @@
 package cz.incad.kramerius.processes.mock;
 
+import java.io.IOException;
 import java.util.Arrays;
+
+import cz.incad.kramerius.processes.impl.ProcessStarter;
 
 public class MockLPProcess {
 
@@ -8,8 +11,9 @@ public class MockLPProcess {
 			.getLogger(MockLPProcess.class.getName());
 
 	
-	public static void main(String[] args) {
+	public static void main(String[] args) throws IOException {
 		LOGGER.info("args:"+Arrays.asList(args));
+		ProcessStarter.updateName("Jmeno ruze ... ");
 		// 1TB  space
 		long tb = 1l << 40;
 		// 1GB  space
@@ -21,8 +25,6 @@ public class MockLPProcess {
 				LOGGER.info("  diff = "+(System.currentTimeMillis()-start)+"ms and i ="+i);
 			}
 		}
-
 		LOGGER.info(" stop with "+(System.currentTimeMillis()-start)+"ms");
-		
 	}
 }

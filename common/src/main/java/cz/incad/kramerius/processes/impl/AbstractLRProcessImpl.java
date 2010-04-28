@@ -34,7 +34,8 @@ public abstract class AbstractLRProcessImpl implements LRProcess{
 	private long startTime;
 	private String uuid;
 	private States state = States.NOT_RUNNING;
-
+	private String name;
+	
 	private List<String> parameters = new ArrayList<String>();
 	
 	public AbstractLRProcessImpl(
@@ -223,4 +224,19 @@ public abstract class AbstractLRProcessImpl implements LRProcess{
 	public States getProcessState() {
 		return this.state;
 	}
+
+
+	@Override
+	public String getProcessName() {
+		return this.name;
+	}
+
+
+
+	@Override
+	public void setProcessName(String nm) {
+		this.name = nm;
+	}
+	
+	
 }
