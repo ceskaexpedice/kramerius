@@ -2,12 +2,15 @@ package cz.incad.Kramerius;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.logging.Level;
 
+import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -19,7 +22,10 @@ import cz.incad.kramerius.processes.DefinitionManager;
 import cz.incad.kramerius.processes.LRProcess;
 import cz.incad.kramerius.processes.LRProcessDefinition;
 import cz.incad.kramerius.processes.LRProcessManager;
+import cz.incad.kramerius.processes.LRProcessOffset;
+import cz.incad.kramerius.processes.LRProcessOrdering;
 import cz.incad.kramerius.processes.States;
+import cz.incad.kramerius.processes.TypeOfOrdering;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 
 public class LongRunningProcessServlet extends GuiceServlet {
@@ -39,8 +45,9 @@ public class LongRunningProcessServlet extends GuiceServlet {
 		String action = req.getParameter("action");
 		if (action == null) action = Actions.list.name();
 		Actions selectedAction = Actions.valueOf(action);
-		selectedAction.doAction(req, resp, this.definitionManager, this.lrProcessManager);
+		selectedAction.doAction(getServletContext(), req, resp, this.definitionManager, this.lrProcessManager);
 	}
+
 	
 	public static LRProcess startNewProcess(String def, DefinitionManager definitionManager, String[] params) {
 		definitionManager.load();
@@ -51,7 +58,7 @@ public class LongRunningProcessServlet extends GuiceServlet {
 		return newProcess;
 	}
 
-	public static LRProcess stopOldProcess(String uuidOfProcess, DefinitionManager defManager, LRProcessManager lrProcessManager) {
+	public static LRProcess stopOldProcess(String defaultLibDir, String uuidOfProcess, DefinitionManager defManager, LRProcessManager lrProcessManager) {
 		defManager.load();
 		lrProcessManager.getLongRunningProcess(uuidOfProcess).stopMe();
 		return lrProcessManager.getLongRunningProcess(uuidOfProcess);
@@ -61,7 +68,7 @@ public class LongRunningProcessServlet extends GuiceServlet {
 	static enum Actions {
 		
 		start {
-			public void doAction(HttpServletRequest req, HttpServletResponse resp, DefinitionManager defManager, LRProcessManager lrProcessManager) {
+			public void doAction(ServletContext context,HttpServletRequest req, HttpServletResponse resp, DefinitionManager defManager, LRProcessManager lrProcessManager) {
 				try {
 					String def = req.getParameter("def");
 					String out = req.getParameter("out");
@@ -92,10 +99,11 @@ public class LongRunningProcessServlet extends GuiceServlet {
 
 		stop {
 			@Override
-			public void doAction(HttpServletRequest req,HttpServletResponse resp, DefinitionManager defManager, LRProcessManager lrProcessManager) {
+			public void doAction(ServletContext context,HttpServletRequest req,HttpServletResponse resp, DefinitionManager defManager, LRProcessManager lrProcessManager) {
 				try {
 					String uuid = req.getParameter("uuid");
-					LRProcess oProcess = stopOldProcess(uuid, defManager, lrProcessManager);
+					String realPath =context.getRealPath("WEB-INF/lib");
+					LRProcess oProcess = stopOldProcess(realPath, uuid, defManager, lrProcessManager);
 					StringBuffer buffer = new StringBuffer();
 					buffer.append("<html><body>");
 					buffer.append("<ul>");
@@ -115,19 +123,22 @@ public class LongRunningProcessServlet extends GuiceServlet {
 
 		list {
 			@Override
-			public void doAction(HttpServletRequest req,HttpServletResponse resp, DefinitionManager defManager, LRProcessManager lrProcessManager) {
+			public void doAction(ServletContext context,HttpServletRequest req,HttpServletResponse resp, DefinitionManager defManager, LRProcessManager lrProcessManager) {
 				try {
 					StringBuffer buffer = new StringBuffer();
 					buffer.append("<html><body>");
 					buffer.append("<h1>Running processes</h1>");
 					buffer.append("<ul>");
-					List<LRProcess> longRunningProcesses = lrProcessManager.getLongRunningProcesses();
+					LRProcessOrdering ordering = LRProcessOrdering.NAME;
+					LRProcessOffset offset = new LRProcessOffset("0", "20");
+					List<LRProcess> longRunningProcesses = lrProcessManager.getLongRunningProcesses(ordering, TypeOfOrdering.ASC, offset);
 					for (LRProcess lrProcess : longRunningProcesses) {
 						buffer.append("<li>").append("PID:").append(lrProcess.getPid());
 						if (lrProcess.canBeStopped()) {
 							buffer.append("  ... <a href='"+KConfiguration.getKConfiguration().getLRServletURL()+"?action=stop&uuid="+lrProcess.getUUID()+"'>stop</a>");
 						}
 						buffer.append("<li>").append("uuid :").append(lrProcess.getUUID());
+						buffer.append("<li>").append("name :").append(lrProcess.getProcessName());
 						buffer.append("<li>").append("started :"+new Date(lrProcess.getStart()));
 						buffer.append("<li>").append("processState :").append(lrProcess.getProcessState());
 						LRProcessDefinition lrDef = defManager.getLongRunningProcessDefinition(lrProcess.getDefinitionId());
@@ -137,7 +148,11 @@ public class LongRunningProcessServlet extends GuiceServlet {
 					}
 					buffer.append("</ul>");
 					buffer.append("</body></html>");
-					resp.getOutputStream().println(buffer.toString());
+					
+					resp.setContentType("text/html");
+					resp.setCharacterEncoding("UTF-8");
+					
+					resp.getWriter().println(buffer.toString());
 				} catch (IOException e) {
 					LOGGER.log(Level.SEVERE, e.getMessage(), e);
 				}
@@ -146,7 +161,7 @@ public class LongRunningProcessServlet extends GuiceServlet {
 
 		updatePID {
 			@Override
-			public void doAction(HttpServletRequest req,HttpServletResponse resp, DefinitionManager defManager, LRProcessManager lrProcessManager) {
+			public void doAction(ServletContext context,HttpServletRequest req,HttpServletResponse resp, DefinitionManager defManager, LRProcessManager lrProcessManager) {
 				String uuid = req.getParameter("uuid");
 				String pid = req.getParameter("pid");
 				LRProcess longRunningProcess = lrProcessManager.getLongRunningProcess(uuid);
@@ -158,7 +173,7 @@ public class LongRunningProcessServlet extends GuiceServlet {
 		updateStatus {
 
 			@Override
-			public void doAction(HttpServletRequest req,HttpServletResponse resp, DefinitionManager defManager, LRProcessManager processManager) {
+			public void doAction(ServletContext context,HttpServletRequest req,HttpServletResponse resp, DefinitionManager defManager, LRProcessManager processManager) {
 				String uuid = req.getParameter("uuid");
 				String state = req.getParameter("state");
 				if (state != null) {
@@ -168,9 +183,30 @@ public class LongRunningProcessServlet extends GuiceServlet {
 					processManager.updateLongRunningProcessState(longRunningProcess);
 				}
 			}
-		};
+		},
 
+		updateName {
+
+			@Override
+			public void doAction(ServletContext context,HttpServletRequest req,
+					HttpServletResponse resp, DefinitionManager defManager,
+					LRProcessManager processManager) {
+				try {
+					String uuid = req.getParameter("uuid");
+					String name = req.getParameter("name");
+					if (name != null) {
+						name = URLDecoder.decode(name, "UTF-8");
+						LRProcess longRunningProcess = processManager.getLongRunningProcess(uuid);
+						longRunningProcess.setProcessName(name);
+						processManager.updateLongRunningProcessName(longRunningProcess);
+					}
+				} catch (UnsupportedEncodingException e) {
+					LOGGER.log(Level.SEVERE, e.getMessage(), e);
+				}
+			}
+			
+		};
 		
-		abstract void doAction(HttpServletRequest req, HttpServletResponse resp, DefinitionManager defManager, LRProcessManager processManager);
+		abstract void doAction(ServletContext context,  HttpServletRequest req, HttpServletResponse resp, DefinitionManager defManager, LRProcessManager processManager);
 	}
 }
