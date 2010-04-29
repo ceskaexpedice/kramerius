@@ -8,6 +8,7 @@ import java.net.MalformedURLException;
 import java.net.PasswordAuthentication;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 import javax.xml.namespace.QName;
@@ -63,7 +64,13 @@ public class Import {
             System.out.println(e);
             e.printStackTrace();
         }
+        Iterator<QName> it = service.getPorts();
+        System.out.println("ports:");
+        while (it.hasNext()){
+            System.out.println(it.next().toString());
+        }
 
+        System.out.println("ports end");
         port = service.getPort(FedoraAPIM.class);
         ((BindingProvider) port).getRequestContext().put(BindingProvider.USERNAME_PROPERTY, user);
         ((BindingProvider) port).getRequestContext().put(BindingProvider.PASSWORD_PROPERTY, pwd);
