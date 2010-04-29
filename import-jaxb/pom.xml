@@ -25,7 +25,8 @@
       <groupId>javax.xml.bind</groupId>
       <artifactId>jaxb-api</artifactId>
       <version>2.1</version>
-    </dependency>		
+    </dependency>
+    		
 	</dependencies>
 	
   <repositories>
