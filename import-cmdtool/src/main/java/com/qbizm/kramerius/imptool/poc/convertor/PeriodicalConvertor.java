@@ -24,6 +24,7 @@ import com.qbizm.kramerius.imp.jaxb.periodical.PeriodicalItem;
 import com.qbizm.kramerius.imp.jaxb.periodical.PeriodicalPage;
 import com.qbizm.kramerius.imp.jaxb.periodical.PeriodicalVolume;
 import com.qbizm.kramerius.imp.jaxb.periodical.Publisher;
+import com.qbizm.kramerius.imp.jaxb.periodical.Subject;
 import com.qbizm.kramerius.imp.jaxb.periodical.TechnicalDescription;
 import com.qbizm.kramerius.imp.jaxb.periodical.UniqueIdentifier;
 import com.qbizm.kramerius.imp.jaxb.periodical.UniqueIdentifierURNType;
@@ -64,7 +65,7 @@ public class PeriodicalConvertor extends BaseConvertor {
      * @param uid
      * @return
      */
-    private String pid(UniqueIdentifier uid) throws ServiceException {
+    private String uuid(UniqueIdentifier uid) throws ServiceException {
         String pid;
         if (uid == null || uid.getUniqueIdentifierURNType() == null || !Pattern.matches(PID_PATTERN, PID_PREFIX + first(uid.getUniqueIdentifierURNType().getContent()))) {
             pid = generateUUID();
@@ -76,7 +77,7 @@ public class PeriodicalConvertor extends BaseConvertor {
             pid = first(uid.getUniqueIdentifierURNType().getContent());
         }
 
-        return PID_PREFIX + pid;
+        return pid;
     }
 
     /**
@@ -108,18 +109,62 @@ public class PeriodicalConvertor extends BaseConvertor {
         if (peri.getUniqueIdentifier() == null) {
             peri.setUniqueIdentifier(new UniqueIdentifier());
         }
-        String pid = pid(peri.getUniqueIdentifier());
+        String uuid = uuid(peri.getUniqueIdentifier());
+        String pid = pid (uuid);
 
         RelsExt re = new RelsExt(pid, MODEL_PERIODICAL);
+        boolean visibility = isPublic(uuid, config.isDefaultVisibility(), "p_periodical");
 
         for (PeriodicalVolume volume : peri.getPeriodicalVolume()) {
-            this.convertVolume(volume);
-            re.addRelation(RelsExt.HAS_VOLUME, pid(volume.getUniqueIdentifier()));
+            this.convertVolume(volume, visibility);
+            re.addRelation(RelsExt.HAS_VOLUME, uuid(volume.getUniqueIdentifier()),false);
         }
 
-        DigitalObject foxmlPeri = this.createDigitalObject(peri, pid, title, biblio, re, XSL_MODS_PERIODICAL, null);
+        addDonatorRelation(re, biblio.getCreator());
+        
+        DublinCore dc = createPeriodicalDublinCore(pid, title, biblio);
+        
+        convertHandle(uuid, dc, re);
+        
+        String ISSN = peri.getISSN()==null?null:first(peri.getISSN().getContent());
+        dc.addQualifiedIdentifier(RelsExt.ISSN, ISSN);
+        
+        for (Subject subj : biblio.getSubject()) {
+            if (subj.getDDC() != null) {
+                for (String ddc : subj.getDDC().getContent()) {
+                    dc.addSubject("ddc:" + ddc);
+                }
+            }
+            if (subj.getUDC() != null) {
+                for (String udc : subj.getUDC().getContent()) {
+                    dc.addSubject("udc:" + udc);
+                }
+            }
+        }
+        
+        dc.setDescription(biblio.getAnnotation() == null? null:concat(biblio.getAnnotation().getContent()));
+        Publisher publ = firstItem(biblio.getPublisher());
+        if (publ!= null){
+            dc.setDate(publ.getDateOfPublication()==null?null:first(publ.getDateOfPublication().getContent()));
+        }
+        
+        dc.setType(MODEL_PERIODICAL);
+        
+        dc.setLanguage(first(biblio.getLanguage()));
+
+        DigitalObject foxmlPeri = this.createDigitalObject(peri, pid, title, dc, re, XSL_MODS_PERIODICAL, null, visibility);
 
         this.marshalDigitalObject(foxmlPeri);
+    }
+
+    private void addDonatorRelation(RelsExt re, List<Creator> creators) {
+        if (creators != null) {
+            for (Creator creator : creators) {
+                if (DONATOR_ID.equals(creator.getCreatorSurname()== null?"":first(creator.getCreatorSurname().getContent()))) {
+                    re.addRelation(RelsExt.HAS_DONATOR, DONATOR_PID,false);
+                }
+            }
+        }
     }
 
     /**
@@ -129,7 +174,7 @@ public class PeriodicalConvertor extends BaseConvertor {
      * @param prefix
      * @throws ServiceException
      */
-    private void convertVolume(PeriodicalVolume volume) throws ServiceException {
+    private void convertVolume(PeriodicalVolume volume, boolean parentVisibility) throws ServiceException {
         CoreBibliographicDescriptionPeriodical biblio = volume.getCoreBibliographicDescriptionPeriodical();
         String title = "";
         if (volume.getPeriodicalVolumeIdentification() != null && volume.getPeriodicalVolumeIdentification().getPeriodicalVolumeNumber() != null) {
@@ -138,21 +183,24 @@ public class PeriodicalConvertor extends BaseConvertor {
         if (volume.getUniqueIdentifier() == null) {
             volume.setUniqueIdentifier(new UniqueIdentifier());
         }
-        String pid = pid(volume.getUniqueIdentifier());
+        String uuid = uuid(volume.getUniqueIdentifier());
+        String pid = pid (uuid);
 
         RelsExt re = new RelsExt(pid, MODEL_PERIODICAL_VOLUME);
+        
+        boolean visibility = isPublic(uuid, parentVisibility, "p_periodicalvolume");
 
         for (PeriodicalItem item : volume.getPeriodicalItem()) {
-            this.convertItem(item);
-            re.addRelation(RelsExt.HAS_ITEM, pid(item.getUniqueIdentifier()));
+            this.convertItem(item, visibility);
+            re.addRelation(RelsExt.HAS_ITEM, uuid(item.getUniqueIdentifier()),false);
         }
 
         Map<String, String> pageIdMap = new TreeMap<String, String>();
         for (PeriodicalPage page : volume.getPeriodicalPage()) {
-            this.convertPage(page);
+            this.convertPage(page, visibility);
 
-            String ppid = pid(page.getUniqueIdentifier());
-            re.addRelation(RelsExt.HAS_PAGE, ppid);
+            String ppid = uuid(page.getUniqueIdentifier());
+            re.addRelation(RelsExt.HAS_PAGE, ppid,false);
             if (page.getIndex() != null) {
                 pageIdMap.put(page.getIndex(), ppid);
             } else {
@@ -161,11 +209,33 @@ public class PeriodicalConvertor extends BaseConvertor {
         }
 
         for (PeriodicalInternalComponentPart part : volume.getPeriodicalInternalComponentPart()) {
-            this.convertInternalPart(part, pageIdMap);
-            re.addRelation(RelsExt.HAS_INT_COMP_PART, pid(part.getUniqueIdentifier()));
+            this.convertInternalPart(part, pageIdMap, visibility);
+            re.addRelation(RelsExt.HAS_INT_COMP_PART, uuid(part.getUniqueIdentifier()),false);
+        }
+        
+        DublinCore dc = createPeriodicalDublinCore(pid, title, biblio);
+        String contract = getContract(volume.getPeriodicalPage());
+        if (contract == null){
+            PeriodicalItem item = firstItem(volume.getPeriodicalItem());
+            if (item !=  null){
+                contract = getContract(item.getPeriodicalPage());
+            }
+        }
+        dc.addQualifiedIdentifier(RelsExt.CONTRACT, contract);
+        re.addRelation(RelsExt.CONTRACT, contract, true);
+        
+        convertHandle(uuid, dc, re);
+        
+        dc.setDescription(biblio.getAnnotation() == null? null:concat(biblio.getAnnotation().getContent()));
+        
+        Publisher publ = firstItem(biblio.getPublisher());
+        if (publ!= null){
+            dc.setDate(publ.getDateOfPublication()==null?null:first(publ.getDateOfPublication().getContent()));
         }
 
-        DigitalObject foxmlVolume = this.createDigitalObject(volume, pid, title, biblio, re, XSL_MODS_PERIODICAL_VOLUME, null);
+        dc.setType(MODEL_PERIODICAL_VOLUME);
+        
+        DigitalObject foxmlVolume = this.createDigitalObject(volume, pid, title, dc, re, XSL_MODS_PERIODICAL_VOLUME, null, visibility);
 
         this.marshalDigitalObject(foxmlVolume);
     }
@@ -177,13 +247,14 @@ public class PeriodicalConvertor extends BaseConvertor {
      * @param prefix
      * @throws ServiceException
      */
-    private void convertInternalPart(PeriodicalInternalComponentPart part, Map<String, String> pageIdMap) throws ServiceException {
+    private void convertInternalPart(PeriodicalInternalComponentPart part, Map<String, String> pageIdMap, boolean visibility) throws ServiceException {
         CoreBibliographicDescriptionPeriodical biblio = part.getCoreBibliographicDescriptionPeriodical();
         String title = getMainTitle(biblio);
         if (part.getUniqueIdentifier() == null) {
             part.setUniqueIdentifier(new UniqueIdentifier());
         }
-        String pid = pid(part.getUniqueIdentifier());
+        String uuid = uuid(part.getUniqueIdentifier());
+        String pid = pid(uuid);
 
         RelsExt re = new RelsExt(pid, MODEL_INTERNAL_PART);
 
@@ -195,8 +266,13 @@ public class PeriodicalConvertor extends BaseConvertor {
                 this.processPageIndex(re, piFrom, piTo, pageIdMap);
             }
         }
-
-        DigitalObject foxmlPart = this.createDigitalObject(part, pid, title, biblio, re, XSL_MODS_PERIODICAL_PART, null);
+        
+        DublinCore dc = createPeriodicalDublinCore(pid, title, biblio);
+        
+        convertHandle(uuid, dc, re);
+        dc.setType(MODEL_INTERNAL_PART);
+        
+        DigitalObject foxmlPart = this.createDigitalObject(part, pid, title, dc, re, XSL_MODS_PERIODICAL_PART, null, visibility);
 
         this.marshalDigitalObject(foxmlPart);
     }
@@ -208,14 +284,15 @@ public class PeriodicalConvertor extends BaseConvertor {
      * @param prefix
      * @throws ServiceException
      */
-    private void convertItem(PeriodicalItem item) throws ServiceException {
+    private void convertItem(PeriodicalItem item, boolean parentVisibility) throws ServiceException {
         CoreBibliographicDescriptionPeriodical biblio = item.getCoreBibliographicDescriptionPeriodical();
         String title = getMainTitle(biblio);
         if (item.getUniqueIdentifier() == null) {
             item.setUniqueIdentifier(new UniqueIdentifier());
         }
-        String pid = pid(item.getUniqueIdentifier());
-
+        String uuid = uuid(item.getUniqueIdentifier());
+        String pid = pid (uuid);
+        
         List<ImageRepresentation> files = new ArrayList<ImageRepresentation>(2);
         if (item.getItemRepresentation() != null) {
             ItemRepresentation r = item.getItemRepresentation();
@@ -228,13 +305,14 @@ public class PeriodicalConvertor extends BaseConvertor {
         }
 
         RelsExt re = new RelsExt(pid, MODEL_PERIODICAL_ITEM);
+        boolean visibility = isPublic(uuid, parentVisibility, "p_periodicalitem");
 
         Map<String, String> pageIdMap = new TreeMap<String, String>();
         for (PeriodicalPage page : item.getPeriodicalPage()) {
-            this.convertPage(page);
+            this.convertPage(page,visibility);
 
-            String ppid = pid(page.getUniqueIdentifier());
-            re.addRelation(RelsExt.HAS_PAGE, pid(page.getUniqueIdentifier()));
+            String ppid = uuid(page.getUniqueIdentifier());
+            re.addRelation(RelsExt.HAS_PAGE, uuid(page.getUniqueIdentifier()),false);
             if (page.getIndex() != null) {
                 pageIdMap.put(page.getIndex(), ppid);
             } else {
@@ -243,11 +321,27 @@ public class PeriodicalConvertor extends BaseConvertor {
         }
 
         for (PeriodicalInternalComponentPart part : item.getPeriodicalInternalComponentPart()) {
-            this.convertInternalPart(part, pageIdMap);
-            re.addRelation(RelsExt.HAS_INT_COMP_PART, pid(part.getUniqueIdentifier()));
+            this.convertInternalPart(part, pageIdMap, visibility);
+            re.addRelation(RelsExt.HAS_INT_COMP_PART, uuid(part.getUniqueIdentifier()),false);
         }
 
-        DigitalObject foxmlItem = this.createDigitalObject(item, pid, title, biblio, re, XSL_MODS_PERIODICAL_ITEM, files.toArray(new ImageRepresentation[files.size()]));
+        DublinCore dc = createPeriodicalDublinCore(pid, title, biblio);
+        String contract = getContract(item.getPeriodicalPage());
+        dc.addQualifiedIdentifier(RelsExt.CONTRACT, contract);
+        re.addRelation(RelsExt.CONTRACT, contract, true);
+        
+        convertHandle(uuid, dc, re);
+        
+        dc.setType(MODEL_PERIODICAL_ITEM);
+        
+        dc.setDescription(biblio.getAnnotation() == null? null:concat(biblio.getAnnotation().getContent()));
+        
+        Publisher publ = firstItem(biblio.getPublisher());
+        if (publ!= null){
+            dc.setDate(publ.getDateOfPublication()==null?null:first(publ.getDateOfPublication().getContent()));
+        }
+        
+        DigitalObject foxmlItem = this.createDigitalObject(item, pid, title, dc, re, XSL_MODS_PERIODICAL_ITEM, files.toArray(new ImageRepresentation[files.size()]), visibility);
 
         this.marshalDigitalObject(foxmlItem);
     }
@@ -258,27 +352,37 @@ public class PeriodicalConvertor extends BaseConvertor {
      * @param page
      * @throws ServiceException
      */
-    private void convertPage(PeriodicalPage page) throws ServiceException {
+    private void convertPage(PeriodicalPage page, boolean visibility) throws ServiceException {
         String title = first(page.getPageNumber().get(0).getContent());
         // String title = page.getIndex();
         if (page.getUniqueIdentifier() == null) {
             page.setUniqueIdentifier(new UniqueIdentifier());
         }
-        String pid = pid(page.getUniqueIdentifier());
+        String uuid = uuid(page.getUniqueIdentifier());
+        String pid = pid (uuid);
+        
+        RelsExt re = new RelsExt(pid, MODEL_PAGE);
 
         List<ImageRepresentation> files = new ArrayList<ImageRepresentation>(2);
         for (PageRepresentation r : page.getPageRepresentation()) {
             if (r.getPageImage() != null) {
                 files.add(this.createImageRepresentation(r.getPageImage().getHref(), r.getTechnicalDescription(), r.getUniqueIdentifier()));
+                re.addRelation(RelsExt.FILE, r.getPageImage().getHref(), true);
             }
             if (r.getPageText() != null) {
                 files.add(this.createImageRepresentation(r.getPageText().getHref(), null, r.getUniqueIdentifier()));
             }
         }
 
-        RelsExt re = new RelsExt(pid, MODEL_PAGE);
+        
+        
+        DublinCore dc = this.createPeriodicalDublinCore(pid, title, null);
+        
+        convertHandle(uuid, dc, re);
+        
+        dc.setType(MODEL_PAGE);
 
-        DigitalObject foxmlPage = this.createDigitalObject(page, pid, title, null, null, null, re, XSL_MODS_PERIODICAL_PAGE, files.toArray(new ImageRepresentation[files.size()]));
+        DigitalObject foxmlPage = this.createDigitalObject(page, pid, title, dc, re, XSL_MODS_PERIODICAL_PAGE, files.toArray(new ImageRepresentation[files.size()]), visibility);
 
         this.marshalDigitalObject(foxmlPage);
     }
@@ -289,14 +393,21 @@ public class PeriodicalConvertor extends BaseConvertor {
      * @param biblio
      * @return
      */
-    private DublinCore createPeriodicalDublinCore(String title, List<Creator> creator, List<Publisher> publisher, List<Contributor> contributor) {
+    private DublinCore createPeriodicalDublinCore(String pid, String title, CoreBibliographicDescriptionPeriodical biblio) {
+        if (biblio == null) {
+            biblio = new CoreBibliographicDescriptionPeriodical();
+        }
         DublinCore dc = new DublinCore();
 
         dc.setTitle(title);
+        dc.addIdentifier(pid);
 
         dc.setCreator(new ArrayList<String>());
-        if (creator != null) {
-            for (Creator c : creator) {
+        if (biblio.getCreator() != null) {
+            for (Creator c : biblio.getCreator()) {
+                if (DONATOR_ID.equals(c.getCreatorSurname()== null?"":first(c.getCreatorSurname().getContent())) ) {
+                    continue;
+                }
                 StringBuffer s = new StringBuffer();
                 s.append(c.getCreatorSurname());
                 for (CreatorName name : c.getCreatorName()) {
@@ -307,15 +418,15 @@ public class PeriodicalConvertor extends BaseConvertor {
         }
 
         dc.setPublisher(new ArrayList<String>());
-        if (publisher != null) {
-            for (Publisher p : publisher) {
+        if (biblio.getPublisher() != null) {
+            for (Publisher p : biblio.getPublisher() ) {
                 dc.getPublisher().add(first(p.getPublisherName().getContent()));
             }
         }
 
         dc.setContributor(new ArrayList<String>());
-        if (contributor != null) {
-            for (Contributor c : contributor) {
+        if (biblio.getContributor()  != null) {
+            for (Contributor c : biblio.getContributor()) {
                 StringBuffer s = new StringBuffer();
                 s.append(first(c.getContributorSurname().getContent()));
                 for (ContributorName name : c.getContributorName()) {
@@ -327,62 +438,7 @@ public class PeriodicalConvertor extends BaseConvertor {
         return dc;
     }
 
-    /**
-     * Provede spolecne operace nad objekty periodik - zjednoduseni nekterych
-     * parametru pres CoreBibliographicDescriptionPeriodical
-     * 
-     * @param sourceObject
-     * @param pid
-     * @param title
-     * @param biblio
-     * @param re
-     * @param xslFile
-     * @param files
-     * @param foxmlObject
-     * @throws ServiceException
-     */
-    private DigitalObject createDigitalObject(Object sourceObject, String pid, String title, CoreBibliographicDescriptionPeriodical biblio, RelsExt re, String xslFile,
-            ImageRepresentation[] files) throws ServiceException {
-
-        if (biblio == null) {
-            biblio = new CoreBibliographicDescriptionPeriodical();
-        }
-
-        return this.createDigitalObject(sourceObject, pid, title, biblio.getCreator(), biblio.getPublisher(), biblio.getContributor(), re, xslFile, files);
-    }
-
-    /**
-     * Vytvori digitalni objekt dle zadanych parametru vcetne datastreamu
-     * 
-     * @param sourceObject
-     * @param pid
-     * @param title
-     * @param creator
-     * @param publisher
-     * @param contributor
-     * @param re
-     * @param xslFile
-     * @param files
-     * @param foxmlObject
-     * @throws ServiceException
-     */
-    private DigitalObject createDigitalObject(Object sourceObject, String pid, String title, List<Creator> creator, List<Publisher> publisher, List<Contributor> contributor,
-            RelsExt re, String xslFile, ImageRepresentation[] files) throws ServiceException {
-
-        if (log.isInfoEnabled()) {
-            log.info(sourceObject.getClass().getSimpleName() + ": title=" + title + "; pid=" + pid);
-        }
-
-        DigitalObject foxmlObject = new DigitalObject();
-
-        this.setCommonProperties(foxmlObject, pid, title);
-
-        DublinCore dc = this.createPeriodicalDublinCore(title, creator, publisher, contributor);
-
-        this.setCommonStreams(foxmlObject, sourceObject, dc, re, xslFile, files);
-
-        return foxmlObject;
-    }
+    
 
     private ImageRepresentation createImageRepresentation(String filename, TechnicalDescription td, UniqueIdentifier ui) {
         ImageRepresentation ir = new ImageRepresentation();
@@ -407,6 +463,30 @@ public class PeriodicalConvertor extends BaseConvertor {
         }
 
         return ir;
+    }
+    
+    private String getContract(List<PeriodicalPage> pages) {
+        if (pages != null) {
+            for (PeriodicalPage page : pages) {
+                List<PageRepresentation> reps = page.getPageRepresentation();
+                if (reps != null) {
+                    for (PageRepresentation rep : reps) {
+                        if (rep.getPageImage() != null) {
+                            String filename = removeSigla(rep.getPageImage().getHref());
+                            if (filename != null) {
+                                int length = config.getContractLength();
+                                if (length > filename.length()) {
+                                    return filename;
+                                } else {
+                                    return filename.substring(0, length);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        return null;
     }
 
 }

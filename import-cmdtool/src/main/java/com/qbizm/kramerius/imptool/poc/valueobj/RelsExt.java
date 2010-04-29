@@ -10,62 +10,89 @@ import java.util.List;
  */
 public class RelsExt {
 
-  public static final String HAS_MODEL = "hasModel";
+    public static final String HAS_MODEL = "hasModel";
 
-  public static final String HAS_UNIT = "hasUnit";
+    public static final String HAS_UNIT = "hasUnit";
 
-  public static final String HAS_PAGE = "hasPage";
+    public static final String HAS_PAGE = "hasPage";
 
-  public static final String HAS_ITEM = "hasItem";
+    public static final String HAS_ITEM = "hasItem";
 
-  public static final String HAS_INT_COMP_PART = "hasIntCompPart";
+    public static final String HAS_INT_COMP_PART = "hasIntCompPart";
 
-  public static final String HAS_VOLUME = "hasVolume";
+    public static final String HAS_VOLUME = "hasVolume";
 
-  public static final String IS_ON_PAGE = "isOnPage";
+    public static final String HAS_DONATOR = "hasDonator";
 
-  private final String pid;
+    public static final String IS_ON_PAGE = "isOnPage";
 
-  private final List<Relation> relations = new LinkedList<Relation>();
+    public static final String POLICY = "policy";
 
-  public RelsExt(String pid, String model) {
-    super();
-    this.pid = pid;
-    this.addRelation(HAS_MODEL, model);
-  }
+    public static final String HANDLE = "handle";
 
-  public void addRelation(String key, String id) {
-    relations.add(new Relation(key, id));
-  }
+    public static final String CONTRACT = "contract";
+    
+    public static final String FILE = "file";
+    
+    public static final String ISBN = "isbn";
+    
+    public static final String ISSN = "issn";
+    
+    public static final String EXTID = "extid";
+    
+    
 
-  public List<Relation> getRelations() {
-    return relations;
-  }
+    private final String pid;
 
-  public String getPid() {
-    return pid;
-  }
+    private final List<Relation> relations = new LinkedList<Relation>();
 
-  public class Relation {
-
-    private final String key;
-
-    private final String id;
-
-    public Relation(String key, String id) {
-      super();
-      this.key = key;
-      this.id = id;
+    public RelsExt(String pid, String model) {
+        super();
+        this.pid = pid;
+        this.addRelation(HAS_MODEL, model, false);
     }
 
-    public String getKey() {
-      return key;
+    public void addRelation(String key, String id, boolean literal) {
+        if (id == null || "".equals(id))
+            return;
+        relations.add(new Relation(key, id, literal));
     }
 
-    public String getId() {
-      return id;
+    public List<Relation> getRelations() {
+        return relations;
     }
 
-  }
+    public String getPid() {
+        return pid;
+    }
+
+    public class Relation {
+
+        private final String key;
+
+        private final String id;
+
+        private final boolean literal;
+
+        public Relation(String key, String id, boolean literal) {
+            super();
+            this.key = key;
+            this.id = id;
+            this.literal = literal;
+        }
+
+        public String getKey() {
+            return key;
+        }
+
+        public String getId() {
+            return id;
+        }
+
+        public boolean isLiteral() {
+            return literal;
+        }
+
+    }
 
 }
