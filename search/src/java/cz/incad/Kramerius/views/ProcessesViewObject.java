@@ -42,16 +42,16 @@ public class ProcessesViewObject {
 		if ((offset+size) < count ) {
 			return "<a href=\"javascript:modifyProcessDialogData('"+this.ordering+"','"+this.offset.getNextOffset()+"','"+this.offset.getSize()+"','"+this.typeOfOrdering.getTypeOfOrdering()+"');\"><img src=\"img/process_right.png\"/></a>";
 		} else {
-			return "<img src=\"img/process_right.png\"/>";
+			return "<img src=\"img/process_right_disabled.png\"/>";
 		}
 	}
 	
 	public String getPrevAHREF() {
 		int offset = Integer.parseInt(this.offset.getOffset());
 		if (offset > 0) {
-			return "<a href=\"javascript:modifyProcessDialogData('"+this.ordering+"','"+this.offset.getPrevOffset()+"','"+this.offset.getSize()+"','"+this.typeOfOrdering.getTypeOfOrdering()+"');\"><img src=\"img/process_left.png\"/>;</a>";
+			return "<a href=\"javascript:modifyProcessDialogData('"+this.ordering+"','"+this.offset.getPrevOffset()+"','"+this.offset.getSize()+"','"+this.typeOfOrdering.getTypeOfOrdering()+"');\"><img src=\"img/process_left.png\"/></a>";
 		} else {
-			return "<img src=\"img/process_left.png\"/>";
+			return "<img src=\"img/process_left_disabled.png\"/>";
 		}
 	}
 
