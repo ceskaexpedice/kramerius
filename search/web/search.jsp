@@ -1,5 +1,5 @@
 <%@ page contentType="text/html" pageEncoding="UTF-8" %>
-<%@page trimDirectiveWhitespaces="true"%>
+<%@ page trimDirectiveWhitespaces="true"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/xml" prefix="x" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt" %>
@@ -24,6 +24,9 @@ out.clear();
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="cs" lang="cs">
     <%@ include file="inc/html_header.jsp" %>
     <body>
+   		<!--  procesy - dialogy -->
+	    <%@ include file="dialogs/_processes_dialogs.jsp" %>
+    
         <table style="width:100%"><tr><td align="center">
         <c:if test="${param.debug}" >
         <c:out value="${url}" />

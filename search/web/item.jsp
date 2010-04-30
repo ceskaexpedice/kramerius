@@ -31,23 +31,6 @@
     <c:import url="empty.xml" var="xml" />
 </c:if>
 
-<%--
-<%
-	String url = (String)pageContext.getAttribute("url");
-	log(url);
-	InputStream is = RESTHelper.inputStream(url,kconfig.getFedoraUser(), kconfig.getFedoraPass());
-	ByteArrayOutputStream bos = new ByteArrayOutputStream();
-	IOUtils.copyStreams(is, bos);
-	byte[] bytes= bos.toByteArray();
-	String str = new String(bytes,"UTF-8");
-	log(str);
-	System.out.println("TEST >>> "+str);
-%>
-
-<c:set var="xml"><%=str%></c:set>
-<x:parse doc="${xml}" var="doc"/>
---%>
-
 <x:parse var="doc" xml="${xml}"  />
 
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
@@ -62,6 +45,8 @@
 <%@page import="cz.incad.kramerius.processes.DefinitionManager"%><html xmlns="http://www.w3.org/1999/xhtml" xml:lang="cs" lang="cs">
     <%@ include file="inc/html_header.jsp" %>
     <body >
+		<!--  procesy - dialogy -->
+	    <%@ include file="dialogs/_processes_dialogs.jsp" %>
         <table style="width:100%" id="mainItemTable"><tr><td align="center">
         <c:if test="${param.debug}" >
         <c:out value="${url}" />
@@ -111,25 +96,6 @@
         <input type="text" id="genPdfEnd" value="1" name="genPdfEnd" size="3">
 </div>
 
-<div id="process_started" style="display:none;">
-	<div id="process_started_waiting" style="display:none;margin: 16px; font-family: sans-serif; font-size: 10px; ">
-    	<table>
-    		<tr><td align="center"><img src="img/loading2.gif" height="16px" width="16px"/></td></tr>
-			<tr><td align="center">Prosím vyčkejte, spouští se proces generovaní PDF.</td></tr>
-    	</table>
-	</div>
-	<div id="process_started_ok" style="display:none;margin: 12px;">
-		<p style="font-family: sans-serif; font-size: 12px; font-weight: bold;">Export spuštěn<br/></p>
-	</div>
-	<div id="process_started_failed" style="display:none;margin: 12px;">
-		<p style="font-family: sans-serif; font-size: 12px; font-weight: bold;">Export do PDF selhal, prosim, zkontrolujte tabulku procesů.</p>
-		<p><a href="#"> Tabulka procesu</a></p>
-	</div>
-</div>
-
-<div id="processes" style="display:none;">
-
-</div>
 
 <div id="fullImageContainer" style="display:none;">
     <div id="djvuContainer" style="display:none;">

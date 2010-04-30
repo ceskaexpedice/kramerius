@@ -11,12 +11,12 @@
 	var __confHeight = 140;
 	var __confWidth = 400;
 	var __confDistance = 10;
-	var __confNumberOfImages = 7;	
+	var __confNumberOfImages = 8;	
 	var __confMoveStep = 1;
 	var __debug = false;
 	
-        var currentSelectedPage;
-        var currentSelectedParent;
+	var currentSelectedPage;
+	var currentSelectedParent;
         
 	function changeSelection(masterUuid, selection) {
           currentSelectedPage = selection;
@@ -190,7 +190,7 @@
 	
 </script>
  
-<table align="center">
+<table align="center" width="100%">
 	<tr>
             <td colspan="3" id="label"></td>
 	</tr>
