@@ -3,6 +3,12 @@
  * and open the template in the editor.
  */
 
+$(document).ready(function(){
+    $('body').click(function() {
+    	hideAdminMenu();
+    });
+});
+
 
 function showAdminMenu() {
 	var position = $("#adminHref").offset();
@@ -16,11 +22,6 @@ function hideAdminMenu() {
 }
 
 
-    $(document).ready(function(){
-        $('body').click(function() {
-          $(autoCompleteDiv).hide();
-        });
-    });
 
 var _processDialog; // dialog na zobrazovani proceus
 function openProcessDialog() {
