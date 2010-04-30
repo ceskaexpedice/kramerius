@@ -3,17 +3,31 @@
  * and open the template in the editor.
  */
 
+
+function showAdminMenu() {
+	var position = $("#adminHref").offset();
+	$("#adminMenu").css("left",position.left);
+	$("#adminMenu").css("top",position.top);
+	$("#adminMenu").css("display","block");
+}
+
+function hideAdminMenu() {
+	$("#adminMenu").css("display","none");
+}
+
+
+
 var _processDialog; // dialog na zobrazovani proceus
 function openProcessDialog() {
 	if (_processDialog) {
-    	_processDialog.dialog('open');
+		_processDialog.dialog('open');
 	} else {
     	_processDialog = $("#processes").dialog({
 	        bgiframe: true,
-	        width: 600,
-	        height: 200,
+	        width: 800,
+	        height: 600,
 	        modal: true,
-	        title: "Staticky export do PDF",
+	        title: "Správa dlouhotrvajícíh procesů",
 	        buttons: {
 	            "Close": function() {
 	                $(this).dialog("close"); 
@@ -23,17 +37,26 @@ function openProcessDialog() {
 	}
 }
 function processes(){
-	var url = "_processes.jsp?ordering=NAME&offset=0&size=5&type=DESC";
+	var url = "dialogs/_processes_data.jsp?ordering=NAME&offset=0&size=20&type=DESC";
 	$.get(url, function(data) {
+		openProcessDialog();
 		$("#processes").html(data);
 	});
-	openProcessDialog();
 }
 
 function modifyProcessDialogData(ordering, offset, size, type) {
-	var url = "_processes.jsp?ordering="+ordering+"&offset="+offset+"&size="+size+"&type="+type;
+	var url = "dialogs/_processes_data.jsp?ordering="+ordering+"&offset="+offset+"&size="+size+"&type="+type;
 	$.get(url, function(data) {
 		$("#processes").html(data);
+	});
+}
+
+function killAndRefresh(url,ordering, offset, size, type) {
+	$.get(url, function(fdata) {
+		var refreshurl = "dialogs/_processes_data.jsp?ordering="+ordering+"&offset="+offset+"&size="+size+"&type="+type;
+		$.get(refreshurl, function(sdata) {
+			$("#processes").html(sdata);
+		});
 	});
 }
 
@@ -106,4 +129,5 @@ function _showProcessFailed() {
 	$("#process_started_waiting").css("display","none");
 	$("#process_started_failed").css("display","block");
 }
+
 
