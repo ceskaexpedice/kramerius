@@ -8,7 +8,7 @@
 <% 
 
 //remoteUserID = "ja";
-        if(remoteUserID!=null){ 
+        if(request.getRemoteUser()!=null){ 
 %>
 <c:set var="urlBiblioMods" >
     <c:out value="${kconfig.fedoraHost}" />/get/uuid:<c:out value="${uuid}" />/BIBLIO_MODS
