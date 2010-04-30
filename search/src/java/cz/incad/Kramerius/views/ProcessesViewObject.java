@@ -30,7 +30,7 @@ public class ProcessesViewObject {
 		List<LRProcess> lrProcesses = this.processManager.getLongRunningProcesses(this.ordering, this.typeOfOrdering, this.offset);
 		List<ProcessViewObject> objects = new ArrayList<ProcessViewObject>();
 		for (LRProcess lrProcess : lrProcesses) {
-			objects.add(new ProcessViewObject(lrProcess));
+			objects.add(new ProcessViewObject(lrProcess, this.ordering, this.offset, this.typeOfOrdering));
 		}
 		return objects;
 	}

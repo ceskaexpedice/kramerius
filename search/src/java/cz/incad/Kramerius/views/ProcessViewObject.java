@@ -4,7 +4,10 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 
 import cz.incad.kramerius.processes.LRProcess;
+import cz.incad.kramerius.processes.LRProcessOffset;
+import cz.incad.kramerius.processes.LRProcessOrdering;
 import cz.incad.kramerius.processes.States;
+import cz.incad.kramerius.processes.TypeOfOrdering;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 
 public class ProcessViewObject {
@@ -13,9 +16,17 @@ public class ProcessViewObject {
 	
 	private LRProcess lrProcess;
 
-	public ProcessViewObject(LRProcess lrProcess) {
+	private LRProcessOrdering ordering;
+	private LRProcessOffset offset;
+	private TypeOfOrdering typeOfOrdering;
+
+	
+	public ProcessViewObject(LRProcess lrProcess, LRProcessOrdering ordering, LRProcessOffset offset, TypeOfOrdering typeOfOrdering) {
 		super();
 		this.lrProcess = lrProcess;
+		this.ordering = ordering;
+		this.offset = offset;
+		this.typeOfOrdering = typeOfOrdering;
 	}
 
 	public String getPid() {
@@ -34,7 +45,14 @@ public class ProcessViewObject {
 		return FORMAT.format(new Date(lrProcess.getStart()));
 	}
 	
+	//function killAndRefresh(url,ordering, offset, size, type) {
+
 	public String getKillURL() {
-		return KConfiguration.getKConfiguration().getLRServletURL()+"?action=stop&uuid="+this.lrProcess.getUUID();
+		if (this.lrProcess.getProcessState().equals(States.RUNNING)) {
+			String url = KConfiguration.getKConfiguration().getLRServletURL()+"?action=stop&uuid="+this.lrProcess.getUUID();
+			return "<a href=\"javascript:killAndRefresh('"+url+"','"+this.ordering.name()+"',"+this.offset.getOffset()+","+this.offset.getSize()+",'"+this.typeOfOrdering.name()+"');\">Zastavit</a>";
+		} else {
+			return "";
+		}
 	}
 }
