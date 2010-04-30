@@ -133,6 +133,18 @@
 			<version>0.8.09</version>
 		</dependency>
 
+		<dependency>
+			<groupId>org.apache.derby</groupId>
+			<artifactId>derbyclient</artifactId>
+			<version>10.5.3.0</version>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.derby</groupId>
+			<artifactId>derby</artifactId>
+			<version>10.5.3.0</version>
+		</dependency>
+
+
 	</dependencies>
 	<build>
 		<!--
@@ -142,7 +154,7 @@
 			<resource>
 				<directory>${basedir}/src/main/java</directory>
 				<includes>
-					<include>**/*.properties</include>
+					<include>**/*.p*</include>
 					<include>**/*.st</include>
 				</includes>
 			</resource>
