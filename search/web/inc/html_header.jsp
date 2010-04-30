@@ -6,8 +6,6 @@
 <%@ page trimDirectiveWhitespaces="true"%>
 
 <%
-			//String remoteUserID = request.getRemoteUser();
-
 			String fromField = "f1";
             String toField = "f2";
             String fromValue = "";
@@ -36,17 +34,17 @@
     <link rel="stylesheet" href="css/dateAxisV.css" type="text/css"/>
     <link rel="stylesheet" href="css/dtree.css" type="text/css"/>
     <link rel="StyleSheet" href="css/styles.css" type="text/css"/>
-        
+
         
     <script src="js/jquery-1.3.2.min.js" type="text/javascript"></script>
     <script src="js/jquery-ui-1.7.2.custom.min.js" language="javascript" type="text/javascript"></script>
     <script src="js/jquery.cookie.js" type="text/javascript"></script>
-    <script  src="js/jquery.history.js" type="text/javascript"></script>
+    <script src="js/jquery.history.js" type="text/javascript"></script>
+	
     <!--
     <script  src="js/jquery.lightbox-0.5/js/jquery.lightbox-0.5.js" type="text/javascript"></script>
     <script  src="js/jquery.scrollTo.js" type="text/javascript"></script>
     -->
-    
     
     <script src="js/pageQuery.js" language="JavaScript" type="text/javascript"></script>
     <script src="js/item.js" language="JavaScript" type="text/javascript"></script>
@@ -57,9 +55,11 @@
     
     <script  src="js/autocomplete.js" language="javascript" type="text/javascript"></script>
 
-<%  if(remoteUserID!=null){  %>
-    <script  src="js/admin.js" language="javascript" type="text/javascript"></script>
-<% } %>
+
+	<%  if(request.getRemoteUser()!=null) {  %>
+	    <script  src="js/admin.js" language="javascript" type="text/javascript"></script>
+	<% } %>
+
     <title>Kramerius 4</title>
     <script language="JavaScript" type="text/javascript">
         var pagesTitle = "<fmt:message>Stránka</fmt:message>";
@@ -89,6 +89,8 @@
         var generatePdfTitle = "<fmt:message>generatePdfTitle</fmt:message>";
         var generatePdfErrorText = "<fmt:message>generatePdfErrorText</fmt:message>";
         var generatePdfMaxRange = <%=kconfig.getProperty("generatePdfMaxRange")%>;
+
     </script>
+    
     
 </head>
