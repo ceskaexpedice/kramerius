@@ -444,3 +444,32 @@ table.advancedSearch td{
 .ui-dialog-titlebar-next { position: absolute; right: 30px; top: 50%; width: 19px; margin: -10px 0 0 0; padding: 1px; height: 18px; }
 .ui-dialog-titlebar-zoom {position: absolute; right: 75px;}
 .ui-dialog-titlebar-zoom select {border:solid 1px silver;}
+
+
+.adminMenu{
+    overflow:auto;
+    width: 220px;
+    position:absolute;
+    z-index:103;
+    font-size:10px;
+    background:white;
+	display: none;
+	padding: 1px;	
+}
+
+.adminMenuItems {
+	border:1px solid gray;
+	
+}
+
+.adminMenuItems  div {
+	width: 100%;
+}
+
+.adminMenuHeader {
+	background-image: url('../img/bg_orange_small.png');
+	background-repeat:repeat-x;
+	height: 25px; color: white;
+}
+
+
