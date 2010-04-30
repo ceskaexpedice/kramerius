@@ -16,6 +16,11 @@ function hideAdminMenu() {
 }
 
 
+    $(document).ready(function(){
+        $('body').click(function() {
+          $(autoCompleteDiv).hide();
+        });
+    });
 
 var _processDialog; // dialog na zobrazovani proceus
 function openProcessDialog() {
