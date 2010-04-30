@@ -1,0 +1,178 @@
+2010-04-28 07:56:20,609  INFO - Indexer initialized
+2010-04-28 07:56:20,609  INFO - Current index time: 
+2010-04-28 07:56:20,625  INFO - Update index...
+2010-04-28 07:56:20,625  INFO - Indexing from: null
+2010-04-28 07:56:20,625  INFO - updateIndex action=fromKrameriusModel value=uuid:0eaa6730-9068-11dd-97de-000d606f5dc6 repositoryName= indexNames= indexDocXslt=null resultPageXslt=
+2010-04-28 07:56:20,750  INFO - getFoxmlFromPid pid=uuid:0eaa6730-9068-11dd-97de-000d606f5dc6 repositoryName=Kramerius
+2010-04-28 07:56:22,484  INFO - getAndReturnFoxmlFromPid pid=uuid:4308eb80-b03b-11dd-a0f6-000d606f5dc6 repositoryName=Kramerius
+2010-04-28 07:56:22,937  INFO - getDatastreamText pid=uuid:4308eb80-b03b-11dd-a0f6-000d606f5dc6 repositoryName=Kramerius dsId=TEXT_OCR fedoraSoap=http://194.108.215.227:8080/fedora/services fedoraUser=fedoraAdmin fedoraPass=fedoraAdmin trustStorePath=E:\NetBeansProjects\Kramerius\gsearch\DemoOnSolr\truestore\truststore trustStorePass=tomcat
+2010-04-28 07:56:23,437  INFO - getAndReturnFoxmlFromPid pid=uuid:4a79bd50-af36-11dd-a60c-000d606f5dc6 repositoryName=Kramerius
+2010-04-28 07:56:23,750  INFO - getDatastreamText pid=uuid:4a79bd50-af36-11dd-a60c-000d606f5dc6 repositoryName=Kramerius dsId=TEXT_OCR fedoraSoap=http://194.108.215.227:8080/fedora/services fedoraUser=fedoraAdmin fedoraPass=fedoraAdmin trustStorePath=E:\NetBeansProjects\Kramerius\gsearch\DemoOnSolr\truestore\truststore trustStorePass=tomcat
+2010-04-28 07:56:24,843  INFO - getAndReturnFoxmlFromPid pid=uuid:430d7f60-b03b-11dd-82fa-000d606f5dc6 repositoryName=Kramerius
+2010-04-28 07:56:24,968  INFO - getDatastreamText pid=uuid:430d7f60-b03b-11dd-82fa-000d606f5dc6 repositoryName=Kramerius dsId=TEXT_OCR fedoraSoap=http://194.108.215.227:8080/fedora/services fedoraUser=fedoraAdmin fedoraPass=fedoraAdmin trustStorePath=E:\NetBeansProjects\Kramerius\gsearch\DemoOnSolr\truestore\truststore trustStorePass=tomcat
+2010-04-28 07:56:25,031  INFO - getAndReturnFoxmlFromPid pid=uuid:4a7c2e50-af36-11dd-9643-000d606f5dc6 repositoryName=Kramerius
+2010-04-28 07:56:25,250  INFO - getDatastreamText pid=uuid:4a7c2e50-af36-11dd-9643-000d606f5dc6 repositoryName=Kramerius dsId=TEXT_OCR fedoraSoap=http://194.108.215.227:8080/fedora/services fedoraUser=fedoraAdmin fedoraPass=fedoraAdmin trustStorePath=E:\NetBeansProjects\Kramerius\gsearch\DemoOnSolr\truestore\truststore trustStorePass=tomcat
+2010-04-28 07:56:25,296  INFO - getAndReturnFoxmlFromPid pid=uuid:43101770-b03b-11dd-8673-000d606f5dc6 repositoryName=Kramerius
+2010-04-28 07:56:25,437  INFO - getDatastreamText pid=uuid:43101770-b03b-11dd-8673-000d606f5dc6 repositoryName=Kramerius dsId=TEXT_OCR fedoraSoap=http://194.108.215.227:8080/fedora/services fedoraUser=fedoraAdmin fedoraPass=fedoraAdmin trustStorePath=E:\NetBeansProjects\Kramerius\gsearch\DemoOnSolr\truestore\truststore trustStorePass=tomcat
+2010-04-28 07:56:25,484  INFO - getAndReturnFoxmlFromPid pid=uuid:4a7ec660-af36-11dd-a782-000d606f5dc6 repositoryName=Kramerius
+2010-04-28 07:56:25,593  INFO - getDatastreamText pid=uuid:4a7ec660-af36-11dd-a782-000d606f5dc6 repositoryName=Kramerius dsId=TEXT_OCR fedoraSoap=http://194.108.215.227:8080/fedora/services fedoraUser=fedoraAdmin fedoraPass=fedoraAdmin trustStorePath=E:\NetBeansProjects\Kramerius\gsearch\DemoOnSolr\truestore\truststore trustStorePass=tomcat
+2010-04-28 07:56:25,718  INFO - getAndReturnFoxmlFromPid pid=uuid:4314ab50-b03b-11dd-89db-000d606f5dc6 repositoryName=Kramerius
+2010-04-28 07:56:25,875  INFO - getDatastreamText pid=uuid:4314ab50-b03b-11dd-89db-000d606f5dc6 repositoryName=Kramerius dsId=TEXT_OCR fedoraSoap=http://194.108.215.227:8080/fedora/services fedoraUser=fedoraAdmin fedoraPass=fedoraAdmin trustStorePath=E:\NetBeansProjects\Kramerius\gsearch\DemoOnSolr\truestore\truststore trustStorePass=tomcat
+2010-04-28 07:56:25,921  INFO - getAndReturnFoxmlFromPid pid=uuid:4a80c230-af36-11dd-ace4-000d606f5dc6 repositoryName=Kramerius
+2010-04-28 07:56:26,000  INFO - getDatastreamText pid=uuid:4a80c230-af36-11dd-ace4-000d606f5dc6 repositoryName=Kramerius dsId=TEXT_OCR fedoraSoap=http://194.108.215.227:8080/fedora/services fedoraUser=fedoraAdmin fedoraPass=fedoraAdmin trustStorePath=E:\NetBeansProjects\Kramerius\gsearch\DemoOnSolr\truestore\truststore trustStorePass=tomcat
+2010-04-28 07:56:26,046  INFO - getAndReturnFoxmlFromPid pid=uuid:43171c50-b03b-11dd-b0c2-000d606f5dc6 repositoryName=Kramerius
+2010-04-28 07:56:26,250  INFO - getDatastreamText pid=uuid:43171c50-b03b-11dd-b0c2-000d606f5dc6 repositoryName=Kramerius dsId=TEXT_OCR fedoraSoap=http://194.108.215.227:8080/fedora/services fedoraUser=fedoraAdmin fedoraPass=fedoraAdmin trustStorePath=E:\NetBeansProjects\Kramerius\gsearch\DemoOnSolr\truestore\truststore trustStorePass=tomcat
+2010-04-28 07:56:26,281  INFO - getAndReturnFoxmlFromPid pid=uuid:4a835a40-af36-11dd-b951-000d606f5dc6 repositoryName=Kramerius
+2010-04-28 07:56:26,343  INFO - getDatastreamText pid=uuid:4a835a40-af36-11dd-b951-000d606f5dc6 repositoryName=Kramerius dsId=TEXT_OCR fedoraSoap=http://194.108.215.227:8080/fedora/services fedoraUser=fedoraAdmin fedoraPass=fedoraAdmin trustStorePath=E:\NetBeansProjects\Kramerius\gsearch\DemoOnSolr\truestore\truststore trustStorePass=tomcat
+2010-04-28 07:56:26,390  INFO - getAndReturnFoxmlFromPid pid=uuid:4319b460-b03b-11dd-83ca-000d606f5dc6 repositoryName=Kramerius
+2010-04-28 07:56:26,453  INFO - getDatastreamText pid=uuid:4319b460-b03b-11dd-83ca-000d606f5dc6 repositoryName=Kramerius dsId=TEXT_OCR fedoraSoap=http://194.108.215.227:8080/fedora/services fedoraUser=fedoraAdmin fedoraPass=fedoraAdmin trustStorePath=E:\NetBeansProjects\Kramerius\gsearch\DemoOnSolr\truestore\truststore trustStorePass=tomcat
+2010-04-28 07:56:26,500  INFO - getAndReturnFoxmlFromPid pid=uuid:4a85f250-af36-11dd-8535-000d606f5dc6 repositoryName=Kramerius
+2010-04-28 07:56:26,609  INFO - getDatastreamText pid=uuid:4a85f250-af36-11dd-8535-000d606f5dc6 repositoryName=Kramerius dsId=TEXT_OCR fedoraSoap=http://194.108.215.227:8080/fedora/services fedoraUser=fedoraAdmin fedoraPass=fedoraAdmin trustStorePath=E:\NetBeansProjects\Kramerius\gsearch\DemoOnSolr\truestore\truststore trustStorePass=tomcat
+2010-04-28 07:56:26,656  INFO - getAndReturnFoxmlFromPid pid=uuid:431e4840-b03b-11dd-8818-000d606f5dc6 repositoryName=Kramerius
+2010-04-28 07:56:26,828  INFO - getDatastreamText pid=uuid:431e4840-b03b-11dd-8818-000d606f5dc6 repositoryName=Kramerius dsId=TEXT_OCR fedoraSoap=http://194.108.215.227:8080/fedora/services fedoraUser=fedoraAdmin fedoraPass=fedoraAdmin trustStorePath=E:\NetBeansProjects\Kramerius\gsearch\DemoOnSolr\truestore\truststore trustStorePass=tomcat
+2010-04-28 07:56:26,875  INFO - getAndReturnFoxmlFromPid pid=uuid:4a8a8630-af36-11dd-ae9c-000d606f5dc6 repositoryName=Kramerius
+2010-04-28 07:56:26,968  INFO - getDatastreamText pid=uuid:4a8a8630-af36-11dd-ae9c-000d606f5dc6 repositoryName=Kramerius dsId=TEXT_OCR fedoraSoap=http://194.108.215.227:8080/fedora/services fedoraUser=fedoraAdmin fedoraPass=fedoraAdmin trustStorePath=E:\NetBeansProjects\Kramerius\gsearch\DemoOnSolr\truestore\truststore trustStorePass=tomcat
+2010-04-28 07:56:26,984  INFO - getAndReturnFoxmlFromPid pid=uuid:4320e050-b03b-11dd-9b4a-000d606f5dc6 repositoryName=Kramerius
+2010-04-28 07:56:27,062  INFO - getDatastreamText pid=uuid:4320e050-b03b-11dd-9b4a-000d606f5dc6 repositoryName=Kramerius dsId=TEXT_OCR fedoraSoap=http://194.108.215.227:8080/fedora/services fedoraUser=fedoraAdmin fedoraPass=fedoraAdmin trustStorePath=E:\NetBeansProjects\Kramerius\gsearch\DemoOnSolr\truestore\truststore trustStorePass=tomcat
+2010-04-28 07:56:27,109  INFO - getAndReturnFoxmlFromPid pid=uuid:4a8cf730-af36-11dd-ae88-000d606f5dc6 repositoryName=Kramerius
+2010-04-28 07:56:27,296  INFO - getDatastreamText pid=uuid:4a8cf730-af36-11dd-ae88-000d606f5dc6 repositoryName=Kramerius dsId=TEXT_OCR fedoraSoap=http://194.108.215.227:8080/fedora/services fedoraUser=fedoraAdmin fedoraPass=fedoraAdmin trustStorePath=E:\NetBeansProjects\Kramerius\gsearch\DemoOnSolr\truestore\truststore trustStorePass=tomcat
+2010-04-28 07:56:27,359  INFO - updateIndex fromKrameriusModel indexName=null indexDirSpace=52709529 docCount=1230
+2010-04-28 07:56:27,359  INFO - 0 hour(s) 0 minute(s) 6 second(s)
+2010-04-28 07:56:27,359  INFO - Update index success
+2010-04-28 07:56:27,359  INFO - 0 hour(s) 0 minute(s) 6 second(s)
+2010-04-28 07:57:07,046  INFO - Indexer initialized
+2010-04-28 07:57:07,046  INFO - Current index time: 
+2010-04-28 07:57:07,046  INFO - Update index...
+2010-04-28 07:57:07,046  INFO - Indexing from: null
+2010-04-28 07:57:07,062  INFO - updateIndex action=fromKrameriusModel value=uuid:0eaa6730-9068-11dd-97de-000d606f5dc6 repositoryName= indexNames= indexDocXslt=null resultPageXslt=
+2010-04-28 07:57:07,218  INFO - getFoxmlFromPid pid=uuid:0eaa6730-9068-11dd-97de-000d606f5dc6 repositoryName=Kramerius
+2010-04-28 07:57:07,625  INFO - Indexer initialized
+2010-04-28 07:57:07,640  INFO - Current index time: 
+2010-04-28 07:57:07,640  INFO - Update index...
+2010-04-28 07:57:07,640  INFO - Indexing from: null
+2010-04-28 07:57:07,656  INFO - updateIndex action=fromKrameriusModel value=uuid:0eaa6730-9068-11dd-97de-000d606f5dc6 repositoryName= indexNames= indexDocXslt=null resultPageXslt=
+2010-04-28 07:57:07,765  INFO - getFoxmlFromPid pid=uuid:0eaa6730-9068-11dd-97de-000d606f5dc6 repositoryName=Kramerius
+2010-04-28 07:57:07,875  WARN - Unable to find required classes (javax.activation.DataHandler and javax.mail.internet.MimeMultipart). Attachment support is disabled.
+2010-04-28 07:57:08,453  WARN - Unable to find required classes (javax.activation.DataHandler and javax.mail.internet.MimeMultipart). Attachment support is disabled.
+2010-04-28 07:57:08,859  INFO - getAndReturnFoxmlFromPid pid=uuid:4308eb80-b03b-11dd-a0f6-000d606f5dc6 repositoryName=Kramerius
+2010-04-28 07:57:09,312  INFO - getDatastreamText pid=uuid:4308eb80-b03b-11dd-a0f6-000d606f5dc6 repositoryName=Kramerius dsId=TEXT_OCR fedoraSoap=http://194.108.215.227:8080/fedora/services fedoraUser=fedoraAdmin fedoraPass=fedoraAdmin trustStorePath=E:\NetBeansProjects\Kramerius\gsearch\DemoOnSolr\truestore\truststore trustStorePass=tomcat
+2010-04-28 07:57:09,484  INFO - getAndReturnFoxmlFromPid pid=uuid:4308eb80-b03b-11dd-a0f6-000d606f5dc6 repositoryName=Kramerius
+2010-04-28 07:57:09,578  INFO - getAndReturnFoxmlFromPid pid=uuid:4a79bd50-af36-11dd-a60c-000d606f5dc6 repositoryName=Kramerius
+2010-04-28 07:57:09,875  INFO - getDatastreamText pid=uuid:4a79bd50-af36-11dd-a60c-000d606f5dc6 repositoryName=Kramerius dsId=TEXT_OCR fedoraSoap=http://194.108.215.227:8080/fedora/services fedoraUser=fedoraAdmin fedoraPass=fedoraAdmin trustStorePath=E:\NetBeansProjects\Kramerius\gsearch\DemoOnSolr\truestore\truststore trustStorePass=tomcat
+2010-04-28 07:57:09,921  INFO - getAndReturnFoxmlFromPid pid=uuid:430d7f60-b03b-11dd-82fa-000d606f5dc6 repositoryName=Kramerius
+2010-04-28 07:57:10,062  INFO - getDatastreamText pid=uuid:4308eb80-b03b-11dd-a0f6-000d606f5dc6 repositoryName=Kramerius dsId=TEXT_OCR fedoraSoap=http://194.108.215.227:8080/fedora/services fedoraUser=fedoraAdmin fedoraPass=fedoraAdmin trustStorePath=E:\NetBeansProjects\Kramerius\gsearch\DemoOnSolr\truestore\truststore trustStorePass=tomcat
+2010-04-28 07:57:10,078  INFO - getDatastreamText pid=uuid:430d7f60-b03b-11dd-82fa-000d606f5dc6 repositoryName=Kramerius dsId=TEXT_OCR fedoraSoap=http://194.108.215.227:8080/fedora/services fedoraUser=fedoraAdmin fedoraPass=fedoraAdmin trustStorePath=E:\NetBeansProjects\Kramerius\gsearch\DemoOnSolr\truestore\truststore trustStorePass=tomcat
+2010-04-28 07:57:10,125  INFO - getAndReturnFoxmlFromPid pid=uuid:4a7c2e50-af36-11dd-9643-000d606f5dc6 repositoryName=Kramerius
+2010-04-28 07:57:10,281  INFO - getAndReturnFoxmlFromPid pid=uuid:4a79bd50-af36-11dd-a60c-000d606f5dc6 repositoryName=Kramerius
+2010-04-28 07:57:10,281  INFO - getDatastreamText pid=uuid:4a7c2e50-af36-11dd-9643-000d606f5dc6 repositoryName=Kramerius dsId=TEXT_OCR fedoraSoap=http://194.108.215.227:8080/fedora/services fedoraUser=fedoraAdmin fedoraPass=fedoraAdmin trustStorePath=E:\NetBeansProjects\Kramerius\gsearch\DemoOnSolr\truestore\truststore trustStorePass=tomcat
+2010-04-28 07:57:10,328  INFO - getAndReturnFoxmlFromPid pid=uuid:43101770-b03b-11dd-8673-000d606f5dc6 repositoryName=Kramerius
+2010-04-28 07:57:10,421  INFO - getDatastreamText pid=uuid:43101770-b03b-11dd-8673-000d606f5dc6 repositoryName=Kramerius dsId=TEXT_OCR fedoraSoap=http://194.108.215.227:8080/fedora/services fedoraUser=fedoraAdmin fedoraPass=fedoraAdmin trustStorePath=E:\NetBeansProjects\Kramerius\gsearch\DemoOnSolr\truestore\truststore trustStorePass=tomcat
+2010-04-28 07:57:10,484  INFO - getAndReturnFoxmlFromPid pid=uuid:4a7ec660-af36-11dd-a782-000d606f5dc6 repositoryName=Kramerius
+2010-04-28 07:57:10,484  INFO - getDatastreamText pid=uuid:4a79bd50-af36-11dd-a60c-000d606f5dc6 repositoryName=Kramerius dsId=TEXT_OCR fedoraSoap=http://194.108.215.227:8080/fedora/services fedoraUser=fedoraAdmin fedoraPass=fedoraAdmin trustStorePath=E:\NetBeansProjects\Kramerius\gsearch\DemoOnSolr\truestore\truststore trustStorePass=tomcat
+2010-04-28 07:57:10,609  INFO - getDatastreamText pid=uuid:4a7ec660-af36-11dd-a782-000d606f5dc6 repositoryName=Kramerius dsId=TEXT_OCR fedoraSoap=http://194.108.215.227:8080/fedora/services fedoraUser=fedoraAdmin fedoraPass=fedoraAdmin trustStorePath=E:\NetBeansProjects\Kramerius\gsearch\DemoOnSolr\truestore\truststore trustStorePass=tomcat
+2010-04-28 07:57:10,625  INFO - getAndReturnFoxmlFromPid pid=uuid:430d7f60-b03b-11dd-82fa-000d606f5dc6 repositoryName=Kramerius
+2010-04-28 07:57:10,734  INFO - getAndReturnFoxmlFromPid pid=uuid:4314ab50-b03b-11dd-89db-000d606f5dc6 repositoryName=Kramerius
+2010-04-28 07:57:10,781  INFO - getDatastreamText pid=uuid:430d7f60-b03b-11dd-82fa-000d606f5dc6 repositoryName=Kramerius dsId=TEXT_OCR fedoraSoap=http://194.108.215.227:8080/fedora/services fedoraUser=fedoraAdmin fedoraPass=fedoraAdmin trustStorePath=E:\NetBeansProjects\Kramerius\gsearch\DemoOnSolr\truestore\truststore trustStorePass=tomcat
+2010-04-28 07:57:10,828  INFO - getAndReturnFoxmlFromPid pid=uuid:4a7c2e50-af36-11dd-9643-000d606f5dc6 repositoryName=Kramerius
+2010-04-28 07:57:10,843  INFO - getDatastreamText pid=uuid:4314ab50-b03b-11dd-89db-000d606f5dc6 repositoryName=Kramerius dsId=TEXT_OCR fedoraSoap=http://194.108.215.227:8080/fedora/services fedoraUser=fedoraAdmin fedoraPass=fedoraAdmin trustStorePath=E:\NetBeansProjects\Kramerius\gsearch\DemoOnSolr\truestore\truststore trustStorePass=tomcat
+2010-04-28 07:57:10,875  INFO - getAndReturnFoxmlFromPid pid=uuid:4a80c230-af36-11dd-ace4-000d606f5dc6 repositoryName=Kramerius
+2010-04-28 07:57:10,937  INFO - getDatastreamText pid=uuid:4a80c230-af36-11dd-ace4-000d606f5dc6 repositoryName=Kramerius dsId=TEXT_OCR fedoraSoap=http://194.108.215.227:8080/fedora/services fedoraUser=fedoraAdmin fedoraPass=fedoraAdmin trustStorePath=E:\NetBeansProjects\Kramerius\gsearch\DemoOnSolr\truestore\truststore trustStorePass=tomcat
+2010-04-28 07:57:11,000  INFO - getDatastreamText pid=uuid:4a7c2e50-af36-11dd-9643-000d606f5dc6 repositoryName=Kramerius dsId=TEXT_OCR fedoraSoap=http://194.108.215.227:8080/fedora/services fedoraUser=fedoraAdmin fedoraPass=fedoraAdmin trustStorePath=E:\NetBeansProjects\Kramerius\gsearch\DemoOnSolr\truestore\truststore trustStorePass=tomcat
+2010-04-28 07:57:11,062  INFO - getAndReturnFoxmlFromPid pid=uuid:43171c50-b03b-11dd-b0c2-000d606f5dc6 repositoryName=Kramerius
+2010-04-28 07:57:11,062  INFO - getAndReturnFoxmlFromPid pid=uuid:43101770-b03b-11dd-8673-000d606f5dc6 repositoryName=Kramerius
+2010-04-28 07:57:11,140  INFO - getDatastreamText pid=uuid:43101770-b03b-11dd-8673-000d606f5dc6 repositoryName=Kramerius dsId=TEXT_OCR fedoraSoap=http://194.108.215.227:8080/fedora/services fedoraUser=fedoraAdmin fedoraPass=fedoraAdmin trustStorePath=E:\NetBeansProjects\Kramerius\gsearch\DemoOnSolr\truestore\truststore trustStorePass=tomcat
+2010-04-28 07:57:11,171  INFO - getAndReturnFoxmlFromPid pid=uuid:4a7ec660-af36-11dd-a782-000d606f5dc6 repositoryName=Kramerius
+2010-04-28 07:57:11,218  INFO - getDatastreamText pid=uuid:43171c50-b03b-11dd-b0c2-000d606f5dc6 repositoryName=Kramerius dsId=TEXT_OCR fedoraSoap=http://194.108.215.227:8080/fedora/services fedoraUser=fedoraAdmin fedoraPass=fedoraAdmin trustStorePath=E:\NetBeansProjects\Kramerius\gsearch\DemoOnSolr\truestore\truststore trustStorePass=tomcat
+2010-04-28 07:57:11,250  INFO - getAndReturnFoxmlFromPid pid=uuid:4a835a40-af36-11dd-b951-000d606f5dc6 repositoryName=Kramerius
+2010-04-28 07:57:11,250  INFO - getDatastreamText pid=uuid:4a7ec660-af36-11dd-a782-000d606f5dc6 repositoryName=Kramerius dsId=TEXT_OCR fedoraSoap=http://194.108.215.227:8080/fedora/services fedoraUser=fedoraAdmin fedoraPass=fedoraAdmin trustStorePath=E:\NetBeansProjects\Kramerius\gsearch\DemoOnSolr\truestore\truststore trustStorePass=tomcat
+2010-04-28 07:57:11,312  INFO - getDatastreamText pid=uuid:4a835a40-af36-11dd-b951-000d606f5dc6 repositoryName=Kramerius dsId=TEXT_OCR fedoraSoap=http://194.108.215.227:8080/fedora/services fedoraUser=fedoraAdmin fedoraPass=fedoraAdmin trustStorePath=E:\NetBeansProjects\Kramerius\gsearch\DemoOnSolr\truestore\truststore trustStorePass=tomcat
+2010-04-28 07:57:11,359  INFO - getAndReturnFoxmlFromPid pid=uuid:4314ab50-b03b-11dd-89db-000d606f5dc6 repositoryName=Kramerius
+2010-04-28 07:57:11,375  INFO - getAndReturnFoxmlFromPid pid=uuid:4319b460-b03b-11dd-83ca-000d606f5dc6 repositoryName=Kramerius
+2010-04-28 07:57:11,437  INFO - getDatastreamText pid=uuid:4314ab50-b03b-11dd-89db-000d606f5dc6 repositoryName=Kramerius dsId=TEXT_OCR fedoraSoap=http://194.108.215.227:8080/fedora/services fedoraUser=fedoraAdmin fedoraPass=fedoraAdmin trustStorePath=E:\NetBeansProjects\Kramerius\gsearch\DemoOnSolr\truestore\truststore trustStorePass=tomcat
+2010-04-28 07:57:11,453  INFO - getDatastreamText pid=uuid:4319b460-b03b-11dd-83ca-000d606f5dc6 repositoryName=Kramerius dsId=TEXT_OCR fedoraSoap=http://194.108.215.227:8080/fedora/services fedoraUser=fedoraAdmin fedoraPass=fedoraAdmin trustStorePath=E:\NetBeansProjects\Kramerius\gsearch\DemoOnSolr\truestore\truststore trustStorePass=tomcat
+2010-04-28 07:57:11,468  INFO - getAndReturnFoxmlFromPid pid=uuid:4a80c230-af36-11dd-ace4-000d606f5dc6 repositoryName=Kramerius
+2010-04-28 07:57:11,593  INFO - getDatastreamText pid=uuid:4a80c230-af36-11dd-ace4-000d606f5dc6 repositoryName=Kramerius dsId=TEXT_OCR fedoraSoap=http://194.108.215.227:8080/fedora/services fedoraUser=fedoraAdmin fedoraPass=fedoraAdmin trustStorePath=E:\NetBeansProjects\Kramerius\gsearch\DemoOnSolr\truestore\truststore trustStorePass=tomcat
+2010-04-28 07:57:11,609  INFO - getAndReturnFoxmlFromPid pid=uuid:4a85f250-af36-11dd-8535-000d606f5dc6 repositoryName=Kramerius
+2010-04-28 07:57:11,640  INFO - getAndReturnFoxmlFromPid pid=uuid:43171c50-b03b-11dd-b0c2-000d606f5dc6 repositoryName=Kramerius
+2010-04-28 07:57:11,687  INFO - getDatastreamText pid=uuid:4a85f250-af36-11dd-8535-000d606f5dc6 repositoryName=Kramerius dsId=TEXT_OCR fedoraSoap=http://194.108.215.227:8080/fedora/services fedoraUser=fedoraAdmin fedoraPass=fedoraAdmin trustStorePath=E:\NetBeansProjects\Kramerius\gsearch\DemoOnSolr\truestore\truststore trustStorePass=tomcat
+2010-04-28 07:57:11,765  INFO - getDatastreamText pid=uuid:43171c50-b03b-11dd-b0c2-000d606f5dc6 repositoryName=Kramerius dsId=TEXT_OCR fedoraSoap=http://194.108.215.227:8080/fedora/services fedoraUser=fedoraAdmin fedoraPass=fedoraAdmin trustStorePath=E:\NetBeansProjects\Kramerius\gsearch\DemoOnSolr\truestore\truststore trustStorePass=tomcat
+2010-04-28 07:57:11,781  INFO - getAndReturnFoxmlFromPid pid=uuid:431e4840-b03b-11dd-8818-000d606f5dc6 repositoryName=Kramerius
+2010-04-28 07:57:11,812  INFO - getAndReturnFoxmlFromPid pid=uuid:4a835a40-af36-11dd-b951-000d606f5dc6 repositoryName=Kramerius
+2010-04-28 07:57:11,843  INFO - getDatastreamText pid=uuid:431e4840-b03b-11dd-8818-000d606f5dc6 repositoryName=Kramerius dsId=TEXT_OCR fedoraSoap=http://194.108.215.227:8080/fedora/services fedoraUser=fedoraAdmin fedoraPass=fedoraAdmin trustStorePath=E:\NetBeansProjects\Kramerius\gsearch\DemoOnSolr\truestore\truststore trustStorePass=tomcat
+2010-04-28 07:57:11,859  INFO - getDatastreamText pid=uuid:4a835a40-af36-11dd-b951-000d606f5dc6 repositoryName=Kramerius dsId=TEXT_OCR fedoraSoap=http://194.108.215.227:8080/fedora/services fedoraUser=fedoraAdmin fedoraPass=fedoraAdmin trustStorePath=E:\NetBeansProjects\Kramerius\gsearch\DemoOnSolr\truestore\truststore trustStorePass=tomcat
+2010-04-28 07:57:11,937  INFO - getAndReturnFoxmlFromPid pid=uuid:4a8a8630-af36-11dd-ae9c-000d606f5dc6 repositoryName=Kramerius
+2010-04-28 07:57:11,937  INFO - getAndReturnFoxmlFromPid pid=uuid:4319b460-b03b-11dd-83ca-000d606f5dc6 repositoryName=Kramerius
+2010-04-28 07:57:11,984  INFO - getDatastreamText pid=uuid:4319b460-b03b-11dd-83ca-000d606f5dc6 repositoryName=Kramerius dsId=TEXT_OCR fedoraSoap=http://194.108.215.227:8080/fedora/services fedoraUser=fedoraAdmin fedoraPass=fedoraAdmin trustStorePath=E:\NetBeansProjects\Kramerius\gsearch\DemoOnSolr\truestore\truststore trustStorePass=tomcat
+2010-04-28 07:57:12,015  INFO - getAndReturnFoxmlFromPid pid=uuid:4a85f250-af36-11dd-8535-000d606f5dc6 repositoryName=Kramerius
+2010-04-28 07:57:12,062  INFO - getDatastreamText pid=uuid:4a8a8630-af36-11dd-ae9c-000d606f5dc6 repositoryName=Kramerius dsId=TEXT_OCR fedoraSoap=http://194.108.215.227:8080/fedora/services fedoraUser=fedoraAdmin fedoraPass=fedoraAdmin trustStorePath=E:\NetBeansProjects\Kramerius\gsearch\DemoOnSolr\truestore\truststore trustStorePass=tomcat
+2010-04-28 07:57:12,093  INFO - getAndReturnFoxmlFromPid pid=uuid:4320e050-b03b-11dd-9b4a-000d606f5dc6 repositoryName=Kramerius
+2010-04-28 07:57:12,156  INFO - getDatastreamText pid=uuid:4a85f250-af36-11dd-8535-000d606f5dc6 repositoryName=Kramerius dsId=TEXT_OCR fedoraSoap=http://194.108.215.227:8080/fedora/services fedoraUser=fedoraAdmin fedoraPass=fedoraAdmin trustStorePath=E:\NetBeansProjects\Kramerius\gsearch\DemoOnSolr\truestore\truststore trustStorePass=tomcat
+2010-04-28 07:57:12,203  INFO - getAndReturnFoxmlFromPid pid=uuid:431e4840-b03b-11dd-8818-000d606f5dc6 repositoryName=Kramerius
+2010-04-28 07:57:12,234  INFO - getDatastreamText pid=uuid:4320e050-b03b-11dd-9b4a-000d606f5dc6 repositoryName=Kramerius dsId=TEXT_OCR fedoraSoap=http://194.108.215.227:8080/fedora/services fedoraUser=fedoraAdmin fedoraPass=fedoraAdmin trustStorePath=E:\NetBeansProjects\Kramerius\gsearch\DemoOnSolr\truestore\truststore trustStorePass=tomcat
+2010-04-28 07:57:12,250  INFO - getAndReturnFoxmlFromPid pid=uuid:4a8cf730-af36-11dd-ae88-000d606f5dc6 repositoryName=Kramerius
+2010-04-28 07:57:12,250  INFO - getDatastreamText pid=uuid:431e4840-b03b-11dd-8818-000d606f5dc6 repositoryName=Kramerius dsId=TEXT_OCR fedoraSoap=http://194.108.215.227:8080/fedora/services fedoraUser=fedoraAdmin fedoraPass=fedoraAdmin trustStorePath=E:\NetBeansProjects\Kramerius\gsearch\DemoOnSolr\truestore\truststore trustStorePass=tomcat
+2010-04-28 07:57:12,281  INFO - getAndReturnFoxmlFromPid pid=uuid:4a8a8630-af36-11dd-ae9c-000d606f5dc6 repositoryName=Kramerius
+2010-04-28 07:57:12,328  INFO - getDatastreamText pid=uuid:4a8a8630-af36-11dd-ae9c-000d606f5dc6 repositoryName=Kramerius dsId=TEXT_OCR fedoraSoap=http://194.108.215.227:8080/fedora/services fedoraUser=fedoraAdmin fedoraPass=fedoraAdmin trustStorePath=E:\NetBeansProjects\Kramerius\gsearch\DemoOnSolr\truestore\truststore trustStorePass=tomcat
+2010-04-28 07:57:12,343  INFO - getDatastreamText pid=uuid:4a8cf730-af36-11dd-ae88-000d606f5dc6 repositoryName=Kramerius dsId=TEXT_OCR fedoraSoap=http://194.108.215.227:8080/fedora/services fedoraUser=fedoraAdmin fedoraPass=fedoraAdmin trustStorePath=E:\NetBeansProjects\Kramerius\gsearch\DemoOnSolr\truestore\truststore trustStorePass=tomcat
+2010-04-28 07:57:12,359  INFO - getAndReturnFoxmlFromPid pid=uuid:4320e050-b03b-11dd-9b4a-000d606f5dc6 repositoryName=Kramerius
+2010-04-28 07:57:12,421  INFO - updateIndex fromKrameriusModel indexName=null indexDirSpace=52709529 docCount=1230
+2010-04-28 07:57:12,421  INFO - 0 hour(s) 0 minute(s) 5 second(s)
+2010-04-28 07:57:12,421  INFO - Update index success
+2010-04-28 07:57:12,421  INFO - 0 hour(s) 0 minute(s) 5 second(s)
+2010-04-28 07:57:12,500  INFO - getDatastreamText pid=uuid:4320e050-b03b-11dd-9b4a-000d606f5dc6 repositoryName=Kramerius dsId=TEXT_OCR fedoraSoap=http://194.108.215.227:8080/fedora/services fedoraUser=fedoraAdmin fedoraPass=fedoraAdmin trustStorePath=E:\NetBeansProjects\Kramerius\gsearch\DemoOnSolr\truestore\truststore trustStorePass=tomcat
+2010-04-28 07:57:12,656  INFO - getAndReturnFoxmlFromPid pid=uuid:4a8cf730-af36-11dd-ae88-000d606f5dc6 repositoryName=Kramerius
+2010-04-28 07:57:12,796  INFO - getDatastreamText pid=uuid:4a8cf730-af36-11dd-ae88-000d606f5dc6 repositoryName=Kramerius dsId=TEXT_OCR fedoraSoap=http://194.108.215.227:8080/fedora/services fedoraUser=fedoraAdmin fedoraPass=fedoraAdmin trustStorePath=E:\NetBeansProjects\Kramerius\gsearch\DemoOnSolr\truestore\truststore trustStorePass=tomcat
+2010-04-28 07:57:12,875  INFO - updateIndex fromKrameriusModel indexName=null indexDirSpace=52709529 docCount=1230
+2010-04-28 07:57:12,875  INFO - 0 hour(s) 0 minute(s) 5 second(s)
+2010-04-28 07:57:12,875  INFO - Update index success
+2010-04-28 07:57:12,875  INFO - 0 hour(s) 0 minute(s) 5 second(s)
+2010-04-28 08:06:51,156  INFO - Indexer initialized
+2010-04-28 08:06:51,171  INFO - Current index time: 
+2010-04-28 08:06:51,171  INFO - Update index...
+2010-04-28 08:06:51,171  INFO - Indexing from: null
+2010-04-28 08:06:51,187  INFO - updateIndex action=fromKrameriusModel value=uuid:0eaa6730-9068-11dd-97de-000d606f5dc6 repositoryName= indexNames= indexDocXslt=null resultPageXslt=
+2010-04-28 08:06:51,312  INFO - getFoxmlFromPid pid=uuid:0eaa6730-9068-11dd-97de-000d606f5dc6 repositoryName=Kramerius
+2010-04-28 08:06:51,875  WARN - Unable to find required classes (javax.activation.DataHandler and javax.mail.internet.MimeMultipart). Attachment support is disabled.
+2010-04-28 08:08:05,687  INFO - Indexer initialized
+2010-04-28 08:08:05,687  INFO - Current index time: 
+2010-04-28 08:08:05,687  INFO - Update index...
+2010-04-28 08:08:05,687  INFO - Indexing from: null
+2010-04-28 08:08:05,703  INFO - updateIndex action=fromKrameriusModel value=uuid:0eaa6730-9068-11dd-97de-000d606f5dc6 repositoryName= indexNames= indexDocXslt=null resultPageXslt=
+2010-04-28 08:08:05,875  INFO - getFoxmlFromPid pid=uuid:0eaa6730-9068-11dd-97de-000d606f5dc6 repositoryName=Kramerius
+2010-04-28 08:08:06,359  WARN - Unable to find required classes (javax.activation.DataHandler and javax.mail.internet.MimeMultipart). Attachment support is disabled.
+2010-04-28 08:08:07,062  INFO - getAndReturnFoxmlFromPid pid=uuid:4308eb80-b03b-11dd-a0f6-000d606f5dc6 repositoryName=Kramerius
+2010-04-28 08:08:07,437  INFO - getDatastreamText pid=uuid:4308eb80-b03b-11dd-a0f6-000d606f5dc6 repositoryName=Kramerius dsId=TEXT_OCR fedoraSoap=http://194.108.215.227:8080/fedora/services fedoraUser=fedoraAdmin fedoraPass=fedoraAdmin trustStorePath=E:\NetBeansProjects\Kramerius\gsearch\DemoOnSolr\truestore\truststore trustStorePass=tomcat
+2010-04-28 08:08:07,687  INFO - getAndReturnFoxmlFromPid pid=uuid:4a79bd50-af36-11dd-a60c-000d606f5dc6 repositoryName=Kramerius
+2010-04-28 08:08:07,781  INFO - getDatastreamText pid=uuid:4a79bd50-af36-11dd-a60c-000d606f5dc6 repositoryName=Kramerius dsId=TEXT_OCR fedoraSoap=http://194.108.215.227:8080/fedora/services fedoraUser=fedoraAdmin fedoraPass=fedoraAdmin trustStorePath=E:\NetBeansProjects\Kramerius\gsearch\DemoOnSolr\truestore\truststore trustStorePass=tomcat
+2010-04-28 08:08:08,750  INFO - getAndReturnFoxmlFromPid pid=uuid:430d7f60-b03b-11dd-82fa-000d606f5dc6 repositoryName=Kramerius
+2010-04-28 08:08:08,875  INFO - getDatastreamText pid=uuid:430d7f60-b03b-11dd-82fa-000d606f5dc6 repositoryName=Kramerius dsId=TEXT_OCR fedoraSoap=http://194.108.215.227:8080/fedora/services fedoraUser=fedoraAdmin fedoraPass=fedoraAdmin trustStorePath=E:\NetBeansProjects\Kramerius\gsearch\DemoOnSolr\truestore\truststore trustStorePass=tomcat
+2010-04-28 08:08:08,921  INFO - getAndReturnFoxmlFromPid pid=uuid:4a7c2e50-af36-11dd-9643-000d606f5dc6 repositoryName=Kramerius
+2010-04-28 08:08:09,031  INFO - getDatastreamText pid=uuid:4a7c2e50-af36-11dd-9643-000d606f5dc6 repositoryName=Kramerius dsId=TEXT_OCR fedoraSoap=http://194.108.215.227:8080/fedora/services fedoraUser=fedoraAdmin fedoraPass=fedoraAdmin trustStorePath=E:\NetBeansProjects\Kramerius\gsearch\DemoOnSolr\truestore\truststore trustStorePass=tomcat
+2010-04-28 08:08:09,078  INFO - getAndReturnFoxmlFromPid pid=uuid:43101770-b03b-11dd-8673-000d606f5dc6 repositoryName=Kramerius
+2010-04-28 08:08:09,234  INFO - getDatastreamText pid=uuid:43101770-b03b-11dd-8673-000d606f5dc6 repositoryName=Kramerius dsId=TEXT_OCR fedoraSoap=http://194.108.215.227:8080/fedora/services fedoraUser=fedoraAdmin fedoraPass=fedoraAdmin trustStorePath=E:\NetBeansProjects\Kramerius\gsearch\DemoOnSolr\truestore\truststore trustStorePass=tomcat
+2010-04-28 08:08:09,250  INFO - getAndReturnFoxmlFromPid pid=uuid:4a7ec660-af36-11dd-a782-000d606f5dc6 repositoryName=Kramerius
+2010-04-28 08:08:09,328  INFO - getDatastreamText pid=uuid:4a7ec660-af36-11dd-a782-000d606f5dc6 repositoryName=Kramerius dsId=TEXT_OCR fedoraSoap=http://194.108.215.227:8080/fedora/services fedoraUser=fedoraAdmin fedoraPass=fedoraAdmin trustStorePath=E:\NetBeansProjects\Kramerius\gsearch\DemoOnSolr\truestore\truststore trustStorePass=tomcat
+2010-04-28 08:08:09,359  INFO - getAndReturnFoxmlFromPid pid=uuid:4314ab50-b03b-11dd-89db-000d606f5dc6 repositoryName=Kramerius
+2010-04-28 08:08:09,437  INFO - getDatastreamText pid=uuid:4314ab50-b03b-11dd-89db-000d606f5dc6 repositoryName=Kramerius dsId=TEXT_OCR fedoraSoap=http://194.108.215.227:8080/fedora/services fedoraUser=fedoraAdmin fedoraPass=fedoraAdmin trustStorePath=E:\NetBeansProjects\Kramerius\gsearch\DemoOnSolr\truestore\truststore trustStorePass=tomcat
+2010-04-28 08:08:09,468  INFO - getAndReturnFoxmlFromPid pid=uuid:4a80c230-af36-11dd-ace4-000d606f5dc6 repositoryName=Kramerius
+2010-04-28 08:08:10,171  INFO - getDatastreamText pid=uuid:4a80c230-af36-11dd-ace4-000d606f5dc6 repositoryName=Kramerius dsId=TEXT_OCR fedoraSoap=http://194.108.215.227:8080/fedora/services fedoraUser=fedoraAdmin fedoraPass=fedoraAdmin trustStorePath=E:\NetBeansProjects\Kramerius\gsearch\DemoOnSolr\truestore\truststore trustStorePass=tomcat
+2010-04-28 08:08:10,703  INFO - getAndReturnFoxmlFromPid pid=uuid:43171c50-b03b-11dd-b0c2-000d606f5dc6 repositoryName=Kramerius
+2010-04-28 08:08:10,953  INFO - getDatastreamText pid=uuid:43171c50-b03b-11dd-b0c2-000d606f5dc6 repositoryName=Kramerius dsId=TEXT_OCR fedoraSoap=http://194.108.215.227:8080/fedora/services fedoraUser=fedoraAdmin fedoraPass=fedoraAdmin trustStorePath=E:\NetBeansProjects\Kramerius\gsearch\DemoOnSolr\truestore\truststore trustStorePass=tomcat
+2010-04-28 08:08:11,015  INFO - getAndReturnFoxmlFromPid pid=uuid:4a835a40-af36-11dd-b951-000d606f5dc6 repositoryName=Kramerius
+2010-04-28 08:08:11,078  INFO - getDatastreamText pid=uuid:4a835a40-af36-11dd-b951-000d606f5dc6 repositoryName=Kramerius dsId=TEXT_OCR fedoraSoap=http://194.108.215.227:8080/fedora/services fedoraUser=fedoraAdmin fedoraPass=fedoraAdmin trustStorePath=E:\NetBeansProjects\Kramerius\gsearch\DemoOnSolr\truestore\truststore trustStorePass=tomcat
+2010-04-28 08:08:11,109  INFO - getAndReturnFoxmlFromPid pid=uuid:4319b460-b03b-11dd-83ca-000d606f5dc6 repositoryName=Kramerius
+2010-04-28 08:08:11,171  INFO - getDatastreamText pid=uuid:4319b460-b03b-11dd-83ca-000d606f5dc6 repositoryName=Kramerius dsId=TEXT_OCR fedoraSoap=http://194.108.215.227:8080/fedora/services fedoraUser=fedoraAdmin fedoraPass=fedoraAdmin trustStorePath=E:\NetBeansProjects\Kramerius\gsearch\DemoOnSolr\truestore\truststore trustStorePass=tomcat
+2010-04-28 08:08:11,281  INFO - getAndReturnFoxmlFromPid pid=uuid:4a85f250-af36-11dd-8535-000d606f5dc6 repositoryName=Kramerius
+2010-04-28 08:08:11,343  INFO - getDatastreamText pid=uuid:4a85f250-af36-11dd-8535-000d606f5dc6 repositoryName=Kramerius dsId=TEXT_OCR fedoraSoap=http://194.108.215.227:8080/fedora/services fedoraUser=fedoraAdmin fedoraPass=fedoraAdmin trustStorePath=E:\NetBeansProjects\Kramerius\gsearch\DemoOnSolr\truestore\truststore trustStorePass=tomcat
+2010-04-28 08:08:11,375  INFO - getAndReturnFoxmlFromPid pid=uuid:431e4840-b03b-11dd-8818-000d606f5dc6 repositoryName=Kramerius
+2010-04-28 08:08:11,453  INFO - getDatastreamText pid=uuid:431e4840-b03b-11dd-8818-000d606f5dc6 repositoryName=Kramerius dsId=TEXT_OCR fedoraSoap=http://194.108.215.227:8080/fedora/services fedoraUser=fedoraAdmin fedoraPass=fedoraAdmin trustStorePath=E:\NetBeansProjects\Kramerius\gsearch\DemoOnSolr\truestore\truststore trustStorePass=tomcat
+2010-04-28 08:08:11,484  INFO - getAndReturnFoxmlFromPid pid=uuid:4a8a8630-af36-11dd-ae9c-000d606f5dc6 repositoryName=Kramerius
+2010-04-28 08:08:11,562  INFO - getDatastreamText pid=uuid:4a8a8630-af36-11dd-ae9c-000d606f5dc6 repositoryName=Kramerius dsId=TEXT_OCR fedoraSoap=http://194.108.215.227:8080/fedora/services fedoraUser=fedoraAdmin fedoraPass=fedoraAdmin trustStorePath=E:\NetBeansProjects\Kramerius\gsearch\DemoOnSolr\truestore\truststore trustStorePass=tomcat
+2010-04-28 08:08:11,703  INFO - getAndReturnFoxmlFromPid pid=uuid:4320e050-b03b-11dd-9b4a-000d606f5dc6 repositoryName=Kramerius
+2010-04-28 08:08:11,765  INFO - getDatastreamText pid=uuid:4320e050-b03b-11dd-9b4a-000d606f5dc6 repositoryName=Kramerius dsId=TEXT_OCR fedoraSoap=http://194.108.215.227:8080/fedora/services fedoraUser=fedoraAdmin fedoraPass=fedoraAdmin trustStorePath=E:\NetBeansProjects\Kramerius\gsearch\DemoOnSolr\truestore\truststore trustStorePass=tomcat
+2010-04-28 08:08:11,796  INFO - getAndReturnFoxmlFromPid pid=uuid:4a8cf730-af36-11dd-ae88-000d606f5dc6 repositoryName=Kramerius
+2010-04-28 08:08:11,937  INFO - getDatastreamText pid=uuid:4a8cf730-af36-11dd-ae88-000d606f5dc6 repositoryName=Kramerius dsId=TEXT_OCR fedoraSoap=http://194.108.215.227:8080/fedora/services fedoraUser=fedoraAdmin fedoraPass=fedoraAdmin trustStorePath=E:\NetBeansProjects\Kramerius\gsearch\DemoOnSolr\truestore\truststore trustStorePass=tomcat
+2010-04-28 08:08:12,015  INFO - updateIndex fromKrameriusModel indexName=null indexDirSpace=52709529 docCount=1230
+2010-04-28 08:08:12,015  INFO - 0 hour(s) 0 minute(s) 6 second(s)
+2010-04-28 08:08:12,015  INFO - Update index success
+2010-04-28 08:08:12,015  INFO - 0 hour(s) 0 minute(s) 6 second(s)

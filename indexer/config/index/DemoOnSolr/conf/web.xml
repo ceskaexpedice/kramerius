@@ -1,0 +1,447 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE web-app PUBLIC "-//Sun Microsystems, Inc.//DTD Web Application 2.3//EN" "http://java.sun.com/dtd/web-app_2_3.dtd">
+<!--
+	* This is a J2EE JavaServlet application configuration file for Kramerius project.
+	*
+	* Copyright (c) 2003-2004 Qbizm technologies, a.s. All rights reserved.
+	* 
+	* This software is the proprietary information of Qbizm technologies, a.s. Use is subject to
+	* license terms.
+	* 
+	* @author <A href="mailto:vlastimil.elias@qbizm.cz">Ing. Vlastimil Elias </a>
+	* @version $Revision: 1.34 $ $Date: 2008/07/22 13:07:39 $
+-->
+<web-app id="WebApp_ID">
+
+	<display-name>kramerius</display-name>
+
+	<filter>
+		<filter-name>Set Character Encoding</filter-name>
+		<filter-class>
+			com.qbizm.util.servlet.filters.SetCharacterEncodingFilter
+		</filter-class>
+		<init-param>
+			<param-name>encoding</param-name>
+			<param-value>UTF8</param-value>
+		</init-param>
+	</filter>
+
+	<filter>
+		<filter-name>CheckAdmin</filter-name>
+		<filter-class>
+			com.qbizm.kramerius.web.servlet.filter.IsAdminFilter
+		</filter-class>
+	</filter>
+
+	<!-- Filter mapping to apply the "Set Character Encoding" filter
+		to *all* requests processed by this web application -->
+	<filter-mapping>
+		<filter-name>Set Character Encoding</filter-name>
+		<url-pattern>/*</url-pattern>
+	</filter-mapping>
+
+	<filter-mapping>
+		<filter-name>CheckAdmin</filter-name>
+		<url-pattern>/fckeditor/*</url-pattern>
+	</filter-mapping>
+
+	<!-- Standard Action Servlet Configuration (with debugging) -->
+	<servlet>
+		<servlet-name>action</servlet-name>
+		<servlet-class>
+			org.apache.struts.action.ActionServlet
+		</servlet-class>
+		<init-param>
+			<param-name>config</param-name>
+			<param-value>
+				/WEB-INF/struts-config.xml,
+				/WEB-INF/struts-config-ontheflypdf.xml,
+				/WEB-INF/struts-config-semonograph.xml
+			</param-value>
+		</init-param>
+		<load-on-startup>2</load-on-startup>
+	</servlet>
+
+	<!-- Servlet to get documents from repository -->
+	<servlet>
+		<servlet-name>documentServlet</servlet-name>
+		<servlet-class>
+			com.qbizm.kramerius.web.servlet.GetDocumentServlet
+		</servlet-class>
+		<load-on-startup>3</load-on-startup>
+	</servlet>
+
+	<!-- Begin - extension ext_ontheflypdf - author: Miroslav Grabovsky -->
+	<servlet>
+		<servlet-name>ext_ontheflypdf_pdfDocumentServletM</servlet-name>
+		<servlet-class>
+			com.qbizm.kramerius.ext.ontheflypdf.web.servlet.MGetPdfDocumentServlet
+		</servlet-class>
+	</servlet>
+	<servlet>
+		<servlet-name>ext_ontheflypdf_pdfDocumentServletP</servlet-name>
+		<servlet-class>
+			com.qbizm.kramerius.ext.ontheflypdf.web.servlet.PGetPdfDocumentServlet
+		</servlet-class>
+	</servlet>
+	<!-- End - extension ext_ontheflypdf  -->
+
+
+	<!-- Servlet to get ISSN of periodicals - must be called from struts action preparing data -->
+	<servlet>
+		<servlet-name>getISSNServlet</servlet-name>
+		<servlet-class>
+			com.qbizm.kramerius.web.servlet.GetISSNServlet
+		</servlet-class>
+		<load-on-startup>4</load-on-startup>
+	</servlet>
+
+	<!-- Replication related servlet -->
+	<servlet>
+		<servlet-name>replicationServlet</servlet-name>
+		<servlet-class>
+			com.qbizm.kramerius.web.servlet.ReplicationServerServlet
+		</servlet-class>
+		<load-on-startup>5</load-on-startup>
+	</servlet>
+
+	<!-- Servlet to check aplication subsystems statuses -->
+	<servlet>
+		<servlet-name>checkSystemStatusServlet</servlet-name>
+		<servlet-class>
+			com.qbizm.kramerius.web.servlet.CheckSystemStatusServlet
+		</servlet-class>
+		<load-on-startup>10</load-on-startup>
+	</servlet>
+
+	<!-- Standard Action Servlet Configuration (with debugging) -->
+	<servlet>
+		<servlet-name>pdfcreator</servlet-name>
+		<servlet-class>
+			com.qbizm.kramerius.web.servlet.PDFCreatorServlet
+		</servlet-class>
+		<init-param>
+			<param-name>config</param-name>
+			<param-value>/pdfcreator.properties</param-value>
+		</init-param>
+		<load-on-startup>4</load-on-startup>
+	</servlet>
+
+	<!-- Servlet to process OAI-PMH protocol requests -->
+	<servlet>
+		<servlet-name>OAIServlet</servlet-name>
+		<servlet-class>
+			com.qbizm.kramerius.web.servlet.OAIServlet
+		</servlet-class>
+		<load-on-startup>5</load-on-startup>
+	</servlet>
+
+	<!-- Servlet to process mets requests -->
+	<servlet>
+		<servlet-name>MetsServlet</servlet-name>
+		<servlet-class>
+			com.qbizm.kramerius.web.servlet.MetsServlet
+		</servlet-class>
+	</servlet>
+	
+		<!-- Servlet to process mets requests -->
+	<servlet>
+		<servlet-name>AmdServlet</servlet-name>
+		<servlet-class>
+			com.qbizm.kramerius.web.servlet.AmdServlet
+		</servlet-class>
+	</servlet>
+
+	<!-- Servlet to get documents from repository -->
+	<servlet>
+		<servlet-name>HandleServlet</servlet-name>
+		<servlet-class>
+			com.qbizm.kramerius.web.servlet.HandleServlet
+		</servlet-class>
+		<load-on-startup>7</load-on-startup>
+	</servlet>
+
+	<servlet>
+        <servlet-name>FCKEditor</servlet-name>
+        <servlet-class>com.fredck.FCKeditor.connector.ConnectorServlet</servlet-class>
+        <init-param>
+            <param-name>baseDir</param-name>
+            <param-value>/custom/</param-value>
+        </init-param>
+        <init-param>
+            <param-name>debug</param-name>
+            <param-value>false</param-value>
+		</init-param>
+        <load-on-startup>6</load-on-startup>
+    </servlet>
+
+  	<servlet-mapping>
+	    <servlet-name>FCKEditor</servlet-name>
+	    <url-pattern>/FCKEditor</url-pattern>
+  	</servlet-mapping>
+  	
+	<!-- Standard Action Servlet Mapping -->
+	<servlet-mapping>
+		<servlet-name>action</servlet-name>
+		<url-pattern>*.do</url-pattern>				
+	</servlet-mapping>
+
+	<servlet-mapping>
+		<servlet-name>documentServlet</servlet-name>
+		<url-pattern>/document/*</url-pattern>
+	</servlet-mapping>
+
+	<servlet-mapping>
+		<servlet-name>HandleServlet</servlet-name>
+		<url-pattern>/handle/*</url-pattern>
+	</servlet-mapping>
+
+	<!-- Start - PDF generating servlets, M.Grabovsky -->
+	<servlet-mapping>
+		<servlet-name>ext_ontheflypdf_pdfDocumentServletM</servlet-name>
+		<url-pattern>/ontheflypdf_MGetPdf</url-pattern>
+	</servlet-mapping>
+
+	<servlet-mapping>
+		<servlet-name>ext_ontheflypdf_pdfDocumentServletP</servlet-name>
+		<url-pattern>/ontheflypdf_PGetPdf</url-pattern>
+	</servlet-mapping>
+	<!-- End - PDF generating servlets, M.Grabovsky -->
+
+	<servlet-mapping>
+		<servlet-name>getISSNServlet</servlet-name>
+		<url-pattern>/getISSNServlet</url-pattern>
+	</servlet-mapping>
+
+	<servlet-mapping>
+		<servlet-name>replicationServlet</servlet-name>
+		<url-pattern>/replicationServlet</url-pattern>
+	</servlet-mapping>
+
+	<servlet-mapping>
+		<servlet-name>checkSystemStatusServlet</servlet-name>
+		<url-pattern>/checkSystemStatus</url-pattern>
+	</servlet-mapping>
+
+	<servlet-mapping>
+		<servlet-name>pdfcreator</servlet-name>
+		<url-pattern>/pdfcreator</url-pattern>
+	</servlet-mapping>
+
+	<servlet-mapping>
+		<servlet-name>OAIServlet</servlet-name>
+		<url-pattern>/oai</url-pattern>
+	</servlet-mapping>
+
+	<servlet-mapping>
+		<servlet-name>MetsServlet</servlet-name>
+		<url-pattern>/mets/*</url-pattern>
+	</servlet-mapping>
+	
+	<servlet-mapping>
+		<servlet-name>AmdServlet</servlet-name>
+		<url-pattern>/amd</url-pattern>
+	</servlet-mapping>
+
+	<mime-mapping>
+		<extension>djvu</extension>
+		<mime-type>image/vnd.djvu</mime-type>
+	</mime-mapping>
+	<mime-mapping>
+		<extension>djv</extension>
+		<mime-type>image/vnd.djvu</mime-type>
+	</mime-mapping>
+	<welcome-file-list>
+		<welcome-file>index.html</welcome-file>
+		<welcome-file>index.htm</welcome-file>
+		<welcome-file>index.jsp</welcome-file>
+		<welcome-file>default.html</welcome-file>
+		<welcome-file>default.htm</welcome-file>
+		<welcome-file>default.jsp</welcome-file>
+	</welcome-file-list>
+<!--
+	<error-page>
+		<error-code>400</error-code>
+		<location>/error400.jsp</location>
+	</error-page>
+	<error-page>
+		<error-code>401</error-code>
+		<location>/error400.jsp</location>
+	</error-page>
+	<error-page>
+		<error-code>403</error-code>
+		<location>/error400.jsp</location>
+	</error-page>
+	<error-page>
+		<error-code>404</error-code>
+		<location>/error400.jsp</location>
+	</error-page>
+
+	<error-page>
+		<error-code>500</error-code>
+		<location>/error500.jsp</location>
+	</error-page>
+	<error-page>
+		<error-code>503</error-code>
+		<location>/error500.jsp</location>
+	</error-page>
+-->
+	<!-- Application Tag Library Descriptors -->
+	<taglib>
+		<taglib-uri>/tags/app-kramerius</taglib-uri>
+		<taglib-location>/WEB-INF/app-kramerius.tld</taglib-location>
+	</taglib>
+
+	<taglib>
+		<taglib-uri>/tags/qbizmutil-servlet</taglib-uri>
+		<taglib-location>
+			/WEB-INF/qbizmutil-servlet.tld
+		</taglib-location>
+	</taglib>
+
+	<!-- JSTL Tag Library Descriptors -->
+	<taglib>
+		<taglib-uri>/tags/jstl-c</taglib-uri>
+		<taglib-location>/WEB-INF/c.tld</taglib-location>
+	</taglib>
+
+	<taglib>
+		<taglib-uri>/tags/jstl-fmt</taglib-uri>
+		<taglib-location>/WEB-INF/fmt.tld</taglib-location>
+	</taglib>
+
+
+	<!-- Struts Tag Library Descriptors -->
+	<taglib>
+		<taglib-uri>/tags/struts-bean</taglib-uri>
+		<taglib-location>/WEB-INF/struts-bean.tld</taglib-location>
+	</taglib>
+
+	<taglib>
+		<taglib-uri>/tags/struts-html</taglib-uri>
+		<taglib-location>/WEB-INF/struts-html.tld</taglib-location>
+	</taglib>
+
+	<taglib>
+		<taglib-uri>/tags/struts-logic</taglib-uri>
+		<taglib-location>/WEB-INF/struts-logic.tld</taglib-location>
+	</taglib>
+
+	<taglib>
+		<taglib-uri>/tags/struts-tiles</taglib-uri>
+		<taglib-location>/WEB-INF/struts-tiles.tld</taglib-location>
+	</taglib>
+
+	<taglib>
+		<taglib-uri>/tags/struts-bean-el</taglib-uri>
+		<taglib-location>/WEB-INF/struts-bean-el.tld</taglib-location>
+	</taglib>
+
+	<taglib>
+		<taglib-uri>/tags/struts-html-el</taglib-uri>
+		<taglib-location>/WEB-INF/struts-html-el.tld</taglib-location>
+	</taglib>
+
+	<taglib>
+		<taglib-uri>/tags/struts-logic-el</taglib-uri>
+		<taglib-location>/WEB-INF/struts-logic-el.tld</taglib-location>
+	</taglib>
+
+	<security-constraint>
+		<display-name>Hide some directory listings</display-name>
+		<web-resource-collection>
+			<web-resource-name>Protected Area</web-resource-name>
+			<!-- Define the context-relative URL(s) to be protected -->
+			<url-pattern>/pages/</url-pattern>
+		</web-resource-collection>
+		<auth-constraint>
+			<!-- Anyone with one of the listed roles may access this area -->
+			<role-name>nobody</role-name>
+		</auth-constraint>
+	</security-constraint>
+	<security-constraint>
+		<display-name>Hide some directory listings</display-name>
+		<web-resource-collection>
+			<web-resource-name>Protected Area</web-resource-name>
+			<!-- Define the context-relative URL(s) to be protected -->
+			<url-pattern>/pages/*</url-pattern>
+		</web-resource-collection>
+		<auth-constraint>
+			<!-- Anyone with one of the listed roles may access this area -->
+			<role-name>nobody</role-name>
+		</auth-constraint>
+	</security-constraint>
+	<security-constraint>
+		<display-name>Hide some directory listings</display-name>
+		<web-resource-collection>
+			<web-resource-name>Protected Area</web-resource-name>
+			<!-- Define the context-relative URL(s) to be protected -->
+			<url-pattern>/img/</url-pattern>
+		</web-resource-collection>
+		<auth-constraint>
+			<!-- Anyone with one of the listed roles may access this area -->
+			<role-name>nobody</role-name>
+		</auth-constraint>
+	</security-constraint>
+	<security-constraint>
+		<display-name>Hide some directory listings</display-name>
+		<web-resource-collection>
+			<web-resource-name>Protected Area</web-resource-name>
+			<!-- Define the context-relative URL(s) to be protected -->
+			<url-pattern>/dist_backup/</url-pattern>
+		</web-resource-collection>
+		<auth-constraint>
+			<!-- Anyone with one of the listed roles may access this area -->
+			<role-name>nobody</role-name>
+		</auth-constraint>
+	</security-constraint>
+		<security-constraint>
+		<display-name>Hide some directory listings</display-name>
+		<web-resource-collection>
+			<web-resource-name>Protected Area</web-resource-name>
+			<!-- Define the context-relative URL(s) to be protected -->
+			<url-pattern>/dist_backup/*</url-pattern>
+		</web-resource-collection>
+		<auth-constraint>
+			<!-- Anyone with one of the listed roles may access this area -->
+			<role-name>nobody</role-name>
+		</auth-constraint>
+	</security-constraint>
+	<security-constraint>
+		<display-name>Hide some directory listings</display-name>
+		<web-resource-collection>
+			<web-resource-name>Protected Area</web-resource-name>
+			<!-- Define the context-relative URL(s) to be protected -->
+			<url-pattern>/css/</url-pattern>
+		</web-resource-collection>
+		<auth-constraint>
+			<!-- Anyone with one of the listed roles may access this area -->
+			<role-name>nobody</role-name>
+		</auth-constraint>
+	</security-constraint>
+	<security-constraint>
+		<display-name>Hide some directory listings</display-name>
+		<web-resource-collection>
+			<web-resource-name>Protected Area</web-resource-name>
+			<!-- Define the context-relative URL(s) to be protected -->
+			<url-pattern>/javascript/</url-pattern>
+		</web-resource-collection>
+		<auth-constraint>
+			<!-- Anyone with one of the listed roles may access this area -->
+			<role-name>nobody</role-name>
+		</auth-constraint>
+	</security-constraint>
+	<login-config>
+		<auth-method>BASIC</auth-method>
+		<realm-name>BASIC Authentication Area</realm-name>
+	</login-config>
+
+	<security-role>
+		<description>
+			The role that is used to hide some files, no users should
+			exist in this role
+		</description>
+		<role-name>nobody</role-name>
+	</security-role>
+
+</web-app>
