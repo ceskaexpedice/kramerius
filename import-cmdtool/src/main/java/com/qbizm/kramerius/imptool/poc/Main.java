@@ -67,7 +67,11 @@ public class Main {
 
     }
 
-    public static void convert(String importRoot, String exportRoot, boolean useDB, boolean defaultVisibility) {
+    
+    
+    public static String convert(String importRoot, String exportRoot, boolean useDB, boolean defaultVisibility) {
+        System.setProperty("java.awt.headless", "true");
+        StringBuffer convertedUUID = new StringBuffer();
         if (useDB){
             initDB();
         }
@@ -82,7 +86,8 @@ public class Main {
             unmarshaller = jaxbContext.createUnmarshaller();
 
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("Cannot init JAXB", e);
+            throw new RuntimeException(e);
         }
 
         File importFile = new File(importRoot);
@@ -91,7 +96,7 @@ public class Main {
             System.exit(1);
         }
 
-        visitAllDirsAndFiles(importFile, importRoot, exportRoot,  useDB, defaultVisibility);
+        visitAllDirsAndFiles(importFile, importRoot, exportRoot,  useDB, defaultVisibility,  convertedUUID);
         if (conn != null){
             try {
                 conn.close();
@@ -99,6 +104,7 @@ public class Main {
                 
             }
         }
+        return convertedUUID.toString();
     }
     
     static Connection conn = null;
@@ -118,8 +124,16 @@ public class Main {
         }
 
     }
+    
+    private static void clearExportFolder(File replicationDirectory) {
+        File[] files = replicationDirectory.listFiles();
+        if (files != null) {
+            for (int i = 0; i < files.length; i++)
+                files[i].delete();
+        }
+    }
 
-    private static void visitAllDirsAndFiles(File importFile, String importRoot, String exportRoot, boolean useDB, boolean defaultVisibility) {
+    private static void visitAllDirsAndFiles(File importFile, String importRoot, String exportRoot, boolean useDB, boolean defaultVisibility, StringBuffer convertedUUID) {
 
         if (importFile.isDirectory()) {
             String subFolderName = importFile.getAbsolutePath().substring(importRoot.length());
@@ -133,9 +147,10 @@ public class Main {
                     System.exit(1);
                 }
             }
+            clearExportFolder(exportFolderFile);
             File[] children = importFile.listFiles();
             for (int i = 0; i < children.length; i++) {
-                visitAllDirsAndFiles(children[i], importRoot, exportRoot,  useDB, defaultVisibility);
+                visitAllDirsAndFiles(children[i], importRoot, exportRoot,  useDB, defaultVisibility, convertedUUID);
             }
         } else {
             if (importFile.getName().endsWith(".xml")) {
@@ -164,7 +179,7 @@ public class Main {
                 }
                 config.setContractLength(l);
                 try {
-                    convertOneDirectory(unmarshaller, importFile, config);
+                    convertOneDirectory(unmarshaller, importFile, config, convertedUUID);
                 } catch (InterruptedException e) {
                     log.error("Cannot convert "+importFile, e);
                 } catch (JAXBException e) {
@@ -175,7 +190,7 @@ public class Main {
         }
     }
 
-    private static void convertOneDirectory(Unmarshaller unmarshaller, File importFile, ConvertorConfig config) throws InterruptedException, JAXBException {
+    private static void convertOneDirectory(Unmarshaller unmarshaller, File importFile, ConvertorConfig config, StringBuffer convertedUUID) throws InterruptedException, JAXBException {
         long timeStart = System.currentTimeMillis();
 
         long before = getFreeMem();
@@ -190,12 +205,12 @@ public class Main {
             if (source instanceof Monograph) {
                 MonographConvertor mc = new MonographConvertor(config);
                 Monograph monograph = (Monograph) source;
-                mc.convert(monograph);
+                convertedUUID.append( mc.convert(monograph)).append("\n");
                 objectCounter = mc.getObjectCounter();
             } else if (source instanceof Periodical) {
                 PeriodicalConvertor pc = new PeriodicalConvertor(config);
                 Periodical periodical = (Periodical) source;
-                pc.convert(periodical);
+                convertedUUID.append( pc.convert(periodical)).append("\n");
                 objectCounter = pc.getObjectCounter();
             } else {
                 throw new UnsupportedOperationException("Unsupported object class: " + source.getClass());

@@ -103,8 +103,11 @@ public class PeriodicalConvertor extends BaseConvertor {
      * @param peri
      * @throws ServiceException
      */
-    public void convert(Periodical peri) throws ServiceException {
+    public String  convert(Periodical peri) throws ServiceException {
         CoreBibliographicDescriptionPeriodical biblio = peri.getCoreBibliographicDescriptionPeriodical();
+        if (biblio == null) {
+            biblio = new CoreBibliographicDescriptionPeriodical();
+        }
         String title = getMainTitle(biblio);
         if (peri.getUniqueIdentifier() == null) {
             peri.setUniqueIdentifier(new UniqueIdentifier());
@@ -155,6 +158,7 @@ public class PeriodicalConvertor extends BaseConvertor {
         DigitalObject foxmlPeri = this.createDigitalObject(peri, pid, title, dc, re, XSL_MODS_PERIODICAL, null, visibility);
 
         this.marshalDigitalObject(foxmlPeri);
+        return pid;
     }
 
     private void addDonatorRelation(RelsExt re, List<Creator> creators) {
@@ -176,6 +180,9 @@ public class PeriodicalConvertor extends BaseConvertor {
      */
     private void convertVolume(PeriodicalVolume volume, boolean parentVisibility) throws ServiceException {
         CoreBibliographicDescriptionPeriodical biblio = volume.getCoreBibliographicDescriptionPeriodical();
+        if (biblio == null) {
+            biblio = new CoreBibliographicDescriptionPeriodical();
+        }
         String title = "";
         if (volume.getPeriodicalVolumeIdentification() != null && volume.getPeriodicalVolumeIdentification().getPeriodicalVolumeNumber() != null) {
             title = first(volume.getPeriodicalVolumeIdentification().getPeriodicalVolumeNumber().getContent());
@@ -249,6 +256,9 @@ public class PeriodicalConvertor extends BaseConvertor {
      */
     private void convertInternalPart(PeriodicalInternalComponentPart part, Map<String, String> pageIdMap, boolean visibility) throws ServiceException {
         CoreBibliographicDescriptionPeriodical biblio = part.getCoreBibliographicDescriptionPeriodical();
+        if (biblio == null) {
+            biblio = new CoreBibliographicDescriptionPeriodical();
+        }
         String title = getMainTitle(biblio);
         if (part.getUniqueIdentifier() == null) {
             part.setUniqueIdentifier(new UniqueIdentifier());
@@ -286,6 +296,9 @@ public class PeriodicalConvertor extends BaseConvertor {
      */
     private void convertItem(PeriodicalItem item, boolean parentVisibility) throws ServiceException {
         CoreBibliographicDescriptionPeriodical biblio = item.getCoreBibliographicDescriptionPeriodical();
+        if (biblio == null) {
+            biblio = new CoreBibliographicDescriptionPeriodical();
+        }
         String title = getMainTitle(biblio);
         if (item.getUniqueIdentifier() == null) {
             item.setUniqueIdentifier(new UniqueIdentifier());

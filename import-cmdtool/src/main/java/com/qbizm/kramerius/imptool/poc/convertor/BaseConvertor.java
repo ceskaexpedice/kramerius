@@ -772,11 +772,11 @@ public abstract class BaseConvertor {
     }
 
     protected String first(List<? extends Object> list) {
-        return (list == null || list.get(0) == null) ? StringUtils.EMPTY : list.get(0).toString();
+        return (list == null || list.size()==0 || list.get(0) == null) ? StringUtils.EMPTY : list.get(0).toString();
     }
 
     protected <T> T firstItem(List<T> list) {
-        return (list == null || list.get(0) == null) ? null : list.get(0);
+        return (list == null || list.size()==0 || list.get(0) == null) ? null : list.get(0);
     }
     
     protected String concat(List<String> list) {
