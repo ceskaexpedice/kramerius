@@ -1,5 +1,8 @@
 package cz.incad.kramerius.processes;
 
+import java.io.FileNotFoundException;
+import java.io.InputStream;
+import java.io.RandomAccessFile;
 import java.util.List;
 
 /**
@@ -55,7 +58,7 @@ public interface LRProcess {
 	 * @see States
 	 * @param wait
 	 */
-	public void startMe(boolean wait);
+	public void startMe(boolean wait, String krameriusAppLib);
 	
 	/**
 	 * Stops underlaying os process
@@ -93,4 +96,13 @@ public interface LRProcess {
 	public String getProcessName();
 	
 	public void setProcessName(String nm);
+	
+	public InputStream getStandardProcessOutputStream() throws FileNotFoundException;
+
+	public InputStream getErrorProcessOutputStream() throws FileNotFoundException;
+	
+	public RandomAccessFile getStandardProcessRAFile() throws FileNotFoundException;
+	
+	public RandomAccessFile getErrorProcessRAFile() throws FileNotFoundException;
+	
 }

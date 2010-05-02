@@ -65,4 +65,6 @@ public interface LRProcessDefinition {
 	 */
 	public String getStandardStreamFolder();
 
+
+	public String getProcessOutputURL();
 }

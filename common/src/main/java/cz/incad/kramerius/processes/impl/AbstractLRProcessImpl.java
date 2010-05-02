@@ -1,9 +1,12 @@
 package cz.incad.kramerius.processes.impl;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.RandomAccessFile;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -83,7 +86,7 @@ public abstract class AbstractLRProcessImpl implements LRProcess{
 	}
 
 	@Override
-	public void startMe(boolean wait) {
+	public void startMe(boolean wait, String krameriusAppLib) {
 		try {
 			//"java -D"+ProcessStarter.MAIN_CLASS_KEY+"="+mainClass
 			// create command
@@ -112,18 +115,19 @@ public abstract class AbstractLRProcessImpl implements LRProcess{
 			//create CLASSPATH
 			StringBuffer buffer = new StringBuffer();
 			String libsDirPath = this.definition.getLibsDir();
-			if (libsDirPath != null) {
-				File libsDir = new File(libsDirPath);
-				File[] listFiles = libsDir.listFiles();
-				if (listFiles !=  null) {
-					for (File file : listFiles) {
-						buffer.append(file.getAbsolutePath());
-						buffer.append(File.pathSeparator);
-					}
+			if (libsDirPath == null) {
+				libsDirPath = krameriusAppLib;
+			}
+
+			File libsDir = new File(libsDirPath);
+			File[] listFiles = libsDir.listFiles();
+			if (listFiles !=  null) {
+				for (File file : listFiles) {
+					buffer.append(file.getAbsolutePath());
+					buffer.append(File.pathSeparator);
 				}
 			}
 
-			
 			ProcessBuilder processBuilder = new ProcessBuilder(command);
 			processBuilder.environment().put(ProcessStarter.CLASSPATH_NAME, buffer.toString());
 			this.state = States.RUNNING;
@@ -136,7 +140,6 @@ public abstract class AbstractLRProcessImpl implements LRProcess{
 			//new FollowStreamThread(process.getInputStream(), new FileOutputStream(standardStreamFile)).start();
 			//TODO: Synchronizace ?? Jak na to ?
 			//
-			
 
 			// pokracuje dal.. rozhoduje se, jestli pocka na vysledek procesu
 			if (wait) {
@@ -151,6 +154,7 @@ public abstract class AbstractLRProcessImpl implements LRProcess{
 	}
 
 
+	
 	private File createFolderIfNotExists(String folder) {
 		File fldr= new File(folder);
 		fldr.mkdirs();
@@ -237,6 +241,33 @@ public abstract class AbstractLRProcessImpl implements LRProcess{
 	public void setProcessName(String nm) {
 		this.name = nm;
 	}
-	
-	
+
+
+	@Override
+	public InputStream getErrorProcessOutputStream() throws FileNotFoundException {
+		File errStreamFile = new File(createFolderIfNotExists(this.definition.getErrStreamFolder()),this.uuid+".err");
+		return new FileInputStream(errStreamFile);
+	}
+
+
+	@Override
+	public InputStream getStandardProcessOutputStream() throws FileNotFoundException {
+		File standardStreamFile = new File(createFolderIfNotExists(this.definition.getStandardStreamFolder()),this.uuid+".out");
+		return new FileInputStream(standardStreamFile);
+	}
+
+
+	@Override
+	public RandomAccessFile getErrorProcessRAFile() throws FileNotFoundException {
+		File errStreamFile = new File(createFolderIfNotExists(this.definition.getErrStreamFolder()),this.uuid+".err");
+		return new RandomAccessFile(errStreamFile, "r");
+	}
+
+
+	@Override
+	public RandomAccessFile getStandardProcessRAFile() throws FileNotFoundException {
+		File standardStreamFile = new File(createFolderIfNotExists(this.definition.getStandardStreamFolder()),this.uuid+".out");
+		return new RandomAccessFile(standardStreamFile, "r");
+	}
+
 }

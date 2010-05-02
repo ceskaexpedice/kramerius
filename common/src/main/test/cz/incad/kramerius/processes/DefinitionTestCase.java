@@ -29,7 +29,7 @@ public class DefinitionTestCase extends AbstractGuiceTestCase {
 		LRProcessDefinition definition = defMgr.getLongRunningProcessDefinition("generovani_pdf");
 		
 		LRProcess process = definition.createNewProcess();
-		process.startMe(false);
+		process.startMe(false, "");
 
 		Thread.sleep(2000);
 

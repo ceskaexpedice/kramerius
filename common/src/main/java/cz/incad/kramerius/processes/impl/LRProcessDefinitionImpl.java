@@ -20,10 +20,10 @@ import cz.incad.kramerius.utils.conf.KConfiguration;
 
 public class LRProcessDefinitionImpl implements LRProcessDefinition {
 
-	public static final String DEFAULT_LIB_DIR="lib";
+	//public static final String DEFAULT_LIB_DIR="lib";
 	public static final String DEFAULT_USER_DIR ="";
 	
-	private String libsDir = DEFAULT_LIB_DIR;
+	private String libsDir;
 	private String id;
 	private String mainClass;
 	private String description;
@@ -34,7 +34,8 @@ public class LRProcessDefinitionImpl implements LRProcessDefinition {
 	
 	private LRProcessManager pm;
 	private KConfiguration configuration;
-	
+	private String processOutputURL;
+
 	public LRProcessDefinitionImpl(LRProcessManager pm, KConfiguration configuration) {
 		super();
 		this.pm = pm;
@@ -75,6 +76,9 @@ public class LRProcessDefinitionImpl implements LRProcessDefinition {
 				}
 				if (nodeName.equals("errOs")) {
 					this.errStreamFolder = item.getTextContent();
+				}
+				if (nodeName.equals("processOutputURL")) {
+					this.processOutputURL = item.getTextContent();
 				}
 				if (nodeName.equals("parameters")) {
 					parameters(item);
@@ -164,4 +168,15 @@ public class LRProcessDefinitionImpl implements LRProcessDefinition {
 	public void setErrStreamFolder(String errStreamFolder) {
 		this.errStreamFolder = errStreamFolder;
 	}
+
+	@Override
+	public String getProcessOutputURL() {
+		return this.processOutputURL;
+	}
+
+	public void setProcessOutputURL(String processOutputURL) {
+		this.processOutputURL = processOutputURL;
+	}
+	
+	
 }

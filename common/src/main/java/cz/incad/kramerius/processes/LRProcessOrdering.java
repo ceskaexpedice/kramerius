@@ -3,7 +3,7 @@ package cz.incad.kramerius.processes;
 public enum LRProcessOrdering {
 	
 	ID("order by pid"),
-	STATE("order by state"),
+	STATE("order by status"),
 	NAME("order by name"),
 	STARTED("order by started");
 	
