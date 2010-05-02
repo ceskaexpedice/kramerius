@@ -80,29 +80,6 @@ public class AbstracThumbnailServlet extends GuiceServlet {
 			InputStream imageFULL = fedoraAccess.getThumbnail(uuid);
 			return ImageIO.read(imageFULL);
 			
-		} else if ((mimetype.equals(OutputFormats.XDJVU.getMimeType())) ||
-				  (mimetype.equals(OutputFormats.DJVU.getMimeType()))){
-			String imageUrl = getDJVUServlet(uuid);
-
-	        com.lizardtech.djvu.Document doc = new com.lizardtech.djvu.Document(new URL(imageUrl));
-	        doc.setAsync(false);
-	        
-	        DjVuPage[] p = new DjVuPage[1];
-	        
-	        //read page from the document - index 0, priority 1, favorFast true
-	        p[0] = doc.getPage(0, 1, true);
-	        p[0].setAsync(true);
-	        
-	        //create djvuimage
-	        DjVuImage djvuImage = new DjVuImage(p, true);
-
-			Rectangle pageBounds = djvuImage.getPageBounds(0);
-			Image[] images = djvuImage.getImage(new JPanel(), new Rectangle(pageBounds.width,pageBounds.height));
-			if (images.length == 1) {
-				Image img = images[0];
-				return img;
-			} else return null;
-			
 		} else throw new IllegalArgumentException("unsupported mimetype '"+mimetype+"'");
 		
 	}
