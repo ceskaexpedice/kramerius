@@ -11,8 +11,14 @@ $(document).ready(function(){
 
 
 function showAdminMenu() {
+	var headerPosition = $("#header").offset();
+	var headerWidth = $("#header").width()
+	var admimMenuWidth = $("#adminMenu").width();
+	
 	var position = $("#adminHref").offset();
-	$("#adminMenu").css("left",position.left);
+	
+	
+	$("#adminMenu").css("left",(headerPosition.left+headerWidth) - admimMenuWidth-2);
 	$("#adminMenu").css("top",position.top);
 	$("#adminMenu").css("display","block");
 }
@@ -26,12 +32,14 @@ function hideAdminMenu() {
 var _processDialog; // dialog na zobrazovani proceus
 function openProcessDialog() {
 	if (_processDialog) {
+//		$("#processes").dialog( "option", "width", $(document).width() );
+//		$("#processes").dialog( "option", "height", $(document).height() );
 		_processDialog.dialog('open');
 	} else {
     	_processDialog = $("#processes").dialog({
 	        bgiframe: true,
-	        width: 800,
-	        height: 600,
+	        width: 700,
+	        height: 400,
 	        modal: true,
 	        title: "Správa dlouhotrvajícíh procesů",
 	        buttons: {
