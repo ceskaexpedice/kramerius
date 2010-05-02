@@ -10,7 +10,7 @@
 %>
 
 <form name="searchForm" method="GET" action="./">
-<table class="header ui-corner-top-8">
+<table class="header ui-corner-top-8" id="header">
 	<tbody>
 		<tr>
 			<td width="230px"><a
@@ -58,7 +58,7 @@
 
 				<c:choose>
 					<c:when test="${remoteUser != null}">
-						::<a id="adminHref" href="javascript:showAdminMenu();" /><fmt:message>administrator</fmt:message></a>
+						:: <a id="adminHref" href="javascript:showAdminMenu();" /><fmt:message>administrator.menu</fmt:message></a>
 					</c:when>
 				</c:choose>
 			</td>
@@ -68,7 +68,19 @@
 </form>
 
 <div id="adminMenu" class="adminMenu">
-	<div class="adminMenuHeader"><a id="adminHref" href="javascript:hideAdminMenu();"><fmt:message>administrator</fmt:message></a></div>
+	<div class="adminMenuHeader">
+	<table width="100%">
+		<tr>
+			<td align="center">
+				<fmt:message>administrator.menu</fmt:message>
+			</td>
+			<td width="20px">
+				<a href="javascript:hideAdminMenu();"><img border="0px" src="img/x.png"></img></a>
+			</td>
+		</tr>
+	</table>
+	</div>
+	
 	<div id="adminMenuItems" class="adminMenuItems">
 		<div align="left"> <a href="javascript:processes(); javascript:hideAdminMenu();">Správa dlouhotrvajících procesů ... </a> </div>	
 		<div align="left"> <a href="javascript:processes(); javascript:hideAdminMenu();">Import dat ... </a> </div>	
