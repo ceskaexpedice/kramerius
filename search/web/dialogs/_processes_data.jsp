@@ -45,7 +45,7 @@
 
 	LRProcessOrdering lrProcOrder = LRProcessOrdering.valueOf(ordering);
 	LRProcessOffset lrOffset = new LRProcessOffset(offset, size);
-	ProcessesViewObject viewObj = new ProcessesViewObject(lrProcessMan, lrProcOrder,TypeOfOrdering.valueOf(type), lrOffset);
+	ProcessesViewObject viewObj = new ProcessesViewObject(lrProcessMan, defMan, lrProcOrder,TypeOfOrdering.valueOf(type), lrOffset);
 	pageContext.setAttribute("processView", viewObj);
 %>
 
