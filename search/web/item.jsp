@@ -62,7 +62,7 @@
         <table class="main">
             <tr valign='top'>
                 <td colspan="2" valign="middle" align="center">
-                    <table><tr>
+                    <table style="width: 100%"><tr>
                         <td><a style="padding:10px;" href="javascript:selectPrevious();"><img src="img/la.png" border="0" /></a></td>
                         <td><%@ include file="gwtView.jsp" %></td>
                         <td><a style="padding:10px;" href="javascript:selectNext();"><img src="img/ra.png" border="0" /></a></td>
