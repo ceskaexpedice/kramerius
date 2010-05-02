@@ -11,7 +11,7 @@
 	var __confHeight = 140;
 	var __confWidth = 400;
 	var __confDistance = 10;
-	var __confNumberOfImages = 8;	
+	var __confNumberOfImages = 10;	
 	var __confMoveStep = 1;
 	var __debug = false;
 	
