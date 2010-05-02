@@ -6,12 +6,14 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.Reader;
 import java.io.UnsupportedEncodingException;
+import java.io.Writer;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLEncoder;
@@ -36,21 +38,126 @@ import javax.net.ssl.SSLSession;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.X509TrustManager;
 
+import com.qbizm.kramerius.imptool.poc.Main;
 import com.qbizm.kramerius.imptool.poc.utils.ConfigurationUtils;
+import com.qbizm.kramerius.imptool.poc.valueobj.ServiceException;
 
 public class Download {
+    
+  //insert into replicationright select id_cc, 2, 1 from m_monograph; 
 
     /**
      * @param args
      */
     public static void main(String[] args) {
-        Download d = new Download();
-        Replication rep = d.createReplication(DocType.ISSN, "0007-7712","1933 - 1934");
-        d.replicateAll(rep);
+        replicatePeriodicals();
 
     }
     
-    //insert into replicationright select id_cc, 2, 1 from m_monograph; 
+    public static void replicateMonographs(){
+        initLogfiles();
+        Download download = new Download();
+        BufferedReader reader = null;
+        try {
+            reader = new BufferedReader(new FileReader(new File(ConfigurationUtils.getInstance().getProperty("migration.monographs"))));
+        } catch (FileNotFoundException e) {
+            log.severe("Monographs file list not found: "+e);
+            return;
+        }
+        try {
+            for (String line; (line = reader.readLine()) != null;) {
+                Replication rep = Download.createReplication(DocType.MONOID, line, null);
+                processReplication( download,  rep);
+            }
+            reader.close();
+        } catch (IOException e) {
+            log.severe("Exception reading document list file: " + e);
+            throw new RuntimeException(e);
+        }
+        closeLogfiles();
+    }
+    
+    
+    
+    public static void replicatePeriodicals(){
+        initLogfiles();
+        Download download = new Download();
+        BufferedReader reader = null;
+        try {
+            reader = new BufferedReader(new FileReader(new File(ConfigurationUtils.getInstance().getProperty("migration.periodicals"))));
+        } catch (FileNotFoundException e) {
+            log.severe("Periodicals file list not found: "+e);
+            return;
+        }
+        try {
+            for (String line; (line = reader.readLine()) != null;) {
+                StringTokenizer st = new StringTokenizer(line,";");
+                String id = st.nextToken();
+                String volume = st.nextToken();
+                Replication rep = Download.createReplication(DocType.ISSN, id,volume);
+                processReplication( download,  rep);
+            }
+            reader.close();
+        } catch (IOException e) {
+            log.severe("Exception reading document list file: " + e);
+            throw new RuntimeException(e);
+        }
+        closeLogfiles();
+    }
+    
+    private static void processReplication(Download download, Replication rep){
+        try{
+            download.replicateAll(rep);
+            String uuid = Main.convert(ConfigurationUtils.getInstance().getProperty("migration.directory"), ConfigurationUtils.getInstance().getProperty("migration.directory")+CONV_SUFFIX, true, false);
+            Import.ingest(ConfigurationUtils.getInstance().getProperty("ingest.url"), ConfigurationUtils.getInstance().getProperty("ingest.user"), ConfigurationUtils.getInstance().getProperty("ingest.password"), ConfigurationUtils.getInstance().getProperty("migration.directory")+CONV_SUFFIX);
+            logSuccess(rep.getID(), uuid);
+        }catch (Throwable t){
+            if (rep!=null){
+                logFailed(rep.getID(), t);
+            }
+        }
+    }
+    
+    
+    private static Writer successWriter;
+    private static Writer failedWriter;
+    
+    private static void initLogfiles(){
+        try {
+            successWriter = new FileWriter("replication-success.txt");
+            failedWriter = new FileWriter("replication-failed.txt");
+        } catch (Exception e) {
+           
+            e.printStackTrace();
+        }
+    }
+    
+    private static void logSuccess(String ID, String uuid){
+        try {
+            successWriter.append(ID+"\t"+uuid);
+            successWriter.flush();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+    
+    private static void logFailed(String ID, Throwable t){
+        try {
+            failedWriter.append(ID+"\t"+t+"\n");
+            failedWriter.flush();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+    
+    private static void closeLogfiles(){
+        try {
+            successWriter.close();
+            failedWriter.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
 
     private static final Logger log = Logger.getLogger(Download.class.getName());
 
@@ -59,6 +166,8 @@ public class Download {
 
     /** replication directory (from configuration) */
     private final String replicationDirectoryName ;
+    
+    private static final String CONV_SUFFIX = "-converted";
 
     /** temporary file for metadata replication */
     private static String replicationMetadataFileName = "metadata.xml";
@@ -410,6 +519,20 @@ public class Download {
     }
 
     public static class Replication extends DataAction {
+        
+        public String getID(){
+            StringBuffer sb = new StringBuffer();
+            if (getMonographId()!= null) {
+                sb.append(getMonographId());
+            }
+            if (getIssn()!= null) {
+                sb.append(getIssn());
+                sb.append(" ");
+                sb.append(getPeriodicalVolumeDate());
+            }
+            return sb.toString();
+        }
+
 
         public String getIssn() {
             return issn;
@@ -898,7 +1021,8 @@ public class Download {
         public void setFlags(int flags) {
             this.flags = flags;
         }
-
+        
+        
     }
 
 }

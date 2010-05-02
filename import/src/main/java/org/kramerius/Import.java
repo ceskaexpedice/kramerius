@@ -10,6 +10,7 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.logging.Logger;
 
 import javax.xml.namespace.QName;
 import javax.xml.stream.XMLInputFactory;
@@ -28,6 +29,8 @@ public class Import {
     static FedoraAPIM port;
     static ObjectFactory of;
     static int counter = 0;
+    
+    private static final Logger log = Logger.getLogger(Import.class.getName());
 
     /**
      * @param args
@@ -37,16 +40,24 @@ public class Import {
             System.out.println("Usage: Import [url] [user] [password] [rootFolder]");
             System.exit(1);
         }
-        long start = System.currentTimeMillis();
+        
         final String url = args[0];
         final String user = args[1];
         final String pwd = args[2];
 
         String importRoot = args[3];
+        
+        ingest(url, user, pwd, importRoot);
+    }
+
+    public static void ingest(final String url, final String user, final String pwd, String importRoot) {
+        log.info("INGEST:"+url+user+pwd+importRoot);
+        long start = System.currentTimeMillis();
+        
         File importFile = new File(importRoot);
         if (!importFile.exists()) {
-            System.err.println("Import root folder doesn't exist: " + importFile.getAbsolutePath());
-            System.exit(1);
+            log.severe("Import root folder doesn't exist: " + importFile.getAbsolutePath());
+            return;
         }
         
        
@@ -58,26 +69,19 @@ public class Import {
            }); 
 
         try {
-            service = new FedoraAPIMService(new URL(url+"/fedora/wsdl?api=API-M"),
+            service = new FedoraAPIMService(new URL(url+"/wsdl?api=API-M"),
                     new QName("http://www.fedora.info/definitions/1/0/api/", "Fedora-API-M-Service"));
         } catch (MalformedURLException e) {
-            System.out.println(e);
-            e.printStackTrace();
+            System.out.println("InvalidURL"+e);
+            throw new RuntimeException(e);
         }
-        Iterator<QName> it = service.getPorts();
-        System.out.println("ports:");
-        while (it.hasNext()){
-            System.out.println(it.next().toString());
-        }
-
-        System.out.println("ports end");
         port = service.getPort(FedoraAPIM.class);
         ((BindingProvider) port).getRequestContext().put(BindingProvider.USERNAME_PROPERTY, user);
         ((BindingProvider) port).getRequestContext().put(BindingProvider.PASSWORD_PROPERTY, pwd);
         of = new ObjectFactory();
 
         visitAllDirsAndFiles(importFile);
-        System.out.println("FINISHED IN "+((System.currentTimeMillis()-start)/1000.0)+"s, processed "+counter+" files");
+        System.out.println("FINISHED INGESTION IN "+((System.currentTimeMillis()-start)/1000.0)+"s, processed "+counter+" files");
     }
 
     private static void visitAllDirsAndFiles(File importFile) {
@@ -95,7 +99,7 @@ public class Import {
     private static void ingest(File file) {
         try {
             long start = System.currentTimeMillis();
-            System.out.println("Processing:"+file.getAbsolutePath());
+            //System.out.println("Processing:"+file.getAbsolutePath());
             FileInputStream is = new FileInputStream(file);
             // Get the size of the file
             long length = file.length();
@@ -129,21 +133,21 @@ public class Import {
                 if (sfex.getMessage().contains("ObjectExistsException")) {
                     merge(bytes);
                 }else{
-                    System.out.println(sfex);
+                    log.severe("Ingest SOAP fault:"+sfex);
+                    throw new RuntimeException(sfex);
                 }
             }
             counter++;
-            System.out.println("Ingested:" + pid + " in " + (System.currentTimeMillis() - start) + "ms, count:"+counter);
+            log.info("Ingested:" + pid + " in " + (System.currentTimeMillis() - start) + "ms, count:"+counter);
             
         } catch (Exception ex) {
-            System.out.println(ex);
-            ex.printStackTrace();
+            log.severe(ex.toString());
+            throw new RuntimeException(ex);
         }
     }
 
     private static void merge(byte[] bytes) {
         List<RDFTuple> ingested = readRDF(bytes);
-        // System.out.println("INGESTED:"+ingested);
         if (ingested.isEmpty()) {
             return;
         }
@@ -153,11 +157,15 @@ public class Import {
         for (RelationshipTuple t : existingWS) {
             existing.add(new RDFTuple(t.getSubject(), t.getPredicate(), t.getObject()));
         }
-        // System.out.println("EXISTING:"+existing);
         ingested.removeAll(existing);
         for (RDFTuple t : ingested) {
-            System.out.print("*********ADDING:" + t);
-            System.out.println(port.addRelationship(t.subject.substring("info:fedora/".length()), t.predicate, t.object, false, null));
+            if (t.object != null){
+                try{
+                    port.addRelationship(t.subject.substring("info:fedora/".length()), t.predicate, t.object, false, null);
+                }catch (Exception ex){
+                    log.severe("WARNING- could not add relationship:"+t+"("+ex+")");
+                }
+            }
         }
     }
 
