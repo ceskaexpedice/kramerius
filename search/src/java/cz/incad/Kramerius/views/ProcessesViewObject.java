@@ -3,7 +3,9 @@ package cz.incad.Kramerius.views;
 import java.util.ArrayList;
 import java.util.List;
 
+import cz.incad.kramerius.processes.DefinitionManager;
 import cz.incad.kramerius.processes.LRProcess;
+import cz.incad.kramerius.processes.LRProcessDefinition;
 import cz.incad.kramerius.processes.LRProcessManager;
 import cz.incad.kramerius.processes.LRProcessOffset;
 import cz.incad.kramerius.processes.LRProcessOrdering;
@@ -14,23 +16,26 @@ public class ProcessesViewObject {
 	public static final java.util.logging.Logger LOGGER = java.util.logging.Logger.getLogger(ProcessesViewObject.class.getName());
 	
 	private LRProcessManager processManager;
+	private DefinitionManager definitionManager;
 	private LRProcessOrdering ordering;
 	private LRProcessOffset offset;
 	private TypeOfOrdering typeOfOrdering;
 	
-	public ProcessesViewObject(LRProcessManager processManager, LRProcessOrdering ordering, TypeOfOrdering typeOfOrdering, LRProcessOffset offset) {
+	public ProcessesViewObject(LRProcessManager processManager, DefinitionManager manager, LRProcessOrdering ordering, TypeOfOrdering typeOfOrdering, LRProcessOffset offset) {
 		super();
 		this.processManager = processManager;
 		this.ordering = ordering;
 		this.offset = offset;
 		this.typeOfOrdering = typeOfOrdering;
+		this.definitionManager = manager;
 	}
 
 	public List<ProcessViewObject> getProcesses() {
 		List<LRProcess> lrProcesses = this.processManager.getLongRunningProcesses(this.ordering, this.typeOfOrdering, this.offset);
 		List<ProcessViewObject> objects = new ArrayList<ProcessViewObject>();
 		for (LRProcess lrProcess : lrProcesses) {
-			objects.add(new ProcessViewObject(lrProcess, this.ordering, this.offset, this.typeOfOrdering));
+			LRProcessDefinition def = this.definitionManager.getLongRunningProcessDefinition(lrProcess.getDefinitionId());
+			objects.add(new ProcessViewObject(lrProcess, def, this.ordering, this.offset, this.typeOfOrdering));
 		}
 		return objects;
 	}

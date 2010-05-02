@@ -4,6 +4,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 
 import cz.incad.kramerius.processes.LRProcess;
+import cz.incad.kramerius.processes.LRProcessDefinition;
 import cz.incad.kramerius.processes.LRProcessOffset;
 import cz.incad.kramerius.processes.LRProcessOrdering;
 import cz.incad.kramerius.processes.States;
@@ -15,18 +16,19 @@ public class ProcessViewObject {
 	public static final SimpleDateFormat FORMAT = new SimpleDateFormat("yyyy/dd/MM - hh:mm:ss");
 	
 	private LRProcess lrProcess;
-
+	private LRProcessDefinition definition;
 	private LRProcessOrdering ordering;
 	private LRProcessOffset offset;
 	private TypeOfOrdering typeOfOrdering;
 
 	
-	public ProcessViewObject(LRProcess lrProcess, LRProcessOrdering ordering, LRProcessOffset offset, TypeOfOrdering typeOfOrdering) {
+	public ProcessViewObject(LRProcess lrProcess, LRProcessDefinition definition, LRProcessOrdering ordering, LRProcessOffset offset, TypeOfOrdering typeOfOrdering) {
 		super();
 		this.lrProcess = lrProcess;
 		this.ordering = ordering;
 		this.offset = offset;
 		this.typeOfOrdering = typeOfOrdering;
+		this.definition = definition;
 	}
 
 	public String getPid() {
@@ -34,7 +36,11 @@ public class ProcessViewObject {
 	}
 
 	public String getProcessName() {
-		return lrProcess.getProcessName();
+		if (this.definition.getProcessOutputURL() != null) {
+			return "<a href=\""+this.definition.getProcessOutputURL()+"&uuid="+this.lrProcess.getUUID()+"\">"+this.lrProcess.getProcessName()+"</a>";
+		} else {
+			return lrProcess.getProcessName();
+		}
 	}
 
 	public String getProcessState() {

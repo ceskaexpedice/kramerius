@@ -49,12 +49,12 @@ public class LongRunningProcessServlet extends GuiceServlet {
 	}
 
 	
-	public static LRProcess startNewProcess(String def, DefinitionManager definitionManager, String[] params) {
+	public static LRProcess startNewProcess(ServletContext context, String def, DefinitionManager definitionManager, String[] params) {
 		definitionManager.load();
 		LRProcessDefinition definition = definitionManager.getLongRunningProcessDefinition(def);
 		LRProcess newProcess = definition.createNewProcess();
 		newProcess.setParameters(Arrays.asList(params));
-		newProcess.startMe(false);
+		newProcess.startMe(false, context.getRealPath("WEB-INF/lib"));
 		return newProcess;
 	}
 
@@ -75,7 +75,7 @@ public class LongRunningProcessServlet extends GuiceServlet {
 					String parametersString = req.getParameter("params");
 					if (parametersString == null) parametersString="";
 					String[] params = parametersString.split(",");
-					LRProcess nprocess = startNewProcess(def, defManager, params);
+					LRProcess nprocess = startNewProcess(context, def, defManager, params);
 					if ((out != null) && (out.equals("text"))) {
 						resp.getOutputStream().print(nprocess.getProcessState().name());
 					} else {
