@@ -57,6 +57,8 @@
             //return;
             if(fullDialog){
                 fullDialog.dialog("option","title", getPageTitle(currentSelectedPage));
+                fullDialog.dialog("option","height", $(window).height()-vertMargin);
+                fullDialog.dialog("option","width", $(window).width()-horMargin);
                 fullDialog.dialog('open');
             }
             else{
@@ -72,10 +74,10 @@
                     close: function(event, ui) {$('#mainItemTable').show();  $('#imgContainer>img').attr('src', 'img/empty.gif');}
 
                 });
-                $('.ui-dialog-titlebar').append('<a href="javascript:previousFull();" class=" ui-corner-all ui-dialog-titlebar-prev"><span class="ui-icon ui-icon-arrowthick-1-w">prev</span></a>');
-                $('.ui-dialog-titlebar').append('<a href="javascript:nextFull();" class=" ui-corner-all ui-dialog-titlebar-next"><span class="ui-icon ui-icon-arrowthick-1-e">next</span></a>');
+                $('[aria-labelledby=ui-dialog-title-fullImageContainer]>.ui-dialog-titlebar').append('<a href="javascript:previousFull();" class=" ui-corner-all ui-dialog-titlebar-prev"><span class="ui-icon ui-icon-arrowthick-1-w">prev</span></a>');
+                $('[aria-labelledby=ui-dialog-title-fullImageContainer]>.ui-dialog-titlebar').append('<a href="javascript:nextFull();" class=" ui-corner-all ui-dialog-titlebar-next"><span class="ui-icon ui-icon-arrowthick-1-e">next</span></a>');
                 if(currentMime!= 'image/djvu'){
-                    $('#imgContainer').show();
+                   $('[aria-labelledby=ui-dialog-title-fullImageContainer]>.ui-dialog-titlebar').append($('#divFullImageZoom').html());
                 }
             }
             //alert(currentMime);
@@ -85,10 +87,8 @@
                 $('#djvuContainer>object>embed').attr('src', fullUrl);
                 $('#djvuContainer').show();
             }else{
-                $('.ui-dialog-titlebar').append($('#divFullImageZoom').html());
+                $('#imgContainer').show();
                 $('#imgContainer>img').attr('src', fullUrl);
-                
-                
             }
         }
         function changeFullImageZoom(){
