@@ -134,7 +134,9 @@ public class GetRelsExt extends HttpServlet {
             NodeList nodes = (NodeList) expr.evaluate(contentDom, XPathConstants.NODESET);
             for (int i = 0; i < nodes.getLength(); i++) {
                 Node childnode = nodes.item(i);
-                if (!childnode.getNodeName().contains("hasModel")) {
+                if (!childnode.getNodeName().contains("hasModel") &&
+                    childnode.hasAttributes() &&
+                    childnode.getAttributes().getNamedItem("rdf:resource")!=null  ) {
                     pids.add(childnode.getNodeName() + " " +
                             childnode.getAttributes().getNamedItem("rdf:resource").getNodeValue().split("/")[1]);
                 }
