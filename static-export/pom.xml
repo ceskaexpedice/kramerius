@@ -6,7 +6,6 @@
 	<artifactId>kramerius-static-export</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<name>static-export</name>
-
 	<repositories>
 		<repository>
 			<id>maven2-repository.dev.java.net</id>
@@ -20,7 +19,6 @@
 			<url>http://download.java.net/maven/2/</url>
 		</pluginRepository>
 	</pluginRepositories>
-
 	<distributionManagement>
 		<repository>
 			<id>artifactory.internal</id>
@@ -36,13 +34,11 @@
 
 
 	<dependencies>
-
 		<dependency>
 			<groupId>cz.incad.kramerius</groupId>
 			<artifactId>kramerius-common</artifactId>
 			<version>0.0.1-SNAPSHOT</version>
 		</dependency>
-
 	</dependencies>
 	<build>
 		<plugins>
