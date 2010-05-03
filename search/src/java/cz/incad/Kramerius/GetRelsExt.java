@@ -86,7 +86,7 @@ public class GetRelsExt extends HttpServlet {
         String rels;
         for (String relpid : pids) {
             model = relpid.split(" ")[0];
-            rels = "\"" + relpid.split(" ")[1].substring(5) + "\"";
+            rels = "\"" + relpid.split(" ")[1].split(":")[1] + "\"";
             if (models.containsKey(model)) {
                 models.get(model).add(rels);
             } else {
@@ -103,7 +103,12 @@ public class GetRelsExt extends HttpServlet {
             
             out.print(KrameriusModels.toString(RDFModels.convertRDFToModel(key)));
             out.print("\":[\"");
-            out.print(res.getString(KrameriusModels.toString(RDFModels.convertRDFToModel(key))));
+            try{
+                out.print(res.getString(KrameriusModels.toString(RDFModels.convertRDFToModel(key))));
+            }catch(Exception ex){
+                System.out.println(ex);
+                out.print(key);
+            }
             out.print("\",");
             for (int i = 0; i < models.get(key).size() - 1; i++) {
                 out.println(models.get(key).get(i) + ",");
