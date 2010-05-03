@@ -4,6 +4,7 @@ body {
 	color:#0B0F0A;
         background-image: url('../img/background.png');
         background-repeat:repeat-x;
+        background-color:silver;
         margin:0px;
 }
 td {

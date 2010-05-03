@@ -83,7 +83,7 @@
 
 .da_bubble{
     position: absolute;
-    background:green;
+    background:#ef6001;
     color:white;
     border: 1px solid #333333;
     left:-100px;
