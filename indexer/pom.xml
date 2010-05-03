@@ -1,181 +1,158 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
-	<modelVersion>4.0.0</modelVersion>
-	<groupId>cz.incad.kramerius</groupId>
-	<artifactId>kramerius-indexer</artifactId>
-	<version>0.0.1-SNAPSHOT</version>
-	<name>indexer</name>
-
-	<repositories>
-		<repository>
-			<id>maven2-repository.dev.java.net</id>
-			<name>Java.net Repository for Maven 2</name>
-			<url>http://download.java.net/maven/2/</url>
-		</repository>
-	</repositories>
-	<pluginRepositories>
-		<pluginRepository>
-			<id>maven2-repository.dev.java.net</id>
-			<url>http://download.java.net/maven/2/</url>
-		</pluginRepository>
-	</pluginRepositories>
-
-	<distributionManagement>
-		<repository>
-			<id>artifactory.internal</id>
-			<name>Internal Release Repository</name>
-			<url>dav:http://svn:8080/artifactory/libs-releases-local/</url>
-		</repository>
-		<snapshotRepository>
-			<id>artifactory.snapshots</id>
-			<name>Internal Snapshot Repository</name>
-			<url>dav:http://svn:8080/artifactory/libs-snapshots-local/</url>
-		</snapshotRepository>
-	</distributionManagement>
-
-
-	<dependencies>
-
-		<dependency>
-			<groupId>log4j</groupId>
-			<artifactId>log4j</artifactId>
-			<version>1.2.16</version>
-    		</dependency>
-
-		<dependency>
-			<groupId>javax.servlet</groupId>
-			<artifactId>servlet-api</artifactId>
-			<version>2.5</version>
-			<scope>provided</scope>
-		</dependency>
-
-		<dependency>
-			<groupId>javax.servlet</groupId>
-			<artifactId>jsp-api</artifactId>
-			<version>2.0</version>
-			<scope>provided</scope>
-		</dependency>
-
-		<dependency>
-			<groupId>org.apache.commons</groupId>
-			<artifactId>commons-httpclient</artifactId>
-			<version>3.1</version>
-		</dependency>
-		
-		<dependency>
-		  <groupId>org.apache.abdera</groupId>
-		  <artifactId>abdera-core</artifactId>
-		  <version>0.4.0-incubating</version>
-
-		</dependency>
-
-				<dependency>
-		  <groupId>org.apache.abdera</groupId>
-		  <artifactId>abdera-i18n</artifactId>
-		  <version>0.4.0-incubating</version>
-
-		</dependency>
-
-		<dependency>
-		  <groupId>org.apache.abdera</groupId>
-		  <artifactId>abdera-parser</artifactId>
-		  <version>0.4.0-incubating</version>
-		</dependency>
-		<dependency>
- <groupId>org.fcrepo</groupId>
-  <artifactId>fcrepo-common</artifactId>
-  <version>3.3</version>
-  </dependency>
-
-		<dependency>
-		 <groupId>org.fcrepo</groupId>
-  <artifactId>fcrepo-generate</artifactId>
-  <version>3.3</version>
-		</dependency>
-		
-		
-
-		<dependency>
-		<groupId>lucene-analyzers</groupId>
-  <artifactId>lucene-analyzers</artifactId>
-  <version>2.9.1</version>
-		</dependency>
-
-		<dependency>
-<groupId>lucene-core</groupId>
-  <artifactId>lucene-core</artifactId>
-  <version>2.9.1</version>
-  </dependency>
-
-  <dependency>
-   <groupId>lucene-highlighter</groupId>
-  <artifactId>lucene-highlighter</artifactId>
-  <version>2.9.1</version>
-  </dependency>
-  
-  <dependency>
-   <groupId>lucene-memory</groupId>
-  <artifactId>lucene-memory</artifactId>
-  <version>2.9.1</version>
-  </dependency>
-  
-  <dependency>
-  <groupId>lucene-queries</groupId>
-  <artifactId>lucene-queries</artifactId>
-  <version>2.9.1</version>
-  </dependency>
-
-  <dependency>
-   <groupId>lucene-demos</groupId>
-  <artifactId>lucene-demos</artifactId>
-  <version>2.4.0</version>
-  </dependency>
-  
-  <dependency>
-   <groupId>PDFBox</groupId>
-  <artifactId>PDFBox</artifactId>
-  <version>0.7.2</version>
-  </dependency>
-  
-		<dependency>
-		<groupId>axis</groupId>
-  <artifactId>axis</artifactId>
-  <version>1.3</version>
-		</dependency>
-		
-		
-		<dependency>
-		 <groupId>fedora-client</groupId>
-  <artifactId>fedora-client</artifactId>
-  <version>3.1</version>
-
-		</dependency>
-		
-	</dependencies>
-	<build>
-		<sourceDirectory>${basedir}/src</sourceDirectory>
+    <modelVersion>4.0.0</modelVersion>
+    <groupId>cz.incad.kramerius</groupId>
+    <artifactId>kramerius-indexer</artifactId>
+    <version>0.0.1-SNAPSHOT</version>
+    <name>indexer</name>
+    <repositories>
+        <repository>
+            <id>maven2-repository.dev.java.net</id>
+            <name>Java.net Repository for Maven 2</name>
+            <url>http://download.java.net/maven/2/</url>
+        </repository>
+    </repositories>
+    <pluginRepositories>
+        <pluginRepository>
+            <id>maven2-repository.dev.java.net</id>
+            <url>http://download.java.net/maven/2/</url>
+        </pluginRepository>
+    </pluginRepositories>
+    <distributionManagement>
+        <repository>
+            <id>artifactory.internal</id>
+            <name>Internal Release Repository</name>
+            <url>dav:http://svn:8080/artifactory/libs-releases-local/</url>
+        </repository>
+        <snapshotRepository>
+            <id>artifactory.snapshots</id>
+            <name>Internal Snapshot Repository</name>
+            <url>dav:http://svn:8080/artifactory/libs-snapshots-local/</url>
+        </snapshotRepository>
+    </distributionManagement>
+    <dependencies>
+        <dependency>
+            <groupId>log4j</groupId>
+            <artifactId>log4j</artifactId>
+            <version>1.2.16</version>
+        </dependency>
+        <dependency>
+            <groupId>javax.servlet</groupId>
+            <artifactId>servlet-api</artifactId>
+            <version>2.5</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>javax.servlet</groupId>
+            <artifactId>jsp-api</artifactId>
+            <version>2.0</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-httpclient</artifactId>
+            <version>3.1</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.abdera</groupId>
+            <artifactId>abdera-core</artifactId>
+            <version>0.4.0-incubating</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.abdera</groupId>
+            <artifactId>abdera-i18n</artifactId>
+            <version>0.4.0-incubating</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.abdera</groupId>
+            <artifactId>abdera-parser</artifactId>
+            <version>0.4.0-incubating</version>
+        </dependency>
+        <dependency>
+            <groupId>org.fcrepo</groupId>
+            <artifactId>fcrepo-common</artifactId>
+            <version>3.3</version>
+        </dependency>
+        <dependency>
+            <groupId>org.fcrepo</groupId>
+            <artifactId>fcrepo-generate</artifactId>
+            <version>3.3</version>
+        </dependency>
+        <dependency>
+            <groupId>lucene-analyzers</groupId>
+            <artifactId>lucene-analyzers</artifactId>
+            <version>2.9.1</version>
+        </dependency>
+        <dependency>
+            <groupId>lucene-core</groupId>
+            <artifactId>lucene-core</artifactId>
+            <version>2.9.1</version>
+        </dependency>
+        <dependency>
+            <groupId>lucene-highlighter</groupId>
+            <artifactId>lucene-highlighter</artifactId>
+            <version>2.9.1</version>
+        </dependency>
+        <dependency>
+            <groupId>lucene-memory</groupId>
+            <artifactId>lucene-memory</artifactId>
+            <version>2.9.1</version>
+        </dependency>
+        <dependency>
+            <groupId>lucene-queries</groupId>
+            <artifactId>lucene-queries</artifactId>
+            <version>2.9.1</version>
+        </dependency>
+        <dependency>
+            <groupId>lucene-demos</groupId>
+            <artifactId>lucene-demos</artifactId>
+            <version>2.4.0</version>
+        </dependency>
+        <dependency>
+            <groupId>PDFBox</groupId>
+            <artifactId>PDFBox</artifactId>
+            <version>0.7.2</version>
+        </dependency>
+        <dependency>
+            <groupId>axis</groupId>
+            <artifactId>axis</artifactId>
+            <version>1.3</version>
+        </dependency>
+        <dependency>
+            <groupId>fedora-client</groupId>
+            <artifactId>fedora-client</artifactId>
+            <version>3.1</version>
+        </dependency>
+        <dependency>
+            <groupId>javax.xml.rpc</groupId>
+            <artifactId>jaxrpc-api</artifactId>
+            <version>1.1</version>
+        </dependency>
+    </dependencies>
+    <build>
+        <sourceDirectory>${basedir}/src</sourceDirectory>
 		<!--
 		<testSourceDirectory>${basedir}/src/main/test</testSourceDirectory>
 		-->
-		<resources>
-			<resource>
-				<directory>${basedir}/src</directory>
-				<includes>
-					<include>**/*.properties</include>
-					<include>**/*.st</include>
-				</includes>
-			</resource>
-		</resources>
-		<plugins>
-			<plugin>
-				<artifactId>maven-compiler-plugin</artifactId>
-				<version>2.0.2</version>
-				<configuration>
-					<source>1.6</source>
-					<target>1.6</target>
-				</configuration>
-			</plugin>
-		</plugins>
-	</build>
+        <resources>
+            <resource>
+                <directory>${basedir}/src</directory>
+                <includes>
+                    <include>**/*.properties</include>
+                    <include>**/*.st</include>
+                </includes>
+            </resource>
+        </resources>
+        <plugins>
+            <plugin>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>2.0.2</version>
+                <configuration>
+                    <source>1.6</source>
+                    <target>1.6</target>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
 </project>
