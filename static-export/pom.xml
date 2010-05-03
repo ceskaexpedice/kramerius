@@ -7,6 +7,7 @@
 	<version>0.0.1-SNAPSHOT</version>
 	<name>static-export</name>
 	<repositories>
+		
 		<repository>
 			<id>maven2-repository.dev.java.net</id>
 			<name>Java.net Repository for Maven 2</name>
@@ -14,24 +15,27 @@
 		</repository>
 	</repositories>
 	<pluginRepositories>
+		
 		<pluginRepository>
 			<id>maven2-repository.dev.java.net</id>
 			<url>http://download.java.net/maven/2/</url>
 		</pluginRepository>
 	</pluginRepositories>
 	<distributionManagement>
+		
 		<repository>
 			<id>artifactory.internal</id>
 			<name>Internal Release Repository</name>
 			<url>dav:http://svn:8080/artifactory/libs-releases-local/</url>
 		</repository>
+		
 		<snapshotRepository>
 			<id>artifactory.snapshots</id>
 			<name>Internal Snapshot Repository</name>
 			<url>dav:http://svn:8080/artifactory/libs-snapshots-local/</url>
 		</snapshotRepository>
+		
 	</distributionManagement>
-
 
 	<dependencies>
 		<dependency>
@@ -39,6 +43,7 @@
 			<artifactId>kramerius-common</artifactId>
 			<version>0.0.1-SNAPSHOT</version>
 		</dependency>
+		
 	</dependencies>
 	<build>
 		<plugins>
