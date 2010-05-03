@@ -21,7 +21,6 @@ function getBiblioInfo(pid, model, div){
     $.get(url, function(xml) {
         $(div).html(xml);
     });
-    
 }
 
 function scrollElement(container, element){
@@ -148,23 +147,27 @@ function getItemRels(pid, selectedpid, level, recursive){
             var list;
             var str_div = "";
             $.each(item, function(m,model2){
-                list = obj + ">div>div[id=list-"+m+"]";
-                //alert(list + " length: " + $(list).length);
-                if($(list).length==0){
-                    //alert(m);
-                    //alert($(obj).tabs('option' ,'tabTemplate'));
-                    str_div ='<div id="tab'+target_level+'-'+m+'">';
-                    str_div +='<div class="relInfo"  id="info-'+m+'">a</div>';
-                    str_div +='<div style="display:none;" id="list-'+m+'" class="relList"></div>';
-                    str_div +='</div>';
-                    $(obj).append(str_div);
-                    $(obj).tabs("add", "#tab"+target_level+"-"+m, model2[0]);
-                    //$(obj).tabs("add", m, model2[0]);
-                    
-                    $(obj+">ul>li>img."+m).toggleClass('op_info');
-                    
+                if(model2[0]=="kramerius:hasDonator"){
+                    //alert($("#tabs_" + level + ">div>div[id|=info]").length);
+                    $("#tabs_" + level + ">div>div[id|=info]").prepend('<span>donator</span>');
                 }else{
-                        
+                  list = obj + ">div>div[id=list-"+m+"]";
+                  //alert(list + " length: " + $(list).length);
+                  if($(list).length==0){
+                      //alert(m);
+                      //alert($(obj).tabs('option' ,'tabTemplate'));
+                      str_div ='<div id="tab'+target_level+'-'+m+'">';
+                      str_div +='<div class="relInfo"  id="info-'+m+'">a</div>';
+                      str_div +='<div style="display:none;" id="list-'+m+'" class="relList"></div>';
+                      str_div +='</div>';
+                      $(obj).append(str_div);
+                      $(obj).tabs("add", "#tab"+target_level+"-"+m, model2[0]);
+                      //$(obj).tabs("add", m, model2[0]);
+
+                      $(obj+">ul>li>img."+m).toggleClass('op_info');
+                  }else{
+
+                  }
                 }
             });
           
