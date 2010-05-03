@@ -1,8 +1,3 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
-
 package cz.incad.kramerius.indexer;
 
 /**
@@ -11,46 +6,35 @@ package cz.incad.kramerius.indexer;
  */
 public enum KrameriusModels {
 
-    MONOGRAPH, MONOGRAPHUNIT, PERIODICAL, PERIODICALVOLUME, PERIODICALITEM, PAGE, INTERNALPART;
+	
+    MONOGRAPH("monograph"), 
+    MONOGRAPHUNIT("monographunit"), 
+    PERIODICAL("periodical"), 
+    PERIODICALVOLUME("periodicalvolume"), 
+    PERIODICALITEM("periodicalitem"), 
+    PAGE("page"), 
+    INTERNALPART("internalpart"),
+    DONATOR("donator");
 
-    public static KrameriusModels parseString(String s) {
-        if (s.equalsIgnoreCase("monograph")) {
-            return KrameriusModels.MONOGRAPH;
-        } else if (s.equalsIgnoreCase("MONOGRAPHUNIT")) {
-            return KrameriusModels.MONOGRAPHUNIT;
-        } else if (s.equalsIgnoreCase("PERIODICAL")) {
-            return KrameriusModels.PERIODICAL;
-        } else if (s.equalsIgnoreCase("PERIODICALVOLUME")) {
-            return KrameriusModels.PERIODICALVOLUME;
-        } else if (s.equalsIgnoreCase("PERIODICALITEM")) {
-            return KrameriusModels.PERIODICALITEM;
-        } else if (s.equalsIgnoreCase("INTERNALPART")) {
-            return KrameriusModels.INTERNALPART;
-        } else if (s.equalsIgnoreCase("PAGE")) {
-            return KrameriusModels.PAGE;
-        } else {
-            throw new RuntimeException("Unsupported type");
-        }
+    private KrameriusModels(String value) {
+		this.value = value;
+	}
+	private String value;
+
+	public String getValue() {
+		return value;
+	}
+
+
+	public static KrameriusModels parseString(String s) {
+		KrameriusModels[] values = values();
+		for (KrameriusModels model : values) {
+			if (model.getValue().equalsIgnoreCase(s)) return model;
+		}
+        throw new RuntimeException("Unsupported type");
     }
     
     public static String toString(KrameriusModels km) {
-        switch(km){
-            case MONOGRAPH:
-                return "monograph";
-            case MONOGRAPHUNIT:
-                return "monographunit";
-            case PERIODICAL:
-                return "periodical";
-            case PERIODICALVOLUME:
-                return "periodicalvolume";
-            case PERIODICALITEM:
-                return "periodicalitem";
-            case INTERNALPART:
-                return "internalpart";
-            case PAGE:
-                return "page";
-            default:
-                return km.toString();
-        }
+    	return km.getValue();
     }
 }

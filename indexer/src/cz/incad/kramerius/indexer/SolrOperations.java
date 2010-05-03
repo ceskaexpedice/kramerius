@@ -300,7 +300,10 @@ public class SolrOperations {
                     if (nodeName.contains("hasPage")) {
                         num++;
                     }
-                    if (!nodeName.contains("hasModel") && !nodeName.contains("isOnPage") //&& !nodeName.contains("hasIntCompPart")
+                    if (!nodeName.contains("hasModel") && !nodeName.contains("isOnPage") &&
+                            !nodeName.contains("hasDonator") &&
+                            childnode.hasAttributes() &&
+                            childnode.getAttributes().getNamedItem("rdf:resource")!=null 
                             ) {
                         pids.add(childnode.getAttributes().getNamedItem("rdf:resource").getNodeValue().split("/")[1]);
                         models.add(KrameriusModels.toString(RDFModels.convertRDFToModel(nodeName)));

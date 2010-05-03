@@ -28,6 +28,8 @@ public class RDFModels {
                 return KrameriusModels.INTERNALPART;
         }else if(rdf.contains("isOnPage")){
                 return KrameriusModels.PAGE;
+        }else if(rdf.contains("hasDonator")){
+                return KrameriusModels.DONATOR;
         }else{
             System.out.println("Unsupported rdf: " + rdf);
             return null;
