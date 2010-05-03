@@ -52,7 +52,7 @@
 	</distributionManagement>
 
 	<dependencies>
-	
+
 		<dependency>
 			<groupId>javax.servlet</groupId>
 			<artifactId>servlet-api</artifactId>
@@ -189,27 +189,34 @@
 			<artifactId>fedora_api</artifactId>
 			<version>0.0.1-SNAPSHOT</version>
 		</dependency>
-				
+
 
 		<!--  generating pdf -->
-	<dependency>
-	    <groupId>com.lowagie</groupId>
-    	<artifactId>itext</artifactId>
-    	<version>2.1.7</version>
-	</dependency>
-		
-		
+		<dependency>
+			<groupId>com.lowagie</groupId>
+			<artifactId>itext</artifactId>
+			<version>2.1.7</version>
+		</dependency>
+
+
 
 		<!-- derby database -->
 		<dependency>
 			<groupId>org.apache.derby</groupId>
 			<artifactId>derbyclient</artifactId>
-			<version>10.3.1.4</version>
+			<version>10.5.3.0</version>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.derby</groupId>
 			<artifactId>derby</artifactId>
-			<version>10.3.1.4</version>
+			<version>10.5.3.0</version>
+		</dependency>
+		
+		<!-- dlouhotravici export do pdf -->
+		<dependency>
+			<groupId>cz.incad.kramerius</groupId>
+			<artifactId>kramerius-static-export</artifactId>
+			<version>0.0.1-SNAPSHOT</version>
 		</dependency>
 	</dependencies>
 
