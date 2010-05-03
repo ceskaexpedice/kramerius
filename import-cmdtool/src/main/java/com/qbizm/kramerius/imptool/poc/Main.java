@@ -22,7 +22,6 @@ import com.qbizm.kramerius.imp.jaxb.periodical.Periodical;
 import com.qbizm.kramerius.imptool.poc.convertor.MonographConvertor;
 import com.qbizm.kramerius.imptool.poc.convertor.PeriodicalConvertor;
 import com.qbizm.kramerius.imptool.poc.utils.ConfigurationUtils;
-import com.qbizm.kramerius.imptool.poc.utils.LogSummaryAppender;
 import com.qbizm.kramerius.imptool.poc.valueobj.ConvertorConfig;
 import com.qbizm.kramerius.imptool.poc.valueobj.ServiceException;
 import com.sun.xml.bind.marshaller.NamespacePrefixMapper;
@@ -216,51 +215,15 @@ public class Main {
                 throw new UnsupportedOperationException("Unsupported object class: " + source.getClass());
             }
         } catch (ServiceException e) {
-            System.err.println(importFile.getName() + ": conversion failed");
-            System.err.println("========== Detailed error information: ===================");
-            e.printStackTrace();
-            System.err.println("==========================================================");
+            log.error(importFile.getName() + ": conversion failed", e);
         }
-
         long timeFinish = System.currentTimeMillis();
-
         if (log.isInfoEnabled()) {
-            log.info("Elapsed time: " + ((timeFinish - timeStart) / 1000.0) + " seconds");
-        }
-        System.out.println("========== Conversion summary: ===========================");
-        System.out.println(objectCounter + " digital objects (files) written.");
-
-        printLogSummary();
-        System.err.println("==========================================================");
-
-    }
-
-    /**
-     * Vypise shrnuti logovacich hlasek
-     */
-    private static void printLogSummary() {
-        // Warning summary
-        Map<String, Map<Level, List<String>>> stats = LogSummaryAppender.getStats();
-        if (!stats.keySet().isEmpty()) {
-            System.out.println("========== Conversion warnings: ==========================");
-            Map<String, Integer> messageStats = new HashMap<String, Integer>();
-            for (Map<Level, List<String>> classStats : stats.values()) {
-                for (String message : classStats.get(Level.WARN)) {
-                    if (!messageStats.containsKey(message)) {
-                        messageStats.put(message, Integer.valueOf(0));
-                    }
-                    Integer count = messageStats.get(message);
-                    messageStats.put(message, count + 1);
-                }
-            }
-
-            // vypis
-            for (Map.Entry<String, Integer> row : messageStats.entrySet()) {
-                System.out.println(row.getValue() + "x: " + row.getKey());
-            }
+            log.info("Elapsed time: " + ((timeFinish - timeStart) / 1000.0) + " seconds. "+objectCounter + " digital objects (files) written.");
         }
     }
 
+ 
     /**
    * 
    */

@@ -15,6 +15,7 @@ import com.qbizm.kramerius.imp.jaxb.periodical.CoreBibliographicDescriptionPerio
 import com.qbizm.kramerius.imp.jaxb.periodical.Creator;
 import com.qbizm.kramerius.imp.jaxb.periodical.CreatorName;
 import com.qbizm.kramerius.imp.jaxb.periodical.ItemRepresentation;
+import com.qbizm.kramerius.imp.jaxb.periodical.Language;
 import com.qbizm.kramerius.imp.jaxb.periodical.MainTitle;
 import com.qbizm.kramerius.imp.jaxb.periodical.PageIndex;
 import com.qbizm.kramerius.imp.jaxb.periodical.PageRepresentation;
@@ -120,7 +121,7 @@ public class PeriodicalConvertor extends BaseConvertor {
 
         for (PeriodicalVolume volume : peri.getPeriodicalVolume()) {
             this.convertVolume(volume, visibility);
-            re.addRelation(RelsExt.HAS_VOLUME, uuid(volume.getUniqueIdentifier()),false);
+            re.addRelation(RelsExt.HAS_VOLUME, pid(uuid(volume.getUniqueIdentifier())),false);
         }
 
         addDonatorRelation(re, biblio.getCreator());
@@ -153,7 +154,10 @@ public class PeriodicalConvertor extends BaseConvertor {
         
         dc.setType(MODEL_PERIODICAL);
         
-        dc.setLanguage(first(biblio.getLanguage()));
+        Language lang = firstItem(biblio.getLanguage());
+        if (lang != null){
+            dc.setLanguage(first(lang.getContent()));
+        }
 
         DigitalObject foxmlPeri = this.createDigitalObject(peri, pid, title, dc, re, XSL_MODS_PERIODICAL, null, visibility);
 
@@ -199,14 +203,14 @@ public class PeriodicalConvertor extends BaseConvertor {
 
         for (PeriodicalItem item : volume.getPeriodicalItem()) {
             this.convertItem(item, visibility);
-            re.addRelation(RelsExt.HAS_ITEM, uuid(item.getUniqueIdentifier()),false);
+            re.addRelation(RelsExt.HAS_ITEM, pid(uuid(item.getUniqueIdentifier())),false);
         }
 
         Map<String, String> pageIdMap = new TreeMap<String, String>();
         for (PeriodicalPage page : volume.getPeriodicalPage()) {
             this.convertPage(page, visibility);
 
-            String ppid = uuid(page.getUniqueIdentifier());
+            String ppid = pid(uuid(page.getUniqueIdentifier()));
             re.addRelation(RelsExt.HAS_PAGE, ppid,false);
             if (page.getIndex() != null) {
                 pageIdMap.put(page.getIndex(), ppid);
@@ -217,7 +221,7 @@ public class PeriodicalConvertor extends BaseConvertor {
 
         for (PeriodicalInternalComponentPart part : volume.getPeriodicalInternalComponentPart()) {
             this.convertInternalPart(part, pageIdMap, visibility);
-            re.addRelation(RelsExt.HAS_INT_COMP_PART, uuid(part.getUniqueIdentifier()),false);
+            re.addRelation(RelsExt.HAS_INT_COMP_PART, pid(uuid(part.getUniqueIdentifier())),false);
         }
         
         DublinCore dc = createPeriodicalDublinCore(pid, title, biblio);
@@ -324,8 +328,8 @@ public class PeriodicalConvertor extends BaseConvertor {
         for (PeriodicalPage page : item.getPeriodicalPage()) {
             this.convertPage(page,visibility);
 
-            String ppid = uuid(page.getUniqueIdentifier());
-            re.addRelation(RelsExt.HAS_PAGE, uuid(page.getUniqueIdentifier()),false);
+            String ppid = pid(uuid(page.getUniqueIdentifier()));
+            re.addRelation(RelsExt.HAS_PAGE, ppid,false);
             if (page.getIndex() != null) {
                 pageIdMap.put(page.getIndex(), ppid);
             } else {
@@ -335,7 +339,7 @@ public class PeriodicalConvertor extends BaseConvertor {
 
         for (PeriodicalInternalComponentPart part : item.getPeriodicalInternalComponentPart()) {
             this.convertInternalPart(part, pageIdMap, visibility);
-            re.addRelation(RelsExt.HAS_INT_COMP_PART, uuid(part.getUniqueIdentifier()),false);
+            re.addRelation(RelsExt.HAS_INT_COMP_PART, pid(uuid(part.getUniqueIdentifier())),false);
         }
 
         DublinCore dc = createPeriodicalDublinCore(pid, title, biblio);

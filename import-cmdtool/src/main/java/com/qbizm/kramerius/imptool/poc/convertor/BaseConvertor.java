@@ -39,6 +39,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
+import com.lizardtech.djvu.DjVuOptions;
 import com.lizardtech.djvu.DjVuPage;
 import com.lizardtech.djvubean.DjVuImage;
 import com.qbizm.kramerius.imp.jaxb.ContentLocationType;
@@ -60,6 +61,10 @@ import com.qbizm.kramerius.imptool.poc.valueobj.ServiceException;
 import com.sun.org.apache.xerces.internal.jaxp.datatype.XMLGregorianCalendarImpl;
 
 public abstract class BaseConvertor {
+    static{
+        //disable djvu convertor verbose logging
+        DjVuOptions.out = new java.io.PrintStream ( new java.io.OutputStream() { public void write(int b){} });
+    }
 
     protected final Logger log = Logger.getLogger(BaseConvertor.class);
 
@@ -627,19 +632,23 @@ public abstract class BaseConvertor {
     private byte[] scaleImage(String fileName, int page, int height) throws IOException, MalformedURLException {
         Image img = ImageIO.read(new File(fileName));
         if (img == null) {
-
-            com.lizardtech.djvu.Document doc = new com.lizardtech.djvu.Document(new File(fileName).toURI().toURL());
-            doc.setAsync(true);
-            DjVuPage[] p = new DjVuPage[1];
-            // read page from the document - index 0, priority 1, favorFast true
-            p[0] = doc.getPage(0, 1, true);
-            p[0].setAsync(false);
-            DjVuImage djvuImage = new DjVuImage(p, true);
-
-            Rectangle pageBounds = djvuImage.getPageBounds(page);
-            Image[] images = djvuImage.getImage(new JPanel(), new Rectangle(pageBounds.width, pageBounds.height));
-            if (images.length == 1) {
-                img = images[0];
+            try{
+                
+                com.lizardtech.djvu.Document doc = new com.lizardtech.djvu.Document(new File(fileName).toURI().toURL());
+                doc.setAsync(true);
+                DjVuPage[] p = new DjVuPage[1];
+                // read page from the document - index 0, priority 1, favorFast true
+                p[0] = doc.getPage(0, 1, true);
+                p[0].setAsync(false);
+                DjVuImage djvuImage = new DjVuImage(p, true);
+    
+                Rectangle pageBounds = djvuImage.getPageBounds(page);
+                Image[] images = djvuImage.getImage(new JPanel(), new Rectangle(pageBounds.width, pageBounds.height));
+                if (images.length == 1) {
+                    img = images[0];
+                }
+            }catch (Throwable t){
+                log.warn("Unsupported image type", t);
             }
         }
         if (img != null) {

@@ -15,6 +15,7 @@ import com.qbizm.kramerius.imp.jaxb.ContributorName;
 import com.qbizm.kramerius.imp.jaxb.Creator;
 import com.qbizm.kramerius.imp.jaxb.CreatorName;
 import com.qbizm.kramerius.imp.jaxb.DigitalObject;
+import com.qbizm.kramerius.imp.jaxb.Language;
 import com.qbizm.kramerius.imp.jaxb.Monograph;
 import com.qbizm.kramerius.imp.jaxb.MonographBibliographicRecord;
 import com.qbizm.kramerius.imp.jaxb.MonographComponentPart;
@@ -106,14 +107,14 @@ public class MonographConvertor extends BaseConvertor {
 
         for (MonographUnit unit : mono.getMonographUnit()) {
             this.convertUnit(unit, visibility);
-            re.addRelation(RelsExt.HAS_UNIT, uuid(unit.getUniqueIdentifier()), false);
+            re.addRelation(RelsExt.HAS_UNIT,pid( uuid(unit.getUniqueIdentifier())), false);
         }
 
         Map<String, String> pageIdMap = new TreeMap<String, String>();
         for (MonographPage page : mono.getMonographPage()) {
             this.convertPage(page, visibility);
 
-            String ppid = uuid(page.getUniqueIdentifier());
+            String ppid = pid(uuid(page.getUniqueIdentifier()));
             re.addRelation(RelsExt.HAS_PAGE, ppid, false);
             if (page.getIndex() != null) {
                 pageIdMap.put(page.getIndex(), ppid);
@@ -124,7 +125,7 @@ public class MonographConvertor extends BaseConvertor {
 
         for (MonographComponentPart part : mono.getMonographComponentPart()) {
             this.convertPart(part, pageIdMap, visibility);
-            re.addRelation(RelsExt.HAS_INT_COMP_PART, uuid(part.getUniqueIdentifier()), false);
+            re.addRelation(RelsExt.HAS_INT_COMP_PART,pid( uuid(part.getUniqueIdentifier())), false);
         }
 
         addDonatorRelation(re, biblio.getCreator());
@@ -167,7 +168,10 @@ public class MonographConvertor extends BaseConvertor {
         
         dc.setType(MODEL_MONOGRAPH);
         
-        dc.setLanguage(first(biblio.getLanguage()));
+        Language lang = firstItem(biblio.getLanguage());
+        if (lang != null){
+            dc.setLanguage(first(lang.getContent()));
+        }
         
         DigitalObject foxmlMono = this.createDigitalObject(mono, pid, title, dc, re, XSL_MODS_MONOGRAPH, null, visibility);
 
