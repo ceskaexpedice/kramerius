@@ -8,8 +8,6 @@ import static cz.incad.kramerius.KrameriusModels.*;
  */
 public enum FedoraRelationship {
 	
-	
-	
 	// our fedora relationship
 	hasPage(PAGE),
 	hasVolume(PERIODICALVOLUME),
@@ -30,6 +28,14 @@ public enum FedoraRelationship {
 		return poitingModel;
 	}
 
+	
+	public static FedoraRelationship findRelation(String element) {
+		FedoraRelationship[] values = FedoraRelationship.values();
+		for (FedoraRelationship fedoraRelationship : values) {
+			if (fedoraRelationship.name().equals(element)) return fedoraRelationship;
+		}
+		return null;
+	}
 	
 	//relationship defined in  Fedora Ontology Relationship
 	// http://www.fedora-commons.org/definitions/1/0/fedora-relsext-ontology.rdfs
