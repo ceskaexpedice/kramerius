@@ -142,7 +142,7 @@ public class FedoraAccessImpl implements FedoraAccess {
 		String namespaceURI = topElem.getNamespaceURI();
 		if (namespaceURI.equals(FedoraNamespaces.ONTOLOGY_RELATIONSHIP_NAMESPACE_URI)) {
 			String nodeName = topElem.getLocalName();
-			FedoraRelationship relation = FedoraRelationship.valueOf(nodeName);
+			FedoraRelationship relation = FedoraRelationship.findRelation(nodeName);
 			if (relation != null) {
 				if (handler.accept(relation)) {
 					handler.handle(topElem, relation, level);
