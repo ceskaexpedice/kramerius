@@ -44,7 +44,7 @@ import com.qbizm.kramerius.imptool.poc.valueobj.ServiceException;
 
 public class Download {
     
-  //insert into replicationright select id_cc, 2, 1 from m_monograph; 
+  
 
     /**
      * @param args
