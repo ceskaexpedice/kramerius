@@ -20,7 +20,6 @@
 		<mainClass>cz.incad.kramerius.lp.PDFExport</mainClass>
 		<standardOs>$default_lp_work_dir$/lrOut</standardOs>
 		<errOs>$default_lp_work_dir$/lrErr</errOs>
-		<lib>$default_lp_work_dir$/default-lib</lib>
 		<parameters>
 			<parameter>pdfs_out</parameter>		
 			<parameter>CD</parameter>		
@@ -36,10 +35,23 @@
 		<mainClass>cz.incad.kramerius.lp.PDFExport</mainClass>
 		<standardOs>$default_lp_work_dir$/lrOut</standardOs>
 		<errOs>$default_lp_work_dir$/lrErr</errOs>
-		<lib>$default_lp_work_dir$/default-lib</lib>
 		<parameters>
 			<parameter>pdfs_out</parameter>		
 			<parameter>DVD</parameter>		
+		</parameters>
+	</process>
+
+	<process>
+		<id>reindex</id>
+		<description>Reindexace</description>
+		<mainClass>cz.incad.kramerius.indexer.Main</mainClass>
+		<standardOs>$default_lp_work_dir$/lrOut</standardOs>
+		<errOs>$default_lp_work_dir$/lrErr</errOs>
+		<parameters>
+			<parameter>-cfgFile</parameter>
+			<parameter>$default_lp_work_dir$/reindexer/config.properties</parameter>
+			<parameter>-log4jFile</parameter>
+			<parameter>$default_lp_work_dir$/reindexer/log4j.properties</parameter>
 		</parameters>
 	</process>
 
