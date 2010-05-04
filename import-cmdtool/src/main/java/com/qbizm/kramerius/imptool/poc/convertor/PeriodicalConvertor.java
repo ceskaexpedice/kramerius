@@ -104,7 +104,7 @@ public class PeriodicalConvertor extends BaseConvertor {
      * @param peri
      * @throws ServiceException
      */
-    public String  convert(Periodical peri) throws ServiceException {
+    public void  convert(Periodical peri, StringBuffer convertedURI) throws ServiceException {
         CoreBibliographicDescriptionPeriodical biblio = peri.getCoreBibliographicDescriptionPeriodical();
         if (biblio == null) {
             biblio = new CoreBibliographicDescriptionPeriodical();
@@ -119,9 +119,17 @@ public class PeriodicalConvertor extends BaseConvertor {
         RelsExt re = new RelsExt(pid, MODEL_PERIODICAL);
         boolean visibility = isPublic(uuid, config.isDefaultVisibility(), "p_periodical");
 
+        String volumeuuid= null;
         for (PeriodicalVolume volume : peri.getPeriodicalVolume()) {
-            this.convertVolume(volume, visibility);
+            volumeuuid = this.convertVolume(volume, visibility);
             re.addRelation(RelsExt.HAS_VOLUME, pid(uuid(volume.getUniqueIdentifier())),false);
+        }
+        
+        if (volumeuuid== null){
+            convertedURI.append("pid=").append(uuid).append("&pid_path=").append(uuid).append("&path=periodical\n");
+        } else{
+            convertedURI.append("pid=").append(volumeuuid).append("&pid_path=").append(uuid).append("/").append(volumeuuid)
+            .append("&path=periodical/periodicalvolume\n");
         }
 
         addDonatorRelation(re, biblio.getCreator());
@@ -162,7 +170,7 @@ public class PeriodicalConvertor extends BaseConvertor {
         DigitalObject foxmlPeri = this.createDigitalObject(peri, pid, title, dc, re, XSL_MODS_PERIODICAL, null, visibility);
 
         this.marshalDigitalObject(foxmlPeri);
-        return pid;
+        
     }
 
     private void addDonatorRelation(RelsExt re, List<Creator> creators) {
@@ -182,7 +190,7 @@ public class PeriodicalConvertor extends BaseConvertor {
      * @param prefix
      * @throws ServiceException
      */
-    private void convertVolume(PeriodicalVolume volume, boolean parentVisibility) throws ServiceException {
+    private String convertVolume(PeriodicalVolume volume, boolean parentVisibility) throws ServiceException {
         CoreBibliographicDescriptionPeriodical biblio = volume.getCoreBibliographicDescriptionPeriodical();
         if (biblio == null) {
             biblio = new CoreBibliographicDescriptionPeriodical();
@@ -249,6 +257,7 @@ public class PeriodicalConvertor extends BaseConvertor {
         DigitalObject foxmlVolume = this.createDigitalObject(volume, pid, title, dc, re, XSL_MODS_PERIODICAL_VOLUME, null, visibility);
 
         this.marshalDigitalObject(foxmlVolume);
+        return uuid;
     }
 
     /**

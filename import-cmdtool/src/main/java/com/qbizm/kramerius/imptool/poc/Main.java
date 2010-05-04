@@ -70,7 +70,7 @@ public class Main {
     
     public static String convert(String importRoot, String exportRoot, boolean useDB, boolean defaultVisibility) {
         System.setProperty("java.awt.headless", "true");
-        StringBuffer convertedUUID = new StringBuffer();
+        StringBuffer convertedURI = new StringBuffer();
         if (useDB){
             initDB();
         }
@@ -95,7 +95,7 @@ public class Main {
             System.exit(1);
         }
 
-        visitAllDirsAndFiles(importFile, importRoot, exportRoot,  useDB, defaultVisibility,  convertedUUID);
+        visitAllDirsAndFiles(importFile, importRoot, exportRoot,  useDB, defaultVisibility,  convertedURI);
         if (conn != null){
             try {
                 conn.close();
@@ -103,7 +103,7 @@ public class Main {
                 
             }
         }
-        return convertedUUID.toString();
+        return convertedURI.toString();
     }
     
     static Connection conn = null;
@@ -132,7 +132,7 @@ public class Main {
         }
     }
 
-    private static void visitAllDirsAndFiles(File importFile, String importRoot, String exportRoot, boolean useDB, boolean defaultVisibility, StringBuffer convertedUUID) {
+    private static void visitAllDirsAndFiles(File importFile, String importRoot, String exportRoot, boolean useDB, boolean defaultVisibility, StringBuffer convertedURI) {
 
         if (importFile.isDirectory()) {
             String subFolderName = importFile.getAbsolutePath().substring(importRoot.length());
@@ -149,7 +149,7 @@ public class Main {
             clearExportFolder(exportFolderFile);
             File[] children = importFile.listFiles();
             for (int i = 0; i < children.length; i++) {
-                visitAllDirsAndFiles(children[i], importRoot, exportRoot,  useDB, defaultVisibility, convertedUUID);
+                visitAllDirsAndFiles(children[i], importRoot, exportRoot,  useDB, defaultVisibility, convertedURI);
             }
         } else {
             if (importFile.getName().endsWith(".xml")) {
@@ -178,7 +178,7 @@ public class Main {
                 }
                 config.setContractLength(l);
                 try {
-                    convertOneDirectory(unmarshaller, importFile, config, convertedUUID);
+                    convertOneDirectory(unmarshaller, importFile, config, convertedURI);
                 } catch (InterruptedException e) {
                     log.error("Cannot convert "+importFile, e);
                 } catch (JAXBException e) {
@@ -189,7 +189,7 @@ public class Main {
         }
     }
 
-    private static void convertOneDirectory(Unmarshaller unmarshaller, File importFile, ConvertorConfig config, StringBuffer convertedUUID) throws InterruptedException, JAXBException {
+    private static void convertOneDirectory(Unmarshaller unmarshaller, File importFile, ConvertorConfig config, StringBuffer convertedURI) throws InterruptedException, JAXBException {
         long timeStart = System.currentTimeMillis();
 
         long before = getFreeMem();
@@ -204,12 +204,12 @@ public class Main {
             if (source instanceof Monograph) {
                 MonographConvertor mc = new MonographConvertor(config);
                 Monograph monograph = (Monograph) source;
-                convertedUUID.append( mc.convert(monograph)).append("\n");
+                mc.convert(monograph, convertedURI);
                 objectCounter = mc.getObjectCounter();
             } else if (source instanceof Periodical) {
                 PeriodicalConvertor pc = new PeriodicalConvertor(config);
                 Periodical periodical = (Periodical) source;
-                convertedUUID.append( pc.convert(periodical)).append("\n");
+                pc.convert(periodical, convertedURI);
                 objectCounter = pc.getObjectCounter();
             } else {
                 throw new UnsupportedOperationException("Unsupported object class: " + source.getClass());

@@ -88,7 +88,7 @@ public class MonographConvertor extends BaseConvertor {
      * @param mono
      * @throws ServiceException
      */
-    public String  convert(Monograph mono) throws ServiceException {
+    public void  convert(Monograph mono, StringBuffer convertedURI) throws ServiceException {
         MonographBibliographicRecord biblio = mono.getMonographBibliographicRecord();
         String title = first(biblio.getTitle().getMainTitle().getContent());
         if (mono.getUniqueIdentifier() == null) {
@@ -97,6 +97,8 @@ public class MonographConvertor extends BaseConvertor {
         String uuid = uuid(mono.getUniqueIdentifier());
         String pid = pid(uuid);
 
+        
+        convertedURI.append("pid=").append(uuid).append("&pid_path=").append(uuid).append("&path=monograph\n");
         // neplatny vstupni objekt
         //if (mono.getMonographBibliographicRecord().getSeries() != null && mono.getMonographBibliographicRecord().getSeries().size() > 1) {
         //    throw new IllegalArgumentException("Illegal multiple /Monograph/MonographBibliographicRecord/Series occurence!");
@@ -176,7 +178,7 @@ public class MonographConvertor extends BaseConvertor {
         DigitalObject foxmlMono = this.createDigitalObject(mono, pid, title, dc, re, XSL_MODS_MONOGRAPH, null, visibility);
 
         this.marshalDigitalObject(foxmlMono);
-        return pid;
+        
     }
 
     private String convertExtId(String pid) {
