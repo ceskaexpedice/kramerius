@@ -107,9 +107,9 @@ public class Download {
     
     private static void processReplication(Download download, Replication rep){
         try{
-            download.replicateAll(rep);
+            //download.replicateAll(rep);
             String uuid = Main.convert(ConfigurationUtils.getInstance().getProperty("migration.directory"), ConfigurationUtils.getInstance().getProperty("migration.directory")+CONV_SUFFIX, true, false);
-            Import.ingest(ConfigurationUtils.getInstance().getProperty("ingest.url"), ConfigurationUtils.getInstance().getProperty("ingest.user"), ConfigurationUtils.getInstance().getProperty("ingest.password"), ConfigurationUtils.getInstance().getProperty("migration.directory")+CONV_SUFFIX);
+            //Import.ingest(ConfigurationUtils.getInstance().getProperty("ingest.url"), ConfigurationUtils.getInstance().getProperty("ingest.user"), ConfigurationUtils.getInstance().getProperty("ingest.password"), ConfigurationUtils.getInstance().getProperty("migration.directory")+CONV_SUFFIX);
             logSuccess(rep.getID(), uuid);
         }catch (Throwable t){
             if (rep!=null){
