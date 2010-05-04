@@ -77,7 +77,7 @@ public class LongRunningProcessServlet extends GuiceServlet {
 					String[] params = parametersString.split(",");
 					LRProcess nprocess = startNewProcess(context, def, defManager, params);
 					if ((out != null) && (out.equals("text"))) {
-						resp.getOutputStream().print(nprocess.getProcessState().name());
+						resp.getOutputStream().print("["+nprocess.getDefinitionId()+"]"+nprocess.getProcessState().name());
 					} else {
 	 					StringBuffer buffer = new StringBuffer();
 						buffer.append("<html><body>");

@@ -89,7 +89,8 @@ public class AbstracThumbnailServlet extends GuiceServlet {
 		if (mimetype.equals(OutputFormats.JPEG.getMimeType())) {
 			InputStream imageFULL = fedoraAccess.getImageFULL(uuid);
 			return ImageIO.read(imageFULL);
-		} else if ((mimetype.equals(OutputFormats.DJVU.getMimeType())) || 
+		} else if ((mimetype.equals(OutputFormats.DJVU.getMimeType())) ||
+				  (mimetype.equals(OutputFormats.VNDDJVU.getMimeType())) ||
 				  (mimetype.equals(OutputFormats.XDJVU.getMimeType()))){
 			String imageUrl = getDJVUServlet(uuid);
 	        com.lizardtech.djvu.Document doc = new com.lizardtech.djvu.Document(new URL(imageUrl));
@@ -139,8 +140,11 @@ public class AbstracThumbnailServlet extends GuiceServlet {
 	public enum OutputFormats {
 		JPEG("image/jpeg","jpg"),
 		PNG("image/png","png"),
+
+		VNDDJVU("image/vnd.djvu",null),
 		XDJVU("image/x.djvu",null),
 		DJVU("image/djvu",null),
+
 		RAW(null,null);
 		
 		String mimeType;

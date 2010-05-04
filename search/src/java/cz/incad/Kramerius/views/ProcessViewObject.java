@@ -35,11 +35,19 @@ public class ProcessViewObject {
 		return lrProcess.getPid();
 	}
 
+	public String getName() {
+		if (lrProcess.getProcessName() == null) {
+			return lrProcess.getDescription();
+		} else {
+			return lrProcess.getProcessName();
+		}
+	}
+	
 	public String getProcessName() {
 		if (this.definition.getProcessOutputURL() != null) {
-			return "<a href=\""+this.definition.getProcessOutputURL()+"&uuid="+this.lrProcess.getUUID()+"\">"+this.lrProcess.getProcessName()+"\" target=\"_blank\">"+lrProcess.getProcessName()+"</a>";
+			return "<a href=\""+this.definition.getProcessOutputURL()+"&uuid="+this.lrProcess.getUUID()+"\" target=\"_blank\">"+getName()+"</a>";
 		} else {
-			return "<a href=\"dialogs/_processes_logs.jsp?uuid="+this.lrProcess.getUUID()+"\" target=\"_blank\">"+lrProcess.getProcessName()+"</a>";
+			return "<a href=\"dialogs/_processes_logs.jsp?uuid="+this.lrProcess.getUUID()+"\" target=\"_blank\">"+getName()+"</a>";
 		}
 	}
 
