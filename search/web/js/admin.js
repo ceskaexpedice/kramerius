@@ -92,6 +92,10 @@ var _actions=function() {
 
 		intArr["[replikator_periodicals]RUNNING"]=_replikatorPeriodicalStarted;
 		intArr["[replikator_periodicals]FAILED"]=_replikatorPeriodicalFailed;
+		
+		intArr["[enumerator]RUNNING"]=_enumeratorStarted;
+		intArr["[enumerator]FAILED"]=_enumeratorFailed;
+
 	}
 	return intArr;
 }(); //akce ze servletu
@@ -257,6 +261,37 @@ function generateStatic(level, exportType){
 	_startProcess(url);
 }
 
+/**
+ * Enumerator
+ * @param level
+ * @return
+ */
+var _enumeratorDialog; //cekaci dialog na spusteni procesu
+function enumerator(){
+	var url = "lr?action=start&def=enumerator&out=text";
+	if (_enumeratorDialog) {
+    	$("#enumerator_started_ok").hide();
+    	$("#enumerator_started_failed").hide();
+    	$("#enumerator_started_waiting").show();
+    	_staticExportDialog.dialog('open');
+	} else {
+    	$("#enumerator_started_waiting").show();
+    	_enumeratorDialog = $("#enumerator_started").dialog({
+	        bgiframe: true,
+	        width: 400,
+	        height: 100,
+	        modal: true,
+	        title: "Enumerator",
+	        buttons: {
+	            "Close": function() {
+	                $(this).dialog("close"); 
+	            } 
+	        } 
+	    });
+	}
+	_startProcess(url);
+}
+
 function _statitExportStarted() {
 	$("#process_started_waiting").css("display","none");
 	$("#process_started_ok").css("display","block");
@@ -296,6 +331,18 @@ function _replikatorPeriodicalFailed() {
 	$("#replikator_periodical_started_waiting").css("display","none");
 	$("#replikator_periodical_started_ok").css("display","block");
 }
+
+
+function _enumeratorStarted() {
+	$("#enumerator_periodical_started_waiting").css("display","none");
+	$("#enumerator_periodical_started_ok").css("display","block");
+}
+
+function _enumeratorFailed() {
+	$("#enumerator_periodical_started_waiting").css("display","none");
+	$("#enumerator_periodical_started_ok").css("display","block");
+}
+
 var _indexerDialog;
 /**
  * Zobrazuje spravu indexace
@@ -314,7 +361,7 @@ function showIndexerAdmin(){
             width: 700,
             height: 400,
             modal: true,
-            title: "Indexace dokumentù",
+            title: "Indexace dokumentï¿½",
             buttons: {
                 "Close": function() {
                     $(this).dialog("close"); 
