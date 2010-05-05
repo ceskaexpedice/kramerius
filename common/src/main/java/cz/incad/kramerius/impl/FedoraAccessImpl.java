@@ -156,7 +156,7 @@ public class FedoraAccessImpl implements FedoraAccess {
 					processRelsExtInternal(relsExt.getDocumentElement(), handler, level+1);
 				}
 			} else {
-				LOGGER.severe("Unsupported type of relation");
+				LOGGER.severe("Unsupported type of relation '"+nodeName+"'");
 			}
 			NodeList childNodes = topElem.getChildNodes();
 			for (int i = 0,ll=childNodes.getLength(); i < ll; i++) {

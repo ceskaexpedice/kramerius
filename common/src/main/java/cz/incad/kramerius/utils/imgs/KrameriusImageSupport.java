@@ -26,6 +26,7 @@ public class KrameriusImageSupport {
 		if (type.isSupportedbyJava()) {
 			return ImageIO.read(url.openStream());
 		} else if ((type.equals(ImageMimeType.DJVU)) || 
+					(type.equals(ImageMimeType.VNDDJVU)) ||
 				  (type.equals(ImageMimeType.XDJVU))){
 	        System.out.println("url = "+url);
 			com.lizardtech.djvu.Document doc = new com.lizardtech.djvu.Document(url);

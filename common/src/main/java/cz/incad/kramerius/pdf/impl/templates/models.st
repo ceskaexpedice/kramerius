@@ -104,6 +104,31 @@ Typ zdroje:  $bibliomods.modsCollection.mods.typeOfResource.content$
 Model: MONOGRAPH
 >>
 
+MONOGRAPHUNIT(title,bibliomods) ::=<<
+Titul:$title$ {font}(size=20)
+{line}
+Bibliomods metadata{font}(size=16)
+$if(bibliomods.modsCollection.titleInfo.content)$
+Titul:  $bibliomods.modsCollection.titleInfo.content$
+
+$endif$
+$if(bibliomods.modsCollection.mods.titleInfo.subTitle.content)$
+Podtitul: $bibliomods.modsCollection.mods.titleInfo.subTitle.content$
+
+$endif$
+Urn: $bibliomods.modsCollection.mods.identifierurn$
+Fyzicke ulozeni: $bibliomods.modsCollection.mods.location.physicalLocation$
+$if(bibliomods.modsCollection.mods.originInfopublisher)$
+$_publisher(publishermods=bibliomods.modsCollection.mods.originInfopublisher)$	
+
+$endif$
+$if(bibliomods.modsCollection.mods.originInfoprinter)$
+$_printer(printermods=bibliomods.modsCollection.mods.originInfoprinter)$	
+$endif$
+
+Model: MONOGRAPHUNIT
+>>
+
 _creators(creatorsmods)  ::=<<
 Autori:$creatorsmods:{autor| $autor.namePartfamily$ $autor.namePartgiven$}; separator=","$
 >>

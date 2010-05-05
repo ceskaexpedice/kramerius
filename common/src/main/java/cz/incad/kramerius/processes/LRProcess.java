@@ -1,5 +1,6 @@
 package cz.incad.kramerius.processes;
 
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.io.RandomAccessFile;
@@ -105,4 +106,5 @@ public interface LRProcess {
 	
 	public RandomAccessFile getErrorProcessRAFile() throws FileNotFoundException;
 	
+	public File processWorkingDirectory();
 }

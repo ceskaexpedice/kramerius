@@ -14,7 +14,7 @@ public enum FedoraRelationship {
 	hasItem(PERIODICALITEM),
 	hasUnit(MONOGRAPHUNIT),
 	hasInternalPart(INTERNALPART),
-	hasIntCompPart(null),
+	hasIntCompPart(INTERNALPART),
 	
 	isOnPage(null);
 
