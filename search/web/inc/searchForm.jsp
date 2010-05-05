@@ -49,16 +49,16 @@
 				
 				<c:choose>
 					<c:when test="${remoteUser == null}">
-						<a href="redirect.jsp" /><fmt:message>přihlášení</fmt:message></a>
+						<a href="redirect.jsp"><fmt:message>přihlášení</fmt:message></a>
 					</c:when>
 					<c:otherwise>
-						<a href="logout.jsp" /><c:out value="${remoteUser}"></c:out></a>
+						<a href="logout.jsp"><c:out value="${remoteUser}"></c:out></a>
 					</c:otherwise>
 				</c:choose>
 
 				<c:choose>
 					<c:when test="${remoteUser != null}">
-						:: <a id="adminHref" href="javascript:showAdminMenu();" /><fmt:message>administrator.menu</fmt:message></a>
+						:: <a id="adminHref" href="javascript:showAdminMenu();"><fmt:message>administrator.menu</fmt:message></a>
 					</c:when>
 				</c:choose>
 			</td>
@@ -75,7 +75,7 @@
 				<fmt:message>administrator.menu</fmt:message>
 			</td>
 			<td width="20px">
-				<a href="javascript:hideAdminMenu();"><img border="0px" src="img/x.png"></img></a>
+				<a href="javascript:hideAdminMenu();"><img border="0px" src="img/x.png" /></a>
 			</td>
 		</tr>
 	</table>
@@ -83,7 +83,8 @@
 	
 	<div id="adminMenuItems" class="adminMenuItems">
 		<div align="left"> <a href="javascript:processes(); javascript:hideAdminMenu();">Správa dlouhotrvajících procesů ... </a> </div>	
-		<div align="left"> <a href="javascript:processes(); javascript:hideAdminMenu();">Import dat ... </a> </div>	
+		<div align="left"> <a href="javascript:importMonographs(); javascript:hideAdminMenu();">Import monografií ... </a> </div>	
+		<div align="left"> <a href="javascript:importPeriodicals(); javascript:hideAdminMenu();">Import periodik ... </a> </div>	
 	</div>
 </div>
 
