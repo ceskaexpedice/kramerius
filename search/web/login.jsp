@@ -55,9 +55,9 @@
 	        <tr>
 	          <td>
 	             Jméno:<br>
-	             <input type="text" size="30" name="j_username" ><br>
+	             <input type="text" size="30" name="j_username" style="border:1px solid silver;" ><br>
 	             Heslo:<br>
-	             <input type="password" name="j_password" size="30"><br>
+	             <input type="password" name="j_password" size="30" style="border:1px solid silver;"><br>
 	             <input type="submit"  value="Přihlášení" alt="Login">
 	          </td>
 	        </tr>
