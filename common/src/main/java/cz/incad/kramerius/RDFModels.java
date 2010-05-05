@@ -27,8 +27,10 @@ public class RDFModels {
                 return KrameriusModels.INTERNALPART;
         }else if(rdf.contains("isOnPage")){
                 return KrameriusModels.PAGE;
+        }else if(rdf.contains("hasDonator")){
+                return KrameriusModels.DONATOR;
         }else{
-            System.out.println("Unsupported rdf: " + rdf);
+            System.out.println("Unfffsupported rdf: " + rdf);
             return null;
         }
     }
@@ -49,6 +51,8 @@ public class RDFModels {
                 return "hasIntCompPart";
             case PAGE:
                 return "hasPage";
+            case DONATOR:
+                return "hasDonator";
             default:
                 return km.toString();
         }

@@ -68,10 +68,10 @@ public class FedoraUtils {
                 Node childnode = nodes.item(i);
                 String nodeName = childnode.getNodeName();
                 if (nodeName.contains("hasPage")) {
-                    pids.add(childnode.getAttributes().getNamedItem("rdf:resource").getNodeValue().split("uuid:")[1]);
-                    models.add("page");
-                    return true;
-                } else if(!nodeName.contains("hasModel")) {
+                        pids.add(childnode.getAttributes().getNamedItem("rdf:resource").getNodeValue().split("uuid:")[1]);
+                        models.add("page");
+                        return true;
+                } else if(!nodeName.contains("hasModel") && childnode.hasAttributes()) {
                     pids.add(childnode.getAttributes().getNamedItem("rdf:resource").getNodeValue().split("uuid:")[1]);
                     models.add(KrameriusModels.toString(cz.incad.kramerius.RDFModels.convertRDFToModel(nodeName)));
                     return FedoraUtils.fillFirstPagePid(pids, models);

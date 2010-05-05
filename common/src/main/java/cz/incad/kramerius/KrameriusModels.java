@@ -18,7 +18,8 @@ public enum KrameriusModels {
     PERIODICALVOLUME("periodicalvolume"), 
     PERIODICALITEM("periodicalitem"), 
     PAGE("page"), 
-    INTERNALPART("internalpart");
+    INTERNALPART("internalpart"),
+    DONATOR("donator");
 
     private KrameriusModels(String value) {
 		this.value = value;
