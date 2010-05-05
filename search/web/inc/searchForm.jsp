@@ -84,6 +84,8 @@
         <div align="left"> <a href="javascript:importMonographs(); javascript:hideAdminMenu();">Import monografií ... </a> </div>	
         <div align="left"> <a href="javascript:importPeriodicals(); javascript:hideAdminMenu();">Import periodik ... </a> </div>	
         <div align="left"> <a href="javascript:showIndexerAdmin();">Indexace dokumentů ... </a> </div>
+		<div align="left"> <a href="javascript:enumerator(); javascript:hideAdminMenu();">Enumerator ...  </a> </div>	
+		<div align="left"> <a href="javascript:replicationrights(); javascript:hideAdminMenu();">Replication rights ...  </a> </div>	
     </div>
 </div>
 
