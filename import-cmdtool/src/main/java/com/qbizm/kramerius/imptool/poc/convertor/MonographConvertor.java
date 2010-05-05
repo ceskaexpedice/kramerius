@@ -10,6 +10,8 @@ import java.util.Map;
 import java.util.TreeMap;
 import java.util.regex.Pattern;
 
+import org.apache.commons.lang.StringUtils;
+
 import com.qbizm.kramerius.imp.jaxb.Contributor;
 import com.qbizm.kramerius.imp.jaxb.ContributorName;
 import com.qbizm.kramerius.imp.jaxb.Creator;
@@ -97,8 +99,8 @@ public class MonographConvertor extends BaseConvertor {
         String uuid = uuid(mono.getUniqueIdentifier());
         String pid = pid(uuid);
 
-        
-        convertedURI.append("pid=").append(uuid).append("&pid_path=").append(uuid).append("&path=monograph\n");
+        String cleanTitle= StringUtils.replaceEach(title, new String[]{"\t", "\n"}, new String[]{" ", " "});
+        convertedURI.append(cleanTitle).append("\t").append("pid=").append(uuid).append("&pid_path=").append(uuid).append("&path=monograph\n");
         // neplatny vstupni objekt
         //if (mono.getMonographBibliographicRecord().getSeries() != null && mono.getMonographBibliographicRecord().getSeries().size() > 1) {
         //    throw new IllegalArgumentException("Illegal multiple /Monograph/MonographBibliographicRecord/Series occurence!");

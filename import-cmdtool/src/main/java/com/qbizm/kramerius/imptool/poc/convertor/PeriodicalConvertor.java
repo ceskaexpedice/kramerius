@@ -124,11 +124,11 @@ public class PeriodicalConvertor extends BaseConvertor {
             volumeuuid = this.convertVolume(volume, visibility);
             re.addRelation(RelsExt.HAS_VOLUME, pid(uuid(volume.getUniqueIdentifier())),false);
         }
-        
+        String cleanTitle= StringUtils.replaceEach(title, new String[]{"\t", "\n"}, new String[]{" ", " "});
         if (volumeuuid== null){
-            convertedURI.append("pid=").append(uuid).append("&pid_path=").append(uuid).append("&path=periodical\n");
+            convertedURI.append(cleanTitle).append("\t").append("pid=").append(uuid).append("&pid_path=").append(uuid).append("&path=periodical\n");
         } else{
-            convertedURI.append("pid=").append(volumeuuid).append("&pid_path=").append(uuid).append("/").append(volumeuuid)
+            convertedURI.append(cleanTitle).append("\t").append("pid=").append(volumeuuid).append("&pid_path=").append(uuid).append("/").append(volumeuuid)
             .append("&path=periodical/periodicalvolume\n");
         }
 
