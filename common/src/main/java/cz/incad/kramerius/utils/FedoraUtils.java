@@ -100,7 +100,7 @@ public class FedoraUtils {
                 String nodeName = childnode.getNodeName();
                 if (nodeName.contains("hasPage")) {
                     return childnode.getAttributes().getNamedItem("rdf:resource").getNodeValue().split("uuid:")[1];
-                } else if(!nodeName.contains("hasModel")) {
+                } else if(!nodeName.contains("hasModel") && childnode.hasAttributes()) {
                     pids.add(childnode.getAttributes().getNamedItem("rdf:resource").getNodeValue().split("/")[1]);
                 }
             }
