@@ -35,6 +35,7 @@ public class Main {
 			
 			checkFileOrCreateNew(arguments.log4jFile, "res/log4j.properties");
 			checkFileOrCreateNew(arguments.configFile,"res/config.properties");
+			checkFileOrCreateNew(arguments.configFile,"res/KrameriusFoxmlToSolr.xslt");
 
 			
 			Indexer indexer = new Indexer(arguments);
