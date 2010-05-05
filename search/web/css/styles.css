@@ -314,7 +314,7 @@ td.rightMenu .facet{
 
 .item_options{
   overflow:hidden;
-  width:9px;
+  width:16px;
   position:absolute;
   z-index:4;
   height:16px;
@@ -327,11 +327,12 @@ td.rightMenu .facet{
   width:100px;
   float:left;
 }
-.item_options span.menu_activation{
-  margin:3px;
-  width:16px;
+#openmenu-monograph span.menu_activation img{
+  
+  padding:0 4px;
   float:left;
   border:none;
+  cursor:pointer;
   /*background:url(../img/menu.png) no-repeat;*/
 }
 
@@ -356,7 +357,7 @@ td.rightMenu .facet{
 /* item tree */
 
 #itemTree{
-	padding-top: 30px;
+/*	padding-top: 30px;*/
 }
  
 /* suggest */
@@ -484,7 +485,9 @@ table.advancedSearch td{
 	background-repeat:repeat-x;
 	height: 25px; color: white;
 }
-
+.adminMenuHeader td{
+	color: white;
+}
 
 .indexer_result{
     border-bottom:1px solid silver;
