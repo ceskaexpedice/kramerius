@@ -296,3 +296,53 @@ function _replikatorPeriodicalFailed() {
 	$("#replikator_periodical_started_waiting").css("display","none");
 	$("#replikator_periodical_started_ok").css("display","block");
 }
+var _indexerDialog;
+/**
+ * Zobrazuje spravu indexace
+ */
+function showIndexerAdmin(){
+    hideAdminMenu();
+    var url = "dialogs/_indexer_data.jsp?model=monograph&offset=0";
+    $.get(url, function(data) {
+        $("#indexerContent").html(data);
+    });
+    if (_indexerDialog) {
+        _indexerDialog.dialog('open');
+    } else {
+    	_indexerDialog = $("#indexer").dialog({
+            bgiframe: true,
+            width: 700,
+            height: 400,
+            modal: true,
+            title: "Indexace dokumentù",
+            buttons: {
+                "Close": function() {
+                    $(this).dialog("close"); 
+                } 
+            } 
+        });
+    }
+}
+
+function loadFedoraDocuments(model, offset){
+    var url = "dialogs/_indexer_data.jsp?model="+model+"&offset="+offset;
+    $.get(url, function(data) {
+        $("#indexerContent").html(data);
+    });
+}
+
+function indexDoc(pid, title){
+    var prefix = "info:fedora/uuid:";
+    var uuid = pid.substr(prefix.length);
+    var url = "lr?action=start&def=reindex&out=text&params=-params fromKrameriusModel "+uuid+" \""+title+"\"";
+    $.get(url, function(data) {
+        alert(data);
+    });
+}
+
+function indexModel(model){
+    var url = "lr?action=start&def=reindex&out=text&params=-params krameriusModel "+model+" \""+model+"\"";
+    $.get(url, function(data) {
+        alert(data);
+    });
+}
