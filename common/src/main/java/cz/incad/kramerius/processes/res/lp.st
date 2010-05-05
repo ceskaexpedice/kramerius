@@ -75,4 +75,21 @@
 		</parameters>
 	</process>
 
+	<processes>
+		<id>enumerator</id>
+		<description>Enumerator</description>
+		<mainClass>org.kramerius.Enumerator</mainClass>
+		<standardOs>lrOut</standardOs>
+		<errOs>lrErr</errOs>
+	</processes>
+
+	<process>
+		<id>replicationrights</id>
+		<description>Replication rights</description>
+		<mainClass>org.kramerius.ReplicationRights</mainClass>
+		<standardOs>lrOut</standardOs>
+		<errOs>lrErr</errOs>
+	</process>
+		
+
 </processes>
