@@ -95,6 +95,9 @@ var _actions=function() {
 		
 		intArr["[enumerator]RUNNING"]=_enumeratorStarted;
 		intArr["[enumerator]FAILED"]=_enumeratorFailed;
+				
+		intArr["[replicationrights]RUNNING"]=_replicationrightsStarted;
+		intArr["[replicationrights]FAILED"]=_replicationrightsFailed;
 
 	}
 	return intArr;
@@ -228,6 +231,35 @@ function _startProcess(url) {
 	});
 }
 
+var _replicationrightsDialog; //cekaci dialog na spusteni procesu
+function replicationrights() {
+	var url = "lr?action=start&def=replicationrights&out=text";
+
+	if (_staticExportDialog) {
+    	$("#replicationrights_started_ok").hide();
+    	$("#replicationrights_started_failed").hide();
+    	$("#replicationrights_started_waiting").show();
+    	_staticExportDialog.dialog('open');
+	} else {
+    	$("#replicationrights_started_waiting").show();
+		_staticExportDialog = $("#replicationrights_started").dialog({
+	        bgiframe: true,
+	        width: 400,
+	        height: 100,
+	        modal: true,
+	        title: "Replication rights",
+	        buttons: {
+	            "Close": function() {
+	                $(this).dialog("close"); 
+	            } 
+	        } 
+	    });
+	}
+	_startProcess(url);
+	
+}
+
+
 
 /**
  * Generovani staticke exportu
@@ -273,7 +305,7 @@ function enumerator(){
     	$("#enumerator_started_ok").hide();
     	$("#enumerator_started_failed").hide();
     	$("#enumerator_started_waiting").show();
-    	_staticExportDialog.dialog('open');
+    	_enumeratorDialog.dialog('open');
 	} else {
     	$("#enumerator_started_waiting").show();
     	_enumeratorDialog = $("#enumerator_started").dialog({
@@ -334,14 +366,26 @@ function _replikatorPeriodicalFailed() {
 
 
 function _enumeratorStarted() {
-	$("#enumerator_periodical_started_waiting").css("display","none");
-	$("#enumerator_periodical_started_ok").css("display","block");
+	alert("enum started");
+	$("#enumerator_started_waiting").css("display","none");
+	$("#enumerator_started_ok").css("display","block");
 }
 
 function _enumeratorFailed() {
-	$("#enumerator_periodical_started_waiting").css("display","none");
-	$("#enumerator_periodical_started_ok").css("display","block");
+	$("#enumerator_started_waiting").css("display","none");
+	$("#enumerator_started_ok").css("display","block");
 }
+
+function _replicationrightsStarted() {
+	$("#replicationrights_started_waiting").css("display","none");
+	$("#replicationrights_started_ok").css("display","block");
+}
+
+function _replicationrightsFailed() {
+	$("#replicationrights_started_waiting").css("display","none");
+	$("#replicationrights_started_ok").css("display","block");
+}
+
 
 var _indexerDialog;
 /**
