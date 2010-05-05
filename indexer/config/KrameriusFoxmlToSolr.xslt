@@ -60,6 +60,8 @@
     select="substring(/foxml:digitalObject/foxml:datastream[@CONTROL_GROUP='X' and @ID='RELS-EXT']/foxml:datastreamVersion[last()]/foxml:xmlContent/rdf:RDF/rdf:Description/fedora-model:hasModel/@rdf:resource, 19)" />
     <xsl:variable name="docBoost" select="1.4*2.5"/> <!-- or any other calculation, default boost is 1.0 -->
     
+    
+    
     <xsl:template match="/">
         <add>
             <doc>
@@ -91,9 +93,14 @@
         </field>
         <!-- Pro zatim nechame fedora model. Musi byt info z biblio mods-->
         <field name="document_type">
-            <xsl:value-of select="$MODEL"/>
+            <xsl:value-of select="substring(/foxml:digitalObject/foxml:datastream/foxml:datastreamVersion[last()]/foxml:xmlContent/oai_dc:dc/dc:type/text(), 7)"/>
         </field>
         <field name="dc.title"><xsl:value-of select="normalize-space($title)"/></field>
+        
+        <field name="dostupnost">
+            <xsl:value-of select="substring(/foxml:digitalObject/foxml:datastream[@CONTROL_GROUP='X' and @ID='RELS-EXT']/foxml:datastreamVersion[last()]/foxml:xmlContent/rdf:RDF/rdf:Description/kramerius:policy, 8)"/>
+        </field>
+        
         <xsl:for-each select="foxml:datastream/foxml:datastreamVersion[last()]/foxml:xmlContent/oai_dc:dc/dc:creator">
             <field name="dc.creator" >
                 <xsl:value-of select="text()"/>
@@ -305,9 +312,7 @@
         <field name="ddt">
             <xsl:value-of select="mods:classification[@authority='ddt']/text()"/>
         </field>
-        <field name="dostupnost">
-            <xsl:value-of select="mods:accessCondition[@type='restrictionOnAccess']/text()"/>
-        </field>
+        
         
         <xsl:if test="$MODEL = 'monographunit'">
             <field name="details">
