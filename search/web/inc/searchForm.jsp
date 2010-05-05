@@ -68,25 +68,23 @@
 </form>
 
 <div id="adminMenu" class="adminMenu">
-	<div class="adminMenuHeader">
-	<table width="100%">
-		<tr>
-			<td align="center">
-				<fmt:message>administrator.menu</fmt:message>
-			</td>
-			<td width="20px">
-				<a href="javascript:hideAdminMenu();"><img border="0px" src="img/x.png" /></a>
-			</td>
-		</tr>
-	</table>
-	</div>
-	
-	<div id="adminMenuItems" class="adminMenuItems">
-		<div align="left"> <a href="javascript:processes(); javascript:hideAdminMenu();">Správa dlouhotrvajících procesů ... </a> </div>	
-		<div align="left"> <a href="javascript:importMonographs(); javascript:hideAdminMenu();">Import monografií ... </a> </div>	
-		<div align="left"> <a href="javascript:importPeriodicals(); javascript:hideAdminMenu();">Import periodik ... </a> </div>	
-                <div align="left"> <a href="javascript:showIndexerAdmin();">Indexace dokumentů ... </a> </div>
-	</div>
+    <div class="adminMenuHeader">
+        <table width="100%">
+            <tr>
+                <td align="center"><fmt:message>administrator.menu</fmt:message></td>
+                <td width="20px">
+                    <a href="javascript:hideAdminMenu();" class="ui-dialog-titlebar-close ui-corner-all" role="button" unselectable="on" style="-moz-user-select: none;"><span class="ui-icon ui-icon-closethick" unselectable="on" style="-moz-user-select: none;">close</span></a>
+                </td>
+            </tr>
+        </table>
+    </div>
+        
+    <div id="adminMenuItems" class="adminMenuItems">
+        <div align="left"> <a href="javascript:processes(); javascript:hideAdminMenu();">Správa dlouhotrvajících procesů ... </a> </div>	
+        <div align="left"> <a href="javascript:importMonographs(); javascript:hideAdminMenu();">Import monografií ... </a> </div>	
+        <div align="left"> <a href="javascript:importPeriodicals(); javascript:hideAdminMenu();">Import periodik ... </a> </div>	
+        <div align="left"> <a href="javascript:showIndexerAdmin();">Indexace dokumentů ... </a> </div>
+    </div>
 </div>
 
 <%@ include file="../dialogs/_indexer.jsp" %>

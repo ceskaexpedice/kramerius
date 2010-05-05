@@ -25,8 +25,8 @@ ArrayList<String> models =  new ArrayList<String>(Arrays.asList((String [])reque
 //ArrayList<String> models = new ArrayList<String>();
 //models.addAll(request.getParameter("path").split("/"));
 FedoraUtils.fillFirstPagePid(pids, models);
-out.println(pids);
-out.println(models);
+//out.println(pids);
+//out.println(models);
 getServletContext().setAttribute("pids", pids);
 getServletContext().setAttribute("models", models);
 getServletContext().setAttribute("pathsize", models.size());
@@ -110,15 +110,12 @@ Get Biblio mods
     $(document).ready(function(){
         //changeSelection('<c:out value="${pids[pathsize -2]}" />','<c:out value="${pids[pathsize -1]}" />');
         startPage();
-        //setTimeout('startItemMenu()', 2000);
-        startItemMenu();
+        //startItemMenu();
     });
     initParent = '<c:out value="${pids[pathsize -2]}" />';
     initPage = '<c:out value="${pids[pathsize -1]}" />';
     function startPage(){
         if(typeof window.requestToSelect == 'function') {
-        // function exists, so we can now call it
-        //alert(window.requestToSelect);
             changeSelection(initParent, initPage);
         }else{
             setTimeout('startPage()', 200);
@@ -126,7 +123,6 @@ Get Biblio mods
     }
     
     function startItemMenu(){
-        //alert('kk2');
         $('.item_options').show();
         $('.menu_activation').unbind('mouseenter');
         $('.item_options').unbind('mouseleave');
@@ -135,14 +131,11 @@ Get Biblio mods
             var l = $(this).parent().width() + $($(this).parent()).offset().left - 9;
            $(this).css('left',l);
         });
-        $('.menu_activation').bind('mouseenter', function(){
+        $('.menu_activation').bind('click', function(){
             $('.item_options').stop();
            var il = $(this).parent().parent().width() + $(this).parent().parent().offset().left - 9;
            if($(this).parent().offset().left == il){
-               $(this).parent().animate({
-                   width: 129,
-                   left: '-=120'
-               }, 50);
+               $(this).parent().css({'width': 129, 'left': '-=120'});
            }
         });
         
