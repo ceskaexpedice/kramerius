@@ -25,7 +25,8 @@ ArrayList<String> models =  new ArrayList<String>(Arrays.asList((String [])reque
 //ArrayList<String> models = new ArrayList<String>();
 //models.addAll(request.getParameter("path").split("/"));
 FedoraUtils.fillFirstPagePid(pids, models);
-
+out.println(pids);
+out.println(models);
 getServletContext().setAttribute("pids", pids);
 getServletContext().setAttribute("models", models);
 getServletContext().setAttribute("pathsize", models.size());
@@ -54,13 +55,10 @@ Get Biblio mods
         $(document).ready(function(){
             var obj = "<c:out value="${obj}" />";
             var tabTemp = '<li><a href="<c:out value="${href}" />"><c:out value="${label}" /></a><img width="12px" src="img/empty.gif" class="op_list" onclick="showList(this, \''+obj+'\', \'<c:out value="${href}" />\')" /></li>';
+            //alert(obj);
             $(obj).tabs({ tabTemplate: tabTemp });
-           
-           getItemRels("<c:out value="${pids[status.count-1]}" />",
-                "<c:out value="${pids[status.count]}" />",
-                <c:out value="${cur_level}" />,
-                <c:out value="${status.count == fn:length(models)}" />
-            );
+           //alert(ttt);
+           getItemRels('<c:out value="${pids[status.count-1]}" />', '<c:out value="${pids[status.count]}" />', <c:out value="${cur_level}" />, <c:out value="${status.count == fn:length(models)}" />);
         });
     </script>
     <div id="tabs_<c:out value="${cur_level}" />" style="padding:2px;" pid="<c:out value="${uuid}" />">

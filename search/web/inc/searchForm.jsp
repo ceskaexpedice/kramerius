@@ -85,6 +85,8 @@
 		<div align="left"> <a href="javascript:processes(); javascript:hideAdminMenu();">Správa dlouhotrvajících procesů ... </a> </div>	
 		<div align="left"> <a href="javascript:importMonographs(); javascript:hideAdminMenu();">Import monografií ... </a> </div>	
 		<div align="left"> <a href="javascript:importPeriodicals(); javascript:hideAdminMenu();">Import periodik ... </a> </div>	
+                <div align="left"> <a href="javascript:showIndexerAdmin();">Indexace dokumentů ... </a> </div>
 	</div>
 </div>
 
+<%@ include file="../dialogs/_indexer.jsp" %>

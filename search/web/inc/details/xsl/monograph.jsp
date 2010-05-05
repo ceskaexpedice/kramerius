@@ -22,7 +22,7 @@
    xmlns:xsl="http://www.w3.org/1999/XSL/Transform" 
    xmlns:mods="http://www.loc.gov/mods/v3"
     exclude-result-prefixes="mods" >
-    <xsl:output method="xml" indent="yes" encoding="UTF-8" />
+    <xsl:output method="html" indent="yes" encoding="UTF-8"  omit-xml-declaration="yes" />
     <!-- TODO customize transformation rules 
     syntax recommendation http://www.w3.org/TR/xslt 
     -->
@@ -34,17 +34,14 @@
         <xsl:variable name="uuid" ><xsl:value-of select="./mods:identifier[@type='urn']"/></xsl:variable>
         
         <div><c:if test="${display == 'none'}">
-                    <xsl:attribute name="onclick" >
-                        javascript:showMainContent('<xsl:value-of select="$pid"/>', 'monograph')
-                    </xsl:attribute></c:if><span valign="top">*</span>
+                    <xsl:attribute name="onclick" >javascript:showMainContent('<xsl:value-of select="$pid"/>', 'monograph')</xsl:attribute></c:if><span valign="top">*</span>
             <span>
                 <fmt:message>Hlavní název</fmt:message>:<br/>
                 <div class="resultValue"><xsl:value-of select="mods:titleInfo/mods:title" /></div>
             </span>
             
         </div>
-        <div id="moreDetails">
-            <xsl:attribute name="style">display:<c:out value="${param.display}" />;</xsl:attribute>
+        <div id="moreDetails"><xsl:attribute name="style">display:<c:out value="${param.display}" />;</xsl:attribute>
         <div><span valign="top">*</span>
             <span>
                 <fmt:message>Autor</fmt:message>:<br/>
@@ -112,20 +109,24 @@
                     
                     <xsl:if test="contains(mods:physicalDescription/mods:extent, ',')">
                         <fmt:message>Rozměry</fmt:message>:<br/> 
-                        <div class="resultValue"><xsl:value-of select="substring-after(mods:physicalDescription/mods:extent, ',')" /></div>
+                        <div class="resultValue"><xsl:value-of select="substring-after(mods:physicalDescription/mods:extent, ',')" />
+                        </div>
                         <br/>
                     </xsl:if>
                     <xsl:choose>
                         <xsl:when test="contains(mods:physicalDescription/mods:extent, ',')">
                             <fmt:message>Rozměry</fmt:message>:<br/> 
-                            <div class="resultValue"><xsl:value-of select="substring-after(mods:physicalDescription/mods:extent, ',')" /></div>
+                            <div class="resultValue"><xsl:value-of select="substring-after(mods:physicalDescription/mods:extent, ',')" />
+                            </div>
                             <br/>
                             <fmt:message>Rozsah</fmt:message>:<br/> 
-                            <div class="resultValue"><xsl:value-of select="substring-before(mods:physicalDescription/mods:extent, ',')" /></div>
+                            <div class="resultValue"><xsl:value-of select="substring-before(mods:physicalDescription/mods:extent, ',')" />
+                            </div>
                         </xsl:when>
                         <xsl:otherwise>
                             <fmt:message>Rozsah</fmt:message>:<br/> 
-                            <div class="resultValue"><xsl:value-of select="mods:physicalDescription/mods:extent" /></div>
+                            <div class="resultValue"><xsl:value-of select="mods:physicalDescription/mods:extent" /> 
+                            </div>
                         </xsl:otherwise>
                     </xsl:choose>
                 </span>
