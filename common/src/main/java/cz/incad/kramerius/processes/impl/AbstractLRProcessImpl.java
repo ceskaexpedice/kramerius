@@ -14,6 +14,7 @@ import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.logging.Level;
 
+import cz.incad.kramerius.processes.DefinitionManager;
 import cz.incad.kramerius.processes.LRProcess;
 import cz.incad.kramerius.processes.LRProcessDefinition;
 import cz.incad.kramerius.processes.LRProcessManager;
@@ -88,6 +89,8 @@ public abstract class AbstractLRProcessImpl implements LRProcess{
 	@Override
 	public void startMe(boolean wait, String krameriusAppLib) {
 		try {
+			File processWorkingDir = processWorkingDirectory();
+
 			//"java -D"+ProcessStarter.MAIN_CLASS_KEY+"="+mainClass
 			// create command
 			List<String> command = new ArrayList<String>();
@@ -96,9 +99,11 @@ public abstract class AbstractLRProcessImpl implements LRProcess{
 			command.add("-D"+ProcessStarter.UUID_KEY+"="+this.uuid);
 			command.add("-D"+ProcessStarter.LR_SERVLET_URL+"="+KConfiguration.getKConfiguration().getLRServletURL());
 
-			File standardStreamFile = new File(createFolderIfNotExists(this.definition.getStandardStreamFolder()),this.uuid+".out");
-			File errStreamFile = new File(createFolderIfNotExists(this.definition.getErrStreamFolder()),this.uuid+".err");
+			
+			File standardStreamFile = standardOutFile(processWorkingDir);
+			File errStreamFile = errorOutFile(processWorkingDir);
 
+			
 			command.add("-D"+ProcessStarter.SOUT_FILE+"="+standardStreamFile.getAbsolutePath());
 			command.add("-D"+ProcessStarter.SERR_FILE+"="+errStreamFile.getAbsolutePath());
 			command.add(ProcessStarter.class.getName());
@@ -111,7 +116,6 @@ public abstract class AbstractLRProcessImpl implements LRProcess{
 				command.add(par);
 			}
 			
-
 			//create CLASSPATH
 			StringBuffer buffer = new StringBuffer();
 			String libsDirPath = this.definition.getLibsDir();
@@ -129,6 +133,8 @@ public abstract class AbstractLRProcessImpl implements LRProcess{
 			}
 
 			ProcessBuilder processBuilder = new ProcessBuilder(command);
+			processBuilder = processBuilder.directory(processWorkingDir);
+			
 			processBuilder.environment().put(ProcessStarter.CLASSPATH_NAME, buffer.toString());
 			this.state = States.RUNNING;
 			manager.registerLongRunningProcess(this);
@@ -154,7 +160,23 @@ public abstract class AbstractLRProcessImpl implements LRProcess{
 	}
 
 
-	
+	private File errorOutFile(File processWorkingDir) {
+		return new File(createFolderIfNotExists(processWorkingDir+File.separator+this.definition.getErrStreamFolder()),"sterr.err");
+	}
+
+
+	private File standardOutFile(File processWorkingDir) {
+		return new File(createFolderIfNotExists(processWorkingDir+File.separator+ this.definition.getStandardStreamFolder()),"stout.out");
+	}
+
+
+	public File processWorkingDirectory() {
+		File processWorkingDir = new File(DefinitionManager.DEFAULT_LP_WORKDIR+File.separator+uuid);
+		processWorkingDir.mkdirs();
+		return processWorkingDir;
+	}
+
+
 	private File createFolderIfNotExists(String folder) {
 		File fldr= new File(folder);
 		fldr.mkdirs();
@@ -172,7 +194,6 @@ public abstract class AbstractLRProcessImpl implements LRProcess{
 	}
 
 	protected abstract void stopMeOsDependent();
-
 	
 	public String getPid() {
 		return pid;
@@ -242,31 +263,30 @@ public abstract class AbstractLRProcessImpl implements LRProcess{
 		this.name = nm;
 	}
 
+//	public File processWorkingDirectory() {
 
 	@Override
 	public InputStream getErrorProcessOutputStream() throws FileNotFoundException {
-		File errStreamFile = new File(createFolderIfNotExists(this.definition.getErrStreamFolder()),this.uuid+".err");
-		return new FileInputStream(errStreamFile);
+		return new FileInputStream(errorOutFile(processWorkingDirectory()));
 	}
 
 
 	@Override
 	public InputStream getStandardProcessOutputStream() throws FileNotFoundException {
-		File standardStreamFile = new File(createFolderIfNotExists(this.definition.getStandardStreamFolder()),this.uuid+".out");
-		return new FileInputStream(standardStreamFile);
+		return new FileInputStream(standardOutFile(processWorkingDirectory()));
 	}
 
 
 	@Override
 	public RandomAccessFile getErrorProcessRAFile() throws FileNotFoundException {
-		File errStreamFile = new File(createFolderIfNotExists(this.definition.getErrStreamFolder()),this.uuid+".err");
+		File errStreamFile = errorOutFile(processWorkingDirectory());
 		return new RandomAccessFile(errStreamFile, "r");
 	}
 
 
 	@Override
 	public RandomAccessFile getStandardProcessRAFile() throws FileNotFoundException {
-		File standardStreamFile = new File(createFolderIfNotExists(this.definition.getStandardStreamFolder()),this.uuid+".out");
+		File standardStreamFile = standardOutFile(processWorkingDirectory());
 		return new RandomAccessFile(standardStreamFile, "r");
 	}
 

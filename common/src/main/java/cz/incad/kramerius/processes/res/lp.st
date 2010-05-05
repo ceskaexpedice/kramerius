@@ -7,19 +7,17 @@
 		<!-- spoustena trida -->
 		<mainClass>cz.incad.kramerius.processes.mock.MockLPProcess</mainClass>
 		<!-- standardni vystup -->
-		<standardOs>$default_lp_work_dir$/lrOut</standardOs>
+		<standardOs>lrOut</standardOs>
 		<!-- err vystup -->
-		<errOs>$default_lp_work_dir$/lrErr</errOs>
-		<!--  Cesta ke kninovnam, ktere process potrebuje -->
-		<lib>$default_lp_work_dir$/default-lib</lib>
+		<errOs>lrErr</errOs>
 	</process>
 
 	<process>
 		<id>static_export_CD</id>
 		<description>Statický export do PDF na CD</description>
 		<mainClass>cz.incad.kramerius.lp.PDFExport</mainClass>
-		<standardOs>$default_lp_work_dir$/lrOut</standardOs>
-		<errOs>$default_lp_work_dir$/lrErr</errOs>
+		<standardOs>lrOut</standardOs>
+		<errOs>lrErr</errOs>
 		<parameters>
 			<parameter>pdfs_out</parameter>		
 			<parameter>CD</parameter>		
@@ -33,8 +31,8 @@
 		<description>Statický export do PDF na DVD</description>
 		<!-- spoustena trida -->
 		<mainClass>cz.incad.kramerius.lp.PDFExport</mainClass>
-		<standardOs>$default_lp_work_dir$/lrOut</standardOs>
-		<errOs>$default_lp_work_dir$/lrErr</errOs>
+		<standardOs>lrOut</standardOs>
+		<errOs>lrErr</errOs>
 		<parameters>
 			<parameter>pdfs_out</parameter>		
 			<parameter>DVD</parameter>		
@@ -45,13 +43,35 @@
 		<id>reindex</id>
 		<description>Reindexace</description>
 		<mainClass>cz.incad.kramerius.indexer.Main</mainClass>
-		<standardOs>$default_lp_work_dir$/lrOut</standardOs>
-		<errOs>$default_lp_work_dir$/lrErr</errOs>
+		<standardOs>lrOut</standardOs>
+		<errOs>lrErr</errOs>
 		<parameters>
 			<parameter>-cfgFile</parameter>
 			<parameter>$default_lp_work_dir$/reindexer/config.properties</parameter>
 			<parameter>-log4jFile</parameter>
 			<parameter>$default_lp_work_dir$/reindexer/log4j.properties</parameter>
+		</parameters>
+	</process>
+
+	<process>
+		<id>replikator_monographs</id>
+		<description>Replikator (monografie)</description>
+		<mainClass>org.kramerius.Replicate</mainClass>
+		<standardOs>lrOut</standardOs>
+		<errOs>lrErr</errOs>
+		<parameters>
+			<parameter>monographs</parameter>
+		</parameters>
+	</process>
+
+	<process>
+		<id>replikator_periodicals</id>
+		<description>Replikator (periodika)</description>
+		<mainClass>org.kramerius.Replicate</mainClass>
+		<standardOs>lrOut</standardOs>
+		<errOs>lrErr</errOs>
+		<parameters>
+			<parameter>periodicals</parameter>
 		</parameters>
 	</process>
 

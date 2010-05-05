@@ -29,7 +29,6 @@ import com.google.inject.Inject;
 import com.google.inject.name.Named;
 
 
-import cz.incad.kramerius.Constants;
 import cz.incad.kramerius.processes.LRProcess;
 import cz.incad.kramerius.processes.LRProcessDefinition;
 import cz.incad.kramerius.processes.DefinitionManager;
@@ -42,9 +41,6 @@ public class LRProcessDefinitionManagerImpl implements DefinitionManager {
 	public static final java.util.logging.Logger LOGGER = java.util.logging.Logger
 			.getLogger(LRProcessDefinitionManagerImpl.class.getName());
 
-	public static final String CONFIGURATION_FILE = Constants.WORKING_DIR+File.separator+"lp.xml";
-	public static final String DEFAULT_LP_WORKDIR = Constants.WORKING_DIR+File.separator+"lp";
-	
 	private KConfiguration configuration;
 	private LRProcessManager processManager;
 
