@@ -335,3 +335,11 @@ function showMainContent(pid, path){
 function getPageTitle(pid){
     return $("#" + pid).text();
 }
+
+
+    function toggleAdminOptions(div){
+        var il = $('#menu-'+div).parent().width() + $('#menu-'+div).parent().offset().left - $('#menu-'+div).width();
+        $('#menu-'+div).css('left', il);
+        $('#menu-'+div).toggle();
+        $('#openmenu-'+div).toggle();
+    }

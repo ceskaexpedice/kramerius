@@ -334,14 +334,14 @@ function loadFedoraDocuments(model, offset){
 function indexDoc(pid, title){
     var prefix = "info:fedora/uuid:";
     var uuid = pid.substr(prefix.length);
-    var url = "lr?action=start&def=reindex&out=text&params=-params fromKrameriusModel "+uuid+" \""+title+"\"";
+    var url = "lr?action=start&def=reindex&out=text&params=fromKrameriusModel,"+uuid+","+title;
     $.get(url, function(data) {
         alert(data);
     });
 }
 
 function indexModel(model){
-    var url = "lr?action=start&def=reindex&out=text&params=-params krameriusModel "+model+" \""+model+"\"";
+    var url = "lr?action=start&def=reindex&out=text&params=krameriusModel,"+model+","+model;
     $.get(url, function(data) {
         alert(data);
     });
