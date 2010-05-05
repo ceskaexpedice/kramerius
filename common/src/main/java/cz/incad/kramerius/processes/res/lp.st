@@ -59,6 +59,7 @@
 		<mainClass>org.kramerius.Replicate</mainClass>
 		<standardOs>lrOut</standardOs>
 		<errOs>lrErr</errOs>
+		<processOutputURL>processes/imported/_imported.jsp</processOutputURL>
 		<parameters>
 			<parameter>monographs</parameter>
 		</parameters>
@@ -70,6 +71,7 @@
 		<mainClass>org.kramerius.Replicate</mainClass>
 		<standardOs>lrOut</standardOs>
 		<errOs>lrErr</errOs>
+		<processOutputURL>processes/imported/_imported.jsp</processOutputURL>
 		<parameters>
 			<parameter>periodicals</parameter>
 		</parameters>
