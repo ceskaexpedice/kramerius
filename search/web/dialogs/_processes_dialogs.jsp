@@ -74,3 +74,19 @@
 		<p style="font-family: sans-serif; font-size: 12px; font-weight: bold;">Proces importu selhal, prosim, zkontrolujte tabulku procesů.</p>
 	</div>
 </div>
+
+<!-- enumerator -->
+<div id="enumerator_periodical_started" style="display:none;">
+	<div id="enumerator_periodical_started_waiting" style="display:none;margin: 16px; font-family: sans-serif; font-size: 10px; ">
+    	<table>
+    		<tr><td align="center"><img src="img/loading2.gif" height="16px" width="16px"/></td></tr>
+			<tr><td align="center">Prosím vyčkejte, spouští se import enumerator.</td></tr>
+    	</table>
+	</div>
+	<div id="enumerator_periodical_started_ok" style="display:none;margin: 12px;">
+		<p style="font-family: sans-serif; font-size: 12px; font-weight: bold;">Enumerator spuštěn<br/></p>
+	</div>
+	<div id="enumerator_periodical_started_failed" style="display:none;margin: 12px;">
+		<p style="font-family: sans-serif; font-size: 12px; font-weight: bold;">Proces enumerator selhal, prosim, zkontrolujte tabulku procesů.</p>
+	</div>
+</div>
