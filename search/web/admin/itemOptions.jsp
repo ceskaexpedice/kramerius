@@ -5,7 +5,8 @@
     <span class="menu_activation"><img src="img/menu.png" /></span><span>
         <a title="Generování PDF" href="javascript:generatePdf('<c:out value="${status.count}" />');"><img src="img/pdf.png" border="0" alt="Generování PDF" /></a>
 		<%if(request.getRemoteUser()!=null){%>
-       	<a title="Statický export" href="javascript:generateStatic('<c:out value="${status.count}"/>','static_export_CD');"><img src="img/pdf-cd.png" border="0"  alt="Statický export"/></a>
+       	<a title="Export do PDF (CD)" href="javascript:generateStatic('<c:out value="${status.count}"/>','static_export_CD');"><img src="img/pdf-cd.png" border="0"  alt="Statický export"/></a>
+       	<a title="Reindexace" href="javascript:reindex('<c:out value="${status.count}"/>');"><img src="img/pdf-cd.png" border="0"  alt="Statický export"/></a>
     	<%}%>
     </span>
 </div>
