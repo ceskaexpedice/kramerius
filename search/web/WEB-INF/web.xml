@@ -137,7 +137,7 @@
 	</servlet-mapping>
 
     <security-role>
-        <role-name>tomcat</role-name>
+        <role-name>krameriusAdmin</role-name>
     </security-role>
 
     <security-constraint>
