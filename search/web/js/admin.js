@@ -366,7 +366,6 @@ function _replikatorPeriodicalFailed() {
 
 
 function _enumeratorStarted() {
-	alert("enum started");
 	$("#enumerator_started_waiting").css("display","none");
 	$("#enumerator_started_ok").css("display","block");
 }
