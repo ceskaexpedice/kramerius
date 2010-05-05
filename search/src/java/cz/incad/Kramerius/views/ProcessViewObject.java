@@ -45,7 +45,7 @@ public class ProcessViewObject {
 	
 	public String getProcessName() {
 		if (this.definition.getProcessOutputURL() != null) {
-			return "<a href=\""+this.definition.getProcessOutputURL()+"&uuid="+this.lrProcess.getUUID()+"\" target=\"_blank\">"+getName()+"</a>";
+			return "<a href=\""+this.definition.getProcessOutputURL()+"?uuid="+this.lrProcess.getUUID()+"\" target=\"_blank\">"+getName()+"</a>";
 		} else {
 			return "<a href=\"dialogs/_processes_logs.jsp?uuid="+this.lrProcess.getUUID()+"\" target=\"_blank\">"+getName()+"</a>";
 		}
