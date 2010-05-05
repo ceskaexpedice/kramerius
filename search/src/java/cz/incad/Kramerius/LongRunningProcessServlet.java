@@ -73,8 +73,10 @@ public class LongRunningProcessServlet extends GuiceServlet {
 					String def = req.getParameter("def");
 					String out = req.getParameter("out");
 					String parametersString = req.getParameter("params");
-					if (parametersString == null) parametersString="";
-					String[] params = parametersString.split(",");
+					String[] params = new String[0];
+					if (parametersString !=null) {
+						params = parametersString.split(",");
+					}
 					LRProcess nprocess = startNewProcess(context, def, defManager, params);
 					if ((out != null) && (out.equals("text"))) {
 						resp.getOutputStream().print("["+nprocess.getDefinitionId()+"]"+nprocess.getProcessState().name());
