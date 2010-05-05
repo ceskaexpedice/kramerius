@@ -66,6 +66,8 @@ public class Download {
         }
         try {
             for (String line; (line = reader.readLine()) != null;) {
+                if ("".equals(line)) continue;
+                log.info("Downloading "+line);
                 Replication rep = Download.createReplication(DocType.MONOID, line, null);
                 processReplication( download,  rep);
             }
@@ -91,6 +93,8 @@ public class Download {
         }
         try {
             for (String line; (line = reader.readLine()) != null;) {
+                if ("".equals(line)) continue;
+                log.info("Downloading "+line);
                 StringTokenizer st = new StringTokenizer(line,";");
                 String id = st.nextToken();
                 String volume = st.nextToken();
