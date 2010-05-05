@@ -101,10 +101,27 @@
 		</dependency>
 
 
+		<!--
+			dependency> <groupId>log4j</groupId> <artifactId>log4j</artifactId>
+			<version>1.2.8</version> </dependency
+		-->
+
 		<dependency>
-			<groupId>log4j</groupId>
-			<artifactId>log4j</artifactId>
-			<version>1.2.14</version>
+			<groupId>org.slf4j</groupId>
+			<artifactId>slf4j-api</artifactId>
+			<version>1.5.11</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.slf4j</groupId>
+			<artifactId>log4j-over-slf4j</artifactId>
+			<version>1.5.11</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.slf4j</groupId>
+			<artifactId>slf4j-jdk14</artifactId>
+			<version>1.5.11</version>
 		</dependency>
 
 		<dependency>
