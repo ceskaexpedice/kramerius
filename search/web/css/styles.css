@@ -356,7 +356,6 @@ td.rightMenu .facet{
 /* item tree */
 
 #itemTree{
-	margin-right: 50px;
 	padding-top: 30px;
 }
  
@@ -487,3 +486,13 @@ table.advancedSearch td{
 }
 
 
+.indexer_result{
+    border-bottom:1px solid silver;
+}
+.indexer_pager{
+    text-align:right;
+}
+.indexer_pager a{
+    margin:3px;
+    padding-left:10px;
+}
