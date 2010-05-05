@@ -7,12 +7,6 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt" %>
 <%@ page isELIgnored="false"%>
 
-<%
-	Injector inj = (Injector)application.getAttribute(Injector.class.getName());
-	pageContext.setAttribute("lrProcessManager",inj.getInstance(LRProcessManager.class));
-	pageContext.setAttribute("dfManager",inj.getInstance(DefinitionManager.class));
-%>
-
 <%@page import="java.io.InputStream"%>
 <%@page import="java.io.InputStreamReader"%>
 <%@page import="cz.incad.kramerius.utils.RESTHelper"%>
@@ -21,6 +15,13 @@
 <%@page import="com.google.inject.Injector"%>
 <%@page import="cz.incad.kramerius.processes.LRProcessManager"%>
 <%@page import="cz.incad.kramerius.processes.DefinitionManager"%>
+
+<%
+	Injector inj = (Injector)application.getAttribute(Injector.class.getName());
+	pageContext.setAttribute("lrProcessManager",inj.getInstance(LRProcessManager.class));
+	pageContext.setAttribute("dfManager",inj.getInstance(DefinitionManager.class));
+%>
+
 
 <%@ include file="inc/initVars.jsp" %>
 
