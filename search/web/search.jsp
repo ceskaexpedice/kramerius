@@ -26,6 +26,7 @@ out.clear();
     <body>
    		<!--  procesy - dialogy -->
 	    <%@ include file="dialogs/_processes_dialogs.jsp" %>
+            
     
         <table style="width:100%"><tr><td align="center">
         <c:if test="${param.debug}" >
