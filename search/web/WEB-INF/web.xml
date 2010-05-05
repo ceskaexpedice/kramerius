@@ -148,7 +148,7 @@
         </web-resource-collection>
         <auth-constraint>
             <description>no description</description>
-            <role-name>tomcat</role-name>
+            <role-name>krameriusAdmin</role-name>
         </auth-constraint>
         <!--
         <user-data-constraint>
