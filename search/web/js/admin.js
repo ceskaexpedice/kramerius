@@ -10,6 +10,8 @@ $(document).ready(function(){
 });
 
 
+
+
 function showAdminMenu() {
 	var headerPosition = $("#header").offset();
 	var headerWidth = $("#header").width()
@@ -29,11 +31,10 @@ function hideAdminMenu() {
 
 
 
+
 var _processDialog; // dialog na zobrazovani proceus
 function openProcessDialog() {
 	if (_processDialog) {
-//		$("#processes").dialog( "option", "width", $(document).width() );
-//		$("#processes").dialog( "option", "height", $(document).height() );
 		_processDialog.dialog('open');
 	} else {
     	_processDialog = $("#processes").dialog({
@@ -77,15 +78,151 @@ function killAndRefresh(url,ordering, offset, size, type) {
 /**
  * Promenne ve scriptu
  */
-var _waitingDialog; //cekaci dialog na spusteni procesu
 // Command pattern
 var _actions=function() {
 	var intArr = new Array(); {
-		intArr["RUNNING"]=_showProcessStarted;
-		intArr["FAILED"]=_showProcessFailed;
+		intArr["[static_export_CD]RUNNING"]=_statitExportStarted;
+		intArr["[static_export_CD]FAILED"]=_staticExportFailed;
+
+		intArr["[reindex]RUNNING"]=_reindexStarted;
+		intArr["[reindex]FAILED"]=_reindexFailed;
+
+		intArr["[replikator_monographs]RUNNING"]=_replikatorMonographStarted;
+		intArr["[replikator_monographs]FAILED"]=_replikatorMonographFailed;
+
+		intArr["[replikator_periodicals]RUNNING"]=_replikatorPeriodicalStarted;
+		intArr["[replikator_periodicals]FAILED"]=_replikatorPeriodicalFailed;
 	}
 	return intArr;
 }(); //akce ze servletu
+
+
+var _monographsDialog;
+function importMonographs() {
+	var url = "lr?action=start&def=replikator_monograph&out=text";
+	if (_monographsDialog) {
+    	$("#replikator_monograph_started_ok").hide();
+    	$("#replikator_monograph_started_failed").hide();
+    	$("#replikator_monograph_started_waiting").show();
+    	_monographsDialog.dialog('open');
+	} else {
+    	$("#replikator_monograph_started_waiting").show();
+    	_monographsDialog = $("#replikator_monograph_started").dialog({
+	        bgiframe: true,
+	        width: 400,
+	        height: 100,
+	        modal: true,
+	        title: "Replikace .. ",
+	        buttons: {
+	            "Close": function() {
+	                $(this).dialog("close"); 
+	            } 
+	        } 
+	    });
+	}
+
+	_startProcess(url);
+}
+
+
+var _monographsDialog;
+function importMonographs() {
+	var url = "lr?action=start&def=replikator_monographs&out=text";
+	if (_monographsDialog) {
+    	$("#replikator_monograph_started_ok").hide();
+    	$("#replikator_monograph_started_failed").hide();
+    	$("#replikator_monograph_started_waiting").show();
+    	_monographsDialog.dialog('open');
+	} else {
+    	$("#replikator_monograph_started_waiting").show();
+    	_monographsDialog = $("#replikator_monograph_started").dialog({
+	        bgiframe: true,
+	        width: 400,
+	        height: 100,
+	        modal: true,
+	        title: "Replikace .. ",
+	        buttons: {
+	            "Close": function() {
+	                $(this).dialog("close"); 
+	            } 
+	        } 
+	    });
+	}
+
+	_startProcess(url);
+}
+
+var _periodicalsDialog;
+function importPeriodicals() {
+	var url = "lr?action=start&def=replikator_periodicals&out=text";
+	if (_periodicalsDialog) {
+    	$("#replikator_periodical_started_ok").hide();
+    	$("#replikator_periodical_started_failed").hide();
+    	$("#replikator_periodical_started_waiting").show();
+    	_periodicalsDialog.dialog('open');
+	} else {
+    	$("#replikator_periodical_started_waiting").show();
+    	_periodicalsDialog = $("#replikator_periodical_started").dialog({
+	        bgiframe: true,
+	        width: 400,
+	        height: 100,
+	        modal: true,
+	        title: "Replikace .. ",
+	        buttons: {
+	            "Close": function() {
+	                $(this).dialog("close"); 
+	            } 
+	        } 
+	    });
+	}
+
+	_startProcess(url);
+}
+
+/**
+ * Reindexace
+ * @param level
+ * @return
+ */
+var _reindexDialog = null;
+function reindex(level) {
+	var pid = $("#tabs_"+level).attr('pid');
+	var url = "lr?action=start&def=reindex&out=text&params=params=-action,fromKrameriusModel,-pid,"+pid;
+	if (_reindexDialog) {
+    	$("#reindex_started_ok").hide();
+    	$("#reindex_started_failed").hide();
+    	$("#reindex_started_waiting").show();
+    	_reindexDialog.dialog('open');
+	} else {
+    	$("#reindex_started_waiting").show();
+    	_reindexDialog = $("#reindex_started").dialog({
+	        bgiframe: true,
+	        width: 400,
+	        height: 100,
+	        modal: true,
+	        title: "Reindexace ... ",
+	        buttons: {
+	            "Close": function() {
+	                $(this).dialog("close"); 
+	            } 
+	        } 
+	    });
+	}
+
+	_startProcess(url);
+}
+
+function _startProcess(url) {
+	$.get(url, function(data) {
+		var action  = _actions[data];
+		if (action) {
+			setTimeout(action, 3000);
+		} else  {
+			alert("Neznama data "+data);
+		}
+        return true;
+	});
+}
 
 
 /**
@@ -93,17 +230,18 @@ var _actions=function() {
  * @param level
  * @return
  */
+var _staticExportDialog; //cekaci dialog na spusteni procesu
 function generateStatic(level, exportType){
 	var pid = $("#tabs_"+level).attr('pid');
 	var url = "lr?action=start&def="+exportType+"&out=text&params="+pid;
-	if (_waitingDialog) {
+	if (_staticExportDialog) {
     	$("#process_started_ok").hide();
     	$("#process_started_failed").hide();
     	$("#process_started_waiting").show();
-    	_waitingDialog.dialog('open');
+    	_staticExportDialog.dialog('open');
 	} else {
     	$("#process_started_waiting").show();
-		_waitingDialog = $("#process_started").dialog({
+		_staticExportDialog = $("#process_started").dialog({
 	        bgiframe: true,
 	        width: 400,
 	        height: 100,
@@ -116,32 +254,45 @@ function generateStatic(level, exportType){
 	        } 
 	    });
 	}
-
-	$.get(url, function(data) {
-		var action  = _actions[data];
-		if (action) {
-			setTimeout(action, 3000);
-		}
-                return true;
-	});
-        
+	_startProcess(url);
 }
 
-/**
- * Nastavuje stav procesu na ok
- * @return
- */
-function _showProcessStarted() {
+function _statitExportStarted() {
 	$("#process_started_waiting").css("display","none");
 	$("#process_started_ok").css("display","block");
 }
-/**
- * Nastavuje stav procesu na fail
- * @return
- */
-function _showProcessFailed() {
+function _staticExportFailed() {
 	$("#process_started_waiting").css("display","none");
 	$("#process_started_failed").css("display","block");
 }
 
+function _reindexStarted() {
+	$("#reindex_started_waiting").css("display","none");
+	$("#reindex_started_ok").css("display","block");
+}
 
+function _reindexFailed() {
+	$("#reindex_started_waiting").css("display","none");
+	$("#reindex_started_ok").css("display","block");
+}
+
+
+function _replikatorMonographStarted() {
+	$("#replikator_monograph_started_waiting").css("display","none");
+	$("#replikator_monograph_started_ok").css("display","block");
+}
+
+function _replikatorMonographFailed() {
+	$("#replikator_monograph_started_waiting").css("display","none");
+	$("#replikator_monograph_started_ok").css("display","block");
+}
+
+function _replikatorPeriodicalStarted() {
+	$("#replikator_periodical_started_waiting").css("display","none");
+	$("#replikator_periodical_started_ok").css("display","block");
+}
+
+function _replikatorPeriodicalFailed() {
+	$("#replikator_periodical_started_waiting").css("display","none");
+	$("#replikator_periodical_started_ok").css("display","block");
+}
