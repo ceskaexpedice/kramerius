@@ -18,8 +18,9 @@ public class ProgramArguments {
     public Boolean updateKey = false;
     public int maxDocuments = 0;
     public int docId;
+    public String title="";
     String action;
-    String uuid;
+    String value;
     String indexDocXslt;
 
     public ProgramArguments() {
@@ -27,37 +28,14 @@ public class ProgramArguments {
 
     public Boolean parse(String[] args) {
         try {
-            int total = args.length;
-            int i = 0;
-            while (i < total) {
-                if (args[i].equalsIgnoreCase("-fullindex")) {
-                    fullIndex = true;
-                } else if (args[i].equalsIgnoreCase("-cfgFile")) {
-                    i++;
-                    configFile = args[i];
-                } else if (args[i].equalsIgnoreCase("-log4jFile")) {
-                    i++;
-                    log4jFile = args[i];
-                } else if (args[i].equalsIgnoreCase("-action")) {
-                    i++;
-                    action = args[i];
-                } else if (args[i].equalsIgnoreCase("-pid")) {
-                    i++;
-                    if(!args[i].startsWith("uuid:")) uuid = "uuid:";
-                    uuid += args[i];
-                } else if (args[i].equalsIgnoreCase("-maxDocuments")) {
-                    i++;
-                    maxDocuments = Integer.parseInt(args[i]);
-                } else if (args[i].equalsIgnoreCase("-from")) {
-                    i++;
-                    from = args[i];
-                } else if (args[i].equalsIgnoreCase("-to")) {
-                    i++;
-                    to = args[i];
-                }
-
-                i++;
-            }
+            if(args.length<5) return false;
+            configFile = args[0];
+            log4jFile = args[1];
+            action = args[2];
+            value = args[3];
+            for(int i=4;i<args.length;i++)
+            title += args[i];
+            
             if (configFile.equals("")) {
                 return false;
             } else {

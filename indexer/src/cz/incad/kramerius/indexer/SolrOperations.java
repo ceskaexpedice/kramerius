@@ -40,7 +40,10 @@ import dk.defxws.fedoragsearch.server.GenericOperationsImpl;
 import dk.defxws.fedoragsearch.server.URIResolverImpl;
 import dk.defxws.fedoragsearch.server.errors.GenericSearchException;
 
+import fedora.client.FedoraClient;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Properties;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -108,10 +111,11 @@ public class SolrOperations {
             } else if ("optimize".equals(action)) {
                 optimize(indexName, resultXml);
             } else if ("fromKrameriusModel".equals(action)) {
+                if(!value.startsWith("uuid:")) value = "uuid:" + value;
                 fromKrameriusModel(value, repositoryName, indexName, resultXml, indexDocXslt, requestParams);
+            }else if ("krameriusModel".equals(action)) {
+                krameriusModel(value, repositoryName, indexName, resultXml, indexDocXslt, requestParams);
             }
-
-
 
         } catch (Exception ex) {
             logger.error(ex);
@@ -230,6 +234,68 @@ public class SolrOperations {
     XPathExpression expr;
     Document contentDom;
 
+    private void krameriusModel(
+            String model,
+            String repositoryName,
+            String indexName,
+            StringBuffer resultXml,
+            String indexDocXslt,
+            ArrayList<String> requestParams){
+    try {
+            /*
+            select $object from <#ri> 
+            where  $object <fedora-model:hasModel> <info:fedora/model:monograph> 
+            order by $object
+            limit 100 
+            offset 0
+             */
+        logger.info("Indexing from kramerius model: " + model);
+            String query = "select $object from <#ri> " +
+                    "where $object <fedora-model:hasModel> <info:fedora/model:" + model + ">  " +
+                    "order by $object  " +
+                    "limit 100  " +
+                    "offset 0 ";
+            
+            FedoraClient client = GenericOperationsImpl.getFedoraClient(repositoryName, config.getProperty("FedoraSoap"),
+                config.getProperty("FedoraUser"),
+                config.getProperty("FedoraPass"));
+            Map tMap = new HashMap();
+            tMap.put("query", query);
+            tMap.put("format", "TSV");
+            tMap.put("lang", "itql");
+            Map m;
+            org.trippi.TupleIterator tuples = client.getTuples(tMap);
+            while(tuples.hasNext()){
+                String pid = tuples.next().get("object").toString();
+                 //logger.info(pid);
+                 fromKrameriusModel(pid.split("/")[1], repositoryName, indexName, resultXml, indexDocXslt, requestParams);
+            }
+//            String[] names = client.getTuples(tMap).names();
+//            for(String name:names){
+//                logger.info(name);
+//            }
+            if(true) return;
+            
+            String urlStr = config.getProperty("FedoraResourceIndex") + "?type=tuples&flush=true&lang=itql&format=TSV&distinct=off&stream=off" +
+                    "&query=" + java.net.URLEncoder.encode(query, "UTF-8");
+            //int lines = 0;
+                
+            java.net.URL url = new java.net.URL(urlStr);
+
+            java.io.BufferedReader in = new java.io.BufferedReader(new java.io.InputStreamReader(url.openStream()));
+            String inputLine = in.readLine();
+            while ((inputLine = in.readLine()) != null) {
+                //out.println(inputLine);
+                //sendToIndex(inputLine.split("/")[1]);
+            
+                fromKrameriusModel(inputLine.split("/")[1], repositoryName, indexName, resultXml, indexDocXslt, requestParams);
+            }
+            in.close();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
     private void fromKrameriusModel(
             String pid,
             String repositoryName,

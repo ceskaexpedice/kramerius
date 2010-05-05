@@ -74,7 +74,7 @@ public class GenericOperationsImpl {
     protected String dsText;
     protected String[] params = null;
 
-    private static FedoraClient getFedoraClient(
+    public static FedoraClient getFedoraClient(
             String repositoryName,
             String fedoraSoap,
             String fedoraUser,
@@ -147,6 +147,7 @@ public class GenericOperationsImpl {
             System.setProperty("javax.net.ssl.trustStorePassword", trustStorePass);
         }
         FedoraClient client = getFedoraClient(repositoryName, fedoraSoap, fedoraUser, fedoraPass);
+        
         try {
             return client.getAPIM();
         } catch (Exception e) {

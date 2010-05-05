@@ -63,7 +63,7 @@ public class Indexer {
             DateFormat formatter = new SimpleDateFormat("");
             formatter.setTimeZone(TimeZone.getTimeZone("GMT"));
             String to = formatter.format(date);
-            logger.info("Current index time: " + to);
+            logger.info("Current index time: " + date);
 
             String from = "";
             String updateTimeFile = "time";
@@ -132,7 +132,6 @@ public class Indexer {
     private boolean update(String from, String to) {
         try {
             logger.info("Update index...");
-            logger.info("Indexing from: " + from);
             doUpdate("yo");
             return true;
         } catch (Exception ex) {
@@ -162,7 +161,7 @@ public class Indexer {
         params[2] = "TIMEUSEDMS";
         params[3] = "";
         try {
-            resultXml = new StringBuffer(updateIndex(user, arguments.action, arguments.uuid, arguments.indexDocXslt));
+            resultXml = new StringBuffer(updateIndex(user, arguments.action, arguments.value, arguments.indexDocXslt));
 
         } catch (java.rmi.RemoteException e) {
             resultXml = new StringBuffer("<resultPage>");
@@ -182,7 +181,7 @@ public class Indexer {
         GenericOperationsImpl ops = new GenericOperationsImpl();
         ops.init(user, "", conf);
         ArrayList<String> params = new ArrayList<String>();
-
+        //System.out.println(value);
         String result = ops.updateIndex(action, value, repositoryName, indexName, indexDocXslt, resultPageXslt, params);
         return result;
     }
