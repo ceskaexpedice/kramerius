@@ -80,7 +80,7 @@
 	<div id="enumerator_started_waiting" style="display:none;margin: 16px; font-family: sans-serif; font-size: 10px; ">
     	<table>
     		<tr><td align="center"><img src="img/loading2.gif" height="16px" width="16px"/></td></tr>
-			<tr><td align="center">Prosím vyčkejte, spouští se import enumerator.</td></tr>
+			<tr><td align="center">Prosím vyčkejte, spouští se proces enumerator.</td></tr>
     	</table>
 	</div>
 	<div id="enumerator_started_ok" style="display:none;margin: 12px;">
