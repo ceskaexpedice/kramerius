@@ -303,7 +303,7 @@ public class MonographConvertor extends BaseConvertor {
         for (MonographPage page : unit.getMonographPage()) {
             this.convertPage(page, visibility);
 
-            String ppid = uuid(page.getUniqueIdentifier());
+            String ppid = pid(uuid(page.getUniqueIdentifier()));
             re.addRelation(RelsExt.HAS_PAGE, ppid, false);
             if (page.getIndex() != null) {
                 pageIdMap.put(page.getIndex(), ppid);
@@ -314,7 +314,7 @@ public class MonographConvertor extends BaseConvertor {
 
         for (MonographComponentPart part : unit.getMonographComponentPart()) {
             this.convertPart(part, pageIdMap, visibility);
-            re.addRelation(RelsExt.HAS_INT_COMP_PART, uuid(part.getUniqueIdentifier()), false);
+            re.addRelation(RelsExt.HAS_INT_COMP_PART, pid(uuid(part.getUniqueIdentifier())), false);
         }
 
         DublinCore dc = this.createMonographDublinCore(pid, title, unit.getCreator(), unit.getPublisher(), unit.getContributor());
