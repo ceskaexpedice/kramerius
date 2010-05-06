@@ -235,6 +235,24 @@
 			<artifactId>kramerius-static-export</artifactId>
 			<version>0.0.1-SNAPSHOT</version>
 		</dependency>
+    
+        
+    
+        
+        <!-- dlouhotrvajici indexer -->
+        <dependency>
+            <groupId>cz.incad.kramerius</groupId>
+            <artifactId>kramerius-indexer</artifactId>
+            <version>0.0.1-SNAPSHOT</version>
+        </dependency>
+    
+        <!-- dlouhotrvajici import dat -->
+        <dependency>
+            <groupId>kramerius4import</groupId>
+            <artifactId>kramerius4import</artifactId>
+            <version>0.0.1-SNAPSHOT</version>
+        </dependency>
+		
 	</dependencies>
 
 	<build>
