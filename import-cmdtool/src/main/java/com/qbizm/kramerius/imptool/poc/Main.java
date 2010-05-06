@@ -236,6 +236,21 @@ public class Main {
             if ("http://www.loc.gov/mods/v3".equals(namespaceUri)) {
                 return "mods";
             }
+            if ("http://purl.org/dc/elements/1.1/".equals(namespaceUri)){
+                return "dc";
+            }
+            if ("http://www.openarchives.org/OAI/2.0/oai_dc/".equals(namespaceUri)){
+                return "oai_dc";
+            }
+            if ("info:fedora/fedora-system:def/model#".equals(namespaceUri)){
+                return "fedora-model";
+            }
+            if ("http://www.w3.org/1999/02/22-rdf-syntax-ns#".equals(namespaceUri)){
+                return "rdf";
+            }
+            if ("http://www.nsdl.org/ontologies/relationships#".equals(namespaceUri)){
+                return "kramerius";
+            }
             return suggestion;
         }
 

@@ -144,6 +144,8 @@ public abstract class BaseConvertor {
 
     public static final int PFLAG_INHERIT = 3;
 
+    
+    private static final String NS_DC = "http://purl.org/dc/elements/1.1/";
     /**
      * Atributy
      */
@@ -264,6 +266,13 @@ public abstract class BaseConvertor {
         parent.appendChild(e);
         return e;
     }
+    
+    private Element appendChildNS(Document d, Node parent,String prefix, String name, String value) {
+        Element e = d.createElementNS(prefix,name);
+        e.setTextContent(value);
+        parent.appendChild(e);
+        return e;
+    }
 
     /**
      * Ulozeni digitalniho objektu
@@ -333,52 +342,52 @@ public abstract class BaseConvertor {
         // "xsi:schemaLocation",
         // "http://www.openarchives.org/OAI/2.0/oai_dc/ "
         // + "http://www.openarchives.org/OAI/2.0/oai_dc.xsd");
-        root.setAttribute("xmlns:dc", "http://purl.org/dc/elements/1.1/");
+        root.setAttribute("xmlns:dc", NS_DC);
 
-        this.appendChild(document, root, "dc:title", dc.getTitle());
+        this.appendChildNS(document, root,NS_DC , "dc:title", dc.getTitle());
 
         if (dc.getCreator() != null) {
             for (String creator : dc.getCreator()) {
-                this.appendChild(document, root, "dc:creator", creator);
+                this.appendChildNS(document, root, NS_DC, "dc:creator", creator);
             }
         }
         if (dc.getPublisher() != null) {
             for (String publisher : dc.getPublisher()) {
-                this.appendChild(document, root, "dc:publisher", publisher);
+                this.appendChildNS(document, root,NS_DC, "dc:publisher", publisher);
             }
         }
         if (dc.getContributor() != null) {
             for (String contributor : dc.getContributor()) {
-                this.appendChild(document, root, "dc:contributor", contributor);
+                this.appendChildNS(document, root,NS_DC, "dc:contributor", contributor);
             }
         }
         if (dc.getIdentifier() != null) {
             for (String identifier : dc.getIdentifier()) {
-                this.appendChild(document, root, "dc:identifier", identifier);
+                this.appendChildNS(document, root,NS_DC, "dc:identifier", identifier);
             }
         }
         if (dc.getSubject() != null) {
             for (String subject : dc.getSubject()) {
-                this.appendChild(document, root, "dc:subject", subject);
+                this.appendChildNS(document, root,NS_DC, "dc:subject", subject);
             }
         }
         if (dc.getDate() != null) {
-            this.appendChild(document, root, "dc:date", dc.getDate());
+            this.appendChildNS(document, root,NS_DC, "dc:date", dc.getDate());
         }
         if (dc.getLanguage() != null) {
-            this.appendChild(document, root, "dc:language", dc.getLanguage());
+            this.appendChildNS(document, root,NS_DC, "dc:language", dc.getLanguage());
         }
         if (dc.getDescription() != null) {
-            this.appendChild(document, root, "dc:description", dc.getDescription());
+            this.appendChildNS(document, root, NS_DC, "dc:description", dc.getDescription());
         }
         if (dc.getFormat() != null) {
-            this.appendChild(document, root, "dc:format", dc.getFormat());
+            this.appendChildNS(document, root,NS_DC, "dc:format", dc.getFormat());
         }
         if (dc.getType() != null) {
-            this.appendChild(document, root, "dc:type", dc.getType());
+            this.appendChildNS(document, root, NS_DC,"dc:type", dc.getType());
         }
         if (dc.getRights() != null) {
-            this.appendChild(document, root, "dc:rights", dc.getRights());
+            this.appendChildNS(document, root, NS_DC, "dc:rights", dc.getRights());
         }
 
         xmlContent.getAny().add(root);
@@ -679,6 +688,8 @@ public abstract class BaseConvertor {
         Image scaledImage = img.getScaledInstance((int) nWidth, nHeight, Image.SCALE_DEFAULT);
         return scaledImage;
     }
+    
+    private static final String NS_ADM =  "http://www.qbizm.cz/kramerius-fedora/image-adm-description";
 
     private DatastreamType createImageMetaStream(String id, ImageMetaData data) throws ServiceException {
         DatastreamType stream = new DatastreamType();
@@ -698,22 +709,22 @@ public abstract class BaseConvertor {
 
         Document document = docBuilder.newDocument();
 
-        Element root = document.createElementNS("http://www.qbizm.cz/kramerius-fedora/image-adm-description", "adm:Description");
+        Element root = document.createElementNS(NS_ADM, "adm:Description");
 
         if (!StringUtils.isEmpty(data.getUrn())) {
-            this.appendChild(document, root, "adm:URN", data.getUrn());
+            this.appendChildNS(document, root,NS_ADM, "adm:URN", data.getUrn());
         }
         if (!StringUtils.isEmpty(data.getSici())) {
-            this.appendChild(document, root, "adm:SICI", data.getSici());
+            this.appendChildNS(document, root,NS_ADM, "adm:SICI", data.getSici());
         }
         if (!StringUtils.isEmpty(data.getScanningDevice())) {
-            this.appendChild(document, root, "adm:ScanningDevice", data.getScanningDevice());
+            this.appendChildNS(document, root,NS_ADM, "adm:ScanningDevice", data.getScanningDevice());
         }
         if (!StringUtils.isEmpty(data.getScanningParameters())) {
-            this.appendChild(document, root, "adm:ScanningParameters", data.getScanningParameters());
+            this.appendChildNS(document, root,NS_ADM, "adm:ScanningParameters", data.getScanningParameters());
         }
         if (!StringUtils.isEmpty(data.getOtherImagingInformation())) {
-            this.appendChild(document, root, "adm:OtherImagingInformation", data.getOtherImagingInformation());
+            this.appendChildNS(document, root,NS_ADM, "adm:OtherImagingInformation", data.getOtherImagingInformation());
         }
 
         xmlContent.getAny().add(root);
@@ -722,6 +733,9 @@ public abstract class BaseConvertor {
         return stream;
     }
 
+    private static final String NS_RDF = "http://www.w3.org/1999/02/22-rdf-syntax-ns#";
+    private static final String NS_FEDORA = "info:fedora/fedora-system:def/model#";
+    private static final String NS_KRAMERIUS = "http://www.nsdl.org/ontologies/relationships#";
     /**
      * Vytvori rels-ext datastream
      * 
@@ -748,19 +762,22 @@ public abstract class BaseConvertor {
 
         Document document = docBuilder.newDocument();
 
-        Element root = document.createElementNS("http://www.w3.org/1999/02/22-rdf-syntax-ns#", "rdf:RDF");
-        root.setAttribute("xmlns:fedora-model", "info:fedora/fedora-system:def/model#");
-        root.setAttribute("xmlns:" + CUSTOM_MODEL_PREFIX, "http://www.nsdl.org/ontologies/relationships#");
+        Element root = document.createElementNS(NS_RDF, "rdf:RDF");
+        
+        root.setAttribute("xmlns:fedora-model", NS_FEDORA);
+        root.setAttribute("xmlns:" + CUSTOM_MODEL_PREFIX, NS_KRAMERIUS);
 
-        Element description = this.appendChild(document, root, "rdf:Description", "");
-        description.setAttribute("rdf:about", "info:fedora/" + relsExt.getPid());
+        Element description = this.appendChildNS(document, root,NS_RDF, "rdf:Description", "");
+        description.setAttributeNS(NS_RDF, "rdf:about", "info:fedora/" + relsExt.getPid());
 
         String modelPrefix;
+        String relNs;
         for (RelsExt.Relation rel : relsExt.getRelations()) {
             modelPrefix = (RelsExt.HAS_MODEL.equals(rel.getKey()) ? "fedora-model" : CUSTOM_MODEL_PREFIX);
-            Element relElement = this.appendChild(document, description, modelPrefix + ":" + rel.getKey(), rel.isLiteral() ? rel.getId() : "");
+            relNs = (RelsExt.HAS_MODEL.equals(rel.getKey()) ? NS_FEDORA : NS_KRAMERIUS);
+            Element relElement = this.appendChildNS(document, description,relNs, modelPrefix + ":" + rel.getKey(), rel.isLiteral() ? rel.getId() : "");
             if (!rel.isLiteral()) {
-                relElement.setAttribute("rdf:resource", "info:fedora/" + rel.getId());
+                relElement.setAttributeNS(NS_RDF,"rdf:resource", "info:fedora/" + rel.getId());
             }
         }
 
