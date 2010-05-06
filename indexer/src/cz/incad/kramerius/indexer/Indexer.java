@@ -35,7 +35,7 @@ import java.util.Properties;
 import java.util.TimeZone;
 import java.util.zip.ZipOutputStream;
 import org.apache.log4j.Logger;
-import org.apache.log4j.PropertyConfigurator;
+//import org.apache.log4j.PropertyConfigurator;
 
 public class Indexer {
 
@@ -50,7 +50,7 @@ public class Indexer {
 
     public Indexer(ProgramArguments args) throws Exception {
         arguments = args;
-        PropertyConfigurator.configure(arguments.log4jFile);
+        //PropertyConfigurator.configure(arguments.log4jFile);
         //conf = new Configuration(arguments.configFile);
         conf.load(new FileInputStream(arguments.configFile));
         logger.info("Indexer initialized");
