@@ -7,6 +7,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.logging.Level;
 
 import javax.imageio.ImageIO;
 import javax.servlet.ServletOutputStream;
@@ -15,6 +16,7 @@ import javax.servlet.http.HttpServletResponse;
 import javax.swing.JPanel;
 import javax.xml.xpath.XPathExpressionException;
 
+import org.omg.PortableServer.POA;
 import org.w3c.dom.Document;
 
 import com.google.inject.Inject;
@@ -30,6 +32,9 @@ import cz.incad.utils.IKeys;
 
 public class AbstracThumbnailServlet extends GuiceServlet {
 
+	public static final java.util.logging.Logger LOGGER = java.util.logging.Logger
+			.getLogger(AbstracThumbnailServlet.class.getName());
+	
 	public static final String SCALE_PARAMETER = "scale";
 	public static final String SCALED_HEIGHT_PARAMETER = "scaledHeight";
 	public static final String OUTPUT_FORMAT_PARAMETER="outputFormat";
@@ -84,7 +89,7 @@ public class AbstracThumbnailServlet extends GuiceServlet {
 		
 	}
 	
-	protected Image rawFullImage(String uuid) throws IOException, MalformedURLException, XPathExpressionException {
+	protected Image rawFullImage(String uuid, HttpServletRequest request) throws IOException, MalformedURLException, XPathExpressionException {
 		String mimetype = fedoraAccess.getImageFULLMimeType(uuid);
 		if (mimetype.equals(OutputFormats.JPEG.getMimeType())) {
 			InputStream imageFULL = fedoraAccess.getImageFULL(uuid);
@@ -92,7 +97,7 @@ public class AbstracThumbnailServlet extends GuiceServlet {
 		} else if ((mimetype.equals(OutputFormats.DJVU.getMimeType())) ||
 				  (mimetype.equals(OutputFormats.VNDDJVU.getMimeType())) ||
 				  (mimetype.equals(OutputFormats.XDJVU.getMimeType()))){
-			String imageUrl = getDJVUServlet(uuid);
+			String imageUrl = getDJVUServlet(uuid, request);
 	        com.lizardtech.djvu.Document doc = new com.lizardtech.djvu.Document(new URL(imageUrl));
 	        doc.setAsync(true);
 	        DjVuPage[] p = new DjVuPage[1];
@@ -123,9 +128,16 @@ public class AbstracThumbnailServlet extends GuiceServlet {
 		return configuration.getThumbServletUrl()+"?scaledHeight=" + KConfiguration.getKConfiguration().getScaledHeight() + "&uuid="+uuid+"&rawdata=true";
 	}
 
-	protected String getDJVUServlet(String uuid) {
-		String imagePath = this.configuration.getDJVUServletUrl()+"?"+IKeys.UUID_PARAMETER+"="+uuid+"&outputFormat=RAW";
-		return imagePath;
+	protected String getDJVUServlet(String uuid, HttpServletRequest request) {
+		//"dvju"
+		try {
+			URL url = new URL(request.getRequestURL().toString());
+			String imagePath = url.getProtocol()+"://"+url.getHost()+":"+url.getPort()+"/"+url.getPath()+"?"+IKeys.UUID_PARAMETER+"="+uuid+"&outputFormat=RAW";
+			return imagePath;
+		} catch (MalformedURLException e) {
+			LOGGER.log(Level.SEVERE, e.getMessage(), e);
+			return "<no url>";
+		}
 	}
 	protected Image scaleByPercent(Image img, Rectangle pageBounds, double percent) {
 		if ((percent <= 0.95) || (percent >= 1.15)) {
