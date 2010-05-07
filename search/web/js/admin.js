@@ -68,11 +68,17 @@ function modifyProcessDialogData(ordering, offset, size, type) {
 
 function killAndRefresh(url,ordering, offset, size, type) {
 	$.get(url, function(fdata) {
-		var refreshurl = "dialogs/_processes_data.jsp?ordering="+ordering+"&offset="+offset+"&size="+size+"&type="+type;
-		$.get(refreshurl, function(sdata) {
-			$("#processes").html(sdata);
-		});
+		refreshProcesses(ordering, offset, size, type);
 	});
+}
+
+function refreshProcesses(ordering, offset, size, type) {
+	alert("Refresh ... ");
+	var refreshurl = "dialogs/_processes_data.jsp?ordering="+ordering+"&offset="+offset+"&size="+size+"&type="+type;
+	$.get(refreshurl, function(sdata) {
+		$("#processes").html(sdata);
+	});
+	
 }
 
 /**
