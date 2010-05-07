@@ -50,11 +50,20 @@
 %>
 
 <%@page import="cz.incad.kramerius.processes.TypeOfOrdering"%>
-<div> ${processView.prevAHREF}  ${processView.nextAHREF}</div>
+<div> 
+<table width="100%">
+<tr>
+	<td width="80%">${processView.prevAHREF} &emsp;  ${processView.nextAHREF}</td> 
+	<td style="text-align: center;"><a href="javascript:refreshProcesses('<%= ordering %>',<%= offset %>,<%= size %>,'<%= type %>');"> <img src="img/refresh.png"></img> refresh   </a></td>
+</tr>
+</table>
+<!-- 
+${processView.prevAHREF}  ${processView.nextAHREF}
+ -->
+</div>
 <table width="100%">
 	<thead style="border-bottom: dashed 1px;background-image:url('img/bg_processheader.png');
-	 		      background-repeat:  repeat-x; 
-				   " >
+	 		      background-repeat:  repeat-x;" >
 		<tr>
 			<td><strong>${processView.nameOrdering}</strong></td>
 			<td><strong>${processView.pidOrdering}</strong></td>
