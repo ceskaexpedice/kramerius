@@ -66,7 +66,7 @@ public class FullImageServlet extends AbstracThumbnailServlet {
 				resp.getWriter().print(type);
 			// pozadavek na zmenseni (prsou?)
 			} else if (outputFormat == null) {
-				Image image = rawFullImage(uuid);
+				Image image = rawFullImage(uuid, req);
 				Rectangle rectangle = new Rectangle(image.getWidth(null), image.getHeight(null));
 				Image scale = scale(image, rectangle, req);
 				if (scale != null) {
@@ -82,7 +82,7 @@ public class FullImageServlet extends AbstracThumbnailServlet {
 					resp.setContentType(mimeType);
 					copyStreams(is, resp.getOutputStream());
 				} else {
-					Image rawImage = rawFullImage(uuid);
+					Image rawImage = rawFullImage(uuid, req);
 					writeImage(resp, rawImage, outputFormat);
 				}
 			}
