@@ -132,6 +132,7 @@ public class GwtViewers implements EntryPoint, ClickHandler, ConfigurationChange
 				}
 			}
 			if (dataPosition != -1) {
+				
 				int windowStart = this.fxPane.getRotatePool().getPointer();
 				int windowStop = createWindowStop(windowStart, getNumberOfImages());
 				message("windowStart, windowStop "+windowStart+","+windowStop);
@@ -293,6 +294,7 @@ public class GwtViewers implements EntryPoint, ClickHandler, ConfigurationChange
 
 	
 	public void moveLeft() {
+
 		int previousModulo = eventProcessor.getModulo();
 		eventProcessor.setModulo(1);
 		double prevValue = this.sliderValue.getValue();
@@ -305,6 +307,12 @@ public class GwtViewers implements EntryPoint, ClickHandler, ConfigurationChange
 	}
 
 	public void moveRight() {
+		int windowStart = this.fxPane.getRotatePool().getPointer();
+		int max = DataHandler.get().getMax();
+		int wsMax = max - getNumberOfImages();
+		if (windowStart >= wsMax) return;
+
+		
 		int previousModulo = eventProcessor.getModulo();
 		eventProcessor.setModulo(1);
 		double prevValue = this.sliderValue.getValue();
