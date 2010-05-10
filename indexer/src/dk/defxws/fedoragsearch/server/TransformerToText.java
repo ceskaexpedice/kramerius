@@ -24,8 +24,6 @@ import org.pdfbox.pdfparser.PDFParser;
 import org.pdfbox.pdmodel.PDDocument;
 import org.pdfbox.util.PDFTextStripper;
 
-import dk.defxws.fedoragsearch.server.errors.GenericSearchException;
-
 /**
  * performs transformations from formatted documents to text
  * 
@@ -47,7 +45,7 @@ public class TransformerToText {
      * @throws TransformerConfigurationException, TransformerException.
      */
     public StringBuffer getText(byte[] doc, String mimetype)
-            throws GenericSearchException, Exception {
+            throws Exception, Exception {
         if (mimetype.equals("text/plain")) {
             return getTextFromText(doc);
         } else if (mimetype.equals("plain/text")) {
@@ -71,17 +69,17 @@ public class TransformerToText {
     /**
      * 
      *
-     * @throws GenericSearchException.
+     * @throws Exception.
      */
     private StringBuffer getTextFromText(byte[] doc)
-            throws GenericSearchException {
+            throws Exception {
         /*
         try{
         String docString = new String(doc, "UTF-8");
         logger.debug("docString: " + docString);
         return new StringBuffer(docString);
         }catch (java.io.UnsupportedEncodingException e) {
-        throw new GenericSearchException(e.toString());
+        throw new Exception(e.toString());
         }
          */
         StringBuffer docText = new StringBuffer();
@@ -95,7 +93,7 @@ public class TransformerToText {
                 c = isr.read();
             }
         } catch (Exception e) {
-            throw new GenericSearchException(e.toString());
+            throw new Exception(e.toString());
 
         }
         return docText;
@@ -104,10 +102,10 @@ public class TransformerToText {
     /**
      * 
      *
-     * @throws GenericSearchException.
+     * @throws Exception.
      */
     private StringBuffer getTextFromXML(byte[] doc)
-            throws GenericSearchException, Exception {
+            throws Exception, Exception {
         InputStreamReader isr = new InputStreamReader(new ByteArrayInputStream(doc));
         StringBuffer docText = (new GTransformer()).transform(
                 "config/textFromXml",
@@ -119,10 +117,10 @@ public class TransformerToText {
     /**
      * 
      *
-     * @throws GenericSearchException.
+     * @throws Exception.
      */
     private StringBuffer getTextFromHTML(byte[] doc)
-            throws GenericSearchException {
+            throws Exception {
         StringBuffer docText = new StringBuffer();
         HTMLParser htmlParser = new HTMLParser(new ByteArrayInputStream(doc));
         try {
@@ -133,7 +131,7 @@ public class TransformerToText {
                 c = isr.read();
             }
         } catch (IOException e) {
-            throw new GenericSearchException(e.toString());
+            throw new Exception(e.toString());
         }
         return docText;
     }
@@ -141,10 +139,10 @@ public class TransformerToText {
     /**
      * 
      *
-     * @throws GenericSearchException.
+     * @throws Exception.
      */
     private StringBuffer getTextFromPDF(byte[] doc)
-            throws GenericSearchException {
+            throws Exception {
         StringBuffer docText = new StringBuffer();
         COSDocument cosDoc = null;
         PDDocument pdDoc = null;
@@ -153,7 +151,7 @@ public class TransformerToText {
             cosDoc = parseDocument(new ByteArrayInputStream(doc));
         } catch (IOException e) {
             closeCOSDocument(cosDoc);
-            throw new GenericSearchException(
+            throw new Exception(
                     "Cannot parse PDF document", e);
         }
 
@@ -165,15 +163,15 @@ public class TransformerToText {
             }
         } catch (CryptographyException e) {
             closeCOSDocument(cosDoc);
-            throw new GenericSearchException(
+            throw new Exception(
                     "Cannot decrypt PDF document", e);
         } catch (InvalidPasswordException e) {
             closeCOSDocument(cosDoc);
-            throw new GenericSearchException(
+            throw new Exception(
                     "Cannot decrypt PDF document", e);
         } catch (IOException e) {
             closeCOSDocument(cosDoc);
-            throw new GenericSearchException(
+            throw new Exception(
                     "Cannot decrypt PDF document", e);
         }
 
@@ -183,7 +181,7 @@ public class TransformerToText {
             pdDoc = new PDDocument(cosDoc);
             docText = new StringBuffer(stripper.getText(pdDoc));
         } catch (IOException e) {
-            throw new GenericSearchException(
+            throw new Exception(
                     "Cannot parse PDF document", e);
         } finally {
             closeCOSDocument(cosDoc);

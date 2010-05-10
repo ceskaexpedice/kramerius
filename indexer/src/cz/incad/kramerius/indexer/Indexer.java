@@ -14,16 +14,9 @@ import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
-import java.util.Iterator;
-import javax.security.auth.Subject;
 import java.io.FileOutputStream;
 import java.io.FileReader;
-import java.io.IOException;
-import java.io.InputStream;
 import java.io.OutputStreamWriter;
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.SQLException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 
@@ -43,7 +36,6 @@ public class Indexer {
     private ProgramArguments arguments;
     //public static Configuration conf;
     public static Properties conf = new Properties();
-    private Connection conn;
     public static boolean hasData = false;
     public static String outFilename = "outfile.zip";
     public static ZipOutputStream outZip;
@@ -149,25 +141,13 @@ public class Indexer {
     private void doUpdate(String user) throws Exception {
         Date startTime = new Date();
 
-        
-        StringBuffer resultXml = new StringBuffer("<resultPage/>");
         repositoryName = "";
         indexName = "";
         resultPageXslt = "";
         restXslt = "";
-        String[] params = new String[8];
-        params[0] = "ERRORMESSAGE";
-        params[1] = "";
-        params[2] = "TIMEUSEDMS";
-        params[3] = "";
         try {
-            resultXml = new StringBuffer(updateIndex(user, arguments.action, arguments.value, arguments.indexDocXslt));
-
+            updateIndex(user, arguments.action, arguments.value, arguments.indexDocXslt);
         } catch (java.rmi.RemoteException e) {
-            resultXml = new StringBuffer("<resultPage>");
-            resultXml.append("<error><message><![CDATA[" + e.getMessage() + "]]></message></error>");
-            resultXml.append("</resultPage>");
-            params[1] = e.getMessage();
             logger.error(e);
             e.printStackTrace();
         }
@@ -176,14 +156,14 @@ public class Indexer {
         logger.info(timeusedms);
     }
 
-    public String updateIndex(String user, String action, String value, String indexDocXslt)
+    public void updateIndex(String user, String action, String value, String indexDocXslt)
             throws java.rmi.RemoteException, Exception {
         GenericOperationsImpl ops = new GenericOperationsImpl();
         ops.init(user, "", conf);
         ArrayList<String> params = new ArrayList<String>();
         //System.out.println(value);
-        String result = ops.updateIndex(action, value, repositoryName, indexName, indexDocXslt, resultPageXslt, params);
-        return result;
+        ops.updateIndex(action, value, repositoryName, indexName, indexDocXslt, resultPageXslt, params);
+        
     }
 
     private String formatElapsedTime(long timeInMiliseconds) {

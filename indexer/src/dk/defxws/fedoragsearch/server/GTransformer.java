@@ -29,10 +29,6 @@ import javax.xml.transform.stream.StreamSource;
 
 import org.apache.log4j.Logger;
 
-import dk.defxws.fedoragsearch.server.errors.ConfigException;
-import dk.defxws.fedoragsearch.server.errors.GenericSearchException;
-import java.io.FileInputStream;
-
 /**
  * performs the stylesheet transformations
  * 
@@ -64,8 +60,9 @@ public class GTransformer {
         try {
             InputStream stylesheet;
             try {
-                stylesheet = new FileInputStream(xsltPathName);
-            } catch (FileNotFoundException ex) {
+                //stylesheet = new FileInputStream(xsltPathName);
+                stylesheet = this.getClass().getResourceAsStream("/cz/incad/kramerius/indexer/res/" + xsltPathName);
+            } catch (Exception ex) {
                 throw new Exception(xsltPathName+" not found");
             }
             TransformerFactory tfactory = TransformerFactory.newInstance();
@@ -119,7 +116,7 @@ public class GTransformer {
         try {
             transformer.transform(sourceStream, destStream);
         } catch (TransformerException e) {
-            throw new GenericSearchException("transform "+xsltName+".xslt:\n", e);
+            throw new Exception("transform "+xsltName+".xslt:\n", e);
         }
         StringWriter sw = (StringWriter)destStream.getWriter();
 //      if (logger.isDebugEnabled())
@@ -208,67 +205,6 @@ public class GTransformer {
         }
     }
     
-//  /**
-//   * This is an unfinished attempt at caching entities for efficiency.
-//   *
-//   * @throws TransformerConfigurationException, TransformerException.
-//   */
-//  public StringBuffer transform(String xsltName, StreamSource sourceStream, Object[] params) 
-//  throws GenericSearchException {
-//      if (logger.isDebugEnabled())
-//          logger.debug("xsltName="+xsltName);
-//      Transformer transformer = getTransformer(xsltName);
-//      for (int i=0; i<params.length; i=i+2) {
-//          Object value = params[i+1];
-//          if (value==null) value = "";
-//          transformer.setParameter((String)params[i], value);
-//      }
-//      transformer.setParameter("DATETIME", new Date());
-//      StreamResult destStream = new StreamResult(new StringWriter());  
-//
-//      InputSource src = new InputSource(sourceStream.getInputStream());
-//      src.setSystemId(sourceStream.getSystemId());
-//
-//      XMLReader rdr = null;
-//		try {
-//			rdr = XMLReaderFactory.createXMLReader(javax.xml.parsers.SAXParserFactory.newInstance().newSAXParser().getXMLReader().getClass().getName());
-//		} catch (SAXException e) {
-//			throw new GenericSearchException("transform "+xsltName+".xslt:\n", e);
-//		} catch (ParserConfigurationException e) {
-//			throw new GenericSearchException("transform "+xsltName+".xslt:\n", e);
-//		}
-////		FIX ME, this will not reuse earlier cached entities
-//      rdr.setEntityResolver(new CachedEntityResolver());
-//
-//      Source s = new SAXSource(rdr, src);
-//      
-//      try {
-//          transformer.transform(s, destStream);
-//      } catch (TransformerException e) {
-//          throw new GenericSearchException("transform "+xsltName+".xslt:\n", e);
-//      }
-//      StringWriter sw = (StringWriter)destStream.getWriter();
-////    if (logger.isDebugEnabled())
-////    logger.debug("sw="+sw.getBuffer().toString());
-//      return sw.getBuffer();
-//  }
-//    
-//    private static class CachedEntityResolver implements EntityResolver {
-//        private final Map cache = new HashMap();
-//
-//        public InputSource resolveEntity(String publicId, String systemId) throws IOException {
-//          byte[] res = (byte[]) cache.get(systemId);
-//          if (res == null) {
-//            res = IOUtils.toByteArray(new URL(systemId).openStream());
-//            cache.put(systemId, res);
-//          }
-//
-//          InputSource is = new InputSource(new ByteArrayInputStream(res));
-//          is.setPublicId(publicId);
-//          is.setSystemId(systemId);
-//
-//          return is;
-//        }
-//      }
+
     
 }

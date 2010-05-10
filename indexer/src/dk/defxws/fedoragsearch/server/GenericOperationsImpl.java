@@ -11,13 +11,9 @@ import cz.incad.kramerius.indexer.SolrOperations;
 
 import java.rmi.RemoteException;
 
-import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.StringTokenizer;
-
-import dk.defxws.fedoragsearch.server.errors.FedoraObjectNotFoundException;
-import dk.defxws.fedoragsearch.server.errors.GenericSearchException;
 
 import org.apache.axis.AxisFault;
 
@@ -25,29 +21,14 @@ import org.apache.log4j.Logger;
 
 import fedora.client.FedoraClient;
 
-import fedora.common.Constants;
 
 import fedora.server.access.FedoraAPIA;
 import fedora.server.management.FedoraAPIM;
 import fedora.server.types.gen.Datastream;
 import fedora.server.types.gen.MIMETypedStream;
 
-
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.xpath.XPath;
-import javax.xml.xpath.XPathConstants;
-import javax.xml.xpath.XPathExpression;
-import javax.xml.xpath.XPathFactory;
-
-import java.io.StringReader;
-
 import java.util.ArrayList;
 import java.util.Properties;
-import org.w3c.dom.Document;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
-import org.xml.sax.InputSource;
 
 /**
  * performs the generic parts of the operations
@@ -63,23 +44,19 @@ public class GenericOperationsImpl {
     protected String fgsUserName;
     protected String indexName;
     public Properties config;
-    protected int insertTotal = 0;
-    protected int updateTotal = 0;
-    protected int deleteTotal = 0;
-    protected int docCount = 0;
-    protected int warnCount = 0;
     public byte[] foxmlRecord;
     protected String dsID;
     protected byte[] ds;
     protected String dsText;
     protected String[] params = null;
+    String foxmlFormat;
 
     public static FedoraClient getFedoraClient(
             String repositoryName,
             String fedoraSoap,
             String fedoraUser,
             String fedoraPass)
-            throws GenericSearchException {
+            throws Exception {
         try {
             String baseURL = getBaseURL(fedoraSoap);
             String user = fedoraUser;
@@ -95,7 +72,7 @@ public class GenericOperationsImpl {
                 }
             }
         } catch (Exception e) {
-            throw new GenericSearchException("Error getting FedoraClient" + " for repository: " + repositoryName, e);
+            throw new Exception("Error getting FedoraClient" + " for repository: " + repositoryName, e);
         }
     }
 
@@ -117,7 +94,7 @@ public class GenericOperationsImpl {
             String fedoraPass,
             String trustStorePath,
             String trustStorePass)
-            throws GenericSearchException {
+            throws Exception {
         if (trustStorePath != null) {
             System.setProperty("javax.net.ssl.trustStore", trustStorePath);
         }
@@ -128,7 +105,7 @@ public class GenericOperationsImpl {
         try {
             return client.getAPIA();
         } catch (Exception e) {
-            throw new GenericSearchException("Error getting API-A stub" + " for repository: " + repositoryName, e);
+            throw new Exception("Error getting API-A stub" + " for repository: " + repositoryName, e);
         }
     }
 
@@ -139,7 +116,7 @@ public class GenericOperationsImpl {
             String fedoraPass,
             String trustStorePath,
             String trustStorePass)
-            throws GenericSearchException {
+            throws Exception {
         if (trustStorePath != null) {
             System.setProperty("javax.net.ssl.trustStore", trustStorePath);
         }
@@ -151,7 +128,7 @@ public class GenericOperationsImpl {
         try {
             return client.getAPIM();
         } catch (Exception e) {
-            throw new GenericSearchException("Error getting API-M stub" + " for repository: " + repositoryName, e);
+            throw new Exception("Error getting API-M stub" + " for repository: " + repositoryName, e);
         }
     }
 
@@ -161,6 +138,7 @@ public class GenericOperationsImpl {
 
     public void init(String fgsUserName, String indexName, Properties currentConfig) {
         config = currentConfig;
+        foxmlFormat = config.getProperty("FOXMLFormat");
         this.fgsUserName = config.getProperty("fgsUserName");
         this.indexName = config.getProperty("IndexName");
         if (null == this.fgsUserName || this.fgsUserName.length() == 0) {
@@ -173,7 +151,7 @@ public class GenericOperationsImpl {
     }
 
 
-    public String updateIndex(
+    public void updateIndex(
             String action,
             String value,
             String repositoryNameParam,
@@ -200,37 +178,19 @@ public class GenericOperationsImpl {
                     " indexDocXslt=" + indexDocXslt +
                     " resultPageXslt=" + resultPageXslt);
         
-        StringBuffer resultXml = new StringBuffer();
         String repositoryName = repositoryNameParam;
         if (repositoryNameParam == null || repositoryNameParam.equals("")) {
             repositoryName = config.getProperty("RepositoryName");
         }
-        resultXml.append("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n");
-        resultXml.append("<resultPage");
-        resultXml.append(" operation=\"updateIndex\"");
-        resultXml.append(" action=\"" + action + "\"");
-        resultXml.append(" value=\"" + value + "\"");
-        resultXml.append(" repositoryName=\"" + repositoryName + "\"");
-        resultXml.append(" indexNames=\"" + indexNames + "\"");
-        resultXml.append(" resultPageXslt=\"" + resultPageXslt + "\"");
-        resultXml.append(" dateTime=\"" + new Date() + "\"");
-        resultXml.append(">\n");
         
-            
-            SolrOperations ops = new SolrOperations(this);
-            resultXml.append(ops.updateIndex(action, value, repositoryName, indexName, indexDocXslt, resultPageXslt, requestParams));
-        
-        resultXml.append("</resultPage>\n");
-        if (logger.isDebugEnabled()) {
-            logger.debug("resultXml=" + resultXml);
-        }
-        return resultXml.toString();
+        SolrOperations ops = new SolrOperations(this);
+        ops.updateIndex(action, value, repositoryName, indexName, indexDocXslt, resultPageXslt, requestParams);
     }
     
     public byte[] getAndReturnFoxmlFromPid(
             String pid,
             String repositoryName)
-            throws java.rmi.RemoteException {
+            throws java.rmi.RemoteException, Exception {
 
         if (logger.isInfoEnabled()) {
             logger.info("getAndReturnFoxmlFromPid" +
@@ -245,21 +205,18 @@ public class GenericOperationsImpl {
                 config.getProperty("TrustStorePass"));
 
         String fedoraVersion = config.getProperty("FedoraVersion");
-        String format = Constants.FOXML1_1.uri;
-        if (fedoraVersion != null && fedoraVersion.startsWith("2.")) {
-            format = Constants.FOXML1_0_LEGACY;
-        }
+        
         try {
-            return apim.export(pid, format, "public");
+            return apim.export(pid, foxmlFormat, "public");
         } catch (RemoteException e) {
-            throw new FedoraObjectNotFoundException("Fedora Object " + pid + " not found at " + repositoryName, e);
+            throw new Exception("Fedora Object " + pid + " not found at " + repositoryName, e);
         }
     }
 
     public void getFoxmlFromPid(
             String pid,
             String repositoryName)
-            throws java.rmi.RemoteException {
+            throws java.rmi.RemoteException, Exception {
 
         if (logger.isInfoEnabled()) {
             logger.info("getFoxmlFromPid" +
@@ -274,14 +231,15 @@ public class GenericOperationsImpl {
                 config.getProperty("TrustStorePass"));
 
         String fedoraVersion = config.getProperty("FedoraVersion");
-        String format = Constants.FOXML1_1.uri;
-        if (fedoraVersion != null && fedoraVersion.startsWith("2.")) {
-            format = Constants.FOXML1_0_LEGACY;
-        }
+//        String format = Constants.FOXML1_1.uri;
+//        if (fedoraVersion != null && fedoraVersion.startsWith("2.")) {
+//            format = Constants.FOXML1_0_LEGACY;
+//        }
+        String format = "info:fedora/fedora-system:FOXML-1.1";
         try {
             foxmlRecord = apim.export(pid, format, "public");
         } catch (RemoteException e) {
-            throw new FedoraObjectNotFoundException("Fedora Object " + pid + " not found at " + repositoryName, e);
+            throw new Exception("Fedora Object " + pid + " not found at " + repositoryName, e);
         }
     }
 
@@ -289,7 +247,7 @@ public class GenericOperationsImpl {
             String pid,
             String repositoryName,
             String dsId)
-            throws GenericSearchException, Exception {
+            throws Exception, Exception {
         return getDatastreamText(pid, repositoryName, dsId,
                 config.getProperty("FedoraSoap"),
                 config.getProperty("FedoraUser"),
@@ -307,7 +265,7 @@ public class GenericOperationsImpl {
             String fedoraPass,
             String trustStorePath,
             String trustStorePass)
-            throws GenericSearchException, Exception {
+            throws Exception, Exception {
         if (logger.isInfoEnabled()) {
             logger.info("getDatastreamText" + " pid=" + pid + " repositoryName=" + repositoryName + " dsId=" + dsId + " fedoraSoap=" + fedoraSoap + " fedoraUser=" + fedoraUser + " fedoraPass=" + fedoraPass + " trustStorePath=" + trustStorePath + " trustStorePass=" + trustStorePass);
         }
@@ -335,10 +293,10 @@ public class GenericOperationsImpl {
                         e.getFaultString().indexOf("DefaulAccess") > -1) {
                     return new String();
                 } else {
-                    throw new GenericSearchException(e.getFaultString() + ": " + e.toString());
+                    throw new Exception(e.getFaultString() + ": " + e.toString());
                 }
             } catch (RemoteException e) {
-                throw new GenericSearchException(e.getClass().getName() + ": " + e.toString());
+                throw new Exception(e.getClass().getName() + ": " + e.toString());
             }
         }
         if (ds != null) {
@@ -360,7 +318,7 @@ public class GenericOperationsImpl {
             String pid,
             String repositoryName,
             String dsMimetypes)
-            throws GenericSearchException, Exception {
+            throws Exception, Exception {
         return getFirstDatastreamText(pid, repositoryName, dsMimetypes,
                 config.getProperty("FedoraSoap"),
                 config.getProperty("FedoraUser"),
@@ -378,7 +336,7 @@ public class GenericOperationsImpl {
             String fedoraPass,
             String trustStorePath,
             String trustStorePass)
-            throws GenericSearchException, Exception {
+            throws Exception, Exception {
         if (logger.isInfoEnabled()) {
             logger.info("getFirstDatastreamText" + " pid=" + pid + " dsMimetypes=" + dsMimetypes + " fedoraSoap=" + fedoraSoap + " fedoraUser=" + fedoraUser + " fedoraPass=" + fedoraPass + " trustStorePath=" + trustStorePath + " trustStorePass=" + trustStorePass);
         }
@@ -394,9 +352,9 @@ public class GenericOperationsImpl {
                     trustStorePass);
             dsds = apim.getDatastreams(pid, null, "A");
         } catch (AxisFault e) {
-            throw new GenericSearchException(e.getClass().getName() + ": " + e.toString());
+            throw new Exception(e.getClass().getName() + ": " + e.toString());
         } catch (RemoteException e) {
-            throw new GenericSearchException(e.getClass().getName() + ": " + e.toString());
+            throw new Exception(e.getClass().getName() + ": " + e.toString());
         }
 //      String mimetypes = "text/plain text/html application/pdf application/ps application/msword";
         String mimetypes = config.getProperty("MimeTypes");
@@ -430,9 +388,9 @@ public class GenericOperationsImpl {
                         dsID, null);
                 ds = mts.getStream();
             } catch (AxisFault e) {
-                throw new GenericSearchException(e.getClass().getName() + ": " + e.toString());
+                throw new Exception(e.getClass().getName() + ": " + e.toString());
             } catch (RemoteException e) {
-                throw new GenericSearchException(e.getClass().getName() + ": " + e.toString());
+                throw new Exception(e.getClass().getName() + ": " + e.toString());
             }
         }
         if (ds != null) {
@@ -455,7 +413,7 @@ public class GenericOperationsImpl {
             String methodName,
             String parameters,
             String asOfDateTime)
-            throws GenericSearchException, Exception {
+            throws Exception, Exception {
         return getDisseminationText(pid, repositoryName, bDefPid, methodName, parameters, asOfDateTime,
                 config.getProperty("FedoraSoap"),
                 config.getProperty("FedoraUser"),
@@ -476,7 +434,7 @@ public class GenericOperationsImpl {
             String fedoraPass,
             String trustStorePath,
             String trustStorePass)
-            throws GenericSearchException, Exception {
+            throws Exception, Exception {
         if (logger.isInfoEnabled()) {
             logger.info("getDisseminationText" +
                     " pid=" + pid +
@@ -511,7 +469,7 @@ public class GenericOperationsImpl {
                 MIMETypedStream mts = apia.getDissemination(pid, bDefPid,
                         methodName, params, asOfDateTime);
                 if (mts == null) {
-                    throw new GenericSearchException("getDissemination returned null");
+                    throw new Exception("getDissemination returned null");
                 }
                 ds = mts.getStream();
                 mimetype = mts.getMIMEType();
@@ -519,21 +477,21 @@ public class GenericOperationsImpl {
                     logger.debug("getDisseminationText" +
                             " mimetype=" + mimetype);
                 }
-            } catch (GenericSearchException e) {
-                if (e.toString().indexOf("DisseminatorNotFoundException") > -1) {
-                    return new StringBuffer();
-                } else {
-                    throw new GenericSearchException(e.toString());
-                }
             } catch (AxisFault e) {
                 if (e.getFaultString().indexOf("DisseminatorNotFoundException") > -1) {
                     return new StringBuffer();
                 } else {
-                    throw new GenericSearchException(e.getFaultString() + ": " + e.toString());
+                    throw new Exception(e.getFaultString() + ": " + e.toString());
                 }
             } catch (RemoteException e) {
-                throw new GenericSearchException(e.getClass().getName() + ": " + e.toString());
-            }
+                throw new Exception(e.getClass().getName() + ": " + e.toString());
+            }catch (Exception e) {
+                if (e.toString().indexOf("DisseminatorNotFoundException") > -1) {
+                    return new StringBuffer();
+                } else {
+                    throw new Exception(e.toString());
+                }
+            } 
         }
         if (ds != null) {
             dsBuffer = (new TransformerToText().getText(ds, mimetype));
@@ -548,226 +506,4 @@ public class GenericOperationsImpl {
         return dsBuffer;
     }
 
-    /* Kramerius
-     * Added by Incad 
-     */
-    public String getRelsTitle(String pid) throws GenericSearchException {
-        try {
-            logger.debug("getRelsTitle" +
-                    " pid=" + pid);
-            /* query
-            select $model $title $object from <#ri> 
-            where  $object <kramerius:hasPage> <info:fedora/uuid:68748b80-64a6-11dd-8fb6-000d606f5dc6> 
-            and $object <dc:title> $title 
-            and $object <fedora-model:hasModel> $model 
-             */
-            /* response
-            <sparql xmlns="http://www.w3.org/2001/sw/DataAccess/rf1/result">
-            <head>
-            <variable name="title"/>
-            <variable name="model"/>
-            </head>
-            <results>
-            <result>
-            <model uri="info:fedora/fedora-system:FedoraObject-3.0"/>
-            <title>Kniha zlat�, anebo, Now� Zw�stowatel wsseho
-            dobr�ho a v�ite�n�ho pro N�rod Slowensk�.</title>
-            </result>
-            <result>
-            <model uri="info:fedora/model:monographunit"/>
-            <title>Kniha zlat�, anebo, Now� Zw�stowatel wsseho
-            dobr�ho a v�ite�n�ho pro N�rod Slowensk�.</title>
-            </result>
-            </results>
-            </sparql>
-            
-             */
-            String title = "";
-            String fedoraUrl = "http://localhost:8080/fedora";
-            String query = "select $title from <#ri> " +
-                    "where  $object <dc:identifier> '" + pid + "' " +
-                    "and $object <dc:title> $title  ";
-            String command = fedoraUrl + "/risearch?type=tuples&flush=true&lang=itql&format=Sparql&limit=&distinct=off&stream=off" +
-                    "&query=" + java.net.URLEncoder.encode(query, "UTF-8");
-            StringBuffer result = new StringBuffer();
-            java.net.URL url = new java.net.URL(command);
-
-            java.io.BufferedReader in = new java.io.BufferedReader(new java.io.InputStreamReader(url.openStream(),
-                    java.nio.charset.Charset.forName("UTF-8")));
-            String inputLine;
-            while ((inputLine = in.readLine()) != null) {
-                //result.append(URLDecoder.decode(inputLine, "UTF-8"));
-                result.append(inputLine);
-            }
-
-            in.close();
-
-            DocumentBuilderFactory domFactory = DocumentBuilderFactory.newInstance();
-            domFactory.setNamespaceAware(false); // never forget this!
-
-            DocumentBuilder builder = domFactory.newDocumentBuilder();
-
-            InputSource source = new InputSource(new StringReader(result.toString()));
-            Document contentDom = builder.parse(source);
-
-            XPathFactory factory = XPathFactory.newInstance();
-            XPath xpath = factory.newXPath();
-
-            //Loading properties
-            XPathExpression expr = xpath.compile("/sparql/results/result/title/text()");
-            title = (String) expr.evaluate(contentDom, XPathConstants.STRING);
-            return title;
-        } catch (Exception e) {
-            //throw new GenericSearchException(e.getClass().getName()+": "+e.toString());
-            return e.toString();
-        }
-    }
-    String fedoraSystemModel = "info:fedora/fedora-system:FedoraObject-3.0";
-    final String inFieldSeparator = "###";
-
-    public String getTitleToShow(String pid,
-            String model) throws GenericSearchException {
-        try {
-            logger.debug("getTitleToShow" +
-                    " pid=" + pid);
-            /* query
-            select $model $title $creator $object from <#ri> 
-            where  $object <kramerius:hasPage> <info:fedora/uuid:68748b80-64a6-11dd-8fb6-000d606f5dc6> 
-            and $object <dc:title> $title 
-            and $object <dc:creator> $creator 
-            and $object <fedora-model:hasModel> $model 
-             */
-            /* response
-            <sparql xmlns="http://www.w3.org/2001/sw/DataAccess/rf1/result">
-            <head>
-            <variable name="title"/>
-            <variable name="model"/>
-            </head>
-            <results>
-            <result>
-            <model uri="info:fedora/fedora-system:FedoraObject-3.0"/>
-            <title>Kniha zlat�, anebo, Now� Zw�stowatel wsseho
-            dobr�ho a v�ite�n�ho pro N�rod Slowensk�.</title>
-            </result>
-            <result>
-            <model uri="info:fedora/model:monographunit"/>
-            <title>Kniha zlat�, anebo, Now� Zw�stowatel wsseho
-            dobr�ho a v�ite�n�ho pro N�rod Slowensk�.</title>
-            </result>
-            </results>
-            </sparql>
-            
-             */
-            String title = "";
-            String creator = "";
-            String parentModel = "";
-            String parentPid = "";
-            String fedoraUrl = "http://localhost:8080/fedora";
-            String query = "select $model $title $creator $object from <#ri> " +
-                    "where  $object " + model + " <info:fedora/" + pid + ">  " +
-                    "and $object <dc:title> $title  " +
-                    "and $object <dc:creator> $creator " +
-                    "and $object <fedora-model:hasModel> $model ";
-            String command = fedoraUrl + "/risearch?type=tuples&flush=true&lang=itql&format=Sparql&limit=&distinct=off&stream=off" +
-                    "&query=" + java.net.URLEncoder.encode(query, "UTF-8");
-            StringBuffer result = new StringBuffer();
-            java.net.URL url = new java.net.URL(command);
-
-            java.io.BufferedReader in = new java.io.BufferedReader(new java.io.InputStreamReader(url.openStream(),
-                    java.nio.charset.Charset.forName("UTF-8")));
-            String inputLine;
-            while ((inputLine = in.readLine()) != null) {
-                //result.append(URLDecoder.decode(inputLine, "UTF-8"));
-                result.append(inputLine);
-            }
-
-            in.close();
-
-            DocumentBuilderFactory domFactory = DocumentBuilderFactory.newInstance();
-            domFactory.setNamespaceAware(false);
-
-            DocumentBuilder builder = domFactory.newDocumentBuilder();
-
-            InputSource source = new InputSource(new StringReader(result.toString()));
-            Document contentDom = builder.parse(source);
-
-            XPathFactory factory = XPathFactory.newInstance();
-            XPath xpath = factory.newXPath();
-
-            //Loading properties
-            XPathExpression expr = xpath.compile("/sparql/results/result/*");
-            NodeList nodes = (NodeList) expr.evaluate(contentDom, XPathConstants.NODESET);
-            boolean hasModel = false;
-            for (int i = 0; i < nodes.getLength(); i++) {
-                Node childnode = nodes.item(i);
-                if (childnode.getNodeName().equals("model")) {
-                    String parentModel_ = childnode.getAttributes().getNamedItem("uri").getNodeValue();
-                    if (parentModel_.contains("info:fedora/model:monograph") ||
-                            parentModel_.contains("info:fedora/model:monographunit") ||
-                            parentModel_.contains("info:fedora/model:periodical")) {
-                        hasModel = true;
-                        parentModel =parentModel_;
-                        while (childnode.getNextSibling() != null) {
-                            childnode = childnode.getNextSibling();
-                            if (childnode.getNodeName().equals("title")) {
-                                title = childnode.getFirstChild().getNodeValue();
-                            }
-                            if (childnode.getNodeName().equals("creator")) {
-                                creator += childnode.getFirstChild().getNodeValue() + "@@";
-                            }
-                            if (childnode.getNodeName().equals("object")) {
-                                parentPid = childnode.getAttributes().getNamedItem("uri").getNodeValue();
-                            }
-                        }
-                    } else if (parentModel.contains("info:fedora/model:periodicalvolume")) {
-                        while (childnode.getNextSibling() != null) {
-                            childnode = childnode.getNextSibling();
-                            if (childnode.getNodeName().equals("title")) {
-                                title = childnode.getFirstChild().getNodeValue();
-                            }
-                            if (childnode.getNodeName().equals("creator")) {
-                                creator = " ";
-                            }
-                            if (childnode.getNodeName().equals("object")) {
-                                title = getTitleFromVolume(childnode.getAttributes().getNamedItem("uri").getNodeValue());
-                            }
-                        }
-                    }
-                    
-                }
-            }
-                return title + inFieldSeparator + creator + inFieldSeparator + parentModel + inFieldSeparator + parentPid;
-
-        } catch (Exception e) {
-            //throw new GenericSearchException(e.getClass().getName()+": "+e.toString());
-            return e.toString();
-        }
-    }
-
-    public String getTitleFromPage(String pid) throws GenericSearchException {
-        try {
-            return getTitleToShow(pid, "<kramerius:hasPage>");
-        } catch (Exception e) {
-            //throw new GenericSearchException(e.getClass().getName()+": "+e.toString());
-            return e.toString();
-        }
-    }
-
-    public String getTitleFromVolume(String pid) throws GenericSearchException {
-        try {
-            return getTitleToShow(pid, "<kramerius:hasVolume>");
-        } catch (Exception e) {
-            //throw new GenericSearchException(e.getClass().getName()+": "+e.toString());
-            return e.toString();
-        }
-    }
-
-    public String getTitleFromItem(String pid) throws GenericSearchException {
-        try {
-            return getTitleToShow(pid, "<kramerius:hasItem>");
-        } catch (Exception e) {
-            //throw new GenericSearchException(e.getClass().getName()+": "+e.toString());
-            return e.toString();
-        }
-    }
 }

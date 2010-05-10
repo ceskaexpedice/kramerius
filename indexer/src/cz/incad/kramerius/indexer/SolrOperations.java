@@ -38,7 +38,6 @@ import org.apache.lucene.index.IndexReader;
 import dk.defxws.fedoragsearch.server.GTransformer;
 import dk.defxws.fedoragsearch.server.GenericOperationsImpl;
 import dk.defxws.fedoragsearch.server.URIResolverImpl;
-import dk.defxws.fedoragsearch.server.errors.GenericSearchException;
 
 import fedora.client.FedoraClient;
 import java.util.ArrayList;
@@ -52,6 +51,7 @@ import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpression;
 import javax.xml.xpath.XPathFactory;
+import org.apache.lucene.store.SimpleFSDirectory;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -81,7 +81,7 @@ public class SolrOperations {
         config = fedoraOperations.config;
     }
 
-    public String updateIndex(
+    public void updateIndex(
             String action,
             String value,
             String repositoryName,
@@ -94,27 +94,25 @@ public class SolrOperations {
         updateTotal = 0;
         deleteTotal = 0;
         int initDocCount = 0;
-        StringBuffer resultXml = new StringBuffer();
-        resultXml.append("<solrUpdateIndex");
-        resultXml.append(" indexName=\"" + indexName + "\"");
-        resultXml.append(">\n");
+        
         try {
 
             getIndexReader(indexName);
             initDocCount = docCount;
+            closeIndexReader(indexName);
             if ("deletePid".equals(action)) {
                 //deletePid(value, indexName, resultXml);
                 } else if ("fromPid".equals(action)) {
-                fromPid(value, repositoryName, indexName, resultXml, indexDocXslt, requestParams);
+                fromPid(value, repositoryName, indexName, indexDocXslt, requestParams);
             } else if ("fromFoxmlFiles".equals(action)) {
-                fromFoxmlFiles(value, repositoryName, indexName, resultXml, indexDocXslt);
+                fromFoxmlFiles(value, repositoryName, indexName, indexDocXslt);
             } else if ("optimize".equals(action)) {
-                optimize(indexName, resultXml);
+                optimize();
             } else if ("fromKrameriusModel".equals(action)) {
                 if(!value.startsWith("uuid:")) value = "uuid:" + value;
-                fromKrameriusModel(value, repositoryName, indexName, resultXml, indexDocXslt, requestParams);
+                fromKrameriusModel(value, repositoryName, indexName, indexDocXslt, requestParams);
             }else if ("krameriusModel".equals(action)) {
-                krameriusModel(value, repositoryName, indexName, resultXml, indexDocXslt, requestParams);
+                krameriusModel(value, repositoryName, indexName, indexDocXslt, requestParams);
             }
 
         } catch (Exception ex) {
@@ -134,37 +132,30 @@ public class SolrOperations {
             docCount = docCount - deleteTotal;
         }
         logger.info("updateIndex " + action + " indexName=" + indexName + " indexDirSpace=" + indexDirSpace(new File(config.getProperty("IndexDir"))) + " docCount=" + docCount);
-        resultXml.append("<counts");
-        resultXml.append(" insertTotal=\"" + insertTotal + "\"");
-        resultXml.append(" updateTotal=\"" + updateTotal + "\"");
-        resultXml.append(" deleteTotal=\"" + deleteTotal + "\"");
-        resultXml.append(" docCount=\"" + docCount + "\"");
-        resultXml.append(" warnCount=\"" + warnCount + "\"");
-        resultXml.append("/>\n");
-        resultXml.append("</solrUpdateIndex>\n");
-        if (logger.isDebugEnabled()) {
-            logger.debug("resultXml =\n" + resultXml.toString());
-        }
-        return resultXml.toString();
+        logger.info("updateIndex " + action + " indexName=" + indexName + " indexDirSpace=" + indexDirSpace(new File(config.getProperty("IndexDir"))) + " docCount=" + docCount);
+        
+        logger.info("insertTotal: " + insertTotal);
+        logger.info("updateTotal: " + updateTotal);
+        logger.info("deleteTotal: " + deleteTotal);
+        logger.info("docCount: " + docCount);
+        logger.info("warnCount: " + warnCount);
+        
     }
 
-    private void optimize(
-            String indexName,
-            StringBuffer resultXml)
-            throws java.rmi.RemoteException {
+    private void optimize()
+            throws java.rmi.RemoteException, Exception {
         StringBuffer sb = new StringBuffer("<optimize/>");
         if (logger.isDebugEnabled()) {
             logger.debug("indexDoc=\n" + sb.toString());
         }
-        postData(config.getProperty("IndexBase") + "/update", new StringReader(sb.toString()), resultXml);
-        resultXml.append("<optimize/>\n");
+        postData(config.getProperty("IndexBase") + "/update", new StringReader(sb.toString()), new StringBuffer());
+        
     }
 
     private void fromFoxmlFiles(
             String filePath,
             String repositoryName,
             String indexName,
-            StringBuffer resultXml,
             String indexDocXslt)
             throws java.rmi.RemoteException, IOException, Exception {
         if (logger.isDebugEnabled()) {
@@ -176,17 +167,14 @@ public class SolrOperations {
         } else {
             objectDir = new File(filePath);
         }
-        indexDocs(objectDir, repositoryName, indexName, resultXml, indexDocXslt);
+        indexDocs(objectDir, repositoryName, indexName, indexDocXslt);
         docCount = docCount - warnCount;
-        resultXml.append("<warnCount>" + warnCount + "</warnCount>\n");
-        resultXml.append("<docCount>" + docCount + "</docCount>\n");
     }
 
     private void indexDocs(
             File file,
             String repositoryName,
             String indexName,
-            StringBuffer resultXml,
             String indexDocXslt)
             throws java.rmi.RemoteException, IOException, Exception {
         if (file.isHidden()) {
@@ -199,16 +187,16 @@ public class SolrOperations {
                     logger.info("updateIndex fromFoxmlFiles " + file.getAbsolutePath() + " indexDirSpace=" +
                             indexDirSpace(new File(config.getProperty("IndexDir"))) + " docCount=" + docCount);
                 }
-                indexDocs(new File(file, files[i]), repositoryName, indexName, resultXml, indexDocXslt);
+                indexDocs(new File(file, files[i]), repositoryName, indexName, indexDocXslt);
             }
         } else {
             try {
-                indexDoc(file.getName(), repositoryName, indexName, new FileInputStream(file), resultXml, indexDocXslt, new ArrayList<String>());
+                indexDoc(file.getName(), repositoryName, indexName, new FileInputStream(file), indexDocXslt, new ArrayList<String>());
             } catch (RemoteException e) {
-                resultXml.append("<warning no=\"" + (++warnCount) + "\">file=" + file.getAbsolutePath() + " exception=" + e.toString() + "</warning>\n");
+                warnCount++;
                 logger.warn("<warning no=\"" + (warnCount) + "\">file=" + file.getAbsolutePath() + " exception=" + e.toString() + "</warning>");
             } catch (FileNotFoundException e) {
-                resultXml.append("<warning no=\"" + (++warnCount) + "\">file=" + file.getAbsolutePath() + " exception=" + e.toString() + "</warning>\n");
+                warnCount++;
                 logger.warn("<warning no=\"" + (warnCount) + "\">file=" + file.getAbsolutePath() + " exception=" + e.toString() + "</warning>");
             }
         }
@@ -218,7 +206,6 @@ public class SolrOperations {
             String pid,
             String repositoryName,
             String indexName,
-            StringBuffer resultXml,
             String indexDocXslt,
             ArrayList<String> requestParams)
             throws java.rmi.RemoteException, IOException, Exception {
@@ -226,7 +213,7 @@ public class SolrOperations {
             return;
         }
         fedoraOperations.getFoxmlFromPid(pid, repositoryName);
-        indexDoc(pid, repositoryName, indexName, new ByteArrayInputStream(fedoraOperations.foxmlRecord), resultXml, indexDocXslt, requestParams);
+        indexDoc(pid, repositoryName, indexName, new ByteArrayInputStream(fedoraOperations.foxmlRecord), indexDocXslt, requestParams);
     }
     /* kramerius */
     XPathFactory factory = XPathFactory.newInstance();
@@ -238,7 +225,6 @@ public class SolrOperations {
             String model,
             String repositoryName,
             String indexName,
-            StringBuffer resultXml,
             String indexDocXslt,
             ArrayList<String> requestParams){
     try {
@@ -268,7 +254,7 @@ public class SolrOperations {
             while(tuples.hasNext()){
                 String pid = tuples.next().get("object").toString();
                  //logger.info(pid);
-                 fromKrameriusModel(pid.split("/")[1], repositoryName, indexName, resultXml, indexDocXslt, requestParams);
+                 fromKrameriusModel(pid.split("/")[1], repositoryName, indexName, indexDocXslt, requestParams);
             }
 //            String[] names = client.getTuples(tMap).names();
 //            for(String name:names){
@@ -288,7 +274,7 @@ public class SolrOperations {
                 //out.println(inputLine);
                 //sendToIndex(inputLine.split("/")[1]);
             
-                fromKrameriusModel(inputLine.split("/")[1], repositoryName, indexName, resultXml, indexDocXslt, requestParams);
+                fromKrameriusModel(inputLine.split("/")[1], repositoryName, indexName, indexDocXslt, requestParams);
             }
             in.close();
 
@@ -300,10 +286,9 @@ public class SolrOperations {
             String pid,
             String repositoryName,
             String indexName,
-            StringBuffer resultXml,
             String indexDocXslt,
             ArrayList<String> requestParams)
-            throws java.rmi.RemoteException {
+            throws java.rmi.RemoteException, Exception {
         if (pid == null || pid.length() < 1) {
             return;
         }
@@ -312,7 +297,7 @@ public class SolrOperations {
         factory = XPathFactory.newInstance();
         xpath = factory.newXPath();
 
-        indexByPid(pid, repositoryName, indexName, new ByteArrayInputStream(fedoraOperations.foxmlRecord), resultXml, requestParams, null);
+        indexByPid(pid, repositoryName, indexName, new ByteArrayInputStream(fedoraOperations.foxmlRecord), requestParams, null);
     //indexDoc(pid, repositoryName, indexName, new ByteArrayInputStream(foxmlRecord), resultXml, indexDocXslt, requestParams);
     }
     
@@ -339,7 +324,6 @@ public class SolrOperations {
             String repositoryName,
             String indexName,
             InputStream foxmlStream,
-            StringBuffer resultXml,
             ArrayList<String> requestParams,
             IndexParams indexParams) {
 
@@ -402,7 +386,7 @@ public class SolrOperations {
                         IndexParams childParams = new IndexParams(relpid, model, contentDom);
                         childParams.merge(indexParams);
                         foxmlStream2.reset();
-                        num += indexByPid(relpid, repositoryName, indexName, foxmlStream2, resultXml, requestParams, childParams);
+                        num += indexByPid(relpid, repositoryName, indexName, foxmlStream2, requestParams, childParams);
                     } catch (Exception ex) {
                         logger.error("Can't index doc: " + relpid + " Continuing...");
                     }
@@ -410,7 +394,7 @@ public class SolrOperations {
             }
             // if (logger.isInfoEnabled())
             //     logger.info("indexByPid indexParams.toUrlString(): " + indexParams.toUrlString());
-            indexDoc(pid, repositoryName, indexName, foxmlStream, resultXml, "", indexParams.toArrayList(Integer.toString(num)));
+            indexDoc(pid, repositoryName, indexName, foxmlStream, "", indexParams.toArrayList(Integer.toString(num)));
 
         } catch (Exception e) {
             logger.error("indexByPid error", e);
@@ -424,7 +408,6 @@ public class SolrOperations {
             String repositoryName,
             String indexName,
             InputStream foxmlStream,
-            StringBuffer resultXml,
             String indexDocXslt,
             ArrayList<String> requestParams)
             throws java.rmi.RemoteException, IOException, Exception {
@@ -436,7 +419,7 @@ public class SolrOperations {
             xsltName = indexDocXslt.substring(0, beginParams).trim();
             int endParams = indexDocXslt.indexOf(")");
             if (endParams < beginParams) {
-                throw new GenericSearchException("Format error (no ending ')') in indexDocXslt=" + indexDocXslt + ": ");
+                throw new Exception("Format error (no ending ')') in indexDocXslt=" + indexDocXslt + ": ");
             }
             StringTokenizer st = new StringTokenizer(indexDocXslt.substring(beginParams + 1, endParams), ",");
             params = new String[12 + 2 * st.countTokens() + requestParams.size()];
@@ -444,19 +427,19 @@ public class SolrOperations {
             while (st.hasMoreTokens()) {
                 String param = st.nextToken().trim();
                 if (param == null || param.length() < 1) {
-                    throw new GenericSearchException("Format error (empty param) in indexDocXslt=" + indexDocXslt + " params[" + i + "]=" + param);
+                    throw new Exception("Format error (empty param) in indexDocXslt=" + indexDocXslt + " params[" + i + "]=" + param);
                 }
                 int eq = param.indexOf("=");
                 if (eq < 0) {
-                    throw new GenericSearchException("Format error (no '=') in indexDocXslt=" + indexDocXslt + " params[" + i + "]=" + param);
+                    throw new Exception("Format error (no '=') in indexDocXslt=" + indexDocXslt + " params[" + i + "]=" + param);
                 }
                 String pname = param.substring(0, eq).trim();
                 String pvalue = param.substring(eq + 1).trim();
                 if (pname == null || pname.length() < 1) {
-                    throw new GenericSearchException("Format error (no param name) in indexDocXslt=" + indexDocXslt + " params[" + i + "]=" + param);
+                    throw new Exception("Format error (no param name) in indexDocXslt=" + indexDocXslt + " params[" + i + "]=" + param);
                 }
                 if (pvalue == null || pvalue.length() < 1) {
-                    throw new GenericSearchException("Format error (no param value) in indexDocXslt=" + indexDocXslt + " params[" + i + "]=" + param);
+                    throw new Exception("Format error (no param value) in indexDocXslt=" + indexDocXslt + " params[" + i + "]=" + param);
                 }
                 params[10 + 2 * i] = pname;
                 params[11 + 2 * i++] = pvalue;
@@ -483,19 +466,19 @@ public class SolrOperations {
         StringBuffer sb = (new GTransformer()).transform(
                 xsltPath,
                 new StreamSource(foxmlStream),
-                getURIREsolver(),
+                getURIResolver(),
                 params);
         if (logger.isDebugEnabled()) {
             logger.debug("indexDoc=\n" + sb.toString());
         }
 //logger.info("indexDoc=\n" + sb.toString());
         if (sb.indexOf("name=\"" + UNIQUEKEY) > 0) {
-            postData(config.getProperty("IndexBase") + "/update", new StringReader(sb.toString()), resultXml);
+            postData(config.getProperty("IndexBase") + "/update", new StringReader(sb.toString()), new StringBuffer());
             updateTotal++;
         }
     }
 
-    private URIResolver getURIREsolver() {
+    private URIResolver getURIResolver() {
 
         Class uriResolverClass = null;
         String uriResolver = config.getProperty("fgsindex.uriResolver");
@@ -525,7 +508,7 @@ public class SolrOperations {
     }
 
     public Analyzer getAnalyzer(String analyzerClassName)
-            throws GenericSearchException {
+            throws Exception {
         Analyzer analyzer = null;
         if (logger.isDebugEnabled()) {
             logger.debug("analyzerClassName=" + analyzerClassName);
@@ -540,22 +523,22 @@ public class SolrOperations {
                 logger.debug("analyzer=" + analyzer.toString());
             }
         } catch (ClassNotFoundException e) {
-            throw new GenericSearchException(analyzerClassName + ": class not found.\n", e);
+            throw new Exception(analyzerClassName + ": class not found.\n", e);
         } catch (InstantiationException e) {
-            throw new GenericSearchException(analyzerClassName + ": instantiation error.\n", e);
+            throw new Exception(analyzerClassName + ": instantiation error.\n", e);
         } catch (IllegalAccessException e) {
-            throw new GenericSearchException(analyzerClassName + ": instantiation error.\n", e);
+            throw new Exception(analyzerClassName + ": instantiation error.\n", e);
         } catch (InvocationTargetException e) {
-            throw new GenericSearchException(analyzerClassName + ": instantiation error.\n", e);
+            throw new Exception(analyzerClassName + ": instantiation error.\n", e);
         } catch (NoSuchMethodException e) {
-            throw new GenericSearchException(analyzerClassName + ": instantiation error.\n", e);
+            throw new Exception(analyzerClassName + ": instantiation error.\n", e);
         }
         return analyzer;
     }
 
     /*
     public Analyzer getQueryAnalyzer(String indexName)
-    throws GenericSearchException {
+    throws Exception {
     Analyzer analyzer = getAnalyzer(config.getAnalyzer(indexName));
     PerFieldAnalyzerWrapper pfanalyzer = new PerFieldAnalyzerWrapper(analyzer);
     StringTokenizer untokenizedFields = new StringTokenizer(config.getUntokenizedFields(indexName));
@@ -573,13 +556,13 @@ public class SolrOperations {
      * writes the response to output
      */
     private void postData(String solrUrlString, Reader data, StringBuffer output)
-            throws GenericSearchException {
+            throws Exception {
 
         URL solrUrl = null;
         try {
             solrUrl = new URL(solrUrlString);
         } catch (MalformedURLException e) {
-            throw new GenericSearchException("solrUrl=" + solrUrl.toString() + ": ", e);
+            throw new Exception("solrUrl=" + solrUrl.toString() + ": ", e);
         }
         HttpURLConnection urlc = null;
         String POST_ENCODING = "UTF-8";
@@ -588,7 +571,7 @@ public class SolrOperations {
             try {
                 urlc.setRequestMethod("POST");
             } catch (ProtocolException e) {
-                throw new GenericSearchException("Shouldn't happen: HttpURLConnection doesn't support POST??", e);
+                throw new Exception("Shouldn't happen: HttpURLConnection doesn't support POST??", e);
             }
             urlc.setDoOutput(true);
             urlc.setDoInput(true);
@@ -603,7 +586,7 @@ public class SolrOperations {
                 pipe(data, writer);
                 writer.close();
             } catch (IOException e) {
-                throw new GenericSearchException("IOException while posting data", e);
+                throw new Exception("IOException while posting data", e);
             } finally {
                 if (out != null) {
                     out.close();
@@ -616,13 +599,13 @@ public class SolrOperations {
             try {
                 if (status != HttpURLConnection.HTTP_OK) {
                     errorStream.append("postData URL=" + solrUrlString + " HTTP response code=" + status + " ");
-                    throw new GenericSearchException("URL=" + solrUrlString + " HTTP response code=" + status);
+                    throw new Exception("URL=" + solrUrlString + " HTTP response code=" + status);
                 }
                 Reader reader = new InputStreamReader(in);
                 pipeString(reader, output);
                 reader.close();
             } catch (IOException e) {
-                throw new GenericSearchException("IOException while reading response", e);
+                throw new Exception("IOException while reading response", e);
             } finally {
                 if (in != null) {
                     in.close();
@@ -636,7 +619,7 @@ public class SolrOperations {
                     pipeString(reader, errorStream);
                     reader.close();
                 } catch (IOException e) {
-                    throw new GenericSearchException("IOException while reading response", e);
+                    throw new Exception("IOException while reading response", e);
                 } finally {
                     if (es != null) {
                         es.close();
@@ -644,11 +627,11 @@ public class SolrOperations {
                 }
             }
             if (errorStream.length() > 0) {
-                throw new GenericSearchException("postData error: " + errorStream.toString());
+                throw new Exception("postData error: " + errorStream.toString());
             }
 
         } catch (IOException e) {
-            throw new GenericSearchException("Connection error (is Solr running at " + solrUrl + " ?): " + e);
+            throw new Exception("Connection error (is Solr running at " + solrUrl + " ?): " + e);
         } finally {
             if (urlc != null) {
                 urlc.disconnect();
@@ -683,32 +666,32 @@ public class SolrOperations {
     }
 
     private void getIndexReader(String indexName)
-            throws GenericSearchException {
+            throws Exception {
         IndexReader irreopened = null;
         if (ir != null) {
             try {
                 irreopened = ir.reopen();
             } catch (CorruptIndexException e) {
-                throw new GenericSearchException("IndexReader reopen error indexName=" + indexName + " :\n", e);
+                throw new Exception("IndexReader reopen error indexName=" + indexName + " :\n", e);
             } catch (IOException e) {
-                throw new GenericSearchException("IndexReader reopen error indexName=" + indexName + " :\n", e);
+                throw new Exception("IndexReader reopen error indexName=" + indexName + " :\n", e);
             }
             if (ir != irreopened) {
                 try {
                     ir.close();
                 } catch (IOException e) {
                     ir = null;
-                    throw new GenericSearchException("IndexReader close after reopen error indexName=" + indexName + " :\n", e);
+                    throw new Exception("IndexReader close after reopen error indexName=" + indexName + " :\n", e);
                 }
                 ir = irreopened;
             }
         } else {
             try {
-                ir = IndexReader.open(config.getProperty("IndexDir"));
+                ir = IndexReader.open(SimpleFSDirectory.open(new File(config.getProperty("IndexDir"))), true);
             } catch (CorruptIndexException e) {
-                throw new GenericSearchException("IndexReader open error indexName=" + indexName + " :\n", e);
+                throw new Exception("IndexReader open error indexName=" + indexName + " :\n", e);
             } catch (IOException e) {
-                throw new GenericSearchException("IndexReader open error indexName=" + indexName + " :\n", e);
+                throw new Exception("IndexReader open error indexName=" + indexName + " :\n", e);
             }
         }
         docCount = ir.numDocs();
@@ -718,13 +701,13 @@ public class SolrOperations {
     }
 
     private void closeIndexReader(String indexName)
-            throws GenericSearchException {
+            throws Exception {
         if (ir != null) {
             docCount = ir.numDocs();
             try {
                 ir.close();
             } catch (IOException e) {
-                throw new GenericSearchException("IndexReader close error indexName=" + indexName + " :\n", e);
+                throw new Exception("IndexReader close error indexName=" + indexName + " :\n", e);
             } finally {
                 ir = null;
                 if (logger.isDebugEnabled()) {
