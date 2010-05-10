@@ -32,18 +32,20 @@
 			
 		<!-- Creator -->
 		<xsl:for-each select="/MonographUnit/Creator">
-			<mods:name type="personal">
-				<mods:namePart type="family">
-					<xsl:value-of select="CreatorSurname" />
-				</mods:namePart>
-				<mods:namePart type="given">
-					<xsl:value-of select="CreatorName" />
-				</mods:namePart>
-				<mods:role>
-					<mods:roleTerm type="code">cre</mods:roleTerm>
-					<mods:roleTerm type="text"><xsl:value-of select="@Role" /></mods:roleTerm>
-				</mods:role>
-			</mods:name>
+			<xsl:if test="not(CreatorSurname='***Donator NF***')">
+				<mods:name type="personal">
+					<mods:namePart type="family">
+						<xsl:value-of select="CreatorSurname" />
+					</mods:namePart>
+					<mods:namePart type="given">
+						<xsl:value-of select="CreatorName" />
+					</mods:namePart>
+					<mods:role>
+						<mods:roleTerm type="code">cre</mods:roleTerm>
+						<mods:roleTerm type="text"><xsl:value-of select="@Role" /></mods:roleTerm>
+					</mods:role>
+				</mods:name>
+			</xsl:if>
 		</xsl:for-each>
 		
 		<!-- Contributor -->

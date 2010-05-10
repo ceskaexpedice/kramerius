@@ -36,21 +36,23 @@
 		  - grupovani zajisteno pres name  
 		  -->
 		<xsl:for-each select="/PeriodicalVolume/CoreBibliographicDescriptionPeriodical/Creator">
-			<mods:name type="personal">
-				<mods:namePart type="family">
-					<xsl:value-of select="CreatorSurname" />
-				</mods:namePart>
-				<xsl:for-each select="CreatorName">
-					<mods:namePart type="given">
-						<xsl:value-of select="." />
+			<xsl:if test="not(CreatorSurname='***Donator NF***')">
+				<mods:name type="personal">
+					<mods:namePart type="family">
+						<xsl:value-of select="CreatorSurname" />
 					</mods:namePart>
-				</xsl:for-each>
-				<mods:role>
-					<!-- NOTE: Pouzit kod pro tag a text pro atribut -->
-					<mods:roleTerm type="code">cre</mods:roleTerm>
-					<mods:roleTerm type="text"><xsl:value-of select="@Role" /></mods:roleTerm>
-				</mods:role>
-			</mods:name>
+					<xsl:for-each select="CreatorName">
+						<mods:namePart type="given">
+							<xsl:value-of select="." />
+						</mods:namePart>
+					</xsl:for-each>
+					<mods:role>
+						<!-- NOTE: Pouzit kod pro tag a text pro atribut -->
+						<mods:roleTerm type="code">cre</mods:roleTerm>
+						<mods:roleTerm type="text"><xsl:value-of select="@Role" /></mods:roleTerm>
+					</mods:role>
+				</mods:name>
+			</xsl:if>
 		</xsl:for-each>
 
 		<!-- 
