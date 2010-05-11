@@ -12,6 +12,7 @@ import javax.servlet.http.HttpServletResponse;
 import javax.xml.xpath.XPathExpressionException;
 
 import com.google.inject.Inject;
+import com.google.inject.name.Named;
 
 import cz.incad.Kramerius.backend.guice.GuiceServlet;
 import cz.incad.kramerius.FedoraAccess;
@@ -22,6 +23,7 @@ public class MimeTypeServlet extends GuiceServlet {
 			.getLogger(MimeTypeServlet.class.getName());
 	
 	@Inject
+	@Named("securedFedoraAccess")
 	FedoraAccess fedoraAccess;
 	
 	@Override

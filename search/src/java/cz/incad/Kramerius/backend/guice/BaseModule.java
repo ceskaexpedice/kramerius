@@ -2,8 +2,11 @@ package cz.incad.Kramerius.backend.guice;
 
 import java.sql.Connection;
 
+import javax.servlet.http.HttpServletRequest;
+
 import com.google.inject.AbstractModule;
 import com.google.inject.Scopes;
+import com.google.inject.name.Names;
 
 import cz.incad.kramerius.FedoraAccess;
 import cz.incad.kramerius.impl.FedoraAccessImpl;
@@ -14,6 +17,8 @@ import cz.incad.kramerius.processes.LRProcessManager;
 import cz.incad.kramerius.processes.database.DefaultConnectionProvider;
 import cz.incad.kramerius.processes.impl.DatabaseProcessManager;
 import cz.incad.kramerius.processes.impl.LRProcessDefinitionManagerImpl;
+import cz.incad.kramerius.security.SecuredFedoraAccessImpl;
+import cz.incad.kramerius.security.SecurityAcceptor;
 import cz.incad.kramerius.utils.JNDIUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 import cz.incad.utils.IKeys;
@@ -26,9 +31,12 @@ public class BaseModule extends AbstractModule {
 
 	@Override
 	protected void configure() {
-		bind(FedoraAccess.class).to(FedoraAccessImpl.class).in(Scopes.SINGLETON);
+		bind(FedoraAccess.class).annotatedWith(Names.named("rawFedoraAccess")).to(FedoraAccessImpl.class).in(Scopes.SINGLETON);
+		bind(FedoraAccess.class).annotatedWith(Names.named("securedFedoraAccess")).to(SecuredFedoraAccessImpl.class).in(Scopes.SINGLETON);
 		bind(GeneratePDFService.class).to(GeneratePDFServiceImpl.class).in(Scopes.SINGLETON);
 		bind(KConfiguration.class).toInstance(KConfiguration.getKConfiguration());
 		bind(Connection.class).toProvider(DefaultConnectionProvider.class);
+		
+		bind(SecurityAcceptor.class).to(RequestSecurityAcceptor.class);
 	}
 }

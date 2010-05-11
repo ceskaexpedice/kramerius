@@ -36,6 +36,7 @@ import com.google.inject.Inject;
 import cz.incad.Kramerius.backend.guice.GuiceServlet;
 import cz.incad.kramerius.FedoraAccess;
 import cz.incad.kramerius.FedoraNamespaces;
+import cz.incad.kramerius.security.SecurityException;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 
 /**
@@ -86,19 +87,16 @@ public class FullImageServlet extends AbstracThumbnailServlet {
 					writeImage(resp, rawImage, outputFormat);
 				}
 			}
+		} catch(SecurityException e) {
+			LOGGER.log(Level.SEVERE, e.getMessage(), e);
+			resp.setStatus(HttpServletResponse.SC_FORBIDDEN);
 		} catch (Exception e) {
 			LOGGER.log(Level.SEVERE, e.getMessage(), e);
 			resp.setStatus(HttpServletResponse.SC_NOT_FOUND);
 		}
 	}
 
-	public FedoraAccess getFedoraAccess() {
-		return fedoraAccess;
-	}
-
-	public void setFedoraAccess(FedoraAccess fedoraAccess) {
-		this.fedoraAccess = fedoraAccess;
-	}
+	
 	
 
 //	static class XPATHFedoraNamespaceContext implements NamespaceContext {

@@ -37,6 +37,7 @@ import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
 
 import com.google.inject.Inject;
+import com.google.inject.name.Named;
 
 /**
  *
@@ -47,6 +48,7 @@ public class GetFirstPageThumb extends GuiceServlet {
     private static final String UUID_PARAMETER = "uuid";
 
     @Inject
+	@Named("securedFedoraAccess")
     FedoraAccess fedoraAccess;
     
     /** 

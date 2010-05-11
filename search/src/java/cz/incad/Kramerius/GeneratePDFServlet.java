@@ -3,6 +3,7 @@ package cz.incad.Kramerius;
 import static cz.incad.kramerius.FedoraNamespaces.*;
 
 import java.io.IOException;
+import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -21,6 +22,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 import com.google.inject.Inject;
+import com.google.inject.name.Named;
 
 import cz.incad.Kramerius.backend.guice.GuiceServlet;
 import cz.incad.kramerius.FedoraAccess;
@@ -44,12 +46,16 @@ public class GeneratePDFServlet extends GuiceServlet {
 	@Inject
 	GeneratePDFService service;
 	@Inject
+	@Named("securedFedoraAccess")
 	FedoraAccess fedoraAccess;
 	
 	@Override
 	protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException {
 		try {
-			
+				URL url = new URL(req.getRequestURL().toString());
+				//TODO: Najit context.. jde to.
+				String djvuUrl = url.getProtocol()+"://"+url.getHost()+":"+url.getPort()+"/search/djvu";
+
 				resp.setContentType("application/pdf");
 				SimpleDateFormat sdate = new SimpleDateFormat("yyyyMMdd_mmhhss");
 			    resp.setHeader("Content-disposition","attachment; filename="+sdate.format(new Date())+".pdf");
@@ -57,7 +63,7 @@ public class GeneratePDFServlet extends GuiceServlet {
 				String to = req.getParameter(UUID_TO);
 				String path = req.getParameter(PATH);
 				List<String> pathList = Arrays.asList(path.split("/"));
-				service.dynamicPDFExport(pathList, from, to, from, resp.getOutputStream());
+				service.dynamicPDFExport(pathList, from, to, from, resp.getOutputStream(), djvuUrl);
 
 		} catch (Exception e) {
 			LOGGER.log(Level.SEVERE, e.getMessage(), e);

@@ -22,6 +22,7 @@ import com.google.inject.servlet.GuiceServletContextListener;
 import cz.incad.Kramerius.AbstracThumbnailServlet.OutputFormats;
 import cz.incad.Kramerius.backend.guice.GuiceServlet;
 import cz.incad.kramerius.FedoraAccess;
+import cz.incad.kramerius.security.SecurityException;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 import cz.incad.utils.IKeys;
 
@@ -73,6 +74,9 @@ public class ThumbnailImageServlet extends AbstracThumbnailServlet {
 					writeImage(resp, rawImage, outputFormat);
 				}
 			}
+		} catch(SecurityException e) {
+			LOGGER.log(Level.SEVERE, e.getMessage(), e);
+			resp.setStatus(HttpServletResponse.SC_FORBIDDEN);
 		} catch (Exception e) {
 			LOGGER.log(Level.SEVERE, e.getMessage(), e);
 			resp.setStatus(HttpServletResponse.SC_NOT_FOUND);
