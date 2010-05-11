@@ -1,28 +1,48 @@
 package cz.incad.kramerius.impl;
 
-import static cz.incad.kramerius.utils.FedoraUtils.*;
-import static cz.incad.kramerius.utils.RESTHelper.*;
+import static cz.incad.kramerius.utils.FedoraUtils.getDjVuImage;
+import static cz.incad.kramerius.utils.FedoraUtils.getThumbnailFromFedora;
+import static cz.incad.kramerius.utils.RESTHelper.openConnection;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.StringWriter;
+import java.net.Authenticator;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
+import java.net.PasswordAuthentication;
+import java.net.URL;
 import java.util.ArrayList;
-import java.util.LinkedList;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
-import java.util.Queue;
-import java.util.Stack;
+import java.util.Set;
 import java.util.logging.Level;
 
+import javax.xml.XMLConstants;
+import javax.xml.namespace.NamespaceContext;
+import javax.xml.namespace.QName;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.ws.BindingProvider;
 import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpression;
 import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
 
+import org.apache.xerces.dom.DOMOutputImpl;
+import org.apache.xml.serialize.DOMSerializerImpl;
+import org.fedora.api.FedoraAPIA;
+import org.fedora.api.FedoraAPIAService;
+import org.fedora.api.FedoraAPIM;
+import org.fedora.api.FedoraAPIMService;
+import org.fedora.api.MIMETypedStream;
+import org.fedora.api.ObjectFactory;
+import org.fedora.api.RelationshipTuple;
 import org.w3c.dom.DOMException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -33,7 +53,6 @@ import org.xml.sax.SAXException;
 import com.google.inject.Inject;
 
 import cz.incad.kramerius.FedoraAccess;
-import cz.incad.kramerius.FedoraModels;
 import cz.incad.kramerius.FedoraNamespaces;
 import cz.incad.kramerius.FedoraRelationship;
 import cz.incad.kramerius.KrameriusModels;
@@ -356,6 +375,171 @@ public class FedoraAccessImpl implements FedoraAccess {
 		String url = configuration.getFedoraHost() +"/get/uuid:"+uuid+"/RELS-EXT";
 		return url;
 	}
-
 	
+	private FedoraAPIM APIMport;
+    private FedoraAPIA APIAport;
+    
+    private ObjectFactory of;
+    
+    public FedoraAPIA getAPIA(){
+        if (APIAport == null){
+            initAPIA();
+        }
+        return APIAport;
+    }
+    
+    public FedoraAPIM getAPIM(){
+        if (APIMport == null){
+            initAPIM();
+        }
+        return APIMport;
+    }
+    
+    public ObjectFactory getObjectFactory(){
+        if (of == null){
+            of = new ObjectFactory();
+        }
+        return of;
+    }
+    
+    
+    private void initAPIA(){
+        final String user = KConfiguration.getKConfiguration().getFedoraUser();
+        final String pwd = KConfiguration.getKConfiguration().getFedoraPass();
+        Authenticator.setDefault(new Authenticator() { 
+            protected PasswordAuthentication getPasswordAuthentication() { 
+               return new PasswordAuthentication(user, pwd.toCharArray()); 
+             } 
+           }); 
+        
+        FedoraAPIAService APIAservice = null;
+        try {
+            APIAservice = new FedoraAPIAService(new URL(KConfiguration.getKConfiguration().getFedoraHost()+"/wsdl?api=API-A"),
+                    new QName("http://www.fedora.info/definitions/1/0/api/", "Fedora-API-A-Service"));
+        } catch (MalformedURLException e) {
+            LOGGER.severe("InvalidURL API-A:"+e);
+            throw new RuntimeException(e);
+        }
+        APIAport = APIAservice.getPort(FedoraAPIA.class);
+        ((BindingProvider) APIAport).getRequestContext().put(BindingProvider.USERNAME_PROPERTY, user);
+        ((BindingProvider) APIAport).getRequestContext().put(BindingProvider.PASSWORD_PROPERTY, pwd);
+       
+
+    }
+    
+    private void initAPIM(){
+        final String user = KConfiguration.getKConfiguration().getFedoraUser();
+        final String pwd = KConfiguration.getKConfiguration().getFedoraPass();
+        Authenticator.setDefault(new Authenticator() { 
+            protected PasswordAuthentication getPasswordAuthentication() { 
+               return new PasswordAuthentication(user, pwd.toCharArray()); 
+             } 
+           }); 
+        
+        FedoraAPIMService APIMservice = null;
+        try {
+            APIMservice = new FedoraAPIMService(new URL(KConfiguration.getKConfiguration().getFedoraHost()+"/wsdl?api=API-M"),
+                    new QName("http://www.fedora.info/definitions/1/0/api/", "Fedora-API-M-Service"));
+        } catch (MalformedURLException e) {
+            LOGGER.severe("InvalidURL API-M:"+e);
+            throw new RuntimeException(e);
+        }
+        APIMport = APIMservice.getPort(FedoraAPIM.class);
+        ((BindingProvider) APIMport).getRequestContext().put(BindingProvider.USERNAME_PROPERTY, user);
+        ((BindingProvider) APIMport).getRequestContext().put(BindingProvider.PASSWORD_PROPERTY, pwd);
+       
+
+    }
+    
+    
+    
+    private static final List<String> TREE_PREDICATES = Arrays.asList(new String[]{
+            "http://www.nsdl.org/ontologies/relationships#hasPage",
+            "http://www.nsdl.org/ontologies/relationships#hasPart",
+            "http://www.nsdl.org/ontologies/relationships#hasVolume",
+            "http://www.nsdl.org/ontologies/relationships#hasItem",
+            "http://www.nsdl.org/ontologies/relationships#hasUnit"
+    });
+    
+    public void processSubtree(String pid, TreeNodeProcessor processor){
+        processor.process(pid);
+        for (RelationshipTuple rel : getAPIM().getRelationships(pid, null)){
+            if (TREE_PREDICATES.contains(rel.getPredicate())){
+                processSubtree(rel.getObject(), processor);
+            }
+        }
+    }
+    
+    public Set<String> getPids(String pid){
+        final Set<String> retval = new HashSet<String>();
+        processSubtree(pid, new TreeNodeProcessor(){
+
+            @Override
+            public void process(String pid) {
+               retval.add(pid);
+            }});
+        return retval;
+    }
+    
+    public static interface TreeNodeProcessor {
+        public void process(String pid);
+    }
+    
+    public static void main(String[] args) {
+        FedoraAccessImpl inst = new FedoraAccessImpl(null);
+        
+        MIMETypedStream stream = inst.getAPIA().getDatastreamDissemination("uuid:pokus", "DC", null);
+        DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+        dbf.setNamespaceAware(true);
+        try{
+        DocumentBuilder db = dbf.newDocumentBuilder();
+        Document doc = db.parse(new ByteArrayInputStream(stream.getStream()));
+        XPathFactory factory = XPathFactory.newInstance();
+        XPath xpath = factory.newXPath();
+        xpath.setNamespaceContext(new NamespaceContext() {
+            
+            @Override
+            public Iterator getPrefixes(String arg0) {
+                throw new UnsupportedOperationException();
+            }
+            
+            @Override
+            public String getPrefix(String arg0) {
+                throw new UnsupportedOperationException();
+            }
+            
+            @Override
+            public String getNamespaceURI(String prefix) {
+                if (prefix == null) throw new NullPointerException("Null prefix");
+                else if ("dc".equals(prefix)) return "http://purl.org/dc/elements/1.1/";
+               
+                return XMLConstants.XML_NS_URI;
+            }
+        });
+        XPathExpression expr = xpath.compile("//dc:title");
+        Object result = expr.evaluate(doc, XPathConstants.NODESET);
+        NodeList nodes = (NodeList) result;
+        for (int i = 0; i < nodes.getLength(); i++) {
+            Node node = nodes.item(i);
+            //System.out.println(node.getTextContent()); 
+            node.setTextContent(node.getTextContent()+"1");
+        }
+        DOMSerializerImpl ser = new DOMSerializerImpl();
+        ser.setParameter("xml-declaration", false);
+        DOMOutputImpl lso = new DOMOutputImpl();
+        lso.setEncoding("UTF-8");
+        StringWriter swr = new StringWriter();
+        lso.setCharacterStream(swr);
+        ser.write(doc,lso);
+        //System.out.println(swr.getBuffer().toString());
+        inst.getAPIM().modifyDatastreamByValue("uuid:pokus", "DC", null, null, null, null, swr.getBuffer().toString().getBytes("UTF-8"), null, null, "", false);
+        }catch (Throwable t){
+            System.out.println("Error"+t);
+        }
+        
+        //inst.getAPIM().modifyDatastreamByValue("uuid:pokus", "DC", null, null, null, null, cont.getBytes(), null, null, "APIM zmena", false);
+        
+        //System.out.println(inst.getPids("info:fedora/uuid:0eaa6730-9068-11dd-97de-000d606f5dc6"));
+    }
+    
 }
