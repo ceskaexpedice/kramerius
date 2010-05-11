@@ -18,6 +18,5 @@ public class PDFModule extends AbstractModule {
 	protected void configure() {
 		bind(FedoraAccess.class).to(FedoraAccessImpl.class).in(Scopes.SINGLETON);
 		bind(GeneratePDFService.class).to(GeneratePDFServiceImpl.class).in(Scopes.SINGLETON);
-		bind(KConfiguration.class).toInstance(KConfiguration.getKConfiguration());
 	}
 }

@@ -12,6 +12,7 @@ import org.w3c.dom.Document;
 
 import com.google.inject.Guice;
 import com.google.inject.Injector;
+import com.google.inject.Key;
 
 import cz.incad.kramerius.FedoraAccess;
 import cz.incad.kramerius.lp.guice.PDFModule;
@@ -30,12 +31,13 @@ public class PDFExport {
 	
 	public static void main(String[] args) throws IOException {
 		if (args.length == 3) {
-			LOGGER.info("Parameters "+args[0]+", "+args[1]+", "+args[2]);
+			LOGGER.info("Parameters "+args[0]+", "+args[1]+", "+args[2]+", "+args[3]);
 
 			String outputFolderName = args[0];
 			Medium medium = Medium.valueOf(args[1]);
 			String uuid = args[2];
-
+			String djvuUrl = args[3];
+			
 			File uuidFolder = new File(getTmpDir(), uuid);
 			if (uuidFolder.exists()) { uuidFolder.delete(); }
 			
@@ -43,7 +45,7 @@ public class PDFExport {
 			if (System.getProperty("uuid") != null) {
 				updateProcessName(uuid, injector, medium);
 			}
-			generatePDFs(uuid, uuidFolder, injector);
+			generatePDFs(uuid, uuidFolder, injector,djvuUrl);
 			createFSStructure(uuidFolder, new File(outputFolderName), medium);
 		}
 	}
@@ -89,7 +91,7 @@ public class PDFExport {
 	}
 
 
-	private static void generatePDFs(String uuid, File uuidFolder, Injector injector) {
+	private static void generatePDFs(String uuid, File uuidFolder, Injector injector, String djvuUrl) {
 		try {
 			if (!uuidFolder.exists()) { 
 				uuidFolder.mkdirs(); 
@@ -107,7 +109,7 @@ public class PDFExport {
 			String title = DCUtils.titleFromDC(dc);
 			LOGGER.info("title is "+title);
 			GenerateController controller = new GenerateController(uuidFolder, title);
-			generatePDF.fullPDFExport(uuid, controller, controller);
+			generatePDF.fullPDFExport(uuid, controller, controller, djvuUrl);
 		} catch (IOException e) {
 			LOGGER.log(Level.SEVERE, e.getMessage(), e);
 		}
