@@ -85,7 +85,7 @@ public class GeneratePDFTest extends TestCase {
 		GenerateController controller = new GenerateController();
 		//instance.fullPDFExport("966dfeb3-e640-11de-a504-001143e3f55c", controller, controller);
 		//instance.fullPDFExport("9a2c4008-e640-11de-a504-001143e3f55c", fos);
-		instance.fullPDFExport("9a2c671a-e640-11de-a504-001143e3f55c", controller, controller);
+		//instance.fullPDFExport("9a2c671a-e640-11de-a504-001143e3f55c", controller, controller);
 		//instance.fullPDFExport("966dfeb3-e640-11de-a504-001143e3f55c", controller, controller);
 		
 		//http://194.108.215.227:8080/fedora/get/uuid:e3a6a694-2eda-48c9-97f9-76bcadfb291d/RELS-EXT
