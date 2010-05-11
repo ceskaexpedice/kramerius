@@ -28,7 +28,7 @@ public class DisectSizesTest extends TestCase {
 		for (int i = 0; i < ITERATIONS; i++) {
 			long start = System.currentTimeMillis();
 			//String currentProcessinguuid = "775211f0-9280-11de-9660-000d606f5dc6";
-			ArrayList<SimpleImageTO> pages = Utils.getPages(configuration, UUID);
+			ArrayList<SimpleImageTO> pages = Utils.getPages(configuration, null, UUID);
 			ThumbnailServerUtils.disectSizesOldStyle( UUID, pages);
 			long stop = System.currentTimeMillis();
 			//System.out.println((stop-start)+"ms");
@@ -42,7 +42,7 @@ public class DisectSizesTest extends TestCase {
 		int sum = 0;
 		for (int i = 0; i < ITERATIONS; i++) {
 			long start = System.currentTimeMillis();
-			ArrayList<SimpleImageTO> pages = Utils.getPages(configuration, UUID);
+			ArrayList<SimpleImageTO> pages = Utils.getPages(configuration, null, UUID);
 			ThumbnailServerUtils.disectSizes( UUID, pages);
 			long stop = System.currentTimeMillis();
 			long trvalo = stop - start;
