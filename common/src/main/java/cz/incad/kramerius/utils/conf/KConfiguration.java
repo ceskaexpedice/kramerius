@@ -128,9 +128,9 @@ public class KConfiguration {
     	return getProperty("longRunningProcessDefinition");
 	}
 
-	public String getLRServletURL() {
-    	return getProperty("lrControlUrl");
-	}
+//	public String getLRServletURL() {
+//    	return getProperty("lrControlUrl");
+//	}
 
 	public List<String> getPatterns() {
 		List<String> retval = new ArrayList<String>();

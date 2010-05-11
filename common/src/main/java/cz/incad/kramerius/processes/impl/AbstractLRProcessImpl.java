@@ -87,7 +87,7 @@ public abstract class AbstractLRProcessImpl implements LRProcess{
 	}
 
 	@Override
-	public void startMe(boolean wait, String krameriusAppLib) {
+	public void startMe(boolean wait, String krameriusAppLib, String lrServlet) {
 		try {
 			File processWorkingDir = processWorkingDirectory();
 
@@ -97,7 +97,7 @@ public abstract class AbstractLRProcessImpl implements LRProcess{
 			command.add("java");
 			command.add("-D"+ProcessStarter.MAIN_CLASS_KEY+"="+this.definition.getMainClass());
 			command.add("-D"+ProcessStarter.UUID_KEY+"="+this.uuid);
-			command.add("-D"+ProcessStarter.LR_SERVLET_URL+"="+KConfiguration.getKConfiguration().getLRServletURL());
+			command.add("-D"+ProcessStarter.LR_SERVLET_URL+"="+lrServlet);
 
 			
 			File standardStreamFile = standardOutFile(processWorkingDir);
