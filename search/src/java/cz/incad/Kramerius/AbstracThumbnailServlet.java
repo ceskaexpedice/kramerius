@@ -137,12 +137,12 @@ public class AbstracThumbnailServlet extends GuiceServlet {
 //	}
 
 	protected String getDJVUServlet(String uuid, HttpServletRequest request) {
-		String path =  currentURL(request);
+		String path =  hiddenDJVUServlet(request);
 		path += "&"+IKeys.UUID_PARAMETER+"="+uuid+"&outputFormat=RAW";
 		return path;
 	}
 
-	public static String currentURL(HttpServletRequest request) {
+	public static String hiddenDJVUServlet(HttpServletRequest request) {
 		//"dvju"
 		try {
 			URL url = new URL(request.getRequestURL().toString());

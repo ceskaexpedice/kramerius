@@ -20,15 +20,16 @@ public class ProcessViewObject {
 	private LRProcessOrdering ordering;
 	private LRProcessOffset offset;
 	private TypeOfOrdering typeOfOrdering;
-
+	private String lrUrl;
 	
-	public ProcessViewObject(LRProcess lrProcess, LRProcessDefinition definition, LRProcessOrdering ordering, LRProcessOffset offset, TypeOfOrdering typeOfOrdering) {
+	public ProcessViewObject(LRProcess lrProcess, LRProcessDefinition definition, LRProcessOrdering ordering, LRProcessOffset offset, TypeOfOrdering typeOfOrdering, String lrUrl) {
 		super();
 		this.lrProcess = lrProcess;
 		this.ordering = ordering;
 		this.offset = offset;
 		this.typeOfOrdering = typeOfOrdering;
 		this.definition = definition;
+		this.lrUrl = lrUrl;
 	}
 
 	public String getPid() {
@@ -63,7 +64,7 @@ public class ProcessViewObject {
 
 	public String getKillURL() {
 		if (this.lrProcess.getProcessState().equals(States.RUNNING)) {
-			String url = KConfiguration.getKConfiguration().getLRServletURL()+"?action=stop&uuid="+this.lrProcess.getUUID();
+			String url = lrUrl+"?action=stop&uuid="+this.lrProcess.getUUID();
 			return "<a href=\"javascript:killAndRefresh('"+url+"','"+this.ordering.name()+"',"+this.offset.getOffset()+","+this.offset.getSize()+",'"+this.typeOfOrdering.name()+"');\">Zastavit</a>";
 		} else {
 			return "";

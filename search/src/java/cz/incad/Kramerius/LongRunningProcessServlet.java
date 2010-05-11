@@ -3,11 +3,14 @@ package cz.incad.Kramerius;
 import java.io.File;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.net.URLDecoder;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
+import java.util.StringTokenizer;
 import java.util.logging.Level;
 
 import javax.servlet.ServletContext;
@@ -18,6 +21,7 @@ import javax.servlet.http.HttpServletResponse;
 import com.google.inject.Inject;
 
 import cz.incad.Kramerius.backend.guice.GuiceServlet;
+import cz.incad.Kramerius.backend.guice.RequestSecurityAcceptor;
 import cz.incad.kramerius.processes.DefinitionManager;
 import cz.incad.kramerius.processes.LRProcess;
 import cz.incad.kramerius.processes.LRProcessDefinition;
@@ -49,12 +53,12 @@ public class LongRunningProcessServlet extends GuiceServlet {
 	}
 
 	
-	public static LRProcess startNewProcess(ServletContext context, String def, DefinitionManager definitionManager, String[] params) {
+	public static LRProcess startNewProcess(HttpServletRequest request, ServletContext context, String def, DefinitionManager definitionManager, String[] params) {
 		definitionManager.load();
 		LRProcessDefinition definition = definitionManager.getLongRunningProcessDefinition(def);
 		LRProcess newProcess = definition.createNewProcess();
 		newProcess.setParameters(Arrays.asList(params));
-		newProcess.startMe(false, context.getRealPath("WEB-INF/lib"));
+		newProcess.startMe(false, context.getRealPath("WEB-INF/lib"), lrServlet(request));
 		return newProcess;
 	}
 
@@ -77,7 +81,7 @@ public class LongRunningProcessServlet extends GuiceServlet {
 					if (parametersString !=null) {
 						params = parametersString.split(",");
 					}
-					LRProcess nprocess = startNewProcess(context, def, defManager, params);
+					LRProcess nprocess = startNewProcess(req, context, def, defManager, params);
 					if ((out != null) && (out.equals("text"))) {
 						resp.getOutputStream().print("["+nprocess.getDefinitionId()+"]"+nprocess.getProcessState().name());
 					} else {
@@ -137,7 +141,7 @@ public class LongRunningProcessServlet extends GuiceServlet {
 					for (LRProcess lrProcess : longRunningProcesses) {
 						buffer.append("<li>").append("PID:").append(lrProcess.getPid());
 						if (lrProcess.canBeStopped()) {
-							buffer.append("  ... <a href='"+KConfiguration.getKConfiguration().getLRServletURL()+"?action=stop&uuid="+lrProcess.getUUID()+"'>stop</a>");
+							buffer.append("  ... <a href='"+lrServlet(req)+"?action=stop&uuid="+lrProcess.getUUID()+"'>stop</a>");
 						}
 						buffer.append("<li>").append("uuid :").append(lrProcess.getUUID());
 						buffer.append("<li>").append("name :").append(lrProcess.getProcessName());
@@ -211,4 +215,20 @@ public class LongRunningProcessServlet extends GuiceServlet {
 		
 		abstract void doAction(ServletContext context,  HttpServletRequest req, HttpServletResponse resp, DefinitionManager defManager, LRProcessManager processManager);
 	}
+	
+	
+
+	public static String lrServlet(HttpServletRequest request) {
+		//"dvju"
+		try {
+			URL url = new URL(request.getRequestURL().toString());
+			String path = url.getPath();
+			String lrURL = url.getProtocol()+"://"+url.getHost()+":"+url.getPort()+"/"+path;
+			return lrURL;
+		} catch (MalformedURLException e) {
+			LOGGER.log(Level.SEVERE, e.getMessage(), e);
+			return "<no url>";
+		}
+	}
+
 }

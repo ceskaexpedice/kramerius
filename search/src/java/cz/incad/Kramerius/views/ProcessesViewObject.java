@@ -20,14 +20,17 @@ public class ProcessesViewObject {
 	private LRProcessOrdering ordering;
 	private LRProcessOffset offset;
 	private TypeOfOrdering typeOfOrdering;
+
+	private String lrUrl;
 	
-	public ProcessesViewObject(LRProcessManager processManager, DefinitionManager manager, LRProcessOrdering ordering, TypeOfOrdering typeOfOrdering, LRProcessOffset offset) {
+	public ProcessesViewObject(LRProcessManager processManager, DefinitionManager manager, LRProcessOrdering ordering, TypeOfOrdering typeOfOrdering, LRProcessOffset offset, String lrUrl) {
 		super();
 		this.processManager = processManager;
 		this.ordering = ordering;
 		this.offset = offset;
 		this.typeOfOrdering = typeOfOrdering;
 		this.definitionManager = manager;
+		this.lrUrl = lrUrl;
 	}
 
 	public List<ProcessViewObject> getProcesses() {
@@ -35,7 +38,7 @@ public class ProcessesViewObject {
 		List<ProcessViewObject> objects = new ArrayList<ProcessViewObject>();
 		for (LRProcess lrProcess : lrProcesses) {
 			LRProcessDefinition def = this.definitionManager.getLongRunningProcessDefinition(lrProcess.getDefinitionId());
-			objects.add(new ProcessViewObject(lrProcess, def, this.ordering, this.offset, this.typeOfOrdering));
+			objects.add(new ProcessViewObject(lrProcess, def, this.ordering, this.offset, this.typeOfOrdering, this.lrUrl));
 		}
 		return objects;
 	}
