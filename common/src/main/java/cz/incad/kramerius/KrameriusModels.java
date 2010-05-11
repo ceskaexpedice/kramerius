@@ -6,7 +6,7 @@
 package cz.incad.kramerius;
 
 /**
- *
+ * This enums contains all models used in kramerius
  * @author Administrator
  */
 public enum KrameriusModels {

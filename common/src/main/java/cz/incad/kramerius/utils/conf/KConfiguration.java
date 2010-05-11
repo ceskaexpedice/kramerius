@@ -11,7 +11,10 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Properties;
+import java.util.StringTokenizer;
 
 import cz.incad.kramerius.utils.IOUtils;
 
@@ -79,9 +82,6 @@ public class KConfiguration {
     	return getProperty("thumbUrl");
     }
 
-    public String getDJVUServletUrl() {
-    	return getProperty("djvuUrl");
-    }
 
     public String getScaledHeight() {
     	return getProperty("scaledHeight");
@@ -130,6 +130,18 @@ public class KConfiguration {
 
 	public String getLRServletURL() {
     	return getProperty("lrControlUrl");
+	}
+
+	public List<String> getPatterns() {
+		List<String> retval = new ArrayList<String>();
+		String property = getProperty("accessPatterns");
+		if (property !=null ) {
+			StringTokenizer tokenizer = new StringTokenizer(property, "||");
+			while(tokenizer.hasMoreTokens()) {
+				retval.add(tokenizer.nextToken());
+			}
+		}
+		return retval;
 	}
 }
 

@@ -44,6 +44,11 @@ import cz.incad.kramerius.utils.conf.KConfiguration;
 import cz.incad.kramerius.utils.pid.LexerException;
 import cz.incad.kramerius.utils.pid.PIDParser;
 
+/**
+ * Default implementation of fedoraAccess
+ * @see FedoraAccess
+ * @author pavels
+ */
 public class FedoraAccessImpl implements FedoraAccess {
 
 	public static final java.util.logging.Logger LOGGER = java.util.logging.Logger
@@ -351,4 +356,6 @@ public class FedoraAccessImpl implements FedoraAccess {
 		String url = configuration.getFedoraHost() +"/get/uuid:"+uuid+"/RELS-EXT";
 		return url;
 	}
+
+	
 }

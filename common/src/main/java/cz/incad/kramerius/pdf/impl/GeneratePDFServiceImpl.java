@@ -25,6 +25,9 @@ import org.w3c.dom.DOMException;
 import org.w3c.dom.Element;
 
 import com.google.inject.Inject;
+import com.google.inject.name.Named;
+import com.lizardtech.djvu.DjVmDir;
+import com.lizardtech.djvu.anno.DjVuAnno;
 import com.lowagie.text.BadElementException;
 import com.lowagie.text.Chunk;
 import com.lowagie.text.Document;
@@ -74,6 +77,7 @@ public class GeneratePDFServiceImpl implements GeneratePDFService {
     public static final int DEFAULT_HEIGHT = 842;
 
 	@Inject
+	@Named("securedFedoraAccess")
 	FedoraAccess fedoraAccess;
 	@Inject
 	KConfiguration configuration;
@@ -81,13 +85,13 @@ public class GeneratePDFServiceImpl implements GeneratePDFService {
 	
 	
 	@Override
-	public AbstractRenderedDocument generateCustomPDF(AbstractRenderedDocument rdoc, String parentUUID, OutputStream os, Break brk) throws IOException {
+	public AbstractRenderedDocument generateCustomPDF(AbstractRenderedDocument rdoc, String parentUUID, OutputStream os, Break brk, String djvUrl) throws IOException {
 		try {
 			String brokenPage = null;
 			Document doc = createDocument();
 			PdfWriter writer = PdfWriter.getInstance(doc, os);
 			doc.open();
-			insertFirstPage(rdoc, parentUUID, rdoc.getUuidTitlePage(), writer, doc);
+			insertFirstPage(rdoc, parentUUID, rdoc.getUuidTitlePage(), writer, doc, djvUrl);
 			doc.newPage();
 			int pocetStranek = 0;
 			List<AbstractPage> pages = new ArrayList<AbstractPage>(rdoc.getPages());
@@ -97,7 +101,7 @@ public class GeneratePDFServiceImpl implements GeneratePDFService {
 				doc.newPage();
 				if (page instanceof ImagePage) {
 					ImagePage iPage = (ImagePage) page;
-					insertOutlinedImagePage(iPage, writer, doc);
+					insertOutlinedImagePage(iPage, writer, doc, djvUrl);
 				} else {
 					TextPage tPage = (TextPage) page;
 					insertOutlinedTextPage(tPage, writer, doc, rdoc.getDocumentTitle());
@@ -144,18 +148,18 @@ public class GeneratePDFServiceImpl implements GeneratePDFService {
 
 
 	@Override
-	public void generateCustomPDF(AbstractRenderedDocument rdoc, String parentUUID, OutputStream os) throws IOException {
+	public void generateCustomPDF(AbstractRenderedDocument rdoc, String parentUUID, OutputStream os, String djvuUrl) throws IOException {
 		try {
 			Document doc = createDocument();
 			PdfWriter writer = PdfWriter.getInstance(doc, os);
 			doc.open();
-			insertFirstPage(rdoc, parentUUID, rdoc.getUuidTitlePage(), writer, doc);
+			insertFirstPage(rdoc, parentUUID, rdoc.getUuidTitlePage(), writer, doc, djvuUrl);
 			doc.newPage();
 			for (AbstractPage page : rdoc.getPages()) {
 				doc.newPage();
 				if (page instanceof ImagePage) {
 					ImagePage iPage = (ImagePage) page;
-					insertOutlinedImagePage(iPage, writer, doc);
+					insertOutlinedImagePage(iPage, writer, doc, djvuUrl);
 				} else {
 					TextPage tPage = (TextPage) page;
 					if (tPage.getOutlineTitle().trim().equals("")) throw new IllegalArgumentException(page.getUuid());
@@ -196,7 +200,7 @@ public class GeneratePDFServiceImpl implements GeneratePDFService {
 	
 
 	@Override
-	public void dynamicPDFExport(List<String> path, String uuidFrom, String uuidTo, String titlePage, OutputStream os) throws IOException {
+	public void dynamicPDFExport(List<String> path, String uuidFrom, String uuidTo, String titlePage, OutputStream os, String djvuUrl) throws IOException {
 		if (!path.isEmpty()) {
 			String lastUuid = path.get(path.size() -1);
 
@@ -209,13 +213,13 @@ public class GeneratePDFServiceImpl implements GeneratePDFService {
 			renderedDocument.setUuidMainTitle(path.get(0));
 			
 			buildRenderingDocumentAsFlat(relsExt, renderedDocument, uuidFrom, uuidTo);
-			generateCustomPDF(renderedDocument, lastUuid,os);
+			generateCustomPDF(renderedDocument, lastUuid,os, djvuUrl);
 		}
 	}
 
 
 	@Override
-	public void fullPDFExport(String parentUUID, OutputStreams streams, Break brk) throws IOException {
+	public void fullPDFExport(String parentUUID, OutputStreams streams, Break brk, String djvuUrl) throws IOException {
 		org.w3c.dom.Document relsExt = this.fedoraAccess.getRelsExt(parentUUID);
 		KrameriusModels model = this.fedoraAccess.getKrameriusModel(relsExt);
 		
@@ -240,7 +244,7 @@ public class GeneratePDFServiceImpl implements GeneratePDFService {
 		while(!konec) {
 			if (!restOfDoc.getPages().isEmpty()) {
 				os = streams.newOutputStream();
-				restOfDoc = generateCustomPDF(restOfDoc, parentUUID, os, brk);
+				restOfDoc = generateCustomPDF(restOfDoc, parentUUID, os, brk, djvuUrl);
 				
 				StringBuffer buffer = new StringBuffer();
 				restOfDoc.getOutlineItemRoot().debugInformations(buffer, 1);
@@ -450,7 +454,7 @@ public class GeneratePDFServiceImpl implements GeneratePDFService {
 		return pdfPTable;
 	}
 
-	public void insertFirstPage(AbstractRenderedDocument model, String parentUuid, String titlePageUuid , PdfWriter pdfWriter, Document pdfDoc) throws IOException, DocumentException {
+	public void insertFirstPage(AbstractRenderedDocument model, String parentUuid, String titlePageUuid , PdfWriter pdfWriter, Document pdfDoc, String djvuUrl) throws IOException, DocumentException {
 		try {
 			URL resource = this.getClass().getResource("res/kramerius_logo.png");
 			com.lowagie.text.Image img = com.lowagie.text.Image.getInstance(resource);
@@ -469,7 +473,7 @@ public class GeneratePDFServiceImpl implements GeneratePDFService {
 			pdfPTable.getDefaultCell().setBorderWidth(15f);
 
 			
-			insertTitleImage(pdfPTable, titlePageUuid);
+			insertTitleImage(pdfPTable, titlePageUuid, djvuUrl);
 			pdfPTable.addCell(insertTitleAndAuthors(model));
 			
 			final float[] mheights = new float[2];
@@ -558,9 +562,9 @@ public class GeneratePDFServiceImpl implements GeneratePDFService {
 		document.add(para);
 	}
 
-	public void insertOutlinedImagePage(ImagePage page, PdfWriter pdfWriter, Document document) throws XPathExpressionException, IOException, DocumentException {
+	public void insertOutlinedImagePage(ImagePage page, PdfWriter pdfWriter, Document document, String djvuUrl) throws XPathExpressionException, IOException, DocumentException {
 		String title = page.getOutlineTitle();
-		insertImage(page.getUuid(), pdfWriter, document, 0.7f);
+		insertImage(page.getUuid(), pdfWriter, document, 0.7f,djvuUrl);
 		
 		Font font = getFont();
 		Chunk chunk = new Chunk(title);
@@ -592,59 +596,70 @@ public class GeneratePDFServiceImpl implements GeneratePDFService {
 //		insertImage(uuid, pdfWriter, document, 1.0f);
 //	}
 	
-	public void insertTitleImage(PdfPTable pdfPTable, String uuid) throws IOException, BadElementException, XPathExpressionException {
-		String imgUrl = createIMGFULL(uuid);
-		if (fedoraAccess.isImageFULLAvailable(uuid)) {
-			String mimetypeString = fedoraAccess.getImageFULLMimeType(uuid);
-			ImageMimeType mimetype = ImageMimeType.loadFromMimeType(mimetypeString);
-			if (mimetype != null) {
-				float smallImage = 0.2f;
-				Image javaImg = readImage(new URL(imgUrl), mimetype);
-				ByteArrayOutputStream bos = new ByteArrayOutputStream();
-				writeImageToStream(javaImg, "jpeg", bos);
+	public void insertTitleImage(PdfPTable pdfPTable, String uuid, String djvuUrl) throws IOException, BadElementException, XPathExpressionException {
+		String imgUrl = createIMGFULL(uuid, djvuUrl);
+		try {
+			if (fedoraAccess.isImageFULLAvailable(uuid)) {
+				String mimetypeString = fedoraAccess.getImageFULLMimeType(uuid);
+				ImageMimeType mimetype = ImageMimeType.loadFromMimeType(mimetypeString);
+				if (mimetype != null) {
+					float smallImage = 0.2f;
+					Image javaImg = readImage(new URL(imgUrl), mimetype);
+					ByteArrayOutputStream bos = new ByteArrayOutputStream();
+					writeImageToStream(javaImg, "jpeg", bos);
 
-				com.lowagie.text.Image img = com.lowagie.text.Image.getInstance(bos.toByteArray());
-				
-				img.scaleAbsoluteHeight(smallImage * img.getHeight());
-				img.scaleAbsoluteWidth(smallImage * img.getWidth());
-				pdfPTable.addCell(img);
+					com.lowagie.text.Image img = com.lowagie.text.Image.getInstance(bos.toByteArray());
+					
+					img.scaleAbsoluteHeight(smallImage * img.getHeight());
+					img.scaleAbsoluteWidth(smallImage * img.getWidth());
+					pdfPTable.addCell(img);
+				}
+			} else {
+				pdfPTable.addCell(" - ");
 			}
-		} else {
+		} catch (cz.incad.kramerius.security.SecurityException e) {
+			LOGGER.log(Level.SEVERE, e.getMessage(), e);
 			pdfPTable.addCell(" - ");
 		}
 	}
 	
-	public void insertImage(String uuid, PdfWriter pdfWriter , Document document, float percentage) throws XPathExpressionException, IOException, DocumentException {
-		if (fedoraAccess.isImageFULLAvailable(uuid)) {
-			//bypass 
-			String imgUrl = createIMGFULL(uuid);
-			String mimetypeString = fedoraAccess.getImageFULLMimeType(uuid);
-			ImageMimeType mimetype = ImageMimeType.loadFromMimeType(mimetypeString);
-			if (mimetype != null) {
-				Image javaImg = readImage(new URL(imgUrl), mimetype);
-				ByteArrayOutputStream bos = new ByteArrayOutputStream();
-				writeImageToStream(javaImg, "jpeg", bos);
+	public void insertImage(String uuid, PdfWriter pdfWriter , Document document, float percentage, String djvuUrl) throws XPathExpressionException, IOException, DocumentException {
+		try {
+			if (fedoraAccess.isImageFULLAvailable(uuid)) {
+				//bypass 
+				String imgUrl = createIMGFULL(uuid, djvuUrl);
+				String mimetypeString = fedoraAccess.getImageFULLMimeType(uuid);
+				ImageMimeType mimetype = ImageMimeType.loadFromMimeType(mimetypeString);
+				if (mimetype != null) {
+					Image javaImg = readImage(new URL(imgUrl), mimetype);
+					ByteArrayOutputStream bos = new ByteArrayOutputStream();
+					writeImageToStream(javaImg, "jpeg", bos);
 
-				com.lowagie.text.Image img = com.lowagie.text.Image.getInstance(bos.toByteArray());
+					com.lowagie.text.Image img = com.lowagie.text.Image.getInstance(bos.toByteArray());
 
-				Float wratio = document.getPageSize().getWidth()/ javaImg.getWidth(null);
-				Float hratio = document.getPageSize().getHeight()/ javaImg.getHeight(null);
-				Float ratio = Math.min(wratio, hratio);
-				if (percentage != 1.0) { ratio = ratio * percentage; }
-				
-				int fitToPageWidth = (int) (javaImg.getWidth(null) * ratio);
-				int fitToPageHeight = (int) (javaImg.getHeight(null) * ratio);
-				
-				int offsetX = ((int)document.getPageSize().getWidth() - fitToPageWidth) / 2;
-				int offsetY = ((int)document.getPageSize().getHeight() - fitToPageHeight) / 2;
+					Float wratio = document.getPageSize().getWidth()/ javaImg.getWidth(null);
+					Float hratio = document.getPageSize().getHeight()/ javaImg.getHeight(null);
+					Float ratio = Math.min(wratio, hratio);
+					if (percentage != 1.0) { ratio = ratio * percentage; }
+					
+					int fitToPageWidth = (int) (javaImg.getWidth(null) * ratio);
+					int fitToPageHeight = (int) (javaImg.getHeight(null) * ratio);
+					
+					int offsetX = ((int)document.getPageSize().getWidth() - fitToPageWidth) / 2;
+					int offsetY = ((int)document.getPageSize().getHeight() - fitToPageHeight) / 2;
 
-				img.scaleAbsoluteHeight(ratio * img.getHeight());
-				
-				img.scaleAbsoluteWidth(ratio * img.getWidth());
-				img.setAbsolutePosition((offsetX), document.getPageSize().getHeight() - offsetY - (ratio * img.getHeight()));
-				document.add(img);
+					img.scaleAbsoluteHeight(ratio * img.getHeight());
+					
+					img.scaleAbsoluteWidth(ratio * img.getWidth());
+					img.setAbsolutePosition((offsetX), document.getPageSize().getHeight() - offsetY - (ratio * img.getHeight()));
+					document.add(img);
+				}
+			} else {
+				Paragraph na = new Paragraph("NA");
+				document.add(na);
 			}
-		} else {
+		} catch (cz.incad.kramerius.security.SecurityException e) {
+			LOGGER.log(Level.SEVERE, e.getMessage(), e);
 			Paragraph na = new Paragraph("NA");
 			document.add(na);
 		}
@@ -672,12 +687,9 @@ public class GeneratePDFServiceImpl implements GeneratePDFService {
 	 * @param objectId
 	 * @return
 	 */
-	private String createIMGFULL(String objectId) {
-		String imgUrl = this.configuration.getDJVUServletUrl() +"?uuid="+objectId+"&outputFormat=RAW";
+	private String createIMGFULL(String objectId, String djvuUrl) {
+		String imgUrl = djvuUrl +"?uuid="+objectId+"&outputFormat=RAW";
 		return imgUrl;
 	}
-	
-	
-	
 	
 }

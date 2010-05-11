@@ -9,10 +9,15 @@ import javax.xml.xpath.XPathExpressionException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
+import cz.incad.kramerius.impl.FedoraAccessImpl;
+import cz.incad.kramerius.security.SecuredFedoraAccessImpl;
 import cz.incad.kramerius.utils.imgs.KrameriusImageSupport;
 
 /**
- * This service allows to access to fedora through REST-API
+ * This is main point to access to fedora through REST-API
+ * 
+ * @see FedoraAccessImpl
+ * @see SecuredFedoraAccessImpl
  * @author pavels
  */
 public interface FedoraAccess {
@@ -26,8 +31,20 @@ public interface FedoraAccess {
 	 */
 	public Document getRelsExt(String uuid) throws IOException;
 
+	/**
+	 * Returns KrameriusModel parsed from given document
+	 * @param relsExt RELS-EXT document
+	 * @see KrameriusModels
+	 * @return
+	 */
 	public KrameriusModels getKrameriusModel(Document relsExt);
 	
+	/**
+	 * Returns KrameriusModel of given object
+	 * @param uuid uuid of object
+	 * @return
+	 * @throws IOException
+	 */
 	public KrameriusModels getKrameriusModel(String uuid) throws IOException;
 	
 	/**
@@ -101,10 +118,7 @@ public interface FedoraAccess {
 	public InputStream getImageFULL(String uuid) throws IOException;
 
 	public Document getImageFULLProfile(String uuid) throws IOException;
-
 	public String getImageFULLMimeType(String uuid) throws IOException, XPathExpressionException;
-
-
 	public boolean isImageFULLAvailable(String uuid) throws IOException;
 	
 }

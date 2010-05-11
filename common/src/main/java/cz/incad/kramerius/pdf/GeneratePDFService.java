@@ -20,7 +20,7 @@ public interface GeneratePDFService {
 	 * @param os
 	 * @throws IOException
 	 */
-	public void fullPDFExport(String parentUUID, OutputStreams outputs, Break brk) throws IOException;
+	public void fullPDFExport(String parentUUID, OutputStreams outputs, Break brk, String djvuUrl) throws IOException;
 
 	/**
 	 * Vygeneruje jenom zadane stranky
@@ -31,7 +31,7 @@ public interface GeneratePDFService {
 	 * @param os
 	 * @throws IOException
 	 */
-	public void dynamicPDFExport(List<String> path,String uuidFrom, String uuidTo, String titlePage, OutputStream os) throws IOException;
+	public void dynamicPDFExport(List<String> path,String uuidFrom, String uuidTo, String titlePage, OutputStream os, String djvuUrl) throws IOException;
 	
 	/**
 	 * Vygeneruje vlastni strukturu
@@ -40,8 +40,8 @@ public interface GeneratePDFService {
 	 * @param os
 	 * @throws IOException
 	 */
-	public void generateCustomPDF(AbstractRenderedDocument doc, String parentUUID, OutputStream os) throws IOException;
+	public void generateCustomPDF(AbstractRenderedDocument doc, String parentUUID, OutputStream os, String djvuUrl) throws IOException;
 
-	public AbstractRenderedDocument generateCustomPDF(AbstractRenderedDocument doc, String parentUUID, OutputStream os, Break brk) throws IOException;
+	public AbstractRenderedDocument generateCustomPDF(AbstractRenderedDocument doc, String parentUUID, OutputStream os, Break brk, String djvuUrl) throws IOException;
 }
 
