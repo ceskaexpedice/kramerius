@@ -15,7 +15,7 @@ public class JQuerySliderValue extends SliderValue {
 	
 	@Override
 	public void setValue(double value) {
-		setJQuerySliderValue(new Double(value).intValue());
+		setJQuerySliderValue(value);
 	}
 
 	public native int getJQuerySliderValue() /*-{
@@ -29,11 +29,11 @@ public class JQuerySliderValue extends SliderValue {
 	}-*/;
 
 
-	public native int setJQuerySliderValue(double value) /*-{
+	public native void setJQuerySliderValue(double value) /*-{
 		if (!$wnd.setSliderValue) {
 			alert("expect function setSliderValue");
 		} else {
-			return $wnd.setSliderValue(value);
+			$wnd.setSliderValue(value);
 		}	
 	}-*/;
 	

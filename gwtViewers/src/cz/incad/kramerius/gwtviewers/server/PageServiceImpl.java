@@ -9,6 +9,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -22,6 +23,7 @@ import java.util.logging.Level;
 
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathConstants;
@@ -87,10 +89,24 @@ public class PageServiceImpl extends RemoteServiceServlet implements PageService
 		return url;
 	}
 	
-	public static String thumbnail(String thumbUrl, String uuid, String scaledHeight) {
-		String url = KConfiguration.getKConfiguration().getThumbServletUrl()+"?outputFormat=RAW&uuid="+uuid;
+	public static String thumbnail( String uuid, String scaledHeight, HttpServletRequest request) {
+//		String url = KConfiguration.getKConfiguration().getThumbServletUrl()+"?outputFormat=RAW&uuid="+uuid;
+		String url = currentURL(request)+"?outputFormat=RAW&uuid="+uuid;
 		return url;
 	}
+	
+	public static String currentURL(HttpServletRequest request) {
+		//"dvju"
+		try {
+			URL url = new URL(request.getRequestURL().toString());
+			String imagePath = url.getProtocol()+"://"+url.getHost()+":"+url.getPort()+"/search/thumb";
+			return imagePath;
+		} catch (MalformedURLException e) {
+			LOGGER.log(Level.SEVERE, e.getMessage(), e);
+			return "<no url>";
+		}
+	}
+
 	
 	public PagesResultSet readPages(String parentUUID, String selectedUUID) {
 		long start = System.currentTimeMillis();
@@ -101,7 +117,7 @@ public class PageServiceImpl extends RemoteServiceServlet implements PageService
 			LOGGER.info("Current uuid:"+parentUUID);
 			FedoraModels model = Utils.getModel(kConfiguration, parentUUID);
 			//if (model.equals(FedoraModels.page)) continue;
-			images = UtilsDecorator.getPages(kConfiguration, parentUUID); 
+			images = UtilsDecorator.getPages(kConfiguration,this.getThreadLocalRequest() , parentUUID); 
 			
 			if (images == null) images = new ArrayList<SimpleImageTO>();
 			if (!images.isEmpty()) {
@@ -152,6 +168,7 @@ public class PageServiceImpl extends RemoteServiceServlet implements PageService
 			LOGGER.log(Level.SEVERE, e.getMessage(), e);
 			throw new RuntimeException(e);
 		} catch (LexerException e) {
+			LOGGER.log(Level.SEVERE, e.getMessage(), e);
 			throw new RuntimeException(e);
 		}
 	}

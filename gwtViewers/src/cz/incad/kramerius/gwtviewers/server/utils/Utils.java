@@ -5,6 +5,7 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Stack;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
@@ -64,7 +65,7 @@ public class Utils {
 	}
 
 	
-	public static ArrayList<SimpleImageTO> getPages(KConfiguration kConfiguration,
+	public static ArrayList<SimpleImageTO> getPages(KConfiguration kConfiguration, HttpServletRequest request,
 			String currentProcessinguuid) throws IOException,
 			ParserConfigurationException, SAXException, LexerException {
 		ArrayList<SimpleImageTO> pages = new ArrayList<SimpleImageTO>();
@@ -91,7 +92,7 @@ public class Utils {
 					String objectId = pidParser.getObjectId();
 					SimpleImageTO imageTO = new SimpleImageTO();
 					imageTO.setIdentification(objectId);
-					String thumbnailURL = PageServiceImpl.thumbnail(kConfiguration.getThumbServletUrl(), objectId, kConfiguration.getScaledHeight());
+					String thumbnailURL = PageServiceImpl.thumbnail(objectId, kConfiguration.getScaledHeight(), request);
 					imageTO.setUrl(thumbnailURL);
 					imageTO.setHeight(Integer.parseInt(kConfiguration.getScaledHeight()));
 					imageTO.setWidth(Integer.parseInt(kConfiguration.getScaledHeight()));

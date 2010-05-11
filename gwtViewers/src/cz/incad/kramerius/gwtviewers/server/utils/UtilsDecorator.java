@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.xml.parsers.ParserConfigurationException;
 
 import org.xml.sax.SAXException;
@@ -29,7 +30,7 @@ public class UtilsDecorator {
 		}
 	}
 	
-	public synchronized static ArrayList<SimpleImageTO> getPages(KConfiguration kConfiguration,String currentProcessinguuid) throws IOException,
+	public synchronized static ArrayList<SimpleImageTO> getPages(KConfiguration kConfiguration, HttpServletRequest request,String currentProcessinguuid) throws IOException,
 			ParserConfigurationException, SAXException, LexerException {
 		String callIdentification = CallCache.makeIdent(UtilsDecorator.class.getName(), "getPages", currentProcessinguuid);
 		if (CallCache.isInCache(callIdentification)) {
@@ -37,7 +38,7 @@ public class UtilsDecorator {
 			LOGGER.info("Value from cache for argument("+currentProcessinguuid+")"+(valueFromCache == null ? "null" : valueFromCache.size()));
 			return valueFromCache;
 		} else {
-			ArrayList<SimpleImageTO> pages = Utils.getPages(kConfiguration, currentProcessinguuid);
+			ArrayList<SimpleImageTO> pages = Utils.getPages(kConfiguration, request, currentProcessinguuid);
 			CallCache.cacheValue(callIdentification, pages);
 			ArrayList<SimpleImageTO> valueFromCache = (ArrayList<SimpleImageTO>) CallCache.valueFromCache(callIdentification);
 			if (valueFromCache == null) throw new IllegalStateException("Cache errror");
