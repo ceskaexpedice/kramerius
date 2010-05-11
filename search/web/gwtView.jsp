@@ -33,7 +33,6 @@
             currentSelectedPage = uuid;
             var pageUrl = "djvu?uuid="+uuid+"&scaledHeight=600";
             var mimeUrl = "djvu?uuid="+uuid+"&imageType=ask";
-            //var fullUrl = "<%=KConfiguration.getKConfiguration().getDJVUServletUrl()%>?uuid="+uuid+"&outputFormat=RAW";
             //var img = '<a href="javascript:showImageFull(\''+fullUrl+'\', \''+ mimetype +'\'"><img src="'+pageUrl+'" height="600px" /></a>';
             var img = '<a class="lighbox" href="javascript:showFullImage(\''+uuid+'\')"><img id="imgBig" src="'+pageUrl+'" height="600px" border="0"  /></a>';
             //var img = '<a class="lighbox" href="'+fullUrl+'" target="_blank" ><img id="imgBig" src="'+pageUrl+'" height="600px" border="0" mimetype="unknown" /></a>';
@@ -60,8 +59,7 @@
                 fullDialog.dialog("option","height", $(window).height()-vertMargin);
                 fullDialog.dialog("option","width", $(window).width()-horMargin);
                 fullDialog.dialog('open');
-            }
-            else{
+            } else {
                 fullDialog = $('#fullImageContainer').dialog({
                     left:0, 
                     top:0, 
