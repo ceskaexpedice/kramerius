@@ -1,2 +1,4 @@
-<jsp:forward page="/search.jsp"></jsp:forward>
+<%
+	response.sendRedirect("search.jsp");
+%>
 
