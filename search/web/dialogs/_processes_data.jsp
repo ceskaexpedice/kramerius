@@ -45,12 +45,13 @@
 
 	LRProcessOrdering lrProcOrder = LRProcessOrdering.valueOf(ordering);
 	LRProcessOffset lrOffset = new LRProcessOffset(offset, size);
-	ProcessesViewObject viewObj = new ProcessesViewObject(lrProcessMan, defMan, lrProcOrder,TypeOfOrdering.valueOf(type), lrOffset);
+	ProcessesViewObject viewObj = new ProcessesViewObject(lrProcessMan, defMan, lrProcOrder,TypeOfOrdering.valueOf(type), lrOffset,LongRunningProcessServlet.lrServlet(request));
 	pageContext.setAttribute("processView", viewObj);
 %>
 
 <%@page import="cz.incad.kramerius.processes.TypeOfOrdering"%>
-<div> 
+
+<%@page import="cz.incad.Kramerius.LongRunningProcessServlet"%><div> 
 <table width="100%">
 <tr>
 	<td width="80%">${processView.prevAHREF} &emsp;  ${processView.nextAHREF}</td> 
