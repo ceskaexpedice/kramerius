@@ -99,7 +99,13 @@ public class PageServiceImpl extends RemoteServiceServlet implements PageService
 		//"dvju"
 		try {
 			URL url = new URL(request.getRequestURL().toString());
-			String imagePath = url.getProtocol()+"://"+url.getHost()+":"+url.getPort()+"/search/thumb";
+			String path = url.getPath();
+			StringBuffer buffer = new StringBuffer();
+			StringTokenizer tokenizer = new StringTokenizer(path,"/");
+			if(tokenizer.hasMoreTokens()) { buffer.append(tokenizer.nextToken()); }
+
+			String imagePath = url.getProtocol()+"://"+url.getHost()+":"+url.getPort()+"/"+buffer.toString()+"/thumb";
+
 			return imagePath;
 		} catch (MalformedURLException e) {
 			LOGGER.log(Level.SEVERE, e.getMessage(), e);
