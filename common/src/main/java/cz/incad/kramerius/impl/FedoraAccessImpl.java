@@ -57,6 +57,7 @@ import cz.incad.kramerius.FedoraNamespaces;
 import cz.incad.kramerius.FedoraRelationship;
 import cz.incad.kramerius.KrameriusModels;
 import cz.incad.kramerius.RelsExtHandler;
+import cz.incad.kramerius.TreeNodeProcessor;
 import cz.incad.kramerius.utils.RESTHelper;
 import cz.incad.kramerius.utils.XMLUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
@@ -481,65 +482,8 @@ public class FedoraAccessImpl implements FedoraAccess {
         return retval;
     }
     
-    public static interface TreeNodeProcessor {
-        public void process(String pid);
-    }
     
-    public static void main(String[] args) {
-        FedoraAccessImpl inst = new FedoraAccessImpl(null);
-        
-        MIMETypedStream stream = inst.getAPIA().getDatastreamDissemination("uuid:pokus", "DC", null);
-        DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
-        dbf.setNamespaceAware(true);
-        try{
-        DocumentBuilder db = dbf.newDocumentBuilder();
-        Document doc = db.parse(new ByteArrayInputStream(stream.getStream()));
-        XPathFactory factory = XPathFactory.newInstance();
-        XPath xpath = factory.newXPath();
-        xpath.setNamespaceContext(new NamespaceContext() {
-            
-            @Override
-            public Iterator getPrefixes(String arg0) {
-                throw new UnsupportedOperationException();
-            }
-            
-            @Override
-            public String getPrefix(String arg0) {
-                throw new UnsupportedOperationException();
-            }
-            
-            @Override
-            public String getNamespaceURI(String prefix) {
-                if (prefix == null) throw new NullPointerException("Null prefix");
-                else if ("dc".equals(prefix)) return "http://purl.org/dc/elements/1.1/";
-               
-                return XMLConstants.XML_NS_URI;
-            }
-        });
-        XPathExpression expr = xpath.compile("//dc:title");
-        Object result = expr.evaluate(doc, XPathConstants.NODESET);
-        NodeList nodes = (NodeList) result;
-        for (int i = 0; i < nodes.getLength(); i++) {
-            Node node = nodes.item(i);
-            //System.out.println(node.getTextContent()); 
-            node.setTextContent(node.getTextContent()+"1");
-        }
-        DOMSerializerImpl ser = new DOMSerializerImpl();
-        ser.setParameter("xml-declaration", false);
-        DOMOutputImpl lso = new DOMOutputImpl();
-        lso.setEncoding("UTF-8");
-        StringWriter swr = new StringWriter();
-        lso.setCharacterStream(swr);
-        ser.write(doc,lso);
-        //System.out.println(swr.getBuffer().toString());
-        inst.getAPIM().modifyDatastreamByValue("uuid:pokus", "DC", null, null, null, null, swr.getBuffer().toString().getBytes("UTF-8"), null, null, "", false);
-        }catch (Throwable t){
-            System.out.println("Error"+t);
-        }
-        
-        //inst.getAPIM().modifyDatastreamByValue("uuid:pokus", "DC", null, null, null, null, cont.getBytes(), null, null, "APIM zmena", false);
-        
-        //System.out.println(inst.getPids("info:fedora/uuid:0eaa6730-9068-11dd-97de-000d606f5dc6"));
-    }
+    
+   
     
 }

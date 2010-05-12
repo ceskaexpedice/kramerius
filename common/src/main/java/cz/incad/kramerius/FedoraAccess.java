@@ -3,9 +3,13 @@ package cz.incad.kramerius;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
+import java.util.Set;
 
 import javax.xml.xpath.XPathExpressionException;
 
+import org.fedora.api.FedoraAPIA;
+import org.fedora.api.FedoraAPIM;
+import org.fedora.api.ObjectFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
@@ -120,5 +124,13 @@ public interface FedoraAccess {
 	public Document getImageFULLProfile(String uuid) throws IOException;
 	public String getImageFULLMimeType(String uuid) throws IOException, XPathExpressionException;
 	public boolean isImageFULLAvailable(String uuid) throws IOException;
+	
+	public FedoraAPIA getAPIA();
+	public FedoraAPIM getAPIM();
+	public ObjectFactory getObjectFactory();
+	
+	public void processSubtree(String pid, TreeNodeProcessor processor);
+	public Set<String> getPids(String pid);
+	
 	
 }

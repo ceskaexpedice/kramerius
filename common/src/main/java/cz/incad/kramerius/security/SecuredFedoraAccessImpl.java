@@ -3,6 +3,7 @@ package cz.incad.kramerius.security;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
+import java.util.Set;
 
 import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathConstants;
@@ -10,6 +11,9 @@ import javax.xml.xpath.XPathExpression;
 import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
 
+import org.fedora.api.FedoraAPIA;
+import org.fedora.api.FedoraAPIM;
+import org.fedora.api.ObjectFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
@@ -20,6 +24,7 @@ import cz.incad.kramerius.FedoraAccess;
 import cz.incad.kramerius.FedoraNamespaceContext;
 import cz.incad.kramerius.KrameriusModels;
 import cz.incad.kramerius.RelsExtHandler;
+import cz.incad.kramerius.TreeNodeProcessor;
 import cz.incad.kramerius.impl.FedoraAccessImpl;
 
 /**
@@ -148,6 +153,24 @@ public class SecuredFedoraAccessImpl implements FedoraAccess {
 	public void setAcceptor(SecurityAcceptor acceptor) {
 		this.acceptor = acceptor;
 	}
+	
+	
+	public FedoraAPIA getAPIA(){
+	    return rawAccess.getAPIA();
+	}
+    public FedoraAPIM getAPIM(){
+        return rawAccess.getAPIM();
+    }
+    public ObjectFactory getObjectFactory(){
+        return rawAccess.getObjectFactory();
+    }
+    
+    public void processSubtree(String pid, TreeNodeProcessor processor){
+        rawAccess.processSubtree(pid, processor);
+    }
+    public Set<String> getPids(String pid){
+        return rawAccess.getPids(pid);
+    }
 	
 	
 }
