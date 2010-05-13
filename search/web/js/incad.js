@@ -342,7 +342,7 @@ function getPagesList(pid){
             $("#pages").html(xml);
         }else{
             var units = xml.split("#");
-            var out = pagesTitle + ": ";
+            var out = dictionary['pagesTitle'] + ": ";
             for(var i = 0; i<units.length-1; i++){
                 out += "<span id=\"page_" + i + "\" class=\"page\"></span> ";
             }
