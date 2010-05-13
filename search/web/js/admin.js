@@ -52,7 +52,7 @@ function openProcessDialog() {
 	}
 }
 function processes(){
-	var url = "dialogs/_processes_data.jsp?ordering=NAME&offset=0&size=20&type=DESC";
+	var url = "dialogs/_processes_data.jsp?offset=0&size=20&type=DESC";
 	$.get(url, function(data) {
 		openProcessDialog();
 		$("#processes").html(data);
