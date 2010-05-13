@@ -73,12 +73,10 @@ function killAndRefresh(url,ordering, offset, size, type) {
 }
 
 function refreshProcesses(ordering, offset, size, type) {
-	alert("Refresh ... ");
 	var refreshurl = "dialogs/_processes_data.jsp?ordering="+ordering+"&offset="+offset+"&size="+size+"&type="+type;
 	$.get(refreshurl, function(sdata) {
 		$("#processes").html(sdata);
 	});
-	
 }
 
 /**
@@ -273,9 +271,9 @@ function replicationrights() {
  * @return
  */
 var _staticExportDialog; //cekaci dialog na spusteni procesu
-function generateStatic(level, exportType){
+function generateStatic(level, exportType, imgUrl){
 	var pid = $("#tabs_"+level).attr('pid');
-	var url = "lr?action=start&def="+exportType+"&out=text&params="+pid;
+	var url = "lr?action=start&def="+exportType+"&out=text&params="+pid+","+imgUrl;
 	if (_staticExportDialog) {
     	$("#process_started_ok").hide();
     	$("#process_started_failed").hide();
