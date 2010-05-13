@@ -113,6 +113,16 @@
 			<groupId>com.lowagie</groupId>
 			<artifactId>itext</artifactId>
 			<version>2.1.7</version>
+			<!-- unnecessary bcmail and bcprov -->
+            <exclusions>
+				<exclusion>
+				        <groupId>bouncycastle</groupId>
+				</exclusion>
+				<exclusion>
+				        <groupId>org.bouncycastle</groupId>
+				</exclusion>
+            </exclusions>
+			
 		</dependency>
 
 		<dependency>
