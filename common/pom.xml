@@ -134,19 +134,13 @@
 			<artifactId>djvuframe</artifactId>
 			<version>0.8.09</version>
 		</dependency>
-
+	
 		<dependency>
-			<groupId>org.apache.derby</groupId>
-			<artifactId>derbyclient</artifactId>
-			<version>10.5.3.0</version>
+			<groupId>postgresql</groupId>
+			<artifactId>postgresql</artifactId>
+			<version>8.4.701</version>
 		</dependency>
-		<dependency>
-			<groupId>org.apache.derby</groupId>
-			<artifactId>derby</artifactId>
-			<version>10.5.3.0</version>
-		</dependency>
-
-
+		
 	</dependencies>
 	<build>
 		<!--
