@@ -99,6 +99,7 @@
             <exclusions>
 				<exclusion>
 				        <groupId>xerces</groupId>
+				        <artifactId>xercesImpl</artifactId>
 				</exclusion>
             </exclusions>
         </dependency>
