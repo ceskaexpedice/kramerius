@@ -242,7 +242,7 @@ function openGeneratePdfDialog(level){
             width: 200,
             height: 100,
             modal: true,
-            title: generatePdfTitle,
+            title: dictionary['generatePdfTitle'],
             
             buttons: {
                 "Ok": function() {
@@ -251,7 +251,7 @@ function openGeneratePdfDialog(level){
                     var to = $("#genPdfEnd").val();
                    
                     if(isNaN(from) || isNaN(to)) {
-                        alert(generatePdfErrorText);
+                        alert(dictionary['generatePdfErrorText']);
                         return;
                     }
                     from = parseInt(from);
@@ -260,7 +260,7 @@ function openGeneratePdfDialog(level){
                     if(to - from + 1 > generatePdfMaxRange){
                         alert("Maximalne "+generatePdfMaxRange+"!");
                     }else if(to>pagesCount  || isNaN(from) || isNaN(to)) {
-                    	alert(generatePdfErrorText);
+                    	alert(dictionary['generatePdfErrorText']);
                     }else if(to==pagesCount && from == '1'){
                         var path ="";
                         for(var i =0;i<level;i++) {
