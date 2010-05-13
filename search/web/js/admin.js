@@ -42,7 +42,7 @@ function openProcessDialog() {
 	        width: 700,
 	        height: 400,
 	        modal: true,
-	        title: "Správa dlouhotrvajícíh procesů",
+	        title: dictionary['administrator.menu.dialogs.lrprocesses.title'],
 	        buttons: {
 	            "Close": function() {
 	                $(this).dialog("close"); 
@@ -123,7 +123,7 @@ function importMonographs() {
 	        width: 400,
 	        height: 100,
 	        modal: true,
-	        title: "Replikace .. ",
+	        title: dictionary['administrator.menu.dialogs.replication.title'],
 	        buttons: {
 	            "Close": function() {
 	                $(this).dialog("close"); 
@@ -151,7 +151,7 @@ function importMonographs() {
 	        width: 400,
 	        height: 100,
 	        modal: true,
-	        title: "Replikace .. ",
+	        title: dictionary['administrator.menu.dialogs.importMonograph.title'],
 	        buttons: {
 	            "Close": function() {
 	                $(this).dialog("close"); 
@@ -178,7 +178,7 @@ function importPeriodicals() {
 	        width: 400,
 	        height: 100,
 	        modal: true,
-	        title: "Replikace .. ",
+	        title: dictionary['administrator.menu.dialogs.importPeriodical.title'],
 	        buttons: {
 	            "Close": function() {
 	                $(this).dialog("close"); 
@@ -211,7 +211,7 @@ function reindex(level) {
 	        width: 400,
 	        height: 100,
 	        modal: true,
-	        title: "Reindexace ... ",
+	        title: dictionary['administrator.menu.dialogs.reindex.title'],
 	        buttons: {
 	            "Close": function() {
 	                $(this).dialog("close"); 
@@ -251,7 +251,7 @@ function replicationrights() {
 	        width: 400,
 	        height: 100,
 	        modal: true,
-	        title: "Replication rights",
+	        title: dictionary['administrator.menu.dialogs.replicationRights.title'],
 	        buttons: {
 	            "Close": function() {
 	                $(this).dialog("close"); 
@@ -286,7 +286,7 @@ function generateStatic(level, exportType, imgUrl){
 	        width: 400,
 	        height: 100,
 	        modal: true,
-	        title: "Staticky export do PDF",
+	        title: dictionary['administrator.menu.dialogs.staticPDF.title'],
 	        buttons: {
 	            "Close": function() {
 	                $(this).dialog("close"); 
@@ -317,7 +317,7 @@ function enumerator(){
 	        width: 400,
 	        height: 100,
 	        modal: true,
-	        title: "Enumerator",
+	        title: dictionary['administrator.menu.dialogs.replicationRights.title'],
 	        buttons: {
 	            "Close": function() {
 	                $(this).dialog("close"); 
@@ -408,7 +408,7 @@ function showIndexerAdmin(){
             width: 700,
             height: 400,
             modal: true,
-            title: "Indexace dokument�",
+	        title: dictionary['administrator.menu.dialogs.indexDocuments.title'],
             buttons: {
                 "Close": function() {
                     $(this).dialog("close"); 
