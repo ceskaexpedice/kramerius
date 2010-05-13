@@ -26,7 +26,7 @@
 	
 	String ordering = request.getParameter("ordering");
 	if ((ordering == null) || (ordering.trim().equals(""))) {
-		ordering = LRProcessOrdering.NAME.name();
+		ordering = LRProcessOrdering.STARTED.name();
 	}
 	String offset = request.getParameter("offset");
 	if ((offset == null) || (offset.trim().equals(""))) {
@@ -35,7 +35,7 @@
 
 	String type = request.getParameter("type");
 	if ((type == null) || (type.trim().equals(""))) {
-		type = "ASC";
+		type = "DESC";
 	}
 
 	String size = request.getParameter("size");
