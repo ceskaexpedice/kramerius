@@ -33,17 +33,20 @@
             currentSelectedPage = uuid;
             var pageUrl = "djvu?uuid="+uuid+"&scaledHeight=600";
             var mimeUrl = "djvu?uuid="+uuid+"&imageType=ask";
-            //var img = '<a href="javascript:showImageFull(\''+fullUrl+'\', \''+ mimetype +'\'"><img src="'+pageUrl+'" height="600px" /></a>';
-            var img = '<a class="lighbox" href="javascript:showFullImage(\''+uuid+'\')"><img id="imgBig" src="'+pageUrl+'" height="600px" border="0"  /></a>';
-            //var img = '<a class="lighbox" href="'+fullUrl+'" target="_blank" ><img id="imgBig" src="'+pageUrl+'" height="600px" border="0" mimetype="unknown" /></a>';
+            var img = '<a class="lighbox" href="javascript:showFullImage(\''+uuid+'\')"><img id="imgBig" src="'+pageUrl+'" height="600px" border="0" onerror="showError();"  /></a>';
             $('#mainContent').html('<div align="center" style="">' + prev + img + next + '</div>');
-            //$('.lighbox').lightBox();
             
             $.get(mimeUrl, function(data){
                 currentMime = data;
             });
             changeSelectedPage(uuid);
 	}
+        
+        function showError(){
+            $('#mainContent').html('<div align="center" style="height:300px;" >' + dictionary['rightMsg'] + '</div>');
+        }
+        
+        
         var fullDialog;
         var vertMargin = 20;
         var horMargin = 17;
