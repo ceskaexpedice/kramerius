@@ -4,6 +4,7 @@ import java.sql.Connection;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.Scopes;
+import com.google.inject.name.Names;
 
 import cz.incad.kramerius.FedoraAccess;
 import cz.incad.kramerius.impl.FedoraAccessImpl;
@@ -16,7 +17,9 @@ public class PDFModule extends AbstractModule {
 
 	@Override
 	protected void configure() {
-		bind(FedoraAccess.class).to(FedoraAccessImpl.class).in(Scopes.SINGLETON);
+		bind(FedoraAccess.class).annotatedWith(Names.named("rawFedoraAccess")).to(FedoraAccessImpl.class).in(Scopes.SINGLETON);
+		bind(FedoraAccess.class).annotatedWith(Names.named("securedFedoraAccess")).to(FedoraAccessImpl.class).in(Scopes.SINGLETON);
 		bind(GeneratePDFService.class).to(GeneratePDFServiceImpl.class).in(Scopes.SINGLETON);
 	}
+	
 }
