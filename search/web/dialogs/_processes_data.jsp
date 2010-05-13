@@ -47,15 +47,33 @@
 	LRProcessOffset lrOffset = new LRProcessOffset(offset, size);
 	ProcessesViewObject viewObj = new ProcessesViewObject(lrProcessMan, defMan, lrProcOrder,TypeOfOrdering.valueOf(type), lrOffset,LongRunningProcessServlet.lrServlet(request));
 	pageContext.setAttribute("processView", viewObj);
+	
 %>
 
 <%@page import="cz.incad.kramerius.processes.TypeOfOrdering"%>
 
 <%@page import="cz.incad.Kramerius.LongRunningProcessServlet"%><div> 
+
+<script type="text/javascript">
+
+function _ref(ordering, offset, size, type) {
+	$('#animation').attr('src', 'img/animated.gif'); 
+	var refreshurl = "dialogs/_processes_data.jsp?ordering="+ordering+"&offset="+offset+"&size="+size+"&type="+type;
+	$.get(refreshurl, function(sdata) {
+		$('#animation').attr('src', 'img/refresh.png'); 
+		$("#processes").html(sdata);
+	});
+}
+
+</script>
+
 <table width="100%">
 <tr>
 	<td width="80%">${processView.prevAHREF} &emsp;  ${processView.nextAHREF}</td> 
-	<td style="text-align: center;"><a href="javascript:refreshProcesses('<%= ordering %>',<%= offset %>,<%= size %>,'<%= type %>');"> <img src="img/refresh.png"></img> refresh   </a></td>
+	<td style="text-align: center;">
+		<a href="javascript:_ref('<%= ordering %>',<%= offset %>,<%= size %>,'<%= type %>');"> <img  id="animation" src="img/refresh.png"></img> refresh   </a>
+	</td>
+	
 </tr>
 </table>
 <!-- 
