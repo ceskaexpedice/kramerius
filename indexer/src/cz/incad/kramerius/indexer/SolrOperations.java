@@ -36,10 +36,7 @@ import org.apache.lucene.index.CorruptIndexException;
 import org.apache.lucene.index.IndexReader;
 
 import dk.defxws.fedoragsearch.server.GTransformer;
-import dk.defxws.fedoragsearch.server.GenericOperationsImpl;
-import dk.defxws.fedoragsearch.server.URIResolverImpl;
 
-import fedora.client.FedoraClient;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -74,9 +71,9 @@ public class SolrOperations {
     protected int docCount = 0;
     protected int warnCount = 0;
     protected String[] params = null;
-    private GenericOperationsImpl fedoraOperations;
+    private FedoraOperations fedoraOperations;
 
-    public SolrOperations(GenericOperationsImpl _fedoraOperations) {
+    public SolrOperations(FedoraOperations _fedoraOperations) {
         fedoraOperations = _fedoraOperations;
         config = fedoraOperations.config;
     }
@@ -131,14 +128,10 @@ public class SolrOperations {
             }
             docCount = docCount - deleteTotal;
         }
-        logger.info("updateIndex " + action + " indexName=" + indexName + " indexDirSpace=" + indexDirSpace(new File(config.getProperty("IndexDir"))) + " docCount=" + docCount);
-        logger.info("updateIndex " + action + " indexName=" + indexName + " indexDirSpace=" + indexDirSpace(new File(config.getProperty("IndexDir"))) + " docCount=" + docCount);
-        
-        logger.info("insertTotal: " + insertTotal);
-        logger.info("updateTotal: " + updateTotal);
-        logger.info("deleteTotal: " + deleteTotal);
-        logger.info("docCount: " + docCount);
-        logger.info("warnCount: " + warnCount);
+        logger.info("updateIndex " + action + " indexDirSpace=" + indexDirSpace(new File(config.getProperty("IndexDir"))) + " docCount=" + docCount);
+        logger.info("insertTotal: " + insertTotal + "; updateTotal: " + updateTotal+
+                "; deleteTotal: " + deleteTotal +
+                "; warnCount: " + warnCount);
         
     }
 
@@ -241,7 +234,7 @@ public class SolrOperations {
                     "order by $object  " +
                     "limit 100  " +
                     "offset 0 ";
-            
+/*            
             FedoraClient client = GenericOperationsImpl.getFedoraClient(repositoryName, config.getProperty("FedoraSoap"),
                 config.getProperty("FedoraUser"),
                 config.getProperty("FedoraPass"));
@@ -256,12 +249,9 @@ public class SolrOperations {
                  //logger.info(pid);
                  fromKrameriusModel(pid.split("/")[1], repositoryName, indexName, indexDocXslt, requestParams);
             }
-//            String[] names = client.getTuples(tMap).names();
-//            for(String name:names){
-//                logger.info(name);
-//            }
-            if(true) return;
             
+            if(true) return;
+  */          
             String urlStr = config.getProperty("FedoraResourceIndex") + "?type=tuples&flush=true&lang=itql&format=TSV&distinct=off&stream=off" +
                     "&query=" + java.net.URLEncoder.encode(query, "UTF-8");
             //int lines = 0;
@@ -466,45 +456,15 @@ public class SolrOperations {
         StringBuffer sb = (new GTransformer()).transform(
                 xsltPath,
                 new StreamSource(foxmlStream),
-                getURIResolver(),
+                null,
                 params);
         if (logger.isDebugEnabled()) {
             logger.debug("indexDoc=\n" + sb.toString());
         }
-//logger.info("indexDoc=\n" + sb.toString());
         if (sb.indexOf("name=\"" + UNIQUEKEY) > 0) {
             postData(config.getProperty("IndexBase") + "/update", new StringReader(sb.toString()), new StringBuffer());
             updateTotal++;
         }
-    }
-
-    private URIResolver getURIResolver() {
-
-        Class uriResolverClass = null;
-        String uriResolver = config.getProperty("fgsindex.uriResolver");
-        if (!(uriResolver == null || uriResolver.equals(""))) {
-            try {
-                uriResolverClass = Class.forName(uriResolver);
-                try {
-                    URIResolverImpl ur = (URIResolverImpl) uriResolverClass.getConstructor(new Class[]{}).newInstance(new Object[]{});
-                    if (ur != null) {
-                        ur.setConfig(config);
-                        return ur;
-                    }
-                } catch (InstantiationException e) {
-                    logger.error(uriResolver + ": instantiation error.\n" + e.toString());
-                } catch (IllegalAccessException e) {
-                    logger.error(uriResolver + ": instantiation error.\n" + e.toString());
-                } catch (InvocationTargetException e) {
-                    logger.error(uriResolver + ": instantiation error.\n" + e.toString());
-                } catch (NoSuchMethodException e) {
-                    logger.error(uriResolver + ": instantiation error:\n" + e.toString());
-                }
-            } catch (ClassNotFoundException e) {
-                logger.error(uriResolver + ": class not found:\n" + e.toString());
-            }
-        }
-        return null;
     }
 
     public Analyzer getAnalyzer(String analyzerClassName)

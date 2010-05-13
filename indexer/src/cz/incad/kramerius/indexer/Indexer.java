@@ -8,8 +8,10 @@ package cz.incad.kramerius.indexer;
  *
  * @author Incad
  */
+import cz.incad.kramerius.FedoraAccess;
+import cz.incad.kramerius.impl.FedoraAccessImpl;
+import cz.incad.kramerius.utils.conf.KConfiguration;
 import cz.incad.utils.Formating;
-import dk.defxws.fedoragsearch.server.GenericOperationsImpl;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
@@ -39,12 +41,13 @@ public class Indexer {
     public static boolean hasData = false;
     public static String outFilename = "outfile.zip";
     public static ZipOutputStream outZip;
+    
 
     public Indexer(ProgramArguments args) throws Exception {
         arguments = args;
         //PropertyConfigurator.configure(arguments.log4jFile);
-        //conf = new Configuration(arguments.configFile);
         conf.load(new FileInputStream(arguments.configFile));
+        
         logger.info("Indexer initialized");
     }
 
@@ -158,7 +161,7 @@ public class Indexer {
 
     public void updateIndex(String user, String action, String value, String indexDocXslt)
             throws java.rmi.RemoteException, Exception {
-        GenericOperationsImpl ops = new GenericOperationsImpl();
+        FedoraOperations ops = new FedoraOperations();
         ops.init(user, "", conf);
         ArrayList<String> params = new ArrayList<String>();
         //System.out.println(value);

@@ -8,7 +8,6 @@
 package dk.defxws.fedoragsearch.server;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringReader;
@@ -16,7 +15,6 @@ import java.io.StringWriter;
 
 import java.util.Date;
 
-import java.util.logging.Level;
 import javax.xml.transform.Source;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerConfigurationException;

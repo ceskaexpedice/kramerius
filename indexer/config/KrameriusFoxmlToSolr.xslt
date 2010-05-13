@@ -3,9 +3,9 @@
 <xsl:stylesheet version="1.0"
         xmlns:xsl="http://www.w3.org/1999/XSL/Transform"   
         xmlns:fn="http://www.w3.org/2005/xpath-functions"
-    	xmlns:exts="xalan://dk.defxws.fedoragsearch.server.GenericOperationsImpl"
+    	xmlns:exts="java://cz.incad.kramerius.indexer.FedoraOperations"
         xmlns:xalan="http://xml.apache.org/xalan"
-        exclude-result-prefixes="xalan exts"
+        xmlns:java="http://xml.apache.org/xslt/java"
         xmlns:zs="http://www.loc.gov/zing/srw/"
         xmlns:foxml="info:fedora/fedora-system:def/foxml#"
         xmlns:dc="http://purl.org/dc/elements/1.1/"
@@ -16,6 +16,7 @@
         xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" 
         xmlns:mods="http://www.loc.gov/mods/v3" 
         xmlns:kramerius="http://www.nsdl.org/ontologies/relationships#" 
+        exclude-result-prefixes="xalan exts java"
     >
     <xsl:output method="xml" indent="yes" encoding="UTF-8" />
 
@@ -53,6 +54,8 @@
     <xsl:param name="LANGUAGE" select="repositoryName"/>
     <xsl:param name="LEVEL" select="repositoryName"/>
     
+    <xsl:variable name="generic" select="exts:new()" />
+
     <xsl:variable name="PID" select="/foxml:digitalObject/@PID"/>
     <xsl:variable name="title" select="/foxml:digitalObject/foxml:datastream/foxml:datastreamVersion[last()]/foxml:xmlContent/oai_dc:dc/dc:title/text()"/>
     
@@ -72,15 +75,16 @@
 		<!-- Indexujeme vsechny activa a ne activ. -->
                 <xsl:if test="foxml:digitalObject/foxml:objectProperties/foxml:property[@NAME='info:fedora/fedora-system:def/model#state' and @VALUE='Active']">
                     <xsl:if test="not(foxml:digitalObject/foxml:datastream[@ID='METHODMAP'] or foxml:digitalObject/foxml:datastream[@ID='DS-COMPOSITE-MODEL'])">
-                        <xsl:apply-templates mode="activeDemoFedoraObject"/>
-                        <xsl:apply-templates mode="biblioMods"/>
-                        <xsl:apply-templates mode="imgFull"/>
+                        <xsl:apply-templates mode="activeDemoFedoraObject" select="/foxml:digitalObject" />
+                        <xsl:apply-templates mode="biblioMods" select="/foxml:digitalObject/foxml:datastream[@ID='BIBLIO_MODS']/foxml:datastreamVersion[last()]/foxml:xmlContent/mods:modsCollection/mods:mods" />
+                        <xsl:apply-templates mode="imgFull" select="/foxml:digitalObject/foxml:datastream[@ID='IMG_FULL']/foxml:datastreamVersion[last()]" />
                     </xsl:if>
                 </xsl:if>
                 
             </doc>
         </add>
     </xsl:template>
+    
     <xsl:template match="/foxml:digitalObject" mode="activeDemoFedoraObject">
         <field name="PID" boost="2.5">
             <xsl:value-of select="substring($PID, 6)"/>
@@ -91,9 +95,13 @@
         <field name="fedora.model">
             <xsl:value-of select="$MODEL"/>
         </field>
-        <!-- Pro zatim nechame fedora model. Musi byt info z biblio mods-->
+        
         <field name="document_type">
             <xsl:value-of select="substring(/foxml:digitalObject/foxml:datastream/foxml:datastreamVersion[last()]/foxml:xmlContent/oai_dc:dc/dc:type/text(), 7)"/>
+        </field>
+        
+        <field name="created_date">
+            <xsl:value-of select="foxml:objectProperties/foxml:property[@NAME='info:fedora/fedora-system:def/model#createdDate']/@VALUE"/>
         </field>
         <field name="dc.title"><xsl:value-of select="normalize-space($title)"/></field>
         
@@ -108,27 +116,6 @@
         </xsl:for-each>
         
         
-        <!--
-        <xsl:for-each select="foxml:objectProperties/foxml:property">
-            <field >
-                <xsl:attribute name="name">
-                    <xsl:value-of select="concat('fgs.', substring-after(@NAME,'#'))"/>
-                </xsl:attribute>
-                <xsl:value-of select="@VALUE"/>
-            </field>
-        </xsl:for-each>
-        -->
-        
-        <!-- Get dublin core 
-        <xsl:for-each select="foxml:datastream/foxml:datastreamVersion[last()]/foxml:xmlContent/oai_dc:dc/*">
-            <field >
-                <xsl:attribute name="name">
-                    <xsl:value-of select="concat('dc.', substring-after(name(),':'))"/>
-                </xsl:attribute>
-                <xsl:value-of select="text()"/>
-            </field>
-        </xsl:for-each>
-        -->
         
         <!-- Check params -->
         <xsl:if test="$DATUM and not($DATUM = '')" >
@@ -208,73 +195,6 @@
                 <xsl:value-of select="$LEVEL" />
             </field>
         </xsl:if>
-    
-        <!-- Specific procces by model -->
-        <!--
-        <xsl:if test="$MODEL = 'info:fedora/model:monograph' or $MODEL = 'info:fedora/model:monographunit' 
-            or $MODEL = 'info:fedora/model:periodical' or $MODEL = 'info:fedora/model:periodicalitem'">
-        <xsl:if test="$MODEL = 'monograph' 
-            or $MODEL = 'periodical'">
-            <field name="abeceda_title">
-                <xsl:variable name="inicio" select="normalize-space($title)" />
-                <xsl:choose>
-                    <xsl:when test="substring($inicio, 1, 2) = 'Ch' or substring($inicio, 1, 2) = 'CH' or substring($inicio, 1, 2) = 'ch'">
-                        <xsl:value-of select="substring($inicio, 1, 2)"/>
-                    </xsl:when>
-                    <xsl:otherwise>
-                        <xsl:value-of select="substring($inicio, 1, 1)"/>
-                    </xsl:otherwise>
-                </xsl:choose>
-            </field>
-            <xsl:for-each select="foxml:datastream/foxml:datastreamVersion[last()]/foxml:xmlContent/oai_dc:dc/dc:creator">
-                <field name="abeceda_autor">
-                    <xsl:variable name="inicio" select="normalize-space(.)" />
-                    <xsl:choose>
-                        <xsl:when test="substring($inicio, 1, 2) = 'Ch' or substring($inicio, 1, 2) = 'CH' or substring($inicio, 1, 2) = 'ch'">
-                            <xsl:value-of select="substring($inicio, 1, 2)"/>
-                        </xsl:when>
-                        <xsl:when test="substring($inicio, 1, 1) = 'Ď' or substring($inicio, 1, 1) = 'ď'">
-                            <xsl:value-of select="'D'"/>
-                        </xsl:when>
-                        <xsl:otherwise>
-                            <xsl:value-of select="substring($inicio, 1, 1)"/>
-                        </xsl:otherwise>
-                    </xsl:choose>
-                </field>
-            </xsl:for-each>
-        </xsl:if>
-        
-        -->
-        
-        
-        <!--
-        
-        -->
-        <!--
-        <xsl:if test="$MODEL = 'page'">
-            <xsl:if test="not($ABECEDA_TITLE = '')" >
-                <field name="abeceda_title_page">
-                    <xsl:value-of select="$ABECEDA_TITLE" />
-                </field>
-            </xsl:if>
-            <xsl:if test="not($ABECEDA_AUTOR = '')" >
-                <field name="abeceda_autor_page">
-                    <xsl:value-of select="$ABECEDA_AUTOR" />
-                </field>
-            </xsl:if>
-            <xsl:if test="not($PARENT_TITLE = '')" >
-                <field name="title_to_show">
-                    <xsl:value-of select="$PARENT_TITLE" />
-                </field>
-            </xsl:if>
-            <xsl:if test="not($DATUM = '')" >
-                <field name="datum_page">
-                    <xsl:value-of select="$DATUM" />
-                </field>
-            </xsl:if>
-            
-        </xsl:if>
-        -->
         
         <!-- a managed datastream is fetched, if its mimetype 
              can be handled, the text becomes the value of the field. -->        
@@ -291,16 +211,15 @@
                     <xsl:attribute name="name">
                         <xsl:value-of select="concat('dsm.', @ID)"/>
                     </xsl:attribute>
-                    <xsl:value-of select="exts:getDatastreamText($PID, $REPOSITORYNAME, @ID, $FEDORASOAP, $FEDORAUSER, $FEDORAPASS, $TRUSTSTOREPATH, $TRUSTSTOREPASS)"/>
+                    <xsl:value-of select="exts:getDatastreamText($generic, $PID, $REPOSITORYNAME, @ID, $FEDORASOAP, $FEDORAUSER, $FEDORAPASS, $TRUSTSTOREPATH, $TRUSTSTOREPASS)"/>
                 </field>
             </xsl:if>
         </xsl:for-each>
-        
-        
     </xsl:template>
     <xsl:template match="/foxml:digitalObject/foxml:datastream[@ID='IMG_FULL']/foxml:datastreamVersion[last()]" mode="imgFull">
         <field name="page_format"><xsl:value-of select="@MIMETYPE"/></field>
     </xsl:template>
+    
     <xsl:template match="/foxml:digitalObject/foxml:datastream[@ID='BIBLIO_MODS']/foxml:datastreamVersion[last()]/foxml:xmlContent/mods:modsCollection/mods:mods" mode="biblioMods">
         <field name="issn">
             <xsl:value-of select="mods:identifier[@type='isbn']/text()"/>
