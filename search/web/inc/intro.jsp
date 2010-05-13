@@ -20,13 +20,26 @@
          <li><a href="#intro2"><fmt:message>Nejžádanější</fmt:message></a></li>
          <li><a href="#intro3"><fmt:message>Informace</fmt:message></a></li>
      </ul>
-     <div id="intro1"><img src="img/intro1.png" /></div>
+     <div id="intro1" style="height:220px;"></div>
+         <script>
+            //$(document).ready(function(){
+                $.get('inc/newest.jsp', function(data){
+                   $('#intro1').html(data) ;
+                });
+            //});
+         </script>
      <div id="intro2"><img src="img/intro2.png" /></div>
-     <div id="intro3"><c:choose>
-                        <c:when test="${param.language == 'en'}"><%@ include file="text/intro_en.jsp" %></c:when>
-                        <c:when test="${param.language == 'cs'}"><%@ include file="text/intro_cs.jsp" %></c:when>
-                        <c:otherwise><%@ include file="text/intro_cs.jsp" %></c:otherwise>
-                </c:choose></div>
+     <div id="intro3">
+        <%  if(request.getRemoteUser()!=null) {  %>
+        <%@ include file="text/edit_intro.jsp" %>
+	<% }else{  %>
+            <c:choose>
+                <c:when test="${param.language == 'en'}"><%@ include file="text/intro_en.jsp" %></c:when>
+                <c:when test="${param.language == 'cs'}"><%@ include file="text/intro_cs.jsp" %></c:when>
+                <c:otherwise><%@ include file="text/intro_cs.jsp" %></c:otherwise>
+            </c:choose>
+	<% } %>
+         </div>
 </div>
 <script language="javascript">
         $(document).ready(function(){

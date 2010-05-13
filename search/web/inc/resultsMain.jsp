@@ -49,9 +49,9 @@
     <td>
     <% 
     if(fedora_model.equals("page")){
-        imagePid = kconfig.getThumbServletUrl() + "?uuid=" + uuid;
+        imagePid = "thumb?uuid=" + uuid;
     }else{
-        imagePid = kconfig.getThumbServletUrl() + "?uuid=" + FedoraUtils.findFirstPagePid("uuid:" + uuid);
+        imagePid = "thumb?uuid=" + FedoraUtils.findFirstPagePid("uuid:" + uuid);
     }
     %>
     <img id="img_<c:out value="${uuid}"/>" 

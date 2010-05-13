@@ -86,10 +86,24 @@
         var selectEnd = "";
         var initParent = "";
         var initPage = "";
-        var generatePdfTitle = "<fmt:message>generatePdfTitle</fmt:message>";
+        //var generatePdfTitle = "<fmt:message>generatePdfTitle</fmt:message>";
         var generatePdfErrorText = "<fmt:message>generatePdfErrorText</fmt:message>";
         var generatePdfMaxRange = <%=kconfig.getProperty("generatePdfMaxRange")%>;
 
+
+var dictionary = {<%
+            String language = request.getParameter("language");
+            if (language == null || language.equals("")) {
+                language = "cs";
+            }
+            ResourceBundle res = ResourceBundle.getBundle("labels", new Locale(language));
+            for (Enumeration e = res.getKeys(); e.hasMoreElements();) {
+                String key = (String)e.nextElement();
+                out.print("'" + key + "':'" + res.getString(key).replace("'", "\\'") + "',");
+}
+
+%>jedennavic:''};
+        
     </script>
     
     

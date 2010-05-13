@@ -20,13 +20,10 @@
 <c:set var="filters" scope="request" ></c:set>
 <c:set var="pageType" value="search" />
 <jsp:useBean id="pageType" type="java.lang.String" />
-<c:url var="url" value="${kconfig.solrHost}/select/select" >
+<c:url var="url" value="${kconfig.solrHost}/select/" >
     <c:choose>
         <c:when test="${empty param.q}" >
             <c:param name="q" value="*:*" />
-            <c:if test="${empty param.fq}">
-                <c:param name="rows" value="0" />
-            </c:if>
         </c:when>
         <c:when test="${param.q != null}" >
             <c:if test="${fn:containsIgnoreCase(param.q, '*')}" >
@@ -41,14 +38,10 @@
             <c:set var="rows" value="${param.rows}" scope="request" />
         </c:when>
         <c:otherwise>
-            <c:set var="rows"  value="5" scope="request" />
+            <c:set var="rows"  value="10" scope="request" />
         </c:otherwise>
     </c:choose>
     <c:param name="rows" value="${rows}" />
-    <c:param name="facet" value="true" />
-    <c:param name="facet.mincount" value="1" />
-    <c:param name="facet.field" value="abeceda_title" />
-    <c:param name="f.abeceda_title.facet.sort" value="false" />
     <c:forEach var="fqs" items="${paramValues.fq}">
         <c:param name="fq" value="${fqs}" />
         <c:set var="filters" scope="request"><c:out value="${filters}" />&fq=<c:out value="${fqs}" /></c:set>
@@ -61,7 +54,23 @@
     </c:if>
     <c:param name="start" value="${param.offset}" />
     
-    <c:param name="sort" value="title asc" />
+    <c:choose>
+        <c:when test="${param.sort != null}" >
+            <c:param name="sort" value="${param.sort}" />
+        </c:when>
+        <c:when test="${sort != null}" >
+            <c:param name="sort" value="${sort}" />
+        </c:when>
+        <c:when test="${fieldedSearch}">
+            <c:param name="sort" value="level asc, title asc, score desc" />
+        </c:when>
+        <c:when test="${empty param.q}" >
+            <c:param name="sort" value="level asc, title asc, score desc" />
+        </c:when>
+        <c:otherwise>
+            <c:param name="sort" value="level asc, score desc" />
+        </c:otherwise>
+    </c:choose>
     
 </c:url>
 <c:catch var="exceptions"> 
@@ -79,52 +88,7 @@
             <x:out select="$doc/response/result/@numFound" />
         </c:set>
         <div id="s_<c:out value="${param.d}" />">
-            <x:forEach varStatus="status" select="$doc/response/result/doc">
-                <div class="resultInTree" >
-                    <c:set var="uuid" >
-                        <x:out select="./str[@name='PID']"/>
-                    </c:set>
-                    <jsp:useBean id="uuid" type="java.lang.String" />
-                    <c:set var="uuidSimple" >
-                        <x:out select="substring-after(./str[@name='PID'], 'uuid:')"/>
-                    </c:set>
-                    <x:choose>
-                        <x:when select="./str[@name='fedora.model'] = 'info:fedora/model:monograph'">
-                            <%@ include file="results/monograph.jsp" %>
-                        </x:when>
-                        <x:when select="./str[@name='fedora.model'] = 'info:fedora/model:monographunit'">
-                            <% 
-                            //'details/biblioToRdf.jsp?&pid=' + pid + "&xsl=unit_from_biblio_mods.jsp&language=" + language;
-                            request.setAttribute("xsl", "../details/xsl/unit_from_biblio_mods.jsp");
-                            %>        
-                            <%@ include file="../details/biblioToRdf.jsp" %> (<x:out select="./str[@name='pages_count']"/>)
-                            <%//@ include file="results/monographunit.jsp" %>
-                        </x:when>
-                        <x:when select="./str[@name='fedora.model'] = 'info:fedora/model:page'">
-                            <%-- 
-                            request.setAttribute("xsl", "../details/xsl/page_from_biblio_mods.jsp");
-                            <%@ include file="../details/biblioToRdf.jsp" %>
-                            --%>        
-                            <%@ include file="results/page.jsp" %>
-                        </x:when>
-                        <x:when select="./str[@name='fedora.model'] = 'info:fedora/model:periodical'">
-                            <%@ include file="results/periodical.jsp" %>
-                        </x:when>
-                        <x:when select="./str[@name='fedora.model'] = 'info:fedora/model:periodicalvolume'">
-                            <%@ include file="results/periodicalvolume.jsp" %>
-                        </x:when>
-                        <x:when select="./str[@name='fedora.model'] = 'info:fedora/model:periodicalitem'">
-                            <%@ include file="results/periodicalitem.jsp" %>
-                        </x:when>
-                        <x:otherwise>
-                            <x:out select="./str[@name='fedora.model']" />
-                            <%@ include file="results/default.jsp" %>
-                        </x:otherwise>
-                    </x:choose>
-                    <a href="javascript:browseInTree('<x:out select="./str[@name='PID']"/>', '<x:out select="./str[@name='fedora.model']"/>', 'sub_<c:out value="${param.d}"/>');">
-                    browse</a> 
-                </div>
-            </x:forEach>  
+            <%@ include file="resultsMain.jsp" %>
         </div>
         <div id="paginationInTree" align="right">
             <%@ include file="paginationPageNum.jsp" %>
