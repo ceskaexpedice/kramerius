@@ -40,6 +40,8 @@
     <script src="js/jquery-ui-1.7.2.custom.min.js" language="javascript" type="text/javascript"></script>
     <script src="js/jquery.cookie.js" type="text/javascript"></script>
     <script src="js/jquery.history.js" type="text/javascript"></script>
+
+    <script src="js/jquery.backgroundPosition.js" type="text/javascript"></script>
 	
     <!--
     <script  src="js/jquery.lightbox-0.5/js/jquery.lightbox-0.5.js" type="text/javascript"></script>
