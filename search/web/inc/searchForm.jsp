@@ -80,12 +80,12 @@
     </div>
         
     <div id="adminMenuItems" class="adminMenuItems">
-        <div align="left"> <a href="javascript:processes(); javascript:hideAdminMenu();">Správa dlouhotrvajících procesů ... </a> </div>	
-        <div align="left"> <a href="javascript:importMonographs(); javascript:hideAdminMenu();">Import monografií ... </a> </div>	
-        <div align="left"> <a href="javascript:importPeriodicals(); javascript:hideAdminMenu();">Import periodik ... </a> </div>	
-        <div align="left"> <a href="javascript:showIndexerAdmin();">Indexace dokumentů ... </a> </div>
-		<div align="left"> <a href="javascript:enumerator(); javascript:hideAdminMenu();">Enumerator ...  </a> </div>	
-		<div align="left"> <a href="javascript:replicationrights(); javascript:hideAdminMenu();">Replication rights ...  </a> </div>	
+        <div align="left"> <a href="javascript:processes(); javascript:hideAdminMenu();"><fmt:message>administrator.menu.dialogs.lrprocesses.title</fmt:message></a> </div>	
+        <div align="left"> <a href="javascript:importMonographs(); javascript:hideAdminMenu();"><fmt:message>administrator.menu.dialogs.importMonograph.title</fmt:message></a> </div>	
+        <div align="left"> <a href="javascript:importPeriodicals(); javascript:hideAdminMenu();"><fmt:message>administrator.menu.dialogs.importPeriodical.title</fmt:message></a> </div>	
+        <div align="left"> <a href="javascript:showIndexerAdmin();"><fmt:message>administrator.menu.dialogs.indexDocuments.title</fmt:message></a> </div>
+		<div align="left"> <a href="javascript:enumerator(); javascript:hideAdminMenu();"><fmt:message>administrator.menu.dialogs.enumerator.title</fmt:message></a> </div>	
+		<div align="left"> <a href="javascript:replicationrights(); javascript:hideAdminMenu();"><fmt:message>administrator.menu.dialogs.replicationRights.title</fmt:message></a> </div>	
     </div>
 </div>
 
