@@ -1,7 +1,14 @@
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt" %>
-<div id="openmenu-<c:out value="${models[status.count -1]}"/>" style="float:right;"  >
+
+<%
+	String fullImageServlet = FullImageServlet.fullImageServlet(request);
+	pageContext.setAttribute("imgUrl",fullImageServlet);
+%>
+
+
+<%@page import="cz.incad.Kramerius.FullImageServlet"%><div id="openmenu-<c:out value="${models[status.count -1]}"/>" style="float:right;"  >
     <span class="menu_activation"><img title="<fmt:message>administrator.menu</fmt:message>" src="img/menu.png" onclick="toggleAdminOptions('<c:out value="${models[status.count -1]}" />');" /></span>
 </div>
 <div style="display:none;float:right;position:absolute;z-index:7;" id="menu-<c:out value="${models[status.count -1]}" />" >
@@ -18,8 +25,8 @@
     <div class="adminMenuItems">
         <div align="left"><a title="Generování PDF" href="javascript:generatePdf('<c:out value="${status.count}" />');">Generování PDF...</a> </div>	
         <%if(request.getRemoteUser()!=null){%>
-       	<div align="left"><a title="Export do PDF (CD)" href="javascript:generateStatic('<c:out value="${status.count}"/>','static_export_CD');">Export do PDF (CD)...</a></div>
-       	<div align="left"><a title="Reindexace" href="javascript:reindex('<c:out value="${status.count}"/>');">Statický export</a></div>
+       	<div align="left"><a title="Export do PDF (CD)" href="javascript:generateStatic('<c:out value="${status.count}"/>','static_export_CD','<c:out value="${imgUrl}" />');">Export do PDF (CD)...</a></div>
+       	<div align="left"><a title="Reindexace" href="javascript:reindex('<c:out value="${status.count}"/>');">Reindexace</a></div>
     	<%}%>
     </div>
 </div>
