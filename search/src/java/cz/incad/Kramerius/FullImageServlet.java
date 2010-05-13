@@ -10,9 +10,11 @@ import java.awt.Rectangle;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.StringTokenizer;
 import java.util.logging.Level;
 
 import javax.imageio.ImageIO;
@@ -34,8 +36,10 @@ import org.w3c.dom.Node;
 import com.google.inject.Inject;
 
 import cz.incad.Kramerius.backend.guice.GuiceServlet;
+import cz.incad.Kramerius.backend.guice.RequestSecurityAcceptor;
 import cz.incad.kramerius.FedoraAccess;
 import cz.incad.kramerius.FedoraNamespaces;
+import cz.incad.kramerius.intconfig.InternalConfiguration;
 import cz.incad.kramerius.security.SecurityException;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 
@@ -93,6 +97,24 @@ public class FullImageServlet extends AbstracThumbnailServlet {
 		} catch (Exception e) {
 			LOGGER.log(Level.SEVERE, e.getMessage(), e);
 			resp.setStatus(HttpServletResponse.SC_NOT_FOUND);
+		}
+	}
+
+	
+	public static String fullImageServlet(HttpServletRequest request) {
+		//"dvju"
+		try {
+			URL url = new URL(request.getRequestURL().toString());
+			String path = url.getPath();
+			StringBuffer buffer = new StringBuffer();
+			StringTokenizer tokenizer = new StringTokenizer(path,"/");
+			if(tokenizer.hasMoreTokens()) { buffer.append(tokenizer.nextToken()); }
+			buffer.append("/").append(InternalConfiguration.get().getProperties().getProperty("servlets.mapping.fullImage"));
+			String imagePath = url.getProtocol()+"://"+url.getHost()+":"+url.getPort()+"/"+buffer.toString();
+			return imagePath;
+		} catch (MalformedURLException e) {
+			LOGGER.log(Level.SEVERE, e.getMessage(), e);
+			return "<no url>";
 		}
 	}
 
