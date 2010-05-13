@@ -3,7 +3,7 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <script type="text/javascript" src="js/ckeditor/ckeditor.js"></script>
 <script type="text/javascript" src="js/ckeditor/adapters/jquery.js"></script>
-<script src="sample.js" type="text/javascript"></script>
+
 <script type="text/javascript">
     //<![CDATA[
 
