@@ -188,11 +188,20 @@
 				</exclusion>
 			</exclusions>
 		</dependency>
+
 		<!-- ws support -->
 		<dependency>
 			<groupId> com.sun.xml.ws</groupId>
 			<artifactId>jaxws-rt</artifactId>
 			<version>2.1.7</version>
+			<!-- unnecessary jaxb -->
+            <exclusions>
+				<exclusion>
+				        <groupId>com.sun.xml.bind</groupId>
+				        <artifactId>jaxb-impl</artifactId>
+				</exclusion>
+            </exclusions>
+			
 		</dependency>
 
 		<!-- kramerius komon -->
