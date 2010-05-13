@@ -18,6 +18,7 @@ import javax.xml.xpath.XPathFactory;
 import org.apache.xerces.dom.DOMOutputImpl;
 import org.apache.xml.serialize.DOMSerializerImpl;
 import org.fedora.api.MIMETypedStream;
+import org.fedora.api.RelationshipTuple;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -26,6 +27,7 @@ import com.google.inject.Inject;
 import com.google.inject.name.Named;
 
 import cz.incad.kramerius.FedoraAccess;
+import cz.incad.kramerius.impl.FedoraAccessImpl;
 import cz.incad.kramerius.service.PolicyService;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 
@@ -84,7 +86,7 @@ public class PolicyServiceImpl implements PolicyService {
                     return XMLConstants.XML_NS_URI;
                 }
             });
-            XPathExpression expr = xpath.compile("//dc:policy");
+            XPathExpression expr = xpath.compile("//dc:rights");
             Object result = expr.evaluate(doc, XPathConstants.NODESET);
             NodeList nodes = (NodeList) result;
             for (int i = 0; i < nodes.getLength(); i++) {
@@ -105,11 +107,27 @@ public class PolicyServiceImpl implements PolicyService {
         }
     }
     
+    private static final String POLICY_PREDICATE = "http://www.nsdl.org/ontologies/relationships#policy";
+    private static final String INFO = "info:fedora/";
+    
     private void setPolicyRELS_EXT(String pid, String policyName) {
-        //TODO
+        for (RelationshipTuple t:fedoraAccess.getAPIM().getRelationships(INFO+pid, POLICY_PREDICATE)){
+            fedoraAccess.getAPIM().purgeRelationship(INFO+pid, POLICY_PREDICATE, t.getObject(), true, null);
+        }
+        fedoraAccess.getAPIM().addRelationship(INFO+pid, POLICY_PREDICATE, "policy:"+policyName, true, null);
     }
     
     private void setPolicyPOLICY(String pid, String policyName) {
-        //TODO
+        fedoraAccess.getAPIM().modifyDatastreamByReference(pid, "POLICY", null, null, null, null, "http://local.fedora.server/fedora/get/policy:" + policyName + "/POLICYDEF", null, null, null, false);
+    }
+    
+    /**
+     * test
+     */
+    public static void main(String[] args) {
+        PolicyServiceImpl inst = new PolicyServiceImpl();
+        inst.fedoraAccess = new FedoraAccessImpl(null);
+        inst.configuration = KConfiguration.getKConfiguration();
+        inst.setPolicy("uuid:12ce3f07-e642-11de-a504-001143e3f55c", "public");
     }
 }

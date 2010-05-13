@@ -1,17 +1,26 @@
 package cz.incad.kramerius.service.impl;
 
+import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.Set;
+import java.util.logging.Logger;
 
 import com.google.inject.Inject;
 import com.google.inject.name.Named;
 
 import cz.incad.kramerius.FedoraAccess;
+import cz.incad.kramerius.impl.FedoraAccessImpl;
 import cz.incad.kramerius.service.ExportService;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 
 public class ExportServiceImpl implements ExportService {
+    public static final Logger LOGGER = Logger.getLogger(ExportServiceImpl.class.getName());
+    private static int BUFFER_SIZE = 1024;
 
-    
     @Inject
     @Named("securedFedoraAccess")
     FedoraAccess fedoraAccess;
@@ -26,7 +35,35 @@ public class ExportServiceImpl implements ExportService {
         }
     }
 
-    private void store(String name, byte[] contents){
-        //TODO
+    private void store(String name, byte[] contents) {
+        String exportDirectory = configuration.getProperty("export.directory");
+        String convertedName = name.replace("uuid:", "").replaceAll(":", "_")+ ".xml";
+        File toFile = new File(exportDirectory, convertedName);
+        OutputStream os = null;
+        InputStream is = null;
+        try {
+            is = new ByteArrayInputStream(contents);
+            os = new FileOutputStream(toFile);
+            byte[] buf = new byte[BUFFER_SIZE];
+            for (int byteRead; (byteRead = is.read(buf, 0, BUFFER_SIZE)) >= 0;) {
+                os.write(buf, 0, byteRead);
+            }
+            is.close();
+            os.close();
+        } catch (IOException e) {
+            LOGGER.severe("IOException in export-store: " + e);
+            throw new RuntimeException(e);
+        }
+
+    }
+
+    /**
+     * test
+     */
+    public static void main(String[] args) {
+        ExportServiceImpl inst = new ExportServiceImpl();
+        inst.fedoraAccess = new FedoraAccessImpl(null);
+        inst.configuration = KConfiguration.getKConfiguration();
+        inst.exportTree("uuid:12ce3f07-e642-11de-a504-001143e3f55c");
     }
 }
