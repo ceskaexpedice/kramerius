@@ -207,16 +207,6 @@
 			<version>0.0.1-SNAPSHOT</version>
 		</dependency>
 
-
-		<!--  generating pdf -->
-		<dependency>
-			<groupId>com.lowagie</groupId>
-			<artifactId>itext</artifactId>
-			<version>2.1.7</version>
-		</dependency>
-
-
-
 		
 		<!-- dlouhotravici export do pdf -->
 		<dependency>
