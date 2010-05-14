@@ -12,7 +12,8 @@ public class LRProcessOffset {
 	}
 	
 	public String getSQLOffset	() {
-		return "OFFSET "+this.offset+" ROWS FETCH NEXT "+this.size+" ROWS ONLY";
+		//return "OFFSET "+this.offset+" ROWS FETCH NEXT "+this.size+" ROWS ONLY";
+		return " LIMIT "+this.size+" OFFSET "+this.offset+" ";
 	}
 
 	public String getOffset() {
