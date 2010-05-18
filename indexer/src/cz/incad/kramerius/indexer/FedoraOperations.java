@@ -181,6 +181,7 @@ public class FedoraOperations {
         try {
             foxmlRecord = fa.getAPIM().export(pid, format, "public");
         } catch (Exception e) {
+            e.printStackTrace();
             throw new Exception("Fedora Object " + pid + " not found at " + repositoryName, e);
         }
     }
