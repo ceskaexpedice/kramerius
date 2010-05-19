@@ -19,19 +19,6 @@
 		<servlet-name>GetRelsExt</servlet-name>
 		<servlet-class>cz.incad.Kramerius.GetRelsExt</servlet-class>
 	</servlet>
-	<!-- Servlet pro gwt prohlizecku -->
-	<servlet>
-		<servlet-name>pageService</servlet-name>
-		<servlet-class>cz.incad.kramerius.gwtviewers.server.PageServiceImpl</servlet-class>
-		<init-param>
-			<param-name>thumbUrl</param-name>
-			<param-value>thumb</param-value>
-		</init-param>
-		<init-param>
-			<param-name>maxWidth</param-name>
-			<param-value>95</param-value>
-		</init-param>
-	</servlet>
 	<!-- Servlet pro pristup do streamu IMG_FULL -->
 	<servlet>
 		<servlet-name>fullImageServlet</servlet-name>
@@ -89,10 +76,6 @@
 	<!-- 
 		// Mapovani servletu
 	 -->
-	<servlet-mapping>
-		<servlet-name>pageService</servlet-name>
-		<url-pattern>/gwtviewers/page</url-pattern>
-	</servlet-mapping>
 	<servlet-mapping>
 		<servlet-name>GetRelsExt</servlet-name>
 		<url-pattern>/GetRelsExt</url-pattern>
@@ -182,4 +165,11 @@
 	<welcome-file-list>
 		<welcome-file>search.jsp</welcome-file>
 	</welcome-file-list>
+	
+	<resource-ref>
+	 <description>postgreSQL Datasource example</description>
+	 <res-ref-name>jdbc/kramerius4</res-ref-name>
+	 <res-type>javax.sql.DataSource</res-type>
+	 <res-auth>Container</res-auth>
+	</resource-ref>
 </web-app>
