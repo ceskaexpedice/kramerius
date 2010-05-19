@@ -79,19 +79,6 @@
 			<version>1.1.2</version>
 		</dependency>
 
-		<dependency>
-			<groupId>xalan</groupId>
-			<artifactId>xalan</artifactId>
-			<version>2.7.1</version>
-		</dependency>
-
-
-
-		<dependency>
-			<groupId>org.apache</groupId>
-			<artifactId>xercesImpl</artifactId>
-			<version>2.7.1</version>
-		</dependency>
 
 		<!-- DJVU dependencies -->
 		<dependency>

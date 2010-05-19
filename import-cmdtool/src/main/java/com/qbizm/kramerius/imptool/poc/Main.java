@@ -227,6 +227,7 @@ public class Main {
     /**
    * 
    */
+    
     static class NamespacePrefixMapperImpl extends NamespacePrefixMapper {
 
         public String getPreferredPrefix(String namespaceUri, String suggestion, boolean requirePrefix) {
