@@ -4,32 +4,47 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt"%>
 <%@ page isELIgnored="false"%>
 
-<%@page import="cz.incad.kramerius.utils.conf.KConfiguration"%><script type="text/javascript" language="javascript" src="gwtviewers/gwtviewers.nocache.js"></script>
+<%@page import="cz.incad.kramerius.utils.conf.KConfiguration"%>
+
+<%@page import="cz.incad.Kramerius.ThumbnailImageServlet"%><script type="text/javascript" language="javascript" src="gwtn/gwtn.nocache.js"></script>
+
+
 <script type="text/javascript">
 
-	var __gwtViewersUUIDPATH = "${empty param.pid_path ? param.pid : param.pid_path }";
-	var __confHeight = 140;
-	var __confWidth = 400;
-	var __confDistance = 10;
-	var __confNumberOfImages = 10;	
-	var __confMoveStep = 1;
-	var __debug = false;
-	
+	var __confNumberOfImages = 8;	
+
 	var currentSelectedPage;
 	var currentSelectedParent;
-        
+
+    
 	function changeSelection(masterUuid, selection) {
-          currentSelectedPage = selection;
-            currentSelectedParent = masterUuid;
-		requestToSelect(masterUuid, selection);
-        }
+		if ((currentSelectedParent != null) && (currentSelectedParent != masterUuid)) {
+			//znovu nacteni 
+			initialize();
+		}
+		currentSelectedPage = selection;
+		currentSelectedParent = masterUuid;
+
+		// momentalne zobrazeny 
+    	var currentLeft = $("#slider").slider("option", "value");
+		var currentRight = currentLeft  + __confNumberOfImages;
+		var ind = index(selection);
+		if ((ind > currentRight) || (ind < currentLeft)) {
+	    	$("#slider").slider( "option", "value", ind-1);
+			onSlider($("#slider").slider( "option", "value"));
+		}
+		
+		// zmena selekce
+		select(selection);
+     }
         
         // callbacks from component
         
         var prev = '<span style="padding:15px;cursor:pointer;" onclick="selectPrevious();"><img src="img/la.png" /></span>';
         var next = '<span style="padding:15px;cursor:pointer;" onclick="selectNext();"><img src="img/ra.png" /></span>';
         var currentMime = "unknown";
-	function selectPage(uuid, mimetype){
+
+        function selectPage(uuid, mimetype){
             currentSelectedPage = uuid;
             var pageUrl = "djvu?uuid="+uuid+"&scaledHeight=600";
             var mimeUrl = "djvu?uuid="+uuid+"&imageType=ask";
@@ -122,75 +137,84 @@
             showFullImage();
         }
 	
-   	/*--- callback from component - page range changed ---*/
-	function onChangePages(from, to){  
-		var previous = $("#range").html();
-		$("#range").html(""+(from+1)+" - "+to);	
+	
+	
+
+
+    /*-- found level where pages are placed --*/
+	function maxLevel() {
+		var pocitadlo = 1;
+		var exists = $('#tabs_'+pocitadlo);
+		while((exists) && (exists.length != 0)) {
+			pocitadlo = pocitadlo + 1;
+			exists = $('#tabs_'+pocitadlo);
+		}
+		return (pocitadlo-1);							
 	}
-   	/*--- end of callback from component ---*/
-	
-	
-	/*--- JQuery slider ---*/
-	function createSlider(mmin, mmax, mcur, width) {
-   		$("#slider").slider({
+    
+	/*-- found all pages --*/
+	function findPages() {
+		var pages = [];
+		var max = maxLevel();
+		var divs =  $('#tab'+max+'-page>div#list-page>div');
+		$.each(divs, function(i,item){
+			pages[i] = ''+item.attributes['id'].value;
+		});
+		return pages;		
+	}
+    
+	/*-- move left --*/
+    function left() {
+    	var value = $("#slider").slider( "option", "value" );
+		if (value > 0) {
+	    	$("#slider").slider( "option", "value", value-1 );
+			onSlider($("#slider").slider( "option", "value"));
+    	}
+    }
+
+	/*-- move left --*/
+    function right() {
+        var slider = $("#slider");
+    	var value = slider.slider( "option", "value" );
+		var max = slider.slider( "option", "max" );
+    	if (value < max) {
+	    	$("#slider").slider( "option", "value", value+1 );
+			onSlider($("#slider").slider( "option", "value"));
+    	}
+	}
+    
+    /*--- JQuery slider ---*/
+	function createSlider(mmin, mmax, mcur) {
+    	$("#slider").slider({
 			max: mmax,
 			min:mmin,
 			value:mcur
 		});
-		
-		$("#slider").css("width",width);
+
+    	
+		$("#slider").css("width",getImgContainerWidth());
 		$("#slider").bind( "slide", function(event, ui) {
-			showPages();
-			jQuerySliderChange(ui.value);
+			onSlider(ui.value);
 		});
 
 		$("#slider").bind("slidestop", function(event, ui) {
-			hidePages();
-			jQuerySliderMouseUp();
+			onSlider(ui.value);
 		});
 	}
 
-	function getSliderValue() {
-		var vl = $("#slider").slider("value");
-		return vl;
+	/*-- Get url of images --*/
+    function getImageURL() {
+        return '<%= ThumbnailImageServlet.thumbImageServlet(request) %>?outputFormat=RAW&uuid='
 	}
 	
-	function setSliderValue(value) {
-		$("#slider").slider("value", value);
-		jQuerySliderChange(value);
-	}
-	/*--- end of JQuery slider ---*/
 
-	
-	/*--- pages range dialog ---*/
-	var pagesWindow = null;
-	function hidePages() {
-		if (pagesWindow) {
-			pagesWindow.dialog("close");
-		}
+	function getImgContainerWidth() {
+		return "900px";	
 	}
-
-	function showPages() {
-		//alert("Test");
-		if (pagesWindow) {
-			pagesWindow.dialog("open");
-		} else {
-			pagesWindow =  $("#pages").dialog({
-		        bgiframe: false,
-		        width: 350,
-		        height: 60,
-		        minHeight:60,
-		        modal: false,
-		        draggable:false,
-		        resizable:false,
-		        title:"rozsah stránek"
-		    });
-		}
-	}
-	/*--- end of pages range dialog ---*/
 	
 </script>
  
+
 <table align="center" width="100%">
 	<tr>
             <td colspan="3" id="label"></td>
@@ -202,6 +226,8 @@
     	<td><div id="slider" style="width: 100%"></div> </td>
 	</tr>
 </table>
+
+
 
 <div id="pages" style="display: none">
 	<div id="range" style="text-align: center;"></div>
