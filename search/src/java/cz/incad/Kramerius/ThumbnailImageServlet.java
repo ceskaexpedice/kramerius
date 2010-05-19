@@ -8,6 +8,8 @@ import java.awt.Rectangle;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
+import java.net.URL;
+import java.util.StringTokenizer;
 import java.util.logging.Level;
 
 import javax.servlet.ServletException;
@@ -22,6 +24,7 @@ import com.google.inject.servlet.GuiceServletContextListener;
 import cz.incad.Kramerius.AbstracThumbnailServlet.OutputFormats;
 import cz.incad.Kramerius.backend.guice.GuiceServlet;
 import cz.incad.kramerius.FedoraAccess;
+import cz.incad.kramerius.intconfig.InternalConfiguration;
 import cz.incad.kramerius.security.SecurityException;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 import cz.incad.utils.IKeys;
@@ -99,4 +102,23 @@ public class ThumbnailImageServlet extends AbstracThumbnailServlet {
 	public void setFedoraAccess(FedoraAccess fedoraAccess) {
 		this.fedoraAccess = fedoraAccess;
 	}
+	
+	
+	public static String thumbImageServlet(HttpServletRequest request) {
+		//"dvju"
+		try {
+			URL url = new URL(request.getRequestURL().toString());
+			String path = url.getPath();
+			StringBuffer buffer = new StringBuffer();
+			StringTokenizer tokenizer = new StringTokenizer(path,"/");
+			if(tokenizer.hasMoreTokens()) { buffer.append(tokenizer.nextToken()); }
+			buffer.append("/").append(InternalConfiguration.get().getProperties().getProperty("servlets.mapping.thmbImage"));
+			String imagePath = url.getProtocol()+"://"+url.getHost()+":"+url.getPort()+"/"+buffer.toString();
+			return imagePath;
+		} catch (MalformedURLException e) {
+			LOGGER.log(Level.SEVERE, e.getMessage(), e);
+			return "<no url>";
+		}
+	}
+
 }
