@@ -59,6 +59,7 @@ function selectingPage(obj, level, model){
     var d1 = "#tabs_" + level;
     var d2 = "#tabs_" + (level-1);
     //$(d1 + ">div>div[id=info-"+model+"]").html($(obj).text());
+
     
     //changeSelection($(obj).attr("id"), $(d1).attr("pid"));
     changeSelection($(d2).attr("pid"),$(obj).attr("id"));
@@ -183,7 +184,7 @@ function getItemRels(pid, selectedpid, level, recursive){
                 var pid2;
                 for(var i=1;i<model2.length;i++){
                     pid2 = model2[i]; 
-                    item = '<div id="'+pid2+'" class="relItem" title=""' ;
+                    item = '<div id="'+pid2+'" class="relItem '+m+'" title=""' ;
                     if(m=='page'){
                         item+= ' onclick="selectingPage(this, '+target_level+', \''+ m +'\')" ';
                     }else{
@@ -321,7 +322,7 @@ function showList(obj, tab, model){
 }
 
 function showMainContent(pid, path){
-    if(path=="") return;
+	if(path=="") return;
     $('#mainContent').html(imgLoadingBig);
     //var url = "inc/details/"+path.toString().split('/')[0]+".jsp?display=block&language=";
     var url = "inc/details/biblioToRdf.jsp?pid=uuid:"+pid+"&xsl="+path.toString().split('/')[0]+".jsp&display=block&language=";
@@ -329,7 +330,6 @@ function showMainContent(pid, path){
     $.get(url, function(data){
         $('#mainContent').html(data);
     });
-    
 }
 
 function getPageTitle(pid){
