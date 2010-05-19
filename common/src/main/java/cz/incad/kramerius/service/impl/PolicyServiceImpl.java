@@ -12,16 +12,19 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathConstants;
-import javax.xml.xpath.XPathExpression;
 import javax.xml.xpath.XPathFactory;
+import javax.xml.xpath.XPathExpression;
 
-import org.apache.xerces.dom.DOMOutputImpl;
-import org.apache.xml.serialize.DOMSerializerImpl;
 import org.fedora.api.MIMETypedStream;
 import org.fedora.api.RelationshipTuple;
+import org.w3c.dom.DOMConfiguration;
+import org.w3c.dom.DOMImplementation;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
+import org.w3c.dom.ls.DOMImplementationLS;
+import org.w3c.dom.ls.LSOutput;
+import org.w3c.dom.ls.LSSerializer;
 
 import com.google.inject.Inject;
 import com.google.inject.name.Named;
@@ -93,9 +96,18 @@ public class PolicyServiceImpl implements PolicyService {
                 Node node = nodes.item(i);
                 node.setTextContent("policy:" + policyName);
             }
-            DOMSerializerImpl ser = new DOMSerializerImpl();
-            ser.setParameter("xml-declaration", false);
-            DOMOutputImpl lso = new DOMOutputImpl();
+            
+            if (((doc.getFeature("Core", "3.0")) == null)
+                    || ((doc.getFeature("LS", "3.0")) == null)) {
+                throw new UnsupportedOperationException("DOM3 unsupported");
+            }
+            DOMImplementation domImpl = doc.getImplementation();
+            DOMImplementationLS domImplLS = (DOMImplementationLS) domImpl.getFeature("LS", "3.0");
+                   
+            LSSerializer ser = domImplLS.createLSSerializer();
+            DOMConfiguration conf = (DOMConfiguration)ser;
+            conf.setParameter("xml-declaration", false);
+            LSOutput lso = domImplLS.createLSOutput();
             lso.setEncoding("UTF-8");
             StringWriter swr = new StringWriter();
             lso.setCharacterStream(swr);
@@ -128,6 +140,6 @@ public class PolicyServiceImpl implements PolicyService {
         PolicyServiceImpl inst = new PolicyServiceImpl();
         inst.fedoraAccess = new FedoraAccessImpl(null);
         inst.configuration = KConfiguration.getKConfiguration();
-        inst.setPolicy("uuid:12ce3f07-e642-11de-a504-001143e3f55c", "public");
+        inst.setPolicy("uuid:12ce3f07-e642-11de-a504-001143e3f55c", "private");
     }
 }
