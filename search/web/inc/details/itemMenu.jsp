@@ -115,8 +115,11 @@ Get Biblio mods
     initParent = '<c:out value="${pids[pathsize -2]}" />';
     initPage = '<c:out value="${pids[pathsize -1]}" />';
     function startPage(){
-        if(typeof window.requestToSelect == 'function') {
-            changeSelection(initParent, initPage);
+        if(typeof initialized == 'function') {
+			// nacteni stranek z DOMu
+            initialize();
+            // vyber prvni
+            select(initPage);
         }else{
             setTimeout('startPage()', 200);
         }
