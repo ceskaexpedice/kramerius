@@ -33,8 +33,7 @@
 
 <%@page import="cz.incad.Kramerius.views.ProcessLogsViewObject"%>
 <%@page import="cz.incad.kramerius.processes.LRProcess"%>
-<%@page
-	import="cz.incad.Kramerius.processes.imported.views.ImportsViewObject"%>
+<%@page import="cz.incad.Kramerius.processes.imported.views.ImportsViewObject"%>
 <%@ include file="../../inc/initVars.jsp"%>
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="cs" lang="cs">
 <head>
@@ -117,7 +116,7 @@
 				<td align="center">
 				<div class="ui-tabs ui-widget-content ui-corner-all facet"
 					style="width: 600px">
-				<h3>Chyby při importu</h3>
+					<h3>Chyby při importu</h3>
 				</div>
 				</td>
 			</tr>
