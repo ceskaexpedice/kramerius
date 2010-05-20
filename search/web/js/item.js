@@ -201,7 +201,7 @@ function getItemRels(pid, selectedpid, level, recursive){
                 
                 for(var i=1;i<model2.length;i++){
                     pid2 = model2[i]; 
-                    //getBiblioInfo(pid2, m, list+">div[id="+pid2+"]", false);
+                    getBiblioInfo(pid2, m, list+">div[id="+pid2+"]", false);
                 }
                   
             });
