@@ -24,7 +24,8 @@ import com.qbizm.kramerius.imptool.poc.convertor.PeriodicalConvertor;
 import com.qbizm.kramerius.imptool.poc.utils.ConfigurationUtils;
 import com.qbizm.kramerius.imptool.poc.valueobj.ConvertorConfig;
 import com.qbizm.kramerius.imptool.poc.valueobj.ServiceException;
-import com.sun.xml.bind.marshaller.NamespacePrefixMapper;
+import com.sun.xml.internal.bind.marshaller.NamespacePrefixMapper;
+
 
 /**
  * Nastroj pro konverzi XML z Krameria do formatu Fedora Object XML
@@ -79,7 +80,7 @@ public class Main {
             marshaller = jaxbContext.createMarshaller();
             marshaller.setProperty(Marshaller.JAXB_ENCODING, "utf-8");
             marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
-            marshaller.setProperty("com.sun.xml.bind.namespacePrefixMapper", new NamespacePrefixMapperImpl());
+            marshaller.setProperty("com.sun.xml.internal.bind.namespacePrefixMapper", new NamespacePrefixMapperImpl());
             marshaller.setProperty(Marshaller.JAXB_SCHEMA_LOCATION, "info:fedora/fedora-system:def/foxml# http://www.fedora.info/definitions/1/0/foxml1-1.xsd");
 
             unmarshaller = jaxbContext.createUnmarshaller();
