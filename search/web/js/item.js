@@ -123,7 +123,7 @@ function selectItem(obj, level, model){
     $.get(url, function(data){
         $(p).append(data);
         getItemRels($(obj).attr("id"), "", level, true);
-        changeSelection(initParent, initPage);
+        
     });
     
 }
@@ -176,6 +176,7 @@ function getItemRels(pid, selectedpid, level, recursive){
             });
           
         });  
+        var hasPages = false;
         $.each(data.items, function(i,item){
             $.each(item, function(m,model2){
                     
@@ -183,6 +184,7 @@ function getItemRels(pid, selectedpid, level, recursive){
                 var item;
                 var pid2;
                 for(var i=1;i<model2.length;i++){
+                    if(m=="page") hasPages = true;
                     pid2 = model2[i]; 
                     item = '<div id="'+pid2+'" class="relItem '+m+'" title=""' ;
                     if(m=='page'){
@@ -199,12 +201,15 @@ function getItemRels(pid, selectedpid, level, recursive){
                 
                 for(var i=1;i<model2.length;i++){
                     pid2 = model2[i]; 
-                    getBiblioInfo(pid2, m, list+">div[id="+pid2+"]", false);
+                    //getBiblioInfo(pid2, m, list+">div[id="+pid2+"]", false);
                 }
                   
             });
         });
-            
+        if(hasPages){
+            changeSelection(initParent, initPage);
+        }
+          
         if(selectedpid!=""){
             $('#'+selectedpid).addClass('selected');
             //setTimeout("scrollElement('#"+selectedpid+":parent', '#"+selectedpid+"')", 100);
