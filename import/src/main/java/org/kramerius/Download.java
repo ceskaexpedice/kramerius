@@ -189,7 +189,7 @@ public class Download {
     }
 
     static Replication createReplication(DocType doctype, String docId, String volumeId) {
-        Replication repl = new Replication();
+        Replication repl = new Replication(docId);
 
         repl.setMode(3);
         repl.setRightsRestriction(1);
@@ -524,17 +524,13 @@ public class Download {
 
     public static class Replication extends DataAction {
         
+        public Replication(String id){
+            this.id = id;
+        }
+        
         public String getID(){
-            StringBuffer sb = new StringBuffer();
-            if (getMonographId()!= null) {
-                sb.append(getMonographId());
-            }
-            if (getIssn()!= null) {
-                sb.append(getIssn());
-                sb.append(" ");
-                sb.append(getPeriodicalVolumeDate());
-            }
-            return sb.toString();
+           
+            return id;
         }
 
 
@@ -575,6 +571,8 @@ public class Download {
         private String periodicalItemDate;
 
         private long museumObjectId;
+        
+        private String id;
 
         /**
          * @return
