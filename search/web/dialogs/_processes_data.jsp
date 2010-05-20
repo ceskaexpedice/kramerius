@@ -71,7 +71,7 @@ function _ref(ordering, offset, size, type) {
 <tr>
 	<td width="80%">${processView.prevAHREF} &emsp;  ${processView.nextAHREF}</td> 
 	<td style="text-align: center;">
-		<a href="javascript:_ref('<%= ordering %>',<%= offset %>,<%= size %>,'<%= type %>');"> <img  id="animation" src="img/refresh.png"></img> refresh   </a>
+		<a href="javascript:_ref('<%= ordering %>',<%= offset %>,<%= size %>,'<%= type %>');"> <img  border="0" id="animation" src="img/refresh.png"></img> refresh   </a>
 	</td>
 	
 </tr>
