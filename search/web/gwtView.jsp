@@ -26,7 +26,7 @@
 		currentSelectedParent = masterUuid;
 
 		// momentalne zobrazeny 
-    	var currentLeft = $("#slider").slider("option", "value");
+                var currentLeft = $("#slider").slider("option", "value");
 		var currentRight = currentLeft  + __confNumberOfImages;
 		var ind = index(selection);
 		if ((ind > currentRight) || (ind < currentLeft)) {
@@ -137,9 +137,6 @@
             showFullImage();
         }
 	
-	
-	
-
 
     /*-- found level where pages are placed --*/
 	function maxLevel() {
@@ -156,13 +153,13 @@
 	function findPages() {
 		var pages = [];
 		var max = maxLevel();
-		alert(max);
+//		alert(max);
 		var divs =  $('#tab'+max+'-page>div#list-page>div');
-		alert('#tab'+max+'-page>div#list-page>div');
+//		alert('#tab'+max+'-page>div#list-page>div');
 		$.each(divs, function(i,item){
 			pages[i] = ''+item.attributes['id'].value;
 		});
-		alert(pages.length);
+		//alert(pages.length);
 		return pages;		
 	}
     
