@@ -20,7 +20,8 @@ public class ImportsViewObject {
 	private File successLog;
 	private File failureLog;
 	
-	private List<ImportedItemViewObject> imports = new ArrayList<ImportedItemViewObject>();
+	private List<SuccessfulImportViewObject> imported = new ArrayList<SuccessfulImportViewObject>();
+	private List<FailedImportViewObject> failed = new ArrayList<FailedImportViewObject>();
 	
 	public ImportsViewObject(LRProcess lrProcess) {
 		super();
@@ -36,29 +37,56 @@ public class ImportsViewObject {
 	
 	private void readFiles() throws IOException {
 		FileReader reader = new FileReader(this.successLog);
-		BufferedReader bufReader = new BufferedReader(reader);
-		String line = null;
-		while((line=bufReader.readLine()) != null) {
-			ImportedItemViewObject itm =  readItemViewObject(line);
-			if (itm != null) {
-				this.imports.add(itm);
+		try  {
+			BufferedReader bufReader = new BufferedReader(reader);
+			String line = null;
+			while((line=bufReader.readLine()) != null) {
+				SuccessfulImportViewObject itm =  readSucceedItem(line);
+				if (itm != null) {
+					this.imported.add(itm);
+				}
 			}
+		} finally {
+			reader.close();
+		}
+
+		reader = new FileReader(this.failureLog);
+		try  {
+			BufferedReader bufReader = new BufferedReader(reader);
+			String line = null;
+			while((line=bufReader.readLine()) != null) {
+				FailedImportViewObject itm =  readFailedItem(line);
+				if (itm != null) {
+					this.failed.add(itm);
+				}
+			}
+		} finally {
+			reader.close();
 		}
 	}
 
-	private ImportedItemViewObject readItemViewObject(String line) {
+	private SuccessfulImportViewObject readSucceedItem(String line) {
 		StringTokenizer tokenizer = new StringTokenizer(line,"\t");
 		String data = tokenizer.hasMoreTokens() ? tokenizer.nextToken() : "";
 		String name = tokenizer.hasMoreTokens() ? tokenizer.nextToken() : "";
 		String href = tokenizer.hasMoreTokens() ? tokenizer.nextToken() : "";
-		ImportedItemViewObject viewObject = new ImportedItemViewObject(data,name, href);
+		SuccessfulImportViewObject viewObject = new SuccessfulImportViewObject(data,name, href);
 		return viewObject;
 	}
+	
+	private FailedImportViewObject readFailedItem(String line) {
+		StringTokenizer tokenizer = new StringTokenizer(line,"\t");
+		String data = tokenizer.hasMoreTokens() ? tokenizer.nextToken() : "";
+		String excp = tokenizer.hasMoreTokens() ? tokenizer.nextToken() : "";
+		FailedImportViewObject fviewObj = new FailedImportViewObject(data,excp);
+		return fviewObj;
+	}
 
-	public List<ImportedItemViewObject> getItems() {
-		return imports;
+	public List<SuccessfulImportViewObject> getItems() {
+		return imported;
 	}
 	
-	
-	
+	public List<FailedImportViewObject> getFails() {
+		return this.failed;
+	}
 }

@@ -1,12 +1,12 @@
 package cz.incad.Kramerius.processes.imported.views;
 
-public class ImportedItemViewObject {
+public class SuccessfulImportViewObject {
 	
 	private String name;
 	private String data;
 	private String href;
 	
-	public ImportedItemViewObject(String data, String name, String href) {
+	public SuccessfulImportViewObject(String data, String name, String href) {
 		super();
 		this.data = data;
 		this.href = href;
