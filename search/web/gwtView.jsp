@@ -92,12 +92,12 @@
                 });
                 $('[aria-labelledby=ui-dialog-title-fullImageContainer]>.ui-dialog-titlebar').append('<a href="javascript:previousFull();" class=" ui-corner-all ui-dialog-titlebar-prev"><span class="ui-icon ui-icon-arrowthick-1-w">prev</span></a>');
                 $('[aria-labelledby=ui-dialog-title-fullImageContainer]>.ui-dialog-titlebar').append('<a href="javascript:nextFull();" class=" ui-corner-all ui-dialog-titlebar-next"><span class="ui-icon ui-icon-arrowthick-1-e">next</span></a>');
-                if(currentMime!= 'image/djvu'){
+                if(currentMime.indexOf('djvu') == -1){
                    $('[aria-labelledby=ui-dialog-title-fullImageContainer]>.ui-dialog-titlebar').append($('#divFullImageZoom').html());
                 }
             }
             //alert(currentMime);
-            if(currentMime== 'image/djvu'){
+            if(currentMime.indexOf('djvu') > 0){
                 //$('#djvuContainer').hide();
                 $('#djvuContainer>object>param[name="src"]').attr('value', fullUrl);
                 $('#djvuContainer>object>embed').attr('src', fullUrl);
@@ -182,24 +182,34 @@
 			onSlider($("#slider").slider( "option", "value"));
     	}
 	}
-    
+
+    var sliderCreated = false;
     /*--- JQuery slider ---*/
 	function createSlider(mmin, mmax, mcur) {
-    	$("#slider").slider({
-			max: mmax,
-			min:mmin,
-			value:mcur
-		});
+		if (sliderCreated) {
+			$("#slider").slider( "option", "max", mmax );
+			$("#slider").slider( "option", "value", mcur );
+					
+		} else {
+	    	$("#slider").slider({
+				max: mmax,
+				min:mmin,
+				value:mcur
+			});
 
-    	
-		$("#slider").css("width",getImgContainerWidth());
-		$("#slider").bind( "slide", function(event, ui) {
-			onSlider(ui.value);
-		});
+	    	
+			$("#slider").css("width",getImgContainerWidth());
+			$("#slider").bind( "slide", function(event, ui) {
+				onSlider(ui.value);
+			});
 
-		$("#slider").bind("slidestop", function(event, ui) {
-			onSlider(ui.value);
-		});
+			$("#slider").bind("slidestop", function(event, ui) {
+				onSlider(ui.value);
+			});
+
+			sliderCreated = true;
+		}			
+		
 	}
 
 	/*-- Get url of images --*/
