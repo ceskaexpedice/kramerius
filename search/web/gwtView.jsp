@@ -153,13 +153,10 @@
 	function findPages() {
 		var pages = [];
 		var max = maxLevel();
-//		alert(max);
 		var divs =  $('#tab'+max+'-page>div#list-page>div');
-//		alert('#tab'+max+'-page>div#list-page>div');
 		$.each(divs, function(i,item){
 			pages[i] = ''+item.attributes['id'].value;
 		});
-		//alert(pages.length);
 		return pages;		
 	}
     
