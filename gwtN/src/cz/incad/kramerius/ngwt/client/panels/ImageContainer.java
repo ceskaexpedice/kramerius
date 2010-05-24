@@ -69,6 +69,7 @@ public class ImageContainer extends Composite implements ClickHandler {
 			this.previousSelected.removeClassName(IMG_SELECTED);
 			this.previousSelected.addClassName(IMG_NOT_SELECTED);
 		}
+		elm.removeClassName(IMG_NOT_SELECTED);
 		elm.addClassName(IMG_SELECTED);
 		elm.getParentElement().addClassName(CELL_SELECTED);
 		this.jsnionSelectionChanged(selId);
