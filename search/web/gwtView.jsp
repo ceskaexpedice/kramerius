@@ -6,8 +6,8 @@
 
 <%@page import="cz.incad.kramerius.utils.conf.KConfiguration"%>
 
-<%@page import="cz.incad.Kramerius.ThumbnailImageServlet"%><script type="text/javascript" language="javascript" src="gwtn/gwtn.nocache.js"></script>
-
+<%@page import="cz.incad.Kramerius.ThumbnailImageServlet"%>
+<script type="text/javascript" language="javascript" src="gwtn/gwtn.nocache.js"></script>
 
 <script type="text/javascript">
 
@@ -35,6 +35,7 @@
 		}
 		
 		// zmena selekce
+	
 		select(selection);
      }
         
@@ -218,7 +219,17 @@
 	function getImgContainerWidth() {
 		return "900px";	
 	}
+
+
+	$(document).keypress(function(e) {
+		if (e.keyCode == 39) {
+            selectNext();
+		} else if (e.keyCode == 37) {
+            selectPrevious();
+		}
+	});
 	
+		
 </script>
  
 
