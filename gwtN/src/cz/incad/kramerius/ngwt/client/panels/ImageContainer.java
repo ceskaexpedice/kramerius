@@ -31,6 +31,8 @@ public class ImageContainer extends Composite implements ClickHandler {
 
 	private static final String IMG_SELECTED = "img_selected";
 	private static final String CELL_SELECTED = "cell_selected";
+
+	private static final String IMG_NOT_SELECTED ="img_not_selected"; 
 	
 	private final HorizontalPanel grid; 
 	private Element previousSelected =  null;
@@ -46,6 +48,7 @@ public class ImageContainer extends Composite implements ClickHandler {
 			Image img = new Image();
 			img.addClickHandler(this);
 			img.getElement().setId(createElementID(jsArrayString.get(i)));
+			img.getElement().addClassName(IMG_NOT_SELECTED);
 			img.setUrl(jsniGetImageUrl()+jsArrayString.get(i));
 			grid.add(img);
 			
@@ -64,6 +67,7 @@ public class ImageContainer extends Composite implements ClickHandler {
 		if (this.previousSelected !=  null) {
 			this.previousSelected.getParentElement().removeClassName(CELL_SELECTED);
 			this.previousSelected.removeClassName(IMG_SELECTED);
+			this.previousSelected.addClassName(IMG_NOT_SELECTED);
 		}
 		elm.addClassName(IMG_SELECTED);
 		elm.getParentElement().addClassName(CELL_SELECTED);
