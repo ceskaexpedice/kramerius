@@ -453,6 +453,17 @@ table.advancedSearch td{
 .img_selected{
     border: 2px solid rgb(160,44,44);
 }
+
+.img_not_selected{
+    /*
+    border-color: transparent;
+    border-width: 2px;
+    border-style: solid;
+    */
+    padding: 2px;
+}
+
+
 .ui-dialog-titlebar-prev { position: absolute; right: 50px; top: 50%; width: 19px; margin: -10px 0 0 0; padding: 1px; height: 18px; }
 .ui-dialog-titlebar-next { position: absolute; right: 30px; top: 50%; width: 19px; margin: -10px 0 0 0; padding: 1px; height: 18px; }
 .ui-dialog-titlebar-zoom {position: absolute; right: 75px;}
