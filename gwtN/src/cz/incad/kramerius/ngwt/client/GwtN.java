@@ -40,7 +40,6 @@ public class GwtN implements EntryPoint {
 	 * This is the entry point method.
 	 */
 	public void onModuleLoad() {
-		Window.alert("loaded module ... ");
 		jsniExportMethods(this);
 	}
 	
@@ -80,7 +79,7 @@ public class GwtN implements EntryPoint {
 				this.icp.animatePosition(-offsetLeft);
 			}
 		} else {
-			Window.alert("finding element '"+id+"'");
+			Window.alert("Error in data '"+id+"'");
 		}
 	}
 	
