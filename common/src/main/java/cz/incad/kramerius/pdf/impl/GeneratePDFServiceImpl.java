@@ -459,6 +459,7 @@ public class GeneratePDFServiceImpl implements GeneratePDFService {
 			URL resource = this.getClass().getResource("res/kramerius_logo.png");
 			com.lowagie.text.Image img = com.lowagie.text.Image.getInstance(resource);
 			Paragraph paragraph = new Paragraph();
+			paragraph.setAlignment(com.lowagie.text.Element.ALIGN_CENTER);
 			paragraph.add(img);
 			pdfDoc.add(paragraph);
 			pdfDoc.add(new Paragraph(" "));
