@@ -40,8 +40,8 @@ public class GwtN implements EntryPoint {
 	 * This is the entry point method.
 	 */
 	public void onModuleLoad() {
+		Window.alert("loaded module ... ");
 		jsniExportMethods(this);
-		
 	}
 	
 	public void doInit() {
@@ -73,10 +73,15 @@ public class GwtN implements EntryPoint {
 	public void onSliderChange(double val) {
 		int iVal = (int) Math.round(val);
 		String id = this.icp.getId(iVal);
-		com.google.gwt.dom.client.Element elm = Document.get().getElementById(createElementID(id));
-		int offsetLeft = elm.getParentElement().getOffsetLeft();
-		
-		this.icp.animatePosition(-offsetLeft);
+		if (id != null) {
+			com.google.gwt.dom.client.Element elm = Document.get().getElementById(createElementID(id));
+			if (elm != null) {
+				int offsetLeft = elm.getParentElement().getOffsetLeft();
+				this.icp.animatePosition(-offsetLeft);
+			}
+		} else {
+			Window.alert("finding element '"+id+"'");
+		}
 	}
 	
 	public void select(String id) {

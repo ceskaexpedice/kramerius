@@ -25,6 +25,7 @@ public class ImageContainerParent extends Composite{
 	
 	public ImageContainerParent(JsArrayString jsArrayString) {
 		super();
+		Window.alert("jsArray : "+jsArrayString);
 		this.imageContainer = new ImageContainer(jsArrayString);
 		for (int i = 0; i < jsArrayString.length(); i++) { 
 			id2Index.put(jsArrayString.get(i), new Integer(i)); 
