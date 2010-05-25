@@ -17,9 +17,9 @@ function getFirstAndContinue(pid, model, div, list, models){
 
 function getBiblioInfo(pid, model, div){
     var url = 'inc/details/biblioToRdf.jsp?&pid=uuid:' + pid + "&xsl="+model+".jsp&language=" + language;
-        
     $.get(url, function(xml) {
         $(div).html(xml);
+        $(div).attr('hasbiblio', 'true');
     });
 }
 
@@ -87,8 +87,10 @@ function changeSelectedPage(pid){
     //alert($(obj).length);
     $(obj).parent().children(".relItem").removeClass('selected');
     $(obj).addClass('selected');
-    $(obj).parent().parent().children("[id=info-page]").html($(obj).text());
-    //setTimeout("scrollElement", 100, obj.parent(), obj);
+    var infoObj = $(obj).parent().parent().children("[id=info-page]");
+    if($(obj).attr('hasbiblio')=='true'){
+        infoObj.html($(obj).text());
+    }
     scrollElement($(obj).parent(), $(obj));
 }
 
@@ -186,7 +188,7 @@ function getItemRels(pid, selectedpid, level, recursive){
                 for(var i=1;i<model2.length;i++){
                     if(m=="page") hasPages = true;
                     pid2 = model2[i]; 
-                    item = '<div id="'+pid2+'" class="relItem '+m+'" title=""' ;
+                    item = '<div id="'+pid2+'" hasbiblio="false" class="relItem '+m+'" title=""' ;
                     if(m=='page'){
                         item+= ' onclick="selectingPage(this, '+target_level+', \''+ m +'\')" ';
                     }else{
@@ -207,6 +209,8 @@ function getItemRels(pid, selectedpid, level, recursive){
             });
         });
         if(hasPages){
+            //alert('qq');
+            //initialize();
             changeSelection(initParent, initPage);
         }
           

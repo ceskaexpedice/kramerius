@@ -41,15 +41,17 @@
         
         // callbacks from component
         
-        var prev = '<span style="padding:15px;cursor:pointer;" onclick="selectPrevious();"><img src="img/la.png" /></span>';
-        var next = '<span style="padding:15px;cursor:pointer;" onclick="selectNext();"><img src="img/ra.png" /></span>';
+        var arrowsW = 70;
+        var prev = '<span style="padding:15px;cursor:pointer;width:'+arrowsW+'px;" onclick="selectPrevious();"><img src="img/la.png" /></span>';
+        var next = '<span style="padding:15px;cursor:pointer;width:'+arrowsW+'px;" onclick="selectNext();"><img src="img/ra.png" /></span>';
         var currentMime = "unknown";
 
         function selectPage(uuid, mimetype){
             currentSelectedPage = uuid;
+            var imgW = $('#mainContent').width() - arrowsW*2;
             var pageUrl = "djvu?uuid="+uuid+"&scaledHeight=600";
             var mimeUrl = "djvu?uuid="+uuid+"&imageType=ask";
-            var img = '<a class="lighbox" href="javascript:showFullImage(\''+uuid+'\')"><img id="imgBig" src="'+pageUrl+'" height="600px" border="0" onerror="showError();"  /></a>';
+            var img = '<a class="lighbox" href="javascript:showFullImage(\''+uuid+'\')"><img id="imgBig" src="'+pageUrl+'" width="'+imgW+'px" border="0" onerror="showError();"  /></a>';
             $('#mainContent').html('<div align="center" style="">' + prev + img + next + '</div>');
             
             $.get(mimeUrl, function(data){

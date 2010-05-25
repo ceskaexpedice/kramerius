@@ -71,11 +71,35 @@
             </tr>
             <tr valign='top'>
                 <td>
-                    <%//@ include file="item_1.jsp" %>
-                    <div id="mainContent"><div align="center" style="height:300px;"><img src="img/item_loading.gif" /></div></div>
+                    <%
+                    //ArrayList<String> pids = new ArrayList<String>();
+                    //pids.addAll(request.getParameter("pid_path").split("/"));
+                    ArrayList<String> pids2 =  new ArrayList<String>(Arrays.asList((String [])request.getParameter("pid_path").split("/")));
+                    ArrayList<String> models2 =  new ArrayList<String>(Arrays.asList((String [])request.getParameter("path").split("/")));
+
+                    //ArrayList<String> models = new ArrayList<String>();
+                    //models.addAll(request.getParameter("path").split("/"));
+                    FedoraUtils.fillFirstPagePid(pids2, models2);
+                    
+
+                    imagePid = pids2.get(pids2.size()-1);
+                    
+                    %>
+                    <div id="mainContent">
+                        <div align="center" style="">
+                            <span onclick="selectPrevious();" style="padding: 15px; cursor: pointer;width:70px;"><img src="img/la.png" /></span>
+                            <a href="javascript:showFullImage('<%=imagePid%>')" class="lighbox">
+                                <img border="0" width="544px" onerror="showError();" src="djvu?uuid=<%=imagePid%>&amp;scaledHeight=600" id="imgBig">
+                            </a>
+                            <span onclick="selectNext();" style="padding: 15px; cursor: pointer;width:70px;"><img src="img/ra.png" /></span>
+                         </div>
+                     </div>
                 </td>
                 <td class="itemMenu">
                     <div id="itemTree">
+                        <script>
+                            var firstCalled = false;
+                        </script>
                     <%@ include file="inc/details/itemMenu.jsp" %>
                     
                     </div>

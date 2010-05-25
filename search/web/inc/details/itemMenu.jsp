@@ -16,21 +16,7 @@
 
 
 <%-- fill path up to the end --%>
-<%
-//ArrayList<String> pids = new ArrayList<String>();
-//pids.addAll(request.getParameter("pid_path").split("/"));
-ArrayList<String> pids =  new ArrayList<String>(Arrays.asList((String [])request.getParameter("pid_path").split("/")));
-ArrayList<String> models =  new ArrayList<String>(Arrays.asList((String [])request.getParameter("path").split("/")));
 
-//ArrayList<String> models = new ArrayList<String>();
-//models.addAll(request.getParameter("path").split("/"));
-FedoraUtils.fillFirstPagePid(pids, models);
-//out.println(pids);
-//out.println(models);
-getServletContext().setAttribute("pids", pids);
-getServletContext().setAttribute("models", models);
-getServletContext().setAttribute("pathsize", models.size());
-%>
 
 <%--
 Get Biblio mods
@@ -45,7 +31,24 @@ Get Biblio mods
 <c:if test="${!empty param.level}" >
     <c:set var="level" value="${param.level}"/>
 </c:if>
+<%
+                    //ArrayList<String> pids = new ArrayList<String>();
+                    //pids.addAll(request.getParameter("pid_path").split("/"));
+                    ArrayList<String> pids =  new ArrayList<String>(Arrays.asList((String [])request.getParameter("pid_path").split("/")));
+                    ArrayList<String> models =  new ArrayList<String>(Arrays.asList((String [])request.getParameter("path").split("/")));
 
+                    //ArrayList<String> models = new ArrayList<String>();
+                    //models.addAll(request.getParameter("path").split("/"));
+                    FedoraUtils.fillFirstPagePid(pids, models);
+                    //out.println(pids);
+                    //out.println(models);
+                    getServletContext().setAttribute("pids", pids);
+                    getServletContext().setAttribute("models", models);
+                    getServletContext().setAttribute("pathsize", models.size());
+
+                    imagePid = pids.get(pids.size()-1);
+                    
+                    %>
 <c:forEach var="uuid" varStatus="status" items="${pids}">
     <c:choose>
         <c:when test="${level==0 || status.count>1}">
@@ -116,10 +119,14 @@ Get Biblio mods
     initPage = '<c:out value="${pids[pathsize -1]}" />';
     function startPage(){
         if(typeof initialized == 'function') {
-			// nacteni stranek z DOMu
-            initialize();
-            // vyber prvni
-            select(initPage);
+            if(!firstCalled){
+                // nacteni stranek z DOMu
+                initialize();
+                firstCalled = true;
+            }else{
+                // vyber prvni
+                select(initPage);
+            }
         }else{
             setTimeout('startPage()', 200);
         }
