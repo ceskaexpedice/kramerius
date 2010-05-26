@@ -7,6 +7,7 @@
  */
 package dk.defxws.fedoragsearch.server;
 
+import cz.incad.utils.UnicodeUtil;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -84,9 +85,10 @@ public class TransformerToText {
          */
         StringBuffer docText = new StringBuffer();
         try {
-            //byte[] out = UnicodeUtil.convert(doc, "UTF-8");
-            InputStreamReader isr = new InputStreamReader(new ByteArrayInputStream(doc));
-            //InputStreamReader isr = new InputStreamReader(new ByteArrayInputStream(out));
+//            byte[] out = UnicodeUtil.convert(doc, "UTF-8");
+//            InputStreamReader isr = new InputStreamReader(new ByteArrayInputStream(out));
+            String enc = UnicodeUtil.getEncoding(doc);
+            InputStreamReader isr = new InputStreamReader(new ByteArrayInputStream(doc), enc);
             int c = isr.read();
             while (c > -1) {
                 docText.append((char) c);

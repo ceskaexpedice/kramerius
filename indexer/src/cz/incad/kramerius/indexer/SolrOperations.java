@@ -461,6 +461,7 @@ public class SolrOperations {
         if (logger.isDebugEnabled()) {
             logger.debug("indexDoc=\n" + sb.toString());
         }
+        
         if (sb.indexOf("name=\"" + UNIQUEKEY) > 0) {
             postData(config.getProperty("IndexBase") + "/update", new StringReader(sb.toString()), new StringBuffer());
             updateTotal++;
