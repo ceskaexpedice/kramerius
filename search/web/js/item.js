@@ -79,6 +79,7 @@ function selectNext(){
     var obj = $('#' + currentSelectedPage).next();
     if($(obj).length>0){
         changeSelection(currentSelectedParent, $(obj).attr("id"));
+        //selectPage($(obj).attr("id"));
     }
 }
 
@@ -98,6 +99,7 @@ function selectItem(obj, level, model){
     if($(obj).hasClass("selected")) return;
     $(obj).parent().children(".relItem").removeClass('selected');
     
+    clearThumbs();
     $(obj).addClass('selected');
     var d1 = "#tabs_" + level;
     $(d1).attr('pid', $(obj).attr("id"));
@@ -171,6 +173,9 @@ function getItemRels(pid, selectedpid, level, recursive){
                       //$(obj).tabs("add", m, model2[0]);
 
                       $(obj+">ul>li>img."+m).toggleClass('op_info');
+                      
+                      
+                      
                   }else{
 
                   }
@@ -186,7 +191,6 @@ function getItemRels(pid, selectedpid, level, recursive){
                 var item;
                 var pid2;
                 for(var i=1;i<model2.length;i++){
-                    if(m=="page") hasPages = true;
                     pid2 = model2[i]; 
                     item = '<div id="'+pid2+'" hasbiblio="false" class="relItem '+m+'" title=""' ;
                     if(m=='page'){
@@ -199,6 +203,10 @@ function getItemRels(pid, selectedpid, level, recursive){
                     item += '>'+pid2+'</div>';
                         
                     $(list).append(item);
+                    if(m=="page"){
+                        hasPages = true;
+                        addThumb(pid2);
+                    } 
                 }
                 
                 for(var i=1;i<model2.length;i++){
@@ -211,7 +219,7 @@ function getItemRels(pid, selectedpid, level, recursive){
         if(hasPages){
             //alert('qq');
             //initialize();
-            changeSelection(initParent, initPage);
+            //changeSelection(initParent, initPage);
         }
           
         if(selectedpid!=""){
@@ -352,3 +360,8 @@ function getPageTitle(pid){
         $('#menu-'+div).toggle();
         $('#openmenu-'+div).toggle();
     }
+    
+    
+    
+    
+    
