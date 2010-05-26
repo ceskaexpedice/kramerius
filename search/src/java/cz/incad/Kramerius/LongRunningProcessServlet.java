@@ -223,7 +223,10 @@ public class LongRunningProcessServlet extends GuiceServlet {
 		try {
 			URL url = new URL(request.getRequestURL().toString());
 			String path = url.getPath();
-			String lrURL = url.getProtocol()+"://"+url.getHost()+":"+url.getPort()+"/"+path;
+			String application = path;
+			StringTokenizer tokenizer = new StringTokenizer(path,"/");
+			if (tokenizer.hasMoreTokens()) application = tokenizer.nextToken();
+			String lrURL = url.getProtocol()+"://"+url.getHost()+":"+url.getPort()+"/"+application+"/lr";
 			return lrURL;
 		} catch (MalformedURLException e) {
 			LOGGER.log(Level.SEVERE, e.getMessage(), e);
