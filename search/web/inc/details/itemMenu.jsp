@@ -111,13 +111,16 @@ Get Biblio mods
 
 <script language="javascript">
     $(document).ready(function(){
-        //changeSelection('<c:out value="${pids[pathsize -2]}" />','<c:out value="${pids[pathsize -1]}" />');
-        startPage();
+        changeSelection('<c:out value="${pids[pathsize -2]}" />','<c:out value="${pids[pathsize -1]}" />');
+        //startPage();
         //startItemMenu();
     });
     initParent = '<c:out value="${pids[pathsize -2]}" />';
     initPage = '<c:out value="${pids[pathsize -1]}" />';
     function startPage(){
+        currentSelectedPage = initPage;
+        selectPage(initPage);
+        /*
         if(typeof initialized == 'function') {
             if(!firstCalled){
                 // nacteni stranek z DOMu
@@ -130,6 +133,7 @@ Get Biblio mods
         }else{
             setTimeout('startPage()', 200);
         }
+        */
     }
     
     function startItemMenu(){

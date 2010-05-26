@@ -21,7 +21,7 @@
             <c:set var="rows" value="${param.rows}" scope="request" />
         </c:when>
         <c:otherwise>
-            <c:set var="rows"  value="10" scope="request" />
+            <c:set var="rows"  value="12" scope="request" />
         </c:otherwise>
     </c:choose>
     <c:param name="rows" value="${rows}" />
