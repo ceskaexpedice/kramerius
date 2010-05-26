@@ -13,6 +13,7 @@ import org.w3c.dom.Document;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.google.inject.Key;
+import com.google.inject.name.Names;
 
 import cz.incad.kramerius.FedoraAccess;
 import cz.incad.kramerius.lp.guice.PDFModule;
@@ -30,7 +31,8 @@ public class PDFExport {
 			.getLogger(PDFExport.class.getName());
 	
 	public static void main(String[] args) throws IOException {
-		if (args.length == 3) {
+		System.out.println("Spoustim staticky export .. ");
+		if (args.length == 4) {
 			LOGGER.info("Parameters "+args[0]+", "+args[1]+", "+args[2]+", "+args[3]);
 
 			String outputFolderName = args[0];
@@ -52,7 +54,7 @@ public class PDFExport {
 
 	private static void updateProcessName(String uuid, Injector injector, Medium medium)
 			throws IOException {
-		FedoraAccess fa = injector.getInstance(FedoraAccess.class);
+		FedoraAccess fa = injector.getInstance(Key.get(FedoraAccess.class, Names.named("rawFedoraAccess"))); 
 		Document dc = fa.getDC(uuid);
 		String titleFromDC = DCUtils.titleFromDC(dc);
 		ProcessStarter.updateName("Generování '"+titleFromDC+"' na "+medium);
@@ -101,7 +103,7 @@ public class PDFExport {
 						for (File file : files) { file.deleteOnExit(); }
 					}
 			}
-			FedoraAccess fa = injector.getInstance(FedoraAccess.class);
+			FedoraAccess fa = injector.getInstance(Key.get(FedoraAccess.class, Names.named("rawFedoraAccess"))); 
 			GeneratePDFService generatePDF = injector.getInstance(GeneratePDFService.class);
 			LOGGER.info("fedoraAccess.getDC("+uuid+")");
 			Document dc = fa.getDC(uuid);
