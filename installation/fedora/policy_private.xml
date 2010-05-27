@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<foxml:digitalObject PID="policy:private" VERSION="1.1" xmlns:foxml="info:fedora/fedora-system:def/foxml#"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="info:fedora/fedora-system:def/foxml# http://www.fedora.info/definitions/1/0/foxml1-1.xsd">
+  <foxml:objectProperties>
+    <foxml:property NAME="info:fedora/fedora-system:def/model#state" VALUE="Active"/>
+    <foxml:property NAME="info:fedora/fedora-system:def/model#label" VALUE="Shared XACML definition for public object"/>
+    <foxml:property NAME="info:fedora/fedora-system:def/model#ownerId" VALUE=""/>
+    <foxml:property NAME="info:fedora/fedora-system:def/model#createdDate" VALUE="2010-04-20T08:57:01.125Z"/>
+    <foxml:property NAME="info:fedora/fedora-system:def/view#lastModifiedDate" VALUE="2010-04-20T11:30:31.916Z"/>
+  </foxml:objectProperties>
+  <foxml:datastream CONTROL_GROUP="X" ID="DC" STATE="A" VERSIONABLE="true">
+    <foxml:datastreamVersion CREATED="2010-04-20T08:57:01.125Z" FORMAT_URI="http://www.openarchives.org/OAI/2.0/oai_dc/"
+      ID="DC1.0" LABEL="Dublin Core Record for this object" MIMETYPE="text/xml" SIZE="407">
+      <foxml:xmlContent>
+        <oai_dc:dc xmlns:dc="http://purl.org/dc/elements/1.1/"
+          xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/"
+          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ http://www.openarchives.org/OAI/2.0/oai_dc.xsd">
+          <dc:title>Shared XACML definition for private object</dc:title>
+          <dc:identifier>policy:private</dc:identifier>
+        </oai_dc:dc>
+      </foxml:xmlContent>
+    </foxml:datastreamVersion>
+  </foxml:datastream>
+  <foxml:datastream CONTROL_GROUP="X" ID="POLICYDEF" STATE="A" VERSIONABLE="false">
+    <foxml:datastreamVersion CREATED="2010-04-20T11:30:31.916Z" ID="POLICYDEF.6" LABEL="Shared policy definition"
+      MIMETYPE="text/xml" SIZE="1011">
+      <foxml:xmlContent>
+        <Policy PolicyId="permit-apia-unrestricted"
+          RuleCombiningAlgId="urn:oasis:names:tc:xacml:1.0:rule-combining-algorithm:first-applicable"
+          xmlns="urn:oasis:names:tc:xacml:1.0:policy" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+          <Description>note that other policies may provide exceptions to this broad policy</Description>
+          <Target>
+            <Subjects>
+              <AnySubject/>
+            </Subjects>
+            <Resources>
+              <AnyResource/>
+            </Resources>
+            <Actions>
+              <Action>
+                <ActionMatch MatchId="urn:oasis:names:tc:xacml:1.0:function:string-equal">
+                  <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">urn:fedora:names:fedora:2.1:action:api-a</AttributeValue>
+                  <ActionAttributeDesignator AttributeId="urn:fedora:names:fedora:2.1:action:api" DataType="http://www.w3.org/2001/XMLSchema#string"/>
+                </ActionMatch>
+              </Action>
+            </Actions>
+          </Target>
+          <Rule Effect="Permit" RuleId="1"/>
+        </Policy>
+      </foxml:xmlContent>
+    </foxml:datastreamVersion>
+  </foxml:datastream>
+</foxml:digitalObject>
