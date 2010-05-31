@@ -14,8 +14,6 @@
     var arrowsW = 70;
     var loadedImages = 0;
     var totalThumbs = 0;
-    var prev = '<span style="padding:15px;cursor:pointer;width:'+arrowsW+'px;" onclick="selectPrevious();"><img src="img/la.png" /></span>';
-    var next = '<span style="padding:15px;cursor:pointer;width:'+arrowsW+'px;" onclick="selectNext();"><img src="img/ra.png" /></span>';
     var currentMime = "unknown";
         
         
@@ -99,11 +97,12 @@
                 }
 
             });
-            $('[aria-labelledby=ui-dialog-title-fullImageContainer]>.ui-dialog-titlebar').append('<a href="javascript:previousFull();" class=" ui-corner-all ui-dialog-titlebar-prev"><span class="ui-icon ui-icon-arrowthick-1-w">prev</span></a>');
-            $('[aria-labelledby=ui-dialog-title-fullImageContainer]>.ui-dialog-titlebar').append('<a href="javascript:nextFull();" class=" ui-corner-all ui-dialog-titlebar-next"><span class="ui-icon ui-icon-arrowthick-1-e">next</span></a>');
+            $('[aria-labelledby=ui-dialog-title-fullImageContainer]>.ui-dialog-titlebar').append('<a href="javascript:previousFull();" class=" ui-corner-all ui-dialog-titlebar-prev prevArrow"><span class="ui-icon ui-icon-arrowthick-1-w">prev</span></a>');
+            $('[aria-labelledby=ui-dialog-title-fullImageContainer]>.ui-dialog-titlebar').append('<a href="javascript:nextFull();" class=" ui-corner-all ui-dialog-titlebar-next nextArrow"><span class="ui-icon ui-icon-arrowthick-1-e">next</span></a>');
             if(currentMime.indexOf('djvu') == -1){
                 $('[aria-labelledby=ui-dialog-title-fullImageContainer]>.ui-dialog-titlebar').append($('#divFullImageZoom').html());
             }
+            checkArrows();
         }
         //alert(currentMime);
         if(currentMime.indexOf('djvu') > 0){
