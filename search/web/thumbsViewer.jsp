@@ -12,20 +12,22 @@
     var currentSelectedPage;
     var currentSelectedParent;
     var arrowsW = 70;
+    var loadedImages = 0;
+    var totalThumbs = 0;
     var prev = '<span style="padding:15px;cursor:pointer;width:'+arrowsW+'px;" onclick="selectPrevious();"><img src="img/la.png" /></span>';
     var next = '<span style="padding:15px;cursor:pointer;width:'+arrowsW+'px;" onclick="selectNext();"><img src="img/ra.png" /></span>';
     var currentMime = "unknown";
         
         
     function addThumb(uuid){
-        var img = '<td><img id="img_'+uuid+
+        var img = '<td><img onload="checkScrollPosition()" id="img_'+uuid+
             '" class="tv_image';
         if(currentSelectedPage==uuid){
             img += ' tv_img_selected'
         }
         img += '" onclick="selectPage(\''+uuid+'\');" src="thumb?outputFormat=RAW&amp;uuid='+uuid+'" /></td>';
         $('#tv_container_row').append(img);
-        
+        checkArrows();
     }
     
     function clearThumbs(){
@@ -38,13 +40,28 @@
         var pageUrl = "djvu?uuid="+uuid+"&scaledHeight=600";
         var mimeUrl = "djvu?uuid="+uuid+"&imageType=ask";
         var img = '<a class="lighbox" href="javascript:showFullImage(\''+uuid+'\')"><img id="imgBig" src="'+pageUrl+'" width="'+imgW+'px" border="0" onerror="showError();"  /></a>';
-        $('#mainContent').html('<div align="center" style="">' + prev + img + next + '</div>');
+        checkArrows();
+        $('#mainContent').html(img);
 
         $.get(mimeUrl, function(data){
             currentMime = data;
         });
         $("#img_"+uuid).toggleClass('tv_img_selected');
         changeSelectedPage(uuid);
+    }
+    function checkArrows(){
+        var obj = $('#' + currentSelectedPage).prev();
+        if($(obj).length>0){
+            $('.prevArrow').show();
+        }else{
+            $('.prevArrow').hide();
+        }
+        obj = $('#' + currentSelectedPage).next();
+        if($(obj).length>0){
+            $('.nextArrow').show();
+        }else{
+            $('.nextArrow').hide();
+        }
     }
     function showError(){
         $('#mainContent').html('<div align="center" style="height:300px;" >' + dictionary['rightMsg'] + '</div>');
@@ -124,6 +141,17 @@
         selectNext();
         showFullImage();
     }
+    
+    function checkScrollPosition(){
+        loadedImages++;
+        //alert(totalThumbs);
+        if(loadedImages == totalThumbs){
+        //alert(loadedImages);
+            var to = $('#img_' + currentSelectedPage).offset().left - tvContainerLeft;
+            to = to / $("#tv_container_table").width()  * 100;
+            slideTo(to, currentSelectedPage);
+        }
+    }
     function changeSelection(masterUuid, selection) {
         currentSelectedParent = masterUuid;
         
@@ -131,8 +159,6 @@
         var to = $('#img_' + selection).offset().left - tvContainerLeft;
         to = to / $("#tv_container_table").width()  * 100;
         slideTo(to, selection);
-        
-        // zmena selekce
         selectPage(selection);
     }
      var tvContainerRight;
@@ -171,7 +197,6 @@
         }
     }
 
-    /*-- move left --*/
     function tv_right() {
         var slider = $("#tv_slider");
         var value = slider.slider( "option", "value" );
@@ -183,7 +208,7 @@
     }
     
     $(document).ready(function(){
-        imgW = $('#mainContent').width() - arrowsW*2;
+        imgW = $('#mainContent').width();
         tvContainerLeft = $("#tv_container").offset().left;
         tvContainerRight = tvContainerLeft + $("#tv_container").width();
         $("#tv_slider").slider({
@@ -214,7 +239,7 @@
         position:relative;
     }
     .tv_img_selected{
-        border:solid 2px red;
+        border:solid 2px #e75c01;
         padding:0;
     }
 </style>

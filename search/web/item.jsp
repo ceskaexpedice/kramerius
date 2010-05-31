@@ -63,9 +63,9 @@
             <tr valign='top'>
                 <td colspan="2" valign="middle" align="center">
                     <table style="width: 100%"><tr>
-                        <td><a style="padding:10px;" href="javascript:selectPrevious();"><img src="img/la.png" border="0" /></a></td>
-                        <td><%--<%@ include file="gwtView.jsp" %>--%><%@ include file="thumbsViewer.jsp" %></td>
-                        <td><a style="padding:10px;" href="javascript:selectNext();"><img src="img/ra.png" border="0" /></a></td>
+                        <td width="20px" align="center"><a class="prevArrow"  href="javascript:selectPrevious();"><img src="img/la.png" border="0" /></a></td>
+                        <td align="center"><%--<%@ include file="gwtView.jsp" %>--%><%@ include file="thumbsViewer.jsp" %></td>
+                        <td width="20px" align="center"><a class="nextArrow"  href="javascript:selectNext();"><img src="img/ra.png" border="0" /></a></td>
                     </tr></table>
                     </td>
             </tr>
@@ -85,15 +85,13 @@
                     imagePid = pids2.get(pids2.size()-1);
                     
                     %>
-                    <div id="mainContent">
-                        <div align="center" style="">
-                            <span onclick="selectPrevious();" style="padding: 15px; cursor: pointer;width:70px;"><img src="img/la.png" /></span>
-                            <a href="javascript:showFullImage('<%=imagePid%>')" class="lighbox">
+                    <table cellpadding="0" cellspacing="0" width="100%"><tr>
+                        <td valign="top" align="center" width="70px"><span class="prevArrow" style="padding:15px;cursor:pointer;width:70px;" onclick="selectPrevious();"><img src="img/la.png" /></span></td>
+                        <td valign="top" align="center" id="mainContent"><a href="javascript:showFullImage('<%=imagePid%>')" class="lighbox">
                                 <img border="0" width="544px" onerror="showError();" src="djvu?uuid=<%=imagePid%>&amp;scaledHeight=600" id="imgBig">
-                            </a>
-                            <span onclick="selectNext();" style="padding: 15px; cursor: pointer;width:70px;"><img src="img/ra.png" /></span>
-                         </div>
-                     </div>
+                            </a></td>
+                        <td valign="top" align="center" width="70px"><span class="nextArrow" onclick="selectNext();" style="padding: 15px; cursor: pointer;width:70px;"><img src="img/ra.png" /></span></td>
+                    </tr></table>
                 </td>
                 <td class="itemMenu">
                     <div id="itemTree">

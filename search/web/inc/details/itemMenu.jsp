@@ -120,6 +120,7 @@ Get Biblio mods
     function startPage(){
         currentSelectedPage = initPage;
         selectPage(initPage);
+        
         /*
         if(typeof initialized == 'function') {
             if(!firstCalled){

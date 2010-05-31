@@ -184,7 +184,7 @@ function getItemRels(pid, selectedpid, level, recursive){
           
         });  
         var hasPages = false;
-        $.each(data.items, function(i,item){
+        $.each(data.items, function(j,item){
             $.each(item, function(m,model2){
                     
                 var list = "#tabs_" + (target_level) + ">div>div[id=list-"+m+"]";
@@ -207,6 +207,9 @@ function getItemRels(pid, selectedpid, level, recursive){
                         hasPages = true;
                         addThumb(pid2);
                     } 
+                }
+                if(m=="page"){
+                  totalThumbs = model2.length - 1;
                 }
                 
                 for(var i=1;i<model2.length;i++){
