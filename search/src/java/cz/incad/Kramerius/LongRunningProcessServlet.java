@@ -42,6 +42,9 @@ public class LongRunningProcessServlet extends GuiceServlet {
 
 	@Inject
 	LRProcessManager lrProcessManager;
+
+	@Inject
+	KConfiguration configuration;
 	
 	@Override
 	protected void doGet(HttpServletRequest req, HttpServletResponse resp)
@@ -219,6 +222,10 @@ public class LongRunningProcessServlet extends GuiceServlet {
 	
 
 	public static String lrServlet(HttpServletRequest request) {
+		KConfiguration conf = KConfiguration.getKConfiguration();
+		if ((conf.getLRServletURL() != null) && (!conf.getLRServletURL().equals(""))) {
+			return conf.getLRServletURL();
+		}
 		//"dvju"
 		try {
 			URL url = new URL(request.getRequestURL().toString());
