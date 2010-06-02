@@ -1,5 +1,6 @@
 package cz.incad.kramerius.pdf;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.List;
@@ -20,7 +21,7 @@ public interface GeneratePDFService {
 	 * @param os
 	 * @throws IOException
 	 */
-	public void fullPDFExport(String parentUUID, OutputStreams outputs, Break brk, String djvuUrl) throws IOException;
+	public void fullPDFExport(String parentUUID, OutputStreams outputs, Break brk, String djvuUrl, String i18Url) throws IOException;
 
 	/**
 	 * Vygeneruje jenom zadane stranky
@@ -31,7 +32,7 @@ public interface GeneratePDFService {
 	 * @param os
 	 * @throws IOException
 	 */
-	public void dynamicPDFExport(List<String> path,String uuidFrom, String uuidTo, String titlePage, OutputStream os, String djvuUrl) throws IOException;
+	public void dynamicPDFExport(List<String> path,String uuidFrom, String uuidTo, String titlePage, OutputStream os, String djvuUrl, String i18nUrl) throws IOException;
 	
 	/**
 	 * Vygeneruje vlastni strukturu
@@ -40,8 +41,10 @@ public interface GeneratePDFService {
 	 * @param os
 	 * @throws IOException
 	 */
-	public void generateCustomPDF(AbstractRenderedDocument doc, String parentUUID, OutputStream os, String djvuUrl) throws IOException;
+	public void generateCustomPDF(AbstractRenderedDocument doc, String parentUUID, OutputStream os, String djvuUrl, String i18nUrl) throws IOException;
 
-	public AbstractRenderedDocument generateCustomPDF(AbstractRenderedDocument doc, String parentUUID, OutputStream os, Break brk, String djvuUrl) throws IOException;
+	public AbstractRenderedDocument generateCustomPDF(AbstractRenderedDocument doc, String parentUUID, OutputStream os, Break brk, String djvuUrl, String i18nUrl) throws IOException;
+
+	public File templatesFolder();
 }
 

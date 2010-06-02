@@ -1,5 +1,6 @@
 package cz.incad.kramerius.pdf.impl;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.MalformedURLException;
@@ -9,6 +10,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Stack;
 
@@ -35,10 +37,31 @@ import org.xml.sax.SAXException;
 import cz.incad.kramerius.FedoraAccess;
 import cz.incad.kramerius.FedoraNamespaces;
 import cz.incad.kramerius.KrameriusModels;
+import cz.incad.kramerius.utils.IOUtils;
 import cz.incad.kramerius.utils.XMLUtils;
 
-public class TemplatesUtils {
+public class STUtils {
 
+	
+	public static String localizedXslt(Locale locale, String i18nUrl, File file, String title, KrameriusModels model) throws IOException {
+		String read = IOUtils.readAsString(STUtils.class.getResourceAsStream("templates/localized_xslt_template.xslt"), Charset.forName("UTF-8"), true);
+		StringTemplate st = new StringTemplate(read);
+		st.setAttribute("bundle_url", createBundleURL(locale,i18nUrl));
+		st.setAttribute("template_folder", file.getAbsoluteFile().toURI().toURL().toString());
+		st.setAttribute("model", model.name());
+		st.setAttribute("parent_title", title);
+		return st.toString();
+	}
+	
+	private static String createBundleURL(Locale locale, String i18nUrl) {
+		// http://localhost:8080/search/i18n
+		//?action=bundle&amp;lang=cs&amp;country=CZ&amp;name=base
+		return i18nUrl+"?action=bundle&amp;lang="+locale.getLanguage()+"&amp;country="+locale.getCountry()+"&amp;name=base";
+	}
+
+	public static void main(String[] args) {
+		System.out.println(createBundleURL(Locale.getDefault(), " http://localhost:8080/search/i18n"));
+	}
 	
 	public static String metadata(FedoraAccess fedoraAccess, String parentUUID) throws IOException {
 		org.w3c.dom.Document biblioMods = fedoraAccess.getDC(parentUUID);
@@ -154,9 +177,9 @@ public class TemplatesUtils {
 	}
 
 	protected static StringTemplateGroup getGroup() {
-		InputStreamReader common = new InputStreamReader(TemplatesUtils.class.getResourceAsStream("templates/common.st"),Charset.forName("UTF-8"));
-		InputStreamReader internalpart = new InputStreamReader(TemplatesUtils.class.getResourceAsStream("templates/models.st"),Charset.forName("UTF-8"));
-		InputStreamReader firstpage = new InputStreamReader(TemplatesUtils.class.getResourceAsStream("templates/firstpage.st"),Charset.forName("UTF-8"));
+		InputStreamReader common = new InputStreamReader(STUtils.class.getResourceAsStream("templates/common.st"),Charset.forName("UTF-8"));
+		InputStreamReader internalpart = new InputStreamReader(STUtils.class.getResourceAsStream("templates/models.st"),Charset.forName("UTF-8"));
+		InputStreamReader firstpage = new InputStreamReader(STUtils.class.getResourceAsStream("templates/firstpage.st"),Charset.forName("UTF-8"));
 		StringTemplateGroup groupCommon = new StringTemplateGroup(common,DefaultTemplateLexer.class);
 		StringTemplateGroup groupFirstPage = new StringTemplateGroup(firstpage, DefaultTemplateLexer.class);
 		groupFirstPage.setSuperGroup(groupCommon);
@@ -168,21 +191,21 @@ public class TemplatesUtils {
 	}
 
 	
-	public static void main(String[] args) throws ParserConfigurationException, SAXException, IOException, TransformerException {
-		DocumentBuilderFactory fact = DocumentBuilderFactory.newInstance();
-		fact.setNamespaceAware(true);
-		DocumentBuilder builder = fact.newDocumentBuilder();
-		//URL url = new URL("http://194.108.215.227:8080/fedora/get/uuid:046b1546-32f0-11de-992b-00145e5790ea/BIBLIO_MODS");
-		URL url = new URL("http://194.108.215.227:8080/fedora/get/uuid:0eaa6730-9068-11dd-97de-000d606f5dc6/BIBLIO_MODS");
-		
-		Document source = builder.parse(url.openStream());
-		
-		
-		Map map = prepareBiblioModsModel(source.getDocumentElement());
-		System.out.println(map);
-		StringTemplate template = getGroup().lookupTemplate("MONOGRAPH");
-		template.setAttribute("bibliomods",map);
-		System.out.println(template.toString());
+//	public static void main(String[] args) throws ParserConfigurationException, SAXException, IOException, TransformerException {
+//		DocumentBuilderFactory fact = DocumentBuilderFactory.newInstance();
+//		fact.setNamespaceAware(true);
+//		DocumentBuilder builder = fact.newDocumentBuilder();
+//		//URL url = new URL("http://194.108.215.227:8080/fedora/get/uuid:046b1546-32f0-11de-992b-00145e5790ea/BIBLIO_MODS");
+//		URL url = new URL("http://194.108.215.227:8080/fedora/get/uuid:0eaa6730-9068-11dd-97de-000d606f5dc6/BIBLIO_MODS");
+//		
+//		Document source = builder.parse(url.openStream());
+//		
+//		
+//		Map map = prepareBiblioModsModel(source.getDocumentElement());
+//		System.out.println(map);
+//		StringTemplate template = getGroup().lookupTemplate("MONOGRAPH");
+//		template.setAttribute("bibliomods",map);
+//		System.out.println(template.toString());
 		
 		
 //		URL xslUrl = TemplatesUtils.class.getResource("templates/biblio.xsl");
@@ -193,7 +216,7 @@ public class TemplatesUtils {
 //        Transformer trans = transFact.newTransformer(new StreamSource(xslUrl.openStream()));
 //        
 //        trans.transform(new StreamSource(url.openStream()), new StreamResult(System.out));
-	}
+//	}
 	
 	
 }

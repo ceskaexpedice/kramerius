@@ -9,25 +9,42 @@ import static cz.incad.kramerius.utils.imgs.KrameriusImageSupport.writeImageToSt
 import java.awt.Image;
 import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.StringReader;
+import java.net.MalformedURLException;
 import java.net.URL;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
+import java.util.ResourceBundle;
 import java.util.logging.Level;
 
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerConfigurationException;
+import javax.xml.transform.TransformerException;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
+import javax.xml.transform.stream.StreamSource;
 import javax.xml.xpath.XPathExpressionException;
 
 import org.w3c.dom.DOMException;
 import org.w3c.dom.Element;
 
 import com.google.inject.Inject;
+import com.google.inject.Provider;
 import com.google.inject.name.Named;
 import com.lizardtech.djvu.DjVmDir;
 import com.lizardtech.djvu.anno.DjVuAnno;
+import com.lizardtech.djvubean.text.TextSearch;
 import com.lowagie.text.BadElementException;
 import com.lowagie.text.Chunk;
 import com.lowagie.text.Document;
@@ -46,7 +63,9 @@ import com.lowagie.text.pdf.PdfPTableEvent;
 import com.lowagie.text.pdf.PdfWriter;
 import com.lowagie.text.pdf.draw.LineSeparator;
 import com.lowagie.text.pdf.draw.VerticalPositionMark;
+import com.sun.imageio.plugins.common.I18N;
 
+import cz.incad.kramerius.Constants;
 import cz.incad.kramerius.FedoraAccess;
 import cz.incad.kramerius.FedoraNamespaces;
 import cz.incad.kramerius.FedoraRelationship;
@@ -60,8 +79,10 @@ import cz.incad.kramerius.pdf.pdfpages.ImagePage;
 import cz.incad.kramerius.pdf.pdfpages.OutlineItem;
 import cz.incad.kramerius.pdf.pdfpages.RenderedDocument;
 import cz.incad.kramerius.pdf.pdfpages.TextPage;
+import cz.incad.kramerius.service.TextsService;
 import cz.incad.kramerius.utils.BiblioModsUtils;
 import cz.incad.kramerius.utils.DCUtils;
+import cz.incad.kramerius.utils.IOUtils;
 import cz.incad.kramerius.utils.XMLUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 import cz.incad.kramerius.utils.imgs.ImageMimeType;
@@ -76,16 +97,72 @@ public class GeneratePDFServiceImpl implements GeneratePDFService {
     public static final int DEFAULT_WIDTH = 595;
     public static final int DEFAULT_HEIGHT = 842;
 
+	public static com.lowagie.text.Image DEFAULT_LOGO_IMAGE;
+	static {
+		try {
+			DEFAULT_LOGO_IMAGE = com.lowagie.text.Image.getInstance(GeneratePDFServiceImpl.class.getResource("res/kramerius_logo.png"));
+		} catch (BadElementException e) {
+			LOGGER.log(Level.SEVERE, e.getMessage(), e);
+		} catch (MalformedURLException e) {
+			LOGGER.log(Level.SEVERE, e.getMessage(), e);
+		} catch (IOException e) {
+			LOGGER.log(Level.SEVERE, e.getMessage(), e);
+		}
+	}
+
+	private FedoraAccess fedoraAccess;
+	private KConfiguration configuration;
+	private Provider<Locale> localeProvider;
+	private TextsService textsService;
+	
 	@Inject
-	@Named("securedFedoraAccess")
-	FedoraAccess fedoraAccess;
-	@Inject
-	KConfiguration configuration;
+	public GeneratePDFServiceImpl(@Named("securedFedoraAccess") FedoraAccess fedoraAccess, KConfiguration configuration, Provider<Locale> localeProvider, TextsService textsService) {
+		super();
+		this.fedoraAccess = fedoraAccess;
+		this.configuration = configuration;
+		this.localeProvider = localeProvider;
+		this.textsService = textsService;
+		this.configuration = configuration;
+		try {
+			this.init();
+		} catch (IOException e) {
+			LOGGER.log(Level.SEVERE, e.getMessage(), e);
+		}
+	}
 	
-	
-	
+	private void init() throws IOException {
+		String[] texts = 
+		{"first_page",
+		"first_page_CZ_cs",
+		"security_fail",
+		"security_fail_CZ_cs"};
+		copyFiles(texts,"res/", this.textsService.textsFolder());
+		String[] xlsts = 
+		{"template.xslt"};
+		copyFiles(xlsts,"templates/", this.templatesFolder());
+	}
+
+	private void copyFiles(String[] texts, String prefix, File folder) throws FileNotFoundException,
+			IOException {
+		for (String def : texts) {
+			InputStream is = null;
+			FileOutputStream os = null;
+			try {
+				File file = new File(folder, def);
+				if (!file.exists()) {
+					is= this.getClass().getResourceAsStream(prefix+def);
+					os = new FileOutputStream(file);
+					IOUtils.copyStreams(is, os);
+				}
+			} finally {
+				if (os != null) os.close();
+				if (is != null) is.close();
+			}
+		}
+	}
+
 	@Override
-	public AbstractRenderedDocument generateCustomPDF(AbstractRenderedDocument rdoc, String parentUUID, OutputStream os, Break brk, String djvUrl) throws IOException {
+	public AbstractRenderedDocument generateCustomPDF(AbstractRenderedDocument rdoc, String parentUUID, OutputStream os, Break brk, String djvUrl, String i18nUrl) throws IOException {
 		try {
 			String brokenPage = null;
 			Document doc = createDocument();
@@ -104,7 +181,7 @@ public class GeneratePDFServiceImpl implements GeneratePDFService {
 					insertOutlinedImagePage(iPage, writer, doc, djvUrl);
 				} else {
 					TextPage tPage = (TextPage) page;
-					insertOutlinedTextPage(tPage, writer, doc, rdoc.getDocumentTitle());
+					insertOutlinedTextPage(tPage, writer, doc, rdoc.getDocumentTitle(), i18nUrl);
 				}
 				os.flush();
 				if (brk.broken(page.getUuid())) {
@@ -141,19 +218,22 @@ public class GeneratePDFServiceImpl implements GeneratePDFService {
 			LOGGER.log(Level.SEVERE, e.getMessage(), e);
 		} catch (XPathExpressionException e) {
 			LOGGER.log(Level.SEVERE, e.getMessage(), e);
+		} catch (TransformerException e) {
+			LOGGER.log(Level.SEVERE, e.getMessage(), e);
 		}
-		
 		return rdoc;
 	}
 
 
 	@Override
-	public void generateCustomPDF(AbstractRenderedDocument rdoc, String parentUUID, OutputStream os, String djvuUrl) throws IOException {
+	public void generateCustomPDF(AbstractRenderedDocument rdoc, String parentUUID, OutputStream os, String djvuUrl, String i18nUrl) throws IOException {
 		try {
 			Document doc = createDocument();
 			PdfWriter writer = PdfWriter.getInstance(doc, os);
 			doc.open();
+			
 			insertFirstPage(rdoc, parentUUID, rdoc.getUuidTitlePage(), writer, doc, djvuUrl);
+
 			doc.newPage();
 			for (AbstractPage page : rdoc.getPages()) {
 				doc.newPage();
@@ -163,7 +243,7 @@ public class GeneratePDFServiceImpl implements GeneratePDFService {
 				} else {
 					TextPage tPage = (TextPage) page;
 					if (tPage.getOutlineTitle().trim().equals("")) throw new IllegalArgumentException(page.getUuid());
-					insertOutlinedTextPage(tPage, writer, doc, rdoc.getDocumentTitle());
+					insertOutlinedTextPage(tPage, writer, doc, rdoc.getDocumentTitle(), i18nUrl);
 				}
 			}
 
@@ -181,6 +261,8 @@ public class GeneratePDFServiceImpl implements GeneratePDFService {
 		} catch (DocumentException e) {
 			LOGGER.log(Level.SEVERE, e.getMessage(), e);
 		} catch (XPathExpressionException e) {
+			LOGGER.log(Level.SEVERE, e.getMessage(), e);
+		} catch (TransformerException e) {
 			LOGGER.log(Level.SEVERE, e.getMessage(), e);
 		}
 		
@@ -200,7 +282,8 @@ public class GeneratePDFServiceImpl implements GeneratePDFService {
 	
 
 	@Override
-	public void dynamicPDFExport(List<String> path, String uuidFrom, String uuidTo, String titlePage, OutputStream os, String djvuUrl) throws IOException {
+	public void dynamicPDFExport(List<String> path, String uuidFrom, String uuidTo, String titlePage, OutputStream os, String djvuUrl, String i18nUrl) throws IOException {
+		LOGGER.info("current locale is "+localeProvider.get());
 		if (!path.isEmpty()) {
 			String lastUuid = path.get(path.size() -1);
 
@@ -213,13 +296,13 @@ public class GeneratePDFServiceImpl implements GeneratePDFService {
 			renderedDocument.setUuidMainTitle(path.get(0));
 			
 			buildRenderingDocumentAsFlat(relsExt, renderedDocument, uuidFrom, uuidTo);
-			generateCustomPDF(renderedDocument, lastUuid,os, djvuUrl);
+			generateCustomPDF(renderedDocument, lastUuid,os, djvuUrl,i18nUrl);
 		}
 	}
 
 
 	@Override
-	public void fullPDFExport(String parentUUID, OutputStreams streams, Break brk, String djvuUrl) throws IOException {
+	public void fullPDFExport(String parentUUID, OutputStreams streams, Break brk, String djvuUrl, String i18nUrl) throws IOException {
 		org.w3c.dom.Document relsExt = this.fedoraAccess.getRelsExt(parentUUID);
 		KrameriusModels model = this.fedoraAccess.getKrameriusModel(relsExt);
 		
@@ -244,7 +327,7 @@ public class GeneratePDFServiceImpl implements GeneratePDFService {
 		while(!konec) {
 			if (!restOfDoc.getPages().isEmpty()) {
 				os = streams.newOutputStream();
-				restOfDoc = generateCustomPDF(restOfDoc, parentUUID, os, brk, djvuUrl);
+				restOfDoc = generateCustomPDF(restOfDoc, parentUUID, os, brk, djvuUrl,i18nUrl);
 				
 				StringBuffer buffer = new StringBuffer();
 				restOfDoc.getOutlineItemRoot().debugInformations(buffer, 1);
@@ -414,7 +497,6 @@ public class GeneratePDFServiceImpl implements GeneratePDFService {
 			}
 			if (title.trim().equals("")) throw new IllegalArgumentException(objectId+" has no title ");
 			page.setOutlineTitle(title);
-			//renderedDocument.addPage(page);
 		}
 		return page;
 	}
@@ -456,11 +538,10 @@ public class GeneratePDFServiceImpl implements GeneratePDFService {
 
 	public void insertFirstPage(AbstractRenderedDocument model, String parentUuid, String titlePageUuid , PdfWriter pdfWriter, Document pdfDoc, String djvuUrl) throws IOException, DocumentException {
 		try {
-			URL resource = this.getClass().getResource("res/kramerius_logo.png");
-			com.lowagie.text.Image img = com.lowagie.text.Image.getInstance(resource);
 			Paragraph paragraph = new Paragraph();
 			paragraph.setAlignment(com.lowagie.text.Element.ALIGN_CENTER);
-			paragraph.add(img);
+			
+			paragraph.add(DEFAULT_LOGO_IMAGE);
 			pdfDoc.add(paragraph);
 			pdfDoc.add(new Paragraph(" "));
 			
@@ -492,12 +573,13 @@ public class GeneratePDFServiceImpl implements GeneratePDFService {
 			pdfDoc.add(new Paragraph(" "));
 			pdfDoc.add(new Paragraph(" "));
 			
-			Paragraph parDesc = new Paragraph(TemplatesUtils.description(), getFont());		
+			Paragraph parDesc = new Paragraph(this.textsService.getText("first_page", localeProvider.get()), getFont());		
 			pdfDoc.add(parDesc);
 		} catch (XPathExpressionException e) {
 			LOGGER.log(Level.SEVERE, e.getMessage(), e);
 		}
 	}
+	
 
 	private  void lineInFirstPage(PdfWriter pdfWriter, Document document,
 			float y) {
@@ -507,9 +589,40 @@ public class GeneratePDFServiceImpl implements GeneratePDFService {
 		cb.lineTo(document.getPageSize().getWidth()-10, y - 10);
 		cb.stroke();
 	}
+
+
+	private File prepareXSLStyleSheet(Locale locale, String i18nUrl, String title, KrameriusModels model) throws IOException {
+		File tmpFile = File.createTempFile("temporary", "stylesheet");
+		tmpFile.deleteOnExit();
+		FileOutputStream fos = null;
+		try {
+			String localizedXslt = STUtils.localizedXslt(locale, i18nUrl, templatesFolder(), title, model);
+			fos = new FileOutputStream(tmpFile);
+			fos.write(localizedXslt.getBytes(Charset.forName("UTF-8")));
+			fos.close();
+		} finally {
+			if (fos != null) fos.close();
+		}
+		return tmpFile;
+	}
 	
-	public void insertOutlinedTextPage(TextPage page, PdfWriter pdfWriter, Document document, String title) throws XPathExpressionException, IOException, DocumentException {
-		String text = TemplatesUtils.textPage(this.fedoraAccess, page.getUuid(), page.getModel(), title);
+	public String xslt(FedoraAccess fa, File styleSheet, String uuid) throws IOException, TransformerException {
+		TransformerFactory tf = TransformerFactory.newInstance();
+		Transformer transformer = tf.newTransformer(new StreamSource(styleSheet));
+		org.w3c.dom.Document biblioMods = fa.getBiblioMods(uuid);
+		ByteArrayOutputStream bos = new ByteArrayOutputStream();
+		transformer.transform(new DOMSource(biblioMods), new StreamResult(bos));
+		return new String(bos.toByteArray(), Charset.forName("UTF-8"));
+	}
+	
+	
+	
+	public void insertOutlinedTextPage(TextPage page, PdfWriter pdfWriter, Document document, String title, String i18nUrl) throws XPathExpressionException, IOException, DocumentException, TransformerException {
+		File styleSheet = prepareXSLStyleSheet(localeProvider.get(), i18nUrl, title, page.getModel());
+		String text = xslt(this.fedoraAccess, styleSheet, page.getUuid());
+		System.out.println("Styled text '"+text+"'");
+		
+		
 		BufferedReader strReader = new BufferedReader(new StringReader(text));
 		StringBuffer oneChunkBuffer = new StringBuffer();
 		String line = null;
@@ -553,8 +666,6 @@ public class GeneratePDFServiceImpl implements GeneratePDFService {
 			Document document, String text, Font font)
 			throws DocumentException, IOException {
 
-		System.out.println("Emmiting text '"+text+"'");
-		
 		Chunk chunk = new Chunk(text, font);
 		chunk.setLocalDestination(page.getOutlineDestination());
 		pdfWriter.setOpenAction(page.getOutlineDestination());
@@ -656,12 +767,12 @@ public class GeneratePDFServiceImpl implements GeneratePDFService {
 					document.add(img);
 				}
 			} else {
-				Paragraph na = new Paragraph("NA");
+				Paragraph na = new Paragraph(textsService.getText("image_not_available", localeProvider.get()));
 				document.add(na);
 			}
 		} catch (cz.incad.kramerius.security.SecurityException e) {
 			LOGGER.log(Level.SEVERE, e.getMessage(), e);
-			Paragraph na = new Paragraph("NA");
+			Paragraph na = new Paragraph(textsService.getText("security_fail", localeProvider.get()));
 			document.add(na);
 		}
 	}
@@ -692,5 +803,14 @@ public class GeneratePDFServiceImpl implements GeneratePDFService {
 		String imgUrl = djvuUrl +"?uuid="+objectId+"&outputFormat=RAW";
 		return imgUrl;
 	}
+
+	@Override
+	public File templatesFolder() {
+		String dirName = Constants.WORKING_DIR + File.separator + "templates";
+		File dir = new File(dirName);
+		if (!dir.exists()) { dir.mkdirs(); }
+		return dir;
+	}
+
 	
 }
