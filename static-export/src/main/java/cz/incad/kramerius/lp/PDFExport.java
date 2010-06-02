@@ -16,6 +16,7 @@ import com.google.inject.Key;
 import com.google.inject.name.Names;
 
 import cz.incad.kramerius.FedoraAccess;
+import cz.incad.kramerius.lp.guice.ArgumentLocalesProvider;
 import cz.incad.kramerius.lp.guice.PDFModule;
 import cz.incad.kramerius.pdf.GeneratePDFService;
 import cz.incad.kramerius.processes.impl.ProcessStarter;
@@ -32,13 +33,21 @@ public class PDFExport {
 	
 	public static void main(String[] args) throws IOException {
 		System.out.println("Spoustim staticky export .. ");
-		if (args.length == 4) {
+		if (args.length >= 4) {
 			LOGGER.info("Parameters "+args[0]+", "+args[1]+", "+args[2]+", "+args[3]);
 
 			String outputFolderName = args[0];
 			Medium medium = Medium.valueOf(args[1]);
 			String uuid = args[2];
 			String djvuUrl = args[3];
+			String i18nUrl = args[4];
+			
+			if (args.length >= 6) {
+				LOGGER.info("Country "+args[5]);
+				LOGGER.info("Lang "+args[6]);
+				System.setProperty(ArgumentLocalesProvider.ISO3COUNTRY_KEY, args[5]);
+				System.setProperty(ArgumentLocalesProvider.ISO3LANG_KEY, args[6]);
+			}
 			
 			File uuidFolder = new File(getTmpDir(), uuid);
 			if (uuidFolder.exists()) { uuidFolder.delete(); }
@@ -47,7 +56,7 @@ public class PDFExport {
 			if (System.getProperty("uuid") != null) {
 				updateProcessName(uuid, injector, medium);
 			}
-			generatePDFs(uuid, uuidFolder, injector,djvuUrl);
+			generatePDFs(uuid, uuidFolder, injector,djvuUrl,i18nUrl);
 			createFSStructure(uuidFolder, new File(outputFolderName), medium);
 		}
 	}
@@ -93,7 +102,7 @@ public class PDFExport {
 	}
 
 
-	private static void generatePDFs(String uuid, File uuidFolder, Injector injector, String djvuUrl) {
+	private static void generatePDFs(String uuid, File uuidFolder, Injector injector, String djvuUrl, String i18nUrl) {
 		try {
 			if (!uuidFolder.exists()) { 
 				uuidFolder.mkdirs(); 
@@ -111,7 +120,7 @@ public class PDFExport {
 			String title = DCUtils.titleFromDC(dc);
 			LOGGER.info("title is "+title);
 			GenerateController controller = new GenerateController(uuidFolder, title);
-			generatePDF.fullPDFExport(uuid, controller, controller, djvuUrl);
+			generatePDF.fullPDFExport(uuid, controller, controller, djvuUrl, i18nUrl);
 		} catch (IOException e) {
 			LOGGER.log(Level.SEVERE, e.getMessage(), e);
 		}

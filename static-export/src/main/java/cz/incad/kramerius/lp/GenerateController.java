@@ -22,9 +22,27 @@ public class GenerateController implements Break, OutputStreams {
 	public GenerateController(File folder, String name) {
 		super();
 		this.folder = folder;
-		this.name = name;
+		this.name = name.trim();
+		this.corruptName();
 	}
 
+
+	public void corruptName() {
+		StringBuffer buff = new StringBuffer();
+		for (int i=0,ll=this.name.length();i<ll;i++) {
+			char charAt = this.name.charAt(i);
+			if (!Character.isWhitespace(charAt)) {
+				buff.append(charAt);
+			} else break;
+		}
+		if (this.name.equals("")) {
+			this.name = "part_";
+		} else {
+			this.name = buff.toString();
+		}
+	}
+	
+	
 	@Override
 	public OutputStream newOutputStream() throws IOException {
 		this.curFile = new File(this.folder,this.name+"_"+pocitadlo+".pdf");
