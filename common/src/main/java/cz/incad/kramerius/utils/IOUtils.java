@@ -1,5 +1,6 @@
 package cz.incad.kramerius.utils;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -7,6 +8,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.channels.FileChannel;
+import java.nio.charset.Charset;
 import java.security.MessageDigest;
 import java.util.logging.Level;
 
@@ -74,4 +76,13 @@ public class IOUtils {
 		}
 	}
 
+	public static String readAsString(InputStream is, Charset charset, boolean closeInput) throws IOException {
+		try {
+			ByteArrayOutputStream bos = new ByteArrayOutputStream();
+			copyStreams(is, bos);
+			return new String(bos.toByteArray(), charset);
+		} finally  {
+			if ((is != null) && closeInput) { is.close(); }
+		}
+	}
 }

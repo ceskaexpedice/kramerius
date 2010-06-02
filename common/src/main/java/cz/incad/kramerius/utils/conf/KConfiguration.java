@@ -132,6 +132,12 @@ public class KConfiguration {
     	return getProperty("lrControlUrl");
 	}
 
+	public String getApplicationURL() {
+    	String applicationUrl = getProperty("applicationUrl");
+    	applicationUrl = applicationUrl + (applicationUrl.endsWith("/") ? "":"/");
+    	return applicationUrl;
+	}
+
 	public List<String> getPatterns() {
 		List<String> retval = new ArrayList<String>();
 		String property = getProperty("accessPatterns");
