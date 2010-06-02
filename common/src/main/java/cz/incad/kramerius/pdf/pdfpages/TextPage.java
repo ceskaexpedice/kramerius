@@ -8,5 +8,4 @@ public class TextPage extends AbstractPage {
 		super(model, uuid);
 		if (model == null) throw new IllegalArgumentException("neplatny argument "+model);
 	}
-	
 }
