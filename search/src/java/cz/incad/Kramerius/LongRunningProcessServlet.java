@@ -223,8 +223,8 @@ public class LongRunningProcessServlet extends GuiceServlet {
 
 	public static String lrServlet(HttpServletRequest request) {
 		KConfiguration conf = KConfiguration.getKConfiguration();
-		if ((conf.getLRServletURL() != null) && (!conf.getLRServletURL().equals(""))) {
-			return conf.getLRServletURL();
+		if ((conf.getApplicationURL() != null) && (!conf.getApplicationURL().equals(""))) {
+			return conf.getApplicationURL() +"lr";
 		}
 		//"dvju"
 		try {

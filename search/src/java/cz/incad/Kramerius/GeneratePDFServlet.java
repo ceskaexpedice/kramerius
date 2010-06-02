@@ -30,6 +30,7 @@ import cz.incad.kramerius.FedoraNamespaces;
 import cz.incad.kramerius.FedoraRelationship;
 import cz.incad.kramerius.RelsExtHandler;
 import cz.incad.kramerius.pdf.GeneratePDFService;
+import cz.incad.kramerius.utils.conf.KConfiguration;
 import cz.incad.kramerius.utils.pid.LexerException;
 import cz.incad.kramerius.utils.pid.PIDParser;
 import cz.incad.utils.IKeys;
@@ -48,6 +49,8 @@ public class GeneratePDFServlet extends GuiceServlet {
 	@Inject
 	@Named("securedFedoraAccess")
 	FedoraAccess fedoraAccess;
+	@Inject
+	KConfiguration configuration;
 	
 	@Override
 	protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException {
@@ -55,7 +58,13 @@ public class GeneratePDFServlet extends GuiceServlet {
 				URL url = new URL(req.getRequestURL().toString());
 				//TODO: Najit context.. jde to.
 				String djvuUrl = url.getProtocol()+"://"+url.getHost()+":"+url.getPort()+"/search/djvu";
-
+				if ((configuration.getApplicationURL() != null) && (!configuration.getApplicationURL().equals(""))){
+					djvuUrl = configuration.getApplicationURL()+"djvu";
+				}
+				String i18nUrl = url.getProtocol()+"://"+url.getHost()+":"+url.getPort()+"/search/i18n";
+				if ((configuration.getApplicationURL() != null) && (!configuration.getApplicationURL().equals(""))){
+					djvuUrl = configuration.getApplicationURL()+"i18n";
+				}
 				resp.setContentType("application/pdf");
 				SimpleDateFormat sdate = new SimpleDateFormat("yyyyMMdd_mmhhss");
 			    resp.setHeader("Content-disposition","attachment; filename="+sdate.format(new Date())+".pdf");
@@ -63,7 +72,7 @@ public class GeneratePDFServlet extends GuiceServlet {
 				String to = req.getParameter(UUID_TO);
 				String path = req.getParameter(PATH);
 				List<String> pathList = Arrays.asList(path.split("/"));
-				service.dynamicPDFExport(pathList, from, to, from, resp.getOutputStream(), djvuUrl);
+				service.dynamicPDFExport(pathList, from, to, from, resp.getOutputStream(), djvuUrl,i18nUrl);
 
 		} catch (Exception e) {
 			LOGGER.log(Level.SEVERE, e.getMessage(), e);
