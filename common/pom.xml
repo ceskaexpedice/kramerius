@@ -42,11 +42,6 @@
 			<version>0.0.1-SNAPSHOT</version>
 		</dependency>
 	
-		<dependency>
-			<groupId>gwt.com.google</groupId>
-			<artifactId>gwt-servlet</artifactId>
-			<version>2.0</version>
-		</dependency>
 
 		<!--dependency>
 			<groupId>xalan</groupId>
@@ -93,6 +88,14 @@
 			<artifactId>aopalliance</artifactId>
 			<version>2.0</version>
 		</dependency>
+	
+		<!-- only form base64 encoder TODO: Remove -->
+		<dependency>
+			<groupId>gwt.com.google</groupId>
+			<artifactId>gwt-servlet</artifactId>
+			<version>2.0</version>
+		</dependency>
+
 
 		<!-- junit -->
 		<dependency>
@@ -161,9 +164,13 @@
 			<resource>
 				<directory>${basedir}/src/main/java</directory>
 				<includes>
+					<include>**/*</include>
 					<include>**/*.p*</include>
 					<include>**/*.st</include>
 				</includes>
+				<excludes>
+					<exclude>**/*.java</exclude>
+				</excludes>
 			</resource>
 		</resources>
 		<plugins>
