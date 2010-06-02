@@ -10,5 +10,4 @@ public enum FedoraModels {
 	periodicalitem,
 	periodicalvolume,
 	
-
 }
