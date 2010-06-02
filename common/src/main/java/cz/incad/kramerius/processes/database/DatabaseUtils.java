@@ -22,11 +22,11 @@ import cz.incad.kramerius.processes.States;
 public class DatabaseUtils {
 
 	
-	public static Connection openConnection() throws  ClassNotFoundException, SQLException {
-		Class.forName(DERBY_DRIVER);
-		Connection con = DriverManager.getConnection(WORKING_DB_JDBC_URL);
-		return con;
-	}
+//	public static Connection openConnection() throws  ClassNotFoundException, SQLException {
+//		Class.forName(DERBY_DRIVER);
+//		Connection con = DriverManager.getConnection(WORKING_DB_JDBC_URL);
+//		return con;
+//	}
 
 	public static boolean tableExists(Connection con) throws SQLException  {
 		ResultSet rs = null;
