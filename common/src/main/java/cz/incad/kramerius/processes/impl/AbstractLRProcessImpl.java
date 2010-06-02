@@ -19,7 +19,6 @@ import cz.incad.kramerius.processes.LRProcess;
 import cz.incad.kramerius.processes.LRProcessDefinition;
 import cz.incad.kramerius.processes.LRProcessManager;
 import cz.incad.kramerius.processes.States;
-import cz.incad.kramerius.processes.database.DefaultConnectionProvider;
 import cz.incad.kramerius.processes.impl.io.FollowStreamThread;
 import cz.incad.kramerius.utils.IOUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
@@ -98,7 +97,6 @@ public abstract class AbstractLRProcessImpl implements LRProcess{
 			command.add("-D"+ProcessStarter.MAIN_CLASS_KEY+"="+this.definition.getMainClass());
 			command.add("-D"+ProcessStarter.UUID_KEY+"="+this.uuid);
 			command.add("-D"+ProcessStarter.LR_SERVLET_URL+"="+lrServlet);
-
 			
 			File standardStreamFile = standardOutFile(processWorkingDir);
 			File errStreamFile = errorOutFile(processWorkingDir);
@@ -138,14 +136,16 @@ public abstract class AbstractLRProcessImpl implements LRProcess{
 			processBuilder.environment().put(ProcessStarter.CLASSPATH_NAME, buffer.toString());
 			this.state = States.RUNNING;
 			manager.registerLongRunningProcess(this);
-                        
+            
+			LOGGER.info(""+command);
+			LOGGER.info(buffer.toString());
+			
 			Process process = processBuilder.start();
 			//File errStreamFile = new File(createFolderIfNotExists(this.definition.getErrStreamFolder()),this.uuid+".err");
 			//LOGGER.info("error stream file:"+errStreamFile.getAbsolutePath());
 			//new FollowStreamThread(process.getErrorStream(), new FileOutputStream(errStreamFile)).start();
 			//new FollowStreamThread(process.getInputStream(), new FileOutputStream(standardStreamFile)).start();
 			//TODO: Synchronizace ?? Jak na to ?
-			//
 
 			// pokracuje dal.. rozhoduje se, jestli pocka na vysledek procesu
 			if (wait) {
