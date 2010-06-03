@@ -33,7 +33,7 @@
         <xsl:variable name="uuid" ><xsl:value-of select="./mods:identifier[@type='urn']"/></xsl:variable>
         <div><span valign="top">*</span>
             <span>
-                <fmt:message>Hlavní název</fmt:message>:<br/>
+                <fmt:message bundle="${lctx}">Hlavní název</fmt:message>:<br/>
                 <div class="resultValue"><a>
                         <xsl:attribute name="href">./item.jsp?pid=uuid:<xsl:value-of select="$uuid"/></xsl:attribute><xsl:value-of select="mods:titleInfo/mods:title" /></a></div>
             </span>
@@ -43,7 +43,7 @@
             <xsl:attribute name="style">display:<c:out value="${param.display}" />;</xsl:attribute>
         <div><span valign="top">*</span>
             <span>
-                <fmt:message>Autor</fmt:message>:<br/>
+                <fmt:message bundle="${lctx}">Autor</fmt:message>:<br/>
                 <xsl:for-each select="mods:name[@type='personal']">
                     <xsl:if test="./mods:role/mods:roleTerm = 'Author'">
                         <div class="resultValue">
@@ -56,9 +56,9 @@
         </div>
         <div><span valign="top">*</span>
             <span>
-                <fmt:message>Druh dokumentu</fmt:message>:<br/>
+                <fmt:message bundle="${lctx}">Druh dokumentu</fmt:message>:<br/>
                 <div class="resultValue">
-                    <fmt:message>info:fedora/model:monograph</fmt:message>
+                    <fmt:message bundle="${lctx}">info:fedora/model:monograph</fmt:message>
                 </div>
             </span>
         </div>

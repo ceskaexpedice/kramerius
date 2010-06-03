@@ -17,7 +17,7 @@
 </c:set>
 
 <div>
-    <b><fmt:message>Číslo stránky</fmt:message>:</b><br/>
+    <b><fmt:message bundle="${lctx}">Číslo stránky</fmt:message>:</b><br/>
     <dd>
         <c:out value="${param.page}" />
     </dd>

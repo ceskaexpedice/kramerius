@@ -54,7 +54,7 @@
                 <div id="<x:out select="./str[@name='PID']" />" 
                  class="relItem" title="<x:out select="./str[@name='page_format']" />" >
                     <x:forEach select="./arr[@name='details']/str" >
-                        <c:set var="s"><fmt:message><x:out select="." /></fmt:message></c:set>
+                        <c:set var="s"><fmt:message bundle="${lctx}"><x:out select="." /></fmt:message></c:set>
                         <c:out value="${fn:replace(s, '???','')}" />&#160;
                     </x:forEach>
                 </div>

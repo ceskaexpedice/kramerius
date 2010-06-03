@@ -33,19 +33,19 @@
         <hr class="soft" />
         <div><span valign="top">*</span> 
             <span>
-                <b><fmt:message>Datum vydání výtisku</fmt:message>:</b><br/>
+                <b><fmt:message bundle="${lctx}">Datum vydání výtisku</fmt:message>:</b><br/>
                 <dd><xsl:value-of select="mods:part/mods:date" /></dd>
             </span>
         </div>
         <div><span valign="top">*</span> 
             <span>
-                <b><fmt:message>Číslo výtisku</fmt:message>:</b><br/>
+                <b><fmt:message bundle="${lctx}">Číslo výtisku</fmt:message>:</b><br/>
                 <dd><xsl:value-of select="mods:part/mods:detail[@type = 'issue']/mods:number" /></dd>
             </span>
         </div>
         <div><span valign="top">*</span>
             <span>
-                <b><fmt:message>Hlavní název</fmt:message>:</b><br/>
+                <b><fmt:message bundle="${lctx}">Hlavní název</fmt:message>:</b><br/>
                 <dd><xsl:value-of select="mods:titleInfo/mods:title" /></dd>
             </span>
             
@@ -53,7 +53,7 @@
         <xsl:if test="mods:physicalDescription/mods:note">
             <div><span>*</span>
                 <span>
-                    <b><fmt:message>Poznámky</fmt:message>:</b><br/>
+                    <b><fmt:message bundle="${lctx}">Poznámky</fmt:message>:</b><br/>
                     <dd>
                         <xsl:value-of select="mods:physicalDescription/mods:note" />
                     </dd>
@@ -63,7 +63,7 @@
         <xsl:if test="mods:part/mods:text">
             <div><span>*</span>
                 <span>
-                    <b><fmt:message>Vady</fmt:message>:</b><br/>
+                    <b><fmt:message bundle="${lctx}">Vady</fmt:message>:</b><br/>
                     <dd>
                         <xsl:value-of select="mods:part/mods:text" />
                     </dd>

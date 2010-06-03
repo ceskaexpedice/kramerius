@@ -40,7 +40,7 @@
         
         <div><span>*</span>
             <span>
-                <b><fmt:message>Hlavní název</fmt:message>:</b><br/>
+                <b><fmt:message bundle="${lctx}">Hlavní název</fmt:message>:</b><br/>
                 <dd><a>
                 <xsl:attribute name="href">./item.jsp?pid=uuid:<xsl:value-of select="./mods:identifier[@type='urn']"/>&amp;model=info:fedora/model:periodical</xsl:attribute><span id="periodicaltitle"><xsl:value-of select="mods:titleInfo/mods:title" /></span></a></dd>
             </span>
@@ -49,7 +49,7 @@
         <xsl:if test="mods:titleInfo/mods:subTitle">
             <div><span>*</span>
                 <span>
-                    <b><fmt:message>Podnázev</fmt:message>:</b><br/> 
+                    <b><fmt:message bundle="${lctx}">Podnázev</fmt:message>:</b><br/> 
                     <dd>
                         <xsl:value-of select="mods:titleInfo/mods:subTitle" />
                     </dd>
@@ -61,17 +61,17 @@
             
         <div><span>*</span>
             <span>
-                <b><fmt:message>Druh dokumentu</fmt:message>:</b><br/>
+                <b><fmt:message bundle="${lctx}">Druh dokumentu</fmt:message>:</b><br/>
                 <dd>
-                    <fmt:message>info:fedora/model:periodical</fmt:message>
+                    <fmt:message bundle="${lctx}">info:fedora/model:periodical</fmt:message>
                 </dd>
             </span>
         </div>
         <xsl:if test="mods:originInfo[@transliteration='publisher']">
             <div><table>
-                    <tr><td><b><fmt:message>Název vydavatele</fmt:message>:</b></td>
-                    <td><b><fmt:message>Datum vydání</fmt:message>:</b></td>
-                    <td><b><fmt:message>Místo vydání</fmt:message>:</b></td></tr>
+                    <tr><td><b><fmt:message bundle="${lctx}">Název vydavatele</fmt:message>:</b></td>
+                    <td><b><fmt:message bundle="${lctx}">Datum vydání</fmt:message>:</b></td>
+                    <td><b><fmt:message bundle="${lctx}">Místo vydání</fmt:message>:</b></td></tr>
             
         <xsl:for-each select="mods:originInfo[@transliteration='publisher']">
                 <tr>
@@ -98,7 +98,7 @@
         </xsl:if>
         <div><span>*</span>
             <span>
-                <b><fmt:message>Jazyk</fmt:message>:</b><br/>
+                <b><fmt:message bundle="${lctx}">Jazyk</fmt:message>:</b><br/>
                 <dd>
                     <xsl:value-of select="mods:language/mods:languageTerm" />
                 </dd>
@@ -107,12 +107,12 @@
         <xsl:if test="mods:originInfo[@transliteration='printer']">
             <div><span>*</span>
                 <span>
-                    <b><fmt:message>Název tiskaře</fmt:message>:</b><br/> 
+                    <b><fmt:message bundle="${lctx}">Název tiskaře</fmt:message>:</b><br/> 
                     <dd>
                         <xsl:value-of select="mods:originInfo[@transliteration='printer']/mods:publisher" />
                     </dd>
                     <br/> 
-                    <b><fmt:message>Místo tisku</fmt:message>:</b><br/>
+                    <b><fmt:message bundle="${lctx}">Místo tisku</fmt:message>:</b><br/>
                     <dd> 
                         <xsl:value-of select="mods:originInfo[@transliteration='printer']/mods:place/mods:placeTerm" />
                     </dd>
@@ -122,11 +122,11 @@
         <xsl:if test="mods:physicalDescription/mods:extent/text()">
             <div><span>*</span>
                 <span>
-                    <b><fmt:message>Fyzický popis</fmt:message>:</b><br/>
-                    <b><fmt:message>Rozměry</fmt:message>:</b><br/> 
+                    <b><fmt:message bundle="${lctx}">Fyzický popis</fmt:message>:</b><br/>
+                    <b><fmt:message bundle="${lctx}">Rozměry</fmt:message>:</b><br/> 
                     <dd><xsl:value-of select="substring-after(mods:physicalDescription/mods:extent, ',')" /></dd>
                     <br/>
-                    <b><fmt:message>Rozsah</fmt:message>:</b><br/> 
+                    <b><fmt:message bundle="${lctx}">Rozsah</fmt:message>:</b><br/> 
                     <dd><xsl:value-of select="substring-before(mods:physicalDescription/mods:extent, ',')" /></dd>
                 </span>
             </div>
@@ -134,7 +134,7 @@
         <xsl:if test="mods:physicalDescription/mods:note/text()">
             <div><span>*</span>
                 <span>
-                    <b><fmt:message>Poznámky</fmt:message>:</b><br/>
+                    <b><fmt:message bundle="${lctx}">Poznámky</fmt:message>:</b><br/>
                     <dd><xsl:value-of select="mods:physicalDescription/mods:note" /></dd>
                 </span>
             </div>
@@ -142,9 +142,9 @@
         <xsl:if test="mods:physicalDescription/mods:note[@type='preservationStateOfArt']">
             <div><span>*</span>
                 <span>
-                    <b><fmt:message>Stav z hlediska ochrany fondů</fmt:message>:</b><br/>
+                    <b><fmt:message bundle="${lctx}">Stav z hlediska ochrany fondů</fmt:message>:</b><br/>
                     <dd>
-                        <b><fmt:message>Aktuální stav</fmt:message>:</b><br/> 
+                        <b><fmt:message bundle="${lctx}">Aktuální stav</fmt:message>:</b><br/> 
                         <xsl:value-of select="mods:physicalDescription/mods:note[@type='preservationStateOfArt']" />
                     </dd>
                 </span>
@@ -154,7 +154,7 @@
         <xsl:if test="mods:location/mods:physicalLocation">
             <div><span>*</span>
                 <span>
-                    <b><fmt:message>Místo uložení</fmt:message>:</b><br/>
+                    <b><fmt:message bundle="${lctx}">Místo uložení</fmt:message>:</b><br/>
                     <dd>
                         <xsl:value-of select="mods:location/mods:physicalLocation" />
                     </dd>
@@ -164,7 +164,7 @@
         <xsl:if test="mods:location/mods:shelfLocator">
             <div><span>*</span>
                 <span>
-                    <b><fmt:message>Signatura</fmt:message>:</b><br/>
+                    <b><fmt:message bundle="${lctx}">Signatura</fmt:message>:</b><br/>
                     <dd>
                         <xsl:value-of select="mods:location/mods:shelfLocator" />
                     </dd>
@@ -174,7 +174,7 @@
         <xsl:if test="mods:originInfo/mods:frequency">
             <div><span>*</span>
                 <span>
-                    <b><fmt:message>Periodicita</fmt:message>:</b><br/>
+                    <b><fmt:message bundle="${lctx}">Periodicita</fmt:message>:</b><br/>
                     <dd>
                         <xsl:value-of select="mods:originInfo/mods:frequency" />
                     </dd>
@@ -184,7 +184,7 @@
         <xsl:if test="mods:part/mods:detail[@type='regularsupplement']">
             <div><span>*</span>
                 <span>
-                    <b><fmt:message>Pravidelná příloha</fmt:message>:</b><br/>
+                    <b><fmt:message bundle="${lctx}">Pravidelná příloha</fmt:message>:</b><br/>
                     <dd>
                         <xsl:value-of select="mods:part/mods:detail[@type='regularsupplement']" />
                     </dd>

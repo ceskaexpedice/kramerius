@@ -33,20 +33,20 @@
         <hr class="soft" />
         <div><span valign="top">*</span> 
             <span>
-                <b><fmt:message>Datum vydání ročníku</fmt:message>:</b><br/>
+                <b><fmt:message bundle="${lctx}">Datum vydání ročníku</fmt:message>:</b><br/>
                 <dd><xsl:value-of select="mods:part/mods:date" /></dd>
             </span>
         </div>
         <div><span valign="top">*</span> 
             <span>
-                <b><fmt:message>Číslo ročníku</fmt:message>:</b><br/>
+                <b><fmt:message bundle="${lctx}">Číslo ročníku</fmt:message>:</b><br/>
                 <dd><xsl:value-of select="mods:part/mods:detail[@type = 'volume']/mods:number" /></dd>
             </span>
         </div>
         <xsl:if test="mods:part/mods:text">
             <div><span>*</span>
                 <span>
-                    <b><fmt:message>Vady</fmt:message>:</b><br/>
+                    <b><fmt:message bundle="${lctx}">Vady</fmt:message>:</b><br/>
                     <dd>
                         <xsl:value-of select="mods:part/mods:text" />
                     </dd>
@@ -55,7 +55,7 @@
         </xsl:if>
         <div><span valign="top">*</span>
             <span>
-                <b><fmt:message>Hlavní název</fmt:message>:</b><br/>
+                <b><fmt:message bundle="${lctx}">Hlavní název</fmt:message>:</b><br/>
                 <dd><xsl:value-of select="mods:titleInfo/mods:title" /></dd>
             </span>
             
