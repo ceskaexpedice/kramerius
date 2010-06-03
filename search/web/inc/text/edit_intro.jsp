@@ -1,5 +1,7 @@
 <%@ page contentType="text/html" pageEncoding="UTF-8" %>
-<%@ page import="java.io.*, cz.incad.kramerius.TextsService"  %>
+<%@ page import="java.io.*, cz.incad.kramerius.service.*"  %>
+<%@page import="com.google.inject.Injector"%>
+
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <script type="text/javascript" src="js/ckeditor/ckeditor.js"></script>
 <script type="text/javascript" src="js/ckeditor/adapters/jquery.js"></script>
@@ -60,13 +62,17 @@
        //]]>
 </script>
 
-<textarea class="jquery_ckeditor" cols="80" id="intro_text" name="intro_text" rows="10"><% 
-    String lang = request.getParameter("language");
+<textarea class="jquery_ckeditor" cols="80" id="intro_text" name="intro_text" rows="10"><%
+	Injector inj = (Injector)application.getAttribute(Injector.class.getName());
+	TextsService ts = (TextsService)inj.getInstance(TextsService.class);	
+
+
+	String lang = request.getParameter("language");
     if (lang == null || lang.length() == 0) {
         lang = "cs";
     }
     try {
-        String text = TextsService.getText("intro", lang);
+        String text = ts.getText("intro", ts.findLocale(lang));
         out.println(text);
     } catch (Exception e) {
         System.out.println(e.getMessage());
