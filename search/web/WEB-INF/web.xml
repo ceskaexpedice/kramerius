@@ -19,6 +19,10 @@
 		<servlet-name>GetRelsExt</servlet-name>
 		<servlet-class>cz.incad.Kramerius.GetRelsExt</servlet-class>
 	</servlet>
+	<servlet>
+		<servlet-name>i18n</servlet-name>
+		<servlet-class>cz.incad.Kramerius.I18NServlet</servlet-class>
+	</servlet>
 	<!-- Servlet pro pristup do streamu IMG_FULL -->
 	<servlet>
 		<servlet-name>fullImageServlet</servlet-name>
@@ -52,7 +56,7 @@
 		<servlet-name>IndexModel</servlet-name>
 		<servlet-class>cz.incad.Kramerius.IndexModel</servlet-class>
 	</servlet>
-	<!-- Servlet pro ziskavani nahledu -->
+ 	<!-- Servlet pro ziskavani nahledu -->
 	<servlet>
 		<servlet-name>thumb</servlet-name>
 		<servlet-class>cz.incad.Kramerius.ThumbnailImageServlet</servlet-class>
@@ -100,6 +104,10 @@
 		<servlet-name>thumb</servlet-name>
 		<url-pattern>/thumb</url-pattern>
 	</servlet-mapping>
+	<servlet-mapping>
+		<servlet-name>GetPageInfo</servlet-name>
+		<url-pattern>/GetPageInfo</url-pattern>
+	</servlet-mapping>
 
 	<servlet-mapping>
 		<servlet-name>InitServlet</servlet-name>
@@ -124,6 +132,11 @@
 	<servlet-mapping>
 		<servlet-name>lr</servlet-name>
 		<url-pattern>/lr</url-pattern>
+	</servlet-mapping>
+
+	<servlet-mapping>
+		<servlet-name>i18n</servlet-name>
+		<url-pattern>/i18n</url-pattern>
 	</servlet-mapping>
 
 	<servlet-mapping>
