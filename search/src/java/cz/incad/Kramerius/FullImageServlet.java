@@ -37,6 +37,7 @@ import com.google.inject.Inject;
 
 import cz.incad.Kramerius.backend.guice.GuiceServlet;
 import cz.incad.Kramerius.backend.guice.RequestSecurityAcceptor;
+import cz.incad.Kramerius.views.ApplicationURL;
 import cz.incad.kramerius.FedoraAccess;
 import cz.incad.kramerius.FedoraNamespaces;
 import cz.incad.kramerius.intconfig.InternalConfiguration;
@@ -102,20 +103,7 @@ public class FullImageServlet extends AbstracThumbnailServlet {
 
 	
 	public static String fullImageServlet(HttpServletRequest request) {
-		//"dvju"
-		try {
-			URL url = new URL(request.getRequestURL().toString());
-			String path = url.getPath();
-			StringBuffer buffer = new StringBuffer();
-			StringTokenizer tokenizer = new StringTokenizer(path,"/");
-			if(tokenizer.hasMoreTokens()) { buffer.append(tokenizer.nextToken()); }
-			buffer.append("/").append(InternalConfiguration.get().getProperties().getProperty("servlets.mapping.fullImage"));
-			String imagePath = url.getProtocol()+"://"+url.getHost()+":"+url.getPort()+"/"+buffer.toString();
-			return imagePath;
-		} catch (MalformedURLException e) {
-			LOGGER.log(Level.SEVERE, e.getMessage(), e);
-			return "<no url>";
-		}
+		return ApplicationURL.urlOfPath(request, InternalConfiguration.get().getProperties().getProperty("servlets.mapping.fullImage"));
 	}
 
 	

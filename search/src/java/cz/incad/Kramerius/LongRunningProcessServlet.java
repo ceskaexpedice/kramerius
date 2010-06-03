@@ -22,6 +22,8 @@ import com.google.inject.Inject;
 
 import cz.incad.Kramerius.backend.guice.GuiceServlet;
 import cz.incad.Kramerius.backend.guice.RequestSecurityAcceptor;
+import cz.incad.Kramerius.views.ApplicationURL;
+import cz.incad.kramerius.intconfig.InternalConfiguration;
 import cz.incad.kramerius.processes.DefinitionManager;
 import cz.incad.kramerius.processes.LRProcess;
 import cz.incad.kramerius.processes.LRProcessDefinition;
@@ -222,23 +224,7 @@ public class LongRunningProcessServlet extends GuiceServlet {
 	
 
 	public static String lrServlet(HttpServletRequest request) {
-		KConfiguration conf = KConfiguration.getKConfiguration();
-		if ((conf.getApplicationURL() != null) && (!conf.getApplicationURL().equals(""))) {
-			return conf.getApplicationURL() +"lr";
-		}
-		//"dvju"
-		try {
-			URL url = new URL(request.getRequestURL().toString());
-			String path = url.getPath();
-			String application = path;
-			StringTokenizer tokenizer = new StringTokenizer(path,"/");
-			if (tokenizer.hasMoreTokens()) application = tokenizer.nextToken();
-			String lrURL = url.getProtocol()+"://"+url.getHost()+":"+url.getPort()+"/"+application+"/lr";
-			return lrURL;
-		} catch (MalformedURLException e) {
-			LOGGER.log(Level.SEVERE, e.getMessage(), e);
-			return "<no url>";
-		}
+		return ApplicationURL.urlOfPath(request, InternalConfiguration.get().getProperties().getProperty("servlets.mapping.lrcontrol"));
 	}
 
 }

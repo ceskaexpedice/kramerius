@@ -15,6 +15,8 @@ import javax.servlet.http.HttpServletResponse;
 import com.google.inject.Inject;
 
 import cz.incad.Kramerius.backend.guice.GuiceServlet;
+import cz.incad.Kramerius.views.ApplicationURL;
+import cz.incad.kramerius.intconfig.InternalConfiguration;
 import cz.incad.kramerius.processes.DefinitionManager;
 import cz.incad.kramerius.processes.LRProcessManager;
 import cz.incad.kramerius.service.ResourceBundleService;
@@ -36,6 +38,10 @@ public class I18NServlet extends GuiceServlet {
 		if (action == null) action = Actions.text.name();
 		Actions selectedAction = Actions.valueOf(action);
 		selectedAction.doAction(getServletContext(), req, resp, this.textsService, this.resourceBundleService);
+	}
+
+	public static String i18nServlet(HttpServletRequest request) {
+		return ApplicationURL.urlOfPath(request, InternalConfiguration.get().getProperties().getProperty("servlets.mapping.i18n"));
 	}
 
 	static enum Actions {

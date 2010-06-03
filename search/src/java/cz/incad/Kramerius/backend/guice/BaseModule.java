@@ -4,6 +4,8 @@ import java.sql.Connection;
 import java.util.Locale;
 import java.util.ResourceBundle;
 
+import javax.servlet.jsp.jstl.fmt.LocalizationContext;
+
 import com.google.inject.AbstractModule;
 import com.google.inject.Scopes;
 import com.google.inject.name.Names;
@@ -49,5 +51,6 @@ public class BaseModule extends AbstractModule {
 		bind(ResourceBundleService.class).to(ResourceBundleServiceImpl.class).in(Scopes.SINGLETON);
 		
 		bind(SecurityAcceptor.class).to(RequestSecurityAcceptor.class);
+		bind(LocalizationContext.class).toProvider(CustomLocalizedContextProvider.class);
 	}
 }
