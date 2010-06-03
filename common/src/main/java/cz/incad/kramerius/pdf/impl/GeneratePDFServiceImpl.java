@@ -586,7 +586,8 @@ public class GeneratePDFServiceImpl implements GeneratePDFService {
 
 	private File prepareXSLStyleSheet(Locale locale, String i18nUrl, String title, KrameriusModels model) throws IOException {
 		File tmpFile = File.createTempFile("temporary", "stylesheet");
-		tmpFile.deleteOnExit();
+		System.out.println(">> created file '"+tmpFile.getAbsolutePath()+"'");
+		//tmpFile.deleteOnExit();
 		FileOutputStream fos = null;
 		try {
 			String localizedXslt = STUtils.localizedXslt(locale, i18nUrl, templatesFolder(), title, model);
