@@ -6,6 +6,6 @@
 <%@ page isELIgnored="false"%>
 <x:out select="./str[@name='dc.title']"/><br/>
 <x:forEach select="./arr[@name='details']/str">
-    <c:set var="s"><fmt:message><x:out select="."/></fmt:message></c:set>
+    <c:set var="s"><fmt:message bundle="${lctx}"><x:out select="."/></fmt:message></c:set>
     <c:out value="${fn:replace(s, '???', '')}" />&#160;
 </x:forEach>

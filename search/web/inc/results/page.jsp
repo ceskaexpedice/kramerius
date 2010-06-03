@@ -9,10 +9,10 @@
     <img src="<c:out value="${kconfig.fedoraHost}" />/get/uuid:<x:out select="./str[@name='PID']"/>/IMG_THUMB" height="72px" onerror="this.src='img/empty.gif';this.height='1px';" />
     <span>
         <a href="<c:out value="${itemUrl}" escapeXml="false" />" ><b><x:out select="./str[@name='root_title']"/></b></a>
-        (<fmt:message>page</fmt:message> 
-        <fmt:message><x:out select="./str[@name='root_model']"/></fmt:message>)
+        (<fmt:message bundle="${lctx}">page</fmt:message> 
+        <fmt:message bundle="${lctx}"><x:out select="./str[@name='root_model']"/></fmt:message>)
         <br/>
-        <fmt:message>page</fmt:message>: <x:out select="./str[@name='dc.title']"/>
+        <fmt:message bundle="${lctx}">page</fmt:message>: <x:out select="./str[@name='dc.title']"/>
     </span>
     
 </div>

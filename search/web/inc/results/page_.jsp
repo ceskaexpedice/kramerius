@@ -37,7 +37,7 @@ rdf.kramerius.hasPage:"info:fedora/<c:out value="${param.PIDPage}" />"
                 <td class="textpolestrong">*</td>
                 <td>
                     <a href="<c:out value="${fedoraHost}" />/get/<c:out value="${param.PIDPage}"/>"><x:out select="./arr[@name='dc.title']"/></a><br/>
-                    <fmt:message>info:fedora/model:page</fmt:message>: <c:out value="${param.title_orig}"/>
+                    <fmt:message bundle="${lctx}">info:fedora/model:page</fmt:message>: <c:out value="${param.title_orig}"/>
                 </td>
                 <td class="textpole">()</td>
             </tr>

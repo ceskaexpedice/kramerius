@@ -19,9 +19,9 @@
                 <a href="<c:out value="${itemUrl}" escapeXml="false" />" >
                     <b><x:out select="./str[@name='root_title']"/></b>
                 </a>&nbsp;<x:out select="./str[@name='dc.title']"/>&nbsp;
-                (<fmt:message><x:out select="./str[@name='fedora.model']"/></fmt:message>)
+                (<fmt:message bundle="${lctx}"><x:out select="./str[@name='fedora.model']"/></fmt:message>)
                 <br/>
-                <fmt:message>Datum vydání ročníku</fmt:message>: <x:out select="./int[@name='rok']"/><br/>
-                <fmt:message>Číslo ročníku</fmt:message>: <x:out select="./str[@name='dc.title']"/>
+                <fmt:message bundle="${lctx}">Datum vydání ročníku</fmt:message>: <x:out select="./int[@name='rok']"/><br/>
+                <fmt:message bundle="${lctx}">Číslo ročníku</fmt:message>: <x:out select="./str[@name='dc.title']"/>
     </span>
 </div>

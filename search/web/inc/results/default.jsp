@@ -39,7 +39,7 @@
                 
             </x:when>
             <x:when select="./str[@name='fedora.model'] = 'page'">
-                <fmt:message>page</fmt:message>
+                <fmt:message bundle="${lctx}">page</fmt:message>
                   
             </x:when>
             <x:when select="./str[@name='fedora.model'] = 'periodical2'">
@@ -54,7 +54,7 @@
         </x:choose>
         
         <x:forEach select="./arr[@name='details']/str">
-            <c:set var="s"><fmt:message><x:out select="."/></fmt:message></c:set>
+            <c:set var="s"><fmt:message bundle="${lctx}"><x:out select="."/></fmt:message></c:set>
             <c:out value="${fn:replace(s, '???', '')}" />&#160;
         </x:forEach>  
     </div>

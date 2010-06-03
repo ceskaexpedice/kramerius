@@ -17,7 +17,7 @@
     </c:if>
     />
     <a href="./item.jsp?pid=<c:out value="${uuid}"/>&model=info:fedora/model:monograph"><b><x:out select="./str[@name='dc.title']"/></b></a>
-    <span class="textpole">(<fmt:message>monograph</fmt:message>)</span>
+    <span class="textpole">(<fmt:message bundle="${lctx}">monograph</fmt:message>)</span>
     <span id="pages_<c:out value="${uuid}"/>" class="pages"><x:out select="./int[@name='pages_count']"/></span>
     <div id="more_<c:out value="${uuid}"/>" 
     <c:if test="${status.count > 5}" >
