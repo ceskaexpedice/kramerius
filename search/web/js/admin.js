@@ -271,9 +271,9 @@ function replicationrights() {
  * @return
  */
 var _staticExportDialog; //cekaci dialog na spusteni procesu
-function generateStatic(level, exportType, imgUrl){
+function generateStatic(level, exportType, imgUrl, i18nUrl,iso3Country, iso3Lang){
 	var pid = $("#tabs_"+level).attr('pid');
-	var url = "lr?action=start&def="+exportType+"&out=text&params="+pid+","+imgUrl;
+	var url = "lr?action=start&def="+exportType+"&out=text&params="+pid+","+imgUrl+","+i18nUrl+","+iso3Country+","+iso3Lang;
 	if (_staticExportDialog) {
     	$("#process_started_ok").hide();
     	$("#process_started_failed").hide();
