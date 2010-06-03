@@ -4,12 +4,17 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt" %>
 <%@ page isELIgnored="false"%>
 
+<%@page import="javax.servlet.jsp.jstl.core.Config"%>
+<%@page import="javax.servlet.jsp.jstl.fmt.LocalizationContext"%>
+<%@page import="com.google.inject.Injector"%>
+
 <%@ include file="../inc/initVars.jsp" %>
 <c:choose>
     <c:when test="${param.language != null}" >
         <fmt:setLocale value="${param.language}" />
     </c:when>
 </c:choose>
+
 <fmt:setBundle basename="labels" />
 <fmt:setBundle basename="labels" var="bundleVar" />
 <table><tr><td valign="top"><div id="indexerModels" style="width:150px;border-right:1px solid silver;"><div>Top level models:</div>
