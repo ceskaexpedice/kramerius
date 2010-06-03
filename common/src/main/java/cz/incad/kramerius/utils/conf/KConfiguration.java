@@ -134,7 +134,9 @@ public class KConfiguration {
 
 	public String getApplicationURL() {
     	String applicationUrl = getProperty("applicationUrl");
-    	applicationUrl = applicationUrl + (applicationUrl.endsWith("/") ? "":"/");
+    	if (applicationUrl != null) {
+        	applicationUrl = applicationUrl + (applicationUrl.endsWith("/") ? "":"/");
+    	}
     	return applicationUrl;
 	}
 
