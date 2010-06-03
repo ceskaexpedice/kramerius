@@ -736,6 +736,7 @@ public abstract class BaseConvertor {
     private static final String NS_RDF = "http://www.w3.org/1999/02/22-rdf-syntax-ns#";
     private static final String NS_FEDORA = "info:fedora/fedora-system:def/model#";
     private static final String NS_KRAMERIUS = "http://www.nsdl.org/ontologies/relationships#";
+    private static final String NS_OAI = "http://www.openarchives.org/OAI/2.0/";
     /**
      * Vytvori rels-ext datastream
      * 
@@ -766,6 +767,7 @@ public abstract class BaseConvertor {
         
         root.setAttribute("xmlns:fedora-model", NS_FEDORA);
         root.setAttribute("xmlns:" + CUSTOM_MODEL_PREFIX, NS_KRAMERIUS);
+        root.setAttribute("xmlns:oai", NS_OAI);
 
         Element description = this.appendChildNS(document, root,NS_RDF, "rdf:Description", "");
         description.setAttributeNS(NS_RDF, "rdf:about", "info:fedora/" + relsExt.getPid());
@@ -773,8 +775,16 @@ public abstract class BaseConvertor {
         String modelPrefix;
         String relNs;
         for (RelsExt.Relation rel : relsExt.getRelations()) {
-            modelPrefix = (RelsExt.HAS_MODEL.equals(rel.getKey()) ? "fedora-model" : CUSTOM_MODEL_PREFIX);
-            relNs = (RelsExt.HAS_MODEL.equals(rel.getKey()) ? NS_FEDORA : NS_KRAMERIUS);
+            if (RelsExt.HAS_MODEL.equals(rel.getKey())){
+                modelPrefix =  "fedora-model";
+                relNs = NS_FEDORA;
+            }else if(RelsExt.ITEM_ID.equals(rel.getKey())){
+                modelPrefix =  "oai";
+                relNs = NS_OAI;
+            }else{
+                modelPrefix = CUSTOM_MODEL_PREFIX;
+                relNs = NS_KRAMERIUS;
+            }
             Element relElement = this.appendChildNS(document, description,relNs, modelPrefix + ":" + rel.getKey(), rel.isLiteral() ? rel.getId() : "");
             if (!rel.isLiteral()) {
                 relElement.setAttributeNS(NS_RDF,"rdf:resource", "info:fedora/" + rel.getId());

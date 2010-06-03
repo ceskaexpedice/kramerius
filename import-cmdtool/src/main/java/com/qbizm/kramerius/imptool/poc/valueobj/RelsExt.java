@@ -3,6 +3,8 @@ package com.qbizm.kramerius.imptool.poc.valueobj;
 import java.util.LinkedList;
 import java.util.List;
 
+import com.qbizm.kramerius.imptool.poc.convertor.BaseConvertor;
+
 /**
  * Value objekt pro naplneni dat RELS-EXT
  * 
@@ -10,6 +12,9 @@ import java.util.List;
  */
 public class RelsExt {
 
+    
+    public static final String ITEM_ID = "itemID";
+    
     public static final String HAS_MODEL = "hasModel";
 
     public static final String HAS_UNIT = "hasUnit";
@@ -50,6 +55,7 @@ public class RelsExt {
         super();
         this.pid = pid;
         this.addRelation(HAS_MODEL, model, false);
+        this.addRelation(ITEM_ID,pid,true);
     }
 
     public void addRelation(String key, String id, boolean literal) {
