@@ -56,10 +56,6 @@
     
 </head>
 	<body>
-	<!-- 	
-    <fmt:setLocale value="${sessionScope['language']}" />
-	<fmt:message key="title" bundle="${sessionScope['bundle']}"></fmt:message>		
-     -->
 	<script type="text/javascript">
 	var dialogForm = null;
 		function loginDialog() {
