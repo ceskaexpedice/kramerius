@@ -27,7 +27,7 @@
         <xsl:variable name="unitPid">uuid:<xsl:value-of select="./mods:identifier[@type='urn']"/></xsl:variable>
             <a>
                 <xsl:attribute name="href">javascript:openUnit('<xsl:value-of select="$unitPid" />', 'info:fedora/model:page', '<xsl:value-of select="mods:part/mods:detail[@type = 'pageNumber']/mods:number" />');</xsl:attribute>
-                <fmt:message>Volume</fmt:message> - <xsl:value-of select="mods:titleInfo/mods:title" />
+                <fmt:message bundle="${lctx}">Volume</fmt:message> - <xsl:value-of select="mods:titleInfo/mods:title" />
                 <xsl:value-of select="mods:part/mods:detail/mods:title" /> - <xsl:value-of select="mods:part/mods:detail/mods:number" /></a>
         
     </xsl:template>

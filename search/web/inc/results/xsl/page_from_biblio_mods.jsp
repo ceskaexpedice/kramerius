@@ -31,9 +31,9 @@
                 <xsl:attribute name="href">javascript:openPage('<xsl:value-of select="$pagePid" />', 'info:fedora/model:page', '<xsl:value-of select="mods:part/mods:detail[@type = 'pageNumber']/mods:number" />');</xsl:attribute>
                 <xsl:value-of select="mods:part/mods:detail[@type = 'pageNumber']/mods:number" /><xsl:choose>
                     <xsl:when test="$pageType='Blank'">
-                        (<fmt:message>Blank</fmt:message>)</xsl:when>
+                        (<fmt:message bundle="${lctx}">Blank</fmt:message>)</xsl:when>
                     <xsl:when test="$pageType='TitlePage'">
-                        (<fmt:message>TitlePage</fmt:message>)</xsl:when>
+                        (<fmt:message bundle="${lctx}">TitlePage</fmt:message>)</xsl:when>
                 </xsl:choose></a>
         </xsl:if>
     </xsl:template>
