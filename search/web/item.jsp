@@ -13,6 +13,10 @@
 <c:choose>
     <c:when test="${param.language != null}" >
         <fmt:setLocale value="${param.language}" />
+        <c:set var="sessionLang" value="${param.language}" scope="session" />
+    </c:when>
+    <c:when test="${sessionLang != null}" >
+        <fmt:setLocale value="${sessionLang}" />
     </c:when>
 </c:choose>
     <%@ include file="inc/initVars.jsp" %>

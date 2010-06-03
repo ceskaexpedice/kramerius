@@ -31,11 +31,11 @@
 				href="javascript:showHelp('<c:out value="${param.language}" />');"><fmt:message>nápověda</fmt:message></a>
 			:: <fmt:message>odkazy</fmt:message> :: <br />
 			:: <c:choose>
-				<c:when test="${param.language == 'en'}">
+				<c:when test="${sessionLang == 'en'}">
 					<c:set var="lid" value="cs" />
 					<c:set var="lname" value="česky" />
 				</c:when>
-				<c:when test="${param.language == 'cs'}">
+				<c:when test="${sessionLang == 'cs'}">
 					<c:set var="lid" value="en" />
 					<c:set var="lname" value="english" />
 				</c:when>

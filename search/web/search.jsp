@@ -5,10 +5,16 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn" %>
 <%@ page isELIgnored="false"%>
+<%
 
+%>
 <c:choose>
     <c:when test="${param.language != null}" >
         <fmt:setLocale value="${param.language}" />
+        <c:set var="sessionLang" value="${param.language}" scope="session" />
+    </c:when>
+    <c:when test="${sessionLang != null}" >
+        <fmt:setLocale value="${sessionLang}" />
     </c:when>
 </c:choose>
 
