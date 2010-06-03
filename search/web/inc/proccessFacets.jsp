@@ -19,7 +19,7 @@
         <c:choose>
             <c:when test="${facetName == 'fedora.model'}">
                 <c:set var="displayName">
-                    <fmt:message ><x:out select="@name"/></fmt:message>
+                    <fmt:message bundle="${lctx}" ><x:out select="@name"/></fmt:message>
                 </c:set><jsp:useBean id="displayName" type="java.lang.String" /><%
             facet.displayName = displayName;
                 %></c:when>
@@ -37,7 +37,7 @@
             %><c:choose>
                 <c:when test="${facetName == 'fedora.model'}">
                     <c:set var="infoDisplayName">
-                        <fmt:message ><x:out select="@name"/></fmt:message>
+                        <fmt:message bundle="${lctx}" ><x:out select="@name"/></fmt:message>
                     </c:set>
                     <jsp:useBean id="infoDisplayName" type="java.lang.String" /><%
             facetInfo.displayName = infoDisplayName;

@@ -33,8 +33,8 @@
             <x:if select="./@name=$pid">
             <c:set var="collapseCount" >
                 <a href="javascript:uncollapse('<c:out value="${root_pid}" />', 'uncollapsed_<c:out value="${uuid}"/>', 0)"><img src="img/collapsed.png" 
-                   alt="<x:out select="./int[@name='collapseCount']/text()"/> <fmt:message>collapsed</fmt:message>"
-                   title="<x:out select="./int[@name='collapseCount']/text()"/> <fmt:message>collapsed</fmt:message>" border="0" /></a>
+                   alt="<x:out select="./int[@name='collapseCount']/text()"/> <fmt:message bundle="${lctx}">collapsed</fmt:message>"
+                   title="<x:out select="./int[@name='collapseCount']/text()"/> <fmt:message bundle="${lctx}">collapsed</fmt:message>" border="0" /></a>
             </c:set>  
             </x:if>
         </x:forEach>
@@ -63,7 +63,7 @@
     </td>
     <td>
     <a href="<c:out value="${itemUrl}" escapeXml="false" />" ><b><x:out select="./str[@name='root_title']"/></b></a>
-    <span class="textpole">(<fmt:message><x:out select="./str[@name='fedora.model']"/></fmt:message>)</span>
+    <span class="textpole">(<fmt:message bundle="${lctx}"><x:out select="./str[@name='fedora.model']"/></fmt:message>)</span>
     <x:if select="./int[@name='pages_count'] != '0'">
     <span class="count"><x:out select="./int[@name='pages_count']"/></span>
     </x:if>

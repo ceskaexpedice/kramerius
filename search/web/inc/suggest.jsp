@@ -16,14 +16,14 @@
 <form name="suggestForm" method="GET" action="./" autocomplete="Off">
     <div id="suggestDiv" class="ui-tabs ui-widget ui-widget-content ui-corner-all" >
         <ul class="ui-tabs-nav ui-helper-reset ui-helper-clearfix ui-widget-header ui-corner-all" style="padding:0 0.1em 0 0;">
-            <li class="ui-state-default ui-corner-top ui-tabs-selected ui-state-active " style="width:100%;"><a class="box"><fmt:message key="Procházet" /></a></li>
+            <li class="ui-state-default ui-corner-top ui-tabs-selected ui-state-active " style="width:100%;"><a class="box"><fmt:message bundle="${lctx}" key="Procházet" /></a></li>
         </ul>
         <div id="suggestBody" class="ui-tabs-panel ui-widget-content ui-corner-bottom">    
-            <fmt:message key="Hlavní název" /><br/>
+            <fmt:message bundle="${lctx}" key="Hlavní název" /><br/>
             <input name="queryT" id="queryT" type="text" size="20" class="suggest_input"
                    onkeyup="doAutocomplete(this, 'root_title', event, '#queryT');"
                    onfocus="$(autoCompleteDiv).hide();" /><br/>
-            <fmt:message key="Autor" /><br/>
+            <fmt:message bundle="${lctx}" key="Autor" /><br/>
             <input name="queryA" id="queryA" size="20" type="text" class="suggest_input"
                    onkeyup="doAutocomplete(this, 'facet_autor', event, '#queryA');" />
         </div>
@@ -32,7 +32,7 @@
     </div>
     <%--
 <td>
-        <div class="suggestTitle"><div><fmt:message key="Datum" /></div></div>    
+        <div class="suggestTitle"><div><fmt:message bundle="${lctx}" key="Datum" /></div></div>    
             <div class="suggest_box"><div style="position:relative;" class="facetItem">
             <input name="queryD" id="queryD" size="20" type="text"  class="suggest_input"
             onkeyup="doAutocomplete(this.value, 'datum', event , '#autocompleteD', '#queryD');" /><br/>

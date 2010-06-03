@@ -64,16 +64,16 @@
 
     <title>Kramerius 4</title>
     <script language="JavaScript" type="text/javascript">
-        var pagesTitle = "<fmt:message>Stránka</fmt:message>";
-        var unitsTitle = "<fmt:message>Unit</fmt:message>";
-        var volumesTitle = "<fmt:message>Volume</fmt:message>";
-        var issuesTitle = "<fmt:message>Issue</fmt:message>";
-        var internalPartTitle = "<fmt:message>InternalPart</fmt:message>";
-        var readingPages = "<fmt:message>Načítám stránky</fmt:message>";
-        var readingUnits = "<fmt:message>Načítám části</fmt:message>";
-        var readingVolumes = "<fmt:message>Načítám ročníky</fmt:message>";
-        var readingIssues = "<fmt:message>Načítám ročníky</fmt:message>";
-        var readingIntarnalParts = "<fmt:message>Načítám kapitoly</fmt:message>";
+        var pagesTitle = "<fmt:message bundle="${lctx}">Stránka</fmt:message>";
+        var unitsTitle = "<fmt:message bundle="${lctx}">Unit</fmt:message>";
+        var volumesTitle = "<fmt:message bundle="${lctx}">Volume</fmt:message>";
+        var issuesTitle = "<fmt:message bundle="${lctx}">Issue</fmt:message>";
+        var internalPartTitle = "<fmt:message bundle="${lctx}">InternalPart</fmt:message>";
+        var readingPages = "<fmt:message bundle="${lctx}">Načítám stránky</fmt:message>";
+        var readingUnits = "<fmt:message bundle="${lctx}">Načítám části</fmt:message>";
+        var readingVolumes = "<fmt:message bundle="${lctx}">Načítám ročníky</fmt:message>";
+        var readingIssues = "<fmt:message bundle="${lctx}">Načítám ročníky</fmt:message>";
+        var readingIntarnalParts = "<fmt:message bundle="${lctx}">Načítám kapitoly</fmt:message>";
         var language = "<c:out value="${param.language}" />";
         var searchPage = "./";
         
@@ -88,8 +88,8 @@
         var selectEnd = "";
         var initParent = "";
         var initPage = "";
-        //var generatePdfTitle = "<fmt:message>generatePdfTitle</fmt:message>";
-        var generatePdfErrorText = "<fmt:message>generatePdfErrorText</fmt:message>";
+        //var generatePdfTitle = "<fmt:message bundle="${lctx}">generatePdfTitle</fmt:message>";
+        var generatePdfErrorText = "<fmt:message bundle="${lctx}">generatePdfErrorText</fmt:message>";
         var generatePdfMaxRange = <%=kconfig.getProperty("generatePdfMaxRange")%>;
 
 

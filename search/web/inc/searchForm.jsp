@@ -24,12 +24,12 @@
 			<button class="submit" title="Vyhledat" type="submit"></button>
 			<%@ include file="advancedSearch.jsp"%></td>
 			<td><a href="javascript:toggleAdv();"
-				title="<fmt:message>Pokročilé vyhledávání</fmt:message>"><fmt:message>Pokročilé vyhledávání</fmt:message></a>
+				title="<fmt:message bundle="${lctx}">Pokročilé vyhledávání</fmt:message>"><fmt:message bundle="${lctx}">Pokročilé vyhledávání</fmt:message></a>
 			</td>
-			<td>:: <a href="./?language=<c:out value="${param.language}" />"><fmt:message>home</fmt:message></a>
+			<td>:: <a href="./?language=<c:out value="${param.language}" />"><fmt:message bundle="${lctx}">home</fmt:message></a>
 			:: <a
-				href="javascript:showHelp('<c:out value="${param.language}" />');"><fmt:message>nápověda</fmt:message></a>
-			:: <fmt:message>odkazy</fmt:message> :: <br />
+				href="javascript:showHelp('<c:out value="${param.language}" />');"><fmt:message bundle="${lctx}">nápověda</fmt:message></a>
+			:: <fmt:message bundle="${lctx}">odkazy</fmt:message> :: <br />
 			:: <c:choose>
 				<c:when test="${sessionLang == 'en'}">
 					<c:set var="lid" value="cs" />
@@ -49,7 +49,7 @@
 				
 				<c:choose>
 					<c:when test="${remoteUser == null}">
-						<a href="redirect.jsp"><fmt:message>přihlášení</fmt:message></a>
+						<a href="redirect.jsp"><fmt:message bundle="${lctx}">přihlášení</fmt:message></a>
 					</c:when>
 					<c:otherwise>
 						<a href="logout.jsp"><c:out value="${remoteUser}"></c:out></a>
@@ -58,7 +58,7 @@
 
 				<c:choose>
 					<c:when test="${remoteUser != null}">
-						:: <a id="adminHref" href="javascript:showAdminMenu();"><fmt:message>administrator.menu</fmt:message></a>
+						:: <a id="adminHref" href="javascript:showAdminMenu();"><fmt:message bundle="${lctx}">administrator.menu</fmt:message></a>
 					</c:when>
 				</c:choose>
 			</td>
@@ -71,7 +71,7 @@
     <div class="adminMenuHeader">
         <table width="100%">
             <tr>
-                <td align="center"><fmt:message>administrator.menu</fmt:message></td>
+                <td align="center"><fmt:message bundle="${lctx}">administrator.menu</fmt:message></td>
                 <td width="20px">
                     <a href="javascript:hideAdminMenu();" class="ui-dialog-titlebar-close ui-corner-all" role="button" unselectable="on" style="-moz-user-select: none;"><span class="ui-icon ui-icon-closethick" unselectable="on" style="-moz-user-select: none;">close</span></a>
                 </td>
@@ -80,12 +80,12 @@
     </div>
         
     <div id="adminMenuItems" class="adminMenuItems">
-        <div align="left"> <a href="javascript:processes(); javascript:hideAdminMenu();"><fmt:message>administrator.menu.dialogs.lrprocesses.title</fmt:message></a> </div>	
-        <div align="left"> <a href="javascript:importMonographs(); javascript:hideAdminMenu();"><fmt:message>administrator.menu.dialogs.importMonograph.title</fmt:message></a> </div>	
-        <div align="left"> <a href="javascript:importPeriodicals(); javascript:hideAdminMenu();"><fmt:message>administrator.menu.dialogs.importPeriodical.title</fmt:message></a> </div>	
-        <div align="left"> <a href="javascript:showIndexerAdmin();"><fmt:message>administrator.menu.dialogs.indexDocuments.title</fmt:message></a> </div>
-		<div align="left"> <a href="javascript:enumerator(); javascript:hideAdminMenu();"><fmt:message>administrator.menu.dialogs.enumerator.title</fmt:message></a> </div>	
-		<div align="left"> <a href="javascript:replicationrights(); javascript:hideAdminMenu();"><fmt:message>administrator.menu.dialogs.replicationRights.title</fmt:message></a> </div>	
+        <div align="left"> <a href="javascript:processes(); javascript:hideAdminMenu();"><fmt:message bundle="${lctx}">administrator.menu.dialogs.lrprocesses.title</fmt:message></a> </div>	
+        <div align="left"> <a href="javascript:importMonographs(); javascript:hideAdminMenu();"><fmt:message bundle="${lctx}">administrator.menu.dialogs.importMonograph.title</fmt:message></a> </div>	
+        <div align="left"> <a href="javascript:importPeriodicals(); javascript:hideAdminMenu();"><fmt:message bundle="${lctx}">administrator.menu.dialogs.importPeriodical.title</fmt:message></a> </div>	
+        <div align="left"> <a href="javascript:showIndexerAdmin();"><fmt:message bundle="${lctx}">administrator.menu.dialogs.indexDocuments.title</fmt:message></a> </div>
+		<div align="left"> <a href="javascript:enumerator(); javascript:hideAdminMenu();"><fmt:message bundle="${lctx}">administrator.menu.dialogs.enumerator.title</fmt:message></a> </div>	
+		<div align="left"> <a href="javascript:replicationrights(); javascript:hideAdminMenu();"><fmt:message bundle="${lctx}">administrator.menu.dialogs.replicationRights.title</fmt:message></a> </div>	
     </div>
 </div>
 

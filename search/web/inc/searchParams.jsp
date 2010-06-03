@@ -163,16 +163,16 @@
 <x:forEach select="//response/lst[@name='collapse_counts']/lst[@name='results']/lst">
     <c:set var="collapseCount" >
         <a href="javascript:uncollapse('<c:out value="${root_pid}" />', 'uncollapsed_<c:out value="${uuid}"/>', 0)"><img src="img/collapsed.png" 
-           alt="<x:out select="./int[@name='collapseCount']/text()"/> <fmt:message>collapsed</fmt:message>"
-           title="<x:out select="./int[@name='collapseCount']/text()"/> <fmt:message>collapsed</fmt:message>" border="0" /></a>
+           alt="<x:out select="./int[@name='collapseCount']/text()"/> <fmt:message bundle="${lctx}">collapsed</fmt:message>"
+           title="<x:out select="./int[@name='collapseCount']/text()"/> <fmt:message bundle="${lctx}">collapsed</fmt:message>" border="0" /></a>
     </c:set>
 </x:forEach>
 
 <c:set var="numDocsStr" scope="request" >
     <c:choose>
-        <c:when test="${numDocs==1}"><fmt:message>dokument</fmt:message></c:when>
-        <c:when test="${numDocs>1 && numDocs<5}"><fmt:message>dokumenty</fmt:message></c:when>
-        <c:when test="${numDocs>4}"><fmt:message>dokumentů</fmt:message></c:when>
+        <c:when test="${numDocs==1}"><fmt:message bundle="${lctx}">dokument</fmt:message></c:when>
+        <c:when test="${numDocs>1 && numDocs<5}"><fmt:message bundle="${lctx}">dokumenty</fmt:message></c:when>
+        <c:when test="${numDocs>4}"><fmt:message bundle="${lctx}">dokumentů</fmt:message></c:when>
     </c:choose>
     
 </c:set>

@@ -16,9 +16,9 @@
 
 <div id="intro">
      <ul>
-         <li><a href="#intro1"><fmt:message>Nejnovější</fmt:message></a></li>
-         <li><a href="#intro2"><fmt:message>Nejžádanější</fmt:message></a></li>
-         <li><a href="#intro3"><fmt:message>Informace</fmt:message></a></li>
+         <li><a href="#intro1"><fmt:message bundle="${lctx}">Nejnovější</fmt:message></a></li>
+         <li><a href="#intro2"><fmt:message bundle="${lctx}">Nejžádanější</fmt:message></a></li>
+         <li><a href="#intro3"><fmt:message bundle="${lctx}">Informace</fmt:message></a></li>
      </ul>
      <div id="intro1" style="height:220px;"></div>
          <script>

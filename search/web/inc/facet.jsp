@@ -14,7 +14,7 @@
 <div id="facet_<%=currentFacetName%>" class="ui-tabs ui-widget ui-widget-content ui-corner-all facet" >
     <ul class="ui-tabs-nav ui-helper-reset ui-helper-clearfix ui-widget-header ui-corner-all" style="padding:0 0.1em 0 0;">
         <li class=" facetTitle ui-state-default ui-corner-top  ui-state-active" style="width:100%;">
-        <a class="box" href="javascript:toggleFacet('<%=currentFacetName%>')"><fmt:message><%=currentFacet.displayName%></fmt:message></a></li>
+        <a class="box" href="javascript:toggleFacet('<%=currentFacetName%>')"><fmt:message bundle="${lctx}"><%=currentFacet.displayName%></fmt:message></a></li>
     </ul>
     <div class="ui-tabs-panel ui-widget-content ui-corner-bottom facetBody">  
         <%
@@ -34,13 +34,13 @@
                 more = (i > facetsCollapsed && currentFacet.getFacetsNumber() > facetsCollapsed) ? "moreFacets" : "";
         %>
         <div class="facetItem <%=more%> ">
-            <a title="<fmt:message >Add_navigator</fmt:message>" 
+            <a title="<fmt:message bundle="${lctx}" >Add_navigator</fmt:message>" 
                href="<%=current.url%>"><%
                
                if (currentFacet.name.equals("document_type")){
-                   %><fmt:message ><%=current.displayName%></fmt:message><%
+                   %><fmt:message bundle="${lctx}" ><%=current.displayName%></fmt:message><%
                }else if(current.displayName.equals("")) {
-               %><fmt:message >neuvedeno</fmt:message><%
+               %><fmt:message bundle="${lctx}" >neuvedeno</fmt:message><%
                }else{%><%=current.displayName%><%}%></a> <span class="count">(<%=current.count%>)</span>
         </div>
         <%
