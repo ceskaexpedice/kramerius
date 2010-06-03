@@ -38,11 +38,22 @@ public class ResourceBundleServiceImpl implements ResourceBundleService {
 		File resourcesDir = bundlesFolder();
 		if ((resourcesDir.listFiles() == null) || (resourcesDir.listFiles().length == 0)) {
 			copyDefault();
+		} else {
+			File[] listFiles = resourcesDir.listFiles();
+			for (File file : listFiles) {
+				if (file.getName().equals(name+".properties")) {
+					break;
+				}
+			}
+			copyDefault();
+			
 		}
 		return ResourceBundle.getBundle(name, locale, new ResourceClassLoader(resourcesDir));
 	}
 
 
+	
+	
 	private void copyDefault() throws IOException {
 		String[] defaults = 
 		{"base.properties",
