@@ -15,6 +15,7 @@ import java.io.Reader;
 import java.io.UnsupportedEncodingException;
 import java.io.Writer;
 import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.rmi.RemoteException;
@@ -41,6 +42,8 @@ import javax.net.ssl.X509TrustManager;
 import com.qbizm.kramerius.imptool.poc.Main;
 import com.qbizm.kramerius.imptool.poc.utils.ConfigurationUtils;
 import com.qbizm.kramerius.imptool.poc.valueobj.ServiceException;
+
+import cz.incad.kramerius.processes.impl.ProcessStarter;
 
 public class Download {
     
@@ -115,6 +118,7 @@ public class Download {
             String uuid = Main.convert(ConfigurationUtils.getInstance().getProperty("migration.directory"), ConfigurationUtils.getInstance().getProperty("migration.directory")+CONV_SUFFIX, true, false);
             Import.ingest(ConfigurationUtils.getInstance().getProperty("ingest.url"), ConfigurationUtils.getInstance().getProperty("ingest.user"), ConfigurationUtils.getInstance().getProperty("ingest.password"), ConfigurationUtils.getInstance().getProperty("migration.directory")+CONV_SUFFIX);
             logSuccess(rep.getID(), uuid);
+            startIndexing(rep.getID(), uuid);
         }catch (Throwable t){
             if (rep!=null){
                 logFailed(rep.getID(), t);
@@ -165,6 +169,31 @@ public class Download {
 
     private static final Logger log = Logger.getLogger(Download.class.getName());
 
+    /**
+     * Start indexing of the document through the LRprocesses rest api
+     * @param title
+     * @param processedPath
+     */
+    private static void startIndexing(String title, String processedPath){
+        if (processedPath == null) 
+            return;
+        int uuidStart = processedPath.indexOf("&pid_path=")+10;
+        int uuidEnd = processedPath.indexOf("/",uuidStart);
+        if (uuidEnd == -1){
+            uuidEnd = processedPath.indexOf("&path=",uuidStart);
+        }
+        String uuid = processedPath.substring(uuidStart, uuidEnd);
+        String base = System.getProperty(ProcessStarter.LR_SERVLET_URL);
+        if (base == null)
+            return;
+        String url = base + "?action=start&def=reindex&out=text&params=fromKrameriusModel,"+uuid+","+title;
+        try {
+            ProcessStarter.httpGet(url);
+        } catch (Exception e) {
+            log.severe("Error spawning indexer for "+title+":"+e);
+        }
+    }
+    
     /** buffer size used when data from remote connection are written to disc */
     private static final int bufferSize = 4096;
 

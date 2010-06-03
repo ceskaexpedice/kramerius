@@ -39,6 +39,13 @@
 			<version>0.0.1-SNAPSHOT</version>
 		</dependency>
 
+
+        <dependency>
+			<groupId>cz.incad.kramerius</groupId>
+			<artifactId>kramerius-common</artifactId>
+			<version>0.0.1-SNAPSHOT</version>
+		</dependency>
+
 		<dependency>
 			<groupId>postgresql</groupId>
 			<artifactId>postgresql</artifactId>
