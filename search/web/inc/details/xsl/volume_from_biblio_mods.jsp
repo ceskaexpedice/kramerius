@@ -9,6 +9,13 @@
     <%@ taglib uri="http://java.sun.com/jsp/jstl/xml" prefix="x" %>
     <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt" %>
     <%@ page isELIgnored="false"%>
+	<%@page import="com.google.inject.Injector"%>
+	<%@page import="javax.servlet.jsp.jstl.fmt.LocalizationContext"%>
+    <%
+		Injector ctxInj = (Injector)application.getAttribute(Injector.class.getName());
+		LocalizationContext lctx= ctxInj.getProvider(LocalizationContext.class).get();
+		pageContext.setAttribute("lctx", lctx);
+	%>
     <c:choose>
         <c:when test="${param.language != null}" >
             <fmt:setLocale value="${param.language}" />
@@ -27,10 +34,10 @@
         <xsl:variable name="volumePid">uuid:<xsl:value-of select="./mods:identifier[@type='urn']"/></xsl:variable>
         <xsl:variable name="volumeNumber"><xsl:value-of select="mods:part/mods:detail[@type = 'volume']/mods:number" /></xsl:variable>
         <!--Datum vydání ročníku: 1861	 Číslo ročníku: 1	(1/462)-->
-            a@<xsl:value-of select="$volumeNumber" />@<fmt:message>Datum vydání ročníku</fmt:message> <a>
+            a@<xsl:value-of select="$volumeNumber" />@<fmt:message bundle="${lctx}">Datum vydání ročníku</fmt:message> <a>
                 <xsl:attribute name="href">javascript:openVolume('<xsl:value-of select="$volumePid" />', '<c:out value="${param.title}" />');</xsl:attribute>
                 <xsl:value-of select="mods:part/mods:date" /></a>
-                <fmt:message>Číslo ročníku</fmt:message> <a >
+                <fmt:message bundle="${lctx}">Číslo ročníku</fmt:message> <a >
                 <xsl:attribute name="href">javascript:openVolume('<xsl:value-of select="$volumePid" />', '<c:out value="${param.title}" />');</xsl:attribute>
                 <xsl:value-of select="$volumeNumber" />
                  </a>

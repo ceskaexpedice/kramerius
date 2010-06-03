@@ -9,6 +9,14 @@
     <%@ taglib uri="http://java.sun.com/jsp/jstl/xml" prefix="x" %>
     <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt" %>
     <%@ page isELIgnored="false"%>
+    <%@page import="com.google.inject.Injector"%>
+<%@page import="javax.servlet.jsp.jstl.fmt.LocalizationContext"%>
+    <%
+	Injector ctxInj = (Injector)application.getAttribute(Injector.class.getName());
+	LocalizationContext lctx= ctxInj.getProvider(LocalizationContext.class).get();
+	pageContext.setAttribute("lctx", lctx);
+	%>
+    
     <c:choose>
         <c:when test="${param.language != null}" >
             <fmt:setLocale value="${param.language}" />
@@ -32,11 +40,11 @@
                 <xsl:attribute name="href">javascript:showPage('<xsl:value-of select="$pagePid" />', '<xsl:value-of select="mods:part/mods:detail[@type = 'pageNumber']/mods:number" />');</xsl:attribute>
                 <xsl:value-of select="mods:part/mods:detail[@type = 'pageNumber']/mods:number" /><xsl:choose>
                     <xsl:when test="$pageType='Blank'">
-                        (<fmt:message>Blank</fmt:message>)</xsl:when>
+                        (<fmt:message bundle="${lctx}">Blank</fmt:message>)</xsl:when>
                     <xsl:when test="$pageType='TitlePage'">
-                        (<fmt:message>TitlePage</fmt:message>)</xsl:when>
+                        (<fmt:message bundle="${lctx}">TitlePage</fmt:message>)</xsl:when>
                     <xsl:when test="$pageType='TableOfContents'">
-                        (<fmt:message>TableOfContents</fmt:message>)</xsl:when>
+                        (<fmt:message bundle="${lctx}">TableOfContents</fmt:message>)</xsl:when>
                 </xsl:choose></a>
         </xsl:if>
     </xsl:template>

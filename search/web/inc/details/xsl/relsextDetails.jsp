@@ -8,6 +8,8 @@
     <%@ taglib uri="http://java.sun.com/jsp/jstl/xml" prefix="x" %>
     <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt" %>
     <%@ page isELIgnored="false"%>
+<%@page import="com.google.inject.Injector"%>
+<%@page import="javax.servlet.jsp.jstl.fmt.LocalizationContext"%>
     <c:choose>
         <c:when test="${param.language != null}" >
             <fmt:setLocale value="${param.language}" />
@@ -16,6 +18,11 @@
     <fmt:setBundle basename="labels" />
     <fmt:setBundle basename="labels" var="bundleVar" />
     
+    <%
+	Injector ctxInj = (Injector)application.getAttribute(Injector.class.getName());
+	LocalizationContext lctx= ctxInj.getProvider(LocalizationContext.class).get();
+	pageContext.setAttribute("lctx", lctx);
+	%>
     <xsl:param name="pid" select="pid"/>
     <xsl:template match="/">
         <xsl:value-of select="$pid" />&#160;<br/>

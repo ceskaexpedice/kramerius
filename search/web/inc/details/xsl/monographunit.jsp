@@ -9,6 +9,14 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/xml" prefix="x" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt" %>
 <%@ page isELIgnored="false"%>
+<%@page import="com.google.inject.Injector"%>
+<%@page import="javax.servlet.jsp.jstl.fmt.LocalizationContext"%>
+    <%
+	Injector ctxInj = (Injector)application.getAttribute(Injector.class.getName());
+	LocalizationContext lctx= ctxInj.getProvider(LocalizationContext.class).get();
+	pageContext.setAttribute("lctx", lctx);
+	%>
+
     <c:choose>
         <c:when test="${param.language != null}" >
             <fmt:setLocale value="${param.language}" />
@@ -25,7 +33,7 @@
     </xsl:template>
     <xsl:template match="/mods:modsCollection/mods:mods" mode="info">
         <xsl:variable name="unitPid">uuid:<xsl:value-of select="./mods:identifier[@type='urn']"/></xsl:variable>
-        <fmt:message>Volume</fmt:message> - <xsl:value-of select="mods:titleInfo/mods:title" />
+        <fmt:message bundle="${lctx}">Volume</fmt:message> - <xsl:value-of select="mods:titleInfo/mods:title" />
             <xsl:if test="mods:part/mods:detail/mods:title != ''" > (<xsl:value-of select="mods:part/mods:detail/mods:title" />)</xsl:if> - <xsl:value-of select="mods:part/mods:detail/mods:number" />
         
     </xsl:template>

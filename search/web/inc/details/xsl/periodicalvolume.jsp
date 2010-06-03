@@ -9,6 +9,14 @@
     <%@ taglib uri="http://java.sun.com/jsp/jstl/xml" prefix="x" %>
     <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt" %>
     <%@ page isELIgnored="false"%>
+<%@page import="com.google.inject.Injector"%>
+<%@page import="javax.servlet.jsp.jstl.fmt.LocalizationContext"%>
+    <%
+	Injector ctxInj = (Injector)application.getAttribute(Injector.class.getName());
+	LocalizationContext lctx= ctxInj.getProvider(LocalizationContext.class).get();
+	pageContext.setAttribute("lctx", lctx);
+	%>
+
     <c:choose>
         <c:when test="${param.language != null}" >
             <fmt:setLocale value="${param.language}" />
@@ -27,9 +35,9 @@
         <xsl:variable name="volumePid">uuid:<xsl:value-of select="./mods:identifier[@type='urn']"/></xsl:variable>
         <xsl:variable name="volumeNumber"><xsl:value-of select="mods:part/mods:detail[@type = 'volume']/mods:number" /></xsl:variable>
         <!--Datum vydání ročníku: 1861	 Číslo ročníku: 1	(1/462)-->
-            <fmt:message>Datum vydání</fmt:message>
+            <fmt:message bundle="${lctx}">Datum vydání</fmt:message>
             <xsl:value-of select="mods:part/mods:date" />
-            <fmt:message>Číslo</fmt:message>
+            <fmt:message bundle="${lctx}">Číslo</fmt:message>
             <xsl:value-of select="$volumeNumber" />
     </xsl:template>
 </xsl:stylesheet>

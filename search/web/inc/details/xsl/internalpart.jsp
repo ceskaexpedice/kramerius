@@ -9,6 +9,13 @@
     <%@ taglib uri="http://java.sun.com/jsp/jstl/xml" prefix="x" %>
     <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt" %>
     <%@ page isELIgnored="false"%>
+	<%@page import="com.google.inject.Injector"%>
+	<%@page import="javax.servlet.jsp.jstl.fmt.LocalizationContext"%>
+    <%
+	Injector ctxInj = (Injector)application.getAttribute(Injector.class.getName());
+	LocalizationContext lctx= ctxInj.getProvider(LocalizationContext.class).get();
+	pageContext.setAttribute("lctx", lctx);
+	%>
     <c:choose>
         <c:when test="${param.language != null}" >
             <fmt:setLocale value="${param.language}" />
@@ -28,11 +35,11 @@
         <xsl:variable name="pageType"><xsl:value-of select="mods:part/@type" /></xsl:variable>
                 <xsl:choose>
                     <xsl:when test="$pageType='Chapter'">
-                        (<fmt:message>Chapter</fmt:message>)</xsl:when>
+                        (<fmt:message bundle="${lctx}">Chapter</fmt:message>)</xsl:when>
                     <xsl:when test="$pageType='Table'">
-                        (<fmt:message>Table</fmt:message>)</xsl:when>
+                        (<fmt:message bundle="${lctx}">Table</fmt:message>)</xsl:when>
                     <xsl:when test="$pageType='Introduction'">
-                        (<fmt:message>Introduction</fmt:message>)</xsl:when>
+                        (<fmt:message bundle="${lctx}">Introduction</fmt:message>)</xsl:when>
                 </xsl:choose> - <xsl:value-of select="mods:titleInfo/mods:title" /> - 
                 <xsl:value-of select="mods:part/mods:extent/mods:list" />
         
