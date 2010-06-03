@@ -5,7 +5,10 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn" %>
 <%@ page isELIgnored="false"%>
 
-<c:choose>
+
+<%@page import="javax.servlet.jsp.jstl.core.Config"%>
+<%@page import="javax.servlet.jsp.jstl.fmt.LocalizationContext"%>
+<%@page import="com.google.inject.Injector"%><c:choose>
     <c:when test="${param.language != null}" >
         <fmt:setLocale value="${param.language}" />
     </c:when>
