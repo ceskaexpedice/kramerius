@@ -5,9 +5,8 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn" %>
 <%@ page isELIgnored="false"%>
-<%
-
-%>
+<%@page import="com.google.inject.Injector"%>
+<%@page import="javax.servlet.jsp.jstl.fmt.LocalizationContext"%>
 <c:choose>
     <c:when test="${param.language != null}" >
         <fmt:setLocale value="${param.language}" />
@@ -18,8 +17,17 @@
     </c:when>
 </c:choose>
 
+<%
+	Injector ctxInj = (Injector)application.getAttribute(Injector.class.getName());
+	LocalizationContext lctx= ctxInj.getProvider(LocalizationContext.class).get();
+	pageContext.setAttribute("lctx", lctx);
+	
+%>
+
 <fmt:setBundle basename="labels" />
+<!-- 
 <fmt:setBundle basename="labels" var="bundleVar" />
+ -->
 <%@ include file="inc/searchParams.jsp" %>
 
 <% 
@@ -91,7 +99,8 @@ out.clear();
                 <td class="rightMenu">
                     <div id="timeLineDiv" class="ui-tabs ui-widget ui-widget-content ui-corner-all" >
                     <ul class="ui-tabs-nav ui-helper-reset ui-helper-clearfix ui-widget-header ui-corner-all" style="padding:0 0.1em 0 0;">
-                        <li class="ui-state-default ui-corner-top ui-tabs-selected ui-state-active " style="width:100%;"><a class="box"><fmt:message key="Časová osa" /></a></li>
+                        <li class="ui-state-default ui-corner-top ui-tabs-selected ui-state-active " style="width:100%;"><a class="box">
+                        <fmt:message bundle="${lctx}" key="Časová osa" /></a></li>
                     </ul>
                     <div id="timeLineBody" class="ui-tabs-panel ui-widget-content ui-corner-bottom">
                         <%@ include file="inc/dateAxisV.jsp" %>

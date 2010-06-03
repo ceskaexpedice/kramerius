@@ -3,11 +3,17 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/xml" prefix="x" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt" %>
 <%@ page isELIgnored="false"%>
+<%@page import="com.google.inject.Injector"%>
+<%@page import="javax.servlet.jsp.jstl.fmt.LocalizationContext"%>
+
 
 <%
 	Injector inj = (Injector)application.getAttribute(Injector.class.getName());
 	pageContext.setAttribute("lrProcessManager",inj.getInstance(LRProcessManager.class));
 	pageContext.setAttribute("dfManager",inj.getInstance(DefinitionManager.class));
+	
+	LocalizationContext lctx= inj.getProvider(LocalizationContext.class).get();
+	pageContext.setAttribute("lctx", lctx);
 %>
 
 <c:choose>
@@ -136,9 +142,9 @@
         <img id="imgFullImage" src="img/empty.gif" />
     </div>
     <div id="divFullImageZoom" style="display:none;">
-        <span class="ui-dialog-titlebar-zoom"><fmt:message>velikost</fmt:message>: <select onchange="changeFullImageZoom()" id="fullImageZoom">
-            <option value="width"><fmt:message>šířka okna</fmt:message></option>
-            <option value="height"><fmt:message>výška okna</fmt:message></option>
+        <span class="ui-dialog-titlebar-zoom"><fmt:message bundle="${lctx}">velikost</fmt:message>: <select onchange="changeFullImageZoom()" id="fullImageZoom">
+            <option value="width"><fmt:message bundle="${lctx}">šířka okna</fmt:message></option>
+            <option value="height"><fmt:message bundle="${lctx}">výška okna</fmt:message></option>
             <option value="0.1">10%</option>
     <option value="0.2" >20%</option>
     <option value="0.3" >30%</option>
