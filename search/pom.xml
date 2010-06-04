@@ -167,7 +167,7 @@
         <!-- dlouhotrvajici indexer -->
         <dependency>
             <groupId>cz.incad.kramerius</groupId>
-            <artifactId>kramerius-indexer</artifactId>
+            <artifactId>indexer</artifactId>
             <version>0.0.1-SNAPSHOT</version>
         </dependency>
     
