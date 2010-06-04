@@ -5,14 +5,7 @@
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 <%@ page isELIgnored="false"%>
 <%@ page import="java.util.*, cz.incad.Kramerius.*, cz.incad.Solr.*, cz.incad.kramerius.*,cz.incad.kramerius.utils.*" %>
-<c:choose>
-    <c:when test="${param.language != null}" >
-        <fmt:setLocale value="${param.language}" />
-    </c:when>
-</c:choose>
 
-<fmt:setBundle basename="labels" />
-<fmt:setBundle basename="labels" var="bundleVar" />
 
 
 <%-- fill path up to the end --%>
@@ -32,23 +25,15 @@ Get Biblio mods
     <c:set var="level" value="${param.level}"/>
 </c:if>
 <%
-                    //ArrayList<String> pids = new ArrayList<String>();
-                    //pids.addAll(request.getParameter("pid_path").split("/"));
-                    ArrayList<String> pids =  new ArrayList<String>(Arrays.asList((String [])request.getParameter("pid_path").split("/")));
-                    ArrayList<String> models =  new ArrayList<String>(Arrays.asList((String [])request.getParameter("path").split("/")));
-
-                    //ArrayList<String> models = new ArrayList<String>();
-                    //models.addAll(request.getParameter("path").split("/"));
-                    FedoraUtils.fillFirstPagePid(pids, models);
-                    //out.println(pids);
-                    //out.println(models);
-                    getServletContext().setAttribute("pids", pids);
-                    getServletContext().setAttribute("models", models);
-                    getServletContext().setAttribute("pathsize", models.size());
-
-                    imagePid = pids.get(pids.size()-1);
-                    
-                    %>
+	ArrayList<String> pids =  new ArrayList<String>(Arrays.asList((String [])request.getParameter("pid_path").split("/")));
+	ArrayList<String> models =  new ArrayList<String>(Arrays.asList((String [])request.getParameter("path").split("/")));
+	FedoraUtils.fillFirstPagePid(pids, models);
+	getServletContext().setAttribute("pids", pids);
+	getServletContext().setAttribute("models", models);
+	getServletContext().setAttribute("pathsize", models.size());
+	
+	imagePid = pids.get(pids.size()-1);
+%>
 <c:forEach var="uuid" varStatus="status" items="${pids}">
     <c:choose>
         <c:when test="${level==0 || status.count>1}">
@@ -120,21 +105,6 @@ Get Biblio mods
     function startPage(){
         currentSelectedPage = initPage;
         selectPage(initPage);
-        
-        /*
-        if(typeof initialized == 'function') {
-            if(!firstCalled){
-                // nacteni stranek z DOMu
-                initialize();
-                firstCalled = true;
-            }else{
-                // vyber prvni
-                select(initPage);
-            }
-        }else{
-            setTimeout('startPage()', 200);
-        }
-        */
     }
     
     function startItemMenu(){
