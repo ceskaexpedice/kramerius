@@ -3,23 +3,14 @@
 
 	<modelVersion>4.0.0</modelVersion>
 
-	<!--
-		<parent> <groupId>com.qbizm.kramerius</groupId>
-		<artifactId>kramerius-import</artifactId>
-		<version>1.0.0-SNAPSHOT</version> </parent>
-	-->
 
-	<groupId>com.qbizm.kramerius</groupId>
-	<artifactId>kramerius-import-jaxb</artifactId>
-	<name>JAXB objects from xsds</name>
+	<groupId>cz.incad.kramerius</groupId>
+	<artifactId>import-jaxb</artifactId>
+	<name>import-jaxb</name>
 	<version>1.0.0-SNAPSHOT</version>
 	<packaging>jar</packaging>
 
 	<dependencies>
-		<!--
-			dependency> <groupId>log4j</groupId> <artifactId>log4j</artifactId>
-			<version>1.2.8</version> </dependency
-		-->
 
 		<dependency>
 			<groupId>org.slf4j</groupId>
