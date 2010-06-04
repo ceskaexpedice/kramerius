@@ -11,7 +11,12 @@
             String fromValue = "";
             String toValue = "";
 %>
-<head>
+
+<%@page import="com.google.inject.Injector"%>
+<%@page import="cz.incad.kramerius.service.ResourceBundleService"%>
+<%@page import="java.util.Locale"%>
+<%@page import="java.util.ResourceBundle"%>
+<%@page import="java.util.Enumeration"%><head>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
     <meta http-equiv="Pragma" content="no-cache" />
     <meta http-equiv="Cache-Control" content="no-cache" />
@@ -93,19 +98,17 @@
         var generatePdfMaxRange = <%=kconfig.getProperty("generatePdfMaxRange")%>;
 
 
-var dictionary = {<%
-            String language = request.getParameter("language");
-            if (language == null || language.equals("")) {
-                language = "cs";
-            }
-            ResourceBundle res = ResourceBundle.getBundle("labels", new Locale(language));
+var dictionary = {
+<%
+			Injector resInj  = (Injector)application.getAttribute(Injector.class.getName());
+			ResourceBundleService resService = resInj.getInstance(ResourceBundleService.class);			
+			Locale locale = resInj.getInstance(Locale.class);
+			ResourceBundle res = resService.getResourceBundle("labels", locale);
             for (Enumeration e = res.getKeys(); e.hasMoreElements();) {
                 String key = (String)e.nextElement();
                 out.print("'" + key + "':'" + res.getString(key).replace("'", "\\'") + "',");
-}
-
+			}
 %>jedennavic:''};
-        
     </script>
     
     
