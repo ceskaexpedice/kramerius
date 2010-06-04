@@ -17,8 +17,6 @@ public class LocalesProvider implements Provider<Locale>{
 
 	public static final String CLIENT_LOCALE = "client_locale";
 	
-	
-	//private HttpServletRequest request;
 	private Provider<HttpServletRequest> provider;
 	private Logger logger;
 	private TextsService textsService;
@@ -40,7 +38,7 @@ public class LocalesProvider implements Provider<Locale>{
 		if (parameter != null) {
 			Locale foundLocale = this.textsService.findLocale(parameter);
 			if (foundLocale == null) {
-				return getDefault(request);
+				foundLocale =  getDefault(request);
 			}
 			session.setAttribute(CLIENT_LOCALE,foundLocale);
 			return foundLocale;
