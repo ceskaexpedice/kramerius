@@ -159,7 +159,7 @@
 		<!-- dlouhotravici export do pdf -->
 		<dependency>
 			<groupId>cz.incad.kramerius</groupId>
-			<artifactId>kramerius-static-export</artifactId>
+			<artifactId>static-export</artifactId>
 			<version>0.0.1-SNAPSHOT</version>
 		</dependency>
     
