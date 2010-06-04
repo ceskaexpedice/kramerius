@@ -42,7 +42,7 @@ public class PDFExport {
 			String djvuUrl = args[3];
 			String i18nUrl = args[4];
 			
-			if (args.length >= 6) {
+			if (args.length > 6) {
 				LOGGER.info("Country "+args[5]);
 				LOGGER.info("Lang "+args[6]);
 				System.setProperty(ArgumentLocalesProvider.ISO3COUNTRY_KEY, args[5]);
