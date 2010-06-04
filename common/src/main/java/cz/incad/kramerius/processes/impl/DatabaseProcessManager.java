@@ -247,9 +247,13 @@ public class DatabaseProcessManager implements LRProcessManager {
 			for (LRProcess lrProcess : processes) {
 				LOGGER.info("process '"+lrProcess.getUUID()+"' state "+lrProcess.getProcessState());
 				if (lrProcess.getProcessState().equals(States.RUNNING)) {
-					LOGGER.info("process '"+lrProcess.getUUID()+" ' is running");
 					if (!lrProcess.isLiveProcess()) {
 						lrProcess.setProcessState(States.FAILED);
+						this.updateLongRunningProcessState(lrProcess);
+					}
+				} else if (lrProcess.getProcessState().equals(States.FAILED)) {
+					if (lrProcess.isLiveProcess()) {
+						lrProcess.setProcessState(States.RUNNING);
 						this.updateLongRunningProcessState(lrProcess);
 					}
 				}
