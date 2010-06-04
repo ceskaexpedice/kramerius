@@ -21,11 +21,12 @@
 
 <%
 	String uuid = request.getParameter("uuid");
-	Injector inj = (Injector) application.getAttribute(Injector.class
-			.getName());
-	LRProcessManager lrProcessMan = inj
-			.getInstance(LRProcessManager.class);
+	Injector inj = (Injector) application.getAttribute(Injector.class.getName());
+	LRProcessManager lrProcessMan = inj.getInstance(LRProcessManager.class);
 
+	Locale locale = inj.getInstance(Locale.class);
+	ResourceBundleService resBundleServ = inj.getInstance(ResourceBundleService.class);
+	 
 	DefinitionManager defMan = inj.getInstance(DefinitionManager.class);
 	LRProcess lrProces = lrProcessMan.getLongRunningProcess(uuid);
 
@@ -34,12 +35,16 @@
 					.getParameter("stdErr"), request
 					.getParameter("count"), lrProces);
 	pageContext.setAttribute("processLogs", processLogs);
+	pageContext.setAttribute("labels", resBundleServ.getResourceBundle("labels",locale));
+	
 %>
 
 
 <%@page import="cz.incad.Kramerius.views.ProcessLogsViewObject"%>
 <%@page import="cz.incad.kramerius.processes.LRProcess"%>
-<html>
+
+<%@page import="java.util.Locale"%>
+<%@page import="cz.incad.kramerius.service.ResourceBundleService"%><html>
 
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
@@ -143,10 +148,10 @@
 						<table width="100%">
 							<tr>
 								<td width="80%" style="padding-left: 15px;">
-								<h3>Standardní výstup</h3>
+								<h3><%=resBundleServ.getResourceBundle("labels",locale).getString("administrator.processes.logs.stdout") %> </h3>
 								</td>
 								<td align="right"><a href="javascript:stdLeft();"><img border="0"
-									src="../img/prev_arr.png"> prev</a> &emsp; <a href="javascript:stdRight();"> next
+									src="../img/prev_arr.png"> <%=resBundleServ.getResourceBundle("labels",locale).getString("administrator.processes.logs.prev") %></a> &emsp; <a href="javascript:stdRight();"> <%=resBundleServ.getResourceBundle("labels",locale).getString("administrator.processes.logs.next") %>
 								<img border="0" src="../img/next_arr.png"> </a></td>
 							</tr>
 						</table>
@@ -170,10 +175,10 @@
 						<table width="100%">
 							<tr>
 								<td width="80%" style="padding-left: 15px;">
-								<h3>Chybový vystup</h3>
+								<h3><%=resBundleServ.getResourceBundle("labels",locale).getString("administrator.processes.logs.errout") %> </h3>
 								</td>
 								<td align="right"><a href="javascript:errLeft();"><img border="0"
-									src="../img/prev_arr.png"> prev</a> &emsp; <a href="javascript:errRight();"> next
+									src="../img/prev_arr.png"> <%=resBundleServ.getResourceBundle("labels",locale).getString("administrator.processes.logs.prev") %></a> &emsp; <a href="javascript:errRight();"> <%=resBundleServ.getResourceBundle("labels",locale).getString("administrator.processes.logs.next") %> 
 								<img border="0" src="../img/next_arr.png"> </a></td>
 							</tr>
 						</table>

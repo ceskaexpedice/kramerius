@@ -9,15 +9,14 @@
 	<div id="process_started_waiting" style="display:none;margin: 16px; font-family: sans-serif; font-size: 10px; ">
     	<table>
     		<tr><td align="center"><img src="img/loading2.gif" height="16px" width="16px"/></td></tr>
-			<tr><td align="center">Prosím vyčkejte, spouští se proces generovaní PDF.</td></tr>
+			<tr><td align="center"><fmt:message bundle="${lctx}">administrator.dialogs.waitingexport</fmt:message></td></tr>
     	</table>
 	</div>
 	<div id="process_started_ok" style="display:none;margin: 12px;">
-		<p style="font-family: sans-serif; font-size: 12px; font-weight: bold;">Export spuštěn<br/></p>
+		<p style="font-family: sans-serif; font-size: 12px; font-weight: bold;"><fmt:message bundle="${lctx}">administrator.dialogs.exportrunning</fmt:message><br/></p>
 	</div>
 	<div id="process_started_failed" style="display:none;margin: 12px;">
-		<p style="font-family: sans-serif; font-size: 12px; font-weight: bold;">Export do PDF selhal, prosim, zkontrolujte tabulku procesů.</p>
-		<p><a href="#"> Tabulka procesu</a></p>
+		<p style="font-family: sans-serif; font-size: 12px; font-weight: bold;"><fmt:message bundle="${lctx}">administrator.dialogs.exportfailed</fmt:message></p>
 	</div>
 </div>
 
@@ -26,14 +25,14 @@
 	<div id="reindex_started_waiting" style="display:none;margin: 16px; font-family: sans-serif; font-size: 10px; ">
     	<table>
     		<tr><td align="center"><img src="img/loading2.gif" height="16px" width="16px"/></td></tr>
-			<tr><td align="center">Prosím vyčkejte, spouští se reindexace.</td></tr>
+			<tr><td align="center"><fmt:message bundle="${lctx}">administrator.dialogs.waitingreindex</fmt:message></td></tr>
     	</table>
 	</div>
 	<div id="reindex_started_ok" style="display:none;margin: 12px;">
-		<p style="font-family: sans-serif; font-size: 12px; font-weight: bold;">Reindexace spuštěna<br/></p>
+		<p style="font-family: sans-serif; font-size: 12px; font-weight: bold;"><fmt:message bundle="${lctx}">administrator.dialogs.reindexrunning</fmt:message><br/></p>
 	</div>
 	<div id="reindex_started_failed" style="display:none;margin: 12px;">
-		<p style="font-family: sans-serif; font-size: 12px; font-weight: bold;">Proces reindexace selhal, prosim, zkontrolujte tabulku procesů.</p>
+		<p style="font-family: sans-serif; font-size: 12px; font-weight: bold;"><fmt:message bundle="${lctx}">administrator.dialogs.reindexfailed</fmt:message></p>
 	</div>
 </div>
 
@@ -47,14 +46,14 @@
 	<div id="replikator_monograph_started_waiting" style="display:none;margin: 16px; font-family: sans-serif; font-size: 10px; ">
     	<table>
     		<tr><td align="center"><img src="img/loading2.gif" height="16px" width="16px"/></td></tr>
-			<tr><td align="center">Prosím vyčkejte, spouští se import monografií.</td></tr>
+			<tr><td align="center"><fmt:message bundle="${lctx}">administrator.dialogs.waitingmonographimport</fmt:message></td></tr>
     	</table>
 	</div>
 	<div id="replikator_monograph_started_ok" style="display:none;margin: 12px;">
-		<p style="font-family: sans-serif; font-size: 12px; font-weight: bold;">Import spuštěn<br/></p>
+		<p style="font-family: sans-serif; font-size: 12px; font-weight: bold;"><fmt:message bundle="${lctx}">administrator.dialogs.monographimportrunning</fmt:message><br/></p>
 	</div>
 	<div id="replikator_monograph_started_failed" style="display:none;margin: 12px;">
-		<p style="font-family: sans-serif; font-size: 12px; font-weight: bold;">Proces importu selhal, prosim, zkontrolujte tabulku procesů.</p>
+		<p style="font-family: sans-serif; font-size: 12px; font-weight: bold;"><fmt:message bundle="${lctx}">administrator.dialogs.monographimportfailed</fmt:message></p>
 	</div>
 </div>
 
@@ -64,14 +63,14 @@
 	<div id="replikator_periodical_started_waiting" style="display:none;margin: 16px; font-family: sans-serif; font-size: 10px; ">
     	<table>
     		<tr><td align="center"><img src="img/loading2.gif" height="16px" width="16px"/></td></tr>
-			<tr><td align="center">Prosím vyčkejte, spouští se import periodik.</td></tr>
+			<tr><td align="center"><fmt:message bundle="${lctx}">administrator.dialogs.waitingperiodicsimport</fmt:message></td></tr>
     	</table>
 	</div>
 	<div id="replikator_periodical_started_ok" style="display:none;margin: 12px;">
-		<p style="font-family: sans-serif; font-size: 12px; font-weight: bold;">Import spuštěn<br/></p>
+		<p style="font-family: sans-serif; font-size: 12px; font-weight: bold;"><fmt:message bundle="${lctx}">administrator.dialogs.periodicsimportrunning</fmt:message><br/></p>
 	</div>
 	<div id="replikator_periodical_started_failed" style="display:none;margin: 12px;">
-		<p style="font-family: sans-serif; font-size: 12px; font-weight: bold;">Proces importu selhal, prosim, zkontrolujte tabulku procesů.</p>
+		<p style="font-family: sans-serif; font-size: 12px; font-weight: bold;"><fmt:message bundle="${lctx}">administrator.dialogs.periodicsimportfailed</fmt:message></p>
 	</div>
 </div>
 
@@ -80,14 +79,14 @@
 	<div id="enumerator_started_waiting" style="display:none;margin: 16px; font-family: sans-serif; font-size: 10px; ">
     	<table>
     		<tr><td align="center"><img src="img/loading2.gif" height="16px" width="16px"/></td></tr>
-			<tr><td align="center">Prosím vyčkejte, spouští se proces enumerator.</td></tr>
+			<tr><td align="center"><fmt:message bundle="${lctx}">administrator.dialogs.waitingenumerator</fmt:message></td></tr>
     	</table>
 	</div>
 	<div id="enumerator_started_ok" style="display:none;margin: 12px;">
-		<p style="font-family: sans-serif; font-size: 12px; font-weight: bold;">Enumerator spuštěn<br/></p>
+		<p style="font-family: sans-serif; font-size: 12px; font-weight: bold;"><fmt:message bundle="${lctx}">administrator.dialogs.enumeratorrunning</fmt:message><br/></p>
 	</div>
 	<div id="enumerator_started_failed" style="display:none;margin: 12px;">
-		<p style="font-family: sans-serif; font-size: 12px; font-weight: bold;">Proces enumerator selhal, prosim, zkontrolujte tabulku procesů.</p>
+		<p style="font-family: sans-serif; font-size: 12px; font-weight: bold;"><fmt:message bundle="${lctx}">administrator.dialogs.enumeratorfailed</fmt:message></p>
 	</div>
 </div>
 
@@ -96,13 +95,13 @@
 	<div id="replicationrights_started_waiting" style="display:none;margin: 16px; font-family: sans-serif; font-size: 10px; ">
     	<table>
     		<tr><td align="center"><img src="img/loading2.gif" height="16px" width="16px"/></td></tr>
-			<tr><td align="center">Prosím vyčkejte, spouští se proces replicationrights.</td></tr>
+			<tr><td align="center"><fmt:message bundle="${lctx}">administrator.dialogs.waitingreplicationrights</fmt:message></td></tr>
     	</table>
 	</div>
 	<div id="replicationrights_started_ok" style="display:none;margin: 12px;">
-		<p style="font-family: sans-serif; font-size: 12px; font-weight: bold;">Replicationrights spuštěn<br/></p>
+		<p style="font-family: sans-serif; font-size: 12px; font-weight: bold;"><fmt:message bundle="${lctx}">administrator.dialogs.replicationrightsrunning</fmt:message><br/></p>
 	</div>
 	<div id="replicationrights_started_failed" style="display:none;margin: 12px;">
-		<p style="font-family: sans-serif; font-size: 12px; font-weight: bold;">Proces replicationrights selhal, prosim, zkontrolujte tabulku procesů.</p>
+		<p style="font-family: sans-serif; font-size: 12px; font-weight: bold;"><fmt:message bundle="${lctx}">administrator.dialogs.replicationrightsfailed</fmt:message></p>
 	</div>
 </div>

@@ -23,6 +23,9 @@
 	Injector inj = (Injector)application.getAttribute(Injector.class.getName());
 	LRProcessManager lrProcessMan= inj.getInstance(LRProcessManager.class);
 	DefinitionManager defMan = inj.getInstance(DefinitionManager.class);
+	Locale loc = inj.getInstance(Locale.class);
+	ResourceBundleService bundle = inj.getInstance(ResourceBundleService.class);
+	
 	
 	String ordering = request.getParameter("ordering");
 	if ((ordering == null) || (ordering.trim().equals(""))) {
@@ -45,14 +48,16 @@
 
 	LRProcessOrdering lrProcOrder = LRProcessOrdering.valueOf(ordering);
 	LRProcessOffset lrOffset = new LRProcessOffset(offset, size);
-	ProcessesViewObject viewObj = new ProcessesViewObject(lrProcessMan, defMan, lrProcOrder,TypeOfOrdering.valueOf(type), lrOffset,LongRunningProcessServlet.lrServlet(request));
+	ProcessesViewObject viewObj = new ProcessesViewObject(lrProcessMan, defMan, lrProcOrder,TypeOfOrdering.valueOf(type), lrOffset,LongRunningProcessServlet.lrServlet(request), bundle, loc);
 	pageContext.setAttribute("processView", viewObj);
 	
 %>
 
 <%@page import="cz.incad.kramerius.processes.TypeOfOrdering"%>
 
-<%@page import="cz.incad.Kramerius.LongRunningProcessServlet"%><div> 
+<%@page import="cz.incad.Kramerius.LongRunningProcessServlet"%>
+<%@page import="java.util.Locale"%>
+<%@page import="cz.incad.kramerius.service.ResourceBundleService"%><div> 
 
 <script type="text/javascript">
 
