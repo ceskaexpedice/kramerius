@@ -4,7 +4,7 @@
 	<groupId>cz.incad.kramerius</groupId>
 	<artifactId>fedora_api</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-	<name>kramerius_fedora_api</name>
+	<name>fedora_api</name>
 	<packaging>jar</packaging>
 	<description>FEDORA API</description>
 	<developers>
