@@ -146,7 +146,7 @@
 		<!-- kramerius komon -->
 		<dependency>
 			<groupId>cz.incad.kramerius</groupId>
-			<artifactId>kramerius-common</artifactId>
+			<artifactId>common</artifactId>
 			<version>0.0.1-SNAPSHOT</version>
 		</dependency>
 		<dependency>
