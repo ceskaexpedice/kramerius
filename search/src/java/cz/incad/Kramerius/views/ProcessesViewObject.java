@@ -1,7 +1,10 @@
 package cz.incad.Kramerius.views;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
+import java.util.logging.Level;
 
 import cz.incad.kramerius.processes.DefinitionManager;
 import cz.incad.kramerius.processes.LRProcess;
@@ -10,6 +13,7 @@ import cz.incad.kramerius.processes.LRProcessManager;
 import cz.incad.kramerius.processes.LRProcessOffset;
 import cz.incad.kramerius.processes.LRProcessOrdering;
 import cz.incad.kramerius.processes.TypeOfOrdering;
+import cz.incad.kramerius.service.ResourceBundleService;
 
 public class ProcessesViewObject {
 
@@ -22,8 +26,10 @@ public class ProcessesViewObject {
 	private TypeOfOrdering typeOfOrdering;
 
 	private String lrUrl;
+	private ResourceBundleService bundleService;
+	private Locale locale;
 	
-	public ProcessesViewObject(LRProcessManager processManager, DefinitionManager manager, LRProcessOrdering ordering, TypeOfOrdering typeOfOrdering, LRProcessOffset offset, String lrUrl) {
+	public ProcessesViewObject(LRProcessManager processManager, DefinitionManager manager, LRProcessOrdering ordering, TypeOfOrdering typeOfOrdering, LRProcessOffset offset, String lrUrl, ResourceBundleService bundleService, Locale locale) {
 		super();
 		this.processManager = processManager;
 		this.ordering = ordering;
@@ -31,6 +37,8 @@ public class ProcessesViewObject {
 		this.typeOfOrdering = typeOfOrdering;
 		this.definitionManager = manager;
 		this.lrUrl = lrUrl;
+		this.bundleService = bundleService;
+		this.locale = locale;
 	}
 
 	public List<ProcessViewObject> getProcesses() {
@@ -38,29 +46,41 @@ public class ProcessesViewObject {
 		List<ProcessViewObject> objects = new ArrayList<ProcessViewObject>();
 		for (LRProcess lrProcess : lrProcesses) {
 			LRProcessDefinition def = this.definitionManager.getLongRunningProcessDefinition(lrProcess.getDefinitionId());
-			objects.add(new ProcessViewObject(lrProcess, def, this.ordering, this.offset, this.typeOfOrdering, this.lrUrl));
+			objects.add(new ProcessViewObject(lrProcess, def, this.ordering, this.offset, this.typeOfOrdering, this.lrUrl, this.bundleService, this.locale));
 		}
 		return objects;
 	}
 	
 	public String getNextAHREF() {
-		int count = this.processManager.getNumberOfLongRunningProcesses();
-		int offset = Integer.parseInt(this.offset.getOffset());
-		int size = Integer.parseInt(this.offset.getSize());
-		if ((offset+size) < count ) {
-			return "<a href=\"javascript:modifyProcessDialogData('"+this.ordering+"','"+this.offset.getNextOffset()+"','"+this.offset.getSize()+"','"+this.typeOfOrdering.getTypeOfOrdering()+"');\"> next <img  border=\"0\" src=\"img/next_arr.png\"/> </a>";
-		} else {
+		try {
+			String nextString = bundleService.getResourceBundle("labels", locale).getString("administrator.processes.next");
+			int count = this.processManager.getNumberOfLongRunningProcesses();
+			int offset = Integer.parseInt(this.offset.getOffset());
+			int size = Integer.parseInt(this.offset.getSize());
+			if ((offset+size) < count ) {
+				return "<a href=\"javascript:modifyProcessDialogData('"+this.ordering+"','"+this.offset.getNextOffset()+"','"+this.offset.getSize()+"','"+this.typeOfOrdering.getTypeOfOrdering()+"');\"> "+nextString+" <img  border=\"0\" src=\"img/next_arr.png\"/> </a>";
+			} else {
+				return nextString+" <img border=\"0\" src=\"img/next_arr.png\"/>";
+			}
+		} catch (IOException e) {
+			LOGGER.log(Level.SEVERE, e.getMessage(), e);
 			return "next <img border=\"0\" src=\"img/next_arr.png\"/>";
 		}
 	}
 	
 	public String getPrevAHREF() {
-		int offset = Integer.parseInt(this.offset.getOffset());
-		if (offset > 0) {
-			return "<a href=\"javascript:modifyProcessDialogData('"+this.ordering+"','"+this.offset.getPrevOffset()+"','"+this.offset.getSize()+"','"+this.typeOfOrdering.getTypeOfOrdering()+"');\"> <img border=\"0\" src=\"img/prev_arr.png\"/> prev </a>";
-		} else {
-			return "<img border=\"0\" src=\"img/prev_arr.png\"/> prev";
-		}
+			try {
+				String prevString = bundleService.getResourceBundle("labels", locale).getString("administrator.processes.prev");
+				int offset = Integer.parseInt(this.offset.getOffset());
+				if (offset > 0) {
+					return "<a href=\"javascript:modifyProcessDialogData('"+this.ordering+"','"+this.offset.getPrevOffset()+"','"+this.offset.getSize()+"','"+this.typeOfOrdering.getTypeOfOrdering()+"');\"> <img border=\"0\" src=\"img/prev_arr.png\"/> "+prevString+" </a>";
+				} else {
+					return "<img border=\"0\" src=\"img/prev_arr.png\"/> "+prevString;
+				}
+			} catch (IOException e) {
+				LOGGER.log(Level.SEVERE, e.getMessage(), e);
+				return "<img border=\"0\" src=\"img/prev_arr.png\"/> prev";
+			}
 	}
 
 	private TypeOfOrdering switchOrdering() {
@@ -68,28 +88,52 @@ public class ProcessesViewObject {
 	}
 
 	public String getNameOrdering() {
-		LRProcessOrdering nOrdering = LRProcessOrdering.NAME;
-		boolean changeTypeOfOrdering = this.ordering.equals(nOrdering);
-		return newOrderingURL(nOrdering, "Název procesu", changeTypeOfOrdering ? switchOrdering() : TypeOfOrdering.ASC);
+		try {
+			String nameString = bundleService.getResourceBundle("labels", locale).getString("administrator.processes.name");
+			LRProcessOrdering nOrdering = LRProcessOrdering.NAME;
+			boolean changeTypeOfOrdering = this.ordering.equals(nOrdering);
+			return newOrderingURL(nOrdering, nameString, changeTypeOfOrdering ? switchOrdering() : TypeOfOrdering.ASC);
+		} catch (IOException e) {
+			LOGGER.log(Level.SEVERE, e.getMessage(), e);
+			return e.getMessage();
+		}
 	}
 
 
 	public String getDateOrdering() {
-		LRProcessOrdering nOrdering = LRProcessOrdering.STARTED;
-		boolean changeTypeOfOrdering = this.ordering.equals(nOrdering);
-		return newOrderingURL(nOrdering,"Spusteno",changeTypeOfOrdering ? switchOrdering() : TypeOfOrdering.ASC);
+		try {
+			String startedString = bundleService.getResourceBundle("labels", locale).getString("administrator.processes.started");
+			LRProcessOrdering nOrdering = LRProcessOrdering.STARTED;
+			boolean changeTypeOfOrdering = this.ordering.equals(nOrdering);
+			return newOrderingURL(nOrdering,startedString,changeTypeOfOrdering ? switchOrdering() : TypeOfOrdering.ASC);
+		} catch (IOException e) {
+			LOGGER.log(Level.SEVERE, e.getMessage(), e);
+			return e.getMessage();
+		}
 	}
 
 	public String getPidOrdering() {
-		LRProcessOrdering nOrdering = LRProcessOrdering.ID;
-		boolean changeTypeOfOrdering = this.ordering.equals(nOrdering);
-		return newOrderingURL(nOrdering,"PID",changeTypeOfOrdering ? switchOrdering() : TypeOfOrdering.ASC);
+		try {
+			String pidString = bundleService.getResourceBundle("labels", locale).getString("administrator.processes.pid");
+			LRProcessOrdering nOrdering = LRProcessOrdering.ID;
+			boolean changeTypeOfOrdering = this.ordering.equals(nOrdering);
+			return newOrderingURL(nOrdering,pidString,changeTypeOfOrdering ? switchOrdering() : TypeOfOrdering.ASC);
+		} catch (IOException e) {
+			LOGGER.log(Level.SEVERE, e.getMessage(), e);
+			return e.getMessage();
+		}
 	}
 
 	public String getStateOrdering() {
-		LRProcessOrdering nOrdering = LRProcessOrdering.STATE;
-		boolean changeTypeOfOrdering = this.ordering.equals(nOrdering);
-		return newOrderingURL(nOrdering,"Stav",changeTypeOfOrdering ? switchOrdering() : TypeOfOrdering.ASC);
+		try {
+			String stateString = bundleService.getResourceBundle("labels", locale).getString("administrator.processes.state");
+			LRProcessOrdering nOrdering = LRProcessOrdering.STATE;
+			boolean changeTypeOfOrdering = this.ordering.equals(nOrdering);
+			return newOrderingURL(nOrdering,stateString,changeTypeOfOrdering ? switchOrdering() : TypeOfOrdering.ASC);
+		} catch (IOException e) {
+			LOGGER.log(Level.SEVERE, e.getMessage(), e);
+			return e.getMessage();
+		}
 	}
 	
 	private String newOrderingURL(LRProcessOrdering nOrdering, String name, TypeOfOrdering ntypeOfOrdering) {
