@@ -3,7 +3,7 @@
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <groupId>cz.incad.kramerius</groupId>
-    <artifactId>kramerius-indexer</artifactId>
+    <artifactId>indexer</artifactId>
     <version>0.0.1-SNAPSHOT</version>
     <name>indexer</name>
     <repositories>
@@ -34,7 +34,7 @@
     <dependencies>
         <dependency>
             <groupId>cz.incad.kramerius</groupId>
-            <artifactId>kramerius-common</artifactId>
+            <artifactId>common</artifactId>
             <version>0.0.1-SNAPSHOT</version>
         </dependency>
         <dependency>
