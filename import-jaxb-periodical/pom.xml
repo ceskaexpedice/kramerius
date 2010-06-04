@@ -3,9 +3,9 @@
 
 	<modelVersion>4.0.0</modelVersion>
 
-	<groupId>com.qbizm.kramerius</groupId>
-	<artifactId>kramerius-import-jaxb-periodical</artifactId>
-	<name>JAXB objects from xsds</name>
+	<groupId>cz.incad.kramerius</groupId>
+	<artifactId>import-jaxb-periodical</artifactId>
+	<name>import-jaxb-periodical</name>
 	<version>1.0.0-SNAPSHOT</version>
 	<packaging>jar</packaging>
 
