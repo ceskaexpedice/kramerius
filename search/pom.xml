@@ -173,8 +173,8 @@
     
         <!-- dlouhotrvajici import dat -->
         <dependency>
-            <groupId>kramerius4import</groupId>
-            <artifactId>kramerius4import</artifactId>
+            <groupId>cz.incad.kramerius</groupId>
+            <artifactId>import</artifactId>
             <version>0.0.1-SNAPSHOT</version>
         </dependency>
 		
