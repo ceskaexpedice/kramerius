@@ -8,7 +8,7 @@
   <artifactId>kramerius</artifactId>
   <packaging>pom</packaging>
   <version>4.0</version>
-  <name>Kramerius system</name>
+  <name>kramerius</name>
  
   <modules>
     <module>common</module>
