@@ -4,7 +4,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>cz.incad.kramerius</groupId>
     <artifactId>indexer</artifactId>
-    <version>0.0.1-SNAPSHOT</version>
+    <version>1.0.0-SNAPSHOT</version>
     <name>indexer</name>
     <repositories>
         <repository>
@@ -35,7 +35,7 @@
         <dependency>
             <groupId>cz.incad.kramerius</groupId>
             <artifactId>common</artifactId>
-            <version>0.0.1-SNAPSHOT</version>
+            <version>1.0.0-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>trippi</groupId>
