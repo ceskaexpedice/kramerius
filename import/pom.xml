@@ -3,6 +3,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>cz.incad.kramerius</groupId>
 	<artifactId>import</artifactId>
+	<name>import</name>
 	<version>0.0.1-SNAPSHOT</version>
 
 	<repositories>
