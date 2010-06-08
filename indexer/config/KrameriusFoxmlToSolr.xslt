@@ -16,7 +16,7 @@
         xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" 
         xmlns:mods="http://www.loc.gov/mods/v3" 
         xmlns:kramerius="http://www.nsdl.org/ontologies/relationships#" 
-        exclude-result-prefixes="xalan exts java"
+        exclude-result-prefixes="exts java"
     >
     <xsl:output method="xml" indent="yes" encoding="UTF-8" />
 
@@ -61,9 +61,9 @@
     
     <xsl:variable name="MODEL" 
     select="substring(/foxml:digitalObject/foxml:datastream[@CONTROL_GROUP='X' and @ID='RELS-EXT']/foxml:datastreamVersion[last()]/foxml:xmlContent/rdf:RDF/rdf:Description/fedora-model:hasModel/@rdf:resource, 19)" />
+    <xsl:variable name="HANDLE" 
+    select="/foxml:digitalObject/foxml:datastream[@CONTROL_GROUP='X' and @ID='RELS-EXT']/foxml:datastreamVersion[last()]/foxml:xmlContent/rdf:RDF/rdf:Description/kramerius:handle/text()" />
     <xsl:variable name="docBoost" select="1.4*2.5"/> <!-- or any other calculation, default boost is 1.0 -->
-    
-    
     
     <xsl:template match="/">
         <add>
@@ -94,6 +94,9 @@
         </field>
         <field name="fedora.model">
             <xsl:value-of select="$MODEL"/>
+        </field>
+        <field name="handle">
+            <xsl:value-of select="$HANDLE"/>
         </field>
         
         <field name="document_type">
