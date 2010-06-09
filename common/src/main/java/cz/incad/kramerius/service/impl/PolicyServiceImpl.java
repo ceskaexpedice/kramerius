@@ -47,7 +47,8 @@ public class PolicyServiceImpl implements PolicyService {
     public void setPolicy(String pid, String policyName) {
         Set<String> pids = fedoraAccess.getPids(pid);
         for (String s : pids) {
-            setPolicyForNode(s, policyName);
+        	String p = s.replace(INFO, "");
+            setPolicyForNode(p, policyName);
         }
     }
 
@@ -140,6 +141,6 @@ public class PolicyServiceImpl implements PolicyService {
         PolicyServiceImpl inst = new PolicyServiceImpl();
         inst.fedoraAccess = new FedoraAccessImpl(null);
         inst.configuration = KConfiguration.getKConfiguration();
-        inst.setPolicy("uuid:12ce3f07-e642-11de-a504-001143e3f55c", "private");
+        inst.setPolicy("uuid:0eaa6730-9068-11dd-97de-000d606f5dc6", "public");
     }
 }

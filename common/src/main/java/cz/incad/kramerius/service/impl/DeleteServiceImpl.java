@@ -19,11 +19,15 @@ public class DeleteServiceImpl implements DeleteService {
     @Inject
     KConfiguration configuration;
 
+    
+    private static final String INFO = "info:fedora/";
+    
     @Override
     public void deleteTree(String pid, String message) {
         Set<String> pids = fedoraAccess.getPids(pid);
         for (String s : pids) {
-            fedoraAccess.getAPIM().purgeObject(s, message, false);
+        	String p = s.replace(INFO, "");
+            fedoraAccess.getAPIM().purgeObject(p, message, false);
         }
     }
     
@@ -33,7 +37,7 @@ public class DeleteServiceImpl implements DeleteService {
     public static void main(String[] args){
         DeleteServiceImpl inst = new DeleteServiceImpl();
         inst.fedoraAccess = new FedoraAccessImpl(null);
-        inst.deleteTree("uuid:pokus", null);
+        inst.deleteTree("uuid:0eaa6730-9068-11dd-97de-000d606f5dc6", null);
     }
 
 }

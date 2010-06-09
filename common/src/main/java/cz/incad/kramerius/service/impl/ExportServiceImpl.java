@@ -26,12 +26,15 @@ public class ExportServiceImpl implements ExportService {
     FedoraAccess fedoraAccess;
     @Inject
     KConfiguration configuration;
+    
+    private static final String INFO = "info:fedora/";
 
     @Override
     public void exportTree(String pid) {
         Set<String> pids = fedoraAccess.getPids(pid);
         for (String s : pids) {
-            store(s, fedoraAccess.getAPIM().export(s, "info:fedora/fedora-system:FOXML-1.1", "archive"));
+        	String p = s.replace(INFO, "");
+            store(p, fedoraAccess.getAPIM().export(p, "info:fedora/fedora-system:FOXML-1.1", "archive"));
         }
     }
 
@@ -64,6 +67,6 @@ public class ExportServiceImpl implements ExportService {
         ExportServiceImpl inst = new ExportServiceImpl();
         inst.fedoraAccess = new FedoraAccessImpl(null);
         inst.configuration = KConfiguration.getKConfiguration();
-        inst.exportTree("uuid:12ce3f07-e642-11de-a504-001143e3f55c");
+        inst.exportTree("uuid:0eaa6730-9068-11dd-97de-000d606f5dc6");
     }
 }
