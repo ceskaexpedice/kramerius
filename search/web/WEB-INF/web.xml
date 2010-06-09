@@ -77,6 +77,12 @@
 		<servlet-class>cz.incad.Kramerius.MimeTypeServlet</servlet-class>
 	</servlet>
 
+	<!-- handle servlet -->
+	<servlet>
+		<servlet-name>handle</servlet-name>
+		<servlet-class>cz.incad.Kramerius.HandleServlet</servlet-class>
+	</servlet>
+
 	<!-- 
 		// Mapovani servletu
 	 -->
@@ -142,6 +148,11 @@
 	<servlet-mapping>
 		<servlet-name>mimetype</servlet-name>
 		<url-pattern>/mimetype</url-pattern>
+	</servlet-mapping>
+
+	<servlet-mapping>
+		<servlet-name>handle</servlet-name>
+		<url-pattern>/handle/*</url-pattern>
 	</servlet-mapping>
 
     <security-role>
