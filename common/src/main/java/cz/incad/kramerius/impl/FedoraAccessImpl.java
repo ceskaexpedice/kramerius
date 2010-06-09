@@ -153,7 +153,8 @@ public class FedoraAccessImpl implements FedoraAccess {
 		}	
 	}
 
-	void processRelsExtInternal(Element topElem, RelsExtHandler handler, int level) throws IOException, LexerException{
+	boolean processRelsExtInternal(Element topElem, RelsExtHandler handler, int level) throws IOException, LexerException{
+		boolean breakProcess = false;
 		String namespaceURI = topElem.getNamespaceURI();
 		if (namespaceURI.equals(FedoraNamespaces.ONTOLOGY_RELATIONSHIP_NAMESPACE_URI)) {
 			String nodeName = topElem.getLocalName();
@@ -161,6 +162,8 @@ public class FedoraAccessImpl implements FedoraAccess {
 			if (relation != null) {
 				if (handler.accept(relation)) {
 					handler.handle(topElem, relation, level);
+					if (handler.breakProcess()) return true;
+
 					// deep
 					String attVal = topElem.getAttributeNS(FedoraNamespaces.RDF_NAMESPACE_URI, "resource");
 					PIDParser pidParser = new PIDParser(attVal);
@@ -168,16 +171,22 @@ public class FedoraAccessImpl implements FedoraAccess {
 					String objectId = pidParser.getObjectId();
 					//LOGGER.info("processing uuid =" +objectId);
 					Document relsExt = getRelsExt(objectId);
-					processRelsExtInternal(relsExt.getDocumentElement(), handler, level+1);
+					breakProcess = processRelsExtInternal(relsExt.getDocumentElement(), handler, level+1);
 				}
 			} else {
 				LOGGER.severe("Unsupported type of relation '"+nodeName+"'");
+			}
+			
+			if (breakProcess) {
+				LOGGER.info("Process has been borken");
+				return breakProcess;
 			}
 			NodeList childNodes = topElem.getChildNodes();
 			for (int i = 0,ll=childNodes.getLength(); i < ll; i++) {
 				Node item = childNodes.item(i);
 				if (item.getNodeType() == Node.ELEMENT_NODE) {
-					processRelsExtInternal((Element) item, handler, level);
+					breakProcess = processRelsExtInternal((Element) item, handler, level);
+					if (breakProcess) break;
 				}
 			}
 		} else if (namespaceURI.equals(FedoraNamespaces.RDF_NAMESPACE_URI)) {
@@ -185,10 +194,12 @@ public class FedoraAccessImpl implements FedoraAccess {
 			for (int i = 0,ll=childNodes.getLength(); i < ll; i++) {
 				Node item = childNodes.item(i);
 				if (item.getNodeType() == Node.ELEMENT_NODE) {
-					processRelsExtInternal((Element) item, handler, level);
+					breakProcess = processRelsExtInternal((Element) item, handler, level);
+					if (breakProcess) break;
 				}
 			}
 		}
+		return breakProcess;
 		
 	}
 	
