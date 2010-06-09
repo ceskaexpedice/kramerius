@@ -371,6 +371,12 @@ public class GeneratePDFServiceImpl implements GeneratePDFService {
 					}
 				}
 			}
+
+			@Override
+			public boolean breakProcess() {
+				// TODO Auto-generated method stub
+				return false;
+			}
 		});
 	}
 	
@@ -444,6 +450,12 @@ public class GeneratePDFServiceImpl implements GeneratePDFService {
 				@Override
 				public boolean accept(FedoraRelationship relation) {
 					return relation.name().startsWith("has");
+				}
+
+
+				@Override
+				public boolean breakProcess() {
+					return false;
 				}
 			});
 	}
