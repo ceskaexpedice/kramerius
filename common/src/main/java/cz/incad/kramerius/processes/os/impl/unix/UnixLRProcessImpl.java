@@ -9,6 +9,7 @@ import java.io.StringReader;
 import java.lang.management.ManagementFactory;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -80,6 +81,7 @@ public class UnixLRProcessImpl extends AbstractLRProcessImpl {
 					if (!firstLine) firstLine = true;
 					else {
 						String[] array = line.split(" ");
+						LOGGER.info("ps data == "+Arrays.asList(array));
 						data.add(array);
 					}
 				}
@@ -110,6 +112,7 @@ public class UnixLRProcessImpl extends AbstractLRProcessImpl {
 	public static void main(String[] args) throws IOException, InterruptedException {
 		test();
 	}
+	
 	private static void test() throws IOException, InterruptedException {
 //		List<String> command = new ArrayList<String>();
 //		command.add("ps");
