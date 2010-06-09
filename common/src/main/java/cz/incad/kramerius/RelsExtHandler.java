@@ -27,4 +27,6 @@ public interface RelsExtHandler {
 	 * @param relation Type of relation
 	 */
 	public void handle(Element elm, FedoraRelationship relation, int level);
+
+	public boolean breakProcess();
 }

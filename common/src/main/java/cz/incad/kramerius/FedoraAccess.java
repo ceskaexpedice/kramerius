@@ -111,6 +111,7 @@ public interface FedoraAccess {
 	public InputStream getThumbnail(String uuid) throws IOException;
 
 	Document getThumbnailProfile(String uuid) throws IOException;
+
 	public String getThumbnailMimeType(String uuid) throws IOException, XPathExpressionException;
 
 	/**
@@ -131,6 +132,5 @@ public interface FedoraAccess {
 	
 	public void processSubtree(String pid, TreeNodeProcessor processor);
 	public Set<String> getPids(String pid);
-	
 	
 }
