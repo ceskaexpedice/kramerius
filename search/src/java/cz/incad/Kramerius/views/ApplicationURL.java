@@ -18,7 +18,8 @@ public class ApplicationURL {
 	public static String applicationURL(HttpServletRequest request) {
 		//"dvju"
 		try {
-			URL url = new URL(request.getRequestURL().toString());
+			String string = request.getRequestURL().toString();
+			URL url = new URL(string);
 			String path = url.getPath();
 			String application = path;
 			StringTokenizer tokenizer = new StringTokenizer(path,"/");
@@ -35,7 +36,7 @@ public class ApplicationURL {
 	public static String urlOfPath(HttpServletRequest request,  String path) {
 		KConfiguration conf = KConfiguration.getKConfiguration();
 		if ((conf.getApplicationURL() != null) && (!conf.getApplicationURL().equals(""))) {
-			return conf.getApplicationURL() +"lr";
+			return conf.getApplicationURL() +path;
 		} else {
 			return applicationURL(request)+"/"+path;
 		}
