@@ -23,6 +23,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.ResourceBundle;
 import java.util.logging.Level;
 
 import javax.xml.transform.Transformer;
@@ -72,6 +73,7 @@ import cz.incad.kramerius.pdf.pdfpages.ImagePage;
 import cz.incad.kramerius.pdf.pdfpages.OutlineItem;
 import cz.incad.kramerius.pdf.pdfpages.RenderedDocument;
 import cz.incad.kramerius.pdf.pdfpages.TextPage;
+import cz.incad.kramerius.service.ResourceBundleService;
 import cz.incad.kramerius.service.TextsService;
 import cz.incad.kramerius.utils.BiblioModsUtils;
 import cz.incad.kramerius.utils.DCUtils;
@@ -107,15 +109,17 @@ public class GeneratePDFServiceImpl implements GeneratePDFService {
 	private KConfiguration configuration;
 	private Provider<Locale> localeProvider;
 	private TextsService textsService;
+	private ResourceBundleService resourceBundleService;
 	
 	@Inject
-	public GeneratePDFServiceImpl(@Named("securedFedoraAccess") FedoraAccess fedoraAccess, KConfiguration configuration, Provider<Locale> localeProvider, TextsService textsService) {
+	public GeneratePDFServiceImpl(@Named("securedFedoraAccess") FedoraAccess fedoraAccess, KConfiguration configuration, Provider<Locale> localeProvider, TextsService textsService, ResourceBundleService resourceBundleService) {
 		super();
 		this.fedoraAccess = fedoraAccess;
 		this.configuration = configuration;
 		this.localeProvider = localeProvider;
 		this.textsService = textsService;
 		this.configuration = configuration;
+		this.resourceBundleService = resourceBundleService;
 		try {
 			this.init();
 		} catch (IOException e) {
@@ -482,17 +486,33 @@ public class GeneratePDFServiceImpl implements GeneratePDFService {
 			if (pageNumber.trim().equals("")) {
 				throw new IllegalStateException(objectId);
 			}
-			page.setOutlineTitle(pageNumber);
+			page.setPageNumber(pageNumber);
 			//renderedDocument.addPage(page);
-			
-			if (renderedDocument.getUuidTitlePage() == null) {
-				Element part = XMLUtils.findElement(biblioMods.getDocumentElement(), "part", FedoraNamespaces.BIBILO_MODS_URI);
-				String attribute = part.getAttribute("type");
-				if ("TitlePage".equals(attribute)) {
-					renderedDocument.setUuidTitlePage(objectId);
+			Element part = XMLUtils.findElement(biblioMods.getDocumentElement(), "part", FedoraNamespaces.BIBILO_MODS_URI);
+			String attribute = part.getAttribute("type");
+			if (attribute != null) {
+				ResourceBundle resourceBundle = resourceBundleService.getResourceBundle("base", localeProvider.get());
+				String key = "pdf."+attribute;
+				if (resourceBundle.containsKey(key)) {
+					page.setOutlineTitle(page.getPageNumber()+" "+resourceBundle.getString(key));
 				}
 			}
-			
+			if ((renderedDocument.getUuidTitlePage() == null) && ("TitlePage".equals(attribute))) {
+				renderedDocument.setUuidTitlePage(objectId);
+			}
+
+			if ((renderedDocument.getUuidFrontCover() == null) && ("FrontCover".equals(attribute))) {
+				renderedDocument.setUuidFrontCover(objectId);
+			}
+
+			if ((renderedDocument.getUuidBackCover() == null) && ("BackCover".equals(attribute))) {
+				renderedDocument.setUuidBackCover(objectId);
+			}
+
+			if (renderedDocument.getFirstPage() == null)  {
+				renderedDocument.setFirstPage(objectId);
+			}
+
 		} else {
 			page = new TextPage(relation.getPointingModel(), objectId);
 			page.setOutlineDestination(objectId);
@@ -560,7 +580,7 @@ public class GeneratePDFServiceImpl implements GeneratePDFService {
 			pdfPTable.getDefaultCell().setBorderWidth(15f);
 
 			
-			insertTitleImage(pdfPTable, titlePageUuid, djvuUrl);
+			insertTitleImage(pdfPTable,model, djvuUrl);
 			pdfPTable.addCell(insertTitleAndAuthors(model));
 			
 			final float[] mheights = new float[2];
@@ -680,11 +700,11 @@ public class GeneratePDFServiceImpl implements GeneratePDFService {
 	}
 
 	public void insertOutlinedImagePage(ImagePage page, PdfWriter pdfWriter, Document document, String djvuUrl) throws XPathExpressionException, IOException, DocumentException {
-		String title = page.getOutlineTitle();
+		String pageNumber = page.getPageNumber();
 		insertImage(page.getUuid(), pdfWriter, document, 0.7f,djvuUrl);
 		
 		Font font = getFont();
-		Chunk chunk = new Chunk(title);
+		Chunk chunk = new Chunk(pageNumber);
 		chunk.setLocalDestination(page.getOutlineDestination());
 		float fontSize = chunk.getFont().getCalculatedSize();
 		float chwidth = chunk.getWidthPoint();
@@ -698,7 +718,7 @@ public class GeneratePDFServiceImpl implements GeneratePDFService {
 		pdfWriter.setOpenAction(page.getOutlineDestination());
 		
 		cb.setFontAndSize(font.getBaseFont(), 14f);
-		cb.showTextAligned(com.lowagie.text.Element.ALIGN_LEFT, title,choffsetx, choffsety + 10, 0);
+		cb.showTextAligned(com.lowagie.text.Element.ALIGN_LEFT, pageNumber,choffsetx, choffsety + 10, 0);
 		cb.endText();
 		cb.restoreState();
 	}
@@ -713,11 +733,23 @@ public class GeneratePDFServiceImpl implements GeneratePDFService {
 //		insertImage(uuid, pdfWriter, document, 1.0f);
 //	}
 	
-	public void insertTitleImage(PdfPTable pdfPTable, String uuid, String djvuUrl) throws IOException, BadElementException, XPathExpressionException {
-		String imgUrl = createIMGFULL(uuid, djvuUrl);
+	public void insertTitleImage(PdfPTable pdfPTable, AbstractRenderedDocument model, String djvuUrl) throws IOException, BadElementException, XPathExpressionException {
+		String imgUrl = createIMGFULL(model.getUuidTitlePage(), djvuUrl);
 		try {
-			if (fedoraAccess.isImageFULLAvailable(uuid)) {
-				String mimetypeString = fedoraAccess.getImageFULLMimeType(uuid);
+			String uuidToFirstPage = null;
+			if (fedoraAccess.isImageFULLAvailable(model.getUuidTitlePage())) {
+				uuidToFirstPage = model.getUuidTitlePage();
+			}
+			if ((uuidToFirstPage == null) && (fedoraAccess.isImageFULLAvailable(model.getUuidFrontCover()))) {
+				uuidToFirstPage = model.getUuidFrontCover();
+				
+			}
+			if ((uuidToFirstPage == null) && (fedoraAccess.isImageFULLAvailable(model.getFirstPage()))) {
+				uuidToFirstPage = model.getFirstPage();
+				
+			}
+			if (uuidToFirstPage != null) {
+				String mimetypeString = fedoraAccess.getImageFULLMimeType(uuidToFirstPage);
 				ImageMimeType mimetype = ImageMimeType.loadFromMimeType(mimetypeString);
 				if (mimetype != null) {
 					float smallImage = 0.2f;
