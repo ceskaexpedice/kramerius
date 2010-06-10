@@ -6,6 +6,7 @@ public abstract class AbstractPage extends AbstractObject {
 
 	
 	private String outlineTitle;
+	private String pageNumber;
 	private String outlineDestination;
 	
 	public AbstractPage(KrameriusModels model, String uuid) {
@@ -35,6 +36,14 @@ public abstract class AbstractPage extends AbstractObject {
 	public void debugInformations(StringBuffer buffer, int level) {
 		for (int i = 0; i < level; i++) { buffer.append(' '); }
 		buffer.append(this.outlineTitle.trim()).append("["+this.model+"]").append('\n');
+	}
+
+	public String getPageNumber() {
+		return pageNumber;
+	}
+
+	public void setPageNumber(String pageNumber) {
+		this.pageNumber = pageNumber;
 	}
 
 	

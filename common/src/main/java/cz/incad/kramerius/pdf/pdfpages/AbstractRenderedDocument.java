@@ -9,6 +9,9 @@ import cz.incad.kramerius.KrameriusModels;
 public abstract class AbstractRenderedDocument extends AbstractObject {
 
 	private String uuidTitlePage;
+	private String uuidFrontCover;
+	private String uuidBackCover;
+	private String firstPage; 
 	private String uuidMainTitle;
 	
 	protected OutlineItem outlineItemRoot;
@@ -140,5 +143,30 @@ public abstract class AbstractRenderedDocument extends AbstractObject {
 		COPY_TO_RIGHT;	
 	}
 
+	public String getUuidFrontCover() {
+		return uuidFrontCover;
+	}
+
+	public void setUuidFrontCover(String uuidFrontCover) {
+		this.uuidFrontCover = uuidFrontCover;
+	}
+
+	public String getUuidBackCover() {
+		return uuidBackCover;
+	}
+
+	public void setUuidBackCover(String uuidBackCover) {
+		this.uuidBackCover = uuidBackCover;
+	}
+
+	public String getFirstPage() {
+		return firstPage;
+	}
+
+	public void setFirstPage(String firstPage) {
+		this.firstPage = firstPage;
+	}
+
+	
 	
 }
