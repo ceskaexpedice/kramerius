@@ -30,6 +30,7 @@
 
 	<xsl:template match="mods:modsCollection">
 		<xsl:apply-templates select="mods:mods/mods:titleInfo[not(@*)]"></xsl:apply-templates>
+		<xsl:call-template name="new-line"/>
 		<xsl:apply-templates select="mods:mods/mods:typeOfResource"></xsl:apply-templates>
 {line}
 		<xsl:apply-templates select="mods:mods/mods:identifier"></xsl:apply-templates>
@@ -81,10 +82,12 @@ ISBN:<xsl:text>	</xsl:text> <xsl:value-of select="text()"/>
 	  
 <xsl:value-of select="$bundle/value[@key='pdf.title']"/><xsl:text>:	</xsl:text> <xsl:value-of select="mods:title/text()"/>
 		<xsl:if test="mods:subTitle/text()!=''">
+		<xsl:call-template name="new-line"/>
 <xsl:value-of select="$bundle/value[@key='pdf.subtitle']"/><xsl:text>:	</xsl:text> <xsl:value-of select="mods:subTitle/text()"/>
 		</xsl:if>
 
 		<xsl:if test="mods:partName/text()!=''">
+		<xsl:call-template name="new-line"/>
 <xsl:value-of select="$bundle/value[@key='pdf.parttitle']"/><xsl:text>:	</xsl:text> <xsl:value-of select="mods:partName/text()"/>
 		</xsl:if>
 	</xsl:template>
@@ -93,6 +96,7 @@ ISBN:<xsl:text>	</xsl:text> <xsl:value-of select="text()"/>
 	<!--  Typ zdroje -->
 	<xsl:template name="type-of-resource" match="mods:typeOfResource">
 		<xsl:if test="text()!=''">
+		<xsl:call-template name="new-line"/>
 <xsl:value-of select="$bundle/value[@key='pdf.typeofresource']"/><xsl:text>:	</xsl:text> <xsl:value-of select="text()"/>		
 		</xsl:if>
 	</xsl:template>
