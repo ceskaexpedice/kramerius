@@ -299,6 +299,7 @@
         
         <field name="fedora.model" type="string"  indexed="true"  stored="true" />
         <field name="document_type" type="string"  indexed="true"  stored="true" />
+        <field name="handle" type="string"  indexed="true"  stored="true" />
         <field name="status" type="string"  indexed="true"  stored="true" />
         <field name="created_date" type="date"  indexed="true"  stored="true" />
         
