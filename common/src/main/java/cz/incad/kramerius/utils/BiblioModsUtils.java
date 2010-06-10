@@ -54,7 +54,8 @@ public class BiblioModsUtils {
 		if ((title == null) || (title.equals(""))) {
 			switch(model) {
 				case PERIODICALITEM: return PeriodicalItemUtils.getItemNumber(doc) + " ("+PeriodicalItemUtils.getDate(doc)+")";
-				default: throw new UnsupportedOperationException("");
+				case PERIODICALVOLUME: return PeriodicalItemUtils.getItemNumber(doc) + " ("+PeriodicalItemUtils.getDate(doc)+")";
+				default: throw new UnsupportedOperationException("'"+model+"'");
 			}
 		} else return title;
 	}

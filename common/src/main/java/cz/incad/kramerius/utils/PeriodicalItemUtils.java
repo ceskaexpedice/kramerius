@@ -17,7 +17,6 @@ public class PeriodicalItemUtils {
 	
 	public static final java.util.logging.Logger LOGGER = java.util.logging.Logger
 			.getLogger(PeriodicalItemUtils.class.getName());
-
 	
 	public static String getDate(Document doc) {
 		try {
@@ -52,5 +51,4 @@ public class PeriodicalItemUtils {
 			return null;
 		}
 	}
-
 }
