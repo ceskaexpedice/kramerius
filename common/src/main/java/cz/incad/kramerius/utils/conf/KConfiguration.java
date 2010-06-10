@@ -25,26 +25,26 @@ public class KConfiguration {
 	public static final String CONFIGURATION = WORKING_DIR+File.separator+"configuration.properties";
 	private static KConfiguration _sharedInstance = null;
 
-	public Properties properties = new Properties();
+	private Properties propertiesLoadedFromFile = new Properties();
+	private Properties bundledProperties = new Properties();
     
+	
 	KConfiguration() {
 	    try {
-	        LOGGER.info(" Loading configuration from file '"+CONFIGURATION+"'");
-	    	File confFile = new File(CONFIGURATION);
-			if (!confFile.exists()) {
+	        LOGGER.info(" Loading configuration from jar '"+CONFIGURATION+"'");
+	        bundledProperties.load(this.getClass().getResourceAsStream("res/configuration.properties"));
+	        File confFile = new File(CONFIGURATION);
+	    	if (!confFile.exists()) {
 	    		if (confFile.createNewFile()) {
+			        LOGGER.info(" Using bundled configuration ");
+	    			propertiesLoadedFromFile.putAll(bundledProperties);
 	    			FileOutputStream fos = new FileOutputStream(confFile);
-	    			InputStream is = this.getClass().getResourceAsStream("res/configuration.properties");
-	    			try {
-						IOUtils.copyStreams(is, fos);
-					} finally {
-						if (fos != null) fos.close();
-						if (is != null) is.close();
-					}
-	    			
+	    			propertiesLoadedFromFile.store(fos, "Kramerius 4 configuration file");
 	    		} else throw new RuntimeException("cannot create conf file");
+	    	} else {
+		        LOGGER.info(" Loading configuration from file '"+CONFIGURATION+"'");
+		        this.propertiesLoadedFromFile.load(new FileInputStream(CONFIGURATION));
 	    	}
-	        this.properties.load(new FileInputStream(CONFIGURATION));
 	    } catch (Exception ex) {
 	    	ex.printStackTrace();
 	    	LOGGER.severe("Can't load configuration");
@@ -55,7 +55,7 @@ public class KConfiguration {
 	KConfiguration(Properties props) {
 	    try {
 	        LOGGER.info(" Loading configuration from properties ");
-	    	this.properties.putAll(props);
+	    	this.propertiesLoadedFromFile.putAll(props);
 	    } catch (Exception ex) {
 	    	LOGGER.severe("Can't load configuration");
 	        throw new RuntimeException(ex.toString());
@@ -102,11 +102,15 @@ public class KConfiguration {
     }
     
     public String getProperty(String key) {
-    	return this.properties.getProperty(key);
+    	if (!this.propertiesLoadedFromFile.contains(key)) {
+        	return this.bundledProperties.getProperty(key);
+    	} else {
+        	return this.propertiesLoadedFromFile.getProperty(key);
+    	}
     }
 
     public String getProperty(String key, String defaultValue) {
-        return properties.getProperty(key, defaultValue);
+        return propertiesLoadedFromFile.getProperty(key, defaultValue);
     }
     
     public synchronized static KConfiguration getKConfiguration() {
