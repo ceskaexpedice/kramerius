@@ -102,7 +102,7 @@ public class KConfiguration {
     }
     
     public String getProperty(String key) {
-    	if (!this.propertiesLoadedFromFile.contains(key)) {
+    	if (!this.propertiesLoadedFromFile.containsKey(key)) {
         	return this.bundledProperties.getProperty(key);
     	} else {
         	return this.propertiesLoadedFromFile.getProperty(key);
@@ -110,7 +110,11 @@ public class KConfiguration {
     }
 
     public String getProperty(String key, String defaultValue) {
-        return propertiesLoadedFromFile.getProperty(key, defaultValue);
+    	if (!this.propertiesLoadedFromFile.containsKey(key)) {
+        	return this.bundledProperties.getProperty(key);
+    	} else {
+            return propertiesLoadedFromFile.getProperty(key, defaultValue);
+    	}
     }
     
     public synchronized static KConfiguration getKConfiguration() {
