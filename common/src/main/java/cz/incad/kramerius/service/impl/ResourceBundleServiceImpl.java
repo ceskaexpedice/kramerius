@@ -48,7 +48,10 @@ public class ResourceBundleServiceImpl implements ResourceBundleService {
 			copyDefault();
 			
 		}
-		return ResourceBundle.getBundle(name, locale, new ResourceClassLoader(resourcesDir));
+		ResourceBundle parentBundle = ResourceBundle.getBundle(name, locale);
+		FolderResourceBundle resBundle = new FolderResourceBundle(name, locale, resourcesDir);
+		resBundle.setParentBundle(parentBundle);
+		return resBundle;
 	}
 
 
@@ -104,8 +107,32 @@ public class ResourceBundleServiceImpl implements ResourceBundleService {
 		protected Enumeration<URL> findResources(String name) throws IOException {
 			URL url = findResource(name);
 			Enumeration<URL> elements = new Vector(Arrays.asList(url)).elements();
-			return elements;
+			return elements; 
 		}
 	}
 
+	private static class FolderResourceBundle extends ResourceBundle {
+
+		private ResourceBundle childBundle;
+
+		public FolderResourceBundle(String name, Locale locale, File resourcesDir) {
+			super();
+			childBundle = ResourceBundle.getBundle(name, locale, new ResourceClassLoader(resourcesDir));
+		}
+
+		@Override
+		public Enumeration<String> getKeys() {
+			return childBundle.getKeys();
+		}
+
+		@Override
+		protected Object handleGetObject(String key) {
+			return childBundle.getString(key);
+		}
+		
+		public void setParentBundle(ResourceBundle parentBundle) {
+			super.setParent(parentBundle);
+		}
+		
+	}
 }
