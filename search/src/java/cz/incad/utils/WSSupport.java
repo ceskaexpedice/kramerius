@@ -83,7 +83,7 @@ public class WSSupport {
 	}
 	
 	public static String rawImage(KConfiguration configuration, String uuid, HttpServletRequest request) {
-		return configuration.getThumbServletUrl()+"?scaledHeight="+KConfiguration.getKConfiguration().getScaledHeight()+"&uuid="+uuid+"&rawdata=true";
+		return configuration.getThumbServletUrl()+"?scaledHeight="+KConfiguration.getInstance().getScaledHeight()+"&uuid="+uuid+"&rawdata=true";
 	}
 
 	public static String calcMD5SUM(String surl) throws IOException, NoSuchAlgorithmException {
