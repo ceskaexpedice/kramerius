@@ -35,7 +35,7 @@ public class RequestSecurityAcceptor implements SecurityAcceptor {
 		if (remoteAddr == null) {
 			remoteAddr = httpServletRequest.getRemoteAddr();
 		}
-		KConfiguration kConfiguration = KConfiguration.getKConfiguration();
+		KConfiguration kConfiguration = KConfiguration.getInstance();
 		List<String> patterns = kConfiguration.getPatterns();
 		if (patterns != null) {
 			for (String regex : patterns) {

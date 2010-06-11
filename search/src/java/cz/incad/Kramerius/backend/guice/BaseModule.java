@@ -40,7 +40,7 @@ public class BaseModule extends AbstractModule {
 		bind(FedoraAccess.class).annotatedWith(Names.named("rawFedoraAccess")).to(FedoraAccessImpl.class).in(Scopes.SINGLETON);
 		bind(FedoraAccess.class).annotatedWith(Names.named("securedFedoraAccess")).to(SecuredFedoraAccessImpl.class).in(Scopes.SINGLETON);
 		bind(GeneratePDFService.class).to(GeneratePDFServiceImpl.class);
-		bind(KConfiguration.class).toInstance(KConfiguration.getKConfiguration());
+		bind(KConfiguration.class).toInstance(KConfiguration.getInstance());
 		bind(Connection.class).toProvider(JNDIConnectionProvider.class);
 		bind(Locale.class).toProvider(LocalesProvider.class);
 
