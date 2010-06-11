@@ -10,58 +10,98 @@ import static cz.incad.kramerius.Constants.*;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
+import java.net.URL;
 import java.util.ArrayList;
+import java.util.Enumeration;
 import java.util.List;
 import java.util.Properties;
 import java.util.StringTokenizer;
+import java.util.logging.Level;
 
-import cz.incad.kramerius.utils.IOUtils;
+import org.apache.commons.configuration.CombinedConfiguration;
+import org.apache.commons.configuration.CompositeConfiguration;
+import org.apache.commons.configuration.Configuration;
+import org.apache.commons.configuration.ConfigurationException;
+import org.apache.commons.configuration.PropertiesConfiguration;
+
 
 
 public class KConfiguration {
 	
+	public static final String DEFAULT_CONF_LOCATION = "res/configuration.properties";
+	
 	public static final java.util.logging.Logger LOGGER = java.util.logging.Logger.getLogger(KConfiguration.class.getName());
 	public static final String CONFIGURATION = WORKING_DIR+File.separator+"configuration.properties";
+	
 	private static KConfiguration _sharedInstance = null;
 
-	private Properties propertiesLoadedFromFile = new Properties();
-	private Properties bundledProperties = new Properties();
+	private Configuration allConfigurations;
+
     
 	
 	KConfiguration() {
 	    try {
-	        LOGGER.info(" Loading configuration from jar '"+CONFIGURATION+"'");
-	        bundledProperties.load(this.getClass().getResourceAsStream("res/configuration.properties"));
-	        File confFile = new File(CONFIGURATION);
-	    	if (!confFile.exists()) {
-	    		if (confFile.createNewFile()) {
-			        LOGGER.info(" Using bundled configuration ");
-	    			propertiesLoadedFromFile.putAll(bundledProperties);
-	    			FileOutputStream fos = new FileOutputStream(confFile);
-	    			propertiesLoadedFromFile.store(fos, "Kramerius 4 configuration file");
-	    		} else throw new RuntimeException("cannot create conf file");
-	    	} else {
-		        LOGGER.info(" Loading configuration from file '"+CONFIGURATION+"'");
-		        this.propertiesLoadedFromFile.load(new FileInputStream(CONFIGURATION));
-	    	}
+	    	allConfigurations = findAllConfigurations();
 	    } catch (Exception ex) {
 	    	ex.printStackTrace();
 	    	LOGGER.severe("Can't load configuration");
 	        throw new RuntimeException(ex.toString());
 	    }
 	}
-	
-	KConfiguration(Properties props) {
-	    try {
-	        LOGGER.info(" Loading configuration from properties ");
-	    	this.propertiesLoadedFromFile.putAll(props);
-	    } catch (Exception ex) {
-	    	LOGGER.severe("Can't load configuration");
-	        throw new RuntimeException(ex.toString());
-	    }
+
+	private Configuration findAllConfigurations() throws IOException {
+		CompositeConfiguration allConfiguration = new CompositeConfiguration();
+		try {
+			Enumeration<URL> resources = this.getClass().getClassLoader().getResources("res/configuration.properties");
+			while(resources.hasMoreElements()) {
+				URL nextElement = resources.nextElement();
+				String name = disectName(nextElement.getFile());
+				if (name != null) {
+					String path = WORKING_DIR+File.separator+name+".properties";
+					File confFile = new File(path);
+					if (!confFile.exists()) {
+						confFile.createNewFile();
+						new Properties().store(new FileOutputStream(confFile), "configuration file for module '"+name+"'");
+					}
+					CompositeConfiguration constconf = new CompositeConfiguration();
+					PropertiesConfiguration bundled = new PropertiesConfiguration(nextElement);
+					PropertiesConfiguration file = new PropertiesConfiguration(confFile);
+					constconf.addConfiguration(file);
+					constconf.addConfiguration(bundled);
+					allConfiguration.addConfiguration(constconf);
+				} else {
+					LOGGER.severe("ommiting '"+nextElement.getFile()+"'");
+				}
+			}
+			return allConfiguration;
+		} catch (ConfigurationException e) {
+			LOGGER.log(Level.SEVERE, e.getMessage(), e);
+			return null;
+		}
+
 	}
-    
+	
+	public String disectName(String path) {
+		if (path.contains("!")) {
+			String subString = path.substring(0,path.indexOf('!'));
+			String[] pathElms = subString.split("/");
+			if (pathElms.length > 0) {
+				String fileName = pathElms[pathElms.length-1];
+				if (fileName.toLowerCase().endsWith(".jar")) {
+					return fileName.substring(0, fileName.length()-".jar".length());
+				} else {
+					return fileName;
+				}
+			}
+			else throw new IllegalArgumentException("cannot disect name from '"+path+"'");
+		} else {
+			// ?? 
+			return null;
+		}
+	}
+	
     public String getFedoraHost(){
         return getProperty("fedoraHost");
     }
@@ -102,19 +142,15 @@ public class KConfiguration {
     }
     
     public String getProperty(String key) {
-    	if (!this.propertiesLoadedFromFile.containsKey(key)) {
-        	return this.bundledProperties.getProperty(key);
-    	} else {
-        	return this.propertiesLoadedFromFile.getProperty(key);
-    	}
+    	return allConfigurations.getString(key);
     }
 
     public String getProperty(String key, String defaultValue) {
-    	if (!this.propertiesLoadedFromFile.containsKey(key)) {
-        	return this.bundledProperties.getProperty(key);
-    	} else {
-            return propertiesLoadedFromFile.getProperty(key, defaultValue);
-    	}
+    	return allConfigurations.getString(key, defaultValue);
+    }
+    
+    public Configuration getConfiguration() {
+    	return this.allConfigurations;
     }
     
     public synchronized static KConfiguration getKConfiguration() {
@@ -124,14 +160,6 @@ public class KConfiguration {
     	return _sharedInstance;
     }
 
-    
-    public synchronized static KConfiguration getKConfiguration(Properties properties) {
-    	if (_sharedInstance == null) {
-    		_sharedInstance = new KConfiguration(properties);
-    	}
-    	return _sharedInstance;
-    }
-    
 	public String getLongRunningProcessDefiniton() {
     	return getProperty("longRunningProcessDefinition");
 	}
@@ -158,6 +186,17 @@ public class KConfiguration {
 			}
 		}
 		return retval;
+	}
+	
+	public static void main(String[] args) throws IOException {
+		KConfiguration kconf = KConfiguration.getKConfiguration();
+		Configuration conf = kconf.findAllConfigurations();
+		System.out.println(conf);
+		System.out.println(conf.getString("exportConf"));
+		
+		System.out.println(conf.getString("_fedoraTomcatHost"));
+		System.out.println(conf.getString("indexerHost"));
+		
 	}
 }
 
