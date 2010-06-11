@@ -31,8 +31,8 @@ public class FedoraUtils {
         ArrayList<String> pids = new ArrayList<String>();
         try {
             
-            String command = KConfiguration.getKConfiguration().getFedoraHost() + "/get/" + pid + "/RELS-EXT";
-            InputStream is = RESTHelper.inputStream(command, KConfiguration.getKConfiguration().getFedoraUser(), KConfiguration.getKConfiguration().getFedoraPass());
+            String command = KConfiguration.getInstance().getFedoraHost() + "/get/" + pid + "/RELS-EXT";
+            InputStream is = RESTHelper.inputStream(command, KConfiguration.getInstance().getFedoraUser(), KConfiguration.getInstance().getFedoraPass());
             Document contentDom = XMLUtils.parseDocument(is);
             XPathFactory factory = XPathFactory.newInstance();
             XPath xpath = factory.newXPath();
@@ -57,8 +57,8 @@ public class FedoraUtils {
         
         String pid= pids.get(pids.size()-1);
         try {
-            String command = KConfiguration.getKConfiguration().getFedoraHost() + "/get/uuid:" + pid + "/RELS-EXT";
-            InputStream is = RESTHelper.inputStream(command, KConfiguration.getKConfiguration().getFedoraUser(), KConfiguration.getKConfiguration().getFedoraPass());
+            String command = KConfiguration.getInstance().getFedoraHost() + "/get/uuid:" + pid + "/RELS-EXT";
+            InputStream is = RESTHelper.inputStream(command, KConfiguration.getInstance().getFedoraUser(), KConfiguration.getInstance().getFedoraPass());
             Document contentDom = XMLUtils.parseDocument(is);
             XPathFactory factory = XPathFactory.newInstance();
             XPath xpath = factory.newXPath();
@@ -88,8 +88,8 @@ public class FedoraUtils {
 
         ArrayList<String> pids = new ArrayList<String>();
         try {
-            String command = KConfiguration.getKConfiguration().getFedoraHost() + "/get/" + pid + "/RELS-EXT";
-            InputStream is = RESTHelper.inputStream(command, KConfiguration.getKConfiguration().getFedoraUser(), KConfiguration.getKConfiguration().getFedoraPass());
+            String command = KConfiguration.getInstance().getFedoraHost() + "/get/" + pid + "/RELS-EXT";
+            InputStream is = RESTHelper.inputStream(command, KConfiguration.getInstance().getFedoraUser(), KConfiguration.getInstance().getFedoraPass());
             Document contentDom = XMLUtils.parseDocument(is);
             XPathFactory factory = XPathFactory.newInstance();
             XPath xpath = factory.newXPath();
