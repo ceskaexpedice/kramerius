@@ -13,6 +13,7 @@ import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
 import javax.xml.bind.Unmarshaller;
 
+import org.apache.commons.configuration.Configuration;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 
@@ -21,10 +22,11 @@ import com.qbizm.kramerius.imp.jaxb.Monograph;
 import com.qbizm.kramerius.imp.jaxb.periodical.Periodical;
 import com.qbizm.kramerius.imptool.poc.convertor.MonographConvertor;
 import com.qbizm.kramerius.imptool.poc.convertor.PeriodicalConvertor;
-import com.qbizm.kramerius.imptool.poc.utils.ConfigurationUtils;
 import com.qbizm.kramerius.imptool.poc.valueobj.ConvertorConfig;
 import com.qbizm.kramerius.imptool.poc.valueobj.ServiceException;
 import com.sun.xml.internal.bind.marshaller.NamespacePrefixMapper;
+
+import cz.incad.kramerius.utils.conf.KConfiguration;
 
 
 /**
@@ -52,7 +54,7 @@ public class Main {
 
         String importRoot = null;
         if (args.length == 2){
-            importRoot = ConfigurationUtils.getInstance().getProperty("migration.directory");
+            importRoot = KConfiguration.getInstance().getConfiguration().getString("migration.directory");
         } else{
             importRoot = args[2];
         }
@@ -112,10 +114,11 @@ public class Main {
     // "jdbc:postgresql://localhost:5432/kramerius", "kramerius", "f8TasR"
     private static void initDB() {
         try {
-            Class.forName(ConfigurationUtils.getInstance().getProperty("k3.db.driver"));
-            String url = ConfigurationUtils.getInstance().getProperty("k3.db.url");
-            String user = ConfigurationUtils.getInstance().getProperty("k3.db.user");
-            String pwd = ConfigurationUtils.getInstance().getProperty("k3.db.password");
+        	Configuration configuration = KConfiguration.getInstance().getConfiguration();
+            Class.forName(configuration.getString("k3.db.driver"));
+            String url = configuration.getString("k3.db.url");
+            String user = configuration.getString("k3.db.user");
+            String pwd = configuration.getString("k3.db.password");
             conn = DriverManager.getConnection(url, user, pwd);
             conn.setAutoCommit(true);
             log.info("Database initialized.");
@@ -173,7 +176,7 @@ public class Main {
                 config.setDefaultVisibility(defaultVisibility);
                 int l=5; 
                 try{
-                    l=Integer.parseInt(ConfigurationUtils.getInstance().getProperty("contractNo.length"));
+                    l=KConfiguration.getInstance().getConfiguration().getInt("contractNo.length");
                 }catch(NumberFormatException ex){
                     log.error("Cannot parse property contractNo.length", ex);
                 }
