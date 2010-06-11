@@ -25,6 +25,8 @@ import org.apache.commons.configuration.CompositeConfiguration;
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.PropertiesConfiguration;
+import org.apache.commons.configuration.reloading.FileChangedReloadingStrategy;
+
 
 
 
@@ -59,15 +61,22 @@ public class KConfiguration {
 				URL nextElement = resources.nextElement();
 				String name = disectName(nextElement.getFile());
 				if (name != null) {
-					String path = WORKING_DIR+File.separator+name+".properties";
+					String moduleName = name;
+					PropertiesConfiguration bundled = new PropertiesConfiguration(nextElement);
+					if (bundled.containsKey("_ext_configuration_file_name")) {
+						LOGGER.info("Replacing configuration file name from '"+name+"' to '"+bundled.getString("_ext_configuration_file_name")+"'");
+						name = bundled.getString("_ext_configuration_file_name");
+					}
+					String path = WORKING_DIR+File.separator+(name.toLowerCase().endsWith("properties") ? name : name+".properties") ;
 					File confFile = new File(path);
 					if (!confFile.exists()) {
 						confFile.createNewFile();
-						new Properties().store(new FileOutputStream(confFile), "configuration file for module '"+name+"'");
+						new Properties().store(new FileOutputStream(confFile), "configuration file for module '"+moduleName+"'");
 					}
+					//_ext_configuration_file_name
 					CompositeConfiguration constconf = new CompositeConfiguration();
-					PropertiesConfiguration bundled = new PropertiesConfiguration(nextElement);
 					PropertiesConfiguration file = new PropertiesConfiguration(confFile);
+					file.setReloadingStrategy(new FileChangedReloadingStrategy());
 					constconf.addConfiguration(file);
 					constconf.addConfiguration(bundled);
 					allConfiguration.addConfiguration(constconf);
@@ -153,7 +162,7 @@ public class KConfiguration {
     	return this.allConfigurations;
     }
     
-    public synchronized static KConfiguration getKConfiguration() {
+    public synchronized static KConfiguration getInstance() {
     	if (_sharedInstance == null) {
     		_sharedInstance = new KConfiguration();
     	}
@@ -189,7 +198,7 @@ public class KConfiguration {
 	}
 	
 	public static void main(String[] args) throws IOException {
-		KConfiguration kconf = KConfiguration.getKConfiguration();
+		KConfiguration kconf = KConfiguration.getInstance();
 		Configuration conf = kconf.findAllConfigurations();
 		System.out.println(conf);
 		System.out.println(conf.getString("exportConf"));
