@@ -3,7 +3,6 @@ package org.kramerius;
 import java.util.logging.Logger;
 
 import com.qbizm.kramerius.imptool.poc.Main;
-import com.qbizm.kramerius.imptool.poc.utils.ConfigurationUtils;
 
 public class Replicate {
 

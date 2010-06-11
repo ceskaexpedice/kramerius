@@ -8,7 +8,8 @@ import java.sql.ResultSet;
 import java.sql.Statement;
 import java.util.logging.Logger;
 
-import com.qbizm.kramerius.imptool.poc.utils.ConfigurationUtils;
+import cz.incad.kramerius.utils.conf.KConfiguration;
+
 
 public class ReplicationRights {
 
@@ -28,7 +29,7 @@ public class ReplicationRights {
     public void setRights(){
         initDB();
         try {
-            String sigla = ConfigurationUtils.getInstance().getProperty("k3.replication.sigla");
+            String sigla = KConfiguration.getInstance().getProperty("k3.replication.sigla");
             Statement st = conn.createStatement();
             ResultSet rs = st.executeQuery("select id from institution where sigla = \'"+sigla+"\'");
             if (rs.next()) {
@@ -49,10 +50,10 @@ public class ReplicationRights {
 
     private void initDB() {
         try {
-            Class.forName(ConfigurationUtils.getInstance().getProperty("k3.db.driver"));
-            String url = ConfigurationUtils.getInstance().getProperty("k3.db.url");
-            String user = ConfigurationUtils.getInstance().getProperty("k3.db.user");
-            String pwd = ConfigurationUtils.getInstance().getProperty("k3.db.password");
+            Class.forName(KConfiguration.getInstance().getProperty("k3.db.driver"));
+            String url = KConfiguration.getInstance().getProperty("k3.db.url");
+            String user = KConfiguration.getInstance().getProperty("k3.db.user");
+            String pwd = KConfiguration.getInstance().getProperty("k3.db.password");
             conn = DriverManager.getConnection(url, user, pwd);
             conn.setAutoCommit(true);
             log.info("Database initialized.");

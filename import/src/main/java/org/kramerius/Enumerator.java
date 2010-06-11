@@ -13,7 +13,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Logger;
 
-import com.qbizm.kramerius.imptool.poc.utils.ConfigurationUtils;
+
+import cz.incad.kramerius.utils.conf.KConfiguration;
 
 public class Enumerator {
     
@@ -33,7 +34,7 @@ public class Enumerator {
         try {
             Statement st = conn.createStatement();
             ResultSet rs = st.executeQuery("select id from m_monograph where visible = true order by id");
-            Writer wr = new FileWriter(ConfigurationUtils.getInstance().getProperty("migration.monographs"));
+            Writer wr = new FileWriter(KConfiguration.getInstance().getProperty("migration.monographs"));
             while (rs.next()) {
                 int id = rs.getInt(1);
                 wr.append(Integer.toString(id));
@@ -52,7 +53,7 @@ public class Enumerator {
         try {
             Statement st = conn.createStatement();
             ResultSet rs = st.executeQuery("select issn from p_periodical where visible = true order by issn");
-            Writer wr = new FileWriter(ConfigurationUtils.getInstance().getProperty("migration.periodicals"));
+            Writer wr = new FileWriter(KConfiguration.getInstance().getProperty("migration.periodicals"));
             while (rs.next()) {
                 String issn = rs.getString(1);
                 List<String> volumes = getVolumeList(issn);
@@ -72,10 +73,10 @@ public class Enumerator {
     // "jdbc:postgresql://localhost:5432/kramerius", "kramerius", "f8TasR"
     private void initDB() {
         try {
-            Class.forName(ConfigurationUtils.getInstance().getProperty("k3.db.driver"));
-            String url = ConfigurationUtils.getInstance().getProperty("k3.db.url");
-            String user = ConfigurationUtils.getInstance().getProperty("k3.db.user");
-            String pwd = ConfigurationUtils.getInstance().getProperty("k3.db.password");
+            Class.forName(KConfiguration.getInstance().getProperty("k3.db.driver"));
+            String url = KConfiguration.getInstance().getProperty("k3.db.url");
+            String user = KConfiguration.getInstance().getProperty("k3.db.user");
+            String pwd = KConfiguration.getInstance().getProperty("k3.db.password");
             conn = DriverManager.getConnection(url, user, pwd);
             conn.setAutoCommit(true);
             log.info("Database initialized.");
