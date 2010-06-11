@@ -10,6 +10,8 @@ import org.safehaus.uuid.UUIDGenerator;
 
 import com.qbizm.kramerius.imptool.poc.valueobj.ServiceException;
 
+import cz.incad.kramerius.utils.conf.KConfiguration;
+
 /**
  * Class for working with uuid
  * <p>
@@ -42,7 +44,7 @@ public class UUIDManager {
   private static EthernetAddress ea = null;
 
   static {
-    String macAddress = ConfigurationUtils.getInstance().getProperty("uuid.mac");
+    String macAddress = KConfiguration.getInstance().getConfiguration().getString("uuid.mac");
     macAddress = macAddress.replaceAll("-", ":"); // pro jistotu
     if (StringUtils.isEmpty(macAddress)) {
       log.error("MAC address not set!");
