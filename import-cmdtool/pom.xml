@@ -118,7 +118,20 @@
 	</dependencies>
 
 	<build>
+	<!--
+ 	<sourceDirectory>${basedir}/src/main/java</sourceDirectory>
+	-->
+		<resources>
+			<resource>
+				<directory>${basedir}/src/main/java</directory>
+				<includes>
+					<include>**/*.pr*</include>
+				</includes>
+			</resource>
+		</resources>
+
 		<plugins>
+
 
 			<plugin>
 				<artifactId>maven-compiler-plugin</artifactId>
@@ -131,6 +144,7 @@
 				</configuration>
 			</plugin>
 
+			<!-- 
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-jar-plugin</artifactId>
@@ -143,6 +157,7 @@
 					</archive>
 				</configuration>
 			</plugin>
+
 			<plugin>
 				<artifactId>maven-assembly-plugin</artifactId>
 				<configuration>
@@ -157,14 +172,15 @@
 				</configuration>
 				<executions>
 					<execution>
-						<id>make-assembly</id><!-- this is used for inheritance merges -->
-						<phase>package</phase><!-- append to the packaging phase. -->
+						<id>make-assembly</id>
+						<phase>package</phase>
 						<goals>
-							<goal>attached</goal><!-- goals == mojos -->
+							<goal>attached</goal>
 						</goals>
 					</execution>
 				</executions>
 			</plugin>
+			 -->
 
 		</plugins>
 
