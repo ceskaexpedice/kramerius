@@ -140,7 +140,7 @@ public class PolicyServiceImpl implements PolicyService {
     public static void main(String[] args) {
         PolicyServiceImpl inst = new PolicyServiceImpl();
         inst.fedoraAccess = new FedoraAccessImpl(null);
-        inst.configuration = KConfiguration.getKConfiguration();
+        inst.configuration = KConfiguration.getInstance();
         inst.setPolicy("uuid:0eaa6730-9068-11dd-97de-000d606f5dc6", "public");
     }
 }
