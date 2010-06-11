@@ -74,30 +74,30 @@ public class LRProcessDefinitionManagerImpl implements DefinitionManager {
 				defaultWorkDir.mkdirs();
 			}
 
-			boolean copyJars = false;
-			File defaultLibDir = new File(DEFAULT_LP_WORKDIR, "default-lib");
-			if (!defaultLibDir.exists()) {
-				defaultLibDir.mkdirs();
-				copyJars = true;
-			}
-			if (copyJars) {
-				File[] listFiles = new File(this.realLibsDir).listFiles(new FileFilter() {
-					@Override
-					public boolean accept(File pathname) {
-						if (pathname.getName().endsWith(".jar")) {
-							return true;
-						} else return false;
-					}
-				});
-				if (listFiles != null) {
-					LOGGER.info("Copying libraries to default dir");
-					for (File jarFile : listFiles) {
-						File destFile = new File(defaultLibDir, jarFile.getName());
-						copyFile(jarFile, destFile);
-					}
-				}
-				
-			}
+//			boolean copyJars = false;
+//			File defaultLibDir = new File(DEFAULT_LP_WORKDIR, "default-lib");
+//			if (!defaultLibDir.exists()) {
+//				defaultLibDir.mkdirs();
+//				copyJars = true;
+//			}
+//			if (copyJars) {
+//				File[] listFiles = new File(this.realLibsDir).listFiles(new FileFilter() {
+//					@Override
+//					public boolean accept(File pathname) {
+//						if (pathname.getName().endsWith(".jar")) {
+//							return true;
+//						} else return false;
+//					}
+//				});
+//				if (listFiles != null) {
+//					LOGGER.info("Copying libraries to default dir");
+//					for (File jarFile : listFiles) {
+//						File destFile = new File(defaultLibDir, jarFile.getName());
+//						copyFile(jarFile, destFile);
+//					}
+//				}
+//				
+//			}
 			File conFile = new File(CONFIGURATION_FILE);
 			if (!conFile.exists()) {
 				StringTemplateGroup grp = new StringTemplateGroup("m");
