@@ -145,7 +145,7 @@ public class IndexParams {
             paramsMap.put("ROOT_PID", pid);
             paramsMap.put("MODEL", model);
             paramsMap.put("ROOT_MODEL", model);
-            String command = KConfiguration.getKConfiguration().getFedoraHost() + "/get/" + pid + "/BIBLIO_MODS";
+            String command = KConfiguration.getInstance().getFedoraHost() + "/get/" + pid + "/BIBLIO_MODS";
             Document contentDom = UrlReader.getDocument(command);
             XPathFactory factory = XPathFactory.newInstance();
             XPath xpath = factory.newXPath();

@@ -51,7 +51,7 @@ public class GetRelsExt extends HttpServlet {
                 response.setCharacterEncoding("UTF-8");
         PrintWriter out = response.getWriter();
         try {
-            KConfiguration configuration = KConfiguration.getKConfiguration();
+            KConfiguration configuration = KConfiguration.getInstance();
             String language = request.getParameter("language");
             if(language==null || language.equals("")) language = "cs";
             res = ResourceBundle.getBundle("labels", new Locale(language));

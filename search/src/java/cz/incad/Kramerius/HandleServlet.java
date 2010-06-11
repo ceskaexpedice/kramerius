@@ -173,7 +173,7 @@ public class HandleServlet extends GuiceServlet {
 			@Override
 			public String construct(String handle) {
 				String uuid = handle.substring("uuid:".length());
-				String solrHost = KConfiguration.getKConfiguration().getSolrHost();
+				String solrHost = KConfiguration.getInstance().getSolrHost();
 				String uri = solrHost +"/select/?q=PID:"+uuid;
 				return uri;
 			}
@@ -184,7 +184,7 @@ public class HandleServlet extends GuiceServlet {
 				
 				try {
 					handle = URLEncoder.encode(handle, "UTF-8");
-					String solrHost = KConfiguration.getKConfiguration().getSolrHost();
+					String solrHost = KConfiguration.getInstance().getSolrHost();
 					String uri = solrHost +"/select/?q=handle:"+handle;
 					return uri;
 				} catch (UnsupportedEncodingException e) {
