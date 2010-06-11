@@ -40,10 +40,10 @@ import javax.net.ssl.TrustManager;
 import javax.net.ssl.X509TrustManager;
 
 import com.qbizm.kramerius.imptool.poc.Main;
-import com.qbizm.kramerius.imptool.poc.utils.ConfigurationUtils;
 import com.qbizm.kramerius.imptool.poc.valueobj.ServiceException;
 
 import cz.incad.kramerius.processes.impl.ProcessStarter;
+import cz.incad.kramerius.utils.conf.KConfiguration;
 
 public class Download {
     
@@ -62,7 +62,7 @@ public class Download {
         Download download = new Download();
         BufferedReader reader = null;
         try {
-            reader = new BufferedReader(new FileReader(new File(ConfigurationUtils.getInstance().getProperty("migration.monographs"))));
+            reader = new BufferedReader(new FileReader(new File(KConfiguration.getInstance().getProperty("migration.monographs"))));
         } catch (FileNotFoundException e) {
             log.severe("Monographs file list not found: "+e);
             return;
@@ -89,7 +89,7 @@ public class Download {
         Download download = new Download();
         BufferedReader reader = null;
         try {
-            reader = new BufferedReader(new FileReader(new File(ConfigurationUtils.getInstance().getProperty("migration.periodicals"))));
+            reader = new BufferedReader(new FileReader(new File(KConfiguration.getInstance().getProperty("migration.periodicals"))));
         } catch (FileNotFoundException e) {
             log.severe("Periodicals file list not found: "+e);
             return;
@@ -115,8 +115,8 @@ public class Download {
     private static void processReplication(Download download, Replication rep){
         try{
             download.replicateAll(rep);
-            String uuid = Main.convert(ConfigurationUtils.getInstance().getProperty("migration.directory"), ConfigurationUtils.getInstance().getProperty("migration.directory")+CONV_SUFFIX, true, false);
-            Import.ingest(ConfigurationUtils.getInstance().getProperty("ingest.url"), ConfigurationUtils.getInstance().getProperty("ingest.user"), ConfigurationUtils.getInstance().getProperty("ingest.password"), ConfigurationUtils.getInstance().getProperty("migration.directory")+CONV_SUFFIX);
+            String uuid = Main.convert(KConfiguration.getInstance().getProperty("migration.directory"), KConfiguration.getInstance().getProperty("migration.directory")+CONV_SUFFIX, true, false);
+            Import.ingest(KConfiguration.getInstance().getProperty("ingest.url"), KConfiguration.getInstance().getProperty("ingest.user"), KConfiguration.getInstance().getProperty("ingest.password"), KConfiguration.getInstance().getProperty("migration.directory")+CONV_SUFFIX);
             logSuccess(rep.getID(), uuid);
             startIndexing(rep.getID(), uuid);
         }catch (Throwable t){
@@ -214,7 +214,7 @@ public class Download {
     }
     
     public Download(){
-        replicationDirectoryName = ConfigurationUtils.getInstance().getProperty("migration.directory");
+        replicationDirectoryName = KConfiguration.getInstance().getProperty("migration.directory");
     }
 
     static Replication createReplication(DocType doctype, String docId, String volumeId) {
@@ -225,10 +225,10 @@ public class Download {
         repl.setOverwriteDocuments(false);
 
         Institution inst = new Institution();
-        inst.setSigla(ConfigurationUtils.getInstance().getProperty("k3.replication.sigla"));
-        inst.setReplicationOutLogin(ConfigurationUtils.getInstance().getProperty("k3.replication.login")); 
-        inst.setReplicationOutPassword(ConfigurationUtils.getInstance().getProperty("k3.replication.password")); 
-        inst.setReplicationURL(ConfigurationUtils.getInstance().getProperty("k3.replication.url"));
+        inst.setSigla(KConfiguration.getInstance().getProperty("k3.replication.sigla"));
+        inst.setReplicationOutLogin(KConfiguration.getInstance().getProperty("k3.replication.login")); 
+        inst.setReplicationOutPassword(KConfiguration.getInstance().getProperty("k3.replication.password")); 
+        inst.setReplicationURL(KConfiguration.getInstance().getProperty("k3.replication.url"));
         repl.setInstitution(inst);
 
         switch (doctype) {
