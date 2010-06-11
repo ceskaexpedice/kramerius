@@ -34,7 +34,7 @@ public class ApplicationURL {
 	}
 
 	public static String urlOfPath(HttpServletRequest request,  String path) {
-		KConfiguration conf = KConfiguration.getKConfiguration();
+		KConfiguration conf = KConfiguration.getInstance();
 		if ((conf.getApplicationURL() != null) && (!conf.getApplicationURL().equals(""))) {
 			return conf.getApplicationURL() +path;
 		} else {
