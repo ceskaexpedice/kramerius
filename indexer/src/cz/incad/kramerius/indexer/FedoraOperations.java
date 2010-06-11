@@ -64,7 +64,7 @@ public class FedoraOperations {
     FedoraAccess fa;
 
     public FedoraOperations() {
-        fa = new FedoraAccessImpl(KConfiguration.getKConfiguration());
+        fa = new FedoraAccessImpl(KConfiguration.getInstance());
     }
 
     private static String getBaseURL(String fedoraSoap)
