@@ -1,9 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<resultPage>
- <repositoryInfo>
-  <RepositoryShortName>DemoAtDtu</RepositoryShortName>
-  <RepositoryLongName>Fedora demonstration objects at DTU</RepositoryLongName>
-  <RepositoryDeveloper>Gert Schmeltz Pedersen, DTU/DTV</RepositoryDeveloper>
-  <RepositoryContact>gsp@dtv.dk</RepositoryContact>
- </repositoryInfo>
-</resultPage>
