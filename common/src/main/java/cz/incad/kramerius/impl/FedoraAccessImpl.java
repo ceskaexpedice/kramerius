@@ -80,9 +80,9 @@ public class FedoraAccessImpl implements FedoraAccess {
 	
 	@Override
 	public Document getRelsExt(String uuid) throws IOException {
-		String relsExtUrl = relsExtUrl(KConfiguration.getKConfiguration(), uuid);
+		String relsExtUrl = relsExtUrl(KConfiguration.getInstance(), uuid);
 		LOGGER.info("Reading rels ext +"+relsExtUrl);
-		InputStream docStream = RESTHelper.inputStream(relsExtUrl, KConfiguration.getKConfiguration().getFedoraUser(), KConfiguration.getKConfiguration().getFedoraPass());
+		InputStream docStream = RESTHelper.inputStream(relsExtUrl, KConfiguration.getInstance().getFedoraUser(), KConfiguration.getInstance().getFedoraPass());
 		try {
 			return XMLUtils.parseDocument(docStream, true);
 		} catch (ParserConfigurationException e) {
@@ -123,9 +123,9 @@ public class FedoraAccessImpl implements FedoraAccess {
 
 	@Override
 	public Document getBiblioMods(String uuid) throws IOException {
-		String biblioModsUrl = biblioMods(KConfiguration.getKConfiguration(), uuid);
+		String biblioModsUrl = biblioMods(KConfiguration.getInstance(), uuid);
 		LOGGER.info("Reading bibliomods +"+biblioModsUrl);
-		InputStream docStream = RESTHelper.inputStream(biblioModsUrl, KConfiguration.getKConfiguration().getFedoraUser(), KConfiguration.getKConfiguration().getFedoraPass());
+		InputStream docStream = RESTHelper.inputStream(biblioModsUrl, KConfiguration.getInstance().getFedoraUser(), KConfiguration.getInstance().getFedoraPass());
 		try {
 			return XMLUtils.parseDocument(docStream, true);
 		} catch (ParserConfigurationException e) {
@@ -139,9 +139,9 @@ public class FedoraAccessImpl implements FedoraAccess {
 
 	@Override
 	public Document getDC(String uuid) throws IOException {
-		String dcUrl = dc(KConfiguration.getKConfiguration(), uuid);
+		String dcUrl = dc(KConfiguration.getInstance(), uuid);
 		LOGGER.info("Reading dc +"+dcUrl);
-		InputStream docStream = RESTHelper.inputStream(dcUrl, KConfiguration.getKConfiguration().getFedoraUser(), KConfiguration.getKConfiguration().getFedoraPass());
+		InputStream docStream = RESTHelper.inputStream(dcUrl, KConfiguration.getInstance().getFedoraUser(), KConfiguration.getInstance().getFedoraPass());
 		try {
 			return XMLUtils.parseDocument(docStream, true);
 		} catch (ParserConfigurationException e) {
@@ -406,8 +406,8 @@ public class FedoraAccessImpl implements FedoraAccess {
     
     
     private void initAPIA(){
-        final String user = KConfiguration.getKConfiguration().getFedoraUser();
-        final String pwd = KConfiguration.getKConfiguration().getFedoraPass();
+        final String user = KConfiguration.getInstance().getFedoraUser();
+        final String pwd = KConfiguration.getInstance().getFedoraPass();
         Authenticator.setDefault(new Authenticator() { 
             protected PasswordAuthentication getPasswordAuthentication() { 
                return new PasswordAuthentication(user, pwd.toCharArray()); 
@@ -416,7 +416,7 @@ public class FedoraAccessImpl implements FedoraAccess {
         
         FedoraAPIAService APIAservice = null;
         try {
-            APIAservice = new FedoraAPIAService(new URL(KConfiguration.getKConfiguration().getFedoraHost()+"/wsdl?api=API-A"),
+            APIAservice = new FedoraAPIAService(new URL(KConfiguration.getInstance().getFedoraHost()+"/wsdl?api=API-A"),
                     new QName("http://www.fedora.info/definitions/1/0/api/", "Fedora-API-A-Service"));
         } catch (MalformedURLException e) {
             LOGGER.severe("InvalidURL API-A:"+e);
@@ -430,8 +430,8 @@ public class FedoraAccessImpl implements FedoraAccess {
     }
     
     private void initAPIM(){
-        final String user = KConfiguration.getKConfiguration().getFedoraUser();
-        final String pwd = KConfiguration.getKConfiguration().getFedoraPass();
+        final String user = KConfiguration.getInstance().getFedoraUser();
+        final String pwd = KConfiguration.getInstance().getFedoraPass();
         Authenticator.setDefault(new Authenticator() { 
             protected PasswordAuthentication getPasswordAuthentication() { 
                return new PasswordAuthentication(user, pwd.toCharArray()); 
@@ -440,7 +440,7 @@ public class FedoraAccessImpl implements FedoraAccess {
         
         FedoraAPIMService APIMservice = null;
         try {
-            APIMservice = new FedoraAPIMService(new URL(KConfiguration.getKConfiguration().getFedoraHost()+"/wsdl?api=API-M"),
+            APIMservice = new FedoraAPIMService(new URL(KConfiguration.getInstance().getFedoraHost()+"/wsdl?api=API-M"),
                     new QName("http://www.fedora.info/definitions/1/0/api/", "Fedora-API-M-Service"));
         } catch (MalformedURLException e) {
             LOGGER.severe("InvalidURL API-M:"+e);
