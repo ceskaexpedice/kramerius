@@ -15,7 +15,7 @@
         xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" 
         xmlns:mods="http://www.loc.gov/mods/v3" 
         xmlns:kramerius="http://www.nsdl.org/ontologies/relationships#" 
-        exclude-result-prefixes="xalan exts java"
+        exclude-result-prefixes="exts java"
     >
     <xsl:output method="xml" indent="yes" encoding="UTF-8" />
 
