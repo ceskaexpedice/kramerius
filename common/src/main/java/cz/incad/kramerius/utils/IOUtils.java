@@ -1,8 +1,10 @@
 package cz.incad.kramerius.utils;
 
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -84,5 +86,30 @@ public class IOUtils {
 		} finally  {
 			if ((is != null) && closeInput) { is.close(); }
 		}
+	}
+	
+
+	public static void saveToFile(String data, File file) throws IOException {
+		FileOutputStream fos = null;
+		try {
+			fos = new FileOutputStream(file);
+			fos.write(data.getBytes());
+		} finally {
+			if (fos != null) fos.close();
+		}
+	}
+	
+
+	public static ByteArrayInputStream bos(File inFile) throws IOException {
+		InputStream is =  null;
+		try {
+			is = new FileInputStream(inFile);
+			ByteArrayOutputStream bos = new ByteArrayOutputStream();
+			copyStreams(is, bos);
+			return new ByteArrayInputStream(bos.toByteArray());
+		}finally {
+			if (is != null) is.close();
+		}
+		
 	}
 }

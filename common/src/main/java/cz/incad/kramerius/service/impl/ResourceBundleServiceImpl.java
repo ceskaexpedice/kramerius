@@ -2,31 +2,50 @@ package cz.incad.kramerius.service.impl;
 
 import static cz.incad.kramerius.utils.IOUtils.*;
 
+import java.io.ByteArrayInputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.Reader;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Enumeration;
+import java.util.List;
 import java.util.Locale;
+import java.util.Map;
+import java.util.Properties;
+import java.util.PropertyResourceBundle;
 import java.util.ResourceBundle;
+import java.util.Set;
 import java.util.Vector;
 import java.util.logging.Level;
 
+import com.google.inject.Inject;
+import com.google.inject.internal.Nullable;
+import com.google.inject.name.Named;
+
+import sun.applet.resources.MsgAppletViewer;
+
 import cz.incad.kramerius.Constants;
 import cz.incad.kramerius.service.ResourceBundleService;
+import cz.incad.kramerius.utils.IOUtils;
 
 public class ResourceBundleServiceImpl implements ResourceBundleService {
 
-
+	@Inject(optional=true)
+	@Named("workingDir")
+	private String workingDir;
 	
 	@Override
 	public File bundlesFolder() {
 		String dirName = Constants.WORKING_DIR + File.separator + "bundles";
+		if (workingDir != null) dirName = workingDir + File.separator + "bundles";
 		File dir = new File(dirName);
 		if (!dir.exists()) { dir.mkdirs(); }
 		return dir;
@@ -35,27 +54,33 @@ public class ResourceBundleServiceImpl implements ResourceBundleService {
 
 	@Override
 	public ResourceBundle getResourceBundle(String name, Locale locale) throws IOException {
-		File resourcesDir = bundlesFolder();
-		if ((resourcesDir.listFiles() == null) || (resourcesDir.listFiles().length == 0)) {
-			copyDefault();
-		} else {
-			File[] listFiles = resourcesDir.listFiles();
-			for (File file : listFiles) {
-				if (file.getName().equals(name+".properties")) {
-					break;
-				}
-			}
-			copyDefault();
-			
-		}
+		File resourcesDir = checkFiles(name);
 		ResourceBundle parentBundle = ResourceBundle.getBundle(name, locale);
-		FolderResourceBundle resBundle = new FolderResourceBundle(name, locale, resourcesDir);
+		FolderResourceBundle resBundle = (FolderResourceBundle) ResourceBundle.getBundle(name, locale, new ResourceClassLoader(), new ResourceBundleControl(resourcesDir));
 		resBundle.setParentBundle(parentBundle);
 		return resBundle;
 	}
 
 
-	
+	public File checkFiles(String name) throws IOException {
+		File resourcesDir = bundlesFolder();
+		if ((resourcesDir.listFiles() == null) || (resourcesDir.listFiles().length == 0)) {
+			copyDefault();
+		} else {
+			boolean copyDefault = true;
+			File[] listFiles = resourcesDir.listFiles();
+			for (File file : listFiles) {
+				if (file.getName().equals(name+".properties")) {
+					copyDefault = false;
+					break;
+				}
+			}
+			if (copyDefault) copyDefault();
+		}
+		return resourcesDir;
+	}
+
+
 	
 	private void copyDefault() throws IOException {
 		String[] defaults = 
@@ -75,64 +100,79 @@ public class ResourceBundleServiceImpl implements ResourceBundleService {
 			}
 		}
 	}
-	
+
 	
 	public static class ResourceClassLoader extends ClassLoader {
 
 		public static final java.util.logging.Logger LOGGER = java.util.logging.Logger
 				.getLogger(ResourceBundleServiceImpl.ResourceClassLoader.class
 						.getName());
-		
-		private File folder;
 
-		public ResourceClassLoader(File folder) {
+		public ResourceClassLoader() {
 			super();
-			this.folder = folder;
 		}
 
 		@Override
 		protected URL findResource(String name) {
-			try {
-				File file = new File(this.folder, name);
-				if (file.exists()) {
-					return file.toURI().toURL();
-				} else return null;
-			} catch (MalformedURLException e) {
-				LOGGER.log(Level.SEVERE, e.getMessage(), e);
-				return null;
-			}
+			return null;
 		}
 
 		@Override
 		protected Enumeration<URL> findResources(String name) throws IOException {
-			URL url = findResource(name);
-			Enumeration<URL> elements = new Vector(Arrays.asList(url)).elements();
+			Enumeration<URL> elements = new Vector().elements();
 			return elements; 
 		}
 	}
 
-	private static class FolderResourceBundle extends ResourceBundle {
+	private static class ResourceBundleControl extends ResourceBundle.Control {
 
-		private ResourceBundle childBundle;
+		private File folder;
 
-		public FolderResourceBundle(String name, Locale locale, File resourcesDir) {
+		public ResourceBundleControl(File folder) {
 			super();
-			childBundle = ResourceBundle.getBundle(name, locale, new ResourceClassLoader(resourcesDir));
-		}
-
-		@Override
-		public Enumeration<String> getKeys() {
-			return childBundle.getKeys();
-		}
-
-		@Override
-		protected Object handleGetObject(String key) {
-			return childBundle.getString(key);
+			this.folder = folder;
 		}
 		
+		@Override
+		public List<String> getFormats(String baseName) {
+			return Arrays.asList("properties");
+		}
+
+
+		@Override
+		public ResourceBundle newBundle(String baseName, Locale locale,
+				String format, ClassLoader loader, boolean reload)
+				throws IllegalAccessException, InstantiationException,
+				IOException {
+			
+			  String bundleName = toBundleName(baseName, locale);
+              String resourceName = toResourceName(bundleName, format);
+              File inFile = new File(folder, resourceName);
+              ByteArrayInputStream bos = IOUtils.bos(inFile);
+              return new FolderResourceBundle(bos);
+		}
+
+		@Override
+		public String toBundleName(String baseName, Locale locale) {
+			return super.toBundleName(baseName, locale);
+		}
+
+		@Override
+		public boolean needsReload(String baseName, Locale locale,
+				String format, ClassLoader loader, ResourceBundle bundle,
+				long loadTime) {
+			return super.needsReload(baseName, locale, format, loader, bundle, loadTime);
+		}
+	}
+	
+	private static class FolderResourceBundle extends PropertyResourceBundle {
+
+		public FolderResourceBundle(InputStream stream) throws IOException {
+			super(stream);
+		}
+
 		public void setParentBundle(ResourceBundle parentBundle) {
 			super.setParent(parentBundle);
 		}
-		
 	}
 }
