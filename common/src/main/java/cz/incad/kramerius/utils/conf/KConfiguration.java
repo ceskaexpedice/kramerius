@@ -153,6 +153,10 @@ public class KConfiguration {
     public String getProperty(String key) {
     	return allConfigurations.getString(key);
     }
+    
+    public String[] getPropertyList(String key) {
+    	return allConfigurations.getStringArray(key);
+    }
 
     public String getProperty(String key, String defaultValue) {
     	return allConfigurations.getString(key, defaultValue);
