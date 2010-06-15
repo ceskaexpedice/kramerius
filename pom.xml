@@ -10,6 +10,22 @@
   <version>4.0</version>
   <name>kramerius</name>
  
+ 	<distributionManagement>
+		
+		<repository>
+			<id>artifactory.internal</id>
+			<name>Internal Release Repository</name>
+			<url>dav:http://svn:8080/artifactory/libs-releases-local/</url>
+		</repository>
+		
+		<snapshotRepository>
+			<id>artifactory.snapshots</id>
+			<name>Internal Snapshot Repository</name>
+			<url>dav:http://svn:8080/artifactory/libs-snapshots-local/</url>
+		</snapshotRepository>
+		
+	</distributionManagement>
+ 
   <modules>
     <module>common</module>
     <module>fedora-api</module>
