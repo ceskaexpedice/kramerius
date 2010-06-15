@@ -59,10 +59,10 @@ public class KConfiguration {
 			Enumeration<URL> resources = this.getClass().getClassLoader().getResources("res/configuration.properties");
 			while(resources.hasMoreElements()) {
 				URL nextElement = resources.nextElement();
+				PropertiesConfiguration bundled = new PropertiesConfiguration(nextElement);
 				String name = disectName(nextElement.getFile());
-				if (name != null) {
+				if ((name != null) || (bundled.containsKey("_ext_configuration_file_name"))) {
 					String moduleName = name;
-					PropertiesConfiguration bundled = new PropertiesConfiguration(nextElement);
 					if (bundled.containsKey("_ext_configuration_file_name")) {
 						LOGGER.info("Replacing configuration file name from '"+name+"' to '"+bundled.getString("_ext_configuration_file_name")+"'");
 						name = bundled.getString("_ext_configuration_file_name");
