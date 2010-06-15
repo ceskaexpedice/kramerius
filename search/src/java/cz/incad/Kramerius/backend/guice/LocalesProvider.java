@@ -51,9 +51,7 @@ public class LocalesProvider implements Provider<Locale>{
 
 
 	private Locale getDefault(HttpServletRequest request) {
-		logger.info("Provider "+request.getQueryString()+" 0x"+Integer.toHexString(System.identityHashCode(request)));
 		Locale locale = request.getLocale();
-		logger.info("client locale "+locale);
 		return locale;
 	}
 }
