@@ -54,7 +54,7 @@ public class FedoraOperations {
     private static final Map fedoraClients = new HashMap();
     protected String fgsUserName;
     protected String indexName;
-    public Properties config;
+    //public Properties config;
     public byte[] foxmlRecord;
     protected String dsID;
     protected byte[] ds;
@@ -93,18 +93,19 @@ public class FedoraOperations {
         return fa.getAPIM();
     }
 
-    public void init(String indexName, Properties currentConfig) {
-        init(null, indexName, currentConfig);
+    public void init(String indexName/*, Properties currentConfig*/) {
+        init(null, indexName/*, currentConfig*/);
     }
 
-    public void init(String fgsUserName, String indexName, Properties currentConfig) {
-        config = currentConfig;
-        foxmlFormat = config.getProperty("FOXMLFormat");
-        this.fgsUserName = config.getProperty("fgsUserName");
-        this.indexName = config.getProperty("IndexName");
+    public void init(String fgsUserName, String indexName/*, Properties currentConfig*/) {
+//        config = currentConfig;
+        foxmlFormat = KConfiguration.getInstance().getConfiguration().getString("FOXMLFormat");
+        this.fgsUserName = KConfiguration.getInstance().getConfiguration().getString("fgsUserName");
+        this.indexName = KConfiguration.getInstance().getConfiguration().getString("IndexName");
+        logger.info("Index name property is '"+this.indexName+"'");
         if (null == this.fgsUserName || this.fgsUserName.length() == 0) {
             try {
-                this.fgsUserName = config.getProperty("fedoragsearch.testUserName");
+                this.fgsUserName = KConfiguration.getInstance().getConfiguration().getString("fedoragsearch.testUserName");
             } catch (Exception e) {
                 this.fgsUserName = "fedoragsearch.testUserName";
             }
@@ -140,7 +141,7 @@ public class FedoraOperations {
 
         String repositoryName = repositoryNameParam;
         if (repositoryNameParam == null || repositoryNameParam.equals("")) {
-            repositoryName = config.getProperty("RepositoryName");
+            repositoryName = KConfiguration.getInstance().getConfiguration().getString("RepositoryName");
         }
 
         SolrOperations ops = new SolrOperations(this);
@@ -192,11 +193,11 @@ public class FedoraOperations {
             String dsId)
             throws Exception, Exception {
         return getDatastreamText(pid, repositoryName, dsId,
-                config.getProperty("FedoraSoap"),
-                config.getProperty("FedoraUser"),
-                config.getProperty("FedoraPass"),
-                config.getProperty("TrustStorePath"),
-                config.getProperty("TrustStorePass"));
+                KConfiguration.getInstance().getConfiguration().getString("FedoraSoap"),
+                KConfiguration.getInstance().getConfiguration().getString("FedoraUser"),
+                KConfiguration.getInstance().getConfiguration().getString("FedoraPass"),
+                KConfiguration.getInstance().getConfiguration().getString("TrustStorePath"),
+                KConfiguration.getInstance().getConfiguration().getString("TrustStorePass"));
     }
 
     public String getDatastreamText(

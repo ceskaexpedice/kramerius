@@ -37,7 +37,7 @@ public class Indexer {
     private Logger logger = Logger.getLogger(this.getClass().getName());
     private ProgramArguments arguments;
     //public static Configuration conf;
-    public static Properties conf = new Properties();
+    //public static Properties conf = new Properties();
     public static boolean hasData = false;
     public static String outFilename = "outfile.zip";
     public static ZipOutputStream outZip;
@@ -46,7 +46,7 @@ public class Indexer {
     public Indexer(ProgramArguments args) throws Exception {
         arguments = args;
         //PropertyConfigurator.configure(arguments.log4jFile);
-        conf.load(new FileInputStream(arguments.configFile));
+        //conf.load(new FileInputStream(arguments.configFile));
         
         logger.info("Indexer initialized");
     }
@@ -162,7 +162,7 @@ public class Indexer {
     public void updateIndex(String user, String action, String value, String indexDocXslt)
             throws java.rmi.RemoteException, Exception {
         FedoraOperations ops = new FedoraOperations();
-        ops.init(user, "", conf);
+        ops.init(user, ""/*, conf*/);
         ArrayList<String> params = new ArrayList<String>();
         //System.out.println(value);
         ops.updateIndex(action, value, repositoryName, indexName, indexDocXslt, resultPageXslt, params);

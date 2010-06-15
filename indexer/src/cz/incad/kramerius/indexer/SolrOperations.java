@@ -53,6 +53,8 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
+import cz.incad.kramerius.utils.conf.KConfiguration;
+
 /**
  * performs the Solr specific parts of the operations
  * 
@@ -64,7 +66,7 @@ public class SolrOperations {
     private static final Logger logger = Logger.getLogger(SolrOperations.class);
     private static final String UNIQUEKEY = "PID";
     private IndexReader ir = null;
-    protected Properties config;
+    //protected Properties config;
     protected int insertTotal = 0;
     protected int updateTotal = 0;
     protected int deleteTotal = 0;
@@ -75,7 +77,7 @@ public class SolrOperations {
 
     public SolrOperations(FedoraOperations _fedoraOperations) {
         fedoraOperations = _fedoraOperations;
-        config = fedoraOperations.config;
+        /*config = fedoraOperations.config;*/
     }
 
     public void updateIndex(
@@ -128,7 +130,7 @@ public class SolrOperations {
             }
             docCount = docCount - deleteTotal;
         }
-        logger.info("updateIndex " + action + " indexDirSpace=" + indexDirSpace(new File(config.getProperty("IndexDir"))) + " docCount=" + docCount);
+        logger.info("updateIndex " + action + " indexDirSpace=" + indexDirSpace(new File(KConfiguration.getInstance().getConfiguration().getString("IndexDir"))) + " docCount=" + docCount);
         logger.info("insertTotal: " + insertTotal + "; updateTotal: " + updateTotal+
                 "; deleteTotal: " + deleteTotal +
                 "; warnCount: " + warnCount);
@@ -141,7 +143,7 @@ public class SolrOperations {
         if (logger.isDebugEnabled()) {
             logger.debug("indexDoc=\n" + sb.toString());
         }
-        postData(config.getProperty("IndexBase") + "/update", new StringReader(sb.toString()), new StringBuffer());
+        postData(KConfiguration.getInstance().getConfiguration().getString("IndexBase") + "/update", new StringReader(sb.toString()), new StringBuffer());
         
     }
 
@@ -156,7 +158,7 @@ public class SolrOperations {
         }
         File objectDir = null;
         if (filePath == null || filePath.equals("")) {
-            objectDir = new File(config.getProperty("FedoraObjectDir"));
+            objectDir = new File(KConfiguration.getInstance().getConfiguration().getString("FedoraObjectDir"));
         } else {
             objectDir = new File(filePath);
         }
@@ -178,7 +180,7 @@ public class SolrOperations {
             for (int i = 0; i < files.length; i++) {
                 if (i % 100 == 0) {
                     logger.info("updateIndex fromFoxmlFiles " + file.getAbsolutePath() + " indexDirSpace=" +
-                            indexDirSpace(new File(config.getProperty("IndexDir"))) + " docCount=" + docCount);
+                            indexDirSpace(new File(KConfiguration.getInstance().getConfiguration().getString("IndexDir"))) + " docCount=" + docCount);
                 }
                 indexDocs(new File(file, files[i]), repositoryName, indexName, indexDocXslt);
             }
@@ -252,7 +254,7 @@ public class SolrOperations {
             
             if(true) return;
   */          
-            String urlStr = config.getProperty("FedoraResourceIndex") + "?type=tuples&flush=true&lang=itql&format=TSV&distinct=off&stream=off" +
+            String urlStr = KConfiguration.getInstance().getConfiguration().getString("FedoraResourceIndex") + "?type=tuples&flush=true&lang=itql&format=TSV&distinct=off&stream=off" +
                     "&query=" + java.net.URLEncoder.encode(query, "UTF-8");
             //int lines = 0;
                 
@@ -438,21 +440,21 @@ public class SolrOperations {
         params[0] = "REPOSITORYNAME";
         params[1] = repositoryName;
         params[2] = "FEDORASOAP";
-        params[3] = config.getProperty("FedoraSoap");
+        params[3] = KConfiguration.getInstance().getConfiguration().getString("FedoraSoap");
         params[4] = "FEDORAUSER";
-        params[5] = config.getProperty("FedoraUser");
+        params[5] = KConfiguration.getInstance().getConfiguration().getString("FedoraUser");
         params[6] = "FEDORAPASS";
-        params[7] = config.getProperty("FedoraPass");
+        params[7] = KConfiguration.getInstance().getConfiguration().getString("FedoraPass");
         params[8] = "TRUSTSTOREPATH";
-        params[9] = config.getProperty("TrustStorePath");
+        params[9] = KConfiguration.getInstance().getConfiguration().getString("TrustStorePath");
         params[10] = "TRUSTSTOREPASS";
-        params[11] = config.getProperty("TrustStorePass");
+        params[11] = KConfiguration.getInstance().getConfiguration().getString("TrustStorePass");
 
         for (int i = 0; i < requestParams.size(); i++) {
             params[i + 12] = requestParams.get(i);
         //logger.info("param: " + requestParams.get(i));
         }
-        String xsltPath = config.getProperty("UpdateIndexDocXslt");
+        String xsltPath = KConfiguration.getInstance().getConfiguration().getString("UpdateIndexDocXslt");
         StringBuffer sb = (new GTransformer()).transform(
                 xsltPath,
                 new StreamSource(foxmlStream),
@@ -463,7 +465,7 @@ public class SolrOperations {
         }
         
         if (sb.indexOf("name=\"" + UNIQUEKEY) > 0) {
-            postData(config.getProperty("IndexBase") + "/update", new StringReader(sb.toString()), new StringBuffer());
+            postData(KConfiguration.getInstance().getConfiguration().getString("IndexBase") + "/update", new StringReader(sb.toString()), new StringBuffer());
             updateTotal++;
         }
     }
@@ -648,7 +650,7 @@ public class SolrOperations {
             }
         } else {
             try {
-                ir = IndexReader.open(SimpleFSDirectory.open(new File(config.getProperty("IndexDir"))), true);
+                ir = IndexReader.open(SimpleFSDirectory.open(new File(KConfiguration.getInstance().getConfiguration().getString("IndexDir"))), true);
             } catch (CorruptIndexException e) {
                 throw new Exception("IndexReader open error indexName=" + indexName + " :\n", e);
             } catch (IOException e) {
