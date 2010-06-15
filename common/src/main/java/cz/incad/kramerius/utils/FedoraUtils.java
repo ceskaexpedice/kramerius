@@ -71,7 +71,7 @@ public class FedoraUtils {
                         pids.add(childnode.getAttributes().getNamedItem("rdf:resource").getNodeValue().split("uuid:")[1]);
                         models.add("page");
                         return true;
-                } else if(!nodeName.contains("hasModel") && childnode.hasAttributes()) {
+                } else if(nodeName.contains("hasItem") ||nodeName.contains("hasVolume")||nodeName.contains("hasUnit")) {
                     pids.add(childnode.getAttributes().getNamedItem("rdf:resource").getNodeValue().split("uuid:")[1]);
                     models.add(KrameriusModels.toString(cz.incad.kramerius.RDFModels.convertRDFToModel(nodeName)));
                     return FedoraUtils.fillFirstPagePid(pids, models);
