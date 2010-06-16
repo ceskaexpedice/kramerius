@@ -42,7 +42,7 @@ public class HandleServlet extends GuiceServlet {
 			.getLogger(HandleServlet.class.getName());
 	
 	@Inject
-	KConfiguration kConfiguration;
+	transient KConfiguration kConfiguration;
 
 	private XPathFactory fact;
 	private XPathExpression pidPathExpr; //cesta pidu 
