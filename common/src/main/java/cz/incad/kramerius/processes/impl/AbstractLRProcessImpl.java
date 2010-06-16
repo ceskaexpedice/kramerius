@@ -172,7 +172,8 @@ public abstract class AbstractLRProcessImpl implements LRProcess{
 
 	public File processWorkingDirectory() {
 		File processWorkingDir = new File(DefinitionManager.DEFAULT_LP_WORKDIR+File.separator+uuid);
-		processWorkingDir.mkdirs();
+		boolean mkdirs = processWorkingDir.mkdirs();
+		if (!mkdirs) throw new RuntimeException("cannot create directory '"+processWorkingDir.getAbsolutePath()+"'");
 		return processWorkingDir;
 	}
 
