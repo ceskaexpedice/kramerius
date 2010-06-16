@@ -18,9 +18,14 @@ public class InternalConfiguration {
 	
 	private InternalConfiguration() throws IOException {
 		super();
-		InputStream stream = this.getClass().getResourceAsStream("res/internalconfiguration.properties");
-		if(stream != null) {
-			properties.load(stream);
+		InputStream stream =  null;
+		try {
+			stream = this.getClass().getResourceAsStream("res/internalconfiguration.properties");
+			if(stream != null) {
+				properties.load(stream);
+			}
+		} finally {
+			if (stream != null) stream.close();
 		}
 	}
 
