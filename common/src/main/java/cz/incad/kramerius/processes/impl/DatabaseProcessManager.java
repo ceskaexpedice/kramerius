@@ -44,10 +44,11 @@ public class DatabaseProcessManager implements LRProcessManager {
 	@Override
 	public LRProcess getLongRunningProcess(String uuid) {
 		Connection connection = null;
+		PreparedStatement stm = null;
 		try {
 			connection = provider.get();
 			if (connection != null) {
-				PreparedStatement stm = connection.prepareStatement("select * from PROCESSES where UUID = ?");
+				stm = connection.prepareStatement("select * from PROCESSES where UUID = ?");
 				stm.setString(1, uuid);
 				ResultSet rs = stm.executeQuery();
 				if(rs.next()) {
@@ -65,6 +66,13 @@ public class DatabaseProcessManager implements LRProcessManager {
 		} catch (SQLException e) {
 			LOGGER.log(Level.SEVERE, e.getMessage(), e);
 		} finally {
+			if (stm != null) {
+				try {
+					stm.close();
+				} catch (SQLException e) {
+					LOGGER.log(Level.SEVERE, e.getMessage(), e);
+				}
+			}
 			if (connection != null) {
 				try {
 					connection.close();
