@@ -70,8 +70,14 @@ public class KConfiguration {
 					String path = WORKING_DIR+File.separator+(name.toLowerCase().endsWith("properties") ? name : name+".properties") ;
 					File confFile = new File(path);
 					if (!confFile.exists()) {
-						confFile.createNewFile();
-						new Properties().store(new FileOutputStream(confFile), "configuration file for module '"+moduleName+"'");
+						boolean createdFile = confFile.createNewFile();
+						if (!createdFile) throw new RuntimeException("cannot crete conf file '"+confFile.getAbsolutePath()+"'");
+						FileOutputStream confFos = new FileOutputStream(confFile);
+						try {
+							new Properties().store(confFos, "configuration file for module '"+moduleName+"'");
+						} finally {
+							confFos.close();
+						}	
 					}
 					//_ext_configuration_file_name
 					CompositeConfiguration constconf = new CompositeConfiguration();
