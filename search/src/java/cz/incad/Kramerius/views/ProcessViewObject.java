@@ -51,9 +51,9 @@ public class ProcessViewObject {
 
 	public String getName() {
 		if (lrProcess.getProcessName() == null) {
-			return lrProcess.getDescription();
+			return " nepojmenovano - <span style='font-size:80%; font-style:italic'>"+lrProcess.getDescription()+"</span>";
 		} else {
-			return lrProcess.getProcessName();
+			return lrProcess.getProcessName()+" - <span style='font-size:80%; font-style:italic'>"+lrProcess.getDescription()+"</span>";
 		}
 	}
 	
