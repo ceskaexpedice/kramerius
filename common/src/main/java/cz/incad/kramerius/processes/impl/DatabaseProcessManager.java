@@ -186,6 +186,7 @@ public class DatabaseProcessManager implements LRProcessManager {
 	@Override
 	public int getNumberOfLongRunningProcesses() {
 		Connection connection = null;
+		PreparedStatement stm = null;
 		try {
 			connection = provider.get();
 			if (connection != null) {
@@ -194,7 +195,7 @@ public class DatabaseProcessManager implements LRProcessManager {
 				}
 				StringBuffer buffer = new StringBuffer("select count(*) from PROCESSES ");
 				
-				PreparedStatement stm = connection.prepareStatement(buffer.toString());
+				stm = connection.prepareStatement(buffer.toString());
 				ResultSet rs = stm.executeQuery();
 				int count = 0;
 				if(rs.next()) {
@@ -205,6 +206,13 @@ public class DatabaseProcessManager implements LRProcessManager {
 		} catch (SQLException e) {
 			LOGGER.log(Level.SEVERE, e.getMessage(), e);
 		} finally {
+			if (stm != null) {
+				try {
+					stm.close();
+				} catch (SQLException e) {
+					LOGGER.log(Level.SEVERE, e.getMessage(), e);
+				}
+			}
 			if (connection != null) {
 				try {
 					connection.close();
@@ -219,6 +227,7 @@ public class DatabaseProcessManager implements LRProcessManager {
 	@Override
 	public List<LRProcess> getLongRunningProcesses(LRProcessOrdering ordering, TypeOfOrdering typeOfOrdering,LRProcessOffset offset) {
 		Connection connection = null;
+		PreparedStatement stm = null;
 		try {
 			List<LRProcess> processes = new ArrayList<LRProcess>();
 			connection = provider.get();
@@ -237,7 +246,7 @@ public class DatabaseProcessManager implements LRProcessManager {
 					buffer.append(offset.getSQLOffset());
 				}
 				
-				PreparedStatement stm = connection.prepareStatement(buffer.toString());
+				stm = connection.prepareStatement(buffer.toString());
 				ResultSet rs = stm.executeQuery();
 				while(rs.next()) {
 					//CREATE TABLE PROCESSES(DEFID VARCHAR, UUID VARCHAR ,PID VARCHAR,STARTED timestamp, STATUS int
@@ -270,6 +279,13 @@ public class DatabaseProcessManager implements LRProcessManager {
 		} catch (SQLException e) {
 			LOGGER.log(Level.SEVERE, e.getMessage(), e);
 		} finally {
+			if (stm != null) {
+				try {
+					stm.close();
+				} catch (SQLException e) {
+					LOGGER.log(Level.SEVERE, e.getMessage(), e);
+				}
+			}
 			if (connection != null) {
 				try {
 					connection.close();
