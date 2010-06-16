@@ -45,12 +45,12 @@ public class GeneratePDFServlet extends GuiceServlet {
 	public static final String PATH="path";
 	
 	@Inject
-	GeneratePDFService service;
+	transient GeneratePDFService service;
 	@Inject
 	@Named("securedFedoraAccess")
-	FedoraAccess fedoraAccess;
+	transient FedoraAccess fedoraAccess;
 	@Inject
-	KConfiguration configuration;
+	transient KConfiguration configuration;
 	
 	@Override
 	protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException {
