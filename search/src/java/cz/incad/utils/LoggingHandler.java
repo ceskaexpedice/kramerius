@@ -40,15 +40,8 @@ public class LoggingHandler implements SOAPHandler<SOAPMessageContext> {
 	@Override
 	public boolean handleMessage(SOAPMessageContext c) {
 		SOAPMessage msg = c.getMessage();
-		boolean request = ((Boolean) c
-				.get(SOAPMessageContext.MESSAGE_OUTBOUND_PROPERTY))
-				.booleanValue();
 		try {
-			if (request) { // This is a request message.
-				msg.writeTo(System.out);
-			} else { // This is the response message
-				msg.writeTo(System.out);
-			}
+			msg.writeTo(System.out);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
