@@ -9,7 +9,7 @@ import cz.incad.kramerius.pdf.impl.OutputStreams;
 
 public class GenerateController implements Break, OutputStreams {
 
-	public static long ONE_FILE_LIMIT = 100l << 20;
+	public static final long ONE_FILE_LIMIT = 100l << 20;
 
 	private File curFile;
 	private DecoratedOutputStream currentDos;
