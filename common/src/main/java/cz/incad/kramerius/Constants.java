@@ -9,7 +9,8 @@ public class Constants {
 	static {
 		File dir = new File(WORKING_DIR);
 		if (!dir.exists()) {
-			dir.mkdirs();
+			boolean mkdirs = dir.mkdirs();
+			if (!mkdirs) throw new RuntimeException("cannot crate dir '"+dir.getAbsolutePath()+"'");
 		}
 	}
 }
