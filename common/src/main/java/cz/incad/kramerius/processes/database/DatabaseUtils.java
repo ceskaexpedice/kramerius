@@ -10,6 +10,7 @@ import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Timestamp;
+import java.util.logging.Level;
 
 import cz.incad.kramerius.processes.LRProcess;
 import cz.incad.kramerius.processes.States;
@@ -21,12 +22,8 @@ import cz.incad.kramerius.processes.States;
  */
 public class DatabaseUtils {
 
-	
-//	public static Connection openConnection() throws  ClassNotFoundException, SQLException {
-//		Class.forName(DERBY_DRIVER);
-//		Connection con = DriverManager.getConnection(WORKING_DB_JDBC_URL);
-//		return con;
-//	}
+	public static final java.util.logging.Logger LOGGER = java.util.logging.Logger
+			.getLogger(DatabaseUtils.class.getName());
 
 	public static boolean tableExists(Connection con) throws SQLException  {
 		ResultSet rs = null;
@@ -45,38 +42,62 @@ public class DatabaseUtils {
 	}
 	
 	public static void createTable(Connection con) throws SQLException {
-		PreparedStatement prepareStatement = con.prepareStatement("CREATE TABLE PROCESSES(DEFID VARCHAR(255), UUID VARCHAR(255) ,PID int,STARTED timestamp, STATUS int, NAME VARCHAR(1024))");
-		int r = prepareStatement.executeUpdate();
+		PreparedStatement prepareStatement = null;
+		try {
+			prepareStatement = con.prepareStatement("CREATE TABLE PROCESSES(DEFID VARCHAR(255), UUID VARCHAR(255) ,PID int,STARTED timestamp, STATUS int, NAME VARCHAR(1024))");
+			int r = prepareStatement.executeUpdate();
+		} finally {
+			if (prepareStatement != null) prepareStatement.close();
+		}
 	}
 	
 	public static void registerProcess(Connection con, LRProcess lp) throws SQLException {
-		PreparedStatement prepareStatement = con.prepareStatement("insert into processes(DEFID, UUID,STARTED, STATUS) values(?,?,?,?)");
-		prepareStatement.setString(1, lp.getDefinitionId());
-		prepareStatement.setString(2, lp.getUUID());
-		prepareStatement.setTimestamp(3, new Timestamp(lp.getStart()));
-		prepareStatement.setInt(4, lp.getProcessState().getVal());
-
-		prepareStatement.executeUpdate();
+		PreparedStatement prepareStatement = null;
+		try {
+			prepareStatement = con.prepareStatement("insert into processes(DEFID, UUID,STARTED, STATUS) values(?,?,?,?)");
+			prepareStatement.setString(1, lp.getDefinitionId());
+			prepareStatement.setString(2, lp.getUUID());
+			prepareStatement.setTimestamp(3, new Timestamp(lp.getStart()));
+			prepareStatement.setInt(4, lp.getProcessState().getVal());
+			prepareStatement.executeUpdate();
+		}finally {
+			if (prepareStatement != null) prepareStatement.close();
+		}
 	}
 
 	public static void updateProcessState(Connection con, String uuid, States state) throws SQLException {
-		PreparedStatement prepareStatement = con.prepareStatement("update processes set STATUS = ? where UUID=?");
-		prepareStatement.setInt(1, state.getVal());
-		prepareStatement.setString(2, uuid);
-		prepareStatement.executeUpdate();
+		PreparedStatement prepareStatement = null;
+		try {
+			prepareStatement = con.prepareStatement("update processes set STATUS = ? where UUID=?");
+			prepareStatement.setInt(1, state.getVal());
+			prepareStatement.setString(2, uuid);
+			prepareStatement.executeUpdate();
+		} finally {
+			if (prepareStatement != null) prepareStatement.close();
+		}
 	}
 
 	public static void updateProcessName(Connection con, String uuid, String name) throws SQLException {
-		PreparedStatement prepareStatement = con.prepareStatement("update processes set NAME = ? where UUID=?");
-		prepareStatement.setString(1, name);
-		prepareStatement.setString(2, uuid);
-		prepareStatement.executeUpdate();
+		PreparedStatement prepareStatement =  null;
+		try {
+			prepareStatement = con.prepareStatement("update processes set NAME = ? where UUID=?");
+			prepareStatement.setString(1, name);
+			prepareStatement.setString(2, uuid);
+			prepareStatement.executeUpdate();
+		} finally {
+			if (prepareStatement != null) prepareStatement.close();
+		}
 	}
 
 	public static void updateProcessPID(Connection con, String pid, String uuid) throws SQLException {
-		PreparedStatement prepareStatement = con.prepareStatement("update processes set PID = ? where UUID=?");
-		prepareStatement.setInt(1, Integer.parseInt(pid));
-		prepareStatement.setString(2, uuid);
-		prepareStatement.executeUpdate();
+		PreparedStatement prepareStatement =  null;
+		try {
+			prepareStatement = con.prepareStatement("update processes set PID = ? where UUID=?");
+			prepareStatement.setInt(1, Integer.parseInt(pid));
+			prepareStatement.setString(2, uuid);
+			prepareStatement.executeUpdate();
+		} finally {
+			if (prepareStatement != null) prepareStatement.close();
+		}
 	}
 }
