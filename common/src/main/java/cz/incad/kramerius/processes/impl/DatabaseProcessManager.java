@@ -195,6 +195,7 @@ public class DatabaseProcessManager implements LRProcessManager {
 	public int getNumberOfLongRunningProcesses() {
 		Connection connection = null;
 		PreparedStatement stm = null;
+		ResultSet rs = null;
 		try {
 			connection = provider.get();
 			if (connection != null) {
@@ -204,7 +205,7 @@ public class DatabaseProcessManager implements LRProcessManager {
 				StringBuffer buffer = new StringBuffer("select count(*) from PROCESSES ");
 				
 				stm = connection.prepareStatement(buffer.toString());
-				ResultSet rs = stm.executeQuery();
+				rs = stm.executeQuery();
 				int count = 0;
 				if(rs.next()) {
 					count = rs.getInt(1);
@@ -214,6 +215,13 @@ public class DatabaseProcessManager implements LRProcessManager {
 		} catch (SQLException e) {
 			LOGGER.log(Level.SEVERE, e.getMessage(), e);
 		} finally {
+			if (rs != null) {
+				try {
+					rs.close();
+				} catch (SQLException e) {
+					LOGGER.log(Level.SEVERE, e.getMessage(), e);
+				}
+			}
 			if (stm != null) {
 				try {
 					stm.close();
