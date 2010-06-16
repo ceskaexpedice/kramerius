@@ -37,8 +37,9 @@ public class ImportsViewObject {
 	
 	private void readFiles() throws IOException {
 		FileReader reader = new FileReader(this.successLog);
+		BufferedReader bufReader = null;
 		try  {
-			BufferedReader bufReader = new BufferedReader(reader);
+			bufReader = new BufferedReader(reader);
 			String line = null;
 			while((line=bufReader.readLine()) != null) {
 				SuccessfulImportViewObject itm =  readSucceedItem(line);
@@ -47,12 +48,21 @@ public class ImportsViewObject {
 				}
 			}
 		} finally {
-			reader.close();
+			try {
+				bufReader.close();
+			} catch (Exception e) {
+				LOGGER.log(Level.SEVERE, e.getMessage(), e);
+			}
+			try{
+				reader.close();
+			}catch(Exception e) {
+				LOGGER.log(Level.SEVERE, e.getMessage(), e);
+			}
 		}
 
 		reader = new FileReader(this.failureLog);
 		try  {
-			BufferedReader bufReader = new BufferedReader(reader);
+			bufReader = new BufferedReader(reader);
 			String line = null;
 			while((line=bufReader.readLine()) != null) {
 				FailedImportViewObject itm =  readFailedItem(line);
@@ -61,7 +71,16 @@ public class ImportsViewObject {
 				}
 			}
 		} finally {
-			reader.close();
+			try {
+				bufReader.close();
+			} catch (Exception e) {
+				LOGGER.log(Level.SEVERE, e.getMessage(), e);
+			}
+			try{
+				reader.close();
+			}catch(Exception e) {
+				LOGGER.log(Level.SEVERE, e.getMessage(), e);
+			}
 		}
 	}
 
