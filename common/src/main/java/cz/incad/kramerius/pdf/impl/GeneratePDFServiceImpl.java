@@ -443,6 +443,8 @@ public class GeneratePDFServiceImpl implements GeneratePDFService {
 				private OutlineItem createOutlineItem(OutlineItem parent, String objectId, String biblioModsTitle, int level) {
 					OutlineItem item = new OutlineItem();
 					item.setDestination(objectId);
+
+					
 					item.setTitle(biblioModsTitle);
 					
 					parent.addChild(item);
@@ -495,6 +497,9 @@ public class GeneratePDFServiceImpl implements GeneratePDFService {
 				String key = "pdf."+attribute;
 				if (resourceBundle.containsKey(key)) {
 					page.setOutlineTitle(page.getPageNumber()+" "+resourceBundle.getString(key));
+				} else {
+					page.setOutlineTitle(page.getPageNumber());
+					//throw new RuntimeException("");
 				}
 			}
 			if ((renderedDocument.getUuidTitlePage() == null) && ("TitlePage".equals(attribute))) {
@@ -845,7 +850,10 @@ public class GeneratePDFServiceImpl implements GeneratePDFService {
 	public File templatesFolder() {
 		String dirName = Constants.WORKING_DIR + File.separator + "templates";
 		File dir = new File(dirName);
-		if (!dir.exists()) { dir.mkdirs(); }
+		if (!dir.exists()) { 
+			boolean mkdirs = dir.mkdirs();
+			if (!mkdirs) throw new RuntimeException("cannot create folder '"+dir.getAbsolutePath()+"'");
+		}
 		return dir;
 	}
 
