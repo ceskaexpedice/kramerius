@@ -29,9 +29,9 @@ public class DatabaseUtils {
 		ResultSet rs = null;
 		try {
 			String[] types = {"TABLE"};
-			ResultSet tables = con.getMetaData().getTables(null, null, "%", types);
-			while(tables.next()) {
-				if ("PROCESSES".equals(tables.getString("TABLE_NAME").toUpperCase())) {
+			rs = con.getMetaData().getTables(null, null, "%", types);
+			while(rs.next()) {
+				if ("PROCESSES".equals(rs.getString("TABLE_NAME").toUpperCase())) {
 					return true;
 				}
 			}
@@ -46,6 +46,7 @@ public class DatabaseUtils {
 		try {
 			prepareStatement = con.prepareStatement("CREATE TABLE PROCESSES(DEFID VARCHAR(255), UUID VARCHAR(255) ,PID int,STARTED timestamp, STATUS int, NAME VARCHAR(1024))");
 			int r = prepareStatement.executeUpdate();
+			LOGGER.finest("CREATE TABLE: updated rows "+r);
 		} finally {
 			if (prepareStatement != null) prepareStatement.close();
 		}
