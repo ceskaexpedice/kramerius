@@ -13,6 +13,8 @@ import java.io.OutputStream;
 import java.io.Reader;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.security.AccessController;
+import java.security.PrivilegedAction;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Enumeration;
@@ -56,11 +58,16 @@ public class ResourceBundleServiceImpl implements ResourceBundleService {
 
 
 	@Override
-	public ResourceBundle getResourceBundle(String name, Locale locale) throws IOException {
-		File resourcesDir = checkFiles(name);
+	public ResourceBundle getResourceBundle(final String name, final Locale locale) throws IOException {
+		final File resourcesDir = checkFiles(name);
 		ResourceBundle parentBundle = ResourceBundle.getBundle(name, locale);
-		FolderResourceBundle resBundle = (FolderResourceBundle) ResourceBundle.getBundle(name, locale, new ResourceClassLoader(), new ResourceBundleControl(resourcesDir));
+		FolderResourceBundle resBundle =  AccessController.doPrivileged(new PrivilegedAction<FolderResourceBundle>() {
+			@Override
+			public FolderResourceBundle run() {
+				return (FolderResourceBundle) ResourceBundle.getBundle(name, locale, new ResourceClassLoader(), new ResourceBundleControl(resourcesDir));			}
+		});
 		resBundle.setParentBundle(parentBundle);
+
 		return resBundle;
 	}
 
