@@ -6,5 +6,4 @@
 
 <div id="indexer" style="display:none;">
     <div id="indexerContent">Prosím vyčkejte...</div>
-    
 </div>

@@ -1,25 +1,13 @@
 
-function getFirstAndContinue(pid, model, div, list, models){
-    var url = 'inc/details/biblioToRdf.jsp?&pid=uuid:' + pid + "&xsl="+model+".jsp&language=" + language;
-    $.get(url, function(xml) {
-        $(div).html(xml);
-        if($(div).hasClass("selected")){
-            $(div).parent().parent().children(".relInfo").html(xml);
-        }
-        alert(xml);
-        var pid2;
-        for(var i=1;i<models.length;i++){
-            pid2 = models[i]; 
-            getBiblioInfo(pid2, model, list+">div[id="+pid2+"]");
-        }
-    });
-}
 
-function getBiblioInfo(pid, model, div){
+function getBiblioInfo(pid, model, list, inf, setInf){
     var url = 'inc/details/biblioToRdf.jsp?&pid=uuid:' + pid + "&xsl="+model+".jsp&language=" + language;
     $.get(url, function(xml) {
-        $(div).html(xml);
-        $(div).attr('hasbiblio', 'true');
+        $(".relItem[pid='" + pid + "']").html(xml);
+        $(".relItem[pid='" + pid + "']").attr('hasbiblio', 'true');
+        if(setInf){
+            $(inf).html(xml);
+        }
     });
 }
 
@@ -62,7 +50,7 @@ function selectingPage(obj, level, model){
 
     
     //changeSelection($(obj).attr("id"), $(d1).attr("pid"));
-    changeSelection($(d2).attr("pid"),$(obj).attr("id"));
+    changeSelection($(d2).attr("pid"),$(obj).attr("pid"));
     showInfo($(d1+">ul>li>img"), d1, model);
     
 }
@@ -84,15 +72,16 @@ function selectNext(){
 }
 
 function changeSelectedPage(pid){
-    var obj = $("#" + pid);
-    //alert($(obj).length);
-    $(obj).parent().children(".relItem").removeClass('selected');
-    $(obj).addClass('selected');
-    var infoObj = $(obj).parent().parent().children("[id=info-page]");
-    if($(obj).attr('hasbiblio')=='true'){
-        infoObj.html($(obj).text());
-    }
-    scrollElement($(obj).parent(), $(obj));
+    $(".relItem[pid='" + pid + "']").each(function(i, obj){
+       
+      $(obj).parent().children(".relItem").removeClass('selected');
+      $(obj).addClass('selected');
+      var infoObj = $(obj).parent().parent().children("[id=info-page]");
+      if($(obj).attr('hasbiblio')=='true'){
+          infoObj.html($(obj).text());
+      }
+      scrollElement($(obj).parent(), $(obj));
+    });
 }
 
 function selectItem(obj, level, model){
@@ -102,7 +91,7 @@ function selectItem(obj, level, model){
     clearThumbs();
     $(obj).addClass('selected');
     var d1 = "#tabs_" + level;
-    $(d1).attr('pid', $(obj).attr("id"));
+    $(d1).attr('pid', $(obj).attr("pid"));
     $(d1 + ">div>div[id=info-"+model+"]").html($(obj).text());
     var d2 = "#tabs_" + (level+1);
     var l = $(d2).tabs('length');
@@ -123,28 +112,25 @@ function selectItem(obj, level, model){
     var url ="itemMenu.jsp?language="+language+"&pid_path="+$(obj).attr("id")+"&path="+model+"&level="+target;
     $('#mainContent').html(imgLoadingBig);
     //$('#mainContent').html('imgLoadingBig');
-    //alert(imgLoadingBig);
     $.get(url, function(data){
         $(p).append(data);
-        getItemRels($(obj).attr("id"), "", level, true);
+        getItemRels($(obj).attr("pid"), "", level, true);
         
     });
     
 }
 
-function getItemRels(pid, selectedpid, level, recursive){
+function getItemRels(pid, selectedpid, level, recursive, rootModel){
     if(!pid) return;
     var url ="GetRelsExt?language="+language+"&relation=*&format=json&pid=uuid:"+pid;
     var target_level = level + 1;
     $.getJSON(url, function(data){
         var obj = "#tabs_" + target_level;
-        //alert(obj);
         $.each(data.items, function(i,item){
             if($(obj).length==0){
-                $("#tabs_" + level + ">div").append('<div id="tabs_' + target_level +'" pid="' + pid +'"><ul></ul></div>');
+                $("#tabs_" + level + ">div."+rootModel).append('<div id="tabs_' + target_level +'" pid="' + pid +'"><ul></ul></div>');
                 var t = "#tab"+target_level+"-";
                 t="";
-                //alert(t);
                 $(obj).tabs({ 
                     tabTemplate: '<li><a href="'+t+'#{href}">#{label}</a><img width="12" src="img/empty.gif" class="op_list" onclick="showList(this, \''+obj+'\', \'#{href}\')" /></li>',
                     panelTemplate: '<li></li>'
@@ -155,16 +141,12 @@ function getItemRels(pid, selectedpid, level, recursive){
             $.each(item, function(m,model2){
                 
                 if(model2[0]=="kramerius:hasDonator"){
-                    //alert($("#tabs_" + level + ">div>div[id|=info]").length);
                     $("#itemTree").append('<img src="http://194.108.215.227:8080/fedora/get/donator:'+model2[1]+'/LOGO" />');
                     
                 }else{
                   list = obj + ">div>div[id=list-"+m+"]";
-                  //alert(list + " length: " + $(list).length);
                   if($(list).length==0){
-                      //alert(m);
-                      //alert($(obj).tabs('option' ,'tabTemplate'));
-                      str_div ='<div id="tab'+target_level+'-'+m+'">';
+                      str_div ='<div id="tab'+target_level+'-'+m+'" class="'+m+'">';
                       str_div +='<div class="relInfo"  id="info-'+m+'">a</div>';
                       str_div +='<div style="display:none;" id="list-'+m+'" class="relList"></div>';
                       str_div +='</div>';
@@ -173,9 +155,6 @@ function getItemRels(pid, selectedpid, level, recursive){
                       //$(obj).tabs("add", m, model2[0]);
 
                       $(obj+">ul>li>img."+m).toggleClass('op_info');
-                      
-                      
-                      
                   }else{
 
                   }
@@ -188,11 +167,12 @@ function getItemRels(pid, selectedpid, level, recursive){
             $.each(item, function(m,model2){
                     
                 var list = "#tabs_" + (target_level) + ">div>div[id=list-"+m+"]";
+                var inf = "#tabs_" + (target_level) + ">div>div[id=info-"+m+"]";
                 var item;
                 var pid2;
                 for(var i=1;i<model2.length;i++){
                     pid2 = model2[i]; 
-                    item = '<div id="'+pid2+'" hasbiblio="false" class="relItem '+m+'" title=""' ;
+                    item = '<div pid="'+pid2+'" id="'+pid2+'" hasbiblio="false" class="relItem '+m+'" title=""' ;
                     if(m=='page'){
                         item+= ' onclick="selectingPage(this, '+target_level+', \''+ m +'\')" ';
                     }else{
@@ -214,33 +194,33 @@ function getItemRels(pid, selectedpid, level, recursive){
                 
                 for(var i=1;i<model2.length;i++){
                     pid2 = model2[i]; 
-                    getBiblioInfo(pid2, m, list+">div[id="+pid2+"]", false);
+                    getBiblioInfo(pid2, m, list+'>div[pid='+pid2+']', inf, recursive&&i==1);
                 }
                   
             });
         });
-        if(hasPages){
-            //alert('qq');
-            //initialize();
-            //changeSelection(initParent, initPage);
-        }
+        
           
         if(selectedpid!=""){
             $('#'+selectedpid).addClass('selected');
             //setTimeout("scrollElement('#"+selectedpid+":parent', '#"+selectedpid+"')", 100);
             scrollElement($('#'+selectedpid).parent(), $('#'+selectedpid));
         }else{
-            list = obj+">div>div[class=relList]>div:first";
-            var info = obj+">div>div[class=relInfo]";
-            //var img = $(obj+">ul>li>img");
-            $(list).addClass('selected');
-            //alert($(list).html());
-            $(info).html($(list).html());
-            //showList(img, obj, $(obj+">ul>li:first").text());
+            $(obj+">div").each(function(index, o){
+              list = "#"+o.id+">div.relList>div:first";
+              var info = "#"+o.id+">div.relInfo";
+              $(list).addClass('selected');
+              $(info).html($(list).html());
+            });
         }
         if(recursive){
-            if($(obj).length>0)
-                getItemRels($(obj+">div:first>div[class=relList]>div:first").attr("id"), "", level+1, recursive);
+            if($(obj).length>0){
+                $(obj+">div").each(function(index, o){
+                    var currModel = o.id.substring(o.id.indexOf('-')+1);
+                    getItemRels($("#"+o.id+">div.relList>div:first").attr("pid"), "", level+1, recursive, currModel);
+                });
+                
+            }
         }
     });
 }
@@ -288,8 +268,8 @@ function openGeneratePdfDialog(level){
                         	path = path+$("#tabs_"+level).attr('pid');
                         	if (i != level-1) { path = path +"/"; }
                         }
-                        var fromUuid = $("#list-page>div.relItem")[$("#genPdfStart").val()-1].attributes['id'].value;
-        				var toUuid = $("#list-page>div.relItem")[$("#genPdfEnd").val()-1].attributes['id'].value;
+                        var fromUuid = $("#list-page>div.relItem")[$("#genPdfStart").val()-1].attributes['pid'].value;
+        				var toUuid = $("#list-page>div.relItem")[$("#genPdfEnd").val()-1].attributes['pid'].value;
                         var url = "pdf?uuidFrom=" + fromUuid+"&uuidTo="+toUuid+"&path="+path;
                         window.location.href = url;
                         $(this).dialog("close");
@@ -301,7 +281,7 @@ function openGeneratePdfDialog(level){
                         }
                         //alert($("#genPdfEnd").val() - $("#genPdfStart").val());
                         var fromUuid = $("#list-page>div.relItem")[$("#genPdfStart").val()-1].attributes['id'].value;
-        				var toUuid = $("#list-page>div.relItem")[$("#genPdfEnd").val()-1].attributes['id'].value;
+        				var toUuid = $("#list-page>div.relItem")[$("#genPdfEnd").val()-1].attributes['pid'].value;
                         var url = "pdf?uuidFrom=" + fromUuid+"&uuidTo="+toUuid+"&path="+path;
                         window.location.href = url;
                         $(this).dialog("close");
@@ -328,11 +308,12 @@ function showList(obj, tab, model){
     if(m.indexOf("-")>-1){
         m = m.split("-")[1];
     }
-    
     if($(tab + ">div>div[id=info-"+m+"]").text()==""){
-        
         $(tab + ">div>div[id=info-"+m+"]").html($(tab+">div>div[id=list-"+m+"]>div.selected").text());
     }
+    var h = $(window).height() - $(tab).offset().top - $(tab).height();
+    $(tab + ">div>div[id=list-"+m+"]").css('max-height', h);
+    $(tab + ">div>div[id=list-"+m+"]").css('_height', 'expression(this.scrollHeight > '+h+'? "'+h+'px" : "auto" )');
     
     $(tab + ">div>div[id=list-"+m+"]").toggle();
     

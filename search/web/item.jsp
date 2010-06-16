@@ -82,25 +82,17 @@
             <tr valign='top'>
                 <td>
                     <%
-                    //ArrayList<String> pids = new ArrayList<String>();
-                    //pids.addAll(request.getParameter("pid_path").split("/"));
                     ArrayList<String> pids2 =  new ArrayList<String>(Arrays.asList((String [])request.getParameter("pid_path").split("/")));
                     ArrayList<String> models2 =  new ArrayList<String>(Arrays.asList((String [])request.getParameter("path").split("/")));
-
-                    //ArrayList<String> models = new ArrayList<String>();
-                    //models.addAll(request.getParameter("path").split("/"));
                     FedoraUtils.fillFirstPagePid(pids2, models2);
-                    
-
                     imagePid = pids2.get(pids2.size()-1);
-                    
                     %>
                     <table cellpadding="0" cellspacing="0" width="100%"><tr>
-                        <td valign="top" align="center" width="70px"><span class="prevArrow" style="padding:15px;cursor:pointer;width:70px;" onclick="selectPrevious();"><img src="img/la.png" /></span></td>
+                        <td valign="top" align="center" width="20px"><a class="prevArrow"  href="javascript:selectPrevious();"><img src="img/la.png" border="0" /></a></td>
                         <td valign="top" align="center" id="mainContent"><a href="javascript:showFullImage('<%=imagePid%>')" class="lighbox">
                                 <img border="0" width="544px" onerror="showError();" src="djvu?uuid=<%=imagePid%>&amp;scaledHeight=600" id="imgBig">
                             </a></td>
-                        <td valign="top" align="center" width="70px"><span class="nextArrow" onclick="selectNext();" style="padding: 15px; cursor: pointer;width:70px;"><img src="img/ra.png" /></span></td>
+                        <td valign="top" align="center" width="20px"><a class="nextArrow"  href="javascript:selectNext();"><img src="img/ra.png" border="0" /></a></td>
                     </tr></table>
                 </td>
                 <td class="itemMenu">

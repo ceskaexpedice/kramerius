@@ -396,7 +396,7 @@ var _indexerDialog;
  */
 function showIndexerAdmin(){
     hideAdminMenu();
-    var url = "dialogs/_indexer_data.jsp?model=monograph&offset=0";
+    var url = "dialogs/_indexer_data.jsp?offset=0";
     $.get(url, function(data) {
         $("#indexerContent").html(data);
     });
@@ -418,10 +418,11 @@ function showIndexerAdmin(){
     }
 }
 
-function loadFedoraDocuments(model, offset){
-    var url = "dialogs/_indexer_data.jsp?model="+model+"&offset="+offset;
+function loadFedoraDocuments(model, offset, sort, sort_dir){
+    var url = "dialogs/_indexer_data.jsp?model="+model+"&offset="+offset+"&sort="+sort+"&sort_dir="+sort_dir;
     $.get(url, function(data) {
         $("#indexerContent").html(data);
+        //$("tr."+model).toggleClass('selected');
     });
 }
 

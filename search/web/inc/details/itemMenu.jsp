@@ -43,16 +43,19 @@ Get Biblio mods
         $(document).ready(function(){
             var obj = "<c:out value="${obj}" />";
             var tabTemp = '<li><a href="<c:out value="${href}" />"><c:out value="${label}" /></a><img width="12px" src="img/empty.gif" class="op_list" onclick="showList(this, \''+obj+'\', \'<c:out value="${href}" />\')" /></li>';
-            //alert(obj);
+            
             $(obj).tabs({ tabTemplate: tabTemp });
-           //alert(ttt);
+           
+    <%--
            getItemRels('<c:out value="${pids[status.count-1]}" />', '<c:out value="${pids[status.count]}" />', <c:out value="${cur_level}" />, <c:out value="${status.count == fn:length(models)}" />);
+           
+    --%>
         });
     </script>
     <div id="tabs_<c:out value="${cur_level}" />" style="padding:2px;" pid="<c:out value="${uuid}" />">
         <ul><li><a href="#tab<c:out value="${status.count}" />-<c:out value="${models[status.count -1]}" />" ><fmt:message bundle="${lctx}"><c:out value="${models[status.count -1]}" /></fmt:message>
         </a><img width="12px" src="img/empty.gif" class="op_list" onclick="showList(this, '#tabs_<c:out value="${cur_level}" />', '<c:out value="${models[status.count -1]}" />')" /></li></ul>
-        <div id="tab<c:out value="${cur_level}" />-<c:out value="${models[status.count -1]}" />" >
+        <div id="tab<c:out value="${cur_level}" />-<c:out value="${models[status.count -1]}" />" class="<c:out value="${models[status.count -1]}" />" >
     <jsp:useBean id="uuid" type="java.lang.String" />
     <c:set var="urlStr" >
         <c:out value="${kconfig.fedoraHost}" />/get/uuid:<c:out value="${uuid}" />/BIBLIO_MODS
@@ -96,10 +99,14 @@ Get Biblio mods
 
 <script language="javascript">
     $(document).ready(function(){
+       
+           
+           getItemRels('<c:out value="${pids[0]}" />', '<c:out value="${pids[1]}" />', <c:out value="${1 + level}" />, true);
+        
         changeSelection('<c:out value="${pids[pathsize -2]}" />','<c:out value="${pids[pathsize -1]}" />');
-        //startPage();
-        //startItemMenu();
+        
     });
+        
     initParent = '<c:out value="${pids[pathsize -2]}" />';
     initPage = '<c:out value="${pids[pathsize -1]}" />';
     function startPage(){

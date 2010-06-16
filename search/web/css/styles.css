@@ -500,14 +500,52 @@ table.advancedSearch td{
 .adminMenuHeader td{
 	color: white;
 }
-
+.indexer_head{
+    border-bottom: 1px dashed; 
+        background: url("../img/tab_bg.png") repeat-x scroll 0 50% #FFFFFF;
+        color: white;
+        line-height:1.3;
+        padding:3px;
+}
+.indexer_head a{
+        color: white;
+}
+.indexer_head td{
+        padding:3px;
+        color: white;
+}
+.indexer_models{
+    width:150px;
+}
+.indexer_selected{
+    background:#eeeeee;
+}
 .indexer_result{
+    border-bottom:1px solid silver;
+    background:#eeeeee;
+}
+.indexer_result td{
     border-bottom:1px solid silver;
 }
 .indexer_pager{
     text-align:right;
+    background:white;
 }
 .indexer_pager a{
     margin:3px;
     padding-left:10px;
+}
+.indexer_order_down{
+    background-image: url("images/ui-icons_222222_256x240.png");
+    background-position: -64px -48px;
+    display: inline-block;
+    width:16px;
+    height:12px;
+}
+.indexer_order_up{
+    background-image: url("images/ui-icons_222222_256x240.png");
+    background-position: 0px -48px;
+    display: inline-block;
+    width:16px;
+    height:12px;
 }

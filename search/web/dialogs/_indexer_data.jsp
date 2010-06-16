@@ -17,18 +17,41 @@
 
 <fmt:setBundle basename="labels" />
 <fmt:setBundle basename="labels" var="bundleVar" />
-<table><tr><td valign="top"><div id="indexerModels" style="width:150px;border-right:1px solid silver;"><div>Top level models:</div>
+<c:set var="order" value="${param.sort}" />
+<c:if test="${empty param.sort}">
+    <c:set var="order" value="title" />
+</c:if>
+<c:set var="order_dir" value="${param.sort_dir}" />
+<c:if test="${empty param.sort_dir}">
+    <c:set var="order_dir" value="asc" />
+</c:if>
+<table cellpadding="0" cellspacing="0" border="0">
+    <tr>
+        <td valign="top"><div  class="indexer_models">
+                <table width="100%" cellpadding="0" cellspacing="0" border="0" id="indexerModels"><tr><td colspan="3">Top level models:</td></tr>
     <%
-    String[] models = kconfig.getProperty("fedora.topLevelModels").split(",");
+    //String[] models = kconfig.getProperty("fedora.topLevelModels").split(",");
+    String[] models = kconfig.getPropertyList("fedora.topLevelModels");
+    String selectedModel = request.getParameter("model");
+    if(selectedModel==null || selectedModel.length()==0){
+        selectedModel = models[0];
+    }
+    pageContext.setAttribute("selModel", selectedModel);
     for(String model:models){
+        String css = "";
+        if(model.equals(selectedModel)) css = "class=\"indexer_selected\"";
     %>
-    <div><a href="javascript:loadFedoraDocuments('<%=model%>', 0);"><%=model%></a> <a href="javascript:indexModel('<%=model%>');">index</a></div>
+    <tr <%=css%>><td><a href="javascript:loadFedoraDocuments('<%=model%>', 0, '<c:out value="${order}" />', '<c:out value="${order_dir}" />');"><%=model%></a></td>
+    <td valign="middle" width="20"><a href="javascript:loadFedoraDocuments('<%=model%>', 0, '<c:out value="${order}" />', '<c:out value="${order_dir}" />' );" title="select model"><img src="img/filter.png" border="0" /></a></td>
+    <td valign="middle" width="20"><a href="javascript:indexModel('<%=model%>');" title="index model"><img src="img/admin/reindex.png" border="0" /></a></td>
+    </tr>
     <%
     }
     %>
-</div></td>
-<td valign="top">
-<c:set var="rows" value="5" />
+</table></div></td>
+<td valign="top"><div class="indexer_selected">
+<c:set var="rows" value="10" />
+
 <c:url var="urlPage" value="${kconfig.fedoraHost}/risearch" >
     <c:param name="type" value="tuples" />
     <c:param name="flush" value="true" />
@@ -37,10 +60,11 @@
     <c:param name="distinct" value="off" />
     <c:param name="stream" value="off" />
     <c:param name="query">
-            select $object $title from <#ri> 
-            where  $object <fedora-model:hasModel> <info:fedora/model:<c:out value="${param.model}" />> 
+            select $object $title $date from <#ri> 
+            where  $object <fedora-model:hasModel> <info:fedora/model:<c:out value="${selModel}" />> 
             and  $object <dc:title> $title 
-            order by $title
+            and  $object <fedora-view:lastModifiedDate> $date 
+            order by $<c:out value="${order}" /> <c:out value="${order_dir}" />
             limit <c:out value="${rows}" />
             offset <c:out value="${param.offset}" />
     </c:param>
@@ -70,9 +94,11 @@
         <x:transform doc="${xml}"  xslt="${xsltPage}"  >
             <x:param name="rows" value="${rows}" />
             <x:param name="offset" value="${param.offset}" />
-            <x:param name="model" value="${param.model}" />
+            <x:param name="model" value="${selModel}" />
+            <x:param name="sort" value="${order}" />
+            <x:param name="sort_dir" value="${order_dir}" />
         </x:transform>
         
     </c:otherwise>
 </c:choose>
-</td></tr></table>
+</div></td></tr></table>
