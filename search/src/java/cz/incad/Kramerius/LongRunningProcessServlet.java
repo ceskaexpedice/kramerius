@@ -40,13 +40,13 @@ public class LongRunningProcessServlet extends GuiceServlet {
 			.getLogger(LongRunningProcessServlet.class.getName());
 	
 	@Inject
-	DefinitionManager definitionManager;
+	transient DefinitionManager definitionManager;
 
 	@Inject
-	LRProcessManager lrProcessManager;
+	transient LRProcessManager lrProcessManager;
 
 	@Inject
-	KConfiguration configuration;
+	transient KConfiguration configuration;
 	
 	@Override
 	protected void doGet(HttpServletRequest req, HttpServletResponse resp)
