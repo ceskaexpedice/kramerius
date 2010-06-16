@@ -26,7 +26,7 @@ import com.google.inject.Inject;
 public class InitServlet extends GuiceServlet  {
 
 	@Inject
-	KConfiguration configuration;
+	transient KConfiguration configuration;
 	
     /** 
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code> methods.
