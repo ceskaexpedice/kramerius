@@ -45,12 +45,13 @@ public class DatabaseProcessManager implements LRProcessManager {
 	public LRProcess getLongRunningProcess(String uuid) {
 		Connection connection = null;
 		PreparedStatement stm = null;
+		ResultSet rs = null;
 		try {
 			connection = provider.get();
 			if (connection != null) {
 				stm = connection.prepareStatement("select * from PROCESSES where UUID = ?");
 				stm.setString(1, uuid);
-				ResultSet rs = stm.executeQuery();
+				rs = stm.executeQuery();
 				if(rs.next()) {
 					//CREATE TABLE PROCESSES(DEFID VARCHAR, UUID VARCHAR ,PID VARCHAR,STARTED timestamp, STATUS int
 					String definitionId = rs.getString("DEFID");
@@ -66,6 +67,13 @@ public class DatabaseProcessManager implements LRProcessManager {
 		} catch (SQLException e) {
 			LOGGER.log(Level.SEVERE, e.getMessage(), e);
 		} finally {
+			if (rs != null) {
+				try {
+					rs.close();
+				} catch (SQLException e) {
+					LOGGER.log(Level.SEVERE, e.getMessage(), e);
+				}
+			}
 			if (stm != null) {
 				try {
 					stm.close();
@@ -228,6 +236,7 @@ public class DatabaseProcessManager implements LRProcessManager {
 	public List<LRProcess> getLongRunningProcesses(LRProcessOrdering ordering, TypeOfOrdering typeOfOrdering,LRProcessOffset offset) {
 		Connection connection = null;
 		PreparedStatement stm = null;
+		ResultSet rs = null;
 		try {
 			List<LRProcess> processes = new ArrayList<LRProcess>();
 			connection = provider.get();
@@ -247,7 +256,7 @@ public class DatabaseProcessManager implements LRProcessManager {
 				}
 				
 				stm = connection.prepareStatement(buffer.toString());
-				ResultSet rs = stm.executeQuery();
+				rs = stm.executeQuery();
 				while(rs.next()) {
 					//CREATE TABLE PROCESSES(DEFID VARCHAR, UUID VARCHAR ,PID VARCHAR,STARTED timestamp, STATUS int
 					String definitionId = rs.getString("DEFID");
@@ -279,6 +288,13 @@ public class DatabaseProcessManager implements LRProcessManager {
 		} catch (SQLException e) {
 			LOGGER.log(Level.SEVERE, e.getMessage(), e);
 		} finally {
+			if (rs != null) {
+				try {
+					rs.close();
+				} catch (SQLException e) {
+					LOGGER.log(Level.SEVERE, e.getMessage(), e);
+				}
+			}
 			if (stm != null) {
 				try {
 					stm.close();
