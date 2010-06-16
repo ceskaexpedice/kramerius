@@ -50,7 +50,10 @@ public class PDFExport {
 			}
 			
 			File uuidFolder = new File(getTmpDir(), uuid);
-			if (uuidFolder.exists()) { uuidFolder.delete(); }
+			if (uuidFolder.exists()) { 
+				boolean deleted = uuidFolder.delete(); 
+				if (!deleted) throw new RuntimeException("cannot delete folder '"+deleted+"'");
+			}
 			
 			Injector injector = Guice.createInjector(new PDFModule());
 			if (System.getProperty("uuid") != null) {
@@ -90,14 +93,18 @@ public class PDFExport {
 					bytes = 0;
 				}
 				bytes += file.length();
-				file.renameTo(new File(currentFolder, file.getName()));
+				boolean renamed = file.renameTo(new File(currentFolder, file.getName()));
+				if (!renamed) throw new RuntimeException("cannot rename file '"+file.getAbsolutePath()+"'");
 			}
 		}
 	}
 
 	private static File createFolder(File outputFodler, Medium medium, int pocitadlo) {
 		File dir = new File(outputFodler, medium.name()+"_"+pocitadlo);
-		if (!dir.exists()) {dir.mkdirs();}
+		if (!dir.exists()) {
+			boolean mkdirs = dir.mkdirs();
+			if (!mkdirs) throw new RuntimeException("cannot create dir '"+dir.getAbsolutePath()+"'");
+		}
 		return dir;
 	}
 
@@ -105,11 +112,14 @@ public class PDFExport {
 	private static void generatePDFs(String uuid, File uuidFolder, Injector injector, String djvuUrl, String i18nUrl) {
 		try {
 			if (!uuidFolder.exists()) { 
-				uuidFolder.mkdirs(); 
+				boolean mkdirs = uuidFolder.mkdirs();
+				if (!mkdirs) throw new RuntimeException("cannot create dir '"+uuidFolder.getAbsolutePath()+"'");
 			} else {
 					File[] files = uuidFolder.listFiles(); 
 					if (files != null) {
-						for (File file : files) { file.deleteOnExit(); }
+						for (File file : files) { 
+							file.deleteOnExit(); 
+						}
 					}
 			}
 			FedoraAccess fa = injector.getInstance(Key.get(FedoraAccess.class, Names.named("rawFedoraAccess"))); 
