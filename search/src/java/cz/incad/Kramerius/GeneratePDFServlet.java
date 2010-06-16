@@ -37,6 +37,12 @@ import cz.incad.utils.IKeys;
 
 public class GeneratePDFServlet extends GuiceServlet {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+
+	
 	public static final java.util.logging.Logger LOGGER = java.util.logging.Logger
 			.getLogger(GeneratePDFServlet.class.getName());
 	
