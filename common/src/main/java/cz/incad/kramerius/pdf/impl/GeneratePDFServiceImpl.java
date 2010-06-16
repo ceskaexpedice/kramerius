@@ -152,8 +152,20 @@ public class GeneratePDFServiceImpl implements GeneratePDFService {
 					IOUtils.copyStreams(is, os);
 				}
 			} finally {
-				if (os != null) os.close();
-				if (is != null) is.close();
+				if (os != null) {
+					try {
+						os.close();
+					} catch (Exception e) {
+						LOGGER.log(Level.SEVERE, e.getMessage(), e);
+					}
+				}
+				if (is != null) {
+					try {
+						is.close();
+					} catch(Exception e) {
+						LOGGER.log(Level.SEVERE, e.getMessage(), e);
+					}
+				}
 			}
 		}
 	}
