@@ -86,7 +86,8 @@ public class LRProcessDefinitionManagerImpl implements DefinitionManager {
 				template.setAttribute("user_home", System.getProperties().getProperty("user.home"));
 				template.setAttribute("default_lp_work_dir", DEFAULT_LP_WORKDIR);
 				String string = template.toString();
-				conFile.createNewFile();
+				boolean created = conFile.createNewFile();
+				if (!created) throw new RuntimeException("cannot create conFile '"+conFile.getAbsolutePath()+"'");
 				FileOutputStream fos = new FileOutputStream(conFile);
 				try {
 					IOUtils.copyStreams(new ByteArrayInputStream(string.getBytes(Charset.forName("UTF-8"))), fos);
