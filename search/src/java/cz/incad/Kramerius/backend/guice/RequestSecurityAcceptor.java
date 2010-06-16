@@ -14,7 +14,7 @@ import cz.incad.kramerius.utils.conf.KConfiguration;
 
 public class RequestSecurityAcceptor implements SecurityAcceptor {
 
-	public static String REMOTE_ADDRESS="remoteAddr";
+	public static final String REMOTE_ADDRESS="remoteAddr";
 	
 	
 	private Logger logger;
