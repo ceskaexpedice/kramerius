@@ -180,7 +180,8 @@ public abstract class AbstractLRProcessImpl implements LRProcess{
 
 	private File createFolderIfNotExists(String folder) {
 		File fldr= new File(folder);
-		fldr.mkdirs();
+		boolean mkdirs = fldr.mkdirs();
+		if (!mkdirs) throw new RuntimeException("cannot create directory '"+fldr.getAbsolutePath()+"'");
 		return fldr;
 	}
 
