@@ -41,7 +41,6 @@ public class TextsServiceImpl implements TextsService {
 
 	
     public  String getText(String name, Locale locale) throws IOException {
-        StringBuffer result = new StringBuffer();
         if (locale == null) {
         	locale = Locale.getDefault();
         }
