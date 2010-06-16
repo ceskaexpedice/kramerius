@@ -150,6 +150,7 @@ public abstract class AbstractLRProcessImpl implements LRProcess{
 			// pokracuje dal.. rozhoduje se, jestli pocka na vysledek procesu
 			if (wait) {
 				int val = process.waitFor();
+				LOGGER.info("return value exiting process '"+val+"'");
 			}
 			
 		} catch (IOException e) {

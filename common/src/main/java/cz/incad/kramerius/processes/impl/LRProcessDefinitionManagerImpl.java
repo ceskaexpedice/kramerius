@@ -29,6 +29,7 @@ import com.google.inject.Inject;
 import com.google.inject.name.Named;
 
 
+import cz.incad.kramerius.Constants;
 import cz.incad.kramerius.processes.LRProcess;
 import cz.incad.kramerius.processes.LRProcessDefinition;
 import cz.incad.kramerius.processes.DefinitionManager;
@@ -37,18 +38,28 @@ import cz.incad.kramerius.utils.IOUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 
 public class LRProcessDefinitionManagerImpl implements DefinitionManager {
-	
+
+
 	public static final java.util.logging.Logger LOGGER = java.util.logging.Logger
 			.getLogger(LRProcessDefinitionManagerImpl.class.getName());
 
+	@Inject
 	private KConfiguration configuration;
+	@Inject
 	private LRProcessManager processManager;
 
+	@Inject
+	@Named("LIBS")
 	private String realLibsDir = null;
+	@Inject(optional=true)
+	@Named("CONFIG")
+	private String configurationFile;
 	
 	@Inject
 	public LRProcessDefinitionManagerImpl(KConfiguration configuration,
-			LRProcessManager processManager, @Named("LIBS")String defaultLibsdir) {
+			LRProcessManager processManager, 
+			String defaultLibsdir, 
+			String configFile) {
 		super();
 		this.configuration = configuration;
 		this.processManager = processManager;
@@ -71,33 +82,10 @@ public class LRProcessDefinitionManagerImpl implements DefinitionManager {
 		try {
 			File defaultWorkDir = new File(DEFAULT_LP_WORKDIR);
 			if (!defaultWorkDir.exists()) {
-				defaultWorkDir.mkdirs();
+				boolean created = defaultWorkDir.mkdirs();
+				if (!created) throw new RuntimeException("cannot create directory '"+defaultWorkDir+"'");
 			}
 
-//			boolean copyJars = false;
-//			File defaultLibDir = new File(DEFAULT_LP_WORKDIR, "default-lib");
-//			if (!defaultLibDir.exists()) {
-//				defaultLibDir.mkdirs();
-//				copyJars = true;
-//			}
-//			if (copyJars) {
-//				File[] listFiles = new File(this.realLibsDir).listFiles(new FileFilter() {
-//					@Override
-//					public boolean accept(File pathname) {
-//						if (pathname.getName().endsWith(".jar")) {
-//							return true;
-//						} else return false;
-//					}
-//				});
-//				if (listFiles != null) {
-//					LOGGER.info("Copying libraries to default dir");
-//					for (File jarFile : listFiles) {
-//						File destFile = new File(defaultLibDir, jarFile.getName());
-//						copyFile(jarFile, destFile);
-//					}
-//				}
-//				
-//			}
 			File conFile = new File(CONFIGURATION_FILE);
 			if (!conFile.exists()) {
 				StringTemplateGroup grp = new StringTemplateGroup("m");
