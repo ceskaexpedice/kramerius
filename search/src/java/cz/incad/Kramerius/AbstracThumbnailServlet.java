@@ -50,10 +50,10 @@ public class AbstracThumbnailServlet extends GuiceServlet {
 	public static final String OUTPUT_FORMAT_PARAMETER="outputFormat";
 	
 	@Inject
-	protected transient KConfiguration configuration;
+	protected KConfiguration configuration;
 	@Inject
 	@Named("securedFedoraAccess")
-	protected transient FedoraAccess fedoraAccess;
+	protected FedoraAccess fedoraAccess;
 	
 	protected Image scale(Image img, Rectangle pageBounds, HttpServletRequest req) {
 		String spercent = req.getParameter(SCALE_PARAMETER);
