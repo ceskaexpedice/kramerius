@@ -100,7 +100,10 @@ public class TextsServiceImpl implements TextsService {
 	public File textsFolder() {
 		String dirName = Constants.WORKING_DIR + File.separator + "texts";
 		File dir = new File(dirName);
-		if (!dir.exists()) { dir.mkdirs(); }
+		if (!dir.exists()) { 
+			boolean mkdirs = dir.mkdirs();
+			if (!mkdirs)  throw new RuntimeException("cannot create dir '"+dir.getAbsolutePath()+"'");
+		}
 		return dir;
 	}
 
