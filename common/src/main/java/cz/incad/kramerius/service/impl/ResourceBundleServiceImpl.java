@@ -47,7 +47,10 @@ public class ResourceBundleServiceImpl implements ResourceBundleService {
 		String dirName = Constants.WORKING_DIR + File.separator + "bundles";
 		if (workingDir != null) dirName = workingDir + File.separator + "bundles";
 		File dir = new File(dirName);
-		if (!dir.exists()) { dir.mkdirs(); }
+		if (!dir.exists()) { 
+			boolean created = dir.mkdirs();
+			if (!created) throw new RuntimeException("cannot create dir '"+dir.getAbsolutePath()+"'");
+		}
 		return dir;
 	}
 
