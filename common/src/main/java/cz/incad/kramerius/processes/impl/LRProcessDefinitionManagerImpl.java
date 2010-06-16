@@ -42,24 +42,17 @@ public class LRProcessDefinitionManagerImpl implements DefinitionManager {
 
 	public static final java.util.logging.Logger LOGGER = java.util.logging.Logger
 			.getLogger(LRProcessDefinitionManagerImpl.class.getName());
-
-	@Inject
 	private KConfiguration configuration;
-	@Inject
 	private LRProcessManager processManager;
 
-	@Inject
-	@Named("LIBS")
 	private String realLibsDir = null;
-	@Inject(optional=true)
-	@Named("CONFIG")
 	private String configurationFile;
 	
 	@Inject
 	public LRProcessDefinitionManagerImpl(KConfiguration configuration,
 			LRProcessManager processManager, 
-			String defaultLibsdir, 
-			String configFile) {
+			@Named("LIBS")String defaultLibsdir//, 
+			/*String configFile*/) {
 		super();
 		this.configuration = configuration;
 		this.processManager = processManager;
