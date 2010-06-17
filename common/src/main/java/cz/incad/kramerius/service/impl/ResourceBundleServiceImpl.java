@@ -32,7 +32,6 @@ import com.google.inject.Inject;
 import com.google.inject.internal.Nullable;
 import com.google.inject.name.Named;
 
-import sun.applet.resources.MsgAppletViewer;
 
 import cz.incad.kramerius.Constants;
 import cz.incad.kramerius.service.ResourceBundleService;
