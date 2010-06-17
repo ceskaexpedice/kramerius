@@ -357,8 +357,12 @@ public class FedoraAccessImpl implements FedoraAccess {
 	}
 	
 	public static String dsProfile(KConfiguration configuration, String ds, String uuid) {
-		//http://194.108.215.227:8080/fedora/objects/uuid:1c0a2377-e642-11de-a504-001143e3f55c/datastreams/IMG_FULL?format=text/xml
 		String fedoraObject = configuration.getFedoraHost() +"/objects/uuid:"+uuid;
+		return fedoraObject + "/datastreams/"+ds+"?format=text/xml";
+	}
+
+	public static String dsProfileForPid(KConfiguration configuration, String ds, String pid) {
+		String fedoraObject = configuration.getFedoraHost() +"/objects/"+pid;
 		return fedoraObject + "/datastreams/"+ds+"?format=text/xml";
 	}
 
@@ -482,9 +486,34 @@ public class FedoraAccessImpl implements FedoraAccess {
             }});
         return retval;
     }
-    
-    
-    
-   
-    
+
+	@Override
+	public InputStream getDataStream(String pid, String datastreamName) throws IOException {
+    	String datastream = configuration.getFedoraHost()+"/get/"+pid+"/"+datastreamName;
+		HttpURLConnection con = (HttpURLConnection) openConnection(datastream,configuration.getFedoraUser(), configuration.getFedoraPass());
+		con.connect();
+		if (con.getResponseCode() == HttpURLConnection.HTTP_OK) {
+			InputStream thumbInputStream = con.getInputStream();
+			return thumbInputStream;
+		} throw new IOException("404");
+	}
+
+	@Override
+	public String getMimeTypeForStream(String pid, String datastreamName) throws IOException {
+		HttpURLConnection con = (HttpURLConnection) openConnection(dsProfileForPid(configuration, datastreamName ,pid),configuration.getFedoraUser(), configuration.getFedoraPass());
+		InputStream stream = con.getInputStream();
+		try {
+			Document parseDocument = XMLUtils.parseDocument(stream, true);
+			return mimetypeFromProfile(parseDocument);
+		} catch (ParserConfigurationException e) {
+			LOGGER.log(Level.SEVERE, e.getMessage(), e);
+			throw new IOException(e);
+		} catch (SAXException e) {
+			LOGGER.log(Level.SEVERE, e.getMessage(), e);
+			throw new IOException(e);
+		} catch (XPathExpressionException e) {
+			LOGGER.log(Level.SEVERE, e.getMessage(), e);
+			throw new IOException(e);
+		}	
+	}
 }
