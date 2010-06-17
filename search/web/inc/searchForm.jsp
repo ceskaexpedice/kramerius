@@ -84,8 +84,8 @@
         <div align="left"> <a href="javascript:importMonographs(); javascript:hideAdminMenu();"><fmt:message bundle="${lctx}">administrator.menu.dialogs.importMonograph.title</fmt:message></a> </div>	
         <div align="left"> <a href="javascript:importPeriodicals(); javascript:hideAdminMenu();"><fmt:message bundle="${lctx}">administrator.menu.dialogs.importPeriodical.title</fmt:message></a> </div>	
         <div align="left"> <a href="javascript:showIndexerAdmin();"><fmt:message bundle="${lctx}">administrator.menu.dialogs.indexDocuments.title</fmt:message></a> </div>
-		<div align="left"> <a href="javascript:enumerator(); javascript:hideAdminMenu();"><fmt:message bundle="${lctx}">administrator.menu.dialogs.enumerator.title</fmt:message></a> </div>	
-		<div align="left"> <a href="javascript:replicationrights(); javascript:hideAdminMenu();"><fmt:message bundle="${lctx}">administrator.menu.dialogs.replicationRights.title</fmt:message></a> </div>	
+	<div align="left"> <a href="javascript:enumerator(); javascript:hideAdminMenu();"><fmt:message bundle="${lctx}">administrator.menu.dialogs.enumerator.title</fmt:message></a> </div>	
+	<div align="left"> <a href="javascript:replicationrights(); javascript:hideAdminMenu();"><fmt:message bundle="${lctx}">administrator.menu.dialogs.replicationRights.title</fmt:message></a> </div>	
     </div>
 </div>
 

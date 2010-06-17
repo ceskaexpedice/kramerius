@@ -9,7 +9,7 @@
 	<div id="process_started_waiting" style="display:none;margin: 16px; font-family: sans-serif; font-size: 10px; ">
     	<table>
     		<tr><td align="center"><img src="img/loading2.gif" height="16px" width="16px"/></td></tr>
-			<tr><td align="center"><fmt:message bundle="${lctx}">administrator.dialogs.waitingexport</fmt:message></td></tr>
+		<tr><td align="center"><fmt:message bundle="${lctx}">administrator.dialogs.waitingexport</fmt:message></td></tr>
     	</table>
 	</div>
 	<div id="process_started_ok" style="display:none;margin: 12px;">
@@ -25,7 +25,7 @@
 	<div id="reindex_started_waiting" style="display:none;margin: 16px; font-family: sans-serif; font-size: 10px; ">
     	<table>
     		<tr><td align="center"><img src="img/loading2.gif" height="16px" width="16px"/></td></tr>
-			<tr><td align="center"><fmt:message bundle="${lctx}">administrator.dialogs.waitingreindex</fmt:message></td></tr>
+		<tr><td align="center"><fmt:message bundle="${lctx}">administrator.dialogs.waitingreindex</fmt:message></td></tr>
     	</table>
 	</div>
 	<div id="reindex_started_ok" style="display:none;margin: 12px;">
@@ -104,4 +104,11 @@
 	<div id="replicationrights_started_failed" style="display:none;margin: 12px;">
 		<p style="font-family: sans-serif; font-size: 12px; font-weight: bold;"><fmt:message bundle="${lctx}">administrator.dialogs.replicationrightsfailed</fmt:message></p>
 	</div>
+</div>
+
+<!-- confirmation dialog -->
+
+<div id="confirm_dialog" title="<fmt:message bundle="${lctx}">administrator.dialogs.confirm</fmt:message>" style="display:none;">
+	<span class="ui-icon ui-icon-alert" style="float:left; margin:0 7px 20px 0;"></span>
+        <span id="proccess_confirm_text"></span>
 </div>

@@ -10,7 +10,27 @@ $(document).ready(function(){
 });
 
 
+function showConfirmDialog(t,f){
+    $("#confirm_dialog").dialog('destroy');
+    $( "#proccess_confirm_text" ).html(t);
+    $( "#confirm_dialog" ).dialog({
+        resizable: false,
+        height:140,
+        modal: true,
+        buttons: {
+            Ok: function() {
+                $(this).dialog('destroy');
+                f();
+                //return true;
+            },
+            Cancel: function() {
+                $(this).dialog('destroy');
+                //return false;
+            }
+        }
 
+    });
+}
 
 function showAdminMenu() {
 	var headerPosition = $("#header").offset();
@@ -28,9 +48,6 @@ function showAdminMenu() {
 function hideAdminMenu() {
 	$("#adminMenu").css("display","none");
 }
-
-
-
 
 var _processDialog; // dialog na zobrazovani proceus
 function openProcessDialog() {
@@ -110,6 +127,7 @@ var _actions=function() {
 
 var _monographsDialog;
 function importMonographs() {
+    showConfirmDialog('Confirm import monografii', function(){
 	var url = "lr?action=start&def=replikator_monograph&out=text";
 	if (_monographsDialog) {
     	$("#replikator_monograph_started_ok").hide();
@@ -133,38 +151,12 @@ function importMonographs() {
 	}
 
 	_startProcess(url);
-}
-
-
-var _monographsDialog;
-function importMonographs() {
-	var url = "lr?action=start&def=replikator_monographs&out=text";
-	if (_monographsDialog) {
-    	$("#replikator_monograph_started_ok").hide();
-    	$("#replikator_monograph_started_failed").hide();
-    	$("#replikator_monograph_started_waiting").show();
-    	_monographsDialog.dialog('open');
-	} else {
-    	$("#replikator_monograph_started_waiting").show();
-    	_monographsDialog = $("#replikator_monograph_started").dialog({
-	        bgiframe: true,
-	        width: 400,
-	        height: 100,
-	        modal: true,
-	        title: dictionary['administrator.menu.dialogs.importMonograph.title'],
-	        buttons: {
-	            "Close": function() {
-	                $(this).dialog("close"); 
-	            } 
-	        } 
-	    });
-	}
-
-	_startProcess(url);
+    });
 }
 
 var _periodicalsDialog;
 function importPeriodicals() {
+    showConfirmDialog('Confirm import periodik', function(){
 	var url = "lr?action=start&def=replikator_periodicals&out=text";
 	if (_periodicalsDialog) {
     	$("#replikator_periodical_started_ok").hide();
@@ -188,6 +180,7 @@ function importPeriodicals() {
 	}
 
 	_startProcess(url);
+    });
 }
 
 /**
@@ -197,6 +190,7 @@ function importPeriodicals() {
  */
 var _reindexDialog = null;
 function reindex(level) {
+    
 	var pid = $("#tabs_"+level).attr('pid');
 	var url = "lr?action=start&def=reindex&out=text&params=params=-action,fromKrameriusModel,-pid,"+pid;
 	if (_reindexDialog) {
@@ -426,18 +420,20 @@ function loadFedoraDocuments(model, offset, sort, sort_dir){
     });
 }
 
+
 function indexDoc(pid, title){
-    var prefix = "info:fedora/uuid:";
-    var uuid = pid.substr(prefix.length);
-    var url = "lr?action=start&def=reindex&out=text&params=fromKrameriusModel,"+uuid+","+title;
-    $.get(url, function(data) {
-        alert(data);
+    showConfirmDialog('Confirm index dokumentu', function(){
+      var prefix = "info:fedora/uuid:";
+      var uuid = pid.substr(prefix.length);
+      var url = "lr?action=start&def=reindex&out=text&params=fromKrameriusModel,"+uuid+","+title;
+      _startProcess(url);
     });
+    
 }
 
 function indexModel(model){
-    var url = "lr?action=start&def=reindex&out=text&params=krameriusModel,"+model+","+model;
-    $.get(url, function(data) {
-        alert(data);
+    showConfirmDialog('Confirm index cely model', function(){
+      var url = "lr?action=start&def=reindex&out=text&params=krameriusModel,"+model+","+model;
+      _startProcess(url);
     });
 }

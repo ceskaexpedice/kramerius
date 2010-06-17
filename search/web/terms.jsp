@@ -18,9 +18,6 @@
                             "&wt=json&omitHeader=true&terms.regex.flag=case_insensitive" +
                             "&terms.sort=index&terms.limit=40&terms.regex=" +
                             term + ".*";
-                    //String reqUrl = "http://194.108.215.227:8080/solr/terms?terms.fl="+request.getParameter("field")+
-                    //        "&wt=json&omitHeader=true&terms.regex.flag=case_insensitive&terms.prefix=" + 
-                    //        java.net.URLEncoder.encode(request.getParameter("t"), "UTF-8") ;
                     URL url = new URL(reqUrl);
                     HttpURLConnection con = (HttpURLConnection) url.openConnection();
                     con.setDoOutput(true);

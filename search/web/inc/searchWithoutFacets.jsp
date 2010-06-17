@@ -14,9 +14,6 @@
 <fmt:setBundle basename="labels" />
 <fmt:setBundle basename="labels" var="bundleVar" />
 <%@ include file="initVars.jsp" %>
-<%//c:url var="url" value="http://localhost:8983/solr/select/select" 
-//http://194.108.215.227:8080/solr/select?indent=on&version=2.2&q=fedora.model%3A%22info%3Afedora%2Fmodel%3Apage%22&start=0&rows=10&fl=*%2Cscore&qt=standard&wt=xslt&explainOther=&hl.fl=&facet=true&facet.field=fedora.model&tr=example.xsl
-%> 
 <c:set var="filters" scope="request" ></c:set>
 <c:set var="pageType" value="search" />
 <jsp:useBean id="pageType" type="java.lang.String" />

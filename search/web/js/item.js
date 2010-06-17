@@ -42,17 +42,10 @@ function trim10 (str) {
 }
 
 function selectingPage(obj, level, model){
-    //$(obj).parent().children(".relItem").removeClass('selected');
-    //$(obj).addClass('selected');
     var d1 = "#tabs_" + level;
     var d2 = "#tabs_" + (level-1);
-    //$(d1 + ">div>div[id=info-"+model+"]").html($(obj).text());
-
-    
-    //changeSelection($(obj).attr("id"), $(d1).attr("pid"));
     changeSelection($(d2).attr("pid"),$(obj).attr("pid"));
     showInfo($(d1+">ul>li>img"), d1, model);
-    
 }
 
 function selectPrevious(){
@@ -60,14 +53,12 @@ function selectPrevious(){
     if($(obj).length>0){
         changeSelection(currentSelectedParent, $(obj).attr("id"));
     }
-    
 }
 
 function selectNext(){
     var obj = $('#' + currentSelectedPage).next();
     if($(obj).length>0){
         changeSelection(currentSelectedParent, $(obj).attr("id"));
-        //selectPage($(obj).attr("id"));
     }
 }
 
@@ -134,7 +125,7 @@ function getItemRels(pid, selectedpid, level, recursive, rootModel){
             $.each(item, function(m,model2){
                 
                 if(model2[0]=="kramerius:hasDonator"){
-                    $("#itemTree").append('<img src="http://194.108.215.227:8080/fedora/get/donator:'+model2[1]+'/LOGO" />');
+                    $("#itemTree").append('<img src="proxy?pid=donator:'+model2[1]+'&dsname=LOGO" />');
                     
                 }else{
                   list = obj + ">div>div[id=list-"+m+"]";
@@ -331,8 +322,7 @@ function getPageTitle(pid){
     return $("#" + pid).text();
 }
 
-
-    function toggleAdminOptions(div){
+function toggleAdminOptions(div){
         var il = $('#menu-'+div).parent().width() + $('#menu-'+div).parent().offset().left - $('#menu-'+div).width();
         $('#menu-'+div).css('left', il);
         $('#menu-'+div).toggle();

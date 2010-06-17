@@ -54,12 +54,12 @@
         imagePid = "thumb?uuid=" + FedoraUtils.findFirstPagePid("uuid:" + uuid);
     }
     %>
-    <img id="img_<c:out value="${uuid}"/>" 
+    <a href="<c:out value="${itemUrl}" escapeXml="false" />"><img id="img_<c:out value="${uuid}"/>" 
     <c:if test="${status.count > 5}" >
         style="display:none;"
     </c:if>
     src="<%=imagePid%>&scaledHeight=64" 
-    border="1"   />
+    border="1"   /></a>
     </td>
     <td>
     <a href="<c:out value="${itemUrl}" escapeXml="false" />" ><b><x:out select="./str[@name='root_title']"/></b></a>
@@ -69,31 +69,6 @@
     </x:if>
     <span><c:out value="${collapseCount}" escapeXml="false" /></span>
     <%@ include file="results/default.jsp" %>
-    <%--
-    <x:choose>
-        <x:when select="./str[@name='fedora.model'] == 'monograph2'">
-            <%@ include file="results/monograph.jsp" %>
-        </x:when>
-        <x:when select="./str[@name='fedora.model'] = 'monographunit2'">
-            <%@ include file="results/monographunit.jsp" %>
-        </x:when>
-        <x:when select="./str[@name='fedora.model'] = 'page2'">
-            <%@ include file="results/page.jsp" %>
-        </x:when>
-        <x:when select="./str[@name='fedora.model'] = 'periodical2'">
-            <%@ include file="results/periodical.jsp" %>
-        </x:when>
-        <x:when select="./str[@name='fedora.model'] = 'periodicalvolume2'">
-            <%@ include file="results/periodicalvolume.jsp" %>
-        </x:when>
-        <x:when select="./str[@name='fedora.model'] = 'periodicalitem'">
-            <%@ include file="results/periodicalitem.jsp" %>
-        </x:when>
-        <x:otherwise>
-            <%@ include file="results/default.jsp" %>
-        </x:otherwise>
-    </x:choose>
-    --%>
     </td>
     
     </tr>
