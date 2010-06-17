@@ -4,11 +4,22 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt" %>
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 <%@ page isELIgnored="false"%>
-<%@ page import="java.util.*, cz.incad.Kramerius.*, cz.incad.Solr.*, cz.incad.kramerius.*,cz.incad.kramerius.utils.*" %>
+<%@ page import="java.util.*" %>
+<%@page import="com.google.inject.Injector"%>
+<%@page import="cz.incad.kramerius.utils.FedoraUtils"%>
+<%@page import="javax.servlet.jsp.jstl.fmt.LocalizationContext"%>
+<%@page import="cz.incad.kramerius.processes.LRProcessManager, cz.incad.kramerius.processes.DefinitionManager"%>
 
+<%
+    if(pageContext.getAttribute("lctx")==null){
+        Injector inj2 = (Injector)application.getAttribute(Injector.class.getName());
+        pageContext.setAttribute("lrProcessManager",inj2.getInstance(LRProcessManager.class));
+        pageContext.setAttribute("dfManager",inj2.getInstance(DefinitionManager.class));
 
-
-<%-- fill path up to the end --%>
+        LocalizationContext lctx2= inj2.getProvider(LocalizationContext.class).get();
+        pageContext.setAttribute("lctx", lctx2);
+    }
+%>
 
 
 <%--
@@ -24,15 +35,19 @@ Get Biblio mods
 <c:if test="${!empty param.level}" >
     <c:set var="level" value="${param.level}"/>
 </c:if>
+<%-- fill path up to the end --%>
 <%
 	ArrayList<String> pids =  new ArrayList<String>(Arrays.asList((String [])request.getParameter("pid_path").split("/")));
 	ArrayList<String> models =  new ArrayList<String>(Arrays.asList((String [])request.getParameter("path").split("/")));
 	FedoraUtils.fillFirstPagePid(pids, models);
+        for(String pid:pids){
+            System.out.println(pid);
+        }
 	getServletContext().setAttribute("pids", pids);
 	getServletContext().setAttribute("models", models);
 	getServletContext().setAttribute("pathsize", models.size());
 	
-	imagePid = pids.get(pids.size()-1);
+	//imagePid = pids.get(pids.size()-1);
 %>
 <c:forEach var="uuid" varStatus="status" items="${pids}">
     <c:choose>
@@ -99,11 +114,9 @@ Get Biblio mods
 
 <script language="javascript">
     $(document).ready(function(){
-       
-           
-           getItemRels('<c:out value="${pids[0]}" />', '<c:out value="${pids[1]}" />', <c:out value="${1 + level}" />, true);
         
-        changeSelection('<c:out value="${pids[pathsize -2]}" />','<c:out value="${pids[pathsize -1]}" />');
+       getItemRels('<c:out value="${pids[0]}" />', '<c:out value="${pids[1]}" />', <c:out value="${1 + level}" />, true);
+       changeSelection('<c:out value="${pids[pathsize -2]}" />','<c:out value="${pids[pathsize -1]}" />');
         
     });
         
