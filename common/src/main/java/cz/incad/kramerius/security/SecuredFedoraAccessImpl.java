@@ -171,6 +171,15 @@ public class SecuredFedoraAccessImpl implements FedoraAccess {
     public Set<String> getPids(String pid){
         return rawAccess.getPids(pid);
     }
-	
+
+	public InputStream getDataStream(String uuid, String datastreamName)
+			throws IOException {
+		return rawAccess.getDataStream(uuid, datastreamName);
+	}
+
+	public String getMimeTypeForStream(String uuid, String datastreamName)
+			throws IOException {
+		return rawAccess.getMimeTypeForStream(uuid, datastreamName);
+	}
 	
 }
