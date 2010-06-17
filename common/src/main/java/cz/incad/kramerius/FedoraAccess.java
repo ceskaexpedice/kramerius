@@ -133,4 +133,8 @@ public interface FedoraAccess {
 	public void processSubtree(String pid, TreeNodeProcessor processor);
 	public Set<String> getPids(String pid);
 	
+	
+	public InputStream getDataStream(String pid, String datastreamName) throws IOException;
+	public String getMimeTypeForStream(String pid, String datastreamName) throws IOException;
+	
 }
