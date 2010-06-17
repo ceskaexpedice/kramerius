@@ -12,7 +12,10 @@ public interface IKeys {
 	
 	// servlet parameters
 	public static final String UUID_PARAMETER = "uuid";
+	public static final String PID_PARAMETER = "pid";
 
 	public static final String UUID_FROM="uuidFrom";
 	public static final String UUID_TO="uuidTo";
+	
+	public static final String DS_NAME="dsname";
 }
