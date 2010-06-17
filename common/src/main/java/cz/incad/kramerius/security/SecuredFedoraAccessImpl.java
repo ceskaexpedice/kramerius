@@ -172,14 +172,21 @@ public class SecuredFedoraAccessImpl implements FedoraAccess {
         return rawAccess.getPids(pid);
     }
 
-	public InputStream getDataStream(String uuid, String datastreamName)
+	public InputStream getDataStream(String pid, String datastreamName)
 			throws IOException {
-		return rawAccess.getDataStream(uuid, datastreamName);
+		if (pid.startsWith("uuid:")) {
+			String uuid = pid.substring("uuid:".length());
+			if (!this.acceptor.privateVisitor()) {
+				Document relsExt = this.rawAccess.getRelsExt(uuid);
+				checkPolicyElement(relsExt);
+			}
+		}
+		return rawAccess.getDataStream(pid, datastreamName);
 	}
 
-	public String getMimeTypeForStream(String uuid, String datastreamName)
+	public String getMimeTypeForStream(String pid, String datastreamName)
 			throws IOException {
-		return rawAccess.getMimeTypeForStream(uuid, datastreamName);
+		return rawAccess.getMimeTypeForStream(pid, datastreamName);
 	}
 	
 }
