@@ -89,6 +89,12 @@
 		<servlet-class>cz.incad.Kramerius.TitlePageServlet</servlet-class>
 	</servlet>
 
+	<!-- title page servlet -->
+	<servlet>
+		<servlet-name>dsProxyServlet</servlet-name>
+		<servlet-class>cz.incad.Kramerius.ProxyDatastreamsServlet</servlet-class>
+	</servlet>
+
 	<!-- 
 		// Mapovani servletu
 	 -->
@@ -163,6 +169,11 @@
 	<servlet-mapping>
 		<servlet-name>titlePage</servlet-name>
 		<url-pattern>/titlePage</url-pattern>
+	</servlet-mapping>
+
+	<servlet-mapping>
+		<servlet-name>dsProxyServlet</servlet-name>
+		<url-pattern>/proxy</url-pattern>
 	</servlet-mapping>
 
     <security-role>
