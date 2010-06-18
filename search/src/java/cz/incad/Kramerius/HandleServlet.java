@@ -38,16 +38,18 @@ import cz.incad.kramerius.utils.conf.KConfiguration;
 
 public class HandleServlet extends GuiceServlet {
 
+	private static final long serialVersionUID = 1L;
+
 	public static final java.util.logging.Logger LOGGER = java.util.logging.Logger
 			.getLogger(HandleServlet.class.getName());
 	
 	@Inject
 	transient KConfiguration kConfiguration;
 
-	private XPathFactory fact;
-	private XPathExpression pidPathExpr; //cesta pidu 
-	private XPathExpression pidExpr; // ja 
-	private XPathExpression pathExpr; // cesta modelu
+	private transient XPathFactory fact;
+	private transient XPathExpression pidPathExpr; //cesta pidu 
+	private transient XPathExpression pidExpr; // ja 
+	private transient XPathExpression pathExpr; // cesta modelu
 	
 	@Override
 	public void init() throws ServletException {
