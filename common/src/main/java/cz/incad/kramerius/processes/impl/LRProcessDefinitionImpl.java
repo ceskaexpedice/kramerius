@@ -35,7 +35,6 @@ public class LRProcessDefinitionImpl implements LRProcessDefinition {
 	
 	private LRProcessManager pm;
 	private KConfiguration configuration;
-	private String processOutputURL;
 
 	private List<LRDefinitionAction> actions = new ArrayList<LRDefinitionAction>();
 
@@ -87,9 +86,6 @@ public class LRProcessDefinitionImpl implements LRProcessDefinition {
 				}
 				if (nodeName.equals("errOs")) {
 					this.errStreamFolder = item.getTextContent();
-				}
-				if (nodeName.equals("processOutputURL")) {
-					this.processOutputURL = item.getTextContent();
 				}
 				if (nodeName.equals("parameters")) {
 					parameters(item);
@@ -204,9 +200,6 @@ public class LRProcessDefinitionImpl implements LRProcessDefinition {
 //		return this.processOutputURL;
 //	}
 
-	public void setProcessOutputURL(String processOutputURL) {
-		this.processOutputURL = processOutputURL;
-	}
 	
 	
 }
