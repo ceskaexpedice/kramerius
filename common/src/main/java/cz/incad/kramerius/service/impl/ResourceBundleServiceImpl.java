@@ -73,41 +73,64 @@ public class ResourceBundleServiceImpl implements ResourceBundleService {
 
 	public File checkFiles(String name) throws IOException {
 		File resourcesDir = bundlesFolder();
-		if ((resourcesDir.listFiles() == null) || (resourcesDir.listFiles().length == 0)) {
-			copyDefault();
-		} else {
-			boolean copyDefault = true;
-			File[] listFiles = resourcesDir.listFiles();
-			for (File file : listFiles) {
-				if (file.getName().equals(name+".properties")) {
-					copyDefault = false;
-					break;
-				}
-			}
-			if (copyDefault) copyDefault();
-		}
+		copyDefault(name);
 		return resourcesDir;
 	}
 
 
 	
-	private void copyDefault() throws IOException {
-		String[] defaults = 
-		{"base.properties",
-		"base_en.properties",
-		"base_cs.properties"};
-		for (String base : defaults) {
-			InputStream is = null;
-			OutputStream os = null;
-			try {
-				is = this.getClass().getResourceAsStream("res/"+base);
-				os = new FileOutputStream(new File(bundlesFolder(),base));
-				copyStreams(is, os);
-			} finally {
-				if (os != null) os.close();
-				if (is != null) is.close();
+	private void copyDefault(String name) throws IOException {
+		String[] postfixes = {
+				"",
+				"_en",
+				"_cs"
+		};
+		
+		for (String postfix : postfixes) {
+			String bundleName = name+postfix+".properties";
+			File pfile = new File(bundlesFolder(), bundleName);
+			if (!pfile.exists()) {
+				boolean created = pfile.createNewFile();
+				if (!created) throw new RuntimeException("cannot create file '"+pfile.getAbsolutePath()+"'");
+				InputStream resourceAsStream = this.getClass().getClassLoader().getResourceAsStream(bundleName);
+				FileOutputStream fos = new FileOutputStream(pfile);
+				try {
+					IOUtils.copyStreams(resourceAsStream, fos);
+				} finally {
+					if (resourceAsStream != null) {
+						try {
+							resourceAsStream.close();
+						} catch (Exception e) {
+							LOGGER.log(Level.SEVERE, e.getMessage(), e);
+						}
+					}
+					if (fos != null) {
+						try {
+							fos.close();
+						} catch (Exception e) {
+							LOGGER.log(Level.SEVERE, e.getMessage(), e);
+						}
+					}
+				}
 			}
 		}
+		
+//		String[] defaults = 
+//		{"base.properties",
+//		"base_en.properties",
+//		"base_cs.properties"};
+//		for (String base : defaults) {
+//			InputStream is = null;
+//			OutputStream os = null;
+//			try {
+//				is = this.getClass().getResourceAsStream("res/"+base);
+//				os = new FileOutputStream(new File(bundlesFolder(),base));
+//				copyStreams(is, os);
+//			} finally {
+//				if (os != null) os.close();
+//				if (is != null) is.close();
+//			}
+//		}
 	}
 
 	
