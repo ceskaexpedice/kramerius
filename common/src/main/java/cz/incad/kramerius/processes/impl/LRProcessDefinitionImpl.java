@@ -11,6 +11,7 @@ import org.w3c.dom.NodeList;
 
 import com.google.inject.Inject;
 
+import cz.incad.kramerius.processes.LRDefinitionAction;
 import cz.incad.kramerius.processes.LRProcess;
 import cz.incad.kramerius.processes.LRProcessDefinition;
 import cz.incad.kramerius.processes.LRProcessManager;
@@ -36,6 +37,8 @@ public class LRProcessDefinitionImpl implements LRProcessDefinition {
 	private KConfiguration configuration;
 	private String processOutputURL;
 
+	private List<LRDefinitionAction> actions = new ArrayList<LRDefinitionAction>();
+
 	public LRProcessDefinitionImpl(LRProcessManager pm, KConfiguration configuration) {
 		super();
 		this.pm = pm;
@@ -50,6 +53,14 @@ public class LRProcessDefinitionImpl implements LRProcessDefinition {
 	@Override
 	public List<String> getParameters() {
 		return new ArrayList<String>(this.parameters);
+	}
+
+	
+	public List<LRDefinitionAction> getActions() {
+		if (!this.actions.contains(LRDefinitionAction.LOGS_ACTION)) {
+			this.actions.add(0,LRDefinitionAction.LOGS_ACTION);
+		}
+		return new ArrayList<LRDefinitionAction>(this.actions);
 	}
 
 
@@ -83,8 +94,27 @@ public class LRProcessDefinitionImpl implements LRProcessDefinition {
 				if (nodeName.equals("parameters")) {
 					parameters(item);
 				}
+				if (nodeName.equals("actions")) {
+					actions(item);
+				}
 			}
 		}
+	}
+	
+	
+
+	private void actions(Node item) {
+		Element elm = (Element) item;
+		NodeList nodes = elm.getChildNodes();
+		for (int i = 0,ll=nodes.getLength(); i < ll; i++) {
+			Node chItem = nodes.item(i);
+			if (chItem.getNodeType() == Node.ELEMENT_NODE) {
+				//String chItemName = chItem.getNodeName();
+				LRDefinitionAction action = new LRDefinitionAction();
+				action.loadFromXml((Element) chItem);
+				this.actions.add(action);
+			}
+		}		
 	}
 
 	private void parameters(Node item) {
@@ -169,10 +199,10 @@ public class LRProcessDefinitionImpl implements LRProcessDefinition {
 		this.errStreamFolder = errStreamFolder;
 	}
 
-	@Override
-	public String getProcessOutputURL() {
-		return this.processOutputURL;
-	}
+//	@Override
+//	public String getProcessOutputURL() {
+//		return this.processOutputURL;
+//	}
 
 	public void setProcessOutputURL(String processOutputURL) {
 		this.processOutputURL = processOutputURL;

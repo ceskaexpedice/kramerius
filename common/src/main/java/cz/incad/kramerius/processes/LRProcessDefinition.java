@@ -65,6 +65,11 @@ public interface LRProcessDefinition {
 	 */
 	public String getStandardStreamFolder();
 
+	
+	/**
+	 * Actions defined over LR process
+	 * @return
+	 */
+	public List<LRDefinitionAction> getActions();
 
-	public String getProcessOutputURL();
 }

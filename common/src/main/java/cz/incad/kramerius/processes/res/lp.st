@@ -59,10 +59,20 @@
 		<mainClass>org.kramerius.Replicate</mainClass>
 		<standardOs>lrOut</standardOs>
 		<errOs>lrErr</errOs>
+		<!--
 		<processOutputURL>processes/imported/_imported.jsp</processOutputURL>
+		-->
 		<parameters>
 			<parameter>monographs</parameter>
 		</parameters>
+		<actions>
+			<action>
+				<name>imported</name>
+				<resourceBundleKey>administrator.processes.imported</resourceBundleKey>
+				<actionURL>processes/imported/_imported.jsp</actionURL>
+			</action>
+		</actions>
+		
 	</process>
 
 	<process>
@@ -71,10 +81,20 @@
 		<mainClass>org.kramerius.Replicate</mainClass>
 		<standardOs>lrOut</standardOs>
 		<errOs>lrErr</errOs>
+		<!--
 		<processOutputURL>processes/imported/_imported.jsp</processOutputURL>
+		-->
 		<parameters>
 			<parameter>periodicals</parameter>
 		</parameters>
+		<actions>
+			<action>
+				<name>imported</name>
+				<resourceBundleKey>administrator.processes.imported</resourceBundleKey>
+				<actionURL>processes/imported/_imported.jsp</actionURL>
+			</action>
+		</actions>
+		
 	</process>
 
 	<processes>
