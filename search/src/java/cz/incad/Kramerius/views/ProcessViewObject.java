@@ -2,12 +2,15 @@ package cz.incad.Kramerius.views;
 
 import java.io.IOException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.Locale;
 import java.util.logging.Level;
 
 import com.google.inject.Provider;
 
+import cz.incad.kramerius.processes.LRDefinitionAction;
 import cz.incad.kramerius.processes.LRProcess;
 import cz.incad.kramerius.processes.LRProcessDefinition;
 import cz.incad.kramerius.processes.LRProcessOffset;
@@ -50,23 +53,30 @@ public class ProcessViewObject {
 	}
 
 	public String getName() {
-		if (lrProcess.getProcessName() == null) {
-			return " nepojmenovano - <span style='font-size:80%; font-style:italic'>"+lrProcess.getDescription()+"</span>";
-		} else {
-			return lrProcess.getProcessName()+" - <span style='font-size:80%; font-style:italic'>"+lrProcess.getDescription()+"</span>";
+		try {
+			String unnamed = bundleService.getResourceBundle("labels", locale).getString("administrator.processes.unnamedprocess");
+			if (lrProcess.getProcessName() == null) {
+				return unnamed+" <br> <span style='font-size:80%; font-style:italic'>"+lrProcess.getDescription()+"</span>";
+			} else {
+				return lrProcess.getProcessName()+" <br> <span style='font-size:80%; font-style:italic'>"+lrProcess.getDescription()+"</span>";
+			}
+		} catch (IOException e) {
+			LOGGER.log(Level.SEVERE, e.getMessage(), e);
+			return "";
 		}
 	}
 	
 	public String getProcessName() {
-		if (this.definition.getProcessOutputURL() != null) {
-			return "<a href=\""+this.definition.getProcessOutputURL()+"?uuid="+this.lrProcess.getUUID()+"\" target=\"_blank\">"+getName()+"</a>";
-		} else {
-			return "<a href=\"dialogs/_processes_logs.jsp?uuid="+this.lrProcess.getUUID()+"\" target=\"_blank\">"+getName()+"</a>";
-		}
+		return getName();
+//		if (this.definition.getProcessOutputURL() != null) {
+//			return "<a href=\""+this.definition.getProcessOutputURL()+"?uuid="+this.lrProcess.getUUID()+"\" target=\"_blank\">"+getName()+"</a>";
+//		} else {
+//			return "<a href=\"dialogs/_processes_logs.jsp?uuid="+this.lrProcess.getUUID()+"\" target=\"_blank\">"+getName()+"</a>";
+//		}
 	}
 
 	public String getProcessState() {
-		return lrProcess.getProcessState().name();
+		return lrProcess.getProcessState().getVal()+" "+lrProcess.getProcessState().name();
 	}
 
 	public String getStart() {
@@ -79,9 +89,41 @@ public class ProcessViewObject {
 		try {
 			if (this.lrProcess.getProcessState().equals(States.RUNNING)) {
 				String url = lrUrl+"?action=stop&uuid="+this.lrProcess.getUUID();
-				return "<a href=\"javascript:killAndRefresh('"+url+"','"+this.ordering.name()+"',"+this.offset.getOffset()+","+this.offset.getSize()+",'"+this.typeOfOrdering.name()+"');\">"+bundleService.getResourceBundle("labels", locale).getString("administrator.processes.kill.process")+"</a>";
+				String renderedAHREF = "<a href=\"javascript:killAndRefresh('"+url+"','"+this.ordering.name()+"',"+this.offset.getOffset()+","+this.offset.getSize()+",'"+this.typeOfOrdering.name()+"');\">"+bundleService.getResourceBundle("labels", locale).getString("administrator.processes.kill.process")+"</a>";
+				if (!this.definition.getActions().isEmpty()) {
+					renderedAHREF += " || ";
+				}
+				return renderedAHREF;
 			} else {
 				return "";
+			}
+		} catch (IOException e) {
+			LOGGER.log(Level.SEVERE, e.getMessage(), e);
+			return "";
+		}
+	}
+
+	public String getActionsURLs() {
+		StringBuilder builder =  new StringBuilder();
+		List<LRDefinitionAction> actions = this.definition.getActions();
+		for (int i = 0,ll=actions.size(); i < ll; i++) {
+			LRDefinitionAction action = actions.get(i);
+			builder.append(getActionAHREF(action));
+			if (i != ll-1) {
+				builder.append(" || ");
+			}
+		}
+		return builder.toString();
+	}
+	
+	private String getActionAHREF(LRDefinitionAction act) {
+		try {
+			String bundleKey = act.getResourceBundleKey();
+			if (bundleKey != null) {
+				return "<a href=\""+act.getActionURL()+"?uuid="+this.lrProcess.getUUID()+"\" target=\"_blank\">"+ bundleService.getResourceBundle("labels", locale).getString(bundleKey) +"</a>";
+			} else {
+				LOGGER.info(" action '"+act.getName()+"' has no bundle key");
+				return "<a href=\""+act.getActionURL()+"?uuid="+this.lrProcess.getUUID()+"\" target=\"_blank\">"+ act.getName() +"</a>";
 			}
 		} catch (IOException e) {
 			LOGGER.log(Level.SEVERE, e.getMessage(), e);
