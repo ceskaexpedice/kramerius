@@ -104,7 +104,7 @@ public class ResourceBundleServiceImpl implements ResourceBundleService {
 				os = new FileOutputStream(new File(bundlesFolder(),base));
 				copyStreams(is, os);
 			} finally {
-				if (os != null) is.close();
+				if (os != null) os.close();
 				if (is != null) is.close();
 			}
 		}
