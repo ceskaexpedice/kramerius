@@ -274,6 +274,9 @@ public class DatabaseProcessManager implements LRProcessManager {
 					Timestamp stmp = rs.getTimestamp("STARTED");
 					String name = rs.getString("NAME");
 					LRProcessDefinition definition = this.lrpdm.getLongRunningProcessDefinition(definitionId);
+					if (definition == null) {
+						throw new RuntimeException("cannot find definition '"+definitionId+"'");
+					}
 					LRProcess process = definition.loadProcess(uuid, pid, stmp.getTime(), States.load(status), name);
 					processes.add(process);
 				} 
