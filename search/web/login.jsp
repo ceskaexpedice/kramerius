@@ -29,7 +29,6 @@
     <meta name="AUTHOR" content="INCAD, www.incad.cz" />
     <link rel="icon" href="img/favicon.ico"/>
     <link rel="shortcut icon" href="img/favicon.ico" type="image/x-icon" />
-    <link rel="stylesheet" href="css/gwt.css" type="text/css"/>
     <link type="text/css" href="css/themes/base/ui.base.css" rel="stylesheet" />
     <link type="text/css" href="css/themes/base/ui.theme.css" rel="stylesheet" />
     <link type="text/css" href="css/themes/base/ui.dialog.css" rel="stylesheet" />
