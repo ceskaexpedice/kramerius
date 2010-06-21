@@ -1,12 +1,16 @@
 package cz.incad.kramerius.lp;
 
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.nio.charset.Charset;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.logging.Level;
+
+import javax.swing.border.TitledBorder;
 
 import org.w3c.dom.Document;
 
@@ -18,9 +22,12 @@ import com.google.inject.name.Names;
 import cz.incad.kramerius.FedoraAccess;
 import cz.incad.kramerius.lp.guice.ArgumentLocalesProvider;
 import cz.incad.kramerius.lp.guice.PDFModule;
+import cz.incad.kramerius.lp.utils.DecriptionHTML;
+import cz.incad.kramerius.lp.utils.PackUtils;
 import cz.incad.kramerius.pdf.GeneratePDFService;
 import cz.incad.kramerius.processes.impl.ProcessStarter;
 import cz.incad.kramerius.utils.DCUtils;
+import cz.incad.kramerius.utils.IOUtils;
 
 /**
  * Staticky export do pdf
@@ -56,23 +63,29 @@ public class PDFExport {
 			}
 			
 			Injector injector = Guice.createInjector(new PDFModule());
+			String titleFromDC = null;
 			if (System.getProperty("uuid") != null) {
-				updateProcessName(uuid, injector, medium);
+				titleFromDC = updateProcessName(uuid, injector, medium);
+			} else {
+				FedoraAccess fa = injector.getInstance(Key.get(FedoraAccess.class, Names.named("rawFedoraAccess"))); 
+				Document dc = fa.getDC(uuid);
+				titleFromDC = DCUtils.titleFromDC(dc);
 			}
 			generatePDFs(uuid, uuidFolder, injector,djvuUrl,i18nUrl);
-			createFSStructure(uuidFolder, new File(outputFolderName), medium);
+			createFSStructure(uuidFolder, new File(outputFolderName), medium, titleFromDC);
 		}
 	}
 
-	private static void updateProcessName(String uuid, Injector injector, Medium medium)
+	private static String updateProcessName(String uuid, Injector injector, Medium medium)
 			throws IOException {
 		FedoraAccess fa = injector.getInstance(Key.get(FedoraAccess.class, Names.named("rawFedoraAccess"))); 
 		Document dc = fa.getDC(uuid);
 		String titleFromDC = DCUtils.titleFromDC(dc);
 		ProcessStarter.updateName("Generování '"+titleFromDC+"' na "+medium);
+		return titleFromDC;
 	}
 
-	private static void createFSStructure(File pdfsFolder, File outputFodler, Medium medium) {
+	private static void createFSStructure(File pdfsFolder, File outputFodler, Medium medium, String titleFromDC) {
 		int pocitadlo = 0;
 		long bytes = 0;
 		File currentFolder = createFolder(outputFodler, medium, ++pocitadlo);
@@ -89,6 +102,7 @@ public class PDFExport {
 			});
 			for (File file : listFiles) {
 				if ((bytes+file.length()) > medium.getSize()) {
+					copyHTMLContent(currentFolder, titleFromDC, medium, ""+pocitadlo);
 					currentFolder = createFolder(outputFodler, medium, ++pocitadlo);
 					bytes = 0;
 				}
@@ -96,8 +110,38 @@ public class PDFExport {
 				boolean renamed = file.renameTo(new File(currentFolder, file.getName()));
 				if (!renamed) throw new RuntimeException("cannot rename file '"+file.getAbsolutePath()+"'");
 			}
+			copyHTMLContent(currentFolder, titleFromDC, medium, ""+pocitadlo);
 		}
 	}
+
+	static void copyHTMLContent(File currentFolder, String dctitle, Medium medium, String number) {
+		try {
+			File[] listFiles = currentFolder.listFiles();
+			if (listFiles == null) return;
+			String[] fileNames = new String[listFiles.length];
+			for (int i = 0; i < listFiles.length; i++) {
+				fileNames[i] = listFiles[i].getName();
+			}
+			File htmlFolder = new File(currentFolder,"html");
+			boolean dirsCreated = htmlFolder.mkdirs();
+			if (!dirsCreated) throw new RuntimeException("cannot create dir '"+htmlFolder.getAbsolutePath()+"'");
+			PackUtils.unpack(htmlFolder);
+			String indexHTML = DecriptionHTML.descriptionHTML(dctitle, medium, fileNames, number);
+			File indexHTMLFile = new File(htmlFolder, "index.html");
+			FileOutputStream fos = null;
+			ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(indexHTML.getBytes(Charset.forName("UTF-8")));
+			try {
+				fos = new FileOutputStream(indexHTMLFile);
+				IOUtils.copyStreams(byteArrayInputStream, fos);
+			} finally {
+				if (fos != null) fos.close();
+				if (byteArrayInputStream != null) byteArrayInputStream.close();
+			}
+		} catch (IOException e) {
+			throw new RuntimeException(e);
+		}
+	}
+	
 
 	private static File createFolder(File outputFodler, Medium medium, int pocitadlo) {
 		File dir = new File(outputFodler, medium.name()+"_"+pocitadlo);
