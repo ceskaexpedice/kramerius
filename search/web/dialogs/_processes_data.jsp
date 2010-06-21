@@ -89,11 +89,11 @@ ${processView.prevAHREF}  ${processView.nextAHREF}
 	<thead style="border-bottom: dashed 1px;background-image:url('img/bg_processheader.png');
 	 		      background-repeat:  repeat-x;" >
 		<tr>
-			<td><strong>${processView.nameOrdering}</strong></td>
-			<td><strong>${processView.pidOrdering}</strong></td>
-			<td><strong>${processView.stateOrdering}</strong></td>
+			<td width="60%"><strong>${processView.nameOrdering}</strong></td>
+			<td width="5%"><strong>${processView.pidOrdering}</strong></td>
+			<td width="10%"><strong>${processView.stateOrdering}</strong></td>
 			<td><strong>${processView.dateOrdering}</strong></td>
-			<td><strong>Akce</strong></td>
+			<td  width="10%"><strong>Akce</strong></td>
 		</tr>
 	</thead>
 	<tbody>
@@ -103,7 +103,7 @@ ${processView.prevAHREF}  ${processView.nextAHREF}
 				<td>${lrProc.pid} </td>
 				<td>${lrProc.processState}</td>
 				<td>${lrProc.start}</td>
-				<td>${lrProc.killURL}</td>
+				<td>${lrProc.killURL}${lrProc.actionsURLs}</td>
 			</tr>
 		</c:forEach>
 	</tbody>
