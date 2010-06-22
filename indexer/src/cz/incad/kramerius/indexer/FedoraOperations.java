@@ -117,7 +117,6 @@ public class FedoraOperations {
             String value,
             String repositoryNameParam,
             String indexNames,
-            String indexDocXslt,
             String resultPageXslt,
             ArrayList<String> requestParams)
             throws java.rmi.RemoteException, Exception {
@@ -127,7 +126,6 @@ public class FedoraOperations {
                     " value=" + value +
                     " repositoryName=" + repositoryNameParam +
                     " indexNames=" + indexNames +
-                    " indexDocXslt=" + indexDocXslt +
                     " resultPageXslt=" + resultPageXslt);
         }
 
@@ -136,7 +134,6 @@ public class FedoraOperations {
                 " value=" + value +
                 " repositoryName=" + repositoryNameParam +
                 " indexNames=" + indexNames +
-                " indexDocXslt=" + indexDocXslt +
                 " resultPageXslt=" + resultPageXslt);
 
         String repositoryName = repositoryNameParam;
@@ -145,7 +142,7 @@ public class FedoraOperations {
         }
 
         SolrOperations ops = new SolrOperations(this);
-        ops.updateIndex(action, value, repositoryName, indexName, indexDocXslt, resultPageXslt, requestParams);
+        ops.updateIndex(action, value, repositoryName, indexName, resultPageXslt, requestParams);
     }
 
     public byte[] getAndReturnFoxmlFromPid(

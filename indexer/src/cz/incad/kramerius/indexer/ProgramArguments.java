@@ -21,7 +21,15 @@ public class ProgramArguments {
     public String title="";
     String action;
     String value;
-    String indexDocXslt;
+    String params;
+    
+    //action:
+    //fromKrameriusModel uuid    rekursivne indexuje dokument
+    //krameriusModel modelName   rekursivne indexuje vsechny dokumenty modelu 
+    //fromPID uuid params        indexuje dokument a prida parametry do transformace
+    //deleteModel model          zmaze z indexu vsechny dokumenty modelu, a podrizene
+    //deleteDocument pid_path    zmaze z indexu dokument a podrizene
+    //deletePid uuid             zmaze jen dokument
 
     public ProgramArguments() {
     }
@@ -42,6 +50,7 @@ public class ProgramArguments {
                 return true;
             }
         } catch (Exception ex) {
+            ex.printStackTrace();
             return false;
         }
     }

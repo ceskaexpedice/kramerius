@@ -7,7 +7,7 @@
  */
 package cz.incad.kramerius.indexer;
 
-//import dk.defxws.fgssolr.*;
+import cz.incad.kramerius.utils.conf.KConfiguration;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
@@ -48,12 +48,11 @@ import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpression;
 import javax.xml.xpath.XPathFactory;
+import org.apache.commons.configuration.Configuration;
 import org.apache.lucene.store.SimpleFSDirectory;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
-
-import cz.incad.kramerius.utils.conf.KConfiguration;
 
 /**
  * performs the Solr specific parts of the operations
@@ -66,7 +65,7 @@ public class SolrOperations {
     private static final Logger logger = Logger.getLogger(SolrOperations.class);
     private static final String UNIQUEKEY = "PID";
     private IndexReader ir = null;
-    //protected Properties config;
+    protected Configuration config;
     protected int insertTotal = 0;
     protected int updateTotal = 0;
     protected int deleteTotal = 0;
@@ -77,7 +76,7 @@ public class SolrOperations {
 
     public SolrOperations(FedoraOperations _fedoraOperations) {
         fedoraOperations = _fedoraOperations;
-        /*config = fedoraOperations.config;*/
+        config = KConfiguration.getInstance().getConfiguration();
     }
 
     public void updateIndex(
@@ -85,7 +84,6 @@ public class SolrOperations {
             String value,
             String repositoryName,
             String indexName,
-            String indexDocXslt,
             String resultPageXslt,
             ArrayList<String> requestParams)
             throws java.rmi.RemoteException, Exception {
@@ -99,19 +97,21 @@ public class SolrOperations {
             getIndexReader(indexName);
             initDocCount = docCount;
             closeIndexReader(indexName);
-            if ("deletePid".equals(action)) {
-                //deletePid(value, indexName, resultXml);
-                } else if ("fromPid".equals(action)) {
-                fromPid(value, repositoryName, indexName, indexDocXslt, requestParams);
-            } else if ("fromFoxmlFiles".equals(action)) {
-                fromFoxmlFiles(value, repositoryName, indexName, indexDocXslt);
+            if ("deleteDocument".equals(action)) {
+                deleteDocument(value);
+            } else if ("deleteModel".equals(action)) {
+                deleteModel(value);
+            } else if ("deletePid".equals(action)) {
+                deletePid(value);
+            } else if ("fromPid".equals(action)) {
+                fromPid(value, repositoryName, indexName, requestParams);
             } else if ("optimize".equals(action)) {
                 optimize();
             } else if ("fromKrameriusModel".equals(action)) {
                 if(!value.startsWith("uuid:")) value = "uuid:" + value;
-                fromKrameriusModel(value, repositoryName, indexName, indexDocXslt, requestParams);
+                fromKrameriusModel(value, repositoryName, indexName, requestParams);
             }else if ("krameriusModel".equals(action)) {
-                krameriusModel(value, repositoryName, indexName, indexDocXslt, requestParams);
+                krameriusModel(value, repositoryName, indexName, requestParams);
             }
 
         } catch (Exception ex) {
@@ -130,7 +130,7 @@ public class SolrOperations {
             }
             docCount = docCount - deleteTotal;
         }
-        logger.info("updateIndex " + action + " indexDirSpace=" + indexDirSpace(new File(KConfiguration.getInstance().getConfiguration().getString("IndexDir"))) + " docCount=" + docCount);
+        logger.info("updateIndex " + action + " indexDirSpace=" + indexDirSpace(new File(config.getString("IndexDir"))) + " docCount=" + docCount);
         logger.info("insertTotal: " + insertTotal + "; updateTotal: " + updateTotal+
                 "; deleteTotal: " + deleteTotal +
                 "; warnCount: " + warnCount);
@@ -143,72 +143,71 @@ public class SolrOperations {
         if (logger.isDebugEnabled()) {
             logger.debug("indexDoc=\n" + sb.toString());
         }
-        postData(KConfiguration.getInstance().getConfiguration().getString("IndexBase") + "/update", new StringReader(sb.toString()), new StringBuffer());
+        postData(config.getString("IndexBase") + "/update", new StringReader(sb.toString()), new StringBuffer());
         
     }
 
-    private void fromFoxmlFiles(
-            String filePath,
-            String repositoryName,
-            String indexName,
-            String indexDocXslt)
-            throws java.rmi.RemoteException, IOException, Exception {
-        if (logger.isDebugEnabled()) {
-            logger.debug("fromFoxmlFiles filePath=" + filePath + " repositoryName=" + repositoryName + " indexName=" + indexName);
-        }
-        File objectDir = null;
-        if (filePath == null || filePath.equals("")) {
-            objectDir = new File(KConfiguration.getInstance().getConfiguration().getString("FedoraObjectDir"));
-        } else {
-            objectDir = new File(filePath);
-        }
-        indexDocs(objectDir, repositoryName, indexName, indexDocXslt);
-        docCount = docCount - warnCount;
-    }
 
-    private void indexDocs(
-            File file,
-            String repositoryName,
-            String indexName,
-            String indexDocXslt)
-            throws java.rmi.RemoteException, IOException, Exception {
-        if (file.isHidden()) {
-            return;
-        }
-        if (file.isDirectory()) {
-            String[] files = file.list();
-            for (int i = 0; i < files.length; i++) {
-                if (i % 100 == 0) {
-                    logger.info("updateIndex fromFoxmlFiles " + file.getAbsolutePath() + " indexDirSpace=" +
-                            indexDirSpace(new File(KConfiguration.getInstance().getConfiguration().getString("IndexDir"))) + " docCount=" + docCount);
-                }
-                indexDocs(new File(file, files[i]), repositoryName, indexName, indexDocXslt);
-            }
-        } else {
-            try {
-                indexDoc(file.getName(), repositoryName, indexName, new FileInputStream(file), indexDocXslt, new ArrayList<String>());
-            } catch (RemoteException e) {
-                warnCount++;
-                logger.warn("<warning no=\"" + (warnCount) + "\">file=" + file.getAbsolutePath() + " exception=" + e.toString() + "</warning>");
-            } catch (FileNotFoundException e) {
-                warnCount++;
-                logger.warn("<warning no=\"" + (warnCount) + "\">file=" + file.getAbsolutePath() + " exception=" + e.toString() + "</warning>");
-            }
-        }
-    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
     private void fromPid(
             String pid,
             String repositoryName,
             String indexName,
-            String indexDocXslt,
             ArrayList<String> requestParams)
             throws java.rmi.RemoteException, IOException, Exception {
         if (pid == null || pid.length() < 1) {
             return;
         }
         fedoraOperations.getFoxmlFromPid(pid, repositoryName);
-        indexDoc(pid, repositoryName, indexName, new ByteArrayInputStream(fedoraOperations.foxmlRecord), indexDocXslt, requestParams);
+        indexDoc(pid, repositoryName, indexName, new ByteArrayInputStream(fedoraOperations.foxmlRecord), requestParams);
     }
     /* kramerius */
     XPathFactory factory = XPathFactory.newInstance();
@@ -220,7 +219,6 @@ public class SolrOperations {
             String model,
             String repositoryName,
             String indexName,
-            String indexDocXslt,
             ArrayList<String> requestParams){
     try {
             /*
@@ -254,7 +252,7 @@ public class SolrOperations {
             
             if(true) return;
   */          
-            String urlStr = KConfiguration.getInstance().getConfiguration().getString("FedoraResourceIndex") + "?type=tuples&flush=true&lang=itql&format=TSV&distinct=off&stream=off" +
+            String urlStr = config.getString("FedoraResourceIndex") + "?type=tuples&flush=true&lang=itql&format=TSV&distinct=off&stream=off" +
                     "&query=" + java.net.URLEncoder.encode(query, "UTF-8");
             //int lines = 0;
                 
@@ -262,11 +260,8 @@ public class SolrOperations {
 
             java.io.BufferedReader in = new java.io.BufferedReader(new java.io.InputStreamReader(url.openStream()));
             String inputLine = in.readLine();
-            while ((inputLine = in.readLine()) != null) {
-                //out.println(inputLine);
-                //sendToIndex(inputLine.split("/")[1]);
-            
-                fromKrameriusModel(inputLine.split("/")[1], repositoryName, indexName, indexDocXslt, requestParams);
+            while ((inputLine = in.readLine()) != null) {            
+                fromKrameriusModel(inputLine.split("/")[1], repositoryName, indexName, requestParams);
             }
             in.close();
 
@@ -278,7 +273,6 @@ public class SolrOperations {
             String pid,
             String repositoryName,
             String indexName,
-            String indexDocXslt,
             ArrayList<String> requestParams)
             throws java.rmi.RemoteException, Exception {
         if (pid == null || pid.length() < 1) {
@@ -386,7 +380,7 @@ public class SolrOperations {
             }
             // if (logger.isInfoEnabled())
             //     logger.info("indexByPid indexParams.toUrlString(): " + indexParams.toUrlString());
-            indexDoc(pid, repositoryName, indexName, foxmlStream, "", indexParams.toArrayList(Integer.toString(num)));
+            indexDoc(pid, repositoryName, indexName, foxmlStream, indexParams.toArrayList(Integer.toString(num)));
 
         } catch (Exception e) {
             logger.error("indexByPid error", e);
@@ -400,61 +394,30 @@ public class SolrOperations {
             String repositoryName,
             String indexName,
             InputStream foxmlStream,
-            String indexDocXslt,
             ArrayList<String> requestParams)
             throws java.rmi.RemoteException, IOException, Exception {
         foxmlStream.reset();
-        String xsltName = indexDocXslt;
+        String xsltName = "";
         String[] params = new String[12 + requestParams.size()];
-        int beginParams = indexDocXslt.indexOf("(");
-        if (beginParams > -1) {
-            xsltName = indexDocXslt.substring(0, beginParams).trim();
-            int endParams = indexDocXslt.indexOf(")");
-            if (endParams < beginParams) {
-                throw new Exception("Format error (no ending ')') in indexDocXslt=" + indexDocXslt + ": ");
-            }
-            StringTokenizer st = new StringTokenizer(indexDocXslt.substring(beginParams + 1, endParams), ",");
-            params = new String[12 + 2 * st.countTokens() + requestParams.size()];
-            int i = 1;
-            while (st.hasMoreTokens()) {
-                String param = st.nextToken().trim();
-                if (param == null || param.length() < 1) {
-                    throw new Exception("Format error (empty param) in indexDocXslt=" + indexDocXslt + " params[" + i + "]=" + param);
-                }
-                int eq = param.indexOf("=");
-                if (eq < 0) {
-                    throw new Exception("Format error (no '=') in indexDocXslt=" + indexDocXslt + " params[" + i + "]=" + param);
-                }
-                String pname = param.substring(0, eq).trim();
-                String pvalue = param.substring(eq + 1).trim();
-                if (pname == null || pname.length() < 1) {
-                    throw new Exception("Format error (no param name) in indexDocXslt=" + indexDocXslt + " params[" + i + "]=" + param);
-                }
-                if (pvalue == null || pvalue.length() < 1) {
-                    throw new Exception("Format error (no param value) in indexDocXslt=" + indexDocXslt + " params[" + i + "]=" + param);
-                }
-                params[10 + 2 * i] = pname;
-                params[11 + 2 * i++] = pvalue;
-            }
-        }
+        
         params[0] = "REPOSITORYNAME";
         params[1] = repositoryName;
         params[2] = "FEDORASOAP";
-        params[3] = KConfiguration.getInstance().getConfiguration().getString("FedoraSoap");
+        params[3] = config.getString("FedoraSoap");
         params[4] = "FEDORAUSER";
-        params[5] = KConfiguration.getInstance().getConfiguration().getString("FedoraUser");
+        params[5] = config.getString("FedoraUser");
         params[6] = "FEDORAPASS";
-        params[7] = KConfiguration.getInstance().getConfiguration().getString("FedoraPass");
+        params[7] = config.getString("FedoraPass");
         params[8] = "TRUSTSTOREPATH";
-        params[9] = KConfiguration.getInstance().getConfiguration().getString("TrustStorePath");
+        params[9] = config.getString("TrustStorePath");
         params[10] = "TRUSTSTOREPASS";
-        params[11] = KConfiguration.getInstance().getConfiguration().getString("TrustStorePass");
+        params[11] = config.getString("TrustStorePass");
 
         for (int i = 0; i < requestParams.size(); i++) {
             params[i + 12] = requestParams.get(i);
         //logger.info("param: " + requestParams.get(i));
         }
-        String xsltPath = KConfiguration.getInstance().getConfiguration().getString("UpdateIndexDocXslt");
+        String xsltPath = config.getString("UpdateIndexDocXslt");
         StringBuffer sb = (new GTransformer()).transform(
                 xsltPath,
                 new StreamSource(foxmlStream),
@@ -465,11 +428,38 @@ public class SolrOperations {
         }
         
         if (sb.indexOf("name=\"" + UNIQUEKEY) > 0) {
-            postData(KConfiguration.getInstance().getConfiguration().getString("IndexBase") + "/update", new StringReader(sb.toString()), new StringBuffer());
+            postData(config.getString("IndexBase") + "/update", new StringReader(sb.toString()), new StringBuffer());
             updateTotal++;
         }
     }
 
+    private void deletePid(String pid) throws Exception {
+        StringBuffer sb = new StringBuffer("<delete><id>" + pid + "</id></delete>");
+        if (logger.isDebugEnabled()) {
+            logger.debug("indexDoc=\n" + sb.toString());
+        }
+        postData(config.getProperty("IndexBase") + "/update", new StringReader(sb.toString()), new StringBuffer());
+        deleteTotal++;
+    }
+
+    private void deleteDocument(String pid_path) throws Exception {
+        StringBuffer sb = new StringBuffer("<delete><query>pid_path:" + pid_path + "*</query></delete>");
+        if (logger.isDebugEnabled()) {
+            logger.debug("indexDoc=\n" + sb.toString());
+        }
+        postData(config.getProperty("IndexBase") + "/update", new StringReader(sb.toString()), new StringBuffer());
+        deleteTotal++;
+    }
+
+    private void deleteModel(String path) throws Exception {
+        StringBuffer sb = new StringBuffer("<delete><query>path:" + path + "*</query></delete>");
+        if (logger.isDebugEnabled()) {
+            logger.debug("indexDoc=\n" + sb.toString());
+        }
+        postData(config.getProperty("IndexBase") + "/update", new StringReader(sb.toString()), new StringBuffer());
+        deleteTotal++;
+    }
+    
     public Analyzer getAnalyzer(String analyzerClassName)
             throws Exception {
         Analyzer analyzer = null;
@@ -650,7 +640,7 @@ public class SolrOperations {
             }
         } else {
             try {
-                ir = IndexReader.open(SimpleFSDirectory.open(new File(KConfiguration.getInstance().getConfiguration().getString("IndexDir"))), true);
+                ir = IndexReader.open(SimpleFSDirectory.open(new File(config.getString("IndexDir"))), true);
             } catch (CorruptIndexException e) {
                 throw new Exception("IndexReader open error indexName=" + indexName + " :\n", e);
             } catch (IOException e) {

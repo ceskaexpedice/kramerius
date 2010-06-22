@@ -149,7 +149,7 @@ public class Indexer {
         resultPageXslt = "";
         restXslt = "";
         try {
-            updateIndex(user, arguments.action, arguments.value, arguments.indexDocXslt);
+            updateIndex(user, arguments.action, arguments.value);
         } catch (java.rmi.RemoteException e) {
             logger.error(e);
             e.printStackTrace();
@@ -159,13 +159,13 @@ public class Indexer {
         logger.info(timeusedms);
     }
 
-    public void updateIndex(String user, String action, String value, String indexDocXslt)
+    public void updateIndex(String user, String action, String value)
             throws java.rmi.RemoteException, Exception {
         FedoraOperations ops = new FedoraOperations();
         ops.init(user, ""/*, conf*/);
         ArrayList<String> params = new ArrayList<String>();
         //System.out.println(value);
-        ops.updateIndex(action, value, repositoryName, indexName, indexDocXslt, resultPageXslt, params);
+        ops.updateIndex(action, value, repositoryName, indexName, resultPageXslt, params);
         
     }
 
