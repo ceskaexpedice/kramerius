@@ -82,18 +82,6 @@ public class LRProcessDefinitionManagerImpl implements DefinitionManager {
 				boolean created = defaultWorkDir.mkdirs();
 				if (!created) throw new RuntimeException("cannot create directory '"+defaultWorkDir+"'");
 			}
-
-			File conFile = new File(CONFIGURATION_FILE);
-			if (!conFile.exists()) {
-				boolean created = conFile.createNewFile();
-				if (!created) throw new RuntimeException("cannot create conFile '"+conFile.getAbsolutePath()+"'");
-				FileOutputStream fos = new FileOutputStream(conFile);
-				try {
-					IOUtils.copyStreams(new ByteArrayInputStream(defaultLPXML().getBytes(Charset.forName("UTF-8"))), fos);
-				} finally {
-					fos.close();
-				}
-			}
 			
 			LOGGER.info("Loading configuration from jar ");
 			byte[] bytes = defaultLPXML().getBytes(Charset.forName("UTF-8"));
@@ -105,13 +93,16 @@ public class LRProcessDefinitionManagerImpl implements DefinitionManager {
 			}
 			
 			
-			LOGGER.info("Loading file from '"+CONFIGURATION_FILE+"'");
 			String parsingSource = CONFIGURATION_FILE;
-			FileInputStream fis = new FileInputStream(new File(parsingSource));
-			try {
-				loadFromStream(fis);
-			} finally {
-				if (fis !=null) fis.close();
+			File file = new File(parsingSource);
+			if (file.exists()) {
+				LOGGER.info("Loading file from '"+CONFIGURATION_FILE+"'");
+				FileInputStream fis = new FileInputStream(file);
+				try {
+					loadFromStream(fis);
+				} finally {
+					if (fis !=null) fis.close();
+				}
 			}
 			
 		} catch (ParserConfigurationException e) {
