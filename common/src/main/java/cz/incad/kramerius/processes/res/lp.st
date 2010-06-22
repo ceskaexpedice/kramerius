@@ -46,9 +46,7 @@
 		<standardOs>lrOut</standardOs>
 		<errOs>lrErr</errOs>
 		<parameters>
-			<parameter>-cfgFile</parameter>
 			<parameter>$default_lp_work_dir$/reindexer/config.properties</parameter>
-			<parameter>-log4jFile</parameter>
 			<parameter>$default_lp_work_dir$/reindexer/log4j.properties</parameter>
 		</parameters>
 	</process>

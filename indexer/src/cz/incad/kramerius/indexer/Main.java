@@ -32,9 +32,9 @@ public class Main {
                 System.out.println("Program arguments are invalid");
             }
             
-            checkFileOrCreateNew(arguments.log4jFile, "res/log4j.properties");
-            checkFileOrCreateNew(arguments.configFile, "res/config.properties");
-			checkFileOrCreateNew(arguments.configFile,"res/KrameriusFoxmlToSolr.xslt");
+            //checkFileOrCreateNew(arguments.log4jFile, "res/log4j.properties");
+            //checkFileOrCreateNew(arguments.configFile, "res/config.properties");
+			//checkFileOrCreateNew(arguments.configFile,"res/KrameriusFoxmlToSolr.xslt");
             //System.out.println(arguments.title);
             try{
                 ProcessStarter.updateName("Indexace dokumentu: " + arguments.title);
