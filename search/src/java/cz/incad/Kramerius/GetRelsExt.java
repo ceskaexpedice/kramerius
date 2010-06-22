@@ -73,6 +73,7 @@ public class GetRelsExt extends HttpServlet {
             } 
         //writeBiblioModsInfo(pids, out);
         } catch (Exception e) {
+            e.printStackTrace();
             out.println(e.toString());
         } finally {
             out.close();
@@ -86,7 +87,13 @@ public class GetRelsExt extends HttpServlet {
         String rels;
         for (String relpid : pids) {
             model = relpid.split(" ")[0];
-            rels = "\"" + relpid.split(" ")[1].split(":")[1] + "\"";
+            rels = relpid.split(" ")[1];
+            if(rels.contains(":")){
+                rels = "\"" + rels.split(":")[1] + "\"";
+            }else{
+                rels = "\"" + rels + "\"";
+            }
+            //rels = "\"" + relpid.split(" ")[1].split(":")[1] + "\"";
             if (models.containsKey(model)) {
                 models.get(model).add(rels);
             } else {
