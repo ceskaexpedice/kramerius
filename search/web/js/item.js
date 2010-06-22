@@ -125,7 +125,15 @@ function getItemRels(pid, selectedpid, level, recursive, rootModel){
             $.each(item, function(m,model2){
                 
                 if(model2[0]=="kramerius:hasDonator"){
-                    $("#itemTree").append('<img src="proxy?pid=donator:'+model2[1]+'&dsname=LOGO" />');
+                    var donatortext = 'proxy?pid=donator:'+model2[1]+'&dsname=TEXT-';
+                    if(language==""){
+                        donatortext += "CS";
+                    }else{
+                        donatortext += language.toUpperCase();
+                    }
+                    $.get(donatortext, function(data){
+                        $("#itemTree").append('<img src="proxy?pid=donator:'+model2[1]+'&dsname=LOGO" alt="'+data+'" title="'+data+'" />');
+                    });
                     
                 }else{
                   list = obj + ">div>div[id=list-"+m+"]";

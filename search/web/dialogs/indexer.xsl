@@ -11,7 +11,7 @@ version="1.0">
     <xsl:template match="/">
         <table cellpadding="0" cellspacing="0" class="indexer_selected">
             <thead class="indexer_head"><tr>
-                <td>
+                <td></td><td>
                     <xsl:if test="$sort = 'title'">
                         <xsl:if test="$sort_dir = 'asc'">
                             <a><xsl:attribute name="href">javascript:loadFedoraDocuments('<xsl:value-of select="$model" />', 0, 'title', 'desc')</xsl:attribute>title</a>
@@ -44,7 +44,8 @@ version="1.0">
         <xsl:for-each select="/sp:sparql/sp:results/sp:result">
             <xsl:variable name="title" select="normalize-space(./sp:title)" />
             <xsl:variable name="date" select="normalize-space(./sp:date)" />
-            <tr class="indexer_result"><td>
+            <tr class="indexer_result">
+            <td class="indexer_result_status"></td><td>
             - 
             <a><xsl:attribute name="href">javascript:indexDoc('<xsl:value-of select="./sp:object/@uri" />', '<xsl:value-of select="$title" />');</xsl:attribute><xsl:value-of select="./sp:title" /></a>
             </td><td><xsl:value-of select="./sp:date" /></td>

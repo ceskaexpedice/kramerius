@@ -192,7 +192,7 @@ var _reindexDialog = null;
 function reindex(level) {
     
 	var pid = $("#tabs_"+level).attr('pid');
-	var url = "lr?action=start&def=reindex&out=text&params=params=-action,fromKrameriusModel,-pid,"+pid;
+	var url = "lr?action=start&def=reindex&out=text&params=params=fromKrameriusModel,"+pid+","+pid;
 	if (_reindexDialog) {
     	$("#reindex_started_ok").hide();
     	$("#reindex_started_failed").hide();
@@ -420,7 +420,23 @@ function loadFedoraDocuments(model, offset, sort, sort_dir){
     });
 }
 
+function getIndexerStatus(){
+    
+}
 
+function deletefromindex(level){
+    showConfirmDialog('Confirm index dokumentu', function(){
+      var pid = $("#tabs_"+level).attr('pid');
+      var pid_path = "";
+      for(var i = level; i>0; i--){
+          pid_path = $('#tabs_'+i).attr('pid') + pid_path;
+          if(i>1) {pid_path = '/' + pid_path};
+      }
+      var url = "lr?action=start&def=reindex&out=text&params=deleteDocument,"+pid_path+","+pid;
+      alert(pid_path)
+      //_startProcess(url);
+    });
+}
 function indexDoc(pid, title){
     showConfirmDialog('Confirm index dokumentu', function(){
       var prefix = "info:fedora/uuid:";
