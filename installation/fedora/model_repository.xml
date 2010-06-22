@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<foxml:digitalObject PID="model:Repository" VERSION="1.1" xmlns:foxml="info:fedora/fedora-system:def/foxml#"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="info:fedora/fedora-system:def/foxml# http://www.fedora.info/definitions/1/0/foxml1-1.xsd">
+  <foxml:objectProperties>
+    <foxml:property NAME="info:fedora/fedora-system:def/model#state" VALUE="Active"/>
+    <foxml:property NAME="info:fedora/fedora-system:def/model#label" VALUE="Repository related data"/>
+    <foxml:property NAME="info:fedora/fedora-system:def/model#ownerId" VALUE="fedoraAdmin"/>
+  </foxml:objectProperties>
+  <foxml:datastream CONTROL_GROUP="X" ID="Identify.xml" STATE="A" VERSIONABLE="true">
+    <foxml:datastreamVersion ID="Identify.xml.0" LABEL="OAI Identify" MIMETYPE="text/xml">
+      <foxml:xmlContent>
+        <!-- see http://www.openarchives.org/OAI/openarchivesprotocol.html#DefinitionsConcepts -->
+        <!-- see http://www.openarchives.org/OAI/2.0/OAI-PMH.xsd -->
+        <Identify>
+          <repositoryName>FIXME:My Repository</repositoryName>
+          <baseURL>FIXME:http://example.org/oaiprovider</baseURL>
+          <protocolVersion>2.0</protocolVersion>
+          <adminEmail>FIXME:someone@somwhere.org</adminEmail>
+          <earliestDatestamp>FIXME:2005-04-01T12:00:00Z</earliestDatestamp>
+          <deletedRecord>FIXME:persistent</deletedRecord>
+          <granularity>YYYY-MM-DDThh:mm:ssZ</granularity>
+        </Identify>
+      </foxml:xmlContent>
+    </foxml:datastreamVersion>
+  </foxml:datastream>
+</foxml:digitalObject>

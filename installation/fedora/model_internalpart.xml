@@ -40,4 +40,17 @@
       </foxml:xmlContent>
     </foxml:datastreamVersion>
   </foxml:datastream>  
+  <foxml:datastream ID="RELS-EXT" CONTROL_GROUP="X" STATE="A" VERSIONABLE="true">
+    <foxml:datastreamVersion ID="RELS-EXT.0" MIMETYPE="application/rdf+xml"
+      FORMAT_URI="info:fedora/fedora-system:FedoraRELSExt-1.0" LABEL="RDF Statements about this object">
+      <foxml:xmlContent>
+        <rdf:RDF xmlns:fedora-model="info:fedora/fedora-system:def/model#"
+          xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+          <rdf:Description rdf:about="info:fedora/model:internalpart">
+            <fedora-model:hasService rdf:resource="info:fedora/service:ESEDef"/>
+          </rdf:Description>
+        </rdf:RDF>
+      </foxml:xmlContent>
+    </foxml:datastreamVersion>
+  </foxml:datastream>
 </foxml:digitalObject>
