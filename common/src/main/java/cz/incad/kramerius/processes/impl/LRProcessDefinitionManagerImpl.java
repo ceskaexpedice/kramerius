@@ -5,8 +5,10 @@ import static cz.incad.kramerius.utils.IOUtils.*;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileFilter;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -57,7 +59,9 @@ public class LRProcessDefinitionManagerImpl implements DefinitionManager {
 		this.configuration = configuration;
 		this.processManager = processManager;
 		this.realLibsDir = defaultLibsdir;
+		LOGGER.info("loading configuration ...");
 		this.load();
+		
 	}
 
 
@@ -81,39 +85,67 @@ public class LRProcessDefinitionManagerImpl implements DefinitionManager {
 
 			File conFile = new File(CONFIGURATION_FILE);
 			if (!conFile.exists()) {
-				StringTemplateGroup grp = new StringTemplateGroup("m");
-				StringTemplate template = grp.getInstanceOf("cz/incad/kramerius/processes/res/lp");
-				template.setAttribute("user_home", System.getProperties().getProperty("user.home"));
-				template.setAttribute("default_lp_work_dir", DEFAULT_LP_WORKDIR);
-				String string = template.toString();
 				boolean created = conFile.createNewFile();
 				if (!created) throw new RuntimeException("cannot create conFile '"+conFile.getAbsolutePath()+"'");
 				FileOutputStream fos = new FileOutputStream(conFile);
 				try {
-					IOUtils.copyStreams(new ByteArrayInputStream(string.getBytes(Charset.forName("UTF-8"))), fos);
+					IOUtils.copyStreams(new ByteArrayInputStream(defaultLPXML().getBytes(Charset.forName("UTF-8"))), fos);
 				} finally {
 					fos.close();
 				}
 			}
 			
-			LOGGER.info("Loading file from '"+CONFIGURATION_FILE+"'");
-			DocumentBuilder builder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
-			Document parsed = builder.parse(CONFIGURATION_FILE);
-			NodeList childNodes = parsed.getDocumentElement().getChildNodes();
-			for (int i = 0,ll=childNodes.getLength(); i < ll; i++) {
-				Node item = childNodes.item(i);
-				if (item.getNodeType() == Node.ELEMENT_NODE) {
-					LRProcessDefinitionImpl def = new LRProcessDefinitionImpl(this.processManager, this.configuration);
-					def.loadFromXml((Element) item);
-					this.definitions.put(def.getId(), def);
-				}
+			LOGGER.info("Loading configuration from jar ");
+			byte[] bytes = defaultLPXML().getBytes(Charset.forName("UTF-8"));
+			ByteArrayInputStream bis = new ByteArrayInputStream(bytes);
+			try {
+				loadFromStream(bis);
+			} finally {
+				if (bis !=null) bis.close();
 			}
+			
+			
+			LOGGER.info("Loading file from '"+CONFIGURATION_FILE+"'");
+			String parsingSource = CONFIGURATION_FILE;
+			FileInputStream fis = new FileInputStream(new File(parsingSource));
+			try {
+				loadFromStream(fis);
+			} finally {
+				if (fis !=null) fis.close();
+			}
+			
 		} catch (ParserConfigurationException e) {
 			LOGGER.log(Level.SEVERE, e.getMessage(), e);
 		} catch (SAXException e) {
 			LOGGER.log(Level.SEVERE, e.getMessage(), e);
 		} catch (IOException e) {
 			LOGGER.log(Level.SEVERE, e.getMessage(), e);
+		}
+	}
+
+
+	private String defaultLPXML() {
+		StringTemplateGroup grp = new StringTemplateGroup("m");
+		StringTemplate template = grp.getInstanceOf("cz/incad/kramerius/processes/res/lp");
+		template.setAttribute("user_home", System.getProperties().getProperty("user.home"));
+		template.setAttribute("default_lp_work_dir", DEFAULT_LP_WORKDIR);
+		String string = template.toString();
+		return string;
+	}
+
+
+	private void loadFromStream(InputStream fis)
+			throws ParserConfigurationException, SAXException, IOException {
+		DocumentBuilder builder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
+		Document parsed = builder.parse(fis);
+		NodeList childNodes = parsed.getDocumentElement().getChildNodes();
+		for (int i = 0,ll=childNodes.getLength(); i < ll; i++) {
+			Node item = childNodes.item(i);
+			if (item.getNodeType() == Node.ELEMENT_NODE) {
+				LRProcessDefinitionImpl def = new LRProcessDefinitionImpl(this.processManager, this.configuration);
+				def.loadFromXml((Element) item);
+				this.definitions.put(def.getId(), def);
+			}
 		}
 	}
 

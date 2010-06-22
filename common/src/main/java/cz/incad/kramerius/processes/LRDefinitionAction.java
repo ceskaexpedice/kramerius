@@ -112,7 +112,7 @@ public class LRDefinitionAction {
 					this.actionURL = childNode.getTextContent();
 				}
 				if(childNode.getNodeName().equals("resourceBundleKey")) {
-					this.actionURL = childNode.getTextContent();
+					this.resourceBundleKey = childNode.getTextContent();
 				}
 			}
 		}
