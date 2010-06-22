@@ -161,6 +161,9 @@ public class LongRunningProcessServlet extends GuiceServlet {
 						buffer.append("<li>").append("started :"+new Date(lrProcess.getStart()));
 						buffer.append("<li>").append("processState :").append(lrProcess.getProcessState());
 						LRProcessDefinition lrDef = defManager.getLongRunningProcessDefinition(lrProcess.getDefinitionId());
+						if (lrDef == null) {
+							throw new RuntimeException("cannot find definition '"+lrProcess.getDefinitionId()+"'");
+						}
 						buffer.append("<li>").append("errOut  :").append(lrDef.getErrStreamFolder()+File.separator+lrProcess.getUUID()+".err");
 						buffer.append("<li>").append("standardOut  :").append(lrDef.getStandardStreamFolder()+File.separator+lrProcess.getUUID()+".out");
 						buffer.append("<hr>");
