@@ -66,6 +66,9 @@ public class LongRunningProcessServlet extends GuiceServlet {
 	public static LRProcess startNewProcess(HttpServletRequest request, ServletContext context, String def, DefinitionManager definitionManager, String[] params) {
 		definitionManager.load();
 		LRProcessDefinition definition = definitionManager.getLongRunningProcessDefinition(def);
+		if (definition == null) {
+			throw new RuntimeException("cannot find process definition '"+def+"'");
+		}
 		LRProcess newProcess = definition.createNewProcess();
 		newProcess.setParameters(Arrays.asList(params));
 		newProcess.startMe(false, context.getRealPath("WEB-INF/lib"), lrServlet(request));
