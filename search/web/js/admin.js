@@ -128,7 +128,7 @@ var _actions=function() {
 var _monographsDialog;
 function importMonographs() {
     showConfirmDialog('Confirm import monografii', function(){
-	var url = "lr?action=start&def=replikator_monograph&out=text";
+	var url = "lr?action=start&def=replikator_monographs&out=text";
 	if (_monographsDialog) {
     	$("#replikator_monograph_started_ok").hide();
     	$("#replikator_monograph_started_failed").hide();
