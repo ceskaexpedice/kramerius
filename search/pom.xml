@@ -31,10 +31,6 @@
 			<url>http://download.java.net/maven/2/</url>
 		</pluginRepository>
 
-		<pluginRepository>
-			<id>gwt-maven</id>
-			<url>http://gwt-maven.googlecode.com/svn/trunk/mavenrepo</url>
-		</pluginRepository>
 
 	</pluginRepositories>
 
