@@ -25,6 +25,7 @@ import com.google.inject.Inject;
 import com.google.inject.name.Named;
 
 import cz.incad.Kramerius.backend.guice.GuiceServlet;
+import cz.incad.Kramerius.views.ApplicationURL;
 import cz.incad.kramerius.FedoraAccess;
 import cz.incad.kramerius.FedoraNamespaces;
 import cz.incad.kramerius.FedoraRelationship;
@@ -63,13 +64,13 @@ public class GeneratePDFServlet extends GuiceServlet {
 		try {
 				URL url = new URL(req.getRequestURL().toString());
 				//TODO: Najit context.. jde to.
-				String djvuUrl = url.getProtocol()+"://"+url.getHost()+":"+url.getPort()+"/search/djvu";
+				String djvuUrl = ApplicationURL.applicationURL(req)+"/djvu";
 				if ((configuration.getApplicationURL() != null) && (!configuration.getApplicationURL().equals(""))){
 					djvuUrl = configuration.getApplicationURL()+"djvu";
 				}
-				String i18nUrl = url.getProtocol()+"://"+url.getHost()+":"+url.getPort()+"/search/i18n";
+				String i18nUrl = ApplicationURL.applicationURL(req)+"/i18n";
 				if ((configuration.getApplicationURL() != null) && (!configuration.getApplicationURL().equals(""))){
-					djvuUrl = configuration.getApplicationURL()+"i18n";
+					i18nUrl = configuration.getApplicationURL()+"i18n";
 				}
 				resp.setContentType("application/pdf");
 				SimpleDateFormat sdate = new SimpleDateFormat("yyyyMMdd_mmhhss");
