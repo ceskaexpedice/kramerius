@@ -2,6 +2,7 @@
 
 function getBiblioInfo(pid, model, list, inf, setInf){
     var url = 'inc/details/biblioToRdf.jsp?&pid=uuid:' + pid + "&xsl="+model+".jsp&language=" + language;
+    //var url = 'inc/results/biblioToRdf.jsp?&pid=uuid:' + pid + "&xsl="+model+".jsp&language=" + language;
     $.get(url, function(xml) {
         $(".relItem[pid='" + pid + "']").html(xml);
         $(".relItem[pid='" + pid + "']").attr('hasbiblio', 'true');
@@ -315,14 +316,34 @@ function showList(obj, tab, model){
     $(obj).toggleClass('op_info');
 }
 
-function showMainContent(pid, path){
-	if(path=="") return;
-    $('#mainContent').html(imgLoadingBig);
+var _metadataDialog;
+function showMainContent(level){
+   var pid = $("#tabs_"+level).attr('pid');
+   var page = new PageQuery(window.location.search);
+   var path = page.getValue("path");
+   if(path=="") return;
+   if(_metadataDialog){
+       _metadataDialog.dialog('open');
+   }else{
+       $(document.body).append('<div id="metaDataDialog"><div id="metaData"></div></div>')
+       _metadataDialog = $('#metaDataDialog').dialog({
+           width:640,
+           height:480,
+           modal:true,
+           buttons: {
+              "Close": function() {
+                $(this).dialog("close"); 
+              } 
+            } 
+       });
+   }
+   
+    $('#metaData').html(imgLoadingBig);
     //var url = "inc/details/"+path.toString().split('/')[0]+".jsp?display=block&language=";
     var url = "inc/details/biblioToRdf.jsp?pid=uuid:"+pid+"&xsl="+path.toString().split('/')[0]+".jsp&display=block&language=";
     //var url = 'item_1.jsp?pid='+pid+'&path='+path;
     $.get(url, function(data){
-        $('#mainContent').html(data);
+        $('#metaData').html(data);
     });
 }
 

@@ -30,6 +30,7 @@
         </table>
     </div>
     <div class="adminMenuItems">
+        <div align="left"><a title="View metadata" href="javascript:showMainContent('<c:out value="${status.count}" />');"><fmt:message bundle="${lctx}">administrator.menu.showmetadata</fmt:message></a> </div>	
         <div align="left"><a title="Generování PDF" href="javascript:generatePdf('<c:out value="${status.count}" />');"><fmt:message bundle="${lctx}">administrator.menu.generatepdf</fmt:message></a> </div>	
         <%if(request.getRemoteUser()!=null){%>
        	<div align="left"><a title="Export do PDF (CD)" href="javascript:generateStatic('<c:out value="${status.count}"/>','static_export_CD','<c:out value="${imgUrl}" />','<c:out value="${i18nUrl}" />','<%=request.getLocale().getISO3Country() %>','<%=request.getLocale().getISO3Language()%>');"><fmt:message bundle="${lctx}">administrator.menu.exportcd</fmt:message></a></div>

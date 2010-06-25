@@ -192,7 +192,8 @@ var _reindexDialog = null;
 function reindex(level) {
     
 	var pid = $("#tabs_"+level).attr('pid');
-	var url = "lr?action=start&def=reindex&out=text&params=params=fromKrameriusModel,"+pid+","+pid;
+        var params = "{title:"+pid+";pages:10}"
+	var url = "lr?action=start&def=reindex&out=text&params=params=fromKrameriusModel,"+pid+","+params;
 	if (_reindexDialog) {
     	$("#reindex_started_ok").hide();
     	$("#reindex_started_failed").hide();

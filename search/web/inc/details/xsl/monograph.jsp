@@ -40,17 +40,16 @@
     </xsl:template>
     <xsl:template match="/mods:modsCollection/mods:mods" mode="info">
         <xsl:variable name="uuid" ><xsl:value-of select="./mods:identifier[@type='urn']"/></xsl:variable>
-        
-        <div><c:if test="${display == 'none'}">
-                    <xsl:attribute name="onclick" >javascript:showMainContent('<xsl:value-of select="$pid"/>', 'monograph')</xsl:attribute></c:if><span valign="top">*</span>
+        <div>
+            <xsl:attribute name="title" ><xsl:value-of select="mods:titleInfo/mods:title" /></xsl:attribute>
             <span>
-                <fmt:message bundle="${lctx}">Hlavní název</fmt:message>:<br/>
+                <c:if test="${display != 'none'}"><fmt:message bundle="${lctx}">Hlavní název</fmt:message>:<br/></c:if>
                 <div class="resultValue"><xsl:value-of select="mods:titleInfo/mods:title" /></div>
             </span>
             
         </div>
         <div id="moreDetails"><xsl:attribute name="style">display:<c:out value="${param.display}" />;</xsl:attribute>
-        <div><span valign="top">*</span>
+        <div>
             <span>
                 <fmt:message bundle="${lctx}">Autor</fmt:message>:<br/>
                 <xsl:for-each select="mods:name[@type='personal']">
@@ -63,7 +62,7 @@
                 </xsl:for-each>
             </span>
         </div>
-        <div><span valign="top">*</span>
+        <div>
             <span>
                 <fmt:message bundle="${lctx}">Druh dokumentu</fmt:message>:<br/>
                 <div class="resultValue">
@@ -72,7 +71,7 @@
             </span>
         </div>
         <xsl:for-each select="mods:originInfo[@transliteration='publisher']">
-            <div><span valign="top">*</span>
+            <div>
                 <span>
                     <fmt:message bundle="${lctx}">Název vydavatele</fmt:message>:<br/>
                     <xsl:if test="./mods:publisher">
@@ -96,7 +95,7 @@
             </div>
         </xsl:for-each>
         <xsl:if test="mods:originInfo[@transliteration='printer']">
-            <div><span valign="top">*</span>
+            <div>
                 <span>
                     <fmt:message bundle="${lctx}">Název tiskaře</fmt:message>:<br/> 
                     <div class="resultValue">
@@ -111,7 +110,7 @@
             </div>
         </xsl:if>
         <xsl:if test="mods:physicalDescription/mods:extent">
-            <div><span valign="top">*</span>
+            <div>
                 <span>
                     <fmt:message bundle="${lctx}">Fyzický popis</fmt:message>:<br/>
                     
@@ -141,7 +140,7 @@
             </div>
         </xsl:if>
         <xsl:if test="mods:physicalDescription/mods:note[@type='preservationStateOfArt']">
-            <div><span valign="top">*</span>
+            <div>
                 <span>
                     <fmt:message bundle="${lctx}">Stav z hlediska ochrany fondů</fmt:message>:<br/>
                     <div class="resultValue">
