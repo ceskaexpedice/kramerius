@@ -66,6 +66,10 @@
 			        modal: true,
 			        draggable:false,
 			        resizable:false,
+			        close: function(event, ui) { 
+						var url = "search.jsp";    
+						$(location).attr('href',url);
+			        },
 			        title:"Přihlášení"
 			    });
 			}
