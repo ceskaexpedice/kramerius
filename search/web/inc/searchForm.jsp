@@ -15,7 +15,7 @@
 		<tr>
 			<td width="230px"><a
 				href="./?language=<c:out value="${param.language}" />"><img
-				src="img/logo_knav.png" border="0" /></a></td>
+				src="img/logo.png" border="0" /></a></td>
 			<td><input id="debug" name="debug" type="hidden"
 				value="<c:out value="${param.debug}" />" /> <input type="text"
 				alt="Hledaný výraz" name="q" id="q"
