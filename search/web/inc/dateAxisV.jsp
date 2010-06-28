@@ -262,4 +262,9 @@ $(document).ready(function(){
 <a href="javascript:zoomOut();" >zoom out</a>
 </div>
 
+<%}else{
+%>
+<script>
+     $('#rightMenu').hide();
+</script>
 <%}%>

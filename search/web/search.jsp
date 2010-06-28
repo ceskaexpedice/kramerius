@@ -96,7 +96,7 @@ out.clear();
 
                     </c:choose>
                 </td>
-                <td class="rightMenu">
+                <td id="rightMenu" class="rightMenu">
                     <div id="timeLineDiv" class="ui-tabs ui-widget ui-widget-content ui-corner-all" >
                     <ul class="ui-tabs-nav ui-helper-reset ui-helper-clearfix ui-widget-header ui-corner-all" style="padding:0 0.1em 0 0;">
                         <li class="ui-state-default ui-corner-top ui-tabs-selected ui-state-active " style="width:100%;"><a class="box">

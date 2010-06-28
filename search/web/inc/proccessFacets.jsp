@@ -15,7 +15,7 @@
 <x:forEach var="nav" select="$doc/response/lst[@name='facet_counts']/lst[@name='facet_fields']/lst">
     <c:set var="facetName"><x:out select="@name"/></c:set><jsp:useBean id="facetName" type="java.lang.String" /><%
             Facet facet = new Facet(facetName);
-    %><x:if select="count(./int) > 0">
+    %><x:if select="count(./int) > 1">
         <c:choose>
             <c:when test="${facetName == 'fedora.model'}">
                 <c:set var="displayName">

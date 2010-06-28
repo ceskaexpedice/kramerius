@@ -46,7 +46,7 @@
     </c:if>
     />
     </td>
-    <td>
+    <td class="resultThumb">
     <% 
     if(fedora_model.equals("page")){
         imagePid = "thumb?uuid=" + uuid;
@@ -61,7 +61,7 @@
     src="<%=imagePid%>&scaledHeight=64" 
     border="1"   /></a>
     </td>
-    <td>
+    <td class="resultText">
     <a href="<c:out value="${itemUrl}" escapeXml="false" />" ><b><x:out select="./str[@name='root_title']"/></b></a>
     <span class="textpole">(<fmt:message bundle="${lctx}"><x:out select="./str[@name='fedora.model']"/></fmt:message>)</span>
     <x:if select="./int[@name='pages_count'] != '0'">

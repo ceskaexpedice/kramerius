@@ -4,7 +4,7 @@ body {
 	color:#0B0F0A;
         background-image: url('../img/background.png');
         background-repeat:repeat-x;
-        background-color:silver;
+        background-color:white;
         margin:0px;
 }
 td {
@@ -113,7 +113,7 @@ a.image:hover {
 }
 
 .leftMenu{
-    
+    width:220px;
 }
 
 #intro{
@@ -123,7 +123,7 @@ a.image:hover {
     padding:5px;
 }
 #timeLineBody{
-    padding-bottom:26px;
+    padding-bottom:35px;
 }
 /* end layout */
 
@@ -201,6 +201,13 @@ a.box {
 
 .result{
     width:100%;
+}
+
+.resultThumb{
+    width:50px;
+}
+.resultText{
+    padding-left:5px;
 }
 
 .uncollapsed{
@@ -548,4 +555,9 @@ table.advancedSearch td{
     display: inline-block;
     width:16px;
     height:12px;
+}
+.donator{
+    position:relative;
+    top:-50px;
+    
 }
