@@ -58,12 +58,10 @@ Get Biblio mods
         $(document).ready(function(){
             var obj = "<c:out value="${obj}" />";
             var tabTemp = '<li><a href="<c:out value="${href}" />"><c:out value="${label}" /></a><img width="12px" src="img/empty.gif" class="op_list" onclick="showList(this, \''+obj+'\', \'<c:out value="${href}" />\')" /></li>';
-            
             $(obj).tabs({ tabTemplate: tabTemp });
-           
+            
     <%--
            getItemRels('<c:out value="${pids[status.count-1]}" />', '<c:out value="${pids[status.count]}" />', <c:out value="${cur_level}" />, <c:out value="${status.count == fn:length(models)}" />);
-           
     --%>
         });
     </script>
@@ -114,7 +112,7 @@ Get Biblio mods
 
 <script language="javascript">
     $(document).ready(function(){
-        
+        $('#tabs_1>ul>li>img.op_list').hide();
        getItemRels('<c:out value="${pids[0]}" />', '<c:out value="${pids[1]}" />', <c:out value="${1 + level}" />, true);
        changeSelection('<c:out value="${pids[pathsize -2]}" />','<c:out value="${pids[pathsize -1]}" />');
         

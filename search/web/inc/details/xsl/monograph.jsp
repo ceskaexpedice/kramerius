@@ -40,138 +40,114 @@
     </xsl:template>
     <xsl:template match="/mods:modsCollection/mods:mods" mode="info">
         <xsl:variable name="uuid" ><xsl:value-of select="./mods:identifier[@type='urn']"/></xsl:variable>
-        <div>
+        <c:if test="${display == 'none'}"><div>
             <xsl:attribute name="title" ><xsl:value-of select="mods:titleInfo/mods:title" /></xsl:attribute>
             <span>
-                <c:if test="${display != 'none'}"><fmt:message bundle="${lctx}">Hlavní název</fmt:message>:<br/></c:if>
                 <div class="resultValue"><xsl:value-of select="mods:titleInfo/mods:title" /></div>
             </span>
             
-        </div>
-        <div id="moreDetails"><xsl:attribute name="style">display:<c:out value="${param.display}" />;</xsl:attribute>
-        <div>
-            <span>
-                <fmt:message bundle="${lctx}">Autor</fmt:message>:<br/>
-                <xsl:for-each select="mods:name[@type='personal']">
+        </div></c:if>
+        <c:if test="${display != 'none'}"><table class="detailsTable">
+            <tr>
+                <td class="resultLabel"><fmt:message bundle="${lctx}">Hlavní název</fmt:message></td>
+                <td class="resultValue"><xsl:value-of select="mods:titleInfo/mods:title" /></td>
+            </tr>
+            <tr>
+                <td class="resultLabel"><fmt:message bundle="${lctx}">Autor</fmt:message></td>
+                <td class="resultValue"><xsl:for-each select="mods:name[@type='personal']">
                     <xsl:if test="./mods:role/mods:roleTerm = 'Author'">
-                        <div class="resultValue">
-                            Příjmení: &#160;<xsl:value-of select="./mods:namePart[@type='family']" />&#160;&#160;
-                            Jméno: &#160;<xsl:value-of select="./mods:namePart[@type='given']" />
+                        <div>
+                            <xsl:value-of select="./mods:namePart[@type='family']" />,&#160;
+                            <xsl:value-of select="./mods:namePart[@type='given']" />
                         </div>
                     </xsl:if>
-                </xsl:for-each>
-            </span>
-        </div>
-        <div>
-            <span>
-                <fmt:message bundle="${lctx}">Druh dokumentu</fmt:message>:<br/>
-                <div class="resultValue">
-                    <fmt:message bundle="${lctx}">monograph</fmt:message>
-                </div>
-            </span>
-        </div>
-        <xsl:for-each select="mods:originInfo[@transliteration='publisher']">
-            <div>
-                <span>
-                    <fmt:message bundle="${lctx}">Název vydavatele</fmt:message>:<br/>
-                    <xsl:if test="./mods:publisher">
-                        <div class="resultValue">
-                            <xsl:value-of select="./mods:publisher" />
-                        </div>
-                    </xsl:if>
-                    <fmt:message bundle="${lctx}">Datum vydání</fmt:message>:<br/>
-                    <xsl:if test="./mods:dateIssued">
-                        <div class="resultValue">
-                            <xsl:value-of select="./mods:dateIssued" />
-                        </div>
-                    </xsl:if>
-                    <fmt:message bundle="${lctx}">Místo vydání</fmt:message>:<br/>
-                    <xsl:if test="./mods:place/mods:placeTerm">
-                        <div class="resultValue">
-                            <xsl:value-of select="./mods:place/mods:placeTerm" />
-                        </div>
-                    </xsl:if>
-                </span>
-            </div>
-        </xsl:for-each>
-        <xsl:if test="mods:originInfo[@transliteration='printer']">
-            <div>
-                <span>
-                    <fmt:message bundle="${lctx}">Název tiskaře</fmt:message>:<br/> 
-                    <div class="resultValue">
-                        <xsl:value-of select="mods:originInfo[@transliteration='printer']/mods:publisher" />
-                    </div>
-                    <br/> 
-                    <fmt:message bundle="${lctx}">Místo tisku</fmt:message>:<br/>
-                    <div class="resultValue"> 
-                        <xsl:value-of select="mods:originInfo[@transliteration='printer']/mods:place/mods:placeTerm" />
-                    </div>
-                </span>
-            </div>
-        </xsl:if>
-        <xsl:if test="mods:physicalDescription/mods:extent">
-            <div>
-                <span>
-                    <fmt:message bundle="${lctx}">Fyzický popis</fmt:message>:<br/>
-                    
-                    <xsl:if test="contains(mods:physicalDescription/mods:extent, ',')">
-                        <fmt:message bundle="${lctx}">Rozměry</fmt:message>:<br/> 
-                        <div class="resultValue"><xsl:value-of select="substring-after(mods:physicalDescription/mods:extent, ',')" />
-                        </div>
-                        <br/>
-                    </xsl:if>
-                    <xsl:choose>
-                        <xsl:when test="contains(mods:physicalDescription/mods:extent, ',')">
-                            <fmt:message bundle="${lctx}">Rozměry</fmt:message>:<br/> 
-                            <div class="resultValue"><xsl:value-of select="substring-after(mods:physicalDescription/mods:extent, ',')" />
-                            </div>
-                            <br/>
-                            <fmt:message bundle="${lctx}">Rozsah</fmt:message>:<br/> 
-                            <div class="resultValue"><xsl:value-of select="substring-before(mods:physicalDescription/mods:extent, ',')" />
-                            </div>
-                        </xsl:when>
-                        <xsl:otherwise>
-                            <fmt:message bundle="${lctx}">Rozsah</fmt:message>:<br/> 
-                            <div class="resultValue"><xsl:value-of select="mods:physicalDescription/mods:extent" /> 
-                            </div>
-                        </xsl:otherwise>
-                    </xsl:choose>
-                </span>
-            </div>
-        </xsl:if>
-        <xsl:if test="mods:physicalDescription/mods:note[@type='preservationStateOfArt']">
-            <div>
-                <span>
-                    <fmt:message bundle="${lctx}">Stav z hlediska ochrany fondů</fmt:message>:<br/>
-                    <div class="resultValue">
-                        <fmt:message bundle="${lctx}">Aktuální stav</fmt:message>:<br/> 
+                </xsl:for-each></td>
+            </tr>
+            <tr>
+                <td class="resultLabel"><fmt:message bundle="${lctx}">Druh dokumentu</fmt:message></td>
+                <td class="resultValue"><fmt:message bundle="${lctx}">monograph</fmt:message></td>
+            </tr>
+            
+            <xsl:for-each select="mods:originInfo[@transliteration='publisher']">
+            <tr>                    
+                <td class="resultLabel"><fmt:message bundle="${lctx}">Název vydavatele</fmt:message></td>
+                <td class="resultValue"><xsl:if test="./mods:publisher">
+                     <xsl:value-of select="./mods:publisher" />
+                </xsl:if></td>
+            </tr>
+            <tr>
+                <td class="resultLabel"><fmt:message bundle="${lctx}">Datum vydání</fmt:message></td>
+                <td class="resultValue"><xsl:if test="./mods:dateIssued">
+                      <xsl:value-of select="./mods:dateIssued" />
+                </xsl:if></td>
+            </tr>
+            <tr>
+                <td class="resultLabel"><fmt:message bundle="${lctx}">Místo vydání</fmt:message></td>
+                <td class="resultValue"><xsl:if test="./mods:place/mods:placeTerm">
+                    <xsl:value-of select="./mods:place/mods:placeTerm" />
+                    </xsl:if></td>
+            </tr>
+            </xsl:for-each>
+            <xsl:if test="mods:originInfo[@transliteration='printer']">
+            <tr>
+                <td class="resultLabel"><fmt:message bundle="${lctx}">Název tiskaře</fmt:message></td>
+                <td class="resultValue"><xsl:value-of select="mods:originInfo[@transliteration='printer']/mods:publisher" /></td>
+            </tr>
+            <tr>
+                <td class="resultLabel"><fmt:message bundle="${lctx}">Místo tisku</fmt:message></td>
+                <td class="resultValue"><xsl:value-of select="mods:originInfo[@transliteration='printer']/mods:place/mods:placeTerm" /></td>
+            </tr>
+            </xsl:if>
+            
+            <xsl:if test="mods:physicalDescription/mods:extent">
+            <tr>
+                <td class="resultLabel"><fmt:message bundle="${lctx}">Fyzický popis</fmt:message></td>
+                <td class="resultValue"></td>
+            </tr>
+            <xsl:choose>
+                <xsl:when test="contains(mods:physicalDescription/mods:extent, ',')">
+                    <tr>
+                        <td class="resultLabel"><fmt:message bundle="${lctx}">Rozměry</fmt:message></td>
+                        <td class="resultValue"><xsl:value-of select="substring-after(mods:physicalDescription/mods:extent, ',')" /></td>
+                    </tr>
+                    <tr>
+                        <td class="resultLabel"><fmt:message bundle="${lctx}">Rozsah</fmt:message></td>
+                        <td class="resultValue"><xsl:value-of select="substring-before(mods:physicalDescription/mods:extent, ',')" /></td>
+                    </tr>
+                </xsl:when>
+                <xsl:otherwise>
+                    <tr>
+                        <td class="resultLabel"><fmt:message bundle="${lctx}">Rozsah</fmt:message></td>
+                        <td class="resultValue"><xsl:value-of select="mods:physicalDescription/mods:extent" /></td>
+                    </tr>
+                </xsl:otherwise>
+            </xsl:choose>
+            </xsl:if>
+            <xsl:if test="mods:physicalDescription/mods:note[@type='preservationStateOfArt']">
+            <tr>
+                <td class="resultLabel"><fmt:message bundle="${lctx}">Stav z hlediska ochrany fondů</fmt:message></td>
+                <td class="resultValue">
+                        <fmt:message bundle="${lctx}">Aktuální stav</fmt:message>: 
                         <xsl:value-of select="mods:physicalDescription/mods:note[@type='preservationStateOfArt']" />
-                    </div>
-                </span>
-            </div>
-        </xsl:if>
+                </td>
+            </tr>
+            </xsl:if>
+            <xsl:if test="mods:location/mods:physicalLocation">
+            <tr>
+                <td class="resultLabel"><fmt:message bundle="${lctx}">Místo uložení</fmt:message></td>
+                <td class="resultValue"><xsl:value-of select="mods:location/mods:physicalLocation" /></td>
+            </tr>
+            </xsl:if>
+            <xsl:if test="mods:location/mods:shelfLocator">
+            <tr>
+                <td class="resultLabel"><fmt:message bundle="${lctx}">Signatura</fmt:message></td>
+                <td class="resultValue"><xsl:value-of select="mods:location/mods:shelfLocator" /></td>
+            </tr>
+            </xsl:if>
+            
+        </table></c:if>
         
-        <xsl:if test="mods:location/mods:physicalLocation">
-            <div><span valign="top">*</span>
-                <span>
-                    <fmt:message bundle="${lctx}">Místo uložení</fmt:message>:<br/>
-                    <div class="resultValue">
-                        <xsl:value-of select="mods:location/mods:physicalLocation" />
-                    </div>
-                </span>
-            </div>
-        </xsl:if>
-        <xsl:if test="mods:location/mods:shelfLocator">
-            <div><span valign="top">*</span>
-                <span>
-                    <fmt:message bundle="${lctx}">Signatura</fmt:message>:<br/>
-                    <div class="resultValue">
-                        <xsl:value-of select="mods:location/mods:shelfLocator" />
-                    </div>
-                </span>
-            </div>
-        </xsl:if>
-        </div>
+        
         
     </xsl:template>
 </xsl:stylesheet>

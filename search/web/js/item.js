@@ -133,15 +133,15 @@ function getItemRels(pid, selectedpid, level, recursive, rootModel){
                         donatortext += language.toUpperCase();
                     }
                     $.get(donatortext, function(data){
-                        $("#itemTree").append('<img src="proxy?pid=donator:'+model2[1]+'&dsname=LOGO" alt="'+data+'" title="'+data+'" />');
+                        $("#donatorContainer").html('<div class="donator"><img height="50" src="proxy?pid=donator:'+model2[1]+'&dsname=LOGO" alt="'+data+'" title="'+data+'" /></div>');
                     });
                     
                 }else{
                   list = obj + ">div>div[id=list-"+m+"]";
                   if($(list).length==0){
                       str_div ='<div id="tab'+target_level+'-'+m+'" class="'+m+'">';
-                      str_div +='<div class="relInfo"  id="info-'+m+'">a</div>';
                       str_div +='<div style="display:none;" id="list-'+m+'" class="relList"></div>';
+                      str_div +='<div class="relInfo"  id="info-'+m+'">a</div>';
                       str_div +='</div>';
                       $(obj).append(str_div);
                       $(obj).tabs("add", "#tab"+target_level+"-"+m, model2[0]);
@@ -308,7 +308,8 @@ function showList(obj, tab, model){
     var h = $(window).height() - $(tab).offset().top - $(tab).height();
     $(tab + ">div>div[id=list-"+m+"]").css('max-height', h);
     $(tab + ">div>div[id=list-"+m+"]").css('_height', 'expression(this.scrollHeight > '+h+'? "'+h+'px" : "auto" )');
-    
+    var w = $(tab + ">div>div[id=list-"+m+"]").parent().width() - 4;
+    $(tab + ">div>div[id=list-"+m+"]").css('width', w);
     $(tab + ">div>div[id=list-"+m+"]").toggle();
     
     var selected = $(tab+">div>div[id=list-"+m+"]>div.selected");
@@ -345,6 +346,7 @@ function showMainContent(level){
     $.get(url, function(data){
         $('#metaData').html(data);
     });
+    hideAdminOptions(level);
 }
 
 function getPageTitle(pid){
@@ -352,12 +354,19 @@ function getPageTitle(pid){
 }
 
 function toggleAdminOptions(div){
-        var il = $('#menu-'+div).parent().width() + $('#menu-'+div).parent().offset().left - $('#menu-'+div).width();
-        $('#menu-'+div).css('left', il);
-        $('#menu-'+div).toggle();
-        $('#openmenu-'+div).toggle();
-    }
-    
+    //var divs = "#tabs_" + level + ">div>div.menuOptions";
+    var il = $('#menu-'+div).parent().width() + $('#menu-'+div).parent().offset().left - $('#menu-'+div).width();
+    $('#menu-'+div).css('left', il);
+    $('#menu-'+div).toggle();
+    $('#openmenu-'+div).toggle();
+}
+function hideAdminOptions(level){
+    //var divs = "#tabs_" + level + ">div>div.menuOptions";
+    //var il = $('#menu-'+div).parent().width() + $('#menu-'+div).parent().offset().left - $('#menu-'+div).width();
+    //$('#menu-'+div).css('left', il);
+    $("#tabs_" + level + ">div>div.menuOptions").toggle();
+    //$('#openmenu-'+div).toggle();
+}
     
     
     

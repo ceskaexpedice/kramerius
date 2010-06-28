@@ -85,8 +85,11 @@ function gotoPageOffset( value, div, baseUrl ){
 function addNavigation(navigator, value){
     var page = new PageQuery(window.location.search);
     page.setValue("offset", "0");
-    window.location = searchPage + "?" + 
-        page.toString() + "&fq=" + navigator + ":\"" + value + "\"";
+    var nav = "fq=" + navigator + ":\"" + value + "\"";
+    if(window.location.search.indexOf(nav)==-1){
+        window.location = searchPage + "?" + 
+        page.toString() + "&" + nav;
+    }
     
 }
 
@@ -154,13 +157,13 @@ function removeNavigation2(name, value){
     
     removeNavigation(name + ":\"" + value + "\"" );
     
-     var page = new PageQuery(window.location.search);
+    // var page = new PageQuery(window.location.search);
     
-    page.setValue("offset", "0");
-    page.removeParam(name);
-    var url = searchPage + "?" + page.toString();
+    //page.setValue("offset", "0");
+    //page.removeParam(name);
+    //var url = searchPage + "?" + page.toString();
     
-    window.location = url;
+    //window.location = url;
     
 }
 
