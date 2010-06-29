@@ -1,22 +1,28 @@
 package com.qbizm.kramerius.imptool.poc;
 
+import java.io.ByteArrayInputStream;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
 import javax.xml.bind.PropertyException;
 import javax.xml.bind.Unmarshaller;
+import javax.xml.transform.sax.SAXSource;
 
 import org.apache.commons.configuration.Configuration;
-import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
+import org.xml.sax.EntityResolver;
+import org.xml.sax.InputSource;
+import org.xml.sax.SAXException;
+import org.xml.sax.XMLReader;
+import org.xml.sax.helpers.XMLReaderFactory;
 
 import com.qbizm.kramerius.imp.jaxb.DigitalObject;
 import com.qbizm.kramerius.imp.jaxb.Monograph;
@@ -25,7 +31,6 @@ import com.qbizm.kramerius.imptool.poc.convertor.MonographConvertor;
 import com.qbizm.kramerius.imptool.poc.convertor.PeriodicalConvertor;
 import com.qbizm.kramerius.imptool.poc.valueobj.ConvertorConfig;
 import com.qbizm.kramerius.imptool.poc.valueobj.ServiceException;
-import com.sun.xml.internal.bind.marshaller.NamespacePrefixMapper;
 
 import cz.incad.kramerius.utils.conf.KConfiguration;
 
@@ -91,6 +96,7 @@ public class Main {
             marshaller.setProperty(Marshaller.JAXB_SCHEMA_LOCATION, "info:fedora/fedora-system:def/foxml# http://www.fedora.info/definitions/1/0/foxml1-1.xsd");
 
             unmarshaller = jaxbContext.createUnmarshaller();
+            
 
         } catch (Exception e) {
             log.error("Cannot init JAXB", e);
@@ -192,18 +198,32 @@ public class Main {
                     log.error("Cannot convert "+importFile, e);
                 } catch (JAXBException e) {
                     log.error("Cannot convert "+importFile, e);
-                }
+                } catch (FileNotFoundException e) {
+                	log.error("Cannot convert "+importFile, e);
+				} catch (SAXException e) {
+					log.error("Cannot convert "+importFile, e);
+				}
 
             }
         }
     }
 
-    private static void convertOneDirectory(Unmarshaller unmarshaller, File importFile, ConvertorConfig config, StringBuffer convertedURI) throws InterruptedException, JAXBException {
+    private static void convertOneDirectory(Unmarshaller unmarshaller, File importFile, ConvertorConfig config, StringBuffer convertedURI) throws InterruptedException, JAXBException, FileNotFoundException, SAXException {
         long timeStart = System.currentTimeMillis();
 
         long before = getFreeMem();
-        Object source = unmarshaller.unmarshal(importFile);
-        long after = getFreeMem();
+        
+        XMLReader reader = XMLReaderFactory.createXMLReader();
+        reader.setEntityResolver(new EntityResolver(){
+			@Override
+			public InputSource resolveEntity(String publicId, String systemId) throws SAXException, IOException {
+					return new InputSource(new ByteArrayInputStream("<?xml version='1.0' encoding='UTF-8'?>".getBytes()));
+			}
+		});
+        SAXSource saxSource = new SAXSource( reader, new InputSource( new FileInputStream(importFile) ) );
+		Object source = unmarshaller.unmarshal(saxSource);
+
+		long after = getFreeMem();
         if (log.isInfoEnabled()) {
             log.info("Memory eaten: " + ((after - before) / 1024) + "KB");
         }
