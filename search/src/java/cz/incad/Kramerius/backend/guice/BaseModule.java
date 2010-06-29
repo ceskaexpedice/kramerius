@@ -11,7 +11,9 @@ import com.google.inject.Scopes;
 import com.google.inject.name.Names;
 
 import cz.incad.kramerius.FedoraAccess;
+import cz.incad.kramerius.MostDesirable;
 import cz.incad.kramerius.impl.FedoraAccessImpl;
+import cz.incad.kramerius.impl.MostDesirableImpl;
 import cz.incad.kramerius.pdf.GeneratePDFService;
 import cz.incad.kramerius.pdf.impl.GeneratePDFServiceImpl;
 import cz.incad.kramerius.processes.database.JNDIConnectionProvider;
@@ -52,5 +54,7 @@ public class BaseModule extends AbstractModule {
 		
 		bind(SecurityAcceptor.class).to(RequestSecurityAcceptor.class);
 		bind(LocalizationContext.class).toProvider(CustomLocalizedContextProvider.class);
+		
+		bind(MostDesirable.class).to(MostDesirableImpl.class);
 	}
 }
