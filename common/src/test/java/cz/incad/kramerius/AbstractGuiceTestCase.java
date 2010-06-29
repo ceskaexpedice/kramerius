@@ -8,19 +8,22 @@ import com.google.inject.Injector;
 
 public abstract class AbstractGuiceTestCase {
 
+	public static final java.util.logging.Logger LOGGER = java.util.logging.Logger
+			.getLogger(AbstractGuiceTestCase.class.getName());
+	
 	
 	protected void dropTables() {
 		try {
 			Connection connection = connection();
 			connection.createStatement().execute("drop table PROCESSES");
 		} catch (SQLException e) {
-			e.printStackTrace();
+			LOGGER.severe(e.getMessage());
 		}
 		try {
 			Connection connection = connection();
 			connection.createStatement().execute("drop table DESIRABLE");
 		} catch (SQLException e) {
-			e.printStackTrace();
+			LOGGER.severe(e.getMessage());
 		}
 	}
 
