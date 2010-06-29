@@ -14,6 +14,9 @@
 	
 	LocalizationContext lctx= inj.getProvider(LocalizationContext.class).get();
 	pageContext.setAttribute("lctx", lctx);
+
+	inj.getInstance(MostDesirable.class).saveAccess(request.getParameter("pid"), new Date());	
+
 %>
 
 <c:choose>
@@ -52,7 +55,8 @@
 <%@page import="java.io.ByteArrayOutputStream"%>
 <%@page import="com.google.inject.Injector"%>
 <%@page import="cz.incad.kramerius.processes.LRProcessManager"%>
-<%@page import="cz.incad.kramerius.processes.DefinitionManager"%><html xmlns="http://www.w3.org/1999/xhtml" xml:lang="cs" lang="cs">
+<%@page import="cz.incad.kramerius.processes.DefinitionManager"%>
+<%@page import="cz.incad.kramerius.MostDesirable"%><html xmlns="http://www.w3.org/1999/xhtml" xml:lang="cs" lang="cs">
     <%@ include file="inc/html_header.jsp" %>
     <body >
 		<!--  procesy - dialogy -->
