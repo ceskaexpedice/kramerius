@@ -9,7 +9,7 @@ import com.google.inject.Scopes;
 import com.google.inject.name.Names;
 
 import cz.incad.kramerius.MostDesirable;
-import cz.incad.kramerius.TestsDatabaseConnectionProvider;
+import cz.incad.kramerius.ConProvider4T;
 import cz.incad.kramerius.impl.MostDesirableImpl;
 import cz.incad.kramerius.processes.impl.DatabaseProcessManager;
 import cz.incad.kramerius.processes.impl.LRProcessDefinitionManagerImpl;
@@ -22,7 +22,7 @@ public class DefinitionModule extends AbstractModule {
 	protected void configure() {
 		KConfiguration testConf = KConfiguration.getInstance();
 		bind(KConfiguration.class).toInstance(testConf);
-		bind(Connection.class).toProvider(TestsDatabaseConnectionProvider.class);
+		bind(Connection.class).toProvider(ConProvider4T.class);
 		
 		// long running process modul
 		bind(DefinitionManager.class).to(LRProcessDefinitionManagerImpl.class);
