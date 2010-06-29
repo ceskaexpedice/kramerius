@@ -1,6 +1,6 @@
 package cz.incad.kramerius.processes.impl;
 
-import static cz.incad.kramerius.processes.database.DatabaseUtils.*;
+import static cz.incad.kramerius.processes.database.ProcessDatabaseUtils.*;
 
 import java.sql.Connection;
 import java.sql.Date;
@@ -25,6 +25,7 @@ import cz.incad.kramerius.processes.LRProcessOrdering;
 import cz.incad.kramerius.processes.States;
 import cz.incad.kramerius.processes.TypeOfOrdering;
 import cz.incad.kramerius.processes.database.DatabaseUtils;
+import cz.incad.kramerius.processes.database.ProcessDatabaseUtils;
 
 public class DatabaseProcessManager implements LRProcessManager {
 	
@@ -98,7 +99,7 @@ public class DatabaseProcessManager implements LRProcessManager {
 		try {
 			connection = provider.get();
 			if (connection != null) {
-				if (!tableExists(connection)) {
+				if (!DatabaseUtils.tableExists(connection,"PROCESSES")) {
 					createTable(connection);
 				}
 				registerProcess(connection, lp);
@@ -121,10 +122,10 @@ public class DatabaseProcessManager implements LRProcessManager {
 		Connection connection = null;
 		try {
 			connection = provider.get();
-			if (!tableExists(connection)) {
+			if (!DatabaseUtils.tableExists(connection,"PROCESSES")) {
 				createTable(connection);
 			}
-			DatabaseUtils.updateProcessPID(connection,  lrProcess.getPid(),lrProcess.getUUID());
+			ProcessDatabaseUtils.updateProcessPID(connection,  lrProcess.getPid(),lrProcess.getUUID());
 		} catch (SQLException e) {
 			LOGGER.log(Level.SEVERE, e.getMessage(), e);
 		} finally {
@@ -146,10 +147,10 @@ public class DatabaseProcessManager implements LRProcessManager {
 		Connection connection = null;
 		try {
 			connection = provider.get();
-			if (!tableExists(connection)) {
+			if (!DatabaseUtils.tableExists(connection,"PROCESSES")) {
 				createTable(connection);
 			}
-			DatabaseUtils.updateProcessName(connection, lrProcess.getUUID(), lrProcess.getProcessName());
+			ProcessDatabaseUtils.updateProcessName(connection, lrProcess.getUUID(), lrProcess.getProcessName());
 		} catch (SQLException e) {
 			LOGGER.log(Level.SEVERE, e.getMessage(), e);
 		} finally {
@@ -168,10 +169,10 @@ public class DatabaseProcessManager implements LRProcessManager {
 		Connection connection = null;
 		try {
 			connection = provider.get();
-			if (!tableExists(connection)) {
+			if (!DatabaseUtils.tableExists(connection,"PROCESSES")) {
 				createTable(connection);
 			}
-			DatabaseUtils.updateProcessState(connection, lrProcess.getUUID(), lrProcess.getProcessState());
+			ProcessDatabaseUtils.updateProcessState(connection, lrProcess.getUUID(), lrProcess.getProcessState());
 		} catch (SQLException e) {
 			LOGGER.log(Level.SEVERE, e.getMessage(), e);
 		} finally {
@@ -199,7 +200,7 @@ public class DatabaseProcessManager implements LRProcessManager {
 		try {
 			connection = provider.get();
 			if (connection != null) {
-				if (!tableExists(connection)) {
+				if (!DatabaseUtils.tableExists(connection,"PROCESSES")) {
 					createTable(connection);
 				}
 				StringBuffer buffer = new StringBuffer("select count(*) from PROCESSES ");
@@ -249,7 +250,7 @@ public class DatabaseProcessManager implements LRProcessManager {
 			List<LRProcess> processes = new ArrayList<LRProcess>();
 			connection = provider.get();
 			if (connection != null) {
-				if (!tableExists(connection)) {
+				if (!DatabaseUtils.tableExists(connection,"PROCESSES")) {
 					createTable(connection);
 				}
 				StringBuffer buffer = new StringBuffer("select * from PROCESSES ");
