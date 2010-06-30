@@ -15,7 +15,11 @@
 	LocalizationContext lctx= inj.getProvider(LocalizationContext.class).get();
 	pageContext.setAttribute("lctx", lctx);
 
-	inj.getInstance(MostDesirable.class).saveAccess(request.getParameter("pid"), new Date());	
+	String pidPath = request.getParameter("pid_path");
+	StringTokenizer tokenizer = new StringTokenizer(pidPath,"/");
+	if (tokenizer.hasMoreTokens()) {
+		inj.getInstance(MostDesirable.class).saveAccess(tokenizer.nextToken(), new Date());	
+	}
 
 %>
 
@@ -56,7 +60,8 @@
 <%@page import="com.google.inject.Injector"%>
 <%@page import="cz.incad.kramerius.processes.LRProcessManager"%>
 <%@page import="cz.incad.kramerius.processes.DefinitionManager"%>
-<%@page import="cz.incad.kramerius.MostDesirable"%><html xmlns="http://www.w3.org/1999/xhtml" xml:lang="cs" lang="cs">
+<%@page import="cz.incad.kramerius.MostDesirable"%>
+<%@page import="cz.incad.kramerius.utils.pid.PIDParser"%><html xmlns="http://www.w3.org/1999/xhtml" xml:lang="cs" lang="cs">
     <%@ include file="inc/html_header.jsp" %>
     <body >
 		<!--  procesy - dialogy -->
