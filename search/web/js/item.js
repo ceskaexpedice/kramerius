@@ -318,8 +318,10 @@ function showList(obj, tab, model){
 }
 
 var _metadataDialog;
-function showMainContent(level){
+function showMainContent(level, model){
    var pid = $("#tabs_"+level).attr('pid');
+   
+   var titul = $("#tabs_"+level+">div>div[id=info-"+model+"]>div").attr('title');
    var page = new PageQuery(window.location.search);
    var path = page.getValue("path");
    if(path=="") return;
@@ -331,6 +333,7 @@ function showMainContent(level){
            width:640,
            height:480,
            modal:true,
+           title:titul,
            buttons: {
               "Close": function() {
                 $(this).dialog("close"); 
@@ -341,7 +344,7 @@ function showMainContent(level){
    
     $('#metaData').html(imgLoadingBig);
     //var url = "inc/details/"+path.toString().split('/')[0]+".jsp?display=block&language=";
-    var url = "inc/details/biblioToRdf.jsp?pid=uuid:"+pid+"&xsl="+path.toString().split('/')[0]+".jsp&display=block&language=";
+    var url = "inc/details/biblioToRdf.jsp?pid=uuid:"+pid+"&xsl="+path.toString().split('/')[0]+".jsp&display=full&language=";
     //var url = 'item_1.jsp?pid='+pid+'&path='+path;
     $.get(url, function(data){
         $('#metaData').html(data);

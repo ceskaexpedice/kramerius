@@ -28,7 +28,15 @@
                 });
             //});
          </script>
-     <div id="intro2"><img src="img/intro2.png" /></div>
+     <div id="intro2" style="height:220px;">
+     </div>
+         <script>
+            //$(document).ready(function(){
+                $.get('inc/mostDesirables.jsp', function(data){
+                   $('#intro2').html(data) ;
+                });
+            //});
+         </script>
      <div id="intro3">
         <%  if(request.getRemoteUser()!=null) {  %>
         <%@ include file="text/edit_intro.jsp" %>
