@@ -5,8 +5,6 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn" %>
 <%@ page isELIgnored="false"%>
 
-
-
 <%@page import="cz.incad.kramerius.utils.FedoraUtils"%><table id="results_main" cellspacing="0" cellpadding="0" border="0">
     <x:forEach varStatus="status" select="$doc/response/result/doc">
         <c:set var="uuid" >

@@ -226,9 +226,19 @@ a.box {
 }
 .detailsTable{
   border: 1px solid silver;
+  width:100%;
+  border-collapse:collapse;
+  
 }
 .detailsTable td{
   border-bottom: 1px solid silver;
+}
+.detailLabel{
+    border-right: 1px solid silver;
+}
+.detailLabelGroup{
+    background:#eeeeee;
+    padding-left:5px;
 }
 .resultValue{
     margin-left:10px;

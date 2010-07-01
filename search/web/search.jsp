@@ -84,8 +84,10 @@ out.clear();
                             <ul class="ui-helper-reset ui-helper-clearfix ui-widget-header ui-corner-all" style="padding:0 0.1em 0 0;">
                                 <li class="ui-state-default ui-corner-top ui-tabs-selected ui-state-active " style="width:100%;">
                                     &#160;<c:out value="${numDocs}" />&#160;<c:out value="${numDocsStr}" />
+                                    <c:if test="${numDocs>1}">
                                     <%@ include file="inc/paginationPageNum.jsp" %>
                                     <%@ include file="inc/sort.jsp" %>
+                                    </c:if>
                                 </li>
                             </ul>
                             <div id="resultsBody" class="ui-tabs-panel ui-widget-content ui-corner-bottom">

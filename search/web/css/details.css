@@ -1,0 +1,32 @@
+#details{
+    
+}
+
+#details h1 {font-size: 1.7em; margin: 0em 0em 1em 0em; line-height: 1.2em;}
+#details h2 {
+        font-size: 1.3em; 
+        color: #8f3900;
+        margin: 1em 0em 0.5em 0em; 
+        border-bottom: 1px solid #E2E9F1; 
+        padding-bottom: 0.2em;
+    }
+#details h3 {font-size: 1em; margin: 0.7em 0em 0.7em 0em; color: #444; font-family: Arial; font-weight: bold;
+        border-bottom: 1px solid #E2E9F1; }
+#details ul{
+    list-style: none;
+}
+#detailsShort ul{
+    list-style: none;
+    padding-left: 4px;
+    margin:1px;
+}
+#details .label {color: #8f3900; padding-right: 0.5em;}
+#details .value {font-style: italic;}
+
+#details ul li {
+        background: url("../img/listitem.png") 0 2px  no-repeat; 
+        padding-left: 12px; 
+        margin-left: 0.5em;}
+#details ul.wide li {margin-bottom: 0.5em;}
+#details ol {margin-left: 2em; list-style-type: decimal;}
+#a#detailsrticle ol li {}

@@ -155,9 +155,10 @@ function browseInTree(pid, model, div){
  */
 function removeNavigation2(name, value){
     
-    removeNavigation(name + ":\"" + value + "\"" );
+    var page = new PageQuery(window.location.search);
+    page.removeParam(name);
+    removeNavigation(name + ":\"" + value + "\"", page );
     
-    // var page = new PageQuery(window.location.search);
     
     //page.setValue("offset", "0");
     //page.removeParam(name);
@@ -167,9 +168,9 @@ function removeNavigation2(name, value){
     
 }
 
-function removeNavigation(value){
+function removeNavigation(value, page){
     
-    var page = new PageQuery(window.location.search);
+    //var page = new PageQuery(window.location.search);
     if(value.indexOf("rok:")==0){
       page.removeParam(fromField);
       page.removeParam(toField);

@@ -23,7 +23,7 @@
      <div id="intro1" style="height:220px;"></div>
          <script>
             //$(document).ready(function(){
-                $.get('inc/newest.jsp', function(data){
+                $.get('inc/newest.jsp?language=' + language, function(data){
                    $('#intro1').html(data) ;
                 });
             //});
@@ -32,7 +32,7 @@
      </div>
          <script>
             //$(document).ready(function(){
-                $.get('inc/mostDesirables.jsp', function(data){
+                $.get('inc/mostDesirables.jsp?language=' + language, function(data){
                    $('#intro2').html(data) ;
                 });
             //});

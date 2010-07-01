@@ -77,7 +77,7 @@ Get Biblio mods
     
     <c:catch var="exceptions"> 
         <c:import url="${urlStr}" var="xml2" charEncoding="UTF-8"  />
-        <c:import url="inc/details/xsl/${models[status.count -1]}.jsp?display=${display}&language=${param.language}${others}" var="xslt" charEncoding="UTF-8"  />
+        <c:import url="inc/details/xsl/default.jsp?model=${models[status.count -1]}&display=${display}&language=${param.language}${others}" var="xslt" charEncoding="UTF-8"  />
     </c:catch>
     <c:choose>
         <c:when test="${exceptions != null}" >

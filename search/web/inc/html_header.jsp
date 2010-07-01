@@ -6,10 +6,10 @@
 <%@ page trimDirectiveWhitespaces="true"%>
 
 <%
-			String fromField = "f1";
-            String toField = "f2";
-            String fromValue = "";
-            String toValue = "";
+        String fromField = "f1";
+        String toField = "f2";
+        String fromValue = "";
+        String toValue = "";
 %>
 
 <%@page import="com.google.inject.Injector"%>
@@ -37,8 +37,9 @@
     <link type="text/css" href="js/jquery.lightbox-0.5/css/jquery.lightbox-0.5.css" rel="stylesheet" />
     -->
     <link rel="stylesheet" href="css/dateAxisV.css" type="text/css"/>
-    <link rel="stylesheet" href="css/dtree.css" type="text/css"/>
-    <link rel="StyleSheet" href="css/styles.css" type="text/css"/>
+    <link rel="stylesheet" href="css/dtree.css" type="text/css" />
+    <link rel="StyleSheet" href="css/styles.css" type="text/css" />
+    <link rel="StyleSheet" href="css/details.css" type="text/css" />
 
         
     <script src="js/jquery-1.3.2.min.js" type="text/javascript" ></script>

@@ -40,6 +40,7 @@
 <c:url var="xslPage" value="${xsl}" >
     <c:param name="language" value="${param.language}" />
     <c:param name="title" value="${param.title}" />
+    <c:param name="model" value="${param.model}" />
 </c:url>
 <c:catch var="exceptions"> 
     <c:import url="${urlPage}" var="xmlPage" charEncoding="UTF-8"  />
