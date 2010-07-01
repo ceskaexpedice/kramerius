@@ -96,6 +96,24 @@ function findActiveBar(x){
     return null;
 } 
 
+function slideTo(pos){
+    if($("#content-slider").slider("value")<pos){
+        var l = $("#content-slider").slider("value") + 10;
+        $("#content-slider").slider("value", l);
+        setTimeout('slideTo('+pos+')', 10);
+    }else{
+        $("#content-slider").slider("value", pos);
+        //positionCurtainsOnLoad();
+        setSelectHandles();
+        setSelectContainmentBottom();
+        setSelectContainmentTop();
+        //positionCurtains();
+        initialized = true;
+        setBarsPositions();
+    }
+}
+
+var maxBar;
 function calculateMaximum(){
     var groupInt;
     var newMax = 0;
@@ -107,12 +125,16 @@ function calculateMaximum(){
             for (var item in times[currentLevel+1]){
                 var itemInt = parseInt(item);
                 if(itemInt>=groupStart && itemInt<=groupEnd){
-                    newMax = Math.max(newMax, times[currentLevel+1][item][0]);
+                    if(newMax<times[currentLevel+1][item][0]){
+                      newMax = times[currentLevel+1][item][0];
+                      maxBar = item;
+                    }
                 }
             }
         }
     }
     maxCount = newMax;
+    //return newMax;
 }
     
 function normalizeHeight(modCount){
@@ -394,8 +416,25 @@ function checkScrollBar(){
         $('#content-slider').hide();
     }else{
         $('#content-slider').show();
+        
+        
+        $("#content-slider").slider("value", 0);
+        var maxScroll = $("#da_container").height();
+        //alert(maxScroll);
+        var to = $('#da_bar_container_' + maxBar).offset().top;
+        //alert(to);
+        to = to - $("#content-scroll").offset().top;
+        //alert(to);
+        to = 100 - to / maxScroll  * 100;
+        //alert(to);
+        slideTo(to);
+        
+        
     }
 } 
+
+
+
 
 function positionCurtainsOnLoad(){
     positionCurtains();
