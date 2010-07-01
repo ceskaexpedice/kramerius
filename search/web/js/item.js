@@ -322,7 +322,7 @@ var _metadataDialog;
 function showMainContent(level, model){
    var pid = $("#tabs_"+level).attr('pid');
    
-   var titul = $("#tabs_"+level+">div>div[id=info-"+model+"]>div").attr('title');
+   var titul = $("#tabs_"+level+">div>div[id=info-"+model+"]>div>ul").attr('title');
    var page = new PageQuery(window.location.search);
    var path = page.getValue("path");
    if(path=="") return;
