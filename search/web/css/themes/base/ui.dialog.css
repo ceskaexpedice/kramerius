@@ -2,7 +2,7 @@
 ----------------------------------*/
 .ui-dialog { position: relative; padding: .2em; width: 300px; }
 .ui-dialog .ui-dialog-titlebar { padding: .5em .3em .3em 1em; position: relative;
-    background-image: url("../../../img/bg_orange_small.png");
+    background: #be4d02 url("../../../img/bg_orange_small.png") repeat-x;
 }
 .ui-dialog .ui-dialog-title { 
         float: left; 
