@@ -87,4 +87,23 @@ public class IOUtils {
 		}
 		
 	}
+	
+	public static File checkDirectory(String name){
+	    File directory = new File(name);
+	    if (!directory.exists() || !directory.isDirectory()) {
+	        if (!directory.mkdir()) {
+	            LOGGER.severe("Folder doesn't exist and can't be created: " + directory.getAbsolutePath());
+	            throw new RuntimeException("Folder doesn't exist and can't be created: " + directory.getAbsolutePath());
+	        }
+	    } 
+	    return directory;
+    }
+    
+    public static void cleanDirectory(File directory) { 
+        File[] files = directory.listFiles();
+        if (files != null) {
+            for (int i = 0; i < files.length; i++)
+                files[i].delete();
+        }
+    }
 }

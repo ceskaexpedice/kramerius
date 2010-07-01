@@ -150,4 +150,12 @@
 		<errOs>lrErr</errOs>
 	</process>
 
+
+	<process>
+		<id>convert</id>
+		<description>Convert and import</description>
+		<mainClass>org.kramerius.Convert</mainClass>
+		<standardOs>lrOut</standardOs>
+		<errOs>lrErr</errOs>
+	</process>
 </processes>

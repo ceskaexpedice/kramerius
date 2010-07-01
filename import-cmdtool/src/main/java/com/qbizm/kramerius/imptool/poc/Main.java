@@ -32,6 +32,7 @@ import com.qbizm.kramerius.imptool.poc.convertor.PeriodicalConvertor;
 import com.qbizm.kramerius.imptool.poc.valueobj.ConvertorConfig;
 import com.qbizm.kramerius.imptool.poc.valueobj.ServiceException;
 
+import cz.incad.kramerius.utils.IOUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 
 
@@ -68,7 +69,7 @@ public class Main {
         if (args.length == 4) {
             exportRoot = args[3];
         } else {
-            exportRoot = importRoot + "-out";
+            exportRoot = importRoot + "-converted";
         }
 
         convert(importRoot, exportRoot, useDB, defaultVisibility);
@@ -139,13 +140,7 @@ public class Main {
 
     }
     
-    private static void clearExportFolder(File replicationDirectory) {
-        File[] files = replicationDirectory.listFiles();
-        if (files != null) {
-            for (int i = 0; i < files.length; i++)
-                files[i].delete();
-        }
-    }
+    
 
     private static void visitAllDirsAndFiles(File importFile, String importRoot, String exportRoot, boolean useDB, boolean defaultVisibility, StringBuffer convertedURI) {
 
@@ -154,14 +149,8 @@ public class Main {
 
             String exportFolder = exportRoot + subFolderName;
 
-            File exportFolderFile = new File(exportFolder);
-            if (!exportFolderFile.exists() || !exportFolderFile.isDirectory()) {
-                if (!exportFolderFile.mkdir()) {
-                    System.err.println("Output folder doesn't exist and can't be created: " + exportFolderFile.getAbsolutePath());
-                    System.exit(1);
-                }
-            }
-            clearExportFolder(exportFolderFile);
+            File exportFolderFile = IOUtils.checkDirectory(exportFolder);
+            IOUtils.cleanDirectory(exportFolderFile);
             File[] children = importFile.listFiles();
             for (int i = 0; i < children.length; i++) {
                 visitAllDirsAndFiles(children[i], importRoot, exportRoot,  useDB, defaultVisibility, convertedURI);

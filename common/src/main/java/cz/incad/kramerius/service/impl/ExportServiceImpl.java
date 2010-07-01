@@ -1,5 +1,7 @@
 package cz.incad.kramerius.service.impl;
 
+
+import cz.incad.kramerius.utils.IOUtils;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -32,14 +34,21 @@ public class ExportServiceImpl implements ExportService {
     @Override
     public void exportTree(String pid) {
         Set<String> pids = fedoraAccess.getPids(pid);
+        if (pids.isEmpty()) 
+        	return;
+        String exportRoot = configuration.getProperty("export.directory");
+        IOUtils.checkDirectory(exportRoot);
+        File exportDirectory = IOUtils.checkDirectory(exportRoot+File.pathSeparator+pid.replace("uuid:", "").replaceAll(":", "_"));//create subdirectory for given PID
+        IOUtils.cleanDirectory(exportDirectory);
         for (String s : pids) {
         	String p = s.replace(INFO, "");
-            store(p, fedoraAccess.getAPIM().export(p, "info:fedora/fedora-system:FOXML-1.1", "archive"));
+            store(exportDirectory, p, fedoraAccess.getAPIM().export(p, "info:fedora/fedora-system:FOXML-1.1", "archive"));
         }
     }
 
-    private void store(String name, byte[] contents) {
-        String exportDirectory = configuration.getProperty("export.directory");
+    
+    
+    private void store(File exportDirectory, String name, byte[] contents) {
         String convertedName = name.replace("uuid:", "").replaceAll(":", "_")+ ".xml";
         File toFile = new File(exportDirectory, convertedName);
         OutputStream os = null;

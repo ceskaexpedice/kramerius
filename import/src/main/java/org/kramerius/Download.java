@@ -43,6 +43,7 @@ import com.qbizm.kramerius.imptool.poc.Main;
 import com.qbizm.kramerius.imptool.poc.valueobj.ServiceException;
 
 import cz.incad.kramerius.service.impl.IndexerProcessStarter;
+import cz.incad.kramerius.utils.IOUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 
 public class Download {
@@ -174,7 +175,7 @@ public class Download {
      * @param title
      * @param processedPath
      */
-    private static void startIndexing(String title, String processedPath){
+    public static void startIndexing(String title, String processedPath){
         if (processedPath == null) 
             return;
         int uuidStart = processedPath.indexOf("&pid_path=")+10;
@@ -192,7 +193,7 @@ public class Download {
     /** replication directory (from configuration) */
     private final String replicationDirectoryName ;
     
-    private static final String CONV_SUFFIX = "-converted";
+    public static final String CONV_SUFFIX = "-converted";
 
     /** temporary file for metadata replication */
     private static String replicationMetadataFileName = "metadata.xml";
@@ -442,12 +443,8 @@ public class Download {
     }
 
     void clearReplicationDirectory() {
-        File replicationDirectory = new File(replicationDirectoryName);
-        File[] files = replicationDirectory.listFiles();
-        if (files != null) {
-            for (int i = 0; i < files.length; i++)
-                files[i].delete();
-        }
+        File replicationDirectory = IOUtils.checkDirectory(replicationDirectoryName);
+        IOUtils.cleanDirectory(replicationDirectory);
     }
 
     static class ReplicationURL {
