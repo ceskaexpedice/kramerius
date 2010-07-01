@@ -14,15 +14,15 @@
                 <td><input type="text" value="<c:out value="${param.title}" />" size="20" name="title"></td>
             </tr>
             <tr>
-                <td>Autor</td>
+                <td><fmt:message bundle="${lctx}" key="author" /></td>
                 <td><input type="text" value="<c:out value="${param.author}" />" size="20" name="author"></td>
             </tr>
             <tr>
-                <td>Rok</td>
+                <td><fmt:message bundle="${lctx}" key="Rok" /></td>
                 <td><input type="text" value="<c:out value="${param.rok}" />" size="10" name="rok"></td>
             </tr>
             <tr>
-                <td>Klíčová slova</td>
+                <td><fmt:message bundle="${lctx}" key="Keywords" /></td>
                 <td><input type="text" value="<c:out value="${param.keywords}" />" size="20" name="keywords"></td>
             </tr>
             <tr>
@@ -34,7 +34,7 @@
                 <td><input type="text" value="<c:out value="${param.ddc}" />" size="20" name="ddc"></td>
             </tr>
             <tr>
-                <td>Pouze veřejné dokumenty</td>
+                <td><fmt:message bundle="${lctx}" key="Pouze veřejné dokumenty" /></td>
                 <td><input type="checkbox" value="on" name="onlyPublic"></td>
             </tr>
     </tbody></table>
