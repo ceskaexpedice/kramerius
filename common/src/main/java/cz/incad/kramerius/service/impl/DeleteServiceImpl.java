@@ -32,12 +32,14 @@ public class DeleteServiceImpl implements DeleteService {
     }
     
     /**
-     * test
+     * args[0] uuid of the root object (without uuid: prefix)
+     * args[1] pid_path to root object
      */
     public static void main(String[] args){
         DeleteServiceImpl inst = new DeleteServiceImpl();
         inst.fedoraAccess = new FedoraAccessImpl(null);
-        inst.deleteTree("uuid:0eaa6730-9068-11dd-97de-000d606f5dc6", null);
+        inst.deleteTree("uuid:"+args[0], null);
+        IndexerProcessStarter.spawnIndexRemover(args[1], args[0]);
     }
 
 }

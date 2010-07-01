@@ -135,12 +135,15 @@ public class PolicyServiceImpl implements PolicyService {
     }
     
     /**
-     * test
+     * args[1] - uuid of the root item (withou uuid: prefix)
+     * args[0] - policy to set (public, private)
      */
+    
     public static void main(String[] args) {
         PolicyServiceImpl inst = new PolicyServiceImpl();
         inst.fedoraAccess = new FedoraAccessImpl(null);
         inst.configuration = KConfiguration.getInstance();
-        inst.setPolicy("uuid:0eaa6730-9068-11dd-97de-000d606f5dc6", "public");
+        inst.setPolicy("uuid:"+args[1], args[0]);
+        IndexerProcessStarter.spawnIndexer("", args[1]);
     }
 }

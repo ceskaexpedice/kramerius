@@ -42,7 +42,7 @@ import javax.net.ssl.X509TrustManager;
 import com.qbizm.kramerius.imptool.poc.Main;
 import com.qbizm.kramerius.imptool.poc.valueobj.ServiceException;
 
-import cz.incad.kramerius.processes.impl.ProcessStarter;
+import cz.incad.kramerius.service.impl.IndexerProcessStarter;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 
 public class Download {
@@ -183,18 +183,10 @@ public class Download {
             uuidEnd = processedPath.indexOf("&path=",uuidStart);
         }
         String uuid = processedPath.substring(uuidStart, uuidEnd);
-        String base = System.getProperty(ProcessStarter.LR_SERVLET_URL);
-        if (base == null)
-            return;
-        String url = base + "?action=start&def=reindex&out=text&params=fromKrameriusModel,"+uuid+","+title;
-        try {
-            ProcessStarter.httpGet(url);
-        } catch (Exception e) {
-            log.severe("Error spawning indexer for "+title+":"+e);
-        }
+        IndexerProcessStarter.spawnIndexer(title, uuid);
     }
-    
-    /** buffer size used when data from remote connection are written to disc */
+
+	/** buffer size used when data from remote connection are written to disc */
     private static final int bufferSize = 4096;
 
     /** replication directory (from configuration) */

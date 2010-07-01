@@ -110,5 +110,44 @@
 		<standardOs>lrOut</standardOs>
 		<errOs>lrErr</errOs>
 	</process>
+	
+	<process>
+		<id>setpublic</id>
+		<description>Set public</description>
+		<mainClass>cz.incad.kramerius.service.impl.PolicyServiceImpl</mainClass>
+		<standardOs>lrOut</standardOs>
+		<errOs>lrErr</errOs>
+		<parameters>
+			<parameter>public</parameter>
+		</parameters>
+	</process>
+	
+	<process>
+		<id>setprivate</id>
+		<description>Set private</description>
+		<mainClass>cz.incad.kramerius.service.impl.PolicyServiceImpl</mainClass>
+		<standardOs>lrOut</standardOs>
+		<errOs>lrErr</errOs>
+		<parameters>
+			<parameter>private</parameter>
+		</parameters>
+	</process>
+	
+	
+	<process>
+		<id>delete</id>
+		<description>Delete</description>
+		<mainClass>cz.incad.kramerius.service.impl.DeleteServiceImpl</mainClass>
+		<standardOs>lrOut</standardOs>
+		<errOs>lrErr</errOs>
+	</process>
+	
+	<process>
+		<id>export</id>
+		<description>Export</description>
+		<mainClass>cz.incad.kramerius.service.impl.ExportServiceImpl</mainClass>
+		<standardOs>lrOut</standardOs>
+		<errOs>lrErr</errOs>
+	</process>
 
 </processes>

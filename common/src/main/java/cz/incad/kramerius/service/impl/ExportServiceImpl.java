@@ -61,12 +61,12 @@ public class ExportServiceImpl implements ExportService {
     }
 
     /**
-     * test
+     * args[0] uuid of the root object (without uuid: prefix)
      */
     public static void main(String[] args) {
         ExportServiceImpl inst = new ExportServiceImpl();
         inst.fedoraAccess = new FedoraAccessImpl(null);
         inst.configuration = KConfiguration.getInstance();
-        inst.exportTree("uuid:0eaa6730-9068-11dd-97de-000d606f5dc6");
+        inst.exportTree("uuid:"+args[0]);
     }
 }
