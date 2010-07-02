@@ -80,6 +80,8 @@
                         <xsl:value-of select="mods:part/mods:detail[@type = 'pageNumber']/mods:number" /> (<fmt:message bundle="${lctx}">TitlePage</fmt:message>)</xsl:when>
                     <xsl:when test="$partType='TableOfContents'">
                         <xsl:value-of select="mods:part/mods:detail[@type = 'pageNumber']/mods:number" /> (<fmt:message bundle="${lctx}">TableOfContents</fmt:message>)</xsl:when>
+                    <xsl:when test="$partType='NormalPage'">
+                        <xsl:value-of select="mods:part/mods:detail[@type = 'pageNumber']/mods:number" /></xsl:when>
                 </xsl:choose>
             
             
