@@ -438,6 +438,7 @@ function checkScrollBar(){
 
 function positionCurtainsOnLoad(){
     positionCurtains();
+    /*
     var wTop = $('#da_bar_' + firstBar).offset().top - $('#content-scroll').offset().top;
     if(wTop<1) wTop = 10;
     if(wTop < $('#content-scroll').height()){
@@ -450,11 +451,12 @@ function positionCurtainsOnLoad(){
     
     var pBottom = $('#da_bar_' + lastBar).offset().top + barContainerHeight;
     var bottomSide = $('#content-scroll').height() + $('#content-scroll').offset().top;
-    if(pBottom < bottomSide && bottomSide - pBottom>10 ){
+    if(pBottom < bottomSide && bottomSide - pBottom>10 && pBottom>$('#content-scroll').offset().top ){
         var hBottom = bottomSide - pBottom;
         $('#resizable-bottom').css("top", pBottom);
         $('#resizable-bottom').css("height", hBottom);
     }
+    */
 }
 function positionCurtains(){
     

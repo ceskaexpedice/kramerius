@@ -44,7 +44,7 @@
             String maxYear = "";
             if (endMod.length() < 4) {
                 System.out.println("Rok invalid: " + endMod);
-                maxYear = "2099";
+                maxYear = "2019";
             } else {
                 maxYear = endMod.substring(0, 3) + "9";
             }
