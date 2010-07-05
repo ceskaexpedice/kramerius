@@ -1,5 +1,60 @@
 
 
+var _persistentURLDialog;
+function showPersistentURL(level, model) {
+//	$("div.adminMenuItems").each(function(index, o){
+//		$(o).hide();
+//	});
+
+	var pid = $("#tabs_"+level).attr('pid');
+	if (level != 1) {
+		pid = $("#tabs_"+level+">div."+model+">div.relList>div.selected").attr('pid');
+	}
+	var currentURL = window.location.href;
+	if (currentURL.match("^https")=='https') {
+		currentURL = currentURL.substr('https://'.length, currentURL.length); 
+		var urlparts = currentURL.split('/');
+		currentURL="https://"+urlparts[0]+"/"+urlparts[1]+"/";
+	} else {
+		currentURL = currentURL.substr('http://'.length, currentURL.length); 
+		var urlparts = currentURL.split('/');
+		currentURL="http://"+urlparts[0]+"/"+urlparts[1]+"/";
+	}
+
+	currentURL=currentURL+"handle/uuid:"+pid;
+	var textFieldID = 'persistentURLTextField';
+	
+	if (_persistentURLDialog) {
+		_persistentURLDialog.dialog('open');
+	} else {
+		$(document.body).append('<div id="persistentURL">'+
+				'<span>Adresa objektu:</span>'+
+				'<input name="'+textFieldID+'"  style="width:100%;" type="text"  maxlength="255"'+ 
+				' id="'+textFieldID+'" title="Persistent URL" /></div>');
+				
+		_persistentURLDialog = $('#persistentURL').dialog({
+	           width:640,
+	           height:100,
+	           modal:true,
+	           title:"Persistentni adresa",
+	           buttons: {
+					"Close": function() {
+						$(this).dialog("close"); 
+					} 
+				} 
+	       });
+	}
+	
+	//var textField = $('#'+textFieldID);
+	$('#'+textFieldID).val(currentURL);	
+	$('#'+textFieldID).select();
+	$('#'+textFieldID).focus(function() {
+		$(this).select();
+	});
+	
+}
+
+
 function getBiblioInfo(pid, model, list, inf, setInf){
     var url = 'inc/details/biblioToRdf.jsp?&pid=uuid:' + pid + "&xsl=default.jsp&model="+model+"&language=" + language;
     //var url = 'inc/details/biblioToRdf.jsp?&pid=uuid:' + pid + "&xsl="+model+".jsp&language=" + language;
