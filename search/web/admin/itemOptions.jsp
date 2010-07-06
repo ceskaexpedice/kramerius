@@ -31,8 +31,17 @@
     </div>
     <div class="adminMenuItems">
         <div align="left"><a title="View metadata" href="javascript:showMainContent('<c:out value="${status.count}" />', '<c:out value="${models[status.count -1]}" />');"><fmt:message bundle="${lctx}">administrator.menu.showmetadata</fmt:message></a> </div>	
-        <div align="left"><a title="Generování PDF" href="javascript:generatePdf('<c:out value="${status.count}" />');"><fmt:message bundle="${lctx}">administrator.menu.generatepdf</fmt:message></a> </div>	
         <div align="left"><a title="Persistentni adresa" href="javascript:showPersistentURL('<c:out value="${status.count}" />', '<c:out value="${models[status.count -1]}" />');"><fmt:message bundle="${lctx}">administrator.menu.persistenturl</fmt:message></a> </div>	
+
+		<c:choose>
+			<c:when test="${models[status.count -1] == 'page'}">
+				<div align="left"><a title="Generování PDF" href="javascript:PDF.url('<c:out value="${status.count}" />');"><fmt:message bundle="${lctx}">administrator.menu.generatepdf</fmt:message></a></div>	
+			</c:when>
+			<c:otherwise>
+				<div align="left"><a title="Generování PDF" href="javascript:PDF.generatePDF('<c:out value="${status.count}" />');"><fmt:message bundle="${lctx}">administrator.menu.generatepdf</fmt:message></a> </div>	
+			</c:otherwise>
+		</c:choose>
+
 
         <%if(request.getRemoteUser()!=null){%>
        	<div align="left"><a title="Export do PDF (CD)" href="javascript:generateStatic('<c:out value="${status.count}"/>','static_export_CD','<c:out value="${imgUrl}" />','<c:out value="${i18nUrl}" />','<%=request.getLocale().getISO3Country() %>','<%=request.getLocale().getISO3Language()%>');"><fmt:message bundle="${lctx}">administrator.menu.exportcd</fmt:message></a></div>
