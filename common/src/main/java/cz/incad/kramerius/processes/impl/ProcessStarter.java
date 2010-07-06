@@ -17,7 +17,7 @@ import java.sql.SQLException;
 import java.util.logging.Level;
 
 import cz.incad.kramerius.processes.States;
-import cz.incad.kramerius.processes.database.DatabaseUtils;
+import cz.incad.kramerius.processes.database.ProcessDatabaseUtils;
 
 public class ProcessStarter {
 
