@@ -20,7 +20,7 @@ description() ::= <<
 
  Podmínky využití
  
- NK ČR poskytuje přístup k digitalizovaným dokumentům pouze pro nekomerční, vědecké, studijní
+ Knihovna poskytuje přístup k digitalizovaným dokumentům pouze pro nekomerční, vědecké, studijní
  účely a pouze pro osobní potřeby uživatelů. Část dokumentů digitální knihovny podléhá autorským
  právům. Využitím digitální knihovny NK ČR a vygenerováním kopie části digitalizovaného
  dokumentu se uživatel zavazuje dodržovat tyto podmínky využití, které musí být součástí každé
@@ -28,9 +28,5 @@ description() ::= <<
  případného písemného svolení NK ČR.
  
  
- Národní knihovna ČR
- Klementinum 190
- 110 00 Praha 1
- kramerius@nkp.cz
 
 >>
