@@ -275,77 +275,92 @@ function getItemRels(pid, selectedpid, level, recursive, rootModel){
     });
 }
 
-function generatePdf(level){
-    //show options window
-    openGeneratePdfDialog(level);
-}
 
-var dialogSummary;
-function openGeneratePdfDialog(level){
-    var pagesCount = $("#list-page>div.relItem").length;
-    $("#genPdfEnd").val(pagesCount);
-    $("#genPdfStart").val(1);
-    if(dialogSummary){
-        dialogSummary.dialog('open');
-    }else{
-        dialogSummary = $("#pdf_options").dialog({
-            bgiframe: true,
-            width: 200,
-            height: 100,
-            modal: true,
-            title: dictionary['generatePdfTitle'],
-            
-            buttons: {
-                "Ok": function() {
-                   
-                    var from = $("#genPdfStart").val();
-                    var to = $("#genPdfEnd").val();
-                   
-                    if(isNaN(from) || isNaN(to)) {
-                        alert(dictionary['generatePdfErrorText']);
-                        return;
-                    }
-                    from = parseInt(from);
-                    to = parseInt(to); 
+//~~~~~~~  PDF objekt
+var PDF=function() {
+	return {
+		dialogSummary: null ,
+		// sestaveni parametru path
+		path:function(level) {
+			var path ="";
+	        for(var i =1;i<=level;i++) {
+	        	path = path+$("#tabs_"+i).attr('pid');
+	        	path = path +"/";
+	        }
+	        return path;
+		},
+		// sestaveni url
+		url:function(level) {
+			var uuid = $("#tabs_"+level).attr('pid');
+	        var u = "pdf?uuidFrom=" + uuid+"&uuidTo="+uuid+"&path="+PDF.path(level);
+			window.location.href = u;
+		},
+		// sestaveni url dle parametru z dialogu
+		urlFromDialog:function(level) {
+            var fromUuid = $("#list-page>div.relItem")[$("#genPdfStart").val()-1].attributes['id'].value;
+			var toUuid = $("#list-page>div.relItem")[$("#genPdfEnd").val()-1].attributes['pid'].value;
+            var u = "pdf?uuidFrom=" + fromUuid+"&uuidTo="+toUuid+"&path="+PDF.path(level);
+            window.location.href = u;
+		},
+		// generovani pdf
+		generatePDF:function(level) {
+		    PDF.openGeneratePdfDialog(level);
+		},
+		
+		// dialog pro vyber stranek 
+		openGeneratePdfDialog:function (level){
+		    var pagesCount = $("#list-page>div.relItem").length;
+		    $("#genPdfEnd").val(pagesCount);
+		    $("#genPdfStart").val(1);
+		    if(PDF.dialogSummary){
+		        PDF.dialogSummary.dialog('open');
+		    }else{
+		        PDF.dialogSummary = $("#pdf_options").dialog({
+		            bgiframe: true,
+		            width: 200,
+		            height: 100,
+		            modal: true,
+		            title: dictionary['generatePdfTitle'],
+		            
+		            buttons: {
+		                "Ok": function() {
+		                   
+		                    var from = $("#genPdfStart").val();
+		                    var to = $("#genPdfEnd").val();
+		                   
+		                    if(isNaN(from) || isNaN(to)) {
+		                        alert(dictionary['generatePdfErrorText']);
+		                        return;
+		                    }
+		                    from = parseInt(from);
+		                    to = parseInt(to); 
 
-                    if(to - from + 1 > generatePdfMaxRange){
-                        alert("Maximalne "+generatePdfMaxRange+"!");
-                    }else if(to>pagesCount  || isNaN(from) || isNaN(to)) {
-                    	alert(dictionary['generatePdfErrorText']);
-                    }else if(to==pagesCount && from == '1'){
-                        var path ="";
-                        for(var i =0;i<level;i++) {
-                        	path = path+$("#tabs_"+level).attr('pid');
-                        	if (i != level-1) { path = path +"/"; }
-                        }
-                        var fromUuid = $("#list-page>div.relItem")[$("#genPdfStart").val()-1].attributes['pid'].value;
-        				var toUuid = $("#list-page>div.relItem")[$("#genPdfEnd").val()-1].attributes['pid'].value;
-                        var url = "pdf?uuidFrom=" + fromUuid+"&uuidTo="+toUuid+"&path="+path;
-                        window.location.href = url;
-                        $(this).dialog("close");
-                    }else{
-                        var path ="";
-                        for(var i =0;i<level;i++) {
-                        	path = path+$("#tabs_"+level).attr('pid');
-                        	if (i != level-1) { path = path +"/"; }
-                        }
-                        //alert($("#genPdfEnd").val() - $("#genPdfStart").val());
-                        var fromUuid = $("#list-page>div.relItem")[$("#genPdfStart").val()-1].attributes['id'].value;
-        				var toUuid = $("#list-page>div.relItem")[$("#genPdfEnd").val()-1].attributes['pid'].value;
-                        var url = "pdf?uuidFrom=" + fromUuid+"&uuidTo="+toUuid+"&path="+path;
-                        window.location.href = url;
-                        $(this).dialog("close");
-                    }
+		                    if(to - from + 1 > generatePdfMaxRange){
+		                        alert("Maximalne "+generatePdfMaxRange+"!");
+		                    }else if(to>pagesCount  || isNaN(from) || isNaN(to)) {
+		                    	alert(dictionary['generatePdfErrorText']);
+		                    }else if(to==pagesCount && from == '1'){
+		                    	PDF.urlFromDialog(level);
+		                        $(this).dialog("close");
+		                    }else{
+		                    	PDF.urlFromDialog(level);
+		                        $(this).dialog("close");
+		                    }
 
-                } ,
-                "Cancel": function() {
-                    $(this).dialog("close"); 
-                } 
-            } 
-              
-        });
-    }
-}
+		                } ,
+		                "Cancel": function() {
+		                    $(this).dialog("close"); 
+		                } 
+		            } 
+		        });
+		    }
+		}
+	}
+}();
+// ~~~~~~~  Konec PDF objektu
+
+
+
 $( ".selector" ).dialog( { buttons: { "Ok": function() { $(this).dialog("close"); } } } );
 
 function showInfo(obj, tab, model){
