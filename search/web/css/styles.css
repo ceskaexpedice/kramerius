@@ -491,7 +491,6 @@ table.advancedSearch td{
 
 .adminMenu{
     overflow:auto;
-    width: 220px;
     position:absolute;
     z-index:103;
     font-size:10px;
