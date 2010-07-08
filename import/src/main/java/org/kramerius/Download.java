@@ -119,7 +119,7 @@ public class Download {
             String uuid = Main.convert(KConfiguration.getInstance().getProperty("migration.directory"), KConfiguration.getInstance().getProperty("migration.directory")+CONV_SUFFIX, true, false);
             Import.ingest(KConfiguration.getInstance().getProperty("ingest.url"), KConfiguration.getInstance().getProperty("ingest.user"), KConfiguration.getInstance().getProperty("ingest.password"), KConfiguration.getInstance().getProperty("migration.directory")+CONV_SUFFIX);
             logSuccess(rep.getID(), uuid);
-            startIndexing(rep.getID(), uuid);
+            //TODO uncomment when process queue is implemented: //startIndexing(rep.getID(), uuid);
         }catch (Throwable t){
             if (rep!=null){
                 logFailed(rep.getID(), t);
@@ -211,7 +211,7 @@ public class Download {
     }
 
     static Replication createReplication(DocType doctype, String docId, String volumeId) {
-        Replication repl = new Replication(docId);
+        Replication repl = new Replication(docId+(volumeId==null?"":(":"+volumeId)));
 
         repl.setMode(3);
         repl.setRightsRestriction(1);
