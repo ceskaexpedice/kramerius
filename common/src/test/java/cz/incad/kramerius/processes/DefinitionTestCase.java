@@ -1,5 +1,7 @@
 package cz.incad.kramerius.processes;
 
+import java.util.List;
+
 import junit.framework.TestCase;
 
 import org.junit.After;
@@ -30,8 +32,29 @@ public class DefinitionTestCase extends AbstractGuiceTestCase {
 		dropTables();
 	}
 
-	
 	@Test
+	public void testPlan()  {
+		Injector inj = injector();
+		DefinitionManager defMgr = inj.getInstance(DefinitionManager.class);
+		
+		LRProcessDefinition definition = defMgr.getLongRunningProcessDefinition("mock");
+		TestCase.assertNotNull(definition);
+		
+		LRProcess process = definition.createNewProcess();
+		process.planMe();
+		
+		LRProcessManager lrMan = inj.getInstance(LRProcessManager.class);
+		TestCase.assertNotNull(lrMan);
+		List<LRProcess> plannedProcess = lrMan.getPlannedProcess(1);
+		TestCase.assertTrue(plannedProcess.size() == 1);
+		LRProcess naplanovanyProcess = plannedProcess.get(0);
+		TestCase.assertTrue(naplanovanyProcess.getProcessState().equals(States.PLANNED));	
+		//TestCase.assertTrue(naplanovanyProcess.getStartTime() == 0);	
+		TestCase.assertTrue(naplanovanyProcess.getPlannedTime() != 0);	
+	}
+	
+	
+//	@Test
 	public void testDefinition() throws InterruptedException {
 //		Injector inj = injector();
 //		DefinitionManager defMgr = inj.getInstance(DefinitionManager.class);
@@ -51,6 +74,7 @@ public class DefinitionTestCase extends AbstractGuiceTestCase {
 //		// kill process
 //		lrProcess.stopMe();
 //		
+//		
 //		// zjisti, jaky je stav po killovani
 //		LRProcess lrProcessAfterKill = instmgr.getLongRunningProcess(process.getUUID());
 //		Assert.assertTrue(instmgr.getLongRunningProcesses().size() == 1);
@@ -63,6 +87,4 @@ public class DefinitionTestCase extends AbstractGuiceTestCase {
 		Injector injector = Guice.createInjector(new DefinitionModule());
 		return injector;
 	}
-
-
 }
