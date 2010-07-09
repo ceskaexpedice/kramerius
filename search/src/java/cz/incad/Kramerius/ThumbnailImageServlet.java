@@ -104,9 +104,7 @@ public class ThumbnailImageServlet extends AbstracThumbnailServlet {
 		this.fedoraAccess = fedoraAccess;
 	}
 	
-	
 	public static String thumbImageServlet(HttpServletRequest request) {
 		return ApplicationURL.urlOfPath(request, InternalConfiguration.get().getProperties().getProperty("servlets.mapping.thmbImage"));
 	}
-
 }
