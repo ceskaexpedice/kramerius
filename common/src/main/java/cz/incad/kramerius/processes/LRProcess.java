@@ -53,7 +53,9 @@ public interface LRProcess {
 
 	//TODO: Vyhodit
 	public String getDescription();
-	
+
+	public void planMe();
+
 	/**
 	 * This method starts underlaying os process and change state from NOT_RUNNING to RUNNING;<br>
 	 * @see States
@@ -70,7 +72,13 @@ public interface LRProcess {
 	 * Returns timestamp start of process
 	 * @return
 	 */
-	public long getStart();
+	public long getStartTime();
+	
+	public void setStartTime(long start);
+	
+	public long getPlannedTime();
+	
+	public void setPlannedTime(long ptime);
 
 	//TODO: Vyhodit
 	public boolean canBeStopped();

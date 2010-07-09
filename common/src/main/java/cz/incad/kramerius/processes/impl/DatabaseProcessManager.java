@@ -58,10 +58,12 @@ public class DatabaseProcessManager implements LRProcessManager {
 					String definitionId = rs.getString("DEFID");
 					int pid = rs.getInt("PID");
 					int status = rs.getInt("STATUS");
-					Timestamp stmp = rs.getTimestamp("STARTED");
+					Timestamp started = rs.getTimestamp("STARTED");
+					Timestamp planned = rs.getTimestamp("PLANNED");
 					String name = rs.getString("NAME");
 					LRProcessDefinition definition = this.lrpdm.getLongRunningProcessDefinition(definitionId);
-					LRProcess process = definition.loadProcess(uuid, ""+pid, stmp.getTime(), States.load(status), name);
+					LRProcess process = definition.loadProcess(uuid, ""+pid, planned.getTime(), States.load(status), name);
+					if (started != null) process.setStartTime(started.getTime());
 					return process;
 				} 
 			}
@@ -187,11 +189,59 @@ public class DatabaseProcessManager implements LRProcessManager {
 	}
 	
 	
+	
+	@Override
+	public List<LRProcess> getPlannedProcess(int howMany) {
+		Connection connection = null;
+		PreparedStatement stm = null;
+		ResultSet rs = null;
+		try {
+			List<LRProcess> processes = new ArrayList<LRProcess>();
+			connection = provider.get();
+			if (connection != null) {
+				if (!DatabaseUtils.tableExists(connection,"PROCESSES")) {
+					createTable(connection);
+				}
+				StringBuffer buffer = new StringBuffer("select * from PROCESSES where status = ?");
+				buffer.append(" ORDER BY PLANNED LIMIT ? ");
+				
+				stm = connection.prepareStatement(buffer.toString());
+				stm.setInt(1, States.PLANNED.getVal());
+				stm.setInt(2, howMany);
+				rs = stm.executeQuery();
+				while(rs.next()) {
+					processes.add(processFromResultSet(rs));
+				} 
+				return processes;
+			} else return new ArrayList<LRProcess>();
+		} catch (SQLException e) {
+			LOGGER.log(Level.SEVERE, e.getMessage(), e);
+		} finally {
+			if (rs != null) {
+				try {
+					rs.close();
+				} catch (SQLException e) {
+					LOGGER.log(Level.SEVERE, e.getMessage(), e);
+				}
+			}
+			if (stm != null) {
+				try {
+					stm.close();
+				} catch (SQLException e) {
+					LOGGER.log(Level.SEVERE, e.getMessage(), e);
+				}
+			}
+			if (connection != null) {
+				try {
+					connection.close();
+				} catch (SQLException e) {
+					LOGGER.log(Level.SEVERE, e.getMessage(), e);
+				}
+			}
+		}
+		return new ArrayList<LRProcess>();
+	}
 
-	
-	
-	
-	
 	@Override
 	public int getNumberOfLongRunningProcesses() {
 		Connection connection = null;
@@ -241,6 +291,25 @@ public class DatabaseProcessManager implements LRProcessManager {
 		return 0;
 	}
 
+	
+	private LRProcess processFromResultSet(ResultSet rs) throws SQLException {
+		//CREATE TABLE PROCESSES(DEFID VARCHAR, UUID VARCHAR ,PID VARCHAR,STARTED timestamp, STATUS int
+		String definitionId = rs.getString("DEFID");
+		String pid = rs.getString("PID");
+		String uuid = rs.getString("UUID");
+		int status = rs.getInt("STATUS");
+		Timestamp planned = rs.getTimestamp("PLANNED");
+		Timestamp started = rs.getTimestamp("STARTED");
+		String name = rs.getString("NAME");
+		LRProcessDefinition definition = this.lrpdm.getLongRunningProcessDefinition(definitionId);
+		if (definition == null) {
+			throw new RuntimeException("cannot find definition '"+definitionId+"'");
+		}
+		LRProcess process = definition.loadProcess(uuid, pid, planned.getTime(), States.load(status), name);
+		if (started != null) process.setStartTime(started.getTime());
+		return process;
+	}
+	
 	@Override
 	public List<LRProcess> getLongRunningProcesses(LRProcessOrdering ordering, TypeOfOrdering typeOfOrdering,LRProcessOffset offset) {
 		Connection connection = null;
@@ -267,19 +336,7 @@ public class DatabaseProcessManager implements LRProcessManager {
 				stm = connection.prepareStatement(buffer.toString());
 				rs = stm.executeQuery();
 				while(rs.next()) {
-					//CREATE TABLE PROCESSES(DEFID VARCHAR, UUID VARCHAR ,PID VARCHAR,STARTED timestamp, STATUS int
-					String definitionId = rs.getString("DEFID");
-					String pid = rs.getString("PID");
-					String uuid = rs.getString("UUID");
-					int status = rs.getInt("STATUS");
-					Timestamp stmp = rs.getTimestamp("STARTED");
-					String name = rs.getString("NAME");
-					LRProcessDefinition definition = this.lrpdm.getLongRunningProcessDefinition(definitionId);
-					if (definition == null) {
-						throw new RuntimeException("cannot find definition '"+definitionId+"'");
-					}
-					LRProcess process = definition.loadProcess(uuid, pid, stmp.getTime(), States.load(status), name);
-					processes.add(process);
+					processes.add(processFromResultSet(rs));
 				} 
 			}
 			for (LRProcess lrProcess : processes) {

@@ -6,7 +6,8 @@ public enum States {
 	RUNNING(1), 
 	FINISHED(2), 
 	FAILED(3), 
-	KILLED(4);
+	KILLED(4),
+	PLANNED(5);
 
 	public static States load(int v) {
 		for (States st : States.values()) {

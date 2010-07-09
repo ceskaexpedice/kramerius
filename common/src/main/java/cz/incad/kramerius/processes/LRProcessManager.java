@@ -23,6 +23,9 @@ public interface LRProcessManager {
 	public LRProcess getLongRunningProcess(String uuid);
 	
 	public List<LRProcess> getLongRunningProcesses();
+
+	public List<LRProcess> getPlannedProcess(int howMany);
+	
 	public List<LRProcess> getLongRunningProcesses(LRProcessOrdering ordering,TypeOfOrdering typeOfOrdering, LRProcessOffset offset);
 
 	public int getNumberOfLongRunningProcesses();

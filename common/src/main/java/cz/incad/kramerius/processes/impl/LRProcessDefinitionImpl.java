@@ -146,17 +146,18 @@ public class LRProcessDefinitionImpl implements LRProcessDefinition {
 	
 	
 	@Override
-	public LRProcess loadProcess(String uuid, String pid, long start, States state, String name) {
+	public LRProcess loadProcess(String uuid, String pid, long planned, States state, String name) {
 		AbstractLRProcessImpl abs = createProcessInternal();
 		abs.setUuid(uuid);
 		abs.setDefinition(this);
-		abs.setStartTime(start);
+		abs.setPlannedTime(planned);
 		abs.setPid(pid);
 		abs.setProcessState(state);
 		abs.setProcessName(name);
 		return abs;
 	}
 
+	
 	public String getId() {
 		return id;
 	}

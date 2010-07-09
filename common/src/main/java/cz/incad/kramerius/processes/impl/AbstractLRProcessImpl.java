@@ -35,6 +35,7 @@ public abstract class AbstractLRProcessImpl implements LRProcess{
 
 	private String pid;
 	private long startTime;
+	private long plannedTime;
 	private String uuid;
 	private States state = States.NOT_RUNNING;
 	private String name;
@@ -81,10 +82,17 @@ public abstract class AbstractLRProcessImpl implements LRProcess{
 	}
 
 	@Override
-	public long getStart() {
+	public long getStartTime() {
 		return this.startTime;
 	}
 
+
+	public void planMe() {
+		this.state = States.PLANNED;
+		manager.registerLongRunningProcess(this);
+	}
+	
+	
 	@Override
 	public void startMe(boolean wait, String krameriusAppLib, String lrServlet) {
 		try {
@@ -135,7 +143,8 @@ public abstract class AbstractLRProcessImpl implements LRProcess{
 			
 			processBuilder.environment().put(ProcessStarter.CLASSPATH_NAME, buffer.toString());
 			this.state = States.RUNNING;
-			manager.registerLongRunningProcess(this);
+			manager.updateLongRunningProcessState(this);
+//			manager.registerLongRunningProcess(this);
             
 			LOGGER.info(""+command);
 			LOGGER.info(buffer.toString());
@@ -228,9 +237,6 @@ public abstract class AbstractLRProcessImpl implements LRProcess{
 	}
 
 
-	public long getStartTime() {
-		return startTime;
-	}
 
 
 	public void setStartTime(long startTime) {
@@ -297,4 +303,14 @@ public abstract class AbstractLRProcessImpl implements LRProcess{
 		return new RandomAccessFile(standardStreamFile, "r");
 	}
 
+
+	public long getPlannedTime() {
+		return plannedTime;
+	}
+
+
+	public void setPlannedTime(long plannedTime) {
+		this.plannedTime = plannedTime;
+	}
+	
 }
