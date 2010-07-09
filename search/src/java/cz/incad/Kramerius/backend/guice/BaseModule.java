@@ -16,7 +16,9 @@ import cz.incad.kramerius.impl.FedoraAccessImpl;
 import cz.incad.kramerius.impl.MostDesirableImpl;
 import cz.incad.kramerius.pdf.GeneratePDFService;
 import cz.incad.kramerius.pdf.impl.GeneratePDFServiceImpl;
+import cz.incad.kramerius.processes.ProcessScheduler;
 import cz.incad.kramerius.processes.database.JNDIConnectionProvider;
+import cz.incad.kramerius.processes.impl.ProcessSchedulerImpl;
 import cz.incad.kramerius.security.SecuredFedoraAccessImpl;
 import cz.incad.kramerius.security.SecurityAcceptor;
 import cz.incad.kramerius.service.DeleteService;
@@ -46,6 +48,8 @@ public class BaseModule extends AbstractModule {
 		bind(Connection.class).toProvider(JNDIConnectionProvider.class);
 		bind(Locale.class).toProvider(LocalesProvider.class);
 
+		bind(ProcessScheduler.class).to(ProcessSchedulerImpl.class);
+		
 		bind(DeleteService.class).to(DeleteServiceImpl.class).in(Scopes.SINGLETON);
 		bind(ExportService.class).to(ExportServiceImpl.class).in(Scopes.SINGLETON);
 		bind(PolicyService.class).to(PolicyServiceImpl.class).in(Scopes.SINGLETON);
