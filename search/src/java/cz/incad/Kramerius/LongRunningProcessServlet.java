@@ -11,6 +11,8 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.StringTokenizer;
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.logging.Level;
 
 import javax.servlet.ServletContext;
@@ -19,6 +21,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import com.google.inject.Inject;
+import com.google.inject.Injector;
 
 import cz.incad.Kramerius.backend.guice.GuiceServlet;
 import cz.incad.Kramerius.backend.guice.RequestSecurityAcceptor;
@@ -30,15 +33,13 @@ import cz.incad.kramerius.processes.LRProcessDefinition;
 import cz.incad.kramerius.processes.LRProcessManager;
 import cz.incad.kramerius.processes.LRProcessOffset;
 import cz.incad.kramerius.processes.LRProcessOrdering;
+import cz.incad.kramerius.processes.ProcessScheduler;
 import cz.incad.kramerius.processes.States;
 import cz.incad.kramerius.processes.TypeOfOrdering;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 
 public class LongRunningProcessServlet extends GuiceServlet {
 
-	/**
-	 * 
-	 */
 	private static final long serialVersionUID = 1L;
 
 	public static final java.util.logging.Logger LOGGER = java.util.logging.Logger
@@ -52,7 +53,26 @@ public class LongRunningProcessServlet extends GuiceServlet {
 
 	@Inject
 	transient KConfiguration configuration;
+
+	@Inject
+	transient ProcessScheduler processScheduler;
 	
+	
+	@Override
+	public void init() throws ServletException {
+		super.init();
+		String appLibPath = getServletContext().getRealPath("WEB-INF/lib");
+		
+		KConfiguration conf = KConfiguration.getInstance();
+		if ((conf.getApplicationURL() == null) || (conf.getApplicationURL().equals(""))) {
+			throw new RuntimeException("lr servlet need configuration parameter 'applicationUrl'");
+		}
+		String lrServlet =   conf.getApplicationURL()+'/'+InternalConfiguration.get().getProperties().getProperty("servlets.mapping.lrcontrol");
+
+		this.processScheduler.initRuntimeParameters(appLibPath, lrServlet);
+	}
+
+
 	@Override
 	protected void doGet(HttpServletRequest req, HttpServletResponse resp)
 			throws ServletException, IOException {
@@ -63,15 +83,16 @@ public class LongRunningProcessServlet extends GuiceServlet {
 	}
 
 	
-	public static LRProcess startNewProcess(HttpServletRequest request, ServletContext context, String def, DefinitionManager definitionManager, String[] params) {
+	public static LRProcess planNewProcess(HttpServletRequest request, ServletContext context, String def, DefinitionManager definitionManager, String[] params) {
 		definitionManager.load();
 		LRProcessDefinition definition = definitionManager.getLongRunningProcessDefinition(def);
 		if (definition == null) {
 			throw new RuntimeException("cannot find process definition '"+def+"'");
 		}
 		LRProcess newProcess = definition.createNewProcess();
-		newProcess.setParameters(Arrays.asList(params));
-		newProcess.startMe(false, context.getRealPath("WEB-INF/lib"), lrServlet(request));
+		//newProcess.setParameters(Arrays.asList(params));
+		//newProcess.startMe(false, context.getRealPath("WEB-INF/lib"), lrServlet(request));
+		newProcess.planMe();
 		return newProcess;
 	}
 
@@ -94,7 +115,7 @@ public class LongRunningProcessServlet extends GuiceServlet {
 					if (parametersString !=null) {
 						params = parametersString.split(",");
 					}
-					LRProcess nprocess = startNewProcess(req, context, def, defManager, params);
+					LRProcess nprocess = planNewProcess(req, context, def, defManager, params);
 					if ((out != null) && (out.equals("text"))) {
 						resp.getOutputStream().print("["+nprocess.getDefinitionId()+"]"+nprocess.getProcessState().name());
 					} else {
@@ -104,7 +125,7 @@ public class LongRunningProcessServlet extends GuiceServlet {
 						buffer.append("<li>").append(nprocess.getDefinitionId());
 						buffer.append("<li>").append(nprocess.getUUID());
 						buffer.append("<li>").append(nprocess.getPid());
-						buffer.append("<li>").append(new Date(nprocess.getStart()));
+						buffer.append("<li>").append(new Date(nprocess.getStartTime()));
 						buffer.append("<li>").append(nprocess.getProcessState());
 						buffer.append("</ul>");
 						buffer.append("</body></html>");
@@ -129,7 +150,7 @@ public class LongRunningProcessServlet extends GuiceServlet {
 					buffer.append("<li>").append(oProcess.getDefinitionId());
 					buffer.append("<li>").append(oProcess.getUUID());
 					buffer.append("<li>").append(oProcess.getPid());
-					buffer.append("<li>").append(new Date(oProcess.getStart()));
+					buffer.append("<li>").append(new Date(oProcess.getStartTime()));
 					buffer.append("<li>").append(oProcess.getProcessState());
 					buffer.append("</ul>");
 					buffer.append("</body></html>");
@@ -158,7 +179,7 @@ public class LongRunningProcessServlet extends GuiceServlet {
 						}
 						buffer.append("<li>").append("uuid :").append(lrProcess.getUUID());
 						buffer.append("<li>").append("name :").append(lrProcess.getProcessName());
-						buffer.append("<li>").append("started :"+new Date(lrProcess.getStart()));
+						buffer.append("<li>").append("started :"+new Date(lrProcess.getStartTime()));
 						buffer.append("<li>").append("processState :").append(lrProcess.getProcessState());
 						LRProcessDefinition lrDef = defManager.getLongRunningProcessDefinition(lrProcess.getDefinitionId());
 						if (lrDef == null) {
@@ -226,16 +247,14 @@ public class LongRunningProcessServlet extends GuiceServlet {
 					LOGGER.log(Level.SEVERE, e.getMessage(), e);
 				}
 			}
-			
 		};
 		
 		abstract void doAction(ServletContext context,  HttpServletRequest req, HttpServletResponse resp, DefinitionManager defManager, LRProcessManager processManager);
 	}
 	
-	
 
 	public static String lrServlet(HttpServletRequest request) {
 		return ApplicationURL.urlOfPath(request, InternalConfiguration.get().getProperties().getProperty("servlets.mapping.lrcontrol"));
 	}
-
+	
 }
