@@ -67,7 +67,6 @@ public class TitlePageServlet extends GuiceServlet {
 		boolean breakProcess = false;
 		private int previousLevel = -1;
 		
-		
 		@Override
 		public void handle(Element elm, FedoraRelationship relation, int level) {
 			try {
