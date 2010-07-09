@@ -80,7 +80,7 @@ public class ProcessViewObject {
 	}
 
 	public String getStart() {
-		return FORMAT.format(new Date(lrProcess.getStart()));
+		return FORMAT.format(new Date(lrProcess.getStartTime()));
 	}
 	
 	//function killAndRefresh(url,ordering, offset, size, type) {
