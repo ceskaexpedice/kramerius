@@ -55,6 +55,7 @@ public class ProcessSchedulerImpl implements ProcessScheduler {
 
 	@Override
 	public void scheduleNextTask() {
+		this.timer.purge();
 		NextSchedulerTask schedulerTsk = new NextSchedulerTask(this.lrProcessManager, this.definitionManager,this, this.interval);
 		this.timer.schedule(schedulerTsk, this.interval);
 	}
