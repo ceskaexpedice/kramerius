@@ -36,6 +36,8 @@ import javax.xml.xpath.XPathExpressionException;
 
 import org.w3c.dom.DOMException;
 import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 
 import com.google.inject.Inject;
 import com.google.inject.Provider;
@@ -300,7 +302,15 @@ public class GeneratePDFServiceImpl implements GeneratePDFService {
 			KrameriusModels model = this.fedoraAccess.getKrameriusModel(relsExt);
 			
 			final AbstractRenderedDocument renderedDocument = new RenderedDocument(model, lastUuid);
-			renderedDocument.setDocumentTitle(DCUtils.titleFromDC(this.fedoraAccess.getDC(lastUuid)));
+			StringBuffer bufferTitle = new StringBuffer();
+			for (int i = 0,ll=path.size(); i < ll; i++) {
+				bufferTitle.append(DCUtils.titleFromDC(this.fedoraAccess.getDC(path.get(i))));
+				if (i<ll-1) {
+					bufferTitle.append(" ");
+				}
+			}
+			//renderedDocument.setDocumentTitle(DCUtils.titleFromDC(this.fedoraAccess.getDC(lastUuid)));
+			renderedDocument.setDocumentTitle(bufferTitle.toString());
 			renderedDocument.setUuidTitlePage(titlePage);
 			renderedDocument.setUuidMainTitle(path.get(0));
 			
@@ -351,49 +361,70 @@ public class GeneratePDFServiceImpl implements GeneratePDFService {
 
 	
 	private void buildRenderingDocumentAsFlat(org.w3c.dom.Document relsExt, final AbstractRenderedDocument renderedDocument, final String uuidFrom, final String uuidTo ) throws IOException {
-		fedoraAccess.processRelsExt(relsExt, new RelsExtHandler() {
-	
-			private boolean acceptingState = false;
-			
-			@Override
-			public boolean accept(FedoraRelationship relation) {
-				return relation == FedoraRelationship.hasPage;
-			}
-
-			@Override
-			public void handle(Element elm, FedoraRelationship relation, int level) {
-				if (relation == FedoraRelationship.hasPage) {
-					try {
-						String pid = elm.getAttributeNS(RDF_NAMESPACE_URI, "resource");
-						PIDParser pidParse = new PIDParser(pid);
-						pidParse.disseminationURI();
-						String objectId = pidParse.getObjectId();
-						if (!acceptingState) {
-							if (objectId.equals(uuidFrom)) {
-								acceptingState = true;
-								renderedDocument.addPage(createPage(renderedDocument, elm, relation));
-							}
-						} else {
-							if (objectId.equals(uuidTo)) {
-								acceptingState = false;
-							}
-							renderedDocument.addPage(createPage(renderedDocument, elm, relation));
+		KrameriusModels krameriusModel = fedoraAccess.getKrameriusModel(relsExt);
+		if (krameriusModel.equals(KrameriusModels.PAGE)) {
+			Element documentElement = relsExt.getDocumentElement();
+			NodeList childNodes = documentElement.getChildNodes();
+			for (int i = 0,ll=childNodes.getLength(); i < ll; i++) {
+				Node node = childNodes.item(i);
+				if (node.getNodeType() ==  Node.ELEMENT_NODE) {
+					if ((node.getLocalName().equals("Description")) && (node.getNamespaceURI().equals("http://www.w3.org/1999/02/22-rdf-syntax-ns#"))) {
+						String attrAbout = ((Element)node).getAttributeNS("http://www.w3.org/1999/02/22-rdf-syntax-ns#", "about");
+						try {
+							renderedDocument.addPage(createPage(renderedDocument, attrAbout, FedoraRelationship.hasPage));
+						} catch (LexerException e) {
+							LOGGER.log(Level.SEVERE, e.getMessage(), e);
 						}
-						
-					} catch (LexerException e) {
-						LOGGER.log(Level.SEVERE, e.getMessage(), e);
-					} catch (IOException e) {
-						LOGGER.log(Level.SEVERE, e.getMessage(), e);
 					}
 				}
 			}
+		} else {
+			fedoraAccess.processRelsExt(relsExt, new RelsExtHandler() {
+				
+				private boolean acceptingState = false;
+				
+				@Override
+				public boolean accept(FedoraRelationship relation) {
+					return relation == FedoraRelationship.hasPage;
+				}
 
-			@Override
-			public boolean breakProcess() {
-				// TODO Auto-generated method stub
-				return false;
-			}
-		});
+				@Override
+				public void handle(Element elm, FedoraRelationship relation, int level) {
+					if (relation == FedoraRelationship.hasPage) {
+						try {
+							String pid = elm.getAttributeNS(RDF_NAMESPACE_URI, "resource");
+							PIDParser pidParse = new PIDParser(pid);
+							pidParse.disseminationURI();
+							String objectId = pidParse.getObjectId();
+							if (!acceptingState) {
+								if (objectId.equals(uuidFrom)) {
+									acceptingState = true;
+									String pidAttribute = elm.getAttributeNS(RDF_NAMESPACE_URI, "resource");
+									renderedDocument.addPage(createPage(renderedDocument, pidAttribute, relation));
+								}
+							} else {
+								if (objectId.equals(uuidTo)) {
+									acceptingState = false;
+								}
+								String pidAttribute = elm.getAttributeNS(RDF_NAMESPACE_URI, "resource");
+								renderedDocument.addPage(createPage(renderedDocument, pidAttribute, relation));
+							}
+							
+						} catch (LexerException e) {
+							LOGGER.log(Level.SEVERE, e.getMessage(), e);
+						} catch (IOException e) {
+							LOGGER.log(Level.SEVERE, e.getMessage(), e);
+						}
+					}
+				}
+
+				@Override
+				public boolean breakProcess() {
+					// TODO Auto-generated method stub
+					return false;
+				}
+			});
+		}
 	}
 	
 	private void buildRenderingDocumentAsTree(org.w3c.dom.Document relsExt, final AbstractRenderedDocument renderedDocument ) throws IOException {
@@ -405,7 +436,8 @@ public class GeneratePDFServiceImpl implements GeneratePDFService {
 				@Override
 				public void handle(Element elm, FedoraRelationship relation, int level) {
 					try {
-						AbstractPage page = createPage(renderedDocument, elm, relation);
+						String pidAttribute = elm.getAttributeNS(RDF_NAMESPACE_URI, "resource");
+						AbstractPage page = createPage(renderedDocument, pidAttribute, relation);
 						renderedDocument.addPage(page);
 						if (previousLevel == -1) {
 							// first
@@ -479,11 +511,10 @@ public class GeneratePDFServiceImpl implements GeneratePDFService {
 	}
 	
 
-	protected AbstractPage createPage(
-			final AbstractRenderedDocument renderedDocument,
-			Element elm, FedoraRelationship relation)
+	protected AbstractPage createPage( final AbstractRenderedDocument renderedDocument,
+			String pid, FedoraRelationship relation)
 			throws LexerException, IOException {
-		String pid = elm.getAttributeNS(RDF_NAMESPACE_URI, "resource");
+		//String pid = elm.getAttributeNS(RDF_NAMESPACE_URI, "resource");
 		PIDParser pidParse = new PIDParser(pid);
 		pidParse.disseminationURI();
 		String objectId = pidParse.getObjectId();
