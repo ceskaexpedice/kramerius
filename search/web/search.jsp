@@ -7,15 +7,6 @@
 <%@ page isELIgnored="false"%>
 <%@page import="com.google.inject.Injector"%>
 <%@page import="javax.servlet.jsp.jstl.fmt.LocalizationContext"%>
-<c:choose>
-    <c:when test="${param.language != null}" >
-        <fmt:setLocale value="${param.language}" />
-        <c:set var="sessionLang" value="${param.language}" scope="session" />
-    </c:when>
-    <c:when test="${sessionLang != null}" >
-        <fmt:setLocale value="${sessionLang}" />
-    </c:when>
-</c:choose>
 
 <%
 	Injector ctxInj = (Injector)application.getAttribute(Injector.class.getName());
@@ -23,19 +14,14 @@
 	pageContext.setAttribute("lctx", lctx);
 	
 %>
-
-<fmt:setBundle basename="labels" />
-<!-- 
-<fmt:setBundle basename="labels" var="bundleVar" />
- -->
-<%@ include file="inc/searchParams.jsp" %>
-
 <% 
 out.clear(); 
 %>
-<%@ include file="inc/proccessFacets.jsp" %>
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="cs" lang="cs">
+	<%@ include file="inc/searchParams.jsp" %>
+	<%@ include file="inc/proccessFacets.jsp" %>
     <%@ include file="inc/html_header.jsp" %>
     <body>
    		<!--  procesy - dialogy -->
