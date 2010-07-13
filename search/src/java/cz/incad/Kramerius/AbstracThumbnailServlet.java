@@ -29,6 +29,7 @@ import com.lizardtech.djvubean.DjVuImage;
 import cz.incad.Kramerius.backend.guice.GuiceServlet;
 import cz.incad.Kramerius.backend.guice.RequestSecurityAcceptor;
 import cz.incad.kramerius.FedoraAccess;
+import cz.incad.kramerius.impl.fedora.Handler;
 import cz.incad.kramerius.security.SecurityException;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 import cz.incad.kramerius.utils.imgs.KrameriusImageSupport;
@@ -110,8 +111,8 @@ public class AbstracThumbnailServlet extends GuiceServlet {
 				  (mimetype.equals(OutputFormats.VNDDJVU.getMimeType())) ||
 				  (mimetype.equals(OutputFormats.XDJVU.getMimeType()))){
 			if (fedoraAccess.isImageFULLAvailable(uuid)) {
-				String imageUrl = getDJVUServlet(uuid, request);
-				com.lizardtech.djvu.Document doc = new com.lizardtech.djvu.Document(new URL(imageUrl));
+				URL url = new URL("fedora","",0,uuid+"/IMG_FULL", new Handler(fedoraAccess));
+				com.lizardtech.djvu.Document doc = new com.lizardtech.djvu.Document(url);
 		        doc.setAsync(true);
 		        DjVuPage[] p = new DjVuPage[1];
 		        //read page from the document - index 0, priority 1, favorFast true
@@ -143,28 +144,28 @@ public class AbstracThumbnailServlet extends GuiceServlet {
 //		return currentURL(request)+"&scaledHeight=" + KConfiguration.getKConfiguration().getScaledHeight() + "&uuid="+uuid+"&rawdata=true";
 //	}
 
-	protected String getDJVUServlet(String uuid, HttpServletRequest request) {
-		String path =  hiddenDJVUServlet(request);
-		path += "&"+IKeys.UUID_PARAMETER+"="+uuid+"&outputFormat=RAW";
-		return path;
-	}
+//	protected String getDJVUServlet(String uuid, HttpServletRequest request) {
+//		String path =  hiddenDJVUServlet(request);
+//		path += "&"+IKeys.UUID_PARAMETER+"="+uuid+"&outputFormat=RAW";
+//		return path;
+//	}
 
-	public static String hiddenDJVUServlet(HttpServletRequest request) {
-		//"dvju"
-		try {
-			URL url = new URL(request.getRequestURL().toString());
-			String path = url.getPath();
-			StringBuffer buffer = new StringBuffer();
-			StringTokenizer tokenizer = new StringTokenizer(path,"/");
-			if(tokenizer.hasMoreTokens()) { buffer.append(tokenizer.nextToken()); }
-			buffer.append("/_djvu").append("?").append(RequestSecurityAcceptor.REMOTE_ADDRESS).append("=").append(request.getRemoteAddr());
-			String imagePath = url.getProtocol()+"://"+url.getHost()+":"+url.getPort()+"/"+buffer.toString();
-			return imagePath;
-		} catch (MalformedURLException e) {
-			LOGGER.log(Level.SEVERE, e.getMessage(), e);
-			return "<no url>";
-		}
-	}
+//	public static String hiddenDJVUServlet(HttpServletRequest request) {
+//		//"dvju"
+//		try {
+//			URL url = new URL(request.getRequestURL().toString());
+//			String path = url.getPath();
+//			StringBuffer buffer = new StringBuffer();
+//			StringTokenizer tokenizer = new StringTokenizer(path,"/");
+//			if(tokenizer.hasMoreTokens()) { buffer.append(tokenizer.nextToken()); }
+//			buffer.append("/_djvu").append("?").append(RequestSecurityAcceptor.REMOTE_ADDRESS).append("=").append(request.getRemoteAddr());
+//			String imagePath = url.getProtocol()+"://"+url.getHost()+":"+url.getPort()+"/"+buffer.toString();
+//			return imagePath;
+//		} catch (MalformedURLException e) {
+//			LOGGER.log(Level.SEVERE, e.getMessage(), e);
+//			return "<no url>";
+//		}
+//	}
 	protected Image scaleByPercent(Image img, Rectangle pageBounds, double percent) {
 		if ((percent <= 0.95) || (percent >= 1.15)) {
 			int nWidth = (int) (pageBounds.getWidth() * percent);
