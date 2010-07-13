@@ -305,7 +305,7 @@ public class DatabaseProcessManager implements LRProcessManager {
 		if (definition == null) {
 			throw new RuntimeException("cannot find definition '"+definitionId+"'");
 		}
-		LRProcess process = definition.loadProcess(uuid, pid, planned.getTime(), States.load(status), name);
+		LRProcess process = definition.loadProcess(uuid, pid, planned!=null?planned.getTime():0, States.load(status), name);
 		if (started != null) process.setStartTime(started.getTime());
 		return process;
 	}
