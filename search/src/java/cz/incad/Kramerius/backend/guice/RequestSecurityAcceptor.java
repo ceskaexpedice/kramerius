@@ -14,7 +14,6 @@ import cz.incad.kramerius.utils.conf.KConfiguration;
 
 public class RequestSecurityAcceptor implements SecurityAcceptor {
 
-	public static final String REMOTE_ADDRESS="remoteAddr";
 	
 	
 	private Logger logger;
@@ -31,10 +30,7 @@ public class RequestSecurityAcceptor implements SecurityAcceptor {
 	@Override
 	public boolean privateVisitor() {
 		HttpServletRequest httpServletRequest = this.provider.get();
-		String remoteAddr = httpServletRequest.getParameter(REMOTE_ADDRESS);
-		if (remoteAddr == null) {
-			remoteAddr = httpServletRequest.getRemoteAddr();
-		}
+		String remoteAddr = httpServletRequest.getRemoteAddr();
 		KConfiguration kConfiguration = KConfiguration.getInstance();
 		List<String> patterns = kConfiguration.getPatterns();
 		if (patterns != null) {
