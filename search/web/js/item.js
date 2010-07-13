@@ -275,6 +275,20 @@ function getItemRels(pid, selectedpid, level, recursive, rootModel){
     });
 }
 
+//~~~~~~~  common objekt
+var COMMON = function() {
+	return {
+		pidpath:function(level) {
+			var path ="";
+	        for(var i =1;i<=level;i++) {
+	        	path = path+$("#tabs_"+i).attr('pid');
+	        	path = path +"/";
+	        }
+	        return path;
+		}
+	}
+}();
+
 
 //~~~~~~~  PDF objekt
 var PDF=function() {

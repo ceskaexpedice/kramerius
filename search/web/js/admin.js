@@ -102,84 +102,124 @@ function refreshProcesses(ordering, offset, size, type) {
 // Command pattern
 var _actions=function() {
 	var intArr = new Array(); {
-		intArr["[static_export_CD]RUNNING"]=_statitExportStarted;
-		intArr["[static_export_CD]FAILED"]=_staticExportFailed;
+		intArr["[static_export_CD]WAITING"]='administrator.dialogs.waitingexport';
+		intArr["[static_export_CD]PLANNED"]='administrator.dialogs.exportrunning';
+		intArr["[static_export_CD]FAILED"]='administrator.dialogs.exportfailed';
 
-		intArr["[reindex]RUNNING"]=_reindexStarted;
-		intArr["[reindex]FAILED"]=_reindexFailed;
+		intArr["[reindex]WAITING"]='administrator.dialogs.waitingreindex';
+		intArr["[reindex]PLANNED"]='administrator.dialogs.reindexrunning';
+		intArr["[reindex]FAILED"]='administrator.dialogs.reindexfailed';
 
-		intArr["[replikator_monographs]RUNNING"]=_replikatorMonographStarted;
-		intArr["[replikator_monographs]FAILED"]=_replikatorMonographFailed;
-
-		intArr["[replikator_periodicals]RUNNING"]=_replikatorPeriodicalStarted;
-		intArr["[replikator_periodicals]FAILED"]=_replikatorPeriodicalFailed;
+		intArr["[replikator_monographs]WAITING"]='administrator.dialogs.waitingmonographimport';
+		intArr["[replikator_monographs]PLANNED"]='administrator.dialogs.monographimportrunning';
+		intArr["[replikator_monographs]FAILED"]='administrator.dialogs.monographimportfailed';
 		
-		intArr["[enumerator]RUNNING"]=_enumeratorStarted;
-		intArr["[enumerator]FAILED"]=_enumeratorFailed;
+		intArr["[replikator_periodicals]WAITING"]='administrator.dialogs.waitingperiodicsimport';
+		intArr["[replikator_periodicals]PLANNED"]='administrator.dialogs.periodicsimportrunning';
+		intArr["[replikator_periodicals]FAILED"]='administrator.dialogs.periodicsimportfailed';
+		
+		intArr["[enumerator]WAITING"]='administrator.dialogs.waitingenumerator';
+		intArr["[enumerator]PLANNED"]='administrator.dialogs.enumeratorrunning';
+		intArr["[enumerator]FAILED"]='administrator.dialogs.enumeratorfailed';
 				
-		intArr["[replicationrights]RUNNING"]=_replicationrightsStarted;
-		intArr["[replicationrights]FAILED"]=_replicationrightsFailed;
+		intArr["[replicationrights]WAITING"]="administrator.dialogs.waitingreplicationrights";
+		intArr["[replicationrights]PLANNED"]="administrator.dialogs.replicationrightsrunning";
+		intArr["[replicationrights]FAILED"]="administrator.dialogs.replicationrightsfailed";
+
+		intArr["[delete]WAITING"]="administrator.dialogs.waitingdelete";
+		intArr["[delete]PLANNED"]="administrator.dialogs.deleterunning";
+		intArr["[delete]FAILED"]="administrator.dialogs.deletefailed";
+
+
+		intArr["[replicationrights]WAITING"]="administrator.dialogs.waitingreplicationrights";
+		intArr["[replicationrights]PLANNED"]="administrator.dialogs.replicationrightsrunning";
+		intArr["[replicationrights]FAILED"]="administrator.dialogs.replicationrightsfailed";
+
+		intArr["[setpublic]WAITING"]="administrator.dialogs.waitingchangevisflag";
+		intArr["[setpublic]PLANNED"]="administrator.dialogs.changevisflagunning";
+		intArr["[setpublic]FAILED"]="administrator.dialogs.changevisflagfailed";
+		
+		intArr["[setprivate]WAITING"]="administrator.dialogs.waitingchangevisflag";
+		intArr["[setprivate]PLANNED"]="administrator.dialogs.changevisflagunning";
+		intArr["[setprivate]FAILED"]="administrator.dialogs.changevisflagfailed";
+
+		intArr["[export]WAITING"]="administrator.dialogs.waitingchangevisflag";
+		intArr["[export]PLANNED"]="administrator.dialogs.changevisflagunning";
+		intArr["[export]FAILED"]="administrator.dialogs.changevisflagfailed";
 
 	}
 	return intArr;
 }(); //akce ze servletu
 
 
-var _monographsDialog;
+
+
 function importMonographs() {
     showConfirmDialog('Confirm import monografii', function(){
-	var url = "lr?action=start&def=replikator_monographs&out=text";
-	if (_monographsDialog) {
-    	$("#replikator_monograph_started_ok").hide();
-    	$("#replikator_monograph_started_failed").hide();
-    	$("#replikator_monograph_started_waiting").show();
-    	_monographsDialog.dialog('open');
-	} else {
-    	$("#replikator_monograph_started_waiting").show();
-    	_monographsDialog = $("#replikator_monograph_started").dialog({
-	        bgiframe: true,
-	        width: 400,
-	        height: 100,
-	        modal: true,
-	        title: dictionary['administrator.menu.dialogs.replication.title'],
-	        buttons: {
-	            "Close": function() {
-	                $(this).dialog("close"); 
-	            } 
-	        } 
-	    });
-	}
+		var url = "lr?action=start&def=replikator_monographs&out=text";
+		if (_commonDialog) {
 
-	_startProcess(url);
+			$("#common_started_ok").hide();
+	    	$("#common_started_failed").hide();
+	    	$("#common_started_waiting").show();
+	
+	    	_commonDialog.dialog('open');
+	
+		} else {
+	
+	    	$("#common_started_waiting").show();
+	    	_commonDialog = $("#common_started_waiting").dialog({
+		        bgiframe: true,
+		        width: 400,
+		        height: 100,
+		        modal: true,
+		        title:'',
+		        buttons: {
+		            "Close": function() {
+		                $(this).dialog("close"); 
+		            } 
+		        } 
+		    });
+		}
+		$("#common_started_text").text(dictionary['administrator.dialogs.monographimportrunning']);
+		$("#common_started" ).dialog( "option", "title",  dictionary['administrator.menu.dialogs.replication.title']);
+	
+		_startProcess(url);
     });
 }
 
-var _periodicalsDialog;
+
 function importPeriodicals() {
     showConfirmDialog('Confirm import periodik', function(){
-	var url = "lr?action=start&def=replikator_periodicals&out=text";
-	if (_periodicalsDialog) {
-    	$("#replikator_periodical_started_ok").hide();
-    	$("#replikator_periodical_started_failed").hide();
-    	$("#replikator_periodical_started_waiting").show();
-    	_periodicalsDialog.dialog('open');
-	} else {
-    	$("#replikator_periodical_started_waiting").show();
-    	_periodicalsDialog = $("#replikator_periodical_started").dialog({
-	        bgiframe: true,
-	        width: 400,
-	        height: 100,
-	        modal: true,
-	        title: dictionary['administrator.menu.dialogs.importPeriodical.title'],
-	        buttons: {
-	            "Close": function() {
-	                $(this).dialog("close"); 
-	            } 
-	        } 
-	    });
-	}
+		var url = "lr?action=start&def=replikator_periodicals&out=text";
 
-	_startProcess(url);
+		if (_commonDialog) {
+
+			$("#common_started_ok").hide();
+	    	$("#common_started_failed").hide();
+	    	$("#common_started_waiting").show();
+	
+	    	_commonDialog.dialog('open');
+		} else {
+	    	$("#common_started_waiting").show();
+	    	_commonDialog = $("#common_started_waiting").dialog({
+		        bgiframe: true,
+		        width: 400,
+		        height: 100,
+		        modal: true,
+		        title:'',
+		        buttons: {
+		            "Close": function() {
+		                $(this).dialog("close"); 
+		            } 
+		        } 
+		    });
+		}
+
+		$("#common_started_text").text(dictionary['administrator.dialogs.monographimportrunning']);
+		$("#common_started" ).dialog( "option", "title",  dictionary['administrator.menu.dialogs.importPeriodical.title']);
+
+		_startProcess(url);
     });
 }
 
@@ -190,9 +230,8 @@ function importPeriodicals() {
  */
 var _reindexDialog = null;
 function reindex(level) {
-    
 	var pid = $("#tabs_"+level).attr('pid');
-        var params = "{title:"+pid+";pages:10}"
+    var params = "{title:"+pid+";pages:10}"
 	var url = "lr?action=start&def=reindex&out=text&params=params=fromKrameriusModel,"+pid+","+params;
 	if (_reindexDialog) {
     	$("#reindex_started_ok").hide();
@@ -220,33 +259,35 @@ function reindex(level) {
 
 function _startProcess(url) {
 	$.get(url, function(data) {
-		var action  = _actions[data];
-		if (action) {
-			setTimeout(action, 3000);
-		} else  {
-			alert("Neznama data "+data);
+		var text = _actions[data];
+		if (text.match("^"+text)==text) {
+			_processTextOk(dictionary[text]);
+			setTimeout(_processStarted, 3000);
+		} else {
+			_processFailed(dictionary[text]);
+			setTimeout(_processFailed, 3000);
 		}
-        return true;
 	});
 }
 
-var _replicationrightsDialog; //cekaci dialog na spusteni procesu
 function replicationrights() {
 	var url = "lr?action=start&def=replicationrights&out=text";
 
-	if (_staticExportDialog) {
-    	$("#replicationrights_started_ok").hide();
-    	$("#replicationrights_started_failed").hide();
-    	$("#replicationrights_started_waiting").show();
-    	_staticExportDialog.dialog('open');
+	if (_commonDialog) {
+
+    	$("#common_started_ok").hide();
+    	$("#common_started_failed").hide();
+    	$("#common_started_waiting").show();
+
+    	_commonDialog.dialog('open');
 	} else {
-    	$("#replicationrights_started_waiting").show();
-		_staticExportDialog = $("#replicationrights_started").dialog({
+    	$("#common_started_waiting").show();
+    	_commonDialog = $("#common_started_waiting").dialog({
 	        bgiframe: true,
 	        width: 400,
 	        height: 100,
 	        modal: true,
-	        title: dictionary['administrator.menu.dialogs.replicationRights.title'],
+	        title: '',
 	        buttons: {
 	            "Close": function() {
 	                $(this).dialog("close"); 
@@ -254,8 +295,133 @@ function replicationrights() {
 	        } 
 	    });
 	}
+
+	$("#common_started_text").text(dictionary['administrator.dialogs.waitingreplicationrights']);
+	$("#common_started" ).dialog( "option", "title",  dictionary['administrator.menu.dialogs.replicationRights.title']);
+
 	_startProcess(url);
 	
+}
+
+
+function exportTOFOXML(level)  {
+	var pid = $("#tabs_"+level).attr('pid');
+	var pidpath = COMMON.pidpath(level);
+	var url = "lr?action=start&def=export&out=text&params="+pid;
+	if (_commonDialog) {
+    	$("#common_started_ok").hide();
+    	$("#common_started_failed").hide();
+    	$("#common_started_waiting").show();
+    	_commonDialog.dialog('open');
+	} else {
+    	$("#common_started_waiting").show();
+    	_commonDialog = $("#common_started").dialog({
+	        bgiframe: true,
+	        width: 400,
+	        height: 100,
+	        modal: true,
+	        title: '',
+	        buttons: {
+	            "Close": function() {
+	                $(this).dialog("close"); 
+	            } 
+	        } 
+	    });
+	}
+
+	$("#common_started_text").text(dictionary['administrator.dialogs.waitingexport']);
+	$("#common_started" ).dialog( "option", "title",  dictionary['administrator.menu.dialogs.staticPDF.title']);
+
+	_startProcess(url);
+}
+
+
+function deleteUuid(level)  {
+	showConfirmDialog(dictionary['administrator.dialogs.deleteconfirm'], function(){
+		var pid = $("#tabs_"+level).attr('pid');
+		var pidpath = COMMON.pidpath(level);
+		var url = "lr?action=start&def=delete&out=text&params="+pid+","+pidpath;
+		if (_commonDialog) {
+	    	$("#common_started_ok").hide();
+	    	$("#common_started_failed").hide();
+	    	$("#common_started_waiting").show();
+	    	_commonDialog.dialog('open');
+		} else {
+	    	$("#common_started_waiting").show();
+	    	_commonDialog = $("#common_started").dialog({
+		        bgiframe: true,
+		        width: 400,
+		        height: 100,
+		        modal: true,
+		        title: '',
+		        buttons: {
+		            "Close": function() {
+		                $(this).dialog("close"); 
+		            } 
+		        } 
+		    });
+		}
+	
+		$("#common_started_text").text(dictionary['administrator.dialogs.waitingexport']);
+		$("#common_started" ).dialog( "option", "title",  dictionary['administrator.menu.dialogs.staticPDF.title']);
+	
+		_startProcess(url);
+	});
+}
+
+var _checkDialog;
+function changeFlag(level)  {
+	if (_checkDialog) {
+		_checkDialog.dialog('open');
+	} else {
+		_checkDialog = $("#check_private_public").dialog({
+	        bgiframe: true,
+	        width: 400,
+	        height: 100,
+	        modal: true,
+	        title: '',
+	        buttons: {
+				"Close": function() {
+						$(this).dialog("close"); 
+	            }, 
+	            "Aplikovat": function() {
+					$(this).dialog("close"); 
+					
+					var flag = $('#flag').val();
+	            	var pid = $("#tabs_"+level).attr('pid');
+					var url = "lr?action=start&def=set"+flag+"&out=text&params="+pid;
+					if (_commonDialog) {
+				    	$("#common_started_ok").hide();
+				    	$("#common_started_failed").hide();
+				    	$("#common_started_waiting").show();
+				    	_commonDialog.dialog('open');
+					} else {
+				    	$("#common_started_waiting").show();
+				    	_commonDialog = $("#common_started").dialog({
+					        bgiframe: true,
+					        width: 400,
+					        height: 100,
+					        modal: true,
+					        title: "",
+					        buttons: {
+					            "Close": function() {
+					                $(this).dialog("close"); 
+					            } 
+					        } 
+					    });
+					}
+					
+					$("#common_started_text").text(dictionary['administrator.dialogs.waitingchangevisflag']);
+					$("#common_started" ).dialog( "option", "title",  dictionary['administrator.menu.dialogs.changevisflag.title']);
+
+					_startProcess(url);
+				
+		        }
+        	}
+	    });
+		
+	}
+
 }
 
 
@@ -265,23 +431,22 @@ function replicationrights() {
  * @param level
  * @return
  */
-var _staticExportDialog; //cekaci dialog na spusteni procesu
 function generateStatic(level, exportType, imgUrl, i18nUrl,iso3Country, iso3Lang){
 	var pid = $("#tabs_"+level).attr('pid');
 	var url = "lr?action=start&def="+exportType+"&out=text&params="+pid+","+imgUrl+","+i18nUrl+","+iso3Country+","+iso3Lang;
-	if (_staticExportDialog) {
-    	$("#process_started_ok").hide();
-    	$("#process_started_failed").hide();
-    	$("#process_started_waiting").show();
-    	_staticExportDialog.dialog('open');
+	if (_commonDialog) {
+    	$("#common_started_ok").hide();
+    	$("#common_started_failed").hide();
+    	$("#common_started_waiting").show();
+    	_commonDialog.dialog('open');
 	} else {
-    	$("#process_started_waiting").show();
-		_staticExportDialog = $("#process_started").dialog({
+    	$("#common_started_waiting").show();
+    	_commonDialog = $("#common_started").dialog({
 	        bgiframe: true,
 	        width: 400,
 	        height: 100,
 	        modal: true,
-	        title: dictionary['administrator.menu.dialogs.staticPDF.title'],
+	        title: "",
 	        buttons: {
 	            "Close": function() {
 	                $(this).dialog("close"); 
@@ -289,6 +454,10 @@ function generateStatic(level, exportType, imgUrl, i18nUrl,iso3Country, iso3Lang
 	        } 
 	    });
 	}
+	
+	$("#common_started_text").text(dictionary['administrator.dialogs.waitingexport']);
+	$("#common_started" ).dialog( "option", "title",  dictionary['administrator.menu.dialogs.staticPDF.title']);
+
 	_startProcess(url);
 }
 
@@ -297,22 +466,23 @@ function generateStatic(level, exportType, imgUrl, i18nUrl,iso3Country, iso3Lang
  * @param level
  * @return
  */
-var _enumeratorDialog; //cekaci dialog na spusteni procesu
+var _commonDialog; //cekaci dialog na spusteni procesu
 function enumerator(){
 	var url = "lr?action=start&def=enumerator&out=text";
-	if (_enumeratorDialog) {
-    	$("#enumerator_started_ok").hide();
-    	$("#enumerator_started_failed").hide();
-    	$("#enumerator_started_waiting").show();
-    	_enumeratorDialog.dialog('open');
+	if (_commonDialog) {
+    	$("#common_started_ok").hide();
+    	$("#common_started_failed").hide();
+    	$("#common_started_waiting").show();
+    	
+    	_commonDialog.dialog('open');
 	} else {
-    	$("#enumerator_started_waiting").show();
-    	_enumeratorDialog = $("#enumerator_started").dialog({
+    	$("#common_started_waiting").show();
+    	_commonDialog = $("#common_started").dialog({
 	        bgiframe: true,
 	        width: 400,
 	        height: 100,
 	        modal: true,
-	        title: dictionary['administrator.menu.dialogs.replicationRights.title'],
+	        title: '',
 	        buttons: {
 	            "Close": function() {
 	                $(this).dialog("close"); 
@@ -320,17 +490,13 @@ function enumerator(){
 	        } 
 	    });
 	}
+
+	$("#common_started_text").text(dictionary[_actions["[enumerator]WAITING"]]);
+	$("#common_started" ).dialog( "option", "title",  dictionary['administrator.menu.dialogs.replicationRights.title']);
+	
 	_startProcess(url);
 }
 
-function _statitExportStarted() {
-	$("#process_started_waiting").css("display","none");
-	$("#process_started_ok").css("display","block");
-}
-function _staticExportFailed() {
-	$("#process_started_waiting").css("display","none");
-	$("#process_started_failed").css("display","block");
-}
 
 function _reindexStarted() {
 	$("#reindex_started_waiting").css("display","none");
@@ -343,46 +509,26 @@ function _reindexFailed() {
 }
 
 
-function _replikatorMonographStarted() {
-	$("#replikator_monograph_started_waiting").css("display","none");
-	$("#replikator_monograph_started_ok").css("display","block");
+
+function _processTextOk(text) {
+	$("#common_started_text_ok").text(text);
 }
 
-function _replikatorMonographFailed() {
-	$("#replikator_monograph_started_waiting").css("display","none");
-	$("#replikator_monograph_started_ok").css("display","block");
+function _processStarted() {
+	$("#common_started_waiting").css("display","none");
+	$("#common_started_ok").css("display","block");
 }
 
-function _replikatorPeriodicalStarted() {
-	$("#replikator_periodical_started_waiting").css("display","none");
-	$("#replikator_periodical_started_ok").css("display","block");
+function _processTextFailed(text) {
+	$("#common_started_text_failed").text(text);
 }
 
-function _replikatorPeriodicalFailed() {
-	$("#replikator_periodical_started_waiting").css("display","none");
-	$("#replikator_periodical_started_ok").css("display","block");
+function _processFailed() {
+	$("#common_started_waiting").css("display","none");
+	$("#common_started_ok").css("display","block");
+
 }
 
-
-function _enumeratorStarted() {
-	$("#enumerator_started_waiting").css("display","none");
-	$("#enumerator_started_ok").css("display","block");
-}
-
-function _enumeratorFailed() {
-	$("#enumerator_started_waiting").css("display","none");
-	$("#enumerator_started_ok").css("display","block");
-}
-
-function _replicationrightsStarted() {
-	$("#replicationrights_started_waiting").css("display","none");
-	$("#replicationrights_started_ok").css("display","block");
-}
-
-function _replicationrightsFailed() {
-	$("#replicationrights_started_waiting").css("display","none");
-	$("#replicationrights_started_ok").css("display","block");
-}
 
 
 var _indexerDialog;
