@@ -87,10 +87,8 @@ Get Biblio mods
         </c:when>
         <c:otherwise>
             <div class="relList" style="display:none;" id="list-<c:out value="${models[status.count -1]}" />"></div>
-            <c:if test="${models[status.count -1] != 'page'}" >
-                <%@ include file="../../admin/itemOptions.jsp" %>
-            </c:if>
-            <div id="info-<c:out value="${models[status.count -1]}" />">
+            <%@ include file="../../admin/itemOptions.jsp" %>
+            <div id="info-<c:out value="${models[status.count -1]}" />" style="min-height: 16px;">
             <x:transform doc="${xml2}"  xslt="${xslt}"  >
                 <x:param name="pid" value="${uuid}"/>
             </x:transform></div>
