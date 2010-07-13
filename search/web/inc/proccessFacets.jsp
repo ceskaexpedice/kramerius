@@ -11,7 +11,6 @@
             String currentFacetName = "";
             Facet currentFacet = null;
 %>
-<%out.clear();%>
 <x:forEach var="nav" select="$doc/response/lst[@name='facet_counts']/lst[@name='facet_fields']/lst">
     <c:set var="facetName"><x:out select="@name"/></c:set><jsp:useBean id="facetName" type="java.lang.String" /><%
             Facet facet = new Facet(facetName);
