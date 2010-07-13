@@ -28,11 +28,6 @@
 		<servlet-name>fullImageServlet</servlet-name>
 		<servlet-class>cz.incad.Kramerius.FullImageServlet</servlet-class>
 	</servlet>
-	<!-- Pro snadny pristup k djvu (bez autentizace) -->
-	<servlet>
-		<servlet-name>_djvu</servlet-name>
-		<servlet-class>cz.incad.Kramerius.CopyDJVUServlet</servlet-class>
-	</servlet>
 
 	<!-- Servlet pridava konfiguraci do servlet kontextu -->
 	<servlet>
@@ -110,10 +105,6 @@
 		<url-pattern>/djvu</url-pattern>
 	</servlet-mapping>
 
-	<servlet-mapping>
-		<servlet-name>_djvu</servlet-name>
-		<url-pattern>/_djvu</url-pattern>
-	</servlet-mapping>
 
 	<servlet-mapping>
 		<servlet-name>pdf</servlet-name>
