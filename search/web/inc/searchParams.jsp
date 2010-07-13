@@ -6,14 +6,8 @@
 <%@ page isELIgnored="false"%>
 <%@ page import="java.util.*, cz.incad.Kramerius.*, cz.incad.Solr.*" %>
 
-<c:choose>
-    <c:when test="${param.language != null}" >
-        <fmt:setLocale value="${param.language}" />
-    </c:when>
-</c:choose>
 
-<fmt:setBundle basename="labels" />
-<fmt:setBundle basename="labels" var="bundleVar" />
+
 <%@ include file="initVars.jsp" %>
 <c:set var="pageType" value="search" />
 <jsp:useBean id="pageType" type="java.lang.String" />
@@ -120,12 +114,6 @@
         <c:param name="facet.field" value="facet_autor" />
         <c:param name="facet.field" value="dostupnost" />
         <c:param name="f.facet_autor.facet.sort" value="false" />
-    <%--
-    <c:param name="facet.field" value="abeceda_autor" />
-    <c:param name="facet.field" value="abeceda_title" />
-    <c:param name="f.abeceda_title.facet.sort" value="false" />
-    <c:param name="f.abeceda_autor.facet.sort" value="false" />
-    --%>
     </c:if>
     
     <%-- sort param --%>    
