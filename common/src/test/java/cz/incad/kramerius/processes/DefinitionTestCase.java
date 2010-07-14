@@ -1,5 +1,6 @@
 package cz.incad.kramerius.processes;
 
+import java.util.Arrays;
 import java.util.List;
 
 import junit.framework.TestCase;
@@ -36,11 +37,12 @@ public class DefinitionTestCase extends AbstractGuiceTestCase {
 	public void testPlan()  {
 		Injector inj = injector();
 		DefinitionManager defMgr = inj.getInstance(DefinitionManager.class);
-		
+		 
 		LRProcessDefinition definition = defMgr.getLongRunningProcessDefinition("mock");
 		TestCase.assertNotNull(definition);
 		
 		LRProcess process = definition.createNewProcess();
+		process.setParameters(Arrays.asList("one","two","three"));
 		process.planMe();
 		
 		LRProcessManager lrMan = inj.getInstance(LRProcessManager.class);
@@ -51,6 +53,7 @@ public class DefinitionTestCase extends AbstractGuiceTestCase {
 		TestCase.assertTrue(naplanovanyProcess.getProcessState().equals(States.PLANNED));	
 		//TestCase.assertTrue(naplanovanyProcess.getStartTime() == 0);	
 		TestCase.assertTrue(naplanovanyProcess.getPlannedTime() != 0);	
+		TestCase.assertEquals(Arrays.asList("one","two","three"),naplanovanyProcess.getParameters());	
 	}
 	
 	
