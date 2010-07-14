@@ -15,7 +15,7 @@ public class WindowsLRProcessImpl extends AbstractLRProcessImpl {
 	public WindowsLRProcessImpl(LRProcessDefinition definition,
 			LRProcessManager manager, KConfiguration configuration) {
 		super(definition, manager, configuration);
-		this.setStartTime(System.currentTimeMillis());
+		//this.setStartTime(System.currentTimeMillis());
 	}
 
 	@Override
