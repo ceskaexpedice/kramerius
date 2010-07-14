@@ -89,6 +89,7 @@ public class LongRunningProcessServlet extends GuiceServlet {
 			throw new RuntimeException("cannot find process definition '"+def+"'");
 		}
 		LRProcess newProcess = definition.createNewProcess();
+		newProcess.setParameters(Arrays.asList(params));
 		newProcess.planMe();
 		return newProcess;
 	}
