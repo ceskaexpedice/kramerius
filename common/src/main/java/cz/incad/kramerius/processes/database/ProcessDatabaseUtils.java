@@ -55,7 +55,7 @@ public class ProcessDatabaseUtils {
 			prepareStatement = con.prepareStatement("insert into processes(DEFID, UUID,PLANNED, STATUS,PARAMS) values(?,?,?,?,?)");
 			prepareStatement.setString(1, lp.getDefinitionId());
 			prepareStatement.setString(2, lp.getUUID());
-			prepareStatement.setTimestamp(3, new Timestamp(lp.getStartTime()));
+			prepareStatement.setTimestamp(3, new Timestamp(lp.getPlannedTime()));
 			prepareStatement.setInt(4, lp.getProcessState().getVal());
 			StringBuffer buffer = new StringBuffer();
 			List<String> parameters = lp.getParameters();
