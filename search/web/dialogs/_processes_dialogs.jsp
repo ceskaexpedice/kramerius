@@ -47,16 +47,16 @@
 
 <!-- common -->
 <div id="common_started" style="display:none;">
-	<div id="common_started_waiting" style="display:none;margin: 16px; font-family: sans-serif; font-size: 10px; ">
+	<div id="common_started_waiting" style="margin: 16px; font-family: sans-serif; font-size: 10px; ">
     	<table>
     		<tr><td align="center"><img src="img/loading2.gif" height="16px" width="16px"/></td></tr>
 			<tr><td align="center" id="common_started_text"></td></tr>
     	</table>
 	</div>
-	<div id="common_started_ok" style="display:none;margin: 12px;">
+	<div id="common_started_ok" style="margin: 12px;">
 		<p style="font-family: sans-serif; font-size: 12px; font-weight: bold;" id="common_started_text_ok"><br/></p>
 	</div>
-	<div id="common_started_failed" style="display:none;margin: 12px;">
+	<div id="common_started_failed" style="margin: 12px;">
 		<p style="font-family: sans-serif; font-size: 12px; font-weight: bold;" id="common_started_text_failed"></p>
 	</div>
 </div>
