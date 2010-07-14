@@ -2,10 +2,7 @@
 
 var _persistentURLDialog;
 function showPersistentURL(level, model) {
-//	$("div.adminMenuItems").each(function(index, o){
-//		$(o).hide();
-//	});
-
+	hideAdminOptions(level);
 	var pid = $("#tabs_"+level).attr('pid');
 	if (level != 1) {
 		pid = $("#tabs_"+level+">div."+model+">div.relList>div.selected").attr('pid');
@@ -318,6 +315,7 @@ var PDF=function() {
 		},
 		// generovani pdf
 		generatePDF:function(level) {
+			hideAdminOptions(level);
 		    PDF.openGeneratePdfDialog(level);
 		},
 		

@@ -100,7 +100,7 @@ function refreshProcesses(ordering, offset, size, type) {
  * Promenne ve scriptu
  */
 // Command pattern
-var _actions=function() {
+var _texts=function() {
 	var intArr = new Array(); {
 		intArr["[static_export_CD]WAITING"]='administrator.dialogs.waitingexport';
 		intArr["[static_export_CD]PLANNED"]='administrator.dialogs.exportrunning';
@@ -110,6 +110,7 @@ var _actions=function() {
 		intArr["[reindex]PLANNED"]='administrator.dialogs.reindexrunning';
 		intArr["[reindex]FAILED"]='administrator.dialogs.reindexfailed';
 
+		
 		intArr["[replikator_monographs]WAITING"]='administrator.dialogs.waitingmonographimport';
 		intArr["[replikator_monographs]PLANNED"]='administrator.dialogs.monographimportrunning';
 		intArr["[replikator_monographs]FAILED"]='administrator.dialogs.monographimportfailed';
@@ -168,7 +169,7 @@ function importMonographs() {
 		} else {
 	
 	    	$("#common_started_waiting").show();
-	    	_commonDialog = $("#common_started_waiting").dialog({
+	    	_commonDialog = $("#common_started").dialog({
 		        bgiframe: true,
 		        width: 400,
 		        height: 100,
@@ -202,7 +203,7 @@ function importPeriodicals() {
 	    	_commonDialog.dialog('open');
 		} else {
 	    	$("#common_started_waiting").show();
-	    	_commonDialog = $("#common_started_waiting").dialog({
+	    	_commonDialog = $("#common_started_waiting").dialog({ 
 		        bgiframe: true,
 		        width: 400,
 		        height: 100,
@@ -228,43 +229,51 @@ function importPeriodicals() {
  * @param level
  * @return
  */
-var _reindexDialog = null;
 function reindex(level) {
+	hideAdminOptions(level);
 	var pid = $("#tabs_"+level).attr('pid');
     var params = "{title:"+pid+";pages:10}"
-	var url = "lr?action=start&def=reindex&out=text&params=params=fromKrameriusModel,"+pid+","+params;
-	if (_reindexDialog) {
-    	$("#reindex_started_ok").hide();
-    	$("#reindex_started_failed").hide();
-    	$("#reindex_started_waiting").show();
-    	_reindexDialog.dialog('open');
+	var url = "lr?action=start&def=reindex&out=text&params=fromKrameriusModel,"+pid+","+params;
+
+    if (_commonDialog) {
+
+		$("#common_started_ok").hide();
+    	$("#common_started_failed").hide();
+    	$("#common_started_waiting").show();
+
+    	_commonDialog.dialog('open');
 	} else {
-    	$("#reindex_started_waiting").show();
-    	_reindexDialog = $("#reindex_started").dialog({
+    	$("#common_started_waiting").show();
+    	_commonDialog = $("#common_started").dialog({
 	        bgiframe: true,
 	        width: 400,
 	        height: 100,
 	        modal: true,
-	        title: dictionary['administrator.menu.dialogs.reindex.title'],
+	        title:'',
 	        buttons: {
 	            "Close": function() {
 	                $(this).dialog("close"); 
 	            } 
 	        } 
 	    });
+	
 	}
+    
+	$("#common_started_text").text(dictionary['administrator.dialogs.waitingreindex']);
+	$("#common_started" ).dialog( "option", "title",  dictionary['administrator.menu.dialogs.reindex.title']);
 
 	_startProcess(url);
 }
 
 function _startProcess(url) {
 	$.get(url, function(data) {
-		var text = _actions[data];
+		var text = _texts[data];
+		var t = dictionary[text];
 		if (text.match("^"+text)==text) {
-			_processTextOk(dictionary[text]);
+			_processTextOk(t);
 			setTimeout(_processStarted, 3000);
 		} else {
-			_processFailed(dictionary[text]);
+			_processFailed(t);
 			setTimeout(_processFailed, 3000);
 		}
 	});
@@ -282,7 +291,7 @@ function replicationrights() {
     	_commonDialog.dialog('open');
 	} else {
     	$("#common_started_waiting").show();
-    	_commonDialog = $("#common_started_waiting").dialog({
+    	_commonDialog = $("#common_started").dialog({
 	        bgiframe: true,
 	        width: 400,
 	        height: 100,
@@ -305,6 +314,7 @@ function replicationrights() {
 
 
 function exportTOFOXML(level)  {
+	hideAdminOptions(level);
 	var pid = $("#tabs_"+level).attr('pid');
 	var pidpath = COMMON.pidpath(level);
 	var url = "lr?action=start&def=export&out=text&params="+pid;
@@ -329,14 +339,15 @@ function exportTOFOXML(level)  {
 	    });
 	}
 
-	$("#common_started_text").text(dictionary['administrator.dialogs.waitingexport']);
-	$("#common_started" ).dialog( "option", "title",  dictionary['administrator.menu.dialogs.staticPDF.title']);
+	$("#common_started_text").text(dictionary['administrator.dialogs.waitingfoexport']);
+	$("#common_started" ).dialog( "option", "title",  dictionary['administrator.menu.dialogs.foexport.title']);
 
 	_startProcess(url);
 }
 
 
 function deleteUuid(level)  {
+	hideAdminOptions(level);
 	showConfirmDialog(dictionary['administrator.dialogs.deleteconfirm'], function(){
 		var pid = $("#tabs_"+level).attr('pid');
 		var pidpath = COMMON.pidpath(level);
@@ -371,6 +382,7 @@ function deleteUuid(level)  {
 
 var _checkDialog;
 function changeFlag(level)  {
+	hideAdminOptions(level);
 	if (_checkDialog) {
 		_checkDialog.dialog('open');
 	} else {
@@ -432,6 +444,7 @@ function changeFlag(level)  {
  * @return
  */
 function generateStatic(level, exportType, imgUrl, i18nUrl,iso3Country, iso3Lang){
+	hideAdminOptions(level);
 	var pid = $("#tabs_"+level).attr('pid');
 	var url = "lr?action=start&def="+exportType+"&out=text&params="+pid+","+imgUrl+","+i18nUrl+","+iso3Country+","+iso3Lang;
 	if (_commonDialog) {
@@ -491,21 +504,10 @@ function enumerator(){
 	    });
 	}
 
-	$("#common_started_text").text(dictionary[_actions["[enumerator]WAITING"]]);
+	$("#common_started_text").text(dictionary[_texts["[enumerator]WAITING"]]);
 	$("#common_started" ).dialog( "option", "title",  dictionary['administrator.menu.dialogs.replicationRights.title']);
 	
 	_startProcess(url);
-}
-
-
-function _reindexStarted() {
-	$("#reindex_started_waiting").css("display","none");
-	$("#reindex_started_ok").css("display","block");
-}
-
-function _reindexFailed() {
-	$("#reindex_started_waiting").css("display","none");
-	$("#reindex_started_ok").css("display","block");
 }
 
 
@@ -515,8 +517,9 @@ function _processTextOk(text) {
 }
 
 function _processStarted() {
-	$("#common_started_waiting").css("display","none");
-	$("#common_started_ok").css("display","block");
+	$("#common_started_ok").show();
+	$("#common_started_failed").hide();
+	$("#common_started_waiting").hide();
 }
 
 function _processTextFailed(text) {
@@ -572,6 +575,7 @@ function getIndexerStatus(){
 }
 
 function deletefromindex(level){
+	hideAdminOptions(level);
     showConfirmDialog('Confirm index dokumentu', function(){
       var pid = $("#tabs_"+level).attr('pid');
       var pid_path = "";
