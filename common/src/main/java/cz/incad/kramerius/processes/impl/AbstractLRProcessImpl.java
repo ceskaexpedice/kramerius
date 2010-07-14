@@ -90,6 +90,7 @@ public abstract class AbstractLRProcessImpl implements LRProcess{
 	public void planMe() {
 		this.state = States.PLANNED;
 		manager.registerLongRunningProcess(this);
+		
 	}
 	
 	
@@ -142,8 +143,10 @@ public abstract class AbstractLRProcessImpl implements LRProcess{
 			processBuilder = processBuilder.directory(processWorkingDir);
 			
 			processBuilder.environment().put(ProcessStarter.CLASSPATH_NAME, buffer.toString());
+			this.setStartTime(System.currentTimeMillis());
 			this.state = States.RUNNING;
 			manager.updateLongRunningProcessState(this);
+			manager.updateLongRunningProcessStartedDate(this);
 //			manager.registerLongRunningProcess(this);
             
 			LOGGER.info(""+command);
@@ -154,8 +157,8 @@ public abstract class AbstractLRProcessImpl implements LRProcess{
 			//LOGGER.info("error stream file:"+errStreamFile.getAbsolutePath());
 			//new FollowStreamThread(process.getErrorStream(), new FileOutputStream(errStreamFile)).start();
 			//new FollowStreamThread(process.getInputStream(), new FileOutputStream(standardStreamFile)).start();
-			//TODO: Synchronizace ?? Jak na to ?
-
+			// nastaveni priznaku odstartovani
+			
 			// pokracuje dal.. rozhoduje se, jestli pocka na vysledek procesu
 			if (wait) {
 				int val = process.waitFor();

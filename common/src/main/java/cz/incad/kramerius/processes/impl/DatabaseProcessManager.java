@@ -10,6 +10,7 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.logging.Level;
 
@@ -102,7 +103,7 @@ public class DatabaseProcessManager implements LRProcessManager {
 			connection = provider.get();
 			if (connection != null) {
 				if (!DatabaseUtils.tableExists(connection,"PROCESSES")) {
-					createTable(connection);
+					createProcessTable(connection);
 				}
 				registerProcess(connection, lp);
 			}
@@ -111,6 +112,7 @@ public class DatabaseProcessManager implements LRProcessManager {
 		} finally {
 			if (connection != null) {
 				try {
+					connection.setAutoCommit(true);
 					connection.close();
 				} catch (SQLException e) {
 					LOGGER.log(Level.SEVERE, e.getMessage(), e);
@@ -125,7 +127,7 @@ public class DatabaseProcessManager implements LRProcessManager {
 		try {
 			connection = provider.get();
 			if (!DatabaseUtils.tableExists(connection,"PROCESSES")) {
-				createTable(connection);
+				createProcessTable(connection);
 			}
 			ProcessDatabaseUtils.updateProcessPID(connection,  lrProcess.getPid(),lrProcess.getUUID());
 		} catch (SQLException e) {
@@ -150,7 +152,7 @@ public class DatabaseProcessManager implements LRProcessManager {
 		try {
 			connection = provider.get();
 			if (!DatabaseUtils.tableExists(connection,"PROCESSES")) {
-				createTable(connection);
+				createProcessTable(connection);
 			}
 			ProcessDatabaseUtils.updateProcessName(connection, lrProcess.getUUID(), lrProcess.getProcessName());
 		} catch (SQLException e) {
@@ -166,14 +168,36 @@ public class DatabaseProcessManager implements LRProcessManager {
 		}
 	}
 
+	public void updateLongRunningProcessStartedDate(LRProcess lrProcess) {
+		Connection connection = null;
+		try {
+			connection = provider.get();
+			if (!DatabaseUtils.tableExists(connection,"PROCESSES")) {
+				createProcessTable(connection);
+			}
+
+			ProcessDatabaseUtils.updateProcessStarted(connection, lrProcess.getUUID(), new Timestamp(lrProcess.getStartTime()));
+		} catch (SQLException e) {
+			LOGGER.log(Level.SEVERE, e.getMessage(), e);
+		} finally {
+			if (connection != null) {
+				try {
+					connection.close();
+				} catch (SQLException e) {
+					LOGGER.log(Level.SEVERE, e.getMessage(), e);
+				}
+			}
+		}
+	}	
 	@Override
 	public void updateLongRunningProcessState(LRProcess lrProcess) {
 		Connection connection = null;
 		try {
 			connection = provider.get();
 			if (!DatabaseUtils.tableExists(connection,"PROCESSES")) {
-				createTable(connection);
+				createProcessTable(connection);
 			}
+
 			ProcessDatabaseUtils.updateProcessState(connection, lrProcess.getUUID(), lrProcess.getProcessState());
 		} catch (SQLException e) {
 			LOGGER.log(Level.SEVERE, e.getMessage(), e);
@@ -200,8 +224,10 @@ public class DatabaseProcessManager implements LRProcessManager {
 			connection = provider.get();
 			if (connection != null) {
 				if (!DatabaseUtils.tableExists(connection,"PROCESSES")) {
-					createTable(connection);
+					createProcessTable(connection);
 				}
+				// POZN: dotazovanych vet bude vzdycky malo, misto join budu provadet dodatecne selekty.  
+				// POZN: bude jich v radu jednotek. 
 				StringBuffer buffer = new StringBuffer("select * from PROCESSES where status = ?");
 				buffer.append(" ORDER BY PLANNED LIMIT ? ");
 				
@@ -210,7 +236,8 @@ public class DatabaseProcessManager implements LRProcessManager {
 				stm.setInt(2, howMany);
 				rs = stm.executeQuery();
 				while(rs.next()) {
-					processes.add(processFromResultSet(rs));
+					LRProcess processFromResultSet = processFromResultSet(rs);
+					processes.add(processFromResultSet);
 				} 
 				return processes;
 			} else return new ArrayList<LRProcess>();
@@ -251,10 +278,9 @@ public class DatabaseProcessManager implements LRProcessManager {
 			connection = provider.get();
 			if (connection != null) {
 				if (!DatabaseUtils.tableExists(connection,"PROCESSES")) {
-					createTable(connection);
+					createProcessTable(connection);
 				}
 				StringBuffer buffer = new StringBuffer("select count(*) from PROCESSES ");
-				
 				stm = connection.prepareStatement(buffer.toString());
 				rs = stm.executeQuery();
 				int count = 0;
@@ -301,12 +327,17 @@ public class DatabaseProcessManager implements LRProcessManager {
 		Timestamp planned = rs.getTimestamp("PLANNED");
 		Timestamp started = rs.getTimestamp("STARTED");
 		String name = rs.getString("NAME");
+		String params = rs.getString("PARAMS");
 		LRProcessDefinition definition = this.lrpdm.getLongRunningProcessDefinition(definitionId);
 		if (definition == null) {
 			throw new RuntimeException("cannot find definition '"+definitionId+"'");
 		}
 		LRProcess process = definition.loadProcess(uuid, pid, planned!=null?planned.getTime():0, States.load(status), name);
 		if (started != null) process.setStartTime(started.getTime());
+		if (params != null) {
+			String[] paramsArray = params.split(",");
+			process.setParameters(Arrays.asList(paramsArray));
+		}
 		return process;
 	}
 	
@@ -320,7 +351,7 @@ public class DatabaseProcessManager implements LRProcessManager {
 			connection = provider.get();
 			if (connection != null) {
 				if (!DatabaseUtils.tableExists(connection,"PROCESSES")) {
-					createTable(connection);
+					createProcessTable(connection);
 				}
 				StringBuffer buffer = new StringBuffer("select * from PROCESSES ");
 				if (ordering  != null) {
