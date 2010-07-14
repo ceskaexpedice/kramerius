@@ -13,6 +13,7 @@ public abstract class AbstractGuiceTestCase {
 	
 	
 	protected void dropTables() {
+
 		try {
 			Connection connection = connection();
 			connection.createStatement().execute("drop table PROCESSES");
