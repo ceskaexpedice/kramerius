@@ -33,5 +33,6 @@ public interface LRProcessManager {
 	public void updateLongRunningProcessState(LRProcess lrProcess);
 	public void updateLongRunningProcessName(LRProcess lrProcess);
 	public void updateLongRunningProcessPID(LRProcess lrProcess);
+	public void updateLongRunningProcessStartedDate(LRProcess lrProcess);
 
 }
