@@ -9,6 +9,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Timestamp;
+import java.util.List;
 import java.util.logging.Level;
 
 import cz.incad.kramerius.processes.LRProcess;
@@ -24,26 +25,45 @@ public class ProcessDatabaseUtils {
 	public static final java.util.logging.Logger LOGGER = java.util.logging.Logger
 			.getLogger(ProcessDatabaseUtils.class.getName());
 
-	public static void createTable(Connection con) throws SQLException {
+	public static void createProcessTable(Connection con) throws SQLException {
 		PreparedStatement prepareStatement = null;
 		try {
-			prepareStatement = con.prepareStatement("CREATE TABLE PROCESSES(DEFID VARCHAR(255), UUID VARCHAR(255) ,PID int,STARTED timestamp, PLANNED timestamp, STATUS int, NAME VARCHAR(1024))");
+			prepareStatement = con.prepareStatement("CREATE TABLE PROCESSES(DEFID VARCHAR(255), UUID VARCHAR(255) PRIMARY KEY,PID int,STARTED timestamp, PLANNED timestamp, STATUS int, NAME VARCHAR(1024), PARAMS VARCHAR(4096))");
 			int r = prepareStatement.executeUpdate();
 			LOGGER.finest("CREATE TABLE: updated rows "+r);
 		} finally {
 			if (prepareStatement != null) prepareStatement.close();
 		}
 	}
+
+//	public static void createRuntimeParametersTable(Connection con) throws SQLException {
+//		PreparedStatement prepareStatement = null;
+//		try {
+//			prepareStatement = con.prepareStatement("CREATE TABLE RUNTIME_PARAMS(PARAM VARCHAR(1024), UUID VARCHAR(255) REFERENCES PROCESSES(UUID))");
+//			int r = prepareStatement.executeUpdate();
+//			LOGGER.finest("CREATE TABLE: updated rows "+r);
+//		} finally {
+//			if (prepareStatement != null) prepareStatement.close();
+//		}
+//	}
+
+	
 	
 	public static void registerProcess(Connection con, LRProcess lp) throws SQLException {
 		PreparedStatement prepareStatement = null;
 		try {
-			prepareStatement = con.prepareStatement("insert into processes(DEFID, UUID,PLANNED, STATUS) values(?,?,?,?)");
+			prepareStatement = con.prepareStatement("insert into processes(DEFID, UUID,PLANNED, STATUS,PARAMS) values(?,?,?,?,?)");
 			prepareStatement.setString(1, lp.getDefinitionId());
 			prepareStatement.setString(2, lp.getUUID());
-//			prepareStatement.setTimestamp(3, new Timestamp(lp.getStart()));
 			prepareStatement.setTimestamp(3, new Timestamp(lp.getStartTime()));
 			prepareStatement.setInt(4, lp.getProcessState().getVal());
+			StringBuffer buffer = new StringBuffer();
+			List<String> parameters = lp.getParameters();
+			for (int i = 0, ll = parameters.size(); i < ll; i++) {
+				buffer.append(parameters.get(i));
+				buffer.append((i==ll-1) ? "":",");
+			}
+			prepareStatement.setString(5, buffer.toString());
 			prepareStatement.executeUpdate();
 		}finally {
 			if (prepareStatement != null) prepareStatement.close();
@@ -73,6 +93,7 @@ public class ProcessDatabaseUtils {
 			if (prepareStatement != null) prepareStatement.close();
 		}
 	}
+
 
 	public static void updateProcessName(Connection con, String uuid, String name) throws SQLException {
 		PreparedStatement prepareStatement =  null;
