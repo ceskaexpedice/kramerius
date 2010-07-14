@@ -8,8 +8,10 @@ import com.google.inject.AbstractModule;
 import com.google.inject.Scopes;
 import com.google.inject.name.Names;
 
+import cz.incad.kramerius.FedoraAccess;
 import cz.incad.kramerius.MostDesirable;
 import cz.incad.kramerius.ConProvider4T;
+import cz.incad.kramerius.impl.FedoraAccessImpl;
 import cz.incad.kramerius.impl.MostDesirableImpl;
 import cz.incad.kramerius.processes.impl.DatabaseProcessManager;
 import cz.incad.kramerius.processes.impl.LRProcessDefinitionManagerImpl;
@@ -23,7 +25,9 @@ public class DefinitionModule extends AbstractModule {
 		KConfiguration testConf = KConfiguration.getInstance();
 		bind(KConfiguration.class).toInstance(testConf);
 		bind(Connection.class).toProvider(ConProvider4T.class);
-		
+
+		bind(FedoraAccess.class).to(FedoraAccessImpl.class);
+
 		// long running process modul
 		bind(DefinitionManager.class).to(LRProcessDefinitionManagerImpl.class);
 		bind(LRProcessManager.class).to(DatabaseProcessManager.class);
@@ -31,6 +35,5 @@ public class DefinitionModule extends AbstractModule {
 		bind(String.class).annotatedWith(Names.named("LIBS")).toInstance("<uknown>");
 
 		bind(MostDesirable.class).to(MostDesirableImpl.class);
-		
 	}
 }
