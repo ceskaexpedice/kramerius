@@ -24,6 +24,8 @@ import org.fedora.api.FedoraAPIMService;
 import org.fedora.api.ObjectFactory;
 import org.fedora.api.RelationshipTuple;
 
+import cz.incad.kramerius.utils.conf.KConfiguration;
+
 public class Import {
     static FedoraAPIMService service;
     static FedoraAPIM port;
@@ -36,18 +38,7 @@ public class Import {
      * @param args
      */
     public static void main(String[] args) {
-        if (args.length != 4){
-            System.out.println("Usage: Import [url] [user] [password] [rootFolder]");
-            System.exit(1);
-        }
-        
-        final String url = args[0];
-        final String user = args[1];
-        final String pwd = args[2];
-
-        String importRoot = args[3];
-        
-        ingest(url, user, pwd, importRoot);
+    	Import.ingest(KConfiguration.getInstance().getProperty("ingest.url"), KConfiguration.getInstance().getProperty("ingest.user"), KConfiguration.getInstance().getProperty("ingest.password"), KConfiguration.getInstance().getProperty("import.directory"));
     }
 
     public static void ingest(final String url, final String user, final String pwd, String importRoot) {

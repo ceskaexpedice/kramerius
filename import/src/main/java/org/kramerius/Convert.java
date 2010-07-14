@@ -14,8 +14,8 @@ public class Convert {
 		if (args.length>0){
 			visible = Boolean.parseBoolean(args[0]);
 		}
-		String uuid = Main.convert(KConfiguration.getInstance().getProperty("import.directory"), KConfiguration.getInstance().getProperty("import.directory")+Download.CONV_SUFFIX, false, visible);
-        Import.ingest(KConfiguration.getInstance().getProperty("ingest.url"), KConfiguration.getInstance().getProperty("ingest.user"), KConfiguration.getInstance().getProperty("ingest.password"), KConfiguration.getInstance().getProperty("import.directory")+Download.CONV_SUFFIX);
+		String uuid = Main.convert(KConfiguration.getInstance().getProperty("convert.directory"), KConfiguration.getInstance().getProperty("convert.directory")+Download.CONV_SUFFIX, false, visible);
+        Import.ingest(KConfiguration.getInstance().getProperty("ingest.url"), KConfiguration.getInstance().getProperty("ingest.user"), KConfiguration.getInstance().getProperty("ingest.password"), KConfiguration.getInstance().getProperty("convert.directory")+Download.CONV_SUFFIX);
         Download.startIndexing("", uuid);
 	}
 

@@ -158,4 +158,12 @@
 		<standardOs>lrOut</standardOs>
 		<errOs>lrErr</errOs>
 	</process>
+	
+	<process>
+		<id>import</id>
+		<description>Import FOXML</description>
+		<mainClass>org.kramerius.Import</mainClass>
+		<standardOs>lrOut</standardOs>
+		<errOs>lrErr</errOs>
+	</process>
 </processes>
