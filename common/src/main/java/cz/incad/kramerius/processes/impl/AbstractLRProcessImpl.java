@@ -89,8 +89,8 @@ public abstract class AbstractLRProcessImpl implements LRProcess{
 
 	public void planMe() {
 		this.state = States.PLANNED;
+		this.setPlannedTime(System.currentTimeMillis());
 		manager.registerLongRunningProcess(this);
-		
 	}
 	
 	
