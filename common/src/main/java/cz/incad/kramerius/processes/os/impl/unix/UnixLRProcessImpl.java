@@ -31,7 +31,7 @@ public class UnixLRProcessImpl extends AbstractLRProcessImpl {
 	public UnixLRProcessImpl(LRProcessDefinition definition,
 			LRProcessManager manager, KConfiguration configuration) {
 		super(definition, manager, configuration);
-		this.setStartTime(System.currentTimeMillis());
+		//this.setStartTime(System.currentTimeMillis());
 	}
 
 	@Override
