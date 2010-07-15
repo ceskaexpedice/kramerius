@@ -30,7 +30,7 @@
         <x:forEach select="//response/lst[@name='collapse_counts']/lst[@name='results']/lst">
             <x:if select="./@name=$pid">
             <c:set var="collapseCount" >
-                <a href="javascript:uncollapse('<c:out value="${root_pid}" />', 'uncollapsed_<c:out value="${uuid}"/>', 0)"><img src="img/collapsed.png" 
+                <a href="javascript:toggleCollapsed('<c:out value="${root_pid}" />', 'uncollapsed_<c:out value="${uuid}"/>', 0)"><img src="img/collapsed.png" 
                    alt="<x:out select="./int[@name='collapseCount']/text()"/> <fmt:message bundle="${lctx}">collapsed</fmt:message>"
                    title="<x:out select="./int[@name='collapseCount']/text()"/> <fmt:message bundle="${lctx}">collapsed</fmt:message>" border="0" /></a>
             </c:set>  
