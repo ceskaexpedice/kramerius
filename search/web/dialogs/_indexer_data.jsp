@@ -9,12 +9,6 @@
 <%@page import="com.google.inject.Injector"%>
 
 <%@ include file="../inc/initVars.jsp" %>
-<c:choose>
-    <c:when test="${param.language != null}" >
-        <fmt:setLocale value="${param.language}" />
-    </c:when>
-</c:choose>
-
 <fmt:setBundle basename="labels" />
 <fmt:setBundle basename="labels" var="bundleVar" />
 <c:set var="order" value="${param.sort}" />
