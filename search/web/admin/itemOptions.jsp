@@ -46,7 +46,7 @@
         <%if(request.getRemoteUser()!=null){%>
         <div align="left"><hr/></div>
        	<div align="left"><a title="Export do PDF (CD)" href="javascript:generateStatic('<c:out value="${status.count}"/>','static_export_CD','<c:out value="${imgUrl}" />','<c:out value="${i18nUrl}" />','<%=request.getLocale().getISO3Country() %>','<%=request.getLocale().getISO3Language()%>');"><fmt:message bundle="${lctx}">administrator.menu.exportcd</fmt:message></a></div>
-       	<div align="left"><a title="Reindexace" href="javascript:reindex('<c:out value="${status.count}"/>');"><fmt:message bundle="${lctx}">administrator.menu.reindex</fmt:message></a></div>
+       	<div align="left"><a title="Reindexace" href="javascript:reindex('<c:out value="${status.count}"/>','<c:out value="${models[status.count -1]}"/>');"><fmt:message bundle="${lctx}">administrator.menu.reindex</fmt:message></a></div>
         <div align="left"><a title="Delete from index" href="javascript:deletefromindex('<c:out value="${status.count}"/>');"><fmt:message bundle="${lctx}">administrator.menu.deletefromindex</fmt:message></a></div>
         <div align="left"><a title="Delete from fedora" href="javascript:deleteUuid('<c:out value="${status.count}"/>');"><fmt:message bundle="${lctx}">administrator.menu.deleteuuid</fmt:message></a></div>
         <div align="left"><a title="Change visibility" href="javascript:changeFlag('<c:out value="${status.count}" />', '<c:out value="${models[status.count -1]}" />');"><fmt:message bundle="${lctx}">administrator.menu.setpublic</fmt:message></a> </div>	
