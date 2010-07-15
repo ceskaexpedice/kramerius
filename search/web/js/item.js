@@ -279,7 +279,9 @@ var COMMON = function() {
 			var path ="";
 	        for(var i =1;i<=level;i++) {
 	        	path = path+$("#tabs_"+i).attr('pid');
-	        	path = path +"/";
+	        	if (i < level) {
+		        	path = path +"/";
+	        	}
 	        }
 	        return path;
 		}
