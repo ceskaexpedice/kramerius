@@ -224,17 +224,22 @@ function importPeriodicals() {
     });
 }
 
+function replaceAll(txt, replace, with_this) {
+	  return txt.replace(new RegExp(replace, 'g'),with_this);
+}
+
 /**
  * Reindexace
  * @param level
  * @return
  */
-function reindex(level) {
+function reindex(level, model) {
 	hideAdminOptions(level);
-	var pid = $("#tabs_"+level).attr('pid');
-    var params = "{title:"+pid+";pages:10}"
-	var url = "lr?action=start&def=reindex&out=text&params=fromKrameriusModel,"+pid+","+params;
+	var uuid = $("#tabs_"+level).attr('pid');
+	var title = $("#info-"+model+" li.value").text();
+	//var escapedTitle = replaceAll(title, ',', '\\');
 
+	var url = "lr?action=start&def=reindex&out=text&params=fromKrameriusModel,"+uuid+","+title;
     if (_commonDialog) {
 
 		$("#common_started_ok").hide();
@@ -584,8 +589,7 @@ function deletefromindex(level){
           if(i>1) {pid_path = '/' + pid_path};
       }
       var url = "lr?action=start&def=reindex&out=text&params=deleteDocument,"+pid_path+","+pid;
-      alert(pid_path)
-      //_startProcess(url);
+      _startProcess(url);
     });
 }
 function indexDoc(pid, title){
@@ -595,7 +599,6 @@ function indexDoc(pid, title){
       var url = "lr?action=start&def=reindex&out=text&params=fromKrameriusModel,"+uuid+","+title;
       _startProcess(url);
     });
-    
 }
 
 function indexModel(model){
