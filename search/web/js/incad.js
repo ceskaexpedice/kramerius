@@ -16,13 +16,19 @@ function toggleFacet(facet){
 
 
 function uncollapse(pid, div, offset){
-    var page = new PageQuery(window.location.search);
-    page.setValue("offset", offset);
-    var url =  "uncollapse.jsp?rows=10&" + page.toString() + 
-        "&type=uncollapse&d="+div+"&collapsed=false&root_pid=" + pid + "&fq=root_pid:\"" + pid + "\"";
-    $.get(url, function(xml) {
-        $("#"+div).html(xml);
-    });
+    if($("#"+div).attr('opened')=="true"){
+        $("#"+div).toggle();
+    }else{
+        
+      var page = new PageQuery(window.location.search);
+      page.setValue("offset", offset);
+      var url =  "uncollapse.jsp?rows=10&" + page.toString() + 
+          "&type=uncollapse&d="+div+"&collapsed=false&root_pid=" + pid + "&fq=root_pid:\"" + pid + "\"";
+      $.get(url, function(xml) {
+          $("#"+div).html(xml);
+          $("#"+div).attr('opened', 'true');
+      });
+    }
 }
 
 function gotoItemDetail(id){
