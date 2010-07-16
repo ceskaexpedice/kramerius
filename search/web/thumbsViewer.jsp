@@ -241,6 +241,10 @@
         border:solid 2px #e75c01;
         padding:0;
     }
+    .tv_img_multiselect {
+        border-bottom:solid gray;
+    }
+    
 </style>
 <div id="tv_container">
     <table cellpadding="2" cellspacing="0" id="tv_container_table">
