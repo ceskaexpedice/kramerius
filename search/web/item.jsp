@@ -23,16 +23,7 @@
 
 %>
 
-<c:choose>
-    <c:when test="${param.language != null}" >
-        <fmt:setLocale value="${param.language}" />
-        <c:set var="sessionLang" value="${param.language}" scope="session" />
-    </c:when>
-    <c:when test="${sessionLang != null}" >
-        <fmt:setLocale value="${sessionLang}" />
-    </c:when>
-</c:choose>
-    <%@ include file="inc/initVars.jsp" %>
+<%@ include file="inc/initVars.jsp" %>
 <c:set var="pageType" value="search" />
 <jsp:useBean id="pageType" type="java.lang.String" />
 <fmt:setBundle basename="labels" />
@@ -129,7 +120,7 @@
 <!-- dialogs -->
 <div id="pdf_options" style="display:none;">
         <span>rozsah stran:&nbsp;(max.&nbsp;<%=kconfig.getProperty("generatePdfMaxRange")%>)</span><br>&nbsp;&nbsp;                           
-        <input type="text" id="genPdfStart" value="1" name="genPdfStart" size="3"> -
+        <input type="text" id="genPdfStart" value="1" name="genPdfStart" size="3" > -
         <input type="text" id="genPdfEnd" value="1" name="genPdfEnd" size="3">
 </div>
 
