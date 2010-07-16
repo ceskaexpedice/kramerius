@@ -5,14 +5,7 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn" %>
 <%@ page isELIgnored="false"%>
 <%@page import="cz.incad.kramerius.utils.FedoraUtils"%>
-<c:choose>
-    <c:when test="${param.language != null}" >
-        <fmt:setLocale value="${param.language}" />
-    </c:when>
-</c:choose>
 
-<fmt:setBundle basename="labels" />
-<fmt:setBundle basename="labels" var="bundleVar" />
 <%@ include file="initVars.jsp" %>
 <c:url var="url" value="${kconfig.solrHost}/select/" >
     <c:param name="q" value="level:0" />
@@ -56,7 +49,7 @@
             </c:set>
             <jsp:useBean id="fedora_model" type="java.lang.String" />
             <c:set var="itemUrl" >
-                ./item.jsp?pid=<c:out value="${uuid}"/>&pid_path=<x:out select="./str[@name='pid_path']"/>&path=<x:out select="./str[@name='path']"/>&language=<c:out value="${sessionLang}" />
+                ./item.jsp?pid=<c:out value="${uuid}"/>&pid_path=<x:out select="./str[@name='pid_path']"/>&path=<x:out select="./str[@name='path']"/>
             </c:set>
             <x:if select="./str[@name='fedora.model'] = 'page'">
                 <c:set var="itemUrl" ><c:out value="${itemUrl}"/>&format=<x:out select="./str[@name='page_format']"/></c:set>

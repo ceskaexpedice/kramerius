@@ -6,15 +6,22 @@
 <%@ page isELIgnored="false"%>
 
 <%
-            pageContext.setAttribute("remoteUser", request.getRemoteUser());
+	pageContext.setAttribute("remoteUser", request.getRemoteUser());
+	Injector searchFormInjector = (Injector)application.getAttribute(Injector.class.getName());
+	Provider<Locale> localesProvider = searchFormInjector.getProvider(Locale.class);
+	pageContext.setAttribute("lang",localesProvider.get().getLanguage());
 %>
 
-<form name="searchForm" method="GET" action="./">
+
+<%@page import="com.google.inject.Injector"%>
+<%@page import="cz.incad.Kramerius.backend.guice.LocalesProvider"%>
+<%@page import="java.util.Locale"%>
+<%@page import="com.google.inject.Provider"%><form name="searchForm" method="GET" action="./">
     <table class="header ui-corner-top-8" id="header">
         <tbody>
             <tr>
                 <td width="230px"><a
-                        href="./?language=<c:out value="${param.language}" />"><img
+                        href="."/><img
                     src="img/logo.png" border="0" /></a></td>
                 <td><input id="debug" name="debug" type="hidden"
                                value="<c:out value="${param.debug}" />" /> <input type="text"
@@ -26,16 +33,16 @@
                 <td><a href="javascript:toggleAdv();"
                            title="<fmt:message bundle="${lctx}">Pokročilé vyhledávání</fmt:message>"><fmt:message bundle="${lctx}">Pokročilé vyhledávání</fmt:message></a>
                 </td>
-                <td><c:if test="${rows != 0}" >:: <a href="./?language=<c:out value="${param.language}" />"><fmt:message bundle="${lctx}">home</fmt:message></a>
+                <td><c:if test="${rows != 0}" >:: <a href="."><fmt:message bundle="${lctx}">home</fmt:message></a>
                     </c:if>:: <a
                         href="javascript:showHelp('<c:out value="${param.language}" />');"><fmt:message bundle="${lctx}">nápověda</fmt:message></a>
                     :: <fmt:message bundle="${lctx}">odkazy</fmt:message> :: <br />
                     :: <c:choose>
-                        <c:when test="${sessionLang == 'en'}">
+                        <c:when test="${lang == 'en'}">
                             <c:set var="lid" value="cs" />
                             <c:set var="lname" value="česky" />
                         </c:when>
-                        <c:when test="${sessionLang == 'cs'}">
+                        <c:when test="${lang == 'cs'}">
                             <c:set var="lid" value="en" />
                             <c:set var="lname" value="english" />
                         </c:when>
