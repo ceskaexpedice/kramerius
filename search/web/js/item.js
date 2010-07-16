@@ -178,7 +178,7 @@ function getItemRels(pid, selectedpid, level, recursive, rootModel){
             var str_div = "";
             $.each(item, function(m,model2){
                 
-                if(model2[0]=="kramerius:hasDonator"){
+                if(model2[0].indexOf("hasDonator")>-1){
                     var donatortext = 'proxy?pid=donator:'+model2[1]+'&dsname=TEXT-';
                     if(language==""){
                         donatortext += "CS";

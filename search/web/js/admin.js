@@ -581,7 +581,7 @@ function getIndexerStatus(){
 
 function deletefromindex(level){
 	hideAdminOptions(level);
-    showConfirmDialog('Confirm index dokumentu', function(){
+    showConfirmDialog('Confirm delete dokument from index', function(){
       var pid = $("#tabs_"+level).attr('pid');
       var pid_path = "";
       for(var i = level; i>0; i--){
