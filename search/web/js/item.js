@@ -321,14 +321,44 @@ var PDF=function() {
 		    PDF.openGeneratePdfDialog(level);
 		},
 		
+		findRange:function() {
+			var fromIndex = -1;
+			var toIndex = -1;
+			$('#tv_container_row img.tv_image').each(function(i, o){
+				if ($(o).hasClass('tv_img_selected')) {
+					fromIndex = i+1;
+					toIndex = fromIndex + generatePdfMaxRange-1;
+				}
+				if ((fromIndex > 0) && (i < toIndex)) {
+			        $(o).parent().toggleClass('tv_img_multiselect');
+				}
+				if (i>= toIndex) return false;
+			});
+			return {
+				fromIndex: fromIndex,
+				toIndex: toIndex
+			}
+		},
+		
 		// dialog pro vyber stranek 
 		openGeneratePdfDialog:function (level){
-		    var pagesCount = $("#list-page>div.relItem").length;
-		    $("#genPdfEnd").val(pagesCount);
-		    $("#genPdfStart").val(1);
+			var range = PDF.findRange();
+
+			var pagesCount = $("#list-page>div.relItem").length;
+		    $("#genPdfEnd").val(range.toIndex);
+		    $("#genPdfStart").val(range.fromIndex);
+
 		    if(PDF.dialogSummary){
 		        PDF.dialogSummary.dialog('open');
 		    }else{
+		    	$('#genPdfEnd').change(function() {
+
+                    from = parseInt(from);
+                    to = parseInt(to); 
+
+		    		alert('Handler for .change() called.');
+	    		});
+		    	
 		        PDF.dialogSummary = $("#pdf_options").dialog({
 		            bgiframe: true,
 		            width: 200,
@@ -361,9 +391,22 @@ var PDF=function() {
 		                        $(this).dialog("close");
 		                    }
 
+		                    // zruseni selekce
+		                    $('#tv_container_row td').each(function(i, o){
+		        				if ($(o).hasClass('tv_img_multiselect')) {
+		        			        $(o).toggleClass('tv_img_multiselect');
+		        				}
+		        			});
+		                    
 		                } ,
 		                "Cancel": function() {
-		                    $(this).dialog("close"); 
+		                	// zruseni selekce
+		        			$('#tv_container_row td').each(function(i, o){
+		        				if ($(o).hasClass('tv_img_multiselect')) {
+		        			        $(o).toggleClass('tv_img_multiselect');
+		        				}
+		        			});
+		                	$(this).dialog("close"); 
 		                } 
 		            } 
 		        });
