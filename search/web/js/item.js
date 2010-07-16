@@ -321,6 +321,21 @@ var PDF=function() {
 		    PDF.openGeneratePdfDialog(level);
 		},
 		
+		changeRange:function(odkud,kam) {
+			$('#tv_container_row td').each(function(i, o){
+				var index = i+1;
+				if ((index >= odkud ) && (index<=kam)) {
+					if (!$(o).hasClass('tv_img_multiselect')) {
+						$(o).addClass('tv_img_multiselect');
+					}
+				} else {
+					if ($(o).hasClass('tv_img_multiselect')) {
+						$(o).removeClass('tv_img_multiselect');
+					}
+				}
+			});
+		},
+		
 		findRange:function() {
 			var fromIndex = -1;
 			var toIndex = -1;
@@ -332,13 +347,14 @@ var PDF=function() {
 				if ((fromIndex > 0) && (i < toIndex)) {
 			        $(o).parent().toggleClass('tv_img_multiselect');
 				}
-				if (i>= toIndex) return false;
+				if ((i>= toIndex) && (toIndex != -1 )) return false;
 			});
 			return {
 				fromIndex: fromIndex,
 				toIndex: toIndex
 			}
 		},
+
 		
 		// dialog pro vyber stranek 
 		openGeneratePdfDialog:function (level){
@@ -351,16 +367,19 @@ var PDF=function() {
 		    if(PDF.dialogSummary){
 		        PDF.dialogSummary.dialog('open');
 		    }else{
+		    	$('#genPdfStart').change(function() {
+				    var start = $("#genPdfStart").val();
+				    var stop = $("#genPdfEnd").val();
+				    PDF.changeRange(parseInt(start), parseInt(stop));
+	    		});
 		    	$('#genPdfEnd').change(function() {
-
-                    from = parseInt(from);
-                    to = parseInt(to); 
-
-		    		alert('Handler for .change() called.');
+				    var start = $("#genPdfStart").val();
+				    var stop = $("#genPdfEnd").val();
+				    PDF.changeRange(parseInt(start), parseInt(stop));
 	    		});
 		    	
 		        PDF.dialogSummary = $("#pdf_options").dialog({
-		            bgiframe: true,
+		            bigframe: true,
 		            width: 200,
 		            height: 100,
 		            modal: true,
