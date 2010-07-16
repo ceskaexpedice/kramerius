@@ -380,8 +380,8 @@ var PDF=function() {
 		    	
 		        PDF.dialogSummary = $("#pdf_options").dialog({
 		            bigframe: true,
-		            width: 200,
-		            height: 100,
+		            width: 400,
+		            height: 300,
 		            modal: true,
 		            title: dictionary['generatePdfTitle'],
 		            
