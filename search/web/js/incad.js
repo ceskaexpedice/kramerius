@@ -14,12 +14,14 @@ function toggleFacet(facet){
     $('#facet_'+facet+' .moreFacets').toggle();
 }
 
-
-function uncollapse(pid, div, offset){
+function toggleCollapsed(pid, div, offset){
     if($("#"+div).attr('opened')=="true"){
         $("#"+div).toggle();
     }else{
-        
+        uncollapse(pid, div, offset);
+    }
+}
+function uncollapse(pid, div, offset){
       var page = new PageQuery(window.location.search);
       page.setValue("offset", offset);
       var url =  "uncollapse.jsp?rows=10&" + page.toString() + 
@@ -28,7 +30,6 @@ function uncollapse(pid, div, offset){
           $("#"+div).html(xml);
           $("#"+div).attr('opened', 'true');
       });
-    }
 }
 
 function gotoItemDetail(id){
