@@ -428,6 +428,7 @@ public class SolrOperations {
         }
         
         if (sb.indexOf("name=\"" + UNIQUEKEY) > 0) {
+        	
             postData(config.getString("IndexBase") + "/update", new StringReader(sb.toString()), new StringBuffer());
             updateTotal++;
         }
@@ -438,7 +439,7 @@ public class SolrOperations {
         if (logger.isDebugEnabled()) {
             logger.debug("indexDoc=\n" + sb.toString());
         }
-        postData(config.getProperty("IndexBase") + "/update", new StringReader(sb.toString()), new StringBuffer());
+        postData(config.getString("IndexBase") + "/update", new StringReader(sb.toString()), new StringBuffer());
         deleteTotal++;
     }
 
@@ -447,7 +448,8 @@ public class SolrOperations {
         if (logger.isDebugEnabled()) {
             logger.debug("indexDoc=\n" + sb.toString());
         }
-        postData(config.getProperty("IndexBase") + "/update", new StringReader(sb.toString()), new StringBuffer());
+        logger.info("solrHost:"+config.getString("solrHost"));
+        postData(config.getString("IndexBase") + "/update", new StringReader(sb.toString()), new StringBuffer());
         deleteTotal++;
     }
 
@@ -456,7 +458,7 @@ public class SolrOperations {
         if (logger.isDebugEnabled()) {
             logger.debug("indexDoc=\n" + sb.toString());
         }
-        postData(config.getProperty("IndexBase") + "/update", new StringReader(sb.toString()), new StringBuffer());
+        postData(config.getString("IndexBase") + "/update", new StringReader(sb.toString()), new StringBuffer());
         deleteTotal++;
     }
     
@@ -510,12 +512,12 @@ public class SolrOperations {
      */
     private void postData(String solrUrlString, Reader data, StringBuffer output)
             throws Exception {
-
-        URL solrUrl = null;
+    	URL solrUrl = null;
         try {
             solrUrl = new URL(solrUrlString);
         } catch (MalformedURLException e) {
-            throw new Exception("solrUrl=" + solrUrl.toString() + ": ", e);
+        	logger.error("solrUrl=" + solrUrlString + ": ", e);
+            throw new Exception("solrUrl=" + solrUrlString + ": ", e);
         }
         HttpURLConnection urlc = null;
         String POST_ENCODING = "UTF-8";

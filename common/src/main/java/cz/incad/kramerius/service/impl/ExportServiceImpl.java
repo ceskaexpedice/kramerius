@@ -38,7 +38,7 @@ public class ExportServiceImpl implements ExportService {
         	return;
         String exportRoot = configuration.getProperty("export.directory");
         IOUtils.checkDirectory(exportRoot);
-        File exportDirectory = IOUtils.checkDirectory(exportRoot+File.pathSeparator+pid.replace("uuid:", "").replaceAll(":", "_"));//create subdirectory for given PID
+        File exportDirectory = IOUtils.checkDirectory(exportRoot+File.separator+pid.replace("uuid:", "").replaceAll(":", "_"));//create subdirectory for given PID
         IOUtils.cleanDirectory(exportDirectory);
         for (String s : pids) {
         	String p = s.replace(INFO, "");
