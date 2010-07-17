@@ -28,7 +28,8 @@ public class ProcessSchedulerImpl implements ProcessScheduler {
 		super();
 		this.lrProcessManager = lrProcessManager;
 		this.definitionManager = definitionManager;
-		this.timer = new Timer();
+		this.timer = new Timer(ProcessSchedulerImpl.class.getName()+"-thread",true);
+		
 	}
 
 	@Override
@@ -49,7 +50,6 @@ public class ProcessSchedulerImpl implements ProcessScheduler {
 		this.lrServlet = lrServlet;
 		String sinterval  = KConfiguration.getInstance().getProperty("processQueue.checkInterval","10000");
 		this.interval =  Integer.parseInt(sinterval);
-		
 		this.scheduleNextTask();
 	}
 
