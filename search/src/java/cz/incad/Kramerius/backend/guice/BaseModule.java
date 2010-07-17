@@ -48,7 +48,7 @@ public class BaseModule extends AbstractModule {
 		bind(Connection.class).toProvider(JNDIConnectionProvider.class);
 		bind(Locale.class).toProvider(LocalesProvider.class);
 
-		bind(ProcessScheduler.class).to(ProcessSchedulerImpl.class);
+		bind(ProcessScheduler.class).to(ProcessSchedulerImpl.class).in(Scopes.SINGLETON);
 		
 		bind(DeleteService.class).to(DeleteServiceImpl.class).in(Scopes.SINGLETON);
 		bind(ExportService.class).to(ExportServiceImpl.class).in(Scopes.SINGLETON);
