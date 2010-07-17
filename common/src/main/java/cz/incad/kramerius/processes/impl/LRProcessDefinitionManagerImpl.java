@@ -75,7 +75,7 @@ public class LRProcessDefinitionManagerImpl implements DefinitionManager {
 
 
 	@Override
-	public void load() {
+	public synchronized void load() {
 		try {
 			File defaultWorkDir = new File(DEFAULT_LP_WORKDIR);
 			if (!defaultWorkDir.exists()) {
