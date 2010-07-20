@@ -59,11 +59,15 @@ public class ProcessDatabaseUtils {
 			prepareStatement.setInt(4, lp.getProcessState().getVal());
 			StringBuffer buffer = new StringBuffer();
 			List<String> parameters = lp.getParameters();
-			for (int i = 0, ll = parameters.size(); i < ll; i++) {
-				buffer.append(parameters.get(i));
-				buffer.append((i==ll-1) ? "":",");
+			if (!parameters.isEmpty()) {
+				for (int i = 0, ll = parameters.size(); i < ll; i++) {
+					buffer.append(parameters.get(i));
+					buffer.append((i==ll-1) ? "":",");
+				}
+				prepareStatement.setString(5, buffer.toString());
+			} else {
+				prepareStatement.setString(5, null);
 			}
-			prepareStatement.setString(5, buffer.toString());
 			prepareStatement.executeUpdate();
 		}finally {
 			if (prepareStatement != null) prepareStatement.close();
