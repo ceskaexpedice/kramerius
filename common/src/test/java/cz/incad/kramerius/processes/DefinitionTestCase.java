@@ -53,7 +53,6 @@ public class DefinitionTestCase extends AbstractGuiceTestCase {
 		TestCase.assertTrue(plannedProcess.size() == 1);
 		LRProcess naplanovanyProcess = plannedProcess.get(0);
 		TestCase.assertTrue(naplanovanyProcess.getProcessState().equals(States.PLANNED));	
-		//TestCase.assertTrue(naplanovanyProcess.getStartTime() == 0);	
 		TestCase.assertTrue(naplanovanyProcess.getPlannedTime() != 0);	
 		TestCase.assertEquals(Arrays.asList("one","two","three"),naplanovanyProcess.getParameters());	
 	}
@@ -75,7 +74,6 @@ public class DefinitionTestCase extends AbstractGuiceTestCase {
 		TestCase.assertTrue(plannedProcess.size() == 1);
 		LRProcess naplanovanyProcess = plannedProcess.get(0);
 		TestCase.assertTrue(naplanovanyProcess.getProcessState().equals(States.PLANNED));	
-		//TestCase.assertTrue(naplanovanyProcess.getStartTime() == 0);	
 		TestCase.assertTrue(naplanovanyProcess.getPlannedTime() != 0);	
 		TestCase.assertEquals(Arrays.asList(),naplanovanyProcess.getParameters());	
 	}
