@@ -31,21 +31,21 @@ public class TestResourceBundleService extends TestCase {
 		new File(bundleDir).delete();
 	}
 
-	public void testCrashGetBundle() throws IOException {
-		Injector injector = Guice.createInjector(new ResourceBundleServiceModule());
-		ResourceBundleService bundleService = injector.getInstance(ResourceBundleService.class);
-		for (int i = 0; i < 1000; i++) {
-			ResourceBundle resourceBundle = bundleService.getResourceBundle("base", Locale.getDefault());
-			assertNotNull(resourceBundle);
-		}
-	}
+//	public void testCrashGetBundle() throws IOException {
+//		Injector injector = Guice.createInjector(new ResourceBundleServiceModule());
+//		ResourceBundleService bundleService = injector.getInstance(ResourceBundleService.class);
+//		for (int i = 0; i < 1000; i++) {
+//			ResourceBundle resourceBundle = bundleService.getResourceBundle("base", Locale.getDefault());
+//			assertNotNull(resourceBundle);
+//		}
+//	}
 	
 	public void testTwoResources() throws FileNotFoundException, IOException {
 		Injector injector = Guice.createInjector(new ResourceBundleServiceModule());
 		ResourceBundleService bundleService = injector.getInstance(ResourceBundleService.class);
 		((ResourceBundleServiceImpl) bundleService).checkFiles("base");
 		String bundleDir = bundleDir();
-		String[] files = {"base.properties", "base_cs.properties","base_en.properties"};
+		String[] files = {"base.properties"};
 		for (String nm : files) {
 			modifyFile(bundleDir, nm);
 		}
