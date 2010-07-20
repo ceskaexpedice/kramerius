@@ -32,6 +32,8 @@ public class DefinitionTestCase extends AbstractGuiceTestCase {
 	public void doAfter() {
 		dropTables();
 	}
+	
+	
 
 	@Test
 	public void testPlan()  {
@@ -55,7 +57,29 @@ public class DefinitionTestCase extends AbstractGuiceTestCase {
 		TestCase.assertTrue(naplanovanyProcess.getPlannedTime() != 0);	
 		TestCase.assertEquals(Arrays.asList("one","two","three"),naplanovanyProcess.getParameters());	
 	}
-	
+
+	@Test
+	public void testSaveAndLoadNoParam()  {
+		Injector inj = injector();
+		DefinitionManager defMgr = inj.getInstance(DefinitionManager.class);
+		 
+		LRProcessDefinition definition = defMgr.getLongRunningProcessDefinition("mock");
+		TestCase.assertNotNull(definition);
+		
+		LRProcess process = definition.createNewProcess();
+		process.planMe();
+		
+		LRProcessManager lrMan = inj.getInstance(LRProcessManager.class);
+		TestCase.assertNotNull(lrMan);
+		List<LRProcess> plannedProcess = lrMan.getPlannedProcess(1);
+		TestCase.assertTrue(plannedProcess.size() == 1);
+		LRProcess naplanovanyProcess = plannedProcess.get(0);
+		TestCase.assertTrue(naplanovanyProcess.getProcessState().equals(States.PLANNED));	
+		//TestCase.assertTrue(naplanovanyProcess.getStartTime() == 0);	
+		TestCase.assertTrue(naplanovanyProcess.getPlannedTime() != 0);	
+		TestCase.assertEquals(Arrays.asList(),naplanovanyProcess.getParameters());	
+	}
+
 	
 //	@Test
 	public void testDefinition() throws InterruptedException {
