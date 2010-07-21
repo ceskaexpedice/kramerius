@@ -1,39 +1,42 @@
 package cz.incad.Kramerius;
 
+import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.awt.GraphicsConfiguration;
+import java.awt.GraphicsDevice;
+import java.awt.GraphicsEnvironment;
+import java.awt.HeadlessException;
 import java.awt.Image;
 import java.awt.Rectangle;
+import java.awt.RenderingHints;
+import java.awt.Transparency;
+import java.awt.image.BufferedImage;
+import java.awt.image.ColorModel;
+import java.awt.image.PixelGrabber;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.StringTokenizer;
-import java.util.logging.Level;
 
 import javax.imageio.ImageIO;
-import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.swing.ImageIcon;
 import javax.swing.JPanel;
 import javax.xml.xpath.XPathExpressionException;
-
-import org.omg.PortableServer.POA;
-import org.w3c.dom.Document;
 
 import com.google.inject.Inject;
 import com.google.inject.name.Named;
 import com.lizardtech.djvu.DjVuPage;
-import com.lizardtech.djvubean.DjVuBean;
 import com.lizardtech.djvubean.DjVuImage;
 
 import cz.incad.Kramerius.backend.guice.GuiceServlet;
-import cz.incad.Kramerius.backend.guice.RequestSecurityAcceptor;
 import cz.incad.kramerius.FedoraAccess;
 import cz.incad.kramerius.impl.fedora.Handler;
 import cz.incad.kramerius.security.SecurityException;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 import cz.incad.kramerius.utils.imgs.KrameriusImageSupport;
-import cz.incad.utils.IKeys;
 
 public class AbstracThumbnailServlet extends GuiceServlet {
 
@@ -48,6 +51,7 @@ public class AbstracThumbnailServlet extends GuiceServlet {
 	
 	public static final String SCALE_PARAMETER = "scale";
 	public static final String SCALED_HEIGHT_PARAMETER = "scaledHeight";
+	public static final String SCALED_WIDTH_PARAMETER = "scaledWidth";
 	public static final String OUTPUT_FORMAT_PARAMETER="outputFormat";
 	
 	@Inject
@@ -60,6 +64,7 @@ public class AbstracThumbnailServlet extends GuiceServlet {
 	protected Image scale(Image img, Rectangle pageBounds, HttpServletRequest req) {
 		String spercent = req.getParameter(SCALE_PARAMETER);
 		String sheight = req.getParameter(SCALED_HEIGHT_PARAMETER);
+		String swidth = req.getParameter(SCALED_WIDTH_PARAMETER);
 		if (spercent != null) {
 			double percent = 1.0; {
 				try {
@@ -78,14 +83,31 @@ public class AbstracThumbnailServlet extends GuiceServlet {
 				}
 			}
 			return scaleByHeight(img,pageBounds, height);
-		} else return null;
+		} else if (swidth != null){
+			int width = 200; {
+				try {
+					width = Integer.parseInt(swidth);
+				} catch (NumberFormatException e) {
+					log(e.getMessage());
+				}
+			}
+			return scaleByWidth(img,pageBounds, width);
+		}else return null;
 	}
 	
 	protected Image scaleByHeight(Image img, Rectangle pageBounds, int height) {
 		int nHeight = height;
 		double div = (double)pageBounds.getHeight() / (double)nHeight;
 		double nWidth = (double)pageBounds.getWidth() / div;
-		Image scaledImage = img.getScaledInstance((int) nWidth, nHeight, Image.SCALE_DEFAULT);
+		Image scaledImage = scale(img, (int)nWidth, nHeight);
+		return scaledImage;
+	}
+
+	protected Image scaleByWidth(Image img, Rectangle pageBounds, int width) {
+		int nWidth = width;
+		double div = (double)pageBounds.getWidth() / (double)nWidth;
+		double nHeight = (double)pageBounds.getHeight() / div;
+		Image scaledImage = scale(img, nWidth,(int) nHeight);
 		return scaledImage;
 	}
 
@@ -170,7 +192,7 @@ public class AbstracThumbnailServlet extends GuiceServlet {
 		if ((percent <= 0.95) || (percent >= 1.15)) {
 			int nWidth = (int) (pageBounds.getWidth() * percent);
 			int nHeight = (int) (pageBounds.getHeight() * percent);
-			Image scaledImage = img.getScaledInstance(nWidth, nHeight, Image.SCALE_DEFAULT);
+			Image scaledImage = scale(img, nWidth, nHeight);
 			return scaledImage;
 		} else return img;
 	}
@@ -183,6 +205,7 @@ public class AbstracThumbnailServlet extends GuiceServlet {
 		this.fedoraAccess = fedoraAccess;
 	}
 
+	
 	
 
 	public enum OutputFormats {
@@ -212,4 +235,115 @@ public class AbstracThumbnailServlet extends GuiceServlet {
 		}
 
 	}
+	
+	public enum ScalingMethod {
+		REPLICATE, AREA_AVERAGING, BILINEAR, BICUBIC, NEAREST_NEIGHBOR, BILINEAR_STEPPED, BICUBIC_STEPPED, NEAREST_NEIGHBOR_STEPPED
+	}
+	
+	public static Image scale (Image img, int targetWidth, int targetHeight){
+		KConfiguration config = KConfiguration.getInstance();
+		ScalingMethod method = ScalingMethod.valueOf(config.getProperty("scalingMethod","BICUBIC_STEPPED"));
+		System.out.println("SCALING METHOD:"+method);
+		switch (method){
+		case REPLICATE:
+			return img.getScaledInstance(targetWidth, targetHeight, Image.SCALE_REPLICATE);
+		case AREA_AVERAGING:
+    		return img.getScaledInstance(targetWidth, targetHeight, Image.SCALE_AREA_AVERAGING);
+		case BILINEAR:
+    		return getScaledInstanceJava2D(toBufferedImage(img),targetWidth, targetHeight, RenderingHints.VALUE_INTERPOLATION_BILINEAR, false);
+		case BICUBIC:
+    		return getScaledInstanceJava2D(toBufferedImage(img),targetWidth, targetHeight, RenderingHints.VALUE_INTERPOLATION_BICUBIC, false);
+		case NEAREST_NEIGHBOR:
+    		return getScaledInstanceJava2D(toBufferedImage(img),targetWidth, targetHeight, RenderingHints.VALUE_INTERPOLATION_NEAREST_NEIGHBOR, false);
+		case BILINEAR_STEPPED:
+    		return getScaledInstanceJava2D(toBufferedImage(img),targetWidth, targetHeight, RenderingHints.VALUE_INTERPOLATION_BILINEAR, true);
+		case BICUBIC_STEPPED:
+    		return getScaledInstanceJava2D(toBufferedImage(img),targetWidth, targetHeight, RenderingHints.VALUE_INTERPOLATION_BICUBIC, true);
+		case NEAREST_NEIGHBOR_STEPPED:
+    		return getScaledInstanceJava2D(toBufferedImage(img),targetWidth, targetHeight, RenderingHints.VALUE_INTERPOLATION_NEAREST_NEIGHBOR, true);
+		}
+		return null;
+	}
+	
+	 /**
+     * Convenience method that returns a scaled instance of the
+     * provided {@code BufferedImage}.
+     *
+     * @param img the original image to be scaled
+     * @param targetWidth the desired width of the scaled instance,
+     *    in pixels
+     * @param targetHeight the desired height of the scaled instance,
+     *    in pixels
+     * @param hint one of the rendering hints that corresponds to
+     *    {@code RenderingHints.KEY_INTERPOLATION} (e.g.
+     *    {@code RenderingHints.VALUE_INTERPOLATION_NEAREST_NEIGHBOR},
+     *    {@code RenderingHints.VALUE_INTERPOLATION_BILINEAR},
+     *    {@code RenderingHints.VALUE_INTERPOLATION_BICUBIC})
+     * @param higherQuality if true, this method will use a multi-step
+     *    scaling technique that provides higher quality than the usual
+     *    one-step technique (only useful in downscaling cases, where
+     *    {@code targetWidth} or {@code targetHeight} is
+     *    smaller than the original dimensions, and generally only when
+     *    the {@code BILINEAR} hint is specified)
+     * @return a scaled version of the original {@code BufferedImage}
+     */
+    private static BufferedImage getScaledInstanceJava2D(BufferedImage img,
+                                           int targetWidth,
+                                           int targetHeight,
+                                           Object hint,
+                                           boolean higherQuality){
+  
+        int type = (img.getTransparency() == Transparency.OPAQUE) ?
+            BufferedImage.TYPE_INT_RGB : BufferedImage.TYPE_INT_ARGB;
+        BufferedImage ret = (BufferedImage)img;
+        int w, h;
+        if (higherQuality) {
+            // Use multi-step technique: start with original size, then
+            // scale down in multiple passes with drawImage()
+            // until the target size is reached
+            w = img.getWidth();
+            h = img.getHeight();
+        } else {
+            // Use one-step technique: scale directly from original
+            // size to target size with a single drawImage() call
+            w = targetWidth;
+            h = targetHeight;
+        }
+        
+        do {
+            if (higherQuality && w > targetWidth) {
+                w /= 2;
+                if (w < targetWidth) {
+                    w = targetWidth;
+                }
+            }
+
+            if (higherQuality && h > targetHeight) {
+                h /= 2;
+                if (h < targetHeight) {
+                    h = targetHeight;
+                }
+            }
+
+            BufferedImage tmp = new BufferedImage(w, h, type);
+            Graphics2D g2 = tmp.createGraphics();
+            g2.setRenderingHint(RenderingHints.KEY_INTERPOLATION, hint);
+            g2.drawImage(ret, 0, 0, w, h, null);
+            g2.dispose();
+
+            ret = tmp;
+        } while (w != targetWidth || h != targetHeight);
+
+        return ret;
+    }
+    
+    private static BufferedImage toBufferedImage(Image img) {
+    	BufferedImage bufferedImage = new BufferedImage(img.getWidth(null), img.getHeight(null),BufferedImage.TYPE_INT_RGB);
+        Graphics g = bufferedImage.createGraphics();
+        g.drawImage(img, 0, 0, null);
+        g.dispose();
+        return bufferedImage;
+    }
+
+ 
 }
