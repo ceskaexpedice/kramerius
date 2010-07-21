@@ -91,7 +91,7 @@
                     <table cellpadding="0" cellspacing="0" width="100%"><tr>
                         <td valign="top" align="center" width="20px"><a class="prevArrow"  href="javascript:selectPrevious();"><img src="img/la.png" border="0" /></a></td>
                         <td valign="top" align="center" id="mainContent"><a href="javascript:showFullImage('<%=imagePid%>')" class="lighbox">
-                                <img border="0" width="544px" onerror="showError();" src="djvu?uuid=<%=imagePid%>&amp;scaledHeight=600" id="imgBig">
+                                <img border="0" width="544px" onerror="showError();" src="djvu?uuid=<%=imagePid%>&amp;scaledWidth=540" id="imgBig">
                             </a></td>
                         <td valign="top" align="center" width="20px"><a class="nextArrow"  href="javascript:selectNext();"><img src="img/ra.png" border="0" /></a></td>
                     </tr></table>
