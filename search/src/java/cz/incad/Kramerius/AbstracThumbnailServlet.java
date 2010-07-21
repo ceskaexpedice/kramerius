@@ -65,6 +65,7 @@ public class AbstracThumbnailServlet extends GuiceServlet {
 		String spercent = req.getParameter(SCALE_PARAMETER);
 		String sheight = req.getParameter(SCALED_HEIGHT_PARAMETER);
 		String swidth = req.getParameter(SCALED_WIDTH_PARAMETER);
+		//System.out.println("REQUEST PARAMS: sheight:"+sheight+"swidth:"+swidth);
 		if (spercent != null) {
 			double percent = 1.0; {
 				try {
@@ -243,6 +244,7 @@ public class AbstracThumbnailServlet extends GuiceServlet {
 	public static Image scale (Image img, int targetWidth, int targetHeight){
 		KConfiguration config = KConfiguration.getInstance();
 		ScalingMethod method = ScalingMethod.valueOf(config.getProperty("scalingMethod","BICUBIC_STEPPED"));
+		//System.out.println("SCALE:"+method+" width:"+targetWidth+" height:"+targetHeight);
 		switch (method){
 		case REPLICATE:
 			return img.getScaledInstance(targetWidth, targetHeight, Image.SCALE_REPLICATE);

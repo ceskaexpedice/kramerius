@@ -49,7 +49,7 @@
         function selectPage(uuid, mimetype){
             currentSelectedPage = uuid;
             var imgW = $('#mainContent').width() - arrowsW*2;
-            var pageUrl = "djvu?uuid="+uuid+"&scaledHeight=600";
+            var pageUrl = "djvu?uuid="+uuid+"&scaledWidth="+imgW;
             var mimeUrl = "djvu?uuid="+uuid+"&imageType=ask";
             var img = '<a class="lighbox" href="javascript:showFullImage(\''+uuid+'\')"><img id="imgBig" src="'+pageUrl+'" width="'+imgW+'px" border="0" onerror="showError();"  /></a>';
             $('#mainContent').html('<div align="center" style="">' + prev + img + next + '</div>');

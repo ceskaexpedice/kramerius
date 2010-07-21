@@ -35,7 +35,7 @@
     function selectPage(uuid){
         $("#img_"+currentSelectedPage).toggleClass('tv_img_selected');
         currentSelectedPage = uuid;
-        var pageUrl = "djvu?uuid="+uuid+"&scaledHeight=600";
+        var pageUrl = "djvu?uuid="+uuid+"&scaledWidth="+imgW;
         var mimeUrl = "djvu?uuid="+uuid+"&imageType=ask";
         var img = '<a class="lighbox" href="javascript:showFullImage(\''+uuid+'\')"><img id="imgBig" src="'+pageUrl+'" width="'+imgW+'px" border="0" onerror="showError();"  /></a>';
         checkArrows();
