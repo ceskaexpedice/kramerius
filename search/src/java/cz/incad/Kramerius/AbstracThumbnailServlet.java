@@ -243,7 +243,6 @@ public class AbstracThumbnailServlet extends GuiceServlet {
 	public static Image scale (Image img, int targetWidth, int targetHeight){
 		KConfiguration config = KConfiguration.getInstance();
 		ScalingMethod method = ScalingMethod.valueOf(config.getProperty("scalingMethod","BICUBIC_STEPPED"));
-		System.out.println("SCALING METHOD:"+method);
 		switch (method){
 		case REPLICATE:
 			return img.getScaledInstance(targetWidth, targetHeight, Image.SCALE_REPLICATE);
