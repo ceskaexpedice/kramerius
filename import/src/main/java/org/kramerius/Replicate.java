@@ -11,19 +11,19 @@ public class Replicate {
      */
     public static void main(String[] args) {
         if (args.length!=1){
-            usage();
+            usage(args);
         }
         if ("monographs".equalsIgnoreCase(args[0])){
             Download.replicateMonographs();
         }else if ("periodicals".equalsIgnoreCase(args[0])){
             Download.replicatePeriodicals();
         }else{
-            usage();
+            usage(args);
         }
     }
     
-    private static void usage(){
-        System.out.println("Usage: Replicate monographs | periodicals");
+    private static void usage(String[] args){
+        System.out.println("Usage: Replicate monographs | periodicals (CALLED:"+args+")");
         System.exit(-1);
     }
     
