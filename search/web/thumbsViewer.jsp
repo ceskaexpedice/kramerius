@@ -33,6 +33,10 @@
     }
     var imgW;
     function selectPage(uuid){
+        $('#imgBig').attr('src').indexOf(uuid)>0){
+            //nic nedelame, nahled uz je tam
+            return;
+        }
         $("#img_"+currentSelectedPage).toggleClass('tv_img_selected');
         currentSelectedPage = uuid;
         var pageUrl = "djvu?uuid="+uuid+"&scaledWidth="+imgW;
