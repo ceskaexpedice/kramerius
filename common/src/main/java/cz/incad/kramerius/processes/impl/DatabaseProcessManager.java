@@ -63,7 +63,7 @@ public class DatabaseProcessManager implements LRProcessManager {
 					Timestamp planned = rs.getTimestamp("PLANNED");
 					String name = rs.getString("NAME");
 					LRProcessDefinition definition = this.lrpdm.getLongRunningProcessDefinition(definitionId);
-					LRProcess process = definition.loadProcess(uuid, ""+pid, planned.getTime(), States.load(status), name);
+					LRProcess process = definition.loadProcess(uuid, ""+pid, planned!=null?planned.getTime():0, States.load(status), name);
 					if (started != null) process.setStartTime(started.getTime());
 					return process;
 				} 
