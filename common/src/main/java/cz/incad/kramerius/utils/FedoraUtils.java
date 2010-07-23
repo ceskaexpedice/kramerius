@@ -26,10 +26,13 @@ import cz.incad.kramerius.utils.conf.KConfiguration;
 
 public class FedoraUtils {
 
+
+
 	public static final java.util.logging.Logger LOGGER = java.util.logging.Logger
 			.getLogger(FedoraUtils.class.getName());
 	
     
+	public static final String RELS_EXT_STREAM = "RELS-EXT";
     public static final String IMG_THUMB_STREAM = "IMG_THUMB";
 	public static final String IMG_FULL_STREAM = "IMG_FULL";
 
@@ -37,7 +40,7 @@ public class FedoraUtils {
         ArrayList<String> pids = new ArrayList<String>();
         try {
             
-            String command = KConfiguration.getInstance().getFedoraHost() + "/get/" + pid + "/RELS-EXT";
+            String command = KConfiguration.getInstance().getFedoraHost() + "/get/" + pid + "/" + RELS_EXT_STREAM;
             InputStream is = RESTHelper.inputStream(command, KConfiguration.getInstance().getFedoraUser(), KConfiguration.getInstance().getFedoraPass());
             Document contentDom = XMLUtils.parseDocument(is);
             XPathFactory factory = XPathFactory.newInstance();
