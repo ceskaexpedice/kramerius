@@ -4,6 +4,7 @@ public enum ImageMimeType {
 
 	JPEG("image/jpeg", true),
 	PNG("image/png", true),
+
 	XDJVU("image/x.djvu", false),
 	VNDDJVU("image/vnd.djvu", false),
 	DJVU("image/djvu", false);
@@ -20,7 +21,7 @@ public enum ImageMimeType {
 		return value;
 	}
 
-	public boolean isSupportedbyJava() {
+	public boolean javaNativeSupport() {
 		return supportedbyJava;
 	}
 	

@@ -13,17 +13,27 @@ import java.net.URL;
 
 import javax.imageio.ImageIO;
 import javax.swing.JPanel;
+import javax.xml.xpath.XPathExpressionException;
 
 import com.lizardtech.djvu.DjVuPage;
 import com.lizardtech.djvubean.DjVuImage;
 
+import cz.incad.kramerius.FedoraAccess;
+import cz.incad.kramerius.impl.fedora.Handler;
 import cz.incad.kramerius.utils.IOUtils;
 
 
 public class KrameriusImageSupport {
 
+	public static Image readImage(String uuid, String stream, FedoraAccess fedoraAccess) throws XPathExpressionException, IOException {
+		String mimetype = fedoraAccess.getMimeTypeForStream("uuid:"+uuid, stream);
+		ImageMimeType loadFromMimeType = ImageMimeType.loadFromMimeType(mimetype);
+		URL url = new URL("fedora","",0,uuid+"/"+stream, new Handler(fedoraAccess));
+		return readImage(url, loadFromMimeType);
+	}
+	
 	public static Image readImage(URL url, ImageMimeType type) throws IOException {
-		if (type.isSupportedbyJava()) {
+		if (type.javaNativeSupport()) {
 			return ImageIO.read(url.openStream());
 		} else if ((type.equals(ImageMimeType.DJVU)) || 
 					(type.equals(ImageMimeType.VNDDJVU)) ||
