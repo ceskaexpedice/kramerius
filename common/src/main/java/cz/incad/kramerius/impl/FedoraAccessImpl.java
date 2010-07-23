@@ -297,6 +297,7 @@ public class FedoraAccessImpl implements FedoraAccess {
 		}
 	}
 
+	
 	public String getImageFULLMimeType(String uuid) throws IOException, XPathExpressionException {
 		Document profileDoc = getImageFULLProfile(uuid);
         return mimetypeFromProfile(profileDoc);

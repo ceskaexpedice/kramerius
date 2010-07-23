@@ -54,10 +54,13 @@ public interface LRProcess {
 	//TODO: Vyhodit
 	public String getDescription();
 
+	/**
+	 * Plan process to start
+	 */
 	public void planMe();
 
 	/**
-	 * This method starts underlaying os process and change state from NOT_RUNNING to RUNNING;<br>
+	 * This method starts underlaying os process and change state from PLANNED to RUNNING;<br>
 	 * @see States
 	 * @param wait
 	 */
@@ -74,10 +77,22 @@ public interface LRProcess {
 	 */
 	public long getStartTime();
 	
+	/**
+	 * Set time of the start of the process 
+	 * @param start
+	 */
 	public void setStartTime(long start);
 	
+	/**
+	 * Return time of 
+	 * @return
+	 */
 	public long getPlannedTime();
 	
+	/**
+	 * Sets time of 
+	 * @param ptime
+	 */
 	public void setPlannedTime(long ptime);
 
 	//TODO: Vyhodit
@@ -101,18 +116,46 @@ public interface LRProcess {
 	 */
 	public boolean isLiveProcess();
 
-	
+	/**
+	 * Returns process name
+	 * @return
+	 */
 	public String getProcessName();
 	
+	/**
+	 * Sets process name
+	 * @param nm
+	 */
 	public void setProcessName(String nm);
 	
+	/**
+	 * Returns stdout as stream
+	 * @return
+	 * @throws FileNotFoundException
+	 */
 	public InputStream getStandardProcessOutputStream() throws FileNotFoundException;
 
+	/**
+	 * Returns errout as stream
+	 * @return
+	 * @throws FileNotFoundException
+	 */
 	public InputStream getErrorProcessOutputStream() throws FileNotFoundException;
 	
+	/**
+	 * Retunrs stdout as RandomAccessFile
+	 * @return
+	 * @throws FileNotFoundException
+	 */
 	public RandomAccessFile getStandardProcessRAFile() throws FileNotFoundException;
 	
+	/**
+	 * Returns errout as RandomAccessFile
+	 * @return
+	 * @throws FileNotFoundException
+	 */
 	public RandomAccessFile getErrorProcessRAFile() throws FileNotFoundException;
+	
 	
 	public File processWorkingDirectory();
 }

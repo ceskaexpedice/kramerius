@@ -122,8 +122,29 @@ public interface FedoraAccess {
 	 */
 	public InputStream getImageFULL(String uuid) throws IOException;
 
+	/**
+	 * REturns profile of full image stream
+	 * @param uuid
+	 * @return
+	 * @throws IOException
+	 */
 	public Document getImageFULLProfile(String uuid) throws IOException;
+
+	/**
+	 * Returns full image mime type
+	 * @param uuid
+	 * @return
+	 * @throws IOException
+	 * @throws XPathExpressionException
+	 */
 	public String getImageFULLMimeType(String uuid) throws IOException, XPathExpressionException;
+	
+	/**
+	 * Check whether full image is available
+	 * @param uuid
+	 * @return
+	 * @throws IOException
+	 */
 	public boolean isImageFULLAvailable(String uuid) throws IOException;
 	
 	public FedoraAPIA getAPIA();

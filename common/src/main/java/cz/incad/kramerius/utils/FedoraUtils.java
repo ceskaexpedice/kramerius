@@ -10,6 +10,8 @@ package cz.incad.kramerius.utils;
  */
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.logging.Level;
+
 import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpression;
@@ -24,8 +26,12 @@ import cz.incad.kramerius.utils.conf.KConfiguration;
 
 public class FedoraUtils {
 
+	public static final java.util.logging.Logger LOGGER = java.util.logging.Logger
+			.getLogger(FedoraUtils.class.getName());
+	
     
-    public static final String IMG_THUMB = "IMG_THUMB";
+    public static final String IMG_THUMB_STREAM = "IMG_THUMB";
+	public static final String IMG_FULL_STREAM = "IMG_FULL";
 
     public static ArrayList<String> getRdfPids(String pid, String relation) {
         ArrayList<String> pids = new ArrayList<String>();
@@ -47,8 +53,10 @@ public class FedoraUtils {
                 }
             }
         } catch (Exception e) {
-            e.printStackTrace();
-            pids.add(e.toString());
+        	LOGGER.log(Level.SEVERE, e.getMessage(), e);
+        	//?? 
+//            e.printStackTrace();
+//            pids.add(e.toString());
         }
         return pids;
     }
@@ -89,7 +97,7 @@ public class FedoraUtils {
             }
             
         } catch (Exception e) {
-            e.printStackTrace();
+        	LOGGER.log(Level.SEVERE, e.getMessage(), e);
         }
         return false;
     }
@@ -112,9 +120,6 @@ public class FedoraUtils {
                     return childnode.getAttributes().getNamedItem("rdf:resource").getNodeValue().split("uuid:")[1];
                 } else if(!nodeName.contains("hasModel") && childnode.hasAttributes() &&
                         childnode.getAttributes().getNamedItem("rdf:resource")!=null) {
-                    //System.out.println("kk: " + childnode.getAttributes().getNamedItem("rdf:resource"));
-                    //System.out.println("kk2: " + nodeName);
-                    //System.out.println("kk3: " + pid);
                     
                     pids.add(childnode.getAttributes().getNamedItem("rdf:resource").getNodeValue().split("/")[1]);
                 }
@@ -123,7 +128,7 @@ public class FedoraUtils {
                 return FedoraUtils.findFirstPagePid(relpid);
             }
         } catch (Exception e) {
-            e.printStackTrace();
+        	LOGGER.log(Level.SEVERE, e.getMessage(), e);
         }
         return null;
     }
@@ -134,7 +139,7 @@ public class FedoraUtils {
      * @return
      */
     public static String getDjVuImage(KConfiguration configuration, String uuid) {
-    	String imagePath = configuration.getFedoraHost()+"/get/uuid:"+uuid+"/IMG_FULL";
+		String imagePath = configuration.getFedoraHost()+"/get/uuid:"+uuid+"/" + IMG_FULL_STREAM;
     	return imagePath;
     }
 
@@ -144,7 +149,7 @@ public class FedoraUtils {
      * @return
      */
     public static String getThumbnailFromFedora(KConfiguration configuration, String uuid) {
-    	String imagePath = configuration.getFedoraHost()+"/get/uuid:"+uuid+"/" + IMG_THUMB;
+    	String imagePath = configuration.getFedoraHost()+"/get/uuid:"+uuid+"/" + IMG_THUMB_STREAM;
     	return imagePath;
     }
 }
