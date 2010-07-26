@@ -10,6 +10,7 @@
 		<standardOs>lrOut</standardOs>
 		<!-- err vystup -->
 		<errOs>lrErr</errOs>
+		<javaProcessParameters>-Xmx1024m -Xms256m</javaProcessParameters>
 	</process>
 
 	<process>

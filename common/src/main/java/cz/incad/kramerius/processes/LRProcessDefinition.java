@@ -19,9 +19,15 @@ public interface LRProcessDefinition {
 	 * @return
 	 */
 	public String getMainClass();
+
+	/**
+	 * Java process parameters
+	 * @return
+	 */
+	public List<String> getJavaProcessParameters();
 	
 	/**
-	 * Parameters to process
+	 * Program parameters
 	 * @return
 	 */
 	public List<String> getParameters();

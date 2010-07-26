@@ -2,6 +2,7 @@ package cz.incad.kramerius.processes.impl;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.StringTokenizer;
 
 import javax.net.ssl.SSLEngineResult.Status;
 
@@ -32,6 +33,7 @@ public class LRProcessDefinitionImpl implements LRProcessDefinition {
 	private String errStreamFolder;
 	
 	private List<String> parameters = new ArrayList<String>();
+	private List<String> javaProcessParameters = new ArrayList<String>();
 	
 	private LRProcessManager pm;
 	private KConfiguration configuration;
@@ -90,6 +92,9 @@ public class LRProcessDefinitionImpl implements LRProcessDefinition {
 				if (nodeName.equals("parameters")) {
 					parameters(item);
 				}
+				if (nodeName.equals("javaProcessParameters")) {
+					javaProcessParameters(item);
+				}
 				if (nodeName.equals("actions")) {
 					actions(item);
 				}
@@ -98,6 +103,18 @@ public class LRProcessDefinitionImpl implements LRProcessDefinition {
 	}
 	
 	
+
+	private void javaProcessParameters(Node item) {
+		Element jpElem = (Element) item;
+		String textContent = jpElem.getTextContent();
+		StringTokenizer tokenizer = new StringTokenizer(textContent, " ");
+		while(tokenizer.hasMoreTokens()) {
+			String param = tokenizer.nextToken();
+			if (!param.trim().equals("")) {
+				this.javaProcessParameters.add(param);
+			}
+		}
+	}
 
 	private void actions(Node item) {
 		Element elm = (Element) item;
@@ -194,6 +211,11 @@ public class LRProcessDefinitionImpl implements LRProcessDefinition {
 
 	public void setErrStreamFolder(String errStreamFolder) {
 		this.errStreamFolder = errStreamFolder;
+	}
+
+	@Override
+	public List<String> getJavaProcessParameters() {
+		return this.javaProcessParameters;
 	}
 
 //	@Override

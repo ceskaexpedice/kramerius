@@ -103,9 +103,16 @@ public abstract class AbstractLRProcessImpl implements LRProcess{
 			// create command
 			List<String> command = new ArrayList<String>();
 			command.add("java");
+
+			List<String> javaProcessParameters = this.definition.getJavaProcessParameters();
+			for (String jpParam : javaProcessParameters) {
+				command.add(jpParam);
+			}
+
 			command.add("-D"+ProcessStarter.MAIN_CLASS_KEY+"="+this.definition.getMainClass());
 			command.add("-D"+ProcessStarter.UUID_KEY+"="+this.uuid);
 			command.add("-D"+ProcessStarter.LR_SERVLET_URL+"="+lrServlet);
+			
 			
 			File standardStreamFile = standardOutFile(processWorkingDir);
 			File errStreamFile = errorOutFile(processWorkingDir);
