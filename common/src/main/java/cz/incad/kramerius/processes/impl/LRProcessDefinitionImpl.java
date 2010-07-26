@@ -90,7 +90,10 @@ public class LRProcessDefinitionImpl implements LRProcessDefinition {
 					this.errStreamFolder = item.getTextContent();
 				}
 				if (nodeName.equals("parameters")) {
-					parameters(item);
+					oldStyleParameters(item);
+					if (this.parameters.isEmpty()) {
+						newStyleParameters(item);
+					}
 				}
 				if (nodeName.equals("javaProcessParameters")) {
 					javaProcessParameters(item);
@@ -130,7 +133,7 @@ public class LRProcessDefinitionImpl implements LRProcessDefinition {
 		}		
 	}
 
-	private void parameters(Node item) {
+	private void oldStyleParameters(Node item) {
 		Element elm = (Element) item;
 		NodeList nodes = elm.getChildNodes();
 		for (int i = 0,ll=nodes.getLength(); i < ll; i++) {
@@ -143,6 +146,19 @@ public class LRProcessDefinitionImpl implements LRProcessDefinition {
 				}
 			}
 		}		
+	}
+	
+	private void newStyleParameters(Node item) {
+		Element elm = (Element) item;
+		String textContent = elm.getTextContent();
+		StringTokenizer tokenizer = new StringTokenizer(textContent, " ");
+		while(tokenizer.hasMoreTokens()) {
+			String param = tokenizer.nextToken();
+			if (!param.trim().equals("")) {
+				this.parameters.add(param);
+			}
+		}
+		
 	}
 
 	@Override
