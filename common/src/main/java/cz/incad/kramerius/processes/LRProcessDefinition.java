@@ -21,13 +21,13 @@ public interface LRProcessDefinition {
 	public String getMainClass();
 
 	/**
-	 * Java process parameters
+	 * Java process parameters (-Xmx, -Xms, etc..)
 	 * @return
 	 */
 	public List<String> getJavaProcessParameters();
 	
 	/**
-	 * Program parameters
+	 * Program parameters (main method parameters)
 	 * @return
 	 */
 	public List<String> getParameters();
