@@ -11,6 +11,7 @@
 		<!-- err vystup -->
 		<errOs>lrErr</errOs>
 		<javaProcessParameters>-Xmx1024m -Xms256m</javaProcessParameters>
+		<parameters>one two</parameters>
 	</process>
 
 	<process>
@@ -19,10 +20,13 @@
 		<mainClass>cz.incad.kramerius.lp.PDFExport</mainClass>
 		<standardOs>lrOut</standardOs>
 		<errOs>lrErr</errOs>
+		<parameters>pdfs_out CD</parameters>
+		<!--
 		<parameters>
 			<parameter>pdfs_out</parameter>		
 			<parameter>CD</parameter>		
 		</parameters>
+		-->
 	</process>
 
 	<process>
@@ -34,10 +38,13 @@
 		<mainClass>cz.incad.kramerius.lp.PDFExport</mainClass>
 		<standardOs>lrOut</standardOs>
 		<errOs>lrErr</errOs>
+		<parameters>pdfs_out DVD</parameters>
+		<!--
 		<parameters>
 			<parameter>pdfs_out</parameter>		
 			<parameter>DVD</parameter>		
 		</parameters>
+		-->
 	</process>
 
 	<process>
@@ -46,10 +53,13 @@
 		<mainClass>cz.incad.kramerius.indexer.Main</mainClass>
 		<standardOs>lrOut</standardOs>
 		<errOs>lrErr</errOs>
+		<parameters>$default_lp_work_dir$/reindexer/config.properties $default_lp_work_dir$/reindexer/log4j.properties</parameters>
+		<!--
 		<parameters>
 			<parameter>$default_lp_work_dir$/reindexer/config.properties</parameter>
 			<parameter>$default_lp_work_dir$/reindexer/log4j.properties</parameter>
 		</parameters>
+		-->
 	</process>
 
 	<process>
@@ -61,9 +71,12 @@
 		<!--
 		<processOutputURL>processes/imported/_imported.jsp</processOutputURL>
 		-->
+		<parameters>monographs</monographs>
+		<!--
 		<parameters>
 			<parameter>monographs</parameter>
 		</parameters>
+		-->
 		<actions>
 			<action>
 				<name>imported</name>
@@ -83,9 +96,12 @@
 		<!--
 		<processOutputURL>processes/imported/_imported.jsp</processOutputURL>
 		-->
+		<parameters>periodicals</parameters>		
+		<!--
 		<parameters>
 			<parameter>periodicals</parameter>
 		</parameters>
+		-->
 		<actions>
 			<action>
 				<name>imported</name>
@@ -118,9 +134,12 @@
 		<mainClass>cz.incad.kramerius.service.impl.PolicyServiceImpl</mainClass>
 		<standardOs>lrOut</standardOs>
 		<errOs>lrErr</errOs>
+		<parameters>public</parameters>
+		<!--
 		<parameters>
 			<parameter>public</parameter>
 		</parameters>
+		-->
 	</process>
 	
 	<process>
@@ -129,9 +148,12 @@
 		<mainClass>cz.incad.kramerius.service.impl.PolicyServiceImpl</mainClass>
 		<standardOs>lrOut</standardOs>
 		<errOs>lrErr</errOs>
+		<parameters>private</parameters>
+		<!--
 		<parameters>
 			<parameter>private</parameter>
 		</parameters>
+		-->
 	</process>
 	
 	
