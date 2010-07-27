@@ -44,7 +44,7 @@ public class DatabaseProcessManager implements LRProcessManager {
 	}
 
 	@Override
-	public LRProcess getLongRunningProcess(String uuid) {
+	public synchronized LRProcess getLongRunningProcess(String uuid) {
 		Connection connection = null;
 		PreparedStatement stm = null;
 		ResultSet rs = null;
@@ -122,7 +122,7 @@ public class DatabaseProcessManager implements LRProcessManager {
 	}
 
 
-	public void updateLongRunningProcessPID(LRProcess lrProcess) {
+	public synchronized void updateLongRunningProcessPID(LRProcess lrProcess) {
 		Connection connection = null;
 		try {
 			connection = provider.get();
@@ -147,7 +147,7 @@ public class DatabaseProcessManager implements LRProcessManager {
 	
 	
 	@Override
-	public void updateLongRunningProcessName(LRProcess lrProcess) {
+	public synchronized void updateLongRunningProcessName(LRProcess lrProcess) {
 		Connection connection = null;
 		try {
 			connection = provider.get();
@@ -168,7 +168,7 @@ public class DatabaseProcessManager implements LRProcessManager {
 		}
 	}
 
-	public void updateLongRunningProcessStartedDate(LRProcess lrProcess) {
+	public synchronized void updateLongRunningProcessStartedDate(LRProcess lrProcess) {
 		Connection connection = null;
 		try {
 			connection = provider.get();
@@ -190,7 +190,7 @@ public class DatabaseProcessManager implements LRProcessManager {
 		}
 	}	
 	@Override
-	public void updateLongRunningProcessState(LRProcess lrProcess) {
+	public synchronized void updateLongRunningProcessState(LRProcess lrProcess) {
 		Connection connection = null;
 		try {
 			connection = provider.get();
@@ -215,7 +215,7 @@ public class DatabaseProcessManager implements LRProcessManager {
 	
 	
 	@Override
-	public List<LRProcess> getPlannedProcess(int howMany) {
+	public synchronized List<LRProcess> getPlannedProcess(int howMany) {
 		Connection connection = null;
 		PreparedStatement stm = null;
 		ResultSet rs = null;
@@ -342,7 +342,7 @@ public class DatabaseProcessManager implements LRProcessManager {
 	}
 	
 	@Override
-	public List<LRProcess> getLongRunningProcesses(LRProcessOrdering ordering, TypeOfOrdering typeOfOrdering,LRProcessOffset offset) {
+	public  synchronized List<LRProcess> getLongRunningProcesses(LRProcessOrdering ordering, TypeOfOrdering typeOfOrdering,LRProcessOffset offset) {
 		Connection connection = null;
 		PreparedStatement stm = null;
 		ResultSet rs = null;
@@ -370,20 +370,20 @@ public class DatabaseProcessManager implements LRProcessManager {
 					processes.add(processFromResultSet(rs));
 				} 
 			}
-			for (LRProcess lrProcess : processes) {
-				LOGGER.info("process '"+lrProcess.getUUID()+"' state "+lrProcess.getProcessState());
-				if (lrProcess.getProcessState().equals(States.RUNNING)) {
-					if (!lrProcess.isLiveProcess()) {
-						lrProcess.setProcessState(States.FAILED);
-						this.updateLongRunningProcessState(lrProcess);
-					}
-				} else if (lrProcess.getProcessState().equals(States.FAILED)) {
-					if (lrProcess.isLiveProcess()) {
-						lrProcess.setProcessState(States.RUNNING);
-						this.updateLongRunningProcessState(lrProcess);
-					}
-				}
-			}
+//			for (LRProcess lrProcess : processes) {
+//				LOGGER.info("process '"+lrProcess.getUUID()+"' state "+lrProcess.getProcessState());
+//				if (lrProcess.getProcessState().equals(States.RUNNING)) {
+//					if (!lrProcess.isLiveProcess()) {
+//						lrProcess.setProcessState(States.FAILED);
+//						this.updateLongRunningProcessState(lrProcess);
+//					}
+//				} else if (lrProcess.getProcessState().equals(States.FAILED)) {
+//					if (lrProcess.isLiveProcess()) {
+//						lrProcess.setProcessState(States.RUNNING);
+//						this.updateLongRunningProcessState(lrProcess);
+//					}
+//				}
+//			}
 			return processes;
 		} catch (SQLException e) {
 			LOGGER.log(Level.SEVERE, e.getMessage(), e);
