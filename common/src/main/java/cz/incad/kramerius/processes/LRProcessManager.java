@@ -1,6 +1,7 @@
 package cz.incad.kramerius.processes;
 
 import java.util.List;
+import java.util.concurrent.locks.Lock;
 
 
 /**
@@ -24,7 +25,8 @@ public interface LRProcessManager {
 	public List<LRProcess> getLongRunningProcesses();
 	public List<LRProcess> getPlannedProcess(int howMany);
 	public List<LRProcess> getLongRunningProcesses(LRProcessOrdering ordering,TypeOfOrdering typeOfOrdering, LRProcessOffset offset);
-
+	public List<LRProcess> getLongRunningProcesses(States state);
+	
 	public int getNumberOfLongRunningProcesses();
 	
 	public void updateLongRunningProcessState(LRProcess lrProcess);
@@ -32,4 +34,5 @@ public interface LRProcessManager {
 	public void updateLongRunningProcessPID(LRProcess lrProcess);
 	public void updateLongRunningProcessStartedDate(LRProcess lrProcess);
 
+	public Lock getSynchronizingLock();
 }

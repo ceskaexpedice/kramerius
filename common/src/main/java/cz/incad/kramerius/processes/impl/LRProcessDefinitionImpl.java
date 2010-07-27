@@ -6,6 +6,7 @@ import java.util.StringTokenizer;
 
 import javax.net.ssl.SSLEngineResult.Status;
 
+import org.apache.commons.lang.SystemUtils;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -167,15 +168,12 @@ public class LRProcessDefinitionImpl implements LRProcessDefinition {
 	}
 
 	private AbstractLRProcessImpl createProcessInternal() {
-		String osName = System.getProperty("os.name");
-		if ((!osName.toLowerCase().contains("windows")) &&
-			(!osName.toLowerCase().contains("microsoft"))) {
+		if (SystemUtils.IS_OS_LINUX || SystemUtils.IS_OS_UNIX) {
 			return new cz.incad.kramerius.processes.os.impl.unix.UnixLRProcessImpl(this, this.pm, this.configuration);
-		} else {
+		} else if (SystemUtils.IS_OS_WINDOWS) {
 			return new WindowsLRProcessImpl(this, this.pm, configuration); 
-		}
+		} else throw new UnsupportedOperationException("unsupported OS");
 	}
-	
 	
 	
 	@Override

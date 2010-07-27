@@ -5,7 +5,7 @@ public interface ProcessScheduler {
 	
 	public void scheduleNextTask();
 
-	public void initRuntimeParameters(String applicationLib, String lrServlet);
+	public void init(String applicationLib, String lrServlet);
 	
 	public String getApplicationLib();
 	

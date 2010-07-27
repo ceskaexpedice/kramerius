@@ -12,6 +12,8 @@ import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 import java.util.logging.Level;
 
 import com.google.inject.Inject;
@@ -36,6 +38,8 @@ public class DatabaseProcessManager implements LRProcessManager {
 	private final Provider<Connection> provider;
 	private final DefinitionManager lrpdm;
 	
+	private final Lock reentrantLock = new ReentrantLock();
+	
 	@Inject
 	public DatabaseProcessManager(Provider<Connection> provider, DefinitionManager lrpdm) {
 		super();
@@ -44,11 +48,13 @@ public class DatabaseProcessManager implements LRProcessManager {
 	}
 
 	@Override
-	public synchronized LRProcess getLongRunningProcess(String uuid) {
+	public LRProcess getLongRunningProcess(String uuid) {
 		Connection connection = null;
 		PreparedStatement stm = null;
 		ResultSet rs = null;
 		try {
+			this.reentrantLock.lock();
+			
 			connection = provider.get();
 			if (connection != null) {
 				stm = connection.prepareStatement("select * from PROCESSES where UUID = ?");
@@ -92,6 +98,8 @@ public class DatabaseProcessManager implements LRProcessManager {
 					LOGGER.log(Level.SEVERE, e.getMessage(), e);
 				}
 			}
+			
+			this.reentrantLock.unlock();
 		}
 		return null;
 	}
@@ -100,6 +108,8 @@ public class DatabaseProcessManager implements LRProcessManager {
 	public void registerLongRunningProcess(LRProcess lp) {
 		Connection connection = null;
 		try {
+			this.reentrantLock.lock();
+			
 			connection = provider.get();
 			if (connection != null) {
 				if (!DatabaseUtils.tableExists(connection,"PROCESSES")) {
@@ -118,13 +128,17 @@ public class DatabaseProcessManager implements LRProcessManager {
 					LOGGER.log(Level.SEVERE, e.getMessage(), e);
 				}
 			}
+			
+			this.reentrantLock.unlock();
 		}
 	}
 
 
-	public synchronized void updateLongRunningProcessPID(LRProcess lrProcess) {
+	public void updateLongRunningProcessPID(LRProcess lrProcess) {
 		Connection connection = null;
 		try {
+			this.reentrantLock.lock();
+			
 			connection = provider.get();
 			if (!DatabaseUtils.tableExists(connection,"PROCESSES")) {
 				createProcessTable(connection);
@@ -140,6 +154,8 @@ public class DatabaseProcessManager implements LRProcessManager {
 					LOGGER.log(Level.SEVERE, e.getMessage(), e);
 				}
 			}
+			
+			this.reentrantLock.unlock();
 		}
 	}
 	
@@ -147,9 +163,11 @@ public class DatabaseProcessManager implements LRProcessManager {
 	
 	
 	@Override
-	public synchronized void updateLongRunningProcessName(LRProcess lrProcess) {
+	public void updateLongRunningProcessName(LRProcess lrProcess) {
 		Connection connection = null;
 		try {
+			this.reentrantLock.lock();
+			
 			connection = provider.get();
 			if (!DatabaseUtils.tableExists(connection,"PROCESSES")) {
 				createProcessTable(connection);
@@ -165,12 +183,16 @@ public class DatabaseProcessManager implements LRProcessManager {
 					LOGGER.log(Level.SEVERE, e.getMessage(), e);
 				}
 			}
+			
+			this.reentrantLock.unlock();
 		}
 	}
 
-	public synchronized void updateLongRunningProcessStartedDate(LRProcess lrProcess) {
+	public void updateLongRunningProcessStartedDate(LRProcess lrProcess) {
 		Connection connection = null;
 		try {
+			this.reentrantLock.lock();
+			
 			connection = provider.get();
 			if (!DatabaseUtils.tableExists(connection,"PROCESSES")) {
 				createProcessTable(connection);
@@ -187,12 +209,16 @@ public class DatabaseProcessManager implements LRProcessManager {
 					LOGGER.log(Level.SEVERE, e.getMessage(), e);
 				}
 			}
+			
+			this.reentrantLock.unlock();
 		}
 	}	
 	@Override
-	public synchronized void updateLongRunningProcessState(LRProcess lrProcess) {
+	public void updateLongRunningProcessState(LRProcess lrProcess) {
 		Connection connection = null;
 		try {
+			this.reentrantLock.lock();
+			
 			connection = provider.get();
 			if (!DatabaseUtils.tableExists(connection,"PROCESSES")) {
 				createProcessTable(connection);
@@ -209,17 +235,22 @@ public class DatabaseProcessManager implements LRProcessManager {
 					LOGGER.log(Level.SEVERE, e.getMessage(), e);
 				}
 			}
+			
+			this.reentrantLock.unlock();
 		}
 	}
 	
 	
 	
 	@Override
-	public synchronized List<LRProcess> getPlannedProcess(int howMany) {
+	public List<LRProcess> getPlannedProcess(int howMany) {
 		Connection connection = null;
 		PreparedStatement stm = null;
 		ResultSet rs = null;
 		try {
+			
+			this.reentrantLock.lock();
+			
 			List<LRProcess> processes = new ArrayList<LRProcess>();
 			connection = provider.get();
 			if (connection != null) {
@@ -265,6 +296,8 @@ public class DatabaseProcessManager implements LRProcessManager {
 					LOGGER.log(Level.SEVERE, e.getMessage(), e);
 				}
 			}
+			
+			this.reentrantLock.unlock();
 		}
 		return new ArrayList<LRProcess>();
 	}
@@ -275,6 +308,8 @@ public class DatabaseProcessManager implements LRProcessManager {
 		PreparedStatement stm = null;
 		ResultSet rs = null;
 		try {
+			this.reentrantLock.lock();
+			
 			connection = provider.get();
 			if (connection != null) {
 				if (!DatabaseUtils.tableExists(connection,"PROCESSES")) {
@@ -313,6 +348,8 @@ public class DatabaseProcessManager implements LRProcessManager {
 					LOGGER.log(Level.SEVERE, e.getMessage(), e);
 				}
 			}
+			
+			this.reentrantLock.unlock();
 		}
 		return 0;
 	}
@@ -341,12 +378,71 @@ public class DatabaseProcessManager implements LRProcessManager {
 		return process;
 	}
 	
+	
+	
 	@Override
-	public  synchronized List<LRProcess> getLongRunningProcesses(LRProcessOrdering ordering, TypeOfOrdering typeOfOrdering,LRProcessOffset offset) {
+	public List<LRProcess> getLongRunningProcesses(States state) {
 		Connection connection = null;
 		PreparedStatement stm = null;
 		ResultSet rs = null;
 		try {
+			
+			this.reentrantLock.lock();
+			
+			List<LRProcess> processes = new ArrayList<LRProcess>();
+			connection = provider.get();
+			if (connection != null) {
+				if (!DatabaseUtils.tableExists(connection,"PROCESSES")) {
+					createProcessTable(connection);
+				}
+				StringBuffer buffer = new StringBuffer("select * from PROCESSES where STATUS = ?");
+				stm = connection.prepareStatement(buffer.toString());
+				stm.setInt(1, state.getVal());
+				rs = stm.executeQuery();
+				while(rs.next()) {
+					processes.add(processFromResultSet(rs));
+				} 
+			}
+			return processes;
+		} catch (SQLException e) {
+			LOGGER.log(Level.SEVERE, e.getMessage(), e);
+		} finally {
+			if (rs != null) {
+				try {
+					rs.close();
+				} catch (SQLException e) {
+					LOGGER.log(Level.SEVERE, e.getMessage(), e);
+				}
+			}
+			if (stm != null) {
+				try {
+					stm.close();
+				} catch (SQLException e) {
+					LOGGER.log(Level.SEVERE, e.getMessage(), e);
+				}
+			}
+			if (connection != null) {
+				try {
+					connection.close();
+				} catch (SQLException e) {
+					LOGGER.log(Level.SEVERE, e.getMessage(), e);
+				}
+			}
+
+			this.reentrantLock.unlock();
+		}
+		return new ArrayList<LRProcess>();
+	}
+
+	@Override
+	public  List<LRProcess> getLongRunningProcesses(LRProcessOrdering ordering, TypeOfOrdering typeOfOrdering,LRProcessOffset offset) {
+		Connection connection = null;
+		PreparedStatement stm = null;
+		ResultSet rs = null;
+		try {
+			
+			this.reentrantLock.lock();
+			
 			List<LRProcess> processes = new ArrayList<LRProcess>();
 			connection = provider.get();
 			if (connection != null) {
@@ -409,6 +505,8 @@ public class DatabaseProcessManager implements LRProcessManager {
 					LOGGER.log(Level.SEVERE, e.getMessage(), e);
 				}
 			}
+
+			this.reentrantLock.unlock();
 		}
 		return new ArrayList<LRProcess>();
 	}
@@ -417,4 +515,11 @@ public class DatabaseProcessManager implements LRProcessManager {
 	public List<LRProcess> getLongRunningProcesses() {
 		return getLongRunningProcesses(null, null, null);
 	}
+
+	@Override
+	public Lock getSynchronizingLock() {
+		return this.reentrantLock;
+	}
+	
+	
 }

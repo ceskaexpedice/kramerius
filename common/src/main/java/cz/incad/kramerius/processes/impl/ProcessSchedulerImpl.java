@@ -44,7 +44,7 @@ public class ProcessSchedulerImpl implements ProcessScheduler {
 
 
 	@Override
-	public void initRuntimeParameters(String applicationLib, String lrServlet) {
+	public void init(String applicationLib, String lrServlet) {
 		// Jak to vyresit ??? 
 		this.applicationLib = applicationLib;
 		this.lrServlet = lrServlet;
