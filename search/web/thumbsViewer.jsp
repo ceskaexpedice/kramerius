@@ -158,8 +158,10 @@
         currentSelectedParent = masterUuid;
         
         // momentalne zobrazeny 
-        var to = $('#img_' + selection).offset().left - tvContainerLeft;
-        to = to / $("#tv_container_table").width()  * 100;
+        var to = $('#img_' + selection).offset().left - tvContainerLeft + $("#tv_container").attr("scrollLeft") ;
+        //alert($("#tv_slider").scrollLeft());
+        to = to / $("#tv_container").width()  * 100;
+        //alert(to);
         slideTo(to, selection);
         selectPage(selection);
     }
