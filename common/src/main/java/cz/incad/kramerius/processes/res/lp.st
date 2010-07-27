@@ -71,7 +71,7 @@
 		<!--
 		<processOutputURL>processes/imported/_imported.jsp</processOutputURL>
 		-->
-		<parameters>monographs</monographs>
+		<parameters>monographs</parameters>
 		<!--
 		<parameters>
 			<parameter>monographs</parameter>
