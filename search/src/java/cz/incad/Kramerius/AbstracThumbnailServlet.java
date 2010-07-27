@@ -35,6 +35,7 @@ import cz.incad.Kramerius.backend.guice.GuiceServlet;
 import cz.incad.kramerius.FedoraAccess;
 import cz.incad.kramerius.impl.fedora.Handler;
 import cz.incad.kramerius.security.SecurityException;
+import cz.incad.kramerius.utils.FedoraUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 import cz.incad.kramerius.utils.imgs.KrameriusImageSupport;
 
@@ -113,47 +114,14 @@ public class AbstracThumbnailServlet extends GuiceServlet {
 	}
 
 	
-	
 	protected Image rawThumbnailImage(String uuid) throws XPathExpressionException, IOException, SecurityException {
-		String mimetype = fedoraAccess.getThumbnailMimeType(uuid);
-		if ((mimetype.equals(OutputFormats.JPEG.getMimeType())) ||
-			(mimetype.equals(OutputFormats.PNG.getMimeType())))	{
-			InputStream imageFULL = fedoraAccess.getThumbnail(uuid);
-			return ImageIO.read(imageFULL);
-			
-		} else throw new IllegalArgumentException("unsupported mimetype '"+mimetype+"'");
-		
+		return KrameriusImageSupport.readImage(uuid, FedoraUtils.IMG_THUMB_STREAM, this.fedoraAccess);
 	}
 	
 	protected Image rawFullImage(String uuid, HttpServletRequest request) throws IOException, MalformedURLException, XPathExpressionException {
-		String mimetype = fedoraAccess.getImageFULLMimeType(uuid);
-		if (mimetype.equals(OutputFormats.JPEG.getMimeType())) {
-			InputStream imageFULL = fedoraAccess.getImageFULL(uuid);
-			return ImageIO.read(imageFULL);
-		} else if ((mimetype.equals(OutputFormats.DJVU.getMimeType())) ||
-				  (mimetype.equals(OutputFormats.VNDDJVU.getMimeType())) ||
-				  (mimetype.equals(OutputFormats.XDJVU.getMimeType()))){
-			if (fedoraAccess.isImageFULLAvailable(uuid)) {
-				URL url = new URL("fedora","",0,uuid+"/IMG_FULL", new Handler(fedoraAccess));
-				com.lizardtech.djvu.Document doc = new com.lizardtech.djvu.Document(url);
-		        doc.setAsync(true);
-		        DjVuPage[] p = new DjVuPage[1];
-		        //read page from the document - index 0, priority 1, favorFast true
-		        p[0] = doc.getPage(0, 1, true);
-		        p[0].setAsync(false);
-		        DjVuImage djvuImage = new DjVuImage(p, true);
-				Rectangle pageBounds = djvuImage.getPageBounds(0);
-				Image[] images = djvuImage.getImage(new JPanel(), new Rectangle(pageBounds.width,pageBounds.height));
-				if (images.length == 1) {
-					Image img = images[0];
-					return img;
-				} else return null;
-			} else {
-				throw new IOException("image is not available");
-			}
-		} else throw new IllegalArgumentException("unsupported mimetype '"+mimetype+"'");
-		
+		return KrameriusImageSupport.readImage(uuid, FedoraUtils.IMG_FULL_STREAM, this.fedoraAccess);
 	}
+	
 	protected void writeImage(HttpServletResponse resp, Image scaledImage, OutputFormats format) throws IOException {
 		if ((format.equals(OutputFormats.JPEG)) || 
 			(format.equals(OutputFormats.PNG))) {
@@ -162,33 +130,6 @@ public class AbstracThumbnailServlet extends GuiceServlet {
 			KrameriusImageSupport.writeImageToStream(scaledImage, format.getJavaFormat(), os);
 		} else throw new IllegalArgumentException("unsupported mimetype '"+format+"'");
 	}
-
-//	public static String rawContent(KConfiguration configuration, String uuid, HttpServletRequest request) {
-//		return currentURL(request)+"&scaledHeight=" + KConfiguration.getKConfiguration().getScaledHeight() + "&uuid="+uuid+"&rawdata=true";
-//	}
-
-//	protected String getDJVUServlet(String uuid, HttpServletRequest request) {
-//		String path =  hiddenDJVUServlet(request);
-//		path += "&"+IKeys.UUID_PARAMETER+"="+uuid+"&outputFormat=RAW";
-//		return path;
-//	}
-
-//	public static String hiddenDJVUServlet(HttpServletRequest request) {
-//		//"dvju"
-//		try {
-//			URL url = new URL(request.getRequestURL().toString());
-//			String path = url.getPath();
-//			StringBuffer buffer = new StringBuffer();
-//			StringTokenizer tokenizer = new StringTokenizer(path,"/");
-//			if(tokenizer.hasMoreTokens()) { buffer.append(tokenizer.nextToken()); }
-//			buffer.append("/_djvu").append("?").append(RequestSecurityAcceptor.REMOTE_ADDRESS).append("=").append(request.getRemoteAddr());
-//			String imagePath = url.getProtocol()+"://"+url.getHost()+":"+url.getPort()+"/"+buffer.toString();
-//			return imagePath;
-//		} catch (MalformedURLException e) {
-//			LOGGER.log(Level.SEVERE, e.getMessage(), e);
-//			return "<no url>";
-//		}
-//	}
 	protected Image scaleByPercent(Image img, Rectangle pageBounds, double percent) {
 		if ((percent <= 0.95) || (percent >= 1.15)) {
 			int nWidth = (int) (pageBounds.getWidth() * percent);
@@ -234,7 +175,6 @@ public class AbstracThumbnailServlet extends GuiceServlet {
 		public String getJavaFormat() {
 			return javaFormat;
 		}
-
 	}
 	
 	public enum ScalingMethod {

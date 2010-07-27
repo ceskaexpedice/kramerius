@@ -28,6 +28,7 @@ import cz.incad.Kramerius.backend.guice.RequestSecurityAcceptor;
 import cz.incad.Kramerius.views.ApplicationURL;
 import cz.incad.kramerius.intconfig.InternalConfiguration;
 import cz.incad.kramerius.processes.DefinitionManager;
+import cz.incad.kramerius.processes.GCScheduler;
 import cz.incad.kramerius.processes.LRProcess;
 import cz.incad.kramerius.processes.LRProcessDefinition;
 import cz.incad.kramerius.processes.LRProcessManager;
@@ -57,6 +58,8 @@ public class LongRunningProcessServlet extends GuiceServlet {
 	@Inject
 	transient ProcessScheduler processScheduler;
 	
+	@Inject
+	transient GCScheduler gcScheduler;
 	
 	@Override
 	public void init() throws ServletException {
@@ -69,7 +72,8 @@ public class LongRunningProcessServlet extends GuiceServlet {
 		}
 		String lrServlet =   conf.getApplicationURL()+'/'+InternalConfiguration.get().getProperties().getProperty("servlets.mapping.lrcontrol");
 
-		this.processScheduler.initRuntimeParameters(appLibPath, lrServlet);
+		this.processScheduler.init(appLibPath, lrServlet);
+		this.gcScheduler.init();
 	}
 
 
