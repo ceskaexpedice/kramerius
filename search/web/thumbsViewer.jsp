@@ -30,6 +30,7 @@
     
     function clearThumbs(){
         $('#tv_container_row>td').remove();
+        totalThumbs = 0;
     }
     var imgW;
     function selectPage(uuid){
@@ -39,7 +40,9 @@
         var mimeUrl = "djvu?uuid="+uuid+"&imageType=ask";
         var img = '<a class="lighbox" href="javascript:showFullImage(\''+uuid+'\')"><img id="imgBig" src="'+pageUrl+'" width="'+imgW+'px" border="0" onerror="showError();"  /></a>';
         checkArrows();
-        $('#mainContent').html(img);
+        if($('#imgBig').attr('src').indexOf(uuid)==-1){
+            $('#mainContent').html(img);
+        }
 
         $.get(mimeUrl, function(data){
             currentMime = data;
@@ -166,11 +169,12 @@
         $("#tv_slider").slider("value", pos);
         
         //testujeme jestli obrazek je cely videt
-        var r = $('#img_' + selection).offset().left + $('#img_' + selection).width();
-        if(r>tvContainerRight){
-            var pos2 = r - tvContainerLeft;
-            slideTo(pos2, selection);
-        }
+        
+        //var r = $('#img_' + selection).offset().left + $('#img_' + selection).width();
+        //if(r>tvContainerRight){
+        //    var pos2 = r - tvContainerLeft;
+        //    slideTo(pos2, selection);
+        //}
     }
     function getImgContainerWidth() {
         return "900px";	

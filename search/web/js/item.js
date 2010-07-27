@@ -66,12 +66,12 @@ function getBiblioInfo(pid, model, list, inf, setInf){
 }
 
 function scrollElement(container, element){
-    $(container).animate({
-        scrollTop: $(element).offset().top - $(container).offset().top + $(container).scrollTop(),
-        scrollLeft: $(element).offset().left
-    }, 750);
-    //$(container).scrollTop($(element).offset().top - $(container).offset().top + $(container).scrollTop());
-    //$(container).scrollLeft($(element).offset().left);
+//    $(container).animate({
+//        scrollTop: $(element).offset().top - $(container).offset().top + $(container).scrollTop(),
+//        scrollLeft: $(element).offset().left
+//    }, 750);
+    $(container).scrollTop($(element).offset().top - $(container).offset().top + $(container).scrollTop());
+    $(container).scrollLeft($(element).offset().left);
         
 }
 
@@ -151,7 +151,8 @@ function selectItem(obj, level, model){
     var p = $(d2).parent();
     $(d2).remove();
     var url ="itemMenu.jsp?language="+language+"&pid_path="+pid+"&path="+model+"&level="+target;
-    $('#mainContent').html(imgLoadingBig);
+    //$('#mainContent').html(imgLoadingBig);
+    $('#imgBig').attr("src", "img/empty.gif");
     $.get(url, function(data){
         $(p).append(data);
         //getItemRels(pid, "", level, true);
