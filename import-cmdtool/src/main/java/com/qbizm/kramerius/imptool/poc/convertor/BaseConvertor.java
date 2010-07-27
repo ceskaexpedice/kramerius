@@ -202,7 +202,7 @@ public abstract class BaseConvertor {
             digitalObject.setObjectProperties(new ObjectPropertiesType());
         }
 
-        setProperty(digitalObject, "info:fedora/fedora-system:def/model#label", title);
+        setProperty(digitalObject, "info:fedora/fedora-system:def/model#label", title!=null?title.substring(0,Math.min(255, title.length())):"null");
         setProperty(digitalObject, "info:fedora/fedora-system:def/model#state", "Active");
         setProperty(digitalObject, "info:fedora/fedora-system:def/model#ownerId", "fedoraAdmin");
 

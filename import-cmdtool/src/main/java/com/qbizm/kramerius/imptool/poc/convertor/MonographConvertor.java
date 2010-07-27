@@ -73,6 +73,7 @@ public class MonographConvertor extends BaseConvertor {
         String pid;
         if (uid == null || uid.getUniqueIdentifierURNType() == null || !Pattern.matches(PID_PATTERN, PID_PREFIX + first(uid.getUniqueIdentifierURNType().getContent()))) {
             pid = generateUUID();
+            log.info("Assigned new UUID:"+pid);
             if (uid.getUniqueIdentifierURNType() == null) {
                 uid.setUniqueIdentifierURNType(new UniqueIdentifierURNType());
             }

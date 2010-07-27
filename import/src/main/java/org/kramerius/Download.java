@@ -120,7 +120,7 @@ public class Download {
             Import.ingest(KConfiguration.getInstance().getProperty("ingest.url"), KConfiguration.getInstance().getProperty("ingest.user"), KConfiguration.getInstance().getProperty("ingest.password"), KConfiguration.getInstance().getProperty("migration.directory")+CONV_SUFFIX);
             logSuccess(rep.getID(), uuid);
             startIndexing(rep.getID(), uuid);
-        }catch (Throwable t){
+        }catch (Exception t){
             if (rep!=null){
                 logFailed(rep.getID(), t);
             }
