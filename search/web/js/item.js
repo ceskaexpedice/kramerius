@@ -311,8 +311,10 @@ var PDF=function() {
 		},
 		// sestaveni url dle parametru z dialogu
 		urlFromDialog:function(level) {
-            var fromUuid = $("#list-page>div.relItem")[$("#genPdfStart").val()-1].attributes['id'].value;
-			var toUuid = $("#list-page>div.relItem")[$("#genPdfEnd").val()-1].attributes['pid'].value;
+			//var fromUuid = $("#list-page>div.relItem")[$("#genPdfStart").val()-1].attributes['id'].value;
+			var fromUuid = $($("#list-page>div.relItem")[$("#genPdfStart").val()-1]).attr('id');
+//            var toUuid = $("#list-page>div.relItem")[$("#genPdfEnd").val()-1].attributes['pid'].value;
+            var toUuid = $("#list-page>div.relItem")[$("#genPdfEnd").val()-1].attributes['pid'].value;
             var u = "pdf?uuidFrom=" + fromUuid+"&uuidTo="+toUuid+"&path="+PDF.path(level);
             window.location.href = u;
 		},
@@ -398,7 +400,11 @@ var PDF=function() {
 		                    }
 		                    from = parseInt(from);
 		                    to = parseInt(to); 
-
+		                    if (to > (pagesCount)) {
+		                    	to = pagesCount;
+		                    	$("#genPdfEnd").val(to);
+		                    }
+		                    
 		                    if(to - from + 1 > generatePdfMaxRange){
 		                        alert("Maximalne "+generatePdfMaxRange+"!");
 		                    }else if(to>pagesCount  || isNaN(from) || isNaN(to)) {
