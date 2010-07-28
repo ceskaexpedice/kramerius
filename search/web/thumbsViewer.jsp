@@ -213,7 +213,8 @@
     }
     
     $(document).ready(function(){
-        imgW = $('#mainContent').width();
+        //imgW = $('#mainContent').width();
+        imgW = 650;
         tvContainerLeft = $("#tv_container").offset().left;
         tvContainerRight = tvContainerLeft + $("#tv_container").width();
         $("#tv_slider").slider({
