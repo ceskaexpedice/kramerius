@@ -158,12 +158,19 @@
         currentSelectedParent = masterUuid;
         
         // momentalne zobrazeny 
-        var to = $('#img_' + selection).offset().left - tvContainerLeft + $("#tv_container").attr("scrollLeft") ;
-        //alert($("#tv_slider").scrollLeft());
-        to = to / $("#tv_container").width()  * 100;
-        //alert(to);
-        slideTo(to, selection);
+        var to = $('#img_' + selection).offset().left - tvContainerLeft + $("#tv_container").attr("scrollLeft") - ($("#tv_container").width()/2) ;
+        alert(to);
+        var maxScroll = $("#tv_container").attr("scrollWidth") - $("#tv_container").width();
+        var to2 = 0;
+        if(maxScroll > 0){
+            to2 = to * 100 / maxScroll;
+        }
+        alert(to2);
+        canScroll = false;
+        slideTo(to2, selection);
         selectPage(selection);
+        $("#tv_container").attr("scrollLeft", to);
+        canScroll = true;
     }
      var tvContainerRight;
      var tvContainerLeft;
@@ -184,14 +191,17 @@
         
     var sliderCreated = false;
     
-    
+    var canScroll = true;
     function tv_SliderChange(e, ui){
+        
         if(maxScroll==0){
             maxScroll = $("#tv_container").attr("scrollWidth") - $("#tv_container").width();
         }
-        $("#tv_container").attr({
-            scrollLeft: ui.value * (maxScroll / 100)
-        });
+        if(canScroll){
+            $("#tv_container").attr({
+                scrollLeft: ui.value * (maxScroll / 100)
+            });
+        }
     }
         
     function tv_left() {
