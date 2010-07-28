@@ -7,6 +7,7 @@ import java.util.logging.Level;
 
 import cz.incad.kramerius.processes.LRProcessDefinition;
 import cz.incad.kramerius.processes.LRProcessManager;
+import cz.incad.kramerius.processes.States;
 import cz.incad.kramerius.processes.impl.AbstractLRProcessImpl;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 
@@ -37,6 +38,18 @@ public class WindowsLRProcessImpl extends AbstractLRProcessImpl {
 
 	@Override
 	public boolean isLiveProcess() {
-		return true;
+		try {
+			List<String> pids = WindowsPIDList.createPIDList().getProcessesPIDS();
+			if (getPid() != null) {
+				return pids.contains(getPid());
+			} else {
+				return getProcessState() == States.RUNNING;
+			}
+		} catch (IOException e) {
+			LOGGER.log(Level.SEVERE, e.getMessage(), e);
+		} catch (InterruptedException e) {
+			LOGGER.log(Level.SEVERE, e.getMessage(), e);
+		}
+		return getProcessState() == States.RUNNING;
 	}
 }
