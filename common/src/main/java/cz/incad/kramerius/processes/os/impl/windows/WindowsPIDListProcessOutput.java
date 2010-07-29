@@ -2,19 +2,11 @@ package cz.incad.kramerius.processes.os.impl.windows;
 
 import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.Reader;
-import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.StringTokenizer;
-
-import com.sun.java.swing.plaf.windows.WindowsProgressBarUI;
 
 import antlr.RecognitionException;
 import antlr.TokenStreamException;
-
 import cz.incad.kramerius.processes.os.impl.windows.csv.CSVLexer;
 import cz.incad.kramerius.processes.os.impl.windows.csv.CSVParser;
 
