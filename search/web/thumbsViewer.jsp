@@ -159,13 +159,13 @@
         
         // momentalne zobrazeny 
         var to = $('#img_' + selection).offset().left - tvContainerLeft + $("#tv_container").attr("scrollLeft") - ($("#tv_container").width()/2) ;
-        alert(to);
+        
         var maxScroll = $("#tv_container").attr("scrollWidth") - $("#tv_container").width();
         var to2 = 0;
         if(maxScroll > 0){
             to2 = to * 100 / maxScroll;
         }
-        alert(to2);
+       
         canScroll = false;
         slideTo(to2, selection);
         selectPage(selection);
