@@ -60,6 +60,8 @@ import com.qbizm.kramerius.imptool.poc.valueobj.RelsExt;
 import com.qbizm.kramerius.imptool.poc.valueobj.ServiceException;
 import com.sun.org.apache.xerces.internal.jaxp.datatype.XMLGregorianCalendarImpl;
 
+import cz.incad.kramerius.utils.imgs.KrameriusImageSupport;
+
 public abstract class BaseConvertor {
     static{
         //disable djvu convertor verbose logging
@@ -685,7 +687,7 @@ public abstract class BaseConvertor {
         };
         double div = (double) img.getHeight(observer) / (double) nHeight;
         double nWidth = (double) img.getWidth(observer) / div;
-        Image scaledImage = img.getScaledInstance((int) nWidth, nHeight, Image.SCALE_DEFAULT);
+        Image scaledImage = KrameriusImageSupport.scale(img, (int)nWidth, nHeight);
         return scaledImage;
     }
     
