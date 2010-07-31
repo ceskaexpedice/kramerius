@@ -772,7 +772,7 @@ public class GeneratePDFServiceImpl implements GeneratePDFService {
 	}
 
 	private Font getFont() throws DocumentException, IOException {
-		BaseFont bf = BaseFont.createFont("Helvetica", BaseFont.CP1250,BaseFont.NOT_EMBEDDED);
+		BaseFont bf = BaseFont.createFont("Helvetica", BaseFont.CP1250,BaseFont.EMBEDDED);
 		return new Font(bf);
 	}
 
