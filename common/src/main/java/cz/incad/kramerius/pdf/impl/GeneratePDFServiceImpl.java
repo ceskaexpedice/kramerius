@@ -141,6 +141,10 @@ public class GeneratePDFServiceImpl implements GeneratePDFService {
 		String[] xlsts = 
 		{"template.xslt"};
 		copyFiles(xlsts,"templates/", this.templatesFolder());
+
+		String[] fonts = 
+		{"ext_ontheflypdf_ArialCE.ttf "};
+		copyFiles(fonts,"fonts/", this.templatesFolder());
 	}
 
 	private void copyFiles(String[] texts, String prefix, File folder) throws FileNotFoundException,
@@ -592,12 +596,12 @@ public class GeneratePDFServiceImpl implements GeneratePDFService {
 		pdfPTable.getDefaultCell().disableBorderSide(PdfPCell.BOTTOM);
 		pdfPTable.getDefaultCell().setBorderWidth(15f);
 
-		Font bigFont = getFont();
+		Font bigFont = createFont();
 		bigFont.setSize(20f);
 		Chunk titleChunk = new Chunk(document.getDocumentTitle(), bigFont);
 
 
-		Font smallFont = getFont();
+		Font smallFont = createFont();
 		smallFont.setSize(12f);
 		StringBuffer buffer = new StringBuffer();
 		String[] creatorsFromDC = DCUtils.creatorsFromDC(fedoraAccess.getDC(document.getUuidMainTitle()));
@@ -648,7 +652,7 @@ public class GeneratePDFServiceImpl implements GeneratePDFService {
 			pdfDoc.add(new Paragraph(" "));
 			pdfDoc.add(new Paragraph(" "));
 			
-			Paragraph parDesc = new Paragraph(this.textsService.getText("first_page", localeProvider.get()), getFont());		
+			Paragraph parDesc = new Paragraph(this.textsService.getText("first_page", localeProvider.get()), createFont());		
 			pdfDoc.add(parDesc);
 		} catch (XPathExpressionException e) {
 			LOGGER.log(Level.SEVERE, e.getMessage(), e);
@@ -704,7 +708,7 @@ public class GeneratePDFServiceImpl implements GeneratePDFService {
 		while((line = strReader.readLine()) != null) {
 			SimpleTextCommands command = SimpleTextCommands.findCommand(line);
 			if (command == SimpleTextCommands.LINE) {
-				insertPara(page, pdfWriter, document, oneChunkBuffer.toString(), getFont());
+				insertPara(page, pdfWriter, document, oneChunkBuffer.toString(), createFont());
 				document.add(new Paragraph(" "));
 				VerticalPositionMark vsep = new LineSeparator();
 				document.add(vsep);
@@ -714,11 +718,11 @@ public class GeneratePDFServiceImpl implements GeneratePDFService {
 				oneChunkBuffer = new StringBuffer();
 				
 			} else if (command == SimpleTextCommands.PARA) {
-				insertPara(page, pdfWriter, document, oneChunkBuffer.toString(),getFont());
+				insertPara(page, pdfWriter, document, oneChunkBuffer.toString(),createFont());
 				oneChunkBuffer = new StringBuffer();
 			} else if (command == SimpleTextCommands.FONT) {
 				oneChunkBuffer.append(line);
-				Font font = getFont();
+				Font font = createFont();
 				String oneChunkText = oneChunkBuffer.toString();
 				Map<String, String> parameters = command.parameters(oneChunkText);
 				if (parameters.containsKey("size")) {
@@ -732,7 +736,7 @@ public class GeneratePDFServiceImpl implements GeneratePDFService {
 		}
 		
 		if (oneChunkBuffer.length() > 0 ) {
-			insertPara(page, pdfWriter, document, oneChunkBuffer.toString(), getFont());
+			insertPara(page, pdfWriter, document, oneChunkBuffer.toString(), createFont());
 		}
 	}
 
@@ -753,7 +757,7 @@ public class GeneratePDFServiceImpl implements GeneratePDFService {
 		String pageNumber = page.getPageNumber();
 		insertImage(page.getUuid(), pdfWriter, document, 0.7f,djvuUrl);
 		
-		Font font = getFont();
+		Font font = createFont();
 		Chunk chunk = new Chunk(pageNumber);
 		chunk.setLocalDestination(page.getOutlineDestination());
 		float fontSize = chunk.getFont().getCalculatedSize();
@@ -773,9 +777,17 @@ public class GeneratePDFServiceImpl implements GeneratePDFService {
 		cb.restoreState();
 	}
 
-	private Font getFont() throws DocumentException, IOException {
-		BaseFont bf = BaseFont.createFont("Helvetica", BaseFont.CP1250,true);
-		return new Font(bf);
+	private Font createFont() throws DocumentException, IOException {
+		String workingDir = Constants.WORKING_DIR;
+		File fontFile = new File(workingDir+File.separator+"fonts"+File.separator+"ext_ontheflypdf_ArialCE.ttf");
+		if (fontFile.exists()) {
+			BaseFont bf = BaseFont.createFont(fontFile.getAbsolutePath(), BaseFont.CP1250,true);
+			return new Font(bf);
+		} else {
+			BaseFont bf = BaseFont.createFont("Helvetica", BaseFont.CP1250,true);
+			return new Font(bf);
+		}
+		
 	}
 
 	
