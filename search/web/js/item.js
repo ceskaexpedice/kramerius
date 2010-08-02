@@ -292,7 +292,10 @@ var COMMON = function() {
 
 //~~~~~~~  PDF objekt
 var PDF=function() {
+
 	return {
+		privateLevel: 1,
+
 		dialogSummary: null ,
 		// sestaveni parametru path
 		path:function(level) {
@@ -311,11 +314,10 @@ var PDF=function() {
 		},
 		// sestaveni url dle parametru z dialogu
 		urlFromDialog:function(level) {
-			//var fromUuid = $("#list-page>div.relItem")[$("#genPdfStart").val()-1].attributes['id'].value;
+			var maxlevel = $('div[id^=tabs_]').length;
 			var fromUuid = $($("#list-page>div.relItem")[$("#genPdfStart").val()-1]).attr('id');
-//            var toUuid = $("#list-page>div.relItem")[$("#genPdfEnd").val()-1].attributes['pid'].value;
             var toUuid = $("#list-page>div.relItem")[$("#genPdfEnd").val()-1].attributes['pid'].value;
-            var u = "pdf?uuidFrom=" + fromUuid+"&uuidTo="+toUuid+"&path="+PDF.path(level);
+            var u = "pdf?uuidFrom=" + fromUuid+"&uuidTo="+toUuid+"&path="+PDF.path(maxlevel-1);
             window.location.href = u;
 		},
 		// generovani pdf
@@ -342,10 +344,14 @@ var PDF=function() {
 		findRange:function() {
 			var fromIndex = -1;
 			var toIndex = -1;
+			var pagesCount = $("#list-page>div.relItem").length;
 			$('#tv_container_row img.tv_image').each(function(i, o){
 				if ($(o).hasClass('tv_img_selected')) {
 					fromIndex = i+1;
 					toIndex = fromIndex + generatePdfMaxRange-1;
+					if (toIndex > pagesCount) {
+						toIndex = pagesCount;
+					}
 				}
 				if ((fromIndex > 0) && (i < toIndex)) {
 			        $(o).parent().toggleClass('tv_img_multiselect');
@@ -361,10 +367,11 @@ var PDF=function() {
 		
 		// dialog pro vyber stranek 
 		openGeneratePdfDialog:function (level){
+			PDF.privateLevel = level;
 			var range = PDF.findRange();
-
 			var pagesCount = $("#list-page>div.relItem").length;
-		    $("#genPdfEnd").val(range.toIndex);
+		    
+			$("#genPdfEnd").val(range.toIndex);
 		    $("#genPdfStart").val(range.fromIndex);
 
 		    if(PDF.dialogSummary){
@@ -390,7 +397,7 @@ var PDF=function() {
 		            
 		            buttons: {
 		                "Ok": function() {
-		                   
+		        	
 		                    var from = $("#genPdfStart").val();
 		                    var to = $("#genPdfEnd").val();
 		                   
@@ -410,10 +417,12 @@ var PDF=function() {
 		                    }else if(to>pagesCount  || isNaN(from) || isNaN(to)) {
 		                    	alert(dictionary['generatePdfErrorText']);
 		                    }else if(to==pagesCount && from == '1'){
-		                    	PDF.urlFromDialog(level);
-		                        $(this).dialog("close");
+		                    	//PDF.urlFromDialog(level);
+		                    	PDF.urlFromDialog(PDF.privateLevel);
+		                    	
+		                    	$(this).dialog("close");
 		                    }else{
-		                    	PDF.urlFromDialog(level);
+		                    	PDF.urlFromDialog(PDF.privateLevel);
 		                        $(this).dialog("close");
 		                    }
 
