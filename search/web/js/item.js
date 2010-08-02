@@ -377,6 +377,15 @@ var PDF=function() {
 		    if(PDF.dialogSummary){
 		        PDF.dialogSummary.dialog('open');
 		    }else{
+		    	
+		        $.get("i18n?action=text&name=first_page_html", function(xml) {
+		            var head = $(xml).find('head').text();
+		            var body = $(xml).find('desc').text();
+		            $("#pdf_desc_head").html(head);
+		            $("#pdf_desc_content").html(body);
+		        });
+		    	
+		        
 		    	$('#genPdfStart').change(function() {
 				    var start = $("#genPdfStart").val();
 				    var stop = $("#genPdfEnd").val();
