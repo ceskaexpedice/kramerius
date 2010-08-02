@@ -19,6 +19,8 @@ public class FedoraNamespaceContext implements NamespaceContext {
 		NAMESPACES_DEFAULT_MAPPING.put("dc", DC_NAMESPACE_URI);
 		NAMESPACES_DEFAULT_MAPPING.put("fedora-models", FEDORA_MODELS_URI);
 		NAMESPACES_DEFAULT_MAPPING.put("kramerius", KRAMERIUS_URI);
+		NAMESPACES_DEFAULT_MAPPING.put("kramerius", KRAMERIUS_URI);
+		NAMESPACES_DEFAULT_MAPPING.put("rdf", RDF_NAMESPACE_URI);
 	}
 	
 	@Override
