@@ -40,13 +40,29 @@
      <div id="intro3">
         <%  if(request.getRemoteUser()!=null) {  %>
         <%@ include file="text/edit_intro.jsp" %>
-	<% }else{  %>
+	<% }else{
+            Injector inj = (Injector)application.getAttribute(Injector.class.getName());
+            TextsService ts = (TextsService)inj.getInstance(TextsService.class);	
+
+
+            String lang = request.getParameter("language");
+            if (lang == null || lang.length() == 0) {
+                lang = "cs";
+            }
+            try {
+                String text = ts.getText("intro", ts.findLocale(lang));
+                out.println(text);
+            } catch (Exception e) {
+                System.out.println(e.getMessage());
+                System.out.println("Loading default");  %>
             <c:choose>
                 <c:when test="${param.language == 'en'}"><%@ include file="text/intro_en.jsp" %></c:when>
                 <c:when test="${param.language == 'cs'}"><%@ include file="text/intro_cs.jsp" %></c:when>
                 <c:otherwise><%@ include file="text/intro_cs.jsp" %></c:otherwise>
             </c:choose>
-	<% } %>
+	<%
+        }
+        } %>
          </div>
 </div>
 <script language="javascript">
