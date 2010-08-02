@@ -43,7 +43,7 @@
            </x:otherwise>
        </x:choose>
     
-    <span class="textpole">(<fmt:message bundle="${lctx}"><x:out select="./str[@name='fedora.model']"/></fmt:message>)</span>
+    <span class="textpole">(<fmt:message bundle="${lctx}">fedora.model.<x:out select="./str[@name='fedora.model']"/></fmt:message>)</span>
     <x:if select="./int[@name='pages_count'] != '0'">
     <span><x:out select="./int[@name='pages_count']"/></span>
     </x:if>
