@@ -119,9 +119,13 @@
 
 <!-- dialogs -->
 <div id="pdf_options" style="display:none;">
-        <span>rozsah stran:&nbsp;(max.&nbsp;<%=kconfig.getProperty("generatePdfMaxRange")%>)</span><br>&nbsp;&nbsp;                           
-        <input type="text" id="genPdfStart" value="1" name="genPdfStart" size="3" > -
-        <input type="text" id="genPdfEnd" value="1" name="genPdfEnd" size="3">
+		<h3 id="pdf_desc_head"></h3>
+		<div id="pdf_desc_content"></div>
+		<div id="pdf_page_range" style="margin-top:10px;">
+	        <strong>Rozsah stran:&nbsp;(max.&nbsp;<%=kconfig.getProperty("generatePdfMaxRange")%>)</strong><br>&nbsp;&nbsp;                           
+    	    <input type="text" id="genPdfStart" value="1" name="genPdfStart" size="3" > -
+    	    <input type="text" id="genPdfEnd" value="1" name="genPdfEnd" size="3">
+		</div>
 </div>
 
 
