@@ -133,6 +133,8 @@ public class GeneratePDFServiceImpl implements GeneratePDFService {
 		String[] texts = 
 		{"first_page",
 		"first_page_CZ_cs",
+		"first_page_html",
+		"first_page_html_CZ_cs",
 		"security_fail",
 		"security_fail_CZ_cs"};
 		copyFiles(texts,"res/", this.textsService.textsFolder());
@@ -772,7 +774,7 @@ public class GeneratePDFServiceImpl implements GeneratePDFService {
 	}
 
 	private Font getFont() throws DocumentException, IOException {
-		BaseFont bf = BaseFont.createFont("Helvetica", BaseFont.CP1250,BaseFont.EMBEDDED);
+		BaseFont bf = BaseFont.createFont("Helvetica", BaseFont.CP1250,true);
 		return new Font(bf);
 	}
 
