@@ -56,10 +56,10 @@ public class CustomLocalizationContext extends LocalizationContext {
 
 	private void copyDefault() throws IOException {
 		String[] defaults = 
-		{"labels.properties",
+		{
 		"labels_en.properties",
-		"labels_sk.properties",
-		"labels_cs.properties"};
+		"labels_cs.properties"
+		};
 		for (String base : defaults) {
 			InputStream is = null;
 			OutputStream os = null;
@@ -72,6 +72,19 @@ public class CustomLocalizationContext extends LocalizationContext {
 				if (is != null) is.close();
 			}
 		}
+		
+		// cs locale as default
+		InputStream is = null;
+		OutputStream os = null;
+		try {
+			is = this.getClass().getClassLoader().getResourceAsStream("labels_cs.properties");
+			os = new FileOutputStream(new File(this.bundleService.bundlesFolder(),"labels.properties"));
+			copyStreams(is, os);
+		} finally {
+			if (os != null) os.close();
+			if (is != null) is.close();
+		}
+
 	}
 
 	@Override
