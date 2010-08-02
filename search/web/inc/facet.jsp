@@ -34,13 +34,13 @@
                 more = (i > facetsCollapsed && currentFacet.getFacetsNumber() > facetsCollapsed) ? "moreFacets" : "";
         %>
         <div class="facetItem <%=more%> ">
-            <a title="<fmt:message bundle="${lctx}" >Add_navigator</fmt:message>" 
+            <a title="<fmt:message bundle="${lctx}" >facets.add_navigator</fmt:message>" 
                href="<%=current.url%>"><%
                
                if (currentFacet.name.equals("document_type")){
-                   %><fmt:message bundle="${lctx}" ><%=current.displayName%></fmt:message><%
+                   %><fmt:message bundle="${lctx}" >fedora.model.<%=current.displayName%></fmt:message><%
                }else if(current.displayName.equals("")) {
-               %><fmt:message bundle="${lctx}" >neuvedeno</fmt:message><%
+               %><fmt:message bundle="${lctx}" >facets.uknown</fmt:message><%
                }else{%><%=current.displayName%><%}%></a> <span class="count">(<%=current.count%>)</span>
         </div>
         <%

@@ -9,12 +9,12 @@
 <div class="usedFilter">
     :: <a title="" class="mainNav"
      href="javascript:removeQuery();"><c:out value="${param.q}" /><img src="img/x.png"  border="0" 
-     title="<fmt:message bundle="${lctx}" key="remove_criteria"/><fmt:message bundle="${lctx}" key="query" />: <c:out value="${param.q}" />" />
+     title="<fmt:message bundle="${lctx}" key="filter.remove_criteria"/><fmt:message bundle="${lctx}" key="filter.query" />: <c:out value="${param.q}" />" />
 </a></div>
 </c:if>
 <%-- datum --%>
 <c:if test="${param.f1 != null}">
-    <fmt:message bundle="${lctx}" key="Datum" />: <c:out value="${param.f1}" /> - <c:out value="${param.f2}" />
+    <fmt:message bundle="${lctx}" key="common.date" />: <c:out value="${param.f1}" /> - <c:out value="${param.f2}" />
 </c:if>
 
 <%-- filter queries --%>
@@ -31,7 +31,7 @@
     </c:if>
     <div class="usedFilter">:: <a title="" class="mainNav" href="javascript:removeNavigation2('<c:out value="${facetName}" />', '<c:out value="${facetValue}" />');">
     <c:out value="${facetName}" />: <c:out value="${facetValue}"/>&#160;<img src="img/x.png"  border="0" 
-    title="<fmt:message bundle="${lctx}" key="remove_criteria"/>: <c:out value="${facetName}"/>"/>
+    title="<fmt:message bundle="${lctx}" key="filter.remove_criteria"/>: <c:out value="${facetName}"/>"/>
         </a></div>
 </c:forEach>
 
@@ -39,49 +39,49 @@
 <c:if test="${!empty param.issn}">
     <div class="usedFilter">:: <a title="" class="mainNav" href="javascript:removeNavigation2('issn', '<c:out value="${param.issn}" />');">
     <fmt:message bundle="${lctx}" key="issn" />: <c:out value="${param.issn}"/>&#160;<img src="img/x.png"  border="0" 
-    title="<fmt:message bundle="${lctx}" key="remove_criteria"/>: issn"/></a></div>
+    title="<fmt:message bundle="${lctx}" key="filter.remove_criteria"/>: issn"/></a></div>
 </c:if>
 <c:if test="${!empty param.title}">
     <div class="usedFilter">:: 
     <a title="" class="mainNav" href="javascript:removeNavigation2('title', '<c:out value="${param.title}" />');">
-    <fmt:message bundle="${lctx}">Hlavní název</fmt:message>: <c:out value="${param.title}"/>&#160;<img src="img/x.png"  border="0" 
-    title="<fmt:message bundle="${lctx}" key="remove_criteria"/>: title"/></a></div>
+    <fmt:message bundle="${lctx}">filter.maintitle</fmt:message>: <c:out value="${param.title}"/>&#160;<img src="img/x.png"  border="0" 
+    title="<fmt:message bundle="${lctx}" key="filter.remove_criteria"/>: title"/></a></div>
 </c:if>
 <c:if test="${!empty param.author}">
     <div class="usedFilter">:: 
     <a title="" class="mainNav" href="javascript:removeNavigation2('author', '<c:out value="${param.author}" />');">
     <fmt:message bundle="${lctx}" key="author" /> &#160;<c:out value="${param.author}"/>&#160;<img src="img/x.png"  border="0" 
-    title="<fmt:message bundle="${lctx}" key="remove_criteria"/>: author"/></a></div>
+    title="<fmt:message bundle="${lctx}" key="filter.remove_criteria"/>: author"/></a></div>
 </c:if>
 <c:if test="${!empty param.rok}">
     <div class="usedFilter">:: 
     <a title="" class="mainNav" href="javascript:removeNavigation2('rok', '<c:out value="${param.rok}" />');">
     <fmt:message bundle="${lctx}" key="rok" />: &#160;<c:out value="${param.rok}"/>&#160;<img src="img/x.png"  border="0" 
-    title="<fmt:message bundle="${lctx}" key="remove_criteria"/>: rok"/></a></div>
+    title="<fmt:message bundle="${lctx}" key="filter.remove_criteria"/>: rok"/></a></div>
 </c:if>
 <c:if test="${!empty param.keywords}">
     <div class="usedFilter">:: 
     <a title="" class="mainNav" href="javascript:removeNavigation2('keywords', '<c:out value="${param.keywords}" />');">
     <fmt:message bundle="${lctx}" key="Keywords" />: &#160;<c:out value="${param.keywords}"/>&#160;<img src="img/x.png"  border="0" 
-    title="<fmt:message bundle="${lctx}" key="remove_criteria"/>: keywords"/></a></div>
+    title="<fmt:message bundle="${lctx}" key="filter.remove_criteria"/>: keywords"/></a></div>
 </c:if>
 <c:if test="${!empty param.udc}">
     <div class="usedFilter">:: 
     <a title="" class="mainNav" href="javascript:removeNavigation2('udc', '<c:out value="${param.udc}" />');">
     MDT: &#160;<c:out value="${param.udc}"/>&#160;<img src="img/x.png"  border="0" 
-    title="<fmt:message bundle="${lctx}" key="remove_criteria"/>: udc"/></a></div>
+    title="<fmt:message bundle="${lctx}" key="filter.remove_criteria"/>: udc"/></a></div>
 </c:if>
 <c:if test="${!empty param.ddc}">
     <div class="usedFilter">:: 
     <a title="" class="mainNav" href="javascript:removeNavigation2('ddc', '<c:out value="${param.ddc}" />');">
     DDT: &#160;<c:out value="${param.ddc}"/>&#160;<img src="img/x.png"  border="0" 
-    title="<fmt:message bundle="${lctx}" key="remove_criteria"/>: ddc"/></a></div>
+    title="<fmt:message bundle="${lctx}" key="filter.remove_criteria"/>: ddc"/></a></div>
 </c:if>
 <c:if test="${!empty param.onlyPublic}">
     <div class="usedFilter">:: 
     <a title="" class="mainNav" href="javascript:removeNavigation2('onlyPublic', '<c:out value="${param.onlyPublic}" />');">
     <fmt:message bundle="${lctx}" key="Pouze veřejné dokumenty" />:&#160; <c:out value="${param.onlyPublic}"/>&#160;<img src="img/x.png"  border="0" 
-    title="<fmt:message bundle="${lctx}" key="remove_criteria"/>: <fmt:message bundle="${lctx}" key="Pouze veřejné dokumenty" />" /></a></div>
+    title="<fmt:message bundle="${lctx}" key="filter.remove_criteria"/>: <fmt:message bundle="${lctx}" key="Pouze veřejné dokumenty" />" /></a></div>
 </c:if>
 <%--
 <br/>
@@ -98,7 +98,7 @@
         - <a title="" class="mainNav"
              href="javascript:removeNavigation('<x:out select="." />');">
             <c:out value="${facetValue}"/>&#160;<img src="img/x.png"  border="0" 
-                                                     title="<fmt:message bundle="${lctx}" key="remove_criteria"/>: <c:out value="${facetName}"/>"/>
+                                                     title="<fmt:message bundle="${lctx}" key="filter.remove_criteria"/>: <c:out value="${facetName}"/>"/>
         </a>
     </x:forEach>
     <x:forEach select="$doc/response/lst/lst/str[@name='fq']">
@@ -113,7 +113,7 @@
         - <a title="" class="mainNav"
              href="javascript:removeNavigation('<x:out select="." />');">
             <c:out value="${facetValue}"/>&#160;<img src="img/x.png"  border="0" 
-                                                     title="<fmt:message bundle="${lctx}" key="remove_criteria"/>: <c:out value="${facetName}"/>"/>
+                                                     title="<fmt:message bundle="${lctx}" key="filter.remove_criteria"/>: <c:out value="${facetName}"/>"/>
         </a>
     </x:forEach>
     

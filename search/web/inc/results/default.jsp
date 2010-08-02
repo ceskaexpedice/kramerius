@@ -39,7 +39,7 @@
                 
             </x:when>
             <x:when select="./str[@name='fedora.model'] = 'page'">
-                <fmt:message bundle="${lctx}">page</fmt:message>
+                <fmt:message bundle="${lctx}">fedora.model.page</fmt:message>
                   
             </x:when>
             <x:when select="./str[@name='fedora.model'] = 'periodical2'">

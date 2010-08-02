@@ -122,7 +122,7 @@
                 <span class="value"><xsl:value-of select="./mods:identifier[@type='issn']" /></span>
             </li>
             <li>
-                <span class="label"><fmt:message bundle="${lctx}">Hlavní název</fmt:message></span>
+                <span class="label"><fmt:message bundle="${lctx}">filter.maintitle</fmt:message></span>
                 <span class="value"><xsl:value-of select="mods:titleInfo/mods:title" /></span>
             </li>
             <xsl:if test="mods:titleInfo/mods:subTitle/text()">
@@ -138,13 +138,13 @@
             
             <xsl:if test="mods:language/mods:languageTerm">
             <li>
-                <span class="label"><fmt:message bundle="${lctx}">Jazyk</fmt:message></span>
+                <span class="label"><fmt:message bundle="${lctx}">common.language</fmt:message></span>
                 <span class="value"><xsl:value-of select="mods:language/mods:languageTerm" /></span>
             </li>
             </xsl:if>
                 
             <xsl:if test="mods:name[@type='personal']/mods:role/mods:roleTerm = 'Author'">
-            <h3><fmt:message bundle="${lctx}">Autor</fmt:message></h3>
+            <h3><fmt:message bundle="${lctx}">common.author</fmt:message></h3>
             <xsl:for-each select="mods:name[@type='personal']"><li>
                 <span class="value">
                     <xsl:if test="./mods:role/mods:roleTerm = 'Author'">
@@ -235,7 +235,7 @@
             </xsl:if>
             <xsl:if test="mods:location/mods:shelfLocator">
             <li>
-                <span class="label"><fmt:message bundle="${lctx}">Signatura</fmt:message></span>
+                <span class="label"><fmt:message bundle="${lctx}">common.signature</fmt:message></span>
                 <span class="value"><xsl:value-of select="mods:location/mods:shelfLocator" /></span>
             </li>
             </xsl:if>

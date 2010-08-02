@@ -158,9 +158,9 @@
 
 <c:set var="numDocsStr" scope="request" >
     <c:choose>
-        <c:when test="${numDocs==1}"><fmt:message bundle="${lctx}">dokument</fmt:message></c:when>
-        <c:when test="${numDocs>1 && numDocs<5}"><fmt:message bundle="${lctx}">dokumenty</fmt:message></c:when>
-        <c:when test="${numDocs>4}"><fmt:message bundle="${lctx}">dokumentů</fmt:message></c:when>
+        <c:when test="${numDocs==1}"><fmt:message bundle="${lctx}">common.documents.singular</fmt:message></c:when>
+        <c:when test="${numDocs>1 && numDocs<5}"><fmt:message bundle="${lctx}">common.documents.plural_1</fmt:message></c:when>
+        <c:when test="${numDocs>4}"><fmt:message bundle="${lctx}">common.documents.plural_2</fmt:message></c:when>
     </c:choose>
     
 </c:set>

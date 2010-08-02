@@ -5,14 +5,7 @@
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 <%@ page isELIgnored="false"%>
 
-<c:choose>
-    <c:when test="${param.language != null}" >
-        <fmt:setLocale value="${param.language}" />
-    </c:when>
-</c:choose>
 
-<fmt:setBundle basename="labels" />
-<fmt:setBundle basename="labels" var="bundleVar" />
 <%@ include file="../initVars.jsp" %>
 <c:url var="url" value="${kconfig.solrHost}/select/select" >
     <c:param name="q" >parent_pid:"<c:out value="${param.pid}" />"</c:param>
@@ -41,7 +34,7 @@
             <ul>
             <x:forEach varStatus="status" select="$doc/response/result/doc">
                 <x:if select="not(preceding-sibling::*[1]/str[@name='fedora.model'] = ./str[@name='fedora.model']/text())">
-                    <li><a href="#tabs-<x:out select="./str[@name='fedora.model']" />"><x:out select="./str[@name='fedora.model']" /></a></li>
+                    <li><a href="#tabs-<x:out select="./str[@name='fedora.model']" />"> <x:out select="./str[@name='fedora.model']" /></a></li>
                 </x:if>
             </x:forEach>
             </ul>

@@ -14,11 +14,11 @@
                 <td><input type="text" value="<c:out value="${param.title}" />" size="20" name="title"></td>
             </tr>
             <tr>
-                <td><fmt:message bundle="${lctx}" key="author" /></td>
+                <td><fmt:message bundle="${lctx}" key="filter.query.author" /></td>
                 <td><input type="text" value="<c:out value="${param.author}" />" size="20" name="author"></td>
             </tr>
             <tr>
-                <td><fmt:message bundle="${lctx}" key="Rok" /></td>
+                <td><fmt:message bundle="${lctx}" key="filter.query.year" /></td>
                 <td><input type="text" value="<c:out value="${param.rok}" />" size="10" name="rok"></td>
             </tr>
             <tr>
