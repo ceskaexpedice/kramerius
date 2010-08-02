@@ -4,11 +4,24 @@
  */
 package cz.incad.Kramerius;
 
+import cz.incad.Kramerius.backend.guice.GuiceServlet;
+import cz.incad.kramerius.FedoraAccess;
+import cz.incad.kramerius.FedoraNamespaceContext;
+import cz.incad.kramerius.FedoraNamespaces;
 import cz.incad.kramerius.KrameriusModels;
 import cz.incad.kramerius.RDFModels;
+import cz.incad.kramerius.lp.utils.DecriptionHTML;
+import cz.incad.kramerius.service.ResourceBundleService;
+import cz.incad.kramerius.utils.IOUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
+import cz.incad.kramerius.utils.pid.LexerException;
+import cz.incad.kramerius.utils.pid.PIDParser;
+
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.PrintWriter;
+import java.io.StringWriter;
+
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -19,196 +32,212 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpression;
+import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
 
 import java.io.StringReader;
+import java.nio.charset.Charset;
 
 import java.util.ArrayList;
+import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Locale;
 import java.util.ResourceBundle;
+import java.util.logging.Level;
+
+import org.antlr.stringtemplate.StringTemplate;
+import org.antlr.stringtemplate.StringTemplateGroup;
+import org.antlr.stringtemplate.language.DefaultTemplateLexer;
 import org.w3c.dom.Document;
+import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
 
+import com.google.inject.Inject;
+import com.google.inject.Provider;
+import com.google.inject.name.Named;
+
 /**
- *
+ * 
  * @author Administrator
  */
-public class GetRelsExt extends HttpServlet {
+public class GetRelsExt extends GuiceServlet {
 
-    /** 
-     * Processes requests for both HTTP <code>GET</code> and <code>POST</code> methods.
-     * @param request servlet request
-     * @param response servlet response
-     */
-    ResourceBundle res;
+	public static final java.util.logging.Logger LOGGER = java.util.logging.Logger
+			.getLogger(GetRelsExt.class.getName());
 
-    protected void processRequest(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException {
-                response.setCharacterEncoding("UTF-8");
-        PrintWriter out = response.getWriter();
-        try {
-            KConfiguration configuration = KConfiguration.getInstance();
-            String language = request.getParameter("language");
-            if(language==null || language.equals("")) language = "cs";
-            res = ResourceBundle.getBundle("labels", new Locale(language));
+	@Inject
+	Provider<Locale> provider;
 
-            String pid = request.getParameter("pid");
-            String relation = request.getParameter("relation");
-            String format = request.getParameter("format");
-            ArrayList<String> pids = getRdfPids(configuration, pid, relation);
-            
-            if (format == null) {
-                response.setContentType("text/plain;charset=UTF-8");
-                for (String relpid : pids) {
-                    out.print(relpid + "#");
-                }
-            } else if (format.equals("json")) {
-                //response.setContentType("application/x-javascript");
-                response.setContentType("text/plain");
-                outputAsJson(out, pids);
-            } 
-        //writeBiblioModsInfo(pids, out);
-        } catch (Exception e) {
-            e.printStackTrace();
-            out.println(e.toString());
-        } finally {
-            out.close();
-        }
-    }
+	@Inject
+	ResourceBundleService bundleService;
 
-    private void outputAsJson(PrintWriter out, ArrayList<String> pids) {
-        out.println("({\"items\": [");
-        HashMap<String, ArrayList<String>> models = new HashMap<String, ArrayList<String>>();
-        String model;
-        String rels;
-        for (String relpid : pids) {
-            model = relpid.split(" ")[0];
-            rels = relpid.split(" ")[1];
-            if(rels.contains(":")){
-                rels = "\"" + rels.split(":")[1] + "\"";
-            }else{
-                rels = "\"" + rels + "\"";
-            }
-            //rels = "\"" + relpid.split(" ")[1].split(":")[1] + "\"";
-            if (models.containsKey(model)) {
-                models.get(model).add(rels);
-            } else {
-                ArrayList<String> a = new ArrayList<String>();
-                a.add(rels);
-                models.put(model, a);
-            }
-        }
-        Iterator iterator = models.keySet().iterator();
+	@Inject
+	KConfiguration configuration;
 
-        while (iterator.hasNext()) {
-            String key = (String) iterator.next();
-            out.print("{\"");
-            
-            out.print(KrameriusModels.toString(RDFModels.convertRDFToModel(key)));
-            out.print("\":[\"");
-            try{
-                out.print(res.getString(KrameriusModels.toString(RDFModels.convertRDFToModel(key))));
-            }catch(Exception ex){
-                System.out.println(ex);
-                out.print(key);
-            }
-            out.print("\",");
-            for (int i = 0; i < models.get(key).size() - 1; i++) {
-                out.println(models.get(key).get(i) + ",");
-            }
-            out.print(models.get(key).get(models.get(key).size() - 1));
-            out.println("]}");
-            if (iterator.hasNext()) {
-                out.println(",");
-            }
-        }
-        out.println("]})");
-    }
+	@Inject
+	@Named("securedFedoraAccess")
+	FedoraAccess fedoraAccess;
 
-    private ArrayList getRdfPids(KConfiguration configuration, String pid, String relation) {
-        ArrayList<String> pids = new ArrayList<String>();
-        try {
-            String command = configuration.getFedoraHost() + "/get/" + pid + "/RELS-EXT";
-            Document contentDom = getDocument(command);
-            XPathFactory factory = XPathFactory.newInstance();
-            XPath xpath = factory.newXPath();
-            String xPathStr = "/RDF/Description/";
-            if (relation.endsWith("*")) {
-                xPathStr += relation;
-            } else {
-                xPathStr += RDFModels.convertToRdf(KrameriusModels.parseString(relation));
-            }
-            XPathExpression expr = xpath.compile(xPathStr);
-            NodeList nodes = (NodeList) expr.evaluate(contentDom, XPathConstants.NODESET);
-            for (int i = 0; i < nodes.getLength(); i++) {
-                Node childnode = nodes.item(i);
-                if (!childnode.getNodeName().contains("hasModel") &&
-                    childnode.hasAttributes() &&
-                    childnode.getAttributes().getNamedItem("rdf:resource")!=null  ) {
-                    pids.add(childnode.getNodeName() + " " +
-                            childnode.getAttributes().getNamedItem("rdf:resource").getNodeValue().split("/")[1]);
-                }
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-            pids.add(e.toString());
-        }
-        return pids;
-    }
+	protected void processRequest(HttpServletRequest request,
+			HttpServletResponse response) throws ServletException, IOException {
+		response.setCharacterEncoding("UTF-8");
+		PrintWriter out = response.getWriter();
+		try {
+			ResourceBundle resourceBundle = this.bundleService.getResourceBundle("labels", this.provider.get());
+			String pid = request.getParameter("pid");
+			String relation = request.getParameter("relation");
+			String format = request.getParameter("format");
+			List<RelationNamePidValue> pids = getRdfPids(configuration, pid, relation);
 
-    private Document getDocument(String urlStr) {
-        try {
-            StringBuffer result = new StringBuffer();
-            java.net.URL url = new java.net.URL(urlStr);
+			if (format == null) {
+				response.setContentType("text/plain;charset=UTF-8");
+				out.print(simpleList(pids));
+			} else if (format.equals("json")) {
+				response.setContentType("text/plain");
+				out.print(json( pids,resourceBundle));
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+			LOGGER.log(Level.SEVERE, e.getMessage(), e);
+		} finally {
+			out.close();
+		}
+	}
 
-            java.io.BufferedReader in = new java.io.BufferedReader(new java.io.InputStreamReader(url.openStream(),
-                    java.nio.charset.Charset.forName("UTF-8")));
-            String inputLine;
-            while ((inputLine = in.readLine()) != null) {
-                result.append(inputLine);
-            }
-            in.close();
-            DocumentBuilderFactory domFactory = DocumentBuilderFactory.newInstance();
-            domFactory.setNamespaceAware(false);
-            DocumentBuilder builder = domFactory.newDocumentBuilder();
-            InputSource source = new InputSource(new StringReader(result.toString()));
-            return builder.parse(source);
+	private String simpleList(List<RelationNamePidValue> pids) throws IOException {
+		StringTemplateGroup group = stGroup();
+		StringTemplate simple = group.getInstanceOf("simple");
+		simple.setAttribute("list", pids);
+		return simple.toString();
+	}
+	
+	private String json(List<RelationNamePidValue> pids,
+			ResourceBundle resourceBundle) throws IOException {
+		HashMap<String, ArrayList<String>> models = prepareModel(pids);
+		HashMap<String, String> res = new HashMap<String, String>();
+		Iterator<String> keys = resourceBundle.keySet().iterator();
+		while(keys.hasNext()) {
+			String key = keys.next(); 
+			if (key.startsWith("fedora.model.")) {
+				res.put(key.substring("fedora.model.".length()), resourceBundle.getString(key));
+			}
+		}
+		
+		StringTemplateGroup group = stGroup();
+		StringTemplate json = group.getInstanceOf("json");
+		json.setAttribute("model", models);
+		json.setAttribute("res", res);
+		return json.toString();
+		
+	}
 
-        } catch (Exception e) {
-            e.printStackTrace();
-            return null;
-        }
-    }
+	private StringTemplateGroup stGroup() throws IOException {
+		InputStream stream = GetRelsExt.class.getResourceAsStream("GetRelsExt.stg");
+		String string = IOUtils.readAsString(stream, Charset.forName("UTF-8"), true);
+		StringTemplateGroup group = new StringTemplateGroup(new StringReader(string), DefaultTemplateLexer.class);
+		return group;
+	}
 
-    // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
-    /** 
-     * Handles the HTTP <code>GET</code> method.
-     * @param request servlet request
-     * @param response servlet response
-     */
-    protected void doGet(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException {
-        processRequest(request, response);
-    }
+	private HashMap<String, ArrayList<String>> prepareModel( List<RelationNamePidValue> pids) {
+		String model;
+		String rels;
+		HashMap<String, ArrayList<String>> models = new HashMap<String, ArrayList<String>>();
+		for (RelationNamePidValue item : pids) {
+			model = KrameriusModels.toString(RDFModels.convertRDFToModel(item.getRelationName()));
+			rels = item.getPid();
+			if (rels.contains(":")) {
+				rels = rels.substring(rels.indexOf(':'));
+			}
+			if (models.containsKey(model)) {
+				models.get(model).add(rels);
+			} else {
+				ArrayList<String> a = new ArrayList<String>();
+				a.add(rels);
+				models.put(model, a);
+			}
+		}
+		return models;
+	}
 
-    /** 
-     * Handles the HTTP <code>POST</code> method.
-     * @param request servlet request
-     * @param response servlet response
-     */
-    protected void doPost(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException {
-        processRequest(request, response);
-    }
+	private List<RelationNamePidValue> getRdfPids(KConfiguration configuration,
+			String pid, String relation) throws IOException, XPathExpressionException, LexerException {
 
-    /** 
-     * Returns a short description of the servlet.
-     */
-    public String getServletInfo() {
-        return "Short description";
-    }// </editor-fold>
+		ArrayList<RelationNamePidValue> pids = new ArrayList<RelationNamePidValue>();
+		Document contentDom = this.fedoraAccess.getRelsExt(pid
+				.substring("uuid:".length()));
+		XPathFactory factory = XPathFactory.newInstance();
+		XPath xpath = factory.newXPath();
+		xpath.setNamespaceContext(new FedoraNamespaceContext());
+		String xPathStr = "/rdf:RDF/rdf:Description/";
+		if (relation.endsWith("*")) {
+			xPathStr += "kramerius:" + relation;
+		} else {
+			xPathStr += "kramerius:"+ RDFModels.convertToRdf(KrameriusModels.parseString(relation));
+		}
+		XPathExpression expr = xpath.compile(xPathStr);
+		NodeList nodes = (NodeList) expr.evaluate(contentDom,XPathConstants.NODESET);
+		for (int i = 0; i < nodes.getLength(); i++) {
+			Node childnode = nodes.item(i);
+			if (childnode.getNodeType() == Node.ELEMENT_NODE) {
+				Element elm = (Element) childnode;
+				if (elm.hasAttributes()) {
+					String attributeVal = elm.getAttributeNS(FedoraNamespaces.RDF_NAMESPACE_URI, "resource");
+					if ((attributeVal != null) && (!attributeVal.trim().equals(""))) {
+						PIDParser pidParser = new PIDParser(attributeVal);
+						pidParser.disseminationURI();
+						String objectId = pidParser.getObjectId();
+						pids.add(new RelationNamePidValue(elm.getLocalName(),objectId));
+					} else {
+						LOGGER.severe("element '"+elm.getLocalName()+"' namespaceURI '"+elm.getNamespaceURI()+"'");
+					}
+				}
+			} else {
+				continue;
+			}
+		}
+		return pids;
+	}
+
+	protected void doGet(HttpServletRequest request,
+			HttpServletResponse response) throws ServletException, IOException {
+		processRequest(request, response);
+	}
+
+	/**
+	 * Handles the HTTP <code>POST</code> method.
+	 * 
+	 * @param request
+	 *            servlet request
+	 * @param response
+	 *            servlet response
+	 */
+	protected void doPost(HttpServletRequest request,
+			HttpServletResponse response) throws ServletException, IOException {
+		processRequest(request, response);
+	}
+
+	class RelationNamePidValue {
+
+		private String relationName;
+		private String pid;
+
+		public RelationNamePidValue(String relationName, String pid) {
+			super();
+			this.relationName = relationName;
+			this.pid = pid;
+		}
+
+		public String getRelationName() {
+			return relationName;
+		}
+
+		public String getPid() {
+			return pid;
+		}
+	}
+
 }

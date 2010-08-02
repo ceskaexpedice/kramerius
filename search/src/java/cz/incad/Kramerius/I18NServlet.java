@@ -22,6 +22,11 @@ import cz.incad.kramerius.processes.LRProcessManager;
 import cz.incad.kramerius.service.ResourceBundleService;
 import cz.incad.kramerius.service.TextsService;
 
+/**
+ * This servlet produces bundles as properties or as xml via http protocol. <br>
+ * This is useful for xslt transformations
+ * @author pavels
+ */
 public class I18NServlet extends GuiceServlet {
 
 	public static final java.util.logging.Logger LOGGER = java.util.logging.Logger

@@ -39,6 +39,10 @@ import cz.incad.kramerius.processes.States;
 import cz.incad.kramerius.processes.TypeOfOrdering;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 
+/**
+ * This is support for long running processes
+ * @author pavels
+ */
 public class LongRunningProcessServlet extends GuiceServlet {
 
 	private static final long serialVersionUID = 1L;
@@ -107,6 +111,9 @@ public class LongRunningProcessServlet extends GuiceServlet {
 	
 	static enum Actions {
 		
+		/**
+		 * Plan new process
+		 */
 		start {
 			public void doAction(ServletContext context,HttpServletRequest req, HttpServletResponse resp, DefinitionManager defManager, LRProcessManager lrProcessManager) {
 				try {
@@ -138,7 +145,10 @@ public class LongRunningProcessServlet extends GuiceServlet {
 				}
 			}
 		},
-
+		
+		/**
+		 * Stop running process
+		 */
 		stop {
 			@Override
 			public void doAction(ServletContext context,HttpServletRequest req,HttpServletResponse resp, DefinitionManager defManager, LRProcessManager lrProcessManager) {
@@ -163,6 +173,9 @@ public class LongRunningProcessServlet extends GuiceServlet {
 			}
 		},
 
+		/**
+		 * list all processes
+		 */
 		list {
 			@Override
 			public void doAction(ServletContext context,HttpServletRequest req,HttpServletResponse resp, DefinitionManager defManager, LRProcessManager lrProcessManager) {

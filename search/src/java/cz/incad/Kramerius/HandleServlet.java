@@ -36,6 +36,10 @@ import cz.incad.kramerius.utils.RESTHelper;
 import cz.incad.kramerius.utils.XMLUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 
+/**
+ * This is support for persistent URL
+ * @author pavels
+ */
 public class HandleServlet extends GuiceServlet {
 
 	private static final long serialVersionUID = 1L;

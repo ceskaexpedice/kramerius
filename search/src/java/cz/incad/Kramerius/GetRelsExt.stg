@@ -1,0 +1,28 @@
+group GetRelsExt;
+
+pidlist(pidlist) ::= << 
+$pidlist:{pid | "$pid$"}; separator=","$
+>>
+
+translate(key,res) ::=<<
+	$if(res.(key))$
+"$res.(key)$"
+	$else$
+"$key$"
+	$endif$
+>>
+
+json(model,res) ::= <<
+({"items": [ 
+	$model.keys:{key |
+		{"$key$":[$translate(key=key,res=res)$,$pidlist(pidlist=model.(key))$]} 	 
+	}; separator=",
+	"$
+]})
+>>
+
+
+
+simple(list) ::= <<
+	$list:{i | i.pid i.relationName}; separator="#"$;
+>>
