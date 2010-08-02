@@ -13,10 +13,12 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import com.google.inject.Inject;
+import com.google.inject.Provider;
 
 import cz.incad.Kramerius.backend.guice.GuiceServlet;
 import cz.incad.Kramerius.views.ApplicationURL;
 import cz.incad.kramerius.intconfig.InternalConfiguration;
+import cz.incad.kramerius.pdf.GeneratePDFService;
 import cz.incad.kramerius.processes.DefinitionManager;
 import cz.incad.kramerius.processes.LRProcessManager;
 import cz.incad.kramerius.service.ResourceBundleService;
@@ -37,12 +39,18 @@ public class I18NServlet extends GuiceServlet {
 	@Inject
 	ResourceBundleService resourceBundleService;
 	
+	@Inject 
+	GeneratePDFService generatePDFService;
+	
+	@Inject
+	Provider<Locale> provider;
+	
 	@Override
 	protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
 		String action = req.getParameter("action");
 		if (action == null) action = Actions.text.name();
 		Actions selectedAction = Actions.valueOf(action);
-		selectedAction.doAction(getServletContext(), req, resp, this.textsService, this.resourceBundleService);
+		selectedAction.doAction(getServletContext(), req, resp, this.textsService, this.resourceBundleService, this.provider);
 	}
 
 	public static String i18nServlet(HttpServletRequest request) {
@@ -54,10 +62,10 @@ public class I18NServlet extends GuiceServlet {
 
 		text {
 			@Override
-			public void doAction(ServletContext context, HttpServletRequest req, HttpServletResponse resp, TextsService tserv, ResourceBundleService rserv) {
+			public void doAction(ServletContext context, HttpServletRequest req, HttpServletResponse resp, TextsService tserv, ResourceBundleService rserv,  Provider<Locale> provider) {
 				try {
 					String parameter = req.getParameter("name");
-					Locale locale = locale(req);
+					Locale locale = locale(req, provider);
 					String text = tserv.getText(parameter, locale);
 					StringBuffer formatBundle = formatText(text, parameter);
 					resp.setContentType("application/xhtml+xml");
@@ -75,10 +83,10 @@ public class I18NServlet extends GuiceServlet {
 		bundle {
 
 			@Override
-			public void doAction(ServletContext context, HttpServletRequest req, HttpServletResponse resp, TextsService tserv, ResourceBundleService rserv) {
+			public void doAction(ServletContext context, HttpServletRequest req, HttpServletResponse resp, TextsService tserv, ResourceBundleService rserv, Provider<Locale> provider) {
 				try {
 					String parameter = req.getParameter("name");
-					Locale locale = locale(req);
+					Locale locale = locale(req, provider);
 					ResourceBundle resourceBundle = rserv.getResourceBundle(parameter, locale);
 					StringBuffer formatBundle = formatBundle(resourceBundle, parameter);
 					resp.setContentType("application/xhtml+xml");
@@ -95,14 +103,18 @@ public class I18NServlet extends GuiceServlet {
 			
 		};
 
-		abstract void doAction(ServletContext context,  HttpServletRequest req, HttpServletResponse resp,TextsService tserv, ResourceBundleService rserv);
+		abstract void doAction(ServletContext context,  HttpServletRequest req, HttpServletResponse resp,TextsService tserv, ResourceBundleService rserv, Provider<Locale> provider);
 		
 
-		static Locale locale(HttpServletRequest req) {
+		static Locale locale(HttpServletRequest req, Provider<Locale> provider) {
 			String lang = req.getParameter("lang");
 			String country = req.getParameter("country");
-			Locale locale = new Locale(lang, country);
-			return locale;
+			if ((lang != null) && (country != null)) {
+				Locale locale = new Locale(lang, country);
+				return locale;
+			} else {
+				return provider.get();
+			}
 		}
 		
 		static StringBuffer formatBundle(ResourceBundle bundle, String bundleName) {
