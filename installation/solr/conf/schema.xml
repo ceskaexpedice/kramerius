@@ -259,7 +259,7 @@
        boosting for the field, and saves some memory).  Only full-text
        fields or fields that need an index-time boost need norms.
    -->
-        <field name="PID" type="uuid" indexed="true" stored="true" required="true" /> 
+        <field name="PID" type="string" indexed="true" stored="true" required="true" /> 
    
    <!-- catchall field, containing all other searchable text fields (implemented
         via copyField further on in this schema  -->
