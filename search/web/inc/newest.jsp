@@ -62,7 +62,7 @@
                 imagePid = "thumb?uuid=" + FedoraUtils.findFirstPagePid("uuid:" + uuid);
             }
             %>
-            <div align="center" style="border:1px solid silver; width:100px; height:100px; float:left; margin:5px;"><a href="<c:out value="${itemUrl}" escapeXml="false" />" >
+            <div align="center" style="overflow:hidden; border:1px solid silver; width:100px; height:100px; float:left; margin:5px;"><a href="<c:out value="${itemUrl}" escapeXml="false" />" >
             <img align="middle" vspace="2" id="img_<c:out value="${uuid}"/>" src="<%=imagePid%>&scaledHeight=96" border="0" title="<x:out select="./str[@name='root_title']"/>"  /></a>
             </div>
         </x:forEach>
