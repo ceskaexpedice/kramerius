@@ -5,14 +5,8 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn" %>
 <%@ page isELIgnored="false"%>
 
-<c:choose>
-    <c:when test="${param.language != null}" >
-        <fmt:setLocale value="${param.language}" />
-    </c:when>
-</c:choose>
 
-<fmt:setBundle basename="labels" />
-<fmt:setBundle basename="labels" var="bundleVar" />
+
 
 <div id="intro">
      <ul>
@@ -43,6 +37,7 @@
 	<% }else{
             Injector inj = (Injector)application.getAttribute(Injector.class.getName());
             TextsService ts = (TextsService)inj.getInstance(TextsService.class);	
+	
 
 
             String lang = request.getParameter("language");
@@ -69,4 +64,4 @@
         $(document).ready(function(){
             $('#intro').tabs();
         });
-    </script>
+</script>
