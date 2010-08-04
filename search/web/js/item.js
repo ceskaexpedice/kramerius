@@ -314,10 +314,20 @@ var PDF=function() {
 		},
 		// sestaveni url dle parametru z dialogu
 		urlFromDialog:function(level) {
-			var maxlevel = $('div[id^=tabs_]').length;
+			var pageLevel = -1;
+			$.each($('div[id$=page]'), function(index, value) {
+				var idVal = $(value).attr('id');
+				if (idVal.indexOf('tab')==0) {
+					var stringLevel =  idVal.substring('tab'.length, idVal.length - '-page'.length)
+					var l = parseInt(stringLevel, 10);
+					if ((pageLevel == -1) || (l<pageLevel)) {
+						pageLevel = l;
+					}
+				}
+			});
 			var fromUuid = $($("#list-page>div.relItem")[$("#genPdfStart").val()-1]).attr('id');
             var toUuid = $("#list-page>div.relItem")[$("#genPdfEnd").val()-1].attributes['pid'].value;
-            var u = "pdf?uuidFrom=" + fromUuid+"&uuidTo="+toUuid+"&path="+PDF.path(maxlevel-1);
+            var u = "pdf?uuidFrom=" + fromUuid+"&uuidTo="+toUuid+"&path="+PDF.path(pageLevel-1);
             window.location.href = u;
 		},
 		// generovani pdf
