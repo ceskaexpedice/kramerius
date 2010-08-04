@@ -134,6 +134,21 @@ public class SecuredFedoraAccessImpl implements FedoraAccess {
 		return rawAccess.isImageFULLAvailable(uuid);
 	}
 
+	
+	
+	@Override
+	public boolean isContentAccessible(String uuid) throws IOException {
+		if (!this.acceptor.privateVisitor()) {
+			Document relsExt = this.rawAccess.getRelsExt(uuid);
+			try {
+				checkPolicyElement(relsExt);
+			} catch (SecurityException e) {
+				return false;
+			}
+		}
+		return true;
+	}
+
 	public void processRelsExt(Document relsExtDocument, RelsExtHandler handler)
 			throws IOException {
 		rawAccess.processRelsExt(relsExtDocument, handler);

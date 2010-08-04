@@ -140,12 +140,21 @@ public interface FedoraAccess {
 	public String getImageFULLMimeType(String uuid) throws IOException, XPathExpressionException;
 	
 	/**
-	 * Check whether full image is available
+	 * Check whether full image is available, is present and accessible
 	 * @param uuid
 	 * @return
 	 * @throws IOException
 	 */
 	public boolean isImageFULLAvailable(String uuid) throws IOException;
+	
+	/**
+	 * Checks whetere content is acessiable
+	 * @param uuid uuid of object which can be protected
+	 * @return
+	 * @throws IOException
+	 */
+	public boolean isContentAccessible(String uuid) throws IOException;
+	
 	
 	public FedoraAPIA getAPIA();
 	public FedoraAPIM getAPIM();

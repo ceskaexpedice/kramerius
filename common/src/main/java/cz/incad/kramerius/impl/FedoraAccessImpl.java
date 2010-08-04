@@ -297,7 +297,11 @@ public class FedoraAccessImpl implements FedoraAccess {
 		}
 	}
 
-	
+	@Override
+	public boolean isContentAccessible(String uuid) throws IOException {
+		return true;
+	}
+
 	public String getImageFULLMimeType(String uuid) throws IOException, XPathExpressionException {
 		Document profileDoc = getImageFULLProfile(uuid);
         return mimetypeFromProfile(profileDoc);
