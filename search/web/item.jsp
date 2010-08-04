@@ -5,41 +5,29 @@
 <%@ page isELIgnored="false"%>
 <%@page import="com.google.inject.Injector"%>
 <%@page import="javax.servlet.jsp.jstl.fmt.LocalizationContext"%>
+<%@page import="cz.incad.Kramerius.views.item.ItemViewObject"%>
+<%@page import="cz.incad.Kramerius.views.item.menu.ItemMenuViewObject"%>
 
 
 <%
 	Injector inj = (Injector)application.getAttribute(Injector.class.getName());
-	pageContext.setAttribute("lrProcessManager",inj.getInstance(LRProcessManager.class));
-	pageContext.setAttribute("dfManager",inj.getInstance(DefinitionManager.class));
 	
+	// view objekt pro stranku = veskera logika 
+	ItemViewObject itemViewObject = new ItemViewObject();
+	inj.injectMembers(itemViewObject);
+
+	// lokalizacni kontext
 	LocalizationContext lctx= inj.getProvider(LocalizationContext.class).get();
 	pageContext.setAttribute("lctx", lctx);
-
-	String pidPath = request.getParameter("pid_path");
-	StringTokenizer tokenizer = new StringTokenizer(pidPath,"/");
-	if (tokenizer.hasMoreTokens()) {
-		inj.getInstance(MostDesirable.class).saveAccess(tokenizer.nextToken(), new Date());	
-	}
-
+	
+	// ukladani nejoblibenejsich 
+	itemViewObject.saveMostDesirable();
+	pageContext.setAttribute("itemViewObject", itemViewObject);
 %>
 
 <%@ include file="inc/initVars.jsp" %>
-<c:set var="pageType" value="search" />
-<jsp:useBean id="pageType" type="java.lang.String" />
-<fmt:setBundle basename="labels" />
-<fmt:setBundle basename="labels" var="bundleVar" />
-<c:url var="url" value="${kconfig.solrHost}/select/select" >
-    <c:param name="q" value="PID:\"${param.pid}\"" />
-</c:url>
 
-<c:catch var="exceptions"> 
-    <c:import url="${url}" var="xml" charEncoding="UTF-8" />
-</c:catch>
-<c:if test="${exceptions != null}" >
-    <c:import url="empty.xml" var="xml" />
-</c:if>
 
-<x:parse var="doc" xml="${xml}"  />
 
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
 
@@ -58,17 +46,14 @@
 		<!--  procesy - dialogy -->
 	    <%@ include file="dialogs/_processes_dialogs.jsp" %>
         <table style="width:100%" id="mainItemTable"><tr><td align="center">
-        <c:if test="${param.debug}" >
-        <c:out value="${url}" />
-        <br/>
-        <c:out value="${exceptions}" />
-        </c:if>
+		
         <%@ include file="inc/searchForm.jsp" %>
         <table>
             <tr valign='top'>
                 <td><%//@ include file="usedFilters.jsp" %></td>
             </tr>
         </table>
+        
         <table class="main">
             <tr valign='top'>
                 <td colspan="2" valign="middle" align="center">
@@ -82,16 +67,10 @@
             <tr valign='top'>
                 <td>
                     
-                    <%
-                    ArrayList<String> pids2 =  new ArrayList<String>(Arrays.asList((String [])request.getParameter("pid_path").split("/")));
-                    ArrayList<String> models2 =  new ArrayList<String>(Arrays.asList((String [])request.getParameter("path").split("/")));
-                    FedoraUtils.fillFirstPagePid(pids2, models2);
-                    imagePid = pids2.get(pids2.size()-1);
-                    %>
                     <table cellpadding="0" cellspacing="0" width="100%"><tr>
                         <td valign="top" align="center" width="20px"><a class="prevArrow"  href="javascript:selectPrevious();"><img src="img/la.png" border="0" /></a></td>
-                        <td valign="top" align="center" id="mainContent"><a href="javascript:showFullImage('<%=imagePid%>')" class="lighbox">
-                                <img border="0" width="650px" onerror="showError();" src="djvu?uuid=<%=imagePid%>&amp;scaledWidth=650" id="imgBig">
+                        <td valign="top" align="center" id="mainContent"><a href="javascript:showFullImage('${itemViewObject.imagePid}')" class="lighbox">
+                                <img border="0" width="650px" onerror="showError();" src="${itemViewObject.firstPageImageUrl}" id="imgBig">
                             </a></td>
                         <td valign="top" align="center" width="20px"><a class="nextArrow"  href="javascript:selectNext();"><img src="img/ra.png" border="0" /></a></td>
                     </tr></table>
@@ -101,8 +80,7 @@
                         <script>
                             var firstCalled = false;
                         </script>
-                    <%@ include file="inc/details/itemMenu.jsp" %>
-                    
+	                    <%@ include file="inc/details/itemMenu.jsp" %>
                     </div>
                 </td>
             </tr>

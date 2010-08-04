@@ -4,29 +4,10 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt" %>
 <%@ page isELIgnored="false"%>
 
-<c:choose>
-    <c:when test="${param.language != null}" >
-        <fmt:setLocale value="${param.language}" />
-    </c:when>
-</c:choose>
+<%
+	if(pageContext.getAttribute("lctx")==null){
+		pageContext.setAttribute("lctx", ((Injector)application.getAttribute(Injector.class.getName())).getProvider(LocalizationContext.class).get());
+	}
+%>
 <%@ include file="inc/initVars.jsp" %>
-<fmt:setBundle basename="labels" />
-<fmt:setBundle basename="labels" var="bundleVar" />
-<c:url var="url" value="${kconfig.solrHost}/select/select" >
-    <c:param name="q" value="PID:\"${param.pid}\"" />
-</c:url>
-
-<c:catch var="exceptions"> 
-    <c:import url="${url}" var="xml" charEncoding="UTF-8" />
-</c:catch>
-<c:if test="${exceptions != null}" >
-    <c:import url="empty.xml" var="xml" />
-</c:if>
-
-
-<c:if test="${param.debug}" >
-<c:out value="${url}" />
-<br/>
-<c:out value="${exceptions}" />
-</c:if>
 <%@ include file="inc/details/itemMenu.jsp" %>
