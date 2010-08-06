@@ -14,6 +14,7 @@
 	// view objekt pro stranku = veskera logika 
 	ItemViewObject itemViewObject = new ItemViewObject();
 	inj.injectMembers(itemViewObject);
+	pageContext.setAttribute("itemViewObject", itemViewObject);
 %>
 <%@ include file="inc/initVars.jsp" %>
 <%@ include file="inc/details/itemMenu.jsp" %>
