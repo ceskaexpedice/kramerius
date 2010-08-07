@@ -148,6 +148,17 @@ var _texts=function() {
 		intArr["[export]PLANNED"]="administrator.dialogs.changevisflagunning";
 		intArr["[export]FAILED"]="administrator.dialogs.changevisflagfailed";
 
+		intArr["[export]WAITING"]="administrator.dialogs.waitingchangevisflag";
+		intArr["[export]PLANNED"]="administrator.dialogs.changevisflagunning";
+		intArr["[export]FAILED"]="administrator.dialogs.changevisflagfailed";
+
+		intArr["[convert]WAITING"]="administrator.dialogs.waitingconvert";
+		intArr["[convert]PLANNED"]="administrator.dialogs.convertrunning";
+		intArr["[convert]FAILED"]="administrator.dialogs.convertfailed";
+
+		intArr["[import]WAITING"]="administrator.dialogs.waitingimport";
+		intArr["[import]PLANNED"]="administrator.dialogs.importrunning";
+		intArr["[import]FAILED"]="administrator.dialogs.importfailed";
 	}
 	return intArr;
 }(); //akce ze servletu
@@ -274,48 +285,17 @@ function _startProcess(url) {
 	$.get(url, function(data) {
 		var text = _texts[data];
 		var t = dictionary[text];
-		if (text.match("^"+text)==text) {
+		if (data.match("PLANNED$")=="PLANNED") {
 			_processTextOk(t);
 			setTimeout(_processStarted, 3000);
 		} else {
 			_processFailed(t);
 			setTimeout(_processFailed, 3000);
 		}
+
 	});
 }
 
-function replicationrights() {
-	var url = "lr?action=start&def=replicationrights&out=text";
-
-	if (_commonDialog) {
-
-    	$("#common_started_ok").hide();
-    	$("#common_started_failed").hide();
-    	$("#common_started_waiting").show();
-
-    	_commonDialog.dialog('open');
-	} else {
-    	$("#common_started_waiting").show();
-    	_commonDialog = $("#common_started").dialog({
-	        bgiframe: true,
-	        width: 400,
-	        height: 100,
-	        modal: true,
-	        title: '',
-	        buttons: {
-	            "Close": function() {
-	                $(this).dialog("close"); 
-	            } 
-	        } 
-	    });
-	}
-
-	$("#common_started_text").text(dictionary['administrator.dialogs.waitingreplicationrights']);
-	$("#common_started" ).dialog( "option", "title",  dictionary['administrator.menu.dialogs.replicationRights.title']);
-
-	_startProcess(url);
-	
-}
 
 
 function exportTOFOXML(level)  {
@@ -347,6 +327,35 @@ function exportTOFOXML(level)  {
 	$("#common_started_text").text(dictionary['administrator.dialogs.waitingfoexport']);
 	$("#common_started" ).dialog( "option", "title",  dictionary['administrator.menu.dialogs.foexport.title']);
 
+	_startProcess(url);
+}
+
+
+function noParamsProcess(process)  {
+	var url = "lr?action=start&def="+process+"&out=text";
+	if (_commonDialog) {
+    	$("#common_started_ok").hide();
+    	$("#common_started_failed").hide();
+    	$("#common_started_waiting").show();
+    	_commonDialog.dialog('open');
+	} else {
+    	$("#common_started_waiting").show();
+    	_commonDialog = $("#common_started").dialog({
+	        bgiframe: true,
+	        width: 400,
+	        height: 100,
+	        modal: true,
+	        title: '',
+	        buttons: {
+	            "Close": function() {
+	                $(this).dialog("close"); 
+	            } 
+	        } 
+	    });
+	}
+
+	$("#common_started_text").text(dictionary['administrator.dialogs.waiting'+process]);
+	$("#common_started" ).dialog( "option", "title",  dictionary['administrator.menu.dialogs.'+process+'.title']);
 	_startProcess(url);
 }
 
@@ -485,36 +494,6 @@ function generateStatic(level, exportType, imgUrl, i18nUrl,iso3Country, iso3Lang
  * @return
  */
 var _commonDialog; //cekaci dialog na spusteni procesu
-function enumerator(){
-	var url = "lr?action=start&def=enumerator&out=text";
-	if (_commonDialog) {
-    	$("#common_started_ok").hide();
-    	$("#common_started_failed").hide();
-    	$("#common_started_waiting").show();
-    	
-    	_commonDialog.dialog('open');
-	} else {
-    	$("#common_started_waiting").show();
-    	_commonDialog = $("#common_started").dialog({
-	        bgiframe: true,
-	        width: 400,
-	        height: 100,
-	        modal: true,
-	        title: '',
-	        buttons: {
-	            "Close": function() {
-	                $(this).dialog("close"); 
-	            } 
-	        } 
-	    });
-	}
-
-	$("#common_started_text").text(dictionary[_texts["[enumerator]WAITING"]]);
-	$("#common_started" ).dialog( "option", "title",  dictionary['administrator.menu.dialogs.replicationRights.title']);
-	
-	_startProcess(url);
-}
-
 
 
 function _processTextOk(text) {

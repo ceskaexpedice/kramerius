@@ -1,3 +1,4 @@
+<%@page import="cz.incad.Kramerius.views.adminmenu.AdminMenuViewObject"%>
 <%@ page contentType="text/html" pageEncoding="UTF-8"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/xml" prefix="x"%>
@@ -10,6 +11,10 @@
 	Injector searchFormInjector = (Injector)application.getAttribute(Injector.class.getName());
 	Provider<Locale> localesProvider = searchFormInjector.getProvider(Locale.class);
 	pageContext.setAttribute("lang",localesProvider.get().getLanguage());
+	
+	AdminMenuViewObject adminMenuViewObject = new AdminMenuViewObject();
+	searchFormInjector.injectMembers(adminMenuViewObject);	
+	pageContext.setAttribute("adminMenuViewObject",adminMenuViewObject);
 %>
 
 
@@ -87,12 +92,9 @@
     </div>
 
     <div id="adminMenuItems" class="adminMenuItems">
-        <div align="left"> <a href="javascript:processes(); javascript:hideAdminMenu();"><fmt:message bundle="${lctx}">administrator.menu.dialogs.lrprocesses.title</fmt:message></a> </div>	
-        <div align="left"> <a href="javascript:importMonographs(); javascript:hideAdminMenu();"><fmt:message bundle="${lctx}">administrator.menu.dialogs.importMonograph.title</fmt:message></a> </div>	
-        <div align="left"> <a href="javascript:importPeriodicals(); javascript:hideAdminMenu();"><fmt:message bundle="${lctx}">administrator.menu.dialogs.importPeriodical.title</fmt:message></a> </div>	
-        <div align="left"> <a href="javascript:showIndexerAdmin();"><fmt:message bundle="${lctx}">administrator.menu.dialogs.indexDocuments.title</fmt:message></a> </div>
-        <div align="left"> <a href="javascript:enumerator(); javascript:hideAdminMenu();"><fmt:message bundle="${lctx}">administrator.menu.dialogs.enumerator.title</fmt:message></a> </div>	
-        <div align="left"> <a href="javascript:replicationrights(); javascript:hideAdminMenu();"><fmt:message bundle="${lctx}">administrator.menu.dialogs.replicationRights.title</fmt:message></a> </div>	
+		<c:forEach var="item" items="${adminMenuViewObject.adminMenuItems}">
+			${item}
+		</c:forEach>
     </div>
 </div>
 
