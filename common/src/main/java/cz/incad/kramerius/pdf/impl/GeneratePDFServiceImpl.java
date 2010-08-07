@@ -143,8 +143,8 @@ public class GeneratePDFServiceImpl implements GeneratePDFService {
 		copyFiles(xlsts,"templates/", this.templatesFolder());
 
 		String[] fonts = 
-		{"ext_ontheflypdf_ArialCE.ttf "};
-		copyFiles(fonts,"fonts/", this.templatesFolder());
+		{"ext_ontheflypdf_ArialCE.ttf"};
+		copyFiles(fonts,"res/", this.fontsFolder());
 	}
 
 	private void copyFiles(String[] texts, String prefix, File folder) throws FileNotFoundException,
@@ -155,7 +155,9 @@ public class GeneratePDFServiceImpl implements GeneratePDFService {
 			try {
 				File file = new File(folder, def);
 				if (!file.exists()) {
-					is= this.getClass().getResourceAsStream(prefix+def);
+					String res = prefix+def;
+					is= this.getClass().getResourceAsStream(res);
+					if (is == null) throw new IOException("cannot find resource "+res);
 					os = new FileOutputStream(file);
 					IOUtils.copyStreams(is, os);
 				}
@@ -815,7 +817,7 @@ public class GeneratePDFServiceImpl implements GeneratePDFService {
 				ImageMimeType mimetype = ImageMimeType.loadFromMimeType(mimetypeString);
 				if (mimetype != null) {
 					float smallImage = 0.2f;
-					Image javaImg = readImage(new URL(imgUrl), mimetype);
+					Image javaImg = readImage(new URL(imgUrl), mimetype,0);
 					ByteArrayOutputStream bos = new ByteArrayOutputStream();
 					writeImageToStream(javaImg, "jpeg", bos);
 
@@ -842,7 +844,7 @@ public class GeneratePDFServiceImpl implements GeneratePDFService {
 				String mimetypeString = fedoraAccess.getImageFULLMimeType(uuid);
 				ImageMimeType mimetype = ImageMimeType.loadFromMimeType(mimetypeString);
 				if (mimetype != null) {
-					Image javaImg = readImage(new URL(imgUrl), mimetype);
+					Image javaImg = readImage(new URL(imgUrl), mimetype,0);
 					ByteArrayOutputStream bos = new ByteArrayOutputStream();
 					writeImageToStream(javaImg, "jpeg", bos);
 
@@ -900,5 +902,14 @@ public class GeneratePDFServiceImpl implements GeneratePDFService {
 		return dir;
 	}
 
+	public File fontsFolder() {
+		String dirName = Constants.WORKING_DIR + File.separator + "fonts";
+		File dir = new File(dirName);
+		if (!dir.exists()) { 
+			boolean mkdirs = dir.mkdirs();
+			if (!mkdirs) throw new RuntimeException("cannot create folder '"+dir.getAbsolutePath()+"'");
+		}
+		return dir;
+	}
 	
 }
