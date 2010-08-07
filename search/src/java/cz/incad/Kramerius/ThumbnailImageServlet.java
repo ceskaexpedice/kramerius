@@ -60,7 +60,7 @@ public class ThumbnailImageServlet extends AbstracThumbnailServlet {
 		}
 		try {
 			if (outputFormat == null) {
-				Image image = rawThumbnailImage(uuid);
+				Image image = rawThumbnailImage(uuid, 0);
 				Rectangle rectangle = new Rectangle(image.getWidth(null), image.getHeight(null));
 				Image scale = scale(image, rectangle, req);
 				if (scale != null) {
@@ -74,7 +74,7 @@ public class ThumbnailImageServlet extends AbstracThumbnailServlet {
 					resp.setContentType(mimeType);
 					copyStreams(is, resp.getOutputStream());
 				} else {
-					Image rawImage = rawThumbnailImage(uuid);
+					Image rawImage = rawThumbnailImage(uuid,0);
 					writeImage(resp, rawImage, outputFormat);
 				}
 			}

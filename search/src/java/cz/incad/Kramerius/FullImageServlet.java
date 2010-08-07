@@ -52,6 +52,7 @@ public class FullImageServlet extends AbstracThumbnailServlet {
 
 	public static final String DEFAULT_MIMETYPE = "image/x.djvu";
 	public static final String IMAGE_TYPE="imageType"; 
+	public static final String PAGE="page";
 	
 	public static final java.util.logging.Logger LOGGER = java.util.logging.Logger.getLogger(FullImageServlet.class.getName());
 
@@ -63,6 +64,12 @@ public class FullImageServlet extends AbstracThumbnailServlet {
 		if (outputFormatParam != null) {
 			outputFormat= OutputFormats.valueOf(outputFormatParam);
 		}
+		int page = 0;
+		String spage = req.getParameter(PAGE);
+		if (spage != null) {
+			page = Integer.parseInt(spage);
+		}
+		
 		String imageType = req.getParameter(IMAGE_TYPE);
 		try {
 			// dotaz na image type
@@ -72,7 +79,7 @@ public class FullImageServlet extends AbstracThumbnailServlet {
 				resp.getWriter().print(type);
 			// pozadavek na zmenseni (prsou?)
 			} else if (outputFormat == null) {
-				Image image = rawFullImage(uuid, req);
+				Image image = rawFullImage(uuid, req, page);
 				Rectangle rectangle = new Rectangle(image.getWidth(null), image.getHeight(null));
 				Image scale = scale(image, rectangle, req);
 				if (scale != null) {
@@ -80,15 +87,15 @@ public class FullImageServlet extends AbstracThumbnailServlet {
 				} else resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
 			// transformace	
 			} else {
-				String mimeType = this.fedoraAccess.getImageFULLMimeType(uuid);
-				if (mimeType == null) mimeType = DEFAULT_MIMETYPE;
 
 				InputStream is = this.fedoraAccess.getImageFULL(uuid);
 				if (outputFormat.equals(OutputFormats.RAW)) {
+					String mimeType = this.fedoraAccess.getImageFULLMimeType(uuid);
+					if (mimeType == null) mimeType = DEFAULT_MIMETYPE;
 					resp.setContentType(mimeType);
 					copyStreams(is, resp.getOutputStream());
 				} else {
-					Image rawImage = rawFullImage(uuid, req);
+					Image rawImage = rawFullImage(uuid, req, page);
 					writeImage(resp, rawImage, outputFormat);
 				}
 			}

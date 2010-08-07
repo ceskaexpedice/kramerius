@@ -90,30 +90,27 @@ public class ItemMenuViewObject {
 	}
 
 	private String reindex() {
-//		<div align="left"><a title="Reindexace" href="javascript:reindex('<c:out value="${status.count}"/>','<c:out value="${models[status.count -1]}"/>');"><fmt:message bundle="${lctx}">administrator.menu.reindex</fmt:message></a></div>
 		return "<div align=\"left\"><a title=\"Reindex\" href=\"javascript:reindex('"+index+1+","+this.itemViewObject.getModels().get(this.index)+"');\">"+this.resourceBundle.getString("administrator.menu.reindex")+"</a> </div>";
 	}
 
 	private String deleteFromIndex() {
-	//  <div align="left"><a title="Delete from index" href="javascript:deletefromindex('<c:out value="${status.count}"/>');"><fmt:message bundle="${lctx}">administrator.menu.deletefromindex</fmt:message></a></div>
 		return "<div align=\"left\"><a title=\"Delete from index\" href=\"javascript:deletefromindex("+(index+1)+");\">"+this.resourceBundle.getString("administrator.menu.generatepdf")+"</a> </div>";
 	}
 
 	private String deleteFromFedora() {
-		//  <div align="left"><a title="Delete from index" href="javascript:deletefromindex('<c:out value="${status.count}"/>');"><fmt:message bundle="${lctx}">administrator.menu.deletefromindex</fmt:message></a></div>
 			return "<div align=\"left\"><a title=\"Delete from fedora\" href=\"javascript:deleteUuid("+(index+1)+");\">"+this.resourceBundle.getString("administrator.menu.deleteuuid")+"</a> </div>";
 	}
 
 	private String changeVisibility() {
-		//  <div align="left"><a title="Delete from index" href="javascript:deletefromindex('<c:out value="${status.count}"/>');"><fmt:message bundle="${lctx}">administrator.menu.deletefromindex</fmt:message></a></div>
 			return "<div align=\"left\"><a title=\"Change visibility\" href=\"javascript:changeFlag('"+index+1+","+this.itemViewObject.getModels().get(this.index)+"');\">"+this.resourceBundle.getString("administrator.menu.setpublic")+"</a> </div>";
 	}
 
 	private String exportTOFOXML() {
-		//  <div align="left"><a title="Delete from index" href="javascript:deletefromindex('<c:out value="${status.count}"/>');"><fmt:message bundle="${lctx}">administrator.menu.deletefromindex</fmt:message></a></div>
 			return "<div align=\"left\"><a title=\"Export TO FOXML\" href=\"javascript:exportTOFOXML('"+index+1+","+this.itemViewObject.getModels().get(this.index)+"');\">"+this.resourceBundle.getString("administrator.menu.exportFOXML")+"</a> </div>";
 	}
 
+
+	
 	/**
 	 * Create menu items
 	 * @return
@@ -144,10 +141,16 @@ public class ItemMenuViewObject {
 			items.add(deleteFromFedora());
 			items.add(changeVisibility());
 			items.add(exportTOFOXML());
+//			items.add(convertAndImport());
+//			items.add(importFOXML());
+			
 		}
 		return (String[]) items.toArray(new String[items.size()]);
 	}
 	
+
+
+
 	public String getUuid() {
 		return this.uuid;
 	}

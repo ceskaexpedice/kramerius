@@ -95,12 +95,12 @@ public class AbstracThumbnailServlet extends GuiceServlet {
 	}
 
 	
-	protected Image rawThumbnailImage(String uuid) throws XPathExpressionException, IOException, SecurityException {
-		return KrameriusImageSupport.readImage(uuid, FedoraUtils.IMG_THUMB_STREAM, this.fedoraAccess);
+	protected Image rawThumbnailImage(String uuid, int page) throws XPathExpressionException, IOException, SecurityException {
+		return KrameriusImageSupport.readImage(uuid, FedoraUtils.IMG_THUMB_STREAM, this.fedoraAccess,page);
 	}
 	
-	protected Image rawFullImage(String uuid, HttpServletRequest request) throws IOException, MalformedURLException, XPathExpressionException {
-		return KrameriusImageSupport.readImage(uuid, FedoraUtils.IMG_FULL_STREAM, this.fedoraAccess);
+	protected Image rawFullImage(String uuid, HttpServletRequest request, int page) throws IOException, MalformedURLException, XPathExpressionException {
+		return KrameriusImageSupport.readImage(uuid, FedoraUtils.IMG_FULL_STREAM, this.fedoraAccess, page);
 	}
 	
 	protected void writeImage(HttpServletResponse resp, Image scaledImage, OutputFormats format) throws IOException {
