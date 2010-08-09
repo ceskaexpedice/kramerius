@@ -46,5 +46,7 @@ public interface GeneratePDFService {
 	public AbstractRenderedDocument generateCustomPDF(AbstractRenderedDocument doc, String parentUUID, OutputStream os, Break brk, String djvuUrl, String i18nUrl) throws IOException;
 
 	public File templatesFolder();
+
+	public File fontsFolder();
 }
 
