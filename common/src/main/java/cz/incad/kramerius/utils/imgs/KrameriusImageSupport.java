@@ -12,10 +12,15 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.net.URL;
+import java.util.List;
 
 import javax.imageio.ImageIO;
 import javax.swing.JPanel;
 import javax.xml.xpath.XPathExpressionException;
+
+import org.apache.pdfbox.pdmodel.PDDocument;
+import org.apache.pdfbox.pdmodel.PDPage;
+import org.apache.pdfbox.util.PDFImageWriter;
 
 import com.lizardtech.djvu.DjVuPage;
 import com.lizardtech.djvubean.DjVuImage;
@@ -28,25 +33,28 @@ import cz.incad.kramerius.utils.conf.KConfiguration;
 
 public class KrameriusImageSupport {
 
-	public static Image readImage(String uuid, String stream, FedoraAccess fedoraAccess) throws XPathExpressionException, IOException {
+	public static Image readImage(String uuid, String stream, FedoraAccess fedoraAccess, int page) throws XPathExpressionException, IOException {
 		String mimetype = fedoraAccess.getMimeTypeForStream("uuid:"+uuid, stream);
 		ImageMimeType loadFromMimeType = ImageMimeType.loadFromMimeType(mimetype);
 		URL url = new URL("fedora","",0,uuid+"/"+stream, new Handler(fedoraAccess));
-		return readImage(url, loadFromMimeType);
+		return readImage(url, loadFromMimeType, page);
 	}
 	
-	public static Image readImage(URL url, ImageMimeType type) throws IOException {
+	public static Image readImage(URL url, ImageMimeType type, int page) throws IOException {
 		if (type.javaNativeSupport()) {
 			return ImageIO.read(url.openStream());
 		} else if ((type.equals(ImageMimeType.DJVU)) || 
 					(type.equals(ImageMimeType.VNDDJVU)) ||
 				  (type.equals(ImageMimeType.XDJVU))){
-	        System.out.println("url = "+url);
 			com.lizardtech.djvu.Document doc = new com.lizardtech.djvu.Document(url);
 	        doc.setAsync(false);
 	        DjVuPage[] p = new DjVuPage[1];
 	        //read page from the document - index 0, priority 1, favorFast true
-	        p[0] = doc.getPage(0, 1, true);
+	        int size = doc.size();
+	        if ((page != 0) && (page >= size)) {
+	        	page = 0;
+	        }
+	        p[0] = doc.getPage(page, 1, true);
 	        p[0].setAsync(false);
 	        DjVuImage djvuImage = new DjVuImage(p, true);
 			Rectangle pageBounds = djvuImage.getPageBounds(0);
@@ -55,6 +63,18 @@ public class KrameriusImageSupport {
 				Image img = images[0];
 				return img;
 			} else return null;
+		} else if (type.equals(ImageMimeType.PDF)){
+			PDDocument document = null;
+			try{
+				document = PDDocument.load(url.openStream());
+	            int resolution = 96;
+	            List pages = document.getDocumentCatalog().getAllPages();
+	            PDPage pdPage = (PDPage)pages.get( page );
+	            BufferedImage image = pdPage.convertToImage(BufferedImage.TYPE_INT_RGB, resolution);
+	            return image;
+			} finally {
+				if (document != null) { document.close(); }
+			}
 		} else throw new IllegalArgumentException("unsupported mimetype '"+type.getValue()+"'");
 	}
 
