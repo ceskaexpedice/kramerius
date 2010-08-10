@@ -142,6 +142,19 @@
 
     <security-role>
         <role-name>krameriusAdmin</role-name>
+        <role-name>mock</role-name>
+        <role-name>static_export_CD</role-name>
+        <role-name>reindex</role-name>
+        <role-name>replikator_monographs</role-name>
+		<role-name>replikator_periodicals</role-name>
+		<role-name>enumerator</role-name>
+		<role-name>replicationrights</role-name>
+		<role-name>setpublic</role-name>
+		<role-name>setprivate</role-name>
+		<role-name>delete</role-name>
+		<role-name>export</role-name>
+		<role-name>convert</role-name>
+		<role-name>import</role-name>
     </security-role>
 
     <security-constraint>
@@ -153,6 +166,19 @@
         <auth-constraint>
             <description>no description</description>
             <role-name>krameriusAdmin</role-name>
+            <role-name>mock</role-name>
+	        <role-name>static_export_CD</role-name>
+	        <role-name>reindex</role-name>
+	        <role-name>replikator_monographs</role-name>
+			<role-name>replikator_periodicals</role-name>
+			<role-name>enumerator</role-name>
+			<role-name>replicationrights</role-name>
+			<role-name>setpublic</role-name>
+			<role-name>setprivate</role-name>
+			<role-name>delete</role-name>
+			<role-name>export</role-name>
+			<role-name>convert</role-name>
+			<role-name>import</role-name>
         </auth-constraint>
         <!--
         <user-data-constraint>
