@@ -1,26 +1,30 @@
 package cz.incad.Kramerius.backend.guice;
 
+import java.security.Principal;
 import java.util.List;
 import java.util.logging.Logger;
 
 import javax.servlet.http.HttpServletRequest;
 
+import org.apache.axis.handlers.http.HTTPActionHandler;
+
+import sun.rmi.transport.proxy.HttpReceiveSocket;
+
 import com.google.inject.Inject;
 import com.google.inject.Provider;
 import com.google.inject.servlet.RequestScoped;
 
-import cz.incad.kramerius.security.SecurityAcceptor;
+import cz.incad.kramerius.security.IPaddressChecker;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 
-public class RequestSecurityAcceptor implements SecurityAcceptor {
+public class RequestIPaddressChecker implements IPaddressChecker {
 
-	
 	
 	private Logger logger;
 	private Provider<HttpServletRequest> provider;
 	
 	@Inject
-	public RequestSecurityAcceptor(Provider<HttpServletRequest> provider, Logger logger) {
+	public RequestIPaddressChecker(Provider<HttpServletRequest> provider, Logger logger) {
 		super();
 		this.provider = provider;
 		this.logger = logger;

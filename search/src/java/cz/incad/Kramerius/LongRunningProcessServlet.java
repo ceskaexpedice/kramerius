@@ -24,7 +24,8 @@ import com.google.inject.Inject;
 import com.google.inject.Injector;
 
 import cz.incad.Kramerius.backend.guice.GuiceServlet;
-import cz.incad.Kramerius.backend.guice.RequestSecurityAcceptor;
+import cz.incad.Kramerius.backend.guice.RequestIPaddressChecker;
+import cz.incad.Kramerius.security.KrameriusRoles;
 import cz.incad.Kramerius.views.ApplicationURL;
 import cz.incad.kramerius.intconfig.InternalConfiguration;
 import cz.incad.kramerius.processes.DefinitionManager;
@@ -37,6 +38,7 @@ import cz.incad.kramerius.processes.LRProcessOrdering;
 import cz.incad.kramerius.processes.ProcessScheduler;
 import cz.incad.kramerius.processes.States;
 import cz.incad.kramerius.processes.TypeOfOrdering;
+import cz.incad.kramerius.security.IsUserInRoleDecision;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 
 /**
@@ -65,6 +67,9 @@ public class LongRunningProcessServlet extends GuiceServlet {
 	@Inject
 	transient GCScheduler gcScheduler;
 	
+	@Inject
+	transient IsUserInRoleDecision userInRoleDecision;
+	
 	@Override
 	public void init() throws ServletException {
 		super.init();
@@ -74,7 +79,7 @@ public class LongRunningProcessServlet extends GuiceServlet {
 		if ((conf.getApplicationURL() == null) || (conf.getApplicationURL().equals(""))) {
 			throw new RuntimeException("lr servlet need configuration parameter 'applicationUrl'");
 		}
-		String lrServlet =   conf.getApplicationURL()+'/'+InternalConfiguration.get().getProperties().getProperty("servlets.mapping.lrcontrol");
+		String lrServlet = conf.getApplicationURL()+'/'+InternalConfiguration.get().getProperties().getProperty("servlets.mapping.lrcontrol");
 
 		this.processScheduler.init(appLibPath, lrServlet);
 		this.gcScheduler.init();
@@ -87,7 +92,7 @@ public class LongRunningProcessServlet extends GuiceServlet {
 		String action = req.getParameter("action");
 		if (action == null) action = Actions.list.name();
 		Actions selectedAction = Actions.valueOf(action);
-		selectedAction.doAction(getServletContext(), req, resp, this.definitionManager, this.lrProcessManager);
+		selectedAction.doAction(getServletContext(), req, resp, this.definitionManager, this.lrProcessManager, this.userInRoleDecision);
 	}
 
 	public static LRProcess planNewProcess(HttpServletRequest request, ServletContext context, String def, DefinitionManager definitionManager, String[] params) {
@@ -115,7 +120,7 @@ public class LongRunningProcessServlet extends GuiceServlet {
 		 * Plan new process
 		 */
 		start {
-			public void doAction(ServletContext context,HttpServletRequest req, HttpServletResponse resp, DefinitionManager defManager, LRProcessManager lrProcessManager) {
+			public void doAction(ServletContext context,HttpServletRequest req, HttpServletResponse resp, DefinitionManager defManager, LRProcessManager lrProcessManager, IsUserInRoleDecision userInRoleDecision) {
 				try {
 					String def = req.getParameter("def");
 					String out = req.getParameter("out");
@@ -124,21 +129,25 @@ public class LongRunningProcessServlet extends GuiceServlet {
 					if (parametersString !=null) {
 						params = parametersString.split(",");
 					}
-					LRProcess nprocess = planNewProcess(req, context, def, defManager, params);
-					if ((out != null) && (out.equals("text"))) {
-						resp.getOutputStream().print("["+nprocess.getDefinitionId()+"]"+nprocess.getProcessState().name());
+					if (userInRoleDecision.isUserInRole(def)) {
+						LRProcess nprocess = planNewProcess(req, context, def, defManager, params);
+						if ((out != null) && (out.equals("text"))) {
+							resp.getOutputStream().print("["+nprocess.getDefinitionId()+"]"+nprocess.getProcessState().name());
+						} else {
+		 					StringBuffer buffer = new StringBuffer();
+							buffer.append("<html><body>");
+							buffer.append("<ul>");
+							buffer.append("<li>").append(nprocess.getDefinitionId());
+							buffer.append("<li>").append(nprocess.getUUID());
+							buffer.append("<li>").append(nprocess.getPid());
+							buffer.append("<li>").append(new Date(nprocess.getStartTime()));
+							buffer.append("<li>").append(nprocess.getProcessState());
+							buffer.append("</ul>");
+							buffer.append("</body></html>");
+							resp.getOutputStream().println(buffer.toString());
+						}
 					} else {
-	 					StringBuffer buffer = new StringBuffer();
-						buffer.append("<html><body>");
-						buffer.append("<ul>");
-						buffer.append("<li>").append(nprocess.getDefinitionId());
-						buffer.append("<li>").append(nprocess.getUUID());
-						buffer.append("<li>").append(nprocess.getPid());
-						buffer.append("<li>").append(new Date(nprocess.getStartTime()));
-						buffer.append("<li>").append(nprocess.getProcessState());
-						buffer.append("</ul>");
-						buffer.append("</body></html>");
-						resp.getOutputStream().println(buffer.toString());
+						resp.setStatus(HttpServletResponse.SC_FORBIDDEN);
 					}
 				} catch (IOException e) {
 					LOGGER.log(Level.SEVERE, e.getMessage(), e);
@@ -151,26 +160,31 @@ public class LongRunningProcessServlet extends GuiceServlet {
 		 */
 		stop {
 			@Override
-			public void doAction(ServletContext context,HttpServletRequest req,HttpServletResponse resp, DefinitionManager defManager, LRProcessManager lrProcessManager) {
-				try {
-					String uuid = req.getParameter("uuid");
-					String realPath =context.getRealPath("WEB-INF/lib");
-					LRProcess oProcess = stopOldProcess(realPath, uuid, defManager, lrProcessManager);
-					StringBuffer buffer = new StringBuffer();
-					buffer.append("<html><body>");
-					buffer.append("<ul>");
-					buffer.append("<li>").append(oProcess.getDefinitionId());
-					buffer.append("<li>").append(oProcess.getUUID());
-					buffer.append("<li>").append(oProcess.getPid());
-					buffer.append("<li>").append(new Date(oProcess.getStartTime()));
-					buffer.append("<li>").append(oProcess.getProcessState());
-					buffer.append("</ul>");
-					buffer.append("</body></html>");
-					resp.getOutputStream().println(buffer.toString());
-				} catch (IOException e) {
-					LOGGER.log(Level.SEVERE, e.getMessage(), e);
+			public void doAction(ServletContext context,HttpServletRequest req,HttpServletResponse resp, DefinitionManager defManager, LRProcessManager lrProcessManager, IsUserInRoleDecision userInRoleDecision) {
+				if (isInProcessAdminRole(userInRoleDecision)) {
+					try {
+						String uuid = req.getParameter("uuid");
+						String realPath =context.getRealPath("WEB-INF/lib");
+						LRProcess oProcess = stopOldProcess(realPath, uuid, defManager, lrProcessManager);
+						StringBuffer buffer = new StringBuffer();
+						buffer.append("<html><body>");
+						buffer.append("<ul>");
+						buffer.append("<li>").append(oProcess.getDefinitionId());
+						buffer.append("<li>").append(oProcess.getUUID());
+						buffer.append("<li>").append(oProcess.getPid());
+						buffer.append("<li>").append(new Date(oProcess.getStartTime()));
+						buffer.append("<li>").append(oProcess.getProcessState());
+						buffer.append("</ul>");
+						buffer.append("</body></html>");
+						resp.getOutputStream().println(buffer.toString());
+					} catch (IOException e) {
+						LOGGER.log(Level.SEVERE, e.getMessage(), e);
+					}
+				} else {
+					resp.setStatus(HttpServletResponse.SC_FORBIDDEN);
 				}
 			}
+
 		},
 
 		/**
@@ -178,48 +192,52 @@ public class LongRunningProcessServlet extends GuiceServlet {
 		 */
 		list {
 			@Override
-			public void doAction(ServletContext context,HttpServletRequest req,HttpServletResponse resp, DefinitionManager defManager, LRProcessManager lrProcessManager) {
-				try {
-					StringBuffer buffer = new StringBuffer();
-					buffer.append("<html><body>");
-					buffer.append("<h1>Running processes</h1>");
-					buffer.append("<ul>");
-					LRProcessOrdering ordering = LRProcessOrdering.NAME;
-					LRProcessOffset offset = new LRProcessOffset("0", "20");
-					List<LRProcess> longRunningProcesses = lrProcessManager.getLongRunningProcesses(ordering, TypeOfOrdering.ASC, offset);
-					for (LRProcess lrProcess : longRunningProcesses) {
-						buffer.append("<li>").append("PID:").append(lrProcess.getPid());
-						if (lrProcess.canBeStopped()) {
-							buffer.append("  ... <a href='"+lrServlet(req)+"?action=stop&uuid="+lrProcess.getUUID()+"'>stop</a>");
+			public void doAction(ServletContext context,HttpServletRequest req,HttpServletResponse resp, DefinitionManager defManager, LRProcessManager lrProcessManager, IsUserInRoleDecision userInRoleDecision) {
+				if (isInProcessAdminRole(userInRoleDecision)) {
+					try {
+						StringBuffer buffer = new StringBuffer();
+						buffer.append("<html><body>");
+						buffer.append("<h1>Running processes</h1>");
+						buffer.append("<ul>");
+						LRProcessOrdering ordering = LRProcessOrdering.NAME;
+						LRProcessOffset offset = new LRProcessOffset("0", "20");
+						List<LRProcess> longRunningProcesses = lrProcessManager.getLongRunningProcesses(ordering, TypeOfOrdering.ASC, offset);
+						for (LRProcess lrProcess : longRunningProcesses) {
+							buffer.append("<li>").append("PID:").append(lrProcess.getPid());
+							if (lrProcess.canBeStopped()) {
+								buffer.append("  ... <a href='"+lrServlet(req)+"?action=stop&uuid="+lrProcess.getUUID()+"'>stop</a>");
+							}
+							buffer.append("<li>").append("uuid :").append(lrProcess.getUUID());
+							buffer.append("<li>").append("name :").append(lrProcess.getProcessName());
+							buffer.append("<li>").append("started :"+new Date(lrProcess.getStartTime()));
+							buffer.append("<li>").append("processState :").append(lrProcess.getProcessState());
+							LRProcessDefinition lrDef = defManager.getLongRunningProcessDefinition(lrProcess.getDefinitionId());
+							if (lrDef == null) {
+								throw new RuntimeException("cannot find definition '"+lrProcess.getDefinitionId()+"'");
+							}
+							buffer.append("<li>").append("errOut  :").append(lrDef.getErrStreamFolder()+File.separator+lrProcess.getUUID()+".err");
+							buffer.append("<li>").append("standardOut  :").append(lrDef.getStandardStreamFolder()+File.separator+lrProcess.getUUID()+".out");
+							buffer.append("<hr>");
 						}
-						buffer.append("<li>").append("uuid :").append(lrProcess.getUUID());
-						buffer.append("<li>").append("name :").append(lrProcess.getProcessName());
-						buffer.append("<li>").append("started :"+new Date(lrProcess.getStartTime()));
-						buffer.append("<li>").append("processState :").append(lrProcess.getProcessState());
-						LRProcessDefinition lrDef = defManager.getLongRunningProcessDefinition(lrProcess.getDefinitionId());
-						if (lrDef == null) {
-							throw new RuntimeException("cannot find definition '"+lrProcess.getDefinitionId()+"'");
-						}
-						buffer.append("<li>").append("errOut  :").append(lrDef.getErrStreamFolder()+File.separator+lrProcess.getUUID()+".err");
-						buffer.append("<li>").append("standardOut  :").append(lrDef.getStandardStreamFolder()+File.separator+lrProcess.getUUID()+".out");
-						buffer.append("<hr>");
+						buffer.append("</ul>");
+						buffer.append("</body></html>");
+						
+						resp.setContentType("text/html");
+						resp.setCharacterEncoding("UTF-8");
+						
+						resp.getWriter().println(buffer.toString());
+					} catch (IOException e) {
+						LOGGER.log(Level.SEVERE, e.getMessage(), e);
 					}
-					buffer.append("</ul>");
-					buffer.append("</body></html>");
-					
-					resp.setContentType("text/html");
-					resp.setCharacterEncoding("UTF-8");
-					
-					resp.getWriter().println(buffer.toString());
-				} catch (IOException e) {
-					LOGGER.log(Level.SEVERE, e.getMessage(), e);
+				} else {
+					resp.setStatus(HttpServletResponse.SC_FORBIDDEN);
 				}
 			}
 		},
 
 		updatePID {
 			@Override
-			public void doAction(ServletContext context,HttpServletRequest req,HttpServletResponse resp, DefinitionManager defManager, LRProcessManager lrProcessManager) {
+			public void doAction(ServletContext context,HttpServletRequest req,HttpServletResponse resp, DefinitionManager defManager, LRProcessManager lrProcessManager, IsUserInRoleDecision userInRoleDecision) {
 				String uuid = req.getParameter("uuid");
 				String pid = req.getParameter("pid");
 				LRProcess longRunningProcess = lrProcessManager.getLongRunningProcess(uuid);
@@ -231,7 +249,7 @@ public class LongRunningProcessServlet extends GuiceServlet {
 		updateStatus {
 
 			@Override
-			public void doAction(ServletContext context,HttpServletRequest req,HttpServletResponse resp, DefinitionManager defManager, LRProcessManager processManager) {
+			public void doAction(ServletContext context,HttpServletRequest req,HttpServletResponse resp, DefinitionManager defManager, LRProcessManager processManager, IsUserInRoleDecision userInRoleDecision) {
 				String uuid = req.getParameter("uuid");
 				String state = req.getParameter("state");
 				if (state != null) {
@@ -248,7 +266,7 @@ public class LongRunningProcessServlet extends GuiceServlet {
 			@Override
 			public void doAction(ServletContext context,HttpServletRequest req,
 					HttpServletResponse resp, DefinitionManager defManager,
-					LRProcessManager processManager) {
+					LRProcessManager processManager, IsUserInRoleDecision userInRoleDecision) {
 				try {
 					String uuid = req.getParameter("uuid");
 					String name = req.getParameter("name");
@@ -263,8 +281,12 @@ public class LongRunningProcessServlet extends GuiceServlet {
 				}
 			}
 		};
-		
-		abstract void doAction(ServletContext context,  HttpServletRequest req, HttpServletResponse resp, DefinitionManager defManager, LRProcessManager processManager);
+
+		static boolean isInProcessAdminRole(IsUserInRoleDecision userInRoleDecision) {
+			return userInRoleDecision.isUserInRole(KrameriusRoles.LRPROCESS_ADMIN);
+		}
+
+		abstract void doAction(ServletContext context,  HttpServletRequest req, HttpServletResponse resp, DefinitionManager defManager, LRProcessManager processManager, IsUserInRoleDecision userInRoleDecision);
 	}
 	
 

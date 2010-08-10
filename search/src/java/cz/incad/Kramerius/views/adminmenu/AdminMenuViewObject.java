@@ -13,9 +13,20 @@ import org.apache.axis.NoEndPointException;
 
 import com.google.inject.Inject;
 
+import cz.incad.kramerius.security.IsUserInRoleDecision;
+import cz.incad.kramerius.security.Secured;
 import cz.incad.kramerius.service.ResourceBundleService;
 
 public class AdminMenuViewObject {
+
+	private static final String IMPORT = "import";
+	private static final String CONVERT = "convert";
+	private static final String REPLICATIONRIGHTS = "replicationrights";
+	private static final String ENUMERATOR = "enumerator";
+	private static final String REINDEX = "reindex";
+	private static final String REPLIKATOR_PERIODICALS = "replikator_periodicals";
+	private static final String REPLIKATOR_MONOGRAPHS = "replikator_monographs";
+	private static final String KRAMERIUS_ADMIN = "krameriusAdmin";
 
 	public static final java.util.logging.Logger LOGGER = java.util.logging.Logger
 			.getLogger(AdminMenuViewObject.class.getName());
@@ -26,47 +37,31 @@ public class AdminMenuViewObject {
 	HttpServletRequest request;
 	@Inject
 	Locale locale;
+	@Inject
+	IsUserInRoleDecision userInRoleDecision;
+
 	
+	@Secured(roles=KRAMERIUS_ADMIN)
 	public String processes() throws IOException {
-//	    <div align="left"> <a href="javascript:processes(); javascript:hideAdminMenu();"><fmt:message bundle="${lctx}">administrator.menu.dialogs.lrprocesses.title</fmt:message></a> </div>	
 	    return "<div align=\"left\"> <a href=\"javascript:processes(); javascript:hideAdminMenu();\">"+this.resourceBundleService.getResourceBundle("labels", this.locale).getString("administrator.menu.dialogs.lrprocesses.title")+" </a> </div>";
 	}
-
+	
+	@Secured(roles=REPLIKATOR_MONOGRAPHS)
 	public String importMonographs() throws IOException {
-//	    <div align="left"> <a href="javascript:importMonographs(); javascript:hideAdminMenu();"><fmt:message bundle="${lctx}">administrator.menu.dialogs.importMonograph.title</fmt:message></a> </div>	
 	    return "<div align=\"left\"> <a href=\"javascript:importMonographs(); javascript:hideAdminMenu();\">"+this.resourceBundleService.getResourceBundle("labels", this.locale).getString("administrator.menu.dialogs.importMonograph.title")+" </a> </div>";
 	}
 
+	@Secured(roles=REPLIKATOR_PERIODICALS)
 	public String importPeriodicals() throws IOException {
-//	    <div align="left"> <a href="javascript:importPeriodicals(); javascript:hideAdminMenu();"><fmt:message bundle="${lctx}">administrator.menu.dialogs.importPeriodical.title</fmt:message></a> </div>	
 	    return "<div align=\"left\"> <a href=\"javascript:importPeriodicals(); javascript:hideAdminMenu();\">"+this.resourceBundleService.getResourceBundle("labels", this.locale).getString("administrator.menu.dialogs.importPeriodical.title")+" </a> </div>";
 	}
 
+	@Secured(roles=REINDEX)
 	public String showIndexerAdmin() throws IOException {
-//	    <div align="left"> <a href="javascript:showIndexerAdmin();"><fmt:message bundle="${lctx}">administrator.menu.dialogs.indexDocuments.title</fmt:message></a> </div>
 	    return "<div align=\"left\"> <a href=\"javascript:showIndexerAdmin(); javascript:hideAdminMenu();\">"+this.resourceBundleService.getResourceBundle("labels", this.locale).getString("administrator.menu.dialogs.indexDocuments.title")+" </a> </div>";
 	}
 
-	public String enumerator() throws IOException {
-//	    <div align="left"> <a href="javascript:enumerator();"><fmt:message bundle="${lctx}">administrator.menu.dialogs.enumerator.title</fmt:message></a> </div>
-	    return "<div align=\"left\"> <a href=\"javascript:noParamsProcess('enumerator'); javascript:hideAdminMenu();\">"+this.resourceBundleService.getResourceBundle("labels", this.locale).getString("administrator.menu.dialogs.enumerator.title")+" </a> </div>";
-	}
-
-	public String replicationrights() throws IOException {
-//	    <div align="left"> <a href="javascript:replicationrights(); javascript:hideAdminMenu();"><fmt:message bundle="${lctx}">administrator.menu.dialogs.replicationRights.title</fmt:message></a> </div>	
-	    return "<div align=\"left\"> <a href=\"javascript:noParamsProcess('replicationrights'); javascript:hideAdminMenu();\">"+this.resourceBundleService.getResourceBundle("labels", this.locale).getString("administrator.menu.dialogs.replicationrights.title")+" </a> </div>";
-	}
-
-	public String convert() throws IOException {
-//	    <div align="left"> <a href="javascript:replicationrights(); javascript:hideAdminMenu();"><fmt:message bundle="${lctx}">administrator.menu.dialogs.replicationRights.title</fmt:message></a> </div>	
-	    return "<div align=\"left\"> <a href=\"javascript:noParamsProcess('convert'); javascript:hideAdminMenu();\">"+this.resourceBundleService.getResourceBundle("labels", this.locale).getString("administrator.menu.dialogs.convert.title")+" </a> </div>";
-	}
-
-	public String importfoxml() throws IOException {
-//	    <div align="left"> <a href="javascript:replicationrights(); javascript:hideAdminMenu();"><fmt:message bundle="${lctx}">administrator.menu.dialogs.replicationRights.title</fmt:message></a> </div>	
-	    return "<div align=\"left\"> <a href=\"javascript:noParamsProcess('import'); javascript:hideAdminMenu();\">"+this.resourceBundleService.getResourceBundle("labels", this.locale).getString("administrator.menu.dialogs.import.title")+" </a> </div>";
-	}
-
+	@Secured(roles={ENUMERATOR,REPLICATIONRIGHTS,CONVERT,IMPORT})
 	public String noParamsProcess(String processName) throws IOException {
 	    return "<div align=\"left\"> <a href=\"javascript:noParamsProcess('"+processName+"'); javascript:hideAdminMenu();\">"+this.resourceBundleService.getResourceBundle("labels", this.locale).getString("administrator.menu.dialogs."+processName+".title")+" </a> </div>";
 	}
@@ -75,14 +70,30 @@ public class AdminMenuViewObject {
 		try {
 			List<String> menuItems = new ArrayList<String>();
 			if (request.getRemoteUser() != null) {
-				menuItems.add(processes());
-				menuItems.add(importMonographs());
-				menuItems.add(importPeriodicals());
-				menuItems.add(showIndexerAdmin());
-				menuItems.add(noParamsProcess("enumerator"));
-				menuItems.add(noParamsProcess("replicationrights"));
-				menuItems.add(noParamsProcess("convert"));
-				menuItems.add(noParamsProcess("import"));
+				if (userInRoleDecision.isUserInRole(KRAMERIUS_ADMIN)) {
+					menuItems.add(processes());
+				}
+				if (userInRoleDecision.isUserInRole(REPLIKATOR_MONOGRAPHS)) {
+					menuItems.add(importMonographs());
+				} 
+				if (userInRoleDecision.isUserInRole(REPLIKATOR_PERIODICALS)) {
+					menuItems.add(importPeriodicals());
+				}
+				if (userInRoleDecision.isUserInRole(REINDEX)) {
+					menuItems.add(showIndexerAdmin());
+				}
+				if (userInRoleDecision.isUserInRole(ENUMERATOR)) {
+					menuItems.add(noParamsProcess(ENUMERATOR));
+				}
+				if (userInRoleDecision.isUserInRole(REPLICATIONRIGHTS)) {
+					menuItems.add(noParamsProcess(REPLICATIONRIGHTS));
+				}
+				if (userInRoleDecision.isUserInRole(CONVERT)) {
+					menuItems.add(noParamsProcess(CONVERT));
+				} 
+				if (userInRoleDecision.isUserInRole(IMPORT)) {
+					menuItems.add(noParamsProcess(IMPORT));
+				}
 			}
 			return (String[]) menuItems.toArray(new String[menuItems.size()]);
 		} catch (IOException e) {

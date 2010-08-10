@@ -22,6 +22,7 @@ import cz.incad.Kramerius.views.item.ItemViewObject;
 import cz.incad.kramerius.FedoraAccess;
 import cz.incad.kramerius.KrameriusModels;
 import cz.incad.kramerius.MostDesirable;
+import cz.incad.kramerius.security.IsUserInRoleDecision;
 import cz.incad.kramerius.service.ResourceBundleService;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 
@@ -40,6 +41,8 @@ public class ItemMenuViewObject {
 	ResourceBundle resourceBundle;
 	KConfiguration kConfiguration;
 	ItemViewObject itemViewObject;
+	IsUserInRoleDecision userInRoleDecision;
+
 	Locale locale;
 	String uuid;
 	String model;
@@ -48,7 +51,7 @@ public class ItemMenuViewObject {
 	
 	public ItemMenuViewObject(HttpServletRequest httpServletRequest,
 			ServletContext servletContext, FedoraAccess fedoraAccess, ResourceBundle resourceBundle, KConfiguration kConfiguration,
-			ItemViewObject itemViewObject,Locale locale, String uuid, String model ,int index) {
+			ItemViewObject itemViewObject,Locale locale, String uuid, String model ,int index, IsUserInRoleDecision userInRoleDecision) {
 		super();
 		this.httpServletRequest = httpServletRequest;
 		this.servletContext = servletContext;
@@ -60,6 +63,7 @@ public class ItemMenuViewObject {
 		this.uuid = uuid;
 		this.index = index;
 		this.model = model;
+		this.userInRoleDecision = userInRoleDecision;
 	}
 	
 	public boolean isPageModel() {
@@ -109,7 +113,6 @@ public class ItemMenuViewObject {
 			return "<div align=\"left\"><a title=\"Export TO FOXML\" href=\"javascript:exportTOFOXML('"+index+1+","+this.itemViewObject.getModels().get(this.index)+"');\">"+this.resourceBundle.getString("administrator.menu.exportFOXML")+"</a> </div>";
 	}
 
-
 	
 	/**
 	 * Create menu items
@@ -129,18 +132,31 @@ public class ItemMenuViewObject {
 			}
 		};
 		if (httpServletRequest.getRemoteUser() != null) {
-			try {
-				if (fedoraAccess.isContentAccessible(uuid)) {
-					items.add(exportPDF());
+			if (userInRoleDecision.isUserInRole("static_export_CD")) {
+				try {
+					if (fedoraAccess.isContentAccessible(uuid)) {
+						items.add(exportPDF());
+					}
+				} catch (IOException e) {
+					LOGGER.log(Level.SEVERE, e.getMessage(), e);
 				}
-			} catch (IOException e) {
-				LOGGER.log(Level.SEVERE, e.getMessage(), e);
 			}
-			items.add(reindex());
-			items.add(deleteFromIndex());
-			items.add(deleteFromFedora());
-			items.add(changeVisibility());
-			items.add(exportTOFOXML());
+			if (userInRoleDecision.isUserInRole("reindex")) {
+				items.add(reindex());
+			}
+			if (userInRoleDecision.isUserInRole("reindex")) {
+				items.add(deleteFromIndex());
+			}
+			if (userInRoleDecision.isUserInRole("delete")) {
+				items.add(deleteFromFedora());
+			}
+			if ((userInRoleDecision.isUserInRole("setpublic")) && 
+				(userInRoleDecision.isUserInRole("setprivate"))) {
+				items.add(changeVisibility());
+			}
+			if (userInRoleDecision.isUserInRole("export")) {
+				items.add(exportTOFOXML());
+			}
 //			items.add(convertAndImport());
 //			items.add(importFOXML());
 			

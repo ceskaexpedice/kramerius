@@ -22,6 +22,7 @@ import com.google.inject.name.Named;
 import cz.incad.Kramerius.views.item.menu.ItemMenuViewObject;
 import cz.incad.kramerius.FedoraAccess;
 import cz.incad.kramerius.MostDesirable;
+import cz.incad.kramerius.security.IsUserInRoleDecision;
 import cz.incad.kramerius.service.ResourceBundleService;
 import cz.incad.kramerius.utils.FedoraUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
@@ -41,7 +42,10 @@ public class ItemViewObject {
 	Provider<Locale> localeProvider;
 	@Inject
 	ResourceBundleService resourceBundleService;
-
+	
+	@Inject
+	IsUserInRoleDecision userInRoleDecision;
+	
 	@Inject
 	@Named("securedFedoraAccess")
 	FedoraAccess fedoraAccess;
@@ -130,7 +134,7 @@ public class ItemViewObject {
 			List<String> models = getModels();
 			List<ItemMenuViewObject> menus = new ArrayList<ItemMenuViewObject>();
 			for (int i = 0; i < pids.size(); i++) {
-				menus.add(new ItemMenuViewObject(this.request, this.servletContext, this.fedoraAccess, this.resourceBundleService.getResourceBundle("labels", localeProvider.get()), KConfiguration.getInstance(), this, localeProvider.get(),pids.get(i), models.get(i), i));
+				menus.add(new ItemMenuViewObject(this.request, this.servletContext, this.fedoraAccess, this.resourceBundleService.getResourceBundle("labels", localeProvider.get()), KConfiguration.getInstance(), this, localeProvider.get(),pids.get(i), models.get(i), i, userInRoleDecision));
 			}
 			return menus;
 		} catch (IOException e) {

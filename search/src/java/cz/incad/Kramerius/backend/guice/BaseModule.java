@@ -10,6 +10,7 @@ import com.google.inject.AbstractModule;
 import com.google.inject.Scopes;
 import com.google.inject.name.Names;
 
+import cz.incad.Kramerius.security.RequestIsUserInRoleDecision;
 import cz.incad.kramerius.FedoraAccess;
 import cz.incad.kramerius.MostDesirable;
 import cz.incad.kramerius.impl.FedoraAccessImpl;
@@ -21,8 +22,9 @@ import cz.incad.kramerius.processes.ProcessScheduler;
 import cz.incad.kramerius.processes.database.JNDIConnectionProvider;
 import cz.incad.kramerius.processes.impl.GCSchedulerImpl;
 import cz.incad.kramerius.processes.impl.ProcessSchedulerImpl;
+import cz.incad.kramerius.security.IsUserInRoleDecision;
 import cz.incad.kramerius.security.SecuredFedoraAccessImpl;
-import cz.incad.kramerius.security.SecurityAcceptor;
+import cz.incad.kramerius.security.IPaddressChecker;
 import cz.incad.kramerius.service.DeleteService;
 import cz.incad.kramerius.service.ExportService;
 import cz.incad.kramerius.service.PolicyService;
@@ -59,7 +61,9 @@ public class BaseModule extends AbstractModule {
 		bind(TextsService.class).to(TextsServiceImpl.class).in(Scopes.SINGLETON);
 		bind(ResourceBundleService.class).to(ResourceBundleServiceImpl.class).in(Scopes.SINGLETON);
 		
-		bind(SecurityAcceptor.class).to(RequestSecurityAcceptor.class);
+		bind(IPaddressChecker.class).to(RequestIPaddressChecker.class);
+		bind(IsUserInRoleDecision.class).to(RequestIsUserInRoleDecision.class);
+
 		bind(LocalizationContext.class).toProvider(CustomLocalizedContextProvider.class);
 		
 		bind(MostDesirable.class).to(MostDesirableImpl.class);
