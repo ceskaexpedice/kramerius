@@ -1,8 +1,5 @@
 package cz.incad.kramerius.security;
 
-import java.lang.annotation.Annotation;
-import java.lang.reflect.Method;
-
 import org.aopalliance.intercept.MethodInterceptor;
 import org.aopalliance.intercept.MethodInvocation;
 
