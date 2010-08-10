@@ -13,6 +13,7 @@ import org.apache.axis.NoEndPointException;
 
 import com.google.inject.Inject;
 
+import cz.incad.Kramerius.security.KrameriusRoles;
 import cz.incad.kramerius.security.IsUserInRoleDecision;
 import cz.incad.kramerius.security.Secured;
 import cz.incad.kramerius.service.ResourceBundleService;
@@ -41,7 +42,7 @@ public class AdminMenuViewObject {
 	IsUserInRoleDecision userInRoleDecision;
 
 	
-	@Secured(roles=KRAMERIUS_ADMIN)
+	@Secured(roles=KrameriusRoles.LRPROCESS_ADMIN)
 	public String processes() throws IOException {
 	    return "<div align=\"left\"> <a href=\"javascript:processes(); javascript:hideAdminMenu();\">"+this.resourceBundleService.getResourceBundle("labels", this.locale).getString("administrator.menu.dialogs.lrprocesses.title")+" </a> </div>";
 	}
