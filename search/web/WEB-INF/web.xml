@@ -54,6 +54,11 @@
 		<servlet-class>cz.incad.Kramerius.LongRunningProcessServlet</servlet-class>
 		<load-on-startup>1</load-on-startup>
 	</servlet>
+	<!-- METS export -->
+	<servlet>
+		<servlet-name>mets</servlet-name>
+		<servlet-class>cz.incad.Kramerius.METSServlet</servlet-class>
+	</servlet>
 
 	<!-- mimetype servlet -->
 	<servlet>
@@ -109,6 +114,11 @@
 	<servlet-mapping>
 		<servlet-name>pdf</servlet-name>
 		<url-pattern>/pdf</url-pattern>
+	</servlet-mapping>
+
+	<servlet-mapping>
+		<servlet-name>mets</servlet-name>
+		<url-pattern>/mets</url-pattern>
 	</servlet-mapping>
 
 	<servlet-mapping>
