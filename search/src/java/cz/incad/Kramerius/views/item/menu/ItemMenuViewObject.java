@@ -94,6 +94,11 @@ public class ItemMenuViewObject {
 		return "<div align=\"left\"><a title=\"Export to pdf(CD)\" href=\"javascript:generateStatic("+(index+1)+",'static_export_CD','"+imgServlet+"','"+i18nServlet+"','"+this.locale.getISO3Country()+"','"+this.locale.getISO3Language()+");\">"+this.resourceBundle.getString("administrator.menu.generatepdf")+"</a> </div>";
 	}
 
+	
+	private String exportMETS() {
+		return "<div align=\"left\"><a title=\"METS\" href=\"mets?pid=uuid:"+uuid+"\" target=\"_blank\">"+this.resourceBundle.getString("administrator.menu.exportMETS")+"</a> </div>";
+}
+	
 	private String reindex() {
 		return "<div align=\"left\"><a title=\"Reindex\" href=\"javascript:reindex('"+index+1+","+this.itemViewObject.getModels().get(this.index)+"');\">"+this.resourceBundle.getString("administrator.menu.reindex")+"</a> </div>";
 	}
@@ -131,6 +136,7 @@ public class ItemMenuViewObject {
 			} catch (IOException e) {
 				LOGGER.log(Level.SEVERE, e.getMessage(), e);
 			}
+			items.add(exportMETS());
 		};
 		if (httpServletRequest.getRemoteUser() != null) {
 			if (userInRoleDecision.isUserInRole("static_export_CD")) {
