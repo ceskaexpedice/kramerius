@@ -20,14 +20,6 @@ import cz.incad.kramerius.service.ResourceBundleService;
 
 public class AdminMenuViewObject {
 
-	private static final String IMPORT = "import";
-	private static final String CONVERT = "convert";
-	private static final String REPLICATIONRIGHTS = "replicationrights";
-	private static final String ENUMERATOR = "enumerator";
-	private static final String REINDEX = "reindex";
-	private static final String REPLIKATOR_PERIODICALS = "replikator_periodicals";
-	private static final String REPLIKATOR_MONOGRAPHS = "replikator_monographs";
-	private static final String KRAMERIUS_ADMIN = "krameriusAdmin";
 
 	public static final java.util.logging.Logger LOGGER = java.util.logging.Logger
 			.getLogger(AdminMenuViewObject.class.getName());
@@ -47,22 +39,22 @@ public class AdminMenuViewObject {
 	    return "<div align=\"left\"> <a href=\"javascript:processes(); javascript:hideAdminMenu();\">"+this.resourceBundleService.getResourceBundle("labels", this.locale).getString("administrator.menu.dialogs.lrprocesses.title")+" </a> </div>";
 	}
 	
-	@Secured(roles=REPLIKATOR_MONOGRAPHS)
+	@Secured(roles=KrameriusRoles.REPLIKATOR_MONOGRAPHS)
 	public String importMonographs() throws IOException {
 	    return "<div align=\"left\"> <a href=\"javascript:importMonographs(); javascript:hideAdminMenu();\">"+this.resourceBundleService.getResourceBundle("labels", this.locale).getString("administrator.menu.dialogs.importMonograph.title")+" </a> </div>";
 	}
 
-	@Secured(roles=REPLIKATOR_PERIODICALS)
+	@Secured(roles=KrameriusRoles.REPLIKATOR_PERIODICALS)
 	public String importPeriodicals() throws IOException {
 	    return "<div align=\"left\"> <a href=\"javascript:importPeriodicals(); javascript:hideAdminMenu();\">"+this.resourceBundleService.getResourceBundle("labels", this.locale).getString("administrator.menu.dialogs.importPeriodical.title")+" </a> </div>";
 	}
 
-	@Secured(roles=REINDEX)
+	@Secured(roles=KrameriusRoles.REINDEX)
 	public String showIndexerAdmin() throws IOException {
 	    return "<div align=\"left\"> <a href=\"javascript:showIndexerAdmin(); javascript:hideAdminMenu();\">"+this.resourceBundleService.getResourceBundle("labels", this.locale).getString("administrator.menu.dialogs.indexDocuments.title")+" </a> </div>";
 	}
 
-	@Secured(roles={ENUMERATOR,REPLICATIONRIGHTS,CONVERT,IMPORT})
+	@Secured(roles={KrameriusRoles.ENUMERATOR,KrameriusRoles.REPLICATIONRIGHTS,KrameriusRoles.CONVERT,KrameriusRoles.IMPORT})
 	public String noParamsProcess(String processName) throws IOException {
 	    return "<div align=\"left\"> <a href=\"javascript:noParamsProcess('"+processName+"'); javascript:hideAdminMenu();\">"+this.resourceBundleService.getResourceBundle("labels", this.locale).getString("administrator.menu.dialogs."+processName+".title")+" </a> </div>";
 	}
@@ -71,29 +63,29 @@ public class AdminMenuViewObject {
 		try {
 			List<String> menuItems = new ArrayList<String>();
 			if (request.getRemoteUser() != null) {
-				if (userInRoleDecision.isUserInRole(KRAMERIUS_ADMIN)) {
+				if (userInRoleDecision.isUserInRole(KrameriusRoles.KRAMERIUS_ADMIN)) {
 					menuItems.add(processes());
 				}
-				if (userInRoleDecision.isUserInRole(REPLIKATOR_MONOGRAPHS)) {
+				if (userInRoleDecision.isUserInRole(KrameriusRoles.REPLIKATOR_MONOGRAPHS)) {
 					menuItems.add(importMonographs());
 				} 
-				if (userInRoleDecision.isUserInRole(REPLIKATOR_PERIODICALS)) {
+				if (userInRoleDecision.isUserInRole(KrameriusRoles.REPLIKATOR_PERIODICALS)) {
 					menuItems.add(importPeriodicals());
 				}
-				if (userInRoleDecision.isUserInRole(REINDEX)) {
+				if (userInRoleDecision.isUserInRole(KrameriusRoles.REINDEX)) {
 					menuItems.add(showIndexerAdmin());
 				}
-				if (userInRoleDecision.isUserInRole(ENUMERATOR)) {
-					menuItems.add(noParamsProcess(ENUMERATOR));
+				if (userInRoleDecision.isUserInRole(KrameriusRoles.ENUMERATOR)) {
+					menuItems.add(noParamsProcess(KrameriusRoles.ENUMERATOR));
 				}
-				if (userInRoleDecision.isUserInRole(REPLICATIONRIGHTS)) {
-					menuItems.add(noParamsProcess(REPLICATIONRIGHTS));
+				if (userInRoleDecision.isUserInRole(KrameriusRoles.REPLICATIONRIGHTS)) {
+					menuItems.add(noParamsProcess(KrameriusRoles.REPLICATIONRIGHTS));
 				}
-				if (userInRoleDecision.isUserInRole(CONVERT)) {
-					menuItems.add(noParamsProcess(CONVERT));
+				if (userInRoleDecision.isUserInRole(KrameriusRoles.CONVERT)) {
+					menuItems.add(noParamsProcess(KrameriusRoles.CONVERT));
 				} 
-				if (userInRoleDecision.isUserInRole(IMPORT)) {
-					menuItems.add(noParamsProcess(IMPORT));
+				if (userInRoleDecision.isUserInRole(KrameriusRoles.IMPORT)) {
+					menuItems.add(noParamsProcess(KrameriusRoles.IMPORT));
 				}
 			}
 			return (String[]) menuItems.toArray(new String[menuItems.size()]);

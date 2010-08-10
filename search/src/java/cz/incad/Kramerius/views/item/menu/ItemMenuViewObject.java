@@ -18,6 +18,7 @@ import com.google.inject.Inject;
 
 import cz.incad.Kramerius.FullImageServlet;
 import cz.incad.Kramerius.I18NServlet;
+import cz.incad.Kramerius.security.KrameriusRoles;
 import cz.incad.Kramerius.views.item.ItemViewObject;
 import cz.incad.kramerius.FedoraAccess;
 import cz.incad.kramerius.KrameriusModels;
@@ -141,20 +142,20 @@ public class ItemMenuViewObject {
 					LOGGER.log(Level.SEVERE, e.getMessage(), e);
 				}
 			}
-			if (userInRoleDecision.isUserInRole("reindex")) {
+			if (userInRoleDecision.isUserInRole(KrameriusRoles.REINDEX)) {
 				items.add(reindex());
 			}
-			if (userInRoleDecision.isUserInRole("reindex")) {
+			if (userInRoleDecision.isUserInRole(KrameriusRoles.REINDEX)) {
 				items.add(deleteFromIndex());
 			}
-			if (userInRoleDecision.isUserInRole("delete")) {
+			if (userInRoleDecision.isUserInRole(KrameriusRoles.DELETE)) {
 				items.add(deleteFromFedora());
 			}
-			if ((userInRoleDecision.isUserInRole("setpublic")) && 
-				(userInRoleDecision.isUserInRole("setprivate"))) {
+			if ((userInRoleDecision.isUserInRole(KrameriusRoles.SETPUBLIC)) && 
+				(userInRoleDecision.isUserInRole(KrameriusRoles.SETPRIVATE))) {
 				items.add(changeVisibility());
 			}
-			if (userInRoleDecision.isUserInRole("export")) {
+			if (userInRoleDecision.isUserInRole(KrameriusRoles.EXPORT)) {
 				items.add(exportTOFOXML());
 			}
 //			items.add(convertAndImport());
