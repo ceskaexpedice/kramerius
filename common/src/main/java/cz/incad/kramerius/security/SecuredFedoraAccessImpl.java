@@ -44,7 +44,7 @@ import cz.incad.kramerius.impl.FedoraAccessImpl;
 public class SecuredFedoraAccessImpl implements FedoraAccess {
 	
 	private FedoraAccess rawAccess;
-	private SecurityAcceptor acceptor;
+	private IPaddressChecker acceptor;
 	
 	@Inject
 	public SecuredFedoraAccessImpl(@Named("rawFedoraAccess")FedoraAccess rawAccess ) {
@@ -159,13 +159,13 @@ public class SecuredFedoraAccessImpl implements FedoraAccess {
 		rawAccess.processRelsExt(uuid, handler);
 	}
 
-	public SecurityAcceptor getAcceptor() {
+	public IPaddressChecker getAcceptor() {
 		return acceptor;
 	}
 
 	
 	@Inject
-	public void setAcceptor(SecurityAcceptor acceptor) {
+	public void setAcceptor(IPaddressChecker acceptor) {
 		this.acceptor = acceptor;
 	}
 	
