@@ -14,7 +14,7 @@ import cz.incad.kramerius.pdf.GeneratePDFService;
 import cz.incad.kramerius.pdf.impl.GeneratePDFServiceImpl;
 import cz.incad.kramerius.processes.database.JNDIConnectionProvider;
 import cz.incad.kramerius.security.SecuredFedoraAccessImpl;
-import cz.incad.kramerius.security.SecurityAcceptor;
+import cz.incad.kramerius.security.IPaddressChecker;
 import cz.incad.kramerius.service.impl.DeleteServiceImpl;
 import cz.incad.kramerius.service.impl.ExportServiceImpl;
 import cz.incad.kramerius.service.impl.PolicyServiceImpl;
