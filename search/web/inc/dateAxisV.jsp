@@ -219,6 +219,14 @@ $(document).ready(function(){
         });
       
         initDateAxis();
+        
+        //set mouse wheel
+        $('#content-scroll').mousewheel(function(event, delta){
+            var pos = $("#content-slider").slider("value") + delta*3;
+            $("#content-slider").slider("value", pos);
+            return false;
+
+        });
 
     });
     
