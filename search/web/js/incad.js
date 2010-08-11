@@ -511,8 +511,6 @@ function getTotalPages(pid, div){
 
 
 function getTotalPagesInResults(){
-    
-    
     $('.pages').each(function(){
         var uuid = this.id.substring(6);
         getTotalPages('uuid:' + uuid, uuid);

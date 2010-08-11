@@ -163,6 +163,7 @@ function getItemRels(pid, selectedpid, level, recursive, rootModel){
     if(!pid) return;
     var url ="GetRelsExt?language="+language+"&relation=*&format=json&pid=uuid:"+pid;
     var target_level = level + 1;
+    var newTab = false;
     $.getJSON(url, function(data){
         var obj = "#tabs_" + target_level;
         $.each(data.items, function(i,item){
@@ -172,8 +173,15 @@ function getItemRels(pid, selectedpid, level, recursive, rootModel){
                 t="";
                 $(obj).tabs({ 
                     tabTemplate: '<li><a href="'+t+'#{href}">#{label}</a><img width="12" src="img/empty.gif" class="op_list" onclick="showList(this, \''+obj+'\', \'#{href}\')" /></li>',
-                    panelTemplate: '<li></li>'
+                    panelTemplate: '<li></li>',
+                    show: function(event, ui){
+                        updateThumbs();
+                    },
+                    select: function(event, ui){
+                        changingTab=true;
+                    }
                 });
+                newTab = true;
             }
             var list;
             var str_div = "";
@@ -199,10 +207,12 @@ function getItemRels(pid, selectedpid, level, recursive, rootModel){
                       str_div +='</div>';
                       $(obj).append(str_div);
                       $(obj).tabs("add", "#tab"+target_level+"-"+m, model2[0]);
+                      
                       //$(obj).tabs("add", m, model2[0]);
 
                       $(obj+">ul>li>img."+m).toggleClass('op_info');
                   }else{
+                      
 
                   }
                 }
@@ -232,11 +242,20 @@ function getItemRels(pid, selectedpid, level, recursive, rootModel){
                     $(list).append(item);
                     if(m=="page"){
                         hasPages = true;
-                        addThumb(pid2);
+                        var display = 'inline';
+                        if(newTab){
+                            display = 'none';
+                        } 
+                        addThumb(pid2, display, target_level);
                     } 
                 }
                 if(m=="page"){
                   totalThumbs = model2.length - 1;
+                  if(totalThumbs==0){
+                      $('#tv').hide();
+                  }else{
+                      $('#tv').show();
+                  }
                 }
                 
                 for(var i=1;i<model2.length;i++){
