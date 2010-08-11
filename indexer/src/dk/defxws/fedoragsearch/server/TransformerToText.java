@@ -39,13 +39,15 @@ public class TransformerToText {
 
     public TransformerToText() {
     }
+    
+    
 
     /**
      * 
      *
      * @throws TransformerConfigurationException, TransformerException.
      */
-    public StringBuffer getText(byte[] doc, String mimetype)
+    public StringBuffer getText(byte[] doc, String mimetype, String page)
             throws Exception, Exception {
         if (mimetype.equals("text/plain")) {
             return getTextFromText(doc);
@@ -56,7 +58,7 @@ public class TransformerToText {
         } else if (mimetype.equals("text/html")) {
             return getTextFromHTML(doc);
         } else if (mimetype.equals("application/pdf")) {
-            return getTextFromPDF(doc);
+            return getTextFromPDF(doc, page);
         } else if (mimetype.equals("application/ps")) {
             return new StringBuffer();
         } else if (mimetype.equals("application/msword")) {
@@ -138,12 +140,59 @@ public class TransformerToText {
         return docText;
     }
 
+    
+    public int getPdfPagesCount(byte[] doc) throws Exception{
+        COSDocument cosDoc = null;
+        PDDocument pdDoc = null;
+        String password = "";
+        try {
+            cosDoc = parseDocument(new ByteArrayInputStream(doc));
+        } catch (IOException e) {
+            closeCOSDocument(cosDoc);
+            throw new Exception(
+                    "Cannot parse PDF document", e);
+        }
+
+        // decrypt the PDF document, if it is encrypted
+        try {
+            if (cosDoc.isEncrypted()) {
+                DocumentEncryption decryptor = new DocumentEncryption(cosDoc);
+                decryptor.decryptDocument(password);
+            }
+        } catch (CryptographyException e) {
+            closeCOSDocument(cosDoc);
+            throw new Exception(
+                    "Cannot decrypt PDF document", e);
+        } catch (InvalidPasswordException e) {
+            closeCOSDocument(cosDoc);
+            throw new Exception(
+                    "Cannot decrypt PDF document", e);
+        } catch (IOException e) {
+            closeCOSDocument(cosDoc);
+            throw new Exception(
+                    "Cannot decrypt PDF document", e);
+        }
+
+        // extract PDF document's textual content
+        try {
+            
+            pdDoc = new PDDocument(cosDoc);
+            return pdDoc.getNumberOfPages();
+        } catch (Exception e) {
+            throw new Exception(
+                    "Cannot parse PDF document", e);
+        } finally {
+            closeCOSDocument(cosDoc);
+            closePDDocument(pdDoc);
+        }
+    }
+            
     /**
      * 
      *
      * @throws Exception.
      */
-    private StringBuffer getTextFromPDF(byte[] doc)
+    private StringBuffer getTextFromPDF(byte[] doc, String pageNum)
             throws Exception {
         StringBuffer docText = new StringBuffer();
         COSDocument cosDoc = null;
@@ -180,6 +229,11 @@ public class TransformerToText {
         // extract PDF document's textual content
         try {
             PDFTextStripper stripper = new PDFTextStripper();
+            int page = Integer.parseInt(pageNum);
+            if(page!=-1){
+                stripper.setStartPage(page);
+                stripper.setEndPage(page);
+            }
             pdDoc = new PDDocument(cosDoc);
             docText = new StringBuffer(stripper.getText(pdDoc));
         } catch (IOException e) {

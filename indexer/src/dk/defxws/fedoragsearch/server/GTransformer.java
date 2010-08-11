@@ -15,6 +15,8 @@ import java.io.StringWriter;
 
 import java.util.Date;
 
+import java.util.HashMap;
+import java.util.Iterator;
 import javax.xml.transform.Source;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerConfigurationException;
@@ -91,24 +93,33 @@ public class GTransformer {
         }
     }
 
-    public StringBuffer transform(String xsltName, Source sourceStream, Object[] params) 
+    public StringBuffer transform(String xsltName, Source sourceStream, HashMap<String, String> params) 
     throws Exception {
         return transform (xsltName, sourceStream, null, params);
     }
 
-    public StringBuffer transform(String xsltName, Source sourceStream, URIResolver uriResolver, Object[] params) 
+    public StringBuffer transform(String xsltName, Source sourceStream, URIResolver uriResolver, HashMap<String, String> params) 
     throws Exception {
         if (logger.isDebugEnabled())
             logger.debug("xsltName="+xsltName);
         Transformer transformer = getTransformer(xsltName, uriResolver);
-        for (int i=0; i<params.length; i=i+2) {
-            Object value = params[i+1];
-            if (value==null) value = "";
-            transformer.setParameter((String)params[i], value);
-            if (logger.isDebugEnabled())
-                logger.debug((String)params[i] + " --> " + (String)value);
-//logger.info((String)params[i] + " --> " + (String)value);
+        Iterator it = params.keySet().iterator();
+        String key = "";
+        String value = "";
+        while(it.hasNext()){
+            key = (String)it.next();
+            value = params.get(key);
+            if(value == null) value = "";
+            transformer.setParameter(key, value);
         }
+//        for (int i=0; i<params.length; i=i+2) {
+//            Object value = params[i+1];
+//            if (value==null) value = "";
+//            transformer.setParameter((String)params[i], value);
+//            if (logger.isDebugEnabled())
+//                logger.debug((String)params[i] + " --> " + (String)value);
+////logger.info((String)params[i] + " --> " + (String)value);
+//        }
         transformer.setParameter("DATETIME", new Date());
         StreamResult destStream = new StreamResult(new StringWriter());
         try {
@@ -153,7 +164,7 @@ public class GTransformer {
      */
     public StringBuffer transform(String xsltName, StreamSource sourceStream) 
     throws Exception {
-        return transform(xsltName, sourceStream, new String[]{});
+        return transform(xsltName, sourceStream, new HashMap<String, String>());
     }
     
     /**
@@ -161,7 +172,7 @@ public class GTransformer {
      *
      * @throws TransformerConfigurationException, TransformerException.
      */
-    public StringBuffer transform(String xsltName, StringBuffer sb, String[] params) 
+    public StringBuffer transform(String xsltName, StringBuffer sb, HashMap<String, String> params) 
     throws Exception {
 //      if (logger.isDebugEnabled())
 //      logger.debug("sb="+sb);
@@ -179,7 +190,7 @@ public class GTransformer {
      */
     public StringBuffer transform(String xsltName, StringBuffer sb) 
     throws Exception {
-        return transform(xsltName, sb, new String[]{});
+        return transform(xsltName, sb, new HashMap<String, String>());
     }
     
     public static void main(String[] args) {
