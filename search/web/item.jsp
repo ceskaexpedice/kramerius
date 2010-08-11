@@ -70,7 +70,7 @@
                     <table cellpadding="0" cellspacing="0" width="100%"><tr>
                         <td valign="top" align="center" width="20px"><a class="prevArrow"  href="javascript:selectPrevious();"><img src="img/la.png" border="0" /></a></td>
                         <td valign="top" align="center" id="mainContent"><a href="javascript:showFullImage('${itemViewObject.imagePid}')" class="lighbox">
-                                <img border="0" width="650px" onerror="showError();" src="${itemViewObject.firstPageImageUrl}" id="imgBig">
+                                <img border="0" width="650px" onerror="showError();" src="${itemViewObject.firstPageImageUrl}" id="imgBig" alt="">
                             </a></td>
                         <td valign="top" align="center" width="20px"><a class="nextArrow"  href="javascript:selectNext();"><img src="img/ra.png" border="0" /></a></td>
                     </tr></table>
@@ -116,6 +116,13 @@
             <a href="http://www.celartem.com/en/download/djvu.asp">File download</a><br/> <br/> <br/> 
         </object>
     </div>
+    <c:if test="${param.format == 'application/pdf'}">
+    <div id="pdfContainer" style="display:none;">        
+        <object data="djvu?uuid=${itemViewObject.firstUUID}&outputFormat=RAW&page=${itemViewObject.page-1}" type="application/pdf" width="100%" height="100%" page="${itemViewObject.page-1}">
+            
+        </object>
+    </div>
+    </c:if>
     <div id="imgContainer" style="display:none;" align="center">
         <img id="imgFullImage" src="img/empty.gif" />
     </div>

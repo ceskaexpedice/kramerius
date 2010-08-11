@@ -16,15 +16,54 @@
     var totalThumbs = 0;
     var currentMime = "unknown";
         
-        
-    function addThumb(uuid){
-        var img = '<td><img onload="checkScrollPosition()" id="img_'+uuid+
+    function getMaxLevel(){
+        var maxLevel = 1;
+        var id;
+        var cur;
+        //alert($('.ui-tabs').length);
+        $('.ui-tabs').each(function(index){
+            id = $(this).attr('id');
+            cur = parseInt(id.substr(5));
+            if($('#'+id).is(':visible') && cur>maxLevel){
+                maxLevel = cur;
+            }
+        });
+        return maxLevel;
+    }
+    function updateThumbs(){
+        //alert(currentSelectedPage);
+        //alert(currentSelectedParent);
+        if(changingTab){
+            initPage = null;
+            var maxLevel = getMaxLevel();
+            $('.thumb').hide();
+            $('.inlevel_'+maxLevel).show();
+            if($('#img'+maxLevel+'_'+currentSelectedPage).is(':visible')){
+                changeSelection(currentSelectedParent, currentSelectedPage);
+            }else{
+                var d1 = "#tabs_" + maxLevel;
+                var d2 = "#tabs_" + (maxLevel-1);
+                var pid = $(d1+">div.page>div.relList>div:first").attr("pid");
+                changeSelection($(d2).attr("pid"),pid);
+                //showInfo($(d1+">ul>li>img"), d1, 'page');
+            }
+            checkArrows();
+        }
+    }
+    
+    function addThumb(uuid, display, level){
+        var img = '<td style="display:'+display+';" class="thumb inlevel_'+level+'"><img onload="checkScrollPosition()" id="img'+level+'_'+uuid+
             '" class="tv_image';
         if(currentSelectedPage==uuid){
             img += ' tv_img_selected'
         }
         img += '" onclick="selectPage(\''+uuid+'\');" src="thumb?outputFormat=RAW&amp;uuid='+uuid+'" /></td>';
         $('#tv_container_row').append(img);
+        if(totalThumbs==0){
+            $('#tv').hide();
+        }else{
+            $('#tv').show();
+        }
         checkArrows();
     }
     
@@ -34,11 +73,11 @@
     }
     var imgW;
     function selectPage(uuid){
-        $("#img_"+currentSelectedPage).toggleClass('tv_img_selected');
+        $('.tv_image').removeClass('tv_img_selected');
         currentSelectedPage = uuid;
         var pageUrl = "djvu?uuid="+uuid+"&scaledWidth="+imgW;
         var mimeUrl = "djvu?uuid="+uuid+"&imageType=ask";
-        var img = '<a class="lighbox" href="javascript:showFullImage(\''+uuid+'\')"><img id="imgBig" src="'+pageUrl+'" width="'+imgW+'px" border="0" onerror="showError();"  /></a>';
+        var img = '<a class="lighbox" href="javascript:showFullImage(\''+uuid+'\')"><img id="imgBig" src="'+pageUrl+'" alt="" width="'+imgW+'px" border="0" onerror="showError();"  /></a>';
         checkArrows();
         if($('#imgBig').attr('src').indexOf(uuid)==-1){
             $('#mainContent').html(img);
@@ -47,7 +86,7 @@
         $.get(mimeUrl, function(data){
             currentMime = data;
         });
-        $("#img_"+uuid).toggleClass('tv_img_selected');
+        $('#img'+getMaxLevel()+'_'+uuid).toggleClass('tv_img_selected');
         changeSelectedPage(uuid);
     }
     function checkArrows(){
@@ -65,7 +104,8 @@
         }
     }
     function showError(){
-        $('#mainContent').html('<div align="center" style="height:300px;" >' + dictionary['rightMsg'] + '</div>');
+        //$('#mainContent').html('<div align="center" style="height:300px;" >' + dictionary['rightMsg'] + '</div>');
+        $('#imgBig').attr('alt', dictionary['rightMsg']);
     }
     var fullDialog;
     var vertMargin = 20;
@@ -75,7 +115,7 @@
     var maxScroll = 0;
     function showFullImage(uuid){
             
-        var fullUrl = "djvu?uuid="+currentSelectedPage+"&outputFormat=RAW";
+        
         $('#mainItemTable').hide();
         //return;
         if(fullDialog){
@@ -108,11 +148,15 @@
             checkArrows();
         }
         //alert(currentMime);
+        var fullUrl = "djvu?uuid="+currentSelectedPage+"&outputFormat=RAW";
         if(currentMime.indexOf('djvu') > 0){
             //$('#djvuContainer').hide();
             $('#djvuContainer>object>param[name="src"]').attr('value', fullUrl);
             $('#djvuContainer>object>embed').attr('src', fullUrl);
             $('#djvuContainer').show();
+        }else if(currentMime.indexOf('pdf') > 0){
+            
+            $('#pdfContainer').show();
         }else{
             $('#imgContainer').show();
             $('#imgContainer>img').attr('src', fullUrl);
@@ -158,7 +202,8 @@
         currentSelectedParent = masterUuid;
         
         // momentalne zobrazeny 
-        var to = $('#img_' + selection).offset().left - tvContainerLeft + $("#tv_container").attr("scrollLeft") - ($("#tv_container").width()/2) ;
+        
+        var to = $('#img'+getMaxLevel()+'_' + selection).offset().left - tvContainerLeft + $("#tv_container").attr("scrollLeft") - ($("#tv_container").width()/2) ;
         
         var maxScroll = $("#tv_container").attr("scrollWidth") - $("#tv_container").width();
         var to2 = 0;
@@ -194,9 +239,10 @@
     var canScroll = true;
     function tv_SliderChange(e, ui){
         
-        if(maxScroll==0){
+        //if(maxScroll==0){
             maxScroll = $("#tv_container").attr("scrollWidth") - $("#tv_container").width();
-        }
+        //    maxScroll = $("#tv_container").attr("scrollWidth") - $("#tv_container").width();
+        //}
         if(canScroll){
             $("#tv_container").attr({
                 scrollLeft: ui.value * (maxScroll / 100)
@@ -241,6 +287,7 @@
                 selectPrevious();
             }
         });
+        
 
     });
 </script>
@@ -263,6 +310,7 @@
     }
     
 </style>
+<div id="tv" style="display:none;">
 <div id="tv_container">
     <table cellpadding="2" cellspacing="0" id="tv_container_table">
         <tr id="tv_container_row"></tr>
@@ -271,3 +319,4 @@
 <table cellpadding="2" cellspacing="0" width="100%">
     <tr><td><div id="tv_slider" style="width: 100%"></div> </td></tr>
 </table>
+</div>
