@@ -184,17 +184,41 @@ public class FedoraOperations {
         }
     }
 
-    public String getDatastreamText(
+    public int getPdfPagesCount(
             String pid,
             String repositoryName,
             String dsId)
-            throws Exception, Exception {
+            throws Exception {
+        ds = null;
+        if (dsId != null) {
+            try {
+                FedoraAPIA apia = fa.getAPIA();
+                MIMETypedStream mts = apia.getDatastreamDissemination(pid,
+                        dsId, null);
+                if (mts == null) {
+                    return 1;
+                }
+                ds = mts.getStream();
+                return (new TransformerToText().getPdfPagesCount(ds));
+                
+            } catch (Exception e) {
+                throw new Exception(e.getClass().getName() + ": " + e.toString());
+            }
+        }
+        return 1;
+    }
+    public String getDatastreamText(
+            String pid,
+            String repositoryName,
+            String dsId,
+            String docCount)
+            throws Exception {
         return getDatastreamText(pid, repositoryName, dsId,
                 KConfiguration.getInstance().getConfiguration().getString("FedoraSoap"),
                 KConfiguration.getInstance().getConfiguration().getString("FedoraUser"),
                 KConfiguration.getInstance().getConfiguration().getString("FedoraPass"),
                 KConfiguration.getInstance().getConfiguration().getString("TrustStorePath"),
-                KConfiguration.getInstance().getConfiguration().getString("TrustStorePass"));
+                KConfiguration.getInstance().getConfiguration().getString("TrustStorePass"),docCount);
     }
 
     public String getDatastreamText(
@@ -205,8 +229,9 @@ public class FedoraOperations {
             String fedoraUser,
             String fedoraPass,
             String trustStorePath,
-            String trustStorePass)
-            throws Exception, Exception {
+            String trustStorePass,
+            String pageNum)
+            throws Exception {
         if (logger.isDebugEnabled()) {
             logger.debug("getDatastreamText" + " pid=" + pid + " repositoryName=" + repositoryName + " dsId=" + dsId + " fedoraSoap=" + fedoraSoap + " fedoraUser=" + fedoraUser + " fedoraPass=" + fedoraPass + " trustStorePath=" + trustStorePath + " trustStorePass=" + trustStorePass);
         }
@@ -228,7 +253,7 @@ public class FedoraOperations {
             }
         }
         if (ds != null) {
-            dsBuffer = (new TransformerToText().getText(ds, mimetype));
+            dsBuffer = (new TransformerToText().getText(ds, mimetype, pageNum));
         } else {
             logger.debug("ds is null");
         }

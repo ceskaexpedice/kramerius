@@ -29,7 +29,8 @@ public class Main {
             System.out.println(Arrays.asList(args));
             ProgramArguments arguments = new ProgramArguments();
             if (!arguments.parse(args)) {
-                System.out.println("Program arguments are invalid");
+                //System.out.println("Program arguments are invalid");
+                throw new Exception("Program arguments are invalid");
             }
 
             //checkFileOrCreateNew(arguments.log4jFile, "res/log4j.properties");

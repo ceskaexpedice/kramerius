@@ -71,7 +71,7 @@ public class SolrOperations {
     protected int deleteTotal = 0;
     protected int docCount = 0;
     protected int warnCount = 0;
-    protected String[] params = null;
+    //protected String[] params = null;
     private FedoraOperations fedoraOperations;
 
     public SolrOperations(FedoraOperations _fedoraOperations) {
@@ -207,7 +207,7 @@ public class SolrOperations {
             return;
         }
         fedoraOperations.getFoxmlFromPid(pid, repositoryName);
-        indexDoc(pid, repositoryName, indexName, new ByteArrayInputStream(fedoraOperations.foxmlRecord), requestParams);
+        indexDoc(pid, repositoryName, indexName, new ByteArrayInputStream(fedoraOperations.foxmlRecord), requestParams, "1");
     }
     /* kramerius */
     XPathFactory factory = XPathFactory.newInstance();
@@ -325,9 +325,22 @@ public class SolrOperations {
             if (indexParams == null) {
                 indexParams = new IndexParams(pid, contentDom);
             }
+            //tady testujeme pripadne vicestrankovy pdf
+            ///foxml:digitalObject/foxml:datastream[@ID='IMG_FULL']/foxml:datastreamVersion[last()]
+            expr = xpath.compile("//datastream[@ID='IMG_FULL']/datastreamVersion[last()]");
+            Node imgFullMimeNode = (Node) expr.evaluate(contentDom, XPathConstants.NODE);
+            int docCount = 1;
+            if(imgFullMimeNode!=null){
+                 
+                if(imgFullMimeNode.getAttributes().getNamedItem("MIMETYPE").getNodeValue().indexOf("pdf")>-1 ){
+                    docCount = fedoraOperations.getPdfPagesCount(pid, 
+                        repositoryName, 
+                        "IMG_FULL");
+                }
+            }
+            
             if (full) {
                 expr = xpath.compile("//datastream/datastreamVersion[last()]/xmlContent/RDF/Description/*");
-
                 NodeList nodes = (NodeList) expr.evaluate(contentDom, XPathConstants.NODESET);
 
                 for (int i = 0; i < nodes.getLength(); i++) {
@@ -349,7 +362,7 @@ public class SolrOperations {
 //    break;
 //}                    
                 }
-
+                
                 for (int i = 0; i < pids.size(); i++) {
                     String relpid = pids.get(i);
                     String model = models.get(i);
@@ -378,9 +391,12 @@ public class SolrOperations {
                     }
                 }
             }
+            
+            
+            num += docCount - 1;
             // if (logger.isInfoEnabled())
             //     logger.info("indexByPid indexParams.toUrlString(): " + indexParams.toUrlString());
-            indexDoc(pid, repositoryName, indexName, foxmlStream, indexParams.toArrayList(Integer.toString(num)));
+            indexDoc(pid, repositoryName, indexName, foxmlStream, indexParams.toArrayList(Integer.toString(num)), String.valueOf(docCount));
 
         } catch (Exception e) {
             logger.error("indexByPid error", e);
@@ -394,29 +410,26 @@ public class SolrOperations {
             String repositoryName,
             String indexName,
             InputStream foxmlStream,
-            ArrayList<String> requestParams)
+            ArrayList<String> requestParams,
+            String docCount)
             throws java.rmi.RemoteException, IOException, Exception {
         foxmlStream.reset();
         String xsltName = "";
-        String[] params = new String[12 + requestParams.size()];
+        HashMap<String, String>  params = new HashMap<String, String>();
+        params.put("REPOSITORYNAME", repositoryName);
         
-        params[0] = "REPOSITORYNAME";
-        params[1] = repositoryName;
-        params[2] = "FEDORASOAP";
-        params[3] = config.getString("FedoraSoap");
-        params[4] = "FEDORAUSER";
-        params[5] = config.getString("FedoraUser");
-        params[6] = "FEDORAPASS";
-        params[7] = config.getString("FedoraPass");
-        params[8] = "TRUSTSTOREPATH";
-        params[9] = config.getString("TrustStorePath");
-        params[10] = "TRUSTSTOREPASS";
-        params[11] = config.getString("TrustStorePass");
+        params.put("FEDORASOAP",config.getString("FedoraSoap"));
+        params.put("FEDORAUSER", config.getString("FedoraUser"));
+        params.put("FEDORAPASS", config.getString("FedoraPass"));
+        params.put("TRUSTSTOREPATH", config.getString("TrustStorePath"));
+        params.put("TRUSTSTOREPASS", config.getString("TrustStorePass"));
+        params.put("DOCCOUNT", docCount);
 
-        for (int i = 0; i < requestParams.size(); i++) {
-            params[i + 12] = requestParams.get(i);
-        //logger.info("param: " + requestParams.get(i));
+        for (int i = 0; i < requestParams.size(); i=i+2) {
+            params.put(requestParams.get(i), requestParams.get(i+1));
+        
         }
+        
         String xsltPath = config.getString("UpdateIndexDocXslt");
         StringBuffer sb = (new GTransformer()).transform(
                 xsltPath,
@@ -426,7 +439,7 @@ public class SolrOperations {
         if (logger.isDebugEnabled()) {
             logger.debug("indexDoc=\n" + sb.toString());
         }
-        
+        logger.info("indexDoc=\n" + sb.toString());
         if (sb.indexOf("name=\"" + UNIQUEKEY) > 0) {
         	
             postData(config.getString("IndexBase") + "/update", new StringReader(sb.toString()), new StringBuffer());
@@ -642,7 +655,8 @@ public class SolrOperations {
             }
         } else {
             try {
-                ir = IndexReader.open(SimpleFSDirectory.open(new File(config.getString("IndexDir"))), true);
+                String s = config.getString("IndexDir");
+                ir = IndexReader.open(SimpleFSDirectory.open(new File(s)), true);
             } catch (CorruptIndexException e) {
                 throw new Exception("IndexReader open error indexName=" + indexName + " :\n", e);
             } catch (IOException e) {
