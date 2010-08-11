@@ -28,6 +28,8 @@
          - from datastream by ID, text fetched, if mimetype can be handled
              currently the mimetypes text/plain, text/xml, text/html, application/pdf can be handled.
 -->
+    <xsl:param name="DOCCOUNT" select="repositoryName"/>
+    
     <xsl:param name="REPOSITORYNAME" select="repositoryName"/>
     <xsl:param name="FEDORASOAP" select="repositoryName"/>
     <xsl:param name="FEDORAUSER" select="repositoryName"/>
@@ -67,7 +69,21 @@
     
     
     <xsl:template match="/">
-        <add>
+        
+      <add>
+    <xsl:call-template name="for.loop">
+     <xsl:with-param name="i">0</xsl:with-param>
+    </xsl:call-template>
+        </add>
+    </xsl:template>
+    
+    <xsl:template name="for.loop">
+
+    <xsl:param name="i" />
+
+   <!--begin_: Line_by_Line_Output -->
+   <xsl:if test="$i &lt; $DOCCOUNT">
+      
             <doc>
                 <xsl:attribute name="boost">
                     <xsl:value-of select="$docBoost"/>
@@ -76,39 +92,99 @@
 		<!-- Indexujeme vsechny activa a ne activ. -->
                 <xsl:if test="foxml:digitalObject/foxml:objectProperties/foxml:property[@NAME='info:fedora/fedora-system:def/model#state' and @VALUE='Active']">
                     <xsl:if test="not(foxml:digitalObject/foxml:datastream[@ID='METHODMAP'] or foxml:digitalObject/foxml:datastream[@ID='DS-COMPOSITE-MODEL'])">
-                        <xsl:apply-templates mode="activeDemoFedoraObject" select="/foxml:digitalObject" />
+                        <xsl:apply-templates mode="activeDemoFedoraObject" select="/foxml:digitalObject" >
+                            <xsl:with-param name="pageNum">
+                                  <xsl:value-of select="$i"/>
+                              </xsl:with-param>
+                        </xsl:apply-templates>
                         <xsl:apply-templates mode="biblioMods" select="/foxml:digitalObject/foxml:datastream[@ID='BIBLIO_MODS']/foxml:datastreamVersion[last()]/foxml:xmlContent/mods:modsCollection/mods:mods" />
                         <xsl:apply-templates mode="imgFull" select="/foxml:digitalObject/foxml:datastream[@ID='IMG_FULL']/foxml:datastreamVersion[last()]" />
                     </xsl:if>
                 </xsl:if>
                 
             </doc>
-        </add>
-    </xsl:template>
-    
+        
+      <xsl:call-template name="for.loop">
+          <xsl:with-param name="i">
+              <xsl:value-of select="$i + 1"/>
+          </xsl:with-param>
+      </xsl:call-template>
+   </xsl:if>
+
+  </xsl:template>
+  
     <xsl:template match="/foxml:digitalObject" mode="activeDemoFedoraObject">
-        <field name="PID" boost="2.5">
-            <xsl:value-of select="substring($PID, 6)"/>
-        </field>
+        <xsl:param name="pageNum" />
+        <xsl:choose>
+            <xsl:when test="$pageNum = 0">
+                <field name="PID" boost="2.5">
+                    <xsl:value-of select="substring($PID, 6)"/>
+                </field>
+                <field name="fedora.model">
+                    <xsl:value-of select="$MODEL"/>
+                </field>
+        
+                <field name="document_type">
+                    <xsl:value-of select="substring(/foxml:digitalObject/foxml:datastream/foxml:datastreamVersion[last()]/foxml:xmlContent/oai_dc:dc/dc:type/text(), 7)"/>
+                </field>
+                <field name="dc.title"><xsl:value-of select="normalize-space($title)"/></field>
+                <xsl:if test="not($LEVEL = '')" >
+                    <field name="level">
+                        <xsl:value-of select="$LEVEL" />
+                    </field>
+                </xsl:if>
+                
+                <xsl:if test="$PATH and not($PATH = '')" >
+                    <field name="path">
+                        <xsl:value-of select="$PATH" />
+                    </field>
+                </xsl:if>
+                <xsl:if test="$PID_PATH and not($PID_PATH = '')" >
+                    <field name="pid_path">
+                        <xsl:value-of select="$PID_PATH" />
+                    </field>
+                </xsl:if>
+                <xsl:if test="$PAGESCOUNT and not($PAGESCOUNT = '')" >
+                    <field name="pages_count">
+                        <xsl:value-of select="$PAGESCOUNT" />
+                    </field>
+                </xsl:if>
+            </xsl:when>
+            <xsl:otherwise>
+                <field name="PID" boost="2.5">
+                    <xsl:value-of select="substring($PID, 6)"/>/@<xsl:value-of select="$pageNum"/>
+                </field>
+                <field name="fedora.model">page</field>
+                <field name="document_type">page</field>
+                <field name="dc.title"><xsl:value-of select="$pageNum"/></field>
+                <xsl:if test="not($LEVEL = '')" >
+                    <field name="level">
+                        <xsl:value-of select="$LEVEL + 1" />
+                    </field>
+                </xsl:if>
+                
+                <xsl:if test="$PATH and not($PATH = '')" >
+                    <field name="path"><xsl:value-of select="$PATH" />/page</field>
+                </xsl:if>
+                <xsl:if test="$PID_PATH and not($PID_PATH = '')" >
+                    <field name="pid_path">
+                        <xsl:value-of select="$PID_PATH" />/@<xsl:value-of select="$pageNum"/>
+                    </field>
+                </xsl:if>
+                <field name="pages_count">1</field>
+             </xsl:otherwise>   
+        </xsl:choose>
+        
         <field name="status" >
             <xsl:value-of select="foxml:objectProperties/foxml:property[@NAME='info:fedora/fedora-system:def/model#state']/@VALUE"/>
-        </field>
-        <field name="fedora.model">
-            <xsl:value-of select="$MODEL"/>
         </field>
         <field name="handle">
             <xsl:value-of select="$HANDLE"/>
         </field>
         
-        <field name="document_type">
-            <xsl:value-of select="substring(/foxml:digitalObject/foxml:datastream/foxml:datastreamVersion[last()]/foxml:xmlContent/oai_dc:dc/dc:type/text(), 7)"/>
-        </field>
-        
         <field name="created_date">
             <xsl:value-of select="foxml:objectProperties/foxml:property[@NAME='info:fedora/fedora-system:def/model#createdDate']/@VALUE"/>
         </field>
-        <field name="dc.title"><xsl:value-of select="normalize-space($title)"/></field>
-        
         <field name="dostupnost">
             <xsl:value-of select="substring(/foxml:digitalObject/foxml:datastream[@CONTROL_GROUP='X' and @ID='RELS-EXT']/foxml:datastreamVersion[last()]/foxml:xmlContent/rdf:RDF/rdf:Description/kramerius:policy, 8)"/>
         </field>
@@ -118,8 +194,6 @@
                 <xsl:value-of select="text()"/>
             </field>
         </xsl:for-each>
-        
-        
         
         <!-- Check params -->
         <xsl:if test="$DATUM and not($DATUM = '')" >
@@ -142,12 +216,6 @@
                 <xsl:value-of select="$DATUM_END" />
             </field>
         </xsl:if>
-    
-        <xsl:if test="$PAGESCOUNT and not($PAGESCOUNT = '')" >
-            <field name="pages_count">
-                <xsl:value-of select="$PAGESCOUNT" />
-            </field>
-        </xsl:if>
         <xsl:if test="$PARENT_TITLE and not($PARENT_TITLE = '')" >
             <field name="parent_title">
                 <xsl:value-of select="$PARENT_TITLE" />
@@ -161,16 +229,6 @@
         <xsl:if test="$PARENT_MODEL and not($PARENT_MODEL = '')" >
             <field name="parent_model">
                 <xsl:value-of select="$PARENT_MODEL" />
-            </field>
-        </xsl:if>
-        <xsl:if test="$PATH and not($PATH = '')" >
-            <field name="path">
-                <xsl:value-of select="$PATH" />
-            </field>
-        </xsl:if>
-        <xsl:if test="$PID_PATH and not($PID_PATH = '')" >
-            <field name="pid_path">
-                <xsl:value-of select="$PID_PATH" />
             </field>
         </xsl:if>
         <xsl:if test="not($ROOT_TITLE = '')" >
@@ -194,11 +252,6 @@
                 <xsl:value-of select="$LANGUAGE" />
             </field>
         </xsl:if>
-        <xsl:if test="not($LEVEL = '')" >
-            <field name="level">
-                <xsl:value-of select="$LEVEL" />
-            </field>
-        </xsl:if>
         
         <!-- a managed datastream is fetched, if its mimetype 
              can be handled, the text becomes the value of the field. -->        
@@ -211,15 +264,18 @@
             foxml:datastreamVersion/@MIMETYPE='application/ps' or
             foxml:datastreamVersion/@MIMETYPE='application/msword'">
             
-                <field>
+                <field name="text">
+                    <!--
                     <xsl:attribute name="name">
                         <xsl:value-of select="concat('dsm.', @ID)"/>
                     </xsl:attribute>
-                    <xsl:value-of select="exts:getDatastreamText($generic, $PID, $REPOSITORYNAME, @ID, $FEDORASOAP, $FEDORAUSER, $FEDORAPASS, $TRUSTSTOREPATH, $TRUSTSTOREPASS)"/>
+                    -->
+                    <xsl:value-of select="exts:getDatastreamText($generic, $PID, $REPOSITORYNAME, @ID, $FEDORASOAP, $FEDORAUSER, $FEDORAPASS, $TRUSTSTOREPATH, $TRUSTSTOREPASS, $pageNum)"/>
                 </field>
             </xsl:if>
         </xsl:for-each>
     </xsl:template>
+    
     <xsl:template match="/foxml:digitalObject/foxml:datastream[@ID='IMG_FULL']/foxml:datastreamVersion[last()]" mode="imgFull">
         <field name="page_format"><xsl:value-of select="@MIMETYPE"/></field>
     </xsl:template>
