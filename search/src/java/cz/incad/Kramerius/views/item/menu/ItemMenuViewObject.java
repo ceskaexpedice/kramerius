@@ -96,7 +96,7 @@ public class ItemMenuViewObject {
 
 	
 	private String exportMETS() {
-		return "<div align=\"left\"><a title=\"METS\" href=\"mets?pid=uuid:"+uuid+"\" target=\"_blank\">"+this.resourceBundle.getString("administrator.menu.exportMETS")+"</a> </div>";
+		return "<div align=\"left\"><a title=\"METS\" href=\"javascript:showMets("+(index+1)+")\" target=\"_blank\">"+this.resourceBundle.getString("administrator.menu.exportMETS")+"</a> </div>";
 }
 	
 	private String reindex() {
