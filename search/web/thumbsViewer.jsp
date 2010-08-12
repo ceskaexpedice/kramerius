@@ -68,8 +68,9 @@
     }
     
     function clearThumbs(){
-        $('#tv_container_row>td').remove();
-        totalThumbs = 0;
+         var level = getMaxLevel();
+        totalThumbs = totalThumbs - $('#tv_container_row>td.inlevel_'+level).length;
+        $('#tv_container_row>td.inlevel_'+level).remove();
     }
     var imgW;
     function selectPage(uuid){
