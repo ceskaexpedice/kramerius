@@ -57,9 +57,12 @@
             <x:set select="./str[@name='PID']" var="pid" />
             <%
             if (fedora_model.equals("page")) {
-                imagePid = "thumb?uuid=" + uuid;
+                imagePid = "thumb?uuid=" + uuid.split("/@")[0];
             } else {
-                imagePid = "thumb?uuid=" + FedoraUtils.findFirstPagePid("uuid:" + uuid);
+                String pageuuid = FedoraUtils.findFirstPagePid("uuid:" + uuid);
+                if (pageuuid==null) pageuuid = uuid;
+                imagePid = "thumb?uuid=" + pageuuid;
+                //imagePid = "thumb?uuid=" + FedoraUtils.findFirstPagePid("uuid:" + uuid);
             }
             %>
             <div align="center" style="overflow:hidden; border:1px solid silver; width:100px; height:100px; float:left; margin:5px;"><a href="<c:out value="${itemUrl}" escapeXml="false" />" >
