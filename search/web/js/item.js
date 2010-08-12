@@ -518,6 +518,11 @@ function showList(obj, tab, model){
     $(obj).toggleClass('op_info');
 }
 
+function showMets(level) {
+	   var pid = $("#tabs_"+level).attr('pid');
+	   window.location.href="mets?pid=uuid:"+pid;
+}
+
 var _metadataDialog;
 function showMainContent(level, model){
    var pid = $("#tabs_"+level).attr('pid');
