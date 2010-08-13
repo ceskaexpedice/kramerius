@@ -7,4 +7,6 @@ package cz.incad.kramerius.security;
 public interface IPaddressChecker {
 
 	public boolean privateVisitor();
+	
+	public boolean localHostVisitor();
 }
