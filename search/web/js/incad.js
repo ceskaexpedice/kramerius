@@ -15,6 +15,7 @@ function toggleFacet(facet){
 }
 
 function toggleCollapsed(pid, div, offset){
+    
     if($("#"+div).attr('opened')=="true"){
         $("#"+div).toggle();
     }else{
@@ -178,6 +179,7 @@ function removeNavigation2(name, value){
 function removeNavigation(value, page){
     
     //var page = new PageQuery(window.location.search);
+    
     if(value.indexOf("rok:")==0){
       page.removeParam(fromField);
       page.removeParam(toField);

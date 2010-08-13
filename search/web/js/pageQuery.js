@@ -53,7 +53,9 @@ function PageQuery(q) {
 
     this.removeParam = function(param) {
         var index = this.getParamIndex(param);
-        this.keyValuePairs.splice(index, 1);
+        if(index>-1){
+           this.keyValuePairs.splice(index, 1); 
+        }
         return(index);
     }
 
