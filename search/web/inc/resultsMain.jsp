@@ -10,6 +10,11 @@
         <c:set var="uuid" >
             <x:out select="./str[@name='PID']"/>
         </c:set>
+        <c:if test="${fn:contains(uuid, '/@')}">
+        <c:set var="uuid" >
+            <c:out value="${fn:substringBefore(uuid, '/@')}"/>
+        </c:set>
+        </c:if>
         <c:set var="root_pid" >
             <x:out select="./str[@name='root_pid']"/>
         </c:set>

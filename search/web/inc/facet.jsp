@@ -39,6 +39,8 @@
                
                if (currentFacet.name.equals("document_type")){
                    %><fmt:message bundle="${lctx}" >fedora.model.<%=current.displayName%></fmt:message><%
+               }else if (currentFacet.name.equals("dostupnost")){
+                   %><fmt:message bundle="${lctx}" >dostupnost.<%=current.displayName%></fmt:message><%
                }else if(current.displayName.equals("")) {
                %><fmt:message bundle="${lctx}" >facets.uknown</fmt:message><%
                }else{%><%=current.displayName%><%}%></a> <span class="count">(<%=current.count%>)</span>

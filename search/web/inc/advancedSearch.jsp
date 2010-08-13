@@ -22,10 +22,6 @@
                 <td><input type="text" value="<c:out value="${param.rok}" />" size="10" name="rok"></td>
             </tr>
             <tr>
-                <td><fmt:message bundle="${lctx}" key="Keywords" /></td>
-                <td><input type="text" value="<c:out value="${param.keywords}" />" size="20" name="keywords"></td>
-            </tr>
-            <tr>
                 <td>MDT</td>
                 <td><input type="text" value="<c:out value="${param.udc}" />" size="20" name="udc"></td>
             </tr>
@@ -36,6 +32,9 @@
             <tr>
                 <td><fmt:message bundle="${lctx}" key="Pouze veřejné dokumenty" /></td>
                 <td><input type="checkbox" value="on" name="onlyPublic"></td>
+            </tr>
+            <tr>
+                <td colspan="2" align="right"><input type="submit" value="OK" class="ui-state-default ui-corner-all" /></td>
             </tr>
     </tbody></table>
 </div>
