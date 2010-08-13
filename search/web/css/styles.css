@@ -18,6 +18,9 @@ input {
 	color:#0B0F0A;
         vertical-align:middle;
 }
+table.advancedSearch{
+    padding:5px;
+}
 .advancedSearch input {
     border:1px solid silver;
 }
