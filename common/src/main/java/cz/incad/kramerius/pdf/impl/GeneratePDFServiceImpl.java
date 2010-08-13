@@ -197,7 +197,8 @@ public class GeneratePDFServiceImpl implements GeneratePDFService {
 				doc.newPage();
 				if (page instanceof ImagePage) {
 					ImagePage iPage = (ImagePage) page;
-					insertOutlinedImagePage(iPage, writer, doc, djvUrl);
+					insertImage(iPage.getUuid(), writer, doc, (float)1.0, djvUrl);
+					//insertOutlinedImagePage(iPage, writer, doc, djvUrl);
 				} else {
 					TextPage tPage = (TextPage) page;
 					insertOutlinedTextPage(tPage, writer, doc, rdoc.getDocumentTitle(), i18nUrl);
@@ -258,7 +259,8 @@ public class GeneratePDFServiceImpl implements GeneratePDFService {
 				doc.newPage();
 				if (page instanceof ImagePage) {
 					ImagePage iPage = (ImagePage) page;
-					insertOutlinedImagePage(iPage, writer, doc, djvuUrl);
+//					insertOutlinedImagePage(iPage, writer, doc, djvuUrl);
+                    insertImage(iPage.getUuid(), writer, doc, (float)1.0, djvuUrl);
 				} else {
 					TextPage tPage = (TextPage) page;
 					if (tPage.getOutlineTitle().trim().equals("")) throw new IllegalArgumentException(page.getUuid());
