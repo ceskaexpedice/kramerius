@@ -202,6 +202,7 @@ a.box {
     
 }
 
+
 .result{
     width:100%;
 }
@@ -211,6 +212,15 @@ a.box {
 }
 .resultText{
     padding-left:5px;
+}
+
+.result .teaser{
+    color: #888888;
+    padding: 5px;
+}
+.result .teaser span{
+    color:black;
+    font-weight:bold;
 }
 
 .uncollapsed{
@@ -578,3 +588,4 @@ table.advancedSearch td{
     top:-50px;
     
 }
+
