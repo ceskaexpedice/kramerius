@@ -1,5 +1,7 @@
 package cz.incad.kramerius.service.impl;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 import java.util.logging.Logger;
 
 import cz.incad.kramerius.processes.impl.ProcessStarter;
@@ -21,7 +23,12 @@ public class IndexerProcessStarter {
 	    	title = "untitled";
 	    }
 	    title = title.replaceAll(",", " ");
-	    String url = base + "?action=start&def=reindex&out=text&params=fromKrameriusModel,"+uuid+","+title;
+	    String url = null;
+		try {
+			url = base + "?action=start&def=reindex&out=text&params=fromKrameriusModel,"+uuid+","+URLEncoder.encode(title, "UTF-8");
+		} catch (UnsupportedEncodingException e1) {
+			log.severe(e1.getMessage());
+		}
 	    try {
 	        ProcessStarter.httpGet(url);
 	    } catch (Exception e) {
