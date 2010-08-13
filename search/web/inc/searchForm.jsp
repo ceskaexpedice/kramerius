@@ -61,10 +61,10 @@
                     
                     <c:choose>
                         <c:when test="${remoteUser == null}">
-                            <a href="redirect.jsp"><fmt:message bundle="${lctx}">přihlášení</fmt:message></a>
+                            <a href="redirect.jsp"><fmt:message bundle="${lctx}">application.login</fmt:message></a>
                         </c:when>
                         <c:otherwise>
-                            <a href="logout.jsp"><c:out value="${remoteUser}"></c:out></a>
+                            <a href="logout.jsp"><fmt:message bundle="${lctx}">application.logout</fmt:message></a>
                         </c:otherwise>
                     </c:choose>
                     
