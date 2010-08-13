@@ -1,6 +1,7 @@
 package cz.incad.Kramerius.backend.guice;
 
 import java.security.Principal;
+import java.util.Arrays;
 import java.util.List;
 import java.util.logging.Logger;
 
@@ -33,10 +34,14 @@ public class RequestIPaddressChecker implements IPaddressChecker {
 
 	@Override
 	public boolean privateVisitor() {
-		HttpServletRequest httpServletRequest = this.provider.get();
-		String remoteAddr = httpServletRequest.getRemoteAddr();
 		KConfiguration kConfiguration = KConfiguration.getInstance();
 		List<String> patterns = kConfiguration.getPatterns();
+		return checkPatterns(patterns);
+	}
+
+    private boolean checkPatterns(List<String> patterns) {
+        HttpServletRequest httpServletRequest = this.provider.get();
+        String remoteAddr = httpServletRequest.getRemoteAddr();
 		if (patterns != null) {
 			for (String regex : patterns) {
 				if (remoteAddr.matches(regex)) return true;
@@ -44,5 +49,12 @@ public class RequestIPaddressChecker implements IPaddressChecker {
 		}
 		logger.info("Remote address is == "+remoteAddr);
 		return false;
-	}
+    }
+
+    @Override
+    public boolean localHostVisitor() {
+        return checkPatterns(Arrays.asList("127.*","localhost"));
+    }
+	
+	
 }

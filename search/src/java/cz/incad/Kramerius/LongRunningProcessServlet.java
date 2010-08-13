@@ -38,6 +38,7 @@ import cz.incad.kramerius.processes.LRProcessOrdering;
 import cz.incad.kramerius.processes.ProcessScheduler;
 import cz.incad.kramerius.processes.States;
 import cz.incad.kramerius.processes.TypeOfOrdering;
+import cz.incad.kramerius.security.IPaddressChecker;
 import cz.incad.kramerius.security.IsUserInRoleDecision;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 
@@ -70,6 +71,9 @@ public class LongRunningProcessServlet extends GuiceServlet {
 	@Inject
 	transient IsUserInRoleDecision userInRoleDecision;
 	
+	@Inject
+	transient IPaddressChecker iPaddressChecker;
+	
 	@Override
 	public void init() throws ServletException {
 		super.init();
@@ -92,7 +96,7 @@ public class LongRunningProcessServlet extends GuiceServlet {
 		String action = req.getParameter("action");
 		if (action == null) action = Actions.list.name();
 		Actions selectedAction = Actions.valueOf(action);
-		selectedAction.doAction(getServletContext(), req, resp, this.definitionManager, this.lrProcessManager, this.userInRoleDecision);
+		selectedAction.doAction(getServletContext(), req, resp, this.definitionManager, this.lrProcessManager, this.userInRoleDecision, this.iPaddressChecker);
 	}
 
 	public static LRProcess planNewProcess(HttpServletRequest request, ServletContext context, String def, DefinitionManager definitionManager, String[] params) {
@@ -120,7 +124,7 @@ public class LongRunningProcessServlet extends GuiceServlet {
 		 * Plan new process
 		 */
 		start {
-			public void doAction(ServletContext context,HttpServletRequest req, HttpServletResponse resp, DefinitionManager defManager, LRProcessManager lrProcessManager, IsUserInRoleDecision userInRoleDecision) {
+			public void doAction(ServletContext context,HttpServletRequest req, HttpServletResponse resp, DefinitionManager defManager, LRProcessManager lrProcessManager, IsUserInRoleDecision userInRoleDecision, IPaddressChecker checker) {
 				try {
 					String def = req.getParameter("def");
 					String out = req.getParameter("out");
@@ -129,7 +133,7 @@ public class LongRunningProcessServlet extends GuiceServlet {
 					if (parametersString !=null) {
 						params = parametersString.split(",");
 					}
-					if (userInRoleDecision.isUserInRole(def)) {
+					if (userInRoleDecision.isUserInRole(def) || checker.localHostVisitor()) {
 						LRProcess nprocess = planNewProcess(req, context, def, defManager, params);
 						if ((out != null) && (out.equals("text"))) {
 							resp.getOutputStream().print("["+nprocess.getDefinitionId()+"]"+nprocess.getProcessState().name());
@@ -160,8 +164,8 @@ public class LongRunningProcessServlet extends GuiceServlet {
 		 */
 		stop {
 			@Override
-			public void doAction(ServletContext context,HttpServletRequest req,HttpServletResponse resp, DefinitionManager defManager, LRProcessManager lrProcessManager, IsUserInRoleDecision userInRoleDecision) {
-				if (isInProcessAdminRole(userInRoleDecision)) {
+			public void doAction(ServletContext context,HttpServletRequest req,HttpServletResponse resp, DefinitionManager defManager, LRProcessManager lrProcessManager, IsUserInRoleDecision userInRoleDecision, IPaddressChecker checker) {
+				if (isInProcessAdminRole(userInRoleDecision) || checker.localHostVisitor()) {
 					try {
 						String uuid = req.getParameter("uuid");
 						String realPath =context.getRealPath("WEB-INF/lib");
@@ -192,8 +196,8 @@ public class LongRunningProcessServlet extends GuiceServlet {
 		 */
 		list {
 			@Override
-			public void doAction(ServletContext context,HttpServletRequest req,HttpServletResponse resp, DefinitionManager defManager, LRProcessManager lrProcessManager, IsUserInRoleDecision userInRoleDecision) {
-				if (isInProcessAdminRole(userInRoleDecision)) {
+			public void doAction(ServletContext context,HttpServletRequest req,HttpServletResponse resp, DefinitionManager defManager, LRProcessManager lrProcessManager, IsUserInRoleDecision userInRoleDecision, IPaddressChecker checker) {
+				if (isInProcessAdminRole(userInRoleDecision) || checker.localHostVisitor()) {
 					try {
 						StringBuffer buffer = new StringBuffer();
 						buffer.append("<html><body>");
@@ -237,7 +241,7 @@ public class LongRunningProcessServlet extends GuiceServlet {
 
 		updatePID {
 			@Override
-			public void doAction(ServletContext context,HttpServletRequest req,HttpServletResponse resp, DefinitionManager defManager, LRProcessManager lrProcessManager, IsUserInRoleDecision userInRoleDecision) {
+			public void doAction(ServletContext context,HttpServletRequest req,HttpServletResponse resp, DefinitionManager defManager, LRProcessManager lrProcessManager, IsUserInRoleDecision userInRoleDecision, IPaddressChecker checker) {
 				String uuid = req.getParameter("uuid");
 				String pid = req.getParameter("pid");
 				LRProcess longRunningProcess = lrProcessManager.getLongRunningProcess(uuid);
@@ -249,7 +253,7 @@ public class LongRunningProcessServlet extends GuiceServlet {
 		updateStatus {
 
 			@Override
-			public void doAction(ServletContext context,HttpServletRequest req,HttpServletResponse resp, DefinitionManager defManager, LRProcessManager processManager, IsUserInRoleDecision userInRoleDecision) {
+			public void doAction(ServletContext context,HttpServletRequest req,HttpServletResponse resp, DefinitionManager defManager, LRProcessManager processManager, IsUserInRoleDecision userInRoleDecision, IPaddressChecker checker) {
 				String uuid = req.getParameter("uuid");
 				String state = req.getParameter("state");
 				if (state != null) {
@@ -266,7 +270,7 @@ public class LongRunningProcessServlet extends GuiceServlet {
 			@Override
 			public void doAction(ServletContext context,HttpServletRequest req,
 					HttpServletResponse resp, DefinitionManager defManager,
-					LRProcessManager processManager, IsUserInRoleDecision userInRoleDecision) {
+					LRProcessManager processManager, IsUserInRoleDecision userInRoleDecision, IPaddressChecker checker) {
 				try {
 					String uuid = req.getParameter("uuid");
 					String name = req.getParameter("name");
@@ -286,7 +290,7 @@ public class LongRunningProcessServlet extends GuiceServlet {
 			return userInRoleDecision.isUserInRole(KrameriusRoles.LRPROCESS_ADMIN);
 		}
 
-		abstract void doAction(ServletContext context,  HttpServletRequest req, HttpServletResponse resp, DefinitionManager defManager, LRProcessManager processManager, IsUserInRoleDecision userInRoleDecision);
+		abstract void doAction(ServletContext context,  HttpServletRequest req, HttpServletResponse resp, DefinitionManager defManager, LRProcessManager processManager, IsUserInRoleDecision userInRoleDecision, IPaddressChecker iPaddressChecker);
 	}
 	
 
