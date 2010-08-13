@@ -40,7 +40,7 @@
     <c:param name="f.rok.facet.sort" value="false" />
     
     
-    <c:param name="fl" value="PID,score,root_title,pages_count,path,pid_path,root_pid,dc.title,details,fedora.model,path,dc.creator,datum,page_format" />
+    <c:param name="fl" value="PID,score,root_title,pages_count,path,pid_path,root_pid,dc.title,details,fedora.model,path,dc.creator,datum,page_format,text" />
     <c:param name="facet" value="true" />
     <c:param name="facet.mincount" value="1" />
     <c:forEach var="fqs" items="${paramValues.fq}">
@@ -115,6 +115,12 @@
         <c:param name="facet.field" value="dostupnost" />
         <c:param name="f.facet_autor.facet.sort" value="false" />
     </c:if>
+    
+    <%-- Hit highlight --%>
+    <c:param name="hl" value="true" />
+    <c:param name="hl.fl" value="text" />
+    <c:param name="hl.simple.pre" value="<span>" />
+    <c:param name="hl.simple.post" value="</span>"  />
     
     <%-- sort param --%>    
     <c:choose>

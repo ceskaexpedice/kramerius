@@ -41,6 +41,15 @@
     <xsl:template match="/mods:modsCollection/mods:mods" mode="info">
         <xsl:variable name="uuid" ><xsl:value-of select="./mods:identifier[@type='urn']"/></xsl:variable>
         <c:if test="${display != 'full'}">
+            <xsl:choose>
+                <xsl:when test="mods:titleInfo/mods:title">
+                    <xsl:variable name="TITLE"><xsl:value-of select="mods:titleInfo/mods:title" /></xsl:variable>
+                </xsl:when>
+                <xsl:when test="mods:titleInfo/mods:title">
+                    <xsl:variable name="TITLE"><xsl:value-of select="mods:titleInfo/mods:title" /></xsl:variable>
+                </xsl:when>
+            </xsl:choose>
+            
             <div id="detailsShort"><ul>
             <xsl:attribute name="title" ><xsl:value-of select="mods:titleInfo/mods:title" /></xsl:attribute>
             <xsl:if test="./mods:identifier[@type='issn']/text()">
@@ -79,6 +88,8 @@
                     <xsl:when test="$partType='TitlePage'">
                         <xsl:value-of select="mods:part/mods:detail[@type = 'pageNumber']/mods:number" /> (<fmt:message bundle="${lctx}">TitlePage</fmt:message>)</xsl:when>
                     <xsl:when test="$partType='TableOfContents'">
+                        <xsl:value-of select="mods:part/mods:detail[@type = 'pageNumber']/mods:number" /> (<fmt:message bundle="${lctx}">TableOfContents</fmt:message>)</xsl:when>
+                    <xsl:when test="$partType='Index'">
                         <xsl:value-of select="mods:part/mods:detail[@type = 'pageNumber']/mods:number" /> (<fmt:message bundle="${lctx}">TableOfContents</fmt:message>)</xsl:when>
                     <xsl:when test="$partType='NormalPage'">
                         <xsl:value-of select="mods:part/mods:detail[@type = 'pageNumber']/mods:number" /></xsl:when>

@@ -56,6 +56,14 @@
         <x:forEach select="./arr[@name='details']/str">
             <c:set var="s"><fmt:message bundle="${lctx}"><x:out select="."/></fmt:message></c:set>
             <c:out value="${fn:replace(s, '???', '')}" />&#160;
-        </x:forEach>  
+        </x:forEach>
+        <div class="teaser">
+        <x:forEach select="../../lst[@name='highlighting']/lst">
+            <c:set var="hituuid"><x:out select="@name" /></c:set>
+            <c:if test="${hituuid==solruuid}">
+                <x:out select="./arr[@name='text']/str" escapeXml="false" />
+            </c:if>
+        </x:forEach>
+        </div>
     </div>
     <br/>
