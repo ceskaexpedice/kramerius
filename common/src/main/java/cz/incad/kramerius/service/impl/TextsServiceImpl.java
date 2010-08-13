@@ -44,24 +44,41 @@ public class TextsServiceImpl implements TextsService {
         if (locale == null) {
         	locale = Locale.getDefault();
         }
-        File textFile = textFile(textsFolder(), name, locale);
-        if (!textFile.exists()) {
-        	textFile = textFileWithoutLocale(textsFolder(), name);
-        	LOGGER.info("using textFile without locale '"+textFile+"'");
-        }
+        File textFile = textFile(name, locale);
         if ((!textFile.exists())  || (!textFile.canRead())) throw new IOException("cannot read from file '"+name+"'");
         String retVal = IOUtils.readAsString(new FileInputStream(textFile), Charset.forName("UTF-8"), true);
         return retVal;
     }
 
 
+
+    private File textFile(String name, Locale locale) {
+        File textFile = textFile(textsFolder(), name, locale);
+        if (!textFile.exists()) {
+        	textFile = textFileWithoutLocale(textsFolder(), name);
+        	LOGGER.info("using textFile without locale '"+textFile+"'");
+        }
+        return textFile;
+    }
+    
+    
+
     private File textFileWithoutLocale(File textsDir, String name) {
 		File textFile = new File(textsDir, name );
 		return textFile;
 	}
 
+    
 
-	public  void writeText(String name, Locale locale, String text) throws  IOException {
+	@Override
+    public boolean isAvailable(String name, Locale locale) {
+        File textFile = textFile(name, locale);
+	    return ((textFile.exists())  && (textFile.canRead()));
+    }
+
+
+
+    public  void writeText(String name, Locale locale, String text) throws  IOException {
         if (text == null) {
             System.out.println("invalid text");
         } else {

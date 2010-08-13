@@ -11,6 +11,8 @@ import java.util.Locale;
  */
 public interface TextsService {
 	
+    public boolean isAvailable(String name, Locale locale);
+    
 	/**
 	 * Return localized texts
 	 * @param name Name of text
