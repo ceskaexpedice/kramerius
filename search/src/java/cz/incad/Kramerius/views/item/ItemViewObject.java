@@ -52,12 +52,9 @@ public class ItemViewObject {
 	IsUserInRoleDecision userInRoleDecision;
 	
 	
-	
-	
 	public ItemViewObject() {
 		super();
 	}
-	
 	
 
     public void saveMostDesirable() {
