@@ -207,6 +207,20 @@ public class KConfiguration {
 		return retval;
 	}
 	
+	
+	public List<String> getLRControllingAddresses(){
+        List<String> retval = new ArrayList<String>();
+        String property = getProperty("controllingPatterns","localhost||127.*");
+        if (property !=null ) {
+            StringTokenizer tokenizer = new StringTokenizer(property, "||");
+            while(tokenizer.hasMoreTokens()) {
+                retval.add(tokenizer.nextToken());
+            }
+        }
+        return retval;
+	    
+	}
+	
 	public static void main(String[] args) throws IOException {
 		KConfiguration kconf = KConfiguration.getInstance();
 		Configuration conf = kconf.findAllConfigurations();
