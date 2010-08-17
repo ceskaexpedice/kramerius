@@ -100,7 +100,7 @@ public class ItemMenuViewObject {
 }
 	
 	private String reindex() {
-		return "<div align=\"left\"><a title=\"Reindex\" href=\"javascript:reindex('"+index+1+","+this.itemViewObject.getModels().get(this.index)+"');\">"+this.resourceBundle.getString("administrator.menu.reindex")+"</a> </div>";
+		return "<div align=\"left\"><a title=\"Reindex\" href=\"javascript:reindex("+(index+1)+",'"+this.itemViewObject.getModels().get(this.index)+"');\">"+this.resourceBundle.getString("administrator.menu.reindex")+"</a> </div>";
 	}
 
 	private String deleteFromIndex() {
