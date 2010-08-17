@@ -52,9 +52,10 @@ public class RequestIPaddressChecker implements IPaddressChecker {
     }
 
     @Override
+    // TODO: Controlled by property, it is not only localhost
     public boolean localHostVisitor() {
-        return checkPatterns(Arrays.asList("127.*","localhost"));
+        List<String> lrControllingAddrs = KConfiguration.getInstance().getLRControllingAddresses();
+        return checkPatterns(lrControllingAddrs);
     }
-	
 	
 }
