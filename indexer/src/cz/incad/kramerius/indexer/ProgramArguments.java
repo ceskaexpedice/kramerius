@@ -36,7 +36,7 @@ public class ProgramArguments {
 
     public Boolean parse(String[] args) {
         try {
-            if(args.length<5) return false;
+            if(args.length<4) return false;
             configFile = args[0];
             log4jFile = args[1];
             action = args[2];
