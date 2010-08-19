@@ -58,7 +58,7 @@ public class ProcessViewObject {
 			if (lrProcess.getProcessName() == null) {
 				return unnamed+" <br> <span style='font-size:80%; font-style:italic'>"+lrProcess.getDescription()+"</span>";
 			} else {
-				return lrProcess.getProcessName()+" <br> <span style='font-size:80%; font-style:italic'>"+lrProcess.getDescription()+"</span>";
+			    return lrProcess.getProcessName()+" <br> <span style='font-size:80%; font-style:italic'>"+lrProcess.getDescription()+"</span>";
 			}
 		} catch (IOException e) {
 			LOGGER.log(Level.SEVERE, e.getMessage(), e);
@@ -83,12 +83,18 @@ public class ProcessViewObject {
 		Date date = new Date(lrProcess.getStartTime());
         return FORMAT.format(date);
 	}
+
+	public String getPlanned() {
+        Date date = new Date(lrProcess.getPlannedTime());
+        return FORMAT.format(date);
+	}
 	
 	//function killAndRefresh(url,ordering, offset, size, type) {
 
 	public String getKillURL() {
 		try {
-			if (this.lrProcess.getProcessState().equals(States.RUNNING)) {
+			if ((this.lrProcess.getProcessState().equals(States.RUNNING)) || 
+			(this.lrProcess.getProcessState().equals(States.PLANNED)))  {
 				String url = lrUrl+"?action=stop&uuid="+this.lrProcess.getUUID();
 				String renderedAHREF = "<a href=\"javascript:killAndRefresh('"+url+"','"+this.ordering.name()+"',"+this.offset.getOffset()+","+this.offset.getSize()+",'"+this.typeOfOrdering.name()+"');\">"+bundleService.getResourceBundle("labels", locale).getString("administrator.processes.kill.process")+"</a>";
 				if (!this.definition.getActions().isEmpty()) {

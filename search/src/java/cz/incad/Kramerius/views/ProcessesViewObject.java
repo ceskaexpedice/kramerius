@@ -112,6 +112,18 @@ public class ProcessesViewObject {
 		}
 	}
 
+	   public String getPlannedDateOrdering() {
+	        try {
+	            String startedString = bundleService.getResourceBundle("labels", locale).getString("administrator.processes.planned");
+	            LRProcessOrdering nOrdering = LRProcessOrdering.PLANNED;
+	            boolean changeTypeOfOrdering = this.ordering.equals(nOrdering);
+	            return newOrderingURL(nOrdering,startedString,changeTypeOfOrdering ? switchOrdering() : TypeOfOrdering.ASC);
+	        } catch (IOException e) {
+	            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+	            return e.getMessage();
+	        }
+	    }
+
 	public String getPidOrdering() {
 		try {
 			String pidString = bundleService.getResourceBundle("labels", locale).getString("administrator.processes.pid");
