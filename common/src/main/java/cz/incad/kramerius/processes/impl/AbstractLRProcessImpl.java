@@ -216,7 +216,9 @@ public abstract class AbstractLRProcessImpl implements LRProcess{
 		}
 		this.setProcessState(States.KILLED);
 		this.manager.updateLongRunningProcessState(this);
-		this.stopMeOsDependent();
+		if (this.state.equals(States.RUNNING)) {
+	        this.stopMeOsDependent();
+		}
 	}
 
 	protected abstract void stopMeOsDependent();
