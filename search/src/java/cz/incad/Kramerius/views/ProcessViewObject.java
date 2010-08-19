@@ -25,7 +25,7 @@ public class ProcessViewObject {
 	public static final java.util.logging.Logger LOGGER = java.util.logging.Logger
 			.getLogger(ProcessViewObject.class.getName());
 	
-	public static final SimpleDateFormat FORMAT = new SimpleDateFormat("yyyy/dd/MM - hh:mm:ss");
+	public static final SimpleDateFormat FORMAT = new SimpleDateFormat("yyyy/dd/MM - HH:mm:ss");
 	
 	private LRProcess lrProcess;
 	private LRProcessDefinition definition;
@@ -80,7 +80,8 @@ public class ProcessViewObject {
 	}
 
 	public String getStart() {
-		return FORMAT.format(new Date(lrProcess.getStartTime()));
+		Date date = new Date(lrProcess.getStartTime());
+        return FORMAT.format(date);
 	}
 	
 	//function killAndRefresh(url,ordering, offset, size, type) {
