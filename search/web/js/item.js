@@ -201,7 +201,7 @@ function getItemRels(pid, selectedpid, level, recursive, rootModel){
                 }else{
                   list = obj + ">div>div[id=list-"+m+"]";
                   if($(list).length==0){
-                      str_div ='<div id="tab'+target_level+'-'+m+'" class="'+m+'">';
+                      str_div ='<div id="tab'+target_level+'-'+m+'" class="'+m+' ui-tabs-panel ui-widget-content ui-corner-bottom">';
                       str_div +='<div style="display:none;" id="list-'+m+'" class="relList"></div>';
                       str_div +='<div class="relInfo"  id="info-'+m+'">a</div>';
                       str_div +='</div>';
