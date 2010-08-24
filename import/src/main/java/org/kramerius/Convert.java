@@ -16,7 +16,7 @@ public class Convert {
 		}
 		String uuid = Main.convert(KConfiguration.getInstance().getProperty("convert.directory"), KConfiguration.getInstance().getProperty("convert.directory")+Download.CONV_SUFFIX, false, visible);
         Import.ingest(KConfiguration.getInstance().getProperty("ingest.url"), KConfiguration.getInstance().getProperty("ingest.user"), KConfiguration.getInstance().getProperty("ingest.password"), KConfiguration.getInstance().getProperty("convert.directory")+Download.CONV_SUFFIX);
-        Download.startIndexing("", uuid);
+        Download.startIndexing("converted", uuid);
 	}
 
 }
