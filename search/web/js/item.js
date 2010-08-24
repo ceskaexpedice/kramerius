@@ -344,8 +344,22 @@ var PDF=function() {
 					}
 				}
 			});
+
+			var from = $("#genPdfStart").val()-1;
+			var to = $("#genPdfEnd").val()-1;
+			var elmFrom = $('#tv_container_row td:eq('+from+') img'); {
+				alert($(elmFrom).attr('id'));
+			}
+			var elmTo = $('#tv_container_row td:eq('+to+') img'); {
+				alert($(elmTo).attr('id'));
+			}
+			
 			var fromUuid = $($("#list-page>div.relItem")[$("#genPdfStart").val()-1]).attr('id');
+            var fromUuid = $($("#list-page>div.relItem")[$("#genPdfStart").val()-1]).attr('id');
             var toUuid = $("#list-page>div.relItem")[$("#genPdfEnd").val()-1].attributes['pid'].value;
+            var toUuid = $("#list-page>div.relItem")[$("#genPdfEnd").val()-1].attributes['pid'].value;
+
+            
             var u = "pdf?uuidFrom=" + fromUuid+"&uuidTo="+toUuid+"&path="+PDF.path(pageLevel-1);
             window.location.href = u;
 		},
@@ -520,7 +534,7 @@ function showList(obj, tab, model){
 
 function showMets(level) {
 	   var pid = $("#tabs_"+level).attr('pid');
-	   window.location.href="mets?pid=uuid:"+pid;
+	   window.open("mets?pid=uuid:"+pid, "_blank");
 }
 
 var _metadataDialog;
