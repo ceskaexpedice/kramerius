@@ -52,7 +52,7 @@
                                     onclick="showList(this, '#tabs_<c:out value="${cur_level}" />', '<c:out value="${itemViewObject.models[status.count -1]}" />')" /></li>
         </ul>
         <div id="tab<c:out value="${cur_level}" />-<c:out value="${itemViewObject.models[status.count -1]}" />"
-            class="<c:out value="${itemViewObject.models[status.count -1]}" />"><c:set
+            class="<c:out value="${itemViewObject.models[status.count -1]}  ui-tabs-panel ui-widget-content ui-corner-bottom" />"><c:set
                 var="display" value="none" /> <c:catch var="exceptions">
                 <c:choose>
                     <c:when test="${fn:contains(menu.uuid, '@')}">
