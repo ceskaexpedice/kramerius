@@ -96,8 +96,8 @@ public class ItemMenuViewObject {
 
 	
 	private String exportMETS() {
-		return "<div align=\"left\"><a title=\"METS\" href=\"javascript:showMets("+(index+1)+")\" target=\"_blank\">"+this.resourceBundle.getString("administrator.menu.exportMETS")+"</a> </div>";
-}
+		return "<div align=\"left\"><a title=\"METS\" href=\"javascript:showMets("+(index+1)+")\" >"+this.resourceBundle.getString("administrator.menu.exportMETS")+"</a> </div>";
+	}
 	
 	private String reindex() {
 		return "<div align=\"left\"><a title=\"Reindex\" href=\"javascript:reindex("+(index+1)+",'"+this.itemViewObject.getModels().get(this.index)+"');\">"+this.resourceBundle.getString("administrator.menu.reindex")+"</a> </div>";
