@@ -14,6 +14,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.jsp.PageContext;
 
+import org.antlr.stringtemplate.StringTemplate;
+
 import com.google.inject.Inject;
 
 import cz.incad.Kramerius.FullImageServlet;
@@ -73,59 +75,123 @@ public class ItemMenuViewObject {
 	}
 
 	private String viewMetadataItem() {
-		return "<div align=\"left\"><a title=\"View metadata\" href=\"javascript:showMainContent("+(index+1)+", '"+this.itemViewObject.getModels().get(this.index)+"');\">"+this.resourceBundle.getString("administrator.menu.showmetadata")+"</a> </div>";
+		String key = "administrator.menu.showmetadata";
+		String jsmethod = "showMainContent";
+		return renderCommonItem(key, jsmethod);
 	}
 
 
 	private String persistentURL() {
-		return "<div align=\"left\"><a title=\"Persistent url\" href=\"javascript:showPersistentURL("+(index+1)+", '"+this.itemViewObject.getModels().get(this.index)+"');\">"+this.resourceBundle.getString("administrator.menu.persistenturl")+"</a> </div>";
+		String key = "administrator.menu.persistenturl";
+		String jsmethod="showPersistentURL";
+		return renderCommonItem(key, jsmethod);
 	}
+	
 
 	private String dynamicPDF() {
-		if (isPageModel()) {
-			return "<div align=\"left\"><a title=\"Generate pdf\" href=\"javascript:PDF.url("+(index+1)+");\">"+this.resourceBundle.getString("administrator.menu.generatepdf")+"</a> </div>";
+		String key = "administrator.menu.generatepdf";
+        if (isPageModel()) {
+            return renderCommonItem(key, "PDF.url");
 		} else {
-			return "<div align=\"left\"><a title=\"Generate pdf\" href=\"javascript:PDF.generatePDF("+(index+1)+", '"+this.itemViewObject.getModels().get(this.index)+"');\">"+this.resourceBundle.getString("administrator.menu.generatepdf")+"</a> </div>";
+            return renderCommonItem(key, "PDF.generatePDF");
 		}
 	}
 	private String exportPDF() {
-		String imgServlet = FullImageServlet.fullImageServlet(this.httpServletRequest);
+        StringTemplate template = new StringTemplate("<div align=\"left\"><a title='$tooltip$' " +
+        "href=\"javascript:generateStatic($level$,'static_export_CD','$imgServlet$','$i18nServlet$','$iso3Country$','$iso3Language$');\">$title$</a> </div>");
+	    String imgServlet = FullImageServlet.fullImageServlet(this.httpServletRequest);
 		String i18nServlet = I18NServlet.i18nServlet(this.httpServletRequest);
-		return "<div align=\"left\"><a title=\"Export to pdf(CD)\" href=\"javascript:generateStatic("+(index+1)+",'static_export_CD','"+imgServlet+"','"+i18nServlet+"','"+this.locale.getISO3Country()+"','"+this.locale.getISO3Language()+");\">"+this.resourceBundle.getString("administrator.menu.generatepdf")+"</a> </div>";
+		template.setAttribute("level", (index+1));
+		template.setAttribute("tooltip", this.resourceBundle.getString("administrator.menu.generatepdf"));
+        template.setAttribute("title", this.resourceBundle.getString("administrator.menu.generatepdf"));
+        template.setAttribute("imgServlet", imgServlet);
+        template.setAttribute("i18nServlet", i18nServlet);
+        template.setAttribute("iso3Country", this.locale.getISO3Country());
+        template.setAttribute("iso3Language", this.locale.getISO3Language());
+        return template.toString();
 	}
 
 	
 	private String exportMETS() {
-		return "<div align=\"left\"><a title=\"METS\" href=\"javascript:showMets("+(index+1)+")\" >"+this.resourceBundle.getString("administrator.menu.exportMETS")+"</a> </div>";
+		String key = "administrator.menu.exportMETS";
+		String jsmethod = "showMets";
+		return renderCommonItem(key, jsmethod);
 	}
 	
 	private String reindex() {
-		return "<div align=\"left\"><a title=\"Reindex\" href=\"javascript:reindex("+(index+1)+",'"+this.itemViewObject.getModels().get(this.index)+"');\">"+this.resourceBundle.getString("administrator.menu.reindex")+"</a> </div>";
+		String key = "administrator.menu.reindex";
+		String jsmethod = "reindex";
+		return renderCommonItem(key, jsmethod);
 	}
 
 	private String deleteFromIndex() {
-		return "<div align=\"left\"><a title=\"Delete from index\" href=\"javascript:deletefromindex("+(index+1)+");\">"+this.resourceBundle.getString("administrator.menu.generatepdf")+"</a> </div>";
+	    String jsmethod = "deletefromindex";
+		String key = "administrator.menu.deletefromindex";
+		return renderCommonItem(key, jsmethod);
 	}
 
 	private String deleteFromFedora() {
-			return "<div align=\"left\"><a title=\"Delete from fedora\" href=\"javascript:deleteUuid("+(index+1)+");\">"+this.resourceBundle.getString("administrator.menu.deleteuuid")+"</a> </div>";
+	    String key = "administrator.menu.deleteuuid";
+	    String jsmethod = "deleteUuid";
+	    return renderCommonItem(key, jsmethod);
 	}
 
 	private String changeVisibility() {
-			return "<div align=\"left\"><a title=\"Change visibility\" href=\"javascript:changeFlag('"+index+1+","+this.itemViewObject.getModels().get(this.index)+"');\">"+this.resourceBundle.getString("administrator.menu.setpublic")+"</a> </div>";
+	    String key = "administrator.menu.setpublic";
+	    String jsmethod = "changeFlag";
+        return renderCommonItem(key, jsmethod);
 	}
 
 	private String exportTOFOXML() {
-			return "<div align=\"left\"><a title=\"Export TO FOXML\" href=\"javascript:exportTOFOXML('"+index+1+","+this.itemViewObject.getModels().get(this.index)+"');\">"+this.resourceBundle.getString("administrator.menu.exportFOXML")+"</a> </div>";
+        String key = "administrator.menu.exportFOXML";
+        String jsmethod = "exportTOFOXML";
+        return renderCommonItem(key, jsmethod);
 	}
 
+    private String renderCommonItem(String key, String jsmethod) {
+        StringTemplate template = getCommonTemplate();
+        jsmethod(template, jsmethod);
+	    titleAndTooltip(template, key);
+        levelAndModel(template);
+        return template.toString();
+    }
+
+    private StringTemplate getCommonTemplate() {
+        StringTemplate template = new StringTemplate("<div align=\"left\"><a title='$tooltip$' " +
+	    		"href=\"javascript:$jsmethod$($level$,'$model$');\">$title$</a> </div>");
+        return template;
+    }
+
+    private void jsmethod(StringTemplate template, String jsmethod) {
+        template.setAttribute("jsmethod", jsmethod);
+    }
+
+    private void titleAndTooltip(StringTemplate template, String key) {
+        template.setAttribute("tooltip", this.resourceBundle.getString(key));
+        template.setAttribute("title", this.resourceBundle.getString(key));
+    }
+
+    private void levelAndModel(StringTemplate template) {
+        template.setAttribute("model", this.itemViewObject.getModels().get(this.index));
+        template.setAttribute("level", (index+1));
+    }
+    
+    
+    
 	
 	/**
 	 * Create menu items
 	 * @return
 	 */
 	public String[] getContextMenuItems() {
-		List<String> items = new ArrayList<String>();
+	    List<String> items = new ArrayList<String>();
+	    items.addAll(getCommonMenuItems());
+		items.addAll(getAdminMenuItems());
+		return (String[]) items.toArray(new String[items.size()]);
+	}
+
+    private List<String> getCommonMenuItems() {
+        List<String> items = new ArrayList<String>();
 		{
 			items.add(viewMetadataItem());
 			items.add(persistentURL());
@@ -138,16 +204,21 @@ public class ItemMenuViewObject {
 			}
 			items.add(exportMETS());
 		};
-		if (httpServletRequest.getRemoteUser() != null) {
-			if (userInRoleDecision.isUserInRole("static_export_CD")) {
-				try {
-					if (fedoraAccess.isContentAccessible(uuid)) {
-						items.add(exportPDF());
-					}
-				} catch (IOException e) {
-					LOGGER.log(Level.SEVERE, e.getMessage(), e);
-				}
-			}
+        return items;
+    }
+
+    public List<String> getAdminMenuItems() {
+        List<String> items = new ArrayList<String>();
+        if (httpServletRequest.getRemoteUser() != null) {
+//			if (userInRoleDecision.isUserInRole("static_export_CD")) {
+//				try {
+//					if (fedoraAccess.isContentAccessible(uuid)) {
+//						items.add(exportPDF());
+//					}
+//				} catch (IOException e) {
+//					LOGGER.log(Level.SEVERE, e.getMessage(), e);
+//				}
+//			}
 			if (userInRoleDecision.isUserInRole(KrameriusRoles.REINDEX)) {
 				items.add(reindex());
 			}
@@ -168,8 +239,8 @@ public class ItemMenuViewObject {
 //			items.add(importFOXML());
 			
 		}
-		return (String[]) items.toArray(new String[items.size()]);
-	}
+        return items;
+    }
 	
 
 
