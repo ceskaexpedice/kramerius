@@ -137,20 +137,16 @@ var _texts=function() {
 		intArr["[replicationrights]FAILED"]="administrator.dialogs.replicationrightsfailed";
 
 		intArr["[setpublic]WAITING"]="administrator.dialogs.waitingchangevisflag";
-		intArr["[setpublic]PLANNED"]="administrator.dialogs.changevisflagunning";
-		intArr["[setpublic]FAILED"]="administrator.dialogs.changevisflagfailed";
+		intArr["[setpublic]PLANNED"]="administrator.dialogs.setprivaterunning";
+		intArr["[setpublic]FAILED"]="administrator.dialogs.setprivatefailed";
 		
 		intArr["[setprivate]WAITING"]="administrator.dialogs.waitingchangevisflag";
-		intArr["[setprivate]PLANNED"]="administrator.dialogs.changevisflagunning";
-		intArr["[setprivate]FAILED"]="administrator.dialogs.changevisflagfailed";
+		intArr["[setprivate]PLANNED"]="administrator.dialogs.setpublicrunning";
+		intArr["[setprivate]FAILED"]="administrator.dialogs.setpublicfailed";
 
-		intArr["[export]WAITING"]="administrator.dialogs.waitingchangevisflag";
-		intArr["[export]PLANNED"]="administrator.dialogs.changevisflagunning";
-		intArr["[export]FAILED"]="administrator.dialogs.changevisflagfailed";
-
-		intArr["[export]WAITING"]="administrator.dialogs.waitingchangevisflag";
-		intArr["[export]PLANNED"]="administrator.dialogs.changevisflagunning";
-		intArr["[export]FAILED"]="administrator.dialogs.changevisflagfailed";
+		intArr["[export]WAITING"]="administrator.dialogs.waitingexport";
+		intArr["[export]PLANNED"]="administrator.dialogs.exportrunning";
+		intArr["[export]FAILED"]="administrator.dialogs.exportfailed";
 
 		intArr["[convert]WAITING"]="administrator.dialogs.waitingconvert";
 		intArr["[convert]PLANNED"]="administrator.dialogs.convertrunning";
@@ -159,6 +155,7 @@ var _texts=function() {
 		intArr["[import]WAITING"]="administrator.dialogs.waitingimport";
 		intArr["[import]PLANNED"]="administrator.dialogs.importrunning";
 		intArr["[import]FAILED"]="administrator.dialogs.importfailed";
+
 	}
 	return intArr;
 }(); //akce ze servletu
@@ -360,7 +357,7 @@ function noParamsProcess(process)  {
 }
 
 
-function deleteUuid(level)  {
+function deleteUuid(level, model)  {
 	hideAdminOptions(level);
 	showConfirmDialog(dictionary['administrator.dialogs.deleteconfirm'], function(){
 		var pid = $("#tabs_"+level).attr('pid');
@@ -405,17 +402,18 @@ function changeFlag(level)  {
 	        width: 400,
 	        height: 100,
 	        modal: true,
-	        title: '',
+	        title: dictionary['administrator.menu.dialogs.changevisflag.title'],
 	        buttons: {
 				"Close": function() {
 						$(this).dialog("close"); 
 	            }, 
-	            "Aplikovat": function() {
+	            // nevim jak lokalizovat button ?
+	            "Aplikuj": function() {
 					$(this).dialog("close"); 
 					
 					var flag = $('#flag').val();
 	            	var pid = $("#tabs_"+level).attr('pid');
-					var url = "lr?action=start&def=set"+flag+"&out=text&params="+pid;
+	            	var url = "lr?action=start&def=set"+flag+"&out=text&params="+pid;
 					if (_commonDialog) {
 				    	$("#common_started_ok").hide();
 				    	$("#common_started_failed").hide();
@@ -428,7 +426,7 @@ function changeFlag(level)  {
 					        width: 400,
 					        height: 100,
 					        modal: true,
-					        title: "",
+					        title: dictionary['administrator.menu.dialogs.changevisflag.title'],
 					        buttons: {
 					            "Close": function() {
 					                $(this).dialog("close"); 
@@ -436,8 +434,8 @@ function changeFlag(level)  {
 					        } 
 					    });
 					}
-					
-					$("#common_started_text").text(dictionary['administrator.dialogs.waitingchangevisflag']);
+
+ 					$("#common_started_text").text(dictionary['administrator.dialogs.waitingchangevisflag']);
 					$("#common_started" ).dialog( "option", "title",  dictionary['administrator.menu.dialogs.changevisflag.title']);
 
 					_startProcess(url);
@@ -567,6 +565,31 @@ function deletefromindex(level){
           pid_path = $('#tabs_'+i).attr('pid') + pid_path;
           if(i>1) {pid_path = '/' + pid_path};
       }
+
+  	if (_commonDialog) {
+    	$("#common_started_ok").hide();
+    	$("#common_started_failed").hide();
+    	$("#common_started_waiting").show();
+    	_commonDialog.dialog('open');
+	} else {
+    	$("#common_started_waiting").show();
+    	_commonDialog = $("#common_started").dialog({
+	        bgiframe: true,
+	        width: 400,
+	        height: 100,
+	        modal: true,
+	        title: '',
+	        buttons: {
+	            "Close": function() {
+	                $(this).dialog("close"); 
+	            } 
+	        } 
+	    });
+	}
+
+	$("#common_started_text").text(dictionary['administrator.dialogs.waitingdelindex']);
+	$("#common_started" ).dialog( "option", "title",  dictionary['administrator.menu.dialogs.delindex.title']);
+
       var url = "lr?action=start&def=reindex&out=text&params=deleteDocument,"+pid_path+","+pid;
       _startProcess(url);
     });

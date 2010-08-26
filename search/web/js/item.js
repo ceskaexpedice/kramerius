@@ -25,15 +25,15 @@ function showPersistentURL(level, model) {
 		_persistentURLDialog.dialog('open');
 	} else {
 		$(document.body).append('<div id="persistentURL">'+
-				'<span>Adresa objektu:</span>'+
+				'<span>'+dictionary['administrator.dialogs.persistenturl.text']+'</span>'+
 				'<input name="'+textFieldID+'"  style="width:100%;" type="text"  maxlength="255"'+ 
-				' id="'+textFieldID+'" title="Persistent URL" /></div>');
+				' id="'+textFieldID+'" title="'+dictionary['administrator.menu.persistenturl']+'" /></div>');
 				
 		_persistentURLDialog = $('#persistentURL').dialog({
 	           width:640,
 	           height:100,
 	           modal:true,
-	           title:"Persistentni adresa",
+	           title:dictionary["administrator.menu.dialogs.persistenturl.title"],
 	           buttons: {
 					"Close": function() {
 						$(this).dialog("close"); 
@@ -327,6 +327,7 @@ var PDF=function() {
 		},
 		// sestaveni url
 		url:function(level) {
+			hideAdminOptions(level);
 			var uuid = $("#tabs_"+level).attr('pid');
 	        var u = "pdf?uuidFrom=" + uuid+"&uuidTo="+uuid+"&path="+PDF.path(level);
 			window.location.href = u;
@@ -347,12 +348,8 @@ var PDF=function() {
 
 			var from = $("#genPdfStart").val()-1;
 			var to = $("#genPdfEnd").val()-1;
-			var elmFrom = $('#tv_container_row td:eq('+from+') img'); {
-				alert($(elmFrom).attr('id'));
-			}
-			var elmTo = $('#tv_container_row td:eq('+to+') img'); {
-				alert($(elmTo).attr('id'));
-			}
+			var elmFrom = $('#tv_container_row td:eq('+from+') img'); 
+			var elmTo = $('#tv_container_row td:eq('+to+') img'); 
 			
 			var fromUuid = $($("#list-page>div.relItem")[$("#genPdfStart").val()-1]).attr('id');
             var fromUuid = $($("#list-page>div.relItem")[$("#genPdfStart").val()-1]).attr('id');
@@ -532,9 +529,10 @@ function showList(obj, tab, model){
     $(obj).toggleClass('op_info');
 }
 
-function showMets(level) {
-	   var pid = $("#tabs_"+level).attr('pid');
-	   window.open("mets?pid=uuid:"+pid, "_blank");
+function showMets(level, model) {
+	hideAdminOptions(level);
+	var pid = $("#tabs_"+level).attr('pid');
+	window.open("mets?pid=uuid:"+pid, "_blank");
 }
 
 var _metadataDialog;
