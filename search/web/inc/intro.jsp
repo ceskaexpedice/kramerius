@@ -1,3 +1,6 @@
+<%@page import="java.util.Locale"%>
+<%@page import="com.google.inject.Provider"%>
+<%@page import="cz.incad.Kramerius.backend.guice.LocalesProvider"%>
 <%@ page contentType="text/html" pageEncoding="UTF-8" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/xml" prefix="x" %>
@@ -17,7 +20,7 @@
      <div id="intro1" style="height:220px;"></div>
          <script>
             //$(document).ready(function(){
-                $.get('inc/newest.jsp?language=' + language, function(data){
+                $.get('inc/newest.jsp?' , function(data){
                    $('#intro1').html(data) ;
                 });
             //});
@@ -26,7 +29,7 @@
      </div>
          <script>
             //$(document).ready(function(){
-                $.get('inc/mostDesirables.jsp?language=' + language, function(data){
+                $.get('inc/mostDesirables.jsp', function(data){
                    $('#intro2').html(data) ;
                 });
             //});
@@ -37,26 +40,14 @@
 	<% }else{
             Injector inj = (Injector)application.getAttribute(Injector.class.getName());
             TextsService ts = (TextsService)inj.getInstance(TextsService.class);	
-	
-
-
-            String lang = request.getParameter("language");
-            if (lang == null || lang.length() == 0) {
-                lang = "cs";
-            }
-            try {
-                String text = ts.getText("intro", ts.findLocale(lang));
-                out.println(text);
-            } catch (Exception e) {
-                System.out.println(e.getMessage());
-                System.out.println("Loading default");  %>
-            <c:choose>
-                <c:when test="${param.language == 'en'}"><%@ include file="text/intro_en.jsp" %></c:when>
-                <c:when test="${param.language == 'cs'}"><%@ include file="text/intro_cs.jsp" %></c:when>
-                <c:otherwise><%@ include file="text/intro_cs.jsp" %></c:otherwise>
-            </c:choose>
-	<%
-        }
+			Provider<Locale> provider = inj.getProvider(Locale.class);
+			
+			if (ts.isAvailable("intro", provider.get())) {
+                out.println(ts.getText("intro", provider.get()));
+			} else {
+				out.println(ts.getText("default_intro",provider.get()));
+			}
+			
         } %>
          </div>
 </div>
