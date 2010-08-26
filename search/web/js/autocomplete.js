@@ -45,7 +45,7 @@ function doAutocomplete(text, lookupField, key, queryField){
         }else{
             value = "\"" + value + "\""
         }
-        window.location = searchPage + "?q=" + lookupField + ":" + value; 
+        window.location = searchPage + "?suggest=true&fq=level:0&fq=" + lookupField + ":" + value; 
         return;
     }
     json(text, lookupField, queryField);
