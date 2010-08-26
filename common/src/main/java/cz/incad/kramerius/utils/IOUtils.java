@@ -14,6 +14,8 @@ import java.nio.charset.Charset;
 import java.security.MessageDigest;
 import java.util.logging.Level;
 
+import cz.incad.kramerius.pdf.impl.GeneratePDFServiceImpl;
+
 public class IOUtils {
 	
 	
@@ -75,13 +77,13 @@ public class IOUtils {
 	}
 	
 
-	public static ByteArrayInputStream bos(File inFile) throws IOException {
+	public static byte[] bos(File inFile) throws IOException {
 		InputStream is =  null;
 		try {
 			is = new FileInputStream(inFile);
 			ByteArrayOutputStream bos = new ByteArrayOutputStream();
 			copyStreams(is, bos);
-			return new ByteArrayInputStream(bos.toByteArray());
+			return bos.toByteArray();
 		}finally {
 			if (is != null) is.close();
 		}
@@ -105,5 +107,38 @@ public class IOUtils {
             for (int i = 0; i < files.length; i++)
                 files[i].delete();
         }
+    }
+
+    public static void copyBundledResources(Class caller, String[] texts, String prefix, File folder) throws FileNotFoundException,
+    		IOException {
+    	for (String def : texts) {
+    		InputStream is = null;
+    		FileOutputStream os = null;
+    		try {
+    			File file = new File(folder, def);
+    			if (!file.exists()) {
+    				String res = prefix+def;
+    				is= caller.getResourceAsStream(res);
+    				if (is == null) throw new IOException("cannot find resource "+res);
+    				os = new FileOutputStream(file);
+    				copyStreams(is, os);
+    			}
+    		} finally {
+    			if (os != null) {
+    				try {
+    					os.close();
+    				} catch (Exception e) {
+    					GeneratePDFServiceImpl.LOGGER.log(Level.SEVERE, e.getMessage(), e);
+    				}
+    			}
+    			if (is != null) {
+    				try {
+    					is.close();
+    				} catch(Exception e) {
+    					GeneratePDFServiceImpl.LOGGER.log(Level.SEVERE, e.getMessage(), e);
+    				}
+    			}
+    		}
+    	}
     }
 }

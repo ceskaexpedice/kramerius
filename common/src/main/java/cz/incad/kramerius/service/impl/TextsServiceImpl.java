@@ -39,7 +39,26 @@ public class TextsServiceImpl implements TextsService {
     	put("cs",new Locale("cs", "cz"));
     }};
 
+    
 	
+    public TextsServiceImpl() {
+        super();
+        try {
+            this.init();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+
+    private void init() throws IOException {
+        String[] texts = 
+        {"default_intro",
+        "default_intro_EN_en"};
+        IOUtils.copyBundledResources(this.getClass(), texts,"res/", this.textsFolder());
+    }
+
+    
     public  String getText(String name, Locale locale) throws IOException {
         if (locale == null) {
         	locale = Locale.getDefault();

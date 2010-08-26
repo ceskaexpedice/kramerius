@@ -10,10 +10,8 @@ import java.awt.Image;
 import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.StringReader;
 import java.net.MalformedURLException;
@@ -137,47 +135,14 @@ public class GeneratePDFServiceImpl implements GeneratePDFService {
 		"first_page_html_CZ_cs",
 		"security_fail",
 		"security_fail_CZ_cs"};
-		copyFiles(texts,"res/", this.textsService.textsFolder());
+		IOUtils.copyBundledResources(this.getClass(),texts,"res/", this.textsService.textsFolder());
 		String[] xlsts = 
 		{"template.xslt"};
-		copyFiles(xlsts,"templates/", this.templatesFolder());
+		IOUtils.copyBundledResources(this.getClass(),xlsts,"templates/", this.templatesFolder());
 
 		String[] fonts = 
 		{"ext_ontheflypdf_ArialCE.ttf"};
-		copyFiles(fonts,"res/", this.fontsFolder());
-	}
-
-	private void copyFiles(String[] texts, String prefix, File folder) throws FileNotFoundException,
-			IOException {
-		for (String def : texts) {
-			InputStream is = null;
-			FileOutputStream os = null;
-			try {
-				File file = new File(folder, def);
-				if (!file.exists()) {
-					String res = prefix+def;
-					is= this.getClass().getResourceAsStream(res);
-					if (is == null) throw new IOException("cannot find resource "+res);
-					os = new FileOutputStream(file);
-					IOUtils.copyStreams(is, os);
-				}
-			} finally {
-				if (os != null) {
-					try {
-						os.close();
-					} catch (Exception e) {
-						LOGGER.log(Level.SEVERE, e.getMessage(), e);
-					}
-				}
-				if (is != null) {
-					try {
-						is.close();
-					} catch(Exception e) {
-						LOGGER.log(Level.SEVERE, e.getMessage(), e);
-					}
-				}
-			}
-		}
+		IOUtils.copyBundledResources(this.getClass(), fonts,"res/", this.fontsFolder());
 	}
 
 	@Override
