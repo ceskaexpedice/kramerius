@@ -39,7 +39,7 @@
                 
             </x:when>
             <x:when select="./str[@name='fedora.model'] = 'page'">
-                <fmt:message bundle="${lctx}">fedora.model.page</fmt:message>
+                <fmt:message bundle="${lctx}">fedora.model.page</fmt:message>&#160;
                   
             </x:when>
             <x:when select="./str[@name='fedora.model'] = 'periodical2'">
@@ -62,7 +62,7 @@
             <c:set var="hituuid"><x:out select="@name" /></c:set>
             <c:if test="${hituuid==solruuid}">
                 <x:forEach select="./arr[@name='text']/str">
-                ....<x:out select="." escapeXml="false" />...<br/>
+                (...) <x:out select="." escapeXml="false" /> (...)<br/>
                 </x:forEach>
             </c:if>
         </x:forEach>
