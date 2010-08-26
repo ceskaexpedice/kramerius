@@ -61,7 +61,9 @@
         <x:forEach select="../../lst[@name='highlighting']/lst">
             <c:set var="hituuid"><x:out select="@name" /></c:set>
             <c:if test="${hituuid==solruuid}">
-                <x:out select="./arr[@name='text']/str" escapeXml="false" />
+                <x:forEach select="./arr[@name='text']/str">
+                ....<x:out select="." escapeXml="false" />...<br/>
+                </x:forEach>
             </c:if>
         </x:forEach>
         </div>

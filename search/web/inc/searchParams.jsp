@@ -121,6 +121,8 @@
     <c:param name="hl.fl" value="text" />
     <c:param name="hl.simple.pre" value="<span>" />
     <c:param name="hl.simple.post" value="</span>"  />
+    <c:param name="hl.mergeContiguous" value="true" />
+    <c:param name="hl.snippets" value="2" />
     
     <%-- sort param --%>    
     <c:choose>

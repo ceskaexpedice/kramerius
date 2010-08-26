@@ -51,9 +51,9 @@
             <c:set var="itemUrl" >
                 ./item.jsp?pid=<c:out value="${uuid}"/>&pid_path=<x:out select="./str[@name='pid_path']"/>&path=<x:out select="./str[@name='path']"/>
             </c:set>
-            <x:if select="./str[@name='fedora.model'] = 'page'">
+            <%--<x:if select="./str[@name='fedora.model'] = 'page'">--%>
                 <c:set var="itemUrl" ><c:out value="${itemUrl}"/>&format=<x:out select="./str[@name='page_format']"/></c:set>
-            </x:if>
+            <%--</x:if>--%>
             <x:set select="./str[@name='PID']" var="pid" />
             <%
             if (fedora_model.equals("page")) {

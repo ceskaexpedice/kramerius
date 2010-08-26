@@ -29,9 +29,9 @@
         <c:set var="itemUrl" >
             ./item.jsp?pid=<c:out value="${uuid}"/>&pid_path=<x:out select="./str[@name='pid_path']"/>&path=<x:out select="./str[@name='path']"/>
         </c:set>
-        <x:if select="./str[@name='fedora.model'] = 'page'">
+        <%--<x:if select="./str[@name='fedora.model'] = 'page'">--%>
             <c:set var="itemUrl" ><c:out value="${itemUrl}"/>&format=<x:out select="./str[@name='page_format']"/></c:set>
-        </x:if>
+        <%--</x:if>--%>
         <x:set select="./str[@name='PID']" var="pid" />
     <tr id="res_<c:out value="${uuid}"/>" class="result r<c:out value="${status.count % 2}" />">
         <%//@ include file="../admin/resultOptions.jsp" %>
@@ -39,8 +39,8 @@
             <x:if select="./@name=$pid">
             <c:set var="collapseCount" >
                 <a href="javascript:toggleCollapsed('<c:out value="${root_pid}" />', 'uncollapsed_<c:out value="${uuid}"/>', 0)"><img src="img/collapsed.png" 
-                   alt="<x:out select="./int[@name='collapseCount']/text()"/> <fmt:message bundle="${lctx}">collapsed</fmt:message>"
-                   title="<x:out select="./int[@name='collapseCount']/text()"/> <fmt:message bundle="${lctx}">collapsed</fmt:message>" border="0" /></a>
+                   alt="<x:out select="./int[@name='collapseCount']/text()"/><c:out value=" "/><fmt:message bundle="${lctx}">collapsed</fmt:message>"
+                   title="<x:out select="./int[@name='collapseCount']/text()"/><c:out value=" "/><fmt:message bundle="${lctx}">collapsed</fmt:message>" border="0" /></a>
             </c:set>  
             </x:if>
         </x:forEach>
