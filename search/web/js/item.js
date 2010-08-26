@@ -53,9 +53,9 @@ function showPersistentURL(level, model) {
 
 
 function getBiblioInfo(pid, model, list, inf, setInf){
-    var url = 'inc/details/biblioToRdf.jsp?&pid=uuid:' + pid + "&xsl=default.jsp&model="+model+"&language=" + language;
-    //var url = 'inc/details/biblioToRdf.jsp?&pid=uuid:' + pid + "&xsl="+model+".jsp&language=" + language;
-    //var url = 'inc/results/biblioToRdf.jsp?&pid=uuid:' + pid + "&xsl="+model+".jsp&language=" + language;
+    var url = 'inc/details/biblioToRdf.jsp?&pid=uuid:' + pid + "&xsl=default.jsp&model="+model;
+    //var url = 'inc/details/biblioToRdf.jsp?&pid=uuid:' + pid + "&xsl="+model+".jsp";
+    //var url = 'inc/results/biblioToRdf.jsp?&pid=uuid:' + pid + "&xsl="+model+".jsp" ;
     $.get(url, function(xml) {
         $(".relItem[pid='" + pid + "']").html(xml);
         $(".relItem[pid='" + pid + "']").attr('hasbiblio', 'true');
@@ -150,7 +150,7 @@ function selectItem(obj, level, model){
     var target = level-1;
     var p = $(d2).parent();
     $(d2).remove();
-    var url ="itemMenu.jsp?language="+language+"&pid_path="+pid+"&path="+model+"&level="+target;
+    var url ="itemMenu.jsp?pid_path="+pid+"&path="+model+"&level="+target;
     //$('#mainContent').html(imgLoadingBig);
     $('#imgBig').attr("src", "img/empty.gif");
     $.get(url, function(data){
@@ -161,7 +161,7 @@ function selectItem(obj, level, model){
 
 function getItemRels(pid, selectedpid, level, recursive, rootModel){
     if(!pid) return;
-    var url ="GetRelsExt?language="+language+"&relation=*&format=json&pid=uuid:"+pid;
+    var url ="GetRelsExt?relation=*&format=json&pid=uuid:"+pid;
     var target_level = level + 1;
     var newTab = false;
     $.getJSON(url, function(data){
@@ -563,9 +563,9 @@ function showMainContent(level, model){
    }
    
     $('#metaData').html(imgLoadingBig);
-    //var url = "inc/details/"+path.toString().split('/')[0]+".jsp?display=block&language=";
-    //var url = "inc/details/biblioToRdf.jsp?pid=uuid:"+pid+"&xsl="+path.toString().split('/')[0]+".jsp&display=full&language=";
-    var url = "inc/details/biblioToRdf.jsp?pid=uuid:"+pid+"&xsl=default.jsp&display=full&model="+model+"&language=" + language;
+    //var url = "inc/details/"+path.toString().split('/')[0]+".jsp?display=block";
+    //var url = "inc/details/biblioToRdf.jsp?pid=uuid:"+pid+"&xsl="+path.toString().split('/')[0]+".jsp&display=full";
+    var url = "inc/details/biblioToRdf.jsp?pid=uuid:"+pid+"&xsl=default.jsp&display=full&model="+model;
     //var url = 'item_1.jsp?pid='+pid+'&path='+path;
     $.get(url, function(data){
         $('#metaData').html(data);
