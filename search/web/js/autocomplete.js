@@ -21,6 +21,7 @@
 //obcas nutne pouzit proxy pro povoleni ajaxu
 var completeUrl = "terms.jsp?";
 var autoCompleteDiv = '#autocomplete';
+var cur;
 
 function doAutocomplete(text, lookupField, key, queryField){
     //autoCompleteDiv="#autocomplete";
