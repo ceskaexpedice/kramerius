@@ -69,9 +69,17 @@
                     
                     <table cellpadding="0" cellspacing="0" width="100%"><tr>
                         <td valign="top" align="center" width="20px"><a class="prevArrow"  href="javascript:selectPrevious();"><img src="img/la.png" border="0" /></a></td>
-                        <td valign="top" align="center" id="mainContent"><a href="javascript:showFullImage('${itemViewObject.imagePid}')" class="lighbox">
+                        <td valign="top" align="center" id="mainContent">
+                            <div style="position:relative;top:0px;">
+                            <div style="position:absolute;top:3px;right:3px;">
+                                <a href="javascript:showFullImage('${itemViewObject.imagePid}')"><img border="0" src="img/lupa_shadow.png" align="right" alt="" />
+                                </a>
+                            </div>
+                            </div>
+                            <a href="javascript:showFullImage('${itemViewObject.imagePid}')" class="lighbox">
                                 <img border="0" width="650px" onerror="showError();" src="${itemViewObject.firstPageImageUrl}" id="imgBig" alt="">
-                            </a></td>
+                            </a>
+                            </td>
                         <td valign="top" align="center" width="20px"><a class="nextArrow"  href="javascript:selectNext();"><img src="img/ra.png" border="0" /></a></td>
                     </tr></table>
                 </td>
