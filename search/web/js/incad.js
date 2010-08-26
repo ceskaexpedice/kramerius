@@ -1,8 +1,7 @@
 var enableAjax = true; // jestli se ma strankovat s pomoci ajaxu
 
 function showHelp(language, part){
-    if(language=='') language = 'cs';
-    var url = 'help/help.jsp?language='+language;
+    var url = 'help/help.jsp?';
     if (part!=null && part!='')
      url=url+'#'+part;
      temp=window.open(url,'HELP','width=608,height=574,menubar=0,resizable=0,scrollbars=1,status=0,titlebar=0,toolbar=0,z-lock=0,left=200,top=20');
@@ -276,7 +275,7 @@ function getVolumeList(pid){
 
 function getVolumeInfo(pid, index){
     var title = $('#periodicaltitle').html();
-    var url = 'details/biblioToRdf.jsp?pid=' + pid + "&xsl=volume_from_biblio_mods.jsp&title=" + title + "&language=" + language;
+    var url = 'details/biblioToRdf.jsp?pid=' + pid + "&xsl=volume_from_biblio_mods.jsp&title=" + title;
     //$("#div_"+index).html("Načítám stranky...");
     $.post(url, function(xml) {
         var info = xml.split("@");
@@ -308,7 +307,7 @@ function getInternalPartList(pid){
 
 function getInternalPartInfo(pid, index){
     var title = $('#monographtitle').html();
-    var url = 'details/biblioToRdf.jsp?pid=' + pid + "&xsl=internalPart_from_biblio_mods.jsp&title=" + title + "&language=" + language;
+    var url = 'details/biblioToRdf.jsp?pid=' + pid + "&xsl=internalPart_from_biblio_mods.jsp&title=" + title ;
     //$("#div_"+index).html("Načítám stranky...");
     $.post(url, function(xml) {
         $("#internalPart_"+index).html(xml)
@@ -338,7 +337,7 @@ function getIssuesList(pid){
 
 function getIssueInfo(pid, index){
     var title = $('#periodicaltitle').html();
-    var url = 'details/biblioToRdf.jsp?pid=' + pid + "&xsl=issue_from_biblio_mods.jsp&title=" + title + "&language=" + language;
+    var url = 'details/biblioToRdf.jsp?pid=' + pid + "&xsl=issue_from_biblio_mods.jsp&title=" + title ;
     //$("#div_"+index).html("Načítám stranky...");
     $.post(url, function(xml) {
         var info = xml.split("@");
@@ -369,7 +368,7 @@ function getPagesList(pid){
 }
 
 function getPageInfo(pid, index){
-    var url = 'details/biblioToRdf.jsp?&pid=' + pid + "&xsl=page_from_biblio_mods.jsp&language=" + language;
+    var url = 'details/biblioToRdf.jsp?&pid=' + pid + "&xsl=page_from_biblio_mods.jsp";
     $.post(url, function(xml) {
         var info = xml.split("@");
         var index2 = info[1];
@@ -378,7 +377,7 @@ function getPageInfo(pid, index){
 }
 
 function showPage(pid, page){
-    var url = 'details/page.jsp?pid=' + pid + "&language=" + language + "&page=" + page;
+    var url = 'details/page.jsp?pid=' + pid +  "&page=" + page;
     $("#pageViewer").height(600);
     $.post(url, {}, function(xml) {
         $("#pageViewer").html(xml)
@@ -407,7 +406,7 @@ function getUnitsList(pid){
 }
 
 function getUnitInfo(pid, index){
-    var url = 'inc/details/biblioToRdf.jsp?&pid=' + pid + "&xsl=monographunit_from_biblio_mods.jsp&language=" + language;
+    var url = 'inc/details/biblioToRdf.jsp?&pid=' + pid + "&xsl=monographunit_from_biblio_mods.jsp";
     $.post(url, {}, function(xml) {
         $("#unit_"+index).html(xml)
     });
