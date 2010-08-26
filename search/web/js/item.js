@@ -53,9 +53,9 @@ function showPersistentURL(level, model) {
 
 
 function getBiblioInfo(pid, model, list, inf, setInf){
-    var url = 'inc/details/biblioToRdf.jsp?&pid=uuid:' + pid + "&xsl=default.jsp&model="+model;
-    //var url = 'inc/details/biblioToRdf.jsp?&pid=uuid:' + pid + "&xsl="+model+".jsp";
-    //var url = 'inc/results/biblioToRdf.jsp?&pid=uuid:' + pid + "&xsl="+model+".jsp" ;
+    var url = 'inc/details/biblioToRdf.jsp?pid=uuid:' + pid + "&xsl=default.jsp&model="+model;
+    //var url = 'inc/details/biblioToRdf.jsp?pid=uuid:' + pid + "&xsl="+model+".jsp";
+    //var url = 'inc/results/biblioToRdf.jsp?pid=uuid:' + pid + "&xsl="+model+".jsp" ;
     $.get(url, function(xml) {
         $(".relItem[pid='" + pid + "']").html(xml);
         $(".relItem[pid='" + pid + "']").attr('hasbiblio', 'true');
