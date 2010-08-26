@@ -124,6 +124,7 @@
             <a href="http://www.celartem.com/en/download/djvu.asp">File download</a><br/> <br/> <br/> 
         </object>
     </div>
+    
     <c:if test="${param.format == 'application/pdf'}">
     <div id="pdfContainer" style="display:none;">        
         <object data="djvu?uuid=${itemViewObject.firstUUID}&outputFormat=RAW&page=${itemViewObject.page-1}" type="application/pdf" width="100%" height="100%" page="${itemViewObject.page-1}">
