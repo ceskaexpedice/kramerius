@@ -368,7 +368,7 @@ function getPagesList(pid){
 }
 
 function getPageInfo(pid, index){
-    var url = 'details/biblioToRdf.jsp?&pid=' + pid + "&xsl=page_from_biblio_mods.jsp";
+    var url = 'details/biblioToRdf.jsp?pid=' + pid + "&xsl=page_from_biblio_mods.jsp";
     $.post(url, function(xml) {
         var info = xml.split("@");
         var index2 = info[1];
@@ -406,7 +406,7 @@ function getUnitsList(pid){
 }
 
 function getUnitInfo(pid, index){
-    var url = 'inc/details/biblioToRdf.jsp?&pid=' + pid + "&xsl=monographunit_from_biblio_mods.jsp";
+    var url = 'inc/details/biblioToRdf.jsp?pid=' + pid + "&xsl=monographunit_from_biblio_mods.jsp";
     $.post(url, {}, function(xml) {
         $("#unit_"+index).html(xml)
     });
