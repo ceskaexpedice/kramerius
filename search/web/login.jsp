@@ -34,22 +34,18 @@
     <link type="text/css" href="css/themes/base/ui.dialog.css" rel="stylesheet" />
     <link type="text/css" href="css/themes/base/ui.slider.css" rel="stylesheet" />
     <link rel="stylesheet" href="css/dateAxisV.css" type="text/css"/>
-    <link rel="stylesheet" href="css/dtree.css" type="text/css"/>
     <link rel="StyleSheet" href="css/styles.css" type="text/css"/>
 
         
     <script src="js/jquery-1.3.2.min.js" type="text/javascript" ></script>
     <script src="js/jquery-ui-1.7.2.custom.min.js" language="javascript" type="text/javascript"></script>
     <script src="js/jquery.cookie.js" type="text/javascript"></script>
-    <script src="js/jquery.history.js" type="text/javascript"></script>
 
-    <script src="js/jquery.backgroundPosition.js" type="text/javascript"></script>
     <script src="js/pageQuery.js" language="JavaScript" type="text/javascript"></script>
     <script src="js/item.js" language="JavaScript" type="text/javascript"></script>
     <script src="js/incad.js" language="JavaScript" type="text/javascript"></script>
     <script src="js/dateAxis_formatV.js" language="javascript" type="text/javascript"></script>
     <script src="js/dateAxisV.js" language="javascript" type="text/javascript"></script>
-    <script src="js/dtree.js" language="javascript" type="text/javascript"></script>
     <script  src="js/autocomplete.js" language="javascript" type="text/javascript"></script>
     <title>Kramerius 4</title>
     
