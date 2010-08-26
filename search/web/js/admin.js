@@ -57,7 +57,7 @@ function openProcessDialog() {
     	_processDialog = $("#processes").dialog({
 	        bgiframe: true,
 	        width: 700,
-	        height: 400,
+	        height: 600,
 	        modal: true,
 	        title: dictionary['administrator.menu.dialogs.lrprocesses.title'],
 	        buttons: {
@@ -193,8 +193,8 @@ function importMonographs() {
 		        } 
 		    });
 		}
-		$("#common_started_text").text(dictionary['administrator.dialogs.monographimportrunning']);
-		$("#common_started" ).dialog( "option", "title",  dictionary['administrator.menu.dialogs.replication.title']);
+		$("#common_started_text").text(dictionary['administrator.dialogs.waitingmonographimport']);
+		$("#common_started" ).dialog( "option", "title",  dictionary['administrator.menu.dialogs.importMonograph.title']);
 	
 		_startProcess(url);
     });
@@ -228,7 +228,7 @@ function importPeriodicals() {
 		    });
 		}
 
-		$("#common_started_text").text(dictionary['administrator.dialogs.monographimportrunning']);
+		$("#common_started_text").text(dictionary['administrator.dialogs.waitingperiodicsimport']);
 		$("#common_started" ).dialog( "option", "title",  dictionary['administrator.menu.dialogs.importPeriodical.title']);
 
 		_startProcess(url);
@@ -387,8 +387,8 @@ function deleteUuid(level)  {
 		    });
 		}
 	
-		$("#common_started_text").text(dictionary['administrator.dialogs.waitingexport']);
-		$("#common_started" ).dialog( "option", "title",  dictionary['administrator.menu.dialogs.staticPDF.title']);
+		$("#common_started_text").text(dictionary['administrator.dialogs.waitingdelete']);
+		$("#common_started" ).dialog( "option", "title",  dictionary['administrator.menu.deleteuuid']);
 	
 		_startProcess(url);
 	});
