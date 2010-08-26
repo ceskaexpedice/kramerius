@@ -21,20 +21,21 @@
 
 <%-- filter queries --%>
 <c:forEach var="fqs" items="${paramValues.fq}">
-    
-    <c:set var="js"><c:out value="${fn:replace(fqs, '\"', '')}" /></c:set>
-    <c:set var="facetName"><c:out value="${fn:substringBefore(fqs,':')}" /></c:set>
-    <c:set var="facetName"><c:out value="${fn:replace(facetName, '\"', '')}" /></c:set>
-    <c:set var="facetValue"><c:out value="${fn:substringAfter(fqs,':')}" escapeXml="false" /></c:set>
-    <c:set var="facetValue"><c:out value="${fn:replace(facetValue, '\"', '')}" /></c:set>
-    <c:set var="facetValueDisp"><c:out value="${facetValue}" /></c:set>
-    <c:if test="${facetName == 'fedora.model' || facetName == 'document_type' || facetName == 'dostupnost'}">
-        <c:set var="facetValueDisp"><fmt:message bundle="${lctx}" >fedora.model.<c:out value="${facetValueDisp}" /></fmt:message></c:set>
+    <c:if test="${param.suggest!='true'}">
+        <c:set var="js"><c:out value="${fn:replace(fqs, '\"', '')}" /></c:set>
+        <c:set var="facetName"><c:out value="${fn:substringBefore(fqs,':')}" /></c:set>
+        <c:set var="facetName"><c:out value="${fn:replace(facetName, '\"', '')}" /></c:set>
+        <c:set var="facetValue"><c:out value="${fn:substringAfter(fqs,':')}" escapeXml="false" /></c:set>
+        <c:set var="facetValue"><c:out value="${fn:replace(facetValue, '\"', '')}" /></c:set>
+        <c:set var="facetValueDisp"><c:out value="${facetValue}" /></c:set>
+        <c:if test="${facetName == 'fedora.model' || facetName == 'document_type' || facetName == 'dostupnost'}">
+            <c:set var="facetValueDisp"><fmt:message bundle="${lctx}" >fedora.model.<c:out value="${facetValueDisp}" /></fmt:message></c:set>
+        </c:if>
+        <div class="usedFilter">:: <a  class="mainNav" href="javascript:removeNavigation2('<c:out value="${facetName}" />', '<c:out value="${facetValue}" />');">
+        <fmt:message bundle="${lctx}" ><c:out value="${facetName}" /></fmt:message>: <c:out value="${facetValueDisp}"/>&#160;<img src="img/x.png"  border="0" 
+        title="<fmt:message bundle="${lctx}" key="filter.remove_criteria"/>: <c:out value="${facetName}"/>"/>
+            </a></div>
     </c:if>
-    <div class="usedFilter">:: <a  class="mainNav" href="javascript:removeNavigation2('<c:out value="${facetName}" />', '<c:out value="${facetValue}" />');">
-    <fmt:message bundle="${lctx}" ><c:out value="${facetName}" /></fmt:message>: <c:out value="${facetValueDisp}"/>&#160;<img src="img/x.png"  border="0" 
-    title="<fmt:message bundle="${lctx}" key="filter.remove_criteria"/>: <c:out value="${facetName}"/>"/>
-        </a></div>
 </c:forEach>
 
 <%-- advanced params --%>

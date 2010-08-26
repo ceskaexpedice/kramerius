@@ -62,7 +62,7 @@
             <c:set var="hituuid"><x:out select="@name" /></c:set>
             <c:if test="${hituuid==solruuid}">
                 <x:forEach select="./arr[@name='text']/str">
-                (...) <x:out select="." escapeXml="false" /> (...)<br/>
+                (... <x:out select="." escapeXml="false" /> ...)<br/>
                 </x:forEach>
             </c:if>
         </x:forEach>

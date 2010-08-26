@@ -78,10 +78,14 @@
         currentSelectedPage = uuid;
         var pageUrl = "djvu?uuid="+uuid+"&scaledWidth="+imgW;
         var mimeUrl = "djvu?uuid="+uuid+"&imageType=ask";
+        
         var img = '<a class="lighbox" href="javascript:showFullImage(\''+uuid+'\')"><img id="imgBig" src="'+pageUrl+'" alt="" width="'+imgW+'px" border="0" onerror="showError();"  /></a>';
         checkArrows();
         if($('#imgBig').attr('src').indexOf(uuid)==-1){
-            $('#mainContent').html(img);
+            //$('#mainContent').html(img);
+            $('#mainContent>div>a').attr('href', 'javascript:showFullImage(\''+uuid+'\')');
+            $('#mainContent>a').attr('href', 'javascript:showFullImage(\''+uuid+'\')');
+            $('#mainContent>a>img').attr('src', pageUrl);
         }
 
         $.get(mimeUrl, function(data){
@@ -115,8 +119,6 @@
     var fullImageHeight;
     var maxScroll = 0;
     function showFullImage(uuid){
-            
-        
         $('#mainItemTable').hide();
         //return;
         if(fullDialog){
@@ -151,12 +153,14 @@
         //alert(currentMime);
         var fullUrl = "djvu?uuid="+currentSelectedPage+"&outputFormat=RAW";
         if(currentMime.indexOf('djvu') > 0){
-            //$('#djvuContainer').hide();
-            $('#djvuContainer>object>param[name="src"]').attr('value', fullUrl);
-            $('#djvuContainer>object>embed').attr('src', fullUrl);
-            $('#djvuContainer').show();
-        }else if(currentMime.indexOf('pdf') > 0){
+            //$('#djvuContainer>object>param[name="src"]').attr('value', fullUrl);
+            //$('#djvuContainer>object>embed').attr('src', fullUrl);
             
+            $('#djvuContainer>iframe').attr('src', fullUrl);
+            $('#djvuContainer').show();
+            
+        }else if(currentMime.indexOf('pdf') > 0){
+            //$('#djvuContainer>iframe').attr('src', fullUrl);
             $('#pdfContainer').show();
         }else{
             $('#imgContainer').show();
@@ -291,6 +295,22 @@
         
 
     });
+    
+    function resizeFullImage(){
+        $('#fullImageContainer').dialog('option', {
+                left:0, 
+                top:0, 
+                height:$(window).height()-vertMargin, 
+                width:$(window).width()-horMargin
+        });
+    }
+    var resizeTimer = null;
+    $(window).bind('resize', function() {
+        
+            if (resizeTimer) clearTimeout(resizeTimer);
+            resizeTimer = setTimeout(resizeFullImage, 100);
+        
+    }); 
 </script>
 <style>
     #tv_container{

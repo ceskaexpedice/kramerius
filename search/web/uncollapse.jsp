@@ -48,31 +48,7 @@
     <span><x:out select="./int[@name='pages_count']"/></span>
     </x:if>
     <span><c:out value="${collapseCount}" escapeXml="false" /></span>
-    <%--
-    <x:choose>
-        <x:when select="./str[@name='fedora.model'] = 'monograph2'">
-            <%@ include file="inc/results/monograph.jsp" %>
-        </x:when>
-        <x:when select="./str[@name='fedora.model'] = 'monographunit2'">
-            <%@ include file="inc/results/monographunit.jsp" %>
-        </x:when>
-        <x:when select="./str[@name='fedora.model'] = 'page2'">
-            <%@ include file="inc/results/page.jsp" %>
-        </x:when>
-        <x:when select="./str[@name='fedora.model'] = 'periodical2'">
-            <%@ include file="inc/results/periodical.jsp" %>
-        </x:when>
-        <x:when select="./str[@name='fedora.model'] = 'periodicalvolume2'">
-            <%@ include file="inc/results/periodicalvolume.jsp" %>
-        </x:when>
-        <x:when select="./str[@name='fedora.model'] = 'periodicalitem2'">
-            <%@ include file="inc/results/periodicalitem.jsp" %>
-        </x:when>
-        <x:otherwise>
-            <%@ include file="inc/results/default.jsp" %>
-        </x:otherwise>
-    </x:choose>
-    --%>
+    
     </div>
 </x:forEach>
     <%@ include file="inc/paginationPageNum.jsp" %>
