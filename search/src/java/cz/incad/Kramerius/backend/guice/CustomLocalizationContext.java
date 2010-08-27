@@ -37,55 +37,8 @@ public class CustomLocalizationContext extends LocalizationContext {
 		this.bundleService = bundleService;
 		this.requestsProvider = requestProvider;
 
-		boolean copyDefaults = true;
-		File[] listFiles = this.bundleService.bundlesFolder().listFiles();
-		if (listFiles != null) {
-			for (File file : listFiles) {
-				if (file.getName().equals("labels"+".properties")) {
-					copyDefaults =  false;
-					break;
-				}
-			}
-		}
-		try {
-			if (copyDefaults) copyDefault();
-		} catch (IOException e) {
-			LOGGER.log(Level.SEVERE, e.getMessage(), e);;
-		}
 	}
 
-	private void copyDefault() throws IOException {
-		String[] defaults = 
-		{
-		"labels_en.properties",
-		"labels_cs.properties"
-		};
-		for (String base : defaults) {
-			InputStream is = null;
-			OutputStream os = null;
-			try {
-				is = this.getClass().getClassLoader().getResourceAsStream(base);
-				os = new FileOutputStream(new File(this.bundleService.bundlesFolder(),base));
-				copyStreams(is, os);
-			} finally {
-				if (os != null) os.close();
-				if (is != null) is.close();
-			}
-		}
-		
-		// cs locale as default
-		InputStream is = null;
-		OutputStream os = null;
-		try {
-			is = this.getClass().getClassLoader().getResourceAsStream("labels_cs.properties");
-			os = new FileOutputStream(new File(this.bundleService.bundlesFolder(),"labels.properties"));
-			copyStreams(is, os);
-		} finally {
-			if (os != null) os.close();
-			if (is != null) is.close();
-		}
-
-	}
 
 	@Override
 	public Locale getLocale() {
