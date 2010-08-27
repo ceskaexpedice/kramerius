@@ -6,11 +6,11 @@
         <tbody>
             <tr><td colspan="2"><strong>Metadata<strong></strong></strong></td></tr>
             <tr>
-                <td>ISSN/ISBN</td>
+                <td><fmt:message bundle="${lctx}" key="filter.query.isbnissn" /></td>
                 <td><input type="text" value="<c:out value="${param.issn}" />" size="20" name="issn"></td>
             </tr>
             <tr>
-                <td>Název titulu</td>
+                <td><fmt:message bundle="${lctx}" key="filter.query.title" /></td>
                 <td><input type="text" value="<c:out value="${param.title}" />" size="20" name="title"></td>
             </tr>
             <tr>
@@ -22,11 +22,11 @@
                 <td><input type="text" value="<c:out value="${param.rok}" />" size="10" name="rok"></td>
             </tr>
             <tr>
-                <td>MDT</td>
+                <td><fmt:message bundle="${lctx}" key="filter.query.mdt" /></td>
                 <td><input type="text" value="<c:out value="${param.udc}" />" size="20" name="udc"></td>
             </tr>
             <tr>
-                <td>DDT</td>
+                <td><fmt:message bundle="${lctx}" key="filter.query.ddt" /></td>
                 <td><input type="text" value="<c:out value="${param.ddc}" />" size="20" name="ddc"></td>
             </tr>
             <tr>
