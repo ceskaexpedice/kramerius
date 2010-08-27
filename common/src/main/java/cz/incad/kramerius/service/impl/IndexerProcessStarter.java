@@ -14,6 +14,7 @@ public class IndexerProcessStarter {
 
 
 	public static void spawnIndexer(String title, String uuid) {
+		log.info("Spawn indexer: title: "+title+" uuid: "+uuid);
 		String base = System.getProperty(ProcessStarter.LR_SERVLET_URL);
 	    if (base == null || uuid == null){
 	    	log.severe("Cannot start indexer, invalid arguments: base:"+base+" uuid:"+uuid);
@@ -37,6 +38,7 @@ public class IndexerProcessStarter {
 	}
 
 	public static void spawnIndexRemover(String pid_path, String uuid) {
+		log.info("spawnIndexRemower: pid_path: "+pid_path+" uuid: "+uuid);
 		String base = System.getProperty(ProcessStarter.LR_SERVLET_URL);
 	    if (base == null || pid_path == null || uuid == null){
 	    	log.severe("Cannot start indexer, invalid arguments: base:"+base+" uuid:"+uuid+" pid_path:"+pid_path);

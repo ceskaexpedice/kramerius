@@ -53,6 +53,7 @@ public class PolicyServiceImpl implements PolicyService {
     }
 
     private void setPolicyForNode(String pid, String policyName) {
+    	LOGGER.fine("Set policy pid: "+pid+" policy: "+policyName);
         setPolicyDC(pid, policyName);
         setPolicyRELS_EXT(pid, policyName);
         setPolicyPOLICY(pid, policyName);
@@ -140,10 +141,12 @@ public class PolicyServiceImpl implements PolicyService {
      */
     
     public static void main(String[] args) {
+    	LOGGER.info("PolicyService: "+args);
         PolicyServiceImpl inst = new PolicyServiceImpl();
         inst.fedoraAccess = new FedoraAccessImpl(null);
         inst.configuration = KConfiguration.getInstance();
         inst.setPolicy("uuid:"+args[1], args[0]);
         IndexerProcessStarter.spawnIndexer("", args[1]);
+        LOGGER.info("PolicyService finished.");
     }
 }

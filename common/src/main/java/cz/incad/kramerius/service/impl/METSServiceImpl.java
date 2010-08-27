@@ -44,9 +44,11 @@ public class METSServiceImpl implements METSService {
 	 * args[0] uuid of the root object (without uuid: prefix)
 	 */
 	public static void main(String[] args) {
+		LOGGER.info("METS Service: "+args);
 		METSServiceImpl inst = new METSServiceImpl();
 		inst.fedoraAccess = new FedoraAccessImpl(null);
 		inst.configuration = KConfiguration.getInstance();
 		inst.exportMETS("uuid:" + args[0],System.out);
+		LOGGER.info("METS Service finished.");
 	}
 }

@@ -42,6 +42,7 @@ public class ExportServiceImpl implements ExportService {
         IOUtils.cleanDirectory(exportDirectory);
         for (String s : pids) {
         	String p = s.replace(INFO, "");
+        	LOGGER.fine("Exporting "+p);
             store(exportDirectory, p, fedoraAccess.getAPIM().export(p, "info:fedora/fedora-system:FOXML-1.1", "archive"));
         }
     }
@@ -73,9 +74,11 @@ public class ExportServiceImpl implements ExportService {
      * args[0] uuid of the root object (without uuid: prefix)
      */
     public static void main(String[] args) {
+    	LOGGER.info("Export service: "+args);
         ExportServiceImpl inst = new ExportServiceImpl();
         inst.fedoraAccess = new FedoraAccessImpl(null);
         inst.configuration = KConfiguration.getInstance();
         inst.exportTree("uuid:"+args[0]);
+        LOGGER.info("ExportService finished.");
     }
 }
