@@ -28,6 +28,7 @@ import cz.incad.kramerius.MostDesirable;
 import cz.incad.kramerius.security.IsUserInRoleDecision;
 import cz.incad.kramerius.service.ResourceBundleService;
 import cz.incad.kramerius.utils.conf.KConfiguration;
+import cz.incad.kramerius.utils.imgs.ImageMimeType;
 
 /**
  * View helper object for creating one context menu
@@ -197,7 +198,9 @@ public class ItemMenuViewObject {
 			items.add(persistentURL());
 			try {
 				if (fedoraAccess.isContentAccessible(uuid)) {
-					items.add(dynamicPDF());
+			        if (!bornDigital()) {
+	                    items.add(dynamicPDF());
+			        }
 				}
 			} catch (IOException e) {
 				LOGGER.log(Level.SEVERE, e.getMessage(), e);
@@ -207,18 +210,29 @@ public class ItemMenuViewObject {
         return items;
     }
 
+    
+    /**
+     * Tests whether document is born digital document (only PDF at this moment) 
+     * @return
+     * @throws IOException
+     */
+    private boolean bornDigital() throws IOException {
+        // born digital contains IMG_FULL stream and its mimetype is application/pdf
+        boolean bornDigital = false;
+        boolean imageFullContains = fedoraAccess.isImageFULLAvailable(uuid);
+        if (imageFullContains) {
+            String smimeType = fedoraAccess.getMimeTypeForStream("uuid:"+uuid, "IMG_FULL");
+            ImageMimeType mimeType = ImageMimeType.loadFromMimeType(smimeType);
+            if ((mimeType != null) && (mimeType == ImageMimeType.PDF)){
+                bornDigital = true;
+            }
+        }
+        return bornDigital;
+    }
+
     public List<String> getAdminMenuItems() {
         List<String> items = new ArrayList<String>();
         if (httpServletRequest.getRemoteUser() != null) {
-//			if (userInRoleDecision.isUserInRole("static_export_CD")) {
-//				try {
-//					if (fedoraAccess.isContentAccessible(uuid)) {
-//						items.add(exportPDF());
-//					}
-//				} catch (IOException e) {
-//					LOGGER.log(Level.SEVERE, e.getMessage(), e);
-//				}
-//			}
 			if (userInRoleDecision.isUserInRole(KrameriusRoles.REINDEX)) {
 				items.add(reindex());
 			}
@@ -235,9 +249,6 @@ public class ItemMenuViewObject {
 			if (userInRoleDecision.isUserInRole(KrameriusRoles.EXPORT)) {
 				items.add(exportTOFOXML());
 			}
-//			items.add(convertAndImport());
-//			items.add(importFOXML());
-			
 		}
         return items;
     }
