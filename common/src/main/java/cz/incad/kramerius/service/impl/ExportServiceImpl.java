@@ -8,6 +8,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.Arrays;
 import java.util.Set;
 import java.util.logging.Logger;
 
@@ -42,7 +43,7 @@ public class ExportServiceImpl implements ExportService {
         IOUtils.cleanDirectory(exportDirectory);
         for (String s : pids) {
         	String p = s.replace(INFO, "");
-        	LOGGER.fine("Exporting "+p);
+        	LOGGER.info("Exporting "+p);
             store(exportDirectory, p, fedoraAccess.getAPIM().export(p, "info:fedora/fedora-system:FOXML-1.1", "archive"));
         }
     }
@@ -74,7 +75,7 @@ public class ExportServiceImpl implements ExportService {
      * args[0] uuid of the root object (without uuid: prefix)
      */
     public static void main(String[] args) {
-    	LOGGER.info("Export service: "+args);
+    	LOGGER.info("Export service: "+Arrays.toString(args));
         ExportServiceImpl inst = new ExportServiceImpl();
         inst.fedoraAccess = new FedoraAccessImpl(null);
         inst.configuration = KConfiguration.getInstance();

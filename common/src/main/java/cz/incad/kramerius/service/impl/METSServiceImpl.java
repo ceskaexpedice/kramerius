@@ -6,6 +6,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.Arrays;
 import java.util.logging.Logger;
 
 import com.google.inject.Inject;
@@ -44,7 +45,7 @@ public class METSServiceImpl implements METSService {
 	 * args[0] uuid of the root object (without uuid: prefix)
 	 */
 	public static void main(String[] args) {
-		LOGGER.info("METS Service: "+args);
+		LOGGER.info("METS Service: "+Arrays.toString(args));
 		METSServiceImpl inst = new METSServiceImpl();
 		inst.fedoraAccess = new FedoraAccessImpl(null);
 		inst.configuration = KConfiguration.getInstance();

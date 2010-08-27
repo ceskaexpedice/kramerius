@@ -1,5 +1,6 @@
 package cz.incad.kramerius.service.impl;
 
+import java.util.Arrays;
 import java.util.Set;
 import java.util.logging.Logger;
 
@@ -29,7 +30,7 @@ public class DeleteServiceImpl implements DeleteService {
         Set<String> pids = fedoraAccess.getPids(pid);
         for (String s : pids) {
         	String p = s.replace(INFO, "");
-        	LOGGER.fine("Deleting object: "+p);
+        	LOGGER.info("Deleting object: "+p);
             fedoraAccess.getAPIM().purgeObject(p, message, false);
         }
     }
@@ -39,7 +40,7 @@ public class DeleteServiceImpl implements DeleteService {
      * args[1] pid_path to root object
      */
     public static void main(String[] args){
-    	LOGGER.info("DeleteService: "+args);
+    	LOGGER.info("DeleteService: "+Arrays.toString(args));
         DeleteServiceImpl inst = new DeleteServiceImpl();
         inst.fedoraAccess = new FedoraAccessImpl(null);
         inst.deleteTree("uuid:"+args[0], null);

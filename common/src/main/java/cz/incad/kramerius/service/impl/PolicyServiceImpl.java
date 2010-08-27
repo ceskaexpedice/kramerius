@@ -2,6 +2,7 @@ package cz.incad.kramerius.service.impl;
 
 import java.io.ByteArrayInputStream;
 import java.io.StringWriter;
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.Set;
 import java.util.logging.Logger;
@@ -53,7 +54,7 @@ public class PolicyServiceImpl implements PolicyService {
     }
 
     private void setPolicyForNode(String pid, String policyName) {
-    	LOGGER.fine("Set policy pid: "+pid+" policy: "+policyName);
+    	LOGGER.info("Set policy pid: "+pid+" policy: "+policyName);
         setPolicyDC(pid, policyName);
         setPolicyRELS_EXT(pid, policyName);
         setPolicyPOLICY(pid, policyName);
@@ -141,7 +142,7 @@ public class PolicyServiceImpl implements PolicyService {
      */
     
     public static void main(String[] args) {
-    	LOGGER.info("PolicyService: "+args);
+    	LOGGER.info("PolicyService: "+Arrays.toString(args));
         PolicyServiceImpl inst = new PolicyServiceImpl();
         inst.fedoraAccess = new FedoraAccessImpl(null);
         inst.configuration = KConfiguration.getInstance();
