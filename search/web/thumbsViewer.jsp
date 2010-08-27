@@ -76,6 +76,7 @@
     function selectPage(uuid){
         $('.tv_image').removeClass('tv_img_selected');
         currentSelectedPage = uuid;
+        $("#tabs_"+getMaxLevel()).attr('pid', currentSelectedPage);
         var pageUrl = "djvu?uuid="+uuid+"&scaledWidth="+imgW;
         var mimeUrl = "djvu?uuid="+uuid+"&imageType=ask";
         
