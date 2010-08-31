@@ -5,11 +5,17 @@ import java.awt.Rectangle;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.net.MalformedURLException;
+import java.text.DateFormat;
+import java.text.ParseException;
 import java.util.Calendar;
+import java.util.Date;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.xml.xpath.XPathExpressionException;
+
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
 
 import com.google.inject.Inject;
 import com.google.inject.name.Named;
@@ -19,11 +25,24 @@ import cz.incad.Kramerius.backend.guice.GuiceServlet;
 import cz.incad.kramerius.FedoraAccess;
 import cz.incad.kramerius.security.SecurityException;
 import cz.incad.kramerius.utils.FedoraUtils;
+import cz.incad.kramerius.utils.XMLUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 import cz.incad.kramerius.utils.imgs.KrameriusImageSupport;
+import cz.incad.utils.SafeSimpleDateFormat;
 
 public class AbstracThumbnailServlet extends GuiceServlet {
 
+    protected static final DateFormat [] XSD_DATE_FORMATS =
+    {
+      new SafeSimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'.'S'Z'"),
+      new SafeSimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'"),
+      new SafeSimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'.'S"), 
+      new SafeSimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss"),
+      new SafeSimpleDateFormat("yyyy-MM-dd'Z'"),
+      new SafeSimpleDateFormat("yyyy-MM-dd")
+    };
+
+    
 	/**
 	 * 
 	 */
@@ -109,34 +128,50 @@ public class AbstracThumbnailServlet extends GuiceServlet {
 		if ((format.equals(OutputFormats.JPEG)) || 
 			(format.equals(OutputFormats.PNG))) {
 			resp.setContentType(format.getMimeType());
-
-//			Last Modified   Fri Aug 27 2010 22:32:42 GMT+0200 (CET)
-//			Last Fetched    Fri Aug 27 2010 22:32:43 GMT+0200 (CET)
-//			Expires Tue Aug 31 2010 18:44:30 GMT+0200 (CET)
-			
-			setDateHaders(resp);
-			setResponseCode(req, resp);
 			OutputStream os = resp.getOutputStream();
 			KrameriusImageSupport.writeImageToStream(scaledImage, format.getJavaFormat(), os);
-			
-			
 		} else throw new IllegalArgumentException("unsupported mimetype '"+format+"'");
 	}
 
-    protected void setDateHaders(HttpServletResponse resp) {
+    protected void setDateHaders(String uuid, HttpServletResponse resp) throws IOException {
+        Date lastModifiedDate = lastModified(uuid);
         Calendar instance = Calendar.getInstance();
         instance.roll(Calendar.YEAR, 1);
-        
-        resp.setDateHeader("Last Modified", System.currentTimeMillis());
+        resp.setDateHeader("Last Modified", lastModifiedDate.getTime());
         resp.setDateHeader("Last Fetched", System.currentTimeMillis());
         resp.setDateHeader("Expires", instance.getTime().getTime());
     }
+
+    private Date lastModified(String uuid) throws IOException {
+        Date date = null;
+        Document fullProfile = fedoraAccess.getImageFULLProfile(uuid);
+        Element elm = XMLUtils.findElement(fullProfile.getDocumentElement(), "dsCreateDate", null);
+        if (elm != null) {
+            String textContent = elm.getTextContent();
+            for(DateFormat df:XSD_DATE_FORMATS) {
+                try {
+                    date = df.parse(textContent);
+                    break;
+                } catch (ParseException e) {
+                    //
+                }
+            }
+        }
+        if (date == null) {
+            date = new Date();
+        }
+        return date;
+    }
     
     
-    protected void setResponseCode(HttpServletRequest request, HttpServletResponse response) {
+    protected void setResponseCode(String uuid, HttpServletRequest request, HttpServletResponse response) throws IOException {
         long dateHeader = request.getDateHeader("If-Modified-Since");
         if (dateHeader != -1) {
-            response.setStatus(HttpServletResponse.SC_NOT_MODIFIED);
+            Date reqDate = new Date(dateHeader);
+            Date lastModified = lastModified(uuid);
+            if (lastModified.after(reqDate)) {
+                response.setStatus(HttpServletResponse.SC_NOT_MODIFIED);
+            }
         }
     }
 	protected Image scaleByPercent(Image img, Rectangle pageBounds, double percent) {
