@@ -42,13 +42,22 @@ public class XMLUtils {
 		return retVals;
 	}
 	
+	private static boolean namespacesAreSame(String fNamespace, String sNamespace) {
+	    if ((fNamespace == null) && (sNamespace == null)) {
+	        return true;
+	    } else if (fNamespace != null) {
+	        return fNamespace.equals(sNamespace);
+	    } else return false;
+	}
+	
+	
 	public static Element findElement(Element topElm, String localName , String namespace) {
 		Stack<Element> stack = new Stack<Element>();
 		stack.push(topElm);
 		while(!stack.isEmpty()) {
 			Element curElm = stack.pop();
 			if ((curElm.getLocalName().equals(localName)) && 
-				(curElm.getNamespaceURI().equals(namespace))) {
+			        (namespacesAreSame(curElm.getNamespaceURI(),namespace))) {
 				return curElm;
 			}
 			NodeList childNodes = curElm.getChildNodes();
