@@ -44,7 +44,11 @@ public class ExportServiceImpl implements ExportService {
         for (String s : pids) {
         	String p = s.replace(INFO, "");
         	LOGGER.info("Exporting "+p);
-            store(exportDirectory, p, fedoraAccess.getAPIM().export(p, "info:fedora/fedora-system:FOXML-1.1", "archive"));
+        	try{
+        		store(exportDirectory, p, fedoraAccess.getAPIM().export(p, "info:fedora/fedora-system:FOXML-1.1", "archive"));
+        	}catch(Exception ex){
+        		LOGGER.warning("Cannot export object "+p+", skipping: "+ex);
+        	}
         }
     }
 

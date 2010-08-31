@@ -31,7 +31,11 @@ public class DeleteServiceImpl implements DeleteService {
         for (String s : pids) {
         	String p = s.replace(INFO, "");
         	LOGGER.info("Deleting object: "+p);
-            fedoraAccess.getAPIM().purgeObject(p, message, false);
+        	try{
+        		fedoraAccess.getAPIM().purgeObject(p, message, false);
+        	}catch(Exception ex){
+        		LOGGER.warning("Cannot delete object "+p+", skipping: "+ex);
+        	}
         }
     }
     

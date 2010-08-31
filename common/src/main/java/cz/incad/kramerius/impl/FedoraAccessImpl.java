@@ -476,7 +476,11 @@ public class FedoraAccessImpl implements FedoraAccess {
         processor.process(pid);
         for (RelationshipTuple rel : getAPIM().getRelationships(pid, null)){
             if (TREE_PREDICATES.contains(rel.getPredicate())){
-                processSubtree(rel.getObject(), processor);
+            	try{
+            		processSubtree(rel.getObject(), processor);
+            	}catch (Exception ex){
+            		LOGGER.warning("Error processing subtree, skipping:"+ex);
+            	}
             }
         }
     }

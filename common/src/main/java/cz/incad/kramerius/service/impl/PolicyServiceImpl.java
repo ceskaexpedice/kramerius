@@ -49,7 +49,11 @@ public class PolicyServiceImpl implements PolicyService {
         Set<String> pids = fedoraAccess.getPids(pid);
         for (String s : pids) {
         	String p = s.replace(INFO, "");
-            setPolicyForNode(p, policyName);
+        	try{
+        		setPolicyForNode(p, policyName);
+        	}catch(Exception ex){
+        		LOGGER.warning("Cannot set policy for object "+p+", skipping: "+ex);
+        	}
         }
     }
 
