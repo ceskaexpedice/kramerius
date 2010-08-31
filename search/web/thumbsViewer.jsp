@@ -161,7 +161,7 @@
             $('#djvuContainer').show();
             
         }else if(currentMime.indexOf('pdf') > 0){
-            fullUrl = fullUrl + "&page=" + $('#pdfContainer>input').val();
+            fullUrl = fullUrl + "#page=" + $('#pdfContainer>input').val();
             //alert(fullUrl);
             $('#pdfContainer>iframe').attr('src', fullUrl);
             $('#pdfContainer').show();
