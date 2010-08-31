@@ -64,7 +64,7 @@ public class ThumbnailImageServlet extends AbstracThumbnailServlet {
 				Rectangle rectangle = new Rectangle(image.getWidth(null), image.getHeight(null));
 				Image scale = scale(image, rectangle, req);
 				if (scale != null) {
-					writeImage(resp, scale, OutputFormats.JPEG);
+					writeImage(req, resp, scale, OutputFormats.JPEG);
 				} else resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
 			} else {
 				InputStream is = this.fedoraAccess.getThumbnail(uuid);
@@ -72,10 +72,12 @@ public class ThumbnailImageServlet extends AbstracThumbnailServlet {
 					String mimeType = this.fedoraAccess.getThumbnailMimeType(uuid);
 					if (mimeType == null) mimeType = DEFAULT_MIMETYPE;
 					resp.setContentType(mimeType);
+					setDateHaders(resp);
+					setResponseCode(req, resp);
 					copyStreams(is, resp.getOutputStream());
 				} else {
 					Image rawImage = rawThumbnailImage(uuid,0);
-					writeImage(resp, rawImage, outputFormat);
+					writeImage(req, resp, rawImage, outputFormat);
 				}
 			}
 		} catch(SecurityException e) {
