@@ -130,6 +130,7 @@
     
     <c:if test="${param.format == 'application/pdf'}">
     <div id="pdfContainer" style="display:none;">  
+        <input type="hidden" id="pdfPage" name="pdfPage" value="${itemViewObject.page-1}" />
         <iframe src="" width="100%" height="100%"></iframe>
         <%--
         <object data="djvu?uuid=${itemViewObject.firstUUID}&outputFormat=RAW&page=${itemViewObject.page-1}" type="application/pdf" width="100%" height="100%" page="${itemViewObject.page-1}"></object>
