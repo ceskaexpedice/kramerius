@@ -4,9 +4,9 @@ var _persistentURLDialog;
 function showPersistentURL(level, model) {
 	hideAdminOptions(level);
 	var pid = $("#tabs_"+level).attr('pid');
-	if (level != 1) {
-		pid = $("#tabs_"+level+">div."+model+">div.relList>div.selected").attr('pid');
-	}
+	//if (level != 1) {
+	//	pid = $("#tabs_"+level+">div."+model+">div.relList>div.selected").attr('pid');
+	//}
 	var currentURL = window.location.href;
 	if (currentURL.match("^https")=='https') {
 		currentURL = currentURL.substr('https://'.length, currentURL.length); 
