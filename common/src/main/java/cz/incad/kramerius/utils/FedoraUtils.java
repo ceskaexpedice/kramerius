@@ -8,8 +8,12 @@ package cz.incad.kramerius.utils;
  *
  * @author incad
  */
+import java.io.IOException;
 import java.io.InputStream;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.logging.Level;
 
 import javax.xml.xpath.XPath;
@@ -17,6 +21,7 @@ import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpression;
 import javax.xml.xpath.XPathFactory;
 
+import org.fedora.api.RelationshipTuple;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -64,6 +69,39 @@ public class FedoraUtils {
         return pids;
     }
 
+    //http://localhost:8080/fedora/risearch?type=triples&lang=spo&format=N-Triples&limit=20&query=*%20*%20%3Cinfo:fedora/uuid:4a8a8630-af36-11dd-ae9c-000d606f5dc6%3E
+    //http://localhost:8080/fedora/risearch?type=triples&lang=spo&format=N-Triples&query=*%20*%20*
+    
+    public static List<RelationshipTuple> getSubjectPids(String objectPid){
+    	List<RelationshipTuple> retval = new ArrayList<RelationshipTuple>();
+    	String command = KConfiguration.getInstance().getFedoraHost() + "/risearch?type=triples&lang=spo&format=N-Triples&query=*%20*%20%3Cinfo:fedora/" + objectPid + "%3E";
+    	try {
+			String result = IOUtils.readAsString(RESTHelper.inputStream(command, KConfiguration.getInstance().getFedoraUser(), KConfiguration.getInstance().getFedoraPass()),Charset.forName("UTF-8"),true);
+			String[] lines = result.split("\n");
+			for (String line: lines){
+				String[] tokens = line.split(" ");
+				if (tokens.length<3) continue;
+				try{
+					RelationshipTuple tuple = new RelationshipTuple();
+					tuple.setSubject(tokens[0].substring(1, tokens[0].length()-1));
+					tuple.setPredicate(tokens[1].substring(1, tokens[1].length()-1));
+					tuple.setObject(tokens[2].substring(1, tokens[2].length()-1));
+					tuple.setIsLiteral(false);
+					retval.add(tuple);}
+				catch(Exception ex){
+					LOGGER.info("Problem parsing RDF, skipping line:"+Arrays.toString(tokens)+" : "+ex);
+				}
+			}
+		} catch (Exception e) {
+			LOGGER.log(Level.SEVERE, e.getMessage(), e);
+		}
+		return retval;
+    }
+    
+    public static void main(String[] args){
+    	getSubjectPids("uuid:4a8a8630-af36-11dd-ae9c-000d606f5dc6");
+    }
+    
     public static boolean fillFirstPagePid(ArrayList<String> pids, ArrayList<String> models) {
         
         String pid= pids.get(pids.size()-1);
