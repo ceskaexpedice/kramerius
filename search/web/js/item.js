@@ -229,7 +229,11 @@ function getItemRels(pid, selectedpid, level, recursive, rootModel){
                 var pid2;
                 for(var i=1;i<model2.length;i++){
                     pid2 = model2[i]; 
-                    item = '<div pid="'+pid2+'" id="'+pid2+'" hasbiblio="false" class="relItem '+m+'" title=""' ;
+                    var itemClass = 'relItem '+m;
+                    if(pid2==$("#tabs_" + target_level).attr('pid')){
+                        itemClass += ' selected';
+                    }
+                    item = '<div pid="'+pid2+'" id="'+pid2+'" title="" hasbiblio="false" class="'+itemClass+'"' ;
                     if(m=='page'){
                         item+= ' onclick="selectingPage(this, '+target_level+', \''+ m +'\')" ';
                     }else{
