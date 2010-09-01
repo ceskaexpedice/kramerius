@@ -45,7 +45,7 @@
          pid="<c:out value="${menu.uuid}" />" >
         <ul>
             <li><a
-                    href="#tab<c:out value="${status.count}" />-<c:out value="${itemViewObject.models[status.count -1]}" />"><fmt:message
+                    href="#tab<c:out value="${status.count + level}" />-<c:out value="${itemViewObject.models[status.count -1]}" />"><fmt:message
                         bundle="${lctx}">fedora.model.<c:out
                         value="${itemViewObject.models[status.count -1]}" />
                 </fmt:message> </a><img width="12px" src="img/empty.gif" class="op_list"
