@@ -10,6 +10,9 @@ import com.google.inject.AbstractModule;
 import com.google.inject.Scopes;
 import com.google.inject.name.Names;
 
+import cz.incad.Kramerius.imaging.TileSupport;
+import cz.incad.Kramerius.imaging.impl.CachedTileSupport;
+import cz.incad.Kramerius.imaging.impl.TileSupportImpl;
 import cz.incad.Kramerius.security.RequestIsUserInRoleDecision;
 import cz.incad.kramerius.FedoraAccess;
 import cz.incad.kramerius.MostDesirable;
@@ -70,5 +73,9 @@ public class BaseModule extends AbstractModule {
 		bind(LocalizationContext.class).toProvider(CustomLocalizedContextProvider.class);
 		
 		bind(MostDesirable.class).to(MostDesirableImpl.class);
+		
+		bind(TileSupport.class).annotatedWith(Names.named("rawTileSupport")).to(TileSupportImpl.class);
+        bind(TileSupport.class).annotatedWith(Names.named("cachedTileSupport")).to(CachedTileSupport.class);
+
 	}
 }

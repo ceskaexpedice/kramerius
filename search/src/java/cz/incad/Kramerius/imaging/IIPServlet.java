@@ -1,7 +1,8 @@
-package cz.incad.Kramerius;
+package cz.incad.Kramerius.imaging;
 
 import static cz.incad.kramerius.utils.IOUtils.copyStreams;
 
+import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Image;
@@ -43,12 +44,18 @@ import cz.incad.kramerius.utils.imgs.KrameriusImageSupport;
  */
 public class IIPServlet extends GuiceServlet {
 
+    private static final int TILE_SIZE = 64;
+
     public static final java.util.logging.Logger LOGGER = java.util.logging.Logger
             .getLogger(IIPServlet.class.getName());
     
     @Inject
     @Named("securedFedoraAccess")
     FedoraAccess fedoraAccess;
+    
+    @Inject
+    @Named("cachedTileSupport")
+    TileSupport tileSupport;
     
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
@@ -78,7 +85,6 @@ public class IIPServlet extends GuiceServlet {
             
             Image scaled = cachedConvert(uuid, swidth, cvt);
             KrameriusImageSupport.writeImageToStream(scaled, cvt, resp.getOutputStream());
-            
         } else {
             StringBuffer buffer = new StringBuffer();
             String[] parameterValues = req.getParameterValues(originalNames.get("OBJ"));   
@@ -92,7 +98,6 @@ public class IIPServlet extends GuiceServlet {
                 if (action.equals("Resolution-number")) {
                     resolutionNumber(buffer, uuid, req, resp);
                 }
-                
                 if (action.equals("Horizontal-views")) {
                     horizontalViews(buffer, req, resp);
                 }
@@ -143,46 +148,14 @@ public class IIPServlet extends GuiceServlet {
     }
 
     private HashMap<String, BufferedImage> cacheForTiles = new HashMap<String, BufferedImage>();
-    private BufferedImage cachedTile(String uuid, int displayLevel, int displayTile) {
+    private BufferedImage cachedTile(String uuid, int displayLevel, int displayTile) throws IOException {
         String key = uuid+"_"+displayLevel+"_"+displayTile;
         if (!cacheForTiles.containsKey(key)) {
-            cacheForTiles.put(key, tile(uuid, displayLevel, displayTile));
+            cacheForTiles.put(key, tileSupport.getTile(uuid, displayLevel, displayTile, tileSupport.getTileSize()));
         }
         return cacheForTiles.get(key);
     }
-    private BufferedImage tile(String uuid, int displayLevel, int displayTile) {
-        Image image = cachedImage(uuid);
-        long maxLevel = levels(uuid);
-        int width = image.getWidth(null);
-        int height = image.getHeight(null);
-        long b = (maxLevel-1)-displayLevel;
-        double scale = Math.pow(2, b);
-        
-        int scaledWidth  =(int) (width / scale);
-        int scaledHeight = (int) (height / scale);
-        int rows = scaledHeight / 256;
-        if (scaledHeight % 256 != 0) {rows +=1;}
-        
-        int cols = scaledWidth / 256;
-        if (scaledWidth % 256 != 0) {cols += 1; }
-        
-        Image scaled = KrameriusImageSupport.scale(image, scaledWidth, scaledHeight);
-        int rowTile = displayTile / cols;
-        int colTile = displayTile % cols;
-        
-        int tileStartY = rowTile * 256;
-        int tileStartX = colTile * 256;
-        
-        int tileWidth = Math.min(256, scaledWidth - tileStartX);
-        int tileHeight = Math.min(256, scaledHeight - tileStartY);
-        
-        BufferedImage buffImage = new BufferedImage(tileWidth, tileHeight, BufferedImage.TYPE_INT_RGB);
-        Graphics2D graphics2d = (Graphics2D) buffImage.getGraphics();
-        //graphics2d.drawImage(scaled, 0, 0, tileWidth, tileHeight, tileStartX, tileStartY, scaledWidth, scaledHeight, null);
-        
-        graphics2d.drawImage(scaled, -tileStartX,-tileStartY, null);
-        return buffImage;
-    }
+    
 
     private void empty(StringBuffer buffer, HttpServletRequest req, HttpServletResponse resp) throws IOException {
         String r = "IIP:1.0\n";
@@ -202,8 +175,8 @@ public class IIPServlet extends GuiceServlet {
 
     private void maxSize(StringBuffer buffer, String uuid, HttpServletRequest req,
             HttpServletResponse resp) throws IOException {
-            Image rawImg = cachedImage(uuid);
-            String r = "Max-size:"+rawImg.getWidth(null)+" "+ rawImg.getHeight(null)+"\n";
+            Dimension dim = tileSupport.getMaxSize(uuid);
+            String r = "Max-size:"+dim.getWidth()+" "+ dim.getHeight()+"\n";
             buffer.append(r);
     }
 
@@ -215,20 +188,12 @@ public class IIPServlet extends GuiceServlet {
         
     }
 
-    private Image image(String uuid) throws XPathExpressionException,
-            IOException {
-        Image rawImg = KrameriusImageSupport.readImage(uuid, FedoraUtils.IMG_FULL_STREAM, this.fedoraAccess, 0);
-        return rawImg;
-    }
 
     private HashMap<String, Image> rawImages = new HashMap<String, Image>();
     private Image cachedImage(String uuid) {
         if (!rawImages.containsKey(uuid)) {
             try {
-                rawImages.put(uuid, image(uuid));
-            } catch (XPathExpressionException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
+                rawImages.put(uuid, tileSupport.getRawImage(uuid));
             } catch (IOException e) {
                 // TODO Auto-generated catch block
                 e.printStackTrace();
@@ -239,28 +204,16 @@ public class IIPServlet extends GuiceServlet {
     
 
     private HashMap<String, Long> levels = new HashMap<String, Long>();
-    private long cachedLevels(String uuid) {
+    private long cachedLevels(String uuid) throws IOException {
         if (!levels.containsKey(uuid)) {
-            levels.put(uuid, levels(uuid));
+            levels.put(uuid, tileSupport.getLevels(uuid, tileSupport.getTileSize()));
         }
         return levels.get(uuid);
     }
     
-    private long levels(String uuid) {
-        Image rawImg = cachedImage(uuid);
-        int max = Math.max(rawImg.getHeight(null), rawImg.getWidth(null));
-        int currentMax = max;
-        int level = 1;
-        while(currentMax > 256) {
-            currentMax = currentMax / 2;
-            level+=1;
-        }
-        
-        return level;
-    }
 
     private void tileSize(StringBuffer buffer, HttpServletRequest request, HttpServletResponse res) throws IOException {
-        String r = "Tile-size:256 256\n";
+        String r = "Tile-size:"+tileSupport.getTileSize()+" "+tileSupport.getTileSize()+"\n";
         buffer.append(r);
     }
 
