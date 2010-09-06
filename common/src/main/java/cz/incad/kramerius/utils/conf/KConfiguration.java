@@ -221,6 +221,11 @@ public class KConfiguration {
 	    
 	}
 	
+
+	public String getImagingStorage() {
+	    return getConfiguration().getString("imgstorage", "${sys:user.home}/.kramerius4/deepZoom");
+	}
+	
 	public static void main(String[] args) throws IOException {
 		KConfiguration kconf = KConfiguration.getInstance();
 		Configuration conf = kconf.findAllConfigurations();
