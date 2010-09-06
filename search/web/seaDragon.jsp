@@ -1,4 +1,5 @@
 <!DOCTYPE html>
+<%@page import="cz.incad.kramerius.utils.conf.KConfiguration"%>
 <html>
     <head>
         
@@ -28,6 +29,7 @@
         
     </head>
     <body>
+    <h1><%=KConfiguration.getInstance().getImagingStorage()%></h1>
         <div id="container"></div>
     </body>
 </html>            
