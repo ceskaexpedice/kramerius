@@ -3,7 +3,9 @@ package cz.incad.Kramerius.imaging;
 import java.awt.Dimension;
 import java.awt.Image;
 import java.awt.image.BufferedImage;
+import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.StringTokenizer;
@@ -19,7 +21,10 @@ import com.google.inject.Inject;
 import com.google.inject.name.Named;
 
 import cz.incad.Kramerius.backend.guice.GuiceServlet;
+import cz.incad.Kramerius.imaging.impl.CachingSupport;
 import cz.incad.kramerius.FedoraAccess;
+import cz.incad.kramerius.utils.IOUtils;
+import cz.incad.kramerius.utils.imgs.ImageMimeType;
 import cz.incad.kramerius.utils.imgs.KrameriusImageSupport;
 
 public class DeepZoomServlet extends GuiceServlet {
@@ -32,9 +37,10 @@ public class DeepZoomServlet extends GuiceServlet {
     FedoraAccess fedoraAccess;
     
     @Inject
-    @Named("cachedTileSupport")
     TileSupport tileSupport;
 
+    CachingSupport cachingSupport = new CachingSupport();
+    
     
     @Override
     public void init() throws ServletException {
@@ -59,12 +65,19 @@ public class DeepZoomServlet extends GuiceServlet {
     }
     
     private void renderXML(String uuid, HttpServletResponse resp) throws IOException {
-        StringTemplate template = new StringTemplate("<?xml version=\"1.0\" encoding=\"UTF-8\"?><Image TileSize=\"$tileSize$\" Overlap=\"0\" Format=\"jpg\" xmlns=\"http://schemas.microsoft.com/deepzoom/2008\"><Size Width=\"$width$\" Height=\"$height$\"/></Image>");
-        template.setAttribute("tileSize", tileSupport.getTileSize());
-        Image rawImage = tileSupport.getRawImage(uuid);
-        template.setAttribute("width", rawImage.getWidth(null));
-        template.setAttribute("height", rawImage.getHeight(null));
-        resp.getWriter().println(template.toString());
+        if (!cachingSupport.isDeepZoomDescriptionPresent(uuid)) {
+            Image rawImage = tileSupport.getRawImage(uuid);
+            cachingSupport.writeDeepZoomFullImage(uuid, rawImage);
+            cachingSupport.writeDeepZoomDescriptor(uuid, rawImage, tileSupport.getTileSize());
+        }
+        InputStream inputStream = cachingSupport.openDeepZoomDescriptor(uuid);
+        try {
+            IOUtils.copyStreams(inputStream, resp.getOutputStream());
+        } finally {
+            if (inputStream != null) {
+                inputStream.close();
+            }
+        }
     }
 
     private void renderTile(String uuid, String slevel, String stile, HttpServletRequest req,HttpServletResponse resp) throws IOException {
@@ -76,19 +89,25 @@ public class DeepZoomServlet extends GuiceServlet {
                 StringTokenizer tokenizer = new StringTokenizer(stile,"_");
                 String scol = tokenizer.nextToken();
                 String srow = tokenizer.nextToken();
-                
+                boolean tilePresent = cachingSupport.isDeepZoomTilePresent(uuid, ilevel, Integer.parseInt(srow), Integer.parseInt(scol));
+                if (!tilePresent) {
+                    File dFile = cachingSupport.getDeepZoomLevelsFile(uuid);
+                    long levels = dFile != null ? Integer.parseInt(dFile.getName().substring("levels_".length())) : tileSupport.getLevels(uuid, 1);
+                    double scale = tileSupport.getScale(ilevel, levels);
+                    Dimension scaled = tileSupport.getScaledDimension(tileSupport.getMaxSize(uuid), scale);
+                    int rows = tileSupport.getRows(scaled);
+                    int cols = tileSupport.getCols(scaled);
+                    int base = Integer.parseInt(srow) * cols;
+                    base = base + Integer.parseInt(scol);
+                    
+                    BufferedImage tile = this.tileSupport.getTile(uuid, ilevel, base, 1);
+                    cachingSupport.writeDeepZoomTile(uuid, ilevel, Integer.parseInt(srow), Integer.parseInt(scol), tile);
+                }
 
-                long levels = tileSupport.getLevels(uuid, 1);
-                double scale = tileSupport.getScale(ilevel, levels);
-                Dimension scaled = tileSupport.getScaledDimension(tileSupport.getMaxSize(uuid), scale);
-                int rows = tileSupport.getRows(scaled);
-                int cols = tileSupport.getCols(scaled);
-                int base = Integer.parseInt(srow) * cols;
-                base = base + Integer.parseInt(scol);
-                
-                BufferedImage tile = this.tileSupport.getTile(uuid, ilevel, base, 1);
-                KrameriusImageSupport.writeImageToStream(tile, "JPEG", resp.getOutputStream());
-//                return template.toString();
+                InputStream is = cachingSupport.openDeepZoomTile(uuid, ilevel, Integer.parseInt(srow), Integer.parseInt(scol));
+                resp.setContentType(ImageMimeType.JPEG.getValue());
+                IOUtils.copyStreams(is, resp.getOutputStream());
+//                writeDeepZoomTile(String uuid, int level, int row, int col, Image tileImage) throws IOException {
             }
             
         } catch (NumberFormatException e) {

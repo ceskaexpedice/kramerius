@@ -54,7 +54,6 @@ public class IIPServlet extends GuiceServlet {
     FedoraAccess fedoraAccess;
     
     @Inject
-    @Named("cachedTileSupport")
     TileSupport tileSupport;
     
     @Override
