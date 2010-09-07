@@ -82,12 +82,16 @@
         
         var img = '<a class="lighbox" href="javascript:showFullImage(\''+uuid+'\')"><img id="imgBig" src="'+pageUrl+'" alt="" width="'+imgW+'px" border="0" onerror="showError();"  /></a>';
         checkArrows();
-        if($('#imgBig').attr('src').indexOf(uuid)==-1){
-            //$('#mainContent').html(img);
-            $('#mainContent>div>a').attr('href', 'javascript:showFullImage(\''+uuid+'\')');
-            $('#mainContent>a').attr('href', 'javascript:showFullImage(\''+uuid+'\')');
-            $('#mainContent>a>img').attr('src', pageUrl);
+        if (viewer != null) {
+            viewer.openDzi("deepZoom/"+uuid+"/");
         }
+
+        //if($('#imgBig').attr('src').indexOf(uuid)==-1){
+            //$('#mainContent').html(img);
+            //$('#mainContent>div>a').attr('href', 'javascript:showFullImage(\''+uuid+'\')');
+            //$('#mainContent>a').attr('href', 'javascript:showFullImage(\''+uuid+'\')');
+            //$('#mainContent>a>img').attr('src', pageUrl);
+        //}
 
         $.get(mimeUrl, function(data){
             currentMime = data;
