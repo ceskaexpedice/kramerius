@@ -379,7 +379,7 @@ td.rightMenu .facet{
     background-position:bottom;
     background-repeat:repeat-x;
     vertical-align:top;
-    background-color:white;
+    /*background-color:white;*/
 }
 #mainContent *{
     font-size:10px;
