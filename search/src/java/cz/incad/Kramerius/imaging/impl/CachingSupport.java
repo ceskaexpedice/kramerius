@@ -26,7 +26,7 @@ public class CachingSupport {
     
     
     public void writeDeepZoomDescriptor(String uuid, Image rawImage, int tileSize) throws IOException {
-        StringTemplate template = new StringTemplate("<?xml version=\"1.0\" encoding=\"UTF-8\"?><Image TileSize=\"$tileSize$\" Overlap=\"0\" Format=\"jpg\" xmlns=\"http://schemas.microsoft.com/deepzoom/2008\"><Size Width=\"$width$\" Height=\"$height$\"/></Image>");
+        StringTemplate template = new StringTemplate("<?xml version=\"1.0\" encoding=\"UTF-8\"?><Image TileSize=\"$tileSize$\" Overlap=\"0\" Format=\"png\" xmlns=\"http://schemas.microsoft.com/deepzoom/2008\"><Size Width=\"$width$\" Height=\"$height$\"/></Image>");
         template.setAttribute("tileSize", tileSize);
         template.setAttribute("width", rawImage.getWidth(null));
         template.setAttribute("height", rawImage.getHeight(null));
@@ -58,7 +58,7 @@ public class CachingSupport {
         File rawImageFile = getRawImageFile(uuid);
         FileOutputStream fos = new FileOutputStream(rawImageFile);
         try {
-            KrameriusImageSupport.writeImageToStream(rawImage, "JPEG", fos);
+            KrameriusImageSupport.writeImageToStream(rawImage, "PNG", fos);
         } finally {
             if (fos != null) {
                 fos.close();
@@ -95,7 +95,7 @@ public class CachingSupport {
         File tileImageFile = new File(folder, getTileName(row, col));
         FileOutputStream fos = new FileOutputStream(tileImageFile);
         try {
-            KrameriusImageSupport.writeImageToStream(tileImage, "JPEG", fos);
+            KrameriusImageSupport.writeImageToStream(tileImage, "PNG", fos);
         } finally {
             if (fos != null) {
                 fos.close();
