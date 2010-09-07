@@ -48,7 +48,6 @@ function showPersistentURL(level, model) {
 	$('#'+textFieldID).focus(function() {
 		$(this).select();
 	});
-	
 }
 
 
@@ -333,7 +332,7 @@ var PDF=function() {
 		url:function(level) {
 			hideAdminOptions(level);
 			var uuid = $("#tabs_"+level).attr('pid');
-	        var u = "pdf?uuidFrom=" + uuid+"&uuidTo="+uuid+"&path="+PDF.path(level);
+			var u = "pdf?uuidFrom=" + uuid+"&uuidTo="+uuid+"&path="+PDF.path(level);
 			window.location.href = u;
 		},
 		// sestaveni url dle parametru z dialogu
