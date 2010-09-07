@@ -8,6 +8,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.nio.channels.ReadableByteChannel;
 import java.util.StringTokenizer;
 import java.util.logging.Level;
 
@@ -20,6 +21,7 @@ import org.antlr.stringtemplate.StringTemplate;
 import com.google.inject.Inject;
 import com.google.inject.name.Named;
 
+import cz.incad.Kramerius.AbstractImageServlet;
 import cz.incad.Kramerius.backend.guice.GuiceServlet;
 import cz.incad.Kramerius.imaging.impl.CachingSupport;
 import cz.incad.kramerius.FedoraAccess;
@@ -27,14 +29,11 @@ import cz.incad.kramerius.utils.IOUtils;
 import cz.incad.kramerius.utils.imgs.ImageMimeType;
 import cz.incad.kramerius.utils.imgs.KrameriusImageSupport;
 
-public class DeepZoomServlet extends GuiceServlet {
+public class DeepZoomServlet extends AbstractImageServlet {
 
     public static final java.util.logging.Logger LOGGER = java.util.logging.Logger
             .getLogger(DeepZoomServlet.class.getName());
     
-    @Inject
-    @Named("securedFedoraAccess")
-    FedoraAccess fedoraAccess;
     
     @Inject
     TileSupport tileSupport;
@@ -60,11 +59,13 @@ public class DeepZoomServlet extends GuiceServlet {
             String tile = tokenizer.nextToken();
             renderTile(uuid, level, tile, req, resp);
         } else {
-            renderXML(uuid, resp);
+            renderXML(uuid, req, resp);
         }
     }
     
-    private void renderXML(String uuid, HttpServletResponse resp) throws IOException {
+    private void renderXML(String uuid, HttpServletRequest req, HttpServletResponse resp) throws IOException {
+        setDateHaders(uuid, resp);
+        setResponseCode(uuid, req, resp);
         if (!cachingSupport.isDeepZoomDescriptionPresent(uuid)) {
             Image rawImage = tileSupport.getRawImage(uuid);
             cachingSupport.writeDeepZoomFullImage(uuid, rawImage);
@@ -81,7 +82,8 @@ public class DeepZoomServlet extends GuiceServlet {
     }
 
     private void renderTile(String uuid, String slevel, String stile, HttpServletRequest req,HttpServletResponse resp) throws IOException {
-        
+        setDateHaders(uuid, resp);
+        setResponseCode(uuid, req, resp);
         try {
             int ilevel = Integer.parseInt(slevel);
             if (stile.contains(".")) {

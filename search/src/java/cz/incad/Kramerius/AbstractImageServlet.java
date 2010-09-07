@@ -30,7 +30,7 @@ import cz.incad.kramerius.utils.conf.KConfiguration;
 import cz.incad.kramerius.utils.imgs.KrameriusImageSupport;
 import cz.incad.utils.SafeSimpleDateFormat;
 
-public class AbstracThumbnailServlet extends GuiceServlet {
+public class AbstractImageServlet extends GuiceServlet {
 
     protected static final DateFormat [] XSD_DATE_FORMATS =
     {
@@ -50,7 +50,7 @@ public class AbstracThumbnailServlet extends GuiceServlet {
 
 	
 	public static final java.util.logging.Logger LOGGER = java.util.logging.Logger
-			.getLogger(AbstracThumbnailServlet.class.getName());
+			.getLogger(AbstractImageServlet.class.getName());
 	
 	public static final String SCALE_PARAMETER = "scale";
 	public static final String SCALED_HEIGHT_PARAMETER = "scaledHeight";

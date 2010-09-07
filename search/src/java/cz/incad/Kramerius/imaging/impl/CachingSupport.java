@@ -143,6 +143,7 @@ public class CachingSupport {
         return new FileInputStream(getDeepZoomDescriptor(uuid));
     }
     
+    
     public void writeLevels(String uuid, int levels) throws IOException {
         File oneImageFolder = getOneImageFolder(uuid);
         File levelFile = new File(oneImageFolder, "levels_"+levels);

@@ -21,7 +21,7 @@ import javax.xml.xpath.XPathExpressionException;
 import com.google.inject.Injector;
 import com.google.inject.servlet.GuiceServletContextListener;
 
-import cz.incad.Kramerius.AbstracThumbnailServlet.OutputFormats;
+import cz.incad.Kramerius.AbstractImageServlet.OutputFormats;
 import cz.incad.Kramerius.backend.guice.GuiceServlet;
 import cz.incad.Kramerius.views.ApplicationURL;
 import cz.incad.kramerius.FedoraAccess;
@@ -35,7 +35,7 @@ import cz.incad.utils.IKeys;
  * 
  * @author pavels
  */
-public class ThumbnailImageServlet extends AbstracThumbnailServlet {
+public class ThumbnailImageServlet extends AbstractImageServlet {
 
 	public static final java.util.logging.Logger LOGGER = java.util.logging.Logger
 			.getLogger(ThumbnailImageServlet.class.getName());

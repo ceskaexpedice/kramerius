@@ -47,7 +47,7 @@ import cz.incad.kramerius.utils.conf.KConfiguration;
  * Prepodava DJVU stream
  * @author pavels
  */
-public class FullImageServlet extends AbstracThumbnailServlet {
+public class FullImageServlet extends AbstractImageServlet {
 
 	public static final String DEFAULT_MIMETYPE = "image/x.djvu";
 	public static final String IMAGE_TYPE="imageType"; 
