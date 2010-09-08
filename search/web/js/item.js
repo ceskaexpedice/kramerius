@@ -592,6 +592,27 @@ function hideAdminOptions(level){
     $("#tabs_" + level + ">div>div.menuOptions").toggle();
     //$('#openmenu-'+div).toggle();
 }
+
+function showDeepZoomFile(uuid) {
+	$("#container").hide();
+	$("#loadingDeepZoomImage").show();
+	$.ajax({
+        url:"deepZoom/"+uuid+"/",
+    	complete:function(req,textStatus) {
+			$("#loadingDeepZoomImage").hide();
+			if ((req.status==200) || (req.status==304)) {
+				$("#container").show();
+				$("#securityError").hide();
+				viewer.openDzi("deepZoom/"+uuid+"/");
+			} else if (req.status==403) {
+				$("#container").hide();
+				$("#securityError").show();
+			} else {
+				alert("Chyba serveru");
+			}
+        }
+    });
+}
     
     
     
