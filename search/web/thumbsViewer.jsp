@@ -83,7 +83,7 @@
         var img = '<a class="lighbox" href="javascript:showFullImage(\''+uuid+'\')"><img id="imgBig" src="'+pageUrl+'" alt="" width="'+imgW+'px" border="0" onerror="showError();"  /></a>';
         checkArrows();
         if (viewer != null) {
-            viewer.openDzi("deepZoom/"+uuid+"/");
+			showDeepZoomFile(uuid);
         }
 
         //if($('#imgBig').attr('src').indexOf(uuid)==-1){
