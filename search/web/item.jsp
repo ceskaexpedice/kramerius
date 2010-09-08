@@ -88,15 +88,37 @@
 					        
 					        <script type="text/javascript">
 					            var viewer = null;
-					            
+								
 					            function init() {
-					                viewer = new Seadragon.Viewer("container");
-					                viewer.openDzi("deepZoom/"+currentSelectedPage+"/");
+					            	viewer = new Seadragon.Viewer("container");
+									viewer.clearControls();
+									viewer.addControl(viewer.getNavControl(),  Seadragon.ControlAnchor.TOP_RIGHT);
+									showDeepZoomFile(currentSelectedPage);
 					            }
-					            Seadragon.Utils.addEvent(window, "load", init);
-					        </script>
 
-					        <div id="container" style="padding-top:10px; width: 500px;height: 400px; color: white;"></div>
+					            
+					            Seadragon.Utils.addEvent(window, "load", init);
+								// lokalizace
+								//dictionary['rightMsg']
+					            Seadragon.Strings.setString("Tooltips.FullPage",dictionary["deep.zoom.Tooltips.FullPage"]);
+					            Seadragon.Strings.setString("Tooltips.Home",dictionary["deep.zoom.Tooltips.Home"]);
+					            Seadragon.Strings.setString("Tooltips.ZoomIn",dictionary["deep.zoom.Tooltips.ZoomIn"]);
+					            Seadragon.Strings.setString("Tooltips.ZoomOut",dictionary["deep.zoom.Tooltips.ZoomOut"]);
+
+					            Seadragon.Strings.setString("Errors.Failure",dictionary["deep.zoom.Errors.Failure"]);
+					            Seadragon.Strings.setString("Errors.Xml",dictionary["deep.zoom.Errors.Xml"]);
+					            Seadragon.Strings.setString("Errors.Empty",dictionary["deep.zoom.Errors.Empty"]);
+					            Seadragon.Strings.setString("Errors.ImageFormat",dictionary["deep.zoom.Errors.ImageFormat"]);
+					            
+		            		</script>
+
+							<div id="container" style="padding-top:10px; width: 500px;height: 400px; color: black;"></div>
+							<div id="securityError" style="padding-top:10px; width: 500px;height: 400px; color: black; display:none;">
+								<fmt:message bundle="${lctx}" key="rightMsg"></fmt:message>
+							</div>
+							<div id="loadingDeepZoomImage" style="padding-top:10px; width: 500px;height: 400px; color: black; display:none;">
+								<fmt:message bundle="${lctx}" key="deep.zoom.loadingImage"></fmt:message>
+							</div>
                             <!-- 
                             <a href="javascript:showFullImage('${itemViewObject.imagePid}')" class="lighbox">
                                 <img border="0" width="650px" onerror="showError();" src="${itemViewObject.firstPageImageUrl}" id="imgBig" alt="">
