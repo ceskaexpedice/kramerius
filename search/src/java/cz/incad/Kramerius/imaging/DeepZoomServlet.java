@@ -50,16 +50,19 @@ public class DeepZoomServlet extends AbstractImageServlet {
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         String requestURL = req.getRequestURL().toString();
         String zoomUrl = disectZoom(requestURL);
-        
         StringTokenizer tokenizer = new StringTokenizer(zoomUrl, "/");
         String uuid = tokenizer.nextToken();
-        if (tokenizer.hasMoreTokens()) {
-            String files = tokenizer.nextToken();
-            String level = tokenizer.nextToken();
-            String tile = tokenizer.nextToken();
-            renderTile(uuid, level, tile, req, resp);
+        if (this.fedoraAccess.isContentAccessible(uuid)) {
+            if (tokenizer.hasMoreTokens()) {
+                String files = tokenizer.nextToken();
+                String level = tokenizer.nextToken();
+                String tile = tokenizer.nextToken();
+                renderTile(uuid, level, tile, req, resp);
+            } else {
+                renderXML(uuid, req, resp);
+            }
         } else {
-            renderXML(uuid, req, resp);
+            resp.setStatus(HttpServletResponse.SC_FORBIDDEN);
         }
     }
     
