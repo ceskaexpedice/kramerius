@@ -25,4 +25,9 @@ public interface FedoraNamespaces {
     public static final String KRAMERIUS_URI = "http://www.nsdl.org/ontologies/relationships#";
 
     public static final String BIBILO_MODS_URI = "http://www.loc.gov/mods/v3";
+
+    /**
+     * OAI namespace
+     */
+    public static final String OAI_NAMESPACE_URI = "http://www.openarchives.org/OAI/2.0/";
 }
