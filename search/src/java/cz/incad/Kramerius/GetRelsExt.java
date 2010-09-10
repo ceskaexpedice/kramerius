@@ -194,7 +194,7 @@ public class GetRelsExt extends GuiceServlet {
 							pids.add(new RelationNamePidValue(elm.getLocalName(),objectId));
 						}
 					} else {
-						LOGGER.severe("element '"+elm.getLocalName()+"' namespaceURI '"+elm.getNamespaceURI()+"'");
+						LOGGER.fine("element '"+elm.getLocalName()+"' namespaceURI '"+elm.getNamespaceURI()+"'");
 					}
 				}
 			} else {

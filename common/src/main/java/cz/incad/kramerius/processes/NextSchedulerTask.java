@@ -41,7 +41,7 @@ public class NextSchedulerTask extends TimerTask {
 					lrProcess.startMe(false, this.processScheduler.getApplicationLib(), this.processScheduler.getLrServlet());
 				}
 			}  else {
-				LOGGER.info("no planned process found");
+				LOGGER.fine("no planned process found");
 			}
 		} finally {
 			this.processScheduler.scheduleNextTask();

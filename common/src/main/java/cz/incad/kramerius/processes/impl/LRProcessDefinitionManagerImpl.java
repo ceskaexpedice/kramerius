@@ -59,7 +59,7 @@ public class LRProcessDefinitionManagerImpl implements DefinitionManager {
 		this.configuration = configuration;
 		this.processManager = processManager;
 		this.realLibsDir = defaultLibsdir;
-		LOGGER.info("loading configuration ...");
+		LOGGER.fine("loading configuration ...");
 		this.load();
 		
 	}
@@ -83,7 +83,7 @@ public class LRProcessDefinitionManagerImpl implements DefinitionManager {
 				if (!created) throw new RuntimeException("cannot create directory '"+defaultWorkDir+"'");
 			}
 			
-			LOGGER.info("Loading configuration from jar ");
+			LOGGER.fine("Loading configuration from jar ");
 			byte[] bytes = defaultLPXML().getBytes(Charset.forName("UTF-8"));
 			ByteArrayInputStream bis = new ByteArrayInputStream(bytes);
 			try {

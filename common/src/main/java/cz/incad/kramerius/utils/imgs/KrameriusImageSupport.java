@@ -22,6 +22,7 @@ import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.PDPage;
 import org.apache.pdfbox.util.PDFImageWriter;
 
+import com.lizardtech.djvu.DjVuOptions;
 import com.lizardtech.djvu.DjVuPage;
 import com.lizardtech.djvubean.DjVuImage;
 
@@ -33,6 +34,11 @@ import cz.incad.kramerius.utils.conf.KConfiguration;
 
 public class KrameriusImageSupport {
 
+	static{
+        //disable djvu convertor verbose logging
+        DjVuOptions.out = new java.io.PrintStream ( new java.io.OutputStream() { public void write(int b){} });
+    }
+	
 	public static Image readImage(String uuid, String stream, FedoraAccess fedoraAccess, int page) throws XPathExpressionException, IOException {
 		String mimetype = fedoraAccess.getMimeTypeForStream("uuid:"+uuid, stream);
 		ImageMimeType loadFromMimeType = ImageMimeType.loadFromMimeType(mimetype);

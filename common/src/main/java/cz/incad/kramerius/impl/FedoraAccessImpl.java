@@ -81,7 +81,7 @@ public class FedoraAccessImpl implements FedoraAccess {
 	@Override
 	public Document getRelsExt(String uuid) throws IOException {
 		String relsExtUrl = relsExtUrl(KConfiguration.getInstance(), uuid);
-		LOGGER.info("Reading rels ext +"+relsExtUrl);
+		LOGGER.fine("Reading rels ext +"+relsExtUrl);
 		InputStream docStream = RESTHelper.inputStream(relsExtUrl, KConfiguration.getInstance().getFedoraUser(), KConfiguration.getInstance().getFedoraPass());
 		try {
 			return XMLUtils.parseDocument(docStream, true);
