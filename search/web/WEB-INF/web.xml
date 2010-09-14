@@ -96,6 +96,12 @@
 		<servlet-class>cz.incad.Kramerius.imaging.DeepZoomServlet</servlet-class>
 	</servlet>
 
+	<!-- private content servlet -->
+	<servlet>
+		<servlet-name>privateContentServlet</servlet-name>
+		<servlet-class>cz.incad.Kramerius.PrivateContentsServlet</servlet-class>
+	</servlet>
+
 	<!-- 
 		// Mapovani servletu
 	 -->
@@ -172,6 +178,11 @@
 		<url-pattern>/deepZoom/*</url-pattern>
 	</servlet-mapping>
 
+	<servlet-mapping>
+		<servlet-name>privateContentServlet</servlet-name>
+		<url-pattern>/private</url-pattern>
+	</servlet-mapping>
+	
     <security-role>
         <role-name>krameriusAdmin</role-name>
         <role-name>mock</role-name>
