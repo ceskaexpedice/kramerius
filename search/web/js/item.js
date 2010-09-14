@@ -134,9 +134,13 @@ function selectItem(obj, level, model){
     
     clearThumbs();
     $(obj).addClass('selected');
+    
     var d1 = "#tabs_" + level;
     var pid = $(obj).attr("pid");
     $(d1).attr('pid', pid);
+    
+    setSelection(level, model, pid);
+   
     $(d1 + ">div>div[id=info-"+model+"]").html($(obj).text());
     var d2 = "#tabs_" + (level+1);
     var l = $(d2).tabs('length');
@@ -295,7 +299,7 @@ function getItemRels(pid, selectedpid, level, recursive, rootModel){
     });
 }
 
-//~~~~~~~  common objekt
+
 var COMMON = function() {
 	return {
 		pidpath:function(level) {
@@ -312,7 +316,6 @@ var COMMON = function() {
 }();
 
 
-//~~~~~~~  PDF objekt
 var PDF=function() {
 
 	return {
@@ -501,11 +504,16 @@ var PDF=function() {
 		}
 	}
 }();
-// ~~~~~~~  Konec PDF objektu
-
-
 
 $( ".selector" ).dialog( { buttons: { "Ok": function() { $(this).dialog("close"); } } } );
+
+
+function downloadOriginal(level, model) {
+	var uuid = $("#tabs_"+level).attr('pid');
+	var url = "djvu?uuid="+uuid+"&outputFormat=RAW&page=0&asFile=true";
+	window.location.href = url;
+    hideAdminOptions(level);
+}
 
 function showInfo(obj, tab, model){
     $(obj).toggleClass('op_info');
@@ -579,8 +587,9 @@ function getPageTitle(pid){
 }
 
 function toggleAdminOptions(div){
-    //var divs = "#tabs_" + level + ">div>div.menuOptions";
-    var il = $('#menu-'+div).parent().width() + $('#menu-'+div).parent().offset().left - $('#menu-'+div).width();
+	postProcessContextMenu();
+	
+	var il = $('#menu-'+div).parent().width() + $('#menu-'+div).parent().offset().left - $('#menu-'+div).width();
     $('#menu-'+div).css('left', il);
     $('#menu-'+div).toggle();
     $('#openmenu-'+div).toggle();
@@ -602,18 +611,21 @@ function showDeepZoomFile(uuid) {
 			$("#loadingDeepZoomImage").hide();
 			if ((req.status==200) || (req.status==304)) {
 				$("#container").show();
+				$("#plainImage").hide();
 				$("#securityError").hide();
 				viewer.openDzi("deepZoom/"+uuid+"/");
 			} else if (req.status==403) {
 				$("#container").hide();
+				$("#plainImage").hide();
 				$("#securityError").show();
+			// Deep zoom for this format is not implemented. Standard image will appear.	
+			} else if (req.status==501) {
+				$("#container").hide();
+				$("#securityError").hide();
+				$("#plainImage").show();
 			} else {
 				alert("Chyba serveru");
 			}
         }
     });
 }
-    
-    
-    
-    
