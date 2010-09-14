@@ -25,7 +25,7 @@
     <c:set var="cur_level" value="${status.count + level}" />
     <c:set var="obj" value="#tabs_${cur_level}" />
     <script language="javascript">
-        $(document).ready(function(){
+    	$(document).ready(function(){
             var obj = "<c:out value="${obj}" />";
             var tabTemp = '<li><a href="<c:out value="${href}" />"><c:out value="${label}" /></a><img width="12px" src="img/empty.gif" class="op_list" onclick="showList(this, \''+obj+'\', \'<c:out value="${href}" />\')" /></li>';
             $(obj).tabs({ 
@@ -37,8 +37,9 @@
                     changingTab=true;
                 }
             });
-            
+            ${menu.updateSelection}
         });
+
     </script>
     <c:if test="${!fn:contains(menu.uuid, '@')}">
     <div id="tabs_<c:out value="${cur_level}" />" style="padding: 2px;"
@@ -77,10 +78,12 @@
                          id="list-<c:out value="${itemViewObject.models[status.count -1]}" />"></div>
                     <%@ include file="../../admin/itemOptions.jsp"%>
                     <div id="info-<c:out value="${itemViewObject.models[status.count -1]}" />"
-                         style="min-height: 16px;"><x:transform doc="${xml2}"
-                     xslt="${xslt}">
+                         style="min-height: 16px;">
+                         <x:transform doc="${xml2}" xslt="${xslt}">
                             <x:param name="pid" value="${menu.uuid}" />
-                    </x:transform></div>
+                    	 </x:transform>
+                    	
+                    </div>
                 </c:otherwise>
             </c:choose>
     </c:if>
