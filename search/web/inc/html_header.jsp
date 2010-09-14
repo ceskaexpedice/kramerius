@@ -1,3 +1,4 @@
+<%@page import="cz.incad.Kramerius.views.HeaderViewObject"%>
 <%@ page pageEncoding="UTF-8" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/xml" prefix="x" %>
@@ -52,6 +53,13 @@
 	    <script  src="js/admin.js" language="javascript" type="text/javascript"></script>
 	<% } %>
 
+	<%
+		Injector headerInjector = (Injector)application.getAttribute(Injector.class.getName());
+		HeaderViewObject headerViewObject = new HeaderViewObject();
+		headerInjector.injectMembers(headerViewObject);
+		pageContext.setAttribute("headerViewObject", headerViewObject);
+	%>
+
     <title><fmt:message bundle="${lctx}">application.title</fmt:message></title>
     <script language="JavaScript" type="text/javascript">
         var pagesTitle = "<fmt:message bundle="${lctx}">Stránka</fmt:message>";
@@ -81,16 +89,55 @@
         var generatePdfErrorText = "<fmt:message bundle="${lctx}">generatePdfErrorText</fmt:message>";
         var generatePdfMaxRange = <%=kconfig.getProperty("generatePdfMaxRange")%>;
 
-var dictionary = {
-<%
-			Injector resInj  = (Injector)application.getAttribute(Injector.class.getName());
-			ResourceBundleService resService = resInj.getInstance(ResourceBundleService.class);			
-			Locale locale = resInj.getInstance(Locale.class);
-			ResourceBundle res = resService.getResourceBundle("labels", locale);
-            for (Enumeration e = res.getKeys(); e.hasMoreElements();) {
-                String key = (String)e.nextElement();
-                out.print("'" + key + "':'" + res.getString(key).replace("'", "\\'") + "',");
-			}
-%>jedennavic:''};
+		// chraneny obsah
+		var protectedContents={};
+        
+		// localization
+		${headerViewObject.dictionary}
+		// security context
+		${headerViewObject.securityConfiguration}
+		// selekce
+		${headerViewObject.levelsModelSelectionArray}
+
+		
+		// upravuje polozky menu tak aby byly resp. nebyly videt
+		// presunout jinam, ale kam? 
+		function postProcessContextMenu() {
+			// polozky, ktere jsou viditelne (neviditelne) jenom kvuli roli
+			$(".adminMenuItems").each(function(menuindex, menuelm) {
+				$(menuelm).children("div").each(function(itemidex,itemelm){
+					var roleDiv = $(itemelm).children("div._data_x_role");
+					// role element
+					if ((roleDiv.length == 1) && (roleDiv.text() != '')) {
+						var acceptingRole = roleDiv.text();
+						if (jsSecurityContext[acceptingRole] == undefined) {
+							$(itemelm).hide();
+						} else if (jsSecurityContext[acceptingRole] == true) {
+							$(itemelm).show();
+						} else {
+							$(itemelm).hide();
+						}
+					}
+					// vic dotazu.. optimalizovat.. 
+					var ipCheckDiv =  $(itemelm).children("div._data_x_ipchecked");
+					if (ipCheckDiv.length == 1) {
+						if (!jsSecurityContext['privateIp']) {
+							var url = "private?uuids=";
+							for(var key in levelModelsSelection) {
+								url = url+levelModelsSelection[key]+"/";
+							}
+							$.get(url, function(data) {
+								protectedContents = eval(data);
+								if (protectedContents[ipCheckDiv.text()]) {
+									$(itemelm).hide();
+								} else {
+									$(itemelm).show();
+								}
+							});
+						} 
+					}
+				});
+		    });
+		}
     </script>
 </head>
