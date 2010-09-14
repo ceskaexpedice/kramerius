@@ -9,7 +9,9 @@
 <%@page import="cz.incad.Kramerius.ThumbnailImageServlet"%>
 
 <script type="text/javascript">
-    var currentSelectedPage;
+	var currentSelectedPageRights;
+
+	var currentSelectedPage;
     var currentSelectedParent;
     var arrowsW = 70;
     var loadedImages = 0;
@@ -45,7 +47,6 @@
                 var d2 = "#tabs_" + (maxLevel-1);
                 var pid = $(d1+">div.page>div.relList>div:first").attr("pid");
                 changeSelection($(d2).attr("pid"),pid);
-                //showInfo($(d1+">ul>li>img"), d1, 'page');
             }
             checkArrows();
         }
@@ -76,7 +77,13 @@
     function selectPage(uuid){
         $('.tv_image').removeClass('tv_img_selected');
         currentSelectedPage = uuid;
+        var level = getMaxLevel()
+		setSelection(level,"page",uuid);
+
+        
+		
         $("#tabs_"+getMaxLevel()).attr('pid', currentSelectedPage);
+
         var pageUrl = "djvu?uuid="+uuid+"&scaledWidth="+imgW;
         var mimeUrl = "djvu?uuid="+uuid+"&imageType=ask";
         
@@ -85,17 +92,10 @@
         if (viewer != null) {
 			showDeepZoomFile(uuid);
         }
-
-        //if($('#imgBig').attr('src').indexOf(uuid)==-1){
-            //$('#mainContent').html(img);
-            //$('#mainContent>div>a').attr('href', 'javascript:showFullImage(\''+uuid+'\')');
-            //$('#mainContent>a').attr('href', 'javascript:showFullImage(\''+uuid+'\')');
-            //$('#mainContent>a>img').attr('src', pageUrl);
-        //}
-
         $.get(mimeUrl, function(data){
             currentMime = data;
         });
+        
         $('#img'+getMaxLevel()+'_'+uuid).toggleClass('tv_img_selected');
         changeSelectedPage(uuid);
     }
@@ -117,6 +117,7 @@
         //$('#mainContent').html('<div align="center" style="height:300px;" >' + dictionary['rightMsg'] + '</div>');
         $('#imgBig').attr('alt', dictionary['rightMsg']);
     }
+    
     var fullDialog;
     var vertMargin = 20;
     var horMargin = 17;
@@ -212,11 +213,7 @@
     }
     function changeSelection(masterUuid, selection) {
         currentSelectedParent = masterUuid;
-        
-        // momentalne zobrazeny 
-        
         var to = $('#img'+getMaxLevel()+'_' + selection).offset().left - tvContainerLeft + $("#tv_container").attr("scrollLeft") - ($("#tv_container").width()/2) ;
-        
         var maxScroll = $("#tv_container").attr("scrollWidth") - $("#tv_container").width();
         var to2 = 0;
         if(maxScroll > 0){
@@ -233,14 +230,6 @@
      var tvContainerLeft;
     function slideTo(pos, selection){
         $("#tv_slider").slider("value", pos);
-        
-        //testujeme jestli obrazek je cely videt
-        
-        //var r = $('#img_' + selection).offset().left + $('#img_' + selection).width();
-        //if(r>tvContainerRight){
-        //    var pos2 = r - tvContainerLeft;
-        //    slideTo(pos2, selection);
-        //}
     }
     function getImgContainerWidth() {
         return "900px";	

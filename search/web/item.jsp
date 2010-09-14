@@ -27,8 +27,6 @@
 
 <%@ include file="inc/initVars.jsp" %>
 
-
-
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
 
 <%@page import="java.io.InputStream"%>
@@ -72,16 +70,6 @@
                     <tr>
                         <td valign="top" align="center" width="20px"><a class="prevArrow"  href="javascript:selectPrevious();"><img src="img/la.png" border="0" /></a></td>
                         <td valign="top" align="center" id="mainContent">
-							<!-- 
-                            <div style="position:relative;top:0px;">
-
-                            <div style="position:absolute;top:3px;right:3px;">
-                                <a href="javascript:showFullImage('${itemViewObject.imagePid}')"><img border="0" src="img/lupa_shadow.png" align="right" alt="" />
-                                </a>
-                            </div>
-                            </div>
-							 -->
-							 
 		        			<script type="text/javascript" 
         		      			src="http://seadragon.com/ajax/0.8/seadragon-min.js">
 					        </script>
@@ -96,10 +84,8 @@
 									showDeepZoomFile(currentSelectedPage);
 					            }
 
-					            
 					            Seadragon.Utils.addEvent(window, "load", init);
 								// lokalizace
-								//dictionary['rightMsg']
 					            Seadragon.Strings.setString("Tooltips.FullPage",dictionary["deep.zoom.Tooltips.FullPage"]);
 					            Seadragon.Strings.setString("Tooltips.Home",dictionary["deep.zoom.Tooltips.Home"]);
 					            Seadragon.Strings.setString("Tooltips.ZoomIn",dictionary["deep.zoom.Tooltips.ZoomIn"]);
@@ -119,11 +105,10 @@
 							<div id="loadingDeepZoomImage" style="padding-top:10px; width: 500px;height: 400px; color: black; display:none;">
 								<fmt:message bundle="${lctx}" key="deep.zoom.loadingImage"></fmt:message>
 							</div>
-                            <!-- 
-                            <a href="javascript:showFullImage('${itemViewObject.imagePid}')" class="lighbox">
-                                <img border="0" width="650px" onerror="showError();" src="${itemViewObject.firstPageImageUrl}" id="imgBig" alt="">
-                            </a>
-                             -->
+                            
+                            <div id="plainImage" style="padding-top:10px; width: 650px; color: black; display:none;">
+                                <img border="0" src="${itemViewObject.firstPageImageUrl}" id="imgBig"></img>
+                            </div>
                             
                             </td>
                         <td valign="top" align="center" width="20px"><a class="nextArrow"  href="javascript:selectNext();"><img src="img/ra.png" border="0" /></a></td>
@@ -178,9 +163,6 @@
     <div id="pdfContainer" style="display:none;">  
         <input type="hidden" id="pdfPage" name="pdfPage" value="${itemViewObject.page}" />
         <iframe src="" width="100%" height="100%"></iframe>
-        <%--
-        <object data="djvu?uuid=${itemViewObject.firstUUID}&outputFormat=RAW&page=${itemViewObject.page-1}" type="application/pdf" width="100%" height="100%" page="${itemViewObject.page-1}"></object>
-        --%>
     </div>
     </c:if>
     <div id="imgContainer" style="display:none;" align="center">
