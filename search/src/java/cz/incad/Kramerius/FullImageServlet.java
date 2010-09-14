@@ -11,6 +11,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -41,6 +42,7 @@ import cz.incad.kramerius.FedoraAccess;
 import cz.incad.kramerius.FedoraNamespaces;
 import cz.incad.kramerius.intconfig.InternalConfiguration;
 import cz.incad.kramerius.security.SecurityException;
+import cz.incad.kramerius.utils.DCUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 
 /**
@@ -88,14 +90,24 @@ public class FullImageServlet extends AbstractImageServlet {
 				} else resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
 			// transformace	
 			} else {
-
 				InputStream is = this.fedoraAccess.getImageFULL(uuid);
 				if (outputFormat.equals(OutputFormats.RAW)) {
-					String mimeType = this.fedoraAccess.getImageFULLMimeType(uuid);
+				    String asFileParam = req.getParameter("asFile");
+				    
+				    String mimeType = this.fedoraAccess.getImageFULLMimeType(uuid);
 					if (mimeType == null) mimeType = DEFAULT_MIMETYPE;
 					resp.setContentType(mimeType);
 					setDateHaders(uuid, resp);
 					setResponseCode(uuid, req, resp);
+					if ((asFileParam != null) && (asFileParam.equals("true"))) {
+					    Document dc = this.fedoraAccess.getDC(uuid);
+					    String title = DCUtils.titleFromDC(dc);
+					    if (title == null) {
+					        title = "unnamed";
+					    }
+					    String fileSuffix = mimeType.substring(mimeType.indexOf('/')+1);
+					    resp.setHeader("Content-disposition","attachment; filename="+title+"."+fileSuffix);
+					}
 					copyStreams(is, resp.getOutputStream());
 				} else {
 					Image rawImage = rawFullImage(uuid, req, page);
@@ -117,9 +129,6 @@ public class FullImageServlet extends AbstractImageServlet {
 	public static String fullImageServlet(HttpServletRequest request) {
 		return ApplicationURL.urlOfPath(request, InternalConfiguration.get().getProperties().getProperty("servlets.mapping.fullImage"));
 	}
-
-	
-	
 
 //	static class XPATHFedoraNamespaceContext implements NamespaceContext {
 //

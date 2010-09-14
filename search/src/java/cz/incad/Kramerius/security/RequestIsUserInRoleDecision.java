@@ -26,8 +26,8 @@ public class RequestIsUserInRoleDecision implements IsUserInRoleDecision {
 	@Override
 	public boolean isUserInRole(String roleName) {
 		boolean flag = this.provider.get().isUserInRole(roleName);
-		if ((!flag) && (!roleName.equals(KrameriusRoles.KRAMERIUS_ADMIN))) {
-			if (this.provider.get().isUserInRole(KrameriusRoles.KRAMERIUS_ADMIN)) return true;
+		if ((!flag) && (!roleName.equals(KrameriusRoles.KRAMERIUS_ADMIN.getRoleName()))) {
+			if (this.provider.get().isUserInRole(KrameriusRoles.KRAMERIUS_ADMIN.getRoleName())) return true;
 		}
 		return flag;
 	}

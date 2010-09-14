@@ -287,7 +287,7 @@ public class LongRunningProcessServlet extends GuiceServlet {
 		};
 
 		static boolean isInProcessAdminRole(IsUserInRoleDecision userInRoleDecision) {
-			return userInRoleDecision.isUserInRole(KrameriusRoles.LRPROCESS_ADMIN);
+			return userInRoleDecision.isUserInRole(KrameriusRoles.LRPROCESS_ADMIN.getRoleName());
 		}
 
 		abstract void doAction(ServletContext context,  HttpServletRequest req, HttpServletResponse resp, DefinitionManager defManager, LRProcessManager processManager, IsUserInRoleDecision userInRoleDecision, IPaddressChecker iPaddressChecker);

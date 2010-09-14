@@ -15,6 +15,7 @@ import java.util.logging.Level;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.xml.xpath.XPathExpressionException;
 
 import org.antlr.stringtemplate.StringTemplate;
 
@@ -48,24 +49,38 @@ public class DeepZoomServlet extends AbstractImageServlet {
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        String requestURL = req.getRequestURL().toString();
-        String zoomUrl = disectZoom(requestURL);
-        StringTokenizer tokenizer = new StringTokenizer(zoomUrl, "/");
-        String uuid = tokenizer.nextToken();
-        if (this.fedoraAccess.isContentAccessible(uuid)) {
-            if (tokenizer.hasMoreTokens()) {
-                String files = tokenizer.nextToken();
-                String level = tokenizer.nextToken();
-                String tile = tokenizer.nextToken();
-                renderTile(uuid, level, tile, req, resp);
+        try {
+            String requestURL = req.getRequestURL().toString();
+            String zoomUrl = disectZoom(requestURL);
+            StringTokenizer tokenizer = new StringTokenizer(zoomUrl, "/");
+            String uuid = tokenizer.nextToken();
+            if (this.fedoraAccess.isContentAccessible(uuid)) {
+                String stringMimeType = this.fedoraAccess.getImageFULLMimeType(uuid);
+                ImageMimeType mimeType = ImageMimeType.loadFromMimeType(stringMimeType);
+                if ((mimeType != null) && (!hasNoSupportForMimeType(mimeType))) {
+                    resp.setStatus(HttpServletResponse.SC_NOT_IMPLEMENTED);
+                } else {
+                    if (tokenizer.hasMoreTokens()) {
+                        String files = tokenizer.nextToken();
+                        String level = tokenizer.nextToken();
+                        String tile = tokenizer.nextToken();
+                        renderTile(uuid, level, tile, req, resp);
+                    } else {
+                        renderXML(uuid, req, resp);
+                    }
+                }
             } else {
-                renderXML(uuid, req, resp);
+                resp.setStatus(HttpServletResponse.SC_FORBIDDEN);
             }
-        } else {
-            resp.setStatus(HttpServletResponse.SC_FORBIDDEN);
+        } catch (XPathExpressionException e) {
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
         }
     }
     
+    private boolean hasNoSupportForMimeType(ImageMimeType mimeType) {
+        return (!mimeType.equals(ImageMimeType.PDF));
+    }
+
     private void renderXML(String uuid, HttpServletRequest req, HttpServletResponse resp) throws IOException {
         setDateHaders(uuid, resp);
         setResponseCode(uuid, req, resp);

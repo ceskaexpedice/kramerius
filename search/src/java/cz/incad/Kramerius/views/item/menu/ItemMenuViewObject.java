@@ -3,8 +3,10 @@ package cz.incad.Kramerius.views.item.menu;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.ResourceBundle;
 import java.util.StringTokenizer;
 import java.util.logging.Level;
@@ -78,28 +80,37 @@ public class ItemMenuViewObject {
 	private String viewMetadataItem() {
 		String key = "administrator.menu.showmetadata";
 		String jsmethod = "showMainContent";
-		return renderCommonItem(key, jsmethod);
+		return renderCommonItem(key,"none","", jsmethod);
 	}
 
 
 	private String persistentURL() {
 		String key = "administrator.menu.persistenturl";
 		String jsmethod="showPersistentURL";
-		return renderCommonItem(key, jsmethod);
+		return renderCommonItem(key,"none","", jsmethod);
 	}
 	
 
 	private String dynamicPDF() {
 		String key = "administrator.menu.generatepdf";
         if (isPageModel()) {
-            return renderCommonItem(key, "PDF.url");
+            return renderCommonItem(key,"_data_x_ipchecked",uuid, "PDF.url");
 		} else {
-            return renderCommonItem(key, "PDF.generatePDF");
+            return renderCommonItem(key,"_data_x_ipchecked",uuid, "PDF.generatePDF");
 		}
 	}
+	
+	
+    private String downloadOriginal() {
+        String key = "administrator.menu.downloadOriginal";
+        if (isPageModel()) {
+            return renderCommonItem(key,"_data_x_ipchecked",uuid, "downloadOriginal");
+        } else return null;
+    }
+	
 	private String exportPDF() {
         StringTemplate template = new StringTemplate("<div align=\"left\"><a title='$tooltip$' " +
-        "href=\"javascript:generateStatic($level$,'static_export_CD','$imgServlet$','$i18nServlet$','$iso3Country$','$iso3Language$');\">$title$</a> </div>");
+        "href=\"javascript:generateStatic($level$,'static_export_CD','$imgServlet$','$i18nServlet$','$iso3Country$','$iso3Language$');\">$title$</a> <div style=\"display:none\">$role$</div></div>");
 	    String imgServlet = FullImageServlet.fullImageServlet(this.httpServletRequest);
 		String i18nServlet = I18NServlet.i18nServlet(this.httpServletRequest);
 		template.setAttribute("level", (index+1));
@@ -116,50 +127,53 @@ public class ItemMenuViewObject {
 	private String exportMETS() {
 		String key = "administrator.menu.exportMETS";
 		String jsmethod = "showMets";
-		return renderCommonItem(key, jsmethod);
+		return renderCommonItem(key,"none","", jsmethod);
 	}
 	
 	private String reindex() {
 		String key = "administrator.menu.reindex";
 		String jsmethod = "reindex";
-		return renderCommonItem(key, jsmethod);
+		return renderCommonItem(key,"_data_x_role", "reindex", jsmethod);
 	}
 
 	private String deleteFromIndex() {
 	    String jsmethod = "deletefromindex";
 		String key = "administrator.menu.deletefromindex";
-		return renderCommonItem(key, jsmethod);
+		return renderCommonItem(key,"_data_x_role","reindex", jsmethod);
 	}
 
 	private String deleteFromFedora() {
 	    String key = "administrator.menu.deleteuuid";
 	    String jsmethod = "deleteUuid";
-	    return renderCommonItem(key, jsmethod);
+	    return renderCommonItem(key,"_data_x_role","delete", jsmethod);
 	}
 
 	private String changeVisibility() {
 	    String key = "administrator.menu.setpublic";
 	    String jsmethod = "changeFlag";
-        return renderCommonItem(key, jsmethod);
+        return renderCommonItem(key,"_data_x_role","setprivate", jsmethod);
 	}
 
 	private String exportTOFOXML() {
         String key = "administrator.menu.exportFOXML";
         String jsmethod = "exportTOFOXML";
-        return renderCommonItem(key, jsmethod);
+        return renderCommonItem(key,"_data_x_role", "export", jsmethod);
 	}
 
-    private String renderCommonItem(String key, String jsmethod) {
+    private String renderCommonItem(String key, String dataType, String value, String jsmethod) {
         StringTemplate template = getCommonTemplate();
         jsmethod(template, jsmethod);
 	    titleAndTooltip(template, key);
         levelAndModel(template);
+        template.setAttribute("datatype", dataType);
+        template.setAttribute("value", value);
         return template.toString();
     }
 
     private StringTemplate getCommonTemplate() {
         StringTemplate template = new StringTemplate("<div align=\"left\"><a title='$tooltip$' " +
-	    		"href=\"javascript:$jsmethod$($level$,'$model$');\">$title$</a> </div>");
+	    		"href=\"javascript:$jsmethod$($level$,'$model$');\">$title$</a> " +
+	    		"<div class=\"$datatype$\" style=\"display:none\">$value$</div></div>");
         return template;
     }
 
@@ -176,9 +190,6 @@ public class ItemMenuViewObject {
         template.setAttribute("model", this.itemViewObject.getModels().get(this.index));
         template.setAttribute("level", (index+1));
     }
-    
-    
-    
 	
 	/**
 	 * Create menu items
@@ -197,11 +208,12 @@ public class ItemMenuViewObject {
 			items.add(viewMetadataItem());
 			items.add(persistentURL());
 			try {
-				if (fedoraAccess.isContentAccessible(uuid)) {
-			        if (!bornDigital()) {
-	                    items.add(dynamicPDF());
-			        }
-				}
+		        if (!bornDigital()) {
+                    items.add(dynamicPDF());
+                    if (this.isPageModel()) {
+                        items.add(downloadOriginal());
+                    }
+		        }
 			} catch (IOException e) {
 				LOGGER.log(Level.SEVERE, e.getMessage(), e);
 			}
@@ -233,22 +245,22 @@ public class ItemMenuViewObject {
     public List<String> getAdminMenuItems() {
         List<String> items = new ArrayList<String>();
         if (httpServletRequest.getRemoteUser() != null) {
-			if (userInRoleDecision.isUserInRole(KrameriusRoles.REINDEX)) {
-				items.add(reindex());
-			}
-			if (userInRoleDecision.isUserInRole(KrameriusRoles.REINDEX)) {
-				items.add(deleteFromIndex());
-			}
-			if (userInRoleDecision.isUserInRole(KrameriusRoles.DELETE)) {
-				items.add(deleteFromFedora());
-			}
-			if ((userInRoleDecision.isUserInRole(KrameriusRoles.SETPUBLIC)) && 
-				(userInRoleDecision.isUserInRole(KrameriusRoles.SETPRIVATE))) {
-				items.add(changeVisibility());
-			}
-			if (userInRoleDecision.isUserInRole(KrameriusRoles.EXPORT)) {
-				items.add(exportTOFOXML());
-			}
+            items.add(reindex());
+            items.add(deleteFromIndex());
+            items.add(deleteFromFedora());
+            items.add(changeVisibility());
+            items.add(exportTOFOXML());
+//			if (userInRoleDecision.isUserInRole(KrameriusRoles.REINDEX)) {
+//			}
+//			if (userInRoleDecision.isUserInRole(KrameriusRoles.REINDEX)) {
+//			}
+//			if (userInRoleDecision.isUserInRole(KrameriusRoles.DELETE)) {
+//			}
+//			if ((userInRoleDecision.isUserInRole(KrameriusRoles.SETPUBLIC)) && 
+//				(userInRoleDecision.isUserInRole(KrameriusRoles.SETPRIVATE))) {
+//			}
+//			if (userInRoleDecision.isUserInRole(KrameriusRoles.EXPORT)) {
+//			}
 		}
         return items;
     }
@@ -274,5 +286,12 @@ public class ItemMenuViewObject {
         //<c:out value="${kconfig.fedoraHost}" />/get/uuid:<c:out value="${uuid}" />/BIBLIO_MODS
 		return this.kConfiguration.getFedoraHost()+"/get/uuid:"+this.uuid+"/BIBLIO_MODS";
 	}
-
+	
+	public String getUpdateSelection() {
+	    StringTemplate template = new StringTemplate("setSelection($level$,'$model$','$uuid$');");
+	    template.setAttribute("level", (index+1));
+	    template.setAttribute("model", model);
+	    template.setAttribute("uuid", uuid);
+	    return template.toString();
+	}
 }
