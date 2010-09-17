@@ -6,6 +6,7 @@ import java.sql.Connection;
 import com.google.gwt.benchmarks.client.Setup;
 import com.google.inject.AbstractModule;
 import com.google.inject.Scopes;
+import com.google.inject.name.Named;
 import com.google.inject.name.Names;
 
 import cz.incad.kramerius.FedoraAccess;
@@ -24,8 +25,7 @@ public class DefinitionModule extends AbstractModule {
 	protected void configure() {
 		KConfiguration testConf = KConfiguration.getInstance();
 		bind(KConfiguration.class).toInstance(testConf);
-		bind(Connection.class).toProvider(ConProvider4T.class);
-
+		bind(Connection.class).annotatedWith(Names.named("kramerius4")).toProvider(ConProvider4T.class);
 		bind(FedoraAccess.class).to(FedoraAccessImpl.class);
 
 		// long running process modul
