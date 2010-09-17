@@ -168,4 +168,8 @@ public class ItemViewObject {
         return Integer.parseInt(parameter);
     }
     
+    
+    public String getDeepZoomURL() {
+        return null;
+    }
 }
