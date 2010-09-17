@@ -8,11 +8,20 @@ import java.util.Date;
 
 import cz.incad.kramerius.processes.LRProcess;
 
+/**
+ * Utility class which contains method for manipulation of most desirable objects
+ * @author pavels
+ */
 public class MostDesirableDatabaseUtils {
 
 	public static final java.util.logging.Logger LOGGER = java.util.logging.Logger
 			.getLogger(MostDesirableDatabaseUtils.class.getName());
-	
+
+	/**
+	 * Creating mostdesirable table
+	 * @param con
+	 * @throws SQLException
+	 */
 	public static void createTable(Connection con) throws SQLException {
 		PreparedStatement prepareStatement = null;
 		try {
@@ -25,6 +34,13 @@ public class MostDesirableDatabaseUtils {
 	}
 
 
+	/**
+	 * Store access to object
+	 * @param con Database connection 
+	 * @param uuid Uuid of requestiong object
+	 * @param date When
+	 * @throws SQLException
+	 */
 	public static void saveAccess(Connection con, String uuid, Date date) throws SQLException {
 		PreparedStatement prepareStatement = null;
 		try {

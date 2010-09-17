@@ -9,20 +9,34 @@ import javax.naming.InitialContext;
 import javax.naming.NamingException;
 import javax.sql.DataSource;
 
+import com.google.inject.Inject;
 import com.google.inject.Provider;
 
 import cz.incad.kramerius.intconfig.InternalConfiguration;
 
-public class JNDIConnectionProvider implements Provider<Connection>{
-	
+/**
+ * PRovides connection from datasource defined in context.xml
+ * @author pavels
+ */
+public abstract class JNDIConnectionProvider implements Provider<Connection>{
+    
 	public static final java.util.logging.Logger LOGGER = java.util.logging.Logger
 			.getLogger(JNDIConnectionProvider.class.getName());
 	
-	@Override
+	private String jndiLookupName = null;
+	
+	@Inject
+	public JNDIConnectionProvider(String jndiLookupName) {
+        super();
+        this.jndiLookupName = jndiLookupName;
+    }
+
+
+    @Override
 	public Connection get() {
 		try {
 			InitialContext ctx = new InitialContext();
-			DataSource ds = (DataSource) ctx.lookup(InternalConfiguration.get().getProperties().getProperty("jndi.ds"));	
+			DataSource ds = (DataSource) ctx.lookup(this.jndiLookupName);	
 			return ds.getConnection();
 		} catch (NamingException e) {
 			LOGGER.log(Level.SEVERE, e.getMessage(), e);

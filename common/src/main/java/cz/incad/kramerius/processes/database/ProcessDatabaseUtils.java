@@ -16,7 +16,7 @@ import cz.incad.kramerius.processes.LRProcess;
 import cz.incad.kramerius.processes.States;
 
 /**
- * Database helper methods
+ * Utility class which contains methods for manipulation of processes
  * @author pavels
  *
  */

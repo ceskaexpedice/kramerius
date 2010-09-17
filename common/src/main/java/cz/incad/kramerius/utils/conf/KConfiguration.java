@@ -225,7 +225,15 @@ public class KConfiguration {
 	public String getImagingStorage() {
 	    return getConfiguration().getString("imgstorage", "${sys:user.home}/.kramerius4/deepZoom");
 	}
-	
+
+	public String getUrlOfIIPServer() {
+        return getConfiguration().getString("UrlOfIIPserver", "");
+	}
+
+	public String getFedoraDataFolderInIIPServer() {
+            return getConfiguration().getString("fedoraDataFolderOnIIPServer", "");
+    }
+
 	public static void main(String[] args) throws IOException {
 		KConfiguration kconf = KConfiguration.getInstance();
 		Configuration conf = kconf.findAllConfigurations();

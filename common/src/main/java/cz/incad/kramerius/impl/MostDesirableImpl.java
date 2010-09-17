@@ -14,6 +14,7 @@ import java.util.logging.Level;
 
 import com.google.inject.Inject;
 import com.google.inject.Provider;
+import com.google.inject.name.Named;
 
 import cz.incad.kramerius.MostDesirable;
 import cz.incad.kramerius.processes.LRProcess;
@@ -27,7 +28,7 @@ public class MostDesirableImpl implements MostDesirable {
 	private Provider<Connection> provider;
 	
 	@Inject
-	public MostDesirableImpl(Provider<Connection> provider) {
+	public MostDesirableImpl(@Named("kramerius4")Provider<Connection> provider) {
 		super();
 		this.provider = provider;
 	}

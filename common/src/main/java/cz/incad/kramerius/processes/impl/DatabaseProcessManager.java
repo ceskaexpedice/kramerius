@@ -18,6 +18,7 @@ import java.util.logging.Level;
 
 import com.google.inject.Inject;
 import com.google.inject.Provider;
+import com.google.inject.name.Named;
 
 import cz.incad.kramerius.processes.LRProcess;
 import cz.incad.kramerius.processes.LRProcessDefinition;
@@ -41,7 +42,7 @@ public class DatabaseProcessManager implements LRProcessManager {
 	private final Lock reentrantLock = new ReentrantLock();
 	
 	@Inject
-	public DatabaseProcessManager(Provider<Connection> provider, DefinitionManager lrpdm) {
+	public DatabaseProcessManager(@Named("kramerius4")Provider<Connection> provider, DefinitionManager lrpdm) {
 		super();
 		this.provider = provider;
 		this.lrpdm = lrpdm;
