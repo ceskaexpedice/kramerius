@@ -10,6 +10,7 @@ import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.Statement;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.logging.Logger;
 
@@ -19,13 +20,14 @@ import cz.incad.kramerius.utils.conf.KConfiguration;
 public class Enumerator {
     
     public static void main(String[] args) {
+    	log.info("Enumerator: "+Arrays.toString(args));
         Enumerator en = new Enumerator();
         en.getMonographList();
         en.getPeriodicalList();
-       
+        log.info("Enumerator finished.");
     }
 
-    Logger log = Logger.getLogger(Enumerator.class.getName());
+    static Logger log = Logger.getLogger(Enumerator.class.getName());
 
     Connection conn = null;
 
@@ -56,10 +58,15 @@ public class Enumerator {
             Writer wr = new FileWriter(KConfiguration.getInstance().getProperty("migration.periodicals"));
             while (rs.next()) {
                 String issn = rs.getString(1);
-                List<String> volumes = getVolumeList(issn);
-                for (String volume : volumes){
-                    wr.append(issn).append(';').append(volume);
-                    wr.append("\n");
+                try{
+	                List<String> volumes = getVolumeList(issn);
+	                for (String volume : volumes){
+	                    wr.append(issn).append(';').append(volume);
+	                    wr.append("\n");
+	                }
+                }catch(Exception e){
+                	log.severe("Error getting issue list for issn "+issn+" (reason: "+e+")");
+                	wr.append("\nError getting issue list for issn "+issn+" (reason: "+e+")\n\n");
                 }
             }
             wr.close();
