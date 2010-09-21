@@ -41,7 +41,6 @@ public class TitlePageServlet extends GuiceServlet {
 	
 	@Override
 	protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-		
 		String uuid = req.getParameter(UUID_PARAMETER);
 		Document relsExt = fedoraAccess.getRelsExt(uuid);
 		KrameriusModels krameriusModel = fedoraAccess.getKrameriusModel(relsExt);
@@ -70,7 +69,8 @@ public class TitlePageServlet extends GuiceServlet {
 		@Override
 		public void handle(Element elm, FedoraRelationship relation, int level) {
 			try {
-				if (relation == FedoraRelationship.hasPage) {
+				if ((relation == FedoraRelationship.hasPage) && 
+				    (relation == FedoraRelationship.isOnPage))    {
 					String pid = elm.getAttributeNS(RDF_NAMESPACE_URI, "resource");
 					PIDParser pidParse = new PIDParser(pid);
 					pidParse.disseminationURI();
