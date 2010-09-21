@@ -101,9 +101,9 @@ public class ItemMenuViewObject {
 	}
 	
 	
-    private String downloadOriginal() {
+    private String downloadOriginal() throws IOException {
         String key = "administrator.menu.downloadOriginal";
-        if (isPageModel()) {
+        if ((isPageModel()) || (bornDigital())){
             return renderCommonItem(key,"_data_x_ipchecked",uuid, "downloadOriginal");
         } else return null;
     }
@@ -210,10 +210,10 @@ public class ItemMenuViewObject {
 			try {
 		        if (!bornDigital()) {
                     items.add(dynamicPDF());
-                    if (this.isPageModel()) {
-                        items.add(downloadOriginal());
-                    }
 		        }
+                if ((isPageModel()) || (bornDigital())) {
+                    items.add(downloadOriginal());
+                }
 			} catch (IOException e) {
 				LOGGER.log(Level.SEVERE, e.getMessage(), e);
 			}
