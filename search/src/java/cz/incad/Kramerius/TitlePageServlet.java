@@ -92,7 +92,6 @@ public class TitlePageServlet extends GuiceServlet {
 						breakProcess = true;
 					}
 					previousLevel = level;
-			
 				}
 			} catch (DOMException e) {
 				LOGGER.log(Level.SEVERE, e.getMessage(), e);
