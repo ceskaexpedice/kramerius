@@ -69,8 +69,9 @@ public class TitlePageServlet extends GuiceServlet {
 		@Override
 		public void handle(Element elm, FedoraRelationship relation, int level) {
 			try {
-				if ((relation == FedoraRelationship.hasPage) && 
-				    (relation == FedoraRelationship.isOnPage))    {
+				if ((relation == FedoraRelationship.hasPage)
+                                        || (relation == FedoraRelationship.isOnPage))    {
+                                    
 					String pid = elm.getAttributeNS(RDF_NAMESPACE_URI, "resource");
 					PIDParser pidParse = new PIDParser(pid);
 					pidParse.disseminationURI();
@@ -104,7 +105,8 @@ public class TitlePageServlet extends GuiceServlet {
 		
 		@Override
 		public boolean accept(FedoraRelationship relation) {
-			return relation.name().startsWith("has");
+			return relation.name().startsWith("has")
+                                || relation == FedoraRelationship.isOnPage;
 		}
 
 		public String getTitlePageUUID() {
