@@ -70,9 +70,6 @@
                     <tr>
                         <td valign="top" align="center" width="20px"><a class="prevArrow"  href="javascript:selectPrevious();"><img src="img/la.png" border="0" /></a></td>
                         <td valign="top" align="center" id="mainContent">
-		        			<script type="text/javascript" 
-        		      			src="http://seadragon.com/ajax/0.8/seadragon-min.js">
-					        </script>
 					        
 					        <script type="text/javascript">
 					            var viewer = null;
