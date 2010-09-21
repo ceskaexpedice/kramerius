@@ -25,6 +25,7 @@ public class DefinitionModule extends AbstractModule {
 	protected void configure() {
 		KConfiguration testConf = KConfiguration.getInstance();
 		bind(KConfiguration.class).toInstance(testConf);
+		//"kramerius4"
 		bind(Connection.class).annotatedWith(Names.named("kramerius4")).toProvider(ConProvider4T.class);
 		bind(FedoraAccess.class).to(FedoraAccessImpl.class);
 

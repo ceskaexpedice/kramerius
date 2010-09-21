@@ -5,6 +5,9 @@ import java.sql.SQLException;
 
 import com.google.inject.Guice;
 import com.google.inject.Injector;
+import com.google.inject.Key;
+import com.google.inject.Provider;
+import com.google.inject.name.Names;
 
 public abstract class AbstractGuiceTestCase {
 
@@ -30,7 +33,8 @@ public abstract class AbstractGuiceTestCase {
 
 	public Connection connection() {
 		Injector inj = injector();
-		Connection connection = inj.getInstance(Connection.class);
+		Provider<Connection> kramerius4Provider = inj.getProvider(Key.get(Connection.class, Names.named("kramerius4")));
+		Connection connection = kramerius4Provider.get();
 		return connection;
 	}
 
