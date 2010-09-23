@@ -82,7 +82,7 @@
     <xsl:param name="i" />
 
    <!--begin_: Line_by_Line_Output -->
-   <xsl:if test="$i &lt; $DOCCOUNT">
+   <xsl:if test="$i &lt;= $DOCCOUNT">
       
             <doc>
                 <xsl:attribute name="boost">
