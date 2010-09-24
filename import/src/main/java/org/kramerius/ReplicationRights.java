@@ -62,7 +62,7 @@ public class ReplicationRights {
 				int id = rs.getInt(1);
 				log.info("Deleting replication rights for SIGLA:" + sigla + ", id:" + id);
 
-				int updated = st.executeUpdate("delete from replicationright where instituion = "+ id + " ; ");
+				int updated = st.executeUpdate("delete from replicationright where institution = "+ id + " ; ");
 				log.info("Deleted replication rights: " + updated);
 				
 			}
