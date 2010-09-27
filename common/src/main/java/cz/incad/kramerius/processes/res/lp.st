@@ -71,7 +71,7 @@
 		<!--
 		<processOutputURL>processes/imported/_imported.jsp</processOutputURL>
 		-->
-		<javaProcessParameters>-Xmx512m -Xms256m</javaProcessParameters>
+		<javaProcessParameters>-Xmx1024m -Xms512m</javaProcessParameters>
 		<parameters>monographs</parameters>
 		<!--
 		<parameters>
@@ -97,7 +97,7 @@
 		<!--
 		<processOutputURL>processes/imported/_imported.jsp</processOutputURL>
 		-->
-		<javaProcessParameters>-Xmx512m -Xms256m</javaProcessParameters>
+		<javaProcessParameters>-Xmx1024m -Xms512m</javaProcessParameters>
 		<parameters>periodicals</parameters>		
 		<!--
 		<parameters>
@@ -182,7 +182,7 @@
 		<mainClass>org.kramerius.Convert</mainClass>
 		<standardOs>lrOut</standardOs>
 		<errOs>lrErr</errOs>
-		<javaProcessParameters>-Xmx512m -Xms256m</javaProcessParameters>
+		<javaProcessParameters>-Xmx1024m -Xms512m</javaProcessParameters>
 	</process>
 	
 	<process>
