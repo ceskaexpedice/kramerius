@@ -43,6 +43,7 @@
     <script src="js/jquery.cookie.js" type="text/javascript"></script>
 
     <script src="js/pageQuery.js" language="JavaScript" type="text/javascript"></script>
+    <script src="js/docMenu.js" language="JavaScript" type="text/javascript"></script>
     <script src="js/item.js" language="JavaScript" type="text/javascript"></script>
     <script src="js/incad.js" language="JavaScript" type="text/javascript"></script>
     <script src="js/dateAxis_formatV.js" language="javascript" type="text/javascript"></script>

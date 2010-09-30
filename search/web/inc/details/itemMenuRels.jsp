@@ -4,8 +4,17 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt" %>
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 <%@ page isELIgnored="false"%>
+<%@page import="com.google.inject.Injector"%>
+<%@page import="javax.servlet.jsp.jstl.fmt.LocalizationContext"%>
+<%
+	Injector inj = (Injector)application.getAttribute(Injector.class.getName());
+	
 
-
+	// lokalizacni kontext
+	LocalizationContext lctx= inj.getProvider(LocalizationContext.class).get();
+	pageContext.setAttribute("lctx", lctx);
+	
+%>
 <%@ include file="../initVars.jsp" %>
 <c:url var="url" value="${kconfig.solrHost}/select/select" >
     <c:param name="q" >parent_pid:"<c:out value="${param.pid}" />"</c:param>
@@ -16,7 +25,7 @@
 
 <c:catch var="exceptions"> 
         <c:import url="${url}" var="xml" charEncoding="UTF-8"  />
-        <x:parse  xml="${xml}" var="doc"  />
+        <x:parse xml="${xml}" var="doc"  />
         <%--
         <c:import url="xsl/relsextDetails.jsp?language=${param.language}" var="xslt" charEncoding="UTF-8"   />
         <c:import url="xsl/1.xsl" var="xslt" charEncoding="UTF-8"  />
@@ -28,8 +37,8 @@
         </c:when>
         <c:otherwise>
             <%-- generate tabs header --%>  
-            <% out.clear(); %>
-            <x:if select="$doc/response/result/@numFound != '0'">
+            <% out.clear(); 
+            %><x:if select="$doc/response/result/@numFound != '0'">
             <div id="tabs_<c:out value="${param.pid}" />">
             <ul>
             <x:forEach varStatus="status" select="$doc/response/result/doc">

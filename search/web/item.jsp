@@ -10,19 +10,20 @@
 
 
 <%
-	Injector inj = (Injector)application.getAttribute(Injector.class.getName());
-	
-	// view objekt pro stranku = veskera logika 
-	ItemViewObject itemViewObject = new ItemViewObject();
-	inj.injectMembers(itemViewObject);
+            Injector inj = (Injector) application.getAttribute(Injector.class.getName());
 
-	// lokalizacni kontext
-	LocalizationContext lctx= inj.getProvider(LocalizationContext.class).get();
-	pageContext.setAttribute("lctx", lctx);
-	
-	// ukladani nejoblibenejsich 
-	itemViewObject.saveMostDesirable();
-	pageContext.setAttribute("itemViewObject", itemViewObject);
+// view objekt pro stranku = veskera logika 
+            ItemViewObject itemViewObject = new ItemViewObject();
+            inj.injectMembers(itemViewObject);
+            itemViewObject.init();
+
+// lokalizacni kontext
+            LocalizationContext lctx = inj.getProvider(LocalizationContext.class).get();
+            pageContext.setAttribute("lctx", lctx);
+
+// ukladani nejoblibenejsich 
+            itemViewObject.saveMostDesirable();
+            pageContext.setAttribute("itemViewObject", itemViewObject);
 %>
 
 <%@ include file="inc/initVars.jsp" %>
@@ -41,144 +42,144 @@
 <%@page import="cz.incad.kramerius.utils.pid.PIDParser"%><html xmlns="http://www.w3.org/1999/xhtml" xml:lang="cs" lang="cs">
     <%@ include file="inc/html_header.jsp" %>
     <body >
-		<!--  procesy - dialogy -->
-	    <%@ include file="dialogs/_processes_dialogs.jsp" %>
+        <!--  procesy - dialogy -->
+            <%@ include file="dialogs/_processes_dialogs.jsp" %>
         <table style="width:100%" id="mainItemTable"><tr><td align="center">
-		
-        <%@ include file="inc/searchForm.jsp" %>
-        <table>
-            <tr valign='top'>
-                <td><%//@ include file="usedFilters.jsp" %></td>
-            </tr>
-        </table>
-        
-        <table class="main">
-            <tr valign='top'>
-                <td colspan="2" valign="middle" align="center">
-                    <table style="width: 100%"><tr>
-                        <td width="20px" align="center"><a class="prevArrow"  href="javascript:selectPrevious();"><img src="img/la.png" border="0" /></a></td>
-                        <td align="center"><%--<%@ include file="gwtView.jsp" %>--%>
-                        <%@ include file="thumbsViewer.jsp" %></td>
-                        <td width="20px" align="center"><a class="nextArrow"  href="javascript:selectNext();"><img src="img/ra.png" border="0" /></a></td>
-                    </tr></table>
-                    </td>
-            </tr>
-            <tr valign='top'>
-                <td>
                     
-                    <table cellpadding="0" cellspacing="0" width="100%">
-                    <tr>
-                        <td valign="top" align="center" width="20px"><a class="prevArrow"  href="javascript:selectPrevious();"><img src="img/la.png" border="0" /></a></td>
-                        <td valign="top" align="center" id="mainContent">
-					        
-					        <script type="text/javascript">
-					            var viewer = null;
-								
-					            function init() {
-					            	viewer = new Seadragon.Viewer("container");
-									viewer.clearControls();
-									viewer.addControl(viewer.getNavControl(),  Seadragon.ControlAnchor.TOP_RIGHT);
-									showDeepZoomFile(currentSelectedPage);
-					            }
-
-					            Seadragon.Utils.addEvent(window, "load", init);
-								// lokalizace
-					            Seadragon.Strings.setString("Tooltips.FullPage",dictionary["deep.zoom.Tooltips.FullPage"]);
-					            Seadragon.Strings.setString("Tooltips.Home",dictionary["deep.zoom.Tooltips.Home"]);
-					            Seadragon.Strings.setString("Tooltips.ZoomIn",dictionary["deep.zoom.Tooltips.ZoomIn"]);
-					            Seadragon.Strings.setString("Tooltips.ZoomOut",dictionary["deep.zoom.Tooltips.ZoomOut"]);
-
-					            Seadragon.Strings.setString("Errors.Failure",dictionary["deep.zoom.Errors.Failure"]);
-					            Seadragon.Strings.setString("Errors.Xml",dictionary["deep.zoom.Errors.Xml"]);
-					            Seadragon.Strings.setString("Errors.Empty",dictionary["deep.zoom.Errors.Empty"]);
-					            Seadragon.Strings.setString("Errors.ImageFormat",dictionary["deep.zoom.Errors.ImageFormat"]);
-					            
-		            		</script>
-
-							<div id="container" style="padding-top:10px; width: 500px;height: 400px; color: black;"></div>
-							<div id="securityError" style="padding-top:10px; width: 500px;height: 400px; color: black; display:none;">
-								<fmt:message bundle="${lctx}" key="rightMsg"></fmt:message>
-							</div>
-							<div id="loadingDeepZoomImage" style="padding-top:10px; width: 500px;height: 400px; color: black; display:none;">
-								<fmt:message bundle="${lctx}" key="deep.zoom.loadingImage"></fmt:message>
-							</div>
-                            
-                            <div id="plainImage" style="padding-top:10px; width: 650px; color: black; display:none;">
-                                <img border="0" src="${itemViewObject.firstPageImageUrl}" id="imgBig"></img>
-                            </div>
-                            
+                    <%@ include file="inc/searchForm.jsp" %>
+                    <table>
+                        <tr valign='top'>
+                            <td><%//@ include file="usedFilters.jsp" %></td>
+                        </tr>
+                    </table>
+                    
+                    <table class="main">
+                        <tr valign='top'>
+                            <td colspan="2" valign="middle" align="center">
+                                <table style="width: 100%"><tr>
+                                        <td width="20px" align="center"><a class="prevArrow"  href="javascript:selectPrevious();"><img src="img/la.png" border="0" /></a></td>
+                                        <td align="center"><%--<%@ include file="gwtView.jsp" %>--%>
+                                        <%@ include file="thumbsViewer.jsp" %></td>
+                                        <td width="20px" align="center"><a class="nextArrow"  href="javascript:selectNext();"><img src="img/ra.png" border="0" /></a></td>
+                                </tr></table>
                             </td>
-                        <td valign="top" align="center" width="20px"><a class="nextArrow"  href="javascript:selectNext();"><img src="img/ra.png" border="0" /></a></td>
-                    </tr></table>
-                </td>
-                <td class="itemMenu">
-                    <div id="itemTree">
-                        <script>
-                            var firstCalled = false;
-                        </script>
-	                    <%@ include file="inc/details/itemMenu.jsp" %>
-                    </div>
-                </td>
-            </tr>
-            <tr>
-                <td colspan="3" align="right" id="donatorContainer"></td>
-            </tr>
-        </table>
-        <table>
-            <tr valign='top'>
-                <td><%@ include file="templates/footer.jsp" %></td>
-            </tr>
-        </table>
+                        </tr>
+                        <tr valign='top'>
+                            <td>
+                                
+                                <table cellpadding="0" cellspacing="0" width="100%">
+                                    <tr>
+                                        <td valign="top" align="center" width="20px"><a class="prevArrow"  href="javascript:selectPrevious();"><img src="img/la.png" border="0" /></a></td>
+                                        <td valign="top" align="center" id="mainContent">
+                                            
+                                            <script type="text/javascript">
+                                                var viewer = null;
+                                                                
+                                                function init() {
+                                                    viewer = new Seadragon.Viewer("container");
+                                                    viewer.clearControls();
+                                                    viewer.addControl(viewer.getNavControl(),  Seadragon.ControlAnchor.TOP_RIGHT);
+                                                    showDeepZoomFile(currentSelectedPage);
+                                                }
+
+                                                Seadragon.Utils.addEvent(window, "load", init);
+                                                // lokalizace
+                                                Seadragon.Strings.setString("Tooltips.FullPage",dictionary["deep.zoom.Tooltips.FullPage"]);
+                                                Seadragon.Strings.setString("Tooltips.Home",dictionary["deep.zoom.Tooltips.Home"]);
+                                                Seadragon.Strings.setString("Tooltips.ZoomIn",dictionary["deep.zoom.Tooltips.ZoomIn"]);
+                                                Seadragon.Strings.setString("Tooltips.ZoomOut",dictionary["deep.zoom.Tooltips.ZoomOut"]);
+
+                                                Seadragon.Strings.setString("Errors.Failure",dictionary["deep.zoom.Errors.Failure"]);
+                                                Seadragon.Strings.setString("Errors.Xml",dictionary["deep.zoom.Errors.Xml"]);
+                                                Seadragon.Strings.setString("Errors.Empty",dictionary["deep.zoom.Errors.Empty"]);
+                                                Seadragon.Strings.setString("Errors.ImageFormat",dictionary["deep.zoom.Errors.ImageFormat"]);
+                                                    
+                                            </script>
+                                            
+                                            <div id="container" style="padding-top:10px; width: 500px;height: 400px; color: black;"></div>
+                                            <div id="securityError" style="padding-top:10px; width: 500px;height: 400px; color: black; display:none;">
+                                                <fmt:message bundle="${lctx}" key="rightMsg"></fmt:message>
+                                            </div>
+                                            <div id="loadingDeepZoomImage" style="padding-top:10px; width: 500px;height: 400px; color: black; display:none;">
+                                                <fmt:message bundle="${lctx}" key="deep.zoom.loadingImage"></fmt:message>
+                                            </div>
+                                            
+                                            <div id="plainImage" style="padding-top:10px; width: 650px; color: black; display:none;">
+                                                <img border="0" src="${itemViewObject.firstPageImageUrl}" id="imgBig"></img>
+                                            </div>
+                                            
+                                        </td>
+                                        <td valign="top" align="center" width="20px"><a class="nextArrow"  href="javascript:selectNext();"><img src="img/ra.png" border="0" /></a></td>
+                                </tr></table>
+                            </td>
+                            <td class="itemMenu">
+                                <div id="itemTree">
+                                    <script>
+                                        var firstCalled = false;
+                                    </script>
+                                    <%@ include file="inc/details/itemMenu.jsp" %>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td colspan="3" align="right" id="donatorContainer"></td>
+                        </tr>
+                    </table>
+                    <table>
+                        <tr valign='top'>
+                            <td><%@ include file="templates/footer.jsp" %></td>
+                        </tr>
+                    </table>
         </td></tr></table>
-
-<!-- dialogs -->
-<div id="pdf_options" style="display:none;">
-		<h3 id="pdf_desc_head"></h3>
-		<div id="pdf_desc_content"></div>
-		<div id="pdf_page_range" style="margin-top:10px;">
-	        <strong>Rozsah stran:&nbsp;(max.&nbsp;<%=kconfig.getProperty("generatePdfMaxRange")%>)</strong><br>&nbsp;&nbsp;                           
-    	    <input type="text" id="genPdfStart" value="1" name="genPdfStart" size="3" > -
-    	    <input type="text" id="genPdfEnd" value="1" name="genPdfEnd" size="3">
-		</div>
-</div>
-
-
-<div id="fullImageContainer" style="display:none;">
-    <div id="djvuContainer" style="display:none;">
-        <iframe src="" frameborder="0" width="100%" height="100%"></iframe>
-        <%--
+        
+        <!-- dialogs -->
+        <div id="pdf_options" style="display:none;">
+            <h3 id="pdf_desc_head"></h3>
+            <div id="pdf_desc_content"></div>
+            <div id="pdf_page_range" style="margin-top:10px;">
+                <strong>Rozsah stran:&nbsp;(max.&nbsp;<%=kconfig.getProperty("generatePdfMaxRange")%>)</strong><br>&nbsp;&nbsp;                           
+                <input type="text" id="genPdfStart" value="1" name="genPdfStart" size="3" > -
+                <input type="text" id="genPdfEnd" value="1" name="genPdfEnd" size="3">
+            </div>
+        </div>
+        
+        
+        <div id="fullImageContainer" style="display:none;">
+            <div id="djvuContainer" style="display:none;">
+                <iframe src="" frameborder="0" width="100%" height="100%"></iframe>
+                <%--
         <object width="100%" border="0" height="100%" style="border: 0px none ;" codebase="http://www.lizardtech.com/download/files/win/djvuplugin/en_US/DjVuControl_en_US.cab" classid="clsid:0e8d0700-75df-11d3-8b4a-0008c7450c4a" id="docframe" name="docframe">
             <param name="src" value="" />
             <embed width="100%" height="100%" src="" type="image/vnd.djvu" id="docframe2" name="docframe2"/>
             If you don't see picture, your browser has no plugin to view DjVu picture files. You can install plugin from <a target="_blank" href="http://www.celartem.com/en/download/djvu.asp"><b>LizardTech</b></a>.<br/>
             <a href="http://www.celartem.com/en/download/djvu.asp">File download</a><br/> <br/> <br/> 
         </object>
-        --%>
-    </div>
-    
-    <c:if test="${param.format == 'application/pdf'}">
-    <div id="pdfContainer" style="display:none;">  
-        <input type="hidden" id="pdfPage" name="pdfPage" value="${itemViewObject.page}" />
-        <iframe src="" width="100%" height="100%"></iframe>
-    </div>
-    </c:if>
-    <div id="imgContainer" style="display:none;" align="center">
-        <img id="imgFullImage" src="img/empty.gif" />
-    </div>
-    <div id="divFullImageZoom" style="display:none;">
-        <span class="ui-dialog-titlebar-zoom"><fmt:message bundle="${lctx}">velikost</fmt:message>: <select onchange="changeFullImageZoom()" id="fullImageZoom">
-            <option value="width"><fmt:message bundle="${lctx}">šířka okna</fmt:message></option>
-            <option value="height"><fmt:message bundle="${lctx}">výška okna</fmt:message></option>
-            <option value="0.1">10%</option>
-    <option value="0.2" >20%</option>
-    <option value="0.3" >30%</option>
-    <option value="0.4" >40%</option>
-    <option value="0.5" >50%</option>
-    <option value="0.6" >60%</option>
-    <option value="0.7" >70%</option>
-    <option value="0.8" >80%</option>
-    <option value="0.9" >90%</option>
-    <option value="1" selected="selected" >100%</option></select></span>
-    </div>
-</div>
+                --%>
+            </div>
+            
+            <c:if test="${param.format == 'application/pdf'}">
+                <div id="pdfContainer" style="display:none;">  
+                    <input type="hidden" id="pdfPage" name="pdfPage" value="${itemViewObject.page}" />
+                    <iframe src="" width="100%" height="100%"></iframe>
+                </div>
+            </c:if>
+            <div id="imgContainer" style="display:none;" align="center">
+                <img id="imgFullImage" src="img/empty.gif" />
+            </div>
+            <div id="divFullImageZoom" style="display:none;">
+                <span class="ui-dialog-titlebar-zoom"><fmt:message bundle="${lctx}">velikost</fmt:message>: <select onchange="changeFullImageZoom()" id="fullImageZoom">
+                        <option value="width"><fmt:message bundle="${lctx}">šířka okna</fmt:message></option>
+                        <option value="height"><fmt:message bundle="${lctx}">výška okna</fmt:message></option>
+                        <option value="0.1">10%</option>
+                        <option value="0.2" >20%</option>
+                        <option value="0.3" >30%</option>
+                        <option value="0.4" >40%</option>
+                        <option value="0.5" >50%</option>
+                        <option value="0.6" >60%</option>
+                        <option value="0.7" >70%</option>
+                        <option value="0.8" >80%</option>
+                        <option value="0.9" >90%</option>
+                <option value="1" selected="selected" >100%</option></select></span>
+            </div>
+        </div>
 </body></html>

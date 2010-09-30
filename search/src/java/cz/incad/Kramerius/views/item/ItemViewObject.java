@@ -123,6 +123,10 @@ public class ItemViewObject {
         return modifiedPids;
     }
 
+    public void init() {
+        modifiedModelsPids();
+    }
+
     private void modifiedModelsPids() {
         try {
             this.reentrantLock.lock();
@@ -130,7 +134,6 @@ public class ItemViewObject {
                 modifiedPids = new ArrayList<String>(Arrays.asList(getPidPath()));
                 if(modifiedPids.get(modifiedPids.size()-1).indexOf("@")>-1){
                     _page = modifiedPids.get(modifiedPids.size()-1).substring(1);
-                    //modifiedPids.remove(modifiedPids.size()-1);
                 }
                 modifiedModels = new ArrayList<String>(Arrays.asList(getModelsPath()));
                 FedoraUtils.fillFirstPagePid((ArrayList<String>) modifiedPids, (ArrayList<String>) modifiedModels);

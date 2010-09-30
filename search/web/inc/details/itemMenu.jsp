@@ -27,7 +27,7 @@
     <script language="javascript">
     	$(document).ready(function(){
             var obj = "<c:out value="${obj}" />";
-            var tabTemp = '<li><a href="<c:out value="${href}" />"><c:out value="${label}" /></a><img width="12px" src="img/empty.gif" class="op_list" onclick="showList(this, \''+obj+'\', \'<c:out value="${href}" />\')" /></li>';
+            var tabTemp = '<li class="${href}"><a href="<c:out value="${href}" />"><c:out value="${label}" /></a><img width="12px" src="img/empty.gif" class="op_list" onclick="toggleRelsList(this, \'<c:out value="${href}" />\')" /></li>';
             $(obj).tabs({ 
                 tabTemplate: tabTemp,
                 show: function(event, ui){
@@ -45,15 +45,14 @@
     <div id="tabs_<c:out value="${cur_level}" />" style="padding: 2px;"
          pid="<c:out value="${menu.uuid}" />" >
         <ul>
-            <li><a
+            <li class="${itemViewObject.models[status.count -1]}"><a
                     href="#tab<c:out value="${status.count + level}" />-<c:out value="${itemViewObject.models[status.count -1]}" />"><fmt:message
-                        bundle="${lctx}">fedora.model.<c:out
-                        value="${itemViewObject.models[status.count -1]}" />
-                </fmt:message> </a><img width="12px" src="img/empty.gif" class="op_list"
-                                    onclick="showList(this, '#tabs_<c:out value="${cur_level}" />', '<c:out value="${itemViewObject.models[status.count -1]}" />')" /></li>
+                        bundle="${lctx}">fedora.model.<c:out value="${itemViewObject.models[status.count -1]}" /></fmt:message> </a><img width="12px" src="img/empty.gif" class="op_list"
+                                    onclick="toggleRelsList(this, '<c:out value="${itemViewObject.models[status.count -1]}" />')" /></li>
         </ul>
         <div id="tab<c:out value="${cur_level}" />-<c:out value="${itemViewObject.models[status.count -1]}" />"
-            class="<c:out value="${itemViewObject.models[status.count -1]}  ui-tabs-panel ui-widget-content ui-corner-bottom" />"><c:set
+            class="<c:out value="${itemViewObject.models[status.count -1]}  ui-tabs-panel ui-widget-content ui-corner-bottom" />"
+            pid="<c:out value="${menu.uuid}" />"><c:set
                 var="display" value="none" /> <c:catch var="exceptions">
                 <c:choose>
                     <c:when test="${fn:contains(menu.uuid, '@')}">
@@ -78,8 +77,8 @@
                          id="list-<c:out value="${itemViewObject.models[status.count -1]}" />"></div>
                     <%@ include file="../../admin/itemOptions.jsp"%>
                     <div id="info-<c:out value="${itemViewObject.models[status.count -1]}" />"
-                         style="min-height: 16px;">
-                         <x:transform doc="${xml2}" xslt="${xslt}">
+                         style="min-height: 16px;"><x:transform doc="${xml2}"
+                        xslt="${xslt}">
                             <x:param name="pid" value="${menu.uuid}" />
                     	 </x:transform>
                     	
@@ -89,9 +88,7 @@
     </c:if>
     </c:when>
         </c:choose>
-        
         </c:forEach>
-        
         <c:forEach var="model" varStatus="status" items="${itemViewObject.models}">
             <c:choose>
                 <c:when test="${level==0 || status.count>1 && !fn:contains(menu.uuid, '@')}">
@@ -106,9 +103,11 @@
     changingTab = false;
     $(document).ready(function(){
         $('#tabs_1>ul>li>img.op_list').hide();
-        getItemRels('<c:out value="${itemViewObject.firstUUID}" />', '<c:out value="${itemViewObject.firstUUID}" />', <c:out value="${1 + level}" />, true);
-        changeSelection('<c:out value="${itemViewObject.parentUUID}" />','<c:out value="${itemViewObject.lastUUID}" />');
+        //getItemRels('<c:out value="${itemViewObject.firstUUID}" />', '<c:out value="${itemViewObject.firstUUID}" />', <c:out value="${1 + level}" />, true);
+        //changeSelection('<c:out value="${itemViewObject.parentUUID}" />','<c:out value="${itemViewObject.lastUUID}" />');
         
+        getRels(false);
+        selectPage('<c:out value="${itemViewObject.lastUUID}" />');
     });
         
     initParent = '<c:out value="${itemViewObject.parentUUID}" />';

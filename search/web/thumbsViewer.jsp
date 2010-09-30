@@ -17,64 +17,9 @@
     var loadedImages = 0;
     var totalThumbs = 0;
     var currentMime = "unknown";
-        
-    function getMaxLevel(){
-        var maxLevel = 1;
-        var id;
-        var cur;
-        //alert($('.ui-tabs').length);
-        $('.ui-tabs').each(function(index){
-            id = $(this).attr('id');
-            cur = parseInt(id.substr(5));
-            if($('#'+id).is(':visible') && cur>maxLevel){
-                maxLevel = cur;
-            }
-        });
-        return maxLevel;
-    }
-    function updateThumbs(){
-        //alert(currentSelectedPage);
-        //alert(currentSelectedParent);
-        if(changingTab){
-            initPage = null;
-            var maxLevel = getMaxLevel();
-            $('.thumb').hide();
-            $('.inlevel_'+maxLevel).show();
-            if($('#img'+maxLevel+'_'+currentSelectedPage).is(':visible')){
-                changeSelection(currentSelectedParent, currentSelectedPage);
-            }else{
-                var d1 = "#tabs_" + maxLevel;
-                var d2 = "#tabs_" + (maxLevel-1);
-                var pid = $(d1+">div.page>div.relList>div:first").attr("pid");
-                changeSelection($(d2).attr("pid"),pid);
-            }
-            checkArrows();
-        }
-    }
     
-    function addThumb(uuid, display, level){
-        var img = '<td style="display:'+display+';" class="thumb inlevel_'+level+'"><img onload="checkScrollPosition()" id="img'+level+'_'+uuid+
-            '" class="tv_image';
-        if(currentSelectedPage==uuid){
-            img += ' tv_img_selected'
-        }
-        img += '" onclick="selectPage(\''+uuid+'\');" src="thumb?outputFormat=RAW&amp;uuid='+uuid+'" /></td>';
-        $('#tv_container_row').append(img);
-        if(totalThumbs==0){
-            $('#tv').hide();
-        }else{
-            $('#tv').show();
-        }
-        checkArrows();
-    }
-    
-    function clearThumbs(){
-         var level = getMaxLevel();
-        totalThumbs = totalThumbs - $('#tv_container_row>td.inlevel_'+level).length;
-        $('#tv_container_row>td.inlevel_'+level).remove();
-    }
     var imgW;
-    function selectPage(uuid){
+    function _selectPage(uuid){
         $('.tv_image').removeClass('tv_img_selected');
         currentSelectedPage = uuid;
         var level = getMaxLevel()
@@ -98,20 +43,6 @@
         
         $('#img'+getMaxLevel()+'_'+uuid).toggleClass('tv_img_selected');
         changeSelectedPage(uuid);
-    }
-    function checkArrows(){
-        var obj = $('#' + currentSelectedPage).prev();
-        if($(obj).length>0){
-            $('.prevArrow').show();
-        }else{
-            $('.prevArrow').hide();
-        }
-        obj = $('#' + currentSelectedPage).next();
-        if($(obj).length>0){
-            $('.nextArrow').show();
-        }else{
-            $('.nextArrow').hide();
-        }
     }
     function showError(){
         //$('#mainContent').html('<div align="center" style="height:300px;" >' + dictionary['rightMsg'] + '</div>');
@@ -203,17 +134,16 @@
     
     function checkScrollPosition(){
         loadedImages++;
-        //alert(totalThumbs);
         if(loadedImages == totalThumbs){
-        //alert(loadedImages);
-            var to = $('#img_' + currentSelectedPage).offset().left - tvContainerLeft;
+            setInactiveImagesWidth();
+            var to = $('#img_' + currentSelectedPage).offset().left - getImgContainerLeft();
             to = to / $("#tv_container_table").width()  * 100;
-            slideTo(to, currentSelectedPage);
+            slideTo(to);
         }
     }
     function changeSelection(masterUuid, selection) {
         currentSelectedParent = masterUuid;
-        var to = $('#img'+getMaxLevel()+'_' + selection).offset().left - tvContainerLeft + $("#tv_container").attr("scrollLeft") - ($("#tv_container").width()/2) ;
+        var to = $('#img'+getMaxLevel()+'_' + selection).offset().left - getImgContainerLeft() + $("#tv_container").attr("scrollLeft") - ($("#tv_container").width()/2) ;
         var maxScroll = $("#tv_container").attr("scrollWidth") - $("#tv_container").width();
         var to2 = 0;
         if(maxScroll > 0){
@@ -228,12 +158,25 @@
     }
      var tvContainerRight;
      var tvContainerLeft;
-    function slideTo(pos, selection){
+    function slideTo(pos){
+        canScroll = false;
+        maxScroll = $("#tv_container").attr("scrollWidth") - getImgContainerWidth();
         $("#tv_slider").slider("value", pos);
+        $("#tv_container").attr({
+            scrollLeft: pos * (maxScroll / 100)
+        });
+        canScroll = true;
+        
+        //testujeme jestli obrazek je cely videt
+        
+        //var r = $('#img_' + selection).offset().left + $('#img_' + selection).width();
+        //if(r>tvContainerRight){
+        //    var pos2 = r - tvContainerLeft;
+        //    slideTo(pos2, selection);
+        //}
     }
-    function getImgContainerWidth() {
-        return "900px";	
-    }
+    
+    
         
     var sliderCreated = false;
     
@@ -241,13 +184,14 @@
     function tv_SliderChange(e, ui){
         
         //if(maxScroll==0){
-            maxScroll = $("#tv_container").attr("scrollWidth") - $("#tv_container").width();
         //    maxScroll = $("#tv_container").attr("scrollWidth") - $("#tv_container").width();
         //}
         if(canScroll){
+            maxScroll = $("#tv_container").attr("scrollWidth") - getImgContainerWidth();
             $("#tv_container").attr({
                 scrollLeft: ui.value * (maxScroll / 100)
             });
+            activateThumbs();
         }
     }
         
@@ -325,9 +269,21 @@
     .tv_img_multiselect {
         border-bottom:solid gray;
     }
+    .tv_img_inactive{
+        height:128px;
+        background:white  url(img/loading2.gif) no-repeat 50% 50%;
+        
+    }
+    #tv_container tr td div{
+        height:130px;
+        width:128px;
+        border:solid gray 1px;
+        overflow:hidden;
+        background:white url(img/background.png) repeat-x;
+    }
     
 </style>
-<div id="tv" style="display:none;">
+<div id="tv">
 <div id="tv_container">
     <table cellpadding="2" cellspacing="0" id="tv_container_table">
         <tr id="tv_container_row"></tr>

@@ -247,7 +247,7 @@ function reindex(level, model) {
 	var title = $("#info-"+model+" li.value").text();
 	//var escapedTitle = replaceAll(title, ',', '\\');
 
-	var url = "lr?action=start&def=reindex&out=text&params=fromKrameriusModel,"+uuid+","+title;
+	var url = "lr?action=start&def=reindex&out=text&params=reindexDoc,"+uuid+","+title;
     if (_commonDialog) {
 
 		$("#common_started_ok").hide();

@@ -66,180 +66,173 @@ import com.google.inject.name.Named;
  */
 public class GetRelsExt extends GuiceServlet {
 
-	public static final java.util.logging.Logger LOGGER = java.util.logging.Logger
-			.getLogger(GetRelsExt.class.getName());
+    public static final java.util.logging.Logger LOGGER = java.util.logging.Logger.getLogger(GetRelsExt.class.getName());
+    @Inject
+    Provider<Locale> provider;
+    @Inject
+    ResourceBundleService bundleService;
+    @Inject
+    KConfiguration configuration;
+    @Inject
+    @Named("securedFedoraAccess")
+    FedoraAccess fedoraAccess;
 
-	@Inject
-	Provider<Locale> provider;
+    protected void processRequest(HttpServletRequest request,
+            HttpServletResponse response) throws ServletException, IOException {
+        response.setCharacterEncoding("UTF-8");
+        PrintWriter out = response.getWriter();
+        try {
+            ResourceBundle resourceBundle = this.bundleService.getResourceBundle("labels", this.provider.get());
+            String pid = request.getParameter("pid");
+            String relation = request.getParameter("relation");
+            String format = request.getParameter("format");
+            List<RelationNamePidValue> pids = getRdfPids(configuration, pid, relation);
 
-	@Inject
-	ResourceBundleService bundleService;
+            if (format == null) {
+                response.setContentType("text/plain;charset=UTF-8");
+                out.print(simpleList(pids));
+            } else if (format.equals("json")) {
+                response.setContentType("text/plain");
+                out.print(json(pids, resourceBundle));
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+        } finally {
+            out.close();
+        }
+    }
 
-	@Inject
-	KConfiguration configuration;
+    private String simpleList(List<RelationNamePidValue> pids) throws IOException {
+        StringTemplateGroup group = stGroup();
+        StringTemplate simple = group.getInstanceOf("simple");
+        simple.setAttribute("list", pids);
+        return simple.toString();
+    }
 
-	@Inject
-	@Named("securedFedoraAccess")
-	FedoraAccess fedoraAccess;
+    private String json(List<RelationNamePidValue> pids,
+            ResourceBundle resourceBundle) throws IOException {
+        HashMap<String, ArrayList<String>> models = prepareModel(pids);
+        HashMap<String, String> res = new HashMap<String, String>();
+        Iterator<String> keys = resourceBundle.keySet().iterator();
+        while (keys.hasNext()) {
+            String key = keys.next();
+            if (key.startsWith("fedora.model.")) {
+                res.put(key.substring("fedora.model.".length()), resourceBundle.getString(key));
+            }
+        }
 
-	protected void processRequest(HttpServletRequest request,
-			HttpServletResponse response) throws ServletException, IOException {
-		response.setCharacterEncoding("UTF-8");
-		PrintWriter out = response.getWriter();
-		try {
-			ResourceBundle resourceBundle = this.bundleService.getResourceBundle("labels", this.provider.get());
-			String pid = request.getParameter("pid");
-			String relation = request.getParameter("relation");
-			String format = request.getParameter("format");
-			List<RelationNamePidValue> pids = getRdfPids(configuration, pid, relation);
+        StringTemplateGroup group = stGroup();
+        StringTemplate json = group.getInstanceOf("json");
+        json.setAttribute("model", models);
+        json.setAttribute("res", res);
+        return json.toString();
 
-			if (format == null) {
-				response.setContentType("text/plain;charset=UTF-8");
-				out.print(simpleList(pids));
-			} else if (format.equals("json")) {
-				response.setContentType("text/plain");
-				out.print(json( pids,resourceBundle));
-			}
-		} catch (Exception e) {
-			e.printStackTrace();
-			LOGGER.log(Level.SEVERE, e.getMessage(), e);
-		} finally {
-			out.close();
-		}
-	}
+    }
 
-	private String simpleList(List<RelationNamePidValue> pids) throws IOException {
-		StringTemplateGroup group = stGroup();
-		StringTemplate simple = group.getInstanceOf("simple");
-		simple.setAttribute("list", pids);
-		return simple.toString();
-	}
-	
-	private String json(List<RelationNamePidValue> pids,
-			ResourceBundle resourceBundle) throws IOException {
-		HashMap<String, ArrayList<String>> models = prepareModel(pids);
-		HashMap<String, String> res = new HashMap<String, String>();
-		Iterator<String> keys = resourceBundle.keySet().iterator();
-		while(keys.hasNext()) {
-			String key = keys.next(); 
-			if (key.startsWith("fedora.model.")) {
-				res.put(key.substring("fedora.model.".length()), resourceBundle.getString(key));
-			}
-		}
-		
-		StringTemplateGroup group = stGroup();
-		StringTemplate json = group.getInstanceOf("json");
-		json.setAttribute("model", models);
-		json.setAttribute("res", res);
-		return json.toString();
-		
-	}
+    private StringTemplateGroup stGroup() throws IOException {
+        InputStream stream = GetRelsExt.class.getResourceAsStream("GetRelsExt.stg");
+        String string = IOUtils.readAsString(stream, Charset.forName("UTF-8"), true);
+        StringTemplateGroup group = new StringTemplateGroup(new StringReader(string), DefaultTemplateLexer.class);
+        return group;
+    }
 
-	private StringTemplateGroup stGroup() throws IOException {
-		InputStream stream = GetRelsExt.class.getResourceAsStream("GetRelsExt.stg");
-		String string = IOUtils.readAsString(stream, Charset.forName("UTF-8"), true);
-		StringTemplateGroup group = new StringTemplateGroup(new StringReader(string), DefaultTemplateLexer.class);
-		return group;
-	}
+    private HashMap<String, ArrayList<String>> prepareModel(List<RelationNamePidValue> pids) {
+        String model;
+        String rels;
+        HashMap<String, ArrayList<String>> models = new HashMap<String, ArrayList<String>>();
+        for (RelationNamePidValue item : pids) {
+            model = KrameriusModels.toString(RDFModels.convertRDFToModel(item.getRelationName()));
+            rels = item.getPid();
+            if (rels.contains(":")) {
+                rels = rels.substring(rels.indexOf(':'));
+            }
+            if (models.containsKey(model)) {
+                models.get(model).add(rels);
+            } else {
+                ArrayList<String> a = new ArrayList<String>();
+                a.add(rels);
+                models.put(model, a);
+            }
+        }
+        return models;
+    }
 
-	private HashMap<String, ArrayList<String>> prepareModel( List<RelationNamePidValue> pids) {
-		String model;
-		String rels;
-		HashMap<String, ArrayList<String>> models = new HashMap<String, ArrayList<String>>();
-		for (RelationNamePidValue item : pids) {
-			model = KrameriusModels.toString(RDFModels.convertRDFToModel(item.getRelationName()));
-			rels = item.getPid();
-			if (rels.contains(":")) {
-				rels = rels.substring(rels.indexOf(':'));
-			}
-			if (models.containsKey(model)) {
-				models.get(model).add(rels);
-			} else {
-				ArrayList<String> a = new ArrayList<String>();
-				a.add(rels);
-				models.put(model, a);
-			}
-		}
-		return models;
-	}
+    private List<RelationNamePidValue> getRdfPids(KConfiguration configuration,
+            String pid, String relation) throws IOException, XPathExpressionException, LexerException {
 
-	private List<RelationNamePidValue> getRdfPids(KConfiguration configuration,
-			String pid, String relation) throws IOException, XPathExpressionException, LexerException {
+        ArrayList<RelationNamePidValue> pids = new ArrayList<RelationNamePidValue>();
+        Document contentDom = this.fedoraAccess.getRelsExt(pid.substring("uuid:".length()));
+        XPathFactory factory = XPathFactory.newInstance();
+        XPath xpath = factory.newXPath();
+        xpath.setNamespaceContext(new FedoraNamespaceContext());
+        String xPathStr = "/rdf:RDF/rdf:Description/";
+        if (relation.endsWith("*")) {
+            xPathStr += "kramerius:" + relation;
+        } else {
+            xPathStr += "kramerius:" + RDFModels.convertToRdf(KrameriusModels.parseString(relation));
+        }
+        XPathExpression expr = xpath.compile(xPathStr);
+        NodeList nodes = (NodeList) expr.evaluate(contentDom, XPathConstants.NODESET);
+        for (int i = 0; i < nodes.getLength(); i++) {
+            Node childnode = nodes.item(i);
+            if (childnode.getNodeType() == Node.ELEMENT_NODE) {
+                Element elm = (Element) childnode;
+                if (elm.hasAttributes()) {
+                    String attributeVal = elm.getAttributeNS(FedoraNamespaces.RDF_NAMESPACE_URI, "resource");
+                    if ((attributeVal != null) && (!attributeVal.trim().equals(""))) {
+                        PIDParser pidParser = new PIDParser(attributeVal);
+                        pidParser.disseminationURI();
+                        if (pidParser.getNamespaceId().equals("uuid")) {
+                            String objectId = pidParser.getObjectId();
+                            pids.add(new RelationNamePidValue(elm.getLocalName(), objectId));
+                        }
+                    } else {
+                        LOGGER.fine("element '" + elm.getLocalName() + "' namespaceURI '" + elm.getNamespaceURI() + "'");
+                    }
+                }
+            } else {
+                continue;
+            }
+        }
+        return pids;
+    }
 
-		ArrayList<RelationNamePidValue> pids = new ArrayList<RelationNamePidValue>();
-		Document contentDom = this.fedoraAccess.getRelsExt(pid
-				.substring("uuid:".length()));
-		XPathFactory factory = XPathFactory.newInstance();
-		XPath xpath = factory.newXPath();
-		xpath.setNamespaceContext(new FedoraNamespaceContext());
-		String xPathStr = "/rdf:RDF/rdf:Description/";
-		if (relation.endsWith("*")) {
-			xPathStr += "kramerius:" + relation;
-		} else {
-			xPathStr += "kramerius:"+ RDFModels.convertToRdf(KrameriusModels.parseString(relation));
-		}
-		XPathExpression expr = xpath.compile(xPathStr);
-		NodeList nodes = (NodeList) expr.evaluate(contentDom,XPathConstants.NODESET);
-		for (int i = 0; i < nodes.getLength(); i++) {
-			Node childnode = nodes.item(i);
-			if (childnode.getNodeType() == Node.ELEMENT_NODE) {
-				Element elm = (Element) childnode;
-				if (elm.hasAttributes()) {
-					String attributeVal = elm.getAttributeNS(FedoraNamespaces.RDF_NAMESPACE_URI, "resource");
-					if ((attributeVal != null) && (!attributeVal.trim().equals(""))) {
-						PIDParser pidParser = new PIDParser(attributeVal);
-						pidParser.disseminationURI();
-						if (pidParser.getNamespaceId().equals("uuid")) {
-							String objectId = pidParser.getObjectId();
-							pids.add(new RelationNamePidValue(elm.getLocalName(),objectId));
-						}
-					} else {
-						LOGGER.fine("element '"+elm.getLocalName()+"' namespaceURI '"+elm.getNamespaceURI()+"'");
-					}
-				}
-			} else {
-				continue;
-			}
-		}
-		return pids;
-	}
+    protected void doGet(HttpServletRequest request,
+            HttpServletResponse response) throws ServletException, IOException {
+        processRequest(request, response);
+    }
 
-	protected void doGet(HttpServletRequest request,
-			HttpServletResponse response) throws ServletException, IOException {
-		processRequest(request, response);
-	}
+    /**
+     * Handles the HTTP <code>POST</code> method.
+     * 
+     * @param request
+     *            servlet request
+     * @param response
+     *            servlet response
+     */
+    protected void doPost(HttpServletRequest request,
+            HttpServletResponse response) throws ServletException, IOException {
+        processRequest(request, response);
+    }
 
-	/**
-	 * Handles the HTTP <code>POST</code> method.
-	 * 
-	 * @param request
-	 *            servlet request
-	 * @param response
-	 *            servlet response
-	 */
-	protected void doPost(HttpServletRequest request,
-			HttpServletResponse response) throws ServletException, IOException {
-		processRequest(request, response);
-	}
+    class RelationNamePidValue {
 
-	class RelationNamePidValue {
+        private String relationName;
+        private String pid;
 
-		private String relationName;
-		private String pid;
+        public RelationNamePidValue(String relationName, String pid) {
+            super();
+            this.relationName = relationName;
+            this.pid = pid;
+        }
 
-		public RelationNamePidValue(String relationName, String pid) {
-			super();
-			this.relationName = relationName;
-			this.pid = pid;
-		}
+        public String getRelationName() {
+            return relationName;
+        }
 
-		public String getRelationName() {
-			return relationName;
-		}
-
-		public String getPid() {
-			return pid;
-		}
-	}
-
+        public String getPid() {
+            return pid;
+        }
+    }
 }

@@ -2,6 +2,8 @@
 <%@page import="java.util.Locale"%>
 <%@page import="com.google.inject.Provider"%>
 <%@ page contentType="text/html" pageEncoding="UTF-8" %>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
+<%@ page isELIgnored="false" %>
 <%@ page import="java.io.*, cz.incad.kramerius.service.*"  %>
 <%@page import="com.google.inject.Injector"%>
 
