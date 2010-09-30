@@ -1,10 +1,4 @@
-//$Id: GenericOperationsImpl.java 7828 2008-11-12 13:57:09Z gertsp $
-/*
- * <p><b>License and Copyright: </b>The contents of this file is subject to the
- * same open source license as the Fedora Repository System at www.fedora-commons.org
- * Copyright &copy; 2006, 2007, 2008 by The Technical University of Denmark.
- * All rights reserved.</p>
- */
+
 package cz.incad.kramerius.indexer;
 
 import cz.incad.kramerius.FedoraAccess;
@@ -12,16 +6,9 @@ import cz.incad.kramerius.impl.FedoraAccessImpl;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 import dk.defxws.fedoragsearch.server.*;
 
-import java.net.Authenticator;
-import java.net.MalformedURLException;
-import java.net.PasswordAuthentication;
-import java.net.URL;
-import java.rmi.RemoteException;
-
 import java.util.HashMap;
 import java.util.Map;
 
-import org.apache.axis.AxisFault;
 
 import org.apache.log4j.Logger;
 
@@ -31,14 +18,14 @@ import fedora.server.access.FedoraAPIA;
 import fedora.server.management.FedoraAPIM;
 import fedora.server.types.gen.Datastream;
 import fedora.server.types.gen.MIMETypedStream;
- */
-import java.util.ArrayList;
 import java.util.Properties;
 import javax.xml.namespace.QName;
 import org.fedora.api.Datastream;
+import org.fedora.api.FedoraAPIMService;
+ */
+import java.util.ArrayList;
 import org.fedora.api.FedoraAPIA;
 import org.fedora.api.FedoraAPIM;
-import org.fedora.api.FedoraAPIMService;
 import org.fedora.api.MIMETypedStream;
 
 /**
@@ -115,64 +102,46 @@ public class FedoraOperations {
     public void updateIndex(
             String action,
             String value,
-            String repositoryNameParam,
             String indexNames,
-            String resultPageXslt,
             ArrayList<String> requestParams)
             throws java.rmi.RemoteException, Exception {
-        if (logger.isDebugEnabled()) {
-            logger.debug("updateIndex" +
-                    " action=" + action +
-                    " value=" + value +
-                    " repositoryName=" + repositoryNameParam +
-                    " indexNames=" + indexNames +
-                    " resultPageXslt=" + resultPageXslt);
-        }
-
         logger.info("updateIndex" +
                 " action=" + action +
                 " value=" + value +
-                " repositoryName=" + repositoryNameParam +
-                " indexNames=" + indexNames +
-                " resultPageXslt=" + resultPageXslt);
+                " indexNames=" + indexNames);
 
-        String repositoryName = repositoryNameParam;
-        if (repositoryNameParam == null || repositoryNameParam.equals("")) {
-            repositoryName = KConfiguration.getInstance().getConfiguration().getString("RepositoryName");
-        }
+//        String repositoryName = repositoryNameParam;
+//        if (repositoryNameParam == null || repositoryNameParam.equals("")) {
+//            repositoryName = KConfiguration.getInstance().getConfiguration().getString("RepositoryName");
+//        }
 
         SolrOperations ops = new SolrOperations(this);
-        ops.updateIndex(action, value, repositoryName, indexName, resultPageXslt, requestParams);
+        ops.updateIndex(action, value, indexName, requestParams);
     }
 
     public byte[] getAndReturnFoxmlFromPid(
-            String pid,
-            String repositoryName)
+            String pid)
             throws java.rmi.RemoteException, Exception {
 
-        if (logger.isInfoEnabled()) {
-            logger.info("getAndReturnFoxmlFromPid" +
-                    " pid=" + pid +
-                    " repositoryName=" + repositoryName);
+        if (logger.isDebugEnabled()) {
+            logger.debug("getAndReturnFoxmlFromPid pid=" + pid);
         }
         
 
         try {
             return fa.getAPIM().export(pid, foxmlFormat, "public");
         } catch (Exception e) {
-            throw new Exception("Fedora Object " + pid + " not found at " + repositoryName, e);
+            throw new Exception("Fedora Object " + pid + " not found. ", e);
         }
     }
 
     public void getFoxmlFromPid(
-            String pid,
-            String repositoryName)
+            String pid)
             throws java.rmi.RemoteException, Exception {
 
         if (logger.isInfoEnabled()) {
             logger.info("getFoxmlFromPid" +
-                    " pid=" + pid +
-                    " repositoryName=" + repositoryName);
+                    " pid=" + pid);
         }
         
         String format = "info:fedora/fedora-system:FOXML-1.1";
@@ -180,13 +149,12 @@ public class FedoraOperations {
             foxmlRecord = fa.getAPIM().export(pid, format, "public");
         } catch (Exception e) {
             e.printStackTrace();
-            throw new Exception("Fedora Object " + pid + " not found at " + repositoryName, e);
+            throw new Exception("Fedora Object " + pid + " not found. ", e);
         }
     }
 
     public int getPdfPagesCount(
             String pid,
-            String repositoryName,
             String dsId)
             throws Exception {
         ds = null;
@@ -199,7 +167,7 @@ public class FedoraOperations {
                     return 1;
                 }
                 ds = mts.getStream();
-                return (new TransformerToText().getPdfPagesCount(ds));
+                return (new TransformerToText().getPdfPagesCount(ds) + 1);
                 
             } catch (Exception e) {
                 throw new Exception(e.getClass().getName() + ": " + e.toString());
@@ -219,6 +187,35 @@ public class FedoraOperations {
                 KConfiguration.getInstance().getConfiguration().getString("FedoraPass"),
                 KConfiguration.getInstance().getConfiguration().getString("TrustStorePath"),
                 KConfiguration.getInstance().getConfiguration().getString("TrustStorePass"),docCount);
+    }
+    
+    public String getParents(String pid){
+        try{
+        String query = "$object * <info:fedora/" + pid + ">";
+        String urlStr = KConfiguration.getInstance().getConfiguration().getString("FedoraResourceIndex") + "?type=triples&flush=true&lang=spo&format=N-Triples&limit=&distinct=off&stream=off" +
+                    "&query=" + java.net.URLEncoder.encode(query, "UTF-8");
+            StringBuilder sb = new StringBuilder();
+           
+            java.net.URL url = new java.net.URL(urlStr);
+
+            java.io.BufferedReader in = new java.io.BufferedReader(new java.io.InputStreamReader(url.openStream()));
+            String inputLine;
+            while ((inputLine = in.readLine()) != null) {  
+//<info:fedora/uuid:5fe0b160-62d5-11dd-bdc7-000d606f5dc6> <http://www.nsdl.org/ontologies/relationships#hasPage> <info:fedora/uuid:75fca1f0-64b2-11dd-9fd4-000d606f5dc6> .
+//<info:fedora/uuid:f0da6570-8f3b-11dd-b796-000d606f5dc6> <http://www.nsdl.org/ontologies/relationships#isOnPage> <info:fedora/uuid:75fca1f0-64b2-11dd-9fd4-000d606f5dc6> .
+                inputLine = inputLine.substring(18,54);
+                sb.append(inputLine);
+                sb.append(";");
+            }
+            in.close();
+            sb.delete(sb.length()-1, sb.length());
+            return sb.toString();
+            
+        }catch(Exception ex){
+            ex.printStackTrace();
+            logger.error(ex);
+            return "";
+        }
     }
 
     public String getDatastreamText(

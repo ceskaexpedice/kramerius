@@ -34,19 +34,24 @@ public class IndexParams {
     public String root_model;
     public String abeceda_title;
     public String abeceda_autor;
+    public String relsExtIndex;
     public HashMap<String, String> paramsMap = new HashMap<String, String>();
 
-    public IndexParams(String pid, String model, Document contentDom) {
-        init(pid.substring(5), model, contentDom);
+    public IndexParams(String pid, String model, Document contentDom, int _relsExtIndex) {
+        init(pid.substring(5), model, contentDom, _relsExtIndex);
     }
 
     public IndexParams(String pid, Document contentDom) {
-        init(pid.substring(5), null, contentDom);
+        init(pid.substring(5), null, contentDom, 0);
+    }
+    
+    public void setParam(String name, String value){
+        paramsMap.put(name, value);
     }
 
     public IndexParams(String pid, String model,
             String path, String pid_path, String _parent_model, String _parent_pid, String _datum,
-            String _root_pid, String _root_model, String _root_title, String _language) {
+            String _root_pid, String _root_model, String _root_title, String _language, String _relsExtIndex) {
 
         paramsMap.put("PATH", path);
         paramsMap.put("PID_PATH", pid_path);
@@ -61,6 +66,7 @@ public class IndexParams {
         paramsMap.put("ROOT_MODEL", _root_model);
         paramsMap.put("ROOT_TITLE", _root_title);
         paramsMap.put("LANGUAGE", _language);
+        paramsMap.put("ROOT_TITLE", _relsExtIndex);
     }
 
     public ArrayList<String> toArrayList(String pages) {
@@ -158,7 +164,7 @@ public class IndexParams {
         }
     }
 
-    private void init(String pid, String model, Document contentDom) {
+    private void init(String pid, String model, Document contentDom, int _relsExtIndex) {
         try {
 
             XPathFactory factory = XPathFactory.newInstance();
@@ -180,6 +186,7 @@ public class IndexParams {
                 }
             }
             //System.out.println(model);
+            paramsMap.put("RELS_EXT_INDEX", Integer.toString(_relsExtIndex));
             paramsMap.put("PATH", model);
             paramsMap.put("PID_PATH", pid);
             paramsMap.put("LEVEL", "0");

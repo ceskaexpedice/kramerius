@@ -8,14 +8,10 @@ package cz.incad.kramerius.indexer;
  *
  * @author Incad
  */
-import cz.incad.kramerius.FedoraAccess;
-import cz.incad.kramerius.impl.FedoraAccessImpl;
-import cz.incad.kramerius.utils.conf.KConfiguration;
 import cz.incad.utils.Formating;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.OutputStreamWriter;
@@ -26,7 +22,6 @@ import java.util.ArrayList;
 import java.util.Date;
 //import org.apache.log4j.Logger;
 
-import java.util.Properties;
 import java.util.TimeZone;
 import java.util.zip.ZipOutputStream;
 import org.apache.log4j.Logger;
@@ -136,18 +131,12 @@ public class Indexer {
             return false;
         }
     }
-    private String repositoryName;
     private String indexName;
-    private String resultPageXslt;
-    private String restXslt;
 
     private void doUpdate(String user) throws Exception {
         Date startTime = new Date();
 
-        repositoryName = "";
         indexName = "";
-        resultPageXslt = "";
-        restXslt = "";
         try {
             updateIndex(user, arguments.action, arguments.value);
         } catch (java.rmi.RemoteException e) {
@@ -165,7 +154,7 @@ public class Indexer {
         ops.init(user, ""/*, conf*/);
         ArrayList<String> params = new ArrayList<String>();
         //System.out.println(value);
-        ops.updateIndex(action, value, repositoryName, indexName, resultPageXslt, params);
+        ops.updateIndex(action, value, indexName, params);
         
     }
 

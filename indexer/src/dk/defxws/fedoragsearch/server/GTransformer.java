@@ -103,6 +103,7 @@ public class GTransformer {
         if (logger.isDebugEnabled())
             logger.debug("xsltName="+xsltName);
         Transformer transformer = getTransformer(xsltName, uriResolver);
+        //logger.info(params);
         Iterator it = params.keySet().iterator();
         String key = "";
         String value = "";
@@ -111,6 +112,7 @@ public class GTransformer {
             value = params.get(key);
             if(value == null) value = "";
             transformer.setParameter(key, value);
+            
         }
 //        for (int i=0; i<params.length; i=i+2) {
 //            Object value = params[i+1];

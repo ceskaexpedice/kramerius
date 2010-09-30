@@ -54,6 +54,7 @@
     <xsl:param name="ABECEDA_AUTOR" select="repositoryName"/>
     <xsl:param name="LANGUAGE" select="repositoryName"/>
     <xsl:param name="LEVEL" select="repositoryName"/>
+    <xsl:param name="RELS_EXT_INDEX" select="repositoryName"/>
     
     <xsl:variable name="generic" select="exts:new()" />
 
@@ -78,39 +79,42 @@
     </xsl:template>
     
     <xsl:template name="for.loop">
+        <xsl:param name="i" />
+       <xsl:if test="$i &lt;= $DOCCOUNT">
 
-    <xsl:param name="i" />
+                <doc>
+                    <xsl:attribute name="boost">
+                        <xsl:value-of select="$docBoost"/>
+                    </xsl:attribute>
 
-   <!--begin_: Line_by_Line_Output -->
-   <xsl:if test="$i &lt;= $DOCCOUNT">
-      
-            <doc>
-                <xsl:attribute name="boost">
-                    <xsl:value-of select="$docBoost"/>
-                </xsl:attribute>
-                    
-		<!-- Indexujeme vsechny activa a ne activ. -->
-                <xsl:if test="foxml:digitalObject/foxml:objectProperties/foxml:property[@NAME='info:fedora/fedora-system:def/model#state' and @VALUE='Active']">
-                    <xsl:if test="not(foxml:digitalObject/foxml:datastream[@ID='METHODMAP'] or foxml:digitalObject/foxml:datastream[@ID='DS-COMPOSITE-MODEL'])">
-                        <xsl:apply-templates mode="activeDemoFedoraObject" select="/foxml:digitalObject" >
-                            <xsl:with-param name="pageNum">
-                                  <xsl:value-of select="$i"/>
-                              </xsl:with-param>
-                        </xsl:apply-templates>
-                        <xsl:apply-templates mode="biblioMods" select="/foxml:digitalObject/foxml:datastream[@ID='BIBLIO_MODS']/foxml:datastreamVersion[last()]/foxml:xmlContent/mods:modsCollection/mods:mods" />
-                        <xsl:apply-templates mode="imgFull" select="/foxml:digitalObject/foxml:datastream[@ID='IMG_FULL']/foxml:datastreamVersion[last()]" />
+                    <!-- Indexujeme vsechny activa a ne activ. -->
+                    <xsl:if test="foxml:digitalObject/foxml:objectProperties/foxml:property[@NAME='info:fedora/fedora-system:def/model#state' and @VALUE='Active']">
+                        <xsl:if test="not(foxml:digitalObject/foxml:datastream[@ID='METHODMAP'] or foxml:digitalObject/foxml:datastream[@ID='DS-COMPOSITE-MODEL'])">
+                            <xsl:apply-templates mode="activeDemoFedoraObject" select="/foxml:digitalObject" >
+                                <xsl:with-param name="pageNum">
+                                      <xsl:value-of select="$i"/>
+                                  </xsl:with-param>
+                            </xsl:apply-templates>
+                            <xsl:apply-templates mode="biblioMods" select="/foxml:digitalObject/foxml:datastream[@ID='BIBLIO_MODS']/foxml:datastreamVersion[last()]/foxml:xmlContent/mods:modsCollection/mods:mods" />
+                            <xsl:apply-templates mode="imgFull" select="/foxml:digitalObject/foxml:datastream[@ID='IMG_FULL']/foxml:datastreamVersion[last()]" />
+                        </xsl:if>
+
+
+
+
+
+
+
                     </xsl:if>
-                </xsl:if>
-                
-            </doc>
-        
-      <xsl:call-template name="for.loop">
-          <xsl:with-param name="i">
-              <xsl:value-of select="$i + 1"/>
-          </xsl:with-param>
-      </xsl:call-template>
-   </xsl:if>
 
+                </doc>
+
+          <xsl:call-template name="for.loop">
+              <xsl:with-param name="i">
+                  <xsl:value-of select="$i + 1"/>
+              </xsl:with-param>
+          </xsl:call-template>
+       </xsl:if>
   </xsl:template>
   
     <xsl:template match="/foxml:digitalObject" mode="activeDemoFedoraObject">
@@ -128,6 +132,13 @@
                     <xsl:value-of select="substring(/foxml:digitalObject/foxml:datastream/foxml:datastreamVersion[last()]/foxml:xmlContent/oai_dc:dc/dc:type/text(), 7)"/>
                 </field>
                 <field name="dc.title"><xsl:value-of select="normalize-space($title)"/></field>
+                
+                <xsl:if test="$RELS_EXT_INDEX and not($RELS_EXT_INDEX = '')" >
+                    <field name="rels_ext_index">
+                        <xsl:value-of select="$RELS_EXT_INDEX" />
+                    </field>
+                </xsl:if>
+                
                 <xsl:if test="not($LEVEL = '')" >
                     <field name="level">
                         <xsl:value-of select="$LEVEL" />
@@ -221,11 +232,26 @@
                 <xsl:value-of select="$PARENT_TITLE" />
             </field>
         </xsl:if>
+        <xsl:if test="$MODEL = 'page'">
+        <xsl:call-template name="parentTemplate">
+            <xsl:with-param name="parent"><xsl:value-of select="exts:getParents($generic, $PID)"/></xsl:with-param>
+        </xsl:call-template>
+        </xsl:if>
+        
+        <xsl:if test="$pageNum != 0">
+            <field name="parent_pid">
+                <xsl:value-of select="substring($PID, 6)"/>
+            </field>
+        </xsl:if>
+        
+        <xsl:if test="$MODEL != 'page'">
         <xsl:if test="$PARENT_PID and not($PARENT_PID = '')" >
             <field name="parent_pid">
                 <xsl:value-of select="$PARENT_PID" />
             </field>
         </xsl:if>
+        </xsl:if>
+        
         <xsl:if test="$PARENT_MODEL and not($PARENT_MODEL = '')" >
             <field name="parent_model">
                 <xsl:value-of select="$PARENT_MODEL" />
@@ -295,58 +321,60 @@
         
         <xsl:if test="$MODEL = 'monographunit'">
             <field name="details">
-                <xsl:value-of select="mods:part/mods:detail/mods:title" />
-            </field>
-            <field name="details">
+                <xsl:value-of select="mods:part/mods:detail/mods:title" /><xsl:value-of select="'##'" />
                <xsl:value-of select="mods:part/mods:detail/mods:number" />
             </field>
         </xsl:if>
         <xsl:if test="$MODEL = 'page'">
             <field name="details">
                 <xsl:if test="mods:part">
-                    <xsl:value-of select="mods:part/mods:detail[@type = 'pageNumber']/mods:number" />
-                </xsl:if>
-            </field>
-            <field name="details">
-                <xsl:if test="mods:part">
+                    <xsl:value-of select="mods:part/mods:detail[@type = 'pageNumber']/mods:number" /><xsl:value-of select="'##'" />
                     <xsl:value-of select="mods:part/@type" />
                 </xsl:if>
             </field>
         </xsl:if>
         <xsl:if test="$MODEL = 'periodicalitem'">
             <field name="details">
-                <xsl:value-of select="mods:titleInfo/mods:title" />
-            </field>
-            <field name="details">
-                <xsl:value-of select="/mods:titleInfo/mods:subTitle" />
-            </field>
-            <field name="details">
+                <xsl:value-of select="mods:titleInfo/mods:title" /><xsl:value-of select="'##'" />
+                <xsl:value-of select="/mods:titleInfo/mods:subTitle" /><xsl:value-of select="'##'" />
                 <xsl:value-of select="mods:part[@type = 'PeriodicalIssue']/mods:detail/mods:number" />
             </field>
         </xsl:if>
         <xsl:if test="$MODEL = 'periodicalvolume'">
             <field name="details">
-                <xsl:value-of select="mods:part/mods:date" />
-            </field>
-            <field name="details">
+                <xsl:value-of select="mods:part/mods:date" /><xsl:value-of select="'##'" />
                 <xsl:value-of select="mods:part/mods:detail[@type = 'volume']/mods:number" />
             </field>
         </xsl:if>
         
         <xsl:if test="$MODEL = 'internalpart'">
             <field name="details">
-                <xsl:value-of select="mods:part/@type" />
-            </field>
-            <field name="details">
-                <xsl:value-of select="mods:titleInfo/mods:title" />
-            </field>
-            <field name="details">
-                <xsl:value-of select="/mods:titleInfo/mods:subTitle" />
-            </field>
-            <field name="details">
+                <xsl:value-of select="mods:part/@type" /><xsl:value-of select="'##'" />
+                <xsl:value-of select="mods:titleInfo/mods:title" /><xsl:value-of select="'##'" />
+                <xsl:value-of select="/mods:titleInfo/mods:subTitle" /><xsl:value-of select="'##'" />
                 <xsl:value-of select="mods:part/mods:extent/mods:list" />
             </field>
         </xsl:if>
                 
+    </xsl:template>
+    <xsl:template name="parentTemplate">
+        <xsl:param name="parent" />
+        <xsl:if test="$parent and not($parent = '')" >
+            <xsl:choose>
+                <xsl:when test="contains($parent, ';')">
+                    <field name="parent_pid">
+                        <xsl:value-of select="substring-before($parent, ';')" />
+                    </field>
+                    <xsl:call-template name="parentTemplate">
+                    <xsl:with-param name="parent"><xsl:value-of select="substring-after($parent, ';')" /></xsl:with-param>
+                   </xsl:call-template>
+                </xsl:when>
+                <xsl:otherwise>
+                    <field name="parent_pid">
+                        <xsl:value-of select="$parent" />
+                    </field>
+                </xsl:otherwise>    
+            </xsl:choose>
+        </xsl:if>
     </xsl:template>
 </xsl:stylesheet>	
