@@ -304,7 +304,7 @@
         <field name="created_date" type="date"  indexed="true"  stored="true" />
         
         <field name="parent_model" type="string"  indexed="true"  stored="true" />
-        <field name="parent_pid" type="string"  indexed="true"  stored="true" />
+        <field name="parent_pid" type="string"  indexed="true"  stored="true" multiValued="true" />
         <field name="parent_title" type="string"  indexed="true"  stored="true" />
         
         <field name="root_model" type="string"  indexed="true"  stored="true" />
@@ -330,6 +330,7 @@
         
         <field name="path" type="string"  indexed="true"  stored="true"  />
         <field name="pid_path" type="string"  indexed="true"  stored="true"  />
+        <field name="rels_ext_index" type="sint" indexed="true"  stored="true"  />
         <field name="level" type="sint" indexed="true"  stored="true"  />
         <field name="dc.title" type="text_fgs"  indexed="true"  stored="true" />
         <field name="facet_title" type="localizedstring"  indexed="true"  stored="false"  locale="cs" />
