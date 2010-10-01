@@ -88,6 +88,8 @@ public class SolrOperations {
                 fromPid(value, requestParams);
             } else if ("fullRepo".equals(action)) {
                 fullRepo();
+            } else if ("fullRepoWithClean".equals(action)) {
+                fullRepoWithClean();
             } else if ("optimize".equals(action)) {
                 optimize();
             } else if ("fromKrameriusModel".equals(action)) {
@@ -177,7 +179,7 @@ public class SolrOperations {
             node = (Node) expr.evaluate(solrDom, XPathConstants.NODE);
             String path = node.getFirstChild().getNodeValue();
             //jen do posledni
-            if(path.indexOf("/")>-1){
+            if (path.indexOf("/") > -1) {
                 path = path.substring(0, path.lastIndexOf("/"));
             }
             indexParams.setParam("PATH", path);
@@ -220,6 +222,20 @@ public class SolrOperations {
             krameriusModel(model, new ArrayList<String>());
 
         }
+    }
+
+    private void fullRepoWithClean() throws Exception {
+        clearIndex();
+        fullRepo();
+    }
+
+    private void clearIndex() throws Exception {
+        StringBuffer sb = new StringBuffer("<delete><query>*:*</query></delete>");
+        if (logger.isDebugEnabled()) {
+            logger.debug("indexDoc=\n" + sb.toString());
+        }
+        postData(config.getString("IndexBase") + "/update", new StringReader(sb.toString()), new StringBuffer());
+        deleteTotal++;
     }
 
     private void krameriusModel(String model,
@@ -384,7 +400,7 @@ public class SolrOperations {
             }
 
             num += docCount - 1;
-            indexDoc(pid, foxmlStream, indexParams.toArrayList(Integer.toString(num)), String.valueOf(docCount-1));
+            indexDoc(pid, foxmlStream, indexParams.toArrayList(Integer.toString(num)), String.valueOf(docCount - 1));
 
         } catch (Exception e) {
             logger.error("indexByPid error", e);
@@ -423,7 +439,7 @@ public class SolrOperations {
         if (logger.isDebugEnabled()) {
             logger.debug("indexDoc=\n" + sb.toString());
         }
-        //logger.info("indexDoc=\n" + sb.toString());
+        logger.info("indexDoc=\n" + sb.toString());
         if (sb.indexOf("name=\"" + UNIQUEKEY) > 0) {
 
             postData(config.getString("IndexBase") + "/update", new StringReader(sb.toString()), new StringBuffer());
