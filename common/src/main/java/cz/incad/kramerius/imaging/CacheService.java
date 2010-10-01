@@ -7,7 +7,6 @@ import java.io.InputStream;
 /**
  * This service is suitable for caching deep zoom tiles
  * @author pavels
- *
  */
 public interface CacheService {
 	
@@ -58,17 +57,35 @@ public interface CacheService {
 	public InputStream getDeepZoomDescriptorStream(String uuid) throws IOException;
 	
 	/**
-	 * 
-	 * @param uuid
-	 * @param ilevel
-	 * @param row
-	 * @param col
+	 * Returns true if tile is present in cache
+	 * @param uuid UUID of page
+	 * @param ilevel scale level
+	 * @param row Tile row
+	 * @param col Tile col
 	 * @return
 	 * @throws IOException
 	 */
 	public boolean isDeepZoomTilePresent(String uuid, int ilevel, int row,int col) throws IOException;
 
+	/**
+	 * Write tile into cache
+	 * @param uuid UUID of page
+	 * @param ilevel scale level
+	 * @param row Tile row
+	 * @param col Tile col
+	 * @param tile Tile image
+	 * @throws IOException
+	 */
 	public void writeDeepZoomTile(String uuid, int ilevel, int row, int col, Image tile) throws IOException;
 
+	/**
+	 * Returns input stream of the tile
+	 * @param uuid UUID of the page
+	 * @param ilevel scale level
+	 * @param row Tile row
+	 * @param col Tile col
+	 * @return
+	 * @throws IOException
+	 */
 	public InputStream getDeepZoomTileStream(String uuid, int ilevel, int row, int col) throws IOException;
 }
