@@ -192,4 +192,13 @@
 		<standardOs>lrOut</standardOs>
 		<errOs>lrErr</errOs>
 	</process>
+	
+	<process>
+		<id>generateDeepZoomTiles</id>
+		<description>Generate cache for  Deep Zoom </description>
+		<mainClass>cz.incad.kramerius.imaging.lp.GenerateDeepZoomCache</mainClass>
+		<standardOs>lrOut</standardOs>
+		<errOs>lrErr</errOs>
+	</process>
+	
 </processes>

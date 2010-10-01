@@ -222,14 +222,15 @@ public class KConfiguration {
 	}
 	
 
-	public String getImagingStorage() {
-	    return getConfiguration().getString("imgstorage", "${sys:user.home}/.kramerius4/deepZoom");
+	public String getDeepZoomCacheDir() {
+	    return getConfiguration().getString("deepZoom.cachedir", "${sys:user.home}/.kramerius4/deepZoom");
 	}
 
 	public String getUrlOfIIPServer() {
         return getConfiguration().getString("UrlOfIIPserver", "");
 	}
 
+	
 	public String getFedoraDataFolderInIIPServer() {
             return getConfiguration().getString("fedoraDataFolderOnIIPServer", "");
     }
