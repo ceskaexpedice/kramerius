@@ -142,6 +142,12 @@ public class ItemMenuViewObject {
 		return renderCommonItem(key,"_data_x_role","reindex", jsmethod);
 	}
 
+	private String generateDeepZoomTiles() {
+	    String jsmethod = "generateDeepZoomTiles";
+		String key = "administrator.menu.generateDeepZoomTiles";
+		return renderCommonItem(key,"_data_x_role","reindex", jsmethod);
+	}
+
 	private String deleteFromFedora() {
 	    String key = "administrator.menu.deleteuuid";
 	    String jsmethod = "deleteUuid";
@@ -250,6 +256,7 @@ public class ItemMenuViewObject {
             items.add(deleteFromFedora());
             items.add(changeVisibility());
             items.add(exportTOFOXML());
+            items.add(generateDeepZoomTiles());
 //			if (userInRoleDecision.isUserInRole(KrameriusRoles.REINDEX)) {
 //			}
 //			if (userInRoleDecision.isUserInRole(KrameriusRoles.REINDEX)) {

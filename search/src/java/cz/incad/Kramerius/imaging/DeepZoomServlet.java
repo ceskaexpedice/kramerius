@@ -42,8 +42,10 @@ import com.google.inject.name.Named;
 
 import cz.incad.Kramerius.AbstractImageServlet;
 import cz.incad.Kramerius.backend.guice.GuiceServlet;
-import cz.incad.Kramerius.imaging.impl.CachingSupport;
 import cz.incad.kramerius.FedoraAccess;
+import cz.incad.kramerius.imaging.CacheService;
+import cz.incad.kramerius.imaging.TileSupport;
+import cz.incad.kramerius.imaging.impl.CachingSupport;
 import cz.incad.kramerius.utils.IOUtils;
 import cz.incad.kramerius.utils.RESTHelper;
 import cz.incad.kramerius.utils.conf.KConfiguration;
@@ -55,6 +57,8 @@ public class DeepZoomServlet extends AbstractImageServlet {
     public static final java.util.logging.Logger LOGGER = java.util.logging.Logger
             .getLogger(DeepZoomServlet.class.getName());
     
+    public static final String CACHE_KEY_PARAMETER = "cache";
+    
     
     @Inject
     TileSupport tileSupport;
@@ -62,8 +66,10 @@ public class DeepZoomServlet extends AbstractImageServlet {
     @Inject
     @Named("fedora3")
     Provider<Connection> fedora3Provider;
+
+    @Inject 
+    CacheService cacheService;
     
-    CachingSupport cachingSupport = new CachingSupport();
     
     @Override
     public void init() throws ServletException {
@@ -73,7 +79,7 @@ public class DeepZoomServlet extends AbstractImageServlet {
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         try {
-            String requestURL = req.getRequestURL().toString();
+        	String requestURL = req.getRequestURL().toString();
             String zoomUrl = disectZoom(requestURL);
             StringTokenizer tokenizer = new StringTokenizer(zoomUrl, "/");
             String uuid = tokenizer.nextToken();
@@ -193,12 +199,12 @@ public class DeepZoomServlet extends AbstractImageServlet {
 
     private void renderEmbededDZIDescriptor(String uuid,
             HttpServletResponse resp) throws IOException, FileNotFoundException {
-        if (!cachingSupport.isDeepZoomDescriptionPresent(uuid)) {
+        if (!cacheService.isDeepZoomDescriptionPresent(uuid)) {
             Image rawImage = tileSupport.getRawImage(uuid);
-            cachingSupport.writeDeepZoomFullImage(uuid, rawImage);
-            cachingSupport.writeDeepZoomDescriptor(uuid, rawImage, tileSupport.getTileSize());
+            cacheService.writeDeepZoomFullImage(uuid, rawImage);
+            cacheService.writeDeepZoomDescriptor(uuid, rawImage, tileSupport.getTileSize());
         }
-        InputStream inputStream = cachingSupport.openDeepZoomDescriptor(uuid);
+        InputStream inputStream = cacheService.getDeepZoomDescriptorStream(uuid);
         try {
             IOUtils.copyStreams(inputStream, resp.getOutputStream());
         } finally {
@@ -245,10 +251,10 @@ public class DeepZoomServlet extends AbstractImageServlet {
                 StringTokenizer tokenizer = new StringTokenizer(stile,"_");
                 String scol = tokenizer.nextToken();
                 String srow = tokenizer.nextToken();
-                boolean tilePresent = cachingSupport.isDeepZoomTilePresent(uuid, ilevel, Integer.parseInt(srow), Integer.parseInt(scol));
+                boolean tilePresent = cacheService.isDeepZoomTilePresent(uuid, ilevel, Integer.parseInt(srow), Integer.parseInt(scol));
                 if (!tilePresent) {
-                    File dFile = cachingSupport.getDeepZoomLevelsFile(uuid);
-                    long levels = dFile != null ? Integer.parseInt(dFile.getName().substring("levels_".length())) : tileSupport.getLevels(uuid, 1);
+//                    File dFile = cacheService.getDeepZoomLevelsFile(uuid);
+                    long levels =  tileSupport.getLevels(uuid, 1);
                     double scale = tileSupport.getScale(ilevel, levels);
                     Dimension scaled = tileSupport.getScaledDimension(tileSupport.getMaxSize(uuid), scale);
                     int rows = tileSupport.getRows(scaled);
@@ -257,9 +263,9 @@ public class DeepZoomServlet extends AbstractImageServlet {
                     base = base + Integer.parseInt(scol);
                     
                     BufferedImage tile = this.tileSupport.getTile(uuid, ilevel, base, 1);
-                    cachingSupport.writeDeepZoomTile(uuid, ilevel, Integer.parseInt(srow), Integer.parseInt(scol), tile);
+                    cacheService.writeDeepZoomTile(uuid, ilevel, Integer.parseInt(srow), Integer.parseInt(scol), tile);
                 }
-                InputStream is = cachingSupport.openDeepZoomTile(uuid, ilevel, Integer.parseInt(srow), Integer.parseInt(scol));
+                InputStream is = cacheService.getDeepZoomTileStream(uuid, ilevel, Integer.parseInt(srow), Integer.parseInt(scol));
                 resp.setContentType(ImageMimeType.JPEG.getValue());
                 IOUtils.copyStreams(is, resp.getOutputStream());
 //                writeDeepZoomTile(String uuid, int level, int row, int col, Image tileImage) throws IOException {

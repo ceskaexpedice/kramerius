@@ -13,11 +13,13 @@ import com.google.inject.Scopes;
 import com.google.inject.name.Named;
 import com.google.inject.name.Names;
 
-import cz.incad.Kramerius.imaging.TileSupport;
-import cz.incad.Kramerius.imaging.impl.TileSupportImpl;
 import cz.incad.Kramerius.security.RequestIsUserInRoleDecision;
 import cz.incad.kramerius.FedoraAccess;
 import cz.incad.kramerius.MostDesirable;
+import cz.incad.kramerius.imaging.CacheService;
+import cz.incad.kramerius.imaging.TileSupport;
+import cz.incad.kramerius.imaging.impl.CacheServiceImpl;
+import cz.incad.kramerius.imaging.impl.TileSupportImpl;
 import cz.incad.kramerius.impl.FedoraAccessImpl;
 import cz.incad.kramerius.impl.MostDesirableImpl;
 import cz.incad.kramerius.pdf.GeneratePDFService;
@@ -83,6 +85,7 @@ public class BaseModule extends AbstractModule {
 		bind(MostDesirable.class).to(MostDesirableImpl.class);
 		
 		bind(TileSupport.class).to(TileSupportImpl.class);
+		bind(CacheService.class).to(CacheServiceImpl.class).in(Scopes.SINGLETON);
 	}
 	
 
