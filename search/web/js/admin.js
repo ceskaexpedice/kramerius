@@ -156,6 +156,10 @@ var _texts=function() {
 		intArr["[import]PLANNED"]="administrator.dialogs.importrunning";
 		intArr["[import]FAILED"]="administrator.dialogs.importfailed";
 
+		intArr["[generateDeepZoomTiles]WAITING"]="administrator.dialogs.waitinggenerateDeepZoomTiles";
+		intArr["[generateDeepZoomTiles]PLANNED"]="administrator.dialogs.generateDeepZoomTilesrunning";
+		intArr["[generateDeepZoomTiles]FAILED"]="administrator.dialogs.generateDeepZoomTilesfailed";
+
 	}
 	return intArr;
 }(); //akce ze servletu
@@ -554,6 +558,38 @@ function loadFedoraDocuments(model, offset, sort, sort_dir){
 
 function getIndexerStatus(){
     
+}
+
+function generateDeepZoomTiles(level, model) {
+	hideAdminOptions(level);
+	var pid = $("#tabs_"+level).attr('pid');
+
+  	if (_commonDialog) {
+    	$("#common_started_ok").hide();
+    	$("#common_started_failed").hide();
+    	$("#common_started_waiting").show();
+    	_commonDialog.dialog('open');
+	} else {
+    	$("#common_started_waiting").show();
+    	_commonDialog = $("#common_started").dialog({
+	        bgiframe: true,
+	        width: 400,
+	        height: 100,
+	        modal: true,
+	        title: '',
+	        buttons: {
+	            "Close": function() {
+	                $(this).dialog("close"); 
+	            } 
+	        } 
+	    });
+	}
+
+	$("#common_started_text").text(dictionary['administrator.dialogs.waitinggenerateDeepZoomTiles']);
+	$("#common_started" ).dialog( "option", "title",  dictionary['administrator.menu.dialogs.generateDeepZoomTiles.title']);
+
+	var url = "lr?action=start&def=generateDeepZoomTiles&out=text&params="+pid;
+	_startProcess(url);
 }
 
 function deletefromindex(level){
