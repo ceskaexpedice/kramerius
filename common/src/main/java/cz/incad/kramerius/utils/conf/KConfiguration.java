@@ -222,13 +222,18 @@ public class KConfiguration {
 	}
 	
 	public int getDeepZoomTileSize() {
-		return getConfiguration().getInt("deepZoom.tileSize");
+		return getConfiguration().getInt("deepZoom.tileSize", 512);
 	}
 
 	public String getDeepZoomCacheDir() {
 	    return getConfiguration().getString("deepZoom.cachedir", "${sys:user.home}/.kramerius4/deepZoom");
 	}
 
+	public float getDeepZoomJPEGQuality() {
+	    return getConfiguration().getFloat("deepZoom.jpegQuality", 0.9f);
+		
+	}
+	
 	public String getUrlOfIIPServer() {
         return getConfiguration().getString("UrlOfIIPserver", "");
 	}
