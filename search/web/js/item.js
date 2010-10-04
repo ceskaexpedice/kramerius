@@ -51,6 +51,7 @@ function showPersistentURL(level, model) {
 }
 
 
+
 function _getBiblioInfo(pid, model, list, inf, setInf){
     var url = 'inc/details/biblioToRdf.jsp?pid=uuid:' + pid + "&xsl=default.jsp&model="+model;
     //var url = 'inc/details/biblioToRdf.jsp?pid=uuid:' + pid + "&xsl="+model+".jsp";
@@ -597,30 +598,65 @@ function hideAdminOptions(level){
     //$('#openmenu-'+div).toggle();
 }
 
-function showDeepZoomFile(uuid) {
-	$("#container").hide();
-	$("#loadingDeepZoomImage").show();
-	$.ajax({
-        url:"deepZoom/"+uuid+"/",
-    	complete:function(req,textStatus) {
-			$("#loadingDeepZoomImage").hide();
-			if ((req.status==200) || (req.status==304)) {
-				$("#container").show();
-				$("#plainImage").hide();
-				$("#securityError").hide();
-				viewer.openDzi("deepZoom/"+uuid+"/");
-			} else if (req.status==403) {
-				$("#container").hide();
-				$("#plainImage").hide();
-				$("#securityError").show();
-			// Deep zoom for this format is not implemented. Standard image will appear.	
-			} else if (req.status==501) {
-				$("#container").hide();
-				$("#securityError").hide();
-				$("#plainImage").show();
-			} else {
-				alert("Chyba serveru");
-			}
-        }
-    });
+
+
+function switchDisplayToSeadragon() {
+	displaySeadragonContent();			
+	if (viewer == null) {
+		init();
+	}
+	viewer.openDzi("deepZoom/"+currentSelectedPage+"/");
 }
+
+function selectedImageFadeIn() {
+	$("#plainImageImg").fadeIn();
+	$("#seadragonButton").fadeIn();
+}
+
+function showImage(uuid) {
+	// fullpage mode = always seadragon otherwise always plain image
+	if ((viewer != null) && (viewer.isFullPage())) {
+		displaySeadragonContent();					
+		viewer.openDzi("deepZoom/"+uuid+"/");
+	} else {
+		displayImageContent();
+		$("#seadragonButton").fadeOut("slow");
+		$("#plainImageImg").fadeOut("slow", function () {
+			$("#plainImageImg").attr('src','djvu?uuid='+uuid+'&scaledWidth=650');
+	
+		});
+	}
+}
+
+function displaySecuredContent() {
+	$("#loadingDeepZoomImage").hide();
+	$("#plainImage").hide();
+	$("#container").hide();
+
+	$("#securityError").show();
+}
+
+function displayImageContent() {
+	$("#loadingDeepZoomImage").hide();
+	$("#container").hide();
+	$("#securityError").hide();
+
+
+	$("#plainImage").show();
+}
+
+function displaySeadragonContent() {
+	$("#securityError").hide();
+	$("#plainImage").hide();
+	$("#loadingDeepZoomImage").hide();
+
+	$("#container").show();
+}
+function loadingImageContent() {
+	$("#securityError").hide();
+	$("#plainImage").hide();
+	$("#container").hide();
+
+	$("#loadingDeepZoomImage").show();
+}
+

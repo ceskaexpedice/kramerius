@@ -93,20 +93,32 @@ function selectPage(uuid){
         
     checkArrows();
 
-    $.get(mimeUrl, function(data){
-        currentMime = data;
-    });
+    
+	$.ajax({
+        url:mimeUrl,
+    	complete:function(req,textStatus) {
+				if ((req.status==200) || (req.status==304)) {
+    				securedContent = false;
+					currentMime = req.responseText;
+				    showImage(uuid);
+				} else if (req.status==403){
+			    	currentMime = "unknown";
+    				securedContent = true;
+					ssecuredContent();
+				} else {
+					// jina chyba serveru
+				}
+			}
+	});	    
+    
     $('#img'+getMaxLevel()+'_'+uuid).toggleClass('tv_img_selected');
     
     
     $("#tv_container").attr("scrollLeft", to);
     canScroll = true;
         
-    // set big image
-    if (viewer != null) {
-        viewer.openDzi("deepZoom/"+uuid+"/");
-    }
-    
+
+
     // set selected page in menu
     changeSelectedItem(uuid);
 }
