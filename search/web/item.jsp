@@ -148,13 +148,6 @@
                                                         selectNext();
                                                     };
                                                                                                         
-                                                                                                        
-                                                    /*
-                                                                                                        control.appendChild(controlText);
-                                                                                                        Seadragon.Utils.addEvent(control, "click", 
-                                                                                                            onControlClick);
-                                                     */
-                                                                                                            
                                                     return control;
                                                 }
         
@@ -183,7 +176,13 @@
                                             <div id="loadingDeepZoomImage" style="padding-top:10px; height: 500px; width:700px; color: black; display:none;">
                                                 <fmt:message bundle="${lctx}" key="deep.zoom.loadingImage"></fmt:message>
                                             </div>
-                                            
+											
+                                            <div id="pdfImage" style="padding-top:10px; height:650; width:700px;  color: black; border:1px; position:relative; display:none;">
+                                                <img id="pdfImageImg"
+                                                     onload='selectedImageFadeIn()'
+                                                     border="0"  src="${itemViewObject.firstPageImageUrl}" height="650px" ></img>
+                                                <img id="seadragonButton" border='0' onclick='switchDisplayToPDF()'  src='img/lupa_shadow.png' style='position:relative; left:-60px; top:30px;'></img>
+                                            </div>
                                             
                                             <div id="plainImage" style="padding-top:10px; height:650; width:700px;  color: black; border:1px; position:relative;">
                                                 <img id="plainImageImg" 
@@ -201,8 +200,6 @@
                                                 <div style="position:absolute; top:10px; right:0px;">
                                                     <img id="rightButtonPlainImage" class="nextArraow" src="img/next_grouphover.png" />						
                                                 </div>                                            	
-                                                
-                                                
                                             </div>
                                             
                                         </td>
