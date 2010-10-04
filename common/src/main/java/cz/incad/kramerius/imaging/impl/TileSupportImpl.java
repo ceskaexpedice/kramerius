@@ -14,6 +14,7 @@ import com.google.inject.name.Named;
 import cz.incad.kramerius.FedoraAccess;
 import cz.incad.kramerius.imaging.TileSupport;
 import cz.incad.kramerius.utils.FedoraUtils;
+import cz.incad.kramerius.utils.conf.KConfiguration;
 import cz.incad.kramerius.utils.imgs.KrameriusImageSupport;
 
 public class TileSupportImpl implements TileSupport {
@@ -25,9 +26,12 @@ public class TileSupportImpl implements TileSupport {
     @Named("securedFedoraAccess")
     FedoraAccess fedoraAccess;
     
+    @Inject
+    KConfiguration kConfiguration;
+    
     @Override
     public int getTileSize() {
-        return TILE_SIZE;
+    	return KConfiguration.getInstance().getDeepZoomTileSize();
     }
 
     @Override

@@ -22,6 +22,7 @@ import cz.incad.kramerius.KrameriusModels;
 import cz.incad.kramerius.RelsExtHandler;
 import cz.incad.kramerius.imaging.CacheService;
 import cz.incad.kramerius.imaging.TileSupport;
+import cz.incad.kramerius.utils.conf.KConfiguration;
 import cz.incad.kramerius.utils.pid.LexerException;
 import cz.incad.kramerius.utils.pid.PIDParser;
 
@@ -36,6 +37,8 @@ public class CacheServiceImpl implements CacheService {
 	FedoraAccess fedoraAccess;
 	@Inject
 	TileSupport tileSupport;
+	@Inject
+	KConfiguration kConfiguration;
 	CachingSupport cachingSupport= new CachingSupport();
 	
 	@Override
@@ -43,7 +46,7 @@ public class CacheServiceImpl implements CacheService {
 		try {
 			Image rawImage = tileSupport.getRawImage(uuid);
 			cachingSupport.writeDeepZoomDescriptor(uuid, rawImage, tileSupport.getTileSize());
-			cachingSupport.writeDeepZoomFullImage(uuid, rawImage);
+			cachingSupport.writeDeepZoomFullImage(uuid, rawImage, kConfiguration.getDeepZoomJPEGQuality());
 			int levels = (int) tileSupport.getLevels(uuid, 1);
 			for (int i = 1; i < 6; i++) {
                 int curLevel = levels-i;
@@ -56,7 +59,7 @@ public class CacheServiceImpl implements CacheService {
 					for (int c = 0; c < cols; c++) {
 						int cell = b+c; 
 	                    BufferedImage tile = this.tileSupport.getTile(uuid, curLevel, cell, 1);
-	                    cachingSupport.writeDeepZoomTile(uuid, curLevel, r,c, tile);
+	                    cachingSupport.writeDeepZoomTile(uuid, curLevel, r,c, tile,kConfiguration.getDeepZoomJPEGQuality());
 					}
 				}
 			}
@@ -115,7 +118,7 @@ public class CacheServiceImpl implements CacheService {
 
 	@Override
 	public void writeDeepZoomFullImage(String uuid, Image rawImage) throws IOException {
-		this.cachingSupport.writeDeepZoomFullImage(uuid, rawImage);
+		this.cachingSupport.writeDeepZoomFullImage(uuid, rawImage, kConfiguration.getDeepZoomJPEGQuality());
 	}
 
 	@Override
@@ -137,7 +140,7 @@ public class CacheServiceImpl implements CacheService {
 	@Override
 	public void writeDeepZoomTile(String uuid, int ilevel, int row, int col,
 			Image tile) throws IOException {
-		this.cachingSupport.writeDeepZoomTile(uuid, ilevel, row, col, tile);
+		this.cachingSupport.writeDeepZoomTile(uuid, ilevel, row, col, tile, kConfiguration.getDeepZoomJPEGQuality());
 	}
 
 	@Override
