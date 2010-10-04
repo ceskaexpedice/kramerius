@@ -76,6 +76,14 @@ public class ItemViewObject {
             return "djvu?uuid=" + getLastUUID() + "&amp;scaledWidth=650&amp;page="+(Integer.parseInt(_page)-1);
         }
     }
+    
+    public String getThumbImageUrl() {
+        if(_page==null){
+            return "thumb?uuid=" + getLastUUID() + "&amp;scaledWidth=650";
+        }else{
+            return "thumb?uuid=" + getLastUUID() + "&amp;scaledWidth=650&amp;page="+(Integer.parseInt(_page)-1);
+        }
+    }
 
     public String getPage(){
         return _page;
