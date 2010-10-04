@@ -79,7 +79,7 @@ a.image:hover {
     border:0px;
     padding:none;
     margin:none; 
-    width:960px;
+    width:100%;
     height:60px;
     text-align:center;
     vertical-align:middle;
@@ -112,7 +112,7 @@ a.image:hover {
     display:block;
 }
 .main{
-    width:960px;
+    width:100%;
 }
 
 .leftMenu{
@@ -589,3 +589,6 @@ table.advancedSearch td{
     
 }
 
+.thumbsCell{
+    overflow: hidden;
+}

@@ -5,6 +5,7 @@
  */
 function selectRelItem(obj){
     if($(obj).hasClass("selected")) return;
+    currentSelectedPage=0;
     
     var divId = $(obj).parent().parent().attr('id');  // for example divId = tab3-page
     var level = parseInt(divId.substring(3, divId.indexOf("-")));
@@ -67,12 +68,7 @@ function showRelsList(tab, m){
     $(tab + ">ul>li." + m + ">img").addClass('op_info');
 }
 
-/*
- * Change the selected page
- */
-function selectPage(uuid){
-       
-    // set thumb selection 
+function slideToThumb(uuid){
     var to = $('#img'+getMaxLevel()+'_' + uuid).offset().left - tvContainerLeft + $("#tv_container").attr("scrollLeft") - ($("#tv_container").width()/2) ;
         
     var maxScroll = $("#tv_container").attr("scrollWidth") - $("#tv_container").width();
@@ -81,44 +77,60 @@ function selectPage(uuid){
         to2 = to * 100 / maxScroll;
     }
        
-    canScroll = false;
-    slideTo(to2, uuid);
-    activateThumbs();
-    
+    //canScroll = false;
+    slideTo(to2);
+}
+
+/*
+ * Change the selected page
+ */
+function selectPage(uuid){
+    var changeImage = currentSelectedPage != uuid;
+    // set thumb selection 
     $('.tv_image').removeClass('tv_img_selected');
     currentSelectedPage = uuid;
+    var to = $('#img'+getMaxLevel()+'_' + uuid).offset().left - tvContainerLeft + $("#tv_container").attr("scrollLeft") - ($("#tv_container").width()/2) ;
+//        
+//    var maxScroll = $("#tv_container").attr("scrollWidth") - $("#tv_container").width();
+//    var to2 = 0;
+//    if(maxScroll > 0){
+//        to2 = to * 100 / maxScroll;
+//    }
+    //slideTo(to2, uuid);
+       
+    canScroll = false;
+    slideToThumb(uuid);
+    activateThumbs();
+    
     $("#tabs_"+getMaxLevel()).attr('pid', currentSelectedPage);
     var pageUrl = "djvu?uuid="+uuid+"&scaledWidth="+imgW;
     var mimeUrl = "djvu?uuid="+uuid+"&imageType=ask";
         
     checkArrows();
 
+    if(changeImage){
     
-	$.ajax({
-        url:mimeUrl,
-    	complete:function(req,textStatus) {
-				if ((req.status==200) || (req.status==304)) {
-    				securedContent = false;
-					currentMime = req.responseText;
-				    showImage(uuid);
-				} else if (req.status==403){
-			    	currentMime = "unknown";
-    				securedContent = true;
-					ssecuredContent();
-				} else {
-					// jina chyba serveru
-				}
-			}
-	});	    
+      $.ajax({
+          url:mimeUrl,
+          complete:function(req,textStatus) {
+              if ((req.status==200) || (req.status==304)) {
+                  securedContent = false;
+                  currentMime = req.responseText;
+                  showImage(uuid);
+              } else if (req.status==403){
+                  currentMime = "unknown";
+                  securedContent = true;
+                  ssecuredContent();
+              } else {
+                  // jina chyba serveru
+              }
+          }
+      });	 
+    }   
     
     $('#img'+getMaxLevel()+'_'+uuid).toggleClass('tv_img_selected');
-    
-    
     $("#tv_container").attr("scrollLeft", to);
     canScroll = true;
-        
-
-
     // set selected page in menu
     changeSelectedItem(uuid);
 }
@@ -182,12 +194,15 @@ function selectItem(obj, level, model){
     
     //clear menu level
     var d2 = "#tabs_" + target;
-    var p = $(d2).parent();
-    var l = $(d2).tabs('length');
-    for(var i=0;i<l;i++){
-        $(d2).tabs("remove", 0);
+    var p = "#tab" + level + "-" + model;
+    if($(d2).length>0){
+        //var p = $(d2).parent();
+        var l = $(d2).tabs('length');
+        for(var i=0;i<l;i++){
+            $(d2).tabs("remove", 0);
+        }
+        $(d2).remove();
     }
-    $(d2).remove();
     
     // get level content for the model
     getItemLevel(pid, target, p, true);
@@ -221,15 +236,11 @@ function getItemLevel(pid, level, container, recursive, onlyrels, model){
                 getNextLevel(level);
             }
         }else{
-//            alert(currentLevel);
-//            alert(level);
-//            if(currentLevel<=level){
-                updateThumbs(level-1);
-                var obj =$('#tab'+getMaxLevel()+'-page>div.relList>div:first');
-                if($(obj).length>0){
-                    selectPage( $(obj).attr("pid"));
-                }
-//            }
+            updateThumbs(level-1);
+            var obj =$('#tab'+getMaxLevel()+'-page>div.relList>div:first');
+            if($(obj).length>0 && currentSelectedPage==0){
+                selectPage( $(obj).attr("pid"));
+            }
         }
         
         
@@ -247,44 +258,89 @@ function getNextLevel(level){
     });
 }
 
+function createTab(level, model){
+    $('#tabs_'+level).tabs("add", "#tab"+level+"-"+model, dictionary[model]);
+    l = $('#tabs_'+level+'>ul>li').length - 1;
+    $('#tabs_'+level+'>ul>li:last').addClass(model);
+    $('#tabs_'+level+'>ul>li:last').removeClass("#tab"+level+"-"+model);
+    $("#tab"+level+"-"+model).append('<div id="list-'+model+'" class="relList" style="display: none;"></div>');
+    $("#tab"+level+"-"+model).append('<div id="info-'+model+'"></div>');
+}
+
+function getChildModels(level, recursive){
+    var pid = $('#tabs_'+level).attr('pid');
+    var url ="inc/details/getChildModels.jsp?pid="+pid;
+    var model;
+    var target = level + 1;
+    $.getJSON(url, function(data){
+        for(var i in data){
+            model = data[i];
+            if($('#tab'+target+'-'+model).length == 0){
+                //neexistuje zalozku. Pridame
+                createTab(target, model);
+                fillRels(pid, target, 0, model, true);
+            
+                //getChildModels(target, recursive);
+            }
+        }
+    });
+}
+
+function fillRels(pid, level, offset, model, recursive){
+    var url ="inc/details/getItemForBrowse.jsp?pid="+pid+"&level="+level+"&offset="+offset+"&rows="+rowsPerQuery+"&onlyrels=true";
+    if(model){
+        url += "&model=" + model;
+    }
+    $.get(url, function(data){
+        $("#tab"+level+"-"+model+">div.relList").append(data);
+        changingTab = false;
+        addThumbs(level);
+        translate(level);
+        changeSelectedItem(currentSelectedPage);
+        //alert($("#tab"+level+"-"+model+">div[id=info-"+model+"]").html());
+        var t = $("#tab"+level+"-"+model+">div[id=info-"+model+"]").html();
+        if(t==""){
+            t = $("#tab"+level+"-"+model+">div.relList>div.relItem:first").html()
+            $("#tab"+level+"-"+model+">div[id=info-"+model+"]").html(t);
+        }
+        var numDocs = parseInt($("#tab"+level+"-"+model+">div.relList>div.numDocs").html());
+        if(numDocs+offset>rowsPerQuery){
+            $("#tab"+level+"-"+model+">div.relList>div.numDocs").remove();
+            fillRels(pid, level, offset+rowsPerQuery, model, recursive);
+        }else{
+            if(recursive){
+                var target = level+1;
+                var uuid = $("#tab"+level+"-"+model+">div.relList>div.relItem:first").attr("pid");
+                getItemLevel(uuid, target, "#tab"+level+"-"+model, true, false);
+                //getNextLevel(level);
+            } 
+        }
+    });
+}
+
 var rowsPerQuery = 200;
 function getRelsInLevel(level, recursive, offset){
     var pid;
     var model;
-    var target = level + 1;
-    var parentLevel = level -1;
     //var d2 = "#tabs_" + target;
     $('#tabs_'+level+'>div[id|=tab'+level+']>div.relList').each(function(index, o){
         //alert(o.id);
         pid = $("#"+o.id).parent().parent().parent().attr('pid');
         var divId = $("#"+o.id).parent().attr('id');
         model = divId.substring(divId.indexOf("-")+1);
-        var url ="inc/details/getItemForBrowse.jsp?pid="+pid+"&level="+level+"&offset="+offset+"&rows="+rowsPerQuery+"&onlyrels=true";
-        if(model){
-            url += "&model=" + model;
-        }
-        $.get(url, function(data){
-            $("#tab"+level+"-"+model+">div.relList").append(data);
-            //if(offset==0){
-              changingTab = false;
-              addThumbs(level);
-              translate(level);
-            //}
-            var numDocs = parseInt($("#tab"+level+"-"+model+">div.relList>div.numDocs").html());
-            
-            if(numDocs+offset>rowsPerQuery){
-                $("#tab"+level+"-"+model+">div.relList>div.numDocs").remove();
-                getRelsInLevel(level, recursive, offset+rowsPerQuery);
-            }else{
-                if(recursive) getNextLevel(level);
-            }
-        });
+        fillRels(pid, level, offset, model, recursive);
     });
 }
 
 function getRels(recursive){
     var maxLevel = getMaxLevel();
     for(var i=2;i<=maxLevel;i++){
+        getChildModels(i, recursive);
+        //getRelsInLevel(i,recursive, 0);
+    }
+    //alert(1);
+    for(var i=2;i<=maxLevel;i++){
+        //getChildModels(i, recursive);
         getRelsInLevel(i,recursive, 0);
     }
 }
@@ -301,6 +357,12 @@ function translate(level){
             $(o).html(dictionary[text]);
         }
     });
+    $('#tabs_'+level+'>ul>li>a>span.translate').each(function(index, o){
+        text = $(o).html();
+        if(typeof(dictionary[text])!= 'undefined'){
+            $(o).html(dictionary[text]);
+        }
+    });
 }
 
 /*
@@ -308,8 +370,11 @@ function translate(level){
  */
 function addThumbs(level){
     //canScroll = false;
+    // setTvContainerWidth();
     var uuid;
-    var display = 'default';
+    //alert(level);
+    var display = level == getMaxLevel()? 'default' : 'none';
+    //alert(display);
     //alert($('#tab'+level+'-page>div.relList>div.relItem').length);
     $('#tab'+level+'-page>div.relList>div.relItem').each(function(index){
         uuid = $(this).attr('pid');
@@ -330,12 +395,9 @@ function addThumbs(level){
  */  
 function activateThumbs(){
     var level = getMaxLevel();
-    var w = getImgContainerWidth();
-    var selWidth = getSelectedImageWidth();
-    var supposedDiff = w/selWidth * (selectedImageWidth-selWidth);
-    var leftBorder = getImgContainerLeft();
-    supposedDiff = 0;
-    var rightBorder = leftBorder + w + supposedDiff;
+    var w = getTvContainerWidth();
+    var leftBorder = getTvContainerLeft();
+    var rightBorder = leftBorder + w;
     //alert(rightBorder);
     var l;
     var src;
@@ -363,13 +425,13 @@ function activateThumbs(){
     
  
 function updateThumbs(level){
-    if(changingTab || level){
+    if(changingTab){
         initPage = null;
         var maxLevel;
         if(level){
-           maxLevel = level;
+            maxLevel = level;
         }else{
-           maxLevel = getMaxLevel();
+            maxLevel = getMaxLevel();
         }
          
         $('.thumb').hide();
@@ -377,6 +439,7 @@ function updateThumbs(level){
         if($('#img'+maxLevel+'_'+currentSelectedPage).is(':visible')){
             //changeSelection(currentSelectedPage);
             selectThumb(currentSelectedPage);
+            slideToThumb(currentSelectedPage);
         }else{
             var d1 = "#tabs_" + maxLevel;
             var d2 = "#tabs_" + (maxLevel-1);
@@ -458,30 +521,24 @@ function checkArrows(){
     }
 }
     
-var imgContainerWidth = 0;
-function getImgContainerWidth() {
-    if(imgContainerWidth==0){
-        imgContainerWidth = $("#tv_container").width();
+var tvContainerWidth = 0;
+function setTvContainerWidth(){
+     
+    tvContainerWidth = $(window).width() - 40;
+    $("#tv_container").css("width", tvContainerWidth);
+}
+function getTvContainerWidth() {
+    if(tvContainerWidth==0){
+        setTvContainerWidth();
     }
-    return imgContainerWidth;	
+    return tvContainerWidth;	
 }
 
-var imgContainerLeft = 0;
-function getImgContainerLeft() {
-    if(imgContainerLeft==0){
-        imgContainerLeft = $("#tv_container").offset().left;
+var tvContainerLeft = 0;
+function getTvContainerLeft() {
+    if(tvContainerLeft){
+        tvContainerLeft = $("#tv_container").offset().left;
     }
-    return imgContainerLeft;	
-}
-var selectedImageWidth = 0;
-function getSelectedImageWidth() {
-    //if(selectedImageWidth==0){
-    //    selectedImageWidth = $('img.tv_img_selected').width();
-    //}
-    return selectedImageWidth;	
+    return tvContainerLeft;	
 }
 
-function setSelectedImageWidth() {
-    selectedImageWidth = $('img.tv_img_selected').width();
-    
-}

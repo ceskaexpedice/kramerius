@@ -101,11 +101,13 @@
 
 <script language="javascript">
     changingTab = false;
+     setTvContainerWidth();
     $(document).ready(function(){
         $('#tabs_1>ul>li>img.op_list').hide();
         //getItemRels('<c:out value="${itemViewObject.firstUUID}" />', '<c:out value="${itemViewObject.firstUUID}" />', <c:out value="${1 + level}" />, true);
         //changeSelection('<c:out value="${itemViewObject.parentUUID}" />','<c:out value="${itemViewObject.lastUUID}" />');
         
+        currentSelectedPage = '<c:out value="${itemViewObject.lastUUID}" />';
         getRels(false);
         selectPage('<c:out value="${itemViewObject.lastUUID}" />');
     });

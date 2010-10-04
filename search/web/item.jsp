@@ -58,8 +58,7 @@
                             <td colspan="2" valign="middle" align="center">
                                 <table style="width: 100%"><tr>
                                         <td width="20px" align="center"><a class="prevArrow"  href="javascript:selectPrevious();"><img src="img/la.png" border="0" /></a></td>
-                                        <td align="center"><%--<%@ include file="gwtView.jsp" %>--%>
-                                        <%@ include file="thumbsViewer.jsp" %></td>
+                                        <td class="thumbsCell" align="center"><%@ include file="thumbsViewer.jsp" %></td>
                                         <td width="20px" align="center"><a class="nextArrow"  href="javascript:selectNext();"><img src="img/ra.png" border="0" /></a></td>
                                 </tr></table>
                             </td>
@@ -75,39 +74,33 @@
                                             <script type="text/javascript">
                                                 var viewer = null;
 
-												$(document).ready(function() {
-													
+                                                $(document).ready(function() {
+                                                    $("#leftButtonPlainImage").click(function() {
+                                                        selectPrevious();
+                                                    });
 
-													$("#leftButtonPlainImage").click(function() {
-														selectPrevious();
-													});
+                                                    $("#rightButtonPlainImage").click(function() {
+                                                        selectNext();
+                                                    });
+                                                                                                        
+                                                    $("#leftButtonPlainImage").mouseenter(function() {
+                                                        $("#leftButtonPlainImage").attr('src','img/prev_hover.png');
+                                                    });
+                                                                                                        
+                                                    $("#leftButtonPlainImage").mouseleave(function() {
+                                                        $("#leftButtonPlainImage").attr('src','img/prev_grouphover.png');
+                                                    });
 
-													$("#rightButtonPlainImage").click(function() {
-														selectNext();
-													});
-													
-													$("#leftButtonPlainImage").mouseenter(function() {
-														$("#leftButtonPlainImage").attr('src','img/prev_hover.png');
-													});
-													
-													$("#leftButtonPlainImage").mouseleave(function() {
-														$("#leftButtonPlainImage").attr('src','img/prev_grouphover.png');
-													});
+                                                    $("#rightButtonPlainImage").mouseenter(function() {
+                                                        $("#rightButtonPlainImage").attr('src','img/next_hover.png');
+                                                    });
+                                                                                                        
+                                                    $("#rightButtonPlainImage").mouseleave(function() {
+                                                        $("#rightButtonPlainImage").attr('src','img/next_grouphover.png');
+                                                    });
+                                                });
 
-													$("#rightButtonPlainImage").mouseenter(function() {
-														$("#rightButtonPlainImage").attr('src','img/next_hover.png');
-													});
-													
-													$("#rightButtonPlainImage").mouseleave(function() {
-														$("#rightButtonPlainImage").attr('src','img/next_grouphover.png');
-													});
-													
-													
-													
-
-												});
-
-												                                                                
+                                                                                                                                                                
                                                 function init() {
                                                     viewer = new Seadragon.Viewer("container");
                                                     viewer.clearControls();
@@ -116,55 +109,55 @@
                                                     viewer.addControl(viewer.getNavControl(),  Seadragon.ControlAnchor.TOP_RIGHT);
                                                 }
 
-												function prevButton() {
-													var control = document.createElement("img");
-													control.setAttribute('src','img/prev_grouphover.png');
-													control.setAttribute('id','prevButton');
+                                                function prevButton() {
+                                                    var control = document.createElement("img");
+                                                    control.setAttribute('src','img/prev_grouphover.png');
+                                                    control.setAttribute('id','prevButton');
 
-													control.onmouseover = function(event) {
-														document.getElementById('prevButton').setAttribute('src','img/prev_hover.png');
+                                                    control.onmouseover = function(event) {
+                                                        document.getElementById('prevButton').setAttribute('src','img/prev_hover.png');
                                                     };
                                                     control.onmouseout =function(event) {
-														document.getElementById('prevButton').setAttribute('src','img/prev_grouphover.png');
+                                                        document.getElementById('prevButton').setAttribute('src','img/prev_grouphover.png');
                                                     };
                                                     control.onclick = function(event) {
-														selectPrevious();
+                                                        selectPrevious();
                                                     };
 
 
-													control.className = "control prevArrow";
-													return control;
-												}
+                                                    control.className = "control prevArrow";
+                                                    return control;
+                                                }
 
 
-												
-												function nextButton() {
-													var control = document.createElement("img");
-													control.setAttribute('src','img/next_grouphover.png');
-													control.setAttribute('id','nextButton');
-													
-													control.className = "control nextArraow";
-													
-													control.onmouseover = function(event) {
-														document.getElementById('nextButton').setAttribute('src','img/next_hover.png');
+                                                                                                
+                                                function nextButton() {
+                                                    var control = document.createElement("img");
+                                                    control.setAttribute('src','img/next_grouphover.png');
+                                                    control.setAttribute('id','nextButton');
+                                                                                                        
+                                                    control.className = "control nextArraow";
+                                                                                                        
+                                                    control.onmouseover = function(event) {
+                                                        document.getElementById('nextButton').setAttribute('src','img/next_hover.png');
                                                     };
                                                     control.onmouseout =function(event) {
-														document.getElementById('nextButton').setAttribute('src','img/next_grouphover.png');
+                                                        document.getElementById('nextButton').setAttribute('src','img/next_grouphover.png');
                                                     };
                                                     control.onclick = function(event) {
-														selectNext();
+                                                        selectNext();
                                                     };
-													
-													
-													/*
-													control.appendChild(controlText);
-													Seadragon.Utils.addEvent(control, "click", 
-													    onControlClick);
-													*/
-													    
-													return control;
-    									        }
-	
+                                                                                                        
+                                                                                                        
+                                                    /*
+                                                                                                        control.appendChild(controlText);
+                                                                                                        Seadragon.Utils.addEvent(control, "click", 
+                                                                                                            onControlClick);
+                                                     */
+                                                                                                            
+                                                    return control;
+                                                }
+        
                                                 //Seadragon.Utils.addEvent(window, "load", init);
                                                 
                                                 // lokalizace
@@ -181,42 +174,42 @@
                                             </script>
                                             
                                             
-                                            <div id="container" style="padding-top:10px; height: 500px; color: black; display:none;"></div>
+                                            <div id="container" style="padding-top:10px; height: 500px; width:700px; color: black; display:none;"></div>
                                             
-                                            <div id="securityError" style="padding-top:10px; height: 400px; color: black; display:none;">
+                                            <div id="securityError" style="padding-top:10px; height: 400px; width:700px; color: black; display:none;">
                                                 <fmt:message bundle="${lctx}" key="rightMsg"></fmt:message>
                                             </div>
                                             
-                                            <div id="loadingDeepZoomImage" style="padding-top:10px; height: 500px; color: black; display:none;">
+                                            <div id="loadingDeepZoomImage" style="padding-top:10px; height: 500px; width:700px; color: black; display:none;">
                                                 <fmt:message bundle="${lctx}" key="deep.zoom.loadingImage"></fmt:message>
                                             </div>
                                             
-											
-                                            <div id="plainImage" style="padding-top:10px; height:650;  color: black; border:1px; position:relative;">
+                                            
+                                            <div id="plainImage" style="padding-top:10px; height:650; width:700px;  color: black; border:1px; position:relative;">
                                                 <img id="plainImageImg" 
-                                                	onclick='switchDisplayToSeadragon()' 
-                                                	onload='selectedImageFadeIn()'
-                                              
-                                                	border="0"  src="${itemViewObject.firstPageImageUrl}" height="650px" ></img>
-                                            	<img id="seadragonButton" border='0' src='img/lupa_shadow.png' style='position:relative; left:-60px; top:30px;'></img>
-
-
-												<div style="position:absolute; top:10px; right:35px;">
-													<img id="leftButtonPlainImage" class="prevArrow" src="img/prev_grouphover.png" />
-												</div>                                            	
-
-												<div style="position:absolute; top:10px; right:0px;">
-													<img id="rightButtonPlainImage" class="nextArraow" src="img/next_grouphover.png" />						
-												</div>                                            	
-
-                                            	
+                                                     onclick='switchDisplayToSeadragon()' 
+                                                     onload='selectedImageFadeIn()'
+                                                     
+                                                     border="0"  src="${itemViewObject.firstPageImageUrl}" height="650px" ></img>
+                                                <img id="seadragonButton" border='0' onclick='switchDisplayToSeadragon()'  src='img/lupa_shadow.png' style='position:relative; left:-60px; top:30px;'></img>
+                                                
+                                                
+                                                <div style="position:absolute; top:10px; right:35px;">
+                                                    <img id="leftButtonPlainImage" class="prevArrow" src="img/prev_grouphover.png" />
+                                                </div>                                            	
+                                                
+                                                <div style="position:absolute; top:10px; right:0px;">
+                                                    <img id="rightButtonPlainImage" class="nextArraow" src="img/next_grouphover.png" />						
+                                                </div>                                            	
+                                                
+                                                
                                             </div>
                                             
                                         </td>
                                         <!--
                                         <td valign="top" align="center" width="20px">
                                         <a class="nextArrow"  href="javascript:selectNext();">
-                                        	<img src="img/ra.png" border="0" /></a>
+                                                <img src="img/ra.png" border="0" /></a>
                                         </td>
                                         -->
                                 </tr></table>

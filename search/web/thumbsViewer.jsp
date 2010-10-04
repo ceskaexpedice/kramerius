@@ -160,7 +160,7 @@
      var tvContainerLeft;
     function slideTo(pos){
         canScroll = false;
-        maxScroll = $("#tv_container").attr("scrollWidth") - getImgContainerWidth();
+        maxScroll = $("#tv_container").attr("scrollWidth") - getTvContainerWidth();
         $("#tv_slider").slider("value", pos);
         $("#tv_container").attr({
             scrollLeft: pos * (maxScroll / 100)
@@ -187,7 +187,7 @@
         //    maxScroll = $("#tv_container").attr("scrollWidth") - $("#tv_container").width();
         //}
         if(canScroll){
-            maxScroll = $("#tv_container").attr("scrollWidth") - getImgContainerWidth();
+            maxScroll = $("#tv_container").attr("scrollWidth") - getTvContainerWidth();
             $("#tv_container").attr({
                 scrollLeft: ui.value * (maxScroll / 100)
             });
@@ -232,30 +232,26 @@
                 selectPrevious();
             }
         });
-        
 
     });
     
-    function resizeFullImage(){
-        $('#fullImageContainer').dialog('option', {
-                left:0, 
-                top:0, 
-                height:$(window).height()-vertMargin, 
-                width:$(window).width()-horMargin
-        });
+    function resizeElements(){
+        setTvContainerWidth();
+        activateThumbs();
     }
     var resizeTimer = null;
     $(window).bind('resize', function() {
-        
             if (resizeTimer) clearTimeout(resizeTimer);
-            resizeTimer = setTimeout(resizeFullImage, 100);
-        
+            resizeTimer = setTimeout(resizeElements, 100);
     }); 
 </script>
 <style>
+    #tv{
+        width: 100%;
+    }
     #tv_container{
         overflow: hidden;
-        width:900px;
+        position:relative;
         height:150px;
     }
     .tv_image{
@@ -281,6 +277,10 @@
         overflow:hidden;
         background:white url(img/background.png) repeat-x;
     }
+    #tv_scroll_table{
+        padding-left:18px;
+        padding-rigth:18px;
+    }
     
 </style>
 <div id="tv">
@@ -289,7 +289,7 @@
         <tr id="tv_container_row"></tr>
     </table>
 </div>
-<table cellpadding="2" cellspacing="0" width="100%">
+<table cellpadding="2" cellspacing="0" width="100%" id="tv_scroll_table">
     <tr><td><div id="tv_slider" style="width: 100%"></div> </td></tr>
 </table>
 </div>
