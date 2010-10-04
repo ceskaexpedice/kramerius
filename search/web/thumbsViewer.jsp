@@ -25,8 +25,6 @@
         var level = getMaxLevel()
 		setSelection(level,"page",uuid);
 
-        
-		
         $("#tabs_"+getMaxLevel()).attr('pid', currentSelectedPage);
 
         var pageUrl = "djvu?uuid="+uuid+"&scaledWidth="+imgW;
@@ -34,9 +32,11 @@
         
         var img = '<a class="lighbox" href="javascript:showFullImage(\''+uuid+'\')"><img id="imgBig" src="'+pageUrl+'" alt="" width="'+imgW+'px" border="0" onerror="showError();"  /></a>';
         checkArrows();
-        if (viewer != null) {
-			showDeepZoomFile(uuid);
-        }
+
+//        if (viewer != null) {
+//			showDeepZoomFile(uuid);
+//        }
+        
         $.get(mimeUrl, function(data){
             currentMime = data;
         });
