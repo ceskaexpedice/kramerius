@@ -12,9 +12,14 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.net.URL;
+import java.util.Iterator;
 import java.util.List;
 
+import javax.imageio.IIOImage;
 import javax.imageio.ImageIO;
+import javax.imageio.ImageWriteParam;
+import javax.imageio.ImageWriter;
+import javax.imageio.stream.FileImageOutputStream;
 import javax.swing.JPanel;
 import javax.xml.xpath.XPathExpressionException;
 
@@ -95,6 +100,30 @@ public class KrameriusImageSupport {
 		ImageIO.write(bufImage, javaFormat, bos);
 		IOUtils.copyStreams(new ByteArrayInputStream(bos.toByteArray()), os);
 	}
+	
+	public static void writeImageToStream(Image scaledImage, String javaFormat,
+		FileImageOutputStream	os, float quality) throws IOException {
+		BufferedImage bufImage = new BufferedImage(scaledImage.getWidth(null), scaledImage.getHeight(null), BufferedImage.TYPE_INT_RGB);
+		Graphics gr = bufImage.getGraphics();
+		gr.drawImage(scaledImage,0,0,null);
+		gr.dispose();
+		
+
+		Iterator<ImageWriter> iter = ImageIO.getImageWritersByFormatName(javaFormat);
+		if (iter.hasNext()) {
+			ImageWriter writer = iter.next();
+			ImageWriteParam iwp = writer.getDefaultWriteParam();
+			iwp.setCompressionMode(ImageWriteParam.MODE_EXPLICIT);
+			iwp.setCompressionQuality(quality);   // an integer between 0 and 1			
+			writer.setOutput(os);
+			IIOImage image = new IIOImage(bufImage, null, null);
+			writer.write(null, image, iwp);
+			writer.dispose();
+			
+		} else throw new IOException("No writer for format '"+javaFormat+"'");
+		
+	}
+	
 	
 	public static Image scale (Image img, int targetWidth, int targetHeight){
 		KConfiguration config = KConfiguration.getInstance();

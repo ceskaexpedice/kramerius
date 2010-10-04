@@ -85,6 +85,10 @@ public class SecuredFedoraAccessImpl implements FedoraAccess {
 
 	public String getImageFULLMimeType(String uuid) throws IOException,
 			XPathExpressionException {
+		if (!this.acceptor.privateVisitor()) {
+			Document relsExt = this.rawAccess.getRelsExt(uuid);
+			checkPolicyElement(relsExt);
+		}
 		return rawAccess.getImageFULLMimeType(uuid);
 	}
 

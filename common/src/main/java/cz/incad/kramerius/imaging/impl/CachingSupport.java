@@ -12,6 +12,7 @@ import java.io.IOException;
 import java.io.InputStream;
 
 import javax.imageio.ImageIO;
+import javax.imageio.stream.FileImageOutputStream;
 
 import org.antlr.stringtemplate.StringTemplate;
 import org.apache.commons.io.output.FileWriterWithEncoding;
@@ -26,7 +27,7 @@ public class CachingSupport {
     
     
     public void writeDeepZoomDescriptor(String uuid, Image rawImage, int tileSize) throws IOException {
-        StringTemplate template = new StringTemplate("<?xml version=\"1.0\" encoding=\"UTF-8\"?><Image TileSize=\"$tileSize$\" Overlap=\"0\" Format=\"png\" xmlns=\"http://schemas.microsoft.com/deepzoom/2008\"><Size Width=\"$width$\" Height=\"$height$\"/></Image>");
+        StringTemplate template = new StringTemplate("<?xml version=\"1.0\" encoding=\"UTF-8\"?><Image TileSize=\"$tileSize$\" Overlap=\"0\" Format=\"jpg\" xmlns=\"http://schemas.microsoft.com/deepzoom/2008\"><Size Width=\"$width$\" Height=\"$height$\"/></Image>");
         template.setAttribute("tileSize", tileSize);
         template.setAttribute("width", rawImage.getWidth(null));
         template.setAttribute("height", rawImage.getHeight(null));
@@ -56,12 +57,13 @@ public class CachingSupport {
     
     public void writeDeepZoomFullImage(String uuid, Image rawImage) throws IOException {
         File rawImageFile = getRawImageFile(uuid);
-        FileOutputStream fos = new FileOutputStream(rawImageFile);
+//        FileOutputStream fos = new FileOutputStream(rawImageFile);
+        FileImageOutputStream fosI = new FileImageOutputStream(rawImageFile);
         try {
-            KrameriusImageSupport.writeImageToStream(rawImage, "PNG", fos);
+            KrameriusImageSupport.writeImageToStream(rawImage, "JPG", fosI,0.9f);
         } finally {
-            if (fos != null) {
-                fos.close();
+            if (fosI != null) {
+                fosI.close();
             }
         }
     }
@@ -93,12 +95,13 @@ public class CachingSupport {
     public void writeDeepZoomTile(String uuid, int level, int row, int col, Image tileImage) throws IOException {
         File folder = getTileImageFolder(uuid, level);
         File tileImageFile = new File(folder, getTileName(row, col));
-        FileOutputStream fos = new FileOutputStream(tileImageFile);
+        //FileOutputStream fos = new FileOutputStream(tileImageFile);
+        FileImageOutputStream fosI = new FileImageOutputStream(tileImageFile);
         try {
-            KrameriusImageSupport.writeImageToStream(tileImage, "PNG", fos);
+            KrameriusImageSupport.writeImageToStream(tileImage, "JPG", fosI,0.9f);
         } finally {
-            if (fos != null) {
-                fos.close();
+            if (fosI != null) {
+                fosI.close();
             }
         }
     }

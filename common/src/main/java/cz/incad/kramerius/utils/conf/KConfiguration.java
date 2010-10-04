@@ -221,6 +221,9 @@ public class KConfiguration {
 	    
 	}
 	
+	public int getDeepZoomTileSize() {
+		return getConfiguration().getInt("deepZoom.tileSize");
+	}
 
 	public String getDeepZoomCacheDir() {
 	    return getConfiguration().getString("deepZoom.cachedir", "${sys:user.home}/.kramerius4/deepZoom");

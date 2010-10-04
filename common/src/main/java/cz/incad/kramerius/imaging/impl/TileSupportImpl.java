@@ -18,7 +18,8 @@ import cz.incad.kramerius.utils.imgs.KrameriusImageSupport;
 
 public class TileSupportImpl implements TileSupport {
 
-    private static final int TILE_SIZE = 2048;
+    //private static final int TILE_SIZE = 2048;
+    private static final int TILE_SIZE = 512;
 
     @Inject
     @Named("securedFedoraAccess")
