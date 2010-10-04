@@ -51,7 +51,10 @@ public class LocalesProvider implements Provider<Locale>{
 
 
 	private Locale getDefault(HttpServletRequest request) {
-		Locale locale = request.getLocale();
-		return locale;
+		Locale requestLocale = request.getLocale();
+		Locale foundLocale = this.textsService.findLocale(requestLocale.getLanguage());
+		if (foundLocale != null) {
+			return foundLocale;
+		} else return requestLocale;
 	}
 }
