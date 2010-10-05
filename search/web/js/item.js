@@ -611,7 +611,6 @@ function switchDisplayToSeadragon() {
 
 function selectedImageFadeIn() {
 	$("#plainImageImg").fadeIn();
-	$("#seadragonButton").fadeIn();
 	$("#pdfImageImg").fadeIn();
 }
 
@@ -626,7 +625,6 @@ function showImage(uuid) {
 			viewer.openDzi("deepZoom/"+uuid+"/");
 		} else {
 			displayImageContent();
-			$("#seadragonButton").fadeOut("slow");
 			$("#plainImageImg").fadeOut("slow", function () {
 				$("#plainImageImg").attr('src','djvu?uuid='+uuid+'&scaledWidth=650');
 	
