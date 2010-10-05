@@ -430,7 +430,7 @@ function updateThumbs(level){
         $('.thumb').hide();
         $('.inlevel_'+maxLevel).show();
         if($('#img'+maxLevel+'_'+currentSelectedPage).is(':visible')){
-            alert(1);
+            //alert(1);
             //changeSelection(currentSelectedPage);
             selectThumb(currentSelectedPage);
             slideToThumb(currentSelectedPage);
