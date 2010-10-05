@@ -350,14 +350,15 @@ var PDF=function() {
 
             var from = $("#genPdfStart").val()-1;
             var to = $("#genPdfEnd").val()-1;
-            var elmFrom = $('#tv_container_row td:eq('+from+') img'); 
-            var elmTo = $('#tv_container_row td:eq('+to+') img'); 
-			
-            var fromUuid = $($("#list-page>div.relItem")[$("#genPdfStart").val()-1]).attr('id');
-            var fromUuid = $($("#list-page>div.relItem")[$("#genPdfStart").val()-1]).attr('id');
-            var toUuid = $("#list-page>div.relItem")[$("#genPdfEnd").val()-1].attributes['pid'].value;
-            var toUuid = $("#list-page>div.relItem")[$("#genPdfEnd").val()-1].attributes['pid'].value;
 
+            //var elmFrom = $('#tv_container_row td:eq('+from+') img'); 
+	    //alert(elmFrom.length);	
+            //var elmTo = $('#tv_container_row td:eq('+to+') img'); 
+	    //alert(elmTo.length);				
+		
+
+            var fromUuid = $($("#list-page>div.relItem")[from]).attr('pid');
+            var toUuid = $($("#list-page>div.relItem")[to]).attr('pid');
             
             var u = "pdf?uuidFrom=" + fromUuid+"&uuidTo="+toUuid+"&path="+PDF.path(pageLevel-1);
             window.location.href = u;
@@ -611,26 +612,35 @@ function switchDisplayToSeadragon() {
 function selectedImageFadeIn() {
 	$("#plainImageImg").fadeIn();
 	$("#seadragonButton").fadeIn();
+	$("#pdfImageImg").fadeIn();
 }
 
 function showImage(uuid) {
-	// fullpage mode = always seadragon otherwise always plain image
-	if ((viewer != null) && (viewer.isFullPage())) {
-		displaySeadragonContent();					
-		viewer.openDzi("deepZoom/"+uuid+"/");
+	// different view for pdf	
+	if (currentMime=="application/pdf") {
+		displayPDFImageContent();
 	} else {
-		displayImageContent();
-		$("#seadragonButton").fadeOut("slow");
-		$("#plainImageImg").fadeOut("slow", function () {
-			$("#plainImageImg").attr('src','djvu?uuid='+uuid+'&scaledWidth=650');
+		// fullpage mode = always seadragon otherwise always plain image
+		if ((viewer != null) && (viewer.isFullPage())) {
+			displaySeadragonContent();					
+			viewer.openDzi("deepZoom/"+uuid+"/");
+		} else {
+			displayImageContent();
+			$("#seadragonButton").fadeOut("slow");
+			$("#plainImageImg").fadeOut("slow", function () {
+				$("#plainImageImg").attr('src','djvu?uuid='+uuid+'&scaledWidth=650');
 	
-		});
-	}
+			});
+		}
+	
+	}		
+	
 }
 
 function displaySecuredContent() {
 	$("#loadingDeepZoomImage").hide();
 	$("#plainImage").hide();
+	$("#pdfImage").hide();
 	$("#container").hide();
 
 	$("#securityError").show();
@@ -638,6 +648,7 @@ function displaySecuredContent() {
 
 function displayImageContent() {
 	$("#loadingDeepZoomImage").hide();
+	$("#pdfImage").hide();
 	$("#container").hide();
 	$("#securityError").hide();
 
@@ -647,16 +658,37 @@ function displayImageContent() {
 
 function displaySeadragonContent() {
 	$("#securityError").hide();
+	$("#pdfImage").hide();
 	$("#plainImage").hide();
 	$("#loadingDeepZoomImage").hide();
 
 	$("#container").show();
 }
-function loadingImageContent() {
+function displayLoadingImageContent() {
 	$("#securityError").hide();
+	$("#pdfImage").hide();
 	$("#plainImage").hide();
 	$("#container").hide();
 
 	$("#loadingDeepZoomImage").show();
+}
+
+function displayPDFImageContent() {
+	$("#securityError").hide();
+	$("#plainImage").hide();
+	$("#container").hide();
+	$("#loadingDeepZoomImage").hide();
+
+	$("#pdfImage").show();
+
+}
+
+function showBornDigitalPDF(uuid,page) {
+	if  (!page) {
+		page = "1";	
+	}
+	var url = "djvu?uuid="+uuid+"&outputFormat=RAW#page="+page;
+	var pdfWindow = window.open(url, '_blank');
+	pdfWindow.focus();
 }
 

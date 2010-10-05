@@ -108,8 +108,6 @@ function selectPage(uuid){
         
     checkArrows();
 
-    if(changeImage){
-    
       $.ajax({
           url:mimeUrl,
           complete:function(req,textStatus) {
@@ -126,7 +124,6 @@ function selectPage(uuid){
               }
           }
       });	 
-    }   
     
     $('#img'+getMaxLevel()+'_'+uuid).toggleClass('tv_img_selected');
     $("#tv_container").attr("scrollLeft", to);
