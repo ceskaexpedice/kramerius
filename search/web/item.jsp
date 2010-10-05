@@ -144,7 +144,7 @@
                                                     control.setAttribute('src','img/next_grouphover.png');
                                                     control.setAttribute('id','nextButton');
                                                                                                         
-                                                    control.className = "control nextArraow";
+                                                    control.className = "control nextArrow";
                                                                                                         
                                                     control.onmouseover = function(event) {
                                                         document.getElementById('nextButton').setAttribute('src','img/next_hover.png');
@@ -209,7 +209,7 @@
 	                                                    <img id="leftButtonPlainImage" class="prevArrow" src="img/prev_grouphover.png" />
                                                 	</span>
                                                 	<span>
-	                                                    <img id="rightButtonPlainImage" class="nextArraow" src="img/next_grouphover.png" />						
+	                                                    <img id="rightButtonPlainImage" class="nextArrow" src="img/next_grouphover.png" />						
                                                 	</span>
                                                 </div>
                                             </div>
