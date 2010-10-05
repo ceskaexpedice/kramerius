@@ -187,6 +187,7 @@
 		<resources>
 			<resource>
 				<directory>${basedir}/src/conf</directory>
+				<filtering>true</filtering>
 				<includes>
 					<include>**/*</include>
 				</includes>
@@ -234,6 +235,26 @@
 					<warSourceDirectory>${basedir}/web</warSourceDirectory>
 				</configuration>
 			</plugin>
+			
+			<plugin>
+                <groupId>com.google.code.maven-svn-revision-number-plugin</groupId>
+                <artifactId>maven-svn-revision-number-plugin</artifactId>
+                <version>1.5</version>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>revision</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                 <entries>
+                        <entry>
+                            <prefix>prefix</prefix>
+                        </entry>
+                    </entries>
+                </configuration>
+            </plugin>
 		</plugins>
 	</build>
 </project>
