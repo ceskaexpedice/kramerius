@@ -575,7 +575,7 @@ function loadFedoraDocuments(model, offset, sort, sort_dir){
     var url = "dialogs/_indexer_data.jsp?model="+model+"&offset="+offset+"&sort="+sort+"&sort_dir="+sort_dir;
     $.get(url, function(data) {
         $("#indexerContent").html(data);
-        //$("tr."+model).toggleClass('selected');
+        checkIndexed();
     });
 }
 
