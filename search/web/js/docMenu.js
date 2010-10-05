@@ -430,13 +430,12 @@ function updateThumbs(level){
         $('.thumb').hide();
         $('.inlevel_'+maxLevel).show();
         if($('#img'+maxLevel+'_'+currentSelectedPage).is(':visible')){
+            alert(1);
             //changeSelection(currentSelectedPage);
             selectThumb(currentSelectedPage);
             slideToThumb(currentSelectedPage);
         }else{
-            var d1 = "#tabs_" + maxLevel;
-            var d2 = "#tabs_" + (maxLevel-1);
-            var pid = $(d1+">div.page>div.relList>div:first").attr("pid");
+            var pid = $("#tab"+maxLevel+"-page>div.relList>div:first").attr("pid");
             selectPage(pid);
             //selectThumb(pid);
         }
