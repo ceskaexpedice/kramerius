@@ -83,7 +83,7 @@
 
 	function errLeft() {
 		if (errFrom > 20) {
-			errFrom = errFrom - 20;
+			errFrom = errFrom - 40;
 			refresh();
 		} else {
 			errFrom = 0;
@@ -91,13 +91,13 @@
 		}
 	}
 	function errRight() {
-		errFrom = errFrom + 20;
+		errFrom = errFrom + 40;
 		refresh();
 	}
 
 	function stdLeft() {
 		if (stdFrom > 20) {
-			stdFrom = stdFrom - 20;
+			stdFrom = stdFrom - 40;
 			refresh();
 		} else {
 			stdFrom = 0;
@@ -106,13 +106,20 @@
 
 	}
 	function stdRight() {
-		stdFrom = stdFrom + 20;
+		stdFrom = stdFrom + 40;
 		refresh();
 	
 	}
 	
 	$(document).ready(function(){
 		refresh();
+		$("#stdOutHeader").css('width',$(window).width()-50);
+		$("#errOutHeader").css('width',$(window).width()-50);
+		$("#stdTextArea").css('width',$(window).width()-50);
+		$("#stdTextArea").css('height',($(window).height()/2)-60);		
+		$("#errTextArea").css('width',$(window).width()-50);
+		$("#errTextArea").css('height',($(window).height()/2)-60);		
+		
 	});
 
 	function refresh() {
@@ -143,8 +150,7 @@
 		<tr>
 			<td align="center">
 
-				<div class="ui-tabs ui-widget-content ui-corner-all facet"
-					style="width: 700px;">
+				<div id="stdOutHeader" class="ui-tabs ui-widget-content ui-corner-all facet">
 						<table width="100%">
 							<tr>
 								<td width="80%" style="padding-left: 15px;">
@@ -162,7 +168,7 @@
 
 		<tr>
 			<td align="center">
-			<div><textarea id="stdTextArea" rows="20" cols="80">
+			<div><textarea id="stdTextArea">
 				</textarea>
 			</div>
 			</td>
@@ -170,8 +176,7 @@
 
 		<tr align="center">
 			<td>
-				<div class="ui-tabs ui-widget-content ui-corner-all facet"
-					style="width: 700px;">
+				<div id="errOutHeader" class="ui-tabs ui-widget-content ui-corner-all facet">
 						<table width="100%">
 							<tr>
 								<td width="80%" style="padding-left: 15px;">
@@ -189,7 +194,7 @@
 		<tr>
 			<td align="center">
 				<div>
-					<textarea id="errTextArea" rows="20" cols="80"> </textarea>
+					<textarea id="errTextArea" rows="40" cols="140"> </textarea>
 				</div>
 			</td>
 		</tr>
