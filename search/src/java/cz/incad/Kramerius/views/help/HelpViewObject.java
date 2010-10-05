@@ -1,7 +1,9 @@
 package cz.incad.Kramerius.views.help;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.Locale;
+import java.util.Properties;
 import java.util.logging.Level;
 
 import javax.servlet.ServletContext;
@@ -59,13 +61,27 @@ public class HelpViewObject {
     public void redirectToDefault() {
         try {
             if (this.localeProvider.get().getLanguage().equals("cs")) {
-                this.response.sendRedirect("cs.html");
+                this.response.sendRedirect("cs.jsp");
             } else {
-                this.response.sendRedirect("en.html");
+                this.response.sendRedirect("en.jsp");
             }
         } catch (IOException e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
         }
     }
     
+    
+    public String getRevision() {
+    	try {
+			InputStream revisions = this.getClass().getClassLoader().getResourceAsStream("revision.txt");
+			if (revisions != null) {
+				Properties props = new Properties();
+				props.load(revisions);
+				return props.getProperty("revision");
+			} else return "";
+		} catch (IOException e) {
+			LOGGER.severe(e.getMessage());
+			return "";
+		}
+    }
 }
