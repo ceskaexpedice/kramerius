@@ -98,6 +98,15 @@
                                                     $("#rightButtonPlainImage").mouseleave(function() {
                                                         $("#rightButtonPlainImage").attr('src','img/next_grouphover.png');
                                                     });
+                                                    
+                                                    $("#seadragonButton").mouseenter(function() {
+                                                        $("#seadragonButton").attr('src','img/zoomin_hover.png');
+                                                    });
+                                                                                                        
+                                                    $("#seadragonButton").mouseleave(function() {
+                                                        $("#seadragonButton").attr('src','img/zoomin_grouphover.png');
+                                                    });
+                                                    
                                                 });
 
                                                                                                                                                                 
@@ -181,7 +190,7 @@
                                                      onclick='showBornDigitalPDF("${itemViewObject.imagePid}","${itemViewObject.page}" )' 
                                                      onload='selectedImageFadeIn()'
                                                      border="0"  src="${itemViewObject.firstPageImageUrl}" height="650px" ></img>
-                                                <img id="seadragonButton" border='0' onclick='showBornDigitalPDF("${itemViewObject.imagePid}","${itemViewObject.page}" )'  src='img/lupa_shadow.png' style='position:relative; left:-60px; top:30px;'></img>
+                                                <img id="pdfZoomButton" border='0' onclick='showBornDigitalPDF("${itemViewObject.imagePid}","${itemViewObject.page}" )'  src='img/lupa_shadow.png' style='position:relative; left:-60px; top:30px;'></img>
                                             </div>
                                             
                                             <div id="plainImage" style="padding-top:10px; height:650; width:700px;  color: black; border:1px; position:relative;">
@@ -190,16 +199,19 @@
                                                      onload='selectedImageFadeIn()'
                                                      
                                                      border="0"  src="${itemViewObject.firstPageImageUrl}" height="650px" ></img>
-                                                <img id="seadragonButton" border='0' onclick='switchDisplayToSeadragon()'  src='img/lupa_shadow.png' style='position:relative; left:-60px; top:30px;'></img>
                                                 
                                                 
-                                                <div style="position:absolute; top:10px; right:35px;">
-                                                    <img id="leftButtonPlainImage" class="prevArrow" src="img/prev_grouphover.png" />
-                                                </div>                                            	
-                                                	
                                                 <div style="position:absolute; top:10px; right:0px;">
-                                                    <img id="rightButtonPlainImage" class="nextArraow" src="img/next_grouphover.png" />						
-                                                </div>                                            	
+                                                	<span>
+    		                                            <img id="seadragonButton" border='0' onclick='switchDisplayToSeadragon()'  src='img/zoomin_grouphover.png'></img>
+                                                	</span>	
+                                                	<span>
+	                                                    <img id="leftButtonPlainImage" class="prevArrow" src="img/prev_grouphover.png" />
+                                                	</span>
+                                                	<span>
+	                                                    <img id="rightButtonPlainImage" class="nextArraow" src="img/next_grouphover.png" />						
+                                                	</span>
+                                                </div>
                                             </div>
                                             
                                         </td>
