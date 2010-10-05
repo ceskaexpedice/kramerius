@@ -44,7 +44,7 @@ version="1.0">
         <xsl:for-each select="/sp:sparql/sp:results/sp:result">
             <xsl:variable name="title" select="normalize-space(./sp:title)" />
             <xsl:variable name="date" select="normalize-space(./sp:date)" />
-            <tr class="indexer_result">
+            <tr class="indexer_result"><xsl:attribute name="pid"><xsl:value-of select="substring-after(./sp:object/@uri, 'uuid:')" /></xsl:attribute>
             <td class="indexer_result_status"></td><td>
             - 
             <a><xsl:attribute name="href">javascript:indexDoc('<xsl:value-of select="./sp:object/@uri" />', '<xsl:value-of select="$title" />');</xsl:attribute><xsl:value-of select="./sp:title" /></a>

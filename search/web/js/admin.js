@@ -70,7 +70,6 @@ function openProcessDialog() {
 	
 }
 
-
 function processes(){
 	var url = "dialogs/_processes_data.jsp?offset=0&size=20&type=DESC";
 	$.get(url, function(data) {
@@ -537,6 +536,7 @@ function showIndexerAdmin(){
     var url = "dialogs/_indexer_data.jsp?offset=0";
     $.get(url, function(data) {
         $("#indexerContent").html(data);
+        checkIndexed();
     });
     if (_indexerDialog) {
         _indexerDialog.dialog('open');
@@ -554,8 +554,23 @@ function showIndexerAdmin(){
             } 
         });
     }
+    
 }
 
+function checkIndexed(){
+    var url;
+    var pid;
+    $('.indexer_result').each(function(){
+        pid = $(this).attr('pid');
+        var obj = this;
+        url = "dialogs/_indexer_check.jsp?pid="+pid;
+        $.get(url, function(data) {
+            if(trim10(data)!="0"){
+              $(obj).addClass("indexer_result_indexed");
+            }
+        });
+    });
+}
 function loadFedoraDocuments(model, offset, sort, sort_dir){
     var url = "dialogs/_indexer_data.jsp?model="+model+"&offset="+offset+"&sort="+sort+"&sort_dir="+sort_dir;
     $.get(url, function(data) {

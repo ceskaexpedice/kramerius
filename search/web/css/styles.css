@@ -560,6 +560,10 @@ table.advancedSearch td{
 }
 .indexer_result td{
     border-bottom:1px solid silver;
+    padding-left:10px;
+}
+.indexer_result_indexed{
+    background: url("../img/ok.png") no-repeat;
 }
 .indexer_pager{
     text-align:right;
