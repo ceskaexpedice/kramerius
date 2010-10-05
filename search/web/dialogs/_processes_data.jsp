@@ -81,11 +81,8 @@ function _ref(ordering, offset, size, type) {
 	
 </tr>
 </table>
-<!-- 
-${processView.prevAHREF}  ${processView.nextAHREF}
- -->
 </div>
-<table width="100%">
+<table width="100%" style="width:100%; bottom:20px;">
 	<thead style="border-bottom: dashed 1px;background-image:url('img/bg_processheader.png');
 	 		      background-repeat:  repeat-x;" >
 		<tr>
