@@ -175,7 +175,7 @@
                                             </script>
                                             
                                             
-                                            <div id="container" style="padding-top:10px; height: 500px; width:700px; color: black; display:none;"></div>
+                                            <div id="container" style="padding-top:10px; height: 500px;  color: black; display:none;"></div>
                                             
                                             <div id="securityError" style="padding-top:10px; height: 400px; width:700px; color: black; display:none;">
                                                 <fmt:message bundle="${lctx}" key="rightMsg"></fmt:message>
