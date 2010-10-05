@@ -56,23 +56,31 @@ function openProcessDialog() {
 	} else {
     	_processDialog = $("#processes").dialog({
 	        bgiframe: true,
-	        width: 700,
-	        height: 600,
+	        width:  $(window).width()-20,
+	        height:  $(window).height()-60,
 	        modal: true,
 	        title: dictionary['administrator.menu.dialogs.lrprocesses.title'],
 	        buttons: {
 	            "Close": function() {
 	                $(this).dialog("close"); 
 	            } 
-	        } 
+	        }
 	    });
 	}
+	
 }
+
+
 function processes(){
 	var url = "dialogs/_processes_data.jsp?offset=0&size=20&type=DESC";
 	$.get(url, function(data) {
 		openProcessDialog();
+
 		$("#processes").html(data);
+		_processDialog.dialog('option', 'position', [10, 10]);
+		_processDialog.dialog("option", "width", $(window).width()-20);
+		_processDialog.dialog("option", "height", $(window).height()-60);
+		$("#processes>table").css('height',$(window).height()-160);
 	});
 }
 
