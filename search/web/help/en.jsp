@@ -1,4 +1,24 @@
-<%@ page contentType="text/html" pageEncoding="UTF-8" %>
+<%@page import="java.util.Locale"%>
+<%@page import="com.google.inject.Provider"%>
+<%@page contentType="text/html" pageEncoding="UTF-8" %>
+<%@taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
+<%@page isELIgnored="false" %>
+<%@page import="java.io.*, cz.incad.kramerius.service.*"  %>
+<%@page import="com.google.inject.Injector"%>
+<%@page import="cz.incad.Kramerius.views.help.HelpViewObject"%>
+
+<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/xml" prefix="x" %>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt" %>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn" %>
+
+<%
+	HelpViewObject helpViewObject = new HelpViewObject();
+	Injector hinj = (Injector)application.getAttribute(Injector.class.getName());
+	((Injector)application.getAttribute(Injector.class.getName())).injectMembers(helpViewObject);
+	pageContext.setAttribute("helpViewObject", helpViewObject);
+%>
+
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
 <html>
 <head>
@@ -13,9 +33,11 @@
 	<SCRIPT LANGUAGE="JavaScript" TYPE="text/javascript" src="add.js"></SCRIPT>
 </head>
 <body marginwidth="0" marginheight="0" leftmargin="0" topmargin="0">
-<table id="help" class="header ui-corner-top-8" ><tr><td>
-    <img src="../img/logo_knav.png" border="0" />
-</td></tr></table>
+
+<table id="help" class="header ui-corner-top-8" >
+<tr><td> <img src="../img/logo_knav.png" border="0" /></td>
+<td width="500px"> </td> <td>revize:${helpViewObject.revision}</td></tr>
+</table>
     
 <table cellpadding="0" cellspacing="0" border="0" height="100%">
   <tr>
