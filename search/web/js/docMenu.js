@@ -118,7 +118,7 @@ function selectPage(uuid){
               } else if (req.status==403){
                   currentMime = "unknown";
                   securedContent = true;
-                  ssecuredContent();
+                  displaySecuredContent();
               } else {
                   // jina chyba serveru
               }
