@@ -182,6 +182,7 @@ function selectItem(obj, level, model){
     $(obj).addClass('selected');
     var target = level+1;
     clearThumbsFromLevel(target);
+    
     var d1 = "#tabs_" + level;
     var pid = $(obj).attr("pid");
     $(d1).attr('pid', pid);
@@ -235,7 +236,10 @@ function getItemLevel(pid, level, container, recursive, onlyrels, model){
         }else{
             updateThumbs(level-1);
             var obj =$('#tab'+getMaxLevel()+'-page>div.relList>div:first');
-            if($(obj).length>0 && currentSelectedPage==0){
+            if($(obj).length>0 && !currentSelectedPage){
+                        changingTab=true;
+                updateThumbs();
+                        changingTab=false;
                 selectPage( $(obj).attr("pid"));
             }
         }
@@ -332,13 +336,10 @@ function getRelsInLevel(level, recursive, offset){
 function getRels(recursive){
     var maxLevel = getMaxLevel();
     for(var i=2;i<=maxLevel;i++){
-        getChildModels(i, recursive);
-        //getRelsInLevel(i,recursive, 0);
-    }
-    //alert(1);
-    for(var i=2;i<=maxLevel;i++){
-        //getChildModels(i, recursive);
         getRelsInLevel(i,recursive, 0);
+    }
+    for(var i=2;i<=maxLevel;i++){
+        getChildModels(i, recursive);
     }
 }
 
@@ -366,16 +367,11 @@ function translate(level){
  * Adds thumbnails from menu tree to thumbs scroller
  */
 function addThumbs(level){
-    //canScroll = false;
-    // setTvContainerWidth();
     var uuid;
-    //alert(level);
     var display = level == getMaxLevel()? 'default' : 'none';
-    //alert(display);
-    //alert($('#tab'+level+'-page>div.relList>div.relItem').length);
     $('#tab'+level+'-page>div.relList>div.relItem').each(function(index){
         uuid = $(this).attr('pid');
-        totalThumbs++;
+        //totalThumbs++;
         addThumb(uuid, display, level);
     });
     if(level == getMaxLevel()){
@@ -459,25 +455,25 @@ function addThumb(uuid, display, level){
     }
     var td = '<td align="center" style="display:'+display+';" class="thumb inlevel_'+level+'"><div pid="'+uuid+'">' + img + '</div></td>';
     $('#tv_container_row').append(td);
-    if(totalThumbs==0){
-        $('#tv').hide();
-    }else{
+    //if(totalThumbs==0){
+    //    $('#tv').hide();
+    //}else{
         $('#tv').show();
-    }
+    //}
     checkArrows();
 }
     
 function clearThumbsFromLevel(startLevel){
-    var maxlevel = getMaxLevel();
+    var maxlevel = 10;
     for(var level=startLevel;level<=maxlevel;level++){
-        totalThumbs = totalThumbs - $('#tv_container_row>td.inlevel_'+level).length;
+        //totalThumbs = totalThumbs - $('#tv_container_row>td.inlevel_'+level).length;
         $('#tv_container_row>td.inlevel_'+level).remove();
     }
         
 }
 function clearThumbs(){
     var level = getMaxLevel();
-    totalThumbs = totalThumbs - $('#tv_container_row>td.inlevel_'+level).length;
+    //totalThumbs = totalThumbs - $('#tv_container_row>td.inlevel_'+level).length;
     $('#tv_container_row>td.inlevel_'+level).remove();
 }
 
