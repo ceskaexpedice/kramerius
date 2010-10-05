@@ -73,7 +73,7 @@ public class HelpViewObject {
     
     public String getRevision() {
     	try {
-			InputStream revisions = this.getClass().getClassLoader().getResourceAsStream("revision.txt");
+			InputStream revisions = this.getClass().getClassLoader().getResourceAsStream("revision.properties");
 			if (revisions != null) {
 				Properties props = new Properties();
 				props.load(revisions);
