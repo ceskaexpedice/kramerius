@@ -58,8 +58,8 @@ public class PDFExport {
 			
 			File uuidFolder = new File(getTmpDir(), uuid);
 			if (uuidFolder.exists()) { 
-				boolean deleted = uuidFolder.delete(); 
-				if (!deleted) throw new RuntimeException("cannot delete folder '"+deleted+"'");
+				FileUtils.deleteRecursive(uuidFolder);
+				if (!uuidFolder.delete()) throw new RuntimeException("cannot delete folder '"+uuidFolder.getAbsolutePath()+"'");
 			}
 			
 			Injector injector = Guice.createInjector(new PDFModule());
@@ -107,8 +107,9 @@ public class PDFExport {
 					bytes = 0;
 				}
 				bytes += file.length();
-				boolean renamed = file.renameTo(new File(currentFolder, file.getName()));
-				if (!renamed) throw new RuntimeException("cannot rename file '"+file.getAbsolutePath()+"'");
+				File newFile = new File(currentFolder, file.getName());
+				boolean renamed = file.renameTo(newFile);
+				if (!renamed) throw new RuntimeException("cannot rename file '"+file.getAbsolutePath()+"' to '"+newFile+"'");
 			}
 			copyHTMLContent(currentFolder, titleFromDC, medium, ""+pocitadlo);
 		}
