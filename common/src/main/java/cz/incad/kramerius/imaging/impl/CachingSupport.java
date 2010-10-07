@@ -10,6 +10,7 @@ import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URL;
 
 import javax.imageio.ImageIO;
 import javax.imageio.stream.FileImageOutputStream;
@@ -49,7 +50,7 @@ public class CachingSupport {
         return rawImageFile.exists() && rawImageFile.canRead();
     }
 
-    private File getRawImageFile(String uuid) throws IOException {
+    public File getRawImageFile(String uuid) throws IOException {
         File folder = getOneImageFolder(uuid);
         File rawImageFile = new File(folder, uuid);
         return rawImageFile;
@@ -178,5 +179,6 @@ public class CachingSupport {
         File tileImageFile = new File(folder, getTileName(row, col));
         return new FileInputStream(tileImageFile);
     }
+
     
 }

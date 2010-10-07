@@ -37,9 +37,13 @@ public class TileSupportImpl implements TileSupport {
     @Override
     public long getLevels(String uuid, int minSize) throws IOException {
         Image rawImg = getRawImage(uuid);
-        int max = Math.max(rawImg.getHeight(null), rawImg.getWidth(null));
-        return getLevelsInternal(max, minSize);
+        return getLevels( rawImg,minSize);
     }
+
+	public long getLevels( Image rawImg,int minSize) {
+		int max = Math.max(rawImg.getHeight(null), rawImg.getWidth(null));
+        return getLevelsInternal(max, minSize);
+	}
 
     private long getLevelsInternal(int max, int minSize) {
         int currentMax = max;
@@ -52,6 +56,7 @@ public class TileSupportImpl implements TileSupport {
         return level;
     }
 
+    
 //    public long getMaxLevels(String uuid) {
 //        Image rawImg = getRawImage(uuid);
 //        int max = Math.max(rawImg.getHeight(null), rawImg.getWidth(null));
@@ -75,10 +80,17 @@ public class TileSupportImpl implements TileSupport {
         return new Dimension(rawImg.getWidth(null), rawImg.getHeight(null));
     }
 
+
+
     @Override
     public BufferedImage getTile(String uuid, int displayLevel, int displayTile, int minSize) throws IOException {
-        Image image = getRawImage(uuid);
-        long maxLevel = getLevels(uuid, minSize);
+    	Image image = getRawImage(uuid);
+    	return getTile(image, displayLevel, displayTile, minSize);
+    }
+
+	public BufferedImage getTile(Image image,int displayLevel, int displayTile,
+			int minSize) {
+		long maxLevel = getLevels(image, minSize);
         int width = image.getWidth(null);
         int height = image.getHeight(null);
         Dimension originalDim = new Dimension(width, height);
@@ -89,7 +101,12 @@ public class TileSupportImpl implements TileSupport {
         //int rows = getRows(scaledDim);
         int cols = getCols(scaledDim);
         
-        Image scaled = KrameriusImageSupport.scale(image, scaledDim.width, scaledDim.height);
+        Image scaled = null;
+        if ((width == scaledDim.width) && (height == scaledDim.height)) {
+        	scaled = image;
+        } else {
+            scaled = KrameriusImageSupport.scale(image, scaledDim.width, scaledDim.height);
+        }
 
         int rowTile = displayTile / cols;
         int colTile = displayTile % cols;
@@ -106,7 +123,7 @@ public class TileSupportImpl implements TileSupport {
         
         graphics2d.drawImage(scaled, -tileStartX,-tileStartY, null);
         return buffImage;
-    }
+	}
 
     public int getCols(Dimension scaledDim) {
         int cols = (int) (scaledDim.width / getTileSize());

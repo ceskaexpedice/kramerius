@@ -8,6 +8,8 @@ import java.awt.image.BufferedImage;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.Iterator;
 
 import org.w3c.dom.DOMException;
@@ -40,26 +42,43 @@ public class CacheServiceImpl implements CacheService {
 	@Inject
 	KConfiguration kConfiguration;
 	CachingSupport cachingSupport= new CachingSupport();
+
 	
 	@Override
-	public void prepareCacheImage(String uuid) {
+	public void prepareCacheImage(String uuid, int deep) {
 		try {
 			Image rawImage = tileSupport.getRawImage(uuid);
+			prepareCacheImage(uuid, deep, rawImage);
+		} catch (IOException e) {
+			LOGGER.severe(e.getMessage());
+		}
+	}
+
+	
+	@Override
+	public void prepareCacheImage(String uuid, int deep, Image rawImage) {
+		try {
+			long start = System.currentTimeMillis();
 			cachingSupport.writeDeepZoomDescriptor(uuid, rawImage, tileSupport.getTileSize());
+			long stop = System.currentTimeMillis();
+			System.out.println(" write deep zoom desc :"+(stop - start));
 			cachingSupport.writeDeepZoomFullImage(uuid, rawImage, kConfiguration.getDeepZoomJPEGQuality());
-			int levels = (int) tileSupport.getLevels(uuid, 1);
-			for (int i = 1; i < 6; i++) {
-                int curLevel = levels-i;
+			long stop2 = System.currentTimeMillis();
+			System.out.println(" write full image :"+(stop2 - start));
+
+			int levels = (int) tileSupport.getLevels(rawImage, 1);
+			for (int i = 1; i <= deep; i++) {
+			    int curLevel = levels-i;
 				double scale = tileSupport.getScale(curLevel, levels);
-                Dimension scaled = tileSupport.getScaledDimension(tileSupport.getMaxSize(uuid), scale);
-                int rows = tileSupport.getRows(scaled);
-                int cols = tileSupport.getCols(scaled);
-                for (int r = 0; r < rows; r++) {
+			    Dimension scaled = tileSupport.getScaledDimension(new Dimension(rawImage.getWidth(null), rawImage.getHeight(null)), scale);
+			    int rows = tileSupport.getRows(scaled);
+			    int cols = tileSupport.getCols(scaled);
+			    for (int r = 0; r < rows; r++) {
 					int b=r*cols;
 					for (int c = 0; c < cols; c++) {
 						int cell = b+c; 
-	                    BufferedImage tile = this.tileSupport.getTile(uuid, curLevel, cell, 1);
-	                    cachingSupport.writeDeepZoomTile(uuid, curLevel, r,c, tile,kConfiguration.getDeepZoomJPEGQuality());
+			            BufferedImage tile = this.tileSupport.getTile(rawImage, curLevel, cell, 1);
+			            cachingSupport.writeDeepZoomTile(uuid, curLevel, r,c, tile,kConfiguration.getDeepZoomJPEGQuality());
 					}
 				}
 			}
@@ -68,11 +87,12 @@ public class CacheServiceImpl implements CacheService {
 		}
 	}
 
+
 	@Override
 	public void prepareCacheForUUID(String uuid) throws IOException {
 		KrameriusModels krameriusModel = fedoraAccess.getKrameriusModel(uuid);
 		if (krameriusModel.equals(KrameriusModels.PAGE)) {
-			prepareCacheImage(uuid);
+			prepareCacheImage(uuid,5);
 		} else {
 			fedoraAccess.processRelsExt(uuid, new RelsExtHandler() {
 				
@@ -87,7 +107,7 @@ public class CacheServiceImpl implements CacheService {
 							pidParse.disseminationURI();
 							String uuid = pidParse.getObjectId();
 							LOGGER.info("caching page "+(pageIndex++));
-							prepareCacheImage(uuid);
+							prepareCacheImage(uuid, 5);
 						} catch (DOMException e) {
 							LOGGER.severe(e.getMessage());
 						} catch (LexerException e) {
@@ -149,6 +169,16 @@ public class CacheServiceImpl implements CacheService {
 		return this.cachingSupport.openDeepZoomTile(uuid, ilevel, row, col);
 	}
 
-	
+
+	@Override
+	public boolean isFullImagePresent(String uuid) throws IOException {
+		return this.cachingSupport.isDeepZoomFullImagePresent(uuid);
+	}
+
+
+	@Override
+	public URL getFullImageURL(String uuid) throws MalformedURLException, IOException {
+		return this.cachingSupport.getRawImageFile(uuid).toURI().toURL();
+	}
 	
 }
