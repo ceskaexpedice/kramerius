@@ -256,6 +256,7 @@ public class ItemMenuViewObject {
             items.add(deleteFromFedora());
             items.add(changeVisibility());
             items.add(exportTOFOXML());
+            items.add(exportPDF());
             items.add(generateDeepZoomTiles());
 //			if (userInRoleDecision.isUserInRole(KrameriusRoles.REINDEX)) {
 //			}

@@ -254,15 +254,25 @@ public class DeepZoomServlet extends AbstractImageServlet {
                 boolean tilePresent = cacheService.isDeepZoomTilePresent(uuid, ilevel, Integer.parseInt(srow), Integer.parseInt(scol));
                 if (!tilePresent) {
 //                    File dFile = cacheService.getDeepZoomLevelsFile(uuid);
-                    long levels =  tileSupport.getLevels(uuid, 1);
+                	Image rawImage = null;
+                	if (cacheService.isFullImagePresent(uuid)) {
+                		URL url = cacheService.getFullImageURL(uuid);
+                		rawImage = KrameriusImageSupport.readImage(url, ImageMimeType.JPEG, 0);
+                	} else {
+                    	rawImage = tileSupport.getRawImage(uuid);
+                		
+                	}
+                	
+                	long levels =  tileSupport.getLevels(rawImage, 1);
                     double scale = tileSupport.getScale(ilevel, levels);
-                    Dimension scaled = tileSupport.getScaledDimension(tileSupport.getMaxSize(uuid), scale);
+                    
+                    Dimension scaled = tileSupport.getScaledDimension(new Dimension(rawImage.getWidth(null), rawImage.getHeight(null)), scale);
                     int rows = tileSupport.getRows(scaled);
                     int cols = tileSupport.getCols(scaled);
                     int base = Integer.parseInt(srow) * cols;
                     base = base + Integer.parseInt(scol);
                     
-                    BufferedImage tile = this.tileSupport.getTile(uuid, ilevel, base, 1);
+                    BufferedImage tile = this.tileSupport.getTile(rawImage, ilevel, base, 1);
                     cacheService.writeDeepZoomTile(uuid, ilevel, Integer.parseInt(srow), Integer.parseInt(scol), tile);
                 }
                 InputStream is = cacheService.getDeepZoomTileStream(uuid, ilevel, Integer.parseInt(srow), Integer.parseInt(scol));

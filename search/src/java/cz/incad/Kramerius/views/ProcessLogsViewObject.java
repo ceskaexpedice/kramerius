@@ -23,7 +23,7 @@ public class ProcessLogsViewObject {
 		super();
 		this.stdFrom = stdFrom != null ? stdFrom : "0";
 		this.errFrom = errFrom != null ? errFrom : "0";
-		this.count = count != null ? count : "20";
+		this.count = count != null ? count : "40";
 		this.process = process;
 	}
 	public String getErrOutData() {

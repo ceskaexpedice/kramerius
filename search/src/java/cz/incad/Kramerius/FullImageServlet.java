@@ -40,6 +40,8 @@ import cz.incad.Kramerius.backend.guice.GuiceServlet;
 import cz.incad.Kramerius.views.ApplicationURL;
 import cz.incad.kramerius.FedoraAccess;
 import cz.incad.kramerius.FedoraNamespaces;
+import cz.incad.kramerius.imaging.CacheService;
+import cz.incad.kramerius.imaging.TileSupport;
 import cz.incad.kramerius.intconfig.InternalConfiguration;
 import cz.incad.kramerius.security.SecurityException;
 import cz.incad.kramerius.utils.DCUtils;
@@ -57,6 +59,11 @@ public class FullImageServlet extends AbstractImageServlet {
 	
 	public static final java.util.logging.Logger LOGGER = java.util.logging.Logger.getLogger(FullImageServlet.class.getName());
 
+	@Inject
+	CacheService cacheService;
+	@Inject
+	TileSupport tileSupport;
+	
 	@Override
 	protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
 		OutputFormats outputFormat = null;
@@ -80,13 +87,17 @@ public class FullImageServlet extends AbstractImageServlet {
 				resp.getWriter().print(type);
 			// pozadavek na zmenseni (prsou?)
 			} else if (outputFormat == null) {
+				long start = System.currentTimeMillis();
 				Image image = rawFullImage(uuid, req, page);
+				LOGGER.info("DEB - nacteni = "+(System.currentTimeMillis() - start)+" ms");
+				writeDeepZoomFiles(uuid, image);
+				LOGGER.info("DEB - zapis = "+(System.currentTimeMillis() - start)+" ms");
 				Rectangle rectangle = new Rectangle(image.getWidth(null), image.getHeight(null));
 				Image scale = scale(image, rectangle, req);
 				if (scale != null) {
                     setDateHaders(uuid, resp);
                     setResponseCode(uuid, req, resp);
-					writeImage(req, resp, scale, OutputFormats.JPEG);
+                    writeImage(req, resp, scale, OutputFormats.JPEG);
 				} else resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
 			// transformace	
 			} else {
@@ -111,7 +122,9 @@ public class FullImageServlet extends AbstractImageServlet {
 					copyStreams(is, resp.getOutputStream());
 				} else {
 					Image rawImage = rawFullImage(uuid, req, page);
-                    setDateHaders(uuid, resp);
+					writeDeepZoomFiles(uuid, rawImage);
+					
+					setDateHaders(uuid, resp);
                     setResponseCode(uuid, req, resp);
 					writeImage(req, resp, rawImage, outputFormat);
 				}
@@ -122,6 +135,17 @@ public class FullImageServlet extends AbstractImageServlet {
 		} catch (Exception e) {
 			LOGGER.log(Level.SEVERE, e.getMessage(), e);
 			resp.setStatus(HttpServletResponse.SC_NOT_FOUND);
+		}
+	}
+
+
+	private synchronized void writeDeepZoomFiles(String uuid, Image image)
+			throws IOException {
+		if (!cacheService.isDeepZoomDescriptionPresent(uuid)) {
+			cacheService.writeDeepZoomDescriptor(uuid, image, tileSupport.getTileSize());
+		}
+		if (!cacheService.isFullImagePresent(uuid)) {
+			cacheService.writeDeepZoomFullImage(uuid, image);
 		}
 	}
 
