@@ -157,12 +157,7 @@
 			<version>0.8.09</version>
 		</dependency>
 
-		<dependency>
-			<groupId>postgresql</groupId>
-			<artifactId>postgresql</artifactId>
-			<version>8.4.701</version>
-		</dependency>
-
+		
 		<!--commons configuration -->
 		<dependency>
 			<groupId>commons-configuration</groupId>
@@ -207,6 +202,13 @@
 			<groupId>org.slf4j</groupId>
 			<artifactId>jcl-over-slf4j</artifactId>
 			<version>1.6.0</version>
+		</dependency>
+		
+		<!-- JPEG2000 support -->
+		<dependency>
+    		<groupId>com.sun.media</groupId>
+    		<artifactId>jai_imageio</artifactId>
+    		<version>1.1</version>
 		</dependency>
 	</dependencies>
 	<build>

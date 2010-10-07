@@ -175,6 +175,8 @@ public abstract class BaseConvertor {
         mimeMap.put("djvu", "image/vnd.djvu");
         mimeMap.put("jpg", "image/jpeg");
         mimeMap.put("jpeg", "image/jpeg");
+        mimeMap.put("jp2", "image/jp2");
+        mimeMap.put("jpx", "image/jpx");
     }
 
     /**
@@ -641,6 +643,7 @@ public abstract class BaseConvertor {
     }
 
     private byte[] scaleImage(String fileName, int page, int height) throws IOException, MalformedURLException {
+    	
         Image img = ImageIO.read(new File(fileName));
         if (img == null) {
             try{
