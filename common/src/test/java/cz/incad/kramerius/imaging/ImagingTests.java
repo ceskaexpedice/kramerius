@@ -1,5 +1,6 @@
 package cz.incad.kramerius.imaging;
 
+import java.awt.Image;
 import java.io.IOException;
 
 import org.junit.Test;
@@ -16,12 +17,17 @@ public class ImagingTests extends AbstractGuiceTestCase {
 
 	@Test
 	public void testCacheDrobnustky() throws IOException {
-		CacheService cacheService = injector().getInstance(CacheService.class);
+		Injector injector = injector();
+		CacheService cacheService = injector.getInstance(CacheService.class);
+		TileSupport tileSupport = injector.getInstance(TileSupport.class);
 		Assert.assertNotNull(cacheService);
+		Image rawImage = tileSupport.getRawImage("4308eb80-b03b-11dd-a0f6-000d606f5dc6");
 		long st = System.currentTimeMillis();
 //		cacheService.prepareCacheForUUID("0eaa6730-9068-11dd-97de-000d606f5dc6");
-
-		cacheService.prepareCacheForUUID("8f526130-8b0d-11de-8994-000d606f5dc6");
+		cacheService.prepareCacheImage("4308eb80-b03b-11dd-a0f6-000d606f5dc6", 1, rawImage);
+		
+		
+//		cacheService.prepareCacheForUUID("8f526130-8b0d-11de-8994-000d606f5dc6");
 		System.out.println(System.currentTimeMillis() - st);
 	}
 	
