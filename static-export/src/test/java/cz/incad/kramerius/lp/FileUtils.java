@@ -1,17 +1,18 @@
 package cz.incad.kramerius.lp;
 
 import java.io.File;
+import java.util.Stack;
 
 public class FileUtils {
 
-	public static void recursion(File folder) {
+	public static void deleteRecursive(File folder) {
 		File[] listFiles = folder.listFiles();
 		if (listFiles != null) {
 			for (File file : listFiles) {
 				if (file.isFile()) {
 					file.delete();
 				} else {
-					recursion(file);
+					deleteRecursive(file);
 					file.delete();
 				}
 			}
@@ -21,7 +22,7 @@ public class FileUtils {
 	public static void deleteTMPFolder() {
 		String property = System.getProperty("user.dir");
 		File ffolder = new File(property+File.separator+"tmp");
-		recursion(ffolder);
+		deleteRecursive(ffolder);
 		ffolder.delete();
 	}
 
