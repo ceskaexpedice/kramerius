@@ -2,6 +2,7 @@ package cz.incad.kramerius.impl;
 
 import static cz.incad.kramerius.utils.FedoraUtils.getDjVuImage;
 import static cz.incad.kramerius.utils.FedoraUtils.getThumbnailFromFedora;
+import static cz.incad.kramerius.utils.FedoraUtils.getFedoraDatastreamsList;
 import static cz.incad.kramerius.utils.RESTHelper.openConnection;
 
 import java.io.IOException;
@@ -48,6 +49,7 @@ import cz.incad.kramerius.FedoraRelationship;
 import cz.incad.kramerius.KrameriusModels;
 import cz.incad.kramerius.RelsExtHandler;
 import cz.incad.kramerius.TreeNodeProcessor;
+import cz.incad.kramerius.utils.FedoraUtils;
 import cz.incad.kramerius.utils.RESTHelper;
 import cz.incad.kramerius.utils.XMLUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
@@ -288,10 +290,20 @@ public class FedoraAccessImpl implements FedoraAccess {
 	
 	@Override
 	public boolean isImageFULLAvailable(String uuid) throws IOException {
-		HttpURLConnection con = (HttpURLConnection) openConnection(getDjVuImage(configuration ,uuid),configuration.getFedoraUser(), configuration.getFedoraPass());
-		con.connect();
+		HttpURLConnection con = (HttpURLConnection) openConnection(getFedoraDatastreamsList(configuration ,uuid),configuration.getFedoraUser(), configuration.getFedoraPass());
+		InputStream stream = con.getInputStream();
 		try {
-			return con.getResponseCode() == HttpURLConnection.HTTP_OK;
+			Document parseDocument = XMLUtils.parseDocument(stream, true);
+			return datastreamInListOfDatastreams(parseDocument, FedoraUtils.IMG_FULL_STREAM);
+		} catch (ParserConfigurationException e) {
+			LOGGER.log(Level.SEVERE, e.getMessage(), e);
+			throw new IOException(e);
+		} catch (SAXException e) {
+			LOGGER.log(Level.SEVERE, e.getMessage(), e);
+			throw new IOException(e);
+		} catch (XPathExpressionException e) {
+			LOGGER.log(Level.SEVERE, e.getMessage(), e);
+			throw new IOException(e);
 		} finally {
 			con.disconnect();
 		}
@@ -307,6 +319,15 @@ public class FedoraAccessImpl implements FedoraAccess {
         return mimetypeFromProfile(profileDoc);
 	}
 
+	private boolean datastreamInListOfDatastreams(Document datastreams, String dsId) throws XPathExpressionException {
+		XPathFactory factory = XPathFactory.newInstance();
+        XPath xpath = factory.newXPath();
+        XPathExpression expr = xpath.compile("/objectDatastreams/datastream[@dsid='"+dsId+"']");
+        Node oneNode = (Node) expr.evaluate(datastreams, XPathConstants.NODE);
+        return (oneNode != null);
+        	
+	}
+	
 	
 	private String mimetypeFromProfile(Document profileDoc)
 			throws XPathExpressionException {

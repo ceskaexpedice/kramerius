@@ -193,4 +193,9 @@ public class FedoraUtils {
     	String imagePath = configuration.getFedoraHost()+"/get/uuid:"+uuid+"/" + IMG_THUMB_STREAM;
     	return imagePath;
     }
+    
+    public static String getFedoraDatastreamsList(KConfiguration configuration, String uuid) {
+    	String datastreamsListPath = configuration.getFedoraHost()+"/objects/uuid:"+uuid+"/datastreams?format=xml";
+    	return datastreamsListPath;
+    }
 }
