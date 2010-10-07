@@ -26,6 +26,8 @@ public interface TileSupport {
      */
     public long getLevels(String uuid, int minSize) throws IOException;
 
+    public long getLevels(Image image, int minSize) throws IOException;
+    
     /**
      * Returns raw image
      * @param uuid
@@ -61,6 +63,7 @@ public interface TileSupport {
      */
     public BufferedImage getTile(String uuid, int displayLevel, int displayTile, int minSize) throws IOException;
     
+    public BufferedImage getTile(Image image, int displayLevel, int displayTile, int minSize) throws IOException;
     
     public double getScale(int displayLevel, long maxLevel);
 

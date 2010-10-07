@@ -3,6 +3,8 @@ package cz.incad.kramerius.imaging;
 import java.awt.Image;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.MalformedURLException;
+import java.net.URL;
 
 /**
  * This service is suitable for caching deep zoom tiles
@@ -14,7 +16,11 @@ public interface CacheService {
 	 * Prepare cache for one page
 	 * @param uuid
 	 */
-	public void prepareCacheImage(String uuid);
+	public void prepareCacheImage(String uuid, int levels);
+	
+
+	public void prepareCacheImage(String uuid, int levels, Image rawImage);
+	
 	
 	/**
 	 * Walk through Rels-Ext and search pages and cache them
@@ -88,4 +94,11 @@ public interface CacheService {
 	 * @throws IOException
 	 */
 	public InputStream getDeepZoomTileStream(String uuid, int ilevel, int row, int col) throws IOException;
+
+
+	public boolean isFullImagePresent(String uuid) throws IOException;
+
+
+	public URL getFullImageURL(String uuid) throws MalformedURLException, IOException;
+	
 }
