@@ -14,6 +14,7 @@ import com.google.inject.Guice;
 import com.google.inject.Injector;
 
 import cz.incad.kramerius.AbstractGuiceTestCase;
+import cz.incad.kramerius.CommonModule;
 import cz.incad.kramerius.processes.DefinitionManager;
 import cz.incad.kramerius.processes.LRProcess;
 import cz.incad.kramerius.processes.LRProcessDefinition;
@@ -109,7 +110,7 @@ public class DefinitionTestCase extends AbstractGuiceTestCase {
 	}
 	
 	protected Injector injector() {
-		Injector injector = Guice.createInjector(new DefinitionModule());
+		Injector injector = Guice.createInjector(new CommonModule());
 		return injector;
 	}
 }

@@ -12,9 +12,9 @@ import com.google.inject.Guice;
 import com.google.inject.Injector;
 
 import cz.incad.kramerius.AbstractGuiceTestCase;
+import cz.incad.kramerius.CommonModule;
 import cz.incad.kramerius.MostDesirable;
 import cz.incad.kramerius.processes.DefinitionManager;
-import cz.incad.kramerius.processes.DefinitionModule;
 import cz.incad.kramerius.processes.LRProcess;
 import cz.incad.kramerius.processes.LRProcessDefinition;
 import cz.incad.kramerius.processes.LRProcessManager;
@@ -70,7 +70,7 @@ public class TestMostDesirable extends AbstractGuiceTestCase {
 	}
 	
 	protected Injector injector() {
-		Injector injector = Guice.createInjector(new DefinitionModule());
+		Injector injector = Guice.createInjector(new CommonModule());
 		return injector;
 	}
 

@@ -1,4 +1,4 @@
-package cz.incad.kramerius.processes;
+package cz.incad.kramerius;
 
 import java.io.File;
 import java.sql.Connection;
@@ -11,15 +11,16 @@ import com.google.inject.name.Names;
 
 import cz.incad.kramerius.FedoraAccess;
 import cz.incad.kramerius.MostDesirable;
-import cz.incad.kramerius.ConProvider4T;
 import cz.incad.kramerius.impl.FedoraAccessImpl;
 import cz.incad.kramerius.impl.MostDesirableImpl;
+import cz.incad.kramerius.processes.DefinitionManager;
+import cz.incad.kramerius.processes.LRProcessManager;
 import cz.incad.kramerius.processes.impl.DatabaseProcessManager;
 import cz.incad.kramerius.processes.impl.LRProcessDefinitionManagerImpl;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 
 
-public class DefinitionModule extends AbstractModule {
+public class CommonModule extends AbstractModule {
 
 	@Override
 	protected void configure() {

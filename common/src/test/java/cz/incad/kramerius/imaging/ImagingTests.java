@@ -10,7 +10,7 @@ import com.google.inject.Guice;
 import com.google.inject.Injector;
 
 import cz.incad.kramerius.AbstractGuiceTestCase;
-import cz.incad.kramerius.processes.DefinitionModule;
+import cz.incad.kramerius.CommonModule;
 
 public class ImagingTests extends AbstractGuiceTestCase {
 
