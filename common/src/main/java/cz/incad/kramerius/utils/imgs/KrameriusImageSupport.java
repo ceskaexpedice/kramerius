@@ -51,6 +51,8 @@ public class KrameriusImageSupport {
 		return readImage(url, loadFromMimeType, page);
 	}
 	
+	
+	
 	public static Image readImage(URL url, ImageMimeType type, int page) throws IOException {
 		if (type.javaNativeSupport()) {
 			return ImageIO.read(url.openStream());
