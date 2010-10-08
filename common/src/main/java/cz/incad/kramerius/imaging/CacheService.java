@@ -14,11 +14,19 @@ public interface CacheService {
 	
 	/**
 	 * Prepare cache for one page
-	 * @param uuid
+	 * @param uuid UUID of image
+	 * @param levels how many levels should be prepared
 	 */
 	public void prepareCacheImage(String uuid, int levels);
 	
 
+	
+	/**
+	 * Prepare cache for given image
+	 * @param uuid UUID of given image
+	 * @param levels how many levels should be prepared
+	 * @param rawImage RAW Image
+	 */
 	public void prepareCacheImage(String uuid, int levels, Image rawImage);
 	
 	
@@ -96,9 +104,22 @@ public interface CacheService {
 	public InputStream getDeepZoomTileStream(String uuid, int ilevel, int row, int col) throws IOException;
 
 
+	/**
+	 * Returns true if full image is present in cache
+	 * @param uuid
+	 * @return
+	 * @throws IOException
+	 */
 	public boolean isFullImagePresent(String uuid) throws IOException;
 
 
+	/**
+	 * Returns url of full image, needs to be URL because of djvu :( ble
+	 * @param uuid
+	 * @return
+	 * @throws MalformedURLException
+	 * @throws IOException
+	 */
 	public URL getFullImageURL(String uuid) throws MalformedURLException, IOException;
 	
 }
