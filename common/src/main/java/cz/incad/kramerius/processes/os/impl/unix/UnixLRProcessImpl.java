@@ -97,18 +97,6 @@ public class UnixLRProcessImpl extends AbstractLRProcessImpl {
 
 
 	
-//	public static void main(String[] args) throws IOException, InterruptedException, MonitorException, URISyntaxException {
-//		String name = ManagementFactory.getRuntimeMXBean().getName();
-//		MonitoredHost local = MonitoredHost.getMonitoredHost("localhost");
-//        /* Take all active VMs on Host, LocalHost here */
-//        Set vmlist = new HashSet(local.activeVms());
-//        for (Object id : vmlist) {
-//        	MonitoredVm vm = local.getMonitoredVm(new VmIdentifier(""+id));
-//            String processname = MonitoredVmUtil.mainClass(vm, true);
-//            System.out.println(id + " ——> " + processname);
-//        }
-//	}
-
 	public static void main(String[] args) throws IOException, InterruptedException {
 		test();
 	}
