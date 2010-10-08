@@ -81,7 +81,7 @@ public class PDFExport {
 		FedoraAccess fa = injector.getInstance(Key.get(FedoraAccess.class, Names.named("rawFedoraAccess"))); 
 		Document dc = fa.getDC(uuid);
 		String titleFromDC = DCUtils.titleFromDC(dc);
-		ProcessStarter.updateName("Generování '"+titleFromDC+"' na "+medium);
+		ProcessStarter.updateName("Generovani '"+titleFromDC+"' na "+medium);
 		return titleFromDC;
 	}
 
