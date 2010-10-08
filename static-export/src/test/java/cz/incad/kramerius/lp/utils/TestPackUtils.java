@@ -3,7 +3,6 @@ package cz.incad.kramerius.lp.utils;
 import java.io.File;
 import java.io.IOException;
 
-import cz.incad.kramerius.lp.FileUtils;
 
 
 import junit.framework.TestCase;

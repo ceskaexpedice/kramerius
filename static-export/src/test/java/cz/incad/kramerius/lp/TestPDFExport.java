@@ -2,6 +2,8 @@ package cz.incad.kramerius.lp;
 
 import java.io.File;
 
+import cz.incad.kramerius.lp.utils.FileUtils;
+
 import junit.framework.TestCase;
 
 public class TestPDFExport extends TestCase {
