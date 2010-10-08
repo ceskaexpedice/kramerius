@@ -23,6 +23,7 @@ import cz.incad.kramerius.FedoraAccess;
 import cz.incad.kramerius.lp.guice.ArgumentLocalesProvider;
 import cz.incad.kramerius.lp.guice.PDFModule;
 import cz.incad.kramerius.lp.utils.DecriptionHTML;
+import cz.incad.kramerius.lp.utils.FileUtils;
 import cz.incad.kramerius.lp.utils.PackUtils;
 import cz.incad.kramerius.pdf.GeneratePDFService;
 import cz.incad.kramerius.processes.impl.ProcessStarter;
