@@ -107,7 +107,9 @@ function selectPage(uuid){
     var mimeUrl = "djvu?uuid="+uuid+"&imageType=ask";
         
     checkArrows();
-
+    //alert($('#main').width()-60-$('.itemMenu').width());
+    //$("#mainContent").css('width', $(window).width()-60-$('.itemMenu').width());
+    $("#mainContent").css('width', $(window).width()-60-$('.itemMenu').width());
       $.ajax({
           url:mimeUrl,
           complete:function(req,textStatus) {

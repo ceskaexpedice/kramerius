@@ -52,10 +52,9 @@
                             <td><%//@ include file="usedFilters.jsp" %></td>
                         </tr>
                     </table>
-                    
                     <table class="main">
                         <tr valign='top'>
-                            <td colspan="2" valign="middle" align="center">
+                            <td colspan="3" valign="middle" align="center">
                                 <table style="width: 100%"><tr>
                                         <td width="20px" align="center"><a class="prevArrow"  href="javascript:selectPrevious();"><img src="img/la.png" border="0" /></a></td>
                                         <td class="thumbsCell" align="center"><%@ include file="thumbsViewer.jsp" %></td>
@@ -65,12 +64,9 @@
                         </tr>
                         <tr valign='top'>
                             <td>
-                                
                                 <table cellpadding="0" cellspacing="0" width="100%">
                                     <tr>
-                                        
                                         <td valign="top" align="center" id="mainContent">
-                                            
                                             <script type="text/javascript">
                                                 var viewer = null;
 
@@ -184,7 +180,7 @@
                                             <div id="loadingDeepZoomImage" style="padding-top:10px; height: 500px; width:700px; color: black; display:none;">
                                                 <fmt:message bundle="${lctx}" key="deep.zoom.loadingImage"></fmt:message>
                                             </div>
-											
+                                            
                                             <div id="pdfImage" style="padding-top:10px; height:650; width:700px;  color: black; border:1px; position:relative; display:none;">
                                                 <img id="pdfImageImg"
                                                      onclick='showBornDigitalPDF("${itemViewObject.imagePid}","${itemViewObject.page}" )' 
@@ -202,15 +198,15 @@
                                                 
                                                 
                                                 <div style="position:absolute; top:10px; right:0px;">
-                                                	<span>
-    		                                            <img id="seadragonButton" border='0' onclick='switchDisplayToSeadragon()'  src='img/zoomin_grouphover.png'></img>
-                                                	</span>	
-                                                	<span>
-	                                                    <img id="leftButtonPlainImage" class="prevArrow" src="img/prev_grouphover.png" />
-                                                	</span>
-                                                	<span>
-	                                                    <img id="rightButtonPlainImage" class="nextArrow" src="img/next_grouphover.png" />						
-                                                	</span>
+                                                    <span>
+                                                        <img id="seadragonButton" border='0' onclick='switchDisplayToSeadragon()'  src='img/zoomin_grouphover.png'></img>
+                                                    </span>	
+                                                    <span>
+                                                        <img id="leftButtonPlainImage" class="prevArrow" src="img/prev_grouphover.png" />
+                                                    </span>
+                                                    <span>
+                                                        <img id="rightButtonPlainImage" class="nextArrow" src="img/next_grouphover.png" />						
+                                                    </span>
                                                 </div>
                                             </div>
                                             
@@ -223,6 +219,7 @@
                                         -->
                                 </tr></table>
                             </td>
+                            <td><img src="img/empty.gif" width="2" /></td>
                             <td class="itemMenu">
                                 <div id="itemTree">
                                     <script>

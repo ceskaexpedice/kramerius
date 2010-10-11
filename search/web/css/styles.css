@@ -373,7 +373,11 @@ td.rightMenu .facet{
 /* end Right menu */
 
  /* main content */
+
+
+    
 #mainContent{
+    
     font-size:10px;
     background-image: url('../img/facet_bg.png');
     background-position:bottom;
