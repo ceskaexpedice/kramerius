@@ -5,6 +5,7 @@ import static cz.incad.utils.IKeys.UUID_PARAMETER;
 
 import java.awt.Image;
 import java.awt.Rectangle;
+import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
@@ -28,6 +29,7 @@ import cz.incad.kramerius.FedoraAccess;
 import cz.incad.kramerius.intconfig.InternalConfiguration;
 import cz.incad.kramerius.security.SecurityException;
 import cz.incad.kramerius.utils.conf.KConfiguration;
+import cz.incad.kramerius.utils.imgs.KrameriusImageSupport.ScalingMethod;
 import cz.incad.utils.IKeys;
 
 /**
@@ -60,9 +62,9 @@ public class ThumbnailImageServlet extends AbstractImageServlet {
 		}
 		try {
 			if (outputFormat == null) {
-				Image image = rawThumbnailImage(uuid, 0);
+				BufferedImage image = rawThumbnailImage(uuid, 0);
 				Rectangle rectangle = new Rectangle(image.getWidth(null), image.getHeight(null));
-				Image scale = scale(image, rectangle, req);
+				BufferedImage scale = scale(image, rectangle, req);
 				if (scale != null) {
                     setDateHaders(uuid, resp);
                     setResponseCode(uuid, req, resp);
@@ -78,7 +80,7 @@ public class ThumbnailImageServlet extends AbstractImageServlet {
 					setResponseCode(uuid, req, resp);
 					copyStreams(is, resp.getOutputStream());
 				} else {
-					Image rawImage = rawThumbnailImage(uuid,0);
+					BufferedImage rawImage = rawThumbnailImage(uuid,0);
                     setDateHaders(uuid, resp);
                     setResponseCode(uuid, req, resp);
 					writeImage(req, resp, rawImage, outputFormat);
@@ -110,7 +112,26 @@ public class ThumbnailImageServlet extends AbstractImageServlet {
 		this.fedoraAccess = fedoraAccess;
 	}
 	
+	
+	@Override
+	public ScalingMethod getScalingMethod() {
+		KConfiguration config = KConfiguration.getInstance();
+		ScalingMethod method = ScalingMethod.valueOf(config.getProperty(
+				"thumbImage.scalingMethod", "BICUBIC_STEPPED"));
+		return method;
+	}
+
+
+	@Override
+	public boolean turnOnIterateScaling() {
+		KConfiguration config = KConfiguration.getInstance();
+		boolean highQuality = config.getConfiguration().getBoolean(
+				"thumbImage.iterateScaling", true);
+		return highQuality;
+	}
+
 	public static String thumbImageServlet(HttpServletRequest request) {
 		return ApplicationURL.urlOfPath(request, InternalConfiguration.get().getProperties().getProperty("servlets.mapping.thmbImage"));
 	}
+	
 }

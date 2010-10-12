@@ -83,7 +83,7 @@ public class IIPServlet extends GuiceServlet {
             String qlt = req.getParameter(originalNames.get("QLT"));
             String cvt = req.getParameter(originalNames.get("CVT"));
             
-            Image scaled = cachedConvert(uuid, swidth, cvt);
+            BufferedImage scaled = cachedConvert(uuid, swidth, cvt);
             KrameriusImageSupport.writeImageToStream(scaled, cvt, resp.getOutputStream());
         } else {
             StringBuffer buffer = new StringBuffer();
@@ -112,9 +112,9 @@ public class IIPServlet extends GuiceServlet {
         }
     }
 
-    private HashMap<String, Image> cacheForConvert = new HashMap<String, Image>();
+    private HashMap<String, BufferedImage> cacheForConvert = new HashMap<String, BufferedImage>();
     
-    private Image cachedConvert(String uuid, String swidth, String cvt) throws IOException {
+    private BufferedImage cachedConvert(String uuid, String swidth, String cvt) throws IOException {
         String key = uuid+"_"+swidth+"_"+cvt;
         if (!cacheForConvert.containsKey(key)) {
             cacheForConvert.put(key, convert(uuid, swidth, cvt));
@@ -122,13 +122,13 @@ public class IIPServlet extends GuiceServlet {
         return cacheForConvert.get(key);
     }
     
-    private Image convert(String uuid, String swidth,String cvt) throws IOException {
-        Image rawImage = cachedImage(uuid);
+    private BufferedImage convert(String uuid, String swidth,String cvt) throws IOException {
+        BufferedImage rawImage = cachedImage(uuid);
         int rawImageWidth = rawImage.getWidth(null);
         int rawImageHeight = rawImage.getHeight(null);
         int expectedWidth = Integer.parseInt(swidth);
         int expectedHeight = (int) (expectedWidth * ((double)rawImageHeight/ (double)rawImageWidth));
-        Image scaled = KrameriusImageSupport.scale(rawImage, expectedWidth, expectedHeight);
+        BufferedImage scaled = KrameriusImageSupport.scale(rawImage, expectedWidth, expectedHeight);
         return scaled;
     }
 
@@ -151,7 +151,7 @@ public class IIPServlet extends GuiceServlet {
     private BufferedImage cachedTile(String uuid, int displayLevel, int displayTile) throws IOException {
         String key = uuid+"_"+displayLevel+"_"+displayTile;
         if (!cacheForTiles.containsKey(key)) {
-            cacheForTiles.put(key, tileSupport.getTile(uuid, displayLevel, displayTile, tileSupport.getTileSize()));
+            cacheForTiles.put(key, tileSupport.getTile(uuid, displayLevel, displayTile, tileSupport.getTileSize(), null, false));
         }
         return cacheForTiles.get(key);
     }
@@ -189,8 +189,8 @@ public class IIPServlet extends GuiceServlet {
     }
 
 
-    private HashMap<String, Image> rawImages = new HashMap<String, Image>();
-    private Image cachedImage(String uuid) {
+    private HashMap<String, BufferedImage> rawImages = new HashMap<String, BufferedImage>();
+    private BufferedImage cachedImage(String uuid) {
         if (!rawImages.containsKey(uuid)) {
             try {
                 rawImages.put(uuid, tileSupport.getRawImage(uuid));

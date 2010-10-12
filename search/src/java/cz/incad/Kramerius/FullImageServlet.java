@@ -7,6 +7,7 @@ import static cz.incad.kramerius.utils.IOUtils.*;
 
 import java.awt.Image;
 import java.awt.Rectangle;
+import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
@@ -35,6 +36,7 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
 import com.google.inject.Inject;
+import com.google.inject.name.Named;
 
 import cz.incad.Kramerius.backend.guice.GuiceServlet;
 import cz.incad.Kramerius.views.ApplicationURL;
@@ -46,6 +48,9 @@ import cz.incad.kramerius.intconfig.InternalConfiguration;
 import cz.incad.kramerius.security.SecurityException;
 import cz.incad.kramerius.utils.DCUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
+import cz.incad.kramerius.utils.imgs.ImageMimeType;
+import cz.incad.kramerius.utils.imgs.KrameriusImageSupport;
+import cz.incad.kramerius.utils.imgs.KrameriusImageSupport.ScalingMethod;
 
 /**
  * Prepodava DJVU stream
@@ -60,6 +65,7 @@ public class FullImageServlet extends AbstractImageServlet {
 	public static final java.util.logging.Logger LOGGER = java.util.logging.Logger.getLogger(FullImageServlet.class.getName());
 
 	@Inject
+	@Named("memoryCacheForward")
 	CacheService cacheService;
 	@Inject
 	TileSupport tileSupport;
@@ -88,16 +94,20 @@ public class FullImageServlet extends AbstractImageServlet {
 			// pozadavek na zmenseni (prsou?)
 			} else if (outputFormat == null) {
 				long start = System.currentTimeMillis();
-				Image image = rawFullImage(uuid, req, page);
+				BufferedImage image = rawFullImage(uuid, req, page);
 				LOGGER.info("DEB - nacteni = "+(System.currentTimeMillis() - start)+" ms");
 				writeDeepZoomFiles(uuid, image);
-				LOGGER.info("DEB - zapis = "+(System.currentTimeMillis() - start)+" ms");
+				//LOGGER.info("DEB - zapis = "+(System.currentTimeMillis() - start)+" ms");
 				Rectangle rectangle = new Rectangle(image.getWidth(null), image.getHeight(null));
-				Image scale = scale(image, rectangle, req);
+				BufferedImage scale = scale(image, rectangle, req);
 				if (scale != null) {
+					start = System.currentTimeMillis();
                     setDateHaders(uuid, resp);
                     setResponseCode(uuid, req, resp);
+    				LOGGER.info("DEB - setting headers = "+(System.currentTimeMillis() - start)+" ms");
+					start = System.currentTimeMillis();
                     writeImage(req, resp, scale, OutputFormats.JPEG);
+    				LOGGER.info("DEB - writing image = "+(System.currentTimeMillis() - start)+" ms");
 				} else resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
 			// transformace	
 			} else {
@@ -121,7 +131,7 @@ public class FullImageServlet extends AbstractImageServlet {
 					}
 					copyStreams(is, resp.getOutputStream());
 				} else {
-					Image rawImage = rawFullImage(uuid, req, page);
+					BufferedImage rawImage = rawFullImage(uuid, req, page);
 					writeDeepZoomFiles(uuid, rawImage);
 					
 					setDateHaders(uuid, resp);
@@ -139,7 +149,7 @@ public class FullImageServlet extends AbstractImageServlet {
 	}
 
 
-	private synchronized void writeDeepZoomFiles(String uuid, Image image)
+	private synchronized void writeDeepZoomFiles(String uuid, BufferedImage image)
 			throws IOException {
 		if (!cacheService.isDeepZoomDescriptionPresent(uuid)) {
 			cacheService.writeDeepZoomDescriptor(uuid, image, tileSupport.getTileSize());
@@ -153,6 +163,42 @@ public class FullImageServlet extends AbstractImageServlet {
 	public static String fullImageServlet(HttpServletRequest request) {
 		return ApplicationURL.urlOfPath(request, InternalConfiguration.get().getProperties().getProperty("servlets.mapping.fullImage"));
 	}
+
+	
+	@Override
+	protected BufferedImage rawFullImage(String uuid,
+			HttpServletRequest request, int page) throws IOException,
+			MalformedURLException, XPathExpressionException {
+			if (cacheService.isFullImagePresent(uuid)) {
+				BufferedImage bufImage = cacheService.getFullImage(uuid);
+				return bufImage;
+			} else {
+				return super.rawFullImage(uuid, request, page);
+			}
+	}
+
+
+	@Override
+	public ScalingMethod getScalingMethod() {
+		KConfiguration config = KConfiguration.getInstance();
+		ScalingMethod method = ScalingMethod.valueOf(config.getProperty(
+				"fullImage.scalingMethod", "BICUBIC_STEPPED"));
+		return method;
+	}
+
+
+	@Override
+	public boolean turnOnIterateScaling() {
+		KConfiguration config = KConfiguration.getInstance();
+		boolean highQuality = config.getConfiguration().getBoolean(
+				"fullImage.iterateScaling", true);
+		return highQuality;
+	}
+	
+	
+	
+	
+	
 
 //	static class XPATHFedoraNamespaceContext implements NamespaceContext {
 //

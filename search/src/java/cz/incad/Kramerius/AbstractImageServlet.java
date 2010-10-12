@@ -2,6 +2,7 @@ package cz.incad.Kramerius;
 
 import java.awt.Image;
 import java.awt.Rectangle;
+import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.net.MalformedURLException;
@@ -28,9 +29,10 @@ import cz.incad.kramerius.utils.FedoraUtils;
 import cz.incad.kramerius.utils.XMLUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 import cz.incad.kramerius.utils.imgs.KrameriusImageSupport;
+import cz.incad.kramerius.utils.imgs.KrameriusImageSupport.ScalingMethod;
 import cz.incad.utils.SafeSimpleDateFormat;
 
-public class AbstractImageServlet extends GuiceServlet {
+public abstract class AbstractImageServlet extends GuiceServlet {
 
     protected static final DateFormat [] XSD_DATE_FORMATS =
     {
@@ -64,7 +66,7 @@ public class AbstractImageServlet extends GuiceServlet {
 	@Named("securedFedoraAccess")
 	protected transient FedoraAccess fedoraAccess;
 	
-	protected Image scale(Image img, Rectangle pageBounds, HttpServletRequest req) {
+	protected BufferedImage scale(BufferedImage img, Rectangle pageBounds, HttpServletRequest req) {
 		String spercent = req.getParameter(SCALE_PARAMETER);
 		String sheight = req.getParameter(SCALED_HEIGHT_PARAMETER);
 		String swidth = req.getParameter(SCALED_WIDTH_PARAMETER);
@@ -99,37 +101,43 @@ public class AbstractImageServlet extends GuiceServlet {
 		}else return null;
 	}
 	
-	protected Image scaleByHeight(Image img, Rectangle pageBounds, int height) {
+	protected BufferedImage scaleByHeight(BufferedImage img, Rectangle pageBounds, int height) {
+		long start = System.currentTimeMillis();
 		int nHeight = height;
 		double div = (double)pageBounds.getHeight() / (double)nHeight;
 		double nWidth = (double)pageBounds.getWidth() / div;
-		Image scaledImage = KrameriusImageSupport.scale(img, (int)nWidth, nHeight);
+		BufferedImage scaledImage = KrameriusImageSupport.scale(img, (int)nWidth, nHeight, ScalingMethod.BILINEAR, false);
+		long stop = System.currentTimeMillis();
+		LOGGER.info("DEB - scale takes :"+(stop - start));
 		return scaledImage;
 	}
 
-	protected Image scaleByWidth(Image img, Rectangle pageBounds, int width) {
+	protected BufferedImage scaleByWidth(BufferedImage img, Rectangle pageBounds, int width) {
+		long start = System.currentTimeMillis();
 		int nWidth = width;
 		double div = (double)pageBounds.getWidth() / (double)nWidth;
 		double nHeight = (double)pageBounds.getHeight() / div;
-		Image scaledImage = KrameriusImageSupport.scale(img, nWidth,(int) nHeight);
+		BufferedImage scaledImage = KrameriusImageSupport.scale(img, nWidth,(int) nHeight,ScalingMethod.BILINEAR, false);
+		long stop = System.currentTimeMillis();
+		LOGGER.info("DEB - scale takes :"+(stop - start));
 		return scaledImage;
 	}
 
 	
-	protected Image rawThumbnailImage(String uuid, int page) throws XPathExpressionException, IOException, SecurityException {
+	protected BufferedImage rawThumbnailImage(String uuid, int page) throws XPathExpressionException, IOException, SecurityException {
 		return KrameriusImageSupport.readImage(uuid, FedoraUtils.IMG_THUMB_STREAM, this.fedoraAccess,page);
 	}
 	
-	protected Image rawFullImage(String uuid, HttpServletRequest request, int page) throws IOException, MalformedURLException, XPathExpressionException {
+	protected BufferedImage rawFullImage(String uuid, HttpServletRequest request, int page) throws IOException, MalformedURLException, XPathExpressionException {
 		return KrameriusImageSupport.readImage(uuid, FedoraUtils.IMG_FULL_STREAM, this.fedoraAccess, page);
 	}
 	
-	protected void writeImage(HttpServletRequest req, HttpServletResponse resp, Image scaledImage, OutputFormats format) throws IOException {
+	protected void writeImage(HttpServletRequest req, HttpServletResponse resp, BufferedImage image, OutputFormats format) throws IOException {
 		if ((format.equals(OutputFormats.JPEG)) || 
 			(format.equals(OutputFormats.PNG))) {
 			resp.setContentType(format.getMimeType());
 			OutputStream os = resp.getOutputStream();
-			KrameriusImageSupport.writeImageToStream(scaledImage, format.getJavaFormat(), os);
+			KrameriusImageSupport.writeImageToStream(image, format.getJavaFormat(), os);
 		} else throw new IllegalArgumentException("unsupported mimetype '"+format+"'");
 	}
 
@@ -174,13 +182,13 @@ public class AbstractImageServlet extends GuiceServlet {
             }
         }
     }
-	protected Image scaleByPercent(Image img, Rectangle pageBounds, double percent) {
+	protected BufferedImage scaleByPercent(BufferedImage img, Rectangle pageBounds, double percent) {
 		if ((percent <= 0.95) || (percent >= 1.15)) {
 			int nWidth = (int) (pageBounds.getWidth() * percent);
 			int nHeight = (int) (pageBounds.getHeight() * percent);
-			Image scaledImage = KrameriusImageSupport.scale(img, nWidth, nHeight);
+			BufferedImage scaledImage = KrameriusImageSupport.scale(img, nWidth, nHeight,ScalingMethod.BILINEAR, false);
 			return scaledImage;
-		} else return img;
+		} else return (BufferedImage) img;
 	}
 
 	public FedoraAccess getFedoraAccess() {
@@ -192,8 +200,15 @@ public class AbstractImageServlet extends GuiceServlet {
 	}
 
 	
-	
+	public abstract ScalingMethod getScalingMethod();
 
+	public abstract boolean turnOnIterateScaling();
+	
+//	KConfiguration config = KConfiguration.getInstance();
+//	ScalingMethod method = ScalingMethod.valueOf(config.getProperty(
+//			"scalingMethod", "BICUBIC_STEPPED"));
+
+	
 	public enum OutputFormats {
 		JPEG("image/jpeg","jpg"),
 		PNG("image/png","png"),

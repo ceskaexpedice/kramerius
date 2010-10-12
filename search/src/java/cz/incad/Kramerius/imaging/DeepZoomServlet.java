@@ -51,6 +51,7 @@ import cz.incad.kramerius.utils.RESTHelper;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 import cz.incad.kramerius.utils.imgs.ImageMimeType;
 import cz.incad.kramerius.utils.imgs.KrameriusImageSupport;
+import cz.incad.kramerius.utils.imgs.KrameriusImageSupport.ScalingMethod;
 
 public class DeepZoomServlet extends AbstractImageServlet {
 
@@ -68,6 +69,7 @@ public class DeepZoomServlet extends AbstractImageServlet {
     Provider<Connection> fedora3Provider;
 
     @Inject 
+    @Named("memoryCacheForward")
     CacheService cacheService;
     
     
@@ -200,7 +202,7 @@ public class DeepZoomServlet extends AbstractImageServlet {
     private void renderEmbededDZIDescriptor(String uuid,
             HttpServletResponse resp) throws IOException, FileNotFoundException {
         if (!cacheService.isDeepZoomDescriptionPresent(uuid)) {
-            Image rawImage = tileSupport.getRawImage(uuid);
+            BufferedImage rawImage = tileSupport.getRawImage(uuid);
             cacheService.writeDeepZoomFullImage(uuid, rawImage);
             cacheService.writeDeepZoomDescriptor(uuid, rawImage, tileSupport.getTileSize());
         }
@@ -254,13 +256,11 @@ public class DeepZoomServlet extends AbstractImageServlet {
                 boolean tilePresent = cacheService.isDeepZoomTilePresent(uuid, ilevel, Integer.parseInt(srow), Integer.parseInt(scol));
                 if (!tilePresent) {
 //                    File dFile = cacheService.getDeepZoomLevelsFile(uuid);
-                	Image rawImage = null;
+                	BufferedImage rawImage = null;
                 	if (cacheService.isFullImagePresent(uuid)) {
-                		URL url = cacheService.getFullImageURL(uuid);
-                		rawImage = KrameriusImageSupport.readImage(url, ImageMimeType.JPEG, 0);
+                		rawImage = cacheService.getFullImage(uuid);
                 	} else {
-                    	rawImage = tileSupport.getRawImage(uuid);
-                		
+                		rawImage = tileSupport.getRawImage(uuid);
                 	}
                 	
                 	long levels =  tileSupport.getLevels(rawImage, 1);
@@ -272,7 +272,7 @@ public class DeepZoomServlet extends AbstractImageServlet {
                     int base = Integer.parseInt(srow) * cols;
                     base = base + Integer.parseInt(scol);
                     
-                    BufferedImage tile = this.tileSupport.getTile(rawImage, ilevel, base, 1);
+                    BufferedImage tile = this.tileSupport.getTile(rawImage, ilevel, base, 1, getScalingMethod(), turnOnIterateScaling());
                     cacheService.writeDeepZoomTile(uuid, ilevel, Integer.parseInt(srow), Integer.parseInt(scol), tile);
                 }
                 InputStream is = cacheService.getDeepZoomTileStream(uuid, ilevel, Integer.parseInt(srow), Integer.parseInt(scol));
@@ -329,4 +329,17 @@ public class DeepZoomServlet extends AbstractImageServlet {
         return grp;
     }
 
+	@Override
+	public ScalingMethod getScalingMethod() {
+		ScalingMethod method = ScalingMethod.valueOf(KConfiguration.getInstance().getProperty(
+				"deepZoom.scalingMethod", "BICUBIC_STEPPED"));
+		return method;
+	}
+
+	@Override
+	public boolean turnOnIterateScaling() {
+		boolean highQuality = KConfiguration.getInstance().getConfiguration().getBoolean(
+				"deepZoom.iterateScaling", true);
+		return highQuality;
+	}
 }
