@@ -8,7 +8,7 @@ import com.google.inject.name.Names;
 import cz.incad.kramerius.ConProvider4T;
 import cz.incad.kramerius.FedoraAccess;
 import cz.incad.kramerius.MostDesirable;
-import cz.incad.kramerius.imaging.impl.CacheServiceImpl;
+import cz.incad.kramerius.imaging.impl.FileSystemCacheServiceImpl;
 import cz.incad.kramerius.imaging.impl.TileSupportImpl;
 import cz.incad.kramerius.impl.FedoraAccessImpl;
 import cz.incad.kramerius.impl.MostDesirableImpl;
@@ -37,8 +37,7 @@ public class ImagingModule extends AbstractModule {
 		bind(MostDesirable.class).to(MostDesirableImpl.class);
 		
 		bind(TileSupport.class).to(TileSupportImpl.class);
-		bind(CacheService.class).to(CacheServiceImpl.class);
+		bind(CacheService.class).to(FileSystemCacheServiceImpl.class);
 	}
-
 	
 }

@@ -18,6 +18,7 @@ import com.google.inject.Guice;
 import com.google.inject.Injector;
 
 import cz.incad.kramerius.AbstractGuiceTestCase;
+import cz.incad.kramerius.utils.imgs.KrameriusImageSupport.ScalingMethod;
 
 public class TileSupportTest extends AbstractGuiceTestCase {
 	
@@ -43,7 +44,7 @@ public class TileSupportTest extends AbstractGuiceTestCase {
         int base = Integer.parseInt(srow) * cols;
         base = base + Integer.parseInt(scol);
         
-		BufferedImage tile = tileSupport.getTile(img, level, base, 1);
+		BufferedImage tile = tileSupport.getTile(img, level, base, 1, ScalingMethod.BILINEAR, false);
 		JLabel label = new JLabel();
 		label.setIcon(new ImageIcon(tile));
 		

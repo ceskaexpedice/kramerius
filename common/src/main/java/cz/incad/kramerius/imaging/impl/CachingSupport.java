@@ -56,7 +56,7 @@ public class CachingSupport {
         return rawImageFile;
     }
     
-    public void writeDeepZoomFullImage(String uuid, Image rawImage, float quality) throws IOException {
+    public void writeDeepZoomFullImage(String uuid, BufferedImage rawImage, float quality) throws IOException {
         File rawImageFile = getRawImageFile(uuid);
 //        FileOutputStream fos = new FileOutputStream(rawImageFile);
         FileImageOutputStream fosI = new FileImageOutputStream(rawImageFile);
@@ -93,7 +93,7 @@ public class CachingSupport {
         return oneImageFolder;
     }
 
-    public void writeDeepZoomTile(String uuid, int level, int row, int col, Image tileImage, float quality) throws IOException {
+    public void writeDeepZoomTile(String uuid, int level, int row, int col, BufferedImage tileImage, float quality) throws IOException {
         File folder = getTileImageFolder(uuid, level);
         File tileImageFile = new File(folder, getTileName(row, col));
         //FileOutputStream fos = new FileOutputStream(tileImageFile);

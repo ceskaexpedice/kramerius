@@ -1,6 +1,7 @@
 package cz.incad.kramerius.imaging;
 
 import java.awt.Image;
+import java.awt.image.BufferedImage;
 import java.io.IOException;
 
 import org.junit.Test;
@@ -21,7 +22,7 @@ public class ImagingTests extends AbstractGuiceTestCase {
 		CacheService cacheService = injector.getInstance(CacheService.class);
 		TileSupport tileSupport = injector.getInstance(TileSupport.class);
 		Assert.assertNotNull(cacheService);
-		Image rawImage = tileSupport.getRawImage("4308eb80-b03b-11dd-a0f6-000d606f5dc6");
+		BufferedImage rawImage = tileSupport.getRawImage("4308eb80-b03b-11dd-a0f6-000d606f5dc6");
 		long st = System.currentTimeMillis();
 //		cacheService.prepareCacheForUUID("0eaa6730-9068-11dd-97de-000d606f5dc6");
 		cacheService.prepareCacheImage("4308eb80-b03b-11dd-a0f6-000d606f5dc6", 1, rawImage);

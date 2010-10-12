@@ -5,6 +5,9 @@ import java.util.Arrays;
 
 import com.google.inject.Guice;
 import com.google.inject.Injector;
+import com.google.inject.Key;
+import com.google.inject.name.Named;
+import com.google.inject.name.Names;
 
 import cz.incad.kramerius.imaging.CacheService;
 import cz.incad.kramerius.imaging.lp.guice.GenerateDeepZoomCacheModule;
@@ -18,7 +21,7 @@ public class GenerateDeepZoomCache {
 		System.out.println("Generate deep zoom cache :"+Arrays.asList(args));
 		if (args.length == 1) {
 			Injector injector = Guice.createInjector(new GenerateDeepZoomCacheModule());
-			CacheService service = injector.getInstance(CacheService.class);
+		    CacheService service = injector.getInstance(Key.get(CacheService.class, Names.named("memoryCacheForward")));
 			service.prepareCacheForUUID(args[0]);
 			LOGGER.info("Process finished");
 		} else {

@@ -3,7 +3,6 @@ package cz.incad.kramerius.imaging.impl;
 import static cz.incad.kramerius.FedoraNamespaces.RDF_NAMESPACE_URI;
 
 import java.awt.Dimension;
-import java.awt.Image;
 import java.awt.image.BufferedImage;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -11,6 +10,7 @@ import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Iterator;
+import java.util.WeakHashMap;
 
 import org.w3c.dom.DOMException;
 import org.w3c.dom.Element;
@@ -25,14 +25,22 @@ import cz.incad.kramerius.RelsExtHandler;
 import cz.incad.kramerius.imaging.CacheService;
 import cz.incad.kramerius.imaging.TileSupport;
 import cz.incad.kramerius.utils.conf.KConfiguration;
+import cz.incad.kramerius.utils.imgs.ImageMimeType;
+import cz.incad.kramerius.utils.imgs.KrameriusImageSupport;
+import cz.incad.kramerius.utils.imgs.KrameriusImageSupport.ScalingMethod;
 import cz.incad.kramerius.utils.pid.LexerException;
 import cz.incad.kramerius.utils.pid.PIDParser;
 
-public class CacheServiceImpl implements CacheService {
+/**
+ * Cache deepZoom objects (full images, tiles and dzi descritors) on the HDD
+ * @author pavels
+ */
+public class FileSystemCacheServiceImpl implements CacheService {
 	
 
-	java.util.logging.Logger LOGGER = java.util.logging.Logger
-			.getLogger(CacheServiceImpl.class.getName());
+	static java.util.logging.Logger LOGGER = java.util.logging.Logger
+			.getLogger(FileSystemCacheServiceImpl.class.getName());
+
 	
 	@Inject
 	@Named("securedFedoraAccess")
@@ -47,7 +55,7 @@ public class CacheServiceImpl implements CacheService {
 	@Override
 	public void prepareCacheImage(String uuid, int deep) {
 		try {
-			Image rawImage = tileSupport.getRawImage(uuid);
+			BufferedImage rawImage = getFullImage(uuid);
 			prepareCacheImage(uuid, deep, rawImage);
 		} catch (IOException e) {
 			LOGGER.severe(e.getMessage());
@@ -56,15 +64,10 @@ public class CacheServiceImpl implements CacheService {
 
 	
 	@Override
-	public void prepareCacheImage(String uuid, int deep, Image rawImage) {
+	public void prepareCacheImage(String uuid, int deep, BufferedImage rawImage) {
 		try {
-			long start = System.currentTimeMillis();
 			cachingSupport.writeDeepZoomDescriptor(uuid, rawImage, tileSupport.getTileSize());
-			long stop = System.currentTimeMillis();
-			System.out.println(" write deep zoom desc :"+(stop - start));
 			cachingSupport.writeDeepZoomFullImage(uuid, rawImage, kConfiguration.getDeepZoomJPEGQuality());
-			long stop2 = System.currentTimeMillis();
-			System.out.println(" write full image :"+(stop2 - start));
 
 			int levels = (int) tileSupport.getLevels(rawImage, 1);
 			for (int i = 1; i <= deep; i++) {
@@ -77,7 +80,11 @@ public class CacheServiceImpl implements CacheService {
 					int b=r*cols;
 					for (int c = 0; c < cols; c++) {
 						int cell = b+c; 
-			            BufferedImage tile = this.tileSupport.getTile(rawImage, curLevel, cell, 1);
+						ScalingMethod method = ScalingMethod.valueOf(kConfiguration.getProperty(
+								"deepZoom.scalingMethod", "BICUBIC_STEPPED"));
+						boolean highQuality = kConfiguration.getConfiguration().getBoolean(
+								"deepZoom.iterateScaling", true);
+			            BufferedImage tile = this.tileSupport.getTile(rawImage, curLevel, cell, 1, method, highQuality);
 			            cachingSupport.writeDeepZoomTile(uuid, curLevel, r,c, tile,kConfiguration.getDeepZoomJPEGQuality());
 					}
 				}
@@ -137,12 +144,12 @@ public class CacheServiceImpl implements CacheService {
 	}
 
 	@Override
-	public void writeDeepZoomFullImage(String uuid, Image rawImage) throws IOException {
+	public void writeDeepZoomFullImage(String uuid, BufferedImage rawImage) throws IOException {
 		this.cachingSupport.writeDeepZoomFullImage(uuid, rawImage, kConfiguration.getDeepZoomJPEGQuality());
 	}
 
 	@Override
-	public void writeDeepZoomDescriptor(String uuid, Image rawImage, int tileSize) throws IOException {
+	public void writeDeepZoomDescriptor(String uuid, BufferedImage rawImage, int tileSize) throws IOException {
 		this.cachingSupport.writeDeepZoomDescriptor(uuid, rawImage, tileSize);
 	}
 
@@ -159,7 +166,7 @@ public class CacheServiceImpl implements CacheService {
 
 	@Override
 	public void writeDeepZoomTile(String uuid, int ilevel, int row, int col,
-			Image tile) throws IOException {
+			BufferedImage tile) throws IOException {
 		this.cachingSupport.writeDeepZoomTile(uuid, ilevel, row, col, tile, kConfiguration.getDeepZoomJPEGQuality());
 	}
 
@@ -181,4 +188,14 @@ public class CacheServiceImpl implements CacheService {
 		return this.cachingSupport.getRawImageFile(uuid).toURI().toURL();
 	}
 	
+	
+	public synchronized BufferedImage getFullImage(String uuid) throws IOException {
+		if (isFullImagePresent(uuid)) {
+			BufferedImage bufImage = KrameriusImageSupport.readImage(getFullImageURL(uuid), ImageMimeType.JPEG, 0);
+			return  bufImage;
+		} else {
+			BufferedImage bufImage = tileSupport.getRawImage(uuid);
+			return bufImage;
+		}
+	}
 }

@@ -7,6 +7,7 @@ import static cz.incad.kramerius.utils.imgs.KrameriusImageSupport.readImage;
 import static cz.incad.kramerius.utils.imgs.KrameriusImageSupport.writeImageToStream;
 
 import java.awt.Image;
+import java.awt.image.BufferedImage;
 import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -784,7 +785,7 @@ public class GeneratePDFServiceImpl implements GeneratePDFService {
 				ImageMimeType mimetype = ImageMimeType.loadFromMimeType(mimetypeString);
 				if (mimetype != null) {
 					float smallImage = 0.2f;
-					Image javaImg = readImage(new URL(imgUrl), mimetype,0);
+					BufferedImage javaImg = readImage(new URL(imgUrl), mimetype,0);
 					ByteArrayOutputStream bos = new ByteArrayOutputStream();
 					writeImageToStream(javaImg, "jpeg", bos);
 
@@ -811,7 +812,7 @@ public class GeneratePDFServiceImpl implements GeneratePDFService {
 				String mimetypeString = fedoraAccess.getImageFULLMimeType(uuid);
 				ImageMimeType mimetype = ImageMimeType.loadFromMimeType(mimetypeString);
 				if (mimetype != null) {
-					Image javaImg = readImage(new URL(imgUrl), mimetype,0);
+					BufferedImage javaImg = readImage(new URL(imgUrl), mimetype,0);
 					ByteArrayOutputStream bos = new ByteArrayOutputStream();
 					writeImageToStream(javaImg, "jpeg", bos);
 

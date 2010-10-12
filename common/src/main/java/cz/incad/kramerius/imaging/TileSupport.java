@@ -5,6 +5,8 @@ import java.awt.Image;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 
+import cz.incad.kramerius.utils.imgs.KrameriusImageSupport.ScalingMethod;
+
 /**
  * Helper class which supports tiles
  * @author pavels
@@ -33,15 +35,16 @@ public interface TileSupport {
      * @return
      * @throws IOException
      */
-    public long getLevels(Image image, int minSize) throws IOException;
+    public long getLevels(BufferedImage image, int minSize) throws IOException;
     
     /**
      * Returns raw image
      * @param uuid
      * @return
      * @throws IOException
+     * @TODO Move this method !!
      */
-    public Image getRawImage(String uuid) throws IOException;
+    public BufferedImage getRawImage(String uuid) throws IOException;
 
     /**
      * Returns max-size of the image
@@ -65,18 +68,22 @@ public interface TileSupport {
      * @param displayLevel Scale level of the image
      * @param displayTile Tile coordinats 
      * @param minSize the smallest size of image (in deepZoom protocol is 1px, in IIP is tileSize)
+     * @param scalingMethod TODO
+     * @param iterateScaling TODO
      * @return
      * @throws IOException
      */
-    public BufferedImage getTile(String uuid, int displayLevel, int displayTile, int minSize) throws IOException;
+    public BufferedImage getTile(String uuid, int displayLevel, int displayTile, int minSize, ScalingMethod scalingMethod, boolean iterateScaling) throws IOException;
     
     /**
      * Returns tile from given image
      * @param displayLevel Scale level of the image
      * @param displayTile Tile coordinatns
      * @param minSize the smallest size of image (in deepZoom protocol is 1px, in IIP is tileSize)
+     * @param method TODO
+     * @param iterateScaling TODO
      */
-    public BufferedImage getTile(Image image, int displayLevel, int displayTile, int minSize) throws IOException;
+    public BufferedImage getTile(BufferedImage image, int displayLevel, int displayTile, int minSize, ScalingMethod method, boolean iterateScaling) throws IOException;
 
     /**
      * Calculate and returns real scale

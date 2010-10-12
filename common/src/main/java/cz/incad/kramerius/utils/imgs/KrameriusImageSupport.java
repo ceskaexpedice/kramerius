@@ -2,10 +2,14 @@ package cz.incad.kramerius.utils.imgs;
 
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.GraphicsConfiguration;
+import java.awt.GraphicsDevice;
+import java.awt.GraphicsEnvironment;
 import java.awt.Image;
 import java.awt.Rectangle;
 import java.awt.RenderingHints;
 import java.awt.Transparency;
+import java.awt.geom.AffineTransform;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -36,122 +40,162 @@ import cz.incad.kramerius.impl.fedora.Handler;
 import cz.incad.kramerius.utils.IOUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 
-
 public class KrameriusImageSupport {
 
-	static{
-        //disable djvu convertor verbose logging
-        DjVuOptions.out = new java.io.PrintStream ( new java.io.OutputStream() { public void write(int b){} });
-    }
+	static java.util.logging.Logger LOGGER = java.util.logging.Logger
+			.getLogger(KrameriusImageSupport.class.getName());
 	
-	public static Image readImage(String uuid, String stream, FedoraAccess fedoraAccess, int page) throws XPathExpressionException, IOException {
-		String mimetype = fedoraAccess.getMimeTypeForStream("uuid:"+uuid, stream);
-		ImageMimeType loadFromMimeType = ImageMimeType.loadFromMimeType(mimetype);
-		URL url = new URL("fedora","",0,uuid+"/"+stream, new Handler(fedoraAccess));
+	static {
+		// disable djvu convertor verbose logging
+		DjVuOptions.out = new java.io.PrintStream(new java.io.OutputStream() {
+			public void write(int b) {
+			}
+		});
+	}
+
+	public static BufferedImage readImage(String uuid, String stream,
+			FedoraAccess fedoraAccess, int page)
+			throws XPathExpressionException, IOException {
+		String mimetype = fedoraAccess.getMimeTypeForStream("uuid:" + uuid,
+				stream);
+		ImageMimeType loadFromMimeType = ImageMimeType
+				.loadFromMimeType(mimetype);
+		URL url = new URL("fedora", "", 0, uuid + "/" + stream, new Handler(
+				fedoraAccess));
 		return readImage(url, loadFromMimeType, page);
 	}
 	
-	
-	
-	public static Image readImage(URL url, ImageMimeType type, int page) throws IOException {
+	public static BufferedImage readImage(URL url, ImageMimeType type, int page)
+			throws IOException {
 		if (type.javaNativeSupport()) {
 			return ImageIO.read(url.openStream());
-		} else if ((type.equals(ImageMimeType.DJVU)) || 
-					(type.equals(ImageMimeType.VNDDJVU)) ||
-				  (type.equals(ImageMimeType.XDJVU))){
-			com.lizardtech.djvu.Document doc = new com.lizardtech.djvu.Document(url);
-	        doc.setAsync(false);
-	        DjVuPage[] p = new DjVuPage[1];
-	        //read page from the document - index 0, priority 1, favorFast true
-	        int size = doc.size();
-	        if ((page != 0) && (page >= size)) {
-	        	page = 0;
-	        }
-	        p[0] = doc.getPage(page, 1, true);
-	        p[0].setAsync(false);
-	        DjVuImage djvuImage = new DjVuImage(p, true);
+		} else if ((type.equals(ImageMimeType.DJVU))
+				|| (type.equals(ImageMimeType.VNDDJVU))
+				|| (type.equals(ImageMimeType.XDJVU))) {
+			com.lizardtech.djvu.Document doc = new com.lizardtech.djvu.Document(
+					url);
+			doc.setAsync(false);
+			DjVuPage[] p = new DjVuPage[1];
+			// read page from the document - index 0, priority 1, favorFast true
+			int size = doc.size();
+			if ((page != 0) && (page >= size)) {
+				page = 0;
+			}
+			p[0] = doc.getPage(page, 1, true);
+			p[0].setAsync(false);
+			DjVuImage djvuImage = new DjVuImage(p, true);
 			Rectangle pageBounds = djvuImage.getPageBounds(0);
-			Image[] images = djvuImage.getImage(new JPanel(), new Rectangle(pageBounds.width,pageBounds.height));
+			Image[] images = djvuImage.getImage(new JPanel(), new Rectangle(
+					pageBounds.width, pageBounds.height));
 			if (images.length == 1) {
 				Image img = images[0];
-				return img;
-			} else return null;
-		} else if (type.equals(ImageMimeType.PDF)){
+				if (img instanceof BufferedImage) {
+					return (BufferedImage) img;
+				} else {
+					return toBufferedImage(img);
+				}
+			} else
+				return null;
+		} else if (type.equals(ImageMimeType.PDF)) {
 			PDDocument document = null;
-			try{
+			try {
 				document = PDDocument.load(url.openStream());
-	            int resolution = 96;
-	            List pages = document.getDocumentCatalog().getAllPages();
-	            PDPage pdPage = (PDPage)pages.get( page );
-	            BufferedImage image = pdPage.convertToImage(BufferedImage.TYPE_INT_RGB, resolution);
-	            return image;
+				int resolution = 96;
+				List pages = document.getDocumentCatalog().getAllPages();
+				PDPage pdPage = (PDPage) pages.get(page);
+				BufferedImage image = pdPage.convertToImage(
+						BufferedImage.TYPE_INT_RGB, resolution);
+				return image;
 			} finally {
-				if (document != null) { document.close(); }
+				if (document != null) {
+					document.close();
+				}
 			}
-		} else throw new IllegalArgumentException("unsupported mimetype '"+type.getValue()+"'");
+		} else
+			throw new IllegalArgumentException("unsupported mimetype '"
+					+ type.getValue() + "'");
 	}
 
-	public static void writeImageToStream(Image scaledImage, String javaFormat,
-			OutputStream os) throws IOException {
-		BufferedImage bufImage = new BufferedImage(scaledImage.getWidth(null), scaledImage.getHeight(null), BufferedImage.TYPE_INT_RGB);
-		Graphics gr = bufImage.getGraphics();
-		gr.drawImage(scaledImage,0,0,null);
-		gr.dispose();
-		
+	public static void writeImageToStream(BufferedImage image,
+			String javaFormat, OutputStream os) throws IOException {
+
 		ByteArrayOutputStream bos = new ByteArrayOutputStream();
-		ImageIO.write(bufImage, javaFormat, bos);
+		ImageIO.write(image, javaFormat, bos);
 		IOUtils.copyStreams(new ByteArrayInputStream(bos.toByteArray()), os);
 	}
-	
-	public static void writeImageToStream(Image scaledImage, String javaFormat,
-		FileImageOutputStream	os, float quality) throws IOException {
-		BufferedImage bufImage = new BufferedImage(scaledImage.getWidth(null), scaledImage.getHeight(null), BufferedImage.TYPE_INT_RGB);
-		Graphics gr = bufImage.getGraphics();
-		gr.drawImage(scaledImage,0,0,null);
-		gr.dispose();
-		
 
-		Iterator<ImageWriter> iter = ImageIO.getImageWritersByFormatName(javaFormat);
+	public static void writeImageToStream(BufferedImage scaledImage, String javaFormat,
+			FileImageOutputStream os, float quality) throws IOException {
+
+		Iterator<ImageWriter> iter = ImageIO
+				.getImageWritersByFormatName(javaFormat);
 		if (iter.hasNext()) {
 			ImageWriter writer = iter.next();
 			ImageWriteParam iwp = writer.getDefaultWriteParam();
 			iwp.setCompressionMode(ImageWriteParam.MODE_EXPLICIT);
-			iwp.setCompressionQuality(quality);   // an integer between 0 and 1			
+			iwp.setCompressionQuality(quality); // an integer between 0 and 1
 			writer.setOutput(os);
-			IIOImage image = new IIOImage(bufImage, null, null);
+			IIOImage image = new IIOImage(scaledImage, null, null);
 			writer.write(null, image, iwp);
 			writer.dispose();
-			
-		} else throw new IOException("No writer for format '"+javaFormat+"'");
-		
+
+		} else
+			throw new IOException("No writer for format '" + javaFormat + "'");
+
 	}
 	
-	
-	public static Image scale (Image img, int targetWidth, int targetHeight){
+
+	public static BufferedImage scale(BufferedImage img, int targetWidth,
+			int targetHeight) {
 		KConfiguration config = KConfiguration.getInstance();
-		ScalingMethod method = ScalingMethod.valueOf(config.getProperty("scalingMethod","BICUBIC_STEPPED"));
-		//System.out.println("SCALE:"+method+" width:"+targetWidth+" height:"+targetHeight);
-		switch (method){
+		ScalingMethod method = ScalingMethod.valueOf(config.getProperty(
+				"scalingMethod", "BICUBIC_STEPPED"));
+		boolean higherQuality = true;
+		return scale(img, targetWidth, targetHeight, method, higherQuality);
+	}
+
+	public static BufferedImage scale(BufferedImage img, int targetWidth,
+			int targetHeight, ScalingMethod method, boolean higherQuality) {
+		// System.out.println("SCALE:"+method+" width:"+targetWidth+" height:"+targetHeight);
+		switch (method) {
 		case REPLICATE:
-			return img.getScaledInstance(targetWidth, targetHeight, Image.SCALE_REPLICATE);
+			Image rawReplicate = img.getScaledInstance(targetWidth,
+					targetHeight, Image.SCALE_REPLICATE);
+			if (rawReplicate instanceof BufferedImage) {
+				return (BufferedImage) rawReplicate;
+			} else {
+				return toBufferedImage(rawReplicate);
+			}
 		case AREA_AVERAGING:
-    		return img.getScaledInstance(targetWidth, targetHeight, Image.SCALE_AREA_AVERAGING);
+			Image rawAveraging = img.getScaledInstance(targetWidth,
+					targetHeight, Image.SCALE_AREA_AVERAGING);
+			if (rawAveraging instanceof BufferedImage) {
+				return (BufferedImage) rawAveraging;
+			} else {
+				return toBufferedImage(rawAveraging);
+			}
 		case BILINEAR:
-    		return getScaledInstanceJava2D(toBufferedImage(img),targetWidth, targetHeight, RenderingHints.VALUE_INTERPOLATION_BILINEAR, false);
+			return getScaledInstanceJava2D(img, targetWidth, targetHeight,
+					RenderingHints.VALUE_INTERPOLATION_BILINEAR, higherQuality);
 		case BICUBIC:
-    		return getScaledInstanceJava2D(toBufferedImage(img),targetWidth, targetHeight, RenderingHints.VALUE_INTERPOLATION_BICUBIC, false);
+			return getScaledInstanceJava2D(img, targetWidth, targetHeight,
+					RenderingHints.VALUE_INTERPOLATION_BICUBIC, higherQuality);
 		case NEAREST_NEIGHBOR:
-    		return getScaledInstanceJava2D(toBufferedImage(img),targetWidth, targetHeight, RenderingHints.VALUE_INTERPOLATION_NEAREST_NEIGHBOR, false);
+			return getScaledInstanceJava2D(img, targetWidth, targetHeight,
+					RenderingHints.VALUE_INTERPOLATION_NEAREST_NEIGHBOR, higherQuality);
 		case BILINEAR_STEPPED:
-    		return getScaledInstanceJava2D(toBufferedImage(img),targetWidth, targetHeight, RenderingHints.VALUE_INTERPOLATION_BILINEAR, true);
+			return getScaledInstanceJava2D(img, targetWidth, targetHeight,
+					RenderingHints.VALUE_INTERPOLATION_BILINEAR, higherQuality);
 		case BICUBIC_STEPPED:
-    		return getScaledInstanceJava2D(toBufferedImage(img),targetWidth, targetHeight, RenderingHints.VALUE_INTERPOLATION_BICUBIC, true);
+			return getScaledInstanceJava2D(img, targetWidth, targetHeight,
+					RenderingHints.VALUE_INTERPOLATION_BICUBIC, higherQuality);
 		case NEAREST_NEIGHBOR_STEPPED:
-    		return getScaledInstanceJava2D(toBufferedImage(img),targetWidth, targetHeight, RenderingHints.VALUE_INTERPOLATION_NEAREST_NEIGHBOR, true);
+			return getScaledInstanceJava2D(img, targetWidth, targetHeight,
+					RenderingHints.VALUE_INTERPOLATION_NEAREST_NEIGHBOR, higherQuality);
 		}
 		return null;
 	}
-	
+
 	 /**
      * Convenience method that returns a scaled instance of the
      * provided {@code BufferedImage}.
@@ -223,19 +267,49 @@ public class KrameriusImageSupport {
 
         return ret;
     }
-    
-    private static BufferedImage toBufferedImage(Image img) {
-    	BufferedImage bufferedImage = new BufferedImage(img.getWidth(null), img.getHeight(null),BufferedImage.TYPE_INT_RGB);
-        Graphics g = bufferedImage.createGraphics();
-        g.drawImage(img, 0, 0, null);
-        g.dispose();
-        return bufferedImage;
-    }
-    
-    public static enum ScalingMethod {
-    	REPLICATE, AREA_AVERAGING, BILINEAR, BICUBIC, NEAREST_NEIGHBOR, BILINEAR_STEPPED, BICUBIC_STEPPED, NEAREST_NEIGHBOR_STEPPED
-    }
 
+	public static GraphicsConfiguration getDefaultConfiguration() {
+	    GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
+	    GraphicsDevice gd = ge.getDefaultScreenDevice();
+	    return gd.getDefaultConfiguration();
+	}
+	
+	public static BufferedImage getScaledInstanceJava2D(BufferedImage image, int targetWidth,  int targetHeight, Object hint, GraphicsConfiguration gc) {
+		LOGGER.info("DEB - ");
+		
+//		if (gc == null)
+//	        gc = getDefaultConfiguration();
+	    int w = image.getWidth();
+	    int h = image.getHeight();
+	    
+	    
+	    int transparency = image.getColorModel().getTransparency();
+//	    BufferedImage result = gc.createCompatibleImage(w, h, transparency);
+		BufferedImage result = new BufferedImage(w, h, transparency);
+	    Graphics2D g2 = result.createGraphics();
+		g2.setRenderingHint(RenderingHints.KEY_INTERPOLATION, hint);
+	    double scalex = (double) targetWidth/ image.getWidth();
+	    double scaley = (double) targetHeight/ image.getHeight();
+	    AffineTransform xform = AffineTransform.getScaleInstance(scalex, scaley);
+	    long start = System.currentTimeMillis();
+	    g2.drawRenderedImage(image, xform);
+	    LOGGER.info("DEB - scale through rendered image :"+(System.currentTimeMillis() - start));
+		
+	    g2.dispose();
+	    return result;
+	}
+
+	private static BufferedImage toBufferedImage(Image img) {
+		BufferedImage bufferedImage = new BufferedImage(img.getWidth(null),
+				img.getHeight(null), BufferedImage.TYPE_INT_RGB);
+		Graphics g = bufferedImage.createGraphics();
+		g.drawImage(img, 0, 0, null);
+		g.dispose();
+		return bufferedImage;
+	}
+
+	public static enum ScalingMethod {
+		REPLICATE, AREA_AVERAGING, BILINEAR, BICUBIC, NEAREST_NEIGHBOR, BILINEAR_STEPPED, BICUBIC_STEPPED, NEAREST_NEIGHBOR_STEPPED
+	}
 
 }
-

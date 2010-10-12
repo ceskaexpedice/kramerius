@@ -1,6 +1,6 @@
 package cz.incad.kramerius.imaging;
 
-import java.awt.Image;
+import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
@@ -27,7 +27,7 @@ public interface CacheService {
 	 * @param levels how many levels should be prepared
 	 * @param rawImage RAW Image
 	 */
-	public void prepareCacheImage(String uuid, int levels, Image rawImage);
+	public void prepareCacheImage(String uuid, int levels, BufferedImage rawImage);
 	
 	
 	/**
@@ -51,7 +51,7 @@ public interface CacheService {
 	 * @param rawImage
 	 * @throws IOException
 	 */
-	public void writeDeepZoomFullImage(String uuid, Image rawImage) throws IOException;
+	public void writeDeepZoomFullImage(String uuid, BufferedImage rawImage) throws IOException;
 	
 	/**
 	 * Write deep zoom descriptor in cache
@@ -60,7 +60,7 @@ public interface CacheService {
 	 * @param tileSize Size of tile
 	 * @throws IOException
 	 */
-	public void writeDeepZoomDescriptor(String uuid,Image  rawImage, int tileSize) throws IOException;
+	public void writeDeepZoomDescriptor(String uuid,BufferedImage  rawImage, int tileSize) throws IOException;
 	
 	/**
 	 * Gets descriptor input stream
@@ -90,7 +90,7 @@ public interface CacheService {
 	 * @param tile Tile image
 	 * @throws IOException
 	 */
-	public void writeDeepZoomTile(String uuid, int ilevel, int row, int col, Image tile) throws IOException;
+	public void writeDeepZoomTile(String uuid, int ilevel, int row, int col, BufferedImage tile) throws IOException;
 
 	/**
 	 * Returns input stream of the tile
@@ -121,5 +121,8 @@ public interface CacheService {
 	 * @throws IOException
 	 */
 	public URL getFullImageURL(String uuid) throws MalformedURLException, IOException;
+	
+	public BufferedImage getFullImage(String uuid) throws IOException;
+
 	
 }

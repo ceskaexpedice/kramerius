@@ -6,6 +6,7 @@ import java.awt.Image;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 
+import javax.swing.text.html.FormSubmitEvent.MethodType;
 import javax.xml.xpath.XPathExpressionException;
 
 import com.google.inject.Inject;
@@ -16,9 +17,13 @@ import cz.incad.kramerius.imaging.TileSupport;
 import cz.incad.kramerius.utils.FedoraUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 import cz.incad.kramerius.utils.imgs.KrameriusImageSupport;
+import cz.incad.kramerius.utils.imgs.KrameriusImageSupport.ScalingMethod;
 
 public class TileSupportImpl implements TileSupport {
 
+	static java.util.logging.Logger LOGGER = java.util.logging.Logger
+			.getLogger(TileSupportImpl.class.getName());
+	
     //private static final int TILE_SIZE = 2048;
     private static final int TILE_SIZE = 512;
 
@@ -36,11 +41,11 @@ public class TileSupportImpl implements TileSupport {
 
     @Override
     public long getLevels(String uuid, int minSize) throws IOException {
-        Image rawImg = getRawImage(uuid);
+        BufferedImage rawImg = getRawImage(uuid);
         return getLevels( rawImg,minSize);
     }
 
-	public long getLevels( Image rawImg,int minSize) {
+	public long getLevels( BufferedImage rawImg,int minSize) {
 		int max = Math.max(rawImg.getHeight(null), rawImg.getWidth(null));
         return getLevelsInternal(max, minSize);
 	}
@@ -65,9 +70,10 @@ public class TileSupportImpl implements TileSupport {
 //    }
     
     @Override
-    public Image getRawImage(String uuid) throws IOException {
-        try {
-            Image rawImg = KrameriusImageSupport.readImage(uuid, FedoraUtils.IMG_FULL_STREAM, this.fedoraAccess, 0);
+    public BufferedImage getRawImage(String uuid) throws IOException {
+    	LOGGER.info("reading raw image");
+    	try {
+            BufferedImage rawImg = KrameriusImageSupport.readImage(uuid, FedoraUtils.IMG_FULL_STREAM, this.fedoraAccess, 0);
             return rawImg;
         } catch (XPathExpressionException e) {
             throw new IOException(e);
@@ -83,13 +89,13 @@ public class TileSupportImpl implements TileSupport {
 
 
     @Override
-    public BufferedImage getTile(String uuid, int displayLevel, int displayTile, int minSize) throws IOException {
-    	Image image = getRawImage(uuid);
-    	return getTile(image, displayLevel, displayTile, minSize);
+    public BufferedImage getTile(String uuid, int displayLevel, int displayTile, int minSize, ScalingMethod scalingMethod, boolean iterateScaling) throws IOException {
+    	BufferedImage image = getRawImage(uuid);
+    	return getTile(image, displayLevel, displayTile, minSize, scalingMethod, iterateScaling);
     }
 
-	public BufferedImage getTile(Image image,int displayLevel, int displayTile,
-			int minSize) {
+	public BufferedImage getTile(BufferedImage image,int displayLevel, int displayTile,
+			int minSize, ScalingMethod method, boolean iterateScaling) {
 		long maxLevel = getLevels(image, minSize);
         int width = image.getWidth(null);
         int height = image.getHeight(null);
@@ -105,7 +111,7 @@ public class TileSupportImpl implements TileSupport {
         if ((width == scaledDim.width) && (height == scaledDim.height)) {
         	scaled = image;
         } else {
-            scaled = KrameriusImageSupport.scale(image, scaledDim.width, scaledDim.height);
+            scaled = KrameriusImageSupport.scale(image, scaledDim.width, scaledDim.height, method, iterateScaling);
         }
 
         int rowTile = displayTile / cols;
@@ -113,7 +119,6 @@ public class TileSupportImpl implements TileSupport {
 
         int tileStartY = rowTile * getTileSize();
         int tileStartX = colTile * getTileSize();
-        
         
         int tileWidth = scaledDim.width >= getTileSize() ? Math.min(getTileSize(), scaledDim.width - tileStartX) : scaledDim.width;
         int tileHeight = scaledDim.height >= getTileSize() ? Math.min(getTileSize(), scaledDim.height - tileStartY) : scaledDim.height;
