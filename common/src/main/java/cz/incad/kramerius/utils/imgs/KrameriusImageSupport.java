@@ -299,7 +299,7 @@ public class KrameriusImageSupport {
 	    return result;
 	}
 
-	private static BufferedImage toBufferedImage(Image img) {
+	public static BufferedImage toBufferedImage(Image img) {
 		BufferedImage bufferedImage = new BufferedImage(img.getWidth(null),
 				img.getHeight(null), BufferedImage.TYPE_INT_RGB);
 		Graphics g = bufferedImage.createGraphics();
