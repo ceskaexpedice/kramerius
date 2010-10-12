@@ -666,21 +666,16 @@ public abstract class BaseConvertor {
             }
         }
         if (img != null) {
-            Image scaledImage = scaleByHeight(img, height);
-
-            BufferedImage bufImage = new BufferedImage(scaledImage.getWidth(null), scaledImage.getHeight(null), BufferedImage.TYPE_INT_RGB);
-            Graphics gr = bufImage.getGraphics();
-            gr.drawImage(scaledImage, 0, 0, null);
-            gr.dispose();
+            BufferedImage scaledImage = scaleByHeight(KrameriusImageSupport.toBufferedImage(img), height);
 
             ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-            ImageIO.write(bufImage, "jpg", outputStream);
+            ImageIO.write(scaledImage, "jpg", outputStream);
             return outputStream.toByteArray();
         }
         return new byte[0];
     }
 
-    private Image scaleByHeight(Image img, int height) {
+    private BufferedImage scaleByHeight(BufferedImage img, int height) {
         int nHeight = height;
         ImageObserver observer = new ImageObserver() {
 
@@ -690,7 +685,7 @@ public abstract class BaseConvertor {
         };
         double div = (double) img.getHeight(observer) / (double) nHeight;
         double nWidth = (double) img.getWidth(observer) / div;
-        Image scaledImage = KrameriusImageSupport.scale(img, (int)nWidth, nHeight);
+        BufferedImage scaledImage = KrameriusImageSupport.scale(img, (int)nWidth, nHeight);
         return scaledImage;
     }
     
