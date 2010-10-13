@@ -86,7 +86,7 @@ public class PDFExport {
 		return titleFromDC;
 	}
 
-	private static void createFSStructure(File pdfsFolder, File outputFodler, Medium medium, String titleFromDC) {
+	private static void createFSStructure(File pdfsFolder, File outputFodler, Medium medium, String titleFromDC) throws IOException {
 		int pocitadlo = 0;
 		long bytes = 0;
 		File currentFolder = createFolder(outputFodler, medium, ++pocitadlo);
@@ -109,8 +109,10 @@ public class PDFExport {
 				}
 				bytes += file.length();
 				File newFile = new File(currentFolder, file.getName());
-				boolean renamed = file.renameTo(newFile);
-				if (!renamed) throw new RuntimeException("cannot rename file '"+file.getAbsolutePath()+"' to '"+newFile+"'");
+				FileUtils.copyFile(file, newFile);
+				file.deleteOnExit();
+//				boolean renamed = file.renameTo(newFile);
+//				if (!renamed) throw new RuntimeException("cannot rename file '"+file.getAbsolutePath()+"' to '"+newFile+"'");
 			}
 			copyHTMLContent(currentFolder, titleFromDC, medium, ""+pocitadlo);
 		}
