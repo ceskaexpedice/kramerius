@@ -184,7 +184,7 @@
                                             <div id="pdfImage" style="padding-top:10px; height:650; width:700px;  color: black; border:1px; position:relative; display:none;">
                                                 <img id="pdfImageImg"
                                                      onclick='showBornDigitalPDF("${itemViewObject.imagePid}","${itemViewObject.page}" )' 
-                                                     onload='selectedImageFadeIn()'
+                                                     onload='onLoadPDFImage()'
                                                      border="0"  src="${itemViewObject.firstPageImageUrl}" height="650px" ></img>
                                                 <img id="pdfZoomButton" border='0' onclick='showBornDigitalPDF("${itemViewObject.imagePid}","${itemViewObject.page}" )'  src='img/lupa_shadow.png' style='position:relative; left:-60px; top:30px;'></img>
                                             </div>
@@ -192,10 +192,9 @@
                                             <div id="plainImage" style="padding-top:10px; height:650; width:700px;  color: black; border:1px; position:relative;">
                                                 <img id="plainImageImg" 
                                                      onclick='switchDisplayToSeadragon()' 
-                                                     onload='selectedImageFadeIn()'
+                                                     onload='onLoadPlainImage()'
                                                      
-                                                     border="0"  src="${itemViewObject.firstPageImageUrl}" height="650px" ></img>
-                                                
+                                                     border="0"  src="img/empty.gif" height="650px" ></img>
                                                 
                                                 <div style="position:absolute; top:10px; right:0px;">
                                                     <span>

@@ -609,11 +609,21 @@ function switchDisplayToSeadragon() {
 	viewer.openDzi("deepZoom/"+currentSelectedPage+"/");
 }
 
-function selectedImageFadeIn() {
-	$("#plainImageImg").fadeIn();
-	$("#pdfImageImg").fadeIn();
+
+function onLoadPlainImage() {
+	if (imageInitialized) {
+		$("#plainImageImg").fadeIn();
+	}
+
 }
 
+function onLoadPDFImage() {
+//	if (imageInitialized) {
+//		$("#pdfImageImg").fadeIn();
+//	}
+}
+
+var imageInitialized = false;
 function showImage(uuid) {
 	// different view for pdf	
 	if (currentMime=="application/pdf") {
@@ -627,12 +637,11 @@ function showImage(uuid) {
 			displayImageContent();
 			$("#plainImageImg").fadeOut("slow", function () {
 				$("#plainImageImg").attr('src','djvu?uuid='+uuid+'&scaledWidth=650');
-	
 			});
 		}
 	
 	}		
-	
+	imageInitialized = true;
 }
 
 function displaySecuredContent() {

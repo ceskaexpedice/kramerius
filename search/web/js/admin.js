@@ -109,9 +109,9 @@ function refreshProcesses(ordering, offset, size, type) {
 // Command pattern
 var _texts=function() {
 	var intArr = new Array(); {
-		intArr["[static_export_CD]WAITING"]='administrator.dialogs.waitingexport';
-		intArr["[static_export_CD]PLANNED"]='administrator.dialogs.exportrunning';
-		intArr["[static_export_CD]FAILED"]='administrator.dialogs.exportfailed';
+		intArr["[static_export_CD]WAITING"]='administrator.dialogs.waitingstaticPDF';
+		intArr["[static_export_CD]PLANNED"]='administrator.dialogs.staticPDFrunning';
+		intArr["[static_export_CD]FAILED"]='administrator.dialogs.staticPDFfailed';
 
 		intArr["[reindex]WAITING"]='administrator.dialogs.waitingreindex';
 		intArr["[reindex]PLANNED"]='administrator.dialogs.reindexrunning';
@@ -491,7 +491,7 @@ function generateStatic(level, exportType, imgUrl, i18nUrl,iso3Country, iso3Lang
 	    });
 	}
 	
-	$("#common_started_text").text(dictionary['administrator.dialogs.waitingexport']);
+	$("#common_started_text").text(dictionary['administrator.dialogs.waitingstaticPDF']);
 	$("#common_started" ).dialog( "option", "title",  dictionary['administrator.menu.dialogs.staticPDF.title']);
 
 	_startProcess(url);
