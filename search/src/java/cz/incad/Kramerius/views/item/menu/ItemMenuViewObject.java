@@ -108,14 +108,29 @@ public class ItemMenuViewObject {
         } else return null;
     }
 	
-	private String exportPDF() {
+	private String exportCD_PDF() {
         StringTemplate template = new StringTemplate("<div align=\"left\"><a title='$tooltip$' " +
         "href=\"javascript:generateStatic($level$,'static_export_CD','$imgServlet$','$i18nServlet$','$iso3Country$','$iso3Language$');\">$title$</a> <div style=\"display:none\">$role$</div></div>");
 	    String imgServlet = FullImageServlet.fullImageServlet(this.httpServletRequest);
 		String i18nServlet = I18NServlet.i18nServlet(this.httpServletRequest);
 		template.setAttribute("level", (index+1));
-		template.setAttribute("tooltip", this.resourceBundle.getString("administrator.menu.generatepdf"));
-        template.setAttribute("title", this.resourceBundle.getString("administrator.menu.generatepdf"));
+		template.setAttribute("tooltip", this.resourceBundle.getString("administrator.menu.exportcd"));
+        template.setAttribute("title", this.resourceBundle.getString("administrator.menu.exportcd"));
+        template.setAttribute("imgServlet", imgServlet);
+        template.setAttribute("i18nServlet", i18nServlet);
+        template.setAttribute("iso3Country", this.locale.getISO3Country());
+        template.setAttribute("iso3Language", this.locale.getISO3Language());
+        return template.toString();
+	}
+
+	private String exportDVD_PDF() {
+        StringTemplate template = new StringTemplate("<div align=\"left\"><a title='$tooltip$' " +
+        "href=\"javascript:generateStatic($level$,'static_export_DVD','$imgServlet$','$i18nServlet$','$iso3Country$','$iso3Language$');\">$title$</a> <div style=\"display:none\">$role$</div></div>");
+	    String imgServlet = FullImageServlet.fullImageServlet(this.httpServletRequest);
+		String i18nServlet = I18NServlet.i18nServlet(this.httpServletRequest);
+		template.setAttribute("level", (index+1));
+		template.setAttribute("tooltip", this.resourceBundle.getString("administrator.menu.exportdvd"));
+        template.setAttribute("title", this.resourceBundle.getString("administrator.menu.exportdvd"));
         template.setAttribute("imgServlet", imgServlet);
         template.setAttribute("i18nServlet", i18nServlet);
         template.setAttribute("iso3Country", this.locale.getISO3Country());
@@ -256,7 +271,8 @@ public class ItemMenuViewObject {
             items.add(deleteFromFedora());
             items.add(changeVisibility());
             items.add(exportTOFOXML());
-            items.add(exportPDF());
+            items.add(exportCD_PDF());
+            items.add(exportDVD_PDF());
             items.add(generateDeepZoomTiles());
 //			if (userInRoleDecision.isUserInRole(KrameriusRoles.REINDEX)) {
 //			}
