@@ -701,7 +701,7 @@ public class GeneratePDFServiceImpl implements GeneratePDFService {
 				insertPara(page, pdfWriter, document, oneChunkText.substring(0, command.indexStart(oneChunkText)), font);
 				oneChunkBuffer = new StringBuffer();
 			} else {
-				oneChunkBuffer.append(line).append("\n");
+				oneChunkBuffer.append(line).append('\n');
 			}
 		}
 		
@@ -715,6 +715,8 @@ public class GeneratePDFServiceImpl implements GeneratePDFService {
 			Document document, String text, Font font)
 			throws DocumentException, IOException {
 
+		text = text.trim().replace('\t',' ');
+		
 		Chunk chunk = new Chunk(text, font);
 		chunk.setLocalDestination(page.getOutlineDestination());
 		pdfWriter.setOpenAction(page.getOutlineDestination());

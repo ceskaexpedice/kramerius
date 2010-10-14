@@ -121,7 +121,8 @@ public class CachingSupport {
     }
 
     private File getTileImageFolder(String uuid, int level) throws IOException {
-        File oneImgFolder = getOneImageFolder(uuid);
+        if (level == 14) throw new IllegalArgumentException("");
+    	File oneImgFolder = getOneImageFolder(uuid);
         File levelFolder = new File(oneImgFolder, ""+level);
         if (!levelFolder.exists()) {
             boolean created = levelFolder.mkdirs();

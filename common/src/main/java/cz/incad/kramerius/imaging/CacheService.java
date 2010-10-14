@@ -1,5 +1,6 @@
 package cz.incad.kramerius.imaging;
 
+import java.awt.Dimension;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.io.InputStream;
@@ -15,19 +16,19 @@ public interface CacheService {
 	/**
 	 * Prepare cache for one page
 	 * @param uuid UUID of image
-	 * @param levels how many levels should be prepared
+	 * @param dimensionToFit how many levels should be prepared
 	 */
-	public void prepareCacheImage(String uuid, int levels);
+	public void prepareCacheImage(String uuid, Dimension dimensionToFit);
 	
 
 	
 	/**
 	 * Prepare cache for given image
 	 * @param uuid UUID of given image
-	 * @param levels how many levels should be prepared
+	 * @param dimensionToFit how many levels should be prepared
 	 * @param rawImage RAW Image
 	 */
-	public void prepareCacheImage(String uuid, int levels, BufferedImage rawImage);
+	public void prepareCacheImage(String uuid, Dimension dimensionToFit, BufferedImage rawImage);
 	
 	
 	/**

@@ -53,7 +53,7 @@ public class FileSystemCacheServiceImpl implements CacheService {
 
 	
 	@Override
-	public void prepareCacheImage(String uuid, int deep) {
+	public void prepareCacheImage(String uuid, Dimension deep) {
 		try {
 			BufferedImage rawImage = getFullImage(uuid);
 			prepareCacheImage(uuid, deep, rawImage);
@@ -64,16 +64,19 @@ public class FileSystemCacheServiceImpl implements CacheService {
 
 	
 	@Override
-	public void prepareCacheImage(String uuid, int deep, BufferedImage rawImage) {
+	public void prepareCacheImage(String uuid, Dimension dimToFit, BufferedImage rawImage) {
 		try {
 			cachingSupport.writeDeepZoomDescriptor(uuid, rawImage, tileSupport.getTileSize());
 			cachingSupport.writeDeepZoomFullImage(uuid, rawImage, kConfiguration.getDeepZoomJPEGQuality());
 
 			int levels = (int) tileSupport.getLevels(rawImage, 1);
-			for (int i = 1; i <= deep; i++) {
-			    int curLevel = levels-i;
+			System.out.println("Levels = "+levels);
+			for (int i = levels-1; i >0; i--) {
+				int curLevel = i;
+				System.out.println("Current level : "+curLevel);
 				double scale = tileSupport.getScale(curLevel, levels);
 			    Dimension scaled = tileSupport.getScaledDimension(new Dimension(rawImage.getWidth(null), rawImage.getHeight(null)), scale);
+
 			    int rows = tileSupport.getRows(scaled);
 			    int cols = tileSupport.getCols(scaled);
 			    for (int r = 0; r < rows; r++) {
@@ -87,7 +90,11 @@ public class FileSystemCacheServiceImpl implements CacheService {
 			            BufferedImage tile = this.tileSupport.getTile(rawImage, curLevel, cell, 1, method, highQuality);
 			            cachingSupport.writeDeepZoomTile(uuid, curLevel, r,c, tile,kConfiguration.getDeepZoomJPEGQuality());
 					}
-				}
+			    }
+			    // pokud se vleze na dlazdici, dal uz nepokracuju
+			    if (!greaterThen(scaled, dimToFit)) {
+			    	break;
+			    }
 			}
 		} catch (IOException e) {
 			LOGGER.severe(e.getMessage());
@@ -95,11 +102,16 @@ public class FileSystemCacheServiceImpl implements CacheService {
 	}
 
 
+	private boolean greaterThen(Dimension scaled, Dimension dimToFit) {
+		return scaled.width > dimToFit.width && scaled.height > dimToFit.height;
+	}
+
+
 	@Override
 	public void prepareCacheForUUID(String uuid) throws IOException {
 		KrameriusModels krameriusModel = fedoraAccess.getKrameriusModel(uuid);
 		if (krameriusModel.equals(KrameriusModels.PAGE)) {
-			prepareCacheImage(uuid,5);
+			prepareCacheImage(uuid,new Dimension(tileSupport.getTileSize(), tileSupport.getTileSize()));
 		} else {
 			fedoraAccess.processRelsExt(uuid, new RelsExtHandler() {
 				
@@ -114,7 +126,7 @@ public class FileSystemCacheServiceImpl implements CacheService {
 							pidParse.disseminationURI();
 							String uuid = pidParse.getObjectId();
 							LOGGER.info("caching page "+(pageIndex++));
-							prepareCacheImage(uuid, 5);
+							prepareCacheImage(uuid, new Dimension(tileSupport.getTileSize(), tileSupport.getTileSize()));
 						} catch (DOMException e) {
 							LOGGER.severe(e.getMessage());
 						} catch (LexerException e) {

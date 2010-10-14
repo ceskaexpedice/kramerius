@@ -62,7 +62,7 @@
 
 
 
-	<xsl:template match="mods:identifier">
+<xsl:template match="mods:identifier">
 			<xsl:if test="@type='sici' and text()!=''"> 
 SICI:<xsl:text>	</xsl:text> <xsl:value-of select="text()"/>
 			</xsl:if>
@@ -75,10 +75,10 @@ ISSN:<xsl:text>	</xsl:text> <xsl:value-of select="text()"/>
 			<xsl:if test="@type='isbn' and text()!=''"> 
 ISBN:<xsl:text>	</xsl:text> <xsl:value-of select="text()"/>
 			</xsl:if>
-	</xsl:template>	
+</xsl:template>	
 	
 	<!-- Sablona pro tituly -->
-	<xsl:template name="title" match="mods:titleInfo">
+<xsl:template name="title" match="mods:titleInfo">
 	  
 <xsl:value-of select="$bundle/value[@key='pdf.title']"/><xsl:text>:	</xsl:text> <xsl:value-of select="mods:title/text()"/>
 		<xsl:if test="mods:subTitle/text()!=''">

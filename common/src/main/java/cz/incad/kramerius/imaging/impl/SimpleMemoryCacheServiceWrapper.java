@@ -1,5 +1,6 @@
 package cz.incad.kramerius.imaging.impl;
 
+import java.awt.Dimension;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.io.InputStream;
@@ -47,19 +48,19 @@ public class SimpleMemoryCacheServiceWrapper implements CacheService {
 	
 	
 	@Override
-	public void prepareCacheImage(String uuid, int levels) {
+	public void prepareCacheImage(String uuid, Dimension dimensionToFit) {
 		try {
 			BufferedImage rawImage = getFullImage(uuid);
-			prepareCacheImage(uuid, levels, rawImage);
+			prepareCacheImage(uuid, dimensionToFit, rawImage);
 		} catch (IOException e) {
 			LOGGER.severe(e.getMessage());
 		}
 	}
 
 	@Override
-	public void prepareCacheImage(String uuid, int levels,
+	public void prepareCacheImage(String uuid, Dimension dimensionToFit,
 			BufferedImage rawImage) {
-		this.wrappingInstance.prepareCacheImage(uuid, levels);
+		this.wrappingInstance.prepareCacheImage(uuid, dimensionToFit);
 		this.memoryCache.registerToCache(uuid, rawImage);
 	}
 

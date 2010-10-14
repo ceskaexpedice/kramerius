@@ -1,5 +1,6 @@
 package cz.incad.kramerius.imaging;
 
+import java.awt.Dimension;
 import java.awt.Image;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
@@ -25,7 +26,7 @@ public class ImagingTests extends AbstractGuiceTestCase {
 		BufferedImage rawImage = tileSupport.getRawImage("4308eb80-b03b-11dd-a0f6-000d606f5dc6");
 		long st = System.currentTimeMillis();
 //		cacheService.prepareCacheForUUID("0eaa6730-9068-11dd-97de-000d606f5dc6");
-		cacheService.prepareCacheImage("4308eb80-b03b-11dd-a0f6-000d606f5dc6", 1, rawImage);
+		cacheService.prepareCacheImage("4308eb80-b03b-11dd-a0f6-000d606f5dc6", new Dimension(512,512), rawImage);
 		
 		
 //		cacheService.prepareCacheForUUID("8f526130-8b0d-11de-8994-000d606f5dc6");
