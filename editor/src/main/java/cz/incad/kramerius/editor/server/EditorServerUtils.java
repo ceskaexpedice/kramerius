@@ -19,8 +19,11 @@ package cz.incad.kramerius.editor.server;
 
 import cz.incad.kramerius.KrameriusModels;
 import cz.incad.kramerius.editor.share.GWTKrameriusObject.Kind;
+import cz.incad.kramerius.editor.share.InputValidator;
+import cz.incad.kramerius.editor.share.InputValidator.Validator;
 import java.util.EnumMap;
 import java.util.Map;
+import net.customware.gwt.dispatch.shared.ActionException;
 
 /**
  *
@@ -61,6 +64,14 @@ public final class EditorServerUtils {
             throw new IllegalStateException("Unsupported model: " + model);
         }
         return res;
+    }
+
+    public static String validatePID(String pid) throws ActionException {
+        Validator<String> validator = InputValidator.validatePID(pid);
+        if (!validator.isValid()) {
+            throw new ActionException("Invalid PID :" + pid);
+        }
+        return validator.getNormalized();
     }
 
 }

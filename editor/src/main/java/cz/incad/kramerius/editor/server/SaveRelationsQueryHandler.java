@@ -68,6 +68,7 @@ public final class SaveRelationsQueryHandler implements ActionHandler<SaveRelati
     public SaveRelationsResult execute(SaveRelationsQuery action, ExecutionContext context) throws DispatchException {
         try {
             String pid = action.getPID();
+            pid = EditorServerUtils.validatePID(pid);
             KrameriusModels kind = EditorServerUtils.resolveKrameriusModel(action.getKind());
             RelationModel model = RelationUtils.emptyModel(pid, kind);
             Map<KrameriusModels, List<Relation>> queryRelations = buildQueryRelations(action);
@@ -87,7 +88,9 @@ public final class SaveRelationsQueryHandler implements ActionHandler<SaveRelati
         throw new UnsupportedOperationException("Not supported yet.");
     }
 
-    private Map<KrameriusModels, List<Relation>> buildQueryRelations(SaveRelationsQuery action) {
+    private Map<KrameriusModels, List<Relation>> buildQueryRelations(SaveRelationsQuery action)
+            throws ActionException {
+        
         Map<KrameriusModels, List<Relation>> map = new EnumMap<KrameriusModels, List<Relation>>(KrameriusModels.class);
         Kind[] relKinds = action.getRelKinds();
         RelationHandle[][] relationHandles = action.getRelations();
@@ -106,8 +109,10 @@ public final class SaveRelationsQueryHandler implements ActionHandler<SaveRelati
         return map;
     }
 
-    private Relation buildRelation(RelationHandle handle) {
-        return new Relation(handle.getPID(), EditorServerUtils.resolveKrameriusModel(handle.getKind()));
+    private Relation buildRelation(RelationHandle handle) throws ActionException {
+        return new Relation(
+                EditorServerUtils.validatePID(handle.getPID()),
+                EditorServerUtils.resolveKrameriusModel(handle.getKind()));
     }
 
     private void applyNewRelations(RelationModel model, Map<KrameriusModels, List<Relation>> queryRelations) {

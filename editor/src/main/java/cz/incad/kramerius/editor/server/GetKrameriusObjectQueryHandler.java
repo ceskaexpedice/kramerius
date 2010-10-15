@@ -34,7 +34,6 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import net.customware.gwt.dispatch.server.ActionHandler;
@@ -49,7 +48,6 @@ import org.w3c.dom.Document;
  */
 public final class GetKrameriusObjectQueryHandler implements ActionHandler<GetKrameriusObjectQuery, GetKrameriusObjectResult> {
 
-    private static final String UUID_PREFIX = "uuid:";
     private RelationService relationsDAO;
     private FedoraAccess fedoraAccess;
 
@@ -70,7 +68,7 @@ public final class GetKrameriusObjectQueryHandler implements ActionHandler<GetKr
     @Override
     public GetKrameriusObjectResult execute(GetKrameriusObjectQuery action, ExecutionContext context) throws DispatchException {
         String pidTxt = action.getPID();
-        validateInput(pidTxt);
+        pidTxt = EditorServerUtils.validatePID(pidTxt);
         RelationModel fetchedRelations;
         try {
             fetchedRelations = fetchRelations(pidTxt);
@@ -87,17 +85,6 @@ public final class GetKrameriusObjectQueryHandler implements ActionHandler<GetKr
     @Override
     public void rollback(GetKrameriusObjectQuery action, GetKrameriusObjectResult result, ExecutionContext context) throws DispatchException {
         throw new UnsupportedOperationException("Not supported.");
-    }
-
-    private static void validateInput(String pid) throws ActionException {
-        try {
-            if (pid != null && pid.length() > UUID_PREFIX.length() && pid.startsWith(UUID_PREFIX)) {
-                UUID.fromString(pid.substring(UUID_PREFIX.length()));
-                return;
-            }
-        } catch (IllegalArgumentException e) {
-        }
-        throw new ActionException("Invalid PID :" + pid);
     }
 
     private GetKrameriusObjectResult buildResult(

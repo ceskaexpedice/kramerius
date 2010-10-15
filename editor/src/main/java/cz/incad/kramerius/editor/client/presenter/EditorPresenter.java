@@ -33,6 +33,8 @@ import cz.incad.kramerius.editor.client.view.SaveView;
 import cz.incad.kramerius.editor.share.GWTKrameriusObject;
 import cz.incad.kramerius.editor.share.GWTRelationKindModel;
 import cz.incad.kramerius.editor.share.GWTRelationModel;
+import cz.incad.kramerius.editor.share.InputValidator;
+import cz.incad.kramerius.editor.share.InputValidator.Validator;
 import cz.incad.kramerius.editor.share.rpc.GetKrameriusObjectQuery;
 import cz.incad.kramerius.editor.share.rpc.GetKrameriusObjectResult;
 import cz.incad.kramerius.editor.share.rpc.SaveRelationsQuery;
@@ -132,14 +134,6 @@ public class EditorPresenter implements Presenter, LoadView.Callback, EditorView
 
             @Override
             public void onSuccess(GetKrameriusObjectResult result) {
-//                if (fromAddView) {
-//                    if (result == null) {
-//                        loadView.showError("Please enter a valid PID (uuid:<UUID>).");
-//                        return;
-//                    } else {
-//                        loadView.hide();
-//                    }
-//                }
                 editRelations(new GWTRelationModel(result.getResult()));
                 if (callback != null) {
                     callback.run();
@@ -268,13 +262,18 @@ public class EditorPresenter implements Presenter, LoadView.Callback, EditorView
 
     @Override
     public void onLoadViewCommit(String input) {
-        load(input, new Runnable() {
+        Validator<String> validator = InputValidator.validatePID(input);
+        if (validator.isValid()) {
+            load(validator.getNormalized(), new Runnable() {
 
-            @Override
-            public void run() {
-                loadView.hide();
-            }
-        });
+                @Override
+                public void run() {
+                    loadView.hide();
+                }
+            });
+        } else {
+            loadView.showError(validator.getErrorMessage());
+        }
     }
 
     @Override
