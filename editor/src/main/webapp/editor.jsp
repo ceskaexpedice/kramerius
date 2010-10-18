@@ -1,5 +1,4 @@
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN">
-<!--
+<%-- 
 Copyright (C) 2010 Jan Pokorsky
 
 This program is free software: you can redistribute it and/or modify
@@ -14,13 +13,23 @@ GNU General Public License for more details.
 
 You should have received a copy of the GNU General Public License
 along with this program. If not, see <http://www.gnu.org/licenses/>.
--->
+--%>
+
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN">
+<%@page contentType="text/html" pageEncoding="UTF-8"%>
+<%@page import="cz.incad.kramerius.utils.conf.KConfiguration" %>
+
 <html>
     <head>
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
         <link type="text/css" rel="stylesheet" href="Editor.css" />
         <title>Kramerius Editor</title>
 
+        <script type="text/javascript">
+            var EditorConfiguration = {
+                krameriusURL: "<%=response.encodeURL(KConfiguration.getInstance().getApplicationURL())%>"
+            };
+        </script>
         <script type="text/javascript"  src="kramerius_editor/kramerius_editor.nocache.js"></script>
 
     </head>
@@ -36,6 +45,6 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
                 in order for this application to display correctly.
             </div>
         </noscript>
-        
+
     </body>
 </html>

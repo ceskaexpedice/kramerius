@@ -17,6 +17,7 @@
 
 package cz.incad.kramerius.editor.share;
 
+import cz.incad.kramerius.editor.client.EditorConfiguration;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -97,14 +98,12 @@ public final class GWTKrameriusObject {
 
     public String getLocation() {
         String uuid = getUUID();
-        return uuid == null ? null : "http://localhost:8080/search/titlePage?uuid=" + uuid;
+        return EditorConfiguration.getInstance().getThumbnailURL(uuid);
     }
 
     public String getPreviewLocation() {
         String uuid = getUUID();
-//        return "http://localhost:8080/search/djvu?uuid=" + this.getUUID() + "&scaledWidth=650";
-        return "http://localhost:8080/search/djvu?uuid=" + uuid + "&scaledWidth=450";
-//        return "http://localhost:8080/search/djvu?uuid=" + this.getUUID();
+        return EditorConfiguration.getInstance().getPreviewURL(uuid);
     }
 
     private String getUUID() {

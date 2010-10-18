@@ -42,6 +42,6 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
         </session-timeout>
     </session-config>
     <welcome-file-list>
-        <welcome-file>index.html</welcome-file>
+        <welcome-file>editor.jsp</welcome-file>
     </welcome-file-list>
 </web-app>
