@@ -29,9 +29,9 @@ import static org.junit.Assert.*;
  *
  * @author Jan Pokorsky
  */
-public class EditorEntryPointTest {
+public class EditorConfigurationTest {
 
-    public EditorEntryPointTest() {
+    public EditorConfigurationTest() {
     }
 
     @BeforeClass
@@ -107,21 +107,9 @@ public class EditorEntryPointTest {
     }
 
     private void doTestParseOpenIDsParameter(String openIDs, String[] exp) {
-        EditorEntryPoint instance = new EditorEntryPoint();
+        EditorConfiguration instance = EditorConfiguration.getInstance();
         Collection<String> res = instance.parseOpenIDsParameter(openIDs);
         assertArrayEquals(exp, res.toArray(new String[res.size()]));
     }
-
-//    /**
-//     * Test of onModuleLoad method, of class EditorEntryPoint.
-//     */
-//    @Test
-//    public void testOnModuleLoad() {
-//        System.out.println("onModuleLoad");
-//        EditorEntryPoint instance = new EditorEntryPoint();
-//        instance.onModuleLoad();
-//        // TODO review the generated test code and remove the default call to fail.
-//        fail("The test case is a prototype.");
-//    }
 
 }
