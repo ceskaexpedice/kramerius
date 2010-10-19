@@ -200,8 +200,7 @@ public class EditorPresenter implements Presenter, LoadView.Callback, EditorView
                 }
 
                 if (err.length() != 0) {
-                    err.append("Cannot save object(s): ");
-                    Window.alert(err.toString());
+                    Window.alert("Cannot save object(s): " + err.toString());
                 } else if (callback != null) {
                     callback.run();
                 }
