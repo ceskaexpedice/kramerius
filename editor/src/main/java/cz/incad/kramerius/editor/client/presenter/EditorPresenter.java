@@ -23,6 +23,7 @@ import com.google.gwt.event.logical.shared.ValueChangeHandler;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 //import com.google.inject.Inject;
+import cz.incad.kramerius.editor.client.EditorConfiguration;
 import cz.incad.kramerius.editor.client.view.ContainerViewImpl;
 import cz.incad.kramerius.editor.client.view.EditorView;
 import cz.incad.kramerius.editor.client.view.EditorViewsFactory;
@@ -247,12 +248,7 @@ public class EditorPresenter implements Presenter, LoadView.Callback, EditorView
             }
         });
 
-        List<GWTRelationModel> saveables = new ArrayList<GWTRelationModel>();
-        for (GWTRelationModel relModel : this.relModel2viewMap.keySet()) {
-            if (relModel.isModified()) {
-                saveables.add(relModel);
-            }
-        }
+        List<GWTRelationModel> saveables = getModifiedRelations();
 
         this.saveView.setSaveables(saveables);
         this.saveView.setDiscardable(false);
@@ -312,6 +308,49 @@ public class EditorPresenter implements Presenter, LoadView.Callback, EditorView
         }
     }
 
+    @Override
+    public void onKrameriusClick() {
+        List<GWTRelationModel> saveables = getModifiedRelations();
+
+        final Runnable doKrameriusClick = new Runnable() {
+
+            @Override
+            public void run() {
+                Window.Location.assign(EditorConfiguration.getInstance().getKrameriusURL());
+            }
+        };
+
+        if (saveables.isEmpty()) {
+            doKrameriusClick.run();
+        } else {
+            this.saveView.setCallback(new SaveView.Callback() {
+
+                @Override
+                public void onSaveViewCommit(boolean discard) {
+                    saveView.hide();
+                    if (discard) {
+                        doKrameriusClick.run();
+                    } else {
+                        save(saveView.getSelected(), doKrameriusClick);
+                    }
+                }
+            });
+            this.saveView.setSaveables(saveables);
+            this.saveView.setDiscardable(true);
+            this.saveView.show();
+        }
+    }
+
+    private List<GWTRelationModel> getModifiedRelations() {
+        List<GWTRelationModel> saveables = new ArrayList<GWTRelationModel>();
+        for (GWTRelationModel relModel : this.relModel2viewMap.keySet()) {
+            if (relModel.isModified()) {
+                saveables.add(relModel);
+            }
+        }
+        return saveables;
+    }
+    
     private void setModified(GWTRelationModel relModel) {
         Display relView = this.relModel2viewMap.get(relModel);
         this.display.setModified(relView, relModel.isModified());

@@ -44,6 +44,8 @@ Uncomment this for XHTML entities
                         addStyleNames="editorView_menuItem" href="javascript:;">Load</g:Anchor>
                 <g:Anchor ui:field="saveClickable"
                         addStyleNames="editorView_menuItem" href="javascript:;">Save</g:Anchor>
+                <g:Anchor ui:field="krameriusClickable" title="Go back to Kramerius Search"
+                        addStyleNames="editorView_menuItem" href="javascript:;">Kramerius</g:Anchor>
                 <g:Anchor ui:field="languagesClickable"
                         addStyleNames="editorView_menuItem" href="javascript:;">Languages</g:Anchor>
             </g:HorizontalPanel>

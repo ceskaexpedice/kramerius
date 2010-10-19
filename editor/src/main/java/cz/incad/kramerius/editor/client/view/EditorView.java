@@ -65,6 +65,8 @@ public interface EditorView extends Display {
 
         void onSaveClick();
 
+        void onKrameriusClick();
+
         void onEditorTabClose();
     }
 }
