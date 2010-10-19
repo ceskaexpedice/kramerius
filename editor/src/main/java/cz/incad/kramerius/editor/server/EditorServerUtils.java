@@ -67,8 +67,16 @@ public final class EditorServerUtils {
     }
 
     public static String validatePID(String pid) throws ActionException {
+        return validatePID(pid, false);
+    }
+
+    public static String validatePID(String pid, boolean isRelation) throws ActionException {
         Validator<String> validator = InputValidator.validatePID(pid);
         if (!validator.isValid()) {
+            // donator relations do not use UUID
+            if (isRelation && pid != null && pid.startsWith("donator:")) {
+                return pid;
+            }
             throw new ActionException("Invalid PID :" + pid);
         }
         return validator.getNormalized();

@@ -111,7 +111,7 @@ public final class SaveRelationsQueryHandler implements ActionHandler<SaveRelati
 
     private Relation buildRelation(RelationHandle handle) throws ActionException {
         return new Relation(
-                EditorServerUtils.validatePID(handle.getPID()),
+                EditorServerUtils.validatePID(handle.getPID(), true),
                 EditorServerUtils.resolveKrameriusModel(handle.getKind()));
     }
 
