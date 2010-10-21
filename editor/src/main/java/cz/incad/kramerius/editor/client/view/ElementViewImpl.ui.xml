@@ -20,18 +20,9 @@ Uncomment this for XHTML entities
 -->
 <ui:UiBinder xmlns:ui="urn:ui:com.google.gwt.uibinder"
 	xmlns:g="urn:import:com.google.gwt.user.client.ui">
-    <ui:style >
-        .inlined-widget {
-            display: inline-block;
-        }
-        .thumbnail {
-            width: 90px;
-            height: 128px;
-            text-align: center;
-        }
-    </ui:style>
+    <ui:style src="ElementView.css" />
 
-    <g:VerticalPanel addStyleNames="{style.inlined-widget} editor_image_panel">
+    <g:VerticalPanel addStyleNames="{style.elementPanel}">
         <g:SimplePanel addStyleNames="{style.thumbnail}">
             <g:Image ui:field="elmImage" />
         </g:SimplePanel>

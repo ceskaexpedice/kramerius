@@ -82,7 +82,7 @@ public final class RelationsViewImpl implements RelationsView {
     }
 
     private TabLayoutPanel createTabLayoutPanel() {
-        TabLayoutPanel tabPanel = new TabLayoutPanel(24, Unit.PX);
+        TabLayoutPanel tabPanel = new TabLayoutPanel(2.2, Unit.EM);
         tabPanel.addSelectionHandler(new SelectionHandler<Integer>() {
 
             @Override

@@ -15,23 +15,14 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-/* 
-   Syntax recommendation http://www.w3.org/TR/REC-CSS2/
-*/
-
-.button {
+.thumbnail {
+    width: 90px;
+    height: 128px;
+    text-align: center;
+}
+.elementPanel {
+    display: inline-block;
+    background: burlywood;
+    border: solid burlywood;
     margin: 2px 2px;
-}
-.buttonPanel {
-    margin: 4px;
-}
-.listItem {
-    padding: 8px 0px;
-    display: block;
-}
-.listItemOdd {
-    background-color: #DDDDDD;
-}
-.listItemEven {
-    background-color: #EEEEEE;
 }

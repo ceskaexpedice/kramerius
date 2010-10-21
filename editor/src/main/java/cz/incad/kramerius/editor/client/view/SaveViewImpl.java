@@ -18,15 +18,16 @@ package cz.incad.kramerius.editor.client.view;
 
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ClickEvent;
+import com.google.gwt.resources.client.CssResource;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.uibinder.client.UiHandler;
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.CheckBox;
 import com.google.gwt.user.client.ui.DialogBox;
+import com.google.gwt.user.client.ui.FlowPanel;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.ScrollPanel;
-import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 import java.util.ArrayList;
 import java.util.List;
@@ -38,6 +39,12 @@ import java.util.List;
 public final class SaveViewImpl<T> implements SaveView<T> {
 
     interface SaveViewImplUiBinder extends UiBinder<Widget, SaveViewImpl> {}
+    
+    interface StyleAccess extends CssResource {
+        String listItem();
+        String listItemEven();
+        String listItemOdd();
+    }
 
     private static SaveViewImplUiBinder uiBinder = (SaveViewImplUiBinder) GWT.create(SaveViewImplUiBinder.class);
     private SaveView.Callback callback;
@@ -47,14 +54,13 @@ public final class SaveViewImpl<T> implements SaveView<T> {
     private DialogBox dialogBox;
     @UiField Button okButton;
     @UiField Button discardButton;
-    @UiField VerticalPanel saveablePanel;
+    @UiField FlowPanel saveablePanel;
     @UiField ScrollPanel scrollPanel;
+    @UiField StyleAccess style;
 
     public SaveViewImpl() {
         this.saveViewWidget = (Widget) uiBinder.createAndBindUi(this);
         this.saveViewWidget.setSize("500px", "200px");
-        this.saveablePanel.setSize("100%", "100%");
-        this.saveablePanel.setSpacing(2);
     }
 
     @Override
@@ -68,6 +74,10 @@ public final class SaveViewImpl<T> implements SaveView<T> {
 //            for (int i = 0; i < 10; i++) {
 //                CheckBox checkBox = new CheckBox("Very long CheckBox Very long CheckBox");
 //                checkBox.setValue(Boolean.valueOf(true));
+//                checkBox.addStyleName(style.listItem());
+//                String styleName = saveablePanel.getWidgetCount() % 2 == 0
+//                        ? style.listItemOdd(): style.listItemEven();
+//                checkBox.addStyleName(styleName);
 //                this.saveablePanel.add(checkBox);
 //            }
         } else {
@@ -78,6 +88,10 @@ public final class SaveViewImpl<T> implements SaveView<T> {
             Widget saveableWidget = saveablesSize == 1
                     ? createSaveableLabel(saveable)
                     : createSaveableCheckBox(saveable);
+            saveableWidget.addStyleName(style.listItem());
+            String styleName = saveablePanel.getWidgetCount() % 2 == 0
+                    ? style.listItemOdd(): style.listItemEven();
+            saveableWidget.addStyleName(styleName);
             this.saveablePanel.add(saveableWidget);
         }
 

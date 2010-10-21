@@ -25,6 +25,7 @@ import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.uibinder.client.UiHandler;
 import com.google.gwt.user.client.ui.Anchor;
 import com.google.gwt.user.client.ui.FlowPanel;
+import com.google.gwt.user.client.ui.HasWidgets;
 import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.TabLayoutPanel;
@@ -57,6 +58,7 @@ public final class EditorViewImpl implements EditorView {
     interface StyleAccess extends CssResource {
 
         String modified();
+        String tabCloseButton();
     }
 
     public EditorViewImpl() {
@@ -117,11 +119,12 @@ public final class EditorViewImpl implements EditorView {
         if (index < 0) {
             return;
         }
-        Widget tabWidget = this.editorTabPanel.getTabWidget(index);
+        HasWidgets tabWidget = (HasWidgets) this.editorTabPanel.getTabWidget(index);
+        Widget label = tabWidget.iterator().next();
         if (modified) {
-            tabWidget.getElement().addClassName(this.styleAccess.modified());
+            label.getElement().addClassName(this.styleAccess.modified());
         } else {
-            tabWidget.getElement().removeClassName(this.styleAccess.modified());
+            label.getElement().removeClassName(this.styleAccess.modified());
         }
     }
 
@@ -154,7 +157,7 @@ public final class EditorViewImpl implements EditorView {
         // XXX fix: temporary solution to remove the tab
         Label closeHandle = new Label("\u2718");
         closeHandle.setTitle("Close tab");
-        closeHandle.addStyleName("editorTabCloseButton");
+        closeHandle.addStyleName(styleAccess.tabCloseButton());
         closeHandle.addClickHandler(new ClickHandler() {
 
             @Override

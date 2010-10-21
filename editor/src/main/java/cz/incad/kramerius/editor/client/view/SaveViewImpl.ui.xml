@@ -20,21 +20,22 @@ Uncomment this for XHTML entities
 -->
 <ui:UiBinder xmlns:ui="urn:ui:com.google.gwt.uibinder"
 	xmlns:g="urn:import:com.google.gwt.user.client.ui">
-    <ui:style src="SaveView.css" />
+    <ui:style src="SaveView.css" field="style"
+            type="cz.incad.kramerius.editor.client.view.SaveViewImpl.StyleAccess" />
 
     <g:DockLayoutPanel unit="EM">
         <g:south size="2.5">
-            <g:HorizontalPanel addStyleNames="{style.buttonPanel}">
+            <g:HTMLPanel>
                 <g:Button ui:field="okButton" addStyleNames="{style.button}">Save</g:Button>
                 <g:Button ui:field="discardButton" addStyleNames="{style.button}">Discard</g:Button>
                 <g:Button ui:field="cancelButton" addStyleNames="{style.button}">Cancel</g:Button>
-            </g:HorizontalPanel>
+            </g:HTMLPanel>
         </g:south>
 
         <g:center>
             <g:ScrollPanel ui:field="scrollPanel">
-                <g:VerticalPanel ui:field="saveablePanel">
-                </g:VerticalPanel>
+                <g:FlowPanel ui:field="saveablePanel">
+                </g:FlowPanel>
             </g:ScrollPanel>
         </g:center>
     </g:DockLayoutPanel>

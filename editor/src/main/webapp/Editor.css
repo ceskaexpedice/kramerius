@@ -25,31 +25,128 @@ root {
 
 /* D&D hint */
 BODY, HTML { height: 100%; }
-
-.editor_image_panel {
-    background: burlywood;
-    border: solid burlywood;
-    margin: 2px 2px;
+body, table td, select {
+    font-family: Verdana,Arial,Helvetica,Tahoma !important;
+    font-size: 12px !important;
 }
-
-.editorView_menuItem {
-    margin-left: 4px;
+.gwt-SplitLayoutPanel-VDragger {
+    background-color: #c76226 /*#8A2D28*/ !important;
 }
-
-.editorTabCloseButton {
-    margin-left: 4px;
+.gwt-TabLayoutPanel .gwt-TabLayoutPanelTab {
+    background: none repeat-x scroll 50% 0 #DDDDDD !important;
+    border: 1px solid #C3C3C3 !important;
+    color: #555555 !important;
+    font-weight: normal !important;
+    outline: medium none !important;
+    
+    -moz-border-radius-topleft: 4px;
+    -moz-border-radius-topright: 4px;
+    -webkit-border-top-left-radius: 4px;
+    -webkit-border-top-right-radius: 4px;
 }
-
-.editorTabCloseButton:hover {
-/*    border: solid 1px;*/
-    color: red;
-    cursor: pointer;
+.gwt-TabLayoutPanel .gwt-TabLayoutPanelTab:hover {
+    border: 1px solid #999999/*{borderColorHover}*/ !important;
+    background: #ffa903 0/*{bgHoverXPos}*/ 50%/*{bgHoverYPos}*/ repeat-x/*{bgHoverRepeat}*/ !important;
+    font-weight: normal/*{fwDefault}*/ !important;
+    color: #212121/*{fcHover}*/ !important;
+    outline: none !important;
 }
+.gwt-TabLayoutPanel .gwt-TabLayoutPanelTab-selected, .gwt-TabLayoutPanel .gwt-TabLayoutPanelTab-selected:hover {
+    background: url("./images/search.img.tab_bg.png") repeat-x scroll 0 50% #FFFFFF !important;
+    border: 1px solid #AAAAAA !important;
+    color: white !important;
+    font-weight: normal !important;
+    outline: medium none !important;
 
+    border-top-left-radius: 4px;
+    border-top-right-radius: 4px;
+    -moz-border-radius-topleft: 4px;
+    -moz-border-radius-topright: 4px;
+    -webkit-border-top-left-radius: 4px;
+    -webkit-border-top-right-radius: 4px;
+}
+.gwt-TabLayoutPanel .gwt-TabLayoutPanelContent {
+    border-color: #AAAAAA !important;
+    border-width: 1px !important;
+}
+.gwt-DialogBox .Caption {
+    background: url(./images/search.img.bg_orange_small.png) repeat-x !important;
+    color: white !important;
+    border-top: 5px solid #cccccc!important;
+/*    border-top: 5px solid #AAAAAA !important;*/
+    border-bottom: 1px solid #bbbbbb;
+}
+.gwt-DialogBox .dialogTopLeft {
+    background: url(./images/search.img.bg_orange_small.png) no-repeat 0px 0px !important;
+    border-left: 5px solid #cccccc!important;
+    border-top: 5px solid #cccccc!important;
+/*    border-left: 5px solid #AAAAAA !important;
+    border-top: 5px solid #AAAAAA !important;*/
+    border-bottom: 1px solid #bbbbbb;
+
+    border-top-left-radius: 4px;
+    -moz-border-radius-topleft: 4px;
+    -webkit-border-top-left-radius: 4px;
+}
+.gwt-DialogBox .dialogTopRight {
+    background: url(./images/search.img.bg_orange_small.png) repeat-x 0px 0px !important;
+    border-right: 5px solid #cccccc!important;
+    border-top: 5px solid #cccccc!important;
+/*    border-right: 5px solid #AAAAAA !important;
+    border-top: 5px solid #AAAAAA !important;*/
+    border-bottom: 1px solid #bbbbbb;
+
+    border-top-right-radius: 4px;
+    -moz-border-radius-topright: 4px;
+    -webkit-border-top-right-radius: 4px;
+}
+.gwt-DialogBox .dialogMiddleLeft {
+    background: white !important;
+    border-left: 5px solid #cccccc!important;
+/*    border-left: 5px solid #AAAAAA !important;*/
+}
+.gwt-DialogBox .dialogMiddleRight {
+    background: white !important;
+    border-right: 5px solid #cccccc!important;
+/*    border-right: 5px solid #AAAAAA !important;*/
+}
+.gwt-DialogBox .dialogBottomLeft {
+    background: white !important;
+    border-left: 5px solid #cccccc!important;
+    border-bottom: 5px solid #cccccc!important;
+/*    border-left: 5px solid #AAAAAA !important;
+    border-bottom: 5px solid #AAAAAA !important;*/
+
+    border-bottom-left-radius: 4px;
+    -moz-border-radius-bottomleft: 4px;
+    -webkit-border-bottom-left-radius: 4px;
+}
+.gwt-DialogBox .dialogBottomRight {
+    background: white !important;
+    border-right: 5px solid #cccccc!important;
+    border-bottom: 5px solid #cccccc!important;
+/*    border-right: 5px solid #AAAAAA !important;
+    border-bottom: 5px solid #AAAAAA !important;*/
+
+    border-bottom-right-radius: 4px;
+    -moz-border-radius-bottomright: 4px;
+    -webkit-border-bottom-right-radius: 4px;
+}
+.gwt-DialogBox .dialogBottomCenter {
+    background: white !important;
+    border-bottom: 5px solid #cccccc!important;
+/*    border-bottom: 5px solid #AAAAAA !important;*/
+}
+.gwt-DialogBox .dialogTopLeftInner, .gwt-DialogBox .dialogTopRightInner {
+    width: 0px !important;
+}
+.gwt-DialogBox .dialogBottomLeftInner, .gwt-DialogBox .dialogBottomRightInner {
+    width: 0px !important;
+    height: 0px !important;
+}
 .dragdrop-dropTarget-engage {
-  background-color: #E0E8FF;
+    background-color: #e3e3e3/*#E0E8FF*/;
 }
-
 .ui-icon {
     background-image:url("./images/256x240_icons.png");
     height:16px;
@@ -65,6 +162,7 @@ BODY, HTML { height: 100%; }
 }
 
 /* positioning */
+/*
 .ui-icon-carat-1-n { background-position: 0 0; }
 .ui-icon-carat-1-ne { background-position: -16px 0; }
 .ui-icon-carat-1-e { background-position: -32px 0; }
@@ -132,7 +230,9 @@ BODY, HTML { height: 100%; }
 .ui-icon-arrow-4 { background-position: 0 -80px; }
 .ui-icon-arrow-4-diag { background-position: -16px -80px; }
 .ui-icon-extlink { background-position: -32px -80px; }
+*/
 .ui-icon-newwin { background-position: -48px -80px; }
+/*
 .ui-icon-refresh { background-position: -64px -80px; }
 .ui-icon-shuffle { background-position: -80px -80px; }
 .ui-icon-transfer-e-w { background-position: -96px -80px; }
@@ -161,7 +261,9 @@ BODY, HTML { height: 100%; }
 .ui-icon-clock { background-position: -80px -112px; }
 .ui-icon-disk { background-position: -96px -112px; }
 .ui-icon-calculator { background-position: -112px -112px; }
+*/
 .ui-icon-zoomin { background-position: -128px -112px; }
+/*
 .ui-icon-zoomout { background-position: -144px -112px; }
 .ui-icon-search { background-position: -160px -112px; }
 .ui-icon-wrench { background-position: -176px -112px; }
@@ -238,3 +340,4 @@ BODY, HTML { height: 100%; }
 .ui-icon-grip-solid-horizontal { background-position: -48px -224px; }
 .ui-icon-gripsmall-diagonal-se { background-position: -64px -224px; }
 .ui-icon-grip-diagonal-se { background-position: -80px -224px; }
+*/

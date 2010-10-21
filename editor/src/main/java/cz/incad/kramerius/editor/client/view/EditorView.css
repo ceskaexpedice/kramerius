@@ -15,23 +15,40 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-/* 
-   Syntax recommendation http://www.w3.org/TR/REC-CSS2/
-*/
-
-.button {
-    margin: 2px 2px;
+.headerPanel {
+    background-image: url("./images/search.img.bg_orange.png");
 }
-.buttonPanel {
-    margin: 4px;
+.menuItems {
+    float: right;
+    padding-right: 8px;
+    padding-top: 4px;
+    vertical-align: middle;
 }
-.listItem {
-    padding: 8px 0px;
-    display: block;
+.menuItem {
+    margin-left: 4px;
+    vertical-align: top;
+    color: #FFFFFF;
+    text-decoration: none;
 }
-.listItemOdd {
-    background-color: #DDDDDD;
+.menuItem:hover {
+    color: #FFFFFF;
+    text-decoration: underline;
 }
-.listItemEven {
-    background-color: #EEEEEE;
+.clipboardPanel {
+    background-image: url("./images/clipboard.png");
+    background-repeat: repeat;
+}
+.modified:before {
+    content: "* ";
+}
+.modified {
+    font-weight: bold;
+}
+.tabCloseButton {
+    margin-left: 4px;
+}
+.tabCloseButton:hover {
+/*    border: solid 1px;*/
+    color: red;
+    cursor: pointer;
 }

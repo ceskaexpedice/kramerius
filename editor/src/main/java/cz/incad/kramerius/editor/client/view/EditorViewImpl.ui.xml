@@ -20,46 +20,37 @@ Uncomment this for XHTML entities
 -->
 <ui:UiBinder xmlns:ui="urn:ui:com.google.gwt.uibinder"
 	xmlns:g="urn:import:com.google.gwt.user.client.ui">
-    <ui:style>
-        .mainPanel {
-          size: 100% 100%;
-        }
-        .clipboardPanel {
-          border: solid red 1px;
-          background-image: url("./images/clipboard.png");
-          background-repeat: repeat;
-        }
-    </ui:style>
-    <ui:style field="styleAccess" type="cz.incad.kramerius.editor.client.view.EditorViewImpl.StyleAccess">
-        .modified {
-          color: red;
-        }
-    </ui:style>
+    <ui:style field="styleAccess" src="EditorView.css"
+            type="cz.incad.kramerius.editor.client.view.EditorViewImpl.StyleAccess"/>
 
-    <g:DockLayoutPanel ui:field="mainPanel" unit="EM">
-        <g:north size="1.2">
+    <g:DockLayoutPanel ui:field="mainPanel" unit="PX">
+        <g:north size="60">
             <!-- Menu Panel -->
-            <g:HorizontalPanel>
-                <g:Anchor ui:field="loadClickable"
-                        addStyleNames="editorView_menuItem" href="javascript:;">Load</g:Anchor>
-                <g:Anchor ui:field="saveClickable"
-                        addStyleNames="editorView_menuItem" href="javascript:;">Save</g:Anchor>
-                <g:Anchor ui:field="krameriusClickable" title="Go back to Kramerius Search"
-                        addStyleNames="editorView_menuItem" href="javascript:;">Kramerius</g:Anchor>
-                <g:Anchor ui:field="languagesClickable"
-                        addStyleNames="editorView_menuItem" href="javascript:;">Languages</g:Anchor>
-            </g:HorizontalPanel>
+            <g:HTMLPanel addStyleNames="{styleAccess.headerPanel}" >
+                <img src="/images/search.img.logo.png" />
+                <span class="{styleAccess.menuItems}">
+                    <g:Anchor ui:field="loadClickable"
+                            addStyleNames="{styleAccess.menuItem}" href="javascript:;">Load</g:Anchor>
+                    <g:Anchor ui:field="saveClickable"
+                            addStyleNames="{styleAccess.menuItem}" href="javascript:;">Save</g:Anchor>
+                    <g:Anchor ui:field="krameriusClickable" title="Go back to Kramerius Search"
+                            addStyleNames="{styleAccess.menuItem}" href="javascript:;">Kramerius</g:Anchor>
+                    <g:Anchor ui:field="languagesClickable"
+                            addStyleNames="{styleAccess.menuItem}" href="javascript:;">Languages</g:Anchor>
+                </span>
+
+            </g:HTMLPanel>
         </g:north>
         <g:center>
             <g:SplitLayoutPanel ui:field="splitPanel">
                 <g:north size="0"><!--170-->
                     <!-- Clipboard Panel -->
-                    <g:FlowPanel ui:field="clipboardPanel" addStyleNames="{style.clipboardPanel}"></g:FlowPanel>
+                    <g:FlowPanel ui:field="clipboardPanel" addStyleNames="{styleAccess.clipboardPanel}"></g:FlowPanel>
                 </g:north>
 
                 <g:center>
                     <!-- Editor tabs -->
-                    <g:TabLayoutPanel ui:field="editorTabPanel" barHeight="2" barUnit="EM"/>
+                    <g:TabLayoutPanel ui:field="editorTabPanel" barHeight="2.2" barUnit="EM"/>
                 </g:center>
             </g:SplitLayoutPanel>
         </g:center>
