@@ -11,19 +11,12 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
-import java.util.SortedMap;
-import java.util.TreeMap;
-import java.util.WeakHashMap;
 import java.util.concurrent.locks.ReentrantLock;
 
 import com.google.inject.Inject;
 import com.google.inject.name.Named;
 
-import sun.misc.Compare;
-
 import cz.incad.kramerius.imaging.CacheService;
-import cz.incad.kramerius.imaging.impl.SimpleMemoryCacheServiceWrapper.UUIDTimestamp;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 
 /**
