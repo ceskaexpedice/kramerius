@@ -6,7 +6,6 @@
 
 <%@page import="cz.incad.kramerius.utils.conf.KConfiguration"%>
 
-<%@page import="cz.incad.Kramerius.ThumbnailImageServlet"%>
 
 <script type="text/javascript">
 	var currentSelectedPageRights;
