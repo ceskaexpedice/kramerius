@@ -25,7 +25,7 @@
 	LocalizationContext lctx= inj.getProvider(LocalizationContext.class).get();
 	pageContext.setAttribute("lctx", lctx);
 
-	List<String> uuids = (List<String>)inj.getInstance(MostDesirable.class).getMostDesirable(10);	
+	List<String> uuids = (List<String>)inj.getInstance(MostDesirable.class).getMostDesirable(18);	
         Iterator it = uuids.iterator();
         
         String itemUrl;
