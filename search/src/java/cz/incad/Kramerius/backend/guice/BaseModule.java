@@ -16,8 +16,10 @@ import com.google.inject.name.Names;
 import cz.incad.Kramerius.security.RequestIsUserInRoleDecision;
 import cz.incad.kramerius.FedoraAccess;
 import cz.incad.kramerius.MostDesirable;
-import cz.incad.kramerius.imaging.CacheService;
-import cz.incad.kramerius.imaging.TileSupport;
+import cz.incad.kramerius.imaging.DeepZoomCacheService;
+import cz.incad.kramerius.imaging.DeepZoomTileSupport;
+import cz.incad.kramerius.imaging.DiscStrucutreForStore;
+import cz.incad.kramerius.imaging.impl.Fedora3StreamsDiscStructure;
 import cz.incad.kramerius.imaging.impl.FileSystemCacheServiceImpl;
 import cz.incad.kramerius.imaging.impl.SimpleMemoryCacheServiceWrapper;
 import cz.incad.kramerius.imaging.impl.TileSupportImpl;
@@ -64,7 +66,7 @@ public class BaseModule extends AbstractModule {
 		bind(KConfiguration.class).toInstance(KConfiguration.getInstance());
 		
 		bind(Connection.class).annotatedWith(Names.named("kramerius4")).toProvider(Kramerius4ConnectionProvider.class);
-        bind(Connection.class).annotatedWith(Names.named("fedora3")).toProvider(Fedora3ConnectionProvider.class);
+		bind(Connection.class).annotatedWith(Names.named("fedora3")).toProvider(Fedora3ConnectionProvider.class);
 
 		bind(Locale.class).toProvider(LocalesProvider.class);
 	
@@ -85,9 +87,10 @@ public class BaseModule extends AbstractModule {
 		
 		bind(MostDesirable.class).to(MostDesirableImpl.class);
 		
-		bind(TileSupport.class).to(TileSupportImpl.class);
-		bind(CacheService.class).annotatedWith(Names.named("fileSystemCache")).to(FileSystemCacheServiceImpl.class).in(Scopes.SINGLETON);
-		bind(CacheService.class).annotatedWith(Names.named("memoryCacheForward")).to(SimpleMemoryCacheServiceWrapper.class).in(Scopes.SINGLETON);
+		bind(DeepZoomTileSupport.class).to(TileSupportImpl.class);
+		bind(DeepZoomCacheService.class).to(FileSystemCacheServiceImpl.class).in(Scopes.SINGLETON);
+		bind(DiscStrucutreForStore.class).to(Fedora3StreamsDiscStructure.class);
+		//bind(CacheService.class).annotatedWith(Names.named("memoryCacheForward")).to(SimpleMemoryCacheServiceWrapper.class).in(Scopes.SINGLETON);
 	}
 	
 
