@@ -636,7 +636,7 @@ function showImage(uuid) {
 		} else {
 			displayImageContent();
 			$("#plainImageImg").fadeOut("slow", function () {
-				$("#plainImageImg").attr('src','djvu?uuid='+uuid+'&scaledWidth=650');
+				$("#plainImageImg").attr('src','fullThumb?uuid='+uuid);
 			});
 		}
 	
