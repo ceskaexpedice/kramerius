@@ -16,7 +16,7 @@ import java.util.concurrent.locks.ReentrantLock;
 import com.google.inject.Inject;
 import com.google.inject.name.Named;
 
-import cz.incad.kramerius.imaging.CacheService;
+import cz.incad.kramerius.imaging.DeepZoomCacheService;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 
 /**
@@ -25,14 +25,14 @@ import cz.incad.kramerius.utils.conf.KConfiguration;
  * Default value is 20. <br>
  * @author pavels
  */
-public class SimpleMemoryCacheServiceWrapper implements CacheService {
+public class SimpleMemoryCacheServiceWrapper implements DeepZoomCacheService {
 	
 	static java.util.logging.Logger LOGGER = java.util.logging.Logger
 			.getLogger(SimpleMemoryCacheServiceWrapper.class.getName());
 	
 	@Inject
 	@Named("fileSystemCache")
-	CacheService wrappingInstance;
+	DeepZoomCacheService wrappingInstance;
 
 	@Inject
 	KConfiguration kConfiguration;
@@ -43,7 +43,7 @@ public class SimpleMemoryCacheServiceWrapper implements CacheService {
 	@Override
 	public void prepareCacheImage(String uuid, Dimension dimensionToFit) {
 		try {
-			BufferedImage rawImage = getFullImage(uuid);
+			BufferedImage rawImage = getDeepZoomOriginal(uuid);
 			prepareCacheImage(uuid, dimensionToFit, rawImage);
 		} catch (IOException e) {
 			LOGGER.severe(e.getMessage());
@@ -68,9 +68,9 @@ public class SimpleMemoryCacheServiceWrapper implements CacheService {
 	}
 
 	@Override
-	public synchronized void writeDeepZoomFullImage(String uuid, BufferedImage rawImage)
+	public synchronized void writeDeepZoomOriginalImage(String uuid, BufferedImage rawImage)
 			throws IOException {
-		this.wrappingInstance.writeDeepZoomFullImage(uuid, rawImage);
+		this.wrappingInstance.writeDeepZoomOriginalImage(uuid, rawImage);
 		this.memoryCache.registerToCache(uuid, rawImage);
 	}
 
@@ -106,21 +106,21 @@ public class SimpleMemoryCacheServiceWrapper implements CacheService {
 	}
 
 	@Override
-	public boolean isFullImagePresent(String uuid) throws IOException {
-		return this.wrappingInstance.isFullImagePresent(uuid);
+	public boolean isDeepZoomOriginalPresent(String uuid) throws IOException {
+		return this.wrappingInstance.isDeepZoomOriginalPresent(uuid);
 	}
 
-	@Override
-	public URL getFullImageURL(String uuid) throws MalformedURLException,
-			IOException {
-		return this.wrappingInstance.getFullImageURL(uuid);
-	}
+//	@Override
+//	public URL getFullImageURL(String uuid) throws MalformedURLException,
+//			IOException {
+//		return this.wrappingInstance.getFullImageURL(uuid);
+//	}
 
 	@Override
-	public BufferedImage getFullImage(String uuid) throws IOException {
+	public BufferedImage getDeepZoomOriginal(String uuid) throws IOException {
 		BufferedImage bufImage = memoryCache.getFromCache(uuid);
 		if (bufImage == null) {
-			bufImage =  this.wrappingInstance.getFullImage(uuid);
+			bufImage =  this.wrappingInstance.getDeepZoomOriginal(uuid);
 			this.memoryCache.registerToCache(uuid, bufImage);
 		}
 		return bufImage;
@@ -229,5 +229,11 @@ public class SimpleMemoryCacheServiceWrapper implements CacheService {
 		}
 		
 	}
-	
+
+
+	@Override
+	public BufferedImage createDeepZoomOriginalImageFromFedoraRAW(String uuid)
+			throws IOException {
+		return this.wrappingInstance.createDeepZoomOriginalImageFromFedoraRAW(uuid);
+	}
 }

@@ -5,6 +5,8 @@ import static cz.incad.kramerius.utils.FedoraUtils.getThumbnailFromFedora;
 import static cz.incad.kramerius.utils.FedoraUtils.getFedoraDatastreamsList;
 import static cz.incad.kramerius.utils.RESTHelper.openConnection;
 
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.Authenticator;
@@ -12,6 +14,8 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.PasswordAuthentication;
 import java.net.URL;
+import java.sql.Connection;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
@@ -42,6 +46,8 @@ import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
 import com.google.inject.Inject;
+import com.google.inject.Provider;
+import com.google.inject.name.Named;
 
 import cz.incad.kramerius.FedoraAccess;
 import cz.incad.kramerius.FedoraNamespaces;
@@ -49,6 +55,7 @@ import cz.incad.kramerius.FedoraRelationship;
 import cz.incad.kramerius.KrameriusModels;
 import cz.incad.kramerius.RelsExtHandler;
 import cz.incad.kramerius.TreeNodeProcessor;
+import cz.incad.kramerius.impl.fedora.FedoraDatabaseUtils;
 import cz.incad.kramerius.utils.FedoraUtils;
 import cz.incad.kramerius.utils.RESTHelper;
 import cz.incad.kramerius.utils.XMLUtils;
@@ -250,14 +257,14 @@ public class FedoraAccessImpl implements FedoraAccess {
 
 
 	@Override
-	public InputStream getThumbnail(String uuid) throws IOException {
+	public InputStream getSmallThumbnail(String uuid) throws IOException {
 		HttpURLConnection con = (HttpURLConnection) openConnection(getThumbnailFromFedora(configuration ,uuid),configuration.getFedoraUser(), configuration.getFedoraPass());
 		InputStream thumbInputStream = con.getInputStream();
 		return thumbInputStream;
 	}
 
 	@Override
-	public Document getThumbnailProfile(String uuid) throws IOException {
+	public Document getSmallThumbnailProfile(String uuid) throws IOException {
 		HttpURLConnection con = (HttpURLConnection) openConnection(thumbImageProfile(configuration ,uuid),configuration.getFedoraUser(), configuration.getFedoraPass());
 		InputStream stream = con.getInputStream();
 		try {
@@ -273,8 +280,8 @@ public class FedoraAccessImpl implements FedoraAccess {
 	
 	
 	@Override
-	public String getThumbnailMimeType(String uuid) throws IOException,XPathExpressionException {
-		Document profileDoc = getThumbnailProfile(uuid);
+	public String getSmallThumbnailMimeType(String uuid) throws IOException,XPathExpressionException {
+		Document profileDoc = getSmallThumbnailProfile(uuid);
         return mimetypeFromProfile(profileDoc);
 	}
 
@@ -284,7 +291,7 @@ public class FedoraAccessImpl implements FedoraAccess {
 		if (con.getResponseCode() == HttpURLConnection.HTTP_OK) {
 			InputStream thumbInputStream = con.getInputStream();
 			return thumbInputStream;
-		} throw new IOException("404");
+		} else throw new IOException("404");
 	}
 
 	
@@ -546,4 +553,27 @@ public class FedoraAccessImpl implements FedoraAccess {
 			throw new IOException(e);
 		}	
 	}
+
+	@Override
+	public boolean isFullthumbnailAvailable(String uuid) throws IOException {
+		throw new UnsupportedOperationException("");
+	}
+
+	@Override
+	public InputStream getFullThumbnail(String uuid) throws IOException {
+		throw new UnsupportedOperationException("");
+	}
+
+	@Override
+	public Document getFullThumbnailProfile(String uuid) throws IOException {
+		throw new UnsupportedOperationException("");
+	}
+
+	@Override
+	public String getFullThumbnailMimeType(String uuid) throws IOException,
+			XPathExpressionException {
+		throw new UnsupportedOperationException("");
+	}
+
+	
 }

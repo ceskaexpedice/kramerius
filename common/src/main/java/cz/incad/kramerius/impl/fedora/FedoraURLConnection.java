@@ -36,7 +36,7 @@ public class FedoraURLConnection extends URLConnection {
 		if (stream.equals(IMG_FULL)) {
 			return this.fedoraAccess.getImageFULL(uuid);
 		} else if (stream.equals(IMG_THUMB)) {
-			return this.fedoraAccess.getThumbnail(uuid);
+			return this.fedoraAccess.getSmallThumbnail(uuid);
 		} else throw new IOException("uknown stream !");
 	}
 

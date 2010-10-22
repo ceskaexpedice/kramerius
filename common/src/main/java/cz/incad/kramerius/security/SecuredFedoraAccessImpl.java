@@ -1,5 +1,7 @@
 package cz.incad.kramerius.security;
 
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
@@ -25,15 +27,17 @@ import cz.incad.kramerius.FedoraNamespaceContext;
 import cz.incad.kramerius.KrameriusModels;
 import cz.incad.kramerius.RelsExtHandler;
 import cz.incad.kramerius.TreeNodeProcessor;
+import cz.incad.kramerius.imaging.DiscStrucutreForStore;
 import cz.incad.kramerius.impl.FedoraAccessImpl;
+import cz.incad.kramerius.utils.conf.KConfiguration;
 
 /**
- * This is secured variant of  class FedoraAccessImpl {@link FedoraAccessImpl}. <br>
- * Only three methos are secured: 
+ * This is secured variant of class FedoraAccessImpl {@link FedoraAccessImpl}. <br>
+ * Only three methos are secured:
  * <ul>
- * 		<li> FedoraAccess#getImageFULL(String) </li>
- * 		<li> FedoraAccess#isImageFULLAvailable(String)</li>
- * 		<li> FedoraAccess#getImageFULLMimeType(String) </li>
+ * <li>FedoraAccess#getImageFULL(String)</li>
+ * <li>FedoraAccess#isImageFULLAvailable(String)</li>
+ * <li>FedoraAccess#getImageFULLMimeType(String)</li>
  * </ul>
  * 
  * @see FedoraAccess#getImageFULL(String)
@@ -42,167 +46,188 @@ import cz.incad.kramerius.impl.FedoraAccessImpl;
  * @author pavels
  */
 public class SecuredFedoraAccessImpl implements FedoraAccess {
-	
-	private FedoraAccess rawAccess;
-	private IPaddressChecker acceptor;
-	
-	@Inject
-	public SecuredFedoraAccessImpl(@Named("rawFedoraAccess")FedoraAccess rawAccess ) {
-		super();
-		this.rawAccess = rawAccess;
-	}
 
-	public Document getBiblioMods(String uuid) throws IOException {
-		return rawAccess.getBiblioMods(uuid);
-	}
+    private FedoraAccess rawAccess;
+    private IPaddressChecker acceptor;
 
-	public Document getDC(String uuid) throws IOException {
-		return rawAccess.getDC(uuid);
-	}
+    private DiscStrucutreForStore discStrucutreForStore;
 
-	public InputStream getImageFULL(String uuid) throws IOException {
-		if (!this.acceptor.privateVisitor()) {
-			Document relsExt = this.rawAccess.getRelsExt(uuid);
-			checkPolicyElement(relsExt);
-		}
-		return rawAccess.getImageFULL(uuid);
-	}
+    @Inject
+    public SecuredFedoraAccessImpl(@Named("rawFedoraAccess") FedoraAccess rawAccess, DiscStrucutreForStore discStrucutreForStore) {
+        super();
+        this.rawAccess = rawAccess;
+        this.discStrucutreForStore = discStrucutreForStore;
+    }
 
-	private void checkPolicyElement(Document relsExt) throws IOException {
-		try {
-			XPathFactory xpfactory = XPathFactory.newInstance();
-			XPath xpath = xpfactory.newXPath();
-			xpath.setNamespaceContext(new FedoraNamespaceContext());
-			XPathExpression expr = xpath.compile("//kramerius:policy/text()");
-			Object policy = expr.evaluate(relsExt,XPathConstants.STRING);
-			if ((policy != null) && (policy.toString().trim().equals("policy:private"))) {
-				throw new SecurityException("access denided");
-			}
-		} catch (XPathExpressionException e) {
-			throw new IOException(e);
-		}
-	}
+    public Document getBiblioMods(String uuid) throws IOException {
+        return rawAccess.getBiblioMods(uuid);
+    }
 
-	public String getImageFULLMimeType(String uuid) throws IOException,
-			XPathExpressionException {
-		if (!this.acceptor.privateVisitor()) {
-			Document relsExt = this.rawAccess.getRelsExt(uuid);
-			checkPolicyElement(relsExt);
-		}
-		return rawAccess.getImageFULLMimeType(uuid);
-	}
+    public Document getDC(String uuid) throws IOException {
+        return rawAccess.getDC(uuid);
+    }
 
-	public Document getImageFULLProfile(String uuid) throws IOException {
-		return rawAccess.getImageFULLProfile(uuid);
-	}
+    public InputStream getImageFULL(String uuid) throws IOException {
+        if (!this.acceptor.privateVisitor()) {
+            Document relsExt = this.rawAccess.getRelsExt(uuid);
+            checkPolicyElement(relsExt);
+        }
+        return rawAccess.getImageFULL(uuid);
+    }
 
-	public KrameriusModels getKrameriusModel(Document relsExt) {
-		return rawAccess.getKrameriusModel(relsExt);
-	}
+    private void checkPolicyElement(Document relsExt) throws IOException {
+        try {
+            XPathFactory xpfactory = XPathFactory.newInstance();
+            XPath xpath = xpfactory.newXPath();
+            xpath.setNamespaceContext(new FedoraNamespaceContext());
+            XPathExpression expr = xpath.compile("//kramerius:policy/text()");
+            Object policy = expr.evaluate(relsExt, XPathConstants.STRING);
+            if ((policy != null) && (policy.toString().trim().equals("policy:private"))) {
+                throw new SecurityException("access denided");
+            }
+        } catch (XPathExpressionException e) {
+            throw new IOException(e);
+        }
+    }
 
-	public KrameriusModels getKrameriusModel(String uuid) throws IOException {
-		return rawAccess.getKrameriusModel(uuid);
-	}
+    public String getImageFULLMimeType(String uuid) throws IOException, XPathExpressionException {
+        if (!this.acceptor.privateVisitor()) {
+            Document relsExt = this.rawAccess.getRelsExt(uuid);
+            checkPolicyElement(relsExt);
+        }
+        return rawAccess.getImageFULLMimeType(uuid);
+    }
 
-	public List<Element> getPages(String uuid, boolean deep) throws IOException {
-		return rawAccess.getPages(uuid, deep);
-	}
+    public Document getImageFULLProfile(String uuid) throws IOException {
+        return rawAccess.getImageFULLProfile(uuid);
+    }
 
-	public List<Element> getPages(String uuid, Element rootElementOfRelsExt)
-			throws IOException {
-		return rawAccess.getPages(uuid, rootElementOfRelsExt);
-	}
+    public KrameriusModels getKrameriusModel(Document relsExt) {
+        return rawAccess.getKrameriusModel(relsExt);
+    }
 
-	public Document getRelsExt(String uuid) throws IOException {
-		return rawAccess.getRelsExt(uuid);
-	}
+    public KrameriusModels getKrameriusModel(String uuid) throws IOException {
+        return rawAccess.getKrameriusModel(uuid);
+    }
 
-	public InputStream getThumbnail(String uuid) throws IOException {
-		return rawAccess.getThumbnail(uuid);
-	}
+    public List<Element> getPages(String uuid, boolean deep) throws IOException {
+        return rawAccess.getPages(uuid, deep);
+    }
 
-	public String getThumbnailMimeType(String uuid) throws IOException,
-			XPathExpressionException {
-		return rawAccess.getThumbnailMimeType(uuid);
-	}
+    public List<Element> getPages(String uuid, Element rootElementOfRelsExt) throws IOException {
+        return rawAccess.getPages(uuid, rootElementOfRelsExt);
+    }
 
-	public Document getThumbnailProfile(String uuid) throws IOException {
-		return rawAccess.getThumbnailProfile(uuid);
-	}
+    public Document getRelsExt(String uuid) throws IOException {
+        return rawAccess.getRelsExt(uuid);
+    }
 
-	public boolean isImageFULLAvailable(String uuid) throws IOException {
-	    // not checked method
-		return rawAccess.isImageFULLAvailable(uuid);
-	}
+    public InputStream getSmallThumbnail(String uuid) throws IOException {
+        return rawAccess.getSmallThumbnail(uuid);
+    }
 
-	
-	
-	@Override
-	public boolean isContentAccessible(String uuid) throws IOException {
-		if (!this.acceptor.privateVisitor()) {
-			Document relsExt = this.rawAccess.getRelsExt(uuid);
-			try {
-				checkPolicyElement(relsExt);
-			} catch (SecurityException e) {
-				return false;
-			}
-		}
-		return true;
-	}
+    public String getSmallThumbnailMimeType(String uuid) throws IOException, XPathExpressionException {
+        return rawAccess.getSmallThumbnailMimeType(uuid);
+    }
 
-	public void processRelsExt(Document relsExtDocument, RelsExtHandler handler)
-			throws IOException {
-		rawAccess.processRelsExt(relsExtDocument, handler);
-	}
+    public Document getSmallThumbnailProfile(String uuid) throws IOException {
+        return rawAccess.getSmallThumbnailProfile(uuid);
+    }
 
-	public void processRelsExt(String uuid, RelsExtHandler handler)
-			throws IOException {
-		rawAccess.processRelsExt(uuid, handler);
-	}
+    public boolean isImageFULLAvailable(String uuid) throws IOException {
+        // not checked method
+        return rawAccess.isImageFULLAvailable(uuid);
+    }
 
-	public IPaddressChecker getAcceptor() {
-		return acceptor;
-	}
+    @Override
+    public boolean isContentAccessible(String uuid) throws IOException {
+        if (!this.acceptor.privateVisitor()) {
+            Document relsExt = this.rawAccess.getRelsExt(uuid);
+            try {
+                checkPolicyElement(relsExt);
+            } catch (SecurityException e) {
+                return false;
+            }
+        }
+        return true;
+    }
 
-	
-	@Inject
-	public void setAcceptor(IPaddressChecker acceptor) {
-		this.acceptor = acceptor;
-	}
-	
-	
-	public FedoraAPIA getAPIA(){
-	    return rawAccess.getAPIA();
-	}
-    public FedoraAPIM getAPIM(){
+    public void processRelsExt(Document relsExtDocument, RelsExtHandler handler) throws IOException {
+        rawAccess.processRelsExt(relsExtDocument, handler);
+    }
+
+    public void processRelsExt(String uuid, RelsExtHandler handler) throws IOException {
+        rawAccess.processRelsExt(uuid, handler);
+    }
+
+    public IPaddressChecker getAcceptor() {
+        return acceptor;
+    }
+
+    @Inject
+    public void setAcceptor(IPaddressChecker acceptor) {
+        this.acceptor = acceptor;
+    }
+
+    public FedoraAPIA getAPIA() {
+        return rawAccess.getAPIA();
+    }
+
+    public FedoraAPIM getAPIM() {
         return rawAccess.getAPIM();
     }
-    public ObjectFactory getObjectFactory(){
+
+    public ObjectFactory getObjectFactory() {
         return rawAccess.getObjectFactory();
     }
-    
-    public void processSubtree(String pid, TreeNodeProcessor processor){
+
+    public void processSubtree(String pid, TreeNodeProcessor processor) {
         rawAccess.processSubtree(pid, processor);
     }
-    public Set<String> getPids(String pid){
+
+    public Set<String> getPids(String pid) {
         return rawAccess.getPids(pid);
     }
 
-	public InputStream getDataStream(String pid, String datastreamName)
-			throws IOException {
-		if (pid.startsWith("uuid:")) {
-			String uuid = pid.substring("uuid:".length());
-			if (!this.acceptor.privateVisitor()) {
-				Document relsExt = this.rawAccess.getRelsExt(uuid);
-				checkPolicyElement(relsExt);
-			}
-		}
-		return rawAccess.getDataStream(pid, datastreamName);
-	}
+    public InputStream getDataStream(String pid, String datastreamName) throws IOException {
+        if (pid.startsWith("uuid:")) {
+            String uuid = pid.substring("uuid:".length());
+            if (!this.acceptor.privateVisitor()) {
+                Document relsExt = this.rawAccess.getRelsExt(uuid);
+                checkPolicyElement(relsExt);
+            }
+        }
+        return rawAccess.getDataStream(pid, datastreamName);
+    }
 
-	public String getMimeTypeForStream(String pid, String datastreamName)
-			throws IOException {
-		return rawAccess.getMimeTypeForStream(pid, datastreamName);
-	}
-	
+    public String getMimeTypeForStream(String pid, String datastreamName) throws IOException {
+        return rawAccess.getMimeTypeForStream(pid, datastreamName);
+    }
+
+    @Override
+    public InputStream getFullThumbnail(String uuid) throws IOException {
+        String rootPath = KConfiguration.getInstance().getConfiguration().getString("fullThumbnail.cacheDirectory", "${sys:user.home}/.kramerius4/fullThumb");
+        File fullImgThumb = discStrucutreForStore.getUUIDFile(uuid, rootPath);
+        if (fullImgThumb.exists()) {
+            return new FileInputStream(fullImgThumb);
+        } else
+            throw new IOException("cannot find ");
+    }
+
+    @Override
+    public Document getFullThumbnailProfile(String uuid) throws IOException {
+        throw new UnsupportedOperationException("still unsupported !");
+    }
+
+    @Override
+    public String getFullThumbnailMimeType(String uuid) throws IOException, XPathExpressionException {
+        return "image/jpeg";
+    }
+
+    @Override
+    public boolean isFullthumbnailAvailable(String uuid) throws IOException {
+        String rootPath = KConfiguration.getInstance().getConfiguration().getString("fullThumbnail.cacheDirectory", "${sys:user.home}/.kramerius4/fullThumb");
+        File cachedFile = this.discStrucutreForStore.getUUIDFile(uuid, rootPath);
+        return cachedFile != null && cachedFile.exists();
+    }
 }

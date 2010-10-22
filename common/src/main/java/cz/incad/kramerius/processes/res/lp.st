@@ -201,5 +201,14 @@
 		<errOs>lrErr</errOs>
 		<javaProcessParameters>-Xmx1024m -Xms512m</javaProcessParameters>
 	</process>
+
+    <process>
+        <id>generateFullThumb</id>
+        <description>Generate full thumbs </description>
+        <mainClass>cz.incad.kramerius.imaging.lp.GenerateThumbnail</mainClass>
+        <standardOs>lrOut</standardOs>
+        <errOs>lrErr</errOs>
+        <javaProcessParameters>-Xmx1024m -Xms512m</javaProcessParameters>
+    </process>
 	
 </processes>

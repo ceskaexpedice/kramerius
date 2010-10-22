@@ -9,17 +9,20 @@ import java.io.IOException;
 import javax.swing.text.html.FormSubmitEvent.MethodType;
 import javax.xml.xpath.XPathExpressionException;
 
+import sun.java2d.loops.ScaledBlit;
+
 import com.google.inject.Inject;
 import com.google.inject.name.Named;
 
 import cz.incad.kramerius.FedoraAccess;
-import cz.incad.kramerius.imaging.TileSupport;
+import cz.incad.kramerius.imaging.DeepZoomFullImageScaleFactor;
+import cz.incad.kramerius.imaging.DeepZoomTileSupport;
 import cz.incad.kramerius.utils.FedoraUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 import cz.incad.kramerius.utils.imgs.KrameriusImageSupport;
 import cz.incad.kramerius.utils.imgs.KrameriusImageSupport.ScalingMethod;
 
-public class TileSupportImpl implements TileSupport {
+public class TileSupportImpl implements DeepZoomTileSupport {
 
 	static java.util.logging.Logger LOGGER = java.util.logging.Logger
 			.getLogger(TileSupportImpl.class.getName());
@@ -40,8 +43,8 @@ public class TileSupportImpl implements TileSupport {
     }
 
     @Override
-    public long getLevels(String uuid, int minSize) throws IOException {
-        BufferedImage rawImg = getRawImage(uuid);
+    public long getLevels(String uuid, int minSize, DeepZoomFullImageScaleFactor scaleFactor) throws IOException {
+        BufferedImage rawImg = getScaledRawImage(uuid, scaleFactor);
         return getLevels( rawImg,minSize);
     }
 
@@ -50,7 +53,7 @@ public class TileSupportImpl implements TileSupport {
         return getLevelsInternal(max, minSize);
 	}
 
-    private long getLevelsInternal(int max, int minSize) {
+    private int getLevelsInternal(int max, int minSize) {
         int currentMax = max;
         int level = 1;
         while(currentMax >= minSize) {
@@ -70,6 +73,7 @@ public class TileSupportImpl implements TileSupport {
 //    }
     
     @Override
+    @Deprecated
     public BufferedImage getRawImage(String uuid) throws IOException {
     	LOGGER.info("reading raw image");
     	try {
@@ -80,8 +84,29 @@ public class TileSupportImpl implements TileSupport {
         }
     }
 
+    
+    public BufferedImage getScaledRawImage(String uuid, DeepZoomFullImageScaleFactor factor) throws IOException {
+    	LOGGER.info("reading raw image");
+    	try {
+            BufferedImage rawImg = KrameriusImageSupport.readImage(uuid, FedoraUtils.IMG_FULL_STREAM, this.fedoraAccess, 0);
+            if (factor != DeepZoomFullImageScaleFactor.ORIGINAL) {
+                double scale = factor.getValue();
+                int scaledWidth = (int) (rawImg.getWidth() * scale);
+                int scaledHeight = (int) (rawImg.getHeight() * scale);
+                
+        		ScalingMethod method = ScalingMethod.valueOf(KConfiguration.getInstance().getProperty(
+        				"scalingMethod", "BICUBIC_STEPPED"));
+        		boolean higherQuality = true;
+                return KrameriusImageSupport.scale(rawImg, scaledWidth, scaledHeight, method, higherQuality);
+            	
+            } else return rawImg;
+        } catch (XPathExpressionException e) {
+            throw new IOException(e);
+        }
+	}
+    
     @Override
-    public Dimension getMaxSize(String uuid) throws IOException {
+    public Dimension getMaxSize(String uuid, DeepZoomFullImageScaleFactor factor) throws IOException {
         Image rawImg = getRawImage(uuid);
         return new Dimension(rawImg.getWidth(null), rawImg.getHeight(null));
     }
@@ -89,12 +114,12 @@ public class TileSupportImpl implements TileSupport {
 
 
     @Override
-    public BufferedImage getTile(String uuid, int displayLevel, int displayTile, int minSize, ScalingMethod scalingMethod, boolean iterateScaling) throws IOException {
-    	BufferedImage image = getRawImage(uuid);
-    	return getTile(image, displayLevel, displayTile, minSize, scalingMethod, iterateScaling);
+    public BufferedImage getTile(String uuid, int displayLevel, int displayTile, int minSize, ScalingMethod scalingMethod, boolean iterateScaling, DeepZoomFullImageScaleFactor scaledFactor) throws IOException {
+    	BufferedImage image = getScaledRawImage(uuid, scaledFactor);
+    	return getTileFromBigImage(image, displayLevel, displayTile, minSize, scalingMethod, iterateScaling);
     }
 
-	public BufferedImage getTile(BufferedImage image,int displayLevel, int displayTile,
+	public BufferedImage getTileFromBigImage(BufferedImage image,int displayLevel, int displayTile,
 			int minSize, ScalingMethod method, boolean iterateScaling) {
 		long maxLevel = getLevels(image, minSize);
         int width = image.getWidth(null);
@@ -158,8 +183,22 @@ public class TileSupportImpl implements TileSupport {
         return scale;
     }
 
+    public double getClosestScale(Dimension originalSize, int sizeToFit) {
+        long maxLevel = getLevelsInternal(originalSize.width > originalSize.height ? originalSize.width : originalSize.height, 1);
+        int level = getClosestLevel(originalSize, sizeToFit);
+        return getScale(level, maxLevel);
+    }
     
-    
+    public int getClosestLevel(Dimension originalSize, int sizeToFit) {
+        int maxLevel = getLevelsInternal(originalSize.width > originalSize.height ? originalSize.width : originalSize.height, 1);
+        for (int i = maxLevel - 1; i >1; i--) {
+            double scale = getScale(i, maxLevel);
+            int targetWidth = (int) (originalSize.width / scale);
+            int targetHeight = (int) (originalSize.height / scale);
+            if (targetWidth < sizeToFit && targetHeight < sizeToFit) return i;
+        }
+        return -1;
+    }
 
 	public static void main(String[] args) {
         TileSupportImpl tileSupport = new TileSupportImpl();
@@ -183,4 +222,6 @@ public class TileSupportImpl implements TileSupport {
         System.out.println("rows:"+rows);
         System.out.println("cols:"+cols);
     }
+	
+	
 }
