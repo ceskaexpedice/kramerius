@@ -3,7 +3,6 @@ package cz.incad.Kramerius.imaging;
 import static cz.incad.kramerius.utils.IOUtils.copyStreams;
 
 import java.awt.Dimension;
-import java.awt.Image;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -17,10 +16,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.net.URLEncoder;
-import java.nio.channels.ReadableByteChannel;
 import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
@@ -41,38 +37,31 @@ import com.google.inject.Provider;
 import com.google.inject.name.Named;
 
 import cz.incad.Kramerius.AbstractImageServlet;
-import cz.incad.Kramerius.backend.guice.GuiceServlet;
-import cz.incad.kramerius.FedoraAccess;
-import cz.incad.kramerius.imaging.CacheService;
-import cz.incad.kramerius.imaging.TileSupport;
-import cz.incad.kramerius.imaging.impl.CachingSupport;
+import cz.incad.kramerius.imaging.DeepZoomCacheService;
+import cz.incad.kramerius.imaging.DeepZoomTileSupport;
+import cz.incad.kramerius.impl.fedora.FedoraDatabaseUtils;
 import cz.incad.kramerius.utils.IOUtils;
 import cz.incad.kramerius.utils.RESTHelper;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 import cz.incad.kramerius.utils.imgs.ImageMimeType;
-import cz.incad.kramerius.utils.imgs.KrameriusImageSupport;
 import cz.incad.kramerius.utils.imgs.KrameriusImageSupport.ScalingMethod;
 
 public class DeepZoomServlet extends AbstractImageServlet {
 
-    public static final java.util.logging.Logger LOGGER = java.util.logging.Logger
-            .getLogger(DeepZoomServlet.class.getName());
-    
+    public static final java.util.logging.Logger LOGGER = java.util.logging.Logger.getLogger(DeepZoomServlet.class.getName());
+
     public static final String CACHE_KEY_PARAMETER = "cache";
-    
-    
+
     @Inject
-    TileSupport tileSupport;
+    DeepZoomTileSupport tileSupport;
 
     @Inject
     @Named("fedora3")
     Provider<Connection> fedora3Provider;
 
-    @Inject 
-    @Named("memoryCacheForward")
-    CacheService cacheService;
-    
-    
+    @Inject
+    DeepZoomCacheService cacheService;
+
     @Override
     public void init() throws ServletException {
         super.init();
@@ -81,7 +70,7 @@ public class DeepZoomServlet extends AbstractImageServlet {
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         try {
-        	String requestURL = req.getRequestURL().toString();
+            String requestURL = req.getRequestURL().toString();
             String zoomUrl = disectZoom(requestURL);
             StringTokenizer tokenizer = new StringTokenizer(zoomUrl, "/");
             String uuid = tokenizer.nextToken();
@@ -107,7 +96,7 @@ public class DeepZoomServlet extends AbstractImageServlet {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
         }
     }
-    
+
     private boolean hasNoSupportForMimeType(ImageMimeType mimeType) {
         return (!mimeType.equals(ImageMimeType.PDF));
     }
@@ -133,27 +122,28 @@ public class DeepZoomServlet extends AbstractImageServlet {
         if (dataStreamPath != null) {
             StringTemplate dziUrl = stGroup().getInstanceOf("dziurl");
             setStringTemplateModel(uuid, dataStreamPath, dziUrl);
-            copyFromImageServer(dziUrl.toString(),resp);
+            copyFromImageServer(dziUrl.toString(), resp);
         }
     }
 
-    private void setStringTemplateModel(String uuid, String dataStreamPath,
-            StringTemplate template) throws UnsupportedEncodingException, IOException {
+    private void setStringTemplateModel(String uuid, String dataStreamPath, StringTemplate template) throws UnsupportedEncodingException, IOException {
+
         List<String> folderList = new ArrayList<String>();
         File currentFile = new File(dataStreamPath);
-        while(!currentFile.getName().equals("data")) {
-            folderList.add(0,URLEncoder.encode(currentFile.getName(), "UTF-8"));
+        while (!currentFile.getName().equals("data")) {
+            folderList.add(0, URLEncoder.encode(currentFile.getName(), "UTF-8"));
             currentFile = currentFile.getParentFile();
         }
+
         template.setAttribute("dataPath", KConfiguration.getInstance().getFedoraDataFolderInIIPServer());
         template.setAttribute("folderList", folderList);
         template.setAttribute("iipServer", KConfiguration.getInstance().getUrlOfIIPServer());
-        String smimeType = fedoraAccess.getMimeTypeForStream("uuid:"+uuid, "IMG_FULL");
+        String smimeType = fedoraAccess.getMimeTypeForStream("uuid:" + uuid, "IMG_FULL");
         ImageMimeType mimeType = ImageMimeType.loadFromMimeType(smimeType);
         if (mimeType != null) {
             String extension = mimeType.getDefaultFileExtension();
-            if (!dataStreamPath.endsWith("."+extension)) {
-                template.setAttribute("extension", "."+extension);
+            if (!dataStreamPath.endsWith("." + extension)) {
+                template.setAttribute("extension", "." + extension);
             } else {
                 template.setAttribute("extension", "");
             }
@@ -164,31 +154,10 @@ public class DeepZoomServlet extends AbstractImageServlet {
 
     private String getDataStreamPath(String uuid) throws SQLException {
         Connection connection = null;
-        PreparedStatement pstm = null;
-        ResultSet rs = null;
+        connection = this.fedora3Provider.get();
         try {
-            connection = this.fedora3Provider.get();
-            pstm = connection.prepareStatement("select * from datastreampaths where token like ?");
-            pstm.setString(1, "uuid:"+uuid+"+IMG_FULL%");
-            rs = pstm.executeQuery();
-            if(rs.next()) {
-                return rs.getString("path");
-            } else return null;
+            return FedoraDatabaseUtils.getDataStreamPath(uuid, connection);
         } finally {
-            if (rs != null) {
-                try { 
-                    rs.close(); 
-                } catch (SQLException e) {
-                    LOGGER.log(Level.SEVERE, e.getMessage(), e);
-                }
-            }
-            if (pstm != null) {
-                try {
-                    pstm.close();
-                } catch (SQLException e) {
-                    LOGGER.log(Level.SEVERE, e.getMessage(), e);
-                }
-            }
             if (connection != null) {
                 try {
                     connection.close();
@@ -197,13 +166,14 @@ public class DeepZoomServlet extends AbstractImageServlet {
                 }
             }
         }
+
     }
 
-    private void renderEmbededDZIDescriptor(String uuid,
-            HttpServletResponse resp) throws IOException, FileNotFoundException {
+    private void renderEmbededDZIDescriptor(String uuid, HttpServletResponse resp) throws IOException, FileNotFoundException {
         if (!cacheService.isDeepZoomDescriptionPresent(uuid)) {
-            BufferedImage rawImage = tileSupport.getRawImage(uuid);
-            cacheService.writeDeepZoomFullImage(uuid, rawImage);
+            BufferedImage rawImage = cacheService.createDeepZoomOriginalImageFromFedoraRAW(uuid);
+            // BufferedImage rawImage = tileSupport.getScaledRawImage(uuid);
+            cacheService.writeDeepZoomOriginalImage(uuid, rawImage);
             cacheService.writeDeepZoomDescriptor(uuid, rawImage, tileSupport.getTileSize());
         }
         InputStream inputStream = cacheService.getDeepZoomDescriptorStream(uuid);
@@ -216,23 +186,22 @@ public class DeepZoomServlet extends AbstractImageServlet {
         }
     }
 
-    private void renderTile(String uuid, String slevel, String stile, HttpServletRequest req,HttpServletResponse resp) throws IOException {
+    private void renderTile(String uuid, String slevel, String stile, HttpServletRequest req, HttpServletResponse resp) throws IOException {
         setDateHaders(uuid, resp);
         setResponseCode(uuid, req, resp);
         String iipServer = KConfiguration.getInstance().getUrlOfIIPServer();
         if (!iipServer.equals("")) {
             try {
-                renderIIPTile(uuid,slevel, stile, resp);
+                renderIIPTile(uuid, slevel, stile, resp);
             } catch (SQLException e) {
                 LOGGER.log(Level.SEVERE, e.getMessage(), e);
                 resp.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
             }
-        }else {
+        } else {
             renderEmbededTile(uuid, slevel, stile, resp);
         }
     }
-    
-    
+
     private void renderIIPTile(String uuid, String slevel, String stile, HttpServletResponse resp) throws SQLException, UnsupportedEncodingException, IOException {
         String dataStreamPath = getDataStreamPath(uuid);
         if (dataStreamPath != null) {
@@ -240,69 +209,70 @@ public class DeepZoomServlet extends AbstractImageServlet {
             setStringTemplateModel(uuid, dataStreamPath, tileUrl);
             tileUrl.setAttribute("level", slevel);
             tileUrl.setAttribute("tile", stile);
-            copyFromImageServer(tileUrl.toString(),resp);
+            copyFromImageServer(tileUrl.toString(), resp);
         }
     }
 
-    private void renderEmbededTile(String uuid, String slevel, String stile,
-            HttpServletResponse resp) throws IOException {
+    private void renderEmbededTile(String uuid, String slevel, String stile, HttpServletResponse resp) throws IOException {
         try {
             int ilevel = Integer.parseInt(slevel);
             if (stile.contains(".")) {
                 stile = stile.substring(0, stile.indexOf('.'));
-                StringTokenizer tokenizer = new StringTokenizer(stile,"_");
+                StringTokenizer tokenizer = new StringTokenizer(stile, "_");
                 String scol = tokenizer.nextToken();
                 String srow = tokenizer.nextToken();
                 boolean tilePresent = cacheService.isDeepZoomTilePresent(uuid, ilevel, Integer.parseInt(srow), Integer.parseInt(scol));
                 if (!tilePresent) {
-//                    File dFile = cacheService.getDeepZoomLevelsFile(uuid);
-                	BufferedImage rawImage = null;
-                	if (cacheService.isFullImagePresent(uuid)) {
-                		rawImage = cacheService.getFullImage(uuid);
-                	} else {
-                		rawImage = tileSupport.getRawImage(uuid);
-                	}
-                	
-                	long levels =  tileSupport.getLevels(rawImage, 1);
+                    // File dFile = cacheService.getDeepZoomLevelsFile(uuid);
+                    BufferedImage original = null;
+                    if (cacheService.isDeepZoomOriginalPresent(uuid)) {
+                        original = cacheService.getDeepZoomOriginal(uuid);
+                    } else {
+                        original = cacheService.createDeepZoomOriginalImageFromFedoraRAW(uuid);
+                        cacheService.writeDeepZoomOriginalImage(uuid, original);
+                    }
+
+                    long levels = tileSupport.getLevels(original, 1);
                     double scale = tileSupport.getScale(ilevel, levels);
-                    
-                    Dimension scaled = tileSupport.getScaledDimension(new Dimension(rawImage.getWidth(null), rawImage.getHeight(null)), scale);
+
+                    Dimension scaled = tileSupport.getScaledDimension(new Dimension(original.getWidth(null), original.getHeight(null)), scale);
                     int rows = tileSupport.getRows(scaled);
                     int cols = tileSupport.getCols(scaled);
                     int base = Integer.parseInt(srow) * cols;
                     base = base + Integer.parseInt(scol);
-                    
-                    BufferedImage tile = this.tileSupport.getTile(rawImage, ilevel, base, 1, getScalingMethod(), turnOnIterateScaling());
+
+                    BufferedImage tile = this.tileSupport.getTileFromBigImage(original, ilevel, base, 1, getScalingMethod(), turnOnIterateScaling());
                     cacheService.writeDeepZoomTile(uuid, ilevel, Integer.parseInt(srow), Integer.parseInt(scol), tile);
                 }
                 InputStream is = cacheService.getDeepZoomTileStream(uuid, ilevel, Integer.parseInt(srow), Integer.parseInt(scol));
                 resp.setContentType(ImageMimeType.JPEG.getValue());
                 IOUtils.copyStreams(is, resp.getOutputStream());
-//                writeDeepZoomTile(String uuid, int level, int row, int col, Image tileImage) throws IOException {
             }
-            
+
         } catch (NumberFormatException e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
-            
+
         }
     }
 
-    
     public static String disectZoom(String requestURL) {
-        //"dvju"
+        // "dvju"
         try {
             StringBuffer buffer = new StringBuffer();
             URL url = new URL(requestURL);
             String path = url.getPath();
             String application = path;
-            StringTokenizer tokenizer = new StringTokenizer(path,"/");
-            if (tokenizer.hasMoreTokens()) application = tokenizer.nextToken();
+            StringTokenizer tokenizer = new StringTokenizer(path, "/");
+            if (tokenizer.hasMoreTokens())
+                application = tokenizer.nextToken();
             String zoomServlet = path;
-            if (tokenizer.hasMoreTokens()) zoomServlet = tokenizer.nextToken();
+            if (tokenizer.hasMoreTokens())
+                zoomServlet = tokenizer.nextToken();
             // check handle servlet
-            while(tokenizer.hasMoreTokens()) {
+            while (tokenizer.hasMoreTokens()) {
                 buffer.append(tokenizer.nextElement());
-                if (tokenizer.hasMoreTokens()) buffer.append("/");
+                if (tokenizer.hasMoreTokens())
+                    buffer.append("/");
             }
             return buffer.toString();
         } catch (MalformedURLException e) {
@@ -310,36 +280,33 @@ public class DeepZoomServlet extends AbstractImageServlet {
             return "<no handle>";
         }
     }
-    
-    
+
     private void copyFromImageServer(String urlString, HttpServletResponse resp) throws MalformedURLException, IOException {
         System.out.println(urlString);
         URLConnection con = RESTHelper.openConnection(urlString, "", "");
         String contentType = con.getContentType();
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
         copyStreams(con.getInputStream(), bos);
-        //System.out.println(new String(bos.toByteArray()));
+        // System.out.println(new String(bos.toByteArray()));
         copyStreams(new ByteArrayInputStream(bos.toByteArray()), resp.getOutputStream());
         resp.setContentType(contentType);
     }
-    
+
     private StringTemplateGroup stGroup() {
         InputStream is = this.getClass().getResourceAsStream("iipforward.stg");
         StringTemplateGroup grp = new StringTemplateGroup(new InputStreamReader(is), DefaultTemplateLexer.class);
         return grp;
     }
 
-	@Override
-	public ScalingMethod getScalingMethod() {
-		ScalingMethod method = ScalingMethod.valueOf(KConfiguration.getInstance().getProperty(
-				"deepZoom.scalingMethod", "BICUBIC_STEPPED"));
-		return method;
-	}
+    @Override
+    public ScalingMethod getScalingMethod() {
+        ScalingMethod method = ScalingMethod.valueOf(KConfiguration.getInstance().getProperty("deepZoom.scalingMethod", "BICUBIC_STEPPED"));
+        return method;
+    }
 
-	@Override
-	public boolean turnOnIterateScaling() {
-		boolean highQuality = KConfiguration.getInstance().getConfiguration().getBoolean(
-				"deepZoom.iterateScaling", true);
-		return highQuality;
-	}
+    @Override
+    public boolean turnOnIterateScaling() {
+        boolean highQuality = KConfiguration.getInstance().getConfiguration().getBoolean("deepZoom.iterateScaling", true);
+        return highQuality;
+    }
 }

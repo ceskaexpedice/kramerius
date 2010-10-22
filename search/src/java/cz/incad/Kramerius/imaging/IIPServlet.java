@@ -34,7 +34,7 @@ import com.google.inject.name.Named;
 
 import cz.incad.Kramerius.backend.guice.GuiceServlet;
 import cz.incad.kramerius.FedoraAccess;
-import cz.incad.kramerius.imaging.TileSupport;
+import cz.incad.kramerius.imaging.DeepZoomTileSupport;
 import cz.incad.kramerius.utils.FedoraUtils;
 import cz.incad.kramerius.utils.RESTHelper;
 import cz.incad.kramerius.utils.imgs.KrameriusImageSupport;
@@ -55,7 +55,7 @@ public class IIPServlet extends GuiceServlet {
     FedoraAccess fedoraAccess;
     
     @Inject
-    TileSupport tileSupport;
+    DeepZoomTileSupport tileSupport;
     
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
@@ -151,7 +151,7 @@ public class IIPServlet extends GuiceServlet {
     private BufferedImage cachedTile(String uuid, int displayLevel, int displayTile) throws IOException {
         String key = uuid+"_"+displayLevel+"_"+displayTile;
         if (!cacheForTiles.containsKey(key)) {
-            cacheForTiles.put(key, tileSupport.getTile(uuid, displayLevel, displayTile, tileSupport.getTileSize(), null, false));
+            //TODO: CHANGE IT cacheForTiles.put(key, tileSupport.getTileFromBigImage(uuid, displayLevel, displayTile, tileSupport.getTileSize(), null, false));
         }
         return cacheForTiles.get(key);
     }
@@ -175,9 +175,9 @@ public class IIPServlet extends GuiceServlet {
 
     private void maxSize(StringBuffer buffer, String uuid, HttpServletRequest req,
             HttpServletResponse resp) throws IOException {
-            Dimension dim = tileSupport.getMaxSize(uuid);
-            String r = "Max-size:"+dim.getWidth()+" "+ dim.getHeight()+"\n";
-            buffer.append(r);
+//TODO: CHANGE IT            Dimension dim = tileSupport.getMaxSize(uuid);
+//            String r = "Max-size:"+dim.getWidth()+" "+ dim.getHeight()+"\n";
+//            buffer.append(r);
     }
 
     private void resolutionNumber(StringBuffer buffer, String uuid, HttpServletRequest req,
@@ -206,7 +206,7 @@ public class IIPServlet extends GuiceServlet {
     private HashMap<String, Long> levels = new HashMap<String, Long>();
     private long cachedLevels(String uuid) throws IOException {
         if (!levels.containsKey(uuid)) {
-            levels.put(uuid, tileSupport.getLevels(uuid, tileSupport.getTileSize()));
+            //levels.put(uuid, tileSupport.getLevels(uuid, tileSupport.getTileSize()));
         }
         return levels.get(uuid);
     }
