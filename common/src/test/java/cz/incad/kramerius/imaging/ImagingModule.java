@@ -20,24 +20,24 @@ import cz.incad.kramerius.utils.conf.KConfiguration;
 
 public class ImagingModule extends AbstractModule {
 
-	@Override
-	protected void configure() {
-		KConfiguration testConf = KConfiguration.getInstance();
-		bind(KConfiguration.class).toInstance(testConf);
-		//"kramerius4"
-		bind(Connection.class).annotatedWith(Names.named("kramerius4")).toProvider(ConProvider4T.class);
-		bind(FedoraAccess.class).annotatedWith(Names.named("securedFedoraAccess")).to(FedoraAccessImpl.class);
+    @Override
+    protected void configure() {
+        KConfiguration testConf = KConfiguration.getInstance();
+        bind(KConfiguration.class).toInstance(testConf);
+        // "kramerius4"
+        bind(Connection.class).annotatedWith(Names.named("kramerius4")).toProvider(ConProvider4T.class);
+        bind(FedoraAccess.class).annotatedWith(Names.named("securedFedoraAccess")).to(FedoraAccessImpl.class);
 
-		// long running process modul
-		bind(DefinitionManager.class).to(LRProcessDefinitionManagerImpl.class);
-		bind(LRProcessManager.class).to(DatabaseProcessManager.class);
-		
-		bind(String.class).annotatedWith(Names.named("LIBS")).toInstance("<uknown>");
+        // long running process modul
+        bind(DefinitionManager.class).to(LRProcessDefinitionManagerImpl.class);
+        bind(LRProcessManager.class).to(DatabaseProcessManager.class);
 
-		bind(MostDesirable.class).to(MostDesirableImpl.class);
-		
-		bind(TileSupport.class).to(TileSupportImpl.class);
-		bind(CacheService.class).to(FileSystemCacheServiceImpl.class);
-	}
-	
+        bind(String.class).annotatedWith(Names.named("LIBS")).toInstance("<uknown>");
+
+        bind(MostDesirable.class).to(MostDesirableImpl.class);
+
+        bind(DeepZoomTileSupport.class).to(TileSupportImpl.class);
+        bind(DeepZoomCacheService.class).to(FileSystemCacheServiceImpl.class);
+    }
+
 }
