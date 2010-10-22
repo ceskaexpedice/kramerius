@@ -33,14 +33,14 @@ import cz.incad.kramerius.utils.imgs.KrameriusImageSupport.ScalingMethod;
 import cz.incad.utils.IKeys;
 
 /**
- * Servlet na ziskavani nahledu
+ * Servlet na ziskavani malych nahledu - filmovy pas
  * 
  * @author pavels
  */
-public class ThumbnailImageServlet extends AbstractImageServlet {
+public class SmallThumbnailImageServlet extends AbstractImageServlet {
 
 	public static final java.util.logging.Logger LOGGER = java.util.logging.Logger
-			.getLogger(ThumbnailImageServlet.class.getName());
+			.getLogger(SmallThumbnailImageServlet.class.getName());
 
 	public static final String PAGE_PARAMETER = "page";
 	public static final String RAWDATA_PARAMETER = "rawdata";
@@ -71,14 +71,16 @@ public class ThumbnailImageServlet extends AbstractImageServlet {
 					writeImage(req, resp, scale, OutputFormats.JPEG);
 				} else resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
 			} else {
-				InputStream is = this.fedoraAccess.getThumbnail(uuid);
+
+				InputStream is = this.fedoraAccess.getSmallThumbnail(uuid);
 				if (outputFormat.equals(OutputFormats.RAW)) {
-					String mimeType = this.fedoraAccess.getThumbnailMimeType(uuid);
+					String mimeType = this.fedoraAccess.getSmallThumbnailMimeType(uuid);
 					if (mimeType == null) mimeType = DEFAULT_MIMETYPE;
 					resp.setContentType(mimeType);
                     setDateHaders(uuid, resp);
 					setResponseCode(uuid, req, resp);
 					copyStreams(is, resp.getOutputStream());
+				
 				} else {
 					BufferedImage rawImage = rawThumbnailImage(uuid,0);
                     setDateHaders(uuid, resp);

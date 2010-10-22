@@ -42,8 +42,8 @@ import cz.incad.Kramerius.backend.guice.GuiceServlet;
 import cz.incad.Kramerius.views.ApplicationURL;
 import cz.incad.kramerius.FedoraAccess;
 import cz.incad.kramerius.FedoraNamespaces;
-import cz.incad.kramerius.imaging.CacheService;
-import cz.incad.kramerius.imaging.TileSupport;
+import cz.incad.kramerius.imaging.DeepZoomCacheService;
+import cz.incad.kramerius.imaging.DeepZoomTileSupport;
 import cz.incad.kramerius.intconfig.InternalConfiguration;
 import cz.incad.kramerius.security.SecurityException;
 import cz.incad.kramerius.utils.DCUtils;
@@ -54,175 +54,176 @@ import cz.incad.kramerius.utils.imgs.KrameriusImageSupport.ScalingMethod;
 
 /**
  * Prepodava DJVU stream
+ * 
  * @author pavels
  */
 public class FullImageServlet extends AbstractImageServlet {
 
-	public static final String DEFAULT_MIMETYPE = "image/x.djvu";
-	public static final String IMAGE_TYPE="imageType"; 
-	public static final String PAGE="page";
-	
-	public static final java.util.logging.Logger LOGGER = java.util.logging.Logger.getLogger(FullImageServlet.class.getName());
+    public static final String DEFAULT_MIMETYPE = "image/x.djvu";
+    public static final String IMAGE_TYPE = "imageType";
+    public static final String PAGE = "page";
 
-	@Inject
-	@Named("memoryCacheForward")
-	CacheService cacheService;
-	@Inject
-	TileSupport tileSupport;
-	
-	@Override
-	protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-		OutputFormats outputFormat = null;
-		String uuid = req.getParameter(UUID_PARAMETER);
-		String outputFormatParam = req.getParameter(OUTPUT_FORMAT_PARAMETER);
-		if (outputFormatParam != null) {
-			outputFormat= OutputFormats.valueOf(outputFormatParam);
-		}
-		int page = 0;
-		String spage = req.getParameter(PAGE);
-		if (spage != null) {
-			page = Integer.parseInt(spage);
-		}
-		
-		String imageType = req.getParameter(IMAGE_TYPE);
-		try {
-			// dotaz na image type
-			if (imageType != null) {
-				String type = this.fedoraAccess.getImageFULLMimeType(uuid);
-				//resp.setContentType("plain/text");
-				resp.getWriter().print(type);
-			// pozadavek na zmenseni (prsou?)
-			} else if (outputFormat == null) {
-				long start = System.currentTimeMillis();
-				BufferedImage image = rawFullImage(uuid, req, page);
-				LOGGER.info("DEB - nacteni = "+(System.currentTimeMillis() - start)+" ms");
-				writeDeepZoomFiles(uuid, image);
-				//LOGGER.info("DEB - zapis = "+(System.currentTimeMillis() - start)+" ms");
-				Rectangle rectangle = new Rectangle(image.getWidth(null), image.getHeight(null));
-				BufferedImage scale = scale(image, rectangle, req);
-				if (scale != null) {
-					start = System.currentTimeMillis();
+    public static final java.util.logging.Logger LOGGER = java.util.logging.Logger.getLogger(FullImageServlet.class.getName());
+
+    @Inject
+    DeepZoomCacheService cacheService;
+    @Inject
+    DeepZoomTileSupport tileSupport;
+
+    @Override
+    protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        OutputFormats outputFormat = null;
+        String uuid = req.getParameter(UUID_PARAMETER);
+        String outputFormatParam = req.getParameter(OUTPUT_FORMAT_PARAMETER);
+        if (outputFormatParam != null) {
+            outputFormat = OutputFormats.valueOf(outputFormatParam);
+        }
+        int page = 0;
+        String spage = req.getParameter(PAGE);
+        if (spage != null) {
+            page = Integer.parseInt(spage);
+        }
+
+        // TODO: Predelat pres akce
+        String imageType = req.getParameter(IMAGE_TYPE);
+        try {
+            // dotaz na image type
+            if (imageType != null) {
+                String type = this.fedoraAccess.getImageFULLMimeType(uuid);
+                // resp.setContentType("plain/text");
+                resp.getWriter().print(type);
+                // pozadavek na zmenseni (prsou?)
+            } else if (outputFormat == null) {
+                long start = System.currentTimeMillis();
+                BufferedImage image = rawFullImage(uuid, req, page);
+                LOGGER.info("DEB - nacteni = " + (System.currentTimeMillis() - start) + " ms");
+
+                // writeDeepZoomFiles(uuid, image);
+
+                // LOGGER.info("DEB - zapis = "+(System.currentTimeMillis() -
+                // start)+" ms");
+                Rectangle rectangle = new Rectangle(image.getWidth(null), image.getHeight(null));
+                BufferedImage scale = scale(image, rectangle, req);
+                if (scale != null) {
+                    start = System.currentTimeMillis();
                     setDateHaders(uuid, resp);
                     setResponseCode(uuid, req, resp);
-    				LOGGER.info("DEB - setting headers = "+(System.currentTimeMillis() - start)+" ms");
-					start = System.currentTimeMillis();
+                    LOGGER.info("DEB - setting headers = " + (System.currentTimeMillis() - start) + " ms");
+                    start = System.currentTimeMillis();
                     writeImage(req, resp, scale, OutputFormats.JPEG);
-    				LOGGER.info("DEB - writing image = "+(System.currentTimeMillis() - start)+" ms");
-				} else resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-			// transformace	
-			} else {
-				InputStream is = this.fedoraAccess.getImageFULL(uuid);
-				if (outputFormat.equals(OutputFormats.RAW)) {
-				    String asFileParam = req.getParameter("asFile");
-				    
-				    String mimeType = this.fedoraAccess.getImageFULLMimeType(uuid);
-					if (mimeType == null) mimeType = DEFAULT_MIMETYPE;
-					resp.setContentType(mimeType);
-					setDateHaders(uuid, resp);
-					setResponseCode(uuid, req, resp);
-					if ((asFileParam != null) && (asFileParam.equals("true"))) {
-					    Document dc = this.fedoraAccess.getDC(uuid);
-					    String title = DCUtils.titleFromDC(dc);
-					    if (title == null) {
-					        title = "unnamed";
-					    }
-					    String fileSuffix = mimeType.substring(mimeType.indexOf('/')+1);
-					    resp.setHeader("Content-disposition","attachment; filename="+title+"."+fileSuffix);
-					}
-					copyStreams(is, resp.getOutputStream());
-				} else {
-					BufferedImage rawImage = rawFullImage(uuid, req, page);
-					writeDeepZoomFiles(uuid, rawImage);
-					
-					setDateHaders(uuid, resp);
+                    LOGGER.info("DEB - writing image = " + (System.currentTimeMillis() - start) + " ms");
+                } else
+                    resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+                // transformace
+            } else {
+                InputStream is = this.fedoraAccess.getImageFULL(uuid);
+                if (outputFormat.equals(OutputFormats.RAW)) {
+                    String asFileParam = req.getParameter("asFile");
+
+                    String mimeType = this.fedoraAccess.getImageFULLMimeType(uuid);
+                    if (mimeType == null)
+                        mimeType = DEFAULT_MIMETYPE;
+                    resp.setContentType(mimeType);
+                    setDateHaders(uuid, resp);
                     setResponseCode(uuid, req, resp);
-					writeImage(req, resp, rawImage, outputFormat);
-				}
-			}
-		} catch(SecurityException e) {
-			LOGGER.log(Level.SEVERE, e.getMessage(), e);
-			resp.setStatus(HttpServletResponse.SC_FORBIDDEN);
-		} catch (Exception e) {
-			LOGGER.log(Level.SEVERE, e.getMessage(), e);
-			resp.setStatus(HttpServletResponse.SC_NOT_FOUND);
-		}
-	}
+                    if ((asFileParam != null) && (asFileParam.equals("true"))) {
+                        Document dc = this.fedoraAccess.getDC(uuid);
+                        String title = DCUtils.titleFromDC(dc);
+                        if (title == null) {
+                            title = "unnamed";
+                        }
+                        String fileSuffix = mimeType.substring(mimeType.indexOf('/') + 1);
+                        resp.setHeader("Content-disposition", "attachment; filename=" + title + "." + fileSuffix);
+                    }
+                    copyStreams(is, resp.getOutputStream());
+                } else {
+                    BufferedImage rawImage = rawFullImage(uuid, req, page);
+                    // writeDeepZoomFiles(uuid, rawImage);
 
+                    setDateHaders(uuid, resp);
+                    setResponseCode(uuid, req, resp);
+                    writeImage(req, resp, rawImage, outputFormat);
+                }
+            }
+        } catch (SecurityException e) {
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+            resp.setStatus(HttpServletResponse.SC_FORBIDDEN);
+        } catch (Exception e) {
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+            resp.setStatus(HttpServletResponse.SC_NOT_FOUND);
+        }
+    }
 
-	private synchronized void writeDeepZoomFiles(String uuid, BufferedImage image)
-			throws IOException {
-		if (!cacheService.isDeepZoomDescriptionPresent(uuid)) {
-			cacheService.writeDeepZoomDescriptor(uuid, image, tileSupport.getTileSize());
-		}
-		if (!cacheService.isFullImagePresent(uuid)) {
-			cacheService.writeDeepZoomFullImage(uuid, image);
-		}
-	}
+    // private synchronized void writeDeepZoomFiles(String uuid, BufferedImage
+    // image)
+    // throws IOException {
+    // if (!cacheService.isDeepZoomDescriptionPresent(uuid)) {
+    // cacheService.writeDeepZoomDescriptor(uuid, image,
+    // tileSupport.getTileSize());
+    // }
+    // if (!cacheService.isDeepZoomOriginalPresent(uuid)) {
+    // cacheService.writeDeepZoomFullImage(uuid, image);
+    // }
+    // }
 
-	
-	public static String fullImageServlet(HttpServletRequest request) {
-		return ApplicationURL.urlOfPath(request, InternalConfiguration.get().getProperties().getProperty("servlets.mapping.fullImage"));
-	}
+    // private synchronized void writeFullThumbnail(String uuid, BufferedImage
+    // fullThumb) {
+    // if (!cacheService.isFullThumbnailPresent(uuid)) {
+    // cacheService.
+    // }
+    // }
 
-	
-	@Override
-	protected BufferedImage rawFullImage(String uuid,
-			HttpServletRequest request, int page) throws IOException,
-			MalformedURLException, XPathExpressionException {
-			if (cacheService.isFullImagePresent(uuid)) {
-				BufferedImage bufImage = cacheService.getFullImage(uuid);
-				return bufImage;
-			} else {
-				return super.rawFullImage(uuid, request, page);
-			}
-	}
+    public static String fullImageServlet(HttpServletRequest request) {
+        return ApplicationURL.urlOfPath(request, InternalConfiguration.get().getProperties().getProperty("servlets.mapping.fullImage"));
+    }
 
+    @Override
+    protected BufferedImage rawFullImage(String uuid, HttpServletRequest request, int page) throws IOException, MalformedURLException, XPathExpressionException {
+        if (cacheService.isDeepZoomOriginalPresent(uuid)) {
+            BufferedImage bufImage = cacheService.getDeepZoomOriginal(uuid);
+            return bufImage;
+        } else {
+            return super.rawFullImage(uuid, request, page);
+        }
+    }
 
-	@Override
-	public ScalingMethod getScalingMethod() {
-		KConfiguration config = KConfiguration.getInstance();
-		ScalingMethod method = ScalingMethod.valueOf(config.getProperty(
-				"fullImage.scalingMethod", "BICUBIC_STEPPED"));
-		return method;
-	}
+    @Override
+    public ScalingMethod getScalingMethod() {
+        KConfiguration config = KConfiguration.getInstance();
+        ScalingMethod method = ScalingMethod.valueOf(config.getProperty("fullImage.scalingMethod", "BICUBIC_STEPPED"));
+        return method;
+    }
 
+    @Override
+    public boolean turnOnIterateScaling() {
+        KConfiguration config = KConfiguration.getInstance();
+        boolean highQuality = config.getConfiguration().getBoolean("fullImage.iterateScaling", true);
+        return highQuality;
+    }
 
-	@Override
-	public boolean turnOnIterateScaling() {
-		KConfiguration config = KConfiguration.getInstance();
-		boolean highQuality = config.getConfiguration().getBoolean(
-				"fullImage.iterateScaling", true);
-		return highQuality;
-	}
-	
-	
-	
-	
-	
-
-//	static class XPATHFedoraNamespaceContext implements NamespaceContext {
-//
-//		static Map<String, String> MAPPING = new HashMap<String, String>();
-//		{
-//			MAPPING.put("", FedoraNamespaces.DC_NAMESPACE_URI);
-//			MAPPING.put("", FedoraNamespaces.DC_NAMESPACE_URI);
-//		}
-//		@Override
-//		public String getNamespaceURI(String arg0) {
-//			// TODO Auto-generated method stub
-//			return null;
-//		}
-//
-//		@Override
-//		public String getPrefix(String arg0) {
-//			// TODO Auto-generated method stub
-//			return null;
-//		}
-//
-//		@Override
-//		public Iterator getPrefixes(String arg0) {
-//			// TODO Auto-generated method stub
-//			return null;
-//		}
-//	}
+    // static class XPATHFedoraNamespaceContext implements NamespaceContext {
+    //
+    // static Map<String, String> MAPPING = new HashMap<String, String>();
+    // {
+    // MAPPING.put("", FedoraNamespaces.DC_NAMESPACE_URI);
+    // MAPPING.put("", FedoraNamespaces.DC_NAMESPACE_URI);
+    // }
+    // @Override
+    // public String getNamespaceURI(String arg0) {
+    // // TODO Auto-generated method stub
+    // return null;
+    // }
+    //
+    // @Override
+    // public String getPrefix(String arg0) {
+    // // TODO Auto-generated method stub
+    // return null;
+    // }
+    //
+    // @Override
+    // public Iterator getPrefixes(String arg0) {
+    // // TODO Auto-generated method stub
+    // return null;
+    // }
+    // }
 }

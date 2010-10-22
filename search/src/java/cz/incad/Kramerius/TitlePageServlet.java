@@ -55,7 +55,7 @@ public class TitlePageServlet extends GuiceServlet {
 	}
 
 	private void redirectToPage(HttpServletRequest req, HttpServletResponse resp, String uuid) throws IOException {
-		String thumbServlet = ThumbnailImageServlet.thumbImageServlet(req);
+		String thumbServlet = SmallThumbnailImageServlet.thumbImageServlet(req);
 		resp.sendRedirect(thumbServlet+"?uuid="+uuid+"&outputFormat=RAW");
 	}
 	
