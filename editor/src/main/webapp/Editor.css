@@ -32,43 +32,6 @@ body, table td, select {
 .gwt-SplitLayoutPanel-VDragger {
     background-color: #c76226 /*#8A2D28*/ !important;
 }
-.gwt-TabLayoutPanel .gwt-TabLayoutPanelTab {
-    background: none repeat-x scroll 50% 0 #DDDDDD !important;
-    border: 1px solid #C3C3C3 !important;
-    color: #555555 !important;
-    font-weight: normal !important;
-    outline: medium none !important;
-    
-    -moz-border-radius-topleft: 4px;
-    -moz-border-radius-topright: 4px;
-    -webkit-border-top-left-radius: 4px;
-    -webkit-border-top-right-radius: 4px;
-}
-.gwt-TabLayoutPanel .gwt-TabLayoutPanelTab:hover {
-    border: 1px solid #999999/*{borderColorHover}*/ !important;
-    background: #ffa903 0/*{bgHoverXPos}*/ 50%/*{bgHoverYPos}*/ repeat-x/*{bgHoverRepeat}*/ !important;
-    font-weight: normal/*{fwDefault}*/ !important;
-    color: #212121/*{fcHover}*/ !important;
-    outline: none !important;
-}
-.gwt-TabLayoutPanel .gwt-TabLayoutPanelTab-selected, .gwt-TabLayoutPanel .gwt-TabLayoutPanelTab-selected:hover {
-    background: url("./images/search.img.tab_bg.png") repeat-x scroll 0 50% #FFFFFF !important;
-    border: 1px solid #AAAAAA !important;
-    color: white !important;
-    font-weight: normal !important;
-    outline: medium none !important;
-
-    border-top-left-radius: 4px;
-    border-top-right-radius: 4px;
-    -moz-border-radius-topleft: 4px;
-    -moz-border-radius-topright: 4px;
-    -webkit-border-top-left-radius: 4px;
-    -webkit-border-top-right-radius: 4px;
-}
-.gwt-TabLayoutPanel .gwt-TabLayoutPanelContent {
-    border-color: #AAAAAA !important;
-    border-width: 1px !important;
-}
 .gwt-DialogBox .Caption {
     background: url(./images/search.img.bg_orange_small.png) repeat-x !important;
     color: white !important;

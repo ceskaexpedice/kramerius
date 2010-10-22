@@ -20,10 +20,7 @@ package cz.incad.kramerius.editor.client.view;
 import com.google.gwt.dom.client.Style.Unit;
 import com.google.gwt.event.logical.shared.SelectionEvent;
 import com.google.gwt.event.logical.shared.SelectionHandler;
-import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.ScrollPanel;
-import com.google.gwt.user.client.ui.SimplePanel;
-import com.google.gwt.user.client.ui.TabLayoutPanel;
 import com.google.gwt.user.client.ui.Widget;
 import java.util.ArrayList;
 import java.util.List;
@@ -45,8 +42,8 @@ public final class RelationsViewImpl implements RelationsView {
 //        if (tabs.isEmpty()) {
 //            mainWidget.setWidget(tabContent);
 //        } else {
-            TabLayoutPanel tabPanel = getTabLayoutPanel();
-            tabPanel.add(tabContent, view.getName());
+            AdvancedTabLayoutPanel tabPanel = getTabLayoutPanel();
+            tabPanel.add(tabContent, view.getName(), false);
 //        }
         tabs.add(view);
     }
@@ -63,12 +60,7 @@ public final class RelationsViewImpl implements RelationsView {
     @Override
     public void setModified(RelationsView.RelationTab view, boolean modified) {
         int index = this.tabs.indexOf(view);
-        Label tabWidget = (Label) getTabLayoutPanel().getTabWidget(index);
-        if (modified) {
-            tabWidget.setText("* " + view.getName());
-        } else {
-            tabWidget.setText(view.getName());
-        }
+        getTabLayoutPanel().setModified(index, modified);
     }
 
     @Override
@@ -81,8 +73,8 @@ public final class RelationsViewImpl implements RelationsView {
         return mainWidget;
     }
 
-    private TabLayoutPanel createTabLayoutPanel() {
-        TabLayoutPanel tabPanel = new TabLayoutPanel(2.2, Unit.EM);
+    private AdvancedTabLayoutPanel createTabLayoutPanel() {
+        AdvancedTabLayoutPanel tabPanel = new AdvancedTabLayoutPanel(2.2, Unit.EM);
         tabPanel.addSelectionHandler(new SelectionHandler<Integer>() {
 
             @Override
@@ -101,13 +93,13 @@ public final class RelationsViewImpl implements RelationsView {
         return tabPanel;
     }
 
-    private TabLayoutPanel getTabLayoutPanel() {
-        TabLayoutPanel tabPanel;
+    private AdvancedTabLayoutPanel getTabLayoutPanel() {
+        AdvancedTabLayoutPanel tabPanel;
 //        if (tabs.size() == 0) {
 //            tabPanel = createTabLayoutPanel();
 //        } else {
 //            tabPanel = (TabLayoutPanel) mainWidget.getWidget();
-            tabPanel = (TabLayoutPanel) mainWidget;
+            tabPanel = (AdvancedTabLayoutPanel) mainWidget;
 //        }
         return tabPanel;
     }

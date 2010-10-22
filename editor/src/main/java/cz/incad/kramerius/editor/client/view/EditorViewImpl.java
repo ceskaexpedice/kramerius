@@ -18,17 +18,11 @@ package cz.incad.kramerius.editor.client.view;
 
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ClickEvent;
-import com.google.gwt.event.dom.client.ClickHandler;
-import com.google.gwt.resources.client.CssResource;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.uibinder.client.UiHandler;
 import com.google.gwt.user.client.ui.Anchor;
 import com.google.gwt.user.client.ui.FlowPanel;
-import com.google.gwt.user.client.ui.HasWidgets;
-import com.google.gwt.user.client.ui.HorizontalPanel;
-import com.google.gwt.user.client.ui.Label;
-import com.google.gwt.user.client.ui.TabLayoutPanel;
 import com.google.gwt.user.client.ui.Widget;
 import cz.incad.kramerius.editor.client.presenter.Presenter.Display;
 import java.util.ArrayList;
@@ -48,18 +42,11 @@ public final class EditorViewImpl implements EditorView {
     @UiField Anchor krameriusClickable;
     @UiField Anchor languagesClickable;
     @UiField FlowPanel clipboardPanel;
-    @UiField TabLayoutPanel editorTabPanel;
-    @UiField StyleAccess styleAccess;
+    @UiField AdvancedTabLayoutPanel editorTabPanel;
     private Callback callback;
     private final List<Display> tabsModel = new ArrayList<Display>();
 
     interface EditorViewImplUiBinder extends UiBinder<Widget, EditorViewImpl> {}
-
-    interface StyleAccess extends CssResource {
-
-        String modified();
-        String tabCloseButton();
-    }
 
     public EditorViewImpl() {
         widget = uiBinder.createAndBindUi(this);
@@ -70,7 +57,7 @@ public final class EditorViewImpl implements EditorView {
 //        final ScrollPanel tabContentPanel = new ScrollPanel(item.asWidget());
         Widget tabContentPanel = item.asWidget();
 
-        editorTabPanel.add(tabContentPanel, createCloseTabWidget(name, tabContentPanel));
+        editorTabPanel.add(tabContentPanel, name, true);
         editorTabPanel.selectTab(tabContentPanel);
         tabsModel.add(item);
     }
@@ -119,13 +106,7 @@ public final class EditorViewImpl implements EditorView {
         if (index < 0) {
             return;
         }
-        HasWidgets tabWidget = (HasWidgets) this.editorTabPanel.getTabWidget(index);
-        Widget label = tabWidget.iterator().next();
-        if (modified) {
-            label.getElement().addClassName(this.styleAccess.modified());
-        } else {
-            label.getElement().removeClassName(this.styleAccess.modified());
-        }
+        this.editorTabPanel.setModified(index, modified);
     }
 
     @UiHandler("loadClickable")
@@ -147,26 +128,6 @@ public final class EditorViewImpl implements EditorView {
         if (callback != null) {
             callback.onKrameriusClick();
         }
-    }
-
-    private Widget createCloseTabWidget(String name, final Widget tabContent) {
-        HorizontalPanel tabHandlePanel = new HorizontalPanel();
-        Label nameHandle = new Label(ViewUtils.makeLabelVisible(name));
-        nameHandle.setTitle(name);
-        tabHandlePanel.add(nameHandle);
-        // XXX fix: temporary solution to remove the tab
-        Label closeHandle = new Label("\u2718");
-        closeHandle.setTitle("Close tab");
-        closeHandle.addStyleName(styleAccess.tabCloseButton());
-        closeHandle.addClickHandler(new ClickHandler() {
-
-            @Override
-            public void onClick(ClickEvent event) {
-                callback.onEditorTabClose();
-            }
-        });
-        tabHandlePanel.add(closeHandle);
-        return tabHandlePanel;
     }
 
     private int getSelectedIndex(Display tab) {

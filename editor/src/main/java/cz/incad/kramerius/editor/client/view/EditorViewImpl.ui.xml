@@ -19,24 +19,25 @@ Uncomment this for XHTML entities
 <!DOCTYPE ui:UiBinder SYSTEM "http://dl.google.com/gwt/DTD/xhtml.ent">
 -->
 <ui:UiBinder xmlns:ui="urn:ui:com.google.gwt.uibinder"
-	xmlns:g="urn:import:com.google.gwt.user.client.ui">
-    <ui:style field="styleAccess" src="EditorView.css"
-            type="cz.incad.kramerius.editor.client.view.EditorViewImpl.StyleAccess"/>
+	xmlns:g="urn:import:com.google.gwt.user.client.ui"
+        xmlns:ke="urn:import:cz.incad.kramerius.editor.client.view" >
+
+    <ui:style src="EditorView.css" />
 
     <g:DockLayoutPanel ui:field="mainPanel" unit="PX">
         <g:north size="60">
             <!-- Menu Panel -->
-            <g:HTMLPanel addStyleNames="{styleAccess.headerPanel}" >
+            <g:HTMLPanel addStyleNames="{style.headerPanel}" >
                 <img src="/images/search.img.logo.png" />
-                <span class="{styleAccess.menuItems}">
+                <span class="{style.menuItems}">
                     <g:Anchor ui:field="loadClickable"
-                            addStyleNames="{styleAccess.menuItem}" href="javascript:;">Load</g:Anchor>
+                            addStyleNames="{style.menuItem}" href="javascript:;">Load</g:Anchor>
                     <g:Anchor ui:field="saveClickable"
-                            addStyleNames="{styleAccess.menuItem}" href="javascript:;">Save</g:Anchor>
+                            addStyleNames="{style.menuItem}" href="javascript:;">Save</g:Anchor>
                     <g:Anchor ui:field="krameriusClickable" title="Go back to Kramerius Search"
-                            addStyleNames="{styleAccess.menuItem}" href="javascript:;">Kramerius</g:Anchor>
+                            addStyleNames="{style.menuItem}" href="javascript:;">Kramerius</g:Anchor>
                     <g:Anchor ui:field="languagesClickable"
-                            addStyleNames="{styleAccess.menuItem}" href="javascript:;">Languages</g:Anchor>
+                            addStyleNames="{style.menuItem}" href="javascript:;">Languages</g:Anchor>
                 </span>
 
             </g:HTMLPanel>
@@ -45,12 +46,12 @@ Uncomment this for XHTML entities
             <g:SplitLayoutPanel ui:field="splitPanel">
                 <g:north size="0"><!--170-->
                     <!-- Clipboard Panel -->
-                    <g:FlowPanel ui:field="clipboardPanel" addStyleNames="{styleAccess.clipboardPanel}"></g:FlowPanel>
+                    <g:FlowPanel ui:field="clipboardPanel" addStyleNames="{style.clipboardPanel}"></g:FlowPanel>
                 </g:north>
 
                 <g:center>
                     <!-- Editor tabs -->
-                    <g:TabLayoutPanel ui:field="editorTabPanel" barHeight="2.2" barUnit="EM"/>
+                    <ke:AdvancedTabLayoutPanel barHeight="2.2" barUnit="EM"  ui:field="editorTabPanel"/>
                 </g:center>
             </g:SplitLayoutPanel>
         </g:center>

@@ -38,17 +38,3 @@
     background-image: url("./images/clipboard.png");
     background-repeat: repeat;
 }
-.modified:before {
-    content: "* ";
-}
-.modified {
-    font-weight: bold;
-}
-.tabCloseButton {
-    margin-left: 4px;
-}
-.tabCloseButton:hover {
-/*    border: solid 1px;*/
-    color: red;
-    cursor: pointer;
-}
