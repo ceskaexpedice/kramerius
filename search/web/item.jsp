@@ -194,7 +194,7 @@
                                                      onclick='switchDisplayToSeadragon()' 
                                                      onload='onLoadPlainImage()'
                                                      
-                                                     border="0"  src="img/empty.gif" height="650px" ></img>
+                                                     border="0"  src="img/empty.gif" height="512px" ></img>
                                                 
                                                 <div style="position:absolute; top:10px; right:0px;">
                                                     <span>
