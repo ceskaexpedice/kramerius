@@ -17,7 +17,7 @@
          <li><a href="#intro2"><fmt:message bundle="${lctx}">Nejžádanější</fmt:message></a></li>
          <li><a href="#intro3"><fmt:message bundle="${lctx}">Informace</fmt:message></a></li>
      </ul>
-     <div id="intro1" style="height:220px;"></div>
+     <div id="intro1" style="height:220px;overflow:hidden;"></div>
          <script>
             //$(document).ready(function(){
                 $.get('inc/newest.jsp?' , function(data){
@@ -25,7 +25,7 @@
                 });
             //});
          </script>
-     <div id="intro2" style="height:220px;">
+     <div id="intro2" style="height:220px;overflow:hidden;">
      </div>
          <script>
             //$(document).ready(function(){
