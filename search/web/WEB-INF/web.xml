@@ -23,6 +23,7 @@
 		<servlet-name>i18n</servlet-name>
 		<servlet-class>cz.incad.Kramerius.I18NServlet</servlet-class>
 	</servlet>
+	
 	<!-- Servlet pro pristup do streamu IMG_FULL -->
 	<servlet>
 		<servlet-name>fullImageServlet</servlet-name>
@@ -39,11 +40,18 @@
 		<servlet-name>IndexModel</servlet-name>
 		<servlet-class>cz.incad.Kramerius.IndexModel</servlet-class>
 	</servlet>
- 	<!-- Servlet pro ziskavani nahledu -->
+	
+ 	<!-- Servlet pro ziskavani malych nahledu -->
 	<servlet>
 		<servlet-name>thumb</servlet-name>
-		<servlet-class>cz.incad.Kramerius.ThumbnailImageServlet</servlet-class>
+		<servlet-class>cz.incad.Kramerius.SmallThumbnailImageServlet</servlet-class>
 	</servlet>
+
+    <!-- Servlet pro ziskavani velkych nahledu -->
+    <servlet>
+        <servlet-name>fullThumb</servlet-name>
+        <servlet-class>cz.incad.Kramerius.FullThumbnailImageServlet</servlet-class>
+    </servlet>
 	<servlet>
 		<servlet-name>pdf</servlet-name>
 		<servlet-class>cz.incad.Kramerius.GeneratePDFServlet</servlet-class>
@@ -54,6 +62,7 @@
 		<servlet-class>cz.incad.Kramerius.LongRunningProcessServlet</servlet-class>
 		<load-on-startup>1</load-on-startup>
 	</servlet>
+	
 	<!-- METS export -->
 	<servlet>
 		<servlet-name>mets</servlet-name>
@@ -113,10 +122,16 @@
 		<servlet-name>IndexModel</servlet-name>
 		<url-pattern>/IndexModel</url-pattern>
 	</servlet-mapping>
+
 	<servlet-mapping>
 		<servlet-name>thumb</servlet-name>
 		<url-pattern>/thumb</url-pattern>
 	</servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>fullThumb</servlet-name>
+        <url-pattern>/fullThumb</url-pattern>
+    </servlet-mapping>
 	
 	<servlet-mapping>
 		<servlet-name>InitServlet</servlet-name>
