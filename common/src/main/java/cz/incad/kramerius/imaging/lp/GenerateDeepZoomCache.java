@@ -10,7 +10,10 @@ import com.google.inject.name.Named;
 import com.google.inject.name.Names;
 
 import cz.incad.kramerius.imaging.DeepZoomCacheService;
+import cz.incad.kramerius.imaging.lp.guice.Fedora3Module;
 import cz.incad.kramerius.imaging.lp.guice.GenerateDeepZoomCacheModule;
+import cz.incad.kramerius.imaging.lp.guice.PlainModule;
+import cz.incad.kramerius.utils.conf.KConfiguration;
 
 public class GenerateDeepZoomCache {
 
@@ -18,10 +21,14 @@ public class GenerateDeepZoomCache {
 
     public static void main(String[] args) throws IOException {
         System.out.println("Generate deep zoom cache :" + Arrays.asList(args));
-        if (args.length == 1) {
-            Injector injector = Guice.createInjector(new GenerateDeepZoomCacheModule());
+        if (args.length >= 1) {
+            Injector injector = Guice.createInjector(new GenerateDeepZoomCacheModule(), new Fedora3Module());
+            int numberStepsOverTile = KConfiguration.getInstance().getConfiguration().getInt("deepZoom.numberStepsOverTile",1);
+            if (args.length == 2) {
+                numberStepsOverTile = Integer.parseInt(args[1]);
+            }
             DeepZoomCacheService service = injector.getInstance(Key.get(DeepZoomCacheService.class, Names.named("memoryCacheForward")));
-            service.prepareCacheForUUID(args[0]);
+            service.prepareCacheForUUID(args[0],numberStepsOverTile+1);
             LOGGER.info("Process finished");
         } else {
             LOGGER.severe("generate cache class <uuid>");
