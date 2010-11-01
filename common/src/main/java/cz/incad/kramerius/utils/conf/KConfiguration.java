@@ -226,7 +226,20 @@ public class KConfiguration {
         return getConfiguration().getFloat("deepZoom.jpegQuality", 0.9f);
 
     }
-
+    
+    public boolean isDeepZoomDisabled() {
+        return getConfiguration().getBoolean("deepZoom.deepZoomDisabled", false);
+    }
+    
+    public boolean isDeepZoomForPathDisabled(String[] path) {
+        Configuration configuration = getConfiguration();
+        for (int i = path.length - 1; i >0; i--) {
+            boolean disabled = configuration.getBoolean("deepZoom."+path[i]+".deepZoomDisabled",false);
+            if (disabled) return true;
+        }
+        return false;
+    }
+    
     public String getUrlOfIIPServer() {
         return getConfiguration().getString("UrlOfIIPserver", "");
     }
@@ -245,4 +258,5 @@ public class KConfiguration {
         System.out.println(conf.getString("indexerHost"));
 
     }
+
 }
