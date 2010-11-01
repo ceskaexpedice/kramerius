@@ -22,7 +22,7 @@ import cz.incad.kramerius.utils.conf.KConfiguration;
 /**
  * Implementation can cache full images in memory. <br> 
  * Number of objects in the memory is limited by property 'deepZoom.memoryCache.numberOfObjects'. <br>
- * Default value is 20. <br>
+ * Default value is 1. <br>
  * @author pavels
  */
 public class SimpleMemoryCacheServiceWrapper implements DeepZoomCacheService {
@@ -109,6 +109,13 @@ public class SimpleMemoryCacheServiceWrapper implements DeepZoomCacheService {
 	public boolean isDeepZoomOriginalPresent(String uuid) throws IOException {
 		return this.wrappingInstance.isDeepZoomOriginalPresent(uuid);
 	}
+	
+
+   @Override
+    public void prepareCacheForUUID(String uuid, int levelOverTileSize) throws IOException {
+       this.wrappingInstance.prepareCacheForUUID(uuid, levelOverTileSize);
+    }
+
 
 //	@Override
 //	public URL getFullImageURL(String uuid) throws MalformedURLException,
@@ -116,7 +123,8 @@ public class SimpleMemoryCacheServiceWrapper implements DeepZoomCacheService {
 //		return this.wrappingInstance.getFullImageURL(uuid);
 //	}
 
-	@Override
+
+    @Override
 	public BufferedImage getDeepZoomOriginal(String uuid) throws IOException {
 		BufferedImage bufImage = memoryCache.getFromCache(uuid);
 		if (bufImage == null) {
@@ -126,9 +134,14 @@ public class SimpleMemoryCacheServiceWrapper implements DeepZoomCacheService {
 		return bufImage;
 	}
 
-	
-	
-	static class MemoryCache {
+    
+	@Override
+    public void writeDeepZoomDescriptor(String uuid, Dimension dim, int tileSize) throws IOException {
+	    this.wrappingInstance.writeDeepZoomDescriptor(uuid, dim, tileSize);
+	}
+
+
+    static class MemoryCache {
 		
 		private ReentrantLock lock = new ReentrantLock();
 		private Map<String, BufferedImage> images = new HashMap<String, BufferedImage>();
@@ -227,7 +240,6 @@ public class SimpleMemoryCacheServiceWrapper implements DeepZoomCacheService {
 				return false;
 			return true;
 		}
-		
 	}
 
 
@@ -236,4 +248,14 @@ public class SimpleMemoryCacheServiceWrapper implements DeepZoomCacheService {
 			throws IOException {
 		return this.wrappingInstance.createDeepZoomOriginalImageFromFedoraRAW(uuid);
 	}
+
+    @Override
+    public boolean isResolutionFilePresent(String uuid) throws IOException {
+        return this.wrappingInstance.isResolutionFilePresent(uuid);
+    }
+
+    @Override
+    public Dimension getResolutionFromFile(String uuid) throws IOException {
+        return this.wrappingInstance.getResolutionFromFile(uuid);
+    }
 }

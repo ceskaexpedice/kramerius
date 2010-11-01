@@ -6,10 +6,7 @@ import java.awt.Image;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 
-import javax.swing.text.html.FormSubmitEvent.MethodType;
 import javax.xml.xpath.XPathExpressionException;
-
-import sun.java2d.loops.ScaledBlit;
 
 import com.google.inject.Inject;
 import com.google.inject.name.Named;
@@ -53,6 +50,11 @@ public class TileSupportImpl implements DeepZoomTileSupport {
         return getLevelsInternal(max, minSize);
 	}
 
+	public int getLevels(Dimension dim, int minSize) {
+        int max = Math.max(dim.width, dim.height);
+        return getLevelsInternal(max, minSize);
+	}
+	
     private int getLevelsInternal(int max, int minSize) {
         int currentMax = max;
         int level = 1;
@@ -65,6 +67,8 @@ public class TileSupportImpl implements DeepZoomTileSupport {
     }
 
     
+    
+    
 //    public long getMaxLevels(String uuid) {
 //        Image rawImg = getRawImage(uuid);
 //        int max = Math.max(rawImg.getHeight(null), rawImg.getWidth(null));
@@ -72,6 +76,12 @@ public class TileSupportImpl implements DeepZoomTileSupport {
 //        return levels;
 //    }
     
+    @Override
+    public Dimension getScaledDimension(Dimension dim, int displayLevel, int maxLevel) {
+        double scale = getScale(displayLevel, maxLevel);
+        return getScaledDimension(dim,scale);
+    }
+
     @Override
     @Deprecated
     public BufferedImage getRawImage(String uuid) throws IOException {
