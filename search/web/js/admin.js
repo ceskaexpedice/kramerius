@@ -90,7 +90,7 @@ function modifyProcessDialogData(ordering, offset, size, type) {
 	});
 }
 
-function killAndRefresh(url,ordering, offset, size, type) {
+function doActionAndRefresh(url,ordering, offset, size, type) {
 	$.get(url, function(fdata) {
 		refreshProcesses(ordering, offset, size, type);
 	});
