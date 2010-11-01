@@ -99,7 +99,7 @@
 		<servlet-class>cz.incad.Kramerius.imaging.IIPServlet</servlet-class>
 	</servlet>
 
-	<!-- DeppZoom servlet -->
+	<!-- DeepZoom servlet -->
 	<servlet>
 		<servlet-name>deepZoomServlet</servlet-name>
 		<servlet-class>cz.incad.Kramerius.imaging.DeepZoomServlet</servlet-class>
@@ -110,6 +110,13 @@
 		<servlet-name>privateContentServlet</servlet-name>
 		<servlet-class>cz.incad.Kramerius.PrivateContentsServlet</servlet-class>
 	</servlet>
+
+    <!-- viewInfoServlet -->
+    <servlet>
+        <servlet-name>viewInfoServlet</servlet-name>
+        <servlet-class>cz.incad.Kramerius.ViewInfoServlet</servlet-class>
+    </servlet>
+
 
 	<!-- 
 		// Mapovani servletu
@@ -197,6 +204,11 @@
 		<servlet-name>privateContentServlet</servlet-name>
 		<url-pattern>/private</url-pattern>
 	</servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>viewInfoServlet</servlet-name>
+        <url-pattern>/viewInfo</url-pattern>
+    </servlet-mapping>
 	
     <security-role>
         <role-name>krameriusAdmin</role-name>
