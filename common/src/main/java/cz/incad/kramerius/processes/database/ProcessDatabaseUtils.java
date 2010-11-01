@@ -122,4 +122,15 @@ public class ProcessDatabaseUtils {
 			if (prepareStatement != null) prepareStatement.close();
 		}
 	}
+	
+	public static void deleteProcess(Connection con, String uuid) throws SQLException {
+        PreparedStatement prepareStatement =  null;
+        try {
+            prepareStatement = con.prepareStatement("delete from processes where UUID=?");
+            prepareStatement.setString(1, uuid);
+            prepareStatement.executeUpdate();
+        } finally {
+            if (prepareStatement != null) prepareStatement.close();
+        }
+	}
 }
