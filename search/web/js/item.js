@@ -4,9 +4,6 @@ var _persistentURLDialog;
 function showPersistentURL(level, model) {
     hideAdminOptions(level);
     var pid = $("#tabs_"+level).attr('pid');
-    //if (level != 1) {
-    //	pid = $("#tabs_"+level+">div."+model+">div.relList>div.selected").attr('pid');
-    //}
     var currentURL = window.location.href;
     if (currentURL.match("^https")=='https') {
         currentURL = currentURL.substr('https://'.length, currentURL.length); 
@@ -42,7 +39,6 @@ function showPersistentURL(level, model) {
         });
     }
 	
-    //var textField = $('#'+textFieldID);
     $('#'+textFieldID).val(currentURL);	
     $('#'+textFieldID).select();
     $('#'+textFieldID).focus(function() {
@@ -54,8 +50,6 @@ function showPersistentURL(level, model) {
 
 function _getBiblioInfo(pid, model, list, inf, setInf){
     var url = 'inc/details/biblioToRdf.jsp?pid=uuid:' + pid + "&xsl=default.jsp&model="+model;
-    //var url = 'inc/details/biblioToRdf.jsp?pid=uuid:' + pid + "&xsl="+model+".jsp";
-    //var url = 'inc/results/biblioToRdf.jsp?pid=uuid:' + pid + "&xsl="+model+".jsp" ;
     $.get(url, function(xml) {
         $(".relItem[pid='" + pid + "']").html(xml);
         $(".relItem[pid='" + pid + "']").attr('hasbiblio', 'true');
@@ -66,10 +60,6 @@ function _getBiblioInfo(pid, model, list, inf, setInf){
 }
 
 function scrollElement(container, element){
-    //    $(container).animate({
-    //        scrollTop: $(element).offset().top - $(container).offset().top + $(container).scrollTop(),
-    //        scrollLeft: $(element).offset().left
-    //    }, 750);
     $(container).scrollTop($(element).offset().top - $(container).offset().top + $(container).scrollTop());
     $(container).scrollLeft($(element).offset().left);
         
@@ -106,13 +96,9 @@ function _selectingPage(obj, level, model){
 
 function _changeSelectedPage(pid){
     $(".relItem[pid='" + pid + "']").each(function(i, obj){
-       
         $(obj).parent().children(".relItem").removeClass('selected');
         $(obj).addClass('selected');
         var infoObj = $(obj).parent().parent().children("[id=info-page]");
-        //if($(obj).attr('hasbiblio')=='true'){
-            infoObj.html($(obj).text());
-        //}
         scrollElement($(obj).parent(), $(obj));
     });
 }
@@ -150,7 +136,6 @@ function _selectItem(obj, level, model){
     $('#imgBig').attr("src", "img/empty.gif");
     $.get(url, function(data){
         $(p).append(data);
-        //getItemRels(pid, "", level, true);
     });
 }
 
@@ -203,8 +188,6 @@ function _getItemRels(pid, selectedpid, level, recursive, rootModel){
                         $(obj).append(str_div);
                         $(obj).tabs("add", "#tab"+target_level+"-"+m, model2[0]);
                       
-                        //$(obj).tabs("add", m, model2[0]);
-
                         $(obj+">ul>li>img."+m).toggleClass('op_info');
                     }else{
                       
@@ -218,7 +201,6 @@ function _getItemRels(pid, selectedpid, level, recursive, rootModel){
         $.each(data.items, function(j,item){
             
             $.each(item, function(m,model2){
-                
                 var list = "#tabs_" + (target_level) + ">div>div[id=list-"+m+"]";
                 var inf = "#tabs_" + (target_level) + ">div>div[id=info-"+m+"]";
                 var item;
@@ -232,16 +214,8 @@ function _getItemRels(pid, selectedpid, level, recursive, rootModel){
                         itemClass += ' selected';
                     }
                     item = '<div pid="'+pid2+'" id="'+pid2+'" title="" hasbiblio="false" class="'+itemClass+'"' ;
-//                    if(m=='page'){
-//                        item+= ' onclick="selectingPage(this, '+target_level+', \''+ m +'\')" ';
-//                    }else{
-//                        item+= ' onclick="selectItem(this, '+target_level+', \''+ m +'\')" ';
-//                    }
                     item+= ' onclick="selectRelItem(this)" ';    
-                    //item += '><img src="img/item_loading.gif" /></div>';
-                    
                     item += '>'+infoDetails+'</div>';
-                        
                     $(list).append(item);
                     if(m=="page"){
                         hasPages = true;
@@ -263,7 +237,6 @@ function _getItemRels(pid, selectedpid, level, recursive, rootModel){
                 
                 for(var i=1;i<model2.length;i++){
                     pid2 = model2[i]; 
-                    //getBiblioInfo(pid2, m, list+'>div[pid='+pid2+']', inf, recursive&&i==1);
                 }
                   
             });
@@ -272,7 +245,6 @@ function _getItemRels(pid, selectedpid, level, recursive, rootModel){
           
         if(selectedpid!=""){
             $('#'+selectedpid).addClass('selected');
-            //setTimeout("scrollElement('#"+selectedpid+":parent', '#"+selectedpid+"')", 100);
             scrollElement($('#'+selectedpid).parent(), $('#'+selectedpid));
         }else{
             $(obj+">div").each(function(index, o){
@@ -351,11 +323,6 @@ var PDF=function() {
             var from = $("#genPdfStart").val()-1;
             var to = $("#genPdfEnd").val()-1;
 
-            //var elmFrom = $('#tv_container_row td:eq('+from+') img'); 
-	    //alert(elmFrom.length);	
-            //var elmTo = $('#tv_container_row td:eq('+to+') img'); 
-	    //alert(elmTo.length);				
-		
 
             var fromUuid = $($("#list-page>div.relItem")[from]).attr('pid');
             var toUuid = $($("#list-page>div.relItem")[to]).attr('pid');
@@ -471,7 +438,6 @@ var PDF=function() {
                             }else if(to==pagesCount && from == '1'){
                                 //PDF.urlFromDialog(level);
                                 PDF.urlFromDialog(PDF.privateLevel);
-		                    	
                                 $(this).dialog("close");
                             }else{
                                 PDF.urlFromDialog(PDF.privateLevel);
@@ -569,10 +535,7 @@ function showMainContent(level, model){
     }
    
     $('#metaData').html(imgLoadingBig);
-    //var url = "inc/details/"+path.toString().split('/')[0]+".jsp?display=block";
-    //var url = "inc/details/biblioToRdf.jsp?pid=uuid:"+pid+"&xsl="+path.toString().split('/')[0]+".jsp&display=full";
     var url = "inc/details/biblioToRdf.jsp?pid=uuid:"+pid+"&xsl=default.jsp&display=full&model="+model;
-    //var url = 'item_1.jsp?pid='+pid+'&path='+path;
     $.get(url, function(data){
         $('#metaData').html(data);
     });
@@ -585,28 +548,18 @@ function getPageTitle(pid){
 
 function toggleAdminOptions(div){
 	postProcessContextMenu();
-	
 	var il = $('#menu-'+div).parent().width() + $('#menu-'+div).parent().offset().left - $('#menu-'+div).width();
     $('#menu-'+div).css('left', il);
     $('#menu-'+div).toggle();
     $('#openmenu-'+div).toggle();
 }
+
 function hideAdminOptions(level){
-    //var divs = "#tabs_" + level + ">div>div.menuOptions";
-    //var il = $('#menu-'+div).parent().width() + $('#menu-'+div).parent().offset().left - $('#menu-'+div).width();
-    //$('#menu-'+div).css('left', il);
     $("#tabs_" + level + ">div>div.menuOptions").toggle();
-    //$('#openmenu-'+div).toggle();
 }
 
-
-
-function switchDisplayToSeadragon() {
-	displaySeadragonContent();			
-	if (viewer == null) {
-		init();
-	}
-	viewer.openDzi("deepZoom/"+currentSelectedPage+"/");
+function switchDisplay() {
+    showFullImageAndStoreMaxLevel();
 }
 
 
@@ -617,29 +570,26 @@ function onLoadPlainImage() {
 
 }
 
-function onLoadPDFImage() {
-//	if (imageInitialized) {
-//		$("#pdfImageImg").fadeIn();
-//	}
-}
+function onLoadPDFImage() {}
 
 var imageInitialized = false;
-function showImage(uuid) {
+function showImage(viewerOptions) {
 	// different view for pdf	
-	if (currentMime=="application/pdf") {
+	if (viewerOptions.isContentPDF()) {
 		displayPDFImageContent();
 	} else {
-		// fullpage mode = always seadragon otherwise always plain image
-		if ((viewer != null) && (viewer.isFullPage())) {
-			displaySeadragonContent();					
-			viewer.openDzi("deepZoom/"+uuid+"/");
-		} else {
-			displayImageContent();
-			$("#plainImageImg").fadeOut("slow", function () {
-				$("#plainImageImg").attr('src','fullThumb?uuid='+uuid);
-			});
-		}
-	
+	    if ((viewerOptions.deepZoomCofigurationEnabled) && (viewerOptions.deepZoomGenerated)) {
+            if (viewer == null) {
+                init();
+            }
+            displaySeadragonContent();                  
+            viewer.openDzi("deepZoom/"+viewerOptions.uuid+"/");
+	    } else {
+            displayImageContent();
+            $("#plainImageImg").fadeOut("slow", function () {
+                $("#plainImageImg").attr('src','fullThumb?uuid='+viewerOptions.uuid);
+            });
+	    }
 	}		
 	imageInitialized = true;
 }
@@ -698,4 +648,3 @@ function showBornDigitalPDF(uuid,page) {
 	var pdfWindow = window.open(url, '_blank');
 	pdfWindow.focus();
 }
-
