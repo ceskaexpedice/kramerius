@@ -1,13 +1,9 @@
 package cz.incad.kramerius.imaging;
 
 import java.awt.Dimension;
-import java.awt.Image;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 
-import sun.java2d.loops.ScaledBlit;
-
-import com.sun.org.apache.xerces.internal.dom.DeepNodeListImpl;
 
 import cz.incad.kramerius.utils.imgs.KrameriusImageSupport.ScalingMethod;
 
@@ -50,6 +46,9 @@ public interface DeepZoomTileSupport {
      */
     public long getLevels(BufferedImage image, int minSize) throws IOException;
 
+    public int getLevels(Dimension dim, int minSize);
+
+    
     /**
      * Returns raw image
      * 
@@ -127,6 +126,8 @@ public interface DeepZoomTileSupport {
      */
     public double getScale(int displayLevel, long maxLevel);
 
+    public Dimension getScaledDimension(Dimension original, int displayLevel, int maxLevel);
+    
     /**
      * Returns number of cols in scaled dimension
      * 

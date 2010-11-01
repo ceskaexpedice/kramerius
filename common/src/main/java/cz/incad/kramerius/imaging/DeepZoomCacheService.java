@@ -5,7 +5,6 @@ import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
-import java.net.URL;
 
 /**
  * This service is suitable for caching deep zoom tiles
@@ -36,6 +35,7 @@ public interface DeepZoomCacheService {
      */
     public void prepareCacheImage(String uuid, Dimension dimensionToFit, BufferedImage rawImage);
 
+    
     /**
      * Walk through Rels-Ext and search pages and cache them
      * 
@@ -45,6 +45,8 @@ public interface DeepZoomCacheService {
      */
     public void prepareCacheForUUID(String uuid) throws IOException;
 
+    public void prepareCacheForUUID(String uuid, int levelOverTileSize) throws IOException;
+    
     /**
      * Returns true if deep zoom descriptor is present in cache
      * 
@@ -76,6 +78,8 @@ public interface DeepZoomCacheService {
      * @throws IOException
      */
     public void writeDeepZoomDescriptor(String uuid, BufferedImage rawImage, int tileSize) throws IOException;
+
+    public void writeDeepZoomDescriptor(String uuid, Dimension dim, int tileSize) throws IOException;
 
     /**
      * Gets descriptor input stream
@@ -159,5 +163,9 @@ public interface DeepZoomCacheService {
     public BufferedImage getDeepZoomOriginal(String uuid) throws IOException;
 
     public BufferedImage createDeepZoomOriginalImageFromFedoraRAW(String uuid) throws IOException;
+
+    public boolean isResolutionFilePresent(String uuid) throws IOException;
+
+    public Dimension getResolutionFromFile(String uuid) throws IOException;
 
 }
