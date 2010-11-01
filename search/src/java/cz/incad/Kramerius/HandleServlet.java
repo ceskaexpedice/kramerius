@@ -16,14 +16,9 @@ import javax.servlet.http.HttpServletResponse;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.xpath.XPath;
-import javax.xml.xpath.XPathConstants;
-import javax.xml.xpath.XPathExpression;
 import javax.xml.xpath.XPathExpressionException;
-import javax.xml.xpath.XPathFactory;
 
 import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
@@ -40,7 +35,7 @@ import cz.incad.kramerius.utils.conf.KConfiguration;
  * This is support for persistent URL
  * @author pavels
  */
-public class HandleServlet extends GuiceServlet {
+public class HandleServlet extends AbstractSolrProcessServlet {
 
 	private static final long serialVersionUID = 1L;
 
@@ -50,41 +45,23 @@ public class HandleServlet extends GuiceServlet {
 	@Inject
 	transient KConfiguration kConfiguration;
 
-	private transient XPathFactory fact;
-	private transient XPathExpression pidPathExpr; //cesta pidu 
-	private transient XPathExpression pidExpr; // ja 
-	private transient XPathExpression pathExpr; // cesta modelu
+	
 	
 	@Override
-	public void init() throws ServletException {
-		super.init();
-		try {
-			fact = XPathFactory.newInstance();
-			pidPathExpr = pidPathExpr();
-			pidExpr = pidExpr();
-			pathExpr = pathExpr();
-		} catch (XPathExpressionException e) {
-			LOGGER.log(Level.SEVERE, e.getMessage(), e);
-			throw new RuntimeException(e.getMessage());
-		}
-	}
-
-
-	@Override
-	public void init(ServletConfig config) throws ServletException {
-		super.init(config);
-		try {
-			fact = XPathFactory.newInstance();
-			pidPathExpr = pidPathExpr();
-		} catch (XPathExpressionException e) {
-			LOGGER.log(Level.SEVERE, e.getMessage(), e);
-			throw new RuntimeException(e.getMessage());
-		}
-	}
+    public void init() throws ServletException {
+        super.init();
+    }
 
 
 
-	@Override
+    @Override
+    public void init(ServletConfig config) throws ServletException {
+        super.init(config);
+    }
+
+
+
+    @Override
 	protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
 		try {
 			String pidPath = null;
@@ -96,24 +73,9 @@ public class HandleServlet extends GuiceServlet {
 			String uri = HandleType.createType(handle).construct(handle);
 			InputStream inputStream = RESTHelper.inputStream(uri, "<no_user>", "<no_pass>");
 			Document parseDocument = XMLUtils.parseDocument(inputStream);
-		    Node node = (Node) pidPathExpr.evaluate(parseDocument, XPathConstants.NODE);
-		    if (node != null) {
-		    	Element pidPathElm = (Element) node;
-		    	pidPath = pidPathElm.getTextContent();
-		    }
-		    
-		    node = (Node) pidExpr.evaluate(parseDocument, XPathConstants.NODE);
-		    if (node != null) {
-		    	Element pidElm = (Element) node;
-		    	pid = pidElm.getTextContent();
-		    }
-
-		    node = (Node) pathExpr.evaluate(parseDocument, XPathConstants.NODE);
-		    if (node != null) {
-		    	Element pathElm = (Element) node;
-		    	path = pathElm.getTextContent();
-		    }
-
+		    pidPath = disectPidPath(parseDocument);
+		    pid = disectPid(parseDocument);
+		    path = disectPath(parseDocument);
 		    String appURL = ApplicationURL.applicationURL(req);
 		    String redirectUrl=  "item.jsp?pid="+pid+"&pid_path="+pidPath+"&path="+path;
 		    resp.sendRedirect(appURL+"/"+redirectUrl);
@@ -132,25 +94,7 @@ public class HandleServlet extends GuiceServlet {
 
 
 
-	private XPathExpression pidPathExpr() throws XPathExpressionException {
-		XPathExpression pidPathExpr = fact.newXPath().compile("//str[@name='pid_path']");
-		return pidPathExpr;
-	}
-
-	private XPathExpression pidExpr() throws XPathExpressionException {
-		XPathExpression pidExpr = fact.newXPath().compile("//str[@name='PID']");
-		return pidExpr;
-	}
-
-	private XPathExpression pathExpr() throws XPathExpressionException {
-		XPathExpression pathExpr = fact.newXPath().compile("//str[@name='path']");
-		return pathExpr;
-	}
-
-
-	
-	
-	public static String disectHandle(String requestURL) {
+    public static String disectHandle(String requestURL) {
 		//"dvju"
 		try {
 			StringBuffer buffer = new StringBuffer();
