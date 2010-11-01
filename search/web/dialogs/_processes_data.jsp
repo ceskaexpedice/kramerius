@@ -102,7 +102,7 @@ function _ref(ordering, offset, size, type) {
 				<td>${lrProc.processState}</td>
 				<td>${lrProc.start}</td>
 				<td>${lrProc.planned}</td>
-				<td>${lrProc.killURL}${lrProc.actionsURLs}</td>
+				<td>${lrProc.killURL}${lrProc.actionsURLs}${lrProc.deleteURL}</td>
 			</tr>
 		</c:forEach>
 	</tbody>
