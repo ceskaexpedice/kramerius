@@ -71,9 +71,9 @@ public class ItemViewObject {
 
     public String getFirstPageImageUrl() {
         if(_page==null){
-            return "djvu?uuid=" + getLastUUID() + "&amp;scaledWidth=650";
+            return "fullThumb?uuid=" + getLastUUID();
         }else{
-            return "djvu?uuid=" + getLastUUID() + "&amp;scaledWidth=650&amp;page="+(Integer.parseInt(_page)-1);
+            return "djvu?uuid=" + getLastUUID() + "&amp;scaledWidth=512&amp;page="+(Integer.parseInt(_page)-1);
         }
     }
     
