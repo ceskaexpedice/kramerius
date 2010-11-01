@@ -11,17 +11,16 @@
 
 <%
             Injector inj = (Injector) application.getAttribute(Injector.class.getName());
-
-// view objekt pro stranku = veskera logika 
+            // view objekt pro stranku = veskera logika 
             ItemViewObject itemViewObject = new ItemViewObject();
             inj.injectMembers(itemViewObject);
             itemViewObject.init();
 
-// lokalizacni kontext
+            // lokalizacni kontext
             LocalizationContext lctx = inj.getProvider(LocalizationContext.class).get();
             pageContext.setAttribute("lctx", lctx);
 
-// ukladani nejoblibenejsich 
+            // ukladani nejoblibenejsich 
             itemViewObject.saveMostDesirable();
             pageContext.setAttribute("itemViewObject", itemViewObject);
 %>
@@ -44,7 +43,7 @@
     <body >
         <!--  procesy - dialogy -->
             <%@ include file="dialogs/_processes_dialogs.jsp" %>
-        <table style="width:100%" id="mainItemTable"><tr><td align="center">
+            <table style="width:100%" id="mainItemTable"><tr><td align="center">
                     
                     <%@ include file="inc/searchForm.jsp" %>
                     <table>
@@ -112,6 +111,20 @@
                                                     viewer.addControl(nextButton(),Seadragon.ControlAnchor.TOP_RIGHT);
                                                     viewer.addControl(prevButton(),Seadragon.ControlAnchor.TOP_RIGHT);
                                                     viewer.addControl(viewer.getNavControl(),  Seadragon.ControlAnchor.TOP_RIGHT);
+                                                    
+                                                    //Seadragon.Config.maxZoomPixelRatio=1;
+                                                    //Seadragon.Config.imageLoaderLimit=1;
+
+                                                    // lokalizace
+                                                    Seadragon.Strings.setString("Tooltips.FullPage",dictionary["deep.zoom.Tooltips.FullPage"]);
+                                                    Seadragon.Strings.setString("Tooltips.Home",dictionary["deep.zoom.Tooltips.Home"]);
+                                                    Seadragon.Strings.setString("Tooltips.ZoomIn",dictionary["deep.zoom.Tooltips.ZoomIn"]);
+                                                    Seadragon.Strings.setString("Tooltips.ZoomOut",dictionary["deep.zoom.Tooltips.ZoomOut"]);
+    
+                                                    Seadragon.Strings.setString("Errors.Failure",dictionary["deep.zoom.Errors.Failure"]);
+                                                    Seadragon.Strings.setString("Errors.Xml",dictionary["deep.zoom.Errors.Xml"]);
+                                                    Seadragon.Strings.setString("Errors.Empty",dictionary["deep.zoom.Errors.Empty"]);
+                                                    Seadragon.Strings.setString("Errors.ImageFormat",dictionary["deep.zoom.Errors.ImageFormat"]);
                                                 }
 
                                                 function prevButton() {
@@ -155,23 +168,14 @@
                                                     return control;
                                                 }
         
+                                            
+        
                                                 //Seadragon.Utils.addEvent(window, "load", init);
                                                 
-                                                // lokalizace
-                                                Seadragon.Strings.setString("Tooltips.FullPage",dictionary["deep.zoom.Tooltips.FullPage"]);
-                                                Seadragon.Strings.setString("Tooltips.Home",dictionary["deep.zoom.Tooltips.Home"]);
-                                                Seadragon.Strings.setString("Tooltips.ZoomIn",dictionary["deep.zoom.Tooltips.ZoomIn"]);
-                                                Seadragon.Strings.setString("Tooltips.ZoomOut",dictionary["deep.zoom.Tooltips.ZoomOut"]);
-
-                                                Seadragon.Strings.setString("Errors.Failure",dictionary["deep.zoom.Errors.Failure"]);
-                                                Seadragon.Strings.setString("Errors.Xml",dictionary["deep.zoom.Errors.Xml"]);
-                                                Seadragon.Strings.setString("Errors.Empty",dictionary["deep.zoom.Errors.Empty"]);
-                                                Seadragon.Strings.setString("Errors.ImageFormat",dictionary["deep.zoom.Errors.ImageFormat"]);
-                                                    
                                             </script>
                                             
                                             
-                                            <div id="container" style="padding-top:10px; height: 500px;  color: black; display:none;"></div>
+                                            <div id="container" style="padding-top:10px; height: 434px;  color: black; display:none;"></div>
                                             
                                             <div id="securityError" style="padding-top:10px; height: 400px; width:700px; color: black; display:none;">
                                                 <fmt:message bundle="${lctx}" key="rightMsg"></fmt:message>
@@ -191,14 +195,14 @@
                                             
                                             <div id="plainImage" style="padding-top:10px; height:650; width:700px;  color: black; border:1px; position:relative;">
                                                 <img id="plainImageImg" 
-                                                     onclick='switchDisplayToSeadragon()' 
+                                                     onclick='switchDisplay(viewerOptions)' 
                                                      onload='onLoadPlainImage()'
                                                      
                                                      border="0"  src="img/empty.gif" height="512px" ></img>
                                                 
                                                 <div style="position:absolute; top:10px; right:0px;">
                                                     <span>
-                                                        <img id="seadragonButton" border='0' onclick='switchDisplayToSeadragon()'  src='img/zoomin_grouphover.png'></img>
+                                                        <img id="seadragonButton" border='0' onclick='switchDisplay(viewerOptions)'  src='img/zoomin_grouphover.png'></img>
                                                     </span>	
                                                     <span>
                                                         <img id="leftButtonPlainImage" class="prevArrow" src="img/prev_grouphover.png" />
