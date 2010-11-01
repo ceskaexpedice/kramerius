@@ -15,8 +15,6 @@ function selectRelItem(obj){
     }else{
         selectItem(obj, level, model);
     }
-    //showInfo($("#tabs_" + level +">ul>li."+model+">img"), "#tabs_" + level, model);
-    
     hideRelsList(level, model);
 }
 
@@ -103,30 +101,38 @@ function selectPage(uuid){
     activateThumbs();
     
     $("#tabs_"+getMaxLevel()).attr('pid', currentSelectedPage);
-    var pageUrl = "djvu?uuid="+uuid+"&scaledWidth="+imgW;
     var mimeUrl = "djvu?uuid="+uuid+"&imageType=ask";
         
     checkArrows();
     //alert($('#main').width()-60-$('.itemMenu').width());
     //$("#mainContent").css('width', $(window).width()-60-$('.itemMenu').width());
     $("#mainContent").css('width', $(window).width()-60-$('.itemMenu').width());
+
       $.ajax({
-          url:mimeUrl,
+          url:"viewInfo?uuid="+uuid,
           complete:function(req,textStatus) {
+              viewerOptions = eval('(' + req.responseText + ')');
+              viewerOptions.uuid = uuid;	
+              viewerOptions.status=req.status;
+              
               if ((req.status==200) || (req.status==304)) {
                   securedContent = false;
                   currentMime = req.responseText;
-                  showImage(uuid);
+                  showImage(viewerOptions);
               } else if (req.status==403){
                   currentMime = "unknown";
                   securedContent = true;
                   displaySecuredContent();
+              } else if (req.status==404){
+                    alert("Neni velky nahled !");
               } else {
+                    alert("Jina Chyba");
                   // jina chyba serveru
               }
-          }
-      });	 
-    
+ 
+	  }
+     });    
+
     $('#img'+getMaxLevel()+'_'+uuid).toggleClass('tv_img_selected');
     $("#tv_container").attr("scrollLeft", to);
     canScroll = true;
@@ -143,7 +149,8 @@ function selectThumb(uuid){
  *selects previous page
  */
 function selectPrevious(){
-    var obj =$('#tab'+getMaxLevel()+'-page>div.relList>div.selected').prev();
+    var curMaxLevel = maxLevelForFullImageShow > -1 ? maxLevelForFullImageShow : getMaxLevel();	
+    var obj =$('#tab'+curMaxLevel+'-page>div.relList>div.selected').prev();
     if($(obj).length>0){
         selectPage( $(obj).attr("pid"));
     }
@@ -153,7 +160,8 @@ function selectPrevious(){
  *selects next page
  */
 function selectNext(){
-    var obj =$('#tab'+getMaxLevel()+'-page>div.relList>div.selected').next();
+    var curMaxLevel = maxLevelForFullImageShow > -1 ? maxLevelForFullImageShow : getMaxLevel();	
+    var obj =$('#tab'+curMaxLevel+'-page>div.relList>div.selected').next();
     if($(obj).length>0){
         selectPage( $(obj).attr("pid"));
     }
@@ -300,7 +308,6 @@ function fillRels(pid, level, offset, model, recursive){
         addThumbs(level);
         translate(level);
         changeSelectedItem(currentSelectedPage);
-        //alert($("#tab"+level+"-"+model+">div[id=info-"+model+"]").html());
         var t = $("#tab"+level+"-"+model+">div[id=info-"+model+"]").html();
         if(t==""){
             t = $("#tab"+level+"-"+model+">div.relList>div.relItem:first").html()
@@ -500,7 +507,8 @@ function getMaxLevel(){
  *  Display next previous arrows 
  */
 function checkArrows(){
-    var selImg = $('#img'+getMaxLevel()+'_' + currentSelectedPage).parent().parent();
+    var curMaxLevel = maxLevelForFullImageShow > -1 ? maxLevelForFullImageShow : getMaxLevel();	
+    var selImg = $('#img'+curMaxLevel+'_' + currentSelectedPage).parent().parent();
     var obj = selImg.prev();
     if($(obj).length>0){
         $('.prevArrow').show();
