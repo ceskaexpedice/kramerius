@@ -2,6 +2,8 @@ package cz.incad.kramerius.processes.impl;
 
 import static cz.incad.kramerius.processes.database.ProcessDatabaseUtils.*;
 
+import java.io.File;
+import java.io.IOException;
 import java.sql.Connection;
 import java.sql.Date;
 import java.sql.PreparedStatement;
@@ -15,6 +17,8 @@ import java.util.List;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.logging.Level;
+
+import org.apache.commons.io.FileUtils;
 
 import com.google.inject.Inject;
 import com.google.inject.Provider;
@@ -189,7 +193,36 @@ public class DatabaseProcessManager implements LRProcessManager {
 		}
 	}
 
-	public void updateLongRunningProcessStartedDate(LRProcess lrProcess) {
+	
+	
+	@Override
+    public void deleteLongRunningProcess(LRProcess lrProcess) {
+        Connection connection = null;
+        try {
+            this.reentrantLock.lock();
+            connection = provider.get();
+            ProcessDatabaseUtils.deleteProcess(connection, lrProcess.getUUID());
+            File processWorkingDirectory = lrProcess.processWorkingDirectory();
+            FileUtils.deleteDirectory(processWorkingDirectory);
+        } catch (SQLException e) {
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+        } catch (IOException e) {
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+        } finally {
+            if (connection != null) {
+                try {
+                    connection.close();
+                } catch (SQLException e) {
+                    LOGGER.log(Level.SEVERE, e.getMessage(), e);
+                }
+            }
+            
+            this.reentrantLock.unlock();
+        }
+        
+    }
+
+    public void updateLongRunningProcessStartedDate(LRProcess lrProcess) {
 		Connection connection = null;
 		try {
 			this.reentrantLock.lock();
