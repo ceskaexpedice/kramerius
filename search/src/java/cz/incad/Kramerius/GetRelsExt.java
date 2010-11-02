@@ -183,10 +183,8 @@ public class GetRelsExt extends GuiceServlet {
                     if ((attributeVal != null) && (!attributeVal.trim().equals(""))) {
                         PIDParser pidParser = new PIDParser(attributeVal);
                         pidParser.disseminationURI();
-                        if (pidParser.getNamespaceId().equals("uuid")) {
-                            String objectId = pidParser.getObjectId();
-                            pids.add(new RelationNamePidValue(elm.getLocalName(), objectId));
-                        }
+                        String objectId = pidParser.getObjectId();
+                        pids.add(new RelationNamePidValue(elm.getLocalName(), objectId));
                     } else {
                         LOGGER.fine("element '" + elm.getLocalName() + "' namespaceURI '" + elm.getNamespaceURI() + "'");
                     }
