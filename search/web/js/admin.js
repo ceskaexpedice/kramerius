@@ -167,6 +167,9 @@ var _texts=function() {
 		intArr["[generateDeepZoomTiles]PLANNED"]="administrator.dialogs.generateDeepZoomTilesrunning";
 		intArr["[generateDeepZoomTiles]FAILED"]="administrator.dialogs.generateDeepZoomTilesfailed";
 
+        intArr["[deleteGeneratedDeepZoomTiles]WAITING"]="administrator.dialogs.waitingdeleteGeneratedDeepZoomTiles";
+        intArr["[deleteGeneratedDeepZoomTiles]PLANNED"]="administrator.dialogs.deleteGeneratedDeepZoomTilesrunning";
+        intArr["[deleteGeneratedDeepZoomTiles]FAILED"]="administrator.dialogs.deleteGeneratedDeepZoomTilesfailed";
 	}
 	return intArr;
 }(); //akce ze servletu
@@ -613,6 +616,39 @@ function generateDeepZoomTiles(level, model) {
 
 	var url = "lr?action=start&def=generateDeepZoomTiles&out=text&params="+pid;
 	_startProcess(url);
+}
+
+function deleteGeneratedDeepZoomTiles(level, model) {
+    hideAdminOptions(level);
+    var pid = $("#tabs_"+level).attr('pid');
+
+    if (_commonDialog) {
+        $("#common_started_ok").hide();
+        $("#common_started_failed").hide();
+        $("#common_started_waiting").show();
+        _commonDialog.dialog('open');
+    } else {
+        $("#common_started_waiting").show();
+        _commonDialog = $("#common_started").dialog({
+            bgiframe: true,
+            width: 400,
+            height: 100,
+            modal: true,
+            title: '',
+            buttons: {
+                "Close": function() {
+                    $(this).dialog("close"); 
+                } 
+            } 
+        });
+    }
+
+    alert(dictionary['administrator.menu.dialogs.deleteGeneratedDeepZoomTiles.title']);
+    $("#common_started_text").text(dictionary['administrator.dialogs.waitingdeleteGeneratedDeepZoomTiles']);
+    $("#common_started" ).dialog( "option", "title",  dictionary['administrator.menu.dialogs.deleteGeneratedDeepZoomTiles.title']);
+
+    var url = "lr?action=start&def=deleteGeneratedDeepZoomTiles&out=text&params="+pid;
+    _startProcess(url);
 }
 
 function deletefromindex(level){
