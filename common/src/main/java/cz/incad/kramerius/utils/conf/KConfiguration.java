@@ -227,15 +227,15 @@ public class KConfiguration {
 
     }
     
-    public boolean isDeepZoomDisabled() {
-        return getConfiguration().getBoolean("deepZoom.deepZoomDisabled", false);
+    public boolean isDeepZoomEnabled() {
+        return getConfiguration().getBoolean("deepZoom.deepZoomEnabled", false);
     }
     
-    public boolean isDeepZoomForPathDisabled(String[] path) {
+    public boolean isDeepZoomForPathEnabled(String[] path) {
         Configuration configuration = getConfiguration();
         for (int i = path.length - 1; i >0; i--) {
-            boolean disabled = configuration.getBoolean("deepZoom."+path[i]+".deepZoomDisabled",false);
-            if (disabled) return true;
+            boolean enabled = configuration.getBoolean("deepZoom."+path[i]+".deepZoomEnabled",false);
+            if (enabled) return true;
         }
         return false;
     }

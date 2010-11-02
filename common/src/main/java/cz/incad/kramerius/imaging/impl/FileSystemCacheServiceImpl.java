@@ -78,8 +78,9 @@ public class FileSystemCacheServiceImpl implements DeepZoomCacheService {
     public void prepareCacheImage(String uuid, int levelsOverTile) {
         try {
             BufferedImage original = createDeepZoomOriginalImageFromFedoraRAW(uuid);
-            KrameriusImageSupport.writeImageToStream(original, "jpeg", new FileOutputStream(new File(uuidFolder(uuid), uuid)));
+            //KrameriusImageSupport.writeImageToStream(original, "jpeg", new FileOutputStream(new File(uuidFolder(uuid), uuid)));
             prepareCacheImage(uuid, levelsOverTile, original);
+
         } catch (IOException e) {
             LOGGER.severe(e.getMessage());
         }
@@ -177,7 +178,7 @@ public class FileSystemCacheServiceImpl implements DeepZoomCacheService {
     public void prepareCacheForUUID(String uuid, final int levelOverTileSize) throws IOException {
         KrameriusModels krameriusModel = fedoraAccess.getKrameriusModel(uuid);
         if (krameriusModel.equals(KrameriusModels.PAGE)) {
-            prepareCacheImage(uuid, new Dimension(tileSupport.getTileSize(), tileSupport.getTileSize()));
+            prepareCacheImage(uuid, levelOverTileSize);
         } else {
             fedoraAccess.processRelsExt(uuid, new RelsExtHandler() {
 

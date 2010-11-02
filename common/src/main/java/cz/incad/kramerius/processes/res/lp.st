@@ -203,6 +203,15 @@
 	</process>
 
     <process>
+        <id>deleteGeneratedDeepZoomTiles</id>
+        <description>Delete generated deepZoomCache </description>
+        <mainClass>cz.incad.kramerius.imaging.lp.DeleteGeneratedDeepZoomCache</mainClass>
+        <standardOs>lrOut</standardOs>
+        <errOs>lrErr</errOs>
+        <javaProcessParameters>-Xmx1024m -Xms512m</javaProcessParameters>
+    </process>
+
+    <process>
         <id>generateFullThumb</id>
         <description>Generate full thumbs </description>
         <mainClass>cz.incad.kramerius.imaging.lp.GenerateThumbnail</mainClass>
