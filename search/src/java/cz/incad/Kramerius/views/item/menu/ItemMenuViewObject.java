@@ -274,25 +274,14 @@ public class ItemMenuViewObject {
             items.add(exportCD_PDF());
             items.add(exportDVD_PDF());
             items.add(generateDeepZoomTiles());
-//			if (userInRoleDecision.isUserInRole(KrameriusRoles.REINDEX)) {
-//			}
-//			if (userInRoleDecision.isUserInRole(KrameriusRoles.REINDEX)) {
-//			}
-//			if (userInRoleDecision.isUserInRole(KrameriusRoles.DELETE)) {
-//			}
-//			if ((userInRoleDecision.isUserInRole(KrameriusRoles.SETPUBLIC)) && 
-//				(userInRoleDecision.isUserInRole(KrameriusRoles.SETPRIVATE))) {
-//			}
-//			if (userInRoleDecision.isUserInRole(KrameriusRoles.EXPORT)) {
-//			}
+            items.add(deleteGenerateDeepZoomTiles());
 		}
         return items;
     }
 	
 
 
-
-	public String getUuid() {
+    public String getUuid() {
 		return this.uuid;
 	}
 	
@@ -304,6 +293,13 @@ public class ItemMenuViewObject {
 		return this.index;
 	}
 	
+
+	
+    private String deleteGenerateDeepZoomTiles() {
+        String jsmethod = "deleteGeneratedDeepZoomTiles";
+        String key = "administrator.menu.deleteGeneratedDeepZoomTiles";
+        return renderCommonItem(key,"_data_x_role","reindex", jsmethod);
+    }
 	
 	// TODO: Presunout jinam
 	public String getBiblioModsURL() {

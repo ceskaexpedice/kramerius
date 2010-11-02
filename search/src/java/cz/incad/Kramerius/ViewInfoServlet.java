@@ -49,7 +49,7 @@ public class ViewInfoServlet extends AbstractSolrProcessServlet {
             if ((uuid != null) && (!uuid.equals(""))) {
                 String mimeType = this.fedoraAccess.getImageFULLMimeType(uuid);
                 boolean generated = resolutionFilePresent(uuid);
-                boolean conf = deepZoomConfiguration(uuid);
+                boolean conf = deepZoomConfigurationEnabled(uuid);
                 
                 HashMap<String, String> map = new HashMap<String, String>();
                 map.put("deepZoomCacheGenerated", ""+generated);
@@ -87,7 +87,7 @@ public class ViewInfoServlet extends AbstractSolrProcessServlet {
     }
     
     
-    private boolean deepZoomConfiguration(String uuid) {
+    private boolean deepZoomConfigurationEnabled(String uuid) {
         try {
             String solrHost = KConfiguration.getInstance().getSolrHost();
             String uri = solrHost +"/select/?q=PID:"+uuid;
@@ -96,7 +96,7 @@ public class ViewInfoServlet extends AbstractSolrProcessServlet {
             Document parseDocument = XMLUtils.parseDocument(inputStream);
             String pidPath = disectPidPath(parseDocument);
             
-            return KConfiguration.getInstance().isDeepZoomDisabled() || KConfiguration.getInstance().isDeepZoomForPathDisabled(pidPath.split("/"));
+            return KConfiguration.getInstance().isDeepZoomEnabled() || KConfiguration.getInstance().isDeepZoomForPathEnabled(pidPath.split("/"));
         } catch (XPathExpressionException e) {
             LOGGER.severe(e.getMessage());
         } catch (IOException e) {
