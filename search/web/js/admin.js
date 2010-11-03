@@ -643,7 +643,6 @@ function deleteGeneratedDeepZoomTiles(level, model) {
         });
     }
 
-    alert(dictionary['administrator.menu.dialogs.deleteGeneratedDeepZoomTiles.title']);
     $("#common_started_text").text(dictionary['administrator.dialogs.waitingdeleteGeneratedDeepZoomTiles']);
     $("#common_started" ).dialog( "option", "title",  dictionary['administrator.menu.dialogs.deleteGeneratedDeepZoomTiles.title']);
 
