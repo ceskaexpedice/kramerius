@@ -20,22 +20,21 @@ Uncomment this for XHTML entities
 -->
 <ui:UiBinder xmlns:ui="urn:ui:com.google.gwt.uibinder"
 	xmlns:g="urn:import:com.google.gwt.user.client.ui">
-    <ui:style>
-        .cells {
-            margin: 2px 2px;
-        }
-        .errorLabel {
-            color: red;
-        }
-    </ui:style>
+    <ui:style src="LoadView.css" />
 
     <g:HTMLPanel>
-        <div class="{style.cells}">Enter PID: </div>
-        <div><g:TextBox ui:field="textBox" addStyleNames="{style.cells}"></g:TextBox></div>
+        <div class="{style.cells}">Search object:</div>
+        <div><g:SuggestBox ui:field="oracleTextBox"
+                addStyleNames="{style.cells} {style.inputCell}"
+                limit="8" animationEnabled="true" /></div>
+
+        <div class="{style.cells}">Or enter PID:</div>
+        <div><g:TextBox ui:field="textBox" addStyleNames="{style.cells} {style.inputCell}" /></div>
         <div><g:Label ui:field="errorLabel" addStyleNames="{style.cells} {style.errorLabel}"></g:Label></div>
-        <g:Button ui:field='okButton' addStyleNames="{style.cells}">OK</g:Button>
-        <g:Button ui:field='demoButton1' addStyleNames="{style.cells}">Demo Drobnůstky</g:Button>
-        <g:Button ui:field='demoButton2' addStyleNames="{style.cells}">Demo Kniha Zlata</g:Button>
-        <g:Button ui:field='cancelButton' addStyleNames="{style.cells}">Cancel</g:Button>
+        
+        <div class="{style.buttonsGroup}">
+            <g:Button ui:field='okButton' addStyleNames="{style.cells}">OK</g:Button>
+            <g:Button ui:field='cancelButton' addStyleNames="{style.cells}">Cancel</g:Button>
+        </div>
     </g:HTMLPanel>
 </ui:UiBinder>

@@ -15,33 +15,34 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package cz.incad.kramerius.editor.client.view;
+package cz.incad.kramerius.editor.share.rpc;
 
-import com.google.gwt.user.client.ui.HasValue;
-import com.google.gwt.user.client.ui.SuggestOracle;
+import net.customware.gwt.dispatch.shared.Action;
 
 /**
  *
  * @author Jan Pokorsky
  */
-public interface LoadView {
+public final class GetSuggestionQuery implements Action<GetSuggestionResult> {
 
-    void hide();
+    private String filter;
+    private int limit;
 
-    void setCallback(Callback c);
+    /* gwt serialization purposes */
+    private GetSuggestionQuery() {
+    }
 
-    void show();
+    public GetSuggestionQuery(String filter, int limit) {
+        this.filter = filter;
+        this.limit = limit;
+    }
 
-    void showError(String s);
+    public String getFilter() {
+        return filter;
+    }
 
-    HasValue<String> pid();
-    
-    HasValue<String> title();
-
-    public interface Callback {
-        void onLoadViewCommit(String input);
-        void onLoadViewSuggestionCommit(SuggestOracle.Suggestion suggestion);
-        void onLoadViewSuggestionRequest(SuggestOracle.Request request, SuggestOracle.Callback callback);
+    public int getLimit() {
+        return limit;
     }
 
 }

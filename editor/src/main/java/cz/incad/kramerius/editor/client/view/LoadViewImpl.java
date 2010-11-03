@@ -20,13 +20,17 @@ import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.KeyCodes;
 import com.google.gwt.event.dom.client.KeyPressEvent;
+import com.google.gwt.event.logical.shared.SelectionEvent;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.uibinder.client.UiHandler;
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.DialogBox;
+import com.google.gwt.user.client.ui.HasValue;
 import com.google.gwt.user.client.ui.Label;
+import com.google.gwt.user.client.ui.SuggestBox;
+import com.google.gwt.user.client.ui.SuggestOracle;
 import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.user.client.ui.Widget;
 
@@ -44,14 +48,15 @@ public final class LoadViewImpl extends Composite implements LoadView {
     @UiField Button cancelButton;
     @UiField Button okButton;
     @UiField TextBox textBox;
+    @UiField(provided=true)
+    SuggestBox oracleTextBox;
     @UiField Label errorLabel;
-    @UiField Button demoButton1;
-    @UiField Button demoButton2;
 
 
     interface LoadViewImplUiBinder extends UiBinder<Widget, LoadViewImpl> {}
 
     public LoadViewImpl() {
+        this.oracleTextBox = new SuggestBox(new HtmlOracle());
         initWidget(uiBinder.createAndBindUi(this));
     }
 
@@ -63,19 +68,22 @@ public final class LoadViewImpl extends Composite implements LoadView {
             dialogBox.setAnimationEnabled(true);
             dialogBox.setWidget(this);
             dialogBox.setGlassEnabled(true);
+            dialogBox.setWidth("400px");
         }
 
         errorLabel.setVisible(false);
         textBox.setText("uuid:");
+        oracleTextBox.setText("");
+        waiting(false);
 
 //        dialogBox.show();
         dialogBox.center();
-        textBox.setFocus(true);
+        oracleTextBox.setFocus(true);
     }
 
     @Override
     public void showError(String s) {
-        errorLabel.setVisible(true);
+        errorLabel.setVisible(!s.isEmpty());
         errorLabel.setText(s);
     }
 
@@ -87,6 +95,16 @@ public final class LoadViewImpl extends Composite implements LoadView {
     @Override
     public void hide() {
         dialogBox.hide();
+    }
+
+    @Override
+    public HasValue<String> pid() {
+        return textBox;
+    }
+
+    @Override
+    public HasValue<String> title() {
+        return oracleTextBox;
     }
 
     @UiHandler("cancelButton")
@@ -107,17 +125,33 @@ public final class LoadViewImpl extends Composite implements LoadView {
     }
 
     private void callItemAdded() {
+        waiting(true);
         callback.onLoadViewCommit(textBox.getText());
     }
 
-    @UiHandler({"demoButton1", "demoButton2"})
-    void onDemoClick(ClickEvent event) {
-        Object source = event.getSource();
-        if (source == demoButton1) { // drobnustky
-            callback.onLoadViewCommit("uuid:0eaa6730-9068-11dd-97de-000d606f5dc6");
-        } else if (source == demoButton2) { // kniha zlata
-            callback.onLoadViewCommit("uuid:cd2b2ad0-62d4-11dd-ac0e-000d606f5dc6");
+    @UiHandler("oracleTextBox")
+    void onSuggestionCommit(SelectionEvent<SuggestOracle.Suggestion> event) {
+        waiting(true);
+        callback.onLoadViewSuggestionCommit(event.getSelectedItem());
+    }
+
+    private void waiting(boolean flag) {
+        okButton.setEnabled(!flag);
+        cancelButton.setEnabled(!flag);
+    }
+
+    private final class HtmlOracle extends SuggestOracle {
+
+        @Override
+        public void requestSuggestions(Request request, Callback callback) {
+            LoadViewImpl.this.callback.onLoadViewSuggestionRequest(request, callback);
         }
+
+        @Override
+        public boolean isDisplayStringHTML() {
+            return true;
+        }
+
     }
 
 }

@@ -23,6 +23,10 @@ import com.google.gwt.event.logical.shared.ValueChangeHandler;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 //import com.google.inject.Inject;
+import com.google.gwt.user.client.ui.SuggestOracle;
+import com.google.gwt.user.client.ui.SuggestOracle.Callback;
+import com.google.gwt.user.client.ui.SuggestOracle.Request;
+import com.google.gwt.user.client.ui.SuggestOracle.Response;
 import cz.incad.kramerius.editor.client.EditorConfiguration;
 import cz.incad.kramerius.editor.client.view.ContainerViewImpl;
 import cz.incad.kramerius.editor.client.view.EditorView;
@@ -38,6 +42,9 @@ import cz.incad.kramerius.editor.share.InputValidator;
 import cz.incad.kramerius.editor.share.InputValidator.Validator;
 import cz.incad.kramerius.editor.share.rpc.GetKrameriusObjectQuery;
 import cz.incad.kramerius.editor.share.rpc.GetKrameriusObjectResult;
+import cz.incad.kramerius.editor.share.rpc.GetSuggestionQuery;
+import cz.incad.kramerius.editor.share.rpc.GetSuggestionResult;
+import cz.incad.kramerius.editor.share.rpc.GetSuggestionResult.Suggestion;
 import cz.incad.kramerius.editor.share.rpc.SaveRelationsQuery;
 import cz.incad.kramerius.editor.share.rpc.SaveRelationsResult;
 import cz.incad.kramerius.editor.share.rpc.SaveRelationsResult.SaveRelationsState;
@@ -269,6 +276,37 @@ public class EditorPresenter implements Presenter, LoadView.Callback, EditorView
         } else {
             loadView.showError(validator.getErrorMessage());
         }
+    }
+
+    @Override
+    public void onLoadViewSuggestionCommit(SuggestOracle.Suggestion suggestion) {
+        Suggestion kSuggestion = (Suggestion) suggestion;
+        loadView.pid().setValue(kSuggestion.getPid(), false);
+        onLoadViewCommit(kSuggestion.getPid());
+    }
+
+    @Override
+    public void onLoadViewSuggestionRequest(final Request request, final Callback callback) {
+        final String filter = request.getQuery();
+        if (filter == null || filter.trim().isEmpty()) {
+            callback.onSuggestionsReady(request, new Response());
+        }
+        GetSuggestionQuery query = new GetSuggestionQuery(filter, request.getLimit());
+        dispatcher.execute(query, new AsyncCallback<GetSuggestionResult>() {
+
+            @Override
+            public void onFailure(Throwable caught) {
+                callback.onSuggestionsReady(request, new Response());
+            }
+
+            @Override
+            public void onSuccess(GetSuggestionResult result) {
+                // check whether user types faster then we can fetch suggestions
+                if (filter.equals(loadView.title().getValue())) {
+                    callback.onSuggestionsReady(request, result);
+                }
+            }
+        });
     }
 
     @Override

@@ -43,12 +43,18 @@ public final class EditorDispatchServlet extends AbstractStandardDispatchServlet
 //        System.out.println("#EditorDispatchServlet.init.injector: " + injector);
 
         handlerRegistry.addHandler(new BatchActionHandler());
+
         GetKrameriusObjectQueryHandler getContainerHandler =
                 injector.getInstance(GetKrameriusObjectQueryHandler.class);
         handlerRegistry.addHandler(getContainerHandler);
+
         SaveRelationsQueryHandler saveRelationsQueryHandler =
                 injector.getInstance(SaveRelationsQueryHandler.class);
         handlerRegistry.addHandler(saveRelationsQueryHandler);
+
+        GetSuggestionQueryHandler getSuggestionQueryHandler =
+                injector.getInstance(GetSuggestionQueryHandler.class);
+        handlerRegistry.addHandler(getSuggestionQueryHandler);
     }
 
     @Override
