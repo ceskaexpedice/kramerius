@@ -107,7 +107,7 @@ function selectPage(uuid){
     //alert($('#main').width()-60-$('.itemMenu').width());
     //$("#mainContent").css('width', $(window).width()-60-$('.itemMenu').width());
     $("#mainContent").css('width', $(window).width()-60-$('.itemMenu').width());
-
+/*
       $.ajax({
           url:"viewInfo?uuid="+uuid,
           complete:function(req,textStatus) {
@@ -132,12 +132,40 @@ function selectPage(uuid){
  
 	  }
      });    
-
+*/
+    getViewInfo(uuid, showImage);
     $('#img'+getMaxLevel()+'_'+uuid).toggleClass('tv_img_selected');
     $("#tv_container").attr("scrollLeft", to);
     canScroll = true;
     // set selected page in menu
     changeSelectedItem(uuid);
+}
+
+function getViewInfo(uuid, f){
+    $.ajax({
+          url:"viewInfo?uuid="+uuid,
+          complete:function(req,textStatus) {
+              viewerOptions = eval('(' + req.responseText + ')');
+              viewerOptions.uuid = uuid;	
+              viewerOptions.status=req.status;
+              
+              if ((req.status==200) || (req.status==304)) {
+                  securedContent = false;
+                  currentMime = req.responseText;
+                  f(viewerOptions);
+              } else if (req.status==403){
+                  currentMime = "unknown";
+                  securedContent = true;
+                  displaySecuredContent();
+              } else if (req.status==404){
+                    alert("Neni velky nahled !");
+              } else {
+                    alert("Jina Chyba");
+                  // jina chyba serveru
+              }
+ 
+	  }
+     }); 
 }
 
 function selectThumb(uuid){
@@ -214,6 +242,7 @@ function selectItem(obj, level, model){
     
     // get level content for the model
     getItemLevel(pid, target, p, true);
+    
 }
 
 function getItemLevel(pid, level, container, recursive, onlyrels, model){
@@ -266,6 +295,8 @@ function getNextLevel(level){
         //alert(o.id);
         pid = $("#"+o.id+">div.relList>div:first").attr('pid');
         getItemLevel(pid, target, "#"+o.id, true, false);
+        var model = o.id.substring(o.id.indexOf("-")+1);
+        getItemMenuOptions(pid, level, model);
     });
 }
 
@@ -290,10 +321,33 @@ function getChildModels(level, recursive){
                 //neexistuje zalozku. Pridame
                 createTab(target, model);
                 fillRels(pid, target, 0, model, true);
-            
+                getItemMenuOptions(pid, target, model);
                 //getChildModels(target, recursive);
             }
         }
+    });
+}
+
+function getItemMenuOptions(pid, level, model){
+    var pid_path = "";
+    var path = "";
+    var id;
+    for(var i=level;i>0;i--){
+        id = $("#tabs_"+i+">div:first").attr('id');
+        if(i==level){
+          pid = $("#tabs_"+i).attr('pid');
+          path = id.substring(id.indexOf("-") + 1 );   
+        }else{
+          pid_path = $("#tabs_"+i).attr('pid') + "/" + pid_path;
+          path = id.substring(id.indexOf("-") + 1 ) + "/" + path;
+        }
+    }
+    //alert(pid_path);
+    //alert(path);
+    var url ="inc/details/itemMenuOptions.jsp?pid="+pid+"&pid_path="+pid_path+"&path="+path;
+    $.get(url, function(data){
+        $("#tab"+level+"-"+model+">div.relList").parent().prepend(data);
+        
     });
 }
 
@@ -322,6 +376,7 @@ function fillRels(pid, level, offset, model, recursive){
                 var target = level+1;
                 var uuid = $("#tab"+level+"-"+model+">div.relList>div.relItem:first").attr("pid");
                 getItemLevel(uuid, target, "#tab"+level+"-"+model, true, false);
+                
                 //getNextLevel(level);
             } 
         }
@@ -339,6 +394,7 @@ function getRelsInLevel(level, recursive, offset){
         var divId = $("#"+o.id).parent().attr('id');
         model = divId.substring(divId.indexOf("-")+1);
         fillRels(pid, level, offset, model, recursive);
+        getItemMenuOptions(pid, level, model);
     });
 }
 
@@ -544,3 +600,33 @@ function getTvContainerLeft() {
     return tvContainerLeft;	
 }
 
+function checkDonator(pid){
+    if(!pid) return;
+    var url ="GetRelsExt?relation=donator&format=json&pid=uuid:"+pid;
+    
+    $.getJSON(url, function(data){
+        
+        $.each(data.items, function(i,item){
+            
+            
+            $.each(item, function(m,model2){
+                
+                if(model2[0].indexOf("donator")>-1){
+                    var donatortext = 'proxy?pid=donator:'+model2[1]+'&dsname=TEXT-';
+                    if(language==""){
+                        donatortext += "CS";
+                    }else{
+                        donatortext += language.toUpperCase();
+                    }
+                    $.get(donatortext, function(data){
+                        $("#donatorContainer").html('<div class="donator"><img height="50" src="proxy?pid=donator:'+model2[1]+'&dsname=LOGO" alt="'+data+'" title="'+data+'" /></div>');
+                    });
+                    
+                }
+            });
+          
+        }); 
+        
+        
+    });
+}

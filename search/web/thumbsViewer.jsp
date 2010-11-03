@@ -138,11 +138,13 @@
     }
     function previousFull(){
         selectPrevious();
-        showFullImage();
+        //showFullImage();
+        getViewInfo(currentSelectedPage, showFullImage);
     }
     function nextFull(){
         selectNext();
-        showFullImage();
+        getViewInfo(currentSelectedPage, showFullImage);
+        //showFullImage();
     }
     
     function checkScrollPosition(){

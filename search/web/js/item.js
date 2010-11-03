@@ -103,10 +103,6 @@ function _changeSelectedPage(pid){
     });
 }
 
-
-
-
-
 function _selectItem(obj, level, model){
     if($(obj).hasClass("selected")) return;
     $(obj).parent().children(".relItem").removeClass('selected');

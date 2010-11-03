@@ -118,6 +118,11 @@
                         <xsl:with-param name="detail"><xsl:value-of select="." /></xsl:with-param>
                     </xsl:call-template>
                 </xsl:when>
+                <xsl:when test="$fmodel='periodicalitem'">
+                    <xsl:call-template name="periodicalitem">
+                        <xsl:with-param name="detail"><xsl:value-of select="." /></xsl:with-param>
+                    </xsl:call-template>
+                </xsl:when>
                 <xsl:when test="$fmodel='internalpart'">
                     <xsl:value-of select="dc.title" />&#160;
                     <xsl:call-template name="internalpart">
@@ -145,6 +150,20 @@
         <xsl:value-of select="substring-after($detail, '##')" />
     </xsl:template>
     
+    
+    <xsl:template name="periodicalitem">
+        <xsl:param name="detail" />
+        <xsl:value-of select="substring-before($detail, '##')" /><br/>
+        <xsl:variable name="remaining" select="substring-after($detail, '##')" />
+        <xsl:value-of select="substring-before($remaining, '##')" /><br/>
+        <xsl:variable name="remaining" select="substring-after($remaining, '##')" />
+        <fmt:message bundle="${lctx}">Datum vydání</fmt:message>: 
+        <xsl:value-of select="substring-before($remaining, '##')" />&#160;
+        <fmt:message bundle="${lctx}">Číslo</fmt:message>
+        <xsl:value-of select="substring-after($remaining, '##')" />
+        
+        
+    </xsl:template>
     
     <xsl:template name="monographunit">
         <xsl:param name="detail" />

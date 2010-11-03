@@ -73,9 +73,9 @@
                     <c:out value="${exceptions}" />
                 </c:when>
                 <c:otherwise>
+                    <%--@ include file="../../admin/itemOptions.jsp"--%>
                     <div class="relList" style="display: none;"
                          id="list-<c:out value="${itemViewObject.models[status.count -1]}" />"></div>
-                    <%@ include file="../../admin/itemOptions.jsp"%>
                     <div id="info-<c:out value="${itemViewObject.models[status.count -1]}" />"
                          style="min-height: 16px;"><x:transform doc="${xml2}"
                         xslt="${xslt}">
@@ -110,6 +110,7 @@
         currentSelectedPage = '<c:out value="${itemViewObject.lastUUID}" />';
         getRels(false);
         selectPage('<c:out value="${itemViewObject.lastUUID}" />');
+        checkDonator('<c:out value="${itemViewObject.firstUUID}" />');
     });
         
     initParent = '<c:out value="${itemViewObject.parentUUID}" />';
