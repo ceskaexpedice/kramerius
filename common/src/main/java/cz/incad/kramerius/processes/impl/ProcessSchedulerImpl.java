@@ -4,6 +4,7 @@ import java.util.Timer;
 
 import com.google.inject.Inject;
 
+import cz.incad.kramerius.intconfig.InternalConfiguration;
 import cz.incad.kramerius.processes.DefinitionManager;
 import cz.incad.kramerius.processes.LRProcessManager;
 import cz.incad.kramerius.processes.NextSchedulerTask;
@@ -39,7 +40,8 @@ public class ProcessSchedulerImpl implements ProcessScheduler {
 
 	@Override
 	public String getLrServlet() {
-		return this.lrServlet;
+        String lrServlet = KConfiguration.getInstance().getApplicationURL() + '/' + InternalConfiguration.get().getProperties().getProperty("servlets.mapping.lrcontrol");
+	    return lrServlet;
 	}
 
 
