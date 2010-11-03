@@ -16,7 +16,7 @@ public class FedoraAccessTestCase extends AbstractGuiceTestCase {
 
 	@Test
 	public void testFullImageDSPresent() throws IOException {
-		/*TODO: odstranit závislost na vmkramerius pomocí easymock
+		/*TODO: odstranit zavislost na vmkramerius pomoci easymock
 		// uuid dorbnustky = IMG_FULL not present
 		KConfiguration.getInstance().getConfiguration().setProperty("_fedoraTomcatHost","http://vmkramerius:8080");
 		Injector inj = injector();
