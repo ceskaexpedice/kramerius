@@ -71,12 +71,12 @@
 <br><div align="right"><a href="#top" name="a" class="mainServ">TOP</a></div>
 <strong>Co najdu v Digitální knihovně</strong><br><br>
 
-    Digitální knihovna obsahuje vzácné a ohrožené dokumenty digitalizované v národních programech Memoriae Mundi Series 
-    Bohemica (převážně rukopisy, staré tisky a perspektivně další dokumenty) a Kramerius (starší noviny a časopisy a další 
-    vzácné dokumenty tištěné na kyselém papíře). Přístup do Digitální knihovny je omezen přístupovými právy. 
+    Digitální knihovna může obsahovat digitalizované dokumenty (například vzácné a ohrožené dokumenty digitalizované v národních programech Memoriae Mundi Series 
+    Bohemica a Kramerius) i elektronické dokumenty vytvořené přímo v digitální podobě (například odborné články ve formátu PDF). <p>
+    Přístup do Digitální knihovny je omezen přístupovými právy. 
     Metadata, tj. bibliografické a další popisy dokumentů jsou přístupné všem, obrazová data dokumentů nechráněných 
     autorským zákonem také, obrazová data chráněná autorským zákonem pouze uživatelům přistupujícím 
-    z počítačů umístěných v prostorách Národní knihovny ČR.
+    z počítačů umístěných v prostorách příslušné knihovny vlastnící dokument.
 <br><br>
 <table cellpadding="0" cellspacing="0" border="0" width="100%">
 <tr>
@@ -92,9 +92,9 @@ Doporučené rozlišení Vašeho monitoru je 1024x768 bodů a více. Při menš�
 
 <br><div align="right"><a href="#top" name="a" class="mainServ">TOP</a></div>
 <strong>Úvodní obrazovka</strong> <br><br>
-Úvodní obrazovka slouží především k vyhledávání dokumentů v knihovně. <p>
+Úvodní obrazovka slouží především k vyhledávání dokumentů v digitální knihovně. <p>
 <b>Záhlaví stránky</b><p>
-Velké pole uprostřed záhlaví stránky umožňuje vyhledávat v plném textu dokumentů v knihovně - zapište hledané slovo a klikněte na symbol lupy. 
+Velké pole uprostřed záhlaví stránky umožňuje vyhledávat v plném textu dokumentů v digitální knihovně - zapište hledané slovo a klikněte na symbol lupy. 
 Pro hledání je možné použít zástupný znak * nahrazující libovolnou část slova.<p>
 Odkaz Pokročilé vyhledávání otevře dialogové okno s formulářem pro vyhledávání v metadatech (MODS) dokumentů
  - můžete hledat podle ISBN/ISSN, autora, názvu, roku vydání a třídění MDT/DDT a můžete také omezit výběr na pouze veřejné dokumenty. Vyhledávání spustíte kliknutím na tlačítko OK. 
@@ -106,19 +106,19 @@ Během postupného zapisování písmen se pod příslušným polem objeví oké
 Nerozlišují se malá a velká písmena, je ale potřeba dodržovat diakritiku. <p>
 <b>Rámeček Typ dokumentu</b><p>
 Kliknutím na některou položku v rámečku Typ dokumentu jsou vyhledány pouze dokumenty příslušného typu. 
-Čísla v závorce za jednotlivými položkami udávají počet odpovídajících dokumentů v databázi.<p>
+Čísla v závorce za jednotlivými položkami udávají počet odpovídajících dokumentů v digitální knihovně.<p>
 <b>Časová osa</b><p>
 Rámeček Časová osa obsahuje histogram s počty dokumentů vydaných v jednotlivých letech. 
 Zapsáním roků do políček v horní části rámečku (nebo posunutím značek vertikálních posuvníků) můžete omezit vyhledávání na požadované časové období. 
 Oba výběry je potřeba potvrdit stiskem lupy umístěné vedle polí Od a Do.<p>
 <b>Záložky Nejnovější a Nejžádanější</b><p>
-Pod záložkou Nejnovější jsou ikony s miniaturami prvních stránek dokumentů nejnověji přidaných do databáze. Kliknutím na ikonu příslušný dokument zobrazíte. 
+Pod záložkou Nejnovější jsou ikony s miniaturami prvních stránek dokumentů nejnověji přidaných do digitální knihovny. Kliknutím na ikonu příslušný dokument zobrazíte. 
 Podobně záložka Nejžádanější obsahuje ikony nejčastěji zobrazovaných dokumentů.<p>
 <br><br>
 <br><div align="right"><a href="#top" name="a" class="mainServ">TOP</a></div>
 <strong>Výsledky vyhledávání</strong> <br><br>
 Tato stránka je zobrazena po spuštění vyhledávání z úvodní obrazovky. 
-V prostředním rámečku je seznam nalezených dokumentů seskupených podle titulů nejvyšší úrovně (tedy monografií nebo periodik). 
+V prostředním rámečku je seznam nalezených dokumentů seskupených podle titulů nejvyšší úrovně (tedy většinou monografií nebo periodik). 
 Jednotlivé dokumenty náležející k titulu je možno zobrazit kliknutím na šipku vpravo od titulu, v rozbaleném seznamu se jich na jedné stránce zobrazí 10.  
 Případné stránkování je možné klikáním na jednotlivá čísla stránek.
 Tituly v rámečku lze třídit podle relevance nebo abecedně podle názvu, kliknutím na příslušný odkaz v pravé části záhlaví rámečku.<p>      
@@ -151,11 +151,11 @@ Pod záložkou je pak zobrazen výběr z metadat aktuálního dokumentu.
 Šipkou zcela u okraje rámečku vpravo od záložky můžete otevřít kontextovou nabídku s operacemi, 
 které je možné aplikovat na dokument vybraný v dané záložce.<p>
 K dispozici jsou tyto operace:<br>   
-Zobrazit metadata: Otevře okno s úplnými metadaty MODS daného dokumentu.<br>
-Persistentní URL: Zobrazí URL dokumentu, které lze použít jako záložku pro přímý přístup k dokumentu z externích aplikací.<br>
-Generování PDF: Umožňuje vygenerovat a stáhnout PDF dokument obsahující zadaný rozsah stran začínající vybranou stránkou<br>
-Stáhnout originál (jen pro typ dokumentu stránka):  Stáhne naskenovaný dokument v plné velikosti.<br>
-Záznam METS: Otevře okno se záznamem ve formátu Fedora METS pro vybraný dokument.<p>
+<b>Zobrazit metadata:</b> Otevře okno s bibliografickými údaji daného dokumentu ve formátu MODS.<br>
+<b>Persistentní URL:</b> Zobrazí URL dokumentu, které lze použít jako záložku pro přímý přístup k dokumentu z externích aplikací.<br>
+<b>Generování PDF:</b> Umožňuje vygenerovat a stáhnout PDF dokument obsahující zadaný rozsah stran začínající vybranou stránkou. Maximální počet stran v PDF dokumentu může být omezen.<br>
+<b>Stáhnout originál</b> (jen pro typ dokumentu stránka):  Stáhne naskenovaný dokument v plné velikosti.<br>
+<b>Záznam METS:</b> Otevře okno se záznamem ve formátu Fedora METS pro vybraný dokument.<p>
 
 <br><br>
 

@@ -71,13 +71,12 @@
 <br><div align="right"><a href="#top" name="a" class="mainServ">TOP</a></div>
 <strong>What do I find in the Digital library</strong><br><br>
 
-    Digital library contains rare documents digitized in the national programs 
-    Memoriae Mundi Series Bohemica (mostly manuscripts, old prints and other documents) 
-    and Kramerius (old newspapers and journals and other rare documents printed on acid paper). 
+    Digital library can contain digitized documents (e.g. rare documents digitized in the national programs 
+    Memoriae Mundi Series Bohemica  and Kramerius) or electronic documents created directly in the digital format.<p> 
     Access to the digital library is restricted with access rights. 
     Metadata, ie. bibliographical and other descriptions of the documents are available to anyone, as well as are the graphical data 
-    of the documents not protected by the copyright law. Grahical data protected by the copyright law are available only to users 
-    accessing the application from teh computers at the premises of the library.
+    of the documents not protected by the copyright law. Graphical data protected by the copyright law are available only to users 
+    accessing the application from the computers at the premises of the library.
 <br><br>
 <table cellpadding="0" cellspacing="0" border="0" width="100%">
 <tr>
@@ -92,9 +91,9 @@ The recommended display resolution is 1024x768 or more pixels.
 <p>
 <br><div align="right"><a href="#top" name="a" class="mainServ">TOP</a></div>
 <strong>Main screen</strong> <br><br>
-The main screen is used for searching the documents in the library. <p>
+The main screen is used for searching the documents in the digital library. <p>
 <b>Page header</b><p>
-The large input field in the middle of the page header can be used to perform full text search in the library documents:
+The large input field in the middle of the page header can be used to perform full text search in the digital library documents:
 type in the desired word a click on the magnifying glass symbol. 
 The wildcard character (*) representing any part of the word can be also used.<p>
 The Advanced search link opens the form for searching in the documents metadata (MODS).
@@ -108,20 +107,20 @@ The popup list of found documents is continuously updated as you type in additio
 The character case is ignored, diacritical marks must be entered properly.<p>
 <b>Document type box</b><p>
 By clicking on any item in the Document type box you can search the documents of the corresponding type. 
-The numbers in the parentheses next to each item show the count of the corresponding repository documents.<p>
+The numbers in the parentheses next to each item show the count of the corresponding documents in the digital library.<p>
 <b>Time line box</b><p>
 The Time line box show the histogram of the document counts published in each  year.
 You can limit the search time interval by typing the years into the fields at the top of the diagram or by dragging the vertical handles. 
 Both limits must be confirmed by clicking at the magnifying glass symbol next to the From and To fields.<p>
 <b>Latest and Most desirable tabs</b><p>
-The tab Latest contains the icons of title pages of the documents recently added to the repository.
+The tab Latest contains the icons of title pages of the documents recently added to the digital library.
 Click at the corresponding icon to display the required document.
 Likewise, the tab Most desirable contains icons of the most frequently used documents.<p>
 <br><br>
 <br><div align="right"><a href="#top" name="a" class="mainServ">TOP</a></div>
 <strong>Search results</strong> <br><br>
 This page is diplayed after spawning the search from the main screen.
-The central box contains the list of found documents grouped by the top-level titles (i.e. monographs or periodicals.)
+The central box contains the list of found documents grouped by the top-level titles (typically monographs or periodicals.)
 Items inside the groups can be displayed by clicking at the arrows next to the title. 
 The expanded list is divided to pages by 10 items and can be paged through using the page numbers. 
 The titles can be sorted by relevance or alphabetically by clicking at the corresponding link at the top of the box.<p>
@@ -144,11 +143,11 @@ This popup menu can be closed by another click on the arrow symbol.
 The subset of the metadata of the current document is displayed bellow the tab.
 The arrow at the far right edge of the box opens teh contextual popup menu with operations that can be applied to the document selected in the corresponding tab.<p>
 The following operations are available:<br>   
-View metadata: Opens the window with complete MODS metadata of the selected document.<br>
-Persistent URL: Dsiplays URL of the document, that can be used as the bookmark for direct access to the document.<br>
-Generate PDF: Allows to generate and download the PDF document with the page range starting with the selected page.<br>
-Download original (only for pages): Downloads the full size scanned document.<br>
-METS record: Opens the window with XML in the format Fedora METS for the selected document.<p>
+<b>View metadata:</b> Opens the window with complete MODS metadata of the selected document.<br>
+<b>Persistent URL:</b> Dsiplays URL of the document, that can be used as the bookmark for direct access to the document.<br>
+<b>Generate PDF:</b> Allows to generate and download the PDF document with the page range starting with the selected page. The number of pages in the PDF document may be limited.<br>
+<b>Download original</b> (only for pages): Downloads the full size scanned document.<br>
+<b>METS record:</b> Opens the window with XML in the format Fedora METS for the selected document.<p>
 
 <br><br>
 
