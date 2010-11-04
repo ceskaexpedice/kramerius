@@ -18,6 +18,7 @@ package cz.incad.kramerius.editor.client.view;
 
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ClickEvent;
+import com.google.gwt.event.logical.shared.CloseEvent;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.uibinder.client.UiHandler;
@@ -130,6 +131,13 @@ public final class EditorViewImpl implements EditorView {
         }
     }
 
+    @UiHandler("editorTabPanel")
+    void onTabClose(CloseEvent<Integer> event) {
+        if (callback != null) {
+            callback.onEditorTabClose();
+        }
+    }
+    
     private int getSelectedIndex(Display tab) {
         for (int i = 0; i < tabsModel.size(); i++) {
             Display d = tabsModel.get(i);
