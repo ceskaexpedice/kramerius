@@ -95,11 +95,11 @@
                                                     });
                                                     
                                                     $("#seadragonButton").mouseenter(function() {
-                                                        $("#seadragonButton").attr('src','img/zoomin_hover.png');
+                                                        $("#seadragonButton").attr('src','img/fullpage_hover.png');
                                                     });
                                                                                                         
                                                     $("#seadragonButton").mouseleave(function() {
-                                                        $("#seadragonButton").attr('src','img/zoomin_grouphover.png');
+                                                        $("#seadragonButton").attr('src','img/fullpage_grouphover.png');
                                                     });
                                                     
                                                 });
@@ -202,7 +202,7 @@
                                                 
                                                 <div style="position:absolute; top:10px; right:0px;">
                                                     <span>
-                                                        <img id="seadragonButton" border='0' onclick='switchDisplay(viewerOptions)'  src='img/zoomin_grouphover.png'></img>
+                                                        <img id="seadragonButton" border='0' onclick='switchDisplay(viewerOptions)'  src='img/fullpage_grouphover.png'></img>
                                                     </span>	
                                                     <span>
                                                         <img id="leftButtonPlainImage" class="prevArrow" src="img/prev_grouphover.png" />
