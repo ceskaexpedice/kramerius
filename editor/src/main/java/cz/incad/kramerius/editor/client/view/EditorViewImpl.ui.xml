@@ -28,7 +28,7 @@ Uncomment this for XHTML entities
         <g:north size="60">
             <!-- Menu Panel -->
             <g:HTMLPanel addStyleNames="{style.headerPanel}" >
-                <img src="/images/search.img.logo.png" />
+                <img src="images/search.img.logo.png" />
                 <span class="{style.menuItems}">
                     <g:Anchor ui:field="loadClickable"
                             addStyleNames="{style.menuItem}" href="javascript:;">Load</g:Anchor>
