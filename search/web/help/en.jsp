@@ -35,7 +35,7 @@
 <body marginwidth="0" marginheight="0" leftmargin="0" topmargin="0">
 
 <table id="help" class="header ui-corner-top-8" >
-<tr><td> <img src="../img/logo_knav.png" border="0" /></td>
+<tr><td> <img src="../img/logo.png" border="0" /></td>
 <td width="500px"> </td> <td>revision:${helpViewObject.revision}</td></tr>
 </table>
     
