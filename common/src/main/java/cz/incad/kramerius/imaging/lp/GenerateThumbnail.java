@@ -105,20 +105,12 @@ public class GenerateThumbnail {
 
     }
 
-    private static void prepareThumbnail(String uuid, FedoraAccess fedoraAccess, DiscStrucutreForStore discStruct, DeepZoomTileSupport tileSupport) throws IOException, XPathExpressionException {
-        BufferedImage img = KrameriusImageSupport.readImage(uuid, "IMG_FULL", fedoraAccess, 0);
-        int width = img.getWidth();
-        int height = img.getHeight();
-        
-        Dimension dim = new Dimension(img.getWidth(), img.getHeight());
-        double scale = tileSupport.getClosestScale(dim,tileSupport.getTileSize());
-        
-        int targetWidth = (int) (width / scale);
-        int targetHeight = (int) (height / scale);
+    public static void prepareThumbnail(String uuid, FedoraAccess fedoraAccess, DiscStrucutreForStore discStruct, DeepZoomTileSupport tileSupport) throws IOException, XPathExpressionException {
+        BufferedImage scaled = scaleToFullThumb(uuid, fedoraAccess, tileSupport);
 
-        BufferedImage scaled = KrameriusImageSupport.scale(img, targetWidth, targetHeight);
         String rootPath = KConfiguration.getInstance().getConfiguration().getString("fullThumbnail.cacheDirectory", "${sys:user.home}/.kramerius4/fullThumb");
         File cachedFile = discStruct.getUUIDFile(uuid, rootPath);
+
         if (!cachedFile.exists()) {
             boolean file = cachedFile.createNewFile();
             if (!file) {
@@ -131,5 +123,20 @@ public class GenerateThumbnail {
         } finally {
             fos.close();
         }
+    }
+
+    public static BufferedImage scaleToFullThumb(String uuid, FedoraAccess fedoraAccess, DeepZoomTileSupport tileSupport) throws XPathExpressionException, IOException {
+        BufferedImage img = KrameriusImageSupport.readImage(uuid, "IMG_FULL", fedoraAccess, 0);
+        int width = img.getWidth();
+        int height = img.getHeight();
+        
+        Dimension dim = new Dimension(img.getWidth(), img.getHeight());
+        double scale = tileSupport.getClosestScale(dim,tileSupport.getTileSize());
+        
+        int targetWidth = (int) (width / scale);
+        int targetHeight = (int) (height / scale);
+
+        BufferedImage scaled = KrameriusImageSupport.scale(img, targetWidth, targetHeight);
+        return scaled;
     }
 }
