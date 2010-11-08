@@ -574,17 +574,18 @@ function showImage(viewerOptions) {
 	if (viewerOptions.isContentPDF()) {
 		displayPDFImageContent();
 	} else {
-	    if ((viewerOptions.deepZoomCofigurationEnabled) && (viewerOptions.deepZoomGenerated)) {
-            if (viewer == null) {
-                init();
-            }
-            displaySeadragonContent();                  
-            viewer.openDzi("deepZoom/"+viewerOptions.uuid+"/");
+	    var tilesPrepared = viewerOptions.deepZoomGenerated || viewerOptions.imageServerConfigured;
+	    if ((viewerOptions.deepZoomCofigurationEnabled) && (tilesPrepared)) {
+		    if (viewer == null) {
+		        init();
+		    }
+	            displaySeadragonContent();                  
+	            viewer.openDzi("deepZoom/"+viewerOptions.uuid+"/");
 	    } else {
-            displayImageContent();
-            $("#plainImageImg").fadeOut("slow", function () {
-                $("#plainImageImg").attr('src','fullThumb?uuid='+viewerOptions.uuid);
-            });
+	            displayImageContent();
+	            $("#plainImageImg").fadeOut("slow", function () {
+	                $("#plainImageImg").attr('src','fullThumb?uuid='+viewerOptions.uuid);
+	            });
 	    }
 	}		
 	imageInitialized = true;
