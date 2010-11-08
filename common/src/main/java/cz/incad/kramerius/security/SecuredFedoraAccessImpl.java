@@ -29,6 +29,7 @@ import cz.incad.kramerius.RelsExtHandler;
 import cz.incad.kramerius.TreeNodeProcessor;
 import cz.incad.kramerius.imaging.DiscStrucutreForStore;
 import cz.incad.kramerius.impl.FedoraAccessImpl;
+import cz.incad.kramerius.utils.FedoraUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 
 /**
@@ -200,18 +201,34 @@ public class SecuredFedoraAccessImpl implements FedoraAccess {
         return rawAccess.getDataStream(pid, datastreamName);
     }
 
+    
+    
+    @Override
+    public boolean isStreamAvailable(String uuid, String streamName) throws IOException {
+        return this.rawAccess.isStreamAvailable(uuid, streamName);
+    }
+
     public String getMimeTypeForStream(String pid, String datastreamName) throws IOException {
         return rawAccess.getMimeTypeForStream(pid, datastreamName);
     }
 
     @Override
     public InputStream getFullThumbnail(String uuid) throws IOException {
-        String rootPath = KConfiguration.getInstance().getConfiguration().getString("fullThumbnail.cacheDirectory", "${sys:user.home}/.kramerius4/fullThumb");
-        File fullImgThumb = discStrucutreForStore.getUUIDFile(uuid, rootPath);
-        if (fullImgThumb.exists()) {
-            return new FileInputStream(fullImgThumb);
-        } else
-            throw new IOException("cannot find ");
+        if (!this.acceptor.privateVisitor()) {
+            Document relsExt = this.rawAccess.getRelsExt(uuid);
+            checkPolicyElement(relsExt);
+        }
+        if (isFullthumbnailAvailable(uuid)) {
+            return rawAccess.getFullThumbnail(uuid);
+        } else {
+            String rootPath = KConfiguration.getInstance().getConfiguration().getString("fullThumbnail.cacheDirectory", "${sys:user.home}/.kramerius4/fullThumb");
+            File fullImgThumb = discStrucutreForStore.getUUIDFile(uuid, rootPath);
+            if (fullImgThumb.exists()) {
+                return new FileInputStream(fullImgThumb);
+            } else
+                throw new IOException("cannot find ");
+        }
+        
     }
 
     @Override
@@ -226,6 +243,7 @@ public class SecuredFedoraAccessImpl implements FedoraAccess {
 
     @Override
     public boolean isFullthumbnailAvailable(String uuid) throws IOException {
+        if (this.isStreamAvailable(uuid, FedoraUtils.IMG_PREVIEW_STREAM)) return true;
         String rootPath = KConfiguration.getInstance().getConfiguration().getString("fullThumbnail.cacheDirectory", "${sys:user.home}/.kramerius4/fullThumb");
         File cachedFile = this.discStrucutreForStore.getUUIDFile(uuid, rootPath);
         return cachedFile != null && cachedFile.exists();

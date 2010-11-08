@@ -175,6 +175,18 @@ public interface FedoraAccess {
      */
     public boolean isImageFULLAvailable(String uuid) throws IOException;
 
+    
+    /**
+     * Check whether stream is available, is present and accessible
+     * 
+     * @param uuid
+     * @param streamName Stream name
+     * @return
+     * @throws IOException
+     */
+    public boolean isStreamAvailable(String uuid, String streamName) throws IOException;
+
+    
     /**
      * Checks whetere content is acessiable
      * 

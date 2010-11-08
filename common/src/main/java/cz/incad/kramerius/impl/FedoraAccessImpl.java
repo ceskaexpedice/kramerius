@@ -1,8 +1,6 @@
 package cz.incad.kramerius.impl;
 
-import static cz.incad.kramerius.utils.FedoraUtils.getDjVuImage;
-import static cz.incad.kramerius.utils.FedoraUtils.getThumbnailFromFedora;
-import static cz.incad.kramerius.utils.FedoraUtils.getFedoraDatastreamsList;
+import static cz.incad.kramerius.utils.FedoraUtils.*;
 import static cz.incad.kramerius.utils.RESTHelper.openConnection;
 
 import java.io.File;
@@ -286,7 +284,7 @@ public class FedoraAccessImpl implements FedoraAccess {
 	}
 
 	public InputStream getImageFULL(String uuid) throws IOException {
-		HttpURLConnection con = (HttpURLConnection) openConnection(getDjVuImage(configuration ,uuid),configuration.getFedoraUser(), configuration.getFedoraPass());
+		HttpURLConnection con = (HttpURLConnection) openConnection(getFedoraStream(configuration ,uuid, IMG_FULL_STREAM),configuration.getFedoraUser(), configuration.getFedoraPass());
 		con.connect();
 		if (con.getResponseCode() == HttpURLConnection.HTTP_OK) {
 			InputStream thumbInputStream = con.getInputStream();
@@ -297,11 +295,16 @@ public class FedoraAccessImpl implements FedoraAccess {
 	
 	@Override
 	public boolean isImageFULLAvailable(String uuid) throws IOException {
-		HttpURLConnection con = (HttpURLConnection) openConnection(getFedoraDatastreamsList(configuration ,uuid),configuration.getFedoraUser(), configuration.getFedoraPass());
-		InputStream stream = con.getInputStream();
-		try {
+		return isStreamAvailable(uuid,FedoraUtils.IMG_FULL_STREAM);
+	}
+
+    public boolean isStreamAvailable(String uuid, String streamName) throws IOException {
+        HttpURLConnection con =  null;
+        try {
+	        con = (HttpURLConnection) openConnection(getFedoraDatastreamsList(configuration ,uuid),configuration.getFedoraUser(), configuration.getFedoraPass());
+	        InputStream stream = con.getInputStream();
 			Document parseDocument = XMLUtils.parseDocument(stream, true);
-			return datastreamInListOfDatastreams(parseDocument, FedoraUtils.IMG_FULL_STREAM);
+			return datastreamInListOfDatastreams(parseDocument, streamName);
 		} catch (ParserConfigurationException e) {
 			LOGGER.log(Level.SEVERE, e.getMessage(), e);
 			throw new IOException(e);
@@ -314,7 +317,7 @@ public class FedoraAccessImpl implements FedoraAccess {
 		} finally {
 			con.disconnect();
 		}
-	}
+    }
 
 	@Override
 	public boolean isContentAccessible(String uuid) throws IOException {
@@ -556,12 +559,17 @@ public class FedoraAccessImpl implements FedoraAccess {
 
 	@Override
 	public boolean isFullthumbnailAvailable(String uuid) throws IOException {
-		throw new UnsupportedOperationException("");
+        return (this.isStreamAvailable(uuid, FedoraUtils.IMG_PREVIEW_STREAM));
 	}
 
 	@Override
 	public InputStream getFullThumbnail(String uuid) throws IOException {
-		throw new UnsupportedOperationException("");
+        HttpURLConnection con = (HttpURLConnection) openConnection(getFedoraStream(configuration ,uuid, FedoraUtils.IMG_PREVIEW_STREAM),configuration.getFedoraUser(), configuration.getFedoraPass());
+        con.connect();
+        if (con.getResponseCode() == HttpURLConnection.HTTP_OK) {
+            InputStream thumbInputStream = con.getInputStream();
+            return thumbInputStream;
+        } else throw new IOException("404");
 	}
 
 	@Override

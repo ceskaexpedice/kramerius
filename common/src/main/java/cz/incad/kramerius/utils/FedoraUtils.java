@@ -40,6 +40,7 @@ public class FedoraUtils {
 	public static final String RELS_EXT_STREAM = "RELS-EXT";
     public static final String IMG_THUMB_STREAM = "IMG_THUMB";
 	public static final String IMG_FULL_STREAM = "IMG_FULL";
+    public static final String IMG_PREVIEW_STREAM = "IMG_PREVIEW";
 
     public static ArrayList<String> getRdfPids(String pid, String relation) {
         ArrayList<String> pids = new ArrayList<String>();
@@ -175,7 +176,7 @@ public class FedoraUtils {
     }
 
     /**
-     * Vraci url na stream s DJVU
+     * Returns url stream 
      * @param uuid objektu
      * @return
      */
@@ -184,6 +185,12 @@ public class FedoraUtils {
     	return imagePath;
     }
 
+    public static String getFedoraStream(KConfiguration conf, String uuid, String stream) {
+        String imagePath = conf.getFedoraHost()+"/get/uuid:"+uuid+"/" + stream;
+        return imagePath;
+        
+    }
+    
     /**
      * Vraci url na stream THUMB
      * @param uuid
