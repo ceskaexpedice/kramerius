@@ -257,7 +257,6 @@
     
     function setFullDialogSize(){
         if(fullDialog){
-            fullDialog.dialog("option","title", getPageTitle(currentSelectedPage));
             fullDialog.dialog("option","height", $(window).height()-vertMargin);
             fullDialog.dialog("option","width", $(window).width()-horMargin);
         }
