@@ -305,6 +305,10 @@
         overflow:hidden;
         background:white url(img/background.png) repeat-x;
     }
+    #tv_container tr td div img{
+        height:128px;
+    }
+
     #tv_scroll_table{
         padding-left:18px;
         padding-rigth:18px;
