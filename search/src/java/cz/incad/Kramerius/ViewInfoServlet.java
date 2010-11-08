@@ -54,6 +54,8 @@ public class ViewInfoServlet extends AbstractSolrProcessServlet {
                 HashMap<String, String> map = new HashMap<String, String>();
                 map.put("deepZoomCacheGenerated", ""+generated);
                 map.put("deepZoomCofigurationEnabled", ""+conf);
+                map.put("imageServerConfigured", ""+(!KConfiguration.getInstance().getUrlOfIIPServer().equals("")));
+
                 map.put("mimeType", mimeType);
 
                 resp.setContentType("application/xml");
@@ -73,6 +75,7 @@ public class ViewInfoServlet extends AbstractSolrProcessServlet {
             "deepZoomGenerated:$data.deepZoomCacheGenerated$,"+
             "deepZoomCofigurationEnabled:$data.deepZoomCofigurationEnabled$,"+
             "mimeType:'$data.mimeType$'," +
+            "imageServerConfigured:'$data.imageServerConfigured$'," +
             "isContentPDF:function() {return viewerOptions.mimeType=='application/pdf'},"+
             "isContentDJVU:function() {return viewerOptions.mimeType.indexOf('djvu')> 0 }"+
 		"}";

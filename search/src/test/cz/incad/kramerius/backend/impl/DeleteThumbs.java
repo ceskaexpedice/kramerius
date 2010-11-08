@@ -371,7 +371,7 @@ public class DeleteThumbs {
 	    binding.setHandlerChain(chain);
 	    
 	    for (String pid : ARRAY) {
-		    List<String> purgeDatastream = port.purgeDatastream(pid, FedoraUtils.IMG_THUMB, null, null, "", false);
+		    List<String> purgeDatastream = port.purgeDatastream(pid, FedoraUtils.IMG_THUMB_STREAM, null, null, "", false);
 		    System.out.println(purgeDatastream);
 			
 		}

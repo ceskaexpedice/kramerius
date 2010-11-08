@@ -68,7 +68,7 @@ public class GeneratePDFTest extends TestCase {
 	public void testGen() throws IOException {
 		//ByteArrayOutputStream bos = new ByteArrayOutputStream();
 		DecoratedOutputStream fos = new DecoratedOutputStream("static.pdf");
-		Injector injector = Guice.createInjector(new TestModule());
+		Injector injector = Guice.createInjector(new ModuleForSearchTests());
 		GeneratePDFService instance = injector.getInstance(GeneratePDFService.class);
 		//instance.generatePDFOutlined("02203ad6-32f0-11de-992b-00145e5790ea",bos);
 		//uuid:0225e040-32f0-11de-992b-00145e5790ea

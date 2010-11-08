@@ -1,33 +1,54 @@
 package cz.incad.Kramerius;
 
+import static cz.incad.kramerius.utils.IOUtils.copyStreams;
+
 import java.awt.Image;
 import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.OutputStream;
+import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
+import java.net.URLConnection;
+import java.net.URLEncoder;
+import java.sql.Connection;
+import java.sql.SQLException;
 import java.text.DateFormat;
 import java.text.ParseException;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.xml.xpath.XPathExpressionException;
 
+import org.antlr.stringtemplate.StringTemplate;
+import org.antlr.stringtemplate.StringTemplateGroup;
+import org.antlr.stringtemplate.language.DefaultTemplateLexer;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 import com.google.inject.Inject;
+import com.google.inject.Provider;
 import com.google.inject.name.Named;
 import com.sun.net.httpserver.HttpServer;
 
 import cz.incad.Kramerius.backend.guice.GuiceServlet;
 import cz.incad.kramerius.FedoraAccess;
+import cz.incad.kramerius.impl.fedora.FedoraDatabaseUtils;
 import cz.incad.kramerius.security.SecurityException;
 import cz.incad.kramerius.utils.FedoraUtils;
+import cz.incad.kramerius.utils.RESTHelper;
 import cz.incad.kramerius.utils.XMLUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
+import cz.incad.kramerius.utils.imgs.ImageMimeType;
 import cz.incad.kramerius.utils.imgs.KrameriusImageSupport;
 import cz.incad.kramerius.utils.imgs.KrameriusImageSupport.ScalingMethod;
 import cz.incad.utils.SafeSimpleDateFormat;
@@ -65,6 +86,11 @@ public abstract class AbstractImageServlet extends GuiceServlet {
 	@Inject
 	@Named("securedFedoraAccess")
 	protected transient FedoraAccess fedoraAccess;
+
+
+    @Inject
+    @Named("fedora3")
+    protected Provider<Connection> fedora3Provider;
 	
 	protected BufferedImage scale(BufferedImage img, Rectangle pageBounds, HttpServletRequest req) {
 		String spercent = req.getParameter(SCALE_PARAMETER);
@@ -209,7 +235,67 @@ public abstract class AbstractImageServlet extends GuiceServlet {
 //			"scalingMethod", "BICUBIC_STEPPED"));
 
 	
-	public enum OutputFormats {
+	public void copyFromImageServer(String urlString, HttpServletResponse resp) throws MalformedURLException, IOException {
+        System.out.println(urlString);
+        URLConnection con = RESTHelper.openConnection(urlString, "", "");
+        String contentType = con.getContentType();
+        ByteArrayOutputStream bos = new ByteArrayOutputStream();
+        copyStreams(con.getInputStream(), bos);
+        // System.out.println(new String(bos.toByteArray()));
+        copyStreams(new ByteArrayInputStream(bos.toByteArray()), resp.getOutputStream());
+        resp.setContentType(contentType);
+    }
+
+    protected String getDataStreamPath(String uuid) throws SQLException {
+        Connection connection = null;
+        connection = this.fedora3Provider.get();
+        try {
+            return FedoraDatabaseUtils.getDataStreamPath(uuid, connection);
+        } finally {
+            if (connection != null) {
+                try {
+                    connection.close();
+                } catch (SQLException e) {
+                    //LOGGER.log(Level.SEVERE, e.getMessage(), e);
+                }
+            }
+        }
+    
+    }
+
+    public static StringTemplateGroup stGroup() {
+        InputStream is = AbstractImageServlet.class.getResourceAsStream("imaging/iipforward.stg");
+        StringTemplateGroup grp = new StringTemplateGroup(new InputStreamReader(is), DefaultTemplateLexer.class);
+        return grp;
+    }
+
+    public static void setStringTemplateModel(String uuid, String dataStreamPath, StringTemplate template, FedoraAccess fedoraAccess) throws UnsupportedEncodingException, IOException {
+    
+        List<String> folderList = new ArrayList<String>();
+        File currentFile = new File(dataStreamPath);
+        while (!currentFile.getName().equals("data")) {
+            folderList.add(0, URLEncoder.encode(currentFile.getName(), "UTF-8"));
+            currentFile = currentFile.getParentFile();
+        }
+    
+        template.setAttribute("dataPath", KConfiguration.getInstance().getFedoraDataFolderInIIPServer());
+        template.setAttribute("folderList", folderList);
+        template.setAttribute("iipServer", KConfiguration.getInstance().getUrlOfIIPServer());
+        String smimeType = fedoraAccess.getMimeTypeForStream("uuid:" + uuid, "IMG_FULL");
+        ImageMimeType mimeType = ImageMimeType.loadFromMimeType(smimeType);
+        if (mimeType != null) {
+            String extension = mimeType.getDefaultFileExtension();
+            if (!dataStreamPath.endsWith("." + extension)) {
+                template.setAttribute("extension", "." + extension);
+            } else {
+                template.setAttribute("extension", "");
+            }
+        } else {
+            template.setAttribute("extension", "");
+        }
+    }
+
+    public enum OutputFormats {
 		JPEG("image/jpeg","jpg"),
 		PNG("image/png","png"),
 
@@ -236,6 +322,4 @@ public abstract class AbstractImageServlet extends GuiceServlet {
 		}
 	}
 	
-	
- 
 }

@@ -4,22 +4,13 @@ import static cz.incad.kramerius.utils.IOUtils.copyStreams;
 
 import java.awt.Dimension;
 import java.awt.image.BufferedImage;
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.net.URLConnection;
-import java.net.URLEncoder;
-import java.sql.Connection;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.StringTokenizer;
 import java.util.logging.Level;
 
@@ -29,20 +20,14 @@ import javax.servlet.http.HttpServletResponse;
 import javax.xml.xpath.XPathExpressionException;
 
 import org.antlr.stringtemplate.StringTemplate;
-import org.antlr.stringtemplate.StringTemplateGroup;
-import org.antlr.stringtemplate.language.DefaultTemplateLexer;
 
 import com.google.inject.Inject;
-import com.google.inject.Provider;
-import com.google.inject.name.Named;
 
 import cz.incad.Kramerius.AbstractImageServlet;
 import cz.incad.kramerius.imaging.DeepZoomCacheService;
 import cz.incad.kramerius.imaging.DeepZoomTileSupport;
-import cz.incad.kramerius.impl.fedora.FedoraDatabaseUtils;
 import cz.incad.kramerius.utils.FedoraUtils;
 import cz.incad.kramerius.utils.IOUtils;
-import cz.incad.kramerius.utils.RESTHelper;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 import cz.incad.kramerius.utils.imgs.ImageMimeType;
 import cz.incad.kramerius.utils.imgs.KrameriusImageSupport;
@@ -56,10 +41,6 @@ public class DeepZoomServlet extends AbstractImageServlet {
 
     @Inject
     DeepZoomTileSupport tileSupport;
-
-    @Inject
-    @Named("fedora3")
-    Provider<Connection> fedora3Provider;
 
     @Inject
     DeepZoomCacheService cacheService;
@@ -123,52 +104,9 @@ public class DeepZoomServlet extends AbstractImageServlet {
         String dataStreamPath = getDataStreamPath(uuid);
         if (dataStreamPath != null) {
             StringTemplate dziUrl = stGroup().getInstanceOf("dziurl");
-            setStringTemplateModel(uuid, dataStreamPath, dziUrl);
+            setStringTemplateModel(uuid, dataStreamPath, dziUrl, fedoraAccess);
             copyFromImageServer(dziUrl.toString(), resp);
         }
-    }
-
-    private void setStringTemplateModel(String uuid, String dataStreamPath, StringTemplate template) throws UnsupportedEncodingException, IOException {
-
-        List<String> folderList = new ArrayList<String>();
-        File currentFile = new File(dataStreamPath);
-        while (!currentFile.getName().equals("data")) {
-            folderList.add(0, URLEncoder.encode(currentFile.getName(), "UTF-8"));
-            currentFile = currentFile.getParentFile();
-        }
-
-        template.setAttribute("dataPath", KConfiguration.getInstance().getFedoraDataFolderInIIPServer());
-        template.setAttribute("folderList", folderList);
-        template.setAttribute("iipServer", KConfiguration.getInstance().getUrlOfIIPServer());
-        String smimeType = fedoraAccess.getMimeTypeForStream("uuid:" + uuid, "IMG_FULL");
-        ImageMimeType mimeType = ImageMimeType.loadFromMimeType(smimeType);
-        if (mimeType != null) {
-            String extension = mimeType.getDefaultFileExtension();
-            if (!dataStreamPath.endsWith("." + extension)) {
-                template.setAttribute("extension", "." + extension);
-            } else {
-                template.setAttribute("extension", "");
-            }
-        } else {
-            template.setAttribute("extension", "");
-        }
-    }
-
-    private String getDataStreamPath(String uuid) throws SQLException {
-        Connection connection = null;
-        connection = this.fedora3Provider.get();
-        try {
-            return FedoraDatabaseUtils.getDataStreamPath(uuid, connection);
-        } finally {
-            if (connection != null) {
-                try {
-                    connection.close();
-                } catch (SQLException e) {
-                    LOGGER.log(Level.SEVERE, e.getMessage(), e);
-                }
-            }
-        }
-
     }
 
     private void renderEmbededDZIDescriptor(String uuid, HttpServletResponse resp) throws IOException, FileNotFoundException, XPathExpressionException {
@@ -210,7 +148,7 @@ public class DeepZoomServlet extends AbstractImageServlet {
         String dataStreamPath = getDataStreamPath(uuid);
         if (dataStreamPath != null) {
             StringTemplate tileUrl = stGroup().getInstanceOf("tileurl");
-            setStringTemplateModel(uuid, dataStreamPath, tileUrl);
+            setStringTemplateModel(uuid, dataStreamPath, tileUrl, fedoraAccess);
             tileUrl.setAttribute("level", slevel);
             tileUrl.setAttribute("tile", stile);
             copyFromImageServer(tileUrl.toString(), resp);
@@ -304,23 +242,6 @@ public class DeepZoomServlet extends AbstractImageServlet {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
             return "<no handle>";
         }
-    }
-
-    private void copyFromImageServer(String urlString, HttpServletResponse resp) throws MalformedURLException, IOException {
-        System.out.println(urlString);
-        URLConnection con = RESTHelper.openConnection(urlString, "", "");
-        String contentType = con.getContentType();
-        ByteArrayOutputStream bos = new ByteArrayOutputStream();
-        copyStreams(con.getInputStream(), bos);
-        // System.out.println(new String(bos.toByteArray()));
-        copyStreams(new ByteArrayInputStream(bos.toByteArray()), resp.getOutputStream());
-        resp.setContentType(contentType);
-    }
-
-    private StringTemplateGroup stGroup() {
-        InputStream is = this.getClass().getResourceAsStream("iipforward.stg");
-        StringTemplateGroup grp = new StringTemplateGroup(new InputStreamReader(is), DefaultTemplateLexer.class);
-        return grp;
     }
 
     @Override

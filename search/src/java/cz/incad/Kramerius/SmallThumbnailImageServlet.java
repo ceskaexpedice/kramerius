@@ -10,6 +10,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.sql.SQLException;
 import java.util.StringTokenizer;
 import java.util.logging.Level;
 
@@ -18,6 +19,8 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.xml.xpath.XPathExpressionException;
+
+import org.antlr.stringtemplate.StringTemplate;
 
 import com.google.inject.Injector;
 import com.google.inject.servlet.GuiceServletContextListener;
@@ -74,14 +77,9 @@ public class SmallThumbnailImageServlet extends AbstractImageServlet {
 
 				InputStream is = this.fedoraAccess.getSmallThumbnail(uuid);
 				if (outputFormat.equals(OutputFormats.RAW)) {
-					String mimeType = this.fedoraAccess.getSmallThumbnailMimeType(uuid);
-					if (mimeType == null) mimeType = DEFAULT_MIMETYPE;
-					resp.setContentType(mimeType);
-                    setDateHaders(uuid, resp);
-					setResponseCode(uuid, req, resp);
-					copyStreams(is, resp.getOutputStream());
-				
+					rawContent(req, resp, uuid, is);
 				} else {
+				    
 					BufferedImage rawImage = rawThumbnailImage(uuid,0);
                     setDateHaders(uuid, resp);
                     setResponseCode(uuid, req, resp);
@@ -96,6 +94,25 @@ public class SmallThumbnailImageServlet extends AbstractImageServlet {
 			resp.setStatus(HttpServletResponse.SC_NOT_FOUND);
 		}
 	}
+
+	// TODO: Extract to standalone servlet
+    public void rawContent(HttpServletRequest req, HttpServletResponse resp, String uuid, InputStream is) throws IOException, XPathExpressionException, SQLException {
+        String iipServer = KConfiguration.getInstance().getUrlOfIIPServer();
+        if (!iipServer.equals("")) {
+            String dataStreamPath = getDataStreamPath(uuid);
+            StringTemplate fUrl = stGroup().getInstanceOf("fullthumb");
+            setStringTemplateModel(uuid, dataStreamPath, fUrl, fedoraAccess);
+            fUrl.setAttribute("height", "hei="+KConfiguration.getInstance().getConfiguration().getInt("scaledHeight", 128));
+            copyFromImageServer(fUrl.toString(), resp);
+        } else {
+            String mimeType = this.fedoraAccess.getSmallThumbnailMimeType(uuid);
+            if (mimeType == null) mimeType = DEFAULT_MIMETYPE;
+            resp.setContentType(mimeType);
+            setDateHaders(uuid, resp);
+            setResponseCode(uuid, req, resp);
+            copyStreams(is, resp.getOutputStream());
+        }
+    }
 
 
 	public KConfiguration getConfiguration() {
