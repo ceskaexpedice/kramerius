@@ -18,12 +18,16 @@ package cz.incad.kramerius.editor.client.view;
 
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ClickEvent;
+import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.logical.shared.CloseEvent;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.uibinder.client.UiHandler;
 import com.google.gwt.user.client.ui.Anchor;
 import com.google.gwt.user.client.ui.FlowPanel;
+import com.google.gwt.user.client.ui.Label;
+import com.google.gwt.user.client.ui.PopupPanel;
+import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 import cz.incad.kramerius.editor.client.presenter.Presenter.Display;
 import java.util.ArrayList;
@@ -35,7 +39,7 @@ import java.util.List;
  */
 public final class EditorViewImpl implements EditorView {
 
-    private static EditorViewImplUiBinder uiBinder = GWT.create(EditorViewImplUiBinder.class);
+    private static Binder uiBinder = GWT.create(Binder.class);
 
     private final Widget widget;
     @UiField Anchor loadClickable;
@@ -44,10 +48,11 @@ public final class EditorViewImpl implements EditorView {
     @UiField Anchor languagesClickable;
     @UiField FlowPanel clipboardPanel;
     @UiField AdvancedTabLayoutPanel editorTabPanel;
+    private PopupPanel languagesPopup;
     private Callback callback;
     private final List<Display> tabsModel = new ArrayList<Display>();
 
-    interface EditorViewImplUiBinder extends UiBinder<Widget, EditorViewImpl> {}
+    interface Binder extends UiBinder<Widget, EditorViewImpl> {}
 
     public EditorViewImpl() {
         widget = uiBinder.createAndBindUi(this);
@@ -84,6 +89,42 @@ public final class EditorViewImpl implements EditorView {
     public Display getSelected() {
         int selectedIndex = editorTabPanel.getSelectedIndex();
         return tabsModel.get(selectedIndex);
+    }
+
+    @Override
+    public void setLanguages(String[] languages, int selected) {
+        if (languages == null || languages.length < 2) {
+            languagesClickable.setVisible(false);
+            return;
+        }
+
+        languagesPopup = new PopupPanel(true, false);
+        VerticalPanel vp = new VerticalPanel();
+        vp.setSpacing(2);
+        for (int i = 0; i < languages.length; i++) {
+            String language = languages[i];
+            Widget item;
+            if (i == selected) {
+                item = new Label("▸ " + language);
+                item.addStyleName("languageMenuItemCurrent");
+            } else {
+                final Anchor anchor = new Anchor(language);
+                anchor.getElement().setPropertyInt("LanguageIndex", i);
+                anchor.addClickHandler(new ClickHandler() {
+
+                    @Override
+                    public void onClick(ClickEvent event) {
+                        int index = anchor.getElement().getPropertyInt("LanguageIndex");
+                        callback.onLanguagesClick(index);
+                        languagesPopup.hide();
+                    }
+                });
+                item = anchor;
+                item.addStyleName("languageMenuItem");
+            }
+            vp.add(item);
+        }
+        languagesPopup.setWidget(vp);
     }
 
     @Override
@@ -128,6 +169,13 @@ public final class EditorViewImpl implements EditorView {
     void onKrameriusClick(ClickEvent ce) {
         if (callback != null) {
             callback.onKrameriusClick();
+        }
+    }
+
+    @UiHandler("languagesClickable")
+    void onLanguagesClick(ClickEvent ce) {
+        if (callback != null) {
+            languagesPopup.showRelativeTo(languagesClickable);
         }
     }
 

@@ -20,6 +20,8 @@ package cz.incad.kramerius.editor.client.presenter;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.logical.shared.ValueChangeEvent;
 import com.google.gwt.event.logical.shared.ValueChangeHandler;
+import com.google.gwt.http.client.UrlBuilder;
+import com.google.gwt.i18n.client.LocaleInfo;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 //import com.google.inject.Inject;
@@ -28,6 +30,7 @@ import com.google.gwt.user.client.ui.SuggestOracle.Callback;
 import com.google.gwt.user.client.ui.SuggestOracle.Request;
 import com.google.gwt.user.client.ui.SuggestOracle.Response;
 import cz.incad.kramerius.editor.client.EditorConfiguration;
+import cz.incad.kramerius.editor.client.EditorMessages;
 import cz.incad.kramerius.editor.client.view.ContainerViewImpl;
 import cz.incad.kramerius.editor.client.view.EditorView;
 import cz.incad.kramerius.editor.client.view.EditorViewsFactory;
@@ -47,8 +50,8 @@ import cz.incad.kramerius.editor.share.rpc.GetSuggestionResult;
 import cz.incad.kramerius.editor.share.rpc.GetSuggestionResult.Suggestion;
 import cz.incad.kramerius.editor.share.rpc.SaveRelationsQuery;
 import cz.incad.kramerius.editor.share.rpc.SaveRelationsResult;
-import cz.incad.kramerius.editor.share.rpc.SaveRelationsResult.SaveRelationsState;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -62,6 +65,9 @@ import net.customware.gwt.dispatch.shared.BatchResult;
  * @author Jan Pokorsky
  */
 public class EditorPresenter implements Presenter, LoadView.Callback, EditorView.Callback {
+
+    private static final EditorMessages I18N_MSG = GWT.create(EditorMessages.class);
+    private static final Response EMPTY_RESPONSE = new Response(Collections.<Suggestion>emptyList());
 
     private final EditorView display;
     private LoadView loadView;
@@ -98,6 +104,7 @@ public class EditorPresenter implements Presenter, LoadView.Callback, EditorView
                 return item.getKind() + ", " + item.getPID();
             }
         });
+        display.setLanguages(Languages.getLocaleDisplayNames(), Languages.getCurrentLocaleIndex());
     }
 
     public void bind() {
@@ -136,7 +143,7 @@ public class EditorPresenter implements Presenter, LoadView.Callback, EditorView
 
             @Override
             public void onFailure(Throwable caught) {
-                Window.alert("Failed remote connection: " + caught.getMessage());
+                Window.alert(I18N_MSG.remoteConnectionFailure(caught.getMessage()));
                 GWT.log(caught.getMessage(), caught);
             }
 
@@ -185,30 +192,31 @@ public class EditorPresenter implements Presenter, LoadView.Callback, EditorView
 
             @Override
             public void onFailure(Throwable caught) {
-                Window.alert("Failed remote connection: " + caught.getMessage());
+                Window.alert(I18N_MSG.remoteConnectionFailure(caught.getMessage()));
             }
 
             @Override
             public void onSuccess(BatchResult result) {
                 StringBuilder err = new StringBuilder();
-                int i = 0;
-                for (int size = result.size(); i < size; i++) {
+                int errCount = 0;
+                for (int i = 0, size = result.size(); i < size; i++) {
                     SaveRelationsResult saveResult = result.getResult(i, SaveRelationsResult.class);
                     GWTRelationModel relModel = relModels.get(i);
                     if (saveResult != null) {
                         relModel.save();
                     } else {
+                        ++errCount;
                         GWTKrameriusObject kobj = relModel.getKrameriusObject();
-                        if (err.length() > 0) {
-                            err.append(", ");
+                        if (errCount > 1) {
+                            err.append(",\n ");
                         }
                         err.append(kobj.getTitle()).append('(').append(kobj.getPID()).append(')');
                         GWT.log(kobj.getPID(), result.getException(i));
                     }
                 }
 
-                if (err.length() != 0) {
-                    Window.alert("Cannot save object(s): " + err.toString());
+                if (errCount > 0) {
+                    Window.alert(I18N_MSG.cannotSaveObject(errCount, err.toString()));
                 } else if (callback != null) {
                     callback.run();
                 }
@@ -216,23 +224,51 @@ public class EditorPresenter implements Presenter, LoadView.Callback, EditorView
         });
     }
 
-    private void save(GWTRelationModel model) {
-        this.dispatcher.execute(new SaveRelationsQuery(model), new AsyncCallback<SaveRelationsResult>() {
+    /**
+     * Helper that asks user to save changes first and in all cases other than
+     * the cancel case it runs the callback.
+     */
+    private void saveAttempt(final Runnable callback) {
+        List<GWTRelationModel> saveables = getModifiedRelations();
 
-            @Override
-            public void onFailure(Throwable caught) {
-                Window.alert("Failed remote connection: " + caught.getMessage());
-            }
+        if (saveables.isEmpty()) {
+            callback.run();
+        } else {
+            this.saveView.setCallback(new SaveView.Callback() {
 
-            @Override
-            public void onSuccess(SaveRelationsResult result) {
-                if (result.get() == SaveRelationsState.OK) {
-                    Window.alert("Model has been saved.");
-                } else {
-                    Window.alert("Model has been already modified by someone else.");
+                @Override
+                public void onSaveViewCommit(boolean discard) {
+                    saveView.hide();
+                    if (discard) {
+                        callback.run();
+                    } else {
+                        save(saveView.getSelected(), callback);
+                    }
                 }
+            });
+            this.saveView.setSaveables(saveables);
+            this.saveView.setDiscardable(true);
+            this.saveView.show();
+        }
+    }
+
+    @Override
+    public void onLanguagesClick(int index) {
+        final String selection = Languages.getLocaleName(index);
+
+        Runnable action = new Runnable() {
+
+            @Override
+            public void run() {
+                // XXX it would be nice to keep open editors
+                UrlBuilder urlBuilder = Window.Location.createUrlBuilder();
+                urlBuilder.setParameter("locale", selection);
+                String url = urlBuilder.buildString();
+                Window.Location.replace(url);
             }
-        });
+        };
+
+        saveAttempt(action);
     }
 
     @Override
@@ -289,18 +325,22 @@ public class EditorPresenter implements Presenter, LoadView.Callback, EditorView
     public void onLoadViewSuggestionRequest(final Request request, final Callback callback) {
         final String filter = request.getQuery();
         if (filter == null || filter.trim().isEmpty()) {
-            callback.onSuggestionsReady(request, new Response());
+            callback.onSuggestionsReady(request, EMPTY_RESPONSE);
         }
         GetSuggestionQuery query = new GetSuggestionQuery(filter, request.getLimit());
         dispatcher.execute(query, new AsyncCallback<GetSuggestionResult>() {
 
             @Override
             public void onFailure(Throwable caught) {
-                callback.onSuggestionsReady(request, new Response());
+                callback.onSuggestionsReady(request, EMPTY_RESPONSE);
             }
 
             @Override
             public void onSuccess(GetSuggestionResult result) {
+                if (result.isServerFailure()) {
+                    loadView.showError(I18N_MSG.serverQueryFailure());
+                    return;
+                }
                 // check whether user types faster then we can fetch suggestions
                 if (filter.equals(loadView.title().getValue())) {
                     callback.onSuggestionsReady(request, result);
@@ -348,9 +388,7 @@ public class EditorPresenter implements Presenter, LoadView.Callback, EditorView
 
     @Override
     public void onKrameriusClick() {
-        List<GWTRelationModel> saveables = getModifiedRelations();
-
-        final Runnable doKrameriusClick = new Runnable() {
+        Runnable doKrameriusClick = new Runnable() {
 
             @Override
             public void run() {
@@ -358,25 +396,7 @@ public class EditorPresenter implements Presenter, LoadView.Callback, EditorView
             }
         };
 
-        if (saveables.isEmpty()) {
-            doKrameriusClick.run();
-        } else {
-            this.saveView.setCallback(new SaveView.Callback() {
-
-                @Override
-                public void onSaveViewCommit(boolean discard) {
-                    saveView.hide();
-                    if (discard) {
-                        doKrameriusClick.run();
-                    } else {
-                        save(saveView.getSelected(), doKrameriusClick);
-                    }
-                }
-            });
-            this.saveView.setSaveables(saveables);
-            this.saveView.setDiscardable(true);
-            this.saveView.show();
-        }
+        saveAttempt(doKrameriusClick);
     }
 
     private List<GWTRelationModel> getModifiedRelations() {
@@ -400,6 +420,59 @@ public class EditorPresenter implements Presenter, LoadView.Callback, EditorView
         public void onValueChange(ValueChangeEvent<GWTRelationModel> event) {
             GWTRelationModel relModel = event.getValue();
             EditorPresenter.this.setModified(relModel);
+        }
+    }
+
+    /**
+     * Provides languages compiled with the application.
+     * See {@code Editor.gwt.xml} to edit new languages.
+     */
+    private static final class Languages {
+
+        private static final Languages INSTANCE = new Languages();
+
+        private String[] locales;
+        private String[] localeDisplayNames;
+        private int currLocaleIndex;
+
+        public static int getCurrentLocaleIndex() {
+            return INSTANCE.currLocaleIndex;
+        }
+
+        public static String[] getLocaleDisplayNames() {
+            return INSTANCE.localeDisplayNames;
+        }
+
+        public static String getLocaleName(int index) {
+            return INSTANCE.locales[index];
+        }
+        public static String[] getLocaleNames() {
+            return INSTANCE.locales;
+        }
+
+        private Languages() {
+            locales = LocaleInfo.getAvailableLocaleNames();
+            List<String> localesAsList = Arrays.asList(locales);
+            int defaultLocaleIndex = localesAsList.indexOf("default");
+            // remove "default" locale since default just duplicates "en" locale; see Editor.gwt.xml
+            if (defaultLocaleIndex >= 0) {
+                // make writable array
+                localesAsList = new ArrayList<String>(localesAsList);
+                localesAsList.remove(defaultLocaleIndex);
+                locales = localesAsList.toArray(new String[localesAsList.size()]);
+            }
+
+            localeDisplayNames = new String[locales.length];
+            String currLocale = LocaleInfo.getCurrentLocale().getLocaleName();
+            currLocaleIndex = -1;
+            for (int i = 0; i < locales.length; i++) {
+                String locale = locales[i];
+
+                localeDisplayNames[i] = LocaleInfo.getLocaleNativeDisplayName(locale);
+                if (currLocale.equals(locale)) {
+                    currLocaleIndex = i;
+                }
+            }
         }
     }
 

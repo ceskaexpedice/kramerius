@@ -50,6 +50,8 @@ public interface EditorView extends Display {
      * @param c listener
      */
     void setCallback(Callback c);
+    
+    void setLanguages(String[] languages, int selected);
 
     /**
      * Adds clipboard component
@@ -66,6 +68,8 @@ public interface EditorView extends Display {
         void onSaveClick();
 
         void onKrameriusClick();
+        
+        void onLanguagesClick(int index);
 
         void onEditorTabClose();
     }

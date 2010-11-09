@@ -28,6 +28,8 @@ import net.customware.gwt.dispatch.shared.Result;
  */
 public final class GetSuggestionResult extends SuggestOracle.Response implements Result {
 
+    private boolean serverError = false;
+
     public static final class Suggestion implements SuggestOracle.Suggestion, IsSerializable {
 
         private transient String pid;
@@ -87,9 +89,21 @@ public final class GetSuggestionResult extends SuggestOracle.Response implements
                 return;
             }
             displayString = "<b>" + ViewUtils.makeLabelVisible(title, 50) + "</b>"
-                    + "<br/>" + kind
+                    + "<br/>" + kind.toLocalizedString()
                     + "<br/>" + uuid;
         }
+    }
+
+    /* gwt serialization purposes */
+    public GetSuggestionResult() {
+    }
+
+    public void setServerFailure() {
+        this.serverError = true;
+    }
+
+    public boolean isServerFailure() {
+        return this.serverError;
     }
 
 }

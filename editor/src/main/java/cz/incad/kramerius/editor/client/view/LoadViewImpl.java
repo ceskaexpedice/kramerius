@@ -16,6 +16,7 @@
  */
 package cz.incad.kramerius.editor.client.view;
 
+import cz.incad.kramerius.editor.client.EditorConstants;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.KeyCodes;
@@ -40,7 +41,8 @@ import com.google.gwt.user.client.ui.Widget;
  */
 public final class LoadViewImpl extends Composite implements LoadView {
 
-    private static LoadViewImplUiBinder uiBinder = GWT.create(LoadViewImplUiBinder.class);
+    private static final EditorConstants I18N = GWT.create(EditorConstants.class);;
+    private static Binder uiBinder = GWT.create(Binder.class);
 
     private DialogBox dialogBox;
     private Callback callback;
@@ -52,8 +54,7 @@ public final class LoadViewImpl extends Composite implements LoadView {
     SuggestBox oracleTextBox;
     @UiField Label errorLabel;
 
-
-    interface LoadViewImplUiBinder extends UiBinder<Widget, LoadViewImpl> {}
+    interface Binder extends UiBinder<Widget, LoadViewImpl> {}
 
     public LoadViewImpl() {
         this.oracleTextBox = new SuggestBox(new HtmlOracle());
@@ -64,7 +65,7 @@ public final class LoadViewImpl extends Composite implements LoadView {
     public void show() {
         if (dialogBox == null) {
             dialogBox = new DialogBox();
-            dialogBox.setText("New Editor");
+            dialogBox.setText(I18N.loadViewTitle());
             dialogBox.setAnimationEnabled(true);
             dialogBox.setWidget(this);
             dialogBox.setGlassEnabled(true);
@@ -72,6 +73,7 @@ public final class LoadViewImpl extends Composite implements LoadView {
         }
 
         errorLabel.setVisible(false);
+        clearError();
         textBox.setText("uuid:");
         oracleTextBox.setText("");
         waiting(false);
@@ -83,8 +85,15 @@ public final class LoadViewImpl extends Composite implements LoadView {
 
     @Override
     public void showError(String s) {
-        errorLabel.setVisible(!s.isEmpty());
+        waiting(false);
+        if (!errorLabel.isVisible()) {
+            errorLabel.setVisible(!s.isEmpty());
+        }
         errorLabel.setText(s);
+    }
+
+    private void clearError() {
+        errorLabel.setText("");
     }
 
     @Override
@@ -119,6 +128,7 @@ public final class LoadViewImpl extends Composite implements LoadView {
 
     @UiHandler("textBox")
     void onEnterPress(KeyPressEvent event) {
+        clearError();
         if (KeyCodes.KEY_ENTER == event.getNativeEvent().getKeyCode()) {
             callItemAdded();
         }
@@ -144,6 +154,7 @@ public final class LoadViewImpl extends Composite implements LoadView {
 
         @Override
         public void requestSuggestions(Request request, Callback callback) {
+            clearError();
             LoadViewImpl.this.callback.onLoadViewSuggestionRequest(request, callback);
         }
 

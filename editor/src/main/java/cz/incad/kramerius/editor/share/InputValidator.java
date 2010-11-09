@@ -18,6 +18,7 @@
 package cz.incad.kramerius.editor.share;
 
 import com.google.gwt.core.client.GWT;
+import cz.incad.kramerius.editor.client.EditorMessages;
 
 /**
  * Helper class to validate input coming from the outside of the application (user,
@@ -34,92 +35,99 @@ public final class InputValidator {
     }
 
     public static Validator<String> validatePID(final String input) {
-        return new Validator<String>() {
-            
-            private static final String ERR_INVALID_PID = "Please enter a valid PID (uuid:<UUID>).";
+        return new PidValidator(input);
+    }
 
-            private String normalized;
-            private Boolean valid;
-            private String err;
+    private static final class PidValidator implements Validator<String> {
+        private String normalized;
+        private Boolean valid;
+        private String err;
+        private final String input;
 
-            @Override
-            public boolean isValid() {
-                String pid = input;
-                if (valid != null) {
-                    return valid;
-                }
-                if (pid == null || pid.length() == 0) {
-                    fetchErrorMessage(ERR_INVALID_PID);
-                    return false;
-                }
-                pid = pid.trim();
-                // https://wiki.duraspace.org/display/FCR30/Fedora+Identifiers
-                if (pid.matches("^[Uu]{2}[Ii][Dd]:(([A-Za-z0-9])|-|\\.|~|_|(%[0-9A-F]{2}))+$")) {
-                    // for now we support only UUID as PID
-//                if (pid.matches("^([A-Za-z0-9]|-|\\.)+:(([A-Za-z0-9])|-|\\.|~|_|(%[0-9A-F]{2}))+$") {
-                    if (!isValidUUID(pid)) {
-                        fetchErrorMessage(ERR_INVALID_PID);
-                        return false;
-                    }
-                    normalized = pid;
-                    return true;
-                } else {
-                    fetchErrorMessage(ERR_INVALID_PID);
-                    return false;
-                }
+        public PidValidator(String input) {
+            this.input = input;
+        }
 
+        @Override
+        public boolean isValid() {
+            String pid = input;
+            if (valid != null) {
+                return valid;
             }
-
-            private boolean isValidUUID(String pid) {
-                try {
-//                    UUID uuid = UUID.fromString(pid.substring("uuid:".length()));
-//                    return uuid != null;
-                    hackUUIDformString(pid.substring("uuid:".length()));
-                    return true;
-                } catch (Exception ex) {
-                    fetchErrorMessage(ERR_INVALID_PID);
+            if (pid == null || pid.length() == 0) {
+                fetchInvalidPidMessage();
+                return false;
+            }
+            pid = pid.trim();
+            // https://wiki.duraspace.org/display/FCR30/Fedora+Identifiers
+            if (pid.matches("^[Uu]{2}[Ii][Dd]:(([A-Za-z0-9])|-|\\.|~|_|(%[0-9A-F]{2}))+$")) {
+                // for now we support only UUID as PID
+//                if (pid.matches("^([A-Za-z0-9]|-|\\.)+:(([A-Za-z0-9])|-|\\.|~|_|(%[0-9A-F]{2}))+$") {
+                if (!isValidUUID(pid)) {
+                    fetchInvalidPidMessage();
+                    return false;
                 }
+                normalized = pid;
+                return true;
+            } else {
+                fetchInvalidPidMessage();
                 return false;
             }
 
-            @Override
-            public String getErrorMessage() {
-                return err;
+        }
+
+        private boolean isValidUUID(String pid) {
+            try {
+//                    UUID uuid = UUID.fromString(pid.substring("uuid:".length()));
+//                    return uuid != null;
+                hackUUIDformString(pid.substring("uuid:".length()));
+                return true;
+            } catch (Exception ex) {
+                fetchInvalidPidMessage();
             }
+            return false;
+        }
 
-            private void fetchErrorMessage(String code) {
-                if (GWT.isClient()) {
-                    err = code; // XXX implement I18N
-                } else {
-                    err = code;
-                }
+        @Override
+        public String getErrorMessage() {
+            return err;
+        }
+
+        private void fetchInvalidPidMessage() {
+            // as this is code inside share package the check is necessary
+            if (GWT.isClient()) {
+                EditorMessages messages = GWT.create(EditorMessages.class);
+                err = messages.enterValidPid();
             }
+            // fallback
+            err = "Please enter a valid PID (uuid:<UUID>).";
+        }
 
-            @Override
-            public String getNormalized() {
-                isValid();
-                return normalized;
-            }
-        };
-    }
+        @Override
+        public String getNormalized() {
+            isValid();
+            return normalized;
+        }
 
-    /** replacement for UUID.fromString as it is unsupported by GWT yet */
-    private static void hackUUIDformString(String pid) {
-        String[] components = pid.split("-");
-        if (components.length != 5)
-            throw new IllegalArgumentException("Invalid UUID string: "+pid);
-        for (int i=0; i<5; i++)
-            components[i] = "0x"+components[i];
+        /** replacement for UUID.fromString as it is unsupported by GWT yet */
+        private static void hackUUIDformString(String pid) {
+            String[] components = pid.split("-");
+            if (components.length != 5)
+                throw new IllegalArgumentException("Invalid UUID string: " + pid);
+            for (int i = 0; i < 5; i++)
+                components[i] = "0x"+components[i];
 
-        long mostSigBits = Long.decode(components[0]).longValue();
-        mostSigBits <<= 16;
-        mostSigBits |= Long.decode(components[1]).longValue();
-        mostSigBits <<= 16;
-        mostSigBits |= Long.decode(components[2]).longValue();
+            long mostSigBits = Long.decode(components[0]).longValue();
+            mostSigBits <<= 16;
+            mostSigBits |= Long.decode(components[1]).longValue();
+            mostSigBits <<= 16;
+            mostSigBits |= Long.decode(components[2]).longValue();
 
-        long leastSigBits = Long.decode(components[3]).longValue();
-        leastSigBits <<= 48;
-        leastSigBits |= Long.decode(components[4]).longValue();
+            long leastSigBits = Long.decode(components[3]).longValue();
+            leastSigBits <<= 48;
+            leastSigBits |= Long.decode(components[4]).longValue();
+        }
+        
     }
 
 }

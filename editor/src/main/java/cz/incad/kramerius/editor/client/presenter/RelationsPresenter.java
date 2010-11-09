@@ -80,7 +80,7 @@ public final class RelationsPresenter implements Presenter, RelationsView.Callba
             cp.setModel(relKindModel);
             relKindModel.addValueChangeHandler(this.relKindModelHandler);
 
-            RelationTab tab = new RelationTabImpl(relKind.toString(), null, cp.getDisplay());
+            RelationTab tab = new RelationTabImpl(relKind.toLocalizedPluralString(), null, cp.getDisplay());
             this.display.addTab(tab);
             this.view2PresenterMap.put(tab, cp);
             this.model2View.put(relKindModel, tab);

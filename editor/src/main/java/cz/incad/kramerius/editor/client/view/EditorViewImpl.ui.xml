@@ -18,7 +18,13 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
 Uncomment this for XHTML entities
 <!DOCTYPE ui:UiBinder SYSTEM "http://dl.google.com/gwt/DTD/xhtml.ent">
 -->
+
+<!--
+For i18 stuff see src/main/java/com/google/gwt/i18n/client/LocalizableResource_<locale>.properties
+-->
 <ui:UiBinder xmlns:ui="urn:ui:com.google.gwt.uibinder"
+        ui:generateFormat="com.google.gwt.i18n.rebind.format.PropertiesFormat"
+        ui:generateLocales="default"
 	xmlns:g="urn:import:com.google.gwt.user.client.ui"
         xmlns:ke="urn:import:cz.incad.kramerius.editor.client.view" >
 
@@ -31,13 +37,22 @@ Uncomment this for XHTML entities
                 <img src="images/search.img.logo.png" />
                 <span class="{style.menuItems}">
                     <g:Anchor ui:field="loadClickable"
-                            addStyleNames="{style.menuItem}" href="javascript:;">Load</g:Anchor>
+                            addStyleNames="{style.menuItem}" href="javascript:;">
+                                <ui:msg key="loadClickableLabel">Load</ui:msg>
+                    </g:Anchor>
                     <g:Anchor ui:field="saveClickable"
-                            addStyleNames="{style.menuItem}" href="javascript:;">Save</g:Anchor>
+                            addStyleNames="{style.menuItem}" href="javascript:;">
+                                <ui:msg key="saveClickableLabel">Save</ui:msg>
+                    </g:Anchor>
                     <g:Anchor ui:field="krameriusClickable" title="Go back to Kramerius Search"
-                            addStyleNames="{style.menuItem}" href="javascript:;">Kramerius</g:Anchor>
+                            addStyleNames="{style.menuItem}" href="javascript:;">
+                                <ui:attribute name="title" key="krameriusClickableTooltip"/>
+                                <ui:msg key="krameriusClickableLabel">Kramerius</ui:msg>
+                    </g:Anchor>
                     <g:Anchor ui:field="languagesClickable"
-                            addStyleNames="{style.menuItem}" href="javascript:;">Languages</g:Anchor>
+                            addStyleNames="{style.menuItem}" href="javascript:;">
+                                <ui:msg key="languagesClickableLabel">Language</ui:msg> <small>▼</small>
+                    </g:Anchor>
                 </span>
 
             </g:HTMLPanel>

@@ -17,7 +17,9 @@
 
 package cz.incad.kramerius.editor.share;
 
+import com.google.gwt.core.client.GWT;
 import cz.incad.kramerius.editor.client.EditorConfiguration;
+import cz.incad.kramerius.editor.client.EditorConstants;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -28,9 +30,39 @@ import java.util.Set;
  */
 public final class GWTKrameriusObject {
 
+    private static final EditorConstants I18N;
+
+    static {
+        // cannot call GWT on server dark side
+        if (GWT.isClient()) {
+            I18N = GWT.create(EditorConstants.class);
+        } else {
+            I18N = null;
+        }
+    }
+
     public enum Kind {
         MONOGRAPH, MONOGRAPH_UNIT, PERIODICAL,
-        PERIODICAL_VOLUME, PERIODICAL_ITEM, PAGE, INTERNAL_PART, DONATOR, ALL
+        PERIODICAL_VOLUME, PERIODICAL_ITEM, PAGE, INTERNAL_PART, DONATOR, ALL;
+
+        public String toLocalizedString() {
+            String localizedTxt = this.toString();
+            if (I18N != null) {
+                Map<String, String> i18nKinds = I18N.krameriusObjectKinds();
+                localizedTxt = i18nKinds.get(this.toString());
+            }
+            return localizedTxt;
+        }
+
+        public String toLocalizedPluralString() {
+            String localizedTxt = this.toString();
+            if (I18N != null) {
+                Map<String, String> i18nKinds = I18N.krameriusRelationTabNames();
+                localizedTxt = i18nKinds.get("RELATION_" + this.toString());
+            }
+            return localizedTxt;
+        }
+
     }
 
     private static final String UUID_PREFIX = "uuid:";

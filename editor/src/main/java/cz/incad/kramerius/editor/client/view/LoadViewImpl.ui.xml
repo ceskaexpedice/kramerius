@@ -18,23 +18,45 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
 Uncomment this for XHTML entities
 <!DOCTYPE ui:UiBinder SYSTEM "http://dl.google.com/gwt/DTD/xhtml.ent">
 -->
+
+<!--
+For i18 stuff see src/main/java/com/google/gwt/i18n/client/LocalizableResource_<locale>.properties
+-->
 <ui:UiBinder xmlns:ui="urn:ui:com.google.gwt.uibinder"
+        ui:generateFormat="com.google.gwt.i18n.rebind.format.PropertiesFormat"
+        ui:generateLocales="default"
 	xmlns:g="urn:import:com.google.gwt.user.client.ui">
+
     <ui:style src="LoadView.css" />
 
     <g:HTMLPanel>
-        <div class="{style.cells}">Search object:</div>
+        <!-- title field -->
+        <div class="{style.cells}">
+            <ui:msg key="oracleTextBoxLabel" description="label for title's suggestion field">
+                Search object:</ui:msg>
+        </div>
         <div><g:SuggestBox ui:field="oracleTextBox"
                 addStyleNames="{style.cells} {style.inputCell}"
                 limit="8" animationEnabled="true" /></div>
 
-        <div class="{style.cells}">Or enter PID:</div>
+        <!-- PID field -->
+        <div class="{style.cells}">
+            <ui:msg key="pidTextBoxLabel" description="label for PID field">
+                Or enter PID:</ui:msg>
+            </div>
         <div><g:TextBox ui:field="textBox" addStyleNames="{style.cells} {style.inputCell}" /></div>
+
+        <!-- error message -->
         <div><g:Label ui:field="errorLabel" addStyleNames="{style.cells} {style.errorLabel}"></g:Label></div>
         
+        <!-- buttons group -->
         <div class="{style.buttonsGroup}">
-            <g:Button ui:field='okButton' addStyleNames="{style.cells}">OK</g:Button>
-            <g:Button ui:field='cancelButton' addStyleNames="{style.cells}">Cancel</g:Button>
+            <g:Button ui:field='okButton' addStyleNames="{style.cells}">
+                <ui:msg key="loadButtonLabel">Load</ui:msg>
+            </g:Button>
+            <g:Button ui:field='cancelButton' addStyleNames="{style.cells}">
+                <ui:msg key="cancelButtonLabel">Cancel</ui:msg>
+            </g:Button>
         </div>
     </g:HTMLPanel>
 </ui:UiBinder>

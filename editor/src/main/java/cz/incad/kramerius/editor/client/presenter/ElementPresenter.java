@@ -50,8 +50,7 @@ public class ElementPresenter implements Presenter, ElementView.Callback {
 
         display.setLocation(model.getLocation());
         display.setLabel(ViewUtils.makeLabelVisible(model.getTitle(), 15));
-        display.setTooltip("PID: " + model.getPID() + ", kind: "
-                + model.getKind().toString() + ", url: " + model.getLocation());
+        display.setTooltip(model.getKind().toLocalizedString() + ": " + model.getTitle());
         display.setOpenEnabled(model.getKind() != Kind.PAGE);
     }
 

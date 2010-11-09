@@ -70,6 +70,7 @@ public final class GetSuggestionQueryHandler
             List<Suggestion> suggestions = doExecute(action);
             result.setSuggestions(suggestions);
         } catch (Throwable ex) {
+            result.setServerFailure();
             Logger.getLogger(GetSuggestionQueryHandler.class.getName()).log(Level.SEVERE, null, ex);
         }
         return result;

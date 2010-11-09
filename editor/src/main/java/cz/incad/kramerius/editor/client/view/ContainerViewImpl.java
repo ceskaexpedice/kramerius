@@ -75,10 +75,7 @@ public final class ContainerViewImpl implements ContainerView {
 
     private void insertDropPadding() {
         if (containerPanel.getWidgetCount() == 0) {
-//            Label padding = new Label("empty widget");
-//            HTML padding = new HTML("<img style='height:100px;width:90px;border:solid green;'/>");
-            HTML padding = new HTML("<span style='line-height:128px;padding:64px 2px;vertical-align: top;border:solid green;'>Drop here</span>");
-//            padding.getElement().getStyle().setBorderStyle(BorderStyle.SOLID);
+            HTML padding = new HTML("<span style='line-height:128px;padding:64px 2px;vertical-align: top;'> </span>");
             padding.getElement().getStyle().setDisplay(com.google.gwt.dom.client.Style.Display.INLINE);
             containerPanel.add(padding);
         }
@@ -123,7 +120,7 @@ public final class ContainerViewImpl implements ContainerView {
         for (Widget w : containerPanel) {
             if (elementsMap.get(w) == null) {
                 containerPanel.remove(w);
-            System.out.println("remove: " + w);
+//            System.out.println("remove: " + w);
             }
         }
     }

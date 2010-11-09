@@ -17,6 +17,7 @@
 
 package cz.incad.kramerius.editor.client.view;
 
+import cz.incad.kramerius.editor.client.EditorConstants;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.dom.client.Style.Unit;
 import com.google.gwt.event.dom.client.ClickEvent;
@@ -49,6 +50,7 @@ import com.google.gwt.user.client.ui.Widget;
  */
 public class AdvancedTabLayoutPanel extends Composite implements HasCloseHandlers<Integer> {
 
+    private static final EditorConstants I18N = GWT.create(EditorConstants.class);
     private final TabLayoutPanel delegate;
 
     public interface Resources extends ClientBundle {
@@ -173,7 +175,7 @@ public class AdvancedTabLayoutPanel extends Composite implements HasCloseHandler
     private Widget createCloseTabWidget(final Widget child) {
         // XXX fix: temporary solution to remove the tab
         Label closeHandle = new Label("\u2718");
-        closeHandle.setTitle("Close tab");
+        closeHandle.setTitle(I18N.closeTabHandleTooltip());
         closeHandle.addStyleName(this.style.tabCloseButton());
         closeHandle.addClickHandler(new ClickHandler() {
 

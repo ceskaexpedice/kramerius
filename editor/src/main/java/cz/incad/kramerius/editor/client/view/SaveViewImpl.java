@@ -16,6 +16,7 @@
  */
 package cz.incad.kramerius.editor.client.view;
 
+import cz.incad.kramerius.editor.client.EditorConstants;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.resources.client.CssResource;
@@ -38,7 +39,7 @@ import java.util.List;
  */
 public final class SaveViewImpl<T> implements SaveView<T> {
 
-    interface SaveViewImplUiBinder extends UiBinder<Widget, SaveViewImpl> {}
+    interface Binder extends UiBinder<Widget, SaveViewImpl> {}
     
     interface StyleAccess extends CssResource {
         String listItem();
@@ -46,7 +47,8 @@ public final class SaveViewImpl<T> implements SaveView<T> {
         String listItemOdd();
     }
 
-    private static SaveViewImplUiBinder uiBinder = (SaveViewImplUiBinder) GWT.create(SaveViewImplUiBinder.class);
+    private static final EditorConstants I18N = GWT.create(EditorConstants.class);
+    private static Binder uiBinder = GWT.create(Binder.class);
     private SaveView.Callback callback;
     private Renderer<String, T> renderer;
     private List<T> saveables;
@@ -69,7 +71,7 @@ public final class SaveViewImpl<T> implements SaveView<T> {
 
         int saveablesSize = saveables.size();
         if (saveablesSize == 0) {
-            this.saveablePanel.add(new Label("Nothing to save."));
+            this.saveablePanel.add(new Label(I18N.nothingToSaveLabel()));
             this.okButton.setEnabled(false);
 //            for (int i = 0; i < 10; i++) {
 //                CheckBox checkBox = new CheckBox("Very long CheckBox Very long CheckBox");
@@ -153,7 +155,7 @@ public final class SaveViewImpl<T> implements SaveView<T> {
     public void show() {
         if (this.dialogBox == null) {
             this.dialogBox = new DialogBox();
-            this.dialogBox.setText("Save changes");
+            this.dialogBox.setText(I18N.saveViewTitle());
             this.dialogBox.setAnimationEnabled(true);
             this.dialogBox.setGlassEnabled(true);
             this.dialogBox.setWidget(asWidget());
