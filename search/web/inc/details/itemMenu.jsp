@@ -109,6 +109,8 @@
         
         currentSelectedPage = '<c:out value="${itemViewObject.lastUUID}" />';
         getRels(false);
+        getFirstLevelMenu('<c:out value="${itemViewObject.firstUUID}" />',
+                            '<c:out value="${itemViewObject.models[0]}" />');
         selectPage('<c:out value="${itemViewObject.lastUUID}" />');
         checkDonator('<c:out value="${itemViewObject.firstUUID}" />');
     });
