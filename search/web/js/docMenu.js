@@ -342,11 +342,18 @@ function getItemMenuOptions(pid, level, model){
           path = id.substring(id.indexOf("-") + 1 ) + "/" + path;
         }
     }
-    //alert(pid_path);
-    //alert(path);
+    
     var url ="inc/details/itemMenuOptions.jsp?pid="+pid+"&pid_path="+pid_path+"&path="+path;
     $.get(url, function(data){
         $("#tab"+level+"-"+model+">div.relList").parent().prepend(data);
+        
+    });
+}
+
+function getFirstLevelMenu(pid, model){
+    var url ="inc/details/itemMenuOptions.jsp?pid="+pid+"&pid_path="+pid+"&path="+model;
+    $.get(url, function(data){
+        $("#tab1-"+model+">div.relList").parent().prepend(data);
         
     });
 }
