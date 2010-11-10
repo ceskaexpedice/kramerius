@@ -14,6 +14,7 @@
     <xsl:param name="pid" select="pid"/>
     <xsl:param name="level" select="level"/>
     <xsl:param name="onlyrels" select="onlyrels"/>
+    <xsl:param name="onlyinfo" select="onlyinfo"/>
     <xsl:template match="/">
         <xsl:if test="//doc" >
             <div style="display:none;" class="numDocs"><xsl:value-of select="/response/result/@numFound" /></div>
@@ -22,6 +23,15 @@
                 <xsl:for-each select="//doc" >
                     <xsl:if test="not(preceding-sibling::*[1]/str[@name='fedora.model'] = ./str[@name='fedora.model']/text())">
                     <xsl:call-template name="rels">
+                        <xsl:with-param name="fmodel"><xsl:value-of select="./str[@name='fedora.model']" /></xsl:with-param>
+                    </xsl:call-template>
+                    </xsl:if>
+                </xsl:for-each>
+            </xsl:when>
+            <xsl:when test="$onlyinfo='true'">
+                <xsl:for-each select="//doc" >
+                    <xsl:if test="not(preceding-sibling::*[1]/str[@name='fedora.model'] = ./str[@name='fedora.model']/text())">
+                    <xsl:call-template name="model">
                         <xsl:with-param name="fmodel"><xsl:value-of select="./str[@name='fedora.model']" /></xsl:with-param>
                     </xsl:call-template>
                     </xsl:if>
@@ -105,40 +115,46 @@
     
     <xsl:template name="details">
         <xsl:param name="fmodel" />
-        <xsl:for-each select="./arr[@name='details']/str">
+        
             <xsl:choose>
-                <xsl:when test="$fmodel='periodicalvolume'">
-                    <xsl:call-template name="periodicalvolume">
-                        <xsl:with-param name="detail"><xsl:value-of select="." /></xsl:with-param>
-                    </xsl:call-template>
+                <xsl:when test="$fmodel='monograph'">
+                    <xsl:value-of select="./str[@name='dc.title']" />
                 </xsl:when>
                 <xsl:when test="$fmodel='monographunit'">
-                    <xsl:value-of select="../../str[@name='dc.title']" /><br/>
+                    <xsl:value-of select="./str[@name='dc.title']" /><br/>
                     <xsl:call-template name="monographunit">
-                        <xsl:with-param name="detail"><xsl:value-of select="." /></xsl:with-param>
+                        <xsl:with-param name="detail"><xsl:value-of select="./arr[@name='details']/str" /></xsl:with-param>
+                    </xsl:call-template>
+                </xsl:when>
+                <xsl:when test="$fmodel='periodical'">
+                    <xsl:value-of select="./str[@name='dc.title']" />
+                </xsl:when>
+                <xsl:when test="$fmodel='periodicalvolume'">
+                    <xsl:call-template name="periodicalvolume">
+                        <xsl:with-param name="detail"><xsl:value-of select="./arr[@name='details']/str" /></xsl:with-param>
                     </xsl:call-template>
                 </xsl:when>
                 <xsl:when test="$fmodel='periodicalitem'">
                     <xsl:call-template name="periodicalitem">
-                        <xsl:with-param name="detail"><xsl:value-of select="." /></xsl:with-param>
+                        <xsl:with-param name="detail"><xsl:value-of select="./arr[@name='details']/str" /></xsl:with-param>
                     </xsl:call-template>
                 </xsl:when>
                 <xsl:when test="$fmodel='internalpart'">
                     <xsl:value-of select="dc.title" />&#160;
                     <xsl:call-template name="internalpart">
-                        <xsl:with-param name="detail"><xsl:value-of select="." /></xsl:with-param>
+                        <xsl:with-param name="detail"><xsl:value-of select="./arr[@name='details']/str" /></xsl:with-param>
                     </xsl:call-template>
                 </xsl:when>
                 <xsl:when test="$fmodel='page'">
                     <xsl:call-template name="page">
-                        <xsl:with-param name="detail"><xsl:value-of select="." /></xsl:with-param>
+                        <xsl:with-param name="detail"><xsl:value-of select="./arr[@name='details']/str" /></xsl:with-param>
                     </xsl:call-template>
                 </xsl:when>
                 <xsl:otherwise>
-                    <span class="translate"><xsl:value-of select="." /></span>&#160;
+                    <span class="translate"><xsl:value-of select="./arr[@name='details']/str" /></span>&#160;
                 </xsl:otherwise>
             </xsl:choose>
-        </xsl:for-each>
+       
     
     </xsl:template>
     

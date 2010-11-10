@@ -18,6 +18,10 @@
     <c:set var="level" value="${param.level}" />
 </c:if>
 <%-- fill path up to the end --%>
+<%
+pageContext.setAttribute("baseurl",
+request.getScheme()+"://"+request.getServerName()+":"+request.getServerPort()+request.getContextPath() +"/inc/details/");
+%>
 
 <c:forEach var="menu" varStatus="status" items="${itemViewObject.menus}">
 <c:choose>
@@ -52,39 +56,17 @@
         </ul>
         <div id="tab<c:out value="${cur_level}" />-<c:out value="${itemViewObject.models[status.count -1]}" />"
             class="<c:out value="${itemViewObject.models[status.count -1]}  ui-tabs-panel ui-widget-content ui-corner-bottom" />"
-            pid="<c:out value="${menu.uuid}" />"><c:set
-                var="display" value="none" /> <c:catch var="exceptions">
-                <c:choose>
-                    <c:when test="${fn:contains(menu.uuid, '@')}">
-                        <c:set var="xml2"><xml></xml></c:set>
-                    </c:when>
-                    <c:otherwise>
-                        <c:import url="${menu.biblioModsURL}" var="xml2" charEncoding="UTF-8" />
-                    </c:otherwise>
-                </c:choose>
-                
-                <c:import
-                    url="inc/details/xsl/default.jsp?model=${itemViewObject.models[status.count -1]}&display=${display}"
-                    var="xslt" charEncoding="UTF-8" />
-            </c:catch> <c:choose>
-                <c:when test="${exceptions != null}">
-                    <c:out value="${xml2}" />
-                    <c:out value="${xslt}" />
-                    <c:out value="${exceptions}" />
-                </c:when>
-                <c:otherwise>
-                    <%--@ include file="../../admin/itemOptions.jsp"--%>
+            pid="<c:out value="${menu.uuid}" />">
+           <c:url var="url" value="${baseurl}getItemMenuInfo.jsp" >
+               <c:param name="level" value="${status.count}" />
+               <c:param name="pid" value="${menu.uuid}" />
+           </c:url>
+           <c:import url="${url}" var="infoa" charEncoding="UTF-8"  />
                     <div class="relList" style="display: none;"
                          id="list-<c:out value="${itemViewObject.models[status.count -1]}" />"></div>
                     <div id="info-<c:out value="${itemViewObject.models[status.count -1]}" />"
-                         style="min-height: 16px;"><x:transform doc="${xml2}"
-                        xslt="${xslt}">
-                            <x:param name="pid" value="${menu.uuid}" />
-                    	 </x:transform>
-                    	
+                         style="min-height: 16px;"><c:out value="${infoa}" escapeXml="false" />
                     </div>
-                </c:otherwise>
-            </c:choose>
     </c:if>
     </c:when>
         </c:choose>
@@ -104,9 +86,6 @@
      setTvContainerWidth();
     $(document).ready(function(){
         $('#tabs_1>ul>li>img.op_list').hide();
-        //getItemRels('<c:out value="${itemViewObject.firstUUID}" />', '<c:out value="${itemViewObject.firstUUID}" />', <c:out value="${1 + level}" />, true);
-        //changeSelection('<c:out value="${itemViewObject.parentUUID}" />','<c:out value="${itemViewObject.lastUUID}" />');
-        
         currentSelectedPage = '<c:out value="${itemViewObject.lastUUID}" />';
         getRels(false);
         getFirstLevelMenu('<c:out value="${itemViewObject.firstUUID}" />',
