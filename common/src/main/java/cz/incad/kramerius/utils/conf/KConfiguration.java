@@ -1,8 +1,3 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
-
 package cz.incad.kramerius.utils.conf;
 
 import static cz.incad.kramerius.Constants.WORKING_DIR;
@@ -183,10 +178,12 @@ public class KConfiguration {
 
     public String getApplicationURL() {
         String applicationUrl = getProperty("applicationUrl");
-        if (applicationUrl != null) {
-            applicationUrl = applicationUrl + (applicationUrl.endsWith("/") ? "" : "/");
-        }
-        return applicationUrl;
+        return normalizeURL(applicationUrl);
+    }
+
+    public String getEditorURL() {
+        String url = getProperty("editorUrl");
+        return normalizeURL(url);
     }
 
     public List<String> getPatterns() {
@@ -246,6 +243,13 @@ public class KConfiguration {
 
     public String getFedoraDataFolderInIIPServer() {
         return getConfiguration().getString("fedoraDataFolderOnIIPServer", "");
+    }
+
+    private static String normalizeURL(String url) {
+        if (url != null) {
+            url = url.endsWith("/") ? url : url + '/';
+        }
+        return url;
     }
 
     public static void main(String[] args) throws IOException {
