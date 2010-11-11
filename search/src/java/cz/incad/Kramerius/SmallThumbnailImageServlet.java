@@ -97,8 +97,7 @@ public class SmallThumbnailImageServlet extends AbstractImageServlet {
 
 	// TODO: Extract to standalone servlet
     public void rawContent(HttpServletRequest req, HttpServletResponse resp, String uuid, InputStream is) throws IOException, XPathExpressionException, SQLException {
-        String iipServer = KConfiguration.getInstance().getUrlOfIIPServer();
-        if (!iipServer.equals("")) {
+        if (super.isIIPServerConfigured()) {
             String fUrl = getThumbnailIIPUrl(uuid);
             copyFromImageServer(fUrl, resp);
         } else {
