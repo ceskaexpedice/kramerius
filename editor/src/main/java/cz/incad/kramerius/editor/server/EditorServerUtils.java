@@ -33,6 +33,7 @@ public final class EditorServerUtils {
 
     private static final Map<KrameriusModels, Kind> mapModel2Kind;
     private static final Map<Kind, KrameriusModels> mapKind2Model;
+    private static final String UUID_PREFIX = "uuid:";
     static {
         mapModel2Kind = new EnumMap<KrameriusModels, Kind>(KrameriusModels.class);
         mapModel2Kind.put(KrameriusModels.PAGE, Kind.PAGE);
@@ -64,6 +65,13 @@ public final class EditorServerUtils {
             throw new IllegalStateException("Unsupported model: " + model);
         }
         return res;
+    }
+
+    public static String resolveUUID(String pid) {
+        if (pid != null && pid.startsWith(UUID_PREFIX)) {
+            return pid.substring(UUID_PREFIX.length());
+        }
+        return null;
     }
 
     public static String validatePID(String pid) throws ActionException {
