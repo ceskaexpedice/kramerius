@@ -1,12 +1,11 @@
 package cz.incad.kramerius.service.impl;
 
+import cz.incad.kramerius.intconfig.InternalConfiguration;
+import cz.incad.kramerius.processes.impl.ProcessStarter;
+import cz.incad.kramerius.utils.conf.KConfiguration;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.logging.Logger;
-
-import cz.incad.kramerius.processes.impl.ProcessStarter;
-
-
 
 public class IndexerProcessStarter {
 	
@@ -15,7 +14,7 @@ public class IndexerProcessStarter {
 
 	public static void spawnIndexer(String title, String uuid) {
 		log.info("Spawn indexer: title: "+title+" uuid: "+uuid);
-		String base = System.getProperty(ProcessStarter.LR_SERVLET_URL);
+		String base = KConfiguration.getInstance().getApplicationURL() + '/' + InternalConfiguration.get().getLongRunningProcessesServlet();
 	    if (base == null || uuid == null){
 	    	log.severe("Cannot start indexer, invalid arguments: base:"+base+" uuid:"+uuid);
 	        return;

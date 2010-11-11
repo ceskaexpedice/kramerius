@@ -40,7 +40,8 @@ public class ProcessSchedulerImpl implements ProcessScheduler {
 
 	@Override
 	public String getLrServlet() {
-        String lrServlet = KConfiguration.getInstance().getApplicationURL() + '/' + InternalConfiguration.get().getProperties().getProperty("servlets.mapping.lrcontrol");
+            // XXX !?! this hides lrServlet field set in init() !?!
+	    String lrServlet = KConfiguration.getInstance().getApplicationURL() + '/' + InternalConfiguration.get().getLongRunningProcessesServlet();
 	    return lrServlet;
 	}
 
