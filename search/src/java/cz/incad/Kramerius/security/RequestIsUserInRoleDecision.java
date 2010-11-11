@@ -11,10 +11,10 @@ import cz.incad.kramerius.security.IsUserInRoleDecision;
 
 public class RequestIsUserInRoleDecision implements IsUserInRoleDecision {
 
-	
-	
 	private Logger logger;
 	private Provider<HttpServletRequest> provider;
+
+	
 	@Inject
 	public RequestIsUserInRoleDecision(Logger logger,
 			Provider<HttpServletRequest> provider) {
@@ -23,6 +23,7 @@ public class RequestIsUserInRoleDecision implements IsUserInRoleDecision {
 		this.provider = provider;
 	}
 
+	
 	@Override
 	public boolean isUserInRole(String roleName) {
 		boolean flag = this.provider.get().isUserInRole(roleName);

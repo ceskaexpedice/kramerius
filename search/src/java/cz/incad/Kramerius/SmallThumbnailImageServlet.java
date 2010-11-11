@@ -99,11 +99,8 @@ public class SmallThumbnailImageServlet extends AbstractImageServlet {
     public void rawContent(HttpServletRequest req, HttpServletResponse resp, String uuid, InputStream is) throws IOException, XPathExpressionException, SQLException {
         String iipServer = KConfiguration.getInstance().getUrlOfIIPServer();
         if (!iipServer.equals("")) {
-            String dataStreamPath = getDataStreamPath(uuid);
-            StringTemplate fUrl = stGroup().getInstanceOf("fullthumb");
-            setStringTemplateModel(uuid, dataStreamPath, fUrl, fedoraAccess);
-            fUrl.setAttribute("height", "hei="+KConfiguration.getInstance().getConfiguration().getInt("scaledHeight", 128));
-            copyFromImageServer(fUrl.toString(), resp);
+            String fUrl = getThumbnailIIPUrl(uuid);
+            copyFromImageServer(fUrl, resp);
         } else {
             String mimeType = this.fedoraAccess.getSmallThumbnailMimeType(uuid);
             if (mimeType == null) mimeType = DEFAULT_MIMETYPE;
@@ -114,8 +111,7 @@ public class SmallThumbnailImageServlet extends AbstractImageServlet {
         }
     }
 
-
-	public KConfiguration getConfiguration() {
+    public KConfiguration getConfiguration() {
 		return configuration;
 	}
 

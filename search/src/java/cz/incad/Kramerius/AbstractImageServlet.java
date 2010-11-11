@@ -14,6 +14,7 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
+import java.net.URL;
 import java.net.URLConnection;
 import java.net.URLEncoder;
 import java.sql.Connection;
@@ -150,8 +151,18 @@ public abstract class AbstractImageServlet extends GuiceServlet {
 	}
 
 	
-	protected BufferedImage rawThumbnailImage(String uuid, int page) throws XPathExpressionException, IOException, SecurityException {
-		return KrameriusImageSupport.readImage(uuid, FedoraUtils.IMG_THUMB_STREAM, this.fedoraAccess,page);
+	protected BufferedImage rawThumbnailImage(String uuid, int page) throws XPathExpressionException, IOException, SecurityException, SQLException {
+	    if (isIIPServerConfigured()) {
+	        String thumbnailIIPUrl = getThumbnailIIPUrl(uuid);
+	        return KrameriusImageSupport.readImage(new URL(thumbnailIIPUrl), ImageMimeType.JPEG, 0);
+	    } else {
+	        return KrameriusImageSupport.readImage(uuid, FedoraUtils.IMG_THUMB_STREAM, this.fedoraAccess,page);
+	    }
+	}
+	
+	
+	protected boolean isIIPServerConfigured() {
+	    return !configuration.getUrlOfIIPServer().equals("");
 	}
 	
 	protected BufferedImage rawFullImage(String uuid, HttpServletRequest request, int page) throws IOException, MalformedURLException, XPathExpressionException {
@@ -260,7 +271,14 @@ public abstract class AbstractImageServlet extends GuiceServlet {
                 }
             }
         }
-    
+    }
+
+    public String getThumbnailIIPUrl(String uuid) throws SQLException, UnsupportedEncodingException, IOException {
+        String dataStreamPath = getDataStreamPath(uuid);
+        StringTemplate fUrl = stGroup().getInstanceOf("fullthumb");
+        setStringTemplateModel(uuid, dataStreamPath, fUrl, fedoraAccess);
+        fUrl.setAttribute("height", "hei="+KConfiguration.getInstance().getConfiguration().getInt("scaledHeight", 128));
+        return fUrl.toString();
     }
 
     public static StringTemplateGroup stGroup() {
