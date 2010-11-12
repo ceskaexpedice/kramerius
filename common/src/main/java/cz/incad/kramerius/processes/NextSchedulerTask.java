@@ -5,7 +5,10 @@ import java.util.TimerTask;
 
 import cz.incad.kramerius.utils.conf.KConfiguration;
 
-
+/**
+ * Scheduler is able to start new process
+ * @author pavels
+ */
 public class NextSchedulerTask extends TimerTask {
 
 	public static final java.util.logging.Logger LOGGER = java.util.logging.Logger
@@ -38,7 +41,7 @@ public class NextSchedulerTask extends TimerTask {
 				}
 				if (runningProcesses < allowRunningProcesses()) {
 					LRProcess lrProcess = plannedProcess.get(0);
-					lrProcess.startMe(false, this.processScheduler.getApplicationLib(), this.processScheduler.getLrServlet());
+					lrProcess.startMe(false, this.processScheduler.getApplicationLib());
 				}
 			}  else {
 				LOGGER.fine("no planned process found");
