@@ -18,6 +18,7 @@ import java.util.logging.Level;
 
 import cz.incad.kramerius.processes.States;
 import cz.incad.kramerius.processes.database.ProcessDatabaseUtils;
+import cz.incad.kramerius.processes.utils.ProcessUtils;
 
 public class ProcessStarter {
 
@@ -26,7 +27,6 @@ public class ProcessStarter {
     public static final String MAIN_CLASS_KEY = "mainClass";
     public static final String UUID_KEY = "uuid";
     public static final String CLASSPATH_NAME = "CLASSPATH";
-    public static final String LR_SERVLET_URL = "LR_SERVLET_URL";
 
     public static final String SOUT_FILE = "SOUT";
     public static final String SERR_FILE = "SERR";
@@ -73,21 +73,23 @@ public class ProcessStarter {
 
     public static void updateStatus(States state) throws MalformedURLException, IOException {
         String uuid = System.getProperty(UUID_KEY);
-        String lrURl = System.getProperty(LR_SERVLET_URL);
+        String lrURl = ProcessUtils.getLrServlet();
         String restURL = lrURl + "?action=updateStatus&uuid=" + uuid + "&state=" + state;
         httpGet(restURL);
     }
 
     public static void updatePID(String pid) throws IOException {
         String uuid = System.getProperty(UUID_KEY);
-        String lrURl = System.getProperty(LR_SERVLET_URL);
+        String lrURl = ProcessUtils.getLrServlet();
+        
         String restURL = lrURl + "?action=updatePID&uuid=" + uuid + "&pid=" + pid;
         httpGet(restURL);
     }
 
     public static void updateName(String name) throws IOException {
         String uuid = System.getProperty(UUID_KEY);
-        String lrURl = System.getProperty(LR_SERVLET_URL);
+        String lrURl = ProcessUtils.getLrServlet();
+        
         String restURL = lrURl + "?action=updateName&uuid=" + uuid + "&name=" + URLEncoder.encode(name, "UTF-8");
         LOGGER.info("requesting url :" + restURL);
         httpGet(restURL);
