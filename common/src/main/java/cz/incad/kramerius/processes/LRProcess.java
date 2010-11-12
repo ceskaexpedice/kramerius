@@ -64,7 +64,7 @@ public interface LRProcess {
 	 * @see States
 	 * @param wait
 	 */
-	public void startMe(boolean wait, String krameriusAppLib, String lrServlet);
+	public void startMe(boolean wait, String krameriusAppLib);
 	
 	/**
 	 * Stops underlaying os process
