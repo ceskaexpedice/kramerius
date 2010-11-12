@@ -15,7 +15,7 @@ public class IndexerProcessStarter {
 
 	public static void spawnIndexer(String title, String uuid) {
 		log.info("Spawn indexer: title: "+title+" uuid: "+uuid);
-		String base = KConfiguration.getInstance().getApplicationURL() + '/' + InternalConfiguration.get().getLongRunningProcessesServlet();
+		String base = ProcessUtils.getLrServlet();    
 	    if (base == null || uuid == null){
 	    	log.severe("Cannot start indexer, invalid arguments: base:"+base+" uuid:"+uuid);
 	        return;
