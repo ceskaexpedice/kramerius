@@ -19,6 +19,9 @@ package cz.incad.kramerius.editor.server;
 
 import com.google.inject.Guice;
 import com.google.inject.Injector;
+import com.google.inject.Key;
+import com.google.inject.name.Names;
+import cz.incad.kramerius.FedoraAccess;
 import cz.incad.kramerius.KrameriusModels;
 import cz.incad.kramerius.editor.server.HandlerTestUtils.GWTKrameriusObjectBuilder;
 import cz.incad.kramerius.editor.server.HandlerTestUtils.RelationModelBuilder;
@@ -29,10 +32,14 @@ import cz.incad.kramerius.editor.share.rpc.SaveRelationsQuery;
 import cz.incad.kramerius.editor.share.rpc.SaveRelationsResult;
 import cz.incad.kramerius.relation.RelationModel;
 import cz.incad.kramerius.relation.RelationService;
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.Set;
 import net.customware.gwt.dispatch.server.ExecutionContext;
 import org.easymock.Capture;
 import org.easymock.EasyMock;
+import org.easymock.IAnswer;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -59,6 +66,7 @@ public class SaveRelationsQueryHandlerTest {
     private Injector injector;
     private RelationService mockRelationService;
     private SaveRelationsQueryHandler queryHandler;
+    private FedoraAccess mockFedora;
 
     public SaveRelationsQueryHandlerTest() {
     }
@@ -74,6 +82,7 @@ public class SaveRelationsQueryHandlerTest {
     @Before
     public void setUp() {
         injector = Guice.createInjector(new TestGuiceModule());
+        mockFedora = injector.getInstance(Key.get(FedoraAccess.class, Names.named("rawFedoraAccess")));
         mockRelationService = injector.getInstance(RelationService.class);
         queryHandler = injector.getInstance(SaveRelationsQueryHandler.class);
     }
@@ -91,8 +100,9 @@ public class SaveRelationsQueryHandlerTest {
         String pid = "uuid:00000000-0000-0000-0000-000000000001";
         ExecuteData testData = createTestExecuteData(pid);
         Capture<RelationModel> modelCapture = new Capture<RelationModel>();
+        expectGetDCDataStreams(testData);
         mockRelationService.save(EasyMock.eq(pid), EasyMock.capture(modelCapture));
-        EasyMock.replay(mockRelationService);
+        EasyMock.replay(mockRelationService, mockFedora);
 
         SaveRelationsQuery action = new SaveRelationsQuery(new GWTRelationModel(testData.expGkobj));
         ExecutionContext context = null;
@@ -102,7 +112,7 @@ public class SaveRelationsQueryHandlerTest {
         assertTrue("model capture", modelCapture.hasCaptured());
         RelationModel resModel = modelCapture.getValue();
         assertRelationModelEquals(testData.expModel, resModel);
-        EasyMock.verify(mockRelationService);
+        EasyMock.verify(mockRelationService, mockFedora);
     }
 
     private ExecuteData createTestExecuteData(String pid) {
@@ -136,6 +146,34 @@ public class SaveRelationsQueryHandlerTest {
         for (KrameriusModels kind : expRelationKinds) {
             assertEquals(kind + " relations", expModel.getRelations(kind), resModel.getRelations(kind));
         }
+    }
+
+    private static String DC_TEMPLATE =
+            "<oai_dc:dc xmlns:dc=\"http://purl.org/dc/elements/1.1/\""
+            + " xmlns:oai_dc=\"http://www.openarchives.org/OAI/2.0/oai_dc/\""
+            + " xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\""
+            + " xsi:schemaLocation=\"http://www.openarchives.org/OAI/2.0/oai_dc/ http://www.openarchives.org/OAI/2.0/oai_dc.xsd\">"
+            + "  <dc:title>%s</dc:title>"
+            + "</oai_dc:dc>";
+
+    private void expectGetDCDataStreams(final ExecuteData testData) throws IOException {
+        final Capture<String> pidCapture = new Capture<String>();
+        EasyMock.expect(mockFedora.getDataStream(
+                EasyMock.capture(pidCapture),
+                EasyMock.eq("DC"))
+                ).andAnswer(new IAnswer<InputStream>() {
+
+            @Override
+            public InputStream answer() throws Throwable {
+                String pid = pidCapture.getValue();
+                String title = testData.expGkobj.getTitle();
+                if (title == null) {
+                    throw new IllegalStateException("undefined title for pid: " + pid);
+                }
+                byte[] buf = String.format(DC_TEMPLATE, title).getBytes("UTF-8");
+                return new ByteArrayInputStream(buf);
+            }
+        }).anyTimes();
     }
 
 //    /**
