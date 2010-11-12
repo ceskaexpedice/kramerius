@@ -256,6 +256,9 @@ public class ItemMenuViewObject {
             items.add(exportDVD_PDF());
             items.add(generateDeepZoomTiles());
             items.add(deleteGenerateDeepZoomTiles());
+            if (!isPageModel()) {
+                items.add(editor());
+            }
         }
         return items;
     }
@@ -276,6 +279,17 @@ public class ItemMenuViewObject {
         String jsmethod = "deleteGeneratedDeepZoomTiles";
         String key = "administrator.menu.deleteGeneratedDeepZoomTiles";
         return renderCommonItem(key, "_data_x_role", "reindex", jsmethod);
+    }
+    private String editor() {
+        String key = "administrator.menu.editor";
+        String editor = kConfiguration.getEditorURL() + "?openIDs=uuid:" + uuid
+                + "&locale=" + locale.getLanguage();
+        StringTemplate template = new StringTemplate("<div align=\"left\"><a title='$tooltip$' "
+                + "href=\"$editor$\">$title$</a> </div>");
+        template.setAttribute("editor", editor);
+        titleAndTooltip(template, key);
+
+        return template.toString();
     }
 
     // TODO: Presunout jinam

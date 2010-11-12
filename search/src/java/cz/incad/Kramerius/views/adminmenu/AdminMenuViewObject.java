@@ -15,6 +15,7 @@ import com.google.inject.Inject;
 import cz.incad.Kramerius.security.KrameriusRoles;
 import cz.incad.kramerius.security.IsUserInRoleDecision;
 import cz.incad.kramerius.service.ResourceBundleService;
+import cz.incad.kramerius.utils.conf.KConfiguration;
 
 public class AdminMenuViewObject {
 
@@ -27,6 +28,8 @@ public class AdminMenuViewObject {
     Locale locale;
     @Inject
     IsUserInRoleDecision userInRoleDecision;
+    @Inject
+    KConfiguration kconfig;
 
     public String processes() throws IOException {
         return renderMenuItem(
@@ -56,6 +59,12 @@ public class AdminMenuViewObject {
         return renderMenuItem(
                 "javascript:noParamsProcess('" + processName + "'); javascript:hideAdminMenu();",
                 "administrator.menu.dialogs." + processName + ".title");
+    }
+
+    public String editor() throws IOException {
+        String localeParam = locale == null ? "" : "?locale=" + locale.getLanguage();
+        String href = kconfig.getEditorURL() + localeParam;
+        return renderMenuItem(href, "administrator.menu.dialogs.editor.title");
     }
 
     private String renderMenuItem(String href, String labelKey) throws IOException {
@@ -91,6 +100,9 @@ public class AdminMenuViewObject {
                 }
                 if (isUserRole(KrameriusRoles.IMPORT)) {
                     menuItems.add(noParamsProcess(KrameriusRoles.IMPORT.getRoleName()));
+                }
+                if (isUserRole(KrameriusRoles.KRAMERIUS_ADMIN)) {
+                    menuItems.add(editor());
                 }
             }
             return menuItems.toArray(new String[menuItems.size()]);

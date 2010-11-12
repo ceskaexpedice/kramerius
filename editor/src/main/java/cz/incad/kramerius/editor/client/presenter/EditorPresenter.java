@@ -392,7 +392,9 @@ public class EditorPresenter implements Presenter, LoadView.Callback, EditorView
 
             @Override
             public void run() {
-                Window.Location.assign(EditorConfiguration.getInstance().getKrameriusURL());
+                String krameriusUrl = EditorConfiguration.getInstance().getKrameriusURL();
+                krameriusUrl += "?language=" + Languages.getLocaleName(Languages.getCurrentLocaleIndex());
+                Window.Location.assign(krameriusUrl);
             }
         };
 
