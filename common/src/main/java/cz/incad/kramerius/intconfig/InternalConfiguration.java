@@ -41,7 +41,4 @@ public class InternalConfiguration {
         return properties;
     }
 
-    public String getLongRunningProcessesServlet() {
-        return getProperties().getProperty("servlets.mapping.lrcontrol");
-    }
 }

@@ -83,9 +83,8 @@ public class LongRunningProcessServlet extends GuiceServlet {
         if ((conf.getApplicationURL() == null) || (conf.getApplicationURL().equals(""))) {
             throw new RuntimeException("lr servlet need configuration parameter 'applicationUrl'");
         }
-        String lrServlet = conf.getApplicationURL() + '/' + InternalConfiguration.get().getLongRunningProcessesServlet();
 
-        this.processScheduler.init(appLibPath, lrServlet);
+        this.processScheduler.init(appLibPath);
         this.gcScheduler.init();
     }
 
