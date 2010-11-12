@@ -329,23 +329,54 @@ function getChildModels(level, recursive){
 }
 
 function getItemMenuOptions(pid, level, model){
+    //alert(level);
     var pid_path = "";
     var path = "";
     var id;
-    for(var i=level;i>0;i--){
-        id = $("#tabs_"+i+">div:first").attr('id');
+//    for(var i=level;i>0;i--){
+//        id = $("#tabs_"+i+">div:first").attr('id');
+//        if(i==level){
+//          pid = $("#tabs_"+i).attr('pid');
+//          path = id.substring(id.indexOf("-") + 1 );   
+//        }else{
+//          pid_path = $("#tabs_"+i).attr('pid') + "/" + pid_path;
+//          path = id.substring(id.indexOf("-") + 1 ) + "/" + path;
+//        }
+//    }
+    var i = level;
+    var cmodel = model;
+    var lastpid = "";
+    while(i>0){
+        //alert(i);
+        //alert(cmodel);
+        //alert("#tab"+i + "-"+cmodel);
+        id = $("#tab"+i + "-"+cmodel).attr('id');
         if(i==level){
-          pid = $("#tabs_"+i).attr('pid');
+          pid_path = $("#tabs_"+i).attr('pid');
+          lastpid = pid_path;
           path = id.substring(id.indexOf("-") + 1 );   
         }else{
           pid_path = $("#tabs_"+i).attr('pid') + "/" + pid_path;
           path = id.substring(id.indexOf("-") + 1 ) + "/" + path;
         }
+        if($("#tabs_"+i).parent().parent()==0){
+            break;
+        }else{
+            var idi = $("#tabs_"+i).parent().parent().attr('id');
+            var modeli = $("#tabs_"+i).parent().attr('id');
+            i = idi.substring(5);
+            //alert(modeli);
+            cmodel = modeli.substring(5);
+            //alert(cmodel);
+        }
+        
+        //i--;
     }
     
-    var url ="inc/details/itemMenuOptions.jsp?pid="+pid+"&pid_path="+pid_path+"&path="+path;
+    var url ="inc/details/itemMenuOptions.jsp?pid="+lastpid+"&pid_path="+pid_path+"&path="+path;
+    //if(level==4) alert(model);
     $.get(url, function(data){
-        $("#tab"+level+"-"+model+">div.relList").parent().prepend(data);
+        $("#tab"+level+"-"+model).prepend(data);
         
     });
 }
@@ -406,7 +437,7 @@ function getRelsInLevel(level, recursive, offset){
 }
 
 function getRels(recursive){
-    var maxLevel = getMaxLevel();
+    var maxLevel = getMaxLevelAbsolute();
     for(var i=2;i<=maxLevel;i++){
         getRelsInLevel(i,recursive, 0);
     }
@@ -560,6 +591,24 @@ function getMaxLevel(){
         id = $(this).attr('id');
         cur = parseInt(id.substr(5));
         if($('#'+id).is(':visible') && cur>maxLevel){
+            maxLevel = cur;
+        }
+    });
+    return maxLevel;
+}
+
+/*
+ *       find max active level in menu
+ */       
+function getMaxLevelAbsolute(){
+    var maxLevel = 1;
+    var id;
+    var cur;
+    //alert($('.ui-tabs').length);
+    $('.ui-tabs').each(function(index){
+        id = $(this).attr('id');
+        cur = parseInt(id.substr(5));
+        if(cur>maxLevel){
             maxLevel = cur;
         }
     });

@@ -31,7 +31,7 @@
             <xsl:when test="$onlyinfo='true'">
                 <xsl:for-each select="//doc" >
                     <xsl:if test="not(preceding-sibling::*[1]/str[@name='fedora.model'] = ./str[@name='fedora.model']/text())">
-                    <xsl:call-template name="model">
+                    <xsl:call-template name="details">
                         <xsl:with-param name="fmodel"><xsl:value-of select="./str[@name='fedora.model']" /></xsl:with-param>
                     </xsl:call-template>
                     </xsl:if>

@@ -542,12 +542,12 @@ function getPageTitle(pid){
     return $("#" + pid).text();
 }
 
-function toggleAdminOptions(div){
+function toggleAdminOptions(level, div){
 	postProcessContextMenu();
-	var il = $('#menu-'+div).parent().width() + $('#menu-'+div).parent().offset().left - $('#menu-'+div).width();
-    $('#menu-'+div).css('left', il);
-    $('#menu-'+div).toggle();
-    $('#openmenu-'+div).toggle();
+	var il = $('#menu'+level+'-'+div).parent().width() + $('#menu'+level+'-'+div).parent().offset().left - $('#menu'+level+'-'+div).width();
+    $('#menu'+level+'-'+div).css('left', il);
+    $('#menu'+level+'-'+div).toggle();
+    $('#openmenu'+level+'-'+div).toggle();
 }
 
 function hideAdminOptions(level){

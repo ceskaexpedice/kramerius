@@ -30,6 +30,7 @@
 %>
 <c:forEach var="menu" varStatus="status" items="${itemViewObject.menus}">
 <c:if test="${menu.uuid == param.pid}">
+<%--<c:if test="${status.count == fn:length(itemViewObject.menus)}">--%>
    <%@ include file="../../admin/itemOptions.jsp"%>
 </c:if>
 </c:forEach>
