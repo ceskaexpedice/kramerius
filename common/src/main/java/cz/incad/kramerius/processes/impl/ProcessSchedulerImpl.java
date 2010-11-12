@@ -4,7 +4,6 @@ import java.util.Timer;
 
 import com.google.inject.Inject;
 
-import cz.incad.kramerius.intconfig.InternalConfiguration;
 import cz.incad.kramerius.processes.DefinitionManager;
 import cz.incad.kramerius.processes.LRProcessManager;
 import cz.incad.kramerius.processes.NextSchedulerTask;
@@ -18,7 +17,6 @@ public class ProcessSchedulerImpl implements ProcessScheduler {
 	
 	private int interval;
 	private String applicationLib;
-	private String lrServlet;
 	
 	private Timer timer;
 	
@@ -38,19 +36,11 @@ public class ProcessSchedulerImpl implements ProcessScheduler {
 		return this.applicationLib;
 	}
 
-	@Override
-	public String getLrServlet() {
-            // XXX !?! this hides lrServlet field set in init() !?!
-	    String lrServlet = KConfiguration.getInstance().getApplicationURL() + '/' + InternalConfiguration.get().getLongRunningProcessesServlet();
-	    return lrServlet;
-	}
-
 
 	@Override
-	public void init(String applicationLib, String lrServlet) {
+	public void init(String applicationLib) {
 		// Jak to vyresit ??? 
 		this.applicationLib = applicationLib;
-		this.lrServlet = lrServlet;
 		String sinterval  = KConfiguration.getInstance().getProperty("processQueue.checkInterval","10000");
 		this.interval =  Integer.parseInt(sinterval);
 		this.scheduleNextTask();
