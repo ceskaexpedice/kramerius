@@ -57,6 +57,7 @@ public class GetKrameriusObjectQueryHandlerTest {
     private GetKrameriusObjectQueryHandler queryHandler;
     private RelationService mockRelationService;
     private FedoraAccess mockFedora;
+    private RemoteServices mockRemotes;
 
     public GetKrameriusObjectQueryHandlerTest() {
     }
@@ -74,6 +75,7 @@ public class GetKrameriusObjectQueryHandlerTest {
         injector = Guice.createInjector(new TestGuiceModule());
         mockFedora = injector.getInstance(Key.get(FedoraAccess.class, Names.named("rawFedoraAccess")));
         mockRelationService = injector.getInstance(RelationService.class);
+        mockRemotes = injector.getInstance(RemoteServices.class);
         queryHandler = injector.getInstance(GetKrameriusObjectQueryHandler.class);
     }
 
@@ -91,8 +93,11 @@ public class GetKrameriusObjectQueryHandlerTest {
         ExecuteData testData = createTestExecuteData(pid);
 
         EasyMock.expect(mockRelationService.load(pid)).andReturn(testData.relModel);
+        EasyMock.expect(mockRemotes.fetchDCName(EasyMock.anyObject(String.class)))
+                // inject real implementation
+                .andDelegateTo(new RemoteServicesImpl(mockFedora)).anyTimes();
         expectGetDCDataStreams(testData);
-        EasyMock.replay(mockFedora, mockRelationService);
+        EasyMock.replay(mockFedora, mockRelationService, mockRemotes);
 
         GetKrameriusObjectQuery action = new GetKrameriusObjectQuery(pid);
         GetKrameriusObjectResult result = queryHandler.execute(action, null);
@@ -102,7 +107,7 @@ public class GetKrameriusObjectQueryHandlerTest {
         GWTKrameriusObject expGkobj = testData.gkobj;
         GWTKrameriusObject gkobj = result.getResult();
         assertGWTKrameriusObjectEquals(expGkobj, gkobj);
-        EasyMock.verify(mockFedora, mockRelationService);
+        EasyMock.verify(mockFedora, mockRelationService, mockRemotes);
     }
 
     private static String DC_TEMPLATE =
@@ -113,6 +118,7 @@ public class GetKrameriusObjectQueryHandlerTest {
             + "  <dc:title>%s</dc:title>"
             + "</oai_dc:dc>";
 
+    /** XXX this should be moved to commons test of DCUtils.titleFromDC() */
     private void expectGetDCDataStreams(final ExecuteData testData) throws IOException {
         final Capture<String> pidCapture = new Capture<String>();
         EasyMock.expect(mockFedora.getDataStream(

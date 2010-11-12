@@ -30,8 +30,6 @@ import cz.incad.kramerius.relation.Relation;
 import cz.incad.kramerius.relation.RelationModel;
 import cz.incad.kramerius.relation.RelationService;
 import cz.incad.kramerius.relation.RelationUtils;
-import cz.incad.kramerius.service.impl.IndexerProcessStarter;
-import cz.incad.kramerius.utils.DCUtils;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.EnumMap;
@@ -43,7 +41,6 @@ import net.customware.gwt.dispatch.server.ActionHandler;
 import net.customware.gwt.dispatch.server.ExecutionContext;
 import net.customware.gwt.dispatch.shared.ActionException;
 import net.customware.gwt.dispatch.shared.DispatchException;
-import org.w3c.dom.Document;
 
 /**
  *
@@ -51,14 +48,17 @@ import org.w3c.dom.Document;
  */
 public final class SaveRelationsQueryHandler implements ActionHandler<SaveRelationsQuery, SaveRelationsResult> {
     private RelationService relationsDAO;
+    private RemoteServices remotes;
     private FedoraAccess fedoraAccess;
 
     @Inject
     public SaveRelationsQueryHandler(
             RelationService dao,
+            RemoteServices remotes,
             @Named("rawFedoraAccess") FedoraAccess fedoraAccess) {
 
         this.relationsDAO = dao;
+        this.remotes = remotes;
         this.fedoraAccess = fedoraAccess;
     }
 
@@ -77,7 +77,7 @@ public final class SaveRelationsQueryHandler implements ActionHandler<SaveRelati
             Map<KrameriusModels, List<Relation>> queryRelations = buildQueryRelations(action);
             applyNewRelations(model, queryRelations);
             relationsDAO.save(pid, model);
-            reindex(pid);
+            remotes.reindex(pid);
             SaveRelationsResult result = new SaveRelationsResult(SaveRelationsState.OK);
             return result;
         } catch (IOException ex) {
@@ -123,25 +123,6 @@ public final class SaveRelationsQueryHandler implements ActionHandler<SaveRelati
         for (Map.Entry<KrameriusModels, List<Relation>> entry : queryRelations.entrySet()) {
             model.addRelationKind(entry.getKey());
             model.getRelations(entry.getKey()).addAll(entry.getValue());
-        }
-    }
-
-    private void reindex(String pid) {
-        String uuid = EditorServerUtils.resolveUUID(pid);
-        if (uuid != null) {
-            String title = fetchDCName(pid);
-            IndexerProcessStarter.spawnIndexer(title, uuid);
-        }
-    }
-
-    private String fetchDCName(String pid) {
-        try {
-            Document dc = RelationUtils.getDC(pid, fedoraAccess);
-            return DCUtils.titleFromDC(dc);
-        } catch (IOException ex) {
-            Logger.getLogger(SaveRelationsQueryHandler.class.getName()).log(Level.SEVERE, "pid: " + pid, ex);
-            // fallback
-            return pid;
         }
     }
 

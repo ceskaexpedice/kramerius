@@ -28,8 +28,6 @@ import cz.incad.kramerius.editor.share.rpc.GetKrameriusObjectResult.Descriptor;
 import cz.incad.kramerius.relation.Relation;
 import cz.incad.kramerius.relation.RelationModel;
 import cz.incad.kramerius.relation.RelationService;
-import cz.incad.kramerius.relation.RelationUtils;
-import cz.incad.kramerius.utils.DCUtils;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
@@ -40,7 +38,6 @@ import net.customware.gwt.dispatch.server.ActionHandler;
 import net.customware.gwt.dispatch.server.ExecutionContext;
 import net.customware.gwt.dispatch.shared.ActionException;
 import net.customware.gwt.dispatch.shared.DispatchException;
-import org.w3c.dom.Document;
 
 /**
  *
@@ -50,14 +47,17 @@ public final class GetKrameriusObjectQueryHandler implements ActionHandler<GetKr
 
     private RelationService relationsDAO;
     private FedoraAccess fedoraAccess;
+    private RemoteServices remotes;
 
     @Inject
     public GetKrameriusObjectQueryHandler(
             RelationService dao,
+            RemoteServices remotes,
             @Named("rawFedoraAccess") FedoraAccess fedoraAccess) {
 
         this.relationsDAO = dao;
         this.fedoraAccess = fedoraAccess;
+        this.remotes = remotes;
     }
 
     @Override
@@ -152,8 +152,7 @@ public final class GetKrameriusObjectQueryHandler implements ActionHandler<GetKr
 
     private String fetchDCName(String pid) throws ActionException {
         try {
-            Document dc = RelationUtils.getDC(pid, fedoraAccess);
-            return DCUtils.titleFromDC(dc);
+            return remotes.fetchDCName(pid);
         } catch (IOException ex) {
             Logger.getLogger(GetKrameriusObjectQueryHandler.class.getName()).log(Level.SEVERE, "pid: " + pid, ex);
             throw new ActionException("The server is out of order.");
