@@ -2,6 +2,7 @@ package cz.incad.kramerius.service.impl;
 
 import cz.incad.kramerius.intconfig.InternalConfiguration;
 import cz.incad.kramerius.processes.impl.ProcessStarter;
+import cz.incad.kramerius.processes.utils.ProcessUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
@@ -38,8 +39,8 @@ public class IndexerProcessStarter {
 
 	public static void spawnIndexRemover(String pid_path, String uuid) {
 		log.info("spawnIndexRemower: pid_path: "+pid_path+" uuid: "+uuid);
-		String base = System.getProperty(ProcessStarter.LR_SERVLET_URL);
-	    if (base == null || pid_path == null || uuid == null){
+		String base = ProcessUtils.getLrServlet();
+		if (base == null || pid_path == null || uuid == null){
 	    	log.severe("Cannot start indexer, invalid arguments: base:"+base+" uuid:"+uuid+" pid_path:"+pid_path);
 	        return;
 	    }
