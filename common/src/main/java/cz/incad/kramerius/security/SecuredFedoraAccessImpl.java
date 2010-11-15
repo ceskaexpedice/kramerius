@@ -218,7 +218,7 @@ public class SecuredFedoraAccessImpl implements FedoraAccess {
             Document relsExt = this.rawAccess.getRelsExt(uuid);
             checkPolicyElement(relsExt);
         }
-        if (isFullthumbnailAvailable(uuid)) {
+        if (this.isStreamAvailable(uuid, FedoraUtils.IMG_PREVIEW_STREAM)) {
             return rawAccess.getFullThumbnail(uuid);
         } else {
             String rootPath = KConfiguration.getInstance().getConfiguration().getString("fullThumbnail.cacheDirectory", "${sys:user.home}/.kramerius4/fullThumb");
