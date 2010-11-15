@@ -173,7 +173,7 @@ public class ContainerPresenter implements Presenter, Callback {
 
     private void log(String s) {
         // GWT will introduce java.util.logging.* support in GWT 2.1
-        System.out.println(s);
+//        System.out.println(s);
 //        GWT.log(s);
     }
 
