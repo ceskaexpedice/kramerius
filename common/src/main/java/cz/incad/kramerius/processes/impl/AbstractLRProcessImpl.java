@@ -153,17 +153,11 @@ public abstract class AbstractLRProcessImpl implements LRProcess{
 			this.state = States.RUNNING;
 			manager.updateLongRunningProcessState(this);
 			manager.updateLongRunningProcessStartedDate(this);
-//			manager.registerLongRunningProcess(this);
             
 			LOGGER.info(""+command);
 			LOGGER.info(buffer.toString());
 			
 			Process process = processBuilder.start();
-			//File errStreamFile = new File(createFolderIfNotExists(this.definition.getErrStreamFolder()),this.uuid+".err");
-			//LOGGER.info("error stream file:"+errStreamFile.getAbsolutePath());
-			//new FollowStreamThread(process.getErrorStream(), new FileOutputStream(errStreamFile)).start();
-			//new FollowStreamThread(process.getInputStream(), new FileOutputStream(standardStreamFile)).start();
-			// nastaveni priznaku odstartovani
 			
 			// pokracuje dal.. rozhoduje se, jestli pocka na vysledek procesu
 			if (wait) {
