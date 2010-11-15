@@ -574,8 +574,9 @@ function showImage(viewerOptions) {
 	if (viewerOptions.isContentPDF()) {
 		displayPDFImageContent();
 	} else {
-	    var tilesPrepared = viewerOptions.deepZoomGenerated || viewerOptions.imageServerConfigured;
-	    if ((viewerOptions.deepZoomCofigurationEnabled) && (tilesPrepared)) {
+            var tilesPrepared = viewerOptions.deepZoomGenerated || viewerOptions.imageServerConfigured;
+            var deepZoomDisplay = ((viewerOptions.deepZoomCofigurationEnabled) && (tilesPrepared));
+	    if (deepZoomDisplay == true) {
 		    if (viewer == null) {
 		        init();
 		    }
