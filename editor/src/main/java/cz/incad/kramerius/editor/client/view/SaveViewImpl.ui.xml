@@ -30,26 +30,23 @@ For i18 stuff see src/main/java/com/google/gwt/i18n/client/LocalizableResource_<
     <ui:style src="SaveView.css" field="style"
             type="cz.incad.kramerius.editor.client.view.SaveViewImpl.StyleAccess" />
 
-    <g:DockLayoutPanel unit="EM">
-        <g:south size="2.5">
-            <g:HTMLPanel>
-                <g:Button ui:field="okButton" addStyleNames="{style.button}">
-                    <ui:msg key="saveButtonLabel">Save</ui:msg>
-                </g:Button>
-                <g:Button ui:field="discardButton" addStyleNames="{style.button}">
-                    <ui:msg key="discardButtonLabel">Discard</ui:msg>
-                </g:Button>
-                <g:Button ui:field="cancelButton" addStyleNames="{style.button}">
-                    <ui:msg key="cancelButtonLabel">Cancel</ui:msg>
-                </g:Button>
-            </g:HTMLPanel>
-        </g:south>
+    <g:HTMLPanel>
+        <g:ScrollPanel ui:field="scrollPanel" height="200px" width="500px">
+            <g:FlowPanel ui:field="saveablePanel">
+            </g:FlowPanel>
+        </g:ScrollPanel>
+        
+        <div>
+            <g:Button ui:field="okButton" addStyleNames="{style.button}">
+                <ui:msg key="saveButtonLabel">Save</ui:msg>
+            </g:Button>
+            <g:Button ui:field="discardButton" addStyleNames="{style.button}">
+                <ui:msg key="discardButtonLabel">Discard</ui:msg>
+            </g:Button>
+            <g:Button ui:field="cancelButton" addStyleNames="{style.button}">
+                <ui:msg key="cancelButtonLabel">Cancel</ui:msg>
+            </g:Button>
+        </div>
+    </g:HTMLPanel>
 
-        <g:center>
-            <g:ScrollPanel ui:field="scrollPanel">
-                <g:FlowPanel ui:field="saveablePanel">
-                </g:FlowPanel>
-            </g:ScrollPanel>
-        </g:center>
-    </g:DockLayoutPanel>
 </ui:UiBinder>

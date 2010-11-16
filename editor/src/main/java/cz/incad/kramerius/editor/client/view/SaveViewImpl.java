@@ -62,7 +62,6 @@ public final class SaveViewImpl<T> implements SaveView<T> {
 
     public SaveViewImpl() {
         this.saveViewWidget = (Widget) uiBinder.createAndBindUi(this);
-        this.saveViewWidget.setSize("500px", "200px");
     }
 
     @Override
