@@ -71,6 +71,6 @@ public interface EditorView extends Display {
         
         void onLanguagesClick(int index);
 
-        void onEditorTabClose();
+        void onEditorTabClose(Display item);
     }
 }

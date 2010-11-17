@@ -350,8 +350,7 @@ public class EditorPresenter implements Presenter, LoadView.Callback, EditorView
     }
 
     @Override
-    public void onEditorTabClose() {
-        final Display selected = this.display.getSelected();
+    public void onEditorTabClose(final Display selected) {
         final RelationsPresenter relPresenter = this.view2PresenterMap.get(selected);
         final GWTRelationModel relModel = relPresenter.getModel();
         final Runnable doEditorTabClose = new Runnable() {

@@ -70,18 +70,18 @@ public final class EditorViewImpl implements EditorView {
 
     @Override
     public void remove(Display item) {
-        int selectedIndex = getSelectedIndex(item);
-        if (selectedIndex >= 0) {
-            editorTabPanel.remove(selectedIndex);
-            tabsModel.remove(selectedIndex);
+        int tabIndex = getTabIndex(item);
+        if (tabIndex >= 0) {
+            editorTabPanel.remove(tabIndex);
+            tabsModel.remove(tabIndex);
         }
     }
 
     @Override
     public void select(Display item) {
-        int selectedIndex = getSelectedIndex(item);
-        if (selectedIndex >= 0) {
-            this.editorTabPanel.selectTab(selectedIndex);
+        int tabIndex = getTabIndex(item);
+        if (tabIndex >= 0) {
+            this.editorTabPanel.selectTab(tabIndex);
         }
     }
 
@@ -182,11 +182,13 @@ public final class EditorViewImpl implements EditorView {
     @UiHandler("editorTabPanel")
     void onTabClose(CloseEvent<Integer> event) {
         if (callback != null) {
-            callback.onEditorTabClose();
+            int index = event.getTarget();
+            Display tab = tabsModel.get(index);
+            callback.onEditorTabClose(tab);
         }
     }
     
-    private int getSelectedIndex(Display tab) {
+    private int getTabIndex(Display tab) {
         for (int i = 0; i < tabsModel.size(); i++) {
             Display d = tabsModel.get(i);
             if (d == tab) {

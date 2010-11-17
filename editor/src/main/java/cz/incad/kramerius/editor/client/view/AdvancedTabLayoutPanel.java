@@ -17,6 +17,7 @@
 
 package cz.incad.kramerius.editor.client.view;
 
+import com.google.gwt.event.logical.shared.SelectionEvent;
 import cz.incad.kramerius.editor.client.EditorConstants;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.dom.client.Style.Unit;
@@ -32,6 +33,7 @@ import com.google.gwt.resources.client.CssResource;
 import com.google.gwt.uibinder.client.UiConstructor;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.HorizontalPanel;
+import com.google.gwt.user.client.ui.InlineLabel;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.TabLayoutPanel;
 import com.google.gwt.user.client.ui.Widget;
@@ -52,6 +54,7 @@ public class AdvancedTabLayoutPanel extends Composite implements HasCloseHandler
 
     private static final EditorConstants I18N = GWT.create(EditorConstants.class);
     private final TabLayoutPanel delegate;
+    private int lastSelectedIndex = -1;
 
     public interface Resources extends ClientBundle {
 //        @CssResource.NotStrict
@@ -63,6 +66,7 @@ public class AdvancedTabLayoutPanel extends Composite implements HasCloseHandler
 
         String modified();
         String tabCloseButton();
+        String tabCloseButtonSelected();
     }
 
     private Style style;
@@ -78,14 +82,24 @@ public class AdvancedTabLayoutPanel extends Composite implements HasCloseHandler
         this.style = bundle.css();
         this.style.ensureInjected();
         initWidget(delegate);
+
+        delegate.addSelectionHandler(new SelectionHandler<Integer>() {
+
+            @Override
+            public void onSelection(SelectionEvent<Integer> event) {
+                int oldIndex = lastSelectedIndex;
+                lastSelectedIndex = event.getSelectedItem();
+                followDelegateSelection(oldIndex, lastSelectedIndex);
+            }
+        });
     }
 
     public void add(Widget child, String text, boolean closeable) {
         Widget advancedTab;
         if (closeable) {
-            advancedTab = new AdvancedTab(text, createCloseTabWidget(child));
+            advancedTab = new AdvancedTab(text, createCloseTabWidget(child), style);
         } else {
-            advancedTab = new AdvancedTab(text);
+            advancedTab = new AdvancedTab(text, style);
         }
         delegate.add(child, advancedTab);
     }
@@ -93,9 +107,9 @@ public class AdvancedTabLayoutPanel extends Composite implements HasCloseHandler
     public void insert(Widget child, String text, int beforeIndex, boolean closeable) {
         Widget advancedTab;
         if (closeable) {
-            advancedTab = new AdvancedTab(text, createCloseTabWidget(child));
+            advancedTab = new AdvancedTab(text, createCloseTabWidget(child), style);
         } else {
-            advancedTab = new AdvancedTab(text);
+            advancedTab = new AdvancedTab(text, style);
         }
         delegate.insert(child, advancedTab, beforeIndex);
     }
@@ -104,7 +118,13 @@ public class AdvancedTabLayoutPanel extends Composite implements HasCloseHandler
      * @see TabLayoutPanel#remove(int)
      */
     public boolean remove(int index) {
-        return delegate.remove(index);
+        int selectedIndex = getSelectedIndex();
+        boolean removed = delegate.remove(index);
+
+        if (removed) {
+            reselectIfNecessary(index, selectedIndex);
+        }
+        return removed;
     }
 
     /**
@@ -119,11 +139,7 @@ public class AdvancedTabLayoutPanel extends Composite implements HasCloseHandler
      */
     public void setTabText(int index, String text) {
         AdvancedTab tabWidget = AdvancedTab.get(delegate.getTabWidget(index));
-        if (tabWidget != null) {
-            tabWidget.setTabText(text);
-        } else {
-            delegate.setTabText(index, text);
-        }
+        tabWidget.setTabText(text);
     }
 
     @Override
@@ -133,15 +149,13 @@ public class AdvancedTabLayoutPanel extends Composite implements HasCloseHandler
 
     public void setModified(int index, boolean modified) {
         AdvancedTab tabWidget = AdvancedTab.get(delegate.getTabWidget(index));
-        if (tabWidget != null) {
-            Widget tabLabel = tabWidget.getTabLabel();
-            if (modified) {
-                tabLabel.getElement().addClassName(this.style.modified());
-            } else {
-                tabLabel.getElement().removeClassName(this.style.modified());
-            }
-            tabWidget.setModifiedTab(modified);
+        Widget tabLabel = tabWidget.getTabLabel();
+        if (modified) {
+            tabLabel.getElement().addClassName(this.style.modified());
+        } else {
+            tabLabel.getElement().removeClassName(this.style.modified());
         }
+        tabWidget.setModifiedTab(modified);
     }
 
     /**
@@ -172,50 +186,85 @@ public class AdvancedTabLayoutPanel extends Composite implements HasCloseHandler
         return delegate.addSelectionHandler(handler);
     }
 
+    private void followDelegateSelection(int oldIndex, int newIndex) {
+        if (oldIndex >= 0 && oldIndex < delegate.getWidgetCount()) {
+            AdvancedTab tabWidget = AdvancedTab.get(delegate.getTabWidget(oldIndex));
+            tabWidget.setSelected(false);
+        }
+        AdvancedTab tabWidget = AdvancedTab.get(delegate.getTabWidget(newIndex));
+        tabWidget.setSelected(true);
+    }
+
+    /**
+     * It is necessary to adjust tab selection as TabLayoutPanel.remove always
+     * selects index 0 when index == selectedIndex
+     *
+     * @param removedIndex removed tab
+     * @param selectedIndex tab selected before remove
+     */
+    private void reselectIfNecessary(int removedIndex, int selectedIndex) {
+        int select = -1;
+        if (removedIndex == selectedIndex) {
+            if (selectedIndex > 0) {
+                select = selectedIndex - 1;
+            } else if (delegate.getWidgetCount() > 0) {
+                // ignore
+                // select = 0;
+            }
+        } else {
+            // ignore
+            // select = selectedIndex < removedIndex ? selectedIndex : selectedIndex - 1;
+        }
+        if (select >= 0) {
+            delegate.selectTab(select);
+        }
+    }
+
     private Widget createCloseTabWidget(final Widget child) {
-        // XXX fix: temporary solution to remove the tab
-        Label closeHandle = new Label("\u2718");
+        Label closeHandle = new InlineLabel();
         closeHandle.setTitle(I18N.closeTabHandleTooltip());
+        closeHandle.addStyleName("ui-icon ui-icon-close");
         closeHandle.addStyleName(this.style.tabCloseButton());
         closeHandle.addClickHandler(new ClickHandler() {
 
             @Override
             public void onClick(ClickEvent event) {
-                int selectedIndex = getSelectedIndex();
                 int widgetIndex = delegate.getWidgetIndex(child);
-                if (selectedIndex != widgetIndex) {
-                    // closing unselected tab; select first
-                    selectTab(widgetIndex);
-                    selectedIndex = getSelectedIndex();
-                    if (selectedIndex != widgetIndex) {
-                        // ignore; selection was vetoed
-                        return ;
-                    }
-                }
-                CloseEvent.fire(AdvancedTabLayoutPanel.this, selectedIndex, false);
+                CloseEvent.fire(AdvancedTabLayoutPanel.this, widgetIndex, false);
             }
         });
         return closeHandle;
     }
 
+    /**
+     * do not extend FlowPanel as it does not work with IE7 and older
+     */
     private static final class AdvancedTab extends HorizontalPanel {
         private final Label label;
+        private final Widget closer;
         private boolean modified;
+        private final Style style;
 
-        public AdvancedTab(String text) {
-            this(text, null);
+        public AdvancedTab(String text, Style style) {
+            this(text, null, style);
         }
-        public AdvancedTab(String text, Widget closer) {
-            this.label = new Label(ViewUtils.makeLabelVisible(text));
+        public AdvancedTab(String text, Widget closer, Style style) {
+            this.label = new InlineLabel(ViewUtils.makeLabelVisible(text));
             this.label.setTitle(text);
             add(this.label);
+            this.closer = closer;
             if (closer != null) {
                 add(closer);
             }
+            this.style = style;
         }
 
         public Widget getTabLabel() {
             return label;
+        }
+
+        public Widget getTabCloser() {
+            return closer;
         }
 
         public boolean isModifiedTab() {
@@ -226,15 +275,23 @@ public class AdvancedTabLayoutPanel extends Composite implements HasCloseHandler
             this.modified = modified;
         }
 
+        public void setSelected(boolean selected) {
+            if (closer != null) {
+                if (selected) {
+                    closer.addStyleName(style.tabCloseButtonSelected());
+                } else {
+                    closer.removeStyleName(style.tabCloseButtonSelected());
+                }
+            }
+        }
+
         private void setTabText(String text) {
             this.label.setText(ViewUtils.makeLabelVisible(text));
             this.label.setTitle(text);
         }
 
         public static AdvancedTab get(Widget tabWidget) {
-            return tabWidget instanceof AdvancedTab
-                    ? (AdvancedTab) tabWidget
-                    : null;
+            return (AdvancedTab) tabWidget;
         }
 
     }

@@ -66,7 +66,7 @@ For i18 stuff see src/main/java/com/google/gwt/i18n/client/LocalizableResource_<
 
                 <g:center>
                     <!-- Editor tabs -->
-                    <ke:AdvancedTabLayoutPanel barHeight="2.2" barUnit="EM"  ui:field="editorTabPanel"/>
+                    <ke:AdvancedTabLayoutPanel barHeight="2.4" barUnit="EM"  ui:field="editorTabPanel"/>
                 </g:center>
             </g:SplitLayoutPanel>
         </g:center>

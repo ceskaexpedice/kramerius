@@ -22,16 +22,24 @@
     font-weight: bold;
 }
 .tabCloseButton {
+    /* prevents tab bouncing on hover */
+    border: 1px solid transparent;
     margin-left: 4px;
 }
 .tabCloseButton:hover {
-/*    border: solid 1px;*/
-    color: red;
+    /* consistent with gwt-TabLayoutPanel */
+    border: 1px solid #999999;
     cursor: pointer;
+/*    background-image:url("./images/256x240_icons.png");*/
+/*    background-color: #ffa903;*/
+}
+.tabCloseButtonSelected {
+    /* use lighter motive for selected tab */
+    background-image:url("./images/256x240_icons_light.png");
 }
 
 /* gwt TabLayoutPanel restyling*/
-@external gwt-TabLayoutPanel gwt-TabLayoutPanelTab gwt-TabLayoutPanelTab-selected gwt-TabLayoutPanelContent;
+@external gwt-TabLayoutPanel gwt-TabLayoutPanelTab gwt-TabLayoutPanelTab-selected gwt-TabLayoutPanelContent gwt-TabLayoutPanelTabInner;
 
 .gwt-TabLayoutPanel .gwt-TabLayoutPanelTab {
     background: none repeat-x scroll 50% 0 #DDDDDD !important;
@@ -69,4 +77,8 @@
 .gwt-TabLayoutPanel .gwt-TabLayoutPanelContent {
     border-color: #AAAAAA !important;
     border-width: 1px !important;
+}
+.gwt-TabLayoutPanelTabInner {
+    /* this should be consistent with Editor.css/ui-icon height */
+    line-height: 16px;
 }
