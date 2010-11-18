@@ -17,6 +17,7 @@
 
 .headerPanel {
     background-image: url("./images/search.img.bg_orange.png");
+    height: 60px;/*IE7*/
 }
 .menuItems {
     float: right;
@@ -31,6 +32,14 @@
     text-decoration: none;
 }
 .menuItem:hover {
+    color: #FFFFFF;
+    text-decoration: none;
+}
+.menuItemArrow {
+    color: #FFFFFF;
+    text-decoration: none;
+}
+.menuItemAsLink:hover {
     color: #FFFFFF;
     text-decoration: underline;
 }

@@ -105,7 +105,7 @@ public final class EditorViewImpl implements EditorView {
             String language = languages[i];
             Widget item;
             if (i == selected) {
-                item = new Label("\u25b8 " + language);
+                item = new Label(language + " \u00AB");
                 item.addStyleName("languageMenuItemCurrent");
             } else {
                 final Anchor anchor = new Anchor(language);

@@ -34,24 +34,27 @@ For i18 stuff see src/main/java/com/google/gwt/i18n/client/LocalizableResource_<
         <g:north size="60">
             <!-- Menu Panel -->
             <g:HTMLPanel addStyleNames="{style.headerPanel}" >
-                <img src="images/search.img.logo.png" />
+                <img style="float:left;" src="images/search.img.logo.png" />
                 <span class="{style.menuItems}">
                     <g:Anchor ui:field="loadClickable"
-                            addStyleNames="{style.menuItem}" href="javascript:;">
+                            addStyleNames="{style.menuItem} {style.menuItemAsLink}" href="javascript:;">
                                 <ui:msg key="loadClickableLabel">Load</ui:msg>
                     </g:Anchor>
                     <g:Anchor ui:field="saveClickable"
-                            addStyleNames="{style.menuItem}" href="javascript:;">
+                            addStyleNames="{style.menuItem} {style.menuItemAsLink}" href="javascript:;">
                                 <ui:msg key="saveClickableLabel">Save</ui:msg>
                     </g:Anchor>
                     <g:Anchor ui:field="krameriusClickable" title="Go back to Kramerius Search"
-                            addStyleNames="{style.menuItem}" href="javascript:;">
+                            addStyleNames="{style.menuItem} {style.menuItemAsLink}" href="javascript:;">
                                 <ui:attribute name="title" key="krameriusClickableTooltip"/>
                                 <ui:msg key="krameriusClickableLabel">Kramerius</ui:msg>
                     </g:Anchor>
                     <g:Anchor ui:field="languagesClickable"
                             addStyleNames="{style.menuItem}" href="javascript:;">
-                                <ui:msg key="languagesClickableLabel">Language</ui:msg> <small>▼</small>
+                                <u class="{style.menuItemAsLink}">
+                                    <ui:msg key="languagesClickableLabel">Language</ui:msg>
+                                </u>
+                                <small>▼</small>
                     </g:Anchor>
                 </span>
 
