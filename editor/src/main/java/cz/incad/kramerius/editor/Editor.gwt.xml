@@ -45,6 +45,17 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
 
   <source path="client" />
   <source path="share" />
+
+  <!--  default TabLayoutPanel implementation -->
+  <replace-with class="cz.incad.kramerius.editor.client.view.TabLayoutPanelFactory">
+      <when-type-is class="cz.incad.kramerius.editor.client.view.TabLayoutPanelFactory" />
+  </replace-with>
+
+  <!--  IE6+7 TabLayoutPanel tweaks -->
+  <replace-with class="cz.incad.kramerius.editor.client.view.TabLayoutPanelFactory.TabLayoutPanelFactoryIE6">
+      <when-type-is class="cz.incad.kramerius.editor.client.view.TabLayoutPanelFactory" />
+      <when-property-is name="user.agent" value="ie6" />
+  </replace-with>
   
   <!-- XXX disable this for production release -->
 <!--  <set-property name="user.agent" value="gecko1_8" />-->

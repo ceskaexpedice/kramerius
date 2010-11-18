@@ -18,7 +18,6 @@
 package cz.incad.kramerius.editor.client.view;
 
 import com.google.gwt.event.logical.shared.SelectionEvent;
-import cz.incad.kramerius.editor.client.EditorConstants;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.dom.client.Style.Unit;
 import com.google.gwt.event.dom.client.ClickEvent;
@@ -37,6 +36,7 @@ import com.google.gwt.user.client.ui.InlineLabel;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.TabLayoutPanel;
 import com.google.gwt.user.client.ui.Widget;
+import cz.incad.kramerius.editor.client.EditorConstants;
 
 /**
  * Improves TabLayoutPanel with new features like tab close handle or
@@ -77,7 +77,9 @@ public class AdvancedTabLayoutPanel extends Composite implements HasCloseHandler
     }
 
     public AdvancedTabLayoutPanel(double barHeight, Unit barUnit) {
-        delegate = new TabLayoutPanel(barHeight, barUnit);
+        TabLayoutPanelFactory factory = GWT.create(TabLayoutPanelFactory.class);
+        delegate = factory.create(barHeight, barUnit);
+//        delegate = new TabLayoutPanel(barHeight, barUnit);
         Resources bundle = GWT.<Resources>create(Resources.class);
         this.style = bundle.css();
         this.style.ensureInjected();
