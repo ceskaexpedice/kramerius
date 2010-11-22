@@ -18,7 +18,7 @@
     <c:param name="q" >
         PID:"${param.pid}"<c:if test="${param.model!=null}"> and fedora.model:${param.model}</c:if>
     </c:param>
-    <c:param name="fl" value="PID,fedora.model,dc.title,details" />
+    <%--<c:param name="fl" value="PID,fedora.model,dc.title,details" />--%>
     
 </c:url>
 

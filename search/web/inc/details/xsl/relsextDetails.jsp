@@ -48,7 +48,7 @@
     <xsl:template name="tabs">
         <div style="padding: 2px;">
             <xsl:attribute name="id">tabs_<xsl:value-of select="$level" /></xsl:attribute>
-            <xsl:attribute name="pid"><xsl:value-of select="$pid" /></xsl:attribute>
+            <xsl:attribute name="pid"><xsl:value-of select="//doc[position()=1]/str[@name='PID']" /></xsl:attribute>
             <xsl:call-template name="ul" />
             <xsl:for-each select="//doc" >
                 <xsl:if test="not(preceding-sibling::*[1]/str[@name='fedora.model'] = ./str[@name='fedora.model']/text())">
@@ -118,7 +118,8 @@
         
             <xsl:choose>
                 <xsl:when test="$fmodel='monograph'">
-                    <xsl:value-of select="./str[@name='dc.title']" />
+                    <xsl:value-of select="./str[@name='dc.title']" /><br />
+                    autor: <xsl:value-of select="./arr[@name='dc.creator']/str" />
                 </xsl:when>
                 <xsl:when test="$fmodel='monographunit'">
                     <xsl:value-of select="./str[@name='dc.title']" /><br/>

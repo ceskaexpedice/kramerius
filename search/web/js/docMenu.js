@@ -330,6 +330,7 @@ function getChildModels(level, recursive){
 
 function getItemMenuOptions(pid, level, model){
     //alert(level);
+    if($("#openmenu"+level+"-"+model).length > 0) return;
     var pid_path = "";
     var path = "";
     var id;
@@ -360,7 +361,7 @@ function getItemMenuOptions(pid, level, model){
           path = id.substring(id.indexOf("-") + 1 ) + "/" + path;
         }
         if($("#tabs_"+i).parent().parent()==0){
-            break;
+            i=0;
         }else{
             var idi = $("#tabs_"+i).parent().parent().attr('id');
             var modeli = $("#tabs_"+i).parent().attr('id');
@@ -382,6 +383,7 @@ function getItemMenuOptions(pid, level, model){
 }
 
 function getFirstLevelMenu(pid, model){
+    if($("#openmenu1-"+model).length > 0) return;
     var url ="inc/details/itemMenuOptions.jsp?pid="+pid+"&pid_path="+pid+"&path="+model;
     $.get(url, function(data){
         $("#tab1-"+model+">div.relList").parent().prepend(data);
