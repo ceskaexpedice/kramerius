@@ -75,7 +75,7 @@ public class SolrOperations {
 
         try {
 
-            getIndexReader(indexName);
+            getIndexReader();
             initDocCount = docCount;
             closeIndexReader(indexName);
             if ("deleteDocument".equals(action)) {
@@ -107,7 +107,7 @@ public class SolrOperations {
             logger.error(ex);
         } finally {
 
-            getIndexReader(indexName);
+            getIndexReader();
             closeIndexReader(indexName);
             if (logger.isDebugEnabled()) {
                 logger.debug("initDocCount=" + initDocCount + " docCount=" + docCount + " updateTotal=" + updateTotal);
@@ -150,12 +150,11 @@ public class SolrOperations {
             contentDom = getDocument(new ByteArrayInputStream(fedoraOperations.foxmlRecord));
             factory = XPathFactory.newInstance();
             xpath = factory.newXPath();
-            IndexParams indexParams = new IndexParams(pid, contentDom);
+            IndexParams indexParams = new IndexParams(uuid, contentDom);
 
             /* get current up values */
 
             java.net.URL url = new java.net.URL(urlStr);
-
 
             DocumentBuilder builder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
             org.w3c.dom.Document solrDom = builder.parse(url.openStream());
@@ -439,7 +438,7 @@ public class SolrOperations {
         if (logger.isDebugEnabled()) {
             logger.debug("indexDoc=\n" + sb.toString());
         }
-        logger.info("indexDoc=\n" + sb.toString());
+        //logger.info("indexDoc=\n" + sb.toString());
         if (sb.indexOf("name=\"" + UNIQUEKEY) > 0) {
 
             postData(config.getString("IndexBase") + "/update", new StringReader(sb.toString()), new StringBuffer());
@@ -633,39 +632,39 @@ public class SolrOperations {
         }
     }
 
-    private void getIndexReader(String indexName)
+    private void getIndexReader()
             throws Exception {
         IndexReader irreopened = null;
         if (ir != null) {
             try {
                 irreopened = ir.reopen();
             } catch (CorruptIndexException e) {
-                throw new Exception("IndexReader reopen error indexName=" + indexName + " :\n", e);
+                throw new Exception("IndexReader reopen :\n", e);
             } catch (IOException e) {
-                throw new Exception("IndexReader reopen error indexName=" + indexName + " :\n", e);
+                throw new Exception("IndexReader reopen :\n", e);
             }
             if (ir != irreopened) {
                 try {
                     ir.close();
                 } catch (IOException e) {
                     ir = null;
-                    throw new Exception("IndexReader close after reopen error indexName=" + indexName + " :\n", e);
+                    throw new Exception("IndexReader close after reopen error :\n", e);
                 }
                 ir = irreopened;
             }
         } else {
+            String s = config.getString("IndexDir");
             try {
-                String s = config.getString("IndexDir");
                 ir = IndexReader.open(SimpleFSDirectory.open(new File(s)), true);
             } catch (CorruptIndexException e) {
-                throw new Exception("IndexReader open error indexName=" + indexName + " :\n", e);
+                throw new Exception("IndexReader open error IndexDir=" + s + " :\n", e);
             } catch (IOException e) {
-                throw new Exception("IndexReader open error indexName=" + indexName + " :\n", e);
+                throw new Exception("IndexReader open error IndexDir=" + s + " :\n", e);
             }
         }
         docCount = ir.numDocs();
         if (logger.isDebugEnabled()) {
-            logger.debug("getIndexReader indexName=" + indexName + " docCount=" + docCount);
+            logger.debug("getIndexReader  docCount=" + docCount);
         }
     }
 
