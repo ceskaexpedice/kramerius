@@ -574,9 +574,10 @@ function showImage(viewerOptions) {
 	if (viewerOptions.isContentPDF()) {
 		displayPDFImageContent();
 	} else {
+	
             var tilesPrepared = viewerOptions.deepZoomGenerated || viewerOptions.imageServerConfigured;
             var deepZoomDisplay = ((viewerOptions.deepZoomCofigurationEnabled) && (tilesPrepared));
-	    if (deepZoomDisplay == true) {
+    	    if (deepZoomDisplay) {
 		    if (viewer == null) {
 		        init();
 		    }
