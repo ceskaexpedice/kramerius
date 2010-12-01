@@ -31,6 +31,11 @@ public class IIPServerTests extends TestCase {
     }
 
     public void testUpdate() throws UnsupportedEncodingException, IOException {
+        KConfiguration kconf = KConfiguration.getInstance();
+        kconf.getConfiguration().setProperty("UrlOfIIPserver", "http://192.168.1.3/fcgi-bin/iipsrv.fcgi");
+        kconf.getConfiguration().setProperty("fedoraDataFolderOnIIPServer", "/mnt/fc/data");
+            
+
         Injector injector = Guice.createInjector(new ModuleForSearchTests());
         FedoraAccess fa = injector.getInstance(Key.get(FedoraAccess.class, Names.named("securedFedoraAccess")));
         
@@ -39,7 +44,7 @@ public class IIPServerTests extends TestCase {
 
         StringTemplateGroup stGroup = AbstractImageServlet.stGroup();
         StringTemplate template = stGroup.getInstanceOf("dziurl");
-        AbstractImageServlet.setStringTemplateModel("abc-eef-gef", "/mnt/fc", template, fa);
+        AbstractImageServlet.setStringTemplateModel("abc-eef-gef", "/mnt/fc/data", template, fa);
         
         System.out.println(template.toString());
     }
