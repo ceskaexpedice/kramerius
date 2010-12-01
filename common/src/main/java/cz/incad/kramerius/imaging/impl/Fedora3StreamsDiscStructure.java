@@ -49,9 +49,7 @@ public class Fedora3StreamsDiscStructure implements DiscStrucutreForStore {
 
     public File getUUIDFile(String uuid,  String rootPath) throws IOException {
         try {
-            Connection con = this.feodora3ConProvider.get();
-            try {
-                List<String> relativeDataStreamPath = FedoraDatabaseUtils.getRelativeDataStreamPath(uuid, con);
+                List<String> relativeDataStreamPath = FedoraDatabaseUtils.getRelativeDataStreamPath(uuid, this.feodora3ConProvider);
                 File rootDir = new File(rootPath);
                 if (!rootDir.exists()) {
                     if (!rootDir.mkdirs()) {
@@ -59,11 +57,6 @@ public class Fedora3StreamsDiscStructure implements DiscStrucutreForStore {
                     }
                 }
                 return getUUIDFile(uuid, relativeDataStreamPath, rootDir);
-            } finally {
-                if (con != null) {
-                    con.close();
-                }
-            }
         } catch (SQLException e) {
             throw new IOException(e);
         }
