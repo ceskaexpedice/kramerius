@@ -207,8 +207,22 @@ public interface FedoraAccess {
 
     public Set<String> getPids(String pid);
 
+    /**
+     * Returns inputStream of given datastream 
+     * @param pid UUID of reqested object 
+     * @param datastreamName datastream name
+     * @return 
+     * @throws IOException
+     */
     public InputStream getDataStream(String pid, String datastreamName) throws IOException;
 
+    /**
+     * Returns mimeType of given datastream
+     * @param pid UUID of requested object
+     * @param datastreamName Datastream name
+     * @return
+     * @throws IOException
+     */
     public String getMimeTypeForStream(String pid, String datastreamName) throws IOException;
 
 }
