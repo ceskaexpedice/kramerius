@@ -10,6 +10,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
 
+import com.google.inject.Provider;
+
+import cz.incad.kramerius.utils.database.JDBCQueryTemplate;
+
 public class FedoraDatabaseUtils {
 
 	static java.util.logging.Logger LOGGER = java.util.logging.Logger
@@ -17,8 +21,8 @@ public class FedoraDatabaseUtils {
 	
 	private FedoraDatabaseUtils() {}
 	
-	public static List<String> getRelativeDataStreamPath(String uuid, Connection connection) throws SQLException {
-		String dataStreamPath = getDataStreamPath(uuid, connection);
+	public static List<String> getRelativeDataStreamPath(String uuid, Provider<Connection> provider) throws SQLException {
+		String dataStreamPath = getDataStreamPath(uuid, provider);
 		List<String> folderList = new ArrayList<String>();
         File currentFile = new File(dataStreamPath);
         while(!currentFile.getName().equals("data")) {
@@ -28,31 +32,24 @@ public class FedoraDatabaseUtils {
         return folderList;
 	}
 	
-    public static String getDataStreamPath(String uuid, Connection connection) throws SQLException {
-        PreparedStatement pstm = null;
-        ResultSet rs = null;
-        try {
-            pstm = connection.prepareStatement("select * from datastreampaths where token like ? order by tokendbid ASC");
-            pstm.setString(1, "uuid:"+uuid+"+IMG_FULL%");
-            rs = pstm.executeQuery();
-            if(rs.next()) {
-                return rs.getString("path");
-            } else return null;
-        } finally {
-            if (rs != null) {
-                try { 
-                    rs.close(); 
-                } catch (SQLException e) {
-                    LOGGER.log(Level.SEVERE, e.getMessage(), e);
-                }
+	/**
+	 * Returns path to file
+	 * @param uuid UUID of the object 
+	 * @param connection
+	 * @return
+	 * @throws SQLException
+	 */
+    public static String getDataStreamPath(String uuid, Provider<Connection> provider) throws SQLException {
+        String sql = "select * from datastreampaths where token like ? order by tokendbid ASC";
+        List<String> returnList = new JDBCQueryTemplate<String>(provider){
+            @Override
+            public boolean handleRow(ResultSet rs, List<String> returnsList) throws SQLException {
+                String path = rs.getString("path");
+                returnsList.add(path);
+                return super.handleRow(rs, returnsList);
             }
-            if (pstm != null) {
-                try {
-                    pstm.close();
-                } catch (SQLException e) {
-                    LOGGER.log(Level.SEVERE, e.getMessage(), e);
-                }
-            }
-        }
+            
+        }.executeQuery(sql, "uuid:"+uuid+"+IMG_FULL%");
+        return (returnList != null && !returnList.isEmpty()) ? returnList.get(0) : null;
     }	
 }

@@ -35,9 +35,11 @@ public class MostDesirableImpl implements MostDesirable {
 
 	@Override
 	public List<String> getMostDesirable(int count) {
-		Connection connection = null;
+	    
+	    Connection connection = null;
 		PreparedStatement stm = null;
 		ResultSet rs = null;
+
 		try {
 			List<String> uuids = new ArrayList<String>();
 			connection = provider.get();
@@ -45,6 +47,7 @@ public class MostDesirableImpl implements MostDesirable {
 				if (!DatabaseUtils.tableExists(connection,"DESIRABLE")) {
 					createTable(connection);
 				}
+				
 				stm = connection.prepareStatement("SELECT count(*) as count ,  uuid FROM desirable group by uuid order by count DESC  LIMIT ?");
 				stm.setInt(1, count);
 				rs = stm.executeQuery();

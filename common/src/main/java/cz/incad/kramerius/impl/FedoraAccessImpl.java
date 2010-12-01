@@ -284,7 +284,7 @@ public class FedoraAccessImpl implements FedoraAccess {
 	}
 
 	public InputStream getImageFULL(String uuid) throws IOException {
-		HttpURLConnection con = (HttpURLConnection) openConnection(getFedoraStream(configuration ,uuid, IMG_FULL_STREAM),configuration.getFedoraUser(), configuration.getFedoraPass());
+		HttpURLConnection con = (HttpURLConnection) openConnection(getFedoraStreamPath(configuration ,uuid, IMG_FULL_STREAM),configuration.getFedoraUser(), configuration.getFedoraPass());
 		con.connect();
 		if (con.getResponseCode() == HttpURLConnection.HTTP_OK) {
 			InputStream thumbInputStream = con.getInputStream();
@@ -564,7 +564,7 @@ public class FedoraAccessImpl implements FedoraAccess {
 
 	@Override
 	public InputStream getFullThumbnail(String uuid) throws IOException {
-        HttpURLConnection con = (HttpURLConnection) openConnection(getFedoraStream(configuration ,uuid, FedoraUtils.IMG_PREVIEW_STREAM),configuration.getFedoraUser(), configuration.getFedoraPass());
+        HttpURLConnection con = (HttpURLConnection) openConnection(getFedoraStreamPath(configuration ,uuid, FedoraUtils.IMG_PREVIEW_STREAM),configuration.getFedoraUser(), configuration.getFedoraPass());
         con.connect();
         if (con.getResponseCode() == HttpURLConnection.HTTP_OK) {
             InputStream thumbInputStream = con.getInputStream();

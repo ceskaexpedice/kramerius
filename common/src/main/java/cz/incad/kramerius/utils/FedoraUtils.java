@@ -19,23 +19,23 @@ import java.util.logging.Level;
 import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpression;
+import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
 
 import org.fedora.api.RelationshipTuple;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
+import org.w3c.dom.Text;
 
+import cz.incad.kramerius.FedoraAccess;
 import cz.incad.kramerius.KrameriusModels;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 
 public class FedoraUtils {
 
-
-
 	public static final java.util.logging.Logger LOGGER = java.util.logging.Logger
 			.getLogger(FedoraUtils.class.getName());
-	
     
 	public static final String RELS_EXT_STREAM = "RELS-EXT";
     public static final String IMG_THUMB_STREAM = "IMG_THUMB";
@@ -63,15 +63,10 @@ public class FedoraUtils {
             }
         } catch (Exception e) {
         	LOGGER.log(Level.SEVERE, e.getMessage(), e);
-        	//?? 
-//            e.printStackTrace();
-//            pids.add(e.toString());
         }
         return pids;
     }
 
-    //http://localhost:8080/fedora/risearch?type=triples&lang=spo&format=N-Triples&limit=20&query=*%20*%20%3Cinfo:fedora/uuid:4a8a8630-af36-11dd-ae9c-000d606f5dc6%3E
-    //http://localhost:8080/fedora/risearch?type=triples&lang=spo&format=N-Triples&query=*%20*%20*
     
     public static List<RelationshipTuple> getSubjectPids(String objectPid){
     	List<RelationshipTuple> retval = new ArrayList<RelationshipTuple>();
@@ -177,7 +172,7 @@ public class FedoraUtils {
 
     /**
      * Returns url stream 
-     * @param uuid objektu
+     * @param uuid of object
      * @return
      */
     public static String getDjVuImage(KConfiguration configuration, String uuid) {
@@ -185,15 +180,52 @@ public class FedoraUtils {
     	return imagePath;
     }
 
-    public static String getFedoraStream(KConfiguration conf, String uuid, String stream) {
+    /**d
+     * Returns path to fedora stream
+     * @param conf KConfiguraiton 
+     * @param uuid UUID of the object 
+     * @param stream Stream ID
+     * @return
+     */
+    public static String getFedoraStreamPath(KConfiguration conf, String uuid, String stream) {
         String imagePath = conf.getFedoraHost()+"/get/uuid:"+uuid+"/" + stream;
         return imagePath;
-        
+    }
+
+    
+ 
+    /**
+     * Returns true if given stream (profile of the stream) is referenced stream by URL
+     * @param conf KConfiguration object
+     * @param profileDoc Profile document
+     */
+    public static boolean isFedoraExternalStream(KConfiguration conf, Document profileDoc) throws XPathExpressionException {
+        XPathFactory factory = XPathFactory.newInstance();
+        XPath xpath = factory.newXPath();
+        XPathExpression expr = xpath.compile("/datastreamProfile/dsLocationType/text()");
+        NodeList nodes = (NodeList) expr.evaluate(profileDoc, XPathConstants.NODESET);
+        if (nodes.getLength() > 0) {
+            Text text = (Text) nodes.item(0);
+            String trimedString = text.getData().trim();
+            return trimedString.equals("URL");
+        } else return false;
+    }
+    
+    public static String getLocation(KConfiguration conf, Document profileDoc) throws XPathExpressionException {
+        XPathFactory factory = XPathFactory.newInstance();
+        XPath xpath = factory.newXPath();
+        XPathExpression expr = xpath.compile("/datastreamProfile/dsLocation/text()");
+        NodeList nodes = (NodeList) expr.evaluate(profileDoc, XPathConstants.NODESET);
+        if (nodes.getLength() > 0) {
+            Text text = (Text) nodes.item(0);
+            String trimedString = text.getData().trim();
+            return trimedString;
+        } else return null;
     }
     
     /**
-     * Vraci url na stream THUMB
-     * @param uuid
+     * Returns thumb stream
+     * @param uuid UUID of the object
      * @return
      */
     public static String getThumbnailFromFedora(KConfiguration configuration, String uuid) {
@@ -201,6 +233,12 @@ public class FedoraUtils {
     	return imagePath;
     }
     
+    /**
+     * Returns list of fedora streams
+     * @param configuration KConfiguration configuration object
+     * @param uuid UUID reqested object
+     * @return
+     */
     public static String getFedoraDatastreamsList(KConfiguration configuration, String uuid) {
     	String datastreamsListPath = configuration.getFedoraHost()+"/objects/uuid:"+uuid+"/datastreams?format=xml";
     	return datastreamsListPath;

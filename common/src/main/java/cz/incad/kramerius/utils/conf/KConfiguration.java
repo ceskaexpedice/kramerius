@@ -221,7 +221,6 @@ public class KConfiguration {
 
     public float getDeepZoomJPEGQuality() {
         return getConfiguration().getFloat("deepZoom.jpegQuality", 0.9f);
-
     }
     
     public boolean isDeepZoomEnabled() {
@@ -245,6 +244,10 @@ public class KConfiguration {
         return getConfiguration().getString("fedoraDataFolderOnIIPServer", "");
     }
 
+    public String getDataFolderOnIIPServer() {
+        return getConfiguration().getString("dataFolderOnIIPServer", "");
+    }
+    
     private static String normalizeURL(String url) {
         if (url != null) {
             url = url.endsWith("/") ? url : url + '/';

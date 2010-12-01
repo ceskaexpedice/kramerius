@@ -5,7 +5,7 @@ import java.util.concurrent.locks.Lock;
 
 
 /**
- * Implemenations manages LR processes
+ * This class can manage LR processes
  * @author pavels
  */
 public interface LRProcessManager {

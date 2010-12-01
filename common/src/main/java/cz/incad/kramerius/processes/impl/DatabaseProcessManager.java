@@ -172,7 +172,6 @@ public class DatabaseProcessManager implements LRProcessManager {
 		Connection connection = null;
 		try {
 			this.reentrantLock.lock();
-			
 			connection = provider.get();
 			if (!DatabaseUtils.tableExists(connection,"PROCESSES")) {
 				createProcessTable(connection);

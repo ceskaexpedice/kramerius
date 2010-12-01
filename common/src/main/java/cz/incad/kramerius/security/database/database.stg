@@ -1,0 +1,21 @@
+group security;
+
+findRight() ::= <<
+select 
+  ent.action, ent.uuid, ent."USER",
+  att.qname,att.type,att.right_att_id
+ from right_entity ent
+ left join rights_attribute_entity att
+  on rights_attr=att.right_att_id
+where 
+  ent."action"=? and ent."USER"=? 
+  and ent.uuid=?
+>>
+
+findUser() ::= <<
+    select * from user_entity
+    where loginname=? and pswd=?
+>>
+
+
+
