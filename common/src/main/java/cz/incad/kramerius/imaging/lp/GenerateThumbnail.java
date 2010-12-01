@@ -35,6 +35,7 @@ import cz.incad.kramerius.imaging.lp.guice.Fedora3Module;
 import cz.incad.kramerius.imaging.lp.guice.GenerateDeepZoomCacheModule;
 import cz.incad.kramerius.imaging.lp.guice.PlainModule;
 import cz.incad.kramerius.impl.fedora.FedoraDatabaseUtils;
+import cz.incad.kramerius.utils.FedoraUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 import cz.incad.kramerius.utils.imgs.KrameriusImageSupport;
 import cz.incad.kramerius.utils.pid.LexerException;
@@ -126,7 +127,7 @@ public class GenerateThumbnail {
     }
 
     public static BufferedImage scaleToFullThumb(String uuid, FedoraAccess fedoraAccess, DeepZoomTileSupport tileSupport) throws XPathExpressionException, IOException {
-        BufferedImage img = KrameriusImageSupport.readImage(uuid, "IMG_FULL", fedoraAccess, 0);
+        BufferedImage img = KrameriusImageSupport.readImage(uuid, FedoraUtils.IMG_FULL_STREAM, fedoraAccess, 0);
         int width = img.getWidth();
         int height = img.getHeight();
         
