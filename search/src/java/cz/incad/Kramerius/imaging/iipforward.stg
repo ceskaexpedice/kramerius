@@ -1,6 +1,5 @@
 group iipserver;
 
-
 dziurl(dataPath, folderList,iipServer,extension) ::= <<
 $fileurl(dataPath=dataPath, folderList=folderList, iipServer=iipServer, extension=extension)$.dzi
 >>
@@ -12,7 +11,6 @@ $iipServer$?DeepZoom=$dataPath$/$folderList:{folder|$folder$};separator="/"$$ext
 tileurl(dataPath, folderList,iipServer,extension, level, tile) ::= <<
 $fileurl(dataPath=dataPath, folderList=folderList, iipServer=iipServer, extension=extension)$_files/$level$/$tile$
 >>
-
 
 smallimg(dataPath, folderList,iipServer,extension) ::= <<
 $iipServer$?FIF=$dataPath$/$folderList:{folder|$folder$};separator="/"$$extension$&hei=128&cvt=jpeg

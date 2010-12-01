@@ -100,8 +100,8 @@ public class DeepZoomServlet extends AbstractImageServlet {
         }
     }
 
-    private void renderIIPDZIDescriptor(String uuid, HttpServletResponse resp) throws MalformedURLException, IOException, SQLException {
-        String dataStreamPath = getDataStreamPath(uuid);
+    private void renderIIPDZIDescriptor(String uuid, HttpServletResponse resp) throws MalformedURLException, IOException, SQLException, XPathExpressionException {
+        String dataStreamPath = getPathForFullImageStream(uuid);
         if (dataStreamPath != null) {
             StringTemplate dziUrl = stGroup().getInstanceOf("dziurl");
             setStringTemplateModel(uuid, dataStreamPath, dziUrl, fedoraAccess);
@@ -128,7 +128,7 @@ public class DeepZoomServlet extends AbstractImageServlet {
         }
     }
 
-    private void renderTile(String uuid, String slevel, String stile, HttpServletRequest req, HttpServletResponse resp) throws IOException {
+    private void renderTile(String uuid, String slevel, String stile, HttpServletRequest req, HttpServletResponse resp) throws IOException, XPathExpressionException {
         setDateHaders(uuid, resp);
         setResponseCode(uuid, req, resp);
         String iipServer = KConfiguration.getInstance().getUrlOfIIPServer();
@@ -144,8 +144,8 @@ public class DeepZoomServlet extends AbstractImageServlet {
         }
     }
 
-    private void renderIIPTile(String uuid, String slevel, String stile, HttpServletResponse resp) throws SQLException, UnsupportedEncodingException, IOException {
-        String dataStreamPath = getDataStreamPath(uuid);
+    private void renderIIPTile(String uuid, String slevel, String stile, HttpServletResponse resp) throws SQLException, UnsupportedEncodingException, IOException, XPathExpressionException {
+        String dataStreamPath = getPathForFullImageStream(uuid);
         if (dataStreamPath != null) {
             StringTemplate tileUrl = stGroup().getInstanceOf("tileurl");
             setStringTemplateModel(uuid, dataStreamPath, tileUrl, fedoraAccess);
