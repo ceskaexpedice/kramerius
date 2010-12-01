@@ -30,12 +30,13 @@ import cz.incad.kramerius.intconfig.InternalConfiguration;
 import cz.incad.kramerius.utils.RESTHelper;
 import cz.incad.kramerius.utils.XMLUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
+import cz.incad.kramerius.utils.solr.SolrUtils;
 
 /**
  * This is support for persistent URL
  * @author pavels
  */
-public class HandleServlet extends AbstractSolrProcessServlet {
+public class HandleServlet extends GuiceServlet {
 
 	private static final long serialVersionUID = 1L;
 
@@ -73,9 +74,9 @@ public class HandleServlet extends AbstractSolrProcessServlet {
 			String uri = HandleType.createType(handle).construct(handle);
 			InputStream inputStream = RESTHelper.inputStream(uri, "<no_user>", "<no_pass>");
 			Document parseDocument = XMLUtils.parseDocument(inputStream);
-		    pidPath = disectPidPath(parseDocument);
-		    pid = disectPid(parseDocument);
-		    path = disectPath(parseDocument);
+		    pidPath = SolrUtils.disectPidPath(parseDocument);
+		    pid = SolrUtils.disectPid(parseDocument);
+		    path = SolrUtils.disectPath(parseDocument);
 		    String appURL = ApplicationURL.applicationURL(req);
 		    String redirectUrl=  "item.jsp?pid="+pid+"&pid_path="+pidPath+"&path="+path;
 		    resp.sendRedirect(appURL+"/"+redirectUrl);

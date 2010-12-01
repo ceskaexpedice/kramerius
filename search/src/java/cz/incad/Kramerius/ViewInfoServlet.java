@@ -3,7 +3,6 @@ package cz.incad.Kramerius;
 import static cz.incad.utils.IKeys.UUID_PARAMETER;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Level;
@@ -25,11 +24,10 @@ import cz.incad.Kramerius.HandleServlet.HandleType;
 import cz.incad.Kramerius.backend.guice.GuiceServlet;
 import cz.incad.kramerius.FedoraAccess;
 import cz.incad.kramerius.imaging.DeepZoomCacheService;
-import cz.incad.kramerius.utils.RESTHelper;
-import cz.incad.kramerius.utils.XMLUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
+import cz.incad.kramerius.utils.solr.SolrUtils;
 
-public class ViewInfoServlet extends AbstractSolrProcessServlet {
+public class ViewInfoServlet extends GuiceServlet {
 
     public static final java.util.logging.Logger LOGGER = java.util.logging.Logger
             .getLogger(MimeTypeServlet.class.getName());
@@ -92,13 +90,8 @@ public class ViewInfoServlet extends AbstractSolrProcessServlet {
     
     private boolean deepZoomConfigurationEnabled(String uuid) {
         try {
-            String solrHost = KConfiguration.getInstance().getSolrHost();
-            String uri = solrHost +"/select/?q=PID:"+uuid;
-
-            InputStream inputStream = RESTHelper.inputStream(uri, "<no_user>", "<no_pass>");
-            Document parseDocument = XMLUtils.parseDocument(inputStream);
-            String pidPath = disectPidPath(parseDocument);
-            
+            Document parseDocument = SolrUtils.getSolrData(uuid);
+            String pidPath = SolrUtils.disectPidPath(parseDocument);
             return KConfiguration.getInstance().isDeepZoomEnabled() || KConfiguration.getInstance().isDeepZoomForPathEnabled(pidPath.split("/"));
         } catch (XPathExpressionException e) {
             LOGGER.severe(e.getMessage());

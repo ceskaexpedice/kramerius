@@ -25,6 +25,7 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
+import java.util.logging.Level;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -56,6 +57,7 @@ import cz.incad.utils.SafeSimpleDateFormat;
 
 public abstract class AbstractImageServlet extends GuiceServlet {
 
+    
     protected static final DateFormat [] XSD_DATE_FORMATS =
     {
       new SafeSimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'.'S'Z'"),
@@ -257,24 +259,30 @@ public abstract class AbstractImageServlet extends GuiceServlet {
         resp.setContentType(contentType);
     }
 
-    protected String getDataStreamPath(String uuid) throws SQLException {
-        Connection connection = null;
-        connection = this.fedora3Provider.get();
-        try {
-            return FedoraDatabaseUtils.getDataStreamPath(uuid, connection);
-        } finally {
-            if (connection != null) {
-                try {
-                    connection.close();
-                } catch (SQLException e) {
-                    //LOGGER.log(Level.SEVERE, e.getMessage(), e);
-                }
-            }
-        }
+
+//    Document fullProfile = this.fedoraAccess.getImageFULLProfile(uuid);
+//    if (FedoraUtils.isFedoraExternalStream(configuration, fullProfile)) {
+//        
+//    }
+
+	protected String getPathForFullImageStream(String uuid) throws IOException, XPathExpressionException, SQLException {
+	    Document fullProfile = this.fedoraAccess.getImageFULLProfile(uuid);
+	    if (FedoraUtils.isFedoraExternalStream(configuration, fullProfile)) {
+	        URL url = new URL(FedoraUtils.getLocation(configuration, fullProfile));
+	        String file = url.getFile();
+	        String dataFolderOnIIPServer = KConfiguration.getInstance().getDataFolderOnIIPServer();
+	        return dataFolderOnIIPServer + file;
+	    } else {
+	        return getPathForInternalStream(uuid);
+	    }
+	}
+	
+    protected String getPathForInternalStream(String uuid) throws SQLException, IOException {
+        return FedoraDatabaseUtils.getDataStreamPath(uuid, this.fedora3Provider);
     }
 
-    public String getThumbnailIIPUrl(String uuid) throws SQLException, UnsupportedEncodingException, IOException {
-        String dataStreamPath = getDataStreamPath(uuid);
+    public String getThumbnailIIPUrl(String uuid) throws SQLException, UnsupportedEncodingException, IOException, XPathExpressionException {
+        String dataStreamPath = getPathForFullImageStream(uuid);
         StringTemplate fUrl = stGroup().getInstanceOf("fullthumb");
         setStringTemplateModel(uuid, dataStreamPath, fUrl, fedoraAccess);
         fUrl.setAttribute("height", "hei="+KConfiguration.getInstance().getConfiguration().getInt("scaledHeight", 128));
@@ -300,7 +308,9 @@ public abstract class AbstractImageServlet extends GuiceServlet {
         template.setAttribute("folderList", folderList);
         template.setAttribute("iipServer", KConfiguration.getInstance().getUrlOfIIPServer());
         String smimeType = fedoraAccess.getMimeTypeForStream("uuid:" + uuid, "IMG_FULL");
+
         ImageMimeType mimeType = ImageMimeType.loadFromMimeType(smimeType);
+        // mimetype a koncovka ! Doplnovat a nedoplnovat
         if (mimeType != null) {
             String extension = mimeType.getDefaultFileExtension();
             if (!dataStreamPath.endsWith("." + extension)) {
