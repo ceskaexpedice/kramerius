@@ -1,0 +1,18 @@
+<datastreamProfile xsi:schemaLocation="http://www.fedora.info/definitions/1/0/management/ http://localhost:8080/datastreamProfile.xsd" pid="uuid:4319b460-b03b-11dd-83ca-000d606f5dc6" dsID="IMG_FULL">
+<dsLabel/>
+<dsVersionID>IMG_FULL.0</dsVersionID>
+<dsCreateDate>2010-07-13T16:13:36.000Z</dsCreateDate>
+<dsState>A</dsState>
+<dsMIME>image/vnd.djvu</dsMIME>
+<dsFormatURI/>
+<dsControlGroup>M</dsControlGroup>
+<dsSize>0</dsSize>
+<dsVersionable>false</dsVersionable>
+<dsInfoType/>
+<dsLocation>
+uuid:4319b460-b03b-11dd-83ca-000d606f5dc6+IMG_FULL+IMG_FULL.0
+</dsLocation>
+<dsLocationType>INTERNAL_ID</dsLocationType>
+<dsChecksumType>DISABLED</dsChecksumType>
+<dsChecksum>none</dsChecksum>
+</datastreamProfile>
