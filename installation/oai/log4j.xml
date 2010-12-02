@@ -68,7 +68,7 @@
 	<!-- Default level and appender if not explicitly defined -->
 	<root>
 		<priority value="WARN" />
-		<appender-ref ref="Console" />
+		<appender-ref ref="RollingFile" />
 	</root>
 
 </log4j:configuration>

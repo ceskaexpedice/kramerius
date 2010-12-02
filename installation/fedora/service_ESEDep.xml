@@ -44,7 +44,7 @@
             
             <fmm:DatastreamInputParm parmName="DC" passBy="URL_REF" required="true"/>
             <fmm:DatastreamInputParm parmName="XSLT" passBy="URL_REF" required="true"/>
-            <fmm:DefaultInputParm defaultValue="yes" parmName="CLEAR_CACHE" passBy="VALUE" required="true"/>
+            <fmm:DefaultInputParm defaultValue="no" parmName="CLEAR_CACHE" passBy="VALUE" required="true"/>
             <fmm:MethodReturnType wsdlMsgName="xslt_response" wsdlMsgTOMIME="text/html"/>
           </fmm:Method>
         </fmm:MethodMap>
@@ -121,7 +121,7 @@
           <wsdl:binding name="FedoraSaxon_http" type="this:FedoraSaxonPortType">
             <http:binding verb="GET"/>
             <wsdl:operation name="get">
-              <http:operation location="SaxonServlet?source=(DC)&amp;style=(XSLT)&amp;clear-stylesheet-cache=(CLEAR_CACHE)"/>
+              <http:operation location="SaxonServlet?source=(DC)&amp;style=(XSLT)&amp;clear-stylesheet-cache=(CLEAR_CACHE)&amp;server=http://local.fedora.server/"/>
               <wsdl:input>
                 <http:urlReplacement/>
               </wsdl:input>
@@ -153,8 +153,9 @@
   <xsl:output indent="yes" method="xml" omit-xml-declaration="no"
     encoding="UTF-8" media-type="text/xml" />
 
-  <!-- FIXME: replace server value with URL accessible from internet -->
-  <xsl:variable name="server" select="'http://localhost:8080'" />
+  <!-- server location accessible from internet; 'select' is a reasonable fallback
+       when wsdl:operation does not declare 'server' parameter -->
+  <xsl:param name="server" select="'http://localhost:8080'" />
 
   <xsl:template match="/">
     <xsl:variable name="uuid">
