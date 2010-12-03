@@ -131,24 +131,18 @@ public abstract class AbstractImageServlet extends GuiceServlet {
 	}
 	
 	protected BufferedImage scaleByHeight(BufferedImage img, Rectangle pageBounds, int height) {
-		long start = System.currentTimeMillis();
 		int nHeight = height;
 		double div = (double)pageBounds.getHeight() / (double)nHeight;
 		double nWidth = (double)pageBounds.getWidth() / div;
 		BufferedImage scaledImage = KrameriusImageSupport.scale(img, (int)nWidth, nHeight, ScalingMethod.BILINEAR, false);
-		long stop = System.currentTimeMillis();
-		LOGGER.info("DEB - scale takes :"+(stop - start));
 		return scaledImage;
 	}
 
 	protected BufferedImage scaleByWidth(BufferedImage img, Rectangle pageBounds, int width) {
-		long start = System.currentTimeMillis();
 		int nWidth = width;
 		double div = (double)pageBounds.getWidth() / (double)nWidth;
 		double nHeight = (double)pageBounds.getHeight() / div;
 		BufferedImage scaledImage = KrameriusImageSupport.scale(img, nWidth,(int) nHeight,ScalingMethod.BILINEAR, false);
-		long stop = System.currentTimeMillis();
-		LOGGER.info("DEB - scale takes :"+(stop - start));
 		return scaledImage;
 	}
 
