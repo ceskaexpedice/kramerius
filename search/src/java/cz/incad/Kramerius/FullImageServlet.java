@@ -96,22 +96,17 @@ public class FullImageServlet extends AbstractImageServlet {
             } else if (outputFormat == null) {
                 long start = System.currentTimeMillis();
                 BufferedImage image = rawFullImage(uuid, req, page);
-                LOGGER.info("DEB - nacteni = " + (System.currentTimeMillis() - start) + " ms");
 
                 // writeDeepZoomFiles(uuid, image);
 
-                // LOGGER.info("DEB - zapis = "+(System.currentTimeMillis() -
-                // start)+" ms");
                 Rectangle rectangle = new Rectangle(image.getWidth(null), image.getHeight(null));
                 BufferedImage scale = scale(image, rectangle, req);
                 if (scale != null) {
                     start = System.currentTimeMillis();
                     setDateHaders(uuid, resp);
                     setResponseCode(uuid, req, resp);
-                    LOGGER.info("DEB - setting headers = " + (System.currentTimeMillis() - start) + " ms");
                     start = System.currentTimeMillis();
                     writeImage(req, resp, scale, OutputFormats.JPEG);
-                    LOGGER.info("DEB - writing image = " + (System.currentTimeMillis() - start) + " ms");
                 } else
                     resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
                 // transformace
