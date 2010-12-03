@@ -44,7 +44,6 @@ public class RequestIPaddressChecker implements IPaddressChecker {
     }
 
     @Override
-    // TODO: Controlled by property, it is not only localhost
     public boolean localHostVisitor() {
         List<String> lrControllingAddrs = KConfiguration.getInstance().getLRControllingAddresses();
         return checkPatterns(lrControllingAddrs);
