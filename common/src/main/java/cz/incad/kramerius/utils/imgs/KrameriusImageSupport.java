@@ -284,7 +284,6 @@ public class KrameriusImageSupport {
     }
 
     public static BufferedImage getScaledInstanceJava2D(BufferedImage image, int targetWidth, int targetHeight, Object hint, GraphicsConfiguration gc) {
-        LOGGER.info("DEB - ");
 
         // if (gc == null)
         // gc = getDefaultConfiguration();
@@ -299,9 +298,7 @@ public class KrameriusImageSupport {
         double scalex = (double) targetWidth / image.getWidth();
         double scaley = (double) targetHeight / image.getHeight();
         AffineTransform xform = AffineTransform.getScaleInstance(scalex, scaley);
-        long start = System.currentTimeMillis();
         g2.drawRenderedImage(image, xform);
-        LOGGER.info("DEB - scale through rendered image :" + (System.currentTimeMillis() - start));
 
         g2.dispose();
         return result;
