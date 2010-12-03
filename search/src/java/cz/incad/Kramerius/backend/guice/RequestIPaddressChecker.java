@@ -21,7 +21,6 @@ public class RequestIPaddressChecker implements IPaddressChecker {
         super();
         this.provider = provider;
         this.logger = logger;
-        this.logger.info("provider is '" + provider + "'");
     }
 
     @Override
@@ -40,7 +39,7 @@ public class RequestIPaddressChecker implements IPaddressChecker {
                     return true;
             }
         }
-        logger.info("Remote address is == " + remoteAddr);
+        logger.finer("Remote address is == " + remoteAddr);
         return false;
     }
 
