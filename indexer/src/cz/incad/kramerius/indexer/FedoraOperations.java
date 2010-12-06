@@ -40,7 +40,7 @@ public class FedoraOperations {
             Logger.getLogger(FedoraOperations.class);
     private static final Map fedoraClients = new HashMap();
     protected String fgsUserName;
-    protected String indexName;
+    protected String indexName_;
     //public Properties config;
     public byte[] foxmlRecord;
     protected String dsID;
@@ -88,8 +88,6 @@ public class FedoraOperations {
 //        config = currentConfig;
         foxmlFormat = KConfiguration.getInstance().getConfiguration().getString("FOXMLFormat");
         this.fgsUserName = KConfiguration.getInstance().getConfiguration().getString("fgsUserName");
-        this.indexName = KConfiguration.getInstance().getConfiguration().getString("IndexName");
-        logger.info("Index name property is '"+this.indexName+"'");
         if (null == this.fgsUserName || this.fgsUserName.length() == 0) {
             try {
                 this.fgsUserName = KConfiguration.getInstance().getConfiguration().getString("fedoragsearch.testUserName");
@@ -102,13 +100,11 @@ public class FedoraOperations {
     public void updateIndex(
             String action,
             String value,
-            String indexNames,
             ArrayList<String> requestParams)
             throws java.rmi.RemoteException, Exception {
         logger.info("updateIndex" +
                 " action=" + action +
-                " value=" + value +
-                " indexNames=" + indexNames);
+                " value=" + value);
 
 //        String repositoryName = repositoryNameParam;
 //        if (repositoryNameParam == null || repositoryNameParam.equals("")) {
@@ -116,7 +112,7 @@ public class FedoraOperations {
 //        }
 
         SolrOperations ops = new SolrOperations(this);
-        ops.updateIndex(action, value, indexName, requestParams);
+        ops.updateIndex(action, value, requestParams);
     }
 
     public byte[] getAndReturnFoxmlFromPid(

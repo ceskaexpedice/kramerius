@@ -131,21 +131,15 @@ public class Indexer {
             return false;
         }
     }
-    private String indexName;
 
     private void doUpdate(String user) throws Exception {
         Date startTime = new Date();
-
-        indexName = "";
         try {
             updateIndex(user, arguments.action, arguments.value);
         } catch (java.rmi.RemoteException e) {
             logger.error(e);
             e.printStackTrace();
         }
-        //String timeusedms = Long.toString((new Date()).getTime() - startTime.getTime());
-        String timeusedms = Formating.formatElapsedTime((new Date()).getTime() - startTime.getTime());
-        logger.info(timeusedms);
     }
 
     public void updateIndex(String user, String action, String value)
@@ -154,7 +148,7 @@ public class Indexer {
         ops.init(user, ""/*, conf*/);
         ArrayList<String> params = new ArrayList<String>();
         //System.out.println(value);
-        ops.updateIndex(action, value, indexName, params);
+        ops.updateIndex(action, value, params);
         
     }
 

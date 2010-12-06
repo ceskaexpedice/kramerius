@@ -25,8 +25,11 @@ import org.apache.lucene.index.CorruptIndexException;
 import org.apache.lucene.index.IndexReader;
 
 import dk.defxws.fedoragsearch.server.GTransformer;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -65,7 +68,6 @@ public class SolrOperations {
     public void updateIndex(
             String action,
             String value,
-            String indexName,
             ArrayList<String> requestParams)
             throws java.rmi.RemoteException, Exception {
         insertTotal = 0;
@@ -77,7 +79,7 @@ public class SolrOperations {
 
             getIndexReader();
             initDocCount = docCount;
-            closeIndexReader(indexName);
+            closeIndexReader();
             if ("deleteDocument".equals(action)) {
                 deleteDocument(value);
             } else if ("deleteModel".equals(action)) {
@@ -108,7 +110,7 @@ public class SolrOperations {
         } finally {
 
             getIndexReader();
-            closeIndexReader(indexName);
+            closeIndexReader();
             if (logger.isDebugEnabled()) {
                 logger.debug("initDocCount=" + initDocCount + " docCount=" + docCount + " updateTotal=" + updateTotal);
             }
@@ -128,11 +130,11 @@ public class SolrOperations {
 
     private void optimize()
             throws java.rmi.RemoteException, Exception {
-        StringBuffer sb = new StringBuffer("<optimize/>");
+        StringBuilder sb = new StringBuilder("<optimize/>");
         if (logger.isDebugEnabled()) {
             logger.debug("indexDoc=\n" + sb.toString());
         }
-        postData(config.getString("IndexBase") + "/update", new StringReader(sb.toString()), new StringBuffer());
+        postData(config.getString("IndexBase") + "/update", new StringReader(sb.toString()), new StringBuilder());
 
     }
 
@@ -193,7 +195,13 @@ public class SolrOperations {
             node = (Node) expr.evaluate(solrDom, XPathConstants.NODE);
             indexParams.setParam("LEVEL", node.getFirstChild().getNodeValue());
 
-            indexByPid(pid, new ByteArrayInputStream(fedoraOperations.foxmlRecord), requestParams, indexParams);
+            xPathStr = "/response/result/doc/date[@name='timestamp']";
+            expr = xpath.compile(xPathStr);
+            node = (Node) expr.evaluate(solrDom, XPathConstants.NODE);
+            DateFormat formatter = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
+            Date date = formatter.parse(node.getFirstChild().getNodeValue());
+
+            indexByPid(pid, date, false, new ByteArrayInputStream(fedoraOperations.foxmlRecord), requestParams, indexParams);
         } catch (Exception ex) {
             logger.error(ex);
         }
@@ -229,24 +237,30 @@ public class SolrOperations {
     }
 
     private void clearIndex() throws Exception {
-        StringBuffer sb = new StringBuffer("<delete><query>*:*</query></delete>");
+        StringBuilder sb = new StringBuilder("<delete><query>*:*</query></delete>");
         if (logger.isDebugEnabled()) {
             logger.debug("indexDoc=\n" + sb.toString());
         }
-        postData(config.getString("IndexBase") + "/update", new StringReader(sb.toString()), new StringBuffer());
+        postData(config.getString("IndexBase") + "/update", new StringReader(sb.toString()), new StringBuilder());
         deleteTotal++;
     }
+
 
     private void krameriusModel(String model,
             ArrayList<String> requestParams,
             int offset) {
+        int pageSize = 100;
         try {
+            String query = "$object <fedora-model:hasModel> <info:fedora/model:" + model + ">  " +
+                    "order by $object  " +
+                    "limit  " + pageSize +
+                    " offset  " + offset;
+            /*            
             String query = "select $object from <#ri> " +
                     "where $object <fedora-model:hasModel> <info:fedora/model:" + model + ">  " +
                     "order by $object  " +
                     "limit 100  " +
                     "offset  " + offset;
-            /*            
             FedoraClient client = GenericOperationsImpl.getFedoraClient(repositoryName, config.getProperty("FedoraSoap"),
             config.getProperty("FedoraUser"),
             config.getProperty("FedoraPass"));
@@ -279,11 +293,11 @@ public class SolrOperations {
             }
             in.close();
             if (hasRecords) {
-                krameriusModel(model, requestParams, offset + 100);
+                krameriusModel(model, requestParams, offset + pageSize);
             }
 
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error(e);
         }
 
     }
@@ -296,7 +310,7 @@ public class SolrOperations {
             krameriusModel(model, requestParams, 0);
 
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error(e);
         }
     }
 
@@ -312,7 +326,7 @@ public class SolrOperations {
         factory = XPathFactory.newInstance();
         xpath = factory.newXPath();
 
-        indexByPid(pid, new ByteArrayInputStream(fedoraOperations.foxmlRecord), requestParams, null);
+        indexByPid(pid, null, true, new ByteArrayInputStream(fedoraOperations.foxmlRecord), requestParams, null);
     //indexDoc(pid, repositoryName, indexName, new ByteArrayInputStream(foxmlRecord), resultXml, indexDocXslt, requestParams);
     }
 
@@ -331,9 +345,11 @@ public class SolrOperations {
             throw new Exception(e);
         }
     }
-    boolean full = true;
+    
 
     private int indexByPid(String pid,
+            Date date,
+            boolean force,
             InputStream foxmlStream,
             ArrayList<String> requestParams,
             IndexParams indexParams) {
@@ -346,6 +362,19 @@ public class SolrOperations {
         ArrayList<String> models = new ArrayList<String>();
         try {
             contentDom = getDocument(foxmlStream);
+            //tady testujeme datum
+            if(date!=null){
+                expr = xpath.compile("//objectProperties/property[@NAME='info:fedora/fedora-system:def/view#lastModifiedDate']/@VALUE");
+                Node dateNode = (Node) expr.evaluate(contentDom, XPathConstants.NODE);
+                if (dateNode != null) {
+                    DateFormat formatter = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
+                    Date dateValue = formatter.parse(dateNode.getNodeValue());
+                    if(dateValue.before(date)){
+                        logger.info("Document is up to date. Skipping");
+                        if(!force)  return num;
+                    }
+                }
+            }
 
             if (indexParams == null) {
                 indexParams = new IndexParams(pid, contentDom);
@@ -354,14 +383,13 @@ public class SolrOperations {
             ///foxml:digitalObject/foxml:datastream[@ID='IMG_FULL']/foxml:datastreamVersion[last()]
             expr = xpath.compile("//datastream[@ID='IMG_FULL']/datastreamVersion[last()]");
             Node imgFullMimeNode = (Node) expr.evaluate(contentDom, XPathConstants.NODE);
-            int docCount = 1;
+            int docs = 1;
             if (imgFullMimeNode != null) {
                 if (imgFullMimeNode.getAttributes().getNamedItem("MIMETYPE").getNodeValue().indexOf("pdf") > -1) {
-                    docCount = fedoraOperations.getPdfPagesCount(pid, "IMG_FULL");
+                    docs = fedoraOperations.getPdfPagesCount(pid, "IMG_FULL");
                 }
             }
-
-            if (full) {
+            
                 expr = xpath.compile("//datastream/datastreamVersion[last()]/xmlContent/RDF/Description/*");
                 NodeList nodes = (NodeList) expr.evaluate(contentDom, XPathConstants.NODESET);
 
@@ -391,15 +419,15 @@ public class SolrOperations {
                         IndexParams childParams = new IndexParams(relpid, model, contentDom, i);
                         childParams.merge(indexParams);
                         foxmlStream2.reset();
-                        num += indexByPid(relpid, foxmlStream2, requestParams, childParams);
+                        num += indexByPid(relpid, date, false, foxmlStream2, requestParams, childParams);
                     } catch (Exception ex) {
                         logger.error("Can't index doc: " + relpid + " Continuing...");
                     }
                 }
-            }
+            
 
-            num += docCount - 1;
-            indexDoc(pid, foxmlStream, indexParams.toArrayList(Integer.toString(num)), String.valueOf(docCount - 1));
+            num += docs - 1;
+            indexDoc(pid, foxmlStream, indexParams.toArrayList(Integer.toString(num)), String.valueOf(docs - 1));
 
         } catch (Exception e) {
             logger.error("indexByPid error", e);
@@ -441,36 +469,36 @@ public class SolrOperations {
         //logger.info("indexDoc=\n" + sb.toString());
         if (sb.indexOf("name=\"" + UNIQUEKEY) > 0) {
 
-            postData(config.getString("IndexBase") + "/update", new StringReader(sb.toString()), new StringBuffer());
+            postData(config.getString("IndexBase") + "/update", new StringReader(sb.toString()), new StringBuilder());
             updateTotal++;
         }
     }
 
     private void deletePid(String pid) throws Exception {
-        StringBuffer sb = new StringBuffer("<delete><id>" + pid + "</id></delete>");
+        StringBuilder sb = new StringBuilder("<delete><id>" + pid + "</id></delete>");
         if (logger.isDebugEnabled()) {
             logger.debug("indexDoc=\n" + sb.toString());
         }
-        postData(config.getString("IndexBase") + "/update", new StringReader(sb.toString()), new StringBuffer());
+        postData(config.getString("IndexBase") + "/update", new StringReader(sb.toString()), new StringBuilder());
         deleteTotal++;
     }
 
     private void deleteDocument(String pid_path) throws Exception {
-        StringBuffer sb = new StringBuffer("<delete><query>pid_path:" + pid_path + "*</query></delete>");
+        StringBuilder sb = new StringBuilder("<delete><query>pid_path:" + pid_path + "*</query></delete>");
         if (logger.isDebugEnabled()) {
             logger.debug("indexDoc=\n" + sb.toString());
         }
         logger.info("solrHost:" + config.getString("solrHost"));
-        postData(config.getString("IndexBase") + "/update", new StringReader(sb.toString()), new StringBuffer());
+        postData(config.getString("IndexBase") + "/update", new StringReader(sb.toString()), new StringBuilder());
         deleteTotal++;
     }
 
     private void deleteModel(String path) throws Exception {
-        StringBuffer sb = new StringBuffer("<delete><query>path:" + path + "*</query></delete>");
+        StringBuilder sb = new StringBuilder("<delete><query>path:" + path + "*</query></delete>");
         if (logger.isDebugEnabled()) {
             logger.debug("indexDoc=\n" + sb.toString());
         }
-        postData(config.getString("IndexBase") + "/update", new StringReader(sb.toString()), new StringBuffer());
+        postData(config.getString("IndexBase") + "/update", new StringReader(sb.toString()), new StringBuilder());
         deleteTotal++;
     }
 
@@ -522,7 +550,7 @@ public class SolrOperations {
      * Reads data from the data reader and posts it to solr,
      * writes the response to output
      */
-    private void postData(String solrUrlString, Reader data, StringBuffer output)
+    private void postData(String solrUrlString, Reader data, StringBuilder output)
             throws Exception {
         URL solrUrl = null;
         try {
@@ -562,10 +590,10 @@ public class SolrOperations {
 
             InputStream in = urlc.getInputStream();
             int status = urlc.getResponseCode();
-            StringBuffer errorStream = new StringBuffer();
+            StringBuilder errorStream = new StringBuilder();
             try {
                 if (status != HttpURLConnection.HTTP_OK) {
-                    errorStream.append("postData URL=" + solrUrlString + " HTTP response code=" + status + " ");
+                    errorStream.append("postData URL=").append(solrUrlString).append(" HTTP response code=").append(status).append(" ");
                     throw new Exception("URL=" + solrUrlString + " HTTP response code=" + status);
                 }
                 Reader reader = new InputStreamReader(in);
@@ -622,7 +650,7 @@ public class SolrOperations {
      * Pipes everything from the reader to the writer via a buffer
      * except lines starting with '<?'
      */
-    private static void pipeString(Reader reader, StringBuffer writer) throws IOException {
+    private static void pipeString(Reader reader, StringBuilder writer) throws IOException {
         char[] buf = new char[1024];
         int read = 0;
         while ((read = reader.read(buf)) >= 0) {
@@ -668,18 +696,18 @@ public class SolrOperations {
         }
     }
 
-    private void closeIndexReader(String indexName)
+    private void closeIndexReader()
             throws Exception {
         if (ir != null) {
             docCount = ir.numDocs();
             try {
                 ir.close();
             } catch (IOException e) {
-                throw new Exception("IndexReader close error indexName=" + indexName + " :\n", e);
+                throw new Exception("IndexReader close error:\n", e);
             } finally {
                 ir = null;
                 if (logger.isDebugEnabled()) {
-                    logger.debug("closeIndexReader indexName=" + indexName + " docCount=" + docCount);
+                    logger.debug("closeIndexReader docCount=" + docCount);
                 }
             }
         }
