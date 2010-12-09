@@ -1,5 +1,7 @@
 package cz.incad.kramerius.indexer;
 
+import cz.incad.kramerius.resourceindex.IResourceIndex;
+import cz.incad.kramerius.resourceindex.ResourceIndexService;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 import java.io.ByteArrayInputStream;
 import java.io.File;
@@ -251,47 +253,32 @@ public class SolrOperations {
             int offset) {
         int pageSize = 100;
         try {
+            /*            
             String query = "$object <fedora-model:hasModel> <info:fedora/model:" + model + ">  " +
                     "order by $object  " +
                     "limit  " + pageSize +
                     " offset  " + offset;
-            /*            
-            String query = "select $object from <#ri> " +
-                    "where $object <fedora-model:hasModel> <info:fedora/model:" + model + ">  " +
-                    "order by $object  " +
-                    "limit 100  " +
-                    "offset  " + offset;
-            FedoraClient client = GenericOperationsImpl.getFedoraClient(repositoryName, config.getProperty("FedoraSoap"),
-            config.getProperty("FedoraUser"),
-            config.getProperty("FedoraPass"));
-            Map tMap = new HashMap();
-            tMap.put("query", query);
-            tMap.put("format", "TSV");
-            tMap.put("lang", "itql");
-            Map m;
-            org.trippi.TupleIterator tuples = client.getTuples(tMap);
-            while(tuples.hasNext()){
-            String pid = tuples.next().get("object").toString();
-            //logger.info(pid);
-            fromKrameriusModel(pid.split("/")[1], repositoryName, indexName, indexDocXslt, requestParams);
             }
-            
-            if(true) return;
-             */
             String urlStr = config.getString("FedoraResourceIndex") + "?type=tuples&flush=true&lang=itql&format=TSV&distinct=off&stream=off" +
                     "&query=" + java.net.URLEncoder.encode(query, "UTF-8");
-            //int lines = 0;
-
+            
             java.net.URL url = new java.net.URL(urlStr);
 
             java.io.BufferedReader in = new java.io.BufferedReader(new java.io.InputStreamReader(url.openStream()));
             String inputLine = in.readLine();
+            
             boolean hasRecords = false;
             while ((inputLine = in.readLine()) != null) {
                 fromKrameriusModel(inputLine.split("/")[1], requestParams);
                 hasRecords = true;
             }
             in.close();
+             */
+            boolean hasRecords = false;
+            IResourceIndex g = ResourceIndexService.getResourceIndexImpl();
+            
+            org.w3c.dom.Document doc = g.getFedoraObjectsFromModelExt(model, pageSize, offset, "date", "asc");
+
             if (hasRecords) {
                 krameriusModel(model, requestParams, offset + pageSize);
             }
