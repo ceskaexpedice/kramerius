@@ -24,7 +24,7 @@ public class ConProvider4T implements Provider<Connection>{
 	@Override
 	public Connection get() {
 		try {
-			return openLocalConnection();
+			return openConnection();
 		} catch (ClassNotFoundException e) {
 			throw new RuntimeException(e);
 		} catch (SQLException e) {
