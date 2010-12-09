@@ -9,38 +9,7 @@ version="1.0">
     <xsl:param name="sort_dir" select="'asc'"/>
     <xsl:param name="model" select="model"/>
     <xsl:template match="/">
-        <table cellpadding="0" cellspacing="0" class="indexer_selected">
-            <thead class="indexer_head"><tr>
-                <td></td><td>
-                    <xsl:if test="$sort = 'title'">
-                        <xsl:if test="$sort_dir = 'asc'">
-                            <a><xsl:attribute name="href">javascript:loadFedoraDocuments('<xsl:value-of select="$model" />', 0, 'title', 'desc')</xsl:attribute>title</a>
-                            <span class="ui-icon indexer_order_down">title</span>
-                        </xsl:if>
-                        <xsl:if test="$sort_dir = 'desc'">
-                            <a><xsl:attribute name="href">javascript:loadFedoraDocuments('<xsl:value-of select="$model" />', 0, 'title', 'asc')</xsl:attribute>title</a>
-                            <span class="ui-icon indexer_order_up">title</span>
-                        </xsl:if>
-                    </xsl:if>
-                    <xsl:if test="not($sort = 'title')">
-                        <a><xsl:attribute name="href">javascript:loadFedoraDocuments('<xsl:value-of select="$model" />', 0, 'title', 'asc')</xsl:attribute>title</a>
-                    </xsl:if>
-                </td>
-                <td>
-                    <xsl:if test="$sort = 'date'">
-                        <xsl:if test="$sort_dir = 'asc'">
-                            <a><xsl:attribute name="href">javascript:loadFedoraDocuments('<xsl:value-of select="$model" />', 0, 'date', 'desc')</xsl:attribute>date</a>
-                            <span class="ui-icon indexer_order_down">title</span>
-                        </xsl:if>
-                        <xsl:if test="$sort_dir = 'desc'">
-                            <a><xsl:attribute name="href">javascript:loadFedoraDocuments('<xsl:value-of select="$model" />', 0, 'date', 'asc')</xsl:attribute>date</a>
-                            <span class="ui-icon indexer_order_up">title</span>
-                        </xsl:if>
-                    </xsl:if>
-                    <xsl:if test="not($sort = 'date')">
-                        <a><xsl:attribute name="href">javascript:loadFedoraDocuments('<xsl:value-of select="$model" />', 0, 'date', 'desc')</xsl:attribute>date</a>
-                    </xsl:if>
-                </td></tr></thead>
+        
         <xsl:for-each select="/sp:sparql/sp:results/sp:result">
             <xsl:variable name="title" select="normalize-space(./sp:title)" />
             <xsl:variable name="date" select="normalize-space(./sp:date)" />
@@ -55,7 +24,6 @@ version="1.0">
             <xsl:if test="$offset>0"><a><xsl:attribute name="href">javascript:loadFedoraDocuments('<xsl:value-of select="$model" />', <xsl:value-of select="$offset - $rows" />, '<xsl:value-of select="$sort" />', '<xsl:value-of select="$sort_dir" />')</xsl:attribute>previous</a></xsl:if>
             <xsl:if test="count(/sp:sparql/sp:results/sp:result)=$rows"><a><xsl:attribute name="href">javascript:loadFedoraDocuments('<xsl:value-of select="$model" />', <xsl:value-of select="$offset + $rows" />, '<xsl:value-of select="$sort" />', '<xsl:value-of select="$sort_dir" />')</xsl:attribute>next</a></xsl:if>
         </td></tr>
-        </table>
     </xsl:template>
 
 </xsl:stylesheet>
