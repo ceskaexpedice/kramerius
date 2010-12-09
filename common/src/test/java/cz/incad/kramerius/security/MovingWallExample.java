@@ -30,7 +30,6 @@ import org.junit.Test;
 import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
 
-import sun.org.mozilla.javascript.internal.EvaluatorException;
 
 import com.google.inject.Binding;
 import com.google.inject.Guice;
@@ -193,13 +192,13 @@ public class MovingWallExample extends AbstractGuiceTestCase {
     public static String getDrobnustkyDC() {
         return "<oai_dc:dc xmlns:oai_dc=\"http://www.openarchives.org/OAI/2.0/oai_dc/\" " +
         		"xmlns:dc=\"http://purl.org/dc/elements/1.1/\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:schemaLocation=\"http://www.openarchives.org/OAI/2.0/oai_dc/ http://www.openarchives.org/OAI/2.0/oai_dc.xsd\">"+ 
-  "<dc:title>Drobnůstky</dc:title>"+ 
-  "<dc:creator>Doucha František</dc:creator>"+ 
+  "<dc:title>Drobnustky</dc:title>"+ 
+  "<dc:creator>Doucha Frantisek</dc:creator>"+ 
   "<dc:subject>ddc:neuvedeno</dc:subject>"+ 
   "<dc:subject>udc:821-93</dc:subject>"+ 
   "<dc:subject>ddc:neuvedeno</dc:subject>"+ 
   "<dc:subject>udc:821.162.3-1</dc:subject>"+ 
-  "<dc:publisher>Mikoláš Lehmann</dc:publisher>"+ 
+  "<dc:publisher>Mikolas Lehmann</dc:publisher>"+ 
   "<dc:date>1862</dc:date>"+ 
   "<dc:type>model:monograph</dc:type>"+ 
   "<dc:identifier>uuid:0eaa6730-9068-11dd-97de-000d606f5dc6</dc:identifier>"+ 
