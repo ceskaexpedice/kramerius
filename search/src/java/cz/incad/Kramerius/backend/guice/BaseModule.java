@@ -43,12 +43,14 @@ import cz.incad.kramerius.service.METSService;
 import cz.incad.kramerius.service.PolicyService;
 import cz.incad.kramerius.service.ResourceBundleService;
 import cz.incad.kramerius.service.TextsService;
+import cz.incad.kramerius.service.XSLService;
 import cz.incad.kramerius.service.impl.DeleteServiceImpl;
 import cz.incad.kramerius.service.impl.ExportServiceImpl;
 import cz.incad.kramerius.service.impl.METSServiceImpl;
 import cz.incad.kramerius.service.impl.PolicyServiceImpl;
 import cz.incad.kramerius.service.impl.ResourceBundleServiceImpl;
 import cz.incad.kramerius.service.impl.TextsServiceImpl;
+import cz.incad.kramerius.service.impl.XSLServiceImpl;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 
 /**
@@ -77,6 +79,7 @@ public class BaseModule extends AbstractModule {
 		bind(ExportService.class).to(ExportServiceImpl.class).in(Scopes.SINGLETON);
 		bind(PolicyService.class).to(PolicyServiceImpl.class).in(Scopes.SINGLETON);
 		bind(TextsService.class).to(TextsServiceImpl.class).in(Scopes.SINGLETON);
+		bind(XSLService.class).to(XSLServiceImpl.class).in(Scopes.SINGLETON);
 		bind(ResourceBundleService.class).to(ResourceBundleServiceImpl.class).in(Scopes.SINGLETON);
 		//bind(JNDIConnectionProvider.class).toInstance(createKramerius4Provider());
 		
