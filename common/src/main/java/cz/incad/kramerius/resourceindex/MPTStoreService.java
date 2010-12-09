@@ -200,7 +200,7 @@ public class MPTStoreService implements IResourceIndex {
             <result>
             <object uri="info:fedora/uuid:9c1ad6d4-e645-11de-a504-001143e3f55c"/>
 
-            <title>Spisy Masarykovy Akademie Pr·ce 1921</title>
+            <title>Spisy Masarykovy Akademie Pr√°ce 1921</title>
             <date datatype="http://www.w3.org/2001/XMLSchema#dateTime">2010-05-03T08:24:40.776Z</date>
             </result>
 
