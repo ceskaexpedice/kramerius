@@ -7,7 +7,11 @@
  */
 package dk.defxws.fedoragsearch.server;
 
+import cz.incad.kramerius.utils.conf.KConfiguration;
+import cz.incad.kramerius.Constants;
+
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringReader;
@@ -29,6 +33,8 @@ import javax.xml.transform.stream.StreamSource;
 
 import org.apache.log4j.Logger;
 
+import org.apache.commons.configuration.Configuration;
+
 /**
  * performs the stylesheet transformations
  * 
@@ -39,8 +45,10 @@ public class GTransformer {
     
     private static final Logger logger =
         Logger.getLogger(GTransformer.class);
+    protected Configuration config;
     
     public GTransformer() {
+        config = KConfiguration.getInstance().getConfiguration();
     }
     
     /**
@@ -61,7 +69,14 @@ public class GTransformer {
             InputStream stylesheet;
             try {
                 //stylesheet = new FileInputStream(xsltPathName);
-                stylesheet = this.getClass().getResourceAsStream("/cz/incad/kramerius/indexer/res/" + xsltPathName);
+                String dirname = Constants.WORKING_DIR + File.separator + "xsl";
+                
+                File textFile = new File(dirname, xsltPathName);
+                if ((textFile.exists()) && (textFile.canRead())){
+                     stylesheet = new FileInputStream(textFile);
+                }else{
+                    stylesheet = this.getClass().getResourceAsStream("/cz/incad/kramerius/indexer/res/" + xsltPathName);
+                }
             } catch (Exception ex) {
                 throw new Exception(xsltPathName+" not found");
             }
