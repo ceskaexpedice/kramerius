@@ -16,8 +16,22 @@
 %>
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
 
+<%@ include file="inc/searchParams.jsp" %>
+<jsp:useBean id="xml" type="java.lang.String" />
+<%
+            XSLService xs = (XSLService)ctxInj.getInstance(XSLService.class);
+            try {
+                String xsl = "resultsMain.xsl";
+                if(xs.isAvailable(xsl)){
+                    String text = xs.transform(xml, xsl);
+                    out.println(text);
+                    return;
+                }
+            } catch (Exception e) {
+                out.println(e);
+            }
+%>
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="cs" lang="cs">
-	<%@ include file="inc/searchParams.jsp" %>
 	<%@ include file="inc/proccessFacets.jsp" %>
     <%@ include file="inc/html_header.jsp" %>
     <body>
