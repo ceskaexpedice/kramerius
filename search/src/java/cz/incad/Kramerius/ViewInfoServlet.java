@@ -24,6 +24,7 @@ import cz.incad.Kramerius.HandleServlet.HandleType;
 import cz.incad.Kramerius.backend.guice.GuiceServlet;
 import cz.incad.kramerius.FedoraAccess;
 import cz.incad.kramerius.imaging.DeepZoomCacheService;
+import cz.incad.kramerius.security.SecurityException;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 import cz.incad.kramerius.utils.solr.SolrUtils;
 
@@ -65,6 +66,8 @@ public class ViewInfoServlet extends GuiceServlet {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
         } catch (SAXException e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
+        } catch(SecurityException e) {
+            resp.sendError(HttpServletResponse.SC_FORBIDDEN);
         }
     }
     
