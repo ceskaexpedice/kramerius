@@ -97,17 +97,12 @@ public class SmallThumbnailImageServlet extends AbstractImageServlet {
 
 	// TODO: Extract to standalone servlet
     public void rawContent(HttpServletRequest req, HttpServletResponse resp, String uuid, InputStream is) throws IOException, XPathExpressionException, SQLException {
-        if (super.isIIPServerConfigured()) {
-            String fUrl = getThumbnailIIPUrl(uuid);
-            copyFromImageServer(fUrl, resp);
-        } else {
-            String mimeType = this.fedoraAccess.getSmallThumbnailMimeType(uuid);
-            if (mimeType == null) mimeType = DEFAULT_MIMETYPE;
-            resp.setContentType(mimeType);
-            setDateHaders(uuid, resp);
-            setResponseCode(uuid, req, resp);
-            copyStreams(is, resp.getOutputStream());
-        }
+        String mimeType = this.fedoraAccess.getSmallThumbnailMimeType(uuid);
+        if (mimeType == null) mimeType = DEFAULT_MIMETYPE;
+        resp.setContentType(mimeType);
+        setDateHaders(uuid, resp);
+        setResponseCode(uuid, req, resp);
+        copyStreams(is, resp.getOutputStream());
     }
 
     public KConfiguration getConfiguration() {
