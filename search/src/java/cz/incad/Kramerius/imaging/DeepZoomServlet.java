@@ -87,8 +87,7 @@ public class DeepZoomServlet extends AbstractImageServlet {
     private void renderDZI(String uuid, HttpServletRequest req, HttpServletResponse resp) throws IOException, XPathExpressionException {
         setDateHaders(uuid, resp);
         setResponseCode(uuid, req, resp);
-        String iipServer = KConfiguration.getInstance().getUrlOfIIPServer();
-        if (!iipServer.equals("")) {
+        if (super.isIIPServerConfigured()) {
             try {
                 renderIIPDZIDescriptor(uuid, resp);
             } catch (SQLException e) {
@@ -131,8 +130,7 @@ public class DeepZoomServlet extends AbstractImageServlet {
     private void renderTile(String uuid, String slevel, String stile, HttpServletRequest req, HttpServletResponse resp) throws IOException, XPathExpressionException {
         setDateHaders(uuid, resp);
         setResponseCode(uuid, req, resp);
-        String iipServer = KConfiguration.getInstance().getUrlOfIIPServer();
-        if (!iipServer.equals("")) {
+        if (super.isIIPServerConfigured()) {
             try {
                 renderIIPTile(uuid, slevel, stile, resp);
             } catch (SQLException e) {
