@@ -56,8 +56,7 @@ public class FullThumbnailImageServlet extends AbstractImageServlet {
 	    try {
 
             String uuid = req.getParameter(UUID_PARAMETER);
-	        String iipServer = KConfiguration.getInstance().getUrlOfIIPServer();
-	        if (!iipServer.equals("")) {
+	        if (super.isIIPServerConfigured()) {
 	            String dataStreamPath = getPathForFullImageStream(uuid);
 	            StringTemplate fUrl = stGroup().getInstanceOf("fullthumb");
 	            setStringTemplateModel(uuid, dataStreamPath, fUrl, fedoraAccess);
