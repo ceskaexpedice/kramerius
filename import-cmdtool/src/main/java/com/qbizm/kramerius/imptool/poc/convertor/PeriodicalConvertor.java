@@ -248,10 +248,10 @@ public class PeriodicalConvertor extends BaseConvertor {
         
         dc.setDescription(biblio.getAnnotation() == null? null:concat(biblio.getAnnotation().getContent()));
         
-        Publisher publ = firstItem(biblio.getPublisher());
-        if (publ!= null){
-            dc.setDate(publ.getDateOfPublication()==null?null:first(publ.getDateOfPublication().getContent()));
+        if (volume.getPeriodicalVolumeIdentification() != null && volume.getPeriodicalVolumeIdentification().getPeriodicalVolumeDate() != null) {
+        	 dc.setDate(first(volume.getPeriodicalVolumeIdentification().getPeriodicalVolumeDate().getContent()));
         }
+        
 
         dc.setType(MODEL_PERIODICAL_VOLUME);
         
@@ -296,6 +296,18 @@ public class PeriodicalConvertor extends BaseConvertor {
         convertHandle(uuid, dc, re);
         dc.setType(MODEL_INTERNAL_PART);
         
+        dc.setDescription(biblio.getAnnotation() == null? null:concat(biblio.getAnnotation().getContent()));
+        Publisher publ = firstItem(biblio.getPublisher());
+        if (publ!= null){
+            dc.setDate(publ.getDateOfPublication()==null?null:first(publ.getDateOfPublication().getContent()));
+        }
+        
+        
+        Language lang = firstItem(biblio.getLanguage());
+        if (lang != null){
+            dc.setLanguage(first(lang.getContent()));
+        }
+        
         DigitalObject foxmlPart = this.createDigitalObject(part, pid, title, dc, re, XSL_MODS_PERIODICAL_PART, null, visibility);
 
         this.marshalDigitalObject(foxmlPart);
@@ -313,7 +325,10 @@ public class PeriodicalConvertor extends BaseConvertor {
         if (biblio == null) {
             biblio = new CoreBibliographicDescriptionPeriodical();
         }
-        String title = getMainTitle(biblio);
+        String title = "";
+        if (item.getPeriodicalItemIdentification() != null && item.getPeriodicalItemIdentification().getPeriodicalItemNumber() != null) {
+            title = first(item.getPeriodicalItemIdentification().getPeriodicalItemNumber().getContent());
+        }
         if (item.getUniqueIdentifier() == null) {
             item.setUniqueIdentifier(new UniqueIdentifier());
         }
@@ -363,9 +378,8 @@ public class PeriodicalConvertor extends BaseConvertor {
         
         dc.setDescription(biblio.getAnnotation() == null? null:concat(biblio.getAnnotation().getContent()));
         
-        Publisher publ = firstItem(biblio.getPublisher());
-        if (publ!= null){
-            dc.setDate(publ.getDateOfPublication()==null?null:first(publ.getDateOfPublication().getContent()));
+        if (item.getPeriodicalItemIdentification() != null && item.getPeriodicalItemIdentification().getPeriodicalItemDate() != null) {
+       	 dc.setDate(first(item.getPeriodicalItemIdentification().getPeriodicalItemDate().getContent()));
         }
         
         DigitalObject foxmlItem = this.createDigitalObject(item, pid, title, dc, re, XSL_MODS_PERIODICAL_ITEM, files.toArray(new ImageRepresentation[files.size()]), visibility);

@@ -327,6 +327,17 @@ public class MonographConvertor extends BaseConvertor {
 
         convertHandle(uuid, dc, re);
         dc.setType(MODEL_MONOGRAPH_UNIT);
+        Language lang = firstItem(unit.getLanguage());
+        if (lang != null){
+            dc.setLanguage(first(lang.getContent()));
+        }
+        if (unit.getMonographUnitIdentification() != null && unit.getMonographUnitIdentification().getMonographUnitNumber() != null){
+            dc.setDescription(concat(unit.getMonographUnitIdentification().getMonographUnitNumber().getContent()));
+        }
+        Publisher publ = firstItem(unit.getPublisher());
+        if (publ!= null){
+        	dc.setDate(publ.getDateOfPublication()==null?null:first(publ.getDateOfPublication().getContent()));
+        }
         DigitalObject foxmlUnit = this.createDigitalObject(unit, pid, title, dc, re, XSL_MODS_MONOGRAPH_UNIT, files.toArray(new ImageRepresentation[files.size()]), visibility);
 
         this.marshalDigitalObject(foxmlUnit);
@@ -344,8 +355,8 @@ public class MonographConvertor extends BaseConvertor {
         }
         String uuid = uuid(part.getUniqueIdentifier());
         String pid = pid(uuid);
-        String title = first(part.getPageNumber().getContent());
-
+        //String title = first(part.getPageNumber().getContent());
+        String title = first((part.getTitle() == null || part.getTitle().getMainTitle() == null) ? null : part.getTitle().getMainTitle().getContent());
         ImageRepresentation[] binaryObjects = this.getComponentPartBinaryObjects(part.getMonographComponentPartRepresentation());
 
         RelsExt re = new RelsExt(pid, MODEL_INTERNAL_PART);
@@ -362,6 +373,10 @@ public class MonographConvertor extends BaseConvertor {
         DublinCore dc = this.createMonographDublinCore(pid, title, part.getCreator(), null, part.getContributor());
         convertHandle(uuid, dc, re);
         dc.setType(MODEL_INTERNAL_PART);
+        Language lang = firstItem(part.getLanguage());
+        if (lang != null){
+            dc.setLanguage(first(lang.getContent()));
+        }
         DigitalObject foxmlPart = this.createDigitalObject(part, pid, title, dc, re, XSL_MODS_MONOGRAPH_PART, binaryObjects, visibility);
 
         this.marshalDigitalObject(foxmlPart);
