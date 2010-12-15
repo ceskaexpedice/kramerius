@@ -1,5 +1,7 @@
 package cz.incad.kramerius.service.impl;
 
+import com.google.inject.Inject;
+import com.google.inject.Provider;
 import java.io.File;
 
 /*
@@ -17,6 +19,7 @@ import cz.incad.kramerius.service.XSLService;
 import cz.incad.kramerius.utils.IOUtils;
 import java.io.StringReader;
 import java.io.StringWriter;
+import javax.xml.transform.OutputKeys;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerConfigurationException;
 import javax.xml.transform.TransformerFactory;
@@ -31,20 +34,20 @@ import javax.xml.transform.stream.StreamSource;
 public class XSLServiceImpl implements XSLService {
 
     public static final java.util.logging.Logger LOGGER = java.util.logging.Logger.getLogger(XSLServiceImpl.class.getName());
+    private Provider<Locale> localeProvider;
 
-    public XSLServiceImpl() {
+    @Inject
+    public XSLServiceImpl(Provider<Locale> localeProvider) {
         super();
         try {
             this.init();
+            this.localeProvider = localeProvider;
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
     }
 
     private void init() throws IOException {
-        String[] texts = {"default_intro",
-            "default_intro_EN_en"};
-        IOUtils.copyBundledResources(this.getClass(), texts, "res/", this.xslsFolder());
     }
 
     @Override
@@ -82,14 +85,23 @@ public class XSLServiceImpl implements XSLService {
         return transformer;
     }
 
+    private String createBundleURL(Locale locale) {
+//        String i18nUrl = ApplicationURL.applicationURL(req)+"/i18n";
+//        if ((config.getApplicationURL() != null) && (!configuration.getApplicationURL().equals(""))){
+//                i18nUrl = config.getApplicationURL()+"i18n";
+//        }
+        String i18nUrl = "http://localhost:8080/search/i18n";
+        return i18nUrl + "?action=bundle&alang=" + locale.getLanguage() + "&country=" + locale.getCountry() + "&name=labels";
+    }
+
     @Override
     public String transform(String xml, String xsltName) throws Exception {
 
-
-        StringReader sr = new StringReader(xml);
         Transformer transformer = getTransformer(xsltName);
 
         StreamResult destStream = new StreamResult(new StringWriter());
+        
+        transformer.setParameter("bundle_url", createBundleURL(localeProvider.get()));
         transformer.transform(new StreamSource(new StringReader(xml)), destStream);
 
         StringWriter sw = (StringWriter) destStream.getWriter();

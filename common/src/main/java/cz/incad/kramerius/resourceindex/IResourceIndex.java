@@ -16,5 +16,7 @@ public interface IResourceIndex {
 
     public Document getFedoraObjectsFromModelExt(String model, int limit, int offset, String orderby, String orderDir) throws Exception;
     public ArrayList<String> getFedoraPidsFromModel(String model, int limit, int offset) throws Exception;
+    public ArrayList<String> getParentsPids(String pid) throws Exception;
+    public ArrayList<String> getPidPaths(String pid) throws Exception;
 
 }

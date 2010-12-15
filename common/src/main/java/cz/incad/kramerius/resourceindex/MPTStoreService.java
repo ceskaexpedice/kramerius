@@ -304,4 +304,55 @@ public class MPTStoreService implements IResourceIndex {
         //return result.toString();
         return resList;
     }
+
+    @Override
+    public ArrayList<String> getParentsPids(String pid) throws Exception {
+
+        //Can use risearch with SPO language
+        String uuid;
+        if (pid.startsWith("uuid:")) {
+            uuid = pid;
+        } else {
+            uuid = "uuid:" + pid;
+        }
+        String query = "$object * <info:fedora/uuid:" + uuid + ">  ";
+        ArrayList<String> resList = new ArrayList<String>();
+        String urlStr = config.getConfiguration().getString("FedoraResourceIndex") + "?type=triples&flush=true&lang=spo&format=N-Triples&limit=&distinct=off&stream=off"
+                + "&query=" + java.net.URLEncoder.encode(query, "UTF-8");
+        java.net.URL url = new java.net.URL(urlStr);
+
+        java.io.BufferedReader in = new java.io.BufferedReader(new java.io.InputStreamReader(url.openStream()));
+        String inputLine;
+        int end;
+        while ((inputLine = in.readLine()) != null) {
+//<info:fedora/uuid:5fe0b160-62d5-11dd-bdc7-000d606f5dc6> <http://www.nsdl.org/ontologies/relationships#hasPage> <info:fedora/uuid:75fca1f0-64b2-11dd-9fd4-000d606f5dc6> .
+//<info:fedora/uuid:f0da6570-8f3b-11dd-b796-000d606f5dc6> <http://www.nsdl.org/ontologies/relationships#isOnPage> <info:fedora/uuid:75fca1f0-64b2-11dd-9fd4-000d606f5dc6> .
+            end = inputLine.indexOf(">");
+//18 je velikost   <info:fedora/uuid:
+            inputLine = inputLine.substring(18, end);
+            resList.add(inputLine);
+        }
+        in.close();
+        return resList;
+    }
+
+    @Override
+    public ArrayList<String> getPidPaths(String pid) throws Exception {
+        logger.info(pid);
+        ArrayList<String> resList = new ArrayList<String>();
+        ArrayList<String> parents = this.getParentsPids(pid);
+        logger.info(parents.toString());
+        for (int i = 0; i < parents.size(); i++) {
+            ArrayList<String> grands = this.getPidPaths(parents.get(i));
+            logger.info(grands.toString());
+            if (grands.isEmpty()) {
+                resList.add(parents.get(i));
+            } else {
+                for (int j = 0; j < grands.size(); j++) {
+                    resList.add(grands.get(j) + "/" + parents.get(i));
+                }
+            }
+        }
+        return resList;
+    }
 }
