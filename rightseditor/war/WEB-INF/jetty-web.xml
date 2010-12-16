@@ -1,0 +1,30 @@
+<?xml version="1.0"?>
+<!DOCTYPE Configure PUBLIC "-//Mort Bay Consulting//DTD Configure//EN" "http://jetty.mortbay.org/configure.dtd">
+<Configure class="org.mortbay.jetty.webapp.WebAppContext">
+
+  <New id="aplikator.structure" class="org.mortbay.jetty.plus.naming.EnvEntry">
+    <Arg></Arg>
+    <Arg>java:comp/env/aplikator.structure</Arg>
+    <Arg type="java.lang.String">cz.incad.kramerius.rights.server.Structure</Arg>
+    <Arg type="boolean">true</Arg>
+  </New>
+
+  
+  
+  <New id="aplikatorDS" class="org.mortbay.jetty.plus.naming.Resource">
+    <Arg></Arg>
+    <Arg>java:comp/env/jdbc/aplikatorDS</Arg>
+    <Arg>
+     <New class="com.jolbox.bonecp.BoneCPDataSource">
+                 <Set name="driverClass">org.postgresql.Driver</Set>
+                 <Set name="jdbcUrl">jdbc:postgresql://localhost:5432/kramerius4</Set>
+                 <Set name="username">fedoraAdmin</Set>
+                 <Set name="password">fedoraAdmin</Set>
+     </New>
+    </Arg>
+   </New>
+   
+   
+</Configure>
+
+
