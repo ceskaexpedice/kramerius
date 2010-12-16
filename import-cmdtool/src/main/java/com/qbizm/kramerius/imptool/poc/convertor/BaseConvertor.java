@@ -60,6 +60,8 @@ import com.qbizm.kramerius.imptool.poc.valueobj.RelsExt;
 import com.qbizm.kramerius.imptool.poc.valueobj.ServiceException;
 import com.sun.org.apache.xerces.internal.jaxp.datatype.XMLGregorianCalendarImpl;
 
+import cz.incad.kramerius.utils.FedoraUtils;
+import cz.incad.kramerius.utils.conf.KConfiguration;
 import cz.incad.kramerius.utils.imgs.KrameriusImageSupport;
 
 public abstract class BaseConvertor {
@@ -113,9 +115,9 @@ public abstract class BaseConvertor {
      */
     private static final String STREAM_ID_TXT = "TEXT_OCR";
 
-    private static final String STREAM_ID_IMG = "IMG_FULL";
+    //private static final String STREAM_ID_IMG = "IMG_FULL";
 
-    private static final String STREAM_ID_THUMB = "IMG_THUMB";
+    //private static final String STREAM_ID_THUMB = "IMG_THUMB";
 
     private static final String STREAM_ID_POLICY = "POLICY";
     private static final String STREAM_ID_POLICY_DEF = "POLICYDEF";
@@ -478,9 +480,21 @@ public abstract class BaseConvertor {
                         DatastreamType base64Stream = this.createBase64Stream(f.getFilename());
                         foxmlObject.getDatastream().add(base64Stream);
                         if (isImage(f.getFilename())) {
-                            DatastreamType thumbnailStream = this.createThumbnailStream(f.getFilename());
+                        	BufferedImage img = null;
+                        	try{
+                        		img = readImage(getConfig().getImportFolder() + System.getProperty("file.separator") + f.getFilename());
+                        	} catch (Exception e) {
+                                throw new ServiceException(e);
+                            }
+                            DatastreamType thumbnailStream = this.createThumbnailStream(img);
                             if (thumbnailStream != null) {
                                 foxmlObject.getDatastream().add(thumbnailStream);
+                            }
+                            if (KConfiguration.getInstance().getConfiguration().getBoolean("convert.generatePreview", true)){
+	                            DatastreamType previewStream = this.createPreviewStream(img);
+	                            if (previewStream != null) {
+	                                foxmlObject.getDatastream().add(previewStream);
+	                            }
                             }
                         }
 
@@ -514,7 +528,7 @@ public abstract class BaseConvertor {
     }
 
     private String getBase64StreamId(String filename) {
-        return (isImage(filename)) ? STREAM_ID_IMG : STREAM_ID_TXT;
+        return (isImage(filename)) ? FedoraUtils.IMG_FULL_STREAM : STREAM_ID_TXT;
     }
 
     private String getImageMime(String filename) {
@@ -596,30 +610,75 @@ public abstract class BaseConvertor {
     }
 
     /**
-     * Vytvori datastream obsahujici base64 zakodovana binarni data
+     * Vytvori datastream obsahujici base64 zakodovana binarni data pro thumbnail
      * 
      * @param pageHref
      * @return stream
      */
-    private DatastreamType createThumbnailStream(String filename) throws ServiceException {
+    private DatastreamType createThumbnailStream(BufferedImage img) throws ServiceException {
         try {
-            String streamId = STREAM_ID_THUMB;
-
+            
             DatastreamType stream = new DatastreamType();
-            stream.setID(streamId);
+            stream.setID(FedoraUtils.IMG_THUMB_STREAM);
             stream.setCONTROLGROUP("M");
             stream.setVERSIONABLE(false);
             stream.setSTATE(StateType.A);
 
             DatastreamVersionType version = new DatastreamVersionType();
             version.setCREATED(getCurrentXMLGregorianCalendar());
-            version.setID(streamId + STREAM_VERSION_SUFFIX);
+            version.setID(FedoraUtils.IMG_THUMB_STREAM + STREAM_VERSION_SUFFIX);
 
             version.setMIMETYPE("image/jpeg");
 
             // long start = System.currentTimeMillis();
 
-            byte[] binaryContent = scaleImage(getConfig().getImportFolder() + System.getProperty("file.separator") + filename, 0, 128);
+            byte[] binaryContent = scaleImage(img, 0, FedoraUtils.THUMBNAIL_HEIGHT);
+            if (binaryContent.length == 0) {
+                return null;
+            }
+
+            version.setBinaryContent(binaryContent);
+
+            // if (log.isDebugEnabled()) {
+            // log.debug("Binary attachment: time(read)="
+            // + (end - start)
+            // + "ms; filesize="
+            // + (pageFile.length() / 1024)
+            // + "kB; file="
+            // + pageFile.getName());
+            // }
+            stream.getDatastreamVersion().add(version);
+
+            return stream;
+        } catch (IOException e) {
+            throw new ServiceException(e);
+        }
+    }
+    
+    /**
+     * Vytvori datastream obsahujici base64 zakodovana binarni data pro preview
+     * 
+     * @param pageHref
+     * @return stream
+     */
+    private DatastreamType createPreviewStream(BufferedImage img) throws ServiceException {
+        try {
+            
+            DatastreamType stream = new DatastreamType();
+            stream.setID(FedoraUtils.IMG_PREVIEW_STREAM);
+            stream.setCONTROLGROUP("M");
+            stream.setVERSIONABLE(false);
+            stream.setSTATE(StateType.A);
+
+            DatastreamVersionType version = new DatastreamVersionType();
+            version.setCREATED(getCurrentXMLGregorianCalendar());
+            version.setID(FedoraUtils.IMG_PREVIEW_STREAM + STREAM_VERSION_SUFFIX);
+
+            version.setMIMETYPE("image/jpeg");
+
+            // long start = System.currentTimeMillis();
+
+            byte[] binaryContent = scaleImage(img,0, FedoraUtils.PREVIEW_HEIGHT);
             if (binaryContent.length == 0) {
                 return null;
             }
@@ -642,9 +701,10 @@ public abstract class BaseConvertor {
         }
     }
 
-    private byte[] scaleImage(String fileName, int page, int height) throws IOException, MalformedURLException {
+    
+    private BufferedImage readImage(String fileName)throws IOException, MalformedURLException{
     	
-        Image img = ImageIO.read(new File(fileName));
+    	Image img = ImageIO.read(new File(fileName));
         if (img == null) {
             try{
                 
@@ -656,7 +716,7 @@ public abstract class BaseConvertor {
                 p[0].setAsync(false);
                 DjVuImage djvuImage = new DjVuImage(p, true);
     
-                Rectangle pageBounds = djvuImage.getPageBounds(page);
+                Rectangle pageBounds = djvuImage.getPageBounds(0);
                 Image[] images = djvuImage.getImage(new JPanel(), new Rectangle(pageBounds.width, pageBounds.height));
                 if (images.length == 1) {
                     img = images[0];
@@ -666,7 +726,15 @@ public abstract class BaseConvertor {
             }
         }
         if (img != null) {
-            BufferedImage scaledImage = scaleByHeight(KrameriusImageSupport.toBufferedImage(img), height);
+        	return KrameriusImageSupport.toBufferedImage(img);
+        }
+        return null;
+    }
+    
+    private byte[] scaleImage(BufferedImage img, int width, int height) throws IOException, MalformedURLException {
+    	
+        if (img != null) {
+            BufferedImage scaledImage = scaleByHeightOrWidth(img, width, height);
 
             ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
             ImageIO.write(scaledImage, "jpg", outputStream);
@@ -675,17 +743,27 @@ public abstract class BaseConvertor {
         return new byte[0];
     }
 
-    private BufferedImage scaleByHeight(BufferedImage img, int height) {
-        int nHeight = height;
+    private BufferedImage scaleByHeightOrWidth(BufferedImage img, int newWidth, int newHeight ) {
+        
         ImageObserver observer = new ImageObserver() {
 
             public boolean imageUpdate(Image img, int infoflags, int x, int y, int width, int height) {
                 return false;
             }
         };
-        double div = (double) img.getHeight(observer) / (double) nHeight;
-        double nWidth = (double) img.getWidth(observer) / div;
-        BufferedImage scaledImage = KrameriusImageSupport.scale(img, (int)nWidth, nHeight);
+        
+        int nWidth=0, nHeight =0; 
+        
+        if(newHeight >0){
+	        nHeight = newHeight;
+	        double div = (double) img.getHeight(observer) / (double) nHeight;
+	        nWidth =  (int) (img.getWidth(observer) / div);
+	    }else{
+	    	nWidth = newWidth;
+		    double div = (double) img.getWidth(observer) / (double) nWidth;
+		    nHeight =  (int) (img.getHeight(observer) / div);
+	    }
+        BufferedImage scaledImage = KrameriusImageSupport.scale(img, nWidth, nHeight);
         return scaledImage;
     }
     

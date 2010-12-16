@@ -279,7 +279,7 @@ public abstract class AbstractImageServlet extends GuiceServlet {
         String dataStreamPath = getPathForFullImageStream(uuid);
         StringTemplate fUrl = stGroup().getInstanceOf("fullthumb");
         setStringTemplateModel(uuid, dataStreamPath, fUrl, fedoraAccess);
-        fUrl.setAttribute("height", "hei="+KConfiguration.getInstance().getConfiguration().getInt("scaledHeight", 128));
+        fUrl.setAttribute("height", "hei="+KConfiguration.getInstance().getConfiguration().getInt("scaledHeight", FedoraUtils.THUMBNAIL_HEIGHT));
         return fUrl.toString();
     }
 
