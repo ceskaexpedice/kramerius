@@ -1,0 +1,56 @@
+@CHARSET "UTF-8";
+
+.menuFrame {
+	/*border-left: solid 1px #666;*/
+	border-right: solid 1px #666;
+	/*border-bottom: solid 1px #666;
+	margin: 2px;
+	margin-right: 0px;*/
+	background-color: #CCCCCC;
+}
+
+.menuHeader {
+	background: #CCCCFF;
+	padding: 2px;
+	border-top: solid 1px #666;
+	text-align: left;
+	white-space:nowrap;
+	cursor: pointer;
+}
+
+.menuBlock {
+	border-top: solid 1px #666;
+}
+
+.menuItem {
+	text-align: left;
+	white-space:nowrap;
+}
+
+.dirty {
+	background-color: aqua;
+}
+
+@external gwt-SplitLayoutPanel-HDragger, gwt-PushButton, gwt-Label, gwt-DateBox, form;
+.gwt-SplitLayoutPanel-HDragger{
+	background-color: white;
+}
+
+.gwt-PushButton{
+	padding: 1px;
+}
+
+.gwt-Label{
+	white-space:nowrap;
+}
+
+.gwt-DateBox{
+	padding: 2px; 
+}
+
+.gwt-TextBox{
+}
+
+form {
+	margin-bottom: 0em;
+}
