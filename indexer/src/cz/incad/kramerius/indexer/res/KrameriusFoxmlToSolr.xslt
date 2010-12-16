@@ -98,13 +98,6 @@
                             <xsl:apply-templates mode="biblioMods" select="/foxml:digitalObject/foxml:datastream[@ID='BIBLIO_MODS']/foxml:datastreamVersion[last()]/foxml:xmlContent/mods:modsCollection/mods:mods" />
                             <xsl:apply-templates mode="imgFull" select="/foxml:digitalObject/foxml:datastream[@ID='IMG_FULL']/foxml:datastreamVersion[last()]" />
                         </xsl:if>
-
-
-
-
-
-
-
                     </xsl:if>
 
                 </doc>
@@ -127,10 +120,12 @@
                 <field name="fedora.model">
                     <xsl:value-of select="$MODEL"/>
                 </field>
-        
+
+                <xsl:for-each select="/foxml:digitalObject/foxml:datastream/foxml:datastreamVersion[last()]/foxml:xmlContent/oai_dc:dc/dc:type">
                 <field name="document_type">
-                    <xsl:value-of select="substring(/foxml:digitalObject/foxml:datastream/foxml:datastreamVersion[last()]/foxml:xmlContent/oai_dc:dc/dc:type/text(), 7)"/>
+                    <xsl:value-of select="substring(./text(), 7)"/>
                 </field>
+                </xsl:for-each>
                 <field name="dc.title"><xsl:value-of select="normalize-space($title)"/></field>
                 
                 <xsl:if test="$RELS_EXT_INDEX and not($RELS_EXT_INDEX = '')" >
