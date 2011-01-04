@@ -41,7 +41,7 @@ public class FedoraDatabaseUtils {
 	 */
     public static String getDataStreamPath(String uuid, Provider<Connection> provider) throws SQLException {
         String sql = "select * from datastreampaths where token like ? order by tokendbid ASC";
-        List<String> returnList = new JDBCQueryTemplate<String>(provider){
+        List<String> returnList = new JDBCQueryTemplate<String>(provider.get()){
             @Override
             public boolean handleRow(ResultSet rs, List<String> returnsList) throws SQLException {
                 String path = rs.getString("path");
