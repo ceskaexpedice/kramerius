@@ -39,17 +39,22 @@ import com.google.inject.name.Names;
 
 import cz.incad.kramerius.AbstractGuiceTestCase;
 import cz.incad.kramerius.FedoraAccess;
-import cz.incad.kramerius.security.impl.ClassRightParam;
+import cz.incad.kramerius.security.database.SecurityDatabaseUtils;
+import cz.incad.kramerius.security.impl.ClassRightCriterium;
 import cz.incad.kramerius.security.impl.MovingWallRightParam;
 import cz.incad.kramerius.security.impl.RightImpl;
-import cz.incad.kramerius.security.impl.RightParamEvaluatingContextFactoryImpl;
+import cz.incad.kramerius.security.impl.RightCriteriumContextFactoryImpl;
 import cz.incad.kramerius.utils.XMLUtils;
 
 public class MovingWallExample extends AbstractGuiceTestCase {
     
     @Test
-    public void testMovingWall() throws IOException, ParserConfigurationException, SAXException, RightParamEvaluateContextException {
+    public void testMovingWall() throws IOException, ParserConfigurationException, SAXException, RightCriteriumException {
         Injector injector = injector();
+        
+//        String command = SecurityDatabaseUtils.stGroup().getInstanceOf("findRight").toString();
+//        System.out.println(command);
+        
         FedoraAccess fedoraAccess = injector.getInstance(Key.get(FedoraAccess.class, Names.named("securedFedoraAccess")));
         RightsManager rman = injector.getInstance(RightsManager.class);
 
@@ -58,7 +63,7 @@ public class MovingWallExample extends AbstractGuiceTestCase {
         String action = "thumbViewer";
         User user = createPavelStastny();
 
-        ClassRightParam param = new ClassRightParam(MovingWallRightParam.class);
+        ClassRightCriterium param = new ClassRightCriterium(MovingWallRightParam.class);
         RightImpl rightImpl = new RightImpl(param, uuid, action, user);
 
         EasyMock.expect(rman.findRight(uuid, action, user)).andReturn(rightImpl);
@@ -71,23 +76,20 @@ public class MovingWallExample extends AbstractGuiceTestCase {
         RightsManager expectedRMan = injector.getInstance(RightsManager.class);
         Right foundRight = expectedRMan.findRight(uuid, action, user);
         
-        RightParamEvaluatingContext ctx = injector.getInstance(RightParamEvaluatingContextFactory.class).create(uuid, user);
+        RightCriteriumContext ctx = injector.getInstance(RightCriteriumContextFactory.class).create(uuid, user);
         
         TestCase.assertNotNull(ctx.getFedoraAccess());
-        TestCase.assertNotNull(ctx.getUUID());
+        TestCase.assertNotNull(ctx.getRequestedUUID());
         TestCase.assertNotNull(ctx.getUser());
         TestCase.assertNotNull(foundRight);
 
-        // evaluate rightParam
-        boolean evaluated = foundRight.evaluate(ctx);
-
-        TestCase.assertTrue(evaluated);
-    
+        
+        
     }
 
     @Override
     protected Injector injector() {
-        return Guice.createInjector(new SecurityGuiceModule());
+        return Guice.createInjector(new MocksGuiceModule());
     }
 
     
@@ -97,6 +99,14 @@ public class MovingWallExample extends AbstractGuiceTestCase {
             public int getId() {
                 return 222;
             }
+
+            
+            @Override
+            public Group[] getGroups() {
+                // TODO Auto-generated method stub
+                return null;
+            }
+
 
             @Override
             public String getFirstName() {
@@ -134,6 +144,13 @@ public class MovingWallExample extends AbstractGuiceTestCase {
                 return null;
             }
 
+            
+            @Override
+            public Group[] getGroups() {
+                // TODO Auto-generated method stub
+                return null;
+            }
+
             @Override
             public String getSurname() {
                 // TODO Auto-generated method stub
@@ -166,6 +183,13 @@ public class MovingWallExample extends AbstractGuiceTestCase {
 
             @Override
             public String getSurname() {
+                // TODO Auto-generated method stub
+                return null;
+            }
+
+            
+            @Override
+            public Group[] getGroups() {
                 // TODO Auto-generated method stub
                 return null;
             }

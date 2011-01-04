@@ -26,9 +26,9 @@ import com.google.inject.name.Names;
 import cz.incad.kramerius.FedoraAccess;
 import cz.incad.kramerius.relation.RelationService;
 import cz.incad.kramerius.relation.impl.RelationServiceImpl;
-import cz.incad.kramerius.security.impl.RightParamEvaluatingContextFactoryImpl;
+import cz.incad.kramerius.security.impl.RightCriteriumContextFactoryImpl;
 
-public class SecurityGuiceModule extends AbstractModule {
+public class MocksGuiceModule extends AbstractModule {
 
     @Override
     protected void configure() {
@@ -38,8 +38,8 @@ public class SecurityGuiceModule extends AbstractModule {
         RightsManager rmock = EasyMock.createMock(RightsManager.class);
         bind(RightsManager.class).toInstance(rmock);
         
-        RightParamEvaluatingContextFactory factory = RightParamEvaluatingContextFactoryImpl.newFactory();
-        bind(RightParamEvaluatingContextFactory.class).toInstance(factory);
+        RightCriteriumContextFactory factory = RightCriteriumContextFactoryImpl.newFactory();
+        bind(RightCriteriumContextFactory.class).toInstance(factory);
     }
 
 }
