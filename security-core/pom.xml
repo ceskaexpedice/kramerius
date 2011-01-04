@@ -53,16 +53,7 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
     </distributionManagement>
 
 
-    <dependencies>
-        <dependency>
-            <groupId>cz.incad.kramerius</groupId>
-            <artifactId>common</artifactId>
-            <version>1.0.0-SNAPSHOT</version>
-        </dependency>
-
-    </dependencies>
     <build>
-<!--        <testSourceDirectory>${basedir}/src/main/test</testSourceDirectory> -->
         <resources>
             <resource>
                 <directory>${basedir}/src/main/java</directory>
