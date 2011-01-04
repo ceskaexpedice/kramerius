@@ -12,10 +12,38 @@ where
   and ent.uuid=?
 >>
 
+// jak to udelat jinak ?? 
+
+findRightFromWithGroups(user, groups, uuid, action) ::=<<
+select * from right_entity ent
+    left join rights_criterium_entity crit on (ent.rights_crit=crit.crit_id)
+    left join criterium_param_entity param on (crit.citeriumparam=param.crit_param_id)
+where (ent."user"=$user$  $if(first(groups))$ or $endif$ $groups:{grp| ent."group"=$grp$ };separator=" or "$ )
+     and uuid='uuid:$uuid$'
+     and "action"='$action$'
+>>
+
 findUser() ::= <<
     select * from user_entity
     where loginname=? and pswd=?
 >>
 
+findUserByUserId() ::= <<
+    select * from user_entity
+    where user_id=? 
+>>
 
+findGroupByGroupId() ::= <<
+    select * from group_entity
+    where group_id=? 
+>>
 
+findAllGroupsByUserId() ::=<<
+    select * from user_group_mapping 
+    where user_id=?
+>>
+
+findCommonUsersGroup() ::=<<
+    select * from group_entity 
+    where gname='common_users'
+>>
