@@ -18,21 +18,21 @@ package cz.incad.kramerius.security.impl;
 
 import cz.incad.kramerius.security.AbstractUser;
 import cz.incad.kramerius.security.Right;
-import cz.incad.kramerius.security.RightParam;
-import cz.incad.kramerius.security.RightParamEvaluateContextException;
-import cz.incad.kramerius.security.RightParamEvaluatingContext;
+import cz.incad.kramerius.security.RightCriterium;
+import cz.incad.kramerius.security.RightCriteriumException;
+import cz.incad.kramerius.security.RightCriteriumContext;
+import cz.incad.kramerius.security.EvaluatingResult;
 
 public class RightImpl implements Right {
     
-    
-    private RightParam param;
+    private RightCriterium crit;
     private String uuid;
     private String action;
     private AbstractUser user;
     
-    public RightImpl(RightParam param, String uuid, String action, AbstractUser user) {
+    public RightImpl(RightCriterium crit, String uuid, String action, AbstractUser user) {
         super();
-        this.param = param;
+        this.crit = crit;
         this.uuid = uuid;
         this.action = action;
         this.user = user;
@@ -48,13 +48,13 @@ public class RightImpl implements Right {
         return this.action;
     }
 
-    public void setParam(RightParam param) {
-        this.param = param;
+    public void setParam(RightCriterium param) {
+        this.crit = param;
     }
 
     @Override
-    public RightParam getParam() {
-        return this.param;
+    public RightCriterium getCriterium() {
+        return this.crit;
     }
 
     public AbstractUser getUser() {
@@ -63,13 +63,15 @@ public class RightImpl implements Right {
     
     
     @Override 
-    public synchronized boolean evaluate(RightParamEvaluatingContext ctx) throws RightParamEvaluateContextException {
-        if (this.param != null){
-            this.param.setEvaluateContext(ctx);
-            boolean evaluted = this.param.evalute();
-            this.param.setEvaluateContext(null);
-            return evaluted;
-        } else return true;
+    public synchronized EvaluatingResult evaluate(RightCriteriumContext ctx) throws RightCriteriumException {
+        if (this.crit != null){
+            this.crit.setEvaluateContext(ctx);
+            EvaluatingResult result = this.crit.evalute();
+            this.crit.setEvaluateContext(null);
+            return result;
+        
+        // kdyz neni zadne kriterium, pak je akce povolena
+        } else return EvaluatingResult.FALSE;
     }
 
 }

@@ -16,31 +16,33 @@
  */
 package cz.incad.kramerius.security.impl;
 
-import static cz.incad.kramerius.security.database.SecurityDatabaseUtils.*;
-
 import java.sql.Connection;
-import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.logging.Level;
 
+import org.antlr.stringtemplate.StringTemplate;
 
 import com.google.inject.Inject;
 import com.google.inject.Provider;
 import com.google.inject.name.Named;
 
-import cz.incad.kramerius.processes.database.DatabaseUtils;
 import cz.incad.kramerius.security.AbstractUser;
+import cz.incad.kramerius.security.EvaluatingResult;
+import cz.incad.kramerius.security.Group;
 import cz.incad.kramerius.security.Right;
-import cz.incad.kramerius.security.RightParam;
-import cz.incad.kramerius.security.RightParamFactory;
-import cz.incad.kramerius.security.RightParamType;
+import cz.incad.kramerius.security.RightCriterium;
+import cz.incad.kramerius.security.RightCriteriumContext;
+import cz.incad.kramerius.security.RightCriteriumException;
+import cz.incad.kramerius.security.User;
+
 import cz.incad.kramerius.security.RightsManager;
+import cz.incad.kramerius.security.UserManager;
 import cz.incad.kramerius.security.database.SecurityDatabaseUtils;
 import cz.incad.kramerius.utils.database.JDBCQueryTemplate;
 
-public class DatabaseRightsManager extends RightsManager {
+public class DatabaseRightsManager implements RightsManager {
 
     static java.util.logging.Logger LOGGER = java.util.logging.Logger.getLogger(DatabaseRightsManager.class.getName());
 
@@ -49,33 +51,64 @@ public class DatabaseRightsManager extends RightsManager {
     @Named("kramerius4")
     Provider<Connection> provider;
     
+    
     @Inject
-    RightParamFactory paramFactory;
+    UserManager userManager;
     
     @Override
-    public Right findRight(final String uuid, final String action, final AbstractUser user) {
-        String command = SecurityDatabaseUtils.stGroup().getInstanceOf("findRight").toString();
-        List<Right> rights = new JDBCQueryTemplate<Right>(this.provider){
+    public Right findRight(final String uuid, final String action, final User user) {
+        Group[] grps = user.getGroups();
+        int[] grpIds = new int[grps.length]; {
+            for (int i = 0; i < grps.length; i++) {
+                grpIds[i]=grps[i].getId();
+            }
+        }
+        StringTemplate template = SecurityDatabaseUtils.stGroup().getInstanceOf("findRightFromWithGroups");
+        template.setAttribute("uuid", uuid);
+        template.setAttribute("groups", grpIds);
+        template.setAttribute("user", user.getId());
+        template.setAttribute("action", action);
+        
+        String command = template.toString();
+        
+        List<Right> rights = new JDBCQueryTemplate<Right>(this.provider.get()){
             @Override
             public boolean handleRow(ResultSet rs, List<Right> returnsList) throws SQLException {
-                String actionVal = rs.getString("action");
+
+                int rightId=rs.getInt("right_id");
                 String uuidVal = rs.getString("uuid");
+                String actionVal = rs.getString("action");
+                
+                int criteriumId = rs.getInt("crit_id");
+                Integer userId = rs.getInt("user");
+                Integer groupId = rs.getInt("group");
+                
+                AbstractUser dbUser = null;
+                if (userId != null) {
+                    dbUser = userManager.findUser(userId);
+                } else {
+                    dbUser = userManager.findGroup(groupId);
+                }
+                
                 String qname = rs.getString("qname");
-                int rParId = rs.getInt("right_att_id");
+                int typeId = rs.getInt("type");
+                String vals = rs.getString("vals");
+                
                 if (qname!=null) {
                     int type = rs.getInt("type");
                     if (type >= 0) {
-                        RightParam param = paramFactory.create(rParId, qname, type);
-                        RightImpl rightImpl = new RightImpl(param, uuidVal, actionVal, user);
+                        Object[] objs = vals != null ? vals.split(";") : new Object[0];
+                        RightCriterium crit = CriteriumType.findByValue(type).createCriterium(criteriumId, qname, objs);
+                        RightImpl rightImpl = new RightImpl(crit, uuidVal, actionVal, dbUser);
                         returnsList.add(rightImpl);
                     } else {
-                        returnsList.add(new RightImpl(null, uuidVal, actionVal, user));
+                        returnsList.add(new RightImpl(null, uuidVal, actionVal, dbUser));
                     }
                 }
                 returnsList.add(new RightImpl(null, uuidVal, actionVal, user));
                 return false;
             }
-        }.executeQuery(command, action, user.getId(), uuid.startsWith("uuid:") ? uuid: "uuid:"+uuid);
+        }.executeQuery(command);
         return ((rights != null) && (!rights.isEmpty())) ? rights.get(0) : null;
     }
 
@@ -86,5 +119,28 @@ public class DatabaseRightsManager extends RightsManager {
     public void setProvider(Provider<Connection> provider) {
         this.provider = provider;
     }
-    
+
+    @Override
+    public EvaluatingResult resolve(RightCriteriumContext ctx, String uuid, String[] path, String action, User user) throws RightCriteriumException {
+        List<String>uuids = new ArrayList<String>();
+        uuids.add(uuid);
+        for (String uuidOfPath : path) {
+            if (!uuids.contains(uuidOfPath)) {
+                uuids.add(uuidOfPath);
+            }
+        }
+        
+        for (String curUUID : uuids) {
+            Right right = findRight(curUUID, action, user);
+            if (right != null) {
+                ctx.setAssociatedUUID(curUUID);
+                EvaluatingResult result = right.evaluate(ctx);
+                ctx.setAssociatedUUID(null);
+                if (result != EvaluatingResult.NOT_APPLICABLE) return result;
+            }
+        }
+        
+        // nenasel zadne pravo nebo vsechny vracely NOT_APPLICABLE
+        return EvaluatingResult.FALSE;
+    }
 }

@@ -21,15 +21,15 @@ import com.google.inject.name.Named;
 
 import cz.incad.kramerius.FedoraAccess;
 import cz.incad.kramerius.security.AbstractUser;
-import cz.incad.kramerius.security.RightParamEvaluatingContext;
-import cz.incad.kramerius.security.RightParamEvaluatingContextFactory;
+import cz.incad.kramerius.security.RightCriteriumContext;
+import cz.incad.kramerius.security.RightCriteriumContextFactory;
 import cz.incad.kramerius.security.User;
 
-public class RightParamEvaluatingContextFactoryImpl implements RightParamEvaluatingContextFactory {
+public class RightCriteriumContextFactoryImpl implements RightCriteriumContextFactory {
     
     private FedoraAccess fedoraAccess;
     
-    private RightParamEvaluatingContextFactoryImpl() {
+    public RightCriteriumContextFactoryImpl() {
         super();
     }
 
@@ -42,15 +42,13 @@ public class RightParamEvaluatingContextFactoryImpl implements RightParamEvaluat
         this.fedoraAccess = fedoraAccess;
     }
 
-    public static synchronized RightParamEvaluatingContextFactory newFactory() {
-        return new RightParamEvaluatingContextFactoryImpl();
+    public static synchronized RightCriteriumContextFactoryImpl newFactory() {
+        return new RightCriteriumContextFactoryImpl();
     }
     
     @Override
-    public RightParamEvaluatingContext create(String uuid, User user) {
-        RightParamEvaluatingContext ctx = new RightParamEvaluatingContextImpl(uuid, user, this.fedoraAccess);
+    public RightCriteriumContext create(String requestedUUID,  User user) {
+        RightCriteriumContext ctx = new RightParamEvaluatingContextImpl(requestedUUID, user, this.fedoraAccess);
         return ctx;
     }
-    
-    
 }

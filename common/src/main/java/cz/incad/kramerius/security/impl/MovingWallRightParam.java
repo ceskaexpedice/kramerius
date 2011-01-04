@@ -33,81 +33,89 @@ import org.w3c.dom.NodeList;
 import org.w3c.dom.Text;
 
 import cz.incad.kramerius.FedoraNamespaceContext;
+import cz.incad.kramerius.FedoraNamespaces;
 import cz.incad.kramerius.security.AbstractUser;
-import cz.incad.kramerius.security.RightParamEvaluateContextException;
-import cz.incad.kramerius.security.RightParam;
-import cz.incad.kramerius.security.RightParamEvaluatingContext;
+import cz.incad.kramerius.security.RightCriteriumException;
+import cz.incad.kramerius.security.RightCriterium;
+import cz.incad.kramerius.security.RightCriteriumContext;
+import cz.incad.kramerius.security.EvaluatingResult;
+import cz.incad.kramerius.utils.XMLUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 
 /**
  */
-public class MovingWallRightParam implements RightParam {
+public class MovingWallRightParam implements RightCriterium {
 
     static java.util.logging.Logger LOGGER = java.util.logging.Logger.getLogger(MovingWallRightParam.class.getName());
     
-    private RightParamEvaluatingContext evalContext;
+    private RightCriteriumContext evalContext;
+    
+    private Object[] objs;
     
     @Override
-    public RightParamEvaluatingContext getEvaluateContext() {
+    public RightCriteriumContext getEvaluateContext() {
         return this.evalContext;
     }
 
     @Override
-    public void setEvaluateContext(RightParamEvaluatingContext ctx) {
+    public void setEvaluateContext(RightCriteriumContext ctx) {
         this.evalContext = ctx;
     }
 
     @Override
-    public boolean evalute() throws RightParamEvaluateContextException {
+    public EvaluatingResult evalute() throws RightCriteriumException {
+        int wallFromConf = Integer.parseInt((String)getObjects()[0]);
         try {
-            String uuid = this.evalContext.getUUID();
+            String uuid = this.evalContext.getAssociatedUUID();
             //AbstractUser user = this.evalContext.getUser();
             Document dc = this.evalContext.getFedoraAccess().getDC(uuid);
-            XPathFactory factory = XPathFactory.newInstance();
-            XPath xpath = factory.newXPath();
-            xpath.setNamespaceContext(new FedoraNamespaceContext());
-            //"dc:date"
-            XPathExpression expr = xpath.compile("//dc:date/text()");
-            NodeList nodes = (NodeList) expr.evaluate(dc, XPathConstants.NODESET);
-            System.out.println(nodes.getLength());
-            int length = nodes.getLength();
-            for (int i = 0; i < length; i++) {
-                Node item = nodes.item(i);
-                if (item.getNodeType() == Node.ELEMENT_NODE) {
-                    Element elm = (Element) item;
-                    System.out.println(elm.getLocalName());
-                    System.out.println(elm.getNamespaceURI());
-                    System.out.println(elm.getNodeName());
-                }
-                System.out.println(item);
-            }
-            
-            if (nodes.getLength() >= 1) {
-                
-                Text txt = (Text) nodes.item(0);
-                // jak to bude ?? 
-                
-                int yearFromMetadata = Integer.parseInt(txt.getData());
-                int wallFromConf = KConfiguration.getInstance().getConfiguration().getInt("movingWallYear", 1910);
+            Element dateElem = XMLUtils.findElement(dc.getDocumentElement(), "date", FedoraNamespaces.DC_NAMESPACE_URI);
+            if (dateElem != null) {
+                String dateString = dateElem.getTextContent();
 
+                int yearFromMetadata = Integer.parseInt(dateString);
                 Calendar calFromMetadata = Calendar.getInstance();
                 calFromMetadata.set(Calendar.YEAR, yearFromMetadata);
                 
                 Calendar calFromConf = Calendar.getInstance();
                 calFromConf.set(Calendar.YEAR, wallFromConf);
                 
-                return calFromMetadata.before(calFromConf);
-            } else return false;
-
+                return createResult(calFromMetadata, calFromConf);
+            } else return EvaluatingResult.NOT_APPLICABLE;
         } catch (NumberFormatException e) {
             LOGGER.log(Level.SEVERE,e.getMessage());
-            return true;
+            return EvaluatingResult.FALSE;
         } catch (IOException e) {
             LOGGER.log(Level.SEVERE,e.getMessage());
-            return true;
-        } catch (XPathExpressionException e) {
-            LOGGER.log(Level.SEVERE,e.getMessage());
-            return true;
+            return EvaluatingResult.FALSE;
         }
+    }
+
+    public EvaluatingResult createResult(Calendar calFromMetadata, Calendar calFromConf) {
+        return calFromMetadata.before(calFromConf) ?  EvaluatingResult.TRUE:EvaluatingResult.FALSE;
+    }
+
+    @Override
+    public Object[] getObjects() {
+        return this.objs;
+    }
+
+    @Override
+    public void setObjects(Object[] objs) {
+        this.objs = objs;
+    }
+
+    @Override
+    public boolean validate(Object[] objs) {
+        if ((objs != null) && (objs.length == 1)) {
+            String val = (String) objs[0];
+            try {
+                Integer.parseInt(val);
+                return true;
+            } catch (NumberFormatException e) {
+                LOGGER.log(Level.SEVERE, e.getMessage(), e);
+                return false;
+            }
+        } else return false;
     }
 }

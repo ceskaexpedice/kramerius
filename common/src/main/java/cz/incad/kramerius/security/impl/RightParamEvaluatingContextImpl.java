@@ -26,26 +26,34 @@ import org.xml.sax.SAXException;
 
 import cz.incad.kramerius.FedoraAccess;
 import cz.incad.kramerius.security.AbstractUser;
-import cz.incad.kramerius.security.RightParamEvaluatingContext;
+import cz.incad.kramerius.security.RightCriteriumContext;
 import cz.incad.kramerius.security.User;
 import cz.incad.kramerius.utils.solr.SolrUtils;
 
-public class RightParamEvaluatingContextImpl implements RightParamEvaluatingContext {
+public class RightParamEvaluatingContextImpl implements RightCriteriumContext {
 
-    private String uuid;
+    private String requestedUUID;
+    private String associatedUUID;
     private User user;
     private FedoraAccess fedoraAccess;
+
     
-    public RightParamEvaluatingContextImpl(String uuid, User user, FedoraAccess fedoraAccess) {
+    public RightParamEvaluatingContextImpl(String reqUUID, User user, FedoraAccess fedoraAccess) {
         super();
-        this.uuid = uuid;
+        this.requestedUUID = reqUUID;
         this.user = user;
         this.fedoraAccess = fedoraAccess;
     }
 
     @Override
-    public String getUUID() {
-        return this.uuid;
+    public String getRequestedUUID() {
+        return this.requestedUUID;
+    }
+
+    
+    @Override
+    public String getAssociatedUUID() {
+        return this.associatedUUID;
     }
 
     @Override
@@ -58,10 +66,17 @@ public class RightParamEvaluatingContextImpl implements RightParamEvaluatingCont
         return this.fedoraAccess;
     }
 
+    
+    
+    @Override
+    public void setAssociatedUUID(String uuid) {
+        this.associatedUUID = uuid;
+    }
+
     @Override
     public String[] getPathOfUUIDs() {
         try {
-            Document solrData = SolrUtils.getSolrData(getUUID());
+            Document solrData = SolrUtils.getSolrData(getRequestedUUID());
             return SolrUtils.disectPidPath(solrData).split("/");
         } catch (IOException e) {
             throw new IllegalStateException(e);
@@ -73,5 +88,4 @@ public class RightParamEvaluatingContextImpl implements RightParamEvaluatingCont
             throw new IllegalStateException(e);
         }
     }
-    
 }
