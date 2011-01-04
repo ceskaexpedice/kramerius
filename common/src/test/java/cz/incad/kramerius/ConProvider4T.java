@@ -19,7 +19,6 @@ public class ConProvider4T implements Provider<Connection>{
         Connection con = DriverManager.getConnection("jdbc:postgresql://localhost/kramerius4","fedoraAdmin","fedoraAdmin");
 		return con;
 	}
-
 	
 	@Override
 	public Connection get() {
