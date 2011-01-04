@@ -5,7 +5,7 @@
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- * 
+ * `
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
@@ -16,6 +16,8 @@
  */
 package cz.incad.kramerius.security;
 
+import java.util.Map;
+
 /**
  * Represents specific right parameter. In most cases it is script or java class. 
  * 
@@ -24,24 +26,30 @@ package cz.incad.kramerius.security;
  *
  * @author pavels
  */
-public interface RightParam {
+public interface RightCriterium {
 
     /**
      * Evaluating context. Context for access to runtime variables (uuid, current user, etc..)
      * @return
      */
-    public RightParamEvaluatingContext getEvaluateContext();
+    public RightCriteriumContext getEvaluateContext();
     
     /**
      * Set evaluating context
      * @param ctx
      */
-    public void setEvaluateContext(RightParamEvaluatingContext ctx);
+    public void setEvaluateContext(RightCriteriumContext ctx);
     
     /**
      * Returns true, if the operation is allowed for current user
      * @return
-     * @throws RightParamEvaluateContextException 
+     * @throws RightCriteriumException 
      */
-    public boolean evalute() throws RightParamEvaluateContextException;
+    public EvaluatingResult evalute() throws RightCriteriumException;
+    
+    public Object[] getObjects();
+    
+    public void setObjects(Object[] objs);
+
+    public boolean validate(Object[] objs);
 }

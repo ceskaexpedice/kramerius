@@ -16,40 +16,26 @@
  */
 package cz.incad.kramerius.security;
 
-import org.w3c.dom.Document;
+public class RightCriteriumException extends Exception {
 
-import cz.incad.kramerius.FedoraAccess;
+    public RightCriteriumException() {
+        super();
+        // TODO Auto-generated constructor stub
+    }
 
-/**
- * Implementation of this interface holds information 
- * necessary for interpreting rule (current uuid, current user, fed 
- * @author pavels
- */
-public interface RightParamEvaluatingContext {
+    public RightCriteriumException(String message, Throwable cause) {
+        super(message, cause);
+        // TODO Auto-generated constructor stub
+    }
 
-    /**
-     * UUID of the object
-     * @return
-     */
-    public String getUUID();
-    
-    /**
-     * Returns path from leaf to root tree
-     * @return
-     */
-    public String[] getPathOfUUIDs();
-    
-    /**
-     * Current logged user
-     * @return
-     * @see AbstractUser
-     */
-    public AbstractUser getUser();
-    
-    /**
-     * Fedora access
-     * @return
-     */
-    public FedoraAccess getFedoraAccess();
+    public RightCriteriumException(String message) {
+        super(message);
+        // TODO Auto-generated constructor stub
+    }
+
+    public RightCriteriumException(Throwable cause) {
+        super(cause);
+        // TODO Auto-generated constructor stub
+    }
     
 }

@@ -16,18 +16,11 @@
  */
 package cz.incad.kramerius.security;
 
-/**
- * This factory creates evaluating context
- * @author pavels
- * @see RightParamEvaluatingContext
- */
-public interface RightParamEvaluatingContextFactory {
+public enum EvaluatingResult {
+
+    TRUE,
     
-    /**
-     * Create instance of RightParamEvaluatingContext
-     * @param uuid PRocessing uuid
-     * @param user Current logged user
-     * @return
-     */
-    public RightParamEvaluatingContext create(String uuid, User user);
+    FALSE,
+    
+    NOT_APPLICABLE
 }

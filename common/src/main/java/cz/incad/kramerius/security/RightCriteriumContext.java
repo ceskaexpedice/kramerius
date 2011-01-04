@@ -16,15 +16,48 @@
  */
 package cz.incad.kramerius.security;
 
+import org.w3c.dom.Document;
+
+import cz.incad.kramerius.FedoraAccess;
+
 /**
- * This interface represents abstract user
+ * Implementation of this interface holds information 
+ * necessary for interpreting rule (current uuid, current user, fed 
+ * 
  * @author pavels
  */
-public interface AbstractUser {
+public interface RightCriteriumContext {
 
     /**
-     * Returns unique identfier of user
+     * UUID of the object
      * @return
      */
-    public int getId();
+    public String getRequestedUUID();
+    
+    public String getAssociatedUUID();
+    
+    public void setAssociatedUUID(String uuid);
+    
+    /**
+     * Returns path from leaf to root tree
+     * @return
+     */
+    public String[] getPathOfUUIDs();
+    
+    /**
+     * Current logged user
+     * @return
+     * @see AbstractUser
+     */
+    public AbstractUser getUser();
+    
+    /**
+     * Fedora access
+     * @return
+     */
+    public FedoraAccess getFedoraAccess();
+    
+
+    
+//    public Object[] getObjects();
 }

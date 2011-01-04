@@ -16,10 +16,7 @@
  */
 package cz.incad.kramerius.security;
 
-/**
- * Represents group of users
- * @author pavels
- */
-public interface Group  extends AbstractUser {
+public interface IsActionAllowed {
 
+    public boolean isActionAllowed(String actionName, String uuid, String[] pathOfUuids);
 }

@@ -16,26 +16,18 @@
  */
 package cz.incad.kramerius.security;
 
-public class RightParamEvaluateContextException extends Exception {
-
-    public RightParamEvaluateContextException() {
-        super();
-        // TODO Auto-generated constructor stub
-    }
-
-    public RightParamEvaluateContextException(String message, Throwable cause) {
-        super(message, cause);
-        // TODO Auto-generated constructor stub
-    }
-
-    public RightParamEvaluateContextException(String message) {
-        super(message);
-        // TODO Auto-generated constructor stub
-    }
-
-    public RightParamEvaluateContextException(Throwable cause) {
-        super(cause);
-        // TODO Auto-generated constructor stub
-    }
+/**
+ * This factory creates evaluating context
+ * @author pavels
+ * @see RightCriteriumContext
+ */
+public interface RightCriteriumContextFactory {
     
+    /**
+     * Create instance of RightParamEvaluatingContext
+     * @param uuid PRocessing uuid
+     * @param user Current logged user
+     * @return
+     */
+    public RightCriteriumContext create(String reqUUID, User user);
 }

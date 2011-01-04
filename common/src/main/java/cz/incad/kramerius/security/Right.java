@@ -24,10 +24,10 @@ package cz.incad.kramerius.security;
  * 
  * <ul>
  *  <li> If this assocation doesn't exist, the user is not permitted to do this. 
- *  <li> If this assocation exists and doesn't exist any other RightParam, the user is permitted 
+ *  <li> If this assocation exists and doesn't exist any other Criterium, the user is permitted 
  * to do this action.
- *  <li> If this assoctiona exists and contains any other specific RightParam, the resolution is 
- *  delegeted the this param. Param can be script or java class.
+ *  <li> If this assoctiona exists and contains criterium, the resolution is delegated to this
+ *  criterium
  * </ul>  
  * 
  * @author pavels
@@ -53,18 +53,18 @@ public interface Right {
     public AbstractUser getUser();
     
     /**
-     * Returns specific right param
+     * Returns specific criterium
      * @return
      */
-    public RightParam getParam();
+    public RightCriterium getCriterium();
     
     
     /**
-     * Interpreting this right 
+     * Interpret this right
+     * 
      * @param ctx
      * @return
-     * @throws RightParamEvaluateContextException
+     * @throws RightCriteriumException
      */
-    public boolean evaluate(RightParamEvaluatingContext ctx) throws RightParamEvaluateContextException;
-
+    public EvaluatingResult evaluate(RightCriteriumContext ctx) throws RightCriteriumException;
 }
