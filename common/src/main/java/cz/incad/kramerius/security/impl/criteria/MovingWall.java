@@ -17,7 +17,11 @@
 package cz.incad.kramerius.security.impl.criteria;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
+import java.util.Collections;
+import java.util.List;
 import java.util.logging.Level;
 
 import javax.xml.xpath.XPath;
@@ -39,6 +43,7 @@ import cz.incad.kramerius.security.RightCriteriumException;
 import cz.incad.kramerius.security.RightCriterium;
 import cz.incad.kramerius.security.EvaluatingResult;
 import cz.incad.kramerius.security.RightCriteriumPriorityHint;
+import cz.incad.kramerius.security.SpecialObjects;
 import cz.incad.kramerius.utils.XMLUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 
@@ -58,24 +63,14 @@ public class MovingWall extends AbstractCriterium implements RightCriterium {
     public EvaluatingResult evalute() throws RightCriteriumException {
         int wallFromConf = Integer.parseInt((String)getObjects()[0]);
         try {
-            // uuid se kterym je kriterium asociovano
-            String uuid = getEvaluateContext().getRequestedUUID();
-            // if no date... try associated.
-            //AbstractUser user = this.evalContext.getUser();
-            Document dc = getEvaluateContext().getFedoraAccess().getDC(uuid);
-            Element dateElem = XMLUtils.findElement(dc.getDocumentElement(), "date", FedoraNamespaces.DC_NAMESPACE_URI);
-            if (dateElem != null) {
-                String dateString = dateElem.getTextContent();
-
-                int yearFromMetadata = Integer.parseInt(dateString);
-                Calendar calFromMetadata = Calendar.getInstance();
-                calFromMetadata.set(Calendar.YEAR, yearFromMetadata);
-                
-                Calendar calFromConf = Calendar.getInstance();
-                calFromConf.set(Calendar.YEAR, wallFromConf);
-                
-                return createResult(calFromMetadata, calFromConf);
-            } else return EvaluatingResult.NOT_APPLICABLE;
+            String[] pathOfUUIDs = getEvaluateContext().getPathOfUUIDs();
+            List<String> path = new ArrayList<String>(Arrays.asList(pathOfUUIDs));
+            Collections.reverse(path);
+            for (String uuid : path) {
+                EvaluatingResult resolved = resolveInternal(wallFromConf, uuid);
+                if (resolved != EvaluatingResult.NOT_APPLICABLE) return resolved;
+            }
+            return EvaluatingResult.NOT_APPLICABLE;
         } catch (NumberFormatException e) {
             LOGGER.log(Level.SEVERE,e.getMessage());
             return EvaluatingResult.FALSE;
@@ -83,6 +78,24 @@ public class MovingWall extends AbstractCriterium implements RightCriterium {
             LOGGER.log(Level.SEVERE,e.getMessage());
             return EvaluatingResult.FALSE;
         }
+    }
+
+    public EvaluatingResult resolveInternal(int wallFromConf, String uuid) throws IOException {
+        //AbstractUser user = this.evalContext.getUser();
+        Document dc = getEvaluateContext().getFedoraAccess().getDC(uuid);
+        Element dateElem = XMLUtils.findElement(dc.getDocumentElement(), "date", FedoraNamespaces.DC_NAMESPACE_URI);
+        if (dateElem != null) {
+            String dateString = dateElem.getTextContent();
+
+            int yearFromMetadata = Integer.parseInt(dateString);
+            Calendar calFromMetadata = Calendar.getInstance();
+            calFromMetadata.set(Calendar.YEAR, yearFromMetadata);
+            
+            Calendar calFromConf = Calendar.getInstance();
+            calFromConf.set(Calendar.YEAR, wallFromConf);
+            
+            return createResult(calFromMetadata, calFromConf);
+        } else return EvaluatingResult.NOT_APPLICABLE;
     }
 
     public EvaluatingResult createResult(Calendar calFromMetadata, Calendar calFromConf) {

@@ -68,8 +68,4 @@ public class DefaultIPAddressFilter extends AbstractIPAddressFilter implements R
     public RightCriteriumPriorityHint getPriorityHint() {
         return RightCriteriumPriorityHint.MAX;
     }
-
-
-    
-    
 }

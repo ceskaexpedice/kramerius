@@ -69,10 +69,15 @@ public class RightImpl implements Right {
             EvaluatingResult result = this.crit.evalute();
             this.crit.setEvaluateContext(null);
             return result;
-        
         // kdyz neni zadne kriterium, pak je akce povolena
         } else return EvaluatingResult.TRUE;
     }
 
+    @Override
+    public String toString() {
+        StringBuffer buffer = new StringBuffer();
+        buffer.append("["+this.uuid+"] "+this.crit!=null?this.crit.toString():"");
+        return buffer.toString();
+    }
 }
 

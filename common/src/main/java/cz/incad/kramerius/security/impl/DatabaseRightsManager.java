@@ -70,6 +70,11 @@ public class DatabaseRightsManager implements RightsManager {
                 grpIds[i]=grps[i].getId();
             }
         }
+        for (int i = 0; i < uuids.length; i++) {
+            if (!uuids[i].startsWith("uuid:")) {
+                uuids[i] = "uuid:"+uuids[i];
+            }
+        }
         StringTemplate template = SecurityDatabaseUtils.stGroup().getInstanceOf("findRightFromWithGroups");
         template.setAttribute("uuids", uuids);
         template.setAttribute("groups", grpIds);

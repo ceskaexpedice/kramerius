@@ -16,6 +16,7 @@
  */
 package cz.incad.kramerius.security.impl;
 
+import java.util.Arrays;
 import java.util.logging.Level;
 
 import cz.incad.kramerius.security.RightCriteriumException;
@@ -133,4 +134,13 @@ public class ClassRightCriterium implements RightCriterium {
     public Class<? extends RightCriterium> getCriteriumClz() {
         return clz;
     }
+
+    @Override
+    public String toString() {
+        StringBuffer buffer = new StringBuffer();
+        buffer.append(this.clz.getName()+" "+Arrays.asList(this.objects));
+        return buffer.toString();
+    }
+    
+    
 }
