@@ -14,9 +14,9 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
-package cz.incad.kramerius.security.impl;
+package cz.incad.kramerius.security;
 
-import cz.incad.kramerius.security.RightCriterium;
+import cz.incad.kramerius.security.impl.ClassRightCriterium;
 
 public enum CriteriumType {
     

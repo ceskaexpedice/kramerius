@@ -37,12 +37,16 @@ public class RightParamEvaluatingContextImpl implements RightCriteriumContext {
     private User user;
     private FedoraAccess fedoraAccess;
 
+    private String remoteHost;
+    private String remoteAddr;    
     
-    public RightParamEvaluatingContextImpl(String reqUUID, User user, FedoraAccess fedoraAccess) {
+    public RightParamEvaluatingContextImpl(String reqUUID, User user, FedoraAccess fedoraAccess, String remoteHost, String remoteAddr) {
         super();
         this.requestedUUID = reqUUID;
         this.user = user;
         this.fedoraAccess = fedoraAccess;
+        this.remoteHost = remoteHost;
+        this.remoteAddr = remoteAddr;
     }
 
     @Override
@@ -57,7 +61,7 @@ public class RightParamEvaluatingContextImpl implements RightCriteriumContext {
     }
 
     @Override
-    public AbstractUser getUser() {
+    public User getUser() {
         return this.user;
     }
 
@@ -88,4 +92,16 @@ public class RightParamEvaluatingContextImpl implements RightCriteriumContext {
             throw new IllegalStateException(e);
         }
     }
+
+    @Override
+    public String getRemoteHost() {
+        return this.remoteHost;
+    }
+
+    @Override
+    public String getRemoteAddr() {
+        return this.remoteAddr;
+    }
+
+    
 }

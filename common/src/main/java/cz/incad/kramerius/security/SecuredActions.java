@@ -16,19 +16,17 @@
  */
 package cz.incad.kramerius.security;
 
-/**
- * This factory creates evaluating context
- * @author pavels
- * @see RightCriteriumContext
- */
-public interface RightCriteriumContextFactory {
+public enum SecuredActions {
+
+    READ_PREVIEW("readPreview");
     
-    /**
-     * Create instance of RightParamEvaluatingContext
-     * @param uuid PRocessing uuid
-     * @param user Current logged user
-     * @param string 
-     * @return
-     */
-    public RightCriteriumContext create(String reqUUID, User user, String remoteHost, String remoteAddr);
+    private String formalName;
+  
+    private SecuredActions(String formalName) {
+        this.formalName = formalName;
+    }
+
+    public String getFormalName() {
+        return formalName;
+    }
 }

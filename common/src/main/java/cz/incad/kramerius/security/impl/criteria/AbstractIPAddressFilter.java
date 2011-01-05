@@ -14,21 +14,22 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
-package cz.incad.kramerius.security;
+package cz.incad.kramerius.security.impl.criteria;
 
-/**
- * This factory creates evaluating context
- * @author pavels
- * @see RightCriteriumContext
- */
-public interface RightCriteriumContextFactory {
-    
-    /**
-     * Create instance of RightParamEvaluatingContext
-     * @param uuid PRocessing uuid
-     * @param user Current logged user
-     * @param string 
-     * @return
-     */
-    public RightCriteriumContext create(String reqUUID, User user, String remoteHost, String remoteAddr);
+import java.util.Calendar;
+
+import cz.incad.kramerius.security.EvaluatingResult;
+import cz.incad.kramerius.security.RightCriterium;
+
+public abstract class AbstractIPAddressFilter extends AbstractCriterium implements RightCriterium {
+
+    protected boolean matchIPAddresses(Object[] objs) {
+        for (Object pattern : objs) {
+            if (pattern.toString().matches(this.getEvaluateContext().getRemoteAddr())) return true;
+            if (pattern.toString().matches(this.getEvaluateContext().getRemoteHost())) return true;
+        }
+        return false;
+    }
+
+
 }

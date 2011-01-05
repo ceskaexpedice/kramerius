@@ -16,6 +16,8 @@
  */
 package cz.incad.kramerius.security;
 
+import java.net.Inet4Address;
+
 import org.w3c.dom.Document;
 
 import cz.incad.kramerius.FedoraAccess;
@@ -29,11 +31,15 @@ import cz.incad.kramerius.FedoraAccess;
 public interface RightCriteriumContext {
 
     /**
-     * UUID of the object
+     * Puvodne dotazovany objekt
      * @return
      */
     public String getRequestedUUID();
     
+    /**
+     * Objekt, se kterym je pravo asociovano
+     * @return
+     */
     public String getAssociatedUUID();
     
     public void setAssociatedUUID(String uuid);
@@ -49,7 +55,7 @@ public interface RightCriteriumContext {
      * @return
      * @see AbstractUser
      */
-    public AbstractUser getUser();
+    public User getUser();
     
     /**
      * Fedora access
@@ -57,7 +63,7 @@ public interface RightCriteriumContext {
      */
     public FedoraAccess getFedoraAccess();
     
-
+    public String getRemoteHost();
     
-//    public Object[] getObjects();
+    public String getRemoteAddr();
 }

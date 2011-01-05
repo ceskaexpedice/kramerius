@@ -71,7 +71,7 @@ public class RightImpl implements Right {
             return result;
         
         // kdyz neni zadne kriterium, pak je akce povolena
-        } else return EvaluatingResult.FALSE;
+        } else return EvaluatingResult.TRUE;
     }
 
 }

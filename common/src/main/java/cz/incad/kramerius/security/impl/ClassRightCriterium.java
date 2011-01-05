@@ -22,6 +22,7 @@ import cz.incad.kramerius.security.RightCriteriumException;
 import cz.incad.kramerius.security.RightCriterium;
 import cz.incad.kramerius.security.RightCriteriumContext;
 import cz.incad.kramerius.security.EvaluatingResult;
+import cz.incad.kramerius.security.RightCriteriumPriorityHint;
 
 public class ClassRightCriterium implements RightCriterium {
 
@@ -31,6 +32,9 @@ public class ClassRightCriterium implements RightCriterium {
     private RightCriteriumContext ctx;
     
     private Object[] objects;
+
+    private int fixedPriority;
+    private int calculatedPriority;
     
     public ClassRightCriterium(Class<? extends RightCriterium> class1) {
         super();
@@ -53,6 +57,10 @@ public class ClassRightCriterium implements RightCriterium {
             RightCriterium crit = clz.newInstance();
             crit.setObjects(getObjects());
             crit.setEvaluateContext(getEvaluateContext());
+            
+            crit.setFixedPriority(this.fixedPriority);
+            crit.setCalculatedPriority(this.calculatedPriority);
+            
             return crit.evalute();
         } catch (InstantiationException e) {
             throw new RightCriteriumException(e);
@@ -83,5 +91,46 @@ public class ClassRightCriterium implements RightCriterium {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
             return false;
         }
+    }
+
+
+    @Override
+    public int getCalculatedPriority() {
+        return this.calculatedPriority;
+    }
+
+    @Override
+    public void setCalculatedPriority(int priority) {
+        this.calculatedPriority = priority;
+    }
+
+    @Override
+    public void setFixedPriority(int priority) {
+        this.fixedPriority = priority;
+    }
+
+    @Override
+    public int getFixedPriority() {
+        return this.fixedPriority;
+    }
+
+    @Override
+    public RightCriteriumPriorityHint getPriorityHint() {
+        try {
+            RightCriterium crit = clz.newInstance();
+            crit.setObjects(getObjects());
+            crit.setEvaluateContext(getEvaluateContext());
+            return crit.getPriorityHint();
+        } catch (InstantiationException e) {
+            LOGGER.log(Level.SEVERE,e.getMessage(), e);
+        } catch (IllegalAccessException e) {
+            LOGGER.log(Level.SEVERE,e.getMessage(), e);
+        }
+        return RightCriteriumPriorityHint.NORMAL;
+    }
+
+    
+    public Class<? extends RightCriterium> getCriteriumClz() {
+        return clz;
     }
 }

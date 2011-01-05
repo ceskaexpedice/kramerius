@@ -16,19 +16,15 @@
  */
 package cz.incad.kramerius.security;
 
-/**
- * This factory creates evaluating context
- * @author pavels
- * @see RightCriteriumContext
- */
-public interface RightCriteriumContextFactory {
+public enum RightCriteriumPriorityType {
+    
+    /** 
+     * PRiorita je vypocitana systemem
+     */
+    CALCULATED,
     
     /**
-     * Create instance of RightParamEvaluatingContext
-     * @param uuid PRocessing uuid
-     * @param user Current logged user
-     * @param string 
-     * @return
+     * Definovana uzivatelem
      */
-    public RightCriteriumContext create(String reqUUID, User user, String remoteHost, String remoteAddr);
+    DEFINED;
 }

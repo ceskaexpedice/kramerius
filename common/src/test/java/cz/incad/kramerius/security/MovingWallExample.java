@@ -18,6 +18,8 @@ package cz.incad.kramerius.security;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.xml.parsers.ParserConfigurationException;
 
@@ -41,9 +43,9 @@ import cz.incad.kramerius.AbstractGuiceTestCase;
 import cz.incad.kramerius.FedoraAccess;
 import cz.incad.kramerius.security.database.SecurityDatabaseUtils;
 import cz.incad.kramerius.security.impl.ClassRightCriterium;
-import cz.incad.kramerius.security.impl.MovingWallRightParam;
 import cz.incad.kramerius.security.impl.RightImpl;
 import cz.incad.kramerius.security.impl.RightCriteriumContextFactoryImpl;
+import cz.incad.kramerius.security.impl.criteria.MovingWall;
 import cz.incad.kramerius.utils.XMLUtils;
 
 public class MovingWallExample extends AbstractGuiceTestCase {
@@ -59,31 +61,37 @@ public class MovingWallExample extends AbstractGuiceTestCase {
         RightsManager rman = injector.getInstance(RightsManager.class);
 
         Document dcPageDoc = XMLUtils.parseDocument(new ByteArrayInputStream(getDrobnustkyDC().getBytes()), true);
-        String uuid = "aaa-bbb-ccc";
-        String action = "thumbViewer";
         User user = createPavelStastny();
 
-        ClassRightCriterium param = new ClassRightCriterium(MovingWallRightParam.class);
-        RightImpl rightImpl = new RightImpl(param, uuid, action, user);
+        List<String> uuids = new ArrayList<String>() {{
+            add("uuid:page");
+            add("uuid:periodicalitem");
+            add("uuid:periodicalvolume");
+            add("uuid:peridodical");
+            add("uuid:repository");
+        }};
 
-        EasyMock.expect(rman.findRight(uuid, action, user)).andReturn(rightImpl);
+        ClassRightCriterium crit = new ClassRightCriterium(MovingWall.class);
+        RightImpl rightImpl = new RightImpl(crit, uuids.get(0), "readPreview", user);
+        crit.setObjects(new Object[] {"1966"});
+        
+        EasyMock.expect(rman.findRights((String[]) uuids.toArray(new String[uuids.size()]), "readPreview", user)).andReturn(new Right[] {rightImpl});
         EasyMock.replay(rman);
 
-        EasyMock.expect(fedoraAccess.getDC(uuid)).andReturn(dcPageDoc);
+        EasyMock.expect(fedoraAccess.getDC("uuid:page")).andReturn(dcPageDoc);
         EasyMock.replay(fedoraAccess);
         
         
-        RightsManager expectedRMan = injector.getInstance(RightsManager.class);
-        Right foundRight = expectedRMan.findRight(uuid, action, user);
+        RightCriteriumContext ctx = injector.getInstance(RightCriteriumContextFactory.class).create("uuid:page", user, "", "");
+        ctx.setAssociatedUUID(uuids.get(uuids.size() - 1));
+        EvaluatingResult result = rightImpl.evaluate(ctx);
+        System.out.println(result);
         
-        RightCriteriumContext ctx = injector.getInstance(RightCriteriumContextFactory.class).create(uuid, user);
         
-        TestCase.assertNotNull(ctx.getFedoraAccess());
-        TestCase.assertNotNull(ctx.getRequestedUUID());
-        TestCase.assertNotNull(ctx.getUser());
-        TestCase.assertNotNull(foundRight);
-
-        
+//        TestCase.assertNotNull(ctx.getFedoraAccess());
+//        TestCase.assertNotNull(ctx.getRequestedUUID());
+//        TestCase.assertNotNull(ctx.getUser());
+//        TestCase.assertNotNull(foundRight);
         
     }
 

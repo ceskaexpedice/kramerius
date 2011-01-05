@@ -47,8 +47,8 @@ public class RightCriteriumContextFactoryImpl implements RightCriteriumContextFa
     }
     
     @Override
-    public RightCriteriumContext create(String requestedUUID,  User user) {
-        RightCriteriumContext ctx = new RightParamEvaluatingContextImpl(requestedUUID, user, this.fedoraAccess);
+    public RightCriteriumContext create(String requestedUUID,  User user, String remoteHost, String remoteAddr) {
+        RightCriteriumContext ctx = new RightParamEvaluatingContextImpl(requestedUUID, user, this.fedoraAccess, remoteHost, remoteAddr);
         return ctx;
     }
 }

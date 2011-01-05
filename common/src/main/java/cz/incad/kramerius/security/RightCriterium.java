@@ -52,4 +52,14 @@ public interface RightCriterium {
     public void setObjects(Object[] objs);
 
     public boolean validate(Object[] objs);
+    
+    public int getCalculatedPriority();
+    
+    public void setCalculatedPriority(int priority);
+    
+    public void setFixedPriority(int priority);
+    
+    public int getFixedPriority();
+    
+    public RightCriteriumPriorityHint getPriorityHint();
 }

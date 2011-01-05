@@ -14,7 +14,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
-package cz.incad.kramerius.security.impl;
+package cz.incad.kramerius.security.impl.criteria;
 
 import java.io.IOException;
 import java.util.Calendar;
@@ -37,38 +37,32 @@ import cz.incad.kramerius.FedoraNamespaces;
 import cz.incad.kramerius.security.AbstractUser;
 import cz.incad.kramerius.security.RightCriteriumException;
 import cz.incad.kramerius.security.RightCriterium;
-import cz.incad.kramerius.security.RightCriteriumContext;
 import cz.incad.kramerius.security.EvaluatingResult;
+import cz.incad.kramerius.security.RightCriteriumPriorityHint;
 import cz.incad.kramerius.utils.XMLUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 
 /**
+ * Stena, ktera pousti vsechny dokumenty ktere jsou po datumu uvedenem v konfiguraci
+ * 
+ * Trida vzdy porovnava pouze datum uvedem v metadatech objektu, ktery je s pravem svazan.  
+ * Pokud je pravo uvedeno na objetku REPOSITORY, pak zkouma nejvyssi prvek v hierarchii 
+ * 
+ * (konkretni monografii, konkretni periodikum, atd..)
  */
-public class MovingWallRightParam implements RightCriterium {
+public class MovingWall extends AbstractCriterium implements RightCriterium {
 
-    static java.util.logging.Logger LOGGER = java.util.logging.Logger.getLogger(MovingWallRightParam.class.getName());
+    static java.util.logging.Logger LOGGER = java.util.logging.Logger.getLogger(MovingWall.class.getName());
     
-    private RightCriteriumContext evalContext;
-    
-    private Object[] objs;
-    
-    @Override
-    public RightCriteriumContext getEvaluateContext() {
-        return this.evalContext;
-    }
-
-    @Override
-    public void setEvaluateContext(RightCriteriumContext ctx) {
-        this.evalContext = ctx;
-    }
-
     @Override
     public EvaluatingResult evalute() throws RightCriteriumException {
         int wallFromConf = Integer.parseInt((String)getObjects()[0]);
         try {
-            String uuid = this.evalContext.getAssociatedUUID();
+            // uuid se kterym je kriterium asociovano
+            String uuid = getEvaluateContext().getRequestedUUID();
+            // if no date... try associated.
             //AbstractUser user = this.evalContext.getUser();
-            Document dc = this.evalContext.getFedoraAccess().getDC(uuid);
+            Document dc = getEvaluateContext().getFedoraAccess().getDC(uuid);
             Element dateElem = XMLUtils.findElement(dc.getDocumentElement(), "date", FedoraNamespaces.DC_NAMESPACE_URI);
             if (dateElem != null) {
                 String dateString = dateElem.getTextContent();
@@ -96,16 +90,6 @@ public class MovingWallRightParam implements RightCriterium {
     }
 
     @Override
-    public Object[] getObjects() {
-        return this.objs;
-    }
-
-    @Override
-    public void setObjects(Object[] objs) {
-        this.objs = objs;
-    }
-
-    @Override
     public boolean validate(Object[] objs) {
         if ((objs != null) && (objs.length == 1)) {
             String val = (String) objs[0];
@@ -118,4 +102,11 @@ public class MovingWallRightParam implements RightCriterium {
             }
         } else return false;
     }
+
+    @Override
+    public RightCriteriumPriorityHint getPriorityHint() {
+        return RightCriteriumPriorityHint.NORMAL;
+    }
+
+    
 }

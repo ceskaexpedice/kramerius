@@ -88,4 +88,10 @@ public class SolrUtils   {
         return parseDocument;
     }
 
+    public static String[] getPathOfUUIDs(String uuid) throws XPathExpressionException, IOException, ParserConfigurationException, SAXException {
+        Document parseDocument = getSolrData(uuid);
+        String pidPath = disectPidPath(parseDocument);
+        return pidPath.split("/");
+    }
+
 }

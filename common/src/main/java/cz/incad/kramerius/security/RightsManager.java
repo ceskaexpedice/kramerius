@@ -19,7 +19,7 @@ package cz.incad.kramerius.security;
 
 public interface RightsManager {
     
-    public abstract Right findRight(String uuid, String action, User user);
+    public abstract Right[] findRights(String[] uuids, String action, User user);
     
 
     public abstract EvaluatingResult resolve(RightCriteriumContext ctx, String uuid, String[] path, String action, User user) throws RightCriteriumException;

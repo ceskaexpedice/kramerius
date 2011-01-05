@@ -95,7 +95,7 @@ public class DatabaseUserManager implements UserManager{
 
     @Override
     public Group findGroup(int group_id) {
-        String sql = SecurityDatabaseUtils.stGroup().getInstanceOf("findUserByGroupId").toString();
+        String sql = SecurityDatabaseUtils.stGroup().getInstanceOf("findGroupByGroupId").toString();
         List<Group> groups= new JDBCQueryTemplate<Group>(this.provider.get()){
             @Override
             public boolean handleRow(ResultSet rs, List<Group> returnsList) throws SQLException {

@@ -14,12 +14,13 @@ where
 
 // jak to udelat jinak ?? 
 
-findRightFromWithGroups(user, groups, uuid, action) ::=<<
+findRightFromWithGroups(user, groups, uuids, action) ::=<<
 select * from right_entity ent
     left join rights_criterium_entity crit on (ent.rights_crit=crit.crit_id)
     left join criterium_param_entity param on (crit.citeriumparam=param.crit_param_id)
-where (ent."user"=$user$  $if(first(groups))$ or $endif$ $groups:{grp| ent."group"=$grp$ };separator=" or "$ )
-     and uuid='uuid:$uuid$'
+where ent."user"=$user$  
+    $if(first(groups))$ or ent."group" in ($groups:{grp| $grp$ };separator=","$ ) $endif$  
+     and uuid in ('uuid:$uuids:{uuid|$uuid$};separator=","$')
      and "action"='$action$'
 >>
 

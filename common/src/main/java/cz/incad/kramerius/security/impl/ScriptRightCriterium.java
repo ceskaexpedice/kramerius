@@ -28,6 +28,7 @@ import cz.incad.kramerius.security.RightCriteriumException;
 import cz.incad.kramerius.security.RightCriterium;
 import cz.incad.kramerius.security.RightCriteriumContext;
 import cz.incad.kramerius.security.EvaluatingResult;
+import cz.incad.kramerius.security.RightCriteriumPriorityHint;
 
 
 
@@ -80,4 +81,38 @@ class ScriptRightCriterium implements RightCriterium {
         // TODO Auto-generated method stub
         return false;
     }
+
+    @Override
+    public int getCalculatedPriority() {
+        // TODO Auto-generated method stub
+        return 0;
+    }
+
+    @Override
+    public void setCalculatedPriority(int priority) {
+        // TODO Auto-generated method stub
+        
+    }
+
+    @Override
+    public void setFixedPriority(int priority) {
+        // TODO Auto-generated method stub
+        
+    }
+
+    @Override
+    public int getFixedPriority() {
+        // TODO Auto-generated method stub
+        return 0;
+    }
+
+    @Override
+    public RightCriteriumPriorityHint getPriorityHint() {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    
+    
+    
 }
