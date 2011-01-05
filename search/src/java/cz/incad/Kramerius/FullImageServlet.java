@@ -12,6 +12,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -25,6 +26,7 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.xml.namespace.NamespaceContext;
+import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpression;
@@ -34,23 +36,34 @@ import javax.xml.xpath.XPathFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
+import org.xml.sax.SAXException;
 
 import com.google.inject.Inject;
+import com.google.inject.Provider;
 import com.google.inject.name.Named;
 
 import cz.incad.Kramerius.backend.guice.GuiceServlet;
 import cz.incad.Kramerius.views.ApplicationURL;
 import cz.incad.kramerius.FedoraAccess;
 import cz.incad.kramerius.FedoraNamespaces;
+import cz.incad.kramerius.SolrAccess;
 import cz.incad.kramerius.imaging.DeepZoomCacheService;
 import cz.incad.kramerius.imaging.DeepZoomTileSupport;
 import cz.incad.kramerius.intconfig.InternalConfiguration;
+import cz.incad.kramerius.security.IsActionAllowed;
+import cz.incad.kramerius.security.Right;
+import cz.incad.kramerius.security.RightsManager;
+import cz.incad.kramerius.security.SecuredActions;
 import cz.incad.kramerius.security.SecurityException;
+import cz.incad.kramerius.security.SpecialObjects;
+import cz.incad.kramerius.security.User;
+import cz.incad.kramerius.security.utils.SortingRightsUtils;
 import cz.incad.kramerius.utils.DCUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 import cz.incad.kramerius.utils.imgs.ImageMimeType;
 import cz.incad.kramerius.utils.imgs.KrameriusImageSupport;
 import cz.incad.kramerius.utils.imgs.KrameriusImageSupport.ScalingMethod;
+import cz.incad.kramerius.utils.solr.SolrUtils;
 
 /**
  * Prepodava DJVU stream
@@ -70,6 +83,8 @@ public class FullImageServlet extends AbstractImageServlet {
     @Inject
     DeepZoomTileSupport tileSupport;
 
+    
+    
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         OutputFormats outputFormat = null;
@@ -96,7 +111,7 @@ public class FullImageServlet extends AbstractImageServlet {
             } else if (outputFormat == null) {
                 long start = System.currentTimeMillis();
                 BufferedImage image = rawFullImage(uuid, req, page);
-
+                
                 // writeDeepZoomFiles(uuid, image);
 
                 Rectangle rectangle = new Rectangle(image.getWidth(null), image.getHeight(null));
@@ -113,8 +128,10 @@ public class FullImageServlet extends AbstractImageServlet {
             } else {
                 InputStream is = this.fedoraAccess.getImageFULL(uuid);
                 if (outputFormat.equals(OutputFormats.RAW)) {
+                    
+                    
                     String asFileParam = req.getParameter("asFile");
-
+                    
                     String mimeType = this.fedoraAccess.getImageFULLMimeType(uuid);
                     if (mimeType == null)
                         mimeType = DEFAULT_MIMETYPE;
@@ -221,4 +238,6 @@ public class FullImageServlet extends AbstractImageServlet {
     // return null;
     // }
     // }
+    
+    
 }

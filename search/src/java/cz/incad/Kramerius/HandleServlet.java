@@ -26,6 +26,8 @@ import com.google.inject.Inject;
 
 import cz.incad.Kramerius.backend.guice.GuiceServlet;
 import cz.incad.Kramerius.views.ApplicationURL;
+import cz.incad.kramerius.FedoraAccess;
+import cz.incad.kramerius.SolrAccess;
 import cz.incad.kramerius.intconfig.InternalConfiguration;
 import cz.incad.kramerius.utils.RESTHelper;
 import cz.incad.kramerius.utils.XMLUtils;
@@ -46,6 +48,8 @@ public class HandleServlet extends GuiceServlet {
 	@Inject
 	transient KConfiguration kConfiguration;
 
+	@Inject
+	SolrAccess solrAccess;
 	
 	
 	@Override
@@ -71,22 +75,15 @@ public class HandleServlet extends GuiceServlet {
 			
 			String requestURL = req.getRequestURL().toString();
 			String handle = disectHandle(requestURL);
-			String uri = HandleType.createType(handle).construct(handle);
-			InputStream inputStream = RESTHelper.inputStream(uri, "<no_user>", "<no_pass>");
-			Document parseDocument = XMLUtils.parseDocument(inputStream);
-		    pidPath = SolrUtils.disectPidPath(parseDocument);
+			Document parseDocument = HandleType.createType(handle).dataFromSolr(handle, solrAccess);
+		    
+			pidPath = SolrUtils.disectPidPath(parseDocument);
 		    pid = SolrUtils.disectPid(parseDocument);
 		    path = SolrUtils.disectPath(parseDocument);
 		    String appURL = ApplicationURL.applicationURL(req);
 		    String redirectUrl=  "item.jsp?pid="+pid+"&pid_path="+pidPath+"&path="+path;
 		    resp.sendRedirect(appURL+"/"+redirectUrl);
 		    
-		} catch (ParserConfigurationException e) {
-			LOGGER.log(Level.SEVERE, e.getMessage(), e);;
-			resp.sendError(500);
-		} catch (SAXException e) {
-			LOGGER.log(Level.SEVERE, e.getMessage(), e);;
-			resp.sendError(500);
 		} catch (XPathExpressionException e) {
 			LOGGER.log(Level.SEVERE, e.getMessage(), e);;
 			resp.sendError(500);
@@ -121,33 +118,21 @@ public class HandleServlet extends GuiceServlet {
 	
 	enum HandleType {
 		UUID {
-			@Override
-			public String construct(String handle) {
-				String uuid = handle.substring("uuid:".length());
-				String solrHost = KConfiguration.getInstance().getSolrHost();
-				String uri = solrHost +"/select/?q=PID:"+uuid;
-				return uri;
-			}
+            @Override
+            Document dataFromSolr(String handle, SolrAccess solrAccess) throws IOException {
+                return solrAccess.getSolrDataDocumentByUUID(handle);
+            }
 		},
 		KRAMERIUS3{
-			@Override
-			public String construct(String handle) {
-				
-				try {
-					handle = URLEncoder.encode(handle, "UTF-8");
-					String solrHost = KConfiguration.getInstance().getSolrHost();
-					String uri = solrHost +"/select/?q=handle:"+handle;
-					return uri;
-				} catch (UnsupportedEncodingException e) {
-					LOGGER.log(Level.SEVERE, e.getMessage(), e);
-					return "<err in handle>";
-				}
-
-			}
+            @Override
+            Document dataFromSolr(String handle, SolrAccess solrAccess) throws IOException {
+                return solrAccess.getSolrDataDocumentByHandle(handle);
+            }
 		};		
 	
-		abstract String construct(String handle);
-
+		//abstract String construct(String handle);
+		abstract Document dataFromSolr(String handle, SolrAccess solrAccess) throws IOException;
+		
 		public static HandleType createType(String handle) {
 			if (handle.toLowerCase().startsWith("uuid:")) {
 				return UUID;

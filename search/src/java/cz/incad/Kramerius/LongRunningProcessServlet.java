@@ -39,7 +39,10 @@ import cz.incad.kramerius.processes.ProcessScheduler;
 import cz.incad.kramerius.processes.States;
 import cz.incad.kramerius.processes.TypeOfOrdering;
 import cz.incad.kramerius.security.IPaddressChecker;
+import cz.incad.kramerius.security.IsActionAllowed;
 import cz.incad.kramerius.security.IsUserInRoleDecision;
+import cz.incad.kramerius.security.SecuredActions;
+import cz.incad.kramerius.security.SpecialObjects;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 
 /**
@@ -74,6 +77,9 @@ public class LongRunningProcessServlet extends GuiceServlet {
     @Inject
     transient IPaddressChecker iPaddressChecker;
 
+    @Inject
+    transient IsActionAllowed actionAllowed;
+    
     @Override
     public void init() throws ServletException {
         super.init();
@@ -94,7 +100,7 @@ public class LongRunningProcessServlet extends GuiceServlet {
         if (action == null)
             action = Actions.list.name();
         Actions selectedAction = Actions.valueOf(action);
-        selectedAction.doAction(getServletContext(), req, resp, this.definitionManager, this.lrProcessManager, this.userInRoleDecision, this.iPaddressChecker);
+        selectedAction.doAction(getServletContext(), req, resp, this.definitionManager, this.lrProcessManager, this.userInRoleDecision, this.iPaddressChecker, this.actionAllowed);
     }
 
     public static LRProcess planNewProcess(HttpServletRequest request, ServletContext context, String def, DefinitionManager definitionManager, String[] params) {
@@ -115,13 +121,21 @@ public class LongRunningProcessServlet extends GuiceServlet {
         return lrProcessManager.getLongRunningProcess(uuidOfProcess);
     }
 
+    public static SecuredActions getAction(String def) {
+        SecuredActions[] securedActions = SecuredActions.values();
+        for (SecuredActions act : securedActions) {
+            if (act.getFormalName().equals(def)) return act;
+        }
+        return null;
+    }
+
     static enum Actions {
 
         /**
          * Plan new process
          */
         start {
-            public void doAction(ServletContext context, HttpServletRequest req, HttpServletResponse resp, DefinitionManager defManager, LRProcessManager lrProcessManager, IsUserInRoleDecision userInRoleDecision, IPaddressChecker checker) {
+            public void doAction(ServletContext context, HttpServletRequest req, HttpServletResponse resp, DefinitionManager defManager, LRProcessManager lrProcessManager, IsUserInRoleDecision userInRoleDecision, IPaddressChecker checker, IsActionAllowed rightsResolver) {
                 try {
                     String def = req.getParameter("def");
                     String out = req.getParameter("out");
@@ -130,7 +144,7 @@ public class LongRunningProcessServlet extends GuiceServlet {
                     if (parametersString != null) {
                         params = parametersString.split(",");
                     }
-                    if (userInRoleDecision.isUserInRole(def) || checker.localHostVisitor()) {
+                    if (rightsResolver.isActionAllowed(SecuredActions.MANAGE_LR_PROCESS.getFormalName(), SpecialObjects.K4SYSTEM.getUuid(), new String[] {})) {
                         LRProcess nprocess = planNewProcess(req, context, def, defManager, params);
                         if ((out != null) && (out.equals("text"))) {
                             resp.getOutputStream().print("[" + nprocess.getDefinitionId() + "]" + nprocess.getProcessState().name());
@@ -147,13 +161,12 @@ public class LongRunningProcessServlet extends GuiceServlet {
                             buffer.append("</body></html>");
                             resp.getOutputStream().println(buffer.toString());
                         }
-                    } else {
-                        resp.setStatus(HttpServletResponse.SC_FORBIDDEN);
                     }
                 } catch (IOException e) {
                     LOGGER.log(Level.SEVERE, e.getMessage(), e);
                 }
             }
+
         },
 
         /**
@@ -161,8 +174,8 @@ public class LongRunningProcessServlet extends GuiceServlet {
          */
         stop {
             @Override
-            public void doAction(ServletContext context, HttpServletRequest req, HttpServletResponse resp, DefinitionManager defManager, LRProcessManager lrProcessManager, IsUserInRoleDecision userInRoleDecision, IPaddressChecker checker) {
-                if (isInProcessAdminRole(userInRoleDecision) || checker.localHostVisitor()) {
+            public void doAction(ServletContext context, HttpServletRequest req, HttpServletResponse resp, DefinitionManager defManager, LRProcessManager lrProcessManager, IsUserInRoleDecision userInRoleDecision, IPaddressChecker checker, IsActionAllowed actionIsAllowed) {
+                if (actionIsAllowed.isActionAllowed(SecuredActions.MANAGE_LR_PROCESS.getFormalName(), SpecialObjects.K4SYSTEM.getUuid(), new String[] {})) {
                     try {
                         String uuid = req.getParameter("uuid");
                         String realPath = context.getRealPath("WEB-INF/lib");
@@ -193,8 +206,8 @@ public class LongRunningProcessServlet extends GuiceServlet {
          */
         list {
             @Override
-            public void doAction(ServletContext context, HttpServletRequest req, HttpServletResponse resp, DefinitionManager defManager, LRProcessManager lrProcessManager, IsUserInRoleDecision userInRoleDecision, IPaddressChecker checker) {
-                if (isInProcessAdminRole(userInRoleDecision) || checker.localHostVisitor()) {
+            public void doAction(ServletContext context, HttpServletRequest req, HttpServletResponse resp, DefinitionManager defManager, LRProcessManager lrProcessManager, IsUserInRoleDecision userInRoleDecision, IPaddressChecker checker, IsActionAllowed actionAllowed) {
+                if (actionAllowed.isActionAllowed(SecuredActions.MANAGE_LR_PROCESS.getFormalName(), SpecialObjects.K4SYSTEM.getUuid(), new String[] {})) {
                     try {
                         StringBuffer buffer = new StringBuffer();
                         buffer.append("<html><body>");
@@ -238,7 +251,7 @@ public class LongRunningProcessServlet extends GuiceServlet {
 
         updatePID {
             @Override
-            public void doAction(ServletContext context, HttpServletRequest req, HttpServletResponse resp, DefinitionManager defManager, LRProcessManager lrProcessManager, IsUserInRoleDecision userInRoleDecision, IPaddressChecker checker) {
+            public void doAction(ServletContext context, HttpServletRequest req, HttpServletResponse resp, DefinitionManager defManager, LRProcessManager lrProcessManager, IsUserInRoleDecision userInRoleDecision, IPaddressChecker checker, IsActionAllowed actionAllowed) {
                 String uuid = req.getParameter("uuid");
                 String pid = req.getParameter("pid");
                 LRProcess longRunningProcess = lrProcessManager.getLongRunningProcess(uuid);
@@ -250,7 +263,7 @@ public class LongRunningProcessServlet extends GuiceServlet {
         updateStatus {
 
             @Override
-            public void doAction(ServletContext context, HttpServletRequest req, HttpServletResponse resp, DefinitionManager defManager, LRProcessManager processManager, IsUserInRoleDecision userInRoleDecision, IPaddressChecker checker) {
+            public void doAction(ServletContext context, HttpServletRequest req, HttpServletResponse resp, DefinitionManager defManager, LRProcessManager processManager, IsUserInRoleDecision userInRoleDecision, IPaddressChecker checker, IsActionAllowed actionAllowed) {
                 String uuid = req.getParameter("uuid");
                 String state = req.getParameter("state");
                 if (state != null) {
@@ -265,7 +278,7 @@ public class LongRunningProcessServlet extends GuiceServlet {
         updateName {
 
             @Override
-            public void doAction(ServletContext context, HttpServletRequest req, HttpServletResponse resp, DefinitionManager defManager, LRProcessManager processManager, IsUserInRoleDecision userInRoleDecision, IPaddressChecker checker) {
+            public void doAction(ServletContext context, HttpServletRequest req, HttpServletResponse resp, DefinitionManager defManager, LRProcessManager processManager, IsUserInRoleDecision userInRoleDecision, IPaddressChecker checker, IsActionAllowed actionAllowed) {
                 try {
                     String uuid = req.getParameter("uuid");
                     String name = req.getParameter("name");
@@ -283,7 +296,7 @@ public class LongRunningProcessServlet extends GuiceServlet {
 
         delete {
             @Override
-            public void doAction(ServletContext context, HttpServletRequest req, HttpServletResponse resp, DefinitionManager defManager, LRProcessManager processManager, IsUserInRoleDecision userInRoleDecision, IPaddressChecker checker) {
+            public void doAction(ServletContext context, HttpServletRequest req, HttpServletResponse resp, DefinitionManager defManager, LRProcessManager processManager, IsUserInRoleDecision userInRoleDecision, IPaddressChecker checker, IsActionAllowed actionAllowed) {
                 String uuid = req.getParameter("uuid");
                 LRProcess longRunningProcess = processManager.getLongRunningProcess(uuid);
                 if (longRunningProcess != null) {
@@ -296,11 +309,10 @@ public class LongRunningProcessServlet extends GuiceServlet {
             return userInRoleDecision.isUserInRole(KrameriusRoles.LRPROCESS_ADMIN.getRoleName());
         }
 
-        abstract void doAction(ServletContext context, HttpServletRequest req, HttpServletResponse resp, DefinitionManager defManager, LRProcessManager processManager, IsUserInRoleDecision userInRoleDecision, IPaddressChecker iPaddressChecker);
+        abstract void doAction(ServletContext context, HttpServletRequest req, HttpServletResponse resp, DefinitionManager defManager, LRProcessManager processManager, IsUserInRoleDecision userInRoleDecision, IPaddressChecker iPaddressChecker, IsActionAllowed actionAllowed);
     }
 
     public static String lrServlet(HttpServletRequest request) {
         return ApplicationURL.urlOfPath(request, InternalConfiguration.get().getProperties().getProperty("servlets.mapping.lrcontrol"));
     }
-
 }

@@ -23,6 +23,7 @@ import com.google.inject.name.Named;
 import cz.incad.Kramerius.HandleServlet.HandleType;
 import cz.incad.Kramerius.backend.guice.GuiceServlet;
 import cz.incad.kramerius.FedoraAccess;
+import cz.incad.kramerius.SolrAccess;
 import cz.incad.kramerius.imaging.DeepZoomCacheService;
 import cz.incad.kramerius.security.SecurityException;
 import cz.incad.kramerius.utils.conf.KConfiguration;
@@ -36,6 +37,9 @@ public class ViewInfoServlet extends GuiceServlet {
     @Inject
     @Named("securedFedoraAccess")
     FedoraAccess fedoraAccess;
+    
+    @Inject
+    SolrAccess solrAccess;
     
     @Inject
     DeepZoomCacheService deepZoomCacheService;
@@ -93,16 +97,12 @@ public class ViewInfoServlet extends GuiceServlet {
     
     private boolean deepZoomConfigurationEnabled(String uuid) {
         try {
-            Document parseDocument = SolrUtils.getSolrData(uuid);
+            Document parseDocument = solrAccess.getSolrDataDocumentByUUID(uuid);
             String pidPath = SolrUtils.disectPidPath(parseDocument);
             return KConfiguration.getInstance().isDeepZoomEnabled() || KConfiguration.getInstance().isDeepZoomForPathEnabled(pidPath.split("/"));
         } catch (XPathExpressionException e) {
             LOGGER.severe(e.getMessage());
         } catch (IOException e) {
-            LOGGER.severe(e.getMessage());
-        } catch (ParserConfigurationException e) {
-            LOGGER.severe(e.getMessage());
-        } catch (SAXException e) {
             LOGGER.severe(e.getMessage());
         }
         return false;

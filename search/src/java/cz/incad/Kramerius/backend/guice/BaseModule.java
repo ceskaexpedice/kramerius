@@ -16,6 +16,7 @@ import com.google.inject.name.Names;
 import cz.incad.Kramerius.security.RequestIsUserInRoleDecision;
 import cz.incad.kramerius.FedoraAccess;
 import cz.incad.kramerius.MostDesirable;
+import cz.incad.kramerius.SolrAccess;
 import cz.incad.kramerius.imaging.DeepZoomCacheService;
 import cz.incad.kramerius.imaging.DeepZoomTileSupport;
 import cz.incad.kramerius.imaging.DiscStrucutreForStore;
@@ -25,6 +26,7 @@ import cz.incad.kramerius.imaging.impl.SimpleMemoryCacheServiceWrapper;
 import cz.incad.kramerius.imaging.impl.TileSupportImpl;
 import cz.incad.kramerius.impl.FedoraAccessImpl;
 import cz.incad.kramerius.impl.MostDesirableImpl;
+import cz.incad.kramerius.impl.SolrAccessImpl;
 import cz.incad.kramerius.pdf.GeneratePDFService;
 import cz.incad.kramerius.pdf.impl.GeneratePDFServiceImpl;
 import cz.incad.kramerius.processes.GCScheduler;
@@ -63,6 +65,9 @@ public class BaseModule extends AbstractModule {
 	protected void configure() {
 		bind(FedoraAccess.class).annotatedWith(Names.named("rawFedoraAccess")).to(FedoraAccessImpl.class).in(Scopes.SINGLETON);
 		bind(FedoraAccess.class).annotatedWith(Names.named("securedFedoraAccess")).to(SecuredFedoraAccessImpl.class).in(Scopes.SINGLETON);
+		
+		bind(SolrAccess.class).to(SolrAccessImpl.class).in(Scopes.SINGLETON);
+		
 		bind(GeneratePDFService.class).to(GeneratePDFServiceImpl.class);
 		bind(METSService.class).to(METSServiceImpl.class);
 		bind(KConfiguration.class).toInstance(KConfiguration.getInstance());

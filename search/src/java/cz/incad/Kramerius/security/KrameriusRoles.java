@@ -1,6 +1,7 @@
 package cz.incad.Kramerius.security;
 
 //TODO?: Co s timhle? 
+// TODO: Smazat
 public enum KrameriusRoles {
 
 
