@@ -25,6 +25,7 @@ import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
 
 import cz.incad.kramerius.FedoraAccess;
+import cz.incad.kramerius.SolrAccess;
 import cz.incad.kramerius.security.AbstractUser;
 import cz.incad.kramerius.security.RightCriteriumContext;
 import cz.incad.kramerius.security.User;
@@ -36,15 +37,17 @@ public class RightParamEvaluatingContextImpl implements RightCriteriumContext {
     private String associatedUUID;
     private User user;
     private FedoraAccess fedoraAccess;
-
+    private SolrAccess solrAccess;
+    
     private String remoteHost;
     private String remoteAddr;    
     
-    public RightParamEvaluatingContextImpl(String reqUUID, User user, FedoraAccess fedoraAccess, String remoteHost, String remoteAddr) {
+    public RightParamEvaluatingContextImpl(String reqUUID, User user, FedoraAccess fedoraAccess, SolrAccess solrAccess, String remoteHost, String remoteAddr) {
         super();
         this.requestedUUID = reqUUID;
         this.user = user;
         this.fedoraAccess = fedoraAccess;
+        this.solrAccess = solrAccess;
         this.remoteHost = remoteHost;
         this.remoteAddr = remoteAddr;
     }
@@ -80,13 +83,9 @@ public class RightParamEvaluatingContextImpl implements RightCriteriumContext {
     @Override
     public String[] getPathOfUUIDs() {
         try {
-            Document solrData = SolrUtils.getSolrData(getRequestedUUID());
+            Document solrData = this.solrAccess.getSolrDataDocumentByUUID(getRequestedUUID());
             return SolrUtils.disectPidPath(solrData).split("/");
         } catch (IOException e) {
-            throw new IllegalStateException(e);
-        } catch (ParserConfigurationException e) {
-            throw new IllegalStateException(e);
-        } catch (SAXException e) {
             throw new IllegalStateException(e);
         } catch (XPathExpressionException e) {
             throw new IllegalStateException(e);

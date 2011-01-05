@@ -18,6 +18,7 @@ package cz.incad.kramerius.utils.solr;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URLEncoder;
 
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.xpath.XPathConstants;
@@ -36,6 +37,10 @@ import cz.incad.kramerius.utils.conf.KConfiguration;
 
 public class SolrUtils   {
 
+    public static final String UUID_QUERY="q=PID:";
+    public static final String HANDLE_QUERY="q=handle:";
+    
+    
     static XPathFactory fact =XPathFactory.newInstance();
     
     public static XPathExpression pidPathExpr() throws XPathExpressionException {
@@ -80,18 +85,23 @@ public class SolrUtils   {
         return null;
     }
 
-    public static Document getSolrData(String uuid) throws IOException, ParserConfigurationException, SAXException {
+//    public static Document getSolrData(String uuid) throws IOException, ParserConfigurationException, SAXException {
+//        String query = "q=PID:"+uuid;
+//        return getSolrDataInternal( query);
+//    }
+
+    public static Document getSolrDataInternal(String query) throws IOException, ParserConfigurationException, SAXException {
         String solrHost = KConfiguration.getInstance().getSolrHost();
-        String uri = solrHost +"/select/?q=PID:"+uuid;
+        String uri = solrHost +"/select/?" +query;
         InputStream inputStream = RESTHelper.inputStream(uri, "<no_user>", "<no_pass>");
         Document parseDocument = XMLUtils.parseDocument(inputStream);
         return parseDocument;
     }
 
-    public static String[] getPathOfUUIDs(String uuid) throws XPathExpressionException, IOException, ParserConfigurationException, SAXException {
-        Document parseDocument = getSolrData(uuid);
-        String pidPath = disectPidPath(parseDocument);
-        return pidPath.split("/");
-    }
+//    public static String[] getPathOfUUIDs(String uuid) throws XPathExpressionException, IOException, ParserConfigurationException, SAXException {
+//        Document parseDocument = getSolrData(uuid);
+//        String pidPath = disectPidPath(parseDocument);
+//        return pidPath.split("/");
+//    }
 
 }

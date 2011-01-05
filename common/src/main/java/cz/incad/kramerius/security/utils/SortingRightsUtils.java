@@ -89,12 +89,12 @@ public class SortingRightsUtils {
         SortingRightsUtils.sortByUUID(dynamicHintMin, uuids);
         
         ArrayList<Right> result = new ArrayList<Right>();
+        result.addAll(noCriterium);
         result.addAll(positiveFixedPriority);
         result.addAll(dynamicHintMax);
         result.addAll(dynamicHintNormal);
         result.addAll(dynamicHintMin);
         result.addAll(negativeFixedPriorty);
-        result.addAll(noCriterium);
         
         return (Right[]) result.toArray(new Right[result.size()]);
     }

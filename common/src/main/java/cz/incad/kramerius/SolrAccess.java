@@ -14,10 +14,25 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
-package cz.incad.kramerius.security;
+package cz.incad.kramerius;
 
-public interface IsActionAllowed {
+import java.io.IOException;
 
-    public boolean isActionAllowed(String actionName, String uuid, String[] pathOfUuids);
-    
+import org.w3c.dom.Document;
+
+/**
+ * Class for access to SOLR
+ * @author pavels
+ *
+ */
+public interface SolrAccess {
+
+        public Document getSolrDataDocumentByUUID(String uuid) throws IOException;
+        
+        public Document getSolrDataDocumentByHandle(String handle) throws IOException;
+        
+        public String[] getPathOfUUIDs(String uuid) throws IOException;
+        
+        public String[] getPathOfModels(String uuid) throws IOException;
+        
 }

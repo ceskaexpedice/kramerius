@@ -18,7 +18,8 @@ package cz.incad.kramerius.security;
 
 public enum SpecialObjects {
     
-    REPOSITORY("1");
+    REPOSITORY("1"),
+    K4SYSTEM("2");
     
     private String uuid;
 

@@ -20,6 +20,7 @@ import com.google.inject.Inject;
 import com.google.inject.name.Named;
 
 import cz.incad.kramerius.FedoraAccess;
+import cz.incad.kramerius.SolrAccess;
 import cz.incad.kramerius.security.AbstractUser;
 import cz.incad.kramerius.security.RightCriteriumContext;
 import cz.incad.kramerius.security.RightCriteriumContextFactory;
@@ -28,6 +29,7 @@ import cz.incad.kramerius.security.User;
 public class RightCriteriumContextFactoryImpl implements RightCriteriumContextFactory {
     
     private FedoraAccess fedoraAccess;
+    private SolrAccess solrAccess;
     
     public RightCriteriumContextFactoryImpl() {
         super();
@@ -41,6 +43,17 @@ public class RightCriteriumContextFactoryImpl implements RightCriteriumContextFa
     public void setFedoraAccess(@Named("securedFedoraAccess")FedoraAccess fedoraAccess) {
         this.fedoraAccess = fedoraAccess;
     }
+    
+    
+
+    public SolrAccess getSolrAccess() {
+        return solrAccess;
+    }
+
+    @Inject
+    public void setSolrAccess(SolrAccess solrAccess) {
+        this.solrAccess = solrAccess;
+    }
 
     public static synchronized RightCriteriumContextFactoryImpl newFactory() {
         return new RightCriteriumContextFactoryImpl();
@@ -48,7 +61,7 @@ public class RightCriteriumContextFactoryImpl implements RightCriteriumContextFa
     
     @Override
     public RightCriteriumContext create(String requestedUUID,  User user, String remoteHost, String remoteAddr) {
-        RightCriteriumContext ctx = new RightParamEvaluatingContextImpl(requestedUUID, user, this.fedoraAccess, remoteHost, remoteAddr);
+        RightCriteriumContext ctx = new RightParamEvaluatingContextImpl(requestedUUID, user, this.fedoraAccess, this.solrAccess, remoteHost, remoteAddr);
         return ctx;
     }
 }

@@ -18,7 +18,27 @@ package cz.incad.kramerius.security;
 
 public enum SecuredActions {
 
-    READ_PREVIEW("readPreview");
+    // common user actions
+    READ("readPreview"),
+    
+    // Admin actions
+    //LRPROCESS_ADMIN("lrProcessAdmin"),
+    IMPORT( "import"),
+    CONVERT( "convert"),
+    REPLICATIONRIGHTS( "replicationrights"),
+    ENUMERATOR( "enumerator"),
+    REINDEX( "reindex"),
+    REPLIKATOR_PERIODICALS( "replikator_periodicals"),
+    REPLIKATOR_MONOGRAPHS( "replikator_monographs"),
+    DELETE( "delete"),
+    EXPORT( "export"),
+    SETPRIVATE( "setprivate"),
+    SETPUBLIC( "setpublic"),
+
+    MANAGE_LR_PROCESS("manage_lr_process");
+    
+    
+    
     
     private String formalName;
   
