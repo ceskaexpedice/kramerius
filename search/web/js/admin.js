@@ -690,8 +690,8 @@ function deletefromindex(level){
 }
 function indexDoc(pid, title){
     showConfirmDialog('Confirm index dokumentu', function(){
-      var prefix = "info:fedora/uuid:";
-      var uuid = pid.substr(prefix.length);
+      var prefix = "info\:fedora\/uuid:";
+      var uuid = pid.replace(prefix,"");
       var url = "lr?action=start&def=reindex&out=text&params=fromKrameriusModel,"+uuid+","+title;
       _startProcess(url);
     });
