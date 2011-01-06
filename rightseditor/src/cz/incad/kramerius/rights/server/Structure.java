@@ -1,6 +1,7 @@
 package cz.incad.kramerius.rights.server;
 
 
+import org.aplikator.client.data.ListItem;
 import org.aplikator.client.descriptor.PropertyType;
 import org.aplikator.server.descriptor.Application;
 import org.aplikator.server.descriptor.Collection;
@@ -42,7 +43,6 @@ public class Structure extends Application {
         public GroupEntity() {
             super("Groups_table", "GROUP_ENTITY", "GROUP_ID", Structure.this);
             GNAME= addProperty("GNAME", PropertyType.STRING, 255, true);
-            
             addIndex("GNAME_IDX", false, GNAME);
         }
 	}
@@ -63,16 +63,19 @@ public class Structure extends Application {
 
 		public final Property UUID;
 		public final Property ACTION;
-        public Reference RIGHT_ATTRIBUTE;
+		public Reference RIGHT_CRITERIUM;
         public Reference USER;
+        public Reference GROUP;
 
 		
         public RightsEntity() {
             super("Rights_table", "RIGHT_ENTITY", "RIGHT_ID", Structure.this);
             UUID= addProperty("UUID", PropertyType.STRING, 255, true);
             ACTION= addProperty("ACTION", PropertyType.STRING, 255, true);
-            RIGHT_ATTRIBUTE= addReference(rightsAttribute, "RIGHTS_ATTR");
-            USER= addReference(user, "USER");
+            
+            RIGHT_CRITERIUM= addReference(rightCriterium, "RIGHTS_CRIT");
+            USER= addReference(user, "user");
+            GROUP= addReference(group, "group");
 
             addIndex("UUID_IDX", false, UUID);
             addIndex("ACTION_IDX", false, ACTION);
@@ -80,29 +83,52 @@ public class Structure extends Application {
 	}
 	
 
-	public class RightsAttributeEntity extends Entity {
+	public class RightCriteriumEntity extends Entity {
 		
 		public final Property QNAME;
-		public final Property TYPE;
+		public final Property FIXED_PRIORITY;
+		public Reference PARAM;
 		
-        public RightsAttributeEntity() {
-            super("Rights_att_table", "RIGHTS_ATTRIBUTE_ENTITY", "RIGHT_ATT_ID", Structure.this);
+		
+        public RightCriteriumEntity() {
+            super("Rights_criterium_table", "RIGHTS_CRITERIUM_ENTITY", "CRIT_ID", Structure.this);
             QNAME= addProperty("QNAME", PropertyType.STRING, 255, true);
-            TYPE= addProperty("TYPE", PropertyType.INTEGER,0.0,  true);
+            QNAME.setListValues(
+            		new ListItem("cz.incad.kramerius.security.impl.criteria.MovingWall", "cz.incad.kramerius.security.impl.criteria.MovingWall"),
+            		new ListItem("cz.incad.kramerius.security.impl.criteria.DefaultIPAddressFilter","cz.incad.kramerius.security.impl.criteria.DefaultIPAddressFilter"));
+
+            FIXED_PRIORITY = addProperty("FIXED_PRIORITY", PropertyType.INTEGER,0.0,false);
+            PARAM = addReference(criteriumParam, "citeriumParam");
         }
 	}
 	
+	
+	public class RightCriteriumParamEntity extends Entity {
+		
+		public final Property VALS;
+		public final Property LONG_DESC;
+		public final Property SHORT_DESC;
+		
+        public RightCriteriumParamEntity() {
+            super("Criterium_param_table", "CRITERIUM_PARAM_ENTITY", "CRIT_PARAM_ID", Structure.this);
+
+            VALS= addProperty("VALS", PropertyType.STRING,1024,  true);
+            LONG_DESC= addProperty("LONG_DESC", PropertyType.STRING,1024,  true);
+            SHORT_DESC= addProperty("SHORT_DESC", PropertyType.STRING,256,  true);
+        }
+	}
 	
 
     public final UserEntity user = new UserEntity();
     public final GroupEntity group = new GroupEntity();
     public final GroupUserAssoction groupUserAssoction = new GroupUserAssoction();
     
-    public final RightsAttributeEntity rightsAttribute = new RightsAttributeEntity();
+    public final RightCriteriumParamEntity criteriumParam = new RightCriteriumParamEntity();
+    public final RightCriteriumEntity rightCriterium = new RightCriteriumEntity();
     public final RightsEntity rights = new RightsEntity();
-
+    
     public Structure() {
-    	
+
 //    	group.USERS = groupUserAssoction.addReverseCollection("USERS", groupUserAssoction, groupUserAssoction.USERS);
 //    	user.GROUPS = groupUserAssoction.addReverseCollection("GROUPS", groupUserAssoction, groupUserAssoction.GROUP);
     }

@@ -1,0 +1,61 @@
+package cz.incad.kramerius.rights.server;
+
+import org.aplikator.server.descriptor.Arrangement;
+import org.aplikator.server.descriptor.ComboBox;
+import org.aplikator.server.descriptor.Entity;
+import org.aplikator.server.descriptor.Form;
+import org.aplikator.server.descriptor.HorizontalPanel;
+import org.aplikator.server.descriptor.QueryGenerator;
+import org.aplikator.server.descriptor.RefButton;
+import org.aplikator.server.descriptor.TextField;
+import org.aplikator.server.descriptor.VerticalPanel;
+
+public class RightArrangement extends Arrangement{
+	
+	
+	private Structure struct;
+
+	public RightArrangement(Entity entity, Structure structure) {
+		super(entity);
+		this.struct = structure;
+
+		setReadableName(struct.rights.getName());
+
+		addProperty(struct.rights.ACTION);
+		addProperty(struct.rights.UUID);
+		
+		// rozdelit do nejakeho sloupce
+		addProperty(struct.rights.USER);
+		addProperty(struct.rights.GROUP);
+
+		addProperty(struct.rights.RIGHT_CRITERIUM);
+		
+		queryGenerator = new QueryGenerator.Empty();
+
+		queryGenerator = new QueryGenerator.Empty();
+
+		form = createRightForm();
+
+	}
+
+	
+	private Form createRightForm() {
+		Form form = new Form();
+		form.setLayout(new VerticalPanel()
+			.addChild(
+					new VerticalPanel()
+//						.addChild(new RefButton(property, arrangement, child))
+//						.addChild(new ComboBox(struct.rightCriterium.QNAME))
+//						.addChild(
+//									new RefButton(struct.rightCriterium.PARAM, rightsCriteriumParamArr,
+//					                 new HorizontalPanel()
+//					                     .addChild(new TextField(struct.rightCriterium.PARAM.relate(struct.criteriumParam.VALS)).setWidth("30em"))
+//					                 ))
+					                 )
+		);
+		return form;
+	}
+	
+
+	 
+}

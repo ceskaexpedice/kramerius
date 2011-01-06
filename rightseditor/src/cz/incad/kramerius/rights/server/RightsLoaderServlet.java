@@ -11,6 +11,7 @@ import org.aplikator.server.ApplicationLoaderServlet;
 import org.aplikator.server.descriptor.Application;
 import org.aplikator.server.descriptor.Arrangement;
 import org.aplikator.server.descriptor.CheckBox;
+import org.aplikator.server.descriptor.ComboBox;
 import org.aplikator.server.descriptor.DateField;
 import org.aplikator.server.descriptor.Form;
 import org.aplikator.server.descriptor.Function;
@@ -29,10 +30,14 @@ public class RightsLoaderServlet extends ApplicationLoaderServlet {
 	Arrangement userArr;
 	Arrangement groupArr;
 	Arrangement groupUserAssocArr;
-	Arrangement rightsArr;
 	
 	Arrangement groupUserAssoc_UserArr;
+
 	
+	RightArrangement rightsArr;
+	RightsCriteriumArrangement rightsCriteriumArr;
+	RightsCriteriumParamArrangement rightsCriteriumParamArr;
+
 	@Override
 	public void init() throws ServletException {
 		try {
@@ -102,18 +107,11 @@ public class RightsLoaderServlet extends ApplicationLoaderServlet {
 				}
 			};
 			
-			rightsArr = new Arrangement(struct.rights) {{
-				setReadableName(struct.rights.getName());
+		rightsArr = new RightArrangement(struct.rights, struct);
+		rightsCriteriumParamArr = new RightsCriteriumParamArrangement(struct.criteriumParam, struct);
+		rightsCriteriumArr = new RightsCriteriumArrangement(struct.rightCriterium, struct, rightsCriteriumParamArr);
 
-				addProperty(struct.rights.ACTION);
-				addProperty(struct.rights.UUID);
-				addProperty(struct.rights.USER);
-
-				queryGenerator = new QueryGenerator.Empty();
-
-				form = createUserForm();
-			}
-		};
+	
 			System.out.println("ApplicationLoader 3");
 			// CLIENT SIDE MENU
 			ApplicationDTO applicationDescriptor = ApplicationDTO.get();
@@ -127,10 +125,18 @@ public class RightsLoaderServlet extends ApplicationLoaderServlet {
 			uzivatele.addAction(new ActionDTO("Vazby (Uzivatele <-> Skupiny)", new ListEntities(
 					"Vazby (Uzivatele <-> Skupiny)", uzivatele, groupUserAssocArr.getId())));
 
-			ServiceDTO prava = new ServiceDTO("Prava");
-			prava.addAction(new ActionDTO("Prava", new ListEntities(
-					"Prava", uzivatele, rightsArr.getId())));
 			
+			ServiceDTO prava = new ServiceDTO("Prava");
+
+			prava.addAction(new ActionDTO("Prava", new ListEntities(
+					"Prava", prava, rightsArr.getId())));
+
+			prava.addAction(new ActionDTO("Kriteria", new ListEntities(
+					"Kriteria", prava, rightsCriteriumArr.getId())));
+
+			prava.addAction(new ActionDTO("Parametry kriteria", new ListEntities(
+					"Parametry kriteria", prava, rightsCriteriumParamArr.getId())));
+
 			applicationDescriptor.addService(uzivatele);
 			applicationDescriptor.addService(prava);
 			
@@ -159,7 +165,21 @@ public class RightsLoaderServlet extends ApplicationLoaderServlet {
 				);
 		return form;
 	}
+	
+	private Form createRightCriteriumParamForm() {
+		Form form = new Form();
+		TextArea textArea = new TextArea(struct.criteriumParam.VALS);
+		textArea.setWidth("100%");
+		form.setLayout(new VerticalPanel().addChild(
+				new HorizontalPanel()
+					.addChild(textArea)
+		));
+		return form;
+	}
 
+	
+	
+	
 	private Form createGroupForm() {
 		Form form = new Form();
 		form.setLayout(new VerticalPanel().addChild(
