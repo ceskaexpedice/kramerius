@@ -49,7 +49,7 @@ public class FedoraDatabaseUtils {
                 return super.handleRow(rs, returnsList);
             }
             
-        }.executeQuery(sql, "uuid:"+uuid+"+IMG_FULL%");
+        }.executeQuery(sql, "uuid:"+uuid+"+IMG_FULL+%");
         return (returnList != null && !returnList.isEmpty()) ? returnList.get(0) : null;
     }	
 }
