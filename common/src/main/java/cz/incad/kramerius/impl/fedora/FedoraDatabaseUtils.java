@@ -50,6 +50,7 @@ public class FedoraDatabaseUtils {
             }
             
         }.executeQuery(sql, "uuid:"+uuid+"+IMG_FULL+%");
+        LOGGER.info("returning list is :"+returnList);
         return (returnList != null && !returnList.isEmpty()) ? returnList.get(0) : null;
     }	
 }
