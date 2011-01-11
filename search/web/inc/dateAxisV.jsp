@@ -42,21 +42,19 @@
             String endMod = dateAxisFacet.infos.get(dateAxisFacet.infos.size() - 1).displayName;
             
             String maxYear = "";
-            if (endMod.length() < 4) {
+            Calendar cal = Calendar.getInstance();
+            int cur_year = cal.get(Calendar.YEAR);
+            if (endMod.length() < 4 || Integer.parseInt(endMod)>cur_year) {
                 System.out.println("Rok invalid: " + endMod);
-                maxYear = "2019";
+                maxYear = Integer.toString(cur_year).substring(0, 3) + "9";
+                //maxYear = "2019";
             } else {
                 maxYear = endMod.substring(0, 3) + "9";
             }
 
-//String minYear = ((IModifier)sortedMods.get(0)).getName().substring(0,2) + "00";
-//String maxYear = ((IModifier)sortedMods.get(sortedMods.size()-1)).getName().substring(0,2) + "99";
-
-
             int modMin = Integer.parseInt(minYear);
             int modMax = Integer.parseInt(maxYear);
-            //int currentYear = Integer.parseInt(formatter.format(currentDate).substring(0, 4));
-            //modMax = Math.min(modMax, currentYear);
+            
 
             String days = "{";
             int maxDaysCount = 0;
