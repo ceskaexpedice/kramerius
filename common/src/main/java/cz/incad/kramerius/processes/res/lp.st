@@ -53,13 +53,14 @@
 		<mainClass>cz.incad.kramerius.indexer.Main</mainClass>
 		<standardOs>lrOut</standardOs>
 		<errOs>lrErr</errOs>
-		<parameters>$default_lp_work_dir$/reindexer/config.properties $default_lp_work_dir$/reindexer/log4j.properties</parameters>
 		<!--
+		<parameters>$default_lp_work_dir$/reindexer/config.properties $default_lp_work_dir$/reindexer/log4j.properties</parameters>
+		-->
 		<parameters>
 			<parameter>$default_lp_work_dir$/reindexer/config.properties</parameter>
 			<parameter>$default_lp_work_dir$/reindexer/log4j.properties</parameter>
 		</parameters>
-		-->
+		
 	</process>
 
 	<process>
