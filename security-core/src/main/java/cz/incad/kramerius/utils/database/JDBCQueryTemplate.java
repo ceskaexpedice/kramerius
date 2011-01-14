@@ -38,7 +38,7 @@ public class JDBCQueryTemplate<T> {
     static java.util.logging.Logger LOGGER = java.util.logging.Logger.getLogger(JDBCQueryTemplate.class.getName());
     
     private Connection connection;
-    private boolean closeConnection = false;
+    private boolean closeConnection = true;
     
     
     public JDBCQueryTemplate(Connection connection) {

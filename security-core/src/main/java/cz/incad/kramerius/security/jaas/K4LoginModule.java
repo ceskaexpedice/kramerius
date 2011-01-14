@@ -112,6 +112,7 @@ public class K4LoginModule implements LoginModule {
                 //TODO:Zmenit
                 ((UserImpl)foundUser).setGroups((Group[]) groupsList.toArray(new Group[groupsList.size()]));
                 
+                
                 boolean result = checkPswd(foundUser.getLoginname(),foundPswd,pswd);
                 
                 this.logged = result;
