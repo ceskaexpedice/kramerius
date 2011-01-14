@@ -360,6 +360,13 @@ public class SolrOperations {
 
             if (indexParams == null) {
                 indexParams = new IndexParams(pid, contentDom);
+            }else{
+                expr = xpath.compile("//datastream/datastreamVersion[last()]/xmlContent/RDF/Description/hasModel");
+                Node modelNode = (Node) expr.evaluate(contentDom, XPathConstants.NODE);
+                if (modelNode != null) {
+                    String model = modelNode.getAttributes().getNamedItem("rdf:resource").getNodeValue().split("model:")[1];
+                    indexParams.addPath(model);
+                }
             }
             //tady testujeme pripadne vicestrankovy pdf
             ///foxml:digitalObject/foxml:datastream[@ID='IMG_FULL']/foxml:datastreamVersion[last()]

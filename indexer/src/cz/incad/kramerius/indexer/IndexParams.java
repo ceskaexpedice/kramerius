@@ -98,13 +98,20 @@ public class IndexParams {
         return s.toString();
     }
 
+    public void addPath(String s){
+        if (paramsMap.containsKey("PATH")) {
+                paramsMap.put("PATH", paramsMap.get("PATH") + "/" + s);
+            }
+    }
+
     public void merge(IndexParams parentParams) {
         try {
-            if (paramsMap.containsKey("PATH")) {
-                paramsMap.put("PATH", parentParams.paramsMap.get("PATH") + "/" + paramsMap.get("PATH"));
-            } else {
-                paramsMap.put("PATH", parentParams.paramsMap.get("PATH"));
-            }
+//            if (paramsMap.containsKey("PATH")) {
+//                paramsMap.put("PATH", parentParams.paramsMap.get("PATH") + "/" + paramsMap.get("PATH"));
+//            } else {
+//                //paramsMap.put("PATH", parentParams.paramsMap.get("PATH"));
+//            }
+            paramsMap.put("PATH", parentParams.paramsMap.get("PATH"));
             if (paramsMap.containsKey("PID_PATH")) {
                 paramsMap.put("PID_PATH", parentParams.paramsMap.get("PID_PATH") + "/" + paramsMap.get("PID_PATH"));
             } else {
