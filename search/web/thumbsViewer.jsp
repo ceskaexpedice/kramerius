@@ -60,6 +60,15 @@
     var fullImageHeight;
     var maxScroll = 0;
 
+    var fullImageWidth;
+    var fullImageHeight;
+    function setFullImageDimension(){
+         var newImg = new Image();
+         newImg.src = $('#imgContainer>img').attr('src');
+         fullImageWidth = newImg.width;
+         fullImageHeight = newImg.height;
+    }
+
     function showFullImage() {
         $('#mainItemTable').hide();
         //return;
@@ -91,6 +100,7 @@
             if (!viewerOptions.isContentDJVU()) {
                 $('[aria-labelledby=ui-dialog-title-fullImageContainer]>.ui-dialog-titlebar').append($('#divFullImageZoom').html());
             } else {
+
 //                alert($('[aria-labelledby=ui-dialog-title-fullImageContainer]>.ui-dialog-titlebar').html());
                 //$('[aria-labelledby=ui-dialog-title-fullImageContainer]>.ui-dialog-titlebar').empty();
             }
@@ -119,9 +129,11 @@
         maxLevelForFullImageShow=getMaxLevel();
         showFullImage();
     }
-    
+
+
     function changeFullImageZoom(){
         var zoom = $('#fullImageZoom').val();
+        
         if(zoom=="width"){
             $('#imgContainer>img').css({'width': $('#imgContainer').width(), 'height': ''});
                 
@@ -130,9 +142,13 @@
             $('#imgContainer>img').css({'height': $(window).height()-vertMargin-$('.ui-dialog-titlebar').height()-5,
                 'width': ''});
         }else{
-            var w = Math.round(document.getElementById('imgFullImage').naturalWidth * parseFloat(zoom));
-            var h = Math.round(document.getElementById('imgFullImage').naturalHeight * parseFloat(zoom));
+            //var w = Math.round(document.getElementById('imgFullImage').naturalWidth * parseFloat(zoom));
+            //var h = Math.round(document.getElementById('imgFullImage').naturalHeight * parseFloat(zoom));
+            var w = Math.round(fullImageWidth * parseFloat(zoom));
+            var h = Math.round(fullImageHeight * parseFloat(zoom));
             $('#imgContainer>img').css({'width': w, 'height': h});
+            
+            //$('#imgContainer>img').attr('height', zoom+ '% ');
             //$('#imgContainer>img').css('height', $('#fullImageZoom').val());
         }
         if(viewerOptions.hasAlto){

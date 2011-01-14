@@ -34,7 +34,7 @@ function showConfirmDialog(t,f){
 
 function showAdminMenu() {
 	var headerPosition = $("#header").offset();
-	var headerWidth = $("#header").width()
+	var headerWidth = $("#header").width();
 	var admimMenuWidth = $("#adminMenu").width();
 	
 	var position = $("#adminHref").offset();

@@ -661,10 +661,10 @@ function onLoadPlainImage() {
         if(viewerOptions.hasAlto){
             showAlto(viewerOptions.uuid, 'plainImageImg');
         }
-
 }
 
 function onLoadFullImage(){
+        setFullImageDimension();
         if(viewerOptions.hasAlto){
             showAlto(viewerOptions.uuid, 'imgFullImage');
         }
