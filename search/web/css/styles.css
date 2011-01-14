@@ -214,11 +214,11 @@ a.box {
     padding-left:5px;
 }
 
-.result .teaser{
+.teaser{
     color: #888888;
     padding: 5px;
 }
-.result .teaser span{
+.teaser span{
     color:black;
     font-weight:bold;
 }
@@ -442,6 +442,25 @@ td.rightMenu .facet{
     border:1px solid silver;
 }
 
+.searchInsideDialog {
+    border: 2px solid silver;
+}
+#searchInsideDialog>div {
+    border-bottom: 1px solid silver;
+}
+
+#searchInsideDialog input {
+    border: 1px solid silver;
+}
+.searchInsideButton{
+    background-repeat: no-repeat;
+    cursor:pointer;
+    margin-top:5px;
+    margin-right:1px;
+    width:16px;
+    height:16px;
+}
+
 .autocomplete {
     border:1px solid silver;
     position:absolute;
@@ -599,4 +618,9 @@ table.advancedSearch td{
 
 .thumbsCell{
     overflow: hidden;
+}
+
+.alto_selection {
+    border: 1px solid #E75C01;
+    padding: 0;
 }
