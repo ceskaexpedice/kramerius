@@ -21,9 +21,9 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
 
     <modelVersion>4.0.0</modelVersion>
     <groupId>cz.incad.kramerius</groupId>
-    <artifactId>security</artifactId>
+    <artifactId>security-core</artifactId>
     <version>1.0.0-SNAPSHOT</version>
-    <name>security</name>
+    <name>security-core</name>
 
     <repositories>
         <repository>
