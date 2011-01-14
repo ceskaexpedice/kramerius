@@ -1,6 +1,6 @@
 group rights;
 
-PRIORITY_NAMES ::=[
+CRITERUIM_NAMES ::=[
     "cz.incad.kramerius.security.impl.criteria.DefaultIPAddressFilter":"IP Filter (benevolentni)",
     "cz.incad.kramerius.security.impl.criteria.StrictIPAddresFilter":"IP Filter (striktni)",
     "cz.incad.kramerius.security.impl.criteria.MovingWall":"Pohybliva Zed",
@@ -13,13 +13,13 @@ PRIORITY_NAMES ::=[
 PRIORITY_VALS ::=[ "0":"" ]
 
 /** tabulka prav (cela) */
-rightsTable(rights, uuid) ::=<<
+rightsTable(rights, uuid, action) ::=<<
     
 <div id="rightsTableContent">    
         <table>
             <tr>
                 <td>
-                    <a href="javascript:newRight('$uuid$')" style="background:url('img/rights-add.png') no-repeat scroll; border-width:0px; display:block; height:18px; width:18px;">
+                    <a href="javascript:newRight('$uuid$','$action.formalName$')" style="background:url('img/rights-add.png') no-repeat scroll; border-width:0px; display:block; height:18px; width:18px;">
                     </a>
                 </td>
                 <td>
@@ -44,14 +44,14 @@ rightsTable(rights, uuid) ::=<<
             </tr>            
        </thead> 
        <tbody>
-    $rights:{$rightTableRow(index=i,right=it)$ }$
+    $rights:{$rightTableRow(index=i,right=it, action=action)$ }$
        </tbody>
     </table>
     </div>
 >>
 
 /** jeden radek tabulky prav */
-rightTableRow(index,right) ::=<<
+rightTableRow(index,right, action) ::=<<
     <tr>
         <td width="5%">$index$.</td>
         <td>$right.pid$</td>
@@ -64,13 +64,13 @@ rightTableRow(index,right) ::=<<
         $endif$
         <td>
             <button onClick="deleteRight('$right.uuid$',$right.id$);"> Smaz</button> 
-            <button onClick="editRight('$right.uuid$', $right.id$);" > Zmen </button></td>
+            <button onClick="editRight('$right.uuid$', $right.id$, '$action.formalName$');" > Zmen </button></td>
     </tr>
 >>
 
 /** rendrovani kriteria */
 rightCriterium(rightCriterium) ::=<<
-    <td>$PRIORITY_NAMES.(rightCriterium.qName)$</td>
+    <td>$CRITERUIM_NAMES.(rightCriterium.qName)$</td>
     <td>$if(PRIORITY_VALS.(rightCriterium.fixedPriority))$
         $(PRIORITY_VALS.(rightCriterium.fixedPriority))$
         $else$
@@ -86,25 +86,52 @@ rightCriterium(rightCriterium) ::=<<
 
 
 /** dialog pro zalozeni nebo editaci prava */ 
-rightDialog(titles, objects, criteriumNames, criteriumParams, allParams, uuid) ::=<<
+rightDialog(titles, objects, criteriumNames, criteriumParams, allParams, uuid,action) ::=<<
 <div id="rightDialogContent" style="border-left: 1px solid black; padding-left: 10px;"> 
-    <div></div>
+    <div>
+         <h3> <label for="object">Pravo '$action.formalName$' pro objekt :</label> </h3> 
+         
+          <p style="font-size:-2px;">
+            $action.description$
+         </p>
+    </div>
     <form id="modifyRight" method="post">
         <fieldset style="border-width:0px;padding:0px;">
             <div>
-                 <h3> <label for="object">Objekt</label> </h3>
                  <select id="uuid" name="object" size="1" width="100%">
                         $first(objects):{k|<option value="$k$" selected>$titles.(k)$</option> }$
                         $rest(objects):{k|<option value="$k$">$titles.(k)$</option>};separator="\n"$
                 </select>
             </div>
+
+            <hr>
     
-        <hr>
+            <table>
+            <tr><td> 
+                <h3><label for="abstractUser">Uzivatel</label></h3></td></tr>
+            
+            <tr><td> 
+                
+                <input id="userType" type="radio" name="abstractUser" value="Uzivatel"> Uzivatel </input>
+                <img src="img/rights-person.png" />
+                <input id="groupType" type="radio" name="abstractUser" value="Skupina" checked> Skupina </input>
+                <img src="img/rights-group.png" />
+            </td></tr>
+    
+            <tr><td> 
+                <input id="userId" name="userName" 
+                size="10" type="text" style="width:100%;" value="common_users"
+                />
+             </td></tr>
+    
+            </table>
+    
+            <hr>
             <table width="100%">
-                <tr><td> <h3><label for="criterium">Kriterium</label></td></h3></tr>
+                <tr><td> <h3><label for="criterium">Dodatecna podminka:</label></td></h3></tr>
                 <tr><td>
                         <select id="criterium" name="criterium" size="1" width>
-                            $criteriumNames:{k|<option value="$k$">$PRIORITY_NAMES.(k)$</option>};separator="\n"$
+                            $criteriumNames:{k|<option value="$k$">$CRITERUIM_NAMES.(k)$</option>};separator="\n"$
                     </select>
                 </td></tr>
     
@@ -138,25 +165,6 @@ rightDialog(titles, objects, criteriumNames, criteriumParams, allParams, uuid) :
             </table>
             <hr>
     
-            <table>
-            <tr><td> 
-                <h3><label for="abstractUser">Uzivatel</label></h3></td></tr>
-            
-            <tr><td> 
-                <input id="userType" type="radio" name="abstractUser" value="Uzivatel"> Uzivatel </input>
-                <input id="groupType" type="radio" name="abstractUser" value="Skupina" checked> Skupina </input>
-            </td></tr>
-    
-            <tr><td> 
-                <input id="userId" name="userName" 
-                size="10" type="text" style="width:100%;" value="common_users"
-                />
-             </td></tr>
-    
-            </table>
-    
-            <hr>        
-    
             <table width="100%">
                 <tr><td> <h3><label for="priority">Priorita</label></h3> (menit pouze ve vyjimecnych pripadech) </td></tr>
                 <tr><td> <input id="priority" name="priority" size="10" type="text" style="width:100%;"></td></tr>
@@ -189,7 +197,7 @@ rightsForRepository(actions) ::=<<
 rightRepositoryRow(action) ::=<<
 <tr>
     <td>$action.name$</td> 
-    <td> - </td> 
+    <td> $action.description$ </td> 
     <td>REPOSITORY</td> 
     <td><button value="zmena" onclick="adminRightsImpl('1','$action.formalName$');">Zmena</button></td>
 </tr>

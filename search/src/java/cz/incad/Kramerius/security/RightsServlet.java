@@ -48,6 +48,7 @@ import cz.incad.Kramerius.backend.guice.GuiceServlet;
 import cz.incad.Kramerius.security.strenderers.CriteriumParamsWrapper;
 import cz.incad.Kramerius.security.strenderers.CriteriumWrapper;
 import cz.incad.Kramerius.security.strenderers.RightWrapper;
+import cz.incad.Kramerius.security.strenderers.SecuredActionWrapper;
 import cz.incad.Kramerius.security.strenderers.TitlesForObjects;
 import cz.incad.kramerius.FedoraAccess;
 import cz.incad.kramerius.SolrAccess;
@@ -220,6 +221,8 @@ public class RightsServlet extends GuiceServlet {
                     StringTemplate template = stGroup.getInstanceOf("rightsTable");
                     template.setAttribute("rights", RightWrapper.wrapRights(findRights));
                     template.setAttribute("uuid", uuid);
+                    
+                    template.setAttribute("action",new SecuredActionWrapper(resourceBundle, SecuredActions.findByFormalName(action)));
                     resp.getOutputStream().write(template.toString().getBytes("UTF-8"));
                 } catch (IOException e) {
                     LOGGER.log(Level.SEVERE, e.getMessage(),e);
@@ -305,6 +308,7 @@ public class RightsServlet extends GuiceServlet {
                     template.setAttribute("allParams", allParams);
                     template.setAttribute("titles", titles);
                     template.setAttribute("uuid", uuid);  
+                    template.setAttribute("action", new SecuredActionWrapper(resourceBundle, SecuredActions.findByFormalName(action)));
                     template.setAttribute("objects", saturatedPath);
                     template.setAttribute("criteriumNames",CriteriumsLoader.criteriumClasses());
                     
@@ -326,7 +330,7 @@ public class RightsServlet extends GuiceServlet {
                 String uuid = req.getParameter(UUID_PARAMETER);
                 try {
                     StringTemplate template = htmlForms.getInstanceOf("rightsForRepository");
-                    template.setAttribute("actions", SecuredActions.values());
+                    template.setAttribute("actions", SecuredActionWrapper.wrap(resourceBundle, SecuredActions.values()));
                     //template.setAttribute("uuid", "uuid:1");
                     
                     String content = template.toString();
