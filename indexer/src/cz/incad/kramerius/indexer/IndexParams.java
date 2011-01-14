@@ -10,12 +10,12 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.logging.Logger;
 import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpression;
 import javax.xml.xpath.XPathFactory;
 
-import org.apache.log4j.Logger;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -25,7 +25,7 @@ import org.w3c.dom.NodeList;
  * @author Administrator
  */
 public class IndexParams {
-    private static final Logger logger = Logger.getLogger(IndexParams.class);
+    private static final Logger logger = Logger.getLogger(IndexParams.class.getName());
     public String datum = "/modsCollection/mods/originInfo[@transliteration='publisher']/dateIssued/text()";
     public String parent_title;
     public String parent_pid;
@@ -127,7 +127,7 @@ public class IndexParams {
             }
 
         } catch (Exception e) {
-            logger.error("error in IndexParams.merge", e);
+            logger.severe("error in IndexParams.merge: " + e.toString());
             
         }
     }
@@ -239,8 +239,8 @@ public class IndexParams {
             
 
         } catch (Exception e) {
-            logger.error("IndexParams.init error: " + model + " " + pid);
-            logger.error(e);
+            logger.severe("IndexParams.init error: " + model + " " + pid);
+            logger.severe(e.toString());
         }
     }
 }

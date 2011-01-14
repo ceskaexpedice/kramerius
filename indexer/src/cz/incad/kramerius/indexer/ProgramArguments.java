@@ -10,8 +10,6 @@ package cz.incad.kramerius.indexer;
  */
 public class ProgramArguments {
 
-    public String configFile = "";
-    public String log4jFile = "";
     public String from;
     public String to;
     public Boolean fullIndex = false;
@@ -36,19 +34,12 @@ public class ProgramArguments {
 
     public Boolean parse(String[] args) {
         try {
-            if(args.length<4) return false;
-            configFile = args[0];
-            log4jFile = args[1];
-            action = args[2];
-            value = args[3];
-            for(int i=4;i<args.length;i++)
+            if(args.length<2) return false;
+            action = args[0];
+            value = args[1];
+            for(int i=2;i<args.length;i++)
             title += args[i];
-            
-            if (configFile.equals("")) {
-                return false;
-            } else {
                 return true;
-            }
         } catch (Exception ex) {
             ex.printStackTrace();
             return false;

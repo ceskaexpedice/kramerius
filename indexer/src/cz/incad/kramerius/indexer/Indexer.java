@@ -23,9 +23,8 @@ import java.util.Date;
 //import org.apache.log4j.Logger;
 
 import java.util.TimeZone;
+import java.util.logging.Logger;
 import java.util.zip.ZipOutputStream;
-import org.apache.log4j.Logger;
-//import org.apache.log4j.PropertyConfigurator;
 
 public class Indexer {
 
@@ -100,7 +99,7 @@ public class Indexer {
             showResults();
             logger.info(formatElapsedTime(timeInMiliseconds));
         } catch (Exception ex) {
-            logger.error(ex);
+            logger.severe(ex.toString());
             ex.printStackTrace();
         } finally {
             //disconnect();
@@ -112,8 +111,8 @@ public class Indexer {
             logger.info("Full index...");
             return true;
         } catch (Exception ex) {
-            logger.error("Full index failed");
-            logger.error(ex.toString());
+            logger.severe("Full index failed");
+            logger.severe(ex.toString());
             ex.printStackTrace();
             return false;
         }
@@ -125,8 +124,8 @@ public class Indexer {
             doUpdate("yo");
             return true;
         } catch (Exception ex) {
-            logger.error("Update failed");
-            logger.error(ex.toString());
+            logger.severe("Update failed");
+            logger.severe(ex.toString());
             ex.printStackTrace();
             return false;
         }
@@ -137,7 +136,7 @@ public class Indexer {
         try {
             updateIndex(user, arguments.action, arguments.value);
         } catch (java.rmi.RemoteException e) {
-            logger.error(e);
+            logger.severe(e.toString());
             e.printStackTrace();
         }
     }

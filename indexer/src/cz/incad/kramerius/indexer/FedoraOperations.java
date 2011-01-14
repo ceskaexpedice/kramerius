@@ -12,8 +12,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 
-import org.apache.log4j.Logger;
-
 /*
 import fedora.client.FedoraClient;
 import fedora.server.access.FedoraAPIA;
@@ -26,6 +24,7 @@ import org.fedora.api.Datastream;
 import org.fedora.api.FedoraAPIMService;
  */
 import java.util.ArrayList;
+import java.util.logging.Logger;
 import org.fedora.api.FedoraAPIA;
 import org.fedora.api.FedoraAPIM;
 import org.fedora.api.MIMETypedStream;
@@ -39,7 +38,7 @@ import org.fedora.api.MIMETypedStream;
 public class FedoraOperations {
 
     private static final Logger logger =
-            Logger.getLogger(FedoraOperations.class);
+            Logger.getLogger(FedoraOperations.class.getName());
     private static final Map fedoraClients = new HashMap();
     protected String fgsUserName;
     protected String indexName_;
@@ -121,9 +120,8 @@ public class FedoraOperations {
             String pid)
             throws java.rmi.RemoteException, Exception {
 
-        if (logger.isDebugEnabled()) {
-            logger.debug("getAndReturnFoxmlFromPid pid=" + pid);
-        }
+        
+            logger.fine("getAndReturnFoxmlFromPid pid=" + pid);
         
 
         try {
@@ -137,10 +135,7 @@ public class FedoraOperations {
             String pid)
             throws java.rmi.RemoteException, Exception {
 
-        if (logger.isInfoEnabled()) {
-            logger.info("getFoxmlFromPid" +
-                    " pid=" + pid);
-        }
+            logger.info("getFoxmlFromPid pid=" + pid);
         
         String format = "info:fedora/fedora-system:FOXML-1.1";
         try {
@@ -213,7 +208,7 @@ public class FedoraOperations {
 
         }catch(Exception ex){
             ex.printStackTrace();
-            logger.error(ex);
+            logger.severe(ex.toString());
             return "";
         }
     }
@@ -233,7 +228,7 @@ public class FedoraOperations {
             
         }catch(Exception ex){
             ex.printStackTrace();
-            logger.error(ex);
+            logger.severe(ex.toString());
             return "";
         }
     }
@@ -249,9 +244,8 @@ public class FedoraOperations {
             String trustStorePass,
             String pageNum)
             throws Exception {
-        if (logger.isDebugEnabled()) {
-            logger.debug("getDatastreamText" + " pid=" + pid + " repositoryName=" + repositoryName + " dsId=" + dsId + " fedoraSoap=" + fedoraSoap + " fedoraUser=" + fedoraUser + " fedoraPass=" + fedoraPass + " trustStorePath=" + trustStorePath + " trustStorePass=" + trustStorePass);
-        }
+            logger.fine("getDatastreamText" + " pid=" + pid + " repositoryName=" + repositoryName + " dsId=" + dsId + " fedoraSoap=" + fedoraSoap + " fedoraUser=" + fedoraUser + " fedoraPass=" + fedoraPass + " trustStorePath=" + trustStorePath + " trustStorePass=" + trustStorePass);
+        
         StringBuffer dsBuffer = new StringBuffer();
         String mimetype = "";
         ds = null;
@@ -272,15 +266,13 @@ public class FedoraOperations {
         if (ds != null) {
             dsBuffer = (new TransformerToText().getText(ds, mimetype, pageNum));
         } else {
-            logger.debug("ds is null");
+            logger.fine("ds is null");
         }
-        if (logger.isDebugEnabled()) {
-            logger.debug("getDatastreamText" +
+            logger.fine("getDatastreamText" +
                     " pid=" + pid +
                     " dsId=" + dsId +
                     " mimetype=" + mimetype +
                     " dsBuffer=" + dsBuffer.toString());
-        }     
         return dsBuffer.toString();
     }
     /*

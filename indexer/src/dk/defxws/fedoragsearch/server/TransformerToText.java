@@ -12,10 +12,10 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.util.logging.Logger;
 
 import javax.xml.transform.stream.StreamSource;
 
-import org.apache.log4j.Logger;
 import org.apache.lucene.demo.html.HTMLParser;
 import org.pdfbox.cos.COSDocument;
 import org.pdfbox.encryption.DocumentEncryption;
@@ -34,7 +34,7 @@ import org.pdfbox.util.PDFTextStripper;
 public class TransformerToText {
 
     private static final Logger logger =
-            Logger.getLogger(TransformerToText.class);
+            Logger.getLogger(TransformerToText.class.getName());
     public static final String[] handledMimeTypes = {"text/plain", "text/xml", "text/html", "application/pdf"};
 
     public TransformerToText() {
@@ -64,7 +64,7 @@ public class TransformerToText {
         } else if (mimetype.equals("application/msword")) {
             return new StringBuffer();
         } else {
-            logger.debug("unsupported mimetype: " + mimetype);
+            logger.fine("unsupported mimetype: " + mimetype);
             return new StringBuffer();
         }
     }
@@ -76,15 +76,6 @@ public class TransformerToText {
      */
     private StringBuffer getTextFromText(byte[] doc)
             throws Exception {
-        /*
-        try{
-        String docString = new String(doc, "UTF-8");
-        logger.debug("docString: " + docString);
-        return new StringBuffer(docString);
-        }catch (java.io.UnsupportedEncodingException e) {
-        throw new Exception(e.toString());
-        }
-         */
         StringBuffer docText = new StringBuffer();
         try {
             //byte[] out = UnicodeUtil.convert(doc, "UTF-8");

@@ -21,6 +21,7 @@ import java.util.Date;
 
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.logging.Logger;
 import javax.xml.transform.Source;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerConfigurationException;
@@ -30,8 +31,6 @@ import javax.xml.transform.TransformerFactoryConfigurationError;
 import javax.xml.transform.URIResolver;
 import javax.xml.transform.stream.StreamResult;
 import javax.xml.transform.stream.StreamSource;
-
-import org.apache.log4j.Logger;
 
 import org.apache.commons.configuration.Configuration;
 
@@ -44,7 +43,7 @@ import org.apache.commons.configuration.Configuration;
 public class GTransformer {
     
     private static final Logger logger =
-        Logger.getLogger(GTransformer.class);
+        Logger.getLogger(GTransformer.class.getName());
     protected Configuration config;
     
     public GTransformer() {
@@ -115,8 +114,7 @@ public class GTransformer {
 
     public StringBuffer transform(String xsltName, Source sourceStream, URIResolver uriResolver, HashMap<String, String> params) 
     throws Exception {
-        if (logger.isDebugEnabled())
-            logger.debug("xsltName="+xsltName);
+            logger.fine("xsltName="+xsltName);
         Transformer transformer = getTransformer(xsltName, uriResolver);
         //logger.info(params);
         Iterator it = params.keySet().iterator();
@@ -157,8 +155,7 @@ public class GTransformer {
      */
     public void transformToFile(String xsltName, StreamSource sourceStream, Object[] params, String filePath) 
     throws Exception {
-        if (logger.isDebugEnabled())
-            logger.debug("xsltName="+xsltName);
+            logger.fine("xsltName="+xsltName);
         Transformer transformer = getTransformer(xsltName);
         for (int i=0; i<params.length; i=i+2) {
             Object value = params[i+1];

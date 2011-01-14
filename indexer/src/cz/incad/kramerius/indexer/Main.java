@@ -6,7 +6,6 @@ package cz.incad.kramerius.indexer;
 
 import cz.incad.kramerius.processes.impl.ProcessStarter;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
