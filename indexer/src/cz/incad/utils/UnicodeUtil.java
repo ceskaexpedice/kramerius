@@ -15,13 +15,13 @@ import java.io.Writer;
 public class UnicodeUtil {
 
     public static String getEncoding(byte[] bytes){
-        UnicodeInputStream uis = new UnicodeInputStream(new ByteArrayInputStream(bytes), "ASCII");
+        UnicodeInputStream uis = new UnicodeInputStream(new ByteArrayInputStream(bytes), "UTF-8");
         return uis.getEncoding();
     }
     public static byte[] convert(byte[] bytes, String encout) throws Exception {
 // Workaround for bug that will not be fixed by SUN
 // http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=4508058
-        UnicodeInputStream uis = new UnicodeInputStream(new ByteArrayInputStream(bytes), "ASCII");
+        UnicodeInputStream uis = new UnicodeInputStream(new ByteArrayInputStream(bytes), "UTF-8");
         boolean unicodeOutputReqd = (getBOM(encout) != null) ? true : false;
         String enc = uis.getEncoding();
         String BOM = getBOM(enc); // get the BOM of the inputstream
