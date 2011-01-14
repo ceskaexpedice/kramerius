@@ -38,25 +38,52 @@ public class CurrentLoggedUserProvider implements Provider<User>{
     @Inject
     UserManager userManager;
     
+    Group commonUsersGroup = null;
+    
     @Override
     public User get() {
             Principal principal = this.provider.get().getUserPrincipal();
             if (principal != null) {
-
+                
                 K4UserPrincipal k4principal = (K4UserPrincipal) principal;
                 User user = k4principal.getUser();
+                associateCommonGroup(user);
                 return user;
 
             } else {
 
                 UserImpl user = new UserImpl(-1, "not_logged", "not_logged", "not_logged");
-                Group commonUsers = userManager.findCommonUsersGroup();
-                user.setGroups(new Group[] { commonUsers });
-                
+                user.setGroups(new Group[] {});
+                associateCommonGroup(user);
                 return user;
             }
+    }
+
+
+
+    public void associateCommonGroup(User user) {
+        boolean containsCommonGroup = false;
+        Group[] grps = user.getGroups();
+        for (Group group : grps) {
+            if (findCommonGoup().equals(group)) {
+                containsCommonGroup = true;
+                break;
+            }
+        }
+        if (!containsCommonGroup) {
+            Group[] newGroups = new Group[grps.length +1];
+            System.arraycopy(grps, 0, newGroups, 0, grps.length);
+            newGroups[grps.length] = findCommonGoup();
+            ((UserImpl)user).setGroups(newGroups);
+        }
     }
     
     
 
+    private synchronized Group findCommonGoup() {
+        if (this.commonUsersGroup == null) {
+            this.commonUsersGroup =  userManager.findCommonUsersGroup();
+        }
+        return this.commonUsersGroup;
+    }
 }

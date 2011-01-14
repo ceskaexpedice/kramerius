@@ -117,6 +117,12 @@
         <servlet-class>cz.incad.Kramerius.ViewInfoServlet</servlet-class>
     </servlet>
 
+    <!-- rightsServlet -->
+    <servlet>
+        <servlet-name>rightsServlet</servlet-name>
+        <servlet-class>cz.incad.Kramerius.security.RightsServlet</servlet-class>
+    </servlet>
+
 
 	<!-- 
 		// Mapovani servletu
@@ -208,6 +214,11 @@
     <servlet-mapping>
         <servlet-name>viewInfoServlet</servlet-name>
         <url-pattern>/viewInfo</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>rightsServlet</servlet-name>
+        <url-pattern>/rights</url-pattern>
     </servlet-mapping>
 	
     <security-role>

@@ -1,6 +1,8 @@
 package cz.incad.Kramerius.backend.guice;
 
-import java.util.Enumeration;
+import java.io.File;
+import java.io.IOException;
+import java.io.PrintWriter;
 
 import javax.servlet.ServletContextEvent;
 
@@ -31,6 +33,22 @@ public class GuiceConfigBean extends GuiceServletContextListener {
 		                                            new GuiceSecurityModule(), // security 
 		                                            new LongRunninProcessModul(), // for long running processes
 		                                            new ServletModule());
-	    return injector;
+
+		return injector;
 	}
+
+    class Grapher {
+        private void graph(String filename, Injector demoInjector) throws IOException {
+//          PrintWriter out = new PrintWriter(new File(filename), "UTF-8");
+//
+//          Injector injector = Guice.createInjector(new GrapherModule(), new GraphvizModule());
+//          GraphvizRenderer renderer = injector.getInstance(GraphvizRenderer.class);
+//          renderer.setOut(out).setRankdir("TB");
+//
+//          injector.getInstance(InjectorGrapher.class)
+//              .of(demoInjector)
+//              .graph();
+        }
+      }
+
 }

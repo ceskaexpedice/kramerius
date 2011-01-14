@@ -46,6 +46,7 @@ public class FullThumbnailImageServlet extends AbstractImageServlet {
     DeepZoomTileSupport tileSupport;
 
     
+    
 	@Override
 	public ScalingMethod getScalingMethod() {
 		KConfiguration config = KConfiguration.getInstance();
@@ -80,11 +81,15 @@ public class FullThumbnailImageServlet extends AbstractImageServlet {
                 setResponseCode(uuid, req, resp);
                 copyStreams(fedoraAccess.getFullThumbnail(uuid), resp.getOutputStream());
             } else {
-                BufferedImage scaled = GenerateThumbnail.scaleToFullThumb(uuid, fedoraAccess, tileSupport);
-                resp.setContentType(ImageMimeType.JPEG.getValue());
-                setDateHaders(uuid, resp);
-                setResponseCode(uuid, req, resp);
-                KrameriusImageSupport.writeImageToStream(scaled, "jpeg", resp.getOutputStream());
+                if (fedoraAccess.isContentAccessible(uuid)) {
+                    BufferedImage scaled = GenerateThumbnail.scaleToFullThumb(uuid, fedoraAccess, tileSupport);
+                    resp.setContentType(ImageMimeType.JPEG.getValue());
+                    setDateHaders(uuid, resp);
+                    setResponseCode(uuid, req, resp);
+                    KrameriusImageSupport.writeImageToStream(scaled, "jpeg", resp.getOutputStream());
+                } else {
+                    resp.setStatus(HttpServletResponse.SC_FORBIDDEN);
+                }
             }
 
         } catch (XPathExpressionException e) {

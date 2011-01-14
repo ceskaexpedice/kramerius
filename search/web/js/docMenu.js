@@ -145,11 +145,12 @@ function getViewInfo(uuid, f){
     $.ajax({
           url:"viewInfo?uuid="+uuid,
           complete:function(req,textStatus) {
-              viewerOptions = eval('(' + req.responseText + ')');
-              viewerOptions.uuid = uuid;	
-              viewerOptions.status=req.status;
               
               if ((req.status==200) || (req.status==304)) {
+	          viewerOptions = eval('(' + req.responseText + ')');
+	          viewerOptions.uuid = uuid;	
+	          viewerOptions.status=req.status;
+
                   securedContent = false;
                   currentMime = req.responseText;
                   f(viewerOptions);

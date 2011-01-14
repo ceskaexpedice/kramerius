@@ -144,7 +144,7 @@ public class LongRunningProcessServlet extends GuiceServlet {
                     if (parametersString != null) {
                         params = parametersString.split(",");
                     }
-                    if (rightsResolver.isActionAllowed(SecuredActions.MANAGE_LR_PROCESS.getFormalName(), SpecialObjects.K4SYSTEM.getUuid(), new String[] {})) {
+                    if (rightsResolver.isActionAllowed(SecuredActions.MANAGE_LR_PROCESS.getFormalName(), SpecialObjects.REPOSITORY.getUuid(), new String[] {})) {
                         LRProcess nprocess = planNewProcess(req, context, def, defManager, params);
                         if ((out != null) && (out.equals("text"))) {
                             resp.getOutputStream().print("[" + nprocess.getDefinitionId() + "]" + nprocess.getProcessState().name());
@@ -175,7 +175,7 @@ public class LongRunningProcessServlet extends GuiceServlet {
         stop {
             @Override
             public void doAction(ServletContext context, HttpServletRequest req, HttpServletResponse resp, DefinitionManager defManager, LRProcessManager lrProcessManager, IsUserInRoleDecision userInRoleDecision, IPaddressChecker checker, IsActionAllowed actionIsAllowed) {
-                if (actionIsAllowed.isActionAllowed(SecuredActions.MANAGE_LR_PROCESS.getFormalName(), SpecialObjects.K4SYSTEM.getUuid(), new String[] {})) {
+                if (actionIsAllowed.isActionAllowed(SecuredActions.MANAGE_LR_PROCESS.getFormalName(), SpecialObjects.REPOSITORY.getUuid(), new String[] {})) {
                     try {
                         String uuid = req.getParameter("uuid");
                         String realPath = context.getRealPath("WEB-INF/lib");
@@ -207,7 +207,7 @@ public class LongRunningProcessServlet extends GuiceServlet {
         list {
             @Override
             public void doAction(ServletContext context, HttpServletRequest req, HttpServletResponse resp, DefinitionManager defManager, LRProcessManager lrProcessManager, IsUserInRoleDecision userInRoleDecision, IPaddressChecker checker, IsActionAllowed actionAllowed) {
-                if (actionAllowed.isActionAllowed(SecuredActions.MANAGE_LR_PROCESS.getFormalName(), SpecialObjects.K4SYSTEM.getUuid(), new String[] {})) {
+                if (actionAllowed.isActionAllowed(SecuredActions.MANAGE_LR_PROCESS.getFormalName(), SpecialObjects.REPOSITORY.getUuid(), new String[] {})) {
                     try {
                         StringBuffer buffer = new StringBuffer();
                         buffer.append("<html><body>");

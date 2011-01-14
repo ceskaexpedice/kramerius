@@ -52,10 +52,11 @@
 
 	<script type="text/javascript"  src="http://seadragon.com/ajax/0.8/seadragon-min.js"></script>
 
-
+    
 	<%  if(request.getRemoteUser()!=null) {  %>
 	    <script  src="js/admin.js" language="javascript" type="text/javascript"></script>
 	<% } %>
+    <script  src="js/adminRights.js" language="javascript" type="text/javascript"></script>
 
 	<%
 		Injector headerInjector = (Injector)application.getAttribute(Injector.class.getName());

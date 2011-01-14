@@ -1,0 +1,90 @@
+group rightData;
+
+
+newRightData_InitForm() ::=<<
+    \$('input[name=checkParams]').change(function(e) {
+        callbackCriteriumParamsCheckboxChanged(e.target);
+    });
+    
+    \$('select[name=params]').change(function(e) {
+        callbackCriteriumParamsValueChanged(e.target);
+    });
+    
+    \$('select[name=criterium]').change(function(e) {
+        callbackCriteriumValueChanged(e.target);
+    });
+>>
+
+editRightData(right, criterium, criteriumParams,allParams, allCriteriums) ::=<<
+    $newRightData(right=right,criterium=criterium,criteriumParams=criteriumParams, allParams=allParams, allCriteriums=allCriteriums)$
+>>
+
+paramInitValues(param) ::=<<
+"$param.id$": 
+{ 
+    "shortDesc":"$param.shortDescription$",
+    "longDesc":"$param.longDescription$" ,
+    "values":"$param.objects;separator=";"$"
+}
+>>
+
+newRightData(right, criterium, criteriumParams,allParams, allCriteriums) ::=<<
+            
+{
+    init:function() {
+        $newRightData_InitForm()$
+    },
+    params:{
+       $allParams:{param|$paramInitValues(param=param)$};separator=","$
+    },
+    needParamsMap:{
+        $allCriteriums:{crit | "$crit.qName$":"$crit.paramsNecessary$"};separator=","$ 
+    },
+    $initValues(right=right, criterium=criterium,criteriumParams=criteriumParams)$
+}
+>>
+initValues(right, criterium, criteriumParams) ::=<<
+    initvalues: {
+    
+        "securedaction":"$right.action$",
+
+        $if(right)$
+        "rightId":"$right.id$"
+        $else$
+        "rightId":"-1"
+        $endif$
+        ,
+        $if(criterium)$
+        "rightCriteriumId":"$criterium.id$"
+        $else$
+        "rightCriteriumId":"-1"
+        $endif$
+        ,
+        $if(criteriumParams)$
+        "rightCriteriumParamId":"$criteriumParams.id$",
+        "rightCriteriumParamShortDesc":"$criteriumParams.shortDescription$",
+        "rightCriteriumParamLongDesc":"$criteriumParams.longDescription$",
+        "rightCriteriumParamVals":"$criteriumParams.objects;separator=";"$"
+
+        $else$
+        "rightCriteriumParamId":"-1",
+        "rightCriteriumParamShortDesc":"",
+        "rightCriteriumParamLongDesc":"",
+        "rightCriteriumParamVals":""
+
+        $endif$
+        ,
+        "criterium":"$criterium.qName$"
+        ,
+        "fixedPriority":"$criterium.fixedPriority$"
+        ,
+        "selectedParams":"$criteriumParams.id$"
+        ,
+        "user":"$right.user.inputId$"
+        ,
+        "userType":"$right.user.typeOfUser$"
+    }
+>>
+
+
+

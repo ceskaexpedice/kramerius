@@ -185,9 +185,8 @@ function importMonographs() {
 			$("#common_started_ok").hide();
 	    	$("#common_started_failed").hide();
 	    	$("#common_started_waiting").show();
-	
+
 	    	_commonDialog.dialog('open');
-	
 		} else {
 	
 	    	$("#common_started_waiting").show();
@@ -369,6 +368,7 @@ function noParamsProcess(process)  {
 	$("#common_started" ).dialog( "option", "title",  dictionary['administrator.menu.dialogs.'+process+'.title']);
 	_startProcess(url);
 }
+
 
 
 function deleteUuid(level, model)  {
@@ -582,9 +582,6 @@ function loadFedoraDocuments(model, offset, sort, sort_dir){
     });
 }
 
-function getIndexerStatus(){
-    
-}
 
 function generateDeepZoomTiles(level, model) {
 	hideAdminOptions(level);
@@ -650,6 +647,7 @@ function deleteGeneratedDeepZoomTiles(level, model) {
     _startProcess(url);
 }
 
+
 function deletefromindex(level){
 	hideAdminOptions(level);
     showConfirmDialog('Confirm delete dokument from index', function(){
@@ -684,10 +682,11 @@ function deletefromindex(level){
 	$("#common_started_text").text(dictionary['administrator.dialogs.waitingdelindex']);
 	$("#common_started" ).dialog( "option", "title",  dictionary['administrator.menu.dialogs.delindex.title']);
 
-      var url = "lr?action=start&def=reindex&out=text&params=deleteDocument,"+pid_path+","+pid;
+	var url = "lr?action=start&def=reindex&out=text&params=deleteDocument,"+pid_path+","+pid;
       _startProcess(url);
     });
 }
+
 function indexDoc(pid, title){
     showConfirmDialog('Confirm index dokumentu', function(){
       var prefix = "info\:fedora\/uuid:";

@@ -55,6 +55,12 @@ public class AdminMenuViewObject {
                 "administrator.menu.dialogs.indexDocuments.title");
     }
 
+    public String showActionsAdmin() throws IOException {
+        return renderMenuItem(
+                "javascript:rightsForRepository(); javascript:hideAdminMenu();",
+                "administrator.menu.dialogs.actionsAdmin.title");
+    }
+
     public String noParamsProcess(String processName) throws IOException {
         return renderMenuItem(
                 "javascript:noParamsProcess('" + processName + "'); javascript:hideAdminMenu();",
@@ -89,6 +95,9 @@ public class AdminMenuViewObject {
                 if (isUserRole(KrameriusRoles.REINDEX)) {
                     menuItems.add(showIndexerAdmin());
                 }
+
+                menuItems.add(showActionsAdmin());
+                
                 if (isUserRole(KrameriusRoles.ENUMERATOR)) {
                     menuItems.add(noParamsProcess(KrameriusRoles.ENUMERATOR.getRoleName()));
                 }

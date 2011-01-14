@@ -1,0 +1,199 @@
+group rights;
+
+PRIORITY_NAMES ::=[
+    "cz.incad.kramerius.security.impl.criteria.DefaultIPAddressFilter":"IP Filter (benevolentni)",
+    "cz.incad.kramerius.security.impl.criteria.StrictIPAddresFilter":"IP Filter (striktni)",
+    "cz.incad.kramerius.security.impl.criteria.MovingWall":"Pohybliva Zed",
+    "cz.incad.kramerius.security.impl.criteria.PolicyFlag":"Priznak (kramerius:policy)",
+    "cz.incad.kramerius.security.impl.criteria.Abonents":"Predplatitele",
+     default:"null"
+]
+
+
+PRIORITY_VALS ::=[ "0":"" ]
+
+/** tabulka prav (cela) */
+rightsTable(rights, uuid) ::=<<
+    
+<div id="rightsTableContent">    
+        <table>
+            <tr>
+                <td>
+                    <a href="javascript:newRight('$uuid$')" style="background:url('img/rights-add.png') no-repeat scroll; border-width:0px; display:block; height:18px; width:18px;">
+                    </a>
+                </td>
+                <td>
+                    <a href="javascript:refreshRightsData('$uuid$')" style="background:url('img/rights-refresh.png') no-repeat scroll; border-width:0px; display:block; height:18px; width:18px;">
+                    </a>
+                </td>
+            </tr>
+        </div>
+
+    <table style="width:100%">
+       <thead style="border-bottom: 1px dashed; background-image: url('img/bg_processheader.png'); background-repeat: repeat-x;">
+            <tr>
+                <td>Poradi vyhodnocovani</td>
+                <td>Objekt</td>
+                <td>Akce</td>
+                
+                <td>Uzivatel</td>
+                <td>Kriterium</td>
+                <td>Priorita</td>
+                <td>Parametry kriteria</td>
+                <td>Zmena</td>
+            </tr>            
+       </thead> 
+       <tbody>
+    $rights:{$rightTableRow(index=i,right=it)$ }$
+       </tbody>
+    </table>
+    </div>
+>>
+
+/** jeden radek tabulky prav */
+rightTableRow(index,right) ::=<<
+    <tr>
+        <td width="5%">$index$.</td>
+        <td>$right.pid$</td>
+        <td>$right.action$</td>
+        <td>$right.user$</td>
+        $if(right.criterium)$
+            $rightCriterium(rightCriterium=right.criterium)$
+        $else$
+            <td colspan="3" align="center" style="background-color:#E0E0E0">  </td>        
+        $endif$
+        <td>
+            <button onClick="deleteRight('$right.uuid$',$right.id$);"> Smaz</button> 
+            <button onClick="editRight('$right.uuid$', $right.id$);" > Zmen </button></td>
+    </tr>
+>>
+
+/** rendrovani kriteria */
+rightCriterium(rightCriterium) ::=<<
+    <td>$PRIORITY_NAMES.(rightCriterium.qName)$</td>
+    <td>$if(PRIORITY_VALS.(rightCriterium.fixedPriority))$
+        $(PRIORITY_VALS.(rightCriterium.fixedPriority))$
+        $else$
+        $rightCriterium.fixedPriority$
+        $endif$
+    </td>
+    
+    <td>$if(rightCriterium.criteriumParams)$
+         $rightCriterium.criteriumParams$
+      $endif$
+    </td>
+>>
+
+
+/** dialog pro zalozeni nebo editaci prava */ 
+rightDialog(titles, objects, criteriumNames, criteriumParams, allParams, uuid) ::=<<
+<div id="rightDialogContent" style="border-left: 1px solid black; padding-left: 10px;"> 
+    <div></div>
+    <form id="modifyRight" method="post">
+        <fieldset style="border-width:0px;padding:0px;">
+            <div>
+                 <h3> <label for="object">Objekt</label> </h3>
+                 <select id="uuid" name="object" size="1" width="100%">
+                        $first(objects):{k|<option value="$k$" selected>$titles.(k)$</option> }$
+                        $rest(objects):{k|<option value="$k$">$titles.(k)$</option>};separator="\n"$
+                </select>
+            </div>
+    
+        <hr>
+            <table width="100%">
+                <tr><td> <h3><label for="criterium">Kriterium</label></td></h3></tr>
+                <tr><td>
+                        <select id="criterium" name="criterium" size="1" width>
+                            $criteriumNames:{k|<option value="$k$">$PRIORITY_NAMES.(k)$</option>};separator="\n"$
+                    </select>
+                </td></tr>
+    
+                <tr><td> <label for="checkParams">Asociovat parametry:</label>   <input id="checkParams" name="checkParams" type="checkbox" checked></td></tr>
+                 <tr><td>   
+                    <div id="rightParams">
+                    
+                        <div id="rightParamsSelection" >
+                            <select id="params" size="1" name="params" >
+                                    <option value="new">Vytvorit nove parametry .. </option>
+                                   $allParams:{param|<option value="$param.id$">$param.shortDescription$</option>};separator="\n"$
+                            </select>
+                        </div>
+    
+                        <div id="rightParamsCreation">
+                            <label for="paramsVals">Hodnoty:</label>
+                            <textarea id="paramsVals" name="paramsVals" style="width:100%"></textarea>
+    
+                            <label for="shortDesc">Maly popis(na jeden radek):</label>
+                            <input id="shortDesc" name="shortDesc" type="text" style="width:100%">
+                            </input>
+    
+                            <label for="longDesc">Vetsi popis(na vice radku):</label>
+                            <textarea id="longDesc" name="longDesc" 
+                            style="width:100%"></textarea>
+                            
+                        </div>
+                    </div>
+                </td></tr>
+                
+            </table>
+            <hr>
+    
+            <table>
+            <tr><td> 
+                <h3><label for="abstractUser">Uzivatel</label></h3></td></tr>
+            
+            <tr><td> 
+                <input id="userType" type="radio" name="abstractUser" value="Uzivatel"> Uzivatel </input>
+                <input id="groupType" type="radio" name="abstractUser" value="Skupina" checked> Skupina </input>
+            </td></tr>
+    
+            <tr><td> 
+                <input id="userId" name="userName" 
+                size="10" type="text" style="width:100%;" value="common_users"
+                />
+             </td></tr>
+    
+            </table>
+    
+            <hr>        
+    
+            <table width="100%">
+                <tr><td> <h3><label for="priority">Priorita</label></h3> (menit pouze ve vyjimecnych pripadech) </td></tr>
+                <tr><td> <input id="priority" name="priority" size="10" type="text" style="width:100%;"></td></tr>
+            </table>
+        </fieldset>
+        </form>
+</div>
+>>
+
+/** .. globalni akce ..  */
+rightsForRepository(actions) ::=<<
+    <table style="width:100%">
+       <thead style="border-bottom: 1px dashed; background-image: url('img/bg_processheader.png'); background-repeat: repeat-x;">
+            <tr>
+                <td>Akce</td>
+                <td>Popis</td>
+                <td>Objekt</td>
+                <td>Zmena</td>
+            </tr>            
+       </thead> 
+       <tbody>
+            $first(actions):{action| $rightRepositoryRow(action=action)$ }$
+            $rest(actions):{action| $rightRepositoryRow(action=action)$ }$
+       </tbody>
+    </table>
+</div>
+>>
+
+/**   */
+rightRepositoryRow(action) ::=<<
+<tr>
+    <td>$action.name$</td> 
+    <td> - </td> 
+    <td>REPOSITORY</td> 
+    <td><button value="zmena" onclick="adminRightsImpl('1','$action.formalName$');">Zmena</button></td>
+</tr>
+>>
+
+
+

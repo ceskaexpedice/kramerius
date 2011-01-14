@@ -19,6 +19,7 @@ import cz.incad.Kramerius.views.item.ItemViewObject;
 import cz.incad.kramerius.FedoraAccess;
 import cz.incad.kramerius.KrameriusModels;
 import cz.incad.kramerius.security.IsUserInRoleDecision;
+import cz.incad.kramerius.security.SecuredActions;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 import cz.incad.kramerius.utils.imgs.ImageMimeType;
 
@@ -165,6 +166,26 @@ public class ItemMenuViewObject {
         return renderCommonItem(key, "_data_x_role", "export", jsmethod);
     }
 
+    private String showRights() {
+        String key = "administrator.menu.showrights";
+        String jsmethod = "adminRights";
+
+        StringTemplate template = new StringTemplate("<div align=\"left\"><a title='$tooltip$' "
+                + "href=\"javascript:$jsmethod$($level$,'$model$','$action$');\">$title$</a> "
+                + "<div class=\"$datatype$\" style=\"display:none\">$value$</div></div>");
+
+        jsmethod(template, jsmethod);
+        titleAndTooltip(template, key);
+        levelAndModel(template);
+        template.setAttribute("datatype", "none");
+        template.setAttribute("value", "delete");
+        template.setAttribute("action", SecuredActions.READ.getFormalName());
+        
+        return template.toString();
+    }
+
+    
+    
     private String renderCommonItem(String key, String dataType, String value, String jsmethod) {
         StringTemplate template = getCommonTemplate();
         jsmethod(template, jsmethod);
@@ -211,6 +232,8 @@ public class ItemMenuViewObject {
         List<String> items = new ArrayList<String>();
         items.add(viewMetadataItem());
         items.add(persistentURL());
+        items.add(showRights());
+
         try {
             if (!bornDigital()) {
                 items.add(dynamicPDF());
