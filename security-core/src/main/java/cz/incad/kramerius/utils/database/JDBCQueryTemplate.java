@@ -38,6 +38,7 @@ public class JDBCQueryTemplate<T> {
     static java.util.logging.Logger LOGGER = java.util.logging.Logger.getLogger(JDBCQueryTemplate.class.getName());
     
     private Connection connection;
+    private boolean closeConnection = false;
     
     
     public JDBCQueryTemplate(Connection connection) {
@@ -45,11 +46,17 @@ public class JDBCQueryTemplate<T> {
         this.connection = connection;
     }
 
+    
+
+    public JDBCQueryTemplate(Connection connection, boolean closeConnection) {
+        super();
+        this.connection = connection;
+        this.closeConnection = closeConnection;
+    }
+
+
 
     public List<T> executeQuery(String sql, Object... params) {
-        LOGGER.info("executing query '"+sql+"' "+Arrays.asList(params));
-        String resourceName = JDBCQueryTemplate.class.getSimpleName()+".class";
-        LOGGER.info("this template came from '"+JDBCQueryTemplate.class.getResource(resourceName)+"'");
 
         List<T> result = new ArrayList<T>();
         PreparedStatement pstm = null;
@@ -79,7 +86,7 @@ public class JDBCQueryTemplate<T> {
                     LOGGER.log(Level.SEVERE, e.getMessage(), e);
                 }
             }
-            if (connection != null) {
+            if (closeConnection && connection != null) {
                 try {
                     connection.close();
                 } catch (SQLException e) {
