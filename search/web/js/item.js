@@ -568,6 +568,7 @@ function showSearchInside(level, model){
     if(model.indexOf("-")) model = model.substring(model.indexOf("-")+1)
     var l = $("#tab"+level+"-"+model).offset().left - $(window).scrollLeft();
     var t = $("#tab"+level+"-"+model).offset().top - $(window).scrollTop();
+    var w = $("#tab"+level+"-"+model).css('width');
     
    
     var titul = $("#tabs_"+level+">div>div[id=info-"+model+"]").html();
@@ -575,6 +576,7 @@ function showSearchInside(level, model){
     var pid_path = getPidPath(level, model);
     if(_searchInsideDialog){
         $('#searchInsideDialog').dialog('option', 'position', [l,t]);
+        $('#searchInsideDialog').dialog('option', 'width', w);
         _searchInsideDialog.dialog('open');
         $('#insideTitle').html(titul);
         var oldpid = $('#insidePid').val();
@@ -593,7 +595,7 @@ function showSearchInside(level, model){
         });
 
         _searchInsideDialog = $('#searchInsideDialog').dialog({
-            width:320,
+            width:w,
             height:100,
             minHeight:100,
             position:[l,t],
@@ -694,6 +696,10 @@ function showImage(viewerOptions) {
             
 	}		
 	imageInitialized = true;
+}
+
+function hideAlto(){
+    $("#alto").html('');
 }
 
 function showAlto(uuid, img){

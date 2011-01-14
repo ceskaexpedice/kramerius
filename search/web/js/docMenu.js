@@ -83,6 +83,7 @@ function slideToThumb(uuid){
  * Change the selected page
  */
 function selectPage(uuid){
+    hideAlto();
     var changeImage = currentSelectedPage != uuid;
     // set thumb selection 
     $('.tv_image').removeClass('tv_img_selected');
