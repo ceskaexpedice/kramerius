@@ -30,18 +30,22 @@
             ./item.jsp?pid=<c:out value="${uuid}"/>&pid_path=<x:out select="./str[@name='pid_path']"/>&path=<x:out select="./str[@name='path']"/>
         </c:set>
         <%--<x:if select="./str[@name='fedora.model'] = 'page'">--%>
-            <c:set var="itemUrl" ><c:out value="${itemUrl}"/>&format=<x:out select="./str[@name='page_format']"/></c:set>
+            <c:set var="itemUrl" ><c:out value="${itemUrl}"/>&format=<x:out select="./str[@name='page_format']"/>&q=<c:out value="${param.q}" /></c:set>
         <%--</x:if>--%>
         <x:set select="./str[@name='PID']" var="pid" />
     <tr id="res_<c:out value="${uuid}"/>" class="result r<c:out value="${status.count % 2}" />">
-        <%//@ include file="../admin/resultOptions.jsp" %>
+        <c:set var="collapseText" ></c:set>
+        <c:set var="collapseCount" ></c:set>
         <x:forEach select="//response/lst[@name='collapse_counts']/lst[@name='results']/lst">
             <x:if select="./@name=$pid">
-            <c:set var="collapseCount" >
-                <a href="javascript:toggleCollapsed('<c:out value="${root_pid}" />', 'uncollapsed_<c:out value="${uuid}"/>', 0)"><img src="img/collapsed.png" 
-                   alt="<x:out select="./int[@name='collapseCount']/text()"/><c:out value=" "/><fmt:message bundle="${lctx}">collapsed</fmt:message>"
-                   title="<x:out select="./int[@name='collapseCount']/text()"/><c:out value=" "/><fmt:message bundle="${lctx}">collapsed</fmt:message>" border="0" /></a>
-            </c:set>  
+                <c:set var="collapseText" ><x:out select="./int[@name='collapseCount']/text()"/><c:out value=" "/><fmt:message bundle="${lctx}">collapsed</fmt:message></c:set>
+                <c:set var="collapseCount" >
+                    (<a href="javascript:toggleCollapsed('<c:out value="${root_pid}" />', 'uncollapsed_<c:out value="${root_pid}"/>', 0)"><c:out value="${collapseText}"/>
+                    <img src="img/down.png"
+                       alt="${collapseText}"
+                       border="0" />
+                    </a>)
+                </c:set>
             </x:if>
         </x:forEach>
         
@@ -82,7 +86,7 @@
     
     </tr>
     <tr class="uncollapsed r<c:out value="${status.count % 2}"/>"><td></td><td></td>
-    <td id="uncollapsed_<c:out value="${uuid}"/>"></td>
+    <td id="uncollapsed_<c:out value="${root_pid}"/>"></td>
     </tr>
 </x:forEach>
     </table>

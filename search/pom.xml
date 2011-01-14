@@ -1,242 +1,254 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
-	<modelVersion>4.0.0</modelVersion>
-	<groupId>cz.incad.kramerius</groupId>
-	<artifactId>search</artifactId>
-	<version>1.0.0</version>
-	<name>search</name>
-	<packaging>war</packaging>
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <groupId>cz.incad.kramerius</groupId>
+    <artifactId>search</artifactId>
+    <version>1.0.0</version>
+    <name>search</name>
+    <packaging>war</packaging>
 
-	<description>System Kramerius</description>
-	<developers>
-		<developer>
-			<id>alberto.en.vlasim</id>
-			<name>Alberto Hernandez</name>
-		</developer>
-		<developer>
-			<id>pavel.en.ltm</id>
-			<name>Pavel Stastny</name>
-		</developer>
-		<developer>
-			<id>vlada.en</id>
-			<name>Vlada Lahoda</name>
-		</developer>
-	</developers>
-
-
-
-	<pluginRepositories>
-		<pluginRepository>
-			<id>maven2-repository.dev.java.net</id>
-			<url>http://download.java.net/maven/2/</url>
-		</pluginRepository>
-
-
-	</pluginRepositories>
-
-	<distributionManagement>
-		<repository>
-			<id>artifactory.internal</id>
-			<name>Internal Release Repository</name>
-			<url>dav:http://svn:8080/artifactory/libs-releases-local/</url>
-		</repository>
-		<snapshotRepository>
-			<id>artifactory.snapshots</id>
-			<name>Internal Snapshot Repository</name>
-			<url>dav:http://svn:8080/artifactory/libs-snapshots-local/</url>
-		</snapshotRepository>
-	</distributionManagement>
-
-	<dependencies>
-
-		<dependency>
-			<groupId>javax.servlet</groupId>
-			<artifactId>servlet-api</artifactId>
-			<version>2.5</version>
-			<scope>provided</scope>
-		</dependency>
-
-		<dependency>
-			<groupId>javax.servlet</groupId>
-			<artifactId>jsp-api</artifactId>
-			<version>2.0</version>
-			<scope>provided</scope>
-		</dependency>
-
-		<dependency>
-			<groupId>javax.servlet</groupId>
-			<artifactId>jstl</artifactId>
-			<version>1.1</version>
-		</dependency>
-
-		<dependency>
-			<groupId>org.apache</groupId>
-			<artifactId>jakarta-taglibs</artifactId>
-			<version>1.1.2</version>
-		</dependency>
-
-		<dependency>
-			<groupId>xalan</groupId>
-			<artifactId>xalan</artifactId>
-			<version>2.7.1</version>
-		</dependency>
+    <description>System Kramerius</description>
+    <developers>
+        <developer>
+            <id>alberto.en.vlasim</id>
+            <name>Alberto Hernandez</name>
+        </developer>
+        <developer>
+            <id>pavel.en.ltm</id>
+            <name>Pavel Stastny</name>
+        </developer>
+        <developer>
+            <id>vlada.en</id>
+            <name>Vlada Lahoda</name>
+        </developer>
+    </developers>
 
 
 
-		<dependency>
-			<groupId>org.apache</groupId>
-			<artifactId>xercesImpl</artifactId>
-			<version>2.7.1</version>
-		</dependency>
-
-		<!-- DJVU dependencies -->
-		<dependency>
-			<groupId>com.foxtrottechnologies</groupId>
-			<artifactId>javadjvu</artifactId>
-			<version>0.8.09</version>
-		</dependency>
+    <pluginRepositories>
+        <pluginRepository>
+            <id>maven2-repository.dev.java.net</id>
+            <url>http://download.java.net/maven/2/</url>
+        </pluginRepository>
 
 
-		<!--
-			dependency> <groupId>log4j</groupId> <artifactId>log4j</artifactId>
-			<version>1.2.8</version> </dependency
-		-->
+    </pluginRepositories>
 
-		<dependency>
-			<groupId>org.slf4j</groupId>
-			<artifactId>slf4j-api</artifactId>
-			<version>1.6.0</version>
-		</dependency>
+    <distributionManagement>
+        <repository>
+            <id>artifactory.internal</id>
+            <name>Internal Release Repository</name>
+            <url>dav:http://svn:8080/artifactory/libs-releases-local/</url>
+        </repository>
+        <snapshotRepository>
+            <id>artifactory.snapshots</id>
+            <name>Internal Snapshot Repository</name>
+            <url>dav:http://svn:8080/artifactory/libs-snapshots-local/</url>
+        </snapshotRepository>
+    </distributionManagement>
 
-		<dependency>
-			<groupId>org.slf4j</groupId>
-			<artifactId>log4j-over-slf4j</artifactId>
-			<version>1.6.0</version>
-		</dependency>
+    <dependencies>
 
-		<dependency>
-			<groupId>org.slf4j</groupId>
-			<artifactId>slf4j-jdk14</artifactId>
-			<version>1.6.0</version>
-		</dependency>
+        <dependency>
+            <groupId>javax.servlet</groupId>
+            <artifactId>servlet-api</artifactId>
+            <version>2.5</version>
+            <scope>provided</scope>
+        </dependency>
 
-		<dependency>
-			<groupId>junit</groupId>
-			<artifactId>junit</artifactId>
-			<version>4.1</version>
-			<scope>test</scope>
-		</dependency>
+        <dependency>
+            <groupId>javax.servlet</groupId>
+            <artifactId>jsp-api</artifactId>
+            <version>2.0</version>
+            <scope>provided</scope>
+        </dependency>
 
-		<dependency>
-			<groupId>com.foxtrottechnologies</groupId>
-			<artifactId>javadjvu</artifactId>
-			<version>0.8.09</version>
-		</dependency>
+        <dependency>
+            <groupId>javax.servlet</groupId>
+            <artifactId>jstl</artifactId>
+            <version>1.1</version>
+        </dependency>
 
-		<dependency>
-			<groupId>com.foxtrottechnologies</groupId>
-			<artifactId>djvuframe</artifactId>
-			<version>0.8.09</version>
-		</dependency>
+        <dependency>
+            <groupId>org.apache</groupId>
+            <artifactId>jakarta-taglibs</artifactId>
+            <version>1.1.2</version>
+        </dependency>
 
-		<!-- kramerius komon -->
-		<dependency>
-			<groupId>cz.incad.kramerius</groupId>
-			<artifactId>common</artifactId>
-			<version>1.0.0-SNAPSHOT</version>
-		</dependency>
-		<dependency>
-			<groupId>cz.incad.kramerius</groupId>
-			<artifactId>fedora_api</artifactId>
-			<version>1.0.0-SNAPSHOT</version>
-		</dependency>
+        <dependency>
+            <groupId>xalan</groupId>
+            <artifactId>xalan</artifactId>
+            <version>2.7.1</version>
+        </dependency>
 
-		
-		<!-- dlouhotravici export do pdf -->
-		<dependency>
-			<groupId>cz.incad.kramerius</groupId>
-			<artifactId>static-export</artifactId>
-			<version>1.0.0-SNAPSHOT</version>
-		</dependency>
-    
-        
+
+
+        <dependency>
+            <groupId>org.apache</groupId>
+            <artifactId>xercesImpl</artifactId>
+            <version>2.7.1</version>
+        </dependency>
+
+        <!-- DJVU dependencies -->
+        <dependency>
+            <groupId>com.foxtrottechnologies</groupId>
+            <artifactId>javadjvu</artifactId>
+            <version>0.8.09</version>
+        </dependency>
+
+
+        <!--
+                        dependency> <groupId>log4j</groupId> <artifactId>log4j</artifactId>
+                        <version>1.2.8</version> </dependency
+                -->
+
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+            <version>1.6.0</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>log4j-over-slf4j</artifactId>
+            <version>1.6.0</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-jdk14</artifactId>
+            <version>1.6.0</version>
+        </dependency>
+
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>4.1</version>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>com.foxtrottechnologies</groupId>
+            <artifactId>javadjvu</artifactId>
+            <version>0.8.09</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.foxtrottechnologies</groupId>
+            <artifactId>djvuframe</artifactId>
+            <version>0.8.09</version>
+        </dependency>
+
+        <!-- kramerius komon -->
+        <dependency>
+            <groupId>cz.incad.kramerius</groupId>
+            <artifactId>common</artifactId>
+            <version>1.0.0-SNAPSHOT</version>
+        </dependency>
+        <dependency>
+            <groupId>cz.incad.kramerius</groupId>
+            <artifactId>fedora_api</artifactId>
+            <version>1.0.0-SNAPSHOT</version>
+        </dependency>
+
+
+        <!-- dlouhotravici export do pdf -->
+        <dependency>
+            <groupId>cz.incad.kramerius</groupId>
+            <artifactId>static-export</artifactId>
+            <version>1.0.0-SNAPSHOT</version>
+        </dependency>
+
+
         <!-- dlouhotrvajici indexer -->
         <dependency>
             <groupId>cz.incad.kramerius</groupId>
             <artifactId>indexer</artifactId>
             <version>1.0.0-SNAPSHOT</version>
         </dependency>
-    
+
         <!-- dlouhotrvajici import dat -->
         <dependency>
             <groupId>cz.incad.kramerius</groupId>
             <artifactId>import</artifactId>
             <version>1.0.0-SNAPSHOT</version>
         </dependency>
-        
-		<dependency>
-    		<groupId>javax.portlet</groupId>
-    		<artifactId>portlet-api</artifactId>
-    		<version>2.0</version>
-    		<scope>provided</scope>
-		</dependency>
-	</dependencies>
 
-	<build>
-		<sourceDirectory>${basedir}/src/java</sourceDirectory>
-		<resources>
-			<resource>
-				<directory>${basedir}/src/conf</directory>
-				<filtering>true</filtering>
-				<includes>
-					<include>**/*</include>
-				</includes>
-				<excludes>
-					<exclude>**/*.java</exclude>
-				</excludes>
-			</resource>
-			<resource>
-				<directory>${basedir}/src/java</directory>
-				<includes>
-					<include>**/*.properties</include>
-					<include>**/*.st*</include>
-				</includes>
-			</resource>
-		</resources>
+        <dependency>
+            <groupId>javax.portlet</groupId>
+            <artifactId>portlet-api</artifactId>
+            <version>2.0</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>mptstore</groupId>
+            <artifactId>mptstore</artifactId>
+            <version>0.9.1</version>
+        </dependency>
+        <dependency>
+            <groupId>commons-dbcp</groupId>
+            <artifactId>commons-dbcp</artifactId>
+            <version>1.4</version>
+            <type>jar</type>
+        </dependency>
+    </dependencies>
 
-		<plugins>
-			<plugin>
-				<groupId>org.codehaus.mojo</groupId>
-				<artifactId>tomcat-maven-plugin</artifactId>
-				<version>1.0-beta-1</version>
-				<configuration>
-					<warSourceDirectory>${basedir}/web</warSourceDirectory>
-					<update>true</update>
-					<mode>context</mode>
-					<contextFile>${basedir}/web/META-INF/context.xml</contextFile>
-					<port>9998</port>
-				</configuration>
-			</plugin>
-			<plugin>
-				<artifactId>maven-compiler-plugin</artifactId>
-				<version>2.0.2</version>
-				<configuration>
-					<source>1.6</source>
-					<target>1.6</target>
-				</configuration>
-			</plugin>
+    <build>
+        <sourceDirectory>${basedir}/src/java</sourceDirectory>
+        <resources>
+            <resource>
+                <directory>${basedir}/src/conf</directory>
+                <filtering>true</filtering>
+                <includes>
+                    <include>**/*</include>
+                </includes>
+                <excludes>
+                    <exclude>**/*.java</exclude>
+                </excludes>
+            </resource>
+            <resource>
+                <directory>${basedir}/src/java</directory>
+                <includes>
+                    <include>**/*.properties</include>
+                    <include>**/*.st*</include>
+                </includes>
+            </resource>
+        </resources>
 
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-war-plugin</artifactId>
-				<version>2.0</version>
-				<configuration>
-					<warName>search</warName>
-					<warSourceDirectory>${basedir}/web</warSourceDirectory>
-				</configuration>
-			</plugin>
-			
-			<plugin>
+        <plugins>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>tomcat-maven-plugin</artifactId>
+                <version>1.0-beta-1</version>
+                <configuration>
+                    <warSourceDirectory>${basedir}/web</warSourceDirectory>
+                    <update>true</update>
+                    <mode>context</mode>
+                    <contextFile>${basedir}/web/META-INF/context.xml</contextFile>
+                    <port>9998</port>
+                </configuration>
+            </plugin>
+            <plugin>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>2.0.2</version>
+                <configuration>
+                    <source>1.6</source>
+                    <target>1.6</target>
+                    <encoding>UTF-8</encoding>
+                </configuration>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-war-plugin</artifactId>
+                <version>2.0</version>
+                <configuration>
+                    <warName>search</warName>
+                    <warSourceDirectory>${basedir}/web</warSourceDirectory>
+                </configuration>
+            </plugin>
+
+            <plugin>
                 <groupId>com.google.code.maven-svn-revision-number-plugin</groupId>
                 <artifactId>maven-svn-revision-number-plugin</artifactId>
                 <version>1.5</version>
@@ -248,13 +260,18 @@
                     </execution>
                 </executions>
                 <configuration>
-                 <entries>
+                    <entries>
                         <entry>
                             <prefix>prefix</prefix>
                         </entry>
                     </entries>
                 </configuration>
             </plugin>
-		</plugins>
-	</build>
+        </plugins>
+    </build>
+
+    <properties>
+        <netbeans.hint.deploy.server>Tomcat60</netbeans.hint.deploy.server>
+    </properties>
 </project>
+

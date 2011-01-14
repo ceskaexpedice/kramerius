@@ -224,10 +224,10 @@
                             </td>
                             <td><img src="img/empty.gif" width="2" /></td>
                             <td class="itemMenu">
+                                <script>
+                                    var firstCalled = false;
+                                </script>
                                 <div id="itemTree">
-                                    <script>
-                                        var firstCalled = false;
-                                    </script>
                                     <%@ include file="inc/details/itemMenu.jsp" %>
                                 </div>
                             </td>
@@ -275,7 +275,7 @@
                 </div>
             </c:if>
             <div id="imgContainer" style="display:none;" align="center">
-                <img id="imgFullImage" src="img/empty.gif" />
+                <img id="imgFullImage" src="img/empty.gif" onload="onLoadFullImage();" />
             </div>
             <div id="divFullImageZoom" style="display:none;">
                 <span class="ui-dialog-titlebar-zoom"><fmt:message bundle="${lctx}">velikost</fmt:message>: <select onchange="changeFullImageZoom()" id="fullImageZoom">

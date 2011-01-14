@@ -69,9 +69,11 @@
                         <a>
                         <xsl:attribute name="href">#tab<xsl:value-of select="$level" />-<xsl:value-of select="./str[@name='fedora.model']" />
                     </xsl:attribute><span class="translate"><xsl:value-of select="./str[@name='fedora.model']" /></span></a>
-                    <img width="12px" src="img/empty.gif" class="op_list" >
-                        <xsl:attribute name="onclick">toggleRelsList(this, '<xsl:value-of select="./str[@name='fedora.model']" />')</xsl:attribute>
-                    </img>
+                    <img width="12px" src="img/empty.gif" class="op_list" alt="list" >
+                    <xsl:attribute name="onclick">toggleRelsList(this, '<xsl:value-of select="./str[@name='fedora.model']" />')</xsl:attribute></img>
+                        <img width="12" src="img/lupa.png" class="searchInsideButton" alt="search" >
+                            <xsl:attribute name="onclick">showSearchInside(<xsl:value-of select="$level" />, '<xsl:value-of select="./str[@name='fedora.model']" />')</xsl:attribute>
+                        </img>
                     </li>
                 </xsl:if>
             </xsl:for-each>

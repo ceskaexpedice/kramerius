@@ -27,22 +27,20 @@
         </c:when>
         
     </c:choose>
-    <c:param name="facet.field" value="document_type" />
-    <%--
-    <c:param name="f.fedora.model.facet.sort" value="false" />
-    --%>
-    <c:param name="facet.field" value="path" />
-    <c:param name="f.path.facet.sort" value="false" />
-    <c:param name="facet.field" value="language" />
     
-    <c:param name="facet.field" value="rok" />
-    <c:param name="f.rok.facet.limit" value="-1" />
-    <c:param name="f.rok.facet.sort" value="false" />
-    
+    <c:if test="${param.facet != 'false'}">
+        <c:param name="facet.field" value="document_type" />
+        <c:param name="facet.field" value="path" />
+        <c:param name="f.path.facet.sort" value="false" />
+        <c:param name="facet.field" value="language" />
+        <c:param name="facet.field" value="rok" />
+        <c:param name="f.rok.facet.limit" value="-1" />
+        <c:param name="f.rok.facet.sort" value="false" />
+        <c:param name="facet" value="true" />
+        <c:param name="facet.mincount" value="1" />
+    </c:if>
     
     <c:param name="fl" value="PID,score,root_title,pages_count,path,pid_path,root_pid,dc.title,details,fedora.model,path,dc.creator,datum,page_format,text" />
-    <c:param name="facet" value="true" />
-    <c:param name="facet.mincount" value="1" />
     <c:forEach var="fqs" items="${paramValues.fq}">
         <c:param name="fq" value="${fqs}" />
             <c:set var="rows" value="${rowsdefault}" scope="request" />
@@ -55,10 +53,10 @@
     
     
     <c:if test="${param.collapsed != 'false'}">
-    <c:param name="collapse.field" value="root_pid" />
-    <c:param name="collapse.type" value="normal" />
-    <c:param name="collapse.threshold" value="1" />
-    <c:param name="collapse.facet" value="before" />
+        <c:param name="collapse.field" value="root_pid" />
+        <c:param name="collapse.type" value="normal" />
+        <c:param name="collapse.threshold" value="1" />
+        <c:param name="collapse.facet" value="before" />
     </c:if>
     
     <c:set var="fieldedSearch" value="false" scope="request" />

@@ -53,6 +53,7 @@ public class ViewInfoServlet extends GuiceServlet {
                 String mimeType = this.fedoraAccess.getImageFULLMimeType(uuid);
                 boolean generated = resolutionFilePresent(uuid);
                 boolean conf = deepZoomConfigurationEnabled(uuid);
+                boolean hasAlto = this.fedoraAccess.isStreamAvailable(uuid, "ALTO");
                 
                 HashMap<String, String> map = new HashMap<String, String>();
                 map.put("deepZoomCacheGenerated", ""+generated);
@@ -60,8 +61,9 @@ public class ViewInfoServlet extends GuiceServlet {
                 map.put("imageServerConfigured", ""+(!KConfiguration.getInstance().getUrlOfIIPServer().equals("")));
 
                 map.put("mimeType", mimeType);
+                map.put("hasAlto", ""+hasAlto);
 
-                resp.setContentType("application/xml");
+                resp.setContentType("text/plain");
                 resp.getWriter().println(getResponseXML(map));
             }
         } catch (XPathExpressionException e) {
@@ -80,6 +82,7 @@ public class ViewInfoServlet extends GuiceServlet {
             "deepZoomGenerated:$data.deepZoomCacheGenerated$,"+
             "deepZoomCofigurationEnabled:$data.deepZoomCofigurationEnabled$,"+
             "mimeType:'$data.mimeType$'," +
+            "hasAlto:$data.hasAlto$,"+
             "imageServerConfigured:'$data.imageServerConfigured$'," +
             "isContentPDF:function() {return viewerOptions.mimeType=='application/pdf'},"+
             "isContentDJVU:function() {return viewerOptions.mimeType.indexOf('djvu')> 0 }"+

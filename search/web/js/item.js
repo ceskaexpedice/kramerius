@@ -538,6 +538,99 @@ function showMainContent(level, model){
     hideAdminOptions(level);
 }
 
+var _searchInsideDialog;
+
+function getPidPath(level, model){
+    var i = level;
+    var pid_path = "";
+    var title_path = "";
+    while(i>0){
+        if(i==level){
+          pid_path = $("#tabs_"+i).attr('pid');
+        }else{
+          pid_path = $("#tabs_"+i).attr('pid') + "/" + pid_path;
+        }
+        if($("#tabs_"+i).parent().parent()==0){
+            i=0;
+        }else{
+            var idi = $("#tabs_"+i).parent().parent().attr('id');
+            var modeli = $("#tabs_"+i).parent().attr('id');
+            i = idi.substring(5);
+        }
+    }
+    return pid_path;
+}
+
+
+function showSearchInside(level, model){
+    //alert($(window).scrollTop());
+    //return;
+    if(model.indexOf("-")) model = model.substring(model.indexOf("-")+1)
+    var l = $("#tab"+level+"-"+model).offset().left - $(window).scrollLeft();
+    var t = $("#tab"+level+"-"+model).offset().top - $(window).scrollTop();
+    
+   
+    var titul = $("#tabs_"+level+">div>div[id=info-"+model+"]").html();
+
+    var pid_path = getPidPath(level, model);
+    if(_searchInsideDialog){
+        $('#searchInsideDialog').dialog('option', 'position', [l,t]);
+        _searchInsideDialog.dialog('open');
+        $('#insideTitle').html(titul);
+        var oldpid = $('#insidePid').val();
+        if(oldpid != pid_path){
+            $('#insidePid').val(pid_path);
+            $('#searchInsideResults').html('');
+        }
+        
+    }else{
+        $(document.body).append('<div id="searchInsideDialog" class="searchInsideDialog"> <div id="searchInsideForm" class="searchInsideForm"><div id="insideTitle">'+titul+'</div><input type="text" id="insideQuery" style /><input type="hidden" id="insidePid" value="'+pid_path+'" /><button type="button" title="Vyhledat" class="submit" onclick="searchInside();"></button></div></div>')
+
+        $('#insideQuery').keyup(function(e) {
+            if (e.keyCode == 13) {
+                searchInside();
+            }
+        });
+
+        _searchInsideDialog = $('#searchInsideDialog').dialog({
+            width:320,
+            height:100,
+            minHeight:100,
+            position:[l,t],
+            modal:false,
+            dialogClass:'searchInsideDialog',
+            title:dictionary['administrator.menu.searchinside']
+        });
+    }
+    //$("#tabs_" + level + ">div>div.menuOptions").hide();
+}
+
+function searchInside(start){
+
+    offset = start ? start : 0;
+    $('#searchInsideResults').html(imgLoadingBig);
+    var q = $('#insideQuery').val();
+    var pid = $('#insidePid').val();
+    //var url = "searchXSL.jsp?q="+q+"&offset="+offset+"&xsl=insearch.xsl&collapsed=false&facet=false&fq=pid_path:"+pid+"*";
+    var url = "searchInside.jsp?q="+q+"&offset="+offset+"&xsl=insearch.xsl&collapsed=false&facet=false&fq=pid_path:"+pid+"*";
+    $.get(url, function(data){
+        if($('#searchInsideResults').length==0){
+            $('#searchInsideDialog').dialog('option', 'height', 480);
+            $('#searchInsideDialog').css('height', 420);
+            $('#searchInsideDialog').append('<div id="searchInsideResults"></div>');
+        }
+        $('#searchInsideResults').html(data);
+    });
+}
+
+function loadItemMenu(params){
+    var url = 'itemMenu.jsp?'+params;
+    $.get(url, function(data){
+        clearThumbs();
+        $('#itemTree').html(data);
+    });
+}
+
 function getPageTitle(pid){
     return $("#" + pid).text();
 }
@@ -563,7 +656,16 @@ function onLoadPlainImage() {
 	if (imageInitialized) {
 		$("#plainImageImg").fadeIn();
 	}
+        if(viewerOptions.hasAlto){
+            showAlto(viewerOptions.uuid, 'plainImageImg');
+        }
 
+}
+
+function onLoadFullImage(){
+        if(viewerOptions.hasAlto){
+            showAlto(viewerOptions.uuid, 'imgFullImage');
+        }
 }
 
 function onLoadPDFImage() {}
@@ -589,8 +691,40 @@ function showImage(viewerOptions) {
 	                $("#plainImageImg").attr('src','fullThumb?uuid='+viewerOptions.uuid);
 	            });
 	    }
+            
 	}		
 	imageInitialized = true;
+}
+
+function showAlto(uuid, img){
+    var q = $("#q").val();
+    if($('#insideQuery').length>0) q =$('#insideQuery').val();
+    if(q=="") return;
+
+    var w = $('#'+img).width();
+    var h = $('#'+img).height();
+    var url = "metsalto.jsp?q="+q+"&w="+w+"&h="+h+"&uuid=" + uuid;
+    $.get(url, function(data){
+        if($("#alto").length==0){
+            $(document.body).append('<div id="alto" style="position:absolute;z-index:1003;" onclick="switchDisplay(viewerOptions)"></div>');
+        }else{
+           
+        }
+        positionAlto(img);
+        $("#alto").html(data);
+        
+    });
+}
+
+function positionAlto(img){
+    var h = $('#'+img).height();
+    var w = $('#'+img).width();
+    var l = $('#'+img).offset().left;
+    var t = $('#'+img).offset().top;
+    $("#alto").css('width', w);
+    $("#alto").css('height', h);
+    $("#alto").css('left', l);
+    $("#alto").css('top', t);
 }
 
 function displaySecuredContent() {

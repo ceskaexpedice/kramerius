@@ -40,7 +40,9 @@
             </x:when>
             <x:when select="./str[@name='fedora.model'] = 'page'">
                 <fmt:message bundle="${lctx}">fedora.model.page</fmt:message>&#160;
-                  
+                <x:out select="substring-before(./arr[@name='details']/str, '##')" />&#160;
+                <c:set var="s"><fmt:message bundle="${lctx}"><x:out select="substring-after(./arr[@name='details']/str, '##')" /></fmt:message></c:set>
+                <c:out value="${fn:replace(s, '???', '')}" />&#160;
             </x:when>
             <x:when select="./str[@name='fedora.model'] = 'periodical2'">
                 
@@ -48,15 +50,25 @@
             <x:when select="./str[@name='fedora.model'] = 'periodicalvolume2'">
                 
             </x:when>
-            <x:when select="./str[@name='fedora.model'] = 'periodicalitem'">
+            <x:when select="./str[@name='fedora.model'] = 'periodicalitem2'">
                 
             </x:when>
+            <x:when select="./str[@name='fedora.model'] = 'internalpart'">
+                <fmt:message bundle="${lctx}"><x:out select="substring-before(./arr[@name='details']/str, '##')" /></fmt:message>&#160;
+                <c:set var="remaining"><x:out select="substring-after(./arr[@name='details']/str, '##')" /></c:set>
+                <c:out value="${fn:substringBefore(remaining, '##')}" />&#160;
+                <c:set var="remaining" value="${fn:substringAfter(remaining, '##')}" />
+                <c:out value="${fn:substringBefore(remaining, '##')}" />&#160;
+                <c:out value="${fn:substringAfter(remaining, '##')}" />
+            </x:when>
+            <x:otherwise>
+                <x:forEach select="./arr[@name='details']/str">
+                    <c:set var="s"><fmt:message bundle="${lctx}"><x:out select="."/></fmt:message></c:set>
+                    <c:out value="${fn:replace(s, '???', '')}" />&#160;
+                </x:forEach>
+            </x:otherwise>
         </x:choose>
         
-        <x:forEach select="./arr[@name='details']/str">
-            <c:set var="s"><fmt:message bundle="${lctx}"><x:out select="."/></fmt:message></c:set>
-            <c:out value="${fn:replace(s, '???', '')}" />&#160;
-        </x:forEach>
         <div class="teaser">
         <x:forEach select="../../lst[@name='highlighting']/lst">
             <c:set var="hituuid"><x:out select="@name" /></c:set>

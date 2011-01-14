@@ -30,8 +30,10 @@ request.getScheme()+"://"+request.getServerName()+":"+request.getServerPort()+re
     <c:set var="obj" value="#tabs_${cur_level}" />
     <script language="javascript">
     	$(document).ready(function(){
+            
             var obj = "<c:out value="${obj}" />";
-            var tabTemp = '<li class="${href}"><a href="<c:out value="${href}" />"><c:out value="${label}" /></a><img width="12px" src="img/empty.gif" class="op_list" onclick="toggleRelsList(this, \'<c:out value="${href}" />\')" /></li>';
+            var tabTemp = '<li class="${href}"><a href="<c:out value="${href}" />"><c:out value="${label}" /></a><img width="12px" src="img/empty.gif" class="op_list" onclick="toggleRelsList(this, \'<c:out value="${href}" />\')" /><img width="12" src="img/lupa.png" class="searchInsideButton" alt="search" ' +
+                           'onclick="showSearchInside(<c:out value="${status.count + level}" />, \'<c:out value="${href}" />\')"  /></li>';
             $(obj).tabs({ 
                 tabTemplate: tabTemp,
                 show: function(event, ui){
@@ -42,6 +44,7 @@ request.getScheme()+"://"+request.getServerName()+":"+request.getServerPort()+re
                 }
             });
             ${menu.updateSelection}
+            
         });
 
     </script>
@@ -52,7 +55,8 @@ request.getScheme()+"://"+request.getServerName()+":"+request.getServerPort()+re
             <li class="${itemViewObject.models[status.count -1]}"><a
                     href="#tab<c:out value="${status.count + level}" />-<c:out value="${itemViewObject.models[status.count -1]}" />"><fmt:message
                         bundle="${lctx}">fedora.model.<c:out value="${itemViewObject.models[status.count -1]}" /></fmt:message> </a><img width="12px" src="img/empty.gif" class="op_list"
-                                    onclick="toggleRelsList(this, '<c:out value="${itemViewObject.models[status.count -1]}" />')" /></li>
+                                    onclick="toggleRelsList(this, '<c:out value="${itemViewObject.models[status.count -1]}" />')" /><img width="12px" src="img/lupa.png" class="searchInsideButton" alt="search"
+                                    onclick="showSearchInside(<c:out value="${status.count + level}" />, '<c:out value="${itemViewObject.models[status.count -1]}" />')" /></li>
         </ul>
         <div id="tab<c:out value="${cur_level}" />-<c:out value="${itemViewObject.models[status.count -1]}" />"
             class="<c:out value="${itemViewObject.models[status.count -1]}  ui-tabs-panel ui-widget-content ui-corner-bottom" />"
@@ -84,6 +88,7 @@ request.getScheme()+"://"+request.getServerName()+":"+request.getServerPort()+re
 <script language="javascript">
     changingTab = false;
      setTvContainerWidth();
+     
     $(document).ready(function(){
         $('#tabs_1>ul>li>img.op_list').hide();
         currentSelectedPage = '<c:out value="${itemViewObject.lastUUID}" />';
@@ -93,7 +98,7 @@ request.getScheme()+"://"+request.getServerName()+":"+request.getServerPort()+re
         selectPage('<c:out value="${itemViewObject.lastUUID}" />');
         checkDonator('<c:out value="${itemViewObject.firstUUID}" />');
     });
-        
+    
     initParent = '<c:out value="${itemViewObject.parentUUID}" />';
     initPage = '<c:out value="${itemViewObject.lastUUID}" />';
     function startPage(){

@@ -135,6 +135,9 @@
             $('#imgContainer>img').css({'width': w, 'height': h});
             //$('#imgContainer>img').css('height', $('#fullImageZoom').val());
         }
+        if(viewerOptions.hasAlto){
+            showAlto(viewerOptions.uuid, 'imgFullImage');
+        }
     }
     function previousFull(){
         selectPrevious();
@@ -266,6 +269,7 @@
         setFullDialogSize();
         setTvContainerWidth();
         activateThumbs();
+        if($("#alto").length>0) positionAlto();
     }
     var resizeTimer = null;
     $(window).bind('resize', function() {

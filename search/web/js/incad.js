@@ -29,6 +29,7 @@ function uncollapse(pid, div, offset){
       $.get(url, function(xml) {
           $("#"+div).html(xml);
           $("#"+div).attr('opened', 'true');
+          translateDiv(div);
       });
 }
 

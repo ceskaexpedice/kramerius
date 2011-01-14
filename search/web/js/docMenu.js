@@ -147,13 +147,13 @@ function getViewInfo(uuid, f){
           complete:function(req,textStatus) {
               
               if ((req.status==200) || (req.status==304)) {
-	          viewerOptions = eval('(' + req.responseText + ')');
-	          viewerOptions.uuid = uuid;	
-	          viewerOptions.status=req.status;
-
+              viewerOptions = eval('(' + req.responseText + ')');
+              viewerOptions.uuid = uuid;	
+              viewerOptions.status=req.status;
                   securedContent = false;
                   currentMime = req.responseText;
                   f(viewerOptions);
+                  
               } else if (req.status==403){
                   currentMime = "unknown";
                   securedContent = true;
@@ -258,8 +258,11 @@ function getItemLevel(pid, level, container, recursive, onlyrels, model){
             changingTab = false;
             addThumbs(level);
             if(!onlyrels){
+                var tabtempl = '<li><a href="#{href}">#{label}</a>'+
+                    '<img width="12" src="img/empty.gif" class="op_list" onclick="toggleRelsList(this, \'#tabs_'+level+'\', \'#{href}\')" /><img width="12" src="img/lupa.png" class="searchInsideButton" alt="search" ' +
+                    'onclick="showSearchInside('+level+', \''+model+'>\')" /></li>';
                 $("#tabs_" + level).tabs({ 
-                    tabTemplate: '<li><a href="#{href}">#{label}</a><img width="12" src="img/empty.gif" class="op_list" onclick="toggleRelsList(this, \'#tabs_'+level+'\', \'#{href}\')" /></li>',
+                    tabTemplate: tabtemp,
                     panelTemplate: '<div></div>',
                     show: function(event, ui){
                         updateThumbs();
@@ -444,7 +447,7 @@ function getRels(recursive){
     for(var i=2;i<=maxLevel;i++){
         getRelsInLevel(i,recursive, 0);
     }
-    for(var i=2;i<=maxLevel;i++){
+    for(var i=1;i<=maxLevel;i++){
         getChildModels(i, recursive);
     }
 }
@@ -462,6 +465,17 @@ function translate(level){
         }
     });
     $('#tabs_'+level+'>ul>li>a>span.translate').each(function(index, o){
+        text = $(o).html();
+        if(typeof(dictionary[text])!= 'undefined'){
+            $(o).html(dictionary[text]);
+        }
+    });
+}
+
+function translateDiv(div){
+    var text;
+
+    $('#'+div+' span.translate').each(function(index, o){
         text = $(o).html();
         if(typeof(dictionary[text])!= 'undefined'){
             $(o).html(dictionary[text]);
@@ -541,7 +555,7 @@ function updateThumbs(level){
             selectThumb(currentSelectedPage);
             slideToThumb(currentSelectedPage);
         }else{
-            var pid = $("#tab"+maxLevel+"-page>div.relList>div:first").attr("pid");
+            var pid = $("#tab"+maxLevel+"-page>div.relList>div.relItem:first").attr("pid");
             selectPage(pid);
             //selectThumb(pid);
         }
