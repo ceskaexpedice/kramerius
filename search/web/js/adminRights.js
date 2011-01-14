@@ -195,7 +195,7 @@ function saveChanges() {
 			rightCriteriumId:_rightData.initvalues.rightCriteriumId,
 			
 			rightCriteriumParamId:$("#params option:selected").val()==="new" ? "-1":$("#params option:selected").val(),
-			formalActionHidden:"read",
+			formalActionHidden:_lastDisplayedAction,
 			
 			uuidHidden: $("#uuid").val(),
 			criteriumHidden:$("#criterium").val(),
