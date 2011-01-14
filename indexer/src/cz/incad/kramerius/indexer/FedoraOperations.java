@@ -3,6 +3,8 @@ package cz.incad.kramerius.indexer;
 
 import cz.incad.kramerius.FedoraAccess;
 import cz.incad.kramerius.impl.FedoraAccessImpl;
+import cz.incad.kramerius.resourceindex.IResourceIndex;
+import cz.incad.kramerius.resourceindex.ResourceIndexService;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 import dk.defxws.fedoragsearch.server.*;
 
@@ -184,30 +186,49 @@ public class FedoraOperations {
                 KConfiguration.getInstance().getConfiguration().getString("TrustStorePath"),
                 KConfiguration.getInstance().getConfiguration().getString("TrustStorePass"),docCount);
     }
-    
-    public String getParents(String pid){
+    public String getParentsOld(String pid){
         try{
         String query = "$object * <info:fedora/" + pid + ">";
         String urlStr = KConfiguration.getInstance().getConfiguration().getString("FedoraResourceIndex") + "?type=triples&flush=true&lang=spo&format=N-Triples&limit=&distinct=off&stream=off" +
                     "&query=" + java.net.URLEncoder.encode(query, "UTF-8");
             StringBuilder sb = new StringBuilder();
-           
+
             java.net.URL url = new java.net.URL(urlStr);
 
             java.io.BufferedReader in = new java.io.BufferedReader(new java.io.InputStreamReader(url.openStream()));
             String inputLine;
             int end;
-            while ((inputLine = in.readLine()) != null) {  
+            while ((inputLine = in.readLine()) != null) {
 //<info:fedora/uuid:5fe0b160-62d5-11dd-bdc7-000d606f5dc6> <http://www.nsdl.org/ontologies/relationships#hasPage> <info:fedora/uuid:75fca1f0-64b2-11dd-9fd4-000d606f5dc6> .
 //<info:fedora/uuid:f0da6570-8f3b-11dd-b796-000d606f5dc6> <http://www.nsdl.org/ontologies/relationships#isOnPage> <info:fedora/uuid:75fca1f0-64b2-11dd-9fd4-000d606f5dc6> .
                 end = inputLine.indexOf(">");
-//18 je velikost   <info:fedora/uuid:             
+//18 je velikost   <info:fedora/uuid:
                 inputLine = inputLine.substring(18,end);
                 sb.append(inputLine);
                 sb.append(";");
             }
             in.close();
             sb.delete(sb.length()-1, sb.length());
+            return sb.toString();
+
+        }catch(Exception ex){
+            ex.printStackTrace();
+            logger.error(ex);
+            return "";
+        }
+    }
+    
+    public String getParents(String pid){
+        try{
+            StringBuilder sb = new StringBuilder();
+            IResourceIndex g = ResourceIndexService.getResourceIndexImpl();
+            ArrayList<String> l = g.getParentsPids(pid);
+            for(int i=0; i<l.size();i++){
+            //for(String s : l){
+                sb.append(l.get(i));
+                if(i<l.size()-1)  sb.append(";");
+            }
+            
             return sb.toString();
             
         }catch(Exception ex){

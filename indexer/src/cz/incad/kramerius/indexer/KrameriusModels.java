@@ -26,7 +26,7 @@ public enum KrameriusModels {
 	}
 
 
-	public static KrameriusModels parseString(String s) {
+	public static KrameriusModels parseString2(String s) {
 		KrameriusModels[] values = values();
 		for (KrameriusModels model : values) {
 			if (model.getValue().equalsIgnoreCase(s)) return model;

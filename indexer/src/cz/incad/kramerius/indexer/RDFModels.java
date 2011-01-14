@@ -15,7 +15,7 @@ import cz.incad.kramerius.indexer.KrameriusModels;
 
 public class RDFModels {
 
-    public static KrameriusModels convertRDFToModel(String rdf) {
+    public static KrameriusModels convertRDFToModel2(String rdf) {
         if(rdf.contains("hasPage")){
                 return KrameriusModels.PAGE;
         }else if(rdf.contains("hasUnit")){

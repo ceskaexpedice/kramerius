@@ -68,7 +68,6 @@
     select="/foxml:digitalObject/foxml:datastream[@CONTROL_GROUP='X' and @ID='RELS-EXT']/foxml:datastreamVersion[last()]/foxml:xmlContent/rdf:RDF/rdf:Description/kramerius:handle/text()" />
     
     
-    
     <xsl:template match="/">
         
       <add>
@@ -146,9 +145,7 @@
                     </field>
                 </xsl:if>
                 <xsl:if test="$PID_PATH and not($PID_PATH = '')" >
-                    <field name="pid_path">
-                        <xsl:value-of select="$PID_PATH" />
-                    </field>
+                    <field name="pid_path"><xsl:value-of select="$PID_PATH" /></field>
                 </xsl:if>
                 <xsl:if test="$PAGESCOUNT and not($PAGESCOUNT = '')" >
                     <field name="pages_count">
@@ -178,6 +175,13 @@
                     </field>
                 </xsl:if>
                 <field name="pages_count">1</field>
+                <!--
+                <xsl:if test="$PAGESCOUNT and not($PAGESCOUNT = '')" >
+                    <field name="pages_count">
+                        <xsl:value-of select="$PAGESCOUNT" />
+                    </field>
+                </xsl:if>
+                -->
              </xsl:otherwise>   
         </xsl:choose>
         
@@ -239,12 +243,12 @@
             </field>
         </xsl:if>
         
-        <xsl:if test="$MODEL != 'page'">
-        <xsl:if test="$PARENT_PID and not($PARENT_PID = '')" >
             <field name="parent_pid">
                 <xsl:value-of select="$PARENT_PID" />
             </field>
+        <xsl:if test="$PARENT_PID and not($PARENT_PID = '')" >
         </xsl:if>
+        <xsl:if test="$MODEL != 'page'">
         </xsl:if>
         
         <xsl:if test="$PARENT_MODEL and not($PARENT_MODEL = '')" >

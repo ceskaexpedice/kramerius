@@ -391,7 +391,8 @@ public class SolrOperations {
                             childnode.hasAttributes() &&
                             childnode.getAttributes().getNamedItem("rdf:resource") != null) {
                         pids.add(childnode.getAttributes().getNamedItem("rdf:resource").getNodeValue().split("/")[1]);
-                        models.add(KrameriusModels.toString(RDFModels.convertRDFToModel(nodeName)));
+                        //models.add(KrameriusModels.toString(RDFModels.convertRDFToModel(nodeName)));
+                        models.add(nodeName);
                     } else {
                     }
                 }
@@ -441,6 +442,7 @@ public class SolrOperations {
 
         for (int i = 0; i < requestParams.size(); i = i + 2) {
             params.put(requestParams.get(i), requestParams.get(i + 1));
+            //System.out.println(requestParams.get(i)+" --> " + requestParams.get(i + 1));
 
         }
 
@@ -475,7 +477,7 @@ public class SolrOperations {
         if (logger.isDebugEnabled()) {
             logger.debug("indexDoc=\n" + sb.toString());
         }
-        logger.info("solrHost:" + config.getString("solrHost"));
+        //logger.info("solrHost:" + config.getString("solrHost"));
         postData(config.getString("IndexBase") + "/update", new StringReader(sb.toString()), new StringBuilder());
         deleteTotal++;
     }
