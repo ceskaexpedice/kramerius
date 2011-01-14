@@ -11,7 +11,6 @@ function adminRights(level, model, action) {
 
 /** -"-   - volano odkudkoliv */
 function adminRightsImpl(uuid,action) {
-	alert("TEST..");
 	_lastWorkingUuid = uuid;
 	_lastDisplayedAction = action;
 	var url = "rights?action=showrights&uuid="+uuid+"&securedaction="+action;
