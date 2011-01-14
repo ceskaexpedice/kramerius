@@ -114,7 +114,16 @@ join user_entity ue on (ue.user_id=guass.user_id)
 insert into group_entity(group_id,gname) 
 values(nextval('group_id_sequence'),'common_users') 
 
+-- skupina knav users
+insert into group_entity(group_id,gname) 
+values(nextval('group_id_sequence'),'knav_users') 
+
 -- jeden uzivatel
 insert into user_entity (user_id,"name", surname,loginname,pswd)
 values(nextval('user_id_sequence'), 'Josef','Vomacka','josef.vomacka@mzz.cz','h5rrar')
+
+-- asociace (uzviatel, skupina)
+-- -- pavels = knav users
+insert into group_user_assoc(group_user_assoc_id, user_id, group_id)
+values(nextval('group_user_assoc_id_sequence'),1,2)
 
