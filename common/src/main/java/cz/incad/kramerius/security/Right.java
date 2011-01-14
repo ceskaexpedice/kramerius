@@ -34,11 +34,14 @@ package cz.incad.kramerius.security;
  */
 public interface Right {
 
+    
+    public int getId();
+    
     /**
      * UUID of the object
      * @return
      */
-    public String getUUID();
+    public String getPid();
     
     /**
      * Action for this right
@@ -46,17 +49,23 @@ public interface Right {
      */
     public String getAction();
 
+    public void setAction(String action);
+    
     /**
      * Current logged user
      * @return
      */
     public AbstractUser getUser();
     
+    public void setUser(AbstractUser user);
+    
     /**
      * Returns specific criterium
      * @return
      */
     public RightCriterium getCriterium();
+    
+    public void setCriterium(RightCriterium rightCriterium);
     
     
     /**

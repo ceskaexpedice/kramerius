@@ -14,21 +14,21 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
-package cz.incad.kramerius.security;
+package cz.incad.kramerius.utils.database;
 
-public interface UserManager {
+import java.sql.SQLException;
 
-    public User validateUser(String loginName, String passwd);
+public abstract class JDBCCommand {
     
-    public Group[] findGroups(int user_id);
+    private Object obj;
     
-    public User findUser(int user_id);
+    public void setPreviousResult(Object obj) {
+        this.obj = obj;
+    }
     
-    public Group findGroup(int group_id);
+    public Object getPreviousResult() {
+        return this.obj;
+    }
     
-    public Group findCommonUsersGroup();
-    
-    public Group findGroupByName(String gname);
-    
-    public User findUserByLoginName(String loginName);
+    public abstract Object executeJDBCCommand() throws SQLException;
 }

@@ -76,7 +76,7 @@ public class RightParamEvaluatingContextImpl implements RightCriteriumContext {
     
     
     @Override
-    public void setAssociatedUUID(String uuid) {
+    public void setAssociatedPid(String uuid) {
         this.associatedUUID = uuid;
     }
 

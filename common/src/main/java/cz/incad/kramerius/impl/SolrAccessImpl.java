@@ -27,6 +27,7 @@ import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
 
 import cz.incad.kramerius.SolrAccess;
+import cz.incad.kramerius.security.SpecialObjects;
 import cz.incad.kramerius.utils.RESTHelper;
 import cz.incad.kramerius.utils.XMLUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
@@ -36,6 +37,7 @@ public class SolrAccessImpl implements SolrAccess {
 
     @Override
     public Document getSolrDataDocumentByUUID(String uuid) throws IOException {
+        if (SpecialObjects.isSpecialObject(uuid)) return null;
         try {
             return SolrUtils.getSolrDataInternal(SolrUtils.UUID_QUERY+uuid);
         } catch (ParserConfigurationException e) {
@@ -47,6 +49,7 @@ public class SolrAccessImpl implements SolrAccess {
 
     @Override
     public String[] getPathOfUUIDs(String uuid) throws IOException {
+        if (SpecialObjects.isSpecialObject(uuid)) return new String[0];
         try {
             Document solrData = getSolrDataDocumentByUUID(uuid);
             String pidPath = SolrUtils.disectPidPath(solrData);
@@ -70,6 +73,7 @@ public class SolrAccessImpl implements SolrAccess {
 
     @Override
     public String[] getPathOfModels(String uuid) throws IOException {
+        if (SpecialObjects.isSpecialObject(uuid)) return new String[0];
         try {
             Document doc = getSolrDataDocumentByUUID(uuid);
             return SolrUtils.disectPath(doc).split("/");
@@ -78,6 +82,4 @@ public class SolrAccessImpl implements SolrAccess {
        }
     }
     
-    
-
 }

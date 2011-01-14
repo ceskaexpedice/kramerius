@@ -57,10 +57,10 @@ public class PolicyFlag extends AbstractCriterium {
         }
     }
 
-    @Override
-    public boolean validate(Object[] objs) {
-        return true;
-    }
+//    @Override
+//    public boolean validate(Object[] objs) {
+//        return true;
+//    }
 
     @Override
     public RightCriteriumPriorityHint getPriorityHint() {
@@ -83,5 +83,10 @@ public class PolicyFlag extends AbstractCriterium {
         } catch (XPathExpressionException e) {
             throw new IOException(e);
         }
+    }
+
+    @Override
+    public boolean isParamsNecessary() {
+        return false;
     }
 }

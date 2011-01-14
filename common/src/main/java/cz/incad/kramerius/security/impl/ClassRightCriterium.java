@@ -23,6 +23,7 @@ import cz.incad.kramerius.security.RightCriteriumException;
 import cz.incad.kramerius.security.RightCriterium;
 import cz.incad.kramerius.security.RightCriteriumContext;
 import cz.incad.kramerius.security.EvaluatingResult;
+import cz.incad.kramerius.security.RightCriteriumParams;
 import cz.incad.kramerius.security.RightCriteriumPriorityHint;
 
 public class ClassRightCriterium implements RightCriterium {
@@ -31,15 +32,17 @@ public class ClassRightCriterium implements RightCriterium {
     
     private Class<? extends RightCriterium> clz;
     private RightCriteriumContext ctx;
-    
-    private Object[] objects;
 
     private int fixedPriority;
     private int calculatedPriority;
+    private int rightId;
     
-    public ClassRightCriterium(Class<? extends RightCriterium> class1) {
+    private RightCriteriumParams rightCriteriumParams;
+    
+    public ClassRightCriterium(Class<? extends RightCriterium> class1, int rightId) {
         super();
         this.clz = class1;
+        this.rightId = rightId;
     }
 
     @Override
@@ -55,12 +58,13 @@ public class ClassRightCriterium implements RightCriterium {
     @Override
     public EvaluatingResult evalute() throws RightCriteriumException {
         try {
-            RightCriterium crit = clz.newInstance();
-            crit.setObjects(getObjects());
+            RightCriterium crit = instanceCriterium(this.clz);
+            crit.setCriteriumParams(this.getCriteriumParams());
             crit.setEvaluateContext(getEvaluateContext());
-            
+
             crit.setFixedPriority(this.fixedPriority);
             crit.setCalculatedPriority(this.calculatedPriority);
+            crit.setCriteriumParams(getCriteriumParams());
             
             return crit.evalute();
         } catch (InstantiationException e) {
@@ -70,29 +74,7 @@ public class ClassRightCriterium implements RightCriterium {
         }
     }
 
-    @Override
-    public Object[] getObjects() {
-        return this.objects;
-    }
 
-    @Override
-    public void setObjects(Object[] objs) {
-        this.objects = objs;
-    }
-
-    @Override
-    public boolean validate(Object[] objs) {
-        try {
-            RightCriterium crit = clz.newInstance();
-            return crit.validate(objs);
-        } catch (InstantiationException e) {
-            LOGGER.log(Level.SEVERE, e.getMessage(), e);
-            return false;
-        } catch (IllegalAccessException e) {
-            LOGGER.log(Level.SEVERE, e.getMessage(), e);
-            return false;
-        }
-    }
 
 
     @Override
@@ -118,9 +100,7 @@ public class ClassRightCriterium implements RightCriterium {
     @Override
     public RightCriteriumPriorityHint getPriorityHint() {
         try {
-            RightCriterium crit = clz.newInstance();
-            crit.setObjects(getObjects());
-            crit.setEvaluateContext(getEvaluateContext());
+            RightCriterium crit = instanceCriterium(this.clz);
             return crit.getPriorityHint();
         } catch (InstantiationException e) {
             LOGGER.log(Level.SEVERE,e.getMessage(), e);
@@ -130,17 +110,62 @@ public class ClassRightCriterium implements RightCriterium {
         return RightCriteriumPriorityHint.NORMAL;
     }
 
+    public static RightCriterium instanceCriterium(Class<? extends RightCriterium> clz) throws InstantiationException, IllegalAccessException {
+        RightCriterium crit = clz.newInstance();
+        return crit;
+    }
+
     
     public Class<? extends RightCriterium> getCriteriumClz() {
         return clz;
     }
 
+//    @Override
+//    public String toString() {
+//        StringBuffer buffer = new StringBuffer();
+//        buffer.append(this.clz.getName()+" "+Arrays.asList(this.objects));
+//        return buffer.toString();
+//    }
+
+
     @Override
-    public String toString() {
-        StringBuffer buffer = new StringBuffer();
-        buffer.append(this.clz.getName()+" "+Arrays.asList(this.objects));
-        return buffer.toString();
+    public int getId() {
+        return this.rightId;
     }
+
     
+    
+    @Override
+    public void setId(int id) {
+        this.rightId = id;
+    }
+
+    @Override
+    public RightCriteriumParams getCriteriumParams() {
+        return this.rightCriteriumParams;
+    }
+
+    @Override
+    public void setCriteriumParams(RightCriteriumParams params) {
+        this.rightCriteriumParams = params;
+    }
+
+    @Override
+    public String getQName() {
+        return this.clz.getName();
+    }
+
+    @Override
+    public boolean isParamsNecessary() {
+        try {
+            RightCriterium crit = instanceCriterium(this.clz);
+            return crit.isParamsNecessary();
+        } catch (InstantiationException e) {
+            LOGGER.log(Level.SEVERE,e.getMessage(), e);
+        } catch (IllegalAccessException e) {
+            LOGGER.log(Level.SEVERE,e.getMessage(), e);
+        }
+        return true;
+    }
     
 }

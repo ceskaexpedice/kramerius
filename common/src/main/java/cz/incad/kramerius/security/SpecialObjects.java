@@ -18,8 +18,7 @@ package cz.incad.kramerius.security;
 
 public enum SpecialObjects {
     
-    REPOSITORY("1"),
-    K4SYSTEM("2");
+    REPOSITORY("1");
     
     private String uuid;
 
@@ -31,4 +30,23 @@ public enum SpecialObjects {
         return uuid;
     }
 
+    public static SpecialObjects findSpecialObject(String uuid) {
+        for (SpecialObjects specialObject : values()) {
+            if (specialObject.getUuid().equals(uuid))  {
+                return specialObject;
+            }
+        }
+        return null;
+        
+    }
+    
+    public static boolean isSpecialObject(String uuid) {
+        return findSpecialObject(uuid) != null;
+    }
+    
+    
+    
+    public static void main(String[] args) {
+        System.out.println(REPOSITORY.name());
+    }
 }

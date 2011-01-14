@@ -18,13 +18,17 @@ package cz.incad.kramerius.security.impl.criteria;
 
 import cz.incad.kramerius.security.RightCriterium;
 import cz.incad.kramerius.security.RightCriteriumContext;
+import cz.incad.kramerius.security.RightCriteriumParams;
 
 public abstract class AbstractCriterium implements RightCriterium {
 
+    protected int id=-1;
+    protected int fixedPriority;
+    protected int calculatedPriority;
     protected RightCriteriumContext evalContext;
-    protected Object[] objs;
-    private int fixedPriority;
-    private int calculatedPriority;
+    protected RightCriteriumParams criteriumParams;
+
+    
     
     @Override
     public RightCriteriumContext getEvaluateContext() {
@@ -34,16 +38,6 @@ public abstract class AbstractCriterium implements RightCriterium {
     @Override
     public void setEvaluateContext(RightCriteriumContext ctx) {
         this.evalContext = ctx;
-    }
-
-    @Override
-    public Object[] getObjects() {
-        return this.objs;
-    }
-
-    @Override
-    public void setObjects(Object[] objs) {
-        this.objs = objs;
     }
 
     @Override
@@ -59,10 +53,39 @@ public abstract class AbstractCriterium implements RightCriterium {
     @Override
     public void setFixedPriority(int priority) {
         this.fixedPriority = priority;
-    }
+    } 
 
     @Override
     public int getFixedPriority() {
         return this.fixedPriority;
+    }
+
+    @Override
+    public RightCriteriumParams getCriteriumParams() {
+        return this.criteriumParams;
+    }
+
+    @Override
+    public void setCriteriumParams(RightCriteriumParams params) {
+        this.criteriumParams = params;
+    }
+
+    @Override
+    public int getId() {
+        return this.id;
+    }
+    
+    @Override
+    public void setId(int id) {
+        this.id = id;
+    }
+
+    public Object[] getObjects() {
+        return this.criteriumParams != null ? this.criteriumParams.getObjects() : new Object[0];
+    }
+
+    @Override
+    public String getQName() {
+        return this.getClass().getName();
     }
 }

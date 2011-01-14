@@ -25,27 +25,46 @@ import cz.incad.kramerius.security.EvaluatingResult;
 
 public class RightImpl implements Right {
     
+    private int rightId;
     private RightCriterium crit;
     private String uuid;
     private String action;
     private AbstractUser user;
     
-    public RightImpl(RightCriterium crit, String uuid, String action, AbstractUser user) {
+    public RightImpl(int rightId, RightCriterium crit, String uuid, String action, AbstractUser user) {
         super();
+        this.rightId = rightId;
         this.crit = crit;
         this.uuid = uuid;
         this.action = action;
         this.user = user;
     }
 
+    
+    
     @Override
-    public String getUUID() {
-        return this.uuid;
+    public int getId() {
+        return this.rightId;
     }
+
+
+
+    @Override
+    public String getPid() {
+        if (!this.uuid.startsWith("uuid:")) {
+            return "uuid:"+this.uuid;
+        } else return this.uuid;
+    }
+    
 
     @Override
     public String getAction() {
         return this.action;
+    }
+    
+    @Override
+    public void setAction(String action) {
+        this.action = action;        
     }
 
     public void setParam(RightCriterium param) {
@@ -56,12 +75,27 @@ public class RightImpl implements Right {
     public RightCriterium getCriterium() {
         return this.crit;
     }
+    
+    
+
+    @Override
+    public void setCriterium(RightCriterium rightCriterium) {
+        this.crit = rightCriterium;
+    }
+
+
 
     public AbstractUser getUser() {
         return user;
     }
     
-    
+    @Override
+    public void setUser(AbstractUser user) {
+        this.user = user;
+    }
+
+
+
     @Override 
     public synchronized EvaluatingResult evaluate(RightCriteriumContext ctx) throws RightCriteriumException {
         if (this.crit != null){
@@ -76,7 +110,7 @@ public class RightImpl implements Right {
     @Override
     public String toString() {
         StringBuffer buffer = new StringBuffer();
-        buffer.append("["+this.uuid+"] "+this.crit!=null?this.crit.toString():"");
+        buffer.append("["+this.uuid+"] "+" ["+this.action+"] "+(this.crit!=null?this.crit.toString():""));
         return buffer.toString();
     }
 }

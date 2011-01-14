@@ -16,12 +16,38 @@
  */
 package cz.incad.kramerius.security;
 
+import java.sql.SQLException;
+import java.util.List;
 
 public interface RightsManager {
-    
-    public abstract Right[] findRights(String[] uuids, String action, User user);
-    
 
-    public abstract EvaluatingResult resolve(RightCriteriumContext ctx, String uuid, String[] path, String action, User user) throws RightCriteriumException;
+    public Right[] findRights(String[] uuids, String action, User user);
+
+    public EvaluatingResult resolve(RightCriteriumContext ctx, String uuid, String[] path, String action, User user) throws RightCriteriumException;
+
+    // DAO methods - DAt to jinam !!
+
+    public RightCriteriumParams[] findAllParams();
+
+    public RightCriteriumParams findParamById(int paramId);
+
+    public RightCriterium findRightCriteriumById(int critId);
+    
+    public List<String> saturatePathAndCreatesPIDs(String uuid, String[] path);
+
+    public int insertRight(Right right) throws SQLException;
+
+    public void updateRight(Right right) throws SQLException;
+
+    public int insertRightCriterium(RightCriterium criterium) throws SQLException;
+
+    public void updateRightCriterium(RightCriterium criterium) throws SQLException;
+
+    public int insertRightCriteriumParams(RightCriteriumParams criteriumParams) throws SQLException;
+
+    public void updateRightCriteriumParams(RightCriteriumParams criteriumParams) throws SQLException;
+
+    public void deleteRight(Right right) throws SQLException;
+    
+    public Right findRightById(int id);
 }
-

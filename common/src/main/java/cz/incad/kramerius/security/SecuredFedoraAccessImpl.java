@@ -57,11 +57,12 @@ public class SecuredFedoraAccessImpl implements FedoraAccess {
     private DiscStrucutreForStore discStrucutreForStore;
 
     @Inject
-    public SecuredFedoraAccessImpl(@Named("rawFedoraAccess") FedoraAccess rawAccess, DiscStrucutreForStore discStrucutreForStore, SolrAccess solrAccess) {
+    public SecuredFedoraAccessImpl(@Named("rawFedoraAccess") FedoraAccess rawAccess, DiscStrucutreForStore discStrucutreForStore, SolrAccess solrAccess, IsActionAllowed actionAllowed) {
         super();
         this.rawAccess = rawAccess;
         this.discStrucutreForStore = discStrucutreForStore;
         this.solrAccess = solrAccess;
+        this.isActionAllowed = actionAllowed;
     }
 
     public Document getBiblioMods(String uuid) throws IOException {

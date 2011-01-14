@@ -27,7 +27,14 @@ import java.util.Map;
  * @author pavels
  */
 public interface RightCriterium {
-
+    
+    public int getId();
+    
+    public String getQName();
+    
+    
+    public void setId(int id);
+    
     /**
      * Evaluating context. Context for access to runtime variables (uuid, current user, etc..)
      * @return
@@ -47,12 +54,6 @@ public interface RightCriterium {
      */
     public EvaluatingResult evalute() throws RightCriteriumException;
     
-    public Object[] getObjects();
-    
-    public void setObjects(Object[] objs);
-
-    public boolean validate(Object[] objs);
-    
     public int getCalculatedPriority();
     
     public void setCalculatedPriority(int priority);
@@ -62,4 +63,10 @@ public interface RightCriterium {
     public int getFixedPriority();
     
     public RightCriteriumPriorityHint getPriorityHint();
+    
+    public RightCriteriumParams getCriteriumParams();
+    
+    public void setCriteriumParams(RightCriteriumParams params);
+    
+    public boolean isParamsNecessary();
 }

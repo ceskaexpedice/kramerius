@@ -61,6 +61,7 @@ public class MovingWall extends AbstractCriterium implements RightCriterium {
     
     @Override
     public EvaluatingResult evalute() throws RightCriteriumException {
+
         int wallFromConf = Integer.parseInt((String)getObjects()[0]);
         try {
             String[] pathOfUUIDs = getEvaluateContext().getPathOfUUIDs();
@@ -102,24 +103,27 @@ public class MovingWall extends AbstractCriterium implements RightCriterium {
         return calFromMetadata.before(calFromConf) ?  EvaluatingResult.TRUE:EvaluatingResult.FALSE;
     }
 
-    @Override
-    public boolean validate(Object[] objs) {
-        if ((objs != null) && (objs.length == 1)) {
-            String val = (String) objs[0];
-            try {
-                Integer.parseInt(val);
-                return true;
-            } catch (NumberFormatException e) {
-                LOGGER.log(Level.SEVERE, e.getMessage(), e);
-                return false;
-            }
-        } else return false;
-    }
+//    @Override
+//    public boolean validate(Object[] objs) {
+//        if ((objs != null) && (objs.length == 1)) {
+//            String val = (String) objs[0];
+//            try {
+//                Integer.parseInt(val);
+//                return true;
+//            } catch (NumberFormatException e) {
+//                LOGGER.log(Level.SEVERE, e.getMessage(), e);
+//                return false;
+//            }
+//        } else return false;
+//    }
 
     @Override
     public RightCriteriumPriorityHint getPriorityHint() {
         return RightCriteriumPriorityHint.NORMAL;
     }
 
-    
+    @Override
+    public boolean isParamsNecessary() {
+        return true;
+    }
 }

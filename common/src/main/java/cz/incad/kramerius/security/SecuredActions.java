@@ -19,7 +19,11 @@ package cz.incad.kramerius.security;
 public enum SecuredActions {
 
     // common user actions
-    READ("readPreview"),
+    READ("read"),
+    // GENERATE_PDF
+    // SHOW METADATA
+    // PERSISTENT URL
+
     
     // Admin actions
     //LRPROCESS_ADMIN("lrProcessAdmin"),
@@ -38,8 +42,6 @@ public enum SecuredActions {
     MANAGE_LR_PROCESS("manage_lr_process");
     
     
-    
-    
     private String formalName;
   
     private SecuredActions(String formalName) {
@@ -48,5 +50,19 @@ public enum SecuredActions {
 
     public String getFormalName() {
         return formalName;
+    }
+    
+    public String getName() {
+        return name();
+    }
+    
+    public static SecuredActions findByFormalName(String fname) {
+        SecuredActions[] vals = values();
+        for (SecuredActions act : vals) {
+            if (act.getFormalName().equals(fname)) {
+                return act;
+            }
+        }
+        return null;
     }
 }

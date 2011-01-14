@@ -42,7 +42,7 @@ public interface RightCriteriumContext {
      */
     public String getAssociatedUUID();
     
-    public void setAssociatedUUID(String uuid);
+    public void setAssociatedPid(String uuid);
     
     /**
      * Returns path from leaf to root tree

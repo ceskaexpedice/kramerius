@@ -46,13 +46,11 @@ public class FedoraDatabaseUtils {
             @Override
             public boolean handleRow(ResultSet rs, List<String> returnsList) throws SQLException {
                 String path = rs.getString("path");
-                LOGGER.info("path column in rs '"+path+"'");
                 returnsList.add(path);
                 return super.handleRow(rs, returnsList);
             }
             
         }.executeQuery(sql, "uuid:"+uuid+"+IMG_FULL+%");
-        LOGGER.info("returning list is :"+returnList);
         return (returnList != null && !returnList.isEmpty()) ? returnList.get(0) : null;
     }	
 }

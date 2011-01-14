@@ -28,6 +28,7 @@ import cz.incad.kramerius.security.RightCriteriumException;
 import cz.incad.kramerius.security.RightCriterium;
 import cz.incad.kramerius.security.RightCriteriumContext;
 import cz.incad.kramerius.security.EvaluatingResult;
+import cz.incad.kramerius.security.RightCriteriumParams;
 import cz.incad.kramerius.security.RightCriteriumPriorityHint;
 
 
@@ -36,7 +37,6 @@ class ScriptRightCriterium implements RightCriterium {
     
     private String scriptPath;
     private RightCriteriumContext context;
-    private Object[] objects;
     
     @Override
     public RightCriteriumContext getEvaluateContext() {
@@ -65,21 +65,6 @@ class ScriptRightCriterium implements RightCriterium {
 //            throw new RightCriteriumException(e);
 //        }
         throw new UnsupportedOperationException("");
-    }
-
-    @Override
-    public Object[] getObjects() {
-        return null;
-    }
-
-    @Override
-    public void setObjects(Object[] objs) {
-    }
-
-    @Override
-    public boolean validate(Object[] objs) {
-        // TODO Auto-generated method stub
-        return false;
     }
 
     @Override
@@ -112,6 +97,41 @@ class ScriptRightCriterium implements RightCriterium {
         return null;
     }
 
+    @Override
+    public int getId() {
+        // TODO Auto-generated method stub
+        return 0;
+    }
+
+    @Override
+    public RightCriteriumParams getCriteriumParams() {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    @Override
+    public void setCriteriumParams(RightCriteriumParams params) {
+        // TODO Auto-generated method stub
+        
+    }
+
+    @Override
+    public void setId(int id) {
+        // TODO Auto-generated method stub
+        
+    }
+
+    @Override
+    public String getQName() {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    @Override
+    public boolean isParamsNecessary() {
+        // TODO Auto-generated method stub
+        return false;
+    }
     
     
     

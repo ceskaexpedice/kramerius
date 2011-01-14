@@ -14,21 +14,17 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
-package cz.incad.kramerius.security;
+package cz.incad.kramerius.processes.impl;
 
-public interface UserManager {
+import cz.incad.kramerius.processes.LRProcessDefinition;
+import cz.incad.kramerius.utils.conf.KConfiguration;
+import junit.framework.TestCase;
 
-    public User validateUser(String loginName, String passwd);
-    
-    public Group[] findGroups(int user_id);
-    
-    public User findUser(int user_id);
-    
-    public Group findGroup(int group_id);
-    
-    public Group findCommonUsersGroup();
-    
-    public Group findGroupByName(String gname);
-    
-    public User findUserByLoginName(String loginName);
+public class LRProcessDefinitionManagerImplTestCase extends TestCase {
+
+    public void testLRDefs() {
+        LRProcessDefinitionManagerImpl impl = new LRProcessDefinitionManagerImpl(KConfiguration.getInstance(), null, null );
+        LRProcessDefinition definition = impl.getLongRunningProcessDefinition("reindex");
+        System.out.println(definition.getJavaProcessParameters());
+    }
 }

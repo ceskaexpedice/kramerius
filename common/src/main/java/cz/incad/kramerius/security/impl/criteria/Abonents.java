@@ -31,7 +31,7 @@ public class Abonents extends AbstractCriterium implements RightCriterium {
 
     @Override
     public EvaluatingResult evalute() throws RightCriteriumException {
-        Object[] groups = getObjects();
+        Object[] groups = this.getCriteriumParams().getObjects();
         for (Object oneGroup : groups) {
             if (isUserInGroup(oneGroup.toString())) return EvaluatingResult.TRUE;
         }
@@ -46,15 +46,17 @@ public class Abonents extends AbstractCriterium implements RightCriterium {
         return false;
     }
 
-    @Override
-    public boolean validate(Object[] objs) {
-        // TODO Auto-generated method stub
-        return false;
-    }
 
     @Override
     public RightCriteriumPriorityHint getPriorityHint() {
         return RightCriteriumPriorityHint.MAX;
     }
 
+    @Override
+    public boolean isParamsNecessary() {
+        return true;
+    }
+
+    
+    
 }

@@ -120,6 +120,34 @@ public class DatabaseUserManager implements UserManager{
         }.executeQuery(sql);
         return (groups != null) && (!groups.isEmpty()) ? groups.get(0) : null;
     }
+
+    @Override
+    public Group findGroupByName(String gname) {
+        String sql = SecurityDatabaseUtils.stGroup().getInstanceOf("findGroupByGname").toString();
+        List<Group> groups= new JDBCQueryTemplate<Group>(this.provider.get()){
+            @Override
+            public boolean handleRow(ResultSet rs, List<Group> returnsList) throws SQLException {
+                    Group grp = SecurityDBUtils.createGroup(rs);
+                    returnsList.add(grp);
+                    return true;
+            }
+        }.executeQuery(sql, gname);
+        return (groups != null) && (!groups.isEmpty()) ? groups.get(0) : null;
+    }
+
+    @Override
+    public User findUserByLoginName(String loginName) {
+        String sql = SecurityDatabaseUtils.stGroup().getInstanceOf("findGroupByLoginName").toString();
+        List<User> users= new JDBCQueryTemplate<User>(this.provider.get()){
+            @Override
+            public boolean handleRow(ResultSet rs, List<User> returnsList) throws SQLException {
+                    User user = SecurityDBUtils.createUser(rs);
+                    returnsList.add(user);
+                    return true;
+            }
+        }.executeQuery(sql, loginName);
+        return (users != null) && (!users.isEmpty()) ? users.get(0) : null;
+    }
     
     
 }

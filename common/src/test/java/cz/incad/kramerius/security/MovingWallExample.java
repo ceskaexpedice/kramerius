@@ -71,9 +71,9 @@ public class MovingWallExample extends AbstractGuiceTestCase {
             add("uuid:repository");
         }};
 
-        ClassRightCriterium crit = new ClassRightCriterium(MovingWall.class);
-        RightImpl rightImpl = new RightImpl(crit, uuids.get(0), "readPreview", user);
-        crit.setObjects(new Object[] {"1966"});
+        ClassRightCriterium crit = new ClassRightCriterium(MovingWall.class,-1);
+        RightImpl rightImpl = new RightImpl(-1, crit, uuids.get(0), "readPreview", user);
+//        /crit.setObjects(new Object[] {"1966"});
         
         EasyMock.expect(rman.findRights((String[]) uuids.toArray(new String[uuids.size()]), "readPreview", user)).andReturn(new Right[] {rightImpl});
         EasyMock.replay(rman);
@@ -83,7 +83,7 @@ public class MovingWallExample extends AbstractGuiceTestCase {
         
         
         RightCriteriumContext ctx = injector.getInstance(RightCriteriumContextFactory.class).create("uuid:page", user, "", "");
-        ctx.setAssociatedUUID(uuids.get(uuids.size() - 1));
+        ctx.setAssociatedPid(uuids.get(uuids.size() - 1));
         EvaluatingResult result = rightImpl.evaluate(ctx);
         System.out.println(result);
         

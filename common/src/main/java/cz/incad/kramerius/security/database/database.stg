@@ -14,15 +14,23 @@ where
 
 // jak to udelat jinak ?? 
 
-findRightFromWithGroups(user, groups, uuids, action) ::=<<
+findRightFromWithGroups(user, groups, pids, action) ::=<<
 select * from right_entity ent
     left join rights_criterium_entity crit on (ent.rights_crit=crit.crit_id)
     left join criterium_param_entity param on (crit.citeriumparam=param.crit_param_id)
 where ent."user"=$user$  
     $if(first(groups))$ or ent."group" in ($groups:{grp| $grp$ };separator=","$ ) $endif$  
-     and uuid in ($uuids:{uuid|'$uuid$'};separator=","$)
+     and uuid in ($pids:{pid|'$pid$'};separator=","$)
      and "action"='$action$'
 >>
+
+findRightById() ::=<<
+select * from right_entity ent
+    left join rights_criterium_entity crit on (ent.rights_crit=crit.crit_id)
+    left join criterium_param_entity param on (crit.citeriumparam=param.crit_param_id)
+where ent.right_id=?  
+>>
+
 
 findUser() ::= <<
     select * from user_entity
@@ -47,4 +55,113 @@ findAllGroupsByUserId() ::=<<
 findCommonUsersGroup() ::=<<
     select * from group_entity 
     where gname='common_users'
+>>
+
+findAllCriteriumParams() ::=<<
+    select * from criterium_param_entity; 
+>>
+
+findCriteriumParamsById() ::=<<
+    select * from criterium_param_entity 
+    where crit_param_id=?; 
+>>
+
+findCriteriumById() ::=<<
+    select * from rights_criterium_entity crit 
+    left join criterium_param_entity param on (crit.citeriumparam=param.crit_param_id)
+    where crit.crit_id=?; 
+>>
+
+findGroupByGname() ::=<<
+    select * from group_entity 
+    where gname=?; 
+>>
+
+findGroupByLoginName() ::=<<
+    select * from user_entity 
+    where loggingname=?; 
+>>
+
+
+insertRightCriteriumParams(params) ::=<<
+    insert into criterium_param_entity(crit_param_id,short_desc,long_desc, vals) 
+    values(
+        nextval('crit_param_id_sequence'),
+        '$params.shortDescription$',
+        '$params.longDescription$',
+        '$params.objects:{object| $object$};separator=";"$'
+    )
+>>
+
+
+updateRightCriteriumParams(params) ::=<<
+    UPDATE criterium_param_entity
+        SET  vals='$params.objects;separator=";"$', long_desc='$params.longDescription$', short_desc='$params.shortDescription$'
+     WHERE crit_param_id=$params.id$;
+>>
+
+insertRightCriterium(criterium, priority) ::=<<
+    $if(criterium.criteriumParams)$ 
+        insert into rights_criterium_entity(crit_id,qname, fixed_priority,"type",citeriumparam)
+        values(nextval('crit_id_sequence'),
+            '$criterium.qName$',
+            $priority$,
+            1,
+            $criterium.criteriumParams.id$ )
+    $else$
+        insert into rights_criterium_entity(crit_id,qname,fixed_priority,"type")
+        values(nextval('crit_id_sequence'),
+            '$criterium.qName$',
+            $priority$,
+            1)
+    $endif$  
+>>
+
+
+
+updateRightCriterium(criterium,priority) ::=<<
+    UPDATE rights_criterium_entity
+        SET  qname='$criterium.qName$', fixed_priority=$priority$, 
+        citeriumparam=$if(criterium.criteriumParams)$ $criterium.criteriumParams.id$ $else$ NULL $endif$
+     WHERE crit_id=$criterium.id$;
+>>
+
+deleteRightCriterium() ::=<<
+    DELETE from rights_criterium_entity
+    where crit_id=?
+>>
+
+updateRight(right,association) ::=<<
+    UPDATE right_entity
+        SET uuid='$right.pid$', 
+            action='$right.action$', 
+            rights_crit=$if(right.criterium)$ $right.criterium.id$ $else$ NULL $endif$,
+            "$association$"=$if(right.user)$ $right.user.id$ $else$ NULL $endif$
+     WHERE right_id=$right.id$;
+>>
+
+
+insertRight(right,association) ::=<<
+
+    $if(right.criterium)$ 
+        insert into right_entity(right_id,uuid,action,rights_crit,"$association$") 
+        values(
+            nextval('right_id_sequence'),
+            '$right.pid$',
+            '$right.action$',
+            $right.criterium.id$,
+            $right.user.id$)
+    $else$
+        insert into right_entity(right_id,uuid,action,"$association$") 
+        values(
+            nextval('right_entity_id_sequence'),
+            '$right.pid$',
+            '$right.action$',
+            $right.user.id$)
+    $endif$  
+>>
+
+deleteRight() ::=<<
+    DELETE from right_entity
+    where right_id=?
 >>

@@ -16,19 +16,21 @@
  */
 package cz.incad.kramerius.security;
 
-public interface UserManager {
+public interface RightCriteriumParams {
 
-    public User validateUser(String loginName, String passwd);
+    public int getId();
     
-    public Group[] findGroups(int user_id);
+    public void setId(int id);
     
-    public User findUser(int user_id);
+    public Object[] getObjects();
     
-    public Group findGroup(int group_id);
+    public void setObjects(Object[] objs);
+
+    public String getLongDescription();
     
-    public Group findCommonUsersGroup();
+    public void setLongDescription(String longDesc);
     
-    public Group findGroupByName(String gname);
+    public String getShortDescription();
     
-    public User findUserByLoginName(String loginName);
+    public void setShortDescription(String desc);
 }

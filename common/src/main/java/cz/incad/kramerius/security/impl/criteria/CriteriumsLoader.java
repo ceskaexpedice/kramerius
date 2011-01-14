@@ -16,31 +16,26 @@
  */
 package cz.incad.kramerius.security.impl.criteria;
 
-import java.util.Calendar;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
-import cz.incad.kramerius.security.EvaluatingResult;
 import cz.incad.kramerius.security.RightCriterium;
-import cz.incad.kramerius.security.RightCriteriumException;
-import cz.incad.kramerius.security.RightCriteriumPriorityHint;
 
-public abstract class AbstractIPAddressFilter extends AbstractCriterium implements RightCriterium {
-
-    protected boolean matchIPAddresses(Object[] objs) {
-        for (Object pattern : objs) {
-            String remoteAddr = this.getEvaluateContext().getRemoteAddr();
-            String patternStr = pattern.toString();
-            boolean matched = remoteAddr.matches(patternStr);
-            if (matched) return true;
-        }
-        return false;
-    }
-
-
-    @Override
-    public boolean isParamsNecessary() {
-        return true;
-    }
-
-
+//TODO: ZMENIT
+public class CriteriumsLoader {
     
+    public static List<String> criteriumClasses() {
+        return Arrays.asList(MovingWall.class.getName(), StrictIPAddresFilter.class.getName(), DefaultIPAddressFilter.class.getName(), Abonents.class.getName(), PolicyFlag.class.getName());
+    }
+    
+    public static List<RightCriterium> criteriums() throws InstantiationException, IllegalAccessException, ClassNotFoundException {
+        List<String> clzz = criteriumClasses();
+        List<RightCriterium> crits = new ArrayList<RightCriterium>();
+        for (int i = 0; i < clzz.size(); i++) {
+            crits.add((RightCriterium) Class.forName(clzz.get(i)).newInstance());
+        }
+        return crits;
+    }
+
 }
