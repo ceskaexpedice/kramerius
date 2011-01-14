@@ -37,7 +37,7 @@
         <module>indexer</module>
         <module>static-export</module>
         <module>search</module>
-        <module>security</module>
+        <module>security-core</module>
     </modules>
 
     <build>
