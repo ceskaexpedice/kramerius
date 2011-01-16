@@ -28,7 +28,7 @@ public class JDBCTransactionTemplate {
     static java.util.logging.Logger LOGGER = java.util.logging.Logger.getLogger(JDBCTransactionTemplate.class.getName());
     
     private Connection connection;
-    private boolean closeConnectionFlag;
+    private boolean closeConnectionFlag = true;
     
     public JDBCTransactionTemplate(Connection con, boolean closeConnection) {
         this.connection = con;
