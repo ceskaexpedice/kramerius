@@ -177,8 +177,8 @@ public class ItemMenuViewObject {
         jsmethod(template, jsmethod);
         titleAndTooltip(template, key);
         levelAndModel(template);
-        template.setAttribute("datatype", "none");
-        template.setAttribute("value", "delete");
+        template.setAttribute("datatype", "_data_x_role");
+        template.setAttribute("value", "export");
         template.setAttribute("action", SecuredActions.READ.getFormalName());
         
         return template.toString();
@@ -232,7 +232,6 @@ public class ItemMenuViewObject {
         List<String> items = new ArrayList<String>();
         items.add(viewMetadataItem());
         items.add(persistentURL());
-        items.add(showRights());
 
         try {
             if (!bornDigital()) {
@@ -279,6 +278,8 @@ public class ItemMenuViewObject {
             items.add(exportDVD_PDF());
             items.add(generateDeepZoomTiles());
             items.add(deleteGenerateDeepZoomTiles());
+            items.add(showRights());
+
             if (!isPageModel()) {
                 items.add(editor());
             }
