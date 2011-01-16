@@ -23,9 +23,14 @@ var completeUrl = "terms.jsp?";
 var autoCompleteDiv = '#autocomplete';
 var cur;
 
+var resultClickFunctionName;
+
 function doAutocomplete(text, lookupField, key, queryField){
-    //autoCompleteDiv="#autocomplete";
-    if( key.keyCode >=16 && key.keyCode <= 19 ){
+    autoCompleteDiv="#autocomplete";
+    completeUrl = "terms.jsp?";
+    resultClickFunctionName = "resultClick";
+    
+	if( key.keyCode >=16 && key.keyCode <= 19 ){
         return;
     }
     //arrows
@@ -87,7 +92,7 @@ function ajax(text, lookupField){
 
 }
 function json(text, lookupField){
-    $.ajaxSetup({
+	$.ajaxSetup({
         cache: false,
         type: "POST"
     });
@@ -106,16 +111,19 @@ function parseData(data, lookupField, text){
         
         for(var i=0 ; i<data.terms[j].length ; i=i+2){
             outText+="<div title=\""+data.terms[j][i]+
-                "\" class=\"suggest\" onclick=\"resultClick('"+data.terms[j][i]+"','"+lookupField+"')\">" + data.terms[j][i] + " (" + data.terms[j][i+1] + ")</div>";
+                "\" class=\"suggest\" onclick=\""+resultClickFunctionName+"('"+data.terms[j][i]+"','"+lookupField+"')\">" + data.terms[j][i] + " (" + data.terms[j][i+1] + ")</div>";
         }
         
     }
     if(outText.length>0){
-        $(autoCompleteDiv).html("<div><img src=\"img/x.png\" align=\"right\"/><br/>" + outText + "</div>");
+
+    	$(autoCompleteDiv).html("<div><img src=\"img/x.png\" align=\"right\"/><br/>" + outText + "</div>");
         var y = $(text).offset().top + $(text).height();
         var x = $(text).offset().left;
         $(autoCompleteDiv).css("left", x);
         $(autoCompleteDiv).css("top", y);
+        
+        //$(autocompleteDiv).css("position","absolute");
         $(autoCompleteDiv).show();
         
     }else{

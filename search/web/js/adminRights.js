@@ -214,6 +214,22 @@ function saveChanges() {
 	});
 }
 
+/** volano pri zmene radiibuttonu - vybrano user */
+function callbackUserComboValueChanged(target) {
+	if ($('#userType').attr('checked')) {
+        $("#userautocomplete").hide();
+        $("#userId").val('');
+        typeOfRequest = "user";
+	}
+}
+/** volano pri zmene  radiobuttonu - vybrano group*/
+function callbackGroupComboValueChanged(target) {
+	if ($('#groupType').attr('checked')) {
+        $("#userautocomplete").hide();
+        $("#userId").val('');
+		typeOfRequest = "group";
+	}
+}
 
 /**
  * volano pri zmene stavu checkboxu
@@ -259,10 +275,7 @@ function callbackCriteriumParamsValueChanged(target) {
 }
 
 
-
-/**
- * volano pri zmene  kriteria
- */
+/** calback for change criterium */
 function callbackCriteriumValueChanged(target) {
 	var selectedValue = target.options[target.selectedIndex].value;
     var needParam = _rightData.needParamsMap[selectedValue];
@@ -277,9 +290,33 @@ function callbackCriteriumValueChanged(target) {
 }
 
 
-function userAutocomplete(userTextField, lookupField, key, queryField) {
-	alert("Volano jest..." );
+/** autocomplete for user */
+function autocompleteResult(value, lookupField) {
+	$("#userId").val(value);
 }
+var typeOfRequest="group";
+function doUserAutocomplete(userTextField, lookupField, key, queryField) {
+	autoCompleteDiv="#userautocomplete";
+    completeUrl = "rights?action=userjsautocomplete&autcompletetype="+typeOfRequest+"&";
+    resultClickFunctionName="autocompleteResult";
+    	//rights?field=user&t=common_usersaajffa
+    if( key.keyCode >=16 && key.keyCode <= 19 ){
+        return;
+    }
+    //arrows
+    if( key.keyCode >=37 && key.keyCode <= 40){
+        moveSelected(key.keyCode, queryField);
+        return;
+    }
+    if( key.keyCode == 13){
+    	autocompleteResult($("#userautocomplete .selected").text());
+        $("#userautocomplete").hide();
+    	return;
+    }
+    json(userTextField, lookupField, queryField);
+}
+/** ~end autocomplete for user */
+
 
 
 /** .. pravo pro globalni akce.. */
