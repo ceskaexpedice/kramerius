@@ -24,7 +24,11 @@ public interface UserManager {
     
     public User findUser(int user_id);
     
+    public User[] findUserByPrefix(String prefix);
+    
     public Group findGroup(int group_id);
+    
+    public Group[] findGroupByPrefix(String prefix);
     
     public Group findCommonUsersGroup();
     

@@ -20,13 +20,20 @@ import java.sql.SQLException;
 import java.util.List;
 
 public interface RightsManager {
-
+    
+    // najde prava pro uzivatele
     public Right[] findRights(String[] uuids, String action, User user);
-
+    // interpretuje prava
     public EvaluatingResult resolve(RightCriteriumContext ctx, String uuid, String[] path, String action, User user) throws RightCriteriumException;
 
-    // DAO methods - DAt to jinam !!
+    // najde prava pro skupinu
+    public Right[] findRightsForGroup(final String[] pids, final String action, final Group group);
+    // najde vsechna prava
+    public Right[] findAllRights(String[] uuids, String action);
 
+    
+    // DAO methods - DAt to jinam !!
+    // najde vsechny parametry 
     public RightCriteriumParams[] findAllParams();
 
     public RightCriteriumParams findParamById(int paramId);

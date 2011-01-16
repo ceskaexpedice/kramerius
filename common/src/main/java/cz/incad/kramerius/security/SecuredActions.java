@@ -52,9 +52,6 @@ public enum SecuredActions {
         return formalName;
     }
     
-    public String getName() {
-        return name();
-    }
     
     public static SecuredActions findByFormalName(String fname) {
         SecuredActions[] vals = values();
