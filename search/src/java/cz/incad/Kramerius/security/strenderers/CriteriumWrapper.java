@@ -36,19 +36,27 @@ public class CriteriumWrapper implements RightCriterium{
     }
 
     public int getId() {
-        return criterium.getId();
+        if (this.criterium != null) {
+            return criterium.getId();
+        } else return -1;
     }
 
     public String getQName() {
-        return criterium.getQName();
+        if (this.criterium != null) {
+            return criterium.getQName();
+        } else return null;
     }
 
     public void setId(int id) {
-        criterium.setId(id);
+        if (this.criterium != null) {
+            criterium.setId(id);
+        }
     }
 
     public RightCriteriumContext getEvaluateContext() {
-        return criterium.getEvaluateContext();
+        if (this.criterium != null) {
+            return criterium.getEvaluateContext();
+        } else return null;
     }
 
     public void setEvaluateContext(RightCriteriumContext ctx) {
@@ -56,11 +64,15 @@ public class CriteriumWrapper implements RightCriterium{
     }
 
     public EvaluatingResult evalute() throws RightCriteriumException {
-        return criterium.evalute();
+        if (this.criterium != null) {
+            return criterium.evalute();
+        } else return null;
     }
 
     public int getCalculatedPriority() {
-        return criterium.getCalculatedPriority();
+        if (this.criterium != null) {
+            return criterium.getCalculatedPriority();
+        } else return -1;
     }
 
     public void setCalculatedPriority(int priority) {
@@ -72,7 +84,11 @@ public class CriteriumWrapper implements RightCriterium{
     }
 
     public int getFixedPriority() {
-        return criterium.getFixedPriority();
+        if (this.criterium != null) {
+            return criterium.getFixedPriority();
+        } else {
+            return 0;
+        }
     }
 
     public String getFixedPriorityName() {
@@ -81,10 +97,15 @@ public class CriteriumWrapper implements RightCriterium{
     }
     
     public RightCriteriumPriorityHint getPriorityHint() {
-        return criterium.getPriorityHint();
+        if (this.criterium != null) {
+            return criterium.getPriorityHint();
+        } else {
+            return null;
+        }
     }
 
     public RightCriteriumParams getCriteriumParams() {
+        if (this.criterium == null) return null;
         return criterium.getCriteriumParams()!=null ? new CriteriumParamsWrapper(criterium.getCriteriumParams()):null;
     }
 
@@ -93,6 +114,7 @@ public class CriteriumWrapper implements RightCriterium{
     }
 
     public boolean isParamsNecessary() {
+        if (this.criterium == null) return false;
         return criterium.isParamsNecessary();
     }
     
@@ -103,8 +125,17 @@ public class CriteriumWrapper implements RightCriterium{
         return getQName();
     }
     
-    public static CriteriumWrapper[] wrapCriteriums(List<RightCriterium> criteriums) {
-        return wrapCriteriums(criteriums.toArray(new RightCriterium[criteriums.size()]));
+    public static CriteriumWrapper[] wrapCriteriums(List<RightCriterium> criteriums, boolean withNull) {
+        CriteriumWrapper[] crits = wrapCriteriums(criteriums.toArray(new RightCriterium[criteriums.size()]));
+        CriteriumWrapper[] retvalues = null;
+        if (withNull) {
+            retvalues = new CriteriumWrapper[crits.length +1];
+            System.arraycopy(crits, 0, retvalues, 1, crits.length);
+            retvalues[0] = new CriteriumWrapper(null);
+        } else {
+            retvalues = crits;
+        }
+        return retvalues;
     }
     
     public static CriteriumWrapper[] wrapCriteriums(RightCriterium...criteriums) {

@@ -16,16 +16,21 @@
  */
 package cz.incad.Kramerius.security.strenderers;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import cz.incad.kramerius.security.AbstractUser;
 import cz.incad.kramerius.security.Group;
 import cz.incad.kramerius.security.User;
 
 public class AbstractUserWrapper implements User, Group {
 
+    public static final AbstractUserWrapper ALL_USERS_ITEM = new AbstractUserWrapper(null);
+    
     private AbstractUser user;
-    
-    
-    
+
     public AbstractUserWrapper(AbstractUser user) {
         super();
         this.user = user;
@@ -63,6 +68,7 @@ public class AbstractUserWrapper implements User, Group {
     }
 
     public String getInputId() {
+        if (this == ALL_USERS_ITEM) return "all";
         if (this.user instanceof Group) {
             return getName();
         } else {
@@ -75,14 +81,40 @@ public class AbstractUserWrapper implements User, Group {
         return (this.user instanceof Group) ? "group":
             "user";
     }
+   
+    public String getOptionValue() {
+        //<option value="$k$" selected>$k$</option>
+        if (this == ALL_USERS_ITEM) return "Vsechni uzivatele";
+        if (this.user instanceof Group) {
+            return getName();
+        } else {
+            return getFirstName()+" "+getSurname();
+        }
+    }
     
     @Override
     public String toString() {
+        if (this == ALL_USERS_ITEM) return "all";
         if (this.user instanceof Group) {
             return getName() +" (Skupina) <img src=\"img/rights-group.png\"></img>";
         } else {
             return getFirstName()+" "+getSurname()+" (Uzivatel) <img src=\"img/rights-person.png\"></img>";
         }
+    }
+
+    public static List<AbstractUserWrapper> wrap(List<AbstractUser> users, boolean b) {
+        List<Integer> ids = new ArrayList<Integer>();
+        List<AbstractUserWrapper> wrappers = new ArrayList<AbstractUserWrapper>();
+        for (AbstractUser abstractUser : users) {
+            if (!ids.contains(abstractUser.getId())) {
+                ids.add(abstractUser.getId());
+                wrappers.add(new AbstractUserWrapper(abstractUser));
+            }
+        }
+        if (b) {
+            wrappers.add(0, ALL_USERS_ITEM);
+        }
+        return wrappers;
     }
     
 }
