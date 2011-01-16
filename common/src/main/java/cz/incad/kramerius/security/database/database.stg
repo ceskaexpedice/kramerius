@@ -12,8 +12,7 @@ where
   and ent.uuid=?
 >>
 
-// jak to udelat jinak ?? 
-
+/** hledani prav pro uzivatele */
 findRightFromWithGroups(user, groups, pids, action) ::=<<
 select * from right_entity ent
     left join rights_criterium_entity crit on (ent.rights_crit=crit.crit_id)
@@ -21,6 +20,36 @@ select * from right_entity ent
 where ent."user"=$user$  
     $if(first(groups))$ or ent."group" in ($groups:{grp| $grp$ };separator=","$ ) $endif$  
      and uuid in ($pids:{pid|'$pid$'};separator=","$)
+     and "action"='$action$'
+>>
+
+
+/**  hledani vsech prav */
+findAllRightsFromWithGroups(pids, action) ::=<<
+    select * from right_entity ent
+        left join rights_criterium_entity crit on (ent.rights_crit=crit.crit_id)
+        left join criterium_param_entity param on (crit.citeriumparam=param.crit_param_id)
+    where uuid in ($pids:{pid|'$pid$'};separator=","$)
+     and "action"='$action$'
+>>
+
+
+/** hledani prav pro skupinu */
+findRightsForGroup(groups, pids, action) ::=<<
+select * from right_entity ent
+    left join rights_criterium_entity crit on (ent.rights_crit=crit.crit_id)
+    left join criterium_param_entity param on (crit.citeriumparam=param.crit_param_id)
+where   
+    $if(first(groups))$ ent."group" in ($groups:{grp| $grp$ };separator=","$ ) $endif$  
+     and uuid in ($pids:{pid|'$pid$'};separator=","$)
+     and "action"='$action$'
+>>
+
+
+findRightsUsersForPids(pids, action) ::=<<
+select * from right_entity ent
+where   
+     uuid in ($pids:{pid|'$pid$'};separator=","$)
      and "action"='$action$'
 >>
 
@@ -45,6 +74,16 @@ findUserByUserId() ::= <<
 findGroupByGroupId() ::= <<
     select * from group_entity
     where group_id=? 
+>>
+
+findGroupByPrefix() ::=<<
+    select * from group_entity 
+    where gname ilike ?
+>>
+
+findUserByPrefix() ::=<<
+    select * from user_entity 
+    where loginname ilike ?
 >>
 
 findAllGroupsByUserId() ::=<<
@@ -77,7 +116,7 @@ findGroupByGname() ::=<<
     where gname=?; 
 >>
 
-findGroupByLoginName() ::=<<
+findUserByLoginName() ::=<<
     select * from user_entity 
     where loggingname=?; 
 >>
@@ -142,7 +181,6 @@ updateRight(right,association) ::=<<
 
 
 insertRight(right,association) ::=<<
-
     $if(right.criterium)$ 
         insert into right_entity(right_id,uuid,action,rights_crit,"$association$") 
         values(
@@ -154,7 +192,7 @@ insertRight(right,association) ::=<<
     $else$
         insert into right_entity(right_id,uuid,action,"$association$") 
         values(
-            nextval('right_entity_id_sequence'),
+            nextval('right_id_sequence'),
             '$right.pid$',
             '$right.action$',
             $right.user.id$)
@@ -165,3 +203,9 @@ deleteRight() ::=<<
     DELETE from right_entity
     where right_id=?
 >>
+
+
+
+
+
+
