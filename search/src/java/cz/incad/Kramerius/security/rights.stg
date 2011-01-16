@@ -6,26 +6,35 @@ CRITERUIM_NAMES ::=[
     "cz.incad.kramerius.security.impl.criteria.MovingWall":"Pohybliva Zed",
     "cz.incad.kramerius.security.impl.criteria.PolicyFlag":"Priznak (kramerius:policy)",
     "cz.incad.kramerius.security.impl.criteria.Abonents":"Predplatitele",
-     default:"null"
+     default:"Žádná podmínka"
 ]
 
 
 PRIORITY_VALS ::=[ "0":"" ]
 
 /** tabulka prav (cela) */
-rightsTable(rights, uuid, action) ::=<<
+rightsTable(rights, uuid, action,users) ::=<<
     
 <div id="rightsTableContent">    
-        <table>
+        <table width="100%">
             <tr>
-                <td>
+                <td width="20px">
                     <a href="javascript:newRight('$uuid$','$action.formalName$')" style="background:url('img/rights-add.png') no-repeat scroll; border-width:0px; display:block; height:18px; width:18px;">
                     </a>
                 </td>
-                <td>
+                <td width="20px">
                     <a href="javascript:refreshRightsData('$uuid$')" style="background:url('img/rights-refresh.png') no-repeat scroll; border-width:0px; display:block; height:18px; width:18px;">
                     </a>
                 </td>
+                <td width="100%"></td>
+                <!--
+                <td>
+                     <select id="usersFilter" name="users" size="1" width="100%">
+                        $first(users):{k|<option value="$k.inputId$" selected>$k.optionValue$</option> }$
+                        $rest(users):{k|<option value="$k.inputId$">$k.optionValue$</option> };separator="\n"$
+                    </select>
+                </td>
+                -->
             </tr>
         </div>
 
@@ -86,11 +95,11 @@ rightCriterium(rightCriterium) ::=<<
 
 
 /** dialog pro zalozeni nebo editaci prava */ 
-rightDialog(titles, objects, criteriumNames, criteriumParams, allParams, uuid,action) ::=<<
-<div id="rightDialogContent" style="border-left: 1px solid black; padding-left: 10px;"> 
+rightDialog(titles, objects, allCriteriums, criteriumParams, allParams, uuid,action) ::=<<
+<div id="rightDialogContent"> 
+
     <div>
          <h3> <label for="object">Pravo '$action.formalName$' pro objekt :</label> </h3> 
-         
           <p style="font-size:-2px;">
             $action.description$
          </p>
@@ -116,26 +125,39 @@ rightDialog(titles, objects, criteriumNames, criteriumParams, allParams, uuid,ac
                 <img src="img/rights-person.png" />
                 <input id="groupType" type="radio" name="abstractUser" value="Skupina" checked> Skupina </input>
                 <img src="img/rights-group.png" />
+                
             </td></tr>
+            
     
             <tr><td> 
                 <input id="userId" name="userName" 
-                size="10" type="text" style="width:100%;" value="common_users"
+                        size="10" type="text" 
+                        style="width:100%;" 
+                        value="common_users"
+                        onfocus="\$('#userautocomplete').hide();"
+                        onkeyup="doUserAutocomplete(this,'user',event,'query')"
                 />
+
+                <div id="userautocomplete" style="border-left:1px solid gray;
+                                                  border-right:1px solid gray; 
+                                                  border-bottom:1px solid gray; 
+                                                  border-top:1px solid dashed; 
+                                                    display:none; margin-top:5px;"></div>
+
              </td></tr>
     
             </table>
     
             <hr>
             <table width="100%">
-                <tr><td> <h3><label for="criterium">Dodatecna podminka:</label></td></h3></tr>
+                <tr><td> <h3><label for="criterium">Dodatečná podmínka:</label></td></h3></tr>
                 <tr><td>
                         <select id="criterium" name="criterium" size="1" width>
-                            $criteriumNames:{k|<option value="$k$">$CRITERUIM_NAMES.(k)$</option>};separator="\n"$
+                            $allCriteriums:{k|<option value="$k$">$CRITERUIM_NAMES.(k)$</option>};null="none",separator="\n"$
                     </select>
                 </td></tr>
     
-                <tr><td> <label for="checkParams">Asociovat parametry:</label>   <input id="checkParams" name="checkParams" type="checkbox" checked></td></tr>
+                <tr><td> <label for="checkParams">Asociovat parametry:</label>   <input id="checkParams" name="checkParams" type="checkbox"></td></tr>
                  <tr><td>   
                     <div id="rightParams">
                     
@@ -171,7 +193,10 @@ rightDialog(titles, objects, criteriumNames, criteriumParams, allParams, uuid,ac
             </table>
         </fieldset>
         </form>
+
+
 </div>
+
 >>
 
 /** .. globalni akce ..  */

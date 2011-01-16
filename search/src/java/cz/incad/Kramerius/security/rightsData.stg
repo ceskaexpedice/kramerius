@@ -1,6 +1,6 @@
 group rightData;
 
-
+/** formulare */
 newRightData_InitForm() ::=<<
     \$('input[name=checkParams]').change(function(e) {
         callbackCriteriumParamsCheckboxChanged(e.target);
@@ -13,6 +13,15 @@ newRightData_InitForm() ::=<<
     \$('select[name=criterium]').change(function(e) {
         callbackCriteriumValueChanged(e.target);
     });
+
+    \$('input[id=userType]').change(function(e) {
+        callbackUserComboValueChanged(e.target);
+    });
+
+    \$('input[id=groupType]').change(function(e) {
+        callbackGroupComboValueChanged(e.target);
+    });
+
 >>
 
 editRightData(right, criterium, criteriumParams,allParams, allCriteriums) ::=<<
@@ -43,6 +52,7 @@ newRightData(right, criterium, criteriumParams,allParams, allCriteriums) ::=<<
     $initValues(right=right, criterium=criterium,criteriumParams=criteriumParams)$
 }
 >>
+
 initValues(right, criterium, criteriumParams) ::=<<
     initvalues: {
     
@@ -87,4 +97,16 @@ initValues(right, criterium, criteriumParams) ::=<<
 >>
 
 
+userAutocomplete(type, users)::=<<
+{ "terms":["$type$",[   $users:{user| $({sec$type$})(au=user)$ }$ ]] }
+>>
 
+
+
+secgroup(au)::=<<
+    "$au.name$", "Skupina"
+>>
+
+secuser(au)::=<<
+   "$au.loginname$ ($au.firstName$ $au.surname$)", "Uzivatel"
+>>
