@@ -72,7 +72,7 @@ public class Lexer {
 			((ch >= 'a') && (ch<='z')))	{
 			this.consumeChar();
 			return new Token(TokenType.ALPHA, ""+(char)ch);
-		} else throw new LexerException("");
+		} else throw new LexerException(" unsupported token "+(char)ch);
 	}
 	
 	
@@ -146,6 +146,22 @@ public class Lexer {
 				this.matchChar('.');
 				return new Token(TokenType.DOT,".");
 			}
+            case ' ': {
+                this.matchChar(' ');
+                return new Token(TokenType.SPACE," ");
+            }
+            case '\t': {
+                this.matchChar('\t');
+                return new Token(TokenType.TAB,"\t");
+            }
+            case '\n': {
+                this.matchChar('\n');
+                return new Token(TokenType.NEWLINE,"\n");
+            }
+            case '@': {
+                this.matchChar('@');
+                return new Token(TokenType.AT,"@");
+            }
 			case '%': {
 				this.matchChar('%');
 				if (Character.isDigit(charLookAhead(2)) && hexDigitPostfix(charLookAhead(3))) {
@@ -156,6 +172,14 @@ public class Lexer {
 			case '_': {
 				this.matchChar('_');
 				return new Token(TokenType.UNDERSCOPE,"_");
+			}
+			case '(': {
+                this.matchChar('(');
+			    return new Token(TokenType.LPAREN,"(");
+			}
+			case (')') :{
+                this.matchChar(')');
+			    return new Token(TokenType.RPAREN,")");
 			}
 			default: {
 				if (Character.isDigit(ch)) {
