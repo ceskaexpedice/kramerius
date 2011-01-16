@@ -66,6 +66,66 @@ public class DatabaseRightsManager implements RightsManager {
     @Inject
     UserManager userManager;
 
+    
+    
+    @Override
+    public Right[] findAllRights(String[] pids, String action) {
+        StringTemplate template = SecurityDatabaseUtils.stGroup().getInstanceOf("findAllRightsFromWithGroups");
+        template.setAttribute("pids", pids);
+        template.setAttribute("action", action);
+
+        String sql = template.toString();
+
+        List<Right> rights = new JDBCQueryTemplate<Right>(this.provider.get()) {
+            @Override
+            public boolean handleRow(ResultSet rs, List<Right> returnsList) throws SQLException {
+                int userId = rs.getInt("user");
+                int groupId = rs.getInt("group");
+                AbstractUser dbUser = null;
+                if (userId > 0) {
+                    dbUser = userManager.findUser(userId);
+                } else {
+                    dbUser = userManager.findGroup(groupId);
+                }
+                returnsList.add(RightsDBUtils.createRight(rs, dbUser));
+                return true;
+            }
+        }.executeQuery(sql);
+        return ((rights != null) && (!rights.isEmpty())) ? (Right[]) rights.toArray(new Right[rights.size()]) : new Right[0];
+    }
+
+
+    public Right[] findRightsForGroup(final String[] pids, final String action, final Group group) {
+        for (int i = 0; i < pids.length; i++) {
+            if (!pids[i].startsWith("uuid:")) {
+                pids[i] = "uuid:" + pids[i];
+            }
+        }
+        StringTemplate template = SecurityDatabaseUtils.stGroup().getInstanceOf("findRightsForGroup");
+        template.setAttribute("pids", pids);
+        template.setAttribute("groups", new int[] {group.getId()});
+        template.setAttribute("action", action);
+
+        String sql = template.toString();
+
+        List<Right> rights = new JDBCQueryTemplate<Right>(this.provider.get()) {
+            @Override
+            public boolean handleRow(ResultSet rs, List<Right> returnsList) throws SQLException {
+                int userId = rs.getInt("user");
+                int groupId = rs.getInt("group");
+                AbstractUser dbUser = null;
+                if (userId > 0) {
+                    dbUser = userManager.findUser(userId);
+                } else {
+                    dbUser = userManager.findGroup(groupId);
+                }
+                returnsList.add(RightsDBUtils.createRight(rs, dbUser));
+                return true;
+            }
+        }.executeQuery(sql);
+        return ((rights != null) && (!rights.isEmpty())) ? (Right[]) rights.toArray(new Right[rights.size()]) : new Right[0];
+    }
+    
     @Override
     public Right[] findRights(final String[] pids, final String action, final User user) {
         Group[] grps = user.getGroups();
@@ -114,6 +174,9 @@ public class DatabaseRightsManager implements RightsManager {
         this.provider = provider;
     }
 
+    
+    
+
     @Override
     public EvaluatingResult resolve(RightCriteriumContext ctx, String uuid, String[] path, String action, User user) throws RightCriteriumException {
         List<String> pids = saturatePathAndCreatesPIDs(uuid, path);
@@ -150,6 +213,8 @@ public class DatabaseRightsManager implements RightsManager {
         }
         return uuids;
     }
+    
+    
 
     @Override
     public Right findRightById(int id) {
@@ -491,6 +556,8 @@ public class DatabaseRightsManager implements RightsManager {
         updateRightCriteriumParamsImpl(con, criteriumParams);
     }
 
+    
+    
     
 }
 

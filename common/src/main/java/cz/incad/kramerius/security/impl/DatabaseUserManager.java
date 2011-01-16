@@ -137,7 +137,7 @@ public class DatabaseUserManager implements UserManager{
 
     @Override
     public User findUserByLoginName(String loginName) {
-        String sql = SecurityDatabaseUtils.stGroup().getInstanceOf("findGroupByLoginName").toString();
+        String sql = SecurityDatabaseUtils.stGroup().getInstanceOf("findUserByLoginName").toString();
         List<User> users= new JDBCQueryTemplate<User>(this.provider.get()){
             @Override
             public boolean handleRow(ResultSet rs, List<User> returnsList) throws SQLException {
@@ -148,6 +148,35 @@ public class DatabaseUserManager implements UserManager{
         }.executeQuery(sql, loginName);
         return (users != null) && (!users.isEmpty()) ? users.get(0) : null;
     }
+
+    @Override
+    public User[] findUserByPrefix(String prefix) {
+        String sql = SecurityDatabaseUtils.stGroup().getInstanceOf("findUserByPrefix").toString();
+        List<User> users= new JDBCQueryTemplate<User>(this.provider.get()){
+            @Override
+            public boolean handleRow(ResultSet rs, List<User> returnsList) throws SQLException {
+                    User user = SecurityDBUtils.createUser(rs);
+                    returnsList.add(user);
+                    return true;
+            }
+        }.executeQuery(sql, prefix+"%");
+        return (User[]) users.toArray(new User[users.size()]);
+    }
+
+    @Override
+    public Group[] findGroupByPrefix(String prefix) {
+        String sql = SecurityDatabaseUtils.stGroup().getInstanceOf("findGroupByPrefix").toString();
+        List<Group> users= new JDBCQueryTemplate<Group>(this.provider.get()){
+            @Override
+            public boolean handleRow(ResultSet rs, List<Group> returnsList) throws SQLException {
+                    Group group = SecurityDBUtils.createGroup(rs);
+                    returnsList.add(group);
+                    return true;
+            }
+        }.executeQuery(sql, prefix+"%");
+        return (Group[]) users.toArray(new Group[users.size()]);
+    }
+    
     
     
 }
