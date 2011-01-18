@@ -37,7 +37,6 @@ public abstract class JNDIConnectionProvider implements Provider<Connection>{
 		try {
 			InitialContext ctx = new InitialContext();
 			DataSource ds = (DataSource) ctx.lookup(this.jndiLookupName);	
-			LOGGER.info(" << CONNECTION - open");
 			return ds.getConnection();
 		} catch (NamingException e) {
 			LOGGER.log(Level.SEVERE, e.getMessage(), e);
