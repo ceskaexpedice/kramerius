@@ -79,22 +79,7 @@ public class CriteriumWrapper implements RightCriterium{
         criterium.setCalculatedPriority(priority);
     }
 
-    public void setFixedPriority(int priority) {
-        criterium.setFixedPriority(priority);
-    }
 
-    public int getFixedPriority() {
-        if (this.criterium != null) {
-            return criterium.getFixedPriority();
-        } else {
-            return 0;
-        }
-    }
-
-    public String getFixedPriorityName() {
-        if (criterium.getFixedPriority() == 0) return "";
-        else return ""+criterium.getFixedPriority();
-    }
     
     public RightCriteriumPriorityHint getPriorityHint() {
         if (this.criterium != null) {

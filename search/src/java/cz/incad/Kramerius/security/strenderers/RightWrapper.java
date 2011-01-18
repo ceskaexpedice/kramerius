@@ -87,4 +87,19 @@ public class RightWrapper implements Right{
         throw new UnsupportedOperationException("this is unsupported!");
     }
     
+    
+    public int getFixedPriority() {
+        return this.right.getFixedPriority();
+    }
+    
+    @Override
+    public void setFixedPriority(int priority) {
+        this.right.setFixedPriority(priority);
+    }
+
+    public String getFixedPriorityName() {
+        if (right.getFixedPriority() == 0) return "";
+        else return ""+right.getFixedPriority();
+    }
+
 }

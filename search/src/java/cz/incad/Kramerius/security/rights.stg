@@ -26,15 +26,19 @@ rightsTable(rights, uuid, action,users) ::=<<
                     <a href="javascript:refreshRightsData('$uuid$')" style="background:url('img/rights-refresh.png') no-repeat scroll; border-width:0px; display:block; height:18px; width:18px;">
                     </a>
                 </td>
-                <td width="100%"></td>
-                <!--
+                <td width="40%"></td>
+                <td>
+                    <span><input type="radio" name="user" value="User">Uzivatel</input></span>
+                    <span><input type="radio" name="user" value="Group">Group</input></span>
+                    <span><input type="radio" name="user" value="Vse" >Vse</input></span>
+                </td>
+
                 <td>
                      <select id="usersFilter" name="users" size="1" width="100%">
                         $first(users):{k|<option value="$k.inputId$" selected>$k.optionValue$</option> }$
                         $rest(users):{k|<option value="$k.inputId$">$k.optionValue$</option> };separator="\n"$
                     </select>
                 </td>
-                -->
             </tr>
         </div>
 
@@ -46,8 +50,8 @@ rightsTable(rights, uuid, action,users) ::=<<
                 <td>Akce</td>
                 
                 <td>Uzivatel</td>
-                <td>Kriterium</td>
                 <td>Priorita</td>
+                <td>Kriterium</td>
                 <td>Parametry kriteria</td>
                 <td>Zmena</td>
             </tr>            
@@ -66,6 +70,14 @@ rightTableRow(index,right, action) ::=<<
         <td>$right.pid$</td>
         <td>$right.action$</td>
         <td>$right.user$</td>
+        <td>$if(PRIORITY_VALS.(right.fixedPriority))$
+            $(PRIORITY_VALS.(right.fixedPriority))$
+            $else$
+            $right.fixedPriority$
+            $endif$
+        </td>
+
+
         $if(right.criterium)$
             $rightCriterium(rightCriterium=right.criterium)$
         $else$
@@ -80,12 +92,6 @@ rightTableRow(index,right, action) ::=<<
 /** rendrovani kriteria */
 rightCriterium(rightCriterium) ::=<<
     <td>$CRITERUIM_NAMES.(rightCriterium.qName)$</td>
-    <td>$if(PRIORITY_VALS.(rightCriterium.fixedPriority))$
-        $(PRIORITY_VALS.(rightCriterium.fixedPriority))$
-        $else$
-        $rightCriterium.fixedPriority$
-        $endif$
-    </td>
     
     <td>$if(rightCriterium.criteriumParams)$
          $rightCriterium.criteriumParams$
@@ -112,15 +118,12 @@ rightDialog(titles, objects, allCriteriums, criteriumParams, allParams, uuid,act
                         $rest(objects):{k|<option value="$k$">$titles.(k)$</option>};separator="\n"$
                 </select>
             </div>
-
             <hr>
-    
             <table>
             <tr><td> 
                 <h3><label for="abstractUser">Uzivatel</label></h3></td></tr>
             
             <tr><td> 
-                
                 <input id="userType" type="radio" name="abstractUser" value="Uzivatel"> Uzivatel </input>
                 <img src="img/rights-person.png" />
                 <input id="groupType" type="radio" name="abstractUser" value="Skupina" checked> Skupina </input>

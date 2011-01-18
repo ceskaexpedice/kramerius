@@ -403,10 +403,6 @@ public class RightsServlet extends GuiceServlet {
         
         userjsautocomplete {
 
-            
-            
-
-            
 
             void doAction(ServletContext context, HttpServletRequest req, HttpServletResponse resp, Map parametersMap, FedoraAccess fedoraAccess, SolrAccess solrAccess, RightsManager rightsManager, UserManager userManager, User user, String[] path, String[] models, String action, ResourceBundle resourceBundle, StringTemplateGroup htmlForms, StringTemplateGroup jsData) {
                 try {
@@ -491,6 +487,8 @@ public class RightsServlet extends GuiceServlet {
     public static Right createRightFromPost(HttpServletRequest req, RightsManager rightsManager, UserManager userManager) throws InstantiationException, IllegalAccessException, ClassNotFoundException {
         String rightId = req.getParameter("rightId");
         String uuidHidden = req.getParameter("uuidHidden");
+        String priorityHidden = req.getParameter("priorityHidden");
+
         String formalActionHidden = req.getParameter("formalActionHidden");
         
         
@@ -510,6 +508,11 @@ public class RightsServlet extends GuiceServlet {
         } else {
             throw new IllegalArgumentException("cannot find action '"+formalActionHidden+"'");
         }
+        
+        if ((priorityHidden != null) && (!priorityHidden.equals(""))) {
+            right.setFixedPriority(Integer.parseInt(priorityHidden));
+        }
+        
         right.setAction(formalActionHidden);
         return right;
     }
@@ -537,7 +540,7 @@ public class RightsServlet extends GuiceServlet {
         }
 
         if (auser == null) {
-            throw new IllegalStateException("cannot find user by given id '"+userIdHidden+"'");
+            throw new IllegalStateException("cannot find user by given id '"+user+"'");
         }
         return auser;
     }
@@ -547,7 +550,6 @@ public class RightsServlet extends GuiceServlet {
     public static RightCriterium criteriumFromPost(RightsManager rightsManager, HttpServletRequest req, RightCriteriumParams params) throws InstantiationException, IllegalAccessException, ClassNotFoundException {
         String rightCriteriumId = req.getParameter("rightCriteriumId");
         String criteriumHidden = req.getParameter("criteriumHidden");
-        String priorityHidden = req.getParameter("priorityHidden");
 
         RightCriterium rightCriterium = null;
         if ((rightCriteriumId != null) && (!rightCriteriumId.equals("")) && (Integer.parseInt(rightCriteriumId) > 0)) {
@@ -563,9 +565,6 @@ public class RightsServlet extends GuiceServlet {
         }
         
         if (rightCriterium != null) {
-            if ((priorityHidden != null) && (!priorityHidden.equals(""))) {
-                rightCriterium.setFixedPriority(Integer.parseInt(priorityHidden));
-            }
             rightCriterium.setCriteriumParams(params);
         }
         return rightCriterium;
@@ -581,7 +580,7 @@ public class RightsServlet extends GuiceServlet {
         String paramsLongDescHidden = req.getParameter("paramsLongDescriptionHidden");
 
         RightCriteriumParams params = null;
-        if ((critParamId != null) && (!critParamId.equals("")) && (Integer.parseInt(critParamId) > 0)) {
+        if ((critParamId != null) && (!critParamId.equals("")) && (Integer.parseInt(critParamId) > 0) && ("true".equals(paramsAsociatedHidden))) {
             params = rightsManager.findParamById(Integer.parseInt(critParamId));
         } else {
             if ("true".equals(paramsAsociatedHidden)) {
