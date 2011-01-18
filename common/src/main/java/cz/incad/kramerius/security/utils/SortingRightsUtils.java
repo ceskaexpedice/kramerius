@@ -49,10 +49,10 @@ public class SortingRightsUtils {
         // vyzobani pravidel s pevne nadefinovanou prioritou
         for (Iterator iterator = processing.iterator(); iterator.hasNext();) {
             Right right = (Right) iterator.next();
-            if (right.getCriterium().getFixedPriority() < 0) {
+            if (right.getFixedPriority() < 0) {
                 negativeFixedPriorty.add(right);
                 iterator.remove();
-            } else if (right.getCriterium().getFixedPriority() > 0) {
+            } else if (right.getFixedPriority() > 0) {
                 positiveFixedPriority.add(right);
                 iterator.remove();
             } 
@@ -118,8 +118,8 @@ public class SortingRightsUtils {
         Collections.sort(list,  new Comparator<Right>() {
             @Override
             public int compare(Right o1, Right o2) {
-                int thisVal = o1.getCriterium().getFixedPriority();
-                int anotherVal = o2.getCriterium().getFixedPriority();
+                int thisVal = o1.getFixedPriority();
+                int anotherVal = o2.getFixedPriority();
                 return (thisVal<anotherVal ? -1 : (thisVal==anotherVal ? 0 : 1));
             }
         });

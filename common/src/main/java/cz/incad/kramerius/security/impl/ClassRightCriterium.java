@@ -62,7 +62,6 @@ public class ClassRightCriterium implements RightCriterium {
             crit.setCriteriumParams(this.getCriteriumParams());
             crit.setEvaluateContext(getEvaluateContext());
 
-            crit.setFixedPriority(this.fixedPriority);
             crit.setCalculatedPriority(this.calculatedPriority);
             crit.setCriteriumParams(getCriteriumParams());
             
@@ -85,16 +84,6 @@ public class ClassRightCriterium implements RightCriterium {
     @Override
     public void setCalculatedPriority(int priority) {
         this.calculatedPriority = priority;
-    }
-
-    @Override
-    public void setFixedPriority(int priority) {
-        this.fixedPriority = priority;
-    }
-
-    @Override
-    public int getFixedPriority() {
-        return this.fixedPriority;
     }
 
     @Override

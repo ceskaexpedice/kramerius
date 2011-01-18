@@ -33,13 +33,18 @@ public class RightsDBUtils {
         int rightId = rs.getInt("right_id");
         String uuidVal = rs.getString("uuid");
         String actionVal = rs.getString("action");
+        int fixedPriority = rs.getInt("fixed_priority");
+
         RightCriterium crit = RightsDBUtils.createCriterium(rs);
+        Right right = null;
         if (crit != null) {
-            return new RightImpl(rightId, crit, uuidVal, actionVal, auser);
+            right = new RightImpl(rightId, crit, uuidVal, actionVal, auser);
+            right.setFixedPriority(fixedPriority);
         } else {
-            return new RightImpl(rightId, null, uuidVal, actionVal, auser);
+            right = new RightImpl(rightId, null, uuidVal, actionVal, auser);
+            right.setFixedPriority(fixedPriority);
         }
-        
+        return right;
     }
     
     public static RightCriterium createCriterium(ResultSet rs) throws SQLException {
@@ -49,16 +54,12 @@ public class RightsDBUtils {
             String shortDesc = rs.getString("short_desc");
             String longDesc = rs.getString("long_desc");
             int critParamId = rs.getInt("crit_param_id");
-            int fixedPriority = rs.getInt("fixed_priority");
             String vals = rs.getString("vals");
             int type = rs.getInt("type");
             RightCriterium crit = null;
             if (critParamId > 0) {
                 Object[] objs = valsFromString(vals);
                 crit = CriteriumType.findByValue(type).createCriterium(criteriumId, critParamId, qname, shortDesc, longDesc, objs);
-                if (fixedPriority != 0) {
-                    crit.setFixedPriority(fixedPriority);
-                }
             } else {
                 crit = CriteriumType.findByValue(type).createCriteriumWithoutParams(criteriumId,  qname);
             }

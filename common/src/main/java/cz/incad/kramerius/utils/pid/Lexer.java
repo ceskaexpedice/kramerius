@@ -68,11 +68,8 @@ public class Lexer {
 
 	protected Token matchALPHA() throws LexerException {
 		int ch = this.buffer.la(1);
-		if (((ch>='A') && (ch<='Z')) || 
-			((ch >= 'a') && (ch<='z')))	{
-			this.consumeChar();
-			return new Token(TokenType.ALPHA, ""+(char)ch);
-		} else throw new LexerException(" unsupported token "+(char)ch);
+        this.consumeChar();
+        return new Token(TokenType.ALPHA, ""+(char)ch);
 	}
 	
 	

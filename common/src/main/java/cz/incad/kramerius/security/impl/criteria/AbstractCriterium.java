@@ -50,15 +50,6 @@ public abstract class AbstractCriterium implements RightCriterium {
         this.calculatedPriority = priority;
     }
 
-    @Override
-    public void setFixedPriority(int priority) {
-        this.fixedPriority = priority;
-    } 
-
-    @Override
-    public int getFixedPriority() {
-        return this.fixedPriority;
-    }
 
     @Override
     public RightCriteriumParams getCriteriumParams() {

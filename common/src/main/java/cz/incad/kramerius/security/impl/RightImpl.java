@@ -26,6 +26,7 @@ import cz.incad.kramerius.security.EvaluatingResult;
 public class RightImpl implements Right {
     
     private int rightId;
+    private int fixedPriority;
     private RightCriterium crit;
     private String uuid;
     private String action;
@@ -112,6 +113,20 @@ public class RightImpl implements Right {
         StringBuffer buffer = new StringBuffer();
         buffer.append("["+this.uuid+"] "+" ["+this.action+"] "+(this.crit!=null?this.crit.toString():""));
         return buffer.toString();
+    }
+
+
+
+    @Override
+    public void setFixedPriority(int priority) {
+        this.fixedPriority = priority;
+    }
+
+
+
+    @Override
+    public int getFixedPriority() {
+        return this.fixedPriority;
     }
 }
 

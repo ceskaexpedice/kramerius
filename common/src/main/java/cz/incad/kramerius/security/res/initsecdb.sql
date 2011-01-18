@@ -61,7 +61,6 @@ CREATE TABLE RIGHTS_CRITERIUM_ENTITY (
    CRIT_ID INT NOT NULL,
    UPDATE_TIMESTAMP TIMESTAMP,
    QNAME VARCHAR(255) NOT NULL,
-   FIXED_PRIORITY INT,
    citeriumParam INT, 
    TYPE INT, PRIMARY KEY (CRIT_ID));
 
@@ -71,6 +70,7 @@ CREATE TABLE RIGHT_ENTITY (
    UPDATE_TIMESTAMP TIMESTAMP,
    UUID VARCHAR(255) NOT NULL,
    ACTION VARCHAR(255) NOT NULL,
+   FIXED_PRIORITY INT,
    RIGHTS_CRIT INT,
    "user" INT,
    "group" INT, PRIMARY KEY (RIGHT_ID));
@@ -111,6 +111,8 @@ join user_entity ue on (ue.user_id=guass.user_id);
 
 
 
+
+
 -- skupina
 insert into group_entity(group_id,gname) 
 values(nextval('group_id_sequence'),'common_users'); 
@@ -119,12 +121,86 @@ values(nextval('group_id_sequence'),'common_users');
 insert into group_entity(group_id,gname) 
 values(nextval('group_id_sequence'),'knav_users'); 
 
+-- skupina k4 admins
+insert into group_entity(group_id,gname) 
+values(nextval('group_id_sequence'),'k4_admins'); 
+
+
 -- jeden uzivatel
 insert into user_entity (user_id,"name", surname,loginname,pswd)
 values(nextval('user_id_sequence'), 'Josef','Vomacka','josef.vomacka@mzz.cz','h5rrar');
 
--- asociace (uzviatel, skupina)
+insert into user_entity (user_id,"name", surname,loginname,pswd)
+values(nextval('user_id_sequence'), 'Pavel','Stastny','pavels@incad.cz','h5rrar');
+
+
+-- asociace (uzvivatel, skupina)
 -- -- pavels = knav users
 insert into group_user_assoc(group_user_assoc_id, user_id, group_id)
 values(nextval('group_user_assoc_id_sequence'),1,2);
+
+
+-- insert into params
+-- localhosts
+insert into CRITERIUM_PARAM_ENTITY (CRIT_PARAM_ID, VALS, LONG_DESC, SHORT_DESC) 
+VALUES(nextval('CRIT_PARAM_ID_SEQUENCE'), '127.*;localhost;0.*', 'Locahosts','Localhosts');
+
+-- prirazeni policy kriteria 
+insert into RIGHTS_CRITERIUM_ENTITY(CRIT_ID, QNAME, "type") 
+VALUES(nextval('CRIT_ID_SEQUENCE'), 'cz.incad.kramerius.security.impl.criteria.PolicyFlag', 1);
+
+-- prirazeni default ip filtru
+insert into RIGHTS_CRITERIUM_ENTITY(CRIT_ID, QNAME,citeriumParam, "type") 
+VALUES(nextval('CRIT_ID_SEQUENCE'), 'cz.incad.kramerius.security.impl.criteria.DefaultIPAddressFilter',1, 1);
+
+
+-- pravo pro policy flag
+insert into RIGHT_ENTITY(RIGHT_ID, UUID,ACTION, RIGHTS_CRIT,"group") 
+VALUES(nextval('RIGHT_ID_SEQUENCE '), 'uuid:1','read', 1,1);
+
+-- pravo pro benevoletni ip filter
+insert into RIGHT_ENTITY(RIGHT_ID, UUID,ACTION, RIGHTS_CRIT,"group") 
+VALUES(nextval('RIGHT_ID_SEQUENCE '), 'uuid:1','read', 2,1);
+
+
+-- administratorske akce
+insert into RIGHT_ENTITY(RIGHT_ID, UUID,ACTION, "group") 
+VALUES(nextval('RIGHT_ID_SEQUENCE '), 'uuid:1','import',3);
+
+insert into RIGHT_ENTITY(RIGHT_ID, UUID,ACTION,"group") 
+VALUES(nextval('RIGHT_ID_SEQUENCE '), 'uuid:1','convert',3);
+
+insert into RIGHT_ENTITY(RIGHT_ID, UUID,ACTION, "group") 
+VALUES(nextval('RIGHT_ID_SEQUENCE '), 'uuid:1','replicationrights', 3);
+
+insert into RIGHT_ENTITY(RIGHT_ID, UUID,ACTION, "group") 
+VALUES(nextval('RIGHT_ID_SEQUENCE '), 'uuid:1','enumerator',3);
+
+insert into RIGHT_ENTITY(RIGHT_ID, UUID,ACTION, "group") 
+VALUES(nextval('RIGHT_ID_SEQUENCE '), 'uuid:1','reindex',3);
+
+insert into RIGHT_ENTITY(RIGHT_ID, UUID,ACTION, "group") 
+VALUES(nextval('RIGHT_ID_SEQUENCE '), 'uuid:1','replikator_periodicals',3);
+
+insert into RIGHT_ENTITY(RIGHT_ID, UUID,ACTION, "group") 
+VALUES(nextval('RIGHT_ID_SEQUENCE '), 'uuid:1','replikator_monographs',3);
+
+insert into RIGHT_ENTITY(RIGHT_ID, UUID,ACTION, "group") 
+VALUES(nextval('RIGHT_ID_SEQUENCE '), 'uuid:1','replikator_monographs',3);
+
+insert into RIGHT_ENTITY(RIGHT_ID, UUID,ACTION, "group") 
+VALUES(nextval('RIGHT_ID_SEQUENCE '), 'uuid:1','delete',3);
+
+insert into RIGHT_ENTITY(RIGHT_ID, UUID,ACTION, "group") 
+VALUES(nextval('RIGHT_ID_SEQUENCE '), 'uuid:1','export',3);
+
+insert into RIGHT_ENTITY(RIGHT_ID, UUID,ACTION, "group") 
+VALUES(nextval('RIGHT_ID_SEQUENCE '), 'uuid:1','setprivate',3);
+
+insert into RIGHT_ENTITY(RIGHT_ID, UUID,ACTION, "group") 
+VALUES(nextval('RIGHT_ID_SEQUENCE '), 'uuid:1','setpublic',3);
+
+insert into RIGHT_ENTITY(RIGHT_ID, UUID,ACTION, "group") 
+VALUES(nextval('RIGHT_ID_SEQUENCE '), 'uuid:1','manage_lr_process',3);
+
 

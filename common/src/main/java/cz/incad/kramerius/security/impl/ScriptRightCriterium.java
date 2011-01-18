@@ -79,17 +79,6 @@ class ScriptRightCriterium implements RightCriterium {
         
     }
 
-    @Override
-    public void setFixedPriority(int priority) {
-        // TODO Auto-generated method stub
-        
-    }
-
-    @Override
-    public int getFixedPriority() {
-        // TODO Auto-generated method stub
-        return 0;
-    }
 
     @Override
     public RightCriteriumPriorityHint getPriorityHint() {

@@ -76,4 +76,10 @@ public interface Right {
      * @throws RightCriteriumException
      */
     public EvaluatingResult evaluate(RightCriteriumContext ctx) throws RightCriteriumException;
+    
+    
+    public void setFixedPriority(int priority);
+    
+    public int getFixedPriority();
+
 }

@@ -58,9 +58,7 @@ public interface RightCriterium {
     
     public void setCalculatedPriority(int priority);
     
-    public void setFixedPriority(int priority);
     
-    public int getFixedPriority();
     
     public RightCriteriumPriorityHint getPriorityHint();
     

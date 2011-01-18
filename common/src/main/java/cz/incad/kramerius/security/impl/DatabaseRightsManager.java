@@ -22,7 +22,9 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.logging.Level;
 
 import org.antlr.stringtemplate.StringTemplate;
@@ -48,6 +50,7 @@ import cz.incad.kramerius.security.RightsManager;
 import cz.incad.kramerius.security.UserManager;
 import cz.incad.kramerius.security.database.SecurityDatabaseUtils;
 import cz.incad.kramerius.security.utils.RightsDBUtils;
+import cz.incad.kramerius.security.utils.SecurityDBUtils;
 import cz.incad.kramerius.security.utils.SortingRightsUtils;
 import cz.incad.kramerius.utils.database.JDBCCommand;
 import cz.incad.kramerius.utils.database.JDBCQueryTemplate;
@@ -149,16 +152,22 @@ public class DatabaseRightsManager implements RightsManager {
         String sql = template.toString();
 
         List<Right> rights = new JDBCQueryTemplate<Right>(this.provider.get()) {
+            
+            
+            
             @Override
             public boolean handleRow(ResultSet rs, List<Right> returnsList) throws SQLException {
                 int userId = rs.getInt("user");
                 int groupId = rs.getInt("group");
+
                 AbstractUser dbUser = null;
+                LOGGER.fine("finding user ");
                 if (userId > 0) {
-                    dbUser = userManager.findUser(userId);
+                    dbUser = SecurityDBUtils.createUser(rs);
                 } else {
-                    dbUser = userManager.findGroup(groupId);
+                    dbUser = SecurityDBUtils.createUser(rs);
                 }
+                
                 returnsList.add(RightsDBUtils.createRight(rs, dbUser));
                 return true;
             }
@@ -393,6 +402,7 @@ public class DatabaseRightsManager implements RightsManager {
         StringTemplate template = SecurityDatabaseUtils.stGroup().getInstanceOf("updateRight");
         template.setAttribute("right", right);
         template.setAttribute("association", right.getUser() instanceof Group ? "group" : "user");
+        template.setAttribute("priority", right.getFixedPriority() == 0 ? "NULL" : "" + right.getFixedPriority());
         JDBCUpdateTemplate jdbcTemplate = new JDBCUpdateTemplate(con, false);
         String sql = template.toString();
         LOGGER.info(sql);
@@ -438,7 +448,9 @@ public class DatabaseRightsManager implements RightsManager {
         }, new JDBCCommand() {
             @Override
             public Object executeJDBCCommand() throws SQLException {
-                deleteRightCriteriumImpl(con, right.getCriterium());
+                if (right.getCriterium() != null) {
+                    deleteRightCriteriumImpl(con, right.getCriterium());
+                }
                 return -1;
             }
         });
@@ -463,7 +475,6 @@ public class DatabaseRightsManager implements RightsManager {
     public void updateRightCriteriumImpl(Connection con, RightCriterium criterium) throws SQLException {
         StringTemplate template = SecurityDatabaseUtils.stGroup().getInstanceOf("updateRightCriterium");
         template.setAttribute("criterium", criterium);
-        template.setAttribute("priority", criterium.getFixedPriority() == 0 ? "NULL" : "" + criterium.getFixedPriority());
         JDBCUpdateTemplate jdbcTemplate = new JDBCUpdateTemplate(con, false);
         String sql = template.toString();
         LOGGER.info(sql);
@@ -484,6 +495,7 @@ public class DatabaseRightsManager implements RightsManager {
         StringTemplate template = SecurityDatabaseUtils.stGroup().getInstanceOf("insertRight");
         template.setAttribute("association", right.getUser() instanceof Group ? "group" : "user");
         template.setAttribute("right", right);
+        template.setAttribute("priority", right.getFixedPriority() == 0 ? "NULL" : "" + right.getFixedPriority());
         JDBCUpdateTemplate jdbcTemplate = new JDBCUpdateTemplate(con, false);
         String sql = template.toString();
         LOGGER.info(sql);
@@ -522,7 +534,6 @@ public class DatabaseRightsManager implements RightsManager {
     public int insertRightCriteriumImpl(Connection con, RightCriterium criterium) throws SQLException {
         StringTemplate template = SecurityDatabaseUtils.stGroup().getInstanceOf("insertRightCriterium");
         template.setAttribute("criterium", criterium);
-        template.setAttribute("priority", criterium.getFixedPriority() == 0 ? "NULL" : "" + criterium.getFixedPriority());
         JDBCUpdateTemplate jdbcTemplate = new JDBCUpdateTemplate(con, false);
         String sql = template.toString();
         LOGGER.info(sql);

@@ -17,8 +17,12 @@ findRightFromWithGroups(user, groups, pids, action) ::=<<
 select * from right_entity ent
     left join rights_criterium_entity crit on (ent.rights_crit=crit.crit_id)
     left join criterium_param_entity param on (crit.citeriumparam=param.crit_param_id)
-where ent."user"=$user$  
-    $if(first(groups))$ or ent."group" in ($groups:{grp| $grp$ };separator=","$ ) $endif$  
+
+    left join  user_entity users on  (ent.user = users.user_id)
+    left join  group_entity groups on  (ent.group = groups.group_id)
+
+where (ent."user"=$user$  
+    $if(first(groups))$ or ent."group" in ($groups:{grp| $grp$ };separator=","$ ) $endif$ )  
      and uuid in ($pids:{pid|'$pid$'};separator=","$)
      and "action"='$action$'
 >>
@@ -29,6 +33,10 @@ findAllRightsFromWithGroups(pids, action) ::=<<
     select * from right_entity ent
         left join rights_criterium_entity crit on (ent.rights_crit=crit.crit_id)
         left join criterium_param_entity param on (crit.citeriumparam=param.crit_param_id)
+
+    left join  user_entity users on  (ent.user = users.user_id)
+    left join  group_entity groups on  (ent.group = groups.group_id)
+
     where uuid in ($pids:{pid|'$pid$'};separator=","$)
      and "action"='$action$'
 >>
@@ -39,6 +47,10 @@ findRightsForGroup(groups, pids, action) ::=<<
 select * from right_entity ent
     left join rights_criterium_entity crit on (ent.rights_crit=crit.crit_id)
     left join criterium_param_entity param on (crit.citeriumparam=param.crit_param_id)
+    
+        left join  user_entity users on  (ent.user = users.user_id)
+    left join  group_entity groups on  (ent.group = groups.group_id)
+    
 where   
     $if(first(groups))$ ent."group" in ($groups:{grp| $grp$ };separator=","$ ) $endif$  
      and uuid in ($pids:{pid|'$pid$'};separator=","$)
@@ -118,7 +130,7 @@ findGroupByGname() ::=<<
 
 findUserByLoginName() ::=<<
     select * from user_entity 
-    where loggingname=?; 
+    where loginname=?; 
 >>
 
 
@@ -139,28 +151,26 @@ updateRightCriteriumParams(params) ::=<<
      WHERE crit_param_id=$params.id$;
 >>
 
-insertRightCriterium(criterium, priority) ::=<<
+insertRightCriterium(criterium) ::=<<
     $if(criterium.criteriumParams)$ 
-        insert into rights_criterium_entity(crit_id,qname, fixed_priority,"type",citeriumparam)
+        insert into rights_criterium_entity(crit_id,qname, "type",citeriumparam)
         values(nextval('crit_id_sequence'),
             '$criterium.qName$',
-            $priority$,
             1,
             $criterium.criteriumParams.id$ )
     $else$
-        insert into rights_criterium_entity(crit_id,qname,fixed_priority,"type")
+        insert into rights_criterium_entity(crit_id,qname,"type")
         values(nextval('crit_id_sequence'),
             '$criterium.qName$',
-            $priority$,
             1)
     $endif$  
 >>
 
 
 
-updateRightCriterium(criterium,priority) ::=<<
+updateRightCriterium(criterium) ::=<<
     UPDATE rights_criterium_entity
-        SET  qname='$criterium.qName$', fixed_priority=$priority$, 
+        SET  qname='$criterium.qName$', 
         citeriumparam=$if(criterium.criteriumParams)$ $criterium.criteriumParams.id$ $else$ NULL $endif$
      WHERE crit_id=$criterium.id$;
 >>
@@ -170,32 +180,37 @@ deleteRightCriterium() ::=<<
     where crit_id=?
 >>
 
-updateRight(right,association) ::=<<
+updateRight(right,association, priority) ::=<<
     UPDATE right_entity
         SET uuid='$right.pid$', 
             action='$right.action$', 
+            fixed_priority=$priority$,
             rights_crit=$if(right.criterium)$ $right.criterium.id$ $else$ NULL $endif$,
             "$association$"=$if(right.user)$ $right.user.id$ $else$ NULL $endif$
      WHERE right_id=$right.id$;
 >>
 
 
-insertRight(right,association) ::=<<
+insertRight(right,association, priority) ::=<<
     $if(right.criterium)$ 
-        insert into right_entity(right_id,uuid,action,rights_crit,"$association$") 
+        insert into right_entity(right_id,uuid,action,rights_crit,"$association$", fixed_priority) 
         values(
             nextval('right_id_sequence'),
             '$right.pid$',
             '$right.action$',
             $right.criterium.id$,
-            $right.user.id$)
+            $right.user.id$,
+            $priority$
+            )
     $else$
-        insert into right_entity(right_id,uuid,action,"$association$") 
+        insert into right_entity(right_id,uuid,action,"$association$", fixed_priority) 
         values(
             nextval('right_id_sequence'),
             '$right.pid$',
             '$right.action$',
-            $right.user.id$)
+            $right.user.id$,
+            $priority$
+            )
     $endif$  
 >>
 
