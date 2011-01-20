@@ -53,9 +53,10 @@ public class RightsLoaderServlet extends ApplicationLoaderServlet {
 			struct = (Structure) Application.get();
 			System.out.println("ApplicationLoader 2");
 
-			userArr = new UserArrangement(struct, struct.user);
 			
 			groupArr = new GroupArrangement(struct, struct.group);
+			userArr = new UserArrangement(struct, struct.user, groupArr );
+
 			groupUserAssocArr = new UserGroupAssoc(struct, struct.groupUserAssoction, userArr, groupArr);
 			
 			

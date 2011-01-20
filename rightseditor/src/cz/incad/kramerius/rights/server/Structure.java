@@ -17,14 +17,26 @@ public class Structure extends Application {
         public final Property SURNAME;
         public final Property LOGINNAME;
         public final Property PASSWORD;
+
+        public final Property EMAIL;
+        public final Property ORGANISATION;
+
+		public  Reference PERSONAL_ADMIN;
+
+		// pomocna asociace uzivatel -> skupina
+        public Collection ASSOC_FOR_USRGRP;
+        public Reference ASSOC_FOR_GRPUSR;
         
         public UserEntity() {
             super("Users_table", "USER_ENTITY", "USER_ID", Structure.this);
             NAME= addProperty("NAME", PropertyType.STRING, 255, true);
             SURNAME = addProperty("SURNAME", PropertyType.STRING, 255, true);
             LOGINNAME= addProperty("LOGINNAME", PropertyType.STRING, 255, true);
-            PASSWORD= addProperty("PSWD", PropertyType.STRING, 255, true);
-            
+            PASSWORD= addProperty("PSWD", PropertyType.STRING, 255, false);
+
+            EMAIL= addProperty("EMAIL", PropertyType.STRING, 255, false);
+            ORGANISATION= addProperty("ORGANISATION", PropertyType.STRING, 255, false);
+
             addIndex("UNAME_IDX", false, NAME);
             addIndex("SURNAME_IDX", false, SURNAME);
             addIndex("LOGINNAME_IDX", false, LOGINNAME);
@@ -36,8 +48,11 @@ public class Structure extends Application {
 	public class GroupEntity extends Entity {
 
 		public final Property GNAME;
-		//public Collection USERS;
-		
+
+		// pomocna asociace uzivatel -> skupina
+        public Reference ASSOC_FOR_USRGRP;
+        public Collection ASSOC_FOR_GRPUSR;
+
         public GroupEntity() {
             super("Groups_table", "GROUP_ENTITY", "GROUP_ID", Structure.this);
             GNAME= addProperty("GNAME", PropertyType.STRING, 255, true);
@@ -95,7 +110,7 @@ public class Structure extends Application {
 		
         public RightCriteriumEntity() {
             super("Rights_criterium_table", "RIGHTS_CRITERIUM_ENTITY", "CRIT_ID", Structure.this);
-            TYPE = addProperty("FIXED_PRIORITY", PropertyType.INTEGER,0.0,false);
+            TYPE = addProperty("TYPE", PropertyType.INTEGER,0.0,false);
 
     		QNAME= addProperty("QNAME", PropertyType.STRING, 255, true);
             QNAME.setListValues(
@@ -135,5 +150,17 @@ public class Structure extends Application {
 
 //    	group.USERS = groupUserAssoction.addReverseCollection("USERS", groupUserAssoction, groupUserAssoction.USERS);
 //    	user.GROUPS = groupUserAssoction.addReverseCollection("GROUPS", groupUserAssoction, groupUserAssoction.GROUP);
+
+        user.PERSONAL_ADMIN=user.addReference(group, "PERSONAL_ADMIN_ID");
+        
+        // sloupce pro reference 
+        group.ASSOC_FOR_USRGRP = group.addReference(user, "ASSOC_FOR_USRGRP");
+        user.ASSOC_FOR_USRGRP = user.addReverseCollection("ASSOC_FOR_USRGRP", group, group.ASSOC_FOR_USRGRP);
+        
+        user.ASSOC_FOR_GRPUSR = user.addReference(group, "ASSOC_FOR_GRPUSR");
+        group.ASSOC_FOR_GRPUSR = group.addReverseCollection("ASSOC_FOR_GRPUSR", user, user.ASSOC_FOR_GRPUSR);
+        
+//        digitalniReprezentace.ZVEREJNENO = digitalniReprezentace.addReverseCollection("DIGITALNI_REPREZENTACE", zverejneno, zverejneno.DIGITALNI_REPREZENTACE);
+
     }
 }

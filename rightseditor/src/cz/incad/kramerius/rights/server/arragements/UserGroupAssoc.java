@@ -31,13 +31,12 @@ public class UserGroupAssoc extends Arrangement {
 	
 		queryGenerator = new QueryGenerator.Empty();
 
-        this.setSortProperty(structure.groupUserAssoction.USERS);
-        this.setSortProperty(structure.groupUserAssoction.GROUP);
+		//addProperty(structure.groupUserAssoction.USERS);
+		addProperty(structure.groupUserAssoction.USERS.relate(structure.user.NAME));
+		addProperty(structure.groupUserAssoction.USERS.relate(structure.user.SURNAME));
 
-		
-		
-//		addProperty(structure.groupUserAssoction.USERS);
-//		addProperty(structure.groupUserAssoction.GROUP);
+		//addProperty(structure.groupUserAssoction.GROUP);
+		addProperty(structure.groupUserAssoction.GROUP.relate(structure.group.GNAME));
 		form = createForm();
 
 	}
