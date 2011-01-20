@@ -23,15 +23,21 @@ import org.aplikator.server.descriptor.TextArea;
 import org.aplikator.server.descriptor.TextField;
 import org.aplikator.server.descriptor.VerticalPanel;
 
+import cz.incad.kramerius.rights.server.arragements.GroupArrangement;
+import cz.incad.kramerius.rights.server.arragements.RightArrangement;
+import cz.incad.kramerius.rights.server.arragements.RightsCriteriumArrangement;
+import cz.incad.kramerius.rights.server.arragements.RightsCriteriumParamArrangement;
+import cz.incad.kramerius.rights.server.arragements.UserArrangement;
+import cz.incad.kramerius.rights.server.arragements.UserGroupAssoc;
+
 @SuppressWarnings("serial")
 public class RightsLoaderServlet extends ApplicationLoaderServlet {
 
 	Structure struct;
-	Arrangement userArr;
-	Arrangement groupArr;
+
+	UserArrangement userArr;
+	GroupArrangement groupArr;
 	Arrangement groupUserAssocArr;
-	
-	Arrangement groupUserAssoc_UserArr;
 
 	
 	RightArrangement rightsArr;
@@ -47,65 +53,11 @@ public class RightsLoaderServlet extends ApplicationLoaderServlet {
 			struct = (Structure) Application.get();
 			System.out.println("ApplicationLoader 2");
 
-			userArr = new Arrangement(struct.user) {{
-					setReadableName(struct.user.getName());
-
-					addProperty(struct.user.NAME).addProperty(
-							struct.user.SURNAME).addProperty(
-							struct.user.LOGINNAME);
-
-					queryGenerator = new QueryGenerator.Empty();
-
-					form = createUserForm();
-			}};
+			userArr = new UserArrangement(struct, struct.user);
 			
-			groupArr = new Arrangement(struct.group) {{
-					setReadableName(struct.group.getName());
-
-					addProperty(struct.group.GNAME);
-
-					queryGenerator = new QueryGenerator.Empty();
-
-					form = createGroupForm();
-
-			}};
-
-			groupUserAssoc_UserArr = new Arrangement(struct.groupUserAssoction) {{
-					addProperty(struct.groupUserAssoction.USERS);
-					addProperty(struct.groupUserAssoction.GROUP);
-					form = _createForm();
-				}
-
-				Form _createForm() {
-					Form form = new Form();
-					form.setLayout(
-							new VerticalPanel()
-								.addChild(new RefButton(struct.groupUserAssoction.USERS, userArr,
-										new HorizontalPanel()
-			                    		.addChild(new TextField(struct.groupUserAssoction.USERS.relate(struct.user.NAME)))
-			                    		.addChild(new TextField(struct.groupUserAssoction.USERS.relate(struct.user.SURNAME)))
-//			                    		.addChild(new TextField(struct.groupUserAssoction.USERS.relate(struct.user.LOGINNAME)))
-//			                    		.addChild(new TextField(struct.groupUserAssoction.USERS.relate(struct.user.PASSWORD)))
-									))
-									.addChild(new RefButton(struct.groupUserAssoction.GROUP, groupArr,
-										new HorizontalPanel()
-											.addChild(new TextField(struct.groupUserAssoction.GROUP.relate(struct.group.GNAME)))
-									)));
-					return form;
-				}
-			};
+			groupArr = new GroupArrangement(struct, struct.group);
+			groupUserAssocArr = new UserGroupAssoc(struct, struct.groupUserAssoction, userArr, groupArr);
 			
-			groupUserAssocArr = new Arrangement(struct.groupUserAssoction) {{
-					setReadableName(struct.groupUserAssoction.getName());
-
-					addProperty(struct.groupUserAssoction.USERS);
-					addProperty(struct.groupUserAssoction.GROUP);
-
-					queryGenerator = new QueryGenerator.Empty();
-
-					form = createAssocForm();
-				}
-			};
 			
 		rightsArr = new RightArrangement(struct.rights, struct);
 		rightsCriteriumParamArr = new RightsCriteriumParamArrangement(struct.criteriumParam, struct);
@@ -124,10 +76,8 @@ public class RightsLoaderServlet extends ApplicationLoaderServlet {
 
 			uzivatele.addAction(new ActionDTO("Vazby (Uzivatele <-> Skupiny)", new ListEntities(
 					"Vazby (Uzivatele <-> Skupiny)", uzivatele, groupUserAssocArr.getId())));
-
 			
 			ServiceDTO prava = new ServiceDTO("Prava");
-
 			prava.addAction(new ActionDTO("Prava", new ListEntities(
 					"Prava", prava, rightsArr.getId())));
 
@@ -149,22 +99,6 @@ public class RightsLoaderServlet extends ApplicationLoaderServlet {
 		}
 	}
 
-	private Form createUserForm() {
-		Form form = new Form();
-		form.setLayout(new VerticalPanel()
-
-				.addChild(new HorizontalPanel()
-								.addChild(new TextField(struct.user.NAME))
-								.addChild(new TextField(struct.user.SURNAME))
-				)
-				
-				.addChild(new HorizontalPanel()
-					.addChild(new TextField(struct.user.LOGINNAME))
-					.addChild(new TextField(struct.user.PASSWORD))
-				)
-				);
-		return form;
-	}
 	
 	private Form createRightCriteriumParamForm() {
 		Form form = new Form();
@@ -179,15 +113,6 @@ public class RightsLoaderServlet extends ApplicationLoaderServlet {
 
 	
 	
-	
-	private Form createGroupForm() {
-		Form form = new Form();
-		form.setLayout(new VerticalPanel().addChild(
-				new HorizontalPanel()
-					.addChild(new TextField(struct.group.GNAME))
-		));
-		return form;
-	}
 	
 	private Form createAssocForm() {
 		Form form = new Form();

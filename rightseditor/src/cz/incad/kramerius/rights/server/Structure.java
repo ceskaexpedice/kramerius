@@ -18,8 +18,6 @@ public class Structure extends Application {
         public final Property LOGINNAME;
         public final Property PASSWORD;
         
-  //      public Collection GROUPS;
-        
         public UserEntity() {
             super("Users_table", "USER_ENTITY", "USER_ID", Structure.this);
             NAME= addProperty("NAME", PropertyType.STRING, 255, true);
@@ -48,6 +46,7 @@ public class Structure extends Application {
 	}
 
 	public class GroupUserAssoction extends Entity {
+
 		public final Reference USERS;
 		public final Reference GROUP;
 		
@@ -63,6 +62,8 @@ public class Structure extends Application {
 
 		public final Property UUID;
 		public final Property ACTION;
+		public final Property FIXED_PRIORITY;
+
 		public Reference RIGHT_CRITERIUM;
         public Reference USER;
         public Reference GROUP;
@@ -77,6 +78,8 @@ public class Structure extends Application {
             USER= addReference(user, "user");
             GROUP= addReference(group, "group");
 
+            FIXED_PRIORITY = addProperty("FIXED_PRIORITY", PropertyType.INTEGER,0.0,false);
+
             addIndex("UUID_IDX", false, UUID);
             addIndex("ACTION_IDX", false, ACTION);
         }
@@ -86,18 +89,19 @@ public class Structure extends Application {
 	public class RightCriteriumEntity extends Entity {
 		
 		public final Property QNAME;
-		public final Property FIXED_PRIORITY;
+		public final Property TYPE;
 		public Reference PARAM;
 		
 		
         public RightCriteriumEntity() {
             super("Rights_criterium_table", "RIGHTS_CRITERIUM_ENTITY", "CRIT_ID", Structure.this);
-            QNAME= addProperty("QNAME", PropertyType.STRING, 255, true);
+            TYPE = addProperty("FIXED_PRIORITY", PropertyType.INTEGER,0.0,false);
+
+    		QNAME= addProperty("QNAME", PropertyType.STRING, 255, true);
             QNAME.setListValues(
             		new ListItem("cz.incad.kramerius.security.impl.criteria.MovingWall", "cz.incad.kramerius.security.impl.criteria.MovingWall"),
             		new ListItem("cz.incad.kramerius.security.impl.criteria.DefaultIPAddressFilter","cz.incad.kramerius.security.impl.criteria.DefaultIPAddressFilter"));
 
-            FIXED_PRIORITY = addProperty("FIXED_PRIORITY", PropertyType.INTEGER,0.0,false);
             PARAM = addReference(criteriumParam, "citeriumParam");
         }
 	}
