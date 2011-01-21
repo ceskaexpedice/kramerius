@@ -1,10 +1,13 @@
 package cz.incad.kramerius.rights.server.arragements;
 
+
 import org.aplikator.server.descriptor.Arrangement;
 import org.aplikator.server.descriptor.Entity;
 import org.aplikator.server.descriptor.Form;
 import org.aplikator.server.descriptor.HorizontalPanel;
 import org.aplikator.server.descriptor.QueryGenerator;
+import org.aplikator.server.descriptor.RefButton;
+import org.aplikator.server.descriptor.TextArea;
 import org.aplikator.server.descriptor.TextField;
 import org.aplikator.server.descriptor.VerticalPanel;
 
@@ -34,6 +37,15 @@ public class GroupArrangement extends Arrangement {
 		form.setLayout(new VerticalPanel().addChild(
 				new HorizontalPanel()
 					.addChild(new TextField(struct.group.GNAME))
+					.addChild(new TextArea(struct.group.DESCRIPTION))
+					
+					.addChild(
+							new RefButton(struct.group.PERSONAL_ADMIN,
+									this,
+									new HorizontalPanel().addChild(new TextField(
+											struct.group.PERSONAL_ADMIN
+													.relate(struct.group.GNAME)))))
+
 		));
 		return form;
 	}

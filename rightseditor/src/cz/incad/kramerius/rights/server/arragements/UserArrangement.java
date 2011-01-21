@@ -50,9 +50,6 @@ public class UserArrangement extends Arrangement {
 								new TextField(struct.user.LOGINNAME)).addChild(
 								new TextField(struct.user.PASSWORD)))
 
-				.addChild(
-						new RepeatedForm(struct.user.ASSOC_FOR_USRGRP,
-								groupArrangement))
 
 				.addChild(
 						new RefButton(struct.user.PERSONAL_ADMIN,

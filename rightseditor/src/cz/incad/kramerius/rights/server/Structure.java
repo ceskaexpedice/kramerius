@@ -9,10 +9,18 @@ import org.aplikator.server.descriptor.Entity;
 import org.aplikator.server.descriptor.Property;
 import org.aplikator.server.descriptor.Reference;
 
+/**
+ * Struktura databaze
+ * @author pavels
+ */
 public class Structure extends Application {
-
+	
+	/**
+	 * Entita uzivatel
+	 * @author pavels
+	 */
 	public class UserEntity extends Entity {
-
+		// vlastnosti uzivatele
 		public final Property NAME;
         public final Property SURNAME;
         public final Property LOGINNAME;
@@ -20,12 +28,10 @@ public class Structure extends Application {
 
         public final Property EMAIL;
         public final Property ORGANISATION;
-
+        
+        // administrator uzivatele
 		public  Reference PERSONAL_ADMIN;
 
-		// pomocna asociace uzivatel -> skupina
-        public Collection ASSOC_FOR_USRGRP;
-        public Reference ASSOC_FOR_GRPUSR;
         
         public UserEntity() {
             super("Users_table", "USER_ENTITY", "USER_ID", Structure.this);
@@ -45,18 +51,25 @@ public class Structure extends Application {
 	}
 	
 
+	/**
+	 * Skupina 
+	 * @author pavels
+	 */
 	public class GroupEntity extends Entity {
-
+		
+		// vlastnosti skupiny
 		public final Property GNAME;
+		public final Property DESCRIPTION;
+		
+		//admin skupiny
+		public  Reference PERSONAL_ADMIN;
 
-		// pomocna asociace uzivatel -> skupina
-        public Reference ASSOC_FOR_USRGRP;
-        public Collection ASSOC_FOR_GRPUSR;
 
         public GroupEntity() {
             super("Groups_table", "GROUP_ENTITY", "GROUP_ID", Structure.this);
             GNAME= addProperty("GNAME", PropertyType.STRING, 255, true);
-            addIndex("GNAME_IDX", false, GNAME);
+            DESCRIPTION=addProperty("DESC", PropertyType.STRING, 1024, false);
+            addIndex("GNAME_IDX", true, GNAME);
         }
 	}
 
@@ -153,12 +166,6 @@ public class Structure extends Application {
 
         user.PERSONAL_ADMIN=user.addReference(group, "PERSONAL_ADMIN_ID");
         
-        // sloupce pro reference 
-        group.ASSOC_FOR_USRGRP = group.addReference(user, "ASSOC_FOR_USRGRP");
-        user.ASSOC_FOR_USRGRP = user.addReverseCollection("ASSOC_FOR_USRGRP", group, group.ASSOC_FOR_USRGRP);
-        
-        user.ASSOC_FOR_GRPUSR = user.addReference(group, "ASSOC_FOR_GRPUSR");
-        group.ASSOC_FOR_GRPUSR = group.addReverseCollection("ASSOC_FOR_GRPUSR", user, user.ASSOC_FOR_GRPUSR);
         
 //        digitalniReprezentace.ZVEREJNENO = digitalniReprezentace.addReverseCollection("DIGITALNI_REPREZENTACE", zverejneno, zverejneno.DIGITALNI_REPREZENTACE);
 
