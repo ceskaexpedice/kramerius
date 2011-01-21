@@ -165,6 +165,7 @@ public class Structure extends Application {
 //    	user.GROUPS = groupUserAssoction.addReverseCollection("GROUPS", groupUserAssoction, groupUserAssoction.GROUP);
 
         user.PERSONAL_ADMIN=user.addReference(group, "PERSONAL_ADMIN_ID");
+        group.PERSONAL_ADMIN=group.addReference(group, "PERSONAL_ADMIN_ID");
         
         
 //        digitalniReprezentace.ZVEREJNENO = digitalniReprezentace.addReverseCollection("DIGITALNI_REPREZENTACE", zverejneno, zverejneno.DIGITALNI_REPREZENTACE);

@@ -17,14 +17,16 @@ public class UserArrangement extends Arrangement {
 
 	Structure struct;
 	Structure.UserEntity userEntity;
-	GroupArrangement groupArrangement;
+	RefenrenceToPersonalAdminArrangement referenceToAdmin;
+//	GroupArrangement groupArrangement;
 
 	public UserArrangement(Structure struct, UserEntity entity,
-			GroupArrangement groupArrangement) {
+			RefenrenceToPersonalAdminArrangement reference) {
 		super(entity);
 		this.struct = struct;
 		this.userEntity = entity;
-		this.groupArrangement = groupArrangement;
+		this.referenceToAdmin = reference;
+	//	this.groupArrangement = groupArrangement;
 
 		setReadableName(struct.user.getName());
 
@@ -53,7 +55,7 @@ public class UserArrangement extends Arrangement {
 
 				.addChild(
 						new RefButton(struct.user.PERSONAL_ADMIN,
-								this.groupArrangement,
+								this.referenceToAdmin,
 								new HorizontalPanel().addChild(new TextField(
 										struct.user.PERSONAL_ADMIN
 												.relate(struct.group.GNAME)))))

@@ -29,6 +29,7 @@ import cz.incad.kramerius.rights.server.arragements.RightsCriteriumArrangement;
 import cz.incad.kramerius.rights.server.arragements.RightsCriteriumParamArrangement;
 import cz.incad.kramerius.rights.server.arragements.UserArrangement;
 import cz.incad.kramerius.rights.server.arragements.UserGroupAssoc;
+import cz.incad.kramerius.rights.server.arragements.RefenrenceToPersonalAdminArrangement;
 
 @SuppressWarnings("serial")
 public class RightsLoaderServlet extends ApplicationLoaderServlet {
@@ -36,6 +37,7 @@ public class RightsLoaderServlet extends ApplicationLoaderServlet {
 	Structure struct;
 
 	UserArrangement userArr;
+	RefenrenceToPersonalAdminArrangement referenceToAdmin;
 	GroupArrangement groupArr;
 	Arrangement groupUserAssocArr;
 
@@ -53,10 +55,11 @@ public class RightsLoaderServlet extends ApplicationLoaderServlet {
 			struct = (Structure) Application.get();
 			System.out.println("ApplicationLoader 2");
 
+			referenceToAdmin = new RefenrenceToPersonalAdminArrangement(struct, struct.group);
 			
-			groupArr = new GroupArrangement(struct, struct.group);
-			userArr = new UserArrangement(struct, struct.user, groupArr );
-
+			groupArr = new GroupArrangement(struct, struct.group, referenceToAdmin);
+			userArr = new UserArrangement(struct, struct.user, referenceToAdmin);
+			
 			groupUserAssocArr = new UserGroupAssoc(struct, struct.groupUserAssoction, userArr, groupArr);
 			
 			

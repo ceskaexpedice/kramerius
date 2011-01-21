@@ -1,8 +1,6 @@
 package cz.incad.kramerius.rights.server.arragements;
 
-
 import org.aplikator.server.descriptor.Arrangement;
-import org.aplikator.server.descriptor.Entity;
 import org.aplikator.server.descriptor.Form;
 import org.aplikator.server.descriptor.HorizontalPanel;
 import org.aplikator.server.descriptor.QueryGenerator;
@@ -14,17 +12,16 @@ import org.aplikator.server.descriptor.VerticalPanel;
 import cz.incad.kramerius.rights.server.Structure;
 import cz.incad.kramerius.rights.server.Structure.GroupEntity;
 
-public class GroupArrangement extends Arrangement {
+public class RefenrenceToPersonalAdminArrangement extends Arrangement {
 
 	Structure struct;
 	Structure.GroupEntity groupEntity;
-	RefenrenceToPersonalAdminArrangement reference;
+
 	
-	public GroupArrangement(Structure structure, GroupEntity entity, RefenrenceToPersonalAdminArrangement reference) {
+	public RefenrenceToPersonalAdminArrangement(Structure structure, GroupEntity entity) {
 		super(entity);
 		this.struct = structure;
 		this.groupEntity = entity;
-		this.reference = reference;
 		setReadableName(struct.group.getName());
 		addProperty(struct.group.GNAME);
 
@@ -35,18 +32,12 @@ public class GroupArrangement extends Arrangement {
 	
 	private Form createGroupForm() {
 		Form form = new Form();
-		form.setLayout(new VerticalPanel()
+		form.setLayout(new VerticalPanel().addChild(
+				new VerticalPanel()
 					.addChild(new TextField(struct.group.GNAME))
-					.addChild(new TextArea(struct.group.DESCRIPTION,"100%"))
-					
-					.addChild(
-							new RefButton(struct.group.PERSONAL_ADMIN,
-									this.reference,
-									new HorizontalPanel().addChild(new TextField(
-											struct.group.PERSONAL_ADMIN
-													.relate(struct.group.GNAME)))))
+					.addChild(new TextArea(struct.group.DESCRIPTION))
 
-		);
+		));
 		return form;
 	}
 	
