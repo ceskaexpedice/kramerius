@@ -46,6 +46,8 @@ public class RightsLoaderServlet extends ApplicationLoaderServlet {
 	RightsCriteriumArrangement rightsCriteriumArr;
 	RightsCriteriumParamArrangement rightsCriteriumParamArr;
 
+	private Function vygenerovatHeslo;
+
 	@Override
 	public void init() throws ServletException {
 		try {
@@ -55,6 +57,8 @@ public class RightsLoaderServlet extends ApplicationLoaderServlet {
 			struct = (Structure) Application.get();
 			System.out.println("ApplicationLoader 2");
 
+            vygenerovatHeslo = new Function(new VygenerovatHeslo());
+			
 			referenceToAdmin = new RefenrenceToPersonalAdminArrangement(struct, struct.group);
 			
 			groupArr = new GroupArrangement(struct, struct.group, referenceToAdmin);
@@ -62,10 +66,9 @@ public class RightsLoaderServlet extends ApplicationLoaderServlet {
 			
 			groupUserAssocArr = new UserGroupAssoc(struct, struct.groupUserAssoction, userArr, groupArr);
 			
-			
-		rightsArr = new RightArrangement(struct.rights, struct);
-		rightsCriteriumParamArr = new RightsCriteriumParamArrangement(struct.criteriumParam, struct);
-		rightsCriteriumArr = new RightsCriteriumArrangement(struct.rightCriterium, struct, rightsCriteriumParamArr);
+			rightsArr = new RightArrangement(struct.rights, struct);
+			rightsCriteriumParamArr = new RightsCriteriumParamArrangement(struct.criteriumParam, struct);
+			rightsCriteriumArr = new RightsCriteriumArrangement(struct.rightCriterium, struct, rightsCriteriumParamArr);
 
 	
 			System.out.println("ApplicationLoader 3");
@@ -94,6 +97,10 @@ public class RightsLoaderServlet extends ApplicationLoaderServlet {
 			applicationDescriptor.addService(uzivatele);
 			applicationDescriptor.addService(prava);
 			
+            ServiceDTO functions = new ServiceDTO("Funkce");
+            functions.addAction(new ActionDTO("Vygenerovat heslo", new ExecuteFunction( "Vygenerovat heslo", functions, vygenerovatHeslo.getId())));
+            applicationDescriptor.addService(functions);
+
 			
 
 			System.out.println("ApplicationLoader finished");
