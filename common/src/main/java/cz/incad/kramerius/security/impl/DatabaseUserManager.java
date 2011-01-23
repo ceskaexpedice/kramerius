@@ -24,6 +24,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
 
+import org.antlr.stringtemplate.StringTemplate;
+
 import com.google.inject.Inject;
 import com.google.inject.Provider;
 import com.google.inject.name.Named;
@@ -121,6 +123,40 @@ public class DatabaseUserManager implements UserManager{
         return (groups != null) && (!groups.isEmpty()) ? groups.get(0) : null;
     }
 
+    
+    
+    
+    @Override
+    public Group[] findGroupsWhichIAdministrate(int[] grpIds) {
+        StringTemplate template = SecurityDatabaseUtils.stGroup().getInstanceOf("findGroupsWhichAdministrate");
+        template.setAttribute("findGroupsWhichAdministrate", grpIds);
+        String sql = template.toString();
+        List<Group> groups= new JDBCQueryTemplate<Group>(this.provider.get()){
+            @Override
+            public boolean handleRow(ResultSet rs, List<Group> returnsList) throws SQLException {
+                    Group grp = SecurityDBUtils.createGroup(rs);
+                    returnsList.add(grp);
+                    return true;
+            }
+            
+        }.executeQuery(sql);
+        return (Group[]) groups.toArray(new Group[groups.size()]);
+    }
+
+    @Override
+    public Group findGlobalAdminGroup() {
+        String sql = SecurityDatabaseUtils.stGroup().getInstanceOf("findGlobalAdminsGroup").toString();
+        List<Group> groups= new JDBCQueryTemplate<Group>(this.provider.get()){
+            @Override
+            public boolean handleRow(ResultSet rs, List<Group> returnsList) throws SQLException {
+                    Group grp = SecurityDBUtils.createGroup(rs);
+                    returnsList.add(grp);
+                    return true;
+            }
+        }.executeQuery(sql);
+        return (groups != null) && (!groups.isEmpty()) ? groups.get(0) : null;
+    }
+
     @Override
     public Group findGroupByName(String gname) {
         String sql = SecurityDatabaseUtils.stGroup().getInstanceOf("findGroupByGname").toString();
@@ -164,6 +200,22 @@ public class DatabaseUserManager implements UserManager{
     }
 
     @Override
+    public User[] findUserByPrefixForGroups(String prefix, int[] grpIds) {
+        StringTemplate template = SecurityDatabaseUtils.stGroup().getInstanceOf("findUserByPrefixForGroups");
+        template.setAttribute("grps", grpIds);
+        String sql = template.toString();
+        List<User> users= new JDBCQueryTemplate<User>(this.provider.get()){
+            @Override
+            public boolean handleRow(ResultSet rs, List<User> returnsList) throws SQLException {
+                    User user = SecurityDBUtils.createUser(rs);
+                    returnsList.add(user);
+                    return true;
+            }
+        }.executeQuery(sql, prefix+"%");
+        return (User[]) users.toArray(new User[users.size()]);
+    }
+
+    @Override
     public Group[] findGroupByPrefix(String prefix) {
         String sql = SecurityDatabaseUtils.stGroup().getInstanceOf("findGroupByPrefix").toString();
         List<Group> users= new JDBCQueryTemplate<Group>(this.provider.get()){
@@ -176,7 +228,23 @@ public class DatabaseUserManager implements UserManager{
         }.executeQuery(sql, prefix+"%");
         return (Group[]) users.toArray(new Group[users.size()]);
     }
-    
+
+    @Override
+    public Group[] findGroupByPrefixForGroups(String prefix,int[] grpIds) {
+        StringTemplate template = SecurityDatabaseUtils.stGroup().getInstanceOf("findGroupByPrefixForGroups");
+        template.setAttribute("grps", grpIds);
+        String sql = template.toString();
+        List<Group> users= new JDBCQueryTemplate<Group>(this.provider.get()){
+            @Override
+            public boolean handleRow(ResultSet rs, List<Group> returnsList) throws SQLException {
+                    Group group = SecurityDBUtils.createGroup(rs);
+                    returnsList.add(group);
+                    return true;
+            }
+        }.executeQuery(sql, prefix+"%");
+        return (Group[]) users.toArray(new Group[users.size()]);
+    }
+
     
     
 }

@@ -22,6 +22,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -202,11 +203,43 @@ public class DatabaseRightsManager implements RightsManager {
         return EvaluatingResult.FALSE;
     }
 
+    public EvaluatingResult[] resolveAllPath(RightCriteriumContext ctx, String uuid, String[] path, String action, User user) throws RightCriteriumException {
+        List<String> pids = saturatePathAndCreatesPIDs(uuid, path);
+        Right[] findRights = findRights((String[]) pids.toArray(new String[pids.size()]), action, user);
+        findRights = SortingRightsUtils.sortRights(findRights, pids);
+        EvaluatingResult[] results = new EvaluatingResult[pids.size()];
+        for (int i = 0; i < results.length; i++) {
+            String curPid = pids.get(i);
+            String[] restOfPath = Arrays.copyOfRange(pids.toArray(new String[pids.size()]), i, results.length);
+            
+            EvaluatingResult result = EvaluatingResult.FALSE;
+            for (Right right : findRights) {
+                
+                boolean thisPid = right.getPid().equals(curPid);
+                boolean inTheRestOfPath = Arrays.asList(restOfPath).contains(right.getPid());
+                if (thisPid || inTheRestOfPath) {
+                    ctx.setAssociatedPid(right.getPid());
+                    EvaluatingResult iresult = right.evaluate(ctx);
+                    ctx.setAssociatedPid(null);
+                    if (iresult != EvaluatingResult.NOT_APPLICABLE) {
+                        result = iresult;
+                        break;
+                    }
+                }
+            }
+            
+            results[i] = result;
+        }
+        return results;
+    }
+
     @Override
     public List<String> saturatePathAndCreatesPIDs(String uuid, String[] path) {
+        ArrayList<String> spath = new ArrayList<String>(Arrays.asList(path));
+        Collections.reverse(spath);
         List<String> uuids = new ArrayList<String>();
         uuids.add(uuid);
-        for (String uuidOfPath : path) {
+        for (String uuidOfPath : spath) {
             if (!uuids.contains(uuidOfPath)) {
                 uuids.add(uuidOfPath);
             }

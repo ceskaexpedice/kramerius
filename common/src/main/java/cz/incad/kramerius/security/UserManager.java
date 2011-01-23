@@ -28,11 +28,18 @@ public interface UserManager {
     
     public Group findGroup(int group_id);
     
+    public Group[] findGroupsWhichIAdministrate(int[] grpIds);
+    
     public Group[] findGroupByPrefix(String prefix);
     
     public Group findCommonUsersGroup();
+    public Group findGlobalAdminGroup();
     
     public Group findGroupByName(String gname);
     
     public User findUserByLoginName(String loginName);
+
+    public User[] findUserByPrefixForGroups(String prefix, int[] grpIds);
+
+    public Group[] findGroupByPrefixForGroups(String prefix, int[] grpIds);
 }

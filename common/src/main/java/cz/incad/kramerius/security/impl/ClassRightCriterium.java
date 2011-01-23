@@ -57,6 +57,7 @@ public class ClassRightCriterium implements RightCriterium {
 
     @Override
     public EvaluatingResult evalute() throws RightCriteriumException {
+        long start = System.currentTimeMillis();
         try {
             RightCriterium crit = instanceCriterium(this.clz);
             crit.setCriteriumParams(this.getCriteriumParams());
@@ -70,6 +71,9 @@ public class ClassRightCriterium implements RightCriterium {
             throw new RightCriteriumException(e);
         } catch (IllegalAccessException e) {
             throw new RightCriteriumException(e);
+        }finally {
+            long stop = System.currentTimeMillis();
+            LOGGER.info("criterium eval takes "+(stop - start)+" ms");
         }
     }
 

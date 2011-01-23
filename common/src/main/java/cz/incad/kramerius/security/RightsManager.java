@@ -25,7 +25,11 @@ public interface RightsManager {
     public Right[] findRights(String[] uuids, String action, User user);
     // interpretuje prava
     public EvaluatingResult resolve(RightCriteriumContext ctx, String uuid, String[] path, String action, User user) throws RightCriteriumException;
+    
+    // interpretuje prava skrz celou cestu.  Od listu az ke korenu.
+    public EvaluatingResult[] resolveAllPath(RightCriteriumContext ctx, String uuid, String[] path, String action, User user) throws RightCriteriumException;
 
+    
     // najde prava pro skupinu
     public Right[] findRightsForGroup(final String[] pids, final String action, final Group group);
     // najde vsechna prava

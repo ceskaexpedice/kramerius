@@ -25,6 +25,7 @@ public enum SecuredActions {
     // PERSISTENT URL
 
     
+    
     // Admin actions
     //LRPROCESS_ADMIN("lrProcessAdmin"),
     IMPORT( "import"),
@@ -38,7 +39,9 @@ public enum SecuredActions {
     EXPORT( "export"),
     SETPRIVATE( "setprivate"),
     SETPUBLIC( "setpublic"),
-
+    ADMINISTRATE( "administrate"),
+    EDITOR("editor"),
+    //? vyhodit ?
     MANAGE_LR_PROCESS("manage_lr_process");
     
     

@@ -98,14 +98,38 @@ findUserByPrefix() ::=<<
     where loginname ilike ?
 >>
 
+findUserByPrefixForGroups(grps) ::=<<
+    select * from group_users_mapping 
+    where personal_admin_id in ($grps;separator=","$) 
+    and loginname ilike ?
+>>
+
+findGroupByPrefixForGroups(grps) ::=<<
+    select * from group_entity 
+    where group_id in ($grps;separator=","$) 
+    and gname ilike ?
+>>
+
+findGroupsWhichAdministrate(grps) ::=<<
+    select * from group_entity 
+    where personal_admin_id in (grps;separator=",") 
+>>
+
 findAllGroupsByUserId() ::=<<
     select * from user_group_mapping 
     where user_id=?
 >>
 
+/** najde common user group */
 findCommonUsersGroup() ::=<<
     select * from group_entity 
     where gname='common_users'
+>>
+
+/** najde skupinu k4_admins */
+findGlobalAdminsGroup() ::=<<
+    select * from group_entity 
+    where gname='k4_admins'
 >>
 
 findAllCriteriumParams() ::=<<
