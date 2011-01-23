@@ -48,7 +48,6 @@ public class IsActionAllowedFromRequest implements IsActionAllowed {
     private Provider<User> currentLoggedUser;
     
     
-    
     @Inject
     public IsActionAllowedFromRequest(Logger logger, Provider<HttpServletRequest> provider, RightsManager rightsManager, RightCriteriumContextFactory contextFactory, Provider<User> currentUserProvider) {
         super();
@@ -71,6 +70,35 @@ public class IsActionAllowedFromRequest implements IsActionAllowed {
         return false;
     }
     
+    public boolean isActionAllowed(User user, String actionName, String uuid, String[] pathOfUuids) {
+        try {
+            return isAllowedInternalForFedoraDocuments(actionName, uuid, pathOfUuids, user);
+        } catch (RightCriteriumException e) {
+            logger.log(Level.SEVERE, e.getMessage(), e);
+        }
+
+        return false;
+    }
+    
+    
+    
+
+    @Override
+    public boolean[] isActionAllowedForAllPath(String actionName, String uuid, String[] pathOfUuids) {
+        try {
+            User user = this.currentLoggedUser.get();
+            RightCriteriumContext ctx = this.ctxFactory.create(uuid, user, this.provider.get().getRemoteHost(), this.provider.get().getRemoteAddr());
+            EvaluatingResult[] evalResults = this.rightsManager.resolveAllPath(ctx, uuid, pathOfUuids, actionName, user);
+            boolean[] results = new boolean[evalResults.length];
+            for (int i = 0; i < results.length; i++) {
+                results[i] = resultOfResult(evalResults[i]);
+            }
+            return results;
+        } catch (RightCriteriumException e) {
+            logger.log(Level.SEVERE, e.getMessage(), e);
+            return new boolean[pathOfUuids.length];
+        }
+    }
 
     public boolean isAllowedInternalForFedoraDocuments(String actionName, String uuid, String[] pathOfUuids, User user) throws RightCriteriumException {
         RightCriteriumContext ctx = this.ctxFactory.create(uuid, user, this.provider.get().getRemoteHost(), this.provider.get().getRemoteAddr());

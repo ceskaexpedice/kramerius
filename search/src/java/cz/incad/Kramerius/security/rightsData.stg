@@ -1,6 +1,9 @@
+/**
+ * Javascript  - prava
+ */
 group rightData;
 
-/** formulare */
+/** inicializace formulare - nastavovani callbacku */
 newRightData_InitForm() ::=<<
     \$('input[name=checkParams]').change(function(e) {
         callbackCriteriumParamsCheckboxChanged(e.target);
@@ -13,15 +16,17 @@ newRightData_InitForm() ::=<<
     \$('select[name=criterium]').change(function(e) {
         callbackCriteriumValueChanged(e.target);
     });
-
+    
+    /** callbacky pro radiobutton */
     \$('input[id=userType]').change(function(e) {
         callbackUserComboValueChanged(e.target);
     });
-
     \$('input[id=groupType]').change(function(e) {
         callbackGroupComboValueChanged(e.target);
     });
-
+    \$('input[id=allType]').change(function(e) {
+        callbackAllComboValueChanged(e.target);
+    });
 >>
 
 editRightData(right, criterium, criteriumParams,allParams, allCriteriums) ::=<<
@@ -86,7 +91,7 @@ initValues(right, criterium, criteriumParams) ::=<<
         ,
         "criterium":"$criterium.qName$"
         ,
-        "fixedPriority":"$criterium.fixedPriority$"
+        "fixedPriority":"$right.fixedPriority$"
         ,
         "selectedParams":"$criteriumParams.id$"
         ,
@@ -97,16 +102,3 @@ initValues(right, criterium, criteriumParams) ::=<<
 >>
 
 
-userAutocomplete(type, users)::=<<
-{ "terms":["$type$",[   $users:{user| $({sec$type$})(au=user)$ }$ ]] }
->>
-
-
-
-secgroup(au)::=<<
-    "$au.name$", "Skupina"
->>
-
-secuser(au)::=<<
-   "$au.loginname$ ($au.firstName$ $au.surname$)", "Uzivatel"
->>

@@ -82,25 +82,6 @@ public class HeaderViewObject {
         return grp;
     }
     
-    public String getSecurityConfiguration() {
-        StringTemplateGroup grp = stGroup();
-        StringTemplate inst = grp.getInstanceOf("jsSecurityContext");
-        List<String> roleNames = new ArrayList<String>(); {
-            for (KrameriusRoles role : KrameriusRoles.values()) {
-                roleNames.add(role.name());
-            }
-        }
-        Map<String, Boolean> map = new HashMap<String, Boolean>(); {
-            for (KrameriusRoles role : KrameriusRoles.values()) {
-                map.put(role.name(), isUserInRoleDecision.isUserInRole(role.getRoleName()));
-            }
-        }
-        inst.setAttribute("roles", roleNames.toArray(new String[roleNames.size()]));
-        inst.setAttribute("isUserInRole", map);
-        inst.setAttribute("privateAddress", iPaddressChecker.privateVisitor());
-        String string = inst.toString();
-        return string;
-    }
     
     public String getLevelsModelSelectionArray() {
         //StringTemplate template = new StringTemp

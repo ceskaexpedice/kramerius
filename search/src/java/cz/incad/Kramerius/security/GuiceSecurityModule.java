@@ -17,6 +17,8 @@
 package cz.incad.Kramerius.security;
 
 import com.google.inject.AbstractModule;
+import com.google.inject.Scopes;
+import com.google.inject.servlet.ServletScopes;
 
 import cz.incad.kramerius.security.IsActionAllowed;
 import cz.incad.kramerius.security.RightCriteriumContextFactory;

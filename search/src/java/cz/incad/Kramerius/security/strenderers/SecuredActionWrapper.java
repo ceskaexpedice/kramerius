@@ -17,11 +17,14 @@
 package cz.incad.Kramerius.security.strenderers;
 
 import java.util.ResourceBundle;
+import java.util.logging.Level;
 
 import cz.incad.kramerius.security.SecuredActions;
 
 public class SecuredActionWrapper {
 
+    static java.util.logging.Logger LOGGER = java.util.logging.Logger.getLogger(SecuredActionWrapper.class.getName());
+    
     private ResourceBundle resBundle;
     private SecuredActions action;
 
@@ -37,7 +40,12 @@ public class SecuredActionWrapper {
     
     
     public String getDescription() {
-        return resBundle.getString("rights.action."+action.getFormalName());
+        try {
+            return resBundle.getString("rights.action."+action.getFormalName());
+        } catch (Exception e) {
+            LOGGER.log(Level.SEVERE, e.getMessage(),e);
+            return "rights.action."+action.getFormalName();
+        }
     }
     public String getName() {
         return action.name();
@@ -50,4 +58,6 @@ public class SecuredActionWrapper {
         }
         return wrappers;
     }
+    
+    
 }

@@ -30,7 +30,8 @@ public class AbstractUserWrapper implements User, Group {
     public static final AbstractUserWrapper ALL_USERS_ITEM = new AbstractUserWrapper(null);
     
     private AbstractUser user;
-
+    private boolean selected = false;
+    
     public AbstractUserWrapper(AbstractUser user) {
         super();
         this.user = user;
@@ -81,6 +82,10 @@ public class AbstractUserWrapper implements User, Group {
         return (this.user instanceof Group) ? "group":
             "user";
     }
+    
+    public AbstractUser getWrappedValue() {
+        return this.user;
+    }
    
     public String getOptionValue() {
         //<option value="$k$" selected>$k$</option>
@@ -96,19 +101,31 @@ public class AbstractUserWrapper implements User, Group {
     public String toString() {
         if (this == ALL_USERS_ITEM) return "all";
         if (this.user instanceof Group) {
-            return getName() +" (Skupina) <img src=\"img/rights-group.png\"></img>";
+            if (getName().equals("common_users")) {
+                return "Vsichni uzivatele <img src=\"img/rights-person.png\"></img><img src=\"img/rights-group.png\"></img>";
+            } else {
+                return getName() +" (Skupina) <img src=\"img/rights-group.png\"></img>";
+            }
         } else {
             return getFirstName()+" "+getSurname()+" (Uzivatel) <img src=\"img/rights-person.png\"></img>";
         }
     }
 
     public static List<AbstractUserWrapper> wrap(List<AbstractUser> users, boolean b) {
-        List<Integer> ids = new ArrayList<Integer>();
+        List<Integer> gids = new ArrayList<Integer>();
+        List<Integer> uids = new ArrayList<Integer>();
         List<AbstractUserWrapper> wrappers = new ArrayList<AbstractUserWrapper>();
         for (AbstractUser abstractUser : users) {
-            if (!ids.contains(abstractUser.getId())) {
-                ids.add(abstractUser.getId());
-                wrappers.add(new AbstractUserWrapper(abstractUser));
+            if (abstractUser instanceof Group) {
+                if (!gids.contains(abstractUser.getId())) {
+                    gids.add(abstractUser.getId());
+                    wrappers.add(new AbstractUserWrapper(abstractUser));
+                }
+            } else if (abstractUser instanceof User) {
+                if (!uids.contains(abstractUser.getId())) {
+                    uids.add(abstractUser.getId());
+                    wrappers.add(new AbstractUserWrapper(abstractUser));
+                }
             }
         }
         if (b) {
@@ -116,5 +133,24 @@ public class AbstractUserWrapper implements User, Group {
         }
         return wrappers;
     }
+
+    @Override
+    public int getPersonalAdminId() {
+        if (this.user instanceof Group) {
+            Group grp = (Group) this.user;
+            return grp.getPersonalAdminId();
+        }
+        return 0;
+    }
+
+    public boolean isSelected() {
+        return selected;
+    }
+
+    public void setSelected(boolean selected) {
+        this.selected = selected;
+    }
+    
+    
     
 }

@@ -2,6 +2,7 @@ package cz.incad.Kramerius.views.item.menu;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 import java.util.ResourceBundle;
@@ -79,16 +80,16 @@ public class ItemMenuViewObject {
     private String dynamicPDF() {
         String key = "administrator.menu.generatepdf";
         if (isPageModel()) {
-            return renderCommonItem(key, "_data_x_ipchecked", uuid, "PDF.url");
+            return renderCommonItem(key, "_data_x_role", "read", "PDF.url");
         } else {
-            return renderCommonItem(key, "_data_x_ipchecked", uuid, "PDF.generatePDF");
+            return renderCommonItem(key, "_data_x_role", "read", "PDF.generatePDF");
         }
     }
 
     private String downloadOriginal() throws IOException {
         String key = "administrator.menu.downloadOriginal";
         if ((isPageModel()) || (bornDigital())) {
-            return renderCommonItem(key, "_data_x_ipchecked", uuid, "downloadOriginal");
+            return renderCommonItem(key, "_data_x_role", "read", "downloadOriginal");
         } else {
             return null;
         }
@@ -168,18 +169,18 @@ public class ItemMenuViewObject {
 
     private String showRights() {
         String key = "administrator.menu.showrights";
-        String jsmethod = "adminRights";
-
+        //String jsmethod = "adminRights";
+        //rightsForRepository('uuid',actions
         StringTemplate template = new StringTemplate("<div align=\"left\"><a title='$tooltip$' "
-                + "href=\"javascript:$jsmethod$($level$,'$model$','$action$');\">$title$</a> "
+                + "href=\"javascript:rightsForRepository('$uuid$','$actions;separator=\",\"$');\">$title$</a> "
                 + "<div class=\"$datatype$\" style=\"display:none\">$value$</div></div>");
 
-        jsmethod(template, jsmethod);
         titleAndTooltip(template, key);
         levelAndModel(template);
         template.setAttribute("datatype", "_data_x_role");
         template.setAttribute("value", "export");
-        template.setAttribute("action", SecuredActions.READ.getFormalName());
+        template.setAttribute("uuid", uuid);
+        template.setAttribute("actions", new String[] { SecuredActions.READ.getFormalName(), SecuredActions.ADMINISTRATE.getFormalName()});
         
         return template.toString();
     }
@@ -193,13 +194,15 @@ public class ItemMenuViewObject {
         levelAndModel(template);
         template.setAttribute("datatype", dataType);
         template.setAttribute("value", value);
+        template.setAttribute("uuid", this.uuid);
         return template.toString();
     }
 
     private StringTemplate getCommonTemplate() {
         StringTemplate template = new StringTemplate("<div align=\"left\"><a title='$tooltip$' "
                 + "href=\"javascript:$jsmethod$($level$,'$model$');\">$title$</a> "
-                + "<div class=\"$datatype$\" style=\"display:none\">$value$</div></div>");
+                + "<div class=\"$datatype$\" style=\"display:none\">$value$</div>"
+                + "<div class=\"_data_x_uuid\" style=\"display:none\">$uuid$</div></div>");
         return template;
     }
 

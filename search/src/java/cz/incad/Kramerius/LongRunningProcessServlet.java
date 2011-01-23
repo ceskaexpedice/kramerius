@@ -42,6 +42,7 @@ import cz.incad.kramerius.security.IPaddressChecker;
 import cz.incad.kramerius.security.IsActionAllowed;
 import cz.incad.kramerius.security.IsUserInRoleDecision;
 import cz.incad.kramerius.security.SecuredActions;
+import cz.incad.kramerius.security.SecurityException;
 import cz.incad.kramerius.security.SpecialObjects;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 
@@ -144,7 +145,10 @@ public class LongRunningProcessServlet extends GuiceServlet {
                     if (parametersString != null) {
                         params = parametersString.split(",");
                     }
-                    if (rightsResolver.isActionAllowed(SecuredActions.MANAGE_LR_PROCESS.getFormalName(), SpecialObjects.REPOSITORY.getUuid(), new String[] {})) {
+                    SecuredActions actionFromDef = SecuredActions.findByFormalName(def);
+                    boolean permited = rightsResolver.isActionAllowed(SecuredActions.MANAGE_LR_PROCESS.getFormalName(), SpecialObjects.REPOSITORY.getUuid(), new String[] {}) || 
+                                        (actionFromDef != null && rightsResolver.isActionAllowed(actionFromDef.getFormalName(), SpecialObjects.REPOSITORY.getUuid(), new String[] {}));
+                    if (permited) {
                         LRProcess nprocess = planNewProcess(req, context, def, defManager, params);
                         if ((out != null) && (out.equals("text"))) {
                             resp.getOutputStream().print("[" + nprocess.getDefinitionId() + "]" + nprocess.getProcessState().name());
@@ -161,6 +165,8 @@ public class LongRunningProcessServlet extends GuiceServlet {
                             buffer.append("</body></html>");
                             resp.getOutputStream().println(buffer.toString());
                         }
+                    } else {
+                        throw new SecurityException("access denided");
                     }
                 } catch (IOException e) {
                     LOGGER.log(Level.SEVERE, e.getMessage(), e);

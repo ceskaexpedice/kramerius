@@ -1,0 +1,17 @@
+/**
+ * Javascript  - uzivatele
+ */
+group usersData;
+
+userAutocomplete(type, users)::=<<
+{ "terms":["$type$",[   $users:{user| $({sec$type$})(au=user)$ }$ ]] }
+>>
+
+
+secgroup(au)::=<<
+    "$au.name$", "Skupina"
+>>
+
+secuser(au)::=<<
+   "$au.loginname$ ($au.firstName$ $au.surname$)", "Uzivatel"
+>>

@@ -4,56 +4,6 @@ dictionary(resourceBundle) ::=<<
  var dictionary = {$resourceBundle.keys:{key|'$key$':'$resourceBundle.(key)$'};separator=","$ };
 >>
 
-jsSecurityContext(roles, isUserInRole, privateAddress) ::=<<
-var jsSecurityContext= {
-	// roles
-$roles:{role| $(role)(isUserInRole=isUserInRole)$};separator=",\n"$,
-// private address
-'privateIp':$privateAddress$
-};
->>
-
-REINDEX(isUserInRole) ::=<<
-'reindex':$isUserInRole.REINDEX$
->>
-DELETE(isUserInRole) ::=<<
-'delete':$isUserInRole.DELETE$
->>
-SETPUBLIC(isUserInRole) ::=<<
-'setpublic':$isUserInRole.SETPUBLIC$
->>
-
-EXPORT(isUserInRole) ::=<<
-'export':$isUserInRole.EXPORT$
->>
-
-SETPRIVATE(isUserInRole) ::=<<
-'setprivate':$isUserInRole.SETPRIVATE$
->>
-KRAMERIUS_ADMIN(isUserInRole) ::=<<
-'krameriusAdmin':$isUserInRole.KRAMERIUS_ADMIN$
->>
-LRPROCESS_ADMIN(isUserInRole) ::=<<
-'lrProcessAdmin':$isUserInRole.LRPROCESS_ADMIN$
->>
-IMPORT(isUserInRole) ::=<<
-'import':$isUserInRole.IMPORT$
->>
-CONVERT(isUserInRole) ::=<<
-'convert':$isUserInRole.CONVERT$
->>
-REPLICATIONRIGHTS(isUserInRole) ::=<<
-'replicationrights':$isUserInRole.REPLICATIONRIGHTS$
->>
-ENUMERATOR(isUserInRole) ::=<<
-'enumerator':$isUserInRole.ENUMERATOR$
->>
-REPLIKATOR_PERIODICALS(isUserInRole) ::=<<
-'replikator_periodicals':$isUserInRole.REPLIKATOR_PERIODICALS$
->>
-REPLIKATOR_MONOGRAPHS(isUserInRole) ::=<<
-'replikator_monographs':$isUserInRole.REPLIKATOR_MONOGRAPHS$
->>
 
 levelModelsSelection(data) ::=<<
 var levelModelsSelection = new Array(); 

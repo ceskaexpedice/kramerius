@@ -43,10 +43,19 @@ import org.antlr.stringtemplate.StringTemplateGroup;
 import org.antlr.stringtemplate.language.DefaultTemplateLexer;
 
 import com.google.inject.Inject;
+import com.google.inject.Injector;
 import com.google.inject.Provider;
 import com.google.inject.name.Named;
 
 import cz.incad.Kramerius.backend.guice.GuiceServlet;
+import cz.incad.Kramerius.security.rightscommands.get.EditRightsJSData;
+import cz.incad.Kramerius.security.rightscommands.get.NewRightHtml;
+import cz.incad.Kramerius.security.rightscommands.get.NewRightJSData;
+import cz.incad.Kramerius.security.rightscommands.get.ShowRightsHtml;
+import cz.incad.Kramerius.security.rightscommands.get.ShowsActionsTableHtml;
+import cz.incad.Kramerius.security.rightscommands.post.Create;
+import cz.incad.Kramerius.security.rightscommands.post.Delete;
+import cz.incad.Kramerius.security.rightscommands.post.Edit;
 import cz.incad.Kramerius.security.strenderers.AbstractUserWrapper;
 import cz.incad.Kramerius.security.strenderers.CriteriumParamsWrapper;
 import cz.incad.Kramerius.security.strenderers.CriteriumWrapper;
@@ -58,6 +67,7 @@ import cz.incad.kramerius.FedoraAccess;
 import cz.incad.kramerius.SolrAccess;
 import cz.incad.kramerius.security.AbstractUser;
 import cz.incad.kramerius.security.Group;
+import cz.incad.kramerius.security.IsActionAllowed;
 import cz.incad.kramerius.security.Right;
 import cz.incad.kramerius.security.RightCriterium;
 import cz.incad.kramerius.security.RightCriteriumParams;
@@ -99,11 +109,11 @@ public class RightsServlet extends GuiceServlet {
     transient FedoraAccess fedoraAccess;
     
     @Inject
-    UserManager userManager;
+    transient UserManager userManager;
+
+    @Inject
+    transient IsActionAllowed actionAllowed;
     
-    
-    StringTemplateGroup htmlForms;
-    StringTemplateGroup jsData;
     
     
     @Override
@@ -112,33 +122,16 @@ public class RightsServlet extends GuiceServlet {
         try {
             PIDParser pidParser = new PIDParser("uuid:"+uuid);
             pidParser.objectPid();
-            
-            String securedActionString = req.getParameter("securedaction");
-            
+
             String action = req.getParameter("action");
             
-            htmlForms  = stFormsGroup();
-            jsData  = stJSDataGroup();
-            
-            GetAction selectedAction = GetAction.valueOf(action);
-            if (selectedAction != null) {
-                ResourceBundle resourceBundle = resourceBundleService.getResourceBundle("labels", localesProvider.get());
-                String[] uuids = uuid != null ? this.solrAccess.getPathOfUUIDs(uuid) : new String[0];
-                String[] models = uuid!= null ? this.solrAccess.getPathOfModels(uuid) : new String[0];
-                selectedAction.doAction(getServletContext(), 
-                                            req, resp, 
-                                            req.getParameterMap(), 
-                                            this.fedoraAccess, 
-                                            this.solrAccess, 
-                                            this.rightsManager, 
-                                            this.userManager, 
-                                            this.userProvider.get(),
-                                            uuids, 
-                                            models, 
-                                            securedActionString, 
-                                            resourceBundle, htmlForms, jsData);
+            try {
+                GetCommandsEnum command = GetCommandsEnum.valueOf(action);
+                command.doAction(getInjector());
+            } catch (Exception e) {
+                LOGGER.log(Level.SEVERE, e.getMessage(),e);
             }
-
+            
         } catch (LexerException e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
             resp.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
@@ -149,310 +142,124 @@ public class RightsServlet extends GuiceServlet {
 
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        String action = req.getParameter("action");
-        PostAction postAction = PostAction.valueOf(action);
-        if (postAction != null) {
-            postAction.doAction(
-                            getServletContext(), 
-                            req, 
-                            resp, 
-                            fedoraAccess, 
-                            solrAccess, 
-                            rightsManager, 
-                            userManager, 
-                            userProvider.get(), 
-                            action);
+        //TODO: ochranit akci
+      String action = req.getParameter("action");
+        
+        try {
+            PostCommandsEnum command = PostCommandsEnum.valueOf(action);
+            command.doAction(getInjector());
+        } catch (Exception e) {
+            LOGGER.log(Level.SEVERE, e.getMessage(),e);
+        }
+
+    }
+
+
+    static enum PostCommandsEnum {
+        delete(Delete.class),
+        edit(Edit.class),
+        create(Create.class);
+        
+        private Class<? extends ServletCommand> commandClass;
+        
+        private PostCommandsEnum(Class<? extends ServletCommand> command) {
+            this.commandClass = command;
+        }
+        
+        public void doAction(Injector injector) throws InstantiationException, Exception {
+            ServletCommand command = commandClass.newInstance();
+            injector.injectMembers(command);
+            command.doCommand();
+        }
+        
+    }
+
+
+//    static enum PostAction {
+//        delete {
+//
+//            @Override
+//            void doAction(ServletContext context, HttpServletRequest req, HttpServletResponse resp, FedoraAccess fedoraAccess, SolrAccess solrAccess, RightsManager rightsManager, UserManager userManager, User user, String action) throws IOException {
+//                try {
+//                    Right right = createRightFromPostIds(req, rightsManager, userManager);
+//                    rightsManager.deleteRight(right);
+//                } catch (NumberFormatException e) {
+//                    LOGGER.log(Level.SEVERE, e.getMessage(),e);
+//                } catch (SQLException e) {
+//                    LOGGER.log(Level.SEVERE, e.getMessage(),e);
+//                    resp.sendError(HttpServletResponse. SC_INTERNAL_SERVER_ERROR);
+//                } catch(Exception e) {
+//                    LOGGER.log(Level.SEVERE, e.getMessage(),e);
+//                }
+//            }
+//            
+//        },
+//        edit {
+//            @Override
+//            void doAction(ServletContext context, HttpServletRequest req, HttpServletResponse resp, FedoraAccess fedoraAccess, SolrAccess solrAccess, RightsManager rightsManager, UserManager userManager, User user, String action) throws IOException {
+//                try {
+//                    Right right = createRightFromPost(req, rightsManager, userManager);
+//                    rightsManager.updateRight(right);
+//                } catch (NumberFormatException e) {
+//                    LOGGER.log(Level.SEVERE, e.getMessage(),e);
+//                } catch (SQLException e) {
+//                    LOGGER.log(Level.SEVERE, e.getMessage(),e);
+//                    resp.sendError(HttpServletResponse. SC_INTERNAL_SERVER_ERROR);
+//                } catch(Exception e) {
+//                    LOGGER.log(Level.SEVERE, e.getMessage(),e);
+//                }
+//            }
+//        },
+//
+//        create {
+//            @Override
+//            void doAction(ServletContext context, HttpServletRequest req, HttpServletResponse resp, FedoraAccess fedoraAccess, SolrAccess solrAccess, RightsManager rightsManager, UserManager userManager, User user, String action) throws IOException {
+//                try {
+//                    Right right = createRightFromPost(req, rightsManager, userManager);
+//                    rightsManager.insertRight(right);
+//                } catch (NumberFormatException e) {
+//                    LOGGER.log(Level.SEVERE, e.getMessage(),e);
+//                } catch (SQLException e) {
+//                    LOGGER.log(Level.SEVERE, e.getMessage(),e);
+//                    resp.sendError(HttpServletResponse. SC_INTERNAL_SERVER_ERROR);
+//                } catch(Exception e) {
+//                    LOGGER.log(Level.SEVERE, e.getMessage(),e);
+//                }
+//            }
+//        };
+//        
+//        
+//        
+//        abstract void doAction(ServletContext context, HttpServletRequest req, HttpServletResponse resp, FedoraAccess fedoraAccess, SolrAccess solrAccess, RightsManager rightsManager, UserManager userManager, User user, String action) throws IOException;
+//    }
+    
+    
+    static enum GetCommandsEnum {
+
+        /** zobrazeni prav */
+        showrights(ShowRightsHtml.class),
+        /** zobrazeni tabulku akci - tlacitka pro zmenu */
+        showglobalrights(ShowsActionsTableHtml.class),
+        /** nove pravo */
+        newright(NewRightHtml.class),
+        /** editace prava - javascript */
+        editrightjsdata(EditRightsJSData.class),
+        /** nove pravo - javascript */
+        newrightjsdata(NewRightJSData.class);
+
+        private Class<? extends ServletCommand> commandClass;
+        
+        private GetCommandsEnum(Class<? extends ServletCommand> command) {
+            this.commandClass = command;
+        }
+        
+        public void doAction(Injector injector) throws InstantiationException, Exception {
+            ServletCommand command = commandClass.newInstance();
+            injector.injectMembers(command);
+            command.doCommand();
         }
     }
-
-
-    static enum PostAction {
-        delete {
-
-            @Override
-            void doAction(ServletContext context, HttpServletRequest req, HttpServletResponse resp, FedoraAccess fedoraAccess, SolrAccess solrAccess, RightsManager rightsManager, UserManager userManager, User user, String action) throws IOException {
-                try {
-                    Right right = createRightFromPostIds(req, rightsManager, userManager);
-                    rightsManager.deleteRight(right);
-                } catch (NumberFormatException e) {
-                    LOGGER.log(Level.SEVERE, e.getMessage(),e);
-                } catch (SQLException e) {
-                    LOGGER.log(Level.SEVERE, e.getMessage(),e);
-                    resp.sendError(HttpServletResponse. SC_INTERNAL_SERVER_ERROR);
-                } catch(Exception e) {
-                    LOGGER.log(Level.SEVERE, e.getMessage(),e);
-                }
-            }
-            
-        },
-        edit {
-            @Override
-            void doAction(ServletContext context, HttpServletRequest req, HttpServletResponse resp, FedoraAccess fedoraAccess, SolrAccess solrAccess, RightsManager rightsManager, UserManager userManager, User user, String action) throws IOException {
-                try {
-                    Right right = createRightFromPost(req, rightsManager, userManager);
-                    rightsManager.updateRight(right);
-                } catch (NumberFormatException e) {
-                    LOGGER.log(Level.SEVERE, e.getMessage(),e);
-                } catch (SQLException e) {
-                    LOGGER.log(Level.SEVERE, e.getMessage(),e);
-                    resp.sendError(HttpServletResponse. SC_INTERNAL_SERVER_ERROR);
-                } catch(Exception e) {
-                    LOGGER.log(Level.SEVERE, e.getMessage(),e);
-                }
-            }
-        },
-
-        create {
-            @Override
-            void doAction(ServletContext context, HttpServletRequest req, HttpServletResponse resp, FedoraAccess fedoraAccess, SolrAccess solrAccess, RightsManager rightsManager, UserManager userManager, User user, String action) throws IOException {
-                try {
-                    Right right = createRightFromPost(req, rightsManager, userManager);
-                    rightsManager.insertRight(right);
-                } catch (NumberFormatException e) {
-                    LOGGER.log(Level.SEVERE, e.getMessage(),e);
-                } catch (SQLException e) {
-                    LOGGER.log(Level.SEVERE, e.getMessage(),e);
-                    resp.sendError(HttpServletResponse. SC_INTERNAL_SERVER_ERROR);
-                } catch(Exception e) {
-                    LOGGER.log(Level.SEVERE, e.getMessage(),e);
-                }
-            }
-        };
-        
-        
-        
-        abstract void doAction(ServletContext context, HttpServletRequest req, HttpServletResponse resp, FedoraAccess fedoraAccess, SolrAccess solrAccess, RightsManager rightsManager, UserManager userManager, User user, String action) throws IOException;
-    }
     
-    
-    static enum GetAction {
-
-        showrights {
-
-            @Override
-            void doAction(ServletContext context, HttpServletRequest req,  HttpServletResponse resp, Map parameterMap,FedoraAccess fedoraAccess, SolrAccess solrAccess, RightsManager rightsManager, UserManager userManager, User user, String[] path, String[] models, String action, ResourceBundle resourceBundle, StringTemplateGroup stGroup, StringTemplateGroup jsData) {
-                try {
-                    String uuid = req.getParameter(UUID_PARAMETER);
-                    String userForShow = req.getParameter("reqesteduser");
-                    
-                    List<String> saturatedPath = rightsManager.saturatePathAndCreatesPIDs(uuid, path);
-                    Right[] findRights = null;
-                    if ((userForShow!= null) && (!userForShow.equals(""))) {
-                        if (userForShow.equals("all")) {
-                            findRights =rightsManager.findAllRights(((String[]) saturatedPath.toArray(new String[saturatedPath.size()])), action);
-                        } else {
-                            try {
-                                UserFieldParser userFieldParser = new UserFieldParser(userForShow);
-                                userFieldParser.parseUser();
-                                String parsedUser = userFieldParser.getUserValue();
-                                String userType = req.getParameter("userType");
-                                if ("group".equals(userType)) {
-                                    Group foundUser = userManager.findGroupByName(parsedUser);
-                                    findRights = rightsManager.findRightsForGroup(((String[]) saturatedPath.toArray(new String[saturatedPath.size()])), action,foundUser);
-                                } else {
-                                    User foundUser = userManager.findUserByLoginName(parsedUser);
-                                    findRights = rightsManager.findRights(((String[]) saturatedPath.toArray(new String[saturatedPath.size()])), action,foundUser);
-                                }
-                                
-                            } catch (LexerException e) {
-                                LOGGER.log(Level.SEVERE, e.getMessage(),e);
-                            }
-                        }
-                    } else {
-                        findRights = rightsManager.findAllRights(((String[]) saturatedPath.toArray(new String[saturatedPath.size()])), action);
-                    }
-                    findRights = SortingRightsUtils.sortRights(findRights, saturatedPath);
-                    
-                    List<AbstractUser> users = new ArrayList<AbstractUser>();
-                    for (Right r : findRights) {
-                        users.add(r.getUser());
-                    }
-
-                    List<AbstractUserWrapper> wrapped = AbstractUserWrapper.wrap(users, true);
-                    StringTemplate template = stGroup.getInstanceOf("rightsTable");
-                    template.setAttribute("rights", RightWrapper.wrapRights(findRights));
-                    template.setAttribute("uuid", uuid);
-                    template.setAttribute("users", wrapped);
-                    
-                    template.setAttribute("action",new SecuredActionWrapper(resourceBundle, SecuredActions.findByFormalName(action)));
-                    resp.getOutputStream().write(template.toString().getBytes("UTF-8"));
-                } catch (IOException e) {
-                    LOGGER.log(Level.SEVERE, e.getMessage(),e);
-                }
-            }
-        }, 
-
-        editrightjsdata {
-            @Override
-            void doAction(ServletContext context, HttpServletRequest req, HttpServletResponse resp, Map parameterMap, FedoraAccess fedoraAccess, SolrAccess solrAccess, RightsManager rightsManager, UserManager userManager, User user, String[] path, String[] models, String action, ResourceBundle resourceBundle, StringTemplateGroup htmlForms, StringTemplateGroup jsData) {
-                try {
-                    String uuid = req.getParameter(UUID_PARAMETER);
-                    String rightId = req.getParameter("rightid");
-                    Right right = new RightWrapper(rightsManager.findRightById(Integer.parseInt(rightId)));
-                    System.out.println(right.getUser());    
-                    
-                    StringTemplate template = jsData.getInstanceOf("editRightData");
-                    RightCriteriumParams[] allParams = rightsManager.findAllParams();
-                    template.setAttribute("allParams", CriteriumParamsWrapper.wrapCriteriumParams(allParams));
-                    template.setAttribute("allCriteriums", CriteriumWrapper.wrapCriteriums(CriteriumsLoader.criteriums(), true));
-                    template.setAttribute("right", right);
-                    template.setAttribute("criterium", right.getCriterium());
-                    template.setAttribute("criteriumParams", right.getCriterium() != null ? right.getCriterium().getCriteriumParams() : null);
-                    
-                    String content = template.toString();
-                    resp.getOutputStream().write(content.getBytes("UTF-8"));
-                } catch (UnsupportedEncodingException e) {
-                    LOGGER.log(Level.SEVERE, e.getMessage(),e);
-                } catch (IOException e) {
-                    LOGGER.log(Level.SEVERE, e.getMessage(),e);
-                } catch (InstantiationException e) {
-                    LOGGER.log(Level.SEVERE, e.getMessage(),e);
-                } catch (IllegalAccessException e) {
-                    LOGGER.log(Level.SEVERE, e.getMessage(),e);
-                } catch (ClassNotFoundException e) {
-                    LOGGER.log(Level.SEVERE, e.getMessage(),e);
-                }
-            }
-            
-        },
-        newrightjsdata {
-
-            @Override
-            void doAction(ServletContext context, HttpServletRequest req, HttpServletResponse resp, Map parameterMap, FedoraAccess fedoraAccess, SolrAccess solrAccess, RightsManager rightsManager, UserManager userManager, User user,  String[] path, String[] models, String action, ResourceBundle resourceBundle, StringTemplateGroup htmlForms, StringTemplateGroup jsData) {
-                try {
-                    StringTemplate template = jsData.getInstanceOf("newRightData");
-                    RightCriteriumParams[] allParams = rightsManager.findAllParams();
-                    template.setAttribute("allParams", CriteriumParamsWrapper.wrapCriteriumParams(allParams));
-                    template.setAttribute("allCriteriums", CriteriumWrapper.wrapCriteriums(CriteriumsLoader.criteriums(), true));
-                    
-                    String content = template.toString();
-                    resp.getOutputStream().write(content.getBytes("UTF-8"));
-                } catch (UnsupportedEncodingException e) {
-                    LOGGER.log(Level.SEVERE, e.getMessage(),e);
-                } catch (IOException e) {
-                    LOGGER.log(Level.SEVERE, e.getMessage(),e);
-                } catch (InstantiationException e) {
-                    LOGGER.log(Level.SEVERE, e.getMessage(),e);
-                } catch (IllegalAccessException e) {
-                    LOGGER.log(Level.SEVERE, e.getMessage(),e);
-                } catch (ClassNotFoundException e) {
-                    LOGGER.log(Level.SEVERE, e.getMessage(),e);
-                }
-            }
-            
-        },
-        
-        
-        
-        newright {
-
-            
-            @Override
-            void doAction(ServletContext context, HttpServletRequest req, HttpServletResponse resp, Map parameterMap, FedoraAccess fedoraAccess, SolrAccess solrAccess, RightsManager rightsManager, UserManager userManager, User user, String[] path,String[]models, String action, ResourceBundle resourceBundle,StringTemplateGroup htmlForms, StringTemplateGroup jsData) {
-                String uuid = req.getParameter(UUID_PARAMETER);
-                try {
-                    StringTemplate template = htmlForms.getInstanceOf("rightDialog");
-                    HashMap<String, String> titles = TitlesForObjects.createFinerTitles(fedoraAccess,rightsManager, uuid, path, models, resourceBundle);
-
-                    List<String> saturatedPath = rightsManager.saturatePathAndCreatesPIDs(uuid, path);
-                    
-                    RightCriteriumParams[] allParams = rightsManager.findAllParams();
-                    template.setAttribute("allParams", allParams);
-                    template.setAttribute("titles", titles);
-                    template.setAttribute("uuid", uuid);  
-                    template.setAttribute("action", new SecuredActionWrapper(resourceBundle, SecuredActions.findByFormalName(action)));
-                    template.setAttribute("objects", saturatedPath);
-                    //template.setAttribute("criteriumNames",CriteriumWrapper.wrapCriteriums(CriteriumsLoader.criteriums(), true));
-                    template.setAttribute("allCriteriums",CriteriumWrapper.wrapCriteriums(CriteriumsLoader.criteriums(), true));
-                    
-                    
-                    String content = template.toString();
-
-                    resp.getOutputStream().write(content.getBytes("UTF-8"));
-                } catch (IOException e) {
-                    LOGGER.log(Level.SEVERE, e.getMessage(),e);
-                } catch (InstantiationException e) {
-                    LOGGER.log(Level.SEVERE, e.getMessage(),e);
-                } catch (IllegalAccessException e) {
-                    LOGGER.log(Level.SEVERE, e.getMessage(),e);
-                } catch (ClassNotFoundException e) {
-                    LOGGER.log(Level.SEVERE, e.getMessage(),e);
-                }
-            }
-            
-        },
-        
-        showglobalrights {
-
-            @Override
-            void doAction(ServletContext context, HttpServletRequest req, HttpServletResponse resp, Map parameterMap, FedoraAccess fedoraAccess, SolrAccess solrAccess, RightsManager rightsManager, UserManager userManager, User user, String[] path,String[]models, String action, ResourceBundle resourceBundle,StringTemplateGroup htmlForms, StringTemplateGroup jsData) {
-                String uuid = req.getParameter(UUID_PARAMETER);
-                try {
-                    StringTemplate template = htmlForms.getInstanceOf("rightsForRepository");
-                    template.setAttribute("actions", SecuredActionWrapper.wrap(resourceBundle, SecuredActions.values()));
-                    //template.setAttribute("uuid", "uuid:1");
-                    
-                    String content = template.toString();
-                    resp.getOutputStream().write(content.getBytes("UTF-8"));
-                } catch (IOException e) {
-                    LOGGER.log(Level.SEVERE, e.getMessage(),e);
-                }
-            }
-            
-        }, 
-        
-        userjsautocomplete {
-
-
-            void doAction(ServletContext context, HttpServletRequest req, HttpServletResponse resp, Map parametersMap, FedoraAccess fedoraAccess, SolrAccess solrAccess, RightsManager rightsManager, UserManager userManager, User user, String[] path, String[] models, String action, ResourceBundle resourceBundle, StringTemplateGroup htmlForms, StringTemplateGroup jsData) {
-                try {
-                    
-                    List<AbstractUser> ausers = new ArrayList<AbstractUser>();
-                    String autocompletetype = req.getParameter("autcompletetype");
-                    String prefix = req.getParameter("t");
-                    try {
-                        UserFieldParser fparser = new UserFieldParser(prefix);
-                        fparser.parseUser();
-                        prefix = fparser.getUserValue();
-                    } catch (LexerException e) {
-                        LOGGER.log(Level.SEVERE, e.getMessage(),e);
-                    }
-                    
-                    if (autocompletetype.equals("group")) {
-                        Group[] groups = userManager.findGroupByPrefix(prefix.trim());
-                        for (Group grp : groups) {
-                            ausers.add(grp);
-                        }
-                    } else {
-                        User[] users = userManager.findUserByPrefix(prefix.trim());
-                        for (User auser : users) {
-                            ausers.add(auser);
-                        }
-                    }
-                        
-                    StringTemplate template = jsData.getInstanceOf("userAutocomplete");
-                    template.setAttribute("type", autocompletetype);
-                    template.setAttribute("users", ausers);
-                    
-                    String content = template.toString();
-                    resp.getOutputStream().write(content.getBytes("UTF-8"));
-                } catch (UnsupportedEncodingException e) {
-                    LOGGER.log(Level.SEVERE, e.getMessage(),e);
-                } catch (IOException e) {
-                    LOGGER.log(Level.SEVERE, e.getMessage(),e);
-                }
-                
-            }
-            
-        };
-
-        abstract void doAction(ServletContext context, HttpServletRequest req, HttpServletResponse resp, Map parametersMap, 
-                                FedoraAccess fedoraAccess, SolrAccess solrAccess, 
-                                RightsManager rightsManager, UserManager manager, 
-                                User user,  String[] path, String[] models, String action, 
-                                ResourceBundle resourceBundle, 
-                                StringTemplateGroup htmlForms, StringTemplateGroup jsData);
-    }
     
     
     private static StringTemplateGroup stFormsGroup() throws IOException {
@@ -484,6 +291,7 @@ public class RightsServlet extends GuiceServlet {
         return rightsManager.findRightById(Integer.parseInt(rightId));
     }
     
+
     public static Right createRightFromPost(HttpServletRequest req, RightsManager rightsManager, UserManager userManager) throws InstantiationException, IllegalAccessException, ClassNotFoundException {
         String rightId = req.getParameter("rightId");
         String uuidHidden = req.getParameter("uuidHidden");
@@ -502,6 +310,7 @@ public class RightsServlet extends GuiceServlet {
             if ((rightId != null) && (!rightId.equals("")) && (Integer.parseInt(rightId) > 0)) {
                 right = rightsManager.findRightById(Integer.parseInt(rightId));
                 right.setCriterium(rightCriterium);
+                right.setUser(auser);
             } else {
                 right = new RightImpl(-1, rightCriterium, uuidHidden, securedAction.getFormalName(), auser);
             }

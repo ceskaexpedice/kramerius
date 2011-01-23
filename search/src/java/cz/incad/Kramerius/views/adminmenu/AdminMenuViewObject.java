@@ -8,12 +8,17 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
 
 
 import com.google.inject.Inject;
+import com.google.inject.Provider;
 
 import cz.incad.Kramerius.security.KrameriusRoles;
 import cz.incad.kramerius.security.IsUserInRoleDecision;
+import cz.incad.kramerius.security.SecuredActions;
+import cz.incad.kramerius.security.SpecialObjects;
+import cz.incad.kramerius.security.User;
 import cz.incad.kramerius.service.ResourceBundleService;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 
@@ -26,8 +31,13 @@ public class AdminMenuViewObject {
     HttpServletRequest request;
     @Inject
     Locale locale;
+
     @Inject
-    IsUserInRoleDecision userInRoleDecision;
+    Provider<User> currentUserProvider;
+    
+    
+//    @Inject
+//    IsUserInRoleDecision userInRoleDecision;
     @Inject
     KConfiguration kconfig;
 
@@ -57,7 +67,7 @@ public class AdminMenuViewObject {
 
     public String showActionsAdmin() throws IOException {
         return renderMenuItem(
-                "javascript:rightsForRepository(); javascript:hideAdminMenu();",
+                "javascript:rightsForRepository('"+SpecialObjects.REPOSITORY.getUuid()+"'); javascript:hideAdminMenu();",
                 "administrator.menu.dialogs.actionsAdmin.title");
     }
 
@@ -83,34 +93,35 @@ public class AdminMenuViewObject {
         try {
             List<String> menuItems = new ArrayList<String>();
             if (request.getRemoteUser() != null) {
-                if (isUserRole(KrameriusRoles.KRAMERIUS_ADMIN)) {
+                if (hasUserAllowedAction(SecuredActions.MANAGE_LR_PROCESS.getFormalName())) {
                     menuItems.add(processes());
                 }
-                if (isUserRole(KrameriusRoles.REPLIKATOR_MONOGRAPHS)) {
+                if (hasUserAllowedAction(SecuredActions.REPLIKATOR_MONOGRAPHS.getFormalName())) {
                     menuItems.add(importMonographs());
                 }
-                if (isUserRole(KrameriusRoles.REPLIKATOR_PERIODICALS)) {
+                if (hasUserAllowedAction(SecuredActions.REPLIKATOR_PERIODICALS.getFormalName())) {
                     menuItems.add(importPeriodicals());
                 }
-                if (isUserRole(KrameriusRoles.REINDEX)) {
+                if (hasUserAllowedAction(SecuredActions.REINDEX.getFormalName())) {
                     menuItems.add(showIndexerAdmin());
                 }
+                if (hasUserAllowedAction(SecuredActions.ADMINISTRATE.getFormalName())) {
+                    menuItems.add(showActionsAdmin());
+                }
 
-                menuItems.add(showActionsAdmin());
-                
-                if (isUserRole(KrameriusRoles.ENUMERATOR)) {
+                if (hasUserAllowedAction(SecuredActions.ENUMERATOR.getFormalName())) {
                     menuItems.add(noParamsProcess(KrameriusRoles.ENUMERATOR.getRoleName()));
                 }
-                if (isUserRole(KrameriusRoles.REPLICATIONRIGHTS)) {
+                if (hasUserAllowedAction(SecuredActions.REPLICATIONRIGHTS.getFormalName())) {
                     menuItems.add(noParamsProcess(KrameriusRoles.REPLICATIONRIGHTS.getRoleName()));
                 }
-                if (isUserRole(KrameriusRoles.CONVERT)) {
+                if (hasUserAllowedAction(SecuredActions.CONVERT.getFormalName())) {
                     menuItems.add(noParamsProcess(KrameriusRoles.CONVERT.getRoleName()));
                 }
-                if (isUserRole(KrameriusRoles.IMPORT)) {
+                if (hasUserAllowedAction(SecuredActions.IMPORT.getFormalName())) {
                     menuItems.add(noParamsProcess(KrameriusRoles.IMPORT.getRoleName()));
                 }
-                if (isUserRole(KrameriusRoles.KRAMERIUS_ADMIN)) {
+                if (hasUserAllowedAction(SecuredActions.EDITOR.getFormalName())) {
                     menuItems.add(editor());
                 }
             }
@@ -121,7 +132,10 @@ public class AdminMenuViewObject {
         }
     }
 
-    private boolean isUserRole(KrameriusRoles role) {
-        return userInRoleDecision.isUserInRole(role.getRoleName());
+    private boolean hasUserAllowedAction(String actionFormalName) {
+        User user = currentUserProvider.get();
+        HttpSession session = this.request.getSession();
+        List<String> actionsForRepository = (List<String>) session.getAttribute("securityForRepository");
+        return actionsForRepository != null ? actionsForRepository.contains(actionFormalName) : false;
     }
 }

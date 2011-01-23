@@ -1,0 +1,40 @@
+group viewinfo;
+
+/* cele view info */
+viewinfo(data, globalActions) ::=<<
+{
+        deepZoomGenerated:$data.deepZoomCacheGenerated$,
+        deepZoomCofigurationEnabled:$data.deepZoomCofigurationEnabled$,
+        mimeType:'$data.mimeType$', 
+        hasAlto:$data.hasAlto$,
+        uuid:"$data.uuid$",
+        pathOfUuids:[$data.pathOfUuids:{uuid| "$uuid$" };separator=","$],
+        imageServerConfigured:'$data.imageServerConfigured$', 
+        $rights(securedActionsMap=data.actions, globalActions=data.globalActions);separator=","$,                
+        $supportfunctions()$
+}
+>>
+            
+
+/* prava pro objekty */
+rights(securedActionsMap, globalActions) ::=<<
+    rights: 
+    { 
+        $securedActionsMap.keys:{secaction |   $action(action=secaction,uuidMap=securedActionsMap.(secaction))$  };separator=",\n"$ 
+        $if(globalActions)$
+        ,
+        $globalActions:{secaction | "$secaction$":{"1":true} };separator=",\n"$
+        $endif$
+    }
+>>
+
+/* hash mapa akci */
+action(action, uuidMap) ::=<<
+    "$action$": { $uuidMap.keys:{uuid |  "$uuid$":$uuidMap.(uuid)$  };separator=","$ }
+>>
+
+/* podpurne funkce */
+supportfunctions() ::=<<
+            isContentPDF:function() {return viewerOptions.mimeType=='application/pdf'},
+            isContentDJVU:function() {return viewerOptions.mimeType.indexOf('djvu')> 0 }
+>>

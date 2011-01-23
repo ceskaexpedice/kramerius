@@ -44,7 +44,7 @@ public class CriteriumWrapper implements RightCriterium{
     public String getQName() {
         if (this.criterium != null) {
             return criterium.getQName();
-        } else return null;
+        } else return "none";
     }
 
     public void setId(int id) {
