@@ -113,8 +113,7 @@ public class RightsLoaderServlet extends ApplicationLoaderServlet {
 	
 	private Form createRightCriteriumParamForm() {
 		Form form = new Form();
-		TextArea textArea = new TextArea(struct.criteriumParam.VALS);
-		textArea.setWidth("100%");
+		TextArea textArea = new TextArea(struct.criteriumParam.VALS).setWidth("100%");
 		form.setLayout(new VerticalPanel().addChild(
 				new HorizontalPanel()
 					.addChild(textArea)

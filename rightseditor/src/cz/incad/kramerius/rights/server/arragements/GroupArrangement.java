@@ -37,8 +37,7 @@ public class GroupArrangement extends Arrangement {
 		Form form = new Form();
 		form.setLayout(new VerticalPanel()
 					.addChild(new TextField(struct.group.GNAME))
-					.addChild(new TextArea(struct.group.DESCRIPTION,"100%"))
-					
+					.addChild(new TextArea(struct.group.DESCRIPTION).setWidth("100%"))
 					.addChild(
 							new RefButton(struct.group.PERSONAL_ADMIN,
 									this.reference,
