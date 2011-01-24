@@ -68,7 +68,7 @@ public class Structure extends Application {
         public GroupEntity() {
             super("Groups_table", "GROUP_ENTITY", "GROUP_ID", Structure.this);
             GNAME= addProperty("GNAME", PropertyType.STRING, 255, true);
-            DESCRIPTION=addProperty("DESC", PropertyType.STRING, 1024, false);
+            DESCRIPTION=addProperty("DESCRIPTION", PropertyType.STRING, 1024, false);
             addIndex("GNAME_IDX", true, GNAME);
         }
 	}
