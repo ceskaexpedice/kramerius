@@ -98,6 +98,39 @@ findUserByPrefix() ::=<<
     where loginname ilike ?
 >>
 
+findAllUsers(prefix) ::=<<
+    select * from user_entity 
+    $if(prefix)$
+    where loginname ilike ?
+    $endif$
+    order by loginname 
+    limit 20
+>>
+
+findAllGroups(prefix) ::=<<
+    select * from group_entity 
+    $if(prefix)$
+    where gname ilike ?
+    $endif$
+    order by gname 
+    limit 20
+>>
+
+
+/** vraci vsechny uzivatele */
+findAllUsersForGroups(grps) ::=<<
+    select * from group_users_mapping 
+    where personal_admin_id in ($grps:{?};separator=","$) 
+>>
+
+
+findAllGroupsForGroups(grps) ::=<<
+    select * from group_entity 
+    where group_id in ($grps:{?};separator=","$)
+    order by gname 
+>>
+
+/**  */
 findUserByPrefixForGroups(grps) ::=<<
     select * from group_users_mapping 
     where personal_admin_id in ($grps;separator=","$) 
@@ -115,6 +148,7 @@ findGroupsWhichAdministrate(grps) ::=<<
     where personal_admin_id in (grps;separator=",") 
 >>
 
+/** najde skupinu dle id */
 findAllGroupsByUserId() ::=<<
     select * from user_group_mapping 
     where user_id=?
@@ -243,8 +277,9 @@ deleteRight() ::=<<
     where right_id=?
 >>
 
-
-
-
-
+updatePassword() ::=<<
+    update user_entity 
+    set pswd=?
+    where user_id=? 
+>>
 

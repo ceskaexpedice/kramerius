@@ -16,9 +16,12 @@
  */
 package cz.incad.kramerius.security;
 
+import java.sql.SQLException;
+
 public interface UserManager {
 
     public User validateUser(String loginName, String passwd);
+    
     
     public Group[] findGroups(int user_id);
     
@@ -39,7 +42,17 @@ public interface UserManager {
     
     public User findUserByLoginName(String loginName);
 
+    
     public User[] findUserByPrefixForGroups(String prefix, int[] grpIds);
-
     public Group[] findGroupByPrefixForGroups(String prefix, int[] grpIds);
+
+
+    public User[] findAllUsers(int[] grpIds);
+    public Group[] findAllGroups(int[] grpIds);
+    
+    void saveNewPassword(int userId, String pswd) throws SQLException;
+
+
+    public User[] findAllUsers(String prefix);
+    public Group[] findAllGroups(String prefix);
 }

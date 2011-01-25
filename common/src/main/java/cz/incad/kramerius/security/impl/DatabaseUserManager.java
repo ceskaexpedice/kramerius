@@ -16,6 +16,7 @@
  */
 package cz.incad.kramerius.security.impl;
 
+
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -36,6 +37,7 @@ import cz.incad.kramerius.security.UserManager;
 import cz.incad.kramerius.security.database.SecurityDatabaseUtils;
 import cz.incad.kramerius.security.utils.SecurityDBUtils;
 import cz.incad.kramerius.utils.database.JDBCQueryTemplate;
+import cz.incad.kramerius.utils.database.JDBCUpdateTemplate;
 
 public class DatabaseUserManager implements UserManager{
 
@@ -245,6 +247,102 @@ public class DatabaseUserManager implements UserManager{
         return (Group[]) users.toArray(new Group[users.size()]);
     }
 
+    @Override
+    public void saveNewPassword(int userId, String pswd) throws SQLException {
+        JDBCUpdateTemplate updateTemplate = new JDBCUpdateTemplate(this.provider.get());
+        StringTemplate template = SecurityDatabaseUtils.stGroup().getInstanceOf("updatePassword");
+        updateTemplate.executeUpdate(template.toString(), pswd, userId);
+    }
+
+    public User[] findAllUsers(String prefix) {
+        StringTemplate template = SecurityDatabaseUtils.stGroup().getInstanceOf("findAllUsers");
+        template.setAttribute("prefix", prefix.trim().equals("") ?  null : prefix);
+        String sql = template.toString();
+        List<User> users= null;
+        if (prefix.trim().equals("")) {
+            users = new JDBCQueryTemplate<User>(this.provider.get()){
+                @Override
+                public boolean handleRow(ResultSet rs, List<User> returnsList) throws SQLException {
+                        User user = SecurityDBUtils.createUser(rs);
+                        returnsList.add(user);
+                        return true;
+                }
+            }.executeQuery(sql);
+        } else {
+            users = new JDBCQueryTemplate<User>(this.provider.get()){
+                @Override
+                public boolean handleRow(ResultSet rs, List<User> returnsList) throws SQLException {
+                        User user = SecurityDBUtils.createUser(rs);
+                        returnsList.add(user);
+                        return true;
+                }
+            }.executeQuery(sql, prefix+"%");
+        }
+        return (User[]) users.toArray(new User[users.size()]);
+    }
+
+    
+    @Override
+    public User[] findAllUsers(int[] grpIds) {
+        StringTemplate template = SecurityDatabaseUtils.stGroup().getInstanceOf("findAllUsersForGroups");
+        template.setAttribute("grps", grpIds);
+        String sql = template.toString();
+        List<User> users= new JDBCQueryTemplate<User>(this.provider.get()){
+            @Override
+            public boolean handleRow(ResultSet rs, List<User> returnsList) throws SQLException {
+                    User user = SecurityDBUtils.createUser(rs);
+                    returnsList.add(user);
+                    return true;
+            }
+        }.executeQuery(sql, grpIds);
+        return (User[]) users.toArray(new User[users.size()]);
+    }
+
+    @Override
+    public Group[] findAllGroups(int[] grpIds) {
+        StringTemplate template = SecurityDatabaseUtils.stGroup().getInstanceOf("findAllGroupsForGroups");
+        template.setAttribute("grps", grpIds);
+        String sql = template.toString();
+        List<Group> grps= new JDBCQueryTemplate<Group>(this.provider.get()){
+            @Override
+            public boolean handleRow(ResultSet rs, List<Group> returnsList) throws SQLException {
+                    Group grp = SecurityDBUtils.createGroup(rs);
+                    returnsList.add(grp);
+                    return true;
+            }
+        }.executeQuery(sql, grpIds);
+        return (Group[]) grps.toArray(new Group[grps.size()]);
+    }
+
+    
+    public Group[] findAllGroups(String prefix) {
+        StringTemplate template = SecurityDatabaseUtils.stGroup().getInstanceOf("findAllGroups");
+        template.setAttribute("prefix", prefix.trim().equals("") ?  null : prefix);
+        String sql = template.toString();
+        List<Group> grps= null;
+        if (prefix.trim().equals("")) {
+            grps= new JDBCQueryTemplate<Group>(this.provider.get()){
+                @Override
+                public boolean handleRow(ResultSet rs, List<Group> returnsList) throws SQLException {
+                        Group grp = SecurityDBUtils.createGroup(rs);
+                        returnsList.add(grp);
+                        return true;
+                }
+            }.executeQuery(sql);
+        } else {
+            grps= new JDBCQueryTemplate<Group>(this.provider.get()){
+                @Override
+                public boolean handleRow(ResultSet rs, List<Group> returnsList) throws SQLException {
+                        Group grp = SecurityDBUtils.createGroup(rs);
+                        returnsList.add(grp);
+                        return true;
+                }
+            }.executeQuery(sql, prefix+"%");
+        }
+        return (Group[]) grps.toArray(new Group[grps.size()]);
+    }
+    
+    
     
     
 }

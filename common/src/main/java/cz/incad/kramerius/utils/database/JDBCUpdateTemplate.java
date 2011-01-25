@@ -16,6 +16,7 @@
  */
 package cz.incad.kramerius.utils.database;
 
+import java.lang.reflect.Array;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -98,6 +99,11 @@ public class JDBCUpdateTemplate {
             pstm.setTimestamp(i, (java.sql.Timestamp) object);
         } else if (object instanceof Long) {
             pstm.setLong(i, (Long) object);
+        } else if (object.getClass().isArray()) {
+            int length = Array.getLength(object);
+            for (int j = 0; j < length; j++) {
+                setParam(i+j, Array.get(object, j), pstm);
+            }
         } else throw new IllegalArgumentException("unsupported type of argument "+object.getClass().getName());
     }
 }
