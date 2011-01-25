@@ -103,8 +103,8 @@ public class Structure extends Application {
             ACTION= addProperty("ACTION", PropertyType.STRING, 255, true);
             
             RIGHT_CRITERIUM= addReference(rightCriterium, "RIGHTS_CRIT");
-            USER= addReference(user, "user");
-            GROUP= addReference(group, "group");
+            USER= addReference(user, "USER_ID");
+            GROUP= addReference(group, "GROUP_ID");
 
             FIXED_PRIORITY = addProperty("FIXED_PRIORITY", PropertyType.INTEGER,0.0,false);
 
