@@ -67,7 +67,7 @@ public class AdminMenuViewObject {
 
     public String showActionsAdmin() throws IOException {
         return renderMenuItem(
-                "javascript:rightsForRepository('"+SpecialObjects.REPOSITORY.getUuid()+"'); javascript:hideAdminMenu();",
+                "javascript:securedActionsTable('"+SpecialObjects.REPOSITORY.getUuid()+"'); javascript:hideAdminMenu();",
                 "administrator.menu.dialogs.actionsAdmin.title");
     }
 
@@ -124,12 +124,19 @@ public class AdminMenuViewObject {
                 if (hasUserAllowedAction(SecuredActions.EDITOR.getFormalName())) {
                     menuItems.add(editor());
                 }
+                menuItems.add(changepswd());
             }
             return menuItems.toArray(new String[menuItems.size()]);
         } catch (IOException e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
             return new String[0];
         }
+    }
+    
+    private String changepswd() throws IOException {
+        return renderMenuItem(
+                "javascript:changePassword(); javascript:hideAdminMenu();",
+                "administrator.menu.dialogs.actionsAdmin.title");
     }
 
     private boolean hasUserAllowedAction(String actionFormalName) {

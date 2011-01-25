@@ -26,6 +26,8 @@ import org.antlr.stringtemplate.language.DefaultTemplateLexer;
 
 import cz.incad.Kramerius.security.RightsServlet;
 import cz.incad.Kramerius.security.ServletCommand;
+import cz.incad.kramerius.security.Group;
+import cz.incad.kramerius.security.User;
 import cz.incad.kramerius.utils.IOUtils;
 
 public abstract class ServletUsersCommand extends ServletCommand {
@@ -35,6 +37,33 @@ public abstract class ServletUsersCommand extends ServletCommand {
         String string = IOUtils.readAsString(stream, Charset.forName("UTF-8"), true);
         StringTemplateGroup group = new StringTemplateGroup(new StringReader(string), DefaultTemplateLexer.class);
         return group;
+    }
+
+    public static StringTemplateGroup stFormsGroup() throws IOException {
+        InputStream stream = RightsServlet.class.getResourceAsStream("users.stg");
+        String string = IOUtils.readAsString(stream, Charset.forName("UTF-8"), true);
+        StringTemplateGroup group = new StringTemplateGroup(new StringReader(string), DefaultTemplateLexer.class);
+        return group;
+    }
+
+    public boolean hasCurrentUserHasSuperAdminRole(User user) {
+        Group[] groups = user.getGroups();
+        for (Group group : groups) {
+            if (group.getPersonalAdminId() <= 0 ) {
+                return true;
+            }
+        }
+        return false;
+    
+    }
+
+    public int[] getUserGroups(User user) {
+        Group[] grps = user.getGroups();
+        int[] grpIds = new int[grps.length];
+        for (int i = 0; i < grpIds.length; i++) {
+            grpIds[i] = grps[i].getId();
+        }
+        return grpIds;
     }
 
 }

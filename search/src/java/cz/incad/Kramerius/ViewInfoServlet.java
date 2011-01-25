@@ -110,7 +110,7 @@ public class ViewInfoServlet extends GuiceServlet {
                 // aby se pravo ineterpretovalo vicekrat, interpretuje se zde jednou a vysledek 
                 // se pak vyhodnoti
                 boolean[] vals = fillActionsToJSON(req, uuid, pathOfUUIDs, secMapping, SecuredActions.READ);
-                if (!atLeastOneTrue(vals)) {
+                if (!firstMustBeTrue(vals)) {
                     throw new SecurityException("access denided");
                 }
                 
@@ -157,6 +157,10 @@ public class ViewInfoServlet extends GuiceServlet {
     }
 
 
+    private boolean firstMustBeTrue(boolean[] vals) {
+        return (vals.length > 0) && (vals[0]);
+    }
+    
     private boolean atLeastOneTrue(boolean[] vals) {
         boolean accessed = false;
         for (boolean val : vals) {

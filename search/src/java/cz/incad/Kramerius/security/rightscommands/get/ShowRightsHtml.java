@@ -103,7 +103,7 @@ public class ShowRightsHtml extends ServletRightsCommand{
             }
             
             StringTemplate template = ServletRightsCommand.stFormsGroup().getInstanceOf("rightsTable");
-            template.setAttribute("rights", RightWrapper.wrapRights(resultRights));
+            template.setAttribute("rights", RightWrapper.wrapRights(fedoraAccess, resultRights));
             template.setAttribute("uuid", uuid);
             template.setAttribute("users", wrapped);
             template.setAttribute("typeOfLists",TypeOfList.typeOfListAsMap(typeOfList));

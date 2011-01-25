@@ -34,6 +34,7 @@ import cz.incad.kramerius.utils.DCUtils;
 
 public class TitlesForObjects {
 
+    
     public static HashMap<String, String> createFinerTitles(FedoraAccess fedoraAccess, RightsManager rightsManager, String uuid, String[] path, String[] models, ResourceBundle bundle) throws IOException {
         List<String> saturatedPath = rightsManager.saturatePathAndCreatesPIDs(uuid, path);
     

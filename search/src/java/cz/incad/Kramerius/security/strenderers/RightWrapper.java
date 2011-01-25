@@ -16,6 +16,10 @@
  */
 package cz.incad.Kramerius.security.strenderers;
 
+import java.io.IOException;
+import java.util.logging.Level;
+
+import cz.incad.kramerius.FedoraAccess;
 import cz.incad.kramerius.security.AbstractUser;
 import cz.incad.kramerius.security.EvaluatingResult;
 import cz.incad.kramerius.security.Right;
@@ -23,14 +27,27 @@ import cz.incad.kramerius.security.RightCriterium;
 import cz.incad.kramerius.security.RightCriteriumContext;
 import cz.incad.kramerius.security.RightCriteriumException;
 import cz.incad.kramerius.security.SpecialObjects;
+import cz.incad.kramerius.utils.DCUtils;
 
 public class RightWrapper implements Right{
     
+    static java.util.logging.Logger LOGGER = java.util.logging.Logger.getLogger(RightWrapper.class.getName());
+    
     private Right right;
+    private String pidTitle;
 
-    public RightWrapper(Right right) {
+    public RightWrapper(FedoraAccess fedoraAccess,Right right) {
         super();
         this.right = right;
+        if (("uuid:"+SpecialObjects.REPOSITORY.getUuid()).equals(right.getPid())) {
+            this.pidTitle = SpecialObjects.REPOSITORY.name();
+        } else {
+            try {
+                this.pidTitle = DCUtils.titleFromDC(fedoraAccess.getDC(right.getPid().substring("uuid:".length())));
+            } catch (IOException e) {
+               LOGGER.log(Level.SEVERE, e.getMessage(),e); 
+            }
+        }
     }
 
     public int getId() {
@@ -39,9 +56,11 @@ public class RightWrapper implements Right{
 
     
     public String getPid() {
-        if (("uuid:"+SpecialObjects.REPOSITORY.getUuid()).equals(right.getPid())) {
-            return SpecialObjects.REPOSITORY.name();
-        } else  return right.getPid();
+        return this.right.getPid();
+    }
+    
+    public String getDCTitle() {
+        return this.pidTitle;
     }
     
     public String getUuid() {
@@ -74,10 +93,10 @@ public class RightWrapper implements Right{
         throw new IllegalStateException();
     }
     
-    public static RightWrapper[] wrapRights(Right...rights) {
+    public static RightWrapper[] wrapRights(FedoraAccess fedoraAccess, Right...rights) {
         RightWrapper[] wrappers = new RightWrapper[rights.length];
         for (int i = 0; i < rights.length; i++) {
-            wrappers[i]= new RightWrapper(rights[i]);
+            wrappers[i]= new RightWrapper(fedoraAccess, rights[i]);
         }
         return wrappers;
     }

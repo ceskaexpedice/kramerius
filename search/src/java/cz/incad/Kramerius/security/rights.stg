@@ -87,7 +87,7 @@ selectedComboItem(selectedflag) ::=<<
 rightTableRow(index,right, action) ::=<<
     <tr>
         <td>$index$.</td>
-        <td>$right.pid$</td>
+        <td title="$right.pid$">$right.dCTitle$</td>
         <td><div style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;"> $right.action$</div></td>
         <td><div style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">$right.user$</div></td>
         <td>$if(PRIORITY_VALS.(right.fixedPriority))$
@@ -111,12 +111,15 @@ rightTableRow(index,right, action) ::=<<
 
 /** rendrovani kriteria */
 rightCriterium(rightCriterium) ::=<<
-    <td>$CRITERUIM_NAMES.(rightCriterium.qName)$</td>
+    <td title="$rightCriterium.qName$">$CRITERUIM_NAMES.(rightCriterium.qName)$</td>
     
-    <td>$if(rightCriterium.criteriumParams)$
+    $if(rightCriterium.criteriumParams)$
+        <td title="$rightCriterium.criteriumParams.objects;seprator=";"$">
          $rightCriterium.criteriumParams$
+        </td>
+    $else$
+        <td></td>
       $endif$
-    </td>
 >>
 
 
@@ -159,13 +162,31 @@ rightDialog(titles, objects, allCriteriums, criteriumParams, allParams, uuid,act
     
             <tr><td> 
                 <div id="userIdDiv" style="display:none">
-                    <input id="userId" name="userName" 
-                            size="10" type="text" 
-                            style="width:100%;" 
-                            value="common_users"
-                            onfocus="\$('#userautocomplete').hide();"
-                            onkeyup="doUserAutocomplete(this,'user',event,'query')"
-                    />
+                    <span>
+                        <input id="userId" name="userName" 
+                                size="10" type="text" 
+                                style="width:100%;" 
+                                value="common_users"
+                                onkeyup="hintAutocomplete(this);"
+                                />
+
+
+                        <div style="width:100%">                    
+                            <span id="navigationForGroup">
+                                <a href="javascript:hintAllGroups();"> Vsechny skupiny <img id="groupdropdownicon" src="img/dropdown.png" border="0"/> </a>
+                                <a href="#"> Uzivatele vybrane skupiny <img src="img/dropdown.png" border="0"/> </a>
+                            </span>    
+                            <span id="navigationForUser">
+                                <a href="javascript:hintAllUsers();"> Vsichni uzivatele <img id="userdropdownicon" src="img/dropdown.png" border="0"/> </a>
+                                <a href="#"> Skupiny vybraneho uzivatele <img src="img/dropdown.png" border="0"/> </a>
+                            </span>
+
+                            <div id="hintContent" class="down">
+                            </div>
+                        </div>
+                    </span>
+                    
+                    
                 </div>
 
                 <div id="userautocomplete" style="border-left:1px solid gray;

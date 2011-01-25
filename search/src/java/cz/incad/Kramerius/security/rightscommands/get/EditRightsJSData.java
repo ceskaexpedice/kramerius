@@ -49,7 +49,7 @@ public class EditRightsJSData extends ServletRightsCommand {
             HttpServletRequest req = this.requestProvider.get();
             HttpServletResponse resp = this.responseProvider.get();
             String rightId = req.getParameter("rightid");
-            Right right = new RightWrapper(rightsManager.findRightById(Integer.parseInt(rightId)));
+            Right right = new RightWrapper(fedoraAccess, rightsManager.findRightById(Integer.parseInt(rightId)));
             
             StringTemplate template = ServletRightsCommand.stJSDataGroup().getInstanceOf("editRightData");
             RightCriteriumParams[] allParams = rightsManager.findAllParams();

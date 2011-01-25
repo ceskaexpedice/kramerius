@@ -172,7 +172,7 @@ public class ItemMenuViewObject {
         //String jsmethod = "adminRights";
         //rightsForRepository('uuid',actions
         StringTemplate template = new StringTemplate("<div align=\"left\"><a title='$tooltip$' "
-                + "href=\"javascript:rightsForRepository('$uuid$','$actions;separator=\",\"$');\">$title$</a> "
+                + "href=\"javascript:securedActionsTableForCtxMenu($level$,'$uuid$','$actions;separator=\",\"$');\">$title$</a> "
                 + "<div class=\"$datatype$\" style=\"display:none\">$value$</div></div>");
 
         titleAndTooltip(template, key);

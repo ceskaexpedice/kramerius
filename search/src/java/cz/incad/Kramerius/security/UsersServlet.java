@@ -44,7 +44,11 @@ import cz.incad.Kramerius.backend.guice.GuiceServlet;
 import cz.incad.Kramerius.security.RightsServlet.GetCommandsEnum;
 import cz.incad.Kramerius.security.rightscommands.get.ShowRightsHtml;
 import cz.incad.Kramerius.security.userscommands.ServletUsersCommand;
+import cz.incad.Kramerius.security.userscommands.get.ChangePassword;
+import cz.incad.Kramerius.security.userscommands.get.HintAllGroupsTable;
+import cz.incad.Kramerius.security.userscommands.get.HintAllUsersTable;
 import cz.incad.Kramerius.security.userscommands.get.UsersJSAutocomplete;
+import cz.incad.Kramerius.security.userscommands.post.SaveNewPassword;
 import cz.incad.Kramerius.security.utils.UserFieldParser;
 import cz.incad.kramerius.FedoraAccess;
 import cz.incad.kramerius.SolrAccess;
@@ -102,9 +106,48 @@ public class UsersServlet extends GuiceServlet {
             }
         } 
 
+
+    
+    
+    @Override
+    protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        
+        String action = req.getParameter("action");
+        try {
+            PostCommandsEnum command = PostCommandsEnum.valueOf(action);
+            command.doAction(getInjector());
+        } catch (Exception e) {
+            LOGGER.log(Level.SEVERE, e.getMessage(),e);
+        }
+    }
+
+
+
+
+    enum PostCommandsEnum {
+        /** zmena hesla */
+        savenewpswd(SaveNewPassword.class);
+        
+        private Class<? extends ServletCommand> commandClass;
+        
+        private PostCommandsEnum(Class<? extends ServletCommand> command) {
+            this.commandClass = command;
+        }
+
+        public void doAction(Injector injector) throws InstantiationException, Exception {
+            ServletCommand command = commandClass.newInstance();
+            injector.injectMembers(command);
+            command.doCommand();
+        }
+    }
     
     enum GetCommandsEnum {
-        
+        /** dialog pro zmenu hesla */
+        changepswd(ChangePassword.class),
+        /** tabulka uzivatelu */
+        hintallusers(HintAllUsersTable.class),
+        /** tabulka uzivatelu */
+        hintallgroups(HintAllGroupsTable.class),
         /** zobrazeni prav */
         userjsautocomplete(UsersJSAutocomplete.class);
 

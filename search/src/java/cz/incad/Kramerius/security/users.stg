@@ -1,0 +1,46 @@
+/** HTML formulare pro manipulaci s uzivateli */
+group users;
+
+
+/** tabulka vsech uzivatelu */
+allUsersTable(users) ::=<<
+    <div style="width:100%">
+        <table style="width:100%; border-collapse:collapse;">
+            $users:{user| <tr class="users_hint"> <td><a href="javascript:hintSelect('$user.loginname$');">$user.loginname$</td> <td>$user.firstName$</td> <td>$user.surname$</td> </tr>}$
+        </table>
+    </div>
+>>
+
+allGroupsTable(groups) ::=<<
+    <div style="width:100%">
+        <table style="width:100%; border-collapse:collapse;">
+            $groups:{group| <tr class="users_hint"> <td><a href="javascript:hintSelect('$group.name$);">$group.name$></a> </td>  </tr>}$
+        </table>
+    </div>
+>>
+
+/** dialog pro zmenu hesla */
+changePswd() ::=<<
+    <div style="width:100%; height:100%;">
+        <table style="width:100%">
+            <tbody>    
+                <tr> <td>
+                <label for="pswd">Nove heslo:</label>
+                </td></tr>
+                <tr> <td>
+                <input id="pswd" type="password" style="width:100%"></input>
+                </td></tr>
+                <tr> <td>
+                <label for="pswdRepeat">Opakovni noveho hesla:</label>
+                </td></tr>
+                <tr> <td>
+                <input id="pswdRepeat" type="password" style="width:100%"></input>
+                </td></tr>
+            </tbody>
+        </table>
+        <div id="checkPswdStatus">
+        </div>
+    </div>
+>>
+
+

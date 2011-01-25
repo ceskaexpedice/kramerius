@@ -64,7 +64,7 @@ public class UsersJSAutocomplete extends ServletUsersCommand {
                     }
                 }
             } else {
-                int[] grps = getGroupsWhichIAdministrate(user);
+                int[] grps = getUserGroups(user);
                 if (autocompletetype.equals("group")) {
                     Group[] groups = userManager.findGroupByPrefixForGroups(prefix.trim(),grps );
                     for (Group grp : groups) {
@@ -90,25 +90,5 @@ public class UsersJSAutocomplete extends ServletUsersCommand {
         } catch (IOException e) {
             LOGGER.log(Level.SEVERE, e.getMessage(),e);
         }
-    }
-
-    public int[] getGroupsWhichIAdministrate(User user) {
-        Group[] grps = user.getGroups();
-        int[] grpIds = new int[grps.length];
-        for (int i = 0; i < grpIds.length; i++) {
-            grpIds[i] = grps[i].getId();
-        }
-        return grpIds;
-    }
-    
-    public boolean hasCurrentUserHasSuperAdminRole(User user) {
-        Group[] groups = user.getGroups();
-        for (Group group : groups) {
-            if (group.getPersonalAdminId() <= 0 ) {
-                return true;
-            }
-        }
-        return false;
-    
     }
 }
