@@ -18,15 +18,15 @@ public class UserArrangement extends Arrangement {
 	Structure struct;
 	Structure.UserEntity userEntity;
 	RefenrenceToPersonalAdminArrangement referenceToAdmin;
-//	GroupArrangement groupArrangement;
+	GroupArrangement groupArrangement;
 
 	public UserArrangement(Structure struct, UserEntity entity,
-			RefenrenceToPersonalAdminArrangement reference) {
+			RefenrenceToPersonalAdminArrangement reference, GroupArrangement groupArrangement) {
 		super(entity);
 		this.struct = struct;
 		this.userEntity = entity;
 		this.referenceToAdmin = reference;
-	//	this.groupArrangement = groupArrangement;
+		this.groupArrangement = groupArrangement;
 
 		setReadableName(struct.user.getName());
 
@@ -59,9 +59,38 @@ public class UserArrangement extends Arrangement {
 								new HorizontalPanel().addChild(new TextField(
 										struct.user.PERSONAL_ADMIN
 												.relate(struct.group.GNAME)))))
+				.addChild(new RepeatedForm(struct.user.GROUP_ASSOCIATIONS, new UserGroupsArrangement()))
 
 		);
 		return form;
+	}
+	
+	public class UserGroupsArrangement extends Arrangement{
+	    
+	    public UserGroupsArrangement(){
+	        super(struct.groupUserAssoction);
+	        setReadableName(struct.group.getReadableName());
+
+	        
+	        queryGenerator = new QueryGenerator.Empty();
+
+	        
+	        //addProperty(structure.groupUserAssoction.GROUP);
+	        addProperty(struct.groupUserAssoction.GROUP.relate(struct.group.GNAME));
+	        form = createForm();
+	    }
+	    
+	    Form createForm() {
+	        Form form = new Form();
+	        form.setLayout(new VerticalPanel().addChild(
+	                        new RefButton(struct.groupUserAssoction.GROUP,
+	                                groupArrangement,
+	                                new HorizontalPanel().addChild(new TextField(
+	                                        struct.groupUserAssoction.GROUP
+	                                                .relate(struct.group.GNAME))))));
+	        return form;
+	    }
+	    
 	}
 
 }

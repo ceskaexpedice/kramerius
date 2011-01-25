@@ -62,7 +62,7 @@ public class RightsLoaderServlet extends ApplicationLoaderServlet {
 			referenceToAdmin = new RefenrenceToPersonalAdminArrangement(struct, struct.group);
 			
 			groupArr = new GroupArrangement(struct, struct.group, referenceToAdmin);
-			userArr = new UserArrangement(struct, struct.user, referenceToAdmin);
+			userArr = new UserArrangement(struct, struct.user, referenceToAdmin, groupArr);
 			
 			groupUserAssocArr = new UserGroupAssoc(struct, struct.groupUserAssoction, userArr, groupArr);
 			

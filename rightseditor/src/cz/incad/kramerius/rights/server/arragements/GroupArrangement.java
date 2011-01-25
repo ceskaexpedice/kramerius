@@ -27,7 +27,7 @@ public class GroupArrangement extends Arrangement {
 		this.reference = reference;
 		setReadableName(struct.group.getName());
 		addProperty(struct.group.GNAME);
-
+		setSortProperty(struct.group.GNAME);
 		queryGenerator = new QueryGenerator.Empty();
 		form = createGroupForm();
 	}

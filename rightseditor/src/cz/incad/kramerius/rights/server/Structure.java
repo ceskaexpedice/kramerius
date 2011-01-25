@@ -31,6 +31,8 @@ public class Structure extends Application {
         
         // administrator uzivatele
 		public  Reference PERSONAL_ADMIN;
+		
+		public Collection GROUP_ASSOCIATIONS;
 
         
         public UserEntity() {
@@ -63,6 +65,8 @@ public class Structure extends Application {
 		
 		//admin skupiny
 		public  Reference PERSONAL_ADMIN;
+		
+		public Collection USER_ASSOCIATIONS;
 
 
         public GroupEntity() {
@@ -161,8 +165,8 @@ public class Structure extends Application {
     
     public Structure() {
 
-//    	group.USERS = groupUserAssoction.addReverseCollection("USERS", groupUserAssoction, groupUserAssoction.USERS);
-//    	user.GROUPS = groupUserAssoction.addReverseCollection("GROUPS", groupUserAssoction, groupUserAssoction.GROUP);
+    	group.USER_ASSOCIATIONS = group.addReverseCollection("USERS", groupUserAssoction, groupUserAssoction.GROUP);
+    	user.GROUP_ASSOCIATIONS = user.addReverseCollection("GROUPS", groupUserAssoction, groupUserAssoction.USERS);
 
         user.PERSONAL_ADMIN=user.addReference(group, "PERSONAL_ADMIN_ID");
         group.PERSONAL_ADMIN=group.addReference(group, "PERSONAL_ADMIN_ID");

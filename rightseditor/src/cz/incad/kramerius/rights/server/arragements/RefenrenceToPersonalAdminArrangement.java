@@ -24,7 +24,7 @@ public class RefenrenceToPersonalAdminArrangement extends Arrangement {
 		this.groupEntity = entity;
 		setReadableName(struct.group.getName());
 		addProperty(struct.group.GNAME);
-
+		setSortProperty(struct.group.GNAME);
 		queryGenerator = new QueryGenerator.Empty();
 		form = createGroupForm();
 	}
