@@ -14,7 +14,7 @@ allUsersTable(users) ::=<<
 allGroupsTable(groups) ::=<<
     <div style="width:100%">
         <table style="width:100%; border-collapse:collapse;">
-            $groups:{group| <tr class="users_hint"> <td><a href="javascript:hintSelect('$group.name$);">$group.name$></a> </td>  </tr>}$
+            $groups:{group| <tr class="users_hint"> <td><a href="javascript:hintSelect('$group.name$');">$group.name$</a> </td>  </tr>}$
         </table>
     </div>
 >>
