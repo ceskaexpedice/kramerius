@@ -7,10 +7,12 @@ import org.aplikator.server.descriptor.HorizontalPanel;
 import org.aplikator.server.descriptor.QueryGenerator;
 import org.aplikator.server.descriptor.RefButton;
 import org.aplikator.server.descriptor.RepeatedForm;
+import org.aplikator.server.descriptor.TextArea;
 import org.aplikator.server.descriptor.TextField;
 import org.aplikator.server.descriptor.VerticalPanel;
 
 import cz.incad.kramerius.rights.server.Structure;
+import cz.incad.kramerius.rights.server.Structure.GroupEntity;
 import cz.incad.kramerius.rights.server.Structure.UserEntity;
 
 public class UserArrangement extends Arrangement {
@@ -18,21 +20,17 @@ public class UserArrangement extends Arrangement {
 	Structure struct;
 	Structure.UserEntity userEntity;
 	RefenrenceToPersonalAdminArrangement referenceToAdmin;
-	GroupArrangement groupArrangement;
 
-	public UserArrangement(Structure struct, UserEntity entity,
-			RefenrenceToPersonalAdminArrangement reference, GroupArrangement groupArrangement) {
+	public UserArrangement(Structure struct, UserEntity entity, RefenrenceToPersonalAdminArrangement reference) {
 		super(entity);
 		this.struct = struct;
 		this.userEntity = entity;
 		this.referenceToAdmin = reference;
-		this.groupArrangement = groupArrangement;
 
 		setReadableName(struct.user.getName());
 
-		addProperty(struct.user.NAME).addProperty(struct.user.SURNAME)
-				.addProperty(struct.user.LOGINNAME);
-
+		addProperty(struct.user.LOGINNAME).addProperty(struct.user.NAME).addProperty(struct.user.SURNAME);
+		setSortProperty(struct.user.LOGINNAME);
 		queryGenerator = new QueryGenerator.Empty();
 
 		form = createUserForm();
@@ -84,7 +82,7 @@ public class UserArrangement extends Arrangement {
 	        Form form = new Form();
 	        form.setLayout(new VerticalPanel().addChild(
 	                        new RefButton(struct.groupUserAssoction.GROUP,
-	                                groupArrangement,
+	                                new RefGroupArrangement(),
 	                                new HorizontalPanel().addChild(new TextField(
 	                                        struct.groupUserAssoction.GROUP
 	                                                .relate(struct.group.GNAME))))));
@@ -92,5 +90,33 @@ public class UserArrangement extends Arrangement {
 	    }
 	    
 	}
-
+	
+	public class RefGroupArrangement extends Arrangement{
+    	public RefGroupArrangement() {
+            super(struct.group);
+            setReadableName(struct.group.getName());
+            addProperty(struct.group.GNAME);
+            setSortProperty(struct.group.GNAME);
+            queryGenerator = new QueryGenerator.Empty();
+            form = createGroupForm();
+        }
+        
+        
+        private Form createGroupForm() {
+            Form form = new Form();
+            form.setLayout(new VerticalPanel()
+                        .addChild(new TextField(struct.group.GNAME))
+                        .addChild(new TextArea(struct.group.DESCRIPTION).setWidth("100%"))
+                        .addChild(
+                                new RefButton(struct.group.PERSONAL_ADMIN,
+                                        referenceToAdmin,
+                                        new HorizontalPanel().addChild(new TextField(
+                                                struct.group.PERSONAL_ADMIN
+                                                        .relate(struct.group.GNAME)))))
+    
+            );
+            return form;
+        }
+        
+	}
 }

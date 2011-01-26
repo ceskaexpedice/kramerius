@@ -62,9 +62,9 @@ public class RightsLoaderServlet extends ApplicationLoaderServlet {
 			referenceToAdmin = new RefenrenceToPersonalAdminArrangement(struct, struct.group);
 			
 			groupArr = new GroupArrangement(struct, struct.group, referenceToAdmin);
-			userArr = new UserArrangement(struct, struct.user, referenceToAdmin, groupArr);
+			userArr = new UserArrangement(struct, struct.user, referenceToAdmin);
 			
-			groupUserAssocArr = new UserGroupAssoc(struct, struct.groupUserAssoction, userArr, groupArr);
+			//groupUserAssocArr = new UserGroupAssoc(struct, struct.groupUserAssoction, userArr, groupArr);
 			
 			rightsArr = new RightArrangement(struct.rights, struct);
 			rightsCriteriumParamArr = new RightsCriteriumParamArrangement(struct.criteriumParam, struct);
@@ -81,9 +81,9 @@ public class RightsLoaderServlet extends ApplicationLoaderServlet {
 			uzivatele.addAction(new ActionDTO("Skupiny", new ListEntities(
 					"Skupiny", uzivatele, groupArr.getId())));
 
-			uzivatele.addAction(new ActionDTO("Vazby (Uzivatele <-> Skupiny)", new ListEntities(
+			/*uzivatele.addAction(new ActionDTO("Vazby (Uzivatele <-> Skupiny)", new ListEntities(
 					"Vazby (Uzivatele <-> Skupiny)", uzivatele, groupUserAssocArr.getId())));
-			
+			*/
 			ServiceDTO prava = new ServiceDTO("Prava");
 			prava.addAction(new ActionDTO("Prava", new ListEntities(
 					"Prava", prava, rightsArr.getId())));
