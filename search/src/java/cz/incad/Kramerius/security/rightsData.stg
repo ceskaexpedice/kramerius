@@ -5,9 +5,6 @@ group rightData;
 
 /** inicializace formulare - nastavovani callbacku */
 newRightData_InitForm() ::=<<
-    \$('input[name=checkParams]').change(function(e) {
-        callbackCriteriumParamsCheckboxChanged(e.target);
-    });
     
     \$('select[name=params]').change(function(e) {
         callbackCriteriumParamsValueChanged(e.target);
@@ -19,13 +16,13 @@ newRightData_InitForm() ::=<<
     
     /** callbacky pro radiobutton */
     \$('input[id=userType]').change(function(e) {
-        callbackUserComboValueChanged(e.target);
+        callbackRadioButtonUserValueChanged(e.target);
     });
     \$('input[id=groupType]').change(function(e) {
-        callbackGroupComboValueChanged(e.target);
+        callbackRadioButtonGroupValueChanged(e.target);
     });
     \$('input[id=allType]').change(function(e) {
-        callbackAllComboValueChanged(e.target);
+        callbackRadioButtonAllValueChanged(e.target);
     });
 >>
 

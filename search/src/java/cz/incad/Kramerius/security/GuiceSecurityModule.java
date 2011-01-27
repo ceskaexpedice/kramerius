@@ -22,12 +22,14 @@ import com.google.inject.servlet.ServletScopes;
 
 import cz.incad.kramerius.security.IsActionAllowed;
 import cz.incad.kramerius.security.RightCriteriumContextFactory;
+import cz.incad.kramerius.security.RightCriteriumLoader;
 import cz.incad.kramerius.security.RightsManager;
 import cz.incad.kramerius.security.User;
 import cz.incad.kramerius.security.UserManager;
 import cz.incad.kramerius.security.impl.DatabaseRightsManager;
 import cz.incad.kramerius.security.impl.DatabaseUserManager;
 import cz.incad.kramerius.security.impl.RightCriteriumContextFactoryImpl;
+import cz.incad.kramerius.security.impl.RightCriteriumLoaderImpl;
 
 public class GuiceSecurityModule extends AbstractModule {
     
@@ -38,5 +40,6 @@ public class GuiceSecurityModule extends AbstractModule {
         bind(UserManager.class).to(DatabaseUserManager.class);
         bind(RightCriteriumContextFactory.class).to(RightCriteriumContextFactoryImpl.class);
         bind(User.class).toProvider(CurrentLoggedUserProvider.class);
+        bind(RightCriteriumLoader.class).to(RightCriteriumLoaderImpl.class);
     }
 }

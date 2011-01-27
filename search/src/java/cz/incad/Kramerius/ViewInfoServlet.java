@@ -87,9 +87,10 @@ public class ViewInfoServlet extends GuiceServlet {
             String[] pathOfUUIDs = this.solrAccess.getPathOfUUIDs(uuid);
             
             User user = currentLoggedUserProvider.get();
-            System.out.println("user instance 0x"+Integer.toHexString(System.identityHashCode(user)));
 
             if ((uuid != null) && (!uuid.equals(""))) {
+
+
                 String mimeType = this.fedoraAccess.getImageFULLMimeType(uuid);
                 boolean generated = resolutionFilePresent(uuid);
                 boolean conf = deepZoomConfigurationEnabled(uuid);
@@ -111,7 +112,7 @@ public class ViewInfoServlet extends GuiceServlet {
                 // se pak vyhodnoti
                 boolean[] vals = fillActionsToJSON(req, uuid, pathOfUUIDs, secMapping, SecuredActions.READ);
                 if (!firstMustBeTrue(vals)) {
-                    throw new SecurityException("access denided");
+                    //throw new SecurityException("access denided");
                 }
                 
                 // pravo admin do kontext menu

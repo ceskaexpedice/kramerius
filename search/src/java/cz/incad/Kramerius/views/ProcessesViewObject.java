@@ -46,7 +46,7 @@ public class ProcessesViewObject {
 		List<ProcessViewObject> objects = new ArrayList<ProcessViewObject>();
 		for (LRProcess lrProcess : lrProcesses) {
 			LRProcessDefinition def = this.definitionManager.getLongRunningProcessDefinition(lrProcess.getDefinitionId());
-			objects.add(new ProcessViewObject(lrProcess, def, this.ordering, this.offset, this.typeOfOrdering, this.lrUrl, this.bundleService, this.locale));
+			objects.add(new ProcessViewObject(lrProcess, def, this.ordering, this.offset, this.typeOfOrdering, this.bundleService, this.locale));
 		}
 		return objects;
 	}

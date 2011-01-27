@@ -4,20 +4,44 @@ group users;
 
 /** tabulka vsech uzivatelu */
 allUsersTable(users) ::=<<
-    <div style="width:100%">
+    <div style="width:100%;margin-top:5px; padding-top: 5px; border-top:1px dashed;">
+        <label><strong>Uzivatele:</strong></label>
         <table style="width:100%; border-collapse:collapse;">
             $users:{user| <tr class="users_hint"> <td><a href="javascript:hintSelect('$user.loginname$');">$user.loginname$</td> <td>$user.firstName$</td> <td>$user.surname$</td> </tr>}$
         </table>
     </div>
 >>
 
+/** tabulka vsech skupin */
 allGroupsTable(groups) ::=<<
-    <div style="width:100%">
+    <div style="width:100%;margin-top:5px; padding-top: 5px; border-top:1px dashed;">
+        <label><strong>Skupiny:</strong></label>
         <table style="width:100%; border-collapse:collapse;">
             $groups:{group| <tr class="users_hint"> <td><a href="javascript:hintSelect('$group.name$');">$group.name$</a> </td>  </tr>}$
         </table>
     </div>
 >>
+
+/** tabulka skupin pro uzivatele */
+groupsTableForUser(groups, user) ::=<<
+    <div style="width:100%;margin-top:5px; padding-top: 5px; border-top:1px dashed;">
+        <label><strong>Skupiny uzivatele $user.loginname$ ($user.firstName$ $user.surname$):</strong></label>
+        <table style="width:100%; border-collapse:collapse;">
+            $groups:{group| <tr> <td>$group.name$ </td>  </tr>}$
+        </table>
+    </div>
+>>
+
+/** tabulka uzivatelu  pro skupinu */
+usersTableForGroup(users, grp) ::=<<
+    <div style="width:100%;margin-top:5px; padding-top: 5px; border-top:1px dashed;">
+        <label><strong>Uzivatele skupiny $grp.name$:</strong></label>
+        <table style="width:100%; border-collapse:collapse;">
+            $users:{user| <tr> <td>$user.loginname$</td> <td>$user.firstName$</td> <td>$user.surname$</td> </tr>}$
+        </table>
+    </div>
+>>
+
 
 /** dialog pro zmenu hesla */
 changePswd() ::=<<

@@ -173,12 +173,14 @@ public class ItemMenuViewObject {
         //rightsForRepository('uuid',actions
         StringTemplate template = new StringTemplate("<div align=\"left\"><a title='$tooltip$' "
                 + "href=\"javascript:securedActionsTableForCtxMenu($level$,'$uuid$','$actions;separator=\",\"$');\">$title$</a> "
-                + "<div class=\"$datatype$\" style=\"display:none\">$value$</div></div>");
+                + "<div class=\"$datatype$\" style=\"display:none\">$value$</div>"
+                + "<div class=\"_data_x_uuid\" style=\"display:none\">$uuid$</div></div>");
 
+        
         titleAndTooltip(template, key);
         levelAndModel(template);
         template.setAttribute("datatype", "_data_x_role");
-        template.setAttribute("value", "export");
+        template.setAttribute("value", "administrate");
         template.setAttribute("uuid", uuid);
         template.setAttribute("actions", new String[] { SecuredActions.READ.getFormalName(), SecuredActions.ADMINISTRATE.getFormalName()});
         

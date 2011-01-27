@@ -84,7 +84,7 @@ public class CurrentLoggedUserProvider implements Provider<User> {
             } else {
                 LOGGER.info("PROVIDER ~ noe principal ");
                 
-                UserImpl user = new UserImpl(-1, "not_logged", "not_logged", "not_logged");
+                UserImpl user = new UserImpl(-1, "not_logged", "not_logged", "not_logged", -1);
                 user.setGroups(new Group[] {});
                 associateCommonGroup(user);
                 LOGGER.info("PROVIDER user instance 0x"+Integer.toHexString(System.identityHashCode(user)));

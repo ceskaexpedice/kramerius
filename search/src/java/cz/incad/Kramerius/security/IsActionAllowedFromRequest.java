@@ -39,7 +39,6 @@ import cz.incad.kramerius.security.jaas.K4UserPrincipal;
 
 public class IsActionAllowedFromRequest implements IsActionAllowed {
 
-
     private Logger logger;
     private Provider<HttpServletRequest> provider;
 

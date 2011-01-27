@@ -53,6 +53,7 @@ import cz.incad.Kramerius.security.rightscommands.get.NewRightHtml;
 import cz.incad.Kramerius.security.rightscommands.get.NewRightJSData;
 import cz.incad.Kramerius.security.rightscommands.get.ShowRightsHtml;
 import cz.incad.Kramerius.security.rightscommands.get.ShowsActionsTableHtml;
+import cz.incad.Kramerius.security.rightscommands.get.ValidateCriteriumParamsHtml;
 import cz.incad.Kramerius.security.rightscommands.post.Create;
 import cz.incad.Kramerius.security.rightscommands.post.Delete;
 import cz.incad.Kramerius.security.rightscommands.post.Edit;
@@ -171,67 +172,9 @@ public class RightsServlet extends GuiceServlet {
             injector.injectMembers(command);
             command.doCommand();
         }
-        
     }
 
 
-//    static enum PostAction {
-//        delete {
-//
-//            @Override
-//            void doAction(ServletContext context, HttpServletRequest req, HttpServletResponse resp, FedoraAccess fedoraAccess, SolrAccess solrAccess, RightsManager rightsManager, UserManager userManager, User user, String action) throws IOException {
-//                try {
-//                    Right right = createRightFromPostIds(req, rightsManager, userManager);
-//                    rightsManager.deleteRight(right);
-//                } catch (NumberFormatException e) {
-//                    LOGGER.log(Level.SEVERE, e.getMessage(),e);
-//                } catch (SQLException e) {
-//                    LOGGER.log(Level.SEVERE, e.getMessage(),e);
-//                    resp.sendError(HttpServletResponse. SC_INTERNAL_SERVER_ERROR);
-//                } catch(Exception e) {
-//                    LOGGER.log(Level.SEVERE, e.getMessage(),e);
-//                }
-//            }
-//            
-//        },
-//        edit {
-//            @Override
-//            void doAction(ServletContext context, HttpServletRequest req, HttpServletResponse resp, FedoraAccess fedoraAccess, SolrAccess solrAccess, RightsManager rightsManager, UserManager userManager, User user, String action) throws IOException {
-//                try {
-//                    Right right = createRightFromPost(req, rightsManager, userManager);
-//                    rightsManager.updateRight(right);
-//                } catch (NumberFormatException e) {
-//                    LOGGER.log(Level.SEVERE, e.getMessage(),e);
-//                } catch (SQLException e) {
-//                    LOGGER.log(Level.SEVERE, e.getMessage(),e);
-//                    resp.sendError(HttpServletResponse. SC_INTERNAL_SERVER_ERROR);
-//                } catch(Exception e) {
-//                    LOGGER.log(Level.SEVERE, e.getMessage(),e);
-//                }
-//            }
-//        },
-//
-//        create {
-//            @Override
-//            void doAction(ServletContext context, HttpServletRequest req, HttpServletResponse resp, FedoraAccess fedoraAccess, SolrAccess solrAccess, RightsManager rightsManager, UserManager userManager, User user, String action) throws IOException {
-//                try {
-//                    Right right = createRightFromPost(req, rightsManager, userManager);
-//                    rightsManager.insertRight(right);
-//                } catch (NumberFormatException e) {
-//                    LOGGER.log(Level.SEVERE, e.getMessage(),e);
-//                } catch (SQLException e) {
-//                    LOGGER.log(Level.SEVERE, e.getMessage(),e);
-//                    resp.sendError(HttpServletResponse. SC_INTERNAL_SERVER_ERROR);
-//                } catch(Exception e) {
-//                    LOGGER.log(Level.SEVERE, e.getMessage(),e);
-//                }
-//            }
-//        };
-//        
-//        
-//        
-//        abstract void doAction(ServletContext context, HttpServletRequest req, HttpServletResponse resp, FedoraAccess fedoraAccess, SolrAccess solrAccess, RightsManager rightsManager, UserManager userManager, User user, String action) throws IOException;
-//    }
     
     
     static enum GetCommandsEnum {
@@ -245,8 +188,11 @@ public class RightsServlet extends GuiceServlet {
         /** editace prava - javascript */
         editrightjsdata(EditRightsJSData.class),
         /** nove pravo - javascript */
-        newrightjsdata(NewRightJSData.class);
+        newrightjsdata(NewRightJSData.class),
 
+        /** validuje parametry kriteria */
+        validatecriteriums(ValidateCriteriumParamsHtml.class);
+        
         private Class<? extends ServletCommand> commandClass;
         
         private GetCommandsEnum(Class<? extends ServletCommand> command) {
@@ -383,21 +329,18 @@ public class RightsServlet extends GuiceServlet {
 
     public static RightCriteriumParams criteriumParamsFromPost(RightsManager rightsManager, HttpServletRequest req) {
         String critParamId = req.getParameter("rightCriteriumParamId");
-        String paramsAsociatedHidden = req.getParameter("paramsAssocatedHidden");
         String paramsHidden = req.getParameter("paramsHidden");
         String paramsShortHidden = req.getParameter("paramsShortDescriptionHidden");
         String paramsLongDescHidden = req.getParameter("paramsLongDescriptionHidden");
 
         RightCriteriumParams params = null;
-        if ((critParamId != null) && (!critParamId.equals("")) && (Integer.parseInt(critParamId) > 0) && ("true".equals(paramsAsociatedHidden))) {
+        if ((critParamId != null) && (!critParamId.equals("")) && (Integer.parseInt(critParamId) > 0)) {
             params = rightsManager.findParamById(Integer.parseInt(critParamId));
         } else {
-            if ("true".equals(paramsAsociatedHidden)) {
-                params = new RightCriteriumParamsImpl(-1);
-                params.setObjects(paramsHidden.split(";"));
-                params.setShortDescription(paramsShortHidden);
-                params.setLongDescription(paramsLongDescHidden);
-            }
+            params = new RightCriteriumParamsImpl(-1);
+            params.setObjects(paramsHidden.split(";"));
+            params.setShortDescription(paramsShortHidden);
+            params.setLongDescription(paramsLongDescHidden);
         }
         return params;
     }

@@ -27,12 +27,15 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.antlr.stringtemplate.StringTemplate;
 
+import com.google.inject.Inject;
+
 import cz.incad.Kramerius.security.ServletCommand;
 import cz.incad.Kramerius.security.rightscommands.ServletRightsCommand;
 import cz.incad.Kramerius.security.strenderers.CriteriumParamsWrapper;
 import cz.incad.Kramerius.security.strenderers.CriteriumWrapper;
 import cz.incad.Kramerius.security.strenderers.RightWrapper;
 import cz.incad.kramerius.security.Right;
+import cz.incad.kramerius.security.RightCriteriumLoader;
 import cz.incad.kramerius.security.RightCriteriumParams;
 import cz.incad.kramerius.security.impl.criteria.CriteriumsLoader;
 
@@ -42,6 +45,9 @@ import cz.incad.kramerius.security.impl.criteria.CriteriumsLoader;
 public class EditRightsJSData extends ServletRightsCommand {
 
     static java.util.logging.Logger LOGGER = java.util.logging.Logger.getLogger(EditRightsJSData.class.getName());
+
+    @Inject
+    RightCriteriumLoader criteriumLoader;
     
     @Override
     public void doCommand() {
@@ -54,7 +60,8 @@ public class EditRightsJSData extends ServletRightsCommand {
             StringTemplate template = ServletRightsCommand.stJSDataGroup().getInstanceOf("editRightData");
             RightCriteriumParams[] allParams = rightsManager.findAllParams();
             template.setAttribute("allParams", CriteriumParamsWrapper.wrapCriteriumParams(allParams));
-            template.setAttribute("allCriteriums", CriteriumWrapper.wrapCriteriums(CriteriumsLoader.criteriums(), true));
+
+            template.setAttribute("allCriteriums", CriteriumWrapper.wrapCriteriums(criteriumLoader.getCriteriums(), true));
             template.setAttribute("right", right);
             template.setAttribute("criterium", right.getCriterium());
             template.setAttribute("criteriumParams", right.getCriterium() != null ? right.getCriterium().getCriteriumParams() : null);
@@ -66,12 +73,6 @@ public class EditRightsJSData extends ServletRightsCommand {
         } catch (UnsupportedEncodingException e) {
             LOGGER.log(Level.SEVERE, e.getMessage(),e);
         } catch (IOException e) {
-            LOGGER.log(Level.SEVERE, e.getMessage(),e);
-        } catch (InstantiationException e) {
-            LOGGER.log(Level.SEVERE, e.getMessage(),e);
-        } catch (IllegalAccessException e) {
-            LOGGER.log(Level.SEVERE, e.getMessage(),e);
-        } catch (ClassNotFoundException e) {
             LOGGER.log(Level.SEVERE, e.getMessage(),e);
         }
         

@@ -25,6 +25,7 @@ import cz.incad.kramerius.security.RightCriteriumContext;
 import cz.incad.kramerius.security.RightCriteriumException;
 import cz.incad.kramerius.security.RightCriteriumParams;
 import cz.incad.kramerius.security.RightCriteriumPriorityHint;
+import cz.incad.kramerius.security.SecuredActions;
 
 public class CriteriumWrapper implements RightCriterium{
 
@@ -131,4 +132,20 @@ public class CriteriumWrapper implements RightCriterium{
         return wrappers;
     }
 
+    @Override
+    public SecuredActions[] getApplicableActions() {
+        if (this.criterium != null) {
+            return this.criterium.getApplicableActions();
+        } else return new SecuredActions[0];
+    }
+
+    @Override
+    public boolean validateParams(Object[] vals) {
+        return this.criterium != null ? this.criterium.validateParams(vals) : true;
+    }
+
+    @Override
+    public boolean validateParams(String encodedVals) {
+        return this.criterium != null ? this.criterium.validateParams(encodedVals) : true;
+    }
 }

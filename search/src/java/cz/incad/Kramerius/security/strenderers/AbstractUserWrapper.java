@@ -136,11 +136,7 @@ public class AbstractUserWrapper implements User, Group {
 
     @Override
     public int getPersonalAdminId() {
-        if (this.user instanceof Group) {
-            Group grp = (Group) this.user;
-            return grp.getPersonalAdminId();
-        }
-        return 0;
+        return this.user.getPersonalAdminId();
     }
 
     public boolean isSelected() {
@@ -149,6 +145,11 @@ public class AbstractUserWrapper implements User, Group {
 
     public void setSelected(boolean selected) {
         this.selected = selected;
+    }
+
+    @Override
+    public boolean isAdministratorForGivenGroup(int personalAdminId) {
+        return ((User)this.user).isAdministratorForGivenGroup(personalAdminId);
     }
     
     

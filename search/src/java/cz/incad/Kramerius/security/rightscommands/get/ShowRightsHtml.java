@@ -21,6 +21,7 @@ import static cz.incad.utils.IKeys.UUID_PARAMETER;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
@@ -77,12 +78,29 @@ public class ShowRightsHtml extends ServletRightsCommand{
             }
 
             List<String> saturatedPath = rightsManager.saturatePathAndCreatesPIDs(uuid, getPathOfUUIDs(uuid));
-            List<Right> foundRights = new ArrayList<Right>(Arrays.asList(rightsManager.findAllRights(((String[]) saturatedPath.toArray(new String[saturatedPath.size()])), getSecuredAction())));
+            List<Right> foundRights = new ArrayList<Right>(Arrays.asList(allRights(saturatedPath)));
+            // filtrovani objektu na ktere nemam pravo TODO: jeste uzviatele na ktere nemam pravo
+            if (!ServletRightsCommand.hasSuperAdminRole(this.userProvider.get())) {
+                boolean[] booleans = actionAllowed.isActionAllowedForAllPath(SecuredActions.ADMINISTRATE.getFormalName(), uuid, getPathOfUUIDs(uuid));
+                List<Right> filtered = new ArrayList<Right>();
+                for (int i = 0; i < booleans.length; i++) {
+                    if (booleans[i]) {
+                        String allowedUUID =  saturatedPath.get(i);
+                        List<Right> rights = findAllRightWithUserWhichIAdministrate(userProvider.get(), findAllRightWithUuid(allowedUUID,foundRights)) ;
+                        findAllRightWithUserWhichIAdministrate(userProvider.get(), foundRights);
+                        
+                        filtered.addAll(rights);
+                    }
+                }
+                foundRights = filtered;
+            }
+            
             foundRights = typeOfList.filter(foundRights);
             // acumulate users
             List<AbstractUser> users = accumulateUsersToCombo(foundRights);
 
             foundRights = filterRequestedUser(foundRights, typeOfList);
+
             Right[] resultRights = SortingRightsUtils.sortRights(foundRights.toArray(new Right[foundRights.size()]), saturatedPath);
 
             List<AbstractUserWrapper> wrapped = AbstractUserWrapper.wrap(users, true);
@@ -114,6 +132,35 @@ public class ShowRightsHtml extends ServletRightsCommand{
         }
     }
 
+    private List<Right> findAllRightWithUserWhichIAdministrate(User user, List<Right> foundRights) {
+        List<Right> filtered = new ArrayList<Right>();
+        for (Right right : foundRights) {
+            if (user.isAdministratorForGivenGroup(right.getUser().getPersonalAdminId())) {
+                filtered.add(right);
+            }
+        }
+        return filtered;
+    }
+
+    private List<Right> findAllRightWithUuid(String uuid, List<Right> foundRights) {
+        List<Right> rightWithUUID = new ArrayList<Right>();
+        for (Right right : foundRights) {
+            if (uuid.equals(right.getPid())) {
+                rightWithUUID.add(right);
+            }
+        }
+        return rightWithUUID;
+    }
+
+    public Right[] allRights(List<String> saturatedPath) {
+        return rightsManager.findAllRights(((String[]) saturatedPath.toArray(new String[saturatedPath.size()])), getSecuredAction());
+    }
+
+    
+    public Right[] filteredRights(List<String> saturatedPath) {
+        return rightsManager.findAllRights(((String[]) saturatedPath.toArray(new String[saturatedPath.size()])), getSecuredAction());
+    }
+    
     public List<AbstractUser> accumulateUsersToCombo(List<Right> foundRights) {
         List<AbstractUser> users = new ArrayList<AbstractUser>();
         for (Right r : foundRights) {

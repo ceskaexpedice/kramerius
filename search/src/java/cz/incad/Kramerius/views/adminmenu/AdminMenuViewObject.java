@@ -136,7 +136,7 @@ public class AdminMenuViewObject {
     private String changepswd() throws IOException {
         return renderMenuItem(
                 "javascript:changePassword(); javascript:hideAdminMenu();",
-                "administrator.menu.dialogs.actionsAdmin.title");
+                "administrator.menu.dialogs.changePswd.title");
     }
 
     private boolean hasUserAllowedAction(String actionFormalName) {

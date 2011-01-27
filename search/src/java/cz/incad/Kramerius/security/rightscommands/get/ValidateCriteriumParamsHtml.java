@@ -17,51 +17,52 @@
 package cz.incad.Kramerius.security.rightscommands.get;
 
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
-import java.util.List;
 import java.util.logging.Level;
+
+import javax.servlet.http.HttpServletRequest;
 
 import org.antlr.stringtemplate.StringTemplate;
 
 import com.google.inject.Inject;
 
-import cz.incad.Kramerius.security.ServletCommand;
 import cz.incad.Kramerius.security.rightscommands.ServletRightsCommand;
-import cz.incad.Kramerius.security.strenderers.CriteriumParamsWrapper;
-import cz.incad.Kramerius.security.strenderers.CriteriumWrapper;
+import cz.incad.kramerius.SolrAccess;
 import cz.incad.kramerius.security.RightCriterium;
+import cz.incad.kramerius.security.RightCriteriumContext;
+import cz.incad.kramerius.security.RightCriteriumContextFactory;
 import cz.incad.kramerius.security.RightCriteriumLoader;
-import cz.incad.kramerius.security.RightCriteriumParams;
+import cz.incad.kramerius.security.SecuredActions;
 import cz.incad.kramerius.security.impl.criteria.CriteriumsLoader;
 
-/**
- * Ziskani javascriptu pri zobrazeni formulare pro zadani noveho prava
- * @author pavels
- *
- */
-public class NewRightJSData extends ServletRightsCommand {
-
-    static java.util.logging.Logger LOGGER = java.util.logging.Logger.getLogger(NewRightJSData.class.getName());
-   
+public class ValidateCriteriumParamsHtml extends ServletRightsCommand {
+    
+    static java.util.logging.Logger LOGGER = java.util.logging.Logger.getLogger(ValidateCriteriumParamsHtml.class.getName());
+    
     @Inject
     RightCriteriumLoader criteriumLoader;
 
+    @Inject
+    RightCriteriumContextFactory ctxFactory;
+    
     @Override
     public void doCommand() {
         try {
-            StringTemplate template = ServletRightsCommand.stJSDataGroup().getInstanceOf("newRightData");
-            RightCriteriumParams[] allParams = rightsManager.findAllParams();
-            template.setAttribute("allParams", CriteriumParamsWrapper.wrapCriteriumParams(allParams));
-            List<RightCriterium> criteriums = this.criteriumLoader.getCriteriums();
-            template.setAttribute("allCriteriums", CriteriumWrapper.wrapCriteriums(criteriums, true));
+            HttpServletRequest request = this.requestProvider.get();
+            String par = request.getParameter("criterium");
+            String uuid = request.getParameter("uuid");
+            String params = request.getParameter("params");
+            RightCriterium criterium = criteriumLoader.getCriterium(par);
+            RightCriteriumContext ctx = ctxFactory.create(uuid, this.userProvider.get(), request.getRemoteHost(), request.getRemoteAddr());
+            criterium.setEvaluateContext(ctx);
+            boolean validated = criterium.validateParams(params);
+            StringTemplate template = ServletRightsCommand.stFormsGroup().getInstanceOf("criteriumParamValidate");
+            template.setAttribute("validated", validated);
+
             String content = template.toString();
             this.responseProvider.get().getOutputStream().write(content.getBytes("UTF-8"));
-        } catch (UnsupportedEncodingException e) {
-            LOGGER.log(Level.SEVERE, e.getMessage(),e);
         } catch (IOException e) {
             LOGGER.log(Level.SEVERE, e.getMessage(),e);
         }
-    }
 
-    
+    }
 }

@@ -47,6 +47,8 @@ import cz.incad.Kramerius.security.userscommands.ServletUsersCommand;
 import cz.incad.Kramerius.security.userscommands.get.ChangePassword;
 import cz.incad.Kramerius.security.userscommands.get.HintAllGroupsTable;
 import cz.incad.Kramerius.security.userscommands.get.HintAllUsersTable;
+import cz.incad.Kramerius.security.userscommands.get.HintGroupsForUserTable;
+import cz.incad.Kramerius.security.userscommands.get.HintUsersForGroup;
 import cz.incad.Kramerius.security.userscommands.get.UsersJSAutocomplete;
 import cz.incad.Kramerius.security.userscommands.post.SaveNewPassword;
 import cz.incad.Kramerius.security.utils.UserFieldParser;
@@ -146,6 +148,13 @@ public class UsersServlet extends GuiceServlet {
         changepswd(ChangePassword.class),
         /** tabulka uzivatelu */
         hintallusers(HintAllUsersTable.class),
+        
+        /** zobrazi skupiny pro uzivatele */
+        hintgroupforuser(HintGroupsForUserTable.class),
+
+        /** zobrazi uzivatele pro skupinu */
+        hintusersforgroup(HintUsersForGroup.class),
+
         /** tabulka uzivatelu */
         hintallgroups(HintAllGroupsTable.class),
         /** zobrazeni prav */

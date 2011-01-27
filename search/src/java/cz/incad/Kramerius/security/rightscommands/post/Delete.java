@@ -19,14 +19,19 @@ package cz.incad.Kramerius.security.rightscommands.post;
 import java.sql.SQLException;
 import java.util.logging.Level;
 
+import com.google.inject.Inject;
+
 import cz.incad.Kramerius.security.RightsServlet;
 import cz.incad.Kramerius.security.ServletCommand;
 import cz.incad.Kramerius.security.rightscommands.ServletRightsCommand;
+import cz.incad.kramerius.security.IsActionAllowed;
 import cz.incad.kramerius.security.Right;
+import cz.incad.kramerius.security.SecuredActions;
 
 public class Delete extends ServletRightsCommand {
 
     static java.util.logging.Logger LOGGER = java.util.logging.Logger.getLogger(Delete.class.getName());
+
     
     @Override
     public void doCommand() {

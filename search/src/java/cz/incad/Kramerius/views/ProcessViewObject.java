@@ -31,18 +31,17 @@ public class ProcessViewObject {
     private LRProcessOrdering ordering;
     private LRProcessOffset offset;
     private TypeOfOrdering typeOfOrdering;
-    private String lrUrl;
+    //private String lrUrl;
     private ResourceBundleService bundleService;
     private Locale locale;
 
-    public ProcessViewObject(LRProcess lrProcess, LRProcessDefinition definition, LRProcessOrdering ordering, LRProcessOffset offset, TypeOfOrdering typeOfOrdering, String lrUrl, ResourceBundleService service, Locale locale) {
+    public ProcessViewObject(LRProcess lrProcess, LRProcessDefinition definition, LRProcessOrdering ordering, LRProcessOffset offset, TypeOfOrdering typeOfOrdering,  ResourceBundleService service, Locale locale) {
         super();
         this.lrProcess = lrProcess;
         this.ordering = ordering;
         this.offset = offset;
         this.typeOfOrdering = typeOfOrdering;
         this.definition = definition;
-        this.lrUrl = lrUrl;
         this.bundleService = service;
         this.locale = locale;
     }
@@ -95,7 +94,7 @@ public class ProcessViewObject {
     public String getKillURL() {
         try {
             if ((this.lrProcess.getProcessState().equals(States.RUNNING)) || (this.lrProcess.getProcessState().equals(States.PLANNED))) {
-                String url = lrUrl + "?action=stop&uuid=" + this.lrProcess.getUUID();
+                String url = "lr?action=stop&uuid=" + this.lrProcess.getUUID();
                 String renderedAHREF = "<a href=\"javascript:doActionAndRefresh('" + url + "','" + this.ordering.name() + "'," + this.offset.getOffset() + "," + this.offset.getSize() + ",'" + this.typeOfOrdering.name() + "');\">"
                         + bundleService.getResourceBundle("labels", locale).getString("administrator.processes.kill.process") + "</a>";
                 if (!this.definition.getActions().isEmpty()) {
@@ -114,7 +113,7 @@ public class ProcessViewObject {
     public String getDeleteURL() {
         try {
             if ((this.lrProcess.getProcessState().equals(States.FINISHED)) || (this.lrProcess.getProcessState().equals(States.KILLED)) || (this.lrProcess.getProcessState().equals(States.FAILED))) {
-                String url = lrUrl + "?action=delete&uuid=" + this.lrProcess.getUUID();
+                String url = "lr?action=delete&uuid=" + this.lrProcess.getUUID();
                 String renderedAHREF = "<a href=\"javascript:doActionAndRefresh('" + url + "','" + this.ordering.name() + "'," + this.offset.getOffset() + "," + this.offset.getSize() + ",'" + this.typeOfOrdering.name() + "');\">"
                         + bundleService.getResourceBundle("labels", locale).getString("administrator.processes.delete.process") + "</a>";
                 if (!this.definition.getActions().isEmpty()) {

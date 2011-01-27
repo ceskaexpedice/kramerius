@@ -26,11 +26,15 @@ import java.util.logging.Level;
 
 import org.antlr.stringtemplate.StringTemplate;
 
+import com.google.inject.Inject;
+
 import cz.incad.Kramerius.security.ServletCommand;
 import cz.incad.Kramerius.security.rightscommands.ServletRightsCommand;
 import cz.incad.Kramerius.security.strenderers.CriteriumWrapper;
 import cz.incad.Kramerius.security.strenderers.SecuredActionWrapper;
 import cz.incad.Kramerius.security.strenderers.TitlesForObjects;
+import cz.incad.kramerius.security.RightCriterium;
+import cz.incad.kramerius.security.RightCriteriumLoader;
 import cz.incad.kramerius.security.RightCriteriumParams;
 import cz.incad.kramerius.security.SecuredActions;
 import cz.incad.kramerius.security.impl.criteria.CriteriumsLoader;
@@ -42,6 +46,9 @@ import cz.incad.kramerius.security.impl.criteria.CriteriumsLoader;
 public class NewRightHtml extends ServletRightsCommand {
 
     static java.util.logging.Logger LOGGER = java.util.logging.Logger.getLogger(NewRightHtml.class.getName());
+    
+    @Inject
+    RightCriteriumLoader criteriumLoader;
     
     @Override
     public void doCommand() {
@@ -64,18 +71,11 @@ public class NewRightHtml extends ServletRightsCommand {
             template.setAttribute("action", new SecuredActionWrapper(resourceBundle, SecuredActions.findByFormalName(getSecuredAction())));
             template.setAttribute("objects", saturatedPath);
             //template.setAttribute("criteriumNames",CriteriumWrapper.wrapCriteriums(CriteriumsLoader.criteriums(), true));
-            template.setAttribute("allCriteriums",CriteriumWrapper.wrapCriteriums(CriteriumsLoader.criteriums(), true));
-            
+            List<RightCriterium> criteriums = criteriumLoader.getCriteriums(SecuredActions.findByFormalName(getSecuredAction()));
+            template.setAttribute("allCriteriums",CriteriumWrapper.wrapCriteriums(criteriums, true));
             String content = template.toString();
-
             this.responseProvider.get().getOutputStream().write(content.getBytes("UTF-8"));
         } catch (IOException e) {
-            LOGGER.log(Level.SEVERE, e.getMessage(),e);
-        } catch (InstantiationException e) {
-            LOGGER.log(Level.SEVERE, e.getMessage(),e);
-        } catch (IllegalAccessException e) {
-            LOGGER.log(Level.SEVERE, e.getMessage(),e);
-        } catch (ClassNotFoundException e) {
             LOGGER.log(Level.SEVERE, e.getMessage(),e);
         }
         

@@ -26,10 +26,22 @@ import org.antlr.stringtemplate.language.DefaultTemplateLexer;
 
 import cz.incad.Kramerius.security.RightsServlet;
 import cz.incad.Kramerius.security.ServletCommand;
+import cz.incad.kramerius.security.Group;
+import cz.incad.kramerius.security.User;
 import cz.incad.kramerius.utils.IOUtils;
 
 public abstract class ServletRightsCommand extends ServletCommand {
 
+    protected static boolean hasSuperAdminRole(User user) {
+        Group[] grps = user.getGroups();
+        for (Group grp : grps) {
+            if (grp.getPersonalAdminId() == 0) {
+                return true;
+            }
+        }
+        return false;
+    }
+    
     protected static StringTemplateGroup stFormsGroup() throws IOException {
         InputStream stream = RightsServlet.class.getResourceAsStream("rights.stg");
         String string = IOUtils.readAsString(stream, Charset.forName("UTF-8"), true);
