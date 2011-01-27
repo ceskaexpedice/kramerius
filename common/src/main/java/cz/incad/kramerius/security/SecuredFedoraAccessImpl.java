@@ -82,10 +82,7 @@ public class SecuredFedoraAccessImpl implements FedoraAccess {
 
 
     public String getImageFULLMimeType(String uuid) throws IOException, XPathExpressionException {
-        String[] pathOfUUIDs = this.solrAccess.getPathOfUUIDs(uuid);
-        if (this.isActionAllowed.isActionAllowed(SecuredActions.READ.getFormalName(), uuid, pathOfUUIDs)) {
-            return rawAccess.getImageFULLMimeType(uuid);
-        } else throw new SecurityException("access denided");
+        return rawAccess.getImageFULLMimeType(uuid);
     }
 
     public Document getImageFULLProfile(String uuid) throws IOException {

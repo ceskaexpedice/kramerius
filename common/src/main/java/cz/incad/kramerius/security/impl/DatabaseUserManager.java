@@ -70,7 +70,7 @@ public class DatabaseUserManager implements UserManager{
     }
 
     @Override
-    public Group[] findGroups(int user_id) {
+    public Group[] findGroupsForGivenUser(int user_id) {
         String sql = SecurityDatabaseUtils.stGroup().getInstanceOf("findAllGroupsByUserId").toString();
         List<Group> users= new JDBCQueryTemplate<Group>(this.provider.get()){
             @Override
@@ -340,6 +340,21 @@ public class DatabaseUserManager implements UserManager{
             }.executeQuery(sql, prefix+"%");
         }
         return (Group[]) grps.toArray(new Group[grps.size()]);
+    }
+
+    @Override
+    public User[] findUsersForGivenGroup(int groupId) {
+        StringTemplate template = SecurityDatabaseUtils.stGroup().getInstanceOf("findUsersForGivenGroup");
+        String sql = template.toString();
+        List<User> usrs= new JDBCQueryTemplate<User>(this.provider.get()){
+            @Override
+            public boolean handleRow(ResultSet rs, List<User> returnsList) throws SQLException {
+                    User usr = SecurityDBUtils.createUser(rs);
+                    returnsList.add(usr);
+                    return true;
+            }
+        }.executeQuery(sql, groupId);
+        return (User[]) usrs.toArray(new User[usrs.size()]);
     }
     
     

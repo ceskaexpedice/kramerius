@@ -32,6 +32,7 @@ import cz.incad.kramerius.FedoraNamespaceContext;
 import cz.incad.kramerius.security.EvaluatingResult;
 import cz.incad.kramerius.security.RightCriteriumException;
 import cz.incad.kramerius.security.RightCriteriumPriorityHint;
+import cz.incad.kramerius.security.SecuredActions;
 import cz.incad.kramerius.security.SecurityException;
 
 /**
@@ -89,4 +90,11 @@ public class PolicyFlag extends AbstractCriterium {
     public boolean isParamsNecessary() {
         return false;
     }
+
+    @Override
+    public SecuredActions[] getApplicableActions() {
+        return  new SecuredActions[] {SecuredActions.READ};
+    }
+    
+    
 }

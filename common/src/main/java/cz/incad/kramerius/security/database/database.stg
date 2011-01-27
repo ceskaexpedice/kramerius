@@ -1,16 +1,8 @@
+/**
+ * sablony pro databazi 
+ */
 group security;
 
-findRight() ::= <<
-select 
-  ent.action, ent.uuid, ent."USER",
-  att.qname,att.type,att.right_att_id
- from right_entity ent
- left join rights_attribute_entity att
-  on rights_attr=att.right_att_id
-where 
-  ent."action"=? and ent."USER"=? 
-  and ent.uuid=?
->>
 
 /** hledani prav pro uzivatele */
 findRightFromWithGroups(user, groups, pids, action) ::=<<
@@ -18,11 +10,11 @@ select * from right_entity ent
     left join rights_criterium_entity crit on (ent.rights_crit=crit.crit_id)
     left join criterium_param_entity param on (crit.citeriumparam=param.crit_param_id)
 
-    left join  user_entity users on  (ent.user = users.user_id)
-    left join  group_entity groups on  (ent.group = groups.group_id)
+    left join  user_entity users on  (ent.user_id = users.user_id)
+    left join  group_entity groups on  (ent.group_id = groups.group_id)
 
-where (ent."user"=$user$  
-    $if(first(groups))$ or ent."group" in ($groups:{grp| $grp$ };separator=","$ ) $endif$ )  
+where (ent."user_id"=$user$  
+    $if(first(groups))$ or ent."group_id" in ($groups:{grp| $grp$ };separator=","$ ) $endif$ )  
      and uuid in ($pids:{pid|'$pid$'};separator=","$)
      and "action"='$action$'
 >>
@@ -34,8 +26,8 @@ findAllRightsFromWithGroups(pids, action) ::=<<
         left join rights_criterium_entity crit on (ent.rights_crit=crit.crit_id)
         left join criterium_param_entity param on (crit.citeriumparam=param.crit_param_id)
 
-    left join  user_entity users on  (ent.user = users.user_id)
-    left join  group_entity groups on  (ent.group = groups.group_id)
+    left join  user_entity users on  (ent.user_id = users.user_id)
+    left join  group_entity groups on  (ent.group_id = groups.group_id)
 
     where uuid in ($pids:{pid|'$pid$'};separator=","$)
      and "action"='$action$'
@@ -48,8 +40,8 @@ select * from right_entity ent
     left join rights_criterium_entity crit on (ent.rights_crit=crit.crit_id)
     left join criterium_param_entity param on (crit.citeriumparam=param.crit_param_id)
     
-        left join  user_entity users on  (ent.user = users.user_id)
-    left join  group_entity groups on  (ent.group = groups.group_id)
+        left join  user_entity users on  (ent.user_id = users.user_id)
+    left join  group_entity groups on  (ent.group_id = groups.group_id)
     
 where   
     $if(first(groups))$ ent."group" in ($groups:{grp| $grp$ };separator=","$ ) $endif$  
@@ -57,7 +49,7 @@ where
      and "action"='$action$'
 >>
 
-
+/** hledani vsech uzivatelu (uzivatelu a skupin) pro konretni pid */
 findRightsUsersForPids(pids, action) ::=<<
 select * from right_entity ent
 where   
@@ -65,6 +57,7 @@ where
      and "action"='$action$'
 >>
 
+/** hledani prava dle id */
 findRightById() ::=<<
 select * from right_entity ent
     left join rights_criterium_entity crit on (ent.rights_crit=crit.crit_id)
@@ -72,32 +65,38 @@ select * from right_entity ent
 where ent.right_id=?  
 >>
 
-
+/** hledani uzivatele dle jmena a hesla */
 findUser() ::= <<
     select * from user_entity
     where loginname=? and pswd=?
 >>
 
+/** hledani uzivatele dle user_id */
 findUserByUserId() ::= <<
     select * from user_entity
     where user_id=? 
 >>
 
+/** hledani skupiny dle group_id */
 findGroupByGroupId() ::= <<
     select * from group_entity
     where group_id=? 
 >>
 
+/** hledani skupiny dle prefixu */
 findGroupByPrefix() ::=<<
     select * from group_entity 
     where gname ilike ?
 >>
 
+/** hledani uzivatele dle prefixu */
 findUserByPrefix() ::=<<
     select * from user_entity 
     where loginname ilike ?
 >>
 
+/** vylistovani vsech uzivatelu dle prefixu */
+/** s limitem 20 zaznamu TODO: zmenit !! */
 findAllUsers(prefix) ::=<<
     select * from user_entity 
     $if(prefix)$
@@ -107,6 +106,8 @@ findAllUsers(prefix) ::=<<
     limit 20
 >>
 
+/** vylistovani vsech skupin dle prefixu */
+/** s limitem 20 TODO: zmenit */
 findAllGroups(prefix) ::=<<
     select * from group_entity 
     $if(prefix)$
@@ -124,25 +125,28 @@ findAllUsersForGroups(grps) ::=<<
 >>
 
 
+/** najde vsechny skupiny ktere muze videt uzivatel figurujici v zadanych skupinach */
 findAllGroupsForGroups(grps) ::=<<
     select * from group_entity 
     where group_id in ($grps:{?};separator=","$)
     order by gname 
 >>
 
-/**  */
+/** najde vsechny uzivatele ktere muze videt uzivatel figurujici v zadanych skupinach */
 findUserByPrefixForGroups(grps) ::=<<
     select * from group_users_mapping 
     where personal_admin_id in ($grps;separator=","$) 
     and loginname ilike ?
 >>
 
+/** najde podskupiny dle prefixu */
 findGroupByPrefixForGroups(grps) ::=<<
     select * from group_entity 
     where group_id in ($grps;separator=","$) 
     and gname ilike ?
 >>
 
+/** najde vsechny podskupiny */
 findGroupsWhichAdministrate(grps) ::=<<
     select * from group_entity 
     where personal_admin_id in (grps;separator=",") 
@@ -191,7 +195,7 @@ findUserByLoginName() ::=<<
     where loginname=?; 
 >>
 
-
+/** vlozi nove kriterium param */
 insertRightCriteriumParams(params) ::=<<
     insert into criterium_param_entity(crit_param_id,short_desc,long_desc, vals) 
     values(
@@ -202,13 +206,14 @@ insertRightCriteriumParams(params) ::=<<
     )
 >>
 
-
+/** update kriterium param */
 updateRightCriteriumParams(params) ::=<<
     UPDATE criterium_param_entity
         SET  vals='$params.objects;separator=";"$', long_desc='$params.longDescription$', short_desc='$params.shortDescription$'
      WHERE crit_param_id=$params.id$;
 >>
 
+/** vlozi nove kriterium */
 insertRightCriterium(criterium) ::=<<
     $if(criterium.criteriumParams)$ 
         insert into rights_criterium_entity(crit_id,qname, "type",citeriumparam)
@@ -225,7 +230,7 @@ insertRightCriterium(criterium) ::=<<
 >>
 
 
-
+/** update kriteria */
 updateRightCriterium(criterium) ::=<<
     UPDATE rights_criterium_entity
         SET  qname='$criterium.qName$', 
@@ -233,11 +238,14 @@ updateRightCriterium(criterium) ::=<<
      WHERE crit_id=$criterium.id$;
 >>
 
+
+/** smaze kriterium */
 deleteRightCriterium() ::=<<
     DELETE from rights_criterium_entity
     where crit_id=?
 >>
 
+/** update existujiciho prava */
 updateRight(right,association, priority) ::=<<
     UPDATE right_entity
         SET uuid='$right.pid$', 
@@ -248,7 +256,7 @@ updateRight(right,association, priority) ::=<<
      WHERE right_id=$right.id$;
 >>
 
-
+/** vlozeni noveho prava */
 insertRight(right,association, priority) ::=<<
     $if(right.criterium)$ 
         insert into right_entity(right_id,uuid,action,rights_crit,"$association$", fixed_priority) 
@@ -272,14 +280,23 @@ insertRight(right,association, priority) ::=<<
     $endif$  
 >>
 
+/** maze pravo */
 deleteRight() ::=<<
     DELETE from right_entity
     where right_id=?
 >>
 
+/** update hesla */
 updatePassword() ::=<<
     update user_entity 
     set pswd=?
     where user_id=? 
 >>
+
+/** najde vsechny uzivatele skupiny */
+findUsersForGivenGroup() ::=<<
+  select * from group_users_mapping 
+  where group_id = ?
+>>
+
 

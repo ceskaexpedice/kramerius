@@ -25,11 +25,13 @@ import cz.incad.kramerius.security.AbstractUser;
 import cz.incad.kramerius.security.RightCriteriumContext;
 import cz.incad.kramerius.security.RightCriteriumContextFactory;
 import cz.incad.kramerius.security.User;
+import cz.incad.kramerius.security.UserManager;
 
 public class RightCriteriumContextFactoryImpl implements RightCriteriumContextFactory {
     
     private FedoraAccess fedoraAccess;
     private SolrAccess solrAccess;
+    private UserManager userManager;
     
     public RightCriteriumContextFactoryImpl() {
         super();
@@ -55,13 +57,24 @@ public class RightCriteriumContextFactoryImpl implements RightCriteriumContextFa
         this.solrAccess = solrAccess;
     }
 
+    
+    
+    public UserManager getUserManager() {
+        return userManager;
+    }
+
+    @Inject
+    public void setUserManager(UserManager userManager) {
+        this.userManager = userManager;
+    }
+
     public static synchronized RightCriteriumContextFactoryImpl newFactory() {
         return new RightCriteriumContextFactoryImpl();
     }
     
     @Override
     public RightCriteriumContext create(String requestedUUID,  User user, String remoteHost, String remoteAddr) {
-        RightCriteriumContext ctx = new RightParamEvaluatingContextImpl(requestedUUID, user, this.fedoraAccess, this.solrAccess, remoteHost, remoteAddr);
+        RightCriteriumContext ctx = new RightParamEvaluatingContextImpl(requestedUUID, user, this.fedoraAccess, this.solrAccess, this.userManager, remoteHost, remoteAddr);
         return ctx;
     }
 }

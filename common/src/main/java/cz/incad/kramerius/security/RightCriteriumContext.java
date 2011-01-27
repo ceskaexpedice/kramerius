@@ -63,6 +63,8 @@ public interface RightCriteriumContext {
      */
     public FedoraAccess getFedoraAccess();
     
+    public UserManager getUserManager();
+    
     public String getRemoteHost();
     
     public String getRemoteAddr();

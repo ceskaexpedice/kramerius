@@ -29,6 +29,7 @@ import cz.incad.kramerius.SolrAccess;
 import cz.incad.kramerius.security.AbstractUser;
 import cz.incad.kramerius.security.RightCriteriumContext;
 import cz.incad.kramerius.security.User;
+import cz.incad.kramerius.security.UserManager;
 import cz.incad.kramerius.utils.solr.SolrUtils;
 
 public class RightParamEvaluatingContextImpl implements RightCriteriumContext {
@@ -38,11 +39,12 @@ public class RightParamEvaluatingContextImpl implements RightCriteriumContext {
     private User user;
     private FedoraAccess fedoraAccess;
     private SolrAccess solrAccess;
+    private UserManager userManager;
     
     private String remoteHost;
     private String remoteAddr;    
     
-    public RightParamEvaluatingContextImpl(String reqUUID, User user, FedoraAccess fedoraAccess, SolrAccess solrAccess, String remoteHost, String remoteAddr) {
+    public RightParamEvaluatingContextImpl(String reqUUID, User user, FedoraAccess fedoraAccess, SolrAccess solrAccess, UserManager userManager, String remoteHost, String remoteAddr) {
         super();
         this.requestedUUID = reqUUID;
         this.user = user;
@@ -50,6 +52,7 @@ public class RightParamEvaluatingContextImpl implements RightCriteriumContext {
         this.solrAccess = solrAccess;
         this.remoteHost = remoteHost;
         this.remoteAddr = remoteAddr;
+        this.userManager = userManager;
     }
 
     @Override
@@ -102,5 +105,9 @@ public class RightParamEvaluatingContextImpl implements RightCriteriumContext {
         return this.remoteAddr;
     }
 
+    @Override
+    public UserManager getUserManager() {
+        return this.userManager;
+    }
     
 }

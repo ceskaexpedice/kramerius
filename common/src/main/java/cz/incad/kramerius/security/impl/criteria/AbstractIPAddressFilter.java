@@ -17,14 +17,21 @@
 package cz.incad.kramerius.security.impl.criteria;
 
 import java.util.Calendar;
+import java.util.logging.Level;
+import java.util.regex.Pattern;
+
+import com.sun.org.apache.xerces.internal.impl.xpath.regex.RegularExpression;
 
 import cz.incad.kramerius.security.EvaluatingResult;
 import cz.incad.kramerius.security.RightCriterium;
 import cz.incad.kramerius.security.RightCriteriumException;
 import cz.incad.kramerius.security.RightCriteriumPriorityHint;
+import cz.incad.kramerius.security.SecuredActions;
 
 public abstract class AbstractIPAddressFilter extends AbstractCriterium implements RightCriterium {
 
+    static java.util.logging.Logger LOGGER = java.util.logging.Logger.getLogger(AbstractIPAddressFilter.class.getName());
+    
     protected boolean matchIPAddresses(Object[] objs) {
         for (Object pattern : objs) {
             String remoteAddr = this.getEvaluateContext().getRemoteAddr();
@@ -42,5 +49,19 @@ public abstract class AbstractIPAddressFilter extends AbstractCriterium implemen
     }
 
 
+    @Override
+    public boolean validateParams(Object[] vals) {
+        try {
+            for (Object pattern : vals) {
+                String patternStr = pattern.toString();
+                Pattern compiled = Pattern.compile(patternStr);
+                if (compiled == null) return false;
+            }
+            return true;
+        } catch (Exception e) {
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+            return false;
+        }
+    }
     
 }

@@ -67,4 +67,11 @@ public interface RightCriterium {
     public void setCriteriumParams(RightCriteriumParams params);
     
     public boolean isParamsNecessary();
+    
+    public SecuredActions[] getApplicableActions();
+
+    
+    public boolean validateParams(Object[] vals);
+
+    public boolean validateParams(String encodedVals);
 }

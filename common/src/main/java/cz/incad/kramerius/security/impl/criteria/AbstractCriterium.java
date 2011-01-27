@@ -19,6 +19,7 @@ package cz.incad.kramerius.security.impl.criteria;
 import cz.incad.kramerius.security.RightCriterium;
 import cz.incad.kramerius.security.RightCriteriumContext;
 import cz.incad.kramerius.security.RightCriteriumParams;
+import cz.incad.kramerius.security.utils.RightsDBUtils;
 
 public abstract class AbstractCriterium implements RightCriterium {
 
@@ -79,4 +80,15 @@ public abstract class AbstractCriterium implements RightCriterium {
     public String getQName() {
         return this.getClass().getName();
     }
+
+    @Override
+    public boolean validateParams(Object[] vals) {
+        return true;
+    }
+
+    @Override
+    public boolean validateParams(String encodedVals) {
+        return validateParams(RightsDBUtils.valsFromString(encodedVals));
+    }
 }
+

@@ -43,6 +43,7 @@ import cz.incad.kramerius.security.RightCriteriumException;
 import cz.incad.kramerius.security.RightCriterium;
 import cz.incad.kramerius.security.EvaluatingResult;
 import cz.incad.kramerius.security.RightCriteriumPriorityHint;
+import cz.incad.kramerius.security.SecuredActions;
 import cz.incad.kramerius.security.SpecialObjects;
 import cz.incad.kramerius.utils.XMLUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
@@ -126,4 +127,25 @@ public class MovingWall extends AbstractCriterium implements RightCriterium {
     public boolean isParamsNecessary() {
         return true;
     }
+
+    @Override
+    public SecuredActions[] getApplicableActions() {
+        return new SecuredActions[] {SecuredActions.READ};
+    }
+
+    @Override
+    public boolean validateParams(Object[] vals) {
+        if (vals.length == 1) {
+            try {
+                Integer.parseInt((String) vals[0]);
+                return true;
+            } catch (NumberFormatException e) {
+                LOGGER.log(Level.SEVERE, e.getMessage(),e);
+                return false;
+            }
+        } else return false;
+    }
+    
+    
+    
 }

@@ -25,6 +25,7 @@ import cz.incad.kramerius.security.RightCriteriumContext;
 import cz.incad.kramerius.security.EvaluatingResult;
 import cz.incad.kramerius.security.RightCriteriumParams;
 import cz.incad.kramerius.security.RightCriteriumPriorityHint;
+import cz.incad.kramerius.security.SecuredActions;
 
 public class ClassRightCriterium implements RightCriterium {
 
@@ -160,5 +161,43 @@ public class ClassRightCriterium implements RightCriterium {
         }
         return true;
     }
-    
+
+    @Override
+    public SecuredActions[] getApplicableActions() {
+        try {
+            RightCriterium crit = instanceCriterium(this.clz);
+            return crit.getApplicableActions();
+        } catch (InstantiationException e) {
+            LOGGER.log(Level.SEVERE,e.getMessage(), e);
+        } catch (IllegalAccessException e) {
+            LOGGER.log(Level.SEVERE,e.getMessage(), e);
+        }
+        return new SecuredActions[0];
+    }
+
+    @Override
+    public boolean validateParams(Object[] vals) {
+        try {
+            RightCriterium crit = instanceCriterium(this.clz);
+            return crit.validateParams(vals);
+        } catch (InstantiationException e) {
+            LOGGER.log(Level.SEVERE,e.getMessage(), e);
+        } catch (IllegalAccessException e) {
+            LOGGER.log(Level.SEVERE,e.getMessage(), e);
+        }
+        return true;
+    }
+
+    @Override
+    public boolean validateParams(String encodedVals) {
+        try {
+            RightCriterium crit = instanceCriterium(this.clz);
+            return crit.validateParams(encodedVals);
+        } catch (InstantiationException e) {
+            LOGGER.log(Level.SEVERE,e.getMessage(), e);
+        } catch (IllegalAccessException e) {
+            LOGGER.log(Level.SEVERE,e.getMessage(), e);
+        }
+        return true;
+    }
 }

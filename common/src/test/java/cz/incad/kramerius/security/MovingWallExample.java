@@ -110,6 +110,13 @@ public class MovingWallExample extends AbstractGuiceTestCase {
 
             
             @Override
+            public boolean isAdministratorForGivenGroup(int personalAdminId) {
+                // TODO Auto-generated method stub
+                return false;
+            }
+
+
+            @Override
             public Group[] getGroups() {
                 // TODO Auto-generated method stub
                 return null;
@@ -133,6 +140,13 @@ public class MovingWallExample extends AbstractGuiceTestCase {
                 // TODO Auto-generated method stub
                 return null;
             }
+
+
+            @Override
+            public int getPersonalAdminId() {
+                // TODO Auto-generated method stub
+                return 0;
+            }
             
             
         };
@@ -140,6 +154,14 @@ public class MovingWallExample extends AbstractGuiceTestCase {
     
     public static User createCommonUser() {
         return new User() {
+
+            
+            
+            @Override
+            public boolean isAdministratorForGivenGroup(int personalAdminId) {
+                // TODO Auto-generated method stub
+                return false;
+            }
 
             @Override
             public int getId() {
@@ -169,6 +191,12 @@ public class MovingWallExample extends AbstractGuiceTestCase {
             public String getLoginname() {
                 // TODO Auto-generated method stub
                 return null;
+            }
+
+            @Override
+            public int getPersonalAdminId() {
+                // TODO Auto-generated method stub
+                return 0;
             }
             
 
@@ -207,6 +235,19 @@ public class MovingWallExample extends AbstractGuiceTestCase {
                 // TODO Auto-generated method stub
                 return null;
             }
+
+            @Override
+            public int getPersonalAdminId() {
+                // TODO Auto-generated method stub
+                return 0;
+            }
+
+            @Override
+            public boolean isAdministratorForGivenGroup(int personalAdminId) {
+                // TODO Auto-generated method stub
+                return false;
+            }
+
             
             
         };

@@ -83,8 +83,8 @@ public class DatabaseRightsManager implements RightsManager {
         List<Right> rights = new JDBCQueryTemplate<Right>(this.provider.get()) {
             @Override
             public boolean handleRow(ResultSet rs, List<Right> returnsList) throws SQLException {
-                int userId = rs.getInt("user");
-                int groupId = rs.getInt("group");
+                int userId = rs.getInt("user_id");
+                int groupId = rs.getInt("group_id");
                 AbstractUser dbUser = null;
                 if (userId > 0) {
                     dbUser = userManager.findUser(userId);
@@ -115,8 +115,8 @@ public class DatabaseRightsManager implements RightsManager {
         List<Right> rights = new JDBCQueryTemplate<Right>(this.provider.get()) {
             @Override
             public boolean handleRow(ResultSet rs, List<Right> returnsList) throws SQLException {
-                int userId = rs.getInt("user");
-                int groupId = rs.getInt("group");
+                int userId = rs.getInt("user_id");
+                int groupId = rs.getInt("group_id");
                 AbstractUser dbUser = null;
                 if (userId > 0) {
                     dbUser = userManager.findUser(userId);
@@ -158,8 +158,8 @@ public class DatabaseRightsManager implements RightsManager {
             
             @Override
             public boolean handleRow(ResultSet rs, List<Right> returnsList) throws SQLException {
-                int userId = rs.getInt("user");
-                int groupId = rs.getInt("group");
+                int userId = rs.getInt("user_id");
+                int groupId = rs.getInt("group_id");
 
                 AbstractUser dbUser = null;
                 LOGGER.fine("finding user ");
@@ -265,8 +265,8 @@ public class DatabaseRightsManager implements RightsManager {
         List<Right> rights = new JDBCQueryTemplate<Right>(this.provider.get()) {
             @Override
             public boolean handleRow(ResultSet rs, List<Right> returnsList) throws SQLException {
-                int userId = rs.getInt("user");
-                int groupId = rs.getInt("group");
+                int userId = rs.getInt("user_id");
+                int groupId = rs.getInt("group_id");
                 AbstractUser dbUser = null;
                 if (userId > 0) {
                     dbUser = userManager.findUser(userId);
@@ -434,7 +434,7 @@ public class DatabaseRightsManager implements RightsManager {
     public void updateRightImpl(Connection con, Right right) throws SQLException {
         StringTemplate template = SecurityDatabaseUtils.stGroup().getInstanceOf("updateRight");
         template.setAttribute("right", right);
-        template.setAttribute("association", right.getUser() instanceof Group ? "group" : "user");
+        template.setAttribute("association", right.getUser() instanceof Group ? "group_id" : "user_id");
         template.setAttribute("priority", right.getFixedPriority() == 0 ? "NULL" : "" + right.getFixedPriority());
         JDBCUpdateTemplate jdbcTemplate = new JDBCUpdateTemplate(con, false);
         String sql = template.toString();
@@ -526,7 +526,7 @@ public class DatabaseRightsManager implements RightsManager {
 
     public int insertRightImpl(Connection con, Right right) throws SQLException {
         StringTemplate template = SecurityDatabaseUtils.stGroup().getInstanceOf("insertRight");
-        template.setAttribute("association", right.getUser() instanceof Group ? "group" : "user");
+        template.setAttribute("association", right.getUser() instanceof Group ? "group_id" : "user_id");
         template.setAttribute("right", right);
         template.setAttribute("priority", right.getFixedPriority() == 0 ? "NULL" : "" + right.getFixedPriority());
         JDBCUpdateTemplate jdbcTemplate = new JDBCUpdateTemplate(con, false);

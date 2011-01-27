@@ -21,6 +21,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import cz.incad.kramerius.security.RightCriterium;
+import cz.incad.kramerius.security.SecuredActions;
 
 //TODO: ZMENIT
 public class CriteriumsLoader {
@@ -38,4 +39,23 @@ public class CriteriumsLoader {
         return crits;
     }
 
+    public static List<RightCriterium> criteriums(SecuredActions ...actions ) throws InstantiationException, IllegalAccessException, ClassNotFoundException {
+        List<String> clzz = criteriumClasses();
+        List<RightCriterium> crits = new ArrayList<RightCriterium>();
+        for (int i = 0; i < clzz.size(); i++) {
+            RightCriterium crit = (RightCriterium) Class.forName(clzz.get(i)).newInstance();
+            List<SecuredActions> actList = Arrays.asList(crit.getApplicableActions());
+            for (SecuredActions act : actions) {
+                if (actList.contains(act)) {
+                    crits.add(crit);
+                }
+            }
+        }
+        return crits;
+    }
+    
+    
+//    public static RightCriterium criteriumsByName(String criteriumQName) throws InstantiationException, IllegalAccessException, ClassNotFoundException {
+//        RightCriterium crit = (RightCriterium) Class.forName(criteriumQName).newInstance();
+//    }
 }

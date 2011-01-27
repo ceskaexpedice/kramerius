@@ -22,6 +22,8 @@ import cz.incad.kramerius.security.RightCriterium;
 import cz.incad.kramerius.security.RightCriteriumContext;
 import cz.incad.kramerius.security.RightCriteriumException;
 import cz.incad.kramerius.security.RightCriteriumPriorityHint;
+import cz.incad.kramerius.security.SecuredActions;
+import cz.incad.kramerius.security.UserManager;
 
 /**
  * Predplatitele
@@ -57,6 +59,22 @@ public class Abonents extends AbstractCriterium implements RightCriterium {
         return true;
     }
 
+    @Override
+    public SecuredActions[] getApplicableActions() {
+        return new SecuredActions[] {SecuredActions.READ};
+    }
+
+    @Override
+    public boolean validateParams(Object[] vals) {
+        for (Object grp : vals) {
+            UserManager userManager = getEvaluateContext().getUserManager();
+            Group dbGroup = userManager.findGroupByName(grp.toString());
+            if (dbGroup == null)  return false;
+        }
+        return true;
+    }
+
+    
     
     
 }

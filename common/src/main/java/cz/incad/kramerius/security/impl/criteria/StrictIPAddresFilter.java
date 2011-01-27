@@ -23,6 +23,7 @@ import cz.incad.kramerius.security.RightCriterium;
 import cz.incad.kramerius.security.RightCriteriumContext;
 import cz.incad.kramerius.security.RightCriteriumException;
 import cz.incad.kramerius.security.RightCriteriumPriorityHint;
+import cz.incad.kramerius.security.SecuredActions;
 
 /**
  * Omezujici filter -> Pokud je z daneho rozsahu pusti dal, neni tak zakaze
@@ -59,4 +60,11 @@ public class StrictIPAddresFilter extends AbstractIPAddressFilter implements Rig
     public RightCriteriumPriorityHint getPriorityHint() {
         return RightCriteriumPriorityHint.MAX;
     }
+    
+    
+    @Override
+    public SecuredActions[] getApplicableActions() {
+        return SecuredActions.values();
+    }
+
 }

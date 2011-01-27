@@ -29,6 +29,7 @@ import cz.incad.kramerius.security.RightCriterium;
 import cz.incad.kramerius.security.RightCriteriumContext;
 import cz.incad.kramerius.security.RightCriteriumException;
 import cz.incad.kramerius.security.RightCriteriumPriorityHint;
+import cz.incad.kramerius.security.SecuredActions;
 import cz.incad.kramerius.utils.XMLUtils;
 
 /**
@@ -68,4 +69,11 @@ public class DefaultIPAddressFilter extends AbstractIPAddressFilter implements R
     public RightCriteriumPriorityHint getPriorityHint() {
         return RightCriteriumPriorityHint.MAX;
     }
+    
+    
+    @Override
+    public SecuredActions[] getApplicableActions() {
+        return new SecuredActions[] {SecuredActions.READ};
+    }
+
 }

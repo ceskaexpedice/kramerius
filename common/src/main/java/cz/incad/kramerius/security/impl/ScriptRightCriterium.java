@@ -30,6 +30,7 @@ import cz.incad.kramerius.security.RightCriteriumContext;
 import cz.incad.kramerius.security.EvaluatingResult;
 import cz.incad.kramerius.security.RightCriteriumParams;
 import cz.incad.kramerius.security.RightCriteriumPriorityHint;
+import cz.incad.kramerius.security.SecuredActions;
 
 
 
@@ -121,7 +122,22 @@ class ScriptRightCriterium implements RightCriterium {
         // TODO Auto-generated method stub
         return false;
     }
-    
-    
-    
+
+    @Override
+    public SecuredActions[] getApplicableActions() {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    @Override
+    public boolean validateParams(Object[] vals) {
+        // TODO Auto-generated method stub
+        return false;
+    }
+
+    @Override
+    public boolean validateParams(String encodedVals) {
+        // TODO Auto-generated method stub
+        return false;
+    }
 }

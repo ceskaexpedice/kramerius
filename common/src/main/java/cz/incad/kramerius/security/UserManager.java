@@ -20,10 +20,15 @@ import java.sql.SQLException;
 
 public interface UserManager {
 
+    /**
+     * Validate user and given password
+     * @param loginName
+     * @param passwd
+     * @return
+     */
     public User validateUser(String loginName, String passwd);
     
-    
-    public Group[] findGroups(int user_id);
+    public Group[] findGroupsForGivenUser(int user_id);
     
     public User findUser(int user_id);
     
@@ -46,10 +51,28 @@ public interface UserManager {
     public User[] findUserByPrefixForGroups(String prefix, int[] grpIds);
     public Group[] findGroupByPrefixForGroups(String prefix, int[] grpIds);
 
-
+    public User[] findUsersForGivenGroup(int groupId);
+    
+    /**
+     * Returs all users which can be administrate by given groups 
+     * @param grpIds Master group ids
+     * @return
+     */
     public User[] findAllUsers(int[] grpIds);
+    
+    /**
+     * Returns all groups wich can be administrate by given groups
+     * @param grpIds Master group ids
+     * @return
+     */
     public Group[] findAllGroups(int[] grpIds);
     
+    /**
+     * Change password
+     * @param userId user id
+     * @param pswd new password
+     * @throws SQLException
+     */
     void saveNewPassword(int userId, String pswd) throws SQLException;
 
 

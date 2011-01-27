@@ -23,6 +23,7 @@ public interface RightsManager {
     
     // najde prava pro uzivatele
     public Right[] findRights(String[] uuids, String action, User user);
+
     // interpretuje prava
     public EvaluatingResult resolve(RightCriteriumContext ctx, String uuid, String[] path, String action, User user) throws RightCriteriumException;
     
