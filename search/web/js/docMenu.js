@@ -148,22 +148,29 @@ function getViewInfo(uuid, f){
           complete:function(req,textStatus) {
               
               if ((req.status==200) || (req.status==304)) {
-              viewerOptions = eval('(' + req.responseText + ')');
-              viewerOptions.uuid = uuid;	
-              viewerOptions.status=req.status;
-                  securedContent = false;
-                  currentMime = req.responseText;
-                  f(viewerOptions);
+            	  viewerOptions = eval('(' + req.responseText + ')');
+            	  viewerOptions.uuid = uuid;	
+            	  viewerOptions.status=req.status;
+            	  
+            	  if (viewerOptions.rights["read"][uuid]) {
+                	  securedContent = false;
+                      currentMime = req.responseText;
+                      f(viewerOptions);
+            	  } else {
+ 					currentMime = "unknown";
+ 					securedContent = true;
+					displaySecuredContent();
+            	  }
+            	  
                   
-              } else if (req.status==403){
-                  currentMime = "unknown";
-                  securedContent = true;
-                  displaySecuredContent();
+//              } else if (req.status==403){
+//                  currentMime = "unknown";
+//                  securedContent = true;
+//                  displaySecuredContent();
               } else if (req.status==404){
                     alert("Neni velky nahled !");
-              } else {
-                    alert("Jina Chyba");
-                  // jina chyba serveru
+//              } else {
+//                    alert("Jina Chyba");
               }
  
 	  }
