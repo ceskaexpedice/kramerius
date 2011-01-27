@@ -624,3 +624,10 @@ table.advancedSearch td{
     border: 1px solid #E75C01;
     padding: 0;
 }
+
+tr.users_hint {
+}
+
+tr.users_hint:hover {
+    background:#e6e6e6;
+}
