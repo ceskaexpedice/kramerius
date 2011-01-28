@@ -120,6 +120,7 @@ function newRight(uuid, action) {
     	rightDialog(saveUrl);
         $("#newRight").html(data);
         $.get(jsDataUrl, function(data) {
+        	console.log("processing  js");
         	_rightData = eval("("+data+")");
         	_rightData.init();
         });
@@ -133,14 +134,16 @@ function editRight(uuid, rightId, action) {
 	var saveUrl="rights?action=edit";
     var jsDataUrl = "rights?action=editrightjsdata&uuid="+uuid+"&rightid="+rightId+"&securedaction="+action;
 	var fetchUrl = "rights?action=newright&uuid="+uuid+"&securedaction="+action;
-    $.get(fetchUrl, function(data) {
-    	rightDialog(saveUrl);
-        $("#newRight").html(data);
-        $.get(jsDataUrl, function(data) {
+	// ziskani html
+	$.get(fetchUrl, function(htmldata) {
+		//ziskani skritpu
+		$.get(jsDataUrl, function(data) {
+        	rightDialog(saveUrl);
+        	$("#newRight").html(htmldata);
+
         	_rightData = eval("("+data+")");
         	_rightData.init();
-        	
-        	
+
     		$('#uuid').attr('disabled', true);
     		$('#criterium option[value="'+_rightData.initvalues.criterium+'"]').attr("selected","selected");
     		if (_rightData.initvalues.rightCriteriumParamId==="-1") {
@@ -159,7 +162,7 @@ function editRight(uuid, rightId, action) {
     	    $("#criterium").each(function(i,val) {
     	    	callbackCriteriumValueChanged(val);
     	    });
-    	    
+
     	    // inicializace uzivatele ... 
     	    if (_rightData.initvalues.userType==="user") {
     			$('#userType').attr('checked', true);
@@ -190,6 +193,7 @@ function editRight(uuid, rightId, action) {
     			$("#navigationForUser").hide();
 
     	    }
+
     	    $("#userId").val(_rightData.initvalues.user);
     	    // ~ konec inicializace uzivatele
     	    
@@ -221,7 +225,7 @@ function deleteRight(uuid, rightId, action) {
 /** zobrazeni jednoho prava */
 function rightDialog(saveUrl) {
 	_saveUrlForPost = saveUrl;
-	if (_newRight) {
+	if (_newRight) {v
     	_newRight.dialog('open');
     } else {
     	$(document.body).append('<div id="newRight">'+'</div>');
@@ -261,16 +265,20 @@ function saveChangesOnlyIds() {
 }
 /** save state and make chanes; saving full form (actions create and edit) */
 function saveChanges() {
+	alert("Ulozeni stavu ... podminka:"+$("#criterium").val());
 	$.post(_saveUrlForPost, {
+			// id objektu
 			rightId:_rightData.initvalues.rightId,
 			rightCriteriumId:_rightData.initvalues.rightCriteriumId,
-			
 			rightCriteriumParamId:$("#params option:selected").val()==="new" ? "-1":$("#params option:selected").val(),
+			// akce ktera se edituje		
 			formalActionHidden:_lastDisplayedAction,
-
+			// objekt ktereho se to tyka
 			uuidHidden: $("#uuid").val(),
+			
+			// uzivatelem zvolene kriterium
 			criteriumHidden:$("#criterium").val(),
-
+			// uzivatelem zmenene parametry
 			paramsHidden:$("#paramsVals").val(),
 			paramsShortDescriptionHidden:$("#shortDesc").val(),
 			paramsLongDescriptionHidden:$("#longDesc").val(),
@@ -420,27 +428,17 @@ function callbackCriteriumParamsValueChanged(target) {
 
 /** calback for change criterium */
 function callbackCriteriumValueChanged(target) {
-	console.group("callback : criterium changed ");
-	console.log("zobrazuji div dle vybraneho kriteria..");
-
 	var selectedCriterium = $("#criterium").val();
-	console.log("vybrane kriterium je "+selectedCriterium);
-	
 	var needParam = _rightData.needParamsMap[selectedCriterium];
-	console.log("kriterium potrebuje parametry ?:"+needParam);
 	
 	if (needParam==="true") {
-		console.log("zobrazuji div na zadavani parametru");
     	$("#rightParamsCreation").show(500);
 	} else {
-		console.log("skryvam div pro zadavani parametru");
 		$("#rightParamsCreation").hide(500);
         $('#paramsVals').val('');
         $('#shortDesc').val('');
 	}
 	$("#params option[value='new']").attr('selected', 'selected');
-	console.log("~ Konec ~");
-	console.groupEnd();
 }
 
 
@@ -506,7 +504,8 @@ function securedActionsTable(uuid,actions) {
 /** secured actions dialog volany z kontextoveho menu */
 function securedActionsTableForCtxMenu(level, uuid, actions) {
 	hideAdminOptions(level);
-	securedActionsTable(uuid, actions);
+	var nuuid = $("#tabs_"+level).attr('pid');
+	securedActionsTable(nuuid, actions);
 }
 
 /** napovi skupiny pro vybraneho uzivatele */
