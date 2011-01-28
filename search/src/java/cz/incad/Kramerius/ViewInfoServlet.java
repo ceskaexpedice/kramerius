@@ -11,7 +11,6 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.logging.Level;
 
 import javax.servlet.ServletException;
@@ -27,13 +26,10 @@ import org.antlr.stringtemplate.language.DefaultTemplateLexer;
 import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
 
-import sun.dc.pr.PathStroker;
-
 import com.google.inject.Inject;
 import com.google.inject.Provider;
 import com.google.inject.name.Named;
 
-import cz.incad.Kramerius.HandleServlet.HandleType;
 import cz.incad.Kramerius.backend.guice.GuiceServlet;
 import cz.incad.Kramerius.security.CurrentLoggedUserProvider;
 import cz.incad.kramerius.FedoraAccess;
@@ -41,13 +37,11 @@ import cz.incad.kramerius.SolrAccess;
 import cz.incad.kramerius.imaging.DeepZoomCacheService;
 import cz.incad.kramerius.security.IsActionAllowed;
 import cz.incad.kramerius.security.RightCriteriumContextFactory;
-import cz.incad.kramerius.security.RightCriteriumException;
 import cz.incad.kramerius.security.RightsManager;
 import cz.incad.kramerius.security.SecuredActions;
 import cz.incad.kramerius.security.SecurityException;
 import cz.incad.kramerius.security.SpecialObjects;
 import cz.incad.kramerius.security.User;
-import cz.incad.kramerius.security.UserManager;
 import cz.incad.kramerius.utils.IOUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 import cz.incad.kramerius.utils.solr.SolrUtils;
