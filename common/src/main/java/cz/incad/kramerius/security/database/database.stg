@@ -119,16 +119,20 @@ findAllGroups(prefix) ::=<<
 
 
 /** vraci vsechny uzivatele */
-findAllUsersForGroups(grps) ::=<<
+findAllUsersForGroups(grps, prefix) ::=<<
     select * from group_users_mapping 
     where personal_admin_id in ($grps:{?};separator=","$) 
+    $if(prefix)$
+    and loginname ilike ?
+    $endif$
 >>
 
 
 /** najde vsechny skupiny ktere muze videt uzivatel figurujici v zadanych skupinach */
-findAllGroupsForGroups(grps) ::=<<
+findAllGroupsForGroups(grps, prefix) ::=<<
     select * from group_entity 
-    where group_id in ($grps:{?};separator=","$)
+    where personal_admin_id in ($grps:{?};separator=","$)
+    and gname ilike ?
     order by gname 
 >>
 
@@ -137,6 +141,7 @@ findUserByPrefixForGroups(grps) ::=<<
     select * from group_users_mapping 
     where personal_admin_id in ($grps;separator=","$) 
     and loginname ilike ?
+    order by gname 
 >>
 
 /** najde podskupiny dle prefixu */

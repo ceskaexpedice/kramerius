@@ -286,6 +286,7 @@ public class DatabaseUserManager implements UserManager{
     public User[] findAllUsers(int[] grpIds) {
         StringTemplate template = SecurityDatabaseUtils.stGroup().getInstanceOf("findAllUsersForGroups");
         template.setAttribute("grps", grpIds);
+        template.setAttribute("prefix", null);
         String sql = template.toString();
         List<User> users= new JDBCQueryTemplate<User>(this.provider.get()){
             @Override
@@ -298,10 +299,30 @@ public class DatabaseUserManager implements UserManager{
         return (User[]) users.toArray(new User[users.size()]);
     }
 
+    
+    
     @Override
-    public Group[] findAllGroups(int[] grpIds) {
+    public User[] findAllUsers(int[] grpIds, String prefix) {
+        StringTemplate template = SecurityDatabaseUtils.stGroup().getInstanceOf("findAllUsersForGroups");
+        template.setAttribute("grps", grpIds);
+        template.setAttribute("prefix", prefix);
+        String sql = template.toString();
+        List<User> users= new JDBCQueryTemplate<User>(this.provider.get()){
+            @Override
+            public boolean handleRow(ResultSet rs, List<User> returnsList) throws SQLException {
+                    User user = SecurityDBUtils.createUser(rs);
+                    returnsList.add(user);
+                    return true;
+            }
+        }.executeQuery(sql, grpIds, prefix+"%");
+        return (User[]) users.toArray(new User[users.size()]);
+    }
+
+    @Override
+    public Group[] findAllGroups(int[] grpIds, String prefix) {
         StringTemplate template = SecurityDatabaseUtils.stGroup().getInstanceOf("findAllGroupsForGroups");
         template.setAttribute("grps", grpIds);
+        template.setAttribute("prefix", prefix== null ? "" : prefix);
         String sql = template.toString();
         List<Group> grps= new JDBCQueryTemplate<Group>(this.provider.get()){
             @Override
@@ -310,7 +331,7 @@ public class DatabaseUserManager implements UserManager{
                     returnsList.add(grp);
                     return true;
             }
-        }.executeQuery(sql, grpIds);
+        }.executeQuery(sql, grpIds, prefix+"%");
         return (Group[]) grps.toArray(new Group[grps.size()]);
     }
 

@@ -18,14 +18,11 @@ package cz.incad.kramerius.security;
 
 import java.sql.SQLException;
 
+/**
+ * Manager for administrating user
+ */
 public interface UserManager {
 
-    /**
-     * Validate user and given password
-     * @param loginName
-     * @param passwd
-     * @return
-     */
     public User validateUser(String loginName, String passwd);
     
     public Group[] findGroupsForGivenUser(int user_id);
@@ -59,14 +56,16 @@ public interface UserManager {
      * @return
      */
     public User[] findAllUsers(int[] grpIds);
-    
+
+    public User[] findAllUsers(int[] grpIds, String prefix);
+
     /**
      * Returns all groups wich can be administrate by given groups
      * @param grpIds Master group ids
      * @return
      */
-    public Group[] findAllGroups(int[] grpIds);
-    
+    public Group[] findAllGroups(int[] grpIds, String prefix);
+
     /**
      * Change password
      * @param userId user id
