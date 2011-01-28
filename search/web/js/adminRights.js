@@ -265,7 +265,6 @@ function saveChangesOnlyIds() {
 }
 /** save state and make chanes; saving full form (actions create and edit) */
 function saveChanges() {
-	alert("Ulozeni stavu ... podminka:"+$("#criterium").val());
 	$.post(_saveUrlForPost, {
 			// id objektu
 			rightId:_rightData.initvalues.rightId,
