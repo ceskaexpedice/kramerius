@@ -29,4 +29,8 @@ public interface AbstractUser extends Serializable {
      * @return
      */
     public int getId();
+    
+
+    public int getPersonalAdminId();
+
 }

@@ -24,12 +24,14 @@ public class GroupImpl  implements Group, Serializable {
 
     private int id;
     private String gname;
+    private int personalAdminId;
     
     
-    public GroupImpl(int id, String gname) {
+    public GroupImpl(int id, String gname, int personalAdminId) {
         super();
         this.id = id;
         this.gname = gname;
+        this.personalAdminId = personalAdminId;
     }
 
 
@@ -42,6 +44,12 @@ public class GroupImpl  implements Group, Serializable {
     @Override
     public String getName() {
         return this.gname;
+    }
+
+    
+    @Override
+    public int getPersonalAdminId() {
+        return this.personalAdminId;
     }
 
 

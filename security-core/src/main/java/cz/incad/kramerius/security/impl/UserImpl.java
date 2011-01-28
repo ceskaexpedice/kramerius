@@ -25,15 +25,19 @@ public class UserImpl implements User {
     private String firstName;
     private String surName;
     private String loginName;
+    
+    // jenom skupiny muzou byt administrovane
+    private int personalAdminId;
 
     private Group[] groups;
     
-    public UserImpl(int id, String firstName, String surName, String loginName) {
+    public UserImpl(int id, String firstName, String surName, String loginName, int personalAdminId) {
         super();
         this.id = id;
         this.firstName = firstName;
         this.surName = surName;
         this.loginName = loginName;
+        this.personalAdminId = personalAdminId;
     }
 
     @Override
@@ -46,6 +50,8 @@ public class UserImpl implements User {
         return this.firstName;
     }
 
+    
+    
     @Override
     public String getSurname() {
         return this.surName;
@@ -64,5 +70,24 @@ public class UserImpl implements User {
     public void setGroups(Group[] grps) {
         this.groups = grps;
     }
+
+    public int getPersonalAdminId() {
+        return personalAdminId;
+    }
+
+    public void setPersonalAdminId(int personalAdminId) {
+        this.personalAdminId = personalAdminId;
+    }
+
+    @Override
+    public boolean isAdministratorForGivenGroup(int personalAdminId) {
+        Group[] grps = getGroups();
+        for (Group grp : grps) {
+            if (grp.getId() == personalAdminId) return true;
+        }
+        return false;
+    }
+    
+    
     
 }

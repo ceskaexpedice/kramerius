@@ -29,7 +29,8 @@ public class SecurityDBUtils {
     public static Group createGroup(ResultSet rs) throws SQLException {
         int id = rs.getInt("group_id");
         String gname = rs.getString("gname");    
-        Group grp = new GroupImpl(id, gname);
+        int personalAdminId = rs.getInt("personal_admin_id");
+        Group grp = new GroupImpl(id, gname, personalAdminId);
         return grp;
     }
 
@@ -38,7 +39,8 @@ public class SecurityDBUtils {
         String loginName = rs.getString("loginname");    
         String firstName = rs.getString("name");    
         String surName = rs.getString("surname");
-        User user = new UserImpl(id, firstName, surName, loginName);
+        int personalAdminId = rs.getInt("personal_admin_id");
+        User user = new UserImpl(id, firstName, surName, loginName, personalAdminId);
         return user;
     }
 

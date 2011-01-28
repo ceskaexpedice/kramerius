@@ -31,6 +31,6 @@ public interface User extends AbstractUser,Serializable {
     public String getLoginname();
     
     public Group[] getGroups();
-
-
+    
+    public boolean isAdministratorForGivenGroup(int personalAdminId);
 }

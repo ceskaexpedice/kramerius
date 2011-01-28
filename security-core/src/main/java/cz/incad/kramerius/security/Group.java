@@ -25,4 +25,7 @@ import java.io.Serializable;
 public interface Group  extends AbstractUser, Serializable {
     
     public String getName();
+    
+    
+
 }

@@ -16,6 +16,7 @@
  */
 package cz.incad.kramerius.utils.database;
 
+import java.lang.reflect.Array;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -63,8 +64,9 @@ public class JDBCQueryTemplate<T> {
         ResultSet rs=null;
         try {
             pstm = connection.prepareStatement(sql);
-            for (int i = 0; i < params.length; i++) {
-                setParam(i+1, params[i], pstm);
+            for (int i = 0, index = 1; i < params.length; i++) {
+                int changedIndex = setParam(index, params[i], pstm);
+                index = changedIndex + 1;
             }
             rs= pstm.executeQuery();
             while(rs.next()) {
@@ -97,15 +99,25 @@ public class JDBCQueryTemplate<T> {
         return result;
     }
     
-    private void setParam(int i, Object object, PreparedStatement pstm) throws SQLException {
+    private int setParam(int i, Object object, PreparedStatement pstm) throws SQLException {
         if (object instanceof String) {
             pstm.setString(i, (String) object);
+            return i;
         } else if (object instanceof Integer) {
             pstm.setInt(i, (Integer) object);
+            return i;
         } else if (object instanceof Timestamp) {
             pstm.setTimestamp(i, (java.sql.Timestamp) object);
+            return i;
         } else if (object instanceof Long) {
             pstm.setLong(i, (Long) object);
+            return i;
+        } else if (object.getClass().isArray()) {
+            int length = Array.getLength(object);
+            for (int j = 0; j < length; j++) {
+                setParam(i+j, Array.get(object, j), pstm);
+            }
+            return i+(length-1);
         } else throw new IllegalArgumentException("unsupported type of argument "+object.getClass().getName());
         
     }
