@@ -135,7 +135,24 @@ public class ShowRightsHtml extends ServletRightsCommand{
     private List<Right> findAllRightWithUserWhichIAdministrate(User user, List<Right> foundRights) {
         List<Right> filtered = new ArrayList<Right>();
         for (Right right : foundRights) {
-            if (user.isAdministratorForGivenGroup(right.getUser().getPersonalAdminId())) {
+            // uzivatel
+            if (right.getUser() instanceof User) {
+                User rightUsr = (User) right.getUser();
+                // administruje primo uzivatele
+                if (user.isAdministratorForGivenGroup(rightUsr.getPersonalAdminId())) {
+                    filtered.add(right);
+                } else {
+                    // administruje nekterou ze skupin
+                    Group[] grps = userManager.findGroupsForGivenUser(rightUsr.getId());
+                    for (Group group : grps) {
+                        if (user.isAdministratorForGivenGroup(group.getPersonalAdminId())) {
+                            filtered.add(right);
+                            break;
+                        }                        
+                    }
+                }
+            // skupina
+            } else if (user.isAdministratorForGivenGroup(right.getUser().getPersonalAdminId())) {
                 filtered.add(right);
             }
         }

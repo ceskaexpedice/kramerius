@@ -41,7 +41,7 @@ public class HintAllUsersTable extends ServletUsersCommand {
             if (hasCurrentUserHasSuperAdminRole(user)) {
                 users = userManager.findAllUsers(prefix);
             } else {
-                users = userManager.findAllUsers(grps);
+                users = userManager.findAllUsers(grps, prefix);
             }
             StringTemplate template = ServletUsersCommand.stFormsGroup().getInstanceOf("allUsersTable");
             template.setAttribute("users", users);

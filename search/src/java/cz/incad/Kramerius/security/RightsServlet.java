@@ -88,6 +88,8 @@ import cz.incad.kramerius.utils.pid.PIDParser;
 
 public class RightsServlet extends GuiceServlet {
 
+    private static final String NONE_CONSTANT = "none";
+
     static java.util.logging.Logger LOGGER = java.util.logging.Logger.getLogger(RightsServlet.class.getName());
     
     @Inject
@@ -305,7 +307,8 @@ public class RightsServlet extends GuiceServlet {
     public static RightCriterium criteriumFromPost(RightsManager rightsManager, HttpServletRequest req, RightCriteriumParams params) throws InstantiationException, IllegalAccessException, ClassNotFoundException {
         String rightCriteriumId = req.getParameter("rightCriteriumId");
         String criteriumHidden = req.getParameter("criteriumHidden");
-
+        if (criteriumHidden.equals(NONE_CONSTANT)) return null;
+        
         RightCriterium rightCriterium = null;
         if ((rightCriteriumId != null) && (!rightCriteriumId.equals("")) && (Integer.parseInt(rightCriteriumId) > 0)) {
             rightCriterium = rightsManager.findRightCriteriumById(Integer.parseInt(rightCriteriumId));
@@ -313,7 +316,7 @@ public class RightsServlet extends GuiceServlet {
                 rightCriterium = ClassRightCriterium.instanceCriterium((Class<? extends RightCriterium>) Class.forName(criteriumHidden));
                 rightCriterium.setId(-1);
             }
-        } else if ((!criteriumHidden.equals("none") && (!"".equals(criteriumHidden.trim())))){
+        } else if ((!criteriumHidden.equals(NONE_CONSTANT) && (!"".equals(criteriumHidden.trim())))){
             rightCriterium = ClassRightCriterium.instanceCriterium((Class<? extends RightCriterium>) Class.forName(criteriumHidden));
             rightCriterium.setId(-1);
 

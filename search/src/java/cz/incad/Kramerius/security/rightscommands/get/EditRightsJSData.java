@@ -68,6 +68,7 @@ public class EditRightsJSData extends ServletRightsCommand {
             
             String content = template.toString();
             resp.getOutputStream().write(content.getBytes("UTF-8"));
+            LOGGER.fine("returning js data for dialog ...");
         } catch (NumberFormatException e) {
             LOGGER.log(Level.SEVERE, e.getMessage(),e);
         } catch (UnsupportedEncodingException e) {
