@@ -63,7 +63,7 @@ org.w3c.dom.Document doc = g.getFedoraObjectsFromModelExt(selectedModel, rows, o
 pageContext.setAttribute("doc", doc);
 %>
 <table cellpadding="0" cellspacing="0" class="indexer_selected"  width="100%">
-    <thead class="indexer_head"><tr>
+    <thead class="indexer_head ui-dialog-titlebar"><tr>
         <td></td><td><fmt:message>filter.query.title</fmt:message></td>
         <td width="138">
             <c:choose>

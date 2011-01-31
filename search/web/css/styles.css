@@ -431,25 +431,13 @@ td.rightMenu .facet{
     width:100%;
 }
 
-.suggestTitle{
-    background-image: url('../img/suggest_title_bg.png');
-    background-repeat:no-repeat;
-    vertical-align:middle;
-    color:white;
-    margin:0px;
-    height:35px;
-}
+
 
 #suggestBody{
     padding:2px 5px;
     padding-top:8px;
     height:89px;
 }
-
-.suggestTitle div{
-    padding-top:10px;
-    padding-left:20px;
- }
  
 .suggest_input{
     border:1px solid silver;
@@ -586,11 +574,9 @@ table.advancedSearch td{
 	color: white;
 }
 .indexer_head{
-    border-bottom: 1px dashed; 
-        background: url("../img/tab_bg.png") repeat-x scroll 0 50% #FFFFFF;
-        color: white;
-        line-height:1.3;
-        padding:3px;
+    color: white;
+    line-height:1.3;
+    padding:3px;
 }
 .indexer_head a{
         color: white;

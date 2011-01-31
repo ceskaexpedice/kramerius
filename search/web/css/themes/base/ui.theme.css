@@ -39,7 +39,7 @@
 
 .ui-state-active, .ui-widget-content .ui-state-active {
         border: 1px solid #aaaaaa/*{borderColorActive}*/; 
-        background: #ffffff/*{bgColorActive}*/ url(../../../img/tab_bg.png)/*{bgImgUrlActive}*/ 0/*{bgActiveXPos}*/ 50%/*{bgActiveYPos}*/ repeat-x/*{bgActiveRepeat}*/; 
+        background: #ffffff/*{bgColorActive}*/ url(../../../img/bg_orange_small.png)/*{bgImgUrlActive}*/ 0/*{bgActiveXPos}*/ 50%/*{bgActiveYPos}*/ repeat-x/*{bgActiveRepeat}*/;
         font-weight: normal/*{fwDefault}*/; 
         color: white/*{fcActive}*/; 
         outline: none; 
