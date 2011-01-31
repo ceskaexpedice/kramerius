@@ -44,8 +44,10 @@
         <!--  procesy - dialogy -->
             <%@ include file="dialogs/_processes_dialogs.jsp" %>
             <table style="width:100%" id="mainItemTable"><tr><td align="center">
-                    
+                    <form name="searchForm" id="searchForm" method="GET" action="./" onsubmit="checkQuery();">
                     <%@ include file="inc/searchForm.jsp" %>
+                    <%@ include file="inc/usedFilters.jsp" %>
+                    </form>
                     <table>
                         <tr valign='top'>
                             <td><%//@ include file="usedFilters.jsp" %></td>
@@ -55,9 +57,9 @@
                         <tr valign='top'>
                             <td colspan="3" valign="middle" align="center">
                                 <table style="width: 100%"><tr>
-                                        <td width="20px" align="center"><a class="prevArrow"  href="javascript:selectPrevious();"><img src="img/la.png" border="0" /></a></td>
+<%--  <td width="20px" align="center"><a class="prevArrow"  href="javascript:selectPrevious();"><img src="img/la.png" border="0" /></a></td> --%>
                                         <td class="thumbsCell" align="center"><%@ include file="thumbsViewer.jsp" %></td>
-                                        <td width="20px" align="center"><a class="nextArrow"  href="javascript:selectNext();"><img src="img/ra.png" border="0" /></a></td>
+<%--  <td width="20px" align="center"><a class="nextArrow"  href="javascript:selectNext();"><img src="img/ra.png" border="0" /></a></td> --%>
                                 </tr></table>
                             </td>
                         </tr>
@@ -214,12 +216,6 @@
                                             </div>
                                             
                                         </td>
-                                        <!--
-                                        <td valign="top" align="center" width="20px">
-                                        <a class="nextArrow"  href="javascript:selectNext();">
-                                                <img src="img/ra.png" border="0" /></a>
-                                        </td>
-                                        -->
                                 </tr></table>
                             </td>
                             <td><img src="img/empty.gif" width="2" /></td>
@@ -227,13 +223,20 @@
                                 <script>
                                     var firstCalled = false;
                                 </script>
-                                <div id="itemTree">
+                                <div id="itemTree" style="width:330px;" class="ui-tabs ui-widget ui-corner-all facet shadow10">
+                                    <ul class="ui-tabs-nav ui-helper-reset ui-helper-clearfix ui-widget-header ui-corner-all" style="padding:0 0.1em 0 0;">
+        <li class=" facetTitle ui-state-default ui-corner-top  ui-state-active" style="width:100%;">
+        <a class="box" href=""><fmt:message bundle="${lctx}">item.popis</fmt:message></a></li>
+    </ul>
                                     <%@ include file="inc/details/itemMenu.jsp" %>
                                 </div>
                             </td>
+                            <td></td>
                         </tr>
                         <tr>
-                            <td colspan="3" align="right" id="donatorContainer"></td>
+                            <td colspan="2"></td>
+                            <td align="center" id="donatorContainer"></td>
+                            <td></td>
                         </tr>
                     </table>
                     <table>

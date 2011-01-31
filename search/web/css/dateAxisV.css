@@ -124,7 +124,6 @@
     width: 6px;
     background: #BBBBBB;
     position: relative;
-    /*background: transparent url(../img/scrollbar-track.png);*/
     height: 80px;
     font-size:21px;
     margin-left:4px;
@@ -135,7 +134,6 @@
     position: relative;
     margin-top:36px;
     background: #BBBBBB;
-    /*background: transparent url(../img/scrollbar-track.png);*/
     height: 80px;
     font-size:21px;
 }

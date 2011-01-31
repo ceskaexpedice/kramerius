@@ -39,8 +39,8 @@
         if(model.equals(selectedModel)) css = "class=\"indexer_selected\"";
     %>
     <tr <%=css%>><td><a href="javascript:loadFedoraDocuments('<%=model%>', 0, '<c:out value="${order}" />', '<c:out value="${order_dir}" />');"><%=model%></a></td>
-    <td valign="middle" width="20"><a href="javascript:loadFedoraDocuments('<%=model%>', 0, '<c:out value="${order}" />', '<c:out value="${order_dir}" />' );" title="select model"><img src="img/filter.png" border="0" /></a></td>
-    <td valign="middle" width="20"><a href="javascript:indexModel('<%=model%>');" title="index model"><img src="img/admin/reindex.png" border="0" /></a></td>
+    <td valign="middle" width="20"><a href="javascript:loadFedoraDocuments('<%=model%>', 0, '<c:out value="${order}" />', '<c:out value="${order_dir}" />' );" title="select model"><img src="img/lupa_orange.png" border="0" alt="find" /></a></td>
+    <td valign="middle" width="20"><a href="javascript:indexModel('<%=model%>');" title="index model"><img src="img/reindex.png" alt="reindex" border="0" /></a></td>
     </tr>
     <%
     }

@@ -27,9 +27,9 @@
             <xsl:with-param name="start"><xsl:value-of select="$start" /></xsl:with-param>
             <xsl:with-param name="numDocs"><xsl:value-of select="$numDocs" /></xsl:with-param>
         </xsl:call-template>
-        <div style="float:left;">
+        <div style="float:left;width:100%">
         <xsl:if test="//doc" >
-            <table>
+            <table width="100%">
                 <xsl:for-each select="//doc" >
                     <xsl:variable name="pid" ><xsl:value-of select="./str[@name='PID']" /></xsl:variable>
                     <tr>

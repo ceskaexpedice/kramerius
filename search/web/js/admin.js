@@ -40,7 +40,7 @@ function showAdminMenu() {
 	var position = $("#adminHref").offset();
 	
 	
-	$("#adminMenu").css("left",(headerPosition.left+headerWidth) - admimMenuWidth-2);
+	$("#adminMenu").css("left",(headerPosition.left+headerWidth) - admimMenuWidth-8);
 	$("#adminMenu").css("top",position.top);
 	$("#adminMenu").css("display","block");
 }
@@ -74,12 +74,11 @@ function processes(){
 	var url = "dialogs/_processes_data.jsp?offset=0&size=20&type=DESC";
 	$.get(url, function(data) {
 		openProcessDialog();
-
-		$("#processes").html(data);
 		_processDialog.dialog('option', 'position', [10, 10]);
 		_processDialog.dialog("option", "width", $(window).width()-20);
 		_processDialog.dialog("option", "height", $(window).height()-60);
-		$("#processes>table").css('height',$(window).height()-160);
+		$("#processes>table").css('height',$(window).height()-160)
+		$("#processes").html(data);;
 	});
 }
 

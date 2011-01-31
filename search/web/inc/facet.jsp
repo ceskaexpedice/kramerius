@@ -11,19 +11,14 @@
 
 %>
 
-<div id="facet_<%=currentFacetName%>" class="ui-tabs ui-widget ui-widget-content ui-corner-all facet" >
+<div id="facet_<%=currentFacetName%>" class="ui-tabs ui-widget ui-corner-all facet shadow10" >
     <ul class="ui-tabs-nav ui-helper-reset ui-helper-clearfix ui-widget-header ui-corner-all" style="padding:0 0.1em 0 0;">
         <li class=" facetTitle ui-state-default ui-corner-top  ui-state-active" style="width:100%;">
         <a class="box" href="javascript:toggleFacet('<%=currentFacetName%>')"><fmt:message bundle="${lctx}"><%=currentFacet.displayName%></fmt:message></a></li>
     </ul>
-    <div class="ui-tabs-panel ui-widget-content ui-corner-bottom facetBody">  
+    <div class="ui-tabs-panel ui-corner-bottom facetBody ">
         <%
     try {
-        if (currentFacet.name.contains("abeceda") ||
-                currentFacet.name.contains("rok") ||
-                currentFacet.name.equals("path")) {
-            Collections.sort(currentFacet.infos, new CzechComparator());
-        }
         Iterator stepper = currentFacet.infos.iterator();
         int i = 0;
         String more = "";
@@ -34,6 +29,7 @@
                 more = (i > facetsCollapsed && currentFacet.getFacetsNumber() > facetsCollapsed) ? "moreFacets" : "";
         %>
         <div class="facetItem <%=more%> ">
+            
             <a title="<fmt:message bundle="${lctx}" >facets.add_navigator</fmt:message>" 
                href="<%=current.url%>"><%
                

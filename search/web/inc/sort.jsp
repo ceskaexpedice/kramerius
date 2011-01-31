@@ -4,25 +4,25 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn" %>
 <%@ page isELIgnored="false"%>
-<div style="float:right;padding-right:3px;">
+<div id="sort" style="float:right;padding-right:3px;">
 <c:if test="${fn:containsIgnoreCase(param.sort ,'root_title')}" >
    <b>
        <c:if test="${fn:containsIgnoreCase(param.sort ,'desc')}" >
-       <a href="javascript:sortBy('root_title+asc')"><fmt:message bundle="${lctx}">filter.sortby.name</fmt:message></a>
+       <a  href="javascript:sortBy('root_title+asc')"><fmt:message bundle="${lctx}">filter.sortby.name</fmt:message></a>
    </c:if>
    <c:if test="${fn:containsIgnoreCase(param.sort ,'asc')}" >
-       <a href="javascript:sortBy('root_title+desc')"><fmt:message bundle="${lctx}">filter.sortby.name</fmt:message></a>
+       <a  href="javascript:sortBy('root_title+desc')"><fmt:message bundle="${lctx}">filter.sortby.name</fmt:message></a>
    </c:if>
    </b> 
 </c:if> 
 <c:if test="${! fn:containsIgnoreCase(param.sort ,'root_title')}" >
-   <a href="javascript:sortBy('root_title+asc')"><fmt:message bundle="${lctx}">filter.sortby.name</fmt:message></a> 
+   <a  href="javascript:sortBy('root_title+asc')"><fmt:message bundle="${lctx}">filter.sortby.name</fmt:message></a>
 </c:if>
 
 <c:if test="${fn:containsIgnoreCase(param.sort ,'score') || empty param.sort}" >
-   <b><fmt:message bundle="${lctx}">filter.sortby.relevation</fmt:message></b> 
+    <a class="box"><b><fmt:message bundle="${lctx}">filter.sortby.relevation</fmt:message></b></a>
 </c:if> 
 <c:if test="${! fn:containsIgnoreCase(param.sort ,'score') && !empty param.sort}" >
-    <a href="javascript:sortBy('score+desc')"><fmt:message bundle="${lctx}">filter.sortby.relevation</fmt:message></a>  
+    <a  href="javascript:sortBy('score+desc')"><fmt:message bundle="${lctx}">filter.sortby.relevation</fmt:message></a>
 </c:if>
 </div>

@@ -60,11 +60,11 @@ public class ProcessesViewObject {
 			if ((offset+size) < count ) {
 				return "<a href=\"javascript:modifyProcessDialogData('"+this.ordering+"','"+this.offset.getNextOffset()+"','"+this.offset.getSize()+"','"+this.typeOfOrdering.getTypeOfOrdering()+"');\"> "+nextString+" <img  border=\"0\" src=\"img/next_arr.png\"/> </a>";
 			} else {
-				return nextString+" <img border=\"0\" src=\"img/next_arr.png\"/>";
+				return "<span>" + nextString+"</span> <img border=\"0\" src=\"img/next_arr.png\" alt=\"next\" />";
 			}
 		} catch (IOException e) {
 			LOGGER.log(Level.SEVERE, e.getMessage(), e);
-			return "next <img border=\"0\" src=\"img/next_arr.png\"/>";
+			return "<img border=\"0\" src=\"img/next_arr.png\" alt=\"next\" />";
 		}
 	}
 	
@@ -75,11 +75,11 @@ public class ProcessesViewObject {
 				if (offset > 0) {
 					return "<a href=\"javascript:modifyProcessDialogData('"+this.ordering+"','"+this.offset.getPrevOffset()+"','"+this.offset.getSize()+"','"+this.typeOfOrdering.getTypeOfOrdering()+"');\"> <img border=\"0\" src=\"img/prev_arr.png\"/> "+prevString+" </a>";
 				} else {
-					return "<img border=\"0\" src=\"img/prev_arr.png\"/> "+prevString;
+					return "<img border=\"0\" src=\"img/prev_arr.png\" alt=\"prev\" /> <span>"+prevString+"</span>";
 				}
 			} catch (IOException e) {
 				LOGGER.log(Level.SEVERE, e.getMessage(), e);
-				return "<img border=\"0\" src=\"img/prev_arr.png\"/> prev";
+				return "<img border=\"0\" src=\"img/prev_arr.png\" alt=\"prev\" /> ";
 			}
 	}
 

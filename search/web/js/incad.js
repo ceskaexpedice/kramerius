@@ -14,11 +14,13 @@ function toggleFacet(facet){
 }
 
 function toggleCollapsed(pid, div, offset){
-    
     if($("#"+div).attr('opened')=="true"){
         $("#"+div).toggle();
+        //$(img).addClass('uncollapseIcon');
+        $('#uimg_' + pid ).toggleClass('uncollapseIcon');
     }else{
         uncollapse(pid, div, offset);
+        $('#uimg_' + pid).addClass('uncollapseIcon');
     }
 }
 function uncollapse(pid, div, offset){
@@ -158,40 +160,37 @@ function browseInTree(pid, model, div){
     
     
 }
+
+function checkSearching() {
+    if ($('#q').val()==dictionary['form.search'] && $('#q.searching').length==0) {
+        $('#q').val('');
+        $('#q').addClass('searching');
+        $('#q').focus();
+    }
+}
+
+function checkQuery(){
+    if ($('#q.searching').length==0) {
+        $('#q').val('');
+    }
+    return true;
+}
+
 /* odebrani navigace z url
  *
  */
-function removeNavigation2(name, value){
-    
-    var page = new PageQuery(window.location.search);
-    page.removeParam(name);
-    removeNavigation(name + ":\"" + value + "\"", page );
-    
-    
-    //page.setValue("offset", "0");
-    //page.removeParam(name);
-    //var url = searchPage + "?" + page.toString();
-    
-    //window.location = url;
-    
+function removeFacet(index){
+    $('#fq'+index).remove();
+    checkQuery();
+    $('#searchForm').submit();
 }
 
-function removeNavigation(value, page){
-    
-    //var page = new PageQuery(window.location.search);
-    
-    if(value.indexOf("rok:")==0){
-      page.removeParam(fromField);
-      page.removeParam(toField);
-    }
-    page.setValue("offset", "0");
-    var url = searchPage + "?" + page.toString();
-    //var url = window.location.href;
-    var modToRemove = "&fq=" + value;
-    url = url.replace(new RegExp(modToRemove, "gi"), '');
-    modToRemove = encodeURI("&fq=" + value);
-    url = url.replace(new RegExp(modToRemove, "gi"), '');
-    window.location = url;
+
+function removeDateAxisFilter(f1, f2){
+    $('#f1').remove();
+    $('#f2').remove();
+    checkQuery();
+    $('#searchForm').submit();
 }
 
 function removeQuery(){

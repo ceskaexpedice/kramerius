@@ -37,7 +37,7 @@
     %>
     <tr <%=css%>><td><a href="javascript:loadFedoraDocuments('<%=model%>', 0, '<c:out value="${order}" />', '<c:out value="${order_dir}" />');"><%=model%></a></td>
     <td valign="middle" width="20"><a href="javascript:loadFedoraDocuments('<%=model%>', 0, '<c:out value="${order}" />', '<c:out value="${order_dir}" />' );" title="select model"><img src="img/filter.png" border="0" /></a></td>
-    <td valign="middle" width="20"><a href="javascript:indexModel('<%=model%>');" title="index model"><img src="img/admin/reindex.png" border="0" /></a></td>
+    <td valign="middle" width="20"><a href="javascript:indexModel('<%=model%>');" title="index model"><img src="img/reindex.png" border="0" alt="reindex" /></a></td>
     </tr>
     <%
     }

@@ -8,8 +8,7 @@
 <%@page import="com.google.inject.Injector"%>
 <%@page import="cz.incad.kramerius.utils.FedoraUtils"%>
 <%@page import="javax.servlet.jsp.jstl.fmt.LocalizationContext"%>
-<%@page
-    import="cz.incad.kramerius.processes.LRProcessManager,cz.incad.kramerius.processes.DefinitionManager"%>
+<%@page import="cz.incad.kramerius.processes.LRProcessManager,cz.incad.kramerius.processes.DefinitionManager" %>
 
 <c:set var="href" value="#{href}" />
 <c:set var="label" value="#{label}" />
@@ -18,36 +17,12 @@
     <c:set var="level" value="${param.level}" />
 </c:if>
 <%-- fill path up to the end --%>
-<%
-pageContext.setAttribute("baseurl",
-request.getScheme()+"://"+request.getServerName()+":"+request.getServerPort()+request.getContextPath() +"/inc/details/");
-%>
 
 <c:forEach var="menu" varStatus="status" items="${itemViewObject.menus}">
 <c:choose>
 <c:when test="${level==0 || status.count>1}">
     <c:set var="cur_level" value="${status.count + level}" />
     <c:set var="obj" value="#tabs_${cur_level}" />
-    <script language="javascript">
-    	$(document).ready(function(){
-            
-            var obj = "<c:out value="${obj}" />";
-            var tabTemp = '<li class="${href}"><a href="<c:out value="${href}" />"><c:out value="${label}" /></a><img width="12px" src="img/empty.gif" class="op_list" onclick="toggleRelsList(this, \'<c:out value="${href}" />\')" /><img width="12" src="img/lupa.png" class="searchInsideButton" alt="search" ' +
-                           'onclick="showSearchInside(<c:out value="${status.count + level}" />, \'<c:out value="${href}" />\')"  /></li>';
-            $(obj).tabs({ 
-                tabTemplate: tabTemp,
-                show: function(event, ui){
-                    updateThumbs();
-                },
-                select: function(event, ui){
-                    changingTab=true;
-                }
-            });
-            ${menu.updateSelection}
-            
-        });
-
-    </script>
     <c:if test="${!fn:contains(menu.uuid, '@')}">
     <div id="tabs_<c:out value="${cur_level}" />" style="padding: 2px;"
          pid="<c:out value="${menu.uuid}" />" >
@@ -61,7 +36,7 @@ request.getScheme()+"://"+request.getServerName()+":"+request.getServerPort()+re
         <div id="tab<c:out value="${cur_level}" />-<c:out value="${itemViewObject.models[status.count -1]}" />"
             class="<c:out value="${itemViewObject.models[status.count -1]}  ui-tabs-panel ui-widget-content ui-corner-bottom" />"
             pid="<c:out value="${menu.uuid}" />">
-           <c:url var="url" value="${baseurl}getItemMenuInfo.jsp" >
+           <c:url var="url" value="${kconfig.applicationURL}/inc/details/getItemMenuInfo.jsp" >
                <c:param name="level" value="${status.count}" />
                <c:param name="pid" value="${menu.uuid}" />
            </c:url>
@@ -72,6 +47,27 @@ request.getScheme()+"://"+request.getServerName()+":"+request.getServerPort()+re
                          style="min-height: 16px;"><c:out value="${infoa}" escapeXml="false" />
                     </div>
     </c:if>
+
+    <script language="javascript">
+    	//$(document).ready(function(){
+
+            var obj = "<c:out value="${obj}" />";
+            var tabTemp = '<li class="${href}"><a href="<c:out value="${href}" />"><c:out value="${label}" /></a><img width="12px" src="img/empty.gif" class="op_list" onclick="toggleRelsList(this, \'<c:out value="${href}" />\')" /><img width="12" src="img/lupa.png" class="searchInsideButton" alt="search" ' +
+                           'onclick="showSearchInside(<c:out value="${status.count + level}" />, \'<c:out value="${href}" />\')"  /></li>';
+            $(obj).tabs({
+                tabTemplate: tabTemp,
+                show: function(event, ui){
+                    updateThumbs();
+                },
+                select: function(event, ui){
+                    changingTab=true;
+                }
+            });
+            ${menu.updateSelection}
+
+        //});
+
+    </script>
     </c:when>
         </c:choose>
         </c:forEach>
@@ -86,7 +82,6 @@ request.getScheme()+"://"+request.getServerName()+":"+request.getServerPort()+re
 
 
 <script language="javascript">
-    changingTab = false;
      setTvContainerWidth();
      
     $(document).ready(function(){

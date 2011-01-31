@@ -14,11 +14,11 @@
 <fmt:setBundle basename="labels" />
 <fmt:setBundle basename="labels" var="bundleVar" />
 <form name="suggestForm" method="GET" action="./" autocomplete="Off">
-    <div id="suggestDiv" class="ui-tabs ui-widget ui-widget-content ui-corner-all" >
+    <div id="suggestDiv" class="ui-tabs ui-widget ui-corner-all shadow10" >
         <ul class="ui-tabs-nav ui-helper-reset ui-helper-clearfix ui-widget-header ui-corner-all" style="padding:0 0.1em 0 0;">
             <li class="ui-state-default ui-corner-top ui-tabs-selected ui-state-active " style="width:100%;"><a class="box"><fmt:message bundle="${lctx}" key="Procházet" /></a></li>
         </ul>
-        <div id="suggestBody" class="ui-tabs-panel ui-widget-content ui-corner-bottom">    
+        <div id="suggestBody" class="ui-tabs-panel ui-corner-bottom">    
             <fmt:message bundle="${lctx}" key="filter.maintitle" /><br/>
             <input name="queryT" id="queryT" type="text" size="20" class="suggest_input"
                    onkeyup="doAutocomplete(this, 'root_title', event, '#queryT');"

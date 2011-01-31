@@ -2,9 +2,7 @@ body {
 	font-family:Verdana, Arial, Helvetica, Tahoma;
 	font-size:12px;
 	color:#0B0F0A;
-        background-image: url('../img/background.png');
-        background-repeat:repeat-x;
-        background-color:white;
+        background-color:#F7F7F7;
         margin:0px;
 }
 td {
@@ -15,8 +13,11 @@ input {
 	border:1px solid #A7A9A7;
 	font-family:Verdana, Arial, Helvetica, Tahoma;
 	font-size:11px;
-	color:#0B0F0A;
-        vertical-align:middle;
+	color:#aaaaaa;
+        vertical-align:top;
+}
+input.searching{
+    color:#000000;
 }
 table.advancedSearch{
     padding:5px;
@@ -120,31 +121,27 @@ a.image:hover {
 }
 
 #intro{
-    margin-top:0px;
+    margin-top:5px;
 }
 #intro1, #intro3, #intro2{
     padding:5px;
 }
 #timeLineBody{
-    padding-bottom:35px;
+    padding-bottom:38px;
 }
 /* end layout */
 
 /* facets */
 
 .facet{
-    background-image: url('../img/facet_bg.png');
-    background-position:bottom;
-    background-repeat:repeat-x;
     margin-bottom:5px;
-    
 }
 
 .leftMenu .facet{
     width:216px;
 }
 .centralCell .facetBody{
-    height:98px;
+    height:94px;
 }
 .facetTitle{
     color:white;
@@ -159,10 +156,7 @@ a.box {
     cursor:pointer;
 }
 .facetBody{
-    background-image: url('../img/facet_bg2.png');
-    background-position:bottom;
-    background-repeat:repeat-x;
-    
+    margin-top:3px;
 }
 .facetItem{
     padding-left:15px;
@@ -179,7 +173,8 @@ a.box {
 
 /* used filters */
 .usedFilters{
-    background:#8a2d28;
+    border-top:1px solid #ff6600;
+    background:#be4d02;
 }
 .usedFilter{
     float:left;
@@ -193,6 +188,14 @@ a.box {
     color:white;
 }
 /* end used filters */
+
+/*sort*/
+#sort a{
+    cursor: pointer;
+}
+#sort a.box{
+    cursor: text;
+}
 
 /* results */
 #results_main{
@@ -226,12 +229,26 @@ a.box {
 .uncollapsed{
     padding-left:20px;
 }
+
+.collapseIcon{
+    background-image: url('../img/down.png');
+    background-repeat: no-repeat;
+    cursor:pointer;
+    margin-right:1px;
+    width:14px;
+    height:10px;
+}
+
+.uncollapseIcon{
+    background-image: url('../img/up.png');
+}
+
 .r0{
     background: #ffffff;
 }
 
 .r1{
-    background: #efefee;
+    background: #f3f3f3;
 }
 
 .uncollapsed .r1{
@@ -294,7 +311,8 @@ td.rightMenu .facet{
 }
 .itemMenu{
     width:330px;
-    background:white;
+    /*background:white;*/
+    border:1px solid white;
 }
 
 .relList{
@@ -379,7 +397,7 @@ td.rightMenu .facet{
 #mainContent{
     
     font-size:10px;
-    background-image: url('../img/facet_bg.png');
+    /*background-image: url('../img/facet_bg.png');*/
     background-position:bottom;
     background-repeat:repeat-x;
     vertical-align:top;
@@ -450,13 +468,21 @@ td.rightMenu .facet{
 }
 
 #searchInsideDialog input {
-    border: 1px solid silver;
+    border: 1px solid #333333;
 }
 .searchInsideButton{
     background-repeat: no-repeat;
     cursor:pointer;
     margin-top:5px;
     margin-right:1px;
+    width:16px;
+    height:16px;
+}
+
+.searchInsideImg{
+    margin-right:1px;
+    cursor:pointer;
+    margin-top:1px;
     width:16px;
     height:16px;
 }
@@ -531,8 +557,8 @@ table.advancedSearch td{
     z-index:103;
     font-size:10px;
     background:white;
-	display: none;
-	padding: 1px;	
+    display: none;
+    padding: 1px;
 }
 
 .adminMenuItems {
@@ -545,7 +571,6 @@ table.advancedSearch td{
 }
 
 .adminMenuItems  div {
-	/*width: 100%;*/
 }
 
 .adminMenuHeader {
@@ -553,6 +578,9 @@ table.advancedSearch td{
 	background-repeat:repeat-x;
 	height: 25px; color: white;
         width:230px;
+}
+.ui-state-active, .ui-widget-content .ui-state-active{
+    background-image: url('../img/bg_orange_small.png');
 }
 .adminMenuHeader td{
 	color: white;
@@ -618,6 +646,7 @@ table.advancedSearch td{
 
 .thumbsCell{
     overflow: hidden;
+    padding-bottom:4px;
 }
 
 .alto_selection {
@@ -630,4 +659,20 @@ tr.users_hint {
 
 tr.users_hint:hover {
     background:#e6e6e6;
+}
+
+.shadow10{
+    -moz-box-shadow:0 4px 10px rgba(0, 0, 0, 0.5);
+    -webkit-box-shadow:0 4px 10px rgba(0, 0, 0, 0.5);
+    box-shadow:0 4px 10px rgba(0, 0, 0, 0.5);
+    background: url("images/ui-bg_glass_75_ffffff_1x400.png") repeat-x scroll 0 0 #FFFFFF;
+    filter: progid:DXImageTransform.Microsoft.dropShadow(color=#bbbbbb, offX=3, offY=3, positive=true);
+    
+}
+
+.ui-widget-content{
+    /*border: none;*/
+}
+.ui-tabs{
+    margin:3px;
 }

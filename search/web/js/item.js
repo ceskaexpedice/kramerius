@@ -563,17 +563,20 @@ function getPidPath(level, model){
 
 
 function showSearchInside(level, model){
-    //alert($(window).scrollTop());
-    //return;
-    if(model.indexOf("-")) model = model.substring(model.indexOf("-")+1)
+    if(model.indexOf("-")) model = model.substring(model.indexOf("-")+1);
+    if(!$("#tab"+level+"-"+model).is(':visible')) return;
     var l = $("#tab"+level+"-"+model).offset().left - $(window).scrollLeft();
     var t = $("#tab"+level+"-"+model).offset().top - $(window).scrollTop();
     var w = $("#tab"+level+"-"+model).css('width');
-    
-   
     var titul = $("#tabs_"+level+">div>div[id=info-"+model+"]").html();
-
     var pid_path = getPidPath(level, model);
+    /*
+     var titlebar = '<input type="text" class=" ui-corner-all" id="insideQuery" size="30" value="'+dictionary['administrator.menu.searchinside']+'" /> <img width="12px" onclick="searchInside()" alt="search" class="searchInsideImg" src="img/lupa.png"></button>' ;
+     */
+    var inputs = '<div id="da-inputs"><input class="da_input" size="30" id="insideQuery"  type="text" value="'+dictionary['administrator.menu.searchinside']+'" />' +
+        ' <a href="javascript:searchInside();" ><img align="top" src="img/filter.png" border="0" alt="search"  /></a>' +
+        '</div>';
+
     if(_searchInsideDialog){
         $('#searchInsideDialog').dialog('option', 'position', [l,t]);
         $('#searchInsideDialog').dialog('option', 'width', w);
@@ -586,13 +589,7 @@ function showSearchInside(level, model){
         }
         
     }else{
-        $(document.body).append('<div id="searchInsideDialog" class="searchInsideDialog"> <div id="searchInsideForm" class="searchInsideForm"><div id="insideTitle">'+titul+'</div><input type="text" id="insideQuery" style /><input type="hidden" id="insidePid" value="'+pid_path+'" /><button type="button" title="Vyhledat" class="submit" onclick="searchInside();"></button></div></div>')
-
-        $('#insideQuery').keyup(function(e) {
-            if (e.keyCode == 13) {
-                searchInside();
-            }
-        });
+        $(document.body).append('<div id="searchInsideDialog" class="searchInsideDialog"> <div id="searchInsideForm" class="searchInsideForm"><div id="insideTitle">'+inputs+'</div>'+titul+'<input type="hidden" id="insidePid" value="'+pid_path+'" /></div></div>')
 
         _searchInsideDialog = $('#searchInsideDialog').dialog({
             width:w,
@@ -600,8 +597,20 @@ function showSearchInside(level, model){
             minHeight:100,
             position:[l,t],
             modal:false,
-            dialogClass:'searchInsideDialog',
+            dialogClass:'searchInsideDialog shadow10',
             title:dictionary['administrator.menu.searchinside']
+        });
+        $('#insideQuery').keyup(function(e) {
+            if (e.keyCode == 13) {
+                searchInside();
+            }
+        });
+        $('#insideQuery').click(function(e) {
+            if ($(this).val()==dictionary['administrator.menu.searchinside']) {
+                $(this).val('');
+                $(this).addClass('searching');
+            }
+                this.focus();
         });
     }
     //$("#tabs_" + level + ">div>div.menuOptions").hide();
@@ -639,8 +648,11 @@ function getPageTitle(pid){
 
 function toggleAdminOptions(level, div){
 	postProcessContextMenu();
+    $('#menu'+level+'-'+div).css('width', 230);
 	var il = $('#menu'+level+'-'+div).parent().width() + $('#menu'+level+'-'+div).parent().offset().left - $('#menu'+level+'-'+div).width();
     $('#menu'+level+'-'+div).css('left', il);
+    //$('#menu'+level+'-'+div).css('display', 'block');
+    //$('#openmenu'+level+'-'+div).css('display', 'none');
     $('#menu'+level+'-'+div).toggle();
     $('#openmenu'+level+'-'+div).toggle();
 }
@@ -668,6 +680,11 @@ function onLoadFullImage(){
         if(viewerOptions.hasAlto){
             showAlto(viewerOptions.uuid, 'imgFullImage');
         }
+}
+
+function onLoadThumb(obj){
+    //if(!$(this).hasClass('tv_img_inactive') || $(this).hasClass('tv_img_selected'))
+        $(obj).parent().css('width', '');
 }
 
 function onLoadPDFImage() {}
@@ -700,6 +717,7 @@ function showImage(viewerOptions) {
 
 function hideAlto(){
     $("#alto").html('');
+    $("#alto").hide();
 }
 
 function showAlto(uuid, img){
@@ -711,22 +729,29 @@ function showAlto(uuid, img){
     var h = $('#'+img).height();
     var url = "metsalto.jsp?q="+q+"&w="+w+"&h="+h+"&uuid=" + uuid;
     $.get(url, function(data){
-        if($("#alto").length==0){
-            $(document.body).append('<div id="alto" style="position:absolute;z-index:1003;" onclick="switchDisplay(viewerOptions)"></div>');
-        }else{
-           
+        if(data.trim()!=""){
+            if($("#alto").length==0){
+                $(document.body).append('<div id="alto" style="position:absolute;z-index:1003;overflow:hidden;" onclick="switchDisplay(viewerOptions)"></div>');
+            }else{
+
+            }
+            positionAlto(img);
+            $("#alto").html(data);
+            $("#alto").show();
         }
-        positionAlto(img);
-        $("#alto").html(data);
-        
     });
 }
 
 function positionAlto(img){
-    var h = $('#'+img).height();
+    var h = 0;
+    h = $('#'+img).height();
+    var t = $('#'+img).offset().top;
+    if(img == 'imgFullImage'){
+        h = $('#fullImageContainer').height();
+        //t = t - $('#fullImageContainer').scrollTop;
+    }
     var w = $('#'+img).width();
     var l = $('#'+img).offset().left;
-    var t = $('#'+img).offset().top;
     $("#alto").css('width', w);
     $("#alto").css('height', h);
     $("#alto").css('left', l);

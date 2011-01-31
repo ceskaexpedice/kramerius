@@ -30,7 +30,8 @@
             ./item.jsp?pid=<c:out value="${uuid}"/>&pid_path=<x:out select="./str[@name='pid_path']"/>&path=<x:out select="./str[@name='path']"/>
         </c:set>
         <%--<x:if select="./str[@name='fedora.model'] = 'page'">--%>
-            <c:set var="itemUrl" ><c:out value="${itemUrl}"/>&format=<x:out select="./str[@name='page_format']"/>&q=<c:out value="${param.q}" /></c:set>
+            <c:set var="itemUrl" ><c:out value="${itemUrl}"/>&format=<x:out select="./str[@name='page_format']"/>&q=<c:out value="${param.q}" />
+                <c:forEach var="fqs" items="${paramValues.fq}">&fq=<c:out value="${fqs}" /></c:forEach></c:set>
         <%--</x:if>--%>
         <x:set select="./str[@name='PID']" var="pid" />
     <tr id="res_<c:out value="${uuid}"/>" class="result r<c:out value="${status.count % 2}" />">
@@ -41,7 +42,7 @@
                 <c:set var="collapseText" ><x:out select="./int[@name='collapseCount']/text()"/><c:out value=" "/><fmt:message bundle="${lctx}">collapsed</fmt:message></c:set>
                 <c:set var="collapseCount" >
                     (<a href="javascript:toggleCollapsed('<c:out value="${root_pid}" />', 'uncollapsed_<c:out value="${root_pid}"/>', 0)"><c:out value="${collapseText}"/>
-                    <img src="img/down.png"
+                    <img id="uimg_<c:out value="${root_pid}"/>" src="img/empty.gif" class="collapseIcon"
                        alt="${collapseText}"
                        border="0" />
                     </a>)

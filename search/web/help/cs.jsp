@@ -41,7 +41,7 @@
     
 <table cellpadding="0" cellspacing="0" border="0" height="100%">
   <tr>
-    <td width="13" background="img/main_bg_grey.gif" height="100%"><img src="img/spacer.gif" width="13" height="1" alt="" border="0"></td>
+    <td width="13" background="img/main_bg_grey.gif" height="100%"><img src="img/empty.gif" width="13" height="1" alt="" border="0"></td>
     <td valign="top" width="100%">
 
     <table cellpadding="0" cellspacing="0" border="0" width="100%">
@@ -49,23 +49,23 @@
         <td height="20" width="100%" class="mainHeadGrey"><div align="right"><a href="javascript:print();"   class="mainServ">TISK</a>&nbsp; - &nbsp;<a href="javascript:openhelp=window.close();" class="mainServ">ZAVŘÍT OKNO</a><a name="top">&nbsp;</a>&nbsp;</div></td>
       </tr>
       <tr>
-        <td width="100%" colspan="3"><img src="img/spacer.gif" width="1" height="2" alt="" border="0"></td>
+        <td width="100%" colspan="3"><img src="img/empty.gif" width="1" height="2" alt="" border="0"></td>
       </tr>
 
       <tr>
-        <td width="100%" class="mainHeadGrey"><img src="img/spacer.gif" width="1" height="1" alt="" border="0"></td>
+        <td width="100%" class="mainHeadGrey"><img src="img/empty.gif" width="1" height="1" alt="" border="0"></td>
       </tr>
       <tr>
         <td valign="top" align="left" width="100%">
         <table cellpadding="0" cellspacing="0" border="0" width="100%">
           <tr>
-            <td><img src="img/spacer.gif" width="15" height="1" alt="" border="0"></td>
+            <td><img src="img/empty.gif" width="15" height="1" alt="" border="0"></td>
             <td>
 
 
 <table cellpadding="0" cellspacing="0" border="0" width="100%">
 <tr>
-  <td class="mainHeadGrey" height="1"><img src="img/spacer.gif" width="1" height="1" alt="" border="0"></td>
+  <td class="mainHeadGrey" height="1"><img src="img/empty.gif" width="1" height="1" alt="" border="0"></td>
 </tr>
 </table>
 <br><div align="right"><a href="#top" name="a" class="mainServ">TOP</a></div>
@@ -80,7 +80,7 @@
 <br><br>
 <table cellpadding="0" cellspacing="0" border="0" width="100%">
 <tr>
-  <td class="mainHeadGrey" height="1"><img src="img/spacer.gif" width="1" height="1" alt="" border="0"></td>
+  <td class="mainHeadGrey" height="1"><img src="img/empty.gif" width="1" height="1" alt="" border="0"></td>
 </tr>
 </table>
 <br><div align="right"><a href="#top" name="b" class="mainServ">TOP</a></div>
@@ -163,7 +163,7 @@ K dispozici jsou tyto operace:<br>
 <br><br>
 
             </td>
-            <td><img src="img/spacer.gif" width="15" height="1" alt="" border="0"></td>
+            <td><img src="img/empty.gif" width="15" height="1" alt="" border="0"></td>
           </tr>
 
         </table>

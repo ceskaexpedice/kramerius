@@ -1,5 +1,5 @@
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
-<div id="advSearch" class="advSearch">
+<div id="advSearch" class="advSearch shadow10">
     <img src="img/x.png" align="right" onclick="$('#advSearch').hide();"/><br/>
     <table class="advancedSearch">
         <col width="150px">

@@ -5,6 +5,10 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn" %>
 <%@ page isELIgnored="false"%>
 <!-- pouzite filtry -->
+<c:if test="${!empty param.q || param.f1 != null && param.f1 != '' || !empty paramValues.fq ||
+              !empty param.issn || !empty param.title || !empty param.author || !empty param.rok || !empty param.keywords ||
+              !empty param.udc ||!empty param.ddc || !empty param.onlyPublic }" >
+<table class="main usedFilters"><tr valign='top'><td>
 <c:if test="${!empty param.q}" >
 <div class="usedFilter">
     :: <a class="mainNav"
@@ -15,12 +19,17 @@
 </a></div>
 </c:if>
 <%-- datum --%>
-<c:if test="${param.f1 != null}">
-    <fmt:message bundle="${lctx}" key="common.date" />: <c:out value="${param.f1}" /> - <c:out value="${param.f2}" />
+<c:if test="${param.f1 != null && param.f1 != ''}">
+    <div class="usedFilter">::
+    <a title="" class="mainNav" href="javascript:removeDateAxisFilter();">
+    <fmt:message bundle="${lctx}" key="common.date" />: <c:out value="${param.f1}" /> - <c:out value="${param.f2}" />&#160;<img src="img/x.png"  border="0"
+        title="<fmt:message bundle="${lctx}" key="filter.remove_criteria"/> : <fmt:message bundle="${lctx}" key="common.date" />"/></a></div>
+
+
 </c:if>
 
 <%-- filter queries --%>
-<c:forEach var="fqs" items="${paramValues.fq}">
+<c:forEach varStatus="status" var="fqs" items="${paramValues.fq}">
     <c:if test="${param.suggest!='true'}">
         <c:set var="js"><c:out value="${fn:replace(fqs, '\"', '')}" /></c:set>
         <c:set var="facetName"><c:out value="${fn:substringBefore(fqs,':')}" /></c:set>
@@ -31,10 +40,10 @@
         <c:if test="${facetName == 'fedora.model' || facetName == 'document_type' || facetName == 'dostupnost'}">
             <c:set var="facetValueDisp"><fmt:message bundle="${lctx}" >fedora.model.<c:out value="${facetValueDisp}" /></fmt:message></c:set>
         </c:if>
-        <div class="usedFilter">:: <a  class="mainNav" href="javascript:removeNavigation2('<c:out value="${facetName}" />', '<c:out value="${facetValue}" />');">
+        <div class="usedFilter">:: <a  class="mainNav" href="javascript:removeFacet(<c:out value="${status.count}" />);">
         <fmt:message bundle="${lctx}" ><c:out value="${facetName}" /></fmt:message>: <c:out value="${facetValueDisp}"/>&#160;<img src="img/x.png"  border="0" 
         title="<fmt:message bundle="${lctx}" key="filter.remove_criteria"/>: <c:out value="${facetName}"/>"/>
-            </a></div>
+            </a></div><input type="hidden" name="fq" id="fq<c:out value="${status.count}" />" value="<c:out value="${facetName}" />:<c:out value="${facetValue}" />" />
     </c:if>
 </c:forEach>
 
@@ -122,5 +131,7 @@
     
 </x:if>
 --%>
+</td></tr></table>
+</c:if>
 <!-- konec pouzite filtry -->
 

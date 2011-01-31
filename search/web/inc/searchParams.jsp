@@ -5,9 +5,6 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn" %>
 <%@ page isELIgnored="false"%>
 <%@ page import="java.util.*, cz.incad.Kramerius.*, cz.incad.Solr.*" %>
-
-
-
 <%@ include file="initVars.jsp" %>
 <c:set var="pageType" value="search" />
 <jsp:useBean id="pageType" type="java.lang.String" />
@@ -153,20 +150,16 @@
 <c:set var="numDocs" scope="request" >
     <x:out select="$doc/response/result/@numFound" />
 </c:set>
-<c:set var="numCollapsed" scope="request" value="0" />
-<x:forEach select="//response/lst[@name='collapse_counts']/lst[@name='results']/lst">
-    <c:set var="collapseCount" >
-        <a href="javascript:uncollapse('<c:out value="${root_pid}" />', 'uncollapsed_<c:out value="${uuid}"/>', 0)"><img src="img/collapsed.png" 
-           alt="<x:out select="./int[@name='collapseCount']/text()"/> <fmt:message bundle="${lctx}">collapsed</fmt:message>"
-           title="<x:out select="./int[@name='collapseCount']/text()"/> <fmt:message bundle="${lctx}">collapsed</fmt:message>" border="0" /></a>
-    </c:set>
+<c:set var="numDocsCollapsed" scope="request" value="${0}" />
+<x:forEach select="$doc/response/lst[@name='collapse_counts']/lst[@name='results']/lst">
+    <c:set var="curCol"><x:out select="./int[@name='collapseCount']/text()"/></c:set>
+    <c:set var="numDocsCollapsed" scope="request" value="${numDocsCollapsed + curCol}" /> 
 </x:forEach>
-
 <c:set var="numDocsStr" scope="request" >
     <c:choose>
         <c:when test="${numDocs==1}"><fmt:message bundle="${lctx}">common.documents.singular</fmt:message></c:when>
         <c:when test="${numDocs>1 && numDocs<5}"><fmt:message bundle="${lctx}">common.documents.plural_1</fmt:message></c:when>
         <c:when test="${numDocs>4}"><fmt:message bundle="${lctx}">common.documents.plural_2</fmt:message></c:when>
     </c:choose>
-    
+    (<c:out value="${numDocsCollapsed}" />)
 </c:set>

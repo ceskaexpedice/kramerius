@@ -4,7 +4,6 @@
 <%
 
             KConfiguration kconfig = (KConfiguration) getServletContext().getAttribute(IKeys.CONFIGURATION);
-            String remoteUserID = request.getRemoteUser();
             Map<String, Facet> facets = new HashMap<String, Facet>();
             int facetsCollapsed = 5;
             String imagePid = "";

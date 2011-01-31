@@ -1,6 +1,13 @@
 /* Dialog
 ----------------------------------*/
-.ui-dialog { position: relative; padding: .2em; width: 300px; }
+.ui-dialog { 
+    position: relative; padding: .2em; width: 300px;
+    -moz-box-shadow:0 4px 10px rgba(0, 0, 0, 0.5);
+    -webkit-box-shadow:0 4px 10px rgba(0, 0, 0, 0.5);
+    box-shadow:0 4px 10px rgba(0, 0, 0, 0.5);
+    background: url("images/ui-bg_glass_75_ffffff_1x400.png") repeat-x scroll 0 0 #FFFFFF;
+    filter: progid:DXImageTransform.Microsoft.dropShadow(color=#bbbbbb, offX=3, offY=3, positive=true);
+}
 .ui-dialog .ui-dialog-titlebar { padding: .5em .3em .3em 1em; position: relative;
     background: #be4d02 url("../../../img/bg_orange_small.png") repeat-x;
 }

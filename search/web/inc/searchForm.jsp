@@ -21,18 +21,25 @@
 <%@page import="com.google.inject.Injector"%>
 <%@page import="cz.incad.Kramerius.backend.guice.LocalesProvider"%>
 <%@page import="java.util.Locale"%>
-<%@page import="com.google.inject.Provider"%><form name="searchForm" method="GET" action="./">
+<%@page import="com.google.inject.Provider"%>
+<c:choose>
+    <c:when test="${empty param.q}" >
+        <c:set var="qtext" ><fmt:message bundle="${lctx}">form.search</fmt:message></c:set>
+        <c:set var="qclass" >searchQuery ui-corner-all</c:set>
+    </c:when>
+    <c:otherwise><c:set var="qtext" ><c:out value="${param.q}" /></c:set>
+        <c:set var="qclass" >searchQuery ui-corner-all searching</c:set></c:otherwise>
+</c:choose>
     <table class="header ui-corner-top-8" id="header">
         <tbody>
             <tr>
                 <td width="230px"><a
-                        href="."/><img
-                    src="img/logo.png" border="0" /></a></td>
+                        href="."/><img alt="logo" src="img/logo.png" border="0" /></a></td>
                 <td><input id="debug" name="debug" type="hidden"
                                value="<c:out value="${param.debug}" />" /> <input type="text"
-                                                                       alt="Hledaný výraz" name="q" id="q"
-                                                                       value="<c:out value="${param.q}" />" size="50"
-                                                                       class="searchQuery ui-corner-all" type="text"> &nbsp;
+                                                                       alt="" name="q" id="q"
+                                                                       value="<c:out value="${qtext}" />" size="50"
+                                                                       class="<c:out value="${qclass}" />" type="text" onclick="checkSearching();"> &nbsp;
                     <button class="submit" title="Vyhledat" type="submit"></button>
                 <%@ include file="advancedSearch.jsp"%></td>
                 <td><a href="javascript:toggleAdv();"
@@ -77,9 +84,9 @@
             </tr>
         </tbody>
     </table>
-</form>
 
-<div id="adminMenu" class="adminMenu">
+
+<div id="adminMenu" class="adminMenu shadow10">
     <div class="adminMenuHeader">
         <table width="100%">
             <tr>

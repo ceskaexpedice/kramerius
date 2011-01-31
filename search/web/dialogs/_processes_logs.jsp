@@ -156,9 +156,12 @@
 								<td width="80%" style="padding-left: 15px;">
 								<h3><%=resBundleServ.getResourceBundle("labels",locale).getString("administrator.processes.logs.stdout") %> </h3>
 								</td>
-								<td align="right"><a href="javascript:stdLeft();"><img border="0"
-									src="../img/prev_arr.png"> <%=resBundleServ.getResourceBundle("labels",locale).getString("administrator.processes.logs.prev") %></a> &emsp; <a href="javascript:stdRight();"> <%=resBundleServ.getResourceBundle("labels",locale).getString("administrator.processes.logs.next") %>
-								<img border="0" src="../img/next_arr.png"> </a></td>
+								<td align="right"><a href="javascript:stdLeft();"><img border="0" style="top: 3px; position: relative;"
+									src="../img/prev_arr.png" alt="prev" />
+                                                                        <span><%=resBundleServ.getResourceBundle("labels",locale).getString("administrator.processes.logs.prev") %></span></a>
+                                                                        &emsp;
+                                                                        <a href="javascript:stdRight();"><span><%=resBundleServ.getResourceBundle("labels",locale).getString("administrator.processes.logs.next") %></span>
+								<img border="0" src="../img/next_arr.png" style="top: 3px; position: relative;" alt="next" /> </a></td>
 							</tr>
 						</table>
 				</div>
@@ -182,9 +185,10 @@
 								<td width="80%" style="padding-left: 15px;">
 								<h3><%=resBundleServ.getResourceBundle("labels",locale).getString("administrator.processes.logs.errout") %> </h3>
 								</td>
-								<td align="right"><a href="javascript:errLeft();"><img border="0"
-									src="../img/prev_arr.png"> <%=resBundleServ.getResourceBundle("labels",locale).getString("administrator.processes.logs.prev") %></a> &emsp; <a href="javascript:errRight();"> <%=resBundleServ.getResourceBundle("labels",locale).getString("administrator.processes.logs.next") %> 
-								<img border="0" src="../img/next_arr.png"> </a></td>
+								<td align="right"><a href="javascript:errLeft();">
+                                                                        <img border="0" src="../img/prev_arr.png"  style="top: 3px; position: relative;" alt="prev"> <span><%=resBundleServ.getResourceBundle("labels",locale).getString("administrator.processes.logs.prev") %></span></a> &emsp;
+                                                                        <a href="javascript:errRight();"><span><%=resBundleServ.getResourceBundle("labels",locale).getString("administrator.processes.logs.next") %></span>
+								<img border="0" src="../img/next_arr.png"  style="top: 3px; position: relative;" alt="next"> </a></td>
 							</tr>
 						</table>
 				</div>
