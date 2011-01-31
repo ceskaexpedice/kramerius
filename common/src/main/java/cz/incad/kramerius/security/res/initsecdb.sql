@@ -132,6 +132,19 @@ values(nextval('group_id_sequence'),'common_users');
 insert into group_entity(group_id,gname) 
 values(nextval('group_id_sequence'),'knav_users'); 
 
+
+-- skupina knav users
+insert into group_entity(group_id,gname) 
+values(nextval('group_id_sequence'),'subadmin_users'); 
+
+-- skupiny pro testy
+insert into group_entity(group_id,gname) 
+values(nextval('group_id_sequence'),'test_users'); 
+
+insert into group_entity(group_id,gname) 
+values(nextval('group_id_sequence'),'subadmin_users'); 
+
+
 -- skupina k4 admins
 insert into group_entity(group_id,gname) 
 values(nextval('group_id_sequence'),'k4_admins'); 
@@ -149,6 +162,9 @@ values(nextval('user_id_sequence'), 'Josef','Vomacka','josef.vomacka@mzz.cz','h5
 insert into user_entity (user_id,"name", surname,loginname,pswd)
 values(nextval('user_id_sequence'), 'Pavel','Stastny','pavels@incad.cz','h5rrar');
 
+insert into user_entity (user_id,"name", surname,loginname,pswd)
+values(nextval('user_id_sequence'), 'Karel','Poslusny','karels@poslusny.cz','kkk');
+
 
 
 
@@ -165,6 +181,9 @@ values(nextval('group_user_assoc_id_sequence'),2,2);
 insert into group_user_assoc(group_user_assoc_id, user_id, group_id)
 values(nextval('group_user_assoc_id_sequence'),2,3);
 
+-- -- pavels = k4 admins
+insert into group_user_assoc(group_user_assoc_id, user_id, group_id)
+values(nextval('group_user_assoc_id_sequence'),2,3);
 
 -- insert into params
 -- localhosts

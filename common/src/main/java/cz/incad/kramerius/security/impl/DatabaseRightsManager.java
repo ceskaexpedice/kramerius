@@ -390,9 +390,10 @@ public class DatabaseRightsManager implements RightsManager {
     public void updateRight(final Right right) throws SQLException {
         final RightCriterium criterium = right.getCriterium();
         final RightCriteriumParams params = criterium != null ? criterium.getCriteriumParams() : null;
+        LOGGER.log(Level.INFO, "got connection from provider ");
         final Connection con = provider.get();
         new JDBCTransactionTemplate(con, true).updateWithTransaction(new JDBCCommand() {
-
+            
             @Override
             public Object executeJDBCCommand() throws SQLException {
                 if (params != null) {
@@ -517,8 +518,7 @@ public class DatabaseRightsManager implements RightsManager {
     public void updateRightCriteriumParamsImpl(Connection con, RightCriteriumParams params) throws SQLException {
         StringTemplate template = SecurityDatabaseUtils.stGroup().getInstanceOf("updateRightCriteriumParams");
         template.setAttribute("params", params);
-        Connection connection = this.provider.get();
-        JDBCUpdateTemplate jdbcTemplate = new JDBCUpdateTemplate(connection, false);
+        JDBCUpdateTemplate jdbcTemplate = new JDBCUpdateTemplate(con, false);
         String sql = template.toString();
         LOGGER.info(sql);
         jdbcTemplate.executeUpdate(sql);

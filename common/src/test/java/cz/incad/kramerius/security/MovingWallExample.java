@@ -147,6 +147,14 @@ public class MovingWallExample extends AbstractGuiceTestCase {
                 // TODO Auto-generated method stub
                 return 0;
             }
+
+
+            @Override
+            public boolean hasSuperAdministratorRole() {
+                // TODO Auto-generated method stub
+                return false;
+            }
+            
             
             
         };
@@ -198,6 +206,12 @@ public class MovingWallExample extends AbstractGuiceTestCase {
                 // TODO Auto-generated method stub
                 return 0;
             }
+
+            @Override
+            public boolean hasSuperAdministratorRole() {
+                // TODO Auto-generated method stub
+                return false;
+            }
             
 
         };
@@ -248,7 +262,11 @@ public class MovingWallExample extends AbstractGuiceTestCase {
                 return false;
             }
 
-            
+            @Override
+            public boolean hasSuperAdministratorRole() {
+                // TODO Auto-generated method stub
+                return false;
+            }
             
         };
     }
