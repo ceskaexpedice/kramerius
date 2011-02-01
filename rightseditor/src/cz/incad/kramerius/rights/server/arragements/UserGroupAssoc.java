@@ -29,8 +29,7 @@ public class UserGroupAssoc extends Arrangement {
 		this.userArrangement = userArr;
 		this.groupArrangement = groupArr;
 	
-		queryGenerator = new QueryGenerator.Empty();
-
+		
 		//addProperty(structure.groupUserAssoction.USERS);
 		addProperty(structure.groupUserAssoction.USERS.relate(structure.user.NAME));
 		addProperty(structure.groupUserAssoction.USERS.relate(structure.user.SURNAME));

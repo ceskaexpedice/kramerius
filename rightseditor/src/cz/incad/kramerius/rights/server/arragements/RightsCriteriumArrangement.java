@@ -28,8 +28,7 @@ public class RightsCriteriumArrangement extends Arrangement {
 		addProperty(struct.rightCriterium.QNAME);
 		//addProperty(struct.rightCriterium.FIXED_PRIORITY);
 		
-		queryGenerator = new QueryGenerator.Empty();
-
+		
 		form = createCriteriumForm();
 	}
 

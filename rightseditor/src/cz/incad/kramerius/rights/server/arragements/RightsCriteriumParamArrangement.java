@@ -25,8 +25,7 @@ public class RightsCriteriumParamArrangement extends Arrangement {
 		addProperty(struct.criteriumParam.VALS);
 
 		
-		queryGenerator = new QueryGenerator.Empty();
-
+		
 		form = createRightCriteriumParamForm();
 	}
 

@@ -31,7 +31,6 @@ public class GroupArrangement extends Arrangement {
 		setReadableName(struct.group.getName());
 		addProperty(struct.group.GNAME);
 		setSortProperty(struct.group.GNAME);
-		queryGenerator = new QueryGenerator.Empty();
 		form = createGroupForm();
 		this.trigger = new GroupTriggers(this.struct);
 	}
@@ -61,10 +60,6 @@ public class GroupArrangement extends Arrangement {
         public GroupUsersArrangement(){
             super(struct.groupUserAssoction);
             setReadableName(struct.user.getReadableName());
-
-            
-            queryGenerator = new QueryGenerator.Empty();
-
             
             //addProperty(structure.groupUserAssoction.GROUP);
             addProperty(struct.groupUserAssoction.USERS.relate(struct.user.LOGINNAME));
@@ -94,7 +89,6 @@ public class GroupArrangement extends Arrangement {
             setReadableName(struct.user.getName());
             addProperty(struct.user.LOGINNAME);
             setSortProperty(struct.user.LOGINNAME);
-            queryGenerator = new QueryGenerator.Empty();
             form = createUserForm();
         }
         

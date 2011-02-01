@@ -30,8 +30,7 @@ public class UserArrangement extends Arrangement {
 
 		addProperty(struct.user.LOGINNAME).addProperty(struct.user.NAME).addProperty(struct.user.SURNAME);
 		setSortProperty(struct.user.LOGINNAME);
-		queryGenerator = new QueryGenerator.Empty();
-
+		
 		form = createUserForm(vygenerovatHeslo);
 
 	}
@@ -73,8 +72,7 @@ public class UserArrangement extends Arrangement {
 	        setReadableName(struct.group.getReadableName());
 
 	        
-	        queryGenerator = new QueryGenerator.Empty();
-
+	        
 	        
 	        //addProperty(structure.groupUserAssoction.GROUP);
 	        addProperty(struct.groupUserAssoction.GROUP.relate(struct.group.GNAME));
@@ -100,7 +98,6 @@ public class UserArrangement extends Arrangement {
             setReadableName(struct.group.getName());
             addProperty(struct.group.GNAME);
             setSortProperty(struct.group.GNAME);
-            queryGenerator = new QueryGenerator.Empty();
             form = createGroupForm();
         }
         
