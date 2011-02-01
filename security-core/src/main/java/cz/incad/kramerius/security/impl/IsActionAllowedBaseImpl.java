@@ -47,7 +47,8 @@ public class IsActionAllowedBaseImpl implements IsActionAllowedBase {
         String query = "select * from right_entity ent"+
             "left join  user_entity users on  (ent.user_id = users.user_id)"+
             "left join  group_entity groups on  (ent.group_id = groups.group_id)"+
-        "where uuid='uuid:1' and (ent.user_id="+user.getId()+" or ent.group_id in ("+getGroupIds(user)+"))";
+        "where uuid='uuid:1' and \"action\"='" +actionName+"'"+
+            " (ent.user_id="+user.getId()+" or ent.group_id in ("+getGroupIds(user)+"))";
         
         
         List<String> results = new JDBCQueryTemplate<String>(SecurityDBUtils.getConnection()){
