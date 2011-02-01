@@ -322,7 +322,7 @@ public class RightsServlet extends GuiceServlet {
 
         }
         
-        if (rightCriterium != null) {
+        if ((rightCriterium != null) && (rightCriterium.isParamsNecessary())){
             rightCriterium.setCriteriumParams(params);
         }
         return rightCriterium;
@@ -339,6 +339,7 @@ public class RightsServlet extends GuiceServlet {
         RightCriteriumParams params = null;
         if ((critParamId != null) && (!critParamId.equals("")) && (Integer.parseInt(critParamId) > 0)) {
             params = rightsManager.findParamById(Integer.parseInt(critParamId));
+            params.setObjects(paramsHidden.split(";"));
         } else {
             params = new RightCriteriumParamsImpl(-1);
             params.setObjects(paramsHidden.split(";"));

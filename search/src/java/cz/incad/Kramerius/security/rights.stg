@@ -1,6 +1,4 @@
-/**
- * Rendrovani html z rights serveltu - obsahy dialogu
- */
+/** Rendrovani html z rights serveltu - obsahy dialogu */
 group rights;
 
 /** TODO: Predelat */
@@ -13,17 +11,23 @@ CRITERUIM_NAMES ::=[
      default:"Žádná podmínka"
 ]
 
-
 PRIORITY_VALS ::=[ "0":"" ]
 
-/** tabulka prav (cela) */
-rightsTable(rights, uuid, action,users, typeOfLists) ::=<<
+/** pomocna sablona pro checked radio buttons */
+checkedRadioButton(checkedflag) ::="$if(checkedflag)$ checked $endif$"
+
+/** pomocna sablona pro selected combo */    
+selectedComboItem(selectedflag) ::="$if(selectedflag)$ selected $endif$"
+
+
+/**  tabulka prav  */
+rightsTable(rights, uuid, action,users, typeOfLists, canhandlecommongroup, bundle) ::=<<
     
 <div id="rightsTableContent">    
         <table width="100%">
             <tr>
                 <td width="20px">
-                    <a href="javascript:newRight('$uuid$','$action.formalName$')" style="background:url('img/rights-add.png') no-repeat scroll; border-width:0px; display:block; height:18px; width:18px;">
+                    <a href="javascript:newRight('$uuid$','$action.formalName$', $canhandlecommongroup$)" style="background:url('img/rights-add.png') no-repeat scroll; border-width:0px; display:block; height:18px; width:18px;">
                     </a>
                 </td>
                 <td width="20px">
@@ -32,9 +36,9 @@ rightsTable(rights, uuid, action,users, typeOfLists) ::=<<
                 </td>
                 <td width="40%"></td>
                 <td>
-                    <span><input id="userTypeList" type="radio" name="user" value="User" onclick="callbackUserTypeOfListValueChanged(this)" $checkedRadioButton(checkedflag=typeOfLists.("user"))$>Uzivatel</input></span>
-                    <span><input id="groupTypeList" type="radio" name="user" value="Group" onclick="callbackGroupTypeOfListValueChanged(this)" $checkedRadioButton(checkedflag=typeOfLists.("group"))$>Skupina</input></span>
-                    <span><input id="allTypeList" type="radio" name="user" value="Vse" onclick="callbackAllTypeOfListValueChanged(this)" $checkedRadioButton(checkedflag=typeOfLists.("all"))$>Vse</input></span>
+                    <span><input id="userTypeList" type="radio" name="user" value="User" onclick="callbackUserTypeOfListValueChanged(this)" $checkedRadioButton(checkedflag=typeOfLists.("user"))$>$bundle.("rights.dialog.filter.users")$</input></span>
+                    <span><input id="groupTypeList" type="radio" name="user" value="Group" onclick="callbackGroupTypeOfListValueChanged(this)" $checkedRadioButton(checkedflag=typeOfLists.("group"))$>$bundle.("rights.dialog.filter.group")$</input></span>
+                    <span><input id="allTypeList" type="radio" name="user" value="Vse" onclick="callbackAllTypeOfListValueChanged(this)" $checkedRadioButton(checkedflag=typeOfLists.("all"))$>$bundle.("rights.dialog.filter.group")$</input></span>
                 </td>
 
                 <td>
@@ -50,41 +54,27 @@ rightsTable(rights, uuid, action,users, typeOfLists) ::=<<
                     background-image: url('img/bg_processheader.png'); 
                     background-repeat: repeat-x; height:28px;">
             <tr>
-                <td width="5px">Poradi</td>
-                <td width="70px">Objekt</td>
-                <td>Akce</td>
+                <td width="5px">$bundle.("rights.dialog.table.column.object")$</td>
+                <td width="70px">$bundle.("rights.dialog.table.column.order")$</td>
+                <td>$bundle.("rights.dialog.table.column.action")$</td>
                 
-                <td>Uzivatel</td>
-                <td>Priorita</td>
-                <td>Kriterium</td>
-                <td>Parametry kriteria</td>
-                <td>Zmena</td>
+                <td>$bundle.("rights.dialog.table.column.user")$</td>
+                <td>$bundle.("rights.dialog.table.column.priority")$</td>
+                <td>$bundle.("rights.dialog.table.column.criterium")$</td>
+                <td>$bundle.("rights.dialog.table.column.criteriumparams")$</td>
+                <td>$bundle.("rights.dialog.table.column.change")$</td>
             </tr>            
        </thead> 
        <tbody>
-    $rights:{$rightTableRow(index=i,right=it, action=action)$ }$
+    $rights:{$rightTableRow(index=i,right=it, action=action, canhandlecommongroup=canhandlecommongroup)$ }$
        </tbody>
     </table>
     </div>
 >>
 
-/**
- * Pomocna sablona pro checked radio buttons
- */
-checkedRadioButton(checkedflag) ::=<<
-    $if(checkedflag)$ 
-        checked
-    $endif$
->>
-
-selectedComboItem(selectedflag) ::=<<
-    $if(selectedflag)$ 
-    selected
-    $endif$
->>
 
 /** jeden radek tabulky prav */
-rightTableRow(index,right, action) ::=<<
+rightTableRow(index,right, action,canhandlecommongroup, bundle) ::=<<
     <tr>
         <td>$index$.</td>
         <td title="$right.pid$">$right.dCTitle$</td>
@@ -104,8 +94,8 @@ rightTableRow(index,right, action) ::=<<
             <td colspan="3" align="center" style="background-color:#E0E0E0">  </td>        
         $endif$
         <td>
-            <button onClick="deleteRight('$right.uuid$',$right.id$);"> Smaz</button> 
-            <button onClick="editRight('$right.uuid$', $right.id$, '$action.formalName$');" > Zmen </button></td>
+            <button onClick="deleteRight('$right.uuid$',$right.id$);"> $bundle.("rights.dialog.buttons.delete")$ </button> 
+            <button onClick="editRight('$right.uuid$', $right.id$, '$action.formalName$', $canhandlecommongroup$);" > $bundle.("rights.dialog.buttons.edit")$ </button></td>
     </tr>
 >>
 
@@ -124,12 +114,12 @@ rightCriterium(rightCriterium) ::=<<
 
 
 /** dialog pro zalozeni nebo editaci prava */ 
-rightDialog(titles, objects, allCriteriums, criteriumParams, allParams, uuid,action) ::=<<
+rightDialog(titles, objects, allCriteriums, criteriumParams, allParams, uuid,action, bundle) ::=<<
 <div id="rightDialogContent"> 
 
     <div>
         <p style="font-size:-2px;">
-            Právo <strong>$action.formalName$</strong> pro objekt
+            $bundle.("rights.dialog.rightassociationtitle")$
         </p>
     </div>
     <form id="modifyRight" method="post">
@@ -140,17 +130,23 @@ rightDialog(titles, objects, allCriteriums, criteriumParams, allParams, uuid,act
             <hr>
             <table>
             <tr><td> 
-                <h3><label for="abstractUser">Uzivatel</label></h3></td></tr>
-                <tr><td> 
-                    <input id="userType" type="radio" name="abstractUser" value="Uzivatel"> Uzivatel </input>
-                    <img src="img/rights-person.png" />
+                <h3><label for="abstractUser">$bundle.("rights.dialog.table.column.user")$</label></h3></td></tr>
+                <tr><td>
+                    <span id="userTypeSpan">
+                        <input id="userType" type="radio" name="abstractUser" value="Uzivatel"> $bundle.("rights.dialog.table.column.user")$ </input>
+                        <img src="img/rights-person.png" />
+                    </span> 
     
-                    <input id="groupType" type="radio" name="abstractUser" value="Skupina"> Skupina </input>
-                    <img src="img/rights-group.png" />
+                    <span id="groupTypeSpan">
+                        <input id="groupType" type="radio" name="abstractUser" value="Skupina"> $bundle.("rights.dialog.table.column.group")$ </input>
+                        <img src="img/rights-group.png" />
+                    </span>
     
-                    <input id="allType" type="radio" name="abstractUser" value="Vsichni" checked> Vsichni </input>
-                    <img src="img/rights-person.png" />
-                    <img src="img/rights-group.png" />
+                    <span id="allTypeSpan">
+                        <input id="allType" type="radio" name="abstractUser" value="Vsichni" checked> $bundle.("rights.dialog.table.column.common_users")$ </input>
+                        <img src="img/rights-person.png" />
+                        <img src="img/rights-group.png" />
+                    </span>
                     
                 </td></tr>
             
@@ -169,7 +165,7 @@ rightDialog(titles, objects, allCriteriums, criteriumParams, allParams, uuid,act
                         <div style="width:100%; padding-top:10px;">                    
                             <span id="navigationForGroup">
                                 <a href="javascript:hintAllGroups();"> Vsechny skupiny <img id="groupdropdownicon" src="img/dropdown.png" border="0"/> </a>
-                                <a href="javascript:hintUsersForGroup();"> Uzivatele vybrane skupiny <img src="img/dropdown.png" border="0"/> </a>
+                                <a href="javascript:hintUsersForGroup();"> Uzivatele vybrane skupiny <img id="groupusersdropdownicon" src="img/dropdown.png" border="0"/> </a>
                             </span>    
                             <span id="navigationForUser">
                                 <a href="javascript:hintAllUsers();"> Vsichni uzivatele <img id="userdropdownicon" src="img/dropdown.png" border="0"/> </a>
@@ -245,8 +241,8 @@ rightDialog(titles, objects, allCriteriums, criteriumParams, allParams, uuid,act
 
 >>
 
-/** .. globalni akce ..  */
-rightsForRepository(actions, uuid) ::=<<
+/** zobrazeni chranenych akci  */
+securedActionsTable(actions, uuid, bundle) ::=<<
     <table style="width:100%">
        <thead style="border-bottom: 1px dashed; background-image: url('img/bg_processheader.png'); background-repeat: repeat-x;">
             <tr>
@@ -257,15 +253,15 @@ rightsForRepository(actions, uuid) ::=<<
             </tr>            
        </thead> 
        <tbody>
-            $first(actions):{action| $rightRepositoryRow(action=action,uuid=uuid)$ }$
-            $rest(actions):{action| $rightRepositoryRow(action=action,uuid=uuid)$ }$
+            $first(actions):{action| $securedActionRow(action=action,uuid=uuid)$ }$
+            $rest(actions):{action| $securedActionRow(action=action,uuid=uuid)$ }$
        </tbody>
     </table>
 </div>
 >>
 
-/**   */
-rightRepositoryRow(action,uuid) ::=<<
+/** radek zobrazuje jmeno akce, popis a tlacitko pro zmenu prav pro acki  */
+securedActionRow(action,uuid,canhandlecommongroup, bundle) ::=<<
 <tr>
     <td>$action.name$</td> 
     <td>$action.description$</td> 
@@ -283,3 +279,6 @@ criteriumParamValidate(validated) ::=<<
     $endif$
 >>
 
+
+/** primitivni lokalizace */
+string(bundle, key) ::="$bundle.(key)$"

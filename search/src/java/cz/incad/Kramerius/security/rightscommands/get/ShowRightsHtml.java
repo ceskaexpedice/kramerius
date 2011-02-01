@@ -123,10 +123,13 @@ public class ShowRightsHtml extends ServletRightsCommand{
             StringTemplate template = ServletRightsCommand.stFormsGroup().getInstanceOf("rightsTable");
             template.setAttribute("rights", RightWrapper.wrapRights(fedoraAccess, resultRights));
             template.setAttribute("uuid", uuid);
+            template.setAttribute("bundle", bundleToMap());
             template.setAttribute("users", wrapped);
             template.setAttribute("typeOfLists",TypeOfList.typeOfListAsMap(typeOfList));
             template.setAttribute("action",new SecuredActionWrapper(getResourceBundle(), SecuredActions.findByFormalName(getSecuredAction())));
+            template.setAttribute("canhandlecommongroup", userProvider.get().hasSuperAdministratorRole());
             responseProvider.get().getOutputStream().write(template.toString().getBytes("UTF-8"));
+
         } catch (IOException e) {
             LOGGER.log(Level.SEVERE, e.getMessage(),e);
         }

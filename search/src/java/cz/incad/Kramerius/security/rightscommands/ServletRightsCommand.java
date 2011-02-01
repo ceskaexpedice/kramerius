@@ -20,6 +20,10 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringReader;
 import java.nio.charset.Charset;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.ResourceBundle;
+import java.util.Set;
 
 import org.antlr.stringtemplate.StringTemplateGroup;
 import org.antlr.stringtemplate.language.DefaultTemplateLexer;
@@ -54,6 +58,16 @@ public abstract class ServletRightsCommand extends ServletCommand {
         String string = IOUtils.readAsString(stream, Charset.forName("UTF-8"), true);
         StringTemplateGroup group = new StringTemplateGroup(new StringReader(string), DefaultTemplateLexer.class);
         return group;
+    }
+
+    public Map<String, String> bundleToMap() throws IOException {
+        Map<String, String> map = new HashMap<String, String>();
+        ResourceBundle bundle = this.resourceBundleService.getResourceBundle("labels", localesProvider.get());
+        Set<String> keySet = bundle.keySet();
+        for (String key : keySet) {
+            map.put(key, bundle.getString(key));
+        }
+        return map;
     }
 
 }

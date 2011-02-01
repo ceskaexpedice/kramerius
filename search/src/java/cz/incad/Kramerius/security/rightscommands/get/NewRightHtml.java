@@ -19,8 +19,11 @@ package cz.incad.Kramerius.security.rightscommands.get;
 import static cz.incad.utils.IKeys.UUID_PARAMETER;
 
 import java.io.IOException;
+import java.text.MessageFormat;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Properties;
 import java.util.ResourceBundle;
 import java.util.logging.Level;
 
@@ -49,6 +52,8 @@ public class NewRightHtml extends ServletRightsCommand {
     
     @Inject
     RightCriteriumLoader criteriumLoader;
+
+    
     
     @Override
     public void doCommand() {
@@ -67,7 +72,13 @@ public class NewRightHtml extends ServletRightsCommand {
             RightCriteriumParams[] allParams = rightsManager.findAllParams();
             template.setAttribute("allParams", allParams);
             template.setAttribute("titles", titles);
-            template.setAttribute("uuid", uuid);  
+            template.setAttribute("uuid", uuid);
+            Map<String, String> bundleToMap = bundleToMap(); {
+                bundleToMap.put("rights.dialog.rightassociationtitle", MessageFormat.format(bundleToMap.get("rights.dialog.rightassociationtitle"), SecuredActions.findByFormalName(getSecuredAction())));
+            }
+            
+            template.setAttribute("bundle", bundleToMap);
+
             template.setAttribute("action", new SecuredActionWrapper(resourceBundle, SecuredActions.findByFormalName(getSecuredAction())));
             template.setAttribute("objects", saturatedPath);
             //template.setAttribute("criteriumNames",CriteriumWrapper.wrapCriteriums(CriteriumsLoader.criteriums(), true));

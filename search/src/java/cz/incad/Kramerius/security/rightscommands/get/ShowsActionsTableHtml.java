@@ -48,9 +48,11 @@ public class ShowsActionsTableHtml extends ServletRightsCommand {
                     wrappedActions[i] = new SecuredActionWrapper(resourceBundle, secAct);
                 }
             }
-            StringTemplate template = ServletRightsCommand.stFormsGroup().getInstanceOf("rightsForRepository");
+            StringTemplate template = ServletRightsCommand.stFormsGroup().getInstanceOf("securedActionsTable");
             template.setAttribute("actions", wrappedActions);
             template.setAttribute("uuid", uuid);
+            template.setAttribute("bundle", bundleToMap());
+
             
             String content = template.toString();
             this.responseProvider.get().getOutputStream().write(content.getBytes("UTF-8"));

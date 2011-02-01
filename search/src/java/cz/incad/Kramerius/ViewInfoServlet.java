@@ -97,12 +97,16 @@ public class ViewInfoServlet extends GuiceServlet {
                 map.put("uuid", uuid);
                 map.put("pathOfUuids",pathOfUUIDs);
                 
-                        
+                if (this.currentLoggedUserProvider.get().hasSuperAdministratorRole()) {
+                    // kam to jinam dat ?? 
+                    map.put("canhandlecommongroup",true);
+               }
+                
                 HashMap<String, HashMap<String, String>> secMapping = new HashMap<String, HashMap<String,String>>(); 
                 
-                // interpretuj pravo READ pro nynejsi cestu  -
-                // standardne jsou zdroje chraneny pres securedFedoraAccess zde je to jine, 
-                // aby se pravo ineterpretovalo vicekrat, interpretuje se zde jednou a vysledek 
+                // interpretuj pravo READ pro celou cestu  -
+                // standardne jsou zdroje chraneny pres securedFedoraAccess, zde je to jine, 
+                // pravo se neineterpretuje vicekrat, interpretuje se jednou a vysledek 
                 // se pak vyhodnoti
                 boolean[] vals = fillActionsToJSON(req, uuid, pathOfUUIDs, secMapping, SecuredActions.READ);
                 if (!firstMustBeTrue(vals)) {

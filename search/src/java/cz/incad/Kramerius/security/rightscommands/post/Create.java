@@ -26,6 +26,8 @@ import cz.incad.Kramerius.security.RightsServlet;
 import cz.incad.Kramerius.security.ServletCommand;
 import cz.incad.Kramerius.security.rightscommands.ServletRightsCommand;
 import cz.incad.kramerius.security.Right;
+import cz.incad.kramerius.security.SecuredActions;
+import cz.incad.kramerius.security.SecurityException;
 
 public class Create extends ServletRightsCommand {
     
@@ -36,7 +38,16 @@ public class Create extends ServletRightsCommand {
         try {
             HttpServletRequest req = this.requestProvider.get();
             Right right = RightsServlet.createRightFromPost(req, rightsManager, userManager);
-            rightsManager.insertRight(right);
+
+            String uuid = right.getPid().substring("uuid:".length());
+            String[] pathOfUUIDs = this.solrAccess.getPathOfUUIDs(uuid);
+
+            if (this.actionAllowed.isActionAllowed(SecuredActions.ADMINISTRATE.getFormalName(), uuid, pathOfUUIDs)) {
+                rightsManager.insertRight(right);
+            } else {
+                throw new SecurityException("operation is not permited");
+            }
+
         } catch (NumberFormatException e) {
             LOGGER.log(Level.SEVERE, e.getMessage(),e);
         } catch (SQLException e) {

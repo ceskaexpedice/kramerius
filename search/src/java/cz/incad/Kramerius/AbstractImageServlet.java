@@ -29,7 +29,11 @@ import java.util.logging.Level;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.xml.xpath.XPath;
+import javax.xml.xpath.XPathConstants;
+import javax.xml.xpath.XPathExpression;
 import javax.xml.xpath.XPathExpressionException;
+import javax.xml.xpath.XPathFactory;
 
 import org.antlr.stringtemplate.StringTemplate;
 import org.antlr.stringtemplate.StringTemplateGroup;
@@ -44,6 +48,7 @@ import com.sun.net.httpserver.HttpServer;
 
 import cz.incad.Kramerius.backend.guice.GuiceServlet;
 import cz.incad.kramerius.FedoraAccess;
+import cz.incad.kramerius.FedoraNamespaceContext;
 import cz.incad.kramerius.impl.fedora.FedoraDatabaseUtils;
 import cz.incad.kramerius.security.SecurityException;
 import cz.incad.kramerius.utils.FedoraUtils;
@@ -261,10 +266,7 @@ public abstract class AbstractImageServlet extends GuiceServlet {
 	protected String getPathForFullImageStream(String uuid) throws IOException, XPathExpressionException, SQLException {
 	    Document fullProfile = this.fedoraAccess.getImageFULLProfile(uuid);
 	    if (FedoraUtils.isFedoraExternalStream(configuration, fullProfile)) {
-	        URL url = new URL(FedoraUtils.getLocation(configuration, fullProfile));
-	        String file = url.getFile();
-	        String dataFolderOnIIPServer = KConfiguration.getInstance().getDataFolderOnIIPServer();
-	        return dataFolderOnIIPServer + file;
+            return getRelsExtTilesUrl(uuid);
 	    } else {
 	        return getPathForInternalStream(uuid);
 	    }
@@ -280,6 +282,16 @@ public abstract class AbstractImageServlet extends GuiceServlet {
         setStringTemplateModel(uuid, dataStreamPath, fUrl, fedoraAccess);
         fUrl.setAttribute("height", "hei="+KConfiguration.getInstance().getConfiguration().getInt("scaledHeight", FedoraUtils.THUMBNAIL_HEIGHT));
         return fUrl.toString();
+    }
+
+    protected String getRelsExtTilesUrl(String uuid) throws IOException, XPathExpressionException {
+        Document relsExt = fedoraAccess.getRelsExt(uuid);
+        XPathFactory xpfactory = XPathFactory.newInstance();
+        XPath xpath = xpfactory.newXPath();
+        xpath.setNamespaceContext(new FedoraNamespaceContext());
+        XPathExpression expr = xpath.compile("//kramerius:tiles-url/text()");
+        Object tiles = expr.evaluate(relsExt, XPathConstants.STRING);
+        return (String) tiles;
     }
 
     public static StringTemplateGroup stGroup() {

@@ -89,7 +89,7 @@ public class AbstractUserWrapper implements User, Group {
    
     public String getOptionValue() {
         //<option value="$k$" selected>$k$</option>
-        if (this == ALL_USERS_ITEM) return "Vsechni uzivatele";
+        if (this == ALL_USERS_ITEM) return "Vsichni uzivatele";
         if (this.user instanceof Group) {
             return getName();
         } else {
@@ -151,7 +151,9 @@ public class AbstractUserWrapper implements User, Group {
     public boolean isAdministratorForGivenGroup(int personalAdminId) {
         return ((User)this.user).isAdministratorForGivenGroup(personalAdminId);
     }
-    
-    
-    
+
+    @Override
+    public boolean hasSuperAdministratorRole() {
+        return ((User)this.user).hasSuperAdministratorRole();
+    }
 }

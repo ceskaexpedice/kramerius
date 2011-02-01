@@ -17,13 +17,19 @@ import java.util.logging.Level;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.xml.xpath.XPath;
+import javax.xml.xpath.XPathConstants;
+import javax.xml.xpath.XPathExpression;
 import javax.xml.xpath.XPathExpressionException;
+import javax.xml.xpath.XPathFactory;
 
 import org.antlr.stringtemplate.StringTemplate;
+import org.w3c.dom.Document;
 
 import com.google.inject.Inject;
 
 import cz.incad.Kramerius.AbstractImageServlet;
+import cz.incad.kramerius.FedoraNamespaceContext;
 import cz.incad.kramerius.imaging.DeepZoomCacheService;
 import cz.incad.kramerius.imaging.DeepZoomTileSupport;
 import cz.incad.kramerius.utils.FedoraUtils;
@@ -87,7 +93,7 @@ public class DeepZoomServlet extends AbstractImageServlet {
     private void renderDZI(String uuid, HttpServletRequest req, HttpServletResponse resp) throws IOException, XPathExpressionException {
         setDateHaders(uuid, resp);
         setResponseCode(uuid, req, resp);
-        if (super.isIIPServerConfigured()) {
+        if (imageFromIIPServer(uuid)) {
             try {
                 renderIIPDZIDescriptor(uuid, resp);
             } catch (SQLException e) {
@@ -98,6 +104,19 @@ public class DeepZoomServlet extends AbstractImageServlet {
             renderEmbededDZIDescriptor(uuid, resp);
         }
     }
+
+    public boolean imageFromIIPServer(String uuid) {
+        try {
+            Object tiles = getRelsExtTilesUrl(uuid);
+            return tiles != null;
+        } catch (IOException e) {
+            LOGGER.log(Level.SEVERE, e.getMessage(),e);
+        } catch (XPathExpressionException e) {
+            LOGGER.log(Level.SEVERE, e.getMessage(),e);
+        }
+        return false;
+    }
+
 
     private void renderIIPDZIDescriptor(String uuid, HttpServletResponse resp) throws MalformedURLException, IOException, SQLException, XPathExpressionException {
         String dataStreamPath = getPathForFullImageStream(uuid);
@@ -130,7 +149,7 @@ public class DeepZoomServlet extends AbstractImageServlet {
     private void renderTile(String uuid, String slevel, String stile, HttpServletRequest req, HttpServletResponse resp) throws IOException, XPathExpressionException {
         setDateHaders(uuid, resp);
         setResponseCode(uuid, req, resp);
-        if (super.isIIPServerConfigured()) {
+        if (imageFromIIPServer(uuid)) {
             try {
                 renderIIPTile(uuid, slevel, stile, resp);
             } catch (SQLException e) {

@@ -57,7 +57,9 @@ public class ValidateCriteriumParamsHtml extends ServletRightsCommand {
             boolean validated = criterium.validateParams(params);
             StringTemplate template = ServletRightsCommand.stFormsGroup().getInstanceOf("criteriumParamValidate");
             template.setAttribute("validated", validated);
+            template.setAttribute("bundle", bundleToMap());
 
+            
             String content = template.toString();
             this.responseProvider.get().getOutputStream().write(content.getBytes("UTF-8"));
         } catch (IOException e) {

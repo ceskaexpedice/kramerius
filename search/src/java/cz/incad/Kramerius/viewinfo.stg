@@ -8,6 +8,9 @@ viewinfo(data, globalActions) ::=<<
         mimeType:'$data.mimeType$', 
         hasAlto:$data.hasAlto$,
         uuid:"$data.uuid$",
+        $if(data.canhandlecommongroup)$
+        canhandlecommongroup:$data.canhandlecommongroup$,
+        $endif$
         pathOfUuids:[$data.pathOfUuids:{uuid| "$uuid$" };separator=","$],
         imageServerConfigured:'$data.imageServerConfigured$', 
         $rights(securedActionsMap=data.actions, globalActions=data.globalActions);separator=","$,                

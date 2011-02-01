@@ -16,6 +16,7 @@
  */
 package cz.incad.Kramerius.security.rightscommands.post;
 
+import java.io.IOException;
 import java.sql.SQLException;
 import java.util.logging.Level;
 
@@ -27,6 +28,7 @@ import cz.incad.Kramerius.security.rightscommands.ServletRightsCommand;
 import cz.incad.kramerius.security.IsActionAllowed;
 import cz.incad.kramerius.security.Right;
 import cz.incad.kramerius.security.SecuredActions;
+import cz.incad.kramerius.security.SecurityException;
 
 public class Delete extends ServletRightsCommand {
 
@@ -37,7 +39,16 @@ public class Delete extends ServletRightsCommand {
     public void doCommand() {
         try {
             Right right = RightsServlet.createRightFromPostIds(this.requestProvider.get(), rightsManager, userManager);
-            rightsManager.deleteRight(right);
+
+            String uuid = right.getPid().substring("uuid:".length());
+            String[] pathOfUUIDs = this.solrAccess.getPathOfUUIDs(uuid);
+
+            if (this.actionAllowed.isActionAllowed(SecuredActions.ADMINISTRATE.getFormalName(), uuid, pathOfUUIDs)) {
+                rightsManager.deleteRight(right);
+                
+            } else {
+                throw new SecurityException("operation is not permited");
+            }
         } catch (SQLException e) {
             LOGGER.log(Level.SEVERE, e.getMessage(),e);
         } catch (InstantiationException e) {
@@ -45,6 +56,8 @@ public class Delete extends ServletRightsCommand {
         } catch (IllegalAccessException e) {
             LOGGER.log(Level.SEVERE, e.getMessage(),e);
         } catch (ClassNotFoundException e) {
+            LOGGER.log(Level.SEVERE, e.getMessage(),e);
+        } catch (IOException e) {
             LOGGER.log(Level.SEVERE, e.getMessage(),e);
         }
     }
