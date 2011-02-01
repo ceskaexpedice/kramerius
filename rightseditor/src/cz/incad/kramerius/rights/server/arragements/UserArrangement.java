@@ -1,8 +1,8 @@
 package cz.incad.kramerius.rights.server.arragements;
 
 import org.aplikator.server.descriptor.Arrangement;
-import org.aplikator.server.descriptor.Entity;
 import org.aplikator.server.descriptor.Form;
+import org.aplikator.server.descriptor.Function;
 import org.aplikator.server.descriptor.HorizontalPanel;
 import org.aplikator.server.descriptor.QueryGenerator;
 import org.aplikator.server.descriptor.RefButton;
@@ -12,7 +12,6 @@ import org.aplikator.server.descriptor.TextField;
 import org.aplikator.server.descriptor.VerticalPanel;
 
 import cz.incad.kramerius.rights.server.Structure;
-import cz.incad.kramerius.rights.server.Structure.GroupEntity;
 import cz.incad.kramerius.rights.server.Structure.UserEntity;
 
 public class UserArrangement extends Arrangement {
@@ -21,7 +20,7 @@ public class UserArrangement extends Arrangement {
 	Structure.UserEntity userEntity;
 	RefenrenceToPersonalAdminArrangement referenceToAdmin;
 
-	public UserArrangement(Structure struct, UserEntity entity, RefenrenceToPersonalAdminArrangement reference) {
+	public UserArrangement(Structure struct, UserEntity entity, RefenrenceToPersonalAdminArrangement reference, Function vygenerovatHeslo) {
 		super(entity);
 		this.struct = struct;
 		this.userEntity = entity;
@@ -33,11 +32,11 @@ public class UserArrangement extends Arrangement {
 		setSortProperty(struct.user.LOGINNAME);
 		queryGenerator = new QueryGenerator.Empty();
 
-		form = createUserForm();
+		form = createUserForm(vygenerovatHeslo);
 
 	}
 
-	private Form createUserForm() {
+	private Form createUserForm(Function vygenerovatHeslo) {
 		Form form = new Form();
 		form.setLayout(new VerticalPanel()
 				.addChild(
@@ -46,9 +45,13 @@ public class UserArrangement extends Arrangement {
 								new TextField(struct.user.SURNAME)))
 
 				.addChild(
-						new VerticalPanel().addChild(
-								new TextField(struct.user.LOGINNAME)).addChild(
-								new TextField(struct.user.PASSWORD)))
+						new VerticalPanel()
+						    .addChild(new TextField(struct.user.LOGINNAME))
+						    .addChild(new TextField(struct.user.PASSWORD))
+						    .addChild(vygenerovatHeslo)
+						    .addChild(new TextField(struct.user.EMAIL))
+						    .addChild(new TextField(struct.user.ORGANISATION))
+						)
 
 
 				.addChild(

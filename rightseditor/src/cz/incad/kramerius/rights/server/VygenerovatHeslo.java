@@ -1,5 +1,7 @@
 package cz.incad.kramerius.rights.server;
 
+import org.aplikator.client.descriptor.PropertyDTO;
+import org.aplikator.server.descriptor.Application;
 import org.aplikator.server.function.Executable;
 import org.aplikator.server.function.FunctionParameters;
 import org.aplikator.server.function.FunctionResult;
@@ -20,8 +22,15 @@ public class VygenerovatHeslo  implements Executable {
     
     @Override
     public FunctionResult execute(FunctionParameters parameters) {
-    	System.out.println("EXECUTE FUNCTION ... ");
-    	return new FunctionResult("HOTOVO", true);
+        String result = null;
+        try{
+        	System.out.println("EXECUTE FUNCTION VygenerovatHeslo: "+parameters.getClientContext().getCurrentRecord().getPrimaryKey().getId());
+        	PropertyDTO email = ((Structure) Application.get()).user.EMAIL.clientClone();
+        	result = "Heslo odeslano na adresu: "+parameters.getClientContext().getCurrentRecord().getStringValue(email);
+        }catch (Exception ex){
+            return new FunctionResult("Chyba: "+ex, false);
+        }
+    	return new FunctionResult(result, true);
         
     }
     

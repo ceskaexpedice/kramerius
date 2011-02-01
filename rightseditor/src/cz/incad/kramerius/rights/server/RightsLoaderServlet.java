@@ -57,12 +57,12 @@ public class RightsLoaderServlet extends ApplicationLoaderServlet {
 			struct = (Structure) Application.get();
 			System.out.println("ApplicationLoader 2");
 
-            vygenerovatHeslo = new Function(new VygenerovatHeslo());
+            vygenerovatHeslo = new Function("VygenerovatHeslo",new VygenerovatHeslo());
 			
 			referenceToAdmin = new RefenrenceToPersonalAdminArrangement(struct, struct.group);
 			
 			groupArr = new GroupArrangement(struct, struct.group, referenceToAdmin);
-			userArr = new UserArrangement(struct, struct.user, referenceToAdmin);
+			userArr = new UserArrangement(struct, struct.user, referenceToAdmin, vygenerovatHeslo);
 			
 			//groupUserAssocArr = new UserGroupAssoc(struct, struct.groupUserAssoction, userArr, groupArr);
 			
@@ -97,9 +97,9 @@ public class RightsLoaderServlet extends ApplicationLoaderServlet {
 			applicationDescriptor.addService(uzivatele);
 			applicationDescriptor.addService(prava);
 			
-            ServiceDTO functions = new ServiceDTO("Funkce");
-            functions.addAction(new ActionDTO("Vygenerovat heslo", new ExecuteFunction( "Vygenerovat heslo", functions, vygenerovatHeslo.getId())));
-            applicationDescriptor.addService(functions);
+           /* ServiceDTO functions = new ServiceDTO("Funkce");
+            functions.addAction(new ActionDTO("Vygenerovat heslo", new ExecuteFunction(functions, vygenerovatHeslo.getFunctionDTO())));
+            applicationDescriptor.addService(functions);*/
 
 			
 
