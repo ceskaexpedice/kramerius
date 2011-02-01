@@ -1,6 +1,7 @@
 package cz.incad.kramerius.rights.server;
 
 import org.aplikator.client.descriptor.PropertyDTO;
+import org.aplikator.server.Context;
 import org.aplikator.server.descriptor.Application;
 import org.aplikator.server.function.Executable;
 import org.aplikator.server.function.FunctionParameters;
@@ -21,11 +22,12 @@ public class VygenerovatHeslo  implements Executable {
 //    private String RDCZKnihSelect = "select value, cz from dlists where classname = 'cz.incad.nkp.digital.InsDigitalniKnihovna'";
     
     @Override
-    public FunctionResult execute(FunctionParameters parameters) {
+    public FunctionResult execute(FunctionParameters parameters, Context context) {
         String result = null;
         try{
         	System.out.println("EXECUTE FUNCTION VygenerovatHeslo: "+parameters.getClientContext().getCurrentRecord().getPrimaryKey().getId());
-        	PropertyDTO email = ((Structure) Application.get()).user.EMAIL.clientClone();
+        	System.out.println("USER:"+context.getHttpServletRequest().getUserPrincipal().toString()+" LOCALE:"+context.getHttpServletRequest().getLocale().toString());
+        	PropertyDTO email = ((Structure) Application.get()).user.EMAIL.clientClone(context);
         	result = "Heslo odeslano na adresu: "+parameters.getClientContext().getCurrentRecord().getStringValue(email);
         }catch (Exception ex){
             return new FunctionResult("Chyba: "+ex, false);

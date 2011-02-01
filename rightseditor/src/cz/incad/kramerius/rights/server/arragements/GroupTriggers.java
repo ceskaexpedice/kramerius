@@ -45,8 +45,8 @@ public class GroupTriggers implements PersisterTriggers {
 	public RecordDTO beforeCreate(RecordDTO record, Context ctx) {
 		User curUser = getCurrentLoggedUser(ctx.getHttpServletRequest());
 		String queryPattern = "select ent.user_id,ent.group_id from right_entity ent"+
-			" left join  user_entity users on  (ent.user_id = users.user_id)"+
-			" left join  group_entity groups on  (ent.group_id = groups.group_id)"+
+			"left join  user_entity users on  (ent.user_id = users.user_id)"+
+			"left join  group_entity groups on  (ent.group_id = groups.group_id)"+
 		" where uuid=''uuid:1'' and \"action\"=''{0}'' and (ent.user_id="+curUser.getId()+" or ent.group_id in ("+getGroupIds(curUser)+"))";
 		String query = null;
 		if (curUser.hasSuperAdministratorRole()) {
@@ -66,7 +66,7 @@ public class GroupTriggers implements PersisterTriggers {
         }.executeQuery(query);
 
 		
-		PropertyDTO propertyDTO = record.getProperty(structure.group.PERSONAL_ADMIN.getReadableName());
+		PropertyDTO propertyDTO = structure.group.PERSONAL_ADMIN.clientClone(ctx);
 		record.setValue(propertyDTO, groupsList.get(0));
 		
 		return record;
@@ -151,10 +151,4 @@ public class GroupTriggers implements PersisterTriggers {
 		return userImpl;
 	}
 
-	public static void main(String[] args) {
-		
-		String sql = " where uuid=\''uuid:1\'' and \"action\"=''{0}''";
-		
-		System.out.println(MessageFormat.format(sql, SecuredActions.rightsadmin.getFormalName()));
-	}
 }

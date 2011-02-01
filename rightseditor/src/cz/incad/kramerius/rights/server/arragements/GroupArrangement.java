@@ -37,7 +37,6 @@ public class GroupArrangement extends Arrangement {
 	}
 	
 	
-	
 	private Form createGroupForm() {
 		Form form = new Form();
 		form.setLayout(new VerticalPanel()
