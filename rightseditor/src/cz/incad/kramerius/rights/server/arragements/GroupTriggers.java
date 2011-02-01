@@ -33,8 +33,8 @@ public class GroupTriggers implements PersisterTriggers {
 	public RecordDTO beforeCreate(RecordDTO record, Context ctx) {
 		User curUser = getCurrentLoggedUser(ctx.getHttpServletRequest());
 		String queryPattern = "select ent.user_id,ent.group_id from right_entity ent"+
-		"left join  user_entity users on  (ent.user_id = users.user_id)"+
-		"left join  group_entity groups on  (ent.group_id = groups.group_id)"+
+			"left join  user_entity users on  (ent.user_id = users.user_id)"+
+			"left join  group_entity groups on  (ent.group_id = groups.group_id)"+
 		"where uuid='uuid:1' and \"action\"='{0}' and (ent.user_id="+curUser.getId()+" or ent.group_id in ("+getGroupIds(curUser)+"))";
 		String query = null;
 		if (curUser.hasSuperAdministratorRole()) {
