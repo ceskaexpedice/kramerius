@@ -1,6 +1,9 @@
 package cz.incad.kramerius.rights.server;
 
+import java.security.Principal;
+
 import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
 
 import org.aplikator.client.command.ExecuteFunction;
 import org.aplikator.client.command.ListEntities;
@@ -30,6 +33,9 @@ import cz.incad.kramerius.rights.server.arragements.RightsCriteriumParamArrangem
 import cz.incad.kramerius.rights.server.arragements.UserArrangement;
 import cz.incad.kramerius.rights.server.arragements.UserGroupAssoc;
 import cz.incad.kramerius.rights.server.arragements.RefenrenceToPersonalAdminArrangement;
+import cz.incad.kramerius.security.IsActionAllowedBase;
+import cz.incad.kramerius.security.User;
+import cz.incad.kramerius.security.jaas.K4UserPrincipal;
 
 @SuppressWarnings("serial")
 public class RightsLoaderServlet extends ApplicationLoaderServlet {
@@ -48,6 +54,8 @@ public class RightsLoaderServlet extends ApplicationLoaderServlet {
 
 	private Function vygenerovatHeslo;
 
+	private IsActionAllowedBase isActionAllowedBase;
+	
 	@Override
 	public void init() throws ServletException {
 		try {
@@ -63,8 +71,6 @@ public class RightsLoaderServlet extends ApplicationLoaderServlet {
 			
 			groupArr = new GroupArrangement(struct, struct.group, referenceToAdmin);
 			userArr = new UserArrangement(struct, struct.user, referenceToAdmin, vygenerovatHeslo);
-			
-			//groupUserAssocArr = new UserGroupAssoc(struct, struct.groupUserAssoction, userArr, groupArr);
 			
 			rightsArr = new RightArrangement(struct.rights, struct);
 			rightsCriteriumParamArr = new RightsCriteriumParamArrangement(struct.criteriumParam, struct);
@@ -111,35 +117,14 @@ public class RightsLoaderServlet extends ApplicationLoaderServlet {
 	}
 
 	
-	private Form createRightCriteriumParamForm() {
-		Form form = new Form();
-		TextArea textArea = new TextArea(struct.criteriumParam.VALS).setWidth("100%");
-		form.setLayout(new VerticalPanel().addChild(
-				new HorizontalPanel()
-					.addChild(textArea)
-		));
-		return form;
-	}
-
 	
-	
-	
-	private Form createAssocForm() {
-		Form form = new Form();
-		form.setLayout(
-				new VerticalPanel()
 
-					.addChild(new RefButton(struct.groupUserAssoction.USERS, userArr,
-							new HorizontalPanel()
-								.addChild(new TextField(struct.groupUserAssoction.USERS.relate(struct.user.NAME)))
-						))
-
-//					.addChild(new RefButton(struct.groupUserAssoction.GROUP, groupArr,
-//							new HorizontalPanel()
-//								.addChild(new TextField(struct.groupUserAssoction.GROUP.relate(struct.group.GNAME)))
-//						))
-						
-					);
-		return form;
+	public User getCurrentLoggedUser(HttpServletRequest request) {
+        Principal principal = request.getUserPrincipal();
+        if (principal != null) {
+            K4UserPrincipal k4principal = (K4UserPrincipal) principal;
+            User user = k4principal.getUser();
+            return user;
+        } else return null;		
 	}
 }

@@ -33,6 +33,7 @@ public class GroupArrangement extends Arrangement {
 		setSortProperty(struct.group.GNAME);
 		queryGenerator = new QueryGenerator.Empty();
 		form = createGroupForm();
+		this.trigger = new GroupTriggers();
 	}
 	
 	
