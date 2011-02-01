@@ -16,13 +16,20 @@
  */
 package cz.incad.kramerius.security.utils;
 
+import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.logging.Level;
+
+import javax.naming.InitialContext;
+import javax.naming.NamingException;
+import javax.sql.DataSource;
 
 import cz.incad.kramerius.security.Group;
 import cz.incad.kramerius.security.User;
 import cz.incad.kramerius.security.impl.GroupImpl;
 import cz.incad.kramerius.security.impl.UserImpl;
+import cz.incad.kramerius.security.jaas.K4LoginModule;
 
 public class SecurityDBUtils {
 
@@ -42,6 +49,23 @@ public class SecurityDBUtils {
         int personalAdminId = rs.getInt("personal_admin_id");
         User user = new UserImpl(id, firstName, surName, loginName, personalAdminId);
         return user;
+    }
+
+    public static String JNDI_NAME="java:comp/env/jdbc/kramerius4";
+
+    // without guice because of classloaders
+    public static Connection getConnection() {
+        try {
+            InitialContext ctx = new InitialContext();
+            DataSource ds = (DataSource) ctx.lookup(JNDI_NAME);   
+            return ds.getConnection();
+        } catch (NamingException e) {
+            K4LoginModule.LOGGER.log(Level.SEVERE, e.getMessage(), e);
+            return null;
+        } catch (SQLException e) {
+            K4LoginModule.LOGGER.log(Level.SEVERE, e.getMessage(), e);;
+            return null;
+        }
     }
 
 }

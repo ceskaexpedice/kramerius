@@ -16,23 +16,7 @@
  */
 package cz.incad.kramerius.security;
 
-import java.io.Serializable;
+public interface IsActionAllowedBase {
 
-/**
- * Represents user
- * @author pavels
- */
-public interface User extends AbstractUser,Serializable {
-
-    public String getFirstName();
-    
-    public String getSurname();
-    
-    public String getLoginname();
-    
-    public Group[] getGroups();
-    
-    public boolean isAdministratorForGivenGroup(int personalAdminId);
-    
-    public boolean hasSuperAdministratorRole();
+    public boolean isActionAllowed(User user, String actionName, String uuid, String[] pathOfUuids);
 }

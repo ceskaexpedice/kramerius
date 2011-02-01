@@ -26,7 +26,6 @@ public class UserImpl implements User {
     private String surName;
     private String loginName;
     
-    // jenom skupiny muzou byt administrovane
     private int personalAdminId;
 
     private Group[] groups;
@@ -88,6 +87,17 @@ public class UserImpl implements User {
         return false;
     }
     
+
     
     
+    @Override
+    public boolean hasSuperAdministratorRole() {
+        Group[] groups = this.getGroups();
+        for (Group group : groups) {
+            if (group.getPersonalAdminId() <= 0 ) {
+                return true;
+            }
+        }
+        return false;
+    }
 }

@@ -18,7 +18,6 @@ package cz.incad.kramerius.security.jaas;
 
 import java.io.IOException;
 import java.security.Principal;
-import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.HashMap;
@@ -26,8 +25,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
 
-import javax.naming.InitialContext;
-import javax.naming.NamingException;
 import javax.security.auth.Subject;
 import javax.security.auth.callback.Callback;
 import javax.security.auth.callback.CallbackHandler;
@@ -36,7 +33,6 @@ import javax.security.auth.callback.PasswordCallback;
 import javax.security.auth.callback.UnsupportedCallbackException;
 import javax.security.auth.login.LoginException;
 import javax.security.auth.spi.LoginModule;
-import javax.sql.DataSource;
 
 
 import cz.incad.kramerius.security.Group;
@@ -51,11 +47,9 @@ import cz.incad.kramerius.utils.database.JDBCQueryTemplate;
  */
 public class K4LoginModule implements LoginModule {
 
-    private static String JNDI_NAME="java:comp/env/jdbc/kramerius4";
-
     private static final String PSWD_COL = "pswd";
 
-    static java.util.logging.Logger LOGGER = java.util.logging.Logger.getLogger(K4LoginModule.class.getName());
+    public static java.util.logging.Logger LOGGER = java.util.logging.Logger.getLogger(K4LoginModule.class.getName());
     
     private Subject subject;
     private CallbackHandler callbackhandler;
@@ -87,7 +81,7 @@ public class K4LoginModule implements LoginModule {
             String loginName = nmCallback.getName();
             char[] pswd = pswdCallback.getPassword();
             
-            new JDBCQueryTemplate<User>(getConnection()){
+            new JDBCQueryTemplate<User>(SecurityDBUtils.getConnection()){
                 @Override
                 public boolean handleRow(ResultSet rs, List<User> retList) throws SQLException {
                     
@@ -100,7 +94,7 @@ public class K4LoginModule implements LoginModule {
 
             if (foundUser != null) {
                 
-                List<Group> groupsList = new JDBCQueryTemplate<Group>(getConnection()){
+                List<Group> groupsList = new JDBCQueryTemplate<Group>(SecurityDBUtils.getConnection()){
                     @Override
                     public boolean handleRow(ResultSet rs, List<Group> retList) throws SQLException {
                         retList.add(SecurityDBUtils.createGroup(rs));
@@ -163,25 +157,6 @@ public class K4LoginModule implements LoginModule {
     public boolean logout() throws LoginException {
         this.subject.getPrincipals().clear();
         return true;
-    }
-    
-    // without guice because of classloaders
-    /**
-     * 
-     * @return
-     */
-    public Connection getConnection() {
-        try {
-            InitialContext ctx = new InitialContext();
-            DataSource ds = (DataSource) ctx.lookup(JNDI_NAME);   
-            return ds.getConnection();
-        } catch (NamingException e) {
-            LOGGER.log(Level.SEVERE, e.getMessage(), e);
-            return null;
-        } catch (SQLException e) {
-            LOGGER.log(Level.SEVERE, e.getMessage(), e);;
-            return null;
-        }
     }
 
 }
