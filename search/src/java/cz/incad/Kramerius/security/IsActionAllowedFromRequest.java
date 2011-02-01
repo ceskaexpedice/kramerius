@@ -108,4 +108,9 @@ public class IsActionAllowedFromRequest implements IsActionAllowed {
     private boolean resultOfResult(EvaluatingResult result) {
         return result == EvaluatingResult.TRUE ? true : false;
     }
+
+    @Override
+    public boolean isActionAllowed(User user, String actionName) {
+        throw new UnsupportedOperationException("still unsupported");
+    }
 }
