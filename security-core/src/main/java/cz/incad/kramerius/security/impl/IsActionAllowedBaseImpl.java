@@ -43,7 +43,7 @@ public class IsActionAllowedBaseImpl implements IsActionAllowedBase {
     }
     
     @Override
-    public boolean isActionAllowed(User user, String actionName, String uuid, String[] pathOfUuids) {
+    public boolean isActionAllowed(User user, String actionName) {
         String query = "select * from right_entity ent"+
             "left join  user_entity users on  (ent.user_id = users.user_id)"+
             "left join  group_entity groups on  (ent.group_id = groups.group_id)"+
@@ -59,5 +59,4 @@ public class IsActionAllowedBaseImpl implements IsActionAllowedBase {
         }.executeQuery(query);
         return results.isEmpty();
     }
-    
 }

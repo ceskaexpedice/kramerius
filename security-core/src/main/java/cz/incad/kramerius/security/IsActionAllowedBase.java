@@ -18,5 +18,5 @@ package cz.incad.kramerius.security;
 
 public interface IsActionAllowedBase {
 
-    public boolean isActionAllowed(User user, String actionName, String uuid, String[] pathOfUuids);
+    public boolean isActionAllowed(User user, String actionName);
 }
