@@ -24,6 +24,14 @@
     </Arg>
    </New>
    
+   <Get name="securityHandler">
+    <Set name="userRealm">
+        <New class="org.mortbay.jetty.security.HashUserRealm">
+         <Set name="name">protected</Set>
+            <Set name="config"><SystemProperty name="jetty.home" default="."/>/etc/realm.properties</Set>
+        </New>
+    </Set>
+  </Get>
    
 </Configure>
 
