@@ -115,16 +115,5 @@ public class RightsLoaderServlet extends ApplicationLoaderServlet {
 			throw new ServletException("ApplicationLoader error: ", ex);
 		}
 	}
-
 	
-	
-
-	public User getCurrentLoggedUser(HttpServletRequest request) {
-        Principal principal = request.getUserPrincipal();
-        if (principal != null) {
-            K4UserPrincipal k4principal = (K4UserPrincipal) principal;
-            User user = k4principal.getUser();
-            return user;
-        } else return null;		
-	}
 }
