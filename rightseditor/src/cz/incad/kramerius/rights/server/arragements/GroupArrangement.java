@@ -31,7 +31,7 @@ public class GroupArrangement extends Arrangement {
 		setReadableName(struct.group.getName());
 		addProperty(struct.group.GNAME);
 		setSortProperty(struct.group.GNAME);
-		form = createGroupForm();
+		setForm(createGroupForm());
 		this.trigger = new GroupTriggers(this.struct);
 	}
 	
@@ -63,7 +63,7 @@ public class GroupArrangement extends Arrangement {
             
             //addProperty(structure.groupUserAssoction.GROUP);
             addProperty(struct.groupUserAssoction.USERS.relate(struct.user.LOGINNAME));
-            form = createForm();
+            setForm(createForm());
         }
         
         Form createForm() {
@@ -89,7 +89,7 @@ public class GroupArrangement extends Arrangement {
             setReadableName(struct.user.getName());
             addProperty(struct.user.LOGINNAME);
             setSortProperty(struct.user.LOGINNAME);
-            form = createUserForm();
+            setForm(createUserForm());
         }
         
         

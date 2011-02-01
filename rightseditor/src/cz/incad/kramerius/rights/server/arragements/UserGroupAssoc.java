@@ -36,7 +36,7 @@ public class UserGroupAssoc extends Arrangement {
 
 		//addProperty(structure.groupUserAssoction.GROUP);
 		addProperty(structure.groupUserAssoction.GROUP.relate(structure.group.GNAME));
-		form = createForm();
+		setForm(createForm());
 
 	}
 

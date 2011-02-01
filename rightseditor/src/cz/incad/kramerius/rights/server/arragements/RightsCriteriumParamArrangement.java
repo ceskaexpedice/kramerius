@@ -26,7 +26,7 @@ public class RightsCriteriumParamArrangement extends Arrangement {
 
 		
 		
-		form = createRightCriteriumParamForm();
+		setForm(createRightCriteriumParamForm());
 	}
 
 	

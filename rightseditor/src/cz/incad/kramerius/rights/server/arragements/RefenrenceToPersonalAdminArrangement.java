@@ -25,7 +25,7 @@ public class RefenrenceToPersonalAdminArrangement extends Arrangement {
 		setReadableName(struct.group.getName());
 		addProperty(struct.group.GNAME);
 		setSortProperty(struct.group.GNAME);
-		form = createGroupForm();
+		setForm(createGroupForm());
 	}
 	
 	

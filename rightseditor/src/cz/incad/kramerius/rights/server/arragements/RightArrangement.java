@@ -33,7 +33,7 @@ public class RightArrangement extends Arrangement{
 		addProperty(struct.rights.RIGHT_CRITERIUM);
 		
 		
-		form = createRightForm();
+		setForm(createRightForm());
 
 	}
 

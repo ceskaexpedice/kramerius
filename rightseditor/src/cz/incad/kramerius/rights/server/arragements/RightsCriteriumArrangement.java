@@ -29,7 +29,7 @@ public class RightsCriteriumArrangement extends Arrangement {
 		//addProperty(struct.rightCriterium.FIXED_PRIORITY);
 		
 		
-		form = createCriteriumForm();
+		setForm(createCriteriumForm());
 	}
 
 	private Form createCriteriumForm() {

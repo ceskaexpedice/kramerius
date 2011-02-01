@@ -31,7 +31,7 @@ public class UserArrangement extends Arrangement {
 		addProperty(struct.user.LOGINNAME).addProperty(struct.user.NAME).addProperty(struct.user.SURNAME);
 		setSortProperty(struct.user.LOGINNAME);
 		
-		form = createUserForm(vygenerovatHeslo);
+		setForm(createUserForm(vygenerovatHeslo));
 
 	}
 
@@ -76,7 +76,7 @@ public class UserArrangement extends Arrangement {
 	        
 	        //addProperty(structure.groupUserAssoction.GROUP);
 	        addProperty(struct.groupUserAssoction.GROUP.relate(struct.group.GNAME));
-	        form = createForm();
+	        setForm(createForm());
 	    }
 	    
 	    Form createForm() {
@@ -98,7 +98,7 @@ public class UserArrangement extends Arrangement {
             setReadableName(struct.group.getName());
             addProperty(struct.group.GNAME);
             setSortProperty(struct.group.GNAME);
-            form = createGroupForm();
+            setForm(createGroupForm());
         }
         
         
