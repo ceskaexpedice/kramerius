@@ -16,13 +16,12 @@
  */
 package cz.incad.kramerius.security;
 
-public interface IsActionAllowed {
+public interface IsActionAllowed extends IsActionAllowedBase {
 
     public boolean isActionAllowed(String actionName, String uuid, String[] pathOfUuids);
 
     public boolean isActionAllowed(User user, String actionName, String uuid, String[] pathOfUuids);
 
     public boolean[] isActionAllowedForAllPath(String actionName, String uuid, String[] pathOfUuids);
-    
     
 }
