@@ -22,12 +22,9 @@ public class RightsCriteriumArrangement extends Arrangement {
 		super(entity);
 		this.struct = struct;
 		this.rightsCriteriumParamArrangement = rightsCriteriumParamArrangement;
-		
-		setReadableName(struct.rightCriterium.getName());
-		
+
 		addProperty(struct.rightCriterium.QNAME);
 		//addProperty(struct.rightCriterium.FIXED_PRIORITY);
-		
 		
 		setForm(createCriteriumForm());
 	}

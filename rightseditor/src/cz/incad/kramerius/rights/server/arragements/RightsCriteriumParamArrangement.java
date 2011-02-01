@@ -19,7 +19,6 @@ public class RightsCriteriumParamArrangement extends Arrangement {
 	public RightsCriteriumParamArrangement(Entity entity, Structure struct) {
 		super(entity);
 		this.structure = struct;
-		setReadableName(struct.criteriumParam.getName());
 		setSortProperty(struct.criteriumParam.SHORT_DESC);	
 		addProperty(struct.criteriumParam.SHORT_DESC);
 		addProperty(struct.criteriumParam.VALS);

@@ -25,14 +25,11 @@ public class UserArrangement extends Arrangement {
 		this.struct = struct;
 		this.userEntity = entity;
 		this.referenceToAdmin = reference;
-
-		setReadableName(struct.user.getName());
-
+		
 		addProperty(struct.user.LOGINNAME).addProperty(struct.user.NAME).addProperty(struct.user.SURNAME);
 		setSortProperty(struct.user.LOGINNAME);
 		
 		setForm(createUserForm(vygenerovatHeslo));
-
 	}
 
 	private Form createUserForm(Function vygenerovatHeslo) {
@@ -70,11 +67,6 @@ public class UserArrangement extends Arrangement {
 	    public UserGroupsArrangement(){
 	        super(struct.groupUserAssoction);
 	        setReadableName(struct.group.getReadableName());
-
-	        
-	        
-	        
-	        //addProperty(structure.groupUserAssoction.GROUP);
 	        addProperty(struct.groupUserAssoction.GROUP.relate(struct.group.GNAME));
 	        setForm(createForm());
 	    }
@@ -95,7 +87,6 @@ public class UserArrangement extends Arrangement {
 	public class RefGroupArrangement extends Arrangement{
     	public RefGroupArrangement() {
             super(struct.group);
-            setReadableName(struct.group.getName());
             addProperty(struct.group.GNAME);
             setSortProperty(struct.group.GNAME);
             setForm(createGroupForm());

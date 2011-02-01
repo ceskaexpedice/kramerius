@@ -15,14 +15,10 @@ import cz.incad.kramerius.rights.server.Structure.GroupEntity;
 public class RefenrenceToPersonalAdminArrangement extends Arrangement {
 
 	Structure struct;
-	Structure.GroupEntity groupEntity;
-
 	
-	public RefenrenceToPersonalAdminArrangement(Structure structure, GroupEntity entity) {
-		super(entity);
+	public RefenrenceToPersonalAdminArrangement(Structure structure) {
+		super(structure.group);
 		this.struct = structure;
-		this.groupEntity = entity;
-		setReadableName(struct.group.getName());
 		addProperty(struct.group.GNAME);
 		setSortProperty(struct.group.GNAME);
 		setForm(createGroupForm());

@@ -21,8 +21,7 @@ public class RightArrangement extends Arrangement{
 		super(entity);
 		this.struct = structure;
 
-		setReadableName(struct.rights.getName());
-
+		
 		addProperty(struct.rights.ACTION);
 		addProperty(struct.rights.UUID);
 		

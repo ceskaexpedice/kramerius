@@ -67,7 +67,7 @@ public class RightsLoaderServlet extends ApplicationLoaderServlet {
 
             vygenerovatHeslo = new Function("VygenerovatHeslo",new VygenerovatHeslo());
 			
-			referenceToAdmin = new RefenrenceToPersonalAdminArrangement(struct, struct.group);
+			referenceToAdmin = new RefenrenceToPersonalAdminArrangement(struct);
 			
 			groupArr = new GroupArrangement(struct, struct.group, referenceToAdmin);
 			userArr = new UserArrangement(struct, struct.user, referenceToAdmin, vygenerovatHeslo);
