@@ -1,5 +1,9 @@
 package cz.incad.kramerius.rights.server.arragements;
 
+import java.util.List;
+
+import javax.servlet.http.HttpServletRequest;
+
 import org.apache.empire.db.expr.compare.DBCompareExpr;
 import org.aplikator.client.descriptor.QueryParameter;
 import org.aplikator.server.Context;
@@ -17,27 +21,75 @@ import org.aplikator.server.descriptor.VerticalPanel;
 import cz.incad.kramerius.rights.server.Structure;
 import cz.incad.kramerius.rights.server.Structure.UserEntity;
 import cz.incad.kramerius.rights.server.arragements.triggers.UserTriggers;
+import cz.incad.kramerius.rights.server.utils.GetAdminGroupIds;
+import cz.incad.kramerius.rights.server.utils.GetCurrentLoggedUser;
+import cz.incad.kramerius.security.User;
 
 public class UserArrangement extends Arrangement {
 
 	Structure struct;
 	Structure.UserEntity userEntity;
 	RefenrenceToPersonalAdminArrangement referenceToAdmin;
-
+	Function vygenerovatHeslo;
+	Form createdForm;
+	
 	public UserArrangement(Structure struct, UserEntity entity, RefenrenceToPersonalAdminArrangement reference, Function vygenerovatHeslo) {
 		super(entity);
 		this.struct = struct;
 		this.userEntity = entity;
 		this.referenceToAdmin = reference;
+		this.vygenerovatHeslo = vygenerovatHeslo;
 		
 		addProperty(struct.user.LOGINNAME).addProperty(struct.user.NAME).addProperty(struct.user.SURNAME).addProperty(struct.user.PERSONAL_ADMIN.relate(struct.group.GNAME));
 		setSortProperty(struct.user.LOGINNAME);
 		setQueryGenerator(new UserQueryGenerator());
-		setForm(createUserForm(vygenerovatHeslo));
+		//setForm(createUserFormFormSuperAdmin(vygenerovatHeslo));
 		this.trigger = new UserTriggers(this.struct);
 	}
+	
+	
 
-	private Form createUserForm(Function vygenerovatHeslo) {
+	@Override
+	public synchronized Form getForm(Context context) {
+		Form form = null;
+		User user = GetCurrentLoggedUser.getCurrentLoggedUser(context.getHttpServletRequest());
+		if ((user != null) && (user.hasSuperAdministratorRole())) {
+			form = createUserFormForSuperAdmin(vygenerovatHeslo);
+		} else {
+			form = createUserFormForSubadmin(vygenerovatHeslo);
+		}
+		return form;
+	}
+
+
+
+	private Form createUserFormForSubadmin(Function vygenerovatHeslo) {
+		Form form = new Form();
+		form.setLayout(new VerticalPanel()
+				.addChild(
+						new VerticalPanel().addChild(
+								new TextField(struct.user.NAME)).addChild(
+								new TextField(struct.user.SURNAME)))
+
+				.addChild(
+						new VerticalPanel()
+						    .addChild(new TextField(struct.user.LOGINNAME))
+						    .addChild(new TextField(struct.user.PASSWORD))
+						    .addChild(vygenerovatHeslo)
+						    .addChild(new TextField(struct.user.EMAIL))
+						    .addChild(new TextField(struct.user.ORGANISATION))
+						)
+
+						.addChild(new RepeatedForm(struct.user.GROUP_ASSOCIATIONS, new UserGroupsArrangement()))
+
+
+		);
+		form.addProperty(struct.user.PERSONAL_ADMIN);
+		return form;
+	}
+	
+	
+	private Form createUserFormForSuperAdmin(Function vygenerovatHeslo) {
 		Form form = new Form();
 		form.setLayout(new VerticalPanel()
 				.addChild(
@@ -93,9 +145,11 @@ public class UserArrangement extends Arrangement {
     	public RefGroupArrangement() {
             super(struct.group);
             addProperty(struct.group.GNAME);
+            addProperty(struct.group.PERSONAL_ADMIN.relate(struct.group.GNAME));
             setSortProperty(struct.group.GNAME);
             setForm(createGroupForm());
-        }
+            setQueryGenerator(new FormGroupGenerator());
+    	}
         
         
         private Form createGroupForm() {
@@ -114,8 +168,28 @@ public class UserArrangement extends Arrangement {
             return form;
         }
         
+   	 	public class FormGroupGenerator implements QueryGenerator {
+
+			@Override
+			public QueryParameter[] getQueryParameters(Context ctx) {
+	            return new QueryParameter[]{};
+			}
+
+			@Override
+			public DBCompareExpr createWhere(QueryParameter[] queryParameters,
+					Context ctx) {
+	        	User user = GetCurrentLoggedUser.getCurrentLoggedUser(ctx.getHttpServletRequest());
+	        	if (!user.hasSuperAdministratorRole()) {
+		        	List<Integer> admId = GetAdminGroupIds.getAdminGroupId(ctx);
+		        	return struct.group.PERSONAL_ADMIN.column.is(admId.get(0));
+	        	} else {
+	        		return null;
+	        	}
+	        	
+			}
+   	 	}
 	}
-	
+
 	 public class UserQueryGenerator implements QueryGenerator {
 	        
 	        public QueryParameter[] getQueryParameters(Context ctx){
@@ -123,10 +197,11 @@ public class UserArrangement extends Arrangement {
 	        }
 	        
 	        public DBCompareExpr createWhere(QueryParameter[] queryParameters, Context ctx) {
-	            if (ctx.getHttpServletRequest().getUserPrincipal()!=null && ctx.getHttpServletRequest().getUserPrincipal().getName().equalsIgnoreCase("podadmin")){
-	                return struct.group.GNAME.column.is("podspravci");
-	            }
-	            return null;
+	        	User user = GetCurrentLoggedUser.getCurrentLoggedUser(ctx.getHttpServletRequest());
+	        	if (!user.hasSuperAdministratorRole()) {
+		        	List<Integer> admId = GetAdminGroupIds.getAdminGroupId(ctx);
+		        	return struct.user.PERSONAL_ADMIN.column.is(admId.get(0));
+	        	} else return null;
 	        }
 	    }
 }
