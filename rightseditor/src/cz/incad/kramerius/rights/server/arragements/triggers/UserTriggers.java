@@ -14,6 +14,7 @@ import org.aplikator.server.persistence.PersisterTriggers;
 
 import cz.incad.kramerius.rights.server.Structure;
 import cz.incad.kramerius.rights.server.utils.GeneratePasswordUtils;
+import cz.incad.kramerius.rights.server.utils.GetAdminGroupIds;
 import cz.incad.kramerius.security.utils.PasswordDigest;
 
 public class UserTriggers extends AbstractUserTriggers implements PersisterTriggers {
@@ -30,7 +31,7 @@ public class UserTriggers extends AbstractUserTriggers implements PersisterTrigg
 	@Override
 	public RecordDTO beforeCreate(RecordDTO record, Context ctx) {
 		try {
-			List<Integer> groupsList = getAdminGroupId(ctx);
+			List<Integer> groupsList = GetAdminGroupIds.getAdminGroupId(ctx);
 			PropertyDTO personalAdminDTO = structure.user.PERSONAL_ADMIN.clientClone(ctx);
 			record.setValue(personalAdminDTO, groupsList.get(0));
 

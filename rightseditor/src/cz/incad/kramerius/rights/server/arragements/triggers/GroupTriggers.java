@@ -14,6 +14,7 @@ import org.aplikator.server.persistence.PersisterTriggers;
 import sun.security.acl.GroupImpl;
 
 import cz.incad.kramerius.rights.server.Structure;
+import cz.incad.kramerius.rights.server.utils.GetAdminGroupIds;
 import cz.incad.kramerius.security.Group;
 import cz.incad.kramerius.security.User;
 import cz.incad.kramerius.security.jaas.K4UserPrincipal;
@@ -35,7 +36,7 @@ public class GroupTriggers extends AbstractUserTriggers implements PersisterTrig
 	
 	@Override
 	public RecordDTO beforeCreate(RecordDTO record, Context ctx) {
-		List<Integer> groupsList = getAdminGroupId(ctx);
+		List<Integer> groupsList = GetAdminGroupIds.getAdminGroupId(ctx);
 		
 		PropertyDTO propertyDTO = structure.group.PERSONAL_ADMIN.clientClone(ctx);
 		record.setValue(propertyDTO, groupsList.get(0));
