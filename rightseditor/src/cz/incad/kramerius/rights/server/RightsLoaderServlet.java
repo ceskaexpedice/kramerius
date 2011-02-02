@@ -17,6 +17,7 @@ import cz.incad.kramerius.rights.server.arragements.RightArrangement;
 import cz.incad.kramerius.rights.server.arragements.RightsCriteriumArrangement;
 import cz.incad.kramerius.rights.server.arragements.RightsCriteriumParamArrangement;
 import cz.incad.kramerius.rights.server.arragements.UserArrangement;
+import cz.incad.kramerius.rights.server.impl.PropertiesMailer;
 import cz.incad.kramerius.security.IsActionAllowedBase;
 
 @SuppressWarnings("serial")
@@ -34,9 +35,7 @@ public class RightsLoaderServlet extends ApplicationLoaderServlet {
 	RightsCriteriumArrangement rightsCriteriumArr;
 	RightsCriteriumParamArrangement rightsCriteriumParamArr;
 
-	private Function vygenerovatHeslo;
 
-	private IsActionAllowedBase isActionAllowedBase;
 	
 	@Override
 	public void init() throws ServletException {
@@ -47,18 +46,22 @@ public class RightsLoaderServlet extends ApplicationLoaderServlet {
 			struct = (Structure) Application.get();
 			System.out.println("ApplicationLoader 2");
 
-            vygenerovatHeslo = new Function("VygenerovatHeslo",new VygenerovatHeslo());
+            VygenerovatHeslo execVygenerovatHeslo = new VygenerovatHeslo();
 			
 			referenceToAdmin = new RefenrenceToPersonalAdminArrangement(struct);
 			
 			groupArr = new GroupArrangement(struct, struct.group, referenceToAdmin);
-			userArr = new UserArrangement(struct, struct.user, referenceToAdmin, vygenerovatHeslo);
+			userArr = new UserArrangement(struct, struct.user, referenceToAdmin, new Function("VygenerovatHeslo",execVygenerovatHeslo)); {
+				execVygenerovatHeslo.setUserArr(userArr);
+				execVygenerovatHeslo.setMailer(new PropertiesMailer());
+			}
 			
 			rightsArr = new RightArrangement(struct.rights, struct);
 			rightsCriteriumParamArr = new RightsCriteriumParamArrangement(struct.criteriumParam, struct);
 			rightsCriteriumArr = new RightsCriteriumArrangement(struct.rightCriterium, struct, rightsCriteriumParamArr);
 
-	
+
+
 			System.out.println("ApplicationLoader 3");
 			// CLIENT SIDE MENU
 			ApplicationDTO applicationDescriptor = ApplicationDTO.get();

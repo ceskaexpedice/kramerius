@@ -1,39 +1,114 @@
 package cz.incad.kramerius.rights.server;
 
+
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import javax.mail.Message;
+import javax.mail.Session;
+import javax.mail.Transport;
+import javax.mail.internet.InternetAddress;
+import javax.mail.internet.MimeMessage;
+
+import org.aplikator.client.data.Operation;
+import org.aplikator.client.data.RecordContainer;
+import org.aplikator.client.data.RecordDTO;
 import org.aplikator.client.descriptor.PropertyDTO;
+import org.aplikator.client.rpc.AplikatorService;
+import org.aplikator.client.rpc.impl.ProcessRecords;
 import org.aplikator.server.Context;
 import org.aplikator.server.descriptor.Application;
 import org.aplikator.server.function.Executable;
 import org.aplikator.server.function.FunctionParameters;
 import org.aplikator.server.function.FunctionResult;
 
+import cz.incad.kramerius.rights.server.arragements.UserArrangement;
+import cz.incad.kramerius.rights.server.utils.GeneratePasswordUtils;
+import cz.incad.kramerius.security.utils.PasswordDigest;
+
 public class VygenerovatHeslo  implements Executable {
     
-//    private Persister persister;
-//    private Structure s;
-//    private Connection conn;
-//    private String RDCZPredlohaSelect = "select id, urnnbnflag, urnnbn, idcislo, sigla1, digknihovna, skendjvu, skenjpeg, skengif, skentiff, skenpdf, skentxt, "
-//        +"rozsah, rozliseni, barevnahloubka, dostupnost, isbn, issn, ccnb, druhdokumentu, nazev, autor, vydavatel, rokvyd, mistovyd, url , publprac, publdate "
-//        +" from Predloha where urnnbnflag = 1"; 
-//    
-//    private String RDCZDigObjSelect = "select id, handler from digobj do left outer join xpreddigobj xdo on do.id = xdo.rDigObjekt where xdo.rPredloha= ?";//TODO pouzit pro dalsi Lokace
-//   
-//    private String RDCZInstSelect = "select value, cz from dlists where classname = 'cz.incad.nkp.digital.InsVlastnik'";
-//    private String RDCZKnihSelect = "select value, cz from dlists where classname = 'cz.incad.nkp.digital.InsDigitalniKnihovna'";
-    
-    @Override
+	public static final String EMAIL_REGEXP = "^[\\w\\-]([\\.\\w])+[\\w]+@([\\w\\-]+\\.)+[A-Z]{2,4}$";
+	
+	private UserArrangement userArr;
+	private Mailer mailer;
+	
+	@Override
     public FunctionResult execute(FunctionParameters parameters, Context context) {
         String result = null;
         try{
-        	System.out.println("EXECUTE FUNCTION VygenerovatHeslo: "+parameters.getClientContext().getCurrentRecord().getPrimaryKey().getId());
-        	System.out.println("USER:"+context.getHttpServletRequest().getUserPrincipal().toString()+" LOCALE:"+context.getHttpServletRequest().getLocale().toString());
         	PropertyDTO email = ((Structure) Application.get()).user.EMAIL.clientClone(context);
-        	result = "Heslo odeslano na adresu: "+parameters.getClientContext().getCurrentRecord().getStringValue(email);
+        	String emailAddres = parameters.getClientContext().getCurrentRecord().getStringValue(email);
+        	if ((emailAddres != null) && (validation(emailAddres))) {
+            	PropertyDTO pswd = ((Structure) Application.get()).user.PASSWORD.clientClone(context);
+
+            	String generated = GeneratePasswordUtils.generatePswd();
+            	
+            	RecordDTO currentRecord = parameters.getClientContext().getCurrentRecord();
+            	parameters.getClientContext().getCurrentRecord().setValue(pswd, PasswordDigest.messageDigest(generated));
+            	
+            	RecordContainer container = new RecordContainer();
+            	container.addRecord(this.userArr.getArrangementDTO(context), currentRecord, currentRecord, Operation.UPDATE);
+            	AplikatorService service = context.getAplikatorService();
+            	service.execute(new ProcessRecords(container));
+            
+            	Session session = mailer.getSession(null, null);
+    			MimeMessage msg = new MimeMessage(session);
+    			msg.setText("Vygenerovane heslo je :"+generated);
+    			msg.setSubject("Vygenerovane heslo");
+    			// mail.from
+    			//msg.setFrom(new InternetAddress(d_email));
+    			msg.addRecipient(Message.RecipientType.TO,
+    					new InternetAddress(emailAddres));
+    			Transport.send(msg);
+
+            	result = "Heslo odeslano na adresu: "+emailAddres;
+        	} else {
+            	result = "Nevalidni adresa: "+emailAddres;
+        	}
+        	
         }catch (Exception ex){
             return new FunctionResult("Chyba: "+ex, false);
         }
     	return new FunctionResult(result, true);
-        
     }
-    
+
+
+
+	public UserArrangement getUserArr() {
+		return userArr;
+	}
+
+
+
+	public void setUserArr(UserArrangement userArr) {
+		this.userArr = userArr;
+	}
+
+
+
+	public Mailer getMailer() {
+		return mailer;
+	}
+
+
+
+	public void setMailer(Mailer mailer) {
+		this.mailer = mailer;
+	}
+
+	public static boolean validation(String email) {
+		boolean isValid = false;
+		Pattern pattern = Pattern.compile(EMAIL_REGEXP,Pattern.CASE_INSENSITIVE);  
+		Matcher matcher = pattern.matcher(email);  
+		if(matcher.matches()){  
+			isValid = true;  
+		}  
+		return isValid;  
+	}
+	public static void main(String[] args) {
+		
+		System.out.println(validation("stastny@gmail.com"));
+	}
+	
 }
