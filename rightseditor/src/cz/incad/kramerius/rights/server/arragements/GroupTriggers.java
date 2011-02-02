@@ -65,10 +65,10 @@ public class GroupTriggers implements PersisterTriggers {
             
         }.executeQuery(query);
 
-		
-		PropertyDTO propertyDTO = structure.group.PERSONAL_ADMIN.clientClone(ctx);
-		record.setValue(propertyDTO, groupsList.get(0));
-		
+		if (groupsList.size()>0){
+		    PropertyDTO propertyDTO = structure.group.PERSONAL_ADMIN.clientClone(ctx);
+		    record.setValue(propertyDTO, groupsList.get(0));
+		}
 		return record;
 	}
 

@@ -8,12 +8,19 @@
     <Arg type="java.lang.String">cz.incad.kramerius.rights.server.Structure</Arg>
     <Arg type="boolean">true</Arg>
   </New>
+  
+  <New id="aplikator.datasourceName" class="org.mortbay.jetty.plus.naming.EnvEntry">
+    <Arg></Arg>
+    <Arg>java:comp/env/aplikator.datasourceName</Arg>
+    <Arg type="java.lang.String">java:comp/env/jdbc/kramerius4</Arg>
+    <Arg type="boolean">true</Arg>
+  </New>
 
   
   
-  <New id="aplikatorDS" class="org.mortbay.jetty.plus.naming.Resource">
+  <New id="kramerius4" class="org.mortbay.jetty.plus.naming.Resource">
     <Arg></Arg>
-    <Arg>java:comp/env/jdbc/aplikatorDS</Arg>
+    <Arg>java:comp/env/jdbc/kramerius4</Arg>
     <Arg>
      <New class="com.jolbox.bonecp.BoneCPDataSource">
                  <Set name="driverClass">org.postgresql.Driver</Set>
