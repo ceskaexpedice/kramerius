@@ -41,7 +41,7 @@ CREATE TABLE GROUP_ENTITY (
    GROUP_ID INT NOT NULL,
    UPDATE_TIMESTAMP TIMESTAMP,
    GNAME VARCHAR(255) NOT NULL,
-   PERSONAL_ADMIN_ID INT,"DESC" VARCHAR(1024), PRIMARY KEY (GROUP_ID));
+   PERSONAL_ADMIN_ID INT,DESCRIPTION VARCHAR(1024), PRIMARY KEY (GROUP_ID));
 
 CREATE UNIQUE INDEX GNAME_IDX ON GROUP_ENTITY (GNAME);
 
@@ -114,14 +114,10 @@ join group_entity ge on (ge.group_id=guass.group_id);
 
 -- view pro vylistovani uzivatelu ve skupine
 create view group_users_mapping as 
-select ue.user_id,ue.name, ue.surname, ue.loginname, guass.group_id,ge.personal_admin_id 
+select ue.user_id,ue.name, ue.surname, ue.loginname, guass.group_id,ge.personal_admin_id, ue.personal_admin_id uepersonaladmin 
 from group_user_assoc guass
 join user_entity ue on (ue.user_id=guass.user_id)
 join group_entity ge on (ge.group_id=guass.group_id);
-
-
-
-
 
 
 -- skupina
@@ -132,58 +128,58 @@ values(nextval('group_id_sequence'),'common_users');
 insert into group_entity(group_id,gname) 
 values(nextval('group_id_sequence'),'knav_users'); 
 
-
--- skupina knav users
-insert into group_entity(group_id,gname) 
-values(nextval('group_id_sequence'),'subadmin_users'); 
-
--- skupiny pro testy
-insert into group_entity(group_id,gname) 
-values(nextval('group_id_sequence'),'test_users'); 
-
-insert into group_entity(group_id,gname) 
-values(nextval('group_id_sequence'),'subadmin_users'); 
-
-
 -- skupina k4 admins
 insert into group_entity(group_id,gname) 
 values(nextval('group_id_sequence'),'k4_admins'); 
 
+-- skupina knav_subadmins
+insert into group_entity(group_id,gname) 
+values(nextval('group_id_sequence'),'knav_subadmins'); 
+
+
 -- administrace skupin
--- --vsechny administruje k4_admins 
+-- -- common administruje k4_admins
 update group_entity set personal_admin_id=3 where group_id=1;
-update group_entity set personal_admin_id=3 where group_id=2;
+-- -- knav_subadmins administruje k4_admins
+update group_entity set personal_admin_id=3 where group_id=4;
+-- -- knav_users administruje knav_subadmins
+update group_entity set personal_admin_id=4 where group_id=2;
+
 
 
 -- jeden uzivatel
 insert into user_entity (user_id,"name", surname,loginname,pswd)
-values(nextval('user_id_sequence'), 'Josef','Vomacka','josef.vomacka@mzz.cz','h5rrar');
+values(nextval('user_id_sequence'), 'kramerius','admin','krameriusAdmin','cqEk6m3f+bpT50XDAha1r5Wa7Q0=');
 
 insert into user_entity (user_id,"name", surname,loginname,pswd)
-values(nextval('user_id_sequence'), 'Pavel','Stastny','pavels@incad.cz','h5rrar');
+values(nextval('user_id_sequence'), 'Pavel','Stastny','pavels@incad.cz','MwEWjgJfjPWFE8yHrUwjIQzwcK8=');
 
 insert into user_entity (user_id,"name", surname,loginname,pswd)
-values(nextval('user_id_sequence'), 'Karel','Poslusny','karels@poslusny.cz','kkk');
+values(nextval('user_id_sequence'), 'Karel','Poslusny','karels@poslusny.cz','MwEWjgJfjPWFE8yHrUwjIQzwcK8=');
 
+
+-- poslusneho administruje knav_subadmins
+update user_entity set personal_admin_id=4 where user_id=3;
 
 
 
 -- asociace (uzvivatel, skupina)
--- -- vomacka = knav users
+-- -- vomacka = knav subadmins
 insert into group_user_assoc(group_user_assoc_id, user_id, group_id)
-values(nextval('group_user_assoc_id_sequence'),1,2);
+values(nextval('group_user_assoc_id_sequence'),1,4);
 
--- -- vomacka = k4 admins
+-- -- pavels = knav_users
 insert into group_user_assoc(group_user_assoc_id, user_id, group_id)
 values(nextval('group_user_assoc_id_sequence'),2,2);
 
--- -- pavels = k4 admins
+-- -- pavels = k4_admins
 insert into group_user_assoc(group_user_assoc_id, user_id, group_id)
 values(nextval('group_user_assoc_id_sequence'),2,3);
 
--- -- pavels = k4 admins
+-- -- karel poslusny = knav_users
 insert into group_user_assoc(group_user_assoc_id, user_id, group_id)
-values(nextval('group_user_assoc_id_sequence'),2,3);
+values(nextval('group_user_assoc_id_sequence'),3,2);
+
 
 -- insert into params
 -- localhosts
@@ -254,4 +250,15 @@ VALUES(nextval('RIGHT_ID_SEQUENCE '), 'uuid:1','editor',3);
 
 insert into RIGHT_ENTITY(RIGHT_ID, UUID,ACTION, GROUP_ID) 
 VALUES(nextval('RIGHT_ID_SEQUENCE '), 'uuid:1','administrate',3);
+
+
+-- prava pro rights editor 
+-- -- k4_admins
+insert into RIGHT_ENTITY(RIGHT_ID, UUID,ACTION, GROUP_ID) 
+VALUES(nextval('RIGHT_ID_SEQUENCE '), 'uuid:1','rightsadmin',3);
+
+-- -- knav_subadmins
+insert into RIGHT_ENTITY(RIGHT_ID, UUID,ACTION, GROUP_ID) 
+VALUES(nextval('RIGHT_ID_SEQUENCE '), 'uuid:1','rightssubadmin',4);
+
 
