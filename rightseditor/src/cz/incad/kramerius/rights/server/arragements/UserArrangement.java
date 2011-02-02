@@ -123,7 +123,7 @@ public class UserArrangement extends Arrangement {
 	        }
 	        
 	        public DBCompareExpr createWhere(QueryParameter[] queryParameters, Context ctx) {
-	            if (ctx.getHttpServletRequest().getUserPrincipal().getName().equalsIgnoreCase("podadmin")){
+	            if (ctx.getHttpServletRequest().getUserPrincipal()!=null && ctx.getHttpServletRequest().getUserPrincipal().getName().equalsIgnoreCase("podadmin")){
 	                return struct.group.GNAME.column.is("podspravci");
 	            }
 	            return null;

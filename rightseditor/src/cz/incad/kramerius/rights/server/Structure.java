@@ -83,7 +83,7 @@ public class Structure extends Application {
 		public final Reference GROUP;
 		
 		public GroupUserAssoction() {
-			super("GroupTable assoc", "GROUP_USER_ASSOC", "GROUP_USER_ASSOC_ID", Structure.this);
+			super("GroupTable_assoc", "GROUP_USER_ASSOC", "GROUP_USER_ASSOC_ID", Structure.this);
 			USERS=addReference(user, "USER_ID");
 			GROUP=addReference(group, "GROUP_ID");
 		}
