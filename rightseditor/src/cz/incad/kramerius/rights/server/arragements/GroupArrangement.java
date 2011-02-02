@@ -12,6 +12,7 @@ import org.aplikator.server.descriptor.VerticalPanel;
 
 import cz.incad.kramerius.rights.server.Structure;
 import cz.incad.kramerius.rights.server.Structure.GroupEntity;
+import cz.incad.kramerius.rights.server.arragements.triggers.GroupTriggers;
 
 public class GroupArrangement extends Arrangement {
 

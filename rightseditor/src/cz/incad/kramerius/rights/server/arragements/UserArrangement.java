@@ -16,6 +16,7 @@ import org.aplikator.server.descriptor.VerticalPanel;
 
 import cz.incad.kramerius.rights.server.Structure;
 import cz.incad.kramerius.rights.server.Structure.UserEntity;
+import cz.incad.kramerius.rights.server.arragements.triggers.UserTriggers;
 
 public class UserArrangement extends Arrangement {
 
@@ -33,6 +34,7 @@ public class UserArrangement extends Arrangement {
 		setSortProperty(struct.user.LOGINNAME);
 		setQueryGenerator(new UserQueryGenerator());
 		setForm(createUserForm(vygenerovatHeslo));
+		this.trigger = new UserTriggers(this.struct);
 	}
 
 	private Form createUserForm(Function vygenerovatHeslo) {
