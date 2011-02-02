@@ -1,11 +1,7 @@
 package cz.incad.kramerius.rights.server;
 
-import java.security.Principal;
-
 import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
 
-import org.aplikator.client.command.ExecuteFunction;
 import org.aplikator.client.command.ListEntities;
 import org.aplikator.client.descriptor.ActionDTO;
 import org.aplikator.client.descriptor.ApplicationDTO;
@@ -13,29 +9,15 @@ import org.aplikator.client.descriptor.ServiceDTO;
 import org.aplikator.server.ApplicationLoaderServlet;
 import org.aplikator.server.descriptor.Application;
 import org.aplikator.server.descriptor.Arrangement;
-import org.aplikator.server.descriptor.CheckBox;
-import org.aplikator.server.descriptor.ComboBox;
-import org.aplikator.server.descriptor.DateField;
-import org.aplikator.server.descriptor.Form;
 import org.aplikator.server.descriptor.Function;
-import org.aplikator.server.descriptor.HorizontalPanel;
-import org.aplikator.server.descriptor.QueryGenerator;
-import org.aplikator.server.descriptor.RefButton;
-import org.aplikator.server.descriptor.RepeatedForm;
-import org.aplikator.server.descriptor.TextArea;
-import org.aplikator.server.descriptor.TextField;
-import org.aplikator.server.descriptor.VerticalPanel;
 
 import cz.incad.kramerius.rights.server.arragements.GroupArrangement;
+import cz.incad.kramerius.rights.server.arragements.RefenrenceToPersonalAdminArrangement;
 import cz.incad.kramerius.rights.server.arragements.RightArrangement;
 import cz.incad.kramerius.rights.server.arragements.RightsCriteriumArrangement;
 import cz.incad.kramerius.rights.server.arragements.RightsCriteriumParamArrangement;
 import cz.incad.kramerius.rights.server.arragements.UserArrangement;
-import cz.incad.kramerius.rights.server.arragements.UserGroupAssoc;
-import cz.incad.kramerius.rights.server.arragements.RefenrenceToPersonalAdminArrangement;
 import cz.incad.kramerius.security.IsActionAllowedBase;
-import cz.incad.kramerius.security.User;
-import cz.incad.kramerius.security.jaas.K4UserPrincipal;
 
 @SuppressWarnings("serial")
 public class RightsLoaderServlet extends ApplicationLoaderServlet {

@@ -1,5 +1,8 @@
 package cz.incad.kramerius.rights.server.arragements;
 
+import org.apache.empire.db.expr.compare.DBCompareExpr;
+import org.aplikator.client.descriptor.QueryParameter;
+import org.aplikator.server.Context;
 import org.aplikator.server.descriptor.Arrangement;
 import org.aplikator.server.descriptor.Form;
 import org.aplikator.server.descriptor.Function;
@@ -26,9 +29,9 @@ public class UserArrangement extends Arrangement {
 		this.userEntity = entity;
 		this.referenceToAdmin = reference;
 		
-		addProperty(struct.user.LOGINNAME).addProperty(struct.user.NAME).addProperty(struct.user.SURNAME);
+		addProperty(struct.user.LOGINNAME).addProperty(struct.user.NAME).addProperty(struct.user.SURNAME).addProperty(struct.user.PERSONAL_ADMIN.relate(struct.group.GNAME));
 		setSortProperty(struct.user.LOGINNAME);
-		
+		setQueryGenerator(new UserQueryGenerator());
 		setForm(createUserForm(vygenerovatHeslo));
 	}
 
@@ -110,4 +113,18 @@ public class UserArrangement extends Arrangement {
         }
         
 	}
+	
+	 public class UserQueryGenerator implements QueryGenerator {
+	        
+	        public QueryParameter[] getQueryParameters(Context ctx){
+	            return new QueryParameter[]{};
+	        }
+	        
+	        public DBCompareExpr createWhere(QueryParameter[] queryParameters, Context ctx) {
+	            if (ctx.getHttpServletRequest().getUserPrincipal().getName().equalsIgnoreCase("podadmin")){
+	                return struct.group.GNAME.column.is("podspravci");
+	            }
+	            return null;
+	        }
+	    }
 }

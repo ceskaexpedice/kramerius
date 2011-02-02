@@ -1,13 +1,8 @@
 package cz.incad.kramerius.rights.server.arragements;
 
 import org.aplikator.server.descriptor.Arrangement;
-import org.aplikator.server.descriptor.ComboBox;
 import org.aplikator.server.descriptor.Entity;
 import org.aplikator.server.descriptor.Form;
-import org.aplikator.server.descriptor.HorizontalPanel;
-import org.aplikator.server.descriptor.QueryGenerator;
-import org.aplikator.server.descriptor.RefButton;
-import org.aplikator.server.descriptor.TextField;
 import org.aplikator.server.descriptor.VerticalPanel;
 
 import cz.incad.kramerius.rights.server.Structure;

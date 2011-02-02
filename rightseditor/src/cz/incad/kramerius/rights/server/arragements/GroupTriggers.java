@@ -1,7 +1,5 @@
 package cz.incad.kramerius.rights.server.arragements;
 
-import java.security.Principal;
-import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.text.MessageFormat;
@@ -15,14 +13,11 @@ import org.aplikator.client.descriptor.PropertyDTO;
 import org.aplikator.server.Context;
 import org.aplikator.server.persistence.PersisterTriggers;
 
-import sun.security.acl.GroupImpl;
-
 import cz.incad.kramerius.rights.server.SecuredActions;
 import cz.incad.kramerius.rights.server.Structure;
 import cz.incad.kramerius.security.Group;
 import cz.incad.kramerius.security.User;
 import cz.incad.kramerius.security.impl.UserImpl;
-import cz.incad.kramerius.security.jaas.K4UserPrincipal;
 import cz.incad.kramerius.security.utils.SecurityDBUtils;
 import cz.incad.kramerius.utils.database.JDBCQueryTemplate;
 
