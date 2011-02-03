@@ -94,6 +94,7 @@ public class UserArrangement extends Arrangement {
 
 		);
 		form.addProperty(struct.user.PERSONAL_ADMIN);
+		form.addProperty(struct.user.PASSWORD);
 		return form;
 	}
 	
@@ -124,6 +125,7 @@ public class UserArrangement extends Arrangement {
 				.addChild(new RepeatedForm(struct.user.GROUP_ASSOCIATIONS, new UserGroupsArrangement()))
 
 		);
+		form.addProperty(struct.user.PASSWORD);
 		return form;
 	}
 	

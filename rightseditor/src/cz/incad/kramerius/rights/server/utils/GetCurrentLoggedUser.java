@@ -13,6 +13,7 @@ import cz.incad.kramerius.security.jaas.K4UserPrincipal;
 public class GetCurrentLoggedUser {
 
 	public static User getCurrentLoggedUser(HttpServletRequest request) {
+	    
 		Principal principal = request.getUserPrincipal();
 		if (principal != null) {
 		    K4UserPrincipal k4principal = (K4UserPrincipal) principal;
@@ -22,14 +23,14 @@ public class GetCurrentLoggedUser {
 	}
 
 	public static User getJosefVomacka() {
-		UserImpl userImpl = new UserImpl(1, "josef", "vomacka", "josef.vomacka@mzz.cz", 0);	
+		UserImpl userImpl = new UserImpl(1, "josef", "vomacka", "subadmin", 0);	
 		Group knav_subadmins = new cz.incad.kramerius.security.impl.GroupImpl(4,"knav_subadmins",3);
 		userImpl.setGroups(new Group[] {knav_subadmins});
 		return userImpl;
 	}
 
 	public static User getPavelStastny() {
-		UserImpl userImpl = new UserImpl(2, "Pavel", "Stastny", "pavels@incad.cz", 0);	
+		UserImpl userImpl = new UserImpl(2, "Pavel", "Stastny", "krameriusAdmin", 0);	
 		Group k4_admins = new cz.incad.kramerius.security.impl.GroupImpl(3,"k4_admins",0);
 		Group knav_users = new cz.incad.kramerius.security.impl.GroupImpl(2,"knav_users",4);
 		userImpl.setGroups(new Group[] {k4_admins, knav_users});
