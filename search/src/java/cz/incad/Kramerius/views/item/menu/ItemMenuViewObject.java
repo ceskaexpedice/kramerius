@@ -174,6 +174,7 @@ public class ItemMenuViewObject {
         StringTemplate template = new StringTemplate("<div align=\"left\"><a title='$tooltip$' "
                 + "href=\"javascript:securedActionsTableForCtxMenu($level$,'$uuid$','$actions;separator=\",\"$');\">$title$</a> "
                 + "<div class=\"$datatype$\" style=\"display:none\">$value$</div>"
+                + "<div class=\"_data_x_level\" style=\"display:none\">$level$</div>"
                 + "<div class=\"_data_x_uuid\" style=\"display:none\">$uuid$</div></div>");
 
         
