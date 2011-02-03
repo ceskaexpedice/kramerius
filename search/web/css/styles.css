@@ -662,3 +662,14 @@ tr.users_hint:hover {
 .ui-tabs{
     margin:3px;
 }
+
+#languages{
+    color: #767676;
+}
+#languages a{
+    color: #767676;
+}
+
+#languages a:hover{
+    color: #0B0F0A;
+}

@@ -49,7 +49,7 @@
                     </c:if>:: <a
                         href="javascript:showHelp('<c:out value="${param.language}" />');"><fmt:message bundle="${lctx}">nápověda</fmt:message></a>
                     :: <fmt:message bundle="${lctx}">odkazy</fmt:message> :: <br />
-                    :: <c:choose>
+                    <%--:: <c:choose>
                         <c:when test="${lang == 'en'}">
                             <c:set var="lid" value="cs" />
                             <c:set var="lname" value="česky" />
@@ -63,7 +63,7 @@
                             <c:set var="lname" value="english" />
                         </c:otherwise>
                     </c:choose
-                    ><a href="javascript:setLanguage('<c:out value="${lid}" />')"><c:out
+                    >--%><a href="javascript:setLanguage('<c:out value="${lid}" />')"><c:out
                         value="${lname}" /></a> :: 
                     
                     <c:choose>
