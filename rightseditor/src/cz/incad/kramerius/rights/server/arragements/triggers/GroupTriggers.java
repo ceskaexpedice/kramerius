@@ -53,6 +53,8 @@ public class GroupTriggers extends AbstractUserTriggers implements PersisterTrig
 
 	@Override
 	public RecordDTO beforeUpdate(RecordDTO recordDTO, Context ctx) {
+		PropertyDTO propertyDTO = structure.group.PERSONAL_ADMIN.clientClone(ctx);
+		recordDTO.setNotForSave(propertyDTO, true);
 		return recordDTO;
 	}
 
