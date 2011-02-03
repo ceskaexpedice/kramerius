@@ -23,8 +23,6 @@ public enum SecuredActions {
     // GENERATE_PDF
     // SHOW METADATA
     // PERSISTENT URL
-
-    
     
     // Admin actions
     //LRPROCESS_ADMIN("lrProcessAdmin"),
@@ -42,7 +40,12 @@ public enum SecuredActions {
     ADMINISTRATE( "administrate"),
     EDITOR("editor"),
     //? vyhodit ?
-    MANAGE_LR_PROCESS("manage_lr_process");
+    MANAGE_LR_PROCESS("manage_lr_process"),
+    
+    // editace uzivatelu
+    USERSADMIN("rightsadmin"),
+    USERSSUBADMIN("rightssubadmin");
+
     
     
     private String formalName;

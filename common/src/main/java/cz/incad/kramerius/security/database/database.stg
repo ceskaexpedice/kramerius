@@ -120,7 +120,7 @@ findAllGroups(prefix) ::=<<
 
 /** vraci vsechny uzivatele */
 findAllUsersForGroups(grps, prefix) ::=<<
-    select * from group_users_mapping 
+    select * from user_entity 
     where personal_admin_id in ($grps:{?};separator=","$) 
     $if(prefix)$
     and loginname ilike ?

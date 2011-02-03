@@ -181,6 +181,11 @@ public class KConfiguration {
         return normalizeURL(applicationUrl);
     }
 
+    public String getUsersEditorURL() {
+        String url = getProperty("usersEditorUrl",getProperty("_fedoraTomcatHost")+"/rightseditor");
+        return url;
+    }
+    
     public String getEditorURL() {
         String url = getProperty("editorUrl");
         return normalizeURL(url);

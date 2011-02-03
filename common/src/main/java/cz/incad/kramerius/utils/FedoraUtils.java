@@ -29,6 +29,7 @@ import org.w3c.dom.NodeList;
 import org.w3c.dom.Text;
 
 import cz.incad.kramerius.FedoraAccess;
+import cz.incad.kramerius.FedoraNamespaceContext;
 import cz.incad.kramerius.KrameriusModels;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 
@@ -225,7 +226,8 @@ public class FedoraUtils {
             return trimedString;
         } else return null;
     }
-    
+
+
     /**
      * Returns thumb stream
      * @param uuid UUID of the object
@@ -246,4 +248,8 @@ public class FedoraUtils {
     	String datastreamsListPath = configuration.getFedoraHost()+"/objects/uuid:"+uuid+"/datastreams?format=xml";
     	return datastreamsListPath;
     }
+
+    
+    
+    
 }
