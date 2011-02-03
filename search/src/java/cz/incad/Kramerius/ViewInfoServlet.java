@@ -120,7 +120,7 @@ public class ViewInfoServlet extends GuiceServlet {
                 
                 HttpSession session = req.getSession();
                 if (session != null) {
-                    List<String> actions = (List<String>) session.getAttribute(CurrentLoggedUserProvider.SECURITY_FOR_REPOSITORY_KEY);
+                    List<String> actions = new ArrayList<String>((List<String>) session.getAttribute(CurrentLoggedUserProvider.SECURITY_FOR_REPOSITORY_KEY));
                     if (actions != null) {
                         SecuredActions[] acts = new SecuredActions[] {SecuredActions.ADMINISTRATE, SecuredActions.READ};
                         for (SecuredActions act : acts) {
