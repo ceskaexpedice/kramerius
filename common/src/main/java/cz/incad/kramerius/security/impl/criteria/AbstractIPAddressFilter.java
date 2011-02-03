@@ -34,10 +34,20 @@ public abstract class AbstractIPAddressFilter extends AbstractCriterium implemen
     
     protected boolean matchIPAddresses(Object[] objs) {
         for (Object pattern : objs) {
+            boolean negativePattern = false;
             String remoteAddr = this.getEvaluateContext().getRemoteAddr();
             String patternStr = pattern.toString();
+            if (patternStr.startsWith("!")) {
+                patternStr = patternStr.substring(1);
+                negativePattern = true;
+            }
             boolean matched = remoteAddr.matches(patternStr);
-            if (matched) return true;
+            
+            if ((matched) && (!negativePattern)) { 
+                return true;
+            } else if ((!matched) && (negativePattern)) {
+                return true;
+            }
         }
         return false;
     }
@@ -51,6 +61,7 @@ public abstract class AbstractIPAddressFilter extends AbstractCriterium implemen
 
     @Override
     public boolean validateParams(Object[] vals) {
+        
         try {
             for (Object pattern : vals) {
                 String patternStr = pattern.toString();
