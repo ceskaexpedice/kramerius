@@ -114,10 +114,15 @@
 				    
 					var roleDiv = $(itemelm).children("div._data_x_role");
 				    var uuidDiv = $(itemelm).children("div._data_x_uuid")
-					// role element
+                    var levelDiv = $(itemelm).children("div._data_x_level")
+
+				    // role element
 					if ((roleDiv.length == 1) && (roleDiv.text() != '')) {
 						var actionToPerform = roleDiv.text();
-						var uuid = uuidDiv.text();
+						//var uuid = uuidDiv.text();
+                        var level = levelDiv.text();
+					    var uuid = $("#tabs_"+level).attr('pid');
+					    
 						if (viewerOptions.rights[actionToPerform]) {
 					    	if (viewerOptions.rights[actionToPerform][uuid]) {
 					    		$(itemelm).show();
