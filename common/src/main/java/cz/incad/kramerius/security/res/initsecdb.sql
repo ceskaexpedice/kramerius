@@ -149,10 +149,10 @@ update group_entity set personal_admin_id=4 where group_id=2;
 
 -- jeden uzivatel
 insert into user_entity (user_id,"name", surname,loginname,pswd)
-values(nextval('user_id_sequence'), 'kramerius','admin','krameriusAdmin','cqEk6m3f+bpT50XDAha1r5Wa7Q0=');
+values(nextval('user_id_sequence'), 'knav_admin','knav_admin','knav@admin.cz','MwEWjgJfjPWFE8yHrUwjIQzwcK8=');
 
 insert into user_entity (user_id,"name", surname,loginname,pswd)
-values(nextval('user_id_sequence'), 'Pavel','Stastny','pavels@incad.cz','MwEWjgJfjPWFE8yHrUwjIQzwcK8=');
+values(nextval('user_id_sequence'), 'kramerius','admin','krameriusAdmin','cqEk6m3f+bpT50XDAha1r5Wa7Q0=');
 
 insert into user_entity (user_id,"name", surname,loginname,pswd)
 values(nextval('user_id_sequence'), 'Karel','Poslusny','karels@poslusny.cz','MwEWjgJfjPWFE8yHrUwjIQzwcK8=');
