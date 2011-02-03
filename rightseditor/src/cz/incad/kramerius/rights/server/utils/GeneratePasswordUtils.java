@@ -4,6 +4,16 @@ import java.io.UnsupportedEncodingException;
 import java.security.NoSuchAlgorithmException;
 import java.util.Random;
 
+import javax.mail.Message;
+import javax.mail.Message.RecipientType;
+import javax.mail.MessagingException;
+import javax.mail.Session;
+import javax.mail.Transport;
+import javax.mail.internet.AddressException;
+import javax.mail.internet.InternetAddress;
+import javax.mail.internet.MimeMessage;
+
+import cz.incad.kramerius.rights.server.Mailer;
 import cz.incad.kramerius.security.utils.PasswordDigest;
 
 public class GeneratePasswordUtils {
@@ -27,5 +37,19 @@ public class GeneratePasswordUtils {
 
 
 	public static final int PASSWORD_LENGTH=8;
+
+
+	public static  void sendGeneratedPasswordToMail(String emailAddres,
+			String generated, Mailer mailer) throws MessagingException, AddressException {
+		Session session = mailer.getSession(null, null);
+		MimeMessage msg = new MimeMessage(session);
+		msg.setText("Vygenerovane heslo je :"+generated);
+		msg.setSubject("Vygenerovane heslo");
+		// mail.from
+		//msg.setFrom(new InternetAddress(d_email));
+		msg.addRecipient(Message.RecipientType.TO,
+				new InternetAddress(emailAddres));
+		Transport.send(msg);
+	}
 
 }

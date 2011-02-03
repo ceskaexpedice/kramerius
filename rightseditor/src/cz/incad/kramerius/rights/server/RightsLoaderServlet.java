@@ -54,6 +54,8 @@ public class RightsLoaderServlet extends ApplicationLoaderServlet {
 			userArr = new UserArrangement(struct, struct.user, referenceToAdmin, new Function("VygenerovatHeslo",execVygenerovatHeslo)); {
 				execVygenerovatHeslo.setUserArr(userArr);
 				execVygenerovatHeslo.setMailer(new PropertiesMailer());
+				userArr.setMailer(new PropertiesMailer());
+
 			}
 			
 			rightsArr = new RightArrangement(struct.rights, struct);
@@ -74,7 +76,6 @@ public class RightsLoaderServlet extends ApplicationLoaderServlet {
 
 			/*uzivatele.addAction(new ActionDTO("Vazby (Uzivatele <-> Skupiny)", new ListEntities(
 					"Vazby (Uzivatele <-> Skupiny)", uzivatele, groupUserAssocArr.getId())));
-			*/
 			ServiceDTO prava = new ServiceDTO("Prava");
 			prava.addAction(new ActionDTO("Prava", new ListEntities(
 					"Prava", prava, rightsArr.getId())));
@@ -84,10 +85,9 @@ public class RightsLoaderServlet extends ApplicationLoaderServlet {
 
 			prava.addAction(new ActionDTO("Parametry kriteria", new ListEntities(
 					"Parametry kriteria", prava, rightsCriteriumParamArr.getId())));
-
+*/
 			applicationDescriptor.addService(uzivatele);
-			applicationDescriptor.addService(prava);
-			
+
            /* ServiceDTO functions = new ServiceDTO("Funkce");
             functions.addAction(new ActionDTO("Vygenerovat heslo", new ExecuteFunction(functions, vygenerovatHeslo.getFunctionDTO())));
             applicationDescriptor.addService(functions);*/

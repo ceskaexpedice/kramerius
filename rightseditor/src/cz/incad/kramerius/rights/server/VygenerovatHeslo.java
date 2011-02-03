@@ -4,11 +4,6 @@ package cz.incad.kramerius.rights.server;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import javax.mail.Message;
-import javax.mail.Session;
-import javax.mail.Transport;
-import javax.mail.internet.InternetAddress;
-import javax.mail.internet.MimeMessage;
 
 import org.aplikator.client.data.Operation;
 import org.aplikator.client.data.RecordContainer;
@@ -52,15 +47,7 @@ public class VygenerovatHeslo  implements Executable {
             	AplikatorService service = context.getAplikatorService();
             	service.execute(new ProcessRecords(container));
             
-            	Session session = mailer.getSession(null, null);
-    			MimeMessage msg = new MimeMessage(session);
-    			msg.setText("Vygenerovane heslo je :"+generated);
-    			msg.setSubject("Vygenerovane heslo");
-    			// mail.from
-    			//msg.setFrom(new InternetAddress(d_email));
-    			msg.addRecipient(Message.RecipientType.TO,
-    					new InternetAddress(emailAddres));
-    			Transport.send(msg);
+            	GeneratePasswordUtils.sendGeneratedPasswordToMail(emailAddres, generated, mailer);
 
             	result = "Heslo odeslano na adresu: "+emailAddres;
         	} else {

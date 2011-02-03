@@ -18,6 +18,7 @@ import org.aplikator.server.descriptor.TextArea;
 import org.aplikator.server.descriptor.TextField;
 import org.aplikator.server.descriptor.VerticalPanel;
 
+import cz.incad.kramerius.rights.server.Mailer;
 import cz.incad.kramerius.rights.server.Structure;
 import cz.incad.kramerius.rights.server.Structure.UserEntity;
 import cz.incad.kramerius.rights.server.arragements.triggers.UserTriggers;
@@ -45,8 +46,17 @@ public class UserArrangement extends Arrangement {
 		setQueryGenerator(new UserQueryGenerator());
 		//setForm(createUserFormFormSuperAdmin(vygenerovatHeslo));
 		this.trigger = new UserTriggers(this.struct);
+		
+	}
+
+	public Mailer getMailer() {
+		return ((UserTriggers)this.trigger).getMailer();
 	}
 	
+	public void setMailer(Mailer mailer) {
+		((UserTriggers)this.trigger).setMailer(mailer);
+	}
+
 	
 
 	@Override
@@ -74,7 +84,6 @@ public class UserArrangement extends Arrangement {
 				.addChild(
 						new VerticalPanel()
 						    .addChild(new TextField(struct.user.LOGINNAME))
-						    .addChild(new TextField(struct.user.PASSWORD))
 						    .addChild(vygenerovatHeslo)
 						    .addChild(new TextField(struct.user.EMAIL))
 						    .addChild(new TextField(struct.user.ORGANISATION))
@@ -100,7 +109,6 @@ public class UserArrangement extends Arrangement {
 				.addChild(
 						new VerticalPanel()
 						    .addChild(new TextField(struct.user.LOGINNAME))
-						    .addChild(new TextField(struct.user.PASSWORD))
 						    .addChild(vygenerovatHeslo)
 						    .addChild(new TextField(struct.user.EMAIL))
 						    .addChild(new TextField(struct.user.ORGANISATION))
@@ -151,7 +159,7 @@ public class UserArrangement extends Arrangement {
             setQueryGenerator(new FormGroupGenerator());
     	}
         
-        
+
         private Form createGroupForm() {
             Form form = new Form();
             form.setLayout(new VerticalPanel()
