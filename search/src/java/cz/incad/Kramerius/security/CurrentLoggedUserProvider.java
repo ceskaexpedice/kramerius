@@ -63,9 +63,7 @@ public class CurrentLoggedUserProvider implements Provider<User> {
     public User get() {
         try {
             HttpServletRequest httpServletRequest = this.provider.get();
-            LOGGER.info("PROVIDER ~ http servlet request "+httpServletRequest);
             Principal principal = httpServletRequest.getUserPrincipal();
-            LOGGER.info("PROVIDER ~ principal "+principal);
             if (principal != null) {
                 
                 K4UserPrincipal k4principal = (K4UserPrincipal) principal;

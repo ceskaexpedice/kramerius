@@ -10,6 +10,8 @@ import java.util.logging.Logger;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
+import org.antlr.stringtemplate.StringTemplate;
+
 
 import com.google.inject.Inject;
 import com.google.inject.Provider;
@@ -71,6 +73,14 @@ public class AdminMenuViewObject {
                 "administrator.menu.dialogs.actionsAdmin.title");
     }
 
+    public String openUsersAdmin() throws IOException {
+        String href = KConfiguration.getInstance().getUsersEditorURL();
+        String label = this.resourceBundleService.getResourceBundle("labels", this.locale).getString("administrator.menu.userseditor");
+        return String.format("<div align=\"left\"> <a href=\"%s\" target=\"_blank\"> %s </a> </div>",
+                href, label);
+
+    }
+
     public String noParamsProcess(String processName) throws IOException {
         return renderMenuItem(
                 "javascript:noParamsProcess('" + processName + "'); javascript:hideAdminMenu();",
@@ -123,6 +133,9 @@ public class AdminMenuViewObject {
                 }
                 if (hasUserAllowedAction(SecuredActions.EDITOR.getFormalName())) {
                     menuItems.add(editor());
+                }
+                if (hasUserAllowedAction(SecuredActions.USERSADMIN.getFormalName()) || hasUserAllowedAction(SecuredActions.USERSSUBADMIN.getFormalName())) {
+                    menuItems.add(openUsersAdmin());
                 }
                 menuItems.add(changepswd());
             }

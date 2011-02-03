@@ -27,6 +27,7 @@ import cz.incad.Kramerius.security.RightsServlet;
 import cz.incad.Kramerius.security.userscommands.ServletUsersCommand;
 import cz.incad.kramerius.security.Right;
 import cz.incad.kramerius.security.User;
+import cz.incad.kramerius.security.utils.PasswordDigest;
 
 public class SaveNewPassword extends ServletUsersCommand {
 
@@ -39,6 +40,7 @@ public class SaveNewPassword extends ServletUsersCommand {
             String newPswd = req.getParameter("nswpd");
             User user = this.userProvider.get();
             if (user.getId() > 0) {
+                newPswd = PasswordDigest.messageDigest(newPswd);
                 this.userManager.saveNewPassword(this.userProvider.get().getId(), newPswd);
             } else {
                 this.responseProvider.get().sendError(HttpServletResponse.SC_BAD_REQUEST);

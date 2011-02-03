@@ -19,6 +19,7 @@ package cz.incad.Kramerius.security.rightscommands.get;
 import static cz.incad.utils.IKeys.UUID_PARAMETER;
 
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.ResourceBundle;
 import java.util.logging.Level;
 
@@ -27,6 +28,7 @@ import org.antlr.stringtemplate.StringTemplate;
 import cz.incad.Kramerius.security.ServletCommand;
 import cz.incad.Kramerius.security.rightscommands.ServletRightsCommand;
 import cz.incad.Kramerius.security.strenderers.SecuredActionWrapper;
+import cz.incad.Kramerius.security.strenderers.TitlesForObjects;
 import cz.incad.kramerius.security.SecuredActions;
 
 public class ShowsActionsTableHtml extends ServletRightsCommand {
@@ -37,6 +39,9 @@ public class ShowsActionsTableHtml extends ServletRightsCommand {
     public void doCommand() {
         String uuid = this.requestProvider.get().getParameter(UUID_PARAMETER);
         try {
+            String[] path = getPathOfUUIDs(uuid);
+            String[] models = getModels(uuid);
+
             ResourceBundle resourceBundle = getResourceBundle();
             SecuredActionWrapper[] wrappedActions = SecuredActionWrapper.wrap(resourceBundle, SecuredActions.values());
             String actionsPattern = this.requestProvider.get().getParameter("actions");
@@ -53,6 +58,8 @@ public class ShowsActionsTableHtml extends ServletRightsCommand {
             template.setAttribute("uuid", uuid);
             template.setAttribute("bundle", bundleToMap());
 
+            HashMap<String, String> titles = TitlesForObjects.createFinerTitles(fedoraAccess,rightsManager, uuid, path, models, resourceBundle);
+            template.setAttribute("titles", titles);
             
             String content = template.toString();
             this.responseProvider.get().getOutputStream().write(content.getBytes("UTF-8"));

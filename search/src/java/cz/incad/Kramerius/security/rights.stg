@@ -27,11 +27,11 @@ rightsTable(rights, uuid, action,users, typeOfLists, canhandlecommongroup, bundl
         <table width="100%">
             <tr>
                 <td width="20px">
-                    <a href="javascript:newRight('$uuid$','$action.formalName$', $canhandlecommongroup$)" style="background:url('img/rights-add.png') no-repeat scroll; border-width:0px; display:block; height:18px; width:18px;">
+                    <a href="javascript:newRight('$uuid$','$action.formalName$', $canhandlecommongroup$)" style="background:url('img/add.png') no-repeat scroll; border-width:0px; display:block; height:18px; width:18px;">
                     </a>
                 </td>
                 <td width="20px">
-                    <a href="javascript:refreshRightsData('$uuid$')" style="background:url('img/rights-refresh.png') no-repeat scroll; border-width:0px; display:block; height:18px; width:18px;">
+                    <a href="javascript:refreshRightsData('$uuid$')" style="background:url('img/refresh.png') no-repeat scroll; border-width:0px; display:block; height:18px; width:18px;">
                     </a>
                 </td>
                 <td width="40%"></td>
@@ -66,7 +66,7 @@ rightsTable(rights, uuid, action,users, typeOfLists, canhandlecommongroup, bundl
             </tr>            
        </thead> 
        <tbody>
-    $rights:{$rightTableRow(index=i,right=it, action=action, canhandlecommongroup=canhandlecommongroup)$ }$
+    $rights:{$rightTableRow(index=i,right=it, action=action, canhandlecommongroup=canhandlecommongroup, bundle=bundle)$ }$
        </tbody>
     </table>
     </div>
@@ -97,6 +97,8 @@ rightTableRow(index,right, action,canhandlecommongroup, bundle) ::=<<
             <button onClick="deleteRight('$right.uuid$',$right.id$);"> $bundle.("rights.dialog.buttons.delete")$ </button> 
             <button onClick="editRight('$right.uuid$', $right.id$, '$action.formalName$', $canhandlecommongroup$);" > $bundle.("rights.dialog.buttons.edit")$ </button></td>
     </tr>
+    
+    
 >>
 
 /** rendrovani kriteria */
@@ -164,12 +166,12 @@ rightDialog(titles, objects, allCriteriums, criteriumParams, allParams, uuid,act
 
                         <div style="width:100%; padding-top:10px;">                    
                             <span id="navigationForGroup">
-                                <a href="javascript:hintAllGroups();"> Vsechny skupiny <img id="groupdropdownicon" src="img/dropdown.png" border="0"/> </a>
-                                <a href="javascript:hintUsersForGroup();"> Uzivatele vybrane skupiny <img id="groupusersdropdownicon" src="img/dropdown.png" border="0"/> </a>
+                                <a href="javascript:hintAllGroups();">$bundle.("rights.dialog.hint.groups")$<img id="groupdropdownicon" src="img/dropdown.png" border="0"/> </a>
+                                <a href="javascript:hintUsersForGroup();">$bundle.("rights.dialog.hint.usersselectedgroup")$ <img id="groupusersdropdownicon" src="img/dropdown.png" border="0"/> </a>
                             </span>    
                             <span id="navigationForUser">
-                                <a href="javascript:hintAllUsers();"> Vsichni uzivatele <img id="userdropdownicon" src="img/dropdown.png" border="0"/> </a>
-                                <a href="javascript:hintGroupsForUser();"> Skupiny vybraneho uzivatele <img id="usergroupsdropdownicon" src="img/dropdown.png" border="0"/> </a>
+                                <a href="javascript:hintAllUsers();"> $bundle.("rights.dialog.hint.users")$ <img id="userdropdownicon" src="img/dropdown.png" border="0"/> </a>
+                                <a href="javascript:hintGroupsForUser();">$bundle.("rights.dialog.hint.groupselecteduser")$<img id="usergroupsdropdownicon" src="img/dropdown.png" border="0"/> </a>
                             </span>
 
                             <div id="hintContent" class="down">
@@ -242,7 +244,7 @@ rightDialog(titles, objects, allCriteriums, criteriumParams, allParams, uuid,act
 >>
 
 /** zobrazeni chranenych akci  */
-securedActionsTable(actions, uuid, bundle) ::=<<
+securedActionsTable(titles, actions, uuid, bundle) ::=<<
     <table style="width:100%">
        <thead style="border-bottom: 1px dashed; background-image: url('img/bg_processheader.png'); background-repeat: repeat-x;">
             <tr>
@@ -253,19 +255,19 @@ securedActionsTable(actions, uuid, bundle) ::=<<
             </tr>            
        </thead> 
        <tbody>
-            $first(actions):{action| $securedActionRow(action=action,uuid=uuid)$ }$
-            $rest(actions):{action| $securedActionRow(action=action,uuid=uuid)$ }$
+            $first(actions):{action| $securedActionRow(titles=titles,action=action,uuid=uuid)$ }$
+            $rest(actions):{action| $securedActionRow(titles=titles,action=action,uuid=uuid)$ }$
        </tbody>
     </table>
 </div>
 >>
 
 /** radek zobrazuje jmeno akce, popis a tlacitko pro zmenu prav pro acki  */
-securedActionRow(action,uuid,canhandlecommongroup, bundle) ::=<<
+securedActionRow(titles,action,uuid,canhandlecommongroup, bundle) ::=<<
 <tr>
     <td>$action.name$</td> 
     <td>$action.description$</td> 
-    <td>REPOSITORY</td> 
+    <td>$titles.({uuid:$uuid$})$</td> 
     <td><button value="zmena" onclick="adminRightsImpl('$uuid$','$action.formalName$');">Zmena</button></td>
 </tr>
 >>
