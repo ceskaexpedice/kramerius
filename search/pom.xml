@@ -191,6 +191,12 @@
             <version>1.4</version>
             <type>jar</type>
         </dependency>
+        <dependency>
+            <groupId>cz.incad.kramerius</groupId>
+            <artifactId>security-core</artifactId>
+            <version>1.0.0-SNAPSHOT</version>
+            <scope>provided</scope>
+        </dependency>
     </dependencies>
 
     <build>
