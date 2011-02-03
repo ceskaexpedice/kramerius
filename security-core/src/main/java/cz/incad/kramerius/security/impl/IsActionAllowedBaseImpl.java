@@ -50,7 +50,6 @@ public class IsActionAllowedBaseImpl implements IsActionAllowedBase {
         "where uuid='uuid:1' and \"action\"='" +actionName+"'"+
             " (ent.user_id="+user.getId()+" or ent.group_id in ("+getGroupIds(user)+"))";
         
-        
         List<String> results = new JDBCQueryTemplate<String>(SecurityDBUtils.getConnection()){
             @Override
             public boolean handleRow(ResultSet rs, List<String> retList) throws SQLException {

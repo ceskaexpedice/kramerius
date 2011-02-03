@@ -17,6 +17,8 @@
 package cz.incad.kramerius.security.jaas;
 
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.security.NoSuchAlgorithmException;
 import java.security.Principal;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -34,10 +36,13 @@ import javax.security.auth.callback.UnsupportedCallbackException;
 import javax.security.auth.login.LoginException;
 import javax.security.auth.spi.LoginModule;
 
+import biz.sourcecode.base64Coder.Base64Coder;
+
 
 import cz.incad.kramerius.security.Group;
 import cz.incad.kramerius.security.User;
 import cz.incad.kramerius.security.impl.UserImpl;
+import cz.incad.kramerius.security.utils.PasswordDigest;
 import cz.incad.kramerius.security.utils.SecurityDBUtils;
 import cz.incad.kramerius.utils.database.JDBCQueryTemplate;
 
@@ -93,22 +98,20 @@ public class K4LoginModule implements LoginModule {
             }.executeQuery("select * from user_entity where loginname=?", loginName);
 
             if (foundUser != null) {
-                
-                List<Group> groupsList = new JDBCQueryTemplate<Group>(SecurityDBUtils.getConnection()){
-                    @Override
-                    public boolean handleRow(ResultSet rs, List<Group> retList) throws SQLException {
-                        retList.add(SecurityDBUtils.createGroup(rs));
-                        return true;
-                    }
-                    
-                }.executeQuery("select * from user_group_mapping where user_id=?", foundUser.getId());
-                
-                //TODO:Zmenit
-                ((UserImpl)foundUser).setGroups((Group[]) groupsList.toArray(new Group[groupsList.size()]));
-                
-                
                 boolean result = checkPswd(foundUser.getLoginname(),foundPswd,pswd);
-                
+                if (result) {
+                    List<Group> groupsList = new JDBCQueryTemplate<Group>(SecurityDBUtils.getConnection()){
+                        @Override
+                        public boolean handleRow(ResultSet rs, List<Group> retList) throws SQLException {
+                            retList.add(SecurityDBUtils.createGroup(rs));
+                            return true;
+                        }
+                        
+                    }.executeQuery("select * from user_group_mapping where user_id=?", foundUser.getId());
+                    
+                    //TODO:Zmenit
+                    ((UserImpl)foundUser).setGroups((Group[]) groupsList.toArray(new Group[groupsList.size()]));
+                }
                 this.logged = result;
             } else {
                 this.logged = false;
@@ -117,12 +120,15 @@ public class K4LoginModule implements LoginModule {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
         } catch (UnsupportedCallbackException e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
+        } catch (NoSuchAlgorithmException e) {
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
         }
         return this.logged;
     }
 
-    private boolean checkPswd(String string, String expectedPswd, char[] pswd) {
-        return expectedPswd.equals(new String(pswd));
+    private boolean checkPswd(String string, String dbPswd, char[] pswd) throws NoSuchAlgorithmException, UnsupportedEncodingException {
+        String digestedPassword = PasswordDigest.messageDigest(new String(pswd));
+        return dbPswd.equals(digestedPassword);
     }
 
     @Override
