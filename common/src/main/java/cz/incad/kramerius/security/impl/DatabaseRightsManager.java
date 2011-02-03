@@ -587,8 +587,7 @@ public class DatabaseRightsManager implements RightsManager {
     public int insertRightCriteriumParamsImpl(Connection con, RightCriteriumParams criteriumParams) throws SQLException {
         StringTemplate template = SecurityDatabaseUtils.stGroup().getInstanceOf("insertRightCriteriumParams");
         template.setAttribute("params", criteriumParams);
-        Connection connection = this.provider.get();
-        JDBCUpdateTemplate jdbcTemplate = new JDBCUpdateTemplate(connection, false);
+        JDBCUpdateTemplate jdbcTemplate = new JDBCUpdateTemplate(con, false);
         String sql = template.toString();
         LOGGER.info(sql);
         return jdbcTemplate.executeUpdate(sql);
