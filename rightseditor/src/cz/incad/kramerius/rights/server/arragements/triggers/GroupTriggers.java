@@ -15,6 +15,7 @@ import sun.security.acl.GroupImpl;
 
 import cz.incad.kramerius.rights.server.Structure;
 import cz.incad.kramerius.rights.server.utils.GetAdminGroupIds;
+import cz.incad.kramerius.rights.server.utils.GetCurrentLoggedUser;
 import cz.incad.kramerius.security.Group;
 import cz.incad.kramerius.security.User;
 import cz.incad.kramerius.security.jaas.K4UserPrincipal;
@@ -36,10 +37,13 @@ public class GroupTriggers extends AbstractUserTriggers implements PersisterTrig
 	
 	@Override
 	public RecordDTO beforeCreate(RecordDTO record, Context ctx) {
-		List<Integer> groupsList = GetAdminGroupIds.getAdminGroupId(ctx);
-		
-		PropertyDTO propertyDTO = structure.group.PERSONAL_ADMIN.clientClone(ctx);
-		record.setValue(propertyDTO, groupsList.get(0));
+		User user = GetCurrentLoggedUser.getCurrentLoggedUser(ctx.getHttpServletRequest());
+		if ((user == null) || (!user.hasSuperAdministratorRole())) {
+			List<Integer> groupsList = GetAdminGroupIds.getAdminGroupId(ctx);
+			
+			PropertyDTO propertyDTO = structure.group.PERSONAL_ADMIN.clientClone(ctx);
+			record.setValue(propertyDTO, groupsList.get(0));
+		}
 		
 		return record;
 	}
@@ -53,8 +57,11 @@ public class GroupTriggers extends AbstractUserTriggers implements PersisterTrig
 
 	@Override
 	public RecordDTO beforeUpdate(RecordDTO recordDTO, Context ctx) {
-		PropertyDTO propertyDTO = structure.group.PERSONAL_ADMIN.clientClone(ctx);
-		recordDTO.setNotForSave(propertyDTO, true);
+		User user = GetCurrentLoggedUser.getCurrentLoggedUser(ctx.getHttpServletRequest());
+		if ((user == null) || (!user.hasSuperAdministratorRole())) {
+			PropertyDTO propertyDTO = structure.group.PERSONAL_ADMIN.clientClone(ctx);
+			recordDTO.setNotForSave(propertyDTO, true);
+		}
 		return recordDTO;
 	}
 

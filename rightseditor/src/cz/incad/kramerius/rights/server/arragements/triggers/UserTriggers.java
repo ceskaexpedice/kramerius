@@ -19,6 +19,8 @@ import cz.incad.kramerius.rights.server.Mailer;
 import cz.incad.kramerius.rights.server.Structure;
 import cz.incad.kramerius.rights.server.utils.GeneratePasswordUtils;
 import cz.incad.kramerius.rights.server.utils.GetAdminGroupIds;
+import cz.incad.kramerius.rights.server.utils.GetCurrentLoggedUser;
+import cz.incad.kramerius.security.User;
 import cz.incad.kramerius.security.utils.PasswordDigest;
 
 public class UserTriggers extends AbstractUserTriggers implements PersisterTriggers {
@@ -36,9 +38,12 @@ public class UserTriggers extends AbstractUserTriggers implements PersisterTrigg
 	@Override
 	public RecordDTO beforeCreate(RecordDTO record, Context ctx) {
 		try {
-			List<Integer> groupsList = GetAdminGroupIds.getAdminGroupId(ctx);
-			PropertyDTO personalAdminDTO = structure.user.PERSONAL_ADMIN.clientClone(ctx);
-			record.setValue(personalAdminDTO, groupsList.get(0));
+			User user = GetCurrentLoggedUser.getCurrentLoggedUser(ctx.getHttpServletRequest());
+			if ((user == null) || (!user.hasSuperAdministratorRole())) {
+				List<Integer> groupsList = GetAdminGroupIds.getAdminGroupId(ctx);
+				PropertyDTO personalAdminDTO = structure.user.PERSONAL_ADMIN.clientClone(ctx);
+				record.setValue(personalAdminDTO, groupsList.get(0));
+			}
 
 			PropertyDTO pswdDTO = structure.user.PASSWORD.clientClone(ctx);
 			String generated = GeneratePasswordUtils.generatePswd();
@@ -68,9 +73,11 @@ public class UserTriggers extends AbstractUserTriggers implements PersisterTrigg
 	public RecordDTO beforeUpdate(RecordDTO recordDTO, Context ctx) {
 		PropertyDTO pswdDTO = structure.user.PASSWORD.clientClone(ctx);
 		recordDTO.setNotForSave(pswdDTO, true);
-
-		PropertyDTO personalAdminDTO = structure.user.PERSONAL_ADMIN.clientClone(ctx);
-		recordDTO.setNotForSave(personalAdminDTO, true);
+		User user = GetCurrentLoggedUser.getCurrentLoggedUser(ctx.getHttpServletRequest());
+		if ((user == null) || (!user.hasSuperAdministratorRole())) {
+			PropertyDTO personalAdminDTO = structure.user.PERSONAL_ADMIN.clientClone(ctx);
+			recordDTO.setNotForSave(personalAdminDTO, true);
+		}
 
 		return null;
 	}
