@@ -45,6 +45,7 @@ import cz.incad.kramerius.security.User;
 import cz.incad.kramerius.utils.IOUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 import cz.incad.kramerius.utils.solr.SolrUtils;
+import cz.incad.utils.RelsExtHelper;
 
 public class ViewInfoServlet extends GuiceServlet {
 
@@ -199,9 +200,8 @@ public class ViewInfoServlet extends GuiceServlet {
     
     private boolean deepZoomConfigurationEnabled(String uuid) {
         try {
-            Document parseDocument = solrAccess.getSolrDataDocumentByUUID(uuid);
-            String pidPath = SolrUtils.disectPidPath(parseDocument);
-            return KConfiguration.getInstance().isDeepZoomEnabled() || KConfiguration.getInstance().isDeepZoomForPathEnabled(pidPath.split("/"));
+            String relsExtUrl = RelsExtHelper.getRelsExtTilesUrl(uuid, this.fedoraAccess);
+            return relsExtUrl != null;
         } catch (XPathExpressionException e) {
             LOGGER.severe(e.getMessage());
         } catch (IOException e) {

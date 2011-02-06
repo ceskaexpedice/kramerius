@@ -29,11 +29,7 @@ import java.util.logging.Level;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.xml.xpath.XPath;
-import javax.xml.xpath.XPathConstants;
-import javax.xml.xpath.XPathExpression;
 import javax.xml.xpath.XPathExpressionException;
-import javax.xml.xpath.XPathFactory;
 
 import org.antlr.stringtemplate.StringTemplate;
 import org.antlr.stringtemplate.StringTemplateGroup;
@@ -48,7 +44,6 @@ import com.sun.net.httpserver.HttpServer;
 
 import cz.incad.Kramerius.backend.guice.GuiceServlet;
 import cz.incad.kramerius.FedoraAccess;
-import cz.incad.kramerius.FedoraNamespaceContext;
 import cz.incad.kramerius.impl.fedora.FedoraDatabaseUtils;
 import cz.incad.kramerius.security.SecurityException;
 import cz.incad.kramerius.utils.FedoraUtils;
@@ -153,17 +148,9 @@ public abstract class AbstractImageServlet extends GuiceServlet {
 
 	
 	protected BufferedImage rawThumbnailImage(String uuid, int page) throws XPathExpressionException, IOException, SecurityException, SQLException {
-	    if (isIIPServerConfigured()) {
-	        String thumbnailIIPUrl = getThumbnailIIPUrl(uuid);
-	        return KrameriusImageSupport.readImage(new URL(thumbnailIIPUrl), ImageMimeType.JPEG, 0);
-	    } else {
-	        return KrameriusImageSupport.readImage(uuid, FedoraUtils.IMG_THUMB_STREAM, this.fedoraAccess,page);
-	    }
+        return KrameriusImageSupport.readImage(uuid, FedoraUtils.IMG_THUMB_STREAM, this.fedoraAccess,page);
 	}
 	
-	protected boolean isIIPServerConfigured() {
-	    return !configuration.getUrlOfIIPServer().equals("");
-	}
 	
 	protected BufferedImage rawFullImage(String uuid, HttpServletRequest request, int page) throws IOException, MalformedURLException, XPathExpressionException {
 		return KrameriusImageSupport.readImage(uuid, FedoraUtils.IMG_FULL_STREAM, this.fedoraAccess, page);
@@ -241,10 +228,6 @@ public abstract class AbstractImageServlet extends GuiceServlet {
 
 	public abstract boolean turnOnIterateScaling();
 	
-//	KConfiguration config = KConfiguration.getInstance();
-//	ScalingMethod method = ScalingMethod.valueOf(config.getProperty(
-//			"scalingMethod", "BICUBIC_STEPPED"));
-
 	
 	public void copyFromImageServer(String urlString, HttpServletResponse resp) throws MalformedURLException, IOException {
         System.out.println(urlString);
@@ -252,47 +235,28 @@ public abstract class AbstractImageServlet extends GuiceServlet {
         String contentType = con.getContentType();
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
         copyStreams(con.getInputStream(), bos);
-        // System.out.println(new String(bos.toByteArray()));
         copyStreams(new ByteArrayInputStream(bos.toByteArray()), resp.getOutputStream());
         resp.setContentType(contentType);
     }
 
 
-//    Document fullProfile = this.fedoraAccess.getImageFULLProfile(uuid);
-//    if (FedoraUtils.isFedoraExternalStream(configuration, fullProfile)) {
-//        
-//    }
-
-	protected String getPathForFullImageStream(String uuid) throws IOException, XPathExpressionException, SQLException {
-	    Document fullProfile = this.fedoraAccess.getImageFULLProfile(uuid);
-	    if (FedoraUtils.isFedoraExternalStream(configuration, fullProfile)) {
-            return getRelsExtTilesUrl(uuid);
-	    } else {
-	        return getPathForInternalStream(uuid);
-	    }
+	protected String getURLForStream(String uuid, String urlFromRelsExt) throws IOException, XPathExpressionException, SQLException {
+	    StringTemplate template = new StringTemplate(urlFromRelsExt);
+	    template.setAttribute("internalstream", getPathForInternalStream(uuid));
+	    return template.toString();
 	}
 	
     protected String getPathForInternalStream(String uuid) throws SQLException, IOException {
-        return FedoraDatabaseUtils.getDataStreamPath(uuid, this.fedora3Provider);
+        return FedoraDatabaseUtils.getRelativeDataStreamPathAsString(uuid, this.fedora3Provider);
     }
 
-    public String getThumbnailIIPUrl(String uuid) throws SQLException, UnsupportedEncodingException, IOException, XPathExpressionException {
-        String dataStreamPath = getPathForFullImageStream(uuid);
-        StringTemplate fUrl = stGroup().getInstanceOf("fullthumb");
-        setStringTemplateModel(uuid, dataStreamPath, fUrl, fedoraAccess);
-        fUrl.setAttribute("height", "hei="+KConfiguration.getInstance().getConfiguration().getInt("scaledHeight", FedoraUtils.THUMBNAIL_HEIGHT));
-        return fUrl.toString();
-    }
-
-    protected String getRelsExtTilesUrl(String uuid) throws IOException, XPathExpressionException {
-        Document relsExt = fedoraAccess.getRelsExt(uuid);
-        XPathFactory xpfactory = XPathFactory.newInstance();
-        XPath xpath = xpfactory.newXPath();
-        xpath.setNamespaceContext(new FedoraNamespaceContext());
-        XPathExpression expr = xpath.compile("//kramerius:tiles-url/text()");
-        Object tiles = expr.evaluate(relsExt, XPathConstants.STRING);
-        return (String) tiles;
-    }
+//    public String getThumbnailIIPUrl(String uuid) throws SQLException, UnsupportedEncodingException, IOException, XPathExpressionException {
+//        String dataStreamPath = getPathForFullImageStream(uuid);
+//        StringTemplate fUrl = stGroup().getInstanceOf("fullthumb");
+//        setStringTemplateModel(uuid, dataStreamPath, fUrl, fedoraAccess);
+//        fUrl.setAttribute("height", "hei="+KConfiguration.getInstance().getConfiguration().getInt("scaledHeight", FedoraUtils.THUMBNAIL_HEIGHT));
+//        return fUrl.toString();
+//    }
 
     public static StringTemplateGroup stGroup() {
         InputStream is = AbstractImageServlet.class.getResourceAsStream("imaging/iipforward.stg");
@@ -355,4 +319,14 @@ public abstract class AbstractImageServlet extends GuiceServlet {
 		}
 	}
 	
+    
+    public static void main(String[] args) {
+        String testUrl = "ahoj nevim co dal $neni$";
+        StringTemplate template = new StringTemplate(testUrl);
+        template.setAttribute("baseFolder", "some val");
+        template.setAttribute("neni", "Je");
+        System.out.println(template.toString());
+        
+        
+    }
 }

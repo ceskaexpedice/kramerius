@@ -1,12 +1,17 @@
 group iipserver;
 
-dziurl(dataPath, folderList,iipServer,extension) ::= <<
-$fileurl(dataPath=dataPath, folderList=folderList, iipServer=iipServer, extension=extension)$.dzi
->>
+ndzi(url) ::="$url$/deepzoom.dzi"
+ntile(url,level,tile) ::="$url$/deepzoom_files/$level$/$tile$"
+
 
 fileurl(dataPath, folderList,iipServer,extension) ::= <<
 $iipServer$?DeepZoom=$dataPath$/$folderList:{folder|$folder$};separator="/"$$extension$
 >>
+
+dziurl(dataPath, folderList,iipServer,extension) ::= <<
+$fileurl(dataPath=dataPath, folderList=folderList, iipServer=iipServer, extension=extension)$.dzi
+>>
+
 
 tileurl(dataPath, folderList,iipServer,extension, level, tile) ::= <<
 $fileurl(dataPath=dataPath, folderList=folderList, iipServer=iipServer, extension=extension)$_files/$level$/$tile$

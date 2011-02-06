@@ -4,6 +4,8 @@ import java.io.File;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLDecoder;
 import java.util.ArrayList;
@@ -45,6 +47,7 @@ import cz.incad.kramerius.security.SecuredActions;
 import cz.incad.kramerius.security.SecurityException;
 import cz.incad.kramerius.security.SpecialObjects;
 import cz.incad.kramerius.utils.conf.KConfiguration;
+import cz.incad.kramerius.utils.database.JDBCQueryTemplate;
 
 /**
  * This is support for long running processes
@@ -84,15 +87,41 @@ public class LongRunningProcessServlet extends GuiceServlet {
     @Override
     public void init() throws ServletException {
         super.init();
-        String appLibPath = getServletContext().getRealPath("WEB-INF/lib");
+        try {
+            // classpath from war
+            String appLibPath = getWebAppClasspath();
+            // security core from tomcat/lib
+            String jarFile = getSecurityCoreJarFile();
+            
+            KConfiguration conf = KConfiguration.getInstance();
+            if ((conf.getApplicationURL() == null) || (conf.getApplicationURL().equals(""))) {
+                throw new RuntimeException("lr servlet need configuration parameter 'applicationUrl'");
+            }
 
-        KConfiguration conf = KConfiguration.getInstance();
-        if ((conf.getApplicationURL() == null) || (conf.getApplicationURL().equals(""))) {
-            throw new RuntimeException("lr servlet need configuration parameter 'applicationUrl'");
+            this.processScheduler.init(appLibPath, jarFile);
+            this.gcScheduler.init();
+        } catch (URISyntaxException e) {
+            LOGGER.log(Level.SEVERE, e.getMessage(),e);
         }
+    }
 
-        this.processScheduler.init(appLibPath);
-        this.gcScheduler.init();
+    public String getSecurityCoreJarFile() throws URISyntaxException {
+        URL url= JDBCQueryTemplate.class.getResource(JDBCQueryTemplate.class.getSimpleName()+".class");
+        String jarFile = url.getFile();
+        if (jarFile.contains("!")) {
+            StringTokenizer tokenizer = new StringTokenizer(jarFile,"!");
+            if (tokenizer.hasMoreTokens()) {
+                String nextToken = tokenizer.nextToken();
+                File nfile = new File(new URI(nextToken));
+                return nfile.getAbsolutePath();
+                
+            } else return null;
+        } else return null;
+    }
+
+    public String getWebAppClasspath() {
+        String appLibPath = getServletContext().getRealPath("WEB-INF/lib");
+        return appLibPath;
     }
 
     @Override

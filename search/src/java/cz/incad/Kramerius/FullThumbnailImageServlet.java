@@ -68,13 +68,7 @@ public class FullThumbnailImageServlet extends AbstractImageServlet {
 	    try {
             String uuid = req.getParameter(UUID_PARAMETER);
                 
-            if (super.isIIPServerConfigured()) {
-                String dataStreamPath = getPathForFullImageStream(uuid);
-                StringTemplate fUrl = stGroup().getInstanceOf("fullthumb");
-                setStringTemplateModel(uuid, dataStreamPath, fUrl, fedoraAccess);
-                fUrl.setAttribute("height", "hei="+tileSupport.getTileSize());
-                copyFromImageServer(fUrl.toString(), resp);
-            } else if (fedoraAccess.isFullthumbnailAvailable(uuid)) {
+            if (fedoraAccess.isFullthumbnailAvailable(uuid)) {
                 String mimeType = this.fedoraAccess.getFullThumbnailMimeType(uuid);
                 resp.setContentType(mimeType);
                 setDateHaders(uuid, resp);
@@ -93,8 +87,6 @@ public class FullThumbnailImageServlet extends AbstractImageServlet {
             }
 
         } catch (XPathExpressionException e) {
-            LOGGER.severe(e.getLocalizedMessage());
-        } catch (SQLException e) {
             LOGGER.severe(e.getLocalizedMessage());
         } catch(SecurityException e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);

@@ -38,7 +38,7 @@ rightsTable(rights, uuid, action,users, typeOfLists, canhandlecommongroup, bundl
                 <td>
                     <span><input id="userTypeList" type="radio" name="user" value="User" onclick="callbackUserTypeOfListValueChanged(this)" $checkedRadioButton(checkedflag=typeOfLists.("user"))$>$bundle.("rights.dialog.filter.users")$</input></span>
                     <span><input id="groupTypeList" type="radio" name="user" value="Group" onclick="callbackGroupTypeOfListValueChanged(this)" $checkedRadioButton(checkedflag=typeOfLists.("group"))$>$bundle.("rights.dialog.filter.group")$</input></span>
-                    <span><input id="allTypeList" type="radio" name="user" value="Vse" onclick="callbackAllTypeOfListValueChanged(this)" $checkedRadioButton(checkedflag=typeOfLists.("all"))$>$bundle.("rights.dialog.filter.group")$</input></span>
+                    <span><input id="allTypeList" type="radio" name="user" value="Vse" onclick="callbackAllTypeOfListValueChanged(this)" $checkedRadioButton(checkedflag=typeOfLists.("all"))$>$bundle.("rights.dialog.filter.all")$</input></span>
                 </td>
 
                 <td>
