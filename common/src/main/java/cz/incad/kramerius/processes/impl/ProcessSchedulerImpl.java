@@ -17,6 +17,7 @@ public class ProcessSchedulerImpl implements ProcessScheduler {
 	
 	private int interval;
 	private String applicationLib;
+	private String[]jarFiles;
 	
 	private Timer timer;
 	
@@ -37,10 +38,12 @@ public class ProcessSchedulerImpl implements ProcessScheduler {
 	}
 
 
+	
 	@Override
-	public void init(String applicationLib) {
+	public void init(String applicationLib, String... jarFiles) {
 		// Jak to vyresit ??? 
 		this.applicationLib = applicationLib;
+		this.jarFiles = jarFiles;
 		String sinterval  = KConfiguration.getInstance().getProperty("processQueue.checkInterval","10000");
 		this.interval =  Integer.parseInt(sinterval);
 		this.scheduleNextTask();
@@ -52,4 +55,9 @@ public class ProcessSchedulerImpl implements ProcessScheduler {
 		NextSchedulerTask schedulerTsk = new NextSchedulerTask(this.lrProcessManager, this.definitionManager,this, this.interval);
 		this.timer.schedule(schedulerTsk, this.interval);
 	}
+
+    @Override
+    public String[] getAdditionalJarFiles() {
+        return this.jarFiles;
+    }
 }

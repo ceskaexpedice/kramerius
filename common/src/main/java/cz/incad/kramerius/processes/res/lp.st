@@ -200,7 +200,7 @@
 		<mainClass>cz.incad.kramerius.imaging.lp.GenerateDeepZoomCache</mainClass>
 		<standardOs>lrOut</standardOs>
 		<errOs>lrErr</errOs>
-		<javaProcessParameters>-Xmx1024m -Xms512m</javaProcessParameters>
+		<javaProcessParameters>-Xmx2048m -Xms512m</javaProcessParameters>
 	</process>
 
     <process>

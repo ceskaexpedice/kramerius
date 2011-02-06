@@ -95,7 +95,7 @@ public abstract class AbstractLRProcessImpl implements LRProcess{
 	
 	
 	@Override
-	public void startMe(boolean wait, String krameriusAppLib) {
+	public void startMe(boolean wait, String krameriusAppLib, String... additionalJarFiles) {
 		try {
 			File processWorkingDir = processWorkingDirectory();
 
@@ -144,6 +144,11 @@ public abstract class AbstractLRProcessImpl implements LRProcess{
 					buffer.append(File.pathSeparator);
 				}
 			}
+			//TODO: co delat pri zmene definice?  
+			for (String string : additionalJarFiles) {
+                buffer.append(new File(string).getAbsolutePath());
+                buffer.append(File.pathSeparator);
+            }
 
 			ProcessBuilder processBuilder = new ProcessBuilder(command);
 			processBuilder = processBuilder.directory(processWorkingDir);

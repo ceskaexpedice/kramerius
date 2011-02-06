@@ -10,6 +10,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
 
+import org.antlr.stringtemplate.StringTemplate;
+
 import com.google.inject.Provider;
 
 import cz.incad.kramerius.utils.database.JDBCQueryTemplate;
@@ -23,14 +25,21 @@ public class FedoraDatabaseUtils {
 	
 	public static List<String> getRelativeDataStreamPath(String uuid, Provider<Connection> provider) throws SQLException {
 		String dataStreamPath = getDataStreamPath(uuid, provider);
+		if (dataStreamPath == null) return new ArrayList<String>();
 		LOGGER.info("datastream path is '"+dataStreamPath+"'");
 		List<String> folderList = new ArrayList<String>();
-        File currentFile = new File(dataStreamPath);
+		File currentFile = new File(dataStreamPath);
         while(!currentFile.getName().equals("data")) {
             folderList.add(currentFile.getName());
             currentFile = currentFile.getParentFile();
         }
         return folderList;
+	}
+	
+	public static String getRelativeDataStreamPathAsString(String uuid, Provider<Connection> provider) throws SQLException {
+	    StringTemplate template = new StringTemplate("$path;separator=\",\"$");
+	    template.setAttribute("path", getRelativeDataStreamPath(uuid, provider));
+	    return template.toString();
 	}
 	
 	/**

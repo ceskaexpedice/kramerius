@@ -63,8 +63,9 @@ public interface LRProcess {
 	 * This method starts underlaying os process and change state from PLANNED to RUNNING;<br>
 	 * @see States
 	 * @param wait
+	 * @param additionalJarFiles TODO
 	 */
-	public void startMe(boolean wait, String krameriusAppLib);
+	public void startMe(boolean wait, String krameriusAppLib, String... additionalJarFiles);
 	
 	/**
 	 * Stops underlaying os process

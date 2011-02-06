@@ -16,7 +16,7 @@ public interface ProcessScheduler {
 	 * Initialize process scheduler
 	 * @param applicationLib
 	 */
-	public void init(String applicationLib);
+	public void init(String applicationLib, String... additionalJarFiles);
 	
 	/**
 	 * Returns application libs for creating CLASSPATH
@@ -24,4 +24,5 @@ public interface ProcessScheduler {
 	 */
 	public String getApplicationLib();
 	
+	public String[] getAdditionalJarFiles();
 }
