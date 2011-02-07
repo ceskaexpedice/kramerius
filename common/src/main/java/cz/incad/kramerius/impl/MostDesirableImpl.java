@@ -20,8 +20,8 @@ import cz.incad.kramerius.MostDesirable;
 import cz.incad.kramerius.processes.LRProcess;
 import cz.incad.kramerius.processes.LRProcessDefinition;
 import cz.incad.kramerius.processes.States;
-import cz.incad.kramerius.processes.database.DatabaseUtils;
 import cz.incad.kramerius.processes.database.MostDesirableDatabaseUtils;
+import cz.incad.kramerius.utils.DatabaseUtils;
 
 public class MostDesirableImpl implements MostDesirable {
 

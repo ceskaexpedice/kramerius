@@ -49,6 +49,7 @@ import cz.incad.kramerius.security.User;
 
 import cz.incad.kramerius.security.RightsManager;
 import cz.incad.kramerius.security.UserManager;
+import cz.incad.kramerius.security.database.InitSecurityDatabaseBefore;
 import cz.incad.kramerius.security.database.SecurityDatabaseUtils;
 import cz.incad.kramerius.security.utils.RightsDBUtils;
 import cz.incad.kramerius.security.utils.SecurityDBUtils;
@@ -73,6 +74,7 @@ public class DatabaseRightsManager implements RightsManager {
     
     
     @Override
+    @InitSecurityDatabaseBefore
     public Right[] findAllRights(String[] pids, String action) {
         StringTemplate template = SecurityDatabaseUtils.stGroup().getInstanceOf("findAllRightsFromWithGroups");
         template.setAttribute("pids", pids);
@@ -80,6 +82,7 @@ public class DatabaseRightsManager implements RightsManager {
 
         String sql = template.toString();
 
+        
         List<Right> rights = new JDBCQueryTemplate<Right>(this.provider.get()) {
             @Override
             public boolean handleRow(ResultSet rs, List<Right> returnsList) throws SQLException {
@@ -98,7 +101,8 @@ public class DatabaseRightsManager implements RightsManager {
         return ((rights != null) && (!rights.isEmpty())) ? (Right[]) rights.toArray(new Right[rights.size()]) : new Right[0];
     }
 
-
+    
+    @InitSecurityDatabaseBefore
     public Right[] findRightsForGroup(final String[] pids, final String action, final Group group) {
         for (int i = 0; i < pids.length; i++) {
             if (!pids[i].startsWith("uuid:")) {
@@ -131,6 +135,7 @@ public class DatabaseRightsManager implements RightsManager {
     }
     
     @Override
+    @InitSecurityDatabaseBefore
     public Right[] findRights(final String[] pids, final String action, final User user) {
         Group[] grps = user.getGroups();
         int[] grpIds = new int[grps.length];
@@ -188,6 +193,7 @@ public class DatabaseRightsManager implements RightsManager {
     
 
     @Override
+    @InitSecurityDatabaseBefore
     public EvaluatingResult resolve(RightCriteriumContext ctx, String uuid, String[] path, String action, User user) throws RightCriteriumException {
         List<String> pids = saturatePathAndCreatesPIDs(uuid, path);
         Right[] findRights = findRights((String[]) pids.toArray(new String[pids.size()]), action, user);
@@ -203,6 +209,7 @@ public class DatabaseRightsManager implements RightsManager {
         return EvaluatingResult.FALSE;
     }
 
+    @InitSecurityDatabaseBefore
     public EvaluatingResult[] resolveAllPath(RightCriteriumContext ctx, String uuid, String[] path, String action, User user) throws RightCriteriumException {
         List<String> pids = saturatePathAndCreatesPIDs(uuid, path);
         Right[] findRights = findRights((String[]) pids.toArray(new String[pids.size()]), action, user);
@@ -234,6 +241,7 @@ public class DatabaseRightsManager implements RightsManager {
     }
 
     @Override
+    @InitSecurityDatabaseBefore
     public List<String> saturatePathAndCreatesPIDs(String uuid, String[] path) {
         ArrayList<String> spath = new ArrayList<String>(Arrays.asList(path));
         Collections.reverse(spath);
@@ -281,6 +289,7 @@ public class DatabaseRightsManager implements RightsManager {
     }
 
     @Override
+    @InitSecurityDatabaseBefore
     public RightCriteriumParams[] findAllParams() {
 
         StringTemplate template = SecurityDatabaseUtils.stGroup().getInstanceOf("findAllCriteriumParams");
@@ -310,6 +319,7 @@ public class DatabaseRightsManager implements RightsManager {
     }
 
     @Override
+    @InitSecurityDatabaseBefore
     public RightCriteriumParams findParamById(int paramId) {
         StringTemplate template = SecurityDatabaseUtils.stGroup().getInstanceOf("findCriteriumParamsById");
         List<RightCriteriumParams> crits = new JDBCQueryTemplate<RightCriteriumParams>(this.provider.get()) {
@@ -342,6 +352,7 @@ public class DatabaseRightsManager implements RightsManager {
     }
 
     @Override
+    @InitSecurityDatabaseBefore
     public int insertRight(final Right right) throws SQLException {
         final RightCriterium criterium = right.getCriterium();
         final RightCriteriumParams params = criterium != null ? criterium.getCriteriumParams() : null;
@@ -387,6 +398,7 @@ public class DatabaseRightsManager implements RightsManager {
 
     
 
+    @InitSecurityDatabaseBefore
     public void updateRight(final Right right) throws SQLException {
         final RightCriterium criterium = right.getCriterium();
         final RightCriteriumParams params = criterium != null ? criterium.getCriteriumParams() : null;
@@ -432,6 +444,7 @@ public class DatabaseRightsManager implements RightsManager {
         });
     }
 
+    @InitSecurityDatabaseBefore
     public void updateRightImpl(Connection con, Right right) throws SQLException {
         StringTemplate template = SecurityDatabaseUtils.stGroup().getInstanceOf("updateRight");
         template.setAttribute("right", right);
@@ -443,6 +456,7 @@ public class DatabaseRightsManager implements RightsManager {
         jdbcTemplate.executeUpdate(sql);
     }
 
+    @InitSecurityDatabaseBefore
     public void updateRightCriterium(final RightCriterium criterium) throws SQLException {
         final RightCriteriumParams params = criterium.getCriteriumParams();
         final Connection con = provider.get();
@@ -471,6 +485,7 @@ public class DatabaseRightsManager implements RightsManager {
     
     
     @Override
+    @InitSecurityDatabaseBefore
     public void deleteRight(final Right right) throws SQLException {
         final Connection con = provider.get();
         new JDBCTransactionTemplate(con, true).updateWithTransaction(new JDBCCommand() {
@@ -490,6 +505,7 @@ public class DatabaseRightsManager implements RightsManager {
         });
     }
 
+    @InitSecurityDatabaseBefore
     public void deleteRightImpl(Connection con, Right right) throws SQLException {
         StringTemplate template = SecurityDatabaseUtils.stGroup().getInstanceOf("deleteRight");
         JDBCUpdateTemplate jdbcTemplate = new JDBCUpdateTemplate(con, false);
@@ -498,6 +514,7 @@ public class DatabaseRightsManager implements RightsManager {
         jdbcTemplate.executeUpdate(sql, right.getId());
     }
 
+    @InitSecurityDatabaseBefore
     public void deleteRightCriteriumImpl(Connection con, RightCriterium criterium) throws SQLException {
         StringTemplate template = SecurityDatabaseUtils.stGroup().getInstanceOf("deleteRightCriterium");
         JDBCUpdateTemplate jdbcTemplate = new JDBCUpdateTemplate(con, false);
@@ -506,6 +523,7 @@ public class DatabaseRightsManager implements RightsManager {
         jdbcTemplate.executeUpdate(sql, criterium.getId());
     }
 
+    @InitSecurityDatabaseBefore
     public void updateRightCriteriumImpl(Connection con, RightCriterium criterium) throws SQLException {
         StringTemplate template = SecurityDatabaseUtils.stGroup().getInstanceOf("updateRightCriterium");
         template.setAttribute("criterium", criterium);
@@ -515,6 +533,7 @@ public class DatabaseRightsManager implements RightsManager {
         jdbcTemplate.executeUpdate(sql);
     }
 
+    @InitSecurityDatabaseBefore
     public void updateRightCriteriumParamsImpl(Connection con, RightCriteriumParams params) throws SQLException {
         StringTemplate template = SecurityDatabaseUtils.stGroup().getInstanceOf("updateRightCriteriumParams");
         template.setAttribute("params", params);
@@ -524,6 +543,7 @@ public class DatabaseRightsManager implements RightsManager {
         jdbcTemplate.executeUpdate(sql);
     }
 
+    @InitSecurityDatabaseBefore
     public int insertRightImpl(Connection con, Right right) throws SQLException {
         StringTemplate template = SecurityDatabaseUtils.stGroup().getInstanceOf("insertRight");
         template.setAttribute("association", right.getUser() instanceof Group ? "group_id" : "user_id");
@@ -537,6 +557,7 @@ public class DatabaseRightsManager implements RightsManager {
 
 
     @Override
+    @InitSecurityDatabaseBefore
     public int insertRightCriterium(final RightCriterium criterium) throws SQLException {
         final RightCriteriumParams params = criterium.getCriteriumParams();
         final Connection con = provider.get();
@@ -564,6 +585,7 @@ public class DatabaseRightsManager implements RightsManager {
 
     }
 
+    @InitSecurityDatabaseBefore
     public int insertRightCriteriumImpl(Connection con, RightCriterium criterium) throws SQLException {
         StringTemplate template = SecurityDatabaseUtils.stGroup().getInstanceOf("insertRightCriterium");
         template.setAttribute("criterium", criterium);
@@ -574,6 +596,7 @@ public class DatabaseRightsManager implements RightsManager {
     }
 
     @Override
+    @InitSecurityDatabaseBefore
     public int insertRightCriteriumParams(final RightCriteriumParams criteriumParams) throws SQLException {
         final Connection con = provider.get();
         return (Integer) new JDBCTransactionTemplate(con, true).updateWithTransaction(new JDBCCommand() {
@@ -584,6 +607,7 @@ public class DatabaseRightsManager implements RightsManager {
         });
     }
 
+    @InitSecurityDatabaseBefore
     public int insertRightCriteriumParamsImpl(Connection con, RightCriteriumParams criteriumParams) throws SQLException {
         StringTemplate template = SecurityDatabaseUtils.stGroup().getInstanceOf("insertRightCriteriumParams");
         template.setAttribute("params", criteriumParams);
@@ -594,6 +618,7 @@ public class DatabaseRightsManager implements RightsManager {
     }
 
     @Override
+    @InitSecurityDatabaseBefore
     public void updateRightCriteriumParams(RightCriteriumParams criteriumParams) throws SQLException {
         final Connection con = provider.get();  
         updateRightCriteriumParamsImpl(con, criteriumParams);

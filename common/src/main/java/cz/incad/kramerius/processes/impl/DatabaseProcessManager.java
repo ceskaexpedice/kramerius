@@ -32,8 +32,8 @@ import cz.incad.kramerius.processes.LRProcessOffset;
 import cz.incad.kramerius.processes.LRProcessOrdering;
 import cz.incad.kramerius.processes.States;
 import cz.incad.kramerius.processes.TypeOfOrdering;
-import cz.incad.kramerius.processes.database.DatabaseUtils;
 import cz.incad.kramerius.processes.database.ProcessDatabaseUtils;
+import cz.incad.kramerius.utils.DatabaseUtils;
 
 public class DatabaseProcessManager implements LRProcessManager {
 	

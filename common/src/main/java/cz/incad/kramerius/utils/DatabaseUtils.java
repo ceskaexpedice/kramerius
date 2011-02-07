@@ -1,4 +1,4 @@
-package cz.incad.kramerius.processes.database;
+package cz.incad.kramerius.utils;
 
 import java.sql.Connection;
 import java.sql.ResultSet;
