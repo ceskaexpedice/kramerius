@@ -574,7 +574,7 @@ function showSearchInside(level, model){
      var titlebar = '<input type="text" class=" ui-corner-all" id="insideQuery" size="30" value="'+dictionary['administrator.menu.searchinside']+'" /> <img width="12px" onclick="searchInside()" alt="search" class="searchInsideImg" src="img/lupa.png"></button>' ;
      */
     var inputs = '<div id="da-inputs"><input class="da_input" size="30" id="insideQuery"  type="text" value="'+dictionary['administrator.menu.searchinside']+'" />' +
-        ' <a href="javascript:searchInside();" ><img align="top" src="img/filter.png" border="0" alt="search"  /></a>' +
+        ' <a href="javascript:searchInside();" ><img align="top" src="img/lupa_orange.png" border="0" alt="search"  /></a>' +
         '</div>';
 
     if(_searchInsideDialog){
@@ -589,7 +589,7 @@ function showSearchInside(level, model){
         }
         
     }else{
-        $(document.body).append('<div id="searchInsideDialog" class="searchInsideDialog"> <div id="searchInsideForm" class="searchInsideForm"><div id="insideTitle">'+inputs+'</div>'+titul+'<input type="hidden" id="insidePid" value="'+pid_path+'" /></div></div>')
+        $(document.body).append('<div id="searchInsideDialog" class="searchInsideDialog"> <div id="searchInsideForm" class="searchInsideForm"><div>'+inputs+'<span id="insideTitle">'+titul+'</span></div><input type="hidden" id="insidePid" value="'+pid_path+'" /></div></div>')
 
         _searchInsideDialog = $('#searchInsideDialog').dialog({
             width:w,

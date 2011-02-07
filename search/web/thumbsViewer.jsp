@@ -322,10 +322,6 @@
         position:relative;
         border:1px solid silver;
     }
-    .tv_img_selected{
-        border:solid 2px #e75c01;
-        padding:0;
-    }
     .tv_img_multiselect {
         border-bottom:solid gray;
     }
@@ -349,6 +345,10 @@
     box-shadow:0 0 6px rgba(0, 0, 0, 0.5);
 
 
+    }
+    #tv_container tr td div.tv_img_selected{
+        border:solid 2px #e75c01;
+        padding:0;
     }
     #tv_container tr td div img{
         height:128px;

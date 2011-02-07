@@ -22,9 +22,9 @@
     }
     %>
     --%>
-    <x:if select="./arr[@name='dc.creator']/str">
+    <x:if select="./arr[@name='dc.creator']/str/text()">
     <x:forEach select="./arr[@name='dc.creator']/str">
-        <x:out select="."/>;&#160;
+        <xsl:if test="position()>1">;&#160;</xsl:if><x:out select="."/>
     </x:forEach><br/>
     </x:if>
     <x:if select="./str[@name='datum']">

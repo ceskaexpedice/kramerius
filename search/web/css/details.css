@@ -10,7 +10,7 @@
         border-bottom: 1px solid #E2E9F1; 
         padding-bottom: 0.2em;
     }
-#details h3 {font-size: 1em; margin: 0.7em 0em 0.7em 0em; color: #444; font-family: Arial; font-weight: bold;
+#details h3 {font-size: 1em; margin: 0.7em 0em 0.7em 0em; color: #444; font-weight: bold;
         border-bottom: 1px solid #E2E9F1; }
 #details ul{
     list-style: none;
@@ -20,11 +20,11 @@
     padding-left: 4px;
     margin:1px;
 }
-#details .label {color: #8f3900; padding-right: 0.5em;}
-#details .value {font-style: italic;}
+#details .label {color: #676767; padding-right: 0.5em;}
+#details .value {}
 
 #details ul li {
-        background: url("../img/listitem.png") 0 2px  no-repeat; 
+        background: white;
         padding-left: 12px; 
         margin-left: 0.5em;}
 #details ul.wide li {margin-bottom: 0.5em;}

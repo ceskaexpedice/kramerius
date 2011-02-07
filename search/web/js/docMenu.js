@@ -88,7 +88,7 @@ function selectPage(uuid){
     hideAlto();
     var changeImage = currentSelectedPage != uuid;
     // set thumb selection 
-    $('.tv_image').removeClass('tv_img_selected');
+    $('.tv_image').parent().removeClass('tv_img_selected');
     currentSelectedPage = uuid;
     var to = $('#img'+getMaxLevel()+'_' + uuid).offset().left - tvContainerLeft + $("#tv_container").attr("scrollLeft") - ($("#tv_container").width()/2) ;
 //        
@@ -137,7 +137,7 @@ function selectPage(uuid){
      });    
 */
     getViewInfo(uuid, showImage);
-    $('#img'+getMaxLevel()+'_'+uuid).toggleClass('tv_img_selected');
+    $('#img'+getMaxLevel()+'_'+uuid).parent().toggleClass('tv_img_selected');
     $("#tv_container").attr("scrollLeft", to);
     canScroll = true;
     // set selected page in menu
@@ -180,8 +180,8 @@ function getViewInfo(uuid, f){
 }
 
 function selectThumb(uuid){
-    $('.tv_image').removeClass('tv_img_selected');
-    $('#img'+getMaxLevel()+'_'+uuid).toggleClass('tv_img_selected');
+    $('.tv_image').parent().removeClass('tv_img_selected');
+    $('#img'+getMaxLevel()+'_'+uuid).parent().toggleClass('tv_img_selected');
 }
 
 /*
@@ -585,14 +585,16 @@ function updateThumbs(level){
 }
     
 function addThumb(uuid, display, level){
-    //var img = '<img onload="checkScrollPosition()" id="img'+level+'_'+uuid+'" class="tv_image';
+    var div;
     var img = '<img id="img'+level+'_'+uuid+'" onload="onLoadThumb(this);" class="tv_image';
     if(currentSelectedPage==uuid){
-        img += ' tv_img_selected"  onclick="selectPage(\''+uuid+'\');" src="thumb?outputFormat=RAW&amp;uuid='+uuid+'" />';
+        div = '<div class="tv_img_selected">';
+        img += '"  onclick="selectPage(\''+uuid+'\');" src="thumb?outputFormat=RAW&amp;uuid='+uuid+'" />';
     }else{
+        div = '<div>';
         img += ' tv_img_inactive" onclick="tc(this);" src="img/empty.gif" />';
     }
-    var td = '<td align="center" style="display:'+display+';" class="thumb inlevel_'+level+'"><div>' + img + '</div></td>';
+    var td = '<td align="center" style="display:'+display+';" class="thumb inlevel_'+level+'">' + div + img + '</div></td>';
     $('#tv_container_row').append(td);
     //if(totalThumbs==0){
     //    $('#tv').hide();

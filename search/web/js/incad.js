@@ -162,7 +162,7 @@ function browseInTree(pid, model, div){
 }
 
 function checkSearching() {
-    if ($('#q').val()==dictionary['form.search'] && $('#q.searching').length==0) {
+    if ($('#q').val()==dictionary['form.search'] && $('#q searching').length==0) {
         $('#q').val('');
         $('#q').addClass('searching');
         $('#q').focus();

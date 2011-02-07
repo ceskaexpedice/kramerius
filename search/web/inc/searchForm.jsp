@@ -33,7 +33,7 @@
     <table class="header ui-corner-top-8" id="header">
         <tbody>
             <tr>
-                <td width="230px"><a
+                <td width="230px" valign="middle" align="center"><a
                         href="."/><img alt="logo" src="img/logo.png" border="0" /></a></td>
                 <td><input id="debug" name="debug" type="hidden"
                                value="<c:out value="${param.debug}" />" /> <input type="text"
@@ -86,7 +86,7 @@
     </table>
 
 
-<div id="adminMenu" class="adminMenu shadow10">
+<div id="adminMenu" class="adminMenu ui-tabs ui-widget ui-corner-all facet shadow10">
     <div class="adminMenuHeader">
         <table width="100%">
             <tr>
