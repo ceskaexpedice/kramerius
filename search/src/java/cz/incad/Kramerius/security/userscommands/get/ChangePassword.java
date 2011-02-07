@@ -17,6 +17,7 @@
 package cz.incad.Kramerius.security.userscommands.get;
 
 import java.io.IOException;
+import java.util.Map;
 import java.util.logging.Level;
 
 import org.antlr.stringtemplate.StringTemplate;
@@ -31,6 +32,8 @@ public class ChangePassword extends ServletUsersCommand {
     public void doCommand() {
         try {
             StringTemplate template = ServletUsersCommand.stFormsGroup().getInstanceOf("changePswd");
+            Map<String, String> bundleToMap = bundleToMap(); 
+            template.setAttribute("bundle", bundleToMap);
             String content = template.toString();
             responseProvider.get().getOutputStream().write(content.getBytes("UTF-8"));
         } catch (IOException e) {

@@ -1,15 +1,6 @@
 /** Rendrovani html z rights serveltu - obsahy dialogu */
 group rights;
 
-/** TODO: Predelat */
-CRITERUIM_NAMES ::=[
-    "cz.incad.kramerius.security.impl.criteria.DefaultIPAddressFilter":"IP Filter (benevolentni)",
-    "cz.incad.kramerius.security.impl.criteria.StrictIPAddresFilter":"IP Filter (striktni)",
-    "cz.incad.kramerius.security.impl.criteria.MovingWall":"Pohybliva Zed",
-    "cz.incad.kramerius.security.impl.criteria.PolicyFlag":"Priznak (kramerius:policy)",
-    "cz.incad.kramerius.security.impl.criteria.Abonents":"Predplatitele",
-     default:"Žádná podmínka"
-]
 
 PRIORITY_VALS ::=[ "0":"" ]
 
@@ -89,7 +80,7 @@ rightTableRow(index,right, action,canhandlecommongroup, bundle) ::=<<
 
 
         $if(right.criterium)$
-            $rightCriterium(rightCriterium=right.criterium)$
+            $rightCriterium(rightCriterium=right.criterium, bundle=bundle)$
         $else$
             <td colspan="3" align="center" style="background-color:#E0E0E0">  </td>        
         $endif$
@@ -102,8 +93,8 @@ rightTableRow(index,right, action,canhandlecommongroup, bundle) ::=<<
 >>
 
 /** rendrovani kriteria */
-rightCriterium(rightCriterium) ::=<<
-    <td title="$rightCriterium.qName$">$CRITERUIM_NAMES.(rightCriterium.qName)$</td>
+rightCriterium(rightCriterium, bundle) ::=<<
+    <td title="$rightCriterium.qName$">$bundle.(rightCriterium.qName)$</td>
     
     $if(rightCriterium.criteriumParams)$
         <td title="$rightCriterium.criteriumParams.objects;seprator=";"$">
@@ -194,11 +185,11 @@ rightDialog(titles, objects, allCriteriums, criteriumParams, allParams, uuid,act
     
             <hr>
             <table width="100%">
-                <tr><td> <h3><label for="criterium">Dodatečná podmínka:</label></td></h3></tr>
+                <tr><td> <h3><label for="criterium">$bundle.("rights.dialog.criterium")$</label></td></h3></tr>
                     <tr><td>
                             <div id="criteriumDiv">
                                 <select id="criterium" name="criterium" size="1">
-                                $allCriteriums:{k|<option value="$k.qName$">$CRITERUIM_NAMES.(k.qName)$</option>};separator="\n",null="none"$
+                                $allCriteriums:{k|<option value="$k.qName$">$bundle.(k.qName)$</option>};separator="\n",null="cz.incad.kramerius.security.impl.criteria.none"$
                               </select>
                             </div>
 
@@ -206,24 +197,19 @@ rightDialog(titles, objects, allCriteriums, criteriumParams, allParams, uuid,act
     
                  <tr><td>   
                         <div id="rightParamsCreation" style="display:none;">
-                            <label for="paramsVals">Hodnoty:</label>
+                            <label for="paramsVals">$bundle.("rights.dialog.criteriumparams")$</label>
                             <textarea id="paramsVals" name="paramsVals" style="width:100%"></textarea>
     
-                            <label for="paramsVals">Preddefinovane hodnoty:</label>
+                            <label for="paramsVals">$bundle.("rights.dialog.criteriumparamsdefault")$</label>
                             <select id="params" size="1" name="params" style="display:block;">
-                                    <option value="new">Vytvorit nove parametry .. </option>
+                                    <option value="new">$bundle.("rights.dialog.criteriumparamsnew")$</option>
                                     $allParams:{param|<option value="$param.id$">$param.shortDescription$</option>};separator="\n"$
                             </select>
     
     
-                            <label for="shortDesc">Popis:</label>
+                            <label for="shortDesc">$bundle.("rights.dialog.criteriumparamsdesc")$</label>
                             <input id="shortDesc" name="shortDesc" type="text" style="width:100%">
                             </input>
-                            <!--
-                            <label for="longDesc">Vetsi popis(na vice radku):</label>
-                            <textarea id="longDesc" name="longDesc" 
-                            style="width:100%"></textarea>
-                            -->
                         </div>
                         
                 </td></tr>
@@ -232,13 +218,11 @@ rightDialog(titles, objects, allCriteriums, criteriumParams, allParams, uuid,act
             <hr>
     
             <table width="100%">
-                <tr><td> <h3><label for="priority">Priorita</label></h3> (menit pouze ve vyjimecnych pripadech) </td></tr>
+                <tr><td> <h3><label for="priority">$bundle.("rights.dialog.priority")$</label></h3>$bundle.("rights.dialog.prioritynote")$</td></tr>
                 <tr><td> <input id="priority" name="priority" size="10" type="text" style="width:100%;"></td></tr>
             </table>
         </fieldset>
         </form>
-
-
 </div>
 
 >>
@@ -248,15 +232,15 @@ securedActionsTable(titles, actions, uuid, bundle) ::=<<
     <table style="width:100%">
        <thead style="border-bottom: 1px dashed; background-image: url('img/bg_processheader.png'); background-repeat: repeat-x;">
             <tr>
-                <td>Akce</td>
-                <td>Popis</td>
-                <td>Objekt</td>
-                <td>Zmena</td>
+                <td>$bundle.("rights.dialog.table.column.action")$</td>
+                <td>$bundle.("rights.dialog.table.column.description")$</td>
+                <td>$bundle.("rights.dialog.table.column.object")$</td>
+                <td>$bundle.("rights.dialog.table.column.change")$</td>
             </tr>            
        </thead> 
        <tbody>
-            $first(actions):{action| $securedActionRow(titles=titles,action=action,uuid=uuid)$ }$
-            $rest(actions):{action| $securedActionRow(titles=titles,action=action,uuid=uuid)$ }$
+            $first(actions):{action| $securedActionRow(titles=titles,action=action,uuid=uuid, bundle=bundle)$ }$
+            $rest(actions):{action| $securedActionRow(titles=titles,action=action,uuid=uuid, bundle=bundle)$ }$
        </tbody>
     </table>
 </div>
@@ -268,7 +252,7 @@ securedActionRow(titles,action,uuid,canhandlecommongroup, bundle) ::=<<
     <td>$action.name$</td> 
     <td>$action.description$</td> 
     <td>$titles.({uuid:$uuid$})$</td> 
-    <td><button value="zmena" onclick="adminRightsImpl('$uuid$','$action.formalName$');">Zmena</button></td>
+    <td><button value="zmena" onclick="adminRightsImpl('$uuid$','$action.formalName$');">$bundle.("rights.dialog.buttons.edit")$</button></td>
 </tr>
 >>
 

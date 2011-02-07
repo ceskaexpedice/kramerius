@@ -18,9 +18,11 @@ package cz.incad.Kramerius.security.userscommands.get;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.logging.Level;
 
 import org.antlr.stringtemplate.StringTemplate;
@@ -59,6 +61,12 @@ public class HintUsersForGroup extends ServletUsersCommand {
             }
             template.setAttribute("grp", grp);
             template.setAttribute("users", ausers);
+            Map<String, String> bundleToMap = bundleToMap(); {
+                StringTemplate groupTemplate=  new StringTemplate("$grp.name$");
+                groupTemplate.setAttribute("grp", new AbstractUserWrapper(grp));
+                bundleToMap.put("rights.dialog.hinted.usersselectedgroup", MessageFormat.format(bundleToMap.get("rights.dialog.hinted.usersselectedgroup"), groupTemplate.toString()));
+            }
+            template.setAttribute("bundle", bundleToMap);
             String content = template.toString();
             responseProvider.get().getOutputStream().write(content.getBytes("UTF-8"));
         } catch (UnsupportedEncodingException e) {

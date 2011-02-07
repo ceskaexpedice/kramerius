@@ -19,8 +19,11 @@ package cz.incad.Kramerius.security;
 import static cz.incad.utils.IKeys.UUID_PARAMETER;
 
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.Locale;
+import java.util.Map;
 import java.util.ResourceBundle;
+import java.util.Set;
 import java.util.logging.Level;
 
 import javax.servlet.http.HttpServletRequest;
@@ -107,6 +110,17 @@ public abstract class ServletCommand {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
             throw new RuntimeException(e);
         }
+    }
+
+
+    public Map<String, String> bundleToMap() throws IOException {
+        Map<String, String> map = new HashMap<String, String>();
+        ResourceBundle bundle = this.resourceBundleService.getResourceBundle("labels", localesProvider.get());
+        Set<String> keySet = bundle.keySet();
+        for (String key : keySet) {
+            map.put(key, bundle.getString(key));
+        }
+        return map;
     }
 
 }

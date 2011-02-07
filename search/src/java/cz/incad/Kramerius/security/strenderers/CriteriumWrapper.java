@@ -45,7 +45,7 @@ public class CriteriumWrapper implements RightCriterium{
     public String getQName() {
         if (this.criterium != null) {
             return criterium.getQName();
-        } else return "none";
+        } else return "cz.incad.kramerius.security.impl.criteria.none";
     }
 
     public void setId(int id) {

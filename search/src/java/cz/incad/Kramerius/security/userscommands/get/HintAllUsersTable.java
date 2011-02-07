@@ -17,6 +17,8 @@
 package cz.incad.Kramerius.security.userscommands.get;
 
 import java.io.IOException;
+import java.text.MessageFormat;
+import java.util.Map;
 import java.util.logging.Level;
 
 import javax.servlet.http.HttpServletResponse;
@@ -45,6 +47,8 @@ public class HintAllUsersTable extends ServletUsersCommand {
             }
             StringTemplate template = ServletUsersCommand.stFormsGroup().getInstanceOf("allUsersTable");
             template.setAttribute("users", users);
+            Map<String, String> bundleToMap = bundleToMap(); 
+            template.setAttribute("bundle", bundleToMap);
             String content = template.toString();
             responseProvider.get().getOutputStream().write(content.getBytes("UTF-8"));
         } catch (Exception e) {

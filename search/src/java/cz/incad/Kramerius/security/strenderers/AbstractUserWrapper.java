@@ -20,10 +20,12 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.ResourceBundle;
 
 import cz.incad.kramerius.security.AbstractUser;
 import cz.incad.kramerius.security.Group;
 import cz.incad.kramerius.security.User;
+
 
 public class AbstractUserWrapper implements User, Group {
 
@@ -31,6 +33,7 @@ public class AbstractUserWrapper implements User, Group {
     
     private AbstractUser user;
     private boolean selected = false;
+    private ResourceBundle resourceBundle;
     
     public AbstractUserWrapper(AbstractUser user) {
         super();
@@ -86,7 +89,8 @@ public class AbstractUserWrapper implements User, Group {
     public AbstractUser getWrappedValue() {
         return this.user;
     }
-   
+    
+    //TODO: I18N
     public String getOptionValue() {
         //<option value="$k$" selected>$k$</option>
         if (this == ALL_USERS_ITEM) return "Vsichni uzivatele";
@@ -97,6 +101,7 @@ public class AbstractUserWrapper implements User, Group {
         }
     }
     
+    //TODO: I18N
     @Override
     public String toString() {
         if (this == ALL_USERS_ITEM) return "all";

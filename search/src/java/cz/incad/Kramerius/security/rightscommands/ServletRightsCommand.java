@@ -60,14 +60,5 @@ public abstract class ServletRightsCommand extends ServletCommand {
         return group;
     }
 
-    public Map<String, String> bundleToMap() throws IOException {
-        Map<String, String> map = new HashMap<String, String>();
-        ResourceBundle bundle = this.resourceBundleService.getResourceBundle("labels", localesProvider.get());
-        Set<String> keySet = bundle.keySet();
-        for (String key : keySet) {
-            map.put(key, bundle.getString(key));
-        }
-        return map;
-    }
 
 }

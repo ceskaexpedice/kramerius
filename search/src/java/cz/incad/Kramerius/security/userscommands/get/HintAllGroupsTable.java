@@ -45,6 +45,7 @@ public class HintAllGroupsTable extends ServletUsersCommand {
             }
             StringTemplate template = ServletUsersCommand.stFormsGroup().getInstanceOf("allGroupsTable");
             template.setAttribute("groups", groups);
+            template.setAttribute("bundle", this.resourceBundleService.getResourceBundle("labels", localesProvider.get()));
             String content = template.toString();
             responseProvider.get().getOutputStream().write(content.getBytes("UTF-8"));
         } catch (UnsupportedEncodingException e) {

@@ -17,6 +17,8 @@
 package cz.incad.Kramerius.security.userscommands.get;
 
 import java.io.IOException;
+import java.text.MessageFormat;
+import java.util.Map;
 import java.util.logging.Level;
 
 import org.antlr.stringtemplate.StringTemplate;
@@ -51,6 +53,11 @@ public class HintGroupsForUserTable extends ServletUsersCommand {
             StringTemplate template = ServletUsersCommand.stFormsGroup().getInstanceOf("groupsTableForUser");
             template.setAttribute("groups", grps);
             template.setAttribute("user", new AbstractUserWrapper(foundByLoginName));
+            Map<String, String> bundleToMap = bundleToMap(); {
+                StringTemplate userTemplate=  new StringTemplate("$user.loginname$ ($user.firstName$ $user.surname$)");
+                userTemplate.setAttribute("user", new AbstractUserWrapper(foundByLoginName));
+                bundleToMap.put("rights.dialog.hinted.groupselecteduser", MessageFormat.format(bundleToMap.get("rights.dialog.hinted.groupselecteduser"), userTemplate.toString()));
+            }
             String content = template.toString();
             responseProvider.get().getOutputStream().write(content.getBytes("UTF-8"));
             
