@@ -14,7 +14,7 @@ function changePassword() {
                 width:400,
                 height:250,
                 modal:true,
-                title:"Zmena hesla",
+                title:"",
                 buttons: {
                     "Zmen heslo": function() {
                     	if ($("#pswd").val() == $("#pswdRepeat").val()) {
@@ -30,7 +30,7 @@ function changePassword() {
                                     	
                         			} else {
                         				$("#checkPswdStatus").css('color','red');
-                        				$("#checkPswdStatus").text('Heslo se nepodarilo zmenit');
+                        				$("#checkPswdStatus").text(dictionary['rights.changepswd.nochangepswd']);
                         			}
                         		}
                     		);
@@ -38,7 +38,7 @@ function changePassword() {
 
                     	} else {
             				$("#checkPswdStatus").css('color','red');
-                    		$("#checkPswdStatus").text('Zadana hesla nesedi !');
+                    		$("#checkPswdStatus").text(dictionary['rights.changepswd.notsamepswd']);
                     	}
                     }, 
                     "Close": function() {
@@ -49,9 +49,9 @@ function changePassword() {
             });
         }
     	$("#changePswd").html(data);
+    	$("#changePswd").dialog('option','title',dictionary['rights.changepswd.title']);
 
     });
-	
 }
 
 /** zobrazi administracni dialog prav. - volano ze stranky, kde je pritomny level a model (zbytek si funkce najde) */
@@ -79,7 +79,7 @@ function adminRightsImpl(uuid,action) {
                 width:800,
                 height:450,
                 modal:true,
-                title:"Prava objektu",
+                title:"",
                 buttons: {
                     "Close": function() {
                     	_lastWorkingUuid = null;
@@ -89,7 +89,8 @@ function adminRightsImpl(uuid,action) {
                 } 
             });
         }
-    	$("#adminRightsWindow").dialog('option','title','Prava objektu');
+    	
+    	$("#adminRightsWindow").dialog('option','title',dictionary['rights.dialog.showrights.title']);
     	$("#adminRightsWindow").html(data);
 
     });
@@ -133,10 +134,8 @@ function newRight(uuid, action, canhandlecommongroup) {
 
             }
 
-        	$("#newRight").dialog('option','title','Nove pravo');
+        	$("#newRight").dialog('option','title',dictionary['rights.dialog.newright.title']);
         });
-
-    	
     });
 
 }
@@ -222,7 +221,7 @@ function editRight(uuid, rightId, action,canhandlecommongroup) {
     	    }
     	    
     	    // TODO: lepsi titulek
-        	$("#newRight").dialog('option','title','Zmena prava ');        
+        	$("#newRight").dialog('option','title',dictionary['rights.dialog.editright.title']);
 
         });
     });
