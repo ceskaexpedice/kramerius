@@ -52,6 +52,7 @@
 </head>
 	<body>
 	<script type="text/javascript">
+    var dictionary = null;
 	var dialogForm = null;
 		function loginDialog() {
 			$("#dialogForm").show();
@@ -66,26 +67,44 @@
 						var url = "search.jsp";    
 						$(location).attr('href',url);
 			        },
-			        title:"Přihlášení"
+			        title:""
 			    });
 			}
+			$("#dialogForm").dialog('option','title',dictionary['login.dialog.title']);
+			$("#name").text(dictionary['login.dialog.name']);		    
+            $("#password").text(dictionary['login.dialog.password']);           
+            $("#button").val(dictionary['login.dialog.button']);           
 		}
 
 		$(document).ready(function(){
-			loginDialog();
-		});
+
+		    var i18nurl = "i18n?action=bundle&name=labels&format=json";
+		    $.get(i18nurl, function(data){
+		    	var restResult = eval('(' + data + ')');
+		    	dictionary=restResult.bundle;
+		    	loginDialog();
+	            <%if (request.getParameter("failure") != null) { %>
+	                $("#status").html(dictionary['login.dialog.authenticationfailed']); 
+	            <%}%>
+		    });
 			
+		});
 	</script>
 	<div id="dialogForm" style="display: none;">
 	    <form name=login id="loginForm" action="j_security_check" method="post">
 	      <table align=center >
 	        <tr>
+            <tr><td>
+               <div id="status" style="color:red;"></div>
+            </td></tr>
+
 	          <td>
-	             Jméno:<br>
+	             <span id="name">Jméno:</span><br>
 	             <input type="text" size="30" name="j_username" style="border:1px solid silver;" ><br>
-	             Heslo:<br>
+	             <span id="password">Heslo:</span><br>
 	             <input type="password" name="j_password" size="30" style="border:1px solid silver;"><br>
-	             <input type="submit"  value="Přihlášení" alt="Login">
+                 <div style="padding:3px;"></div>   
+	             <input id="button" type="submit"  value="Přihlášení" alt="Login">
 	          </td>
 	        </tr>
 	      </table>
