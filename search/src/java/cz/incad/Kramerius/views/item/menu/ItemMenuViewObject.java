@@ -61,8 +61,13 @@ public class ItemMenuViewObject {
     }
 
     public boolean isPageModel() {
-        KrameriusModels model = KrameriusModels.parseString(this.itemViewObject.getModels().get(this.index));
-        return (model.equals(KrameriusModels.PAGE));
+        try{
+            KrameriusModels model = KrameriusModels.parseString(this.itemViewObject.getModels().get(this.index));
+            return (model.equals(KrameriusModels.PAGE));
+        }catch(Exception e){
+            LOGGER.log(Level.INFO, e.getMessage(), e);
+            return false;
+        }
     }
 
     private String viewMetadataItem() {
