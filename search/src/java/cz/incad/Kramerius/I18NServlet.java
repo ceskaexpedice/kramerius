@@ -2,15 +2,20 @@ package cz.incad.Kramerius;
 
 import java.awt.Desktop.Action;
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.Locale;
+import java.util.Map;
 import java.util.ResourceBundle;
 import java.util.Set;
+import java.util.StringTokenizer;
 import java.util.logging.Level;
 
 import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+
+import org.antlr.stringtemplate.StringTemplate;
 
 import com.google.inject.Inject;
 import com.google.inject.Provider;
@@ -57,6 +62,19 @@ public class I18NServlet extends GuiceServlet {
 		return ApplicationURL.urlOfPath(request, InternalConfiguration.get().getProperties().getProperty("servlets.mapping.i18n"));
 	}
 
+	static enum Formats {
+	    xml,
+	    json;
+	    
+	    public static Formats find(String val) {
+	        Formats[] vals = values();
+	        for (Formats f : vals) {
+                if (f.name().equals(val)) return f;
+            }
+	        return xml;
+	    }
+	}
+	
 	static enum Actions {
 	
 
@@ -67,7 +85,7 @@ public class I18NServlet extends GuiceServlet {
 					String parameter = req.getParameter("name");
 					Locale locale = locale(req, provider);
 					String text = tserv.getText(parameter, locale);
-					StringBuffer formatBundle = formatText(text, parameter);
+					StringBuffer formatBundle = formatTextToXML(text, parameter);
 					resp.setContentType("application/xhtml+xml");
 					resp.setCharacterEncoding("UTF-8");
 					resp.getWriter().write(formatBundle.toString());
@@ -86,12 +104,20 @@ public class I18NServlet extends GuiceServlet {
 			public void doAction(ServletContext context, HttpServletRequest req, HttpServletResponse resp, TextsService tserv, ResourceBundleService rserv, Provider<Locale> provider) {
 				try {
 					String parameter = req.getParameter("name");
+					String format = req.getParameter("format");
+					
 					Locale locale = locale(req, provider);
 					ResourceBundle resourceBundle = rserv.getResourceBundle(parameter, locale);
-					StringBuffer formatBundle = formatBundle(resourceBundle, parameter);
-					resp.setContentType("application/xhtml+xml");
+					Formats foundFormat = Formats.find(format);
+					String renderedBundle = null;
+					if (foundFormat == Formats.xml) {
+					    renderedBundle = formatBundleToXML(resourceBundle, parameter).toString();
+	                    resp.setContentType("application/xhtml+xml");
+					} else {
+					    renderedBundle = formatBundleToJSON(resourceBundle, parameter);
+					}
 					resp.setCharacterEncoding("UTF-8");
-					resp.getWriter().write(formatBundle.toString());
+					resp.getWriter().write(renderedBundle);
 				} catch (IOException e) {
 					LOGGER.log(Level.SEVERE, e.getMessage(), e);
 					try {
@@ -117,7 +143,26 @@ public class I18NServlet extends GuiceServlet {
 			}
 		}
 		
-		static StringBuffer formatBundle(ResourceBundle bundle, String bundleName) {
+		static String formatBundleToJSON(ResourceBundle bundle, String bundleName) {
+		    Map<String, String> map = new HashMap<String, String>();
+		    Set<String> keySet = bundle.keySet();
+		    for (String key : keySet) {
+                String changedValue = bundle.getString(key);
+                if (changedValue.contains("\"")) {
+                    changedValue = changedValue.replace("\"", "\\\"");
+                }
+		        map.put(key, changedValue);
+            }
+		    
+		    StringTemplate template = new StringTemplate(
+		            "{\"bundle\":{\n" +
+		    		"   $bundle.keys:{k| \"$k$\":\"$bundle.(k)$\" };separator=\",\\n\"$" +
+		    		"\n}}");
+		    template.setAttribute("bundle", map);
+		    return template.toString();
+		}
+		
+		static StringBuffer formatBundleToXML(ResourceBundle bundle, String bundleName) {
 			StringBuffer buffer = new StringBuffer("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
 			buffer.append("<bundle name='").append(bundleName).append("'>\n");
 			Set<String> keySet = bundle.keySet();
@@ -128,7 +173,7 @@ public class I18NServlet extends GuiceServlet {
 			return buffer;
 		}
 		
-		static StringBuffer formatText(String text, String textName) {
+		static StringBuffer formatTextToXML(String text, String textName) {
 			StringBuffer buffer = new StringBuffer("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
 			buffer.append("<text name='").append(textName).append("'>\n");
 			buffer.append(text);
