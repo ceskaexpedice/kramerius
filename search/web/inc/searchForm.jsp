@@ -87,7 +87,7 @@
 
 
 <div id="adminMenu" class="adminMenu ui-tabs ui-widget ui-corner-all facet shadow10">
-    <div class="adminMenuHeader">
+    <div class="ui-state-default ui-corner-top ui-tabs-selected ui-state-active adminMenuHeader">
         <table width="100%">
             <tr>
                 <td align="center"><fmt:message bundle="${lctx}">administrator.menu</fmt:message></td>

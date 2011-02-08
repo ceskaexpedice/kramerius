@@ -197,10 +197,9 @@
                                             
                                             <div id="plainImage" style="padding-top:10px; height:650; width:700px;  color: black; border:1px; position:relative;">
                                                 <img id="plainImageImg" 
-                                                     onclick='switchDisplay(viewerOptions)' 
-                                                     onload='onLoadPlainImage()'
-                                                     
-                                                     border="0"  src="img/empty.gif" height="512px" ></img>
+                                                     onclick="switchDisplay(viewerOptions)"
+                                                     onload="onLoadPlainImage()"
+                                                     border="0"  src="img/empty.gif" alt="" />
                                                 
                                                 <div style="position:absolute; top:10px; right:0px;">
                                                     <span>

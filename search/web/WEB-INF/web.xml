@@ -15,10 +15,7 @@
 	</listener>
 
 	<!-- Servlets -->
-	<servlet>
-		<servlet-name>GetRelsExt</servlet-name>
-		<servlet-class>cz.incad.Kramerius.GetRelsExt</servlet-class>
-	</servlet>
+	
 	<servlet>
 		<servlet-name>i18n</servlet-name>
 		<servlet-class>cz.incad.Kramerius.I18NServlet</servlet-class>
@@ -36,10 +33,7 @@
 		<servlet-class>cz.incad.utils.InitServlet</servlet-class>
 		<load-on-startup>1</load-on-startup>
 	</servlet>
-	<servlet>
-		<servlet-name>IndexModel</servlet-name>
-		<servlet-class>cz.incad.Kramerius.IndexModel</servlet-class>
-	</servlet>
+	
 	
  	<!-- Servlet pro ziskavani malych nahledu -->
 	<servlet>
@@ -133,14 +127,7 @@
 	<!-- 
 		// Mapovani servletu
 	 -->
-    <servlet-mapping>
-		<servlet-name>GetRelsExt</servlet-name>
-		<url-pattern>/GetRelsExt</url-pattern>
-	</servlet-mapping>
-	<servlet-mapping>
-		<servlet-name>IndexModel</servlet-name>
-		<url-pattern>/IndexModel</url-pattern>
-	</servlet-mapping>
+    
 
 	<servlet-mapping>
 		<servlet-name>thumb</servlet-name>

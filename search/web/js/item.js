@@ -2,7 +2,7 @@
 
 var _persistentURLDialog;
 function showPersistentURL(level, model) {
-    hideAdminOptions(level);
+    hideAdminOptions(level, model);
     var pid = $("#tabs_"+level).attr('pid');
     var currentURL = window.location.href;
     if (currentURL.match("^https")=='https') {
@@ -535,7 +535,7 @@ function showMainContent(level, model){
     $.get(url, function(data){
         $('#metaData').html(data);
     });
-    hideAdminOptions(level);
+    //toggleAdminOptions(level, model);
 }
 
 var _searchInsideDialog;
@@ -658,7 +658,8 @@ function toggleAdminOptions(level, div){
 }
 
 function hideAdminOptions(level){
-    $("#tabs_" + level + ">div>div.menuOptions").toggle();
+    //$("#tabs_" + level + ">div>div.menuOptions").hide();
+    
 }
 
 function switchDisplay() {

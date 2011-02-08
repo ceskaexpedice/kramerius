@@ -154,6 +154,7 @@
                     </xsl:call-template>
                 </xsl:when>
                 <xsl:otherwise>
+                    <xsl:value-of select="./str[@name='dc.title']" />&#160;
                     <span class="translate"><xsl:value-of select="./arr[@name='details']/str" /></span>&#160;
                 </xsl:otherwise>
             </xsl:choose>

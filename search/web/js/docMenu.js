@@ -91,12 +91,12 @@ function selectPage(uuid){
     $('.tv_image').parent().removeClass('tv_img_selected');
     currentSelectedPage = uuid;
     var to = $('#img'+getMaxLevel()+'_' + uuid).offset().left - tvContainerLeft + $("#tv_container").attr("scrollLeft") - ($("#tv_container").width()/2) ;
-//        
-//    var maxScroll = $("#tv_container").attr("scrollWidth") - $("#tv_container").width();
-//    var to2 = 0;
-//    if(maxScroll > 0){
-//        to2 = to * 100 / maxScroll;
-//    }
+    //
+    //    var maxScroll = $("#tv_container").attr("scrollWidth") - $("#tv_container").width();
+    //    var to2 = 0;
+    //    if(maxScroll > 0){
+    //        to2 = to * 100 / maxScroll;
+    //    }
     //slideTo(to2, uuid);
        
     canScroll = false;
@@ -110,7 +110,7 @@ function selectPage(uuid){
     //alert($('#main').width()-60-$('.itemMenu').width());
     //$("#mainContent").css('width', $(window).width()-60-$('.itemMenu').width());
     $("#mainContent").css('width', $(window).width()-6-$('#itemTree').width());
-/*
+    /*
       $.ajax({
           url:"viewInfo?uuid="+uuid,
           complete:function(req,textStatus) {
@@ -146,37 +146,37 @@ function selectPage(uuid){
 
 function getViewInfo(uuid, f){
     $.ajax({
-          url:"viewInfo?uuid="+uuid,
-          complete:function(req,textStatus) {
+        url:"viewInfo?uuid="+uuid,
+        complete:function(req,textStatus) {
               
-              if ((req.status==200) || (req.status==304)) {
-            	  viewerOptions = eval('(' + req.responseText + ')');
-            	  viewerOptions.uuid = uuid;	
-            	  viewerOptions.status=req.status;
+            if ((req.status==200) || (req.status==304)) {
+                viewerOptions = eval('(' + req.responseText + ')');
+                viewerOptions.uuid = uuid;
+                viewerOptions.status=req.status;
             	  
-            	  if (viewerOptions.rights["read"][uuid]) {
-                	  securedContent = false;
-                      currentMime = req.responseText;
-                      f(viewerOptions);
-            	  } else {
- 					currentMime = "unknown";
- 					securedContent = true;
-					displaySecuredContent();
-            	  }
+                if (viewerOptions.rights["read"][uuid]) {
+                    securedContent = false;
+                    currentMime = req.responseText;
+                    f(viewerOptions);
+                } else {
+                    currentMime = "unknown";
+                    securedContent = true;
+                    displaySecuredContent();
+                }
             	  
                   
-//              } else if (req.status==403){
-//                  currentMime = "unknown";
-//                  securedContent = true;
-//                  displaySecuredContent();
-              } else if (req.status==404){
-                    alert("Neni velky nahled !");
-//              } else {
-//                    alert("Jina Chyba");
-              }
+            //              } else if (req.status==403){
+            //                  currentMime = "unknown";
+            //                  securedContent = true;
+            //                  displaySecuredContent();
+            } else if (req.status==404){
+                alert("Neni velky nahled !");
+            //              } else {
+            //                    alert("Jina Chyba");
+            }
  
-	  }
-     }); 
+        }
+    });
 }
 
 function selectThumb(uuid){
@@ -269,8 +269,8 @@ function getItemLevel(pid, level, container, recursive, onlyrels, model){
             addThumbs(level);
             if(!onlyrels){
                 var tabtempl = '<li><a href="#{href}">#{label}</a>'+
-                    '<img width="12" src="img/empty.gif" class="op_list" onclick="toggleRelsList(this, \'#tabs_'+level+'\', \'#{href}\')" /><img width="12" src="img/lupa.png" class="searchInsideButton" alt="search" ' +
-                    'onclick="showSearchInside('+level+', \''+model+'>\')" /></li>';
+                '<img width="12" src="img/empty.gif" class="op_list" onclick="toggleRelsList(this, \'#tabs_'+level+'\', \'#{href}\')" /><img width="12" src="img/lupa.png" class="searchInsideButton" alt="search" ' +
+                'onclick="showSearchInside('+level+', \''+model+'>\')" /></li>';
                 $("#tabs_" + level).tabs({ 
                     tabTemplate: tabtempl,
                     panelTemplate: '<div></div>',
@@ -314,7 +314,7 @@ function getNextLevel(level){
 }
 
 function createTab(level, model){
-    $('#tabs_'+level).tabs("add", "#tab"+level+"-"+model, dictionary[model]);
+    $('#tabs_'+level).tabs("add", "#tab"+level+"-"+model, dictionary['fedora.model.'+model]);
     l = $('#tabs_'+level+'>ul>li').length - 1;
     $('#tabs_'+level+'>ul>li:last').addClass(model);
     $('#tabs_'+level+'>ul>li:last').removeClass("#tab"+level+"-"+model);
@@ -336,7 +336,7 @@ function getChildModels(level, recursive){
                 createTab(target, model);
                 fillRels(pid, target, 0, model, true);
                 getItemMenuOptions(pid, target, model);
-                //getChildModels(target, recursive);
+            //getChildModels(target, recursive);
             }
         }
     });
@@ -348,16 +348,16 @@ function getItemMenuOptions(pid, level, model){
     var pid_path = "";
     var path = "";
     var id;
-//    for(var i=level;i>0;i--){
-//        id = $("#tabs_"+i+">div:first").attr('id');
-//        if(i==level){
-//          pid = $("#tabs_"+i).attr('pid');
-//          path = id.substring(id.indexOf("-") + 1 );   
-//        }else{
-//          pid_path = $("#tabs_"+i).attr('pid') + "/" + pid_path;
-//          path = id.substring(id.indexOf("-") + 1 ) + "/" + path;
-//        }
-//    }
+    //    for(var i=level;i>0;i--){
+    //        id = $("#tabs_"+i+">div:first").attr('id');
+    //        if(i==level){
+    //          pid = $("#tabs_"+i).attr('pid');
+    //          path = id.substring(id.indexOf("-") + 1 );
+    //        }else{
+    //          pid_path = $("#tabs_"+i).attr('pid') + "/" + pid_path;
+    //          path = id.substring(id.indexOf("-") + 1 ) + "/" + path;
+    //        }
+    //    }
     var i = level;
     var cmodel = model;
     var lastpid = "";
@@ -370,12 +370,12 @@ function getItemMenuOptions(pid, level, model){
             break;
         }
         if(i==level){
-          pid_path = $("#tabs_"+i).attr('pid');
-          lastpid = pid_path;
-          path = id.substring(id.indexOf("-") + 1 );   
+            pid_path = $("#tabs_"+i).attr('pid');
+            lastpid = pid_path;
+            path = id.substring(id.indexOf("-") + 1 );
         }else{
-          pid_path = $("#tabs_"+i).attr('pid') + "/" + pid_path;
-          path = id.substring(id.indexOf("-") + 1 ) + "/" + path;
+            pid_path = $("#tabs_"+i).attr('pid') + "/" + pid_path;
+            path = id.substring(id.indexOf("-") + 1 ) + "/" + path;
         }
         if($("#tabs_"+i).parent().parent()==0){
             i=0;
@@ -385,10 +385,10 @@ function getItemMenuOptions(pid, level, model){
             i = idi.substring(5);
             //alert(modeli);
             cmodel = modeli.substring(5);
-            //alert(cmodel);
+        //alert(cmodel);
         }
         
-        //i--;
+    //i--;
     }
     
     var url ="inc/details/itemMenuOptions.jsp?pid="+lastpid+"&pid_path="+pid_path+"&path="+path;
@@ -436,7 +436,7 @@ function fillRels(pid, level, offset, model, recursive){
                 var uuid = $("#tab"+level+"-"+model+">div.relList>div.relItem:first").attr("pid");
                 getItemLevel(uuid, target, "#tab"+level+"-"+model, true, false);
                 
-                //getNextLevel(level);
+            //getNextLevel(level);
             } else{
                 changingTab=true;
                 updateThumbs();
@@ -537,10 +537,10 @@ function activateThumbs(){
     $('#tv_container_row>td.inlevel_'+level+'>div>img.tv_img_inactive').each(function(){
         l = $(this).offset().left;
         if( 
-        //$(this).attr('src')=='img/empty.gif' &&
-        l + $(this).width() > leftBorder && 
+            //$(this).attr('src')=='img/empty.gif' &&
+            l + $(this).width() > leftBorder &&
             l < rightBorder)
-        {
+            {
 
             //src = 'thumb?outputFormat=RAW&uuid='+$(this).parent().attr('pid');
             src = 'thumb?outputFormat=RAW&uuid='+$(this).attr('id').split("_")[1];
@@ -552,7 +552,7 @@ function activateThumbs(){
             
             i++;
         }
-        //$(this).parent().parent().append('<br/>' + l + ' - ' + leftBorder + ' - ' + rightBorder);
+    //$(this).parent().parent().append('<br/>' + l + ' - ' + leftBorder + ' - ' + rightBorder);
     });
 }
     
@@ -577,7 +577,7 @@ function updateThumbs(level){
         }else{
             var pid = $("#tab"+maxLevel+"-page>div.relList>div.relItem:first").attr("pid");
             selectPage(pid);
-            //selectThumb(pid);
+        //selectThumb(pid);
         }
         activateThumbs();
         checkArrows();
@@ -599,8 +599,8 @@ function addThumb(uuid, display, level){
     //if(totalThumbs==0){
     //    $('#tv').hide();
     //}else{
-        $('#tv').show();
-    //}
+    $('#tv').show();
+//}
     
 }
 
