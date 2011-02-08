@@ -13,15 +13,15 @@ import cz.incad.kramerius.processes.impl.LRProcessDefinitionManagerImpl;
  * Modul pro dlouhotrvajici procesy
  * @author pavels
  */
-public class LongRunninProcessModul extends AbstractModule {
+public class LongRunningProcessModul extends AbstractModule {
 
 	public static final String DEFAULT_LIBS_KEY = "LIBS";
 	
 	@Override
 	protected void configure() {
 		// long running process modul
-		bind(DefinitionManager.class).to(LRProcessDefinitionManagerImpl.class);
-		bind(LRProcessManager.class).to(DatabaseProcessManager.class);
+		bind(DefinitionManager.class).to(LRProcessDefinitionManagerImpl.class).in(Scopes.SINGLETON);
+		bind(LRProcessManager.class).to(DatabaseProcessManager.class).in(Scopes.SINGLETON);
 		
 		bind(String.class).annotatedWith(Names.named("LIBS")).toInstance(System.getProperty(DEFAULT_LIBS_KEY));
 	}

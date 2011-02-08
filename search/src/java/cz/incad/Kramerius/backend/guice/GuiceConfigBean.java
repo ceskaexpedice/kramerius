@@ -23,7 +23,7 @@ public class GuiceConfigBean extends GuiceServletContextListener {
 	@Override
 	public void contextInitialized(ServletContextEvent servletContextEvent) {
 		String realPath = servletContextEvent.getServletContext().getRealPath("WEB-INF/lib");
-		System.setProperty(LongRunninProcessModul.DEFAULT_LIBS_KEY, realPath);
+		System.setProperty(LongRunningProcessModul.DEFAULT_LIBS_KEY, realPath);
 		super.contextInitialized(servletContextEvent);
 	}
 
@@ -31,7 +31,7 @@ public class GuiceConfigBean extends GuiceServletContextListener {
 	protected Injector getInjector() {
 		Injector injector = Guice.createInjector(new BaseModule(), // base module
 		                                            new GuiceSecurityModule(), // security 
-		                                            new LongRunninProcessModul(), // for long running processes
+		                                            new LongRunningProcessModul(), // for long running processes
 		                                            new ServletModule());
 
 		return injector;
