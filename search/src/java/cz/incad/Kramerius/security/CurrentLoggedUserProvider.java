@@ -17,7 +17,9 @@
 package cz.incad.Kramerius.security;
 
 import java.security.Principal;
+import java.sql.Connection;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 import javax.management.RuntimeErrorException;
@@ -26,6 +28,7 @@ import javax.servlet.http.HttpSession;
 
 import com.google.inject.Inject;
 import com.google.inject.Provider;
+import com.google.inject.name.Named;
 
 import cz.incad.kramerius.security.Group;
 import cz.incad.kramerius.security.IsActionAllowed;
@@ -35,6 +38,7 @@ import cz.incad.kramerius.security.SpecialObjects;
 import cz.incad.kramerius.security.User;
 import cz.incad.kramerius.security.UserManager;
 import cz.incad.kramerius.security.impl.UserImpl;
+import cz.incad.kramerius.security.jaas.K4LoginModule;
 import cz.incad.kramerius.security.jaas.K4UserPrincipal;
 
 
@@ -59,6 +63,11 @@ public class CurrentLoggedUserProvider implements Provider<User> {
     @Inject
     IsActionAllowed isActionAllowed;
     
+    @Inject
+    @Named("kramerius4")
+    Provider<Connection> connectionProvider;
+
+    
     static Group commonUsersGroup = null;
 //    static Group globalAdminGroup = null;
     
@@ -79,25 +88,41 @@ public class CurrentLoggedUserProvider implements Provider<User> {
                     saveRightsIntoSession(user);
                 }
                 
-                LOGGER.info("PROVIDER user instance 0x"+Integer.toHexString(System.identityHashCode(user)));
                 return user;
 
             } else if ((httpServletRequest.getParameter(USER_NAME_PARAM)!= null) && (httpServletRequest.getParameter(PSWD_PARAM)!= null)) {
-                // TODO: Dodelat !!
-                return null;
+                HashMap<String, Object> foundUser = K4LoginModule.findUser(this.connectionProvider.get(), httpServletRequest.getParameter(USER_NAME_PARAM));
+                if (foundUser != null) {
+                    User dbUser = (User) foundUser.get("user");
+                    String dbPswd = (String) foundUser.get("pswd");
+                    if (K4LoginModule.checkPswd(httpServletRequest.getParameter(USER_NAME_PARAM), dbPswd, httpServletRequest.getParameter(PSWD_PARAM).toCharArray())) {
+                        Group[] grps = userManager.findGroupsForGivenUser(dbUser.getId());
+                        //TODO: Zmenit
+                        ((UserImpl)dbUser).setGroups(grps);
+                        associateCommonGroup(dbUser);
+                        return dbUser;
+                    } else return getNotLoggedUser();
+                } else {
+                    return getNotLoggedUser();
+                }
             } else {
-                LOGGER.info("PROVIDER ~ noe principal ");
-                
-                UserImpl user = new UserImpl(-1, "not_logged", "not_logged", "not_logged", -1);
-                user.setGroups(new Group[] {});
-                associateCommonGroup(user);
-                LOGGER.info("PROVIDER user instance 0x"+Integer.toHexString(System.identityHashCode(user)));
-                return user;
+                return getNotLoggedUser();
             }
         } catch(Exception e){
             throw new RuntimeException(e);
         }
     }
+
+
+public User getNotLoggedUser() {
+    LOGGER.info("PROVIDER ~ noe principal ");
+    
+    UserImpl user = new UserImpl(-1, "not_logged", "not_logged", "not_logged", -1);
+    user.setGroups(new Group[] {});
+    associateCommonGroup(user);
+    LOGGER.info("PROVIDER user instance 0x"+Integer.toHexString(System.identityHashCode(user)));
+    return user;
+}
 
 
     // ?? Synchronizace !!
