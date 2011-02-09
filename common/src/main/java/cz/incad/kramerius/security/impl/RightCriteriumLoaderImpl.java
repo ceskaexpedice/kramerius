@@ -39,7 +39,6 @@ public class RightCriteriumLoaderImpl implements RightCriteriumLoader {
         MovingWall.class.getName(), 
         StrictIPAddresFilter.class.getName(), 
         DefaultIPAddressFilter.class.getName(), 
-        Abonents.class.getName(), 
         PolicyFlag.class.getName()  
     };
     
