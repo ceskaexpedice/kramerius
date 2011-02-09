@@ -20,6 +20,7 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.security.NoSuchAlgorithmException;
 import java.security.Principal;
+import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.HashMap;
@@ -86,17 +87,10 @@ public class K4LoginModule implements LoginModule {
             String loginName = nmCallback.getName();
             char[] pswd = pswdCallback.getPassword();
             
-            new JDBCQueryTemplate<User>(SecurityDBUtils.getConnection()){
-                @Override
-                public boolean handleRow(ResultSet rs, List<User> retList) throws SQLException {
-                    
-                    foundUser= SecurityDBUtils.createUser(rs);
-                    foundPswd = rs.getString(PSWD_COL);
-                    return false;
-                }
-                
-            }.executeQuery("select * from user_entity where loginname=?", loginName);
-
+            HashMap<String,Object> foundMap = findUser(SecurityDBUtils.getConnection(), loginName);
+            foundUser = (User) (foundMap != null ? foundMap.get("user") : null);
+            foundPswd = (String) (foundMap != null ? foundMap.get("pswd") : null);
+            
             if (foundUser != null) {
                 boolean result = checkPswd(foundUser.getLoginname(),foundPswd,pswd);
                 if (result) {
@@ -126,7 +120,22 @@ public class K4LoginModule implements LoginModule {
         return this.logged;
     }
 
-    private boolean checkPswd(String string, String dbPswd, char[] pswd) throws NoSuchAlgorithmException, UnsupportedEncodingException {
+    public static HashMap<String, Object> findUser(Connection secConnection, String loginName) {
+        List<HashMap<String, Object>> list = new JDBCQueryTemplate<HashMap<String, Object>>(secConnection){
+            @Override
+            public boolean handleRow(ResultSet rs, List<HashMap<String, Object>> retList) throws SQLException {
+                HashMap<String, Object> map = new HashMap<String, Object>();
+                map.put("user", SecurityDBUtils.createUser(rs));
+                map.put("pswd",rs.getString(PSWD_COL));
+                retList.add(map);
+                return false;
+            }
+            
+        }.executeQuery("select * from user_entity where loginname=?", loginName);
+        return list.isEmpty() ? null : list.get(0);
+    }
+
+    public static boolean checkPswd(String string, String dbPswd, char[] pswd) throws NoSuchAlgorithmException, UnsupportedEncodingException {
         String digestedPassword = PasswordDigest.messageDigest(new String(pswd));
         return dbPswd.equals(digestedPassword);
     }
