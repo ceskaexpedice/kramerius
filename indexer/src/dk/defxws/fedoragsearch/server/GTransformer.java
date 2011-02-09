@@ -127,14 +127,6 @@ public class GTransformer {
             transformer.setParameter(key, value);
             
         }
-//        for (int i=0; i<params.length; i=i+2) {
-//            Object value = params[i+1];
-//            if (value==null) value = "";
-//            transformer.setParameter((String)params[i], value);
-//            if (logger.isDebugEnabled())
-//                logger.debug((String)params[i] + " --> " + (String)value);
-////logger.info((String)params[i] + " --> " + (String)value);
-//        }
         transformer.setParameter("DATETIME", new Date());
         StreamResult destStream = new StreamResult(new StringWriter());
         try {

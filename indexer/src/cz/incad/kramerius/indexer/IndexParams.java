@@ -25,6 +25,7 @@ import org.w3c.dom.NodeList;
  * @author Administrator
  */
 public class IndexParams {
+
     private static final Logger logger = Logger.getLogger(IndexParams.class.getName());
     public String datum = "/modsCollection/mods/originInfo[@transliteration='publisher']/dateIssued/text()";
     public String parent_title;
@@ -44,8 +45,8 @@ public class IndexParams {
     public IndexParams(String pid, Document contentDom) {
         init(pid.substring(5), null, contentDom, 0);
     }
-    
-    public void setParam(String name, String value){
+
+    public void setParam(String name, String value) {
         paramsMap.put(name, value);
     }
 
@@ -76,7 +77,7 @@ public class IndexParams {
             String key = (String) iterator.next();
             s.add(key);
             s.add(paramsMap.get(key));
-        //s.append("&" + key + "=" + paramsMap.get(key));
+            //s.append("&" + key + "=" + paramsMap.get(key));
         }
         s.add("PAGESCOUNT");
         s.add(pages);
@@ -90,7 +91,7 @@ public class IndexParams {
             while (iterator.hasNext()) {
                 String key = (String) iterator.next();
                 s.append("&" + key + "=" + java.net.URLEncoder.encode(paramsMap.get(key), "UTF-8"));
-            //s.append("&" + key + "=" + paramsMap.get(key));
+                //s.append("&" + key + "=" + paramsMap.get(key));
             }
         } catch (Exception ex) {
             s.append(ex.toString());
@@ -98,10 +99,18 @@ public class IndexParams {
         return s.toString();
     }
 
-    public void addPath(String s){
+    public void addPath(String s) {
         if (paramsMap.containsKey("PATH")) {
-                paramsMap.put("PATH", paramsMap.get("PATH") + "/" + s);
-            }
+            paramsMap.put("PATH", paramsMap.get("PATH") + "/" + s);
+        }
+    }
+
+    public void addParents(String s) {
+        paramsMap.put("PARENTS", s);
+    }
+
+    public void addText(String s) {
+        paramsMap.put("TEXT", s);
     }
 
     public void merge(IndexParams parentParams) {
@@ -118,7 +127,7 @@ public class IndexParams {
                 paramsMap.put("PID_PATH", parentParams.paramsMap.get("PID_PATH"));
             }
 
-            paramsMap.put("LEVEL", Integer.toString(paramsMap.get("PATH").split("/").length - 1));
+            paramsMap.put("LEVEL", Integer.toString(paramsMap.get("PID_PATH").split("/").length - 1));
             paramsMap.put("PARENT_MODEL", parentParams.paramsMap.get("MODEL"));
             paramsMap.put("PARENT_PID", parentParams.paramsMap.get("PID"));
 
@@ -135,7 +144,7 @@ public class IndexParams {
 
         } catch (Exception e) {
             logger.severe("error in IndexParams.merge: " + e.toString());
-            
+
         }
     }
 
@@ -150,8 +159,8 @@ public class IndexParams {
         if (datumStr.contains("-")) {
 
             try {
-            String begin = datumStr.split("-")[0].trim();
-            String end = datumStr.split("-")[1].trim();
+                String begin = datumStr.split("-")[0].trim();
+                String end = datumStr.split("-")[1].trim();
                 dataInt = Integer.parseInt(begin);
                 dataInt = Integer.parseInt(end);
                 paramsMap.put("DATUM_BEGIN", begin);
@@ -216,7 +225,7 @@ public class IndexParams {
             } else {
                 xPathStr = prefix + "originInfo[@transliteration='publisher']/dateIssued/text()";
             }
-            
+
 
 //logger.info("pid: " + pid + " -> model: " + model + " -> xPathStr: " + xPathStr);
             expr = xpath.compile(xPathStr);
@@ -242,8 +251,8 @@ public class IndexParams {
             if (node != null) {
                 paramsMap.put("LANGUAGE", node.getNodeValue());
             }
-            
-            
+
+
 
         } catch (Exception e) {
             logger.severe("IndexParams.init error: " + model + " " + pid);

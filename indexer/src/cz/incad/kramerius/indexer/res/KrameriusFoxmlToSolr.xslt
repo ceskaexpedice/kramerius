@@ -37,24 +37,23 @@
     <xsl:param name="TRUSTSTOREPATH" select="repositoryName"/>
     <xsl:param name="TRUSTSTOREPASS" select="repositoryName"/>
     
-    <xsl:param name="PAGESCOUNT" select="repositoryName"/>
-    <xsl:param name="DATUM" select="repositoryName"/>
-    <xsl:param name="ROK" select="repositoryName"/>
-    <xsl:param name="DATUM_BEGIN" select="repositoryName"/>
-    <xsl:param name="DATUM_END" select="repositoryName"/>
-    <xsl:param name="PARENT_TITLE" select="repositoryName"/>
-    <xsl:param name="PARENT_PID" select="repositoryName"/>
-    <xsl:param name="PARENT_MODEL" select="repositoryName"/>
-    <xsl:param name="PATH" select="repositoryName"/>
-    <xsl:param name="PID_PATH" select="repositoryName"/>
-    <xsl:param name="ROOT_TITLE" select="repositoryName"/>
-    <xsl:param name="ROOT_MODEL" select="repositoryName"/>
-    <xsl:param name="ROOT_PID" select="repositoryName"/>
-    <xsl:param name="ABECEDA_TITLE" select="repositoryName"/>
-    <xsl:param name="ABECEDA_AUTOR" select="repositoryName"/>
-    <xsl:param name="LANGUAGE" select="repositoryName"/>
-    <xsl:param name="LEVEL" select="repositoryName"/>
-    <xsl:param name="RELS_EXT_INDEX" select="repositoryName"/>
+    <xsl:param name="PAGESCOUNT" select="1"/>
+    <xsl:param name="DATUM" select="''"/>
+    <xsl:param name="ROK" select="''"/>
+    <xsl:param name="DATUM_BEGIN" select="''"/>
+    <xsl:param name="DATUM_END" select="''"/>
+    <xsl:param name="PARENT_TITLE" select="''"/>
+    <xsl:param name="PARENT_PID" select="''"/>
+    <xsl:param name="PARENT_MODEL" select="''"/>
+    <xsl:param name="PATH" select="''"/>
+    <xsl:param name="PID_PATH" select="''"/>
+    <xsl:param name="ROOT_TITLE" select="''"/>
+    <xsl:param name="ROOT_MODEL" select="''"/>
+    <xsl:param name="ROOT_PID" select="''"/>
+    <xsl:param name="LANGUAGE" select="'cze'"/>
+    <xsl:param name="LEVEL" select="''"/>
+    <xsl:param name="RELS_EXT_INDEX" select="1"/>
+    <xsl:param name="PARENTS" select="''"/>
     
     <xsl:variable name="generic" select="exts:new()" />
 
@@ -233,7 +232,10 @@
         </xsl:if>
         <xsl:if test="$MODEL = 'page'">
         <xsl:call-template name="parentTemplate">
+            <!--
             <xsl:with-param name="parent"><xsl:value-of select="exts:getParents($generic, $PID)"/></xsl:with-param>
+            -->
+            <xsl:with-param name="parent"><xsl:value-of select="$PARENTS"/></xsl:with-param>
         </xsl:call-template>
         </xsl:if>
         
@@ -290,12 +292,7 @@
             foxml:datastreamVersion/@MIMETYPE='application/msword'">
             
                 <field name="text">
-                    <!--
-                    <xsl:attribute name="name">
-                        <xsl:value-of select="concat('dsm.', @ID)"/>
-                    </xsl:attribute>
-                    -->
-                    <xsl:value-of select="exts:getDatastreamText($generic, $PID, $REPOSITORYNAME, @ID, $FEDORASOAP, $FEDORAUSER, $FEDORAPASS, $TRUSTSTOREPATH, $TRUSTSTOREPASS, $pageNum)"/>
+                    <xsl:value-of select="exts:getDatastreamText($generic, $PID, @ID, $pageNum)"/>
                 </field>
             </xsl:if>
         </xsl:for-each>

@@ -1,5 +1,6 @@
 package cz.incad.kramerius.indexer;
 
+import cz.incad.kramerius.FedoraNamespaceContext;
 import cz.incad.kramerius.resourceindex.IResourceIndex;
 import cz.incad.kramerius.resourceindex.ResourceIndexService;
 import cz.incad.kramerius.utils.conf.KConfiguration;
@@ -18,6 +19,7 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.ProtocolException;
 import java.net.URL;
+import javax.xml.namespace.NamespaceContext;
 
 import javax.xml.transform.stream.StreamSource;
 
@@ -32,6 +34,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -61,6 +64,7 @@ public class SolrOperations {
     protected int warnCount = 0;
     //protected String[] params = null;
     private FedoraOperations fedoraOperations;
+    IResourceIndex rindex ;
 
     public SolrOperations(FedoraOperations _fedoraOperations) {
         fedoraOperations = _fedoraOperations;
@@ -72,6 +76,7 @@ public class SolrOperations {
             String value,
             ArrayList<String> requestParams)
             throws java.rmi.RemoteException, Exception {
+        rindex = ResourceIndexService.getResourceIndexImpl();
         insertTotal = 0;
         updateTotal = 0;
         deleteTotal = 0;
@@ -249,32 +254,22 @@ public class SolrOperations {
             int offset) {
         int pageSize = 100;
         try {
-            /*            
-            String query = "$object <fedora-model:hasModel> <info:fedora/model:" + model + ">  " +
-            "order by $object  " +
-            "limit  " + pageSize +
-            " offset  " + offset;
-            }
-            String urlStr = config.getString("FedoraResourceIndex") + "?type=tuples&flush=true&lang=itql&format=TSV&distinct=off&stream=off" +
-            "&query=" + java.net.URLEncoder.encode(query, "UTF-8");
-            
-            java.net.URL url = new java.net.URL(urlStr);
-
-            java.io.BufferedReader in = new java.io.BufferedReader(new java.io.InputStreamReader(url.openStream()));
-            String inputLine = in.readLine();
-            
             boolean hasRecords = false;
-            while ((inputLine = in.readLine()) != null) {
-            fromKrameriusModel(inputLine.split("/")[1], requestParams);
-            hasRecords = true;
+
+            org.w3c.dom.Document doc = rindex.getFedoraObjectsFromModelExt(model, pageSize, offset, "date", "asc");
+            factory = XPathFactory.newInstance();
+            xpath = factory.newXPath();
+
+            xpath.setNamespaceContext(new FedoraNamespaceContext());
+            String xPathStr = "/sparql:sparql/sparql:results/sparql:result/sparql:object";
+            expr = xpath.compile(xPathStr);
+            NodeList nodes = (NodeList) expr.evaluate(doc, XPathConstants.NODESET);
+            
+            for (int i = 0; i < nodes.getLength(); i++) {
+                Node childnode = nodes.item(i);
+                fromKrameriusModel(childnode.getAttributes().getNamedItem("uri").getNodeValue(), requestParams);
+                hasRecords = true;
             }
-            in.close();
-             */
-            boolean hasRecords = false;
-            IResourceIndex g = ResourceIndexService.getResourceIndexImpl();
-
-            org.w3c.dom.Document doc = g.getFedoraObjectsFromModelExt(model, pageSize, offset, "date", "asc");
-
             if (hasRecords) {
                 krameriusModel(model, requestParams, offset + pageSize);
             }
@@ -298,11 +293,15 @@ public class SolrOperations {
     }
 
     private void fromKrameriusModel(
-            String pid,
+            String uuid,
             ArrayList<String> requestParams)
             throws java.rmi.RemoteException, Exception {
+        String pid = uuid;
         if (pid == null || pid.length() < 1) {
             return;
+        }
+        if (!pid.startsWith("uuid:")) {
+            pid = "uuid:" + pid;
         }
         logger.fine("fromKrameriusModel: " + pid);
         fedoraOperations.getFoxmlFromPid(pid);
@@ -358,15 +357,22 @@ public class SolrOperations {
                 }
             }
 
+            String fmodel = "";
             if (indexParams == null) {
                 indexParams = new IndexParams(pid, contentDom);
-            }else{
+                fmodel = (String)indexParams.paramsMap.get("MODEL");
+            } else {
                 expr = xpath.compile("//datastream/datastreamVersion[last()]/xmlContent/RDF/Description/hasModel");
                 Node modelNode = (Node) expr.evaluate(contentDom, XPathConstants.NODE);
                 if (modelNode != null) {
-                    String model = modelNode.getAttributes().getNamedItem("rdf:resource").getNodeValue().split("model:")[1];
-                    indexParams.addPath(model);
+                    fmodel = modelNode.getAttributes().getNamedItem("rdf:resource").getNodeValue().split("model:")[1];
+                    indexParams.addPath(fmodel);
+
                 }
+            }
+            if(fmodel.equals("page")){
+                String p = fedoraOperations.getParents(pid);
+                indexParams.addParents(p);
             }
             //tady testujeme pripadne vicestrankovy pdf
             ///foxml:digitalObject/foxml:datastream[@ID='IMG_FULL']/foxml:datastreamVersion[last()]
@@ -385,9 +391,10 @@ public class SolrOperations {
             for (int i = 0; i < nodes.getLength(); i++) {
                 Node childnode = nodes.item(i);
                 String nodeName = childnode.getNodeName();
-                if (nodeName.indexOf(":")>0)
-                    nodeName = nodeName.substring(nodeName.indexOf(":")+1);
-                
+                if (nodeName.indexOf(":") > 0) {
+                    nodeName = nodeName.substring(nodeName.indexOf(":") + 1);
+                }
+
                 if (nodeName.contains("hasPage")) {
                     num++;
                 }
@@ -414,7 +421,8 @@ public class SolrOperations {
                     foxmlStream2.reset();
                     num += indexByPid(relpid, date, false, foxmlStream2, requestParams, childParams);
                 } catch (Exception ex) {
-                    logger.severe("Can't index doc: " + relpid + " Continuing...");
+                    //logger.severe("Can't index doc: " + relpid + " Continuing...");
+                    logger.log(Level.SEVERE, "Can't index doc: " + relpid + " Continuing...",  ex);
                 }
             }
 
@@ -460,7 +468,6 @@ public class SolrOperations {
         logger.fine("indexDoc=\n" + sb.toString());
         //logger.info("indexDoc=\n" + sb.toString());
         if (sb.indexOf("name=\"" + UNIQUEKEY) > 0) {
-
             postData(config.getString("IndexBase") + "/update", new StringReader(sb.toString()), new StringBuilder());
             updateTotal++;
         }
@@ -476,7 +483,6 @@ public class SolrOperations {
     private void deleteDocument(String pid_path) throws Exception {
         StringBuilder sb = new StringBuilder("<delete><query>pid_path:" + pid_path + "*</query></delete>");
         logger.fine("indexDoc=\n" + sb.toString());
-        //logger.info("solrHost:" + config.getString("solrHost"));
         postData(config.getString("IndexBase") + "/update", new StringReader(sb.toString()), new StringBuilder());
         deleteTotal++;
     }
