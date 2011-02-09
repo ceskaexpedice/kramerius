@@ -117,12 +117,17 @@
         <servlet-class>cz.incad.Kramerius.security.RightsServlet</servlet-class>
     </servlet>
 
-    <!-- rightsServlet -->
+    <!-- usersServlet -->
     <servlet>
         <servlet-name>usersServlet</servlet-name>
         <servlet-class>cz.incad.Kramerius.security.UsersServlet</servlet-class>
     </servlet>
 
+    <!-- adminActions -->
+    <servlet>
+        <servlet-name>adminActionsServlet</servlet-name>
+        <servlet-class>cz.incad.Kramerius.admins.AdministratorsActions</servlet-class>
+    </servlet>
 
 	<!-- 
 		// Mapovani servletu
@@ -217,6 +222,11 @@
     <servlet-mapping>
         <servlet-name>usersServlet</servlet-name>
         <url-pattern>/users</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>adminActionsServlet</servlet-name>
+        <url-pattern>/adminActions</url-pattern>
     </servlet-mapping>
 	
     <security-role>
