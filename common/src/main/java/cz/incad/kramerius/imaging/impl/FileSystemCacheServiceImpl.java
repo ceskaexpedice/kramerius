@@ -444,14 +444,16 @@ public class FileSystemCacheServiceImpl implements DeepZoomCacheService {
     @Override
     public boolean isResolutionFilePresent(String uuid) throws IOException {
         File uuidFile = this.discStructureStore.getUUIDFile(uuid, kConfiguration.getDeepZoomCacheDir());
-        File[] resFiles = uuidFile.listFiles(new FileFilter() {
+        if (uuidFile != null) {
+            File[] resFiles = uuidFile.listFiles(new FileFilter() {
 
-            @Override
-            public boolean accept(File pathname) {
-                return pathname.getName().endsWith(".resolution");
-            }
-        });
-        return resFiles != null && resFiles.length > 0;
+                @Override
+                public boolean accept(File pathname) {
+                    return pathname.getName().endsWith(".resolution");
+                }
+            });
+            return resFiles != null && resFiles.length > 0;
+        } else return false;
     }
 
 }

@@ -43,7 +43,7 @@ public class Fedora3StreamsDiscStructure implements DiscStrucutreForStore {
             }
             return new File(curDir, uuid);
         } else {
-            throw new IOException("uuid has no streamPath in fedora database ");
+            return null;
         }
     }
 
