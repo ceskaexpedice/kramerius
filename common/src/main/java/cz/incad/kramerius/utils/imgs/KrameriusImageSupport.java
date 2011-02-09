@@ -117,7 +117,6 @@ public class KrameriusImageSupport {
     }
 
     public static void writeImageToStream(BufferedImage image, String javaFormat, OutputStream os) throws IOException {
-
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
         ImageIO.write(image, javaFormat, bos);
         IOUtils.copyStreams(new ByteArrayInputStream(bos.toByteArray()), os);
