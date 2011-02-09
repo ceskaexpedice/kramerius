@@ -114,7 +114,7 @@ join group_entity ge on (ge.group_id=guass.group_id);
 
 -- view pro vylistovani uzivatelu ve skupine
 create view group_users_mapping as 
-select ue.user_id,ue.name, ue.surname, ue.loginname, guass.group_id,ge.personal_admin_id, ue.personal_admin_id uepersonaladmin 
+select ue.user_id,ue.name, ue.surname, ue.loginname, guass.group_id,ge.personal_admin_id, ue.personal_admin_id as uepersonaladmin 
 from group_user_assoc guass
 join user_entity ue on (ue.user_id=guass.user_id)
 join group_entity ge on (ge.group_id=guass.group_id);
