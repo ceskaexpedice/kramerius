@@ -31,18 +31,6 @@
         <span id="proccess_confirm_text"></span>
 </div>
 
-<!-- Dialog pro urceni zda objekt ma byt private nebo public -->
-<div id="check_private_public" style="display: none;">
-	<table width="100%">
-		<tr><td width="100%"> <fmt:message bundle="${lctx}">administrator.dialogs.changevisibility.combo</fmt:message></td></tr>
-		<tr><td width="100%">
-			<select title="priznak" size="1" id="flag">
-				<option value="public">Public</option>
-				<option value="private">Private</option>
-			</select>
-		</td></tr>
-	</table>
-</div>
 
 
 <!-- common -->

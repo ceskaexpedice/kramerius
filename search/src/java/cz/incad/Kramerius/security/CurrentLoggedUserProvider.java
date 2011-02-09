@@ -45,6 +45,9 @@ public class CurrentLoggedUserProvider implements Provider<User> {
     // TODO: Presunout jinam!
     public static final String SECURITY_FOR_REPOSITORY_KEY = "securityForRepository";
     
+    public static final String USER_NAME_PARAM="userName";
+    public static final String PSWD_PARAM = "pswd";
+    
     
     @Inject
     Provider<HttpServletRequest> provider;
@@ -79,6 +82,9 @@ public class CurrentLoggedUserProvider implements Provider<User> {
                 LOGGER.info("PROVIDER user instance 0x"+Integer.toHexString(System.identityHashCode(user)));
                 return user;
 
+            } else if ((httpServletRequest.getParameter(USER_NAME_PARAM)!= null) && (httpServletRequest.getParameter(PSWD_PARAM)!= null)) {
+                // TODO: Dodelat !!
+                return null;
             } else {
                 LOGGER.info("PROVIDER ~ noe principal ");
                 

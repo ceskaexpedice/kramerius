@@ -1,0 +1,31 @@
+/** Rendrovani dialogu pro admin akce - html obsahy */
+group adm;
+
+
+/** dialog pro zmenu priznaku */
+changeVisibilityFlag(bundle, policyFlag, selection) ::=<<
+    <div id="changeFlagInfo">
+        <table width="100%">
+            <tr><td>
+                $if(policyFlag.value)$
+                    $bundle.("administrator.dialogs.changevisibility.flag")$
+                $else$
+                    $bundle.("administrator.dialogs.changevisibility.noflag")$
+                $endif$        
+            </td></tr>
+        </table>
+    </div>
+    
+    <div id="changeFlagContent">
+        <table width="100%">
+            <tr><td width="100%">$bundle.("administrator.dialogs.changevisibility.combo")$</td>
+            <td width="100%">
+                <select title="priznak" size="1" id="flag">
+                    <option value="public" $if(selection.private)$ selected="true" $endif$>Public</option>
+                    <option value="private" $if(selection.public)$ selected="true" $endif$>Private</option>
+                </select>
+            </td></tr>
+        </table>
+    </div>
+>>
+

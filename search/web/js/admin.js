@@ -407,58 +407,59 @@ function deleteUuid(level, model)  {
 var _checkDialog;
 function changeFlag(level)  {
 	hideAdminOptions(level);
-	if (_checkDialog) {
-		_checkDialog.dialog('open');
-	} else {
-		_checkDialog = $("#check_private_public").dialog({
-	        bgiframe: true,
-	        width: 400,
-	        height: 100,
-	        modal: true,
-	        title: dictionary['administrator.menu.dialogs.changevisflag.title'],
-	        buttons: {
-				"Close": function() {
-						$(this).dialog("close"); 
-	            }, 
-	            // nevim jak lokalizovat button ?
-	            "Aplikuj": function() {
-					$(this).dialog("close"); 
-					
-					var flag = $('#flag').val();
-	            	var pid = $("#tabs_"+level).attr('pid');
-	            	var url = "lr?action=start&def=set"+flag+"&out=text&params="+pid;
-					if (_commonDialog) {
-				    	$("#common_started_ok").hide();
-				    	$("#common_started_failed").hide();
-				    	$("#common_started_waiting").show();
-				    	_commonDialog.dialog('open');
-					} else {
-				    	$("#common_started_waiting").show();
-				    	_commonDialog = $("#common_started").dialog({
-					        bgiframe: true,
-					        width: 400,
-					        height: 100,
-					        modal: true,
-					        title: dictionary['administrator.menu.dialogs.changevisflag.title'],
-					        buttons: {
-					            "Close": function() {
-					                $(this).dialog("close"); 
-					            } 
-					        } 
-					    });
-					}
+	
+	var pid = $("#tabs_"+level).attr('pid');
+	var dialogurl = "adminActions?action=changeFlag&uuid="+pid;
+    $.get(dialogurl, function(htmldata) {
 
- 					$("#common_started_text").text(dictionary['administrator.dialogs.waitingchangevisflag']);
-					$("#common_started" ).dialog( "option", "title",  dictionary['administrator.menu.dialogs.changevisflag.title']);
-
-					_startProcess(url);
-				
-		        }
-        	}
-	    });
-		
-	}
-
+    	if (_checkDialog) {
+    		_checkDialog.dialog('open');
+    	} else {
+            $(document.body).append('<div id="check_private_public">'+'</div>');
+    		_checkDialog = $("#check_private_public").dialog({
+    	        bgiframe: true,
+    	        width: 400,
+    	        height: 100,
+    	        modal: true,
+    	        title: dictionary['administrator.menu.dialogs.changevisflag.title'],
+    	        buttons: {
+    				"Close": function() {
+    						$(this).dialog("close"); 
+    	            }, 
+    	            // nevim jak lokalizovat button ?
+    	            "Aplikuj": function() {
+    					$(this).dialog("close"); 
+    					
+    					var flag = $('#flag').val();
+    	            	var url = "lr?action=start&def=set"+flag+"&out=text&params="+pid;
+    					if (_commonDialog) {
+    				    	$("#common_started_ok").hide();
+    				    	$("#common_started_failed").hide();
+    				    	$("#common_started_waiting").show();
+    				    	_commonDialog.dialog('open');
+    					} else {
+    				    	$("#common_started_waiting").show();
+    				    	_commonDialog = $("#common_started").dialog({
+    					        bgiframe: true,
+    					        width: 400,
+    					        height: 100,
+    					        modal: true,
+    					        title: dictionary['administrator.menu.dialogs.changevisflag.title'],
+    					        buttons: {
+    					            "Close": function() {
+    					                $(this).dialog("close"); 
+    					            } 
+    					        } 
+    					    });
+    					}
+    					_startProcess(url);
+    				
+    		        }
+            	}
+    	    });
+    	}
+    	$("#check_private_public").html(htmldata);
+	});
 }
 
 

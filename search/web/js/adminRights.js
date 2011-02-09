@@ -75,6 +75,7 @@ function adminRightsImpl(uuid,action) {
         	_rightsWindow.dialog('open');
         } else {
             $(document.body).append('<div id="adminRightsWindow">'+'</div>');
+            
             _rightsWindow = $('#adminRightsWindow').dialog({
                 width:800,
                 height:450,
