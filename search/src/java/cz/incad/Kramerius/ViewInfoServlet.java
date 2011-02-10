@@ -211,7 +211,7 @@ public class ViewInfoServlet extends GuiceServlet {
     }
     
     private StringTemplateGroup stGroup() throws IOException {
-        InputStream stream = GetRelsExt.class.getResourceAsStream("viewinfo.stg");
+        InputStream stream = ViewInfoServlet.class.getResourceAsStream("viewinfo.stg");
         String string = IOUtils.readAsString(stream, Charset.forName("UTF-8"), true);
         StringTemplateGroup group = new StringTemplateGroup(new StringReader(string), DefaultTemplateLexer.class);
         return group;
