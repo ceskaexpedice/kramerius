@@ -27,7 +27,7 @@ import cz.incad.kramerius.security.RightCriteriumLoader;
 import cz.incad.kramerius.security.RightsManager;
 import cz.incad.kramerius.security.User;
 import cz.incad.kramerius.security.UserManager;
-import cz.incad.kramerius.security.database.InitSecurityDatabaseBefore;
+import cz.incad.kramerius.security.database.InitSecurityDatabase;
 import cz.incad.kramerius.security.database.InitSecurityDatabaseMethodInterceptor;
 import cz.incad.kramerius.security.impl.DatabaseRightsManager;
 import cz.incad.kramerius.security.impl.DatabaseUserManager;
@@ -47,7 +47,7 @@ public class GuiceSecurityModule extends AbstractModule {
         
         
         InitSecurityDatabaseMethodInterceptor initDb = new InitSecurityDatabaseMethodInterceptor();
-        bindInterceptor(Matchers.any(), Matchers.annotatedWith(InitSecurityDatabaseBefore.class), 
+        bindInterceptor(Matchers.any(), Matchers.annotatedWith(InitSecurityDatabase.class), 
                 initDb);
         requestInjection(initDb);
     }
