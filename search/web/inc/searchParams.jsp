@@ -56,6 +56,13 @@
         <c:param name="collapse.facet" value="before" />
     </c:if>
     
+    <%-- suggest --%>
+    <c:if test="${param.suggest}">
+        <c:param name="fq" value="${param.suggest_q}" />
+        <c:param name="fq" value="level:0" />
+        <c:set var="rows" value="${rowsdefault}" scope="request" />
+    </c:if>
+    
     <c:set var="fieldedSearch" value="false" scope="request" />
     <%-- advanced params --%>
     <c:if test="${!empty param.issn}">

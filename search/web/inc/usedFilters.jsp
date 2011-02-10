@@ -7,7 +7,7 @@
 <!-- pouzite filtry -->
 <c:if test="${!empty param.q || param.f1 != null && param.f1 != '' || !empty paramValues.fq ||
               !empty param.issn || !empty param.title || !empty param.author || !empty param.rok || !empty param.keywords ||
-              !empty param.udc ||!empty param.ddc || !empty param.onlyPublic }" >
+              !empty param.udc ||!empty param.ddc || !empty param.onlyPublic || param.suggest=='true' }" >
 <table class="main usedFilters"><tr valign='top'><td>
 <c:if test="${!empty param.q}" >
 <div class="usedFilter">
@@ -30,7 +30,7 @@
 
 <%-- filter queries --%>
 <c:forEach varStatus="status" var="fqs" items="${paramValues.fq}">
-    <c:if test="${param.suggest!='true'}">
+   
         <c:set var="js"><c:out value="${fn:replace(fqs, '\"', '')}" /></c:set>
         <c:set var="facetName"><c:out value="${fn:substringBefore(fqs,':')}" /></c:set>
         <c:set var="facetName"><c:out value="${fn:replace(facetName, '\"', '')}" /></c:set>
@@ -47,8 +47,27 @@
         <fmt:message bundle="${lctx}" ><c:out value="${facetName}" /></fmt:message>: <c:out value="${facetValueDisp}"/>&#160;<img src="img/x.png"  border="0" 
         title="<fmt:message bundle="${lctx}" key="filter.remove_criteria"/>: <c:out value="${facetName}"/>"/>
             </a></div><input type="hidden" name="fq" id="fq<c:out value="${status.count}" />" value="<c:out value="${facetName}" />:<c:out value="${facetValue}" />" />
-    </c:if>
+    
 </c:forEach>
+            
+<%-- suggest params --%>
+<c:if test="${param.suggest=='true'}">
+
+
+        <c:set var="facetName"><c:out value="${fn:substringBefore(param.suggest_q,':')}" /></c:set>
+        <c:set var="facetName"><c:out value="${fn:replace(facetName, '\"', '')}" /></c:set>
+        <c:set var="facetValue"><c:out value="${fn:substringAfter(param.suggest_q,':')}" escapeXml="false" /></c:set>
+        <c:set var="facetValue"><c:out value="${fn:replace(facetValue, '\"', '')}" /></c:set>
+        <c:set var="facetValueDisp"><c:out value="${facetValue}" /></c:set>
+
+
+        <div class="usedFilter">:: <a  class="mainNav" href="javascript:removeSuggest();">
+        <fmt:message bundle="${lctx}" key="Procházet" />: <fmt:message bundle="${lctx}" >suggest.<c:out value="${facetName}"/></fmt:message> - <c:out value="${facetValueDisp}"/>&#160;<img src="img/x.png"  border="0"
+        title="<fmt:message bundle="${lctx}" key="filter.remove_criteria"/>: <c:out value="${param.suggest_q}"/>"
+        alt="<fmt:message bundle="${lctx}" key="filter.remove_criteria"/>: <c:out value="${param.suggest_q}"/>" />
+            </a></div><input type="hidden" name="suggest_q" id="suggest_q" value="<c:out value="${param.suggest_q}" />" />
+            <input type="hidden" name="suggest" id="suggest" value="true" />
+</c:if>
 
 <%-- advanced params --%>
 <c:if test="${!empty param.issn}">

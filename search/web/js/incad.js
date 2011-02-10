@@ -184,6 +184,12 @@ function removeFacet(index){
     checkQuery();
     $('#searchForm').submit();
 }
+function removeSuggest(){
+    $('#suggest').remove();
+    $('#suggest_q').remove();
+    checkQuery();
+    $('#searchForm').submit();
+}
 
 
 function removeDateAxisFilter(f1, f2){
