@@ -22,6 +22,7 @@ public class FedoraNamespaceContext implements NamespaceContext {
         MAP_PREFIX2URI.put("kramerius", KRAMERIUS_URI);
         MAP_PREFIX2URI.put("rdf", RDF_NAMESPACE_URI);
         MAP_PREFIX2URI.put("oai", OAI_NAMESPACE_URI);
+        MAP_PREFIX2URI.put("sparql", SPARQL_NAMESPACE_URI);
 
         for (Map.Entry<String, String> entry : MAP_PREFIX2URI.entrySet()) {
             MAP_URI2PREFIX.put(entry.getValue(), entry.getKey());

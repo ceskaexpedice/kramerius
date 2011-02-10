@@ -97,6 +97,14 @@ public class SecuredFedoraAccessImpl implements FedoraAccess {
         return rawAccess.getKrameriusModel(uuid);
     }
 
+    public String getDonator(Document relsExt) {
+        return rawAccess.getDonator(relsExt);
+    }
+
+    public String getDonator(String uuid) throws IOException {
+        return rawAccess.getDonator(uuid);
+    }
+
     public List<Element> getPages(String uuid, boolean deep) throws IOException {
         return rawAccess.getPages(uuid, deep);
     }

@@ -55,6 +55,27 @@ public interface FedoraAccess {
      * @throws IOException
      */
     public KrameriusModels getKrameriusModel(String uuid) throws IOException;
+    
+    /**
+     * Returns Donator parsed from given document
+     * 
+     * @param relsExt
+     *            RELS-EXT document
+     * @return
+     * if hasDonator dosn't exist return empty string
+     */
+    public String getDonator(Document relsExt);
+
+    /**
+     * Returns Donator of given object
+     * 
+     * @param uuid
+     *            uuid of object
+     * @return
+     * if hasDonator dosn't exist return empty string
+     * @throws IOException
+     */
+    public String getDonator(String uuid) throws IOException;
 
     /**
      * Recursive processing fedora objects

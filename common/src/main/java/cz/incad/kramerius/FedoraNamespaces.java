@@ -30,4 +30,9 @@ public interface FedoraNamespaces {
      * OAI namespace
      */
     public static final String OAI_NAMESPACE_URI = "http://www.openarchives.org/OAI/2.0/";
+    
+    /**
+     * Sparql namespace
+     */
+    public static final String SPARQL_NAMESPACE_URI = "http://www.w3.org/2001/sw/DataAccess/rf1/result";
 }

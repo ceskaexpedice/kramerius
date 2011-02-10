@@ -127,7 +127,31 @@ public class FedoraAccessImpl implements FedoraAccess {
 	@Override
 	public KrameriusModels getKrameriusModel(String uuid) throws IOException {
 		return getKrameriusModel(getRelsExt(uuid));
-	}	
+	}
+
+        @Override
+	public String getDonator(Document relsExt) {
+		try {
+			Element foundElement = XMLUtils.findElement(relsExt.getDocumentElement(), "hasDonator", FedoraNamespaces.KRAMERIUS_URI);
+			if (foundElement != null) {
+				String sform = foundElement.getAttributeNS(FedoraNamespaces.RDF_NAMESPACE_URI, "resource");
+				PIDParser pidParser = new PIDParser(sform);
+				pidParser.disseminationURI();
+				return pidParser.getObjectId();
+			} else return "";
+		} catch (DOMException e) {
+			LOGGER.log(Level.SEVERE, e.getMessage(), e);
+			throw new IllegalArgumentException(e);
+		} catch (LexerException e) {
+			LOGGER.log(Level.SEVERE, e.getMessage(), e);
+			throw new IllegalArgumentException(e);
+		}
+	}
+
+	@Override
+	public String getDonator(String uuid) throws IOException {
+		return getDonator(getRelsExt(uuid));
+	}
 
 	@Override
 	public Document getBiblioMods(String uuid) throws IOException {

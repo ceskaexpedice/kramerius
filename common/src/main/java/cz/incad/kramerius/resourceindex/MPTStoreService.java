@@ -14,6 +14,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.text.ParseException;
+import java.util.logging.Level;
 
 import javax.sql.DataSource;
 
@@ -35,6 +36,7 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 
 public class MPTStoreService implements IResourceIndex {
 
@@ -61,6 +63,24 @@ public class MPTStoreService implements IResourceIndex {
     public MPTStoreService() {
         config = KConfiguration.getInstance();
         this.adaptor = getTableManager();
+        loadTableNames();
+    }
+
+
+    String Table_lastModifiedDate;
+    String Table_dcTitle;
+    String Table_model;
+
+    private void loadTableNames(){
+        try {
+            if(Table_model==null){
+                Table_dcTitle = adaptor.getTableFor(NTriplesUtil.parsePredicate(PRED_dcTitle));
+                Table_lastModifiedDate = adaptor.getTableFor(NTriplesUtil.parsePredicate(PRED_lastModifiedDate));
+                Table_model = adaptor.getTableFor(NTriplesUtil.parsePredicate(PRED_model));
+            }
+        } catch (ParseException ex) {
+            Logger.getLogger(MPTStoreService.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }
 
     private TableManager getTableManager() {
@@ -96,12 +116,10 @@ public class MPTStoreService implements IResourceIndex {
 
         /* Finally, create the table manager */
         BasicTableManager manager;
-        String mapTable =
-                config.getProperty(PROP_PREDICATE_MAP);
+        String mapTable = config.getProperty(PROP_PREDICATE_MAP);
         String prefix = config.getProperty(PROP_MAP_PREFIX);
         try {
-            manager =
-                    new BasicTableManager(source, generator, mapTable, prefix);
+            manager = new BasicTableManager(source, generator, mapTable, prefix);
         } catch (SQLException e) {
             throw new RuntimeException("Could not initialize table mapper", e);
         }
@@ -112,8 +130,7 @@ public class MPTStoreService implements IResourceIndex {
 
         String mods;
         try {
-            mods =
-                    adaptor.getTableFor(NTriplesUtil.parsePredicate(PRED_lastModifiedDate));
+            mods = adaptor.getTableFor(NTriplesUtil.parsePredicate(PRED_lastModifiedDate));
         } catch (ParseException e) {
             /* Should never get here :) */
             throw new RuntimeException("Could not parse predicate ", e);
@@ -155,17 +172,9 @@ public class MPTStoreService implements IResourceIndex {
         limit <c:out value="${rows}" />
         offset <c:out value="${param.offset}" />
          */
-        String t1, t2, t3, torder;
-        try {
-            t1 = adaptor.getTableFor(NTriplesUtil.parsePredicate(PRED_dcTitle));
-            t2 = adaptor.getTableFor(NTriplesUtil.parsePredicate(PRED_lastModifiedDate));
-            t3 = adaptor.getTableFor(NTriplesUtil.parsePredicate(PRED_model));
-            torder = t2 + ".o";
-        } catch (ParseException e) {
-            /* Should never get here :) */
-            throw new RuntimeException("Could not parse predicate ", e);
-        }
-        logger.fine("getting latest record date");
+        String torder = Table_lastModifiedDate + ".o";
+        
+        logger.fine("getFedoraObjectsFromModelExt");
         Document xmldoc;
         Connection c;
         try {
@@ -176,8 +185,8 @@ public class MPTStoreService implements IResourceIndex {
             xmldoc.appendChild(root);
             root.appendChild(results);
             c = dataSource.getConnection();
-            String sql = "select " + t1 + ".s, " + t1 + ".o, " + t2 + ".o from " + t1 + "," + t2 + "," + t3
-                    + " where " + t3 + ".o='<info:fedora/model:" + model + ">' and " + t1 + ".s=" + t2 + ".s and " + t1 + ".s=" + t3 + ".s "
+            String sql = "select " + Table_dcTitle + ".s, " + Table_dcTitle + ".o, " + Table_lastModifiedDate + ".o from " + Table_dcTitle + "," + Table_lastModifiedDate + "," + Table_model
+                    + " where " + Table_model + ".o='<info:fedora/model:" + model + ">' and " + Table_dcTitle + ".s=" + Table_lastModifiedDate + ".s and " + Table_dcTitle + ".s=" + Table_model + ".s "
                     + " order by " + torder + " " + orderDir
                     + " limit " + limit + " offset " + offset;
 
@@ -258,13 +267,7 @@ public class MPTStoreService implements IResourceIndex {
         limit <c:out value="${rows}" />
         offset <c:out value="${param.offset}" />
          */
-        String t1;
-        try {
-            t1 = adaptor.getTableFor(NTriplesUtil.parsePredicate(PRED_model));
-        } catch (ParseException e) {
-            /* Should never get here :) */
-            throw new RuntimeException("Could not parse predicate ", e);
-        }
+        
         logger.fine("getting latest record date");
         Document xmldoc;
         Connection c;
@@ -277,9 +280,9 @@ public class MPTStoreService implements IResourceIndex {
             xmldoc.appendChild(root);
             root.appendChild(results);
             c = dataSource.getConnection();
-            String sql = "select " + t1 + ".s"
-                    + " where " + t1 + ".o='<info:fedora/model:" + model + ">' "
-                    + " order by " + t1 + ".s"
+            String sql = "select " + Table_model + ".s"
+                    + " where " + Table_model + ".o='<info:fedora/model:" + model + ">' "
+                    + " order by " + Table_model + ".s"
                     + " limit " + limit + " offset " + offset;
 
             PreparedStatement s =
@@ -305,6 +308,58 @@ public class MPTStoreService implements IResourceIndex {
         return resList;
     }
 
+    
+    //@Override
+    public ArrayList<String> getModelsPath(String uuid) throws Exception {
+        ArrayList<String> modelPaths = new ArrayList<String>();
+        ArrayList<String> pidpaths = getPidPaths(uuid);
+        for(String pidpath : pidpaths){
+            String modelPath = "";
+            String[] pids = pidpath.split("/");
+            for(int i = 0; i<pids.length; i++){
+                modelPath += getModel(pids[i]);
+                if(i<pids.length-1) modelPath += "/";
+            }
+            modelPaths.add(uuid);
+        }
+        return modelPaths;
+    }
+
+    private String getModel(String uuid) throws Exception{
+        /*
+         * iTQL query
+            select $object $model from <#ri>
+            where  $object <dc:identifier>  'uuid' 
+            and  $object <fedora-model:hasModel> $model
+         */
+        
+        String model = "";
+        
+        logger.fine("getting latest record date");
+        Connection c;
+        try {
+            String sql = "select o from " + Table_model
+                    + " where s='<info:fedora/uuid:43101770-b03b-11dd-8673-000d606f5dc6>" + uuid + ">' "
+                    + " and o <> '<info:fedora/fedora-system:FedoraObject-3.0>' ";
+            c = dataSource.getConnection();
+            PreparedStatement s =
+                    c.prepareStatement(sql,
+                    ResultSet.FETCH_FORWARD,
+                    ResultSet.CONCUR_READ_ONLY);
+            ResultSet r = s.executeQuery();
+            if (r.next()) {
+                model = r.getString(1);
+                model = model.substring("<info:fedora/model:".length(), model.length()-1);
+            }
+            r.close();
+            c.close();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+        //return result.toString();
+        return model;
+    }
+    
     @Override
     public ArrayList<String> getParentsPids(String pid) throws Exception {
 
@@ -315,7 +370,7 @@ public class MPTStoreService implements IResourceIndex {
         } else {
             uuid = "uuid:" + pid;
         }
-        String query = "$object * <info:fedora/uuid:" + uuid + ">  ";
+        String query = "$object * <info:fedora/" + uuid + ">  ";
         ArrayList<String> resList = new ArrayList<String>();
         String urlStr = config.getConfiguration().getString("FedoraResourceIndex") + "?type=triples&flush=true&lang=spo&format=N-Triples&limit=&distinct=off&stream=off"
                 + "&query=" + java.net.URLEncoder.encode(query, "UTF-8");
