@@ -519,19 +519,34 @@ public class FedoraAccessImpl implements FedoraAccess {
     }
     
     
-    
-    private static final List<String> TREE_PREDICATES = Arrays.asList(new String[]{
+
+    /*
+    private List<String> treePredicates = Arrays.asList(new String[]{
             "http://www.nsdl.org/ontologies/relationships#hasPage",
             "http://www.nsdl.org/ontologies/relationships#hasPart",
             "http://www.nsdl.org/ontologies/relationships#hasVolume",
             "http://www.nsdl.org/ontologies/relationships#hasItem",
             "http://www.nsdl.org/ontologies/relationships#hasUnit"
     });
+    */
+    private ArrayList<String> treePredicates;
+
+    private ArrayList<String> getTreePredicates(){
+        if(treePredicates==null){
+            treePredicates = new ArrayList<String>();
+            String prefix = KConfiguration.getInstance().getProperty("fedora.predicatesPrefix");
+            String[] preds = KConfiguration.getInstance().getPropertyList("fedora.treePredicates");
+            for(String s:preds){
+                treePredicates.add(prefix + s);
+            }
+        }
+        return treePredicates;
+    }
     
     public void processSubtree(String pid, TreeNodeProcessor processor){
         processor.process(pid);
         for (RelationshipTuple rel : getAPIM().getRelationships(pid, null)){
-            if (TREE_PREDICATES.contains(rel.getPredicate())){
+            if (getTreePredicates().contains(rel.getPredicate())){
             	try{
             		processSubtree(rel.getObject(), processor);
             	}catch (Exception ex){
