@@ -32,8 +32,8 @@ import cz.incad.kramerius.processes.LRProcessOffset;
 import cz.incad.kramerius.processes.LRProcessOrdering;
 import cz.incad.kramerius.processes.States;
 import cz.incad.kramerius.processes.TypeOfOrdering;
+import cz.incad.kramerius.processes.database.InitProcessDatabase;
 import cz.incad.kramerius.processes.database.ProcessDatabaseUtils;
-import cz.incad.kramerius.utils.DatabaseUtils;
 
 public class DatabaseProcessManager implements LRProcessManager {
 	
@@ -110,6 +110,7 @@ public class DatabaseProcessManager implements LRProcessManager {
 	}
 
 	@Override
+    @InitProcessDatabase
 	public void registerLongRunningProcess(LRProcess lp) {
 		Connection connection = null;
 		try {
@@ -117,9 +118,6 @@ public class DatabaseProcessManager implements LRProcessManager {
 			
 			connection = provider.get();
 			if (connection != null) {
-				if (!DatabaseUtils.tableExists(connection,"PROCESSES")) {
-					createProcessTable(connection);
-				}
 				registerProcess(connection, lp);
 			}
 		} catch (SQLException e) {
@@ -139,15 +137,13 @@ public class DatabaseProcessManager implements LRProcessManager {
 	}
 
 
+    @InitProcessDatabase
 	public void updateLongRunningProcessPID(LRProcess lrProcess) {
 		Connection connection = null;
 		try {
 			this.reentrantLock.lock();
 			
 			connection = provider.get();
-			if (!DatabaseUtils.tableExists(connection,"PROCESSES")) {
-				createProcessTable(connection);
-			}
 			ProcessDatabaseUtils.updateProcessPID(connection,  lrProcess.getPid(),lrProcess.getUUID());
 		} catch (SQLException e) {
 			LOGGER.log(Level.SEVERE, e.getMessage(), e);
@@ -167,15 +163,13 @@ public class DatabaseProcessManager implements LRProcessManager {
 	
 	
 	
-	@Override
+    @InitProcessDatabase
+    @Override
 	public void updateLongRunningProcessName(LRProcess lrProcess) {
 		Connection connection = null;
 		try {
 			this.reentrantLock.lock();
 			connection = provider.get();
-			if (!DatabaseUtils.tableExists(connection,"PROCESSES")) {
-				createProcessTable(connection);
-			}
 			ProcessDatabaseUtils.updateProcessName(connection, lrProcess.getUUID(), lrProcess.getProcessName());
 		} catch (SQLException e) {
 			LOGGER.log(Level.SEVERE, e.getMessage(), e);
@@ -195,6 +189,7 @@ public class DatabaseProcessManager implements LRProcessManager {
 	
 	
 	@Override
+    @InitProcessDatabase
     public void deleteLongRunningProcess(LRProcess lrProcess) {
         Connection connection = null;
         try {
@@ -221,15 +216,13 @@ public class DatabaseProcessManager implements LRProcessManager {
         
     }
 
+    @InitProcessDatabase
     public void updateLongRunningProcessStartedDate(LRProcess lrProcess) {
 		Connection connection = null;
 		try {
 			this.reentrantLock.lock();
 			
 			connection = provider.get();
-			if (!DatabaseUtils.tableExists(connection,"PROCESSES")) {
-				createProcessTable(connection);
-			}
 
 			ProcessDatabaseUtils.updateProcessStarted(connection, lrProcess.getUUID(), new Timestamp(lrProcess.getStartTime()));
 		} catch (SQLException e) {
@@ -246,16 +239,15 @@ public class DatabaseProcessManager implements LRProcessManager {
 			this.reentrantLock.unlock();
 		}
 	}	
-	@Override
+
+    @InitProcessDatabase
+    @Override
 	public void updateLongRunningProcessState(LRProcess lrProcess) {
 		Connection connection = null;
 		try {
 			this.reentrantLock.lock();
 			
 			connection = provider.get();
-			if (!DatabaseUtils.tableExists(connection,"PROCESSES")) {
-				createProcessTable(connection);
-			}
 
 			ProcessDatabaseUtils.updateProcessState(connection, lrProcess.getUUID(), lrProcess.getProcessState());
 		} catch (SQLException e) {
@@ -275,7 +267,7 @@ public class DatabaseProcessManager implements LRProcessManager {
 	
 	
 	
-	@Override
+    @InitProcessDatabase
 	public List<LRProcess> getPlannedProcess(int howMany) {
 		Connection connection = null;
 		PreparedStatement stm = null;
@@ -287,9 +279,6 @@ public class DatabaseProcessManager implements LRProcessManager {
 			List<LRProcess> processes = new ArrayList<LRProcess>();
 			connection = provider.get();
 			if (connection != null) {
-				if (!DatabaseUtils.tableExists(connection,"PROCESSES")) {
-					createProcessTable(connection);
-				}
 				// POZN: dotazovanych vet bude vzdycky malo, misto join budu provadet dodatecne selekty.  
 				// POZN: bude jich v radu jednotek. 
 				StringBuffer buffer = new StringBuffer("select * from PROCESSES where status = ?");
@@ -336,6 +325,7 @@ public class DatabaseProcessManager implements LRProcessManager {
 	}
 
 	@Override
+    @InitProcessDatabase
 	public int getNumberOfLongRunningProcesses() {
 		Connection connection = null;
 		PreparedStatement stm = null;
@@ -345,9 +335,6 @@ public class DatabaseProcessManager implements LRProcessManager {
 			
 			connection = provider.get();
 			if (connection != null) {
-				if (!DatabaseUtils.tableExists(connection,"PROCESSES")) {
-					createProcessTable(connection);
-				}
 				StringBuffer buffer = new StringBuffer("select count(*) from PROCESSES ");
 				stm = connection.prepareStatement(buffer.toString());
 				rs = stm.executeQuery();
@@ -386,7 +373,6 @@ public class DatabaseProcessManager implements LRProcessManager {
 		}
 		return 0;
 	}
-
 	
 	private LRProcess processFromResultSet(ResultSet rs) throws SQLException {
 		//CREATE TABLE PROCESSES(DEFID VARCHAR, UUID VARCHAR ,PID VARCHAR,STARTED timestamp, STATUS int
@@ -413,7 +399,8 @@ public class DatabaseProcessManager implements LRProcessManager {
 	
 	
 	
-	@Override
+	@Override 
+	@InitProcessDatabase
 	public List<LRProcess> getLongRunningProcesses(States state) {
 		Connection connection = null;
 		PreparedStatement stm = null;
@@ -425,9 +412,6 @@ public class DatabaseProcessManager implements LRProcessManager {
 			List<LRProcess> processes = new ArrayList<LRProcess>();
 			connection = provider.get();
 			if (connection != null) {
-				if (!DatabaseUtils.tableExists(connection,"PROCESSES")) {
-					createProcessTable(connection);
-				}
 				StringBuffer buffer = new StringBuffer("select * from PROCESSES where STATUS = ?");
 				stm = connection.prepareStatement(buffer.toString());
 				stm.setInt(1, state.getVal());
@@ -468,6 +452,7 @@ public class DatabaseProcessManager implements LRProcessManager {
 	}
 
 	@Override
+	@InitProcessDatabase
 	public  List<LRProcess> getLongRunningProcesses(LRProcessOrdering ordering, TypeOfOrdering typeOfOrdering,LRProcessOffset offset) {
 		Connection connection = null;
 		PreparedStatement stm = null;
@@ -479,9 +464,6 @@ public class DatabaseProcessManager implements LRProcessManager {
 			List<LRProcess> processes = new ArrayList<LRProcess>();
 			connection = provider.get();
 			if (connection != null) {
-				if (!DatabaseUtils.tableExists(connection,"PROCESSES")) {
-					createProcessTable(connection);
-				}
 				StringBuffer buffer = new StringBuffer("select * from PROCESSES ");
 				if (ordering  != null) {
 					buffer.append(ordering.getOrdering()).append(' ');

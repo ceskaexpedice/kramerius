@@ -35,7 +35,21 @@ public class ProcessDatabaseUtils {
 			if (prepareStatement != null) prepareStatement.close();
 		}
 	}
+	
+	public static void addColumn(Connection con, String tableName, String columnName, String def) throws SQLException {
+        PreparedStatement prepareStatement = null;
+        try {
+            prepareStatement = con.prepareStatement("alter table "+tableName+" add column "+columnName +" "+def);
+            int r = prepareStatement.executeUpdate();
+            LOGGER.finest("alter table "+r);
+        } finally {
+            if (prepareStatement != null) prepareStatement.close();
+        }
+	    
+	}
 
+//	public static void create
+	
 //	public static void createRuntimeParametersTable(Connection con) throws SQLException {
 //		PreparedStatement prepareStatement = null;
 //		try {

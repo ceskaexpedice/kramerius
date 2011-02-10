@@ -34,7 +34,7 @@ import com.google.inject.name.Named;
 import cz.incad.kramerius.security.Group;
 import cz.incad.kramerius.security.User;
 import cz.incad.kramerius.security.UserManager;
-import cz.incad.kramerius.security.database.InitSecurityDatabaseBefore;
+import cz.incad.kramerius.security.database.InitSecurityDatabase;
 import cz.incad.kramerius.security.database.SecurityDatabaseUtils;
 import cz.incad.kramerius.security.utils.SecurityDBUtils;
 import cz.incad.kramerius.utils.database.JDBCQueryTemplate;
@@ -50,7 +50,7 @@ public class DatabaseUserManager implements UserManager{
 
     
     @Override
-    @InitSecurityDatabaseBefore
+    @InitSecurityDatabase
     public User validateUser(final String loginName, final String passwd) {
         String sql = SecurityDatabaseUtils.stGroup().getInstanceOf("findUser").toString();
         List<User> users= new JDBCQueryTemplate<User>(this.provider.get()){
@@ -72,7 +72,7 @@ public class DatabaseUserManager implements UserManager{
     }
 
     @Override
-    @InitSecurityDatabaseBefore
+    @InitSecurityDatabase
     public Group[] findGroupsForGivenUser(int user_id) {
         String sql = SecurityDatabaseUtils.stGroup().getInstanceOf("findAllGroupsByUserId").toString();
         List<Group> users= new JDBCQueryTemplate<Group>(this.provider.get()){
@@ -87,7 +87,7 @@ public class DatabaseUserManager implements UserManager{
     }
 
     @Override
-    @InitSecurityDatabaseBefore
+    @InitSecurityDatabase
     public User findUser(int user_id) {
         String sql = SecurityDatabaseUtils.stGroup().getInstanceOf("findUserByUserId").toString();
         List<User> users= new JDBCQueryTemplate<User>(this.provider.get()){
@@ -102,7 +102,7 @@ public class DatabaseUserManager implements UserManager{
     }
 
     @Override
-    @InitSecurityDatabaseBefore
+    @InitSecurityDatabase
     public Group findGroup(int group_id) {
         String sql = SecurityDatabaseUtils.stGroup().getInstanceOf("findGroupByGroupId").toString();
         List<Group> groups= new JDBCQueryTemplate<Group>(this.provider.get()){
@@ -117,7 +117,7 @@ public class DatabaseUserManager implements UserManager{
     }
 
     @Override
-    @InitSecurityDatabaseBefore
+    @InitSecurityDatabase
     public Group findCommonUsersGroup() {
         String sql = SecurityDatabaseUtils.stGroup().getInstanceOf("findCommonUsersGroup").toString();
         List<Group> groups= new JDBCQueryTemplate<Group>(this.provider.get()){
@@ -135,7 +135,7 @@ public class DatabaseUserManager implements UserManager{
     
     
     @Override
-    @InitSecurityDatabaseBefore
+    @InitSecurityDatabase
     public Group[] findGroupsWhichIAdministrate(int[] grpIds) {
         StringTemplate template = SecurityDatabaseUtils.stGroup().getInstanceOf("findGroupsWhichAdministrate");
         template.setAttribute("findGroupsWhichAdministrate", grpIds);
@@ -153,7 +153,7 @@ public class DatabaseUserManager implements UserManager{
     }
 
     @Override
-    @InitSecurityDatabaseBefore
+    @InitSecurityDatabase
     public Group findGlobalAdminGroup() {
         String sql = SecurityDatabaseUtils.stGroup().getInstanceOf("findGlobalAdminsGroup").toString();
         List<Group> groups= new JDBCQueryTemplate<Group>(this.provider.get()){
@@ -168,7 +168,7 @@ public class DatabaseUserManager implements UserManager{
     }
 
     @Override
-    @InitSecurityDatabaseBefore
+    @InitSecurityDatabase
     public Group findGroupByName(String gname) {
         String sql = SecurityDatabaseUtils.stGroup().getInstanceOf("findGroupByGname").toString();
         List<Group> groups= new JDBCQueryTemplate<Group>(this.provider.get()){
@@ -183,7 +183,7 @@ public class DatabaseUserManager implements UserManager{
     }
 
     @Override
-    @InitSecurityDatabaseBefore
+    @InitSecurityDatabase
     public User findUserByLoginName(String loginName) {
         String sql = SecurityDatabaseUtils.stGroup().getInstanceOf("findUserByLoginName").toString();
         List<User> users= new JDBCQueryTemplate<User>(this.provider.get()){
@@ -198,7 +198,7 @@ public class DatabaseUserManager implements UserManager{
     }
 
     @Override
-    @InitSecurityDatabaseBefore
+    @InitSecurityDatabase
     public User[] findUserByPrefix(String prefix) {
         String sql = SecurityDatabaseUtils.stGroup().getInstanceOf("findUserByPrefix").toString();
         List<User> users= new JDBCQueryTemplate<User>(this.provider.get()){
@@ -213,7 +213,7 @@ public class DatabaseUserManager implements UserManager{
     }
 
     @Override
-    @InitSecurityDatabaseBefore
+    @InitSecurityDatabase
     public User[] findUserByPrefixForGroups(String prefix, int[] grpIds) {
         StringTemplate template = SecurityDatabaseUtils.stGroup().getInstanceOf("findUserByPrefixForGroups");
         template.setAttribute("grps", grpIds);
@@ -230,7 +230,7 @@ public class DatabaseUserManager implements UserManager{
     }
 
     @Override
-    @InitSecurityDatabaseBefore
+    @InitSecurityDatabase
     public Group[] findGroupByPrefix(String prefix) {
         String sql = SecurityDatabaseUtils.stGroup().getInstanceOf("findGroupByPrefix").toString();
         List<Group> users= new JDBCQueryTemplate<Group>(this.provider.get()){
@@ -245,7 +245,7 @@ public class DatabaseUserManager implements UserManager{
     }
 
     @Override
-    @InitSecurityDatabaseBefore
+    @InitSecurityDatabase
     public Group[] findGroupByPrefixForGroups(String prefix,int[] grpIds) {
         StringTemplate template = SecurityDatabaseUtils.stGroup().getInstanceOf("findGroupByPrefixForGroups");
         template.setAttribute("grps", grpIds);
@@ -268,7 +268,7 @@ public class DatabaseUserManager implements UserManager{
         updateTemplate.executeUpdate(template.toString(), pswd, userId);
     }
 
-    @InitSecurityDatabaseBefore
+    @InitSecurityDatabase
     public User[] findAllUsers(String prefix) {
         StringTemplate template = SecurityDatabaseUtils.stGroup().getInstanceOf("findAllUsers");
         template.setAttribute("prefix", prefix.trim().equals("") ?  null : prefix);
@@ -298,7 +298,7 @@ public class DatabaseUserManager implements UserManager{
 
     
     @Override
-    @InitSecurityDatabaseBefore
+    @InitSecurityDatabase
     public User[] findAllUsers(int[] grpIds) {
         StringTemplate template = SecurityDatabaseUtils.stGroup().getInstanceOf("findAllUsersForGroups");
         template.setAttribute("grps", grpIds);
@@ -318,7 +318,7 @@ public class DatabaseUserManager implements UserManager{
     
     
     @Override
-    @InitSecurityDatabaseBefore
+    @InitSecurityDatabase
     public User[] findAllUsers(int[] grpIds, String prefix) {
         StringTemplate template = SecurityDatabaseUtils.stGroup().getInstanceOf("findAllUsersForGroups");
         template.setAttribute("grps", grpIds);
@@ -336,7 +336,7 @@ public class DatabaseUserManager implements UserManager{
     }
 
     @Override
-    @InitSecurityDatabaseBefore
+    @InitSecurityDatabase
     public Group[] findAllGroups(int[] grpIds, String prefix) {
         StringTemplate template = SecurityDatabaseUtils.stGroup().getInstanceOf("findAllGroupsForGroups");
         template.setAttribute("grps", grpIds);
@@ -354,7 +354,7 @@ public class DatabaseUserManager implements UserManager{
     }
 
     
-    @InitSecurityDatabaseBefore
+    @InitSecurityDatabase
     public Group[] findAllGroups(String prefix) {
         StringTemplate template = SecurityDatabaseUtils.stGroup().getInstanceOf("findAllGroups");
         template.setAttribute("prefix", prefix.trim().equals("") ?  null : prefix);
@@ -383,7 +383,7 @@ public class DatabaseUserManager implements UserManager{
     }
 
     @Override
-    @InitSecurityDatabaseBefore
+    @InitSecurityDatabase
     public User[] findUsersForGivenGroup(int groupId) {
         StringTemplate template = SecurityDatabaseUtils.stGroup().getInstanceOf("findUsersForGivenGroup");
         String sql = template.toString();
