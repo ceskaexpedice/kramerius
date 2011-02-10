@@ -34,22 +34,26 @@ import cz.incad.kramerius.processes.States;
 import cz.incad.kramerius.processes.TypeOfOrdering;
 import cz.incad.kramerius.processes.database.InitProcessDatabase;
 import cz.incad.kramerius.processes.database.ProcessDatabaseUtils;
+import cz.incad.kramerius.security.User;
+import cz.incad.kramerius.security.utils.SecurityDBUtils;
 
 public class DatabaseProcessManager implements LRProcessManager {
 	
 	public static final java.util.logging.Logger LOGGER = java.util.logging.Logger
 			.getLogger(DatabaseProcessManager.class.getName());
 	
-	private final Provider<Connection> provider;
+	private final Provider<Connection> connectionProvider;
 	private final DefinitionManager lrpdm;
+	private final Provider<User> userProvider;
 	
 	private final Lock reentrantLock = new ReentrantLock();
 	
 	@Inject
-	public DatabaseProcessManager(@Named("kramerius4")Provider<Connection> provider, DefinitionManager lrpdm) {
+	public DatabaseProcessManager(@Named("kramerius4")Provider<Connection> connectionProvider, Provider<User> userProvider, DefinitionManager lrpdm) {
 		super();
-		this.provider = provider;
+		this.connectionProvider = connectionProvider;
 		this.lrpdm = lrpdm;
+		this.userProvider = userProvider;
 	}
 
 	@Override
@@ -60,7 +64,7 @@ public class DatabaseProcessManager implements LRProcessManager {
 		try {
 			this.reentrantLock.lock();
 			
-			connection = provider.get();
+			connection = connectionProvider.get();
 			if (connection != null) {
 				stm = connection.prepareStatement("select * from PROCESSES where UUID = ?");
 				stm.setString(1, uuid);
@@ -116,9 +120,9 @@ public class DatabaseProcessManager implements LRProcessManager {
 		try {
 			this.reentrantLock.lock();
 			
-			connection = provider.get();
+			connection = connectionProvider.get();
 			if (connection != null) {
-				registerProcess(connection, lp);
+				registerProcess(connection, lp, this.userProvider.get());
 			}
 		} catch (SQLException e) {
 			LOGGER.log(Level.SEVERE, e.getMessage(), e);
@@ -143,7 +147,7 @@ public class DatabaseProcessManager implements LRProcessManager {
 		try {
 			this.reentrantLock.lock();
 			
-			connection = provider.get();
+			connection = connectionProvider.get();
 			ProcessDatabaseUtils.updateProcessPID(connection,  lrProcess.getPid(),lrProcess.getUUID());
 		} catch (SQLException e) {
 			LOGGER.log(Level.SEVERE, e.getMessage(), e);
@@ -169,7 +173,7 @@ public class DatabaseProcessManager implements LRProcessManager {
 		Connection connection = null;
 		try {
 			this.reentrantLock.lock();
-			connection = provider.get();
+			connection = connectionProvider.get();
 			ProcessDatabaseUtils.updateProcessName(connection, lrProcess.getUUID(), lrProcess.getProcessName());
 		} catch (SQLException e) {
 			LOGGER.log(Level.SEVERE, e.getMessage(), e);
@@ -194,7 +198,7 @@ public class DatabaseProcessManager implements LRProcessManager {
         Connection connection = null;
         try {
             this.reentrantLock.lock();
-            connection = provider.get();
+            connection = connectionProvider.get();
             ProcessDatabaseUtils.deleteProcess(connection, lrProcess.getUUID());
             File processWorkingDirectory = lrProcess.processWorkingDirectory();
             FileUtils.deleteDirectory(processWorkingDirectory);
@@ -222,7 +226,7 @@ public class DatabaseProcessManager implements LRProcessManager {
 		try {
 			this.reentrantLock.lock();
 			
-			connection = provider.get();
+			connection = connectionProvider.get();
 
 			ProcessDatabaseUtils.updateProcessStarted(connection, lrProcess.getUUID(), new Timestamp(lrProcess.getStartTime()));
 		} catch (SQLException e) {
@@ -247,7 +251,7 @@ public class DatabaseProcessManager implements LRProcessManager {
 		try {
 			this.reentrantLock.lock();
 			
-			connection = provider.get();
+			connection = connectionProvider.get();
 
 			ProcessDatabaseUtils.updateProcessState(connection, lrProcess.getUUID(), lrProcess.getProcessState());
 		} catch (SQLException e) {
@@ -277,7 +281,7 @@ public class DatabaseProcessManager implements LRProcessManager {
 			this.reentrantLock.lock();
 			
 			List<LRProcess> processes = new ArrayList<LRProcess>();
-			connection = provider.get();
+			connection = connectionProvider.get();
 			if (connection != null) {
 				// POZN: dotazovanych vet bude vzdycky malo, misto join budu provadet dodatecne selekty.  
 				// POZN: bude jich v radu jednotek. 
@@ -333,7 +337,7 @@ public class DatabaseProcessManager implements LRProcessManager {
 		try {
 			this.reentrantLock.lock();
 			
-			connection = provider.get();
+			connection = connectionProvider.get();
 			if (connection != null) {
 				StringBuffer buffer = new StringBuffer("select count(*) from PROCESSES ");
 				stm = connection.prepareStatement(buffer.toString());
@@ -410,7 +414,7 @@ public class DatabaseProcessManager implements LRProcessManager {
 			this.reentrantLock.lock();
 			
 			List<LRProcess> processes = new ArrayList<LRProcess>();
-			connection = provider.get();
+			connection = connectionProvider.get();
 			if (connection != null) {
 				StringBuffer buffer = new StringBuffer("select * from PROCESSES where STATUS = ?");
 				stm = connection.prepareStatement(buffer.toString());
@@ -462,7 +466,7 @@ public class DatabaseProcessManager implements LRProcessManager {
 			this.reentrantLock.lock();
 			
 			List<LRProcess> processes = new ArrayList<LRProcess>();
-			connection = provider.get();
+			connection = connectionProvider.get();
 			if (connection != null) {
 				StringBuffer buffer = new StringBuffer("select * from PROCESSES ");
 				if (ordering  != null) {

@@ -14,6 +14,7 @@ import java.util.logging.Level;
 
 import cz.incad.kramerius.processes.LRProcess;
 import cz.incad.kramerius.processes.States;
+import cz.incad.kramerius.security.User;
 
 /**
  * Utility class which contains methods for manipulation of processes
@@ -63,10 +64,10 @@ public class ProcessDatabaseUtils {
 
 	
 	
-	public static void registerProcess(Connection con, LRProcess lp) throws SQLException {
+	public static void registerProcess(Connection con, LRProcess lp, User user) throws SQLException {
 		PreparedStatement prepareStatement = null;
 		try {
-			prepareStatement = con.prepareStatement("insert into processes(DEFID, UUID,PLANNED, STATUS,PARAMS) values(?,?,?,?,?)");
+			prepareStatement = con.prepareStatement("insert into processes(DEFID, UUID,PLANNED, STATUS,PARAMS,STARTEDBY) values(?,?,?,?,?,?)");
 			prepareStatement.setString(1, lp.getDefinitionId());
 			prepareStatement.setString(2, lp.getUUID());
 			prepareStatement.setTimestamp(3, new Timestamp(lp.getPlannedTime()));
@@ -82,6 +83,7 @@ public class ProcessDatabaseUtils {
 			} else {
 				prepareStatement.setString(5, null);
 			}
+            prepareStatement.setInt(6, user.getId());
 			prepareStatement.executeUpdate();
 		}finally {
 			if (prepareStatement != null) prepareStatement.close();
