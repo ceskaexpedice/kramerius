@@ -71,13 +71,17 @@ public class UserTriggers extends AbstractUserTriggers implements PersisterTrigg
 
 	@Override
 	public RecordDTO beforeUpdate(RecordDTO recordDTO, Context ctx) {
-		PropertyDTO pswdDTO = structure.user.PASSWORD.clientClone(ctx);
-		recordDTO.setNotForSave(pswdDTO, true);
-		User user = GetCurrentLoggedUser.getCurrentLoggedUser(ctx.getHttpServletRequest());
-		if ((user == null) || (!user.hasSuperAdministratorRole())) {
-			PropertyDTO personalAdminDTO = structure.user.PERSONAL_ADMIN.clientClone(ctx);
-			recordDTO.setNotForSave(personalAdminDTO, true);
+		String[] bfs = recordDTO.getModifiedByBfs();
+		if (bfs.length == 0) {
+			PropertyDTO pswdDTO = structure.user.PASSWORD.clientClone(ctx);
+			recordDTO.setNotForSave(pswdDTO, true);
+			User user = GetCurrentLoggedUser.getCurrentLoggedUser(ctx.getHttpServletRequest());
+			if ((user == null) || (!user.hasSuperAdministratorRole())) {
+				PropertyDTO personalAdminDTO = structure.user.PERSONAL_ADMIN.clientClone(ctx);
+				recordDTO.setNotForSave(personalAdminDTO, true);
+			}
 		}
+
 
 		return null;
 	}
