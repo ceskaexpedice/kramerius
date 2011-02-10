@@ -90,6 +90,7 @@ public class ViewInfoServlet extends GuiceServlet {
                 boolean generated = resolutionFilePresent(uuid);
                 boolean conf = deepZoomConfigurationEnabled(uuid);
                 boolean hasAlto = this.fedoraAccess.isStreamAvailable(uuid, "ALTO");
+                String donator = this.fedoraAccess.getDonator(uuid);
                 
                 HashMap map = new HashMap();
                 map.put("deepZoomCacheGenerated", ""+generated);
@@ -138,6 +139,7 @@ public class ViewInfoServlet extends GuiceServlet {
                 
                 map.put("mimeType", mimeType);
                 map.put("hasAlto", ""+hasAlto);
+                map.put("donator", ""+donator);
 
                 
                 resp.setContentType("text/plain");

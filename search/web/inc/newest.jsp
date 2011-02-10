@@ -14,7 +14,7 @@
             <c:set var="rows" value="${param.rows}" scope="request" />
         </c:when>
         <c:otherwise>
-            <c:set var="rows"  value="18" scope="request" />
+            <c:set var="rows" value="18" scope="request" />
         </c:otherwise>
     </c:choose>
     <c:param name="rows" value="${rows}" />
@@ -23,7 +23,7 @@
         <c:set var="filters" scope="request"><c:out value="${filters}" />&fq=<c:out value="${fqs}" /></c:set>
     </c:forEach>
     <c:param name="start" value="${param.offset}" />
-    <c:param name="sort" value="created_date desc" />
+    <c:param name="sort" value="level asc, created_date desc" />
 </c:url>
 <c:catch var="exceptions"> 
     <c:import url="${url}" var="xml" charEncoding="UTF-8" />

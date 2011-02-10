@@ -70,6 +70,7 @@
                                                     <script type="text/javascript" language="javascript">
                                                         $(document).ready(function(){
                                                             $(".facetItem").removeClass('moreFacets');
+                                                            $("#suggestBody").css('height', $(".facetBody").height()-5);
                                                         });
                                                     </script>
                                                 </td></tr></table>

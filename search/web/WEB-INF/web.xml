@@ -15,7 +15,6 @@
 	</listener>
 
 	<!-- Servlets -->
-	
 	<servlet>
 		<servlet-name>i18n</servlet-name>
 		<servlet-class>cz.incad.Kramerius.I18NServlet</servlet-class>

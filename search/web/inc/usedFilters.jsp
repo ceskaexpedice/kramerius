@@ -37,8 +37,11 @@
         <c:set var="facetValue"><c:out value="${fn:substringAfter(fqs,':')}" escapeXml="false" /></c:set>
         <c:set var="facetValue"><c:out value="${fn:replace(facetValue, '\"', '')}" /></c:set>
         <c:set var="facetValueDisp"><c:out value="${facetValue}" /></c:set>
-        <c:if test="${facetName == 'fedora.model' || facetName == 'document_type' || facetName == 'dostupnost'}">
+        <c:if test="${facetName == 'fedora.model' || facetName == 'document_type'}">
             <c:set var="facetValueDisp"><fmt:message bundle="${lctx}" >fedora.model.<c:out value="${facetValueDisp}" /></fmt:message></c:set>
+        </c:if>
+        <c:if test="${facetName == 'dostupnost'}">
+            <c:set var="facetValueDisp"><fmt:message bundle="${lctx}" >dostupnost.<c:out value="${facetValueDisp}" /></fmt:message></c:set>
         </c:if>
         <div class="usedFilter">:: <a  class="mainNav" href="javascript:removeFacet(<c:out value="${status.count}" />);">
         <fmt:message bundle="${lctx}" ><c:out value="${facetName}" /></fmt:message>: <c:out value="${facetValueDisp}"/>&#160;<img src="img/x.png"  border="0" 

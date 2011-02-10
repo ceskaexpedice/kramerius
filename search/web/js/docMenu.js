@@ -701,9 +701,11 @@ function getTvContainerLeft() {
     return tvContainerLeft;	
 }
 
-function checkDonator(pid){
+function _checkDonator(pid){
     if(!pid) return;
     var url ="GetRelsExt?relation=donator&format=json&pid=uuid:"+pid;
+    //var url ="inc/details/getItemForBrowse.jsp?pid="+pid+"&level=0&onlyrels=true&model=donator";
+    
     
     $.getJSON(url, function(data){
         $.each(data.items, function(i,item){
@@ -721,5 +723,26 @@ function checkDonator(pid){
                 }
             });
         }); 
+    });
+}
+
+function checkDonator(pid){
+    if(!pid) return;
+
+    var url ="inc/details/donator.jsp?uuid="+pid;
+
+
+    $.get(url, function(data){
+                if(data!=""){
+                    var donatortext = 'proxy?pid=donator:'+data+'&dsname=TEXT-';
+                    if(language==""){
+                        donatortext += "CS";
+                    }else{
+                        donatortext += language.toUpperCase();
+                    }
+                    $.get(donatortext, function(data2){
+                        $("#donatorContainer").html('<div class="donator"><img height="50" src="proxy?pid=donator:'+data+'&dsname=LOGO" alt="'+data2+'" title="'+data2+'" /></div>');
+                    });
+                }
     });
 }
