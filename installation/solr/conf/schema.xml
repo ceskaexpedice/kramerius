@@ -329,7 +329,7 @@
         <field name="sec" type="string"  indexed="true"  stored="true"  />
         
         <field name="path" type="string"  indexed="true"  stored="true"  />
-        <field name="pid_path" type="text_fgs"  indexed="true"  stored="true"  />
+        <field name="pid_path" type="string_lower"  indexed="true"  stored="true"  />
         <field name="rels_ext_index" type="sint" indexed="true"  stored="true"  />
         <field name="level" type="sint" indexed="true"  stored="true"  />
         <field name="dc.title" type="text_fgs"  indexed="true"  stored="true" />
