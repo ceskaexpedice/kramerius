@@ -38,7 +38,10 @@ import cz.incad.kramerius.security.User;
 import cz.incad.kramerius.security.utils.SecurityDBUtils;
 
 public class DatabaseProcessManager implements LRProcessManager {
-	
+
+    //"DEFID,PID,UUID,STATUS,PLANNED,STARTED,NAME AS PNAME, PARAMS, STARTEDBY"
+
+    
 	public static final java.util.logging.Logger LOGGER = java.util.logging.Logger
 			.getLogger(DatabaseProcessManager.class.getName());
 	
@@ -66,7 +69,7 @@ public class DatabaseProcessManager implements LRProcessManager {
 			
 			connection = connectionProvider.get();
 			if (connection != null) {
-				stm = connection.prepareStatement("select * from PROCESSES where UUID = ?");
+				stm = connection.prepareStatement("select p.DEFID,PID,p.UUID,p.STATUS,p.PLANNED,p.STARTED,p.NAME AS PNAME, p.PARAMS, p.STARTEDBY, u.* from PROCESSES p left join user_entity u on (u.user_id=p.startedby) where UUID = ?");
 				stm.setString(1, uuid);
 				rs = stm.executeQuery();
 				if(rs.next()) {
@@ -285,7 +288,7 @@ public class DatabaseProcessManager implements LRProcessManager {
 			if (connection != null) {
 				// POZN: dotazovanych vet bude vzdycky malo, misto join budu provadet dodatecne selekty.  
 				// POZN: bude jich v radu jednotek. 
-				StringBuffer buffer = new StringBuffer("select * from PROCESSES where status = ?");
+				StringBuffer buffer = new StringBuffer("select p.DEFID,PID,p.UUID,p.STATUS,p.PLANNED,p.STARTED,p.NAME AS PNAME, p.PARAMS, p.STARTEDBY, u.* from processes p left join user_entity u on (u.user_id=p.startedby) where status = ?");
 				buffer.append(" ORDER BY PLANNED LIMIT ? ");
 				
 				stm = connection.prepareStatement(buffer.toString());
@@ -386,8 +389,9 @@ public class DatabaseProcessManager implements LRProcessManager {
 		int status = rs.getInt("STATUS");
 		Timestamp planned = rs.getTimestamp("PLANNED");
 		Timestamp started = rs.getTimestamp("STARTED");
-		String name = rs.getString("NAME");
+		String name = rs.getString("PNAME");
 		String params = rs.getString("PARAMS");
+        int startedBy = rs.getInt("STARTEDBY");
 		LRProcessDefinition definition = this.lrpdm.getLongRunningProcessDefinition(definitionId);
 		if (definition == null) {
 			throw new RuntimeException("cannot find definition '"+definitionId+"'");
@@ -398,6 +402,14 @@ public class DatabaseProcessManager implements LRProcessManager {
 			String[] paramsArray = params.split(",");
 			process.setParameters(Arrays.asList(paramsArray));
 		}
+		process.setUserId(startedBy);
+		User user = SecurityDBUtils.createUser(rs);
+		if (user.getLoginname() != null) {
+	        process.setUser(user);
+		} else {
+		    process.setUser(null);
+		}
+		
 		return process;
 	}
 	
@@ -416,7 +428,7 @@ public class DatabaseProcessManager implements LRProcessManager {
 			List<LRProcess> processes = new ArrayList<LRProcess>();
 			connection = connectionProvider.get();
 			if (connection != null) {
-				StringBuffer buffer = new StringBuffer("select * from PROCESSES where STATUS = ?");
+				StringBuffer buffer = new StringBuffer("select p.DEFID,PID,p.UUID,p.STATUS,p.PLANNED,p.STARTED,p.NAME AS PNAME, p.PARAMS, p.STARTEDBY, u.* from PROCESSES p left join user_entity u on (u.user_id=p.startedby) where STATUS = ?");
 				stm = connection.prepareStatement(buffer.toString());
 				stm.setInt(1, state.getVal());
 				rs = stm.executeQuery();
@@ -468,7 +480,7 @@ public class DatabaseProcessManager implements LRProcessManager {
 			List<LRProcess> processes = new ArrayList<LRProcess>();
 			connection = connectionProvider.get();
 			if (connection != null) {
-				StringBuffer buffer = new StringBuffer("select * from PROCESSES ");
+				StringBuffer buffer = new StringBuffer("select p.DEFID,PID,p.UUID,p.STATUS,p.PLANNED,p.STARTED,p.NAME AS PNAME, p.PARAMS, p.STARTEDBY, u.* from PROCESSES p left join user_entity u on (u.user_id=p.startedby)");
 				if (ordering  != null) {
 					buffer.append(ordering.getOrdering()).append(' ');
 				}

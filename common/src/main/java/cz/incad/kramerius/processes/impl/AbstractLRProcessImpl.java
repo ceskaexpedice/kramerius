@@ -20,6 +20,7 @@ import cz.incad.kramerius.processes.LRProcessDefinition;
 import cz.incad.kramerius.processes.LRProcessManager;
 import cz.incad.kramerius.processes.States;
 import cz.incad.kramerius.processes.impl.io.FollowStreamThread;
+import cz.incad.kramerius.security.User;
 import cz.incad.kramerius.utils.IOUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 
@@ -39,6 +40,8 @@ public abstract class AbstractLRProcessImpl implements LRProcess{
 	private String uuid;
 	private States state = States.NOT_RUNNING;
 	private String name;
+	private int userId;
+	private User user;
 	
 	private List<String> parameters = new ArrayList<String>();
 	
@@ -324,5 +327,27 @@ public abstract class AbstractLRProcessImpl implements LRProcess{
 	public void setPlannedTime(long plannedTime) {
 		this.plannedTime = plannedTime;
 	}
+
+
+    @Override
+    public int getUserId() {
+        return this.userId;
+    }
 	
+	
+    public void setUserId(int userId) {
+        this.userId = userId;
+    }
+
+
+    @Override
+    public User getUser() {
+        return this.user;
+    }
+
+
+    @Override
+    public void setUser(User user) {
+        this.user = user;
+    }
 }

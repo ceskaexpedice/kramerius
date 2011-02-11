@@ -6,6 +6,8 @@ import java.io.InputStream;
 import java.io.RandomAccessFile;
 import java.util.List;
 
+import cz.incad.kramerius.security.User;
+
 /**
  * Represents one running process
  * @author pavels
@@ -159,4 +161,12 @@ public interface LRProcess {
 	
 	
 	public File processWorkingDirectory();
+	
+	public int getUserId();
+	
+    public void setUserId(int userId);
+
+    public User getUser();
+    
+    public void setUser(User user);
 }
