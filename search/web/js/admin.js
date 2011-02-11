@@ -251,18 +251,21 @@ function replaceAll(txt, replace, with_this) {
 /**
  * Reindexace
  * @param level
+ * @param model
  * @return
  */
 function reindex(level, model) {
 	hideAdminOptions(level);
 	var uuid = $("#tabs_"+level).attr('pid');
-	var title = $("#info-"+model+" li.value").text();
-	//var escapedTitle = replaceAll(title, ',', '\\');
+	var title = $("#tabs_"+level + ">div>div[id=info-"+model+"]").text();
+	var escapedTitle = replaceAll(title, ',', '');
+	escapedTitle = replaceAll(escapedTitle, '\n', '');
+        escapedTitle = escapedTitle.replace(/ +(?= )/g,'');
 
-	var url = "lr?action=start&def=reindex&out=text&params=reindexDoc,"+uuid+","+title;
+	var url = "lr?action=start&def=reindex&out=text&params=reindexDoc,"+uuid+","+escapedTitle;
     if (_commonDialog) {
 
-		$("#common_started_ok").hide();
+	$("#common_started_ok").hide();
     	$("#common_started_failed").hide();
     	$("#common_started_waiting").show();
 
@@ -691,7 +694,8 @@ function indexDoc(pid, title){
     showConfirmDialog('Confirm index dokumentu', function(){
       var prefix = "info\:fedora\/uuid:";
       var uuid = pid.replace(prefix,"");
-      var url = "lr?action=start&def=reindex&out=text&params=fromKrameriusModel,"+uuid+","+title;
+      var escapedTitle = replaceAll(title, ',', '');
+      var url = "lr?action=start&def=reindex&out=text&params=fromKrameriusModel,"+uuid+","+escapedTitle;
       _startProcess(url);
     });
 }

@@ -173,9 +173,13 @@
     
     <xsl:template name="periodicalitem">
         <xsl:param name="detail" />
+        <xsl:if test="substring-before($detail, '##')!=''">
         <xsl:value-of select="substring-before($detail, '##')" /><br/>
+        </xsl:if>
         <xsl:variable name="remaining" select="substring-after($detail, '##')" />
+        <xsl:if test="substring-before($remaining, '##')!=''">
         <xsl:value-of select="substring-before($remaining, '##')" /><br/>
+        </xsl:if>
         <xsl:variable name="remaining" select="substring-after($remaining, '##')" />
         <fmt:message bundle="${lctx}">Datum vydání</fmt:message>: 
         <xsl:value-of select="substring-before($remaining, '##')" />&#160;
