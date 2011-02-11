@@ -150,7 +150,9 @@ public class Main {
             String exportFolder = exportRoot + subFolderName;
 
             File exportFolderFile = IOUtils.checkDirectory(exportFolder);
-            IOUtils.cleanDirectory(exportFolderFile);
+            if (!useContractSubfolders()){
+            	IOUtils.cleanDirectory(exportFolderFile);
+            }
             File[] children = importFile.listFiles();
             for (int i = 0; i < children.length; i++) {
                 visitAllDirsAndFiles(children[i], importRoot, exportRoot,  useDB, defaultVisibility, convertedURI);
@@ -309,6 +311,10 @@ public class Main {
         runtime.gc();
         Thread.sleep(100);
         return runtime.totalMemory() - runtime.freeMemory();
+    }
+    
+    public static boolean useContractSubfolders(){
+    	return KConfiguration.getInstance().getConfiguration().getBoolean("convert.useContractSubfolders", false);
     }
 
 }

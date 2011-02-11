@@ -109,6 +109,14 @@ public class MonographConvertor extends BaseConvertor {
 
         RelsExt re = new RelsExt(pid, MODEL_MONOGRAPH);
         boolean visibility = isPublic(uuid, config.isDefaultVisibility(), "m_monograph");
+        String contract = getContract(mono.getMonographPage());
+        if (contract == null) {
+            MonographUnit unit = firstItem(mono.getMonographUnit());
+            if (unit != null) {
+                contract = getContract(unit.getMonographPage());
+            }
+        }
+        getConfig().setContract(contract);
 
         for (MonographUnit unit : mono.getMonographUnit()) {
             this.convertUnit(unit, visibility);
@@ -136,13 +144,7 @@ public class MonographConvertor extends BaseConvertor {
         addDonatorRelation(re, biblio.getCreator());
 
         DublinCore dc = this.createMonographDublinCore(pid, title, biblio.getCreator(), biblio.getPublisher(), biblio.getContributor());
-        String contract = getContract(mono.getMonographPage());
-        if (contract == null) {
-            MonographUnit unit = firstItem(mono.getMonographUnit());
-            if (unit != null) {
-                contract = getContract(unit.getMonographPage());
-            }
-        }
+        
         dc.addQualifiedIdentifier(RelsExt.CONTRACT, contract);
         re.addRelation(RelsExt.CONTRACT, contract, true);
 

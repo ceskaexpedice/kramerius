@@ -61,6 +61,7 @@ import com.qbizm.kramerius.imptool.poc.valueobj.ServiceException;
 import com.sun.org.apache.xerces.internal.jaxp.datatype.XMLGregorianCalendarImpl;
 
 import cz.incad.kramerius.utils.FedoraUtils;
+import cz.incad.kramerius.utils.IOUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 import cz.incad.kramerius.utils.imgs.KrameriusImageSupport;
 
@@ -477,21 +478,19 @@ public abstract class BaseConvertor {
                 if (f != null) {
                     File imageFile = new File(getConfig().getImportFolder() + System.getProperty("file.separator") + f.getFilename());
                     if (imageFile.exists() && imageFile.canRead()) {
-                        DatastreamType base64Stream = this.createBase64Stream(f.getFilename());
-                        foxmlObject.getDatastream().add(base64Stream);
                         if (isImage(f.getFilename())) {
                         	BufferedImage img = null;
                         	try{
                         		img = readImage(getConfig().getImportFolder() + System.getProperty("file.separator") + f.getFilename());
                         	} catch (Exception e) {
-                                throw new ServiceException(e);
+                                throw new ServiceException("Problem with file: "+f.getFilename(),e);
                             }
-                            DatastreamType thumbnailStream = this.createThumbnailStream(img);
+                            DatastreamType thumbnailStream = this.createThumbnailStream(img, f.getFilename());
                             if (thumbnailStream != null) {
                                 foxmlObject.getDatastream().add(thumbnailStream);
                             }
                             if (KConfiguration.getInstance().getConfiguration().getBoolean("convert.generatePreview", true)){
-	                            DatastreamType previewStream = this.createPreviewStream(img);
+	                            DatastreamType previewStream = this.createPreviewStream(img, f.getFilename());
 	                            if (previewStream != null) {
 	                                foxmlObject.getDatastream().add(previewStream);
 	                            }
@@ -502,6 +501,10 @@ public abstract class BaseConvertor {
                             DatastreamType imageAdmStream = this.createImageMetaStream(getBase64StreamId(f.getFilename()) + "_ADM", f.getImageMetaData());
                             foxmlObject.getDatastream().add(imageAdmStream);
                         }
+                        
+                        DatastreamType base64Stream = this.createBase64Stream(f.getFilename());
+                        foxmlObject.getDatastream().add(base64Stream);
+                        
                     } else {
                         log.warn(WARN_FILE_DOESNT_EXIST + ": " + f.getFilename());
                     }
@@ -544,10 +547,14 @@ public abstract class BaseConvertor {
     private DatastreamType createBase64Stream(String filename) throws ServiceException {
         try {
             String streamId = getBase64StreamId(filename);
-
+            String streamType = KConfiguration.getInstance().getConfiguration().getString("convert.files", "encoded");
             DatastreamType stream = new DatastreamType();
             stream.setID(streamId);
-            stream.setCONTROLGROUP("M");
+            if ("external".equalsIgnoreCase(streamType)){
+            	stream.setCONTROLGROUP("E");
+            }else{
+            	stream.setCONTROLGROUP("M");
+            }
             stream.setVERSIONABLE(false);
             stream.setSTATE(StateType.A);
 
@@ -560,10 +567,31 @@ public abstract class BaseConvertor {
             // long start = System.currentTimeMillis();
 
             File pageFile = new File(getConfig().getImportFolder() + System.getProperty("file.separator") + filename);
-            byte[] binaryContent = FileUtils.readFileToByteArray(pageFile);
-
-            version.setBinaryContent(binaryContent);
-
+            
+            if ("encoded".equalsIgnoreCase(streamType)){
+	            byte[] binaryContent = FileUtils.readFileToByteArray(pageFile);
+	            version.setBinaryContent(binaryContent);
+            }else{//external or referenced
+            	String subfolderName = "";
+            	if (isImage(filename)){
+            		subfolderName= "img";
+            	}else{
+            		subfolderName= "txt";
+            	}
+            	String binaryDirectory = getConfig().getExportFolder() + System.getProperty("file.separator") + subfolderName;
+            	// Destination directory
+                File dir = IOUtils.checkDirectory(binaryDirectory);
+                // Move file to new directory
+                File target = new File(dir, pageFile.getName());
+                boolean success = pageFile.renameTo(target);
+                if (!success){
+                	throw new ServiceException("Cannot rename file "+filename);
+                }
+            	ContentLocationType cl = new ContentLocationType();
+            	cl.setREF("file:"+target.getAbsolutePath());
+            	cl.setTYPE("URL");
+            	version.setContentLocation(cl);
+            }
             // if (log.isDebugEnabled()) {
             // log.debug("Binary attachment: time(read)="
             // + (end - start)
@@ -615,12 +643,16 @@ public abstract class BaseConvertor {
      * @param pageHref
      * @return stream
      */
-    private DatastreamType createThumbnailStream(BufferedImage img) throws ServiceException {
+    private DatastreamType createThumbnailStream(BufferedImage img, String filename) throws ServiceException {
         try {
-            
+        	String streamType = KConfiguration.getInstance().getConfiguration().getString("convert.thumbnails", "encoded");
             DatastreamType stream = new DatastreamType();
             stream.setID(FedoraUtils.IMG_THUMB_STREAM);
-            stream.setCONTROLGROUP("M");
+            if ("external".equalsIgnoreCase(streamType)){
+            	stream.setCONTROLGROUP("E");
+            }else{
+            	stream.setCONTROLGROUP("M");
+            }
             stream.setVERSIONABLE(false);
             stream.setSTATE(StateType.A);
 
@@ -637,7 +669,22 @@ public abstract class BaseConvertor {
                 return null;
             }
 
-            version.setBinaryContent(binaryContent);
+            if ("encoded".equalsIgnoreCase(streamType)){
+	            version.setBinaryContent(binaryContent);
+            }else{//external or referenced
+            	
+            	String binaryDirectory = getConfig().getExportFolder() + System.getProperty("file.separator") + "thumbnail";
+            	// Destination directory
+                File dir = IOUtils.checkDirectory(binaryDirectory);
+                // Move file to new directory
+                File target = new File(dir, filename.substring(0, filename.indexOf('.'))+".jpg");
+                FileUtils.writeByteArrayToFile(target, binaryContent);
+               
+            	ContentLocationType cl = new ContentLocationType();
+            	cl.setREF("file:"+target.getAbsolutePath());
+            	cl.setTYPE("URL");
+            	version.setContentLocation(cl);
+            }
 
             // if (log.isDebugEnabled()) {
             // log.debug("Binary attachment: time(read)="
@@ -661,12 +708,16 @@ public abstract class BaseConvertor {
      * @param pageHref
      * @return stream
      */
-    private DatastreamType createPreviewStream(BufferedImage img) throws ServiceException {
+    private DatastreamType createPreviewStream(BufferedImage img, String filename) throws ServiceException {
         try {
-            
+        	String streamType = KConfiguration.getInstance().getConfiguration().getString("convert.previews", "encoded");
             DatastreamType stream = new DatastreamType();
             stream.setID(FedoraUtils.IMG_PREVIEW_STREAM);
-            stream.setCONTROLGROUP("M");
+            if ("external".equalsIgnoreCase(streamType)){
+            	stream.setCONTROLGROUP("E");
+            }else{
+            	stream.setCONTROLGROUP("M");
+            }
             stream.setVERSIONABLE(false);
             stream.setSTATE(StateType.A);
 
@@ -677,13 +728,29 @@ public abstract class BaseConvertor {
             version.setMIMETYPE("image/jpeg");
 
             // long start = System.currentTimeMillis();
-
-            byte[] binaryContent = scaleImage(img,0, FedoraUtils.PREVIEW_HEIGHT);
+            int previewSize =  KConfiguration.getInstance().getConfiguration().getInt("convert.previewSize", FedoraUtils.PREVIEW_HEIGHT);
+            byte[] binaryContent = scaleImage(img,previewSize, previewSize);
             if (binaryContent.length == 0) {
                 return null;
             }
 
-            version.setBinaryContent(binaryContent);
+            
+            if ("encoded".equalsIgnoreCase(streamType)){
+	            version.setBinaryContent(binaryContent);
+            }else{//external or referenced
+            	
+            	String binaryDirectory = getConfig().getExportFolder() + System.getProperty("file.separator") + "preview";
+            	// Destination directory
+                File dir = IOUtils.checkDirectory(binaryDirectory);
+                // Move file to new directory
+                File target = new File(dir, filename.substring(0, filename.indexOf('.'))+".jpg");
+                FileUtils.writeByteArrayToFile(target, binaryContent);
+               
+            	ContentLocationType cl = new ContentLocationType();
+            	cl.setREF("file:"+target.getAbsolutePath());
+            	cl.setTYPE("URL");
+            	version.setContentLocation(cl);
+            }
 
             // if (log.isDebugEnabled()) {
             // log.debug("Binary attachment: time(read)="
@@ -758,14 +825,26 @@ public abstract class BaseConvertor {
 	        nHeight = newHeight;
 	        double div = (double) img.getHeight(observer) / (double) nHeight;
 	        nWidth =  (int) (img.getWidth(observer) / div);
+	        if (newWidth>0 &&nWidth>newWidth){
+	        	nWidth = newWidth;
+			    div = (double) img.getWidth(observer) / (double) nWidth;
+			    nHeight =  (int) (img.getHeight(observer) / div);
+	        }
 	    }else{
 	    	nWidth = newWidth;
 		    double div = (double) img.getWidth(observer) / (double) nWidth;
 		    nHeight =  (int) (img.getHeight(observer) / div);
+		    if (newHeight>0 && nHeight>newHeight){
+		    	nHeight = newHeight;
+		        div = (double) img.getHeight(observer) / (double) nHeight;
+		        nWidth =  (int) (img.getWidth(observer) / div);
+		    }
 	    }
         BufferedImage scaledImage = KrameriusImageSupport.scale(img, nWidth, nHeight);
         return scaledImage;
     }
+    
+    
     
     private static final String NS_ADM =  "http://www.qbizm.cz/kramerius-fedora/image-adm-description";
 

@@ -44,7 +44,7 @@ public class FedoraUtils {
     public static final String IMG_FULL_STREAM = "IMG_FULL";
     public static final String IMG_PREVIEW_STREAM = "IMG_PREVIEW";
     public static final int THUMBNAIL_HEIGHT = 128;
-    public static final int PREVIEW_HEIGHT = 512;
+    public static final int PREVIEW_HEIGHT = 700;
 
     public static ArrayList<String> getRdfPids(String pid, String relation) {
         ArrayList<String> pids = new ArrayList<String>();

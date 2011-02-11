@@ -43,6 +43,10 @@ public class Import {
 
     public static void ingest(final String url, final String user, final String pwd, String importRoot) {
         log.info("INGEST:"+url+user+pwd+importRoot);
+        if (KConfiguration.getInstance().getConfiguration().getBoolean("ingest.skip",false)){
+        	log.info("INGEST CONFIGURED TO BE SKIPPED, RETURNING");
+        	return;
+        }
         long start = System.currentTimeMillis();
         
         File importFile = new File(importRoot);

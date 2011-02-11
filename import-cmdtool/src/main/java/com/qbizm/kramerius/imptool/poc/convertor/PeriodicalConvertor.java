@@ -209,6 +209,15 @@ public class PeriodicalConvertor extends BaseConvertor {
         RelsExt re = new RelsExt(pid, MODEL_PERIODICAL_VOLUME);
         
         boolean visibility = isPublic(uuid, parentVisibility, "p_periodicalvolume");
+        
+        String contract = getContract(volume.getPeriodicalPage());
+        if (contract == null){
+            PeriodicalItem item = firstItem(volume.getPeriodicalItem());
+            if (item !=  null){
+                contract = getContract(item.getPeriodicalPage());
+            }
+        }
+        getConfig().setContract(contract);
 
         for (PeriodicalItem item : volume.getPeriodicalItem()) {
             this.convertItem(item, visibility);
@@ -234,13 +243,7 @@ public class PeriodicalConvertor extends BaseConvertor {
         }
         
         DublinCore dc = createPeriodicalDublinCore(pid, title, biblio);
-        String contract = getContract(volume.getPeriodicalPage());
-        if (contract == null){
-            PeriodicalItem item = firstItem(volume.getPeriodicalItem());
-            if (item !=  null){
-                contract = getContract(item.getPeriodicalPage());
-            }
-        }
+        
         dc.addQualifiedIdentifier(RelsExt.CONTRACT, contract);
         re.addRelation(RelsExt.CONTRACT, contract, true);
         

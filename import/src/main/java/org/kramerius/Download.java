@@ -116,8 +116,8 @@ public class Download {
     private static void processReplication(Download download, Replication rep){
         try{
             download.replicateAll(rep);
-            String uuid = Main.convert(KConfiguration.getInstance().getProperty("migration.directory"), KConfiguration.getInstance().getProperty("migration.directory")+CONV_SUFFIX, true, false);
-            Import.ingest(KConfiguration.getInstance().getProperty("ingest.url"), KConfiguration.getInstance().getProperty("ingest.user"), KConfiguration.getInstance().getProperty("ingest.password"), KConfiguration.getInstance().getProperty("migration.directory")+CONV_SUFFIX);
+            String uuid = Main.convert(KConfiguration.getInstance().getProperty("migration.directory"), KConfiguration.getInstance().getProperty("migration.target.directory"), true, false);
+            Import.ingest(KConfiguration.getInstance().getProperty("ingest.url"), KConfiguration.getInstance().getProperty("ingest.user"), KConfiguration.getInstance().getProperty("ingest.password"), KConfiguration.getInstance().getProperty("migration.target.directory"));
             logSuccess(rep.getID(), uuid);
             startIndexing(rep.getID(), uuid);
         }catch (Exception t){

@@ -4,6 +4,10 @@ import java.sql.Connection;
 
 import javax.xml.bind.Marshaller;
 
+import com.qbizm.kramerius.imptool.poc.Main;
+
+import cz.incad.kramerius.utils.IOUtils;
+
 /**
  * Konfigurace konvertoru
  * 
@@ -20,6 +24,9 @@ public class ConvertorConfig {
     private int contractLength;
     
     private boolean defaultVisibility = false;
+    
+    private String contract;
+    
     
     private Connection dbConnection;
 
@@ -71,4 +78,15 @@ public class ConvertorConfig {
         this.dbConnection = dbConnection;
     }
 
+	public void setContract(String contract) {
+		this.contract = contract;
+		if (Main.useContractSubfolders()){
+			this.exportFolder = this.exportFolder+ System.getProperty("file.separator")+contract;
+			IOUtils.checkDirectory(this.exportFolder);
+		}
+	}
+
+	
+
+	
 }
