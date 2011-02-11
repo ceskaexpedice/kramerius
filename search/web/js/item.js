@@ -46,19 +46,6 @@ function showPersistentURL(level, model) {
     });
 }
 
-
-
-function _getBiblioInfo(pid, model, list, inf, setInf){
-    var url = 'inc/details/biblioToRdf.jsp?pid=uuid:' + pid + "&xsl=default.jsp&model="+model;
-    $.get(url, function(xml) {
-        $(".relItem[pid='" + pid + "']").html(xml);
-        $(".relItem[pid='" + pid + "']").attr('hasbiblio', 'true');
-        if(setInf){
-            $(inf).html(xml);
-        }
-    });
-}
-
 function scrollElement(container, element){
     $(container).scrollTop($(element).offset().top - $(container).offset().top + $(container).scrollTop());
     $(container).scrollLeft($(element).offset().left);
