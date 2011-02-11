@@ -124,6 +124,18 @@ public class ProcessesViewObject {
 	        }
 	    }
 
+	public String getUserOrdering() {
+        try {
+            String pidString = bundleService.getResourceBundle("labels", locale).getString("administrator.processes.user");
+            LRProcessOrdering nOrdering = LRProcessOrdering.LOGINNAME;
+            boolean changeTypeOfOrdering = this.ordering.equals(nOrdering);
+            return newOrderingURL(nOrdering,pidString,changeTypeOfOrdering ? switchOrdering() : TypeOfOrdering.ASC);
+        } catch (IOException e) {
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+            return e.getMessage();
+        }
+	}
+	   
 	public String getPidOrdering() {
 		try {
 			String pidString = bundleService.getResourceBundle("labels", locale).getString("administrator.processes.pid");
