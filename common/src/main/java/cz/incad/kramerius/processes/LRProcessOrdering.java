@@ -6,6 +6,7 @@ public enum LRProcessOrdering {
 	STATE("order by status"),
 	NAME("order by name"),
 	STARTED("order by started"),
+	LOGINNAME("order by loginname"),
     PLANNED("order by planned");
 	
 	private String ordering;
