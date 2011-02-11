@@ -109,7 +109,9 @@ public class SolrOperations {
             } else if ("krameriusModel".equals(action)) {
                 krameriusModel(value, requestParams);
             } else if ("reindexDoc".equals(action)) {
-                reindexDoc(value, requestParams);
+                reindexDoc(value, false, requestParams);
+            }else if ("reindexDocForced".equals(action)) {
+                reindexDoc(value, true, requestParams);
             }
 
         } catch (Exception ex) {
@@ -145,6 +147,7 @@ public class SolrOperations {
 
     private void reindexDoc(
             String pid,
+            boolean force,
             ArrayList<String> requestParams)
             throws java.rmi.RemoteException, IOException, Exception {
         if (pid == null || pid.length() < 1) {
@@ -170,10 +173,22 @@ public class SolrOperations {
             Node node = (Node) expr.evaluate(solrDom, XPathConstants.NODE);
             //System.out.println(node.getFirstChild().getNodeValue());
             indexParams.setParam("ROOT_PID", node.getFirstChild().getNodeValue());
+            
+            xPathStr = "/response/result/doc/arr[@name='parent_pid']/str";
+            expr = xpath.compile(xPathStr);
+            node = (Node) expr.evaluate(solrDom, XPathConstants.NODE);
+            indexParams.setParam("PARENT_PID", node.getFirstChild().getNodeValue());
+            
+            xPathStr = "/response/result/doc/str[@name='parent_model']";
+            expr = xpath.compile(xPathStr);
+            node = (Node) expr.evaluate(solrDom, XPathConstants.NODE);
+            indexParams.setParam("PARENT_MODEL", node.getFirstChild().getNodeValue());
+            
             xPathStr = "/response/result/doc/str[@name='pid_path']";
             expr = xpath.compile(xPathStr);
             node = (Node) expr.evaluate(solrDom, XPathConstants.NODE);
             indexParams.setParam("PID_PATH", node.getFirstChild().getNodeValue());
+
             xPathStr = "/response/result/doc/str[@name='root_title']";
             expr = xpath.compile(xPathStr);
             node = (Node) expr.evaluate(solrDom, XPathConstants.NODE);
@@ -200,15 +215,25 @@ public class SolrOperations {
             node = (Node) expr.evaluate(solrDom, XPathConstants.NODE);
             indexParams.setParam("LEVEL", node.getFirstChild().getNodeValue());
 
+            xPathStr = "/response/result/doc/str[@name='language']";
+            expr = xpath.compile(xPathStr);
+            node = (Node) expr.evaluate(solrDom, XPathConstants.NODE);
+            indexParams.setParam("LANGUAGE", node.getFirstChild().getNodeValue());
+
+            xPathStr = "/response/result/doc/str[@name='datum']";
+            expr = xpath.compile(xPathStr);
+            node = (Node) expr.evaluate(solrDom, XPathConstants.NODE);
+            indexParams.setParam("DATUM", node.getFirstChild().getNodeValue());
+
             xPathStr = "/response/result/doc/date[@name='timestamp']";
             expr = xpath.compile(xPathStr);
             node = (Node) expr.evaluate(solrDom, XPathConstants.NODE);
             DateFormat formatter = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
             Date date = formatter.parse(node.getFirstChild().getNodeValue());
 
-            indexByPid(pid, date, false, new ByteArrayInputStream(fedoraOperations.foxmlRecord), requestParams, indexParams);
+            indexByPid(pid, date, force, new ByteArrayInputStream(fedoraOperations.foxmlRecord), requestParams, indexParams);
         } catch (Exception ex) {
-            logger.severe(ex.toString());
+            logger.log(Level.SEVERE, "Error reindexing doc " + pid, ex);
         }
     }
 
@@ -349,9 +374,9 @@ public class SolrOperations {
                     DateFormat formatter = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
                     Date dateValue = formatter.parse(dateNode.getNodeValue());
                     if (dateValue.before(date)) {
-                        logger.info("Document is up to date. Skipping");
+                        logger.info(String.format("Document %s is up to date. Skipping", pid));
                         if (!force) {
-                            return num;
+                            return getActualNumOfPagesFromSolr(pid);
                         }
                     }
                 }
@@ -713,5 +738,35 @@ public class SolrOperations {
             }
         }
         return ids;
+    }
+
+    private int getActualNumOfPagesFromSolr(String pid) {
+        if (pid == null || pid.length() < 1) {
+            return 0;
+        }
+        try {
+            String urlStr = config.getString("solrHost") + "/select/select?q=PID:\"" + pid.replaceAll("uuid:", "") + "\"";
+            String uuid = pid.startsWith("uuid:") ? pid : "uuid:" + pid;
+            fedoraOperations.getFoxmlFromPid(uuid);
+            contentDom = getDocument(new ByteArrayInputStream(fedoraOperations.foxmlRecord));
+            factory = XPathFactory.newInstance();
+            xpath = factory.newXPath();
+            IndexParams indexParams = new IndexParams(uuid, contentDom);
+
+            /* get current up values */
+
+            java.net.URL url = new java.net.URL(urlStr);
+
+            DocumentBuilder builder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
+            org.w3c.dom.Document solrDom = builder.parse(url.openStream());
+            String xPathStr = "/response/result/doc/int[@name='pages_count']";
+            expr = xpath.compile(xPathStr);
+            Node node = (Node) expr.evaluate(solrDom, XPathConstants.NODE);
+            //System.out.println(node.getFirstChild().getNodeValue());
+            return Integer.parseInt(node.getFirstChild().getNodeValue());
+        }catch(Exception e){
+            logger.log(Level.WARNING, "Can't retrieve actual number of pages.", e);
+            return 0;
+        }
     }
 }

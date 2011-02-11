@@ -138,7 +138,7 @@ public class IndexParams {
             paramsMap.put("ROOT_PID", parentParams.paramsMap.get("ROOT_PID"));
             paramsMap.put("ROOT_MODEL", parentParams.paramsMap.get("ROOT_MODEL"));
             paramsMap.put("ROOT_TITLE", parentParams.paramsMap.get("ROOT_TITLE"));
-            if (parentParams.paramsMap.containsKey("LANGUAGE")) {
+            if (!paramsMap.containsKey("LANGUAGE") && parentParams.paramsMap.containsKey("LANGUAGE")) {
                 paramsMap.put("LANGUAGE", parentParams.paramsMap.get("LANGUAGE"));
             }
 
@@ -216,12 +216,10 @@ public class IndexParams {
             String xPathStr = "";
 //logger.info("pid: " + pid + " -> model: " + model);
             String prefix = "/digitalObject/datastream[@ID='BIBLIO_MODS']/datastreamVersion[last()]/xmlContent/modsCollection/mods/";
-            if (model.equals("periodicalvolume")) {
+            if (model.equals("hasVolume")) {
                 xPathStr = prefix + "part/date/text()";
-            } else if (model.equals("periodicalitem")) {
+            } else if (model.equals("hasItem")) {
                 xPathStr = prefix + "part/date/text()";
-            } else if (model.equals("periodical")) {
-                xPathStr = prefix + "originInfo[@transliteration='publisher']/dateIssued/text()";
             } else {
                 xPathStr = prefix + "originInfo[@transliteration='publisher']/dateIssued/text()";
             }

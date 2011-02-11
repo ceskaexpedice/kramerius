@@ -50,7 +50,7 @@
     <xsl:param name="ROOT_TITLE" select="''"/>
     <xsl:param name="ROOT_MODEL" select="''"/>
     <xsl:param name="ROOT_PID" select="''"/>
-    <xsl:param name="LANGUAGE" select="'cze'"/>
+    <xsl:param name="LANGUAGE" select="''"/>
     <xsl:param name="LEVEL" select="''"/>
     <xsl:param name="RELS_EXT_INDEX" select="1"/>
     <xsl:param name="PARENTS" select="''"/>
@@ -238,18 +238,22 @@
             <xsl:with-param name="parent"><xsl:value-of select="$PARENTS"/></xsl:with-param>
         </xsl:call-template>
         </xsl:if>
-        
+
+
         <xsl:if test="$pageNum != 0">
             <field name="parent_pid">
                 <xsl:value-of select="substring($PID, 6)"/>
             </field>
         </xsl:if>
+
         
+        <xsl:if test="$PARENT_PID and not($PARENT_PID = '')" >
             <field name="parent_pid">
                 <xsl:value-of select="$PARENT_PID" />
             </field>
-        <xsl:if test="$PARENT_PID and not($PARENT_PID = '')" >
         </xsl:if>
+        
+        
         <xsl:if test="$MODEL != 'page'">
         </xsl:if>
         
