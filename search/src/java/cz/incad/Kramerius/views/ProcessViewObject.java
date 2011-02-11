@@ -17,6 +17,7 @@ import cz.incad.kramerius.processes.LRProcessOffset;
 import cz.incad.kramerius.processes.LRProcessOrdering;
 import cz.incad.kramerius.processes.States;
 import cz.incad.kramerius.processes.TypeOfOrdering;
+import cz.incad.kramerius.security.User;
 import cz.incad.kramerius.service.ResourceBundleService;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 
@@ -142,6 +143,16 @@ public class ProcessViewObject {
         return builder.toString();
     }
 
+    
+    public String getStartedBy() {
+        StringBuilder builder = new StringBuilder();
+        User user = this.lrProcess.getUser();
+        if (user != null) {
+            builder.append(user.getLoginname()).append(" (").append(user.getFirstName()).append(" ").append(user.getSurname()).append(")");
+        }
+        return builder.toString();
+    }
+    
     private String getActionAHREF(LRDefinitionAction act) {
         try {
             String bundleKey = act.getResourceBundleKey();
