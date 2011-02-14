@@ -124,61 +124,26 @@ join group_entity ge on (ge.group_id=guass.group_id);
 insert into group_entity(group_id,gname) 
 values(nextval('group_id_sequence'),'common_users'); 
 
--- skupina knav users
-insert into group_entity(group_id,gname) 
-values(nextval('group_id_sequence'),'knav_users'); 
 
 -- skupina k4 admins
 insert into group_entity(group_id,gname) 
 values(nextval('group_id_sequence'),'k4_admins'); 
 
--- skupina knav_subadmins
-insert into group_entity(group_id,gname) 
-values(nextval('group_id_sequence'),'knav_subadmins'); 
 
 
 -- administrace skupin
 -- -- common administruje k4_admins
-update group_entity set personal_admin_id=3 where group_id=1;
--- -- knav_subadmins administruje k4_admins
-update group_entity set personal_admin_id=3 where group_id=4;
--- -- knav_users administruje knav_subadmins
-update group_entity set personal_admin_id=4 where group_id=2;
+update group_entity set personal_admin_id=2 where group_id=1;
 
 
-
--- jeden uzivatel
-insert into user_entity (user_id,"name", surname,loginname,pswd)
-values(nextval('user_id_sequence'), 'knav_admin','knav_admin','knav@admin.cz','MwEWjgJfjPWFE8yHrUwjIQzwcK8=');
-
+-- krameriusAdmin
 insert into user_entity (user_id,"name", surname,loginname,pswd)
 values(nextval('user_id_sequence'), 'kramerius','admin','krameriusAdmin','cqEk6m3f+bpT50XDAha1r5Wa7Q0=');
 
-insert into user_entity (user_id,"name", surname,loginname,pswd)
-values(nextval('user_id_sequence'), 'Karel','Poslusny','karels@poslusny.cz','MwEWjgJfjPWFE8yHrUwjIQzwcK8=');
-
-
--- poslusneho administruje knav_subadmins
-update user_entity set personal_admin_id=4 where user_id=3;
-
-
-
 -- asociace (uzvivatel, skupina)
--- -- vomacka = knav subadmins
+-- -- krameriusAdmin = k4_admins
 insert into group_user_assoc(group_user_assoc_id, user_id, group_id)
-values(nextval('group_user_assoc_id_sequence'),1,4);
-
--- -- pavels = knav_users
-insert into group_user_assoc(group_user_assoc_id, user_id, group_id)
-values(nextval('group_user_assoc_id_sequence'),2,2);
-
--- -- pavels = k4_admins
-insert into group_user_assoc(group_user_assoc_id, user_id, group_id)
-values(nextval('group_user_assoc_id_sequence'),2,3);
-
--- -- karel poslusny = knav_users
-insert into group_user_assoc(group_user_assoc_id, user_id, group_id)
-values(nextval('group_user_assoc_id_sequence'),3,2);
+values(nextval('group_user_assoc_id_sequence'),1,2);
 
 
 -- insert into params
@@ -206,59 +171,53 @@ VALUES(nextval('RIGHT_ID_SEQUENCE '), 'uuid:1','read', 2,1);
 
 -- administratorske akce
 insert into RIGHT_ENTITY(RIGHT_ID, UUID,ACTION, GROUP_ID) 
-VALUES(nextval('RIGHT_ID_SEQUENCE '), 'uuid:1','import',3);
+VALUES(nextval('RIGHT_ID_SEQUENCE '), 'uuid:1','import',2);
 
 insert into RIGHT_ENTITY(RIGHT_ID, UUID,ACTION,GROUP_ID) 
-VALUES(nextval('RIGHT_ID_SEQUENCE '), 'uuid:1','convert',3);
+VALUES(nextval('RIGHT_ID_SEQUENCE '), 'uuid:1','convert',2);
 
 insert into RIGHT_ENTITY(RIGHT_ID, UUID,ACTION, GROUP_ID) 
-VALUES(nextval('RIGHT_ID_SEQUENCE '), 'uuid:1','replicationrights', 3);
+VALUES(nextval('RIGHT_ID_SEQUENCE '), 'uuid:1','replicationrights', 2);
 
 insert into RIGHT_ENTITY(RIGHT_ID, UUID,ACTION, GROUP_ID) 
-VALUES(nextval('RIGHT_ID_SEQUENCE '), 'uuid:1','enumerator',3);
+VALUES(nextval('RIGHT_ID_SEQUENCE '), 'uuid:1','enumerator',2);
 
 insert into RIGHT_ENTITY(RIGHT_ID, UUID,ACTION, GROUP_ID) 
-VALUES(nextval('RIGHT_ID_SEQUENCE '), 'uuid:1','reindex',3);
+VALUES(nextval('RIGHT_ID_SEQUENCE '), 'uuid:1','reindex',2);
 
 insert into RIGHT_ENTITY(RIGHT_ID, UUID,ACTION, GROUP_ID) 
-VALUES(nextval('RIGHT_ID_SEQUENCE '), 'uuid:1','replikator_periodicals',3);
+VALUES(nextval('RIGHT_ID_SEQUENCE '), 'uuid:1','replikator_periodicals',2);
 
 insert into RIGHT_ENTITY(RIGHT_ID, UUID,ACTION, GROUP_ID) 
-VALUES(nextval('RIGHT_ID_SEQUENCE '), 'uuid:1','replikator_monographs',3);
+VALUES(nextval('RIGHT_ID_SEQUENCE '), 'uuid:1','replikator_monographs',2);
 
 insert into RIGHT_ENTITY(RIGHT_ID, UUID,ACTION, GROUP_ID) 
-VALUES(nextval('RIGHT_ID_SEQUENCE '), 'uuid:1','replikator_monographs',3);
+VALUES(nextval('RIGHT_ID_SEQUENCE '), 'uuid:1','delete',2);
 
 insert into RIGHT_ENTITY(RIGHT_ID, UUID,ACTION, GROUP_ID) 
-VALUES(nextval('RIGHT_ID_SEQUENCE '), 'uuid:1','delete',3);
+VALUES(nextval('RIGHT_ID_SEQUENCE '), 'uuid:1','export',2);
 
 insert into RIGHT_ENTITY(RIGHT_ID, UUID,ACTION, GROUP_ID) 
-VALUES(nextval('RIGHT_ID_SEQUENCE '), 'uuid:1','export',3);
+VALUES(nextval('RIGHT_ID_SEQUENCE '), 'uuid:1','setprivate',2);
 
 insert into RIGHT_ENTITY(RIGHT_ID, UUID,ACTION, GROUP_ID) 
-VALUES(nextval('RIGHT_ID_SEQUENCE '), 'uuid:1','setprivate',3);
+VALUES(nextval('RIGHT_ID_SEQUENCE '), 'uuid:1','setpublic',2);
 
 insert into RIGHT_ENTITY(RIGHT_ID, UUID,ACTION, GROUP_ID) 
-VALUES(nextval('RIGHT_ID_SEQUENCE '), 'uuid:1','setpublic',3);
-
-insert into RIGHT_ENTITY(RIGHT_ID, UUID,ACTION, GROUP_ID) 
-VALUES(nextval('RIGHT_ID_SEQUENCE '), 'uuid:1','manage_lr_process',3);
+VALUES(nextval('RIGHT_ID_SEQUENCE '), 'uuid:1','manage_lr_process',2);
 
 
 insert into RIGHT_ENTITY(RIGHT_ID, UUID,ACTION, GROUP_ID) 
-VALUES(nextval('RIGHT_ID_SEQUENCE '), 'uuid:1','editor',3);
+VALUES(nextval('RIGHT_ID_SEQUENCE '), 'uuid:1','editor',2);
 
 insert into RIGHT_ENTITY(RIGHT_ID, UUID,ACTION, GROUP_ID) 
-VALUES(nextval('RIGHT_ID_SEQUENCE '), 'uuid:1','administrate',3);
+VALUES(nextval('RIGHT_ID_SEQUENCE '), 'uuid:1','administrate',2);
 
 
 -- prava pro rights editor 
 -- -- k4_admins
 insert into RIGHT_ENTITY(RIGHT_ID, UUID,ACTION, GROUP_ID) 
-VALUES(nextval('RIGHT_ID_SEQUENCE '), 'uuid:1','rightsadmin',3);
+VALUES(nextval('RIGHT_ID_SEQUENCE '), 'uuid:1','rightsadmin',2);
 
--- -- knav_subadmins
-insert into RIGHT_ENTITY(RIGHT_ID, UUID,ACTION, GROUP_ID) 
-VALUES(nextval('RIGHT_ID_SEQUENCE '), 'uuid:1','rightssubadmin',4);
 
 
