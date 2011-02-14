@@ -100,12 +100,10 @@ public class SortingRightsUtils {
     }
 
     public static void sortByUUID(final List<Right> list, final List<String>uuids) {
-        System.out.println(uuids);
         Collections.sort(list, new Comparator<Right>() {
     
             @Override
             public int compare(Right o1, Right o2) {
-                System.out.println(uuids);
                 int thisVal = uuids.indexOf(o1.getPid());
                 int anotherVal = uuids.indexOf(o2.getPid());
                 return (thisVal<anotherVal ? -1 : (thisVal==anotherVal ? 0 : 1));
