@@ -45,8 +45,8 @@ rightsTable(rights, uuid, action,users, typeOfLists, canhandlecommongroup, bundl
                     background-image: url('img/bg_processheader.png'); 
                     background-repeat: repeat-x; height:28px;">
             <tr>
-                <td width="5px">$bundle.("rights.dialog.table.column.object")$</td>
-                <td width="70px">$bundle.("rights.dialog.table.column.order")$</td>
+                <td width="5px">$bundle.("rights.dialog.table.column.order")$</td>
+                <td width="70px">$bundle.("rights.dialog.table.column.object")$</td>
                 <td>$bundle.("rights.dialog.table.column.action")$</td>
                 
                 <td>$bundle.("rights.dialog.table.column.user")$</td>
