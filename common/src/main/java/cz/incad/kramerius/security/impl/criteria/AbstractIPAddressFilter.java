@@ -16,17 +16,10 @@
  */
 package cz.incad.kramerius.security.impl.criteria;
 
-import java.util.Calendar;
 import java.util.logging.Level;
 import java.util.regex.Pattern;
 
-import com.sun.org.apache.xerces.internal.impl.xpath.regex.RegularExpression;
-
-import cz.incad.kramerius.security.EvaluatingResult;
 import cz.incad.kramerius.security.RightCriterium;
-import cz.incad.kramerius.security.RightCriteriumException;
-import cz.incad.kramerius.security.RightCriteriumPriorityHint;
-import cz.incad.kramerius.security.SecuredActions;
 
 public abstract class AbstractIPAddressFilter extends AbstractCriterium implements RightCriterium {
 
