@@ -211,8 +211,9 @@ var PDF=function() {
             var fromIndex = -1;
             var toIndex = -1;
             var pagesCount = $("#list-page>div.relItem").length;
-            $('#tv_container_row img.tv_image').each(function(i, o){
-                if ($(o).hasClass('tv_img_selected')) {
+            $('#tv_container_row div').each(function(i, o){
+            	
+            	if ($(o).hasClass('tv_img_selected')) {
                     fromIndex = i+1;
                     toIndex = fromIndex + generatePdfMaxRange-1;
                     if (toIndex > pagesCount) {
@@ -292,7 +293,6 @@ var PDF=function() {
                             }else if(to>pagesCount  || isNaN(from) || isNaN(to)) {
                                 alert(dictionary['generatePdfErrorText']);
                             }else if(to==pagesCount && from == '1'){
-                                //PDF.urlFromDialog(level);
                                 PDF.urlFromDialog(PDF.privateLevel);
                                 $(this).dialog("close");
                             }else{
