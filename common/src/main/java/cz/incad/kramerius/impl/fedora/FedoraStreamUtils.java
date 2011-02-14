@@ -18,7 +18,6 @@ package cz.incad.kramerius.impl.fedora;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.GregorianCalendar;
 
 import javax.xml.datatype.DatatypeConfigurationException;
 import javax.xml.datatype.DatatypeFactory;
@@ -37,10 +36,8 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
 
-import com.sun.org.apache.xerces.internal.jaxp.datatype.XMLGregorianCalendarImpl;
 
 import cz.incad.kramerius.FedoraAccess;
-import cz.incad.kramerius.utils.XMLUtils;
 
 public class FedoraStreamUtils {
 
