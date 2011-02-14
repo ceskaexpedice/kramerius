@@ -56,8 +56,8 @@ public class InitSecurityDatabaseMethodInterceptor implements MethodInterceptor 
     }
 
 
-    private void createSecurityTables(Connection connection) throws SQLException, IOException {
-        InputStream is = this.getClass().getResourceAsStream("res/initsecdb.sql");
+    public static void createSecurityTables(Connection connection) throws SQLException, IOException {
+        InputStream is = InitSecurityDatabaseMethodInterceptor.class.getResourceAsStream("res/initsecdb.sql");
         JDBCUpdateTemplate template = new JDBCUpdateTemplate(connection, false);
         template.executeUpdate(IOUtils.readAsString(is, Charset.forName("UTF-8"), true));
     }
