@@ -30,6 +30,7 @@ import com.google.inject.Inject;
 import com.google.inject.Provider;
 import com.google.inject.name.Named;
 
+import cz.incad.kramerius.security.database.InitSecurityDatabaseMethodInterceptor;
 import cz.incad.kramerius.utils.DatabaseUtils;
 import cz.incad.kramerius.utils.IOUtils;
 import cz.incad.kramerius.utils.database.JDBCUpdateTemplate;
@@ -60,6 +61,9 @@ public class InitProcessDatabaseMethodInterceptor implements MethodInterceptor {
             }
             if (!DatabaseUtils.columnExists(connection, "PROCESSES", "STARTEDBY")) {
                 alterProcessTable(connection);
+            }
+            if (!DatabaseUtils.tableExists(connection,"USER_ENTITY")) {
+                InitSecurityDatabaseMethodInterceptor.createSecurityTables(connection);
             }
             return invocation.proceed();
         } finally {
