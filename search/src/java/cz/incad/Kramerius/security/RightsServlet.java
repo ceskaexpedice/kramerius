@@ -88,7 +88,7 @@ import cz.incad.kramerius.utils.pid.PIDParser;
 
 public class RightsServlet extends GuiceServlet {
 
-    private static final String NONE_CONSTANT = "none";
+    private static final String NONE_CONSTANT = "cz.incad.kramerius.security.impl.criteria.none";
 
     static java.util.logging.Logger LOGGER = java.util.logging.Logger.getLogger(RightsServlet.class.getName());
     
