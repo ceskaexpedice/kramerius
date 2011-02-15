@@ -37,6 +37,8 @@ public class VygenerovatHeslo  implements Executable {
         	if ((emailAddres != null) && (validation(emailAddres))) {
 
         		PropertyDTO pswd = ((Structure) Application.get()).user.PASSWORD.clientClone(context);
+        		PropertyDTO loginname = ((Structure) Application.get()).user.LOGINNAME.clientClone(context);
+        		
         		PropertyDTO personalAdminDTO = ((Structure) Application.get()).user.PERSONAL_ADMIN.clientClone(context);
 
             	String generated = GeneratePasswordUtils.generatePswd();
@@ -52,7 +54,7 @@ public class VygenerovatHeslo  implements Executable {
             	AplikatorService service = context.getAplikatorService();
             	service.execute(new ProcessRecords(container));
             
-            	GeneratePasswordUtils.sendGeneratedPasswordToMail(emailAddres, generated, mailer);
+            	GeneratePasswordUtils.sendGeneratedPasswordToMail(emailAddres, currentRecord.getStringValue(loginname),generated, mailer);
 
             	result = "Heslo odeslano na adresu: "+emailAddres;
         	} else {

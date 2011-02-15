@@ -39,11 +39,11 @@ public class GeneratePasswordUtils {
 	public static final int PASSWORD_LENGTH=8;
 
 
-	public static  void sendGeneratedPasswordToMail(String emailAddres,
+	public static  void sendGeneratedPasswordToMail(String emailAddres, String loginname,
 			String generated, Mailer mailer) throws MessagingException, AddressException {
 		Session session = mailer.getSession(null, null);
 		MimeMessage msg = new MimeMessage(session);
-		msg.setText("Vygenerovane heslo je :"+generated);
+		msg.setText("Vazeny uzivateli "+loginname+" Vase vygenerovane heslo je:"+generated);
 		msg.setSubject("Vygenerovane heslo");
 		// mail.from
 		//msg.setFrom(new InternetAddress(d_email));
