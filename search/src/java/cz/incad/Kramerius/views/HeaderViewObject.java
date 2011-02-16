@@ -3,16 +3,13 @@ package cz.incad.Kramerius.views;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.ResourceBundle;
 import java.util.Set;
 import java.util.logging.Level;
 
-import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
 
 import org.antlr.stringtemplate.StringTemplate;
@@ -23,17 +20,13 @@ import com.google.inject.Inject;
 import com.google.inject.Provider;
 import com.google.inject.name.Named;
 
-import cz.incad.Kramerius.security.KrameriusRoles;
 import cz.incad.kramerius.FedoraAccess;
-import cz.incad.kramerius.MostDesirable;
-import cz.incad.kramerius.security.IPaddressChecker;
 import cz.incad.kramerius.security.IsUserInRoleDecision;
 import cz.incad.kramerius.service.ResourceBundleService;
 
 /**
- * Objket inicializujici js promenne v hlavicce 
+ * Objekt inicializujici js promenne v hlavicce 
  * @author pavels
- *
  */
 public class HeaderViewObject {
 
@@ -51,8 +44,6 @@ public class HeaderViewObject {
     FedoraAccess fedoraAccess;
     @Inject 
     IsUserInRoleDecision isUserInRoleDecision;
-    @Inject
-    IPaddressChecker iPaddressChecker;
     
     public String getDictionary() {
         Map<String, String> resourceBundleMap = new HashMap<String, String>();
@@ -76,8 +67,8 @@ public class HeaderViewObject {
         return inst.toString();
     }
 
-    private StringTemplateGroup stGroup() {
-        InputStream is = this.getClass().getResourceAsStream("htmlHeaderJavascript.stg");
+    private static StringTemplateGroup stGroup() {
+        InputStream is = HeaderViewObject.class.getResourceAsStream("htmlHeaderJavascript.stg");
         StringTemplateGroup grp = new StringTemplateGroup(new InputStreamReader(is), DefaultTemplateLexer.class);
         return grp;
     }

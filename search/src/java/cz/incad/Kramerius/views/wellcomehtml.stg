@@ -1,0 +1,72 @@
+group wellcome; 
+
+/**
+* sablona pro editor informace
+*/
+editor(text, lang) ::=<<
+<script type="text/javascript" src="js/ckeditor/ckeditor.js"></script>
+<script type="text/javascript" src="js/ckeditor/adapters/jquery.js"></script>
+
+<script type="text/javascript">
+    //<![CDATA[
+    var _lang = '$lang$';
+    CKEDITOR.plugins.registered['save']=
+        {
+        init : function( editor )
+        {
+            var command = editor.addCommand( 'save',
+            {
+                modes : { wysiwyg:1, source:1 },
+                exec : function( editor ) {
+                    saveIntro();
+                }
+            }
+        );
+            editor.ui.addButton( 'Save',{label : 'save',command : 'save'});
+        }
+    }
+
+    \$(function()
+    {
+        var config = {
+            language: _lang,
+            resize_enabled: false,
+            toolbar:
+                [
+                ['Save'], 
+                ['Bold', 'Italic', '-', 'NumberedList', 'BulletedList', '-', 'Link', 'Unlink'],
+                ['UIColor']
+            ]
+        };
+
+        // Initialize the editor.
+        // Callback function can be passed and executed after full instance creation.
+        \$('.jquery_ckeditor').ckeditor(config);
+        
+    });
+        
+    function saveIntro(){
+        \$.ajax({
+            data:  {text: \$('.jquery_ckeditor').val(), language: _lang},
+            type: "POST",
+            url: 'inc/text/saveIntroText.jsp',
+            timeout: 20000,
+            contentType: "application/x-www-form-urlencoded;charset=UTF-8",
+            success: function(data){
+                alert(data);
+            }
+         });
+        
+        return false;
+    }
+    //]]>
+</script>
+
+<textarea class="jquery_ckeditor" cols="80" id="intro_text" name="intro_text" rows="10">
+    $text$
+</textarea>    
+>>
+
+
+
+
