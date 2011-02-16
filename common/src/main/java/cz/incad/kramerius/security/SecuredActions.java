@@ -20,12 +20,8 @@ public enum SecuredActions {
 
     // common user actions
     READ("read"),
-    // GENERATE_PDF
-    // SHOW METADATA
-    // PERSISTENT URL
     
     // Admin actions
-    //LRPROCESS_ADMIN("lrProcessAdmin"),
     IMPORT( "import"),
     CONVERT( "convert"),
     REPLICATIONRIGHTS( "replicationrights"),
@@ -39,8 +35,10 @@ public enum SecuredActions {
     SETPUBLIC( "setpublic"),
     ADMINISTRATE( "administrate"),
     EDITOR("editor"),
-    //? vyhodit ?
     MANAGE_LR_PROCESS("manage_lr_process"),
+    
+    // editace informaci na uvodni strance
+    EDIT_INFO_TEXT("edit_info_text"),
     
     // editace uzivatelu
     USERSADMIN("rightsadmin"),
