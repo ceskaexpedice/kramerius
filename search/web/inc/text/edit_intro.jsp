@@ -53,9 +53,17 @@
     });
         
     function saveIntro(){
-        $.post('inc/text/saveIntroText.jsp', {text: $('.jquery_ckeditor').val(), language: _lang}, function(data){
-            alert(data); 
-        });
+        $.ajax({
+            data:  {text: $('.jquery_ckeditor').val(), language: _lang},
+            type: "POST",
+            url: 'inc/text/saveIntroText.jsp',
+            timeout: 20000,
+            contentType: "application/x-www-form-urlencoded;charset=UTF-8",
+            success: function(data){
+                alert(data);
+            }
+         });
+        
         return false;
     }
 
