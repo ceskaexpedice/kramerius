@@ -15,7 +15,6 @@ public class GetCurrentLoggedUser {
 	public static User getCurrentLoggedUser(HttpServletRequest request) {
 		Principal principal = request.getUserPrincipal();
 		if (principal != null) {
-			
 		    K4UserPrincipal k4principal = (K4UserPrincipal) principal;
 		    User user = k4principal.getUser();
 		    return user;
