@@ -91,7 +91,7 @@ function _ref(ordering, offset, size, type) {
 			<td width="10%"><strong>${processView.stateOrdering}</strong></td>
 			<td><strong>${processView.dateOrdering}</strong></td>
 			<td><strong>${processView.plannedDateOrdering}</strong></td>
-            <td><strong>Uzivatel</strong></td>
+            <td><strong>${processView.userOrdering}</strong></td>
 			<td  width="10%"><strong>Akce</strong></td>
 		</tr>
 	</thead>
