@@ -8,7 +8,6 @@ public class DebugLoggedUser {
 
 	public static final String DEBUG_KEY="rightsedit.debug.key";
 	
-	
 	public static User getCurrentLoggedUser() {
 		return getPavelStastny();
 	}

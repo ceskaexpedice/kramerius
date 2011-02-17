@@ -48,7 +48,7 @@ public class UserTriggers extends AbstractUserTriggers implements PersisterTrigg
 			PropertyDTO pswdDTO = structure.user.PASSWORD.clientClone(ctx);
 			String generated = GeneratePasswordUtils.generatePswd();
 
-			GeneratePasswordUtils.sendGeneratedPasswordToMail((String) record.getValue(structure.user.EMAIL.clientClone(ctx)),(String) record.getValue(structure.user.LOGINNAME.clientClone(ctx)), generated, mailer);
+			GeneratePasswordUtils.sendGeneratedPasswordToMail((String) record.getValue(structure.user.EMAIL.clientClone(ctx)),(String) record.getValue(structure.user.LOGINNAME.clientClone(ctx)), generated, mailer,ctx);
 			
 			record.setValue(pswdDTO, PasswordDigest.messageDigest(generated));
 			

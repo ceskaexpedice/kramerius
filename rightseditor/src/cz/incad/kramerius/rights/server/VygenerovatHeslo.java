@@ -1,6 +1,7 @@
 package cz.incad.kramerius.rights.server;
 
 
+import java.text.MessageFormat;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -19,6 +20,7 @@ import org.aplikator.server.function.FunctionResult;
 
 import cz.incad.kramerius.rights.server.arragements.UserArrangement;
 import cz.incad.kramerius.rights.server.utils.GeneratePasswordUtils;
+import cz.incad.kramerius.rights.server.utils.I18NUtils;
 import cz.incad.kramerius.security.utils.PasswordDigest;
 
 public class VygenerovatHeslo  implements Executable {
@@ -54,15 +56,18 @@ public class VygenerovatHeslo  implements Executable {
             	AplikatorService service = context.getAplikatorService();
             	service.execute(new ProcessRecords(container));
             
-            	GeneratePasswordUtils.sendGeneratedPasswordToMail(emailAddres, currentRecord.getStringValue(loginname),generated, mailer);
-
-            	result = "Heslo odeslano na adresu: "+emailAddres;
+            	GeneratePasswordUtils.sendGeneratedPasswordToMail(emailAddres, currentRecord.getStringValue(loginname),generated, mailer,context);
+            	
+            	String okResultString = I18NUtils.getLocalizedString("VygenerovatHeslo.ok.result", context);
+            	result = MessageFormat.format(okResultString, emailAddres);
         	} else {
-            	result = "Nevalidni adresa: "+emailAddres;
+            	String okResultString = I18NUtils.getLocalizedString("VygenerovatHeslo.notvalidmail", context);
+            	result = MessageFormat.format(okResultString, emailAddres);
         	}
         	
         }catch (Exception ex){
-            return new FunctionResult("Chyba: "+ex, false);
+        	String failResult = I18NUtils.getLocalizedString("VygenerovatHeslo.fail.result", context);
+            return new FunctionResult(MessageFormat.format(failResult, ex.getMessage()), false);
         }
     	return new FunctionResult(result, true);
     }
@@ -85,8 +90,6 @@ public class VygenerovatHeslo  implements Executable {
 		return mailer;
 	}
 
-
-
 	public void setMailer(Mailer mailer) {
 		this.mailer = mailer;
 	}
@@ -101,7 +104,6 @@ public class VygenerovatHeslo  implements Executable {
 		return isValid;  
 	}
 	public static void main(String[] args) {
-		
 		System.out.println(validation("stastny@gmail.com"));
 	}
 	
