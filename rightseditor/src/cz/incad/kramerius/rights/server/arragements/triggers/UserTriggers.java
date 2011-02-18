@@ -9,7 +9,6 @@ import java.util.logging.Logger;
 import javax.mail.MessagingException;
 import javax.mail.internet.AddressException;
 
-import org.apache.catalina.users.AbstractUser;
 import org.aplikator.client.data.RecordDTO;
 import org.aplikator.client.descriptor.PropertyDTO;
 import org.aplikator.server.Context;
