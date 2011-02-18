@@ -1,3 +1,4 @@
+<%@page import="cz.incad.Kramerius.views.SearchFormViewObject"%>
 <%@page import="cz.incad.Kramerius.views.adminmenu.AdminMenuViewObject"%>
 <%@ page contentType="text/html" pageEncoding="UTF-8"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
@@ -7,6 +8,7 @@
 <%@ page isELIgnored="false"%>
 
 <%
+
 	pageContext.setAttribute("remoteUser", request.getRemoteUser());
 	Injector searchFormInjector = (Injector)application.getAttribute(Injector.class.getName());
 	Provider<Locale> localesProvider = searchFormInjector.getProvider(Locale.class);
@@ -15,6 +17,11 @@
 	AdminMenuViewObject adminMenuViewObject = new AdminMenuViewObject();
 	searchFormInjector.injectMembers(adminMenuViewObject);	
 	pageContext.setAttribute("adminMenuViewObject",adminMenuViewObject);
+
+    SearchFormViewObject searchFormViewObject = new SearchFormViewObject();
+    searchFormInjector.injectMembers(searchFormViewObject);  
+    pageContext.setAttribute("searchFormViewObject",searchFormViewObject);
+
 %>
 
 
@@ -68,10 +75,10 @@
                     
                     <c:choose>
                         <c:when test="${remoteUser == null}">
-                            <a href="redirect.jsp"><fmt:message bundle="${lctx}">application.login</fmt:message></a>
+                            <a href="redirect.jsp?redirectURL=${searchFormViewObject.requestedAddress}"><fmt:message bundle="${lctx}">application.login</fmt:message></a>
                         </c:when>
                         <c:otherwise>
-                            <a href="logout.jsp"><fmt:message bundle="${lctx}">application.logout</fmt:message></a>
+                            <a href="logout.jsp?redirectURL=${searchFormViewObject.requestedAddress}"><fmt:message bundle="${lctx}">application.logout</fmt:message></a>
                         </c:otherwise>
                     </c:choose>
                     
