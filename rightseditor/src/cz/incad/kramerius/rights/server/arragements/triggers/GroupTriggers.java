@@ -1,24 +1,17 @@
 package cz.incad.kramerius.rights.server.arragements.triggers;
 
-import java.security.Principal;
-import java.sql.Connection;
 import java.util.List;
 import java.util.logging.Logger;
-
 
 import org.aplikator.client.data.RecordDTO;
 import org.aplikator.client.descriptor.PropertyDTO;
 import org.aplikator.server.Context;
 import org.aplikator.server.persistence.PersisterTriggers;
 
-import sun.security.acl.GroupImpl;
-
 import cz.incad.kramerius.rights.server.Structure;
 import cz.incad.kramerius.rights.server.utils.GetAdminGroupIds;
 import cz.incad.kramerius.rights.server.utils.GetCurrentLoggedUser;
-import cz.incad.kramerius.security.Group;
 import cz.incad.kramerius.security.User;
-import cz.incad.kramerius.security.jaas.K4UserPrincipal;
 
 public class GroupTriggers extends AbstractUserTriggers implements PersisterTriggers {
 	
