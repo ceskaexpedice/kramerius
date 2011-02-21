@@ -2,6 +2,7 @@ package cz.incad.Kramerius;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.StringReader;
 import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.net.URI;
@@ -22,11 +23,16 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import antlr.RecognitionException;
+import antlr.TokenStreamException;
+
 import com.google.inject.Inject;
 import com.google.inject.Injector;
 
 import cz.incad.Kramerius.backend.guice.GuiceServlet;
 import cz.incad.Kramerius.backend.guice.RequestIPaddressChecker;
+import cz.incad.Kramerius.processes.ParamsLexer;
+import cz.incad.Kramerius.processes.ParamsParser;
 import cz.incad.Kramerius.security.KrameriusRoles;
 import cz.incad.Kramerius.views.ApplicationURL;
 import cz.incad.kramerius.intconfig.InternalConfiguration;
@@ -169,11 +175,8 @@ public class LongRunningProcessServlet extends GuiceServlet {
                 try {
                     String def = req.getParameter("def");
                     String out = req.getParameter("out");
-                    String parametersString = req.getParameter("params");
-                    String[] params = new String[0];
-                    if (parametersString != null) {
-                        params = parametersString.split(",");
-                    }
+                    String[] params = getParams(req);
+                    
                     SecuredActions actionFromDef = SecuredActions.findByFormalName(def);
                     boolean permited = rightsResolver.isActionAllowed(SecuredActions.MANAGE_LR_PROCESS.getFormalName(), SpecialObjects.REPOSITORY.getUuid(), new String[] {}) || 
                                         (actionFromDef != null && rightsResolver.isActionAllowed(actionFromDef.getFormalName(), SpecialObjects.REPOSITORY.getUuid(), new String[] {}));
@@ -198,6 +201,10 @@ public class LongRunningProcessServlet extends GuiceServlet {
                         throw new SecurityException("access denided");
                     }
                 } catch (IOException e) {
+                    LOGGER.log(Level.SEVERE, e.getMessage(), e);
+                } catch (RecognitionException e) {
+                    LOGGER.log(Level.SEVERE, e.getMessage(), e);
+                } catch (TokenStreamException e) {
                     LOGGER.log(Level.SEVERE, e.getMessage(), e);
                 }
             }
@@ -349,5 +356,17 @@ public class LongRunningProcessServlet extends GuiceServlet {
 
     public static String lrServlet(HttpServletRequest request) {
         return ApplicationURL.urlOfPath(request, InternalConfiguration.get().getProperties().getProperty("servlets.mapping.lrcontrol"));
+    }
+
+    public static String[] getParams(HttpServletRequest req) throws RecognitionException, TokenStreamException {
+        String parametersString = req.getParameter("params");
+        if ((parametersString !=null) && (parametersString.trim().equals("")))  {
+            return parametersString.split(",");
+        } else {
+            parametersString = req.getParameter("nparams");
+            ParamsParser parser = new ParamsParser(new ParamsLexer(new StringReader(parametersString)));
+            List paramsList = parser.params();
+            return (String[]) parser.params().toArray(new String[paramsList.size()]);
+        }
     }
 }
