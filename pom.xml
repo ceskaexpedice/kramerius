@@ -38,6 +38,7 @@
         <module>static-export</module>
         <module>search</module>
         <module>security-core</module>
+        <module>rightseditor</module>
     </modules>
 
     <build>
