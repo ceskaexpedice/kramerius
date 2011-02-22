@@ -11,6 +11,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
+import java.net.URL;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -63,6 +64,7 @@ import com.sun.org.apache.xerces.internal.jaxp.datatype.XMLGregorianCalendarImpl
 import cz.incad.kramerius.utils.FedoraUtils;
 import cz.incad.kramerius.utils.IOUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
+import cz.incad.kramerius.utils.imgs.ImageMimeType;
 import cz.incad.kramerius.utils.imgs.KrameriusImageSupport;
 
 public abstract class BaseConvertor {
@@ -180,6 +182,7 @@ public abstract class BaseConvertor {
         mimeMap.put("jpeg", "image/jpeg");
         mimeMap.put("jp2", "image/jp2");
         mimeMap.put("jpx", "image/jpx");
+        mimeMap.put("pdf", "application/pdf");
     }
 
     /**
@@ -770,7 +773,7 @@ public abstract class BaseConvertor {
 
     
     private BufferedImage readImage(String fileName)throws IOException, MalformedURLException{
-    	
+    	/*String[] suffixes = ImageIO.getReaderFileSuffixes();
     	Image img = ImageIO.read(new File(fileName));
         if (img == null) {
             try{
@@ -795,7 +798,8 @@ public abstract class BaseConvertor {
         if (img != null) {
         	return KrameriusImageSupport.toBufferedImage(img);
         }
-        return null;
+        return null;*/
+    	return KrameriusImageSupport.readImage(new URL("file:"+fileName), ImageMimeType.loadFromMimeType(getImageMime(fileName)), 0);
     }
     
     private byte[] scaleImage(BufferedImage img, int width, int height) throws IOException, MalformedURLException {

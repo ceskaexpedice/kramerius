@@ -104,8 +104,12 @@ public class IOUtils {
     public static void cleanDirectory(File directory) { 
         File[] files = directory.listFiles();
         if (files != null) {
-            for (int i = 0; i < files.length; i++)
+            for (int i = 0; i < files.length; i++){
+            	if (files[i].isDirectory()){
+            		cleanDirectory(files[i]);
+            	}
                 files[i].delete();
+            }
         }
     }
 
