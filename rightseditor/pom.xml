@@ -112,6 +112,7 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
     </dependencies>
 
     <build>
+    <outputDirectory>war/WEB-INF/classes</outputDirectory>
 	<sourceDirectory>src</sourceDirectory>
         <resources>
             <resource>
@@ -196,10 +197,10 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
                 <configuration>
                     <filesets>
                         <fileset>
-                            <directory>${basedir}/src/main/webapp/WEB-INF/classes</directory>
+                            <directory>${basedir}/war/WEB-INF/classes</directory>
                         </fileset>
                         <fileset>
-                            <directory>${basedir}/src/main/webapp/WEB-INF/lib</directory>
+                            <directory>${basedir}/war/WEB-INF/lib</directory>
                         </fileset>
                     </filesets>
                 </configuration>
