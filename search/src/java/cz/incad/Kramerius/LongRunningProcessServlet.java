@@ -360,13 +360,16 @@ public class LongRunningProcessServlet extends GuiceServlet {
 
     public static String[] getParams(HttpServletRequest req) throws RecognitionException, TokenStreamException {
         String parametersString = req.getParameter("params");
-        if ((parametersString !=null) && (parametersString.trim().equals("")))  {
+        if ((parametersString !=null) && (!parametersString.trim().equals("")))  {
             return parametersString.split(",");
         } else {
             parametersString = req.getParameter("nparams");
-            ParamsParser parser = new ParamsParser(new ParamsLexer(new StringReader(parametersString)));
-            List paramsList = parser.params();
-            return (String[]) parser.params().toArray(new String[paramsList.size()]);
+            if ((parametersString !=null) && (!parametersString.trim().equals("")))  {
+                ParamsParser parser = new ParamsParser(new ParamsLexer(new StringReader(parametersString)));
+                List paramsList = parser.params();
+                return (String[]) paramsList.toArray(new String[paramsList.size()]);
+            }
+            return new String[0];
         }
     }
 }
