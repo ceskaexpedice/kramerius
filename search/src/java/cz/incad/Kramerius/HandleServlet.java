@@ -32,6 +32,8 @@ import cz.incad.kramerius.intconfig.InternalConfiguration;
 import cz.incad.kramerius.utils.RESTHelper;
 import cz.incad.kramerius.utils.XMLUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
+import cz.incad.kramerius.utils.pid.LexerException;
+import cz.incad.kramerius.utils.pid.PIDParser;
 import cz.incad.kramerius.utils.solr.SolrUtils;
 
 /**
@@ -119,8 +121,15 @@ public class HandleServlet extends GuiceServlet {
 	enum HandleType {
 		UUID {
             @Override
-            Document dataFromSolr(String handle, SolrAccess solrAccess) throws IOException {
-                return solrAccess.getSolrDataDocumentByUUID(handle);
+            Document dataFromSolr(String pid, SolrAccess solrAccess) throws IOException {
+                try {
+                    PIDParser parser = new PIDParser(pid);
+                    parser.objectPid();
+                    return solrAccess.getSolrDataDocumentByUUID(parser.getObjectId());
+                } catch (LexerException e) {
+                    LOGGER.log(Level.SEVERE, e.getMessage(),e);
+                    return solrAccess.getSolrDataDocumentByUUID(pid);
+                }
             }
 		},
 		KRAMERIUS3{
