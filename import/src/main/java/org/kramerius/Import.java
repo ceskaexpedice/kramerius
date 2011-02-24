@@ -8,6 +8,7 @@ import java.net.MalformedURLException;
 import java.net.PasswordAuthentication;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 import java.util.logging.Logger;
@@ -83,6 +84,9 @@ public class Import {
         if (importFile.isDirectory()) {
 
             File[] children = importFile.listFiles();
+            if (children.length>1 && children[0].isDirectory()){//Issue 36
+            	Arrays.sort(children);
+            }
             for (int i = 0; i < children.length; i++) {
                 visitAllDirsAndFiles(children[i]);
             }
