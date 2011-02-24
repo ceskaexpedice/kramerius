@@ -269,12 +269,12 @@
 			<role-name>convert</role-name>
 			<role-name>import</role-name>
         </auth-constraint>
-        <!--
+        
+        <!-- uncomment to enable SSL login (requires server certificate installation)
         <user-data-constraint>
-            <description>no description</description>
-            <transport-guarantee>NONE</transport-guarantee>
-        </user-data-constraint>
-        -->
+			<transport-guarantee>CONFIDENTIAL</transport-guarantee>
+		</user-data-constraint>
+		-->
     </security-constraint>
 
     <login-config>
