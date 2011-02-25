@@ -17,6 +17,7 @@ import com.google.inject.Inject;
 import com.google.inject.Provider;
 
 import cz.incad.Kramerius.security.KrameriusRoles;
+import cz.incad.Kramerius.views.ApplicationURL;
 import cz.incad.kramerius.security.IsUserInRoleDecision;
 import cz.incad.kramerius.security.SecuredActions;
 import cz.incad.kramerius.security.SpecialObjects;
@@ -74,7 +75,7 @@ public class AdminMenuViewObject {
     }
 
     public String openUsersAdmin() throws IOException {
-        String href = KConfiguration.getInstance().getUsersEditorURL();
+        String href = ApplicationURL.getServerAndPort(request)+"/rightseditor";
         String label = this.resourceBundleService.getResourceBundle("labels", this.locale).getString("administrator.menu.userseditor");
         return String.format("<div align=\"left\"> <a href=\"%s\" target=\"_blank\"> %s </a> </div>",
                 href, label);
@@ -89,7 +90,7 @@ public class AdminMenuViewObject {
 
     public String editor() throws IOException {
         String localeParam = locale == null ? "" : "?locale=" + locale.getLanguage();
-        String href = kconfig.getEditorURL() + localeParam;
+        String href = ApplicationURL.getServerAndPort(request)+"/editor" + localeParam;
         return renderMenuItem(href, "administrator.menu.dialogs.editor.title");
     }
 

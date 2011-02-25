@@ -15,6 +15,18 @@ public class ApplicationURL {
 	public static final java.util.logging.Logger LOGGER = java.util.logging.Logger
 			.getLogger(ApplicationURL.class.getName());
 	
+	public static String getServerAndPort(HttpServletRequest request) {
+        try {
+            String string = request.getRequestURL().toString();
+            URL url = new URL(string);
+            return url.getProtocol()+"://"+url.getHost()+":"+url.getPort();
+        } catch (MalformedURLException e) {
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+            return "<no url>";
+        }
+	    
+	}
+	
 	public static String applicationURL(HttpServletRequest request) {
 		//"dvju"
 		try {
