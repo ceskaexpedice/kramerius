@@ -14,6 +14,7 @@ import cz.incad.kramerius.security.User;
  */
 public interface LRProcess {
 	
+    
 	
 	/**
 	 * Parameters to process
@@ -169,4 +170,9 @@ public interface LRProcess {
     public User getUser();
     
     public void setUser(User user);
+    
+    public String getToken();
+    
+    public void setToken(String token);
+    
 }

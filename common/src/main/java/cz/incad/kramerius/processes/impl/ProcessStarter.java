@@ -26,6 +26,7 @@ public class ProcessStarter {
 
     public static final String MAIN_CLASS_KEY = "mainClass";
     public static final String UUID_KEY = "uuid";
+    public static final String TOKEN_KEY = "token";
     public static final String CLASSPATH_NAME = "CLASSPATH";
 
     public static final String SOUT_FILE = "SOUT";

@@ -60,7 +60,10 @@ public class InitProcessDatabaseMethodInterceptor implements MethodInterceptor {
                 createProcessTable(connection);
             }
             if (!DatabaseUtils.columnExists(connection, "PROCESSES", "STARTEDBY")) {
-                alterProcessTable(connection);
+                alterProcessTableStartedByColumn(connection);
+            }
+            if (!DatabaseUtils.columnExists(connection, "PROCESSES", "TOKEN")) {
+                alterProcessTableProcessToken(connection);
             }
             if (!DatabaseUtils.tableExists(connection,"USER_ENTITY")) {
                 InitSecurityDatabaseMethodInterceptor.createSecurityTables(connection);
@@ -92,10 +95,20 @@ public class InitProcessDatabaseMethodInterceptor implements MethodInterceptor {
         }
     }
 
-    public static void alterProcessTable(Connection con) throws SQLException {
+    public static void alterProcessTableStartedByColumn(Connection con) throws SQLException {
         PreparedStatement prepareStatement = null;
         try {
             prepareStatement = con.prepareStatement("ALTER TABLE PROCESSES ADD COLUMN STARTEDBY INT");
+            int r = prepareStatement.executeUpdate();
+        } finally {
+            if (prepareStatement != null) prepareStatement.close();
+        }
+    }
+
+    public static void alterProcessTableProcessToken(Connection con) throws SQLException {
+        PreparedStatement prepareStatement = null;
+        try {
+            prepareStatement = con.prepareStatement("ALTER TABLE PROCESSES ADD COLUMN TOKEN VARCHAR(255)");
             int r = prepareStatement.executeUpdate();
         } finally {
             if (prepareStatement != null) prepareStatement.close();

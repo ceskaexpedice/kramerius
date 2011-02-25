@@ -13,7 +13,9 @@ public class MockLPProcess {
 	
 	public static void main(String[] args) throws IOException {
 		LOGGER.info("args:"+Arrays.asList(args));
-		ProcessStarter.updateName("Jmeno ruze ... ");
+		ProcessStarter.updateName("Jmeno kaktusu neni jmeno ruze a jmeno ruze neni jmeno kaktusu");
+		System.out.println(" TOKEN :"+System.getProperty(ProcessStarter.TOKEN_KEY));
+
 		// 1TB  space
 		long tb = 1l << 40;
 		// 1GB  space

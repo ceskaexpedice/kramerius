@@ -42,6 +42,7 @@ public abstract class AbstractLRProcessImpl implements LRProcess{
 	private String name;
 	private int userId;
 	private User user;
+	private String token;
 	
 	private List<String> parameters = new ArrayList<String>();
 	
@@ -114,6 +115,7 @@ public abstract class AbstractLRProcessImpl implements LRProcess{
 
 			command.add("-D"+ProcessStarter.MAIN_CLASS_KEY+"="+this.definition.getMainClass());
 			command.add("-D"+ProcessStarter.UUID_KEY+"="+this.uuid);
+            command.add("-D"+ProcessStarter.TOKEN_KEY+"="+this.getToken());
 			
 			
 			File standardStreamFile = standardOutFile(processWorkingDir);
@@ -350,4 +352,17 @@ public abstract class AbstractLRProcessImpl implements LRProcess{
     public void setUser(User user) {
         this.user = user;
     }
+
+
+    @Override
+    public String getToken() {
+        return this.token;
+    }
+
+
+    @Override
+    public void setToken(String token) {
+        this.token = token;
+    }
+    
 }

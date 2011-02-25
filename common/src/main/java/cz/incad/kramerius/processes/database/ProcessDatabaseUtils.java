@@ -67,7 +67,7 @@ public class ProcessDatabaseUtils {
 	public static void registerProcess(Connection con, LRProcess lp, User user) throws SQLException {
 		PreparedStatement prepareStatement = null;
 		try {
-			prepareStatement = con.prepareStatement("insert into processes(DEFID, UUID,PLANNED, STATUS,PARAMS,STARTEDBY) values(?,?,?,?,?,?)");
+			prepareStatement = con.prepareStatement("insert into processes(DEFID, UUID,PLANNED, STATUS,PARAMS,STARTEDBY, TOKEN) values(?,?,?,?,?,?,?)");
 			prepareStatement.setString(1, lp.getDefinitionId());
 			prepareStatement.setString(2, lp.getUUID());
 			prepareStatement.setTimestamp(3, new Timestamp(lp.getPlannedTime()));
@@ -84,6 +84,7 @@ public class ProcessDatabaseUtils {
 				prepareStatement.setString(5, null);
 			}
             prepareStatement.setInt(6, user.getId());
+            prepareStatement.setString(7, lp.getToken());
 			prepareStatement.executeUpdate();
 		}finally {
 			if (prepareStatement != null) prepareStatement.close();

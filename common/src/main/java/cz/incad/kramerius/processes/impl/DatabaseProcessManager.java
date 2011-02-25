@@ -36,6 +36,7 @@ import cz.incad.kramerius.processes.database.InitProcessDatabase;
 import cz.incad.kramerius.processes.database.ProcessDatabaseUtils;
 import cz.incad.kramerius.security.User;
 import cz.incad.kramerius.security.utils.SecurityDBUtils;
+import cz.incad.kramerius.utils.database.JDBCQueryTemplate;
 
 public class DatabaseProcessManager implements LRProcessManager {
 
@@ -69,20 +70,21 @@ public class DatabaseProcessManager implements LRProcessManager {
 			
 			connection = connectionProvider.get();
 			if (connection != null) {
-				stm = connection.prepareStatement("select p.DEFID,PID,p.UUID,p.STATUS,p.PLANNED,p.STARTED,p.NAME AS PNAME, p.PARAMS, p.STARTEDBY, u.* from PROCESSES p left join user_entity u on (u.user_id=p.startedby) where UUID = ?");
+				stm = connection.prepareStatement("select p.DEFID,PID,p.UUID,p.STATUS,p.PLANNED,p.STARTED,p.NAME AS PNAME, p.PARAMS, p.STARTEDBY, p.TOKEN, u.* from PROCESSES p left join user_entity u on (u.user_id=p.startedby) where UUID = ?");
 				stm.setString(1, uuid);
 				rs = stm.executeQuery();
 				if(rs.next()) {
 					//CREATE TABLE PROCESSES(DEFID VARCHAR, UUID VARCHAR ,PID VARCHAR,STARTED timestamp, STATUS int
-					String definitionId = rs.getString("DEFID");
-					int pid = rs.getInt("PID");
-					int status = rs.getInt("STATUS");
-					Timestamp started = rs.getTimestamp("STARTED");
-					Timestamp planned = rs.getTimestamp("PLANNED");
-					String name = rs.getString("NAME");
-					LRProcessDefinition definition = this.lrpdm.getLongRunningProcessDefinition(definitionId);
-					LRProcess process = definition.loadProcess(uuid, ""+pid, planned!=null?planned.getTime():0, States.load(status), name);
-					if (started != null) process.setStartTime(started.getTime());
+//					String definitionId = rs.getString("DEFID");
+//					int pid = rs.getInt("PID");
+//					int status = rs.getInt("STATUS");
+//					Timestamp started = rs.getTimestamp("STARTED");
+//					Timestamp planned = rs.getTimestamp("PLANNED");
+//					String name = rs.getString("NAME");
+//					
+//					LRProcessDefinition definition = this.lrpdm.getLongRunningProcessDefinition(definitionId);
+					LRProcess process = processFromResultSet(rs);
+					
 					return process;
 				} 
 			}
@@ -272,6 +274,7 @@ public class DatabaseProcessManager implements LRProcessManager {
 		}
 	}
 	
+    
 	
 	
     @InitProcessDatabase
@@ -288,7 +291,7 @@ public class DatabaseProcessManager implements LRProcessManager {
 			if (connection != null) {
 				// POZN: dotazovanych vet bude vzdycky malo, misto join budu provadet dodatecne selekty.  
 				// POZN: bude jich v radu jednotek. 
-				StringBuffer buffer = new StringBuffer("select p.DEFID,PID,p.UUID,p.STATUS,p.PLANNED,p.STARTED,p.NAME AS PNAME, p.PARAMS, p.STARTEDBY, u.* from processes p left join user_entity u on (u.user_id=p.startedby) where status = ?");
+				StringBuffer buffer = new StringBuffer("select p.DEFID,PID,p.UUID,p.STATUS,p.PLANNED,p.STARTED,p.NAME AS PNAME, p.PARAMS, p.STARTEDBY,p.TOKEN, u.* from processes p left join user_entity u on (u.user_id=p.startedby) where status = ?");
 				buffer.append(" ORDER BY PLANNED LIMIT ? ");
 				
 				stm = connection.prepareStatement(buffer.toString());
@@ -391,12 +394,14 @@ public class DatabaseProcessManager implements LRProcessManager {
 		Timestamp started = rs.getTimestamp("STARTED");
 		String name = rs.getString("PNAME");
 		String params = rs.getString("PARAMS");
+        String token = rs.getString("TOKEN");
         int startedBy = rs.getInt("STARTEDBY");
 		LRProcessDefinition definition = this.lrpdm.getLongRunningProcessDefinition(definitionId);
 		if (definition == null) {
 			throw new RuntimeException("cannot find definition '"+definitionId+"'");
 		}
 		LRProcess process = definition.loadProcess(uuid, pid, planned!=null?planned.getTime():0, States.load(status), name);
+		process.setToken(token);
 		if (started != null) process.setStartTime(started.getTime());
 		if (params != null) {
 			String[] paramsArray = params.split(",");
@@ -414,8 +419,25 @@ public class DatabaseProcessManager implements LRProcessManager {
 	}
 	
 	
-	
-	@Override 
+	@Override
+    public List<LRProcess> getLongRunningProcessesByToken(String token) {
+	    try {
+            List<LRProcess> lpList = new JDBCQueryTemplate<LRProcess>(this.connectionProvider.get()) {
+                @Override
+                public boolean handleRow(ResultSet rs, List<LRProcess> returnsList) throws SQLException {
+                    LRProcess process = processFromResultSet(rs);
+                    returnsList.add(process);
+                    return true;
+                }
+            }.executeQuery("select p.DEFID,PID,p.UUID,p.STATUS,p.PLANNED,p.STARTED,p.NAME AS PNAME, p.PARAMS, p.STARTEDBY,p.TOKEN, u.* from processes p left join user_entity u on (u.user_id=p.startedby) where token = ?", token);
+            return lpList;
+	    } catch (Exception e) {
+            LOGGER.log(Level.SEVERE, e.getMessage(),e);
+            return new ArrayList<LRProcess>();
+        }
+    }
+
+    @Override 
 	@InitProcessDatabase
 	public List<LRProcess> getLongRunningProcesses(States state) {
 		Connection connection = null;
@@ -428,7 +450,7 @@ public class DatabaseProcessManager implements LRProcessManager {
 			List<LRProcess> processes = new ArrayList<LRProcess>();
 			connection = connectionProvider.get();
 			if (connection != null) {
-				StringBuffer buffer = new StringBuffer("select p.DEFID,PID,p.UUID,p.STATUS,p.PLANNED,p.STARTED,p.NAME AS PNAME, p.PARAMS, p.STARTEDBY, u.* from PROCESSES p left join user_entity u on (u.user_id=p.startedby) where STATUS = ?");
+				StringBuffer buffer = new StringBuffer("select p.DEFID,PID,p.UUID,p.STATUS,p.PLANNED,p.STARTED,p.NAME AS PNAME, p.PARAMS, p.STARTEDBY,p.TOKEN, u.* from PROCESSES p left join user_entity u on (u.user_id=p.startedby) where STATUS = ?");
 				stm = connection.prepareStatement(buffer.toString());
 				stm.setInt(1, state.getVal());
 				rs = stm.executeQuery();
@@ -480,7 +502,7 @@ public class DatabaseProcessManager implements LRProcessManager {
 			List<LRProcess> processes = new ArrayList<LRProcess>();
 			connection = connectionProvider.get();
 			if (connection != null) {
-				StringBuffer buffer = new StringBuffer("select p.DEFID,PID,p.UUID,p.STATUS,p.PLANNED,p.STARTED,p.NAME AS PNAME, p.PARAMS, p.STARTEDBY, u.* from PROCESSES p left join user_entity u on (u.user_id=p.startedby)");
+				StringBuffer buffer = new StringBuffer("select p.DEFID,PID,p.UUID,p.STATUS,p.PLANNED,p.STARTED,p.NAME AS PNAME, p.PARAMS, p.STARTEDBY,p.TOKEN, u.* from PROCESSES p left join user_entity u on (u.user_id=p.startedby)");
 				if (ordering  != null) {
 					buffer.append(ordering.getOrdering()).append(' ');
 				}

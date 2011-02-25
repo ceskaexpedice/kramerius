@@ -3,6 +3,7 @@ package cz.incad.kramerius.processes.impl;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.StringTokenizer;
+import java.util.UUID;
 
 import javax.net.ssl.SSLEngineResult.Status;
 
@@ -163,8 +164,10 @@ public class LRProcessDefinitionImpl implements LRProcessDefinition {
 	}
 
 	@Override
-	public LRProcess createNewProcess() {
-		return createProcessInternal();
+	public LRProcess createNewProcess(String token) {
+		LRProcess process = createProcessInternal();
+		process.setToken(token != null ? token : UUID.randomUUID().toString());
+		return process;
 	}
 
 	private AbstractLRProcessImpl createProcessInternal() {
@@ -178,7 +181,7 @@ public class LRProcessDefinitionImpl implements LRProcessDefinition {
 	
 	@Override
 	public LRProcess loadProcess(String uuid, String pid, long planned, States state, String name) {
-		AbstractLRProcessImpl abs = createProcessInternal();
+	    AbstractLRProcessImpl abs = createProcessInternal();
 		abs.setUuid(uuid);
 		abs.setDefinition(this);
 		abs.setPlannedTime(planned);

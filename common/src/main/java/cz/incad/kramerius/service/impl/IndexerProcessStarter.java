@@ -26,7 +26,7 @@ public class IndexerProcessStarter {
 	    title = title.replaceAll(",", " ");
 	    String url = null;
 		try {
-			url = base + "?action=start&def=reindex&out=text&params=fromKrameriusModel,"+uuid+","+URLEncoder.encode(title, "UTF-8");
+			url = base + "?action=start&def=reindex&out=text&params=fromKrameriusModel,"+uuid+","+URLEncoder.encode(title, "UTF-8")+"&token="+System.getProperty(ProcessStarter.TOKEN_KEY);
 		} catch (UnsupportedEncodingException e1) {
 			log.severe(e1.getMessage());
 		}

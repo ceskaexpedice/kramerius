@@ -54,6 +54,13 @@ public interface LRProcessManager {
 	
 	
 	/**
+	 * Returns all process by given token
+	 * @param token
+	 * @return
+	 */
+    public List<LRProcess> getLongRunningProcessesByToken(String token);
+	
+	/**
 	 * Returns number of running processes
 	 * @return
 	 */
@@ -88,6 +95,8 @@ public interface LRProcessManager {
 	 * @param uuid
 	 */
 	public void deleteLongRunningProcess(LRProcess lrProcess);
+	
+	
 	
 	public Lock getSynchronizingLock();
 }
