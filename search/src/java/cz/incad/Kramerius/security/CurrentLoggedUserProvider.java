@@ -30,21 +30,20 @@ import com.google.inject.Inject;
 import com.google.inject.Provider;
 import com.google.inject.name.Named;
 
-import cz.incad.kramerius.security.Group;
+import cz.incad.Kramerius.security.utils.UserUtils;
 import cz.incad.kramerius.security.IsActionAllowed;
 import cz.incad.kramerius.security.RightsManager;
 import cz.incad.kramerius.security.SecuredActions;
 import cz.incad.kramerius.security.SpecialObjects;
 import cz.incad.kramerius.security.User;
 import cz.incad.kramerius.security.UserManager;
-import cz.incad.kramerius.security.impl.UserImpl;
 import cz.incad.kramerius.security.jaas.K4LoginModule;
 import cz.incad.kramerius.security.jaas.K4UserPrincipal;
 
 
 public class CurrentLoggedUserProvider implements Provider<User> {
     
-    static java.util.logging.Logger LOGGER = java.util.logging.Logger.getLogger(CurrentLoggedUserProvider.class.getName());
+    public static java.util.logging.Logger LOGGER = java.util.logging.Logger.getLogger(CurrentLoggedUserProvider.class.getName());
     
     // TODO: Presunout jinam!
     public static final String SECURITY_FOR_REPOSITORY_KEY = "securityForRepository";
@@ -68,9 +67,6 @@ public class CurrentLoggedUserProvider implements Provider<User> {
     Provider<Connection> connectionProvider;
 
     
-    static Group commonUsersGroup = null;
-//    static Group globalAdminGroup = null;
-    
     @Override
     public User get() {
         try {
@@ -80,7 +76,7 @@ public class CurrentLoggedUserProvider implements Provider<User> {
                 
                 K4UserPrincipal k4principal = (K4UserPrincipal) principal;
                 User user = k4principal.getUser();
-                associateCommonGroup(user);
+                UserUtils.associateCommonGroup(user, userManager);
 
                 HttpServletRequest request = this.provider.get();
                 HttpSession session = request.getSession(true);
@@ -96,33 +92,20 @@ public class CurrentLoggedUserProvider implements Provider<User> {
                     User dbUser = (User) foundUser.get("user");
                     String dbPswd = (String) foundUser.get("pswd");
                     if (K4LoginModule.checkPswd(httpServletRequest.getParameter(USER_NAME_PARAM), dbPswd, httpServletRequest.getParameter(PSWD_PARAM).toCharArray())) {
-                        Group[] grps = userManager.findGroupsForGivenUser(dbUser.getId());
-                        //TODO: Zmenit
-                        ((UserImpl)dbUser).setGroups(grps);
-                        associateCommonGroup(dbUser);
+                        UserUtils.associateGroups(dbUser, userManager);
+                        UserUtils.associateCommonGroup(dbUser, userManager);
                         return dbUser;
-                    } else return getNotLoggedUser();
+                    } else return UserUtils.getNotLoggedUser(userManager);
                 } else {
-                    return getNotLoggedUser();
+                    return UserUtils.getNotLoggedUser(userManager);
                 }
             } else {
-                return getNotLoggedUser();
+                return UserUtils.getNotLoggedUser(userManager);
             }
         } catch(Exception e){
             throw new RuntimeException(e);
         }
     }
-
-
-public User getNotLoggedUser() {
-    LOGGER.info("PROVIDER ~ noe principal ");
-    
-    UserImpl user = new UserImpl(-1, "not_logged", "not_logged", "not_logged", -1);
-    user.setGroups(new Group[] {});
-    associateCommonGroup(user);
-    LOGGER.info("PROVIDER user instance 0x"+Integer.toHexString(System.identityHashCode(user)));
-    return user;
-}
 
 
     // ?? Synchronizace !!
@@ -139,39 +122,6 @@ public User getNotLoggedUser() {
             }
             session.setAttribute(SECURITY_FOR_REPOSITORY_KEY, actionsForUser);
         }
-    }
-
- 
-    public void associateCommonGroup(User user) {
-        Group commonGroup = null;
-        if (commonUsersGroup == null) {
-            commonGroup = findCommonGoup();
-        } else {
-            commonGroup = findCommonGoup();
-        }
-        boolean containsCommonGroup = false;
-        Group[] grps = user.getGroups();
-        for (Group group : grps) {
-            if (commonGroup.equals(group)) {
-                containsCommonGroup = true;
-                break;
-            }
-        }
-        if (!containsCommonGroup) {
-            Group[] newGroups = new Group[grps.length +1];
-            System.arraycopy(grps, 0, newGroups, 0, grps.length);
-            newGroups[grps.length] = findCommonGoup();
-            ((UserImpl)user).setGroups(newGroups);
-        }
-    }
-    
-    
-    // synchronizace
-    private synchronized Group findCommonGoup() {
-        if (commonUsersGroup == null) {
-            commonUsersGroup =  userManager.findCommonUsersGroup();
-        }
-        return commonUsersGroup;
     }
 
 }
