@@ -193,7 +193,7 @@
 		<standardOs>lrOut</standardOs>
 		<errOs>lrErr</errOs>
 	</process>
-	
+    <!-- Proces  generovani deepZoomDlazdic -->	
 	<process>
 		<id>generateDeepZoomTiles</id>
 		<description>Generate cache for  Deep Zoom </description>
@@ -202,6 +202,15 @@
 		<errOs>lrErr</errOs>
 		<javaProcessParameters>-Xmx2048m -Xms512m</javaProcessParameters>
 	</process>
+    <!-- Proces generovani priznaku do RELS-EXT --> 
+    <process>
+        <id>generateDeepZoomFlag</id>
+        <description>Generate deep zoom flag to RELS-EXT</description>
+        <mainClass>cz.incad.kramerius.imaging.lp.GenerateDeepZoomFlag</mainClass>
+        <standardOs>lrOut</standardOs>
+        <errOs>lrErr</errOs>
+        <javaProcessParameters>-Xmx2048m -Xms512m</javaProcessParameters>
+    </process>
 
     <process>
         <id>deleteGeneratedDeepZoomTiles</id>
