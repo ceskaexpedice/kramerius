@@ -163,8 +163,8 @@ public class GeneratePDFServiceImpl implements GeneratePDFService {
 				doc.newPage();
 				if (page instanceof ImagePage) {
 					ImagePage iPage = (ImagePage) page;
-					insertImage(iPage.getUuid(), writer, doc, (float)1.0, djvUrl);
-					//insertOutlinedImagePage(iPage, writer, doc, djvUrl);
+					//insertImage(iPage.getUuid(), writer, doc, (float)1.0, djvUrl);
+					insertOutlinedImagePage(iPage, writer, doc, djvUrl);
 				} else {
 					TextPage tPage = (TextPage) page;
 					insertOutlinedTextPage(tPage, writer, doc, rdoc.getDocumentTitle(), i18nUrl);
