@@ -13,6 +13,7 @@ import cz.incad.kramerius.imaging.DeepZoomCacheService;
 import cz.incad.kramerius.imaging.lp.guice.Fedora3Module;
 import cz.incad.kramerius.imaging.lp.guice.GenerateDeepZoomCacheModule;
 import cz.incad.kramerius.imaging.lp.guice.PlainModule;
+import cz.incad.kramerius.processes.utils.ProcessUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 
 public class GenerateDeepZoomCache {
@@ -29,6 +30,16 @@ public class GenerateDeepZoomCache {
             }
             DeepZoomCacheService service = injector.getInstance(Key.get(DeepZoomCacheService.class, Names.named("memoryCacheForward")));
             service.prepareCacheForUUID(args[0],numberStepsOverTile+1);
+            
+            
+            boolean spawnFlag = Boolean.getBoolean(GenerateDeepZoomFlag.class.getName());
+            if (spawnFlag) {
+                String[] processArgs = {GenerateDeepZoomFlag.Action.SET.name(),args[0],"kramerius4://deepZoomCache"};
+                ProcessUtils.startProcess("generateDeepZoomFlag", processArgs);
+            } else {
+                LOGGER.warning("not set flag for ");
+            }
+            
             LOGGER.info("Process finished");
         } else {
             LOGGER.severe("generate cache class <uuid>");

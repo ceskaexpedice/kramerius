@@ -16,6 +16,12 @@
  */
 package cz.incad.kramerius.processes.utils;
 
+import java.io.StringReader;
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
+import java.util.List;
+
+import cz.incad.kramerius.processes.impl.ProcessStarter;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 
 /**
@@ -26,6 +32,8 @@ import cz.incad.kramerius.utils.conf.KConfiguration;
  */
 public class ProcessUtils {
 
+    static java.util.logging.Logger LOGGER = java.util.logging.Logger.getLogger(ProcessUtils.class.getName());
+    
     /** Lr servlet name.  This coresponds with web.xml  */
     public static final String LR_SERVLET_NAME="lr";
     
@@ -37,5 +45,45 @@ public class ProcessUtils {
         String lrServlet = KConfiguration.getInstance().getApplicationURL() + '/' + LR_SERVLET_NAME;
         return lrServlet;
     }
+    
+    public static void startProcess(String processDef, String[] params) {
+        LOGGER.info(" spawn process '"+processDef+"'");
+        String base = ProcessUtils.getLrServlet();    
+        String url = base + "?action=start&def="+processDef+"&nparams="+nparams(params)+"&token="+System.getProperty(ProcessStarter.TOKEN_KEY);
+        try {
+            ProcessStarter.httpGet(url);
+        } catch (Exception e) {
+            LOGGER.severe("Error spawning indexer for "+processDef+":"+e);
+        }
+    }
 
+    private static String nparams(String[] params) {
+        StringBuffer buffer = new StringBuffer("{");
+        for (int i = 0; i < params.length; i++) {
+            buffer.append(nparam(params[i]));
+            if (i < params.length -1) {
+                buffer.append(";");
+            }
+        }
+        buffer.append("}");
+        return buffer.toString();
+    }
+
+    private static String nparam(String string) {
+        String[] escapeChars = {"\\",":",";","{","}"};
+        for (String toEscape : escapeChars) {
+            if (string.contains(toEscape)) {
+                string = string.replace(toEscape, "\\"+toEscape);
+            }
+        }
+        return string;
+    }
+
+    public static void main(String[] args) {
+        //SET;4308eb80-b03b-11dd-a0f6-000d606f5dc6;kramerius4://deepZoomCache
+        //String[] prms = new String[] {"SET","4308eb80-b03b-11dd-a0f6-000d606f5dc6","kramerius4://deepZoomCache"};
+
+        
+       // System.out.println(nparams(prms));
+    }
 }

@@ -32,6 +32,7 @@ import cz.incad.kramerius.imaging.DiscStrucutreForStore;
 import cz.incad.kramerius.imaging.lp.guice.Fedora3Module;
 import cz.incad.kramerius.imaging.lp.guice.GenerateDeepZoomCacheModule;
 import cz.incad.kramerius.imaging.lp.guice.PlainModule;
+import cz.incad.kramerius.processes.utils.ProcessUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 import cz.incad.kramerius.utils.imgs.KrameriusImageSupport;
 import cz.incad.kramerius.utils.pid.LexerException;
@@ -49,6 +50,13 @@ public class DeleteGeneratedDeepZoomCache {
             FedoraAccess fa = injector.getInstance(Key.get(FedoraAccess.class, Names.named("securedFedoraAccess")));
             DiscStrucutreForStore discStruct = injector.getInstance(DiscStrucutreForStore.class);
             deleteCacheForUUID(args[0], fa, discStruct);
+            
+            
+            boolean spawnFlag = Boolean.getBoolean(GenerateDeepZoomFlag.class.getName());
+            if (spawnFlag) {
+                String[] processArgs = {GenerateDeepZoomFlag.Action.DELETE.name(),args[0]};
+                ProcessUtils.startProcess("generateDeepZoomFlag", processArgs);
+            }
         }
     }
 

@@ -200,7 +200,7 @@
 		<mainClass>cz.incad.kramerius.imaging.lp.GenerateDeepZoomCache</mainClass>
 		<standardOs>lrOut</standardOs>
 		<errOs>lrErr</errOs>
-		<javaProcessParameters>-Xmx2048m -Xms512m</javaProcessParameters>
+		<javaProcessParameters>-Xmx2048m -Xms512m  -Dcz.incad.kramerius.imaging.lp.GenerateDeepZoomFlag=true</javaProcessParameters>
 	</process>
     <!-- Proces generovani priznaku do RELS-EXT --> 
     <process>
@@ -211,14 +211,14 @@
         <errOs>lrErr</errOs>
         <javaProcessParameters>-Xmx2048m -Xms512m</javaProcessParameters>
     </process>
-
+    <!-- smazani cache pro dlazdice -->
     <process>
         <id>deleteGeneratedDeepZoomTiles</id>
         <description>Delete generated deepZoomCache </description>
         <mainClass>cz.incad.kramerius.imaging.lp.DeleteGeneratedDeepZoomCache</mainClass>
         <standardOs>lrOut</standardOs>
         <errOs>lrErr</errOs>
-        <javaProcessParameters>-Xmx1024m -Xms512m</javaProcessParameters>
+        <javaProcessParameters>-Xmx1024m -Xms512m -Dcz.incad.kramerius.imaging.lp.GenerateDeepZoomFlag=true</javaProcessParameters>
     </process>
 
     <process>

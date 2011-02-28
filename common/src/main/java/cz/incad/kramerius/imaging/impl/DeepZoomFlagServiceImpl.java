@@ -140,12 +140,15 @@ public class DeepZoomFlagServiceImpl implements DeepZoomFlagService {
 
 
     public void deleteFlagToUUIDInternal(String uuid) {
+        LOGGER.info("deleting uuid '"+uuid+"'");
         FedoraAPIM apim = fedoraAccess.getAPIM();
         String pid = "uuid:"+uuid;
         String tilesUrlNS = FedoraNamespaces.KRAMERIUS_URI+"tiles-url";
         List<RelationshipTuple> relationships = apim.getRelationships(pid, tilesUrlNS);
         if (!relationships.isEmpty()) {
             apim.purgeRelationship(pid, tilesUrlNS,relationships.get(0).getObject(), relationships.get(0).isIsLiteral(), relationships.get(0).getDatatype());
+        } else {
+            LOGGER.warning("no relation found");
         }
     }
     

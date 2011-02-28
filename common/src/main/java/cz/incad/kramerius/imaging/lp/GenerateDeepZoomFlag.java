@@ -40,7 +40,7 @@ public class GenerateDeepZoomFlag {
             Action action = Action.valueOf(args[0]);
             action.doAction(args);
         } else {
-            LOGGER.severe("generate <uuid>");
+            LOGGER.severe("bad number of arguments ");
         }
 
     }

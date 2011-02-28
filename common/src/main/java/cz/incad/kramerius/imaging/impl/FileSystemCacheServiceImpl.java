@@ -94,12 +94,14 @@ public class FileSystemCacheServiceImpl implements DeepZoomCacheService {
             Dimension rawDim = new Dimension(rawImage.getWidth(), rawImage.getHeight());
             int levels = (int) tileSupport.getLevels(rawImage, 1);
             int startLevel = tileSupport.getClosestLevel(rawDim, tileSupport.getTileSize());
+            int maxLevel = Math.min(levels, startLevel + levelsOverTile);
             
-            Dimension finishedDimension = tileSupport.getScaledDimension(rawDim, (startLevel+levelsOverTile-1), levels);
-            writeDeepZoomDescriptor(uuid, finishedDimension, tileSupport.getTileSize(), new File(uuidFolder, DEEP_ZOOM_DESC_FILE));
-            writeResolution(uuid, finishedDimension);
+            // finished dimension == rawDim
+            //Dimension finishedDimension = tileSupport.getScaledDimension(rawDim, (startLevel+levelsOverTile-1), levels);
+            writeDeepZoomDescriptor(uuid, rawDim, tileSupport.getTileSize(), new File(uuidFolder, DEEP_ZOOM_DESC_FILE));
+            writeResolution(uuid, rawDim);
             
-            for (int i = startLevel + 1; i < startLevel + levelsOverTile; i++) {
+            for (int i = startLevel + 1; i < maxLevel; i++) {
 
                 int curLevel = i;
                 double scale = tileSupport.getScale(curLevel, levels);
