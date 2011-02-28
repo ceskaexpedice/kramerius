@@ -107,22 +107,26 @@ public class GenerateThumbnail {
     }
 
     public static void prepareThumbnail(String uuid, FedoraAccess fedoraAccess, DiscStrucutreForStore discStruct, DeepZoomTileSupport tileSupport) throws IOException, XPathExpressionException {
-        BufferedImage scaled = scaleToFullThumb(uuid, fedoraAccess, tileSupport);
+        if (!fedoraAccess.isFullthumbnailAvailable(uuid)) {
+            BufferedImage scaled = scaleToFullThumb(uuid, fedoraAccess, tileSupport);
 
-        String rootPath = KConfiguration.getInstance().getConfiguration().getString("fullThumbnail.cacheDirectory", "${sys:user.home}/.kramerius4/fullThumb");
-        File cachedFile = discStruct.getUUIDFile(uuid, rootPath);
+            String rootPath = KConfiguration.getInstance().getConfiguration().getString("fullThumbnail.cacheDirectory", "${sys:user.home}/.kramerius4/fullThumb");
+            File cachedFile = discStruct.getUUIDFile(uuid, rootPath);
 
-        if (!cachedFile.exists()) {
-            boolean file = cachedFile.createNewFile();
-            if (!file) {
-                throw new IOException("cannot creeate file " + cachedFile.getAbsolutePath());
+            if (!cachedFile.exists()) {
+                boolean file = cachedFile.createNewFile();
+                if (!file) {
+                    throw new IOException("cannot creeate file " + cachedFile.getAbsolutePath());
+                }
             }
-        }
-        FileOutputStream fos = new FileOutputStream(cachedFile);
-        try {
-            KrameriusImageSupport.writeImageToStream(scaled, "jpeg", fos);
-        } finally {
-            fos.close();
+            FileOutputStream fos = new FileOutputStream(cachedFile);
+            try {
+                KrameriusImageSupport.writeImageToStream(scaled, "jpeg", fos);
+            } finally {
+                fos.close();
+            }
+        } else {
+            LOGGER.info(" for '"+uuid+"' is not necessary generate full thumbnail");
         }
     }
 

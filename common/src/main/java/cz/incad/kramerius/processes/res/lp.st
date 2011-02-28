@@ -200,7 +200,7 @@
 		<mainClass>cz.incad.kramerius.imaging.lp.GenerateDeepZoomCache</mainClass>
 		<standardOs>lrOut</standardOs>
 		<errOs>lrErr</errOs>
-		<javaProcessParameters>-Xmx2048m -Xms512m  -Dcz.incad.kramerius.imaging.lp.GenerateDeepZoomFlag=true</javaProcessParameters>
+		<javaProcessParameters>-Xmx2048m -Xms512m -Dcz.incad.kramerius.imaging.lp.GenerateDeepZoomFlag=true -Dcz.incad.kramerius.imaging.lp.GenerateThumbnail=true</javaProcessParameters>
 	</process>
     <!-- Proces generovani priznaku do RELS-EXT --> 
     <process>

@@ -32,13 +32,23 @@ public class GenerateDeepZoomCache {
             service.prepareCacheForUUID(args[0],numberStepsOverTile+1);
             
             
-            boolean spawnFlag = Boolean.getBoolean(GenerateDeepZoomFlag.class.getName());
-            if (spawnFlag) {
+            boolean spawnRELSEXTFlag = Boolean.getBoolean(GenerateDeepZoomFlag.class.getName());
+            if (spawnRELSEXTFlag) {
                 String[] processArgs = {GenerateDeepZoomFlag.Action.SET.name(),args[0],"kramerius4://deepZoomCache"};
                 ProcessUtils.startProcess("generateDeepZoomFlag", processArgs);
             } else {
-                LOGGER.warning("not set flag for ");
+                LOGGER.warning("no subprocess for generating flag in rels-ext");
             }
+            
+            
+            boolean spawnGeneratethumb = Boolean.getBoolean(GenerateThumbnail.class.getName());
+            if (spawnGeneratethumb) {
+                String[] processArgs = {args[0]};
+                ProcessUtils.startProcess("generateFullThumb", processArgs);
+            } else {
+                LOGGER.warning("no subprocess for generating thumbs");
+            }
+            
             
             LOGGER.info("Process finished");
         } else {
