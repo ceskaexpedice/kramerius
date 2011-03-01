@@ -205,6 +205,8 @@ public class SolrOperations {
             if (path.indexOf("/") > -1) {
                 path = path.substring(0, path.lastIndexOf("/"));
                 indexParams.setParam("PATH", path);
+            }else{
+                indexParams.removeParam("PATH");
             }
 
             xPathStr = "/response/result/doc/str[@name='root_model']";

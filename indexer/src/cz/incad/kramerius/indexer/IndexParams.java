@@ -50,6 +50,10 @@ public class IndexParams {
         paramsMap.put(name, value);
     }
 
+    public void removeParam(String name) {
+        paramsMap.remove(name);
+    }
+
     public IndexParams(String pid, String model,
             String path, String pid_path, String _parent_model, String _parent_pid, String _datum,
             String _root_pid, String _root_model, String _root_title, String _language, String _relsExtIndex) {
@@ -102,6 +106,8 @@ public class IndexParams {
     public void addPath(String s) {
         if (paramsMap.containsKey("PATH")) {
             paramsMap.put("PATH", paramsMap.get("PATH") + "/" + s);
+        }else{
+            paramsMap.put("PATH", s);
         }
     }
 
