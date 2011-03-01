@@ -309,7 +309,8 @@
         
         <field name="root_model" type="string"  indexed="true"  stored="true" />
         <field name="root_pid" type="string"  indexed="true"  stored="true" />
-        <field name="root_title" type="string"  indexed="true"  stored="true" />
+        <field name="root_title" type="string"  indexed="true"  stored="true"  />
+        <field name="root_title_cs" type="localizedstring"  indexed="true"  stored="false" locale="cs" />
         
         <field name="pages_count" type="sint" default="0" indexed="true" stored="true"  />
         
@@ -347,15 +348,6 @@
         
         <field name="page_format" type="string"  indexed="true"  stored="true"  />
         
-        <!--
-        <field name="abeceda_title" type="string"  indexed="true"  stored="true" />
-        <field name="abeceda_autor" type="string"  indexed="true"  stored="true"  multiValued="true" />
-        <field name="abeceda" type="string"  indexed="true"  stored="true" />
-        <field name="abeceda_title_page" type="string"  indexed="true"  stored="true" />
-        <field name="abeceda_autor_page" type="string"  indexed="true"  stored="true"  multiValued="true" />
-        
-        -->
-        
     </fields>
 
  <!-- Field to use to determine and enforce document uniqueness. 
@@ -385,6 +377,7 @@
     <copyField source="dc.title" dest="title_en"/>
     <copyField source="dc.creator" dest="facet_autor"/>
     <copyField source="dc.creator" dest="search_autor"/>
+    <copyField source="root_title" dest="root_title_cs" />
 
  <!-- Similarity is the scoring routine for each document vs. a query.
       A custom similarity may be specified here, but the default is fine
