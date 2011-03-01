@@ -30,13 +30,6 @@
 -->
     <xsl:param name="DOCCOUNT" select="repositoryName"/>
     
-    <xsl:param name="REPOSITORYNAME" select="repositoryName"/>
-    <xsl:param name="FEDORASOAP" select="repositoryName"/>
-    <xsl:param name="FEDORAUSER" select="repositoryName"/>
-    <xsl:param name="FEDORAPASS" select="repositoryName"/>
-    <xsl:param name="TRUSTSTOREPATH" select="repositoryName"/>
-    <xsl:param name="TRUSTSTOREPASS" select="repositoryName"/>
-    
     <xsl:param name="PAGESCOUNT" select="1"/>
     <xsl:param name="DATUM" select="''"/>
     <xsl:param name="ROK" select="''"/>
@@ -238,23 +231,19 @@
             <xsl:with-param name="parent"><xsl:value-of select="$PARENTS"/></xsl:with-param>
         </xsl:call-template>
         </xsl:if>
-
-
-        <xsl:if test="$pageNum != 0">
-            <field name="parent_pid">
-                <xsl:value-of select="substring($PID, 6)"/>
-            </field>
-        </xsl:if>
-
-        
-        <xsl:if test="$PARENT_PID and not($PARENT_PID = '')" >
-            <field name="parent_pid">
-                <xsl:value-of select="$PARENT_PID" />
-            </field>
-        </xsl:if>
-        
-        
         <xsl:if test="$MODEL != 'page'">
+            <xsl:choose>
+            <xsl:when test="$pageNum != 0">
+                <field name="parent_pid">
+                    <xsl:value-of select="substring($PID, 6)"/>
+                </field>
+            </xsl:when>
+            <xsl:when test="$PARENT_PID and not($PARENT_PID = '')" >
+                <field name="parent_pid">
+                    <xsl:value-of select="$PARENT_PID" />
+                </field>
+            </xsl:when>
+            </xsl:choose>
         </xsl:if>
         
         <xsl:if test="$PARENT_MODEL and not($PARENT_MODEL = '')" >

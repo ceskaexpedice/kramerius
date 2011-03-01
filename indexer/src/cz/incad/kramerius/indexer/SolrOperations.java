@@ -162,8 +162,7 @@ public class SolrOperations {
             xpath = factory.newXPath();
             IndexParams indexParams = new IndexParams(uuid, contentDom);
 
-            /* get current up values */
-
+            /* get current values */
             java.net.URL url = new java.net.URL(urlStr);
 
             DocumentBuilder builder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
@@ -177,17 +176,20 @@ public class SolrOperations {
             xPathStr = "/response/result/doc/arr[@name='parent_pid']/str";
             expr = xpath.compile(xPathStr);
             node = (Node) expr.evaluate(solrDom, XPathConstants.NODE);
-            indexParams.setParam("PARENT_PID", node.getFirstChild().getNodeValue());
+            if(node!=null && node.hasChildNodes())
+                indexParams.setParam("PARENT_PID", node.getFirstChild().getNodeValue());
             
             xPathStr = "/response/result/doc/str[@name='parent_model']";
             expr = xpath.compile(xPathStr);
             node = (Node) expr.evaluate(solrDom, XPathConstants.NODE);
-            indexParams.setParam("PARENT_MODEL", node.getFirstChild().getNodeValue());
+            if(node!=null && node.hasChildNodes())
+                indexParams.setParam("PARENT_MODEL", node.getFirstChild().getNodeValue());
             
             xPathStr = "/response/result/doc/str[@name='pid_path']";
             expr = xpath.compile(xPathStr);
             node = (Node) expr.evaluate(solrDom, XPathConstants.NODE);
-            indexParams.setParam("PID_PATH", node.getFirstChild().getNodeValue());
+            if(node!=null && node.hasChildNodes())
+                indexParams.setParam("PID_PATH", node.getFirstChild().getNodeValue());
 
             xPathStr = "/response/result/doc/str[@name='root_title']";
             expr = xpath.compile(xPathStr);
@@ -202,8 +204,8 @@ public class SolrOperations {
             //jen do posledni
             if (path.indexOf("/") > -1) {
                 path = path.substring(0, path.lastIndexOf("/"));
+                indexParams.setParam("PATH", path);
             }
-            indexParams.setParam("PATH", path);
 
             xPathStr = "/response/result/doc/str[@name='root_model']";
             expr = xpath.compile(xPathStr);
@@ -374,8 +376,8 @@ public class SolrOperations {
                     DateFormat formatter = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
                     Date dateValue = formatter.parse(dateNode.getNodeValue());
                     if (dateValue.before(date)) {
-                        logger.info(String.format("Document %s is up to date. Skipping", pid));
                         if (!force) {
+                            logger.info(String.format("Document %s is up to date. Skipping", pid));
                             return getActualNumOfPagesFromSolr(pid);
                         }
                     }
@@ -444,7 +446,7 @@ public class SolrOperations {
                     IndexParams childParams = new IndexParams(relpid, model, contentDom, i);
                     childParams.merge(indexParams);
                     foxmlStream2.reset();
-                    num += indexByPid(relpid, date, false, foxmlStream2, requestParams, childParams);
+                    num += indexByPid(relpid, date, force, foxmlStream2, requestParams, childParams);
                 } catch (Exception ex) {
                     //logger.severe("Can't index doc: " + relpid + " Continuing...");
                     logger.log(Level.SEVERE, "Can't index doc: " + relpid + " Continuing...",  ex);
@@ -471,11 +473,6 @@ public class SolrOperations {
         foxmlStream.reset();
         String xsltName = "";
         HashMap<String, String> params = new HashMap<String, String>();
-        params.put("FEDORASOAP", config.getString("FedoraSoap"));
-        params.put("FEDORAUSER", config.getString("FedoraUser"));
-        params.put("FEDORAPASS", config.getString("FedoraPass"));
-        params.put("TRUSTSTOREPATH", config.getString("TrustStorePath"));
-        params.put("TRUSTSTOREPASS", config.getString("TrustStorePass"));
         params.put("DOCCOUNT", docCount);
 
         for (int i = 0; i < requestParams.size(); i = i + 2) {
@@ -745,16 +742,12 @@ public class SolrOperations {
             return 0;
         }
         try {
-            String urlStr = config.getString("solrHost") + "/select/select?q=PID:\"" + pid.replaceAll("uuid:", "") + "\"";
+            String urlStr = config.getString("solrHost") + "/select/select?fl=pages_count&q=PID:\"" + pid.replaceAll("uuid:", "") + "\"";
             String uuid = pid.startsWith("uuid:") ? pid : "uuid:" + pid;
             fedoraOperations.getFoxmlFromPid(uuid);
             contentDom = getDocument(new ByteArrayInputStream(fedoraOperations.foxmlRecord));
             factory = XPathFactory.newInstance();
             xpath = factory.newXPath();
-            IndexParams indexParams = new IndexParams(uuid, contentDom);
-
-            /* get current up values */
-
             java.net.URL url = new java.net.URL(urlStr);
 
             DocumentBuilder builder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
