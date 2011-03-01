@@ -33,6 +33,7 @@ import cz.incad.kramerius.imaging.DiscStrucutreForStore;
 import cz.incad.kramerius.impl.FedoraAccessImpl;
 import cz.incad.kramerius.utils.FedoraUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
+import java.util.ArrayList;
 
 /**
  * This is secured variant of class FedoraAccessImpl {@link FedoraAccessImpl}. <br>
@@ -73,6 +74,14 @@ public class SecuredFedoraAccessImpl implements FedoraAccess {
         return rawAccess.getDC(uuid);
     }
 
+    public String findFirstViewablePid(String uuid) throws IOException {
+        return rawAccess.findFirstViewablePid(uuid);
+    }
+
+    public boolean getFirstViewablePath(ArrayList<String> pids, ArrayList<String> models) throws IOException{
+        return rawAccess.getFirstViewablePath(pids, models);
+    }
+
     public InputStream getImageFULL(String uuid) throws IOException {
         String[] pathOfUUIDs = this.solrAccess.getPathOfUUIDs(uuid);
         if (this.isActionAllowed.isActionAllowed(SecuredActions.READ.getFormalName(), uuid, pathOfUUIDs)) {
@@ -95,6 +104,14 @@ public class SecuredFedoraAccessImpl implements FedoraAccess {
 
     public KrameriusModels getKrameriusModel(String uuid) throws IOException {
         return rawAccess.getKrameriusModel(uuid);
+    }
+    
+    public ArrayList<String> getModelsOfRel(Document relsExt){
+        return rawAccess.getModelsOfRel(relsExt);
+    }
+    
+    public ArrayList<String> getModelsOfRel(String uuid) throws IOException{
+        return rawAccess.getModelsOfRel(uuid);
     }
 
     public String getDonator(Document relsExt) {
