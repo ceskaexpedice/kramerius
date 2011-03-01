@@ -5,7 +5,15 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn" %>
 <%@ page isELIgnored="false"%>
 <%@page import="cz.incad.kramerius.utils.FedoraUtils"%>
+<%@page import="com.google.inject.Injector"%>
+<%@page import="cz.incad.kramerius.FedoraAccess"%>
 
+<%
+	Injector inj = (Injector)application.getAttribute(Injector.class.getName());
+
+        FedoraAccess fedoraAccess = inj.getInstance(com.google.inject.Key.get(FedoraAccess.class, com.google.inject.name.Names.named("securedFedoraAccess")));
+
+%>
 <%@ include file="initVars.jsp" %>
 <c:url var="url" value="${kconfig.solrHost}/select/" >
     <c:param name="q" value="level:0" />
@@ -59,10 +67,9 @@
             if (fedora_model.equals("page")) {
                 imagePid = "thumb?uuid=" + uuid.split("/@")[0];
             } else {
-                String pageuuid = FedoraUtils.findFirstPagePid("uuid:" + uuid);
+                String pageuuid = fedoraAccess.findFirstViewablePid(uuid);
                 if (pageuuid==null) pageuuid = uuid;
                 imagePid = "thumb?uuid=" + pageuuid;
-                //imagePid = "thumb?uuid=" + FedoraUtils.findFirstPagePid("uuid:" + uuid);
             }
             %>
             <div align="center" style="overflow:hidden; border:1px solid #eeeeee; width:100px; height:100px; float:left; margin:5px;"><a href="<c:out value="${itemUrl}" escapeXml="false" />" >

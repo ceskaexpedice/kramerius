@@ -3,7 +3,12 @@
 <%
 // zaklad od kamila 
             String expandedPaginationStr = "";
-            int numHits = Integer.parseInt((String) request.getAttribute("rows"));
+            //int numHits = Integer.parseInt((String) request.getAttribute("rows"));
+            String rows = (String)request.getAttribute("rows");
+            int numHits = 0;
+            if(rows!=null){
+                numHits = Integer.parseInt(rows);
+            }
             int numDocs = Integer.parseInt((String) request.getAttribute("numDocs"));
             String div = (String) request.getParameter("d");
             String filters = (String) request.getAttribute("filters");
@@ -11,13 +16,7 @@
             String offsetUrl = "";
             boolean includeAbeceda = false;
             Facet abecedaFacet = null;
-            if(facets!=null){
-                abecedaFacet = facets.get("abeceda_title");
-                if(abecedaFacet!=null){
-                    includeAbeceda = true;
-                    abecedaFacet.sortByName();
-                }
-            }
+            
             if(type==null){
                 offsetUrl = "javascript:gotoPageOffset(%s);";
             }else if(type.equals("uncollapse")){                

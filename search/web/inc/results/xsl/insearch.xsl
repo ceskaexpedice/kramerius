@@ -86,7 +86,7 @@
             <xsl:choose>
                 <xsl:when test="contains($pid, '/@')">thumb?uuid=<xsl:value-of select="substring-before($pid, '/@')"/>&amp;scaledHeight=64</xsl:when>
                 <xsl:when test="$fmodel='page'">thumb?uuid=<xsl:value-of select="$pid"/>&amp;scaledHeight=64</xsl:when>
-                <xsl:otherwise>thumb?uuid=<xsl:value-of select="exts:findFirstPagePid($generic, $pid)" />&amp;scaledHeight=64</xsl:otherwise>
+                <xsl:otherwise>thumb?uuid=<xsl:value-of select="exts:findFirstViewablePid($generic, $pid)" />&amp;scaledHeight=64</xsl:otherwise>
             </xsl:choose>
         </xsl:variable>
         <td class="resultThumb" valign="top">
@@ -98,8 +98,7 @@
         </td>
         <xsl:variable name="model"><xsl:value-of select="concat('fedora.model.', ./str[@name='fedora.model'])" /></xsl:variable>
         <td class="resultText">
-            <a><xsl:attribute name="href">javascript:loadItemMenu('pid=<xsl:value-of select="$pid"/>&amp;pid_path=<xsl:value-of select="./str[@name='pid_path']"/>&amp;path=<xsl:value-of select="./str[@name='path']"/>');
-                </xsl:attribute><b><xsl:value-of select="./str[@name='dc.title']"/></b></a>&#160;
+            <a><xsl:attribute name="href">javascript:loadItemMenu('pid=<xsl:value-of select="$pid"/>&amp;pid_path=<xsl:value-of select="./str[@name='pid_path']"/>&amp;path=<xsl:value-of select="./str[@name='path']"/>');</xsl:attribute><b><xsl:value-of select="./str[@name='dc.title']"/></b></a>&#160;
             (<xsl:value-of select="$bundle/value[@key=$model]"/>)
 
             <div>

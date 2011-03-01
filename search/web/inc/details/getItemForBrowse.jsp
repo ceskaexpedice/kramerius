@@ -27,10 +27,12 @@
         </c:otherwise>
     </c:choose>
     <c:param name="rows" value="${rows}" />
-    <c:param name="fl" value="PID,fedora.model,dc.title,details" />
+    <c:param name="fl" value="PID,fedora.model,dc.title,details,page_format" />
     <c:param name="start" value="${param.offset}" />
     <c:param name="sort" value="fedora.model asc, rels_ext_index asc" />
-    
+    <c:param name="fq" >
+        NOT(PID:${param.pid}/@*)
+    </c:param>
 </c:url>
 
 <c:url var="xslPage" value="xsl/relsextDetails.jsp" />

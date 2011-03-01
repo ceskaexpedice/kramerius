@@ -88,7 +88,7 @@
         <xsl:param name="fmodel" />
         <xsl:for-each select="//doc[str[@name='fedora.model']=$fmodel]" >
             <div onclick="selectRelItem(this);">
-                <xsl:attribute name="class">relItem <xsl:value-of select="$fmodel" /></xsl:attribute>
+                <xsl:attribute name="class">relItem <xsl:value-of select="$fmodel" /> <xsl:if test="./str[@name='page_format']" > viewable</xsl:if></xsl:attribute>
                 <xsl:attribute name="pid"><xsl:value-of select="./str[@name='PID']" /></xsl:attribute>
                 <xsl:call-template name="details">
                     <xsl:with-param name="fmodel"><xsl:value-of select="$fmodel" /></xsl:with-param>

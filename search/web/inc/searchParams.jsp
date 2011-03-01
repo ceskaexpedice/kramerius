@@ -112,6 +112,7 @@
     </c:if>
         
     <c:param name="rows" value="${rows}" />
+    <jsp:useBean id="rows" type="java.lang.String" scope="request" />
     <c:if test="${rows!='0'}">
         <c:param name="facet.field" value="facet_autor" />
         <c:param name="facet.field" value="dostupnost" />

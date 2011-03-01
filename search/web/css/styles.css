@@ -141,8 +141,13 @@ a.image:hover {
     width:216px;
 }
 .centralCell .facetBody{
-    height:94px;
+    bottom:0;
 }
+
+.centralCell #facet_document_type{
+    bottom:0;
+}
+
 .facetTitle{
     color:white;
 }
@@ -415,6 +420,10 @@ td.rightMenu .facet{
 }
  
 /* suggest */
+
+#suggestDiv{
+    bottom:0;
+}
  
  .suggest_box{
     
@@ -436,7 +445,7 @@ td.rightMenu .facet{
 #suggestBody{
     padding:2px 5px;
     padding-top:8px;
-    height:89px;
+    bottom:0px;
 }
  
 .suggest_input{

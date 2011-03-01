@@ -11,17 +11,6 @@
         style="display:none;"
     </c:if>
     >
-    <%--
-    <% 
-    //String imagePid = FedoraUtils.findFirstPagePid("uuid:" + uuid);
-    String imagePid = "uuid:" + uuid;
-    if(imagePid!=null){
-        %>
-    <img  src="thumb?uuid=<%=imagePid.substring(5) %>" height="75px" onerror="this.src='img/empty.gif'" />
-    <%
-    }
-    %>
-    --%>
     <x:if select="./arr[@name='dc.creator']/str/text()">
     <x:forEach varStatus="c" select="./arr[@name='dc.creator']/str">
         <c:if test="${c.count>1}">;&#160;</c:if><x:out select="."/>

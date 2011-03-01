@@ -17,7 +17,6 @@
     <c:set var="level" value="${param.level}" />
 </c:if>
 <%-- fill path up to the end --%>
-
 <c:forEach var="menu" varStatus="status" items="${itemViewObject.menus}">
 <c:choose>
 <c:when test="${level==0 || status.count>1}">

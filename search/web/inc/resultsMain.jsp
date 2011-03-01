@@ -62,10 +62,11 @@
     if(fedora_model.equals("page")){
         imagePid = "thumb?uuid=" + uuid.split("/@")[0];
     }else{
-        String pageuuid = FedoraUtils.findFirstPagePid("uuid:" + uuid);
+        //String pageuuid = FedoraUtils.findFirstPagePid("uuid:" + uuid);
+
+        String pageuuid = fedoraAccess.findFirstViewablePid(uuid);
         if (pageuuid==null) pageuuid = uuid;
         imagePid = "thumb?uuid=" + pageuuid;
-        //imagePid = "thumb?uuid=" + FedoraUtils.findFirstPagePid("uuid:" + uuid);
     }
     %>
     <a href="<c:out value="${itemUrl}" escapeXml="false" />"><img id="img_<c:out value="${uuid}"/>" 

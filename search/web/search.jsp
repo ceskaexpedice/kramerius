@@ -6,11 +6,12 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn" %>
 <%@ page isELIgnored="false"%>
 <%@page import="com.google.inject.Injector"%>
-<%@page import="javax.servlet.jsp.jstl.fmt.LocalizationContext"%>
+<%@page import="javax.servlet.jsp.jstl.fmt.LocalizationContext, cz.incad.kramerius.FedoraAccess"%>
 <%
             Injector ctxInj = (Injector) application.getAttribute(Injector.class.getName());
             LocalizationContext lctx = ctxInj.getProvider(LocalizationContext.class).get();
             pageContext.setAttribute("lctx", lctx);
+            FedoraAccess fedoraAccess = ctxInj.getInstance(com.google.inject.Key.get(FedoraAccess.class, com.google.inject.name.Names.named("securedFedoraAccess")));
 
 %>
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
@@ -20,7 +21,7 @@
 <%
     XSLService xs = (XSLService) ctxInj.getInstance(XSLService.class);
     try {
-        String xsl = "resultsMain1.xsl";
+        String xsl = "resultsMain.xsl";
         if (xs.isAvailable(xsl)) {
             String text = xs.transform(xml, xsl);
             out.println(text);

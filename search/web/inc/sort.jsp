@@ -5,18 +5,18 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn" %>
 <%@ page isELIgnored="false"%>
 <div id="sort" style="float:right;padding-right:3px;">
-<c:if test="${fn:containsIgnoreCase(param.sort ,'root_title')}" >
+<c:if test="${fn:containsIgnoreCase(param.sort ,'root_title_cs')}" >
    <b>
        <c:if test="${fn:containsIgnoreCase(param.sort ,'desc')}" >
-       <a  href="javascript:sortBy('root_title+asc')"><fmt:message bundle="${lctx}">filter.sortby.name</fmt:message></a>
+       <a  href="javascript:sortBy('root_title_cs+asc')"><fmt:message bundle="${lctx}">filter.sortby.name</fmt:message></a>
    </c:if>
    <c:if test="${fn:containsIgnoreCase(param.sort ,'asc')}" >
-       <a  href="javascript:sortBy('root_title+desc')"><fmt:message bundle="${lctx}">filter.sortby.name</fmt:message></a>
+       <a  href="javascript:sortBy('root_title_cs+desc')"><fmt:message bundle="${lctx}">filter.sortby.name</fmt:message></a>
    </c:if>
    </b> 
 </c:if> 
-<c:if test="${! fn:containsIgnoreCase(param.sort ,'root_title')}" >
-   <a  href="javascript:sortBy('root_title+asc')"><fmt:message bundle="${lctx}">filter.sortby.name</fmt:message></a>
+<c:if test="${! fn:containsIgnoreCase(param.sort ,'root_title_cs')}" >
+   <a  href="javascript:sortBy('root_title_cs+asc')"><fmt:message bundle="${lctx}">filter.sortby.name</fmt:message></a>
 </c:if>
 
 <c:if test="${fn:containsIgnoreCase(param.sort ,'score') || empty param.sort}" >

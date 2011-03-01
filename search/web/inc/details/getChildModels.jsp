@@ -31,6 +31,9 @@
     <c:param name="fl" value="fedora.model" />
     <c:param name="start" value="${param.offset}" />
     <c:param name="sort" value="fedora.model asc" />
+    <c:param name="fq" >
+        NOT(parent_pid:${param.pid}/@*)
+    </c:param>
     
 </c:url>
 

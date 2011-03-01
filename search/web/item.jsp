@@ -23,6 +23,8 @@
             // ukladani nejoblibenejsich 
             itemViewObject.saveMostDesirable();
             pageContext.setAttribute("itemViewObject", itemViewObject);
+
+            
 %>
 
 <%@ include file="inc/initVars.jsp" %>

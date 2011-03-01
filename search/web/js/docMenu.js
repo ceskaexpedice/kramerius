@@ -11,7 +11,8 @@ function selectRelItem(obj){
     var divId = $(obj).parent().parent().attr('id');  // for example divId = tab3-page
     var level = parseInt(divId.substring(3, divId.indexOf("-")));
     var model = divId.substring(divId.indexOf("-")+1);
-    if(model=="page"){
+    if($(obj).hasClass('viewable')){
+    //if(model=="page"){
         selectPage($(obj).attr("pid"));
     }else{
         selectItem(obj, level, model);
@@ -188,8 +189,10 @@ function selectThumb(uuid){
  *selects previous page
  */
 function selectPrevious(){
-    var curMaxLevel = maxLevelForFullImageShow > -1 ? maxLevelForFullImageShow : getMaxLevel();	
-    var obj =$('#tab'+curMaxLevel+'-page>div.relList>div.selected').prev();
+    var curMaxLevel = maxLevelForFullImageShow > -1 ? maxLevelForFullImageShow : getMaxLevel();
+    //if($('#'+id).is(':visible') && cur>maxLevel)
+    var obj =$('#tabs_'+curMaxLevel+'>div:visible>div.relList>div.selected').prev();
+    //var obj =$('#tab'+curMaxLevel+'-page>div.relList>div.selected').prev();
     if($(obj).length>0){
         selectPage( $(obj).attr("pid"));
     }
@@ -200,7 +203,8 @@ function selectPrevious(){
  */
 function selectNext(){
     var curMaxLevel = maxLevelForFullImageShow > -1 ? maxLevelForFullImageShow : getMaxLevel();	
-    var obj =$('#tab'+curMaxLevel+'-page>div.relList>div.selected').next();
+    var obj =$('#tabs_'+curMaxLevel+'>div:visible>div.relList>div.selected').next();
+    //var obj =$('#tab'+curMaxLevel+'-page>div.relList>div.selected').next();
     if($(obj).length>0){
         selectPage( $(obj).attr("pid"));
     }
@@ -506,11 +510,15 @@ function translateDiv(div){
  */
 function addThumbs(level){
     var uuid;
+    var model;
     var display = level == getMaxLevel()? 'default' : 'none';
-    $('#tab'+level+'-page>div.relList>div.relItem').each(function(index){
-        uuid = $(this).attr('pid');
-        //totalThumbs++;
-        addThumb(uuid, display, level);
+    $('#tabs_'+level+'>div').each(function(i){
+        model = $(this).attr('id').split('-')[1];
+        $('#tab'+level+'-'+model+'>div.relList>div.relItem.viewable').each(function(index){
+            uuid = $(this).attr('pid');
+            //totalThumbs++;
+            addThumb(uuid, display, level, model);
+        });
     });
     checkArrows();
     if(level == getMaxLevel()){
@@ -534,7 +542,8 @@ function activateThumbs(){
     var l;
     var src;
     var i = 0;
-    $('#tv_container_row>td.inlevel_'+level+'>div>img.tv_img_inactive').each(function(){
+    var model = $( "#tabs_" + level+">div:visible" ).attr("id").split("-")[1];
+    $('#tv_container_row>td.inlevel_'+level+'.'+model+'>div>img.tv_img_inactive').each(function(){
         l = $(this).offset().left;
         if( 
             //$(this).attr('src')=='img/empty.gif' &&
@@ -566,16 +575,18 @@ function updateThumbs(level){
         }else{
             maxLevel = getMaxLevel();
         }
+        var model = $( "#tabs_" + maxLevel+">div:visible" ).attr("id").split("-")[1];
          
         $('.thumb').hide();
-        $('.inlevel_'+maxLevel).show();
+        $('.inlevel_'+maxLevel+'.'+model).show();
         if($('#img'+maxLevel+'_'+currentSelectedPage).is(':visible')){
             //alert(1);
             //changeSelection(currentSelectedPage);
             selectThumb(currentSelectedPage);
             slideToThumb(currentSelectedPage);
         }else{
-            var pid = $("#tab"+maxLevel+"-page>div.relList>div.relItem:first").attr("pid");
+            //var pid = $("#tab"+maxLevel+"-page>div.relList>div.relItem:first").attr("pid");
+            var pid = $( "#tabs_" + maxLevel+">div:visible>div.relList>div.relItem:first" ).attr("pid");
             selectPage(pid);
         //selectThumb(pid);
         }
@@ -584,7 +595,7 @@ function updateThumbs(level){
     }
 }
     
-function addThumb(uuid, display, level){
+function addThumb(uuid, display, level, model){
     var div;
     var img = '<img id="img'+level+'_'+uuid+'" onload="onLoadThumb(this);" class="tv_image';
     if(currentSelectedPage==uuid){
@@ -594,7 +605,7 @@ function addThumb(uuid, display, level){
         div = '<div>';
         img += ' tv_img_inactive" onclick="tc(this);" src="img/empty.gif" />';
     }
-    var td = '<td align="center" style="display:'+display+';" class="thumb inlevel_'+level+'">' + div + img + '</div></td>';
+    var td = '<td align="center" style="display:'+display+';" class="thumb inlevel_'+level+' '+model+'">' + div + img + '</div></td>';
     $('#tv_container_row').append(td);
     //if(totalThumbs==0){
     //    $('#tv').hide();

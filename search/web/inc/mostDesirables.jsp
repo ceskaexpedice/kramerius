@@ -16,6 +16,7 @@
 <%@page import="cz.incad.kramerius.processes.DefinitionManager"%>
 <%@page import="cz.incad.kramerius.MostDesirable"%>
 <%@page import="cz.incad.kramerius.utils.FedoraUtils"%>
+<%@page import="cz.incad.kramerius.FedoraAccess"%>
 <%@ include file="initVars.jsp" %>
 <%
 	Injector inj = (Injector)application.getAttribute(Injector.class.getName());
@@ -24,6 +25,8 @@
 	
 	LocalizationContext lctx= inj.getProvider(LocalizationContext.class).get();
 	pageContext.setAttribute("lctx", lctx);
+
+        FedoraAccess fedoraAccess = inj.getInstance(com.google.inject.Key.get(FedoraAccess.class, com.google.inject.name.Names.named("securedFedoraAccess")));
 
 	List<String> uuids = (List<String>)inj.getInstance(MostDesirable.class).getMostDesirable(18);	
         Iterator it = uuids.iterator();
@@ -74,10 +77,11 @@
             <%
             if (fedora_model.equals("page")) {
                 imagePid = "thumb?uuid=" + uuid.split("/@")[0];
-            } else {String pageuuid = FedoraUtils.findFirstPagePid("uuid:" + uuid);
-        if (pageuuid==null) pageuuid = uuid;
+            } else {String pageuuid = fedoraAccess.findFirstViewablePid(uuid);
+        if (pageuuid==null){
+            pageuuid = uuid;
+        }
         imagePid = "thumb?uuid=" + pageuuid;
-        //imagePid = "thumb?uuid=" + FedoraUtils.findFirstPagePid("uuid:" + uuid);
             }
             %>
             <div align="center" style="overflow:hidden; border:1px solid  #eeeeee; width:100px; height:100px; float:left; margin:5px;"><a href="<c:out value="${itemUrl}" escapeXml="false" />" >
