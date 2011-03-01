@@ -1,12 +1,26 @@
 package cz.incad.utils;
 
+import com.google.inject.Inject;
+import com.google.inject.name.Named;
+import cz.incad.kramerius.FedoraAccess;
+import cz.incad.kramerius.impl.FedoraAccessImpl;
 import cz.incad.kramerius.utils.FedoraUtils;
+import cz.incad.kramerius.utils.conf.KConfiguration;
+import java.io.IOException;
 
 /**
  *
  * @author Alberto
  */
+
+
 public class XslHelper {
+
+
+    @Inject
+    @Named("securedFedoraAccess")
+    FedoraAccess fedoraAccess;
+    @Inject
 
     public boolean contains(String content, String query) {
         String simpleContent = removePunctuation(content);
@@ -36,5 +50,12 @@ public class XslHelper {
 
     public String findFirstPagePid(String uuid){
             return FedoraUtils.findFirstPagePid("uuid:" + uuid);
+    }
+
+    public String findFirstViewablePid(String uuid) throws IOException{
+        if (fedoraAccess==null){
+            fedoraAccess = new FedoraAccessImpl(KConfiguration.getInstance());
+        }
+            return fedoraAccess.findFirstViewablePid(uuid);
     }
 }

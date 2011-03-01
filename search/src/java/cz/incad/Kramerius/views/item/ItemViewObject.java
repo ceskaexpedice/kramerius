@@ -12,6 +12,7 @@ import java.util.StringTokenizer;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
@@ -144,7 +145,12 @@ public class ItemViewObject {
                     _page = modifiedPids.get(modifiedPids.size()-1).substring(1);
                 }
                 modifiedModels = new ArrayList<String>(Arrays.asList(getModelsPath()));
-                FedoraUtils.fillFirstPagePid((ArrayList<String>) modifiedPids, (ArrayList<String>) modifiedModels);
+                try {
+                    //FedoraUtils.fillFirstPagePid((ArrayList<String>) modifiedPids, (ArrayList<String>) modifiedModels);
+                    fedoraAccess.getFirstViewablePath((ArrayList<String>) modifiedPids, (ArrayList<String>) modifiedModels);
+                } catch (IOException e) {
+                    LOGGER.log(Level.SEVERE, e.getMessage(), e);
+                }
             }
         } finally {
             this.reentrantLock.unlock();
