@@ -126,8 +126,12 @@ a.image:hover {
 #intro1, #intro3, #intro2{
     padding:5px;
 }
+
+#timeLineDiv{
+    bottom:0;
+}
 #timeLineBody{
-    padding-bottom:38px;
+    padding-bottom:0px;
 }
 /* end layout */
 

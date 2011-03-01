@@ -105,6 +105,16 @@
                                     <div id="timeLineBody" class="ui-tabs-panel ui-corner-bottom">
                                         <%@ include file="inc/dateAxisV.jsp" %>
                                     </div>
+                                    <script type="text/javascript" language="javascript">
+                                        $(document).ready(function(){
+                                            setTimeout('setTimeLineHeight()', 100);
+                                            
+                                        });
+                                        function setTimeLineHeight(){
+                                            //alert('kuk');
+                                            $("#timeLineDiv").css('height', $("#rightMenu").height()-10);
+                                        }
+                                    </script>
                                 </div>
                             </td>
                         </tr>
