@@ -96,7 +96,7 @@ public class LRProcessDefinitionManagerImpl implements DefinitionManager {
 			String parsingSource = CONFIGURATION_FILE;
 			File file = new File(parsingSource);
 			if (file.exists()) {
-				LOGGER.info("Loading file from '"+CONFIGURATION_FILE+"'");
+				LOGGER.fine("Loading file from '"+CONFIGURATION_FILE+"'");
 				FileInputStream fis = new FileInputStream(file);
 				try {
 					loadFromStream(fis);
