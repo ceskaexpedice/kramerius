@@ -30,7 +30,7 @@ import java.util.Set;
  * {@code editor.jsp}. See {@code EditorConfiguration} associative array.</p>
  * <p>The editor accepts following parameters:
  * <ul>
- * <li><b>openIDs</b> - comma delimited pids to be open on application startup</li>
+ * <li><b>pids</b> - comma delimited pids to be open on application startup</li>
  * <li><b>krameriusURL</b> - URL of the Kramerius application</li>
  * </ul></p>
  *
@@ -69,8 +69,8 @@ public final class EditorConfiguration {
 
     public Collection<String> getStartupPIDs() {
         Dictionary fetched = fetch();
-        String openIDs = fetched.get("openIDs");
-        return parseOpenIDsParameter(openIDs);
+        String pids = fetched.get("pids");
+        return parseOpenIDsParameter(pids);
     }
 
     private static Dictionary fetch() {

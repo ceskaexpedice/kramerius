@@ -317,7 +317,7 @@ public class ItemMenuViewObject {
     }
     private String editor() {
         String key = "administrator.menu.editor";
-        String editor = kConfiguration.getEditorURL() + "?openIDs=uuid:" + uuid
+        String editor = kConfiguration.getEditorURL() + "?pids=uuid:" + uuid
                 + "&locale=" + locale.getLanguage();
         StringTemplate template = new StringTemplate("<div align=\"left\"><a title='$tooltip$' "
                 + "href=\"$editor$\">$title$</a> </div>");

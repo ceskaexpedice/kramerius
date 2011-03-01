@@ -28,7 +28,7 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
         <script type="text/javascript">
             var EditorConfiguration = {
                 krameriusURL: "<%=response.encodeURL(KConfiguration.getInstance().getApplicationURL())%>"
-                , openIDs: "<%= request.getParameter("openIDs") %>"
+                , pids: "<%= request.getParameter("pids") %>"
             };
         </script>
         <script type="text/javascript"  src="kramerius_editor/kramerius_editor.nocache.js"></script>
