@@ -16,6 +16,7 @@ import org.w3c.dom.Element;
 import cz.incad.kramerius.impl.FedoraAccessImpl;
 import cz.incad.kramerius.security.SecuredFedoraAccessImpl;
 import cz.incad.kramerius.utils.imgs.KrameriusImageSupport;
+import java.util.ArrayList;
 
 /**
  * This is main point to access to fedora through REST-API
@@ -55,6 +56,25 @@ public interface FedoraAccess {
      * @throws IOException
      */
     public KrameriusModels getKrameriusModel(String uuid) throws IOException;
+
+    /**
+     * Returns KrameriusModel parsed from given document
+     *
+     * @param relsExt
+     *            RELS-EXT document
+     * @return
+     */
+    public ArrayList<String> getModelsOfRel(Document relsExt);
+
+    /**
+     * Returns KrameriusModel of given object
+     *
+     * @param uuid
+     *            uuid of object
+     * @return
+     * @throws IOException
+     */
+    public ArrayList<String> getModelsOfRel(String uuid) throws IOException;
     
     /**
      * Returns Donator parsed from given document
@@ -116,6 +136,25 @@ public interface FedoraAccess {
      * @throws IOException
      */
     public Document getDC(String uuid) throws IOException;
+
+
+    /**
+     * Returns uuid of first document throw rels-ext, which has IMG_FULL datastream
+     * @param uuid
+     * @return
+     * @throws IOException
+     */
+    public String findFirstViewablePid(String uuid) throws IOException;
+
+
+    /**
+     * Fill path of pids and models up to first document throw rels-ext, which has IMG_FULL datastream
+     * @param uuid
+     * @return true to stop recursion
+     * @throws IOException
+    */
+    public boolean getFirstViewablePath(ArrayList<String> pids, ArrayList<String> models) throws IOException;
+
 
     /**
      * Parse, find and returns all pages

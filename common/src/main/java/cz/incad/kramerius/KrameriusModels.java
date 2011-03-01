@@ -9,15 +9,17 @@ package cz.incad.kramerius;
  * This enums contains all models used in kramerius
  * @author Administrator
  */
+
+@Deprecated
 public enum KrameriusModels {
 
-	
-    MONOGRAPH("monograph"), 
-    MONOGRAPHUNIT("monographunit"), 
-    PERIODICAL("periodical"), 
-    PERIODICALVOLUME("periodicalvolume"), 
-    PERIODICALITEM("periodicalitem"), 
-    PAGE("page"), 
+
+    MONOGRAPH("monograph"),
+    MONOGRAPHUNIT("monographunit"),
+    PERIODICAL("periodical"),
+    PERIODICALVOLUME("periodicalvolume"),
+    PERIODICALITEM("periodicalitem"),
+    PAGE("page"),
     INTERNALPART("internalpart"),
     DONATOR("donator");
 
@@ -38,7 +40,7 @@ public enum KrameriusModels {
 		}
         throw new RuntimeException("Unsupported type");
     }
-    
+
     public static String toString(KrameriusModels km) {
     	return km.getValue();
     }
