@@ -103,7 +103,7 @@ public class FedoraUtils {
         getSubjectPids("uuid:4a8a8630-af36-11dd-ae9c-000d606f5dc6");
     }
 
-    public static boolean fillFirstPagePid(ArrayList<String> pids, ArrayList<String> models) {
+    public static boolean fillFirstPagePid_(ArrayList<String> pids, ArrayList<String> models) {
 
         String pid = pids.get(pids.size() - 1);
         try {
@@ -134,7 +134,7 @@ public class FedoraUtils {
                         pids.add(childnode.getAttributes().getNamedItem("rdf:resource").getNodeValue().split("info:fedora/")[1]);
                     }
                     models.add(KrameriusModels.toString(cz.incad.kramerius.RDFModels.convertRDFToModel(nodeName)));
-                    return FedoraUtils.fillFirstPagePid(pids, models);
+                    return FedoraUtils.fillFirstPagePid_(pids, models);
                 }
             }
 
