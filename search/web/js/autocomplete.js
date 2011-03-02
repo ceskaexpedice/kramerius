@@ -47,10 +47,11 @@ function doAutocomplete(text, lookupField, key, queryField){
             if(lookupField=='root_title'){
                 lookupField = 'search_title';
             } 
+            window.location = searchPage + "?suggest=true&suggest_q=" + lookupField + ":" + value;
         }else{
-            value = "\"" + value + "\""
+            value = "\"" + value + "\"";
+            resultClick(value, lookupField);
         }
-        window.location = searchPage + "?suggest=true&suggest_q=" + lookupField + ":" + value;
         return;
     }
     json(text, lookupField, queryField);
