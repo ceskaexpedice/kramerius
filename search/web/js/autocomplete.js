@@ -47,7 +47,7 @@ function doAutocomplete(text, lookupField, key, queryField){
             if(lookupField=='root_title'){
                 lookupField = 'search_title';
             } 
-            window.location = searchPage + "?suggest=true&suggest_q=" + lookupField + ":" + value;
+            window.location = searchPage + "?suggest=true&suggest_q=" + lookupField + ":" + value; 
         }else{
             value = "\"" + value + "\"";
             resultClick(value, lookupField);
