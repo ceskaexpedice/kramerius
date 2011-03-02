@@ -263,6 +263,17 @@ a.box {
 .uncollapsed .r1{
     background: transparent;
 }
+
+#pagination a{
+    cursor:pointer;
+    padding: 2px;
+}
+#pagination b{
+    float:left;
+    padding: 2px;
+}
+
+
 .detailsTable{
   border: 1px solid silver;
   width:100%;

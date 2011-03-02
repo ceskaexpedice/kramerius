@@ -4,9 +4,9 @@
 // zaklad od kamila 
             String expandedPaginationStr = "";
             //int numHits = Integer.parseInt((String) request.getAttribute("rows"));
-            String rows = (String)request.getAttribute("rows");
+            String rows = (String) request.getAttribute("rows");
             int numHits = 0;
-            if(rows!=null){
+            if (rows != null) {
                 numHits = Integer.parseInt(rows);
             }
             int numDocs = Integer.parseInt((String) request.getAttribute("numDocs"));
@@ -16,16 +16,16 @@
             String offsetUrl = "";
             boolean includeAbeceda = false;
             Facet abecedaFacet = null;
-            
-            if(type==null){
+
+            if (type == null) {
                 offsetUrl = "javascript:gotoPageOffset(%s);";
-            }else if(type.equals("uncollapse")){                
+            } else if (type.equals("uncollapse")) {
                 offsetUrl = "javascript:uncollapse('" + request.getParameter("root_pid") + "', '" + div + "', %s);";
-            }else{
-                offsetUrl = "javascript:gotoPageOffsetInTree(%s, '"+div+"', '"+filters+"', '"+request.getParameter("pid")+"');";
-                
+            } else {
+                offsetUrl = "javascript:gotoPageOffsetInTree(%s, '" + div + "', '" + filters + "', '" + request.getParameter("pid") + "');";
+
             }
-            
+
             if (numDocs > numHits && numHits > 0) {
                 String navigationPageTemplate = "";
                 int N_WIDTH = 10;
@@ -52,14 +52,13 @@
                 }
                 StringBuffer navigationPages = new StringBuffer();
                 if (nStart > 1) { // skok na zacatek
-                    navigationPages.append("<a href='"+String.format(offsetUrl, "0")+"'>&laquo;</a> ");
+                    navigationPages.append("<a href='" + String.format(offsetUrl, "0") + "'>&laquo;</a> ");
                 }
-                /*
-                 *             if (offset >= numHits) { // predesla strana
-                navigationPages.append("<a href='javascript:gotoPageOffset(" +
-                (offset - numHits) + ");'>&lt;</a>");
+
+                if (offset >= numHits) { // predesla strana
+                    navigationPages.append("<a class=\"next\" href=\"" + String.format(offsetUrl, (offset - numHits)) + "\">&lt;&lt;</a> ");
                 }
-                 */
+
                 maxPageIndex = nEnd;
                 String pismeno;
                 for (pageIndex = nStart; pageIndex <= maxPageIndex; pageIndex++) {
@@ -70,25 +69,24 @@
                         nEnd = numDocs;
                     }
                     if (nStart == offset) {
-                        //navigationPages.append("<b>" + (nStart + 1) + "-" + nEnd + "</b>");
                         navigationPages.append("<b>" + pageIndex + "</b> ");
                     } else {
-                        //navigationPages.append("<a href=\"javascript:gotoPageOffset(" + String.valueOf(nStart) + ");\">" + (nStart + 1) + "-" + nEnd + "</a>");
-                        navigationPages.append("<a href=\""+String.format(offsetUrl, String.valueOf(nStart))+"\">" + pageIndex);
-                        if(includeAbeceda){
+                        navigationPages.append("<a href=\"" + String.format(offsetUrl, String.valueOf(nStart)) + "\">" + pageIndex);
+                        if (includeAbeceda) {
                             pismeno = abecedaFacet.getDisplayNameByAcumulatedCount(nStart, numHits);
-                            if (!pismeno.equals(""))
-                            navigationPages.append(" (" + pismeno + ")");
-                            //navigationPages.append(" [" + String.valueOf(nStart) + ", " + String.valueOf(numHits) + "] ");
+                            if (!pismeno.equals("")) {
+                                navigationPages.append(" (" + pismeno + ")");
+                            }
                         }
                         navigationPages.append("</a> ");
                     }
                 }
                 if (offset < (numDocs - numHits)) { // dalsi strana
-                    //navigationPages.append(" | <a href=\"").append(navigationPageTemplate.replace("INSERT_OFFSET", String.valueOf(offset + numHits))).append("\">&gt;</a>");
-                    navigationPages.append("<a class=\"next\" href=\""+String.format(offsetUrl, (offset + numHits))+"\">&gt;&gt;</a> ");
+                    navigationPages.append("<a class=\"next\" href=\"" + String.format(offsetUrl, (offset + numHits)) + "\">&gt;&gt;</a> ");
                 }
                 expandedPaginationStr = navigationPages.toString();
             }
 %>
-<%=expandedPaginationStr%>
+<div id="pagination">
+    <%=expandedPaginationStr%>
+</div>
