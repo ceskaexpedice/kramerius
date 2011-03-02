@@ -6,9 +6,9 @@
 $(document).ready(function(){
     $('body').click(function() {
     	hideAdminMenu();
+        hideContextMenu();
     });
 });
-
 
 function showConfirmDialog(t,f){
     $("#confirm_dialog").dialog('destroy');

@@ -1,4 +1,28 @@
+$(document).ready(function(){
+    $('body').click(function() {
+        hideContextMenu();
+    });
+    $(".menuOptions>span>a").click(function(e) {
+        e.stopPropagation();
+   });
+    $(".adminMenuHeader a").click(function(e) {
+        e.stopPropagation();
+   });
+});
 
+
+
+function hideContextMenu(){
+    $('.menuOptions').each(function(index){
+       var id = $(this).attr('id');
+       //eg id = openmenu1-monograph
+       //should toggle openmenu1-monograph and menu1-monograph when not visible
+       if(!$('#'+id).is(':visible')){
+           $('#'+id).show();
+           $('#'+id.substring(4)).hide();
+       }
+    });
+}
 
 var _persistentURLDialog;
 function showPersistentURL(level, model) {
@@ -188,7 +212,7 @@ var PDF=function() {
         },
         // generovani pdf
         generatePDF:function(level) {
-            hideAdminOptions(level);
+            //hideAdminOptions(level);
             PDF.openGeneratePdfDialog(level);
         },
 		
@@ -265,7 +289,7 @@ var PDF=function() {
                 });
 		    	
                 PDF.dialogSummary = $("#pdf_options").dialog({
-                    bigframe: true,
+                    bgiframe: true,
                     width: 400,
                     height: 300,
                     modal: true,
@@ -507,7 +531,7 @@ function getPageTitle(pid){
 }
 
 function toggleAdminOptions(level, div){
-	postProcessContextMenu();
+    postProcessContextMenu();
     $('#menu'+level+'-'+div).css('width', 230);
 	var il = $('#menu'+level+'-'+div).parent().width() + $('#menu'+level+'-'+div).parent().offset().left - $('#menu'+level+'-'+div).width();
     $('#menu'+level+'-'+div).css('left', il);
