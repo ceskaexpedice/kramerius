@@ -592,8 +592,11 @@ function showImage(viewerOptions) {
 	    } else {
 	            displayImageContent();
 	            $("#plainImageImg").fadeOut("slow", function () {
-	                $("#plainImageImg").attr('src','fullThumb?uuid='+viewerOptions.uuid);
+	                // http://code.google.com/p/kramerius/issues/detail?id=43
+	    			$("#plainImageImg").attr('src','none');
+	    			$("#plainImageImg").attr('src','fullThumb?uuid='+viewerOptions.uuid);
 	            });
+
 	    }
             
 	}		
