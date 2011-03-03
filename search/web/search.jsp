@@ -76,6 +76,8 @@
                                                             var h = $(".facetBody").height()-5;
                                                             if(h>$("#suggestBody").height()){
                                                                 $("#suggestBody").css('height', h);
+                                                            }else{
+                                                                $(".facetBody").css('height', $("#suggestBody").height()+5);
                                                             }
                                                         });
                                                     </script>
