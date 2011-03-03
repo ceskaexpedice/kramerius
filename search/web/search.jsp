@@ -12,6 +12,8 @@
             LocalizationContext lctx = ctxInj.getProvider(LocalizationContext.class).get();
             pageContext.setAttribute("lctx", lctx);
             FedoraAccess fedoraAccess = ctxInj.getInstance(com.google.inject.Key.get(FedoraAccess.class, com.google.inject.name.Names.named("securedFedoraAccess")));
+            String i18nServlet = I18NServlet.i18nServlet(request) + "?action=bundle&lang="+lctx.getLocale().getLanguage()+"&country="+lctx.getLocale().getCountry()+"&name=labels";
+            pageContext.setAttribute("i18nServlet", i18nServlet);
 
 %>
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
@@ -71,7 +73,10 @@
                                                     <script type="text/javascript" language="javascript">
                                                         $(document).ready(function(){
                                                             $(".facetItem").removeClass('moreFacets');
-                                                            $("#suggestBody").css('height', $(".facetBody").height()-5);
+                                                            var h = $(".facetBody").height()-5;
+                                                            if(h>$("#suggestBody").height()){
+                                                                $("#suggestBody").css('height', h);
+                                                            }
                                                         });
                                                     </script>
                                                 </td></tr></table>
