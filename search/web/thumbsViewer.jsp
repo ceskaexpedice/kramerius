@@ -27,6 +27,7 @@
     };
     
     var maxLevelForFullImageShow = -1;
+    var selectedListForFullImageShow = "";
                           
     var imgW;
     function _selectPage(uuid){
@@ -134,6 +135,7 @@
 
     function showFullImageAndStoreMaxLevel(){
         maxLevelForFullImageShow=getMaxLevel();
+        selectedListForFullImageShow = $('#tabs_'+maxLevelForFullImageShow+'>div:visible').attr("id");
         showFullImage();
     }
 

@@ -190,8 +190,11 @@ function selectThumb(uuid){
  */
 function selectPrevious(){
     var curMaxLevel = maxLevelForFullImageShow > -1 ? maxLevelForFullImageShow : getMaxLevel();
+
+    var obj = maxLevelForFullImageShow > -1 ? $('#'+selectedListForFullImageShow+'>div.relList>div.selected').prev() : $('#tabs_'+curMaxLevel+'>div:visible>div.relList>div.selected').prev();
+
     //if($('#'+id).is(':visible') && cur>maxLevel)
-    var obj =$('#tabs_'+curMaxLevel+'>div:visible>div.relList>div.selected').prev();
+    //var obj =$('#tabs_'+curMaxLevel+'>div:visible>div.relList>div.selected').prev();
     //var obj =$('#tab'+curMaxLevel+'-page>div.relList>div.selected').prev();
     if($(obj).length>0){
         selectPage( $(obj).attr("pid"));
@@ -202,8 +205,10 @@ function selectPrevious(){
  *selects next page
  */
 function selectNext(){
-    var curMaxLevel = maxLevelForFullImageShow > -1 ? maxLevelForFullImageShow : getMaxLevel();	
-    var obj =$('#tabs_'+curMaxLevel+'>div:visible>div.relList>div.selected').next();
+    var curMaxLevel = maxLevelForFullImageShow > -1 ? maxLevelForFullImageShow : getMaxLevel();
+    var obj = maxLevelForFullImageShow > -1 ? $('#'+selectedListForFullImageShow+'>div.relList>div.selected').next() : $('#tabs_'+curMaxLevel+'>div:visible>div.relList>div.selected').next();
+
+    //var obj =$('#tabs_'+curMaxLevel+'>div:visible>div.relList>div.selected').next();
     //var obj =$('#tab'+curMaxLevel+'-page>div.relList>div.selected').next();
     if($(obj).length>0){
         selectPage( $(obj).attr("pid"));
@@ -537,12 +542,19 @@ function activateThumbs(){
     var level = getMaxLevel();
     var w = getTvContainerWidth();
     var leftBorder = getTvContainerLeft();
-    var rightBorder = leftBorder + w *2; //200 a little bit more
+    var rightBorder = leftBorder + w *2; 
     //alert(rightBorder);
     var l;
     var src;
     var i = 0;
-    var model = $( "#tabs_" + level+">div:visible" ).attr("id").split("-")[1];
+    var model;
+    if(maxLevelForFullImageShow > -1){
+        model = $( '#'+selectedListForFullImageShow ).attr("id").split("-")[1];
+    }else{
+        model = $( "#tabs_" + level+">div:visible" ).attr("id").split("-")[1];
+    } 
+
+
     $('#tv_container_row>td.inlevel_'+level+'.'+model+'>div>img.tv_img_inactive').each(function(){
         l = $(this).offset().left;
         if( 
@@ -756,4 +768,8 @@ function checkDonator(pid){
                     });
                 }
     });
+}
+
+function getExtendedMetadata(){
+    var maxLevel = getMaxLevel();
 }
