@@ -114,7 +114,7 @@ public class PDFExport {
 //				boolean renamed = file.renameTo(newFile);
 //				if (!renamed) throw new RuntimeException("cannot rename file '"+file.getAbsolutePath()+"' to '"+newFile+"'");
 			}
-			copyHTMLContent(currentFolder, titleFromDC, medium, ""+pocitadlo);
+			//copyHTMLContent(currentFolder, titleFromDC, medium, ""+pocitadlo);
 		}
 	}
 
