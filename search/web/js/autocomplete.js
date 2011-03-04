@@ -49,7 +49,7 @@ function doAutocomplete(text, lookupField, key, queryField){
             } 
             window.location = searchPage + "?suggest=true&suggest_q=" + lookupField + ":" + value; 
         }else{
-            value = "\"" + value + "\"";
+            
             resultClick(value, lookupField);
         }
         return;
