@@ -66,6 +66,7 @@ import cz.incad.kramerius.FedoraNamespaces;
 import cz.incad.kramerius.FedoraRelationship;
 import cz.incad.kramerius.KrameriusModels;
 import cz.incad.kramerius.RelsExtHandler;
+import cz.incad.kramerius.SolrAccess;
 import cz.incad.kramerius.pdf.Break;
 import cz.incad.kramerius.pdf.GeneratePDFService;
 import cz.incad.kramerius.pdf.pdfpages.AbstractPage;
@@ -74,6 +75,7 @@ import cz.incad.kramerius.pdf.pdfpages.ImagePage;
 import cz.incad.kramerius.pdf.pdfpages.OutlineItem;
 import cz.incad.kramerius.pdf.pdfpages.RenderedDocument;
 import cz.incad.kramerius.pdf.pdfpages.TextPage;
+import cz.incad.kramerius.pdf.utils.TitlesUtils;
 import cz.incad.kramerius.service.ResourceBundleService;
 import cz.incad.kramerius.service.TextsService;
 import cz.incad.kramerius.utils.BiblioModsUtils;
@@ -111,9 +113,10 @@ public class GeneratePDFServiceImpl implements GeneratePDFService {
 	private Provider<Locale> localeProvider;
 	private TextsService textsService;
 	private ResourceBundleService resourceBundleService;
+	private SolrAccess solrAccess;
 	
 	@Inject
-	public GeneratePDFServiceImpl(@Named("securedFedoraAccess") FedoraAccess fedoraAccess, KConfiguration configuration, Provider<Locale> localeProvider, TextsService textsService, ResourceBundleService resourceBundleService) {
+	public GeneratePDFServiceImpl(@Named("securedFedoraAccess") FedoraAccess fedoraAccess, SolrAccess solrAccess, KConfiguration configuration, Provider<Locale> localeProvider, TextsService textsService, ResourceBundleService resourceBundleService) {
 		super();
 		this.fedoraAccess = fedoraAccess;
 		this.configuration = configuration;
@@ -121,6 +124,7 @@ public class GeneratePDFServiceImpl implements GeneratePDFService {
 		this.textsService = textsService;
 		this.configuration = configuration;
 		this.resourceBundleService = resourceBundleService;
+		this.solrAccess = solrAccess;
 		try {
 			this.init();
 		} catch (IOException e) {
@@ -277,16 +281,9 @@ public class GeneratePDFServiceImpl implements GeneratePDFService {
 			org.w3c.dom.Document relsExt = this.fedoraAccess.getRelsExt(lastUuid);
 			KrameriusModels model = this.fedoraAccess.getKrameriusModel(relsExt);
 			
+			
 			final AbstractRenderedDocument renderedDocument = new RenderedDocument(model, lastUuid);
-			StringBuffer bufferTitle = new StringBuffer();
-			for (int i = 0,ll=path.size(); i < ll; i++) {
-				bufferTitle.append(DCUtils.titleFromDC(this.fedoraAccess.getDC(path.get(i))));
-				if (i<ll-1) {
-					bufferTitle.append(" ");
-				}
-			}
-			//renderedDocument.setDocumentTitle(DCUtils.titleFromDC(this.fedoraAccess.getDC(lastUuid)));
-			renderedDocument.setDocumentTitle(bufferTitle.toString());
+			renderedDocument.setDocumentTitle(TitlesUtils.title(lastUuid, this.solrAccess, this.fedoraAccess));
 			renderedDocument.setUuidTitlePage(titlePage);
 			renderedDocument.setUuidMainTitle(path.get(0));
 			
@@ -302,7 +299,8 @@ public class GeneratePDFServiceImpl implements GeneratePDFService {
 		KrameriusModels model = this.fedoraAccess.getKrameriusModel(relsExt);
 		
 		final AbstractRenderedDocument renderedDocument = new RenderedDocument(model, parentUUID);
-		renderedDocument.setDocumentTitle(getTitle(this.fedoraAccess.getBiblioMods(parentUUID), model));
+        renderedDocument.setDocumentTitle(TitlesUtils.title(parentUUID, this.solrAccess, this.fedoraAccess));
+
 		renderedDocument.setUuidMainTitle(parentUUID);
 		
 		TextPage dpage = new TextPage(model, parentUUID);
@@ -768,21 +766,21 @@ public class GeneratePDFServiceImpl implements GeneratePDFService {
 //	}
 	
 	public void insertTitleImage(PdfPTable pdfPTable, AbstractRenderedDocument model, String djvuUrl) throws IOException, BadElementException, XPathExpressionException {
-		String imgUrl = createIMGFULL(model.getUuidTitlePage(), djvuUrl);
 		try {
 			String uuidToFirstPage = null;
-			if (fedoraAccess.isImageFULLAvailable(model.getUuidTitlePage())) {
+			if ((model.getUuidTitlePage() != null) && (fedoraAccess.isImageFULLAvailable(model.getUuidTitlePage()))) {
 				uuidToFirstPage = model.getUuidTitlePage();
 			}
-			if ((uuidToFirstPage == null) && (fedoraAccess.isImageFULLAvailable(model.getUuidFrontCover()))) {
+			if ((uuidToFirstPage == null) && (model.getUuidFrontCover()!=null) && (fedoraAccess.isImageFULLAvailable(model.getUuidFrontCover()))) {
 				uuidToFirstPage = model.getUuidFrontCover();
 				
 			}
-			if ((uuidToFirstPage == null) && (fedoraAccess.isImageFULLAvailable(model.getFirstPage()))) {
+			if ((uuidToFirstPage == null) && (model.getFirstPage()!=null) && (fedoraAccess.isImageFULLAvailable(model.getFirstPage()))) {
 				uuidToFirstPage = model.getFirstPage();
 				
 			}
 			if (uuidToFirstPage != null) {
+		        String imgUrl = createIMGFULL(uuidToFirstPage, djvuUrl);
 				String mimetypeString = fedoraAccess.getImageFULLMimeType(uuidToFirstPage);
 				ImageMimeType mimetype = ImageMimeType.loadFromMimeType(mimetypeString);
 				if (mimetype != null) {

@@ -50,7 +50,7 @@ public class BiblioModsUtils {
 
 
 	public static String getTitle(Document doc, KrameriusModels model) {
-		String title = titleFromBiblioMods(doc);
+	    String title = titleFromBiblioMods(doc);
 		if ((title == null) || (title.equals(""))) {
 			switch(model) {
 				case PERIODICALITEM: return PeriodicalItemUtils.getItemNumber(doc) + " ("+PeriodicalItemUtils.getDate(doc)+")";
