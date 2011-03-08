@@ -2,6 +2,8 @@ package cz.incad.kramerius.processes.mock;
 
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.logging.Handler;
+import java.util.logging.Logger;
 
 import cz.incad.kramerius.processes.impl.ProcessStarter;
 
@@ -16,6 +18,13 @@ public class MockLPProcess {
 		ProcessStarter.updateName("Jmeno kaktusu neni jmeno ruze a jmeno ruze neni jmeno kaktusu");
 		System.out.println(" TOKEN :"+System.getProperty(ProcessStarter.TOKEN_KEY));
 
+		Logger rootLogger = Logger.getLogger("");
+		for (Handler handler : rootLogger.getHandlers()) {
+            System.out.println(handler.toString());
+        }
+		rootLogger.info("TESTICEK");
+		   
+		
 		// 1TB  space
 		long tb = 1l << 40;
 		// 1GB  space

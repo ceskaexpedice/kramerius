@@ -14,16 +14,22 @@ import java.net.URLConnection;
 import java.net.URLEncoder;
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.logging.ConsoleHandler;
 import java.util.logging.Level;
+import java.util.logging.LogManager;
 
 import cz.incad.kramerius.processes.States;
 import cz.incad.kramerius.processes.database.ProcessDatabaseUtils;
+import cz.incad.kramerius.processes.logging.LoggingLoader;
 import cz.incad.kramerius.processes.utils.ProcessUtils;
 
 public class ProcessStarter {
 
     public static final java.util.logging.Logger LOGGER = java.util.logging.Logger.getLogger(ProcessStarter.class.getName());
 
+    public static final String LOGGING_FILE_PROPERTY = "java.util.logging.config.file";
+    public static final String LOGGING_CLASS_PROPERTY = "java.util.logging.config.class";
+    
     public static final String MAIN_CLASS_KEY = "mainClass";
     public static final String UUID_KEY = "uuid";
     public static final String TOKEN_KEY = "token";
@@ -34,11 +40,15 @@ public class ProcessStarter {
 
     public static void main(String[] args) throws ClassNotFoundException, SecurityException, NoSuchMethodException, IllegalArgumentException, IllegalAccessException,
             InvocationTargetException, SQLException, MalformedURLException, IOException {
+        
         String mainClass = System.getProperty(MAIN_CLASS_KEY);
         PrintStream outStream = createPrintStream(System.getProperty(SOUT_FILE));
         PrintStream errStream = createPrintStream(System.getProperty(SERR_FILE));
         System.setErr(errStream);
         System.setOut(outStream);
+        
+        setDefaultLoggingIfNecessary();
+        
         try {
             Class<?> clz = Class.forName(mainClass);
             Method method = clz.getMethod("main", args.getClass());
@@ -68,6 +78,15 @@ public class ProcessStarter {
         }
     }
 
+    private static void setDefaultLoggingIfNecessary() {
+        String classProperty = System.getProperty(LOGGING_CLASS_PROPERTY);
+        String fileProperty = System.getProperty(LOGGING_FILE_PROPERTY);
+        if ((classProperty == null) && (fileProperty == null)) {
+            // loads default logging 
+            new LoggingLoader();
+        }
+    }
+    
     private static PrintStream createPrintStream(String file) throws FileNotFoundException {
         return new PrintStream(new FileOutputStream(file));
     }
