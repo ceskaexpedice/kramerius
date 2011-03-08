@@ -3,15 +3,12 @@ package cz.incad.kramerius.processes.impl;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.RandomAccessFile;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantLock;
 import java.util.logging.Level;
 
 import cz.incad.kramerius.processes.DefinitionManager;
@@ -19,9 +16,7 @@ import cz.incad.kramerius.processes.LRProcess;
 import cz.incad.kramerius.processes.LRProcessDefinition;
 import cz.incad.kramerius.processes.LRProcessManager;
 import cz.incad.kramerius.processes.States;
-import cz.incad.kramerius.processes.impl.io.FollowStreamThread;
 import cz.incad.kramerius.security.User;
-import cz.incad.kramerius.utils.IOUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 
 public abstract class AbstractLRProcessImpl implements LRProcess{
@@ -164,8 +159,8 @@ public abstract class AbstractLRProcessImpl implements LRProcess{
 			manager.updateLongRunningProcessState(this);
 			manager.updateLongRunningProcessStartedDate(this);
             
-			LOGGER.info(""+command);
-			LOGGER.info(buffer.toString());
+			LOGGER.fine(""+command);
+			LOGGER.fine(buffer.toString());
 			
 			Process process = processBuilder.start();
 			
