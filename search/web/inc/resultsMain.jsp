@@ -5,7 +5,33 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn" %>
 <%@ page isELIgnored="false"%>
 
-<%@page import="cz.incad.kramerius.utils.FedoraUtils"%><table id="results_main" cellspacing="0" cellpadding="0" border="0">
+<%@page import="cz.incad.kramerius.utils.FedoraUtils"%>
+<c:url var="xslPage" value="inc/results/xsl/results_main.xsl" />
+<c:catch var="exceptions">
+    <c:import url="${xslPage}" var="xsltPage" charEncoding="UTF-8"  />
+</c:catch>
+<c:choose>
+    <c:when test="${exceptions != null}">
+        <c:out value="${exceptions}" />
+        <c:out value="${url}" />
+        <c:out value="${xml}" />
+    </c:when>
+    <c:otherwise>
+        <c:if test="${param.debug =='true'}"><c:out value="${url}" /></c:if>
+        <c:catch var="exceptions2">
+            <x:transform doc="${xml}"  xslt="${xsltPage}">
+                <x:param name="bundle_url" value="${i18nServlet}"/>
+                <x:param name="q" value="${param.q}"/>
+                <x:param name="fqs"><c:forEach var="fqs" items="${paramValues.fq}">&fq=<c:out value="${fqs}" escapeXml="false" /></c:forEach>
+                </x:param>
+            </x:transform>
+        </c:catch>
+        <c:if test="${exceptions2 != null}"><c:out value="${exceptions2}" />
+        </c:if>
+    </c:otherwise>
+</c:choose>
+<%--
+<table id="results_main" cellspacing="0" cellpadding="0" border="0">
     <x:forEach varStatus="status" select="$doc/response/result/doc">
         <c:set var="uuid" >
             <x:out select="./str[@name='PID']"/>
@@ -29,10 +55,10 @@
         <c:set var="itemUrl" >
             ./item.jsp?pid=<c:out value="${uuid}"/>&pid_path=<x:out select="./str[@name='pid_path']"/>&path=<x:out select="./str[@name='path']"/>
         </c:set>
-        <%--<x:if select="./str[@name='fedora.model'] = 'page'">--%>
+        
             <c:set var="itemUrl" ><c:out value="${itemUrl}"/>&format=<x:out select="./str[@name='page_format']"/>&q=<c:out value="${param.q}" />
                 <c:forEach var="fqs" items="${paramValues.fq}">&fq=<c:out value="${fqs}" /></c:forEach></c:set>
-        <%--</x:if>--%>
+        
         <x:set select="./str[@name='PID']" var="pid" />
     <tr id="res_<c:out value="${uuid}"/>" class="result r<c:out value="${status.count % 2}" />">
         <c:set var="collapseText" ></c:set>
@@ -92,3 +118,4 @@
     </tr>
 </x:forEach>
     </table>
+--%>

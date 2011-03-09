@@ -8,49 +8,36 @@
 <%@page import="cz.incad.Kramerius.I18NServlet"%>
 <%@page import="com.google.inject.Injector"%>
 <%@page import="javax.servlet.jsp.jstl.fmt.LocalizationContext"%>
-
+<%@page import="cz.incad.kramerius.FedoraAccess"%>
 <%
             Injector ctxInj = (Injector) application.getAttribute(Injector.class.getName());
             LocalizationContext lctx = ctxInj.getProvider(LocalizationContext.class).get();
             pageContext.setAttribute("lctx", lctx);
             String i18nServlet = I18NServlet.i18nServlet(request) + "?action=bundle&lang="+lctx.getLocale().getLanguage()+"&country="+lctx.getLocale().getCountry()+"&name=labels";
             pageContext.setAttribute("i18nServlet", i18nServlet);
+            FedoraAccess fedoraAccess = ctxInj.getInstance(com.google.inject.Key.get(FedoraAccess.class, com.google.inject.name.Names.named("securedFedoraAccess")));
+            org.w3c.dom.Document xml = fedoraAccess.getBiblioMods(request.getParameter("pid"));
+
+    cz.incad.kramerius.service.XSLService xs = (cz.incad.kramerius.service.XSLService) ctxInj.getInstance(cz.incad.kramerius.service.XSLService.class);
+    try {
+        String xsl = "modsFull.xsl";
+        if (xs.isAvailable(xsl)) {
+            String text = xs.transform(xml, xsl);
+            out.println(text);
+            return;
+        }
+    } catch (Exception e) {
+        out.println(e);
+    }
+    pageContext.setAttribute("xml", xml);
+    String xmlStr = xs.serialize(xml);
+    pageContext.setAttribute("xmlStr", xmlStr);
 
 %>
-<c:choose>
-    <c:when test="${param.language != null}" >
-        <fmt:setLocale value="${param.language}" />
-    </c:when>
-</c:choose>
-<fmt:setBundle basename="labels" />
-<fmt:setBundle basename="labels" var="bundleVar" />
-
-<c:choose>
-    <c:when test="${empty uuid || uuid==null || uuid==''}">
-        <c:set var="pid" ><c:out value="${param.pid}" /></c:set>
-    </c:when>
-    <c:otherwise>
-        <c:set var="pid" ><c:out value="${uuid}" /></c:set>
-    </c:otherwise>
-</c:choose>
-<c:set var="urlPageStr" >
-    <c:out value="${kconfig.fedoraHost}" />/get/<c:out value="${pid}" />/BIBLIO_MODS
-</c:set>
-<c:url var="urlPage" value="${urlPageStr}" />
-
-<c:choose>
-    <c:when test="${xsl==null || xsl==''}">
-        <c:set var="xsl" value="xsl/${param.xsl}" scope="request" />
-    </c:when>
-    <c:otherwise>
-        <c:set var="xsl" value="${xsl}" scope="request" />
-    </c:otherwise>
-</c:choose>
-<c:set var="xsl" value="xsl/mods.xsl" scope="request" />
+<c:set var="xsl" value="xsl/modsFull.xsl" scope="request" />
 <c:url var="xslPage" value="${xsl}" >
 </c:url>
 <c:catch var="exceptions"> 
-    <c:import url="${urlPage}" var="xmlPage" charEncoding="UTF-8"  />
     <c:import url="${xslPage}" var="xsltPage" charEncoding="UTF-8"  />
 </c:catch>
 <c:choose>
@@ -61,20 +48,27 @@
     <c:otherwise>
         <c:catch var="exceptions2"> 
             <% out.clear(); %>
-            <x:transform doc="${xmlPage}"  xslt="${xsltPage}"  >
-                <x:param name="pid" value="${pid}"/>
-                <x:param name="bundle_url" value="${i18nServlet}"/>
-                <x:param name="model" value="${param.model}"/>
-            </x:transform>
+            <div id="mods-full">
+                <ul>
+                    <li><a href="#mods-html" class="vertical-text" >html</a></li>
+                    <li><a href="#mods-xml" class="vertical-text" >xml</a></li>
+                </ul>
+                <div id="mods-html">
+                    <x:transform doc="${xml}"  xslt="${xsltPage}"  >
+                        <x:param name="pid" value="${param.pid}"/>
+                        <x:param name="bundle_url" value="${i18nServlet}"/>
+                        <x:param name="model" value="${param.model}"/>
+                    </x:transform>
+                </div>
+                <div id="mods-xml" style="overflow:scroll;height:80%">
+                    <pre>
+                    <c:out escapeXml="true" value="${xmlStr}" />
+                    </pre>
+                </div>
+            </div>
         </c:catch>
         <c:choose>
             <c:when test="${exceptions2 != null}" >
-                <%--
-                <c:out value="${exceptions}" /><br/>
-                xsl --- <c:out value="${xsl}" /><br/>
-                xslPage --- <c:out value="${xslPage}" /><br/>
-                xsltPage --- <c:out value="${xsltPage}" />
-                --%>
                 <jsp:useBean id="exceptions2" type="java.lang.Exception" />
                 <% System.out.println(exceptions2); %>
             </c:when>

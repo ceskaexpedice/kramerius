@@ -59,6 +59,7 @@
                     updateThumbs();
                 },
                 select: function(event, ui){
+                    initPage = "";
                     changingTab=true;
                 }
             });
@@ -95,6 +96,8 @@
     
     initParent = '<c:out value="${itemViewObject.parentUUID}" />';
     initPage = '<c:out value="${itemViewObject.lastUUID}" />';
+    
+    
     function startPage(){
         currentSelectedPage = initPage;
         selectPage(initPage);

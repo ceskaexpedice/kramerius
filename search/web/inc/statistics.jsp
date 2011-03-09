@@ -8,42 +8,30 @@
 <%@page import="javax.servlet.jsp.jstl.fmt.LocalizationContext"%>
 <%@page import="cz.incad.Kramerius.I18NServlet"%>
 <%
-            Injector inj = (Injector) application.getAttribute(Injector.class.getName());
-            LocalizationContext lctx = inj.getProvider(LocalizationContext.class).get();
-            pageContext.setAttribute("lctx", lctx);
+            //Injector inj = (Injector) application.getAttribute(Injector.class.getName());
+            //LocalizationContext lctx = inj.getProvider(LocalizationContext.class).get();
+            //pageContext.setAttribute("lctx", lctx);
             String i18nServlet = I18NServlet.i18nServlet(request) + "?action=bundle&lang="+lctx.getLocale().getLanguage()+"&country="+lctx.getLocale().getCountry()+"&name=labels";
             pageContext.setAttribute("i18nServlet", i18nServlet);
-            
-            
+
+
 %>
-<%@ include file="../initVars.jsp" %>
 
 <c:url var="url" value="${kconfig.solrHost}/select/select" >
     <c:param name="q" >
-        parent_pid:"${param.pid}"<c:if test="${param.model!=null}"> and fedora.model:${param.model}</c:if>
+        root_pid:"${param.pid}" and 
     </c:param>
-    <c:choose>
-        <c:when test="${param.rows != null}" >
-            <c:set var="rows" value="${param.rows}" scope="request" />
-        </c:when>
-        <c:otherwise>
-            <c:set var="rows" value="10000" scope="request" />
-        </c:otherwise>
-    </c:choose>
-    <c:param name="rows" value="${rows}" />
-    <c:param name="fl" value="PID,fedora.model,dc.title,details,page_format" />
-    <c:param name="start" value="${param.offset}" />
-    <c:param name="sort" value="fedora.model asc, rels_ext_index asc" />
-    <c:param name="fq" >
-        NOT(PID:${param.pid}/@*)
-    </c:param>
+    <c:param name="rows" value="0" />
+    <c:param name="facet.field" value="document_type" />
+    <c:param name="facet.mincount" value="1" />
+    <c:param name="facet" value="true" />
 </c:url>
 <c:import url="${url}" var="xml" charEncoding="UTF-8" />
 <jsp:useBean id="xml" type="java.lang.String" />
-<% 
+<%
 cz.incad.kramerius.service.XSLService xs = (cz.incad.kramerius.service.XSLService) inj.getInstance(cz.incad.kramerius.service.XSLService.class);
     try {
-        String xsl = "rightMenu.xsl";
+        String xsl = "statistics.xsl";
         if (xs.isAvailable(xsl)) {
             String text = xs.transform(xml, xsl);
             out.println(text);
@@ -53,15 +41,26 @@ cz.incad.kramerius.service.XSLService xs = (cz.incad.kramerius.service.XSLServic
         out.println(e);
     }
 %>
-<c:url var="xslPage" value="xsl/rightMenu.xsl" />
-<c:catch var="exceptions"> 
-    <c:import url="${xslPage}" var="xsltPage" charEncoding="UTF-8"  />
-    <% out.clear();%>
+<c:set var="xsltPage" >
+    
+<xsl:stylesheet  version="1.0"
+   xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
+    <xsl:output method="html" indent="yes" encoding="UTF-8"  omit-xml-declaration="yes" />
+    <xsl:param name="bundle_url" select="bundle_url" />
+    <xsl:param name="bundle" select="document($bundle_url)/bundle" />
+    <xsl:template match="/">
+        <xsl:for-each select="response/lst[@name='facet_counts']/lst[@name='facet_fields']/lst">
+            <xsl:for-each select="./int" >
+                <xsl:variable name="model">document.type.<xsl:value-of select="@name"/></xsl:variable>
+                <div><xsl:value-of select="$bundle/value[@key=$model]"/>&#160;(<xsl:value-of select="."/>)</div>
+            </xsl:for-each>
+        </xsl:for-each>
+    </xsl:template>
+</xsl:stylesheet>
+</c:set>
+<c:catch var="exceptions">
     <x:transform doc="${xml}"  xslt="${xsltPage}"  >
         <x:param name="bundle_url" value="${i18nServlet}"/>
-        <x:param name="pid" value="${param.pid}"/>
-        <x:param name="level" value="${param.level}"/>
-        <x:param name="onlyrels" value="${param.onlyrels}"/>
     </x:transform>
     <c:set var="obj" value="#tabs_${param.level}" />
     <c:set var="href" value="#{href}" />

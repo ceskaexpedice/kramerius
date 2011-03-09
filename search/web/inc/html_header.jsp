@@ -7,10 +7,10 @@
 <%@ page trimDirectiveWhitespaces="true"%>
 
 <%
-        String fromField = "f1";
-        String toField = "f2";
-        String fromValue = "";
-        String toValue = "";
+            String fromField = "f1";
+            String toField = "f2";
+            String fromValue = "";
+            String toValue = "";
 %>
 <%@page import="com.google.inject.Injector"%>
 <%@page import="cz.incad.kramerius.service.ResourceBundleService"%>
@@ -35,8 +35,10 @@
     <link rel="stylesheet" href="css/dateAxisV.css" type="text/css"/>
     <link rel="stylesheet" href="css/dtree.css" type="text/css" />
     <link rel="StyleSheet" href="css/styles.css" type="text/css" />
-    <link rel="StyleSheet" href="css/details.css" type="text/css" />
-
+    
+<!--[if IE ]>
+<link rel="StyleSheet" href="css/ie.css" type="text/css" />
+<![endif]-->
     <script src="js/jquery-1.3.2.min.js" type="text/javascript" ></script>
     <script src="js/jquery-ui-1.7.2.custom.min.js" language="javascript" type="text/javascript"></script>
     <script src="js/jquery.mousewheel.js" type="text/javascript" ></script>
@@ -50,20 +52,20 @@
     <script src="js/dateAxisV.js" language="javascript" type="text/javascript"></script>
     <script  src="js/autocomplete.js" language="javascript" type="text/javascript"></script>
 
-	<script type="text/javascript"  src="js/seadragon-min.js"></script>
+    <script type="text/javascript"  src="js/seadragon-min.js"></script>
 
-    
-	<%  if(request.getRemoteUser()!=null) {  %>
-	    <script  src="js/admin.js" language="javascript" type="text/javascript"></script>
-	<% } %>
+
+    <%  if (request.getRemoteUser() != null) {%>
+    <script  src="js/admin.js" language="javascript" type="text/javascript"></script>
+    <% }%>
     <script  src="js/adminRights.js" language="javascript" type="text/javascript"></script>
 
-	<%
-		Injector headerInjector = (Injector)application.getAttribute(Injector.class.getName());
-		HeaderViewObject headerViewObject = new HeaderViewObject();
-		headerInjector.injectMembers(headerViewObject);
-		pageContext.setAttribute("headerViewObject", headerViewObject);
-	%>
+    <%
+                Injector headerInjector = (Injector) application.getAttribute(Injector.class.getName());
+                HeaderViewObject headerViewObject = new HeaderViewObject();
+                headerInjector.injectMembers(headerViewObject);
+                pageContext.setAttribute("headerViewObject", headerViewObject);
+    %>
 
     <title><fmt:message bundle="${lctx}">application.title</fmt:message></title>
     <script language="JavaScript" type="text/javascript">
@@ -94,51 +96,51 @@
         var generatePdfErrorText = "<fmt:message bundle="${lctx}">generatePdfErrorText</fmt:message>";
         var generatePdfMaxRange = <%=kconfig.getProperty("generatePdfMaxRange")%>;
 
-		// chraneny obsah
-		var protectedContents={};
+        // chraneny obsah
+        var protectedContents={};
         
-		// localization
-		${headerViewObject.dictionary}
-		// selekce
-		${headerViewObject.levelsModelSelectionArray}
+        // localization
+        ${headerViewObject.dictionary}
+            // selekce
+        ${headerViewObject.levelsModelSelectionArray}
 
 		
 		
-		// upravuje polozky menu tak aby byly resp. nebyly videt
-		// presunout jinam, ale kam? 
-		function postProcessContextMenu() {
+            // upravuje polozky menu tak aby byly resp. nebyly videt
+            // presunout jinam, ale kam?
+            function postProcessContextMenu() {
 		    
-			// polozky, ktere jsou viditelne (neviditelne) jenom kvuli roli
-			$(".adminMenuItems").each(function(menuindex, menuelm) {
-				$(menuelm).children("div").each(function(itemidex,itemelm){
+                // polozky, ktere jsou viditelne (neviditelne) jenom kvuli roli
+                $(".adminMenuItems").each(function(menuindex, menuelm) {
+                    $(menuelm).children("div").each(function(itemidex,itemelm){
 				    
-					var roleDiv = $(itemelm).children("div._data_x_role");
-				    var uuidDiv = $(itemelm).children("div._data_x_uuid")
-                    var levelDiv = $(itemelm).children("div._data_x_level")
+                        var roleDiv = $(itemelm).children("div._data_x_role");
+                        var uuidDiv = $(itemelm).children("div._data_x_uuid")
+                        var levelDiv = $(itemelm).children("div._data_x_level")
 
-				    // role element
-					if ((roleDiv.length == 1) && (roleDiv.text() != '')) {
-						var actionToPerform = roleDiv.text();
-						//var uuid = uuidDiv.text();
-                        var level = levelDiv.text();
-					    var uuid = $("#tabs_"+level).attr('pid');
+                        // role element
+                        if ((roleDiv.length == 1) && (roleDiv.text() != '')) {
+                            var actionToPerform = roleDiv.text();
+                            //var uuid = uuidDiv.text();
+                            var level = levelDiv.text();
+                            var uuid = $("#tabs_"+level).attr('pid');
 					    
-						if (viewerOptions.rights[actionToPerform]) {
-					    	if (viewerOptions.rights[actionToPerform][uuid]) {
-					    		$(itemelm).show();
-        					} else if (viewerOptions.rights[actionToPerform]["1"]){
-        						$(itemelm).show();
-           					} else {
+                            if (viewerOptions.rights[actionToPerform]) {
+                                if (viewerOptions.rights[actionToPerform][uuid]) {
+                                    $(itemelm).show();
+                                } else if (viewerOptions.rights[actionToPerform]["1"]){
+                                    $(itemelm).show();
+                                } else {
+                                    $(itemelm).hide();
+                                }
+                            } else {
                                 $(itemelm).hide();
-                 			}
-					    } else {
-					    	$(itemelm).hide();
-					    }
+                            }
 								
-					}
+                        }
 					
-				});
-		    });
-		}
+                    });
+                });
+            }
     </script>
 </head>

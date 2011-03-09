@@ -4,7 +4,6 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn" %>
 <%@ page isELIgnored="false"%>
-
 <%@page import="com.google.inject.Injector"%>
 <%@page import="javax.servlet.jsp.jstl.fmt.LocalizationContext"%>
 <%
@@ -13,7 +12,6 @@
             pageContext.setAttribute("lctx", lctx);
 %>
 <%@ include file="../initVars.jsp" %>
-
 <c:url var="url" value="${kconfig.solrHost}/select/select" >
     <c:param name="q" >
         parent_pid:"${param.pid}"
@@ -49,13 +47,9 @@
         <c:out value="${xml}" />
     </c:when>
     <c:otherwise>
-        <% out.clear();%>
         <c:if test="${param.debug =='true'}"><c:out value="${url}" /></c:if>
-        <x:if select="$doc/response/result/@numFound > 0" >
-            [<x:forEach varStatus="status" select="$doc/response/result/doc/str">
+        <% out.clear();%>[<x:if select="$doc/response/result/@numFound > 0" >
+            <x:forEach varStatus="status" select="$doc/response/result/doc/str">
                 '<x:out select="."/>'<c:if test="${not status.last}">,</c:if>
-            </x:forEach>]
-        </x:if>    
-    </c:otherwise>
-</c:choose>
-
+            </x:forEach>
+        </x:if>]</c:otherwise></c:choose>

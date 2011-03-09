@@ -72,7 +72,7 @@ public class ItemMenuViewObject {
 
     private String viewMetadataItem() {
         String key = "administrator.menu.showmetadata";
-        String jsmethod = "showMainContent";
+        String jsmethod = "showMetadata";
         return renderCommonItem(key, "none", "", jsmethod);
     }
 

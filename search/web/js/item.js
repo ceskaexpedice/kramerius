@@ -390,7 +390,7 @@ function showMets(level, model) {
 }
 
 var _metadataDialog;
-function showMainContent(level, model){
+function showMetadata(level, model){
     var pid = $("#tabs_"+level).attr('pid');
    
     var titul = $("#tabs_"+level+">div>div[id=info-"+model+"]>div>ul").attr('title');
@@ -415,9 +415,11 @@ function showMainContent(level, model){
     }
    
     $('#metaData').html(imgLoadingBig);
-    var url = "inc/details/biblioToRdf.jsp?pid=uuid:"+pid+"&xsl=default.jsp&display=full&model="+model;
+    //var url = "inc/details/biblioToRdf.jsp?pid=uuid:"+pid+"&xsl=default.jsp&display=full&model="+model;
+    var url = "inc/details/metadataFull.jsp?pid="+pid+"&model="+model;
     $.get(url, function(data){
         $('#metaData').html(data);
+        $('#mods-full').tabs();
     });
     //toggleAdminOptions(level, model);
 }

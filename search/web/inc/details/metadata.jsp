@@ -8,21 +8,19 @@
 <%@page import="cz.incad.Kramerius.I18NServlet"%>
 <%@page import="com.google.inject.Injector"%>
 <%@page import="javax.servlet.jsp.jstl.fmt.LocalizationContext"%>
-
+<%@page import="cz.incad.kramerius.FedoraAccess"%>
 <%
             Injector ctxInj = (Injector) application.getAttribute(Injector.class.getName());
             LocalizationContext lctx = ctxInj.getProvider(LocalizationContext.class).get();
             pageContext.setAttribute("lctx", lctx);
             String i18nServlet = I18NServlet.i18nServlet(request) + "?action=bundle&lang="+lctx.getLocale().getLanguage()+"&country="+lctx.getLocale().getCountry()+"&name=labels";
             pageContext.setAttribute("i18nServlet", i18nServlet);
+            FedoraAccess fedoraAccess = ctxInj.getInstance(com.google.inject.Key.get(FedoraAccess.class, com.google.inject.name.Names.named("securedFedoraAccess")));
+            org.w3c.dom.Document xml = fedoraAccess.getBiblioMods(request.getParameter("pid"));
 
-%>
-<%@ include file="inc/searchParams.jsp" %>
-<jsp:useBean id="xml" type="java.lang.String" />
-<%
     cz.incad.kramerius.service.XSLService xs = (cz.incad.kramerius.service.XSLService) ctxInj.getInstance(cz.incad.kramerius.service.XSLService.class);
     try {
-        String xsl = "insearch.xsl";
+        String xsl = "mods.xsl";
         if (xs.isAvailable(xsl)) {
             String text = xs.transform(xml, xsl);
             out.println(text);
@@ -31,26 +29,35 @@
     } catch (Exception e) {
         out.println(e);
     }
+    pageContext.setAttribute("xml", xml);
+
 %>
-<c:url var="xslPage" value="inc/results/xsl/insearch.xsl" />
-<c:catch var="exceptions">
+<c:set var="xsl" value="xsl/mods.xsl" scope="request" />
+<c:url var="xslPage" value="${xsl}" >
+</c:url>
+<c:catch var="exceptions"> 
     <c:import url="${xslPage}" var="xsltPage" charEncoding="UTF-8"  />
 </c:catch>
 <c:choose>
-    <c:when test="${exceptions != null}">
-        <c:out value="${exceptions}" />
-        <c:out value="${url}" />
-        <c:out value="${xml}" />
+    <c:when test="${exceptions != null}" >
+        <jsp:useBean id="exceptions" type="java.lang.Exception" />
+        <% System.out.println(exceptions); %>
     </c:when>
     <c:otherwise>
-        <% out.clear();%>
-        <c:if test="${param.debug =='true'}"><c:out value="${url}" /></c:if>
-        <c:catch var="exceptions2">
-            <x:transform doc="${xml}"  xslt="${xsltPage}">
+        <c:catch var="exceptions2"> 
+            <% out.clear(); %>
+            <x:transform doc="${xml}"  xslt="${xsltPage}"  >
+                <x:param name="pid" value="${param.pid}"/>
                 <x:param name="bundle_url" value="${i18nServlet}"/>
+                <x:param name="model" value="${param.model}"/>
             </x:transform>
         </c:catch>
-        <c:if test="${exceptions2 != null}"><c:out value="${exceptions2}" />
-        </c:if>
+        <c:choose>
+            <c:when test="${exceptions2 != null}" >
+                <jsp:useBean id="exceptions2" type="java.lang.Exception" />
+                <% System.out.println(exceptions2); %>
+            </c:when>
+            <c:otherwise></c:otherwise>
+        </c:choose>
     </c:otherwise>
 </c:choose>

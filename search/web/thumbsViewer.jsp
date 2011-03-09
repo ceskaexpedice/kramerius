@@ -89,10 +89,14 @@
                 draggable:false,
                 title:getPageTitle(currentSelectedPage),
                 close: function(event, ui) {
+                    var maxLevel = maxLevelForFullImageShow;
                     maxLevelForFullImageShow = -1;
                     $('#mainItemTable').show();  
                     $('#imgContainer>img').attr('src', 'img/empty.gif');
                     selectPage(currentSelectedPage);
+                    var model = $('#tabs_'+maxLevel+'>div:visible').attr('id').split('-')[1];
+                    getExtendedModelMetadata(currentSelectedPage, maxLevel, false, model);
+
                 }
             });
             $('[aria-labelledby=ui-dialog-title-fullImageContainer]>.ui-dialog-titlebar').append('<a href="javascript:previousFull();" class=" ui-corner-all ui-dialog-titlebar-prev prevArrow"><span class="ui-icon ui-icon-arrowthick-1-w">prev</span></a>');

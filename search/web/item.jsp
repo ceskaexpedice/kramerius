@@ -72,42 +72,6 @@
                                         <td valign="top" align="center" id="mainContent">
                                             <script type="text/javascript">
                                                 var viewer = null;
-
-                                                $(document).ready(function() {
-                                                    $("#leftButtonPlainImage").click(function() {
-                                                        selectPrevious();
-                                                    });
-
-                                                    $("#rightButtonPlainImage").click(function() {
-                                                        selectNext();
-                                                    });
-                                                                                                        
-                                                    $("#leftButtonPlainImage").mouseenter(function() {
-                                                        $("#leftButtonPlainImage").attr('src','img/prev_hover.png');
-                                                    });
-                                                                                                        
-                                                    $("#leftButtonPlainImage").mouseleave(function() {
-                                                        $("#leftButtonPlainImage").attr('src','img/prev_grouphover.png');
-                                                    });
-
-                                                    $("#rightButtonPlainImage").mouseenter(function() {
-                                                        $("#rightButtonPlainImage").attr('src','img/next_hover.png');
-                                                    });
-                                                                                                        
-                                                    $("#rightButtonPlainImage").mouseleave(function() {
-                                                        $("#rightButtonPlainImage").attr('src','img/next_grouphover.png');
-                                                    });
-                                                    
-                                                    $("#seadragonButton").mouseenter(function() {
-                                                        $("#seadragonButton").attr('src','img/fullpage_hover.png');
-                                                    });
-                                                                                                        
-                                                    $("#seadragonButton").mouseleave(function() {
-                                                        $("#seadragonButton").attr('src','img/fullpage_grouphover.png');
-                                                    });
-                                                    
-                                                });
-
                                                                                                                                                                 
                                                 function init() {
                                                     viewer = new Seadragon.Viewer("container");
@@ -171,51 +135,108 @@
                                                                                                         
                                                     return control;
                                                 }
-        
-                                            
-        
                                                 //Seadragon.Utils.addEvent(window, "load", init);
+
+                                                function setMainContentWidth(){
+                                                    var w = $(window).width()-6-$('#itemTree').width();
+                                                    $("#mainContent").css('width', w);
+
+                                                    w = $('#centralContent').width();
+                                                    $("#centralContent>div").css('width', w-30-25);
+                                                }
+
+                                                $(document).ready(function() {
+                                                    $("#leftButtonPlainImage").click(function() {
+                                                        selectPrevious();
+                                                    });
+
+                                                    $("#rightButtonPlainImage").click(function() {
+                                                        selectNext();
+                                                    });
+
+                                                    $("#leftButtonPlainImage").mouseenter(function() {
+                                                        $("#leftButtonPlainImage").attr('src','img/prev_hover.png');
+                                                    });
+
+                                                    $("#leftButtonPlainImage").mouseleave(function() {
+                                                        $("#leftButtonPlainImage").attr('src','img/prev_grouphover.png');
+                                                    });
+
+                                                    $("#rightButtonPlainImage").mouseenter(function() {
+                                                        $("#rightButtonPlainImage").attr('src','img/next_hover.png');
+                                                    });
+
+                                                    $("#rightButtonPlainImage").mouseleave(function() {
+                                                        $("#rightButtonPlainImage").attr('src','img/next_grouphover.png');
+                                                    });
+
+                                                    $("#seadragonButton").mouseenter(function() {
+                                                        $("#seadragonButton").attr('src','img/fullpage_hover.png');
+                                                    });
+
+                                                    $("#seadragonButton").mouseleave(function() {
+                                                        $("#seadragonButton").attr('src','img/fullpage_grouphover.png');
+                                                    });
+
+                                                    //$("#centralContent").tabs();
+
+                                                    $("#centralContent").tabs().addClass('ui-tabs-vertical ui-helper-clearfix');
+                                                    $("#centralContent li").removeClass('ui-corner-top').addClass('ui-corner-left');
+                                                    //$('.vertical-text').mbFlipText(false);
+
+                                                });
                                                 
                                             </script>
-                                            
-                                            
-                                            <div id="container" style="padding-top:10px; height: 434px;  color: black; display:none;"></div>
-                                            
-                                            <div id="securityError" style="padding-top:10px; height: 400px; width:700px; color: black; display:none;">
-                                                <fmt:message bundle="${lctx}" key="rightMsg"></fmt:message>
-                                            </div>
-                                            
-                                            <div id="loadingDeepZoomImage" style="padding-top:10px; height: 500px; width:700px; color: black; display:none;">
-                                                <fmt:message bundle="${lctx}" key="deep.zoom.loadingImage"></fmt:message>
-                                            </div>
-                                            
-                                            <div id="pdfImage" style="padding-top:10px; height:650; width:700px;  color: black; border:1px; position:relative; display:none;">
-                                                <img id="pdfImageImg"
-                                                     onclick='showBornDigitalPDF("${itemViewObject.imagePid}","${itemViewObject.page}" )' 
-                                                     onload='onLoadPDFImage()'
-                                                     border="0"  src="${itemViewObject.firstPageImageUrl}" height="650px" ></img>
-                                                <img id="pdfZoomButton" border='0' onclick='showBornDigitalPDF("${itemViewObject.imagePid}","${itemViewObject.page}" )'  src='img/lupa_shadow.png' style='position:relative; left:-60px; top:30px;'></img>
-                                            </div>
-                                            
-                                            <div id="plainImage" style="padding-top:10px; height:650; width:700px;  color: black; border:1px; position:relative;">
-                                                <img id="plainImageImg" 
-                                                     onclick="switchDisplay(viewerOptions)"
-                                                     onload="onLoadPlainImage()"
-                                                     border="0"  src="img/empty.gif" alt="" />
+                                            <div id="centralContent">
                                                 
-                                                <div style="position:absolute; top:10px; right:0px;">
-                                                    <span>
-                                                        <img id="seadragonButton" border='0' onclick='switchDisplay(viewerOptions)'  src='img/fullpage_grouphover.png'></img>
-                                                    </span>	
-                                                    <span>
-                                                        <img id="leftButtonPlainImage" class="prevArrow" src="img/prev_grouphover.png" />
-                                                    </span>
-                                                    <span>
-                                                        <img id="rightButtonPlainImage" class="nextArrow" src="img/next_grouphover.png" />						
-                                                    </span>
+                                                <ul>
+                                                    <li><a href="#bigThumbZone" class="vertical-text" ><fmt:message bundle="${lctx}">tab.image</fmt:message></a>
+                                                    </li>
+                                                    <li><a href="#extendedMetadata" class="vertical-text" ><fmt:message bundle="${lctx}">tab.metadata</fmt:message></a></li>
+                                                </ul>
+                                                <div id="extendedMetadata" style="height:650px; width:700px;">
+                                                    <div class="level0"></div>
                                                 </div>
+                                                <div id="bigThumbZone">
+                                                <div id="container" style="padding-top:10px; height: 434px;  color: black; display:none;"></div>
+
+                                                <div id="securityError" style="padding-top:10px; height: 400px; width:700px; color: black; display:none;">
+                                                    <fmt:message bundle="${lctx}" key="rightMsg"></fmt:message>
+                                                </div>
+
+                                                <div id="loadingDeepZoomImage" style="padding-top:10px; height: 500px; width:700px; color: black; display:none;">
+                                                    <fmt:message bundle="${lctx}" key="deep.zoom.loadingImage"></fmt:message>
+                                                </div>
+
+                                                <div id="pdfImage" style="padding-top:10px; height:650; width:700px;  color: black; border:1px; position:relative; display:none;">
+                                                    <img id="pdfImageImg"
+                                                         onclick='showBornDigitalPDF("${itemViewObject.imagePid}","${itemViewObject.page}" )'
+                                                         onload='onLoadPDFImage()'
+                                                         border="0"  src="${itemViewObject.firstPageImageUrl}" height="650px" ></img>
+                                                    <img id="pdfZoomButton" border='0' onclick='showBornDigitalPDF("${itemViewObject.imagePid}","${itemViewObject.page}" )'  src='img/lupa_shadow.png' style='position:relative; left:-60px; top:30px;'></img>
+                                                </div>
+
+                                                <div id="plainImage" style="padding-top:10px; height:650; width:700px;  color: black; border:1px; position:relative;">
+                                                    <img id="plainImageImg"
+                                                         onclick="switchDisplay(viewerOptions)"
+                                                         onload="onLoadPlainImage()"
+                                                         border="0"  src="img/empty.gif" alt="" />
+
+                                                    <div style="position:absolute; top:10px; right:0px;">
+                                                        <span>
+                                                            <img id="seadragonButton" border='0' onclick='switchDisplay(viewerOptions)'  src='img/fullpage_grouphover.png'></img>
+                                                        </span>
+                                                        <span>
+                                                            <img id="leftButtonPlainImage" class="prevArrow" src="img/prev_grouphover.png" />
+                                                        </span>
+                                                        <span>
+                                                            <img id="rightButtonPlainImage" class="nextArrow" src="img/next_grouphover.png" />
+                                                        </span>
+                                                    </div>
+                                                </div>
+                                                </div>
+
                                             </div>
-                                            
                                         </td>
                                 </tr></table>
                             </td>
@@ -229,6 +250,7 @@
         <li class=" facetTitle ui-state-default ui-corner-top  ui-state-active" style="width:100%;">
         <a class="box" href=""><fmt:message bundle="${lctx}">item.popis</fmt:message></a></li>
     </ul>
+        <%@include file="inc/statistics.jsp"  %>
                                     <%@ include file="inc/details/itemMenu.jsp" %>
                                 </div>
                             </td>

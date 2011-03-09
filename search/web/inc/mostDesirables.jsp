@@ -85,7 +85,9 @@
             }
             %>
             <div align="center" style="overflow:hidden; border:1px solid  #eeeeee; width:100px; height:100px; float:left; margin:5px;"><a href="<c:out value="${itemUrl}" escapeXml="false" />" >
-            <img align="middle" vspace="2" id="img_<c:out value="${uuid}"/>" src="<%=imagePid%>&scaledHeight=96" border="0" title="<x:out select="./str[@name='root_title']"/> (<fmt:message bundle="${lctx}"><x:out select="./str[@name='fedora.model']"/></fmt:message>)"  /></a>
+            <img align="middle" vspace="2" id="img_<c:out value="${uuid}"/>" src="<%=imagePid%>&scaledHeight=96" border="0"
+                 title="<x:out select="./str[@name='root_title']"/> (<fmt:message bundle="${lctx}"><x:out select="./str[@name='fedora.model']"/></fmt:message>)"
+                 alt="<x:out select="./str[@name='root_title']"/>" /></a>
             </div>
         </x:forEach>
         

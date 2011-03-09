@@ -697,3 +697,63 @@ tr.users_hint:hover {
 #languages a:hover{
     color: #0B0F0A;
 }
+
+#centralContent{
+    width:100%;
+}
+
+#extendedMetadata div{
+    padding-left: 10px;
+    text-align: left !important;
+}
+
+
+#extendedMetadata h2{
+    font-size: 1.2em;
+    color: #E75C01;
+}
+
+#extendedMetadata div ul{
+    padding-left: 1px;
+}
+
+
+
+/* Vertical Tabs
+----------------------------------*/
+.ui-tabs-vertical { width: 55em; }
+.ui-tabs-vertical .ui-tabs-nav {
+    padding: .2em .1em .2em .2em; float: left;
+    width: 28px;
+}
+.ui-tabs-vertical .ui-tabs-nav li {
+    clear: left; width: 100%; border-bottom-width: 1px !important; border-right-width: 0 !important; margin: 0 -1px .2em 0; }
+.ui-tabs-vertical .ui-tabs-nav li a { display:block; }
+
+.ui-tabs-vertical .ui-tabs-nav li.ui-tabs-selected {
+    padding-bottom: 0; padding-right: .1em; border-right-width: 1px; border-right-width: 1px;
+}
+
+.ui-tabs-vertical .ui-tabs-panel { 
+    padding: 1em;
+    float: left;
+    
+}
+.ui-tabs-vertical .ui-state-active { 
+    background: url("../img/scroll_handler_h.png") repeat-y scroll 50% 50% #FFFFFF;
+}
+
+#mainContent .vertical-text {
+    font-size:1.2em !important;
+    
+    -webkit-transform:rotate(-90deg);
+    -moz-transform:rotate(-90deg);
+    -o-transform: rotate(-90deg);
+    margin-left:38px;
+    margin-top:30px;
+    margin-bottom:-13px;
+    bottom:0;
+    width:15px;
+    height:80px;
+    padding:1px;
+}
