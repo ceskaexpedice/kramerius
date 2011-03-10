@@ -1,5 +1,8 @@
 package cz.incad.kramerius.rights.server;
 
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 import javax.servlet.ServletException;
 
 import org.aplikator.client.command.ListEntities;
@@ -18,11 +21,12 @@ import cz.incad.kramerius.rights.server.arragements.RightsCriteriumArrangement;
 import cz.incad.kramerius.rights.server.arragements.RightsCriteriumParamArrangement;
 import cz.incad.kramerius.rights.server.arragements.UserArrangement;
 import cz.incad.kramerius.rights.server.impl.PropertiesMailer;
-import cz.incad.kramerius.security.IsActionAllowedBase;
 
 @SuppressWarnings("serial")
-public class RightsLoaderServlet extends ApplicationLoaderServlet {
+public class RightsLoaderServlet  extends ApplicationLoaderServlet {
 
+    private static final Logger LOG = Logger.getLogger(RightsLoaderServlet.class.getName());
+    
 	Structure struct;
 
 	UserArrangement userArr;
@@ -40,11 +44,11 @@ public class RightsLoaderServlet extends ApplicationLoaderServlet {
 	@Override
 	public void init() throws ServletException {
 		try {
-			System.out.println("ApplicationLoader started");
+			LOG.fine("ApplicationLoader started");
 			// SERVER SIDE
-			System.out.println("ApplicationLoader 1");
+			LOG.fine("ApplicationLoader 1");
 			struct = (Structure) Application.get();
-			System.out.println("ApplicationLoader 2");
+			LOG.fine("ApplicationLoader 2");
 
             VygenerovatHeslo execVygenerovatHeslo = new VygenerovatHeslo();
 			
@@ -64,7 +68,7 @@ public class RightsLoaderServlet extends ApplicationLoaderServlet {
 
 
 
-			System.out.println("ApplicationLoader 3");
+			LOG.fine("ApplicationLoader 3");
 			// CLIENT SIDE MENU
 			ApplicationDTO applicationDescriptor = ApplicationDTO.get();
 			
@@ -94,10 +98,10 @@ public class RightsLoaderServlet extends ApplicationLoaderServlet {
 
 			
 
-			System.out.println("ApplicationLoader finished");
+			LOG.info("Rightseditor Loader finished");
 		} catch (Exception ex) {
-			System.out.println("ApplicationLoader error:" + ex);
-			throw new ServletException("ApplicationLoader error: ", ex);
+			LOG.log(Level.SEVERE,"Rightseditor Loader error:", ex);
+			throw new ServletException("Rightseditor Loader error: ", ex);
 		}
 	}
 	
