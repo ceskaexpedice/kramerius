@@ -9,6 +9,8 @@
 <%@page import="javax.servlet.jsp.jstl.fmt.LocalizationContext, cz.incad.kramerius.FedoraAccess"%>
 <%
             Injector ctxInj = (Injector) application.getAttribute(Injector.class.getName());
+            KConfiguration kconfig = ctxInj.getProvider(KConfiguration.class).get();
+            pageContext.setAttribute("kconfig", kconfig);
             LocalizationContext lctx = ctxInj.getProvider(LocalizationContext.class).get();
             pageContext.setAttribute("lctx", lctx);
             FedoraAccess fedoraAccess = ctxInj.getInstance(com.google.inject.Key.get(FedoraAccess.class, com.google.inject.name.Names.named("securedFedoraAccess")));

@@ -19,16 +19,19 @@
 <%@page import="cz.incad.kramerius.FedoraAccess"%>
 <%@ include file="initVars.jsp" %>
 <%
-	Injector inj = (Injector)application.getAttribute(Injector.class.getName());
-	pageContext.setAttribute("lrProcessManager",inj.getInstance(LRProcessManager.class));
-	pageContext.setAttribute("dfManager",inj.getInstance(DefinitionManager.class));
+
+	Injector ctxInj = (Injector)application.getAttribute(Injector.class.getName());
+        KConfiguration kconfig = ctxInj.getProvider(KConfiguration.class).get();
+        pageContext.setAttribute("kconfig", kconfig);
+	pageContext.setAttribute("lrProcessManager",ctxInj.getInstance(LRProcessManager.class));
+	pageContext.setAttribute("dfManager",ctxInj.getInstance(DefinitionManager.class));
 	
-	LocalizationContext lctx= inj.getProvider(LocalizationContext.class).get();
+	LocalizationContext lctx= ctxInj.getProvider(LocalizationContext.class).get();
 	pageContext.setAttribute("lctx", lctx);
 
-        FedoraAccess fedoraAccess = inj.getInstance(com.google.inject.Key.get(FedoraAccess.class, com.google.inject.name.Names.named("securedFedoraAccess")));
+        FedoraAccess fedoraAccess = ctxInj.getInstance(com.google.inject.Key.get(FedoraAccess.class, com.google.inject.name.Names.named("securedFedoraAccess")));
 
-	List<String> uuids = (List<String>)inj.getInstance(MostDesirable.class).getMostDesirable(18);	
+	List<String> uuids = (List<String>)ctxInj.getInstance(MostDesirable.class).getMostDesirable(18);
         Iterator it = uuids.iterator();
         
         String itemUrl;

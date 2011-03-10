@@ -5,12 +5,17 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn" %>
 <%@ page isELIgnored="false"%>
 
-<%@page import="com.google.inject.*"%>
-<%@page import="javax.servlet.jsp.jstl.fmt.LocalizationContext, cz.incad.kramerius.FedoraAccess"%>
+<%@page import="com.google.inject.Injector"%>
+<%@page import="javax.servlet.jsp.jstl.fmt.LocalizationContext"%>
+<%@page import="cz.incad.Kramerius.I18NServlet"%>
+<%@page import="cz.incad.kramerius.utils.conf.KConfiguration"%>
+<%@page import="cz.incad.kramerius.FedoraAccess"%>
 <%
-            Injector inj = (Injector) application.getAttribute(Injector.class.getName());
-            LocalizationContext lctx = inj.getProvider(LocalizationContext.class).get();
-            FedoraAccess fedoraAccess = inj.getInstance(com.google.inject.Key.get(FedoraAccess.class, com.google.inject.name.Names.named("securedFedoraAccess")));
+            Injector ctxInj = (Injector) application.getAttribute(Injector.class.getName());
+            KConfiguration kconfig = ctxInj.getProvider(KConfiguration.class).get();
+            pageContext.setAttribute("kconfig", kconfig);
+            LocalizationContext lctx = ctxInj.getProvider(LocalizationContext.class).get();
+            FedoraAccess fedoraAccess = ctxInj.getInstance(com.google.inject.Key.get(FedoraAccess.class, com.google.inject.name.Names.named("securedFedoraAccess")));
             pageContext.setAttribute("lctx", lctx);
             java.io.InputStream is = fedoraAccess.getDataStream("uuid:"+request.getParameter("uuid"), "ALTO");
             String alto = cz.incad.kramerius.utils.IOUtils.readAsString(is, java.nio.charset.Charset.forName("UTF-8") , true);

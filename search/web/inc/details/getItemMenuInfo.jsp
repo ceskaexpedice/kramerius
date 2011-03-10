@@ -8,9 +8,13 @@
 <%@page import="com.google.inject.Injector"%>
 <%@page import="javax.servlet.jsp.jstl.fmt.LocalizationContext"%>
 <%
-            Injector inj = (Injector) application.getAttribute(Injector.class.getName());
-            LocalizationContext lctx = inj.getProvider(LocalizationContext.class).get();
+            Injector ctxInj = (Injector) application.getAttribute(Injector.class.getName());
+            KConfiguration kconfig = ctxInj.getProvider(KConfiguration.class).get();
+            pageContext.setAttribute("kconfig", kconfig);
+            LocalizationContext lctx = ctxInj.getProvider(LocalizationContext.class).get();
             pageContext.setAttribute("lctx", lctx);
+            String i18nServlet = I18NServlet.i18nServlet(request) + "?action=bundle&lang="+lctx.getLocale().getLanguage()+"&country="+lctx.getLocale().getCountry()+"&name=labels";
+            pageContext.setAttribute("i18nServlet", i18nServlet);
 %>
 <%@ include file="../initVars.jsp" %>
 
@@ -21,10 +25,23 @@
     <%--<c:param name="fl" value="PID,fedora.model,dc.title,details" />--%>
     
 </c:url>
-
-<c:url var="xslPage" value="xsl/relsextDetails.jsp" />
+<c:import url="${url}" var="xml" charEncoding="UTF-8" />
+<jsp:useBean id="xml" type="java.lang.String" />
+<%
+cz.incad.kramerius.service.XSLService xs = (cz.incad.kramerius.service.XSLService) ctxInj.getInstance(cz.incad.kramerius.service.XSLService.class);
+    try {
+        String xsl = "rightMenu.xsl";
+        if (xs.isAvailable(xsl)) {
+            String text = xs.transform(xml, xsl);
+            out.println(text);
+            return;
+        }
+    } catch (Exception e) {
+        out.println(e);
+    }
+%>
+<c:url var="xslPage" value="xsl/rightMenu.xsl" />
 <c:catch var="exceptions"> 
-    <c:import url="${url}" var="xml" charEncoding="UTF-8" />
     <c:import url="${xslPage}" var="xsltPage" charEncoding="UTF-8"  />
 </c:catch>
 <c:choose>

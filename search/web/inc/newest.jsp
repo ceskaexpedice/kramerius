@@ -9,9 +9,11 @@
 <%@page import="cz.incad.kramerius.FedoraAccess"%>
 
 <%
-	Injector inj = (Injector)application.getAttribute(Injector.class.getName());
+	Injector ctxInj = (Injector)application.getAttribute(Injector.class.getName());
+        KConfiguration kconfig = ctxInj.getProvider(KConfiguration.class).get();
+        pageContext.setAttribute("kconfig", kconfig);
 
-        FedoraAccess fedoraAccess = inj.getInstance(com.google.inject.Key.get(FedoraAccess.class, com.google.inject.name.Names.named("securedFedoraAccess")));
+        FedoraAccess fedoraAccess = ctxInj.getInstance(com.google.inject.Key.get(FedoraAccess.class, com.google.inject.name.Names.named("securedFedoraAccess")));
 
 %>
 <%@ include file="initVars.jsp" %>

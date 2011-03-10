@@ -1,19 +1,22 @@
-<%@page import="cz.incad.Kramerius.views.item.ItemViewObject"%>
 <%@ page contentType="text/html" pageEncoding="UTF-8" %>
-<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
-<%@ taglib uri="http://java.sun.com/jsp/jstl/xml" prefix="x" %>
-<%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt" %>
-<%@ page isELIgnored="false"%>
-
+<%@page import="javax.servlet.jsp.jstl.fmt.LocalizationContext"%>
+<%@page import="cz.incad.Kramerius.I18NServlet"%>
+<%@page import="cz.incad.kramerius.utils.conf.KConfiguration"%>
+<%@page import="cz.incad.Kramerius.views.item.ItemViewObject"%>
 <%
 	if(pageContext.getAttribute("lctx")==null){
 		pageContext.setAttribute("lctx", ((Injector)application.getAttribute(Injector.class.getName())).getProvider(LocalizationContext.class).get());
 	}
+	if(pageContext.getAttribute("kconfig")==null){
+		pageContext.setAttribute("kconfig", ((Injector)application.getAttribute(Injector.class.getName())).getProvider(KConfiguration.class).get());
+	}
 
-	Injector inj = (Injector)application.getAttribute(Injector.class.getName());
+	//Injector ctxInj = (Injector)application.getAttribute(Injector.class.getName());
+        //KConfiguration kconfig = ctxInj.getProvider(KConfiguration.class).get();
+        //pageContext.setAttribute("kconfig", kconfig);
 	// view objekt pro stranku = veskera logika 
 	ItemViewObject itemViewObject = new ItemViewObject();
-	inj.injectMembers(itemViewObject);
+	((Injector)application.getAttribute(Injector.class.getName())).injectMembers(itemViewObject);
 	pageContext.setAttribute("itemViewObject", itemViewObject);
 %>
 <%@ include file="inc/initVars.jsp" %>

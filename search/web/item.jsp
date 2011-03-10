@@ -10,14 +10,17 @@
 
 
 <%
-            Injector inj = (Injector) application.getAttribute(Injector.class.getName());
+            Injector ctxInj = (Injector) application.getAttribute(Injector.class.getName());
+            KConfiguration kconfig = ctxInj.getProvider(KConfiguration.class).get();
+            pageContext.setAttribute("kconfig", kconfig);
+            
             // view objekt pro stranku = veskera logika 
             ItemViewObject itemViewObject = new ItemViewObject();
-            inj.injectMembers(itemViewObject);
+            ctxInj.injectMembers(itemViewObject);
             itemViewObject.init();
 
             // lokalizacni kontext
-            LocalizationContext lctx = inj.getProvider(LocalizationContext.class).get();
+            LocalizationContext lctx = ctxInj.getProvider(LocalizationContext.class).get();
             pageContext.setAttribute("lctx", lctx);
 
             // ukladani nejoblibenejsich 
@@ -208,7 +211,7 @@
                                                     <fmt:message bundle="${lctx}" key="deep.zoom.loadingImage"></fmt:message>
                                                 </div>
 
-                                                <div id="pdfImage" style="padding-top:10px; height:650; width:700px;  color: black; border:1px; position:relative; display:none;">
+                                                <div id="pdfImage" style="padding-top:10px; height:650; width:700px;  color: black; border:1px; position:relative; display:none; overflow:hidden;">
                                                     <img id="pdfImageImg"
                                                          onclick='showBornDigitalPDF("${itemViewObject.imagePid}","${itemViewObject.page}" )'
                                                          onload='onLoadPDFImage()'

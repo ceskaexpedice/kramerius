@@ -7,9 +7,12 @@
 <%@page import="com.google.inject.Injector"%>
 <%@page import="javax.servlet.jsp.jstl.fmt.LocalizationContext"%>
 <%@page import="cz.incad.Kramerius.I18NServlet"%>
+<%@page import="cz.incad.kramerius.utils.conf.KConfiguration"%>
 <%
-            Injector inj = (Injector) application.getAttribute(Injector.class.getName());
-            LocalizationContext lctx = inj.getProvider(LocalizationContext.class).get();
+            Injector ctxInj = (Injector) application.getAttribute(Injector.class.getName());
+            KConfiguration kconfig = ctxInj.getProvider(KConfiguration.class).get();
+            pageContext.setAttribute("kconfig", kconfig);
+            LocalizationContext lctx = ctxInj.getProvider(LocalizationContext.class).get();
             pageContext.setAttribute("lctx", lctx);
             String i18nServlet = I18NServlet.i18nServlet(request) + "?action=bundle&lang="+lctx.getLocale().getLanguage()+"&country="+lctx.getLocale().getCountry()+"&name=labels";
             pageContext.setAttribute("i18nServlet", i18nServlet);
@@ -41,7 +44,7 @@
 <c:import url="${url}" var="xml" charEncoding="UTF-8" />
 <jsp:useBean id="xml" type="java.lang.String" />
 <% 
-cz.incad.kramerius.service.XSLService xs = (cz.incad.kramerius.service.XSLService) inj.getInstance(cz.incad.kramerius.service.XSLService.class);
+cz.incad.kramerius.service.XSLService xs = (cz.incad.kramerius.service.XSLService) ctxInj.getInstance(cz.incad.kramerius.service.XSLService.class);
     try {
         String xsl = "rightMenu.xsl";
         if (xs.isAvailable(xsl)) {
@@ -62,6 +65,7 @@ cz.incad.kramerius.service.XSLService xs = (cz.incad.kramerius.service.XSLServic
         <x:param name="pid" value="${param.pid}"/>
         <x:param name="level" value="${param.level}"/>
         <x:param name="onlyrels" value="${param.onlyrels}"/>
+        <x:param name="onlyinfo" value="${param.onlyinfo}"/>
     </x:transform>
     <c:set var="obj" value="#tabs_${param.level}" />
     <c:set var="href" value="#{href}" />

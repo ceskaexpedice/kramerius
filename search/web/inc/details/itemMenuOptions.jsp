@@ -8,19 +8,21 @@
 <%@page import="com.google.inject.Injector"%>
 <%@page import="cz.incad.kramerius.utils.FedoraUtils"%>
 <%@page import="javax.servlet.jsp.jstl.fmt.LocalizationContext"%>
-<%@page
-    import="cz.incad.kramerius.processes.LRProcessManager,cz.incad.kramerius.processes.DefinitionManager"%>
+<%@page import="cz.incad.kramerius.processes.LRProcessManager,cz.incad.kramerius.processes.DefinitionManager" %>
 <%@page import="cz.incad.Kramerius.views.item.ItemViewObject"%>
 <%@page import="cz.incad.Kramerius.views.item.menu.ItemMenuViewObject"%>
+<%@page import="cz.incad.kramerius.utils.conf.KConfiguration"%>
 <%
-            Injector inj = (Injector) application.getAttribute(Injector.class.getName());
+            Injector ctxInj = (Injector) application.getAttribute(Injector.class.getName());
+            KConfiguration kconfig = ctxInj.getProvider(KConfiguration.class).get();
+            pageContext.setAttribute("kconfig", kconfig);
             // view objekt pro stranku = veskera logika 
             ItemViewObject itemViewObject = new ItemViewObject();
-            inj.injectMembers(itemViewObject);
+            ctxInj.injectMembers(itemViewObject);
             itemViewObject.init();
 
             // lokalizacni kontext
-            LocalizationContext lctx = inj.getProvider(LocalizationContext.class).get();
+            LocalizationContext lctx = ctxInj.getProvider(LocalizationContext.class).get();
             pageContext.setAttribute("lctx", lctx);
 
             // ukladani nejoblibenejsich 

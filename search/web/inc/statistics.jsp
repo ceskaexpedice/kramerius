@@ -29,7 +29,7 @@
 <c:import url="${url}" var="xml" charEncoding="UTF-8" />
 <jsp:useBean id="xml" type="java.lang.String" />
 <%
-cz.incad.kramerius.service.XSLService xs = (cz.incad.kramerius.service.XSLService) inj.getInstance(cz.incad.kramerius.service.XSLService.class);
+cz.incad.kramerius.service.XSLService xs = (cz.incad.kramerius.service.XSLService) ctxInj.getInstance(cz.incad.kramerius.service.XSLService.class);
     try {
         String xsl = "statistics.xsl";
         if (xs.isAvailable(xsl)) {
@@ -52,7 +52,7 @@ cz.incad.kramerius.service.XSLService xs = (cz.incad.kramerius.service.XSLServic
         <xsl:for-each select="response/lst[@name='facet_counts']/lst[@name='facet_fields']/lst">
             <xsl:for-each select="./int" >
                 <xsl:variable name="model">document.type.<xsl:value-of select="@name"/></xsl:variable>
-                <div><xsl:value-of select="$bundle/value[@key=$model]"/>&#160;(<xsl:value-of select="."/>)</div>
+                <div><xsl:value-of select="$bundle/value[@key=$model]"/>:&#160;<xsl:value-of select="."/></div>
             </xsl:for-each>
         </xsl:for-each>
     </xsl:template>
