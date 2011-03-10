@@ -49,8 +49,8 @@ public class TestTitle extends TestCase {
         SolrAccess solrAccess = injector.getInstance(SolrAccess.class);
         FedoraAccess fa = injector.getInstance(Key.get(FedoraAccess.class, Names.named("rawFedoraAccess"))); 
 
-        String calculatedTitle = TitlesUtils.title(uuid, solrAccess, fa);
-        System.out.println(calculatedTitle);
+        //String calculatedTitle = TitlesUtils.title(uuid, solrAccess, fa);
+        //System.out.println(calculatedTitle);
         
         
 //        org.w3c.dom.Document relsExt = fa.getRelsExt(uuid);
