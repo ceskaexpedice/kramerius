@@ -24,8 +24,10 @@ import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerConfigurationException;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.TransformerFactoryConfigurationError;
+import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 import javax.xml.transform.stream.StreamSource;
+import org.w3c.dom.Document;
 
 /**
  *
@@ -100,9 +102,24 @@ public class XSLServiceImpl implements XSLService {
         Transformer transformer = getTransformer(xsltName);
 
         StreamResult destStream = new StreamResult(new StringWriter());
-        
+
         transformer.setParameter("bundle_url", createBundleURL(localeProvider.get()));
         transformer.transform(new StreamSource(new StringReader(xml)), destStream);
+
+        StringWriter sw = (StringWriter) destStream.getWriter();
+        return sw.getBuffer().toString();
+    }
+
+    @Override
+    public String transform(Document xml, String xsltName) throws Exception {
+
+        Transformer transformer = getTransformer(xsltName);
+
+        StreamResult destStream = new StreamResult(new StringWriter());
+
+        transformer.setParameter("bundle_url", createBundleURL(localeProvider.get()));
+
+        transformer.transform(new DOMSource(xml), destStream);
 
         StringWriter sw = (StringWriter) destStream.getWriter();
         return sw.getBuffer().toString();
@@ -135,6 +152,15 @@ public class XSLServiceImpl implements XSLService {
     private File xslFile(File textsDir, String name) {
         File textFile = new File(textsDir, name);
         return textFile;
+    }
+
+    @Override
+    public String serialize(Document xmldoc) throws Exception {
+        StringWriter sw = new StringWriter();
+        Transformer serializer = TransformerFactory.newInstance().newTransformer();
+        serializer.setParameter("xml-declaration", false);
+        serializer.transform(new DOMSource(xmldoc), new StreamResult(sw));
+        return sw.toString();
     }
 
     public static void main(String[] args) {
