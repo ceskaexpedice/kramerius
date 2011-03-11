@@ -1,23 +1,27 @@
 <%@ page contentType="text/html;charset=utf-8" %>
 <%@ page session="false"%>
 <%@ page import="java.net.*,java.io.*" %>
-<%@ include file="inc/initVars.jsp" %>
+<%@page import="cz.incad.kramerius.utils.FedoraUtils"%>
+<%@page import="com.google.inject.Injector"%>
+<%@page import="cz.incad.kramerius.utils.conf.KConfiguration"%>
 <%
+            Injector ctxInj = (Injector) application.getAttribute(Injector.class.getName());
+            KConfiguration kconfig = ctxInj.getProvider(KConfiguration.class).get();
             try {
                 String term = request.getParameter("t");
                 if (term.length() > 0) {
                     if (term.length() > 1) {
-                        term = term.substring(0,1).toLowerCase() + term.substring(1) + "|" +
-                            term.substring(0,1).toUpperCase() + term.substring(1);
-                    }else{
+                        term = term.substring(0, 1).toLowerCase() + term.substring(1) + "|"
+                                + term.substring(0, 1).toUpperCase() + term.substring(1);
+                    } else {
                         term = term.toLowerCase() + "|" + term.toUpperCase();
                     }
                     term = java.net.URLEncoder.encode(term, "UTF-8");
-                    String reqUrl = kconfig.getSolrHost() + "/terms?terms.fl=" +
-                            request.getParameter("field") +
-                            "&wt=json&omitHeader=true&terms.regex.flag=case_insensitive" +
-                            "&terms.sort=index&terms.limit=40&terms.regex=" +
-                            term + ".*";
+                    String reqUrl = kconfig.getSolrHost() + "/terms?terms.fl="
+                            + request.getParameter("field")
+                            + "&wt=json&omitHeader=true&terms.regex.flag=case_insensitive"
+                            + "&terms.sort=index&terms.limit=40&terms.regex="
+                            + term + ".*";
                     URL url = new URL(reqUrl);
                     HttpURLConnection con = (HttpURLConnection) url.openConnection();
                     con.setDoOutput(true);

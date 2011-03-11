@@ -87,6 +87,6 @@
                 expandedPaginationStr = navigationPages.toString();
             }
 %>
-<div id="pagination">
+<div class="pagination">
     <%=expandedPaginationStr%>
 </div>

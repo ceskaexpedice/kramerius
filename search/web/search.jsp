@@ -89,7 +89,7 @@
                                             <c:otherwise >
                                         <div id="resultsDiv" class="ui-tabs ui-widget ui-widget-content ui-corner-all shadow10" >
                                             <ul class="ui-tabs-nav ui-helper-reset ui-helper-clearfix ui-widget-header ui-corner-all" style="padding:0 0.1em 0 0;">
-                                                <li class="ui-state-default ui-corner-top ui-tabs-selected ui-state-active " style="width:100%;">
+                                                <li id="resultsHeader" class="ui-state-default ui-corner-top ui-tabs-selected ui-state-active " style="width:100%;">
                                                     <a class="box">&#160;<c:out value="${numDocs}" />&#160;<c:out value="${numDocsStr}" /></a>
                                                     <c:if test="${numDocs>1}">
                                                         <%@ include file="inc/paginationPageNum.jsp" %>

@@ -264,11 +264,23 @@ a.box {
     background: transparent;
 }
 
-#pagination a{
+#resultsHeader .pagination a{
+    float:left;
     cursor:pointer;
     padding: 2px;
 }
-#pagination b{
+
+#resultsHeader .pagination b{
+    float:left;
+    padding: 2px;
+}
+
+.pagination a{
+    float:left;
+    cursor:pointer;
+    padding: 2px;
+}
+.pagination b{
     float:left;
     padding: 2px;
 }

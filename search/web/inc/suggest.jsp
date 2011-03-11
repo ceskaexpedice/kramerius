@@ -5,14 +5,6 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn" %>
 <%@ page isELIgnored="false"%>
 
-<c:choose>
-    <c:when test="${param.language != null}" >
-        <fmt:setLocale value="${param.language}" />
-    </c:when>
-</c:choose>
-
-<fmt:setBundle basename="labels" />
-<fmt:setBundle basename="labels" var="bundleVar" />
 <form name="suggestForm" method="GET" action="./" autocomplete="Off">
     <div id="suggestDiv" class="ui-tabs ui-widget ui-corner-all shadow10" >
         <ul class="ui-tabs-nav ui-helper-reset ui-helper-clearfix ui-widget-header ui-corner-all" style="padding:0 0.1em 0 0;">
@@ -30,18 +22,6 @@
         <div id="autocomplete" class="autocomplete" >
         </div>
     </div>
-    <%--
-<td>
-        <div class="suggestTitle"><div><fmt:message bundle="${lctx}" key="common.date" /></div></div>    
-            <div class="suggest_box"><div style="position:relative;" class="facetItem">
-            <input name="queryD" id="queryD" size="20" type="text"  class="suggest_input"
-            onkeyup="doAutocomplete(this.value, 'datum', event , '#autocompleteD', '#queryD');" /><br/>
-                <div id="autocompleteD" class="autocomplete" >
-                </div> 
-            </div>
-            </div>
-    </td>
-    --%>
 </form>
 <script language="javascript">
     var canHide = true;
