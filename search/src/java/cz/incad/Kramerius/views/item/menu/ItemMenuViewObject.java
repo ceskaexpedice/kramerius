@@ -60,10 +60,10 @@ public class ItemMenuViewObject {
         this.userInRoleDecision = userInRoleDecision;
     }
 
-    public boolean isPageModel() {
-        try{
-            KrameriusModels model = KrameriusModels.parseString(this.itemViewObject.getModels().get(this.index));
-            return (model.equals(KrameriusModels.PAGE));
+    public boolean isDisplayable() {
+        try {
+            String uuid = this.itemViewObject.getPidPath()[this.itemViewObject.getLevel()];
+            return this.fedoraAccess.isImageFULLAvailable(uuid);
         }catch(Exception e){
             LOGGER.log(Level.INFO, e.getMessage(), e);
             return false;
@@ -84,7 +84,7 @@ public class ItemMenuViewObject {
 
     private String dynamicPDF() {
         String key = "administrator.menu.generatepdf";
-        if (isPageModel()) {
+        if (isDisplayable()) {
             return renderCommonItem(key, "_data_x_role", "read", "PDF.url");
         } else {
             return renderCommonItem(key, "_data_x_role", "read", "PDF.generatePDF");
@@ -93,7 +93,7 @@ public class ItemMenuViewObject {
 
     private String downloadOriginal() throws IOException {
         String key = "administrator.menu.downloadOriginal";
-        if ((isPageModel()) || (bornDigital())) {
+        if ((isDisplayable()) || (bornDigital())) {
             return renderCommonItem(key, "_data_x_role", "read", "downloadOriginal");
         } else {
             return null;
@@ -248,7 +248,7 @@ public class ItemMenuViewObject {
             if (!bornDigital()) {
                 items.add(dynamicPDF());
             }
-            if ((isPageModel()) || (bornDigital())) {
+            if ((isDisplayable()) || (bornDigital())) {
                 items.add(downloadOriginal());
             }
         } catch (IOException e) {
@@ -291,7 +291,7 @@ public class ItemMenuViewObject {
             items.add(deleteGenerateDeepZoomTiles());
             items.add(showRights());
 
-            if (!isPageModel()) {
+            if (!isDisplayable()) {
                 items.add(editor());
             }
         }
