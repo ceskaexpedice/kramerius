@@ -106,11 +106,11 @@ public class SecuredFedoraAccessImpl implements FedoraAccess {
         return rawAccess.getKrameriusModel(uuid);
     }
     
-    public ArrayList<String> getModelsOfRel(Document relsExt){
+    public List<String> getModelsOfRel(Document relsExt){
         return rawAccess.getModelsOfRel(relsExt);
     }
     
-    public ArrayList<String> getModelsOfRel(String uuid) throws IOException{
+    public List<String> getModelsOfRel(String uuid) throws IOException{
         return rawAccess.getModelsOfRel(uuid);
     }
 
@@ -251,4 +251,15 @@ public class SecuredFedoraAccessImpl implements FedoraAccess {
         File cachedFile = this.discStrucutreForStore.getUUIDFile(uuid, rootPath);
         return cachedFile != null && cachedFile.exists();
     }
+
+    @Override
+    public String getKrameriusModelName(Document relsExt) throws IOException {
+        return rawAccess.getKrameriusModelName(relsExt);
+    }
+
+    @Override
+    public String getKrameriusModelName(String uuid) throws IOException {
+        return rawAccess.getKrameriusModelName(uuid);
+    }
+    
 }

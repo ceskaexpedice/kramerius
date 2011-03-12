@@ -19,8 +19,8 @@ public abstract class AbstractRenderedDocument extends AbstractObject {
 
 	private String documentTitle;
 
-	public AbstractRenderedDocument(KrameriusModels model, String uuid) {
-		super(model, uuid);
+	public AbstractRenderedDocument(String modelName, String uuid) {
+		super(modelName, uuid);
 	}
 
 	public String getUuidTitlePage() {

@@ -4,8 +4,8 @@ import cz.incad.kramerius.KrameriusModels;
 
 public class ImagePage extends AbstractPage {
 
-	public ImagePage(KrameriusModels model, String uuid) {
-		super(model, uuid);
+	public ImagePage(String modelName, String uuid) {
+		super(modelName, uuid);
 	}
 
 	

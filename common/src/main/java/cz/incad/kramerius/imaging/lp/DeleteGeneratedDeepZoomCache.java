@@ -61,8 +61,7 @@ public class DeleteGeneratedDeepZoomCache {
     }
 
     public static void deleteCacheForUUID(String uuid, final FedoraAccess fedoraAccess, final DiscStrucutreForStore discStruct) throws IOException {
-        KrameriusModels krameriusModel = fedoraAccess.getKrameriusModel(uuid);
-        if (krameriusModel.equals(KrameriusModels.PAGE)) {
+        if (fedoraAccess.isImageFULLAvailable(uuid)) {
             try {
                 deleteFolder(uuid, discStruct);
             } catch (XPathExpressionException e) {
@@ -75,24 +74,25 @@ public class DeleteGeneratedDeepZoomCache {
 
                 @Override
                 public void handle(Element elm, FedoraRelationship relation, int level) {
-                    if (relation.equals(FedoraRelationship.hasPage)) {
-                        try {
-                            String pid = elm.getAttributeNS(RDF_NAMESPACE_URI, "resource");
-                            PIDParser pidParse = new PIDParser(pid);
-                            pidParse.disseminationURI();
-                            String uuid = pidParse.getObjectId();
+                    try {
+                        String pid = elm.getAttributeNS(RDF_NAMESPACE_URI, "resource");
+                        PIDParser pidParse = new PIDParser(pid);
+                        pidParse.disseminationURI();
+                        String uuid = pidParse.getObjectId();
+                        if (fedoraAccess.isImageFULLAvailable(uuid)) {
                             LOGGER.info("Deleting " + (pageIndex++) +" uuid = "+uuid);
                             deleteFolder(uuid, discStruct);
-                        } catch (DOMException e) {
-                            LOGGER.severe(e.getMessage());
-                        } catch (LexerException e) {
-                            LOGGER.severe(e.getMessage());
-                        } catch (XPathExpressionException e) {
-                            LOGGER.severe(e.getMessage());
-                        } catch (IOException e) {
-                            LOGGER.severe(e.getMessage());
                         }
+                    } catch (DOMException e) {
+                        LOGGER.severe(e.getMessage());
+                    } catch (LexerException e) {
+                        LOGGER.severe(e.getMessage());
+                    } catch (XPathExpressionException e) {
+                        LOGGER.severe(e.getMessage());
+                    } catch (IOException e) {
+                        LOGGER.severe(e.getMessage());
                     }
+
                 }
 
                 @Override

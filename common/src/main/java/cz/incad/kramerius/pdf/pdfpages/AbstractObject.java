@@ -1,21 +1,20 @@
 package cz.incad.kramerius.pdf.pdfpages;
 
-import cz.incad.kramerius.KrameriusModels;
 
 public abstract class AbstractObject {
 
-	protected KrameriusModels model;
+	protected String modelName;
 	protected String uuid;
 	
 	
-	public AbstractObject(KrameriusModels model, String uuid) {
+	public AbstractObject(String modelName, String uuid) {
 		super();
-		this.model = model;
+		this.modelName = modelName;
 		this.uuid = uuid;
 	}
 	
-	public KrameriusModels getModel() {
-		return model;
+	public String getModel() {
+		return modelName;
 	}
 	public String getUuid() {
 		return uuid;

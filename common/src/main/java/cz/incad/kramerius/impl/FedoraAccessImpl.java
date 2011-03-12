@@ -47,7 +47,6 @@ import cz.incad.kramerius.FedoraNamespaces;
 import cz.incad.kramerius.FedoraRelationship;
 import cz.incad.kramerius.KrameriusModels;
 import cz.incad.kramerius.RelsExtHandler;
-import cz.incad.kramerius.RelsExtModelsMap;
 import cz.incad.kramerius.SolrAccess;
 import cz.incad.kramerius.TreeNodeProcessor;
 import cz.incad.kramerius.impl.fedora.FedoraDatabaseUtils;
@@ -79,6 +78,34 @@ public class FedoraAccessImpl implements FedoraAccess {
     public List<Element> getPages(String uuid, boolean deep) throws IOException {
         Document relsExt = getRelsExt(uuid);
         return getPages(uuid, relsExt.getDocumentElement());
+    }
+
+    
+    
+    @Override
+    public String getKrameriusModelName(Document relsExt) throws IOException {
+        try {
+            Element foundElement = XMLUtils.findElement(relsExt.getDocumentElement(), "hasModel", FedoraNamespaces.FEDORA_MODELS_URI);
+            if (foundElement != null) {
+                String sform = foundElement.getAttributeNS(FedoraNamespaces.RDF_NAMESPACE_URI, "resource");
+                PIDParser pidParser = new PIDParser(sform);
+                pidParser.disseminationURI();
+                return pidParser.getObjectId();
+            } else {
+                throw new IllegalArgumentException("cannot find model of given document");
+            }
+        } catch (DOMException e) {
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+            throw new IllegalArgumentException(e);
+        } catch (LexerException e) {
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+            throw new IllegalArgumentException(e);
+        }
+    }
+
+    @Override
+    public String getKrameriusModelName(String uuid) throws IOException {
+        return getKrameriusModelName(getRelsExt(uuid));
     }
 
     @Override
@@ -125,22 +152,20 @@ public class FedoraAccessImpl implements FedoraAccess {
     }
 
     @Override
-    public ArrayList<String> getModelsOfRel(Document relsExt) {
+    public List<String> getModelsOfRel(Document relsExt) {
         try {
-            Element foundElement = XMLUtils.findElement(relsExt.getDocumentElement(), "hasModel", FedoraNamespaces.FEDORA_MODELS_URI);
-            if (foundElement != null) {
-                String sform = foundElement.getAttributeNS(FedoraNamespaces.RDF_NAMESPACE_URI, "resource");
-                PIDParser pidParser = new PIDParser(sform);
-                pidParser.disseminationURI();
-                ArrayList<String> model = RelsExtModelsMap.getModelsOfRelation(pidParser.getObjectId());
-                return model;
-            } else {
-                throw new IllegalArgumentException("cannot find model of ");
-            }
+            throw new UnsupportedOperationException("still unsupported");
+//            Element foundElement = XMLUtils.findElement(relsExt.getDocumentElement(), "hasModel", FedoraNamespaces.FEDORA_MODELS_URI);
+//            if (foundElement != null) {
+//                String sform = foundElement.getAttributeNS(FedoraNamespaces.RDF_NAMESPACE_URI, "resource");
+//                PIDParser pidParser = new PIDParser(sform);
+//                pidParser.disseminationURI();
+//                ArrayList<String> model = RelsExtModelsMap.getModelsOfRelation(pidParser.getObjectId());
+//                return model;
+//            } else {
+//                throw new IllegalArgumentException("cannot find model of ");
+//            }
         } catch (DOMException e) {
-            LOGGER.log(Level.SEVERE, e.getMessage(), e);
-            throw new IllegalArgumentException(e);
-        } catch (LexerException e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
             throw new IllegalArgumentException(e);
         }
@@ -148,7 +173,7 @@ public class FedoraAccessImpl implements FedoraAccess {
 
 
     @Override
-    public ArrayList<String> getModelsOfRel(String uuid) throws IOException {
+    public List<String> getModelsOfRel(String uuid) throws IOException {
         return getModelsOfRel(getRelsExt(uuid));
     }
 

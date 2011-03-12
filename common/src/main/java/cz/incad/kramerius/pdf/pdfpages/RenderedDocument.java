@@ -8,8 +8,8 @@ import cz.incad.kramerius.KrameriusModels;
 public class RenderedDocument extends AbstractRenderedDocument {
 	
 	
-	public RenderedDocument(KrameriusModels model, String uuid) {
-		super(model, uuid);
+	public RenderedDocument(String modelName, String uuid) {
+		super(modelName, uuid);
 		this.outlineItemRoot = new OutlineItem();
 	}
 }

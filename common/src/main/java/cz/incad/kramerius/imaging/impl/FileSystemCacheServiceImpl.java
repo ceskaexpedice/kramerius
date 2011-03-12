@@ -178,8 +178,7 @@ public class FileSystemCacheServiceImpl implements DeepZoomCacheService {
 
     @Override
     public void prepareCacheForUUID(String uuid, final int levelOverTileSize) throws IOException {
-        KrameriusModels krameriusModel = fedoraAccess.getKrameriusModel(uuid);
-        if (krameriusModel.equals(KrameriusModels.PAGE)) {
+        if (fedoraAccess.isImageFULLAvailable(uuid)) {
             prepareCacheImage(uuid, levelOverTileSize);
         } else {
             fedoraAccess.processRelsExt(uuid, new RelsExtHandler() {
@@ -188,13 +187,13 @@ public class FileSystemCacheServiceImpl implements DeepZoomCacheService {
 
                 @Override
                 public void handle(Element elm, FedoraRelationship relation, int level) {
-                    if (relation.equals(FedoraRelationship.hasPage)) {
+                    if (relation.name().startsWith("has")) {
                         try {
                             String pid = elm.getAttributeNS(RDF_NAMESPACE_URI, "resource");
                             PIDParser pidParse = new PIDParser(pid);
                             pidParse.disseminationURI();
                             String uuid = pidParse.getObjectId();
-                            LOGGER.info("caching page " + (pageIndex++));
+                            LOGGER.fine("caching page " + (pageIndex++));
                             prepareCacheImage(uuid, levelOverTileSize);
                         } catch (DOMException e) {
                             LOGGER.severe(e.getMessage());
@@ -220,8 +219,7 @@ public class FileSystemCacheServiceImpl implements DeepZoomCacheService {
 
     @Override
     public void prepareCacheForUUID(String uuid) throws IOException {
-        KrameriusModels krameriusModel = fedoraAccess.getKrameriusModel(uuid);
-        if (krameriusModel.equals(KrameriusModels.PAGE)) {
+        if (fedoraAccess.isImageFULLAvailable(uuid)) {
             prepareCacheImage(uuid, new Dimension(tileSupport.getTileSize(), tileSupport.getTileSize()));
         } else {
             fedoraAccess.processRelsExt(uuid, new RelsExtHandler() {
@@ -230,13 +228,13 @@ public class FileSystemCacheServiceImpl implements DeepZoomCacheService {
 
                 @Override
                 public void handle(Element elm, FedoraRelationship relation, int level) {
-                    if (relation.equals(FedoraRelationship.hasPage)) {
+                    if (relation.name().startsWith("has")) {
                         try {
                             String pid = elm.getAttributeNS(RDF_NAMESPACE_URI, "resource");
                             PIDParser pidParse = new PIDParser(pid);
                             pidParse.disseminationURI();
                             String uuid = pidParse.getObjectId();
-                            LOGGER.info("caching page " + (pageIndex++));
+                            LOGGER.fine("caching page " + (pageIndex++));
                             prepareCacheImage(uuid, new Dimension(tileSupport.getTileSize(), tileSupport.getTileSize()));
                         } catch (DOMException e) {
                             LOGGER.severe(e.getMessage());

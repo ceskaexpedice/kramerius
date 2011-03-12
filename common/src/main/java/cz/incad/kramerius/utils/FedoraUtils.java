@@ -103,48 +103,7 @@ public class FedoraUtils {
         getSubjectPids("uuid:4a8a8630-af36-11dd-ae9c-000d606f5dc6");
     }
 
-    public static boolean fillFirstPagePid_(ArrayList<String> pids, ArrayList<String> models) {
-
-        String pid = pids.get(pids.size() - 1);
-        try {
-            String command = KConfiguration.getInstance().getFedoraHost() + "/get/uuid:" + pid + "/RELS-EXT";
-            InputStream is = RESTHelper.inputStream(command, KConfiguration.getInstance().getFedoraUser(), KConfiguration.getInstance().getFedoraPass());
-            Document contentDom = XMLUtils.parseDocument(is);
-            XPathFactory factory = XPathFactory.newInstance();
-            XPath xpath = factory.newXPath();
-            XPathExpression expr = xpath.compile("/RDF/Description/*");
-            NodeList nodes = (NodeList) expr.evaluate(contentDom, XPathConstants.NODESET);
-            for (int i = 0; i < nodes.getLength(); i++) {
-                Node childnode = nodes.item(i);
-                String nodeName = childnode.getNodeName();
-                if (nodeName.contains("hasPage") || nodeName.contains("isOnPage")) {
-                    if (childnode.getAttributes().getNamedItem("rdf:resource").getNodeValue().contains("uuid:")) {
-                        pids.add(childnode.getAttributes().getNamedItem("rdf:resource").getNodeValue().split("uuid:")[1]);
-                    } else {
-                        //obcas import neni v poradku a chybi uuid:. zustaneme u info:fedora/
-                        pids.add(childnode.getAttributes().getNamedItem("rdf:resource").getNodeValue().split("info:fedora/")[1]);
-                    }
-                    models.add("page");
-                    return true;
-                } else if (nodeName.contains("hasItem") || nodeName.contains("hasVolume") || nodeName.contains("hasUnit")) {
-                    if (childnode.getAttributes().getNamedItem("rdf:resource").getNodeValue().contains("uuid:")) {
-                        pids.add(childnode.getAttributes().getNamedItem("rdf:resource").getNodeValue().split("uuid:")[1]);
-                    } else {
-                        //obcas import neni v poradku a chybi uuid:. zustaneme u info:fedora/
-                        pids.add(childnode.getAttributes().getNamedItem("rdf:resource").getNodeValue().split("info:fedora/")[1]);
-                    }
-                    models.add(KrameriusModels.toString(cz.incad.kramerius.RDFModels.convertRDFToModel(nodeName)));
-                    return FedoraUtils.fillFirstPagePid_(pids, models);
-                }
-            }
-
-        } catch (Exception e) {
-            LOGGER.log(Level.SEVERE, e.getMessage(), e);
-        }
-        return false;
-    }
-
-    public static String findFirstPagePid(String pid) {
+     public static String findFirstPagePid(String pid) {
 
         ArrayList<String> pids = new ArrayList<String>();
         try {

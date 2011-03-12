@@ -1,6 +1,5 @@
 package cz.incad.kramerius.pdf.pdfpages;
 
-import cz.incad.kramerius.KrameriusModels;
 
 public abstract class AbstractPage extends AbstractObject {
 
@@ -9,8 +8,8 @@ public abstract class AbstractPage extends AbstractObject {
 	private String pageNumber;
 	private String outlineDestination;
 	
-	public AbstractPage(KrameriusModels model, String uuid) {
-		super(model, uuid);
+	public AbstractPage(String modelName, String uuid) {
+		super(modelName, uuid);
 	}
 
 	public String getOutlineTitle() {
@@ -35,7 +34,7 @@ public abstract class AbstractPage extends AbstractObject {
 	@Override
 	public void debugInformations(StringBuffer buffer, int level) {
 		for (int i = 0; i < level; i++) { buffer.append(' '); }
-		buffer.append(this.outlineTitle.trim()).append("["+this.model+"]").append('\n');
+		buffer.append(this.outlineTitle.trim()).append("["+this.modelName+"]").append('\n');
 	}
 
 	public String getPageNumber() {

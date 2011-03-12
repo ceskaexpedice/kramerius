@@ -19,11 +19,6 @@
 		<xsl:output method="text" indent="no" encoding="UTF-8" />
 		
 		
-		<!-- 
-		<xsl:param name="parent_rels_ext" select="rels_ext" />
-		<xsl:param name="parent_biblio_mods" select="biblio_mods" />
-		<xsl:param name="desc_text" select="desc_text" />
-		 -->
 		<xsl:param name="model" select="'$model$'"></xsl:param>
 		<xsl:param name="parent_title" select="'$parent_title$'"></xsl:param>
 		<xsl:param name="bundle" select="document('$bundle_url$')/bundle" />

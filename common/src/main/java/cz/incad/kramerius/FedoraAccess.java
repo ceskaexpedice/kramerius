@@ -38,6 +38,23 @@ public interface FedoraAccess {
     public Document getRelsExt(String uuid) throws IOException;
 
     /**
+     * Returns model's name of given object relsext
+     * @param relsExt
+     * @return
+     * @throws IOException 
+     */
+    public String getKrameriusModelName(Document relsExt) throws IOException;
+    
+    /**
+     * Returns model's name of given uuid
+     * @param uuid
+     * @return
+     * @throws IOException 
+     */
+    public String getKrameriusModelName(String uuid) throws IOException;
+    
+    
+    /**
      * Returns KrameriusModel parsed from given document
      * 
      * @param relsExt
@@ -47,6 +64,8 @@ public interface FedoraAccess {
      */
     public KrameriusModels getKrameriusModel(Document relsExt);
 
+    
+    
     /**
      * Returns KrameriusModel of given object
      * 
@@ -64,7 +83,7 @@ public interface FedoraAccess {
      *            RELS-EXT document
      * @return
      */
-    public ArrayList<String> getModelsOfRel(Document relsExt);
+    public List<String> getModelsOfRel(Document relsExt);
 
     /**
      * Returns KrameriusModel of given object
@@ -74,7 +93,7 @@ public interface FedoraAccess {
      * @return
      * @throws IOException
      */
-    public ArrayList<String> getModelsOfRel(String uuid) throws IOException;
+    public List<String> getModelsOfRel(String uuid) throws IOException;
     
     /**
      * Returns Donator parsed from given document

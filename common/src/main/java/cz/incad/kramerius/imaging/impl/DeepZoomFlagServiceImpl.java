@@ -50,8 +50,7 @@ public class DeepZoomFlagServiceImpl implements DeepZoomFlagService {
     FedoraAccess fedoraAccess;
     
     public void deleteFlagToUUID(final String uuid) throws IOException {
-        KrameriusModels krameriusModel = fedoraAccess.getKrameriusModel(uuid);
-        if (krameriusModel.equals(KrameriusModels.PAGE)) {
+        if (fedoraAccess.isImageFULLAvailable(uuid)) {
             deleteFlagToUUIDInternal(uuid);
         } else {
  
@@ -59,7 +58,7 @@ public class DeepZoomFlagServiceImpl implements DeepZoomFlagService {
                 fedoraAccess.processRelsExt(uuid, new RelsExtHandler() {
                     @Override
                     public void handle(Element elm, FedoraRelationship relation, int level) {
-                        if (relation.equals(FedoraRelationship.hasPage)) {
+                        if (relation.name().startsWith("has")) {
                             try {
                          
                                 String pid = elm.getAttributeNS(RDF_NAMESPACE_URI, "resource");
@@ -96,8 +95,7 @@ public class DeepZoomFlagServiceImpl implements DeepZoomFlagService {
     
     @Override
     public void setFlagToUUID(final String uuid, final String tilesUrl) throws IOException {
-        KrameriusModels krameriusModel = fedoraAccess.getKrameriusModel(uuid);
-        if (krameriusModel.equals(KrameriusModels.PAGE)) {
+        if (fedoraAccess.isImageFULLAvailable(uuid)) {
             setFlagToUUIDInternal(uuid, tilesUrl);
         } else {
  
@@ -105,9 +103,8 @@ public class DeepZoomFlagServiceImpl implements DeepZoomFlagService {
                 fedoraAccess.processRelsExt(uuid, new RelsExtHandler() {
                     @Override
                     public void handle(Element elm, FedoraRelationship relation, int level) {
-                        if (relation.equals(FedoraRelationship.hasPage)) {
+                        if (relation.name().startsWith("has")) {
                             try {
-                         
                                 String pid = elm.getAttributeNS(RDF_NAMESPACE_URI, "resource");
                                 PIDParser pidParse = new PIDParser(pid);
                                 pidParse.disseminationURI();

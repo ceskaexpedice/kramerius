@@ -43,12 +43,12 @@ import cz.incad.kramerius.utils.XMLUtils;
 public class STUtils {
 
 	
-	public static String localizedXslt(Locale locale, String i18nUrl, File file, String title, KrameriusModels model) throws IOException {
+	public static String localizedXslt(Locale locale, String i18nUrl, File file, String title, String modelName) throws IOException {
 		String read = IOUtils.readAsString(STUtils.class.getResourceAsStream("templates/localized_xslt_template.xslt"), Charset.forName("UTF-8"), true);
 		StringTemplate st = new StringTemplate(read);
 		st.setAttribute("bundle_url", createBundleURL(locale,i18nUrl));
 		st.setAttribute("template_folder", file.getAbsoluteFile().toURI().toURL().toString());
-		st.setAttribute("model", model.name());
+		st.setAttribute("model", modelName);
 		st.setAttribute("parent_title", title);
 		return st.toString();
 	}

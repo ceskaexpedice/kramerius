@@ -58,8 +58,7 @@ public class GenerateThumbnail {
     }
 
     public static void prepareCacheForUUID(String uuid, final FedoraAccess fedoraAccess, final DiscStrucutreForStore discStruct, final DeepZoomTileSupport tileSupport) throws IOException {
-        KrameriusModels krameriusModel = fedoraAccess.getKrameriusModel(uuid);
-        if (krameriusModel.equals(KrameriusModels.PAGE)) {
+        if (fedoraAccess.isImageFULLAvailable(uuid)) {
             try {
                 prepareThumbnail(uuid, fedoraAccess, discStruct, tileSupport);
             } catch (XPathExpressionException e) {
@@ -67,9 +66,7 @@ public class GenerateThumbnail {
             }
         } else {
             fedoraAccess.processRelsExt(uuid, new RelsExtHandler() {
-
                 private int pageIndex = 1;
-
                 @Override
                 public void handle(Element elm, FedoraRelationship relation, int level) {
                     if (relation.equals(FedoraRelationship.hasPage)) {
@@ -103,7 +100,6 @@ public class GenerateThumbnail {
                 }
             });
         }
-
     }
 
     public static void prepareThumbnail(String uuid, FedoraAccess fedoraAccess, DiscStrucutreForStore discStruct, DeepZoomTileSupport tileSupport) throws IOException, XPathExpressionException {
