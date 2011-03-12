@@ -31,7 +31,6 @@ import cz.incad.kramerius.utils.pid.PIDParser;
 
 public class TitlePageServlet extends GuiceServlet {
 
-
 	public static final java.util.logging.Logger LOGGER = java.util.logging.Logger
 			.getLogger(TitlePageServlet.class.getName());
 	
