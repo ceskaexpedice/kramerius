@@ -53,9 +53,6 @@ public class XslHelper {
     }
 
     public String findFirstViewablePid(String uuid) throws IOException{
-        if (fedoraAccess==null){
-            fedoraAccess = new FedoraAccessImpl(KConfiguration.getInstance());
-        }
             return fedoraAccess.findFirstViewablePid(uuid);
     }
 }
