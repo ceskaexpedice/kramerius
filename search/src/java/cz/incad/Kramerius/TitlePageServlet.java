@@ -67,7 +67,7 @@ public class TitlePageServlet extends GuiceServlet {
 		private int previousLevel = -1;
 		
 		@Override
-		public void handle(Element elm, FedoraRelationship relation, int level) {
+		public void handle(Element elm, FedoraRelationship relation, String relationshipName, int level) {
 			try {
 				if ((relation == FedoraRelationship.hasPage)
                                         || (relation == FedoraRelationship.isOnPage))    {
@@ -104,7 +104,7 @@ public class TitlePageServlet extends GuiceServlet {
 		}
 		
 		@Override
-		public boolean accept(FedoraRelationship relation) {
+		public boolean accept(FedoraRelationship relation, String relationShipName) {
 			return relation.name().startsWith("has")
                                 || relation == FedoraRelationship.isOnPage;
 		}
