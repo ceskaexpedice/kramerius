@@ -35,16 +35,19 @@
     </pluginRepositories>
 
     <distributionManagement>
+
         <repository>
             <id>artifactory.internal</id>
             <name>Internal Release Repository</name>
-            <url>dav:http://svn:8080/artifactory/libs-releases-local/</url>
+            <url>${snapshots.url}</url>
         </repository>
+
         <snapshotRepository>
             <id>artifactory.snapshots</id>
             <name>Internal Snapshot Repository</name>
-            <url>dav:http://svn:8080/artifactory/libs-snapshots-local/</url>
+            <url>${snapshots.url}</url>
         </snapshotRepository>
+
     </distributionManagement>
 
     <dependencies>
