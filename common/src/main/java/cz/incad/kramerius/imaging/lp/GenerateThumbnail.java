@@ -68,8 +68,8 @@ public class GenerateThumbnail {
             fedoraAccess.processRelsExt(uuid, new RelsExtHandler() {
                 private int pageIndex = 1;
                 @Override
-                public void handle(Element elm, FedoraRelationship relation, int level) {
-                    if (relation.equals(FedoraRelationship.hasPage)) {
+                public void handle(Element elm, FedoraRelationship relation, String relationshipName, int level) {
+                    if (relation.name().startsWith("has")) {
                         try {
                             String pid = elm.getAttributeNS(RDF_NAMESPACE_URI, "resource");
                             PIDParser pidParse = new PIDParser(pid);
@@ -95,7 +95,7 @@ public class GenerateThumbnail {
                 }
 
                 @Override
-                public boolean accept(FedoraRelationship relation) {
+                public boolean accept(FedoraRelationship relation, String relationShipName) {
                     return relation.name().startsWith("has");
                 }
             });

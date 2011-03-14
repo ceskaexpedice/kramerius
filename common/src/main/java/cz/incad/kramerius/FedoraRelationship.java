@@ -8,25 +8,16 @@ import static cz.incad.kramerius.KrameriusModels.*;
  */
 public enum FedoraRelationship {
 	
-	// our fedora relationship
-	hasPage(PAGE),
-	hasVolume(PERIODICALVOLUME),
-	hasItem(PERIODICALITEM),
-	hasUnit(MONOGRAPHUNIT),
-	hasInternalPart(INTERNALPART),
-	hasIntCompPart(INTERNALPART),
+	hasPage,
+	hasVolume,
+	hasItem,
+	hasUnit,
+	hasInternalPart,
+	hasIntCompPart,
 	
-	isOnPage(null);
+	isOnPage;
 
-	private KrameriusModels poitingModel;
 
-	private FedoraRelationship(KrameriusModels pointingModel) {
-		this.poitingModel = pointingModel;
-	}
-
-	public KrameriusModels getPointingModel() {
-		return poitingModel;
-	}
 
 	
 	public static FedoraRelationship findRelation(String element) {

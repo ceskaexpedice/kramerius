@@ -290,8 +290,8 @@ public class FedoraAccessImpl implements FedoraAccess {
             String nodeName = topElem.getLocalName();
             FedoraRelationship relation = FedoraRelationship.findRelation(nodeName);
             if (relation != null) {
-                if (handler.accept(relation)) {
-                    handler.handle(topElem, relation, level);
+                if (handler.accept(relation, null)) {
+                    handler.handle(topElem, relation, null, level);
                     if (handler.breakProcess()) {
                         return true;
                     }

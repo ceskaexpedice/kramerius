@@ -186,7 +186,7 @@ public class FileSystemCacheServiceImpl implements DeepZoomCacheService {
                 private int pageIndex = 1;
 
                 @Override
-                public void handle(Element elm, FedoraRelationship relation, int level) {
+                public void handle(Element elm, FedoraRelationship relation, String relationshipName, int level) {
                     if (relation.name().startsWith("has")) {
                         try {
                             String pid = elm.getAttributeNS(RDF_NAMESPACE_URI, "resource");
@@ -210,7 +210,7 @@ public class FileSystemCacheServiceImpl implements DeepZoomCacheService {
                 }
 
                 @Override
-                public boolean accept(FedoraRelationship relation) {
+                public boolean accept(FedoraRelationship relation, String relationShipName) {
                     return relation.name().startsWith("has");
                 }
             });
@@ -227,7 +227,7 @@ public class FileSystemCacheServiceImpl implements DeepZoomCacheService {
                 private int pageIndex = 1;
 
                 @Override
-                public void handle(Element elm, FedoraRelationship relation, int level) {
+                public void handle(Element elm, FedoraRelationship relation, String relationshipName, int level) {
                     if (relation.name().startsWith("has")) {
                         try {
                             String pid = elm.getAttributeNS(RDF_NAMESPACE_URI, "resource");
@@ -251,7 +251,7 @@ public class FileSystemCacheServiceImpl implements DeepZoomCacheService {
                 }
 
                 @Override
-                public boolean accept(FedoraRelationship relation) {
+                public boolean accept(FedoraRelationship relation, String relationShipName) {
                     return relation.name().startsWith("has");
                 }
             });

@@ -18,15 +18,17 @@ public interface RelsExtHandler {
 	 * Accept or deny this relation. If method returns false, algortighm  
 	 * skip this element and continues with next
 	 * @param relation Relation type
+	 * @param relationShipName TODO
 	 */
-	public boolean accept(FedoraRelationship relation);
+	public boolean accept(FedoraRelationship relation, String relationShipName);
 
 	/**
 	 * Handle processing element 
 	 * @param elm Processing element 
 	 * @param relation Type of relation
+	 * @param relationshipName TODO
 	 */
-	public void handle(Element elm, FedoraRelationship relation, int level);
+	public void handle(Element elm, FedoraRelationship relation, String relationshipName, int level);
 
 	public boolean breakProcess();
 }

@@ -345,7 +345,7 @@ public class GeneratePDFServiceImpl implements GeneratePDFService {
 					if ((node.getLocalName().equals("Description")) && (node.getNamespaceURI().equals("http://www.w3.org/1999/02/22-rdf-syntax-ns#"))) {
 						String attrAbout = ((Element)node).getAttributeNS("http://www.w3.org/1999/02/22-rdf-syntax-ns#", "about");
 						try {
-							renderedDocument.addPage(createPage(renderedDocument, attrAbout, FedoraRelationship.hasPage));
+							renderedDocument.addPage(createPage(renderedDocument, attrAbout));
 						} catch (LexerException e) {
 							LOGGER.log(Level.SEVERE, e.getMessage(), e);
 						}
@@ -358,12 +358,12 @@ public class GeneratePDFServiceImpl implements GeneratePDFService {
 				private boolean acceptingState = false;
 				
 				@Override
-				public boolean accept(FedoraRelationship relation) {
+				public boolean accept(FedoraRelationship relation, String relationShipName) {
 					return relation.name().startsWith("has");
 				}
 
 				@Override
-				public void handle(Element elm, FedoraRelationship relation, int level) {
+				public void handle(Element elm, FedoraRelationship relation, String relationshipName, int level) {
 						try {
 							String pid = elm.getAttributeNS(RDF_NAMESPACE_URI, "resource");
 							PIDParser pidParse = new PIDParser(pid);
@@ -375,14 +375,14 @@ public class GeneratePDFServiceImpl implements GeneratePDFService {
 	                                if (objectId.equals(uuidFrom)) {
 	                                    acceptingState = true;
 	                                    String pidAttribute = elm.getAttributeNS(RDF_NAMESPACE_URI, "resource");
-	                                    renderedDocument.addPage(createPage(renderedDocument, pidAttribute, relation));
+	                                    renderedDocument.addPage(createPage(renderedDocument, pidAttribute));
 	                                }
 	                            } else {
 	                                if (objectId.equals(uuidTo)) {
 	                                    acceptingState = false;
 	                                }
 	                                String pidAttribute = elm.getAttributeNS(RDF_NAMESPACE_URI, "resource");
-	                                renderedDocument.addPage(createPage(renderedDocument, pidAttribute, relation));
+	                                renderedDocument.addPage(createPage(renderedDocument, pidAttribute));
 	                            }
 							}
 							
@@ -409,10 +409,10 @@ public class GeneratePDFServiceImpl implements GeneratePDFService {
 				private OutlineItem currOutline = null;
 				
 				@Override
-				public void handle(Element elm, FedoraRelationship relation, int level) {
+				public void handle(Element elm, FedoraRelationship relation, String relationshipName, int level) {
 					try {
 						String pidAttribute = elm.getAttributeNS(RDF_NAMESPACE_URI, "resource");
-						AbstractPage page = createPage(renderedDocument, pidAttribute, relation);
+						AbstractPage page = createPage(renderedDocument, pidAttribute);
 						renderedDocument.addPage(page);
 						if (previousLevel == -1) {
 							// first
@@ -473,7 +473,7 @@ public class GeneratePDFServiceImpl implements GeneratePDFService {
 				}
 				
 				@Override
-				public boolean accept(FedoraRelationship relation) {
+				public boolean accept(FedoraRelationship relation, String relationShipName) {
 					return relation.name().startsWith("has");
 				}
 
@@ -487,7 +487,7 @@ public class GeneratePDFServiceImpl implements GeneratePDFService {
 	
 
 	protected AbstractPage createPage( final AbstractRenderedDocument renderedDocument,
-			String pid, FedoraRelationship relation)
+			String pid)
 			throws LexerException, IOException {
 		//String pid = elm.getAttributeNS(RDF_NAMESPACE_URI, "resource");
 		PIDParser pidParse = new PIDParser(pid);
@@ -500,51 +500,53 @@ public class GeneratePDFServiceImpl implements GeneratePDFService {
 		
 		AbstractPage page = null;
 		
-		if (relation.equals(FedoraRelationship.hasPage)) {
-			
-			page = new ImagePage(modelName, objectId);
-			page.setOutlineDestination(objectId);
-			String pageNumber = getPageNumber(biblioMods);
-			if (pageNumber.trim().equals("")) {
-				throw new IllegalStateException(objectId);
-			}
-			page.setPageNumber(pageNumber);
-			//renderedDocument.addPage(page);
-			Element part = XMLUtils.findElement(biblioMods.getDocumentElement(), "part", FedoraNamespaces.BIBILO_MODS_URI);
-			String attribute = part.getAttribute("type");
-			if (attribute != null) {
-				ResourceBundle resourceBundle = resourceBundleService.getResourceBundle("base", localeProvider.get());
-				String key = "pdf."+attribute;
-				if (resourceBundle.containsKey(key)) {
-					page.setOutlineTitle(page.getPageNumber()+" "+resourceBundle.getString(key));
-				} else {
-					page.setOutlineTitle(page.getPageNumber());
-					//throw new RuntimeException("");
-				}
-			}
-			if ((renderedDocument.getUuidTitlePage() == null) && ("TitlePage".equals(attribute))) {
-				renderedDocument.setUuidTitlePage(objectId);
-			}
+		if (fedoraAccess.isImageFULLAvailable(objectId)) {
+            
+            page = new ImagePage(modelName, objectId);
+            page.setOutlineDestination(objectId);
+            String pageNumber = getPageNumber(biblioMods);
+            if (pageNumber.trim().equals("")) {
+                throw new IllegalStateException(objectId);
+            }
+            page.setPageNumber(pageNumber);
+            //renderedDocument.addPage(page);
+            Element part = XMLUtils.findElement(biblioMods.getDocumentElement(), "part", FedoraNamespaces.BIBILO_MODS_URI);
+            String attribute = part.getAttribute("type");
+            if (attribute != null) {
+                ResourceBundle resourceBundle = resourceBundleService.getResourceBundle("base", localeProvider.get());
+                String key = "pdf."+attribute;
+                if (resourceBundle.containsKey(key)) {
+                    page.setOutlineTitle(page.getPageNumber()+" "+resourceBundle.getString(key));
+                } else {
+                    page.setOutlineTitle(page.getPageNumber());
+                    //throw new RuntimeException("");
+                }
+            }
+            if ((renderedDocument.getUuidTitlePage() == null) && ("TitlePage".equals(attribute))) {
+                renderedDocument.setUuidTitlePage(objectId);
+            }
 
-			if ((renderedDocument.getUuidFrontCover() == null) && ("FrontCover".equals(attribute))) {
-				renderedDocument.setUuidFrontCover(objectId);
-			}
+            if ((renderedDocument.getUuidFrontCover() == null) && ("FrontCover".equals(attribute))) {
+                renderedDocument.setUuidFrontCover(objectId);
+            }
 
-			if ((renderedDocument.getUuidBackCover() == null) && ("BackCover".equals(attribute))) {
-				renderedDocument.setUuidBackCover(objectId);
-			}
+            if ((renderedDocument.getUuidBackCover() == null) && ("BackCover".equals(attribute))) {
+                renderedDocument.setUuidBackCover(objectId);
+            }
 
-			if (renderedDocument.getFirstPage() == null)  {
-				renderedDocument.setFirstPage(objectId);
-			}
+            if (renderedDocument.getFirstPage() == null)  {
+                renderedDocument.setFirstPage(objectId);
+            }
+		    
 
 		} else {
 			page = new TextPage(modelName, objectId);
 			page.setOutlineDestination(objectId);
 			String title = DCUtils.titleFromDC(dc);
-			if ((title == null) || title.equals("")) {
-				title = BiblioModsUtils.getTitle(biblioMods, relation.getPointingModel());
-			}
+//			if ((title == null) || title.equals("")) {
+//			    throw new 
+//			    title = BiblioModsUtils.getTitle(biblioMods, fedoraAccess.getKrameriusModelName(objectId));
+//			}
 			if (title.trim().equals("")) throw new IllegalArgumentException(objectId+" has no title ");
 			page.setOutlineTitle(title);
 		}

@@ -57,7 +57,7 @@ public class DeepZoomFlagServiceImpl implements DeepZoomFlagService {
             try {
                 fedoraAccess.processRelsExt(uuid, new RelsExtHandler() {
                     @Override
-                    public void handle(Element elm, FedoraRelationship relation, int level) {
+                    public void handle(Element elm, FedoraRelationship relation, String relationshipName, int level) {
                         if (relation.name().startsWith("has")) {
                             try {
                          
@@ -79,7 +79,7 @@ public class DeepZoomFlagServiceImpl implements DeepZoomFlagService {
                     }
 
                     @Override
-                    public boolean accept(FedoraRelationship relation) {
+                    public boolean accept(FedoraRelationship relation, String relationShipName) {
                         return relation.name().startsWith("has");
                     }
                 });
@@ -102,7 +102,7 @@ public class DeepZoomFlagServiceImpl implements DeepZoomFlagService {
             try {
                 fedoraAccess.processRelsExt(uuid, new RelsExtHandler() {
                     @Override
-                    public void handle(Element elm, FedoraRelationship relation, int level) {
+                    public void handle(Element elm, FedoraRelationship relation, String relationshipName, int level) {
                         if (relation.name().startsWith("has")) {
                             try {
                                 String pid = elm.getAttributeNS(RDF_NAMESPACE_URI, "resource");
@@ -123,7 +123,7 @@ public class DeepZoomFlagServiceImpl implements DeepZoomFlagService {
                     }
 
                     @Override
-                    public boolean accept(FedoraRelationship relation) {
+                    public boolean accept(FedoraRelationship relation, String relationShipName) {
                         return relation.name().startsWith("has");
                     }
                 });
