@@ -33,6 +33,20 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
 
+	<distributionManagement>
+	     <repository>
+	         <id>artifactory.internal</id>
+	        <name>Internal Release Repository</name>
+	        <url>${snapshots.url}</url>
+	     </repository>
+	
+	     <snapshotRepository>
+	         <id>artifactory.snapshots</id>
+	         <name>Internal Snapshot Repository</name>
+		     <url>${snapshots.url}</url>
+	     </snapshotRepository>
+	</distributionManagement>
+
     <dependencies>
         <dependency>
             <groupId>javax.mail</groupId>
