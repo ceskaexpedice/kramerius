@@ -14,7 +14,9 @@ import cz.incad.kramerius.utils.pid.Token.TokenType;
  */
 public class PIDParser {
 
-	private Lexer lexer;
+	public static final String INFO_FEDORA_PREFIX = "info:fedora/";
+
+    private Lexer lexer;
 	public String getObjectId() {
 		return objectId;
 	}
@@ -48,7 +50,7 @@ public class PIDParser {
 	}
 
 	public void disseminationURI() throws LexerException {
-		this.lexer.matchString("info:fedora/");
+		this.lexer.matchString(INFO_FEDORA_PREFIX);
 		this.objectPid();
 	}
 

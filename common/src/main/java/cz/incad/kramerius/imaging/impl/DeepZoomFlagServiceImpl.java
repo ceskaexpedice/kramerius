@@ -35,8 +35,10 @@ import cz.incad.kramerius.FedoraNamespaces;
 import cz.incad.kramerius.FedoraRelationship;
 import cz.incad.kramerius.KrameriusModels;
 import cz.incad.kramerius.RelsExtHandler;
+import cz.incad.kramerius.TreeNodeProcessor;
 import cz.incad.kramerius.imaging.DeepZoomCacheService;
 import cz.incad.kramerius.imaging.DeepZoomFlagService;
+import cz.incad.kramerius.impl.AbstractTreeNodeProcessor;
 import cz.incad.kramerius.utils.FedoraUtils;
 import cz.incad.kramerius.utils.pid.LexerException;
 import cz.incad.kramerius.utils.pid.PIDParser;
@@ -55,34 +57,43 @@ public class DeepZoomFlagServiceImpl implements DeepZoomFlagService {
         } else {
  
             try {
-                fedoraAccess.processRelsExt(uuid, new RelsExtHandler() {
+                fedoraAccess.processSubtree("uuid:"+uuid, new AbstractTreeNodeProcessor() {
+                    
                     @Override
-                    public void handle(Element elm, FedoraRelationship relation, String relationshipName, int level) {
-                        if (relation.name().startsWith("has")) {
-                            try {
-                         
-                                String pid = elm.getAttributeNS(RDF_NAMESPACE_URI, "resource");
-                                PIDParser pidParse = new PIDParser(pid);
-                                pidParse.disseminationURI();
-                                String pageUuid = pidParse.getObjectId();
-
-                                deleteFlagToUUIDInternal(pageUuid);
-                            } catch (LexerException e) {
-                                throw new RuntimeException(e);
-                            }
-                        }
+                    public void processUuid(String pageUuid) {
+                        deleteFlagToUUIDInternal(pageUuid);
                     }
 
-                    @Override
-                    public boolean breakProcess() {
-                        return false;
-                    }
-
-                    @Override
-                    public boolean accept(FedoraRelationship relation, String relationShipName) {
-                        return relation.name().startsWith("has");
-                    }
                 });
+                
+//                fedoraAccess.processRelsExt(uuid, new RelsExtHandler() {
+//                    @Override
+//                    public void handle(Element elm, FedoraRelationship relation, String relationshipName, int level) {
+//                        if (relation.name().startsWith("has")) {
+//                            try {
+//                         
+//                                String pid = elm.getAttributeNS(RDF_NAMESPACE_URI, "resource");
+//                                PIDParser pidParse = new PIDParser(pid);
+//                                pidParse.disseminationURI();
+//                                String pageUuid = pidParse.getObjectId();
+//
+//                                deleteFlagToUUIDInternal(pageUuid);
+//                            } catch (LexerException e) {
+//                                throw new RuntimeException(e);
+//                            }
+//                        }
+//                    }
+//
+//                    @Override
+//                    public boolean breakProcess() {
+//                        return false;
+//                    }
+//
+//                    @Override
+//                    public boolean accept(FedoraRelationship relation, String relationShipName) {
+//                        return relation.name().startsWith("has");
+//                    }
+//                });
             } catch (Exception e) {
                 if ((e.getCause() != null) && (e.getCause() instanceof IOException)) {
                     throw (IOException)e.getCause();
@@ -100,33 +111,18 @@ public class DeepZoomFlagServiceImpl implements DeepZoomFlagService {
         } else {
  
             try {
-                fedoraAccess.processRelsExt(uuid, new RelsExtHandler() {
-                    @Override
-                    public void handle(Element elm, FedoraRelationship relation, String relationshipName, int level) {
-                        if (relation.name().startsWith("has")) {
-                            try {
-                                String pid = elm.getAttributeNS(RDF_NAMESPACE_URI, "resource");
-                                PIDParser pidParse = new PIDParser(pid);
-                                pidParse.disseminationURI();
-                                String pageUuid = pidParse.getObjectId();
+                
+                
+                fedoraAccess.processSubtree("uuid:"+uuid, new AbstractTreeNodeProcessor() {
 
-                                setFlagToUUIDInternal(pageUuid, tilesUrl);
-                            } catch (LexerException e) {
-                                throw new RuntimeException(e);
-                            }
-                        }
+                    
+                    @Override
+                    public void processUuid(String pageUuid) {
+                        setFlagToUUIDInternal(pageUuid, tilesUrl);
                     }
 
-                    @Override
-                    public boolean breakProcess() {
-                        return false;
-                    }
-
-                    @Override
-                    public boolean accept(FedoraRelationship relation, String relationShipName) {
-                        return relation.name().startsWith("has");
-                    }
                 });
+                
             } catch (Exception e) {
                 if ((e.getCause() != null) && (e.getCause() instanceof IOException)) {
                     throw (IOException)e.getCause();
@@ -163,7 +159,4 @@ public class DeepZoomFlagServiceImpl implements DeepZoomFlagService {
             }
         }
     }
-
-    
-    
 }
