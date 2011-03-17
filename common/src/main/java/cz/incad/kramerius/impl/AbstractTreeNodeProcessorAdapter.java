@@ -20,7 +20,11 @@ import cz.incad.kramerius.TreeNodeProcessor;
 import cz.incad.kramerius.utils.pid.LexerException;
 import cz.incad.kramerius.utils.pid.PIDParser;
 
-public abstract class AbstractTreeNodeProcessor implements TreeNodeProcessor {
+/**
+ * Adapter class for receving informations about processing uuids.  
+ * @author pavels
+ */
+public abstract class AbstractTreeNodeProcessorAdapter implements TreeNodeProcessor {
 
     @Override
     public void process(String pid) {
@@ -40,9 +44,11 @@ public abstract class AbstractTreeNodeProcessor implements TreeNodeProcessor {
         } catch (LexerException e) {
             throw new RuntimeException(e);
         }
-        
     }
 
-  
+    /**
+     * Processing one uuid
+     * @param uuid UUID of processing object
+     */
     public abstract void processUuid(String pageUuid);
 }

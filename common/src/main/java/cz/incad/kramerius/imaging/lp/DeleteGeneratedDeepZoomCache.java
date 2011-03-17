@@ -1,3 +1,20 @@
+/*
+ *  Copyright (C) 2010 Pavel Stastny
+ * 
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
+ */
+
 package cz.incad.kramerius.imaging.lp;
 
 import static cz.incad.kramerius.FedoraNamespaces.RDF_NAMESPACE_URI;
@@ -32,12 +49,17 @@ import cz.incad.kramerius.imaging.DiscStrucutreForStore;
 import cz.incad.kramerius.imaging.lp.guice.Fedora3Module;
 import cz.incad.kramerius.imaging.lp.guice.GenerateDeepZoomCacheModule;
 import cz.incad.kramerius.imaging.lp.guice.PlainModule;
+import cz.incad.kramerius.impl.AbstractTreeNodeProcessorAdapter;
 import cz.incad.kramerius.processes.utils.ProcessUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 import cz.incad.kramerius.utils.imgs.KrameriusImageSupport;
 import cz.incad.kramerius.utils.pid.LexerException;
 import cz.incad.kramerius.utils.pid.PIDParser;
 
+/**
+ * Delete generated deep zoom cache
+ * @author pavels
+ */
 public class DeleteGeneratedDeepZoomCache {
 
 
@@ -68,43 +90,26 @@ public class DeleteGeneratedDeepZoomCache {
                 LOGGER.severe(e.getMessage());
             }
         } else {
-            fedoraAccess.processRelsExt(uuid, new RelsExtHandler() {
-
-                private int pageIndex = 1;
-
+            
+            fedoraAccess.processSubtree("uuid:"+uuid, new AbstractTreeNodeProcessorAdapter() {
+                
                 @Override
-                public void handle(Element elm, FedoraRelationship relation, String relationshipName, int level) {
+                public void processUuid(String uuid) {
                     try {
-                        String pid = elm.getAttributeNS(RDF_NAMESPACE_URI, "resource");
-                        PIDParser pidParse = new PIDParser(pid);
-                        pidParse.disseminationURI();
-                        String uuid = pidParse.getObjectId();
                         if (fedoraAccess.isImageFULLAvailable(uuid)) {
-                            LOGGER.info("Deleting " + (pageIndex++) +" uuid = "+uuid);
+                            //LOGGER.info("Deleting " + (pageIndex++) +" uuid = "+uuid);
                             deleteFolder(uuid, discStruct);
                         }
                     } catch (DOMException e) {
-                        LOGGER.severe(e.getMessage());
-                    } catch (LexerException e) {
                         LOGGER.severe(e.getMessage());
                     } catch (XPathExpressionException e) {
                         LOGGER.severe(e.getMessage());
                     } catch (IOException e) {
                         LOGGER.severe(e.getMessage());
                     }
-
-                }
-
-                @Override
-                public boolean breakProcess() {
-                    return false;
-                }
-
-                @Override
-                public boolean accept(FedoraRelationship relation, String relationShipName) {
-                    return relation.name().startsWith("has");
                 }
             });
+            
         }
 
     }

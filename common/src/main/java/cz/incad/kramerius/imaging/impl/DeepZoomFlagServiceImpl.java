@@ -38,7 +38,7 @@ import cz.incad.kramerius.RelsExtHandler;
 import cz.incad.kramerius.TreeNodeProcessor;
 import cz.incad.kramerius.imaging.DeepZoomCacheService;
 import cz.incad.kramerius.imaging.DeepZoomFlagService;
-import cz.incad.kramerius.impl.AbstractTreeNodeProcessor;
+import cz.incad.kramerius.impl.AbstractTreeNodeProcessorAdapter;
 import cz.incad.kramerius.utils.FedoraUtils;
 import cz.incad.kramerius.utils.pid.LexerException;
 import cz.incad.kramerius.utils.pid.PIDParser;
@@ -57,7 +57,7 @@ public class DeepZoomFlagServiceImpl implements DeepZoomFlagService {
         } else {
  
             try {
-                fedoraAccess.processSubtree("uuid:"+uuid, new AbstractTreeNodeProcessor() {
+                fedoraAccess.processSubtree("uuid:"+uuid, new AbstractTreeNodeProcessorAdapter() {
                     
                     @Override
                     public void processUuid(String pageUuid) {
@@ -113,7 +113,7 @@ public class DeepZoomFlagServiceImpl implements DeepZoomFlagService {
             try {
                 
                 
-                fedoraAccess.processSubtree("uuid:"+uuid, new AbstractTreeNodeProcessor() {
+                fedoraAccess.processSubtree("uuid:"+uuid, new AbstractTreeNodeProcessorAdapter() {
 
                     
                     @Override
