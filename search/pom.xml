@@ -25,30 +25,11 @@
 
 
 
-    <pluginRepositories>
-        <pluginRepository>
-            <id>maven2-repository.dev.java.net</id>
-            <url>http://download.java.net/maven/2/</url>
-        </pluginRepository>
-
-
-    </pluginRepositories>
-
-    <distributionManagement>
-
-        <repository>
-            <id>artifactory.internal</id>
-            <name>Internal Release Repository</name>
-            <url>${snapshots.url}</url>
-        </repository>
-
-        <snapshotRepository>
-            <id>artifactory.snapshots</id>
-            <name>Internal Snapshot Repository</name>
-            <url>${snapshots.url}</url>
-        </snapshotRepository>
-
-    </distributionManagement>
+    <parent>
+        <groupId>cz.incad.kramerius</groupId>
+        <artifactId>kramerius-parent-pom</artifactId>
+        <version>1.0</version>
+    </parent>
 
     <dependencies>
 
