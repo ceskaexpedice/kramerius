@@ -6,36 +6,14 @@
 	<name>import</name>
 	<version>1.0.0-SNAPSHOT</version>
 
-	<repositories>
-		<repository>
-			<id>maven2-repository.dev.java.net</id>
-			<name>Java.net Repository for Maven 2</name>
-			<url>http://download.java.net/maven/2/</url>
-		</repository>
-	</repositories>
-	<pluginRepositories>
-		<pluginRepository>
-			<id>maven2-repository.dev.java.net</id>
-			<url>http://download.java.net/maven/2/</url>
-		</pluginRepository>
-	</pluginRepositories>
+    <parent>
+        <groupId>cz.incad.kramerius</groupId>
+        <artifactId>kramerius-parent-pom</artifactId>
+        <version>1.0</version>
+    </parent>
 	
-    <distributionManagement>
-
-        <repository>
-            <id>artifactory.internal</id>
-            <name>Internal Release Repository</name>
-            <url>${snapshots.url}</url>
-        </repository>
-
-        <snapshotRepository>
-            <id>artifactory.snapshots</id>
-            <name>Internal Snapshot Repository</name>
-            <url>${snapshots.url}</url>
-        </snapshotRepository>
-
-    </distributionManagement>
-	
+    
+    
 	<dependencies>
 		<dependency>
 			<groupId>cz.incad.kramerius</groupId>
