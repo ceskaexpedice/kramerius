@@ -34,22 +34,6 @@
 
 
 	
-    <distributionManagement>
-
-        <repository>
-            <id>artifactory.internal</id>
-            <name>Internal Release Repository</name>
-            <url>${snapshots.url}</url>
-        </repository>
-
-        <snapshotRepository>
-            <id>artifactory.snapshots</id>
-            <name>Internal Snapshot Repository</name>
-            <url>${snapshots.url}</url>
-        </snapshotRepository>
-
-    </distributionManagement>
-	
 	<dependencies>
 	</dependencies>
 
