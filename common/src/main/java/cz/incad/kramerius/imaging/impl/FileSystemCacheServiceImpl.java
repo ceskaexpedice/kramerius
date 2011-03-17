@@ -1,47 +1,32 @@
 package cz.incad.kramerius.imaging.impl;
 
-import static cz.incad.kramerius.FedoraNamespaces.RDF_NAMESPACE_URI;
-
 import java.awt.Dimension;
-import java.awt.Image;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FileFilter;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.util.Arrays;
-import java.util.Iterator;
-import java.util.WeakHashMap;
 
 import javax.imageio.stream.FileImageOutputStream;
 
 import org.antlr.stringtemplate.StringTemplate;
 import org.apache.commons.io.output.FileWriterWithEncoding;
-import org.w3c.dom.DOMException;
-import org.w3c.dom.Element;
 
 import com.google.inject.Inject;
 import com.google.inject.name.Named;
 
 import cz.incad.kramerius.FedoraAccess;
-import cz.incad.kramerius.FedoraRelationship;
-import cz.incad.kramerius.KrameriusModels;
-import cz.incad.kramerius.RelsExtHandler;
 import cz.incad.kramerius.imaging.DeepZoomCacheService;
 import cz.incad.kramerius.imaging.DeepZoomFullImageScaleFactor;
 import cz.incad.kramerius.imaging.DeepZoomTileSupport;
 import cz.incad.kramerius.imaging.DiscStrucutreForStore;
+import cz.incad.kramerius.impl.AbstractTreeNodeProcessorAdapter;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 import cz.incad.kramerius.utils.imgs.ImageMimeType;
 import cz.incad.kramerius.utils.imgs.KrameriusImageSupport;
 import cz.incad.kramerius.utils.imgs.KrameriusImageSupport.ScalingMethod;
-import cz.incad.kramerius.utils.pid.LexerException;
-import cz.incad.kramerius.utils.pid.PIDParser;
 
 /**
  * Cache deepZoom objects (full images, tiles and dzi descritors) on the HDD
@@ -96,8 +81,6 @@ public class FileSystemCacheServiceImpl implements DeepZoomCacheService {
             int startLevel = tileSupport.getClosestLevel(rawDim, tileSupport.getTileSize());
             int maxLevel = Math.min(levels, startLevel + levelsOverTile);
             
-            // finished dimension == rawDim
-            //Dimension finishedDimension = tileSupport.getScaledDimension(rawDim, (startLevel+levelsOverTile-1), levels);
             writeDeepZoomDescriptor(uuid, rawDim, tileSupport.getTileSize(), new File(uuidFolder, DEEP_ZOOM_DESC_FILE));
             writeResolution(uuid, rawDim);
             
@@ -152,7 +135,7 @@ public class FileSystemCacheServiceImpl implements DeepZoomCacheService {
                         writeDeepZoomTile(uuid, curLevel, r, c, tile);
                     }
                 }
-                // pokud se vleze na dlazdici, dal uz nepokracuju
+                // image fit to one tile, this is the end for me
                 if (!greaterThen(scaled, dimToFit)) {
                     break;
                 }
@@ -181,37 +164,12 @@ public class FileSystemCacheServiceImpl implements DeepZoomCacheService {
         if (fedoraAccess.isImageFULLAvailable(uuid)) {
             prepareCacheImage(uuid, levelOverTileSize);
         } else {
-            fedoraAccess.processRelsExt(uuid, new RelsExtHandler() {
-
+            fedoraAccess.processSubtree("uuid:"+uuid, new AbstractTreeNodeProcessorAdapter() {
                 private int pageIndex = 1;
-
                 @Override
-                public void handle(Element elm, FedoraRelationship relation, String relationshipName, int level) {
-                    if (relation.name().startsWith("has")) {
-                        try {
-                            String pid = elm.getAttributeNS(RDF_NAMESPACE_URI, "resource");
-                            PIDParser pidParse = new PIDParser(pid);
-                            pidParse.disseminationURI();
-                            String uuid = pidParse.getObjectId();
-                            LOGGER.fine("caching page " + (pageIndex++));
-                            prepareCacheImage(uuid, levelOverTileSize);
-                        } catch (DOMException e) {
-                            LOGGER.severe(e.getMessage());
-                        } catch (LexerException e) {
-                            LOGGER.severe(e.getMessage());
-                        }
-
-                    }
-                }
-
-                @Override
-                public boolean breakProcess() {
-                    return false;
-                }
-
-                @Override
-                public boolean accept(FedoraRelationship relation, String relationShipName) {
-                    return relation.name().startsWith("has");
+                public void processUuid(String uuid) {
+                    LOGGER.fine("caching page " + (pageIndex++));
+                    prepareCacheImage(uuid, levelOverTileSize);
                 }
             });
         }
@@ -222,39 +180,16 @@ public class FileSystemCacheServiceImpl implements DeepZoomCacheService {
         if (fedoraAccess.isImageFULLAvailable(uuid)) {
             prepareCacheImage(uuid, new Dimension(tileSupport.getTileSize(), tileSupport.getTileSize()));
         } else {
-            fedoraAccess.processRelsExt(uuid, new RelsExtHandler() {
-
+            fedoraAccess.processSubtree("uuid:"+uuid, new AbstractTreeNodeProcessorAdapter() {
                 private int pageIndex = 1;
-
                 @Override
-                public void handle(Element elm, FedoraRelationship relation, String relationshipName, int level) {
-                    if (relation.name().startsWith("has")) {
-                        try {
-                            String pid = elm.getAttributeNS(RDF_NAMESPACE_URI, "resource");
-                            PIDParser pidParse = new PIDParser(pid);
-                            pidParse.disseminationURI();
-                            String uuid = pidParse.getObjectId();
-                            LOGGER.fine("caching page " + (pageIndex++));
-                            prepareCacheImage(uuid, new Dimension(tileSupport.getTileSize(), tileSupport.getTileSize()));
-                        } catch (DOMException e) {
-                            LOGGER.severe(e.getMessage());
-                        } catch (LexerException e) {
-                            LOGGER.severe(e.getMessage());
-                        }
-
-                    }
-                }
-
-                @Override
-                public boolean breakProcess() {
-                    return false;
-                }
-
-                @Override
-                public boolean accept(FedoraRelationship relation, String relationShipName) {
-                    return relation.name().startsWith("has");
+                public void processUuid(String uuid) {
+                    LOGGER.fine("caching page " + (pageIndex++));
+                    prepareCacheImage(uuid, new Dimension(tileSupport.getTileSize(), tileSupport.getTileSize()));
+                    
                 }
             });
+            
         }
 
     }
