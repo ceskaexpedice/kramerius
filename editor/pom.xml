@@ -32,6 +32,12 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
         </license>
     </licenses>
 
+    <parent>
+        <groupId>cz.incad.kramerius</groupId>
+        <artifactId>kramerius-parent-pom</artifactId>
+        <version>1.0</version>
+    </parent>
+
     <properties>
 
         <!-- convenience to define GWT version in one place -->
