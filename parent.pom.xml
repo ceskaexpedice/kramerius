@@ -2,7 +2,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>cz.incad.kramerius</groupId>
     <artifactId>kramerius-parent-pom</artifactId>
-    <version>1</version>
+    <version>1.0</version>
     <packaging>pom</packaging>
 
     <repositories>
@@ -24,7 +24,7 @@
         <repository>
             <id>artifactory.internal</id>
             <name>Internal Release Repository</name>
-            <url>${snapshots.url}</url>
+            <url>${releases.url}</url>
         </repository>
 
         <snapshotRepository>
