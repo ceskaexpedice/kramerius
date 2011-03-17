@@ -20,8 +20,17 @@
 			<id>vlada.el</id>
 			<name>Vlada Lahoda</name>
 		</developer>
+        <developer>
+            <id>jan.pokorsky</id>
+            <name>Jan Pokorsky</name>
+        </developer>
 	</developers>
 
+    <parent>
+        <groupId>cz.incad.kramerius</groupId>
+        <artifactId>kramerius-parent-pom</artifactId>
+        <version>1.0</version>
+    </parent>
 
 
 	
