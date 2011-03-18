@@ -588,7 +588,7 @@ public abstract class BaseConvertor {
                 File target = new File(dir, pageFile.getName());
                 boolean success = pageFile.renameTo(target);
                 if (!success){
-                	throw new ServiceException("Cannot rename file "+filename);
+                	FileUtils.copyFile(pageFile, target);
                 }
             	ContentLocationType cl = new ContentLocationType();
             	cl.setREF("file:"+target.getAbsolutePath());
