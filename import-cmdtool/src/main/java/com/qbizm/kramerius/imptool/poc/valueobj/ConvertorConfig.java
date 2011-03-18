@@ -83,6 +83,8 @@ public class ConvertorConfig {
 		if (Main.useContractSubfolders()){
 			this.exportFolder = this.exportFolder+ System.getProperty("file.separator")+contract;
 			IOUtils.checkDirectory(this.exportFolder);
+			String xmlSubfolder = this.exportFolder+ System.getProperty("file.separator")+"xml";//Issue 73
+			IOUtils.checkDirectory(xmlSubfolder);
 		}
 	}
 

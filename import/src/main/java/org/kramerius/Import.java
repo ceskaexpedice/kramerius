@@ -96,6 +96,9 @@ public class Import {
     }
 
     private static void ingest(File file) {
+    	if (!file.getName().toLowerCase().endsWith(".xml")){
+    		return;
+    	}
         try {
             long start = System.currentTimeMillis();
             //System.out.println("Processing:"+file.getAbsolutePath());
