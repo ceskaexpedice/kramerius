@@ -30,11 +30,13 @@ package cz.incad.kramerius.security;
  *  criterium
  * </ul>  
  * 
- * @author pavels
  */
 public interface Right {
 
-    
+	/**
+	 * 	Returns ID of right
+	 * @return
+	 */
     public int getId();
     
     /**
@@ -49,37 +51,56 @@ public interface Right {
      */
     public String getAction();
 
+    /**
+     * Associate right to action
+     * @param action
+     */
     public void setAction(String action);
     
     /**
-     * Current logged user
+     * Returns assocaited user. It can be user or group.
      * @return
      */
     public AbstractUser getUser();
     
+    /**
+     * Associate user with right.
+     * @param user
+     */
     public void setUser(AbstractUser user);
     
     /**
-     * Returns specific criterium
+     * Returns associated criterium.
      * @return
      */
     public RightCriterium getCriterium();
     
+    /**
+     * Associate new criterium with this right 
+     * @param rightCriterium
+     */
     public void setCriterium(RightCriterium rightCriterium);
     
     
     /**
-     * Interpret this right
-     * 
-     * @param ctx
+     * Evaluate this right
+     * @param ctx Evaluating context
      * @return
      * @throws RightCriteriumException
      */
     public EvaluatingResult evaluate(RightCriteriumContext ctx) throws RightCriteriumException;
     
     
+    /**
+     * Sets fixed priority
+     * @param priority Priority of right
+     */
     public void setFixedPriority(int priority);
     
+    /**
+     * Returns fixed priority
+     * @return
+     */
     public int getFixedPriority();
 
 }
