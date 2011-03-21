@@ -16,12 +16,38 @@
  */
 package cz.incad.kramerius.security;
 
+/**
+ * Rights resolver.   
+ */
 public interface IsActionAllowed extends IsActionAllowedBase {
 
+	/**
+	 * Returns true if current logged user is permitted to do action defined by first parameter (actionName) for object defined by second and third parameter (uuid and pathOfUuuid)
+	 * @param actionName Formal action's name
+	 * @param uuid UUID of requested object
+	 * @param pathOfUuids Path of object. (from root to leaf)
+	 * @return
+	 */
     public boolean isActionAllowed(String actionName, String uuid, String[] pathOfUuids);
 
+	/**
+	 * Returns true given user is permitted to do action defined by parameter actionName for object defined by parameters uuid and pathOfUuuid
+	 * @param user User
+	 * @param actionName Formal action's name
+	 * @param uuid UUID of requested object
+	 * @param pathOfUuids Path of object. (from root to leaf)
+	 * @return
+	 */
     public boolean isActionAllowed(User user, String actionName, String uuid, String[] pathOfUuids);
 
+    
+    /**
+     * Returns array of results for all path (from root to leaf) for current logged user.    
+     * @param actionName Action name
+     * @param uuid UUID of requesting object
+     * @param pathOfUuids Path from root to leaf 
+     * @return
+     */
     public boolean[] isActionAllowedForAllPath(String actionName, String uuid, String[] pathOfUuids);
     
 }
