@@ -16,8 +16,12 @@
  */
 package cz.incad.kramerius.security;
 
+/**
+ * Enumeration for special objects used in security system
+ */
 public enum SpecialObjects {
     
+	/** Represents whole repository */
     REPOSITORY("1");
     
     private String uuid;
