@@ -4,18 +4,14 @@ import java.io.File;
 import java.io.IOException;
 import java.io.StringReader;
 import java.io.UnsupportedEncodingException;
-import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLDecoder;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.StringTokenizer;
-import java.util.Timer;
-import java.util.TimerTask;
 import java.util.logging.Level;
 
 import javax.servlet.ServletContext;
@@ -27,14 +23,11 @@ import antlr.RecognitionException;
 import antlr.TokenStreamException;
 
 import com.google.inject.Inject;
-import com.google.inject.Injector;
 import com.google.inject.Provider;
 
 import cz.incad.Kramerius.backend.guice.GuiceServlet;
-import cz.incad.Kramerius.backend.guice.RequestIPaddressChecker;
 import cz.incad.Kramerius.processes.ParamsLexer;
 import cz.incad.Kramerius.processes.ParamsParser;
-import cz.incad.Kramerius.security.CurrentLoggedUserProvider;
 import cz.incad.Kramerius.security.KrameriusRoles;
 import cz.incad.Kramerius.security.utils.UserUtils;
 import cz.incad.Kramerius.views.ApplicationURL;
@@ -49,7 +42,6 @@ import cz.incad.kramerius.processes.LRProcessOrdering;
 import cz.incad.kramerius.processes.ProcessScheduler;
 import cz.incad.kramerius.processes.States;
 import cz.incad.kramerius.processes.TypeOfOrdering;
-import cz.incad.kramerius.security.IPaddressChecker;
 import cz.incad.kramerius.security.IsActionAllowed;
 import cz.incad.kramerius.security.IsUserInRoleDecision;
 import cz.incad.kramerius.security.SecuredActions;
@@ -89,8 +81,6 @@ public class LongRunningProcessServlet extends GuiceServlet {
     @Inject
     transient IsUserInRoleDecision userInRoleDecision;
 
-    @Inject
-    transient IPaddressChecker iPaddressChecker;
 
     @Inject
     transient IsActionAllowed actionAllowed;
