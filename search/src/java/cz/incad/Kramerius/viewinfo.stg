@@ -1,6 +1,6 @@
 group viewinfo;
 
-/* cele view info */
+/* whole viewinfo tempalte */
 viewinfo(data, globalActions) ::=<<
 {
         deepZoomGenerated:$data.deepZoomCacheGenerated$,
@@ -19,7 +19,7 @@ viewinfo(data, globalActions) ::=<<
 >>
             
 
-/* prava pro objekty */
+/* rights */
 rights(securedActionsMap, globalActions) ::=<<
     rights: 
     { 
@@ -31,12 +31,12 @@ rights(securedActionsMap, globalActions) ::=<<
     }
 >>
 
-/* hash mapa akci */
+/* action's map */
 action(action, uuidMap) ::=<<
     "$action$": { $uuidMap.keys:{uuid |  "$uuid$":$uuidMap.(uuid)$  };separator=","$ }
 >>
 
-/* podpurne funkce */
+/* some support functions */
 supportfunctions() ::=<<
             isContentPDF:function() {return viewerOptions.mimeType=='application/pdf'},
             isContentDJVU:function() {return viewerOptions.mimeType.indexOf('djvu')> 0 }
