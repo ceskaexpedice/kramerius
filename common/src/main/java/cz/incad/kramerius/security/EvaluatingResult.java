@@ -16,11 +16,17 @@
  */
 package cz.incad.kramerius.security;
 
+/**
+ * Criterium evaluating result
+ */
 public enum EvaluatingResult {
 
-    TRUE,
+	/** operation is permited */
+	TRUE,
     
+	/** operation is denided */
     FALSE,
     
+    /** it cannot be resolved by this criterium  */
     NOT_APPLICABLE
 }
