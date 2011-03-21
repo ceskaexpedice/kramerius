@@ -2,7 +2,6 @@ package cz.incad.kramerius.security;
 
 /**
  * Request cannot be processed
- * @author pavels
  */
 public class SecurityException extends RuntimeException {
 

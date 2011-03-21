@@ -16,21 +16,54 @@
  */
 package cz.incad.kramerius.security;
 
+/**
+ * Specific parameters for criterium 
+ */
 public interface RightCriteriumParams {
-
+	
+	/**
+	 * Returns id of criterium
+	 * @return
+	 */
     public int getId();
     
-    public void setId(int id);
-    
+    /**
+     * Returns array of raw values
+     * @return
+     */
     public Object[] getObjects();
     
+    /**
+     * Sets new array of raw values
+     * @param objs
+     */
     public void setObjects(Object[] objs);
 
+    /**
+     * Returns long description of parameters
+     * @return
+     */
     public String getLongDescription();
     
+    /**
+     * Sets long description of parameters
+     * @param longDesc
+     */
     public void setLongDescription(String longDesc);
     
+    /**
+     * Returns short description of parameters
+     * @return
+     */
     public String getShortDescription();
     
+    /**
+     * Sets short description of parameters
+     * @param desc
+     */
     public void setShortDescription(String desc);
+    
+    //TODO: Change it
+    public void setId(int id);
+
 }

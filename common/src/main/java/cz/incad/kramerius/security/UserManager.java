@@ -30,7 +30,7 @@ public interface UserManager {
 	 * <br>
 	 * This method is used by login module
 	 * @param loginName Login name of user
-	 * @param passwd Passsword of user
+	 * @param passwd Password of user
 	 * 
 	 * @see User
 	 * @see K4LoginModule
@@ -69,7 +69,7 @@ public interface UserManager {
     public Group findGroup(int group_id);
     
     /**
-     * Find all groups which can be administrate by a user associated with given groups. 
+     * Find all groups which can be administered by a user associated with given groups. 
      * (Groups are represented by group ids)
      * @param grpIds 
      * 
@@ -119,7 +119,7 @@ public interface UserManager {
     public User[] findUsersForGivenGroup(int groupId);
     
     /**
-     * Returs all users which can be administrate by given groups 
+     * Returns all users which can be administered by given groups 
      * @param grpIds Master group ids
      * @return
      */
@@ -127,7 +127,7 @@ public interface UserManager {
 
     
     /**
-     * Returs all users which can be administrate by given groups and starts witgh given prefix
+     * Returns all users which can be administered by given groups and starts witgh given prefix
      * @param grpIds Master group ids
      * @param prefix for User
      * @return
@@ -135,7 +135,7 @@ public interface UserManager {
     public User[] findAllUsers(int[] grpIds, String prefix);
 
     /**
-     * Returns all groups wich can be administrate by given groups
+     * Returns all groups which can be administered by given groups
      * @param grpIds Master group ids
      * @return
      */

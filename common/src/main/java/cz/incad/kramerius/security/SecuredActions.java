@@ -16,6 +16,9 @@
  */
 package cz.incad.kramerius.security;
 
+/**
+ * Secured actions enum 
+ */
 public enum SecuredActions {
 
     // common user actions
