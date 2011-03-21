@@ -2,15 +2,11 @@ package cz.incad.Kramerius.backend.guice;
 
 import java.sql.Connection;
 import java.util.Locale;
-import java.util.ResourceBundle;
 
 import javax.servlet.jsp.jstl.fmt.LocalizationContext;
 
 import com.google.inject.AbstractModule;
-import com.google.inject.Provider;
-import com.google.inject.Provides;
 import com.google.inject.Scopes;
-import com.google.inject.name.Named;
 import com.google.inject.name.Names;
 
 import cz.incad.Kramerius.security.RequestIsUserInRoleDecision;
@@ -22,7 +18,6 @@ import cz.incad.kramerius.imaging.DeepZoomTileSupport;
 import cz.incad.kramerius.imaging.DiscStrucutreForStore;
 import cz.incad.kramerius.imaging.impl.Fedora3StreamsDiscStructure;
 import cz.incad.kramerius.imaging.impl.FileSystemCacheServiceImpl;
-import cz.incad.kramerius.imaging.impl.SimpleMemoryCacheServiceWrapper;
 import cz.incad.kramerius.imaging.impl.TileSupportImpl;
 import cz.incad.kramerius.impl.FedoraAccessImpl;
 import cz.incad.kramerius.impl.MostDesirableImpl;
@@ -32,11 +27,9 @@ import cz.incad.kramerius.pdf.impl.GeneratePDFServiceImpl;
 import cz.incad.kramerius.processes.GCScheduler;
 import cz.incad.kramerius.processes.ProcessScheduler;
 import cz.incad.kramerius.processes.database.Fedora3ConnectionProvider;
-import cz.incad.kramerius.processes.database.JNDIConnectionProvider;
 import cz.incad.kramerius.processes.database.Kramerius4ConnectionProvider;
 import cz.incad.kramerius.processes.impl.GCSchedulerImpl;
 import cz.incad.kramerius.processes.impl.ProcessSchedulerImpl;
-import cz.incad.kramerius.security.IPaddressChecker;
 import cz.incad.kramerius.security.IsUserInRoleDecision;
 import cz.incad.kramerius.security.SecuredFedoraAccessImpl;
 import cz.incad.kramerius.service.DeleteService;
@@ -57,7 +50,6 @@ import cz.incad.kramerius.utils.conf.KConfiguration;
 
 /**
  * Base kramerius module 
- * @author pavels
  */
 public class BaseModule extends AbstractModule {
 
@@ -88,7 +80,6 @@ public class BaseModule extends AbstractModule {
 		bind(ResourceBundleService.class).to(ResourceBundleServiceImpl.class).in(Scopes.SINGLETON);
 		//bind(JNDIConnectionProvider.class).toInstance(createKramerius4Provider());
 		
-		bind(IPaddressChecker.class).to(RequestIPaddressChecker.class);
 		bind(IsUserInRoleDecision.class).to(RequestIsUserInRoleDecision.class);
 
 		bind(LocalizationContext.class).toProvider(CustomLocalizedContextProvider.class);
