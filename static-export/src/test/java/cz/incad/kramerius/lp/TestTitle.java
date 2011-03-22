@@ -16,28 +16,18 @@
  */
 package cz.incad.kramerius.lp;
 
-import static cz.incad.kramerius.utils.BiblioModsUtils.getTitle;
-
 import java.io.IOException;
-import java.util.Arrays;
 
-import org.w3c.dom.Document;
+import junit.framework.TestCase;
 
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.google.inject.Key;
-import com.google.inject.internal.Maps;
 import com.google.inject.name.Names;
 
 import cz.incad.kramerius.FedoraAccess;
-import cz.incad.kramerius.KrameriusModels;
 import cz.incad.kramerius.SolrAccess;
 import cz.incad.kramerius.lp.guice.PDFModule;
-import cz.incad.kramerius.pdf.pdfpages.AbstractRenderedDocument;
-import cz.incad.kramerius.pdf.pdfpages.RenderedDocument;
-import cz.incad.kramerius.pdf.utils.TitlesUtils;
-import cz.incad.kramerius.utils.DCUtils;
-import junit.framework.TestCase;
 
 public class TestTitle extends TestCase {
 
