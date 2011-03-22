@@ -74,7 +74,9 @@ public class GenerateThumbnail {
                     @Override
                     public void processUuid(String pageUuid, int level) throws ProcessSubtreeException {
                         try {
-                            prepareThumbnail(pageUuid, fedoraAccess, discStruct, tileSupport);
+                            if (fedoraAccess.isImageFULLAvailable(pageUuid)) {
+                                prepareThumbnail(pageUuid, fedoraAccess, discStruct, tileSupport);
+                            }
                         } catch (XPathExpressionException e) {
                             LOGGER.log(Level.SEVERE, e.getMessage(),e);
                         } catch (IOException e) {

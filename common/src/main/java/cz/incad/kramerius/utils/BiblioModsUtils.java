@@ -49,16 +49,16 @@ public class BiblioModsUtils {
 	}
 
 
-	public static String getTitle(Document doc, KrameriusModels model) {
-	    String title = titleFromBiblioMods(doc);
-		if ((title == null) || (title.equals(""))) {
-			switch(model) {
-				case PERIODICALITEM: return PeriodicalItemUtils.getItemNumber(doc) + " ("+PeriodicalItemUtils.getDate(doc)+")";
-				case PERIODICALVOLUME: return PeriodicalItemUtils.getItemNumber(doc) + " ("+PeriodicalItemUtils.getDate(doc)+")";
-				default: throw new UnsupportedOperationException("'"+model+"'");
-			}
-		} else return title;
-	}
+//	public static String getTitle(Document doc, KrameriusModels model) {
+//	    String title = titleFromBiblioMods(doc);
+//		if ((title == null) || (title.equals(""))) {
+//			switch(model) {
+//				case PERIODICALITEM: return PeriodicalItemUtils.getItemNumber(doc) + " ("+PeriodicalItemUtils.getDate(doc)+")";
+//				case PERIODICALVOLUME: return PeriodicalItemUtils.getItemNumber(doc) + " ("+PeriodicalItemUtils.getDate(doc)+")";
+//				default: throw new UnsupportedOperationException("'"+model+"'");
+//			}
+//		} else return title;
+//	}
 	
 	public static String titleFromBiblioMods(Document doc) {
 		try {

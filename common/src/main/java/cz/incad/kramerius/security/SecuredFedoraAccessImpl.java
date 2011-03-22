@@ -98,14 +98,7 @@ public class SecuredFedoraAccessImpl implements FedoraAccess {
         return rawAccess.getImageFULLProfile(uuid);
     }
 
-    public KrameriusModels getKrameriusModel(Document relsExt) {
-        return rawAccess.getKrameriusModel(relsExt);
-    }
 
-    public KrameriusModels getKrameriusModel(String uuid) throws IOException {
-        return rawAccess.getKrameriusModel(uuid);
-    }
-    
     public List<String> getModelsOfRel(Document relsExt){
         return rawAccess.getModelsOfRel(relsExt);
     }

@@ -128,32 +128,7 @@ public class FedoraAccessImpl implements FedoraAccess {
         }
     }
 
-    @Override
-    public KrameriusModels getKrameriusModel(Document relsExt) {
-        try {
-            Element foundElement = XMLUtils.findElement(relsExt.getDocumentElement(), "hasModel", FedoraNamespaces.FEDORA_MODELS_URI);
-            if (foundElement != null) {
-                String sform = foundElement.getAttributeNS(FedoraNamespaces.RDF_NAMESPACE_URI, "resource");
-                PIDParser pidParser = new PIDParser(sform);
-                pidParser.disseminationURI();
-                KrameriusModels model = KrameriusModels.parseString(pidParser.getObjectId());
-                return model;
-            } else {
-                throw new IllegalArgumentException("cannot find model of ");
-            }
-        } catch (DOMException e) {
-            LOGGER.log(Level.SEVERE, e.getMessage(), e);
-            throw new IllegalArgumentException(e);
-        } catch (LexerException e) {
-            LOGGER.log(Level.SEVERE, e.getMessage(), e);
-            throw new IllegalArgumentException(e);
-        }
-    }
 
-    @Override
-    public KrameriusModels getKrameriusModel(String uuid) throws IOException {
-        return getKrameriusModel(getRelsExt(uuid));
-    }
 
     @Override
     public List<String> getModelsOfRel(Document relsExt) {
@@ -300,7 +275,7 @@ public class FedoraAccessImpl implements FedoraAccess {
                 if(el.hasAttribute("rdf:resource")){
                     uuid = el.getAttributes().getNamedItem("rdf:resource").getNodeValue().split("uuid:")[1];
                     pids.add(uuid);
-                    models.add(getKrameriusModel(uuid).getValue());
+                    models.add(getKrameriusModelName(uuid));
                     //return getFirstViewablePath(pids, models);
                     boolean hit = getFirstViewablePath(pids, models);
                     if(hit){

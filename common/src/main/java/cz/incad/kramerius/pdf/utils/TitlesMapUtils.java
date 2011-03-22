@@ -42,8 +42,8 @@ public class TitlesMapUtils {
     public static Map<String, String> mapModels(FedoraAccess fa, String[] path) throws IOException {
         Map<String, String> map = new HashMap<String, String>();
         for (String u : path) {
-            KrameriusModels model = fa.getKrameriusModel(fa.getRelsExt(u));
-            map.put(u, model.getValue());
+            String modelName = fa.getKrameriusModelName(fa.getRelsExt(u));
+            map.put(u, modelName);
         }
         return map;
     }

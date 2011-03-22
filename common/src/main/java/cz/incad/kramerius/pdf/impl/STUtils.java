@@ -82,14 +82,14 @@ public class STUtils {
 		return description;
 	}
 	
-	public static String textPage(FedoraAccess fa, String uuid, KrameriusModels model, String title) throws IOException {
+	public static String textPage(FedoraAccess fa, String uuid, String modelName, String title) throws IOException {
 		org.w3c.dom.Document biblioMods = fa.getBiblioMods(uuid);
 		Element root = biblioMods.getDocumentElement();
 		Map stModel = prepareBiblioModsModel(root);
 		StringTemplateGroup group = getGroup();
 		StringTemplate intpart = group.getInstanceOf("render");
 		intpart.setAttribute("bibliomods", stModel);
-		intpart.setAttribute("model", model.name());
+		intpart.setAttribute("model", modelName);
 		intpart.setAttribute("title", title);
 		return intpart.toString();
 	}

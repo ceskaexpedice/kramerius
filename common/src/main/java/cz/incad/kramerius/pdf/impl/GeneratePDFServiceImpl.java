@@ -2,7 +2,6 @@ package cz.incad.kramerius.pdf.impl;
 
 import static cz.incad.kramerius.FedoraNamespaces.RDF_NAMESPACE_URI;
 import static cz.incad.kramerius.utils.BiblioModsUtils.getPageNumber;
-import static cz.incad.kramerius.utils.BiblioModsUtils.getTitle;
 import static cz.incad.kramerius.utils.imgs.KrameriusImageSupport.readImage;
 import static cz.incad.kramerius.utils.imgs.KrameriusImageSupport.writeImageToStream;
 

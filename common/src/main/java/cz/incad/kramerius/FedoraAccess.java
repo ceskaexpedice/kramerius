@@ -52,28 +52,8 @@ public interface FedoraAccess {
      */
     public String getKrameriusModelName(String uuid) throws IOException;
     
-    
-    /**
-     * Returns KrameriusModel parsed from given document
-     * 
-     * @param relsExt
-     *            RELS-EXT document
-     * @see KrameriusModels
-     * @return
-     */
-    public KrameriusModels getKrameriusModel(Document relsExt);
 
     
-    
-    /**
-     * Returns KrameriusModel of given object
-     * 
-     * @param uuid
-     *            uuid of object
-     * @return
-     * @throws IOException
-     */
-    public KrameriusModels getKrameriusModel(String uuid) throws IOException;
 
     /**
      * Returns KrameriusModel parsed from given document

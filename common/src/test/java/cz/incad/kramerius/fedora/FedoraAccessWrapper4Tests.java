@@ -78,13 +78,6 @@ public class FedoraAccessWrapper4Tests implements FedoraAccess {
         return fedoraAccess.getKrameriusModelName(uuid);
     }
 
-    public KrameriusModels getKrameriusModel(Document relsExt) {
-        return fedoraAccess.getKrameriusModel(relsExt);
-    }
-
-    public KrameriusModels getKrameriusModel(String uuid) throws IOException {
-        return fedoraAccess.getKrameriusModel(uuid);
-    }
 
     public List<String> getModelsOfRel(Document relsExt) {
         return fedoraAccess.getModelsOfRel(relsExt);
