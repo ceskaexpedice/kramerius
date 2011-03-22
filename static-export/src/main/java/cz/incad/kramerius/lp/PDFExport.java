@@ -179,7 +179,7 @@ public class PDFExport {
 			LOGGER.info("title is "+title);
 			GenerateController controller = new GenerateController(uuidFolder, title);
 			generatePDF.fullPDFExport(uuid, controller, controller, djvuUrl, i18nUrl);
-		} catch (IOException e) {
+		} catch (Exception e) {
 			LOGGER.log(Level.SEVERE, e.getMessage(), e);
 		}
 	}
