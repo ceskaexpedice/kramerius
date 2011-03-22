@@ -74,11 +74,6 @@
 		<servlet-class>cz.incad.Kramerius.HandleServlet</servlet-class>
 	</servlet>
 
-	<!-- title page servlet -->
-	<servlet>
-		<servlet-name>titlePage</servlet-name>
-		<servlet-class>cz.incad.Kramerius.TitlePageServlet</servlet-class>
-	</servlet>
 
 	<!-- title page servlet -->
 	<servlet>
@@ -182,10 +177,6 @@
 	<servlet-mapping>
 		<servlet-name>handle</servlet-name>
 		<url-pattern>/handle/*</url-pattern>
-	</servlet-mapping>
-	<servlet-mapping>
-		<servlet-name>titlePage</servlet-name>
-		<url-pattern>/titlePage</url-pattern>
 	</servlet-mapping>
 
 	<servlet-mapping>
