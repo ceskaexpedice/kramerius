@@ -22,7 +22,7 @@ public class GuiceConfigBean extends GuiceServletContextListener {
 	
 	@Override
 	public void contextInitialized(ServletContextEvent servletContextEvent) {
-		String realPath = servletContextEvent.getServletContext().getRealPath("WEB-INF/lib");
+	    String realPath = servletContextEvent.getServletContext().getRealPath("WEB-INF/lib");
 		System.setProperty(LongRunningProcessModul.DEFAULT_LIBS_KEY, realPath);
 		super.contextInitialized(servletContextEvent);
 	}

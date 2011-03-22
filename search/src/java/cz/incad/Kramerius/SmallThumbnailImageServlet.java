@@ -59,6 +59,9 @@ public class SmallThumbnailImageServlet extends AbstractImageServlet {
 			throws ServletException, IOException {
 		OutputFormats outputFormat = null;
 		String uuid = req.getParameter(UUID_PARAMETER);
+		// TODO: Change it !!
+		uuid = fedoraAccess.findFirstViewablePid(uuid);
+		
 		String outputFormatParam = req.getParameter(OUTPUT_FORMAT_PARAMETER);
 		if (outputFormatParam != null) {
 			outputFormat = OutputFormats.valueOf(outputFormatParam);
