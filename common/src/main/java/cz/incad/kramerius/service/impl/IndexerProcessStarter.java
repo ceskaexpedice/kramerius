@@ -30,6 +30,7 @@ public class IndexerProcessStarter {
 		} catch (UnsupportedEncodingException e1) {
 			log.severe(e1.getMessage());
 		}
+		log.info("indexer URL:"+url);
 	    try {
 	        ProcessStarter.httpGet(url);
 	    } catch (Exception e) {
@@ -47,11 +48,12 @@ public class IndexerProcessStarter {
 	    if (pid_path.endsWith("/")){
 	    	pid_path = pid_path.substring(0,pid_path.length()-1);
 	    }
-	    String url = base +"?action=start&def=reindex&out=text&params=deleteDocument,"+pid_path+","+uuid;
+	    String url = base +"?action=start&def=reindex&out=text&params=deleteDocument,"+pid_path+","+uuid+"&token="+System.getProperty(ProcessStarter.TOKEN_KEY);
+	    log.info("indexRemover URL:"+url);
 	    try {
 	        ProcessStarter.httpGet(url);
 	    } catch (Exception e) {
-	        log.severe("Error spawning indexer for "+uuid+":"+e);
+	        log.severe("Error spawning indexRemover for "+uuid+":"+e);
 	    }
 	}
 }
