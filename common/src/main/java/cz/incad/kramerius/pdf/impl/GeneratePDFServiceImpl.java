@@ -65,8 +65,10 @@ import cz.incad.kramerius.FedoraAccess;
 import cz.incad.kramerius.FedoraNamespaces;
 import cz.incad.kramerius.FedoraRelationship;
 import cz.incad.kramerius.KrameriusModels;
+import cz.incad.kramerius.ProcessSubtreeException;
 import cz.incad.kramerius.RelsExtHandler;
 import cz.incad.kramerius.SolrAccess;
+import cz.incad.kramerius.impl.AbstractTreeNodeProcessorAdapter;
 import cz.incad.kramerius.pdf.Break;
 import cz.incad.kramerius.pdf.GeneratePDFService;
 import cz.incad.kramerius.pdf.pdfpages.AbstractPage;
@@ -273,7 +275,7 @@ public class GeneratePDFServiceImpl implements GeneratePDFService {
 	
 
 	@Override
-	public void dynamicPDFExport(List<String> path, String uuidFrom, String uuidTo, String titlePage, OutputStream os, String djvuUrl, String i18nUrl) throws IOException {
+	public void dynamicPDFExport(List<String> path, String uuidFrom, String uuidTo, String titlePage, OutputStream os, String djvuUrl, String i18nUrl) throws IOException, ProcessSubtreeException {
 		LOGGER.info("current locale is "+localeProvider.get());
 		if (!path.isEmpty()) {
 			String lastUuid = path.get(path.size() -1);
@@ -294,7 +296,7 @@ public class GeneratePDFServiceImpl implements GeneratePDFService {
 
 
 	@Override
-	public void fullPDFExport(String parentUUID, OutputStreams streams, Break brk, String djvuUrl, String i18nUrl) throws IOException {
+	public void fullPDFExport(String parentUUID, OutputStreams streams, Break brk, String djvuUrl, String i18nUrl) throws IOException, ProcessSubtreeException {
 		org.w3c.dom.Document relsExt = this.fedoraAccess.getRelsExt(parentUUID);
 		String modelName = this.fedoraAccess.getKrameriusModelName(relsExt);
 		//KrameriusModels model = this.fedoraAccess.getKrameriusModel(relsExt);
@@ -313,7 +315,7 @@ public class GeneratePDFServiceImpl implements GeneratePDFService {
 		item.setTitle("Popis"); item.setDestination("desc");
 		renderedDocument.getOutlineItemRoot().addChild(item);
 		
-		buildRenderingDocumentAsTree(relsExt, renderedDocument);
+		buildRenderingDocumentAsTree(parentUUID,  renderedDocument);
 		
 		AbstractRenderedDocument restOfDoc = renderedDocument;
 		OutputStream os = null;
@@ -335,7 +337,7 @@ public class GeneratePDFServiceImpl implements GeneratePDFService {
 
 
 	
-	private void buildRenderingDocumentAsFlat(org.w3c.dom.Document relsExt, String uuid, final AbstractRenderedDocument renderedDocument, final String uuidFrom, final String uuidTo ) throws IOException {
+	private void buildRenderingDocumentAsFlat(org.w3c.dom.Document relsExt, String uuid, final AbstractRenderedDocument renderedDocument, final String uuidFrom, final String uuidTo ) throws IOException, ProcessSubtreeException {
 		if (fedoraAccess.isImageFULLAvailable(uuid)) {
 			Element documentElement = relsExt.getDocumentElement();
 			NodeList childNodes = documentElement.getChildNodes();
@@ -353,146 +355,121 @@ public class GeneratePDFServiceImpl implements GeneratePDFService {
 				}
 			}
 		} else {
-			fedoraAccess.processRelsExt(relsExt, new RelsExtHandler() {
-				
-				private boolean acceptingState = false;
-				
-				@Override
-				public boolean accept(FedoraRelationship relation, String relationShipName) {
-					return relation.name().startsWith("has");
-				}
-
-				@Override
-				public void handle(Element elm, FedoraRelationship relation, String relationshipName, int level) {
-						try {
-							String pid = elm.getAttributeNS(RDF_NAMESPACE_URI, "resource");
-							PIDParser pidParse = new PIDParser(pid);
-							pidParse.disseminationURI();
-							String objectId = pidParse.getObjectId();
-							if (fedoraAccess.isImageFULLAvailable(objectId)) {
-                                
-	                            if (!acceptingState) {
-	                                if (objectId.equals(uuidFrom)) {
-	                                    acceptingState = true;
-	                                    String pidAttribute = elm.getAttributeNS(RDF_NAMESPACE_URI, "resource");
-	                                    renderedDocument.addPage(createPage(renderedDocument, pidAttribute));
-	                                }
-	                            } else {
-	                                if (objectId.equals(uuidTo)) {
-	                                    acceptingState = false;
-	                                }
-	                                String pidAttribute = elm.getAttributeNS(RDF_NAMESPACE_URI, "resource");
-	                                renderedDocument.addPage(createPage(renderedDocument, pidAttribute));
-	                            }
-							}
-							
-						} catch (LexerException e) {
-							LOGGER.log(Level.SEVERE, e.getMessage(), e);
-						} catch (IOException e) {
-							LOGGER.log(Level.SEVERE, e.getMessage(), e);
-						}
-				}
-
-				@Override
-				public boolean breakProcess() {
-					// TODO Auto-generated method stub
-					return false;
-				}
-			});
+		    
+		    fedoraAccess.processSubtree("uuid:"+uuid, new AbstractTreeNodeProcessorAdapter() {
+                private boolean acceptingState = false;
+                @Override
+                public void processUuid(String uuid, int level) {
+                    try{
+                        if (fedoraAccess.isImageFULLAvailable(uuid)) {
+                            
+                            if (!acceptingState) {
+                                LOGGER.fine("uuidFrom ["+uuidFrom+"], uuidTo ["+uuidTo+"], and current ["+uuid+"]");
+                                if (uuid.equals(uuidFrom)) {
+                                    acceptingState = true;
+                                    //String pidAttribute = elm.getAttributeNS(RDF_NAMESPACE_URI, "resource");
+                                    renderedDocument.addPage(createPage(renderedDocument, uuid));
+                                }
+                            } else {
+                                if (uuid.equals(uuidTo)) {
+                                    acceptingState = false;
+                                }
+                                renderedDocument.addPage(createPage(renderedDocument, uuid));
+                            }
+                        }
+                        
+                    } catch (LexerException e) {
+                        LOGGER.log(Level.SEVERE, e.getMessage(), e);
+                    } catch (IOException e) {
+                        LOGGER.log(Level.SEVERE, e.getMessage(), e);
+                    }
+                }
+            });
+		    
+		    
 		}
 	}
 	
-	private void buildRenderingDocumentAsTree(org.w3c.dom.Document relsExt, final AbstractRenderedDocument renderedDocument ) throws IOException {
-		fedoraAccess.processRelsExt(relsExt, new RelsExtHandler() {
-			
-				private int previousLevel = -1;
-				private OutlineItem currOutline = null;
-				
-				@Override
-				public void handle(Element elm, FedoraRelationship relation, String relationshipName, int level) {
-					try {
-						String pidAttribute = elm.getAttributeNS(RDF_NAMESPACE_URI, "resource");
-						AbstractPage page = createPage(renderedDocument, pidAttribute);
-						renderedDocument.addPage(page);
-						if (previousLevel == -1) {
-							// first
-							this.currOutline = createOutlineItem(renderedDocument.getOutlineItemRoot(), page.getOutlineDestination(), page.getOutlineTitle(), level);
-							StringBuffer buffer = new StringBuffer();
-							this.currOutline.debugInformations(buffer, 0);
-						} else if (previousLevel == level) {
-							this.currOutline = this.currOutline.getParent();
-							this.currOutline = createOutlineItem(this.currOutline, page.getOutlineDestination(), page.getOutlineTitle(), level);
+	private void buildRenderingDocumentAsTree(String uuid,/*org.w3c.dom.Document relsExt,*/ final AbstractRenderedDocument renderedDocument ) throws IOException, ProcessSubtreeException {
+	    fedoraAccess.processSubtree("uuid:"+uuid, new AbstractTreeNodeProcessorAdapter() {
+            
+            private int previousLevel = -1;
+            private OutlineItem currOutline = null;
+            @Override
+            public void processUuid(String pageUuid, int level) {
+                try {
+                    AbstractPage page = createPage(renderedDocument, pageUuid);
+                    renderedDocument.addPage(page);
+                    if (previousLevel == -1) {
+                        // first
+                        this.currOutline = createOutlineItem(renderedDocument.getOutlineItemRoot(), page.getOutlineDestination(), page.getOutlineTitle(), level);
+                        StringBuffer buffer = new StringBuffer();
+                        this.currOutline.debugInformations(buffer, 0);
+                    } else if (previousLevel == level) {
+                        this.currOutline = this.currOutline.getParent();
+                        this.currOutline = createOutlineItem(this.currOutline, page.getOutlineDestination(), page.getOutlineTitle(), level);
 
-							StringBuffer buffer = new StringBuffer();
-							this.currOutline.debugInformations(buffer, 0);
+                        StringBuffer buffer = new StringBuffer();
+                        this.currOutline.debugInformations(buffer, 0);
 
-						} else if (previousLevel < level) {
-							// dolu
-							this.currOutline = createOutlineItem(this.currOutline, page.getOutlineDestination(), page.getOutlineTitle(), level);
+                    } else if (previousLevel < level) {
+                        // dolu
+                        this.currOutline = createOutlineItem(this.currOutline, page.getOutlineDestination(), page.getOutlineTitle(), level);
 
-							StringBuffer buffer = new StringBuffer();
-							this.currOutline.debugInformations(buffer, 0);
+                        StringBuffer buffer = new StringBuffer();
+                        this.currOutline.debugInformations(buffer, 0);
 
-						} else if (previousLevel > level) {
-							// nahoru // za poslednim smerem nahoru
-							this.currOutline = this.currOutline.getParent();
-							
-							StringBuffer buffer = new StringBuffer();
-							this.currOutline.debugInformations(buffer, 0);
-							
-							this.currOutline = this.currOutline.getParent();
-							this.currOutline = createOutlineItem(this.currOutline, page.getOutlineDestination(), page.getOutlineTitle(), level);
-							
-						}
+                    } else if (previousLevel > level) {
+                        // nahoru // za poslednim smerem nahoru
+                        this.currOutline = this.currOutline.getParent();
+                        
+                        StringBuffer buffer = new StringBuffer();
+                        this.currOutline.debugInformations(buffer, 0);
+                        
+                        this.currOutline = this.currOutline.getParent();
+                        this.currOutline = createOutlineItem(this.currOutline, page.getOutlineDestination(), page.getOutlineTitle(), level);
+                        
+                    }
 
-						previousLevel = level;
-					} catch (DOMException e) {
-						LOGGER.log(Level.SEVERE, e.getMessage(), e);
-						throw new RuntimeException(e);
-					} catch (LexerException e) {
-						LOGGER.log(Level.SEVERE, e.getMessage(), e);
-						throw new RuntimeException(e);
-					} catch (IOException e) {
-						LOGGER.log(Level.SEVERE, e.getMessage(), e);
-						throw new RuntimeException(e);
-					}
-				}
+                    previousLevel = level;
+                } catch (DOMException e) {
+                    LOGGER.log(Level.SEVERE, e.getMessage(), e);
+                    throw new RuntimeException(e);
+                } catch (LexerException e) {
+                    LOGGER.log(Level.SEVERE, e.getMessage(), e);
+                    throw new RuntimeException(e);
+                } catch (IOException e) {
+                    LOGGER.log(Level.SEVERE, e.getMessage(), e);
+                    throw new RuntimeException(e);
+                }
+                
+            }
+            
 
+            private OutlineItem createOutlineItem(OutlineItem parent, String objectId, String biblioModsTitle, int level) {
+                OutlineItem item = new OutlineItem();
+                item.setDestination(objectId);
 
-				private OutlineItem createOutlineItem(OutlineItem parent, String objectId, String biblioModsTitle, int level) {
-					OutlineItem item = new OutlineItem();
-					item.setDestination(objectId);
+                
+                item.setTitle(biblioModsTitle);
+                
+                parent.addChild(item);
+                item.setParent(parent);
+                item.setLevel(level);
+                return item;
+            }
 
-					
-					item.setTitle(biblioModsTitle);
-					
-					parent.addChild(item);
-					item.setParent(parent);
-					item.setLevel(level);
-					return item;
-				}
-				
-				@Override
-				public boolean accept(FedoraRelationship relation, String relationShipName) {
-					return relation.name().startsWith("has");
-				}
-
-
-				@Override
-				public boolean breakProcess() {
-					return false;
-				}
-			});
+        });
 	}
 	
 
 	protected AbstractPage createPage( final AbstractRenderedDocument renderedDocument,
-			String pid)
+			String objectId)
 			throws LexerException, IOException {
 		//String pid = elm.getAttributeNS(RDF_NAMESPACE_URI, "resource");
-		PIDParser pidParse = new PIDParser(pid);
-		pidParse.disseminationURI();
-		String objectId = pidParse.getObjectId();
+//		PIDParser pidParse = new PIDParser(pid);
+//		pidParse.disseminationURI();
+//		String objectId = pidParse.getObjectId();
 		
 		org.w3c.dom.Document biblioMods = fedoraAccess.getBiblioMods(objectId);
 		org.w3c.dom.Document dc = fedoraAccess.getDC(objectId);

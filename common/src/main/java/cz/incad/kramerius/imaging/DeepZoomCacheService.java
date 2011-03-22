@@ -6,6 +6,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
 
+import cz.incad.kramerius.ProcessSubtreeException;
+
 /**
  * This service is suitable for caching deep zoom tiles
  * 
@@ -42,10 +44,11 @@ public interface DeepZoomCacheService {
      * @param uuid
      *            Master uuuid
      * @throws IOException
+     * @throws ProcessSubtreeException 
      */
-    public void prepareCacheForUUID(String uuid) throws IOException;
+    public void prepareCacheForUUID(String uuid) throws IOException, ProcessSubtreeException;
 
-    public void prepareCacheForUUID(String uuid, int levelOverTileSize) throws IOException;
+    public void prepareCacheForUUID(String uuid, int levelOverTileSize) throws IOException, ProcessSubtreeException;
     
     /**
      * Returns true if deep zoom descriptor is present in cache

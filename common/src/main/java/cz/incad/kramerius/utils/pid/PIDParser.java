@@ -15,7 +15,8 @@ import cz.incad.kramerius.utils.pid.Token.TokenType;
 public class PIDParser {
 
 	public static final String INFO_FEDORA_PREFIX = "info:fedora/";
-
+	public static final String UUID_PREFIX="uuid:";
+	
     private Lexer lexer;
 	public String getObjectId() {
 		return objectId;

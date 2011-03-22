@@ -16,6 +16,7 @@ import java.util.concurrent.locks.ReentrantLock;
 import com.google.inject.Inject;
 import com.google.inject.name.Named;
 
+import cz.incad.kramerius.ProcessSubtreeException;
 import cz.incad.kramerius.imaging.DeepZoomCacheService;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 
@@ -58,7 +59,7 @@ public class SimpleMemoryCacheServiceWrapper implements DeepZoomCacheService {
 	}
 
 	@Override
-	public void prepareCacheForUUID(String uuid) throws IOException {
+	public void prepareCacheForUUID(String uuid) throws IOException, ProcessSubtreeException {
 		this.wrappingInstance.prepareCacheForUUID(uuid);
 	}
 
@@ -112,7 +113,7 @@ public class SimpleMemoryCacheServiceWrapper implements DeepZoomCacheService {
 	
 
    @Override
-    public void prepareCacheForUUID(String uuid, int levelOverTileSize) throws IOException {
+    public void prepareCacheForUUID(String uuid, int levelOverTileSize) throws IOException, ProcessSubtreeException {
        this.wrappingInstance.prepareCacheForUUID(uuid, levelOverTileSize);
     }
 

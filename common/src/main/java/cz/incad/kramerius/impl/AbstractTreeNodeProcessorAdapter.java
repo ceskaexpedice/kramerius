@@ -16,6 +16,7 @@
  */
 package cz.incad.kramerius.impl;
 
+import cz.incad.kramerius.ProcessSubtreeException;
 import cz.incad.kramerius.TreeNodeProcessor;
 import cz.incad.kramerius.utils.pid.LexerException;
 import cz.incad.kramerius.utils.pid.PIDParser;
@@ -27,7 +28,7 @@ import cz.incad.kramerius.utils.pid.PIDParser;
 public abstract class AbstractTreeNodeProcessorAdapter implements TreeNodeProcessor {
 
     @Override
-    public void process(String pid) {
+    public void process(String pid, int level) throws ProcessSubtreeException {
         String pageUuid = null;
         try {
             if (pid.startsWith(PIDParser.INFO_FEDORA_PREFIX)) {
@@ -40,15 +41,26 @@ public abstract class AbstractTreeNodeProcessorAdapter implements TreeNodeProces
                 pageUuid = pidParse.getObjectId();
             }
             
-            processUuid(pageUuid);
+            processUuid(pageUuid, level);
         } catch (LexerException e) {
             throw new RuntimeException(e);
         }
     }
+    
+    
+
+    @Override
+    public boolean breakProcessing(String pid, int level) {
+        return false;
+    }
+
+
 
     /**
      * Processing one uuid
+     * @param level TODO
      * @param uuid UUID of processing object
+     * @throws ProcessSubtreeException 
      */
-    public abstract void processUuid(String pageUuid);
+    public abstract void processUuid(String pageUuid, int level) throws ProcessSubtreeException;
 }

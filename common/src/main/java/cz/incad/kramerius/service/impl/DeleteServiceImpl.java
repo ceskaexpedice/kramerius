@@ -1,5 +1,6 @@
 package cz.incad.kramerius.service.impl;
 
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
@@ -30,7 +31,7 @@ public class DeleteServiceImpl implements DeleteService {
     private static final String INFO = "info:fedora/";
     
     @Override
-    public void deleteTree(String pid, String message) {
+    public void deleteTree(String pid, String message) throws IOException {
         Set<String> pids = fedoraAccess.getPids(pid);
         for (String s : pids) {
         	String p = s.replace(INFO, "");
@@ -46,8 +47,9 @@ public class DeleteServiceImpl implements DeleteService {
     /**
      * args[0] uuid of the root object (without uuid: prefix)
      * args[1] pid_path to root object
+     * @throws IOException 
      */
-    public static void main(String[] args){
+    public static void main(String[] args) throws IOException{
     	LOGGER.info("DeleteService: "+Arrays.toString(args));
         DeleteServiceImpl inst = new DeleteServiceImpl();
         inst.fedoraAccess = new FedoraAccessImpl(null);

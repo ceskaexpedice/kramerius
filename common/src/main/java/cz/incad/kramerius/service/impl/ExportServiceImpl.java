@@ -33,7 +33,7 @@ public class ExportServiceImpl implements ExportService {
     private static final String INFO = "info:fedora/";
 
     @Override
-    public void exportTree(String pid) {
+    public void exportTree(String pid) throws IOException {
         Set<String> pids = fedoraAccess.getPids(pid);
         if (pids.isEmpty()) 
         	return;
@@ -77,8 +77,9 @@ public class ExportServiceImpl implements ExportService {
 
     /**
      * args[0] uuid of the root object (without uuid: prefix)
+     * @throws IOException 
      */
-    public static void main(String[] args) {
+    public static void main(String[] args) throws IOException {
     	LOGGER.info("Export service: "+Arrays.toString(args));
         ExportServiceImpl inst = new ExportServiceImpl();
         inst.fedoraAccess = new FedoraAccessImpl(null);

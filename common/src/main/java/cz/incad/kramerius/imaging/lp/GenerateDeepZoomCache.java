@@ -9,6 +9,7 @@ import com.google.inject.Key;
 import com.google.inject.name.Named;
 import com.google.inject.name.Names;
 
+import cz.incad.kramerius.ProcessSubtreeException;
 import cz.incad.kramerius.imaging.DeepZoomCacheService;
 import cz.incad.kramerius.imaging.lp.guice.Fedora3Module;
 import cz.incad.kramerius.imaging.lp.guice.GenerateDeepZoomCacheModule;
@@ -20,7 +21,7 @@ public class GenerateDeepZoomCache {
 
     static java.util.logging.Logger LOGGER = java.util.logging.Logger.getLogger(GenerateDeepZoomCache.class.getName());
 
-    public static void main(String[] args) throws IOException {
+    public static void main(String[] args) throws IOException, ProcessSubtreeException {
         System.out.println("Generate deep zoom cache :" + Arrays.asList(args));
         if (args.length >= 1) {
             Injector injector = Guice.createInjector(new GenerateDeepZoomCacheModule(), new Fedora3Module());

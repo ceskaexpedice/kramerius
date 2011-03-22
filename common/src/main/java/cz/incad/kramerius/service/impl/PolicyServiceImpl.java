@@ -1,6 +1,7 @@
 package cz.incad.kramerius.service.impl;
 
 import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.io.StringWriter;
 import java.util.Arrays;
 import java.util.Iterator;
@@ -45,7 +46,7 @@ public class PolicyServiceImpl implements PolicyService {
     KConfiguration configuration;
 
     @Override
-    public void setPolicy(String pid, String policyName) {
+    public void setPolicy(String pid, String policyName) throws IOException {
         Set<String> pids = fedoraAccess.getPids(pid);
         for (String s : pids) {
         	String p = s.replace(INFO, "");
@@ -143,9 +144,10 @@ public class PolicyServiceImpl implements PolicyService {
     /**
      * args[1] - uuid of the root item (withou uuid: prefix)
      * args[0] - policy to set (public, private)
+     * @throws IOException 
      */
     
-    public static void main(String[] args) {
+    public static void main(String[] args) throws IOException {
     	LOGGER.info("PolicyService: "+Arrays.toString(args));
         PolicyServiceImpl inst = new PolicyServiceImpl();
         inst.fedoraAccess = new FedoraAccessImpl(null);

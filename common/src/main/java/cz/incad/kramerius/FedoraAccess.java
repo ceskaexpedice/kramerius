@@ -16,7 +16,6 @@ import org.w3c.dom.Element;
 import cz.incad.kramerius.impl.FedoraAccessImpl;
 import cz.incad.kramerius.security.SecuredFedoraAccessImpl;
 import cz.incad.kramerius.utils.imgs.KrameriusImageSupport;
-import java.util.ArrayList;
 
 /**
  * This is main point to access to fedora through REST-API
@@ -172,7 +171,7 @@ public interface FedoraAccess {
      * @return true to stop recursion
      * @throws IOException
     */
-    public boolean getFirstViewablePath(ArrayList<String> pids, ArrayList<String> models) throws IOException;
+    public boolean getFirstViewablePath(List<String> pids, List<String> models) throws IOException;
 
 
     /**
@@ -182,6 +181,7 @@ public interface FedoraAccess {
      *            UUID of object
      * @return
      */
+    @Deprecated
     public List<Element> getPages(String uuid, boolean deep) throws IOException;
 
     /**
@@ -194,6 +194,7 @@ public interface FedoraAccess {
      * @return
      * @throws IOException
      */
+    @Deprecated
     public List<Element> getPages(String uuid, Element rootElementOfRelsExt) throws IOException;
 
     /**
@@ -282,9 +283,9 @@ public interface FedoraAccess {
 
     public ObjectFactory getObjectFactory();
 
-    public void processSubtree(String pid, TreeNodeProcessor processor);
+    public void processSubtree(String pid, TreeNodeProcessor processor) throws ProcessSubtreeException, IOException;
 
-    public Set<String> getPids(String pid);
+    public Set<String> getPids(String pid) throws IOException;
 
     /**
      * Returns inputStream of given datastream 

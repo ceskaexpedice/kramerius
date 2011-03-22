@@ -18,6 +18,7 @@ import com.google.inject.Inject;
 import com.google.inject.name.Named;
 
 import cz.incad.kramerius.FedoraAccess;
+import cz.incad.kramerius.ProcessSubtreeException;
 import cz.incad.kramerius.imaging.DeepZoomCacheService;
 import cz.incad.kramerius.imaging.DeepZoomFullImageScaleFactor;
 import cz.incad.kramerius.imaging.DeepZoomTileSupport;
@@ -160,14 +161,14 @@ public class FileSystemCacheServiceImpl implements DeepZoomCacheService {
     }
 
     @Override
-    public void prepareCacheForUUID(String uuid, final int levelOverTileSize) throws IOException {
+    public void prepareCacheForUUID(String uuid, final int levelOverTileSize) throws IOException, ProcessSubtreeException {
         if (fedoraAccess.isImageFULLAvailable(uuid)) {
             prepareCacheImage(uuid, levelOverTileSize);
         } else {
             fedoraAccess.processSubtree("uuid:"+uuid, new AbstractTreeNodeProcessorAdapter() {
                 private int pageIndex = 1;
                 @Override
-                public void processUuid(String uuid) {
+                public void processUuid(String uuid, int level) {
                     LOGGER.fine("caching page " + (pageIndex++));
                     prepareCacheImage(uuid, levelOverTileSize);
                 }
@@ -176,14 +177,14 @@ public class FileSystemCacheServiceImpl implements DeepZoomCacheService {
     }
 
     @Override
-    public void prepareCacheForUUID(String uuid) throws IOException {
+    public void prepareCacheForUUID(String uuid) throws IOException, ProcessSubtreeException {
         if (fedoraAccess.isImageFULLAvailable(uuid)) {
             prepareCacheImage(uuid, new Dimension(tileSupport.getTileSize(), tileSupport.getTileSize()));
         } else {
             fedoraAccess.processSubtree("uuid:"+uuid, new AbstractTreeNodeProcessorAdapter() {
                 private int pageIndex = 1;
                 @Override
-                public void processUuid(String uuid) {
+                public void processUuid(String uuid, int level) {
                     LOGGER.fine("caching page " + (pageIndex++));
                     prepareCacheImage(uuid, new Dimension(tileSupport.getTileSize(), tileSupport.getTileSize()));
                     

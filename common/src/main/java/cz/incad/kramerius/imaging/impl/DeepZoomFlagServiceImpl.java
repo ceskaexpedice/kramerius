@@ -60,7 +60,7 @@ public class DeepZoomFlagServiceImpl implements DeepZoomFlagService {
                 fedoraAccess.processSubtree("uuid:"+uuid, new AbstractTreeNodeProcessorAdapter() {
                     
                     @Override
-                    public void processUuid(String pageUuid) {
+                    public void processUuid(String pageUuid, int level) {
                         deleteFlagToUUIDInternal(pageUuid);
                     }
 
@@ -117,7 +117,7 @@ public class DeepZoomFlagServiceImpl implements DeepZoomFlagService {
 
                     
                     @Override
-                    public void processUuid(String pageUuid) {
+                    public void processUuid(String pageUuid, int level) {
                         setFlagToUUIDInternal(pageUuid, tilesUrl);
                     }
 

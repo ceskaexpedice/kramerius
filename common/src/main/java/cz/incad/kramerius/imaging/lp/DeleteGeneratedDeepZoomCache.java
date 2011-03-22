@@ -42,6 +42,7 @@ import com.google.inject.name.Names;
 import cz.incad.kramerius.FedoraAccess;
 import cz.incad.kramerius.FedoraRelationship;
 import cz.incad.kramerius.KrameriusModels;
+import cz.incad.kramerius.ProcessSubtreeException;
 import cz.incad.kramerius.RelsExtHandler;
 import cz.incad.kramerius.imaging.DeepZoomCacheService;
 import cz.incad.kramerius.imaging.DeepZoomTileSupport;
@@ -65,7 +66,7 @@ public class DeleteGeneratedDeepZoomCache {
 
     static java.util.logging.Logger LOGGER = java.util.logging.Logger.getLogger(GenerateThumbnail.class.getName());
 
-    public static void main(String[] args) throws IOException {
+    public static void main(String[] args) throws IOException, ProcessSubtreeException {
         System.out.println("Delete deepZoomCache :" + Arrays.asList(args));
         if (args.length == 1) {
             Injector injector = Guice.createInjector(new GenerateDeepZoomCacheModule(), new Fedora3Module());
@@ -82,7 +83,7 @@ public class DeleteGeneratedDeepZoomCache {
         }
     }
 
-    public static void deleteCacheForUUID(String uuid, final FedoraAccess fedoraAccess, final DiscStrucutreForStore discStruct) throws IOException {
+    public static void deleteCacheForUUID(String uuid, final FedoraAccess fedoraAccess, final DiscStrucutreForStore discStruct) throws IOException, ProcessSubtreeException {
         if (fedoraAccess.isImageFULLAvailable(uuid)) {
             try {
                 deleteFolder(uuid, discStruct);
@@ -94,7 +95,7 @@ public class DeleteGeneratedDeepZoomCache {
             fedoraAccess.processSubtree("uuid:"+uuid, new AbstractTreeNodeProcessorAdapter() {
                 
                 @Override
-                public void processUuid(String uuid) {
+                public void processUuid(String uuid, int level) {
                     try {
                         if (fedoraAccess.isImageFULLAvailable(uuid)) {
                             //LOGGER.info("Deleting " + (pageIndex++) +" uuid = "+uuid);

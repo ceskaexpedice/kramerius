@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.util.List;
 
+import cz.incad.kramerius.ProcessSubtreeException;
 import cz.incad.kramerius.pdf.impl.OutputStreams;
 import cz.incad.kramerius.pdf.pdfpages.AbstractRenderedDocument;
 
@@ -23,8 +24,9 @@ public interface GeneratePDFService {
 	 * @param djvuUrl URL for full images
 	 * @param i18Url URL for translations
 	 * @throws IOException
+	 * @throws ProcessSubtreeException 
 	 */
-	public void fullPDFExport(String parentUUID, OutputStreams outputs, Break brk, String djvuUrl, String i18Url) throws IOException;
+	public void fullPDFExport(String parentUUID, OutputStreams outputs, Break brk, String djvuUrl, String i18Url) throws IOException, ProcessSubtreeException;
 
 	/**
 	 * Generate dynamic export
@@ -34,8 +36,9 @@ public interface GeneratePDFService {
 	 * @param titlePage Where is title page
 	 * @param os OutputStreams
 	 * @throws IOException 
+	 * @throws ProcessSubtreeException 
 	 */
-	public void dynamicPDFExport(List<String> path,String uuidFrom, String uuidTo, String titlePage, OutputStream os, String djvuUrl, String i18nUrl) throws IOException;
+	public void dynamicPDFExport(List<String> path,String uuidFrom, String uuidTo, String titlePage, OutputStream os, String djvuUrl, String i18nUrl) throws IOException, ProcessSubtreeException;
 	
 	/**
 	 * Generate custom pdf 

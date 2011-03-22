@@ -11,6 +11,7 @@ import java.net.MalformedURLException;
 import java.net.PasswordAuthentication;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -25,6 +26,7 @@ import javax.xml.xpath.XPathExpression;
 import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
 
+import org.apache.commons.io.IOExceptionWithCause;
 import org.fedora.api.FedoraAPIA;
 import org.fedora.api.FedoraAPIAService;
 import org.fedora.api.FedoraAPIM;
@@ -43,9 +45,11 @@ import com.google.inject.Provider;
 import com.google.inject.name.Named;
 
 import cz.incad.kramerius.FedoraAccess;
+import cz.incad.kramerius.FedoraNamespaceContext;
 import cz.incad.kramerius.FedoraNamespaces;
 import cz.incad.kramerius.FedoraRelationship;
 import cz.incad.kramerius.KrameriusModels;
+import cz.incad.kramerius.ProcessSubtreeException;
 import cz.incad.kramerius.RelsExtHandler;
 import cz.incad.kramerius.SolrAccess;
 import cz.incad.kramerius.TreeNodeProcessor;
@@ -237,24 +241,53 @@ public class FedoraAccessImpl implements FedoraAccess {
     
     @Override
     public String findFirstViewablePid(String uuid) throws IOException{
-        if(isImageFULLAvailable(uuid)) return uuid;
-        Document relsExt = getRelsExt(uuid);
-        Element descEl = XMLUtils.findElement(relsExt.getDocumentElement(), "Description", FedoraNamespaces.RDF_NAMESPACE_URI);
-        List<Element> els = XMLUtils.getElements(descEl);
-        for(Element el: els){
-            if (getTreePredicates().contains(el.getNamespaceURI() + el.getLocalName())) {
-                if(el.hasAttribute("rdf:resource")){
-                    String hit = findFirstViewablePid(el.getAttributes().getNamedItem("rdf:resource").getNodeValue().split("uuid:")[1]);
-                    if(hit!=null) return hit;
+        final List<String> foundUuids = new ArrayList<String>();
+        try {
+            processSubtree(PIDParser.UUID_PREFIX+uuid, new AbstractTreeNodeProcessorAdapter() {
+                
+                boolean breakProcess = false;
+                
+                @Override
+                public void processUuid(String pageUuid, int level) throws ProcessSubtreeException {
+                    try {
+                        if(FedoraAccessImpl.this.isImageFULLAvailable(pageUuid)) {
+                            foundUuids.add(pageUuid);
+                            breakProcess = true;
+                        }
+                    } catch (IOException e) {
+                        throw new ProcessSubtreeException(e);
+                    }
                 }
-            }
-         }
-        return null;
+
+                @Override
+                public boolean breakProcessing(String pid, int level) {
+                    return breakProcess;
+                }
+                
+            });
+        } catch (ProcessSubtreeException e) {
+            throw new IOException(e);
+        }
+
+        return foundUuids.isEmpty() ? null : foundUuids.get(0);
+//        if(isImageFULLAvailable(uuid)) return uuid;
+//        Document relsExt = getRelsExt(uuid);
+//        Element descEl = XMLUtils.findElement(relsExt.getDocumentElement(), "Description", FedoraNamespaces.RDF_NAMESPACE_URI);
+//        List<Element> els = XMLUtils.getElements(descEl);
+//        for(Element el: els){
+//            if (getTreePredicates().contains(el.getNamespaceURI() + el.getLocalName())) {
+//                if(el.hasAttribute("rdf:resource")){
+//                    String hit = findFirstViewablePid(el.getAttributes().getNamedItem("rdf:resource").getNodeValue().split("uuid:")[1]);
+//                    if(hit!=null) return hit;
+//                }
+//            }
+//         }
+//        return null;
         
     }
 
     @Override
-    public boolean getFirstViewablePath(ArrayList<String> pids, ArrayList<String> models) throws IOException{
+    public boolean getFirstViewablePath(List<String> pids, List<String> models) throws IOException{
         String uuid = pids.get(pids.size() - 1);
         if(isImageFULLAvailable(uuid)){
             return true;
@@ -625,43 +658,100 @@ public class FedoraAccessImpl implements FedoraAccess {
     "http://www.nsdl.org/ontologies/relationships#hasUnit"
     });
      */
-    private ArrayList<String> treePredicates;
-
-    private ArrayList<String> getTreePredicates() {
-        if (treePredicates == null) {
-            treePredicates = new ArrayList<String>();
-            String prefix = KConfiguration.getInstance().getProperty("fedora.predicatesPrefix");
-            String[] preds = KConfiguration.getInstance().getPropertyList("fedora.treePredicates");
-            for (String s : preds) {
-                LOGGER.log(Level.INFO, prefix+s);
-                treePredicates.add(prefix + s);
-            }
-        }
-        return treePredicates;
+//    private ArrayList<String> treePredicates;
+//
+//    private List<String> getTreePredicates() {
+//        if (treePredicates == null) {
+//            treePredicates = new ArrayList<String>();
+//            String prefix = KConfiguration.getInstance().getProperty("fedora.predicatesPrefix");
+//            
+//            String[] preds = KConfiguration.getInstance().getPropertyList("fedora.treePredicates");
+//            for (String s : preds) {
+//                LOGGER.log(Level.INFO, prefix+s);
+//                treePredicates.add(prefix + s);
+//            }
+//        }
+//        return treePredicates;
+//    }
+    
+    private List<String> getTreePredicates() {
+        return Arrays.asList(KConfiguration.getInstance().getPropertyList("fedora.treePredicates"));
     }
 
-    public void processSubtree(String pid, TreeNodeProcessor processor) {
-        processor.process(pid);
-        for (RelationshipTuple rel : getAPIM().getRelationships(pid, null)) {
-            if (getTreePredicates().contains(rel.getPredicate())) {
-                try {
-                    processSubtree(rel.getObject(), processor);
-                } catch (Exception ex) {
-                    LOGGER.warning("Error processing subtree, skipping:" + ex);
+    public void processSubtree(String pid, TreeNodeProcessor processor) throws ProcessSubtreeException, IOException {
+        try {
+            PIDParser pidParser = new PIDParser(pid);
+            pidParser.objectPid();
+            Document relsExt = getRelsExt(pidParser.getObjectId());
+            processSubtreeInternal(pid, relsExt, processor,0);
+        } catch (LexerException e) {
+            throw new ProcessSubtreeException(e);
+        } catch (XPathExpressionException e) {
+            throw new ProcessSubtreeException(e);
+        }
+    }
+
+    public boolean processSubtreeInternal(String pid, Document relsExt, TreeNodeProcessor processor, int level) throws XPathExpressionException, LexerException, IOException, ProcessSubtreeException {
+        processor.process(pid, level);
+        boolean breakProcessing = processor.breakProcessing(pid,level);
+        if (breakProcessing) return breakProcessing;
+        
+        XPathFactory factory = XPathFactory.newInstance();
+        XPath xpath = factory.newXPath();
+        xpath.setNamespaceContext(new FedoraNamespaceContext());
+        XPathExpression expr = xpath.compile("/rdf:RDF/rdf:Description/*");
+        NodeList nodes = (NodeList) expr.evaluate(relsExt, XPathConstants.NODESET);
+        for (int i = 0,ll=nodes.getLength(); i < ll; i++) {
+            Node node = nodes.item(i);
+            if (node.getNodeType() == Node.ELEMENT_NODE) {
+                Element iteratingElm = (Element) node;
+                String namespaceURI = iteratingElm.getNamespaceURI();
+                if ((namespaceURI.equals(FedoraNamespaces.ONTOLOGY_RELATIONSHIP_NAMESPACE_URI))  || 
+                    (namespaceURI.equals(FedoraNamespaces.RDF_NAMESPACE_URI))) {
+                    String attVal = iteratingElm.getAttributeNS(FedoraNamespaces.RDF_NAMESPACE_URI, "resource");
+                    if (!attVal.trim().equals("")) {
+                        PIDParser pidParser = new PIDParser(attVal);
+                        pidParser.disseminationURI();
+                        String objectId = pidParser.getObjectId();
+                        if (pidParser.getNamespaceId().equals("uuid")) {
+                            StringBuffer buffer = new StringBuffer();
+                            {   // debug print
+                                for (int k = 0; k < level; k++) { buffer.append(" "); }
+                                LOGGER.fine(buffer.toString()+" processing pid [" +attVal+"]");
+                            }
+                            Document iterationgRelsExt = getRelsExt(objectId);
+                            breakProcessing = processSubtreeInternal(pidParser.getNamespaceId()+":"+pidParser.getObjectId(), iterationgRelsExt, processor, level + 1);
+                            if (breakProcessing) break;
+                        }
+                    }
+                    
                 }
             }
         }
+        
+        return breakProcessing;
     }
+    
+    
 
-    public Set<String> getPids(String pid) {
+    public Set<String> getPids(String pid) throws IOException {
         final Set<String> retval = new HashSet<String>();
-        processSubtree(pid, new TreeNodeProcessor() {
+        try {
+            processSubtree(pid, new TreeNodeProcessor() {
 
-            @Override
-            public void process(String pid) {
-                retval.add(pid);
-            }
-        });
+                @Override
+                public void process(String pid, int level) {
+                    retval.add(pid);
+                }
+
+                @Override
+                public boolean breakProcessing(String pid, int level) {
+                    return false;
+                }
+            });
+        } catch (ProcessSubtreeException e) {
+            throw new IOException(e);
+        }
         return retval;
     }
 

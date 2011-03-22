@@ -26,6 +26,7 @@ import com.google.inject.name.Named;
 import cz.incad.kramerius.FedoraAccess;
 import cz.incad.kramerius.FedoraNamespaceContext;
 import cz.incad.kramerius.KrameriusModels;
+import cz.incad.kramerius.ProcessSubtreeException;
 import cz.incad.kramerius.RelsExtHandler;
 import cz.incad.kramerius.SolrAccess;
 import cz.incad.kramerius.TreeNodeProcessor;
@@ -33,7 +34,6 @@ import cz.incad.kramerius.imaging.DiscStrucutreForStore;
 import cz.incad.kramerius.impl.FedoraAccessImpl;
 import cz.incad.kramerius.utils.FedoraUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
-import java.util.ArrayList;
 
 /**
  * This is secured variant of class FedoraAccessImpl {@link FedoraAccessImpl}. <br>
@@ -78,7 +78,7 @@ public class SecuredFedoraAccessImpl implements FedoraAccess {
         return rawAccess.findFirstViewablePid(uuid);
     }
 
-    public boolean getFirstViewablePath(ArrayList<String> pids, ArrayList<String> models) throws IOException{
+    public boolean getFirstViewablePath(List<String> pids, List<String> models) throws IOException{
         return rawAccess.getFirstViewablePath(pids, models);
     }
 
@@ -179,11 +179,11 @@ public class SecuredFedoraAccessImpl implements FedoraAccess {
         return rawAccess.getObjectFactory();
     }
 
-    public void processSubtree(String pid, TreeNodeProcessor processor) {
+    public void processSubtree(String pid, TreeNodeProcessor processor) throws ProcessSubtreeException, IOException {
         rawAccess.processSubtree(pid, processor);
     }
 
-    public Set<String> getPids(String pid) {
+    public Set<String> getPids(String pid) throws IOException {
         return rawAccess.getPids(pid);
     }
 
