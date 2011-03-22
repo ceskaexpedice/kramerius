@@ -35,18 +35,10 @@ public class TransformerToText {
 
     private static final Logger logger =
             Logger.getLogger(TransformerToText.class.getName());
-    public static final String[] handledMimeTypes = {"text/plain", "text/xml", "text/html", "application/pdf"};
 
     public TransformerToText() {
     }
     
-    
-
-    /**
-     * 
-     *
-     * @throws TransformerConfigurationException, TransformerException.
-     */
     public StringBuffer getText(byte[] doc, String mimetype, String page)
             throws Exception, Exception {
         if (mimetype.equals("text/plain")) {

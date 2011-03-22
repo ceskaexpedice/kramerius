@@ -34,17 +34,6 @@ public class FedoraOperations {
         fa = new FedoraAccessImpl(KConfiguration.getInstance());
     }
 
-    private static String getBaseURL(String fedoraSoap)
-            throws Exception {
-        final String end = "/services";
-        String baseURL = fedoraSoap;
-        if (fedoraSoap.endsWith(end)) {
-            return fedoraSoap.substring(0, fedoraSoap.length() - end.length());
-        } else {
-            throw new Exception("Unable to determine baseURL from fedoraSoap" + " value (expected it to end with '" + end + "'): " + fedoraSoap);
-        }
-    }
-
     public void init(String indexName/*, Properties currentConfig*/) {
         init(null, indexName/*, currentConfig*/);
     }
@@ -114,38 +103,6 @@ public class FedoraOperations {
         return 1;
     }
 
-    public String getParentsOld(String pid) {
-        try {
-            String query = "$object * <info:fedora/" + pid + ">";
-            String urlStr = KConfiguration.getInstance().getConfiguration().getString("FedoraResourceIndex") + "?type=triples&flush=true&lang=spo&format=N-Triples&limit=&distinct=off&stream=off"
-                    + "&query=" + java.net.URLEncoder.encode(query, "UTF-8");
-            StringBuilder sb = new StringBuilder();
-
-            java.net.URL url = new java.net.URL(urlStr);
-
-            java.io.BufferedReader in = new java.io.BufferedReader(new java.io.InputStreamReader(url.openStream()));
-            String inputLine;
-            int end;
-            while ((inputLine = in.readLine()) != null) {
-//<info:fedora/uuid:5fe0b160-62d5-11dd-bdc7-000d606f5dc6> <http://www.nsdl.org/ontologies/relationships#hasPage> <info:fedora/uuid:75fca1f0-64b2-11dd-9fd4-000d606f5dc6> .
-//<info:fedora/uuid:f0da6570-8f3b-11dd-b796-000d606f5dc6> <http://www.nsdl.org/ontologies/relationships#isOnPage> <info:fedora/uuid:75fca1f0-64b2-11dd-9fd4-000d606f5dc6> .
-                end = inputLine.indexOf(">");
-//18 je velikost   <info:fedora/uuid:
-                inputLine = inputLine.substring(18, end);
-                sb.append(inputLine);
-                sb.append(";");
-            }
-            in.close();
-            sb.delete(sb.length() - 1, sb.length());
-            return sb.toString();
-
-        } catch (Exception ex) {
-            ex.printStackTrace();
-            logger.severe(ex.toString());
-            return "";
-        }
-    }
-
     public String getParents(String pid) {
         try {
             StringBuilder sb = new StringBuilder();
@@ -171,7 +128,6 @@ public class FedoraOperations {
     }
 
     public String getDatastreamText(String pid, String dsId, String pageNum) throws Exception {
-        //logger.fine("getDatastreamText" + " pid=" + pid + " repositoryName=" + repositoryName + " dsId=" + dsId + " fedoraSoap=" + fedoraSoap + " fedoraUser=" + fedoraUser + " fedoraPass=" + fedoraPass + " trustStorePath=" + trustStorePath + " trustStorePass=" + trustStorePass);
 
         StringBuffer dsBuffer = new StringBuffer();
         String mimetype = "";

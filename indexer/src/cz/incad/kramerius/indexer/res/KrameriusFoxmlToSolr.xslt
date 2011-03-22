@@ -28,7 +28,7 @@
          - from datastream by ID, text fetched, if mimetype can be handled
              currently the mimetypes text/plain, text/xml, text/html, application/pdf can be handled.
 -->
-    <xsl:param name="DOCCOUNT" select="repositoryName"/>
+    <xsl:param name="DOCCOUNT" select="0"/>
     
     <xsl:param name="PAGESCOUNT" select="1"/>
     <xsl:param name="DATUM" select="''"/>
