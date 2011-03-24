@@ -529,7 +529,6 @@ function activateThumbs(){
     var w = getTvContainerWidth();
     var leftBorder = getTvContainerLeft();
     var rightBorder = leftBorder + w *2; 
-    //alert(rightBorder);
     var l;
     var src;
     var i = 0;
@@ -544,22 +543,20 @@ function activateThumbs(){
     $('#tv_container_row>td.inlevel_'+level+'.'+model+'>div>img.tv_img_inactive').each(function(){
         l = $(this).offset().left;
         if( 
-            //$(this).attr('src')=='img/empty.gif' &&
             l + $(this).width() > leftBorder &&
             l < rightBorder)
             {
 
-            //src = 'thumb?outputFormat=RAW&uuid='+$(this).parent().attr('pid');
-            src = 'thumb?outputFormat=RAW&uuid='+$(this).attr('id').split("_")[1];
+            //src = 'thumb?outputFormat=RAW&uuid='+$(this).attr('id').split("_")[1];
+            src = 'img?uuid='+$(this).attr('id').split("_")[1]+'&stream=IMG_THUMB&action=GETRAW';
+            
             $(this).attr('src', src);
             $(this).bind('load', function(){
-                //alert(1);
                 $(this).removeClass('tv_img_inactive');
             });
             
             i++;
         }
-    //$(this).parent().parent().append('<br/>' + l + ' - ' + leftBorder + ' - ' + rightBorder);
     });
 }
     
