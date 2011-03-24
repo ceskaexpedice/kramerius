@@ -26,12 +26,16 @@
 		<servlet-class>cz.incad.Kramerius.FullImageServlet</servlet-class>
 	</servlet>
 
-	<!-- Servlet pridava konfiguraci do servlet kontextu -->
-	<servlet>
-		<servlet-name>InitServlet</servlet-name>
-		<servlet-class>cz.incad.utils.InitServlet</servlet-class>
-		<load-on-startup>1</load-on-startup>
-	</servlet>
+
+    <!--  
+        Servlet for image manipulation.  Can manipulate with image streams in fedora 
+        and produce scaled images, transcoded images (into different formats) 
+        and also can give raw image stream.
+     -->
+    <servlet>
+        <servlet-name>imageServlet</servlet-name>
+        <servlet-class>cz.incad.Kramerius.imaging.ImageStreamsServlet</servlet-class>
+    </servlet>
 	
 	
  	<!-- Servlet pro ziskavani malych nahledu -->
@@ -127,6 +131,11 @@
 		// Mapovani servletu
 	 -->
     
+    <servlet-mapping>
+        <servlet-name>imageServlet</servlet-name>
+        <url-pattern>/img</url-pattern>
+    </servlet-mapping>
+
 
 	<servlet-mapping>
 		<servlet-name>thumb</servlet-name>
@@ -138,10 +147,6 @@
         <url-pattern>/fullThumb</url-pattern>
     </servlet-mapping>
 	
-	<servlet-mapping>
-		<servlet-name>InitServlet</servlet-name>
-		<url-pattern>/InitServlet</url-pattern>
-	</servlet-mapping>
 
 	<servlet-mapping>
 		<servlet-name>fullImageServlet</servlet-name>

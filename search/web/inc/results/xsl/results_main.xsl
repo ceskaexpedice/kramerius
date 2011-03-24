@@ -84,7 +84,7 @@
             <xsl:choose>
                 <xsl:when test="contains($pid, '/@')">thumb?uuid=<xsl:value-of select="substring-before($pid, '/@')"/>&amp;scaledHeight=64</xsl:when>
                 <xsl:when test="$fmodel='page'">thumb?uuid=<xsl:value-of select="$pid"/>&amp;scaledHeight=64</xsl:when>
-                <xsl:otherwise>thumb?uuid=<xsl:value-of select="exts:findFirstViewablePid($generic, $pid)" />&amp;scaledHeight=64</xsl:otherwise>
+                <xsl:otherwise>thumb?uuid=<xsl:value-of select="$pid" />&amp;scaledHeight=64</xsl:otherwise>
             </xsl:choose>
         </xsl:variable>
         <td style="float:left;">
