@@ -28,8 +28,6 @@ import cz.incad.Kramerius.backend.guice.GuiceServlet;
 import cz.incad.Kramerius.views.ApplicationURL;
 import cz.incad.kramerius.FedoraAccess;
 import cz.incad.kramerius.FedoraNamespaces;
-import cz.incad.kramerius.FedoraRelationship;
-import cz.incad.kramerius.RelsExtHandler;
 import cz.incad.kramerius.pdf.GeneratePDFService;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 import cz.incad.kramerius.utils.pid.LexerException;

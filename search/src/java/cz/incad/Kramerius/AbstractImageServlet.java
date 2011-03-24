@@ -156,6 +156,11 @@ public abstract class AbstractImageServlet extends GuiceServlet {
 		return KrameriusImageSupport.readImage(uuid, FedoraUtils.IMG_FULL_STREAM, this.fedoraAccess, page);
 	}
 	
+	
+    protected BufferedImage rawImage(String uuid, String stream, HttpServletRequest request, int page) throws IOException, MalformedURLException, XPathExpressionException {
+        return KrameriusImageSupport.readImage(uuid, stream, this.fedoraAccess, page);
+    }
+	
 	protected void writeImage(HttpServletRequest req, HttpServletResponse resp, BufferedImage image, OutputFormats format) throws IOException {
 		if ((format.equals(OutputFormats.JPEG)) || 
 			(format.equals(OutputFormats.PNG))) {
