@@ -546,7 +546,8 @@ function activateThumbs(){
             l + $(this).width() > leftBorder &&
             l < rightBorder)
             {
-
+        	
+        	// XXX: Changed from thumb servlet to img servlet
             //src = 'thumb?outputFormat=RAW&uuid='+$(this).attr('id').split("_")[1];
             src = 'img?uuid='+$(this).attr('id').split("_")[1]+'&stream=IMG_THUMB&action=GETRAW';
             
