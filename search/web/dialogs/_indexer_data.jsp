@@ -5,8 +5,22 @@
 <%@ page trimDirectiveWhitespaces="true"%>
 
 <%@page import="javax.servlet.jsp.jstl.core.Config"%>
+<%@page import="cz.incad.kramerius.resourceindex.*"%>
+
+<%@page import="com.google.inject.Injector"%>
 <%@page import="javax.servlet.jsp.jstl.fmt.LocalizationContext"%>
-<%@page import="com.google.inject.Injector, cz.incad.kramerius.resourceindex.*"%>
+<%@page import="cz.incad.Kramerius.I18NServlet"%>
+<%@page import="cz.incad.kramerius.utils.conf.KConfiguration"%>
+<%
+            Injector ctxInj = (Injector) application.getAttribute(Injector.class.getName());
+            KConfiguration kconfig = ctxInj.getProvider(KConfiguration.class).get();
+            pageContext.setAttribute("kconfig", kconfig);
+            LocalizationContext lctx = ctxInj.getProvider(LocalizationContext.class).get();
+            pageContext.setAttribute("lctx", lctx);
+            String i18nServlet = I18NServlet.i18nServlet(request) + "?action=bundle&lang="+lctx.getLocale().getLanguage()+"&country="+lctx.getLocale().getCountry()+"&name=labels";
+            pageContext.setAttribute("i18nServlet", i18nServlet);
+%>
+
 <%@ page isELIgnored="false"%>
 
 <%@ include file="../inc/initVars.jsp" %>
