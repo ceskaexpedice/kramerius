@@ -1,6 +1,9 @@
 package cz.incad.kramerius.impl;
 
-import static cz.incad.kramerius.utils.FedoraUtils.*;
+import static cz.incad.kramerius.utils.FedoraUtils.IMG_FULL_STREAM;
+import static cz.incad.kramerius.utils.FedoraUtils.getFedoraDatastreamsList;
+import static cz.incad.kramerius.utils.FedoraUtils.getFedoraStreamPath;
+import static cz.incad.kramerius.utils.FedoraUtils.getThumbnailFromFedora;
 import static cz.incad.kramerius.utils.RESTHelper.openConnection;
 
 import java.io.IOException;
@@ -26,13 +29,11 @@ import javax.xml.xpath.XPathExpression;
 import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
 
-import org.apache.commons.io.IOExceptionWithCause;
 import org.fedora.api.FedoraAPIA;
 import org.fedora.api.FedoraAPIAService;
 import org.fedora.api.FedoraAPIM;
 import org.fedora.api.FedoraAPIMService;
 import org.fedora.api.ObjectFactory;
-import org.fedora.api.RelationshipTuple;
 import org.w3c.dom.DOMException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -41,26 +42,18 @@ import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
 import com.google.inject.Inject;
-import com.google.inject.Provider;
-import com.google.inject.name.Named;
 
 import cz.incad.kramerius.FedoraAccess;
 import cz.incad.kramerius.FedoraNamespaceContext;
 import cz.incad.kramerius.FedoraNamespaces;
-import cz.incad.kramerius.FedoraRelationship;
-import cz.incad.kramerius.KrameriusModels;
 import cz.incad.kramerius.ProcessSubtreeException;
-import cz.incad.kramerius.RelsExtHandler;
-import cz.incad.kramerius.SolrAccess;
 import cz.incad.kramerius.TreeNodeProcessor;
-import cz.incad.kramerius.impl.fedora.FedoraDatabaseUtils;
 import cz.incad.kramerius.utils.FedoraUtils;
 import cz.incad.kramerius.utils.RESTHelper;
 import cz.incad.kramerius.utils.XMLUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 import cz.incad.kramerius.utils.pid.LexerException;
 import cz.incad.kramerius.utils.pid.PIDParser;
-import java.util.Date;
 
 /**
  * Default implementation of fedoraAccess
@@ -271,7 +264,7 @@ public class FedoraAccessImpl implements FedoraAccess {
         Element descEl = XMLUtils.findElement(relsExt.getDocumentElement(), "Description", FedoraNamespaces.RDF_NAMESPACE_URI);
         List<Element> els = XMLUtils.getElements(descEl);
         for(Element el: els){
-            if (getTreePredicates().contains(el.getNamespaceURI() + el.getLocalName())) {
+            if (getTreePredicates().contains( el.getLocalName())) {
                 if(el.hasAttribute("rdf:resource")){
                     uuid = el.getAttributes().getNamedItem("rdf:resource").getNodeValue().split("uuid:")[1];
                     pids.add(uuid);
@@ -291,83 +284,8 @@ public class FedoraAccessImpl implements FedoraAccess {
         
     }
 
-    boolean processRelsExtInternal(Element topElem, RelsExtHandler handler, int level) throws IOException, LexerException {
-        boolean breakProcess = false;
-        String namespaceURI = topElem.getNamespaceURI();
-        if (namespaceURI.equals(FedoraNamespaces.ONTOLOGY_RELATIONSHIP_NAMESPACE_URI)) {
-            String nodeName = topElem.getLocalName();
-            FedoraRelationship relation = FedoraRelationship.findRelation(nodeName);
-            if (relation != null) {
-                if (handler.accept(relation, null)) {
-                    handler.handle(topElem, relation, null, level);
-                    if (handler.breakProcess()) {
-                        return true;
-                    }
 
-                    // deep
-                    String attVal = topElem.getAttributeNS(FedoraNamespaces.RDF_NAMESPACE_URI, "resource");
-                    PIDParser pidParser = new PIDParser(attVal);
-                    pidParser.disseminationURI();
-                    String objectId = pidParser.getObjectId();
-                    //LOGGER.info("processing uuid =" +objectId);
-                    Document relsExt = getRelsExt(objectId);
-                    breakProcess = processRelsExtInternal(relsExt.getDocumentElement(), handler, level + 1);
-                }
-            } else {
-                LOGGER.severe("Unsupported type of relation '" + nodeName + "'");
-            }
 
-            if (breakProcess) {
-                LOGGER.info("Process has been borken");
-                return breakProcess;
-            }
-            NodeList childNodes = topElem.getChildNodes();
-            for (int i = 0, ll = childNodes.getLength(); i < ll; i++) {
-                Node item = childNodes.item(i);
-                if (item.getNodeType() == Node.ELEMENT_NODE) {
-                    breakProcess = processRelsExtInternal((Element) item, handler, level);
-                    if (breakProcess) {
-                        break;
-                    }
-                }
-            }
-        } else if (namespaceURI.equals(FedoraNamespaces.RDF_NAMESPACE_URI)) {
-            NodeList childNodes = topElem.getChildNodes();
-            for (int i = 0, ll = childNodes.getLength(); i < ll; i++) {
-                Node item = childNodes.item(i);
-                if (item.getNodeType() == Node.ELEMENT_NODE) {
-                    breakProcess = processRelsExtInternal((Element) item, handler, level);
-                    if (breakProcess) {
-                        break;
-                    }
-                }
-            }
-        }
-        return breakProcess;
-
-    }
-
-    @Override
-    public void processRelsExt(Document relsExtDocument, RelsExtHandler handler) throws IOException {
-        try {
-            processRelsExtInternal(relsExtDocument.getDocumentElement(), handler, 1);
-        } catch (DOMException e) {
-            LOGGER.log(Level.SEVERE, e.getMessage(), e);
-            throw new IOException(e);
-        } catch (LexerException e) {
-            LOGGER.log(Level.SEVERE, e.getMessage(), e);
-            throw new IOException(e);
-        } catch (IOException e) {
-            LOGGER.log(Level.SEVERE, e.getMessage(), e);
-            throw new IOException(e);
-        }
-    }
-
-    @Override
-    public void processRelsExt(String uuid, RelsExtHandler handler) throws IOException {
-        LOGGER.info("processing uuid =" + uuid);
-        processRelsExt(getRelsExt(uuid), handler);
-    }
 
     @Override
     public List<Element> getPages(String uuid, Element rootElementOfRelsExt)
