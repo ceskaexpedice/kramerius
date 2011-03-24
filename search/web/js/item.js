@@ -596,7 +596,10 @@ function showImage(viewerOptions) {
 	            $("#plainImageImg").fadeOut("slow", function () {
 	                // http://code.google.com/p/kramerius/issues/detail?id=43
 	    			$("#plainImageImg").attr('src','none');
-	    			$("#plainImageImg").attr('src','fullThumb?uuid='+viewerOptions.uuid);
+
+	    			// XXX: Changed from thumb servlet to img servlet
+	    			// previous -> $("#plainImageImg").attr('src','fullThumb?uuid='+viewerOptions.uuid);
+	    			$("#plainImageImg").attr('src','img?uuid='+viewerOptions.uuid+'&stream=IMG_PREVIEW&action=GETRAW');
 	            });
 
 	    }
