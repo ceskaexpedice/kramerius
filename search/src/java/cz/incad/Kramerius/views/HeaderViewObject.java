@@ -47,16 +47,6 @@ public class HeaderViewObject {
     IsUserInRoleDecision isUserInRoleDecision;
     
     public String getDictionary() {
-        Method[] methods = fedoraAccess.getClass().getMethods();
-        for (Method method : methods) {
-            if (method.getName().equals("getFirstViewablePath")) {
-                LOGGER.fine("found method getFirstViewablePath");
-                Class<?>[] parameterTypes = method.getParameterTypes();
-                for (Class<?> clz : parameterTypes) {
-                    LOGGER.fine("\t param "+clz.getName());
-                }
-            }
-        }
         
         Map<String, String> resourceBundleMap = new HashMap<String, String>();
         try {
