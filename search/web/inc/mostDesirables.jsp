@@ -77,18 +77,8 @@
             <c:set var="itemUrl" ><c:out value="${itemUrl}"/>&format=<x:out select="./str[@name='page_format']"/></c:set>
             
             <x:set select="./str[@name='PID']" var="pid" />
-            <%
-            if (fedora_model.equals("page")) {
-                imagePid = "thumb?uuid=" + uuid.split("/@")[0];
-            } else {String pageuuid = fedoraAccess.findFirstViewablePid(uuid);
-        if (pageuuid==null){
-            pageuuid = uuid;
-        }
-        imagePid = "thumb?uuid=" + pageuuid;
-            }
-            %>
-            <div align="center" style="overflow:hidden; border:1px solid  #eeeeee; width:100px; height:100px; float:left; margin:5px;"><a href="<c:out value="${itemUrl}" escapeXml="false" />" >
-            <img align="middle" vspace="2" id="img_<c:out value="${uuid}"/>" src="<%=imagePid%>&scaledHeight=96" border="0"
+            <div align  ="center" style="overflow:hidden; border:1px solid  #eeeeee; width:100px; height:100px; float:left; margin:5px;"><a href="<c:out value="${itemUrl}" escapeXml="false" />" >
+            <img align="middle" vspace="2" id="img_<c:out value="${uuid}"/>" src="img?uuid=${uuid}&stream=IMG_THUMB&action=SCALE&scaledHeight=96" border="0"
                  title="<x:out select="./str[@name='root_title']"/> (<fmt:message bundle="${lctx}"><x:out select="./str[@name='fedora.model']"/></fmt:message>)"
                  alt="<x:out select="./str[@name='root_title']"/>" /></a>
             </div>
