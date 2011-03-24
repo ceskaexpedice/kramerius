@@ -31,14 +31,14 @@
     <c:param name="rows" value="${rows}" />
     <c:param name="fl" value="fedora.model" />
     <c:param name="start" value="${param.offset}" />
-    <c:param name="sort" value="fedora.model asc" />
+    <c:param name="sort" value="rels_ext_index asc" />
     <c:param name="fq" >
         NOT(parent_pid:${param.pid}/@*)
     </c:param>
     
 </c:url>
 
-<c:url var="xslPage" value="xsl/relsextDetails.jsp" />
+<c:url var="xslPage" value="xsl/rightMenu.xsl" />
 <c:catch var="exceptions"> 
     <c:import url="${url}" var="xml" charEncoding="UTF-8" />
     <x:parse var="doc" xml="${xml}"  />

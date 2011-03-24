@@ -16,8 +16,6 @@
             pageContext.setAttribute("lctx", lctx);
             String i18nServlet = I18NServlet.i18nServlet(request) + "?action=bundle&lang="+lctx.getLocale().getLanguage()+"&country="+lctx.getLocale().getCountry()+"&name=labels";
             pageContext.setAttribute("i18nServlet", i18nServlet);
-            
-            
 %>
 <%@ include file="../initVars.jsp" %>
 
@@ -36,7 +34,7 @@
     <c:param name="rows" value="${rows}" />
     <c:param name="fl" value="PID,fedora.model,dc.title,details,page_format" />
     <c:param name="start" value="${param.offset}" />
-    <c:param name="sort" value="fedora.model asc, rels_ext_index asc" />
+    <c:param name="sort" value="rels_ext_index asc, fedora.model asc" />
     <c:param name="fq" >
         NOT(PID:${param.pid}/@*)
     </c:param>
@@ -60,6 +58,7 @@ cz.incad.kramerius.service.XSLService xs = (cz.incad.kramerius.service.XSLServic
 <c:catch var="exceptions"> 
     <c:import url="${xslPage}" var="xsltPage" charEncoding="UTF-8"  />
     <% out.clear();%>
+    <c:if test="${param.debug =='true'}"><c:out value="${url}" /></c:if>
     <x:transform doc="${xml}"  xslt="${xsltPage}"  >
         <x:param name="bundle_url" value="${i18nServlet}"/>
         <x:param name="pid" value="${param.pid}"/>
@@ -67,10 +66,6 @@ cz.incad.kramerius.service.XSLService xs = (cz.incad.kramerius.service.XSLServic
         <x:param name="onlyrels" value="${param.onlyrels}"/>
         <x:param name="onlyinfo" value="${param.onlyinfo}"/>
     </x:transform>
-    <c:set var="obj" value="#tabs_${param.level}" />
-    <c:set var="href" value="#{href}" />
-    <c:set var="label" value="#{label}" />
-    <c:set var="target" value="#tab${label}-page" />
 </c:catch>
 <c:choose>
     <c:when test="${exceptions != null}">

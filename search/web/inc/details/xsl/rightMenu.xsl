@@ -6,26 +6,33 @@
     <xsl:param name="level" select="level"/>
     <xsl:param name="onlyrels" select="onlyrels"/>
     <xsl:param name="onlyinfo" select="onlyinfo"/>
+    <xsl:key name="keyModel" match="doc" use="str[@name='fedora.model']" />
     <xsl:template match="/">
         <xsl:if test="//doc" >
             <div style="display:none;" class="numDocs"><xsl:value-of select="/response/result/@numFound" /></div>
             <xsl:choose>
             <xsl:when test="$onlyrels='true'">
-                <xsl:for-each select="//doc" >
-                    <xsl:if test="not(preceding-sibling::*[1]/str[@name='fedora.model'] = ./str[@name='fedora.model']/text())">
+                <xsl:for-each select="//doc[generate-id(.) = generate-id(key('keyModel', str[@name='fedora.model'])[1])]">
+                    <xsl:variable name="lngModelName"><xsl:value-of select="str[@name='fedora.model']" /></xsl:variable>
+                    <!-- Select all the Employees belonging to the Team -->
+                    <xsl:variable name="lstModel" select="//doc[str[@name='fedora.model']=$lngModelName]" />
+                    <!-- Show details for Employees in Team -->
+                    <xsl:variable name="model" ><xsl:value-of select="$lstModel[1]/str[@name='fedora.model']" /></xsl:variable>
                     <xsl:call-template name="rels">
-                        <xsl:with-param name="fmodel"><xsl:value-of select="./str[@name='fedora.model']" /></xsl:with-param>
+                        <xsl:with-param name="fmodel"><xsl:value-of select="$model" /></xsl:with-param>
                     </xsl:call-template>
-                    </xsl:if>
                 </xsl:for-each>
             </xsl:when>
             <xsl:when test="$onlyinfo='true'">
-                <xsl:for-each select="//doc" >
-                    <xsl:if test="not(preceding-sibling::*[1]/str[@name='fedora.model'] = ./str[@name='fedora.model']/text())">
+                <xsl:for-each select="//doc[generate-id(.) = generate-id(key('keyModel', str[@name='fedora.model'])[1])]">
+                    <xsl:variable name="lngModelName"><xsl:value-of select="str[@name='fedora.model']" /></xsl:variable>
+                    <!-- Select all the Employees belonging to the Team -->
+                    <xsl:variable name="lstModel" select="//doc[str[@name='fedora.model']=$lngModelName]" />
+                    <!-- Show details for Employees in Team -->
+                    <xsl:variable name="model" ><xsl:value-of select="$lstModel[1]/str[@name='fedora.model']" /></xsl:variable>
                     <xsl:call-template name="details">
-                        <xsl:with-param name="fmodel"><xsl:value-of select="./str[@name='fedora.model']" /></xsl:with-param>
+                        <xsl:with-param name="fmodel"><xsl:value-of select="$model" /></xsl:with-param>
                     </xsl:call-template>
-                    </xsl:if>
                 </xsl:for-each>
             </xsl:when>
             <xsl:otherwise>
@@ -38,35 +45,36 @@
 
     <xsl:template name="tabs">
         <div style="padding: 2px;">
-            <xsl:attribute name="id">tabs_<xsl:value-of select="$level" /></xsl:attribute>
-            <xsl:attribute name="pid"><xsl:value-of select="//doc[position()=1]/str[@name='PID']" /></xsl:attribute>
+        <xsl:attribute name="id">tabs_<xsl:value-of select="$level" /></xsl:attribute>
+        <xsl:attribute name="pid"><xsl:value-of select="//doc[position()=1]/str[@name='PID']" /></xsl:attribute>
             <xsl:call-template name="ul" />
-            <xsl:for-each select="//doc" >
-                <xsl:if test="not(preceding-sibling::*[1]/str[@name='fedora.model'] = ./str[@name='fedora.model']/text())">
+            <xsl:for-each select="//doc[generate-id(.) = generate-id(key('keyModel', str[@name='fedora.model'])[1])]">
+                <xsl:variable name="lngModelName"><xsl:value-of select="str[@name='fedora.model']" /></xsl:variable>
+                <!-- Select all the Employees belonging to the Team -->
+                <xsl:variable name="lstModel" select="//doc[str[@name='fedora.model']=$lngModelName]" />
+                <!-- Show details for Employees in Team -->
+                <xsl:variable name="model" ><xsl:value-of select="$lstModel[1]/str[@name='fedora.model']" /></xsl:variable>
                 <xsl:call-template name="model">
-                    <xsl:with-param name="fmodel"><xsl:value-of select="./str[@name='fedora.model']" /></xsl:with-param>
+                    <xsl:with-param name="fmodel"><xsl:value-of select="$model" /></xsl:with-param>
                 </xsl:call-template>
-                </xsl:if>
             </xsl:for-each>
          </div>
     </xsl:template>
 
     <xsl:template name="ul">
         <ul>
-            <xsl:for-each select="//doc" >
-                <xsl:if test="not(preceding-sibling::*[1]/str[@name='fedora.model'] = ./str[@name='fedora.model']/text())">
-                    <li><xsl:attribute name="class"><xsl:value-of select="./str[@name='fedora.model']" />
-                        </xsl:attribute>
-                        <a>
-                        <xsl:attribute name="href">#tab<xsl:value-of select="$level" />-<xsl:value-of select="./str[@name='fedora.model']" />
-                    </xsl:attribute><span class="translate"><xsl:value-of select="./str[@name='fedora.model']" /></span></a>
-                    <img width="12px" src="img/empty.gif" class="op_list" alt="list" >
-                    <xsl:attribute name="onclick">toggleRelsList(this, '<xsl:value-of select="./str[@name='fedora.model']" />')</xsl:attribute></img>
-                        <img width="12" src="img/lupa.png" class="searchInsideButton" alt="search" >
-                            <xsl:attribute name="onclick">showSearchInside(<xsl:value-of select="$level" />, '<xsl:value-of select="./str[@name='fedora.model']" />')</xsl:attribute>
-                        </img>
-                    </li>
-                </xsl:if>
+            <xsl:for-each select="//doc[generate-id(.) = generate-id(key('keyModel', str[@name='fedora.model'])[1])]">
+                <li><xsl:attribute name="class"><xsl:value-of select="./str[@name='fedora.model']" />
+                    </xsl:attribute>
+                    <a>
+                    <xsl:attribute name="href">#tab<xsl:value-of select="$level" />-<xsl:value-of select="./str[@name='fedora.model']" />
+                </xsl:attribute><span class="translate"><xsl:value-of select="./str[@name='fedora.model']" /></span></a>
+                <img width="12px" src="img/empty.gif" class="op_list" alt="list" >
+                <xsl:attribute name="onclick">toggleRelsList(this, '<xsl:value-of select="./str[@name='fedora.model']" />')</xsl:attribute></img>
+                    <img width="12" src="img/lupa.png" class="searchInsideButton" alt="search" >
+                        <xsl:attribute name="onclick">showSearchInside(<xsl:value-of select="$level" />, '<xsl:value-of select="./str[@name='fedora.model']" />')</xsl:attribute>
+                    </img>
+                </li>
             </xsl:for-each>
             </ul>
     </xsl:template>
