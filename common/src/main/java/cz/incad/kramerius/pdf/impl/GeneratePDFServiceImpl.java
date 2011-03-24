@@ -1,11 +1,9 @@
 package cz.incad.kramerius.pdf.impl;
 
-import static cz.incad.kramerius.FedoraNamespaces.RDF_NAMESPACE_URI;
 import static cz.incad.kramerius.utils.BiblioModsUtils.getPageNumber;
 import static cz.incad.kramerius.utils.imgs.KrameriusImageSupport.readImage;
 import static cz.incad.kramerius.utils.imgs.KrameriusImageSupport.writeImageToStream;
 
-import java.awt.Image;
 import java.awt.image.BufferedImage;
 import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
@@ -62,10 +60,7 @@ import com.lowagie.text.pdf.draw.VerticalPositionMark;
 import cz.incad.kramerius.Constants;
 import cz.incad.kramerius.FedoraAccess;
 import cz.incad.kramerius.FedoraNamespaces;
-import cz.incad.kramerius.FedoraRelationship;
-import cz.incad.kramerius.KrameriusModels;
 import cz.incad.kramerius.ProcessSubtreeException;
-import cz.incad.kramerius.RelsExtHandler;
 import cz.incad.kramerius.SolrAccess;
 import cz.incad.kramerius.impl.AbstractTreeNodeProcessorAdapter;
 import cz.incad.kramerius.pdf.Break;
@@ -79,14 +74,12 @@ import cz.incad.kramerius.pdf.pdfpages.TextPage;
 import cz.incad.kramerius.pdf.utils.TitlesUtils;
 import cz.incad.kramerius.service.ResourceBundleService;
 import cz.incad.kramerius.service.TextsService;
-import cz.incad.kramerius.utils.BiblioModsUtils;
 import cz.incad.kramerius.utils.DCUtils;
 import cz.incad.kramerius.utils.IOUtils;
 import cz.incad.kramerius.utils.XMLUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 import cz.incad.kramerius.utils.imgs.ImageMimeType;
 import cz.incad.kramerius.utils.pid.LexerException;
-import cz.incad.kramerius.utils.pid.PIDParser;
 
 public class GeneratePDFServiceImpl implements GeneratePDFService {
 	
@@ -298,7 +291,6 @@ public class GeneratePDFServiceImpl implements GeneratePDFService {
 	public void fullPDFExport(String parentUUID, OutputStreams streams, Break brk, String djvuUrl, String i18nUrl) throws IOException, ProcessSubtreeException {
 		org.w3c.dom.Document relsExt = this.fedoraAccess.getRelsExt(parentUUID);
 		String modelName = this.fedoraAccess.getKrameriusModelName(relsExt);
-		//KrameriusModels model = this.fedoraAccess.getKrameriusModel(relsExt);
 		
 		final AbstractRenderedDocument renderedDocument = new RenderedDocument(modelName, parentUUID);
         renderedDocument.setDocumentTitle(TitlesUtils.title(parentUUID, this.solrAccess, this.fedoraAccess));

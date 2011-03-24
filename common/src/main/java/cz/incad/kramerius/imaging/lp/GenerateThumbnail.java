@@ -1,23 +1,15 @@
 package cz.incad.kramerius.imaging.lp;
 
-import static cz.incad.kramerius.FedoraNamespaces.RDF_NAMESPACE_URI;
-
 import java.awt.Dimension;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.sql.Connection;
-import java.sql.SQLException;
 import java.util.Arrays;
-import java.util.List;
 import java.util.logging.Level;
 
 import javax.xml.xpath.XPathExpressionException;
-
-import org.w3c.dom.DOMException;
-import org.w3c.dom.Element;
 
 import com.google.inject.Guice;
 import com.google.inject.Injector;
@@ -26,22 +18,15 @@ import com.google.inject.Provider;
 import com.google.inject.name.Names;
 
 import cz.incad.kramerius.FedoraAccess;
-import cz.incad.kramerius.FedoraRelationship;
-import cz.incad.kramerius.KrameriusModels;
 import cz.incad.kramerius.ProcessSubtreeException;
-import cz.incad.kramerius.RelsExtHandler;
-import cz.incad.kramerius.imaging.DeepZoomCacheService;
 import cz.incad.kramerius.imaging.DeepZoomTileSupport;
 import cz.incad.kramerius.imaging.DiscStrucutreForStore;
 import cz.incad.kramerius.imaging.lp.guice.Fedora3Module;
 import cz.incad.kramerius.imaging.lp.guice.GenerateDeepZoomCacheModule;
-import cz.incad.kramerius.imaging.lp.guice.PlainModule;
 import cz.incad.kramerius.impl.AbstractTreeNodeProcessorAdapter;
-import cz.incad.kramerius.impl.fedora.FedoraDatabaseUtils;
 import cz.incad.kramerius.utils.FedoraUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 import cz.incad.kramerius.utils.imgs.KrameriusImageSupport;
-import cz.incad.kramerius.utils.pid.LexerException;
 import cz.incad.kramerius.utils.pid.PIDParser;
 
 public class GenerateThumbnail {

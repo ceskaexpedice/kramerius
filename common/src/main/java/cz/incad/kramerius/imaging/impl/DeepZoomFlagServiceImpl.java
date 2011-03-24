@@ -16,32 +16,19 @@
  */
 package cz.incad.kramerius.imaging.impl;
 
-import static cz.incad.kramerius.FedoraNamespaces.RDF_NAMESPACE_URI;
-
-import java.awt.Dimension;
 import java.io.IOException;
 import java.util.List;
 
 import org.fedora.api.FedoraAPIM;
 import org.fedora.api.RelationshipTuple;
-import org.w3c.dom.DOMException;
-import org.w3c.dom.Element;
 
 import com.google.inject.Inject;
 import com.google.inject.name.Named;
 
 import cz.incad.kramerius.FedoraAccess;
 import cz.incad.kramerius.FedoraNamespaces;
-import cz.incad.kramerius.FedoraRelationship;
-import cz.incad.kramerius.KrameriusModels;
-import cz.incad.kramerius.RelsExtHandler;
-import cz.incad.kramerius.TreeNodeProcessor;
-import cz.incad.kramerius.imaging.DeepZoomCacheService;
 import cz.incad.kramerius.imaging.DeepZoomFlagService;
 import cz.incad.kramerius.impl.AbstractTreeNodeProcessorAdapter;
-import cz.incad.kramerius.utils.FedoraUtils;
-import cz.incad.kramerius.utils.pid.LexerException;
-import cz.incad.kramerius.utils.pid.PIDParser;
 
 public class DeepZoomFlagServiceImpl implements DeepZoomFlagService {
 

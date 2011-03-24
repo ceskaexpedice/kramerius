@@ -1,12 +1,12 @@
 package cz.incad.kramerius.impl;
 
-import static cz.incad.kramerius.processes.database.MostDesirableDatabaseUtils.*;
+import static cz.incad.kramerius.processes.database.MostDesirableDatabaseUtils.LOGGER;
+import static cz.incad.kramerius.processes.database.MostDesirableDatabaseUtils.createTable;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -17,9 +17,6 @@ import com.google.inject.Provider;
 import com.google.inject.name.Named;
 
 import cz.incad.kramerius.MostDesirable;
-import cz.incad.kramerius.processes.LRProcess;
-import cz.incad.kramerius.processes.LRProcessDefinition;
-import cz.incad.kramerius.processes.States;
 import cz.incad.kramerius.processes.database.MostDesirableDatabaseUtils;
 import cz.incad.kramerius.utils.DatabaseUtils;
 

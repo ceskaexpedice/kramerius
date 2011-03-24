@@ -7,11 +7,7 @@ import java.io.InputStream;
 import java.util.List;
 import java.util.Set;
 
-import javax.xml.xpath.XPath;
-import javax.xml.xpath.XPathConstants;
-import javax.xml.xpath.XPathExpression;
 import javax.xml.xpath.XPathExpressionException;
-import javax.xml.xpath.XPathFactory;
 
 import org.fedora.api.FedoraAPIA;
 import org.fedora.api.FedoraAPIM;
@@ -20,14 +16,10 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 import com.google.inject.Inject;
-import com.google.inject.Provider;
 import com.google.inject.name.Named;
 
 import cz.incad.kramerius.FedoraAccess;
-import cz.incad.kramerius.FedoraNamespaceContext;
-import cz.incad.kramerius.KrameriusModels;
 import cz.incad.kramerius.ProcessSubtreeException;
-import cz.incad.kramerius.RelsExtHandler;
 import cz.incad.kramerius.SolrAccess;
 import cz.incad.kramerius.TreeNodeProcessor;
 import cz.incad.kramerius.imaging.DiscStrucutreForStore;
@@ -148,14 +140,6 @@ public class SecuredFedoraAccessImpl implements FedoraAccess {
     public boolean isContentAccessible(String uuid) throws IOException {
         String[] pathOfUUIDs = this.solrAccess.getPathOfUUIDs(uuid);
         return (this.isActionAllowed.isActionAllowed(SecuredActions.READ.getFormalName(), uuid, pathOfUUIDs));
-    }
-
-    public void processRelsExt(Document relsExtDocument, RelsExtHandler handler) throws IOException {
-        rawAccess.processRelsExt(relsExtDocument, handler);
-    }
-
-    public void processRelsExt(String uuid, RelsExtHandler handler) throws IOException {
-        rawAccess.processRelsExt(uuid, handler);
     }
 
 

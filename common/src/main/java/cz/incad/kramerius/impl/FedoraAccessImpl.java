@@ -6,6 +6,7 @@ import static cz.incad.kramerius.utils.FedoraUtils.getFedoraStreamPath;
 import static cz.incad.kramerius.utils.FedoraUtils.getThumbnailFromFedora;
 import static cz.incad.kramerius.utils.RESTHelper.openConnection;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.Authenticator;
@@ -657,7 +658,7 @@ public class FedoraAccessImpl implements FedoraAccess {
             InputStream thumbInputStream = con.getInputStream();
             return thumbInputStream;
         }
-        throw new IOException("404");
+        throw new FileNotFoundException("404");
     }
 
     @Override

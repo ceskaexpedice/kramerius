@@ -95,27 +95,6 @@ public interface FedoraAccess {
      */
     public String getDonator(String uuid) throws IOException;
 
-    /**
-     * Recursive processing fedora objects
-     * 
-     * @param uuid
-     *            UUID of top level object
-     * @param handler
-     *            handler fo handling events
-     * @throws IOException
-     */
-    public void processRelsExt(String uuid, RelsExtHandler handler) throws IOException;
-
-    /**
-     * Recursive processing fedora objects
-     * 
-     * @param relsExtDocument
-     *            Document of top level object
-     * @param handler
-     *            handler fo handling events
-     * @throws IOException
-     */
-    public void processRelsExt(Document relsExtDocument, RelsExtHandler handler) throws IOException;
 
     /**
      * Return parsed biblio mods stream
@@ -137,7 +116,7 @@ public interface FedoraAccess {
 
 
     /**
-     * Returns uuid of first document throw rels-ext, which has IMG_FULL datastream
+     * Returns uuid of first document through rels-ext, which has IMG_FULL datastream
      * @param uuid
      * @return
      * @throws IOException

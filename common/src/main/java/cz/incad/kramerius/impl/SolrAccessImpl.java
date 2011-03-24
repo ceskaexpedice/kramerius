@@ -17,7 +17,6 @@
 package cz.incad.kramerius.impl;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.net.URLEncoder;
 
 import javax.xml.parsers.ParserConfigurationException;
@@ -28,9 +27,6 @@ import org.xml.sax.SAXException;
 
 import cz.incad.kramerius.SolrAccess;
 import cz.incad.kramerius.security.SpecialObjects;
-import cz.incad.kramerius.utils.RESTHelper;
-import cz.incad.kramerius.utils.XMLUtils;
-import cz.incad.kramerius.utils.conf.KConfiguration;
 import cz.incad.kramerius.utils.solr.SolrUtils;
 
 public class SolrAccessImpl implements SolrAccess {
