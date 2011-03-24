@@ -3,6 +3,7 @@ package cz.incad.Kramerius.views;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
@@ -46,6 +47,17 @@ public class HeaderViewObject {
     IsUserInRoleDecision isUserInRoleDecision;
     
     public String getDictionary() {
+        Method[] methods = fedoraAccess.getClass().getMethods();
+        for (Method method : methods) {
+            if (method.getName().equals("getFirstViewablePath")) {
+                LOGGER.fine("found method getFirstViewablePath");
+                Class<?>[] parameterTypes = method.getParameterTypes();
+                for (Class<?> clz : parameterTypes) {
+                    LOGGER.fine("\t param "+clz.getName());
+                }
+            }
+        }
+        
         Map<String, String> resourceBundleMap = new HashMap<String, String>();
         try {
             Locale locale = this.localeProvider.get();
