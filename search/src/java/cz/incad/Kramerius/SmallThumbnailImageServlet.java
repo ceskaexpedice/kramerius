@@ -70,7 +70,7 @@ public class SmallThumbnailImageServlet extends AbstractImageServlet {
 			if (outputFormat == null) {
 				BufferedImage image = rawThumbnailImage(uuid, 0);
 				Rectangle rectangle = new Rectangle(image.getWidth(null), image.getHeight(null));
-				BufferedImage scale = scale(image, rectangle, req);
+				BufferedImage scale = scale(image, rectangle, req, getScalingMethod());
 				if (scale != null) {
                     setDateHaders(uuid, resp);
                     setResponseCode(uuid, req, resp);

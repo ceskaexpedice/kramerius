@@ -180,7 +180,7 @@ public class ImageStreamsServlet extends AbstractImageServlet {
                 BufferedImage image = imageStreamsServlet.rawImage(uuid, stream, req, page);
                 
                 Rectangle rectangle = new Rectangle(image.getWidth(null), image.getHeight(null));
-                BufferedImage scale = imageStreamsServlet.scale(image, rectangle, req);
+                BufferedImage scale = imageStreamsServlet.scale(image, rectangle, req, imageStreamsServlet.getScalingMethod(stream));
                 if (scale != null) {
                     imageStreamsServlet.setDateHaders(uuid, resp);
                     imageStreamsServlet.setResponseCode(uuid, req, resp);

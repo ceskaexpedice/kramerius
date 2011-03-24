@@ -95,7 +95,7 @@ public abstract class AbstractImageServlet extends GuiceServlet {
     @Named("fedora3")
     protected Provider<Connection> fedora3Provider;
 	
-	protected BufferedImage scale(BufferedImage img, Rectangle pageBounds, HttpServletRequest req) {
+	protected BufferedImage scale(BufferedImage img, Rectangle pageBounds, HttpServletRequest req, ScalingMethod scalingMethod) {
 		String spercent = req.getParameter(SCALE_PARAMETER);
 		String sheight = req.getParameter(SCALED_HEIGHT_PARAMETER);
 		String swidth = req.getParameter(SCALED_WIDTH_PARAMETER);
@@ -108,7 +108,7 @@ public abstract class AbstractImageServlet extends GuiceServlet {
 					log(e.getMessage());
 				}
 			}
-			return scaleByPercent(img, pageBounds, percent);
+			return scaleByPercent(img, pageBounds, percent, scalingMethod);
 		} else if (sheight != null){
 			int height = 200; {
 				try {
@@ -117,7 +117,7 @@ public abstract class AbstractImageServlet extends GuiceServlet {
 					log(e.getMessage());
 				}
 			}
-			return scaleByHeight(img,pageBounds, height);
+			return scaleByHeight(img,pageBounds, height, scalingMethod);
 		} else if (swidth != null){
 			int width = 200; {
 				try {
@@ -126,23 +126,25 @@ public abstract class AbstractImageServlet extends GuiceServlet {
 					log(e.getMessage());
 				}
 			}
-			return scaleByWidth(img,pageBounds, width);
+			return scaleByWidth(img,pageBounds, width, scalingMethod);
 		}else return null;
 	}
 	
-	protected BufferedImage scaleByHeight(BufferedImage img, Rectangle pageBounds, int height) {
-		int nHeight = height;
+	protected BufferedImage scaleByHeight(BufferedImage img, Rectangle pageBounds, int height, ScalingMethod scalingMethod) {
+	    if (scalingMethod == null) scalingMethod = ScalingMethod.BILINEAR;
+	    int nHeight = height;
 		double div = (double)pageBounds.getHeight() / (double)nHeight;
 		double nWidth = (double)pageBounds.getWidth() / div;
-		BufferedImage scaledImage = KrameriusImageSupport.scale(img, (int)nWidth, nHeight, ScalingMethod.BILINEAR, false);
+		BufferedImage scaledImage = KrameriusImageSupport.scale(img, (int)nWidth, nHeight, scalingMethod, false);
 		return scaledImage;
 	}
 
-	protected BufferedImage scaleByWidth(BufferedImage img, Rectangle pageBounds, int width) {
+	protected BufferedImage scaleByWidth(BufferedImage img, Rectangle pageBounds, int width ,ScalingMethod scalingMethod) {
+        if (scalingMethod == null) scalingMethod = ScalingMethod.BILINEAR;
 		int nWidth = width;
 		double div = (double)pageBounds.getWidth() / (double)nWidth;
 		double nHeight = (double)pageBounds.getHeight() / div;
-		BufferedImage scaledImage = KrameriusImageSupport.scale(img, nWidth,(int) nHeight,ScalingMethod.BILINEAR, false);
+		BufferedImage scaledImage = KrameriusImageSupport.scale(img, nWidth,(int) nHeight,scalingMethod, false);
 		return scaledImage;
 	}
 
@@ -211,11 +213,12 @@ public abstract class AbstractImageServlet extends GuiceServlet {
             }
         }
     }
-	protected BufferedImage scaleByPercent(BufferedImage img, Rectangle pageBounds, double percent) {
-		if ((percent <= 0.95) || (percent >= 1.15)) {
+	protected BufferedImage scaleByPercent(BufferedImage img, Rectangle pageBounds, double percent, ScalingMethod scalingMethod) {
+       if (scalingMethod == null) scalingMethod = ScalingMethod.BILINEAR;
+	    if ((percent <= 0.95) || (percent >= 1.15)) {
 			int nWidth = (int) (pageBounds.getWidth() * percent);
 			int nHeight = (int) (pageBounds.getHeight() * percent);
-			BufferedImage scaledImage = KrameriusImageSupport.scale(img, nWidth, nHeight,ScalingMethod.BILINEAR, false);
+			BufferedImage scaledImage = KrameriusImageSupport.scale(img, nWidth, nHeight,scalingMethod, false);
 			return scaledImage;
 		} else return (BufferedImage) img;
 	}

@@ -115,7 +115,7 @@ public class FullImageServlet extends AbstractImageServlet {
                 // writeDeepZoomFiles(uuid, image);
 
                 Rectangle rectangle = new Rectangle(image.getWidth(null), image.getHeight(null));
-                BufferedImage scale = scale(image, rectangle, req);
+                BufferedImage scale = scale(image, rectangle, req, getScalingMethod());
                 if (scale != null) {
                     start = System.currentTimeMillis();
                     setDateHaders(uuid, resp);
