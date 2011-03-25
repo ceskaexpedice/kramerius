@@ -35,6 +35,7 @@ import cz.incad.Kramerius.security.CurrentLoggedUserProvider;
 import cz.incad.kramerius.FedoraAccess;
 import cz.incad.kramerius.SolrAccess;
 import cz.incad.kramerius.imaging.DeepZoomCacheService;
+import cz.incad.kramerius.imaging.ImageStreams;
 import cz.incad.kramerius.security.IsActionAllowed;
 import cz.incad.kramerius.security.RightCriteriumContextFactory;
 import cz.incad.kramerius.security.RightsManager;
@@ -85,7 +86,6 @@ public class ViewInfoServlet extends GuiceServlet {
 
             if ((uuid != null) && (!uuid.equals(""))) {
 
-
                 String mimeType = this.fedoraAccess.getImageFULLMimeType(uuid);
                 boolean generated = resolutionFilePresent(uuid);
                 boolean conf = deepZoomConfigurationEnabled(uuid);
@@ -93,6 +93,7 @@ public class ViewInfoServlet extends GuiceServlet {
                 String donator = this.fedoraAccess.getDonator(uuid);
                 
                 HashMap map = new HashMap();
+                map.put("previewStreamGenerated", fedoraAccess.isStreamAvailable(uuid, ImageStreams.IMG_PREVIEW.getStreamName()));
                 map.put("deepZoomCacheGenerated", ""+generated);
                 map.put("deepZoomCofigurationEnabled", ""+conf);
                 map.put("imageServerConfigured", ""+(!KConfiguration.getInstance().getUrlOfIIPServer().equals("")));

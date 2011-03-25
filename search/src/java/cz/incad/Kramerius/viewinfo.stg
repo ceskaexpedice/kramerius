@@ -3,6 +3,7 @@ group viewinfo;
 /* whole viewinfo tempalte */
 viewinfo(data, globalActions) ::=<<
 {
+        previewStreamGenerated:$data.previewStreamGenerated$,
         deepZoomGenerated:$data.deepZoomCacheGenerated$,
         deepZoomCofigurationEnabled:$data.deepZoomCofigurationEnabled$,
         mimeType:'$data.mimeType$', 
