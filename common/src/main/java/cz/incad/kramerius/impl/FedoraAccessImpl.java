@@ -110,7 +110,12 @@ public class FedoraAccessImpl implements FedoraAccess {
     public Document getRelsExt(String uuid) throws IOException {
         String relsExtUrl = relsExtUrl(KConfiguration.getInstance(), uuid);
         LOGGER.fine("Reading rels ext +" + relsExtUrl);
-        InputStream docStream = RESTHelper.inputStream(relsExtUrl, KConfiguration.getInstance().getFedoraUser(), KConfiguration.getInstance().getFedoraPass());
+        InputStream docStream = null;
+        try{
+            docStream = RESTHelper.inputStream(relsExtUrl, KConfiguration.getInstance().getFedoraUser(), KConfiguration.getInstance().getFedoraPass());
+        } catch(Exception ex){
+        	return null;
+        }
         try {
             return XMLUtils.parseDocument(docStream, true);
         } catch (ParserConfigurationException e) {
@@ -589,7 +594,7 @@ public class FedoraAccessImpl implements FedoraAccess {
         processor.process(pid, level);
         boolean breakProcessing = processor.breakProcessing(pid,level);
         if (breakProcessing) return breakProcessing;
-        
+        if (relsExt == null) return false; 
         XPathFactory factory = XPathFactory.newInstance();
         XPath xpath = factory.newXPath();
         xpath.setNamespaceContext(new FedoraNamespaceContext());
