@@ -599,7 +599,12 @@ function showImage(viewerOptions) {
 
 	    			// XXX: Changed from thumb servlet to img servlet
 	    			// previous -> $("#plainImageImg").attr('src','fullThumb?uuid='+viewerOptions.uuid);
-	    			$("#plainImageImg").attr('src','img?uuid='+viewerOptions.uuid+'&stream=IMG_PREVIEW&action=GETRAW');
+	    			if (viewerOptions.previewStreamGenerated) {
+		    			$("#plainImageImg").attr('src','img?uuid='+viewerOptions.uuid+'&stream=IMG_PREVIEW&action=GETRAW');
+	    			} else {
+	    				// this should be directed by property or removed
+		    			$("#plainImageImg").attr('src','img?uuid='+viewerOptions.uuid+'&stream=IMG_FULL&action=SCALE&scaledHeight=512');
+	    			}
 	            });
 
 	    }
