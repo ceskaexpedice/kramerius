@@ -595,8 +595,8 @@ function showImage(viewerOptions) {
 	            displayImageContent();
 	            $("#plainImageImg").fadeOut("slow", function () {
 	                // http://code.google.com/p/kramerius/issues/detail?id=43
-	    			$("#plainImageImg").attr('src','none');
-
+	    			$("#plainImageImg").attr('src','img/empty.gif');
+	    			
 	    			// XXX: Changed from thumb servlet to img servlet
 	    			// previous -> $("#plainImageImg").attr('src','fullThumb?uuid='+viewerOptions.uuid);
 	    			if (viewerOptions.previewStreamGenerated) {
