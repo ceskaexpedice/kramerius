@@ -320,6 +320,7 @@ public class SolrOperations {
             ArrayList<String> requestParams) {
         try {
             logger.info("Indexing from kramerius model: " + model);
+            checkIntegrityByModel(model);
             krameriusModel(model, requestParams, 0);
 
         } catch (Exception e) {
@@ -339,6 +340,7 @@ public class SolrOperations {
             pid = "uuid:" + pid;
         }
         logger.fine("fromKrameriusModel: " + pid);
+        checkIntegrityByDocument(pid);
         fedoraOperations.getFoxmlFromPid(pid);
         factory = XPathFactory.newInstance();
         xpath = factory.newXPath();
@@ -526,13 +528,9 @@ public class SolrOperations {
         logger.fine("analyzerClassName=" + analyzerClassName);
         try {
             Class analyzerClass = Class.forName(analyzerClassName);
-
             logger.fine("analyzerClass=" + analyzerClass.toString());
-
             analyzer = (Analyzer) analyzerClass.getConstructor(new Class[]{}).newInstance(new Object[]{});
-
             logger.fine("analyzer=" + analyzer.toString());
-
         } catch (ClassNotFoundException e) {
             throw new Exception(analyzerClassName + ": class not found.\n", e);
         } catch (InstantiationException e) {
@@ -753,17 +751,19 @@ public class SolrOperations {
     }
 
     private void checkIntegrityByDocument(String pid_path) throws Exception {
+        checkIntegrityByDocument(pid_path, 0);
+    }
+    private void checkIntegrityByDocument(String pid_path, int offset) throws Exception {
+        logger.info("checkIntegrityByDocument. offset: "+offset);
         if (pid_path == null || pid_path.length() < 1) {
             return;
         }
+        int numHits = 200;
         String PID;
-        String urlStr = config.getString("solrHost") + "/select/select?q=pid_path:" + pid_path + "*&fl=PID";
-
-
+        String urlStr = config.getString("solrHost") + "/select/select?q=pid_path:" + pid_path +
+                "*&fl=PID&start=" + offset + "&rows=" + numHits;
         factory = XPathFactory.newInstance();
         xpath = factory.newXPath();
-
-        /* get current values */
         java.net.URL url = new java.net.URL(urlStr);
 
         DocumentBuilder builder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
@@ -782,19 +782,27 @@ public class SolrOperations {
                 deletePid(PID);
             }
         }
+
+        if(nodeList.getLength()>0){
+            checkIntegrityByDocument(pid_path, offset+numHits);
+        }
     }
 
     private void checkIntegrityByModel(String model) throws Exception {
+        checkIntegrityByModel(model, 0);
+    }
+    private void checkIntegrityByModel(String model, int offset) throws Exception {
+        logger.info("checkIntegrityByModel. offset: "+offset);
         if (model == null || model.length() < 1) {
             return;
         }
+        int numHits = 200;
         String PID;
         String pid_path;
-        String urlStr = config.getString("solrHost") + "/select/select?q=fedora.model:\"" + model + "\"&fl=PID,pid_path";
+        String urlStr = config.getString("solrHost") + "/select/select?q=fedora.model:\"" + model + "\"&fl=PID,pid_path&start=" + 
+                offset + "&rows=" + numHits;
         factory = XPathFactory.newInstance();
         xpath = factory.newXPath();
-
-        /* get current values */
         java.net.URL url = new java.net.URL(urlStr);
 
         DocumentBuilder builder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
@@ -809,11 +817,14 @@ public class SolrOperations {
             pid_path = node.getNextSibling().getFirstChild().getNodeValue();
             try{
                 fedoraOperations.fa.getAPIM().getObjectXML("uuid:"+PID);
-                logger.info("je: " + PID+" ----- " + pid_path);
+                //logger.info("je: " + PID+" ----- " + pid_path);
             }catch (Exception e){
                 logger.info(PID + " doesn't exist. Deleting...");
                 deleteDocument(pid_path);
             }
+        }
+        if(nodeList.getLength()>0){
+            checkIntegrityByModel(model, offset+numHits);
         }
     }
 }
