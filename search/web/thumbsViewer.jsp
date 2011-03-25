@@ -297,6 +297,7 @@
     function resizeElements(){
         setFullDialogSize();
         setTvContainerWidth();
+        setMainContentWidth();
         activateThumbs();
         if($("#alto").length>0){
             

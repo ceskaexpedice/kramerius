@@ -142,10 +142,17 @@
 
                                                 function setMainContentWidth(){
                                                     var w = $(window).width()-6-$('#itemTree').width();
+                                                    
+                                                    //alert(w);
                                                     $("#mainContent").css('width', w);
+                                                    //alert($('#centralContent').width());
+                                                    w = w-45;
+                                                    $("#centralContent").css('width', w);
 
-                                                    w = $('#centralContent').width();
+                                                    //w = $('#centralContent').width();
                                                     $("#centralContent>div").css('width', w-30-25);
+                                                    $("#extendedMetadata").css('width', w-30-25);
+                                                    $("#bigThumbZone").css('width', w-30-25);
                                                 }
 
                                                 $(document).ready(function() {
@@ -186,6 +193,7 @@
                                                     $("#centralContent").tabs().addClass('ui-tabs-vertical ui-helper-clearfix');
                                                     $("#centralContent li").removeClass('ui-corner-top').addClass('ui-corner-left');
                                                     //$('.vertical-text').mbFlipText(false);
+                                                    
 
                                                 });
                                                 
@@ -197,10 +205,10 @@
                                                     </li>
                                                     <li><a href="#extendedMetadata" class="vertical-text" ><fmt:message bundle="${lctx}">tab.metadata</fmt:message></a></li>
                                                 </ul>
-                                                <div id="extendedMetadata" style="height:650px; width:700px;">
+                                                <div id="extendedMetadata" style="height:650px; width:700px;  ">
                                                     <div class="level0"></div>
                                                 </div>
-                                                <div id="bigThumbZone">
+                                                <div id="bigThumbZone" style="overflow:auto;">
                                                 <div id="container" style="padding-top:10px; height: 434px;  color: black; display:none;"></div>
 
                                                 <div id="securityError" style="padding-top:10px; height: 400px; width:700px; color: black; display:none;">

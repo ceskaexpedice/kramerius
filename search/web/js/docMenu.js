@@ -102,7 +102,6 @@ function selectPage(uuid){
     var mimeUrl = "djvu?uuid="+uuid+"&imageType=ask";
         
     checkArrows();
-    setMainContentWidth();
     
 
     getViewInfo(uuid, showImage);
@@ -116,6 +115,7 @@ function selectPage(uuid){
         var model = $('#tabs_'+maxLevel+'>div:visible').attr('id').split('-')[1];
         getExtendedModelMetadata(uuid, maxLevel, false, model);
     }
+    setMainContentWidth();
 }
 
 function getViewInfo(uuid, f){
