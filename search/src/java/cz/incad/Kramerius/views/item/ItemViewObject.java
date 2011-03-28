@@ -177,14 +177,6 @@ public class ItemViewObject {
         }
     }
 
-    public int getLevel() {
-        String parameter = this.request.getParameter("level");
-        if ((parameter == null) || (parameter.equals(""))) {
-            return 0;
-        }
-        return Integer.parseInt(parameter);
-    }
-    
     
     public String getDeepZoomURL() {
         return null;

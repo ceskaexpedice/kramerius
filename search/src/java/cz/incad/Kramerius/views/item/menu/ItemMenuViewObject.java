@@ -62,7 +62,6 @@ public class ItemMenuViewObject {
 
     public boolean isDisplayable() {
         try {
-            String uuid = this.itemViewObject.getPidPath()[this.itemViewObject.getLevel()];
             return this.fedoraAccess.isImageFULLAvailable(uuid);
         }catch(Exception e){
             LOGGER.log(Level.INFO, e.getMessage(), e);
@@ -85,9 +84,9 @@ public class ItemMenuViewObject {
     private String dynamicPDF() {
         String key = "administrator.menu.generatepdf";
         if (isDisplayable()) {
-            return renderCommonItem(key, "_data_x_role", "read", "PDF.url");
+            return renderCommonItem(key, "_data_x_role", "read", "printOnePage");
         } else {
-            return renderCommonItem(key, "_data_x_role", "read", "PDF.generatePDF");
+            return renderCommonItem(key, "_data_x_role", "read", "printMorePages");
         }
     }
 

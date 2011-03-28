@@ -47,6 +47,7 @@ public class GeneratePDFServlet extends GuiceServlet {
 	
 	public static final String UUID_FROM="uuidFrom";
 	public static final String UUID_TO="uuidTo";
+    public static final String HOW_MANY="howMany";
 	public static final String PATH="path";
 	
 	@Inject
@@ -62,9 +63,9 @@ public class GeneratePDFServlet extends GuiceServlet {
 		try {
 				URL url = new URL(req.getRequestURL().toString());
 				//TODO: Najit context.. jde to.
-				String djvuUrl = ApplicationURL.applicationURL(req)+"/djvu";
+				String imgServletUrl = ApplicationURL.applicationURL(req)+"/img";
 				if ((configuration.getApplicationURL() != null) && (!configuration.getApplicationURL().equals(""))){
-					djvuUrl = configuration.getApplicationURL()+"djvu";
+					imgServletUrl = configuration.getApplicationURL()+"img";
 				}
 				String i18nUrl = ApplicationURL.applicationURL(req)+"/i18n";
 				if ((configuration.getApplicationURL() != null) && (!configuration.getApplicationURL().equals(""))){
@@ -74,10 +75,8 @@ public class GeneratePDFServlet extends GuiceServlet {
 				SimpleDateFormat sdate = new SimpleDateFormat("yyyyMMdd_mmhhss");
 			    resp.setHeader("Content-disposition","attachment; filename="+sdate.format(new Date())+".pdf");
 				String from = req.getParameter(UUID_FROM);
-				String to = req.getParameter(UUID_TO);
-				String path = req.getParameter(PATH);
-				List<String> pathList = Arrays.asList(path.split("/"));
-				service.dynamicPDFExport(pathList, from, to, from, resp.getOutputStream(), djvuUrl,i18nUrl);
+				String howMany = req.getParameter(HOW_MANY);
+				service.dynamicPDFExport(from, Integer.parseInt(howMany), from, resp.getOutputStream(), imgServletUrl, i18nUrl);
 
 		} catch (Exception e) {
 			LOGGER.log(Level.SEVERE, e.getMessage(), e);
