@@ -17,12 +17,13 @@
 <%@page import="java.util.Locale"%>
 <%@page import="java.util.ResourceBundle"%>
 <%@page import="java.util.Enumeration"%><head>
+
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
     <meta http-equiv="Pragma" content="no-cache" />
     <meta http-equiv="Cache-Control" content="no-cache" />
-    <meta name="description" content="National Library of Czech Republic digitized documents (periodical, monographs) access aplication." />
-    <meta name="keywords" content="periodical, monograph, library, National Library of Czech Republic, book, publication, kramerius" />
-    <meta name="AUTHOR" content="INCAD, www.incad.cz" />
+    <meta name="description" content="Digitized documents access aplication." />
+    <meta name="keywords" content="periodical, monograph, library,  book, publication, kramerius, fedora" />
+    <meta name="author" content="INCAD, www.incad.cz" />
 
     <link rel="icon" href="img/favicon.ico"/>
     <link rel="shortcut icon" href="img/favicon.ico" type="image/x-icon" />
@@ -36,9 +37,10 @@
     <link rel="stylesheet" href="css/dtree.css" type="text/css" />
     <link rel="StyleSheet" href="css/styles.css" type="text/css" />
     
-<!--[if IE ]>
-<link rel="StyleSheet" href="css/ie.css" type="text/css" />
-<![endif]-->
+    <!--[if IE ]>
+    <link rel="StyleSheet" href="css/ie.css" type="text/css" />
+    <![endif]-->
+    
     <script src="js/jquery-1.3.2.min.js" type="text/javascript" ></script>
     <script src="js/jquery-ui-1.7.2.custom.min.js" language="javascript" type="text/javascript"></script>
     <script src="js/jquery.mousewheel.js" type="text/javascript" ></script>
@@ -53,20 +55,19 @@
     <script  src="js/autocomplete.js" language="javascript" type="text/javascript"></script>
 
     <script type="text/javascript"  src="js/seadragon-min.js"></script>
-
+    <script  src="js/pdf/pdf.js" language="javascript" type="text/javascript"></script>
 
     <%  if (request.getRemoteUser() != null) {%>
-    <script  src="js/admin.js" language="javascript" type="text/javascript"></script>
+        <script  src="js/admin/admin.js" language="javascript" type="text/javascript"></script>
+        <script  src="js/rights/adminRights.js" language="javascript" type="text/javascript"></script>
     <% }%>
-    <script  src="js/adminRights.js" language="javascript" type="text/javascript"></script>
-
+    
     <%
-                Injector headerInjector = (Injector) application.getAttribute(Injector.class.getName());
-                HeaderViewObject headerViewObject = new HeaderViewObject();
-                headerInjector.injectMembers(headerViewObject);
-                pageContext.setAttribute("headerViewObject", headerViewObject);
+		Injector headerInjector = (Injector) application.getAttribute(Injector.class.getName());
+		HeaderViewObject headerViewObject = new HeaderViewObject();
+		headerInjector.injectMembers(headerViewObject);
+		pageContext.setAttribute("headerViewObject", headerViewObject);
     %>
-
     <title><fmt:message bundle="${lctx}">application.title</fmt:message></title>
     <script language="JavaScript" type="text/javascript">
         var pagesTitle = "<fmt:message bundle="${lctx}">Stránka</fmt:message>";
@@ -96,9 +97,6 @@
         var generatePdfErrorText = "<fmt:message bundle="${lctx}">generatePdfErrorText</fmt:message>";
         var generatePdfMaxRange = <%=kconfig.getProperty("generatePdfMaxRange")%>;
 
-        // chraneny obsah
-        var protectedContents={};
-        
         // localization
         ${headerViewObject.dictionary}
             // selekce
