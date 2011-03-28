@@ -62,6 +62,7 @@ import cz.incad.kramerius.FedoraAccess;
 import cz.incad.kramerius.FedoraNamespaces;
 import cz.incad.kramerius.ProcessSubtreeException;
 import cz.incad.kramerius.SolrAccess;
+import cz.incad.kramerius.imaging.ImageStreams;
 import cz.incad.kramerius.impl.AbstractTreeNodeProcessorAdapter;
 import cz.incad.kramerius.pdf.Break;
 import cz.incad.kramerius.pdf.GeneratePDFService;
@@ -80,6 +81,7 @@ import cz.incad.kramerius.utils.XMLUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 import cz.incad.kramerius.utils.imgs.ImageMimeType;
 import cz.incad.kramerius.utils.pid.LexerException;
+import cz.incad.kramerius.utils.pid.PIDParser;
 
 public class GeneratePDFServiceImpl implements GeneratePDFService {
 	
@@ -210,13 +212,13 @@ public class GeneratePDFServiceImpl implements GeneratePDFService {
 
 
 	@Override
-	public void generateCustomPDF(AbstractRenderedDocument rdoc, String parentUUID, OutputStream os, String djvuUrl, String i18nUrl) throws IOException {
+	public void generateCustomPDF(AbstractRenderedDocument rdoc, String parentUUID, OutputStream os, String imgServletUrl, String i18nUrl) throws IOException {
 		try {
 			Document doc = createDocument();
 			PdfWriter writer = PdfWriter.getInstance(doc, os);
 			doc.open();
 			
-			insertFirstPage(rdoc, parentUUID, rdoc.getUuidTitlePage(), writer, doc, djvuUrl);
+			insertFirstPage(rdoc, parentUUID, rdoc.getUuidTitlePage(), writer, doc, imgServletUrl);
 
 			doc.newPage();
 			for (AbstractPage page : rdoc.getPages()) {
@@ -224,7 +226,7 @@ public class GeneratePDFServiceImpl implements GeneratePDFService {
 				if (page instanceof ImagePage) {
 					ImagePage iPage = (ImagePage) page;
 //					insertOutlinedImagePage(iPage, writer, doc, djvuUrl);
-                    insertImage(iPage.getUuid(), writer, doc, (float)1.0, djvuUrl);
+                    insertImage(iPage.getUuid(), writer, doc, (float)1.0, imgServletUrl);
 				} else {
 					TextPage tPage = (TextPage) page;
 					if (tPage.getOutlineTitle().trim().equals("")) throw new IllegalArgumentException(page.getUuid());
@@ -263,27 +265,48 @@ public class GeneratePDFServiceImpl implements GeneratePDFService {
 	}
 
 
+	
 
+	
 	
 
 	@Override
-	public void dynamicPDFExport(List<String> path, String uuidFrom, String uuidTo, String titlePage, OutputStream os, String djvuUrl, String i18nUrl) throws IOException, ProcessSubtreeException {
-		LOGGER.info("current locale is "+localeProvider.get());
-		if (!path.isEmpty()) {
-			String lastUuid = path.get(path.size() -1);
+    public void dynamicPDFExport(String uuidFrom, int numberOfPage, String titlePage, OutputStream os, String imgServletUrl, String i18nUrl) throws IOException, ProcessSubtreeException {
+	    String[] pathOfUUIDs = solrAccess.getPathOfUUIDs(uuidFrom);
+	    
+        org.w3c.dom.Document relsExt = this.fedoraAccess.getRelsExt(uuidFrom);
+        String modelName = this.fedoraAccess.getKrameriusModelName(relsExt);
+        
+        final AbstractRenderedDocument renderedDocument = new RenderedDocument(modelName, uuidFrom);
+        renderedDocument.setDocumentTitle(TitlesUtils.title(uuidFrom, this.solrAccess, this.fedoraAccess));
+        renderedDocument.setUuidTitlePage(titlePage);
+        renderedDocument.setUuidMainTitle(pathOfUUIDs[0]);
+        
+        buildRenderingDocumentAsFlat(renderedDocument, uuidFrom, numberOfPage);
+        generateCustomPDF(renderedDocument, uuidFrom,os, imgServletUrl,i18nUrl);
+	    
+    }
 
-			org.w3c.dom.Document relsExt = this.fedoraAccess.getRelsExt(lastUuid);
-			String modelName = this.fedoraAccess.getKrameriusModelName(relsExt);
-			
-			
-			final AbstractRenderedDocument renderedDocument = new RenderedDocument(modelName, lastUuid);
-			renderedDocument.setDocumentTitle(TitlesUtils.title(lastUuid, this.solrAccess, this.fedoraAccess));
-			renderedDocument.setUuidTitlePage(titlePage);
-			renderedDocument.setUuidMainTitle(path.get(0));
-			
-			buildRenderingDocumentAsFlat(relsExt, lastUuid, renderedDocument, uuidFrom, uuidTo);
-			generateCustomPDF(renderedDocument, lastUuid,os, djvuUrl,i18nUrl);
-		}
+    @Override
+	public void dynamicPDFExport(List<String> path, String uuidFrom, String uuidTo, String titlePage, OutputStream os, String imgUrl, String i18nUrl) throws IOException, ProcessSubtreeException {
+        throw new UnsupportedOperationException("");
+//		LOGGER.info("current locale is "+localeProvider.get());
+//		
+//		
+//		if (!path.isEmpty()) {
+//			String lastUuid = path.get(path.size() -1);
+//
+//			org.w3c.dom.Document relsExt = this.fedoraAccess.getRelsExt(lastUuid);
+//			String modelName = this.fedoraAccess.getKrameriusModelName(relsExt);
+//			
+//			final AbstractRenderedDocument renderedDocument = new RenderedDocument(modelName, lastUuid);
+//			renderedDocument.setDocumentTitle(TitlesUtils.title(lastUuid, this.solrAccess, this.fedoraAccess));
+//			renderedDocument.setUuidTitlePage(titlePage);
+//			renderedDocument.setUuidMainTitle(path.get(0));
+//			
+//			buildRenderingDocumentAsFlat(relsExt, lastUuid, renderedDocument, uuidFrom, uuidTo);
+//			generateCustomPDF(renderedDocument, lastUuid,os, imgUrl,i18nUrl);
+//		}
 	}
 
 
@@ -328,56 +351,72 @@ public class GeneratePDFServiceImpl implements GeneratePDFService {
 
 
 	
-	private void buildRenderingDocumentAsFlat(org.w3c.dom.Document relsExt, String uuid, final AbstractRenderedDocument renderedDocument, final String uuidFrom, final String uuidTo ) throws IOException, ProcessSubtreeException {
-		if (fedoraAccess.isImageFULLAvailable(uuid)) {
-			Element documentElement = relsExt.getDocumentElement();
-			NodeList childNodes = documentElement.getChildNodes();
-			for (int i = 0,ll=childNodes.getLength(); i < ll; i++) {
-				Node node = childNodes.item(i);
-				if (node.getNodeType() ==  Node.ELEMENT_NODE) {
-					if ((node.getLocalName().equals("Description")) && (node.getNamespaceURI().equals("http://www.w3.org/1999/02/22-rdf-syntax-ns#"))) {
-						String attrAbout = ((Element)node).getAttributeNS("http://www.w3.org/1999/02/22-rdf-syntax-ns#", "about");
-						try {
-							renderedDocument.addPage(createPage(renderedDocument, attrAbout));
-						} catch (LexerException e) {
-							LOGGER.log(Level.SEVERE, e.getMessage(), e);
-						}
-					}
-				}
-			}
-		} else {
-		    
-		    fedoraAccess.processSubtree("uuid:"+uuid, new AbstractTreeNodeProcessorAdapter() {
+	private void buildRenderingDocumentAsFlat(/*org.w3c.dom.Document relsExt, String uuid,*/ final AbstractRenderedDocument renderedDocument, final String uuidFrom, /*final String uuidTo*/ final int howMany ) throws IOException, ProcessSubtreeException {
+	    if (fedoraAccess.isImageFULLAvailable(uuidFrom)) {
+	        
+	        String[] pathOfModels = solrAccess.getPathOfUUIDs(uuidFrom);
+	        String parent = pathOfModels[pathOfModels.length -2];
+	        
+            fedoraAccess.processSubtree("uuid:"+parent, new AbstractTreeNodeProcessorAdapter() {
+                private int index = 0;
                 private boolean acceptingState = false;
+                
                 @Override
-                public void processUuid(String uuid, int level) {
+                public void processUuid(String processingUuid, int level) {
                     try{
-                        if (fedoraAccess.isImageFULLAvailable(uuid)) {
-                            
-                            if (!acceptingState) {
-                                LOGGER.fine("uuidFrom ["+uuidFrom+"], uuidTo ["+uuidTo+"], and current ["+uuid+"]");
-                                if (uuid.equals(uuidFrom)) {
-                                    acceptingState = true;
-                                    //String pidAttribute = elm.getAttributeNS(RDF_NAMESPACE_URI, "resource");
-                                    renderedDocument.addPage(createPage(renderedDocument, uuid));
+                        if (fedoraAccess.isImageFULLAvailable(processingUuid)) {
+                            if (processingUuid.equals(uuidFrom)) {
+                                acceptingState = true;
+                            }
+                            if (acceptingState) {
+                                if (index < howMany) {
+                                    renderedDocument.addPage(createPage(renderedDocument, processingUuid));
                                 }
-                            } else {
-                                if (uuid.equals(uuidTo)) {
+                                index += 1;
+                                if (index>=howMany) {
                                     acceptingState = false;
                                 }
-                                renderedDocument.addPage(createPage(renderedDocument, uuid));
                             }
                         }
-                        
                     } catch (LexerException e) {
                         LOGGER.log(Level.SEVERE, e.getMessage(), e);
                     } catch (IOException e) {
                         LOGGER.log(Level.SEVERE, e.getMessage(), e);
                     }
                 }
+
+                @Override
+                public boolean breakProcessing(String pid, int level) {
+                    return index >= howMany;
+                }
             });
+	        
 		    
+		} else {
 		    
+		    fedoraAccess.processSubtree("uuid:"+uuidFrom, new AbstractTreeNodeProcessorAdapter() {
+                private int index = 0;
+                @Override
+                public void processUuid(String processingUuid, int level) {
+                    try{
+                        if (fedoraAccess.isImageFULLAvailable(processingUuid)) {
+                            if (index < howMany) {
+                                renderedDocument.addPage(createPage(renderedDocument, processingUuid));
+                            }
+                            index += 1;
+                        }
+                    } catch (LexerException e) {
+                        LOGGER.log(Level.SEVERE, e.getMessage(), e);
+                    } catch (IOException e) {
+                        LOGGER.log(Level.SEVERE, e.getMessage(), e);
+                    }
+                }
+
+                @Override
+                public boolean breakProcessing(String pid, int level) {
+                    return index >= howMany;
+                }
+            });
 		}
 	}
 	
@@ -457,11 +496,11 @@ public class GeneratePDFServiceImpl implements GeneratePDFService {
 	protected AbstractPage createPage( final AbstractRenderedDocument renderedDocument,
 			String objectId)
 			throws LexerException, IOException {
-		//String pid = elm.getAttributeNS(RDF_NAMESPACE_URI, "resource");
+//		String pid = elm.getAttributeNS(RDF_NAMESPACE_URI, "resource");
 //		PIDParser pidParse = new PIDParser(pid);
 //		pidParse.disseminationURI();
 //		String objectId = pidParse.getObjectId();
-		
+//		
 		org.w3c.dom.Document biblioMods = fedoraAccess.getBiblioMods(objectId);
 		org.w3c.dom.Document dc = fedoraAccess.getDC(objectId);
 		String modelName = fedoraAccess.getKrameriusModelName(objectId);
@@ -776,11 +815,11 @@ public class GeneratePDFServiceImpl implements GeneratePDFService {
 		}
 	}
 	
-	public void insertImage(String uuid, PdfWriter pdfWriter , Document document, float percentage, String djvuUrl) throws XPathExpressionException, IOException, DocumentException {
+	public void insertImage(String uuid, PdfWriter pdfWriter , Document document, float percentage, String imgServletUrl) throws XPathExpressionException, IOException, DocumentException {
 		try {
 			if (fedoraAccess.isImageFULLAvailable(uuid)) {
 				//bypass 
-				String imgUrl = createIMGFULL(uuid, djvuUrl);
+				String imgUrl = createIMGFULL(uuid, imgServletUrl);
 				String mimetypeString = fedoraAccess.getImageFULLMimeType(uuid);
 				ImageMimeType mimetype = ImageMimeType.loadFromMimeType(mimetypeString);
 				if (mimetype != null) {
@@ -826,8 +865,8 @@ public class GeneratePDFServiceImpl implements GeneratePDFService {
 	 * @param objectId
 	 * @return
 	 */
-	private String createIMGFULL(String objectId, String djvuUrl) {
-		String imgUrl = djvuUrl +"?uuid="+objectId+"&outputFormat=RAW";
+	private String createIMGFULL(String objectId, String imgServletUrl) {
+	    String imgUrl = imgServletUrl +"?uuid="+objectId+"&action=GETRAW&stream="+ImageStreams.IMG_FULL.getStreamName();
 		return imgUrl;
 	}
 
