@@ -25,7 +25,7 @@ public class MulgaraImpl implements IResourceIndex {
                     "where $object <fedora-model:hasModel> <info:fedora/model:" + model + ">  " + 
                     " and  $object <dc:title> $title " +
                     " and  $object <fedora-view:lastModifiedDate> $date " +
-                    " order by  " + orderby + " " + orderDir +
+                    " order by  $" + orderby + " " + orderDir +
                     " limit  " + limit +
                     " offset  " + offset;
             String urlStr = config.getString("FedoraResourceIndex") + "?type=tuples&flush=true&lang=itql&format=Sparql&distinct=off&stream=off" +
