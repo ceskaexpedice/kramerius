@@ -31,7 +31,8 @@ public class MulgaraImpl implements IResourceIndex {
             String urlStr = config.getString("FedoraResourceIndex") + "?type=tuples&flush=true&lang=itql&format=Sparql&distinct=off&stream=off" +
                     "&query=" + java.net.URLEncoder.encode(query, "UTF-8");
             java.net.URL url = new java.net.URL(urlStr);
-            return XMLUtils.parseDocument(url.openStream());
+            //TODO: Zrusit 
+            return XMLUtils.parseDocument(url.openStream(), true);
     }
 
     @Override
