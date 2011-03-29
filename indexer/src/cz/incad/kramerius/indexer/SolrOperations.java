@@ -101,6 +101,7 @@ public class SolrOperations {
             } else if ("optimize".equals(action)) {
                 optimize();
             } else if ("fromKrameriusModel".equals(action)) {
+                checkIntegrityByDocument(value);
                 if (!value.startsWith("uuid:")) {
                     value = "uuid:" + value;
                 }
@@ -115,6 +116,8 @@ public class SolrOperations {
                 checkIntegrityByModel(value);
             } else if ("checkIntegrityByDocument".equals(action)) {
                 checkIntegrityByDocument(value);
+            }else if ("getPidPaths".equals(action)) {
+                fedoraOperations.getPidPaths(value);
             }
 
         } catch (Exception ex) {
@@ -340,7 +343,7 @@ public class SolrOperations {
             pid = "uuid:" + pid;
         }
         logger.fine("fromKrameriusModel: " + pid);
-        checkIntegrityByDocument(pid);
+        
         fedoraOperations.getFoxmlFromPid(pid);
         factory = XPathFactory.newInstance();
         xpath = factory.newXPath();
