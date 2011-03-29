@@ -51,6 +51,11 @@
                     <%@ include file="inc/searchForm.jsp" %>
                     <c:if test="${rows!='0'}"><%@ include file="inc/usedFilters.jsp" %></c:if>
                      </form>
+                     <c:if test="${param.error=='uuid_not_found'}">
+                        <c:if test="${param.error=='uuid_not_found'}">
+                            <table class="main error"><tr valign='top'><td align="center"><fmt:message>error.uuid_not_found</fmt:message></td></tr></table>
+                        </c:if>
+                    </c:if>
                     <table class="main">
                         <tr valign='top'>
                             <c:if test="${rows!='0'}">

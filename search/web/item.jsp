@@ -30,8 +30,8 @@
             
 %>
 
+<%@ include file="inc/checkUUID.jsp" %>
 <%@ include file="inc/initVars.jsp" %>
-
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
 
 <%@page import="java.io.InputStream"%>

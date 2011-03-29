@@ -769,3 +769,7 @@ tr.users_hint:hover {
     height:80px;
     padding:1px;
 }
+
+.error {
+    color: red;
+}
