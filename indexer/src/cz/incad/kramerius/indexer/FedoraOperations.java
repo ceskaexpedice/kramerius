@@ -8,6 +8,7 @@ import cz.incad.kramerius.utils.conf.KConfiguration;
 import dk.defxws.fedoragsearch.server.*;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.logging.Logger;
 import org.fedora.api.FedoraAPIA;
 import org.fedora.api.FedoraAPIM;
@@ -103,27 +104,59 @@ public class FedoraOperations {
         return 1;
     }
 
+    public void getPidPaths(String pid) {
+        logger.info("getPidPaths");
+        ArrayList<String> pid_paths = new ArrayList<String>();
+        pid_paths.add(pid);
+        getPidPaths(pid_paths);
+        for(String s: pid_paths){
+            logger.info(s);
+        }
+    }
+
+    private void getPidPaths(ArrayList<String> pid_paths) {
+        String first;
+        boolean changed = false;
+        ArrayList<String> old = new ArrayList<String>(pid_paths);
+        pid_paths.clear();
+        for (int i = 0; i < old.size(); i++) {
+            first = old.get(i).split("/")[0];
+            ArrayList<String> p = getParentsArray(first);
+            if(!p.isEmpty()){
+                changed = true;
+                for(String s: p){
+                    pid_paths.add(s + "/" + old.get(i));
+                }
+            }else{
+                pid_paths.add(old.get(i));
+            }
+        }
+        if(changed) getPidPaths(pid_paths);
+    }
+
     public String getParents(String pid) {
+        ArrayList<String> l = getParentsArray(pid);
+        StringBuilder sb = new StringBuilder();
+        for (String s : l) {
+            sb.append(s).append(";");
+        }
+        sb.delete(sb.length() - 1, sb.length());
+        return sb.toString();
+    }
+
+    public ArrayList<String> getParentsArray(String pid) {
         try {
-            StringBuilder sb = new StringBuilder();
+
             //logger.info("getParents: " + pid);
             if (rindex == null) {
                 rindex = ResourceIndexService.getResourceIndexImpl();
             }
-            ArrayList<String> l = rindex.getParentsPids(pid);
-            for (int i = 0; i < l.size(); i++) {
-                sb.append(l.get(i));
-                if (i < l.size() - 1) {
-                    sb.append(";");
-                }
-            }
-
-            return sb.toString();
+            return rindex.getParentsPids(pid);
 
         } catch (Exception ex) {
             ex.printStackTrace();
             logger.severe(ex.toString());
-            return "";
+            return null;
         }
     }
 
@@ -158,5 +191,4 @@ public class FedoraOperations {
                 + " dsBuffer=" + dsBuffer.toString());
         return dsBuffer.toString();
     }
-
 }
