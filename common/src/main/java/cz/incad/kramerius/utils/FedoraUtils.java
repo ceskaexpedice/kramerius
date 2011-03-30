@@ -147,7 +147,7 @@ public class FedoraUtils {
         return imagePath;
     }
 
-    /**d
+    /**
      * Returns path to fedora stream
      * @param conf KConfiguraiton 
      * @param uuid UUID of the object 
@@ -158,6 +158,16 @@ public class FedoraUtils {
         String imagePath = conf.getFedoraHost() + "/get/uuid:" + uuid + "/" + stream;
         return imagePath;
     }
+    
+    /**
+     * Returns path to fedora description
+     * @return
+     */
+    public static String getFedoraDescribe(KConfiguration conf) {
+        String describePath = conf.getFedoraHost() + "/describe?xml=true";
+        return describePath;
+    }
+    
 
     /**
      * Returns true if given stream (profile of the stream) is referenced stream by URL

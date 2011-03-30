@@ -264,4 +264,13 @@ public interface FedoraAccess {
      */
     public String getMimeTypeForStream(String pid, String datastreamName) throws IOException;
 
+ 
+    /**
+     * Returns current version of fedora
+     * @return
+     * @throws IOException 
+     */
+    public String getFedoraVersion() throws IOException;
+    
+    
 }

@@ -35,4 +35,15 @@ public interface FedoraNamespaces {
      * Sparql namespace
      */
     public static final String SPARQL_NAMESPACE_URI = "http://www.w3.org/2001/sw/DataAccess/rf1/result";
+
+    /**
+     * Namespace used in API-A results
+     */
+    public static final String FEDORA_ACCESS_NAMESPACE_URI = "http://www.fedora.info/definitions/1/0/access/"; 
+
+    
+    /**
+     * Namespace used in API-M results
+     */
+    public static final String FEDORA_MANAGEMENT_NAMESPACE_URI = "http://www.fedora.info/definitions/1/0/management/";
 }

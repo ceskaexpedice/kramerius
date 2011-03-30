@@ -26,9 +26,14 @@ public abstract class AbstractIPAddressFilter extends AbstractCriterium implemen
     static java.util.logging.Logger LOGGER = java.util.logging.Logger.getLogger(AbstractIPAddressFilter.class.getName());
     
     protected boolean matchIPAddresses(Object[] objs) {
+        String remoteAddr = this.getEvaluateContext().getRemoteAddr();
+        return matchIPAddresses(objs, remoteAddr);
+    }
+
+
+    protected boolean matchIPAddresses(Object[] objs, String remoteAddr) {
         for (Object pattern : objs) {
             boolean negativePattern = false;
-            String remoteAddr = this.getEvaluateContext().getRemoteAddr();
             String patternStr = pattern.toString();
             if (patternStr.startsWith("!")) {
                 patternStr = patternStr.substring(1);

@@ -43,8 +43,9 @@ public class METSServiceImpl implements METSService {
 	
 	/**
 	 * args[0] uuid of the root object (without uuid: prefix)
+	 * @throws IOException 
 	 */
-	public static void main(String[] args) {
+	public static void main(String[] args) throws IOException {
 		LOGGER.info("METS Service: "+Arrays.toString(args));
 		METSServiceImpl inst = new METSServiceImpl();
 		inst.fedoraAccess = new FedoraAccessImpl(null);

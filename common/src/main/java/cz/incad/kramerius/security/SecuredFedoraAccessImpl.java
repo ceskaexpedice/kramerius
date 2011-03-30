@@ -238,5 +238,11 @@ public class SecuredFedoraAccessImpl implements FedoraAccess {
     public String getKrameriusModelName(String uuid) throws IOException {
         return rawAccess.getKrameriusModelName(uuid);
     }
+
+    @Override
+    public String getFedoraVersion() throws IOException {
+        return rawAccess.getFedoraVersion();
+    }
+    
     
 }

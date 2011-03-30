@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<objectDatastreams  
+    xmlns="http://www.fedora.info/definitions/1/0/access/"  
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"  
+    xsi:schemaLocation="http://www.fedora.info/definitions/1/0/access/ 
+    http://www.fedora-commons.org/definitions/1/0/listDatastreams.xsd" 
+    pid="uuid:4a79bd50-af36-11dd-a60c-000d606f5dc6"  
+    baseURL="http://localhost:8080/fedora/" >    
+<datastream dsid="DC" label="Dublin Core Record for this object" mimeType="text/xml" />    
+<datastream dsid="IMG_FULL" label="" mimeType="image/vnd.djvu" />    
+<datastream dsid="IMG_THUMB" label="" mimeType="image/jpeg" />    
+<datastream dsid="IMG_PREVIEW" label="" mimeType="image/jpeg" />    
+<datastream dsid="IMG_FULL_ADM" label="Image administrative metadata" mimeType="text/xml" />    
+<datastream dsid="TEXT_OCR" label="" mimeType="text/plain" />    
+<datastream dsid="TEXT_OCR_ADM" label="Image administrative metadata" mimeType="text/xml" />    
+<datastream dsid="BIBLIO_MODS" label="BIBLIO_MODS description of current object" mimeType="text/xml" />    <datastream dsid="RELS-EXT" label="RDF Statements about this object" mimeType="application/rdf+xml" />    <datastream dsid="POLICY" label="" mimeType="text/xml" /></objectDatastreams>

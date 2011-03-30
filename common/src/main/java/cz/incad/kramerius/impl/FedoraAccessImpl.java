@@ -4,16 +4,21 @@ import static cz.incad.kramerius.utils.FedoraUtils.IMG_FULL_STREAM;
 import static cz.incad.kramerius.utils.FedoraUtils.getFedoraDatastreamsList;
 import static cz.incad.kramerius.utils.FedoraUtils.getFedoraStreamPath;
 import static cz.incad.kramerius.utils.FedoraUtils.getThumbnailFromFedora;
+import static cz.incad.kramerius.utils.FedoraUtils.getFedoraDescribe;
 import static cz.incad.kramerius.utils.RESTHelper.openConnection;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.StringReader;
 import java.net.Authenticator;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.PasswordAuthentication;
 import java.net.URL;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
@@ -30,6 +35,9 @@ import javax.xml.xpath.XPathExpression;
 import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
 
+import org.antlr.stringtemplate.StringTemplate;
+import org.antlr.stringtemplate.StringTemplateGroup;
+import org.antlr.stringtemplate.language.DefaultTemplateLexer;
 import org.fedora.api.FedoraAPIA;
 import org.fedora.api.FedoraAPIAService;
 import org.fedora.api.FedoraAPIM;
@@ -40,6 +48,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
+import org.w3c.dom.Text;
 import org.xml.sax.SAXException;
 
 import com.google.inject.Inject;
@@ -50,6 +59,7 @@ import cz.incad.kramerius.FedoraNamespaces;
 import cz.incad.kramerius.ProcessSubtreeException;
 import cz.incad.kramerius.TreeNodeProcessor;
 import cz.incad.kramerius.utils.FedoraUtils;
+import cz.incad.kramerius.utils.IOUtils;
 import cz.incad.kramerius.utils.RESTHelper;
 import cz.incad.kramerius.utils.XMLUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
@@ -66,11 +76,24 @@ public class FedoraAccessImpl implements FedoraAccess {
     public static final java.util.logging.Logger LOGGER = java.util.logging.Logger.getLogger(FedoraAccessImpl.class.getName());
     private final KConfiguration configuration;
 
+    private String fedoraVersion;
+    private StringTemplateGroup xpaths;
+    
+    
     @Inject
-    public FedoraAccessImpl(KConfiguration configuration) {
+    public FedoraAccessImpl(KConfiguration configuration) throws IOException {
         super();
         this.configuration = configuration;
+        readXPATHTemplateGroup();
     }
+
+
+    public void readXPATHTemplateGroup() throws IOException {
+        InputStream stream = FedoraAccessImpl.class.getResourceAsStream("fedora_xpaths.stg");
+        String string = IOUtils.readAsString(stream, Charset.forName("UTF-8"), true);
+        xpaths = new StringTemplateGroup(new StringReader(string), DefaultTemplateLexer.class);
+    }
+    
 
     @Override
     public List<Element> getPages(String uuid, boolean deep) throws IOException {
@@ -339,7 +362,7 @@ public class FedoraAccessImpl implements FedoraAccess {
     @Override
     public String getSmallThumbnailMimeType(String uuid) throws IOException, XPathExpressionException {
         Document profileDoc = getSmallThumbnailProfile(uuid);
-        return mimetypeFromProfile(profileDoc);
+        return disectMimetypeFromProfile(profileDoc,getFedoraVersion());
     }
 
     public InputStream getImageFULL(String uuid) throws IOException {
@@ -363,8 +386,13 @@ public class FedoraAccessImpl implements FedoraAccess {
         try {
             con = (HttpURLConnection) openConnection(getFedoraDatastreamsList(configuration, uuid), configuration.getFedoraUser(), configuration.getFedoraPass());
             InputStream stream = con.getInputStream();
-            Document parseDocument = XMLUtils.parseDocument(stream, true);
-            return datastreamInListOfDatastreams(parseDocument, streamName);
+            ByteArrayOutputStream bos = new ByteArrayOutputStream();
+            
+            IOUtils.copyStreams(stream, bos);
+            byte[] bytes = bos.toByteArray();
+            System.out.println(new String(bytes));
+            Document parseDocument = XMLUtils.parseDocument(new ByteArrayInputStream(bytes), true);
+            return disectDatastreamInListOfDatastreams(parseDocument, streamName, getFedoraVersion());
         } catch (ParserConfigurationException e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
             throw new IOException(e);
@@ -386,23 +414,33 @@ public class FedoraAccessImpl implements FedoraAccess {
 
     public String getImageFULLMimeType(String uuid) throws IOException, XPathExpressionException {
         Document profileDoc = getImageFULLProfile(uuid);
-        return mimetypeFromProfile(profileDoc);
+        return disectMimetypeFromProfile(profileDoc, getFedoraVersion());
     }
 
-    private boolean datastreamInListOfDatastreams(Document datastreams, String dsId) throws XPathExpressionException {
+    boolean disectDatastreamInListOfDatastreams(Document datastreams, String dsId, String fedoraVersion) throws XPathExpressionException, IOException {
         XPathFactory factory = XPathFactory.newInstance();
         XPath xpath = factory.newXPath();
-        XPathExpression expr = xpath.compile("/objectDatastreams/datastream[@dsid='" + dsId + "']");
+        xpath.setNamespaceContext(new FedoraNamespaceContext());
+        String templateName = "find_datastream"+fedoraVersion.substring(0,3).replace('.', '_');
+        StringTemplate xpathTemplate = xpaths.getInstanceOf(templateName);
+        xpathTemplate.setAttribute("dsid", dsId);
+        String xpathStringExp = xpathTemplate.toString();
+        XPathExpression expr = xpath.compile(xpathStringExp);
         Node oneNode = (Node) expr.evaluate(datastreams, XPathConstants.NODE);
         return (oneNode != null);
-
     }
 
-    private String mimetypeFromProfile(Document profileDoc)
+    String disectMimetypeFromProfile(Document profileDoc, String fedoraVersion)
             throws XPathExpressionException {
         XPathFactory factory = XPathFactory.newInstance();
         XPath xpath = factory.newXPath();
-        XPathExpression expr = xpath.compile("/datastreamProfile/dsMIME");
+        xpath.setNamespaceContext(new FedoraNamespaceContext());
+
+        String templateName = "find_mimetype"+fedoraVersion.substring(0,3).replace('.', '_');
+        StringTemplate xpathTemplate = xpaths.getInstanceOf(templateName);
+        String xpathStringExp = xpathTemplate.toString();
+        XPathExpression expr = xpath.compile(xpathStringExp);
+
         Node oneNode = (Node) expr.evaluate(profileDoc, XPathConstants.NODE);
         if (oneNode != null) {
             Element elm = (Element) oneNode;
@@ -672,7 +710,7 @@ public class FedoraAccessImpl implements FedoraAccess {
         InputStream stream = con.getInputStream();
         try {
             Document parseDocument = XMLUtils.parseDocument(stream, true);
-            return mimetypeFromProfile(parseDocument);
+            return disectMimetypeFromProfile(parseDocument, getFedoraVersion());
         } catch (ParserConfigurationException e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
             throw new IOException(e);
@@ -711,5 +749,45 @@ public class FedoraAccessImpl implements FedoraAccess {
     public String getFullThumbnailMimeType(String uuid) throws IOException,
             XPathExpressionException {
         throw new UnsupportedOperationException("");
+    }
+
+    @Override
+    public String getFedoraVersion() throws IOException {
+        if (fedoraVersion == null) {
+            try {
+                HttpURLConnection con = (HttpURLConnection) openConnection(getFedoraDescribe(configuration), configuration.getFedoraUser(), configuration.getFedoraPass());
+                con.connect();
+                if (con.getResponseCode() == HttpURLConnection.HTTP_OK) {
+                    InputStream stream = con.getInputStream();
+                    fedoraVersion = disectFedoraVersionFromStream(stream);
+                } else {
+                    throw new IOException("404");
+                }
+            } catch (MalformedURLException e) {
+                throw new IOException(e);
+            } catch (XPathExpressionException e) {
+                throw new IOException(e);
+            } catch (DOMException e) {
+                throw new IOException(e);
+            } catch (IOException e) {
+                throw e;
+            } catch (ParserConfigurationException e) {
+                throw new IOException(e);
+            } catch (SAXException e) {
+                throw new IOException(e);
+            }
+            
+        }
+        return fedoraVersion;
+    }
+
+    String  disectFedoraVersionFromStream(InputStream stream) throws ParserConfigurationException, SAXException, IOException, XPathExpressionException {
+        // do not use namespaces
+        Document parseDocument = XMLUtils.parseDocument(stream, false);
+        XPathFactory factory = XPathFactory.newInstance();
+        XPath xpath = factory.newXPath();
+        XPathExpression expr = xpath.compile("/fedoraRepository/repositoryVersion/text()");
+        Node oneNode = (Node) expr.evaluate(parseDocument, XPathConstants.NODE);
+        return (oneNode != null && oneNode.getNodeType() == Node.TEXT_NODE) ? ((Text)oneNode).getData() : "";
     }
 }

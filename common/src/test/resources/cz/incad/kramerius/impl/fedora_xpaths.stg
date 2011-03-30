@@ -1,0 +1,21 @@
+group xpaths;
+
+/** find datastream for fedora 3.3 */
+find_datastream3_3(dsid) ::=<<
+/objectDatastreams/datastream[@dsid='$dsid$']
+>>
+ 
+/** find datastream for fedora 3.4 */
+find_datastream3_4(dsid) ::=<<
+/apia:objectDatastreams/apia:datastream[@dsid='$dsid$']
+>>
+
+/** finds mimetype - fedora 3.3 */ 
+find_mimetype3_3() ::=<<
+/datastreamProfile/dsMIME
+>> 
+
+/** finds mimetype - fedora 3.4 */ 
+find_mimetype3_4() ::=<<
+/apim:datastreamProfile/apim:dsMIME
+>> 

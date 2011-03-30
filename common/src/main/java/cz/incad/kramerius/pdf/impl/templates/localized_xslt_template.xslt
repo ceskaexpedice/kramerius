@@ -18,11 +18,8 @@
 
 		<xsl:output method="text" indent="no" encoding="UTF-8" />
 		
-		
 		<xsl:param name="model" select="'$model$'"></xsl:param>
 		<xsl:param name="parent_title" select="'$parent_title$'"></xsl:param>
 		<xsl:param name="bundle" select="document('$bundle_url$')/bundle" />
-
 		<xsl:include href="$template_folder$/template.xslt"/>		
-
 </xsl:stylesheet>
