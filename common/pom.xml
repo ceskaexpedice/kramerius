@@ -237,6 +237,20 @@
                     <exclude>**/*.java</exclude>
                 </excludes>
             </resource>
+
+            <resource>
+                <directory>${basedir}/src/test/resources</directory>
+                <includes>
+                    <include>**/*</include>
+                    <include>**/*.p*</include>
+                    <include>**/*.st*</include>
+                    <include>**/*.t*</include>
+                </includes>
+                <excludes>
+                    <exclude>**/*.java</exclude>
+                </excludes>
+            </resource>
+
         </resources>
         <plugins>
             <plugin>
