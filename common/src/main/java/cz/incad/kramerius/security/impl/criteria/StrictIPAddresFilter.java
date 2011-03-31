@@ -37,7 +37,9 @@ public class StrictIPAddresFilter extends AbstractIPAddressFilter implements Rig
 
     @Override
     public EvaluatingResult evalute() throws RightCriteriumException {
-        return matchIPAddresses(getObjects()) ?  EvaluatingResult.TRUE : EvaluatingResult.FALSE;
+        EvaluatingResult result = matchIPAddresses(getObjects()) ?  EvaluatingResult.TRUE : EvaluatingResult.FALSE;
+        LOGGER.fine("\t strict filter - "+result);
+        return result;
     }
 
 

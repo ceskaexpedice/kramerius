@@ -43,7 +43,9 @@ public class DefaultIPAddressFilter extends AbstractIPAddressFilter implements R
 
     @Override
     public EvaluatingResult evalute() throws RightCriteriumException {
-        return matchIPAddresses(getObjects()) ?  EvaluatingResult.TRUE : EvaluatingResult.NOT_APPLICABLE ;
+        EvaluatingResult result = matchIPAddresses(getObjects()) ?  EvaluatingResult.TRUE : EvaluatingResult.NOT_APPLICABLE;
+        LOGGER.fine("\t benevolent filter - "+result);
+        return result ;
     }
 
     public EvaluatingResult createResult(Calendar calFromMetadata, Calendar calFromConf) {
