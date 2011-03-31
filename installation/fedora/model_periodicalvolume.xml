@@ -48,6 +48,7 @@
           xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
           <rdf:Description rdf:about="info:fedora/model:periodicalvolume">
             <fedora-model:hasService rdf:resource="info:fedora/service:ESEDef"/>
+            <fedora-model:hasModel rdf:resource="info:fedora/fedora-system:ContentModel-3.0"/>
           </rdf:Description>
         </rdf:RDF>
       </foxml:xmlContent>

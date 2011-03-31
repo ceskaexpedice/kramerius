@@ -51,6 +51,7 @@
             <oai:setSpec>monograph</oai:setSpec>
             <oai:setName>Monograph</oai:setName>
             <fedora-model:hasService rdf:resource="info:fedora/service:ESEDef"/>
+            <fedora-model:hasModel rdf:resource="info:fedora/fedora-system:ContentModel-3.0"/>
           </rdf:Description>
         </rdf:RDF>
       </foxml:xmlContent>
