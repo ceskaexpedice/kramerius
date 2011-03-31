@@ -85,8 +85,8 @@ public class ViewInfoServlet extends GuiceServlet {
             User user = currentLoggedUserProvider.get();
 
             if ((uuid != null) && (!uuid.equals(""))) {
-
-                String mimeType = this.fedoraAccess.getImageFULLMimeType(uuid);
+                boolean imgfullAvailable = this.fedoraAccess.isImageFULLAvailable(uuid);
+                String mimeType = imgfullAvailable ? this.fedoraAccess.getImageFULLMimeType(uuid) : "";
                 boolean generated = resolutionFilePresent(uuid);
                 boolean conf = deepZoomConfigurationEnabled(uuid);
                 boolean hasAlto = this.fedoraAccess.isStreamAvailable(uuid, "ALTO");
