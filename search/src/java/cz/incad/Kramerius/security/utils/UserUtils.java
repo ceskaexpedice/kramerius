@@ -28,12 +28,9 @@ public class UserUtils {
     //    static Group globalAdminGroup = null;
 
     public  static User getNotLoggedUser(UserManager userManager) {
-        CurrentLoggedUserProvider.LOGGER.info("PROVIDER ~ noe principal ");
-        
         UserImpl user = new UserImpl(-1, "not_logged", "not_logged", "not_logged", -1);
         user.setGroups(new Group[] {});
         UserUtils.associateCommonGroup(user, userManager);
-        CurrentLoggedUserProvider.LOGGER.info("PROVIDER user instance 0x"+Integer.toHexString(System.identityHashCode(user)));
         return user;
     }
 
