@@ -207,7 +207,7 @@ public class FedoraAccessImpl implements FedoraAccess {
     @Override
     public Document getBiblioMods(String uuid) throws IOException {
         String biblioModsUrl = biblioMods(KConfiguration.getInstance(), uuid);
-        LOGGER.info("Reading bibliomods +" + biblioModsUrl);
+        LOGGER.fine("Reading bibliomods +" + biblioModsUrl);
         InputStream docStream = RESTHelper.inputStream(biblioModsUrl, KConfiguration.getInstance().getFedoraUser(), KConfiguration.getInstance().getFedoraPass());
         try {
             return XMLUtils.parseDocument(docStream, true);
@@ -223,7 +223,7 @@ public class FedoraAccessImpl implements FedoraAccess {
     @Override
     public Document getDC(String uuid) throws IOException {
         String dcUrl = dc(KConfiguration.getInstance(), uuid);
-        LOGGER.info("Reading dc +" + dcUrl);
+        LOGGER.fine("Reading dc +" + dcUrl);
         InputStream docStream = RESTHelper.inputStream(dcUrl, KConfiguration.getInstance().getFedoraUser(), KConfiguration.getInstance().getFedoraPass());
         try {
             return XMLUtils.parseDocument(docStream, true);
@@ -387,10 +387,10 @@ public class FedoraAccessImpl implements FedoraAccess {
             con = (HttpURLConnection) openConnection(getFedoraDatastreamsList(configuration, uuid), configuration.getFedoraUser(), configuration.getFedoraPass());
             InputStream stream = con.getInputStream();
             ByteArrayOutputStream bos = new ByteArrayOutputStream();
-            
+            //TODO: Debug turn off 
             IOUtils.copyStreams(stream, bos);
             byte[] bytes = bos.toByteArray();
-            System.out.println(new String(bytes));
+            
             Document parseDocument = XMLUtils.parseDocument(new ByteArrayInputStream(bytes), true);
             return disectDatastreamInListOfDatastreams(parseDocument, streamName, getFedoraVersion());
         } catch (ParserConfigurationException e) {
