@@ -17,15 +17,12 @@
 package cz.incad.kramerius.security.impl;
 
 import java.sql.Connection;
-import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.logging.Level;
 
 import org.antlr.stringtemplate.StringTemplate;
@@ -35,7 +32,6 @@ import com.google.inject.Provider;
 import com.google.inject.name.Named;
 
 import cz.incad.kramerius.security.AbstractUser;
-import cz.incad.kramerius.security.CriteriumType;
 import cz.incad.kramerius.security.EvaluatingResult;
 import cz.incad.kramerius.security.Group;
 import cz.incad.kramerius.security.Right;
@@ -43,11 +39,9 @@ import cz.incad.kramerius.security.RightCriterium;
 import cz.incad.kramerius.security.RightCriteriumContext;
 import cz.incad.kramerius.security.RightCriteriumException;
 import cz.incad.kramerius.security.RightCriteriumParams;
-import cz.incad.kramerius.security.RightCriteriumPriorityHint;
+import cz.incad.kramerius.security.RightsManager;
 import cz.incad.kramerius.security.SpecialObjects;
 import cz.incad.kramerius.security.User;
-
-import cz.incad.kramerius.security.RightsManager;
 import cz.incad.kramerius.security.UserManager;
 import cz.incad.kramerius.security.database.InitSecurityDatabase;
 import cz.incad.kramerius.security.database.SecurityDatabaseUtils;
@@ -402,7 +396,7 @@ public class DatabaseRightsManager implements RightsManager {
     public void updateRight(final Right right) throws SQLException {
         final RightCriterium criterium = right.getCriterium();
         final RightCriteriumParams params = criterium != null ? criterium.getCriteriumParams() : null;
-        LOGGER.log(Level.INFO, "got connection from provider ");
+        LOGGER.log(Level.FINE, "got connection from provider ");
         final Connection con = provider.get();
         new JDBCTransactionTemplate(con, true).updateWithTransaction(new JDBCCommand() {
             
@@ -452,7 +446,7 @@ public class DatabaseRightsManager implements RightsManager {
         template.setAttribute("priority", right.getFixedPriority() == 0 ? "NULL" : "" + right.getFixedPriority());
         JDBCUpdateTemplate jdbcTemplate = new JDBCUpdateTemplate(con, false);
         String sql = template.toString();
-        LOGGER.info(sql);
+        LOGGER.fine(sql);
         jdbcTemplate.executeUpdate(sql);
     }
 
@@ -510,7 +504,7 @@ public class DatabaseRightsManager implements RightsManager {
         StringTemplate template = SecurityDatabaseUtils.stGroup().getInstanceOf("deleteRight");
         JDBCUpdateTemplate jdbcTemplate = new JDBCUpdateTemplate(con, false);
         String sql = template.toString();
-        LOGGER.info(sql);
+        LOGGER.fine(sql);
         jdbcTemplate.executeUpdate(sql, right.getId());
     }
 
@@ -519,7 +513,7 @@ public class DatabaseRightsManager implements RightsManager {
         StringTemplate template = SecurityDatabaseUtils.stGroup().getInstanceOf("deleteRightCriterium");
         JDBCUpdateTemplate jdbcTemplate = new JDBCUpdateTemplate(con, false);
         String sql = template.toString();
-        LOGGER.info(sql);
+        LOGGER.fine(sql);
         jdbcTemplate.executeUpdate(sql, criterium.getId());
     }
 
@@ -529,7 +523,7 @@ public class DatabaseRightsManager implements RightsManager {
         template.setAttribute("criterium", criterium);
         JDBCUpdateTemplate jdbcTemplate = new JDBCUpdateTemplate(con, false);
         String sql = template.toString();
-        LOGGER.info(sql);
+        LOGGER.fine(sql);
         jdbcTemplate.executeUpdate(sql);
     }
 
@@ -539,7 +533,7 @@ public class DatabaseRightsManager implements RightsManager {
         template.setAttribute("params", params);
         JDBCUpdateTemplate jdbcTemplate = new JDBCUpdateTemplate(con, false);
         String sql = template.toString();
-        LOGGER.info(sql);
+        LOGGER.fine(sql);
         jdbcTemplate.executeUpdate(sql);
     }
 
@@ -551,7 +545,7 @@ public class DatabaseRightsManager implements RightsManager {
         template.setAttribute("priority", right.getFixedPriority() == 0 ? "NULL" : "" + right.getFixedPriority());
         JDBCUpdateTemplate jdbcTemplate = new JDBCUpdateTemplate(con, false);
         String sql = template.toString();
-        LOGGER.info(sql);
+        LOGGER.fine(sql);
         return jdbcTemplate.executeUpdate(sql);
     }
 
@@ -591,7 +585,7 @@ public class DatabaseRightsManager implements RightsManager {
         template.setAttribute("criterium", criterium);
         JDBCUpdateTemplate jdbcTemplate = new JDBCUpdateTemplate(con, false);
         String sql = template.toString();
-        LOGGER.info(sql);
+        LOGGER.fine(sql);
         return jdbcTemplate.executeUpdate(sql);
     }
 
@@ -613,7 +607,7 @@ public class DatabaseRightsManager implements RightsManager {
         template.setAttribute("params", criteriumParams);
         JDBCUpdateTemplate jdbcTemplate = new JDBCUpdateTemplate(con, false);
         String sql = template.toString();
-        LOGGER.info(sql);
+        LOGGER.fine(sql);
         return jdbcTemplate.executeUpdate(sql);
     }
 
