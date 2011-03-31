@@ -173,7 +173,6 @@ public interface FedoraAccess {
 
     public InputStream getFullThumbnail(String uuid) throws IOException;
 
-    Document getFullThumbnailProfile(String uuid) throws IOException;
 
     public String getFullThumbnailMimeType(String uuid) throws IOException, XPathExpressionException;
 
@@ -271,6 +270,22 @@ public interface FedoraAccess {
      * @throws IOException 
      */
     public String getFedoraVersion() throws IOException;
+
     
-    
+    /**
+     * Returns profile for stream 
+     * @param uuid
+     * @param stream
+     * @return
+     * @throws IOException
+     */
+    Document getStreamProfile(String uuid, String stream) throws IOException;
+
+    /**
+     * Returns profile for object
+     * @param uuid
+     * @return
+     * @throws IOException
+     */
+    Document getObjectProfile(String uuid) throws IOException;
 }

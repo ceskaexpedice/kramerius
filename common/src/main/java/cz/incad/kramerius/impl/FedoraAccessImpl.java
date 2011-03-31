@@ -421,7 +421,7 @@ public class FedoraAccessImpl implements FedoraAccess {
         XPathFactory factory = XPathFactory.newInstance();
         XPath xpath = factory.newXPath();
         xpath.setNamespaceContext(new FedoraNamespaceContext());
-        String templateName = "find_datastream"+fedoraVersion.substring(0,3).replace('.', '_');
+        String templateName = "find_datastream"+FedoraUtils.getVersionCompatibilityPrefix(fedoraVersion);
         StringTemplate xpathTemplate = xpaths.getInstanceOf(templateName);
         xpathTemplate.setAttribute("dsid", dsId);
         String xpathStringExp = xpathTemplate.toString();
@@ -436,7 +436,7 @@ public class FedoraAccessImpl implements FedoraAccess {
         XPath xpath = factory.newXPath();
         xpath.setNamespaceContext(new FedoraNamespaceContext());
 
-        String templateName = "find_mimetype"+fedoraVersion.substring(0,3).replace('.', '_');
+        String templateName = "find_mimetype"+FedoraUtils.getVersionCompatibilityPrefix(fedoraVersion);
         StringTemplate xpathTemplate = xpaths.getInstanceOf(templateName);
         String xpathStringExp = xpathTemplate.toString();
         XPathExpression expr = xpath.compile(xpathStringExp);
@@ -452,6 +452,7 @@ public class FedoraAccessImpl implements FedoraAccess {
         }
         return null;
     }
+
 
     @Override
     public Document getImageFULLProfile(String uuid) throws IOException {
@@ -469,23 +470,28 @@ public class FedoraAccessImpl implements FedoraAccess {
     }
 
     public static String fullImageProfile(KConfiguration configuration, String uuid) {
-        return dsProfile(configuration, "IMG_FULL", uuid);
+        return dsProfile(configuration, FedoraUtils.IMG_FULL_STREAM, uuid);
     }
 
     public static String thumbImageProfile(KConfiguration configuration, String uuid) {
-        return dsProfile(configuration, "IMG_THUMB", uuid);
+        return dsProfile(configuration, FedoraUtils.IMG_THUMB_STREAM , uuid);
     }
 
     public static String dcProfile(KConfiguration configuration, String uuid) {
-        return dsProfile(configuration, "DC", uuid);
+        return dsProfile(configuration, FedoraUtils.DC_STREAM, uuid);
     }
 
     public static String biblioModsProfile(KConfiguration configuration, String uuid) {
-        return dsProfile(configuration, "BIBLIO_MODS", uuid);
+        return dsProfile(configuration, FedoraUtils.BIBLIO_MODS_STREAM , uuid);
     }
 
     public static String relsExtProfile(KConfiguration configuration, String uuid) {
-        return dsProfile(configuration, "RELS-EXT", uuid);
+        return dsProfile(configuration, FedoraUtils.RELS_EXT_STREAM, uuid);
+    }
+
+    public static String profile(KConfiguration configuration,  String uuid) {
+        String fedoraObject = configuration.getFedoraHost() + "/objects/uuid:" + uuid;
+        return fedoraObject + "?format=text/xml";
     }
 
     public static String dsProfile(KConfiguration configuration, String ds, String uuid) {
@@ -509,7 +515,7 @@ public class FedoraAccessImpl implements FedoraAccess {
     }
 
     public static String relsExtUrl(KConfiguration configuration, String uuid) {
-        String url = configuration.getFedoraHost() + "/get/uuid:" + uuid + "/RELS-EXT";
+        String url = configuration.getFedoraHost() + "/get/uuid:" + uuid + "/"+FedoraUtils.RELS_EXT_STREAM;
         return url;
     }
     private FedoraAPIM APIMport;
@@ -740,10 +746,6 @@ public class FedoraAccessImpl implements FedoraAccess {
         }
     }
 
-    @Override
-    public Document getFullThumbnailProfile(String uuid) throws IOException {
-        throw new UnsupportedOperationException("");
-    }
 
     @Override
     public String getFullThumbnailMimeType(String uuid) throws IOException,
@@ -751,6 +753,48 @@ public class FedoraAccessImpl implements FedoraAccess {
         throw new UnsupportedOperationException("");
     }
 
+
+    @Override
+    public Document getObjectProfile(String uuid) throws  IOException {
+        try {
+            HttpURLConnection con = (HttpURLConnection) openConnection(profile(configuration, uuid), configuration.getFedoraUser(), configuration.getFedoraPass());
+            con.connect();
+            if (con.getResponseCode() == HttpURLConnection.HTTP_OK) {
+                InputStream is = con.getInputStream();
+                return XMLUtils.parseDocument(is, true);
+            } else {
+                throw new IOException("404");
+            }
+        } catch (ParserConfigurationException e) {
+            LOGGER.log(Level.SEVERE, e.getMessage(),e);
+            throw new IOException(e);
+        } catch (SAXException e) {
+            LOGGER.log(Level.SEVERE, e.getMessage(),e);
+            throw new IOException(e);
+        }
+    }
+    
+    @Override
+    public Document getStreamProfile(String uuid, String stream) throws IOException {
+        try {
+            HttpURLConnection con = (HttpURLConnection) openConnection(dsProfile(configuration, stream, uuid), configuration.getFedoraUser(), configuration.getFedoraPass());
+            con.connect();
+            if (con.getResponseCode() == HttpURLConnection.HTTP_OK) {
+                InputStream is = con.getInputStream();
+                return XMLUtils.parseDocument(is, true);
+            } else {
+                throw new IOException("404");
+            }
+        } catch (ParserConfigurationException e) {
+            LOGGER.log(Level.SEVERE, e.getMessage(),e);
+            throw new IOException(e);
+        } catch (SAXException e) {
+            LOGGER.log(Level.SEVERE, e.getMessage(),e);
+            throw new IOException(e);
+        }
+
+    }
+    
     @Override
     public String getFedoraVersion() throws IOException {
         if (fedoraVersion == null) {

@@ -43,6 +43,8 @@ public class FedoraUtils {
     public static final String IMG_THUMB_STREAM = "IMG_THUMB";
     public static final String IMG_FULL_STREAM = "IMG_FULL";
     public static final String IMG_PREVIEW_STREAM = "IMG_PREVIEW";
+    public static final String DC_STREAM = "DC";
+    public static final String BIBLIO_MODS_STREAM = "BIBLIO_MODS";
     public static final int THUMBNAIL_HEIGHT = 128;
     public static final int PREVIEW_HEIGHT = 700;
 
@@ -222,4 +224,12 @@ public class FedoraUtils {
         String datastreamsListPath = configuration.getFedoraHost() + "/objects/uuid:" + uuid + "/datastreams?format=xml";
         return datastreamsListPath;
     }
+
+    
+    public static String getVersionCompatibilityPrefix(String fedoraVersion) {
+        return fedoraVersion.substring(0,3).replace('.', '_');
+    }
+    
+    
+    
 }

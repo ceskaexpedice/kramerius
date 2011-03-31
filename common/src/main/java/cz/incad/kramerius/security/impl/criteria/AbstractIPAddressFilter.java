@@ -39,11 +39,13 @@ public abstract class AbstractIPAddressFilter extends AbstractCriterium implemen
                 patternStr = patternStr.substring(1);
                 negativePattern = true;
             }
-            boolean matched = remoteAddr.matches(patternStr);
             
+            boolean matched = remoteAddr.matches(patternStr);
             if ((matched) && (!negativePattern)) { 
+                LOGGER.fine("\t regexpattern '"+patternStr+"' trying to match with address  '"+remoteAddr+"' - ACCEPTING");
                 return true;
             } else if ((!matched) && (negativePattern)) {
+                LOGGER.fine("\t regexpattern '"+patternStr+"' trying to match with address  '"+remoteAddr+"' - (negative pattern) ACCEPTING");
                 return true;
             }
         }

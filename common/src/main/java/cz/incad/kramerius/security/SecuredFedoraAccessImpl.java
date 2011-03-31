@@ -211,10 +211,6 @@ public class SecuredFedoraAccessImpl implements FedoraAccess {
         
     }
 
-    @Override
-    public Document getFullThumbnailProfile(String uuid) throws IOException {
-        throw new UnsupportedOperationException("still unsupported !");
-    }
 
     @Override
     public String getFullThumbnailMimeType(String uuid) throws IOException, XPathExpressionException {
@@ -243,6 +239,16 @@ public class SecuredFedoraAccessImpl implements FedoraAccess {
     public String getFedoraVersion() throws IOException {
         return rawAccess.getFedoraVersion();
     }
+
+    public Document getStreamProfile(String uuid, String stream) throws IOException {
+        return rawAccess.getStreamProfile(uuid, stream);
+    }
+
+    public Document getObjectProfile(String uuid) throws IOException {
+        return rawAccess.getObjectProfile(uuid);
+    }
     
+    
+
     
 }
