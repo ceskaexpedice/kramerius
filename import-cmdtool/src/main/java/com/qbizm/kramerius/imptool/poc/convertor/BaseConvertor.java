@@ -423,10 +423,12 @@ public abstract class BaseConvertor {
         stream.setCONTROLGROUP("X");
         stream.setSTATE(StateType.A);
         stream.setVERSIONABLE(false);
+        
 
         DatastreamVersionType version = new DatastreamVersionType();
         version.setID(STREAM_ID_MODS + STREAM_VERSION_SUFFIX);
         version.setLABEL("BIBLIO_MODS description of current object");
+        version.setFORMATURI("http://www.loc.gov/mods/v3");
         version.setMIMETYPE("text/xml");
         version.setCREATED(getCurrentXMLGregorianCalendar());
 
@@ -634,8 +636,7 @@ public abstract class BaseConvertor {
         DatastreamVersionType version = new DatastreamVersionType();
         version.setCREATED(getCurrentXMLGregorianCalendar());
         version.setID(STREAM_ID_POLICY + STREAM_VERSION_SUFFIX);
-
-        version.setMIMETYPE("text/xml");
+        version.setMIMETYPE("application/rdf+xml");
         ContentLocationType location = new ContentLocationType();
         location.setTYPE("URL");
         location.setREF("http://local.fedora.server/fedora/get/" + policyID + "/" + STREAM_ID_POLICY_DEF);
