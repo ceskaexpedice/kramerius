@@ -10,13 +10,26 @@ $(document).ready(function(){
    });
 });
 
+/** bind arrow keys*/
+function bindArrows() {
+    // keys - bind left and right arrows
+	$(document).keyup(function(e) {
+        if (e.keyCode == 39) {
+            selectNext();
+        } else if (e.keyCode == 37) {
+            selectPrevious();
+        }
+    });
+}
 
+/** unbind arrow keys*/
+function unbindArrows() {
+	$(document).unbind('keyup');
+}
 
 function hideContextMenu(){
     $('.menuOptions').each(function(index){
        var id = $(this).attr('id');
-       //eg id = openmenu1-monograph
-       //should toggle openmenu1-monograph and menu1-monograph when not visible
        if(!$('#'+id).is(':visible')){
            $('#'+id).show();
            $('#'+id.substring(4)).hide();
@@ -544,8 +557,7 @@ function toggleAdminOptions(level, div){
 }
 
 function hideAdminOptions(level){
-    //$("#tabs_" + level + ">div>div.menuOptions").hide();
-    
+    //$("#tabs_" + level + ">div>div.menuOptions").hide(); //??
 }
 
 function switchDisplay() {
