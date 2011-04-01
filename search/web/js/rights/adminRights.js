@@ -3,7 +3,6 @@
 var _changePswdDialog;
 function changePassword() {
 	var urlForPost = "users?action=savenewpswd";
-
 	var url = "users?action=changepswd";
     $.get(url, function(data) {
     	if (_changePswdDialog) {
@@ -50,7 +49,6 @@ function changePassword() {
         }
     	$("#changePswd").html(data);
     	$("#changePswd").dialog('option','title',dictionary['rights.changepswd.title']);
-
     });
 }
 
@@ -66,6 +64,9 @@ function adminRights(level, model, action) {
 
 /** -"-   - volano odkudkoliv */
 function adminRightsImpl(uuid,action) {
+	// unbind arrows 
+	unbindArrows();
+	
 	_lastWorkingUuid = uuid;
 	_lastDisplayedAction = action;
 
@@ -89,11 +90,11 @@ function adminRightsImpl(uuid,action) {
                     } 
                 } 
             });
+            $("#adminRightsWindow").bind( "dialogclose", function(event, ui) { bindArrows();});
         }
     	
     	$("#adminRightsWindow").dialog('option','title',dictionary['rights.dialog.showrights.title']);
     	$("#adminRightsWindow").html(data);
-
     });
 }
 
