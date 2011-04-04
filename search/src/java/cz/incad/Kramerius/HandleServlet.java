@@ -82,8 +82,6 @@ public class HandleServlet extends GuiceServlet {
 			pidPath = SolrUtils.disectPidPath(parseDocument);
 		    pid = SolrUtils.disectPid(parseDocument);
 		    path = SolrUtils.disectPath(parseDocument);
-		    //String appURL = ApplicationURL.applicationURL(req);
-		    //TODO: change it !!
 		    String applicationCotext = ApplicationURL.applicationContextPath(req);
 		    String redirectUrl=  "/"+applicationCotext+"/item.jsp?pid="+pid+"&pid_path="+pidPath+"&path="+path;
 		    resp.sendRedirect(redirectUrl);
