@@ -28,6 +28,7 @@ import cz.incad.Kramerius.backend.guice.GuiceServlet;
 import cz.incad.Kramerius.views.ApplicationURL;
 import cz.incad.kramerius.FedoraAccess;
 import cz.incad.kramerius.FedoraNamespaces;
+import cz.incad.kramerius.SolrAccess;
 import cz.incad.kramerius.pdf.GeneratePDFService;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 import cz.incad.kramerius.utils.pid.LexerException;
@@ -51,12 +52,14 @@ public class GeneratePDFServlet extends GuiceServlet {
 	public static final String PATH="path";
 	
 	@Inject
-	transient GeneratePDFService service;
+	GeneratePDFService service;
 	@Inject
 	@Named("securedFedoraAccess")
-	transient FedoraAccess fedoraAccess;
+	FedoraAccess fedoraAccess;
 	@Inject
-	transient KConfiguration configuration;
+	KConfiguration configuration;
+	@Inject
+	SolrAccess solrAccess;
 	
 	@Override
 	protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException {
@@ -76,13 +79,21 @@ public class GeneratePDFServlet extends GuiceServlet {
 			    resp.setHeader("Content-disposition","attachment; filename="+sdate.format(new Date())+".pdf");
 				String from = req.getParameter(UUID_FROM);
 				String howMany = req.getParameter(HOW_MANY);
-				service.dynamicPDFExport(from, Integer.parseInt(howMany), from, resp.getOutputStream(), imgServletUrl, i18nUrl);
+				
+				service.dynamicPDFExport(parentUuid(from), from, Integer.parseInt(howMany), from, resp.getOutputStream(), imgServletUrl, i18nUrl);
 
 		} catch (Exception e) {
 			LOGGER.log(Level.SEVERE, e.getMessage(), e);
 			throw new RuntimeException(e);
 		}
 	}
+
+    public String parentUuid(String from) throws IOException {
+        String[] pathOfUUIDs = solrAccess.getPathOfUUIDs(from);
+        if (pathOfUUIDs.length > 1) {
+            return pathOfUUIDs[pathOfUUIDs.length-2];
+        } else return pathOfUUIDs[pathOfUUIDs.length-1];
+    }
 	
 	
 }
