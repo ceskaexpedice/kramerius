@@ -517,6 +517,10 @@ public abstract class BaseConvertor {
                         
                     } else {
                         log.warn(WARN_FILE_DOESNT_EXIST + ": " + f.getFilename());
+                        if (!KConfiguration.getInstance().getConfiguration().getBoolean("convert.ignoreMissingFiles",false)){
+                        	log.fatal("CONVERSION WILL BE TERMINATED DUE TO MISSING ORIGINAL FILE(S). Set the convert.ignoreMissingFiles property and restart the conversion process, if you want to continue anyway. ");
+                        	throw new IllegalStateException(WARN_FILE_DOESNT_EXIST + ": " + f.getFilename());
+                        }
                     }
                 }
             }
