@@ -17,6 +17,7 @@ import javax.xml.bind.Unmarshaller;
 import javax.xml.transform.sax.SAXSource;
 
 import org.apache.commons.configuration.Configuration;
+import org.apache.commons.io.FileUtils;
 import org.apache.log4j.Logger;
 import org.xml.sax.EntityResolver;
 import org.xml.sax.InputSource;
@@ -72,13 +73,13 @@ public class Main {
             exportRoot = importRoot + "-converted";
         }
 
-        convert(importRoot, exportRoot, useDB, defaultVisibility);
+        convert(importRoot, exportRoot, useDB, defaultVisibility, null);
 
     }
 
     
     
-    public static String convert(String importRoot, String exportRoot, boolean useDB, boolean defaultVisibility) {
+    public static String convert(String importRoot, String exportRoot, boolean useDB, boolean defaultVisibility, String titleId) {
         System.setProperty("java.awt.headless", "true");
         StringBuffer convertedURI = new StringBuffer();
         if (useDB){
@@ -110,7 +111,7 @@ public class Main {
             System.exit(1);
         }
 
-        visitAllDirsAndFiles(importFile, importRoot, exportRoot,  useDB, defaultVisibility,  convertedURI);
+        visitAllDirsAndFiles(importFile, importRoot, exportRoot,  useDB, defaultVisibility,  convertedURI, titleId);
         if (conn != null){
             try {
                 conn.close();
@@ -142,7 +143,7 @@ public class Main {
     
     
 
-    private static void visitAllDirsAndFiles(File importFile, String importRoot, String exportRoot, boolean useDB, boolean defaultVisibility, StringBuffer convertedURI) {
+    private static void visitAllDirsAndFiles(File importFile, String importRoot, String exportRoot, boolean useDB, boolean defaultVisibility, StringBuffer convertedURI, String titleId) {
 
         if (importFile.isDirectory()) {
             String subFolderName = importFile.getAbsolutePath().substring(importRoot.length());
@@ -155,7 +156,7 @@ public class Main {
             }
             File[] children = importFile.listFiles();
             for (int i = 0; i < children.length; i++) {
-                visitAllDirsAndFiles(children[i], importRoot, exportRoot,  useDB, defaultVisibility, convertedURI);
+                visitAllDirsAndFiles(children[i], importRoot, exportRoot,  useDB, defaultVisibility, convertedURI, titleId);
             }
         } else {
             if (importFile.getName().endsWith(".xml")) {
@@ -184,7 +185,7 @@ public class Main {
                 }
                 config.setContractLength(l);
                 try {
-                    convertOneDirectory(unmarshaller, importFile, config, convertedURI);
+                    convertOneDirectory(unmarshaller, importFile, config, convertedURI, titleId);
                 } catch (InterruptedException e) {
                     log.error("Cannot convert "+importFile, e);
                 } catch (JAXBException e) {
@@ -199,7 +200,7 @@ public class Main {
         }
     }
 
-    private static void convertOneDirectory(Unmarshaller unmarshaller, File importFile, ConvertorConfig config, StringBuffer convertedURI) throws InterruptedException, JAXBException, FileNotFoundException, SAXException {
+    private static void convertOneDirectory(Unmarshaller unmarshaller, File importFile, ConvertorConfig config, StringBuffer convertedURI, String titleId) throws InterruptedException, JAXBException, FileNotFoundException, SAXException {
         long timeStart = System.currentTimeMillis();
 
         long before = getFreeMem();
@@ -233,6 +234,20 @@ public class Main {
                 objectCounter = pc.getObjectCounter();
             } else {
                 throw new UnsupportedOperationException("Unsupported object class: " + source.getClass());
+            }
+            if (useContractSubfolders()&&config.getContract()!=null&&copyOriginal()){
+            	String targetName = null;
+            	if (titleId == null || titleId.trim().isEmpty()){
+            		targetName = config.getContract()+".k3";
+            	} else{
+            		targetName = titleId.replace(':','_')+".k3";
+            	}
+            	File target = new File(config.getExportFolder() + System.getProperty("file.separator") +targetName);
+            	try {
+					FileUtils.copyFile(importFile, target);
+				} catch (IOException e) {
+					log.error(importFile.getName() + ": copyOriginal failed", e);
+				}
             }
         } catch (ServiceException e) {
             log.error(importFile.getName() + ": conversion failed", e);
@@ -315,6 +330,10 @@ public class Main {
     
     public static boolean useContractSubfolders(){
     	return KConfiguration.getInstance().getConfiguration().getBoolean("convert.useContractSubfolders", false);
+    }
+    
+    public static boolean copyOriginal(){
+    	return KConfiguration.getInstance().getConfiguration().getBoolean("convert.copyOriginal", false);
     }
 
 }

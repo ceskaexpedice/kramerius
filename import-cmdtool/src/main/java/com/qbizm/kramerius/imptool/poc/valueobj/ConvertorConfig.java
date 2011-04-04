@@ -87,6 +87,10 @@ public class ConvertorConfig {
 			IOUtils.checkDirectory(xmlSubfolder);
 		}
 	}
+	
+	public String getContract(){
+		return contract;
+	}
 
 	
 
