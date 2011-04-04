@@ -83,8 +83,9 @@ public class HandleServlet extends GuiceServlet {
 		    pid = SolrUtils.disectPid(parseDocument);
 		    path = SolrUtils.disectPath(parseDocument);
 		    //String appURL = ApplicationURL.applicationURL(req);
-		    //TODO: change it !! 
-		    String redirectUrl=  "/search/item.jsp?pid="+pid+"&pid_path="+pidPath+"&path="+path;
+		    //TODO: change it !!
+		    String applicationCotext = ApplicationURL.applicationContextPath(req);
+		    String redirectUrl=  "/"+applicationCotext+"/item.jsp?pid="+pid+"&pid_path="+pidPath+"&path="+path;
 		    resp.sendRedirect(redirectUrl);
 		    
 		} catch (XPathExpressionException e) {

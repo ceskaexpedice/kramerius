@@ -26,16 +26,14 @@ public class ApplicationURL {
         }
 	    
 	}
+
 	
 	public static String applicationURL(HttpServletRequest request) {
 		//"dvju"
 		try {
 			String string = request.getRequestURL().toString();
 			URL url = new URL(string);
-			String path = url.getPath();
-			String application = path;
-			StringTokenizer tokenizer = new StringTokenizer(path,"/");
-			if (tokenizer.hasMoreTokens()) application = tokenizer.nextToken();
+			String application = applicationContextPath(url);
 			String aURL = url.getProtocol()+"://"+url.getHost()+":"+url.getPort()+"/"+application;
 			return aURL;
 		} catch (MalformedURLException e) {
@@ -44,6 +42,24 @@ public class ApplicationURL {
 		}
 
 	}
+
+    public static String applicationContextPath(URL url) {
+        String path = url.getPath();
+        String application = path;
+        StringTokenizer tokenizer = new StringTokenizer(path,"/");
+        if (tokenizer.hasMoreTokens()) application = tokenizer.nextToken();
+        return application;
+    }
+    public static String applicationContextPath(HttpServletRequest request) {
+        try {
+            String string = request.getRequestURL().toString();
+            URL url = new URL(string);
+            return applicationContextPath(url);
+        } catch (MalformedURLException e) {
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+            return "<no url>";
+        }
+    }
 
 	public static String urlOfPath(HttpServletRequest request,  String path) {
 		KConfiguration conf = KConfiguration.getInstance();
