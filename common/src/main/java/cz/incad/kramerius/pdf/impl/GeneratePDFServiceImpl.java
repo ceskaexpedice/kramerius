@@ -142,7 +142,9 @@ public class GeneratePDFServiceImpl implements GeneratePDFService {
 		IOUtils.copyBundledResources(this.getClass(),xlsts,"templates/", this.templatesFolder());
 
 		String[] fonts = 
-		{"ext_ontheflypdf_ArialCE.ttf"};
+		{"ext_ontheflypdf_ArialCE.ttf",
+        "GentiumPlus-I.ttf",
+        "GentiumPlus-R.ttf"};
 		IOUtils.copyBundledResources(this.getClass(), fonts,"res/", this.fontsFolder());
 	}
 
@@ -271,14 +273,14 @@ public class GeneratePDFServiceImpl implements GeneratePDFService {
 	
 
 	@Override
-    public void dynamicPDFExport(String uuidFrom, int numberOfPage, String titlePage, OutputStream os, String imgServletUrl, String i18nUrl) throws IOException, ProcessSubtreeException {
+    public void dynamicPDFExport(String requestinguuid, String uuidFrom, int numberOfPage, String titlePage, OutputStream os, String imgServletUrl, String i18nUrl) throws IOException, ProcessSubtreeException {
 	    String[] pathOfUUIDs = solrAccess.getPathOfUUIDs(uuidFrom);
 	    
         org.w3c.dom.Document relsExt = this.fedoraAccess.getRelsExt(uuidFrom);
         String modelName = this.fedoraAccess.getKrameriusModelName(relsExt);
         
         final AbstractRenderedDocument renderedDocument = new RenderedDocument(modelName, uuidFrom);
-        renderedDocument.setDocumentTitle(TitlesUtils.title(uuidFrom, this.solrAccess, this.fedoraAccess));
+        renderedDocument.setDocumentTitle(TitlesUtils.title(requestinguuid, this.solrAccess, this.fedoraAccess));
         renderedDocument.setUuidTitlePage(titlePage);
         renderedDocument.setUuidMainTitle(pathOfUUIDs[0]);
         
@@ -597,44 +599,68 @@ public class GeneratePDFServiceImpl implements GeneratePDFService {
 
 	public void insertFirstPage(AbstractRenderedDocument model, String parentUuid, String titlePageUuid , PdfWriter pdfWriter, Document pdfDoc, String djvuUrl) throws IOException, DocumentException {
 		try {
-			Paragraph paragraph = new Paragraph();
-			paragraph.setAlignment(com.lowagie.text.Element.ALIGN_CENTER);
 			
-			paragraph.add(DEFAULT_LOGO_IMAGE);
-			pdfDoc.add(paragraph);
-			pdfDoc.add(new Paragraph(" "));
-			
-			PdfPTable pdfPTable = new PdfPTable(new float[] {0.2f, 0.8f});
-			pdfPTable.setSpacingBefore(3f);
+			//paragraph.add(DEFAULT_LOGO_IMAGE);
+	        Font bigFont = createFont();
+	        bigFont.setSize(48f);
+	        //TODO: Change in text
+	        pdfDoc.add(new Paragraph("KRAMERIUS 4",bigFont));
 
-			pdfPTable.getDefaultCell().disableBorderSide(PdfPCell.TOP);
-			pdfPTable.getDefaultCell().disableBorderSide(PdfPCell.LEFT);
-			pdfPTable.getDefaultCell().disableBorderSide(PdfPCell.RIGHT);
-			pdfPTable.getDefaultCell().disableBorderSide(PdfPCell.BOTTOM);
-			pdfPTable.getDefaultCell().setBorderWidth(15f);
+            Font smallerFont = createFont();
+            smallerFont.setSize(20f);
+            //TODO: Change in text
+            pdfDoc.add(new Paragraph("digitalni knihovna",smallerFont));
+            pdfDoc.add(new Paragraph(" \n"));
+            pdfDoc.add(new LineSeparator());
+            pdfDoc.add(new Paragraph(" \n"));
+			
+	        pdfDoc.add(new Paragraph(model.getDocumentTitle(), smallerFont));
+            Font smallFont = createFont();
+            smallFont.setSize(12f);
+            StringBuffer buffer = new StringBuffer();
+            String[] creatorsFromDC = DCUtils.creatorsFromDC(fedoraAccess.getDC(model.getUuidMainTitle()));
+            for (String string : creatorsFromDC) {
+                buffer.append(string).append('\n');
+            }
 
-			
-			insertTitleImage(pdfPTable,model, djvuUrl);
-			pdfPTable.addCell(insertTitleAndAuthors(model));
-			
-			final float[] mheights = new float[2];
-			pdfPTable.setTableEvent(new PdfPTableEvent() {
-				@Override
-				public void tableLayout(PdfPTable arg0, float[][] widths, float[] heights, int arg3, int rowStart, PdfContentByte[] arg5) {
-					mheights[0] = heights[0];
-					mheights[1] = heights[1];
-				}
-			});
-			pdfDoc.add(pdfPTable);
-			
-			lineInFirstPage(pdfWriter, pdfDoc, mheights[1]);
+            pdfDoc.add(new Paragraph(buffer.toString(), smallerFont));
+            
+            pdfDoc.add(new Paragraph(" \n"));
+            pdfDoc.add(new Paragraph(" \n"));
 
-			pdfDoc.add(new Paragraph(" "));
-			pdfDoc.add(new Paragraph(" "));
+	        
+//			PdfPTable pdfPTable = new PdfPTable(new float[] {0.2f, 0.8f});
+//			pdfPTable.setSpacingBefore(3f);
+//
+//			pdfPTable.getDefaultCell().disableBorderSide(PdfPCell.TOP);
+//			pdfPTable.getDefaultCell().disableBorderSide(PdfPCell.LEFT);
+//			pdfPTable.getDefaultCell().disableBorderSide(PdfPCell.RIGHT);
+//			pdfPTable.getDefaultCell().disableBorderSide(PdfPCell.BOTTOM);
+//			pdfPTable.getDefaultCell().setBorderWidth(15f);
+//
+//			
+//			insertTitleImage(pdfPTable,model, djvuUrl);
+//			pdfPTable.addCell(insertTitleAndAuthors(model));
+//			
+//			
+//			final float[] mheights = new float[2];
+//			pdfPTable.setTableEvent(new PdfPTableEvent() {
+//				@Override
+//				public void tableLayout(PdfPTable arg0, float[][] widths, float[] heights, int arg3, int rowStart, PdfContentByte[] arg5) {
+//					mheights[0] = heights[0];
+//					mheights[1] = heights[1];
+//				}
+//			});
+//			pdfDoc.add(pdfPTable);
+//			
+//			lineInFirstPage(pdfWriter, pdfDoc, mheights[1]);
+//
+//			pdfDoc.add(new Paragraph(" "));
+//			pdfDoc.add(new Paragraph(" "));
 			
 			Paragraph parDesc = new Paragraph(this.textsService.getText("first_page", localeProvider.get()), createFont());		
 			pdfDoc.add(parDesc);
-		} catch (XPathExpressionException e) {
+		} catch (Exception e) {
 			LOGGER.log(Level.SEVERE, e.getMessage(), e);
 		}
 	}
@@ -760,7 +786,7 @@ public class GeneratePDFServiceImpl implements GeneratePDFService {
 
 	private Font createFont() throws DocumentException, IOException {
 		String workingDir = Constants.WORKING_DIR;
-		File fontFile = new File(workingDir+File.separator+"fonts"+File.separator+"ext_ontheflypdf_ArialCE.ttf");
+		File fontFile = new File(workingDir+File.separator+"fonts"+File.separator+"GentiumPlus-R.ttf");
 		if (fontFile.exists()) {
 			BaseFont bf = BaseFont.createFont(fontFile.getAbsolutePath(), BaseFont.CP1250,true);
 			return new Font(bf);

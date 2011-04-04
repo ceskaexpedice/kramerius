@@ -41,7 +41,7 @@ public interface GeneratePDFService {
 	public void dynamicPDFExport(List<String> path,String uuidFrom, String uuidTo, String titlePage, OutputStream os, String djvuUrl, String i18nUrl) throws IOException, ProcessSubtreeException;
 	
 
-	public void dynamicPDFExport(String uuidFrom, int numberOfPages, String titlePage, OutputStream os, String imgServletUrl, String i18nUrl) throws IOException, ProcessSubtreeException;
+	public void dynamicPDFExport(String requestedUuid, String uuidFrom, int numberOfPages, String titlePage, OutputStream os, String imgServletUrl, String i18nUrl) throws IOException, ProcessSubtreeException;
 
 	
 	/**
