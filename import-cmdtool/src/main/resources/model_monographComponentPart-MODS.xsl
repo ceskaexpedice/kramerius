@@ -6,22 +6,38 @@
 <xsl:template match="/">
 <mods:modsCollection xmlns:mods="http://www.loc.gov/mods/v3"> 
 	<mods:mods version="3.3">
-		<mods:identifier type="urn"><xsl:value-of select="/MonographComponentPart/UniqueIdentifier/UniqueIdentifierURNType" /></mods:identifier>
-		<mods:identifier type="sici"><xsl:value-of select="/MonographComponentPart/UniqueIdentifier/UniqueIdentifierSICIType" /></mods:identifier>
+		<xsl:if test="/MonographComponentPart/UniqueIdentifier/UniqueIdentifierURNType">
+			<mods:identifier type="urn"><xsl:value-of select="/MonographComponentPart/UniqueIdentifier/UniqueIdentifierURNType" /></mods:identifier>
+		</xsl:if>
+		
+		<xsl:if test="/MonographComponentPart/UniqueIdentifier/UniqueIdentifierSICIType">
+			<mods:identifier type="sici"><xsl:value-of select="/MonographComponentPart/UniqueIdentifier/UniqueIdentifierSICIType" /></mods:identifier>
+		</xsl:if>
 					
 		<mods:titleInfo>
 			<mods:title><xsl:value-of select="/MonographComponentPart/Title/MainTitle" /></mods:title>
-			<mods:subTitle><xsl:value-of select="/MonographComponentPart/Title/SubTitle" /></mods:subTitle>
+			<xsl:if test="">
+				<mods:subTitle><xsl:value-of select="/MonographComponentPart/Title/SubTitle" /></mods:subTitle>
+				
 		</mods:titleInfo>
-		<mods:titleInfo type="alternative">
-			<mods:title><xsl:value-of select="/MonographComponentPart/Title/ParallelTitle" /></mods:title>
-		</mods:titleInfo>
-
-		<mods:subject>
-			<mods:topic>
-		    	<xsl:value-of select="/MonographComponentPart/Keyword" />
-		    </mods:topic>	    
-		</mods:subject>
+		
+		<xsl:if test="/MonographComponentPart/Title/ParallelTitle">
+			<mods:titleInfo type="alternative">
+				<xsl:for-each select="/MonographComponentPart/Title/ParallelTitle">
+					<mods:title><xsl:value-of select="." /></mods:title>
+				</xsl:for-each>
+			</mods:titleInfo>
+		</xsl:if>
+		
+		<xsl:if test="/MonographComponentPart/Keyword">
+			<mods:subject>
+				<xsl:for-each select="/MonographComponentPart/Keyword">
+			    	<mods:topic>
+				    	<xsl:value-of select="." />
+				    </mods:topic>
+			    </xsl:for-each>	    
+			</mods:subject>
+		</xsl:if>
 			
 		<!-- 
 		  - Creator
@@ -76,25 +92,40 @@
 			</mods:language>
 		</xsl:for-each>
 		
-		<mods:physicalDescription>	
-			<mods:note><xsl:value-of select="/MonographComponentPart/Notes" /></mods:note>
-		</mods:physicalDescription>
+		<xsl:if test="/MonographComponentPart/Notes">
+			<mods:physicalDescription>	
+				<mods:note><xsl:value-of select="/MonographComponentPart/Notes" /></mods:note>
+			</mods:physicalDescription>
+		</xsl:if>
 
 		<!-- MonographComponentPart subject -->
-		<mods:classification authority="ddc"><xsl:value-of select="/MonographComponentPart/Subject/DDC" /></mods:classification>
-		<mods:classification authority="udc"><xsl:value-of select="/MonographComponentPart/Subject/UDC" /></mods:classification>
+		<xsl:for-each select="/MonographComponentPart/Subject">
+			<mods:classification authority="ddc"><xsl:value-of select="./DDC" /></mods:classification>
+			<mods:classification authority="udc"><xsl:value-of select="./UDC" /></mods:classification>
+		</xsl:for-each>
 		
 		<mods:part>
 			<xsl:attribute name="type"><xsl:value-of select="/MonographComponentPart/@Type" /></xsl:attribute>
-			<mods:extent unit="pages">
-				<mods:list><xsl:value-of select="/MonographComponentPart/PageReference" /></mods:list>
-			</mods:extent>
-			<mods:detail type="pageNumber">
-				<mods:number><xsl:value-of select="/MonographComponentPart/PageNumber" /></mods:number>
-			</mods:detail>	
+			<xsl:if test="/MonographComponentPart/PageReference">
+				<mods:extent unit="pages">
+					<mods:list><xsl:value-of select="/MonographComponentPart/PageReference" /></mods:list>
+				</mods:extent>
+			</xsl:if>	
+			<xsl:if test="/MonographComponentPart/PageNumber">
+				<mods:detail type="pageNumber">
+					<mods:number><xsl:value-of select="/MonographComponentPart/PageNumber" /></mods:number>
+				</mods:detail>
+			</xsl:if>	
+			<xsl:if test="/MonographComponentPart/PageNumber">	
+				<mods:detail type="pageNumber">
+					<mods:number><xsl:value-of select="/MonographComponentPart/MonographComponentPartIdentification" /></mods:number>
+				</mods:detail>	
+			</xsl:if>	
 		</mods:part>
 		
-		<mods:accessCondition type="restrictionOnAccess"><xsl:value-of select="/MonographComponentPart/Accessibility" /></mods:accessCondition>
+		<xsl:if test="/MonographComponentPart/Accessibility">
+			<mods:accessCondition type="restrictionOnAccess"><xsl:value-of select="/MonographComponentPart/Accessibility" /></mods:accessCondition>
+		</xsl:if>	
 	</mods:mods>
 </mods:modsCollection>
 </xsl:template>

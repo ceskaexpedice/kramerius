@@ -5,18 +5,31 @@
 <mods:modsCollection xmlns:mods="http://www.loc.gov/mods/v3"> 
 	
 	<mods:mods version="3.3">
-		<mods:identifier type="urn"><xsl:value-of select="/Periodical/UniqueIdentifier/UniqueIdentifierURNType" /></mods:identifier>
-		<mods:identifier type="sici"><xsl:value-of select="/Periodical/UniqueIdentifier/UniqueIdentifierSICIType" /></mods:identifier>
-		<mods:identifier type="issn"><xsl:value-of select="/Periodical/ISSN" /></mods:identifier>
-		<mods:identifier type="coden"><xsl:value-of select="/Periodical/CoreBibliographicDescriptionPeriodical/Title/Coden" /></mods:identifier>
-			
-		<mods:subject>
-		    <mods:topic>
-		    	<xsl:value-of select="/Periodical/CoreBibliographicDescriptionPeriodical/Keyword" />
-		    </mods:topic>	   
-		</mods:subject>
-	
-		<mods:abstract><xsl:value-of select="/Periodical/CoreBibliographicDescriptionPeriodical/Annotation" /></mods:abstract>
+		<xsl:if test="">
+			<mods:identifier type="urn"><xsl:value-of select="/Periodical/UniqueIdentifier/UniqueIdentifierURNType" /></mods:identifier>
+		</xsl:if>
+		<xsl:if test="/Periodical/UniqueIdentifier/UniqueIdentifierSICIType">
+			<mods:identifier type="sici"><xsl:value-of select="/Periodical/UniqueIdentifier/UniqueIdentifierSICIType" /></mods:identifier>
+		</xsl:if>
+		<xsl:if test="/Periodical/ISSN">
+			<mods:identifier type="issn"><xsl:value-of select="/Periodical/ISSN" /></mods:identifier>
+		</xsl:if>
+		<xsl:if test="/Periodical/CoreBibliographicDescriptionPeriodical/Title/Coden">
+			<mods:identifier type="coden"><xsl:value-of select="/Periodical/CoreBibliographicDescriptionPeriodical/Title/Coden" /></mods:identifier>
+		</xsl:if>
+		<xsl:if test="/Periodical/CoreBibliographicDescriptionPeriodical/Keyword">	
+			<mods:subject>
+				<xsl:for-each select="/Periodical/CoreBibliographicDescriptionPeriodical/Keyword">
+			    	<mods:topic>
+				    	<xsl:value-of select="." />
+				    </mods:topic>
+				</xsl:for-each>
+			</mods:subject>
+		</xsl:if>
+		
+		<xsl:if test="/Periodical/CoreBibliographicDescriptionPeriodical/Annotation">
+			<mods:abstract><xsl:value-of select="/Periodical/CoreBibliographicDescriptionPeriodical/Annotation" /></mods:abstract>
+		</xsl:if>
 		
 		<xsl:for-each select="/Periodical/PeriodicalOwner">
 			<mods:location>
@@ -28,17 +41,44 @@
 		</xsl:for-each>
 		
 		<mods:titleInfo>
-			<mods:title><xsl:value-of select="/Periodical/CoreBibliographicDescriptionPeriodical/Title/MainTitle" /></mods:title>
-			<mods:subTitle><xsl:value-of select="/Periodical/CoreBibliographicDescriptionPeriodical/Title/SubTitle" /></mods:subTitle>
-			<mods:partName><xsl:value-of select="/Periodical/CoreBibliographicDescriptionPeriodical/Series" /></mods:partName>			
+			<xsl:for-each select="/Periodical/CoreBibliographicDescriptionPeriodical/Title/*">
+				<xsl:if test="local-name()='MainTitle'">
+					<mods:title><xsl:value-of select="." /></mods:title>
+				</xsl:if>
+				<xsl:if test="local-name()='SubTitle'">
+					<mods:subTitle><xsl:value-of select="." /></mods:subTitle>
+				</xsl:if>
+			</xsl:for-each>
+			<xsl:for-each select="/Periodical/CoreBibliographicDescriptionPeriodical/Series">
+				<mods:partName><xsl:value-of select="." /></mods:partName>	
+			</xsl:for-each>		
 		</mods:titleInfo>
 		
-		<mods:titleInfo type="alternative">
-			<mods:title><xsl:value-of select="/Periodical/CoreBibliographicDescriptionPeriodical/Title/ParallelTitle" /></mods:title>
-		</mods:titleInfo>
-		<mods:titleInfo type="uniform">
-			<mods:title><xsl:value-of select="/Periodical/CoreBibliographicDescriptionPeriodical/Title/KeyTitle" /></mods:title>
-		</mods:titleInfo>     
+		<xsl:if test="/Periodical/CoreBibliographicDescriptionPeriodical/Title/ParallelTitle">
+			<mods:titleInfo type="alternative">
+				<xsl:for-each select="/Periodical/CoreBibliographicDescriptionPeriodical/Title/ParallelTitle">
+					<mods:title><xsl:value-of select="." /></mods:title>
+				</xsl:for-each>
+			</mods:titleInfo>
+		</xsl:if>
+		
+		<xsl:if test="/Periodical/CoreBibliographicDescriptionPeriodical/Title/KeyTitle">
+			<mods:titleInfo type="uniform">
+				<mods:title><xsl:value-of select="/Periodical/CoreBibliographicDescriptionPeriodical/Title/KeyTitle" /></mods:title>
+			</mods:titleInfo> 
+		</xsl:if>   
+		
+		<xsl:for-each select="/Periodical/CoreBibliographicDescriptionPeriodical/Title/SortingTitle">
+			<mods:titleInfo type="alternative">
+				<mods:title><xsl:value-of select="." /></mods:title>
+			</mods:titleInfo>
+		</xsl:for-each>
+		
+		<xsl:for-each select="/Periodical/CoreBibliographicDescriptionPeriodical/GMD">
+			<mods:originInfo>
+				<mods:issuance><xsl:value-of select="." /></mods:issuance>
+			</mods:originInfo>
+		</xsl:for-each>
 		
 		<!-- 
 		  - Creator
@@ -116,7 +156,9 @@
 		
 		<mods:originInfo>
     		<mods:issuance>continuing</mods:issuance>
-			<mods:frequency><xsl:value-of select="/Periodical/Periodicity" /></mods:frequency>
+			<xsl:if test="">
+				<mods:frequency><xsl:value-of select="/Periodical/Periodicity" /></mods:frequency>
+				
 		</mods:originInfo>
 				
 		<xsl:for-each select="/Periodical/CoreBibliographicDescriptionPeriodical/Language">
@@ -124,41 +166,50 @@
 				<mods:languageTerm type="code" authority="iso639-2b"><xsl:value-of select="." /></mods:languageTerm>
 			</mods:language>
 		</xsl:for-each>
-				
-		<mods:physicalDescription>
-			<mods:form type="technique"><xsl:value-of select="/Periodical/CoreBibliographicDescriptionPeriodical/PhysicalDescription/Technique" /></mods:form>	
-			<mods:extent>
-				<xsl:value-of select="/Periodical/CoreBibliographicDescriptionPeriodical/PhysicalDescription/Extent" />
-				<xsl:if test="/Periodical/CoreBibliographicDescriptionPeriodical/PhysicalDescription/Extent/text() and
-						/Periodical/CoreBibliographicDescriptionPeriodical/PhysicalDescription/Size/text()">,</xsl:if>
-				<xsl:value-of select="/Periodical/CoreBibliographicDescriptionPeriodical/PhysicalDescription/Size" />
-			</mods:extent>
-			<mods:note><xsl:value-of select="/Periodical/CoreBibliographicDescriptionPeriodical/Notes" /></mods:note>		 
-		</mods:physicalDescription>
-
+		
+		<xsl:for-each select="/Periodical/CoreBibliographicDescriptionPeriodical/PhysicalDescription">	
+			<mods:physicalDescription>
+				<mods:form type="technique"><xsl:value-of select="./Technique" /></mods:form>	
+				<mods:extent>
+					<xsl:value-of select="./Extent" />
+					<xsl:if test="./Extent/text() and ./Size/text()">,</xsl:if>
+					<xsl:value-of select="./Size" />
+				</mods:extent>
+			</mods:physicalDescription>
+		</xsl:for-each>	
+		<xsl:for-each select="/Periodical/CoreBibliographicDescriptionPeriodical/Notes">
+			<mods:note><xsl:value-of select="." /></mods:note>
+		</xsl:for-each>
 		<!-- Periodical classification -->
-		<mods:classification authority="ddc"><xsl:value-of select="/Periodical/CoreBibliographicDescriptionPeriodical/Subject/DDC" /></mods:classification>
+		<xsl:for-each select="/Periodical/CoreBibliographicDescriptionPeriodical/Subject">
+			<mods:classification authority="ddc"><xsl:value-of select="./DDC" /></mods:classification>
+			<mods:classification authority="udc"><xsl:value-of select="./UDC" /></mods:classification>
+		</xsl:for-each>
 		
-		<mods:classification authority="udc"><xsl:value-of select="/Periodical/CoreBibliographicDescriptionPeriodical/Subject/UDC" /></mods:classification>
-		
-		<mods:part>	
-		 	<mods:detail type="regularsupplement">
-	 			<mods:title><xsl:value-of select="/Periodical/RegularSupplement" /></mods:title>
-		 	</mods:detail>
-		 	
-		 	<mods:detail type="specialSupplement">
-		 		<mods:title><xsl:value-of select="/Periodical/SpecialSupplement" /></mods:title>
-		 	</mods:detail>
-		</mods:part>
-							
-		<mods:recordInfo>
-			<mods:recordOrigin>
-				<xsl:value-of select="/Periodical/DescriptionBasedIssue" />
-			</mods:recordOrigin>
-		</mods:recordInfo>
-			
-		<mods:accessCondition type="restrictionOnAccess"><xsl:value-of select="/Periodical/CoreBibliographicDescriptionPeriodical/Accessibility" /></mods:accessCondition>
-						
+		<xsl:if test="/Periodical/RegularSupplement or /Periodical/SpecialSupplement">
+			<mods:part>	
+				<xsl:if test="/Periodical/RegularSupplement">
+			 		<mods:detail type="regularsupplement">
+			 			<mods:title><xsl:value-of select="/Periodical/RegularSupplement" /></mods:title>
+				 	</mods:detail>
+		 		</xsl:if>   
+			 	<xsl:if test="/Periodical/SpecialSupplement">
+					<mods:detail type="specialSupplement">
+			 			<mods:title><xsl:value-of select="/Periodical/SpecialSupplement" /></mods:title>
+			 		</mods:detail>
+				</xsl:if>   
+			</mods:part>
+		</xsl:if>   
+		<xsl:if test="/Periodical/DescriptionBasedIssue">					
+			<mods:recordInfo>
+				<mods:recordOrigin>
+					<xsl:value-of select="/Periodical/DescriptionBasedIssue" />
+				</mods:recordOrigin>
+			</mods:recordInfo>
+		</xsl:if>   	
+		<xsl:if test="/Periodical/CoreBibliographicDescriptionPeriodical/Accessibility">
+			<mods:accessCondition type="restrictionOnAccess"><xsl:value-of select="/Periodical/CoreBibliographicDescriptionPeriodical/Accessibility" /></mods:accessCondition>
+		</xsl:if>   				
 	</mods:mods>
 </mods:modsCollection>
 </xsl:template>

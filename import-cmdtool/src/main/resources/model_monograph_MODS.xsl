@@ -8,33 +8,55 @@
 	
 	<mods:mods version="3.3">
 	
-		<mods:identifier type="urn"><xsl:value-of select="/Monograph/UniqueIdentifier/UniqueIdentifierURNType" /></mods:identifier>
-		<mods:identifier type="sici"><xsl:value-of select="/Monograph/UniqueIdentifier/UniqueIdentifierSICIType" /></mods:identifier>
+		<xsl:if test="/Monograph/UniqueIdentifier/UniqueIdentifierURNType">
+			<mods:identifier type="urn"><xsl:value-of select="/Monograph/UniqueIdentifier/UniqueIdentifierURNType" /></mods:identifier>
+		</xsl:if>
 		
-		<mods:identifier type="isbn"><xsl:value-of select="/Monograph/MonographBibliographicRecord/ISBN" /></mods:identifier>
-		<mods:identifier type="issn"><xsl:value-of select="/Monograph/MonographBibliographicRecord/Series/ISSN" /></mods:identifier>
+		<xsl:if test="/Monograph/UniqueIdentifier/UniqueIdentifierSICIType">
+			<mods:identifier type="sici"><xsl:value-of select="/Monograph/UniqueIdentifier/UniqueIdentifierSICIType" /></mods:identifier>
+		</xsl:if>
+		
+		<xsl:if test="/Monograph/MonographBibliographicRecord/ISBN">
+			<mods:identifier type="isbn"><xsl:value-of select="/Monograph/MonographBibliographicRecord/ISBN" /></mods:identifier>
+		</xsl:if>
+		
+		<xsl:for-each select="/Monograph/MonographBibliographicRecord/Series">
+			<mods:identifier type="issn"><xsl:value-of select="./ISSN" /></mods:identifier>
+		</xsl:for-each>
 	
 		<mods:titleInfo>
 			<mods:title><xsl:value-of select="/Monograph/MonographBibliographicRecord/Title/MainTitle" /></mods:title>
-			<mods:subTitle><xsl:value-of select="/Monograph/MonographBibliographicRecord/Title/SubTitle" /></mods:subTitle>
-		</mods:titleInfo>
-		<mods:titleInfo type="alternative">
-			<mods:title><xsl:value-of select="/Monograph/MonographBibliographicRecord/Title/ParallelTitle" /></mods:title>
+			<xsl:if test="/Monograph/MonographBibliographicRecord/Title/SubTitle">
+				<mods:subTitle><xsl:value-of select="/Monograph/MonographBibliographicRecord/Title/SubTitle" /></mods:subTitle>
+			</xsl:if>	
 		</mods:titleInfo>
 		
+		<xsl:if test="/Monograph/MonographBibliographicRecord/Title/ParallelTitle">
+			<mods:titleInfo type="alternative">
+				<xsl:for-each select="/Monograph/MonographBibliographicRecord/Title/ParallelTitle">
+					<mods:title><xsl:value-of select="." /></mods:title>
+				</xsl:for-each>
+			</mods:titleInfo>
+		</xsl:if>
+		
 		<mods:subject>
-		    <mods:topic>
-		    	<xsl:value-of select="/Monograph/MonographBibliographicRecord/Keyword" />
-		    </mods:topic>
-		    
-			<mods:cartographics>
-		 		<mods:scale>
-		 			<xsl:value-of select="/Monograph/MonographBibliographicRecord/PhysicalDescription/Scale" />
-		 		</mods:scale>
-			</mods:cartographics>
+			<xsl:for-each select="/Monograph/MonographBibliographicRecord/Keyword">
+		    	<mods:topic>
+			    	<xsl:value-of select="." />
+			    </mods:topic>
+		    </xsl:for-each>
+			<xsl:if test="/Monograph/MonographBibliographicRecord/PhysicalDescription/Scale">
+				<mods:cartographics>
+			 		<mods:scale>
+			 			<xsl:value-of select="/Monograph/MonographBibliographicRecord/PhysicalDescription/Scale" />
+			 		</mods:scale>
+				</mods:cartographics>
+			</xsl:if>	
 		</mods:subject>
-	
-		<mods:abstract><xsl:value-of select="/Monograph/MonographBibliographicRecord/Annotation" /></mods:abstract>
+		
+		<xsl:if test="/Monograph/MonographBibliographicRecord/Annotation">
+			<mods:abstract><xsl:value-of select="/Monograph/MonographBibliographicRecord/Annotation" /></mods:abstract>
+		</xsl:if>
 		
 		<xsl:for-each select="/Monograph/MonographOwner">
 			<mods:location>
@@ -44,6 +66,13 @@
 				</xsl:for-each>
 			</mods:location>
 		</xsl:for-each>
+		
+		<xsl:for-each select="/Monograph/MonographBibliographicRecord/GMD">
+			<mods:originInfo>
+				<mods:issuance><xsl:value-of select="." /></mods:issuance>
+			</mods:originInfo>
+		</xsl:for-each>
+		
 		
 		<!-- 
 		  - Creator
@@ -127,18 +156,20 @@
 			</mods:language>
 		</xsl:for-each>
 		
-		<mods:physicalDescription>
-			<mods:form type="technique"><xsl:value-of select="/Monograph/MonographBibliographicRecord/PhysicalDescription/Technique" /></mods:form>
-			<mods:form type="material"><xsl:value-of select="/Monograph/MonographBibliographicRecord/PhysicalDescription/Material" /></mods:form>
-			<mods:extent>
-				<xsl:value-of select="/Monograph/MonographBibliographicRecord/PhysicalDescription/Extent" />
-				<xsl:if test="/Monograph/MonographBibliographicRecord/PhysicalDescription/Extent/text() and
-						/Monograph/MonographBibliographicRecord/PhysicalDescription/Size/text()">,</xsl:if>
-				<xsl:value-of select="/Monograph/MonographBibliographicRecord/PhysicalDescription/Size" />
-			</mods:extent>
-			<mods:note><xsl:value-of select="/Monograph/MonographBibliographicRecord/Notes" /></mods:note>
-		</mods:physicalDescription>
-
+		<xsl:if test="/Monograph/MonographBibliographicRecord/PhysicalDescription">
+			<mods:physicalDescription>
+				<mods:form type="technique"><xsl:value-of select="/Monograph/MonographBibliographicRecord/PhysicalDescription/Technique" /></mods:form>
+				<mods:form type="material"><xsl:value-of select="/Monograph/MonographBibliographicRecord/PhysicalDescription/Material" /></mods:form>
+				<mods:extent>
+					<xsl:value-of select="/Monograph/MonographBibliographicRecord/PhysicalDescription/Extent" />
+					<xsl:if test="/Monograph/MonographBibliographicRecord/PhysicalDescription/Extent/text() and
+							/Monograph/MonographBibliographicRecord/PhysicalDescription/Size/text()">,</xsl:if>
+					<xsl:value-of select="/Monograph/MonographBibliographicRecord/PhysicalDescription/Size" />
+				</mods:extent>
+				<mods:note><xsl:value-of select="/Monograph/MonographBibliographicRecord/Notes" /></mods:note>
+			</mods:physicalDescription>
+		</xsl:if>
+		
 		<xsl:for-each select="/Monograph/MonographBibliographicRecord/PhysicalDescription/PreservationStatus"> 
 			<mods:physicalDescription>
 				<mods:note type="action"><xsl:value-of select="PreservationTreatment" /></mods:note>
@@ -147,16 +178,23 @@
 		</xsl:for-each>
 
 		<!-- Monograph subject -->
-		<mods:classification authority="ddc"><xsl:value-of select="/Monograph/MonographBibliographicRecord/Subject/DDC" /></mods:classification>
-		<mods:classification authority="udc"><xsl:value-of select="/Monograph/MonographBibliographicRecord/Subject/UDC" /></mods:classification>
+		<xsl:for-each select="/Monograph/MonographBibliographicRecord/Subject">
+			<mods:classification authority="ddc"><xsl:value-of select="./DDC" /></mods:classification>
+			<mods:classification authority="udc"><xsl:value-of select="./UDC" /></mods:classification>
+		</xsl:for-each>
 		
-		<mods:relatedItem type="series">
-			<mods:titleInfo>
-				<mods:title><xsl:value-of select="/Monograph/MonographBibliographicRecord/Series/SeriesTitle" /></mods:title>
-			</mods:titleInfo>
-		</mods:relatedItem>
+		<xsl:for-each select="/Monograph/MonographBibliographicRecord/Series">
+			<mods:relatedItem type="series">
+				<mods:titleInfo>
+					<mods:title><xsl:value-of select="./SeriesTitle" /></mods:title>
+				</mods:titleInfo>
+			</mods:relatedItem>
+		</xsl:for-each>
 		
-		<mods:accessCondition type="restrictionOnAccess"><xsl:value-of select="/Monograph/MonographBibliographicRecord/Accessibility" /></mods:accessCondition>
+		<xsl:if test="/Monograph/MonographBibliographicRecord/Accessibility">
+			<mods:accessCondition type="restrictionOnAccess"><xsl:value-of select="/Monograph/MonographBibliographicRecord/Accessibility" /></mods:accessCondition>
+		</xsl:if>
+			
 	</mods:mods>
 </mods:modsCollection>
 

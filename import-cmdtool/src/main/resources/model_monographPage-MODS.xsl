@@ -4,9 +4,12 @@
 <xsl:template match="/">
 <mods:modsCollection xmlns:mods="http://www.loc.gov/mods/v3">
 	<mods:mods version="3.3">
-		<mods:identifier type="urn"><xsl:value-of select="/MonographPage/UniqueIdentifier/UniqueIdentifierURNType" /></mods:identifier>
-		<mods:identifier type="sici"><xsl:value-of select="/MonographPage/UniqueIdentifier/UniqueIdentifierSICIType" /></mods:identifier>
-					
+		<xsl:if test="/MonographPage/UniqueIdentifier/UniqueIdentifierURNType">
+			<mods:identifier type="urn"><xsl:value-of select="/MonographPage/UniqueIdentifier/UniqueIdentifierURNType" /></mods:identifier>
+		</xsl:if>
+		<xsl:if test="/MonographPage/UniqueIdentifier/UniqueIdentifierSICIType">
+			<mods:identifier type="sici"><xsl:value-of select="/MonographPage/UniqueIdentifier/UniqueIdentifierSICIType" /></mods:identifier>
+		</xsl:if>			
 		<!-- 
 		  - Current version of Kramerius contains texts only  
 		  -->		
@@ -14,13 +17,19 @@
 		
 		<mods:part>
 			<xsl:attribute name="type"><xsl:value-of select="/MonographPage/@Type" /></xsl:attribute>
-			<mods:detail type="pageNumber">
-				<mods:number><xsl:value-of select="/MonographPage/PageNumber" /></mods:number>
-			</mods:detail>
-			<mods:detail type="pageIndex">
-				<mods:number><xsl:value-of select="/MonographPage/@Index" /></mods:number>
-			</mods:detail>
-			<mods:text><xsl:value-of select="/MonographPage/Notes" /></mods:text>
+			<xsl:for-each select="/MonographPage/PageNumber"
+				<mods:detail type="pageNumber">
+					<mods:number><xsl:value-of select="." /></mods:number>
+				</mods:detail>
+			</xsl:for-each>
+			<xsl:if test="/MonographPage/@Index">
+				<mods:detail type="pageIndex">
+					<mods:number><xsl:value-of select="/MonographPage/@Index" /></mods:number>
+				</mods:detail>
+			</xsl:if>	
+			<xsl:if test="/MonographPage/Notes">
+				<mods:text><xsl:value-of select="/MonographPage/Notes" /></mods:text>
+			</xsl:if>	
 		</mods:part>
 	</mods:mods>
 </mods:modsCollection>

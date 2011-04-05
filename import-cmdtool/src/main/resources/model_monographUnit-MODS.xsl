@@ -5,28 +5,44 @@
 <mods:modsCollection xmlns:mods="http://www.loc.gov/mods/v3"> 
 	
 	<mods:mods version="3.3">
-		<mods:identifier type="urn"><xsl:value-of select="/MonographUnit/UniqueIdentifier/UniqueIdentifierURNType" /></mods:identifier>
-		<mods:identifier type="sici"><xsl:value-of select="/MonographUnit/UniqueIdentifier/UniqueIdentifierSICIType" /></mods:identifier>
-		<mods:identifier type="isbn"><xsl:value-of select="/MonographUnit/ISBN" /></mods:identifier>
+		<xsl:if test="/MonographUnit/UniqueIdentifier/UniqueIdentifierURNType">
+			<mods:identifier type="urn"><xsl:value-of select="/MonographUnit/UniqueIdentifier/UniqueIdentifierURNType" /></mods:identifier>
+		</xsl:if>
+		<xsl:if test="/MonographUnit/UniqueIdentifier/UniqueIdentifierSICIType">
+			<mods:identifier type="sici"><xsl:value-of select="/MonographUnit/UniqueIdentifier/UniqueIdentifierSICIType" /></mods:identifier>
+		</xsl:if>
+		<xsl:if test="/MonographUnit/ISBN">
+			<mods:identifier type="isbn"><xsl:value-of select="/MonographUnit/ISBN" /></mods:identifier>
+		</xsl:if>
 			
 		<mods:titleInfo>
 			<mods:title><xsl:value-of select="/MonographUnit/Title/MainTitle" /></mods:title>
-			<mods:subTitle><xsl:value-of select="/MonographUnit/Title/SubTitle" /></mods:subTitle>
+			<xsl:if test="/MonographUnit/Title/SubTitle">
+				<mods:subTitle><xsl:value-of select="/MonographUnit/Title/SubTitle" /></mods:subTitle>
+			</xsl:if>	
 		</mods:titleInfo>
-		<mods:titleInfo type="alternative">
-			<mods:title><xsl:value-of select="/MonographUnit/Title/ParallelTitle" /></mods:title>
-		</mods:titleInfo>
+		
+		<xsl:if test="/MonographUnit/Title/ParallelTitle">
+			<mods:titleInfo type="alternative">
+				<xsl:for-each select="/MonographUnit/Title/ParallelTitle">
+					<mods:title><xsl:value-of select="." /></mods:title>
+				</xsl:for-each>
+			</mods:titleInfo>
+		</xsl:if>
 
 		<mods:subject>
-			<mods:topic>
-		    	<xsl:value-of select="/MonographUnit/Keyword" />
-		    </mods:topic>
-		    
-			<mods:cartographics>
-		 		<mods:scale>
-		 			<xsl:value-of select="/MonographUnit/PhysicalDescription/Scale" />
-		 		</mods:scale>
-			</mods:cartographics>
+			<xsl:for-each select="/MonographUnit/Keyword">
+		    	<mods:topic>
+			    	<xsl:value-of select="." />
+			    </mods:topic>
+		    </xsl:for-each>
+			<xsl:if test="/MonographUnit/PhysicalDescription/Scale">
+				<mods:cartographics>
+			 		<mods:scale>
+			 			<xsl:value-of select="/MonographUnit/PhysicalDescription/Scale" />
+			 		</mods:scale>
+				</mods:cartographics>
+			</xsl:if>	
 		</mods:subject>
 			
 		<!-- Creator -->
@@ -36,9 +52,11 @@
 					<mods:namePart type="family">
 						<xsl:value-of select="CreatorSurname" />
 					</mods:namePart>
-					<mods:namePart type="given">
-						<xsl:value-of select="CreatorName" />
-					</mods:namePart>
+					<xsl:for-each select="CreatorName">
+						<mods:namePart type="given">
+							<xsl:value-of select="." />
+						</mods:namePart>
+					</xsl:for-each>
 					<mods:role>
 						<mods:roleTerm type="code">cre</mods:roleTerm>
 						<mods:roleTerm type="text"><xsl:value-of select="@Role" /></mods:roleTerm>
@@ -53,9 +71,11 @@
 				<mods:namePart type="family">	
 					<xsl:value-of select="ContributorSurname" />
 				</mods:namePart>			
-				<mods:namePart type="given">
-					<xsl:value-of select="ContributorName" />
-				</mods:namePart>
+				<xsl:for-each select="ContributorName">
+					<mods:namePart type="given">
+						<xsl:value-of select="." />
+					</mods:namePart>
+				</xsl:for-each>
 				<mods:role>		
 					<mods:roleTerm type="code">ctb</mods:roleTerm>
 					<mods:roleTerm type="text"><xsl:value-of select="@Role" /></mods:roleTerm>
@@ -95,20 +115,28 @@
 			</mods:language>
 		</xsl:for-each>
 		
-		<mods:physicalDescription>
-			<mods:form type="technique"><xsl:value-of select="/MonographUnit/PhysicalDescription/Technique" /></mods:form>
-			<mods:form type="material"><xsl:value-of select="/MonographUnit/PhysicalDescription/Material" /></mods:form>
-			
-			<mods:extent>
-				<xsl:value-of select="/MonographUnit/PhysicalDescription/Size" />
-				<xsl:if test="/MonographUnit/PhysicalDescription/Extent/text() and
-						/MonographUnit/PhysicalDescription/Size/text()">,</xsl:if>
-				<xsl:value-of select="/MonographUnit/PhysicalDescription/Extent " />
-			</mods:extent>
-			
-			<mods:note><xsl:value-of select="/MonographUnit/Notes" /></mods:note>
-		</mods:physicalDescription>
-
+		<xsl:if test="/MonographUnit/PhysicalDescription">
+			<mods:physicalDescription>
+				<xsl:if test="/MonographUnit/PhysicalDescription/Technique">
+					<mods:form type="technique"><xsl:value-of select="/MonographUnit/PhysicalDescription/Technique" /></mods:form>
+				</xsl:if>
+				<xsl:if test="/MonographUnit/PhysicalDescription/Material">
+					<mods:form type="material"><xsl:value-of select="/MonographUnit/PhysicalDescription/Material" /></mods:form>
+				</xsl:if>
+				<xsl:if test="/MonographUnit/PhysicalDescription/Size or /MonographUnit/PhysicalDescription/Extent">
+					<mods:extent>
+						<xsl:value-of select="/MonographUnit/PhysicalDescription/Size" />
+						<xsl:if test="/MonographUnit/PhysicalDescription/Extent/text() and
+								/MonographUnit/PhysicalDescription/Size/text()">,</xsl:if>
+						<xsl:value-of select="/MonographUnit/PhysicalDescription/Extent " />
+					</mods:extent>
+				</xsl:if>
+				<xsl:if test="/MonographUnit/Notes">
+					<mods:note><xsl:value-of select="/MonographUnit/Notes" /></mods:note>
+				</xsl:if>
+			</mods:physicalDescription>
+		</xsl:if>
+		
 		<xsl:for-each select="/MonographUnit/PhysicalDescription/PreservationStatus">
 			<mods:physicalDescription>
 				<!-- PhysicalDescription/PreservationStatus -->
@@ -118,19 +146,26 @@
 		</xsl:for-each>
 
 		<!-- MonographUnit subject -->
-		<mods:classification authority="ddc"><xsl:value-of select="/MonographUnit/Subject/DDC" /></mods:classification>
-		<mods:classification authority="udc"><xsl:value-of select="/MonographUnit/Subject/UDC" /></mods:classification>
-
+		<xsl:for-each select="/MonographUnit/Subject">
+			<mods:classification authority="ddc"><xsl:value-of select="./DDC" /></mods:classification>
+			<mods:classification authority="udc"><xsl:value-of select="./UDC" /></mods:classification>
+		</xsl:for-each>
+		
 		<mods:part>
 			<xsl:attribute name="type"><xsl:value-of select="/MonographUnit/@Type" /></xsl:attribute>
 			<mods:detail>
-				<mods:title><xsl:value-of select="/MonographUnit/MonographUnitIdentification/MonographUnitName" /></mods:title>
-				<mods:number><xsl:value-of select="/MonographUnit/MonographUnitIdentification/MonographUnitNumber" /></mods:number>
+				<xsl:if test="/MonographUnit/MonographUnitIdentification/MonographUnitName">
+					<mods:title><xsl:value-of select="/MonographUnit/MonographUnitIdentification/MonographUnitName" /></mods:title>
+				</xsl:if>	
+				<xsl:if test="/MonographUnit/MonographUnitIdentification/MonographUnitNumber">
+					<mods:number><xsl:value-of select="/MonographUnit/MonographUnitIdentification/MonographUnitNumber" /></mods:number>
+				</xsl:if>	
 			</mods:detail>
 		</mods:part>
-					
-		<mods:accessCondition type="restrictionOnAccess"><xsl:value-of select="/MonographUnit/Accessibility" /></mods:accessCondition>
-			
+		
+		<xsl:if test="/MonographUnit/Accessibility">			
+			<mods:accessCondition type="restrictionOnAccess"><xsl:value-of select="/MonographUnit/Accessibility" /></mods:accessCondition>
+		</xsl:if>	
 	</mods:mods>
 </mods:modsCollection>
 </xsl:template>
