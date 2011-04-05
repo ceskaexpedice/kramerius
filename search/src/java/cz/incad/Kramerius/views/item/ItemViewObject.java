@@ -134,9 +134,11 @@ public class ItemViewObject {
     }
 
     public void init() {
+        // TODO: Zrusit, pokud mozno na vzdy !! 
         modifiedModelsPids();
     }
 
+    // TODO: Zrusit, pokud mozno na vzdy !! 
     private void modifiedModelsPids() {
         try {
             this.reentrantLock.lock();
