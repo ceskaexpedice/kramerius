@@ -128,6 +128,7 @@ public class ItemViewObject {
     }
 
     public List<String> getPids() {
+        //TODO: Predelat !! 
         modifiedModelsPids();
         return modifiedPids;
     }
@@ -146,7 +147,6 @@ public class ItemViewObject {
                 }
                 modifiedModels = new ArrayList<String>(Arrays.asList(getModelsPath()));
                 try {
-                    //FedoraUtils.fillFirstPagePid((ArrayList<String>) modifiedPids, (ArrayList<String>) modifiedModels);
                     fedoraAccess.getFirstViewablePath((ArrayList<String>) modifiedPids, (ArrayList<String>) modifiedModels);
                 } catch (IOException e) {
                     LOGGER.log(Level.SEVERE, e.getMessage(), e);
