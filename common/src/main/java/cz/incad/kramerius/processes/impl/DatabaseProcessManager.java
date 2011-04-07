@@ -127,7 +127,7 @@ public class DatabaseProcessManager implements LRProcessManager {
 			
 			connection = connectionProvider.get();
 			if (connection != null) {
-				registerProcess(connection, lp, this.userProvider.get());
+				registerProcess(connection, lp, /*this.userProvider.get()*/ lp.getUser());
 			}
 		} catch (SQLException e) {
 			LOGGER.log(Level.SEVERE, e.getMessage(), e);
