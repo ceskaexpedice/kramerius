@@ -176,7 +176,7 @@ var COMMON = function() {
     }
 }();
 
-
+/* TODO: Zrusit 
 var PDF=function() {
 
     return {
@@ -359,7 +359,7 @@ var PDF=function() {
             }
         }
     }
-}();
+}(); */
 
 $( ".selector" ).dialog( { buttons: { "Ok": function() { $(this).dialog("close"); } } } );
 
