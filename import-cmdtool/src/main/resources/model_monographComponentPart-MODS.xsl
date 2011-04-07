@@ -16,9 +16,9 @@
 					
 		<mods:titleInfo>
 			<mods:title><xsl:value-of select="/MonographComponentPart/Title/MainTitle" /></mods:title>
-			<xsl:if test="">
+			<xsl:if test="/MonographComponentPart/Title/SubTitle">
 				<mods:subTitle><xsl:value-of select="/MonographComponentPart/Title/SubTitle" /></mods:subTitle>
-				
+			</xsl:if>	
 		</mods:titleInfo>
 		
 		<xsl:if test="/MonographComponentPart/Title/ParallelTitle">

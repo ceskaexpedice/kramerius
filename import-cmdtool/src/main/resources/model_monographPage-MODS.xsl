@@ -17,7 +17,7 @@
 		
 		<mods:part>
 			<xsl:attribute name="type"><xsl:value-of select="/MonographPage/@Type" /></xsl:attribute>
-			<xsl:for-each select="/MonographPage/PageNumber"
+			<xsl:for-each select="/MonographPage/PageNumber">
 				<mods:detail type="pageNumber">
 					<mods:number><xsl:value-of select="." /></mods:number>
 				</mods:detail>

@@ -5,7 +5,7 @@
 <mods:modsCollection xmlns:mods="http://www.loc.gov/mods/v3"> 
 	
 	<mods:mods version="3.3">
-		<xsl:if test="">
+		<xsl:if test="/Periodical/UniqueIdentifier/UniqueIdentifierURNType">
 			<mods:identifier type="urn"><xsl:value-of select="/Periodical/UniqueIdentifier/UniqueIdentifierURNType" /></mods:identifier>
 		</xsl:if>
 		<xsl:if test="/Periodical/UniqueIdentifier/UniqueIdentifierSICIType">
@@ -156,9 +156,9 @@
 		
 		<mods:originInfo>
     		<mods:issuance>continuing</mods:issuance>
-			<xsl:if test="">
+			<xsl:if test="/Periodical/Periodicity">
 				<mods:frequency><xsl:value-of select="/Periodical/Periodicity" /></mods:frequency>
-				
+			</xsl:if>	
 		</mods:originInfo>
 				
 		<xsl:for-each select="/Periodical/CoreBibliographicDescriptionPeriodical/Language">
