@@ -31,20 +31,27 @@ public abstract class AbstractTreeNodeProcessorAdapter implements TreeNodeProces
     public void process(String pid, int level) throws ProcessSubtreeException {
         String pageUuid = null;
         try {
-            if (pid.startsWith(PIDParser.INFO_FEDORA_PREFIX)) {
-                PIDParser pidParse = new PIDParser(pid);
-                pidParse.disseminationURI();
-                pageUuid = pidParse.getObjectId();
-            } else {
-                PIDParser pidParse = new PIDParser(pid);
-                pidParse.objectPid();
-                pageUuid = pidParse.getObjectId();
-            }
-            
+            pageUuid = ensureUUID(pid);
             processUuid(pageUuid, level);
         } catch (LexerException e) {
             throw new RuntimeException(e);
         }
+    }
+
+
+
+    public String ensureUUID(String pid) throws LexerException {
+        String pageUuid;
+        if (pid.startsWith(PIDParser.INFO_FEDORA_PREFIX)) {
+            PIDParser pidParse = new PIDParser(pid);
+            pidParse.disseminationURI();
+            pageUuid = pidParse.getObjectId();
+        } else {
+            PIDParser pidParse = new PIDParser(pid);
+            pidParse.objectPid();
+            pageUuid = pidParse.getObjectId();
+        }
+        return pageUuid;
     }
     
     
