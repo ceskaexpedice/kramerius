@@ -37,7 +37,6 @@ public class ItemMenuViewObject {
     ResourceBundle resourceBundle;
     KConfiguration kConfiguration;
     ItemViewObject itemViewObject;
-    IsUserInRoleDecision userInRoleDecision;
     Locale locale;
     String uuid;
     String model;
@@ -45,7 +44,7 @@ public class ItemMenuViewObject {
 
     public ItemMenuViewObject(HttpServletRequest httpServletRequest,
             ServletContext servletContext, FedoraAccess fedoraAccess, ResourceBundle resourceBundle, KConfiguration kConfiguration,
-            ItemViewObject itemViewObject, Locale locale, String uuid, String model, int index, IsUserInRoleDecision userInRoleDecision) {
+            ItemViewObject itemViewObject, Locale locale, String uuid, String model, int index) {
         super();
         this.httpServletRequest = httpServletRequest;
         this.servletContext = servletContext;
@@ -57,7 +56,6 @@ public class ItemMenuViewObject {
         this.uuid = uuid;
         this.index = index;
         this.model = model;
-        this.userInRoleDecision = userInRoleDecision;
     }
 
     public boolean isDisplayable() {

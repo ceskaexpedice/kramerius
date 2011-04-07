@@ -23,14 +23,20 @@ import org.antlr.stringtemplate.StringTemplate;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
 import com.google.inject.name.Named;
+import com.qbizm.kramerius.imp.jaxb.PageNumber;
 
 import cz.incad.Kramerius.views.item.menu.ItemMenuViewObject;
 import cz.incad.kramerius.FedoraAccess;
 import cz.incad.kramerius.MostDesirable;
+import cz.incad.kramerius.ProcessSubtreeException;
+import cz.incad.kramerius.TreeNodeProcessor;
+import cz.incad.kramerius.impl.AbstractTreeNodeProcessorAdapter;
 import cz.incad.kramerius.security.IsUserInRoleDecision;
 import cz.incad.kramerius.service.ResourceBundleService;
 import cz.incad.kramerius.utils.FedoraUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
+import cz.incad.kramerius.utils.pid.LexerException;
+import cz.incad.kramerius.utils.pid.PIDParser;
 
 public class ItemViewObject {
 
@@ -48,13 +54,10 @@ public class ItemViewObject {
     @Inject
     @Named("securedFedoraAccess")
     FedoraAccess fedoraAccess;
-    protected Lock reentrantLock = new ReentrantLock();
-    protected List<String> modifiedPids;
-    protected List<String> modifiedModels;
-    protected String _page;
-	
-	@Inject
-	IsUserInRoleDecision userInRoleDecision;
+
+    protected List<String> uuidPath;
+    protected List<String> models;
+    protected String pdfPage;
 	
 	
 	public ItemViewObject() {
@@ -71,23 +74,23 @@ public class ItemViewObject {
     }
 
     public String getFirstPageImageUrl() {
-        if(_page==null){
+        if(pdfPage==null){
             return "fullThumb?uuid=" + getLastUUID();
         }else{
-            return "djvu?uuid=" + getLastUUID() + "&amp;scaledWidth=512&amp;page="+(Integer.parseInt(_page)-1);
+            return "djvu?uuid=" + getLastUUID() + "&amp;scaledWidth=512&amp;page="+(Integer.parseInt(pdfPage)-1);
         }
     }
     
     public String getThumbImageUrl() {
-        if(_page==null){
+        if(pdfPage==null){
             return "thumb?uuid=" + getLastUUID() + "&amp;scaledWidth=650";
         }else{
-            return "thumb?uuid=" + getLastUUID() + "&amp;scaledWidth=650&amp;page="+(Integer.parseInt(_page)-1);
+            return "thumb?uuid=" + getLastUUID() + "&amp;scaledWidth=650&amp;page="+(Integer.parseInt(pdfPage)-1);
         }
     }
 
     public String getPage(){
-        return _page;
+        return pdfPage;
     }
     
     public String getImagePid() {
@@ -111,57 +114,72 @@ public class ItemViewObject {
     }
 
     public String getLastUUID() {
-        if(_page==null)
+        if(pdfPage==null)
             return (getPids().isEmpty() ? null : getPids().get(getPids().size() - 1));
         else
             return (getPids().isEmpty() ? null : getPids().get(getPids().size() - 2));
     }
 
-    public String[] getModelsPath() {
+    public String[] getModelsFromRequest() {
         String[] models = request.getParameter("path").split("/");
         return models;
     }
 
-    public String[] getPidPath() {
+    public String[] getUUIDPathFromRequest() {
         String[] pids = request.getParameter("pid_path").split("/");
         return pids;
     }
 
     public List<String> getPids() {
-        //TODO: Predelat !! 
-        modifiedModelsPids();
-        return modifiedPids;
+        return uuidPath;
     }
 
     public void init() {
-        // TODO: Zrusit, pokud mozno na vzdy !! 
-        modifiedModelsPids();
-    }
-
-    // TODO: Zrusit, pokud mozno na vzdy !! 
-    private void modifiedModelsPids() {
         try {
-            this.reentrantLock.lock();
-            if ((this.modifiedPids == null) || (modifiedModels == null)) {
-                modifiedPids = new ArrayList<String>(Arrays.asList(getPidPath()));
-                if(modifiedPids.get(modifiedPids.size()-1).indexOf("@")>-1){
-                    _page = modifiedPids.get(modifiedPids.size()-1).substring(1);
-                }
-                modifiedModels = new ArrayList<String>(Arrays.asList(getModelsPath()));
-                try {
-                    fedoraAccess.getFirstViewablePath((ArrayList<String>) modifiedPids, (ArrayList<String>) modifiedModels);
-                } catch (IOException e) {
-                    LOGGER.log(Level.SEVERE, e.getMessage(), e);
-                }
+            final String[]pathFromRequests = getUUIDPathFromRequest();
+            final String[] modelsFromRequest = getModelsFromRequest();
+            String lastUuid = pathFromRequests[pathFromRequests.length -1];
+            if (isPageUUID(lastUuid)) {
+                pdfPage = getPageUUID(lastUuid);
             }
-        } finally {
-            this.reentrantLock.unlock();
+            // find everything
+            final FindRestUUIDs fru = new FindRestUUIDs(this.fedoraAccess, lastUuid);
+            fedoraAccess.processSubtree("pid:"+lastUuid, fru);
+
+            
+            List<String> uuidsPathList = new ArrayList<String>(){{
+                addAll(Arrays.asList(pathFromRequests));
+                addAll(fru.getPathFromRoot());
+            }};
+            
+            List<String> modelsPathList = new ArrayList<String>(){{
+                addAll(Arrays.asList(modelsFromRequest));
+                addAll(fru.getModelsFromRoot());
+            }};
+            
+            this.uuidPath = uuidsPathList;
+            this.models = modelsPathList;
+            
+        } catch (IOException e) {
+            // co s tim ?
+            throw new RuntimeException(e);
+        } catch (ProcessSubtreeException e) {
+            // co s tim ?
+            throw new RuntimeException(e);
         }
     }
 
+    public boolean isPageUUID(String uuid) {
+        return uuid.indexOf("@")>-1;
+    }
+
+    public String getPageUUID(String pageUuid) {
+        return pageUuid.substring(1);
+    }
+    
+
     public List<String> getModels() {
-        modifiedModelsPids();
-        return this.modifiedModels;
+        return this.models;
     }
 
     public List<ItemMenuViewObject> getMenus() {
@@ -170,7 +188,7 @@ public class ItemViewObject {
             List<String> models = getModels();
             List<ItemMenuViewObject> menus = new ArrayList<ItemMenuViewObject>();
             for (int i = 0; i < pids.size(); i++) {
-                menus.add(new ItemMenuViewObject(this.request, this.servletContext, this.fedoraAccess, this.resourceBundleService.getResourceBundle("labels", localeProvider.get()), KConfiguration.getInstance(), this, localeProvider.get(),pids.get(i), models.get(i), i, userInRoleDecision));
+                menus.add(new ItemMenuViewObject(this.request, this.servletContext, this.fedoraAccess, this.resourceBundleService.getResourceBundle("labels", localeProvider.get()), KConfiguration.getInstance(), this, localeProvider.get(),pids.get(i), models.get(i), i));
             }
             return menus;
         } catch (IOException e) {
@@ -182,5 +200,59 @@ public class ItemViewObject {
     
     public String getDeepZoomURL() {
         return null;
+    }
+    
+
+    /** Finds lists represents uuid path and model path from given root */
+    private class FindRestUUIDs extends AbstractTreeNodeProcessorAdapter {
+        
+        private List<String> pathFromRoot = new ArrayList<String>();
+        private List<String> modelsFromRoot = new ArrayList<String>();
+        
+        private String rootUUID;
+        private FedoraAccess fedoraAccess;
+        
+        public FindRestUUIDs(FedoraAccess fedoraAccess,String rootUUID) {
+            super();
+            this.rootUUID = rootUUID;
+            this.fedoraAccess = fedoraAccess;
+        }
+
+
+        @Override
+        public void processUuid(String pageUuid, int level) throws ProcessSubtreeException {
+            try {
+                if (!pageUuid.equals(rootUUID)) {
+                    pathFromRoot.add(pageUuid);
+                    modelsFromRoot.add(fedoraAccess.getKrameriusModelName(pageUuid));
+                }
+            } catch (IOException e) {
+                throw new ProcessSubtreeException(e);
+            } 
+        }
+
+
+        
+        public List<String> getPathFromRoot() {
+            return pathFromRoot;
+        }
+
+
+        public List<String> getModelsFromRoot() {
+            return modelsFromRoot;
+        }
+
+
+        @Override
+        public boolean breakProcessing(String pid, int level) {
+            try {
+                String uuid = ensureUUID(pid);
+                return fedoraAccess.isStreamAvailable(uuid, FedoraUtils.IMG_FULL_STREAM);
+            } catch (LexerException e) {
+                throw new RuntimeException(e);
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        }
     }
 }
