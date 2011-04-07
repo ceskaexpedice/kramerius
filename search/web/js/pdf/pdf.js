@@ -4,7 +4,7 @@
 
 /** Prints one page identified by uuid */
 function printOnePage(level) {
-	var u = "pdf?uuidFrom=" + viewerOptions.uuid+"&howMany="+1;
+	var u = "pdf?uuidFrom=" + viewerOptions.uuid+"&howMany="+1+"&redirectURL="+escape(window.location.href);
 	window.location.href = u;
 }
 
@@ -59,7 +59,7 @@ function printMorePages(level) {
                 buttons: {
                     "Ok": function() {
             			if (/\d+/.test($("#text_1").val()) ) {
-                			var u = "pdf?uuidFrom=" + viewerOptions.uuid+"&howMany="+$("#text_1").val();
+            				var u = "pdf?uuidFrom=" + viewerOptions.uuid+"&howMany="+$("#text_1").val()+"&redirectURL="+escape(window.location.href);
                 			window.location.href = u;
             			}
                     	$(this).dialog("close");
@@ -74,3 +74,4 @@ function printMorePages(level) {
 		printMorePagesDialog.dialog('open');
 	}
 }
+
