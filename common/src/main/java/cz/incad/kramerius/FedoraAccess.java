@@ -132,6 +132,8 @@ public interface FedoraAccess {
     */
     public boolean getFirstViewablePath(List<String> pids, List<String> models) throws IOException;
 
+    
+    
 
     /**
      * Parse, find and returns all pages
