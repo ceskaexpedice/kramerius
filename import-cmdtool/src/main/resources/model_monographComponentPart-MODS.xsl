@@ -116,7 +116,7 @@
 					<mods:number><xsl:value-of select="/MonographComponentPart/PageNumber" /></mods:number>
 				</mods:detail>
 			</xsl:if>	
-			<xsl:if test="/MonographComponentPart/PageNumber">	
+			<xsl:if test="/MonographComponentPart/MonographComponentPartIdentification">	
 				<mods:detail type="pageNumber">
 					<mods:number><xsl:value-of select="/MonographComponentPart/MonographComponentPartIdentification" /></mods:number>
 				</mods:detail>	
