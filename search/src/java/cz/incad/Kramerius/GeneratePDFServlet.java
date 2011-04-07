@@ -5,6 +5,7 @@ import static cz.incad.kramerius.FedoraNamespaces.*;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.net.URLEncoder;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -44,7 +45,8 @@ import cz.incad.utils.IKeys;
 
 public class GeneratePDFServlet extends GuiceServlet {
 
-    private static final Semaphore PDF_SEMAPHORE = new Semaphore(KConfiguration.getInstance().getConfiguration().getInt("pdfQueue.activeProcess",1));
+    
+    private static final Semaphore PDF_SEMAPHORE = new Semaphore(KConfiguration.getInstance().getConfiguration().getInt("pdfQueue.activeProcess",5));
 
 	private static final long serialVersionUID = 1L;
 	
@@ -105,6 +107,7 @@ public class GeneratePDFServlet extends GuiceServlet {
 
     private void renderErrorPagePDF(HttpServletRequest req, HttpServletResponse resp) throws IOException, ServletException {
         RequestDispatcher dispatcher = req.getRequestDispatcher("serverbusy.jsp");
+        //req.setAttribute("redirectURL", URLEncoder.encode(req.getParameter(arg0), "UTF-8"));
         dispatcher.forward(req, resp);
     }
 
