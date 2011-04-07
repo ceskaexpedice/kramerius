@@ -140,7 +140,7 @@ public class LongRunningProcessServlet extends GuiceServlet {
     }
     
 
-    public static LRProcess planNewProcess(HttpServletRequest request, ServletContext context, String def, DefinitionManager definitionManager, String[] params) {
+    public static LRProcess planNewProcess(HttpServletRequest request, ServletContext context, String def, DefinitionManager definitionManager, String[] params, User user) {
         definitionManager.load();
         LRProcessDefinition definition = definitionManager.getLongRunningProcessDefinition(def);
         if (definition == null) {
@@ -148,6 +148,7 @@ public class LongRunningProcessServlet extends GuiceServlet {
         }
         String token = request.getParameter("token");
         LRProcess newProcess = definition.createNewProcess(token);
+        newProcess.setUser(user);
         newProcess.setParameters(Arrays.asList(params));
         newProcess.planMe();
         return newProcess;
@@ -188,6 +189,7 @@ public class LongRunningProcessServlet extends GuiceServlet {
                             user = processes.get(0).getUser();
                             UserUtils.associateGroups(user, userManager);
                             UserUtils.associateCommonGroup(user, userManager);
+                            
                         }
                     } else {
                         user = userProvider.get();
@@ -195,7 +197,8 @@ public class LongRunningProcessServlet extends GuiceServlet {
                     boolean permited = user!= null? (rightsResolver.isActionAllowed(user,SecuredActions.MANAGE_LR_PROCESS.getFormalName(), SpecialObjects.REPOSITORY.getUuid(), new String[]{}) || 
                                         (actionFromDef != null && rightsResolver.isActionAllowed(user, actionFromDef.getFormalName(), SpecialObjects.REPOSITORY.getUuid(), new String[] {}))) : false ;
                     if (permited) {
-                        LRProcess nprocess = planNewProcess(req, context, def, defManager, params);
+                        LRProcess nprocess = planNewProcess(req, context, def, defManager, params, user);
+                        
                         if ((out != null) && (out.equals("text"))) {
                             resp.getOutputStream().print("[" + nprocess.getDefinitionId() + "]" + nprocess.getProcessState().name());
                         } else {
