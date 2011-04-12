@@ -37,14 +37,16 @@ public class UnixLRProcessImpl extends AbstractLRProcessImpl {
 	@Override
 	protected void stopMeOsDependent() {
 		try {
-			LOGGER.info("Killing process "+getPid());
+			LOGGER.fine("Killing process "+getPid());
 			// kill -9 <pid>
 			List<String> command = new ArrayList<String>();
 			command.add("kill");
 			command.add("-9");
 			command.add(getPid());
 			ProcessBuilder processBuilder = new ProcessBuilder(command);
-			processBuilder.start();
+			Process startedProcess = processBuilder.start();
+			LOGGER.fine("killing command '"+command+"' and exit command "+startedProcess.exitValue());
+			
 		} catch (IOException e) {
 			LOGGER.log(Level.SEVERE, e.getMessage(), e);
 		}
