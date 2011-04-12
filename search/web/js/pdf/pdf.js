@@ -26,7 +26,7 @@ function printMorePages(level) {
 		               strong(dictionary['pdf.numberOfPages']),
 		               span("","pdf_dialog_content_validation", "color:red;font-style:italic;"),
 		               br(),
-		               text("30","getPdfStart",""+generatePdfMaxRange,"text_1")
+		               text("30","getPdfStart",""+ viewerOptions.pdfMaxRange,"text_1")
 	                ],{id:"texts",style:"padding-top:5px;"})
 	 	        ],{id:"pdf_dialog_content"})
             ],{id:"pdf_dialog"});
