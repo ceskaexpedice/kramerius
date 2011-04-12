@@ -731,22 +731,12 @@ function _checkDonator(pid){
 
 function checkDonator(pid){
     if(!pid) return;
-
     var url ="inc/details/donator.jsp?uuid="+pid;
-
-
     $.get(url, function(data){
-                if(data!=""){
-                    var donatortext = 'proxy?pid=donator:'+data+'&dsname=TEXT-';
-                    if(language==""){
-                        donatortext += "CS";
-                    }else{
-                        donatortext += language.toUpperCase();
-                    }
-                    $.get(donatortext, function(data2){
-                        $("#donatorContainer").html('<div class="donator"><img height="50" src="proxy?pid=donator:'+data+'&dsname=LOGO" alt="'+data2+'" title="'+data2+'" /></div>');
-                    });
-                }
+		if(data!=""){
+			var donatortext =  dictionary['donator.'+data];
+			$("#donatorContainer").html('<div class="donator"><img height="50" src="proxy?pid=donator:'+data+'&dsname=LOGO" alt="'+donatortext+'" title="'+donatortext+'" /></div>');
+		}
     });
 }
 
