@@ -108,6 +108,7 @@ public class MonographConvertor extends BaseConvertor {
         //}
 
         RelsExt re = new RelsExt(pid, MODEL_MONOGRAPH);
+        re.addRelation(RelsExt.ITEM_ID,pid,true);
         boolean visibility = isPublic(uuid, config.isDefaultVisibility(), "m_monograph");
         String contract = getContract(mono.getMonographPage());
         if (contract == null) {

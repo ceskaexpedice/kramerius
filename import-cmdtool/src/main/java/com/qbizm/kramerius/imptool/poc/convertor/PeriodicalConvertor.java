@@ -118,6 +118,7 @@ public class PeriodicalConvertor extends BaseConvertor {
         String pid = pid (uuid);
 
         RelsExt re = new RelsExt(pid, MODEL_PERIODICAL);
+        re.addRelation(RelsExt.ITEM_ID,pid,true);
         boolean visibility = isPublic(uuid, config.isDefaultVisibility(), "p_periodical");
 
         String volumeuuid= null;
