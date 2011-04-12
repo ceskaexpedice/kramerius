@@ -3,9 +3,11 @@ group viewinfo;
 /* whole viewinfo tempalte */
 viewinfo(data, globalActions) ::=<<
 {
+        pdfMaxRange:$data.pdfMaxRange$,
         previewStreamGenerated:$data.previewStreamGenerated$,
         deepZoomGenerated:$data.deepZoomCacheGenerated$,
         deepZoomCofigurationEnabled:$data.deepZoomCofigurationEnabled$,
+        
         mimeType:'$data.mimeType$', 
         hasAlto:$data.hasAlto$,
         uuid:"$data.uuid$",

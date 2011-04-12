@@ -83,12 +83,22 @@ public class I18NServlet extends GuiceServlet {
 			public void doAction(ServletContext context, HttpServletRequest req, HttpServletResponse resp, TextsService tserv, ResourceBundleService rserv,  Provider<Locale> provider) {
 				try {
 					String parameter = req.getParameter("name");
+                    String format = req.getParameter("format");
 					Locale locale = locale(req, provider);
 					String text = tserv.getText(parameter, locale);
-					StringBuffer formatBundle = formatTextToXML(text, parameter);
-					resp.setContentType("application/xhtml+xml");
-					resp.setCharacterEncoding("UTF-8");
-					resp.getWriter().write(formatBundle.toString());
+
+					Formats foundFormat = Formats.find(format);
+					if (foundFormat == Formats.xml) {
+	                    StringBuffer formatBundle = formatTextToXML(text, parameter);
+	                    resp.setContentType("application/xhtml+xml");
+	                    resp.setCharacterEncoding("UTF-8");
+	                    resp.getWriter().write(formatBundle.toString());
+					} else {
+					    String json = formatTextToJSON(text, parameter);
+                        resp.setCharacterEncoding("UTF-8");
+                        resp.getWriter().write(json);
+					}
+
 				} catch (IOException e) {
 					LOGGER.log(Level.SEVERE, e.getMessage(), e);
 					try {
@@ -180,6 +190,25 @@ public class I18NServlet extends GuiceServlet {
 			buffer.append("\n</text>");
 			return buffer;
 		}
-		
+
+		static String formatTextToJSON(String text, String textName) {
+            Map<String, String> map = new HashMap<String, String>();
+            map.put("name",textName);
+            map.put("value", text);
+            StringTemplate template = new StringTemplate(
+                    "{\"text\":{\n" +
+                        "  name:'$data.name$',"+
+                        "  value:'$data.value$'"+
+                    "\n}}");
+            template.setAttribute("data", map);
+            return template.toString();
+		    
+		}
 	}
 }
+
+
+
+
+
+

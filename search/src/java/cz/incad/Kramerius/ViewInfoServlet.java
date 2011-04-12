@@ -93,6 +93,7 @@ public class ViewInfoServlet extends GuiceServlet {
                 String donator = this.fedoraAccess.getDonator(uuid);
                 
                 HashMap map = new HashMap();
+                map.put("pdfMaxRange", KConfiguration.getInstance().getConfiguration().getInt("generatePdfMaxRange",20));
                 map.put("previewStreamGenerated", fedoraAccess.isStreamAvailable(uuid, ImageStreams.IMG_PREVIEW.getStreamName()));
                 map.put("deepZoomCacheGenerated", ""+generated);
                 map.put("deepZoomCofigurationEnabled", ""+conf);
