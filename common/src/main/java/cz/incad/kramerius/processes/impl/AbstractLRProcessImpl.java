@@ -215,9 +215,7 @@ public abstract class AbstractLRProcessImpl implements LRProcess{
 		if (this.pid == null) {
             throw new IllegalStateException("cannot stop this process! No PID associated");
         }
-		if (this.state.equals(States.RUNNING)) {
-	        this.stopMeOsDependent();
-		}
+        this.stopMeOsDependent();
 	}
 
 	protected abstract void stopMeOsDependent();
