@@ -209,14 +209,19 @@ public abstract class AbstractLRProcessImpl implements LRProcess{
 
 	@Override
 	public void stopMe() {
-        if (this.pid == null) {
-            throw new IllegalStateException("cannot stop this process! No PID associated");
-        }
-
-        this.setProcessState(States.KILLED);
-		this.manager.updateLongRunningProcessState(this);
-
-        this.stopMeOsDependent();
+	    if (this.getProcessState() == States.PLANNED) {
+            this.setProcessState(States.KILLED);
+            this.manager.updateLongRunningProcessState(this);
+	    } else {
+	        if (this.pid == null) {
+	            throw new IllegalStateException("cannot stop this process! No PID associated");
+	        }
+	        
+	        this.setProcessState(States.KILLED);
+	        this.manager.updateLongRunningProcessState(this);
+	        
+	        this.stopMeOsDependent();
+	    }
 	}
 
 	protected abstract void stopMeOsDependent();
