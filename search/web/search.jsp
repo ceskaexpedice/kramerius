@@ -52,7 +52,7 @@
                     <c:if test="${rows!='0'}"><%@ include file="inc/usedFilters.jsp" %></c:if>
                      </form>
                         <c:if test="${!empty param.error}">
-                            <table class="main error"><tr valign='top'><td align="center"><fmt:message>error.${param.error}</fmt:message></td></tr></table>
+                            <table class="main error"><tr valign='top'><td align="center"><fmt:message bundle="${lctx}">error.${param.error}</fmt:message></td></tr></table>
                         </c:if>
                     <table class="main">
                         <tr valign='top'>
