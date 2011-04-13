@@ -44,7 +44,7 @@ public final class EditorViewImpl implements EditorView {
     private final Widget widget;
     @UiField Anchor loadClickable;
     @UiField Anchor saveClickable;
-    @UiField Anchor krameriusClickable;
+    //@UiField Anchor krameriusClickable;
     @UiField Anchor languagesClickable;
     @UiField FlowPanel clipboardPanel;
     @UiField AdvancedTabLayoutPanel editorTabPanel;
@@ -165,13 +165,14 @@ public final class EditorViewImpl implements EditorView {
         }
     }
 
+    /*
     @UiHandler("krameriusClickable")
     void onKrameriusClick(ClickEvent ce) {
         if (callback != null) {
             callback.onKrameriusClick();
         }
     }
-
+*/
     @UiHandler("languagesClickable")
     void onLanguagesClick(ClickEvent ce) {
         if (callback != null) {

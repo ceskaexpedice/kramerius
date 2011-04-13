@@ -44,11 +44,11 @@ For i18 stuff see src/main/java/com/google/gwt/i18n/client/LocalizableResource_<
                             addStyleNames="{style.menuItem} {style.menuItemAsLink}" href="javascript:;">
                                 <ui:msg key="saveClickableLabel">Save</ui:msg>
                     </g:Anchor>
-                    <g:Anchor ui:field="krameriusClickable" title="Go back to Kramerius Search"
+                    <!--g:Anchor ui:field="krameriusClickable" title="Go back to Kramerius Search"
                             addStyleNames="{style.menuItem} {style.menuItemAsLink}" href="javascript:;">
                                 <ui:attribute name="title" key="krameriusClickableTooltip"/>
                                 <ui:msg key="krameriusClickableLabel">Kramerius</ui:msg>
-                    </g:Anchor>
+                    </g:Anchor-->
                     <g:Anchor ui:field="languagesClickable"
                             addStyleNames="{style.menuItem}" href="javascript:;">
                                 <u class="{style.menuItemAsLink}">
