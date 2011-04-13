@@ -45,7 +45,7 @@ public class UnixLRProcessImpl extends AbstractLRProcessImpl {
 			command.add(getPid());
 			ProcessBuilder processBuilder = new ProcessBuilder(command);
 			Process startedProcess = processBuilder.start();
-			LOGGER.fine("killing command '"+command+"' and exit command "+startedProcess.exitValue());
+			LOGGER.fine("killing command '"+command+"' and exit command "/*+startedProcess.exitValue()*/);
 			
 		} catch (IOException e) {
 			LOGGER.log(Level.SEVERE, e.getMessage(), e);
