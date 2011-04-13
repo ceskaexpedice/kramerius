@@ -75,7 +75,7 @@ public class AdminMenuViewObject {
     }
 
     public String openUsersAdmin() throws IOException {
-        String href = ApplicationURL.getServerAndPort(request)+"/rightseditor";
+        String href = ApplicationURL.getServerAndPort(request)+kconfig.getUsersEditorURL();
         String label = this.resourceBundleService.getResourceBundle("labels", this.locale).getString("administrator.menu.userseditor");
         return String.format("<div align=\"left\"> <a href=\"%s\" target=\"_blank\"> %s </a> </div>",
                 href, label);
@@ -90,7 +90,7 @@ public class AdminMenuViewObject {
 
     public String editor() throws IOException {
         String localeParam = locale == null ? "" : "?locale=" + locale.getLanguage();
-        String href = ApplicationURL.getServerAndPort(request)+"/editor" + localeParam;
+        String href = ApplicationURL.getServerAndPort(request)+kconfig.getEditorURL() + localeParam;
         return renderMenuItem(href, "administrator.menu.dialogs.editor.title");
     }
 
