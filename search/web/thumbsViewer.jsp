@@ -284,6 +284,7 @@
                 selectPrevious();
             }
         });
+        setTimeout('checkThumbs()', 200);
 
     });
     

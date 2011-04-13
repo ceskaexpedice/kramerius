@@ -496,6 +496,18 @@ function translateDiv(div){
     });
 }
 
+function checkThumbs(){
+    var n = $('#tv_container_row>td').length;
+    //alert(n);
+    if(n==0){
+        $('#tv').css("height","0px");
+        $('#tv').css("overflow","hidden");
+    }else{
+        $('#tv').css("height","");
+        $('#tv').css("overflow","");
+    }
+}
+
 /*
  * Adds thumbnails from menu tree to thumbs scroller
  */
@@ -525,6 +537,7 @@ function addThumbs(level){
  * load thumb when becomes visible
  */  
 function activateThumbs(){
+    checkThumbs();
     var level = getMaxLevel();
     var w = getTvContainerWidth();
     var leftBorder = getTvContainerLeft();
@@ -561,7 +574,6 @@ function activateThumbs(){
     });
 }
     
- 
 function updateThumbs(level){
     if(changingTab){
         
@@ -682,6 +694,8 @@ function checkArrows(){
         $('.nextArrow').hide();
     }
 }
+
+
     
 var tvContainerWidth = 0;
 function setTvContainerWidth(){
