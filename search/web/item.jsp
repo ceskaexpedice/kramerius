@@ -259,7 +259,7 @@
                                 <div id="itemTree" style="width:330px;" class="ui-tabs ui-widget ui-corner-all facet shadow10">
                                     <ul class="ui-tabs-nav ui-helper-reset ui-helper-clearfix ui-widget-header ui-corner-all" style="padding:0 0.1em 0 0;">
         <li class=" facetTitle ui-state-default ui-corner-top  ui-state-active" style="width:100%;">
-        <a class="box" href=""><fmt:message bundle="${lctx}">item.popis</fmt:message></a></li>
+            <span class="box" ><fmt:message bundle="${lctx}">item.popis</fmt:message></span></li>
     </ul>
         <%@include file="inc/statistics.jsp"  %>
                                     <%@ include file="inc/details/itemMenu.jsp" %>
