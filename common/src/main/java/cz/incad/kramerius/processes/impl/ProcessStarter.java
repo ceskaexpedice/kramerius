@@ -50,6 +50,19 @@ public class ProcessStarter {
         setDefaultLoggingIfNecessary();
         
         try {
+            Runtime.getRuntime().addShutdownHook(new Thread() {
+
+                @Override
+                public void run() {
+                    try {
+                        updateStatus(States.KILLED);
+                    } catch (MalformedURLException e) {
+                        LOGGER.log(Level.SEVERE, e.getMessage(), e);
+                    } catch (IOException e) {
+                        LOGGER.log(Level.SEVERE, e.getMessage(), e);
+                    }
+                }
+            });
             Class<?> clz = Class.forName(mainClass);
             Method method = clz.getMethod("main", args.getClass());
             String pid = getPID();
