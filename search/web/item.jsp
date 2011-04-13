@@ -13,12 +13,15 @@
             Injector ctxInj = (Injector) application.getAttribute(Injector.class.getName());
             KConfiguration kconfig = ctxInj.getProvider(KConfiguration.class).get();
             pageContext.setAttribute("kconfig", kconfig);
-            
-            // view objekt pro stranku = veskera logika 
-            ItemViewObject itemViewObject = new ItemViewObject();
+%>
+<%@ include file="inc/checkUUID.jsp" %>
+<%
+        ItemViewObject itemViewObject = new ItemViewObject();
+
+        try{
+            // view objekt pro stranku = veskera logika
             ctxInj.injectMembers(itemViewObject);
             itemViewObject.init();
-
             // lokalizacni kontext
             LocalizationContext lctx = ctxInj.getProvider(LocalizationContext.class).get();
             pageContext.setAttribute("lctx", lctx);
@@ -30,7 +33,6 @@
             
 %>
 
-<%@ include file="inc/checkUUID.jsp" %>
 <%@ include file="inc/initVars.jsp" %>
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
 
@@ -333,3 +335,9 @@
             </div>
         </div>
 </body></html>
+<%
+        }catch(Exception ex){
+            response.sendRedirect(kconfig.getApplicationURL() + "?error=item_error");
+            return;
+        }
+%>

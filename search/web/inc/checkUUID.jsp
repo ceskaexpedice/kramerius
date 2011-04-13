@@ -17,11 +17,16 @@
     <c:param name="q" >PID:${param.pid}</c:param>
     <c:param name="rows" value="0" />
 </c:url>
-<c:import url="${url}" var="xml" charEncoding="UTF-8" />
-<x:parse var="doc" xml="${xml}"  />
-<c:set var="numDocs" >
-    <x:out select="$doc/response/result/@numFound" />
-</c:set>
-<c:if test="${numDocs==0}" >
+<c:catch var="exceptions">
+    <c:import url="${url}" var="xml" charEncoding="UTF-8" />
+    <x:parse var="doc" xml="${xml}"  />
+    <c:set var="numDocs" >
+        <x:out select="$doc/response/result/@numFound" />
+    </c:set>
+    <c:if test="${numDocs==0}" >
+        <c:redirect url="${kconfig.applicationURL}?error=uuid_not_found" />
+    </c:if>
+</c:catch>
+<c:if test="${exceptions != null}">
     <c:redirect url="${kconfig.applicationURL}?error=uuid_not_found" />
 </c:if>
