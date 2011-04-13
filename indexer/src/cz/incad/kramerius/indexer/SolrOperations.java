@@ -508,6 +508,7 @@ public class SolrOperations {
         StringBuilder sb = new StringBuilder("<delete><id>" + pid + "</id></delete>");
         logger.fine("indexDoc=\n" + sb.toString());
         postData(config.getString("IndexBase") + "/update", new StringReader(sb.toString()), new StringBuilder());
+        optimize();
         deleteTotal++;
     }
 
@@ -515,6 +516,7 @@ public class SolrOperations {
         StringBuilder sb = new StringBuilder("<delete><query>pid_path:" + pid_path + "*</query></delete>");
         logger.fine("indexDoc=\n" + sb.toString());
         postData(config.getString("IndexBase") + "/update", new StringReader(sb.toString()), new StringBuilder());
+        optimize();
         deleteTotal++;
     }
 
@@ -522,6 +524,7 @@ public class SolrOperations {
         StringBuilder sb = new StringBuilder("<delete><query>path:" + path + "*</query></delete>");
         logger.fine("indexDoc=\n" + sb.toString());
         postData(config.getString("IndexBase") + "/update", new StringReader(sb.toString()), new StringBuilder());
+        optimize();
         deleteTotal++;
     }
 
