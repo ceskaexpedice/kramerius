@@ -592,7 +592,7 @@ var imageInitialized = false;
 function showImage(viewerOptions) {
 	// different view for pdf	
 	if (viewerOptions.isContentPDF()) {
-		displayPDFImageContent();
+		displayPDFImageContent(viewerOptions.uuid);
 	} else {
 	
             var tilesPrepared = viewerOptions.deepZoomGenerated || viewerOptions.imageServerConfigured;
@@ -704,12 +704,12 @@ function displayLoadingImageContent() {
 	$("#loadingDeepZoomImage").show();
 }
 
-function displayPDFImageContent() {
+function displayPDFImageContent(uuid) {
 	$("#securityError").hide();
 	$("#plainImage").hide();
 	$("#container").hide();
 	$("#loadingDeepZoomImage").hide();
-
+        $("#pdfImageImg").attr("src", "fullThumb?uuid="+uuid);
 	$("#pdfImage").show();
 
 }
