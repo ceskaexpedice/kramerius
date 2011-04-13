@@ -111,12 +111,7 @@
             <scope>test</scope>
         </dependency>
 
-        <dependency>
-            <groupId>com.foxtrottechnologies</groupId>
-            <artifactId>javadjvu</artifactId>
-            <version>0.8.09</version>
-        </dependency>
-
+        
         <dependency>
             <groupId>com.foxtrottechnologies</groupId>
             <artifactId>djvuframe</artifactId>

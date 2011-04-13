@@ -30,7 +30,6 @@ import cz.incad.Kramerius.processes.ParamsLexer;
 import cz.incad.Kramerius.processes.ParamsParser;
 import cz.incad.Kramerius.security.KrameriusRoles;
 import cz.incad.Kramerius.security.utils.UserUtils;
-import cz.incad.Kramerius.views.ApplicationURL;
 import cz.incad.kramerius.intconfig.InternalConfiguration;
 import cz.incad.kramerius.processes.DefinitionManager;
 import cz.incad.kramerius.processes.GCScheduler;
@@ -49,6 +48,7 @@ import cz.incad.kramerius.security.SecurityException;
 import cz.incad.kramerius.security.SpecialObjects;
 import cz.incad.kramerius.security.User;
 import cz.incad.kramerius.security.UserManager;
+import cz.incad.kramerius.utils.ApplicationURL;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 import cz.incad.kramerius.utils.database.JDBCQueryTemplate;
 

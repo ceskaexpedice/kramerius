@@ -1,4 +1,4 @@
-package cz.incad.Kramerius.views;
+package cz.incad.kramerius.utils;
 
 import java.net.MalformedURLException;
 import java.net.URL;

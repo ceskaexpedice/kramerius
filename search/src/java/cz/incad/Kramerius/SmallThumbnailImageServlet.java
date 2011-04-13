@@ -27,10 +27,10 @@ import com.google.inject.servlet.GuiceServletContextListener;
 
 import cz.incad.Kramerius.AbstractImageServlet.OutputFormats;
 import cz.incad.Kramerius.backend.guice.GuiceServlet;
-import cz.incad.Kramerius.views.ApplicationURL;
 import cz.incad.kramerius.FedoraAccess;
 import cz.incad.kramerius.intconfig.InternalConfiguration;
 import cz.incad.kramerius.security.SecurityException;
+import cz.incad.kramerius.utils.ApplicationURL;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 import cz.incad.kramerius.utils.imgs.KrameriusImageSupport.ScalingMethod;
 import cz.incad.utils.IKeys;

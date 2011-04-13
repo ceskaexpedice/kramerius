@@ -25,10 +25,10 @@ import org.xml.sax.SAXException;
 import com.google.inject.Inject;
 
 import cz.incad.Kramerius.backend.guice.GuiceServlet;
-import cz.incad.Kramerius.views.ApplicationURL;
 import cz.incad.kramerius.FedoraAccess;
 import cz.incad.kramerius.SolrAccess;
 import cz.incad.kramerius.intconfig.InternalConfiguration;
+import cz.incad.kramerius.utils.ApplicationURL;
 import cz.incad.kramerius.utils.RESTHelper;
 import cz.incad.kramerius.utils.XMLUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;

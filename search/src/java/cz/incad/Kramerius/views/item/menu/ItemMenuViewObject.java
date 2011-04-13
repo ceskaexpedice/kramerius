@@ -317,7 +317,7 @@ public class ItemMenuViewObject {
         String editor = kConfiguration.getEditorURL() + "?pids=uuid:" + uuid
                 + "&locale=" + locale.getLanguage();
         StringTemplate template = new StringTemplate("<div align=\"left\"><a title='$tooltip$' "
-                + "href=\"$editor$\">$title$</a> </div>");
+                + "href=\"$editor$\"  target=\"_blank\">$title$</a> </div>");
         template.setAttribute("editor", editor);
         titleAndTooltip(template, key);
 

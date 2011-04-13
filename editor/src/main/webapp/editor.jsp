@@ -18,7 +18,7 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN">
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 <%@page import="cz.incad.kramerius.utils.conf.KConfiguration" %>
-
+<%@page import="cz.incad.kramerius.utils.ApplicationURL" %>
 <html>
     <head>
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
@@ -27,7 +27,7 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
 
         <script type="text/javascript">
             var EditorConfiguration = {
-                krameriusURL: "<%=response.encodeURL(KConfiguration.getInstance().getApplicationURL())%>"
+                krameriusURL: "<%=response.encodeURL(ApplicationURL.getServerAndPort(request)+"/search"/*KConfiguration.getInstance().getApplicationURL()*/)%>"
                 , pids: "<%= request.getParameter("pids") %>"
             };
         </script>
