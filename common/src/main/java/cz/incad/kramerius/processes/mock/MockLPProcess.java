@@ -24,14 +24,15 @@ public class MockLPProcess {
         }
 		rootLogger.info("TESTICEK");
 		   
-		
+		//1MB space
+		long mb = 1l << 20;
 		// 1TB  space
 		long tb = 1l << 40;
 		// 1GB  space
 		long gb = 1l << 30;
 		long start =System.currentTimeMillis();
-		for (long i = 0; i < tb; i++) {
-			if ((i%100000000) == 0) {
+		for (long i = 0; i < mb; i++) {
+			if ((i%10000) == 0) {
 				//LOGGER.info("iterating "+i);
 				LOGGER.info("  diff = "+(System.currentTimeMillis()-start)+"ms and i ="+i);
 			}
