@@ -32,7 +32,5 @@ public class PDFModule extends AbstractModule {
 
 		bind(TextsService.class).to(TextsServiceImpl.class).in(Scopes.SINGLETON);
 		bind(ResourceBundleService.class).to(ResourceBundleServiceImpl.class).in(Scopes.SINGLETON);
-
 	}
-	
 }
