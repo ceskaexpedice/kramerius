@@ -63,8 +63,8 @@ public final class EditorConfiguration {
     }
 
     public String getThumbnailURL(String uuid) {
-//        return "http://localhost:8080/search/titlePage?uuid=" + uuid;
-        return getKrameriusURL() + "titlePage?uuid=" + uuid;
+        //return getKrameriusURL() + "titlePage?uuid=" + uuid;
+        return getKrameriusURL() + "img?uuid=" + uuid+"&stream=IMG_THUMB";//&action=SCALE&scaledHeight=96";
     }
 
     public Collection<String> getStartupPIDs() {
