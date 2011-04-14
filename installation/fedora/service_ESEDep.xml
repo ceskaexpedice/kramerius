@@ -13,13 +13,8 @@
           <rdf:Description rdf:about="info:fedora/service:ESEDep">
             <fedora-model:hasModel rdf:resource="info:fedora/fedora-system:ServiceDeployment-3.0"/>
             <fedora-model:isDeploymentOf rdf:resource="info:fedora/service:ESEDef"/>
-            <fedora-model:isContractorOf rdf:resource="info:fedora/model:internalpart"/>
             <fedora-model:isContractorOf rdf:resource="info:fedora/model:monograph"/>
-            <fedora-model:isContractorOf rdf:resource="info:fedora/model:monographunit"/>
-            <fedora-model:isContractorOf rdf:resource="info:fedora/model:page"/>
             <fedora-model:isContractorOf rdf:resource="info:fedora/model:periodical"/>
-            <fedora-model:isContractorOf rdf:resource="info:fedora/model:periodicalitem"/>
-            <fedora-model:isContractorOf rdf:resource="info:fedora/model:periodicalvolume"/>
           </rdf:Description>
         </rdf:RDF>
       </foxml:xmlContent>
