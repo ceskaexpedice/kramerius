@@ -328,8 +328,14 @@ public class LongRunningProcessServlet extends GuiceServlet {
                 if (state != null) {
                     States st = States.valueOf(state);
                     LRProcess longRunningProcess = processManager.getLongRunningProcess(uuid);
-                    longRunningProcess.setProcessState(st);
-                    processManager.updateLongRunningProcessState(longRunningProcess);
+
+                    if (st.equals(States.KILLED) && longRunningProcess.getProcessState().equals(States.RUNNING)) {
+                        longRunningProcess.setProcessState(st);
+                        processManager.updateLongRunningProcessState(longRunningProcess);
+                    } else if (!st.equals(States.KILLED)) {
+                        longRunningProcess.setProcessState(st);
+                        processManager.updateLongRunningProcessState(longRunningProcess);
+                    }
                 }
             }
         },
