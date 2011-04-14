@@ -340,6 +340,7 @@ public class RightsServlet extends GuiceServlet {
         if ((critParamId != null) && (!critParamId.equals("")) && (Integer.parseInt(critParamId) > 0)) {
             params = rightsManager.findParamById(Integer.parseInt(critParamId));
             params.setObjects(paramsHidden.split(";"));
+            params.setShortDescription(paramsShortHidden);
         } else {
             params = new RightCriteriumParamsImpl(-1);
             params.setObjects(paramsHidden.split(";"));
