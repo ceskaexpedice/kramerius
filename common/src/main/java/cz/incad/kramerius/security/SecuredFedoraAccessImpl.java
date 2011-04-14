@@ -219,10 +219,7 @@ public class SecuredFedoraAccessImpl implements FedoraAccess {
 
     @Override
     public boolean isFullthumbnailAvailable(String uuid) throws IOException {
-        if (this.isStreamAvailable(uuid, FedoraUtils.IMG_PREVIEW_STREAM)) return true;
-        String rootPath = KConfiguration.getInstance().getConfiguration().getString("fullThumbnail.cacheDirectory", "${sys:user.home}/.kramerius4/fullThumb");
-        File cachedFile = this.discStrucutreForStore.getUUIDFile(uuid, rootPath);
-        return cachedFile != null && cachedFile.exists();
+        return (this.isStreamAvailable(uuid, FedoraUtils.IMG_PREVIEW_STREAM));
     }
 
     @Override
