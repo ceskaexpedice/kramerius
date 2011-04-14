@@ -24,6 +24,7 @@ import cz.incad.kramerius.imaging.DiscStrucutreForStore;
 import cz.incad.kramerius.imaging.lp.guice.Fedora3Module;
 import cz.incad.kramerius.imaging.lp.guice.GenerateDeepZoomCacheModule;
 import cz.incad.kramerius.impl.AbstractTreeNodeProcessorAdapter;
+import cz.incad.kramerius.pdf.impl.OutputStreams;
 import cz.incad.kramerius.utils.FedoraUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 import cz.incad.kramerius.utils.imgs.KrameriusImageSupport;
@@ -116,21 +117,18 @@ public class GenerateThumbnail {
         if (!fedoraAccess.isFullthumbnailAvailable(uuid)) {
             BufferedImage scaled = scaleToFullThumb(uuid, fedoraAccess, tileSupport);
 
-            String rootPath = KConfiguration.getInstance().getConfiguration().getString("fullThumbnail.cacheDirectory", "${sys:user.home}/.kramerius4/fullThumb");
-            File cachedFile = discStruct.getUUIDFile(uuid, rootPath);
-
-            if (!cachedFile.exists()) {
-                boolean file = cachedFile.createNewFile();
-                if (!file) {
-                    throw new IOException("cannot creeate file " + cachedFile.getAbsolutePath());
-                }
-            }
-            FileOutputStream fos = new FileOutputStream(cachedFile);
+            File tmpFile = File.createTempFile("img_preview", ""+System.currentTimeMillis());
+            FileOutputStream fos = new FileOutputStream(tmpFile);
             try {
                 KrameriusImageSupport.writeImageToStream(scaled, "jpeg", fos);
+                // vytvori novy ds
+                fedoraAccess.getAPIM().addDatastream("uuid:"+uuid, FedoraUtils.IMG_PREVIEW_STREAM, null, null, false, "image/jpeg", null, 
+                        tmpFile.toURI().toString(), "M", "A", "MD5", null, "noLog");
+                
             } finally {
                 fos.close();
             }
+
         } else {
             LOGGER.info(" for '"+uuid+"' is not necessary generate full thumbnail");
         }
