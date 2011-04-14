@@ -30,6 +30,8 @@ import cz.incad.kramerius.processes.database.Fedora3ConnectionProvider;
 import cz.incad.kramerius.processes.database.Kramerius4ConnectionProvider;
 import cz.incad.kramerius.processes.impl.GCSchedulerImpl;
 import cz.incad.kramerius.processes.impl.ProcessSchedulerImpl;
+import cz.incad.kramerius.relation.RelationService;
+import cz.incad.kramerius.relation.impl.RelationServiceImpl;
 import cz.incad.kramerius.security.IsUserInRoleDecision;
 import cz.incad.kramerius.security.SecuredFedoraAccessImpl;
 import cz.incad.kramerius.service.DeleteService;
@@ -90,6 +92,7 @@ public class BaseModule extends AbstractModule {
 		bind(DeepZoomCacheService.class).to(FileSystemCacheServiceImpl.class).in(Scopes.SINGLETON);
 		bind(DiscStrucutreForStore.class).to(Fedora3StreamsDiscStructure.class);
 		//bind(CacheService.class).annotatedWith(Names.named("memoryCacheForward")).to(SimpleMemoryCacheServiceWrapper.class).in(Scopes.SINGLETON);
+                bind(RelationService.class).to(RelationServiceImpl.class).in(Scopes.SINGLETON);
 	}
 	
 

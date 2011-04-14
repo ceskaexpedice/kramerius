@@ -127,6 +127,12 @@
         <servlet-class>cz.incad.Kramerius.admins.AdministratorsActions</servlet-class>
     </servlet>
 
+    <!-- oaiServlet -->
+    <servlet>
+        <servlet-name>oaiServlet</servlet-name>
+        <servlet-class>cz.incad.Kramerius.oai.OaiServlet</servlet-class>
+    </servlet>
+
 	<!-- 
 		// Mapovani servletu
 	 -->
@@ -222,6 +228,11 @@
     <servlet-mapping>
         <servlet-name>adminActionsServlet</servlet-name>
         <url-pattern>/adminActions</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>oaiServlet</servlet-name>
+        <url-pattern>/oaiExport</url-pattern>
     </servlet-mapping>
 	
     <security-role>
