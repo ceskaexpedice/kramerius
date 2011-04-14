@@ -21,6 +21,7 @@ pageContext.setAttribute("lctx", lctx);
 
 String redirectURL =  URLDecoder.decode(request.getParameter("redirectURL")!=null ? request.getParameter("redirectURL") : "search.jsp"  ,"UTF-8");   
 pageContext.setAttribute("redirectURL", redirectURL);
+
 %>
 
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
@@ -33,11 +34,15 @@ pageContext.setAttribute("redirectURL", redirectURL);
         if (!busyDialog) {                
         	busyDialog = $("#busy_dialog").dialog({
                 bgiframe: true,
-                width: 300,
-                height: 120,
+                width: 400,
+                height: 150,
                 modal: true,
-                title: dictionary['pdf.serverBusy.label'],
-                buttons: {}
+                title: '',
+                buttons: {
+                     "Ok": function() {
+                         window.location.href = '${redirectURL}';
+                      }
+                }
             });
         } else {
         	busyDialog("open");
@@ -50,9 +55,9 @@ pageContext.setAttribute("redirectURL", redirectURL);
      });
     </script>
     <div id="busy_dialog" style="display: none;">
-        <h3><fmt:message bundle="${lctx}">pdf.serverBusy.label</fmt:message></h3>
+        <h3><fmt:message bundle="${lctx}">pdf.serverBusy.label</fmt:message></h3>    
         <div>
-            <span><fmt:message bundle="${lctx}">pdf.serverBusy.text</fmt:message> &nbsp;<a href="${redirectURL}"><fmt:message bundle="${lctx}">pdf.serverBusy.link</fmt:message></a> </span>
+            <span><fmt:message bundle="${lctx}">pdf.serverBusy.text</fmt:message></span>
         </div>
     </div>
 </body>
