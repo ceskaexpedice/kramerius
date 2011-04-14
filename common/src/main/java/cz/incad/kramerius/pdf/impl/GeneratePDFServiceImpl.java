@@ -75,6 +75,7 @@ import cz.incad.kramerius.pdf.pdfpages.TextPage;
 import cz.incad.kramerius.pdf.utils.TitlesUtils;
 import cz.incad.kramerius.service.ResourceBundleService;
 import cz.incad.kramerius.service.TextsService;
+import cz.incad.kramerius.utils.BiblioModsUtils;
 import cz.incad.kramerius.utils.DCUtils;
 import cz.incad.kramerius.utils.IOUtils;
 import cz.incad.kramerius.utils.XMLUtils;
@@ -552,11 +553,11 @@ public class GeneratePDFServiceImpl implements GeneratePDFService {
 			page = new TextPage(modelName, objectId);
 			page.setOutlineDestination(objectId);
 			String title = DCUtils.titleFromDC(dc);
-//			if ((title == null) || title.equals("")) {
-//			    throw new 
+			if ((title == null) || title.equals("")) {
+			    title = BiblioModsUtils.titleFromBiblioMods(biblioMods);
 //			    title = BiblioModsUtils.getTitle(biblioMods, fedoraAccess.getKrameriusModelName(objectId));
-//			}
-			if (title.trim().equals("")) throw new IllegalArgumentException(objectId+" has no title ");
+			}
+			//if (title.trim().equals("")) throw new IllegalArgumentException(objectId+" has no title ");
 			page.setOutlineTitle(title);
 		}
 		return page;
