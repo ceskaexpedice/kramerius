@@ -127,6 +127,7 @@ public class GenerateThumbnail {
                 
             } finally {
                 fos.close();
+                tmpFile.delete();
             }
 
         } else {
