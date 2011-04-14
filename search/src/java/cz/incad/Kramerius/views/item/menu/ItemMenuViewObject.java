@@ -2,7 +2,6 @@ package cz.incad.Kramerius.views.item.menu;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 import java.util.ResourceBundle;
@@ -13,13 +12,10 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.antlr.stringtemplate.StringTemplate;
 
-
 import cz.incad.Kramerius.FullImageServlet;
 import cz.incad.Kramerius.I18NServlet;
 import cz.incad.Kramerius.views.item.ItemViewObject;
 import cz.incad.kramerius.FedoraAccess;
-import cz.incad.kramerius.KrameriusModels;
-import cz.incad.kramerius.security.IsUserInRoleDecision;
 import cz.incad.kramerius.security.SecuredActions;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 import cz.incad.kramerius.utils.imgs.ImageMimeType;
@@ -100,7 +96,8 @@ public class ItemMenuViewObject {
     private String exportCD_PDF() {
         StringTemplate template = new StringTemplate("<div align=\"left\"><a title='$tooltip$' "
                 + "href=\"javascript:generateStatic($level$,'static_export_CD','$imgServlet$','$i18nServlet$','$iso3Country$','$iso3Language$');\">$title$</a> <div style=\"display:none\">$role$</div></div>");
-        String imgServlet = FullImageServlet.fullImageServlet(this.httpServletRequest);
+        String imgServlet = cz.incad.kramerius.utils.ApplicationURL.urlOfPath(this.httpServletRequest, "img");
+
         String i18nServlet = I18NServlet.i18nServlet(this.httpServletRequest);
         template.setAttribute("level", (index + 1));
         template.setAttribute("tooltip", this.resourceBundle.getString("administrator.menu.exportcd"));
