@@ -105,8 +105,8 @@ public class OaiServlet extends GuiceServlet {
     @Override
     public void init() throws ServletException {
         super.init();
-        outFactory = XMLOutputFactory.newFactory();
-        eventFactory = XMLEventFactory.newFactory();
+        outFactory = XMLOutputFactory.newInstance();
+        eventFactory = XMLEventFactory.newInstance();
         inFactory = XMLInputFactory.newInstance();
     }
 
