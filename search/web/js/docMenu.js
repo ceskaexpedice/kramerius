@@ -53,7 +53,7 @@ function showRelsList(tab, m){
     if($(tab + ">div>div[id=info-"+m+"]").text()==""){
         $(tab + ">div>div[id=info-"+m+"]").html($(tab+">div>div[id=list-"+m+"]>div.selected").text());
     }
-    var h = $(window).height() - $(tab).offset().top - $(tab).height();
+    var h = $(window).height() - $(tab).offset().top - $(tab+">ul").height() - 10;
     $(tab + ">div>div[id=list-"+m+"]").css('max-height', h);
     $(tab + ">div>div[id=list-"+m+"]").css('_height', 'expression(this.scrollHeight > '+h+'? "'+h+'px" : "auto" )');
     var w = $(tab + ">div>div[id=list-"+m+"]").parent().width() - 4;
