@@ -319,7 +319,7 @@ public class GeneratePDFServiceImpl implements GeneratePDFService {
 		String modelName = this.fedoraAccess.getKrameriusModelName(relsExt);
 		
 		final AbstractRenderedDocument renderedDocument = new RenderedDocument(modelName, parentUUID);
-        renderedDocument.setDocumentTitle(TitlesUtils.title(parentUUID, this.solrAccess, this.fedoraAccess));
+        renderedDocument.setDocumentTitle(TitlesUtils.title(parentUUID, this.solrAccess, this.fedoraAccess, false));
 
 		renderedDocument.setUuidMainTitle(parentUUID);
 		

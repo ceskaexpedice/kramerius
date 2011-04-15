@@ -29,6 +29,11 @@ import cz.incad.kramerius.SolrAccess;
 public class TitlesUtils {
 
     public static String title(String uuid, SolrAccess solrAccess, FedoraAccess fa) throws IOException {
+        return title(uuid, solrAccess, fa, true);
+    }
+        
+    
+    public static String title(String uuid, SolrAccess solrAccess, FedoraAccess fa, boolean renderModel) throws IOException {
         String[] pathOfUUIDs = solrAccess.getPathOfUUIDs(uuid);
         Map<String, String> mapModels = TitlesMapUtils.mapModels(fa, pathOfUUIDs);
         Map<String, String> mapTitlesToUUID = TitlesMapUtils.mapTitlesToUUID(fa, pathOfUUIDs);
@@ -40,7 +45,7 @@ public class TitlesUtils {
                 title = "...";
             }
             if (i == pathOfUUIDs.length -1) {
-                title = title + " ("+mapModels.get(u)+")";
+                title = title + (renderModel ? " ("+mapModels.get(u)+")":"");
             }
             titles.add(title);
         }
