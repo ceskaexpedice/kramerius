@@ -430,6 +430,7 @@ public class GeneratePDFServiceImpl implements GeneratePDFService {
             private OutlineItem currOutline = null;
             @Override
             public void processUuid(String pageUuid, int level) {
+                
                 try {
                     AbstractPage page = createPage(renderedDocument, pageUuid);
                     renderedDocument.addPage(page);
@@ -454,7 +455,12 @@ public class GeneratePDFServiceImpl implements GeneratePDFService {
 
                     } else if (previousLevel > level) {
                         // nahoru // za poslednim smerem nahoru
-                        this.currOutline = this.currOutline.getParent();
+                        //this.currOutline = this.currOutline.getParent();
+                        int diff = previousLevel - level;
+                        for (int i = 0; i < diff; i++) {
+                            this.currOutline = this.currOutline.getParent();
+                        }
+                            
                         
                         StringBuffer buffer = new StringBuffer();
                         this.currOutline.debugInformations(buffer, 0);
@@ -552,13 +558,13 @@ public class GeneratePDFServiceImpl implements GeneratePDFService {
 		} else {
 			page = new TextPage(modelName, objectId);
 			page.setOutlineDestination(objectId);
-			String title = DCUtils.titleFromDC(dc);
-			if ((title == null) || title.equals("")) {
-			    title = BiblioModsUtils.titleFromBiblioMods(biblioMods);
+//			String title = DCUtils.titleFromDC(dc);
+//			if ((title == null) || title.equals("")) {
+//			    title = BiblioModsUtils.titleFromBiblioMods(biblioMods);
 //			    title = BiblioModsUtils.getTitle(biblioMods, fedoraAccess.getKrameriusModelName(objectId));
-			}
+//			}
 			//if (title.trim().equals("")) throw new IllegalArgumentException(objectId+" has no title ");
-			page.setOutlineTitle(title);
+			page.setOutlineTitle(TitlesUtils.title(objectId, solrAccess, fedoraAccess));
 		}
 		return page;
 	}
