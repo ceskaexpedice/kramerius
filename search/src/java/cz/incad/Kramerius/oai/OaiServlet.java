@@ -28,16 +28,9 @@ import cz.incad.kramerius.relation.RelationService;
 import cz.incad.kramerius.utils.pid.LexerException;
 import cz.incad.kramerius.utils.pid.PIDParser;
 import cz.incad.utils.IKeys;
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
-import java.io.Reader;
-import java.io.Writer;
+import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.EnumSet;
@@ -48,15 +41,10 @@ import java.util.logging.Logger;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.xml.namespace.QName;
 import javax.xml.stream.EventFilter;
 import javax.xml.stream.XMLEventFactory;
-import javax.xml.stream.XMLEventReader;
-import javax.xml.stream.XMLEventWriter;
 import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLOutputFactory;
-import javax.xml.stream.XMLStreamException;
-import javax.xml.stream.events.Namespace;
 import javax.xml.stream.events.XMLEvent;
 
 /**
@@ -75,15 +63,13 @@ import javax.xml.stream.events.XMLEvent;
  */
 public class OaiServlet extends GuiceServlet {
 
-    private static final Logger LOG = Logger.getLogger(OaiServlet.class.getName());
-    private static final EventFilter EXCLUDE_DOCUMENT_FILTER = new ExcludeDocumentFilter();
+    private enum Format {
+        /*drkramerius, */drkramerius4
+    }
 
-    private static final String DR_NAMESPACE_URI = "http://registrdigitalizace.cz/schemas/drkramerius/v1";
-    private static final String DR_NAMESPACE = "dr";
-    private static final QName RECORD_QNAME = new QName(DR_NAMESPACE_URI, "record", DR_NAMESPACE);
-    private static final QName UUID_QNAME = new QName(DR_NAMESPACE_URI, "uuid", DR_NAMESPACE);
-    private static final QName TYPE_QNAME = new QName(DR_NAMESPACE_URI, "type", DR_NAMESPACE);
-    private static final QName DESCRIPTOR_QNAME = new QName(DR_NAMESPACE_URI, "descriptor", DR_NAMESPACE);
+    private static final Logger LOG = Logger.getLogger(OaiServlet.class.getName());
+    static final EventFilter EXCLUDE_DOCUMENT_FILTER = new ExcludeDocumentFilter();
+    private static final String FORMAT_PARAMETER = "format";
 
     // XXX make configurable
     private static Set<KrameriusModels> TOP_LEVEL_RELATIONS = EnumSet.of(
@@ -113,39 +99,65 @@ public class OaiServlet extends GuiceServlet {
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         String pid = req.getParameter(IKeys.PID_PARAMETER);
-        if (pid == null || pid.length() == 0) {
+        Format format = resolveFormatParameter(req);
+        if (pid == null || pid.length() == 0 || format == null) {
             resp.sendError(HttpServletResponse.SC_BAD_REQUEST);
             return;
         }
 
-        File tempFile = null;
+        OaiWriter oaiWriter = resolveWriter(format, pid);
         try {
-            tempFile = File.createTempFile("oaiexp", null);
-            tempFile.deleteOnExit();
-            writeResponse(tempFile, pid);
-            LOG.fine(String.format("pid: %s, length; %s, %s", pid, tempFile.length(), tempFile.toURI()));
-            sendResponse(tempFile, resp);
+            sendResponse(oaiWriter, resp);
         } catch (IOException ex) {
             LOG.log(Level.SEVERE, pid, ex);
             if (!resp.isCommitted()) {
+                resp.reset();
                 resp.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
             }
         } finally {
-            if (tempFile != null) {
-                tempFile.delete();
-            }
+            oaiWriter.close();
         }
 
     }
 
-    private void sendResponse(File tempFile, HttpServletResponse resp) throws IOException {
-        Reader fileReader = new InputStreamReader(new FileInputStream(tempFile), "UTF-8");
-        resp.setContentType("text/xml");
-        resp.setContentLength((int) tempFile.length());
-        resp.setCharacterEncoding("UTF-8");
-        Writer responseWriter = resp.getWriter();
+    private static Format resolveFormatParameter(HttpServletRequest req) {
+        String formatVal = req.getParameter(FORMAT_PARAMETER);
+        Format format = Format.drkramerius4;
+        if (formatVal != null) {
+            try {
+                format = Format.valueOf(formatVal);
+            } catch (Exception e) {
+                format = null;
+            }
+        }
+        return format;
+    }
 
-        char[] buffer = new char[2048];
+    private OaiWriter resolveWriter(Format format, String pid) {
+        OaiWriter writer;
+        switch (format) {
+//            case drkramerius:
+//                writer = new DrKrameriusV1Writer(pid, outFactory, eventFactory,
+//                        inFactory, relService, fedora, TOP_LEVEL_RELATIONS);
+//                break;
+            case drkramerius4:
+                writer = new DrKrameriusV4Writer(pid, outFactory, eventFactory,
+                        inFactory, relService, fedora, TOP_LEVEL_RELATIONS);
+                break;
+            default:
+                throw new IllegalStateException("unknown format: " + format);
+        }
+        return writer;
+    }
+
+    private void sendResponse(OaiWriter oaiWriter, HttpServletResponse resp) throws IOException {
+        InputStream fileReader = oaiWriter.getContent();
+        resp.setContentType("text/xml");
+        resp.setContentLength((int) oaiWriter.getContentLength());
+        resp.setCharacterEncoding("UTF-8");
+        OutputStream responseWriter = resp.getOutputStream();
+
+        byte[] buffer = new byte[2048];
         try {
             int length;
             while ((length = fileReader.read(buffer)) > 0) {
@@ -165,119 +177,8 @@ public class OaiServlet extends GuiceServlet {
             }
         }
     }
-    private void writeResponse(File tempFile, String pid) throws IOException {
-        RelationModel model = relService.load(pid);
-        Writer writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(tempFile), "UTF-8"));
-        try {
-            XMLEventWriter xmlWriter = outFactory.createXMLEventWriter(writer);
-            if (TOP_LEVEL_RELATIONS.contains(model.getKind())) {
-                generate(new Context(pid, model, xmlWriter));
-            } else {
-                generateEmpty(xmlWriter);
-            }
-            writer.flush();
-        } catch (XMLStreamException ex) {
-            throw new IOException(ex);
-        } finally {
-            writer.close();
-        }
-    }
     
-    private static class Context {
-        private RelationModel model;
-        private String uuid;
-        private String pid;
-        private XMLEventWriter writer;
-
-        public Context(String pid, RelationModel model, XMLEventWriter writer) {
-            this.model = model;
-            this.pid = pid;
-            this.uuid = resolveUuid(pid);
-            this.writer = writer;
-        }
-
-        public String getUuid() {
-            return uuid;
-        }
-
-        public String getPid() {
-            return pid;
-        }
-
-        public RelationModel getModel() {
-            return model;
-        }
-
-        public XMLEventWriter getWriter() {
-            return writer;
-        }
-
-    }
-
-    private void generateBiblio(Context ctx) throws XMLStreamException, IOException {
-        XMLEventWriter writer = ctx.getWriter();
-        XMLEventReader reader = inFactory.createXMLEventReader(getBiblioStream(ctx.getPid()));
-        reader = inFactory.createFilteredReader(reader, EXCLUDE_DOCUMENT_FILTER);
-        writer.add(reader);
-    }
-
-    private void generateRecord(Context ctx, boolean topLevel) throws XMLStreamException, IOException {
-        XMLEventWriter writer = ctx.getWriter();
-        if (topLevel) {
-            List<Namespace> namespaces = new ArrayList<Namespace>();
-            namespaces.add(eventFactory.createNamespace(DR_NAMESPACE, DR_NAMESPACE_URI));
-            writer.add(eventFactory.createStartElement(RECORD_QNAME, namespaces.iterator(), null));
-        } else {
-            writer.add(eventFactory.createStartElement(RECORD_QNAME, null, null));
-        }
-
-        // <uuid>
-        writer.add(eventFactory.createStartElement(UUID_QNAME, null, null));
-        writer.add(eventFactory.createCharacters(ctx.getUuid()));
-        writer.add(eventFactory.createEndElement(UUID_QNAME, null));
-
-        // <type>
-        writer.add(eventFactory.createStartElement(TYPE_QNAME, null, null));
-        writer.add(eventFactory.createCharacters(ctx.getModel().getKind().toString()));
-        writer.add(eventFactory.createEndElement(TYPE_QNAME, null));
-
-        // <descriptor>
-        writer.add(eventFactory.createStartElement(DESCRIPTOR_QNAME, null, null));
-        generateBiblio(ctx);
-        writer.add(eventFactory.createEndElement(DESCRIPTOR_QNAME, null));
-
-        // <record>*
-        List<Relation> relations = getRelations(ctx.getModel());
-        for (Relation relation : relations) {
-            RelationModel relModel = relService.load(relation.getPID());
-            generateRecord(new Context(relation.getPID(), relModel, ctx.getWriter()), false);
-        }
-
-        writer.add(eventFactory.createEndElement(RECORD_QNAME, null));
-    }
-
-    private void generate(Context ctx) throws XMLStreamException, IOException {
-        XMLEventWriter writer = ctx.getWriter();
-        writer.add(eventFactory.createStartDocument());
-        generateRecord(ctx, true);
-        writer.add(eventFactory.createEndDocument());
-    }
-
-    private void generateEmpty(XMLEventWriter writer) throws XMLStreamException {
-        writer.add(eventFactory.createStartDocument());
-        List<Namespace> namespaces = new ArrayList<Namespace>();
-        namespaces.add(eventFactory.createNamespace(DR_NAMESPACE, DR_NAMESPACE_URI));
-        writer.add(eventFactory.createStartElement(RECORD_QNAME, namespaces.iterator(), null));
-        writer.add(eventFactory.createEndElement(RECORD_QNAME, null));
-        writer.add(eventFactory.createEndDocument());
-    }
-
-    private InputStream getBiblioStream(String pid) throws IOException {
-        InputStream dataStream = fedora.getDataStream(pid, "BIBLIO_MODS");
-        return dataStream;
-    }
-    
-    private static String resolveUuid(String pid) {
+    static String resolveUuid(String pid) {
         try {
             PIDParser parser = new PIDParser(pid);
             parser.objectPid();
@@ -291,7 +192,7 @@ public class OaiServlet extends GuiceServlet {
         }
     }
 
-    private List<Relation> getRelations(RelationModel model) throws IOException {
+    static List<Relation> getRelations(RelationModel model) throws IOException {
         Set<KrameriusModels> relKinds = model.getRelationKinds();
         if (relKinds.isEmpty()) {
             return Collections.emptyList();
@@ -306,7 +207,7 @@ public class OaiServlet extends GuiceServlet {
         return result;
     }
 
-    private static class ExcludeDocumentFilter implements EventFilter {
+    private static final class ExcludeDocumentFilter implements EventFilter {
 
         @Override
         public boolean accept(XMLEvent event) {

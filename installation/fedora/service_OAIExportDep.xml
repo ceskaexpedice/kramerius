@@ -14,7 +14,10 @@
             <fedora-model:hasModel rdf:resource="info:fedora/fedora-system:ServiceDeployment-3.0"/>
             <fedora-model:isDeploymentOf rdf:resource="info:fedora/service:OAIExportDef"/>
             <fedora-model:isContractorOf rdf:resource="info:fedora/model:monograph"/>
+            <fedora-model:isContractorOf rdf:resource="info:fedora/model:monographunit"/>
             <fedora-model:isContractorOf rdf:resource="info:fedora/model:periodical"/>
+            <fedora-model:isContractorOf rdf:resource="info:fedora/model:periodicalitem"/>
+            <fedora-model:isContractorOf rdf:resource="info:fedora/model:periodicalvolume"/>
           </rdf:Description>
         </rdf:RDF>
       </foxml:xmlContent>
@@ -31,7 +34,7 @@
                 wsdlMsgOutput="response">
             
             <fmm:DefaultInputParm parmName="PID" defaultValue="$pid" passBy="VALUE" required="true"/>
-            <fmm:DefaultInputParm parmName="FORMAT" defaultValue="drkramerius" passBy="VALUE" required="true"/>
+            <fmm:DefaultInputParm parmName="FORMAT" defaultValue="drkramerius4" passBy="VALUE" required="true"/>
             <fmm:MethodReturnType wsdlMsgName="response" wsdlMsgTOMIME="text/xml"/>
           </fmm:Method>
         </fmm:MethodMap>
