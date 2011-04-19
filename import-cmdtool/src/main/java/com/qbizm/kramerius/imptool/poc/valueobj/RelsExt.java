@@ -55,7 +55,7 @@ public class RelsExt {
         super();
         this.pid = pid;
         this.addRelation(HAS_MODEL, model, false);
-        
+        this.addRelation(ITEM_ID,pid,true);
     }
 
     public void addRelation(String key, String id, boolean literal) {
