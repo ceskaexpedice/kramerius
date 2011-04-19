@@ -144,7 +144,7 @@ public class ItemViewObject {
             }
             // find everything
             final FindRestUUIDs fru = new FindRestUUIDs(this.fedoraAccess, lastUuid);
-            fedoraAccess.processSubtree("pid:"+lastUuid, fru);
+            fedoraAccess.processSubtree("uuid:"+lastUuid, fru);
 
             
             List<String> uuidsPathList = new ArrayList<String>(){{
@@ -212,6 +212,9 @@ public class ItemViewObject {
         private String rootUUID;
         private FedoraAccess fedoraAccess;
         
+        private int previousLevel = 0;
+        private boolean found = false;
+        
         public FindRestUUIDs(FedoraAccess fedoraAccess,String rootUUID) {
             super();
             this.rootUUID = rootUUID;
@@ -222,10 +225,19 @@ public class ItemViewObject {
         @Override
         public void processUuid(String pageUuid, int level) throws ProcessSubtreeException {
             try {
-                if (!pageUuid.equals(rootUUID)) {
-                    pathFromRoot.add(pageUuid);
-                    modelsFromRoot.add(fedoraAccess.getKrameriusModelName(pageUuid));
+                // dolu
+                if (previousLevel < level) {
+                    if (!pageUuid.equals(rootUUID)) {
+                        found = true;
+                        pathFromRoot.add(pageUuid);
+                        modelsFromRoot.add(fedoraAccess.getKrameriusModelName(pageUuid));
+                    }
+                //nahoru 
+                } else if (previousLevel > level) {
+                    pathFromRoot.remove(pathFromRoot.size()-1);
+                    modelsFromRoot.remove(modelsFromRoot.size()-1);
                 }
+                previousLevel = level;
             } catch (IOException e) {
                 throw new ProcessSubtreeException(e);
             } 
