@@ -649,8 +649,8 @@ public class FedoraAccessImpl implements FedoraAccess {
             if (node.getNodeType() == Node.ELEMENT_NODE) {
                 Element iteratingElm = (Element) node;
                 String namespaceURI = iteratingElm.getNamespaceURI();
-                if ((namespaceURI.equals(FedoraNamespaces.ONTOLOGY_RELATIONSHIP_NAMESPACE_URI))  || 
-                    (namespaceURI.equals(FedoraNamespaces.RDF_NAMESPACE_URI))) {
+                if (namespaceURI != null && (namespaceURI.equals(FedoraNamespaces.ONTOLOGY_RELATIONSHIP_NAMESPACE_URI)  || 
+                    namespaceURI.equals(FedoraNamespaces.RDF_NAMESPACE_URI))) {
                     String attVal = iteratingElm.getAttributeNS(FedoraNamespaces.RDF_NAMESPACE_URI, "resource");
                     if (!attVal.trim().equals("")) {
                         PIDParser pidParser = new PIDParser(attVal);
