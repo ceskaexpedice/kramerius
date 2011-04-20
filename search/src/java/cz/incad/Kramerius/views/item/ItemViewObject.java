@@ -95,9 +95,6 @@ public class ItemViewObject {
     
     public String getImagePid() {
         return getLastUUID();
-//		List<String> pids = getPids();
-//		String imagePid = pids.get(pids.size()-1);
-//        return imagePid;
     }
 
     public String getFirstUUID() {
@@ -131,6 +128,7 @@ public class ItemViewObject {
     }
 
     public List<String> getPids() {
+        LOGGER.fine("uuid path is  "+this.uuidPath);
         return uuidPath;
     }
 
@@ -213,7 +211,7 @@ public class ItemViewObject {
         private FedoraAccess fedoraAccess;
         
         private int previousLevel = 0;
-        private boolean found = false;
+        private boolean broken = false;
         
         public FindRestUUIDs(FedoraAccess fedoraAccess,String rootUUID) {
             super();
@@ -228,14 +226,15 @@ public class ItemViewObject {
                 // dolu
                 if (previousLevel < level) {
                     if (!pageUuid.equals(rootUUID)) {
-                        found = true;
                         pathFromRoot.add(pageUuid);
                         modelsFromRoot.add(fedoraAccess.getKrameriusModelName(pageUuid));
                     }
                 //nahoru 
                 } else if (previousLevel > level) {
-                    pathFromRoot.remove(pathFromRoot.size()-1);
-                    modelsFromRoot.remove(modelsFromRoot.size()-1);
+                    broken = true;
+                // stejny level ale ne ten prvni
+                } else if ((previousLevel == level) && (previousLevel != 0)){
+                    broken = true;
                 }
                 previousLevel = level;
             } catch (IOException e) {
@@ -246,11 +245,13 @@ public class ItemViewObject {
 
         
         public List<String> getPathFromRoot() {
+            LOGGER.fine("Path from root :"+this.pathFromRoot);
             return pathFromRoot;
         }
 
 
         public List<String> getModelsFromRoot() {
+            LOGGER.fine("Models from root :"+this.pathFromRoot);
             return modelsFromRoot;
         }
 
@@ -258,8 +259,10 @@ public class ItemViewObject {
         @Override
         public boolean breakProcessing(String pid, int level) {
             try {
-                String uuid = ensureUUID(pid);
-                return fedoraAccess.isStreamAvailable(uuid, FedoraUtils.IMG_FULL_STREAM);
+                if (!broken) {
+                    String uuid = ensureUUID(pid);
+                    return fedoraAccess.isStreamAvailable(uuid, FedoraUtils.IMG_FULL_STREAM);
+                } else return true;
             } catch (LexerException e) {
                 throw new RuntimeException(e);
             } catch (IOException e) {
