@@ -243,14 +243,22 @@ public class FedoraAccessImpl implements FedoraAccess {
             processSubtree(PIDParser.UUID_PREFIX+uuid, new AbstractTreeNodeProcessorAdapter() {
                 
                 boolean breakProcess = false;
+                int previousLevel = 0;
                 
                 @Override
                 public void processUuid(String pageUuid, int level) throws ProcessSubtreeException {
                     try {
-                        if(FedoraAccessImpl.this.isImageFULLAvailable(pageUuid)) {
-                            foundUuids.add(pageUuid);
+                        if (previousLevel < level) {
+                            if(FedoraAccessImpl.this.isImageFULLAvailable(pageUuid)) {
+                                foundUuids.add(pageUuid);
+                                breakProcess = true;
+                            }
+                        } else if (previousLevel > level) {
+                            breakProcess = true;
+                        } else if ((previousLevel == level) && (level != 0)) {
                             breakProcess = true;
                         }
+                        previousLevel = level;
                     } catch (IOException e) {
                         throw new ProcessSubtreeException(e);
                     }
