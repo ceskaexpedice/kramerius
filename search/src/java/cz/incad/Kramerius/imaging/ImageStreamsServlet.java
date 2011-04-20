@@ -104,25 +104,29 @@ public class ImageStreamsServlet extends AbstractImageServlet {
         if (uuid != null && stream != null) {
             // TODO: Change it !!
             uuid = fedoraAccess.findFirstViewablePid(uuid);
-            Actions actionToDo = Actions.TRANSCODE;
-            String actionNameParam = req.getParameter(ACTION_NAME);
-            if (actionNameParam != null) {
-                actionToDo = Actions.valueOf(actionNameParam);
-            }
-            try {
-                actionToDo.doPerform(this, this.fedoraAccess, uuid, stream, page, req, resp);
-            } catch (FileNotFoundException e1) {
-                LOGGER.log(Level.SEVERE, e1.getMessage(), e1);
-                resp.setStatus(HttpServletResponse.SC_NOT_FOUND);
-            } catch (IOException e1) {
-                LOGGER.log(Level.SEVERE, e1.getMessage(), e1);
-                resp.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-            } catch (SecurityException e1) {
-                LOGGER.log(Level.SEVERE, e1.getMessage(), e1);
-                resp.setStatus(HttpServletResponse.SC_FORBIDDEN);
-            } catch (XPathExpressionException e1) {
-                LOGGER.log(Level.SEVERE, e1.getMessage(), e1);
-                resp.setStatus(HttpServletResponse.SC_EXPECTATION_FAILED);
+            if (uuid != null) {
+                Actions actionToDo = Actions.TRANSCODE;
+                String actionNameParam = req.getParameter(ACTION_NAME);
+                if (actionNameParam != null) {
+                    actionToDo = Actions.valueOf(actionNameParam);
+                }
+                try {
+                    actionToDo.doPerform(this, this.fedoraAccess, uuid, stream, page, req, resp);
+                } catch (FileNotFoundException e1) {
+                    LOGGER.log(Level.SEVERE, e1.getMessage(), e1);
+                    resp.setStatus(HttpServletResponse.SC_NOT_FOUND);
+                } catch (IOException e1) {
+                    LOGGER.log(Level.SEVERE, e1.getMessage(), e1);
+                    resp.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+                } catch (SecurityException e1) {
+                    LOGGER.log(Level.SEVERE, e1.getMessage(), e1);
+                    resp.setStatus(HttpServletResponse.SC_FORBIDDEN);
+                } catch (XPathExpressionException e1) {
+                    LOGGER.log(Level.SEVERE, e1.getMessage(), e1);
+                    resp.setStatus(HttpServletResponse.SC_EXPECTATION_FAILED);
+                }
+            } else {
+                resp.sendError(HttpServletResponse.SC_NOT_FOUND);
             }
             
             
