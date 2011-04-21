@@ -128,14 +128,18 @@ function getViewInfo(uuid, f){
                 viewerOptions.uuid = uuid;
                 viewerOptions.status=req.status;
             	  
-                if (viewerOptions.rights["read"][uuid]) {
+                if ((viewerOptions.rights["read"][uuid]) && (viewerOptions.imgfull)) {
                     securedContent = false;
                     currentMime = req.responseText;
                     f(viewerOptions);
+                } else if (!viewerOptions.imgfull) {
+                    currentMime = "unknown";
+                    securedContent = false;
+                    displayImageContainer("#noImageError");
                 } else {
                     currentMime = "unknown";
                     securedContent = true;
-                    displaySecuredContent();
+                    displayImageContainer("#securityError");
                 }
             	  
                   

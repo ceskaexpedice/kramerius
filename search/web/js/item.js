@@ -592,7 +592,10 @@ var imageInitialized = false;
 function showImage(viewerOptions) {
 	// different view for pdf	
 	if (viewerOptions.isContentPDF()) {
-		displayPDFImageContent(viewerOptions.uuid);
+		displayImageContainer("#pdfImage");
+		// ?? neco nefunguje ? 
+		$("#pdfImageImg").attr("src", "fullThumb?uuid="+uuid);
+		
 	} else {
 	
             var tilesPrepared = viewerOptions.deepZoomGenerated || viewerOptions.imageServerConfigured;
@@ -601,10 +604,11 @@ function showImage(viewerOptions) {
 		    if (viewer == null) {
 		        init();
 		    }
-	            displaySeadragonContent();                  
+	    		displayImageContainer("#container");
 	            viewer.openDzi("deepZoom/"+viewerOptions.uuid+"/");
 	    } else {
-	            displayImageContent();
+	            displayImageContainer("#plainImage");
+	            
 	            $("#plainImageImg").fadeOut("slow", function () {
 	                // http://code.google.com/p/kramerius/issues/detail?id=43
 	    			$("#plainImageImg").attr('src','img/empty.gif');
@@ -668,13 +672,44 @@ function positionAlto(img){
     $("#alto").css('top', t);
 }
 
+function displayImageContainer(contentToShow) {
+	$.each([
+        "#loadingDeepZoomImage", 
+        "#plainImage",
+	 	"#pdfImage",
+	 	"#container",
+	 	"#noImageError",
+	 	"#securityError"],
+	 	
+	 	function(index,item) {
+			if (item==contentToShow) {
+				$(item).show();
+			} else {
+				$(item).hide();
+			}
+		}
+	);
+}
+/*
 function displaySecuredContent() {
 	$("#loadingDeepZoomImage").hide();
 	$("#plainImage").hide();
 	$("#pdfImage").hide();
 	$("#container").hide();
+	$("#noImageError").hide();
 
 	$("#securityError").show();
+}
+
+function displayImageErrorContent() {
+	$("#loadingDeepZoomImage").hide();
+	$("#plainImage").hide();
+	$("#pdfImage").hide();
+	$("#container").hide();
+	$("#securityError").hide();
+
+	$("#noImageError").show();
+	
 }
 
 function displayImageContent() {
@@ -682,7 +717,7 @@ function displayImageContent() {
 	$("#pdfImage").hide();
 	$("#container").hide();
 	$("#securityError").hide();
-
+	$("#noImageError").hide();
 
 	$("#plainImage").show();
 }
@@ -692,6 +727,7 @@ function displaySeadragonContent() {
 	$("#pdfImage").hide();
 	$("#plainImage").hide();
 	$("#loadingDeepZoomImage").hide();
+	$("#noImageError").hide();
 
 	$("#container").show();
 }
@@ -700,6 +736,7 @@ function displayLoadingImageContent() {
 	$("#pdfImage").hide();
 	$("#plainImage").hide();
 	$("#container").hide();
+	$("#noImageError").hide();
 
 	$("#loadingDeepZoomImage").show();
 }
@@ -709,10 +746,14 @@ function displayPDFImageContent(uuid) {
 	$("#plainImage").hide();
 	$("#container").hide();
 	$("#loadingDeepZoomImage").hide();
-        $("#pdfImageImg").attr("src", "fullThumb?uuid="+uuid);
-	$("#pdfImage").show();
+<<<<<<< .mine
+	$("#noImageError").hide();
 
-}
+=======
+        $("#pdfImageImg").attr("src", "fullThumb?uuid="+uuid);
+>>>>>>> .r2344
+	$("#pdfImage").show();
+}*/
 
 function showBornDigitalPDF(uuid,page) {
 	if  (!page) {
