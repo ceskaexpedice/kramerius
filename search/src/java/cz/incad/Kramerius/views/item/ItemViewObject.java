@@ -224,7 +224,7 @@ public class ItemViewObject {
         public void processUuid(String pageUuid, int level) throws ProcessSubtreeException {
             try {
                 // dolu
-                if (previousLevel < level) {
+                if (previousLevel < level || level == 0) {
                     if (!pageUuid.equals(rootUUID)) {
                         pathFromRoot.add(pageUuid);
                         modelsFromRoot.add(fedoraAccess.getKrameriusModelName(pageUuid));
