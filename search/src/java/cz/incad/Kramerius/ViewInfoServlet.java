@@ -83,17 +83,20 @@ public class ViewInfoServlet extends GuiceServlet {
             String[] pathOfUUIDs = this.solrAccess.getPathOfUUIDs(uuid);
             
             User user = currentLoggedUserProvider.get();
-
             if ((uuid != null) && (!uuid.equals(""))) {
                 boolean imgfullAvailable = this.fedoraAccess.isImageFULLAvailable(uuid);
+                
+                
                 String mimeType = imgfullAvailable ? this.fedoraAccess.getImageFULLMimeType(uuid) : "";
-                boolean generated = resolutionFilePresent(uuid);
-                boolean conf = deepZoomConfigurationEnabled(uuid);
+                boolean generated = imgfullAvailable ? resolutionFilePresent(uuid) : false;
+                boolean conf = imgfullAvailable ? deepZoomConfigurationEnabled(uuid) : false;
                 boolean hasAlto = this.fedoraAccess.isStreamAvailable(uuid, "ALTO");
                 String donator = this.fedoraAccess.getDonator(uuid);
                 
                 HashMap map = new HashMap();
+                map.put("imgfull", imgfullAvailable);
                 map.put("pdfMaxRange", KConfiguration.getInstance().getConfiguration().getInt("generatePdfMaxRange",20));
+                
                 map.put("previewStreamGenerated", fedoraAccess.isStreamAvailable(uuid, ImageStreams.IMG_PREVIEW.getStreamName()));
                 map.put("deepZoomCacheGenerated", ""+generated);
                 map.put("deepZoomCofigurationEnabled", ""+conf);

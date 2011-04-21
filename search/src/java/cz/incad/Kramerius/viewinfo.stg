@@ -11,6 +11,9 @@ viewinfo(data, globalActions) ::=<<
         mimeType:'$data.mimeType$', 
         hasAlto:$data.hasAlto$,
         uuid:"$data.uuid$",
+        
+        imgfull:$data.imgfull$,
+        
         $if(data.canhandlecommongroup)$
         canhandlecommongroup:$data.canhandlecommongroup$,
         $endif$
