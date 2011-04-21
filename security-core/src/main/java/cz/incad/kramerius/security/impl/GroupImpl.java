@@ -22,6 +22,10 @@ import cz.incad.kramerius.security.Group;
 
 public class GroupImpl  implements Group, Serializable {
 
+    /**
+     * 
+     */
+    private static final long serialVersionUID = -2191143201581065880L;
     private int id;
     private String gname;
     private int personalAdminId;

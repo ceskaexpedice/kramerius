@@ -37,9 +37,6 @@ import javax.security.auth.callback.UnsupportedCallbackException;
 import javax.security.auth.login.LoginException;
 import javax.security.auth.spi.LoginModule;
 
-import biz.sourcecode.base64Coder.Base64Coder;
-
-
 import cz.incad.kramerius.security.Group;
 import cz.incad.kramerius.security.User;
 import cz.incad.kramerius.security.impl.UserImpl;
@@ -59,6 +56,7 @@ public class K4LoginModule implements LoginModule {
     
     private Subject subject;
     private CallbackHandler callbackhandler;
+    @SuppressWarnings("unused")
     private Map<String, ?> options;
 
     

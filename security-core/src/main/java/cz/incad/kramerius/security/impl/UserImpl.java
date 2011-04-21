@@ -21,6 +21,10 @@ import cz.incad.kramerius.security.User;
 
 public class UserImpl implements User {
 
+    /**
+     * 
+     */
+    private static final long serialVersionUID = -7870625906836793952L;
     private int id;
     private String firstName;
     private String surName;
