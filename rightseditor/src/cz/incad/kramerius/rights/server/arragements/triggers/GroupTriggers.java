@@ -17,7 +17,8 @@ public class GroupTriggers extends AbstractUserTriggers implements PersisterTrig
 	
 	public static final String DEBUG_KEY = GroupTriggers.class.getName();
 	
-	private static Logger LOGGER = Logger.getLogger(GroupTriggers.class.getName());
+	@SuppressWarnings("unused")
+    private static Logger LOGGER = Logger.getLogger(GroupTriggers.class.getName());
 	
 	private Structure structure;
 	

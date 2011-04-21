@@ -1,13 +1,9 @@
 package cz.incad.kramerius.rights.server.utils;
 
-import java.io.UnsupportedEncodingException;
-import java.security.NoSuchAlgorithmException;
 import java.text.MessageFormat;
-import java.util.Map;
 import java.util.Random;
 
 import javax.mail.Message;
-import javax.mail.Message.RecipientType;
 import javax.mail.MessagingException;
 import javax.mail.Session;
 import javax.mail.Transport;
@@ -18,7 +14,6 @@ import javax.mail.internet.MimeMessage;
 import org.aplikator.server.Context;
 
 import cz.incad.kramerius.rights.server.Mailer;
-import cz.incad.kramerius.security.utils.PasswordDigest;
 
 public class GeneratePasswordUtils {
 

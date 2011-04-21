@@ -2,8 +2,6 @@ package cz.incad.kramerius.rights.server.arragements;
 
 import java.util.List;
 
-import javax.servlet.http.HttpServletRequest;
-
 import org.apache.empire.db.expr.compare.DBCompareExpr;
 import org.aplikator.client.descriptor.QueryParameter;
 import org.aplikator.server.Context;

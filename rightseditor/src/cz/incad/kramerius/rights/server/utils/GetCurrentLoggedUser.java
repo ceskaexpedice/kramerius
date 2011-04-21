@@ -4,10 +4,7 @@ import java.security.Principal;
 
 import javax.servlet.http.HttpServletRequest;
 
-import cz.incad.kramerius.security.Group;
 import cz.incad.kramerius.security.User;
-import cz.incad.kramerius.security.impl.GroupImpl;
-import cz.incad.kramerius.security.impl.UserImpl;
 import cz.incad.kramerius.security.jaas.K4UserPrincipal;
 
 public class GetCurrentLoggedUser {
