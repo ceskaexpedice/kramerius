@@ -248,7 +248,7 @@ public class FedoraAccessImpl implements FedoraAccess {
                 @Override
                 public void processUuid(String pageUuid, int level) throws ProcessSubtreeException {
                     try {
-                        if (previousLevel < level) {
+                        if (previousLevel < level || level == 0) {
                             if(FedoraAccessImpl.this.isImageFULLAvailable(pageUuid)) {
                                 foundUuids.add(pageUuid);
                                 breakProcess = true;
