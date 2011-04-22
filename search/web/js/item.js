@@ -694,7 +694,7 @@ function showBornDigitalPDF(uuid,page) {
 	if  (!page) {
 		page = "1";	
 	}
-	var url ='img?uuid='+uuid+'&stream=IMG_FULL&action=GETRAW';
+	var url ='img?uuid='+uuid+'&stream=IMG_FULL&action=GETRAW#page='+page;
 	var pdfWindow = window.open(url, '_blank');
 	pdfWindow.focus();
 }
