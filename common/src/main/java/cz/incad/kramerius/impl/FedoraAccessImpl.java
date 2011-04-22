@@ -389,17 +389,16 @@ public class FedoraAccessImpl implements FedoraAccess {
         return isStreamAvailable(uuid, FedoraUtils.IMG_FULL_STREAM);
     }
 
+    public InputStream getFedoraDataStreamsList(String uuid ) throws MalformedURLException, IOException {
+        HttpURLConnection con = (HttpURLConnection) openConnection(getFedoraDatastreamsList(configuration, uuid), configuration.getFedoraUser(), configuration.getFedoraPass());
+        InputStream stream = con.getInputStream();
+        return stream;
+    }
+    
+    
     public boolean isStreamAvailable(String uuid, String streamName) throws IOException {
-        HttpURLConnection con = null;
         try {
-            con = (HttpURLConnection) openConnection(getFedoraDatastreamsList(configuration, uuid), configuration.getFedoraUser(), configuration.getFedoraPass());
-            InputStream stream = con.getInputStream();
-            ByteArrayOutputStream bos = new ByteArrayOutputStream();
-            //TODO: Debug turn off 
-            IOUtils.copyStreams(stream, bos);
-            byte[] bytes = bos.toByteArray();
-            
-            Document parseDocument = XMLUtils.parseDocument(new ByteArrayInputStream(bytes), true);
+            Document parseDocument = XMLUtils.parseDocument(getFedoraDataStreamsList(uuid), true);
             return disectDatastreamInListOfDatastreams(parseDocument, streamName, getFedoraVersion());
         } catch (ParserConfigurationException e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
@@ -410,8 +409,6 @@ public class FedoraAccessImpl implements FedoraAccess {
         } catch (XPathExpressionException e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
             throw new IOException(e);
-        } finally {
-            con.disconnect();
         }
     }
 
@@ -718,21 +715,24 @@ public class FedoraAccessImpl implements FedoraAccess {
         throw new FileNotFoundException("404");
     }
 
+    public InputStream getDsProfileForPIDStream(String pid, String streamName) throws MalformedURLException, IOException {
+        HttpURLConnection con = (HttpURLConnection) openConnection(dsProfileForPid(configuration, streamName, pid), configuration.getFedoraUser(), configuration.getFedoraPass());
+        InputStream stream = con.getInputStream();
+        return stream;
+    }
+
+    
+    
     @Override
     public String getMimeTypeForStream(String pid, String datastreamName) throws IOException {
-        HttpURLConnection con = (HttpURLConnection) openConnection(dsProfileForPid(configuration, datastreamName, pid), configuration.getFedoraUser(), configuration.getFedoraPass());
-        InputStream stream = con.getInputStream();
         try {
-            Document parseDocument = XMLUtils.parseDocument(stream, true);
+            Document parseDocument = XMLUtils.parseDocument(getDsProfileForPIDStream(pid, datastreamName), true);
             return disectMimetypeFromProfile(parseDocument, getFedoraVersion());
+        } catch (XPathExpressionException e) {
+            throw new IOException(e);
         } catch (ParserConfigurationException e) {
-            LOGGER.log(Level.SEVERE, e.getMessage(), e);
             throw new IOException(e);
         } catch (SAXException e) {
-            LOGGER.log(Level.SEVERE, e.getMessage(), e);
-            throw new IOException(e);
-        } catch (XPathExpressionException e) {
-            LOGGER.log(Level.SEVERE, e.getMessage(), e);
             throw new IOException(e);
         }
     }
@@ -802,38 +802,35 @@ public class FedoraAccessImpl implements FedoraAccess {
         }
 
     }
+
+    public InputStream getFedoraDescribeStream() throws IOException {
+        HttpURLConnection con = (HttpURLConnection) openConnection(FedoraUtils.getFedoraDescribe(configuration), configuration.getFedoraUser(), configuration.getFedoraPass());
+        con.connect();
+        if (con.getResponseCode() == HttpURLConnection.HTTP_OK) {
+            InputStream stream = con.getInputStream();
+            return stream;
+        } else {
+            throw new IOException("404");
+        }
+    }
     
     @Override
     public String getFedoraVersion() throws IOException {
         if (fedoraVersion == null) {
             try {
-                HttpURLConnection con = (HttpURLConnection) openConnection(getFedoraDescribe(configuration), configuration.getFedoraUser(), configuration.getFedoraPass());
-                con.connect();
-                if (con.getResponseCode() == HttpURLConnection.HTTP_OK) {
-                    InputStream stream = con.getInputStream();
-                    fedoraVersion = disectFedoraVersionFromStream(stream);
-                } else {
-                    throw new IOException("404");
-                }
-            } catch (MalformedURLException e) {
-                throw new IOException(e);
+                fedoraVersion = disectFedoraVersionFromStream(getFedoraDescribeStream());
             } catch (XPathExpressionException e) {
                 throw new IOException(e);
-            } catch (DOMException e) {
-                throw new IOException(e);
-            } catch (IOException e) {
-                throw e;
             } catch (ParserConfigurationException e) {
                 throw new IOException(e);
             } catch (SAXException e) {
                 throw new IOException(e);
             }
-            
         }
         return fedoraVersion;
     }
 
-    String  disectFedoraVersionFromStream(InputStream stream) throws ParserConfigurationException, SAXException, IOException, XPathExpressionException {
+    public String  disectFedoraVersionFromStream(InputStream stream) throws ParserConfigurationException, SAXException, IOException, XPathExpressionException {
         // do not use namespaces
         Document parseDocument = XMLUtils.parseDocument(stream, false);
         XPathFactory factory = XPathFactory.newInstance();
