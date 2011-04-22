@@ -230,6 +230,4 @@ public class FedoraUtils {
         return fedoraVersion.substring(0,3).replace('.', '_');
     }
     
-    
-    
 }
