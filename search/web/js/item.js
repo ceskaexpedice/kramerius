@@ -590,14 +590,14 @@ function onLoadPDFImage() {}
 
 var imageInitialized = false;
 function showImage(viewerOptions) {
-	// different view for pdf	
 	if (viewerOptions.isContentPDF()) {
 		displayImageContainer("#pdfImage");
-		// ?? neco nefunguje ? 
-		$("#pdfImageImg").attr("src", "fullThumb?uuid="+uuid);
-		
+		if (viewerOptions.previewStreamGenerated) {
+			$("#pdfImageImg").attr('src','img?uuid='+viewerOptions.uuid+'&stream=IMG_PREVIEW&action=GETRAW');
+		} else {
+			$("#pdfImageImg").attr('src','img?uuid='+viewerOptions.uuid+'&stream=IMG_FULL&action=SCALE&scaledHeight=700');
+		}
 	} else {
-	
             var tilesPrepared = viewerOptions.deepZoomGenerated || viewerOptions.imageServerConfigured;
             var deepZoomDisplay = ((viewerOptions.deepZoomCofigurationEnabled) && (tilesPrepared));
     	    if (deepZoomDisplay) {
@@ -619,12 +619,11 @@ function showImage(viewerOptions) {
 		    			$("#plainImageImg").attr('src','img?uuid='+viewerOptions.uuid+'&stream=IMG_PREVIEW&action=GETRAW');
 	    			} else {
 	    				// this should be directed by property or removed
-		    			$("#plainImageImg").attr('src','img?uuid='+viewerOptions.uuid+'&stream=IMG_FULL&action=SCALE&scaledHeight=512');
+		    			$("#plainImageImg").attr('src','img?uuid='+viewerOptions.uuid+'&stream=IMG_FULL&action=SCALE&scaledHeight=700');
 	    			}
 	            });
 
 	    }
-            
 	}		
 	imageInitialized = true;
 }
@@ -690,76 +689,12 @@ function displayImageContainer(contentToShow) {
 		}
 	);
 }
-/*
-function displaySecuredContent() {
-	$("#loadingDeepZoomImage").hide();
-	$("#plainImage").hide();
-	$("#pdfImage").hide();
-	$("#container").hide();
-	$("#noImageError").hide();
-
-	$("#securityError").show();
-}
-
-function displayImageErrorContent() {
-	$("#loadingDeepZoomImage").hide();
-	$("#plainImage").hide();
-	$("#pdfImage").hide();
-	$("#container").hide();
-	$("#securityError").hide();
-
-	$("#noImageError").show();
-	
-}
-
-function displayImageContent() {
-	$("#loadingDeepZoomImage").hide();
-	$("#pdfImage").hide();
-	$("#container").hide();
-	$("#securityError").hide();
-	$("#noImageError").hide();
-
-	$("#plainImage").show();
-}
-
-function displaySeadragonContent() {
-	$("#securityError").hide();
-	$("#pdfImage").hide();
-	$("#plainImage").hide();
-	$("#loadingDeepZoomImage").hide();
-	$("#noImageError").hide();
-
-	$("#container").show();
-}
-function displayLoadingImageContent() {
-	$("#securityError").hide();
-	$("#pdfImage").hide();
-	$("#plainImage").hide();
-	$("#container").hide();
-	$("#noImageError").hide();
-
-	$("#loadingDeepZoomImage").show();
-}
-
-function displayPDFImageContent(uuid) {
-	$("#securityError").hide();
-	$("#plainImage").hide();
-	$("#container").hide();
-	$("#loadingDeepZoomImage").hide();
-<<<<<<< .mine
-	$("#noImageError").hide();
-
-=======
-        $("#pdfImageImg").attr("src", "fullThumb?uuid="+uuid);
->>>>>>> .r2344
-	$("#pdfImage").show();
-}*/
 
 function showBornDigitalPDF(uuid,page) {
 	if  (!page) {
 		page = "1";	
 	}
-	var url = "djvu?uuid="+uuid+"&outputFormat=RAW#page="+page;
+	var url ='img?uuid='+uuid+'&stream=IMG_FULL&action=GETRAW';
 	var pdfWindow = window.open(url, '_blank');
 	pdfWindow.focus();
 }
