@@ -139,6 +139,7 @@ public class ItemViewObject {
             String lastUuid = pathFromRequests[pathFromRequests.length -1];
             if (isPageUUID(lastUuid)) {
                 pdfPage = getPageUUID(lastUuid);
+                lastUuid = pathFromRequests[pathFromRequests.length -2];
             }
             // find everything
             final FindRestUUIDs fru = new FindRestUUIDs(this.fedoraAccess, lastUuid);
