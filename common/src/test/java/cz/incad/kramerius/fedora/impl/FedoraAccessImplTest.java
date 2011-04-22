@@ -16,23 +16,31 @@
  */
 package cz.incad.kramerius.fedora.impl;
 
-import static cz.incad.kramerius.fedora.impl.TestDataPrepare.drobnustkyRelsExt;
-import static cz.incad.kramerius.fedora.impl.TestDataPrepare.drobnustkyWithIMGFULL;
-import static cz.incad.kramerius.fedora.impl.TestDataPrepare.drobnustkyWithOutIMGFULL;
+import static cz.incad.kramerius.fedora.impl.DataPrepare.drobnustkyRelsExt;
+import static cz.incad.kramerius.fedora.impl.DataPrepare.drobnustkyWithIMGFULL;
+import static cz.incad.kramerius.fedora.impl.DataPrepare.drobnustkyWithOutIMGFULL;
 import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertNull;
 import static org.easymock.EasyMock.createMockBuilder;
 import static org.easymock.EasyMock.replay;
 
 import java.io.IOException;
+import java.io.InputStream;
+import java.net.MalformedURLException;
 
 import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.xpath.XPathExpressionException;
 
+import junit.framework.TestCase;
+
+import org.easymock.EasyMock;
 import org.junit.Test;
 import org.xml.sax.SAXException;
 
 import cz.incad.kramerius.FedoraAccess;
 import cz.incad.kramerius.impl.FedoraAccessImpl;
+import cz.incad.kramerius.utils.FedoraUtils;
+import cz.incad.kramerius.utils.XMLUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 
 public class FedoraAccessImplTest {
@@ -51,13 +59,15 @@ public class FedoraAccessImplTest {
 
         String monographModel = fa.getKrameriusModelName(fa.getRelsExt("0eaa6730-9068-11dd-97de-000d606f5dc6"));
         assertEquals("monograph", monographModel);
-        for (String page : TestDataPrepare.DROBNUSTKY_UUIDS) {
+        for (String page : DataPrepare.DROBNUSTKY_UUIDS) {
             if (!page.equals("0eaa6730-9068-11dd-97de-000d606f5dc6")) {
                 String pageModel = fa.getKrameriusModelName(fa.getRelsExt(page));
                 assertEquals("page", pageModel);
             }
         }
     }
+    
+    
 
     /** Test getDonator method */
     @Test
@@ -74,8 +84,6 @@ public class FedoraAccessImplTest {
         String donator = fa.getDonator(fa.getRelsExt("0eaa6730-9068-11dd-97de-000d606f5dc6"));
         assertEquals("norway", donator);
     }
-    
-    
     
     /** Test correct data - IMG_FULL present */
     @Test
@@ -119,6 +127,4 @@ public class FedoraAccessImplTest {
         assertNull(firstPageForDrobnustky);
     }
     
-    
-
 }
