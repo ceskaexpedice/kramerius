@@ -120,7 +120,6 @@ public class FileSystemCacheServiceImpl implements DeepZoomCacheService {
             int levels = (int) tileSupport.getLevels(rawImage, 1);
             for (int i = levels - 1; i > 0; i--) {
                 int curLevel = i;
-                System.out.println("Current level : " + curLevel);
                 double scale = tileSupport.getScale(curLevel, levels);
                 Dimension scaled = tileSupport.getScaledDimension(new Dimension(rawImage.getWidth(null), rawImage.getHeight(null)), scale);
 
