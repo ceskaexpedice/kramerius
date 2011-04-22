@@ -16,17 +16,18 @@
  */
 package cz.incad.kramerius.fedora.impl;
 
-import static org.easymock.EasyMock.*;
-import static junit.framework.TestCase.*;
-import static cz.incad.kramerius.fedora.impl.TestDataPrepare.*;
+import static cz.incad.kramerius.fedora.impl.TestDataPrepare.drobnustkyRelsExt;
+import static cz.incad.kramerius.fedora.impl.TestDataPrepare.drobnustkyWithIMGFULL;
+import static cz.incad.kramerius.fedora.impl.TestDataPrepare.drobnustkyWithOutIMGFULL;
+import static junit.framework.Assert.assertEquals;
+import static junit.framework.Assert.assertNull;
+import static org.easymock.EasyMock.createMockBuilder;
+import static org.easymock.EasyMock.replay;
 
 import java.io.IOException;
 
 import javax.xml.parsers.ParserConfigurationException;
 
-import junit.framework.TestCase;
-
-import org.junit.Before;
 import org.junit.Test;
 import org.xml.sax.SAXException;
 
