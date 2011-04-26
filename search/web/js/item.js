@@ -160,7 +160,7 @@ function _selectItem(obj, level, model){
 }
 
 
-
+/*
 var COMMON = function() {
     return {
         pidpath:function(level) {
@@ -175,7 +175,7 @@ var COMMON = function() {
         }
     }
 }();
-
+*/
 /* TODO: Zrusit 
 var PDF=function() {
 
