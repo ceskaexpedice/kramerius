@@ -217,6 +217,10 @@
                                                     <fmt:message bundle="${lctx}" key="rightMsg"></fmt:message>
                                                 </div>
 
+                                                <div id="noImageError" style="padding-top:10px; height: 400px; width:700px; color: black; display:none;">
+                                                    <fmt:message bundle="${lctx}" key="img.display.noimage"></fmt:message>
+                                                </div>
+
                                                 <div id="loadingDeepZoomImage" style="padding-top:10px; height: 500px; width:700px; color: black; display:none;">
                                                     <fmt:message bundle="${lctx}" key="deep.zoom.loadingImage"></fmt:message>
                                                 </div>
@@ -285,17 +289,6 @@
 
 
         <!-- dialogs -->
-        <div id="pdf_options" style="display:none;">
-            <h3 id="pdf_desc_head"></h3>
-            <div id="pdf_desc_content"></div>
-            <div id="pdf_page_range" style="margin-top:10px;">
-                <strong>Rozsah stran:&nbsp;(max.&nbsp;<%=kconfig.getProperty("generatePdfMaxRange")%>)</strong><br>&nbsp;&nbsp;                           
-                <input type="text" id="genPdfStart" value="1" name="genPdfStart" size="3" > -
-                <input type="text" id="genPdfEnd" value="1" name="genPdfEnd" size="3">
-            </div>
-        </div>
-        
-        
         <div id="fullImageContainer" style="display:none;">
             <div id="djvuContainer" style="display:none;">
                 <iframe src="" frameborder="0" width="100%" height="100%"></iframe>
