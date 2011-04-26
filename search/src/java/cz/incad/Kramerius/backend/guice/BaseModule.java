@@ -91,8 +91,7 @@ public class BaseModule extends AbstractModule {
 		bind(DeepZoomTileSupport.class).to(TileSupportImpl.class);
 		bind(DeepZoomCacheService.class).to(FileSystemCacheServiceImpl.class).in(Scopes.SINGLETON);
 		bind(DiscStrucutreForStore.class).to(Fedora3StreamsDiscStructure.class);
-		//bind(CacheService.class).annotatedWith(Names.named("memoryCacheForward")).to(SimpleMemoryCacheServiceWrapper.class).in(Scopes.SINGLETON);
-                bind(RelationService.class).to(RelationServiceImpl.class).in(Scopes.SINGLETON);
+        bind(RelationService.class).to(RelationServiceImpl.class).in(Scopes.SINGLETON);
 	}
 	
 
