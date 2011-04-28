@@ -539,28 +539,44 @@ var _indexerDialog;
  */
 function showIndexerAdmin(){
     hideAdminMenu();
-    var url = "dialogs/_indexer_data.jsp?offset=0";
-    $.get(url, function(data) {
-        $("#indexerContent").html(data);
-        checkIndexed();
-    });
-    if (_indexerDialog) {
-        _indexerDialog.dialog('open');
-    } else {
-    	_indexerDialog = $("#indexer").dialog({
-            bgiframe: true,
-            width: 700,
-            height: 400,
-            modal: true,
-	        title: dictionary['administrator.menu.dialogs.indexDocuments.title'],
-            buttons: {
-                "Close": function() {
-                    $(this).dialog("close"); 
-                } 
-            } 
-        });
-    }
     
+    var indexerDialogFunction = function() {
+        if (_indexerDialog) {
+            _indexerDialog.dialog('open');
+        } else {
+        	_indexerDialog = $("#indexer").dialog({
+                bgiframe: true,
+                width: 700,
+                height: 400,
+                modal: true,
+                title: dictionary["administrator.menu.dialogs.indexDocuments.title"],
+                buttons: {
+                    "Close": function() {
+                        $(this).dialog("close"); 
+                    } 
+                } 
+            });
+        }
+    };
+    
+    $.ajax({
+    	  url: "dialogs/_indexer_data.jsp?model=monograph&offset=0",
+          success: function(data){
+			  	alert(data);
+			  	$("#indexerContent").html(data);
+	    		indexerDialogFunction();
+          },
+          error:function (xhr, ajaxOptions, thrownError){
+        	  switch(xhr.status) {
+	        	  case 403: {
+	    			  $("#indexerContent").html(dictionary["error.accessdenided"]);
+	    			  indexerDialogFunction();
+	        	  }
+	        	  
+        	  }
+          }    
+	  });
+
 }
 
 function checkIndexed(){
