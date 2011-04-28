@@ -7,8 +7,13 @@
 <%@ page import="java.util.*, cz.incad.Kramerius.*, cz.incad.Solr.*" %>
 <%@ include file="initVars.jsp" %>
 <c:set var="pageType" value="search" />
+<%
+//int search_results_rows = Integer.parseInt(kconfig.getProperty("search.results.rows", "20"));
+String search_results_rows = kconfig.getProperty("search.results.rows", "20");
+pageContext.setAttribute("search_results_rows", search_results_rows);
+%>
 <jsp:useBean id="pageType" type="java.lang.String" />
-    <c:set var="rowsdefault" value="20" scope="request" />
+    <c:set var="rowsdefault" value="${search_results_rows}" scope="request" />
     <c:set var="rows" value="0" scope="request" />
 <c:url var="url" value="${kconfig.solrHost}/select/select" >
     <c:choose>
