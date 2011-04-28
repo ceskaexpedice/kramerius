@@ -14,7 +14,7 @@
             Injector ctxInj = (Injector) application.getAttribute(Injector.class.getName());
             KConfiguration kconfig = ctxInj.getProvider(KConfiguration.class).get();
             pageContext.setAttribute("kconfig", kconfig);
-            String[] uuids = kconfig.getPropertyList("home.tab.custom.uuids");
+            String[] uuids = kconfig.getPropertyList("search.home.tab.custom.uuids");
             pageContext.setAttribute("uuids", uuids);
 %>
 <c:forEach varStatus="status" var="uuid" items="${uuids}">
