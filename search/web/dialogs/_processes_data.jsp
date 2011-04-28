@@ -4,6 +4,7 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/xml" prefix="x" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt" %>
+<%@ taglib uri="/WEB-INF/tlds/securedContent.tld" prefix="scrd" %>
 
 <%@ page trimDirectiveWhitespaces="true"%>
 
@@ -57,8 +58,11 @@
 
 <%@page import="cz.incad.Kramerius.LongRunningProcessServlet"%>
 <%@page import="java.util.Locale"%>
-<%@page import="cz.incad.kramerius.service.ResourceBundleService"%><div> 
+<%@page import="cz.incad.kramerius.service.ResourceBundleService"%>
 
+
+<scrd:securedContent action="manage_lr_process">
+<div> 
 <script type="text/javascript">
 
 function _ref(ordering, offset, size, type) {
@@ -74,38 +78,40 @@ function _ref(ordering, offset, size, type) {
 
 <table width="100%">
 <tr>
-	<td width="80%">${processView.prevAHREF} &emsp;  ${processView.nextAHREF}</td> 
-	<td style="text-align: center;">
-		<a href="javascript:_ref('<%= ordering %>',<%= offset %>,<%= size %>,'<%= type %>');"> <img  border="0" id="animation" src="img/refresh.png" alt="refresh"></img> refresh   </a>
-	</td>
-	
+    <td width="80%">${processView.prevAHREF} &emsp;  ${processView.nextAHREF}</td> 
+    <td style="text-align: center;">
+        <a href="javascript:_ref('<%= ordering %>',<%= offset %>,<%= size %>,'<%= type %>');"> <img  border="0" id="animation" src="img/refresh.png" alt="refresh"></img> refresh   </a>
+    </td>
+    
 </tr>
 </table>
 </div>
 <table width="100%" style="width:100%; bottom:20px;">
-	<thead style="border-bottom: dashed 1px;background-image:url('img/bg_processheader.png');
-	 		      background-repeat:  repeat-x;" >
-		<tr>
-			<td width="40%"><strong>${processView.nameOrdering}</strong></td>
-			<td width="5%"><strong>${processView.pidOrdering}</strong></td>
-			<td width="10%"><strong>${processView.stateOrdering}</strong></td>
-			<td><strong>${processView.dateOrdering}</strong></td>
-			<td><strong>${processView.plannedDateOrdering}</strong></td>
+    <thead style="border-bottom: dashed 1px;background-image:url('img/bg_processheader.png');
+                  background-repeat:  repeat-x;" >
+        <tr>
+            <td width="40%"><strong>${processView.nameOrdering}</strong></td>
+            <td width="5%"><strong>${processView.pidOrdering}</strong></td>
+            <td width="10%"><strong>${processView.stateOrdering}</strong></td>
+            <td><strong>${processView.dateOrdering}</strong></td>
+            <td><strong>${processView.plannedDateOrdering}</strong></td>
             <td><strong>${processView.userOrdering}</strong></td>
-			<td  width="10%"><strong>Akce</strong></td>
-		</tr>
-	</thead>
-	<tbody>
-		<c:forEach var="lrProc" items="${processView.processes}" varStatus="i">
-			<tr class="${(i.index mod 2 == 0) ? 'result r0': 'result r1'}">
-				<td>${lrProc.processName} </td>
-				<td>${lrProc.pid} </td>
-				<td>${lrProc.processState}</td>
-				<td>${lrProc.start}</td>
-				<td>${lrProc.planned}</td>
+            <td  width="10%"><strong>Akce</strong></td>
+        </tr>
+    </thead>
+    <tbody>
+        <c:forEach var="lrProc" items="${processView.processes}" varStatus="i">
+            <tr class="${(i.index mod 2 == 0) ? 'result r0': 'result r1'}">
+                <td>${lrProc.processName} </td>
+                <td>${lrProc.pid} </td>
+                <td>${lrProc.processState}</td>
+                <td>${lrProc.start}</td>
+                <td>${lrProc.planned}</td>
                 <td>${lrProc.startedBy}</td>
-				<td>${lrProc.killURL}${lrProc.actionsURLs}${lrProc.deleteURL}</td>
-			</tr>
-		</c:forEach>
-	</tbody>
+                <td>${lrProc.killURL}${lrProc.actionsURLs}${lrProc.deleteURL}</td>
+            </tr>
+        </c:forEach>
+    </tbody>
 </table>
+
+</scrd:securedContent>

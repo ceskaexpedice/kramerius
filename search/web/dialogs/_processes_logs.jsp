@@ -3,6 +3,8 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/xml" prefix="x"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt"%>
+<%@ taglib uri="/WEB-INF/tlds/securedContent.tld" prefix="scrd" %>
+
 
 <%@ page trimDirectiveWhitespaces="true"%>
 
@@ -44,7 +46,9 @@
 <%@page import="cz.incad.kramerius.processes.LRProcess"%>
 
 <%@page import="java.util.Locale"%>
-<%@page import="cz.incad.kramerius.service.ResourceBundleService"%><html>
+<%@page import="cz.incad.kramerius.service.ResourceBundleService"%>
+
+<html>
 
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
@@ -145,6 +149,8 @@
 </head>
 <body>
 
+<scrd:securedContent action="manage_lr_process">
+
 <table width="100%">
 	<tbody>
 		<tr>
@@ -204,6 +210,7 @@
 		</tr>
 	</tbody>
 </table>
+</scrd:securedContent>
 
 </body>
 </html>

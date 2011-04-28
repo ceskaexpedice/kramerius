@@ -2,6 +2,7 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/xml" prefix="x" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt" %>
+<%@ taglib uri="/WEB-INF/tlds/securedContent.tld" prefix="scrd" %>
 <%@ page trimDirectiveWhitespaces="true"%>
 
 <%@page import="javax.servlet.jsp.jstl.core.Config"%>
@@ -22,6 +23,9 @@
 %>
 
 <%@ page isELIgnored="false"%>
+
+<scrd:securedContent action="reindex">
+
 
 <%@ include file="../inc/initVars.jsp" %>
 <fmt:setBundle basename="labels" />
@@ -100,3 +104,5 @@ pageContext.setAttribute("doc", doc);
     <x:param name="sort_dir" value="${order_dir}" />
 </x:transform>
 </table></div></td></tr></table>
+
+</scrd:securedContent>
