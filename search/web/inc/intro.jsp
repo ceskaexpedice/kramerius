@@ -16,8 +16,26 @@
     WellcomeViewObject wellcomeViewObject = new WellcomeViewObject();
     wellcomeInjector.injectMembers(wellcomeViewObject);
     pageContext.setAttribute("wellcomeViewObject", wellcomeViewObject);
+    String[] tabs = kconfig.getPropertyList("search.home.tabs");
+    pageContext.setAttribute("tabs", tabs);
 %>
+<div id="intro" class="shadow10">
+    <ul>
+    <c:forEach varStatus="status" var="tab" items="${tabs}">
+        <li><a href="#intro${status.count}"><fmt:message bundle="${lctx}">home.tab.${tab}</fmt:message></a></li>
+    </c:forEach>
+    </ul>
 
+    <c:forEach varStatus="status" var="tab" items="${tabs}">
+        <div id="intro${status.count}" style="height:220px;overflow:hidden;"></div>
+        <script type="text/javascript">
+                $.get('inc/home/${tab}.jsp', function(data){
+                   $('#intro${status.count}').html(data) ;
+                });
+        </script>
+    </c:forEach>
+</div>
+<%--
 <div id="intro" class="shadow10">
      <ul>
          <li><a href="#intro1"><fmt:message bundle="${lctx}">Nejnovější</fmt:message></a></li>
@@ -41,6 +59,7 @@
 	    ${wellcomeViewObject.intro} 
 	</div>
 </div>
+--%>
 <script language="javascript">
         $(document).ready(function(){
             $('#intro').tabs();
