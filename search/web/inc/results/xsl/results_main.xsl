@@ -9,6 +9,7 @@
     <xsl:param name="bundle" select="document($bundle_url)/bundle" />
     <xsl:param name="fqs" select="fqs" />
     <xsl:param name="q" select="q" />
+    <xsl:param name="numOpenedRows" select="5" />
     <xsl:variable name="generic" select="exts:new()" />
     
     <xsl:template match="/">
@@ -24,7 +25,6 @@
             </xsl:variable>
             <xsl:variable name="numDocs"><xsl:value-of select="number(/response/result/@numFound)" /></xsl:variable>
 
-        
         <xsl:if test="/response/result/doc" >
             <table id="results_main" cellspacing="0" cellpadding="0" border="0">
                 <xsl:for-each select="/response/result/doc" >
@@ -90,7 +90,7 @@
         </xsl:variable>
         <td style="float:left;">
         <img src="img/empty.gif">
-            <xsl:if test="position() > 5" >
+            <xsl:if test="position() > $numOpenedRows" >
                 <xsl:attribute name="class">plus</xsl:attribute>
                 <xsl:attribute name="onclick">$('#more_<xsl:value-of select="$pid"/>').toggle();$('#img_<xsl:value-of select="$pid"/>').toggle();$(this).toggleClass('minus')</xsl:attribute>
             </xsl:if>
@@ -101,7 +101,7 @@
                 <xsl:attribute name="href"><xsl:value-of select="normalize-space($link)"/></xsl:attribute>
             <img border="1"><xsl:attribute name="id">img_<xsl:value-of select="$pid"/></xsl:attribute>
             <xsl:attribute name="src"><xsl:value-of select="$imagepid" /></xsl:attribute>
-            <xsl:if test="position() > 5" >
+            <xsl:if test="position() > $numOpenedRows" >
                 <xsl:attribute name="style">display:none;</xsl:attribute>
             </xsl:if></img></a>
         </td>
@@ -114,7 +114,7 @@
                 <xsl:with-param name="root_pid"><xsl:value-of select="$root_pid"/></xsl:with-param>
             </xsl:call-template>
             <div><xsl:attribute name="id">more_<xsl:value-of select="$pid"/></xsl:attribute>
-            <xsl:if test="position() > 5" >
+            <xsl:if test="position() > $numOpenedRows" >
                 <xsl:attribute name="style">display:none;</xsl:attribute>
             </xsl:if>
             <xsl:call-template name="othersfields">
