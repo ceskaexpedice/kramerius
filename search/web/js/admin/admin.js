@@ -10,6 +10,9 @@ $(document).ready(function(){
     });
 });
 
+
+
+
 function showConfirmDialog(t,f){
     $("#confirm_dialog").dialog('destroy');
     $( "#proccess_confirm_text" ).html(t);
@@ -21,11 +24,9 @@ function showConfirmDialog(t,f){
             Ok: function() {
                 $(this).dialog('destroy');
                 f();
-                //return true;
             },
             Cancel: function() {
                 $(this).dialog('destroy');
-                //return false;
             }
         }
 

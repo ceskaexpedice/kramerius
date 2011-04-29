@@ -1,6 +1,18 @@
+/**
+ * @fileoverview <h3>Functions for rights administration</h3>
+ */
 
-/** dialog pro zmenu hesla */
+
+/** 
+ * changepswd dialog variable
+ * @private
+ */
 var _changePswdDialog;
+
+/**
+ * Invoke change password dialog
+ * @required JQuery
+ */
 function changePassword() {
 	var urlForPost = "users?action=savenewpswd";
 	var url = "users?action=changepswd";
@@ -52,17 +64,39 @@ function changePassword() {
     });
 }
 
-/** zobrazi administracni dialog prav. - volano ze stranky, kde je pritomny level a model (zbytek si funkce najde) */
+/** 
+ * Rights dialog
+ * @private
+ */
 var _rightsWindow = null;
+/**
+ * Last working uuid
+ * @private
+ */
 var _lastWorkingUuid=null;
+/**
+ * Last working action
+ * @private
+ */
 var _lastDisplayedAction = null;
+
+/**
+ * Shows rights admin window - invoked from context menu
+ * @param {int} Current displaying level
+ * @param {string} model Current displaying model
+ * @param {string} action Current displaying action
+ */
 function adminRights(level, model, action) {
 	hideAdminOptions(level);
 	var uuid = $("#tabs_"+level).attr('pid');
 	adminRightsImpl(uuid,action);
 }
 
-/** -"-   - volano odkudkoliv */
+/** 
+ * Shows rights admin window - can be invoked from everywhere
+ * @param {string} uuid of editing object
+ * @param {string} editing action
+ */
 function adminRightsImpl(uuid,action) {
 	// unbind arrows 
 	unbindArrows();
@@ -99,7 +133,11 @@ function adminRightsImpl(uuid,action) {
 }
 
 
-/** refresh na tabulku prav */
+/**
+ * Refreshing rights table
+ * @param {string} uuid of editing object 
+ * @param {action} editing action
+ */
 function refreshRightsData(uuid, action) {
 	if (!uuid) { uuid = _lastWorkingUuid; }
 	if (!action) {action = _lastDisplayedAction;}
@@ -109,11 +147,23 @@ function refreshRightsData(uuid, action) {
     });
 }
 
-
-
-/** dialog pro vytvoreni noveho prava */
+/**
+ * New right window
+ * @private
+ */
 var _newRight = null;
+/**
+ * Right data
+ * @private
+ */
 var _rightData=null;
+
+/**
+ * Shows new right dialog
+ * @param {string} uuid of editing object
+ * @param {action} action editing action
+ * @param {boolean} canhandlecommongroup if can handle commong group
+ */
 function newRight(uuid, action, canhandlecommongroup) {
 	var saveUrl="rights?action=create&securedaction="+action;
     var fetchUrl = "rights?action=newright&uuid="+uuid+"&securedaction="+action;
@@ -142,7 +192,13 @@ function newRight(uuid, action, canhandlecommongroup) {
 
 }
 
-/** editace existujiciho prava */
+/**
+ * Shows edit right dialog 
+ * @param {string} uuid of editing object
+ * @param {int} rightId Id of editing right
+ * @param {string} action action of editing right
+ * @param {boolean} canhandlecommongroup if can handle common group
+ */
 function editRight(uuid, rightId, action,canhandlecommongroup) {
 	var saveUrl="rights?action=edit";
     var jsDataUrl = "rights?action=editrightjsdata&uuid="+uuid+"&rightid="+rightId+"&securedaction="+action;
@@ -230,7 +286,12 @@ function editRight(uuid, rightId, action,canhandlecommongroup) {
 }
 
 
-/** smaze existujici pravo */
+/**
+ * Delete existing right
+ * @param {string} uuid of object 
+ * @param {int} rightId Id of deleting right
+ * @param {string} action action of deleting right  
+ */
 function deleteRight(uuid, rightId, action) {
 	_saveUrlForPost="rights?action=delete";
     var jsDataUrl = "rights?action=editrightjsdata&uuid="+uuid+"&rightid="+rightId+"&securedaction="+action;
@@ -241,7 +302,10 @@ function deleteRight(uuid, rightId, action) {
     });
 }
 
-/** zobrazeni jednoho prava */
+/**
+ * Shows / edit one right dialog
+ * @private
+ */
 function rightDialog(saveUrl) {
 	_saveUrlForPost = saveUrl;
 	if (_newRight) {
@@ -270,8 +334,15 @@ function rightDialog(saveUrl) {
 
 
 
+//TODO Change it!!
+/**
+ * State property for saving right
+ * @private
+ */
 var _saveUrlForPost=null; 
-/** save state and make changes; saving only ids(for delete action)  */
+/** save state and make changes; saving only ids(for delete action)  
+ * @private
+ */
 function saveChangesOnlyIds() {
 	$.post(_saveUrlForPost, {
 		rightId:_rightData.initvalues.rightId,
@@ -282,9 +353,10 @@ function saveChangesOnlyIds() {
 			setTimeout("refreshRightsData();",500);
 		});
 }
-/** save state and make chanes; saving full form (actions create and edit) */
+/** save state and make chanes; saving full form (actions create and edit) 
+ * @private
+ */
 function saveChanges() {
-//	alert($("#params option:selected").val());
 	$.post(_saveUrlForPost, {
 			// id objektu
 			rightId:_rightData.initvalues.rightId,
@@ -310,7 +382,9 @@ function saveChanges() {
 		setTimeout("refreshRightsData();",500);
 	});
 }
-
+/**
+ * @private
+ */
 function typeoflist() {
 	if ($('#userTypeList').attr('checked')) {
 		return "user"
@@ -323,6 +397,9 @@ function typeoflist() {
 
 
 //Callbacks from list of actions dialog
+/**
+ * @private
+ */
 function callbackUserSelectCombo(target, uuid, action, afterCallback) {
 	if (!uuid) { uuid = _lastWorkingUuid; }
 	if (!action) {action = _lastDisplayedAction;}
@@ -338,6 +415,9 @@ function callbackUserSelectCombo(target, uuid, action, afterCallback) {
     });
 
 }
+/**
+ * @private
+ */
 function callbackUserTypeOfListValueChanged(target, uuid, action, afterCallback) {
 
 	if (!uuid) { uuid = _lastWorkingUuid; }
@@ -351,6 +431,9 @@ function callbackUserTypeOfListValueChanged(target, uuid, action, afterCallback)
 	}
 }
 
+/**
+ * @private
+ */
 function callbackGroupTypeOfListValueChanged(target, uuid, action, afterCallback) {
 	if (!uuid) { uuid = _lastWorkingUuid; }
 	if (!action) {action = _lastDisplayedAction;}
@@ -363,6 +446,9 @@ function callbackGroupTypeOfListValueChanged(target, uuid, action, afterCallback
 	}
 }
 
+/**
+ * @private
+ */
 function callbackAllTypeOfListValueChanged(target,uuid, action, afterCallback) {
 
 	if (!uuid) { uuid = _lastWorkingUuid; }
@@ -377,7 +463,9 @@ function callbackAllTypeOfListValueChanged(target,uuid, action, afterCallback) {
 }
 
 // Callbacks from one right edit dialog
-/** volano pri zmene radiibuttonu - vybrano user */
+/** volano pri zmene radiibuttonu - vybrano user 
+ * @private
+ */
 function callbackRadioButtonUserValueChanged(target, afterCallback) {
 	if ($('#userType').attr('checked')) {
         $("#userautocomplete").hide();
@@ -592,6 +680,10 @@ function hintAllUsers() {
 	}
 }
 
+/**
+ * @private
+ * @param oneOn
+ */
 function switchOneOn(oneOn) {
 	var addresses = ["#groupdropdownicon",
 	                 "#userdropdownicon",
@@ -608,7 +700,7 @@ function switchOneOn(oneOn) {
 
 }
 
-/** vypnuti napovedy */
+/** Hide all hits */
 function hintsAllOff() {
 	$('#hintContent').removeClass('up').addClass('down');
 	$("#userdropdownicon").attr('src','img/dropdown.png')
@@ -618,7 +710,7 @@ function hintsAllOff() {
 	$("#hintContent").html("");
 }
 
-/** napoveda zobrazi skupiny */
+/** Hint all groups */
 function hintAllGroups() {
 	hintsAllOff();
 	if ($('#hintContent').hasClass('down')) {
@@ -633,7 +725,9 @@ function hintAllGroups() {
 	}
 }
 
-/** zobrazi uzivatele vybrane skupiny */
+/** 
+ * Hint all users for selected group
+ */
 function hintUsersForGroup() {
 	hintsAllOff();
 	if ($('#hintContent').hasClass('down')) {
