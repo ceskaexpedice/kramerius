@@ -55,22 +55,8 @@
                 <td><c:if test="${rows != 0}" >:: <a href="."><fmt:message bundle="${lctx}">home</fmt:message></a>
                     </c:if>:: <a
                         href="javascript:showHelp('<c:out value="${param.language}" />');"><fmt:message bundle="${lctx}">nápověda</fmt:message></a>
-                    :: <fmt:message bundle="${lctx}">odkazy</fmt:message> :: <br />
-                    <%--:: <c:choose>
-                        <c:when test="${lang == 'en'}">
-                            <c:set var="lid" value="cs" />
-                            <c:set var="lname" value="česky" />
-                        </c:when>
-                        <c:when test="${lang == 'cs'}">
-                            <c:set var="lid" value="en" />
-                            <c:set var="lname" value="english" />
-                        </c:when>
-                        <c:otherwise>
-                            <c:set var="lid" value="en" />
-                            <c:set var="lname" value="english" />
-                        </c:otherwise>
-                    </c:choose
-                    >--%><a href="javascript:setLanguage('<c:out value="${lid}" />')"><c:out
+                    :: <br />
+                    <a href="javascript:setLanguage('<c:out value="${lid}" />')"><c:out
                         value="${lname}" /></a> :: 
                     
                     <c:choose>
