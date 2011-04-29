@@ -17,6 +17,7 @@
             String i18nServlet = I18NServlet.i18nServlet(request) + "?action=bundle&lang="+lctx.getLocale().getLanguage()+"&country="+lctx.getLocale().getCountry()+"&name=labels";
             pageContext.setAttribute("i18nServlet", i18nServlet);
 
+
 %>
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
 
@@ -74,7 +75,7 @@
                                     <c:when test="${rows == 0}" >
                                         <table width="100%" cellspacing="0" cellpadding="0"><tr><td valign="top"><%@ include file="inc/suggest.jsp" %>
                                                 </td><td valign="top"><% currentFacetName = "document_type";%>
-                                                    <%@ include file="inc/facet.jsp" %>
+                                                    <c:set var="inhome" value="home." /><%@ include file="inc/facet.jsp" %>
                                                     <script type="text/javascript" language="javascript">
                                                         $(document).ready(function(){
                                                             $(".facetItem").removeClass('moreFacets');
