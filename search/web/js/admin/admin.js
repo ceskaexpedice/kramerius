@@ -562,7 +562,6 @@ function showIndexerAdmin(){
     $.ajax({
     	  url: "dialogs/_indexer_data.jsp?model=monograph&offset=0",
           success: function(data){
-			  	alert(data);
 			  	$("#indexerContent").html(data);
 	    		indexerDialogFunction();
           },
