@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<xsl:stylesheet version="2.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
+<xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://www.loc.gov/mods/v3 http://www.loc.gov/standards/mods/v3/mods-3-3.xsd">
 <xsl:output encoding='UTF-8' indent='yes' />
 <xsl:template match="/">
 <mods:modsCollection xmlns:mods="http://www.loc.gov/mods/v3"> 
 	
-	<mods:mods version="3.3">
+	<mods:mods version="3.4">
 	
 		<xsl:if test="/Monograph/UniqueIdentifier/UniqueIdentifierURNType">
 			<mods:identifier type="urn"><xsl:value-of select="/Monograph/UniqueIdentifier/UniqueIdentifierURNType" /></mods:identifier>
@@ -67,11 +67,11 @@
 			</mods:location>
 		</xsl:for-each>
 		
-		<xsl:for-each select="/Monograph/MonographBibliographicRecord/GMD">
+		<!--xsl:for-each select="/Monograph/MonographBibliographicRecord/GMD">
 			<mods:originInfo>
 				<mods:issuance><xsl:value-of select="." /></mods:issuance>
 			</mods:originInfo>
-		</xsl:for-each>
+		</xsl:for-each-->
 		
 		
 		<!-- 
@@ -158,14 +158,16 @@
 		
 		<xsl:if test="/Monograph/MonographBibliographicRecord/PhysicalDescription">
 			<mods:physicalDescription>
-				<mods:form type="technique"><xsl:value-of select="/Monograph/MonographBibliographicRecord/PhysicalDescription/Technique" /></mods:form>
-				<mods:form type="material"><xsl:value-of select="/Monograph/MonographBibliographicRecord/PhysicalDescription/Material" /></mods:form>
-				<mods:extent>
-					<xsl:value-of select="/Monograph/MonographBibliographicRecord/PhysicalDescription/Extent" />
-					<xsl:if test="/Monograph/MonographBibliographicRecord/PhysicalDescription/Extent/text() and
-							/Monograph/MonographBibliographicRecord/PhysicalDescription/Size/text()">,</xsl:if>
-					<xsl:value-of select="/Monograph/MonographBibliographicRecord/PhysicalDescription/Size" />
-				</mods:extent>
+				<xsl:if test="/Monograph/MonographBibliographicRecord/PhysicalDescription/Technique">
+					<mods:form type="technique"><xsl:value-of select="/Monograph/MonographBibliographicRecord/PhysicalDescription/Technique" /></mods:form>
+				</xsl:if>
+				<xsl:if test="/Monograph/MonographBibliographicRecord/PhysicalDescription/Material">
+					<mods:form type="material"><xsl:value-of select="/Monograph/MonographBibliographicRecord/PhysicalDescription/Material" /></mods:form>
+				</xsl:if>
+				<mods:extent><xsl:value-of select="/Monograph/MonographBibliographicRecord/PhysicalDescription/Extent" /></mods:extent>
+				<xsl:if test="/Monograph/MonographBibliographicRecord/PhysicalDescription/Size">
+					<mods:extent><xsl:value-of select="/Monograph/MonographBibliographicRecord/PhysicalDescription/Size" /></mods:extent>
+				</xsl:if>
 				<mods:note><xsl:value-of select="/Monograph/MonographBibliographicRecord/Notes" /></mods:note>
 			</mods:physicalDescription>
 		</xsl:if>

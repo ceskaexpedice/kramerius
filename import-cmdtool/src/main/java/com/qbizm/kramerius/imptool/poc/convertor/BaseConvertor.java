@@ -486,6 +486,11 @@ public abstract class BaseConvertor {
         if (files != null) {
             for (ImageRepresentation f : files) {
                 if (f != null) {
+                	if (f.getImageMetaData() != null) {
+                        DatastreamType imageAdmStream = this.createImageMetaStream(getBase64StreamId(f.getFilename()) + "_ADM", f.getImageMetaData());
+                        foxmlObject.getDatastream().add(imageAdmStream);
+                    }
+                	
                     File imageFile = new File(getConfig().getImportFolder() + System.getProperty("file.separator") + f.getFilename());
                     if (imageFile.exists() && imageFile.canRead()) {
                         if (isImage(f.getFilename())) {
@@ -506,15 +511,8 @@ public abstract class BaseConvertor {
 	                            }
                             }
                         }
-
-                        if (f.getImageMetaData() != null) {
-                            DatastreamType imageAdmStream = this.createImageMetaStream(getBase64StreamId(f.getFilename()) + "_ADM", f.getImageMetaData());
-                            foxmlObject.getDatastream().add(imageAdmStream);
-                        }
-                        
                         DatastreamType base64Stream = this.createBase64Stream(f.getFilename());
                         foxmlObject.getDatastream().add(base64Stream);
-                        
                     } else {
                         log.warn(WARN_FILE_DOESNT_EXIST + ": " + f.getFilename());
                         if (!KConfiguration.getInstance().getConfiguration().getBoolean("convert.ignoreMissingFiles",false)){
@@ -541,6 +539,7 @@ public abstract class BaseConvertor {
      * Je zadany soubor obrazek?
      */
     private boolean isImage(String filename) {
+    	if (filename == null) return true;
         return !SUFFIX_TXT.equals(getSuffix(filename));
     }
 

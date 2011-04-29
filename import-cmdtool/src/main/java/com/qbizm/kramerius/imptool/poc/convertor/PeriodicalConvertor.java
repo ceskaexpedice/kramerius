@@ -167,8 +167,13 @@ public class PeriodicalConvertor extends BaseConvertor {
         if (lang != null){
             dc.setLanguage(first(lang.getContent()));
         }
+        
+        ImageRepresentation[] files = new ImageRepresentation[1];
+        if (peri.getTechnicalDescription() != null) {
+            files[0] = this.createImageRepresentation(null, peri.getTechnicalDescription(), null);
+        }
 
-        DigitalObject foxmlPeri = this.createDigitalObject(peri, pid, title, dc, re, XSL_MODS_PERIODICAL, null, visibility);
+        DigitalObject foxmlPeri = this.createDigitalObject(peri, pid, title, dc, re, XSL_MODS_PERIODICAL, files, visibility);
 
         this.marshalDigitalObject(foxmlPeri);
         
@@ -258,7 +263,12 @@ public class PeriodicalConvertor extends BaseConvertor {
 
         dc.setType(MODEL_PERIODICAL_VOLUME);
         
-        DigitalObject foxmlVolume = this.createDigitalObject(volume, pid, title, dc, re, XSL_MODS_PERIODICAL_VOLUME, null, visibility);
+        ImageRepresentation[] files = new ImageRepresentation[1];
+        if (volume.getTechnicalDescription() != null) {
+            files[0] = this.createImageRepresentation(null, volume.getTechnicalDescription(), null);
+        }
+        
+        DigitalObject foxmlVolume = this.createDigitalObject(volume, pid, title, dc, re, XSL_MODS_PERIODICAL_VOLUME, files, visibility);
 
         this.marshalDigitalObject(foxmlVolume);
         return uuid;
@@ -492,9 +502,15 @@ public class PeriodicalConvertor extends BaseConvertor {
         ir.setImageMetaData(ad);
 
         if (td != null) {
-            ad.setScanningDevice(first(td.getScanningDevice().getContent()));
-            ad.setScanningParameters(first(td.getScanningParameters().getContent()));
-            ad.setOtherImagingInformation(first(td.getOtherImagingInformation().getContent()));
+        	if (td.getScanningDevice()!=null){
+        		ad.setScanningDevice(first(td.getScanningDevice().getContent()));
+        	}
+        	if (td.getScanningParameters()!= null){
+        		ad.setScanningParameters(first(td.getScanningParameters().getContent()));
+        	}
+        	if(td.getOtherImagingInformation()!=null){
+        		ad.setOtherImagingInformation(first(td.getOtherImagingInformation().getContent()));
+        	}
         }
 
         if (ui != null) {

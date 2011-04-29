@@ -180,7 +180,13 @@ public class MonographConvertor extends BaseConvertor {
             dc.setLanguage(first(lang.getContent()));
         }
         
-        DigitalObject foxmlMono = this.createDigitalObject(mono, pid, title, dc, re, XSL_MODS_MONOGRAPH, null, visibility);
+        
+        ImageRepresentation[] files = new ImageRepresentation[1];
+        if (mono.getTechnicalDescription() != null) {
+            files[0] = this.createImageRepresentation(null, mono.getTechnicalDescription(), null);
+        }
+        
+        DigitalObject foxmlMono = this.createDigitalObject(mono, pid, title, dc, re, XSL_MODS_MONOGRAPH, files, visibility);
 
         this.marshalDigitalObject(foxmlMono);
         
@@ -460,9 +466,15 @@ public class MonographConvertor extends BaseConvertor {
         ir.setImageMetaData(ad);
 
         if (td != null) {
-            ad.setScanningDevice(first(td.getScanningDevice().getContent()));
-            ad.setScanningParameters(first(td.getScanningParameters().getContent()));
-            ad.setOtherImagingInformation(first(td.getOtherImagingInformation().getContent()));
+        	if (td.getScanningDevice()!=null){
+        		ad.setScanningDevice(first(td.getScanningDevice().getContent()));
+        	}
+        	if (td.getScanningParameters()!=null){
+        		ad.setScanningParameters(first(td.getScanningParameters().getContent()));
+        	}
+        	if (td.getOtherImagingInformation()!=null){
+        		ad.setOtherImagingInformation(first(td.getOtherImagingInformation().getContent()));
+        	}
         }
 
         if (ui != null) {

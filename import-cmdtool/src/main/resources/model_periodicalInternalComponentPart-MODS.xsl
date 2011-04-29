@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<xsl:stylesheet version="2.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform" 
+<xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform" 
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://www.loc.gov/mods/v3 http://www.loc.gov/standards/mods/v3/mods-3-3.xsd">
 <xsl:output encoding='UTF-8' indent='yes' />
 <xsl:template match="/">
 <mods:modsCollection xmlns:mods="http://www.loc.gov/mods/v3"> 
 	
-	<mods:mods version="3.3">
+	<mods:mods version="3.4">
 		<xsl:if test = "/PeriodicalInternalComponentPart/UniqueIdentifier/UniqueIdentifierURNType">
 			<mods:identifier type="urn"><xsl:value-of select="/PeriodicalInternalComponentPart/UniqueIdentifier/UniqueIdentifierURNType" /></mods:identifier>
 		</xsl:if>
@@ -66,11 +66,11 @@
 			</mods:titleInfo>
 		</xsl:for-each>
 		
-		<xsl:for-each select="/PeriodicalInternalComponentPart/CoreBibliographicDescriptionPeriodical/GMD">
+		<!--xsl:for-each select="/PeriodicalInternalComponentPart/CoreBibliographicDescriptionPeriodical/GMD">
 			<mods:originInfo>
 				<mods:issuance><xsl:value-of select="." /></mods:issuance>
 			</mods:originInfo>
-		</xsl:for-each>
+		</xsl:for-each-->
 		
 		<!-- 
 		  - Creator
@@ -162,7 +162,8 @@
 				<mods:form type="technique"><xsl:value-of select="./Technique" /></mods:form>	
 				<mods:extent>
 					<xsl:value-of select="./Extent" />
-					<xsl:if test="./Extent/text() and ./Size/text()">,</xsl:if>
+				</mods:extent>
+				<mods:extent>
 					<xsl:value-of select="./Size" />
 				</mods:extent>
 			</mods:physicalDescription>

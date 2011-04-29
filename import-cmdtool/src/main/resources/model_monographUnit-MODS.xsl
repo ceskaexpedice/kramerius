@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<xsl:stylesheet version="2.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
+<xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
 <xsl:output encoding='UTF-8' indent='yes' />
 <xsl:template match="/">
 <mods:modsCollection xmlns:mods="http://www.loc.gov/mods/v3"> 
 	
-	<mods:mods version="3.3">
+	<mods:mods version="3.4">
 		<xsl:if test="/MonographUnit/UniqueIdentifier/UniqueIdentifierURNType">
 			<mods:identifier type="urn"><xsl:value-of select="/MonographUnit/UniqueIdentifier/UniqueIdentifierURNType" /></mods:identifier>
 		</xsl:if>
@@ -123,12 +123,14 @@
 				<xsl:if test="/MonographUnit/PhysicalDescription/Material">
 					<mods:form type="material"><xsl:value-of select="/MonographUnit/PhysicalDescription/Material" /></mods:form>
 				</xsl:if>
-				<xsl:if test="/MonographUnit/PhysicalDescription/Size or /MonographUnit/PhysicalDescription/Extent">
+				<xsl:if test="/MonographUnit/PhysicalDescription/Size">
 					<mods:extent>
 						<xsl:value-of select="/MonographUnit/PhysicalDescription/Size" />
-						<xsl:if test="/MonographUnit/PhysicalDescription/Extent/text() and
-								/MonographUnit/PhysicalDescription/Size/text()">,</xsl:if>
-						<xsl:value-of select="/MonographUnit/PhysicalDescription/Extent " />
+					</mods:extent>
+				</xsl:if>
+				<xsl:if test="/MonographUnit/PhysicalDescription/Extent">
+					<mods:extent>
+						<xsl:value-of select="/MonographUnit/PhysicalDescription/Extent" />
 					</mods:extent>
 				</xsl:if>
 				<xsl:if test="/MonographUnit/Notes">
