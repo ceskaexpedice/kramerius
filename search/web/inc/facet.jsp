@@ -14,7 +14,7 @@
 <div id="facet_<%=currentFacetName%>" class="ui-tabs ui-widget ui-corner-all facet shadow10" >
     <ul class="ui-tabs-nav ui-helper-reset ui-helper-clearfix ui-widget-header ui-corner-all" style="padding:0 0.1em 0 0;">
         <li class=" facetTitle ui-state-default ui-corner-top  ui-state-active" style="width:100%;">
-        <a class="box" href="javascript:toggleFacet('<%=currentFacetName%>')"><fmt:message bundle="${lctx}"><%=currentFacet.displayName%></fmt:message></a></li>
+        <a class="box" href="javascript:toggleFacet('<%=currentFacetName%>')"><fmt:message bundle="${lctx}">${inhome}<%=currentFacet.displayName%></fmt:message></a></li>
     </ul>
     <div class="ui-tabs-panel ui-corner-bottom facetBody ">
         <%
