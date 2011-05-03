@@ -33,7 +33,6 @@ public class AbstractIPAddressFilterTest extends TestCase {
         String base = "147.231.62.";
         for (int i = 1; i <= 30; i++) {
             String remoteAddr = base+i;
-            System.out.println("Testing addr "+remoteAddr );
             assertTrue("adresa "+remoteAddr, defIPAddr.matchIPAddresses(objs, remoteAddr));
         }
     }
