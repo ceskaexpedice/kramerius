@@ -131,12 +131,20 @@ public class GeneratePDFServiceImpl implements GeneratePDFService {
 	
 	private void init() throws IOException {
 		String[] texts = 
-		{"first_page",
+		{
+        "first_page",
 		"first_page_CZ_cs",
 		"first_page_html",
 		"first_page_html_CZ_cs",
 		"security_fail",
-		"security_fail_CZ_cs"};
+		"security_fail_CZ_cs",
+		
+		//TODO: Move to another position
+		"logininfo",
+        "logininfo_CZ_cs"
+		
+		};
+
 		IOUtils.copyBundledResources(this.getClass(),texts,"res/", this.textsService.textsFolder());
 		String[] xlsts = 
 		{"template.xslt"};
