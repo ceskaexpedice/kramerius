@@ -87,17 +87,31 @@
 	                $("#status").html(dictionary['login.dialog.authenticationfailed']); 
 	            <%}%>
 		    });
-			
+
+		    
+            var i18ntexts = "i18n?action=text&name=logininfo&format=json";
+            $.get(i18ntexts, function(data){
+                var restResult = eval('(' + data + ')');
+                $("#logininfo").html(restResult["text"].value); 
+            });
+            		    
 		});
 	</script>
+   <!-- login info -->
+   <div id="logininfo" style="text-align: center;"></div>
+
 	<div id="dialogForm" style="display: none;">
+	    
 	    <form name=login id="loginForm" action="j_security_check" method="post">
 	      <table align=center >
 	        <tr>
-            <tr><td>
-               <div id="status" style="color:red;"></div>
-            </td></tr>
-
+	            <td>
+	               <div id="status" style="color:red;"></div>
+	            </td>   
+            </tr>
+            
+            
+            <tr>
 	          <td>
 	             <span id="name">Jméno:</span><br>
 	             <input type="text" size="30" name="j_username" style="border:1px solid silver;" ><br>
