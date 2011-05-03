@@ -194,7 +194,7 @@ public class I18NServlet extends GuiceServlet {
 		static String formatTextToJSON(String text, String textName) {
             Map<String, String> map = new HashMap<String, String>();
             map.put("name",textName);
-            map.put("value", text);
+            map.put("value", text.trim().replace("\n", "\\n"));
             StringTemplate template = new StringTemplate(
                     "{\"text\":{\n" +
                         "  name:'$data.name$',"+
