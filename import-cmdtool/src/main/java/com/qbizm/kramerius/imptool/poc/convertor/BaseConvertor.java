@@ -514,11 +514,13 @@ public abstract class BaseConvertor {
                         DatastreamType base64Stream = this.createBase64Stream(f.getFilename());
                         foxmlObject.getDatastream().add(base64Stream);
                     } else {
-                        log.warn(WARN_FILE_DOESNT_EXIST + ": " + f.getFilename());
-                        if (!KConfiguration.getInstance().getConfiguration().getBoolean("convert.ignoreMissingFiles",false)){
-                        	log.fatal("CONVERSION WILL BE TERMINATED DUE TO MISSING ORIGINAL FILE(S). Set the convert.ignoreMissingFiles property and restart the conversion process, if you want to continue anyway. ");
-                        	throw new IllegalStateException(WARN_FILE_DOESNT_EXIST + ": " + f.getFilename());
-                        }
+                    	if (f.getFilename() != null){
+	                        log.warn(WARN_FILE_DOESNT_EXIST + ": " + f.getFilename());
+	                        if (!KConfiguration.getInstance().getConfiguration().getBoolean("convert.ignoreMissingFiles",false)){
+	                        	log.fatal("CONVERSION WILL BE TERMINATED DUE TO MISSING ORIGINAL FILE(S). Set the property convert.ignoreMissingFiles=true  and restart the conversion process, if you want to continue anyway. ");
+	                        	throw new IllegalStateException(WARN_FILE_DOESNT_EXIST + ": " + f.getFilename());
+	                        }
+                    	}
                     }
                 }
             }
