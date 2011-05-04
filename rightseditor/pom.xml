@@ -26,8 +26,8 @@
     </licenses>
 
     <properties>
-        <gwt.version>2.2.0</gwt.version>
-        <maven.compiler.source>1.6</maven.compiler.source>
+    	<gwt.version>2.3.0</gwt.version>
+    	<maven.compiler.source>1.6</maven.compiler.source>
         <maven.compiler.target>1.6</maven.compiler.target>
         <maven.compile.encoding>UTF-8</maven.compile.encoding>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
