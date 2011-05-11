@@ -5,14 +5,19 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
+import java.sql.Statement;
+import java.util.logging.Level;
+
+import java.util.logging.Logger;
 
 public class DatabaseUtils {
 
+    private static final Logger LOGGER = Logger.getLogger(DatabaseUtils.class.getName());
+
     public static boolean tableExists(Connection con, String tableName) throws SQLException {
-        ResultSet rs = null;
+        String[] types = {"TABLE"};
+        ResultSet rs = con.getMetaData().getTables(null, null, "%", types);
         try {
-            String[] types = {"TABLE"};
-            rs = con.getMetaData().getTables(null, null, "%", types);
             while (rs.next()) {
                 if (tableName.equals(rs.getString("TABLE_NAME").toUpperCase())) {
                     return true;
@@ -20,17 +25,13 @@ public class DatabaseUtils {
             }
             return false;
         } finally {
-            if (rs != null) {
-                rs.close();
-            }
+            tryClose(rs);
         }
     }
 
     public static boolean columnExists(Connection con, String tableName, String columnName) throws SQLException {
-        PreparedStatement pstm = null;
-        ResultSet rs = null;
+        PreparedStatement pstm = con.prepareStatement("select * from " + tableName + " where 1>2");
         try {
-            pstm = con.prepareStatement("select * from " + tableName + " where 1>2");
             ResultSetMetaData pstmMetadata = pstm.getMetaData();
             int size = pstmMetadata.getColumnCount();
             for (int i = 0; i < size; i++) {
@@ -41,9 +42,31 @@ public class DatabaseUtils {
             }
             return false;
         } finally {
-            if (rs != null) {
-                rs.close();
-            }
+            tryClose(pstm);
+        }
+    }
+
+    public static void tryClose(Connection c) {
+        try {
+            c.close();
+        } catch (SQLException ex) {
+            LOGGER.log(Level.SEVERE, null, ex);
+        }
+    }
+
+    public static void tryClose(Statement stmt) {
+        try {
+            stmt.close();
+        } catch (SQLException ex) {
+            LOGGER.log(Level.SEVERE, null, ex);
+        }
+    }
+
+    public static void tryClose(ResultSet rs) {
+        try {
+            rs.close();
+        } catch (SQLException ex) {
+            LOGGER.log(Level.SEVERE, null, ex);
         }
     }
 }

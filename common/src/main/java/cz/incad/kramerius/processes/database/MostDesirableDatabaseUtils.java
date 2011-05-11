@@ -1,10 +1,12 @@
 package cz.incad.kramerius.processes.database;
 
+import cz.incad.kramerius.utils.DatabaseUtils;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.util.Date;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
@@ -21,15 +23,13 @@ public class MostDesirableDatabaseUtils {
      * @throws SQLException
      */
     public static void createTable(Connection con) throws SQLException {
-        PreparedStatement prepareStatement = null;
+        PreparedStatement prepareStatement = con.prepareStatement(
+                "CREATE TABLE DESIRABLE(UUID VARCHAR(64), ACCESS TIMESTAMP)");
         try {
-            prepareStatement = con.prepareStatement("CREATE TABLE DESIRABLE(UUID VARCHAR(64), ACCESS TIMESTAMP)");
             int r = prepareStatement.executeUpdate();
-            LOGGER.finest("CREATE TABLE: updated rows " + r);
+            LOGGER.log(Level.FINEST, "CREATE TABLE: updated rows {0}", r);
         } finally {
-            if (prepareStatement != null) {
-                prepareStatement.close();
-            }
+            DatabaseUtils.tryClose(prepareStatement);
         }
     }
 
@@ -41,16 +41,14 @@ public class MostDesirableDatabaseUtils {
      * @throws SQLException
      */
     public static void saveAccess(Connection con, String uuid, Date date) throws SQLException {
-        PreparedStatement prepareStatement = null;
+        PreparedStatement prepareStatement = con.prepareStatement(
+                "insert into DESIRABLE(UUID, ACCESS) values(?, ?)");
         try {
-            prepareStatement = con.prepareStatement("insert into DESIRABLE(UUID, ACCESS) values(?,?)");
             prepareStatement.setString(1, uuid);
             prepareStatement.setTimestamp(2, new Timestamp(date.getTime()));
             prepareStatement.executeUpdate();
         } finally {
-            if (prepareStatement != null) {
-                prepareStatement.close();
-            }
+            DatabaseUtils.tryClose(prepareStatement);
         }
     }
 }

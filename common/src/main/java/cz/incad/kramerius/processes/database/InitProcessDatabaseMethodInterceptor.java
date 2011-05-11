@@ -16,12 +16,10 @@
  */
 package cz.incad.kramerius.processes.database;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.nio.charset.Charset;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.util.logging.Level;
 
 import org.aopalliance.intercept.MethodInterceptor;
 import org.aopalliance.intercept.MethodInvocation;
@@ -32,8 +30,7 @@ import com.google.inject.name.Named;
 
 import cz.incad.kramerius.security.database.InitSecurityDatabaseMethodInterceptor;
 import cz.incad.kramerius.utils.DatabaseUtils;
-import cz.incad.kramerius.utils.IOUtils;
-import cz.incad.kramerius.utils.database.JDBCUpdateTemplate;
+import java.util.logging.Logger;
 
 /**
  * Inicializace databaze procesu
@@ -41,7 +38,7 @@ import cz.incad.kramerius.utils.database.JDBCUpdateTemplate;
  */
 public class InitProcessDatabaseMethodInterceptor implements MethodInterceptor {
 
-    static java.util.logging.Logger LOGGER = java.util.logging.Logger.getLogger(InitProcessDatabaseMethodInterceptor.class.getName());
+    static final Logger LOGGER = Logger.getLogger(InitProcessDatabaseMethodInterceptor.class.getName());
     
     @Inject
     @Named("kramerius4")
@@ -70,7 +67,7 @@ public class InitProcessDatabaseMethodInterceptor implements MethodInterceptor {
             }
             return invocation.proceed();
         } finally {
-            if (connection != null) { connection.close(); }
+            if (connection != null) { DatabaseUtils.tryClose(connection); }
         }
     }
 
@@ -78,9 +75,8 @@ public class InitProcessDatabaseMethodInterceptor implements MethodInterceptor {
     
 
     public static void createProcessTable(Connection con) throws SQLException {
-        PreparedStatement prepareStatement = null;
-        try {
-            prepareStatement = con.prepareStatement("CREATE TABLE PROCESSES(DEFID VARCHAR(255), " +
+        PreparedStatement prepareStatement = con.prepareStatement(
+                "CREATE TABLE PROCESSES(DEFID VARCHAR(255), " +
             		"UUID VARCHAR(255) PRIMARY KEY," +
             		"PID int,STARTED timestamp, " +
             		"PLANNED timestamp, " +
@@ -88,30 +84,33 @@ public class InitProcessDatabaseMethodInterceptor implements MethodInterceptor {
             		"NAME VARCHAR(1024), " +
             		"PARAMS VARCHAR(4096), "+
             		"STARTEDBY INT)");
+        try {
             int r = prepareStatement.executeUpdate();
-            LOGGER.finest("CREATE TABLE: updated rows "+r);
+            LOGGER.log(Level.FINEST, "CREATE TABLE: updated rows {0}", r);
         } finally {
-            if (prepareStatement != null) prepareStatement.close();
+            DatabaseUtils.tryClose(prepareStatement);
         }
     }
 
     public static void alterProcessTableStartedByColumn(Connection con) throws SQLException {
-        PreparedStatement prepareStatement = null;
+        PreparedStatement prepareStatement = con.prepareStatement(
+                "ALTER TABLE PROCESSES ADD COLUMN STARTEDBY INT");
         try {
-            prepareStatement = con.prepareStatement("ALTER TABLE PROCESSES ADD COLUMN STARTEDBY INT");
             int r = prepareStatement.executeUpdate();
+            LOGGER.log(Level.FINEST, "ALTER TABLE: updated rows {0}", r);
         } finally {
-            if (prepareStatement != null) prepareStatement.close();
+            DatabaseUtils.tryClose(prepareStatement);
         }
     }
 
     public static void alterProcessTableProcessToken(Connection con) throws SQLException {
-        PreparedStatement prepareStatement = null;
+        PreparedStatement prepareStatement = con.prepareStatement(
+                "ALTER TABLE PROCESSES ADD COLUMN TOKEN VARCHAR(255)");
         try {
-            prepareStatement = con.prepareStatement("ALTER TABLE PROCESSES ADD COLUMN TOKEN VARCHAR(255)");
             int r = prepareStatement.executeUpdate();
+            LOGGER.log(Level.FINEST, "ALTER TABLE: updated rows {0}", r);
         } finally {
-            if (prepareStatement != null) prepareStatement.close();
+            DatabaseUtils.tryClose(prepareStatement);
         }
     }
 

@@ -8,6 +8,7 @@ package cz.incad.kramerius.resourceindex;
  *
  * @author Alberto
  */
+import cz.incad.kramerius.utils.DatabaseUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -36,7 +37,6 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashMap;
 
 public class MPTStoreService implements IResourceIndex {
 
@@ -79,7 +79,7 @@ public class MPTStoreService implements IResourceIndex {
                 Table_model = adaptor.getTableFor(NTriplesUtil.parsePredicate(PRED_model));
             }
         } catch (ParseException ex) {
-            Logger.getLogger(MPTStoreService.class.getName()).log(Level.SEVERE, null, ex);
+            logger.log(Level.SEVERE, null, ex);
         }
     }
 
@@ -103,8 +103,7 @@ public class MPTStoreService implements IResourceIndex {
         dbParams.setProperty("password", config.getProperty(PROP_PASSWD));
         dbParams.setProperty("driverClassName", config.getProperty(PROP_DB_DRIVER));
         try {
-            logger.fine("USING DRIVER "
-                    + config.getProperty(PROP_DB_DRIVER));
+            logger.log(Level.FINE, "USING DRIVER {0}", config.getProperty(PROP_DB_DRIVER));
             Class.forName(config.getProperty(PROP_DB_DRIVER));
             source =
                     (BasicDataSource) BasicDataSourceFactory.createDataSource(dbParams);
@@ -140,14 +139,25 @@ public class MPTStoreService implements IResourceIndex {
         Connection c;
         try {
             c = dataSource.getConnection();
-            PreparedStatement s =
-                    c.prepareStatement("SELECT max(o) FROM " + mods,
-                    ResultSet.FETCH_FORWARD,
-                    ResultSet.CONCUR_READ_ONLY);
-            ResultSet r = s.executeQuery();
-            r.next();
-            date = r.getString(1);
-            c.close();
+            try {
+                PreparedStatement s = c.prepareStatement(
+                        "SELECT max(o) FROM " + mods,
+                        ResultSet.FETCH_FORWARD,
+                        ResultSet.CONCUR_READ_ONLY);
+                try {
+                    ResultSet r = s.executeQuery();
+                    try {
+                        r.next();
+                        date = r.getString(1);
+                    } finally {
+                        DatabaseUtils.tryClose(r);
+                    }
+                } finally {
+                    DatabaseUtils.tryClose(s);
+                }
+            } finally {
+                DatabaseUtils.tryClose(c);
+            }
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
@@ -176,7 +186,9 @@ public class MPTStoreService implements IResourceIndex {
         
         logger.fine("getFedoraObjectsFromModelExt");
         Document xmldoc;
-        Connection c;
+        Connection c = null;
+        PreparedStatement s = null;
+        ResultSet r = null;
         try {
             DocumentBuilder builder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
             xmldoc = builder.newDocument();
@@ -190,11 +202,10 @@ public class MPTStoreService implements IResourceIndex {
                     + " order by " + torder + " " + orderDir
                     + " limit " + limit + " offset " + offset;
 
-            PreparedStatement s =
-                    c.prepareStatement(sql,
+            s = c.prepareStatement(sql,
                     ResultSet.FETCH_FORWARD,
                     ResultSet.CONCUR_READ_ONLY);
-            ResultSet r = s.executeQuery();
+            r = s.executeQuery();
             String uuid;
 
             /*
@@ -243,13 +254,19 @@ public class MPTStoreService implements IResourceIndex {
                 e.appendChild(e2);
 
                 results.appendChild(e);
-
-
             }
-            r.close();
-            c.close();
         } catch (Exception e) {
             throw new RuntimeException(e);
+        } finally {
+            if (r != null) {
+                DatabaseUtils.tryClose(r);
+            }
+            if (s != null) {
+                DatabaseUtils.tryClose(s);
+            }
+            if (c != null) {
+                DatabaseUtils.tryClose(c);
+            }
         }
         //return result.toString();
         return xmldoc;
@@ -270,7 +287,9 @@ public class MPTStoreService implements IResourceIndex {
         
         logger.fine("getting latest record date");
         Document xmldoc;
-        Connection c;
+        Connection c = null;
+        PreparedStatement s = null;
+        ResultSet r = null;
         ArrayList<String> resList = new ArrayList<String>();
         try {
             DocumentBuilder builder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
@@ -285,11 +304,10 @@ public class MPTStoreService implements IResourceIndex {
                     + " order by " + Table_model + ".s"
                     + " limit " + limit + " offset " + offset;
 
-            PreparedStatement s =
-                    c.prepareStatement(sql,
+            s = c.prepareStatement(sql,
                     ResultSet.FETCH_FORWARD,
                     ResultSet.CONCUR_READ_ONLY);
-            ResultSet r = s.executeQuery();
+            r = s.executeQuery();
             String uuid;
 
             while (r.next()) {
@@ -299,10 +317,18 @@ public class MPTStoreService implements IResourceIndex {
 
 
             }
-            r.close();
-            c.close();
         } catch (Exception e) {
             throw new RuntimeException(e);
+        } finally {
+            if (r != null) {
+                DatabaseUtils.tryClose(r);
+            }
+            if (s != null) {
+                DatabaseUtils.tryClose(s);
+            }
+            if (c != null) {
+                DatabaseUtils.tryClose(c);
+            }
         }
         //return result.toString();
         return resList;
@@ -342,17 +368,27 @@ public class MPTStoreService implements IResourceIndex {
                     + " where s='<info:fedora/uuid:43101770-b03b-11dd-8673-000d606f5dc6>" + uuid + ">' "
                     + " and o <> '<info:fedora/fedora-system:FedoraObject-3.0>' ";
             c = dataSource.getConnection();
-            PreparedStatement s =
-                    c.prepareStatement(sql,
-                    ResultSet.FETCH_FORWARD,
-                    ResultSet.CONCUR_READ_ONLY);
-            ResultSet r = s.executeQuery();
-            if (r.next()) {
-                model = r.getString(1);
-                model = model.substring("<info:fedora/model:".length(), model.length()-1);
+            try {
+                PreparedStatement s =
+                        c.prepareStatement(sql,
+                        ResultSet.FETCH_FORWARD,
+                        ResultSet.CONCUR_READ_ONLY);
+                try {
+                    ResultSet r = s.executeQuery();
+                    try {
+                        if (r.next()) {
+                            model = r.getString(1);
+                            model = model.substring("<info:fedora/model:".length(), model.length()-1);
+                        }
+                    } finally {
+                        DatabaseUtils.tryClose(r);
+                    }
+                } finally {
+                    DatabaseUtils.tryClose(s);
+                }
+            } finally {
+                DatabaseUtils.tryClose(c);
             }
-            r.close();
-            c.close();
         } catch (Exception e) {
             throw new RuntimeException(e);
         }

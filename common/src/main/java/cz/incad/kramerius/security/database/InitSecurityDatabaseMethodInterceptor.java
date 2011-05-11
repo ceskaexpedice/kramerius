@@ -16,8 +16,6 @@
  */
 package cz.incad.kramerius.security.database;
 
-import static cz.incad.kramerius.processes.database.ProcessDatabaseUtils.createProcessTable;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.Charset;
@@ -51,7 +49,7 @@ public class InitSecurityDatabaseMethodInterceptor implements MethodInterceptor 
             }
             return invocation.proceed();
         } finally {
-            if (connection != null) { connection.close(); }
+            if (connection != null) { DatabaseUtils.tryClose(connection); }
         }
     }
 
