@@ -6,6 +6,7 @@ import java.sql.SQLException;
 
 import com.google.inject.Provider;
 
+
 public class ConProvider4T implements Provider<Connection>{
 
 	public static Connection openConnection() throws  ClassNotFoundException, SQLException {
@@ -16,20 +17,18 @@ public class ConProvider4T implements Provider<Connection>{
 
 	public static Connection openLocalConnection() throws  ClassNotFoundException, SQLException {
 		Class.forName("org.postgresql.Driver");
-        Connection con = DriverManager.getConnection("jdbc:postgresql://localhost/kramerius4","fedoraAdmin","fedoraAdmin");
+        Connection con = DriverManager.getConnection("jdbc:postgresql://localhost/kramerius4fortests","fedoraAdmin","fedoraAdmin");
 		return con;
 	}
 	
 	@Override
 	public Connection get() {
 		try {
-			return openConnection();
+			return openLocalConnection();
 		} catch (ClassNotFoundException e) {
 			throw new RuntimeException(e);
 		} catch (SQLException e) {
 			throw new RuntimeException(e);
 		}
 	}
-	
-
 }
