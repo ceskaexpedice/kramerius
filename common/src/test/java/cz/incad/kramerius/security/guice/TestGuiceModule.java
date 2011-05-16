@@ -48,13 +48,7 @@ public class TestGuiceModule extends AbstractGuiceTestCase {
         RightCriteriumWrapper existingWrapper = wrapperFactory.loadExistingWrapper(CriteriumType.CLASS, MovingWall.class.getName(), -1, null);
         org.junit.Assert.assertEquals("cz.incad.kramerius.security.impl.RightCriteriumWrapperImpl", existingWrapper.getClass().getName());
         
-
-        RightCriteriumWrapper embargoCriterium = wrapperFactory.createCriteriumWrapper("cz.knav.rights.embargo");
-        embargoCriterium.getRightCriterium().setCriteriumParamValues(new Object[] {"1","2","3"});
-        embargoCriterium.getRightCriterium().setEvaluateContext(contextFactory.create("ABC", injector.getProvider(User.class).get(), "localhost", "localhost"));
-        embargoCriterium.getRightCriterium().evalute();
         
-        System.out.println(embargoCriterium);
     }
     
     @Override
