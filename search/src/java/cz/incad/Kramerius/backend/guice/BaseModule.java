@@ -9,7 +9,6 @@ import com.google.inject.AbstractModule;
 import com.google.inject.Scopes;
 import com.google.inject.name.Names;
 
-import cz.incad.Kramerius.security.RequestIsUserInRoleDecision;
 import cz.incad.kramerius.FedoraAccess;
 import cz.incad.kramerius.MostDesirable;
 import cz.incad.kramerius.SolrAccess;
@@ -32,7 +31,6 @@ import cz.incad.kramerius.processes.impl.GCSchedulerImpl;
 import cz.incad.kramerius.processes.impl.ProcessSchedulerImpl;
 import cz.incad.kramerius.relation.RelationService;
 import cz.incad.kramerius.relation.impl.RelationServiceImpl;
-import cz.incad.kramerius.security.IsUserInRoleDecision;
 import cz.incad.kramerius.security.SecuredFedoraAccessImpl;
 import cz.incad.kramerius.service.DeleteService;
 import cz.incad.kramerius.service.ExportService;
@@ -82,7 +80,6 @@ public class BaseModule extends AbstractModule {
 		bind(ResourceBundleService.class).to(ResourceBundleServiceImpl.class).in(Scopes.SINGLETON);
 		//bind(JNDIConnectionProvider.class).toInstance(createKramerius4Provider());
 		
-		bind(IsUserInRoleDecision.class).to(RequestIsUserInRoleDecision.class);
 
 		bind(LocalizationContext.class).toProvider(CustomLocalizedContextProvider.class);
 		
