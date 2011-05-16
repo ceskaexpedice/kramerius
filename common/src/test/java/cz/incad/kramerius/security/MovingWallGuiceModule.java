@@ -28,7 +28,7 @@ import cz.incad.kramerius.relation.RelationService;
 import cz.incad.kramerius.relation.impl.RelationServiceImpl;
 import cz.incad.kramerius.security.impl.RightCriteriumContextFactoryImpl;
 
-public class MocksGuiceModule extends AbstractModule {
+public class MovingWallGuiceModule extends AbstractModule {
 
     @Override
     protected void configure() {
