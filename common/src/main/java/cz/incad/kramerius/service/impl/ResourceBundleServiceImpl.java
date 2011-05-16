@@ -31,7 +31,6 @@ import java.util.Vector;
 import java.util.logging.Level;
 
 import com.google.inject.Inject;
-import com.google.inject.internal.Nullable;
 import com.google.inject.name.Named;
 
 import cz.incad.kramerius.Constants;
