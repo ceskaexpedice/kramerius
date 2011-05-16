@@ -17,7 +17,6 @@ import com.google.inject.Inject;
 import com.google.inject.Provider;
 
 import cz.incad.Kramerius.security.KrameriusRoles;
-import cz.incad.kramerius.security.IsUserInRoleDecision;
 import cz.incad.kramerius.security.SecuredActions;
 import cz.incad.kramerius.security.SpecialObjects;
 import cz.incad.kramerius.security.User;
