@@ -1,0 +1,5 @@
+# Embeded criteriums
+cz.incad.kramerius.security.impl.criteria.MovingWall
+cz.incad.kramerius.security.impl.criteria.StrictIPAddresFilter
+cz.incad.kramerius.security.impl.criteria.DefaultIPAddressFilter
+cz.incad.kramerius.security.impl.criteria.PolicyFlag
