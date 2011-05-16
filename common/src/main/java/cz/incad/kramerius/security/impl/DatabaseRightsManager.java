@@ -39,6 +39,8 @@ import cz.incad.kramerius.security.RightCriterium;
 import cz.incad.kramerius.security.RightCriteriumContext;
 import cz.incad.kramerius.security.RightCriteriumException;
 import cz.incad.kramerius.security.RightCriteriumParams;
+import cz.incad.kramerius.security.RightCriteriumWrapper;
+import cz.incad.kramerius.security.RightCriteriumWrapperFactory;
 import cz.incad.kramerius.security.RightsManager;
 import cz.incad.kramerius.security.SpecialObjects;
 import cz.incad.kramerius.security.User;
@@ -65,6 +67,8 @@ public class DatabaseRightsManager implements RightsManager {
     @Inject
     UserManager userManager;
 
+    @Inject
+    RightCriteriumWrapperFactory criteriumWrapperFactory;
     
     
     @Override
@@ -88,7 +92,7 @@ public class DatabaseRightsManager implements RightsManager {
                 } else {
                     dbUser = userManager.findGroup(groupId);
                 }
-                returnsList.add(RightsDBUtils.createRight(rs, dbUser));
+                returnsList.add(RightsDBUtils.createRight(rs, dbUser, criteriumWrapperFactory));
                 return true;
             }
         }.executeQuery(sql);
@@ -121,7 +125,7 @@ public class DatabaseRightsManager implements RightsManager {
                 } else {
                     dbUser = userManager.findGroup(groupId);
                 }
-                returnsList.add(RightsDBUtils.createRight(rs, dbUser));
+                returnsList.add(RightsDBUtils.createRight(rs, dbUser, criteriumWrapperFactory));
                 return true;
             }
         }.executeQuery(sql);
@@ -157,6 +161,7 @@ public class DatabaseRightsManager implements RightsManager {
             
             @Override
             public boolean handleRow(ResultSet rs, List<Right> returnsList) throws SQLException {
+                //userId - blby
                 int userId = rs.getInt("user_id");
                 int groupId = rs.getInt("group_id");
 
@@ -168,7 +173,7 @@ public class DatabaseRightsManager implements RightsManager {
                     dbUser = SecurityDBUtils.createUser(rs);
                 }
                 
-                returnsList.add(RightsDBUtils.createRight(rs, dbUser));
+                returnsList.add(RightsDBUtils.createRight(rs, dbUser, criteriumWrapperFactory));
                 return true;
             }
         }.executeQuery(sql);
@@ -275,7 +280,7 @@ public class DatabaseRightsManager implements RightsManager {
                 } else {
                     dbUser = userManager.findGroup(groupId);
                 }
-                returnsList.add(RightsDBUtils.createRight(rs, dbUser));
+                returnsList.add(RightsDBUtils.createRight(rs, dbUser, criteriumWrapperFactory));
                 return true;
             }
         }.executeQuery(sql, id);
@@ -330,14 +335,14 @@ public class DatabaseRightsManager implements RightsManager {
     }
 
     @Override
-    public RightCriterium findRightCriteriumById(int critId) {
+    public RightCriteriumWrapper findRightCriteriumById(int critId) {
         StringTemplate template = SecurityDatabaseUtils.stGroup().getInstanceOf("findCriteriumById");
-        List<RightCriterium> crits = new JDBCQueryTemplate<RightCriterium>(this.provider.get()) {
+        List<RightCriteriumWrapper> crits = new JDBCQueryTemplate<RightCriteriumWrapper>(this.provider.get()) {
 
             @Override
-            public boolean handleRow(ResultSet rs, List<RightCriterium> returnsList) throws SQLException {
-                RightCriterium crit = RightsDBUtils.createCriterium(rs);
-                returnsList.add(crit);
+            public boolean handleRow(ResultSet rs, List<RightCriteriumWrapper> returnsList) throws SQLException {
+                RightCriteriumWrapper wrapper = RightsDBUtils.createCriteriumWrapper(criteriumWrapperFactory, rs);
+                returnsList.add(wrapper);
                 return true;
             }
         }.executeQuery(template.toString(), critId);
@@ -348,8 +353,8 @@ public class DatabaseRightsManager implements RightsManager {
     @Override
     @InitSecurityDatabase
     public int insertRight(final Right right) throws SQLException {
-        final RightCriterium criterium = right.getCriterium();
-        final RightCriteriumParams params = criterium != null ? criterium.getCriteriumParams() : null;
+        final RightCriteriumWrapper criteriumWrapper = right.getCriteriumWrapper();
+        final RightCriteriumParams params = criteriumWrapper != null ? criteriumWrapper.getCriteriumParams() : null;
         final Connection con = provider.get();
         return (Integer) new JDBCTransactionTemplate(con, true).updateWithTransaction(new JDBCCommand() {
 
@@ -370,13 +375,13 @@ public class DatabaseRightsManager implements RightsManager {
 
             @Override
             public Object executeJDBCCommand() throws SQLException {
-                if (criterium != null) {
-                    if (criterium.getId() < 1) {
-                        criterium.setId(insertRightCriteriumImpl(con, criterium));
+                if (criteriumWrapper != null) {
+                    if (criteriumWrapper.getId() < 1) {
+                        criteriumWrapper.setId(insertRightCriteriumImpl(con, criteriumWrapper));
                     } else {
-                        updateRightCriteriumImpl(con, criterium);
+                        updateRightCriteriumImpl(con, criteriumWrapper);
                     }
-                    return criterium.getId();
+                    return criteriumWrapper.getId();
                 } else {
                     return -1;
                 }
@@ -394,8 +399,8 @@ public class DatabaseRightsManager implements RightsManager {
 
     @InitSecurityDatabase
     public void updateRight(final Right right) throws SQLException {
-        final RightCriterium criterium = right.getCriterium();
-        final RightCriteriumParams params = criterium != null ? criterium.getCriteriumParams() : null;
+        final RightCriteriumWrapper criteriumWrapper = right.getCriteriumWrapper();
+        final RightCriteriumParams params = criteriumWrapper != null ? criteriumWrapper.getCriteriumParams() : null;
         LOGGER.log(Level.FINE, "got connection from provider ");
         final Connection con = provider.get();
         new JDBCTransactionTemplate(con, true).updateWithTransaction(new JDBCCommand() {
@@ -417,13 +422,13 @@ public class DatabaseRightsManager implements RightsManager {
 
             @Override
             public Object executeJDBCCommand() throws SQLException {
-                if (criterium != null) {
-                    if (criterium.getId() < 1) {
-                        criterium.setId(insertRightCriteriumImpl(con, criterium));
+                if (criteriumWrapper != null) {
+                    if (criteriumWrapper.getId() < 1) {
+                        criteriumWrapper.setId(insertRightCriteriumImpl(con, criteriumWrapper));
                     } else {
-                        updateRightCriteriumImpl(con, criterium);
+                        updateRightCriteriumImpl(con, criteriumWrapper);
                     }
-                    return criterium.getId();
+                    return criteriumWrapper.getId();
                 } else {
                     return -1;
                 }
@@ -451,7 +456,7 @@ public class DatabaseRightsManager implements RightsManager {
     }
 
     @InitSecurityDatabase
-    public void updateRightCriterium(final RightCriterium criterium) throws SQLException {
+    public void updateRightCriterium(final RightCriteriumWrapper criterium) throws SQLException {
         final RightCriteriumParams params = criterium.getCriteriumParams();
         final Connection con = provider.get();
         new JDBCTransactionTemplate(con, true).updateWithTransaction(new JDBCCommand() {
@@ -491,8 +496,8 @@ public class DatabaseRightsManager implements RightsManager {
         }, new JDBCCommand() {
             @Override
             public Object executeJDBCCommand() throws SQLException {
-                if (right.getCriterium() != null) {
-                    deleteRightCriteriumImpl(con, right.getCriterium());
+                if (right.getCriteriumWrapper() != null) {
+                    deleteRightCriteriumImpl(con, right.getCriteriumWrapper());
                 }
                 return -1;
             }
@@ -509,7 +514,7 @@ public class DatabaseRightsManager implements RightsManager {
     }
 
     @InitSecurityDatabase
-    public void deleteRightCriteriumImpl(Connection con, RightCriterium criterium) throws SQLException {
+    public void deleteRightCriteriumImpl(Connection con, RightCriteriumWrapper criterium) throws SQLException {
         StringTemplate template = SecurityDatabaseUtils.stGroup().getInstanceOf("deleteRightCriterium");
         JDBCUpdateTemplate jdbcTemplate = new JDBCUpdateTemplate(con, false);
         String sql = template.toString();
@@ -518,9 +523,9 @@ public class DatabaseRightsManager implements RightsManager {
     }
 
     @InitSecurityDatabase
-    public void updateRightCriteriumImpl(Connection con, RightCriterium criterium) throws SQLException {
+    public void updateRightCriteriumImpl(Connection con, RightCriteriumWrapper criteriumWrapper) throws SQLException {
         StringTemplate template = SecurityDatabaseUtils.stGroup().getInstanceOf("updateRightCriterium");
-        template.setAttribute("criterium", criterium);
+        template.setAttribute("criteriumWrapper", criteriumWrapper);
         JDBCUpdateTemplate jdbcTemplate = new JDBCUpdateTemplate(con, false);
         String sql = template.toString();
         LOGGER.fine(sql);
@@ -552,7 +557,7 @@ public class DatabaseRightsManager implements RightsManager {
 
     @Override
     @InitSecurityDatabase
-    public int insertRightCriterium(final RightCriterium criterium) throws SQLException {
+    public int insertRightCriterium(final RightCriteriumWrapper criterium) throws SQLException {
         final RightCriteriumParams params = criterium.getCriteriumParams();
         final Connection con = provider.get();
 
@@ -580,9 +585,10 @@ public class DatabaseRightsManager implements RightsManager {
     }
 
     @InitSecurityDatabase
-    public int insertRightCriteriumImpl(Connection con, RightCriterium criterium) throws SQLException {
+    public int insertRightCriteriumImpl(Connection con, RightCriteriumWrapper criterium) throws SQLException {
         StringTemplate template = SecurityDatabaseUtils.stGroup().getInstanceOf("insertRightCriterium");
-        template.setAttribute("criterium", criterium);
+        template.setAttribute("criteriumWrapper", criterium);
+        template.setAttribute("type", criterium.getCriteriumType().getVal());
         JDBCUpdateTemplate jdbcTemplate = new JDBCUpdateTemplate(con, false);
         String sql = template.toString();
         LOGGER.fine(sql);

@@ -22,17 +22,18 @@ import cz.incad.kramerius.security.RightCriterium;
 import cz.incad.kramerius.security.RightCriteriumException;
 import cz.incad.kramerius.security.RightCriteriumContext;
 import cz.incad.kramerius.security.EvaluatingResult;
+import cz.incad.kramerius.security.RightCriteriumWrapper;
 
 public class RightImpl implements Right {
     
     private int rightId;
     private int fixedPriority;
-    private RightCriterium crit;
+    private RightCriteriumWrapper crit;
     private String uuid;
     private String action;
     private AbstractUser user;
     
-    public RightImpl(int rightId, RightCriterium crit, String uuid, String action, AbstractUser user) {
+    public RightImpl(int rightId, RightCriteriumWrapper crit, String uuid, String action, AbstractUser user) {
         super();
         this.rightId = rightId;
         this.crit = crit;
@@ -68,19 +69,16 @@ public class RightImpl implements Right {
         this.action = action;        
     }
 
-    public void setParam(RightCriterium param) {
-        this.crit = param;
-    }
 
     @Override
-    public RightCriterium getCriterium() {
+    public RightCriteriumWrapper getCriteriumWrapper() {
         return this.crit;
     }
     
     
 
     @Override
-    public void setCriterium(RightCriterium rightCriterium) {
+    public void setCriteriumWrapper(RightCriteriumWrapper rightCriterium) {
         this.crit = rightCriterium;
     }
 
@@ -100,9 +98,14 @@ public class RightImpl implements Right {
     @Override 
     public synchronized EvaluatingResult evaluate(RightCriteriumContext ctx) throws RightCriteriumException {
         if (this.crit != null){
-            this.crit.setEvaluateContext(ctx);
-            EvaluatingResult result = this.crit.evalute();
-            this.crit.setEvaluateContext(null);
+            RightCriterium rCrit = this.crit.getRightCriterium();
+            rCrit.setEvaluateContext(ctx);
+            if (this.crit.getCriteriumParams() != null) {
+                rCrit.setCriteriumParamValues(this.crit.getCriteriumParams().getObjects());
+            }
+            EvaluatingResult result = rCrit.evalute();
+            rCrit.setEvaluateContext(null);
+            rCrit.setCriteriumParamValues(new Object[] {});
             return result;
         // kdyz neni zadne kriterium, pak je akce povolena
         } else return EvaluatingResult.TRUE;

@@ -16,9 +16,14 @@
  */
 package cz.incad.kramerius.security.impl;
 
+import java.io.FileNotFoundException;
+import java.io.FileReader;
 import java.io.Reader;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.script.Bindings;
+import javax.script.Invocable;
 import javax.script.ScriptContext;
 import javax.script.ScriptEngine;
 import javax.script.ScriptEngineManager;
@@ -28,17 +33,22 @@ import cz.incad.kramerius.security.RightCriteriumException;
 import cz.incad.kramerius.security.RightCriterium;
 import cz.incad.kramerius.security.RightCriteriumContext;
 import cz.incad.kramerius.security.EvaluatingResult;
-import cz.incad.kramerius.security.RightCriteriumParams;
 import cz.incad.kramerius.security.RightCriteriumPriorityHint;
 import cz.incad.kramerius.security.SecuredActions;
 
 
 
-class ScriptRightCriterium implements RightCriterium {
+public class ScriptRightCriterium implements RightCriterium {
     
-    private String scriptPath;
+    private ScriptRightCriteriumInfo info;
     private RightCriteriumContext context;
+    private Object[] params;
     
+    public ScriptRightCriterium(ScriptRightCriteriumInfo info) {
+        super();
+        this.info= info;
+    }
+
     @Override
     public RightCriteriumContext getEvaluateContext() {
         return this.context;
@@ -51,82 +61,71 @@ class ScriptRightCriterium implements RightCriterium {
 
     @Override
     public EvaluatingResult evalute() throws RightCriteriumException {
-//        try {
-//            ScriptEngineManager scriptEngineManager = new ScriptEngineManager();
-//            ScriptEngine scriptEngine = scriptEngineManager.getEngineByExtension("js");
-//            Bindings bindings = scriptEngine.getBindings(ScriptContext.ENGINE_SCOPE);
-//            bindings.put("evelauateContext", getEvaluateContext());
-//            Object retVal = scriptEngine.eval((Reader)null);
-//            if (retVal != null) {
-//               if (retVal instanceof Boolean) {
-//                   return ((Boolean) retVal).booleanValue();
-//               } else throw new RightCriteriumException("script must return boolean value"); 
-//            } else throw new RightCriteriumException("no return value from script !");
-//        } catch (ScriptException e) {
-//            throw new RightCriteriumException(e);
-//        }
-        throw new UnsupportedOperationException("");
+        try {
+            ScriptEngineManager scriptEngineManager = this.info.getScriptEngineManager();
+            String scriptEngineName = this.info.getScriptEngineName();
+            ScriptEngine engine = scriptEngineManager.getEngineByName(scriptEngineName);
+
+            engine.eval(new FileReader(this.info.getEvalFile()));
+            
+            Invocable inv = (Invocable) engine;
+            Object criteriumObject = engine.get(ScriptCriteriumLoaderImpl.RIGHTCRITERIUM_OBJECT);
+            
+            Object retVal = inv.invokeMethod(criteriumObject, ScriptRightCriteriumInfo.EVALUATE , new Object[]{getEvaluateContext(), getCriteriumParamValues()});
+            if (retVal != null) {
+               if (retVal instanceof Number) {
+                   EvaluatingResult result = 
+                       EvaluatingResult.valueOf(((Number)retVal).intValue());
+                   if (result != null) {
+                       return result;
+                   } else throw new RightCriteriumException("no result ..");
+               } else throw new RightCriteriumException("expecting integer value"); 
+            } else throw new RightCriteriumException("no return value of method !");
+        } catch (ScriptException e) {
+            throw new RightCriteriumException(e);
+        } catch (NoSuchMethodException e) {
+            throw new RightCriteriumException(e);
+        } catch (FileNotFoundException e) {
+            throw new RightCriteriumException(e);
+        }
     }
 
-    @Override
-    public int getCalculatedPriority() {
-        // TODO Auto-generated method stub
-        return 0;
-    }
-
-    @Override
-    public void setCalculatedPriority(int priority) {
-        // TODO Auto-generated method stub
-        
-    }
 
 
     @Override
     public RightCriteriumPriorityHint getPriorityHint() {
-        // TODO Auto-generated method stub
-        return null;
+        return this.info.getPriorityHint();
+    }
+
+
+    @Override
+    public Object[] getCriteriumParamValues() {
+        return this.params;
     }
 
     @Override
-    public int getId() {
-        // TODO Auto-generated method stub
-        return 0;
+    public void setCriteriumParamValues(Object[] params) {
+        this.params = params;
     }
 
-    @Override
-    public RightCriteriumParams getCriteriumParams() {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
-    @Override
-    public void setCriteriumParams(RightCriteriumParams params) {
-        // TODO Auto-generated method stub
-        
-    }
-
-    @Override
-    public void setId(int id) {
-        // TODO Auto-generated method stub
-        
-    }
 
     @Override
     public String getQName() {
-        // TODO Auto-generated method stub
-        return null;
+        return this.info.getQName();
     }
 
     @Override
     public boolean isParamsNecessary() {
-        // TODO Auto-generated method stub
-        return false;
+        return this.info.isParamsNecessary();
     }
 
     @Override
     public SecuredActions[] getApplicableActions() {
-        // TODO Auto-generated method stub
-        return null;
+        List<SecuredActions> actions = new ArrayList<SecuredActions>();
+        for (String act : this.info.getSecuredActions()) {
+            actions.add(SecuredActions.findByFormalName(act));
+        }
+        return (SecuredActions[]) actions.toArray(new SecuredActions[actions.size()]);
     }
 
     @Override
@@ -140,4 +139,6 @@ class ScriptRightCriterium implements RightCriterium {
         // TODO Auto-generated method stub
         return false;
     }
+    
+    
 }
