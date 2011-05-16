@@ -219,28 +219,28 @@ updateRightCriteriumParams(params) ::=<<
 >>
 
 /** vlozi nove kriterium */
-insertRightCriterium(criterium) ::=<<
-    $if(criterium.criteriumParams)$ 
+insertRightCriterium(criteriumWrapper, type) ::=<<
+    $if(criteriumWrapper.criteriumParams)$ 
         insert into rights_criterium_entity(crit_id,qname, "type",citeriumparam)
         values(nextval('crit_id_sequence'),
-            '$criterium.qName$',
-            1,
-            $criterium.criteriumParams.id$ )
+            '$criteriumWrapper.rightCriterium.qName$',
+            $type$,
+            $criteriumWrapper.criteriumParams.id$ )
     $else$
         insert into rights_criterium_entity(crit_id,qname,"type")
         values(nextval('crit_id_sequence'),
-            '$criterium.qName$',
-            1)
+            '$criteriumWrapper.rightCriterium.qName$',
+            $type$)
     $endif$  
 >>
 
 
 /** update kriteria */
-updateRightCriterium(criterium) ::=<<
+updateRightCriterium(criteriumWrapper) ::=<<
     UPDATE rights_criterium_entity
-        SET  qname='$criterium.qName$', 
-        citeriumparam=$if(criterium.criteriumParams)$ $criterium.criteriumParams.id$ $else$ NULL $endif$
-     WHERE crit_id=$criterium.id$;
+        SET  qname='$criteriumWrapper.rightCriterium.qName$', 
+        citeriumparam=$if(criteriumWrapper.criteriumParams)$ $criteriumWrapper.criteriumParams.id$ $else$ NULL $endif$
+     WHERE crit_id=$criteriumWrapper.id$;
 >>
 
 
@@ -256,20 +256,20 @@ updateRight(right,association, priority) ::=<<
         SET uuid='$right.pid$', 
             action='$right.action$', 
             fixed_priority=$priority$,
-            rights_crit=$if(right.criterium)$ $right.criterium.id$ $else$ NULL $endif$,
+            rights_crit=$if(right.criteriumWrapper)$ $right.criteriumWrapper.id$ $else$ NULL $endif$,
             "$association$"=$if(right.user)$ $right.user.id$ $else$ NULL $endif$
      WHERE right_id=$right.id$;
 >>
 
 /** vlozeni noveho prava */
 insertRight(right,association, priority) ::=<<
-    $if(right.criterium)$ 
+    $if(right.criteriumWrapper)$ 
         insert into right_entity(right_id,uuid,action,rights_crit,"$association$", fixed_priority) 
         values(
             nextval('right_id_sequence'),
             '$right.pid$',
             '$right.action$',
-            $right.criterium.id$,
+            $right.criteriumWrapper.id$,
             $right.user.id$,
             $priority$
             )
