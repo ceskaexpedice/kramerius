@@ -23,13 +23,9 @@ import cz.incad.kramerius.security.utils.RightsDBUtils;
 
 public abstract class AbstractCriterium implements RightCriterium {
 
-    protected int id=-1;
-    protected int fixedPriority;
-    protected int calculatedPriority;
     protected RightCriteriumContext evalContext;
-    protected RightCriteriumParams criteriumParams;
+    protected Object[] params;
 
-    
     
     @Override
     public RightCriteriumContext getEvaluateContext() {
@@ -41,39 +37,19 @@ public abstract class AbstractCriterium implements RightCriterium {
         this.evalContext = ctx;
     }
 
+
     @Override
-    public int getCalculatedPriority() {
-        return this.calculatedPriority;
+    public Object[] getCriteriumParamValues() {
+        return this.params;
     }
 
     @Override
-    public void setCalculatedPriority(int priority) {
-        this.calculatedPriority = priority;
-    }
-
-
-    @Override
-    public RightCriteriumParams getCriteriumParams() {
-        return this.criteriumParams;
-    }
-
-    @Override
-    public void setCriteriumParams(RightCriteriumParams params) {
-        this.criteriumParams = params;
-    }
-
-    @Override
-    public int getId() {
-        return this.id;
-    }
-    
-    @Override
-    public void setId(int id) {
-        this.id = id;
+    public void setCriteriumParamValues(Object[] params) {
+        this.params = params;
     }
 
     public Object[] getObjects() {
-        return this.criteriumParams != null ? this.criteriumParams.getObjects() : new Object[0];
+        return this.params != null ? this.params : new Object[0];
     }
 
     @Override

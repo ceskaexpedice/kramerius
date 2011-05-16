@@ -34,6 +34,7 @@ import cz.incad.kramerius.security.RightCriteriumException;
 import cz.incad.kramerius.security.RightCriteriumPriorityHint;
 import cz.incad.kramerius.security.SecuredActions;
 import cz.incad.kramerius.security.SecurityException;
+import cz.incad.kramerius.security.SpecialObjects;
 
 /**
  * Kontroluje priznak v metadatech RELS-EXT. 
@@ -50,8 +51,11 @@ public class PolicyFlag extends AbstractCriterium {
     public EvaluatingResult evalute() throws RightCriteriumException {
         try {
             FedoraAccess fa = getEvaluateContext().getFedoraAccess();
-            Document relsExt = fa.getRelsExt(getEvaluateContext().getRequestedUUID());
-            return checkPolicyElement(relsExt);
+            String requestedUUID = getEvaluateContext().getRequestedUUID();
+            if (!requestedUUID.equals(SpecialObjects.REPOSITORY.getUuid())) {
+                Document relsExt = fa.getRelsExt(requestedUUID);
+                return checkPolicyElement(relsExt);
+            } else return EvaluatingResult.TRUE;
         } catch (IOException e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
             return EvaluatingResult.TRUE;

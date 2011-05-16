@@ -33,7 +33,7 @@ public class Abonents extends AbstractCriterium implements RightCriterium {
 
     @Override
     public EvaluatingResult evalute() throws RightCriteriumException {
-        Object[] groups = this.getCriteriumParams().getObjects();
+        Object[] groups = this.getCriteriumParamValues();
         for (Object oneGroup : groups) {
             if (isUserInGroup(oneGroup.toString())) return EvaluatingResult.TRUE;
         }
