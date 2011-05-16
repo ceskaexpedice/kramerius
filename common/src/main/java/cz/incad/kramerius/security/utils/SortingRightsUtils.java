@@ -41,7 +41,7 @@ public class SortingRightsUtils {
         // vyzobani pravidel bez kriterii 
         for (Iterator iterator = processing.iterator(); iterator.hasNext();) {
             Right right = (Right) iterator.next();
-            if (right.getCriterium() == null) {
+            if (right.getCriteriumWrapper() == null) {
                 noCriterium.add(right);
                 iterator.remove();
             }
@@ -60,7 +60,7 @@ public class SortingRightsUtils {
         
         for (Iterator iterator = processing.iterator(); iterator.hasNext();) {
             Right right = (Right) iterator.next();
-            switch(right.getCriterium().getPriorityHint()) {
+            switch(right.getCriteriumWrapper().getRightCriterium().getPriorityHint()) {
                 case MIN: {
                     dynamicHintMin.add(right);
                     iterator.remove();

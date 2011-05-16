@@ -24,18 +24,21 @@ import cz.incad.kramerius.security.CriteriumType;
 import cz.incad.kramerius.security.Right;
 import cz.incad.kramerius.security.RightCriterium;
 import cz.incad.kramerius.security.RightCriteriumParams;
+import cz.incad.kramerius.security.RightCriteriumWrapper;
+import cz.incad.kramerius.security.RightCriteriumWrapperFactory;
 import cz.incad.kramerius.security.impl.RightCriteriumParamsImpl;
 import cz.incad.kramerius.security.impl.RightImpl;
 
 public class RightsDBUtils {
 
-    public static Right createRight(ResultSet rs, AbstractUser auser) throws SQLException {
+    // vytvori pravo z resultsetu s
+    public static Right createRight(ResultSet rs, AbstractUser auser,RightCriteriumWrapperFactory factory) throws SQLException {
         int rightId = rs.getInt("right_id");
         String uuidVal = rs.getString("uuid");
         String actionVal = rs.getString("action");
         int fixedPriority = rs.getInt("fixed_priority");
 
-        RightCriterium crit = RightsDBUtils.createCriterium(rs);
+        RightCriteriumWrapper crit = RightsDBUtils.createCriteriumWrapper(factory, rs);
         Right right = null;
         if (crit != null) {
             right = new RightImpl(rightId, crit, uuidVal, actionVal, auser);
@@ -47,9 +50,21 @@ public class RightsDBUtils {
         return right;
     }
     
+    public static RightCriteriumWrapper createCriteriumWrapper(RightCriteriumWrapperFactory factory, ResultSet rs) throws SQLException {
+        String qname = rs.getString("qname");
+        int rstype = rs.getInt("type");
+        int criteriumId = rs.getInt("crit_id");
+        CriteriumType type = CriteriumType.findByValue(rstype);
+        if (qname != null) {
+            return factory.loadExistingWrapper(type, qname, criteriumId, createCriteriumParams(rs));
+        } else return null;
+    }
+    
+    /*
     public static RightCriterium createCriterium(ResultSet rs) throws SQLException {
         String qname = rs.getString("qname");
         if ((qname != null) && (!qname.equals(""))) {
+            
             int criteriumId = rs.getInt("crit_id");
             String shortDesc = rs.getString("short_desc");
             String longDesc = rs.getString("long_desc");
@@ -57,6 +72,7 @@ public class RightsDBUtils {
             String vals = rs.getString("vals");
             int type = rs.getInt("type");
             RightCriterium crit = null;
+            
             if (critParamId > 0) {
                 Object[] objs = valsFromString(vals);
                 crit = CriteriumType.findByValue(type).createCriterium(criteriumId, critParamId, qname, shortDesc, longDesc, objs);
@@ -65,7 +81,7 @@ public class RightsDBUtils {
             }
             return crit;
         } else return null;
-    }
+    }*/
 
     public static Object[] valsFromString(String vals) {
         Object[] objs = vals != null ? vals.split(";") : new Object[0];
