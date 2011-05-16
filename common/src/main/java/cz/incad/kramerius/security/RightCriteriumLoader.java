@@ -26,14 +26,21 @@ import cz.incad.kramerius.security.impl.criteria.MovingWall;
 import cz.incad.kramerius.security.impl.criteria.PolicyFlag;
 import cz.incad.kramerius.security.impl.criteria.StrictIPAddresFilter;
 
+// ma za ukol nahrat skutecna kriteria... jsou ruzne implementace
 public interface RightCriteriumLoader {
+    
+    public CriteriumType getCriteriumType();
+    
+    public boolean isDefined(String qname);
     
     public List<RightCriterium> getCriteriums();
     
     public List<RightCriterium> getCriteriums(SecuredActions ...applActions);
 
-    public RightCriterium getCriterium(String criteriumQName);
+    public RightCriterium createCriterium(String criteriumQName);
+
     
+//    public RightCriterium createCriterium(int critId, int critParamId, String qname, String shortDesc, String longDesc,Object[] objs);
 //    public static List<RightCriterium> criteriums(SecuredActions ...actions ) throws InstantiationException, IllegalAccessException, ClassNotFoundException {
 //        List<String> clzz = criteriumClasses();
 //        List<RightCriterium> crits = new ArrayList<RightCriterium>();

@@ -43,7 +43,7 @@ public interface RightsManager {
 
     public RightCriteriumParams findParamById(int paramId);
 
-    public RightCriterium findRightCriteriumById(int critId);
+    public RightCriteriumWrapper findRightCriteriumById(int critId);
     
     public List<String> saturatePathAndCreatesPIDs(String uuid, String[] path);
 
@@ -51,9 +51,9 @@ public interface RightsManager {
 
     public void updateRight(Right right) throws SQLException;
 
-    public int insertRightCriterium(RightCriterium criterium) throws SQLException;
+    public int insertRightCriterium(RightCriteriumWrapper criterium) throws SQLException;
 
-    public void updateRightCriterium(RightCriterium criterium) throws SQLException;
+    public void updateRightCriterium(RightCriteriumWrapper criterium) throws SQLException;
 
     public int insertRightCriteriumParams(RightCriteriumParams criteriumParams) throws SQLException;
 

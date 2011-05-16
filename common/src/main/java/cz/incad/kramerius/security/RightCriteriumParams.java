@@ -17,7 +17,7 @@
 package cz.incad.kramerius.security;
 
 /**
- * Specific parameters for criterium 
+ * User defined parameters (raw values) for criterium. 
  */
 public interface RightCriteriumParams {
 	

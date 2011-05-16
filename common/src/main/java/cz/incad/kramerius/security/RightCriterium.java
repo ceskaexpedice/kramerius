@@ -18,25 +18,26 @@ package cz.incad.kramerius.security;
 
 import java.util.Map;
 
+
 /**
- * Represents specific right parameter. In most cases it is script or java class. 
+ * Represents user defined right criterium ( defined in java in this case ). 
  * 
- * This script parameter can have access to runtime variables such as MODS, DC, RELS-EXT etc. 
- * and can allow or disallow access to given object. 
- *
+ * Implementation must resolve user request to secured resource and return one of trhee possible 
+ * results TRUE, FALSE, NOT_APPLICABLE {@link EvaluatingResult}.  
+ * 
+ * @see RightCriteriumLoader
  * @author pavels
  */
 public interface RightCriterium {
     
-    public int getId();
-    
-    public String getQName();
-    
-    
-    public void setId(int id);
-    
     /**
-     * Evaluating context. Context for access to runtime variables (uuid, current user, etc..)
+     * Returns unique name of criterium.  
+     * @return
+     */
+    public String getQName();
+    /**
+     * Evaluating context. 
+     * Context for access to runtime variables (uuid, current user, etc..)
      * @return
      */
     public RightCriteriumContext getEvaluateContext();
@@ -48,26 +49,45 @@ public interface RightCriterium {
     public void setEvaluateContext(RightCriteriumContext ctx);
     
     /**
-     * Returns true, if the operation is allowed for current user
-     * @return
-     * @throws RightCriteriumException 
+     * Answer the question whether given user can access to requesting resource
+     * @return Result of evaluation
+     * @throws RightCriteriumException Something happen during evaluate
      */
     public EvaluatingResult evalute() throws RightCriteriumException;
     
-    public int getCalculatedPriority();
-    
-    public void setCalculatedPriority(int priority);
-    
-    
-    
+
+    /**
+     * Returns criterium hint. 
+     * @see RightCriteriumPriorityHint
+     */
     public RightCriteriumPriorityHint getPriorityHint();
+
     
-    public RightCriteriumParams getCriteriumParams();
     
-    public void setCriteriumParams(RightCriteriumParams params);
+    /**
+     * Returns params for this criterium
+     * @see RightCriteriumParams
+     * @return
+     */
+    public Object[] getCriteriumParamValues();
     
+    /**
+     * Sets params for this criterium
+     * @see RightCriteriumParams
+     * @param params 
+     */
+    public void setCriteriumParamValues(Object[] params);
+    
+    /**
+     * Returns true if params is necessary
+     * @return
+     */
     public boolean isParamsNecessary();
     
+    /**
+     * Returns all applicaable actions
+     * @return
+     */
     public SecuredActions[] getApplicableActions();
 
     

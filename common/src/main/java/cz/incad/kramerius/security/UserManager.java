@@ -52,6 +52,8 @@ public interface UserManager {
      */
     public User findUser(int user_id);
     
+    
+    
     /**
      * Find users which have loginname with given prefix
      * @param prefix prefix

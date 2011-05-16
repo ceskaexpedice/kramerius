@@ -17,16 +17,40 @@
 package cz.incad.kramerius.security;
 
 /**
- * Criterium evaluating result
+ * This represents answer the question whether current requesting user has access 
+ * to requesting resource. 
  */
 public enum EvaluatingResult {
 
-	/** operation is permited */
-	TRUE,
+	/** operation is permited - Yes, user has access to resource. */
+	TRUE(1),
     
-	/** operation is denided */
-    FALSE,
+	/** operation is denided  - No, user hasn't access to resource. */
+    FALSE(0),
     
-    /** it cannot be resolved by this criterium  */
-    NOT_APPLICABLE
+    /** it cannot be resolved by this criterium - I don't know, must resolve any other right (or right+criteirum) defined on requesting object. */
+    NOT_APPLICABLE(3);
+
+    
+    private EvaluatingResult(int rawVal) {
+        this.rawVal = rawVal;
+    }
+
+    
+    public int getRawVal() {
+        return rawVal;
+    }
+
+
+
+    public static EvaluatingResult valueOf(int rawVal) {
+        EvaluatingResult[] values = values();
+        for (EvaluatingResult evalREs : values) {
+            if (evalREs.getRawVal() == rawVal) return evalREs;
+        }
+        return null;
+    }
+    
+    
+    private int rawVal;
 }

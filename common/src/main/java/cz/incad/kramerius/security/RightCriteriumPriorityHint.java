@@ -16,9 +16,19 @@
  */
 package cz.incad.kramerius.security;
 
+/**
+ * Priority hint is some feature for ordering right criteriums.
+ *   
+ * If one criterium feels as the most important, it can say it through method <code>getPriorityHint</code>
+ * {@link RightCriterium#getPriorityHint()}. This act will affect the rights criterium ordering in resolution.
+ * 
+ * @author pavels
+ */
 public enum RightCriteriumPriorityHint {
-    
+
     MAX,
+    
     NORMAL,
+    
     MIN;
 }

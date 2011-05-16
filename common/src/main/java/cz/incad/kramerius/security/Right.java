@@ -73,13 +73,13 @@ public interface Right {
      * Returns associated criterium.
      * @return
      */
-    public RightCriterium getCriterium();
+    public RightCriteriumWrapper getCriteriumWrapper();
     
     /**
      * Associate new criterium with this right 
      * @param rightCriterium
      */
-    public void setCriterium(RightCriterium rightCriterium);
+    public void setCriteriumWrapper(RightCriteriumWrapper rightCriterium);
     
     
     /**

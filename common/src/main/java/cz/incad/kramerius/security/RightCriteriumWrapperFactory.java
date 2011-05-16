@@ -16,15 +16,20 @@
  */
 package cz.incad.kramerius.security;
 
-public enum RightCriteriumPriorityType {
+import java.util.List;
+
+/**
+ * This factory creates wrapper instances
+ * @author pavels
+ */
+public interface RightCriteriumWrapperFactory {
+
+    public RightCriteriumWrapper createCriteriumWrapper(String qname);
+
+    public RightCriteriumWrapper loadExistingWrapper(CriteriumType criteriumType, String qname, int identifier, RightCriteriumParams params);
     
-    /** 
-     * PRiorita je vypocitana systemem
-     */
-    CALCULATED,
+    public List<RightCriteriumWrapper> createAllCriteriumWrappers();
+
+    public List<RightCriteriumWrapper> createAllCriteriumWrappers(SecuredActions...actions);
     
-    /**
-     * Definovana uzivatelem
-     */
-    DEFINED;
 }
