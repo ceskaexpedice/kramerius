@@ -16,76 +16,17 @@
  */
 package cz.incad.kramerius.security;
 
-import cz.incad.kramerius.security.impl.RightCriteriumWrapperImpl;
-import cz.incad.kramerius.security.impl.RightCriteriumParamsImpl;
-
+/**
+ * Criterium type enum
+ * @author pavels
+ */
 public enum CriteriumType {
     
-    SCRIPT("script",0) {
-//        @Override
-//        public RightCriterium createCriterium(int critId, int critParamId, String qname, String shortDesc, String longDesc,Object[] objs) {
-//            try {
-//                Class<? extends RightCriterium> clz = (Class<? extends RightCriterium>) Class.forName(qname);
-//                RightCriteriumWrapperImpl crc = new RightCriteriumWrapperImpl(clz, critId);
-//                
-//                RightCriteriumParams params = new RightCriteriumParamsImpl(critParamId);
-//                params.setObjects(objs);
-//                params.setLongDescription(longDesc);
-//                params.setShortDescription(shortDesc);
-//                //crc.setObjects(objs);
-//                return crc;
-//            } catch (ClassNotFoundException e) {
-//                throw new IllegalStateException(e);
-//            }
-//        }
-//
-//        @Override
-//        public RightCriterium createCriteriumWithoutParams(int critId, String qname) {
-//            try {
-//                Class<? extends RightCriterium> clz = (Class<? extends RightCriterium>) Class.forName(qname);
-//                RightCriteriumWrapperImpl crc = new RightCriteriumWrapperImpl(clz, critId);
-//                return crc;
-//            } catch (ClassNotFoundException e) {
-//                throw new IllegalStateException(e);
-//            }
-//        }
-        
-        
-    } ,
-    
-    CLASS("class",1) {
-//        @Override
-//        public RightCriterium createCriterium(int critId, int critParamId, String qname, String shortDesc, String longDesc,Object[] objs) {
-//            try {
-//                Class<? extends RightCriterium> clz = (Class<? extends RightCriterium>) Class.forName(qname);
-//                RightCriteriumWrapperImpl crc = new RightCriteriumWrapperImpl(clz, critId);
-//
-//                RightCriteriumParams params = new RightCriteriumParamsImpl(critParamId);
-//                params.setObjects(objs);
-//                params.setLongDescription(longDesc);
-//                params.setShortDescription(shortDesc);
-//                //crc.setObjects(objs);
-//                crc.setCriteriumParams(params);
-//                
-//                return crc;
-//            } catch (ClassNotFoundException e) {
-//                throw new IllegalStateException(e);
-//            }
-//        }
-//
-//        @Override
-//        public RightCriterium createCriteriumWithoutParams(int critId, String qname) {
-//            try {
-//                Class<? extends RightCriterium> clz = (Class<? extends RightCriterium>) Class.forName(qname);
-//                RightCriteriumWrapperImpl crc = new RightCriteriumWrapperImpl(clz, critId);
-//                return crc;
-//            } catch (ClassNotFoundException e) {
-//                throw new IllegalStateException(e);
-//            }
-//        }
-        
-        
-    };
+    /** script type criterium */
+    SCRIPT("script",0),    
+
+    /** class type criterium */
+    CLASS("class",1);
     
     private String name;
     private int val;
@@ -94,16 +35,28 @@ public enum CriteriumType {
         this.name = name;
         this.val = val;
     }
+    
+    /**
+     * Criterium type name
+     * @return
+     */
     public String getName() {
         return name;
     }
+    
+    /**
+     * Db type discriminator
+     * @return
+     */
     public int getVal() {
         return val;
     }
     
-//    public abstract RightCriterium createCriterium(int critId, int critParamId, String qname, String shortDesc, String longDesc,Object[] objs);
-//    public abstract RightCriterium createCriteriumWithoutParams(int critId, String qname);
-    
+    /**
+     * Find criterium type by db value discriminator
+     * @param value raw value
+     * @return
+     */
     public static CriteriumType findByValue(int value) {
         CriteriumType[] vals = CriteriumType.values();
         for (CriteriumType critType : vals) {
