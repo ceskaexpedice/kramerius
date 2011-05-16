@@ -33,11 +33,13 @@ public class Create extends ServletRightsCommand {
     
     static java.util.logging.Logger LOGGER = java.util.logging.Logger.getLogger(Create.class.getName());
 
+    
+    
     @Override
     public void doCommand() {
         try {
             HttpServletRequest req = this.requestProvider.get();
-            Right right = RightsServlet.createRightFromPost(req, rightsManager, userManager);
+            Right right = RightsServlet.createRightFromPost(req, rightsManager, userManager, criteriumWrapperFactory);
 
             String uuid = right.getPid().substring("uuid:".length());
             String[] pathOfUUIDs = this.solrAccess.getPathOfUUIDs(uuid);

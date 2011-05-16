@@ -26,6 +26,7 @@ import cz.incad.kramerius.security.Right;
 import cz.incad.kramerius.security.RightCriterium;
 import cz.incad.kramerius.security.RightCriteriumContext;
 import cz.incad.kramerius.security.RightCriteriumException;
+import cz.incad.kramerius.security.RightCriteriumWrapper;
 import cz.incad.kramerius.security.SpecialObjects;
 import cz.incad.kramerius.utils.DCUtils;
 
@@ -80,14 +81,10 @@ public class RightWrapper implements Right{
         throw new UnsupportedOperationException("this is unsupported");
     }
 
-    public RightCriterium getCriterium() {
-        return new CriteriumWrapper(right.getCriterium());
+    public RightCriteriumWrapper getCriteriumWrapper() {
+        return new CriteriumGuiWrapper(right.getCriteriumWrapper());
     }
     
-    @Override
-    public void setCriterium(RightCriterium rightCriterium) {
-        throw new UnsupportedOperationException("this is unsupported");
-    }
 
     public EvaluatingResult evaluate(RightCriteriumContext ctx) throws RightCriteriumException {
         throw new IllegalStateException();
@@ -121,4 +118,9 @@ public class RightWrapper implements Right{
         else return ""+right.getFixedPriority();
     }
 
+    @Override
+    public void setCriteriumWrapper(RightCriteriumWrapper rightCriterium) {
+        throw new UnsupportedOperationException("");
+    }
+    
 }
