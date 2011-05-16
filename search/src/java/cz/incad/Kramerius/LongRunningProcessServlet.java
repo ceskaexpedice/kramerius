@@ -29,7 +29,6 @@ import cz.incad.Kramerius.backend.guice.GuiceServlet;
 import cz.incad.Kramerius.processes.ParamsLexer;
 import cz.incad.Kramerius.processes.ParamsParser;
 import cz.incad.Kramerius.security.KrameriusRoles;
-import cz.incad.Kramerius.security.utils.UserUtils;
 import cz.incad.kramerius.intconfig.InternalConfiguration;
 import cz.incad.kramerius.processes.DefinitionManager;
 import cz.incad.kramerius.processes.GCScheduler;
@@ -42,12 +41,12 @@ import cz.incad.kramerius.processes.ProcessScheduler;
 import cz.incad.kramerius.processes.States;
 import cz.incad.kramerius.processes.TypeOfOrdering;
 import cz.incad.kramerius.security.IsActionAllowed;
-import cz.incad.kramerius.security.IsUserInRoleDecision;
 import cz.incad.kramerius.security.SecuredActions;
 import cz.incad.kramerius.security.SecurityException;
 import cz.incad.kramerius.security.SpecialObjects;
 import cz.incad.kramerius.security.User;
 import cz.incad.kramerius.security.UserManager;
+import cz.incad.kramerius.security.utils.UserUtils;
 import cz.incad.kramerius.utils.ApplicationURL;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 import cz.incad.kramerius.utils.database.JDBCQueryTemplate;
@@ -77,9 +76,6 @@ public class LongRunningProcessServlet extends GuiceServlet {
 
     @Inject
     transient GCScheduler gcScheduler;
-
-    @Inject
-    transient IsUserInRoleDecision userInRoleDecision;
 
 
     @Inject
@@ -370,9 +366,9 @@ public class LongRunningProcessServlet extends GuiceServlet {
             }
         };
 
-        static boolean isInProcessAdminRole(IsUserInRoleDecision userInRoleDecision) {
-            return userInRoleDecision.isUserInRole(KrameriusRoles.LRPROCESS_ADMIN.getRoleName());
-        }
+//        static boolean isInProcessAdminRole(IsUserInRoleDecision userInRoleDecision) {
+//            return userInRoleDecision.isUserInRole(KrameriusRoles.LRPROCESS_ADMIN.getRoleName());
+//        }
 
         abstract void doAction(ServletContext context, HttpServletRequest req, HttpServletResponse resp, DefinitionManager defManager, LRProcessManager processManager, UserManager userManager, Provider<User> userProvider, IsActionAllowed actionAllowed);
     }
