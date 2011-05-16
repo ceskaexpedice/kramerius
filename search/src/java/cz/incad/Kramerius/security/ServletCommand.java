@@ -37,6 +37,7 @@ import com.google.inject.name.Named;
 import cz.incad.kramerius.FedoraAccess;
 import cz.incad.kramerius.SolrAccess;
 import cz.incad.kramerius.security.IsActionAllowed;
+import cz.incad.kramerius.security.RightCriteriumWrapperFactory;
 import cz.incad.kramerius.security.RightsManager;
 import cz.incad.kramerius.security.User;
 import cz.incad.kramerius.security.UserManager;
@@ -79,6 +80,9 @@ public abstract class ServletCommand {
     @Inject
     protected transient IsActionAllowed actionAllowed;
 
+    @Inject
+    protected transient RightCriteriumWrapperFactory criteriumWrapperFactory;
+    
     public abstract void doCommand();
 
 

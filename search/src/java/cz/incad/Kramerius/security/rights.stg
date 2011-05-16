@@ -79,8 +79,8 @@ rightTableRow(index,right, action,canhandlecommongroup, bundle) ::=<<
         </td>
 
 
-        $if(right.criterium)$
-            $rightCriterium(rightCriterium=right.criterium, bundle=bundle)$
+        $if(right.criteriumWrapper)$
+            $rightCriterium(rightCriteriumWrapper=right.criteriumWrapper, bundle=bundle)$
         $else$
             <td colspan="3" align="center" style="background-color:#E0E0E0">  </td>        
         $endif$
@@ -93,12 +93,12 @@ rightTableRow(index,right, action,canhandlecommongroup, bundle) ::=<<
 >>
 
 /** rendrovani kriteria */
-rightCriterium(rightCriterium, bundle) ::=<<
-    <td title="$rightCriterium.qName$">$bundle.(rightCriterium.qName)$</td>
+rightCriterium(rightCriteriumWrapper, bundle) ::=<<
+    <td title="$rightCriteriumWrapper.rightCriterium.qName$">$bundle.(rightCriteriumWrapper.rightCriterium.qName)$</td>
     
-    $if(rightCriterium.criteriumParams)$
-        <td title="$rightCriterium.criteriumParams.objects;seprator=";"$">
-         $rightCriterium.criteriumParams$
+    $if(rightCriteriumWrapper.criteriumParams)$
+        <td title="$rightCriteriumWrapper.criteriumParams.objects;seprator=";"$">
+         $rightCriteriumWrapper.criteriumParams$
         </td>
     $else$
         <td></td>
@@ -189,7 +189,7 @@ rightDialog(titles, objects, allCriteriums, criteriumParams, allParams, uuid,act
                     <tr><td>
                             <div id="criteriumDiv">
                                 <select id="criterium" name="criterium" size="1">
-                                $allCriteriums:{k|<option value="$k.qName$">$bundle.(k.qName)$</option>};separator="\n",null="cz.incad.kramerius.security.impl.criteria.none"$
+                                $allCriteriums:{k|<option value="$k.rightCriterium.qName$">$bundle.(k.rightCriterium.qName)$</option>};separator="\n",null="cz.incad.kramerius.security.impl.criteria.none"$
                               </select>
                             </div>
 

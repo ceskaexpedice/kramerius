@@ -49,7 +49,7 @@ newRightData(right, criterium, criteriumParams,allParams, allCriteriums) ::=<<
        $allParams:{param|$paramInitValues(param=param)$};separator=","$
     },
     needParamsMap:{
-        $allCriteriums:{crit | "$crit.qName$":"$crit.paramsNecessary$"};separator=","$ 
+        $allCriteriums:{crit | "$crit.rightCriterium.qName$":"$crit.rightCriterium.paramsNecessary$"};separator=","$ 
     },
     $initValues(right=right, criterium=criterium,criteriumParams=criteriumParams)$
 }
@@ -86,7 +86,7 @@ initValues(right, criterium, criteriumParams) ::=<<
 
         $endif$
         ,
-        "criterium":"$criterium.qName$"
+        "criterium":"$criterium.rightCriterium.qName$"
         ,
         "fixedPriority":"$right.fixedPriority$"
         ,

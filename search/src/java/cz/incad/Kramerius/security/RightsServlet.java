@@ -21,19 +21,10 @@ import static cz.incad.utils.IKeys.UUID_PARAMETER;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringReader;
-import java.io.UnsupportedEncodingException;
 import java.nio.charset.Charset;
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
 import java.util.Locale;
-import java.util.Map;
-import java.util.ResourceBundle;
 import java.util.logging.Level;
 
-import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -53,34 +44,24 @@ import cz.incad.Kramerius.security.rightscommands.get.NewRightHtml;
 import cz.incad.Kramerius.security.rightscommands.get.NewRightJSData;
 import cz.incad.Kramerius.security.rightscommands.get.ShowRightsHtml;
 import cz.incad.Kramerius.security.rightscommands.get.ShowsActionsTableHtml;
-import cz.incad.Kramerius.security.rightscommands.get.ValidateCriteriumParamsHtml;
 import cz.incad.Kramerius.security.rightscommands.post.Create;
 import cz.incad.Kramerius.security.rightscommands.post.Delete;
 import cz.incad.Kramerius.security.rightscommands.post.Edit;
-import cz.incad.Kramerius.security.strenderers.AbstractUserWrapper;
-import cz.incad.Kramerius.security.strenderers.CriteriumParamsWrapper;
-import cz.incad.Kramerius.security.strenderers.CriteriumWrapper;
-import cz.incad.Kramerius.security.strenderers.RightWrapper;
-import cz.incad.Kramerius.security.strenderers.SecuredActionWrapper;
-import cz.incad.Kramerius.security.strenderers.TitlesForObjects;
 import cz.incad.Kramerius.security.utils.UserFieldParser;
 import cz.incad.kramerius.FedoraAccess;
 import cz.incad.kramerius.SolrAccess;
 import cz.incad.kramerius.security.AbstractUser;
-import cz.incad.kramerius.security.Group;
 import cz.incad.kramerius.security.IsActionAllowed;
 import cz.incad.kramerius.security.Right;
-import cz.incad.kramerius.security.RightCriterium;
 import cz.incad.kramerius.security.RightCriteriumParams;
+import cz.incad.kramerius.security.RightCriteriumWrapper;
+import cz.incad.kramerius.security.RightCriteriumWrapperFactory;
 import cz.incad.kramerius.security.RightsManager;
 import cz.incad.kramerius.security.SecuredActions;
 import cz.incad.kramerius.security.User;
 import cz.incad.kramerius.security.UserManager;
-import cz.incad.kramerius.security.impl.ClassRightCriterium;
 import cz.incad.kramerius.security.impl.RightCriteriumParamsImpl;
 import cz.incad.kramerius.security.impl.RightImpl;
-import cz.incad.kramerius.security.impl.criteria.CriteriumsLoader;
-import cz.incad.kramerius.security.utils.SortingRightsUtils;
 import cz.incad.kramerius.service.ResourceBundleService;
 import cz.incad.kramerius.utils.IOUtils;
 import cz.incad.kramerius.utils.pid.LexerException;
@@ -177,8 +158,6 @@ public class RightsServlet extends GuiceServlet {
     }
 
 
-    
-    
     static enum GetCommandsEnum {
 
         /** zobrazeni prav */
@@ -190,10 +169,10 @@ public class RightsServlet extends GuiceServlet {
         /** editace prava - javascript */
         editrightjsdata(EditRightsJSData.class),
         /** nove pravo - javascript */
-        newrightjsdata(NewRightJSData.class),
+        newrightjsdata(NewRightJSData.class);
 
         /** validuje parametry kriteria */
-        validatecriteriums(ValidateCriteriumParamsHtml.class);
+        //validatecriteriums(ValidateCriteriumParamsHtml.class);
         
         private Class<? extends ServletCommand> commandClass;
         
@@ -232,15 +211,13 @@ public class RightsServlet extends GuiceServlet {
         return template.toString();
     }
 
-
-
     public static Right createRightFromPostIds(HttpServletRequest req, RightsManager rightsManager, UserManager userManager) throws InstantiationException, IllegalAccessException, ClassNotFoundException {
         String rightId = req.getParameter("rightId");
         return rightsManager.findRightById(Integer.parseInt(rightId));
     }
     
 
-    public static Right createRightFromPost(HttpServletRequest req, RightsManager rightsManager, UserManager userManager) throws InstantiationException, IllegalAccessException, ClassNotFoundException {
+    public static Right createRightFromPost(HttpServletRequest req, RightsManager rightsManager, UserManager userManager, RightCriteriumWrapperFactory factory) throws InstantiationException, IllegalAccessException, ClassNotFoundException {
         String rightId = req.getParameter("rightId");
         String uuidHidden = req.getParameter("uuidHidden");
         String priorityHidden = req.getParameter("priorityHidden");
@@ -249,7 +226,7 @@ public class RightsServlet extends GuiceServlet {
         
         
         RightCriteriumParams params = criteriumParamsFromPost(rightsManager, req);
-        RightCriterium rightCriterium = criteriumFromPost(rightsManager, req, params);
+        RightCriteriumWrapper rightCriterium = criteriumFromPost(rightsManager, req, params, factory);
         AbstractUser auser = userFromPost(userManager, req);
         
         SecuredActions securedAction = SecuredActions.findByFormalName(formalActionHidden);
@@ -257,7 +234,7 @@ public class RightsServlet extends GuiceServlet {
         if (securedAction != null) {
             if ((rightId != null) && (!rightId.equals("")) && (Integer.parseInt(rightId) > 0)) {
                 right = rightsManager.findRightById(Integer.parseInt(rightId));
-                right.setCriterium(rightCriterium);
+                right.setCriteriumWrapper(rightCriterium);
                 right.setUser(auser);
             } else {
                 right = new RightImpl(-1, rightCriterium, uuidHidden, securedAction.getFormalName(), auser);
@@ -304,25 +281,22 @@ public class RightsServlet extends GuiceServlet {
 
 
 
-    public static RightCriterium criteriumFromPost(RightsManager rightsManager, HttpServletRequest req, RightCriteriumParams params) throws InstantiationException, IllegalAccessException, ClassNotFoundException {
+    public static RightCriteriumWrapper criteriumFromPost(RightsManager rightsManager, HttpServletRequest req, RightCriteriumParams params, RightCriteriumWrapperFactory factory) throws InstantiationException, IllegalAccessException, ClassNotFoundException {
         String rightCriteriumId = req.getParameter("rightCriteriumId");
         String criteriumHidden = req.getParameter("criteriumHidden");
         if (criteriumHidden.equals(NONE_CONSTANT)) return null;
         
-        RightCriterium rightCriterium = null;
+        RightCriteriumWrapper rightCriterium = null;
         if ((rightCriteriumId != null) && (!rightCriteriumId.equals("")) && (Integer.parseInt(rightCriteriumId) > 0)) {
             rightCriterium = rightsManager.findRightCriteriumById(Integer.parseInt(rightCriteriumId));
-            if (!rightCriterium.getQName().equals(criteriumHidden)) {
-                rightCriterium = ClassRightCriterium.instanceCriterium((Class<? extends RightCriterium>) Class.forName(criteriumHidden));
-                rightCriterium.setId(-1);
+            if (!rightCriterium.getRightCriterium().getQName().equals(criteriumHidden)) {
+                rightCriterium = factory.createCriteriumWrapper(criteriumHidden);
             }
         } else if ((!criteriumHidden.equals(NONE_CONSTANT) && (!"".equals(criteriumHidden.trim())))){
-            rightCriterium = ClassRightCriterium.instanceCriterium((Class<? extends RightCriterium>) Class.forName(criteriumHidden));
-            rightCriterium.setId(-1);
+            rightCriterium = factory.createCriteriumWrapper(criteriumHidden);
 
         }
-        
-        if ((rightCriterium != null) && (rightCriterium.isParamsNecessary())){
+        if ((rightCriterium != null) && (rightCriterium.getRightCriterium().isParamsNecessary())){
             rightCriterium.setCriteriumParams(params);
         }
         return rightCriterium;
