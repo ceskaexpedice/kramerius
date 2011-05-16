@@ -17,30 +17,20 @@
 package cz.incad.kramerius.security.database.impl;
 
 import java.io.IOException;
-import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.Arrays;
 
 import junit.framework.Assert;
 
-import org.dbunit.DBTestCase;
-import org.dbunit.PropertiesBasedJdbcDatabaseTester;
-import org.dbunit.dataset.IDataSet;
-import org.dbunit.dataset.xml.FlatXmlDataSetBuilder;
 import org.easymock.EasyMock;
 import org.junit.Before;
 import org.junit.Test;
 
-import com.google.inject.AbstractModule;
-import com.google.inject.Binding;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
-import com.google.inject.name.Names;
 
 import cz.incad.kramerius.AbstractGuiceTestCase;
-import cz.incad.kramerius.ConProvider4T;
 import cz.incad.kramerius.TestDBConnectionModule;
-import cz.incad.kramerius.processes.database.Kramerius4ConnectionProvider;
 import cz.incad.kramerius.security.CriteriumType;
 import cz.incad.kramerius.security.Right;
 import cz.incad.kramerius.security.RightCriteriumParams;
@@ -49,9 +39,7 @@ import cz.incad.kramerius.security.RightCriteriumWrapperFactory;
 import cz.incad.kramerius.security.RightsManager;
 import cz.incad.kramerius.security.SecuredActions;
 import cz.incad.kramerius.security.User;
-import cz.incad.kramerius.security.UserManager;
 import cz.incad.kramerius.security.guice.GuiceSecurityModule;
-import cz.incad.kramerius.security.guice.MockGuiceSecurityModule;
 import cz.incad.kramerius.security.guice.MockRightCriteriumContextGuiceMudule;
 import cz.incad.kramerius.security.impl.RightCriteriumParamsImpl;
 import cz.incad.kramerius.security.impl.RightImpl;
