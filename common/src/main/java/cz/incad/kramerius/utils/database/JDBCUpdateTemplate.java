@@ -28,6 +28,8 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.logging.Level;
 
+import cz.incad.kramerius.utils.DatabaseUtils;
+
 public class JDBCUpdateTemplate {
 
     static java.util.logging.Logger LOGGER = java.util.logging.Logger.getLogger(JDBCQueryTemplate.class.getName());
@@ -46,16 +48,13 @@ public class JDBCUpdateTemplate {
         this.closeConnectionFlag = closeConnectionFlag;
     }
 
-
-
-
+    
     public int executeUpdate(String sql, Object... params) throws SQLException {
         PreparedStatement pstm = null;
         ResultSet rs=null;
         int result = 0;
         try {
-            
-            pstm = connection.prepareStatement(sql,Statement.RETURN_GENERATED_KEYS);
+            pstm = createPreparedStatement(connection,sql);
             for (int i = 0; i < params.length; i++) {
                 setParam(i+1, params[i], pstm);
             }
@@ -65,29 +64,21 @@ public class JDBCUpdateTemplate {
                 result = rs.getInt(1);
             }
         } finally {
-            if (rs != null)
-                try {
-                    rs.close();
-                } catch (SQLException e) {
-                    LOGGER.log(Level.SEVERE, e.getMessage(), e);
-                }
-            if (pstm != null ) {
-                try {
-                    pstm.close();
-                } catch (SQLException e) {
-                    LOGGER.log(Level.SEVERE, e.getMessage(), e);
-                }
+            if (rs != null) {
+                DatabaseUtils.tryClose(rs);
             }
-            
+            if (pstm != null ) {
+                DatabaseUtils.tryClose(pstm);
+            }
             if (closeConnectionFlag && connection != null) {
-                try {
-                    connection.close();
-                } catch (SQLException e) {
-                    LOGGER.log(Level.SEVERE, e.getMessage(), e);
-                }
+                DatabaseUtils.tryClose(connection);
             }
         }
         return result;
+    }
+
+    public PreparedStatement createPreparedStatement(Connection con, String sql) throws SQLException {
+        return con.prepareStatement(sql,Statement.RETURN_GENERATED_KEYS);
     }
     
     private void setParam(int i, Object object, PreparedStatement pstm) throws SQLException {

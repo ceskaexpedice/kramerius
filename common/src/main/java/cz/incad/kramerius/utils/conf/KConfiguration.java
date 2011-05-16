@@ -224,6 +224,10 @@ public class KConfiguration {
         return getConfiguration().getString("deepZoom.cachedir", "${sys:user.home}/.kramerius4/deepZoom");
     }
 
+    public String getRightsCriteriumScriptsDir() {
+        return getConfiguration().getString("rights.criterium.scripts", "${sys:user.home}/.kramerius4/rights/criteriums");
+    }
+
     public float getDeepZoomJPEGQuality() {
         return getConfiguration().getFloat("deepZoom.jpegQuality", 0.9f);
     }
