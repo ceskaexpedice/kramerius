@@ -22,7 +22,6 @@ import com.google.inject.Provider;
 import com.google.inject.name.Named;
 
 import cz.incad.kramerius.FedoraAccess;
-import cz.incad.kramerius.security.IsUserInRoleDecision;
 import cz.incad.kramerius.service.ResourceBundleService;
 
 /**
@@ -43,8 +42,6 @@ public class HeaderViewObject {
     @Inject
     @Named("securedFedoraAccess")
     FedoraAccess fedoraAccess;
-    @Inject 
-    IsUserInRoleDecision isUserInRoleDecision;
     
     public String getDictionary() {
         
