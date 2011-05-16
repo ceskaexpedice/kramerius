@@ -12,6 +12,7 @@ import com.google.inject.servlet.GuiceServletContextListener;
 import com.google.inject.servlet.ServletModule;
 
 import cz.incad.Kramerius.security.GuiceSecurityModule;
+import cz.incad.kramerius.security.impl.http.GuiceSecurityHTTPModule;
 
 public class GuiceConfigBean extends GuiceServletContextListener {
 
@@ -30,7 +31,10 @@ public class GuiceConfigBean extends GuiceServletContextListener {
 	@Override
 	protected Injector getInjector() {
 		Injector injector = Guice.createInjector(new BaseModule(), // base module
-		                                            new GuiceSecurityModule(), // security 
+		                                            
+		                                            new cz.incad.kramerius.security.guice.GuiceSecurityModule(),
+		                                            new GuiceSecurityHTTPModule(),
+		                                            
 		                                            new LongRunningProcessModul(), // for long running processes
 		                                            new ServletModule());
 
@@ -38,7 +42,7 @@ public class GuiceConfigBean extends GuiceServletContextListener {
 	}
 
     class Grapher {
-        private void graph(String filename, Injector demoInjector) throws IOException {
+//        private void graph(String filename, Injector demoInjector) throws IOException {
 //          PrintWriter out = new PrintWriter(new File(filename), "UTF-8");
 //
 //          Injector injector = Guice.createInjector(new GrapherModule(), new GraphvizModule());
@@ -48,7 +52,7 @@ public class GuiceConfigBean extends GuiceServletContextListener {
 //          injector.getInstance(InjectorGrapher.class)
 //              .of(demoInjector)
 //              .graph();
-        }
+//        }
       }
 
 }
