@@ -20,6 +20,7 @@ import static cz.incad.utils.IKeys.UUID_PARAMETER;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.util.List;
 import java.util.logging.Level;
 
 import javax.servlet.http.HttpServletRequest;
@@ -32,11 +33,13 @@ import com.google.inject.Inject;
 import cz.incad.Kramerius.security.ServletCommand;
 import cz.incad.Kramerius.security.rightscommands.ServletRightsCommand;
 import cz.incad.Kramerius.security.strenderers.CriteriumParamsWrapper;
-import cz.incad.Kramerius.security.strenderers.CriteriumWrapper;
+import cz.incad.Kramerius.security.strenderers.CriteriumGuiWrapper;
 import cz.incad.Kramerius.security.strenderers.RightWrapper;
 import cz.incad.kramerius.security.Right;
 import cz.incad.kramerius.security.RightCriteriumLoader;
 import cz.incad.kramerius.security.RightCriteriumParams;
+import cz.incad.kramerius.security.RightCriteriumWrapper;
+import cz.incad.kramerius.security.RightCriteriumWrapperFactory;
 import cz.incad.kramerius.security.impl.criteria.CriteriumsLoader;
 
 /**
@@ -46,8 +49,9 @@ public class EditRightsJSData extends ServletRightsCommand {
 
     static java.util.logging.Logger LOGGER = java.util.logging.Logger.getLogger(EditRightsJSData.class.getName());
 
+    
     @Inject
-    RightCriteriumLoader criteriumLoader;
+    RightCriteriumWrapperFactory factory;
     
     @Override
     public void doCommand() {
@@ -61,10 +65,11 @@ public class EditRightsJSData extends ServletRightsCommand {
             RightCriteriumParams[] allParams = rightsManager.findAllParams();
             template.setAttribute("allParams", CriteriumParamsWrapper.wrapCriteriumParams(allParams));
 
-            template.setAttribute("allCriteriums", CriteriumWrapper.wrapCriteriums(criteriumLoader.getCriteriums(), true));
+            List<RightCriteriumWrapper> wrappers = factory.createAllCriteriumWrappers();
+            template.setAttribute("allCriteriums", CriteriumGuiWrapper.wrapCriteriums(wrappers, true));
             template.setAttribute("right", right);
-            template.setAttribute("criterium", right.getCriterium());
-            template.setAttribute("criteriumParams", right.getCriterium() != null ? right.getCriterium().getCriteriumParams() : null);
+            template.setAttribute("criterium", right.getCriteriumWrapper());
+            template.setAttribute("criteriumParams", right.getCriteriumWrapper() != null ? right.getCriteriumWrapper().getCriteriumParams() : null);
             
             String content = template.toString();
             resp.getOutputStream().write(content.getBytes("UTF-8"));

@@ -28,10 +28,12 @@ import com.google.inject.Inject;
 import cz.incad.Kramerius.security.ServletCommand;
 import cz.incad.Kramerius.security.rightscommands.ServletRightsCommand;
 import cz.incad.Kramerius.security.strenderers.CriteriumParamsWrapper;
-import cz.incad.Kramerius.security.strenderers.CriteriumWrapper;
+import cz.incad.Kramerius.security.strenderers.CriteriumGuiWrapper;
 import cz.incad.kramerius.security.RightCriterium;
 import cz.incad.kramerius.security.RightCriteriumLoader;
 import cz.incad.kramerius.security.RightCriteriumParams;
+import cz.incad.kramerius.security.RightCriteriumWrapper;
+import cz.incad.kramerius.security.RightCriteriumWrapperFactory;
 import cz.incad.kramerius.security.impl.criteria.CriteriumsLoader;
 
 /**
@@ -44,7 +46,7 @@ public class NewRightJSData extends ServletRightsCommand {
     static java.util.logging.Logger LOGGER = java.util.logging.Logger.getLogger(NewRightJSData.class.getName());
    
     @Inject
-    RightCriteriumLoader criteriumLoader;
+    RightCriteriumWrapperFactory factory;
 
     @Override
     public void doCommand() {
@@ -52,8 +54,8 @@ public class NewRightJSData extends ServletRightsCommand {
             StringTemplate template = ServletRightsCommand.stJSDataGroup().getInstanceOf("newRightData");
             RightCriteriumParams[] allParams = rightsManager.findAllParams();
             template.setAttribute("allParams", CriteriumParamsWrapper.wrapCriteriumParams(allParams));
-            List<RightCriterium> criteriums = this.criteriumLoader.getCriteriums();
-            template.setAttribute("allCriteriums", CriteriumWrapper.wrapCriteriums(criteriums, true));
+            List<RightCriteriumWrapper> criteriums = this.factory.createAllCriteriumWrappers();
+            template.setAttribute("allCriteriums", CriteriumGuiWrapper.wrapCriteriums(criteriums, true));
             String content = template.toString();
             this.responseProvider.get().getOutputStream().write(content.getBytes("UTF-8"));
         } catch (UnsupportedEncodingException e) {

@@ -33,12 +33,14 @@ import com.google.inject.Inject;
 
 import cz.incad.Kramerius.security.ServletCommand;
 import cz.incad.Kramerius.security.rightscommands.ServletRightsCommand;
-import cz.incad.Kramerius.security.strenderers.CriteriumWrapper;
+import cz.incad.Kramerius.security.strenderers.CriteriumGuiWrapper;
 import cz.incad.Kramerius.security.strenderers.SecuredActionWrapper;
 import cz.incad.Kramerius.security.strenderers.TitlesForObjects;
 import cz.incad.kramerius.security.RightCriterium;
 import cz.incad.kramerius.security.RightCriteriumLoader;
 import cz.incad.kramerius.security.RightCriteriumParams;
+import cz.incad.kramerius.security.RightCriteriumWrapper;
+import cz.incad.kramerius.security.RightCriteriumWrapperFactory;
 import cz.incad.kramerius.security.SecuredActions;
 import cz.incad.kramerius.security.impl.criteria.CriteriumsLoader;
 
@@ -50,14 +52,14 @@ public class NewRightHtml extends ServletRightsCommand {
 
     static java.util.logging.Logger LOGGER = java.util.logging.Logger.getLogger(NewRightHtml.class.getName());
     
+    
     @Inject
-    RightCriteriumLoader criteriumLoader;
+    RightCriteriumWrapperFactory factory;
 
     
     
     @Override
     public void doCommand() {
-        
         try {
             String uuid = getUuid();
             String[] path = getPathOfUUIDs(uuid);
@@ -78,13 +80,13 @@ public class NewRightHtml extends ServletRightsCommand {
             }
             
             template.setAttribute("bundle", bundleToMap);
-
             template.setAttribute("action", new SecuredActionWrapper(resourceBundle, SecuredActions.findByFormalName(getSecuredAction())));
             template.setAttribute("objects", saturatedPath);
-            //template.setAttribute("criteriumNames",CriteriumWrapper.wrapCriteriums(CriteriumsLoader.criteriums(), true));
-            List<RightCriterium> criteriums = criteriumLoader.getCriteriums(SecuredActions.findByFormalName(getSecuredAction()));
-            template.setAttribute("allCriteriums",CriteriumWrapper.wrapCriteriums(criteriums, true));
+            List<RightCriteriumWrapper> criteriums = factory.createAllCriteriumWrappers(SecuredActions.findByFormalName(getSecuredAction()));
+            
+            template.setAttribute("allCriteriums",CriteriumGuiWrapper.wrapCriteriums(criteriums, true));
             String content = template.toString();
+
             this.responseProvider.get().getOutputStream().write(content.getBytes("UTF-8"));
         } catch (IOException e) {
             LOGGER.log(Level.SEVERE, e.getMessage(),e);
