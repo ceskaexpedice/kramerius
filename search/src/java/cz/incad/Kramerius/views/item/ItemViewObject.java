@@ -31,7 +31,6 @@ import cz.incad.kramerius.MostDesirable;
 import cz.incad.kramerius.ProcessSubtreeException;
 import cz.incad.kramerius.TreeNodeProcessor;
 import cz.incad.kramerius.impl.AbstractTreeNodeProcessorAdapter;
-import cz.incad.kramerius.security.IsUserInRoleDecision;
 import cz.incad.kramerius.service.ResourceBundleService;
 import cz.incad.kramerius.utils.FedoraUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
