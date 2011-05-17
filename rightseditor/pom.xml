@@ -82,21 +82,6 @@
             <version>${gwt.version}</version>
             <scope>provided</scope>
         </dependency>
-        
-        <dependency> 
-                        <groupId>javax.validation</groupId> 
-                        <artifactId>validation-api</artifactId> 
-                        <version>1.0.0.GA</version> 
-                        <scope>provided</scope> 
-                </dependency> 
-                <dependency> 
-                        <groupId>javax.validation</groupId> 
-                        <artifactId>validation-api</artifactId> 
-                        <version>1.0.0.GA</version> 
-                        <classifier>sources</classifier> 
-                        <scope>provided</scope> 
-                </dependency> 
-        
     </dependencies>
 
     <build>
@@ -123,7 +108,7 @@
                     <runTarget>Rightseditor.html</runTarget>
                 </configuration>
 
-             <dependencies> 
+                <dependencies> 
                     <dependency> 
                         <groupId>com.google.gwt</groupId> 
                             <artifactId>gwt-user</artifactId> 
