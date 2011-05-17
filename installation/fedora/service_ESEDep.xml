@@ -183,9 +183,11 @@
         cannot be generated from the resource at the URL in <europeana:isShownBy>.
         In this case nothing can be mapped to <europeana:object>, the value in
         <europeana:hasObject> will be “False” and a default thumbnail will be used
-        in the portal. Example: http://localhost:8080/search/titlePage?uuid=
+        in the portal.
+        Example: http://localhost:8080/search/img?uuid=0eaa6730-9068-11dd-97de-000d606f5dc6&action=GETRAW&stream=IMG_THUMB
+        See Europeana Portal Image policy for details at http://version1.europeana.eu/web/guest/technical-requirements/
       -->
-      <ese:object><xsl:value-of select="concat($server, '/search/titlePage?uuid=', $uuid)" /></ese:object>
+      <ese:object><xsl:value-of select="concat($server, '/search/img?uuid=', $uuid, '&amp;stream=IMG_THUMB&amp;action=GETRAW')" /></ese:object>
 
       <!--
         This element should contain the name of the organisation that delivers data
@@ -213,11 +215,10 @@
         digital object in full information context on the provider website. It is a
         complementary element to < europeana:isShownBy> (please see below before
         mapping) and it is mandatory to provide a URL link in one of these elements.
-        Example: http://localhost:8080/search/handle/uuid:0eaa6730-9068-11dd-97de-000d606f5dc6&outputFormat=PNG
-        Other possible formats JPEG, RAW(DJVU)
+        Example: http://localhost:8080/search/handle/uuid:0eaa6730-9068-11dd-97de-000d606f5dc6
       -->
       
-      <ese:isShownAt><xsl:value-of select="concat($server, '/search/djvu?uuid=', $uuid, '&amp;outputFormat=PNG')" /></ese:isShownAt>
+      <ese:isShownAt><xsl:value-of select="concat($server, '/search/handle/uuid:', $uuid)" /></ese:isShownAt>
 
       <!--
         This element will be active in the portal and will provide a link to the
@@ -229,7 +230,7 @@
         complementary element to <europeana:isShownAt> (above) and it is mandatory
         to provide a URL link in one of these elements.
       -->
-      <ese:isShownBy><xsl:value-of select="concat($server, '/search/handle/uuid:', $uuid)" /></ese:isShownBy>
+      <ese:isShownBy><xsl:value-of select="concat($server, '/search/img?uuid=', $uuid, '&amp;stream=IMG_FULL&amp;action=TRANSCODE&amp;outputFormat=PNG')" /></ese:isShownBy>
     </ese:record>
   </xsl:template>
 
