@@ -4,19 +4,14 @@ import static cz.incad.kramerius.utils.FedoraUtils.IMG_FULL_STREAM;
 import static cz.incad.kramerius.utils.FedoraUtils.getFedoraDatastreamsList;
 import static cz.incad.kramerius.utils.FedoraUtils.getFedoraStreamPath;
 import static cz.incad.kramerius.utils.FedoraUtils.getThumbnailFromFedora;
-import static cz.incad.kramerius.utils.FedoraUtils.getFedoraDescribe;
 import static cz.incad.kramerius.utils.RESTHelper.openConnection;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringReader;
-import java.net.Authenticator;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
-import java.net.PasswordAuthentication;
 import java.net.URL;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
@@ -551,13 +546,6 @@ public class FedoraAccessImpl implements FedoraAccess {
     private void initAPIA() {
         final String user = KConfiguration.getInstance().getFedoraUser();
         final String pwd = KConfiguration.getInstance().getFedoraPass();
-        Authenticator.setDefault(new Authenticator() {
-
-            protected PasswordAuthentication getPasswordAuthentication() {
-                return new PasswordAuthentication(user, pwd.toCharArray());
-            }
-        });
-
         FedoraAPIAService APIAservice = null;
         try {
             APIAservice = new FedoraAPIAService(new URL(KConfiguration.getInstance().getFedoraHost() + "/wsdl?api=API-A"),
@@ -576,13 +564,6 @@ public class FedoraAccessImpl implements FedoraAccess {
     private void initAPIM() {
         final String user = KConfiguration.getInstance().getFedoraUser();
         final String pwd = KConfiguration.getInstance().getFedoraPass();
-        Authenticator.setDefault(new Authenticator() {
-
-            protected PasswordAuthentication getPasswordAuthentication() {
-                return new PasswordAuthentication(user, pwd.toCharArray());
-            }
-        });
-
         FedoraAPIMService APIMservice = null;
         try {
             APIMservice = new FedoraAPIMService(new URL(KConfiguration.getInstance().getFedoraHost() + "/wsdl?api=API-M"),
