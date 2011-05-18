@@ -9,6 +9,7 @@ import dk.defxws.fedoragsearch.server.*;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.fedora.api.FedoraAPIA;
 import org.fedora.api.FedoraAPIM;
@@ -79,7 +80,6 @@ public class FedoraOperations {
         try {
             foxmlRecord = fa.getAPIM().export(pid, format, "public");
         } catch (Exception e) {
-            e.printStackTrace();
             throw new Exception("Fedora Object " + pid + " not found. ", e);
         }
     }
@@ -154,8 +154,7 @@ public class FedoraOperations {
             return rindex.getParentsPids(pid);
 
         } catch (Exception ex) {
-            ex.printStackTrace();
-            logger.severe(ex.toString());
+            logger.log(Level.SEVERE, null, ex);
             return null;
         }
     }

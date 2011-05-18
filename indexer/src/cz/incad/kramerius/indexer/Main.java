@@ -5,13 +5,14 @@
 package cz.incad.kramerius.indexer;
 
 import cz.incad.kramerius.processes.impl.ProcessStarter;
+import cz.incad.kramerius.utils.IOUtils;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Arrays;
-
-import cz.incad.kramerius.utils.IOUtils;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * 
@@ -19,17 +20,18 @@ import cz.incad.kramerius.utils.IOUtils;
  */
 public class Main {
 
+    private static final Logger LOG = Logger.getLogger(Main.class.getName());
+
     /**
      * @param args
      *            the command line arguments
      */
     public static void main(String[] args) {
         try {
-            System.out.println(Arrays.asList(args));
+            LOG.log(Level.INFO, "process args: {0}", Arrays.toString(args));
             ProgramArguments arguments = new ProgramArguments();
             if (!arguments.parse(args)) {
-                //System.out.println("Program arguments are invalid");
-                throw new Exception("Program arguments are invalid");
+                throw new Exception("Program arguments are invalid: " + Arrays.toString(args));
             }
 
             //checkFileOrCreateNew(arguments.log4jFile, "res/log4j.properties");
@@ -45,8 +47,7 @@ public class Main {
             Indexer indexer = new Indexer(arguments);
             indexer.run();
         } catch (Exception ex) {
-            ex.printStackTrace();
-            System.out.println(ex);
+            LOG.log(Level.SEVERE, null, ex);
         }
     }
 

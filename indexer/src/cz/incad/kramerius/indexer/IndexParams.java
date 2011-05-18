@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathConstants;
@@ -149,8 +150,7 @@ public class IndexParams {
             }
 
         } catch (Exception e) {
-            logger.severe("error in IndexParams.merge: " + e.toString());
-
+            logger.log(Level.SEVERE, "error in IndexParams.merge", e);
         }
     }
 
@@ -259,8 +259,7 @@ public class IndexParams {
 
 
         } catch (Exception e) {
-            logger.severe("IndexParams.init error: " + model + " " + pid);
-            logger.severe(e.toString());
+            logger.log(Level.SEVERE, "IndexParams.init error: " + model + " " + pid, e);
         }
     }
 }

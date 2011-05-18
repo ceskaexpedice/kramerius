@@ -8,7 +8,6 @@ package cz.incad.kramerius.indexer;
  *
  * @author Incad
  */
-import cz.incad.utils.Formating;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
@@ -17,18 +16,16 @@ import java.io.FileReader;
 import java.io.OutputStreamWriter;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-
 import java.util.ArrayList;
 import java.util.Date;
-//import org.apache.log4j.Logger;
-
 import java.util.TimeZone;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.zip.ZipOutputStream;
 
 public class Indexer {
 
-    private Logger logger = Logger.getLogger(this.getClass().getName());
+    private static final Logger logger = Logger.getLogger(Indexer.class.getName());
     private ProgramArguments arguments;
     //public static Configuration conf;
     //public static Properties conf = new Properties();
@@ -46,13 +43,13 @@ public class Indexer {
     }
 
     public void run() {
-        long startTime = (new Date()).getTime();
+        long startTime = System.currentTimeMillis();
         try {
             Date date = new Date();
             DateFormat formatter = new SimpleDateFormat("");
             formatter.setTimeZone(TimeZone.getTimeZone("GMT"));
             String to = formatter.format(date);
-            logger.info("Current index time: " + date);
+            logger.log(Level.INFO, "Current index time: {0}", date);
 
             String from = "";
             String updateTimeFile = "time";
@@ -95,12 +92,11 @@ public class Indexer {
             }
 
 
-            long timeInMiliseconds = (new Date()).getTime() - startTime;
+            long timeInMiliseconds = System.currentTimeMillis() - startTime;
             showResults();
             logger.info(formatElapsedTime(timeInMiliseconds));
         } catch (Exception ex) {
-            logger.severe(ex.toString());
-            ex.printStackTrace();
+            logger.log(Level.SEVERE, null, ex);
         } finally {
             //disconnect();
         }
@@ -111,9 +107,7 @@ public class Indexer {
             logger.info("Full index...");
             return true;
         } catch (Exception ex) {
-            logger.severe("Full index failed");
-            logger.severe(ex.toString());
-            ex.printStackTrace();
+            logger.log(Level.SEVERE, "Full index failed", ex);
             return false;
         }
     }
@@ -124,9 +118,7 @@ public class Indexer {
             doUpdate("yo");
             return true;
         } catch (Exception ex) {
-            logger.severe("Update failed");
-            logger.severe(ex.toString());
-            ex.printStackTrace();
+            logger.log(Level.SEVERE, "Update failed", ex);
             return false;
         }
     }
@@ -136,8 +128,7 @@ public class Indexer {
         try {
             updateIndex(user, arguments.action, arguments.value);
         } catch (java.rmi.RemoteException e) {
-            logger.severe(e.toString());
-            e.printStackTrace();
+            logger.log(Level.SEVERE, null, e);
         }
     }
 

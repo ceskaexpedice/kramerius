@@ -121,7 +121,7 @@ public class SolrOperations {
             }
 
         } catch (Exception ex) {
-            logger.severe(ex.toString());
+            logger.log(Level.SEVERE, null, ex);
         } finally {
 
             getIndexReader();
@@ -313,7 +313,7 @@ public class SolrOperations {
             }
 
         } catch (Exception e) {
-            logger.severe(e.toString());
+            logger.log(Level.SEVERE, null, e);
         }
 
     }
@@ -327,7 +327,7 @@ public class SolrOperations {
             krameriusModel(model, requestParams, 0);
 
         } catch (Exception e) {
-            logger.severe(e.toString());
+            logger.log(Level.SEVERE, null, e);
         }
     }
 
@@ -353,19 +353,12 @@ public class SolrOperations {
     }
 
     private Document getDocument(InputStream foxmlStream) throws Exception {
-        try {
-            DocumentBuilderFactory domFactory = DocumentBuilderFactory.newInstance();
-            domFactory.setNamespaceAware(false);
-            DocumentBuilder builder = domFactory.newDocumentBuilder();
-            //InputSource source = new InputSource(new StringReader(result.toString()));
+        DocumentBuilderFactory domFactory = DocumentBuilderFactory.newInstance();
+        domFactory.setNamespaceAware(false);
+        DocumentBuilder builder = domFactory.newDocumentBuilder();
+        //InputSource source = new InputSource(new StringReader(result.toString()));
 
-            return builder.parse(foxmlStream);
-
-        } catch (Exception e) {
-            logger.severe("getDocument error");
-            logger.severe(e.toString());
-            throw new Exception(e);
-        }
+        return builder.parse(foxmlStream);
     }
 
     private int indexByPid(String pid,
@@ -461,7 +454,6 @@ public class SolrOperations {
                     foxmlStream2.reset();
                     num += indexByPid(relpid, date, force, foxmlStream2, requestParams, childParams);
                 } catch (Exception ex) {
-                    //logger.severe("Can't index doc: " + relpid + " Continuing...");
                     logger.log(Level.SEVERE, "Can't index doc: " + relpid + " Continuing...", ex);
                 }
             }
@@ -471,7 +463,7 @@ public class SolrOperations {
             indexDoc(foxmlStream, indexParams.toArrayList(Integer.toString(num)), String.valueOf(docs - 1));
 
         } catch (Exception e) {
-            logger.severe("indexByPid error: " + e.toString());
+            logger.log(Level.SEVERE, "indexByPid error", e);
         }
         return num;
     }
@@ -561,7 +553,6 @@ public class SolrOperations {
         try {
             solrUrl = new URL(solrUrlString);
         } catch (MalformedURLException e) {
-            logger.severe("solrUrl=" + solrUrlString + ": " + e.toString());
             throw new Exception("solrUrl=" + solrUrlString + ": ", e);
         }
         HttpURLConnection urlc = null;
@@ -784,7 +775,7 @@ public class SolrOperations {
             try{
                 fedoraOperations.fa.getAPIM().getObjectXML("uuid:"+PID);
             }catch (Exception e){
-                logger.info(PID + " doesn't exist. Deleting...");
+                logger.log(Level.INFO, PID + " doesn't exist. Deleting...", e);
                 deletePid(PID);
             }
         }
@@ -825,7 +816,7 @@ public class SolrOperations {
                 fedoraOperations.fa.getAPIM().getObjectXML("uuid:"+PID);
                 //logger.info("je: " + PID+" ----- " + pid_path);
             }catch (Exception e){
-                logger.info(PID + " doesn't exist. Deleting...");
+                logger.log(Level.INFO, PID + " doesn't exist. Deleting...", e);
                 deleteDocument(pid_path);
             }
         }

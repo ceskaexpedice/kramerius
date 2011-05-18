@@ -4,6 +4,10 @@
  */
 package cz.incad.kramerius.indexer;
 
+import java.util.Arrays;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 /**
  *
  * @author Administrator
@@ -41,7 +45,8 @@ public class ProgramArguments {
             title += args[i];
                 return true;
         } catch (Exception ex) {
-            ex.printStackTrace();
+            Logger.getLogger(ProgramArguments.class.getName())
+                    .log(Level.SEVERE, Arrays.toString(args), ex);
             return false;
         }
     }
