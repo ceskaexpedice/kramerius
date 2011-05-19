@@ -39,6 +39,8 @@ public enum SecuredActions {
     ADMINISTRATE( "administrate"),
     EDITOR("editor"),
     MANAGE_LR_PROCESS("manage_lr_process"),
+    EXPORT_K4_REPLICATIONS("export_k4_replications"),
+    IMPORT_K4_REPLICATIONS("import_k4_replications"),
     
     // editace informaci na uvodni strance
     EDIT_INFO_TEXT("edit_info_text"),

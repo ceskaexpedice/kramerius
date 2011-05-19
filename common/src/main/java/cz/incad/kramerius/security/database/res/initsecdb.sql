@@ -213,6 +213,11 @@ VALUES(nextval('RIGHT_ID_SEQUENCE '), 'uuid:1','editor',2);
 insert into RIGHT_ENTITY(RIGHT_ID, UUID,ACTION, GROUP_ID) 
 VALUES(nextval('RIGHT_ID_SEQUENCE '), 'uuid:1','administrate',2);
 
+insert into RIGHT_ENTITY(RIGHT_ID, UUID,ACTION, GROUP_ID)
+VALUES(nextval('RIGHT_ID_SEQUENCE '), 'uuid:1','export_k4_replications',2);
+
+insert into RIGHT_ENTITY(RIGHT_ID, UUID,ACTION, GROUP_ID)
+VALUES(nextval('RIGHT_ID_SEQUENCE '), 'uuid:1','import_k4_replications',2);
 
 -- prava pro rights editor 
 -- -- k4_admins

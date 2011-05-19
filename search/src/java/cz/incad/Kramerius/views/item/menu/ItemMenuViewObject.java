@@ -182,7 +182,11 @@ public class ItemMenuViewObject {
         template.setAttribute("datatype", "_data_x_role");
         template.setAttribute("value", "administrate");
         template.setAttribute("uuid", uuid);
-        template.setAttribute("actions", new String[] { SecuredActions.READ.getFormalName(), SecuredActions.ADMINISTRATE.getFormalName()});
+        template.setAttribute("actions", new String[] {
+                SecuredActions.READ.getFormalName(), SecuredActions.ADMINISTRATE.getFormalName(),
+                SecuredActions.EXPORT_K4_REPLICATIONS.getFormalName(),
+                SecuredActions.IMPORT_K4_REPLICATIONS.getFormalName(),
+        });
         
         return template.toString();
     }
