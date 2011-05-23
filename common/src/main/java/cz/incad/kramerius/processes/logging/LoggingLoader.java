@@ -22,8 +22,6 @@ import java.util.logging.Level;
 import java.util.logging.LogManager;
 import java.util.logging.Logger;
 
-import org.apache.commons.logging.Log;
-
 /**
  * Default logging configuration for processes
  */
