@@ -16,8 +16,13 @@
  */
 package cz.incad.kramerius.processes.logging;
 
+import java.util.logging.ConsoleHandler;
+import java.util.logging.Handler;
+import java.util.logging.Level;
 import java.util.logging.LogManager;
 import java.util.logging.Logger;
+
+import org.apache.commons.logging.Log;
 
 /**
  * Default logging configuration for processes
@@ -26,7 +31,20 @@ public class LoggingLoader {
     
     public LoggingLoader() {
         Logger rootLogger = Logger.getLogger("");
-        rootLogger.addHandler(new StOutConsoleHandler());
+        Handler[] handlers = rootLogger.getHandlers();
+        for (Handler handl : handlers) {
+            rootLogger.removeHandler(handl);
+        }
+        
+        StOutConsoleHandler stoutConsoleHandler = new StOutConsoleHandler();
+        stoutConsoleHandler.setLevel(Level.ALL);
+        
+        rootLogger.addHandler(stoutConsoleHandler);
+        
+        ConsoleHandler consoleHandler = new ConsoleHandler();
+        consoleHandler.setLevel(Level.WARNING);
+
+        rootLogger.addHandler(consoleHandler);
         LogManager.getLogManager().addLogger(rootLogger);
     }
 }

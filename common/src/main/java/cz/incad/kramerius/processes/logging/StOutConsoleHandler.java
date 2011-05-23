@@ -17,16 +17,28 @@
 package cz.incad.kramerius.processes.logging;
 
 import java.util.logging.ConsoleHandler;
+import java.util.logging.Level;
+import java.util.logging.LogManager;
 import java.util.logging.LogRecord;
+import java.util.logging.SimpleFormatter;
+import java.util.logging.StreamHandler;
 
 /**
  * Redirect default consoleHandler to <code>System.out.println</code>
  * @see ConsoleHandler
  */
-public class StOutConsoleHandler extends ConsoleHandler {
+public class StOutConsoleHandler extends StreamHandler  {
 
+    private void configure() {
+    setLevel(Level.ALL);
+    setFilter(null);
+    setFormatter(new SimpleFormatter());
+    }
+
+    
     public StOutConsoleHandler() {
         super();
+        configure();
         setOutputStream(System.out);
     }
 
