@@ -92,7 +92,7 @@ public class MonographConvertor extends BaseConvertor {
      * @throws ServiceException
      */
     public void  convert(Monograph mono, StringBuffer convertedURI) throws ServiceException {
-        MonographBibliographicRecord biblio = mono.getMonographBibliographicRecord();
+    	MonographBibliographicRecord biblio = mono.getMonographBibliographicRecord();
         String title = first(biblio.getTitle().getMainTitle().getContent());
         if (mono.getUniqueIdentifier() == null) {
             mono.setUniqueIdentifier(new UniqueIdentifier());

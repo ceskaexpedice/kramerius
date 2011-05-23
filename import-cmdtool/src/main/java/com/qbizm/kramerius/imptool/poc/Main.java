@@ -49,7 +49,7 @@ public class Main {
     private static Marshaller marshaller = null;
     private static Unmarshaller unmarshaller = null;
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws InterruptedException, JAXBException, FileNotFoundException, SAXException, ServiceException {
 
         if (args.length > 4) {
             System.out.println("KrameriusXML to FOXML conversion tool.\n");
@@ -79,7 +79,7 @@ public class Main {
 
     
     
-    public static String convert(String importRoot, String exportRoot, boolean useDB, boolean defaultVisibility, String titleId) {
+    public static String convert(String importRoot, String exportRoot, boolean useDB, boolean defaultVisibility, String titleId) throws InterruptedException, JAXBException, FileNotFoundException, SAXException, ServiceException {
         System.setProperty("java.awt.headless", "true");
         StringBuffer convertedURI = new StringBuffer();
         if (useDB){
@@ -143,7 +143,7 @@ public class Main {
     
     
 
-    private static void visitAllDirsAndFiles(File importFile, String importRoot, String exportRoot, boolean useDB, boolean defaultVisibility, StringBuffer convertedURI, String titleId) {
+    private static void visitAllDirsAndFiles(File importFile, String importRoot, String exportRoot, boolean useDB, boolean defaultVisibility, StringBuffer convertedURI, String titleId) throws InterruptedException, JAXBException, FileNotFoundException, SAXException, ServiceException {
 
         if (importFile.isDirectory()) {
             String subFolderName = importFile.getAbsolutePath().substring(importRoot.length());
@@ -184,9 +184,9 @@ public class Main {
                     log.error("Cannot parse property contractNo.length", ex);
                 }
                 config.setContractLength(l);
-                try {
+                //try {
                     convertOneDirectory(unmarshaller, importFile, config, convertedURI, titleId);
-                } catch (InterruptedException e) {
+                /*} catch (InterruptedException e) {
                     log.error("Cannot convert "+importFile, e);
                 } catch (JAXBException e) {
                     log.error("Cannot convert "+importFile, e);
@@ -194,13 +194,13 @@ public class Main {
                 	log.error("Cannot convert "+importFile, e);
 				} catch (SAXException e) {
 					log.error("Cannot convert "+importFile, e);
-				}
+				}*/
 
             }
         }
     }
 
-    private static void convertOneDirectory(Unmarshaller unmarshaller, File importFile, ConvertorConfig config, StringBuffer convertedURI, String titleId) throws InterruptedException, JAXBException, FileNotFoundException, SAXException {
+    private static void convertOneDirectory(Unmarshaller unmarshaller, File importFile, ConvertorConfig config, StringBuffer convertedURI, String titleId) throws InterruptedException, JAXBException, FileNotFoundException, SAXException, ServiceException {
         long timeStart = System.currentTimeMillis();
 
         long before = getFreeMem();
@@ -221,7 +221,7 @@ public class Main {
         }
 
         int objectCounter = 0;
-        try {
+        //try {
             if (source instanceof Monograph) {
                 MonographConvertor mc = new MonographConvertor(config);
                 Monograph monograph = (Monograph) source;
@@ -249,9 +249,9 @@ public class Main {
 					log.error(importFile.getName() + ": copyOriginal failed", e);
 				}
             }
-        } catch (ServiceException e) {
-            log.error(importFile.getName() + ": conversion failed", e);
-        }
+        //} catch (ServiceException e) {
+        //    log.error(importFile.getName() + ": conversion failed", e);
+        //}
         long timeFinish = System.currentTimeMillis();
         if (log.isInfoEnabled()) {
             log.info("Elapsed time: " + ((timeFinish - timeStart) / 1000.0) + " seconds. "+objectCounter + " digital objects (files) written.");
