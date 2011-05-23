@@ -76,6 +76,15 @@ public class IOUtils {
 		}
 	}
 	
+    public static void saveToFile(byte[] data, File file) throws IOException {
+        FileOutputStream fos = null;
+        try {
+            fos = new FileOutputStream(file);
+            fos.write(data);
+        } finally {
+            if (fos != null) fos.close();
+        }
+    }
 
 	public static byte[] bos(File inFile) throws IOException {
 		InputStream is =  null;
