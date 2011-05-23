@@ -32,12 +32,15 @@ import javax.servlet.http.HttpServletResponse;
 import javax.xml.xpath.XPathException;
 import javax.xml.xpath.XPathExpressionException;
 
+import org.w3c.dom.Document;
+
 import com.google.inject.Inject;
 import com.google.inject.name.Named;
 
 import cz.incad.Kramerius.AbstractImageServlet;
 import cz.incad.Kramerius.AbstractImageServlet.OutputFormats;
 import cz.incad.Kramerius.backend.guice.GuiceServlet;
+import cz.incad.Kramerius.imaging.utils.FileNameUtils;
 import cz.incad.kramerius.FedoraAccess;
 import cz.incad.kramerius.security.SecurityException;
 import cz.incad.kramerius.utils.conf.KConfiguration;
@@ -207,6 +210,18 @@ public class ImageStreamsServlet extends AbstractImageServlet {
                 resp.setContentType(mimeType);
                 imageStreamsServlet.setDateHaders(uuid, resp);
                 imageStreamsServlet.setResponseCode(uuid, req, resp);
+                
+                String asFileParam = req.getParameter("asFile");
+                if ((asFileParam != null) && (asFileParam.equals("true"))) {
+                    Document relsExt = fedoraAccess.getRelsExt(uuid);
+                    String fileNameFromRelsExt = FileNameUtils.disectFileNameFromRelsExt(relsExt);
+                    if (fileNameFromRelsExt == null) {
+                        LOGGER.severe("no <file.. element in RELS-EXT");
+                        fileNameFromRelsExt = "uknown";
+                    }
+                    resp.setHeader("Content-disposition", "attachment; filename=" + fileNameFromRelsExt);
+                }
+                
                 copyStreams(is, resp.getOutputStream());
                 
             }
