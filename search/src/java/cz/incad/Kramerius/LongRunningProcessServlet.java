@@ -127,12 +127,17 @@ public class LongRunningProcessServlet extends GuiceServlet {
     }
 
     @Override
-    protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        String action = req.getParameter("action");
-        if (action == null)
-            action = Actions.list.name();
-        Actions selectedAction = Actions.valueOf(action);
-        selectedAction.doAction(getServletContext(), req, resp, this.definitionManager, this.lrProcessManager, this.usersManager, this.userProvider, this.actionAllowed);
+    protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws  IOException {
+        try {
+            String action = req.getParameter("action");
+            if (action == null)
+                action = Actions.list.name();
+            Actions selectedAction = Actions.valueOf(action);
+            selectedAction.doAction(getServletContext(), req, resp, this.definitionManager, this.lrProcessManager, this.usersManager, this.userProvider, this.actionAllowed);
+        } catch (SecurityException e) {
+            LOGGER.log(Level.SEVERE, e.getMessage(),e);
+            resp.sendError(HttpServletResponse.SC_FORBIDDEN);
+        }
     }
     
 
