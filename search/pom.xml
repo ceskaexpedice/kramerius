@@ -179,10 +179,21 @@
             <version>1.0.0-SNAPSHOT</version>
             <scope>provided</scope>
         </dependency>
+        
+
+        <dependency>
+            <groupId>org.easymock</groupId>
+            <artifactId>easymock</artifactId>
+            <version>3.0</version>
+            <scope>test</scope>
+        </dependency>
+
+
     </dependencies>
 
     <build>
         <sourceDirectory>${basedir}/src/java</sourceDirectory>
+        <testSourceDirectory>${basedir}/src/test</testSourceDirectory>
         <resources>
             <resource>
                 <directory>${basedir}/src/conf</directory>
@@ -201,6 +212,14 @@
                     <include>**/*.st*</include>
                 </includes>
             </resource>
+            <resource>
+                <directory>${basedir}/src/test</directory>
+                <includes>
+                    <include>**/*.properties</include>
+                    <include>**/*.xml</include>
+                    <include>**/*.st*</include>
+                </includes>
+            </resource>
 	    <!--	
             <resource>
                 <directory>${basedir}/web/js</directory>
@@ -213,6 +232,8 @@
 
 
         <plugins>
+        
+        
             <plugin>
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>2.0.2</version>
