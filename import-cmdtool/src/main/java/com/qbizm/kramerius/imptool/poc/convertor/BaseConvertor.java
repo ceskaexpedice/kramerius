@@ -598,10 +598,10 @@ public abstract class BaseConvertor {
                 File dir = IOUtils.checkDirectory(binaryDirectory);
                 // Move file to new directory
                 File target = new File(dir, pageFile.getName());
-                boolean success = pageFile.renameTo(target);
-                if (!success){
+                //boolean success = pageFile.renameTo(target);
+                //if (!success){
                 	FileUtils.copyFile(pageFile, target);
-                }
+                //}
             	ContentLocationType cl = new ContentLocationType();
             	cl.setREF("file:"+target.getAbsolutePath());
             	cl.setTYPE("URL");
