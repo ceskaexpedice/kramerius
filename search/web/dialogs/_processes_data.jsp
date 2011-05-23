@@ -30,7 +30,7 @@
 	
 	String ordering = request.getParameter("ordering");
 	if ((ordering == null) || (ordering.trim().equals(""))) {
-		ordering = LRProcessOrdering.STARTED.name();
+		ordering = LRProcessOrdering.PLANNED.name();
 	}
 	String offset = request.getParameter("offset");
 	if ((offset == null) || (offset.trim().equals(""))) {
