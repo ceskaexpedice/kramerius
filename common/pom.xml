@@ -60,68 +60,25 @@
         </dependency>
 
 
-
-        <dependency>
+		<dependency>
             <groupId>com.google.inject</groupId>
-            <artifactId>aopalliance</artifactId>
-            <version>3.0</version>
-        </dependency>
-
-        <dependency>
-            <groupId>com.google.inject</groupId>
-            <artifactId>guice-core</artifactId>
+            <artifactId>guice</artifactId>
             <version>3.0</version>
         </dependency>
         
-        
         <dependency>
-            <groupId>com.google.inject</groupId>
-            <artifactId>guice-core</artifactId>
-            <version>3.0</version>
-        </dependency>
-
-        <dependency>
-            <groupId>com.google.inject</groupId>
-            <artifactId>guice-assistedinject</artifactId>
-            <version>3.0</version>
-        </dependency>
-
-        <dependency>
-            <groupId>com.google.inject</groupId>
-            <artifactId>guice-jndi</artifactId>
-            <version>3.0</version>
-        </dependency>
-
-        <dependency>
-            <groupId>com.google.inject</groupId>
+            <groupId>com.google.inject.extensions</groupId>
             <artifactId>guice-multibindings</artifactId>
             <version>3.0</version>
         </dependency>
-
+        
         <dependency>
-            <groupId>com.google.inject</groupId>
-            <artifactId>guice-grapher</artifactId>
-            <version>3.0</version>
-        </dependency>
-
-        <dependency>
-            <groupId>com.google.inject</groupId>
+            <groupId>com.google.inject.extensions</groupId>
             <artifactId>guice-servlet</artifactId>
             <version>3.0</version>
         </dependency>
-
-        <dependency>
-            <groupId>com.google.inject</groupId>
-            <artifactId>guice-servlet</artifactId>
-            <version>3.0</version>
-        </dependency>
-
-        <dependency>
-            <groupId>com.google.inject</groupId>
-            <artifactId>guice-throwingproviders</artifactId>
-            <version>3.0</version>
-        </dependency>
-
+        
+        
         <dependency>
             <groupId>javax.inject</groupId>
             <artifactId>javax.inject</artifactId>
