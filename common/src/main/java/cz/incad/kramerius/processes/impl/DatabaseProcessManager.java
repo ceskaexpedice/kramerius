@@ -66,7 +66,6 @@ public class DatabaseProcessManager implements LRProcessManager {
 		PreparedStatement stm = null;
 		ResultSet rs = null;
 		try {
-			this.reentrantLock.lock();
 			
 			connection = connectionProvider.get();
 			if (connection != null) {
@@ -113,7 +112,6 @@ public class DatabaseProcessManager implements LRProcessManager {
 				}
 			}
 			
-			this.reentrantLock.unlock();
 		}
 		return null;
 	}
@@ -123,7 +121,6 @@ public class DatabaseProcessManager implements LRProcessManager {
 	public void registerLongRunningProcess(LRProcess lp) {
 		Connection connection = null;
 		try {
-			this.reentrantLock.lock();
 			
 			connection = connectionProvider.get();
 			if (connection != null) {
@@ -140,8 +137,6 @@ public class DatabaseProcessManager implements LRProcessManager {
 					LOGGER.log(Level.SEVERE, e.getMessage(), e);
 				}
 			}
-			
-			this.reentrantLock.unlock();
 		}
 	}
 
@@ -150,7 +145,6 @@ public class DatabaseProcessManager implements LRProcessManager {
 	public void updateLongRunningProcessPID(LRProcess lrProcess) {
 		Connection connection = null;
 		try {
-			this.reentrantLock.lock();
 			
 			connection = connectionProvider.get();
 			ProcessDatabaseUtils.updateProcessPID(connection,  lrProcess.getPid(),lrProcess.getUUID());
@@ -165,7 +159,6 @@ public class DatabaseProcessManager implements LRProcessManager {
 				}
 			}
 			
-			this.reentrantLock.unlock();
 		}
 	}
 	
@@ -177,7 +170,6 @@ public class DatabaseProcessManager implements LRProcessManager {
 	public void updateLongRunningProcessName(LRProcess lrProcess) {
 		Connection connection = null;
 		try {
-			this.reentrantLock.lock();
 			connection = connectionProvider.get();
 			ProcessDatabaseUtils.updateProcessName(connection, lrProcess.getUUID(), lrProcess.getProcessName());
 		} catch (SQLException e) {
@@ -191,7 +183,6 @@ public class DatabaseProcessManager implements LRProcessManager {
 				}
 			}
 			
-			this.reentrantLock.unlock();
 		}
 	}
 
@@ -202,7 +193,6 @@ public class DatabaseProcessManager implements LRProcessManager {
     public void deleteLongRunningProcess(LRProcess lrProcess) {
         Connection connection = null;
         try {
-            this.reentrantLock.lock();
             connection = connectionProvider.get();
             ProcessDatabaseUtils.deleteProcess(connection, lrProcess.getUUID());
             File processWorkingDirectory = lrProcess.processWorkingDirectory();
@@ -220,7 +210,6 @@ public class DatabaseProcessManager implements LRProcessManager {
                 }
             }
             
-            this.reentrantLock.unlock();
         }
         
     }
@@ -229,7 +218,6 @@ public class DatabaseProcessManager implements LRProcessManager {
     public void updateLongRunningProcessStartedDate(LRProcess lrProcess) {
 		Connection connection = null;
 		try {
-			this.reentrantLock.lock();
 			
 			connection = connectionProvider.get();
 
@@ -245,7 +233,6 @@ public class DatabaseProcessManager implements LRProcessManager {
 				}
 			}
 			
-			this.reentrantLock.unlock();
 		}
 	}	
 
@@ -254,7 +241,6 @@ public class DatabaseProcessManager implements LRProcessManager {
 	public void updateLongRunningProcessState(LRProcess lrProcess) {
 		Connection connection = null;
 		try {
-			this.reentrantLock.lock();
 			
 			connection = connectionProvider.get();
 
@@ -270,7 +256,6 @@ public class DatabaseProcessManager implements LRProcessManager {
 				}
 			}
 			
-			this.reentrantLock.unlock();
 		}
 	}
 	
@@ -284,7 +269,6 @@ public class DatabaseProcessManager implements LRProcessManager {
 		ResultSet rs = null;
 		try {
 			
-			this.reentrantLock.lock();
 			
 			List<LRProcess> processes = new ArrayList<LRProcess>();
 			connection = connectionProvider.get();
@@ -329,7 +313,6 @@ public class DatabaseProcessManager implements LRProcessManager {
 				}
 			}
 			
-			this.reentrantLock.unlock();
 		}
 		return new ArrayList<LRProcess>();
 	}
@@ -341,7 +324,6 @@ public class DatabaseProcessManager implements LRProcessManager {
 		PreparedStatement stm = null;
 		ResultSet rs = null;
 		try {
-			this.reentrantLock.lock();
 			
 			connection = connectionProvider.get();
 			if (connection != null) {
@@ -379,7 +361,6 @@ public class DatabaseProcessManager implements LRProcessManager {
 				}
 			}
 			
-			this.reentrantLock.unlock();
 		}
 		return 0;
 	}
@@ -445,8 +426,6 @@ public class DatabaseProcessManager implements LRProcessManager {
 		ResultSet rs = null;
 		try {
 			
-			this.reentrantLock.lock();
-			
 			List<LRProcess> processes = new ArrayList<LRProcess>();
 			connection = connectionProvider.get();
 			if (connection != null) {
@@ -483,8 +462,6 @@ public class DatabaseProcessManager implements LRProcessManager {
 					LOGGER.log(Level.SEVERE, e.getMessage(), e);
 				}
 			}
-
-			this.reentrantLock.unlock();
 		}
 		return new ArrayList<LRProcess>();
 	}
@@ -497,17 +474,18 @@ public class DatabaseProcessManager implements LRProcessManager {
 		ResultSet rs = null;
 		try {
 			
-			this.reentrantLock.lock();
 			
 			List<LRProcess> processes = new ArrayList<LRProcess>();
 			connection = connectionProvider.get();
 			if (connection != null) {
 				StringBuffer buffer = new StringBuffer("select p.DEFID,PID,p.UUID,p.STATUS,p.PLANNED,p.STARTED,p.NAME AS PNAME, p.PARAMS, p.STARTEDBY,p.TOKEN, u.* from PROCESSES p left join user_entity u on (u.user_id=p.startedby)");
-				buffer.append(" order by ");
-				ordering(ordering, typeOfOrdering, buffer);
-				if (ordering != LRProcessOrdering.PLANNED) {
-				    buffer.append(',');
-				    ordering(LRProcessOrdering.PLANNED, typeOfOrdering, buffer);
+				if (ordering != null) {
+	                buffer.append(" order by ");
+	                ordering(ordering, typeOfOrdering, buffer);
+	                if (ordering != LRProcessOrdering.PLANNED) {
+	                    buffer.append(',');
+	                    ordering(LRProcessOrdering.PLANNED, typeOfOrdering, buffer);
+	                }
 				}
 				
 				if (offset != null) {
@@ -560,7 +538,6 @@ public class DatabaseProcessManager implements LRProcessManager {
 				}
 			}
 
-			this.reentrantLock.unlock();
 		}
 		return new ArrayList<LRProcess>();
 	}
