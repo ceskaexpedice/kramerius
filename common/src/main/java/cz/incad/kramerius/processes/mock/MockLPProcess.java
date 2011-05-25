@@ -36,6 +36,12 @@ public class MockLPProcess {
 				//LOGGER.info("iterating "+i);
 				LOGGER.info("  diff = "+(System.currentTimeMillis()-start)+"ms and i ="+i);
 			}
+            if ((i%103) == 0) {
+                LOGGER.warning("  this is warning");
+            }			
+            if ((i%107) == 0) {
+                LOGGER.severe("  this is severe");
+            }
 		}
 		LOGGER.info(" stop with "+(System.currentTimeMillis()-start)+"ms");
 	}

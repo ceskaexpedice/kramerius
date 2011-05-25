@@ -503,14 +503,13 @@ public class DatabaseProcessManager implements LRProcessManager {
 			connection = connectionProvider.get();
 			if (connection != null) {
 				StringBuffer buffer = new StringBuffer("select p.DEFID,PID,p.UUID,p.STATUS,p.PLANNED,p.STARTED,p.NAME AS PNAME, p.PARAMS, p.STARTEDBY,p.TOKEN, u.* from PROCESSES p left join user_entity u on (u.user_id=p.startedby)");
-				if (ordering  != null) {
-					buffer.append(ordering.getOrdering()).append(' ');
-					buffer.append(',').append("uuid ");
+				buffer.append(" order by ");
+				ordering(ordering, typeOfOrdering, buffer);
+				if (ordering != LRProcessOrdering.PLANNED) {
+				    buffer.append(',');
+				    ordering(LRProcessOrdering.PLANNED, typeOfOrdering, buffer);
 				}
 				
-				if (typeOfOrdering != null) {
-					buffer.append(typeOfOrdering.getTypeOfOrdering()).append(' ');
-				}
 				if (offset != null) {
 					buffer.append(offset.getSQLOffset());
 				}
@@ -565,6 +564,25 @@ public class DatabaseProcessManager implements LRProcessManager {
 		}
 		return new ArrayList<LRProcess>();
 	}
+
+    public void ordering(LRProcessOrdering ordering, TypeOfOrdering typeOfOrdering, StringBuffer buffer) {
+        if (ordering  != null) {
+            buffer.append(ordering.getOrdering()).append(' ');
+//					if (ordering != LRProcessOrdering.PLANNED) {
+//	                    buffer.append(',').append(LRProcessOrdering.PLANNED).append(' ');
+//					}
+        }
+        
+        if (typeOfOrdering != null) {
+        	buffer.append(typeOfOrdering.getTypeOfOrdering()).append(' ');
+        	
+        	if (typeOfOrdering == TypeOfOrdering.ASC) {
+                buffer.append("NULLS FIRST").append(' ');
+        	} else {
+                buffer.append("NULLS LAST").append(' ');
+        	}
+        }
+    }
 
 	@Override
 	public List<LRProcess> getLongRunningProcesses() {

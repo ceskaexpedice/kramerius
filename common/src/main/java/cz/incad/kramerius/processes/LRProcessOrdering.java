@@ -2,12 +2,12 @@ package cz.incad.kramerius.processes;
 
 public enum LRProcessOrdering {
 	
-	ID("order by pid"),
-	STATE("order by status"),
-	NAME("order by name"),
-	STARTED("order by started"),
-	LOGINNAME("order by loginname"),
-    PLANNED("order by planned");
+	ID("pid"),
+	STATE("status"),
+	NAME("name"),
+	STARTED("started"),
+	LOGINNAME("loginname"),
+    PLANNED("planned");
 	
 	private String ordering;
 
