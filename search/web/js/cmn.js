@@ -2,6 +2,48 @@
  * @fileoverview <h3>Common functions using everywhere</h3>
  */
 
+
+
+/** Logger interface */
+function Logger() {
+	this.messages = {
+			"DEBUG": new Array(),
+			"INFO": new Array(),
+			"ERROR": new Array()
+	}
+}
+/** Log message with level */
+Logger.prototype.log = function(level, mesg) {
+	if (!(level in this.messages)) {
+		throw new Error("no level '"+level+"'");
+	}
+	this.messages[level].push(mesg);
+}
+/** display messages into div */
+Logger.prototype.display = function(level, divid) {
+//	var texts = this.messages[level];
+//	$.each(this.messages[level], function(index, value) {
+//		
+//	});
+}
+
+
+Logger.prototype.getMessages = function(level) {
+	return this.messages[level];
+}
+
+
+/** Default logger instance */
+var LOGGER = new Logger();
+
+/** forEach in array */
+Array.prototype.forEach =  function (action) {
+	for (var i = 0; i < this.length; i++) {
+		action(this[i]);
+	}
+}
+
+
 /** 
  * Reduce function can reduce given array to one result. 
  * 
@@ -109,6 +151,18 @@ function negate(func) {
   };
 }
 
+/**
+ * Bind property or method from object to this object
+ * @param func
+ * @param object
+ * @returns {Function}
+ */
+function bind(func, object) {
+  return function(){
+    return func.apply(object, arguments);
+  };
+}
+
 
 /** 
  * Ajax call. 
@@ -126,25 +180,4 @@ function ajax(urlAddress, successFunction, failedFunction) {
 }
 
 
-/**
- * Bind callbacks functions to key event
- * @required JQuery 
- */
-function bindArrows() {
-    // keys - bind left and right arrows
-	$(document).keyup(function(e) {
-        if (e.keyCode == 39) {
-            selectNext();
-        } else if (e.keyCode == 37) {
-            selectPrevious();
-        }
-    });
-}
 
-/** 
- * Remove binding keyup events
- * @required JQuery 
- */
-function unbindArrows() {
-	$(document).unbind('keyup');
-}

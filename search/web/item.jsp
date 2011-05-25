@@ -17,8 +17,6 @@
 <%@ include file="inc/checkUUID.jsp" %>
 <%
         ItemViewObject itemViewObject = new ItemViewObject();
-
-        try{
             // view objekt pro stranku = veskera logika
             ctxInj.injectMembers(itemViewObject);
             itemViewObject.init();
@@ -251,6 +249,17 @@
                                                         </span>
                                                     </div>
                                                 </div>
+                                                
+
+                                                <div id="download" style="padding-top:10px; height:650; width:700px;  color: black; border:1px; position:relative;">
+                                                    <div> 
+                                                        <fmt:message bundle="${lctx}" key="img.display.downloadOriginal.text"></fmt:message> 
+                                                    </div>
+                                                    <div>
+                                                        <a id="downloadOriginalHref" href="none"><fmt:message bundle="${lctx}" key="img.display.downloadOriginal"></fmt:message></a>
+                                                    </div>    
+                                                </div>
+                                                
                                                 </div>
 
                                             </div>
@@ -259,9 +268,6 @@
                             </td>
                             <td><img src="img/empty.gif" width="2" /></td>
                             <td class="itemMenu">
-                                <script>
-                                    var firstCalled = false;
-                                </script>
                                 <div id="itemTree" style="width:330px;" class="ui-tabs ui-widget ui-corner-all facet shadow10">
                                     <ul class="ui-tabs-nav ui-helper-reset ui-helper-clearfix ui-widget-header ui-corner-all" style="padding:0 0.1em 0 0;">
         <li class=" facetTitle ui-state-default ui-corner-top  ui-state-active" style="width:100%;">
@@ -328,9 +334,3 @@
             </div>
         </div>
 </body></html>
-<%
-        }catch(Exception ex){
-            response.sendRedirect(kconfig.getApplicationURL() + "?error=item_error");
-            return;
-        }
-%>

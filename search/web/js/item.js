@@ -1,3 +1,4 @@
+
 $(document).ready(function(){
     $('body').click(function() {
         hideContextMenu();
@@ -10,8 +11,22 @@ $(document).ready(function(){
    });
 });
 
-/** bind arrow keys*/
-function bindArrows() {
+
+
+/** keyboard instance */
+var keyboardSupportObject = new KeyboardSupport();
+
+/**
+ * Keyboard object supports key binding
+ * @returns {KeyboardSupport}
+ */
+function KeyboardSupport() {}
+
+KeyboardSupport.prototype.unbindArrows =  function() {
+	$(document).unbind('keyup');
+}
+
+KeyboardSupport.prototype.bindArrows =  function() {
     // keys - bind left and right arrows
 	$(document).keyup(function(e) {
         if (e.keyCode == 39) {
@@ -20,11 +35,6 @@ function bindArrows() {
             selectPrevious();
         }
     });
-}
-
-/** unbind arrow keys*/
-function unbindArrows() {
-	$(document).unbind('keyup');
 }
 
 
@@ -94,6 +104,7 @@ function scrollElement(container, element){
 
 var imgLoading = "<img src=\"img/loading.gif\" />";
 var imgLoadingBig = '<div align="center" style="height:300px;padding:50%;"><img src="img/item_loading.gif" /></div>';
+
 function trim10 (str) {
     var whitespace = ' \n\r\t\f\x0b\xa0\u2000\u2001\u2002\u2003\u2004\u2005\u2006\u2007\u2008\u2009\u200a\u200b\u2028\u2029\u3000';
     for (var i = 0; i < str.length; i++) {
@@ -168,7 +179,8 @@ $( ".selector" ).dialog( { buttons: { "Ok": function() { $(this).dialog("close")
 
 function downloadOriginal(level, model) {
 	var uuid = $("#tabs_"+level).attr('pid');
-	var url = "djvu?uuid="+uuid+"&outputFormat=RAW&page=0&asFile=true";
+	//var url = "djvu?uuid="+uuid+"&outputFormat=RAW&page=0&asFile=true";
+	var url = 'img?uuid='+this.viewerOptions.uuid+'&stream=IMG_FULL&action=GETRAW&asFile=true';
 	window.location.href = url;
     hideAdminOptions(level);
 }
@@ -368,12 +380,12 @@ function switchDisplay() {
 
 
 function onLoadPlainImage() {
-	if (imageInitialized) {
+	if ((imageContainerObject)  && (imageContainerObject.displayed)) {
 		$("#plainImageImg").fadeIn();
 	}
-        if(viewerOptions.hasAlto){
-            showAlto(viewerOptions.uuid, 'plainImageImg');
-        }
+    if(viewerOptions.hasAlto){
+        showAlto(viewerOptions.uuid, 'plainImageImg');
+    }
 }
 
 function onLoadFullImage(){
@@ -390,45 +402,101 @@ function onLoadThumb(obj){
 
 function onLoadPDFImage() {}
 
-var imageInitialized = false;
-function showImage(viewerOptions) {
-	if (viewerOptions.isContentPDF()) {
-		displayImageContainer("#pdfImage");
-		if (viewerOptions.previewStreamGenerated) {
-			$("#pdfImageImg").attr('src','img?uuid='+viewerOptions.uuid+'&stream=IMG_PREVIEW&action=GETRAW');
-		} else {
-			$("#pdfImageImg").attr('src','img?uuid='+viewerOptions.uuid+'&stream=IMG_FULL&action=SCALE&scaledHeight=700');
-		}
-	} else {
-            var tilesPrepared = viewerOptions.deepZoomGenerated || viewerOptions.imageServerConfigured;
-            var deepZoomDisplay = ((viewerOptions.deepZoomCofigurationEnabled) && (tilesPrepared));
-    	    if (deepZoomDisplay) {
-		    if (viewer == null) {
-		        init();
-		    }
-	    		displayImageContainer("#container");
-	            viewer.openDzi("deepZoom/"+viewerOptions.uuid+"/");
-	    } else {
-	            displayImageContainer("#plainImage");
-	            
-	            $("#plainImageImg").fadeOut("slow", function () {
-	                // http://code.google.com/p/kramerius/issues/detail?id=43
-	    			$("#plainImageImg").attr('src','img/empty.gif');
-	    			
-	    			// XXX: Changed from thumb servlet to img servlet
-	    			// previous -> $("#plainImageImg").attr('src','fullThumb?uuid='+viewerOptions.uuid);
-	    			if (viewerOptions.previewStreamGenerated) {
-		    			$("#plainImageImg").attr('src','img?uuid='+viewerOptions.uuid+'&stream=IMG_PREVIEW&action=GETRAW');
-	    			} else {
-	    				// this should be directed by property or removed
-		    			$("#plainImageImg").attr('src','img?uuid='+viewerOptions.uuid+'&stream=IMG_FULL&action=SCALE&scaledHeight=700');
-	    			}
-	            });
 
-	    }
-	}		
-	imageInitialized = true;
+/** Image container object */
+var imageContainerObject = null;
+/** 
+ * Represents ImageContainer 
+ * @param viewerOptions ViewerOptions structure
+ * @returns {ImageContainer}
+ */
+function ImageContainer(viewerOptions) {
+	this.viewerOptions = viewerOptions;
+	this.displayed = false;
+	
+	var tilesPrepared = viewerOptions.deepZoomGenerated || viewerOptions.imageServerConfigured;
+
+	this.actionsList = [
+        // pdf content
+        {"action":this.pdf, "enable":viewerOptions.isContentPDF()},
+        // deep zoom content
+        {"action":this.deepZoom, "enable":((viewerOptions.deepZoomCofigurationEnabled) && (tilesPrepared))},
+        // plain img
+        {"action":this.plainImg, "enable":!viewerOptions.isContentPDF() && viewerOptions.displayableContent},
+        // enabled in every cases
+        {"action":this.downloadOriginal, "enable":true}
+    ];
+	
 }
+
+
+/** choose right display action from viewer object */
+ImageContainer.prototype.display = function() {
+	var displayAction = null;
+	this.actionsList.forEach(function(val) {
+		if ((displayAction == null) && (val["enable"])) {
+			displayAction = val["action"];
+		}
+	});
+	displayAction.call(this);
+	this.displayed = true;
+}
+
+/** display div */
+ImageContainer.prototype.displayDiv = function(whichOne) {
+	["#loadingDeepZoomImage", "#plainImage",  "#pdfImage",  "#container",  "#noImageError",  "#securityError","#download"].forEach(function(item) {
+		if (item==whichOne) {
+			$(item).show();
+		} else {
+			$(item).hide();
+		}
+	});
+}
+/** show pdf content */
+ImageContainer.prototype.pdf = function() {
+	LOGGER.log("INFO","displaying pdf");
+	this.displayDiv("#pdfImage");
+	if (this.viewerOptions.previewStreamGenerated) {
+		$("#pdfImageImg").attr('src','img?uuid='+viewerOptions.uuid+'&stream=IMG_PREVIEW&action=GETRAW');
+	} else {
+		$("#pdfImageImg").attr('src','img?uuid='+viewerOptions.uuid+'&stream=IMG_FULL&action=SCALE&scaledHeight=700');
+	}
+}
+
+/** display deep zoom */
+ImageContainer.prototype.deepZoom = function() {
+	LOGGER.log("INFO","displaying deep zoom");
+	if (viewer == null) {
+        init();
+    }
+	this.displayDiv("#container");
+    viewer.openDzi("deepZoom/"+viewerOptions.uuid+"/");
+}
+
+/** display plain image */
+ImageContainer.prototype.plainImg = function() {
+	LOGGER.log("INFO","displaying plain image");
+	this.displayDiv("#plainImage");
+
+	$("#plainImageImg").fadeOut("slow", function () {
+		// http://code.google.com/p/kramerius/issues/detail?id=43
+		$("#plainImageImg").attr('src','img/empty.gif');
+		
+		if (viewerOptions.previewStreamGenerated) {
+			$("#plainImageImg").attr('src','img?uuid='+viewerOptions.uuid+'&stream=IMG_PREVIEW&action=GETRAW');
+		} else {
+			// this should be directed by property or removed
+			$("#plainImageImg").attr('src','img?uuid='+viewerOptions.uuid+'&stream=IMG_FULL&action=SCALE&scaledHeight=700');
+		}
+	});
+}
+
+/** display download original box */
+ImageContainer.prototype.downloadOriginal = function() {
+	this.displayDiv("#download");
+	$("#downloadOriginalHref").attr('href','img?uuid='+this.viewerOptions.uuid+'&stream=IMG_FULL&action=GETRAW&asFile=true');
+}
+
 
 function hideAlto(){
     $("#alto").html('');
@@ -473,24 +541,6 @@ function positionAlto(img){
     $("#alto").css('top', t);
 }
 
-function displayImageContainer(contentToShow) {
-	$.each([
-        "#loadingDeepZoomImage", 
-        "#plainImage",
-	 	"#pdfImage",
-	 	"#container",
-	 	"#noImageError",
-	 	"#securityError"],
-	 	
-	 	function(index,item) {
-			if (item==contentToShow) {
-				$(item).show();
-			} else {
-				$(item).hide();
-			}
-		}
-	);
-}
 
 function showBornDigitalPDF(uuid,page) {
 	if  (!page) {

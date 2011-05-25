@@ -104,7 +104,14 @@ function selectPage(uuid){
     checkArrows();
     
 
-    getViewInfo(uuid, showImage);
+    //getViewInfo(uuid, showImage);
+    getViewInfo(uuid, function(viewerOptions) {
+    	// initializing new object	
+    	imageContainerObject = new ImageContainer(viewerOptions);
+    	// display object
+    	imageContainerObject.display();
+    });
+    
     var maxLevel = getMaxLevel();
     $('#img'+getMaxLevel()+'_'+uuid).parent().toggleClass('tv_img_selected');
     $("#tv_container").attr("scrollLeft", to);

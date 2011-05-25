@@ -45,6 +45,7 @@ import cz.incad.kramerius.security.User;
 import cz.incad.kramerius.security.impl.http.CurrentLoggedUserProvider;
 import cz.incad.kramerius.utils.IOUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
+import cz.incad.kramerius.utils.imgs.ImageMimeType;
 import cz.incad.kramerius.utils.solr.SolrUtils;
 import cz.incad.utils.RelsExtHelper;
 
@@ -94,20 +95,32 @@ public class ViewInfoServlet extends GuiceServlet {
                 String donator = this.fedoraAccess.getDonator(uuid);
                 
                 HashMap map = new HashMap();
+                // img full je dostupny
                 map.put("imgfull", imgfullAvailable);
+                // pdf rozsah - TODO: dat do konfigurace 
                 map.put("pdfMaxRange", KConfiguration.getInstance().getConfiguration().getInt("generatePdfMaxRange",20));
-                
+                // img preview dostupny
                 map.put("previewStreamGenerated", fedoraAccess.isStreamAvailable(uuid, ImageStreams.IMG_PREVIEW.getStreamName()));
+                // vygenerovano deepZoom
                 map.put("deepZoomCacheGenerated", ""+generated);
+                // povoleno deep zoom - TODO: dat do konfigurace
                 map.put("deepZoomCofigurationEnabled", ""+conf);
+                // forward to iip
                 map.put("imageServerConfigured", ""+(!KConfiguration.getInstance().getUrlOfIIPServer().equals("")));
+                // zobrazovane uuid
                 map.put("uuid", uuid);
+                // cesta nahoru {uuid + parentofuuid + parentofparentofuuid + ... + root}
                 map.put("pathOfUuids",pathOfUUIDs);
+                
+                // nezobrazitelny obsah .. 
+                map.put("displayableContent", ImageMimeType.loadFromMimeType(mimeType) != null);
+                
+                
                 
                 if (this.currentLoggedUserProvider.get().hasSuperAdministratorRole()) {
                     // kam to jinam dat ?? 
                     map.put("canhandlecommongroup",true);
-               }
+                }
                 
                 HashMap<String, HashMap<String, String>> secMapping = new HashMap<String, HashMap<String,String>>(); 
                 
@@ -163,6 +176,7 @@ public class ViewInfoServlet extends GuiceServlet {
             resp.sendError(HttpServletResponse.SC_FORBIDDEN);
         }
     }
+    
 
 
     private boolean firstMustBeTrue(boolean[] vals) {

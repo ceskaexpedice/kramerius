@@ -99,7 +99,7 @@ function adminRights(level, model, action) {
  */
 function adminRightsImpl(uuid,action) {
 	// unbind arrows 
-	unbindArrows();
+	keyboardSupportObject.unbindArrows();
 	
 	_lastWorkingUuid = uuid;
 	_lastDisplayedAction = action;
@@ -124,7 +124,9 @@ function adminRightsImpl(uuid,action) {
                     } 
                 } 
             });
-            $("#adminRightsWindow").bind( "dialogclose", function(event, ui) { bindArrows();});
+            $("#adminRightsWindow").bind( "dialogclose", function(event, ui) { 
+            	keyboardSupportObject.bindArrows();
+            });
         }
     	
     	$("#adminRightsWindow").dialog('option','title',dictionary['rights.dialog.showrights.title']);
