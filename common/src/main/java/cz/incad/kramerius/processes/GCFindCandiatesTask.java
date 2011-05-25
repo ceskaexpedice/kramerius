@@ -25,13 +25,13 @@ public class GCFindCandiatesTask extends TimerTask {
 	public void run() {
 		Lock lock = lrProcessManager.getSynchronizingLock();
 		try {
-			lock.lock();
+            List<LRProcess> longRunningProcesses = lrProcessManager.getLongRunningProcesses(States.RUNNING);
+
+		    lock.lock();
 
 			List<String> gccCandidates = new ArrayList<String>();
-			
 			PIDList pidList = PIDList.createPIDList();
 			List<String> pids = pidList.getProcessesPIDS();
-			List<LRProcess> longRunningProcesses = lrProcessManager.getLongRunningProcesses(States.RUNNING);
 			for (LRProcess lrProcess : longRunningProcesses) {
 				if (lrProcess.getPid() != null) {
 					if (!pids.contains(lrProcess.getPid())) {

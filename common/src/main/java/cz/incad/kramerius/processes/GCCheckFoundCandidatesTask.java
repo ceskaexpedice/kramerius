@@ -27,10 +27,9 @@ public class GCCheckFoundCandidatesTask extends TimerTask {
 		Lock lock = lrProcessManager.getSynchronizingLock();
 		try {
 			List<String> pids = PIDList.createPIDList().getProcessesPIDS();
-			for (String uuid : this.uuids) {
-				try {
-					lock.lock();
-
+            try {
+                lock.lock();
+                for (String uuid : this.uuids) {
 					LRProcess lr = this.lrProcessManager.getLongRunningProcess(uuid);
 					if (lr.getProcessState().equals(States.RUNNING)) {
 						if (lr.getPid()!=null) {
@@ -44,12 +43,11 @@ public class GCCheckFoundCandidatesTask extends TimerTask {
 							this.lrProcessManager.updateLongRunningProcessState(lr);
 						}
 					}
-					
-				} finally {
-					lock.unlock();
-				}
-			}
-			
+                }
+            } finally {
+                lock.unlock();
+            }
+
 			this.gcScheduler.scheduleFindGCCandidates();
 			
 		} catch (IOException e) {
