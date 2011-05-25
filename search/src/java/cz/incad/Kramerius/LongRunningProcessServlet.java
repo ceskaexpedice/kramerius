@@ -12,6 +12,7 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.StringTokenizer;
+import java.util.concurrent.locks.Lock;
 import java.util.logging.Level;
 
 import javax.servlet.ServletContext;
@@ -312,11 +313,17 @@ public class LongRunningProcessServlet extends GuiceServlet {
         updatePID {
             @Override
             public void doAction(ServletContext context, HttpServletRequest req, HttpServletResponse resp, DefinitionManager defManager, LRProcessManager lrProcessManager, UserManager userManager, Provider<User> userProvider, IsActionAllowed actionAllowed) {
-                String uuid = req.getParameter("uuid");
-                String pid = req.getParameter("pid");
-                LRProcess longRunningProcess = lrProcessManager.getLongRunningProcess(uuid);
-                longRunningProcess.setPid(pid);
-                lrProcessManager.updateLongRunningProcessPID(longRunningProcess);
+                Lock lock = lrProcessManager.getSynchronizingLock();
+                lock.lock();
+                try {
+                    String uuid = req.getParameter("uuid");
+                    String pid = req.getParameter("pid");
+                    LRProcess longRunningProcess = lrProcessManager.getLongRunningProcess(uuid);
+                    longRunningProcess.setPid(pid);
+                    lrProcessManager.updateLongRunningProcessPID(longRunningProcess);
+                } finally {
+                    lock.unlock();
+                }
             }
         },
 
@@ -326,17 +333,24 @@ public class LongRunningProcessServlet extends GuiceServlet {
             public void doAction(ServletContext context, HttpServletRequest req, HttpServletResponse resp, DefinitionManager defManager, LRProcessManager processManager, UserManager userManager, Provider<User> userProvider, IsActionAllowed actionAllowed) {
                 String uuid = req.getParameter("uuid");
                 String state = req.getParameter("state");
-                if (state != null) {
-                    States st = States.valueOf(state);
+                Lock lock = processManager.getSynchronizingLock();
+                lock.lock();
+                try  {
                     LRProcess longRunningProcess = processManager.getLongRunningProcess(uuid);
+                    if (state != null) {
 
-                    if (st.equals(States.KILLED) && longRunningProcess.getProcessState().equals(States.RUNNING)) {
-                        longRunningProcess.setProcessState(st);
-                        processManager.updateLongRunningProcessState(longRunningProcess);
-                    } else if (!st.equals(States.KILLED)) {
-                        longRunningProcess.setProcessState(st);
-                        processManager.updateLongRunningProcessState(longRunningProcess);
+                        States st = States.valueOf(state);
+
+                        if (st.equals(States.KILLED) && longRunningProcess.getProcessState().equals(States.RUNNING)) {
+                            longRunningProcess.setProcessState(st);
+                            processManager.updateLongRunningProcessState(longRunningProcess);
+                        } else if (!st.equals(States.KILLED)) {
+                            longRunningProcess.setProcessState(st);
+                            processManager.updateLongRunningProcessState(longRunningProcess);
+                        }
                     }
+                } finally {
+                    lock.unlock();
                 }
             }
         },
@@ -345,6 +359,8 @@ public class LongRunningProcessServlet extends GuiceServlet {
 
             @Override
             public void doAction(ServletContext context, HttpServletRequest req, HttpServletResponse resp, DefinitionManager defManager, LRProcessManager processManager, UserManager userManager, Provider<User> userProvider, IsActionAllowed actionAllowed) {
+                Lock lock = processManager.getSynchronizingLock();
+                lock.lock();
                 try {
                     String uuid = req.getParameter("uuid");
                     String name = req.getParameter("name");
@@ -356,6 +372,8 @@ public class LongRunningProcessServlet extends GuiceServlet {
                     }
                 } catch (UnsupportedEncodingException e) {
                     LOGGER.log(Level.SEVERE, e.getMessage(), e);
+                } finally {
+                    lock.unlock();
                 }
             }
         },
@@ -363,10 +381,16 @@ public class LongRunningProcessServlet extends GuiceServlet {
         delete {
             @Override
             public void doAction(ServletContext context, HttpServletRequest req, HttpServletResponse resp, DefinitionManager defManager, LRProcessManager processManager, UserManager userManager, Provider<User> userProvider, IsActionAllowed actionAllowed) {
-                String uuid = req.getParameter("uuid");
-                LRProcess longRunningProcess = processManager.getLongRunningProcess(uuid);
-                if (longRunningProcess != null) {
-                    processManager.deleteLongRunningProcess(longRunningProcess);
+                Lock lock = processManager.getSynchronizingLock();
+                lock.lock();
+                try {
+                    String uuid = req.getParameter("uuid");
+                    LRProcess longRunningProcess = processManager.getLongRunningProcess(uuid);
+                    if (longRunningProcess != null) {
+                        processManager.deleteLongRunningProcess(longRunningProcess);
+                    }
+                } finally {
+                    lock.unlock();
                 }
             }
         };
