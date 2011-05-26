@@ -74,7 +74,7 @@ public class AdminMenuViewObject {
     }
 
     public String openUsersAdmin() throws IOException {
-        String href = ApplicationURL.getServerAndPort(request)+kconfig.getUsersEditorURL();
+        String href = kconfig.getUsersEditorURL();
         return renderMenuItem(href, "administrator.menu.userseditor",true);
        
 
@@ -88,7 +88,7 @@ public class AdminMenuViewObject {
 
     public String editor() throws IOException {
         String localeParam = locale == null ? "" : "?locale=" + locale.getLanguage();
-        String href = ApplicationURL.getServerAndPort(request)+kconfig.getEditorURL() + localeParam;
+        String href = kconfig.getEditorURL() + localeParam;
         return renderMenuItem(href, "administrator.menu.dialogs.editor.title", true);
     }
 
