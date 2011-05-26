@@ -58,12 +58,10 @@ public final class EditorConfiguration {
     }
 
     public String getPreviewURL(String uuid) {
-//        return "http://localhost:8080/search/djvu?uuid=" + uuid + "&scaledWidth=450";
-        return getKrameriusURL() + "djvu?uuid=" + uuid + "&scaledWidth=450";
+        return getKrameriusURL() + "img?uuid=" + uuid + "&stream=IMG_FULL&action=SCALE&scaledWidth=450";
     }
 
     public String getThumbnailURL(String uuid) {
-        //return getKrameriusURL() + "titlePage?uuid=" + uuid;
         return getKrameriusURL() + "img?uuid=" + uuid+"&stream=IMG_THUMB";//&action=SCALE&scaledHeight=96";
     }
 
