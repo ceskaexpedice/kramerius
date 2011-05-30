@@ -20,6 +20,8 @@ import org.apache.commons.configuration.PropertiesConfiguration;
 import org.apache.commons.configuration.reloading.FileChangedReloadingStrategy;
 
 public class KConfiguration {
+    
+    
 
     public static final String DEFAULT_CONF_LOCATION = "res/configuration.properties";
 
@@ -182,7 +184,7 @@ public class KConfiguration {
     }
 
     public String getUsersEditorURL() {
-        String url = getProperty("usersEditorUrl",getProperty("_fedoraTomcatHost")+"/rightseditor");
+        String url = getProperty("usersEditorUrl","/rightseditor");
         return url;
     }
     
