@@ -42,11 +42,6 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
 
         <!-- convenience to define GWT version in one place -->
         <gwt.version>2.0.4</gwt.version>
-
-        <maven.compiler.source>1.6</maven.compiler.source>
-        <maven.compiler.target>1.6</maven.compiler.target>
-        <maven.compile.encoding>UTF-8</maven.compile.encoding>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
 
     <dependencies>
@@ -85,12 +80,12 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
         <dependency>
             <groupId>com.google.inject</groupId>
             <artifactId>guice</artifactId>
-            <version>2.0</version>
+            <version>${guice.version}</version>
         </dependency>
         <dependency>
             <groupId>com.google.inject</groupId>
             <artifactId>guice-servlet</artifactId>
-            <version>2.0</version>
+            <version>${guice.version}</version>
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
@@ -168,15 +163,6 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
                     <warSourceDirectory>war</warSourceDirectory>
                 </configuration>
             </plugin>-->
-
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-compiler-plugin</artifactId>
-                <configuration>
-                    <source>${maven.compiler.source}</source>
-                    <target>${maven.compiler.target}</target>
-                </configuration>
-            </plugin>
 
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>

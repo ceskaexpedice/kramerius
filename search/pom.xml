@@ -92,19 +92,19 @@
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-api</artifactId>
-            <version>1.6.0</version>
+            <version>${slf4j.version}</version>
         </dependency>
 
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>log4j-over-slf4j</artifactId>
-            <version>1.6.0</version>
+            <version>${slf4j.version}</version>
         </dependency>
 
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-jdk14</artifactId>
-            <version>1.6.0</version>
+            <version>${slf4j.version}</version>
         </dependency>
 
         <dependency>
@@ -233,17 +233,6 @@
 
         <plugins>
         
-        
-            <plugin>
-                <artifactId>maven-compiler-plugin</artifactId>
-                <version>2.0.2</version>
-                <configuration>
-                    <source>1.6</source>
-                    <target>1.6</target>
-                    <encoding>UTF-8</encoding>
-                </configuration>
-            </plugin>
-
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-war-plugin</artifactId>
@@ -277,28 +266,28 @@
     </build>
 
 
-	<reporting>  
-	    <plugins>  
-	<plugin>
-        <groupId>nl.windgazer</groupId>
-        <artifactId>jsdoctk-plugin</artifactId>
-        <version>1.0</version>
-        <configuration>
-                <template>htm</template> <!-- Alternatives are not pre-installed for version 2.x-->
-                <directory>${project.build.directory}/jsdoc</directory>
-                <recurse>2</recurse>
-                <ext>js</ext>
-                <allfunctions>true</allfunctions>
-                <Allfunctions>false</Allfunctions>
-                <privateOption>false</privateOption>
-                <!-- If you're using the maven default setup this alternative is sometimes required
-                to make the plugin work: ${basedir}/src/main/webapp/ -->
-                <srcDir>${basedir}/web/js</srcDir>
+    <reporting>  
+        <plugins>  
+            <plugin>
+                <groupId>nl.windgazer</groupId>
+                <artifactId>jsdoctk-plugin</artifactId>
+                <version>1.0</version>
+                <configuration>
+                    <template>htm</template> <!-- Alternatives are not pre-installed for version 2.x-->
+                    <directory>${project.build.directory}/jsdoc</directory>
+                    <recurse>2</recurse>
+                    <ext>js</ext>
+                    <allfunctions>true</allfunctions>
+                    <Allfunctions>false</Allfunctions>
+                    <privateOption>false</privateOption>
+                    <!-- If you're using the maven default setup this alternative is sometimes required
+                    to make the plugin work: ${basedir}/src/main/webapp/ -->
+                    <srcDir>${basedir}/web/js</srcDir>
 
-	        </configuration>
-		</plugin>
-	    </plugins>  
-	  </reporting>  
+                </configuration>
+            </plugin>
+        </plugins>  
+    </reporting>  
 
     <properties>
         <netbeans.hint.deploy.server>Tomcat60</netbeans.hint.deploy.server>

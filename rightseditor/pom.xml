@@ -25,27 +25,15 @@
         </license>
     </licenses>
 
+    <parent>
+        <groupId>cz.incad.kramerius</groupId>
+        <artifactId>kramerius-parent-pom</artifactId>
+        <version>1.0</version>
+    </parent>
+
     <properties>
     	<gwt.version>2.3.0</gwt.version>
-    	<maven.compiler.source>1.6</maven.compiler.source>
-        <maven.compiler.target>1.6</maven.compiler.target>
-        <maven.compile.encoding>UTF-8</maven.compile.encoding>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
-
-	<distributionManagement>
-	     <repository>
-	         <id>artifactory.internal</id>
-	        <name>Internal Release Repository</name>
-	        <url>${snapshots.url}</url>
-	     </repository>
-	
-	     <snapshotRepository>
-	         <id>artifactory.snapshots</id>
-	         <name>Internal Snapshot Repository</name>
-		     <url>${snapshots.url}</url>
-	     </snapshotRepository>
-	</distributionManagement>
 
     <dependencies>
         <dependency>
@@ -154,15 +142,6 @@
                 <artifactId>maven-war-plugin</artifactId>
                 <configuration>
                     <warSourceDirectory>war</warSourceDirectory>
-                </configuration>
-            </plugin>
-
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-compiler-plugin</artifactId>
-                <configuration>
-                    <source>${maven.compiler.source}</source>
-                    <target>${maven.compiler.target}</target>
                 </configuration>
             </plugin>
 

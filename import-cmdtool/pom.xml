@@ -29,19 +29,19 @@
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-api</artifactId>
-            <version>1.6.0</version>
+            <version>${slf4j.version}</version>
         </dependency>
 
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>log4j-over-slf4j</artifactId>
-            <version>1.6.0</version>
+            <version>${slf4j.version}</version>
         </dependency>
 
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-jdk14</artifactId>
-            <version>1.6.0</version>
+            <version>${slf4j.version}</version>
         </dependency>
 
         <dependency>
@@ -108,7 +108,7 @@
         <dependency>
             <groupId>postgresql</groupId>
             <artifactId>postgresql</artifactId>
-            <version>8.4.701</version>
+            <version>${postgresql.version}</version>
         </dependency>
 		
         <!-- JPEG2000 support -->
@@ -146,8 +146,6 @@
                 <configuration>
                     <compilerArgument>-XDignore.symbol.file=true</compilerArgument>
                     <fork>true</fork>
-                    <source>1.6</source>
-                    <target>1.6</target>
                 </configuration>
             </plugin>
 

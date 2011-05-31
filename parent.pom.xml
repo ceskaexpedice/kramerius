@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
 <project>
     <modelVersion>4.0.0</modelVersion>
     <groupId>cz.incad.kramerius</groupId>
@@ -5,6 +6,17 @@
     <version>1.0</version>
     <packaging>pom</packaging>
 
+    <properties>
+        <maven.compiler.source>1.6</maven.compiler.source>
+        <maven.compiler.target>1.6</maven.compiler.target>
+        <maven.compile.encoding>UTF-8</maven.compile.encoding>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        
+        <guice.version>3.0</guice.version>
+        <postgresql.version>8.4.701</postgresql.version>
+        <slf4j.version>1.6.0</slf4j.version>
+    </properties>
+    
     <repositories>
         <repository>
             <id>maven2-repository.dev.java.net</id>
@@ -35,5 +47,21 @@
 
     </distributionManagement>
   
+
+    <build>
+        <pluginManagement>
+            <plugins>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-compiler-plugin</artifactId>
+                    <version>2.3.2</version>
+                    <configuration>
+                        <source>${maven.compiler.source}</source>
+                        <target>${maven.compiler.target}</target>
+                    </configuration>
+                </plugin>
+            </plugins>
+        </pluginManagement>
+    </build>
   
 </project>
