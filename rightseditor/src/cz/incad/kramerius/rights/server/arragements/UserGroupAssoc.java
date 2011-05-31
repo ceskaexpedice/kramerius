@@ -12,51 +12,38 @@ import cz.incad.kramerius.rights.server.Structure.GroupUserAssoction;
 
 public class UserGroupAssoc extends Arrangement {
 
-	Structure structure;
-	Structure.GroupUserAssoction groupUserAssoction;
-	
-	UserArrangement userArrangement;
-	GroupArrangement groupArrangement;
-	
-	public UserGroupAssoc(Structure structure, GroupUserAssoction assoc, UserArrangement userArr, GroupArrangement groupArr) {
-		super(assoc);
+    Structure structure;
+    Structure.GroupUserAssoction groupUserAssoction;
 
-		setReadableName(structure.user.getName());
+    UserArrangement userArrangement;
+    GroupArrangement groupArrangement;
 
-		this.structure = structure;
-		this.groupUserAssoction = assoc;
-		this.userArrangement = userArr;
-		this.groupArrangement = groupArr;
-	
-		
-		//addProperty(structure.groupUserAssoction.USERS);
-		addProperty(structure.groupUserAssoction.USERS.relate(structure.user.NAME));
-		addProperty(structure.groupUserAssoction.USERS.relate(structure.user.SURNAME));
+    public UserGroupAssoc(Structure structure, GroupUserAssoction assoc, UserArrangement userArr, GroupArrangement groupArr) {
+        super(assoc);
 
-		//addProperty(structure.groupUserAssoction.GROUP);
-		addProperty(structure.groupUserAssoction.GROUP.relate(structure.group.GNAME));
-		setForm(createForm());
+        setReadableName(structure.user.getName());
 
-	}
+        this.structure = structure;
+        this.groupUserAssoction = assoc;
+        this.userArrangement = userArr;
+        this.groupArrangement = groupArr;
 
-	Form createForm() {
-		Form form = new Form();
-		form.setLayout(new VerticalPanel().addChild(
-				new RefButton(structure.groupUserAssoction.USERS, this.userArrangement,
-						new VerticalPanel()
-							.addChild(
-								new TextField(structure.groupUserAssoction.USERS
-										.relate(structure.user.NAME)))
-							.addChild(
-								new TextField(structure.groupUserAssoction.USERS
-										.relate(structure.user.SURNAME)))))
-				.addChild(
-						new RefButton(structure.groupUserAssoction.GROUP,
-								this.groupArrangement,
-								new HorizontalPanel().addChild(new TextField(
-										structure.groupUserAssoction.GROUP
-												.relate(structure.group.GNAME))))));
-		return form;
-	}
+        // addProperty(structure.groupUserAssoction.USERS);
+        addProperty(structure.groupUserAssoction.USERS.relate(structure.user.NAME));
+        addProperty(structure.groupUserAssoction.USERS.relate(structure.user.SURNAME));
+
+        // addProperty(structure.groupUserAssoction.GROUP);
+        addProperty(structure.groupUserAssoction.GROUP.relate(structure.group.GNAME));
+        setForm(createForm());
+
+    }
+
+    Form createForm() {
+        Form form = new Form();
+        form.setLayout(new VerticalPanel().addChild(
+                new RefButton(structure.groupUserAssoction.USERS, this.userArrangement, new VerticalPanel().addChild(new TextField(structure.groupUserAssoction.USERS.relate(structure.user.NAME))).addChild(new TextField(structure.groupUserAssoction.USERS.relate(structure.user.SURNAME))))).addChild(
+                new RefButton(structure.groupUserAssoction.GROUP, this.groupArrangement, new HorizontalPanel().addChild(new TextField(structure.groupUserAssoction.GROUP.relate(structure.group.GNAME))))));
+        return form;
+    }
 
 }

@@ -7,8 +7,8 @@ import org.aplikator.server.descriptor.Application;
 
 public class I18NUtils {
 
-	public static String getLocalizedString(String key, Context ctx) {
-	    return Application.get().getLocalizedString(key, ctx!=null?ctx.getUserLocale():Locale.getDefault());
-	}
+    public static String getLocalizedString(String key, Context ctx) {
+        return Application.get().getLocalizedString(key, ctx != null ? ctx.getUserLocale() : Locale.getDefault());
+    }
 
 }

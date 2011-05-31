@@ -1,6 +1,5 @@
 package cz.incad.kramerius.rights.server.arragements;
 
-
 import org.aplikator.server.descriptor.Arrangement;
 import org.aplikator.server.descriptor.Entity;
 import org.aplikator.server.descriptor.Form;
@@ -11,40 +10,33 @@ import org.aplikator.server.descriptor.VerticalPanel;
 import cz.incad.kramerius.rights.server.Structure;
 
 public class RightsCriteriumParamArrangement extends Arrangement {
-	
-	private Structure structure;
-	
-	public RightsCriteriumParamArrangement(Entity entity, Structure struct) {
-		super(entity);
-		this.structure = struct;
-		setSortProperty(struct.criteriumParam.SHORT_DESC);	
-		addProperty(struct.criteriumParam.SHORT_DESC);
-		addProperty(struct.criteriumParam.VALS);
 
-		
-		
-		setForm(createRightCriteriumParamForm());
-	}
+    private Structure structure;
 
-	
-	private Form createRightCriteriumParamForm() {
-		Form form = new Form();
+    public RightsCriteriumParamArrangement(Entity entity, Structure struct) {
+        super(entity);
+        this.structure = struct;
+        setSortProperty(struct.criteriumParam.SHORT_DESC);
+        addProperty(struct.criteriumParam.SHORT_DESC);
+        addProperty(struct.criteriumParam.VALS);
 
-		TextField shortDesc = new TextField(structure.criteriumParam.SHORT_DESC);
-		shortDesc.setWidth("100%");
+        setForm(createRightCriteriumParamForm());
+    }
 
-		TextArea longDesc = new TextArea(structure.criteriumParam.LONG_DESC);
-		longDesc.setWidth("100%");
+    private Form createRightCriteriumParamForm() {
+        Form form = new Form();
 
-		TextArea values = new TextArea(structure.criteriumParam.VALS);
-		values.setWidth("100%");
+        TextField shortDesc = new TextField(structure.criteriumParam.SHORT_DESC);
+        shortDesc.setWidth("100%");
 
-		form.setLayout(new VerticalPanel()
-				.addChild(shortDesc)
-				.addChild(longDesc)
-				.addChild(values)
-		);
-		return form;
-	}
+        TextArea longDesc = new TextArea(structure.criteriumParam.LONG_DESC);
+        longDesc.setWidth("100%");
+
+        TextArea values = new TextArea(structure.criteriumParam.VALS);
+        values.setWidth("100%");
+
+        form.setLayout(new VerticalPanel().addChild(shortDesc).addChild(longDesc).addChild(values));
+        return form;
+    }
 
 }

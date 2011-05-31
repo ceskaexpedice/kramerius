@@ -28,190 +28,144 @@ import cz.incad.kramerius.security.User;
 
 public class UserArrangement extends Arrangement {
 
-	Structure struct;
-	Structure.UserEntity userEntity;
-	RefenrenceToPersonalAdminArrangement referenceToAdmin;
-	Function vygenerovatHeslo;
-	Form createdForm;
-	
-	public UserArrangement(Structure struct, UserEntity entity, RefenrenceToPersonalAdminArrangement reference, Function vygenerovatHeslo) {
-		super(entity);
-		this.struct = struct;
-		this.userEntity = entity;
-		this.referenceToAdmin = reference;
-		this.vygenerovatHeslo = vygenerovatHeslo;
-		
-		addProperty(struct.user.LOGINNAME).addProperty(struct.user.NAME).addProperty(struct.user.SURNAME).addProperty(struct.user.PERSONAL_ADMIN.relate(struct.group.GNAME));
-		setSortProperty(struct.user.LOGINNAME);
-		setQueryGenerator(new UserQueryGenerator());
-		//setForm(createUserFormFormSuperAdmin(vygenerovatHeslo));
-		this.trigger = new UserTriggers(this.struct);
-		
-	}
+    Structure struct;
+    Structure.UserEntity userEntity;
+    RefenrenceToPersonalAdminArrangement referenceToAdmin;
+    Function vygenerovatHeslo;
+    Form createdForm;
 
-	public Mailer getMailer() {
-		return ((UserTriggers)this.trigger).getMailer();
-	}
-	
-	public void setMailer(Mailer mailer) {
-		((UserTriggers)this.trigger).setMailer(mailer);
-	}
+    public UserArrangement(Structure struct, UserEntity entity, RefenrenceToPersonalAdminArrangement reference, Function vygenerovatHeslo) {
+        super(entity);
+        this.struct = struct;
+        this.userEntity = entity;
+        this.referenceToAdmin = reference;
+        this.vygenerovatHeslo = vygenerovatHeslo;
 
-	
+        addProperty(struct.user.LOGINNAME).addProperty(struct.user.NAME).addProperty(struct.user.SURNAME).addProperty(struct.user.PERSONAL_ADMIN.relate(struct.group.GNAME));
+        setSortProperty(struct.user.LOGINNAME);
+        setQueryGenerator(new UserQueryGenerator());
+        // setForm(createUserFormFormSuperAdmin(vygenerovatHeslo));
+        this.trigger = new UserTriggers(this.struct);
 
-	@Override
-	public synchronized Form getForm(Context context) {
-		Form form = null;
-		User user = GetCurrentLoggedUser.getCurrentLoggedUser(context.getHttpServletRequest());
-		if ((user != null) && (user.hasSuperAdministratorRole())) {
-			form = createUserFormForSuperAdmin(vygenerovatHeslo);
-		} else {
-			form = createUserFormForSubadmin(vygenerovatHeslo);
-		}
-		return form;
-	}
+    }
 
+    public Mailer getMailer() {
+        return ((UserTriggers) this.trigger).getMailer();
+    }
 
+    public void setMailer(Mailer mailer) {
+        ((UserTriggers) this.trigger).setMailer(mailer);
+    }
 
-	private Form createUserFormForSubadmin(Function vygenerovatHeslo) {
-		Form form = new Form();
-		form.setLayout(new VerticalPanel()
-				.addChild(
-						new VerticalPanel().addChild(
-								new TextField(struct.user.NAME)).addChild(
-								new TextField(struct.user.SURNAME)))
+    @Override
+    public synchronized Form getForm(Context context) {
+        Form form = null;
+        User user = GetCurrentLoggedUser.getCurrentLoggedUser(context.getHttpServletRequest());
+        if ((user != null) && (user.hasSuperAdministratorRole())) {
+            form = createUserFormForSuperAdmin(vygenerovatHeslo);
+        } else {
+            form = createUserFormForSubadmin(vygenerovatHeslo);
+        }
+        return form;
+    }
 
-				.addChild(
-						new VerticalPanel()
-						    .addChild(new TextField(struct.user.LOGINNAME))
-						    .addChild(vygenerovatHeslo)
-						    .addChild(new TextField(struct.user.EMAIL))
-						    .addChild(new TextField(struct.user.ORGANISATION))
-						)
+    private Form createUserFormForSubadmin(Function vygenerovatHeslo) {
+        Form form = new Form();
+        form.setLayout(new VerticalPanel().addChild(new VerticalPanel().addChild(new TextField(struct.user.NAME)).addChild(new TextField(struct.user.SURNAME)))
 
-						.addChild(new RepeatedForm(struct.user.GROUP_ASSOCIATIONS, new UserGroupsArrangement()))
+        .addChild(new VerticalPanel().addChild(new TextField(struct.user.LOGINNAME)).addChild(vygenerovatHeslo).addChild(new TextField(struct.user.EMAIL)).addChild(new TextField(struct.user.ORGANISATION)))
 
+        .addChild(new RepeatedForm(struct.user.GROUP_ASSOCIATIONS, new UserGroupsArrangement()))
 
-		);
-		form.addProperty(struct.user.PERSONAL_ADMIN);
-		form.addProperty(struct.user.PASSWORD);
-		return form;
-	}
-	
-	
-	private Form createUserFormForSuperAdmin(Function vygenerovatHeslo) {
-		Form form = new Form();
-		form.setLayout(new VerticalPanel()
-				.addChild(
-						new VerticalPanel().addChild(
-								new TextField(struct.user.NAME)).addChild(
-								new TextField(struct.user.SURNAME)))
+        );
+        form.addProperty(struct.user.PERSONAL_ADMIN);
+        form.addProperty(struct.user.PASSWORD);
+        return form;
+    }
 
-				.addChild(
-						new VerticalPanel()
-						    .addChild(new TextField(struct.user.LOGINNAME))
-						    .addChild(vygenerovatHeslo)
-						    .addChild(new TextField(struct.user.EMAIL))
-						    .addChild(new TextField(struct.user.ORGANISATION))
-						)
+    private Form createUserFormForSuperAdmin(Function vygenerovatHeslo) {
+        Form form = new Form();
+        form.setLayout(new VerticalPanel().addChild(new VerticalPanel().addChild(new TextField(struct.user.NAME)).addChild(new TextField(struct.user.SURNAME)))
 
+        .addChild(new VerticalPanel().addChild(new TextField(struct.user.LOGINNAME)).addChild(vygenerovatHeslo).addChild(new TextField(struct.user.EMAIL)).addChild(new TextField(struct.user.ORGANISATION)))
 
-				.addChild(
-						new RefButton(struct.user.PERSONAL_ADMIN,
-								this.referenceToAdmin,
-								new HorizontalPanel().addChild(new TextField(
-										struct.user.PERSONAL_ADMIN
-												.relate(struct.group.GNAME)))))
-				.addChild(new RepeatedForm(struct.user.GROUP_ASSOCIATIONS, new UserGroupsArrangement()))
+        .addChild(new RefButton(struct.user.PERSONAL_ADMIN, this.referenceToAdmin, new HorizontalPanel().addChild(new TextField(struct.user.PERSONAL_ADMIN.relate(struct.group.GNAME))))).addChild(new RepeatedForm(struct.user.GROUP_ASSOCIATIONS, new UserGroupsArrangement()))
 
-		);
-		form.addProperty(struct.user.PASSWORD);
-		return form;
-	}
-	
-	public class UserGroupsArrangement extends Arrangement{
-	    
-	    public UserGroupsArrangement(){
-	        super(struct.groupUserAssoction);
-	        setReadableName(struct.group.getReadableName());
-	        addProperty(struct.groupUserAssoction.GROUP.relate(struct.group.GNAME));
-	        setForm(createForm());
-	    }
-	    
-	    Form createForm() {
-	        Form form = new Form();
-	        form.setLayout(new VerticalPanel().addChild(
-	                        new RefButton(struct.groupUserAssoction.GROUP,
-	                                new RefGroupArrangement(),
-	                                new HorizontalPanel().addChild(new TextField(
-	                                        struct.groupUserAssoction.GROUP
-	                                                .relate(struct.group.GNAME))))));
-	        return form;
-	    }
-	    
-	}
-	
-	public class RefGroupArrangement extends Arrangement{
-    	public RefGroupArrangement() {
+        );
+        form.addProperty(struct.user.PASSWORD);
+        return form;
+    }
+
+    public class UserGroupsArrangement extends Arrangement {
+
+        public UserGroupsArrangement() {
+            super(struct.groupUserAssoction);
+            setReadableName(struct.group.getReadableName());
+            addProperty(struct.groupUserAssoction.GROUP.relate(struct.group.GNAME));
+            setForm(createForm());
+        }
+
+        Form createForm() {
+            Form form = new Form();
+            form.setLayout(new VerticalPanel().addChild(new RefButton(struct.groupUserAssoction.GROUP, new RefGroupArrangement(), new HorizontalPanel().addChild(new TextField(struct.groupUserAssoction.GROUP.relate(struct.group.GNAME))))));
+            return form;
+        }
+
+    }
+
+    public class RefGroupArrangement extends Arrangement {
+        public RefGroupArrangement() {
             super(struct.group);
             addProperty(struct.group.GNAME);
             addProperty(struct.group.PERSONAL_ADMIN.relate(struct.group.GNAME));
             setSortProperty(struct.group.GNAME);
             setForm(createGroupForm());
             setQueryGenerator(new FormGroupGenerator());
-    	}
-        
+        }
 
         private Form createGroupForm() {
             Form form = new Form();
-            form.setLayout(new VerticalPanel()
-                        .addChild(new TextField(struct.group.GNAME))
-                        .addChild(new TextArea(struct.group.DESCRIPTION).setWidth("100%"))
-                        .addChild(
-                                new RefButton(struct.group.PERSONAL_ADMIN,
-                                        referenceToAdmin,
-                                        new HorizontalPanel().addChild(new TextField(
-                                                struct.group.PERSONAL_ADMIN
-                                                        .relate(struct.group.GNAME)))))
-    
+            form.setLayout(new VerticalPanel().addChild(new TextField(struct.group.GNAME)).addChild(new TextArea(struct.group.DESCRIPTION).setWidth("100%"))
+                    .addChild(new RefButton(struct.group.PERSONAL_ADMIN, referenceToAdmin, new HorizontalPanel().addChild(new TextField(struct.group.PERSONAL_ADMIN.relate(struct.group.GNAME)))))
+
             );
             return form;
         }
-        
-   	 	public class FormGroupGenerator implements QueryGenerator {
 
-			@Override
-			public QueryParameter[] getQueryParameters(Context ctx) {
-	            return new QueryParameter[]{};
-			}
+        public class FormGroupGenerator implements QueryGenerator {
 
-			@Override
-			public QueryExpression createWhere(QueryParameter[] queryParameters,
-					Context ctx) {
-	        	User user = GetCurrentLoggedUser.getCurrentLoggedUser(ctx.getHttpServletRequest());
-	        	if (!user.hasSuperAdministratorRole()) {
-		        	List<Integer> admId = GetAdminGroupIds.getAdminGroupId(ctx);
-		        	return new QueryCompareExpression(struct.group.PERSONAL_ADMIN,QueryCompareOperator.IS,admId.get(0));
-	        	} else {
-	        		return null;
-	        	}
-	        	
-			}
-   	 	}
-	}
+            @Override
+            public QueryParameter[] getQueryParameters(Context ctx) {
+                return new QueryParameter[] {};
+            }
 
-	 public class UserQueryGenerator implements QueryGenerator {
-	        
-	        public QueryParameter[] getQueryParameters(Context ctx){
-	            return new QueryParameter[]{};
-	        }
-	        
-	        public QueryExpression createWhere(QueryParameter[] queryParameters, Context ctx) {
-	        	User user = GetCurrentLoggedUser.getCurrentLoggedUser(ctx.getHttpServletRequest());
-	        	if (!user.hasSuperAdministratorRole()) {
-		        	List<Integer> admId = GetAdminGroupIds.getAdminGroupId(ctx);
-		        	return new QueryCompareExpression(struct.user.PERSONAL_ADMIN,QueryCompareOperator.IS,admId.get(0));
-	        	} else return null;
-	        }
-	    }
+            @Override
+            public QueryExpression createWhere(QueryParameter[] queryParameters, Context ctx) {
+                User user = GetCurrentLoggedUser.getCurrentLoggedUser(ctx.getHttpServletRequest());
+                if (!user.hasSuperAdministratorRole()) {
+                    List<Integer> admId = GetAdminGroupIds.getAdminGroupId(ctx);
+                    return new QueryCompareExpression(struct.group.PERSONAL_ADMIN, QueryCompareOperator.IS, admId.get(0));
+                } else {
+                    return null;
+                }
+
+            }
+        }
+    }
+
+    public class UserQueryGenerator implements QueryGenerator {
+
+        public QueryParameter[] getQueryParameters(Context ctx) {
+            return new QueryParameter[] {};
+        }
+
+        public QueryExpression createWhere(QueryParameter[] queryParameters, Context ctx) {
+            User user = GetCurrentLoggedUser.getCurrentLoggedUser(ctx.getHttpServletRequest());
+            if (!user.hasSuperAdministratorRole()) {
+                List<Integer> admId = GetAdminGroupIds.getAdminGroupId(ctx);
+                return new QueryCompareExpression(struct.user.PERSONAL_ADMIN, QueryCompareOperator.IS, admId.get(0));
+            } else
+                return null;
+        }
+    }
 }

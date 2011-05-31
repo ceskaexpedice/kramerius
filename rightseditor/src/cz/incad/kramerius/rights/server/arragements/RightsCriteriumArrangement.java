@@ -12,39 +12,27 @@ import org.aplikator.server.descriptor.VerticalPanel;
 import cz.incad.kramerius.rights.server.Structure;
 
 public class RightsCriteriumArrangement extends Arrangement {
-	
-	private Structure struct;
-	private RightsCriteriumParamArrangement rightsCriteriumParamArrangement;
-	
-	public RightsCriteriumArrangement(Entity entity, Structure struct, RightsCriteriumParamArrangement rightsCriteriumParamArrangement) {
-		super(entity);
-		this.struct = struct;
-		this.rightsCriteriumParamArrangement = rightsCriteriumParamArrangement;
 
-		addProperty(struct.rightCriterium.QNAME);
-		//addProperty(struct.rightCriterium.FIXED_PRIORITY);
-		
-		setForm(createCriteriumForm());
-	}
+    private Structure struct;
+    private RightsCriteriumParamArrangement rightsCriteriumParamArrangement;
 
-	private Form createCriteriumForm() {
-		Form form = new Form();
-		form.setLayout(new VerticalPanel()
-			.addChild(
-					new VerticalPanel()
-						.addChild(new ComboBox(struct.rightCriterium.QNAME))
-						.addChild(
-									new RefButton(struct.rightCriterium.PARAM, rightsCriteriumParamArrangement,
-					                 new VerticalPanel()
-										.addChild(new TextField(struct.rightCriterium.PARAM.relate(struct.criteriumParam.SHORT_DESC)).setWidth("30em"))
-										.addChild(new TextArea(struct.rightCriterium.PARAM.relate(struct.criteriumParam.LONG_DESC)).setWidth("30em"))
-					                    .addChild(new TextField(struct.rightCriterium.PARAM.relate(struct.criteriumParam.VALS)).setWidth("30em"))
-					                 ))
-					                 )
-		);
-		return form;
-	}
+    public RightsCriteriumArrangement(Entity entity, Structure struct, RightsCriteriumParamArrangement rightsCriteriumParamArrangement) {
+        super(entity);
+        this.struct = struct;
+        this.rightsCriteriumParamArrangement = rightsCriteriumParamArrangement;
 
-	
-	
+        addProperty(struct.rightCriterium.QNAME);
+        // addProperty(struct.rightCriterium.FIXED_PRIORITY);
+
+        setForm(createCriteriumForm());
+    }
+
+    private Form createCriteriumForm() {
+        Form form = new Form();
+        form.setLayout(new VerticalPanel().addChild(new VerticalPanel().addChild(new ComboBox(struct.rightCriterium.QNAME)).addChild(
+                new RefButton(struct.rightCriterium.PARAM, rightsCriteriumParamArrangement, new VerticalPanel().addChild(new TextField(struct.rightCriterium.PARAM.relate(struct.criteriumParam.SHORT_DESC)).setWidth("30em"))
+                        .addChild(new TextArea(struct.rightCriterium.PARAM.relate(struct.criteriumParam.LONG_DESC)).setWidth("30em")).addChild(new TextField(struct.rightCriterium.PARAM.relate(struct.criteriumParam.VALS)).setWidth("30em"))))));
+        return form;
+    }
+
 }

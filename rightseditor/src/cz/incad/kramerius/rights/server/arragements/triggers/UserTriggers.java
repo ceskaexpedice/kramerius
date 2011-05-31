@@ -23,91 +23,88 @@ import cz.incad.kramerius.security.User;
 import cz.incad.kramerius.security.utils.PasswordDigest;
 
 public class UserTriggers extends AbstractUserTriggers implements PersisterTriggers {
-	
-	public static final Logger LOGGER = Logger.getLogger(UserTriggers.class.getName());
-	
-	private Structure structure;
-	private Mailer mailer;
-	
-	public UserTriggers(Structure structure) {
-		super();
-		this.structure = structure;
-	}
 
-	@Override
-	public RecordDTO beforeCreate(RecordDTO record, Context ctx) {
-		try {
-			User user = GetCurrentLoggedUser.getCurrentLoggedUser(ctx.getHttpServletRequest());
-			if ((user == null) || (!user.hasSuperAdministratorRole())) {
-				List<Integer> groupsList = GetAdminGroupIds.getAdminGroupId(ctx);
-				PropertyDTO personalAdminDTO = structure.user.PERSONAL_ADMIN.clientClone(ctx);
-				record.setValue(personalAdminDTO, groupsList.get(0));
-			}
+    public static final Logger LOGGER = Logger.getLogger(UserTriggers.class.getName());
 
-			PropertyDTO pswdDTO = structure.user.PASSWORD.clientClone(ctx);
-			String generated = GeneratePasswordUtils.generatePswd();
+    private Structure structure;
+    private Mailer mailer;
 
-			GeneratePasswordUtils.sendGeneratedPasswordToMail((String) record.getValue(structure.user.EMAIL.clientClone(ctx)),(String) record.getValue(structure.user.LOGINNAME.clientClone(ctx)), generated, mailer,ctx);
-			
-			record.setValue(pswdDTO, PasswordDigest.messageDigest(generated));
-			
-		} catch (NoSuchAlgorithmException e) {
-			LOGGER.log(Level.SEVERE, e.getMessage(),e);
-		} catch (UnsupportedEncodingException e) {
-			LOGGER.log(Level.SEVERE, e.getMessage(),e);
-		} catch (AddressException e) {
-			LOGGER.log(Level.SEVERE, e.getMessage(),e);
-		} catch (MessagingException e) {
-			LOGGER.log(Level.SEVERE, e.getMessage(),e);
-		}
-		return record;
-	}
+    public UserTriggers(Structure structure) {
+        super();
+        this.structure = structure;
+    }
 
-	@Override
-	public RecordDTO afterCreate(RecordDTO record, Context ctx) {
-		return null;
-	}
+    @Override
+    public RecordDTO beforeCreate(RecordDTO record, Context ctx) {
+        try {
+            User user = GetCurrentLoggedUser.getCurrentLoggedUser(ctx.getHttpServletRequest());
+            if ((user == null) || (!user.hasSuperAdministratorRole())) {
+                List<Integer> groupsList = GetAdminGroupIds.getAdminGroupId(ctx);
+                PropertyDTO personalAdminDTO = structure.user.PERSONAL_ADMIN.clientClone(ctx);
+                record.setValue(personalAdminDTO, groupsList.get(0));
+            }
 
-	@Override
-	public RecordDTO beforeUpdate(RecordDTO recordDTO, Context ctx) {
-		String[] bfs = recordDTO.getModifiedByBfs();
-		if (bfs.length == 0) {
-			PropertyDTO pswdDTO = structure.user.PASSWORD.clientClone(ctx);
-			recordDTO.setNotForSave(pswdDTO, true);
-			User user = GetCurrentLoggedUser.getCurrentLoggedUser(ctx.getHttpServletRequest());
-			if ((user == null) || (!user.hasSuperAdministratorRole())) {
-				PropertyDTO personalAdminDTO = structure.user.PERSONAL_ADMIN.clientClone(ctx);
-				recordDTO.setNotForSave(personalAdminDTO, true);
-			}
-		}
+            PropertyDTO pswdDTO = structure.user.PASSWORD.clientClone(ctx);
+            String generated = GeneratePasswordUtils.generatePswd();
 
+            GeneratePasswordUtils.sendGeneratedPasswordToMail((String) record.getValue(structure.user.EMAIL.clientClone(ctx)), (String) record.getValue(structure.user.LOGINNAME.clientClone(ctx)), generated, mailer, ctx);
 
-		return null;
-	}
+            record.setValue(pswdDTO, PasswordDigest.messageDigest(generated));
 
-	@Override
-	public RecordDTO afterUpdate(RecordDTO recordDTO, Context ctx) {
-		return null;
-	}
+        } catch (NoSuchAlgorithmException e) {
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+        } catch (UnsupportedEncodingException e) {
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+        } catch (AddressException e) {
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+        } catch (MessagingException e) {
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+        }
+        return record;
+    }
 
-	@Override
-	public RecordDTO beforeDelete(RecordDTO recordDTO, Context ctx) {
-		return null;
-	}
+    @Override
+    public RecordDTO afterCreate(RecordDTO record, Context ctx) {
+        return null;
+    }
 
-	@Override
-	public RecordDTO afterDelete(RecordDTO recordDTO, Context ctx) {
-		return null;
-	}
+    @Override
+    public RecordDTO beforeUpdate(RecordDTO recordDTO, Context ctx) {
+        String[] bfs = recordDTO.getModifiedByBfs();
+        if (bfs.length == 0) {
+            PropertyDTO pswdDTO = structure.user.PASSWORD.clientClone(ctx);
+            recordDTO.setNotForSave(pswdDTO, true);
+            User user = GetCurrentLoggedUser.getCurrentLoggedUser(ctx.getHttpServletRequest());
+            if ((user == null) || (!user.hasSuperAdministratorRole())) {
+                PropertyDTO personalAdminDTO = structure.user.PERSONAL_ADMIN.clientClone(ctx);
+                recordDTO.setNotForSave(personalAdminDTO, true);
+            }
+        }
 
-	public Mailer getMailer() {
-		return mailer;
-	}
+        return null;
+    }
 
-	public void setMailer(Mailer mailer) {
-		this.mailer = mailer;
-	}
+    @Override
+    public RecordDTO afterUpdate(RecordDTO recordDTO, Context ctx) {
+        return null;
+    }
 
-	
-	
+    @Override
+    public RecordDTO beforeDelete(RecordDTO recordDTO, Context ctx) {
+        return null;
+    }
+
+    @Override
+    public RecordDTO afterDelete(RecordDTO recordDTO, Context ctx) {
+        return null;
+    }
+
+    public Mailer getMailer() {
+        return mailer;
+    }
+
+    public void setMailer(Mailer mailer) {
+        this.mailer = mailer;
+    }
+
 }

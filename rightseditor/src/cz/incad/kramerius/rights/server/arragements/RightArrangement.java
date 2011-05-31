@@ -7,48 +7,40 @@ import org.aplikator.server.descriptor.VerticalPanel;
 
 import cz.incad.kramerius.rights.server.Structure;
 
-public class RightArrangement extends Arrangement{
-	
-	
-	private Structure struct;
+public class RightArrangement extends Arrangement {
 
-	public RightArrangement(Entity entity, Structure structure) {
-		super(entity);
-		this.struct = structure;
+    private Structure struct;
 
-		
-		addProperty(struct.rights.ACTION);
-		addProperty(struct.rights.UUID);
-		
-		// rozdelit do nejakeho sloupce
-		addProperty(struct.rights.USER);
-		addProperty(struct.rights.GROUP);
+    public RightArrangement(Entity entity, Structure structure) {
+        super(entity);
+        this.struct = structure;
 
-		addProperty(struct.rights.RIGHT_CRITERIUM);
-		
-		
-		setForm(createRightForm());
+        addProperty(struct.rights.ACTION);
+        addProperty(struct.rights.UUID);
 
-	}
+        // rozdelit do nejakeho sloupce
+        addProperty(struct.rights.USER);
+        addProperty(struct.rights.GROUP);
 
-	
-	private Form createRightForm() {
-		Form form = new Form();
-		form.setLayout(new VerticalPanel()
-			.addChild(
-					new VerticalPanel()
-//						.addChild(new RefButton(property, arrangement, child))
-//						.addChild(new ComboBox(struct.rightCriterium.QNAME))
-//						.addChild(
-//									new RefButton(struct.rightCriterium.PARAM, rightsCriteriumParamArr,
-//					                 new HorizontalPanel()
-//					                     .addChild(new TextField(struct.rightCriterium.PARAM.relate(struct.criteriumParam.VALS)).setWidth("30em"))
-//					                 ))
-					                 )
-		);
-		return form;
-	}
-	
+        addProperty(struct.rights.RIGHT_CRITERIUM);
 
-	 
+        setForm(createRightForm());
+
+    }
+
+    private Form createRightForm() {
+        Form form = new Form();
+        form.setLayout(new VerticalPanel().addChild(new VerticalPanel()
+        // .addChild(new RefButton(property, arrangement, child))
+        // .addChild(new ComboBox(struct.rightCriterium.QNAME))
+        // .addChild(
+        // new RefButton(struct.rightCriterium.PARAM, rightsCriteriumParamArr,
+        // new HorizontalPanel()
+        // .addChild(new
+        // TextField(struct.rightCriterium.PARAM.relate(struct.criteriumParam.VALS)).setWidth("30em"))
+        // ))
+                ));
+        return form;
+    }
+
 }
