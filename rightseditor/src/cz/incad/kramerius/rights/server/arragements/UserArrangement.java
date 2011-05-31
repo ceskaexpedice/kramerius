@@ -2,7 +2,6 @@ package cz.incad.kramerius.rights.server.arragements;
 
 import java.util.List;
 
-import org.apache.empire.db.expr.compare.DBCompareExpr;
 import org.aplikator.client.descriptor.QueryParameter;
 import org.aplikator.server.Context;
 import org.aplikator.server.descriptor.Arrangement;
@@ -15,6 +14,9 @@ import org.aplikator.server.descriptor.RepeatedForm;
 import org.aplikator.server.descriptor.TextArea;
 import org.aplikator.server.descriptor.TextField;
 import org.aplikator.server.descriptor.VerticalPanel;
+import org.aplikator.server.query.QueryCompareExpression;
+import org.aplikator.server.query.QueryCompareOperator;
+import org.aplikator.server.query.QueryExpression;
 
 import cz.incad.kramerius.rights.server.Mailer;
 import cz.incad.kramerius.rights.server.Structure;
@@ -184,12 +186,12 @@ public class UserArrangement extends Arrangement {
 			}
 
 			@Override
-			public DBCompareExpr createWhere(QueryParameter[] queryParameters,
+			public QueryExpression createWhere(QueryParameter[] queryParameters,
 					Context ctx) {
 	        	User user = GetCurrentLoggedUser.getCurrentLoggedUser(ctx.getHttpServletRequest());
 	        	if (!user.hasSuperAdministratorRole()) {
 		        	List<Integer> admId = GetAdminGroupIds.getAdminGroupId(ctx);
-		        	return struct.group.PERSONAL_ADMIN.column.is(admId.get(0));
+		        	return new QueryCompareExpression(struct.group.PERSONAL_ADMIN,QueryCompareOperator.IS,admId.get(0));
 	        	} else {
 	        		return null;
 	        	}
@@ -204,11 +206,11 @@ public class UserArrangement extends Arrangement {
 	            return new QueryParameter[]{};
 	        }
 	        
-	        public DBCompareExpr createWhere(QueryParameter[] queryParameters, Context ctx) {
+	        public QueryExpression createWhere(QueryParameter[] queryParameters, Context ctx) {
 	        	User user = GetCurrentLoggedUser.getCurrentLoggedUser(ctx.getHttpServletRequest());
 	        	if (!user.hasSuperAdministratorRole()) {
 		        	List<Integer> admId = GetAdminGroupIds.getAdminGroupId(ctx);
-		        	return struct.user.PERSONAL_ADMIN.column.is(admId.get(0));
+		        	return new QueryCompareExpression(struct.user.PERSONAL_ADMIN,QueryCompareOperator.IS,admId.get(0));
 	        	} else return null;
 	        }
 	    }

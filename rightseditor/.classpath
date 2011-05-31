@@ -7,7 +7,7 @@
   <classpathentry kind="var" path="M2_REPO/javax/mail/mail/1.4.1/mail-1.4.1.jar"/>
   <classpathentry kind="var" path="M2_REPO/javax/validation/validation-api/1.0.0.GA/validation-api-1.0.0.GA-sources.jar"/>
   <classpathentry kind="var" path="M2_REPO/javax/validation/validation-api/1.0.0.GA/validation-api-1.0.0.GA.jar" sourcepath="M2_REPO/javax/validation/validation-api/1.0.0.GA/validation-api-1.0.0.GA-sources.jar"/>
-  <classpathentry kind="var" path="M2_REPO/org/aplikator/aplikator/1.0-SNAPSHOT/aplikator-1.0-SNAPSHOT.jar"/>
+  <classpathentry kind="src" path="/aplikator"/>
   <classpathentry kind="var" path="M2_REPO/com/jolbox/bonecp/0.6.5/bonecp-0.6.5.jar"/>
   <classpathentry kind="var" path="M2_REPO/commons-fileupload/commons-fileupload/1.2.1/commons-fileupload-1.2.1.jar" sourcepath="M2_REPO/commons-fileupload/commons-fileupload/1.2.1/commons-fileupload-1.2.1-sources.jar"/>
   <classpathentry kind="var" path="M2_REPO/org/apache/empire-db/empire-db/2.1.0-incubating/empire-db-2.1.0-incubating.jar"/>

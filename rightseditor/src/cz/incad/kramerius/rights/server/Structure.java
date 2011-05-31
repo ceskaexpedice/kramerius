@@ -36,7 +36,7 @@ public class Structure extends Application {
 
         
         public UserEntity() {
-            super("Users_table", "USER_ENTITY", "USER_ID", Structure.this);
+            super("Users_table", "USER_ENTITY", "USER_ID");
             NAME= addProperty("NAME", PropertyType.STRING, 255, true);
             SURNAME = addProperty("SURNAME", PropertyType.STRING, 255, true);
             LOGINNAME= addProperty("LOGINNAME", PropertyType.STRING, 255, true);
@@ -70,7 +70,7 @@ public class Structure extends Application {
 
 
         public GroupEntity() {
-            super("Groups_table", "GROUP_ENTITY", "GROUP_ID", Structure.this);
+            super("Groups_table", "GROUP_ENTITY", "GROUP_ID");
             GNAME= addProperty("GNAME", PropertyType.STRING, 255, true);
             DESCRIPTION=addProperty("DESCRIPTION", PropertyType.STRING, 1024, false);
             addIndex("GNAME_IDX", true, GNAME);
@@ -83,7 +83,7 @@ public class Structure extends Application {
 		public final Reference GROUP;
 		
 		public GroupUserAssoction() {
-			super("GroupTable_assoc", "GROUP_USER_ASSOC", "GROUP_USER_ASSOC_ID", Structure.this);
+			super("GroupTable_assoc", "GROUP_USER_ASSOC", "GROUP_USER_ASSOC_ID");
 			USERS=addReference(user, "USER_ID");
 			GROUP=addReference(group, "GROUP_ID");
 		}
@@ -102,7 +102,7 @@ public class Structure extends Application {
 
 		
         public RightsEntity() {
-            super("Rights_table", "RIGHT_ENTITY", "RIGHT_ID", Structure.this);
+            super("Rights_table", "RIGHT_ENTITY", "RIGHT_ID");
             UUID= addProperty("UUID", PropertyType.STRING, 255, true);
             ACTION= addProperty("ACTION", PropertyType.STRING, 255, true);
             
@@ -126,7 +126,7 @@ public class Structure extends Application {
 		
 		
         public RightCriteriumEntity() {
-            super("Rights_criterium_table", "RIGHTS_CRITERIUM_ENTITY", "CRIT_ID", Structure.this);
+            super("Rights_criterium_table", "RIGHTS_CRITERIUM_ENTITY", "CRIT_ID");
             TYPE = addProperty("TYPE", PropertyType.INTEGER,0.0,false);
 
     		QNAME= addProperty("QNAME", PropertyType.STRING, 255, true);
@@ -146,7 +146,7 @@ public class Structure extends Application {
 		public final Property SHORT_DESC;
 		
         public RightCriteriumParamEntity() {
-            super("Criterium_param_table", "CRITERIUM_PARAM_ENTITY", "CRIT_PARAM_ID", Structure.this);
+            super("Criterium_param_table", "CRITERIUM_PARAM_ENTITY", "CRIT_PARAM_ID");
 
             VALS= addProperty("VALS", PropertyType.STRING,1024,  true);
             LONG_DESC= addProperty("LONG_DESC", PropertyType.STRING,1024,  true);
