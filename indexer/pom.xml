@@ -27,10 +27,10 @@
         </dependency>
 
 
-		<!--
-			dependency> <groupId>log4j</groupId> <artifactId>log4j</artifactId>
-			<version>1.2.8</version> </dependency
-		-->
+<!--
+        dependency> <groupId>log4j</groupId> <artifactId>log4j</artifactId>
+        <version>1.2.8</version> </dependency
+-->
         <dependency>
             <groupId>javax.servlet</groupId>
             <artifactId>servlet-api</artifactId>
@@ -246,9 +246,9 @@
     </dependencies>
     <build>
         <sourceDirectory>${basedir}/src</sourceDirectory>
-		<!--
-			<testSourceDirectory>${basedir}/src/main/test</testSourceDirectory>
-		-->
+<!--
+        <testSourceDirectory>${basedir}/src/main/test</testSourceDirectory>
+-->
         <resources>
             <resource>
                 <directory>${basedir}/src</directory>
