@@ -22,7 +22,3 @@
     </c:when>
 </c:choose>
 </div>
-<script type="text/javascript">
-
-    $('#main_menu a').button();
-</script>

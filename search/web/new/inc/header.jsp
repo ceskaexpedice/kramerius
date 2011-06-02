@@ -4,7 +4,11 @@
 <div id="main_menu" style="">
     <%@ include file="menu.jsp" %>
 </div>
-<div style="vertical-align:middle;margin:auto;padding:15px;width:600px;">
+<div id="searchFormDiv" style="vertical-align:middle;margin:auto;padding:15px;width:600px;">
     <%@ include file="searchForm.jsp" %>
 </div>
 </div>
+<script type="text/javascript">
+    $('#main_menu a').button();
+    $('#searchFormDiv a').button();
+</script>
