@@ -330,3 +330,16 @@ div.search_result{
 #bigThumbZone{
     overflow:auto;
 }
+
+#contextMenuList>li.disabled a{
+    color:silver;
+}
+
+#contextMenu>div{
+    border: solid 1px white;
+    cursor:pointer;
+}
+
+#contextMenu>div.selected{
+    border: solid 1px #e66c00;
+}

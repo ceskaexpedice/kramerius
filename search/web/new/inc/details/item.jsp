@@ -30,6 +30,26 @@
         overflow: hidden;
         width:330px;
     }
+
+    #rightPanel ul{
+        margin: 2px;
+        padding-left: 12px;
+    }
+    #rightPanel li{
+        list-style-type: none;
+        margin: 0;
+        padding: 0;
+        line-height: 16px;
+    }
+
+    #rightPanel li>span{
+        width: 16px;
+        height: 16px;
+        overflow:hidden;
+        text-indent: -99999px;
+        display:block;
+        float:left;
+    }
     .vsplitbar {
         width: 5px;
         background: silver;

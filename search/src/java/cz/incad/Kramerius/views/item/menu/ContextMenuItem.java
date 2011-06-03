@@ -9,10 +9,12 @@ public class ContextMenuItem {
     public String dataType;
     public String jsFunction;
     public String jsArgs;
-    public ContextMenuItem(String key, String dataType, String jsFunction, String jsArgs){
+    public boolean supportMultiple;
+    public ContextMenuItem(String key, String dataType, String jsFunction, String jsArgs, boolean supportMultiple){
         this.key = key;
         this.dataType = dataType;
         this.jsFunction = jsFunction;
         this.jsArgs = jsArgs;
+        this.supportMultiple = supportMultiple;
     }
 }

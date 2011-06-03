@@ -128,6 +128,7 @@
                 } else if (req.status==404){
                     alert("Neni velky nahled !");
                 }
+                k4Settings.activeUuid = id;
                 $(".viewer").trigger('viewReady', [viewerOptions]);
  
             }

@@ -10,29 +10,11 @@
         padding-left: 2px;
         margin: 2px;
     }
-    #item_tree ul{
-        margin: 2px;
-        padding-left: 12px;
-    }
-    #item_tree li{
-        list-style-type: none;
-        margin: 0;
-        padding: 0;
-        line-height: 16px;
-    }
     #item_tree li a{
         overflow:hidden;
     }
     #item_tree li a.sel{
         color:#e66c00;
-    }
-    #item_tree li span{
-        width: 16px;
-        height: 16px;
-        overflow:hidden;
-        text-indent: -99999px;
-        display:block;
-        float:left;
     }
     #showHideRightMenu{
         width:20px;
@@ -156,9 +138,11 @@
                     if (tab=="contextMenu"){
                         $('#item_tree input:checked').each(function(){
                             var id = $(this).parent().attr("id");
-                            t += '<div>'+id+'</div>';
+                            t += '<li><span class="ui-icon ui-icon-triangle-1-e folder " >folder</span>'+$("#"+id+">a").html()+'</li>';
                         });
-                        $('#context_items').html(t);
+                        $('#context_items_selection').html(t);
+                        t = '<li><span class="ui-icon ui-icon-triangle-1-e folder " >folder</span>'+$("#"+k4Settings.activeUuid+">a").html()+'</li>';
+                        $('#context_items_active').html(t);
                     }else{
                         if($('#item_tree input:checked').length>0){
                             $('#item_tree input:checked').each(function(){
