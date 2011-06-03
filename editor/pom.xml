@@ -83,7 +83,7 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
             <version>${guice.version}</version>
         </dependency>
         <dependency>
-            <groupId>com.google.inject</groupId>
+            <groupId>com.google.inject.extensions</groupId>
             <artifactId>guice-servlet</artifactId>
             <version>${guice.version}</version>
         </dependency>
