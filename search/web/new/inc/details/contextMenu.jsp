@@ -53,7 +53,7 @@
 <%
     for(ContextMenuItem menu : menus){
 %>
-<li <%=menu.supportMultiple ? "class=\"multiple\"": ""%> ><span class="ui-icon ui-icon-triangle-1-e  " >item</span>
+<li <%=menu.supportMultiple ? "": "class=\"no-multiple\""%> ><span class="ui-icon ui-icon-triangle-1-e  " >item</span>
     <a title="<fmt:message bundle="${bundle}"><%=menu.key%></fmt:message>" href="javascript:<%=menu.jsFunction%>(<%=menu.jsArgs%>);"><fmt:message bundle="${bundle}"><%=menu.key%></fmt:message></a>
 </li>
 <%
@@ -72,9 +72,9 @@
         $('#contextMenu>div.scope').click(function(e) {
             var scope = $(this).attr('id').split('_')[1];
             if(scope=="multiple"){
-                $('#contextMenuList>li.multiple').addClass('disabled');
+                $('#contextMenuList>li.no-multiple').addClass('disabled');
             }else{
-                $('#contextMenuList>li.multiple').removeClass('disabled');
+                $('#contextMenuList>li.no-multiple').removeClass('disabled');
             }
             $('#contextMenu>div.scope').removeClass('selected');
             $(this).addClass('selected');

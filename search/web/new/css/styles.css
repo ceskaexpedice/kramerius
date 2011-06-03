@@ -27,13 +27,13 @@ form{
     border-left:solid 1px silver;
     top:0;
 }
-#main_menu div{
+#main_menu_in{
     bottom:0;
     position:absolute;
     right:0;
     width:1000px;
 }
-#main_menu a{
+#main_menu_in a{
     float:right;
 }
 #main{
@@ -342,4 +342,13 @@ div.search_result{
 
 #contextMenu>div.selected{
     border: solid 1px #e66c00;
+}
+
+#adminMenu{
+    display: none;
+    position:absolute;
+    right:0;
+    z-index:100;
+    width:480px;
+    background:white;
 }

@@ -6,7 +6,7 @@
 $(document).ready(function(){
     $('body').click(function() {
     	hideAdminMenu();
-        hideContextMenu();
+        //hideContextMenu();
     });
 });
 
@@ -33,16 +33,16 @@ function showConfirmDialog(t,f){
 }
 
 function showAdminMenu() {
-	var headerPosition = $("#header").offset();
-	var headerWidth = $("#header").width();
-	var admimMenuWidth = $("#adminMenu").width();
+	//var headerPosition = $("#header").offset();
+	//var headerWidth = $("#header").width();
+	//var admimMenuWidth = $("#adminMenu").width();
 	
-	var position = $("#adminHref").offset();
+	//var position = $("#adminHref").offset();
 	
 	
-	$("#adminMenu").css("left",(headerPosition.left+headerWidth) - admimMenuWidth-8);
-	$("#adminMenu").css("top",position.top);
-	$("#adminMenu").css("display","block");
+	//$("#adminMenu").css("left",(headerPosition.left+headerWidth) - admimMenuWidth-8);
+	$("#adminMenu").css("top",$("#header").offset().top + $("#header").height());
+	$("#adminMenu").show();
 }
 
 function hideAdminMenu() {

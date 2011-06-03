@@ -1,29 +1,10 @@
-<%@page import="cz.incad.Kramerius.views.SearchFormViewObject"%>
-<%@page import="cz.incad.Kramerius.views.adminmenu.AdminMenuViewObject"%>
-<%@page import="com.google.inject.Injector"%>
-<%@page import="cz.incad.Kramerius.backend.guice.LocalesProvider"%>
-<%@page import="java.util.Locale"%>
-<%@page import="com.google.inject.Provider"%>
 <%@ page contentType="text/html" pageEncoding="UTF-8"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/xml" prefix="x"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn"%>
 <%@ page isELIgnored="false"%>
-<%
-            pageContext.setAttribute("remoteUser", request.getRemoteUser());
-            Injector searchFormInjector = (Injector) application.getAttribute(Injector.class.getName());
-            Provider<Locale> localesProvider = searchFormInjector.getProvider(Locale.class);
-            pageContext.setAttribute("lang", localesProvider.get().getLanguage());
 
-            AdminMenuViewObject adminMenuViewObject = new AdminMenuViewObject();
-            searchFormInjector.injectMembers(adminMenuViewObject);
-            pageContext.setAttribute("adminMenuViewObject", adminMenuViewObject);
-
-            SearchFormViewObject searchFormViewObject = new SearchFormViewObject();
-            searchFormInjector.injectMembers(searchFormViewObject);
-            pageContext.setAttribute("searchFormViewObject", searchFormViewObject);
-%>
 <c:choose>
     <c:when test="${empty param.q}" >
         <c:set var="qtext" ><fmt:message bundle="${lctx}">form.search</fmt:message></c:set>
