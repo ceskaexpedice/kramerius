@@ -352,3 +352,8 @@ div.search_result{
     width:480px;
     background:white;
 }
+
+.alto_selection{
+    border: 1px solid #e66c00;
+    padding: 0;
+}
