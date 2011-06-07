@@ -113,7 +113,7 @@
         <ul id="searchInsideScope"></ul>
         <div>
             <input type="text"  id="insideQuery" size="25" class="searchQuery" onclick="checkInsideInput();" <c:choose>
-                   <c:when test="${empty param.q}">value="<fmt:message bundle="${lctx}" key="administrator.menu.searchinside" /></c:when>
+                   <c:when test="${empty param.q}">value="<fmt:message bundle="${lctx}" key="administrator.menu.searchinside" />"</c:when>
                    <c:otherwise>value="${param.q}"</c:otherwise>
             </c:choose> />
             <a href="javascript:searchInside();"><img border="0" align="top" alt="<fmt:message bundle="${lctx}">administrator.menu.searchinside</fmt:message>" src="img/lupa_orange.png" /></a>
