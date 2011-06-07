@@ -500,6 +500,10 @@ public abstract class BaseConvertor {
                         	} catch (Exception e) {
                                 throw new ServiceException("Problem with file: "+f.getFilename(),e);
                             }
+                        	DatastreamType fullStream = this.createFullStream(img, f.getFilename());
+                            if (fullStream != null) {
+                                foxmlObject.getDatastream().add(fullStream);
+                            }
                             DatastreamType thumbnailStream = this.createThumbnailStream(img, f.getFilename());
                             if (thumbnailStream != null) {
                                 foxmlObject.getDatastream().add(thumbnailStream);
@@ -510,9 +514,14 @@ public abstract class BaseConvertor {
 	                                foxmlObject.getDatastream().add(previewStream);
 	                            }
                             }
+                            DatastreamType altoStream = this.createAltoStream( f.getFilename());
+                            if (altoStream != null) {
+                                foxmlObject.getDatastream().add(altoStream);
+                            }
+                        }else{
+	                        DatastreamType base64Stream = this.createBase64Stream(f.getFilename());
+	                        foxmlObject.getDatastream().add(base64Stream);
                         }
-                        DatastreamType base64Stream = this.createBase64Stream(f.getFilename());
-                        foxmlObject.getDatastream().add(base64Stream);
                     } else {
                     	if (f.getFilename() != null){
 	                        log.warn(WARN_FILE_DOESNT_EXIST + ": " + f.getFilename());
@@ -607,14 +616,6 @@ public abstract class BaseConvertor {
             	cl.setTYPE("URL");
             	version.setContentLocation(cl);
             }
-            // if (log.isDebugEnabled()) {
-            // log.debug("Binary attachment: time(read)="
-            // + (end - start)
-            // + "ms; filesize="
-            // + (pageFile.length() / 1024)
-            // + "kB; file="
-            // + pageFile.getName());
-            // }
             stream.getDatastreamVersion().add(version);
 
             return stream;
@@ -649,6 +650,83 @@ public abstract class BaseConvertor {
         stream.getDatastreamVersion().add(version);
 
         return stream;
+    }
+    
+    /**
+     * Vytvori datastream obsahujici base64 zakodovana binarni data pro thumbnail
+     * 
+     * @param pageHref
+     * @return stream
+     */
+    private DatastreamType createFullStream(BufferedImage img, String filename) throws ServiceException {
+        try {
+        	String streamType = KConfiguration.getInstance().getConfiguration().getString("convert.files", "encoded");
+        	boolean convertToJPG = KConfiguration.getInstance().getConfiguration().getBoolean("convert.originalToJPG", false);
+            DatastreamType stream = new DatastreamType();
+            stream.setID(FedoraUtils.IMG_FULL_STREAM);
+            if ("external".equalsIgnoreCase(streamType)){
+            	stream.setCONTROLGROUP("E");
+            }else{
+            	stream.setCONTROLGROUP("M");
+            }
+            stream.setVERSIONABLE(false);
+            stream.setSTATE(StateType.A);
+
+            DatastreamVersionType version = new DatastreamVersionType();
+            version.setCREATED(getCurrentXMLGregorianCalendar());
+            version.setID(FedoraUtils.IMG_FULL_STREAM + STREAM_VERSION_SUFFIX);
+
+            version.setMIMETYPE("image/jpeg");
+
+            // long start = System.currentTimeMillis();
+            
+            if (!convertToJPG){
+            	File pageFile = new File(getConfig().getImportFolder() + System.getProperty("file.separator") + filename);
+                
+                if ("encoded".equalsIgnoreCase(streamType)){
+    	            byte[] binaryContent = FileUtils.readFileToByteArray(pageFile);
+    	            version.setBinaryContent(binaryContent);
+                }else{//external or referenced
+                	String binaryDirectory = getConfig().getExportFolder() + System.getProperty("file.separator") + "img";
+                	// Destination directory
+                    File dir = IOUtils.checkDirectory(binaryDirectory);
+                    // Move file to new directory
+                    File target = new File(dir, pageFile.getName());
+                    FileUtils.copyFile(pageFile, target);
+                	ContentLocationType cl = new ContentLocationType();
+                	cl.setREF("file:"+target.getAbsolutePath());
+                	cl.setTYPE("URL");
+                	version.setContentLocation(cl);
+                }
+            }else{
+	            byte[] binaryContent = scaleImage(img, 0, 0);
+	            if (binaryContent.length == 0) {
+	                return null;
+	            }
+	
+	            if ("encoded".equalsIgnoreCase(streamType)){
+		            version.setBinaryContent(binaryContent);
+	            }else{//external or referenced
+	            	
+	            	String binaryDirectory = getConfig().getExportFolder() + System.getProperty("file.separator") + "img";
+	            	// Destination directory
+	                File dir = IOUtils.checkDirectory(binaryDirectory);
+	                // Move file to new directory
+	                File target = new File(dir, filename.substring(0, filename.indexOf('.'))+".jpg");
+	                FileUtils.writeByteArrayToFile(target, binaryContent);
+	               
+	            	ContentLocationType cl = new ContentLocationType();
+	            	cl.setREF("file:"+target.getAbsolutePath());
+	            	cl.setTYPE("URL");
+	            	version.setContentLocation(cl);
+	            }
+            }
+
+            stream.getDatastreamVersion().add(version);
+            return stream;
+        } catch (IOException e) {
+            throw new ServiceException(e);
+        }
     }
 
     /**
@@ -783,6 +861,61 @@ public abstract class BaseConvertor {
     }
 
     
+    private DatastreamType createAltoStream(String filename) throws ServiceException {
+    	if (filename == null){
+    		return null;
+    	}
+    
+        try {
+        	String altoFilename = filename.substring(0,filename.lastIndexOf("."))+".alto";
+        
+        	File altoFile = new File(getConfig().getImportFolder() + System.getProperty("file.separator") + altoFilename);
+            if (! altoFile.exists() || !altoFile.canRead()) {
+            	return null;
+            }
+            String streamType = KConfiguration.getInstance().getConfiguration().getString("convert.files", "encoded");
+            DatastreamType stream = new DatastreamType();
+            stream.setID(FedoraUtils.ALTO_STREAM);
+            if ("external".equalsIgnoreCase(streamType)){
+            	stream.setCONTROLGROUP("E");
+            }else{
+            	stream.setCONTROLGROUP("M");
+            }
+            stream.setVERSIONABLE(false);
+            stream.setSTATE(StateType.A);
+
+            DatastreamVersionType version = new DatastreamVersionType();
+            version.setCREATED(getCurrentXMLGregorianCalendar());
+            version.setID(FedoraUtils.ALTO_STREAM + STREAM_VERSION_SUFFIX);
+
+            version.setMIMETYPE("text/xml");
+
+            // long start = System.currentTimeMillis();
+
+           
+            if ("encoded".equalsIgnoreCase(streamType)){
+	            byte[] binaryContent = FileUtils.readFileToByteArray(altoFile);
+	            version.setBinaryContent(binaryContent);
+            }else{//external or referenced
+            	String binaryDirectory = getConfig().getExportFolder() + System.getProperty("file.separator") + "txt";
+            	// Destination directory
+                File dir = IOUtils.checkDirectory(binaryDirectory);
+                // Move file to new directory
+                File target = new File(dir, altoFile.getName());
+                FileUtils.copyFile(altoFile, target);
+            	ContentLocationType cl = new ContentLocationType();
+            	cl.setREF("file:"+target.getAbsolutePath());
+            	cl.setTYPE("URL");
+            	version.setContentLocation(cl);
+            }
+            stream.getDatastreamVersion().add(version);
+
+            return stream;
+        } catch (IOException e) {
+            throw new ServiceException(e);
+        }
+    }
+    
     private BufferedImage readImage(String fileName)throws IOException, MalformedURLException{
     	/*String[] suffixes = ImageIO.getReaderFileSuffixes();
     	Image img = ImageIO.read(new File(fileName));
@@ -826,6 +959,9 @@ public abstract class BaseConvertor {
     }
 
     private BufferedImage scaleByHeightOrWidth(BufferedImage img, int newWidth, int newHeight ) {
+    	if (newWidth == 0 && newHeight == 0){
+    		return img;
+    	}
         
         ImageObserver observer = new ImageObserver() {
 
@@ -845,7 +981,7 @@ public abstract class BaseConvertor {
 			    div = (double) img.getWidth(observer) / (double) nWidth;
 			    nHeight =  (int) (img.getHeight(observer) / div);
 	        }
-	    }else{
+	    }else if (newWidth >0){
 	    	nWidth = newWidth;
 		    double div = (double) img.getWidth(observer) / (double) nWidth;
 		    nHeight =  (int) (img.getHeight(observer) / div);

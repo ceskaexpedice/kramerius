@@ -43,6 +43,7 @@ public class FedoraUtils {
     public static final String IMG_THUMB_STREAM = "IMG_THUMB";
     public static final String IMG_FULL_STREAM = "IMG_FULL";
     public static final String IMG_PREVIEW_STREAM = "IMG_PREVIEW";
+    public static final String ALTO_STREAM = "ALTO";
     public static final String DC_STREAM = "DC";
     public static final String BIBLIO_MODS_STREAM = "BIBLIO_MODS";
     public static final int THUMBNAIL_HEIGHT = 128;

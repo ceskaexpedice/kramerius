@@ -295,7 +295,7 @@ public class PeriodicalConvertor extends BaseConvertor {
 
         RelsExt re = new RelsExt(pid, MODEL_INTERNAL_PART);
 
-        List<PageIndex> pageIndex = part.getPages().getPageIndex();
+        List<PageIndex> pageIndex = part.getPages() != null ? part.getPages().getPageIndex() : null;
         if (pageIndex != null && !part.getPages().getPageIndex().isEmpty()) {
             for (PageIndex pi : pageIndex) {
                 Integer piFrom = Integer.valueOf(pi.getFrom());
