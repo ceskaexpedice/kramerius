@@ -313,7 +313,7 @@ function _startProcess(url) {
 function exportTOFOXML(level)  {
 	hideAdminOptions(level);
 	var pid = $("#tabs_"+level).attr('pid');
-	var pidpath = COMMON.pidpath(level);
+	
 	var url = "lr?action=start&def=export&out=text&params="+pid;
 	if (_commonDialog) {
     	$("#common_started_ok").hide();
@@ -377,7 +377,9 @@ function deleteUuid(level, model)  {
 	hideAdminOptions(level);
 	showConfirmDialog(dictionary['administrator.dialogs.deleteconfirm'], function(){
 		var pid = $("#tabs_"+level).attr('pid');
-		var pidpath = COMMON.pidpath(level);
+		var uuids = [];
+		for(var i=0;i<level;i++) { uuids.push(viewerOptions.pathOfUuids[i]);}
+		var pidpath = uuids.join("/"));
 		var url = "lr?action=start&def=delete&out=text&params="+pid+","+pidpath;
 		if (_commonDialog) {
 	    	$("#common_started_ok").hide();
