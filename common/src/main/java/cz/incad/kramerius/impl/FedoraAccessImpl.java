@@ -693,7 +693,7 @@ public class FedoraAccessImpl implements FedoraAccess {
             InputStream thumbInputStream = con.getInputStream();
             return thumbInputStream;
         }
-        throw new FileNotFoundException("404");
+        throw new FileNotFoundException(datastream);
     }
 
     public InputStream getDsProfileForPIDStream(String pid, String streamName) throws MalformedURLException, IOException {
