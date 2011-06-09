@@ -379,7 +379,7 @@ function deleteUuid(level, model)  {
 		var pid = $("#tabs_"+level).attr('pid');
 		var uuids = [];
 		for(var i=0;i<level;i++) { uuids.push(viewerOptions.pathOfUuids[i]);}
-		var pidpath = uuids.join("/"));
+		var pidpath = uuids.join("/");
 		var url = "lr?action=start&def=delete&out=text&params="+pid+","+pidpath;
 		if (_commonDialog) {
 	    	$("#common_started_ok").hide();
