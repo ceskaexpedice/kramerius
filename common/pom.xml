@@ -218,10 +218,11 @@
         </dependency>
 
         <dependency>
-            <groupId>mptstore</groupId>
+            <groupId>org.fcrepo</groupId>
             <artifactId>mptstore</artifactId>
-            <version>0.9.1</version>
+            <version>0.9.4</version>
         </dependency>
+
         <dependency>
             <groupId>commons-dbcp</groupId>
             <artifactId>commons-dbcp</artifactId>
