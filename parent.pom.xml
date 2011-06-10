@@ -13,7 +13,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         
         <guice.version>3.0</guice.version>
-        <postgresql.version>8.4.701</postgresql.version>
+        <postgresql.version>8.4-702.jdbc4</postgresql.version>
         <slf4j.version>1.6.0</slf4j.version>
     </properties>
     
@@ -23,7 +23,21 @@
             <name>Java.net Repository for Maven 2</name>
             <url>http://download.java.net/maven/2/</url>
         </repository>
+        
+        <repository>
+            <id>duraspace-releases</id>
+            <name>DuraSpace Releases Maven Repository</name>
+            <url>https://m2.duraspace.org/content/repositories/releases</url>
+            <releases>
+                <enabled>true</enabled>
+            </releases>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+        </repository>
+        
     </repositories>
+    
     <pluginRepositories>
         <pluginRepository>
             <id>maven2-repository.dev.java.net</id>
