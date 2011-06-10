@@ -463,7 +463,7 @@ public class PeriodicalConvertor extends BaseConvertor {
                     continue;
                 }
                 StringBuffer s = new StringBuffer();
-                s.append(c.getCreatorSurname());
+                s.append(first(c.getCreatorSurname().getContent()));
                 for (CreatorName name : c.getCreatorName()) {
                     s.append(" " + first(name.getContent()));
                 }
