@@ -29,26 +29,17 @@
             <xsl:variable name="numDocs"><xsl:value-of select="number(/response/result/@numFound)" /></xsl:variable>
 
         <xsl:if test="/response/result/doc" >
-            <div >
-                <xsl:for-each select="/response/result/doc" >
-                    <xsl:if test="position() mod 2 = 1" ><div class="clear"></div></xsl:if>
-                    <xsl:variable name="pid" ><xsl:value-of select="./str[@name='PID']" /></xsl:variable>
-                    <div class="search_result">
-                        <xsl:attribute name="id">res_<xsl:value-of select="./str[@name='root_pid']"/></xsl:attribute>
-                    <div>
-                        <xsl:attribute name="class">result</xsl:attribute>
-                        <xsl:call-template name="doc">
-                            <xsl:with-param name="pos"><xsl:value-of select="position()" /></xsl:with-param>
-                            <xsl:with-param name="pid"><xsl:value-of select="$pid" /></xsl:with-param>
-                        </xsl:call-template>
-                    </div>
-                    <div style="display:none;">
-                        <xsl:attribute name="class">shadow-bottom uncollapsed </xsl:attribute>
-                        <xsl:attribute name="id">uncollapsed_<xsl:value-of select="./str[@name='root_pid']"/></xsl:attribute>
-                    </div>
-                    </div>
-                </xsl:for-each>
-            </div>
+            <xsl:choose>
+                <xsl:when test="$start = 0">
+                <div>
+                    <xsl:attribute name="id">offset_<xsl:value-of select="$start"/></xsl:attribute>
+                    <xsl:call-template name="docs" />
+                </div>
+                </xsl:when>
+                <xsl:otherwise>
+                    <xsl:call-template name="docs" />
+                </xsl:otherwise>
+            </xsl:choose>
             <xsl:if test="count(/response/result/doc) &lt; $numDocs">
             <div class="more_docs">
                 <xsl:attribute name="id">offset_<xsl:value-of select="$start + $rows"/></xsl:attribute>
@@ -76,6 +67,27 @@
             </xsl:if>
         </xsl:for-each>
     </xsl:template>
+
+<xsl:template name="docs">
+    <xsl:for-each select="/response/result/doc" >
+                    <xsl:if test="position() mod 2 = 1" ><div class="clear"></div></xsl:if>
+                    <xsl:variable name="pid" ><xsl:value-of select="./str[@name='PID']" /></xsl:variable>
+                    <div class="search_result">
+                        <xsl:attribute name="id">res_<xsl:value-of select="./str[@name='root_pid']"/></xsl:attribute>
+                    <div>
+                        <xsl:attribute name="class">result</xsl:attribute>
+                        <xsl:call-template name="doc">
+                            <xsl:with-param name="pos"><xsl:value-of select="position()" /></xsl:with-param>
+                            <xsl:with-param name="pid"><xsl:value-of select="$pid" /></xsl:with-param>
+                        </xsl:call-template>
+                    </div>
+                    <div style="display:none;">
+                        <xsl:attribute name="class">shadow-bottom uncollapsed </xsl:attribute>
+                        <xsl:attribute name="id">uncollapsed_<xsl:value-of select="./str[@name='root_pid']"/></xsl:attribute>
+                    </div>
+                    </div>
+                </xsl:for-each>
+</xsl:template>
 
     <xsl:template name="doc">
         <xsl:param name="pid" />

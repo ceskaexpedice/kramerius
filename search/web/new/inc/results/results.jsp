@@ -20,20 +20,41 @@ $(document).ready(function(){
     
     $(document).bind('scroll', function(event){
         var id = $('#docs .more_docs').attr('id');
+        if($('#docs .more_docs').length>0){
+            if(isScrolledIntoView($('#'+id)), window){
+                getMoreDocs(id);
+            }
+        }
+    });
+    if($('#docs .more_docs').length>0){
+        var id = $('#docs .more_docs').attr('id');
         if(isScrolledIntoView($('#'+id)), window){
             getMoreDocs(id);
         }
-    });
-    var id = $('#docs .more_docs').attr('id');
-    if(isScrolledIntoView($('#'+id)), window){
-        getMoreDocs(id);
     }
+
 
 <%  if (request.getRemoteUser() != null) {%>
         $('.result').append('<input type="checkbox" />');
 <% }%>
+    checkHeight(0);
 });
     
+
+    function checkHeight(offset){
+        
+        var divs = $('#offset_'+offset+'>div.search_result').length;
+        var left;
+        var right;
+        var max;
+        for(var i=1; i<divs; i = i+2){
+            left = $('#offset_'+offset+'>div.search_result')[i-1];
+            right = $('#offset_'+offset+'>div.search_result')[i];
+            max = Math.max($(left).height(), $(right).height());
+            $(left).css('height', max);
+            $(right).css('height', max);
+        }
+    }
 
     function getMoreDocs(id){
         var offset = id.split('_')[1];
@@ -44,12 +65,12 @@ $(document).ready(function(){
             $('#'+id).html(data);
             $('#'+id).removeClass('more_docs');
             $('.loading_docs').hide();
+            checkHeight(offset);
 <%  if (request.getRemoteUser() != null) {%>
-        $('#'+id+' .result').append('<input type="checkbox" />');
-<% }%>            
+            $('#'+id+' .result').append('<input type="checkbox" />');
+<% }%>
         });
     }
-
 
         function toggleFacet(facet){
             $('#facet_'+facet+' .moreFacets').toggle();
