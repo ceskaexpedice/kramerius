@@ -334,19 +334,23 @@
         <field name="rels_ext_index" type="sint" indexed="true"  stored="true"  />
         <field name="level" type="sint" indexed="true"  stored="true"  />
         <field name="dc.title" type="text_fgs"  indexed="true"  stored="true" />
-        <field name="facet_title" type="localizedstring"  indexed="true"  stored="false"  locale="cs" />
-        <field name="search_title" type="string_lower"  indexed="true"  stored="false"  />
         <field name="title" type="localizedstring"  indexed="true"  stored="false"  locale="cs" />
         <field name="title_en" type="localizedstring"  indexed="true"  stored="false"  locale="en" />
         <field name="dc.creator" type="text_fgs"  indexed="true"  stored="true" multiValued="true" />
-        <field name="facet_autor" type="string"  indexed="true"  stored="true" multiValued="true"  locale="cs" />
-        <field name="search_autor" type="string_lower"  indexed="true"  stored="false" multiValued="true"  />
+        <field name="language" type="string"  indexed="true"  stored="true"  />
+		
         <field name="dc.description" type="text_fgs"  indexed="true"  stored="true" multiValued="true" />
         <field name="details" type="string"  indexed="true"  stored="true" multiValued="true"  />
-        <field name="dsm.TEXT_OCR" type="text"  indexed="true"  stored="false" />
-        <field name="language" type="string"  indexed="true"  stored="true"  />
+		
+        <field name="facet_title" type="localizedstring"  indexed="true"  stored="false" locale="cs" />
+        <field name="browse_title" type="localizedstring"  indexed="true"  stored="false" locale="cs" />
+        <field name="search_title" type="string_lower"  indexed="true"  stored="false"  />
+        <field name="facet_autor" type="string"  indexed="true"  stored="true" multiValued="true"  locale="cs" />
+        <field name="browse_autor" type="string"  indexed="true" stored="true" multiValued="true"  locale="cs" />
+        <field name="search_autor" type="string_lower"  indexed="true"  stored="false" multiValued="true"  />
         
         <field name="page_format" type="string"  indexed="true"  stored="true"  />
+        <field name="viewable" type="boolean"  indexed="true"  stored="true"  />
         
     </fields>
 
