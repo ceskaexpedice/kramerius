@@ -19,7 +19,7 @@
     String[] tabs = kconfig.getPropertyList("search.home.tabs");
     pageContext.setAttribute("tabs", tabs);
 %>
-<div id="intro" class="shadow10">
+<div id="intro" >
     <ul>
         <li><a href="#browse"><fmt:message bundle="${lctx}" key="Procházet" /></a></li>
     <c:forEach varStatus="status" var="tab" items="${tabs}">
@@ -40,5 +40,6 @@
 <script type="text/javascript" language="javascript">
         $(document).ready(function(){
             $('#intro').tabs();
+            $('#homedabox').tabs();
         });
 </script>

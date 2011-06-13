@@ -15,9 +15,9 @@
                 </tr>
                 <tr>
                     <td valign="top">
-                        <div id="title" class="autocomplete"></div>
+                        <div id="browse_title" class="autocomplete"></div>
                     </td>
-                    <td align="center" valign="top" id="letters_title" class="letters letters_l">
+                    <td align="center" valign="top" id="letters_browse_title" class="letters letters_l">
 <%
 String letters = "0,A,Á,B,C,Č,D,Ď,E,É,Ě,F,G,H,CH,I,Í,J,K,L,M,N,Ň,O,Ó,P,Q,R,Ř,S,Š,T,Ť,U,Ú,Ů,V,W,X,Y,Ý,Z,Ž";
 String[] pismena = letters.split(",");
@@ -27,7 +27,7 @@ for(String p:pismena){
 %>
                     </td>
                     <td><div style="border-left:1px solid silver;width:3px;margin-left:2px;height:586px"></div></td>
-                    <td align="center" valign="top" id="letters_search_autor" class="letters letters_r">
+                    <td align="center" valign="top" id="letters_browse_autor" class="letters letters_r">
 <%
 for(String p:pismena){
     out.print(String.format("<div class=\"%s\"><a href=\"#\">%s</a></div>", p, p));
@@ -35,7 +35,7 @@ for(String p:pismena){
 %>
                     </td>
                     <td valign="top">
-                    <div id="search_autor" class="autocomplete"></div>
+                    <div id="browse_autor" class="autocomplete"></div>
                     </td>
                 </tr></table>
         </div>
@@ -44,16 +44,17 @@ for(String p:pismena){
 <script type="text/javascript">
 
     function doBrowse(value, field){
-        var url = 'terms_1.jsp?field=' + field + '&t=' + value;
+        var url = 'terms.jsp?field=' + field + '&t=' + value;
         $.get(url, function(data){
             $('#'+field).html(data);
             $('#'+field).scrollTop(0);
+            selectLetter(field);
         });
     }
 
     function getMoreTerms(field){
         var term = $('#'+field+">div.term:last>span").html();
-        var url = 'terms_1.jsp?i=false&field=' + field + '&t=' + term;
+        var url = 'terms.jsp?i=false&field=' + field + '&t=' + term;
         $('#'+field+" div.more_terms").remove();
         $.get(url, function(data){
             $('#'+field).append(data);
@@ -63,10 +64,10 @@ for(String p:pismena){
     var titleDivTopBorder;
     var titleDivBottomBorder;
     $(document).ready(function(){
-        titleDivTopBorder = $('#title').offset().top;
-        titleDivBottomBorder = titleDivTopBorder + $('#title').height() ;
-        doBrowse('', 'title');
-        doBrowse('', 'search_autor');
+        titleDivTopBorder = $('#browse_title').offset().top;
+        titleDivBottomBorder = titleDivTopBorder + $('#browse_title').height() ;
+        doBrowse('', 'browse_title');
+        doBrowse('', 'browse_autor');
 
         $(".autocomplete").bind('scroll', function(event){
             var id = $(this).attr('id');
@@ -79,7 +80,7 @@ for(String p:pismena){
         $('.term').live('click', function(){
             var field = $(this).parent().attr('id');
             var value = $(this).children("span").html();
-            if(field=='title'){
+            if(field=='browse_title'){
                 window.location = "r.jsp?title=\"" + value + "\"";
             } else{
                 window.location = "r.jsp?fq=" + field + ":\"" + value + "\"";
@@ -90,6 +91,7 @@ for(String p:pismena){
            var field = $(this).parent().parent().attr('id').substring("letters_".length);
            var value = $(this).html();
            doBrowse(value, field);
+           
         });
 
     });

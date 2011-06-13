@@ -19,14 +19,15 @@
         <xsl:comment><![CDATA[
         $(document).ready(function(){
             $('#dt_home>div>span').hide();
-            rollTypes(0);
+            rollTypes();
         });
-        function rollTypes(index){
-            $('#dt_home>div>span:nth('+index+')').fadeOut(function(){
-                var i = index + 1;
-                if(i>=$('#dt_home>div>span').length) i=0;
-                $('#dt_home>div>span:nth('+i+')').fadeIn();
-                setTimeout('rollTypes('+i+')', 3000);
+        var rollIndex = 0;
+        function rollTypes(){
+            $('#dt_home>div>span:nth('+rollIndex+')').fadeOut(function(){
+                rollIndex++;
+                if(rollIndex>=$('#dt_home>div>span').length) rollIndex=0;
+                $('#dt_home>div>span:nth('+rollIndex+')').show();
+                setTimeout('rollTypes()', 4000);
             });
         }
 

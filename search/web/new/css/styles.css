@@ -161,12 +161,14 @@ a.image:hover {
 #dt_home{
     font-size:18px;
     margin: -30px 10px 15px 120px;
-    padding-bottom: 10px;
+    z-index: 10;
+    position:relative;
 }
 
 #dt_home a{
     font-size:16px;
     color:#e66c00;
+    z-index: 10;
 }
 
 #dt_home li{
@@ -298,6 +300,7 @@ div.search_result{
 .more_docs{
     text-align:center;
     width:100%;
+    clear: both;
 }
 #dateAxis{
     float:left;

@@ -24,6 +24,10 @@ $(document).ready(function(){
             getMoreDocs(id);
         }
     });
+    var id = $('#docs .more_docs').attr('id');
+    if(isScrolledIntoView($('#'+id)), window){
+        getMoreDocs(id);
+    }
 
 <%  if (request.getRemoteUser() != null) {%>
         $('.result').append('<input type="checkbox" />');

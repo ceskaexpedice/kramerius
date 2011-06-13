@@ -1,3 +1,4 @@
+<%@ page contentType="text/html" pageEncoding="UTF-8" %>
 <%@ page trimDirectiveWhitespaces="true"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/xml" prefix="x" %>
@@ -13,7 +14,7 @@
 <%@page import="javax.servlet.jsp.jstl.fmt.LocalizationContext"%>
 <%@page import="cz.incad.kramerius.FedoraAccess"%>
 
-<div style="float:left;width:770px;">
+<div style="float:left;width:750px;">
     
 <div id="dt_home">
     <%--<c:set var="facetname" value="document_type" />
@@ -27,6 +28,7 @@
 
 <%@ include file="home/tabs.jsp" %>
 </div>
-<div style="float:left;width:225px;">
-<%@ include file="dateAxisV.jsp" %>
+<div id="homedabox" style="float:left;width:230px;margin-top:7px;margin-left:4px;">
+    <ul><li><a href="#dadiv"><fmt:message bundle="${lctx}" key="Časová osa" /></a></li></ul>
+<div id="dadiv" style="padding:3px;"><%@ include file="dateAxisV.jsp" %></div>
 </div>

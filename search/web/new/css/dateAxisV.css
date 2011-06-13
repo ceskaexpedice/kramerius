@@ -1,5 +1,5 @@
 #content-scroll {
-    width: 300px;
+    width: 250px;
     height: 400px;
     margin-left: 10px;
     overflow: hidden;
@@ -169,6 +169,3 @@
     margin:0px;
     width:10px;
 }
-
-/* end scroll elements */
-

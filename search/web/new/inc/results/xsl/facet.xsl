@@ -13,7 +13,7 @@
 
     <xsl:template name="facet">
         <div class="facet">
-        <div class="ui-icon ui-icon-triangle-1-e"><xsl:value-of select="$facetname" /></div>
+        <div class="ui-icon ui-icon-triangle-1-e"><xsl:value-of select="$bundle/value[@key=$facetname]" /></div>
         <ul>
         <xsl:for-each select="response/lst[@name='facet_counts']/lst[@name='facet_fields']/lst[@name=$facetname]/int">
             <li><xsl:if test="position() &gt= $numOpenedRows">

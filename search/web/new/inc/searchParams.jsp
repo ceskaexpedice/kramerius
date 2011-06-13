@@ -5,9 +5,11 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn" %>
 <%@ page isELIgnored="false"%>
 <%@ page import="java.util.*, cz.incad.Kramerius.*, cz.incad.Solr.*" %>
-<c:set var="pageType" value="search" />
-<jsp:useBean id="pageType" type="java.lang.String" />
-    <c:set var="rowsdefault" value="20" scope="request" />
+<%
+String search_results_rows = kconfig.getProperty("search.results.rows", "20");
+pageContext.setAttribute("search_results_rows", search_results_rows);
+%>
+    <c:set var="rowsdefault" value="${search_results_rows}" scope="request" />
     <c:set var="rows" value="0" scope="request" />
 <c:url var="url" value="${kconfig.solrHost}/select/" >
     <c:choose>

@@ -50,12 +50,12 @@
         <li>
             <xsl:attribute name="id">facet_<xsl:value-of select="$facetname"/></xsl:attribute>
             <span class="ui-icon ui-icon-triangle-1-e folder" ></span>
-            <a href="#"><xsl:value-of select="$facetname"/></a>
+            <a href="#"><xsl:value-of select="$bundle/value[@key=$facetname]" /></a>
             <ul><xsl:for-each select="./int">
                 <li><xsl:if test="position() &gt; $numOpenedRows">
                     <xsl:attribute name="class">more_facets</xsl:attribute>
                 </xsl:if>
-                <xsl:value-of select="@name" />(<xsl:value-of select="." />)
+                <a><xsl:attribute name="href">javascript:addFilter()</xsl:attribute><xsl:value-of select="@name" /></a> (<xsl:value-of select="." />)
                 </li>
             </xsl:for-each>
             </ul>
