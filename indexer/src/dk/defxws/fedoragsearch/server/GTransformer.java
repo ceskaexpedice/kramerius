@@ -57,27 +57,29 @@ public class GTransformer {
      */
     public Transformer getTransformer(String xsltPath) 
     throws Exception {
-        return getTransformer(xsltPath, null);
+        return getTransformer(xsltPath, null, true);
     }
     
-    public Transformer getTransformer(String xsltPath, URIResolver uriResolver) 
+    public Transformer getTransformer(String xsltPath, URIResolver uriResolver, boolean checkInHome) 
     throws Exception {
         Transformer transformer = null;
         String xsltPathName = xsltPath+".xslt";
         try {
             InputStream stylesheet;
             try {
-                //stylesheet = new FileInputStream(xsltPathName);
-                String dirname = Constants.WORKING_DIR + File.separator + "xsl";
-                
-                File textFile = new File(dirname, xsltPathName);
-                if ((textFile.exists()) && (textFile.canRead())){
-                     stylesheet = new FileInputStream(textFile);
+                if(checkInHome){
+                    String dirname = Constants.WORKING_DIR + File.separator + "xsl";
+                    File textFile = new File(dirname, xsltPathName);
+                    if ((textFile.exists()) && (textFile.canRead())){
+                         stylesheet = new FileInputStream(textFile);
+                    }else{
+                        stylesheet = this.getClass().getResourceAsStream("/cz/incad/kramerius/indexer/res/" + xsltPathName);
+                    }
                 }else{
-                    stylesheet = this.getClass().getResourceAsStream("/cz/incad/kramerius/indexer/res/" + xsltPathName);
+                    stylesheet = new FileInputStream(new File(xsltPath));
                 }
             } catch (Exception ex) {
-                throw new Exception(xsltPathName+" not found");
+                throw new Exception(xsltPath+" not found");
             }
             TransformerFactory tfactory = TransformerFactory.newInstance();
             StreamSource xslt = new StreamSource(stylesheet);
@@ -85,9 +87,9 @@ public class GTransformer {
             if (uriResolver!=null)
             	transformer.setURIResolver(uriResolver);
         } catch (TransformerConfigurationException e) {
-            throw new Exception("getTransformer "+xsltPathName+":\n", e);
+            throw new Exception("getTransformer "+xsltPath+":\n", e);
         } catch (TransformerFactoryConfigurationError e) {
-            throw new Exception("getTransformerFactory "+xsltPathName+":\n", e);
+            throw new Exception("getTransformerFactory "+xsltPath+":\n", e);
         }
         return transformer;
     }
@@ -107,15 +109,15 @@ public class GTransformer {
         }
     }
 
-    public StringBuffer transform(String xsltName, Source sourceStream, HashMap<String, String> params) 
+    public StringBuffer transform(String xsltName, Source sourceStream, HashMap<String, String> params)
     throws Exception {
-        return transform (xsltName, sourceStream, null, params);
+        return transform (xsltName, sourceStream, null, params, true);
     }
 
-    public StringBuffer transform(String xsltName, Source sourceStream, URIResolver uriResolver, HashMap<String, String> params) 
-    throws Exception {
+    public StringBuffer transform(String xsltName, Source sourceStream, 
+            URIResolver uriResolver, HashMap<String, String> params, boolean checkInHome) throws Exception {
             logger.fine("xsltName="+xsltName);
-        Transformer transformer = getTransformer(xsltName, uriResolver);
+        Transformer transformer = getTransformer(xsltName, uriResolver, checkInHome);
         //logger.info(params);
         Iterator it = params.keySet().iterator();
         String key = "";
@@ -132,7 +134,7 @@ public class GTransformer {
         try {
             transformer.transform(sourceStream, destStream);
         } catch (TransformerException e) {
-            throw new Exception("transform "+xsltName+".xslt:\n", e);
+            throw new Exception("transform "+xsltName+":\n", e);
         }
         StringWriter sw = (StringWriter)destStream.getWriter();
 //      if (logger.isDebugEnabled())
@@ -168,7 +170,7 @@ public class GTransformer {
      *
      * @throws TransformerConfigurationException, TransformerException.
      */
-    public StringBuffer transform(String xsltName, StreamSource sourceStream) 
+    public StringBuffer transform(String xsltName, StreamSource sourceStream)
     throws Exception {
         return transform(xsltName, sourceStream, new HashMap<String, String>());
     }
@@ -178,7 +180,7 @@ public class GTransformer {
      *
      * @throws TransformerConfigurationException, TransformerException.
      */
-    public StringBuffer transform(String xsltName, StringBuffer sb, HashMap<String, String> params) 
+    public StringBuffer transform(String xsltName, StringBuffer sb, HashMap<String, String> params)
     throws Exception {
 //      if (logger.isDebugEnabled())
 //      logger.debug("sb="+sb);

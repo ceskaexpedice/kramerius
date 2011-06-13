@@ -8,12 +8,11 @@ import cz.incad.kramerius.utils.conf.KConfiguration;
 import dk.defxws.fedoragsearch.server.*;
 
 import java.util.ArrayList;
-import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.fedora.api.FedoraAPIA;
-import org.fedora.api.FedoraAPIM;
 import org.fedora.api.MIMETypedStream;
+
 
 public class FedoraOperations {
 
@@ -79,6 +78,7 @@ public class FedoraOperations {
         String format = "info:fedora/fedora-system:FOXML-1.1";
         try {
             foxmlRecord = fa.getAPIM().export(pid, format, "public");
+
         } catch (Exception e) {
             throw new Exception("Fedora Object " + pid + " not found. ", e);
         }
@@ -157,6 +157,22 @@ public class FedoraOperations {
             logger.log(Level.SEVERE, null, ex);
             return null;
         }
+    }
+
+    private String removeDiacritic(String old) {
+        char[] o = {'á', 'à', 'č', 'ď', 'ě', 'é', 'í', 'ľ', 'ň', 'ó', 'ř', 'r', 'š', 'ť', 'ů', 'ú', 'u', 'u', 'ý', 'ž', 'Á', 'À', 'Č', 'Ď', 'É', 'Ě', 'Í', 'Ĺ', 'Ň', 'Ó', 'Ř', 'Š', 'Ť', 'Ú', 'Ů', 'Ý', 'Ž'};
+        char[] n = {'a', 'a', 'c', 'd', 'e', 'e', 'i', 'l', 'n', 'o', 'r', 'r', 's', 't', 'u', 'u', 'u', 'u', 'y', 'z', 'A', 'A', 'C', 'D', 'E', 'E', 'I', 'L', 'N', 'O', 'R', 'S', 'T', 'U', 'U', 'Y', 'Z'};
+
+        String newStr = old;
+        for (int i = 0; i < o.length; i++) {
+            newStr = newStr.replace(o[i], n[i]);
+        }
+        newStr = newStr.replace(" ", "");
+        return newStr;
+    }
+    
+    public String prepareCzech(String s) throws Exception{
+        return removeDiacritic(s).toLowerCase().replace("ch", "hz");
     }
 
     public String getDatastreamText(String pid, String dsId, String pageNum) throws Exception {

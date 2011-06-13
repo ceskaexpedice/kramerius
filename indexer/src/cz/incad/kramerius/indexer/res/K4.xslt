@@ -15,9 +15,10 @@
         xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" 
         xmlns:mods="http://www.loc.gov/mods/v3" 
         xmlns:kramerius="http://www.nsdl.org/ontologies/relationships#" 
-        exclude-result-prefixes="exts java"
+        exclude-result-prefixes="exts java fedora-model uvalibadmin fn zs foxml dc oai_dc uvalibdesc rdf mods kramerius"
+
     >
-    <xsl:output method="xml" indent="yes" encoding="UTF-8" />
+    <xsl:output omit-xml-declaration="yes" method="xml" indent="yes" encoding="UTF-8" />
 
 <!--
 	 This xslt stylesheet generates the Solr doc element consisting of field elements
@@ -31,6 +32,7 @@
     <xsl:param name="DOCCOUNT" select="0"/>
     
     <xsl:param name="PAGESCOUNT" select="1"/>
+    <xsl:param name="PAGENUM" select="0"/>
     <xsl:param name="DATUM" select="''"/>
     <xsl:param name="ROK" select="''"/>
     <xsl:param name="DATUM_BEGIN" select="''"/>
@@ -61,19 +63,8 @@
     
     
     <xsl:template match="/">
-        
-      <add>
-    <xsl:call-template name="for.loop">
-     <xsl:with-param name="i">0</xsl:with-param>
-    </xsl:call-template>
-        </add>
-    </xsl:template>
-    
-    <xsl:template name="for.loop">
-        <xsl:param name="i" />
-       <xsl:if test="$i &lt;= $DOCCOUNT">
 
-                <doc>
+        <xsl:param name="i" />
                     <xsl:attribute name="boost">
                         <xsl:value-of select="$docBoost"/>
                     </xsl:attribute>
@@ -83,22 +74,14 @@
                         <xsl:if test="not(foxml:digitalObject/foxml:datastream[@ID='METHODMAP'] or foxml:digitalObject/foxml:datastream[@ID='DS-COMPOSITE-MODEL'])">
                             <xsl:apply-templates mode="activeDemoFedoraObject" select="/foxml:digitalObject" >
                                 <xsl:with-param name="pageNum">
-                                      <xsl:value-of select="$i"/>
+                                      <xsl:value-of select="$PAGENUM"/>
                                   </xsl:with-param>
                             </xsl:apply-templates>
                             <xsl:apply-templates mode="biblioMods" select="/foxml:digitalObject/foxml:datastream[@ID='BIBLIO_MODS']/foxml:datastreamVersion[last()]/foxml:xmlContent/mods:modsCollection/mods:mods" />
-                            <xsl:apply-templates mode="imgFull" select="/foxml:digitalObject/foxml:datastream[@ID='IMG_FULL']/foxml:datastreamVersion[last()]" />
+                            <xsl:call-template name="imgFull"  />
+                            <xsl:call-template name="browse" />
                         </xsl:if>
                     </xsl:if>
-
-                </doc>
-
-          <xsl:call-template name="for.loop">
-              <xsl:with-param name="i">
-                  <xsl:value-of select="$i + 1"/>
-              </xsl:with-param>
-          </xsl:call-template>
-       </xsl:if>
   </xsl:template>
   
     <xsl:template match="/foxml:digitalObject" mode="activeDemoFedoraObject">
@@ -284,15 +267,17 @@
         </xsl:if>
         
         <!-- a managed datastream is fetched, if its mimetype 
-             can be handled, the text becomes the value of the field. -->        
+             can be handled, the text becomes the value of the field.
+             Excluding ALTO -->
         <xsl:for-each select="foxml:datastream[@CONTROL_GROUP='M']">
             
-            <xsl:if test="foxml:datastreamVersion/@MIMETYPE= 'text/plain' or 
+            <xsl:if test="(foxml:datastreamVersion/@MIMETYPE= 'text/plain' or
             foxml:datastreamVersion/@MIMETYPE='text/xml' or
             foxml:datastreamVersion/@MIMETYPE='text/html' or
             foxml:datastreamVersion/@MIMETYPE='application/pdf' or
             foxml:datastreamVersion/@MIMETYPE='application/ps' or
-            foxml:datastreamVersion/@MIMETYPE='application/msword'">
+            foxml:datastreamVersion/@MIMETYPE='application/msword') and
+            not(@ID='ALTO')">
             
                 <field name="text">
                     <xsl:value-of select="exts:getDatastreamText($generic, $PID, @ID, $pageNum)"/>
@@ -301,8 +286,11 @@
         </xsl:for-each>
     </xsl:template>
     
-    <xsl:template match="/foxml:digitalObject/foxml:datastream[@ID='IMG_FULL']/foxml:datastreamVersion[last()]" mode="imgFull">
-        <field name="page_format"><xsl:value-of select="@MIMETYPE"/></field>
+    <xsl:template name="imgFull">
+        <xsl:if test="/foxml:digitalObject/foxml:datastream[@ID='IMG_FULL']/foxml:datastreamVersion[last()]">
+            <field name="page_format"><xsl:value-of select="@MIMETYPE"/></field>
+            <field name="viewable">true</field>
+        </xsl:if>
     </xsl:template>
     
     <xsl:template match="/foxml:digitalObject/foxml:datastream[@ID='BIBLIO_MODS']/foxml:datastreamVersion[last()]/foxml:xmlContent/mods:modsCollection/mods:mods" mode="biblioMods">
@@ -311,12 +299,11 @@
             <xsl:value-of select="mods:identifier[@type='issn']/text()"/>
         </field>
         <field name="mdt">
-            <xsl:value-of select="mods:classification[@authority='mdt']/text()"/>
+            <xsl:value-of select="mods:classification[@authority='udc']/text()"/>
         </field>
         <field name="ddt">
             <xsl:value-of select="mods:classification[@authority='ddt']/text()"/>
         </field>
-        
         
         <xsl:if test="$MODEL = 'monographunit'">
             <field name="details">
@@ -375,6 +362,18 @@
                     </field>
                 </xsl:otherwise>    
             </xsl:choose>
+        </xsl:if>
+    </xsl:template>
+    <xsl:template name="browse" >
+        <xsl:for-each select="foxml:digitalObject/foxml:datastream/foxml:datastreamVersion[last()]/foxml:xmlContent/oai_dc:dc/dc:creator">
+            <field name="browse_autor" >
+                <xsl:value-of select="exts:prepareCzech($generic, text())"/>##<xsl:value-of select="text()"/>
+            </field>
+        </xsl:for-each>
+        <xsl:if test="not($MODEL = 'page')">
+        <field name="browse_title" >
+            <xsl:value-of select="exts:prepareCzech($generic, $title)"/>##<xsl:value-of select="$title"/>
+        </field>
         </xsl:if>
     </xsl:template>
 </xsl:stylesheet>	

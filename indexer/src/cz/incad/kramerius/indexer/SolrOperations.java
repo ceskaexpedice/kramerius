@@ -1,5 +1,6 @@
 package cz.incad.kramerius.indexer;
 
+import cz.incad.kramerius.Constants;
 import cz.incad.kramerius.FedoraNamespaceContext;
 import cz.incad.kramerius.resourceindex.IResourceIndex;
 import cz.incad.kramerius.resourceindex.ResourceIndexService;
@@ -106,8 +107,10 @@ public class SolrOperations {
                     value = "uuid:" + value;
                 }
                 fromKrameriusModel(value, requestParams);
+                optimize();
             } else if ("krameriusModel".equals(action)) {
                 krameriusModel(value, requestParams);
+                optimize();
             } else if ("reindexDoc".equals(action)) {
                 reindexDoc(value, false, requestParams);
             } else if ("reindexDocForced".equals(action)) {
@@ -119,6 +122,7 @@ public class SolrOperations {
             }else if ("getPidPaths".equals(action)) {
                 fedoraOperations.getPidPaths(value);
             }
+
 
         } catch (Exception ex) {
             logger.log(Level.SEVERE, null, ex);
@@ -160,7 +164,7 @@ public class SolrOperations {
             return;
         }
         try {
-            String urlStr = config.getString("solrHost") + "/select/select?q=PID:\"" + pid + "\"";
+            String urlStr = config.getString("solrHost") + "/select/?q=PID:\"" + pid + "\"";
             String uuid = pid.startsWith("uuid:") ? pid : "uuid:" + pid;
             fedoraOperations.getFoxmlFromPid(uuid);
             contentDom = getDocument(new ByteArrayInputStream(fedoraOperations.foxmlRecord));
@@ -368,7 +372,7 @@ public class SolrOperations {
             ArrayList<String> requestParams,
             IndexParams indexParams) {
 
-        logger.fine("indexByPid: pid -> " + pid);
+        logger.info("indexing -> " + pid);
         int num = 0;
         ArrayList<String> pids = new ArrayList<String>();
         ArrayList<String> models = new ArrayList<String>();
@@ -477,22 +481,52 @@ public class SolrOperations {
         foxmlStream.reset();
         HashMap<String, String> params = new HashMap<String, String>();
         params.put("DOCCOUNT", docCount);
+        params.put("PAGENUM", "0");
+
 
         for (int i = 0; i < requestParams.size(); i = i + 2) {
             params.put(requestParams.get(i), requestParams.get(i + 1));
         }
 
         String xsltPath = config.getString("UpdateIndexDocXslt");
-        StringBuffer sb = (new GTransformer()).transform(
-                xsltPath,
-                new StreamSource(foxmlStream),
-                null,
-                params);
-        logger.fine("indexDoc=\n" + sb.toString());
-        //logger.info("indexDoc=\n" + sb.toString());
-        if (sb.indexOf("name=\"" + UNIQUEKEY) > 0) {
-            postData(config.getString("IndexBase") + "/update", new StringReader(sb.toString()), new StringBuilder());
-            updateTotal++;
+
+        for(int i=0; i<=Integer.parseInt(docCount); i++){
+            params.put("PAGENUM", i+"");
+            StringBuffer sb = (new GTransformer()).transform(
+                    xsltPath,
+                    new StreamSource(foxmlStream),
+                    null,
+                    params,
+                    true);
+
+            customTransformations(sb, foxmlStream, params);
+            //logger.info("indexDoc=\n" + sb.toString());
+            String doc = "<?xml version=\"1.0\" encoding=\"UTF-8\"?><add><doc>" + sb.toString() + "</doc></add>";
+            //logger.info(doc);
+            logger.fine("indexDoc=\n" + sb.toString());
+            if (sb.indexOf("name=\"" + UNIQUEKEY) > 0) {
+                postData(config.getString("IndexBase") + "/update", new StringReader(doc), new StringBuilder());
+                updateTotal++;
+            }
+        }
+    }
+    
+    private void customTransformations(StringBuffer sb, InputStream foxmlStream, HashMap<String, String> params) throws Exception{
+        String dirname = Constants.WORKING_DIR + File.separator + "indexer" + File.separator + "xsl";
+
+        File dir = new File(dirname);
+        if(dir.exists() && dir.isDirectory()){
+            for(File f : dir.listFiles()){
+                foxmlStream.reset();
+                StringBuffer newSb = (new GTransformer()).transform(
+                        f.getAbsolutePath(),
+                        new StreamSource(foxmlStream),
+                        null,
+                        params,
+                        false);
+                //logger.info("newSb: " +newSb.toString());
+                sb.append(newSb);
+            }
         }
     }
 
@@ -726,7 +760,7 @@ public class SolrOperations {
             return 0;
         }
         try {
-            String urlStr = config.getString("solrHost") + "/select/select?fl=pages_count&q=PID:\"" + pid.replaceAll("uuid:", "") + "\"";
+            String urlStr = config.getString("solrHost") + "/select/?fl=pages_count&q=PID:\"" + pid.replaceAll("uuid:", "") + "\"";
             String uuid = pid.startsWith("uuid:") ? pid : "uuid:" + pid;
             fedoraOperations.getFoxmlFromPid(uuid);
             contentDom = getDocument(new ByteArrayInputStream(fedoraOperations.foxmlRecord));
@@ -757,7 +791,7 @@ public class SolrOperations {
         }
         int numHits = 200;
         String PID;
-        String urlStr = config.getString("solrHost") + "/select/select?q=pid_path:" + pid_path +
+        String urlStr = config.getString("solrHost") + "/select/?q=pid_path:" + pid_path +
                 "*&fl=PID&start=" + offset + "&rows=" + numHits;
         factory = XPathFactory.newInstance();
         xpath = factory.newXPath();
@@ -796,7 +830,7 @@ public class SolrOperations {
         int numHits = 200;
         String PID;
         String pid_path;
-        String urlStr = config.getString("solrHost") + "/select/select?q=fedora.model:\"" + model + "\"&fl=PID,pid_path&start=" + 
+        String urlStr = config.getString("solrHost") + "/select/?q=fedora.model:\"" + model + "\"&fl=PID,pid_path&start=" + 
                 offset + "&rows=" + numHits;
         factory = XPathFactory.newInstance();
         xpath = factory.newXPath();
