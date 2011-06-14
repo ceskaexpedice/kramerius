@@ -31,6 +31,8 @@
         <xsl:if test="/response/result/doc" >
             <xsl:choose>
                 <xsl:when test="$start = 0">
+                <div style="float:right;margin-right:30px;">1 sloupec<input id="cols" type="checkbox" name="cols" value="1" onclick="toggleColumns();" /></div>
+                <div class="clear"></div>
                 <div>
                     <xsl:attribute name="id">offset_<xsl:value-of select="$start"/></xsl:attribute>
                     <xsl:call-template name="docs" />

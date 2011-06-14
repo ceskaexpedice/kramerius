@@ -40,9 +40,22 @@ $(document).ready(function(){
     checkHeight(0);
 });
     
+    function toggleColumns(){
+        var margin = parseInt($('.search_result:first').css("margin-left").replace("px", "")) +
+            parseInt($('.search_result:first').css("margin-right").replace("px", "")) +
+            parseInt($('.search_result:first').css("padding-left").replace("px", "")) +
+            parseInt($('.search_result:first').css("padding-right").replace("px", ""));
+        var w = $('#offset_0').width();
+        //alert(margin);
+        if($('#cols').is(':checked')){
+            w = w - margin;
+        }else{
+            w = w / 2 - margin * 2;
+        }
+        $('.search_result').css('width', w);
+    }
 
     function checkHeight(offset){
-        
         var divs = $('#offset_'+offset+'>div.search_result').length;
         var left;
         var right;
@@ -72,25 +85,33 @@ $(document).ready(function(){
         });
     }
 
-        function toggleFacet(facet){
-            $('#facet_'+facet+' .moreFacets').toggle();
+    function addFilter(field, value){
+        var page = new PageQuery(window.location.search);
+        page.setValue("offset", "0");
+        var f = "fq=" + field + ":\"" + value + "\"";
+        if(window.location.search.indexOf(f)==-1){
+            window.location = "r.jsp?" +
+            page.toString() + "&" + f;
         }
+    }
 
-        function toggleCollapsed(pid, offset){
-            $("#res_"+pid+">div.uncollapsed").toggle();
-            $('#uimg_' + pid ).toggleClass('uncollapseIcon');
-            if($("#res_"+pid+">div.uncollapsed").html()==""){
-                uncollapse(pid, offset);
-            }
+    
+
+    function toggleCollapsed(pid, offset){
+        $("#res_"+pid+">div.uncollapsed").toggle();
+        $('#uimg_' + pid ).toggleClass('uncollapseIcon');
+        if($("#res_"+pid+">div.uncollapsed").html()==""){
+            uncollapse(pid, offset);
         }
-        function uncollapse(pid, offset){
-              var page = new PageQuery(window.location.search);
-              page.setValue("offset", offset);
-              var url =  "inc/results/uncollapse.jsp?rows=10&" + page.toString() +
-                  "&type=uncollapse&collapsed=false&root_pid=" + pid + "&fq=root_pid:\"" + pid + "\"";
-              $.get(url, function(xml) {
-                  $("#res_"+pid+">div.uncollapsed").html(xml);
-                  $("#res_"+pid+">div.uncollapsed").scrollTop(0);
-              });
-        }
+    }
+    function uncollapse(pid, offset){
+          var page = new PageQuery(window.location.search);
+          page.setValue("offset", offset);
+          var url =  "inc/results/uncollapse.jsp?rows=10&" + page.toString() +
+              "&type=uncollapse&collapsed=false&root_pid=" + pid + "&fq=root_pid:\"" + pid + "\"";
+          $.get(url, function(xml) {
+              $("#res_"+pid+">div.uncollapsed").html(xml);
+              $("#res_"+pid+">div.uncollapsed").scrollTop(0);
+          });
+    }
 </script>

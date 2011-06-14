@@ -34,12 +34,15 @@
         <xsl:comment><![CDATA[
         $(document).ready(function(){
             $('#facets>ul>li>ul>li.more_facets').toggle();
-            $('#facets>ul>li').click(function(event){
-                var id = $(this).attr('id');
-                $('#'+id+'>ul>li.more_facets').toggle();
-                $('#'+id).toggleClass('ui-icon-triangle-1-s');
+            $('#facets>ul>li>a').click(function(event){
+                var id = $(this).parent().attr('id');
+                toggleFacet(id);
             });
         });
+        function toggleFacet(id){
+            $('#'+id+'>ul>li.more_facets').toggle();
+            $('#'+id+'>span').toggleClass('ui-icon-triangle-1-s');
+        }
 
         ]]></xsl:comment>
         </script>
@@ -52,14 +55,16 @@
             <span class="ui-icon ui-icon-triangle-1-e folder" ></span>
             <a href="#"><xsl:value-of select="$bundle/value[@key=$facetname]" /></a>
             <ul><xsl:for-each select="./int">
+                <xsl:if test="position() = $numOpenedRows+1"><li class="more_facets" style="display:none;">
+                    <a><xsl:attribute name="href">javascript:toggleFacet('facet_<xsl:value-of select="$facetname" />')</xsl:attribute>...</a>
+                </li></xsl:if>
                 <li><xsl:if test="position() &gt; $numOpenedRows">
                     <xsl:attribute name="class">more_facets</xsl:attribute>
                 </xsl:if>
-                <a><xsl:attribute name="href">javascript:addFilter()</xsl:attribute><xsl:value-of select="@name" /></a> (<xsl:value-of select="." />)
+                <a><xsl:attribute name="href">javascript:addFilter('<xsl:value-of select="$facetname" />', '<xsl:value-of select="@name" />')</xsl:attribute><xsl:value-of select="@name" /></a> (<xsl:value-of select="." />)
                 </li>
             </xsl:for-each>
             </ul>
         </li>
     </xsl:template>
-
 </xsl:stylesheet>

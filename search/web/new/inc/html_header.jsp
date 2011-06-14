@@ -70,7 +70,7 @@
 		headerInjector.injectMembers(headerViewObject);
 		pageContext.setAttribute("headerViewObject", headerViewObject);
     %>
-    <title><fmt:message bundle="${lctx}">application.title</fmt:message>. <x:out select="$doc/response/result/doc/str[@name='root_title']" /></title>
+    <title>${title}</title>
     <script language="JavaScript" type="text/javascript">
         
         var searchPage = "./";

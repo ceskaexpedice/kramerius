@@ -119,7 +119,7 @@ a.image:hover {
 
 .clear{
     display:block;
-    clear: left;
+    clear: both;
 }
 
 .shadow{
@@ -194,6 +194,10 @@ a.image:hover {
 }
 #facets>ul>li{
     padding-left: 3px;
+    border-bottom: 1px solid silver;
+}
+#facets>ul>li>a{
+    font-size: 1.1em;
 }
 
 #facets li span{
