@@ -47,8 +47,8 @@ import cz.incad.kramerius.utils.IOUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 
 public class Download {
-    
-  
+
+
 
     /**
      * @param args
@@ -57,7 +57,7 @@ public class Download {
         replicatePeriodicals();
 
     }
-    
+
     public static void replicateMonographs(){
         initLogfiles();
         Download download = new Download();
@@ -82,9 +82,9 @@ public class Download {
         }
         closeLogfiles();
     }
-    
-    
-    
+
+
+
     public static void replicatePeriodicals(){
         initLogfiles();
         Download download = new Download();
@@ -112,15 +112,16 @@ public class Download {
         }
         closeLogfiles();
     }
-    
+
     private static void processReplication(Download download, Replication rep){
         try{
             download.replicateAll(rep);
-            String uuid = Main.convert(KConfiguration.getInstance().getProperty("migration.directory"), KConfiguration.getInstance().getProperty("migration.target.directory"), true, false, rep.getID());
+            boolean visible = Boolean.parseBoolean(KConfiguration.getInstance().getProperty("convert.defaultRights","false"));
+            String uuid = Main.convert(KConfiguration.getInstance().getProperty("migration.directory"), KConfiguration.getInstance().getProperty("migration.target.directory"), true, visible, rep.getID());
             Import.ingest(KConfiguration.getInstance().getProperty("ingest.url"), KConfiguration.getInstance().getProperty("ingest.user"), KConfiguration.getInstance().getProperty("ingest.password"), KConfiguration.getInstance().getProperty("migration.target.directory"));
             logSuccess(rep.getID(), uuid);
             if (!KConfiguration.getInstance().getConfiguration().getBoolean("ingest.skip",false)){
-            	startIndexing(rep.getID(), uuid);
+                startIndexing(rep.getID(), uuid);
             }
         }catch (Exception t){
             if (rep!=null){
@@ -128,21 +129,21 @@ public class Download {
             }
         }
     }
-    
-    
+
+
     private static Writer successWriter;
     private static Writer failedWriter;
-    
+
     private static void initLogfiles(){
         try {
             successWriter = new FileWriter("replication-success.txt");
             failedWriter = new FileWriter("replication-failed.txt");
         } catch (Exception e) {
-           
+
             e.printStackTrace();
         }
     }
-    
+
     private static void logSuccess(String ID, String uuid){
         try {
             successWriter.append(ID+"\t"+uuid);
@@ -151,7 +152,7 @@ public class Download {
             e.printStackTrace();
         }
     }
-    
+
     private static void logFailed(String ID, Throwable t){
         try {
             failedWriter.append(ID+"\t"+t+"\n");
@@ -160,7 +161,7 @@ public class Download {
             e.printStackTrace();
         }
     }
-    
+
     private static void closeLogfiles(){
         try {
             successWriter.close();
@@ -178,7 +179,7 @@ public class Download {
      * @param processedPath
      */
     public static void startIndexing(String title, String processedPath){
-        if (processedPath == null) 
+        if (processedPath == null)
             return;
         int uuidStart = processedPath.indexOf("&pid_path=")+10;
         int uuidEnd = processedPath.indexOf("/",uuidStart);
@@ -189,12 +190,12 @@ public class Download {
         IndexerProcessStarter.spawnIndexer(title, uuid);
     }
 
-	/** buffer size used when data from remote connection are written to disc */
+    /** buffer size used when data from remote connection are written to disc */
     private static final int bufferSize = 4096;
 
     /** replication directory (from configuration) */
     private final String replicationDirectoryName ;
-    
+
     public static final String CONV_SUFFIX = "-converted";
 
     /** temporary file for metadata replication */
@@ -203,11 +204,11 @@ public class Download {
     /** temporary file for document names listing */
     private static String replicationDocumentListFileName = "documents.txt";
 
-   
+
     public static enum DocType {
         ISSN, ISBN, MONOID
     }
-    
+
     public Download(){
         replicationDirectoryName = KConfiguration.getInstance().getProperty("migration.directory");
     }
@@ -221,8 +222,8 @@ public class Download {
 
         Institution inst = new Institution();
         inst.setSigla(KConfiguration.getInstance().getProperty("k3.replication.sigla"));
-        inst.setReplicationOutLogin(KConfiguration.getInstance().getProperty("k3.replication.login")); 
-        inst.setReplicationOutPassword(KConfiguration.getInstance().getProperty("k3.replication.password")); 
+        inst.setReplicationOutLogin(KConfiguration.getInstance().getProperty("k3.replication.login"));
+        inst.setReplicationOutPassword(KConfiguration.getInstance().getProperty("k3.replication.password"));
         inst.setReplicationURL(KConfiguration.getInstance().getProperty("k3.replication.url"));
         repl.setInstitution(inst);
 
@@ -251,13 +252,13 @@ public class Download {
         return repl;
     }
 
-   
+
 
     public void replicateAll(Replication repl) {
         clearReplicationDirectory();
         saveRemoteMetadata(repl);
         saveRemoteDocuments(repl);
-        
+
         // logReplication(repl, imp.buildLog());
 
     }
@@ -271,7 +272,7 @@ public class Download {
 
     /**
      * Get documents from remote system and save them into temporary files.
-     * 
+     *
      * @param repl
      * @throws ServiceException
      * @throws RemoteException
@@ -321,7 +322,7 @@ public class Download {
      * Get document ids and names from documentListFile and save them in Map
      * (names as keys, ids as values). Each file line contains info about one
      * document: "id name"
-     * 
+     *
      * @param documentListFile
      * @return
      * @throws ServiceException
@@ -504,15 +505,15 @@ public class Download {
 
         public String toString() {
 
-            String URL = baseURL + "replicationServlet?" + "action=" + action + "&mode=" + mode 
-            + "&isbn=" + URLEncode(isbn) 
-            + "&monographId=" + URLEncode(monographId) 
-            + "&issn=" + URLEncode(issn) 
-            + "&volume=" + URLEncode(volume) 
-            + "&item=" + URLEncode(item) 
-            + "&rights=" + rights 
-            + "&sigla=" + URLEncode(sigla) 
-            + "&login=" + URLEncode(login) 
+            String URL = baseURL + "replicationServlet?" + "action=" + action + "&mode=" + mode
+            + "&isbn=" + URLEncode(isbn)
+            + "&monographId=" + URLEncode(monographId)
+            + "&issn=" + URLEncode(issn)
+            + "&volume=" + URLEncode(volume)
+            + "&item=" + URLEncode(item)
+            + "&rights=" + rights
+            + "&sigla=" + URLEncode(sigla)
+            + "&login=" + URLEncode(login)
             + "&pwd=" + URLEncode(pwd);
 
             return URL;
@@ -543,13 +544,13 @@ public class Download {
     }
 
     public static class Replication extends DataAction {
-        
+
         public Replication(String id){
             this.id = id;
         }
-        
+
         public String getID(){
-           
+
             return id;
         }
 
@@ -591,7 +592,7 @@ public class Download {
         private String periodicalItemDate;
 
         private long museumObjectId;
-        
+
         private String id;
 
         /**
@@ -994,7 +995,7 @@ public class Download {
 
         /**
          * Return list of DataActionLog.clazz instances.
-         * 
+         *
          * @return the List<DataActionLog>
          */
         public List getLogList() {
@@ -1018,7 +1019,7 @@ public class Download {
 
         /**
          * Add message into log buffer
-         * 
+         *
          * @param Import
          *            imp
          * @param String
@@ -1043,8 +1044,8 @@ public class Download {
         public void setFlags(int flags) {
             this.flags = flags;
         }
-        
-        
+
+
     }
 
 }
