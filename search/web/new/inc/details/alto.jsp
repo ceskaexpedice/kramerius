@@ -18,7 +18,6 @@
 <%@page import="cz.incad.Kramerius.I18NServlet"%>
 <%@page import="cz.incad.kramerius.utils.conf.KConfiguration"%>
 <%@page import="cz.incad.kramerius.FedoraAccess"%>
-<%@page import="cz.incad.kramerius.utils.UnicodeUtil"%>
 <%
             Injector ctxInj = (Injector) application.getAttribute(Injector.class.getName());
             KConfiguration kconfig = ctxInj.getProvider(KConfiguration.class).get();
