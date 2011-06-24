@@ -372,7 +372,6 @@
     <copyField source="keywords" dest="text"/>
     <copyField source="dc.description" dest="text"/>
     <copyField source="dc.creator" dest="text"/>
-    <copyField source="dsm.TEXT_OCR" dest="text"/>
     <copyField source="details" dest="text"/>
     <copyField source="issn" dest="text"/>
     
