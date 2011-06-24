@@ -5,7 +5,6 @@
 <%@page import="java.io.BufferedWriter"%>
 <%@page import="java.io.BufferedReader"%>
 <%@page import="java.io.ByteArrayOutputStream"%>
-<%@page import="cz.incad.kramerius.utils.UnicodeUtil.UnicodeInputStream"%>
 <%@ page contentType="text/html" pageEncoding="UTF-8" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/xml" prefix="x" %>
@@ -60,7 +59,7 @@
                 if (!((ch > 31 && ch < 253) || ch == '\t' || ch == '\n' || ch == '\r')) {
                     buf[i] = ' ';
                 }
-                
+
             }
             String alto2 = (new String(buf, java.nio.charset.Charset.forName("UTF-8"))).trim();
 
