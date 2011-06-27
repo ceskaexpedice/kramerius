@@ -1,3 +1,5 @@
+<%@page import="java.io.ByteArrayOutputStream"%>
+<%@page import="java.io.ByteArrayInputStream"%>
 <%@ page contentType="text/html" pageEncoding="UTF-8" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/xml" prefix="x" %>
@@ -17,9 +19,34 @@
             LocalizationContext lctx = ctxInj.getProvider(LocalizationContext.class).get();
             FedoraAccess fedoraAccess = ctxInj.getInstance(com.google.inject.Key.get(FedoraAccess.class, com.google.inject.name.Names.named("securedFedoraAccess")));
             pageContext.setAttribute("lctx", lctx);
-            java.io.InputStream is = fedoraAccess.getDataStream("uuid:"+request.getParameter("uuid"), "ALTO");
-            String alto = cz.incad.kramerius.utils.IOUtils.readAsString(is, java.nio.charset.Charset.forName("UTF-8") , true);
-            pageContext.setAttribute("xml", alto);
+            java.io.InputStream is = fedoraAccess.getDataStream("uuid:" + request.getParameter("uuid"), "ALTO");
+
+            int len;
+    int size = 1024;
+    byte[] buf;
+
+    if (is instanceof ByteArrayInputStream) {
+      size = is.available();
+      buf = new byte[size];
+      len = is.read(buf, 0, size);
+    } else {
+      ByteArrayOutputStream bos = new ByteArrayOutputStream();
+      buf = new byte[size];
+      while ((len = is.read(buf, 0, size)) != -1)
+        bos.write(buf, 0, len);
+      buf = bos.toByteArray();
+    }
+
+            for (int i = 0; i < buf.length; i++) {
+                byte ch = buf[i];
+                if (!((ch > 31 && ch < 253) || ch == '\t' || ch == '\n' || ch == '\r')) {
+                    buf[i] = ' ';
+                }
+
+            }
+            String alto2 = (new String(buf, java.nio.charset.Charset.forName("UTF-8"))).trim();
+
+            pageContext.setAttribute("xml", alto2);
 %>
 <c:catch var="exceptions">
     <c:url var="xslPage" value="inc/results/xsl/metsalto.xsl" />
