@@ -187,7 +187,7 @@ public class Download {
             uuidEnd = processedPath.indexOf("&path=",uuidStart);
         }
         String uuid = processedPath.substring(uuidStart, uuidEnd);
-        IndexerProcessStarter.spawnIndexer(title, uuid);
+        IndexerProcessStarter.spawnIndexer(false, title, uuid);
     }
 
     /** buffer size used when data from remote connection are written to disc */

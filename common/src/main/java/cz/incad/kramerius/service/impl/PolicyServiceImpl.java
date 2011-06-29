@@ -49,17 +49,17 @@ public class PolicyServiceImpl implements PolicyService {
     public void setPolicy(String pid, String policyName) throws IOException {
         Set<String> pids = fedoraAccess.getPids(pid);
         for (String s : pids) {
-        	String p = s.replace(INFO, "");
-        	try{
-        		setPolicyForNode(p, policyName);
-        	}catch(Exception ex){
-        		LOGGER.warning("Cannot set policy for object "+p+", skipping: "+ex);
-        	}
+            String p = s.replace(INFO, "");
+            try{
+                setPolicyForNode(p, policyName);
+            }catch(Exception ex){
+                LOGGER.warning("Cannot set policy for object "+p+", skipping: "+ex);
+            }
         }
     }
 
     private void setPolicyForNode(String pid, String policyName) {
-    	LOGGER.info("Set policy pid: "+pid+" policy: "+policyName);
+        LOGGER.info("Set policy pid: "+pid+" policy: "+policyName);
         setPolicyDC(pid, policyName);
         setPolicyRELS_EXT(pid, policyName);
         setPolicyPOLICY(pid, policyName);
@@ -104,14 +104,14 @@ public class PolicyServiceImpl implements PolicyService {
                 Node node = nodes.item(i);
                 node.setTextContent("policy:" + policyName);
             }
-            
+
             if (((doc.getFeature("Core", "3.0")) == null)
                     || ((doc.getFeature("LS", "3.0")) == null)) {
                 throw new UnsupportedOperationException("DOM3 unsupported");
             }
             DOMImplementation domImpl = doc.getImplementation();
             DOMImplementationLS domImplLS = (DOMImplementationLS) domImpl.getFeature("LS", "3.0");
-                   
+
             LSSerializer ser = domImplLS.createLSSerializer();
             DOMConfiguration conf = (DOMConfiguration)ser;
             conf.setParameter("xml-declaration", false);
@@ -126,34 +126,34 @@ public class PolicyServiceImpl implements PolicyService {
             throw new RuntimeException(t);
         }
     }
-    
+
     private static final String POLICY_PREDICATE = "http://www.nsdl.org/ontologies/relationships#policy";
     private static final String INFO = "info:fedora/";
-    
+
     private void setPolicyRELS_EXT(String pid, String policyName) {
         for (RelationshipTuple t:fedoraAccess.getAPIM().getRelationships(INFO+pid, POLICY_PREDICATE)){
             fedoraAccess.getAPIM().purgeRelationship(INFO+pid, POLICY_PREDICATE, t.getObject(), true, null);
         }
         fedoraAccess.getAPIM().addRelationship(INFO+pid, POLICY_PREDICATE, "policy:"+policyName, true, null);
     }
-    
+
     private void setPolicyPOLICY(String pid, String policyName) {
         fedoraAccess.getAPIM().modifyDatastreamByReference(pid, "POLICY", null, null, null, null, "http://local.fedora.server/fedora/get/policy:" + policyName + "/POLICYDEF", null, null, null, false);
     }
-    
+
     /**
      * args[1] - uuid of the root item (withou uuid: prefix)
      * args[0] - policy to set (public, private)
-     * @throws IOException 
+     * @throws IOException
      */
-    
+
     public static void main(String[] args) throws IOException {
-    	LOGGER.info("PolicyService: "+Arrays.toString(args));
+        LOGGER.info("PolicyService: "+Arrays.toString(args));
         PolicyServiceImpl inst = new PolicyServiceImpl();
         inst.fedoraAccess = new FedoraAccessImpl(null);
         inst.configuration = KConfiguration.getInstance();
         inst.setPolicy("uuid:"+args[1], args[0]);
-        IndexerProcessStarter.spawnIndexer("", args[1]);
+        IndexerProcessStarter.spawnIndexer(true, "Reindex policy "+args[1]+":"+args[0], args[1]);
         LOGGER.info("PolicyService finished.");
     }
 }
