@@ -16,14 +16,19 @@
  */
 package cz.incad.kramerius.security.impl.http;
 
-import java.security.Principal;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.security.NoSuchAlgorithmException;
 import java.sql.Connection;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
+
+import antlr.RecognitionException;
+import antlr.TokenStreamException;
 
 import com.google.inject.Inject;
 import com.google.inject.Provider;
@@ -34,80 +39,59 @@ import cz.incad.kramerius.security.SecuredActions;
 import cz.incad.kramerius.security.SpecialObjects;
 import cz.incad.kramerius.security.User;
 import cz.incad.kramerius.security.UserManager;
-import cz.incad.kramerius.security.jaas.K4LoginModule;
-import cz.incad.kramerius.security.jaas.K4UserPrincipal;
 import cz.incad.kramerius.security.utils.UserUtils;
 
+public abstract class AbstractLoggedUserProvider implements Provider<User>{
+    public static java.util.logging.Logger LOGGER = java.util.logging.Logger.getLogger(AbstractLoggedUserProvider.class.getName());
 
-public class CurrentLoggedUserProvider implements Provider<User> {
-    
-    public static java.util.logging.Logger LOGGER = java.util.logging.Logger.getLogger(CurrentLoggedUserProvider.class.getName());
-    
-    // TODO: Presunout jinam!
     public static final String SECURITY_FOR_REPOSITORY_KEY = "securityForRepository";
-    
-    public static final String USER_NAME_PARAM="userName";
-    public static final String PSWD_PARAM = "pswd";
-    
-    
+
     @Inject
     Provider<HttpServletRequest> provider;
-    
+
     @Inject
     UserManager userManager;
-    
-    
+
     @Inject
     IsActionAllowed isActionAllowed;
-    
+
     @Inject
     @Named("kramerius4")
     Provider<Connection> connectionProvider;
 
-    
     @Override
     public User get() {
         try {
+            
             HttpServletRequest httpServletRequest = this.provider.get();
-            Principal principal = httpServletRequest.getUserPrincipal();
-            if (principal != null) {
-                
-                K4UserPrincipal k4principal = (K4UserPrincipal) principal;
-                User user = k4principal.getUser();
-                cz.incad.kramerius.security.utils.UserUtils.associateCommonGroup(user, userManager);
-
-                HttpServletRequest request = this.provider.get();
-                HttpSession session = request.getSession(true);
-                if (session.getAttribute(SECURITY_FOR_REPOSITORY_KEY) == null) {
-                    saveRightsIntoSession(user);
+            if (httpServletRequest.getSession() != null) {
+                User loggedUser = (User) httpServletRequest.getSession().getAttribute(UserUtils.LOGGED_USER_KEY);
+                if (loggedUser != null) {
+                    return loggedUser;
                 }
-                
-                return user;
+            }
 
-            } else if ((httpServletRequest.getParameter(USER_NAME_PARAM)!= null) && (httpServletRequest.getParameter(PSWD_PARAM)!= null)) {
-                HashMap<String, Object> foundUser = K4LoginModule.findUser(this.connectionProvider.get(), httpServletRequest.getParameter(USER_NAME_PARAM));
-                if (foundUser != null) {
-                    User dbUser = (User) foundUser.get("user");
-                    String dbPswd = (String) foundUser.get("pswd");
-                    if (K4LoginModule.checkPswd(httpServletRequest.getParameter(USER_NAME_PARAM), dbPswd, httpServletRequest.getParameter(PSWD_PARAM).toCharArray())) {
-                        UserUtils.associateGroups(dbUser, userManager);
-                        UserUtils.associateCommonGroup(dbUser, userManager);
-                        return dbUser;
-                    } else return UserUtils.getNotLoggedUser(userManager);
-                } else {
-                    return UserUtils.getNotLoggedUser(userManager);
-                }
+            tryToLog(httpServletRequest);
+            
+            if (httpServletRequest.getSession() != null) {
+                User loggedUser = (User) httpServletRequest.getSession().getAttribute(UserUtils.LOGGED_USER_KEY);
+                if (loggedUser != null) {
+                    return loggedUser;
+                } else return UserUtils.getNotLoggedUser(userManager);
             } else {
                 return UserUtils.getNotLoggedUser(userManager);
             }
-        } catch(Exception e){
+            
+        } catch (Exception e) {
             throw new RuntimeException(e);
         }
     }
 
 
-    // ?? Synchronizace !!
-    private synchronized void saveRightsIntoSession(User user) {
+    protected abstract void tryToLog(HttpServletRequest httpServletRequest) throws NoSuchAlgorithmException, UnsupportedEncodingException, FileNotFoundException, RecognitionException, TokenStreamException, IOException;
+
+
+    protected synchronized void saveRightsIntoSession(User user) {
         List<String> actionsForUser = new ArrayList<String>();
         HttpServletRequest request = this.provider.get();
         HttpSession session = request.getSession(true);
@@ -121,5 +105,5 @@ public class CurrentLoggedUserProvider implements Provider<User> {
             session.setAttribute(SECURITY_FOR_REPOSITORY_KEY, actionsForUser);
         }
     }
-
+    
 }

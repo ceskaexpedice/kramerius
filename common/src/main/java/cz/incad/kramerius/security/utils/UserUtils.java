@@ -20,7 +20,6 @@ import cz.incad.kramerius.security.Group;
 import cz.incad.kramerius.security.User;
 import cz.incad.kramerius.security.UserManager;
 import cz.incad.kramerius.security.impl.UserImpl;
-import cz.incad.kramerius.security.impl.http.CurrentLoggedUserProvider;
 
 public class UserUtils {
 
@@ -34,6 +33,8 @@ public class UserUtils {
         return user;
     }
 
+    
+    
     // synchronizace
     public static synchronized Group findCommonGoup(UserManager userManager) {
         if (commonUsersGroup == null) {
@@ -65,5 +66,9 @@ public class UserUtils {
         //TODO: Zmenit
         ((UserImpl)dbUser).setGroups(grps);
     }
+
+    public static final String USER_NAME_PARAM = "userName";
+    public static final String PSWD_PARAM = "pswd";
+    public static final String LOGGED_USER_KEY = "loggedUser";
 
 }

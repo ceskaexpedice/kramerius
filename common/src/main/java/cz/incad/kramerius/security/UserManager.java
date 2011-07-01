@@ -25,6 +25,8 @@ import cz.incad.kramerius.security.jaas.K4LoginModule;
  */
 public interface UserManager {
 
+    public static final String NOT_LOGGED_USER="not_logged";
+    
 	/**
 	 * Method can validate given username and password. If username or password is invalid method returns <code>null</code> otherwise  it returns user object. 
 	 * <br>
@@ -168,4 +170,7 @@ public interface UserManager {
     
     public User[] findUserByPrefixForGroups(String prefix, int[] grpIds);
     public Group[] findGroupByPrefixForGroups(String prefix, int[] grpIds);
+    
+    //
+    public boolean isLoggedUser(User user);
 }

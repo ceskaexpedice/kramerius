@@ -2,6 +2,7 @@ package cz.incad.kramerius.processes;
 
 import java.util.List;
 import java.util.TimerTask;
+import java.util.logging.Level;
 
 import cz.incad.kramerius.utils.conf.KConfiguration;
 
@@ -46,6 +47,8 @@ public class NextSchedulerTask extends TimerTask {
 			}  else {
 				LOGGER.fine("no planned process found");
 			}
+		} catch (NotReadyException e) {
+		    LOGGER.log(Level.SEVERE,"connection not ready ");
 		} finally {
 			this.processScheduler.scheduleNextTask();
 		}

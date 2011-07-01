@@ -246,6 +246,11 @@ public class KConfiguration {
         }
         return false;
     }
+
+    public String getShibAssocRules() {
+        return getConfiguration().getString("security.shib.rules", "${sys:user.home}/.kramerius4/shibrules.txt");
+    }
+
     
     public String getUrlOfIIPServer() {
         return getConfiguration().getString("UrlOfIIPserver", "");

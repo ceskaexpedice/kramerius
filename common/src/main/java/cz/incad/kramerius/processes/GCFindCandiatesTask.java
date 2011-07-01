@@ -23,11 +23,8 @@ public class GCFindCandiatesTask extends TimerTask {
 	
 	@Override
 	public void run() {
-		Lock lock = lrProcessManager.getSynchronizingLock();
 		try {
             List<LRProcess> longRunningProcesses = lrProcessManager.getLongRunningProcesses(States.RUNNING);
-
-		    lock.lock();
 
 			List<String> gccCandidates = new ArrayList<String>();
 			PIDList pidList = PIDList.createPIDList();
@@ -53,8 +50,6 @@ public class GCFindCandiatesTask extends TimerTask {
 			LOGGER.log(Level.SEVERE, e.getMessage(), e);
 		} catch (InterruptedException e) {
 			LOGGER.log(Level.SEVERE, e.getMessage(), e);
-		} finally {
-			lock.unlock();
 		}
 	}
 }

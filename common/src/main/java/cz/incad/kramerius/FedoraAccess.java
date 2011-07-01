@@ -256,6 +256,8 @@ public interface FedoraAccess {
      */
     public InputStream getDataStream(String pid, String datastreamName) throws IOException;
 
+    //public void copyDataStreamContent(String pid, String datastreamName, )
+    
     /**
      * Returns mimeType of given datastream
      * @param pid UUID of requested object

@@ -14,22 +14,27 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
-package cz.incad.kramerius.security.impl.http;
+package cz.incad.kramerius.security.impl.http.shibrules.shibs;
 
-import com.google.inject.AbstractModule;
+import javax.servlet.http.HttpServletRequest;
 
-import cz.incad.kramerius.security.IsActionAllowed;
-import cz.incad.kramerius.security.User;
-import cz.incad.kramerius.utils.conf.KConfiguration;
-
-
-public class GuiceSecurityHTTPModule extends AbstractModule {
-
-    static java.util.logging.Logger LOGGER = java.util.logging.Logger.getLogger(GuiceSecurityHTTPModule.class.getName());
+public class HeaderValue implements Value {
     
-    @Override
-    protected void configure() {
-        bind(IsActionAllowed.class).to(IsActionAllowedFromRequest.class);
-        bind(User.class).toProvider(DbCurrentLoggedUser.class);
+    private String key;
+
+    public HeaderValue(String key) {
+        super();
+        this.key = key;
     }
+
+    @Override
+    public String getValue(HttpServletRequest request) {
+        return request.getHeader(this.key);
+    }
+
+    @Override
+    public boolean match(Value val, HttpServletRequest request) {
+        return getValue(request).equals(val.getValue(request));
+    }
+    
 }

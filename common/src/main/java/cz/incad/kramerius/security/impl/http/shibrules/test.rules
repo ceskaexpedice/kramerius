@@ -1,0 +1,14 @@
+// test comment
+match(header("AJP_RESP"), /regexp.*/) {
+    user("loginname","admin")
+    match("AJP_DRUD",/dajdaj/) {
+        role("ahoj")
+    }
+    role("k4_admins") role("users")
+}
+
+// komentar sveta
+/* dalsi komentar */
+match(principal(), header("pavelstastny")) {
+    
+}

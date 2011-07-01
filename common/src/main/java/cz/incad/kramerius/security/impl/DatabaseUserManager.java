@@ -25,6 +25,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
 
+import javax.servlet.http.HttpServletRequest;
+
 import org.antlr.stringtemplate.StringTemplate;
 
 import com.google.inject.Inject;
@@ -47,6 +49,9 @@ public class DatabaseUserManager implements UserManager{
     @Inject
     @Named("kramerius4")
     Provider<Connection> provider;
+    
+    @Inject
+    Provider<HttpServletRequest> requestProvider;
 
     
     @Override
@@ -396,6 +401,15 @@ public class DatabaseUserManager implements UserManager{
             }
         }.executeQuery(sql, groupId);
         return (User[]) usrs.toArray(new User[usrs.size()]);
+    }
+
+    @Override
+    public boolean isLoggedUser(User user) {
+        if (this.requestProvider.get().getRemoteUser() != null) {
+            if (!user.getLoginname().equals(NOT_LOGGED_USER)) {
+                return true;
+            } else return false;
+        } else return false;
     }
     
 }

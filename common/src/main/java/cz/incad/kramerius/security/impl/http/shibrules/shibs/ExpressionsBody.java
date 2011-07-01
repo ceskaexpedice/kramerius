@@ -14,22 +14,31 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
-package cz.incad.kramerius.security.impl.http;
+package cz.incad.kramerius.security.impl.http.shibrules.shibs;
 
-import com.google.inject.AbstractModule;
+import java.util.ArrayList;
+import java.util.List;
 
-import cz.incad.kramerius.security.IsActionAllowed;
-import cz.incad.kramerius.security.User;
-import cz.incad.kramerius.utils.conf.KConfiguration;
+public class ExpressionsBody implements Expr {
 
+    private List<Expr> expressions = new ArrayList<Expr>();
 
-public class GuiceSecurityHTTPModule extends AbstractModule {
-
-    static java.util.logging.Logger LOGGER = java.util.logging.Logger.getLogger(GuiceSecurityHTTPModule.class.getName());
-    
-    @Override
-    protected void configure() {
-        bind(IsActionAllowed.class).to(IsActionAllowedFromRequest.class);
-        bind(User.class).toProvider(DbCurrentLoggedUser.class);
+    public void addExpression(Expr expr) {
+        this.expressions.add(expr);
     }
+    
+    public void removeExpression(Expr expr) {
+        this.expressions.remove(expr);
+    }
+    
+    public List<Expr> getExpressions() {
+        return expressions;
+    }
+    
+    public void evaluate( ShibContext ctx) {
+        for (Expr expr : this.expressions) {
+            expr.evaluate(ctx);
+        }
+    }
+
 }
