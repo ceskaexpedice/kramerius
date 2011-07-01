@@ -57,11 +57,9 @@
     <script type="text/javascript"  src="js/seadragon-min.js"></script>
     <script  src="js/pdf/pdf.js" language="javascript" type="text/javascript"></script>
     <script  src="js/cmn.js" language="javascript" type="text/javascript"></script>
-
-    <%  if (request.getRemoteUser() != null) {%>
+    <!-- condition ?? -->
         <script  src="js/admin/admin.js" language="javascript" type="text/javascript"></script>
         <script  src="js/rights/adminRights.js" language="javascript" type="text/javascript"></script>
-    <% }%>
     
     <%
 		Injector headerInjector = (Injector) application.getAttribute(Injector.class.getName());

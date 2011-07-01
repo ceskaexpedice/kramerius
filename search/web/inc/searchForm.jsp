@@ -9,8 +9,11 @@
 
 <%
 
-	pageContext.setAttribute("remoteUser", request.getRemoteUser());
-	Injector searchFormInjector = (Injector)application.getAttribute(Injector.class.getName());
+//	pageContext.setAttribute("remoteUser", request.getRemoteUser());
+//page
+
+
+Injector searchFormInjector = (Injector)application.getAttribute(Injector.class.getName());
 	Provider<Locale> localesProvider = searchFormInjector.getProvider(Locale.class);
 	pageContext.setAttribute("lang",localesProvider.get().getLanguage());
 	
@@ -60,16 +63,19 @@
                         value="${lname}" /></a> :: 
                     
                     <c:choose>
-                        <c:when test="${remoteUser == null}">
+                        <c:when test="${adminMenuViewObject.loginVisible}">
                             <a href="redirect.jsp?redirectURL=${searchFormViewObject.requestedAddress}"><fmt:message bundle="${lctx}">application.login</fmt:message></a>
                         </c:when>
-                        <c:otherwise>
-                            <a href="logout.jsp?redirectURL=${searchFormViewObject.requestedAddress}"><fmt:message bundle="${lctx}">application.logout</fmt:message></a>
-                        </c:otherwise>
                     </c:choose>
                     
                     <c:choose>
-                        <c:when test="${remoteUser != null}">
+                        <c:when test="${adminMenuViewObject.logoutVisible}">
+                            <a href="logout.jsp?redirectURL=${searchFormViewObject.requestedAddress}"><fmt:message bundle="${lctx}">application.logout</fmt:message></a>
+                        </c:when>
+                    </c:choose>
+                    
+                    <c:choose>
+                        <c:when test="${adminMenuViewObject.loggedUser}">
                             :: <a id="adminHref" href="javascript:showAdminMenu();"><fmt:message bundle="${lctx}">administrator.menu</fmt:message></a>
                         </c:when>
                     </c:choose>

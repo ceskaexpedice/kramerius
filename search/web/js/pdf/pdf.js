@@ -1,5 +1,5 @@
-/*
- * contains functions for printing
+/**
+ * @fileoverview <h3>PDF printing</h3>
  */
 
 /** Prints one page identified by uuid */

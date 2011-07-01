@@ -3,25 +3,27 @@
  */
 
 
-/** 
- * changepswd dialog variable
- * @private
- */
-var _changePswdDialog;
 
-/**
- * Invoke change password dialog
- * @required JQuery
- */
-function changePassword() {
+/** Object for changing password */
+function ChangePswd() {
+
+	/** 
+	 * changepswd dialog variable
+	 * @private
+	 */
+	this.dialog = null;
+}
+
+/** Change pswd dialog */
+ChangePswd.prototype.changePassword  = function () {
 	var urlForPost = "users?action=savenewpswd";
 	var url = "users?action=changepswd";
     $.get(url, function(data) {
-    	if (_changePswdDialog) {
-    		_changePswdDialog.dialog('open');
+    	if (this.dialog) {
+    		this.dialog.dialog('open');
         } else {
             $(document.body).append('<div id="changePswd">'+'</div>');
-            _changePswdDialog = $('#changePswd').dialog({
+            this.dialog = $('#changePswd').dialog({
                 width:400,
                 height:250,
                 modal:true,
@@ -64,21 +66,19 @@ function changePassword() {
     });
 }
 
-/** 
- * Rights dialog
- * @private
- */
-var _rightsWindow = null;
-/**
- * Last working uuid
- * @private
- */
-var _lastWorkingUuid=null;
-/**
- * Last working action
- * @private
- */
-var _lastDisplayedAction = null;
+
+
+/** MAnages all rights for one concrete action */
+function AdminRights() {
+
+	/** 
+	 * Rights dialog
+	 * @private
+	 */
+	this.dialog = null;
+}
+
+
 
 /**
  * Shows rights admin window - invoked from context menu
@@ -86,10 +86,10 @@ var _lastDisplayedAction = null;
  * @param {string} model Current displaying model
  * @param {string} action Current displaying action
  */
-function adminRights(level, model, action) {
+AdminRights.prototype.adminRights = function (level, model, action) {
 	hideAdminOptions(level);
 	var uuid = $("#tabs_"+level).attr('pid');
-	adminRightsImpl(uuid,action);
+	this.adminRightsImpl(uuid,action);
 }
 
 /** 
@@ -97,28 +97,24 @@ function adminRights(level, model, action) {
  * @param {string} uuid of editing object
  * @param {string} editing action
  */
-function adminRightsImpl(uuid,action) {
+AdminRights.prototype.adminRightsImpl = function (uuid,action) {
 	// unbind arrows 
 	keyboardSupportObject.unbindArrows();
 	
-	_lastWorkingUuid = uuid;
-	_lastDisplayedAction = action;
 
 	var url = "rights?action=showrights&uuid="+uuid+"&securedaction="+action;
-    $.get(url, function(data) {
-    	if (_rightsWindow) {
-        	_rightsWindow.dialog('open');
+	$.get(url, bind(function(data) {
+    	if (this.dialog) {
+        	this.dialog.dialog('open');
         } else {
             $(document.body).append('<div id="adminRightsWindow">'+'</div>');
-            
-            _rightsWindow = $('#adminRightsWindow').dialog({
+            this.dialog = $('#adminRightsWindow').dialog({
                 width:800,
                 height:450,
                 modal:true,
                 title:"",
                 buttons: {
                     "Close": function() {
-                    	_lastWorkingUuid = null;
                     	$(this).dialog("close"); 
                     	$("#rightsTableContent").remove();
                     } 
@@ -131,7 +127,7 @@ function adminRightsImpl(uuid,action) {
     	
     	$("#adminRightsWindow").dialog('option','title',dictionary['rights.dialog.showrights.title']);
     	$("#adminRightsWindow").html(data);
-    });
+    },this));
 }
 
 
@@ -140,181 +136,45 @@ function adminRightsImpl(uuid,action) {
  * @param {string} uuid of editing object 
  * @param {action} editing action
  */
-function refreshRightsData(uuid, action) {
-	if (!uuid) { uuid = _lastWorkingUuid; }
-	if (!action) {action = _lastDisplayedAction;}
+AdminRights.prototype.refreshRightsData =  function (uuid, action) {
+	if (!uuid && !action) { 
+		uuid = rightObject.uuid;
+		action = rightObject.action; 
+	}
 	var url = "rights?action=showrights&uuid="+uuid+"&securedaction="+action;
     $.get(url, function(data) {
     	$("#adminRightsWindow").html(data);
     });
 }
 
-/**
- * New right window
- * @private
- */
-var _newRight = null;
-/**
- * Right data
- * @private
- */
-var _rightData=null;
+function RightDialog() {
+	this.dialog = null;
+}
 
-/**
- * Shows new right dialog
- * @param {string} uuid of editing object
- * @param {action} action editing action
- * @param {boolean} canhandlecommongroup if can handle commong group
- */
-function newRight(uuid, action, canhandlecommongroup) {
-	var saveUrl="rights?action=create&securedaction="+action;
-    var fetchUrl = "rights?action=newright&uuid="+uuid+"&securedaction="+action;
-    var jsDataUrl = "rights?action=newrightjsdata&uuid="+uuid+"&securedaction="+action;
-    $.get(fetchUrl, function(htmldata) {
-        $.get(jsDataUrl, function(data) {
-        	rightDialog(saveUrl);
-            $("#newRight").html(htmldata);
-        	_rightData = eval("("+data+")");
-        	_rightData.init();
-        	
-            if (!canhandlecommongroup) {
-            	$("#allTypeSpan").hide();
-            	$("#userType").attr("checked",true);
-
-    			$("#userIdDiv").show();
-    			$("#userId").val("");
-    			$("#navigationForGroup").hide();
-    			$("#navigationForUser").show();
-
-            }
-
-        	$("#newRight").dialog('option','title',dictionary['rights.dialog.newright.title']);
-        });
-    });
+/** Object manages one concrete right */
+function Right(uuid,action,rightId) {
+	this.uuid = uuid;
+	this.action=action;
+	this.rightId = (rightId ? rightId : -1);
+	this.data=null;
 
 }
 
-/**
- * Shows edit right dialog 
- * @param {string} uuid of editing object
- * @param {int} rightId Id of editing right
- * @param {string} action action of editing right
- * @param {boolean} canhandlecommongroup if can handle common group
- */
-function editRight(uuid, rightId, action,canhandlecommongroup) {
-	var saveUrl="rights?action=edit";
-    var jsDataUrl = "rights?action=editrightjsdata&uuid="+uuid+"&rightid="+rightId+"&securedaction="+action;
-	var fetchUrl = "rights?action=newright&uuid="+uuid+"&securedaction="+action;
-	// ziskani html
-	$.get(fetchUrl, function(htmldata) {
-		//ziskani skritpu
-		$.get(jsDataUrl, function(data) {
-			rightDialog(saveUrl);
-        	$("#newRight").html(htmldata);
-
-        	_rightData = eval("("+data+")");
-        	_rightData.init();
-
-    		$('#uuid').attr('disabled', true);
-    		$('#criterium option[value="'+_rightData.initvalues.criterium+'"]').attr("selected","selected");
-
-    	    $("#criterium").each(function(i,val) {
-    	    	callbackCriteriumValueChanged(val, function() {
-									            		if (_rightData.initvalues.rightCriteriumParamId==="-1") {
-									            			$('#params option[value="new"]').attr("selected","true");
-									                		$("#paramsVals").val('');
-									                		$("#shortDesc").val('');
-									                		$("#longDesc").val('');
-									            		} else {
-									            			$("#params").val(""+_rightData.initvalues.rightCriteriumParamId);
-									            			
-									                		$("#paramsVals").val(_rightData.initvalues.rightCriteriumParamVals);
-									                		$("#shortDesc").val(_rightData.initvalues.rightCriteriumParamShortDesc);
-									                		$("#longDesc").val(_rightData.initvalues.rightCriteriumParamLongDesc);
-									            		}
-									        	    });
-    	    });
-    		
-    	    // zakaze moznost prirazeni skupine common_users
-    	    if (!canhandlecommongroup) {
-            	$("#allTypeSpan").hide();
-            }
-
-    	    // inicializace zvoleneho uzivatele  ... 
-    	    if (_rightData.initvalues.userType==="user") {
-    			$('#userType').attr('checked', true);
-    			$('#groupType').attr('checked', false);
-    			$('#allType').attr('checked', false);
-    			$("#userIdDiv").show();
-    			
-    			$("#navigationForGroup").hide();
-    			$("#navigationForUser").show();
-    			
-    			
-    	    } else if (_rightData.initvalues.user==="common_users"){
-    			$('#userType').attr('checked', false);
-    			$('#groupType').attr('checked', false);
-    			$('#allType').attr('checked', true);
-    			$("#userIdDiv").hide();
-
-    			$("#navigationForGroup").hide();
-    			$("#navigationForUser").hide();
-
-    	    } else {
-    			$('#userType').attr('checked', false);
-    			$('#groupType').attr('checked', true);
-    			$('#allType').attr('checked', false);
-    			$("#userIdDiv").show();
-    			
-    			$("#navigationForGroup").show();
-    			$("#navigationForUser").hide();
-
-    	    }
-
-    	    $("#userId").val(_rightData.initvalues.user);
-    	    // ~ konec inicializace uzivatele
-    	    
-    	    if (_rightData.initvalues.fixedPriority==="0") {
-    	    	$("#priority").val('');
-    	    } else {
-    	    	$("#priority").val(_rightData.initvalues.fixedPriority);
-    	    }
-    	    
-    	    // TODO: lepsi titulek
-        	$("#newRight").dialog('option','title',dictionary['rights.dialog.editright.title']);
-
-        });
-    });
-}
-
-
-/**
- * Delete existing right
- * @param {string} uuid of object 
- * @param {int} rightId Id of deleting right
- * @param {string} action action of deleting right  
- */
-function deleteRight(uuid, rightId, action) {
-	_saveUrlForPost="rights?action=delete";
-    var jsDataUrl = "rights?action=editrightjsdata&uuid="+uuid+"&rightid="+rightId+"&securedaction="+action;
-    $.get(jsDataUrl, function(data) {
-    	_rightData = eval("("+data+")");
-    	_rightData.init();
-    	saveChangesOnlyIds();
-    });
-}
 
 /**
  * Shows / edit one right dialog
  * @private
  */
-function rightDialog(saveUrl) {
+Right.prototype.rightDialog = function (saveUrl) {
 	_saveUrlForPost = saveUrl;
-	if (_newRight) {
-    	_newRight.dialog('open');
+
+    if (rightDialogObject.dialog) {
+    	rightDialogObject.dialog.dialog('open');
     } else {
-    	$(document.body).append('<div id="newRight">'+'</div>');
-    	_newRight = $('#newRight').dialog({
+	if ($("#newRight").size() == 0 ) {
+	    	$(document.body).append('<div id="newRight">'+'</div>');
+	}
+    	rightDialogObject.dialog = $('#newRight').dialog({
             width:800,
             height:450,
             modal:true,
@@ -335,6 +195,159 @@ function rightDialog(saveUrl) {
 
 
 
+/**
+ * Shows new right dialog
+ * @param {string} uuid of editing object
+ * @param {action} action editing action
+ * @param {boolean} canhandlecommongroup if can handle commong group
+ */
+function newRight(uuid, action, canhandlecommongroup) {
+    var saveUrl="rights?action=create&securedaction="+action;
+    var fetchUrl = "rights?action=newright&uuid="+uuid+"&securedaction="+action;
+    var jsDataUrl = "rights?action=newrightjsdata&uuid="+uuid+"&securedaction="+action;
+
+    rightObject = new Right(uuid,action);
+
+    $.get(fetchUrl, function(htmldata) {
+        $.get(jsDataUrl, function(data) {
+        	rightObject.rightDialog(saveUrl);
+            $("#newRight").html(htmldata);
+        	rightObject.data = eval("("+data+")");
+        	rightObject.data.init();
+        	
+            if (!canhandlecommongroup) {
+            	$("#allTypeSpan").hide();
+            	$("#userType").attr("checked",true);
+
+    			$("#userIdDiv").show();
+    			$("#userId").val("");
+    			$("#navigationForGroup").hide();
+    			$("#navigationForUser").show();
+
+            }
+            $("#newRight").dialog('option','title',dictionary['rights.dialog.newright.title']);
+        });
+    });
+
+}
+
+/**
+ * Shows edit right dialog 
+ * @param {string} uuid of editing object
+ * @param {int} rightId Id of editing right
+ * @param {string} action action of editing right
+ * @param {boolean} canhandlecommongroup if can handle common group
+ */
+function editRight(uuid, rightId, action,canhandlecommongroup) {
+	var saveUrl="rights?action=edit";
+        var jsDataUrl = "rights?action=editrightjsdata&uuid="+uuid+"&rightid="+rightId+"&securedaction="+action;
+	var fetchUrl = "rights?action=newright&uuid="+uuid+"&securedaction="+action;
+	
+	rightObject = new Right(uuid,action,rightId);	
+
+        // ziskani html
+	$.get(fetchUrl, function(htmldata) {
+		//ziskani skritpu
+		$.get(jsDataUrl, function(data) {
+			rightObject.rightDialog(saveUrl);
+        	$("#newRight").html(htmldata);
+
+        	rightObject.data = eval("("+data+")");
+        	rightObject.data.init();
+
+    		$('#uuid').attr('disabled', true);
+    		$('#criterium option[value="'+rightObject.data.initvalues.criterium+'"]').attr("selected","selected");
+
+    	    $("#criterium").each(function(i,val) {
+    	    	callbacks.callbackCriteriumValueChanged(val, function() {
+									            		if (rightObject.data.initvalues.rightCriteriumParamId==="-1") {
+									            			$('#params option[value="new"]').attr("selected","true");
+									                		$("#paramsVals").val('');
+									                		$("#shortDesc").val('');
+									                		$("#longDesc").val('');
+									            		} else {
+									            			$("#params").val(""+rightObject.data.initvalues.rightCriteriumParamId);
+									            			
+									                		$("#paramsVals").val(rightObject.data.initvalues.rightCriteriumParamVals);
+									                		$("#shortDesc").val(rightObject.data.initvalues.rightCriteriumParamShortDesc);
+									                		$("#longDesc").val(rightObject.data.initvalues.rightCriteriumParamLongDesc);
+									            		}
+									        	    });
+    	    });
+    		
+    	    // zakaze moznost prirazeni skupine common_users
+    	    if (!canhandlecommongroup) {
+            	$("#allTypeSpan").hide();
+            }
+
+    	    // inicializace zvoleneho uzivatele  ... 
+    	    if (rightObject.data.initvalues.userType==="user") {
+    			$('#userType').attr('checked', true);
+    			$('#groupType').attr('checked', false);
+    			$('#allType').attr('checked', false);
+    			$("#userIdDiv").show();
+    			
+    			$("#navigationForGroup").hide();
+    			$("#navigationForUser").show();
+    			
+    			
+    	    } else if (rightObject.data.initvalues.user==="common_users"){
+    			$('#userType').attr('checked', false);
+    			$('#groupType').attr('checked', false);
+    			$('#allType').attr('checked', true);
+    			$("#userIdDiv").hide();
+
+    			$("#navigationForGroup").hide();
+    			$("#navigationForUser").hide();
+
+    	    } else {
+    			$('#userType').attr('checked', false);
+    			$('#groupType').attr('checked', true);
+    			$('#allType').attr('checked', false);
+    			$("#userIdDiv").show();
+    			
+    			$("#navigationForGroup").show();
+    			$("#navigationForUser").hide();
+
+    	    }
+
+    	    $("#userId").val(rightObject.data.initvalues.user);
+    	    // ~ konec inicializace uzivatele
+    	    
+    	    if (rightObject.data.initvalues.fixedPriority==="0") {
+    	    	$("#priority").val('');
+    	    } else {
+    	    	$("#priority").val(rightObject.data.initvalues.fixedPriority);
+    	    }
+    	    
+    	    // TODO: lepsi titulek
+        	$("#newRight").dialog('option','title',dictionary['rights.dialog.editright.title']);
+
+        });
+    });
+}
+
+
+/**
+ * Delete existing right
+ * @param {string} uuid of object 
+ * @param {int} rightId Id of deleting right
+ * @param {string} action action of deleting right  
+ */
+function deleteRight(uuid, rightId, action) {
+	rightObject = new Right(uuid,action,rightId);	
+	_saveUrlForPost="rights?action=delete";
+    var jsDataUrl = "rights?action=editrightjsdata&uuid="+uuid+"&rightid="+rightId+"&securedaction="+action;
+    $.get(jsDataUrl, function(data) {
+    	rightObject.data = eval("("+data+")");
+    	rightObject.data.init();
+    	saveChangesOnlyIds();
+    });
+}
+
+
+
+
 
 //TODO Change it!!
 /**
@@ -347,9 +360,9 @@ var _saveUrlForPost=null;
  */
 function saveChangesOnlyIds() {
 	$.post(_saveUrlForPost, {
-		rightId:_rightData.initvalues.rightId,
-		rightCriteriumId:_rightData.initvalues.rightCriteriumId,
-		rightCriteriumParamId:_rightData.initvalues.rightCriteriumParamId,
+		rightId:rightObject.data.initvalues.rightId,
+		rightCriteriumId:rightObject.data.initvalues.rightCriteriumId,
+		rightCriteriumParamId:rightObject.data.initvalues.rightCriteriumParamId,
 		formalActionHidden:"read"},
 		function (data) {
 			setTimeout("refreshRightsData();",500);
@@ -361,11 +374,11 @@ function saveChangesOnlyIds() {
 function saveChanges() {
 	$.post(_saveUrlForPost, {
 			// id objektu
-			rightId:_rightData.initvalues.rightId,
-			rightCriteriumId:_rightData.initvalues.rightCriteriumId,
+			rightId:rightObject.data.initvalues.rightId,
+			rightCriteriumId:rightObject.data.initvalues.rightCriteriumId,
 			rightCriteriumParamId:$("#params option:selected").val()==="new" ? "-1":$("#params option:selected").val(),
 			// akce ktera se edituje		
-			formalActionHidden:_lastDisplayedAction,
+			formalActionHidden:rightObject.action,
 			// objekt ktereho se to tyka
 			uuidHidden: $("#uuid").val(),
 			
@@ -384,10 +397,12 @@ function saveChanges() {
 		setTimeout("refreshRightsData();",500);
 	});
 }
-/**
- * @private
- */
-function typeoflist() {
+
+
+function Callbacks() {
+}
+
+Callbacks.prototype.typeoflist = function() {
 	if ($('#userTypeList').attr('checked')) {
 		return "user"
 	} else if ($('#groupTypeList').attr('checked')) {
@@ -397,48 +412,30 @@ function typeoflist() {
 	} return null;
 }
 
-
-//Callbacks from list of actions dialog
-/**
- * @private
- */
-function callbackUserSelectCombo(target, uuid, action, afterCallback) {
-	if (!uuid) { uuid = _lastWorkingUuid; }
-	if (!action) {action = _lastDisplayedAction;}
-
-    var url = "rights?action=showrights&uuid="+uuid+"&securedaction="+action+"&typeoflist="+typeoflist();
-    var selectedValue = target.options[target.selectedIndex].value;
-    if (selectedValue) {
-    	url = url+ "&requesteduser="+selectedValue;
-    }
-    
-	$.get(url, function(data) {
-    	$("#adminRightsWindow").html(data);
-    });
-
-}
-/**
- * @private
- */
-function callbackUserTypeOfListValueChanged(target, uuid, action, afterCallback) {
-
-	if (!uuid) { uuid = _lastWorkingUuid; }
-	if (!action) {action = _lastDisplayedAction;}
-
-	if ($('#userTypeList').attr('checked')) {
-		var url = "rights?action=showrights&uuid="+uuid+"&securedaction="+action+"&typeoflist=user";
-	    $.get(url, function(data) {
-	    	$("#adminRightsWindow").html(data);
-	    });
+/*calback*/
+Callbacks.prototype.callbackUserSelectCombo = function(target, uuid, action, afterCallback) {
+	if (!uuid && !action) { 
+		uuid = rightObject.uuid;
+		action = rightObject.action; 
 	}
+
+	var url = "rights?action=showrights&uuid="+uuid+"&securedaction="+action+"&typeoflist="+this.typeoflist();
+	var selectedValue = target.options[target.selectedIndex].value;
+	if (selectedValue) {
+		url = url+ "&requesteduser="+selectedValue;
+	}
+
+	$.get(url, function(data) {
+		$("#adminRightsWindow").html(data);
+	});
+
 }
 
-/**
- * @private
- */
-function callbackGroupTypeOfListValueChanged(target, uuid, action, afterCallback) {
-	if (!uuid) { uuid = _lastWorkingUuid; }
-	if (!action) {action = _lastDisplayedAction;}
+Callbacks.prototype.callbackGroupTypeOfListValueChanged=function(target, uuid, action, afterCallback) {
+	if (!uuid && !action) { 
+		uuid = rightObject.uuid;
+		action = rightObject.action; 
+	}
 
 	if ($('#groupTypeList').attr('checked')) {
 		var url = "rights?action=showrights&uuid="+uuid+"&securedaction="+action+"&typeoflist=group";
@@ -448,13 +445,11 @@ function callbackGroupTypeOfListValueChanged(target, uuid, action, afterCallback
 	}
 }
 
-/**
- * @private
- */
-function callbackAllTypeOfListValueChanged(target,uuid, action, afterCallback) {
-
-	if (!uuid) { uuid = _lastWorkingUuid; }
-	if (!action) {action = _lastDisplayedAction;}
+Callbacks.prototype.callbackAllTypeOfListValueChanged=function(target,uuid, action, afterCallback) {
+	if (!uuid && !action) { 
+		uuid = rightObject.uuid;
+		action = rightObject.action; 
+	}
 
 	if ($('#allTypeList').attr('checked')) {
 		var url = "rights?action=showrights&uuid="+uuid+"&securedaction="+action+"&typeoflist=all";
@@ -462,28 +457,9 @@ function callbackAllTypeOfListValueChanged(target,uuid, action, afterCallback) {
 	    	$("#adminRightsWindow").html(data);
 	    });
 	}
-}
 
-// Callbacks from one right edit dialog
-/** volano pri zmene radiibuttonu - vybrano user 
- * @private
- */
-function callbackRadioButtonUserValueChanged(target, afterCallback) {
-	if ($('#userType').attr('checked')) {
-        $("#userautocomplete").hide();
-        $("#userId").val('');
-        typeOfRequest = "user";
-        $("#userIdDiv").show();
-
-        $("#navigationForGroup").hide();
-		$("#navigationForUser").show();
-		
-		// skryti napovidanych hodnot
-		hintsAllOff();
-	}
 }
-/** volano pri zmene  radiobuttonu - vybrano group*/
-function callbackRadioButtonGroupValueChanged(target) {
+Callbacks.prototype.callbackRadioButtonGroupValueChanged=function(target) {
 	if ($('#groupType').attr('checked')) {
         $("#userautocomplete").hide();
         $("#userId").val('');
@@ -494,12 +470,12 @@ function callbackRadioButtonGroupValueChanged(target) {
 		$("#navigationForUser").hide();
 
 		// skryti napovidanych hodnot
-		hintsAllOff();
+		hints.hintsAllOff();
 	}
 }
 
-/** volano pri zmene  radiobuttonu - vybrano vse*/
-function callbackRadioButtonAllValueChanged(target,afterCallback) {
+
+Callbacks.prototype.callbackRadioButtonAllValueChanged = function (target,afterCallback) {
 	if ($('#allType').attr('checked')) {
         $("#userautocomplete").hide();
         $("#userId").val('common_users');
@@ -510,20 +486,20 @@ function callbackRadioButtonAllValueChanged(target,afterCallback) {
 		$("#navigationForUser").hide(500,afterCallback);
 
 		// skryti napovidanych hodnot
-		hintsAllOff();
+		hints.hintsAllOff();
 	}
 }
 
 /** volano pri zmene typu parametru kriteria */
-function callbackCriteriumParamsValueChanged(target, afterCallback) {
+Callbacks.prototype.callbackCriteriumParamsValueChanged=function(target, afterCallback) {
 	if (target.selectedIndex < 0) return;
 	var selectedValue = target.options[target.selectedIndex].value;
     
 	// vymazani textu
     if ((selectedValue!=="new") && (selectedValue!=="none")){
-        $('#paramsVals').val(_rightData.params[selectedValue].values);
-        $('#shortDesc').val(_rightData.params[selectedValue].shortDesc);
-        $('#longDesc').val(_rightData.params[selectedValue].longDesc);
+        $('#paramsVals').val(rightObject.data.params[selectedValue].values);
+        $('#shortDesc').val(rightObject.data.params[selectedValue].shortDesc);
+        $('#longDesc').val(rightObject.data.params[selectedValue].longDesc);
 		
     } else {
 		$("#rightParamsCreation").show(500, afterCallback);
@@ -536,9 +512,9 @@ function callbackCriteriumParamsValueChanged(target, afterCallback) {
 
 
 /** calback for change criterium */
-function callbackCriteriumValueChanged(target, afterCallback) {
+Callbacks.prototype.callbackCriteriumValueChanged=function(target, afterCallback) {
 	var selectedCriterium = $("#criterium").val();
-	var needParam = _rightData.needParamsMap[selectedCriterium];
+	var needParam = rightObject.data.needParamsMap[selectedCriterium];
 	
 	if (needParam==="true") {
     	$("#rightParamsCreation").show(500, afterCallback);
@@ -551,45 +527,21 @@ function callbackCriteriumValueChanged(target, afterCallback) {
 }
 
 
-/** autocomplete for user :TODO: Delete this */
-function autocompleteResult(value, lookupField) {
-	$("#userId").val(value);
-}
-
-
-var typeOfRequest="group";
-function doUserAutocomplete(userTextField, lookupField, key, queryField) {
-	autoCompleteDiv="#userautocomplete";
-    completeUrl = "users?action=userjsautocomplete&autcompletetype="+typeOfRequest+"&";
-    resultClickFunctionName="autocompleteResult";
-    	//rights?field=user&t=common_usersaajffa
-    if( key.keyCode >=16 && key.keyCode <= 19 ){
-        return;
-    }
-    //arrows
-    if( key.keyCode >=37 && key.keyCode <= 40){
-        moveSelected(key.keyCode, queryField);
-        return;
-    }
-    if( key.keyCode == 13){
-    	autocompleteResult($("#userautocomplete .selected").text());
-        $("#userautocomplete").hide();
-    	return;
-    }
-    json(userTextField, lookupField, queryField);
-}
-/** ~end autocomplete for user */
 
 
 
 /** zobrazeni akci ktere je mozno spravovat */
-var _securedActionsDialog;
-function securedActionsTable(uuid,actions) {
-	if (_securedActionsDialog) {
-		_securedActionsDialog.dialog('open');
+function SecuredActions() {
+	this.dialog = null;
+	
+}
+
+SecuredActions.prototype.securedActionsTable =  function (uuid,actions) {
+	if (this.dialog) {
+		this.dialog.dialog('open');
     } else {
     	$(document.body).append('<div id="globalActions">'+'</div>');
-    	_securedActionsDialog = $('#globalActions').dialog({
+    	this.dialog = $('#globalActions').dialog({
             width:800,
             height:450,
             modal:true,
@@ -611,15 +563,19 @@ function securedActionsTable(uuid,actions) {
 }
 
 /** secured actions dialog volany z kontextoveho menu */
-function securedActionsTableForCtxMenu(level, uuid, actions) {
+SecuredActions.prototype.securedActionsTableForCtxMenu = function(level, uuid, actions) {
 	hideAdminOptions(level);
 	var nuuid = $("#tabs_"+level).attr('pid');
-	securedActionsTable(nuuid, actions);
+	this.securedActionsTable(nuuid, actions);
 }
 
-/** napovi skupiny pro vybraneho uzivatele */
-function hintGroupsForUser() {
-	hintsAllOff();
+
+/** Hints object */
+function Hints() {
+}
+
+Hints.prototype.hintGroupsForUser = function() {
+	this.hintsAllOff();
 	if ($('#hintContent').hasClass('down')) {
 		$("#usergroupsdropdownicon").attr('src','img/dropup.png');
 		var url = "users?action=hintgroupforuser&user="+$("#userId").val();
@@ -629,14 +585,18 @@ function hintGroupsForUser() {
 	}
 }
 
+
 /** zobrazeni napovedy pro user id */
-function hintAutocomplete(target) {
+Hints.prototype.hintAutocomplete= function (target) {
 	if ($('#hintContent').hasClass('down')) {
+		/*
 		if ($('#groupType').attr('checked')) {
-			hintAllGroups();
+			this.hintAllGroups();
 		} else if ($('#userType').attr('checked')) {
-			hintAllUsers();
-		}
+			this.hintAllUsers();
+		}*/
+
+
 	} else {
 		if ($('#groupType').attr('checked')) {
 	    	$("#groupdropdownicon").attr('src','img/dropup.png');
@@ -662,31 +622,18 @@ function hintAutocomplete(target) {
 	}
 }
 
-/** vyber polozky z napovedy */
-function hintSelect(loginname) {
-	$("#userId").val(loginname);
-	hintsAllOff();
+
+/** Hide all hits */
+Hints.prototype.hintsAllOff = function() {
+	$('#hintContent').removeClass('up').addClass('down');
+	$("#userdropdownicon").attr('src','img/dropdown.png')
+	$("#groupdropdownicon").attr('src','img/dropdown.png')
+	$("#usersgroupdropdownicon").attr('src','img/dropdown.png')
+	$('#hintContent').removeClass('up').addClass('down');
+	$("#hintContent").html("");
 }
 
-
-/** napoveda - zobrazi uzivatele */
-function hintAllUsers() {
-	hintsAllOff();
-	if ($('#hintContent').hasClass('down')) {
-    	$('#hintContent').removeClass('down').addClass('up');
-		var url = "users?action=hintallusers&prefix="+$("#userId").val();
-	    $.get(url, function(data) {
-	    	switchOneOn("#userdropdownicon");
-	    	$("#hintContent").html(data);
-	    });
-	}
-}
-
-/**
- * @private
- * @param oneOn
- */
-function switchOneOn(oneOn) {
+Hints.prototype.switchOneOn = function(oneOn) {
 	var addresses = ["#groupdropdownicon",
 	                 "#userdropdownicon",
 	                 "#usersgroupdropdownicon",
@@ -702,41 +649,47 @@ function switchOneOn(oneOn) {
 
 }
 
-/** Hide all hits */
-function hintsAllOff() {
-	$('#hintContent').removeClass('up').addClass('down');
-	$("#userdropdownicon").attr('src','img/dropdown.png')
-	$("#groupdropdownicon").attr('src','img/dropdown.png')
-	$("#usersgroupdropdownicon").attr('src','img/dropdown.png')
-	$('#hintContent').removeClass('up').addClass('down');
-	$("#hintContent").html("");
-}
-
 /** Hint all groups */
-function hintAllGroups() {
-	hintsAllOff();
+Hints.prototype.hintAllGroups=function() {
+	this.hintsAllOff();
 	if ($('#hintContent').hasClass('down')) {
     	$('#hintContent').removeClass('down').addClass('up');
 
-		var url = "users?action=hintallgroups";
-	    $.get(url, function(data) {
-	    	switchOneOn("#groupdropdownicon");
+	var url = "users?action=hintallgroups";
+	    $.get(url, bind(function(data) {
+	    	this.switchOneOn("#groupdropdownicon");
 	    	$("#hintContent").html(data);
-	    });
+	    }, this));
 
 	}
 }
 
-/** 
- * Hint all users for selected group
- */
-function hintUsersForGroup() {
-	hintsAllOff();
-	if ($('#hintContent').hasClass('down')) {
-		var url = "users?action=hintusersforgroup&group="+$("#userId").val();
-		$.get(url, function(data) {
-	    	switchOneOn("#groupusersdropdownicon");
-			$("#hintContent").html(data);
-	    });
-	}
+/** vyber polozky z napovedy */
+Hints.prototype.hintSelect = function(loginname) {
+	$("#userId").val(loginname);
+	this.hintsAllOff();
 }
+
+
+
+// change password
+var pswdObject = new ChangePswd();
+
+// rights
+var rightsObject = new AdminRights();
+
+// secured actions
+var securedActionsObject = new SecuredActions();
+
+
+var rightObject = null;
+
+//because of jquery 
+var rightDialogObject = new RightDialog();
+
+// hints 
+var hints = new Hints();
+
+// callbacks in components
+var callbacks = new Callbacks();
+
