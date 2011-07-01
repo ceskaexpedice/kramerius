@@ -50,6 +50,7 @@ public class SecurityDBUtils {
         User user = new UserImpl(id, firstName, surName, loginName, personalAdminId);
         return user;
     }
+    
 
     public static String JNDI_NAME="java:comp/env/jdbc/kramerius4";
 
@@ -67,5 +68,6 @@ public class SecurityDBUtils {
             return null;
         }
     }
+
 
 }

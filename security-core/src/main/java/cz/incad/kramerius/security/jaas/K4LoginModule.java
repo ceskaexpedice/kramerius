@@ -44,22 +44,15 @@ import cz.incad.kramerius.security.utils.PasswordDigest;
 import cz.incad.kramerius.security.utils.SecurityDBUtils;
 import cz.incad.kramerius.utils.database.JDBCQueryTemplate;
 
-/**
- * JAAS login module for K4
- * @author pavels
- */
 public class K4LoginModule implements LoginModule {
 
     private static final String PSWD_COL = "pswd";
 
     public static java.util.logging.Logger LOGGER = java.util.logging.Logger.getLogger(K4LoginModule.class.getName());
-    
+
     private Subject subject;
     private CallbackHandler callbackhandler;
-    @SuppressWarnings("unused")
-    private Map<String, ?> options;
 
-    
     private boolean logged = false;
 
     private User foundUser;
@@ -69,42 +62,26 @@ public class K4LoginModule implements LoginModule {
     public void initialize(Subject subject, CallbackHandler callbackHandler, Map<String, ?> sharedState, Map<String, ?> options) {
         this.subject = subject;
         this.callbackhandler = callbackHandler;
-        this.options = options;
-        
 
     }
 
     @Override
     public boolean login() throws LoginException {
         try {
-            
+
             NameCallback nmCallback = new NameCallback("Name");
-            PasswordCallback pswdCallback = new PasswordCallback("Password",false);
-            this.callbackhandler.handle(new Callback[] {nmCallback, pswdCallback});
+            PasswordCallback pswdCallback = new PasswordCallback("Password", false);
+            this.callbackhandler.handle(new Callback[] { nmCallback, pswdCallback });
 
             String loginName = nmCallback.getName();
             char[] pswd = pswdCallback.getPassword();
-            
-            HashMap<String,Object> foundMap = findUser(SecurityDBUtils.getConnection(), loginName);
+
+            HashMap<String, Object> foundMap = findUser(SecurityDBUtils.getConnection(), loginName);
             foundUser = (User) (foundMap != null ? foundMap.get("user") : null);
             foundPswd = (String) (foundMap != null ? foundMap.get("pswd") : null);
-            
+
             if (foundUser != null) {
-                boolean result = checkPswd(foundUser.getLoginname(),foundPswd,pswd);
-                if (result) {
-                    List<Group> groupsList = new JDBCQueryTemplate<Group>(SecurityDBUtils.getConnection()){
-                        @Override
-                        public boolean handleRow(ResultSet rs, List<Group> retList) throws SQLException {
-                            retList.add(SecurityDBUtils.createGroup(rs));
-                            return true;
-                        }
-                        
-                    }.executeQuery("select * from user_group_mapping where user_id=?", foundUser.getId());
-                    
-                    //TODO:Zmenit
-                    ((UserImpl)foundUser).setGroups((Group[]) groupsList.toArray(new Group[groupsList.size()]));
-                }
-                this.logged = result;
+                this.logged = checkPswd(foundUser.getLoginname(), foundPswd, pswd);
             } else {
                 this.logged = false;
             }
@@ -119,16 +96,16 @@ public class K4LoginModule implements LoginModule {
     }
 
     public static HashMap<String, Object> findUser(Connection secConnection, String loginName) {
-        List<HashMap<String, Object>> list = new JDBCQueryTemplate<HashMap<String, Object>>(secConnection){
+        List<HashMap<String, Object>> list = new JDBCQueryTemplate<HashMap<String, Object>>(secConnection) {
             @Override
             public boolean handleRow(ResultSet rs, List<HashMap<String, Object>> retList) throws SQLException {
                 HashMap<String, Object> map = new HashMap<String, Object>();
                 map.put("user", SecurityDBUtils.createUser(rs));
-                map.put("pswd",rs.getString(PSWD_COL));
+                map.put("pswd", rs.getString(PSWD_COL));
                 retList.add(map);
                 return false;
             }
-            
+
         }.executeQuery("select * from user_entity where loginname=?", loginName);
         return list.isEmpty() ? null : list.get(0);
     }
@@ -139,22 +116,22 @@ public class K4LoginModule implements LoginModule {
     }
 
     @Override
-    public boolean commit()  throws LoginException {
-        if (!this.logged ) return false;
-
-        K4UserPrincipal userPrincipal = new K4UserPrincipal(foundUser);
-        K4RolePrincipal rolePrincipal = new K4RolePrincipal("formalRole");
-        // vyhodit .. 
-        K4RolePrincipal webRole = new K4RolePrincipal("krameriusAdmin");
-
-        assignPrincipal(userPrincipal);
-        assignPrincipal(rolePrincipal);
-        assignPrincipal(webRole);
-
+    public boolean commit() throws LoginException {
+        if (!this.logged)
+            return false;
+        associateK4UserPrincipal(this.subject, ""+foundUser.getId());
         return true;
     }
 
-    public void assignPrincipal(Principal principal) {
+    public static void associateK4UserPrincipal(Subject subject, String userUid) {
+        K4User user = new K4User(userUid);
+        // vyhodit ..
+        K4RolePrincipal webRole = new K4RolePrincipal("krameriusAdmin");
+        assignPrincipal(subject, user);
+        assignPrincipal(subject, webRole);
+    }
+
+    public static void assignPrincipal(Subject subject, Principal principal) {
         if (!subject.getPrincipals().contains(principal)) {
             subject.getPrincipals().add(principal);
         }
@@ -162,7 +139,7 @@ public class K4LoginModule implements LoginModule {
 
     @Override
     public boolean abort() throws LoginException {
-        //throw new IllegalStateException("illegal call");
+        // throw new IllegalStateException("illegal call");
         return true;
     }
 

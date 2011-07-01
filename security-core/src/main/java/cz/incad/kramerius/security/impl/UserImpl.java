@@ -53,7 +53,13 @@ public class UserImpl implements User {
         return this.firstName;
     }
 
+    public void setFirstName(String fname) {
+        this.firstName = fname;
+    }
     
+    public void setSurname(String sname) {
+        this.surName = sname;
+    }
     
     @Override
     public String getSurname() {
@@ -65,6 +71,7 @@ public class UserImpl implements User {
         return this.loginName;
     }
 
+    
     @Override
     public Group[] getGroups() {
         return this.groups;
@@ -104,4 +111,7 @@ public class UserImpl implements User {
         }
         return false;
     }
+
+    
+    
 }

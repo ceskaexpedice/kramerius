@@ -14,28 +14,29 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
-package cz.incad.kramerius.security;
+package cz.incad.kramerius.security.jaas;
 
 import java.io.Serializable;
+import java.security.Principal;
 
-/**
- * Represents user
- * @author pavels
- */
-public interface User extends AbstractUser,Serializable {
+public class K4User implements Principal, Serializable {
 
-    public String getFirstName();
-    
-    public String getSurname();
+    private String userIdent;
 
-    public String getLoginname();
-    
-    public Group[] getGroups();
-    
-    public boolean isAdministratorForGivenGroup(int personalAdminId);
-    
-    public boolean hasSuperAdministratorRole();
+
+    public K4User(String userIdent) {
+        super();
+        this.userIdent = userIdent;
+    }
+
+
+
+
+
+    @Override
+    public String getName() {
+        return this.userIdent;
+    }
 
     
-
 }
