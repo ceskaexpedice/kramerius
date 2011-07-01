@@ -18,22 +18,21 @@ rightsTable(rights, uuid, action,users, typeOfLists, canhandlecommongroup, bundl
         <table width="100%">
             <tr>
                 <td width="20px">
-                    <a href="javascript:newRight('$uuid$','$action.formalName$', $canhandlecommongroup$)" style="background:url('img/add.png') no-repeat scroll; border-width:0px; display:block; height:18px; width:18px;">
+                    <a href="javascript:rightsObject.newRight($canhandlecommongroup$)" style="background:url('img/add.png') no-repeat scroll; border-width:0px; display:block; height:18px; width:18px;">
                     </a>
                 </td>
                 <td width="20px">
-                    <a href="javascript:refreshRightsData('$uuid$')" style="background:url('img/refresh.png') no-repeat scroll; border-width:0px; display:block; height:18px; width:18px;">
+                    <a href="javascript:rightsObject.refreshRightsData()" style="background:url('img/refresh.png') no-repeat scroll; border-width:0px; display:block; height:18px; width:18px;">
                     </a>
                 </td>
                 <td width="40%"></td>
                 <td>
-                    <span><input id="userTypeList" type="radio" name="user" value="User" onclick="callbackUserTypeOfListValueChanged(this)" $checkedRadioButton(checkedflag=typeOfLists.("user"))$>$bundle.("rights.dialog.filter.users")$</input></span>
-                    <span><input id="groupTypeList" type="radio" name="user" value="Group" onclick="callbackGroupTypeOfListValueChanged(this)" $checkedRadioButton(checkedflag=typeOfLists.("group"))$>$bundle.("rights.dialog.filter.group")$</input></span>
-                    <span><input id="allTypeList" type="radio" name="user" value="Vse" onclick="callbackAllTypeOfListValueChanged(this)" $checkedRadioButton(checkedflag=typeOfLists.("all"))$>$bundle.("rights.dialog.filter.all")$</input></span>
+                    <span><input id="groupTypeList" type="radio" name="user" value="Group" onclick="callbacks.callbackGroupTypeOfListValueChanged(this)" $checkedRadioButton(checkedflag=typeOfLists.("group"))$>$bundle.("rights.dialog.filter.group")$</input></span>
+                    <span><input id="allTypeList" type="radio" name="user" value="Vse" onclick="callbacks.callbackAllTypeOfListValueChanged(this)" $checkedRadioButton(checkedflag=typeOfLists.("all"))$>$bundle.("rights.dialog.filter.all")$</input></span>
                 </td>
 
                 <td>
-                     <select id="usersFilter" name="users" size="1" width="100%" onchange="callbackUserSelectCombo(this);">
+                     <select id="usersFilter" name="users" size="1" width="100%" onchange="callbacks.callbackUserSelectCombo(this);">
                         $users:{k|<option value="$k.inputId$" $selectedComboItem(selectedflag=k.selected)$>$k.optionValue$</option> };separator="\n"$
                     </select>
                 </td>
@@ -85,8 +84,8 @@ rightTableRow(index,right, action,canhandlecommongroup, bundle) ::=<<
             <td colspan="3" align="center" style="background-color:#E0E0E0">  </td>        
         $endif$
         <td>
-            <button onClick="deleteRight('$right.uuid$',$right.id$);"> $bundle.("rights.dialog.buttons.delete")$ </button> 
-            <button onClick="editRight('$right.uuid$', $right.id$, '$action.formalName$', $canhandlecommongroup$);" > $bundle.("rights.dialog.buttons.edit")$ </button></td>
+            <button onClick="rightsObject.deleteRight($right.id$);"> $bundle.("rights.dialog.buttons.delete")$ </button> 
+            <button onClick="rightsObject.editRight( $right.id$,  $canhandlecommongroup$);" > $bundle.("rights.dialog.buttons.edit")$ </button></td>
     </tr>
     
     
@@ -117,7 +116,7 @@ rightDialog(titles, objects, allCriteriums, criteriumParams, allParams, uuid,act
     </div>
     <form id="modifyRight" method="post">
         <fieldset style="border-width:0px;padding:0px;">
-                <strong><label title="$first(objects)$" >$titles.(first(objects))$</label></strong>
+            <strong><label title="$first(objects)$" >$titles.(first(objects))$</label></strong>
                 <input id="uuid" type="hidden" value="$first(objects)$"></input>
                 
             <hr>
@@ -125,11 +124,7 @@ rightDialog(titles, objects, allCriteriums, criteriumParams, allParams, uuid,act
             <tr><td> 
                 <h3><label for="abstractUser">$bundle.("rights.dialog.table.column.user")$</label></h3></td></tr>
                 <tr><td>
-                    <span id="userTypeSpan">
-                        <input id="userType" type="radio" name="abstractUser" value="Uzivatel"> $bundle.("rights.dialog.table.column.user")$ </input>
-                        <img src="img/rights-person.png" />
-                    </span> 
-    
+        
                     <span id="groupTypeSpan">
                         <input id="groupType" type="radio" name="abstractUser" value="Skupina"> $bundle.("rights.dialog.table.column.group")$ </input>
                         <img src="img/rights-group.png" />
@@ -151,19 +146,15 @@ rightDialog(titles, objects, allCriteriums, criteriumParams, allParams, uuid,act
                                 size="10" type="text" 
                                 style="width:100%;" 
                                 value="common_users"
-                                onkeyup="hintAutocomplete(this);"
+                                onkeyup="hints.hintAutocomplete(this);"
                                 />
 
 
                         <div style="width:100%; padding-top:10px;">                    
                             <span id="navigationForGroup">
-                                <a href="javascript:hintAllGroups();">$bundle.("rights.dialog.hint.groups")$<img id="groupdropdownicon" src="img/dropdown.png" border="0"/> </a>
-                                <a href="javascript:hintUsersForGroup();">$bundle.("rights.dialog.hint.usersselectedgroup")$ <img id="groupusersdropdownicon" src="img/dropdown.png" border="0"/> </a>
+                                <a href="javascript:hints.hintAllGroups();">$bundle.("rights.dialog.hint.groups")$<img id="groupdropdownicon" src="img/dropdown.png" border="0"/> </a>
                             </span>    
-                            <span id="navigationForUser">
-                                <a href="javascript:hintAllUsers();"> $bundle.("rights.dialog.hint.users")$ <img id="userdropdownicon" src="img/dropdown.png" border="0"/> </a>
-                                <a href="javascript:hintGroupsForUser();">$bundle.("rights.dialog.hint.groupselecteduser")$<img id="usergroupsdropdownicon" src="img/dropdown.png" border="0"/> </a>
-                            </span>
+                            
 
                             <div id="hintContent" class="down">
                             </div>
@@ -252,7 +243,7 @@ securedActionRow(titles,action,uuid,canhandlecommongroup, bundle) ::=<<
     <td>$action.name$</td> 
     <td>$action.description$</td> 
     <td>$titles.({uuid:$uuid$})$</td> 
-    <td><button value="zmena" onclick="adminRightsImpl('$uuid$','$action.formalName$');">$bundle.("rights.dialog.buttons.edit")$</button></td>
+    <td><button value="zmena" onclick="rightsObject.adminRightsImpl('$uuid$','$action.formalName$');">$bundle.("rights.dialog.buttons.edit")$</button></td>
 </tr>
 >>
 
@@ -265,6 +256,34 @@ criteriumParamValidate(validated) ::=<<
     $endif$
 >>
 
+
+/** roles dialog */
+rolesTable(groups, bundle) ::=<<
+
+<div id="rolesDialogContent"> 
+    
+    
+    <table style="width:100%" style="table-layout: fixed;">
+       <thead style="border-bottom: 1px dashed; 
+                     background-image: url('img/bg_processheader.png'); 
+                     background-repeat: repeat-x;">
+            <tr>
+                <td width="85%">$bundle.("rights.dialog.table.column.group")$</td>
+                <td>$bundle.("rights.dialog.table.column.change")$</td>
+            </tr>            
+       </thead> 
+       <tbody>
+       $groups:{grp|<tr>
+        <td><a href="#">$grp.name$</a></td>
+        <td><button value="zmena" onclick="roles.showOneRole('$grp.name$');">$bundle.("rights.dialog.buttons.edit")$</button></td>
+       </tr>};separator="\n"$
+
+       </tbody>
+    </table>
+    
+</div>
+
+>>
 
 /** primitivni lokalizace */
 string(bundle, key) ::="$bundle.(key)$"

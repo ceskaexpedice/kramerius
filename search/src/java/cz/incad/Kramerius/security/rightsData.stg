@@ -7,22 +7,18 @@ group rightData;
 newRightData_InitForm() ::=<<
     
     \$('select[name=params]').change(function(e) {
-        callbackCriteriumParamsValueChanged(e.target);
+        hints.callbackCriteriumParamsValueChanged(e.target);
     });
     
     \$('select[name=criterium]').change(function(e) {
-        callbackCriteriumValueChanged(e.target);
+        hints.callbackCriteriumValueChanged(e.target);
     });
     
-    /** callbacky pro radiobutton */
-    \$('input[id=userType]').change(function(e) {
-        callbackRadioButtonUserValueChanged(e.target);
-    });
     \$('input[id=groupType]').change(function(e) {
-        callbackRadioButtonGroupValueChanged(e.target);
+        hints.callbackRadioButtonGroupValueChanged(e.target);
     });
     \$('input[id=allType]').change(function(e) {
-        callbackRadioButtonAllValueChanged(e.target);
+        hints.callbackRadioButtonAllValueChanged(e.target);
     });
 >>
 

@@ -36,6 +36,7 @@ import com.google.inject.name.Named;
 
 import cz.incad.kramerius.FedoraAccess;
 import cz.incad.kramerius.SolrAccess;
+import cz.incad.kramerius.security.Group;
 import cz.incad.kramerius.security.IsActionAllowed;
 import cz.incad.kramerius.security.RightCriteriumWrapperFactory;
 import cz.incad.kramerius.security.RightsManager;
@@ -125,6 +126,28 @@ public abstract class ServletCommand {
             map.put(key, bundle.getString(key));
         }
         return map;
+    }
+
+
+    public boolean hasCurrentUserHasSuperAdminRole(User user) {
+        Group[] groups = user.getGroups();
+        for (Group group : groups) {
+            if (group.getPersonalAdminId() <= 0 ) {
+                return true;
+            }
+        }
+        return false;
+    
+    }
+
+
+    public int[] getUserGroups(User user) {
+        Group[] grps = user.getGroups();
+        int[] grpIds = new int[grps.length];
+        for (int i = 0; i < grpIds.length; i++) {
+            grpIds[i] = grps[i].getId();
+        }
+        return grpIds;
     }
 
 }

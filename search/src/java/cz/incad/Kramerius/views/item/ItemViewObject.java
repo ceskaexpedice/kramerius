@@ -31,6 +31,7 @@ import cz.incad.kramerius.MostDesirable;
 import cz.incad.kramerius.ProcessSubtreeException;
 import cz.incad.kramerius.TreeNodeProcessor;
 import cz.incad.kramerius.impl.AbstractTreeNodeProcessorAdapter;
+import cz.incad.kramerius.security.UserManager;
 import cz.incad.kramerius.service.ResourceBundleService;
 import cz.incad.kramerius.utils.FedoraUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
@@ -53,6 +54,9 @@ public class ItemViewObject {
     @Inject
     @Named("securedFedoraAccess")
     FedoraAccess fedoraAccess;
+    
+    @Inject
+    UserManager userManager;
 
     protected List<String> uuidPath;
     protected List<String> models;
@@ -186,7 +190,7 @@ public class ItemViewObject {
             List<String> models = getModels();
             List<ItemMenuViewObject> menus = new ArrayList<ItemMenuViewObject>();
             for (int i = 0; i < pids.size(); i++) {
-                menus.add(new ItemMenuViewObject(this.request, this.servletContext, this.fedoraAccess, this.resourceBundleService.getResourceBundle("labels", localeProvider.get()), KConfiguration.getInstance(), this, localeProvider.get(),pids.get(i), models.get(i), i));
+                menus.add(new ItemMenuViewObject(this.request, this.servletContext, this.fedoraAccess, this.userManager, this.resourceBundleService.getResourceBundle("labels", localeProvider.get()), KConfiguration.getInstance(), this, localeProvider.get(),pids.get(i), models.get(i), i));
             }
             return menus;
         } catch (IOException e) {

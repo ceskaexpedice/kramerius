@@ -17,6 +17,7 @@ import cz.incad.Kramerius.I18NServlet;
 import cz.incad.Kramerius.views.item.ItemViewObject;
 import cz.incad.kramerius.FedoraAccess;
 import cz.incad.kramerius.security.SecuredActions;
+import cz.incad.kramerius.security.UserManager;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 import cz.incad.kramerius.utils.imgs.ImageMimeType;
 
@@ -27,19 +28,22 @@ import cz.incad.kramerius.utils.imgs.ImageMimeType;
 public class ItemMenuViewObject {
 
     public static final java.util.logging.Logger LOGGER = java.util.logging.Logger.getLogger(ItemMenuViewObject.class.getName());
-    HttpServletRequest httpServletRequest;
-    ServletContext servletContext;
-    FedoraAccess fedoraAccess;
-    ResourceBundle resourceBundle;
-    KConfiguration kConfiguration;
-    ItemViewObject itemViewObject;
-    Locale locale;
-    String uuid;
-    String model;
-    int index;
 
+    private HttpServletRequest httpServletRequest;
+    private ServletContext servletContext;
+    private FedoraAccess fedoraAccess;
+    private UserManager userManager;
+    
+    private ResourceBundle resourceBundle;
+    private KConfiguration kConfiguration;
+    private ItemViewObject itemViewObject;
+    private Locale locale;
+    private String uuid;
+    private String model;
+    private int index;
+    
     public ItemMenuViewObject(HttpServletRequest httpServletRequest,
-            ServletContext servletContext, FedoraAccess fedoraAccess, ResourceBundle resourceBundle, KConfiguration kConfiguration,
+            ServletContext servletContext, FedoraAccess fedoraAccess, UserManager userManager, ResourceBundle resourceBundle, KConfiguration kConfiguration,
             ItemViewObject itemViewObject, Locale locale, String uuid, String model, int index) {
         super();
         this.httpServletRequest = httpServletRequest;
@@ -52,6 +56,7 @@ public class ItemMenuViewObject {
         this.uuid = uuid;
         this.index = index;
         this.model = model;
+        this.userManager = userManager;
     }
 
     public boolean isDisplayable() {
@@ -171,7 +176,7 @@ public class ItemMenuViewObject {
         //String jsmethod = "adminRights";
         //rightsForRepository('uuid',actions
         StringTemplate template = new StringTemplate("<div align=\"left\"><a title='$tooltip$' "
-                + "href=\"javascript:securedActionsTableForCtxMenu($level$,'$uuid$','$actions;separator=\",\"$');\">$title$</a> "
+                + "href=\"javascript:securedActionsObject.securedActionsTableForCtxMenu($level$,'$uuid$','$actions;separator=\",\"$');\">$title$</a> "
                 + "<div class=\"$datatype$\" style=\"display:none\">$value$</div>"
                 + "<div class=\"_data_x_level\" style=\"display:none\">$level$</div>"
                 + "<div class=\"_data_x_uuid\" style=\"display:none\">$uuid$</div></div>");

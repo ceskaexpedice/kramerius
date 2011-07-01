@@ -42,7 +42,7 @@ import cz.incad.kramerius.security.SecuredActions;
 import cz.incad.kramerius.security.SecurityException;
 import cz.incad.kramerius.security.SpecialObjects;
 import cz.incad.kramerius.security.User;
-import cz.incad.kramerius.security.impl.http.CurrentLoggedUserProvider;
+import cz.incad.kramerius.security.impl.http.AbstractLoggedUserProvider;
 import cz.incad.kramerius.utils.IOUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 import cz.incad.kramerius.utils.imgs.ImageMimeType;
@@ -140,7 +140,7 @@ public class ViewInfoServlet extends GuiceServlet {
                 
                 HttpSession session = req.getSession();
                 if (session != null) {
-                    List<String> actions = (List<String>) session.getAttribute(CurrentLoggedUserProvider.SECURITY_FOR_REPOSITORY_KEY);
+                    List<String> actions = (List<String>) session.getAttribute(AbstractLoggedUserProvider.SECURITY_FOR_REPOSITORY_KEY);
                     if (actions != null) {
                         actions = new ArrayList<String>(actions);
                         SecuredActions[] acts = new SecuredActions[] {SecuredActions.ADMINISTRATE, SecuredActions.READ};

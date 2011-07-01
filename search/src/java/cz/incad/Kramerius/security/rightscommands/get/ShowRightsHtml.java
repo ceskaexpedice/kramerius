@@ -89,6 +89,9 @@ public class ShowRightsHtml extends ServletRightsCommand{
                         List<Right> rights = findAllRightWithUserWhichIAdministrate(userProvider.get(), findAllRightWithUuid(allowedUUID,foundRights)) ;
                         findAllRightWithUserWhichIAdministrate(userProvider.get(), foundRights);
                         
+                        
+                        
+                        
                         filtered.addAll(rights);
                     }
                 }

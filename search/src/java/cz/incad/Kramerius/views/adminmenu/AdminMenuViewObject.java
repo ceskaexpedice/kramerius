@@ -20,11 +20,15 @@ import cz.incad.Kramerius.security.KrameriusRoles;
 import cz.incad.kramerius.security.SecuredActions;
 import cz.incad.kramerius.security.SpecialObjects;
 import cz.incad.kramerius.security.User;
+import cz.incad.kramerius.security.UserManager;
 import cz.incad.kramerius.service.ResourceBundleService;
+import cz.incad.kramerius.shib.utils.ShibbolethUtils;
 import cz.incad.kramerius.utils.ApplicationURL;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 
 public class AdminMenuViewObject {
+
+    //private static final String SHIBBOLETH_KEY = "shibboleth";
 
     public static final Logger LOGGER = Logger.getLogger(AdminMenuViewObject.class.getName());
     @Inject
@@ -36,6 +40,9 @@ public class AdminMenuViewObject {
 
     @Inject
     Provider<User> currentUserProvider;
+
+    @Inject
+    UserManager userManager;
     
     
 //    @Inject
@@ -69,7 +76,7 @@ public class AdminMenuViewObject {
 
     public String showActionsAdmin() throws IOException {
         return renderMenuItem(
-                "javascript:securedActionsTable('"+SpecialObjects.REPOSITORY.getUuid()+"'); javascript:hideAdminMenu();",
+                "javascript:securedActionsObject.securedActionsTable('"+SpecialObjects.REPOSITORY.getUuid()+"'); javascript:hideAdminMenu();",
                 "administrator.menu.dialogs.actionsAdmin.title", false);
     }
 
@@ -92,6 +99,13 @@ public class AdminMenuViewObject {
         return renderMenuItem(href, "administrator.menu.dialogs.editor.title", true);
     }
 
+
+    public String rolesEditor() throws IOException {
+        return renderMenuItem(
+                "javascript:roles.showRoles(); javascript:hideAdminMenu();",
+                "rights.rolesedit.title", false);
+    }
+
     private String renderMenuItem(String href, String labelKey, boolean newWindow) throws IOException {
         String label = this.resourceBundleService.getResourceBundle("labels", this.locale).getString(labelKey);
         return String.format("<div align=\"left\"> <a href=\"%s\""+(newWindow?" target=\"_blank\"":"")+"> %s </a> </div>",
@@ -101,7 +115,7 @@ public class AdminMenuViewObject {
     public String[] getAdminMenuItems() {
         try {
             List<String> menuItems = new ArrayList<String>();
-            if (request.getRemoteUser() != null) {
+            if (userManager.isLoggedUser(this.currentUserProvider.get())) {
                 if (hasUserAllowedAction(SecuredActions.MANAGE_LR_PROCESS.getFormalName())) {
                     menuItems.add(processes());
                 }
@@ -133,10 +147,18 @@ public class AdminMenuViewObject {
                 if (hasUserAllowedAction(SecuredActions.EDITOR.getFormalName())) {
                     menuItems.add(editor());
                 }
-                if (hasUserAllowedAction(SecuredActions.USERSADMIN.getFormalName()) || hasUserAllowedAction(SecuredActions.USERSSUBADMIN.getFormalName())) {
+                if (hasUserAllowedAction(SecuredActions.EDITOR.getFormalName())) {
+                    menuItems.add(rolesEditor());
+                }
+
+                //TODO: Should it be in shibboleth ?
+                if (!ShibbolethUtils.isUnderShibbolethSession(this.request)) {
                     menuItems.add(openUsersAdmin());
                 }
-                menuItems.add(changepswd());
+                if (!ShibbolethUtils.isUnderShibbolethSession(this.request)) {
+                    menuItems.add(changepswd());
+                }
+
             }
             return menuItems.toArray(new String[menuItems.size()]);
         } catch (IOException e) {
@@ -147,7 +169,7 @@ public class AdminMenuViewObject {
     
     private String changepswd() throws IOException {
         return renderMenuItem(
-                "javascript:changePassword(); javascript:hideAdminMenu();",
+                "javascript:new ChangePswd.changePassword(); javascript:hideAdminMenu();",
                 "administrator.menu.dialogs.changePswd.title", false);
     }
 
@@ -157,4 +179,21 @@ public class AdminMenuViewObject {
         List<String> actionsForRepository = (List<String>) session.getAttribute("securityForRepository");
         return actionsForRepository != null ? actionsForRepository.contains(actionFormalName) : false;
     }
+
+    public boolean isLoggedUser() {
+        return userManager.isLoggedUser(this.currentUserProvider.get());
+    }
+    
+    public boolean isLoginVisible() {
+        return !userManager.isLoggedUser(this.currentUserProvider.get());
+    }
+    
+    public boolean isLogoutVisible() {
+        boolean shibSession = ShibbolethUtils.isUnderShibbolethSession(this.request);
+        boolean loggedUser = userManager.isLoggedUser(this.currentUserProvider.get());
+        return !shibSession && loggedUser;
+    }
+    
+    
+    
 }

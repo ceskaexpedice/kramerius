@@ -43,8 +43,8 @@ public class HeaderViewObject {
     @Named("securedFedoraAccess")
     FedoraAccess fedoraAccess;
     
+    
     public String getDictionary() {
-        
         Map<String, String> resourceBundleMap = new HashMap<String, String>();
         try {
             Locale locale = this.localeProvider.get();

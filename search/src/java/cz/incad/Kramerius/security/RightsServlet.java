@@ -43,6 +43,7 @@ import cz.incad.Kramerius.security.rightscommands.get.EditRightsJSData;
 import cz.incad.Kramerius.security.rightscommands.get.NewRightHtml;
 import cz.incad.Kramerius.security.rightscommands.get.NewRightJSData;
 import cz.incad.Kramerius.security.rightscommands.get.ShowRightsHtml;
+import cz.incad.Kramerius.security.rightscommands.get.ShowRolesHtml;
 import cz.incad.Kramerius.security.rightscommands.get.ShowsActionsTableHtml;
 import cz.incad.Kramerius.security.rightscommands.post.Create;
 import cz.incad.Kramerius.security.rightscommands.post.Delete;
@@ -162,6 +163,9 @@ public class RightsServlet extends GuiceServlet {
 
         /** zobrazeni prav */
         showrights(ShowRightsHtml.class),
+        /** zobrazeni roli */
+        showroles(ShowRolesHtml.class),
+        
         /** zobrazeni tabulku akci - tlacitka pro zmenu */
         showglobalrights(ShowsActionsTableHtml.class),
         /** nove pravo */

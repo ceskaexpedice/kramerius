@@ -7,7 +7,7 @@ allUsersTable(users,bundle) ::=<<
     <div style="width:100%;margin-top:5px; padding-top: 5px; border-top:1px dashed;">
         <label><strong>$bundle.("rights.dialog.hinted.users")$</strong></label>
         <table style="width:100%; border-collapse:collapse;">
-            $users:{user| <tr class="users_hint"> <td><a href="javascript:hintSelect('$user.loginname$');">$user.loginname$</td> <td>$user.firstName$</td> <td>$user.surname$</td> </tr>}$
+            $users:{user| <tr class="users_hint"> <td><a href="javascript:hints.hintSelect('$user.loginname$');">$user.loginname$</td> <td>$user.firstName$</td> <td>$user.surname$</td> </tr>}$
         </table>
     </div>
 >>
@@ -17,7 +17,7 @@ allGroupsTable(groups, bundle) ::=<<
     <div style="width:100%;margin-top:5px; padding-top: 5px; border-top:1px dashed;">
         <label><strong>$bundle.("rights.dialog.hinted.groups")$</strong></label>
         <table style="width:100%; border-collapse:collapse;">
-            $groups:{group| <tr class="users_hint"> <td><a href="javascript:hintSelect('$group.name$');">$group.name$</a> </td>  </tr>}$
+            $groups:{group| <tr class="users_hint"> <td><a href="javascript:hints.hintSelect('$group.name$');">$group.name$</a> </td>  </tr>}$
         </table>
     </div>
 >>
