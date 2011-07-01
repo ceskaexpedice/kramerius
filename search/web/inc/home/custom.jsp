@@ -26,7 +26,6 @@
         <c:import url="${url}" var="xml" charEncoding="UTF-8" />
         <x:parse var="doc" xml="${xml}"  />
     </c:catch>
-    <
     <x:forEach varStatus="status" select="$doc/response/result/doc">
         <c:set var="t"><x:out select="./str[@name='root_title']"/></c:set>
         <div align="center" style="overflow:hidden; border:1px solid #eeeeee; width:100px; height:100px; float:left; margin:5px;">
