@@ -70,6 +70,15 @@ ChangePswd.prototype.changePassword  = function () {
 
 /** MAnages all rights for one concrete action */
 function AdminRights() {
+	/**
+	 * Uuid of object
+	 */
+	this.uuid = null;
+	
+	/**
+	 * Displaying action
+	 */
+	this.action = null;
 
 	/** 
 	 * Rights dialog
@@ -100,7 +109,8 @@ AdminRights.prototype.adminRights = function (level, model, action) {
 AdminRights.prototype.adminRightsImpl = function (uuid,action) {
 	// unbind arrows 
 	keyboardSupportObject.unbindArrows();
-	
+	this.uuid = uuid;
+	this.action = action;
 
 	var url = "rights?action=showrights&uuid="+uuid+"&securedaction="+action;
 	$.get(url, bind(function(data) {
@@ -136,63 +146,18 @@ AdminRights.prototype.adminRightsImpl = function (uuid,action) {
  * @param {string} uuid of editing object 
  * @param {action} editing action
  */
-AdminRights.prototype.refreshRightsData =  function (uuid, action) {
+AdminRights.prototype.refreshRightsData =  function () {
+/*
 	if (!uuid && !action) { 
-		uuid = rightObject.uuid;
-		action = rightObject.action; 
+		uuid = rightsObject.uuid;
+		action = rightsObject.action; 
 	}
-	var url = "rights?action=showrights&uuid="+uuid+"&securedaction="+action;
-    $.get(url, function(data) {
-    	$("#adminRightsWindow").html(data);
-    });
+*/
+	var url = "rights?action=showrights&uuid="+this.uuid+"&securedaction="+this.action;
+	$.get(url, function(data) {
+		$("#adminRightsWindow").html(data);
+	});
 }
-
-function RightDialog() {
-	this.dialog = null;
-}
-
-/** Object manages one concrete right */
-function Right(uuid,action,rightId) {
-	this.uuid = uuid;
-	this.action=action;
-	this.rightId = (rightId ? rightId : -1);
-	this.data=null;
-
-}
-
-
-/**
- * Shows / edit one right dialog
- * @private
- */
-Right.prototype.rightDialog = function (saveUrl) {
-	_saveUrlForPost = saveUrl;
-
-    if (rightDialogObject.dialog) {
-    	rightDialogObject.dialog.dialog('open');
-    } else {
-	if ($("#newRight").size() == 0 ) {
-	    	$(document.body).append('<div id="newRight">'+'</div>');
-	}
-    	rightDialogObject.dialog = $('#newRight').dialog({
-            width:800,
-            height:450,
-            modal:true,
-            title:"",
-            buttons: {
-                "Zmen pravo": function() {
-                    $(this).dialog("close"); 
-                    saveChanges();
-                }, 
-
-                "Close": function() {
-                    $(this).dialog("close"); 
-                } 
-            } 
-        });
-    }
-}
-
 
 
 /**
@@ -201,12 +166,12 @@ Right.prototype.rightDialog = function (saveUrl) {
  * @param {action} action editing action
  * @param {boolean} canhandlecommongroup if can handle commong group
  */
-function newRight(uuid, action, canhandlecommongroup) {
-    var saveUrl="rights?action=create&securedaction="+action;
-    var fetchUrl = "rights?action=newright&uuid="+uuid+"&securedaction="+action;
-    var jsDataUrl = "rights?action=newrightjsdata&uuid="+uuid+"&securedaction="+action;
+AdminRights.prototype.newRight=function(canhandlecommongroup) {
+    var saveUrl="rights?action=create&securedaction="+this.action;
+    var fetchUrl = "rights?action=newright&uuid="+this.uuid+"&securedaction="+this.action;
+    var jsDataUrl = "rights?action=newrightjsdata&uuid="+this.uuid+"&securedaction="+this.action;
 
-    rightObject = new Right(uuid,action);
+    rightObject = new Right(this.uuid,this.action,-1,saveUrl);
 
     $.get(fetchUrl, function(htmldata) {
         $.get(jsDataUrl, function(data) {
@@ -238,12 +203,12 @@ function newRight(uuid, action, canhandlecommongroup) {
  * @param {string} action action of editing right
  * @param {boolean} canhandlecommongroup if can handle common group
  */
-function editRight(uuid, rightId, action,canhandlecommongroup) {
+AdminRights.prototype.editRight=function (rightId,canhandlecommongroup) {
 	var saveUrl="rights?action=edit";
-        var jsDataUrl = "rights?action=editrightjsdata&uuid="+uuid+"&rightid="+rightId+"&securedaction="+action;
-	var fetchUrl = "rights?action=newright&uuid="+uuid+"&securedaction="+action;
+        var jsDataUrl = "rights?action=editrightjsdata&uuid="+this.uuid+"&rightid="+rightId+"&securedaction="+this.action;
+	var fetchUrl = "rights?action=newright&uuid="+this.uuid+"&securedaction="+this.action;
 	
-	rightObject = new Right(uuid,action,rightId);	
+	rightObject = new Right(this.uuid,this.action,rightId, saveUrl);	
 
         // ziskani html
 	$.get(fetchUrl, function(htmldata) {
@@ -334,51 +299,96 @@ function editRight(uuid, rightId, action,canhandlecommongroup) {
  * @param {int} rightId Id of deleting right
  * @param {string} action action of deleting right  
  */
-function deleteRight(uuid, rightId, action) {
-	rightObject = new Right(uuid,action,rightId);	
+AdminRights.prototype.deleteRight=function(rightId) {
 	_saveUrlForPost="rights?action=delete";
+	rightObject = new Right(uuid,action,rightId,_saveUrlForPost);	
     var jsDataUrl = "rights?action=editrightjsdata&uuid="+uuid+"&rightid="+rightId+"&securedaction="+action;
-    $.get(jsDataUrl, function(data) {
+    $.get(jsDataUrl, bind(function(data) {
     	rightObject.data = eval("("+data+")");
     	rightObject.data.init();
     	saveChangesOnlyIds();
-    });
+    },this));
 }
 
 
+function RightDialog() {
+	this.dialog = null;
+}
+
+/** Object manages one concrete right */
+function Right(uuid,action,rightId, saveUrl) {
+	this.uuid = uuid;
+	this.action=action;
+	this.saveUrl=saveUrl;
+	this.rightId = (rightId ? rightId : -1);
+	this.data=null;
+}
 
 
-
-//TODO Change it!!
 /**
- * State property for saving right
+ * Shows / edit one right dialog
  * @private
  */
-var _saveUrlForPost=null; 
+Right.prototype.rightDialog = function (saveUrl) {
+	_saveUrlForPost = saveUrl;
+
+    if (rightDialogObject.dialog) {
+    	rightDialogObject.dialog.dialog('open');
+    } else {
+	if ($("#newRight").size() == 0 ) {
+	    	$(document.body).append('<div id="newRight">'+'</div>');
+	}
+    	rightDialogObject.dialog = $('#newRight').dialog({
+            width:800,
+            height:450,
+            modal:true,
+            title:"",
+            buttons: {
+                "Zmen pravo": function() {
+                    $(this).dialog("close"); 
+                    rightObject.saveChanges();
+                }, 
+
+                "Close": function() {
+                    $(this).dialog("close"); 
+                } 
+            } 
+        });
+    }
+}
+
+
 /** save state and make changes; saving only ids(for delete action)  
  * @private
  */
-function saveChangesOnlyIds() {
-	$.post(_saveUrlForPost, {
+Right.prototype.saveChangesOnlyIds=function() {
+	$.post(this.saveUrl, {
 		rightId:rightObject.data.initvalues.rightId,
 		rightCriteriumId:rightObject.data.initvalues.rightCriteriumId,
 		rightCriteriumParamId:rightObject.data.initvalues.rightCriteriumParamId,
 		formalActionHidden:"read"},
 		function (data) {
-			setTimeout("refreshRightsData();",500);
+			setTimeout("rightsObject.refreshRightsData();",500);
 		});
 }
+
+
+
+
+
+
+
 /** save state and make chanes; saving full form (actions create and edit) 
  * @private
  */
-function saveChanges() {
-	$.post(_saveUrlForPost, {
+Right.prototype.saveChanges=function() {
+	$.post(this.saveUrl, {
 			// id objektu
 			rightId:rightObject.data.initvalues.rightId,
 			rightCriteriumId:rightObject.data.initvalues.rightCriteriumId,
 			rightCriteriumParamId:$("#params option:selected").val()==="new" ? "-1":$("#params option:selected").val(),
 			// akce ktera se edituje		
-			formalActionHidden:rightObject.action,
+			formalActionHidden:rightsObject.action,
 			// objekt ktereho se to tyka
 			uuidHidden: $("#uuid").val(),
 			
@@ -394,29 +404,29 @@ function saveChanges() {
 		    priorityHidden:$("#priority").val()
 	}, 
 	function (data) {
-		setTimeout("refreshRightsData();",500);
+		setTimeout("rightsObject.refreshRightsData();",500);
 	});
 }
 
 
-function Callbacks() {
-}
+function Callbacks() {}
 
 Callbacks.prototype.typeoflist = function() {
 	if ($('#userTypeList').attr('checked')) {
-		return "user"
+		return "user";
 	} else if ($('#groupTypeList').attr('checked')) {
-		return "group"
+		return "group";
 	} else if ($('#allTypeList').attr('checked')) {
-		return "all"
-	} return null;
+		return "all";
+	} else return null;
 }
+
 
 /*calback*/
 Callbacks.prototype.callbackUserSelectCombo = function(target, uuid, action, afterCallback) {
 	if (!uuid && !action) { 
-		uuid = rightObject.uuid;
-		action = rightObject.action; 
+		uuid = rightsObject.uuid;
+		action = rightsObject.action; 
 	}
 
 	var url = "rights?action=showrights&uuid="+uuid+"&securedaction="+action+"&typeoflist="+this.typeoflist();
@@ -433,8 +443,8 @@ Callbacks.prototype.callbackUserSelectCombo = function(target, uuid, action, aft
 
 Callbacks.prototype.callbackGroupTypeOfListValueChanged=function(target, uuid, action, afterCallback) {
 	if (!uuid && !action) { 
-		uuid = rightObject.uuid;
-		action = rightObject.action; 
+		uuid = rightsObject.uuid;
+		action = rightsObject.action; 
 	}
 
 	if ($('#groupTypeList').attr('checked')) {
@@ -447,8 +457,8 @@ Callbacks.prototype.callbackGroupTypeOfListValueChanged=function(target, uuid, a
 
 Callbacks.prototype.callbackAllTypeOfListValueChanged=function(target,uuid, action, afterCallback) {
 	if (!uuid && !action) { 
-		uuid = rightObject.uuid;
-		action = rightObject.action; 
+		uuid = rightsObject.uuid;
+		action = rightsObject.action; 
 	}
 
 	if ($('#allTypeList').attr('checked')) {
@@ -672,6 +682,56 @@ Hints.prototype.hintSelect = function(loginname) {
 
 
 
+function Roles() {
+	this.dialog = null;
+	this.roleDialog = null;
+}
+
+Roles.prototype.showRoles=function() {
+	if (this.dialog) {
+		this.dialog.dialog('open');
+	} else {
+		$(document.body).append('<div id="roles">'+'</div>');
+		this.dialog = $('#roles').dialog({
+		    width:600,
+		    height:400,
+		    modal:true,
+		    title:"",
+		    buttons: {
+			"Close": function() {
+			    $(this).dialog("close"); 
+			} 
+		    } 
+		});
+	}
+	var url = "rights?action=showroles";
+	$.get(url, function(data) {
+    		$("#roles").html(data);
+    	});
+
+}
+
+
+Roles.prototype.showOneRole = function(rolename) {
+	if (this.roleDialog) {
+		this.roleDialog.dialog('open');
+	} else {
+		$(document.body).append('<div id="role">'+'</div>');
+		this.roleDialog = $('#role').dialog({
+		    width:600,
+		    height:400,
+		    modal:true,
+		    title:"",
+		    buttons: {
+			"Close": function() {
+			    $(this).dialog("close"); 
+			} 
+		    } 
+		});
+	}
+	
+}
+
 // change password
 var pswdObject = new ChangePswd();
 
@@ -692,4 +752,7 @@ var hints = new Hints();
 
 // callbacks in components
 var callbacks = new Callbacks();
+
+
+var roles = new Roles();
 
