@@ -396,8 +396,8 @@ public class Download {
                     throw new RuntimeException("Some URL parameter missing or wrong or no access rights ...");
                 }
             } else {
-                log.fine("Remote document not found: " + fromURL);
-                throw new FileNotFoundException("Remote document not found: " + fromURL);
+                log.fine("Remote document not found: " + fromURL +" (responseCode:"+conn.getResponseCode()+")");
+                throw new FileNotFoundException("Remote document not found: " + fromURL +" (responseCode:"+conn.getResponseCode()+")");
             }
         } catch (NoSuchAlgorithmException e) {
             if (conn != null)
