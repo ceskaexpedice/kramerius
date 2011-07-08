@@ -41,8 +41,8 @@ public class UserGroupAssoc extends Arrangement {
     Form createForm() {
         Form form = new Form();
         form.setLayout(new VerticalPanel().addChild(
-                new RefButton(structure.groupUserAssoction.USERS, this.userArrangement, new VerticalPanel().addChild(new TextField(structure.groupUserAssoction.USERS.relate(structure.user.NAME))).addChild(new TextField(structure.groupUserAssoction.USERS.relate(structure.user.SURNAME))))).addChild(
-                new RefButton(structure.groupUserAssoction.GROUP, this.groupArrangement, new HorizontalPanel().addChild(new TextField(structure.groupUserAssoction.GROUP.relate(structure.group.GNAME))))));
+                new RefButton(structure.groupUserAssoction.USERS, this.userArrangement, new VerticalPanel().addChild(new TextField<String>(structure.groupUserAssoction.USERS.relate(structure.user.NAME))).addChild(new TextField<String>(structure.groupUserAssoction.USERS.relate(structure.user.SURNAME))))).addChild(
+                new RefButton(structure.groupUserAssoction.GROUP, this.groupArrangement, new HorizontalPanel().addChild(new TextField<String>(structure.groupUserAssoction.GROUP.relate(structure.group.GNAME))))));
         return form;
     }
 

@@ -26,7 +26,7 @@ public class RightsCriteriumParamArrangement extends Arrangement {
     private Form createRightCriteriumParamForm() {
         Form form = new Form();
 
-        TextField shortDesc = new TextField(structure.criteriumParam.SHORT_DESC);
+        TextField<String> shortDesc = new TextField<String>(structure.criteriumParam.SHORT_DESC);
         shortDesc.setWidth("100%");
 
         TextArea longDesc = new TextArea(structure.criteriumParam.LONG_DESC);

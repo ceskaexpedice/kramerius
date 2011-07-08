@@ -32,14 +32,14 @@ public class VygenerovatHeslo implements Executable {
     public FunctionResult execute(FunctionParameters parameters, Context context) {
         String result = null;
         try {
-            PropertyDTO email = ((Structure) Application.get()).user.EMAIL.clientClone(context);
-            String emailAddres = parameters.getClientContext().getCurrentRecord().getStringValue(email);
+            PropertyDTO<String> email = ((Structure) Application.get()).user.EMAIL.clientClone(context);
+            String emailAddres =  parameters.getClientContext().getCurrentRecord().getValue(email);
             if ((emailAddres != null) && (validation(emailAddres))) {
 
-                PropertyDTO pswd = ((Structure) Application.get()).user.PASSWORD.clientClone(context);
-                PropertyDTO loginname = ((Structure) Application.get()).user.LOGINNAME.clientClone(context);
+                PropertyDTO<String> pswd = ((Structure) Application.get()).user.PASSWORD.clientClone(context);
+                PropertyDTO<String> loginname = ((Structure) Application.get()).user.LOGINNAME.clientClone(context);
 
-                PropertyDTO personalAdminDTO = ((Structure) Application.get()).user.PERSONAL_ADMIN.clientClone(context);
+                PropertyDTO<Integer> personalAdminDTO = ((Structure) Application.get()).user.PERSONAL_ADMIN.clientClone(context);
 
                 String generated = GeneratePasswordUtils.generatePswd();
 
@@ -53,7 +53,7 @@ public class VygenerovatHeslo implements Executable {
                 AplikatorService service = context.getAplikatorService();
                 service.execute(new ProcessRecords(container));
 
-                GeneratePasswordUtils.sendGeneratedPasswordToMail(emailAddres, currentRecord.getStringValue(loginname), generated, mailer, context);
+                GeneratePasswordUtils.sendGeneratedPasswordToMail(emailAddres, currentRecord.getValue(loginname), generated, mailer, context);
 
                 String okResultString = I18NUtils.getLocalizedString("VygenerovatHeslo.ok.result", context);
                 result = MessageFormat.format(okResultString, emailAddres);

@@ -29,9 +29,9 @@ public class RightsCriteriumArrangement extends Arrangement {
 
     private Form createCriteriumForm() {
         Form form = new Form();
-        form.setLayout(new VerticalPanel().addChild(new VerticalPanel().addChild(new ComboBox(struct.rightCriterium.QNAME)).addChild(
-                new RefButton(struct.rightCriterium.PARAM, rightsCriteriumParamArrangement, new VerticalPanel().addChild(new TextField(struct.rightCriterium.PARAM.relate(struct.criteriumParam.SHORT_DESC)).setWidth("30em"))
-                        .addChild(new TextArea(struct.rightCriterium.PARAM.relate(struct.criteriumParam.LONG_DESC)).setWidth("30em")).addChild(new TextField(struct.rightCriterium.PARAM.relate(struct.criteriumParam.VALS)).setWidth("30em"))))));
+        form.setLayout(new VerticalPanel().addChild(new VerticalPanel().addChild(new ComboBox<String>(struct.rightCriterium.QNAME)).addChild(
+                new RefButton(struct.rightCriterium.PARAM, rightsCriteriumParamArrangement, new VerticalPanel().addChild(new TextField<String>(struct.rightCriterium.PARAM.relate(struct.criteriumParam.SHORT_DESC)).setWidth("30em"))
+                        .addChild(new TextArea(struct.rightCriterium.PARAM.relate(struct.criteriumParam.LONG_DESC)).setWidth("30em")).addChild(new TextField<String>(struct.rightCriterium.PARAM.relate(struct.criteriumParam.VALS)).setWidth("30em"))))));
         return form;
     }
 

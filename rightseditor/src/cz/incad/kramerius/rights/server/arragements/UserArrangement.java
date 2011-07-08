@@ -71,9 +71,9 @@ public class UserArrangement extends Arrangement {
 
     private Form createUserFormForSubadmin(Function vygenerovatHeslo) {
         Form form = new Form();
-        form.setLayout(new VerticalPanel().addChild(new VerticalPanel().addChild(new TextField(struct.user.NAME)).addChild(new TextField(struct.user.SURNAME)))
+        form.setLayout(new VerticalPanel().addChild(new VerticalPanel().addChild(new TextField<String>(struct.user.NAME)).addChild(new TextField<String>(struct.user.SURNAME)))
 
-        .addChild(new VerticalPanel().addChild(new TextField(struct.user.LOGINNAME)).addChild(vygenerovatHeslo).addChild(new TextField(struct.user.EMAIL)).addChild(new TextField(struct.user.ORGANISATION)))
+        .addChild(new VerticalPanel().addChild(new TextField<String>(struct.user.LOGINNAME)).addChild(vygenerovatHeslo).addChild(new TextField<String>(struct.user.EMAIL)).addChild(new TextField<String>(struct.user.ORGANISATION)))
 
         .addChild(new RepeatedForm(struct.user.GROUP_ASSOCIATIONS, new UserGroupsArrangement()))
 
@@ -85,11 +85,11 @@ public class UserArrangement extends Arrangement {
 
     private Form createUserFormForSuperAdmin(Function vygenerovatHeslo) {
         Form form = new Form();
-        form.setLayout(new VerticalPanel().addChild(new VerticalPanel().addChild(new TextField(struct.user.NAME)).addChild(new TextField(struct.user.SURNAME)))
+        form.setLayout(new VerticalPanel().addChild(new VerticalPanel().addChild(new TextField<String>(struct.user.NAME)).addChild(new TextField<String>(struct.user.SURNAME)))
 
-        .addChild(new VerticalPanel().addChild(new TextField(struct.user.LOGINNAME)).addChild(vygenerovatHeslo).addChild(new TextField(struct.user.EMAIL)).addChild(new TextField(struct.user.ORGANISATION)))
+        .addChild(new VerticalPanel().addChild(new TextField<String>(struct.user.LOGINNAME)).addChild(vygenerovatHeslo).addChild(new TextField<String>(struct.user.EMAIL)).addChild(new TextField<String>(struct.user.ORGANISATION)))
 
-        .addChild(new RefButton(struct.user.PERSONAL_ADMIN, this.referenceToAdmin, new HorizontalPanel().addChild(new TextField(struct.user.PERSONAL_ADMIN.relate(struct.group.GNAME))))).addChild(new RepeatedForm(struct.user.GROUP_ASSOCIATIONS, new UserGroupsArrangement()))
+        .addChild(new RefButton(struct.user.PERSONAL_ADMIN, this.referenceToAdmin, new HorizontalPanel().addChild(new TextField<String>(struct.user.PERSONAL_ADMIN.relate(struct.group.GNAME))))).addChild(new RepeatedForm(struct.user.GROUP_ASSOCIATIONS, new UserGroupsArrangement()))
 
         );
         form.addProperty(struct.user.PASSWORD);
@@ -107,7 +107,7 @@ public class UserArrangement extends Arrangement {
 
         Form createForm() {
             Form form = new Form();
-            form.setLayout(new VerticalPanel().addChild(new RefButton(struct.groupUserAssoction.GROUP, new RefGroupArrangement(), new HorizontalPanel().addChild(new TextField(struct.groupUserAssoction.GROUP.relate(struct.group.GNAME))))));
+            form.setLayout(new VerticalPanel().addChild(new RefButton(struct.groupUserAssoction.GROUP, new RefGroupArrangement(), new HorizontalPanel().addChild(new TextField<String>(struct.groupUserAssoction.GROUP.relate(struct.group.GNAME))))));
             return form;
         }
 
@@ -125,8 +125,8 @@ public class UserArrangement extends Arrangement {
 
         private Form createGroupForm() {
             Form form = new Form();
-            form.setLayout(new VerticalPanel().addChild(new TextField(struct.group.GNAME)).addChild(new TextArea(struct.group.DESCRIPTION).setWidth("100%"))
-                    .addChild(new RefButton(struct.group.PERSONAL_ADMIN, referenceToAdmin, new HorizontalPanel().addChild(new TextField(struct.group.PERSONAL_ADMIN.relate(struct.group.GNAME)))))
+            form.setLayout(new VerticalPanel().addChild(new TextField<String>(struct.group.GNAME)).addChild(new TextArea(struct.group.DESCRIPTION).setWidth("100%"))
+                    .addChild(new RefButton(struct.group.PERSONAL_ADMIN, referenceToAdmin, new HorizontalPanel().addChild(new TextField<String>(struct.group.PERSONAL_ADMIN.relate(struct.group.GNAME)))))
 
             );
             return form;
@@ -144,7 +144,7 @@ public class UserArrangement extends Arrangement {
                 User user = GetCurrentLoggedUser.getCurrentLoggedUser(ctx.getHttpServletRequest());
                 if (!user.hasSuperAdministratorRole()) {
                     List<Integer> admId = GetAdminGroupIds.getAdminGroupId(ctx);
-                    return new QueryCompareExpression(struct.group.PERSONAL_ADMIN, QueryCompareOperator.IS, admId.get(0));
+                    return new QueryCompareExpression<Integer>(struct.group.PERSONAL_ADMIN, QueryCompareOperator.IS, admId.get(0));
                 } else {
                     return null;
                 }
@@ -163,7 +163,7 @@ public class UserArrangement extends Arrangement {
             User user = GetCurrentLoggedUser.getCurrentLoggedUser(ctx.getHttpServletRequest());
             if (!user.hasSuperAdministratorRole()) {
                 List<Integer> admId = GetAdminGroupIds.getAdminGroupId(ctx);
-                return new QueryCompareExpression(struct.user.PERSONAL_ADMIN, QueryCompareOperator.IS, admId.get(0));
+                return new QueryCompareExpression<Integer>(struct.user.PERSONAL_ADMIN, QueryCompareOperator.IS, admId.get(0));
             } else
                 return null;
         }

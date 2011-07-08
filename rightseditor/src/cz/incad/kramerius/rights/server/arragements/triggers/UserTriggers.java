@@ -40,11 +40,11 @@ public class UserTriggers extends AbstractUserTriggers implements PersisterTrigg
             User user = GetCurrentLoggedUser.getCurrentLoggedUser(ctx.getHttpServletRequest());
             if ((user == null) || (!user.hasSuperAdministratorRole())) {
                 List<Integer> groupsList = GetAdminGroupIds.getAdminGroupId(ctx);
-                PropertyDTO personalAdminDTO = structure.user.PERSONAL_ADMIN.clientClone(ctx);
+                PropertyDTO<Integer> personalAdminDTO = structure.user.PERSONAL_ADMIN.clientClone(ctx);
                 record.setValue(personalAdminDTO, groupsList.get(0));
             }
 
-            PropertyDTO pswdDTO = structure.user.PASSWORD.clientClone(ctx);
+            PropertyDTO<String> pswdDTO = structure.user.PASSWORD.clientClone(ctx);
             String generated = GeneratePasswordUtils.generatePswd();
 
             GeneratePasswordUtils.sendGeneratedPasswordToMail((String) record.getValue(structure.user.EMAIL.clientClone(ctx)), (String) record.getValue(structure.user.LOGINNAME.clientClone(ctx)), generated, mailer, ctx);
@@ -72,11 +72,11 @@ public class UserTriggers extends AbstractUserTriggers implements PersisterTrigg
     public RecordDTO beforeUpdate(RecordDTO recordDTO, Context ctx) {
         String[] bfs = recordDTO.getModifiedByBfs();
         if (bfs.length == 0) {
-            PropertyDTO pswdDTO = structure.user.PASSWORD.clientClone(ctx);
+            PropertyDTO<String> pswdDTO = structure.user.PASSWORD.clientClone(ctx);
             recordDTO.setNotForSave(pswdDTO, true);
             User user = GetCurrentLoggedUser.getCurrentLoggedUser(ctx.getHttpServletRequest());
             if ((user == null) || (!user.hasSuperAdministratorRole())) {
-                PropertyDTO personalAdminDTO = structure.user.PERSONAL_ADMIN.clientClone(ctx);
+                PropertyDTO<Integer> personalAdminDTO = structure.user.PERSONAL_ADMIN.clientClone(ctx);
                 recordDTO.setNotForSave(personalAdminDTO, true);
             }
         }

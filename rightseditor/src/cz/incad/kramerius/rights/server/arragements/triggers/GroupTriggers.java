@@ -33,7 +33,7 @@ public class GroupTriggers extends AbstractUserTriggers implements PersisterTrig
         if ((user == null) || (!user.hasSuperAdministratorRole())) {
             List<Integer> groupsList = GetAdminGroupIds.getAdminGroupId(ctx);
 
-            PropertyDTO propertyDTO = structure.group.PERSONAL_ADMIN.clientClone(ctx);
+            PropertyDTO<Integer> propertyDTO = structure.group.PERSONAL_ADMIN.clientClone(ctx);
             record.setValue(propertyDTO, groupsList.get(0));
         }
 
@@ -49,7 +49,7 @@ public class GroupTriggers extends AbstractUserTriggers implements PersisterTrig
     public RecordDTO beforeUpdate(RecordDTO recordDTO, Context ctx) {
         User user = GetCurrentLoggedUser.getCurrentLoggedUser(ctx.getHttpServletRequest());
         if ((user == null) || (!user.hasSuperAdministratorRole())) {
-            PropertyDTO propertyDTO = structure.group.PERSONAL_ADMIN.clientClone(ctx);
+            PropertyDTO<Integer> propertyDTO = structure.group.PERSONAL_ADMIN.clientClone(ctx);
             recordDTO.setNotForSave(propertyDTO, true);
         }
         return recordDTO;

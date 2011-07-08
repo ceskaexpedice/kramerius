@@ -22,7 +22,7 @@ public class RefenrenceToPersonalAdminArrangement extends Arrangement {
 
     private Form createGroupForm() {
         Form form = new Form();
-        form.setLayout(new VerticalPanel().addChild(new VerticalPanel().addChild(new TextField(struct.group.GNAME)).addChild(new TextArea(struct.group.DESCRIPTION))
+        form.setLayout(new VerticalPanel().addChild(new VerticalPanel().addChild(new TextField<String>(struct.group.GNAME)).addChild(new TextArea(struct.group.DESCRIPTION))
 
         ));
         return form;
