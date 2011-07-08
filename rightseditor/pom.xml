@@ -1,23 +1,22 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- Copyright (C) 2011 Vladimir Lahoda This program is free software: you 
-    can redistribute it and/or modify it under the terms of the GNU General Public 
-    License as published by the Free Software Foundation, either version 3 of 
-    the License, or (at your option) any later version. This program is distributed 
-    in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even 
-    the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. 
-    See the GNU General Public License for more details. You should have received 
-    a copy of the GNU General Public License along with this program. If not, 
+<!-- Copyright (C) 2011 Vladimir Lahoda This program is free software: you
+    can redistribute it and/or modify it under the terms of the GNU General Public
+    License as published by the Free Software Foundation, either version 3 of
+    the License, or (at your option) any later version. This program is distributed
+    in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even
+    the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+    See the GNU General Public License for more details. You should have received
+    a copy of the GNU General Public License along with this program. If not,
     see <http://www.gnu.org/licenses/>. -->
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
-    
+
     <modelVersion>4.0.0</modelVersion>
-    <groupId>cz.incad.kramerius</groupId>
     <artifactId>rightseditor</artifactId>
     <packaging>war</packaging>
     <version>1.0-SNAPSHOT</version>
     <name>rightseditor</name>
-    
+
     <licenses>
         <license>
             <name>GNU General Public License</name>
@@ -32,7 +31,7 @@
     </parent>
 
     <properties>
-    	<gwt.version>2.3.0</gwt.version>
+        <gwt.version>2.3.0</gwt.version>
     </properties>
 
     <dependencies>
@@ -110,18 +109,18 @@
                     <runTarget>Rightseditor.html</runTarget>
                 </configuration>
 
-                <dependencies> 
-                    <dependency> 
-                        <groupId>com.google.gwt</groupId> 
-                            <artifactId>gwt-user</artifactId> 
-                            <version>${gwt.version}</version> 
-                        </dependency> 
-                        <dependency> 
-                            <groupId>com.google.gwt</groupId> 
-                            <artifactId>gwt-dev</artifactId> 
-                            <version>${gwt.version}</version> 
-                        </dependency> 
-                </dependencies> 
+                <dependencies>
+                    <dependency>
+                        <groupId>com.google.gwt</groupId>
+                            <artifactId>gwt-user</artifactId>
+                            <version>${gwt.version}</version>
+                        </dependency>
+                        <dependency>
+                            <groupId>com.google.gwt</groupId>
+                            <artifactId>gwt-dev</artifactId>
+                            <version>${gwt.version}</version>
+                        </dependency>
+                </dependencies>
 
                 <executions>
                     <execution>
@@ -130,9 +129,9 @@
                         </goals>
                     </execution>
                     <execution>
-                    	<id>gwt-clean</id>
-                    	<phase>clean</phase>
-                    	<goals><goal>clean</goal></goals>
+                        <id>gwt-clean</id>
+                        <phase>clean</phase>
+                        <goals><goal>clean</goal></goals>
                     </execution>
                 </executions>
             </plugin>
