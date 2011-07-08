@@ -29,7 +29,6 @@
          - from datastream by ID, text fetched, if mimetype can be handled
              currently the mimetypes text/plain, text/xml, text/html, application/pdf can be handled.
 -->
-    <xsl:param name="DOCCOUNT" select="0"/>
     
     <xsl:param name="PAGESCOUNT" select="1"/>
     <xsl:param name="PAGENUM" select="0"/>
@@ -57,7 +56,7 @@
     
     <xsl:variable name="MODEL" 
     select="substring(/foxml:digitalObject/foxml:datastream[@CONTROL_GROUP='X' and @ID='RELS-EXT']/foxml:datastreamVersion[last()]/foxml:xmlContent/rdf:RDF/rdf:Description/fedora-model:hasModel/@rdf:resource, 19)" />
-    <xsl:variable name="docBoost" select="1.4*2.5"/> <!-- or any other calculation, default boost is 1.0 -->
+    
     <xsl:variable name="HANDLE" 
     select="/foxml:digitalObject/foxml:datastream[@CONTROL_GROUP='X' and @ID='RELS-EXT']/foxml:datastreamVersion[last()]/foxml:xmlContent/rdf:RDF/rdf:Description/kramerius:handle/text()" />
     
@@ -65,9 +64,6 @@
     <xsl:template match="/">
 
         <xsl:param name="i" />
-                    <xsl:attribute name="boost">
-                        <xsl:value-of select="$docBoost"/>
-                    </xsl:attribute>
 
                     <!-- Indexujeme vsechny activa a ne activ. -->
                     <xsl:if test="foxml:digitalObject/foxml:objectProperties/foxml:property[@NAME='info:fedora/fedora-system:def/model#state' and @VALUE='Active']">
@@ -125,9 +121,7 @@
                 </xsl:if>
                 
                 <xsl:if test="$PATH and not($PATH = '')" >
-                    <field name="path">
-                        <xsl:value-of select="$PATH" />
-                    </field>
+                    <field name="path"><xsl:value-of select="$PATH" /></field>
                 </xsl:if>
                 <xsl:if test="$PID_PATH and not($PID_PATH = '')" >
                     <field name="pid_path"><xsl:value-of select="$PID_PATH" /></field>
@@ -269,7 +263,7 @@
         <!-- a managed datastream is fetched, if its mimetype 
              can be handled, the text becomes the value of the field.
              Excluding ALTO -->
-        <xsl:for-each select="foxml:datastream[@CONTROL_GROUP='M']">
+        <xsl:for-each select="foxml:datastream[@STATE='A']">
             
             <xsl:if test="(foxml:datastreamVersion/@MIMETYPE= 'text/plain' or
             foxml:datastreamVersion/@MIMETYPE='text/xml' or
@@ -277,7 +271,7 @@
             foxml:datastreamVersion/@MIMETYPE='application/pdf' or
             foxml:datastreamVersion/@MIMETYPE='application/ps' or
             foxml:datastreamVersion/@MIMETYPE='application/msword') and
-            not(@ID='ALTO')">
+            (@ID='TEXT_OCR' or @ID='IMG_FULL')">
             
                 <field name="text">
                     <xsl:value-of select="exts:getDatastreamText($generic, $PID, @ID, $pageNum)"/>
