@@ -1,13 +1,13 @@
 package com.qbizm.kramerius.imptool.poc.convertor;
 
-import java.awt.Graphics;
 import java.awt.Image;
-import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
 import java.awt.image.ImageObserver;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
@@ -25,7 +25,6 @@ import java.util.TreeMap;
 import java.util.regex.Pattern;
 
 import javax.imageio.ImageIO;
-import javax.swing.JPanel;
 import javax.xml.bind.JAXBException;
 import javax.xml.datatype.XMLGregorianCalendar;
 import javax.xml.parsers.DocumentBuilder;
@@ -41,8 +40,6 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
 import com.lizardtech.djvu.DjVuOptions;
-import com.lizardtech.djvu.DjVuPage;
-import com.lizardtech.djvubean.DjVuImage;
 import com.qbizm.kramerius.imp.jaxb.ContentLocationType;
 import com.qbizm.kramerius.imp.jaxb.DatastreamType;
 import com.qbizm.kramerius.imp.jaxb.DatastreamVersionType;
@@ -62,6 +59,8 @@ import com.qbizm.kramerius.imptool.poc.valueobj.RelsExt;
 import com.qbizm.kramerius.imptool.poc.valueobj.ServiceException;
 import com.sun.org.apache.xerces.internal.jaxp.datatype.XMLGregorianCalendarImpl;
 
+import cz.incad.kramerius.service.XSLService;
+import cz.incad.kramerius.service.impl.XSLServiceImpl;
 import cz.incad.kramerius.utils.FedoraUtils;
 import cz.incad.kramerius.utils.IOUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
@@ -168,6 +167,8 @@ public abstract class BaseConvertor {
     private SimpleDateFormat timestampFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
 
     private int objectCounter;
+
+    private XSLService xslService = new XSLServiceImpl(null);
 
     public BaseConvertor(ConvertorConfig config) throws ServiceException {
         this.config = config;
@@ -441,8 +442,17 @@ public abstract class BaseConvertor {
         try {
             ByteArrayOutputStream sourceOut = new ByteArrayOutputStream();
 
-            InputStream stylesheet = this.getClass().getClassLoader().getResourceAsStream(XSL_PATH + xslFile);
-
+            InputStream stylesheet = null;
+            File userStylesheet = xslService.xslFile(xslFile);
+            if(userStylesheet != null && (userStylesheet.exists()) && (userStylesheet.canRead())){
+                try {
+                    stylesheet=new FileInputStream(userStylesheet);
+                } catch (FileNotFoundException e) {
+                    log.fatal("User defined stylesheet "+xslFile+" disappeared.");
+                }
+            }else{
+                stylesheet= this.getClass().getClassLoader().getResourceAsStream(XSL_PATH + xslFile);
+            }
             getConfig().getMarshaller().marshal(page, sourceOut);
 
             // if (log.isDebugEnabled()) {

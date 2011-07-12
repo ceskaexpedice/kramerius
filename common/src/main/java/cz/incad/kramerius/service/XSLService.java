@@ -16,25 +16,27 @@ import org.w3c.dom.Document;
 public interface XSLService {
 public boolean isAvailable(String name);
 
-	/**
-	 * Return localized texts
-	 * @param name Name of text
-	 * @return
-	 * @throws IOException
-	 */
-	public String getXSL(String name) throws IOException;
+    /**
+     * Return localized texts
+     * @param name Name of text
+     * @return
+     * @throws IOException
+     */
+    public String getXSL(String name) throws IOException;
 
-	public String transform(String xml, String xsltName) throws Exception;
+    public String transform(String xml, String xsltName) throws Exception;
 
-	public String transform(Document xml, String xsltName) throws Exception;
+    public String transform(Document xml, String xsltName) throws Exception;
 
         public String serialize(Document xmldoc) throws Exception;
 
-	/**
-	 * Folder for user defined xsls
-	 * @return
-	 */
-	public File xslsFolder();
+    /**
+     * Folder for user defined xsls
+     * @return
+     */
+    public File xslsFolder();
+
+    public File xslFile(String name);
 
 
 }

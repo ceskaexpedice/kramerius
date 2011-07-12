@@ -125,7 +125,7 @@ public class XSLServiceImpl implements XSLService {
         return sw.getBuffer().toString();
     }
 
-    private File xslFile(String name) {
+    public File xslFile(String name) {
         File textFile = xslFile(xslsFolder(), name);
         return textFile;
     }
