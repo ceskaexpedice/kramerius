@@ -68,7 +68,7 @@
 function _ref(ordering, offset, size, type) {
 	$('#animation').attr('src', 'img/refresh_ani.gif');
 	var refreshurl = "dialogs/_processes_data.jsp?ordering="+ordering+"&offset="+offset+"&size="+size+"&type="+type;
-	$.get(refreshurl, function(sdata) {
+	defaultJQueryXHR.get(refreshurl, function(sdata) {
 		$('#animation').attr('src', 'img/refresh.png'); 
 		$("#processes").html(sdata);
 	});
