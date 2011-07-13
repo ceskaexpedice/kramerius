@@ -29,7 +29,7 @@
     <x:forEach varStatus="status" select="$doc/response/result/doc">
         <c:set var="t"><x:out select="./str[@name='root_title']"/></c:set>
         <div align="center" style="overflow:hidden; border:1px solid #eeeeee; width:100px; height:100px; float:left; margin:5px;">
-            <a href="handle/uuid:${uuid}" >
+            <a href="handle/${uuid}" >
                 <img align="middle" vspace="2" id="img_${uuid}" src="img?uuid=${uuid}&stream=IMG_THUMB&action=SCALE&scaledHeight=96" border="0"
                      title="${t}" alt="${t}" />
             </a>
