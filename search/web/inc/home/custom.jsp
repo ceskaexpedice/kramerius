@@ -18,8 +18,12 @@
             pageContext.setAttribute("uuids", uuids);
 %>
 <c:forEach varStatus="status" var="uuid" items="${uuids}">
+    <c:set var="pid" value="${uuid}" />
+    <c:if test="${fn:startsWith(uuid, 'uuid:')}">
+        <c:set var="pid" value="${fn:substringAfter(uuid, 'uuid:')}" />
+    </c:if>
     <c:url var="url" value="${kconfig.solrHost}/select/" >
-        <c:param name="q" value="PID:${uuid}" />
+        <c:param name="q" value="PID:${pid}" />
         <c:param name="fl" value="root_title" />
     </c:url>
     <c:catch var="exceptions">
@@ -30,7 +34,7 @@
         <c:set var="t"><x:out select="./str[@name='root_title']"/></c:set>
         <div align="center" style="overflow:hidden; border:1px solid #eeeeee; width:100px; height:100px; float:left; margin:5px;">
             <a href="handle/${uuid}" >
-                <img align="middle" vspace="2" id="img_${uuid}" src="img?uuid=${uuid}&stream=IMG_THUMB&action=SCALE&scaledHeight=96" border="0"
+                <img align="middle" vspace="2" id="img_${uuid}" src="img?uuid=${pid}&stream=IMG_THUMB&action=SCALE&scaledHeight=96" border="0"
                      title="${t}" alt="${t}" />
             </a>
         </div>
