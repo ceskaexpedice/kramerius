@@ -23,7 +23,7 @@ import java.util.logging.Level;
 import org.antlr.stringtemplate.StringTemplate;
 
 import cz.incad.Kramerius.security.userscommands.ServletUsersCommand;
-import cz.incad.kramerius.security.Group;
+import cz.incad.kramerius.security.Role;
 import cz.incad.kramerius.security.User;
 
 public class HintAllGroupsTable extends ServletUsersCommand {
@@ -37,7 +37,7 @@ public class HintAllGroupsTable extends ServletUsersCommand {
             String prefix = this.requestProvider.get().getParameter("prefix");
             if (prefix == null) prefix ="";
             int[] grps = getUserGroups(user);
-            Group[] groups = null;
+            Role[] groups = null;
             if (hasCurrentUserHasSuperAdminRole(user)) {
                 groups = userManager.findAllGroups(prefix);
             } else {

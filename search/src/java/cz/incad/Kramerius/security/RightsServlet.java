@@ -43,11 +43,12 @@ import cz.incad.Kramerius.security.rightscommands.get.EditRightsJSData;
 import cz.incad.Kramerius.security.rightscommands.get.NewRightHtml;
 import cz.incad.Kramerius.security.rightscommands.get.NewRightJSData;
 import cz.incad.Kramerius.security.rightscommands.get.ShowRightsHtml;
-import cz.incad.Kramerius.security.rightscommands.get.ShowRolesHtml;
 import cz.incad.Kramerius.security.rightscommands.get.ShowsActionsTableHtml;
 import cz.incad.Kramerius.security.rightscommands.post.Create;
 import cz.incad.Kramerius.security.rightscommands.post.Delete;
 import cz.incad.Kramerius.security.rightscommands.post.Edit;
+import cz.incad.Kramerius.security.userscommands.get.EditRoleHtml;
+import cz.incad.Kramerius.security.userscommands.get.ShowRolesHtml;
 import cz.incad.Kramerius.security.utils.UserFieldParser;
 import cz.incad.kramerius.FedoraAccess;
 import cz.incad.kramerius.SolrAccess;
@@ -100,6 +101,9 @@ public class RightsServlet extends GuiceServlet {
     transient IsActionAllowed actionAllowed;
     
     
+    @Inject
+    Provider<HttpServletResponse> responseProvider;
+
     
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
@@ -109,7 +113,8 @@ public class RightsServlet extends GuiceServlet {
             pidParser.objectPid();
 
             String action = req.getParameter("action");
-            
+            this.responseProvider.get().setContentType("text/html");
+                    
             try {
                 GetCommandsEnum command = GetCommandsEnum.valueOf(action);
                 command.doAction(getInjector());
@@ -144,6 +149,7 @@ public class RightsServlet extends GuiceServlet {
         delete(Delete.class),
         edit(Edit.class),
         create(Create.class);
+
         
         private Class<? extends ServletCommand> commandClass;
         
@@ -163,9 +169,7 @@ public class RightsServlet extends GuiceServlet {
 
         /** zobrazeni prav */
         showrights(ShowRightsHtml.class),
-        /** zobrazeni roli */
-        showroles(ShowRolesHtml.class),
-        
+
         /** zobrazeni tabulku akci - tlacitka pro zmenu */
         showglobalrights(ShowsActionsTableHtml.class),
         /** nove pravo */

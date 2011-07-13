@@ -43,7 +43,7 @@ import cz.incad.Kramerius.security.utils.UserFieldParser;
 import cz.incad.kramerius.FedoraAccess;
 import cz.incad.kramerius.SolrAccess;
 import cz.incad.kramerius.security.AbstractUser;
-import cz.incad.kramerius.security.Group;
+import cz.incad.kramerius.security.Role;
 import cz.incad.kramerius.security.IsActionAllowed;
 import cz.incad.kramerius.security.Right;
 import cz.incad.kramerius.security.RightsManager;
@@ -114,7 +114,7 @@ public class ShowRightsHtml extends ServletRightsCommand{
                         if (wrappedUser.getLoginname().equals(requestedParameter)) {
                             wrappedUser.setSelected(true);
                         }
-                    } else if (wrappedUser.getWrappedValue() instanceof Group) {
+                    } else if (wrappedUser.getWrappedValue() instanceof Role) {
                         if (wrappedUser.getName().equals(requestedParameter)) {
                             wrappedUser.setSelected(true);
                         }
@@ -149,8 +149,8 @@ public class ShowRightsHtml extends ServletRightsCommand{
                     filtered.add(right);
                 } else {
                     // administruje nekterou ze skupin
-                    Group[] grps = userManager.findGroupsForGivenUser(rightUsr.getId());
-                    for (Group group : grps) {
+                    Role[] grps = userManager.findGroupsForGivenUser(rightUsr.getId());
+                    for (Role group : grps) {
                         if (user.isAdministratorForGivenGroup(group.getPersonalAdminId())) {
                             filtered.add(right);
                             break;
@@ -248,7 +248,7 @@ public class ShowRightsHtml extends ServletRightsCommand{
             public List<Right> filter(List<Right> allRights) {
                 List<Right> result = new ArrayList<Right>();
                 for (Right right : allRights) {
-                    if (right.getUser() instanceof Group) {
+                    if (right.getUser() instanceof Role) {
                         result.add(right);
                     }
                 }

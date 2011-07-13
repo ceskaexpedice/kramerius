@@ -257,33 +257,7 @@ criteriumParamValidate(validated) ::=<<
 >>
 
 
-/** roles dialog */
-rolesTable(groups, bundle) ::=<<
 
-<div id="rolesDialogContent"> 
-    
-    
-    <table style="width:100%" style="table-layout: fixed;">
-       <thead style="border-bottom: 1px dashed; 
-                     background-image: url('img/bg_processheader.png'); 
-                     background-repeat: repeat-x;">
-            <tr>
-                <td width="85%">$bundle.("rights.dialog.table.column.group")$</td>
-                <td>$bundle.("rights.dialog.table.column.change")$</td>
-            </tr>            
-       </thead> 
-       <tbody>
-       $groups:{grp|<tr>
-        <td><a href="#">$grp.name$</a></td>
-        <td><button value="zmena" onclick="roles.showOneRole('$grp.name$');">$bundle.("rights.dialog.buttons.edit")$</button></td>
-       </tr>};separator="\n"$
-
-       </tbody>
-    </table>
-    
-</div>
-
->>
 
 /** primitivni lokalizace */
 string(bundle, key) ::="$bundle.(key)$"

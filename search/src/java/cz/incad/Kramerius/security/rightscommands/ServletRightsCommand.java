@@ -30,15 +30,15 @@ import org.antlr.stringtemplate.language.DefaultTemplateLexer;
 
 import cz.incad.Kramerius.security.RightsServlet;
 import cz.incad.Kramerius.security.ServletCommand;
-import cz.incad.kramerius.security.Group;
+import cz.incad.kramerius.security.Role;
 import cz.incad.kramerius.security.User;
 import cz.incad.kramerius.utils.IOUtils;
 
 public abstract class ServletRightsCommand extends ServletCommand {
 
     protected static boolean hasSuperAdminRole(User user) {
-        Group[] grps = user.getGroups();
-        for (Group grp : grps) {
+        Role[] grps = user.getGroups();
+        for (Role grp : grps) {
             if (grp.getPersonalAdminId() == 0) {
                 return true;
             }

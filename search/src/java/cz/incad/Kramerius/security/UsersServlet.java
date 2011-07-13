@@ -49,13 +49,20 @@ import cz.incad.Kramerius.security.userscommands.get.HintAllGroupsTable;
 import cz.incad.Kramerius.security.userscommands.get.HintAllUsersTable;
 import cz.incad.Kramerius.security.userscommands.get.HintGroupsForUserTable;
 import cz.incad.Kramerius.security.userscommands.get.HintUsersForGroup;
+import cz.incad.Kramerius.security.userscommands.get.EditRoleHtml;
+import cz.incad.Kramerius.security.userscommands.get.NewRoleHtml;
+import cz.incad.Kramerius.security.userscommands.get.ShowRolesHtml;
 import cz.incad.Kramerius.security.userscommands.get.UsersJSAutocomplete;
+import cz.incad.Kramerius.security.userscommands.post.CreateRole;
+import cz.incad.Kramerius.security.userscommands.post.DeleteRole;
 import cz.incad.Kramerius.security.userscommands.post.SaveNewPassword;
+import cz.incad.Kramerius.security.userscommands.post.SaveRole;
 import cz.incad.Kramerius.security.utils.UserFieldParser;
 import cz.incad.kramerius.FedoraAccess;
 import cz.incad.kramerius.SolrAccess;
 import cz.incad.kramerius.security.AbstractUser;
-import cz.incad.kramerius.security.Group;
+import cz.incad.kramerius.security.IsActionAllowed;
+import cz.incad.kramerius.security.Role;
 import cz.incad.kramerius.security.RightsManager;
 import cz.incad.kramerius.security.User;
 import cz.incad.kramerius.security.UserManager;
@@ -88,7 +95,11 @@ public class UsersServlet extends GuiceServlet {
     
     @Inject
     UserManager userManager;
-
+    
+    @Inject
+    Provider<HttpServletResponse> responseProvider;
+    
+    
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         String uuid = req.getParameter(UUID_PARAMETER);
@@ -97,6 +108,7 @@ public class UsersServlet extends GuiceServlet {
                 pidParser.objectPid();
                 
                 String action = req.getParameter("action");
+                this.responseProvider.get().setContentType("text/html");
                 try {
                     GetCommandsEnum command = GetCommandsEnum.valueOf(action);
                     command.doAction(getInjector());
@@ -127,8 +139,12 @@ public class UsersServlet extends GuiceServlet {
 
 
     enum PostCommandsEnum {
+        
         /** zmena hesla */
-        savenewpswd(SaveNewPassword.class);
+        savenewpswd(SaveNewPassword.class),
+        saverole(SaveRole.class),
+        deleterole(DeleteRole.class),
+        newrole(CreateRole.class);
         
         private Class<? extends ServletCommand> commandClass;
         
@@ -144,6 +160,16 @@ public class UsersServlet extends GuiceServlet {
     }
     
     enum GetCommandsEnum {
+        
+        /** zobrazeni roli */
+        showroles(ShowRolesHtml.class),
+
+        /** editace roli */
+        editrole(EditRoleHtml.class),
+
+        /** nova role */
+        newrole(NewRoleHtml.class),
+
         /** dialog pro zmenu hesla */
         changepswd(ChangePassword.class),
         /** tabulka uzivatelu */

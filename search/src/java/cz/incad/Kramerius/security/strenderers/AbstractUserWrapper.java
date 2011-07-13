@@ -23,11 +23,11 @@ import java.util.Map;
 import java.util.ResourceBundle;
 
 import cz.incad.kramerius.security.AbstractUser;
-import cz.incad.kramerius.security.Group;
+import cz.incad.kramerius.security.Role;
 import cz.incad.kramerius.security.User;
 
 
-public class AbstractUserWrapper implements User, Group {
+public class AbstractUserWrapper implements User, Role {
 
     public static final AbstractUserWrapper ALL_USERS_ITEM = new AbstractUserWrapper(null);
     
@@ -47,7 +47,7 @@ public class AbstractUserWrapper implements User, Group {
 
     @Override
     public String getName() {
-        return ((Group)this.user).getName();
+        return ((Role)this.user).getName();
     }
 
     @Override
@@ -67,13 +67,13 @@ public class AbstractUserWrapper implements User, Group {
 
     
     @Override
-    public Group[] getGroups() {
+    public Role[] getGroups() {
         return ((User)this.user).getGroups();
     }
 
     public String getInputId() {
         if (this == ALL_USERS_ITEM) return "all";
-        if (this.user instanceof Group) {
+        if (this.user instanceof Role) {
             return getName();
         } else {
             return getLoginname();
@@ -82,7 +82,7 @@ public class AbstractUserWrapper implements User, Group {
     }
     
     public String getTypeOfUser() {
-        return (this.user instanceof Group) ? "group":
+        return (this.user instanceof Role) ? "group":
             "user";
     }
     
@@ -90,11 +90,18 @@ public class AbstractUserWrapper implements User, Group {
         return this.user;
     }
     
+    
+    
+    @Override
+    public Boolean isPersonalAdminDefined() {
+        return getPersonalAdminId() > 0;
+    }
+
     //TODO: I18N
     public String getOptionValue() {
         //<option value="$k$" selected>$k$</option>
         if (this == ALL_USERS_ITEM) return "Vsichni uzivatele";
-        if (this.user instanceof Group) {
+        if (this.user instanceof Role) {
             return getName();
         } else {
             return getFirstName()+" "+getSurname();
@@ -105,7 +112,7 @@ public class AbstractUserWrapper implements User, Group {
     @Override
     public String toString() {
         if (this == ALL_USERS_ITEM) return "all";
-        if (this.user instanceof Group) {
+        if (this.user instanceof Role) {
             if (getName().equals("common_users")) {
                 return "Vsichni uzivatele <img src=\"img/rights-person.png\"></img><img src=\"img/rights-group.png\"></img>";
             } else {
@@ -121,7 +128,7 @@ public class AbstractUserWrapper implements User, Group {
         List<Integer> uids = new ArrayList<Integer>();
         List<AbstractUserWrapper> wrappers = new ArrayList<AbstractUserWrapper>();
         for (AbstractUser abstractUser : users) {
-            if (abstractUser instanceof Group) {
+            if (abstractUser instanceof Role) {
                 if (!gids.contains(abstractUser.getId())) {
                     gids.add(abstractUser.getId());
                     wrappers.add(new AbstractUserWrapper(abstractUser));

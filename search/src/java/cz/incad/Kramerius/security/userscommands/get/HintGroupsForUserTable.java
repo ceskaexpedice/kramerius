@@ -26,7 +26,7 @@ import org.antlr.stringtemplate.StringTemplate;
 import cz.incad.Kramerius.security.strenderers.AbstractUserWrapper;
 import cz.incad.Kramerius.security.userscommands.ServletUsersCommand;
 import cz.incad.Kramerius.security.utils.UserFieldParser;
-import cz.incad.kramerius.security.Group;
+import cz.incad.kramerius.security.Role;
 import cz.incad.kramerius.security.User;
 import cz.incad.kramerius.utils.pid.LexerException;
 
@@ -48,7 +48,7 @@ public class HintGroupsForUserTable extends ServletUsersCommand {
                 LOGGER.log(Level.SEVERE, e.getMessage(),e);
             }
             User foundByLoginName = userManager.findUserByLoginName(requestedUser);
-            Group[] grps = userManager.findGroupsForGivenUser(foundByLoginName.getId());
+            Role[] grps = userManager.findGroupsForGivenUser(foundByLoginName.getId());
             
             StringTemplate template = ServletUsersCommand.stFormsGroup().getInstanceOf("groupsTableForUser");
             template.setAttribute("groups", grps);

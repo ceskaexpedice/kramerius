@@ -22,6 +22,8 @@ import com.google.inject.Provider;
 import com.google.inject.name.Named;
 
 import cz.incad.kramerius.FedoraAccess;
+import cz.incad.kramerius.security.User;
+import cz.incad.kramerius.security.UserManager;
 import cz.incad.kramerius.service.ResourceBundleService;
 
 /**
@@ -42,7 +44,10 @@ public class HeaderViewObject {
     @Inject
     @Named("securedFedoraAccess")
     FedoraAccess fedoraAccess;
-    
+    @Inject
+    Provider<User> userProvider; 
+    @Inject
+    UserManager userManager;
     
     public String getDictionary() {
         Map<String, String> resourceBundleMap = new HashMap<String, String>();
@@ -70,6 +75,17 @@ public class HeaderViewObject {
         InputStream is = HeaderViewObject.class.getResourceAsStream("htmlHeaderJavascript.stg");
         StringTemplateGroup grp = new StringTemplateGroup(new InputStreamReader(is), DefaultTemplateLexer.class);
         return grp;
+    }
+    
+    public String getInjectedAdminScripts() {
+        User user = this.userProvider.get();
+        if (this.userManager.isLoggedUser(user)) {
+            StringTemplateGroup grp = stGroup();
+            StringTemplate st = grp.getInstanceOf("injectedAdminScripts");
+            return st.toString();
+        } else {
+            return "";
+        }
     }
     
     

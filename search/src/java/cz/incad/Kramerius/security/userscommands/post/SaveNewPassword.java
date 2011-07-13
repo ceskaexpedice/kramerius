@@ -31,13 +31,14 @@ import cz.incad.kramerius.security.utils.PasswordDigest;
 
 public class SaveNewPassword extends ServletUsersCommand {
 
+    private static final String PSWD_PARAM = "nswpd";
     static java.util.logging.Logger LOGGER = java.util.logging.Logger.getLogger(SaveNewPassword.class.getName());
     
     @Override
     public void doCommand() {
         try {
             HttpServletRequest req = this.requestProvider.get();
-            String newPswd = req.getParameter("nswpd");
+            String newPswd = req.getParameter(PSWD_PARAM);
             User user = this.userProvider.get();
             if (user.getId() > 0) {
                 newPswd = PasswordDigest.messageDigest(newPswd);

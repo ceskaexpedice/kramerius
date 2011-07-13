@@ -31,7 +31,7 @@ import cz.incad.Kramerius.security.strenderers.AbstractUserWrapper;
 import cz.incad.Kramerius.security.userscommands.ServletUsersCommand;
 import cz.incad.Kramerius.security.utils.UserFieldParser;
 import cz.incad.kramerius.security.AbstractUser;
-import cz.incad.kramerius.security.Group;
+import cz.incad.kramerius.security.Role;
 import cz.incad.kramerius.security.User;
 import cz.incad.kramerius.utils.pid.LexerException;
 
@@ -51,7 +51,7 @@ public class HintUsersForGroup extends ServletUsersCommand {
             } catch (LexerException e) {
                 LOGGER.log(Level.SEVERE, e.getMessage(),e);
             }
-            Group grp = userManager.findGroupByName(requestedGroup);
+            Role grp = userManager.findGroupByName(requestedGroup);
             User[] users = userManager.findUsersForGivenGroup(grp.getId());
             StringTemplate template = ServletUsersCommand.stFormsGroup().getInstanceOf("usersTableForGroup");
             List<AbstractUserWrapper> ausers = new ArrayList<AbstractUserWrapper>();

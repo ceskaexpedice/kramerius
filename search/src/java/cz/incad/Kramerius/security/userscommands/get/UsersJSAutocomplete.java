@@ -28,7 +28,7 @@ import cz.incad.Kramerius.security.ServletCommand;
 import cz.incad.Kramerius.security.userscommands.ServletUsersCommand;
 import cz.incad.Kramerius.security.utils.UserFieldParser;
 import cz.incad.kramerius.security.AbstractUser;
-import cz.incad.kramerius.security.Group;
+import cz.incad.kramerius.security.Role;
 import cz.incad.kramerius.security.User;
 import cz.incad.kramerius.utils.pid.LexerException;
 
@@ -53,8 +53,8 @@ public class UsersJSAutocomplete extends ServletUsersCommand {
             User user = this.userProvider.get();
             if (hasCurrentUserHasSuperAdminRole(user)) {
                 if (autocompletetype.equals("group")) {
-                    Group[] groups = userManager.findGroupByPrefix(prefix.trim());
-                    for (Group grp : groups) {
+                    Role[] groups = userManager.findGroupByPrefix(prefix.trim());
+                    for (Role grp : groups) {
                         ausers.add(grp);
                     }
                 } else {
@@ -66,8 +66,8 @@ public class UsersJSAutocomplete extends ServletUsersCommand {
             } else {
                 int[] grps = getUserGroups(user);
                 if (autocompletetype.equals("group")) {
-                    Group[] groups = userManager.findGroupByPrefixForGroups(prefix.trim(),grps );
-                    for (Group grp : groups) {
+                    Role[] groups = userManager.findGroupByPrefixForGroups(prefix.trim(),grps );
+                    for (Role grp : groups) {
                         ausers.add(grp);
                     }
                 } else {

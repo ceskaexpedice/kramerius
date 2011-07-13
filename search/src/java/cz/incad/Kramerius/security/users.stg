@@ -2,6 +2,10 @@
 group users;
 
 
+/** pomocna sablona pro selected combo */    
+selectedComboItem(selectedflag) ::="$if(selectedflag)$ selected $endif$"
+
+
 /** tabulka vsech uzivatelu */
 allUsersTable(users,bundle) ::=<<
     <div style="width:100%;margin-top:5px; padding-top: 5px; border-top:1px dashed;">
@@ -67,4 +71,94 @@ changePswd(bundle) ::=<<
     </div>
 >>
 
+
+/** roles dialog */
+rolesTable(groups, bundle) ::=<<
+
+<div id="rolesDialogContent">
+
+    <table style="width:100%">
+        <tr>
+            <td width="20px">
+                <a style="background: url('img/add.png') no-repeat scroll 0% 0% transparent; border-width: 0px; display: block; height: 18px; width: 18px;" href="javascript:roles.newRole();"></a>
+            </td>
+            
+            <td width="20px">
+                <a style="background: url('img/refresh.png') no-repeat scroll 0% 0% transparent; border-width: 0px; display: block; height: 18px; width: 18px;" href="javascript:roles.refreshRoles();"></a>
+            </td>
+            <td width="100%"></td>    
+        </tr>
+    </table>    
+ 
+    <table style="width:100%;table-layout: fixed;">
+       <thead style="border-bottom: 1px dashed; 
+                     background-image: url('img/bg_processheader.png'); 
+                     background-repeat: repeat-x;
+                     height: 28px;">
+            <tr>
+                <td>$bundle.("rights.dialog.table.column.group")$</td>
+                <td width="25%" align="center">$bundle.("rights.dialog.table.column.change")$</td>
+            </tr>            
+       </thead> 
+
+       <tbody>
+       $groups:{grp|
+       <tr>
+        <td><a href="#">$grp.name$</a></td>
+        <td><button value="zmena" onclick="roles.editRole('$grp.name$');">$bundle.("rights.dialog.buttons.edit")$</button>
+        <button value="delete" $if(!grp.canbedeleted)$ disabled="true" $endif$ onclick="roles.deleteRole('$grp.name$');">$bundle.("rights.dialog.buttons.delete")$</button></td>
+       </tr>};separator="\n"$
+       </tbody>
+    </table>
+</div>
+>>
+
+/** zobrazi roli */
+oneRole(role, admroles,allroles, bundle) ::=<<
+    <form id="modifyRole" method="post">
+        $if(role)$
+        $bundle.("role.dialog.editrole")$
+        <strong>$role.name$</strong>
+        $else$
+        $bundle.("role.dialog.newrole")$
+        $endif$
+        
+        <hr></hr>
+                
+        <fieldset style="border-width:0px;padding:0px;">
+            <table width="100%">
+
+                $if(role)$
+                <tr><td><input id="roleId" type="hidden" value="$role.id$"></input></td></tr>
+                $else$
+                <tr><td><input id="roleId" type="hidden" value="-1"></input></td></tr>
+                $endif$
+
+                <tr><td><label for="name">$bundle.("role.dialog.rolename")$</label> <label id="roleNameError" style="visibility:hidden; color:red;">($bundle.("role.dialog.rolename.error")$)</label></td></tr>
+
+
+                $if(role)$
+                <tr><td><input id="name" onkeyup="roles.rolesCheck(this);"  value="$role.name$"></input></td></tr>
+                $else$
+                <tr><td><input id="name" onkeyup="roles.rolesCheck(this);"  value=""></input></td></tr>
+                $endif$
+                
+                <tr><td><label for="personalAdminId">$bundle.("role.dialog.roleadm")$</label></td></tr>
+
+                <tr><td>
+                    <select id="personalAdminId" name="rolesInput" size="1" width="100%" >
+                        $admroles:{admr|<option value="$admr.id$" $selectedComboItem(selectedflag=admr.selected)$>$admr.name$</option> };separator="\n"$
+                    </select>
+                </td></tr>
+
+                <tr><td>
+                    <select id="allRolesId" name="hiddenRolesInput" size="1" width="100%" style="visibility:hidden;" >
+                        $allroles:{admr|<option value="$admr.id$">$admr.name$</option> };separator="\n"$
+                    </select>
+                </td></tr>
+                
+            </table>
+        </fieldset>
+    </form>
+>>
 

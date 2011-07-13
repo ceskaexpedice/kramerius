@@ -169,7 +169,7 @@ public class AdminMenuViewObject {
     
     private String changepswd() throws IOException {
         return renderMenuItem(
-                "javascript:new ChangePswd.changePassword(); javascript:hideAdminMenu();",
+                "javascript:(new ChangePswd()).changePassword(); javascript:hideAdminMenu();",
                 "administrator.menu.dialogs.changePswd.title", false);
     }
 

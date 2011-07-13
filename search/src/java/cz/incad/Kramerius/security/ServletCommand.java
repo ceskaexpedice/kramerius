@@ -36,7 +36,7 @@ import com.google.inject.name.Named;
 
 import cz.incad.kramerius.FedoraAccess;
 import cz.incad.kramerius.SolrAccess;
-import cz.incad.kramerius.security.Group;
+import cz.incad.kramerius.security.Role;
 import cz.incad.kramerius.security.IsActionAllowed;
 import cz.incad.kramerius.security.RightCriteriumWrapperFactory;
 import cz.incad.kramerius.security.RightsManager;
@@ -84,9 +84,9 @@ public abstract class ServletCommand {
     @Inject
     protected transient RightCriteriumWrapperFactory criteriumWrapperFactory;
     
-    public abstract void doCommand();
+    public abstract void doCommand() throws IOException;
 
-
+    
     public String getSecuredAction() {
         String securedActionString = this.requestProvider.get().getParameter("securedaction");
         return securedActionString;
@@ -130,8 +130,8 @@ public abstract class ServletCommand {
 
 
     public boolean hasCurrentUserHasSuperAdminRole(User user) {
-        Group[] groups = user.getGroups();
-        for (Group group : groups) {
+        Role[] groups = user.getGroups();
+        for (Role group : groups) {
             if (group.getPersonalAdminId() <= 0 ) {
                 return true;
             }
@@ -142,7 +142,7 @@ public abstract class ServletCommand {
 
 
     public int[] getUserGroups(User user) {
-        Group[] grps = user.getGroups();
+        Role[] grps = user.getGroups();
         int[] grpIds = new int[grps.length];
         for (int i = 0; i < grpIds.length; i++) {
             grpIds[i] = grps[i].getId();
