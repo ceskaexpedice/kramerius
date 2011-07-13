@@ -30,7 +30,7 @@ public interface AbstractUser extends Serializable {
      */
     public int getId();
     
-
+    //TODO: MOVE to group
     public int getPersonalAdminId();
 
 }

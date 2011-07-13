@@ -25,19 +25,19 @@ import javax.naming.InitialContext;
 import javax.naming.NamingException;
 import javax.sql.DataSource;
 
-import cz.incad.kramerius.security.Group;
+import cz.incad.kramerius.security.Role;
 import cz.incad.kramerius.security.User;
-import cz.incad.kramerius.security.impl.GroupImpl;
+import cz.incad.kramerius.security.impl.RoleImpl;
 import cz.incad.kramerius.security.impl.UserImpl;
 import cz.incad.kramerius.security.jaas.K4LoginModule;
 
 public class SecurityDBUtils {
 
-    public static Group createGroup(ResultSet rs) throws SQLException {
+    public static Role createGroup(ResultSet rs) throws SQLException {
         int id = rs.getInt("group_id");
         String gname = rs.getString("gname");    
         int personalAdminId = rs.getInt("personal_admin_id");
-        Group grp = new GroupImpl(id, gname, personalAdminId);
+        Role grp = new RoleImpl(id, gname, personalAdminId);
         return grp;
     }
 

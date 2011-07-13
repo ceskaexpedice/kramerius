@@ -22,10 +22,12 @@ import java.io.Serializable;
  * Represents group of users
  * @author pavels
  */
-public interface Group  extends AbstractUser, Serializable {
+public interface Role  extends AbstractUser, Serializable {
     
     public String getName();
+   
+    //TODO: MOVE to group
+    public int getPersonalAdminId();
     
-    
-
+    public Boolean isPersonalAdminDefined();
 }

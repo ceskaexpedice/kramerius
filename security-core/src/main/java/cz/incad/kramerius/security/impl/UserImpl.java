@@ -16,7 +16,7 @@
  */
 package cz.incad.kramerius.security.impl;
 
-import cz.incad.kramerius.security.Group;
+import cz.incad.kramerius.security.Role;
 import cz.incad.kramerius.security.User;
 
 public class UserImpl implements User {
@@ -32,7 +32,7 @@ public class UserImpl implements User {
     
     private int personalAdminId;
 
-    private Group[] groups;
+    private Role[] groups;
     
     public UserImpl(int id, String firstName, String surName, String loginName, int personalAdminId) {
         super();
@@ -73,11 +73,11 @@ public class UserImpl implements User {
 
     
     @Override
-    public Group[] getGroups() {
+    public Role[] getGroups() {
         return this.groups;
     }
 
-    public void setGroups(Group[] grps) {
+    public void setGroups(Role[] grps) {
         this.groups = grps;
     }
 
@@ -91,8 +91,8 @@ public class UserImpl implements User {
 
     @Override
     public boolean isAdministratorForGivenGroup(int personalAdminId) {
-        Group[] grps = getGroups();
-        for (Group grp : grps) {
+        Role[] grps = getGroups();
+        for (Role grp : grps) {
             if (grp.getId() == personalAdminId) return true;
         }
         return false;
@@ -103,8 +103,8 @@ public class UserImpl implements User {
     
     @Override
     public boolean hasSuperAdministratorRole() {
-        Group[] groups = this.getGroups();
-        for (Group group : groups) {
+        Role[] groups = this.getGroups();
+        for (Role group : groups) {
             if (group.getPersonalAdminId() <= 0 ) {
                 return true;
             }

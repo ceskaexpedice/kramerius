@@ -20,13 +20,13 @@ import java.security.Principal;
 import java.util.ArrayList;
 import java.util.List;
 
-import cz.incad.kramerius.security.Group;
+import cz.incad.kramerius.security.Role;
 import cz.incad.kramerius.security.User;
 
 public class K4UserPrincipal implements Principal {
 
     private User user;
-    private List<Group> groups = new ArrayList<Group>();
+    private List<Role> groups = new ArrayList<Role>();
 
     public K4UserPrincipal(User user) {
         super();
@@ -43,11 +43,11 @@ public class K4UserPrincipal implements Principal {
         return user;
     }
     
-    public void addGroup(Group group) {
+    public void addGroup(Role group) {
         this.groups.add(group);
     }
     
-    public void removeGroup(Group group) {
+    public void removeGroup(Role group) {
         this.groups.remove(group);
     }
 }

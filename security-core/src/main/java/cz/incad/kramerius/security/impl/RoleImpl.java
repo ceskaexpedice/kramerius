@@ -18,9 +18,9 @@ package cz.incad.kramerius.security.impl;
 
 import java.io.Serializable;
 
-import cz.incad.kramerius.security.Group;
+import cz.incad.kramerius.security.Role;
 
-public class GroupImpl  implements Group, Serializable {
+public class RoleImpl  implements Role, Serializable {
 
     /**
      * 
@@ -31,7 +31,7 @@ public class GroupImpl  implements Group, Serializable {
     private int personalAdminId;
     
     
-    public GroupImpl(int id, String gname, int personalAdminId) {
+    public RoleImpl(int id, String gname, int personalAdminId) {
         super();
         this.id = id;
         this.gname = gname;
@@ -57,6 +57,7 @@ public class GroupImpl  implements Group, Serializable {
     }
 
 
+
     @Override
     public int hashCode() {
         final int prime = 31;
@@ -74,12 +75,16 @@ public class GroupImpl  implements Group, Serializable {
             return false;
         if (getClass() != obj.getClass())
             return false;
-        GroupImpl other = (GroupImpl) obj;
+        RoleImpl other = (RoleImpl) obj;
         if (id != other.id)
             return false;
         return true;
     }
 
-    
+
+    @Override
+    public Boolean isPersonalAdminDefined() {
+        return this.getPersonalAdminId() > 0;
+    }
 }
 

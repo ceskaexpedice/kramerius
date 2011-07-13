@@ -20,7 +20,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
 
-import cz.incad.kramerius.security.Group;
+import cz.incad.kramerius.security.Role;
 import cz.incad.kramerius.security.IsActionAllowedBase;
 import cz.incad.kramerius.security.User;
 import cz.incad.kramerius.security.utils.SecurityDBUtils;
@@ -33,9 +33,9 @@ public class IsActionAllowedBaseImpl implements IsActionAllowedBase {
     
     private static String getGroupIds(User user) {
         StringBuffer buffer = new StringBuffer();
-        Group[] grps = user.getGroups();
+        Role[] grps = user.getGroups();
         for (int i = 0; i < grps.length; i++) {
-            Group grp = grps[i];
+            Role grp = grps[i];
             buffer.append(grp.getId());
             if (i <= grps.length-1) { buffer.append(","); }
         }
