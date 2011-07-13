@@ -44,6 +44,7 @@ Array.prototype.forEach =  function (action) {
 }
 
 
+
 /** 
  * Reduce function can reduce given array to one result. 
  * 
@@ -70,6 +71,18 @@ function map(func, array) {
 		result.push(func(element));
 	});
 	return result;
+}
+
+function mapJQuerySelector(func, jqueryobj) {
+	var result = [];
+	jqueryobj.each(function() {
+		result.push(func(arguments[1]));		
+	});
+	return result;
+}
+
+function identity(param) {
+	return param;
 }
 
 /** 
@@ -179,5 +192,42 @@ function ajax(urlAddress, successFunction, failedFunction) {
     });
 }
 
+
+
+/** 
+ * Ajax helper. 
+ */
+function AjaxHelper(defaultErrorFunctions) {
+	this.defaultErrorFunctions = defaultErrorFunctions || {};			
+}
+
+AjaxHelper.prototype.fail=function(xhr) {
+	var func = this.defaultErrorFunctions[xhr.status] || this.defaultErrorFunctions["default"];
+	func.apply(this,arguments);
+}
+
+AjaxHelper.prototype.get = function(urlAddress, successFunction, failedFunction) {
+    $.ajax({
+	url: urlAddress,
+	success: successFunction,
+	error:bind(function(xhr) { 
+			if (failedFunction) {  
+				failedFunction.apply(this,arguments); 
+			} else {
+				this.fail(xhr);			
+			}
+		}, this)
+    });
+}
+
+var defaultJQueryXHR = new AjaxHelper({
+	"403": function(xhr) {
+		var cur = window.location;
+		window.location=cur;	
+	},
+	"default": function(xhr) {
+		alert("unhandled error");	
+	}
+});
 
 
