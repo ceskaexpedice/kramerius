@@ -28,12 +28,12 @@ public class LRProcessOffset {
 	public String getNextOffset() {
 		int iOffset = Integer.parseInt(offset);
 		int iSize = Integer.parseInt(size);
-		return ""+(iOffset + iSize + 1);
+		return ""+(iOffset + iSize);
 	}
 
 	public String getPrevOffset() {
 		int iOffset = Integer.parseInt(offset);
 		int iSize = Integer.parseInt(size);
-		return ""+(iOffset - iSize - 1);
+		return ""+(iOffset - iSize );
 	}
 }
