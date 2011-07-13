@@ -198,6 +198,7 @@
                                                 });
                                                 
                                             </script>
+<%--                                          
                                             <div id="centralContent">
                                                 
                                                 <ul>
@@ -263,6 +264,8 @@
                                                 </div>
 
                                             </div>
+--%> 
+ <%@ include file="inc/details/tabs/container.jsp" %>
                                         </td>
                                 </tr></table>
                             </td>
