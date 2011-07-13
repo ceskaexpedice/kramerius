@@ -2,8 +2,12 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/xml" prefix="x" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt" %>
+<%@ taglib uri="/WEB-INF/tlds/securedContent.tld" prefix="scrd" %>
+
 <%@ page isELIgnored="false"%>
 
+
+<scrd:securedContent action="reindex">
 
 <!-- reindexace -->
 <div id="reindex_started" style="display:none;">
@@ -20,6 +24,8 @@
 		<p style="font-family: sans-serif; font-size: 12px; font-weight: bold;"><fmt:message bundle="${lctx}">administrator.dialogs.reindexfailed</fmt:message></p>
 	</div>
 </div>
+
+</scrd:securedContent>
 
 <!-- vypis procesu -->
 <div id="processes" style="display:none;"></div>
