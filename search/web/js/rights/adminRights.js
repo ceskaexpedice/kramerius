@@ -3,6 +3,40 @@
  */
 
 
+function YesNoDialog() {
+	this.dialog = null;
+	this._internalfunc;
+}
+
+YesNoDialog.prototype.perform=function(msg, func) {
+	this._internalfunc=func;
+    	if (this.dialog) {
+    		this.dialog.dialog('open');
+        } else {
+            $(document.body).append('<div id="yesNoDialog"><div id="yesNoDialogMsg"></div>'+'</div>');
+		this.dialog = $('#yesNoDialog').dialog({
+			width:300,
+			height:80,
+			modal:true,
+			title:"",
+                	buttons: {
+				"Ano": bind(function() {
+					this._internalfunc("yes");
+	        	            	$(this.dialog).dialog("close"); 
+				},this), 
+				"Ne": bind(function() {
+					this._internalfunc("no");
+                	    		$(this).dialog("close"); 
+				},this) 
+			}
+		});
+
+	}
+
+	$("#yesNoDialogMsg").html(msg);
+}
+
+var yesnodialog =  new YesNoDialog();
 
 /** Object for changing password */
 function ChangePswd() {
@@ -687,6 +721,42 @@ function Roles() {
 	this.roleDialog = null;
 }
 
+/**
+ * Check role name 
+ * 
+ * @param {object} html input
+ */
+Roles.prototype.rolesCheck=function(inp) {
+	var forbiddenVals = mapJQuerySelector(function(obj) {
+		return $(obj).text(); 
+	},$("#allRolesId option")); 	
+	
+	var reducedValue = reduce(function(baseVal,iteratingVal) { 
+		return (baseVal === iteratingVal) ? "" : baseVal;
+	}, $(inp).val(), forbiddenVals);
+
+	if(reducedValue === "") {
+		$("#roleNameError").css('visibility','visible');	
+		return false;
+	} else {
+		$("#roleNameError").css('visibility','hidden');	
+		return true;
+	}
+
+}
+
+/**
+ * Rerfreshing roles table 
+ * 
+ * @param {object} html input
+ */
+Roles.prototype.refreshRoles=function() {
+	var url = "users?action=showroles";
+	$.get(url, function(data) {
+    		$("#roles").html(data);
+    	});
+}
+
 Roles.prototype.showRoles=function() {
 	if (this.dialog) {
 		this.dialog.dialog('open');
@@ -698,13 +768,13 @@ Roles.prototype.showRoles=function() {
 		    modal:true,
 		    title:"",
 		    buttons: {
-			"Close": function() {
-			    $(this).dialog("close"); 
-			} 
+			"Close": bind(function() {
+			    $(this.dialog).dialog("close"); 
+			},this) 
 		    } 
 		});
 	}
-	var url = "rights?action=showroles";
+	var url = "users?action=showroles";
 	$.get(url, function(data) {
     		$("#roles").html(data);
     	});
@@ -712,27 +782,109 @@ Roles.prototype.showRoles=function() {
 }
 
 
-Roles.prototype.showOneRole = function(rolename) {
-	if (this.roleDialog) {
-		this.roleDialog.dialog('open');
-	} else {
-		$(document.body).append('<div id="role">'+'</div>');
-		this.roleDialog = $('#role').dialog({
-		    width:600,
-		    height:400,
-		    modal:true,
-		    title:"",
-		    buttons: {
-			"Close": function() {
-			    $(this).dialog("close"); 
-			} 
-		    } 
-		});
-	}
-	
+Roles.prototype.dialogForRole = function(savefunction) {
+	this._savefunction = savefunction;
+    	if (this.roleDialog) {
+    		this.roleDialog.dialog('open');
+    	} else {
+    		$(document.body).append('<div id="role">'+'</div>');
+    		this.roleDialog = $('#role').dialog({
+    		    width:600,
+    		    height:400,
+    		    modal:true,
+    		    title:"",
+    		    buttons: {
+			"Close": bind(function() {
+			    $(this.roleDialog).dialog("close"); 
+			     this.refreshRoles();	
+			},this),
+			"Save": bind(function() {
+				if (this.rolesCheck($("#name").get(0))) {
+					this._savefunction();	
+				}	
+				$(this.roleDialog).dialog("close"); 
+	    		        this.refreshRoles();	
+			},this)
+		    }	
+    		});
+    	}
 }
 
-// change password
+
+
+
+
+Roles.prototype.newRole = function() {
+    var url = "users?action=newrole";
+    $.get(url, bind(function(data) {
+	this.dialogForRole(
+	function() {
+		var strct = {
+			id:$("#roleId").val(),
+			name:$("#name").val(),
+			personalAdminId:$("#personalAdminId").val()
+		};
+
+	 	$.post("users?action=newrole", strct,function() {})
+			/* JQUERY 1.5
+			.error(
+				function() { }
+			)*/;
+
+		});
+    	// dialog content
+    	$('#role').html(data);
+    }, this));
+}
+
+Roles.prototype.editRole = function(rolename) {
+
+    var url = "users?action=editrole&rolename="+rolename;
+    $.get(url, bind(function(data) {
+	this.dialogForRole(function() {
+
+		var strct = {
+			id:$("#roleId").val(),
+			name:$("#name").val(),
+			personalAdminId:$("#personalAdminId").val()
+		};
+
+	 	$.post("users?action=saverole", strct,function() {})
+		/* JQUERY 1.5 
+		.error(function() { 
+			//alert(arguments[0].status);
+		})*/;
+
+		
+	});
+    	// dialog content
+    	$('#role').html(data);
+    }, this));
+}
+
+
+Roles.prototype.deleteRole = function(rolename) {
+
+	var strct = {
+		name:rolename,
+	};
+
+	yesnodialog.perform("<table width='100%' height='100%'><tr height='100%'><td align='center' valign='center'><strong> Smazat vybranou roli? </strong></td></tr></div>",bind(function(arg) {
+		if (arg === "yes") {
+		 	$.post("users?action=deleterole", strct,function() {})
+			/* JQUERY 1.5			
+			.error(function() { 
+				alert(arguments[0].status);
+			})*/;
+		}
+		this.refreshRoles();
+	},this));
+}
+
+
+/**
+ * Change pswd object
+ */
 var pswdObject = new ChangePswd();
 
 // rights
@@ -753,6 +905,6 @@ var hints = new Hints();
 // callbacks in components
 var callbacks = new Callbacks();
 
-
 var roles = new Roles();
+
 
