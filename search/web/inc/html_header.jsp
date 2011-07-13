@@ -40,8 +40,11 @@
     <!--[if IE ]>
     <link rel="StyleSheet" href="css/ie.css" type="text/css" />
     <![endif]-->
-    
+    <!--    
+    <script src="new/js/jquery-1.5.1.min.js" type="text/javascript" ></script>
+    -->
     <script src="js/jquery-1.3.2.min.js" type="text/javascript" ></script>
+
     <script src="js/jquery-ui-1.7.2.custom.min.js" language="javascript" type="text/javascript"></script>
     <script src="js/jquery.mousewheel.js" type="text/javascript" ></script>
     <script src="js/jquery.cookie.js" type="text/javascript"></script>
@@ -58,8 +61,6 @@
     <script  src="js/pdf/pdf.js" language="javascript" type="text/javascript"></script>
     <script  src="js/cmn.js" language="javascript" type="text/javascript"></script>
     <!-- condition ?? -->
-        <script  src="js/admin/admin.js" language="javascript" type="text/javascript"></script>
-        <script  src="js/rights/adminRights.js" language="javascript" type="text/javascript"></script>
     
     <%
 		Injector headerInjector = (Injector) application.getAttribute(Injector.class.getName());
@@ -67,6 +68,10 @@
 		headerInjector.injectMembers(headerViewObject);
 		pageContext.setAttribute("headerViewObject", headerViewObject);
     %>
+    
+        
+    ${headerViewObject.injectedAdminScripts}
+    
     <title><fmt:message bundle="${lctx}">application.title</fmt:message></title>
     <script language="JavaScript" type="text/javascript">
         var searchPage = "./";
