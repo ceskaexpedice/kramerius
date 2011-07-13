@@ -154,7 +154,7 @@ findGroupByPrefixForGroups(grps) ::=<<
 /** najde vsechny podskupiny */
 findGroupsWhichAdministrate(grps) ::=<<
     select * from group_entity 
-    where personal_admin_id in (grps;separator=",") 
+    where personal_admin_id in ($grps;separator=","$) 
 >>
 
 /** najde skupinu dle id */
@@ -304,4 +304,45 @@ findUsersForGivenGroup() ::=<<
   where group_id = ?
 >>
 
+updateRole(role) ::=<<
+    $if(role.personalAdminDefined)$ 
+        update group_entity set 
+            gname='$role.name$', 
+            personal_admin_id=$role.personalAdminId$
+         where group_id=$role.id$
+    $else$
+        update group_entity set 
+            gname='$role.name$', 
+            personal_admin_id=NULL
+        where group_id=$role.id$
+    $endif$  
+>>
 
+deleteRole(role) ::=<< 
+delete from group_entity 
+   where group_id=$role.id$
+>>
+
+/** vlozi roli */
+insertRole(role) ::=<<
+    $if(role.personalAdminDefined)$ 
+    insert into group_entity(group_id,gname, personal_admin_id)
+        values(
+            nextval('group_id_sequence'),
+            '$role.name$',
+            $role.personalAdminId$
+    )
+    $else$
+    insert into group_entity(group_id,gname, personal_admin_id)
+        values(
+            nextval('group_id_sequence'),
+            '$role.name$',
+            NULL
+    )
+    $endif$  
+>>
+
+
+findUsedRoles() ::=<<
+    select distinct group_id from right_entity
+>>

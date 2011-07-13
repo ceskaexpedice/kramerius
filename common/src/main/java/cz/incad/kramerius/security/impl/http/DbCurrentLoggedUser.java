@@ -40,7 +40,7 @@ import com.google.inject.Inject;
 import com.google.inject.Provider;
 import com.google.inject.name.Named;
 
-import cz.incad.kramerius.security.Group;
+import cz.incad.kramerius.security.Role;
 import cz.incad.kramerius.security.IsActionAllowed;
 import cz.incad.kramerius.security.User;
 import cz.incad.kramerius.security.UserManager;
@@ -106,16 +106,16 @@ public class DbCurrentLoggedUser extends AbstractLoggedUserProvider {
         if (principal != null) {
             String loginName = principal.getName();
             User user = userManager.findUserByLoginName(loginName);
-            List<Group> groupsList = new JDBCQueryTemplate<Group>(SecurityDBUtils.getConnection()) {
+            List<Role> groupsList = new JDBCQueryTemplate<Role>(SecurityDBUtils.getConnection()) {
                 @Override
-                public boolean handleRow(ResultSet rs, List<Group> retList) throws SQLException {
+                public boolean handleRow(ResultSet rs, List<Role> retList) throws SQLException {
                     retList.add(SecurityDBUtils.createGroup(rs));
                     return true;
                 }
             }.executeQuery("select * from user_group_mapping where user_id=?", user.getId());
 
             // TODO:Zmenit
-            ((UserImpl) user).setGroups((Group[]) groupsList.toArray(new Group[groupsList.size()]));
+            ((UserImpl) user).setGroups((Role[]) groupsList.toArray(new Role[groupsList.size()]));
 
             // User user = k4principal.getUser();
             cz.incad.kramerius.security.utils.UserUtils.associateCommonGroup(user, userManager);

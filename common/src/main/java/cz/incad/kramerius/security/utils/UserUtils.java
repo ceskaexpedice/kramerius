@@ -16,19 +16,19 @@
  */
 package cz.incad.kramerius.security.utils;
 
-import cz.incad.kramerius.security.Group;
+import cz.incad.kramerius.security.Role;
 import cz.incad.kramerius.security.User;
 import cz.incad.kramerius.security.UserManager;
 import cz.incad.kramerius.security.impl.UserImpl;
 
 public class UserUtils {
 
-    public static Group commonUsersGroup = null;
+    public static Role commonUsersGroup = null;
     //    static Group globalAdminGroup = null;
 
     public  static User getNotLoggedUser(UserManager userManager) {
         UserImpl user = new UserImpl(-1, "not_logged", "not_logged", "not_logged", -1);
-        user.setGroups(new Group[] {});
+        user.setGroups(new Role[] {});
         UserUtils.associateCommonGroup(user, userManager);
         return user;
     }
@@ -36,7 +36,7 @@ public class UserUtils {
     
     
     // synchronizace
-    public static synchronized Group findCommonGoup(UserManager userManager) {
+    public static synchronized Role findCommonGoup(UserManager userManager) {
         if (commonUsersGroup == null) {
             commonUsersGroup =  userManager.findCommonUsersGroup();
         }
@@ -44,17 +44,17 @@ public class UserUtils {
     }
 
     public static void associateCommonGroup(User user, UserManager userManager) {
-        Group commonGroup = findCommonGoup(userManager);
+        Role commonGroup = findCommonGoup(userManager);
         boolean containsCommonGroup = false;
-        Group[] grps = user.getGroups();
-        for (Group group : grps) {
+        Role[] grps = user.getGroups();
+        for (Role group : grps) {
             if (commonGroup.equals(group)) {
                 containsCommonGroup = true;
                 break;
             }
         }
         if (!containsCommonGroup) {
-            Group[] newGroups = new Group[grps.length +1];
+            Role[] newGroups = new Role[grps.length +1];
             System.arraycopy(grps, 0, newGroups, 0, grps.length);
             newGroups[grps.length] = findCommonGoup(userManager);
             ((UserImpl)user).setGroups(newGroups);
@@ -62,7 +62,7 @@ public class UserUtils {
     }
 
     public static void associateGroups(User dbUser, UserManager userManager) {
-        Group[] grps = userManager.findGroupsForGivenUser(dbUser.getId());
+        Role[] grps = userManager.findGroupsForGivenUser(dbUser.getId());
         //TODO: Zmenit
         ((UserImpl)dbUser).setGroups(grps);
     }

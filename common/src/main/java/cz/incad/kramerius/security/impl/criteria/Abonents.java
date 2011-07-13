@@ -17,7 +17,7 @@
 package cz.incad.kramerius.security.impl.criteria;
 
 import cz.incad.kramerius.security.EvaluatingResult;
-import cz.incad.kramerius.security.Group;
+import cz.incad.kramerius.security.Role;
 import cz.incad.kramerius.security.RightCriterium;
 import cz.incad.kramerius.security.RightCriteriumContext;
 import cz.incad.kramerius.security.RightCriteriumException;
@@ -41,8 +41,8 @@ public class Abonents extends AbstractCriterium implements RightCriterium {
     }
 
     private boolean isUserInGroup(String expectedGroup) {
-        Group[] groupAssociatedWithUser = this.getEvaluateContext().getUser().getGroups();
-        for (Group group : groupAssociatedWithUser) {
+        Role[] groupAssociatedWithUser = this.getEvaluateContext().getUser().getGroups();
+        for (Role group : groupAssociatedWithUser) {
             if(group.getName().equals(expectedGroup)) return true;
         }
         return false;
@@ -68,7 +68,7 @@ public class Abonents extends AbstractCriterium implements RightCriterium {
     public boolean validateParams(Object[] vals) {
         for (Object grp : vals) {
             UserManager userManager = getEvaluateContext().getUserManager();
-            Group dbGroup = userManager.findGroupByName(grp.toString());
+            Role dbGroup = userManager.findGroupByName(grp.toString());
             if (dbGroup == null)  return false;
         }
         return true;

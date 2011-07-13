@@ -27,7 +27,7 @@ import com.google.inject.Injector;
 
 import cz.incad.kramerius.AbstractGuiceTestCase;
 import cz.incad.kramerius.security.CriteriumType;
-import cz.incad.kramerius.security.Group;
+import cz.incad.kramerius.security.Role;
 import cz.incad.kramerius.security.RightCriteriumWrapper;
 import cz.incad.kramerius.security.RightCriteriumWrapperFactory;
 import cz.incad.kramerius.security.SecuredActions;
@@ -41,7 +41,7 @@ import cz.incad.kramerius.security.impl.criteria.MovingWall;
 import cz.incad.kramerius.security.impl.http.MockGuiceSecurityHTTPModule;
 
 
-public class TemplateTests extends AbstractGuiceTestCase{
+public class RightTemplatesTests extends AbstractGuiceTestCase{
 
     @Test
     public void testInsertCriteriumTemplate(){
@@ -122,7 +122,7 @@ public class TemplateTests extends AbstractGuiceTestCase{
         rightImpl.setCriteriumWrapper(mw);
         
         StringTemplate template = SecurityDatabaseUtils.stGroup().getInstanceOf("insertRight");
-        template.setAttribute("association", rightImpl.getUser() instanceof Group ? "group_id" : "user_id");
+        template.setAttribute("association", rightImpl.getUser() instanceof Role ? "group_id" : "user_id");
         template.setAttribute("right", rightImpl);
         template.setAttribute("priority", rightImpl.getFixedPriority() == 0 ? "NULL" : "" + rightImpl.getFixedPriority());
         String sql = template.toString();
@@ -142,7 +142,9 @@ public class TemplateTests extends AbstractGuiceTestCase{
         Assert.assertEquals(expectedSql, sql);
     }
 
-    
+
+
+
     @Override
     protected Injector injector() {
         return Guice.createInjector(

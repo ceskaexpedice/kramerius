@@ -26,7 +26,7 @@ import com.google.inject.Inject;
 import com.google.inject.Provider;
 
 import cz.incad.kramerius.security.EvaluatingResult;
-import cz.incad.kramerius.security.Group;
+import cz.incad.kramerius.security.Role;
 import cz.incad.kramerius.security.IsActionAllowed;
 import cz.incad.kramerius.security.RightCriteriumContext;
 import cz.incad.kramerius.security.RightCriteriumException;

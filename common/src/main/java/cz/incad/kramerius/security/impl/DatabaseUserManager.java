@@ -33,7 +33,7 @@ import com.google.inject.Inject;
 import com.google.inject.Provider;
 import com.google.inject.name.Named;
 
-import cz.incad.kramerius.security.Group;
+import cz.incad.kramerius.security.Role;
 import cz.incad.kramerius.security.User;
 import cz.incad.kramerius.security.UserManager;
 import cz.incad.kramerius.security.database.InitSecurityDatabase;
@@ -78,17 +78,17 @@ public class DatabaseUserManager implements UserManager{
 
     @Override
     @InitSecurityDatabase
-    public Group[] findGroupsForGivenUser(int user_id) {
+    public Role[] findGroupsForGivenUser(int user_id) {
         String sql = SecurityDatabaseUtils.stGroup().getInstanceOf("findAllGroupsByUserId").toString();
-        List<Group> users= new JDBCQueryTemplate<Group>(this.provider.get()){
+        List<Role> users= new JDBCQueryTemplate<Role>(this.provider.get()){
             @Override
-            public boolean handleRow(ResultSet rs, List<Group> returnsList) throws SQLException {
-                    Group grp = SecurityDBUtils.createGroup(rs);
+            public boolean handleRow(ResultSet rs, List<Role> returnsList) throws SQLException {
+                    Role grp = SecurityDBUtils.createGroup(rs);
                     returnsList.add(grp);
                     return true;
             }
         }.executeQuery(sql, user_id);
-        return (users != null) ? (Group[]) users.toArray(new Group[users.size()]) : new Group[0];
+        return (users != null) ? (Role[]) users.toArray(new Role[users.size()]) : new Role[0];
     }
 
     @Override
@@ -108,12 +108,12 @@ public class DatabaseUserManager implements UserManager{
 
     @Override
     @InitSecurityDatabase
-    public Group findGroup(int group_id) {
+    public Role findGroup(int group_id) {
         String sql = SecurityDatabaseUtils.stGroup().getInstanceOf("findGroupByGroupId").toString();
-        List<Group> groups= new JDBCQueryTemplate<Group>(this.provider.get()){
+        List<Role> groups= new JDBCQueryTemplate<Role>(this.provider.get()){
             @Override
-            public boolean handleRow(ResultSet rs, List<Group> returnsList) throws SQLException {
-                    Group grp = SecurityDBUtils.createGroup(rs);
+            public boolean handleRow(ResultSet rs, List<Role> returnsList) throws SQLException {
+                    Role grp = SecurityDBUtils.createGroup(rs);
                     returnsList.add(grp);
                     return true;
             }
@@ -123,12 +123,12 @@ public class DatabaseUserManager implements UserManager{
 
     @Override
     @InitSecurityDatabase
-    public Group findCommonUsersGroup() {
+    public Role findCommonUsersGroup() {
         String sql = SecurityDatabaseUtils.stGroup().getInstanceOf("findCommonUsersGroup").toString();
-        List<Group> groups= new JDBCQueryTemplate<Group>(this.provider.get()){
+        List<Role> groups= new JDBCQueryTemplate<Role>(this.provider.get()){
             @Override
-            public boolean handleRow(ResultSet rs, List<Group> returnsList) throws SQLException {
-                    Group grp = SecurityDBUtils.createGroup(rs);
+            public boolean handleRow(ResultSet rs, List<Role> returnsList) throws SQLException {
+                    Role grp = SecurityDBUtils.createGroup(rs);
                     returnsList.add(grp);
                     return true;
             }
@@ -141,30 +141,30 @@ public class DatabaseUserManager implements UserManager{
     
     @Override
     @InitSecurityDatabase
-    public Group[] findGroupsWhichIAdministrate(int[] grpIds) {
+    public Role[] findGroupsWhichIAdministrate(int[] grpIds) {
         StringTemplate template = SecurityDatabaseUtils.stGroup().getInstanceOf("findGroupsWhichAdministrate");
-        template.setAttribute("findGroupsWhichAdministrate", grpIds);
+        template.setAttribute("grps", grpIds);
         String sql = template.toString();
-        List<Group> groups= new JDBCQueryTemplate<Group>(this.provider.get()){
+        List<Role> groups= new JDBCQueryTemplate<Role>(this.provider.get()){
             @Override
-            public boolean handleRow(ResultSet rs, List<Group> returnsList) throws SQLException {
-                    Group grp = SecurityDBUtils.createGroup(rs);
+            public boolean handleRow(ResultSet rs, List<Role> returnsList) throws SQLException {
+                    Role grp = SecurityDBUtils.createGroup(rs);
                     returnsList.add(grp);
                     return true;
             }
             
         }.executeQuery(sql);
-        return (Group[]) groups.toArray(new Group[groups.size()]);
+        return (Role[]) groups.toArray(new Role[groups.size()]);
     }
 
     @Override
     @InitSecurityDatabase
-    public Group findGlobalAdminGroup() {
+    public Role findGlobalAdminGroup() {
         String sql = SecurityDatabaseUtils.stGroup().getInstanceOf("findGlobalAdminsGroup").toString();
-        List<Group> groups= new JDBCQueryTemplate<Group>(this.provider.get()){
+        List<Role> groups= new JDBCQueryTemplate<Role>(this.provider.get()){
             @Override
-            public boolean handleRow(ResultSet rs, List<Group> returnsList) throws SQLException {
-                    Group grp = SecurityDBUtils.createGroup(rs);
+            public boolean handleRow(ResultSet rs, List<Role> returnsList) throws SQLException {
+                    Role grp = SecurityDBUtils.createGroup(rs);
                     returnsList.add(grp);
                     return true;
             }
@@ -174,12 +174,12 @@ public class DatabaseUserManager implements UserManager{
 
     @Override
     @InitSecurityDatabase
-    public Group findGroupByName(String gname) {
+    public Role findGroupByName(String gname) {
         String sql = SecurityDatabaseUtils.stGroup().getInstanceOf("findGroupByGname").toString();
-        List<Group> groups= new JDBCQueryTemplate<Group>(this.provider.get()){
+        List<Role> groups= new JDBCQueryTemplate<Role>(this.provider.get()){
             @Override
-            public boolean handleRow(ResultSet rs, List<Group> returnsList) throws SQLException {
-                    Group grp = SecurityDBUtils.createGroup(rs);
+            public boolean handleRow(ResultSet rs, List<Role> returnsList) throws SQLException {
+                    Role grp = SecurityDBUtils.createGroup(rs);
                     returnsList.add(grp);
                     return true;
             }
@@ -236,34 +236,34 @@ public class DatabaseUserManager implements UserManager{
 
     @Override
     @InitSecurityDatabase
-    public Group[] findGroupByPrefix(String prefix) {
+    public Role[] findGroupByPrefix(String prefix) {
         String sql = SecurityDatabaseUtils.stGroup().getInstanceOf("findGroupByPrefix").toString();
-        List<Group> users= new JDBCQueryTemplate<Group>(this.provider.get()){
+        List<Role> users= new JDBCQueryTemplate<Role>(this.provider.get()){
             @Override
-            public boolean handleRow(ResultSet rs, List<Group> returnsList) throws SQLException {
-                    Group group = SecurityDBUtils.createGroup(rs);
+            public boolean handleRow(ResultSet rs, List<Role> returnsList) throws SQLException {
+                    Role group = SecurityDBUtils.createGroup(rs);
                     returnsList.add(group);
                     return true;
             }
         }.executeQuery(sql, prefix+"%");
-        return (Group[]) users.toArray(new Group[users.size()]);
+        return (Role[]) users.toArray(new Role[users.size()]);
     }
 
     @Override
     @InitSecurityDatabase
-    public Group[] findGroupByPrefixForGroups(String prefix,int[] grpIds) {
+    public Role[] findGroupByPrefixForGroups(String prefix,int[] grpIds) {
         StringTemplate template = SecurityDatabaseUtils.stGroup().getInstanceOf("findGroupByPrefixForGroups");
         template.setAttribute("grps", grpIds);
         String sql = template.toString();
-        List<Group> users= new JDBCQueryTemplate<Group>(this.provider.get()){
+        List<Role> users= new JDBCQueryTemplate<Role>(this.provider.get()){
             @Override
-            public boolean handleRow(ResultSet rs, List<Group> returnsList) throws SQLException {
-                    Group group = SecurityDBUtils.createGroup(rs);
+            public boolean handleRow(ResultSet rs, List<Role> returnsList) throws SQLException {
+                    Role group = SecurityDBUtils.createGroup(rs);
                     returnsList.add(group);
                     return true;
             }
         }.executeQuery(sql, prefix+"%");
-        return (Group[]) users.toArray(new Group[users.size()]);
+        return (Role[]) users.toArray(new Role[users.size()]);
     }
 
     @Override
@@ -342,49 +342,49 @@ public class DatabaseUserManager implements UserManager{
 
     @Override
     @InitSecurityDatabase
-    public Group[] findAllGroups(int[] grpIds, String prefix) {
+    public Role[] findAllGroups(int[] grpIds, String prefix) {
         StringTemplate template = SecurityDatabaseUtils.stGroup().getInstanceOf("findAllGroupsForGroups");
         template.setAttribute("grps", grpIds);
         template.setAttribute("prefix", prefix== null ? "" : prefix);
         String sql = template.toString();
-        List<Group> grps= new JDBCQueryTemplate<Group>(this.provider.get()){
+        List<Role> grps= new JDBCQueryTemplate<Role>(this.provider.get()){
             @Override
-            public boolean handleRow(ResultSet rs, List<Group> returnsList) throws SQLException {
-                    Group grp = SecurityDBUtils.createGroup(rs);
+            public boolean handleRow(ResultSet rs, List<Role> returnsList) throws SQLException {
+                    Role grp = SecurityDBUtils.createGroup(rs);
                     returnsList.add(grp);
                     return true;
             }
         }.executeQuery(sql, grpIds, prefix+"%");
-        return (Group[]) grps.toArray(new Group[grps.size()]);
+        return (Role[]) grps.toArray(new Role[grps.size()]);
     }
 
     
     @InitSecurityDatabase
-    public Group[] findAllGroups(String prefix) {
+    public Role[] findAllGroups(String prefix) {
         StringTemplate template = SecurityDatabaseUtils.stGroup().getInstanceOf("findAllGroups");
         template.setAttribute("prefix", prefix.trim().equals("") ?  null : prefix);
         String sql = template.toString();
-        List<Group> grps= null;
+        List<Role> grps= null;
         if (prefix.trim().equals("")) {
-            grps= new JDBCQueryTemplate<Group>(this.provider.get()){
+            grps= new JDBCQueryTemplate<Role>(this.provider.get()){
                 @Override
-                public boolean handleRow(ResultSet rs, List<Group> returnsList) throws SQLException {
-                        Group grp = SecurityDBUtils.createGroup(rs);
+                public boolean handleRow(ResultSet rs, List<Role> returnsList) throws SQLException {
+                        Role grp = SecurityDBUtils.createGroup(rs);
                         returnsList.add(grp);
                         return true;
                 }
             }.executeQuery(sql);
         } else {
-            grps= new JDBCQueryTemplate<Group>(this.provider.get()){
+            grps= new JDBCQueryTemplate<Role>(this.provider.get()){
                 @Override
-                public boolean handleRow(ResultSet rs, List<Group> returnsList) throws SQLException {
-                        Group grp = SecurityDBUtils.createGroup(rs);
+                public boolean handleRow(ResultSet rs, List<Role> returnsList) throws SQLException {
+                        Role grp = SecurityDBUtils.createGroup(rs);
                         returnsList.add(grp);
                         return true;
                 }
             }.executeQuery(sql, prefix+"%");
         }
-        return (Group[]) grps.toArray(new Group[grps.size()]);
+        return (Role[]) grps.toArray(new Role[grps.size()]);
     }
 
     @Override
@@ -403,6 +403,39 @@ public class DatabaseUserManager implements UserManager{
         return (User[]) usrs.toArray(new User[usrs.size()]);
     }
 
+    
+    
+
+    @Override
+    public void insertGroup(Role role) throws SQLException{
+        StringTemplate template = SecurityDatabaseUtils.stGroup().getInstanceOf("insertRole");
+        template.setAttribute("role", role);
+        JDBCUpdateTemplate jdbcTemplate = new JDBCUpdateTemplate(this.provider.get(), true);
+        String sql = template.toString();
+        LOGGER.fine(sql);
+        jdbcTemplate.executeUpdate(sql);
+    }
+
+    @Override
+    public void removeGroup(Role role) throws SQLException {
+            StringTemplate template = SecurityDatabaseUtils.stGroup().getInstanceOf("deleteRole");
+            template.setAttribute("role", role);
+            JDBCUpdateTemplate jdbcTemplate = new JDBCUpdateTemplate(this.provider.get(), true);
+            String sql = template.toString();
+            LOGGER.fine(sql);
+            jdbcTemplate.executeUpdate(sql);
+    }
+
+    @Override
+    public void editGroup(Role role) throws SQLException {
+            StringTemplate template = SecurityDatabaseUtils.stGroup().getInstanceOf("updateRole");
+            template.setAttribute("role", role);
+            JDBCUpdateTemplate jdbcTemplate = new JDBCUpdateTemplate(this.provider.get(), true);
+            String sql = template.toString();
+            LOGGER.fine(sql);
+            jdbcTemplate.executeUpdate(sql);
+    }
+
     @Override
     public boolean isLoggedUser(User user) {
         if (this.requestProvider.get().getRemoteUser() != null) {
@@ -411,5 +444,7 @@ public class DatabaseUserManager implements UserManager{
             } else return false;
         } else return false;
     }
+    
+    
     
 }

@@ -22,7 +22,7 @@ import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
 
-import cz.incad.kramerius.security.Group;
+import cz.incad.kramerius.security.Role;
 import cz.incad.kramerius.security.User;
 import cz.incad.kramerius.security.impl.UserImpl;
 
@@ -38,11 +38,11 @@ public class RoleExpr implements Expr {
 
     @Override
     public void evaluate(ShibContext ctx) {
-        Group grole = ctx.getUserManager().findGroupByName(this.value.getValue(ctx.getHttpServletRequest()));
+        Role grole = ctx.getUserManager().findGroupByName(this.value.getValue(ctx.getHttpServletRequest()));
         User user = ctx.getUser();
-        Group[] groups = user.getGroups() == null ? new Group[0]:user.getGroups();
-        List<Group> grpList = new ArrayList<Group>(Arrays.asList(groups));
+        Role[] groups = user.getGroups() == null ? new Role[0]:user.getGroups();
+        List<Role> grpList = new ArrayList<Role>(Arrays.asList(groups));
         grpList.add(grole);
-        ((UserImpl)user).setGroups(grpList.toArray(new Group[grpList.size()]));
+        ((UserImpl)user).setGroups(grpList.toArray(new Role[grpList.size()]));
     }
 }

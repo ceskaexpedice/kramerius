@@ -33,7 +33,7 @@ import com.google.inject.name.Named;
 
 import cz.incad.kramerius.security.AbstractUser;
 import cz.incad.kramerius.security.EvaluatingResult;
-import cz.incad.kramerius.security.Group;
+import cz.incad.kramerius.security.Role;
 import cz.incad.kramerius.security.Right;
 import cz.incad.kramerius.security.RightCriterium;
 import cz.incad.kramerius.security.RightCriteriumContext;
@@ -101,7 +101,7 @@ public class DatabaseRightsManager implements RightsManager {
 
     
     @InitSecurityDatabase
-    public Right[] findRightsForGroup(final String[] pids, final String action, final Group group) {
+    public Right[] findRightsForGroup(final String[] pids, final String action, final Role group) {
         for (int i = 0; i < pids.length; i++) {
             if (!pids[i].startsWith("uuid:")) {
                 pids[i] = "uuid:" + pids[i];
@@ -135,7 +135,7 @@ public class DatabaseRightsManager implements RightsManager {
     @Override
     @InitSecurityDatabase
     public Right[] findRights(final String[] pids, final String action, final User user) {
-        Group[] grps = user.getGroups();
+        Role[] grps = user.getGroups();
         int[] grpIds = new int[grps.length];
         {
             for (int i = 0; i < grps.length; i++) {
@@ -447,7 +447,7 @@ public class DatabaseRightsManager implements RightsManager {
     public void updateRightImpl(Connection con, Right right) throws SQLException {
         StringTemplate template = SecurityDatabaseUtils.stGroup().getInstanceOf("updateRight");
         template.setAttribute("right", right);
-        template.setAttribute("association", right.getUser() instanceof Group ? "group_id" : "user_id");
+        template.setAttribute("association", right.getUser() instanceof Role ? "group_id" : "user_id");
         template.setAttribute("priority", right.getFixedPriority() == 0 ? "NULL" : "" + right.getFixedPriority());
         JDBCUpdateTemplate jdbcTemplate = new JDBCUpdateTemplate(con, false);
         String sql = template.toString();
@@ -545,7 +545,7 @@ public class DatabaseRightsManager implements RightsManager {
     @InitSecurityDatabase
     public int insertRightImpl(Connection con, Right right) throws SQLException {
         StringTemplate template = SecurityDatabaseUtils.stGroup().getInstanceOf("insertRight");
-        template.setAttribute("association", right.getUser() instanceof Group ? "group_id" : "user_id");
+        template.setAttribute("association", right.getUser() instanceof Role ? "group_id" : "user_id");
         template.setAttribute("right", right);
         template.setAttribute("priority", right.getFixedPriority() == 0 ? "NULL" : "" + right.getFixedPriority());
         JDBCUpdateTemplate jdbcTemplate = new JDBCUpdateTemplate(con, false);
@@ -624,8 +624,26 @@ public class DatabaseRightsManager implements RightsManager {
         updateRightCriteriumParamsImpl(con, criteriumParams);
     }
 
-    
-    
-    
+
+    @Override
+    public int[] findUsedRoleIDs() {
+        StringTemplate template = SecurityDatabaseUtils.stGroup().getInstanceOf("findUsedRoles");
+        List<Integer> ids = new JDBCQueryTemplate<Integer>(this.provider.get()) {
+            @Override
+            public boolean handleRow(ResultSet rs, List<Integer> returnsList) throws SQLException {
+                int val = rs.getInt("group_id");
+                if (val > 0) {
+                    returnsList.add(val);
+                }
+                return true;
+            }
+        }.executeQuery(template.toString());
+     
+        int[] retArray = new int[ids.size()];
+        for (int i = 0; i < retArray.length; i++) {
+            retArray[i] = ids.get(i);
+        }
+        return retArray;
+    }
 }
 

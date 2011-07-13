@@ -32,7 +32,7 @@ public interface RightsManager {
 
     
     // najde prava pro skupinu
-    public Right[] findRightsForGroup(final String[] pids, final String action, final Group group);
+    public Right[] findRightsForGroup(final String[] pids, final String action, final Role group);
     // najde vsechna prava
     public Right[] findAllRights(String[] uuids, String action);
 
@@ -62,4 +62,6 @@ public interface RightsManager {
     public void deleteRight(Right right) throws SQLException;
     
     public Right findRightById(int id);
+    
+    public int[] findUsedRoleIDs();
 }
