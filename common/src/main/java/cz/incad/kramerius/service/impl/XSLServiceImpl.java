@@ -16,7 +16,9 @@ import java.util.Locale;
 
 import cz.incad.kramerius.Constants;
 import cz.incad.kramerius.service.XSLService;
+import cz.incad.kramerius.utils.ApplicationURL;
 import cz.incad.kramerius.utils.IOUtils;
+import cz.incad.kramerius.utils.conf.KConfiguration;
 import java.io.StringReader;
 import java.io.StringWriter;
 import javax.xml.transform.OutputKeys;
@@ -37,6 +39,9 @@ public class XSLServiceImpl implements XSLService {
 
     public static final java.util.logging.Logger LOGGER = java.util.logging.Logger.getLogger(XSLServiceImpl.class.getName());
     private Provider<Locale> localeProvider;
+    
+    @Inject
+    KConfiguration configuration;
 
     @Inject
     public XSLServiceImpl(Provider<Locale> localeProvider) {
@@ -88,11 +93,11 @@ public class XSLServiceImpl implements XSLService {
     }
 
     private String createBundleURL(Locale locale) {
-//        String i18nUrl = ApplicationURL.applicationURL(req)+"/i18n";
-//        if ((config.getApplicationURL() != null) && (!configuration.getApplicationURL().equals(""))){
-//                i18nUrl = config.getApplicationURL()+"i18n";
-//        }
-        String i18nUrl = "http://localhost:8080/search/i18n";
+        String i18nUrl = "";// = ApplicationURL.applicationURL(req)+"/i18n";
+        if ((configuration.getApplicationURL() != null) && (!configuration.getApplicationURL().equals(""))){
+                i18nUrl = configuration.getApplicationURL()+"i18n";
+        }
+        //String i18nUrl = "http://localhost:8080/search/i18n";
         return i18nUrl + "?action=bundle&alang=" + locale.getLanguage() + "&country=" + locale.getCountry() + "&name=labels";
     }
 
