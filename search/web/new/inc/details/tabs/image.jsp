@@ -27,6 +27,16 @@
             </span>
         </div>
     </div>
+   
+   <div id="download" style="padding-top:10px; height:650; width:700px;  color: black; border:1px; position:relative;">
+	   <div> 
+	       <fmt:message bundle="${lctx}" key="img.display.downloadOriginal.text"></fmt:message> 
+	   </div>
+	   <div>
+	       <a id="downloadOriginalHref" href="none"><fmt:message bundle="${lctx}" key="img.display.downloadOriginal"></fmt:message></a>
+	    </div>    
+	</div>
+    
 </div>
 <script type="text/javascript">
     $(document).ready(function(){
