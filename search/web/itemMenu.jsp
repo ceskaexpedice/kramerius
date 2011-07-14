@@ -17,6 +17,7 @@
 	// view objekt pro stranku = veskera logika 
 	ItemViewObject itemViewObject = new ItemViewObject();
 	((Injector)application.getAttribute(Injector.class.getName())).injectMembers(itemViewObject);
+        itemViewObject.init();
 	pageContext.setAttribute("itemViewObject", itemViewObject);
 %>
 <%@ include file="inc/initVars.jsp" %>
