@@ -31,7 +31,7 @@ public class RightsLoaderServlet extends ApplicationLoaderServlet {
 
     UserArrangement userArr;
     RefenrenceToPersonalAdminArrangement referenceToAdmin;
-    GroupArrangement groupArr;
+    //GroupArrangement groupArr;
     Arrangement groupUserAssocArr;
 
     RightArrangement rightsArr;
@@ -51,7 +51,7 @@ public class RightsLoaderServlet extends ApplicationLoaderServlet {
 
             referenceToAdmin = new RefenrenceToPersonalAdminArrangement(struct);
 
-            groupArr = new GroupArrangement(struct, struct.group, referenceToAdmin);
+//            groupArr = new GroupArrangement(struct, struct.group, referenceToAdmin);
             userArr = new UserArrangement(struct, struct.user, referenceToAdmin, new Function("VygenerovatHeslo", execVygenerovatHeslo));
             {
                 execVygenerovatHeslo.setUserArr(userArr);
@@ -70,7 +70,7 @@ public class RightsLoaderServlet extends ApplicationLoaderServlet {
 
             ServiceDTO uzivatele = new ServiceDTO("Uzivatele");
             uzivatele.addAction(new ActionDTO("Uzivatele", new ListEntities("Uzivatele", uzivatele, userArr.getId())));
-            uzivatele.addAction(new ActionDTO("Skupiny", new ListEntities("Skupiny", uzivatele, groupArr.getId())));
+            //uzivatele.addAction(new ActionDTO("Skupiny", new ListEntities("Skupiny", uzivatele, groupArr.getId())));
 
             /*
              * uzivatele.addAction(new

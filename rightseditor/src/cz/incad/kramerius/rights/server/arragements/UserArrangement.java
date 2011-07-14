@@ -87,9 +87,13 @@ public class UserArrangement extends Arrangement {
         Form form = new Form();
         form.setLayout(new VerticalPanel().addChild(new VerticalPanel().addChild(new TextField<String>(struct.user.NAME)).addChild(new TextField<String>(struct.user.SURNAME)))
 
-        .addChild(new VerticalPanel().addChild(new TextField<String>(struct.user.LOGINNAME)).addChild(vygenerovatHeslo).addChild(new TextField<String>(struct.user.EMAIL)).addChild(new TextField<String>(struct.user.ORGANISATION)))
+        .addChild(new VerticalPanel().addChild(new TextField<String>(struct.user.LOGINNAME)).addChild(vygenerovatHeslo)
+		.addChild(new TextField<String>(struct.user.PASSWORD))
+		.addChild(new TextField<String>(struct.user.EMAIL))
+		.addChild(new TextField<String>(struct.user.ORGANISATION)))
 
-        .addChild(new RefButton(struct.user.PERSONAL_ADMIN, this.referenceToAdmin, new HorizontalPanel().addChild(new TextField<String>(struct.user.PERSONAL_ADMIN.relate(struct.group.GNAME))))).addChild(new RepeatedForm(struct.user.GROUP_ASSOCIATIONS, new UserGroupsArrangement()))
+        //.addChild(new RefButton(struct.user.PERSONAL_ADMIN, this.referenceToAdmin, new HorizontalPanel().addChild(new TextField<String>(struct.user.PERSONAL_ADMIN.relate(struct.group.GNAME)))))
+        .addChild(new RepeatedForm(struct.user.GROUP_ASSOCIATIONS, new UserGroupsArrangement()))
 
         );
         form.addProperty(struct.user.PASSWORD);
