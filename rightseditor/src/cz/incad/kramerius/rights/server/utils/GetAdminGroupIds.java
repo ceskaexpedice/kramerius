@@ -8,7 +8,7 @@ import java.util.List;
 import org.aplikator.server.Context;
 
 import cz.incad.kramerius.rights.server.SecuredActions;
-import cz.incad.kramerius.security.Group;
+import cz.incad.kramerius.security.Role;
 import cz.incad.kramerius.security.User;
 import cz.incad.kramerius.security.utils.SecurityDBUtils;
 import cz.incad.kramerius.utils.database.JDBCQueryTemplate;
@@ -17,11 +17,11 @@ public class GetAdminGroupIds {
 
     public static String constructGroupIdsString(User curUser) {
         StringBuffer buffer = new StringBuffer();
-        Group[] grps = curUser.getGroups();
-        for (int i = 0; i < grps.length; i++) {
-            Group grp = grps[i];
-            buffer.append(grp.getId());
-            if (i <= grps.length - 2) {
+        Role[] roles = curUser.getGroups();
+        for (int i = 0; i < roles.length; i++) {
+            Role role = roles[i];
+            buffer.append(role.getId());
+            if (i <= roles.length - 2) {
                 buffer.append(",");
             }
         }
