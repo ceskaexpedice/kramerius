@@ -40,12 +40,13 @@
     <!--[if IE ]>
     <link rel="StyleSheet" href="css/ie.css" type="text/css" />
     <![endif]-->
-    <!--    
-    <script src="new/js/jquery-1.5.1.min.js" type="text/javascript" ></script>
-    -->
+    <!--
     <script src="js/jquery-1.3.2.min.js" type="text/javascript" ></script>
 
     <script src="js/jquery-ui-1.7.2.custom.min.js" language="javascript" type="text/javascript"></script>
+    -->
+    <script src="js/jquery-1.5.1.min.js" type="text/javascript" ></script>
+    <script src="js/jquery-ui-1.8.11.custom.min.js" language="javascript" type="text/javascript"></script>
     <script src="js/jquery.mousewheel.js" type="text/javascript" ></script>
     <script src="js/jquery.cookie.js" type="text/javascript"></script>
 
