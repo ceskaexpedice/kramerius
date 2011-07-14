@@ -38,18 +38,18 @@
         <xsl:if test="mods:part/mods:detail[@type = 'volume']/mods:number">
 
         <li>
-        <xsl:value-of select="$bundle/value[@key='Datum vydání']"/>
-        <xsl:value-of select="mods:part/mods:date" />
-        <xsl:value-of select="$bundle/value[@key='Číslo']"/>
+        <xsl:value-of select="$bundle/value[@key='Datum vydání']"/>&#160;
+        <xsl:value-of select="mods:part/mods:date" />&#160;
+        <xsl:value-of select="$bundle/value[@key='Číslo']"/>&#160;
         <xsl:value-of select="mods:part/mods:detail[@type = 'volume']/mods:number" />
         </li>
         </xsl:if>
 
         <xsl:if test="mods:part[@type = 'PeriodicalIssue']">
         <li>
-        <xsl:value-of select="$bundle/value[@key='Datum vydání']"/>
-        <xsl:value-of select="mods:part[@type = 'PeriodicalIssue']/mods:date" />
-        <xsl:value-of select="$bundle/value[@key='Číslo']"/>
+        <xsl:value-of select="$bundle/value[@key='Datum vydání']"/>&#160;
+        <xsl:value-of select="mods:part[@type = 'PeriodicalIssue']/mods:date" />&#160;
+        <xsl:value-of select="$bundle/value[@key='Číslo']"/>&#160;
         <xsl:value-of select="mods:part[@type = 'PeriodicalIssue']/mods:detail[@type = 'issue']/mods:number" />
         </li>
         </xsl:if>
@@ -58,13 +58,13 @@
         <!-- page -->
             <xsl:choose>
                 <xsl:when test="$partType='Blank'">
-                    <xsl:value-of select="mods:part/mods:detail[@type = 'pageNumber']/mods:number" /> (<xsl:value-of select="$bundle/value[@key='Blank']"/>)</xsl:when>
+                    <xsl:value-of select="mods:part/mods:detail[@type = 'pageNumber']/mods:number" />&#160;(<xsl:value-of select="$bundle/value[@key='Blank']"/>)</xsl:when>
                 <xsl:when test="$partType='TitlePage'">
-                    <xsl:value-of select="mods:part/mods:detail[@type = 'pageNumber']/mods:number" /> (<xsl:value-of select="$bundle/value[@key='TitlePage']"/>)</xsl:when>
+                    <xsl:value-of select="mods:part/mods:detail[@type = 'pageNumber']/mods:number" />&#160;(<xsl:value-of select="$bundle/value[@key='TitlePage']"/>)</xsl:when>
                 <xsl:when test="$partType='TableOfContents'">
-                    <xsl:value-of select="mods:part/mods:detail[@type = 'pageNumber']/mods:number" /> (<xsl:value-of select="$bundle/value[@key='TableOfContents']"/>)</xsl:when>
+                    <xsl:value-of select="mods:part/mods:detail[@type = 'pageNumber']/mods:number" />&#160;(<xsl:value-of select="$bundle/value[@key='TableOfContents']"/>)</xsl:when>
                 <xsl:when test="$partType='Index'">
-                    <xsl:value-of select="mods:part/mods:detail[@type = 'pageNumber']/mods:number" /> (<xsl:value-of select="$bundle/value[@key='TableOfContents']"/>)</xsl:when>
+                    <xsl:value-of select="mods:part/mods:detail[@type = 'pageNumber']/mods:number" />&#160;(<xsl:value-of select="$bundle/value[@key='TableOfContents']"/>)</xsl:when>
                 <xsl:when test="$partType='NormalPage'">
                     <xsl:value-of select="mods:part/mods:detail[@type = 'pageNumber']/mods:number" /></xsl:when>
             </xsl:choose>
@@ -74,7 +74,7 @@
         <xsl:if test="mods:part[@type = 'Volume']/mods:detail">
         <xsl:value-of select="$bundle/value[@key='Volume']"/>
         <xsl:if test="mods:part[@type = 'Volume']/mods:detail/mods:title != ''" >
-            (<xsl:value-of select="mods:part[@type = 'Volume']/mods:detail/mods:title" />)
+            &#160;(<xsl:value-of select="mods:part[@type = 'Volume']/mods:detail/mods:title" />)
         </xsl:if> - <xsl:value-of select="mods:part[@type = 'Volume']/mods:detail/mods:number" />
         </xsl:if>
         <!-- end monograph unit -->
@@ -125,19 +125,19 @@
         </xsl:if>
         <xsl:for-each select="mods:originInfo[@transliteration='publisher']">
         <li>
-            <span class="label"><xsl:value-of select="$bundle/value[@key='Název vydavatele']"/></span>
+            <span class="label"><xsl:value-of select="$bundle/value[@key='Název vydavatele']"/>: </span>
             <span class="value"><xsl:if test="./mods:publisher">
                  <xsl:value-of select="./mods:publisher" />
             </xsl:if></span>
         </li>
         <li>
-            <span class="label"><xsl:value-of select="$bundle/value[@key='Datum vydání']"/></span>
+            <span class="label"><xsl:value-of select="$bundle/value[@key='Datum vydání']"/>: </span>
             <span class="value"><xsl:if test="./mods:dateIssued">
                   <xsl:value-of select="./mods:dateIssued" />
             </xsl:if></span>
         </li>
         <li>
-            <span class="label"><xsl:value-of select="$bundle/value[@key='Místo vydání']"/></span>
+            <span class="label"><xsl:value-of select="$bundle/value[@key='Místo vydání']"/>: </span>
             <span class="value"><xsl:if test="./mods:place/mods:placeTerm">
                 <xsl:value-of select="./mods:place/mods:placeTerm" />
                 </xsl:if></span>
@@ -146,11 +146,11 @@
         </xsl:for-each>
         <xsl:if test="mods:originInfo[@transliteration='printer']">
         <li>
-            <span class="label"><xsl:value-of select="$bundle/value[@key='Název tiskaře']"/></span>
+            <span class="label"><xsl:value-of select="$bundle/value[@key='Název tiskaře']"/>: </span>
             <span class="value"><xsl:value-of select="mods:originInfo[@transliteration='printer']/mods:publisher" /></span>
         </li>
         <li>
-            <span class="label"><xsl:value-of select="$bundle/value[@key='Místo tisku']"/></span>
+            <span class="label"><xsl:value-of select="$bundle/value[@key='Místo tisku']"/>: </span>
             <span class="value"><xsl:value-of select="mods:originInfo[@transliteration='printer']/mods:place/mods:placeTerm" /></span>
         </li>
         </xsl:if>
@@ -160,17 +160,17 @@
             <xsl:choose>
             <xsl:when test="contains(mods:physicalDescription/mods:extent, ',')">
                 <li>
-                    <span class="label"><xsl:value-of select="$bundle/value[@key='Rozměry']"/></span>
+                    <span class="label"><xsl:value-of select="$bundle/value[@key='Rozměry']"/>: </span>
                     <span class="value"><xsl:value-of select="substring-after(mods:physicalDescription/mods:extent, ',')" /></span>
                 </li>
                 <li>
-                    <span class="label"><xsl:value-of select="$bundle/value[@key='Rozsah']"/></span>
+                    <span class="label"><xsl:value-of select="$bundle/value[@key='Rozsah']"/>: </span>
                     <span class="value"><xsl:value-of select="substring-before(mods:physicalDescription/mods:extent, ',')" /></span>
                 </li>
             </xsl:when>
             <xsl:otherwise>
                 <li>
-                    <span class="label"><xsl:value-of select="$bundle/value[@key='Rozsah']"/></span>
+                    <span class="label"><xsl:value-of select="$bundle/value[@key='Rozsah']"/>: </span>
                     <span class="value"><xsl:value-of select="mods:physicalDescription/mods:extent" /></span>
                 </li>
             </xsl:otherwise>
@@ -188,26 +188,26 @@
         </xsl:if>
         <xsl:if test="mods:location/mods:physicalLocation">
         <li>
-            <span class="label"><xsl:value-of select="$bundle/value[@key='Místo uložení']"/></span>
+            <span class="label"><xsl:value-of select="$bundle/value[@key='Místo uložení']"/>: </span>
             <span class="value"><xsl:value-of select="mods:location/mods:physicalLocation" /></span>
         </li>
         </xsl:if>
         <xsl:if test="mods:location/mods:shelfLocator">
         <li>
-            <span class="label"><xsl:value-of select="$bundle/value[@key='common.signature']"/></span>
+            <span class="label"><xsl:value-of select="$bundle/value[@key='common.signature']"/>: </span>
             <span class="value"><xsl:value-of select="mods:location/mods:shelfLocator" /></span>
         </li>
         </xsl:if>
 
         <xsl:if test="mods:originInfo/mods:frequency">
         <li>
-            <span class="label"><xsl:value-of select="$bundle/value[@key='Periodicita']"/></span>
+            <span class="label"><xsl:value-of select="$bundle/value[@key='Periodicita']"/>: </span>
             <span class="value"><xsl:value-of select="mods:originInfo/mods:frequency" /></span>
         </li>
         </xsl:if>
         <xsl:if test="mods:part/mods:detail[@type='regularsupplement']">
         <li>
-            <span class="label"><xsl:value-of select="$bundle/value[@key='Pravidelná příloha']"/></span>
+            <span class="label"><xsl:value-of select="$bundle/value[@key='Pravidelná příloha']"/>: </span>
             <span class="value"><xsl:value-of select="mods:part/mods:detail[@type='regularsupplement']" /></span>
         </li>
         </xsl:if>
@@ -218,9 +218,7 @@
             <span class="value"><xsl:value-of select="mods:physicalDescription/mods:note" /></span>
         </li>
         </xsl:if>
-
         </ul>
     </div>
-
     </xsl:template>
 </xsl:stylesheet>
