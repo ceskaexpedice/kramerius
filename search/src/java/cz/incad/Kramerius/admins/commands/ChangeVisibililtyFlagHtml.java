@@ -25,6 +25,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Level;
 
+import javax.servlet.http.HttpServletResponse;
 import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpression;
@@ -34,36 +35,52 @@ import javax.xml.xpath.XPathFactory;
 import org.antlr.stringtemplate.StringTemplate;
 import org.w3c.dom.Document;
 
+import com.google.inject.Inject;
+import com.google.inject.Provider;
+
 import cz.incad.Kramerius.admins.AdminCommand;
 import cz.incad.Kramerius.security.rightscommands.ServletRightsCommand;
 import cz.incad.kramerius.FedoraNamespaceContext;
+import cz.incad.kramerius.security.User;
+import cz.incad.kramerius.security.UserManager;
 
 public class ChangeVisibililtyFlagHtml extends AdminCommand {
 
     static java.util.logging.Logger LOGGER = java.util.logging.Logger.getLogger(ChangeVisibililtyFlagHtml.class.getName());
+
+    @Inject
+    UserManager userManager;
+    
+    @Inject
+    Provider<User> userProvider;
     
     @Override
     public void doCommand() {
         try {
-            String uuid = requestProvider.get().getParameter(UUID_PARAMETER);
-            PolicyFlag policyFlag = PolicyFlag.NONE;
-            Document relsExt = fedoraAccess.getRelsExt(uuid);
-            if (relsExt != null) {
-                policyFlag = PolicyFlag.findByVal(getPolicyVal(relsExt));
+            if (this.userManager.isLoggedUser(this.userProvider.get())) {
+                String uuid = requestProvider.get().getParameter(UUID_PARAMETER);
+                PolicyFlag policyFlag = PolicyFlag.NONE;
+                Document relsExt = fedoraAccess.getRelsExt(uuid);
+                if (relsExt != null) {
+                    policyFlag = PolicyFlag.findByVal(getPolicyVal(relsExt));
+                }
+                StringTemplate template = AdminCommand.stFormsGroup().getInstanceOf("changeVisibilityFlag");
+                Map<String, String> bundle = bundleToMap(); {
+                    bundle.put("administrator.dialogs.changevisibility.flag", MessageFormat.format(bundle.get("administrator.dialogs.changevisibility.flag"),policyFlag.value));
+                }
+                Map<String,Boolean> selection = new HashMap<String, Boolean>(); {
+                    selection.put("public", policyFlag == PolicyFlag.PUBLIC);
+                    selection.put("private", policyFlag == PolicyFlag.PRIVATE);
+                }
+                template.setAttribute("bundle",bundle);
+                template.setAttribute("policyFlag", policyFlag);
+                template.setAttribute("selection", selection);
+                this.responseProvider.get().setContentType("text/html");
+                this.responseProvider.get().setCharacterEncoding("UTF-8");
+                this.responseProvider.get().getWriter().println(template.toString());
+            } else {
+                this.responseProvider.get().sendError(HttpServletResponse.SC_FORBIDDEN);
             }
-            StringTemplate template = AdminCommand.stFormsGroup().getInstanceOf("changeVisibilityFlag");
-            Map<String, String> bundle = bundleToMap(); {
-                bundle.put("administrator.dialogs.changevisibility.flag", MessageFormat.format(bundle.get("administrator.dialogs.changevisibility.flag"),policyFlag.value));
-            }
-            Map<String,Boolean> selection = new HashMap<String, Boolean>(); {
-                selection.put("public", policyFlag == PolicyFlag.PUBLIC);
-                selection.put("private", policyFlag == PolicyFlag.PRIVATE);
-            }
-            template.setAttribute("bundle",bundle);
-            template.setAttribute("policyFlag", policyFlag);
-            template.setAttribute("selection", selection);
-            this.responseProvider.get().setCharacterEncoding("UTF-8");
-            this.responseProvider.get().getWriter().println(template.toString());
         } catch (IOException e) {
             LOGGER.log(Level.SEVERE, e.getMessage(),e);
         } catch (XPathExpressionException e) {

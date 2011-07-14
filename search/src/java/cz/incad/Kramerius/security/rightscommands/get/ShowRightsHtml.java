@@ -28,6 +28,8 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.logging.Level;
 
+import javax.servlet.http.HttpServletResponse;
+
 import org.antlr.stringtemplate.StringTemplate;
 
 import com.google.inject.Inject;
@@ -69,70 +71,75 @@ public class ShowRightsHtml extends ServletRightsCommand{
     @Override
     public void doCommand() {
         try {
-            String uuid = getUuid();
             
-            TypeOfList typeOfList =TypeOfList.all;
-            String typeOfListParam = requestProvider.get().getParameter("typeoflist");
-            if ((typeOfListParam != null) && (!typeOfListParam.equals(""))) {
-                typeOfList = TypeOfList.valueOf(typeOfListParam);
-            }
-
-            List<String> saturatedPath = rightsManager.saturatePathAndCreatesPIDs(uuid, getPathOfUUIDs(uuid));
-            List<Right> foundRights = new ArrayList<Right>(Arrays.asList(allRights(saturatedPath)));
-            // filtrovani objektu na ktere nemam pravo TODO: jeste uzviatele na ktere nemam pravo
-            if (!ServletRightsCommand.hasSuperAdminRole(this.userProvider.get())) {
-                boolean[] booleans = actionAllowed.isActionAllowedForAllPath(SecuredActions.ADMINISTRATE.getFormalName(), uuid, getPathOfUUIDs(uuid));
-                List<Right> filtered = new ArrayList<Right>();
-                for (int i = 0; i < booleans.length; i++) {
-                    if (booleans[i]) {
-                        String allowedUUID =  saturatedPath.get(i);
-                        List<Right> rights = findAllRightWithUserWhichIAdministrate(userProvider.get(), findAllRightWithUuid(allowedUUID,foundRights)) ;
-                        findAllRightWithUserWhichIAdministrate(userProvider.get(), foundRights);
-                        
-                        
-                        
-                        
-                        filtered.addAll(rights);
-                    }
+            if (this.userManager.isLoggedUser(this.userProvider.get())) {
+                String uuid = getUuid();
+                
+                TypeOfList typeOfList =TypeOfList.all;
+                String typeOfListParam = requestProvider.get().getParameter("typeoflist");
+                if ((typeOfListParam != null) && (!typeOfListParam.equals(""))) {
+                    typeOfList = TypeOfList.valueOf(typeOfListParam);
                 }
-                foundRights = filtered;
-            }
-            
-            foundRights = typeOfList.filter(foundRights);
-            // acumulate users
-            List<AbstractUser> users = accumulateUsersToCombo(foundRights);
 
-            foundRights = filterRequestedUser(foundRights, typeOfList);
-
-            Right[] resultRights = SortingRightsUtils.sortRights(foundRights.toArray(new Right[foundRights.size()]), saturatedPath);
-
-            List<AbstractUserWrapper> wrapped = AbstractUserWrapper.wrap(users, true);
-            String requestedParameter = this.requestProvider.get().getParameter("requesteduser");
-            if ((requestedParameter != null) && (!requestedParameter.equals(""))) {
-                for (AbstractUserWrapper wrappedUser : wrapped) {
-                    if (wrappedUser.getWrappedValue() instanceof User) {
-                        if (wrappedUser.getLoginname().equals(requestedParameter)) {
-                            wrappedUser.setSelected(true);
-                        }
-                    } else if (wrappedUser.getWrappedValue() instanceof Role) {
-                        if (wrappedUser.getName().equals(requestedParameter)) {
-                            wrappedUser.setSelected(true);
+                List<String> saturatedPath = rightsManager.saturatePathAndCreatesPIDs(uuid, getPathOfUUIDs(uuid));
+                List<Right> foundRights = new ArrayList<Right>(Arrays.asList(allRights(saturatedPath)));
+                // filtrovani objektu na ktere nemam pravo TODO: jeste uzviatele na ktere nemam pravo
+                if (!ServletRightsCommand.hasSuperAdminRole(this.userProvider.get())) {
+                    boolean[] booleans = actionAllowed.isActionAllowedForAllPath(SecuredActions.ADMINISTRATE.getFormalName(), uuid, getPathOfUUIDs(uuid));
+                    List<Right> filtered = new ArrayList<Right>();
+                    for (int i = 0; i < booleans.length; i++) {
+                        if (booleans[i]) {
+                            String allowedUUID =  saturatedPath.get(i);
+                            List<Right> rights = findAllRightWithUserWhichIAdministrate(userProvider.get(), findAllRightWithUuid(allowedUUID,foundRights)) ;
+                            findAllRightWithUserWhichIAdministrate(userProvider.get(), foundRights);
+                            
+                            filtered.addAll(rights);
                         }
                     }
+                    foundRights = filtered;
+                }
+                
+                foundRights = typeOfList.filter(foundRights);
+
                     
+                // acumulate users
+                List<AbstractUser> users = accumulateUsersToCombo(foundRights);
+
+                foundRights = filterRequestedUser(foundRights, typeOfList);
+
+                Right[] resultRights = SortingRightsUtils.sortRights(foundRights.toArray(new Right[foundRights.size()]), saturatedPath);
+
+                List<AbstractUserWrapper> wrapped = AbstractUserWrapper.wrap(users, true);
+                String requestedParameter = this.requestProvider.get().getParameter("requesteduser");
+                if ((requestedParameter != null) && (!requestedParameter.equals(""))) {
+                    for (AbstractUserWrapper wrappedUser : wrapped) {
+                        if (wrappedUser.getWrappedValue() instanceof User) {
+                            if (wrappedUser.getLoginname().equals(requestedParameter)) {
+                                wrappedUser.setSelected(true);
+                            }
+                        } else if (wrappedUser.getWrappedValue() instanceof Role) {
+                            if (wrappedUser.getName().equals(requestedParameter)) {
+                                wrappedUser.setSelected(true);
+                            }
+                        }
+                    }
                 }
+                
+                StringTemplate template = ServletRightsCommand.stFormsGroup().getInstanceOf("rightsTable");
+                template.setAttribute("rights", RightWrapper.wrapRights(fedoraAccess, resultRights));
+                template.setAttribute("uuid", uuid);
+                template.setAttribute("bundle", bundleToMap());
+                template.setAttribute("users", wrapped);
+                template.setAttribute("typeOfLists",TypeOfList.typeOfListAsMap(typeOfList));
+                template.setAttribute("action",new SecuredActionWrapper(getResourceBundle(), SecuredActions.findByFormalName(getSecuredAction())));
+                template.setAttribute("canhandlecommongroup", userProvider.get().hasSuperAdministratorRole());
+                responseProvider.get().getOutputStream().write(template.toString().getBytes("UTF-8"));
+                
+            } else {
+
+                responseProvider.get().sendError(HttpServletResponse.SC_FORBIDDEN);
             }
             
-            StringTemplate template = ServletRightsCommand.stFormsGroup().getInstanceOf("rightsTable");
-            template.setAttribute("rights", RightWrapper.wrapRights(fedoraAccess, resultRights));
-            template.setAttribute("uuid", uuid);
-            template.setAttribute("bundle", bundleToMap());
-            template.setAttribute("users", wrapped);
-            template.setAttribute("typeOfLists",TypeOfList.typeOfListAsMap(typeOfList));
-            template.setAttribute("action",new SecuredActionWrapper(getResourceBundle(), SecuredActions.findByFormalName(getSecuredAction())));
-            template.setAttribute("canhandlecommongroup", userProvider.get().hasSuperAdministratorRole());
-            responseProvider.get().getOutputStream().write(template.toString().getBytes("UTF-8"));
-
         } catch (IOException e) {
             LOGGER.log(Level.SEVERE, e.getMessage(),e);
         }

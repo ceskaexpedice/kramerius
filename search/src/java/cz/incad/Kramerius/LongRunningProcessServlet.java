@@ -202,6 +202,7 @@ public class LongRunningProcessServlet extends GuiceServlet {
                         LRProcess nprocess = planNewProcess(req, context, def, defManager, params, user);
                         
                         if ((out != null) && (out.equals("text"))) {
+                            resp.setContentType("text/plain");
                             resp.getOutputStream().print("[" + nprocess.getDefinitionId() + "]" + nprocess.getProcessState().name());
                         } else {
                             StringBuffer buffer = new StringBuffer();
@@ -214,6 +215,7 @@ public class LongRunningProcessServlet extends GuiceServlet {
                             buffer.append("<li>").append(nprocess.getProcessState());
                             buffer.append("</ul>");
                             buffer.append("</body></html>");
+                            resp.setContentType("text/html");
                             resp.getOutputStream().println(buffer.toString());
                         }
                     } else {
@@ -251,6 +253,7 @@ public class LongRunningProcessServlet extends GuiceServlet {
                         buffer.append("<li>").append(oProcess.getProcessState());
                         buffer.append("</ul>");
                         buffer.append("</body></html>");
+                        resp.setContentType("text/html");
                         resp.getOutputStream().println(buffer.toString());
                     } catch (IOException e) {
                         LOGGER.log(Level.SEVERE, e.getMessage(), e);

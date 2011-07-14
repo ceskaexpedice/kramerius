@@ -52,7 +52,8 @@ public class ShowRolesHtml extends AbstractRoleCommand {
     @Override
     public void doCommand() {
         try {
-            if (actionAllowed.isActionAllowed(SecuredActions.ADMINISTRATE.getFormalName(), SpecialObjects.REPOSITORY.getUuid(), new String[] {SpecialObjects.REPOSITORY.getUuid()} ) ) {
+            
+            if (this.userManager.isLoggedUser(this.userProvider.get())) {
                 StringTemplate template = ServletUsersCommand.stFormsGroup().getInstanceOf("rolesTable");
                 
                 User user = this.userProvider.get();
@@ -84,7 +85,7 @@ public class ShowRolesHtml extends AbstractRoleCommand {
                 template.setAttribute("bundle", bundleToMap());
 
                 responseProvider.get().getOutputStream().write(template.toString().getBytes("UTF-8"));
-               
+
             } else {
                 responseProvider.get().sendError(HttpServletResponse.SC_FORBIDDEN);
                 

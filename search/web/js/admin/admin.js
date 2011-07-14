@@ -224,6 +224,7 @@ function importPeriodicals() {
 		} else {
 	    	$("#common_started_waiting").show();
 	    	_commonDialog = $("#common_started_waiting").dialog({ 
+
 		        bgiframe: true,
 		        width: 400,
 		        height: 100,
@@ -528,6 +529,7 @@ function _processTextFailed(text) {
 }
 
 function _processFailed() {
+	alert("process failed");
 	$("#common_started_waiting").css("display","none");
 	$("#common_started_ok").css("display","block");
 

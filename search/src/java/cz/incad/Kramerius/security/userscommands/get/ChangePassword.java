@@ -20,6 +20,8 @@ import java.io.IOException;
 import java.util.Map;
 import java.util.logging.Level;
 
+import javax.servlet.http.HttpServletResponse;
+
 import org.antlr.stringtemplate.StringTemplate;
 
 import cz.incad.Kramerius.security.userscommands.ServletUsersCommand;
@@ -31,11 +33,16 @@ public class ChangePassword extends ServletUsersCommand {
     @Override
     public void doCommand() {
         try {
-            StringTemplate template = ServletUsersCommand.stFormsGroup().getInstanceOf("changePswd");
-            Map<String, String> bundleToMap = bundleToMap(); 
-            template.setAttribute("bundle", bundleToMap);
-            String content = template.toString();
-            responseProvider.get().getOutputStream().write(content.getBytes("UTF-8"));
+            if (this.userManager.isLoggedUser(this.userProvider.get())) {
+                StringTemplate template = ServletUsersCommand.stFormsGroup().getInstanceOf("changePswd");
+                Map<String, String> bundleToMap = bundleToMap(); 
+                template.setAttribute("bundle", bundleToMap);
+                String content = template.toString();
+                responseProvider.get().setContentType("text/html");
+                responseProvider.get().getOutputStream().write(content.getBytes("UTF-8"));
+            } else {
+                responseProvider.get().sendError(HttpServletResponse.SC_FORBIDDEN);
+            }
         } catch (IOException e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
         }

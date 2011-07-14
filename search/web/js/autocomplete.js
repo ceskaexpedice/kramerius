@@ -93,10 +93,6 @@ function ajax(text, lookupField){
 
 }
 function json(text, lookupField){
-    $.ajaxSetup({
-        cache: false,
-        type: "POST"
-    });
     var url = completeUrl + "field="+lookupField+"&t=" + text.value;
     $.getJSON(url, function(data) {
         parseData(data, lookupField, text);

@@ -177,57 +177,15 @@ function bind(func, object) {
 }
 
 
-/** 
- * Ajax call. 
- * @param {string} urlAddress REquesting address
- * @param {Function} successFunction Callback executed after browser receive response
- * @param {Function} failedFunction Callback when the error occured
- * @requires JQuery
- */
-function ajax(urlAddress, successFunction, failedFunction) {
-    $.ajax({
-  	  url: urlAddress,
-        success: successFunction,
-        error:failedFunction	  
-    });
-}
-
-
-
-/** 
- * Ajax helper. 
- */
-function AjaxHelper(defaultErrorFunctions) {
-	this.defaultErrorFunctions = defaultErrorFunctions || {};			
-}
-
-AjaxHelper.prototype.fail=function(xhr) {
-	var func = this.defaultErrorFunctions[xhr.status] || this.defaultErrorFunctions["default"];
-	func.apply(this,arguments);
-}
-
-AjaxHelper.prototype.get = function(urlAddress, successFunction, failedFunction) {
-    $.ajax({
-	url: urlAddress,
-	success: successFunction,
-	error:bind(function(xhr) { 
-			if (failedFunction) {  
-				failedFunction.apply(this,arguments); 
-			} else {
-				this.fail(xhr);			
-			}
-		}, this)
-    });
-}
-
-var defaultJQueryXHR = new AjaxHelper({
-	"403": function(xhr) {
-		var cur = window.location;
-		window.location=cur;	
+$.ajaxSetup({
+	statusCode: {
+		403: function() {
+			window.location="./?error=accessdenied";	
+		}
 	},
-	"default": function(xhr) {
-		alert("unhandled error");	
-	}
+	cache:false
 });
+
+
 
 

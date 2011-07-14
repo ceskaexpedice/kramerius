@@ -23,6 +23,8 @@ import java.util.HashMap;
 import java.util.ResourceBundle;
 import java.util.logging.Level;
 
+import javax.servlet.http.HttpServletResponse;
+
 import org.antlr.stringtemplate.StringTemplate;
 
 import cz.incad.Kramerius.security.ServletCommand;
@@ -39,30 +41,35 @@ public class ShowsActionsTableHtml extends ServletRightsCommand {
     public void doCommand() {
         String uuid = this.requestProvider.get().getParameter(UUID_PARAMETER);
         try {
-            String[] path = getPathOfUUIDs(uuid);
-            String[] models = getModels(uuid);
+            if (this.userManager.isLoggedUser(this.userProvider.get())) {
+                String[] path = getPathOfUUIDs(uuid);
+                String[] models = getModels(uuid);
 
-            ResourceBundle resourceBundle = getResourceBundle();
-            SecuredActionWrapper[] wrappedActions = SecuredActionWrapper.wrap(resourceBundle, SecuredActions.values());
-            String actionsPattern = this.requestProvider.get().getParameter("actions");
-            if (actionsPattern != null) {
-                String[] actions = actionsPattern.split(",");
-                wrappedActions = new SecuredActionWrapper[actions.length];
-                for (int i = 0; i < actions.length; i++) {
-                    SecuredActions secAct = SecuredActions.findByFormalName(actions[i]);
-                    wrappedActions[i] = new SecuredActionWrapper(resourceBundle, secAct);
+                ResourceBundle resourceBundle = getResourceBundle();
+                SecuredActionWrapper[] wrappedActions = SecuredActionWrapper.wrap(resourceBundle, SecuredActions.values());
+                String actionsPattern = this.requestProvider.get().getParameter("actions");
+                if (actionsPattern != null) {
+                    String[] actions = actionsPattern.split(",");
+                    wrappedActions = new SecuredActionWrapper[actions.length];
+                    for (int i = 0; i < actions.length; i++) {
+                        SecuredActions secAct = SecuredActions.findByFormalName(actions[i]);
+                        wrappedActions[i] = new SecuredActionWrapper(resourceBundle, secAct);
+                    }
                 }
-            }
-            StringTemplate template = ServletRightsCommand.stFormsGroup().getInstanceOf("securedActionsTable");
-            template.setAttribute("actions", wrappedActions);
-            template.setAttribute("uuid", uuid);
-            template.setAttribute("bundle", bundleToMap());
+                StringTemplate template = ServletRightsCommand.stFormsGroup().getInstanceOf("securedActionsTable");
+                template.setAttribute("actions", wrappedActions);
+                template.setAttribute("uuid", uuid);
+                template.setAttribute("bundle", bundleToMap());
 
-            HashMap<String, String> titles = TitlesForObjects.createFinerTitles(fedoraAccess,rightsManager, uuid, path, models, resourceBundle);
-            template.setAttribute("titles", titles);
-            
-            String content = template.toString();
-            this.responseProvider.get().getOutputStream().write(content.getBytes("UTF-8"));
+                HashMap<String, String> titles = TitlesForObjects.createFinerTitles(fedoraAccess,rightsManager, uuid, path, models, resourceBundle);
+                template.setAttribute("titles", titles);
+                
+                String content = template.toString();
+                this.responseProvider.get().getOutputStream().write(content.getBytes("UTF-8"));
+            } else {
+                
+                this.responseProvider.get().sendError(HttpServletResponse.SC_FORBIDDEN);
+            }
         } catch (IOException e) {
             LOGGER.log(Level.SEVERE, e.getMessage(),e);
         }
