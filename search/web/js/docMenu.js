@@ -45,7 +45,6 @@ function hideRelsList(level, model){
     $("#tabs_" + level + ">div>div[id=list-"+model+"]").hide();
 }
 
-
 /*
  *shows rels-ext list
  */
@@ -70,16 +69,16 @@ function showRelsList(tab, m){
 }
 
 function slideToThumb(uuid){
-    var to = $('#img'+getMaxLevel()+'_' + uuid).offset().left - tvContainerLeft + $("#tv_container").attr("scrollLeft") - ($("#tv_container").width()/2) ;
+    if($('#img'+getMaxLevel()+'_' + uuid).length){
+        var to = $('#img'+getMaxLevel()+'_' + uuid).offset().left - tvContainerLeft + $("#tv_container").attr("scrollLeft") - ($("#tv_container").width()/2) ;
         
-    var maxScroll = $("#tv_container").attr("scrollWidth") - $("#tv_container").width();
-    var to2 = 0;
-    if(maxScroll > 0){
-        to2 = to * 100 / maxScroll;
+        var maxScroll = $("#tv_container").attr("scrollWidth") - $("#tv_container").width();
+        var to2 = 0;
+        if(maxScroll > 0){
+            to2 = to * 100 / maxScroll;
+        }
+        slideTo(to2);
     }
-       
-    //canScroll = false;
-    slideTo(to2);
 }
 
 /*
@@ -91,8 +90,6 @@ function selectPage(uuid){
     // set thumb selection 
     $('.tv_image').parent().removeClass('tv_img_selected');
     currentSelectedPage = uuid;
-    var to = $('#img'+getMaxLevel()+'_' + uuid).offset().left - tvContainerLeft + $("#tv_container").attr("scrollLeft") - ($("#tv_container").width()/2) ;
-   
        
     canScroll = false;
     slideToThumb(uuid);
@@ -114,11 +111,16 @@ function selectPage(uuid){
     
     var maxLevel = getMaxLevel();
     $('#img'+getMaxLevel()+'_'+uuid).parent().toggleClass('tv_img_selected');
-    $("#tv_container").attr("scrollLeft", to);
+    if($('#img'+getMaxLevel()+'_' + uuid).length>0){
+        var to = $('#img'+getMaxLevel()+'_' + uuid).offset().left - tvContainerLeft + $("#tv_container").attr("scrollLeft") - ($("#tv_container").width()/2) ;
+        $("#tv_container").attr("scrollLeft", to);
+    }
     canScroll = true;
     // set selected page in menu
     changeSelectedItem(uuid);
-    if(!$("#fullImageContainer").dialog("isOpen")){
+    
+    //if(!$("#fullImageContainer").dialog("isOpen")){
+    if($("#centralContent").is(":visible")){    
         var model = $('#tabs_'+maxLevel+'>div:visible').attr('id').split('-')[1];
         getExtendedModelMetadata(uuid, maxLevel, false, model);
     }
