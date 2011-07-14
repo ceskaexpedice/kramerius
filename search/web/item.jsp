@@ -24,11 +24,11 @@
             LocalizationContext lctx = ctxInj.getProvider(LocalizationContext.class).get();
             pageContext.setAttribute("lctx", lctx);
 
-            // ukladani nejoblibenejsich 
+            // ukladani nejoblibenejsich
             itemViewObject.saveMostDesirable();
             pageContext.setAttribute("itemViewObject", itemViewObject);
 
-            
+
 %>
 
 <%@ include file="inc/initVars.jsp" %>
@@ -75,14 +75,14 @@
                                         <td valign="top" align="center" id="mainContent">
                                             <script type="text/javascript">
                                                 var viewer = null;
-                                                                                                                                                                
+
                                                 function init() {
                                                     viewer = new Seadragon.Viewer("container");
                                                     viewer.clearControls();
                                                     viewer.addControl(nextButton(),Seadragon.ControlAnchor.TOP_RIGHT);
                                                     viewer.addControl(prevButton(),Seadragon.ControlAnchor.TOP_RIGHT);
                                                     viewer.addControl(viewer.getNavControl(),  Seadragon.ControlAnchor.TOP_RIGHT);
-                                                    
+
                                                     //Seadragon.Config.maxZoomPixelRatio=1;
                                                     //Seadragon.Config.imageLoaderLimit=1;
 
@@ -91,7 +91,7 @@
                                                     Seadragon.Strings.setString("Tooltips.Home",dictionary["deep.zoom.Tooltips.Home"]);
                                                     Seadragon.Strings.setString("Tooltips.ZoomIn",dictionary["deep.zoom.Tooltips.ZoomIn"]);
                                                     Seadragon.Strings.setString("Tooltips.ZoomOut",dictionary["deep.zoom.Tooltips.ZoomOut"]);
-    
+
                                                     Seadragon.Strings.setString("Errors.Failure",dictionary["deep.zoom.Errors.Failure"]);
                                                     Seadragon.Strings.setString("Errors.Xml",dictionary["deep.zoom.Errors.Xml"]);
                                                     Seadragon.Strings.setString("Errors.Empty",dictionary["deep.zoom.Errors.Empty"]);
@@ -118,14 +118,14 @@
                                                     return control;
                                                 }
 
-                                                                                                
+
                                                 function nextButton() {
                                                     var control = document.createElement("img");
                                                     control.setAttribute('src','img/next_grouphover.png');
                                                     control.setAttribute('id','nextButton');
-                                                                                                        
+
                                                     control.className = "control nextArrow";
-                                                                                                        
+
                                                     control.onmouseover = function(event) {
                                                         document.getElementById('nextButton').setAttribute('src','img/next_hover.png');
                                                     };
@@ -135,14 +135,14 @@
                                                     control.onclick = function(event) {
                                                         selectNext();
                                                     };
-                                                                                                        
+
                                                     return control;
                                                 }
                                                 //Seadragon.Utils.addEvent(window, "load", init);
 
                                                 function setMainContentWidth(){
                                                     var w = $(window).width()-6-$('#itemTree').width();
-                                                    
+
                                                     //alert(w);
                                                     $("#mainContent").css('width', w);
                                                     //alert($('#centralContent').width());
@@ -193,14 +193,14 @@
                                                     $("#centralContent").tabs().addClass('ui-tabs-vertical ui-helper-clearfix');
                                                     $("#centralContent li").removeClass('ui-corner-top').addClass('ui-corner-left');
                                                     //$('.vertical-text').mbFlipText(false);
-                                                    
+
 
                                                 });
-                                                
+
                                             </script>
-<%--                                          
+<%--
                                             <div id="centralContent">
-                                                
+
                                                 <ul>
                                                     <li><a href="#bigThumbZone" class="vertical-text" ><fmt:message bundle="${lctx}">tab.image</fmt:message></a>
                                                     </li>
@@ -250,21 +250,21 @@
                                                         </span>
                                                     </div>
                                                 </div>
-                                                
+
 
                                                 <div id="download" style="padding-top:10px; height:650; width:700px;  color: black; border:1px; position:relative;">
-                                                    <div> 
-                                                        <fmt:message bundle="${lctx}" key="img.display.downloadOriginal.text"></fmt:message> 
+                                                    <div>
+                                                        <fmt:message bundle="${lctx}" key="img.display.downloadOriginal.text"></fmt:message>
                                                     </div>
                                                     <div>
                                                         <a id="downloadOriginalHref" href="none"><fmt:message bundle="${lctx}" key="img.display.downloadOriginal"></fmt:message></a>
-                                                    </div>    
+                                                    </div>
                                                 </div>
-                                                
+
                                                 </div>
 
                                             </div>
---%> 
+--%>
  <%@ include file="inc/details/tabs/container.jsp" %>
                                         </td>
                                 </tr></table>
@@ -276,7 +276,7 @@
         <li class=" facetTitle ui-state-default ui-corner-top  ui-state-active" style="width:100%;">
             <span class="box" ><fmt:message bundle="${lctx}">item.popis</fmt:message></span></li>
     </ul>
-        <%@include file="inc/statistics.jsp"  %>
+
                                     <%@ include file="inc/details/itemMenu.jsp" %>
                                 </div>
                             </td>
@@ -294,7 +294,7 @@
                         </tr>
                     </table>
         </td></tr></table>
-        
+
 
 
         <!-- dialogs -->
@@ -310,9 +310,9 @@
         </object>
                 --%>
             </div>
-            
+
             <c:if test="${param.format == 'application/pdf'}">
-                <div id="pdfContainer" style="display:none;">  
+                <div id="pdfContainer" style="display:none;">
                     <input type="hidden" id="pdfPage" name="pdfPage" value="${itemViewObject.page}" />
                     <iframe src="" width="100%" height="100%"></iframe>
                 </div>
