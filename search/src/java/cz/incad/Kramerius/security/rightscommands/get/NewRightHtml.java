@@ -27,9 +27,12 @@ import java.util.Properties;
 import java.util.ResourceBundle;
 import java.util.logging.Level;
 
+import javax.servlet.http.HttpServletResponse;
+
 import org.antlr.stringtemplate.StringTemplate;
 
 import com.google.inject.Inject;
+import com.google.inject.Provider;
 
 import cz.incad.Kramerius.security.ServletCommand;
 import cz.incad.Kramerius.security.rightscommands.ServletRightsCommand;
@@ -42,6 +45,8 @@ import cz.incad.kramerius.security.RightCriteriumParams;
 import cz.incad.kramerius.security.RightCriteriumWrapper;
 import cz.incad.kramerius.security.RightCriteriumWrapperFactory;
 import cz.incad.kramerius.security.SecuredActions;
+import cz.incad.kramerius.security.User;
+import cz.incad.kramerius.security.UserManager;
 import cz.incad.kramerius.security.impl.criteria.CriteriumsLoader;
 
 /**
@@ -56,38 +61,49 @@ public class NewRightHtml extends ServletRightsCommand {
     @Inject
     RightCriteriumWrapperFactory factory;
 
+    @Inject
+    UserManager userManager;
+    
+    @Inject
+    Provider<User> userProvider;
     
     
     @Override
     public void doCommand() {
         try {
-            String uuid = getUuid();
-            String[] path = getPathOfUUIDs(uuid);
-            String[] models = getModels(uuid);
-            ResourceBundle resourceBundle = getResourceBundle();
+            if (this.userManager.isLoggedUser(this.userProvider.get())) {
+                String uuid = getUuid();
+                String[] path = getPathOfUUIDs(uuid);
+                String[] models = getModels(uuid);
+                ResourceBundle resourceBundle = getResourceBundle();
 
-            StringTemplate template = ServletRightsCommand.stFormsGroup().getInstanceOf("rightDialog");
-            HashMap<String, String> titles = TitlesForObjects.createFinerTitles(fedoraAccess,rightsManager, uuid, path, models, resourceBundle);
+                StringTemplate template = ServletRightsCommand.stFormsGroup().getInstanceOf("rightDialog");
+                HashMap<String, String> titles = TitlesForObjects.createFinerTitles(fedoraAccess,rightsManager, uuid, path, models, resourceBundle);
 
-            List<String> saturatedPath = rightsManager.saturatePathAndCreatesPIDs(uuid, path);
-            
-            RightCriteriumParams[] allParams = rightsManager.findAllParams();
-            template.setAttribute("allParams", allParams);
-            template.setAttribute("titles", titles);
-            template.setAttribute("uuid", uuid);
-            Map<String, String> bundleToMap = bundleToMap(); {
-                bundleToMap.put("rights.dialog.rightassociationtitle", MessageFormat.format(bundleToMap.get("rights.dialog.rightassociationtitle"), SecuredActions.findByFormalName(getSecuredAction())));
+                List<String> saturatedPath = rightsManager.saturatePathAndCreatesPIDs(uuid, path);
+                
+                RightCriteriumParams[] allParams = rightsManager.findAllParams();
+                template.setAttribute("allParams", allParams);
+                template.setAttribute("titles", titles);
+                template.setAttribute("uuid", uuid);
+                Map<String, String> bundleToMap = bundleToMap(); {
+                    bundleToMap.put("rights.dialog.rightassociationtitle", MessageFormat.format(bundleToMap.get("rights.dialog.rightassociationtitle"), SecuredActions.findByFormalName(getSecuredAction())));
+                }
+                
+                template.setAttribute("bundle", bundleToMap);
+                template.setAttribute("action", new SecuredActionWrapper(resourceBundle, SecuredActions.findByFormalName(getSecuredAction())));
+                template.setAttribute("objects", saturatedPath);
+                List<RightCriteriumWrapper> criteriums = factory.createAllCriteriumWrappers(SecuredActions.findByFormalName(getSecuredAction()));
+                
+                template.setAttribute("allCriteriums",CriteriumGuiWrapper.wrapCriteriums(criteriums, true));
+                String content = template.toString();
+
+                this.responseProvider.get().getOutputStream().write(content.getBytes("UTF-8"));
+                
+            } else {
+                this.responseProvider.get().sendError(HttpServletResponse.SC_FORBIDDEN);
             }
             
-            template.setAttribute("bundle", bundleToMap);
-            template.setAttribute("action", new SecuredActionWrapper(resourceBundle, SecuredActions.findByFormalName(getSecuredAction())));
-            template.setAttribute("objects", saturatedPath);
-            List<RightCriteriumWrapper> criteriums = factory.createAllCriteriumWrappers(SecuredActions.findByFormalName(getSecuredAction()));
-            
-            template.setAttribute("allCriteriums",CriteriumGuiWrapper.wrapCriteriums(criteriums, true));
-            String content = template.toString();
-
-            this.responseProvider.get().getOutputStream().write(content.getBytes("UTF-8"));
         } catch (IOException e) {
             LOGGER.log(Level.SEVERE, e.getMessage(),e);
         }
