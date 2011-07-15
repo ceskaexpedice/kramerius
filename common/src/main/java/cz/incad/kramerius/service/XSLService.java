@@ -7,6 +7,7 @@ package cz.incad.kramerius.service;
 
 import java.io.IOException;
 import java.io.File;
+import java.util.Locale;
 import org.w3c.dom.Document;
 
 /**
@@ -26,7 +27,11 @@ public boolean isAvailable(String name);
 
     public String transform(String xml, String xsltName) throws Exception;
 
+    public String transform(String xml, String xsltName, Locale locale) throws Exception;
+
     public String transform(Document xml, String xsltName) throws Exception;
+
+    public String transform(Document xml, String xsltName, Locale locale) throws Exception;
 
         public String serialize(Document xmldoc) throws Exception;
 

@@ -98,31 +98,42 @@ public class XSLServiceImpl implements XSLService {
                 i18nUrl = configuration.getApplicationURL()+"i18n";
         }
         //String i18nUrl = "http://localhost:8080/search/i18n";
-        return i18nUrl + "?action=bundle&alang=" + locale.getLanguage() + "&country=" + locale.getCountry() + "&name=labels";
+        return i18nUrl + "?action=bundle&lang=" + locale.getLanguage() + "&country=" + locale.getCountry() + "&name=labels";
     }
 
     @Override
     public String transform(String xml, String xsltName) throws Exception {
+        
+        return transform(xml, xsltName, localeProvider.get());
+    }
+    
+    @Override
+    public String transform(String xml, String xsltName, Locale locale) throws Exception {
 
         Transformer transformer = getTransformer(xsltName);
 
         StreamResult destStream = new StreamResult(new StringWriter());
 
-        transformer.setParameter("bundle_url", createBundleURL(localeProvider.get()));
+        transformer.setParameter("bundle_url", createBundleURL(locale));
         transformer.transform(new StreamSource(new StringReader(xml)), destStream);
 
         StringWriter sw = (StringWriter) destStream.getWriter();
         return sw.getBuffer().toString();
     }
 
+
     @Override
     public String transform(Document xml, String xsltName) throws Exception {
+        return transform(xml, xsltName, localeProvider.get());
+    }
+    @Override
+    public String transform(Document xml, String xsltName, Locale locale) throws Exception {
 
         Transformer transformer = getTransformer(xsltName);
 
         StreamResult destStream = new StreamResult(new StringWriter());
 
-        transformer.setParameter("bundle_url", createBundleURL(localeProvider.get()));
+        transformer.setParameter("bundle_url", createBundleURL(locale));
 
         transformer.transform(new DOMSource(xml), destStream);
 
