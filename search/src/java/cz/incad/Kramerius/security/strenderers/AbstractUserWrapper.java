@@ -116,10 +116,10 @@ public class AbstractUserWrapper implements User, Role {
             if (getName().equals("common_users")) {
                 return "Vsichni uzivatele <img src=\"img/rights-person.png\"></img><img src=\"img/rights-group.png\"></img>";
             } else {
-                return getName() +" (Skupina) <img src=\"img/rights-group.png\"></img>";
+                return getName() +" <img src=\"img/rights-group.png\"></img>";
             }
         } else {
-            return getFirstName()+" "+getSurname()+" (Uzivatel) <img src=\"img/rights-person.png\"></img>";
+            return getFirstName()+" "+getSurname()+" <img src=\"img/rights-person.png\"></img>";
         }
     }
 
