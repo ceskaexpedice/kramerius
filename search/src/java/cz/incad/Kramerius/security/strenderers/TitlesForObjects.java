@@ -59,14 +59,9 @@ public class TitlesForObjects {
         HashMap<String, String>titlesMap = new HashMap<String, String>();
         for (int i = 0,ll=saturatedPath.size(); i < ll; i++) {
             String pathPid = saturatedPath.get(i);
-            System.out.println(pathPid);
             
             List<String> subList = new ArrayList<String>(saturatedPath.subList(i, saturatedPath.size()));
             Collections.reverse(subList);
-            for (String suuid : subList) {
-                System.out.println("uuid is "+suuid);
-                
-            }
             StringTemplate template = new StringTemplate("$saturatedPath:{uuid|$dctitlesMap.(uuid)$};separator=\"->\"$ $models.(currentPid)$");
             template.setAttribute("dctitlesMap", dctitlesMap);
             template.setAttribute("models", modelsMap);
