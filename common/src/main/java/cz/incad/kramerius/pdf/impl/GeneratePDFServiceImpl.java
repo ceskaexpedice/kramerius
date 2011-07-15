@@ -614,17 +614,18 @@ public class GeneratePDFServiceImpl implements GeneratePDFService {
 
 	public void insertFirstPage(AbstractRenderedDocument model, String parentUuid, String titlePageUuid , PdfWriter pdfWriter, Document pdfDoc, String djvuUrl) throws IOException, DocumentException {
 		try {
+            ResourceBundle resBundle = this.resourceBundleService.getResourceBundle("base", this.localeProvider.get());
 			
 			//paragraph.add(DEFAULT_LOGO_IMAGE);
 	        Font bigFont = createFont();
 	        bigFont.setSize(48f);
 	        //TODO: Change in text
-	        pdfDoc.add(new Paragraph("KRAMERIUS 4",bigFont));
+	        pdfDoc.add(new Paragraph( resBundle.getString("pdf.firstpage.title"),bigFont));
 
             Font smallerFont = createFont();
             smallerFont.setSize(20f);
             //TODO: Change in text
-            pdfDoc.add(new Paragraph("digitalni knihovna",smallerFont));
+            pdfDoc.add(new Paragraph( resBundle.getString("pdf.firstpage.library"),smallerFont));
             pdfDoc.add(new Paragraph(" \n"));
             pdfDoc.add(new LineSeparator());
             pdfDoc.add(new Paragraph(" \n"));
