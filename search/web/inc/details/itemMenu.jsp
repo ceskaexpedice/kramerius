@@ -35,11 +35,15 @@
         <div id="tab<c:out value="${cur_level}" />-<c:out value="${itemViewObject.models[status.count -1]}" />"
             class="<c:out value="${itemViewObject.models[status.count -1]}  ui-tabs-panel ui-widget-content ui-corner-bottom" />"
             pid="<c:out value="${menu.uuid}" />">
-           <c:url var="url" value="${kconfig.applicationURL}/inc/details/getItemMenuInfo.jsp" >
+          <%  
+          pageContext.setAttribute("language", lctx.getLocale().getLanguage() );
+          %>
+           <c:url var="url" value="${kconfig.applicationURL}/inc/details/getItemMenuInfo.jsp"  >
                <c:param name="level" value="${status.count}" />
                <c:param name="pid" value="${menu.uuid}" />
+               <c:param name="language" value="${language}" />
            </c:url>
-           <c:import url="${url}" var="infoa" charEncoding="UTF-8"  />
+           <c:import url="${url}" var="infoa" charEncoding="UTF-8" scope="request"  />
                     <div class="relList" style="display: none;"
                          id="list-<c:out value="${itemViewObject.models[status.count -1]}" />"></div>
                     <div id="info-<c:out value="${itemViewObject.models[status.count -1]}" />"

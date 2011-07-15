@@ -13,6 +13,7 @@
             Injector ctxInj = (Injector) application.getAttribute(Injector.class.getName());
             LocalizationContext lctx = ctxInj.getProvider(LocalizationContext.class).get();
             pageContext.setAttribute("lctx", lctx);
+            
             String i18nServlet = I18NServlet.i18nServlet(request) + "?action=bundle&lang="+lctx.getLocale().getLanguage()+"&country="+lctx.getLocale().getCountry()+"&name=labels";
             pageContext.setAttribute("i18nServlet", i18nServlet);
             FedoraAccess fedoraAccess = ctxInj.getInstance(com.google.inject.Key.get(FedoraAccess.class, com.google.inject.name.Names.named("securedFedoraAccess")));
@@ -22,7 +23,7 @@
     try {
         String xsl = "mods.xsl";
         if (xs.isAvailable(xsl)) {
-            String text = xs.transform(xml, xsl);
+            String text = xs.transform(xml, xsl, lctx.getLocale());
             out.println(text);
             return;
         }

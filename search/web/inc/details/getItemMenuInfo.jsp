@@ -33,7 +33,7 @@ cz.incad.kramerius.service.XSLService xs = (cz.incad.kramerius.service.XSLServic
     try {
         String xsl = "rightMenu.xsl";
         if (xs.isAvailable(xsl)) {
-            String text = xs.transform(xml, xsl);
+            String text = xs.transform(xml, xsl, lctx.getLocale());
             out.println(text);
             return;
         }

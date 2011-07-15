@@ -120,7 +120,7 @@
             <xsl:choose>
                 <xsl:when test="$fmodel='monograph'">
                     <xsl:value-of select="./str[@name='dc.title']" /><br />
-                    autor: <xsl:value-of select="./arr[@name='dc.creator']/str" />
+                    <xsl:value-of select="$bundle/value[@key='author']"/>: <xsl:value-of select="./arr[@name='dc.creator']/str" />
                 </xsl:when>
                 <xsl:when test="$fmodel='monographunit'">
                     <xsl:value-of select="./str[@name='dc.title']" /><br/>

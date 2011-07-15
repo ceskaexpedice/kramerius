@@ -22,7 +22,7 @@
     try {
         String xsl = "modsFull.xsl";
         if (xs.isAvailable(xsl)) {
-            String text = xs.transform(xml, xsl);
+            String text = xs.transform(xml, xsl, lctx.getLocale());
             out.println(text);
             return;
         }
