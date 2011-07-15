@@ -335,12 +335,12 @@ AdminRights.prototype.editRight=function (rightId,canhandlecommongroup) {
  */
 AdminRights.prototype.deleteRight=function(rightId) {
 	_saveUrlForPost="rights?action=delete";
-	rightObject = new Right(uuid,action,rightId,_saveUrlForPost);	
-    var jsDataUrl = "rights?action=editrightjsdata&uuid="+uuid+"&rightid="+rightId+"&securedaction="+action;
+	rightObject = new Right(this.uuid,this.action,rightId,_saveUrlForPost);	
+    var jsDataUrl = "rights?action=editrightjsdata&uuid="+this.uuid+"&rightid="+rightId+"&securedaction="+this.action;
     $.get(jsDataUrl, bind(function(data) {
     	rightObject.data = eval("("+data+")");
     	rightObject.data.init();
-    	saveChangesOnlyIds();
+    	rightObject.saveChangesOnlyIds();
     },this));
 }
 
