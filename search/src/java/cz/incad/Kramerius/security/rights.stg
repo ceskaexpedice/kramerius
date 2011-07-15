@@ -96,7 +96,7 @@ rightCriterium(rightCriteriumWrapper, bundle) ::=<<
     <td title="$rightCriteriumWrapper.rightCriterium.qName$">$bundle.(rightCriteriumWrapper.rightCriterium.qName)$</td>
     
     $if(rightCriteriumWrapper.criteriumParams)$
-        <td title="$rightCriteriumWrapper.criteriumParams.objects;seprator=";"$">
+        <td title="$rightCriteriumWrapper.criteriumParams.objects;separator=";"$">
          $rightCriteriumWrapper.criteriumParams$
         </td>
     $else$
@@ -152,7 +152,7 @@ rightDialog(titles, objects, allCriteriums, criteriumParams, allParams, uuid,act
 
                         <div style="width:100%; padding-top:10px;">                    
                             <span id="navigationForGroup">
-                                <a href="javascript:hints.hintAllGroups();">$bundle.("rights.dialog.hint.groups")$<img id="groupdropdownicon" src="img/dropdown.png" border="0"/> </a>
+                                <a href="javascript:hints.hintAllGroups();"><img id="groupdropdownicon" src="img/dropdown.png" border="0"/> </a>
                             </span>    
                             
 

@@ -19,7 +19,7 @@ allUsersTable(users,bundle) ::=<<
 /** tabulka vsech skupin */
 allGroupsTable(groups, bundle) ::=<<
     <div style="width:100%;margin-top:5px; padding-top: 5px; border-top:1px dashed;">
-        <label><strong>$bundle.("rights.dialog.hinted.groups")$</strong></label>
+        <label><strong>$bundle.("rights.dialog.hinted.roles")$</strong></label>
         <table style="width:100%; border-collapse:collapse;">
             $groups:{group| <tr class="users_hint"> <td><a href="javascript:hints.hintSelect('$group.name$');">$group.name$</a> </td>  </tr>}$
         </table>
