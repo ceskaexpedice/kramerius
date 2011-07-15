@@ -23,12 +23,12 @@ var keyboardSupportObject = new KeyboardSupport();
 function KeyboardSupport() {}
 
 KeyboardSupport.prototype.unbindArrows =  function() {
-	$(document).unbind('keyup');
+    $(document).unbind('keyup');
 }
 
 KeyboardSupport.prototype.bindArrows =  function() {
     // keys - bind left and right arrows
-	$(document).keyup(function(e) {
+    $(document).keyup(function(e) {
         if (e.keyCode == 39) {
             selectNext();
         } else if (e.keyCode == 37) {
@@ -55,40 +55,40 @@ function showPersistentURL(level, model) {
     var pid = $("#tabs_"+level).attr('pid');
     var currentURL = window.location.href;
     if (currentURL.match("^https")=='https') {
-        currentURL = currentURL.substr('https://'.length, currentURL.length); 
+        currentURL = currentURL.substr('https://'.length, currentURL.length);
         var urlparts = currentURL.split('/');
         currentURL="https://"+urlparts[0]+"/"+urlparts[1]+"/";
     } else {
-        currentURL = currentURL.substr('http://'.length, currentURL.length); 
+        currentURL = currentURL.substr('http://'.length, currentURL.length);
         var urlparts = currentURL.split('/');
         currentURL="http://"+urlparts[0]+"/"+urlparts[1]+"/";
     }
 
     currentURL=currentURL+"handle/uuid:"+pid;
     var textFieldID = 'persistentURLTextField';
-	
+
     if (_persistentURLDialog) {
         _persistentURLDialog.dialog('open');
     } else {
         $(document.body).append('<div id="persistentURL">'+
             '<span>'+dictionary['administrator.dialogs.persistenturl.text']+'</span>'+
-            '<input name="'+textFieldID+'"  style="width:100%;" type="text"  maxlength="255"'+ 
+            '<input name="'+textFieldID+'"  style="width:100%;" type="text"  maxlength="255"'+
             ' id="'+textFieldID+'" title="'+dictionary['administrator.menu.persistenturl']+'" /></div>');
-				
+
         _persistentURLDialog = $('#persistentURL').dialog({
             width:640,
-            height:100,
+            height:150,
             modal:true,
             title:dictionary["administrator.menu.dialogs.persistenturl.title"],
             buttons: {
                 "Close": function() {
-                    $(this).dialog("close"); 
-                } 
-            } 
+                    $(this).dialog("close");
+                }
+            }
         });
     }
-	
-    $('#'+textFieldID).val(currentURL);	
+
+    $('#'+textFieldID).val(currentURL);
     $('#'+textFieldID).select();
     $('#'+textFieldID).focus(function() {
         $(this).select();
@@ -98,7 +98,7 @@ function showPersistentURL(level, model) {
 function scrollElement(container, element){
     $(container).scrollTop($(element).offset().top - $(container).offset().top + $(container).scrollTop());
     $(container).scrollLeft($(element).offset().left);
-        
+
 }
 
 
@@ -143,16 +143,16 @@ function _changeSelectedPage(pid){
 function _selectItem(obj, level, model){
     if($(obj).hasClass("selected")) return;
     $(obj).parent().children(".relItem").removeClass('selected');
-    
+
     clearThumbs();
     $(obj).addClass('selected');
-    
+
     var d1 = "#tabs_" + level;
     var pid = $(obj).attr("pid");
     $(d1).attr('pid', pid);
-    
+
     setSelection(level, model, pid);
-   
+
     $(d1 + ">div>div[id=info-"+model+"]").html($(obj).text());
     var d2 = "#tabs_" + (level+1);
     var l = $(d2).tabs('length');
@@ -161,7 +161,7 @@ function _selectItem(obj, level, model){
     }
     var img = d1 + ">ul>li.ui-tabs-selected>img";
     showList(img, d1, model);
-    
+
     var target = level-1;
     var p = $(d2).parent();
     $(d2).remove();
@@ -178,10 +178,10 @@ $( ".selector" ).dialog( { buttons: { "Ok": function() { $(this).dialog("close")
 
 
 function downloadOriginal(level, model) {
-	var uuid = $("#tabs_"+level).attr('pid');
-	//var url = "djvu?uuid="+uuid+"&outputFormat=RAW&page=0&asFile=true";
-	var url = 'img?uuid='+this.viewerOptions.uuid+'&stream=IMG_FULL&action=GETRAW&asFile=true';
-	window.location.href = url;
+    var uuid = $("#tabs_"+level).attr('pid');
+    //var url = "djvu?uuid="+uuid+"&outputFormat=RAW&page=0&asFile=true";
+    var url = 'img?uuid='+this.viewerOptions.uuid+'&stream=IMG_FULL&action=GETRAW&asFile=true';
+    window.location.href = url;
     hideAdminOptions(level);
 }
 
@@ -204,7 +204,7 @@ function _showList(obj, tab, model){
     var w = $(tab + ">div>div[id=list-"+m+"]").parent().width() - 4;
     $(tab + ">div>div[id=list-"+m+"]").css('width', w);
     $(tab + ">div>div[id=list-"+m+"]").toggle();
-    
+
     var selected = $(tab+">div>div[id=list-"+m+"]>div.selected");
     scrollElement($(selected).parent(), $(selected));
     $(obj).toggleClass('op_info');
@@ -219,7 +219,7 @@ function showMets(level, model) {
 var _metadataDialog;
 function showMetadata(level, model){
     var pid = $("#tabs_"+level).attr('pid');
-   
+
     var titul = $("#tabs_"+level+">div>div[id=info-"+model+"]>div>ul").attr('title');
     var page = new PageQuery(window.location.search);
     var path = page.getValue("path");
@@ -235,12 +235,12 @@ function showMetadata(level, model){
             title:titul,
             buttons: {
                 "Close": function() {
-                    $(this).dialog("close"); 
-                } 
-            } 
+                    $(this).dialog("close");
+                }
+            }
         });
     }
-   
+
     $('#metaData').html(imgLoadingBig);
     //var url = "inc/details/biblioToRdf.jsp?pid=uuid:"+pid+"&xsl=default.jsp&display=full&model="+model;
     var url = "inc/details/metadataFull.jsp?pid="+pid+"&model="+model;
@@ -300,7 +300,7 @@ function showSearchInside(level, model){
             $('#insidePid').val(pid_path);
             $('#searchInsideResults').html('');
         }
-        
+
     }else{
         $(document.body).append('<div id="searchInsideDialog" class="searchInsideDialog"> <div id="searchInsideForm" class="searchInsideForm"><div>'+inputs+'<span id="insideTitle">'+titul+'</span></div><input type="hidden" id="insidePid" value="'+pid_path+'" /></div></div>')
 
@@ -362,7 +362,7 @@ function getPageTitle(pid){
 function toggleAdminOptions(level, div){
     postProcessContextMenu();
     $('#menu'+level+'-'+div).css('width', 230);
-	var il = $('#menu'+level+'-'+div).parent().width() + $('#menu'+level+'-'+div).parent().offset().left - $('#menu'+level+'-'+div).width();
+    var il = $('#menu'+level+'-'+div).parent().width() + $('#menu'+level+'-'+div).parent().offset().left - $('#menu'+level+'-'+div).width();
     $('#menu'+level+'-'+div).css('left', il);
     //$('#menu'+level+'-'+div).css('display', 'block');
     //$('#openmenu'+level+'-'+div).css('display', 'none');
@@ -380,9 +380,9 @@ function switchDisplay() {
 
 
 function onLoadPlainImage() {
-	if ((imageContainerObject)  && (imageContainerObject.displayed)) {
-		$("#plainImageImg").fadeIn();
-	}
+    if ((imageContainerObject)  && (imageContainerObject.displayed)) {
+        $("#plainImageImg").fadeIn();
+    }
     if(viewerOptions.hasAlto){
         showAlto(viewerOptions.uuid, 'plainImageImg');
     }
@@ -405,18 +405,18 @@ function onLoadPDFImage() {}
 
 /** Image container object */
 var imageContainerObject = null;
-/** 
- * Represents ImageContainer 
+/**
+ * Represents ImageContainer
  * @param viewerOptions ViewerOptions structure
  * @returns {ImageContainer}
  */
 function ImageContainer(viewerOptions) {
-	this.viewerOptions = viewerOptions;
-	this.displayed = false;
-	
-	var tilesPrepared = viewerOptions.deepZoomGenerated || viewerOptions.imageServerConfigured;
+    this.viewerOptions = viewerOptions;
+    this.displayed = false;
 
-	this.actionsList = [
+    var tilesPrepared = viewerOptions.deepZoomGenerated || viewerOptions.imageServerConfigured;
+
+    this.actionsList = [
         // pdf content
         {"action":this.pdf, "enable":viewerOptions.isContentPDF()},
         // deep zoom content
@@ -426,75 +426,75 @@ function ImageContainer(viewerOptions) {
         // enabled in every cases
         {"action":this.downloadOriginal, "enable":true}
     ];
-	
+
 }
 
 
 /** choose right display action from viewer object */
 ImageContainer.prototype.display = function() {
-	var displayAction = null;
-	this.actionsList.forEach(function(val) {
-		if ((displayAction == null) && (val["enable"])) {
-			displayAction = val["action"];
-		}
-	});
-	displayAction.call(this);
-	this.displayed = true;
+    var displayAction = null;
+    this.actionsList.forEach(function(val) {
+        if ((displayAction == null) && (val["enable"])) {
+            displayAction = val["action"];
+        }
+    });
+    displayAction.call(this);
+    this.displayed = true;
 }
 
 /** display div */
 ImageContainer.prototype.displayDiv = function(whichOne) {
-	["#loadingDeepZoomImage", "#plainImage",  "#pdfImage",  "#container",  "#noImageError",  "#securityError","#download"].forEach(function(item) {
-		if (item==whichOne) {
-			$(item).show();
-		} else {
-			$(item).hide();
-		}
-	});
+    ["#loadingDeepZoomImage", "#plainImage",  "#pdfImage",  "#container",  "#noImageError",  "#securityError","#download"].forEach(function(item) {
+        if (item==whichOne) {
+            $(item).show();
+        } else {
+            $(item).hide();
+        }
+    });
 }
 /** show pdf content */
 ImageContainer.prototype.pdf = function() {
-	LOGGER.log("INFO","displaying pdf");
-	this.displayDiv("#pdfImage");
-	if (this.viewerOptions.previewStreamGenerated) {
-		$("#pdfImageImg").attr('src','img?uuid='+viewerOptions.uuid+'&stream=IMG_PREVIEW&action=GETRAW');
-	} else {
-		$("#pdfImageImg").attr('src','img?uuid='+viewerOptions.uuid+'&stream=IMG_FULL&action=SCALE&scaledHeight=700');
-	}
+    LOGGER.log("INFO","displaying pdf");
+    this.displayDiv("#pdfImage");
+    if (this.viewerOptions.previewStreamGenerated) {
+        $("#pdfImageImg").attr('src','img?uuid='+viewerOptions.uuid+'&stream=IMG_PREVIEW&action=GETRAW');
+    } else {
+        $("#pdfImageImg").attr('src','img?uuid='+viewerOptions.uuid+'&stream=IMG_FULL&action=SCALE&scaledHeight=700');
+    }
 }
 
 /** display deep zoom */
 ImageContainer.prototype.deepZoom = function() {
-	LOGGER.log("INFO","displaying deep zoom");
-	if (viewer == null) {
+    LOGGER.log("INFO","displaying deep zoom");
+    if (viewer == null) {
         init();
     }
-	this.displayDiv("#container");
+    this.displayDiv("#container");
     viewer.openDzi("deepZoom/"+viewerOptions.uuid+"/");
 }
 
 /** display plain image */
 ImageContainer.prototype.plainImg = function() {
-	LOGGER.log("INFO","displaying plain image");
-	this.displayDiv("#plainImage");
+    LOGGER.log("INFO","displaying plain image");
+    this.displayDiv("#plainImage");
 
-	$("#plainImageImg").fadeOut("slow", function () {
-		// http://code.google.com/p/kramerius/issues/detail?id=43
-		$("#plainImageImg").attr('src','img/empty.gif');
-		
-		if (viewerOptions.previewStreamGenerated) {
-			$("#plainImageImg").attr('src','img?uuid='+viewerOptions.uuid+'&stream=IMG_PREVIEW&action=GETRAW');
-		} else {
-			// this should be directed by property or removed
-			$("#plainImageImg").attr('src','img?uuid='+viewerOptions.uuid+'&stream=IMG_FULL&action=SCALE&scaledHeight=700');
-		}
-	});
+    $("#plainImageImg").fadeOut("slow", function () {
+        // http://code.google.com/p/kramerius/issues/detail?id=43
+        $("#plainImageImg").attr('src','img/empty.gif');
+
+        if (viewerOptions.previewStreamGenerated) {
+            $("#plainImageImg").attr('src','img?uuid='+viewerOptions.uuid+'&stream=IMG_PREVIEW&action=GETRAW');
+        } else {
+            // this should be directed by property or removed
+            $("#plainImageImg").attr('src','img?uuid='+viewerOptions.uuid+'&stream=IMG_FULL&action=SCALE&scaledHeight=700');
+        }
+    });
 }
 
 /** display download original box */
 ImageContainer.prototype.downloadOriginal = function() {
-	this.displayDiv("#download");
-	$("#downloadOriginalHref").attr('href','img?uuid='+this.viewerOptions.uuid+'&stream=IMG_FULL&action=GETRAW&asFile=true');
+    this.displayDiv("#download");
+    $("#downloadOriginalHref").attr('href','img?uuid='+this.viewerOptions.uuid+'&stream=IMG_FULL&action=GETRAW&asFile=true');
 }
 
 
@@ -543,10 +543,10 @@ function positionAlto(img){
 
 
 function showBornDigitalPDF(uuid,page) {
-	if  (!page) {
-		page = "1";	
-	}
-	var url ='img?uuid='+uuid+'&stream=IMG_FULL&action=GETRAW#page='+page;
-	var pdfWindow = window.open(url, '_blank');
-	pdfWindow.focus();
+    if  (!page) {
+        page = "1";
+    }
+    var url ='img?uuid='+uuid+'&stream=IMG_FULL&action=GETRAW#page='+page;
+    var pdfWindow = window.open(url, '_blank');
+    pdfWindow.focus();
 }
