@@ -15,6 +15,7 @@
             pageContext.setAttribute("lctx", lctx);
             String i18nServlet = I18NServlet.i18nServlet(request) + "?action=bundle&lang="+lctx.getLocale().getLanguage()+"&country="+lctx.getLocale().getCountry()+"&name=labels";
             pageContext.setAttribute("i18nServlet", i18nServlet);
+            System.out.println(i18nServlet);
 %>
 <%@ include file="../initVars.jsp" %>
 
@@ -55,6 +56,7 @@ cz.incad.kramerius.service.XSLService xs = (cz.incad.kramerius.service.XSLServic
         <c:if test="${param.debug =='true'}"><c:out value="${url}" /></c:if>
         <c:catch var="exceptions2"> 
             <x:transform doc="${xml}"  xslt="${xsltPage}"  >
+                <x:param name="bundle_url" value="${i18nServlet}"/>
                 <x:param name="pid" value="${param.pid}"/>
                 <x:param name="level" value="${param.level}"/>
                 <x:param name="onlyinfo" value="true"/>
