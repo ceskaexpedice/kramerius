@@ -11,9 +11,11 @@
 		pageContext.setAttribute("kconfig", ((Injector)application.getAttribute(Injector.class.getName())).getProvider(KConfiguration.class).get());
 	}
 
-	//Injector ctxInj = (Injector)application.getAttribute(Injector.class.getName());
+	Injector ctxInj = (Injector)application.getAttribute(Injector.class.getName());
         //KConfiguration kconfig = ctxInj.getProvider(KConfiguration.class).get();
         //pageContext.setAttribute("kconfig", kconfig);
+        LocalizationContext lctx = ctxInj.getProvider(LocalizationContext.class).get();
+            pageContext.setAttribute("lctx", lctx);
 	// view objekt pro stranku = veskera logika 
 	ItemViewObject itemViewObject = new ItemViewObject();
 	((Injector)application.getAttribute(Injector.class.getName())).injectMembers(itemViewObject);
