@@ -425,7 +425,7 @@ function changeFlag(level)  {
     		_checkDialog = $("#check_private_public").dialog({
     	        bgiframe: true,
     	        width: 400,
-    	        height: 100,
+    	        height: 250,
     	        modal: true,
     	        title: dictionary['administrator.menu.dialogs.changevisflag.title'],
     	        buttons: {
