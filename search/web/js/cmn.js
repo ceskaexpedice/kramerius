@@ -36,6 +36,30 @@ Logger.prototype.getMessages = function(level) {
 /** Default logger instance */
 var LOGGER = new Logger();
 
+
+function Dictionary(startValues) {
+	this.values = startValues || {};
+}
+
+
+Dictionary.prototype.store = function(name, value) {
+	this.values[name] = value;
+};
+
+Dictionary.prototype.lookup = function(name) {
+	return this.values[name];
+};
+
+Dictionary.prototype.contains = function(name) {
+	return Object.prototype.hasOwnProperty.call(this.values, name) &&
+	Object.prototype.propertyIsEnumerable.call(this.values, name);
+};
+
+Dictionary.prototype.each = function(action) {
+	$.each(this.values, action);
+};
+
+
 /** forEach in array */
 Array.prototype.forEach =  function (action) {
 	for (var i = 0; i < this.length; i++) {
@@ -177,6 +201,12 @@ function bind(func, object) {
 }
 
 
+
+
+
+
+
+
 $.ajaxSetup({
 	statusCode: {
 		403: function() {
@@ -185,7 +215,3 @@ $.ajaxSetup({
 	},
 	cache:false
 });
-
-
-
-

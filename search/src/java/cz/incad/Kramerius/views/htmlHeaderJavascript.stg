@@ -4,6 +4,11 @@ dictionary(resourceBundle) ::=<<
  var dictionary = {$resourceBundle.keys:{key|'$key$':'$resourceBundle.(key)$'};separator=","$ };
 >>
 
+config(data) ::=<<
+var CONF = new Dictionary({
+    $data.keys:{key| '$key$':'$data.(key)$'};separator=",\n"$
+});
+>>
 
 levelModelsSelection(data) ::=<<
 var levelModelsSelection = new Array(); 

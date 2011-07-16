@@ -38,7 +38,8 @@ function printMorePages(level) {
     		$('#text_1').keyup(function() {
     			if ( /\d+/.test($("#text_1").val())  ) {
         			var v = parseInt($("#text_1").val());
-        			if (v > generatePdfMaxRange) {
+        			var expected = parseInt(CONF.generatePdfMaxRange);
+        			if (v > expected) {
         				$("#pdf_dialog_content_validation").text(dictionary['pdf.validationError.toomuch']);
         			} else {
         				$("#pdf_dialog_content_validation").text("");

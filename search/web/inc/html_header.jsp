@@ -90,6 +90,8 @@
             // selekce
         ${headerViewObject.levelsModelSelectionArray}
 
+        ${headerViewObject.config}
+        
             // upravuje polozky menu tak aby byly resp. nebyly videt
             // presunout jinam, ale kam?
             function postProcessContextMenu() {

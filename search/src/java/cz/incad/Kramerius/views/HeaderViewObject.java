@@ -25,6 +25,7 @@ import cz.incad.kramerius.FedoraAccess;
 import cz.incad.kramerius.security.User;
 import cz.incad.kramerius.security.UserManager;
 import cz.incad.kramerius.service.ResourceBundleService;
+import cz.incad.kramerius.utils.conf.KConfiguration;
 
 /**
  * Objekt inicializujici js promenne v hlavicce 
@@ -48,6 +49,8 @@ public class HeaderViewObject {
     Provider<User> userProvider; 
     @Inject
     UserManager userManager;
+    @Inject
+    KConfiguration configuration;
     
     public String getDictionary() {
         Map<String, String> resourceBundleMap = new HashMap<String, String>();
@@ -71,6 +74,16 @@ public class HeaderViewObject {
         return inst.toString();
     }
 
+    public String getConfig() {
+        StringTemplateGroup grp = stGroup();
+        StringTemplate st = grp.getInstanceOf("config");
+        Map<String, String> map = new HashMap<String, String>();
+        map.put("generatePdfMaxRange", configuration.getConfiguration().getString("generatePdfMaxRange"));
+        st.setAttribute("data", map);
+        
+        return st.toString();
+    }
+    
     private static StringTemplateGroup stGroup() {
         InputStream is = HeaderViewObject.class.getResourceAsStream("htmlHeaderJavascript.stg");
         StringTemplateGroup grp = new StringTemplateGroup(new InputStreamReader(is), DefaultTemplateLexer.class);
@@ -88,6 +101,7 @@ public class HeaderViewObject {
         }
     }
     
+
     
     public String getLevelsModelSelectionArray() {
         //StringTemplate template = new StringTemp
