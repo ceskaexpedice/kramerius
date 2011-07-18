@@ -192,7 +192,7 @@ function importMonographs() {
             _commonDialog = $("#common_started").dialog({
                 bgiframe: true,
                 width: 400,
-                height: 100,
+                height: 250,
                 modal: true,
                 title:'',
                 buttons: {
@@ -227,7 +227,7 @@ function importPeriodicals() {
 
                 bgiframe: true,
                 width: 400,
-                height: 100,
+                height: 250,
                 modal: true,
                 title:'',
                 buttons: {
@@ -276,7 +276,7 @@ function reindex(level, model) {
         _commonDialog = $("#common_started").dialog({
             bgiframe: true,
             width: 400,
-            height: 100,
+            height: 250,
             modal: true,
             title:'',
             buttons: {
@@ -326,7 +326,7 @@ function exportTOFOXML(level)  {
         _commonDialog = $("#common_started").dialog({
             bgiframe: true,
             width: 400,
-            height: 100,
+            height: 250,
             modal: true,
             title: '',
             buttons: {
@@ -356,7 +356,7 @@ function noParamsProcess(process)  {
         _commonDialog = $("#common_started").dialog({
             bgiframe: true,
             width: 400,
-            height: 100,
+            height: 250,
             modal: true,
             title: '',
             buttons: {
@@ -392,7 +392,7 @@ function deleteUuid(level, model)  {
             _commonDialog = $("#common_started").dialog({
                 bgiframe: true,
                 width: 400,
-                height: 100,
+                height: 250,
                 modal: true,
                 title: '',
                 buttons: {
@@ -448,7 +448,7 @@ function changeFlag(level)  {
                             _commonDialog = $("#common_started").dialog({
                                 bgiframe: true,
                                 width: 400,
-                                height: 100,
+                                height: 250,
                                 modal: true,
                                 title: dictionary['administrator.menu.dialogs.changevisflag.title'],
                                 buttons: {
@@ -489,7 +489,7 @@ function generateStatic(level, exportType, imgUrl, i18nUrl,iso3Country, iso3Lang
         _commonDialog = $("#common_started").dialog({
             bgiframe: true,
             width: 400,
-            height: 100,
+            height: 250,
             modal: true,
             title: "",
             buttons: {
@@ -619,7 +619,7 @@ function generateDeepZoomTiles(level, model) {
         _commonDialog = $("#common_started").dialog({
             bgiframe: true,
             width: 400,
-            height: 100,
+            height: 250,
             modal: true,
             title: '',
             buttons: {
@@ -651,7 +651,7 @@ function deleteGeneratedDeepZoomTiles(level, model) {
         _commonDialog = $("#common_started").dialog({
             bgiframe: true,
             width: 400,
-            height: 100,
+            height: 250,
             modal: true,
             title: '',
             buttons: {
@@ -690,7 +690,7 @@ function deletefromindex(level){
         _commonDialog = $("#common_started").dialog({
             bgiframe: true,
             width: 400,
-            height: 100,
+            height: 250,
             modal: true,
             title: '',
             buttons: {
