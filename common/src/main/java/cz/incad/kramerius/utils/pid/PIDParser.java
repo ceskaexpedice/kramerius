@@ -65,9 +65,9 @@ public class PIDParser {
 				String value = this.token.getValue();
 				if (value.equals("3A")) {
 					this.consume();
-				} else throw new LexerException("Expecting 3A");
-			} else throw new LexerException("Expecting %"); 
-		} else throw new LexerException("%3A");
+				} else throw new LexerException("Expecting 3A but got "+token.getValue());
+			} else throw new LexerException("Expecting % but got "+token.getValue()); 
+		} else throw new LexerException("Expecting '%3A' or ':' but got "+token.getValue());
 	}
 
 	private void matchToken(TokenType doubledot) throws LexerException {
