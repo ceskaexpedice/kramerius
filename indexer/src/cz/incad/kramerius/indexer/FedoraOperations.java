@@ -1,27 +1,30 @@
 package cz.incad.kramerius.indexer;
 
 import cz.incad.kramerius.FedoraAccess;
+import cz.incad.kramerius.FedoraNamespaces;
 import cz.incad.kramerius.impl.FedoraAccessImpl;
 import cz.incad.kramerius.resourceindex.IResourceIndex;
 import cz.incad.kramerius.resourceindex.ResourceIndexService;
+import cz.incad.kramerius.utils.XMLUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 import dk.defxws.fedoragsearch.server.*;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.fedora.api.FedoraAPIA;
 import org.fedora.api.MIMETypedStream;
-
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
 
 public class FedoraOperations {
 
     private static final Logger logger =
             Logger.getLogger(FedoraOperations.class.getName());
-    //private static final Map fedoraClients = new HashMap();
-    protected String fgsUserName;
+    //protected String fgsUserName;
     protected String indexName_;
-    //public Properties config;
     public byte[] foxmlRecord;
     protected String dsID;
     protected byte[] ds;
@@ -33,36 +36,18 @@ public class FedoraOperations {
 
     public FedoraOperations() throws Exception {
         fa = new FedoraAccessImpl(KConfiguration.getInstance());
-    }
-
-    public void init(String indexName/*, Properties currentConfig*/) {
-        init(null, indexName/*, currentConfig*/);
-    }
-
-    public void init(String fgsUserName, String indexName/*, Properties currentConfig*/) {
-//        config = currentConfig;
         foxmlFormat = KConfiguration.getInstance().getConfiguration().getString("FOXMLFormat");
-        this.fgsUserName = KConfiguration.getInstance().getConfiguration().getString("fgsUserName");
-        if (null == this.fgsUserName || this.fgsUserName.length() == 0) {
-            try {
-                this.fgsUserName = KConfiguration.getInstance().getConfiguration().getString("fedoragsearch.testUserName");
-            } catch (Exception e) {
-                this.fgsUserName = "fedoragsearch.testUserName";
-            }
-        }
     }
 
     public void updateIndex(String action, String value, ArrayList<String> requestParams) throws java.rmi.RemoteException, Exception {
-        logger.info("updateIndex"
-                + " action=" + action
-                + " value=" + value);
+        logger.log(Level.INFO, "updateIndex action={0} value={1}", new Object[]{action, value});
 
         SolrOperations ops = new SolrOperations(this);
         ops.updateIndex(action, value, requestParams);
     }
 
     public byte[] getAndReturnFoxmlFromPid(String pid) throws java.rmi.RemoteException, Exception {
-        logger.fine("getAndReturnFoxmlFromPid pid=" + pid);
+        logger.log(Level.FINE, "getAndReturnFoxmlFromPid pid={0}", pid);
 
         try {
             return fa.getAPIM().export(pid, foxmlFormat, "public");
@@ -73,11 +58,10 @@ public class FedoraOperations {
 
     public void getFoxmlFromPid(String pid) throws java.rmi.RemoteException, Exception {
 
-        logger.info("getFoxmlFromPid pid=" + pid);
+        logger.log(Level.INFO, "getFoxmlFromPid pid={0}", pid);
 
-        String format = "info:fedora/fedora-system:FOXML-1.1";
         try {
-            foxmlRecord = fa.getAPIM().export(pid, format, "public");
+            foxmlRecord = fa.getAPIM().export(pid, foxmlFormat, "public");
 
         } catch (Exception e) {
             throw new Exception("Fedora Object " + pid + " not found. ", e);
@@ -104,14 +88,45 @@ public class FedoraOperations {
         return 1;
     }
 
-    public void getPidPaths(String pid) {
+    private List<String> getTreePredicates() {
+        return Arrays.asList(KConfiguration.getInstance().getPropertyList("fedora.treePredicates"));
+    }
+    
+    public int getRelsIndex(String pid) throws Exception {
+        ArrayList<String> p = getParentsArray(pid);
+        String uuid;
+        int relsindex = 0;
+        if (!p.isEmpty()) {
+            for (String s : p) {
+                Document relsExt = fa.getRelsExt(s);
+                Element descEl = XMLUtils.findElement(relsExt.getDocumentElement(), "Description", FedoraNamespaces.RDF_NAMESPACE_URI);
+                List<Element> els = XMLUtils.getElements(descEl);
+                int i = 0;
+                for (Element el : els) {
+                    if (getTreePredicates().contains(el.getLocalName())) {
+                        if (el.hasAttribute("rdf:resource")) {
+                            uuid = el.getAttributes().getNamedItem("rdf:resource").getNodeValue().split("uuid:")[1];
+                            if(uuid.equals(pid)) relsindex = Math.max(relsindex, i);
+                            i++;
+                        }
+                    }
+                }
+            }
+        } else {
+            //pid_paths.add(old.get(i));
+        }
+        return relsindex;
+    }
+
+    public ArrayList<String> getPidPaths(String pid) {
         logger.info("getPidPaths");
         ArrayList<String> pid_paths = new ArrayList<String>();
         pid_paths.add(pid);
         getPidPaths(pid_paths);
-        for(String s: pid_paths){
+        for (String s : pid_paths) {
             logger.info(s);
         }
+        return pid_paths;
     }
 
     private void getPidPaths(ArrayList<String> pid_paths) {
@@ -122,16 +137,18 @@ public class FedoraOperations {
         for (int i = 0; i < old.size(); i++) {
             first = old.get(i).split("/")[0];
             ArrayList<String> p = getParentsArray(first);
-            if(!p.isEmpty()){
+            if (!p.isEmpty()) {
                 changed = true;
-                for(String s: p){
+                for (String s : p) {
                     pid_paths.add(s + "/" + old.get(i));
                 }
-            }else{
+            } else {
                 pid_paths.add(old.get(i));
             }
         }
-        if(changed) getPidPaths(pid_paths);
+        if (changed) {
+            getPidPaths(pid_paths);
+        }
     }
 
     public String getParents(String pid) {
@@ -170,8 +187,8 @@ public class FedoraOperations {
         newStr = newStr.replace(" ", "");
         return newStr;
     }
-    
-    public String prepareCzech(String s) throws Exception{
+
+    public String prepareCzech(String s) throws Exception {
         return removeDiacritic(s).toLowerCase().replace("ch", "hz");
     }
 
@@ -199,11 +216,9 @@ public class FedoraOperations {
         } else {
             logger.fine("ds is null");
         }
-        logger.fine("getDatastreamText"
-                + " pid=" + pid
-                + " dsId=" + dsId
-                + " mimetype=" + mimetype
-                + " dsBuffer=" + dsBuffer.toString());
+        logger.log(Level.FINE,
+                "getDatastreamText  pid={0} dsId={1} mimetype={2} dsBuffer={3}",
+                new Object[]{pid, dsId, mimetype, dsBuffer.toString()});
         return dsBuffer.toString();
     }
 }

@@ -72,7 +72,7 @@ public class IndexParams {
         paramsMap.put("ROOT_MODEL", _root_model);
         paramsMap.put("ROOT_TITLE", _root_title);
         paramsMap.put("LANGUAGE", _language);
-        paramsMap.put("ROOT_TITLE", _relsExtIndex);
+        paramsMap.put("RELS_EXT_INDEX", _relsExtIndex);
     }
 
     public ArrayList<String> toArrayList(String pages) {

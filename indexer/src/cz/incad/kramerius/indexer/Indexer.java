@@ -115,7 +115,7 @@ public class Indexer {
     private boolean update(String from, String to) {
         try {
             logger.info("Update index...");
-            doUpdate("yo");
+            doUpdate();
             return true;
         } catch (Exception ex) {
             logger.log(Level.SEVERE, "Update failed", ex);
@@ -123,23 +123,14 @@ public class Indexer {
         }
     }
 
-    private void doUpdate(String user) throws Exception {
-        Date startTime = new Date();
-        try {
-            updateIndex(user, arguments.action, arguments.value);
-        } catch (java.rmi.RemoteException e) {
-            logger.log(Level.SEVERE, null, e);
-        }
+    private void doUpdate() throws Exception {
+        updateIndex(arguments.action, arguments.value);
     }
 
-    public void updateIndex(String user, String action, String value)
-            throws java.rmi.RemoteException, Exception {
+    public void updateIndex(String action, String value) throws Exception {
         FedoraOperations ops = new FedoraOperations();
-        ops.init(user, ""/*, conf*/);
         ArrayList<String> params = new ArrayList<String>();
-        //System.out.println(value);
         ops.updateIndex(action, value, params);
-        
     }
 
     private String formatElapsedTime(long timeInMiliseconds) {

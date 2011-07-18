@@ -12,6 +12,7 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import javax.xml.transform.stream.StreamSource;
@@ -56,7 +57,7 @@ public class TransformerToText {
         } else if (mimetype.equals("application/msword")) {
             return new StringBuffer();
         } else {
-            logger.fine("unsupported mimetype: " + mimetype);
+            logger.log(Level.FINE, "unsupported mimetype: {0}", mimetype);
             return new StringBuffer();
         }
     }

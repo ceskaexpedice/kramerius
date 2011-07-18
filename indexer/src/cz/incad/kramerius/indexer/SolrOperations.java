@@ -55,12 +55,11 @@ public class SolrOperations {
 
     private static final Logger logger = Logger.getLogger(SolrOperations.class.getName());
     private static final String UNIQUEKEY = "PID";
-    private IndexReader ir = null;
+    //private IndexReader ir = null;
     protected Configuration config;
     protected int insertTotal = 0;
     protected int updateTotal = 0;
     protected int deleteTotal = 0;
-    protected int docCount = 0;
     protected int warnCount = 0;
     //protected String[] params = null;
     private FedoraOperations fedoraOperations;
@@ -81,12 +80,9 @@ public class SolrOperations {
         updateTotal = 0;
         deleteTotal = 0;
         int initDocCount = 0;
-
+        int finalDocCount = 0;
         try {
-
-            getIndexReader();
-            initDocCount = docCount;
-            closeIndexReader();
+            initDocCount = getDocCount();
             if ("deleteDocument".equals(action)) {
                 deleteDocument(value);
             } else if ("deleteModel".equals(action)) {
@@ -122,34 +118,50 @@ public class SolrOperations {
             }else if ("getPidPaths".equals(action)) {
                 fedoraOperations.getPidPaths(value);
             }
-
-
         } catch (Exception ex) {
             logger.log(Level.SEVERE, null, ex);
         } finally {
 
-            getIndexReader();
-            closeIndexReader();
-            logger.fine("initDocCount=" + initDocCount + " docCount=" + docCount + " updateTotal=" + updateTotal);
+            finalDocCount = getDocCount();
+            logger.log(Level.FINE, "initDocCount={0} docCount={1} updateTotal={2}", new Object[]{initDocCount, finalDocCount, updateTotal});
 
             if (updateTotal > 0) {
-                int diff = docCount - initDocCount;
+                int diff = finalDocCount - initDocCount;
                 insertTotal = diff;
                 updateTotal -= diff;
             }
-            docCount = docCount - deleteTotal;
+            finalDocCount = finalDocCount - deleteTotal;
         }
-        logger.info("updateIndex " + action + " indexDirSpace=" + indexDirSpace(new File(config.getString("IndexDir"))) + " docCount=" + docCount);
-        logger.info("insertTotal: " + insertTotal + "; updateTotal: " + updateTotal
-                + "; deleteTotal: " + deleteTotal
-                + "; warnCount: " + warnCount);
+        logger.log(Level.INFO, " {0} docCount={1}", new Object[]{action, finalDocCount});
+        logger.log(Level.INFO, "insertTotal: {0}; updateTotal: {1}; deleteTotal: {2}; warnCount: {3}", new Object[]{insertTotal, updateTotal, deleteTotal, warnCount});
 
+    }
+    
+    private int getDocCount(){
+        try {
+            String urlStr = config.getString("solrHost") + "/select/?q=*:*&rows=0";
+            factory = XPathFactory.newInstance();
+            xpath = factory.newXPath();
+
+            /* get current values */
+            java.net.URL url = new java.net.URL(urlStr);
+
+            DocumentBuilder builder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
+            org.w3c.dom.Document solrDom = builder.parse(url.openStream());
+            String xPathStr = "/response/result/@numFound";
+            expr = xpath.compile(xPathStr);
+            Node node = (Node) expr.evaluate(solrDom, XPathConstants.NODE);
+            return Integer.parseInt(node.getFirstChild().getNodeValue());
+        }catch(Exception e){
+            logger.log(Level.SEVERE, "Error retrieving index doc count", e);
+            return 0;
+        }
     }
 
     private void optimize()
             throws java.rmi.RemoteException, Exception {
         StringBuilder sb = new StringBuilder("<optimize/>");
-        logger.fine("indexDoc=\n" + sb.toString());
+        logger.log(Level.FINE, "indexDoc=\n{0}", sb.toString());
 
         postData(config.getString("IndexBase") + "/update", new StringReader(sb.toString()), new StringBuilder());
 
@@ -242,6 +254,11 @@ public class SolrOperations {
             node = (Node) expr.evaluate(solrDom, XPathConstants.NODE);
             indexParams.setParam("DATUM", node.getFirstChild().getNodeValue());
 
+            xPathStr = "/response/result/doc/int[@name='rels_ext_index']";
+            expr = xpath.compile(xPathStr);
+            node = (Node) expr.evaluate(solrDom, XPathConstants.NODE);
+            indexParams.setParam("RELS_EXT_INDEX", node.getFirstChild().getNodeValue());
+
             xPathStr = "/response/result/doc/date[@name='timestamp']";
             expr = xpath.compile(xPathStr);
             node = (Node) expr.evaluate(solrDom, XPathConstants.NODE);
@@ -285,7 +302,7 @@ public class SolrOperations {
 
     private void clearIndex() throws Exception {
         StringBuilder sb = new StringBuilder("<delete><query>*:*</query></delete>");
-        logger.fine("indexDoc=\n" + sb.toString());
+        logger.log(Level.FINE, "indexDoc=\n{0}", sb.toString());
 
         postData(config.getString("IndexBase") + "/update", new StringReader(sb.toString()), new StringBuilder());
         deleteTotal++;
@@ -326,7 +343,7 @@ public class SolrOperations {
             String model,
             ArrayList<String> requestParams) {
         try {
-            logger.info("Indexing from kramerius model: " + model);
+            logger.log(Level.INFO, "Indexing from kramerius model: {0}", model);
             checkIntegrityByModel(model);
             krameriusModel(model, requestParams, 0);
 
@@ -346,7 +363,7 @@ public class SolrOperations {
         if (!pid.startsWith("uuid:")) {
             pid = "uuid:" + pid;
         }
-        logger.fine("fromKrameriusModel: " + pid);
+        logger.log(Level.FINE, "fromKrameriusModel: {0}", pid);
         
         fedoraOperations.getFoxmlFromPid(pid);
         factory = XPathFactory.newInstance();
@@ -372,7 +389,7 @@ public class SolrOperations {
             ArrayList<String> requestParams,
             IndexParams indexParams) {
 
-        logger.info("indexing -> " + pid);
+        logger.log(Level.INFO, "indexing -> {0}", pid);
         int num = 0;
         ArrayList<String> pids = new ArrayList<String>();
         ArrayList<String> models = new ArrayList<String>();
@@ -503,7 +520,7 @@ public class SolrOperations {
             //logger.info("indexDoc=\n" + sb.toString());
             String doc = "<?xml version=\"1.0\" encoding=\"UTF-8\"?><add><doc>" + sb.toString() + "</doc></add>";
             //logger.info(doc);
-            logger.fine("indexDoc=\n" + sb.toString());
+            logger.log(Level.FINE, "indexDoc=\n{0}", sb.toString());
             if (sb.indexOf("name=\"" + UNIQUEKEY) > 0) {
                 postData(config.getString("IndexBase") + "/update", new StringReader(doc), new StringBuilder());
                 updateTotal++;
@@ -532,7 +549,7 @@ public class SolrOperations {
 
     private void deletePid(String pid) throws Exception {
         StringBuilder sb = new StringBuilder("<delete><id>" + pid + "</id></delete>");
-        logger.fine("indexDoc=\n" + sb.toString());
+        logger.log(Level.FINE, "indexDoc=\n{0}", sb.toString());
         postData(config.getString("IndexBase") + "/update", new StringReader(sb.toString()), new StringBuilder());
         optimize();
         deleteTotal++;
@@ -540,7 +557,7 @@ public class SolrOperations {
 
     private void deleteDocument(String pid_path) throws Exception {
         StringBuilder sb = new StringBuilder("<delete><query>pid_path:" + pid_path + "*</query></delete>");
-        logger.fine("indexDoc=\n" + sb.toString());
+        logger.log(Level.FINE, "indexDoc=\n{0}", sb.toString());
         postData(config.getString("IndexBase") + "/update", new StringReader(sb.toString()), new StringBuilder());
         optimize();
         deleteTotal++;
@@ -548,7 +565,7 @@ public class SolrOperations {
 
     private void deleteModel(String path) throws Exception {
         StringBuilder sb = new StringBuilder("<delete><query>path:" + path + "*</query></delete>");
-        logger.fine("indexDoc=\n" + sb.toString());
+        logger.log(Level.FINE, "indexDoc=\n{0}", sb.toString());
         postData(config.getString("IndexBase") + "/update", new StringReader(sb.toString()), new StringBuilder());
         optimize();
         deleteTotal++;
@@ -557,12 +574,12 @@ public class SolrOperations {
     public Analyzer getAnalyzer(String analyzerClassName)
             throws Exception {
         Analyzer analyzer = null;
-        logger.fine("analyzerClassName=" + analyzerClassName);
+        logger.log(Level.FINE, "analyzerClassName={0}", analyzerClassName);
         try {
             Class analyzerClass = Class.forName(analyzerClassName);
-            logger.fine("analyzerClass=" + analyzerClass.toString());
+            logger.log(Level.FINE, "analyzerClass={0}", analyzerClass.toString());
             analyzer = (Analyzer) analyzerClass.getConstructor(new Class[]{}).newInstance(new Object[]{});
-            logger.fine("analyzer=" + analyzer.toString());
+            logger.log(Level.FINE, "analyzer={0}", analyzer.toString());
         } catch (ClassNotFoundException e) {
             throw new Exception(analyzerClassName + ": class not found.\n", e);
         } catch (InstantiationException e) {
@@ -690,56 +707,8 @@ public class SolrOperations {
         }
     }
 
-    private void getIndexReader()
-            throws Exception {
-        IndexReader irreopened = null;
-        if (ir != null) {
-            try {
-                irreopened = ir.reopen();
-            } catch (CorruptIndexException e) {
-                throw new Exception("IndexReader reopen :\n", e);
-            } catch (IOException e) {
-                throw new Exception("IndexReader reopen :\n", e);
-            }
-            if (ir != irreopened) {
-                try {
-                    ir.close();
-                } catch (IOException e) {
-                    ir = null;
-                    throw new Exception("IndexReader close after reopen error :\n", e);
-                }
-                ir = irreopened;
-            }
-        } else {
-            String s = config.getString("IndexDir");
-            try {
-                ir = IndexReader.open(SimpleFSDirectory.open(new File(s)), true);
-            } catch (CorruptIndexException e) {
-                throw new Exception("IndexReader open error IndexDir=" + s + " :\n", e);
-            } catch (IOException e) {
-                throw new Exception("IndexReader open error IndexDir=" + s + " :\n", e);
-            }
-        }
-        docCount = ir.numDocs();
-        logger.fine("getIndexReader  docCount=" + docCount);
-
-    }
-
-    private void closeIndexReader()
-            throws Exception {
-        if (ir != null) {
-            docCount = ir.numDocs();
-            try {
-                ir.close();
-            } catch (IOException e) {
-                throw new Exception("IndexReader close error:\n", e);
-            } finally {
-                ir = null;
-                logger.fine("closeIndexReader docCount=" + docCount);
-
-            }
-        }
-    }
+   
+    
 
     private long indexDirSpace(File dir) {
         long ids = 0;
@@ -785,7 +754,7 @@ public class SolrOperations {
         checkIntegrityByDocument(pid_path, 0);
     }
     private void checkIntegrityByDocument(String pid_path, int offset) throws Exception {
-        logger.info("checkIntegrityByDocument. offset: "+offset);
+        logger.log(Level.INFO, "checkIntegrityByDocument. offset: {0}", offset);
         if (pid_path == null || pid_path.length() < 1) {
             return;
         }
@@ -823,7 +792,7 @@ public class SolrOperations {
         checkIntegrityByModel(model, 0);
     }
     private void checkIntegrityByModel(String model, int offset) throws Exception {
-        logger.info("checkIntegrityByModel. offset: "+offset);
+        logger.log(Level.INFO, "checkIntegrityByModel. offset: {0}", offset);
         if (model == null || model.length() < 1) {
             return;
         }
