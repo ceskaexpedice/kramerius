@@ -1,16 +1,16 @@
 /*
  * Copyright (C) 2010 Pavel Stastny
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -35,7 +35,6 @@ import cz.incad.kramerius.security.RightsManager;
 import cz.incad.kramerius.security.User;
 import cz.incad.kramerius.security.UserManager;
 import cz.incad.kramerius.security.impl.UserImpl;
-import cz.incad.kramerius.security.jaas.K4UserPrincipal;
 
 public class IsActionAllowedFromRequest implements IsActionAllowed {
 
@@ -45,8 +44,8 @@ public class IsActionAllowedFromRequest implements IsActionAllowed {
     private RightsManager rightsManager;
     private RightCriteriumContextFactory ctxFactory;
     private Provider<User> currentLoggedUser;
-    
-    
+
+
     @Inject
     public IsActionAllowedFromRequest(Logger logger, Provider<HttpServletRequest> provider, RightsManager rightsManager, RightCriteriumContextFactory contextFactory, Provider<User> currentUserProvider) {
         super();
@@ -68,7 +67,7 @@ public class IsActionAllowedFromRequest implements IsActionAllowed {
 
         return false;
     }
-    
+
     public boolean isActionAllowed(User user, String actionName, String uuid, String[] pathOfUuids) {
         try {
             return isAllowedInternalForFedoraDocuments(actionName, uuid, pathOfUuids, user);
@@ -78,9 +77,9 @@ public class IsActionAllowedFromRequest implements IsActionAllowed {
 
         return false;
     }
-    
-    
-    
+
+
+
 
     @Override
     public boolean[] isActionAllowedForAllPath(String actionName, String uuid, String[] pathOfUuids) {
