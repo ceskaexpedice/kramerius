@@ -14,6 +14,8 @@ import cz.incad.kramerius.utils.pid.Token.TokenType;
  */
 public class PIDParser {
 
+    static java.util.logging.Logger LOGGER = java.util.logging.Logger.getLogger(PIDParser.class.getName());
+    
 	public static final String INFO_FEDORA_PREFIX = "info:fedora/";
 	public static final String UUID_PREFIX="uuid:";
 	
@@ -43,8 +45,10 @@ public class PIDParser {
 	public void objectPid() throws LexerException {
 		this.consume();
 		String namespaceId = namespaceId();
+		LOGGER.fine("parsed namespaceId '"+namespaceId+"'");
 		matchDoubleDot();
 		String objectId = objectId();
+        LOGGER.fine("parsed objectId '"+objectId+"'");
 		
 		this.namespaceId = namespaceId;
 		this.objectId = objectId;
