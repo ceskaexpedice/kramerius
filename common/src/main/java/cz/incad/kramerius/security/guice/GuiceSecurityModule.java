@@ -56,10 +56,12 @@ public class GuiceSecurityModule extends AbstractModule {
         bind(RightCriteriumWrapperFactory.class).to(RightCriteriumWrapperFactoryImpl.class);
         
         // init databases annotation
+        /*
         InitSecurityDatabaseMethodInterceptor initDb = new InitSecurityDatabaseMethodInterceptor();
         bindInterceptor(Matchers.any(), Matchers.annotatedWith(InitSecurityDatabase.class), 
                   initDb);
         requestInjection(initDb);
+        */
     }
     
 }

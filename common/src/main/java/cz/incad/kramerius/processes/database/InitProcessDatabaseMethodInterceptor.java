@@ -17,9 +17,6 @@
 package cz.incad.kramerius.processes.database;
 
 import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
-import java.util.logging.Level;
 
 import org.aopalliance.intercept.MethodInterceptor;
 import org.aopalliance.intercept.MethodInvocation;
@@ -53,6 +50,8 @@ public class InitProcessDatabaseMethodInterceptor implements MethodInterceptor {
     public Object invoke(MethodInvocation invocation) throws Throwable {
         Connection connection = this.provider.get();
         try {
+            // moved to Init servlet
+            /*
             if (!DatabaseUtils.tableExists(connection,"PROCESSES")) {
                 createProcessTable(connection);
             }
@@ -65,52 +64,10 @@ public class InitProcessDatabaseMethodInterceptor implements MethodInterceptor {
             if (!DatabaseUtils.tableExists(connection,"USER_ENTITY")) {
                 InitSecurityDatabaseMethodInterceptor.createSecurityTables(connection);
             }
+            */
             return invocation.proceed();
         } finally {
             if (connection != null) { DatabaseUtils.tryClose(connection); }
-        }
-    }
-
-
-    
-
-    public static void createProcessTable(Connection con) throws SQLException {
-        PreparedStatement prepareStatement = con.prepareStatement(
-                "CREATE TABLE PROCESSES(DEFID VARCHAR(255), " +
-            		"UUID VARCHAR(255) PRIMARY KEY," +
-            		"PID int,STARTED timestamp, " +
-            		"PLANNED timestamp, " +
-            		"STATUS int, " +
-            		"NAME VARCHAR(1024), " +
-            		"PARAMS VARCHAR(4096), "+
-            		"STARTEDBY INT)");
-        try {
-            int r = prepareStatement.executeUpdate();
-            LOGGER.log(Level.FINEST, "CREATE TABLE: updated rows {0}", r);
-        } finally {
-            DatabaseUtils.tryClose(prepareStatement);
-        }
-    }
-
-    public static void alterProcessTableStartedByColumn(Connection con) throws SQLException {
-        PreparedStatement prepareStatement = con.prepareStatement(
-                "ALTER TABLE PROCESSES ADD COLUMN STARTEDBY INT");
-        try {
-            int r = prepareStatement.executeUpdate();
-            LOGGER.log(Level.FINEST, "ALTER TABLE: updated rows {0}", r);
-        } finally {
-            DatabaseUtils.tryClose(prepareStatement);
-        }
-    }
-
-    public static void alterProcessTableProcessToken(Connection con) throws SQLException {
-        PreparedStatement prepareStatement = con.prepareStatement(
-                "ALTER TABLE PROCESSES ADD COLUMN TOKEN VARCHAR(255)");
-        try {
-            int r = prepareStatement.executeUpdate();
-            LOGGER.log(Level.FINEST, "ALTER TABLE: updated rows {0}", r);
-        } finally {
-            DatabaseUtils.tryClose(prepareStatement);
         }
     }
 

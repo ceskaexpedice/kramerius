@@ -21,42 +21,31 @@ import java.io.InputStream;
 import java.nio.charset.Charset;
 import java.sql.Connection;
 import java.sql.SQLException;
-
-import org.aopalliance.intercept.MethodInterceptor;
-import org.aopalliance.intercept.MethodInvocation;
-
-import com.google.inject.Inject;
-import com.google.inject.Provider;
-import com.google.inject.name.Named;
+import java.util.logging.Level;
 
 import cz.incad.kramerius.utils.DatabaseUtils;
 import cz.incad.kramerius.utils.IOUtils;
 import cz.incad.kramerius.utils.database.JDBCUpdateTemplate;
 
-public class InitSecurityDatabaseMethodInterceptor implements MethodInterceptor {
+public class SecurityDatabaseInitializator {
 
-    @Inject
-    @Named("kramerius4")
-    Provider<Connection> provider;
+    static java.util.logging.Logger LOGGER = java.util.logging.Logger.getLogger(SecurityDatabaseInitializator.class.getName());
 
-    
-    @Override
-    public Object invoke(MethodInvocation invocation) throws Throwable {
-        Connection connection = this.provider.get();
+    public static void initDatabase(Connection connection) {
         try {
-            // MOVED to startup servlet
-
-            /*
-            if (!DatabaseUtils.tableExists(connection,"USER_ENTITY")) {
+            if (!DatabaseUtils.tableExists(connection, "USER_ENTITY")) {
                 createSecurityTables(connection);
             }
-            */
-            return invocation.proceed();
-        } finally {
-            if (connection != null) { DatabaseUtils.tryClose(connection); }
+        } catch (SQLException e) {
+            LOGGER.log(Level.SEVERE,e.getMessage(),e);
+        } catch (IOException e) {
+            LOGGER.log(Level.SEVERE,e.getMessage(),e);
         }
     }
 
-
-    
+    public static void createSecurityTables(Connection connection) throws SQLException, IOException {
+        InputStream is = InitSecurityDatabaseMethodInterceptor.class.getResourceAsStream("res/initsecdb.sql");
+        JDBCUpdateTemplate template = new JDBCUpdateTemplate(connection, false);
+        template.executeUpdate(IOUtils.readAsString(is, Charset.forName("UTF-8"), true));
+    }
 }
