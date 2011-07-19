@@ -27,4 +27,15 @@ public class PIDParserTest {
 		Assert.assertEquals("model", parser.getNamespaceId());
 	}
 	
+	
+	@Test
+	public void testPidParser3() throws LexerException {
+        try {
+            PIDParser parser = new PIDParser(" info:fedora/96fd202c-e640-11de-a504-001143e3f55c");
+            parser.disseminationURI();
+        } catch (LexerException e) {
+            // ok
+        }
+        
+	}
 }
