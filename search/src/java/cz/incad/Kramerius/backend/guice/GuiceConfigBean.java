@@ -12,6 +12,7 @@ import com.google.inject.servlet.GuiceServletContextListener;
 import com.google.inject.servlet.ServletModule;
 
 import cz.incad.Kramerius.security.GuiceSecurityModule;
+import cz.incad.kramerius.processes.guice.LongRunningProcessModule;
 import cz.incad.kramerius.security.impl.http.GuiceSecurityHTTPModule;
 
 public class GuiceConfigBean extends GuiceServletContextListener {
@@ -24,7 +25,7 @@ public class GuiceConfigBean extends GuiceServletContextListener {
 	@Override
 	public void contextInitialized(ServletContextEvent servletContextEvent) {
 	    String realPath = servletContextEvent.getServletContext().getRealPath("WEB-INF/lib");
-		System.setProperty(LongRunningProcessModul.DEFAULT_LIBS_KEY, realPath);
+		System.setProperty(LongRunningProcessModule.DEFAULT_LIBS_KEY, realPath);
 		super.contextInitialized(servletContextEvent);
 	}
 
@@ -35,7 +36,7 @@ public class GuiceConfigBean extends GuiceServletContextListener {
 		                                            new cz.incad.kramerius.security.guice.GuiceSecurityModule(),
 		                                            new GuiceSecurityHTTPModule(),
 		                                            
-		                                            new LongRunningProcessModul(), // for long running processes
+		                                            new LongRunningProcessModule(), // for long running processes
 		                                            new ServletModule());
 
 		return injector;

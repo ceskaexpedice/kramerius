@@ -133,6 +133,13 @@
         <servlet-class>cz.incad.Kramerius.oai.OaiServlet</servlet-class>
     </servlet>
 
+    <!-- startup servlet -->
+    <servlet>
+        <servlet-name>startupServlet</servlet-name>
+        <servlet-class>cz.incad.Kramerius.StartupServlet</servlet-class>
+        <load-on-startup>1</load-on-startup>
+    </servlet>
+
 	<!-- 
 		// Mapovani servletu
 	 -->
@@ -234,6 +241,13 @@
         <servlet-name>oaiServlet</servlet-name>
         <url-pattern>/oaiExport</url-pattern>
     </servlet-mapping>
+
+
+    <servlet-mapping>
+        <servlet-name>startupServlet</servlet-name>
+        <url-pattern>/startupServlet</url-pattern>
+    </servlet-mapping>
+
 	
     <security-role>
         <role-name>krameriusAdmin</role-name>
