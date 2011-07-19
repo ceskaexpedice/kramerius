@@ -1,31 +1,19 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
     <modelVersion>4.0.0</modelVersion>
-
-
-    <groupId>cz.incad.kramerius</groupId>
     <artifactId>import-cmdtool</artifactId>
-    <name>import-cmdtool</name>
-    <version>1.0.0-SNAPSHOT</version>
     <packaging>jar</packaging>
 
     <parent>
         <groupId>cz.incad.kramerius</groupId>
-        <artifactId>kramerius-parent-pom</artifactId>
-        <version>1.0</version>
+        <artifactId>kramerius</artifactId>
+        <version>3.4.0-SNAPSHOT</version>
     </parent>
 
 
     <dependencies>
-<!--
-        <dependency> 
-            <groupId>log4j</groupId> 
-            <artifactId>log4j</artifactId>
-            <version>1.2.8</version> 
-        </dependency>
--->
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-api</artifactId>
@@ -47,7 +35,7 @@
         <dependency>
             <groupId>cz.incad.kramerius</groupId>
             <artifactId>common</artifactId>
-            <version>1.0.0-SNAPSHOT</version>
+            <version>${project.parent.version}</version>
         </dependency>
 <!--
         <dependency>
@@ -111,7 +99,7 @@
             <artifactId>postgresql</artifactId>
             <version>${postgresql.version}</version>
         </dependency>
-		
+
         <!-- JPEG2000 support -->
         <dependency>
             <groupId>com.sun.media</groupId>
@@ -150,7 +138,7 @@
                 </configuration>
             </plugin>
 
-<!--			 
+<!--
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-jar-plugin</artifactId>
@@ -186,7 +174,7 @@
                     </execution>
                 </executions>
             </plugin>
-			 -->
+             -->
 
         </plugins>
 

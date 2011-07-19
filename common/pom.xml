@@ -3,15 +3,12 @@
     xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
     <modelVersion>4.0.0</modelVersion>
-    <groupId>cz.incad.kramerius</groupId>
     <artifactId>common</artifactId>
-    <version>1.0.0-SNAPSHOT</version>
-    <name>common</name>
-    
+
     <parent>
         <groupId>cz.incad.kramerius</groupId>
-        <artifactId>kramerius-parent-pom</artifactId>
-        <version>1.0</version>
+        <artifactId>kramerius</artifactId>
+        <version>3.4.0-SNAPSHOT</version>
     </parent>
 
     <dependencies>
@@ -19,14 +16,14 @@
         <dependency>
             <groupId>cz.incad.kramerius</groupId>
             <artifactId>security-core</artifactId>
-            <version>1.0.0-SNAPSHOT</version>
+            <version>${project.parent.version}</version>
             <scope>provided</scope>
         </dependency>
-    
+
         <dependency>
             <groupId>cz.incad.kramerius</groupId>
             <artifactId>fedora_api</artifactId>
-            <version>1.0.0-SNAPSHOT</version>
+            <version>${project.parent.version}</version>
         </dependency>
 
         <dependency>
@@ -47,7 +44,7 @@
                 </exclusion>
             </exclusions>
         </dependency>
-		
+
         <!-- dependency> <groupId>xalan</groupId> <artifactId>xalan</artifactId>
             <version>2.7.1</version> </dependency> <dependency> <groupId>org.apache</groupId>
             <artifactId>xercesImpl</artifactId> <version>2.7.1</version> </dependency -->
@@ -65,20 +62,20 @@
             <artifactId>guice</artifactId>
             <version>${guice.version}</version>
         </dependency>
-        
+
         <dependency>
             <groupId>com.google.inject.extensions</groupId>
             <artifactId>guice-multibindings</artifactId>
             <version>${guice.version}</version>
         </dependency>
-        
+
         <dependency>
             <groupId>com.google.inject.extensions</groupId>
             <artifactId>guice-servlet</artifactId>
             <version>${guice.version}</version>
         </dependency>
-        
-        
+
+
         <dependency>
             <groupId>javax.inject</groupId>
             <artifactId>javax.inject</artifactId>
@@ -141,7 +138,7 @@
             <version>0.8.09</version>
         </dependency>
 
-		
+
         <!--commons configuration -->
         <dependency>
             <groupId>commons-configuration</groupId>
@@ -187,7 +184,7 @@
             <artifactId>jcl-over-slf4j</artifactId>
             <version>${slf4j.version}</version>
         </dependency>
-		
+
         <!-- JPEG2000 support -->
         <dependency>
             <groupId>com.sun.media</groupId>
@@ -209,7 +206,7 @@
             <version>1.3</version>
             <scope>test</scope>
         </dependency>
-        
+
         <dependency>
             <groupId>org.easymock</groupId>
             <artifactId>easymock</artifactId>
@@ -261,8 +258,8 @@
 
         </resources>
         <plugins>
-            
-            
+
+
             <plugin>
                 <artifactId>maven-surefire-plugin</artifactId>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -270,10 +267,10 @@
                 <configuration>
                     <excludes>
                         <exclude>**/Database*.java</exclude>
-                    </excludes>            
+                    </excludes>
                 </configuration>
             </plugin>
-        
+
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>findbugs-maven-plugin</artifactId>

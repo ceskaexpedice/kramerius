@@ -1,11 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
-    <groupId>cz.incad.kramerius</groupId>
     <artifactId>fedora_api</artifactId>
-    <version>1.0.0-SNAPSHOT</version>
-    <name>fedora_api</name>
     <packaging>jar</packaging>
     <description>FEDORA API</description>
     <developers>
@@ -29,8 +26,8 @@
 
     <parent>
         <groupId>cz.incad.kramerius</groupId>
-        <artifactId>kramerius-parent-pom</artifactId>
-        <version>1.0</version>
+        <artifactId>kramerius</artifactId>
+        <version>3.4.0-SNAPSHOT</version>
     </parent>
 
     <dependencies>
