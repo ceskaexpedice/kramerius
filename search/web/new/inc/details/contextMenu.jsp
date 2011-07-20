@@ -20,6 +20,9 @@
             menus.add(new ContextMenuItem("administrator.menu.generatepdf", "_data_x_role", "printMorePages", "", true));
             menus.add(new ContextMenuItem("administrator.menu.downloadOriginal", "_data_x_role", "downloadOriginal", "", true));
 
+            
+            //TODO: Takto se uz kvuli shibboletu prihlaseni kontrolovat nemuze.. 
+            // Predelame na view objekt?  Kazdy if v jsp je male zlo
             if (request.getRemoteUser() != null) {
                 menus.add(new ContextMenuItem("administrator.menu.reindex", "_data_x_role", "reindex", "", true));
                 menus.add(new ContextMenuItem("administrator.menu.deletefromindex", "_data_x_role", "deletefromindex", "", true));
@@ -211,7 +214,11 @@
         
     }
     <%
-                if (request.getRemoteUser() != null) {
+    
+       
+    //TODO: Takto se uz kvuli shibboletu prihlaseni kontrolovat nemuze.. 
+    // Predelame na view objekt?  Kazdy if v jsp je male zlo
+    if (request.getRemoteUser() != null) {
                     // tady js funkce pro prihlasene
 %>
     function reindex(){
