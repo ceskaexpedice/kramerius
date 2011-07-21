@@ -41,6 +41,7 @@ import cz.incad.kramerius.processes.LRProcessOrdering;
 import cz.incad.kramerius.processes.ProcessScheduler;
 import cz.incad.kramerius.processes.States;
 import cz.incad.kramerius.processes.TypeOfOrdering;
+import cz.incad.kramerius.processes.utils.ProcessUtils;
 import cz.incad.kramerius.security.IsActionAllowed;
 import cz.incad.kramerius.security.SecuredActions;
 import cz.incad.kramerius.security.SecurityException;
@@ -418,7 +419,19 @@ public class LongRunningProcessServlet extends GuiceServlet {
             if ((parametersString !=null) && (!parametersString.trim().equals("")))  {
                 ParamsParser parser = new ParamsParser(new ParamsLexer(new StringReader(parametersString)));
                 List paramsList = parser.params();
-                return (String[]) paramsList.toArray(new String[paramsList.size()]);
+                String[] revals = new String[paramsList.size()];
+                for (int i = 0,ll=paramsList.size(); i < ll; i++) {
+                    Object prm = paramsList.get(i);
+                    if (prm instanceof String) {
+                        String sprm = (String) prm;
+                        revals[i]= sprm;
+                    } else {
+                        List lprm = (List) prm;
+                        revals[i] = ProcessUtils.nparams((String[]) lprm.toArray(new String[lprm.size()]));
+                    }
+                }
+                
+                return revals;
             }
             return new String[0];
         }

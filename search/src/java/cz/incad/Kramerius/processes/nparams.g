@@ -1,5 +1,6 @@
 header {
-    package cz.incad.kramerius.utils.params;
+//    package cz.incad.kramerius.utils.params;
+    package cz.incad.Kramerius.processes;
     import java.util.*;
 }  
 
@@ -8,8 +9,19 @@ class ParamsParser extends Parser;
 }
 
 params returns [List prms]
-{prms=new java.util.ArrayList(); String pr1 = null; String pr2=null;}
-: LPAREN  pr1=param {prms.add(pr1); } (SEMI pr2=param {prms.add(pr2); })* RPAREN
+{prms=new java.util.ArrayList(); 
+    String pr1 = null; 
+    List lpr1 = null;
+    String pr2=null;
+    List lpr2=null;
+}
+: 
+LPAREN  ( pr1=param {prms.add(pr1); } | lpr1 = params {prms.add(lpr1);} )
+
+(SEMI 
+  (pr2=param {prms.add(pr2); } | lpr2 = params {prms.add(lpr2);})
+)* 
+ RPAREN
 ;
 
 param returns [String pk1]

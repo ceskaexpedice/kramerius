@@ -1,5 +1,6 @@
 // $ANTLR 2.7.7 (2006-11-01): "nparams.g" -> "ParamsLexer.java"$
 
+//    package cz.incad.kramerius.utils.params;
     package cz.incad.Kramerius.processes;
     import java.util.*;
 

@@ -1,5 +1,6 @@
 // $ANTLR 2.7.7 (2006-11-01): "nparams.g" -> "ParamsLexer.java"$
 
+//    package cz.incad.kramerius.utils.params;
     package cz.incad.Kramerius.processes;
     import java.util.*;
 
@@ -200,8 +201,8 @@ tryAgain:
 		int _saveIndex;
 		
 		{
-		int _cnt15=0;
-		_loop15:
+		int _cnt17=0;
+		_loop17:
 		do {
 			switch ( LA(1)) {
 			case '\\':
@@ -248,10 +249,10 @@ tryAgain:
 			}
 			default:
 			{
-				if ( _cnt15>=1 ) { break _loop15; } else {throw new NoViableAltForCharException((char)LA(1), getFilename(), getLine(), getColumn());}
+				if ( _cnt17>=1 ) { break _loop17; } else {throw new NoViableAltForCharException((char)LA(1), getFilename(), getLine(), getColumn());}
 			}
 			}
-			_cnt15++;
+			_cnt17++;
 		} while (true);
 		}
 		if ( _createToken && _token==null && _ttype!=Token.SKIP ) {

@@ -1,5 +1,6 @@
 // $ANTLR 2.7.7 (2006-11-01): "nparams.g" -> "ParamsParser.java"$
 
+//    package cz.incad.kramerius.utils.params;
     package cz.incad.Kramerius.processes;
     import java.util.*;
 
@@ -47,22 +48,63 @@ public ParamsParser(ParserSharedInputState state) {
 	public final List  params() throws RecognitionException, TokenStreamException {
 		List prms;
 		
-		prms=new java.util.ArrayList(); String pr1 = null; String pr2=null;
+		prms=new java.util.ArrayList(); 
+		String pr1 = null; 
+		List lpr1 = null;
+		String pr2=null;
+		List lpr2=null;
+		
 		
 		try {      // for error handling
 			match(LPAREN);
-			pr1=param();
-			prms.add(pr1);
 			{
-			_loop3:
+			switch ( LA(1)) {
+			case ANY:
+			{
+				pr1=param();
+				prms.add(pr1);
+				break;
+			}
+			case LPAREN:
+			{
+				lpr1=params();
+				prms.add(lpr1);
+				break;
+			}
+			default:
+			{
+				throw new NoViableAltException(LT(1), getFilename());
+			}
+			}
+			}
+			{
+			_loop5:
 			do {
 				if ((LA(1)==SEMI)) {
 					match(SEMI);
-					pr2=param();
-					prms.add(pr2);
+					{
+					switch ( LA(1)) {
+					case ANY:
+					{
+						pr2=param();
+						prms.add(pr2);
+						break;
+					}
+					case LPAREN:
+					{
+						lpr2=params();
+						prms.add(lpr2);
+						break;
+					}
+					default:
+					{
+						throw new NoViableAltException(LT(1), getFilename());
+					}
+					}
+					}
 				}
 				else {
-					break _loop3;
+					break _loop5;
 				}
 				
 			} while (true);
@@ -86,7 +128,7 @@ public ParamsParser(ParserSharedInputState state) {
 		}
 		catch (RecognitionException ex) {
 			reportError(ex);
-			recover(ex,_tokenSet_1);
+			recover(ex,_tokenSet_0);
 		}
 		return pk1;
 	}
@@ -99,8 +141,8 @@ public ParamsParser(ParserSharedInputState state) {
 		
 		try {      // for error handling
 			{
-			int _cnt7=0;
-			_loop7:
+			int _cnt9=0;
+			_loop9:
 			do {
 				if ((LA(1)==ANY)) {
 					a = LT(1);
@@ -108,16 +150,16 @@ public ParamsParser(ParserSharedInputState state) {
 					pk = a.getText();
 				}
 				else {
-					if ( _cnt7>=1 ) { break _loop7; } else {throw new NoViableAltException(LT(1), getFilename());}
+					if ( _cnt9>=1 ) { break _loop9; } else {throw new NoViableAltException(LT(1), getFilename());}
 				}
 				
-				_cnt7++;
+				_cnt9++;
 			} while (true);
 			}
 		}
 		catch (RecognitionException ex) {
 			reportError(ex);
-			recover(ex,_tokenSet_1);
+			recover(ex,_tokenSet_0);
 		}
 		return pk;
 	}
@@ -137,14 +179,9 @@ public ParamsParser(ParserSharedInputState state) {
 	};
 	
 	private static final long[] mk_tokenSet_0() {
-		long[] data = { 2L, 0L};
-		return data;
-	}
-	public static final BitSet _tokenSet_0 = new BitSet(mk_tokenSet_0());
-	private static final long[] mk_tokenSet_1() {
 		long[] data = { 96L, 0L};
 		return data;
 	}
-	public static final BitSet _tokenSet_1 = new BitSet(mk_tokenSet_1());
+	public static final BitSet _tokenSet_0 = new BitSet(mk_tokenSet_0());
 	
 	}
