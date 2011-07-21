@@ -45,7 +45,18 @@ public class ProcessUtils {
         String lrServlet = KConfiguration.getInstance().getApplicationURL() + '/' + LR_SERVLET_NAME;
         return lrServlet;
     }
-    
+
+    public static void startProcess(String processDef, String nparams) {
+        LOGGER.info(" spawn process '"+processDef+"'");
+        String base = ProcessUtils.getLrServlet();    
+        String url = base + "?action=start&def="+processDef+"&nparams="+nparams+"&token="+System.getProperty(ProcessStarter.TOKEN_KEY);
+        try {
+            ProcessStarter.httpGet(url);
+        } catch (Exception e) {
+            LOGGER.severe("Error spawning indexer for "+processDef+":"+e);
+        }
+    }
+
     public static void startProcess(String processDef, String[] params) {
         LOGGER.info(" spawn process '"+processDef+"'");
         String base = ProcessUtils.getLrServlet();    
@@ -57,7 +68,7 @@ public class ProcessUtils {
         }
     }
 
-    private static String nparams(String[] params) {
+    public static String nparams(String[] params) {
         StringBuffer buffer = new StringBuffer("{");
         for (int i = 0; i < params.length; i++) {
             buffer.append(nparam(params[i]));
@@ -69,7 +80,7 @@ public class ProcessUtils {
         return buffer.toString();
     }
 
-    private static String nparam(String string) {
+    public static String nparam(String string) {
         String[] escapeChars = {"\\",":",";","{","}"};
         for (String toEscape : escapeChars) {
             if (string.contains(toEscape)) {

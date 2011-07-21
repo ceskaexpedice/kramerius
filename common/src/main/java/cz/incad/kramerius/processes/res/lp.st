@@ -229,5 +229,14 @@
         <errOs>lrErr</errOs>
         <javaProcessParameters>-Xmx1024m -Xms512m</javaProcessParameters>
     </process>
+
+
+    <process>
+        <id>aggregate</id>
+        <description>Process aggregator</description>
+        <mainClass>cz.incad.kramerius.processes.impl.ProcessAggregator</mainClass>
+        <standardOs>lrOut</standardOs>
+        <errOs>lrErr</errOs>
+    </process>
 	
 </processes>
