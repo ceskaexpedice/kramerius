@@ -497,6 +497,16 @@ ImageContainer.prototype.downloadOriginal = function() {
     $("#downloadOriginalHref").attr('href','img?uuid='+this.viewerOptions.uuid+'&stream=IMG_FULL&action=GETRAW&asFile=true');
 }
 
+/** display no Image error */
+ImageContainer.prototype.noImage = function() {
+    this.displayDiv("#noImageError");
+}
+
+/** display security error */
+ImageContainer.prototype.securityError = function() {
+    this.displayDiv("#securityError");
+}
+
 
 function hideAlto(){
     $("#alto").html('');

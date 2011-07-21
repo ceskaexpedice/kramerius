@@ -107,6 +107,12 @@ function selectPage(uuid){
     	imageContainerObject = new ImageContainer(viewerOptions);
     	// display object
     	imageContainerObject.display();
+    }, function(viewerOptions) {
+    	imageContainerObject = new ImageContainer(viewerOptions);
+    	imageContainerObject.noImage();
+    }, function (viewerOptions) {
+    	imageContainerObject = new ImageContainer(viewerOptions);
+    	imageContainerObject.securityError();
     });
     
     var maxLevel = getMaxLevel();
@@ -127,7 +133,7 @@ function selectPage(uuid){
     setMainContentWidth();
 }
 
-function getViewInfo(uuid, f){
+function getViewInfo(uuid, f, noImageF, securityErrorF){
     $.ajax({
         url:"viewInfo?uuid="+uuid,
         complete:function(req,textStatus) {
@@ -144,11 +150,11 @@ function getViewInfo(uuid, f){
                 } else if (!viewerOptions.imgfull) {
                     currentMime = "unknown";
                     securedContent = false;
-                    displayImageContainer("#noImageError");
+                    if (noImageF) noImageF(viewerOptions);
                 } else {
                     currentMime = "unknown";
                     securedContent = true;
-                    displayImageContainer("#securityError");
+                    if (securityErrorF) securityErrorF(viewerOptions);
                 }
             	  
                   
