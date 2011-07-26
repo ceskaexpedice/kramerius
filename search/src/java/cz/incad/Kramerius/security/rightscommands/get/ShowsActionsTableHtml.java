@@ -27,21 +27,27 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.antlr.stringtemplate.StringTemplate;
 
+import com.google.inject.Inject;
+
 import cz.incad.Kramerius.security.ServletCommand;
 import cz.incad.Kramerius.security.rightscommands.ServletRightsCommand;
 import cz.incad.Kramerius.security.strenderers.SecuredActionWrapper;
 import cz.incad.Kramerius.security.strenderers.TitlesForObjects;
 import cz.incad.kramerius.security.SecuredActions;
+import cz.incad.kramerius.users.LoggedUsersSingleton;
 
 public class ShowsActionsTableHtml extends ServletRightsCommand {
 
     static java.util.logging.Logger LOGGER = java.util.logging.Logger.getLogger(ShowsActionsTableHtml.class.getName());
+
+    @Inject
+    LoggedUsersSingleton loggedUsersSingleton;
     
     @Override
     public void doCommand() {
         String uuid = this.requestProvider.get().getParameter(UUID_PARAMETER);
         try {
-            if (this.userManager.isLoggedUser(this.userProvider.get())) {
+            if (this.loggedUsersSingleton.isLoggedUser(this.requestProvider)) {
                 String[] path = getPathOfUUIDs(uuid);
                 String[] models = getModels(uuid);
 

@@ -43,6 +43,7 @@ import cz.incad.Kramerius.security.rightscommands.ServletRightsCommand;
 import cz.incad.kramerius.FedoraNamespaceContext;
 import cz.incad.kramerius.security.User;
 import cz.incad.kramerius.security.UserManager;
+import cz.incad.kramerius.users.LoggedUsersSingleton;
 
 public class ChangeVisibililtyFlagHtml extends AdminCommand {
 
@@ -54,10 +55,13 @@ public class ChangeVisibililtyFlagHtml extends AdminCommand {
     @Inject
     Provider<User> userProvider;
     
+    @Inject
+    LoggedUsersSingleton loggedUsersSingleton;
+    
     @Override
     public void doCommand() {
         try {
-            if (this.userManager.isLoggedUser(this.userProvider.get())) {
+            if (this.loggedUsersSingleton.isLoggedUser(this.requestProvider)) {
                 String uuid = requestProvider.get().getParameter(UUID_PARAMETER);
                 PolicyFlag policyFlag = PolicyFlag.NONE;
                 Document relsExt = fedoraAccess.getRelsExt(uuid);

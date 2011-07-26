@@ -54,6 +54,7 @@ import cz.incad.kramerius.security.User;
 import cz.incad.kramerius.security.UserManager;
 import cz.incad.kramerius.security.utils.SortingRightsUtils;
 import cz.incad.kramerius.service.ResourceBundleService;
+import cz.incad.kramerius.users.LoggedUsersSingleton;
 import cz.incad.kramerius.utils.pid.LexerException;
 
 
@@ -66,13 +67,15 @@ public class ShowRightsHtml extends ServletRightsCommand{
     static java.util.logging.Logger LOGGER = java.util.logging.Logger.getLogger(ShowRightsHtml.class.getName());
 
     @Inject
-    transient IsActionAllowed actionAllowed;
+    IsActionAllowed actionAllowed;
 
+    @Inject
+    LoggedUsersSingleton loggedUsersSingleton;
+    
     @Override
     public void doCommand() {
         try {
-            
-            if (this.userManager.isLoggedUser(this.userProvider.get())) {
+            if (this.loggedUsersSingleton.isLoggedUser(this.requestProvider)) {
                 String uuid = getUuid();
                 
                 TypeOfList typeOfList =TypeOfList.all;

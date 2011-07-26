@@ -49,6 +49,7 @@ import cz.incad.kramerius.security.SpecialObjects;
 import cz.incad.kramerius.security.User;
 import cz.incad.kramerius.security.UserManager;
 import cz.incad.kramerius.security.utils.UserUtils;
+import cz.incad.kramerius.users.LoggedUsersSingleton;
 import cz.incad.kramerius.utils.ApplicationURL;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 import cz.incad.kramerius.utils.database.JDBCQueryTemplate;
@@ -65,29 +66,32 @@ public class LongRunningProcessServlet extends GuiceServlet {
     public static final java.util.logging.Logger LOGGER = java.util.logging.Logger.getLogger(LongRunningProcessServlet.class.getName());
 
     @Inject
-    transient DefinitionManager definitionManager;
+    DefinitionManager definitionManager;
 
     @Inject
-    transient LRProcessManager lrProcessManager;
+    LRProcessManager lrProcessManager;
 
     @Inject
-    transient KConfiguration configuration;
+    KConfiguration configuration;
 
     @Inject
-    transient ProcessScheduler processScheduler;
+    ProcessScheduler processScheduler;
 
     @Inject
-    transient GCScheduler gcScheduler;
+    GCScheduler gcScheduler;
 
 
     @Inject
-    transient IsActionAllowed actionAllowed;
+    IsActionAllowed actionAllowed;
 
     @Inject
-    transient Provider<User> userProvider;
+    Provider<User> userProvider;
     @Inject
-    transient UserManager usersManager;
-
+    UserManager usersManager;
+    
+    @Inject
+    LoggedUsersSingleton loggedUsersSingleton;
+    
     @Override
     public void init() throws ServletException {
         super.init();
@@ -135,7 +139,7 @@ public class LongRunningProcessServlet extends GuiceServlet {
             if (action == null)
                 action = Actions.list.name();
             Actions selectedAction = Actions.valueOf(action);
-            selectedAction.doAction(getServletContext(), req, resp, this.definitionManager, this.lrProcessManager, this.usersManager, this.userProvider, this.actionAllowed);
+            selectedAction.doAction(getServletContext(), req, resp, this.definitionManager, this.lrProcessManager, this.usersManager, this.userProvider, this.actionAllowed, this.loggedUsersSingleton);
         } catch (SecurityException e) {
             LOGGER.log(Level.SEVERE, e.getMessage(),e);
             resp.sendError(HttpServletResponse.SC_FORBIDDEN);
@@ -143,7 +147,7 @@ public class LongRunningProcessServlet extends GuiceServlet {
     }
     
 
-    public static LRProcess planNewProcess(HttpServletRequest request, ServletContext context, String def, DefinitionManager definitionManager, String[] params, User user) {
+    public static LRProcess planNewProcess(HttpServletRequest request, ServletContext context, String def, DefinitionManager definitionManager, String[] params, User user, String loggedUserKey) {
         definitionManager.load();
         LRProcessDefinition definition = definitionManager.getLongRunningProcessDefinition(def);
         if (definition == null) {
@@ -152,6 +156,7 @@ public class LongRunningProcessServlet extends GuiceServlet {
         String token = request.getParameter("token");
         LRProcess newProcess = definition.createNewProcess(token);
         newProcess.setUser(user);
+        newProcess.setLoggedUserKey(loggedUserKey);
         newProcess.setParameters(Arrays.asList(params));
         newProcess.planMe();
         return newProcess;
@@ -177,7 +182,7 @@ public class LongRunningProcessServlet extends GuiceServlet {
          * Plan new process
          */
         start {
-            public void doAction(ServletContext context, HttpServletRequest req, HttpServletResponse resp, DefinitionManager defManager, LRProcessManager lrProcessManager, UserManager userManager, Provider<User> userProvider, IsActionAllowed rightsResolver) {
+            public void doAction(ServletContext context, HttpServletRequest req, HttpServletResponse resp, DefinitionManager defManager, LRProcessManager lrProcessManager, UserManager userManager, Provider<User> userProvider, IsActionAllowed rightsResolver, LoggedUsersSingleton loggedUserSingleton) {
                 try {
                     String def = req.getParameter("def");
                     String out = req.getParameter("out");
@@ -186,21 +191,27 @@ public class LongRunningProcessServlet extends GuiceServlet {
                     SecuredActions actionFromDef = SecuredActions.findByFormalName(def);
                     String token = req.getParameter("token");
                     User user = null;
+                    String loggedUserKey = null;
+                    
                     if (token != null) {
+                        
                         List<LRProcess> processes = lrProcessManager.getLongRunningProcessesByToken(token);
                         if (!processes.isEmpty()) {
-                            user = processes.get(0).getUser();
-                            UserUtils.associateGroups(user, userManager);
-                            UserUtils.associateCommonGroup(user, userManager);
+                            // Nemuzu hledat v databazi. 
+                            // Musim najit dle loginname v prihlasenych uzivatelich... 
+                            loggedUserKey = processes.get(0).getLoggedUserKey();
+                            user = loggedUserSingleton.getLoggedUser(loggedUserKey);
                             
                         }
                     } else {
                         user = userProvider.get();
+                        loggedUserKey = (String) req.getSession().getAttribute(UserUtils.LOGGED_USER_KEY_PARAM);
+                        
                     }
                     boolean permited = user!= null? (rightsResolver.isActionAllowed(user,SecuredActions.MANAGE_LR_PROCESS.getFormalName(), SpecialObjects.REPOSITORY.getUuid(), new String[]{}) || 
                                         (actionFromDef != null && rightsResolver.isActionAllowed(user, actionFromDef.getFormalName(), SpecialObjects.REPOSITORY.getUuid(), new String[] {}))) : false ;
                     if (permited) {
-                        LRProcess nprocess = planNewProcess(req, context, def, defManager, params, user);
+                        LRProcess nprocess = planNewProcess(req, context, def, defManager, params, user,loggedUserKey);
                         
                         if ((out != null) && (out.equals("text"))) {
                             resp.setContentType("text/plain");
@@ -238,7 +249,7 @@ public class LongRunningProcessServlet extends GuiceServlet {
          */
         stop {
             @Override
-            public void doAction(ServletContext context, HttpServletRequest req, HttpServletResponse resp, DefinitionManager defManager, LRProcessManager lrProcessManager, UserManager userManager, Provider<User> userProvider, IsActionAllowed actionIsAllowed) {
+            public void doAction(ServletContext context, HttpServletRequest req, HttpServletResponse resp, DefinitionManager defManager, LRProcessManager lrProcessManager, UserManager userManager, Provider<User> userProvider, IsActionAllowed actionIsAllowed, LoggedUsersSingleton loggedUserSingleton) {
                 if (actionIsAllowed.isActionAllowed(SecuredActions.MANAGE_LR_PROCESS.getFormalName(), SpecialObjects.REPOSITORY.getUuid(), new String[] {})) {
                     try {
                         String uuid = req.getParameter("uuid");
@@ -271,7 +282,7 @@ public class LongRunningProcessServlet extends GuiceServlet {
          */
         list {
             @Override
-            public void doAction(ServletContext context, HttpServletRequest req, HttpServletResponse resp, DefinitionManager defManager, LRProcessManager lrProcessManager, UserManager userManager, Provider<User> userProvider, IsActionAllowed actionAllowed) {
+            public void doAction(ServletContext context, HttpServletRequest req, HttpServletResponse resp, DefinitionManager defManager, LRProcessManager lrProcessManager, UserManager userManager, Provider<User> userProvider, IsActionAllowed actionAllowed, LoggedUsersSingleton loggedUserSingleton) {
                 if (actionAllowed.isActionAllowed(SecuredActions.MANAGE_LR_PROCESS.getFormalName(), SpecialObjects.REPOSITORY.getUuid(), new String[] {})) {
                     try {
                         StringBuffer buffer = new StringBuffer();
@@ -316,7 +327,7 @@ public class LongRunningProcessServlet extends GuiceServlet {
 
         updatePID {
             @Override
-            public void doAction(ServletContext context, HttpServletRequest req, HttpServletResponse resp, DefinitionManager defManager, LRProcessManager lrProcessManager, UserManager userManager, Provider<User> userProvider, IsActionAllowed actionAllowed) {
+            public void doAction(ServletContext context, HttpServletRequest req, HttpServletResponse resp, DefinitionManager defManager, LRProcessManager lrProcessManager, UserManager userManager, Provider<User> userProvider, IsActionAllowed actionAllowed, LoggedUsersSingleton loggedUserSingleton) {
                 Lock lock = lrProcessManager.getSynchronizingLock();
                 lock.lock();
                 try {
@@ -334,7 +345,7 @@ public class LongRunningProcessServlet extends GuiceServlet {
         updateStatus {
 
             @Override
-            public void doAction(ServletContext context, HttpServletRequest req, HttpServletResponse resp, DefinitionManager defManager, LRProcessManager processManager, UserManager userManager, Provider<User> userProvider, IsActionAllowed actionAllowed) {
+            public void doAction(ServletContext context, HttpServletRequest req, HttpServletResponse resp, DefinitionManager defManager, LRProcessManager processManager, UserManager userManager, Provider<User> userProvider, IsActionAllowed actionAllowed, LoggedUsersSingleton loggedUserSingleton) {
                 String uuid = req.getParameter("uuid");
                 String state = req.getParameter("state");
                 Lock lock = processManager.getSynchronizingLock();
@@ -362,7 +373,7 @@ public class LongRunningProcessServlet extends GuiceServlet {
         updateName {
 
             @Override
-            public void doAction(ServletContext context, HttpServletRequest req, HttpServletResponse resp, DefinitionManager defManager, LRProcessManager processManager, UserManager userManager, Provider<User> userProvider, IsActionAllowed actionAllowed) {
+            public void doAction(ServletContext context, HttpServletRequest req, HttpServletResponse resp, DefinitionManager defManager, LRProcessManager processManager, UserManager userManager, Provider<User> userProvider, IsActionAllowed actionAllowed, LoggedUsersSingleton loggedUserSingleton) {
                 Lock lock = processManager.getSynchronizingLock();
                 lock.lock();
                 try {
@@ -384,7 +395,7 @@ public class LongRunningProcessServlet extends GuiceServlet {
 
         delete {
             @Override
-            public void doAction(ServletContext context, HttpServletRequest req, HttpServletResponse resp, DefinitionManager defManager, LRProcessManager processManager, UserManager userManager, Provider<User> userProvider, IsActionAllowed actionAllowed) {
+            public void doAction(ServletContext context, HttpServletRequest req, HttpServletResponse resp, DefinitionManager defManager, LRProcessManager processManager, UserManager userManager, Provider<User> userProvider, IsActionAllowed actionAllowed, LoggedUsersSingleton loggedUserSingleton) {
                 Lock lock = processManager.getSynchronizingLock();
                 lock.lock();
                 try {
@@ -403,7 +414,7 @@ public class LongRunningProcessServlet extends GuiceServlet {
 //            return userInRoleDecision.isUserInRole(KrameriusRoles.LRPROCESS_ADMIN.getRoleName());
 //        }
 
-        abstract void doAction(ServletContext context, HttpServletRequest req, HttpServletResponse resp, DefinitionManager defManager, LRProcessManager processManager, UserManager userManager, Provider<User> userProvider, IsActionAllowed actionAllowed);
+        abstract void doAction(ServletContext context, HttpServletRequest req, HttpServletResponse resp, DefinitionManager defManager, LRProcessManager processManager, UserManager userManager, Provider<User> userProvider, IsActionAllowed actionAllowed, LoggedUsersSingleton loggedUserSingleton);
     }
 
     public static String lrServlet(HttpServletRequest request) {

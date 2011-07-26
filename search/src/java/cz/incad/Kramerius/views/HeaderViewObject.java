@@ -25,6 +25,7 @@ import cz.incad.kramerius.FedoraAccess;
 import cz.incad.kramerius.security.User;
 import cz.incad.kramerius.security.UserManager;
 import cz.incad.kramerius.service.ResourceBundleService;
+import cz.incad.kramerius.users.LoggedUsersSingleton;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 
 /**
@@ -51,6 +52,8 @@ public class HeaderViewObject {
     UserManager userManager;
     @Inject
     KConfiguration configuration;
+    @Inject
+    LoggedUsersSingleton loggedUsersSingleton;
     
     public String getDictionary() {
         Map<String, String> resourceBundleMap = new HashMap<String, String>();
@@ -92,7 +95,7 @@ public class HeaderViewObject {
     
     public String getInjectedAdminScripts() {
         User user = this.userProvider.get();
-        if (this.userManager.isLoggedUser(user)) {
+        if (this.loggedUsersSingleton.isLoggedUser(this.requestProvider)) {
             StringTemplateGroup grp = stGroup();
             StringTemplate st = grp.getInstanceOf("injectedAdminScripts");
             return st.toString();

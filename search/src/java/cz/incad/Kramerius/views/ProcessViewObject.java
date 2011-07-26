@@ -90,6 +90,14 @@ public class ProcessViewObject {
         return FORMAT.format(date);
     }
 
+    public String getTreeIcon() {
+        if (lrProcess.isMasterProcess()) {
+            return "<a href=\"#\"><img border=\"0\" src=\"img/nolines_plus.gif\"></img></a>";
+        } else {
+            return "<img border=\"0\" src=\"img/nolines_minus.gif\"></img>";
+        }
+    }
+    
     // function killAndRefresh(url,ordering, offset, size, type) {
 
     public String getKillURL() {
@@ -111,6 +119,7 @@ public class ProcessViewObject {
         }
     }
 
+    
     public String getDeleteURL() {
         try {
             if ((this.lrProcess.getProcessState().equals(States.FINISHED)) || (this.lrProcess.getProcessState().equals(States.KILLED)) || (this.lrProcess.getProcessState().equals(States.FAILED))) {
@@ -146,10 +155,10 @@ public class ProcessViewObject {
     
     public String getStartedBy() {
         StringBuilder builder = new StringBuilder();
-        User user = this.lrProcess.getUser();
-        if (user != null) {
-            builder.append(user.getLoginname()).append(" (").append(user.getFirstName()).append(" ").append(user.getSurname()).append(")");
-        }
+        String firstName = lrProcess.getFirstname();
+        String surName = lrProcess.getSurname();
+        String loginname = lrProcess.getLoginname();
+        builder.append(loginname).append(" (").append(firstName).append(" ").append(surName).append(")");
         return builder.toString();
     }
     

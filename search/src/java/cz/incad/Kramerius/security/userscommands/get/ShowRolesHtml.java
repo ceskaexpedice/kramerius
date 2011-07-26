@@ -38,6 +38,7 @@ import cz.incad.kramerius.security.IsActionAllowed;
 import cz.incad.kramerius.security.SecuredActions;
 import cz.incad.kramerius.security.SpecialObjects;
 import cz.incad.kramerius.security.User;
+import cz.incad.kramerius.users.LoggedUsersSingleton;
 import cz.incad.utils.K4Collections;
 
 public class ShowRolesHtml extends AbstractRoleCommand {
@@ -47,13 +48,13 @@ public class ShowRolesHtml extends AbstractRoleCommand {
     @Inject
     IsActionAllowed actionAllowed;
     
-    
+    @Inject
+    LoggedUsersSingleton loggedUsersSingleton;
     
     @Override
     public void doCommand() {
         try {
-            
-            if (this.userManager.isLoggedUser(this.userProvider.get())) {
+            if (this.loggedUsersSingleton.isLoggedUser(this.requestProvider)) {
                 StringTemplate template = ServletUsersCommand.stFormsGroup().getInstanceOf("rolesTable");
                 
                 User user = this.userProvider.get();

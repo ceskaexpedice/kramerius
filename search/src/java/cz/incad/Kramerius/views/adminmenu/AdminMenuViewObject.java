@@ -23,6 +23,7 @@ import cz.incad.kramerius.security.User;
 import cz.incad.kramerius.security.UserManager;
 import cz.incad.kramerius.service.ResourceBundleService;
 import cz.incad.kramerius.shib.utils.ShibbolethUtils;
+import cz.incad.kramerius.users.LoggedUsersSingleton;
 import cz.incad.kramerius.utils.ApplicationURL;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 
@@ -35,6 +36,10 @@ public class AdminMenuViewObject {
     ResourceBundleService resourceBundleService;
     @Inject
     HttpServletRequest request;
+
+    @Inject
+    Provider<HttpServletRequest> requestProvider;
+    
     @Inject
     Locale locale;
 
@@ -43,6 +48,9 @@ public class AdminMenuViewObject {
 
     @Inject
     UserManager userManager;
+    
+    @Inject
+    LoggedUsersSingleton loggedUsersSingleton;
     
     
 //    @Inject
@@ -115,7 +123,7 @@ public class AdminMenuViewObject {
     public String[] getAdminMenuItems() {
         try {
             List<String> menuItems = new ArrayList<String>();
-            if (userManager.isLoggedUser(this.currentUserProvider.get())) {
+            if (this.loggedUsersSingleton.isLoggedUser(this.requestProvider)) {
                 if (hasUserAllowedAction(SecuredActions.MANAGE_LR_PROCESS.getFormalName())) {
                     menuItems.add(processes());
                 }
@@ -181,16 +189,16 @@ public class AdminMenuViewObject {
     }
 
     public boolean isLoggedUser() {
-        return userManager.isLoggedUser(this.currentUserProvider.get());
+        return loggedUsersSingleton.isLoggedUser(this.requestProvider);
     }
     
     public boolean isLoginVisible() {
-        return !userManager.isLoggedUser(this.currentUserProvider.get());
+        return !loggedUsersSingleton.isLoggedUser(this.requestProvider);
     }
     
     public boolean isLogoutVisible() {
         boolean shibSession = ShibbolethUtils.isUnderShibbolethSession(this.request);
-        boolean loggedUser = userManager.isLoggedUser(this.currentUserProvider.get());
+        boolean loggedUser = isLoggedUser();
         return !shibSession && loggedUser;
     }
     

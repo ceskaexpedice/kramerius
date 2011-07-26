@@ -29,6 +29,7 @@ import cz.incad.Kramerius.backend.guice.GuiceServlet;
 import cz.incad.kramerius.processes.database.MostDesirableDatabaseInitializator;
 import cz.incad.kramerius.processes.database.ProcessDatabaseInitializator;
 import cz.incad.kramerius.security.database.SecurityDatabaseInitializator;
+import cz.incad.kramerius.users.database.LoggedUserDatabaseInitializator;
 import cz.incad.kramerius.utils.DatabaseUtils;
 
 /**
@@ -52,6 +53,8 @@ public class StartupServlet extends GuiceServlet {
             MostDesirableDatabaseInitializator.initDatabase(connection);
             // all security tables
             SecurityDatabaseInitializator.initDatabase(connection);
+            // Logged users table
+            //LoggedUserDatabaseInitializator.initDatabase(connection);
         } finally {
             if (connection != null) { DatabaseUtils.tryClose(connection); }
         }

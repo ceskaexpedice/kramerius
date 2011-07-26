@@ -24,16 +24,22 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.antlr.stringtemplate.StringTemplate;
 
+import com.google.inject.Inject;
+
 import cz.incad.Kramerius.security.userscommands.ServletUsersCommand;
+import cz.incad.kramerius.users.LoggedUsersSingleton;
 
 public class ChangePassword extends ServletUsersCommand {
 
     static java.util.logging.Logger LOGGER = java.util.logging.Logger.getLogger(ChangePassword.class.getName());
+
+    @Inject
+    LoggedUsersSingleton loggedUsersSingleton;
     
     @Override
     public void doCommand() {
         try {
-            if (this.userManager.isLoggedUser(this.userProvider.get())) {
+            if (this.loggedUsersSingleton.isLoggedUser(this.requestProvider)) {
                 StringTemplate template = ServletUsersCommand.stFormsGroup().getInstanceOf("changePswd");
                 Map<String, String> bundleToMap = bundleToMap(); 
                 template.setAttribute("bundle", bundleToMap);

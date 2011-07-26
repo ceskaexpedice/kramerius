@@ -48,6 +48,7 @@ import cz.incad.kramerius.security.SecuredActions;
 import cz.incad.kramerius.security.User;
 import cz.incad.kramerius.security.UserManager;
 import cz.incad.kramerius.security.impl.criteria.CriteriumsLoader;
+import cz.incad.kramerius.users.LoggedUsersSingleton;
 
 /**
  * Formular pro nove pravo
@@ -67,11 +68,13 @@ public class NewRightHtml extends ServletRightsCommand {
     @Inject
     Provider<User> userProvider;
     
+    @Inject
+    LoggedUsersSingleton loggedUsersSingleton;
     
     @Override
     public void doCommand() {
         try {
-            if (this.userManager.isLoggedUser(this.userProvider.get())) {
+            if (this.loggedUsersSingleton.isLoggedUser(this.requestProvider)) {
                 String uuid = getUuid();
                 String[] path = getPathOfUUIDs(uuid);
                 String[] models = getModels(uuid);
