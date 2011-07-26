@@ -235,17 +235,26 @@ public class FedoraAccessImpl implements FedoraAccess {
     public String findFirstViewablePid(String uuid) throws IOException{
         final List<String> foundUuids = new ArrayList<String>();
         try {
-            processSubtree(PIDParser.UUID_PREFIX+uuid, new AbstractTreeNodeProcessorAdapter() {
+            processSubtree(uuid, new TreeNodeProcessor() {
                 
                 boolean breakProcess = false;
                 int previousLevel = 0;
                 
+                //@Override
+                //public void processUuid(String pageUuid, int level) throws ProcessSubtreeException {
+                //}
+
                 @Override
-                public void processUuid(String pageUuid, int level) throws ProcessSubtreeException {
+                public boolean breakProcessing(String pid, int level) {
+                    return breakProcess;
+                }
+
+                @Override
+                public void process(String pid, int level) throws ProcessSubtreeException {
                     try {
                         if (previousLevel < level || level == 0) {
-                            if(FedoraAccessImpl.this.isImageFULLAvailable(pageUuid)) {
-                                foundUuids.add(pageUuid);
+                            if(FedoraAccessImpl.this.isImageFULLAvailable(pid)) {
+                                foundUuids.add(pid);
                                 breakProcess = true;
                             }
                         } else if (previousLevel > level) {
@@ -254,14 +263,9 @@ public class FedoraAccessImpl implements FedoraAccess {
                             breakProcess = true;
                         }
                         previousLevel = level;
-                    } catch (IOException e) {
+                    } catch (Exception e) {
                         throw new ProcessSubtreeException(e);
                     }
-                }
-
-                @Override
-                public boolean breakProcessing(String pid, int level) {
-                    return breakProcess;
                 }
                 
             });
@@ -298,7 +302,7 @@ public class FedoraAccessImpl implements FedoraAccess {
         for(Element el: els){
             if (getTreePredicates().contains( el.getLocalName())) {
                 if(el.hasAttribute("rdf:resource")){
-                    uuid = el.getAttributes().getNamedItem("rdf:resource").getNodeValue().split("uuid:")[1];
+                    uuid = el.getAttributes().getNamedItem("rdf:resource").getNodeValue();
                     pids.add(uuid);
                     models.add(getKrameriusModelName(uuid));
                     //return getFirstViewablePath(pids, models);
@@ -368,8 +372,8 @@ public class FedoraAccessImpl implements FedoraAccess {
         return disectMimetypeFromProfile(profileDoc,getFedoraVersion());
     }
 
-    public InputStream getImageFULL(String uuid) throws IOException {
-        HttpURLConnection con = (HttpURLConnection) openConnection(getFedoraStreamPath(configuration, uuid, IMG_FULL_STREAM), configuration.getFedoraUser(), configuration.getFedoraPass());
+    public InputStream getImageFULL(String pid) throws IOException {
+        HttpURLConnection con = (HttpURLConnection) openConnection(getFedoraStreamPath(configuration, pid, IMG_FULL_STREAM), configuration.getFedoraUser(), configuration.getFedoraPass());
         con.connect();
         if (con.getResponseCode() == HttpURLConnection.HTTP_OK) {
             InputStream thumbInputStream = con.getInputStream();
@@ -380,20 +384,20 @@ public class FedoraAccessImpl implements FedoraAccess {
     }
 
     @Override
-    public boolean isImageFULLAvailable(String uuid) throws IOException {
-        return isStreamAvailable(uuid, FedoraUtils.IMG_FULL_STREAM);
+    public boolean isImageFULLAvailable(String pid) throws IOException {
+        return isStreamAvailable(pid, FedoraUtils.IMG_FULL_STREAM);
     }
 
-    public InputStream getFedoraDataStreamsList(String uuid ) throws MalformedURLException, IOException {
-        HttpURLConnection con = (HttpURLConnection) openConnection(getFedoraDatastreamsList(configuration, uuid), configuration.getFedoraUser(), configuration.getFedoraPass());
+    public InputStream getFedoraDataStreamsList(String pid ) throws MalformedURLException, IOException {
+        HttpURLConnection con = (HttpURLConnection) openConnection(getFedoraDatastreamsList(configuration, pid), configuration.getFedoraUser(), configuration.getFedoraPass());
         InputStream stream = con.getInputStream();
         return stream;
     }
     
     
-    public boolean isStreamAvailable(String uuid, String streamName) throws IOException {
+    public boolean isStreamAvailable(String pid, String streamName) throws IOException {
         try {
-            Document parseDocument = XMLUtils.parseDocument(getFedoraDataStreamsList(uuid), true);
+            Document parseDocument = XMLUtils.parseDocument(getFedoraDataStreamsList(pid), true);
             return disectDatastreamInListOfDatastreams(parseDocument, streamName, getFedoraVersion());
         } catch (ParserConfigurationException e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
@@ -490,12 +494,12 @@ public class FedoraAccessImpl implements FedoraAccess {
     }
 
     public static String profile(KConfiguration configuration,  String uuid) {
-        String fedoraObject = configuration.getFedoraHost() + "/objects/uuid:" + uuid;
+        String fedoraObject = configuration.getFedoraHost() + "/objects/" + uuid;
         return fedoraObject + "?format=text/xml";
     }
 
     public static String dsProfile(KConfiguration configuration, String ds, String uuid) {
-        String fedoraObject = configuration.getFedoraHost() + "/objects/uuid:" + uuid;
+        String fedoraObject = configuration.getFedoraHost() + "/objects/" + uuid;
         return fedoraObject + "/datastreams/" + ds + "?format=text/xml";
     }
 
@@ -505,17 +509,17 @@ public class FedoraAccessImpl implements FedoraAccess {
     }
 
     public static String biblioMods(KConfiguration configuration, String uuid) {
-        String fedoraObject = configuration.getFedoraHost() + "/get/uuid:" + uuid;
+        String fedoraObject = configuration.getFedoraHost() + "/get/" + uuid;
         return fedoraObject + "/BIBLIO_MODS";
     }
 
     public static String dc(KConfiguration configuration, String uuid) {
-        String fedoraObject = configuration.getFedoraHost() + "/get/uuid:" + uuid;
+        String fedoraObject = configuration.getFedoraHost() + "/get/" + uuid;
         return fedoraObject + "/DC";
     }
 
     public static String relsExtUrl(KConfiguration configuration, String uuid) {
-        String url = configuration.getFedoraHost() + "/get/uuid:" + uuid + "/"+FedoraUtils.RELS_EXT_STREAM;
+        String url = configuration.getFedoraHost() + "/get/" + uuid + "/"+FedoraUtils.RELS_EXT_STREAM;
         return url;
     }
     private FedoraAPIM APIMport;
@@ -611,7 +615,7 @@ public class FedoraAccessImpl implements FedoraAccess {
         try {
             PIDParser pidParser = new PIDParser(pid);
             pidParser.objectPid();
-            Document relsExt = getRelsExt(pidParser.getObjectId());
+            Document relsExt = getRelsExt(pidParser.getObjectPid());
             processSubtreeInternal(pid, relsExt, processor,0);
         } catch (LexerException e) {
             throw new ProcessSubtreeException(e);
@@ -641,7 +645,7 @@ public class FedoraAccessImpl implements FedoraAccess {
                     if (!attVal.trim().equals("")) {
                         PIDParser pidParser = new PIDParser(attVal);
                         pidParser.disseminationURI();
-                        String objectId = pidParser.getObjectId();
+                        String objectId = pidParser.getObjectPid();
                         if (pidParser.getNamespaceId().equals("uuid")) {
                             StringBuffer buffer = new StringBuffer();
                             {   // debug print
@@ -649,7 +653,7 @@ public class FedoraAccessImpl implements FedoraAccess {
                                 LOGGER.fine(buffer.toString()+" processing pid [" +attVal+"]");
                             }
                             Document iterationgRelsExt = getRelsExt(objectId);
-                            breakProcessing = processSubtreeInternal(pidParser.getNamespaceId()+":"+pidParser.getObjectId(), iterationgRelsExt, processor, level + 1);
+                            breakProcessing = processSubtreeInternal(pidParser.getObjectPid(), iterationgRelsExt, processor, level + 1);
                             if (breakProcessing) break;
                         }
                     }

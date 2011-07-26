@@ -124,7 +124,7 @@ public class FedoraUtils {
                 String nodeName = childnode.getNodeName();
                 String simpleNodeName = nodeName.substring(nodeName.lastIndexOf(":")+1);
                 if (nodeName.contains("hasPage") || nodeName.contains("isOnPage")) {
-                    return childnode.getAttributes().getNamedItem("rdf:resource").getNodeValue().split("uuid:")[1];
+                    return childnode.getAttributes().getNamedItem("rdf:resource").getNodeValue();
                 } else if (!nodeName.contains("hasModel") && childnode.hasAttributes() && treePredicates.contains(simpleNodeName)
                         && childnode.getAttributes().getNamedItem("rdf:resource") != null) {
 
@@ -145,8 +145,8 @@ public class FedoraUtils {
      * @param uuid of object
      * @return
      */
-    public static String getDjVuImage(KConfiguration configuration, String uuid) {
-        String imagePath = configuration.getFedoraHost() + "/get/uuid:" + uuid + "/" + IMG_FULL_STREAM;
+    public static String getDjVuImage(KConfiguration configuration, String pid) {
+        String imagePath = configuration.getFedoraHost() + "/get/" + pid + "/" + IMG_FULL_STREAM;
         return imagePath;
     }
 
@@ -157,8 +157,8 @@ public class FedoraUtils {
      * @param stream Stream ID
      * @return
      */
-    public static String getFedoraStreamPath(KConfiguration conf, String uuid, String stream) {
-        String imagePath = conf.getFedoraHost() + "/get/uuid:" + uuid + "/" + stream;
+    public static String getFedoraStreamPath(KConfiguration conf, String pid, String stream) {
+        String imagePath = conf.getFedoraHost() + "/get/" + pid + "/" + stream;
         return imagePath;
     }
     
@@ -210,8 +210,8 @@ public class FedoraUtils {
      * @param uuid UUID of the object
      * @return
      */
-    public static String getThumbnailFromFedora(KConfiguration configuration, String uuid) {
-        String imagePath = configuration.getFedoraHost() + "/get/uuid:" + uuid + "/" + IMG_THUMB_STREAM;
+    public static String getThumbnailFromFedora(KConfiguration configuration, String pid) {
+        String imagePath = configuration.getFedoraHost() + "/get/" + pid + "/" + IMG_THUMB_STREAM;
         return imagePath;
     }
 
@@ -221,8 +221,8 @@ public class FedoraUtils {
      * @param uuid UUID reqested object
      * @return
      */
-    public static String getFedoraDatastreamsList(KConfiguration configuration, String uuid) {
-        String datastreamsListPath = configuration.getFedoraHost() + "/objects/uuid:" + uuid + "/datastreams?format=xml";
+    public static String getFedoraDatastreamsList(KConfiguration configuration, String pid) {
+        String datastreamsListPath = configuration.getFedoraHost() + "/objects/" + pid + "/datastreams?format=xml";
         return datastreamsListPath;
     }
 

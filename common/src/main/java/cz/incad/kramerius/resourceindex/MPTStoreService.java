@@ -229,7 +229,7 @@ public class MPTStoreService implements IResourceIndex {
             Node n;
             while (r.next()) {
                 e = xmldoc.createElementNS(SPARQL_NS, "result");
-                uuid = r.getString(1).split("uuid:")[1];
+                uuid = r.getString(1).split("info:fedora/")[1];
                 uuid = uuid.substring(0, uuid.length() - 1);
 
                 e2 = xmldoc.createElementNS(SPARQL_NS, "object");
@@ -311,7 +311,7 @@ public class MPTStoreService implements IResourceIndex {
             String uuid;
 
             while (r.next()) {
-                uuid = r.getString(1).split("uuid:")[1];
+                uuid = r.getString(1).split("info:fedora/")[1];
                 uuid = uuid.substring(0, uuid.length() - 1);
                 resList.add(uuid);
 
@@ -397,15 +397,10 @@ public class MPTStoreService implements IResourceIndex {
     }
     
     @Override
-    public ArrayList<String> getParentsPids(String pid) throws Exception {
+    public ArrayList<String> getParentsPids(String uuid) throws Exception {
 
         //Can use risearch with SPO language
-        String uuid;
-        if (pid.startsWith("uuid:")) {
-            uuid = pid;
-        } else {
-            uuid = "uuid:" + pid;
-        }
+        
         String query = "$object * <info:fedora/" + uuid + ">  ";
         ArrayList<String> resList = new ArrayList<String>();
         String urlStr = config.getConfiguration().getString("FedoraResourceIndex") + "?type=triples&flush=true&lang=spo&format=N-Triples&limit=&distinct=off&stream=off"
@@ -419,8 +414,8 @@ public class MPTStoreService implements IResourceIndex {
 //<info:fedora/uuid:5fe0b160-62d5-11dd-bdc7-000d606f5dc6> <http://www.nsdl.org/ontologies/relationships#hasPage> <info:fedora/uuid:75fca1f0-64b2-11dd-9fd4-000d606f5dc6> .
 //<info:fedora/uuid:f0da6570-8f3b-11dd-b796-000d606f5dc6> <http://www.nsdl.org/ontologies/relationships#isOnPage> <info:fedora/uuid:75fca1f0-64b2-11dd-9fd4-000d606f5dc6> .
             end = inputLine.indexOf(">");
-//18 je velikost   <info:fedora/uuid:
-            inputLine = inputLine.substring(18, end);
+//13 je velikost   <info:fedora/
+            inputLine = inputLine.substring(13, end);
             resList.add(inputLine);
         }
         in.close();

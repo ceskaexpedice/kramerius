@@ -28,6 +28,10 @@ public class PIDParser {
 	public String getNamespaceId() {
 		return namespaceId;
 	}
+        
+        public String getObjectPid() {
+		return namespaceId + ":" + objectId;
+	}
 
 
 

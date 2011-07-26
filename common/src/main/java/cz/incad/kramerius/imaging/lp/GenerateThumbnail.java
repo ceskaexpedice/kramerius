@@ -55,7 +55,7 @@ public class GenerateThumbnail {
             }
         } else {
             try {
-                fedoraAccess.processSubtree(PIDParser.UUID_PREFIX+uuid, new AbstractTreeNodeProcessorAdapter() {
+                fedoraAccess.processSubtree(uuid, new AbstractTreeNodeProcessorAdapter() {
                     
                     @Override
                     public void processUuid(String pageUuid, int level) throws ProcessSubtreeException {

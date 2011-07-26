@@ -56,17 +56,17 @@ public class KrameriusImageSupport {
         });
     }
 
-    public static BufferedImage readImage(String uuid, String stream, FedoraAccess fedoraAccess, int page) throws XPathExpressionException, IOException {
-        String mimetype = fedoraAccess.getMimeTypeForStream("uuid:" + uuid, stream);
+    public static BufferedImage readImage(String pid, String stream, FedoraAccess fedoraAccess, int page) throws XPathExpressionException, IOException {
+        String mimetype = fedoraAccess.getMimeTypeForStream(pid, stream);
         ImageMimeType loadFromMimeType = ImageMimeType.loadFromMimeType(mimetype);
-        URL url = new URL("fedora", "", 0, uuid + "/" + stream, new Handler(fedoraAccess));
+        URL url = new URL("fedora", "", 0, pid + "/" + stream, new Handler(fedoraAccess));
         return readImage(url, loadFromMimeType, page);
     }
 
-    public static Dimension readDimension(String uuid, String stream, FedoraAccess fedoraAccess, int page) throws XPathExpressionException, IOException {
-        String mimetype = fedoraAccess.getMimeTypeForStream("uuid:" + uuid, stream);
+    public static Dimension readDimension(String pid, String stream, FedoraAccess fedoraAccess, int page) throws XPathExpressionException, IOException {
+        String mimetype = fedoraAccess.getMimeTypeForStream(pid, stream);
         ImageMimeType loadFromMimeType = ImageMimeType.loadFromMimeType(mimetype);
-        URL url = new URL("fedora", "", 0, uuid + "/" + stream, new Handler(fedoraAccess));
+        URL url = new URL("fedora", "", 0, pid + "/" + stream, new Handler(fedoraAccess));
         return readDimension(url, loadFromMimeType);
     }
 

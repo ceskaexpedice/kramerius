@@ -24,19 +24,19 @@ public class FedoraURLConnection extends URLConnection {
 	@Override
 	public InputStream getInputStream() throws IOException {
 		String path = getURL().getPath();
-		String uuid = null;
+		String pid = null;
 		String stream = null;
 		StringTokenizer tokenizer = new StringTokenizer(path,"/");
 		if(tokenizer.hasMoreTokens()) {
-			uuid = tokenizer.nextToken();
+			pid = tokenizer.nextToken();
 		}
 		if (tokenizer.hasMoreTokens()) {
 			stream = tokenizer.nextToken();
 		}
 		if (stream.equals(IMG_FULL)) {
-			return this.fedoraAccess.getImageFULL(uuid);
+			return this.fedoraAccess.getImageFULL(pid);
 		} else if (stream.equals(IMG_THUMB)) {
-			return this.fedoraAccess.getSmallThumbnail(uuid);
+			return this.fedoraAccess.getSmallThumbnail(pid);
 		} else throw new IOException("uknown stream !");
 	}
 

@@ -74,8 +74,8 @@ public class MulgaraImpl implements IResourceIndex {
 //<info:fedora/uuid:5fe0b160-62d5-11dd-bdc7-000d606f5dc6> <http://www.nsdl.org/ontologies/relationships#hasPage> <info:fedora/uuid:75fca1f0-64b2-11dd-9fd4-000d606f5dc6> .
 //<info:fedora/uuid:f0da6570-8f3b-11dd-b796-000d606f5dc6> <http://www.nsdl.org/ontologies/relationships#isOnPage> <info:fedora/uuid:75fca1f0-64b2-11dd-9fd4-000d606f5dc6> .
                 end = inputLine.indexOf(">");
-//18 je velikost   <info:fedora/uuid:
-                inputLine = inputLine.substring(18,end);
+//13 je velikost   <info:fedora/
+                inputLine = inputLine.substring(13,end);
                 resList.add(inputLine);
             }
             in.close();

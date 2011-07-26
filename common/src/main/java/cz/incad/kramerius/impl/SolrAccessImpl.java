@@ -35,7 +35,7 @@ public class SolrAccessImpl implements SolrAccess {
     public Document getSolrDataDocumentByUUID(String uuid) throws IOException {
         if (SpecialObjects.isSpecialObject(uuid)) return null;
         try {
-            return SolrUtils.getSolrDataInternal(SolrUtils.UUID_QUERY+uuid);
+            return SolrUtils.getSolrDataInternal(SolrUtils.UUID_QUERY+"\""+uuid+"\"");
         } catch (ParserConfigurationException e) {
             throw new IOException(e);
         } catch (SAXException e) {

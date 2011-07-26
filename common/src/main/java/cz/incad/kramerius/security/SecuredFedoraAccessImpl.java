@@ -172,9 +172,8 @@ public class SecuredFedoraAccessImpl implements FedoraAccess {
         //if (FedoraUtils.IMG_FULL_STREAM.equals(datastreamName))
         
         if (securedStream(datastreamName)) {
-            String uuid = pid.substring("uuid:".length());
-            String[] pathOfUUIDs = this.solrAccess.getPathOfUUIDs(uuid);
-            if (!this.isActionAllowed.isActionAllowed(SecuredActions.READ.getFormalName(), uuid, pathOfUUIDs)) {
+            String[] pathOfUUIDs = this.solrAccess.getPathOfUUIDs(pid);
+            if (!this.isActionAllowed.isActionAllowed(SecuredActions.READ.getFormalName(), pid, pathOfUUIDs)) {
                 throw new SecurityException("access denided");
             }
         }
