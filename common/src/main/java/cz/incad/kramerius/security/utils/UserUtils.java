@@ -66,9 +66,16 @@ public class UserUtils {
         //TODO: Zmenit
         ((UserImpl)dbUser).setGroups(grps);
     }
-
+    
+    /** Params to http request */
     public static final String USER_NAME_PARAM = "userName";
     public static final String PSWD_PARAM = "pswd";
-    public static final String LOGGED_USER_KEY = "loggedUser";
 
+    /** Params to http session */
+    public static final String LOGGED_USER_PARAM = "loggedUser";
+    public static final String LOGGED_USER_KEY_PARAM ="loggedUserKey";
+    
+    //public static final String LOGGED_USER_KEY = "loggedUser";
+
+    
 }

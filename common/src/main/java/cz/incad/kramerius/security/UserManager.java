@@ -179,4 +179,8 @@ public interface UserManager {
     public void editGroup(Role grp) throws SQLException;
     
     public boolean isLoggedUser(User user);
+    
+    //TODO:  Move it !!
+    
+    public void registerLoggedUser(User user, String loggedUserKey) throws SQLException;
 }

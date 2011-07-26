@@ -16,14 +16,18 @@
  */
 package cz.incad.kramerius.processes.impl;
 
+import java.io.IOException;
 import java.util.Arrays;
 
 import cz.incad.kramerius.processes.utils.ProcessUtils;
 
-// special process for aggregating
+/**
+ * Special process for aggregation
+ * @author pavels
+ */
 public class ProcessAggregator {
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws IOException {
         String token = System.getProperty(ProcessStarter.TOKEN_KEY);
         // params parsing... 
         
@@ -33,6 +37,8 @@ public class ProcessAggregator {
         for (int i = 0; i < processDefsParams.length; i++) {
             ProcessUtils.startProcess(def, processDefsParams[i]);
         }
+
+        //TODO: I18N
+        ProcessStarter.updateName("Davkove spusteny process ["+def+"]");
     }
-    
 }

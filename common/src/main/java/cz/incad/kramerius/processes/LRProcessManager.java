@@ -3,6 +3,8 @@ package cz.incad.kramerius.processes;
 import java.util.List;
 import java.util.concurrent.locks.Lock;
 
+import cz.incad.kramerius.security.User;
+
 
 /**
  * This class can manage LR processes
@@ -13,8 +15,9 @@ public interface LRProcessManager {
 	/**
 	 * Register new lr process
 	 * @param lp
+	 * @param loggedUserKey TODO
 	 */
-	public void registerLongRunningProcess(LRProcess lp);
+	public void registerLongRunningProcess(LRProcess lp, String loggedUserKey);
 	
 	/**
 	 * Returns lr process with given uuid

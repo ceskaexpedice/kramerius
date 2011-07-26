@@ -61,14 +61,40 @@ public class ProcessDatabaseUtils {
 //        }
 //    }
     
-    public static void registerProcess(Connection con, LRProcess lp, User user) throws SQLException {
+    public static void registerProcess(Connection con, LRProcess lp, User user, String loggedUserKey) throws SQLException {
         PreparedStatement prepareStatement = con.prepareStatement(
-                "insert into processes(DEFID, UUID, PLANNED, STATUS, PARAMS, STARTEDBY, TOKEN) values(?,?,?,?,?,?,?)");
+                "insert into processes(" +
+                "   DEFID, " + //1
+                "   UUID, " + //2
+                "   PLANNED, " + //3
+                "   STATUS, " + //4
+                "   PARAMS, " + //5
+                "   TOKEN, " +  //6
+                "   PROCESS_ID, " + //
+                "   LOGINNAME," + //7
+                "   FIRSTNAME," + //8
+                "   SURNAME," +  // 9
+                "   USER_KEY) " + //10
+                "       values " +
+                "   (" +
+                "       ?," + //1 - DEFID
+                "       ?," + //2 - UUID
+                "       ?," + //3 - PLANNED
+                "       ?," + //4 - STATUS
+                "       ?," + //5 - PARAMS
+                "       ?," + //6 - TOKEN
+                "       nextval('PROCESS_ID_SEQUENCE')," + // 
+                "       ?," + //7 LOGINNAME
+                "       ?," + //8 FIRSTNAME
+                "       ?," + //9 SURNAME
+                "       ?" + //10 USERKEY
+                "   )");
         try {
             prepareStatement.setString(1, lp.getDefinitionId());
             prepareStatement.setString(2, lp.getUUID());
             prepareStatement.setTimestamp(3, new Timestamp(lp.getPlannedTime()));
             prepareStatement.setInt(4, lp.getProcessState().getVal());
+
             StringBuilder buffer = new StringBuilder();
             List<String> parameters = lp.getParameters();
             if (!parameters.isEmpty()) {
@@ -80,8 +106,15 @@ public class ProcessDatabaseUtils {
             } else {
                 prepareStatement.setString(5, null);
             }
-            prepareStatement.setInt(6, user.getId());
-            prepareStatement.setString(7, lp.getToken());
+            
+            //prepareStatement.setInt(6, user.getId());
+            
+            prepareStatement.setString(6, lp.getToken());
+            prepareStatement.setString(7, user.getLoginname());
+            prepareStatement.setString(8, user.getFirstName());
+            prepareStatement.setString(9, user.getSurname());
+            prepareStatement.setString(10, loggedUserKey);
+            
             prepareStatement.executeUpdate();
         } finally {
             DatabaseUtils.tryClose(prepareStatement);

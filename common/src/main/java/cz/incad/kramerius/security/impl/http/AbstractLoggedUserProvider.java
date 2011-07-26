@@ -40,6 +40,7 @@ import cz.incad.kramerius.security.SpecialObjects;
 import cz.incad.kramerius.security.User;
 import cz.incad.kramerius.security.UserManager;
 import cz.incad.kramerius.security.utils.UserUtils;
+import cz.incad.kramerius.users.LoggedUsersSingleton;
 
 public abstract class AbstractLoggedUserProvider implements Provider<User>{
     public static java.util.logging.Logger LOGGER = java.util.logging.Logger.getLogger(AbstractLoggedUserProvider.class.getName());
@@ -59,13 +60,17 @@ public abstract class AbstractLoggedUserProvider implements Provider<User>{
     @Named("kramerius4")
     Provider<Connection> connectionProvider;
 
+    @Inject
+    LoggedUsersSingleton loggedUsersSingleton;
+    
+    
     @Override
     public User get() {
         try {
             
             HttpServletRequest httpServletRequest = this.provider.get();
             if (httpServletRequest.getSession() != null) {
-                User loggedUser = (User) httpServletRequest.getSession().getAttribute(UserUtils.LOGGED_USER_KEY);
+                User loggedUser = (User) httpServletRequest.getSession().getAttribute(UserUtils.LOGGED_USER_PARAM);
                 if (loggedUser != null) {
                     return loggedUser;
                 }
@@ -74,7 +79,7 @@ public abstract class AbstractLoggedUserProvider implements Provider<User>{
             tryToLog(httpServletRequest);
             
             if (httpServletRequest.getSession() != null) {
-                User loggedUser = (User) httpServletRequest.getSession().getAttribute(UserUtils.LOGGED_USER_KEY);
+                User loggedUser = (User) httpServletRequest.getSession().getAttribute(UserUtils.LOGGED_USER_PARAM);
                 if (loggedUser != null) {
                     return loggedUser;
                 } else return UserUtils.getNotLoggedUser(userManager);

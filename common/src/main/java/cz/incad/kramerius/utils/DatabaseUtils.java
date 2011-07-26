@@ -45,6 +45,8 @@ public class DatabaseUtils {
             tryClose(pstm);
         }
     }
+    
+    
 
     public static void tryClose(Connection c) {
         try {

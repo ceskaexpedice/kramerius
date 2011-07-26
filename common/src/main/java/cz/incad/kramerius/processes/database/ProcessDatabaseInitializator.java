@@ -35,20 +35,29 @@ public class ProcessDatabaseInitializator {
     
     public static void initDatabase(Connection connection) {
         try {
+            
             if (!DatabaseUtils.tableExists(connection,"PROCESSES")) {
                 createProcessTable(connection);
             }
+            
             if (!DatabaseUtils.columnExists(connection, "PROCESSES", "STARTEDBY")) {
                 alterProcessTableStartedByColumn(connection);
             }
+            
             if (!DatabaseUtils.columnExists(connection, "PROCESSES", "TOKEN")) {
                 alterProcessTableProcessToken(connection);
             }
+            
+            if (!DatabaseUtils.columnExists(connection, "PROCESSES", "PROCESS_ID")) {
+                changeDatabaseBecauseShibb(connection);
+            }
+            
             /*
             if (!DatabaseUtils.tableExists(connection,"USER_ENTITY")) {
                 InitSecurityDatabaseMethodInterceptor.createSecurityTables(connection);
             }
             */
+            
         } catch (SQLException e) {
             LOGGER.log(Level.SEVERE,e.getMessage(),e);
         }
@@ -64,24 +73,21 @@ public class ProcessDatabaseInitializator {
             		"STATUS int, " +
             		"NAME VARCHAR(1024), " +
             		"PARAMS VARCHAR(4096), "+
-            		"STARTEDBY INT)");
-        try {
+            		"STARTEDBY INT)"); 
             int r = prepareStatement.executeUpdate();
-            InitProcessDatabaseMethodInterceptor.LOGGER.log(Level.FINEST, "CREATE TABLE: updated rows {0}", r);
-        } finally {
-            DatabaseUtils.tryClose(prepareStatement);
-        }
+            LOGGER.log(Level.FINEST, "CREATE TABLE: updated rows {0}", r);
     }
 
     public static void alterProcessTableStartedByColumn(Connection con) throws SQLException {
+        
         PreparedStatement prepareStatement = con.prepareStatement(
                 "ALTER TABLE PROCESSES ADD COLUMN STARTEDBY INT");
-        try {
-            int r = prepareStatement.executeUpdate();
-            InitProcessDatabaseMethodInterceptor.LOGGER.log(Level.FINEST, "ALTER TABLE: updated rows {0}", r);
-        } finally {
-            DatabaseUtils.tryClose(prepareStatement);
-        }
+            try {
+                int r = prepareStatement.executeUpdate();
+                LOGGER.log(Level.FINEST, "ALTER TABLE: updated rows {0}", r);
+            } finally {
+                DatabaseUtils.tryClose(prepareStatement);
+            }
     }
 
     public static void alterProcessTableProcessToken(Connection con) throws SQLException {
@@ -89,9 +95,104 @@ public class ProcessDatabaseInitializator {
                 "ALTER TABLE PROCESSES ADD COLUMN TOKEN VARCHAR(255)");
         try {
             int r = prepareStatement.executeUpdate();
-            InitProcessDatabaseMethodInterceptor.LOGGER.log(Level.FINEST, "ALTER TABLE: updated rows {0}", r);
+            LOGGER.log(Level.FINEST, "ALTER TABLE: updated rows {0}", r);
         } finally {
             DatabaseUtils.tryClose(prepareStatement);
+        }
+    }
+    
+    
+
+    
+    public static void changeDatabaseBecauseShibb(Connection con) throws SQLException {
+        boolean autocommit = con.getAutoCommit();
+        con.setAutoCommit(false);
+        PreparedStatement alterProcessIdPS=null,createUniqueIndexPS=null,createSequencePS=null,updateProcessPS=null,createViewPS=null,
+        loginnamePS=null,firstnamePS=null,surnamePS=null,
+        usernamekeyPS=null, updateNamesPS=null;
+        
+        
+        
+        try {
+            // UPDATE PROCESS ID
+            alterProcessIdPS = con.prepareStatement("ALTER TABLE PROCESSES ADD COLUMN PROCESS_ID INTEGER");
+            int r = alterProcessIdPS.executeUpdate();
+            LOGGER.log(Level.FINEST, "ALTER TABLE PROCESSES: updated rows {0}", r);
+            // UNIQUE INDEX ON  PROCESS ID
+            createUniqueIndexPS = con.prepareStatement("CREATE UNIQUE INDEX PROCESSES_IDX ON PROCESSES (PROCESS_ID)");
+            r = createUniqueIndexPS.executeUpdate();
+            LOGGER.log(Level.FINEST, "CREATE UNIQUE ON PROCESS ID: updated rows {0}", r);
+            // SEQUENCE INCREMENTS PROCESS ID
+            createSequencePS = con.prepareStatement("CREATE SEQUENCE PROCESS_ID_SEQUENCE INCREMENT BY 1 START WITH 1 MINVALUE 0;");
+            r = createSequencePS.executeUpdate();
+            LOGGER.log(Level.FINEST, "CREATE SEQUENCE: updated rows {0}", r);
+            // UPDATE ALL PROCESS WHICH HAS NO PROCESS ID
+            updateProcessPS = con.prepareStatement("UPDATE PROCESSES SET PROCESS_ID=nextval('PROCESS_ID_SEQUENCE') WHERE PROCESS_ID IS NULL");
+            r = updateProcessPS.executeUpdate();
+            LOGGER.log(Level.FINEST, "UPDATE PROCESSES: updated rows {0}", r);
+            // CREATE VIEW WHICH POINTS MAIN PROCESSSES
+            createViewPS = con.prepareStatement("CREATE VIEW PROCESS_GROUPED_VIEW as " +
+            		"select min(process_id) as process_id, count(*) as pcount from processes group by token");
+            r = createViewPS.executeUpdate();
+            LOGGER.log(Level.FINEST, "CREATE VIEW: updated rows {0}", r);
+
+            //loginnamePS=null,firstname=null,surname=null,
+
+            // user names
+            loginnamePS = con.prepareStatement("ALTER TABLE PROCESSES  " +
+                    " ADD COLUMN loginname VARCHAR(1024)");
+            r = loginnamePS.executeUpdate();
+            LOGGER.log(Level.FINEST, "ALTER TABLE loginname: updated rows {0}", r);
+
+            firstnamePS = con.prepareStatement("ALTER TABLE PROCESSES  " +
+            " ADD COLUMN firstname VARCHAR(1024)");
+            r = firstnamePS.executeUpdate();
+            LOGGER.log(Level.FINEST, "ALTER TABLE firstname: updated rows {0}", r);
+
+            surnamePS = con.prepareStatement("ALTER TABLE PROCESSES  " +
+            " ADD COLUMN surname VARCHAR(1024)");
+            r = surnamePS.executeUpdate();
+            LOGGER.log(Level.FINEST, "ALTER TABLE surname: updated rows {0}", r);
+
+            
+            // ADD USER_KEY COLUMN
+            usernamekeyPS = con.prepareStatement("ALTER TABLE PROCESSES  " +
+            		" ADD COLUMN USER_KEY VARCHAR(255)");
+            r = usernamekeyPS.executeUpdate();
+            LOGGER.log(Level.FINEST, "ALTER TABLE NAMES: updated rows {0}", r);
+
+            
+
+            updateNamesPS = con.prepareStatement(                    
+                    " update processes p set " +
+                    "   surname=(select surname from user_entity where user_id= p.startedby), " +
+                    "   loginname=(select loginname from user_entity where user_id= p.startedby), " +
+                    "   firstname=(select \"name\" from user_entity where user_id= p.startedby)"
+            );
+            r = updateNamesPS.executeUpdate();
+            LOGGER.log(Level.FINEST, "UPDATE TABLE: updated rows {0}", r);
+            
+            
+            con.commit();
+
+        } catch(SQLException se) {
+            con.rollback();
+            throw se;
+        } finally {
+            con.setAutoCommit(autocommit);
+            
+            DatabaseUtils.tryClose(alterProcessIdPS);
+            DatabaseUtils.tryClose(createUniqueIndexPS);
+            DatabaseUtils.tryClose(createSequencePS);
+            DatabaseUtils.tryClose(updateProcessPS);
+            DatabaseUtils.tryClose(createViewPS);
+            DatabaseUtils.tryClose(usernamekeyPS);
+            DatabaseUtils.tryClose(updateNamesPS);
+
+            DatabaseUtils.tryClose(loginnamePS);
+            DatabaseUtils.tryClose(firstnamePS);
+            DatabaseUtils.tryClose(surnamePS);
+            
         }
     }
 }

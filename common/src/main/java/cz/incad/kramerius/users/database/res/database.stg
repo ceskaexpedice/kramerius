@@ -1,0 +1,47 @@
+group loggedusers;
+
+registerLoggedUser(user, userkey) ::=<<
+    insert into LOGGED_USERS 
+    values (
+        nextval('LOGGED_USERS_ID_SEQUENCE'),
+        CURRENT_TIMESTAMP,
+        '$userkey$',
+        '$user.loginname$',
+        '$user.firstName$',
+        '$user.surname$')
+>>
+
+
+registerLoggedUserUpdateRoles(loggeduserid, roleid) ::=<<
+    insert into LOGGED_USERS_2_ROLES
+        values( 
+            nextval('LOGGED_USERS_2_ROLES_ID_SEQUENCE'),
+            $loggeduserid$,
+            $roleid$)
+>>
+
+
+deleteLoggedUser(loggeduserid) ::=<<
+    delete from LOGGED_USERS
+        where logged_user_id=$loggeduserid$   
+>>
+
+deleteLoggedUserRoles(loggeduserid, roleid) ::=<<
+    delete from LOGGED_USERS_2_ROLES
+        where (
+            logged_user_id=$loggeduserid$  
+                and 
+            ROLE_ID = $roleid$          
+        )
+>>
+
+selectLoggedUser() ::=<<
+    select * from LOGGED_USERS
+        where logged_users_id = ?
+>>
+
+
+
+
+
+

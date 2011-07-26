@@ -346,3 +346,29 @@ insertRole(role) ::=<<
 findUsedRoles() ::=<<
     select distinct group_id from right_entity
 >>
+
+
+
+
+registerLoggedUser(user, userkey) ::=<<
+    insert into LOGGED_USERS 
+    values (
+        nextval('LOGGED_USERS_ID_SEQUENCE'),
+        CURRENT_TIMESTAMP,
+        '$userkey$',
+        '$user.loginname$',
+        '$user.firstName$',
+        '$user.surname$')
+>>
+
+
+
+registerLoggedUserUpdateRoles(loggeduserid, roleid) ::=<<
+    insert into LOGGED_USERS_2_ROLES
+        values( 
+            nextval('LOGGED_USERS_2_ROLES_ID_SEQUENCE'),
+            $loggeduserid$,
+            $roleid$)
+>>
+
+

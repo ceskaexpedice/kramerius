@@ -35,9 +35,17 @@ public abstract class AbstractLRProcessImpl implements LRProcess{
 	private String uuid;
 	private States state = States.NOT_RUNNING;
 	private String name;
-	private int userId;
+	//private int userId;
+	
+	private String loginname;
+	private String firstname;
+	private String surname;
+
 	private User user;
+	private String loggedUserKey;
+	
 	private String token;
+	private boolean masterProcess;
 	
 	private List<String> parameters = new ArrayList<String>();
 	
@@ -89,7 +97,7 @@ public abstract class AbstractLRProcessImpl implements LRProcess{
 	public void planMe() {
 		this.state = States.PLANNED;
 		this.setPlannedTime(System.currentTimeMillis());
-		manager.registerLongRunningProcess(this);
+		manager.registerLongRunningProcess(this, getLoggedUserKey());
 	}
 	
 	
@@ -330,16 +338,6 @@ public abstract class AbstractLRProcessImpl implements LRProcess{
 	}
 
 
-    @Override
-    public int getUserId() {
-        return this.userId;
-    }
-	
-	
-    public void setUserId(int userId) {
-        this.userId = userId;
-    }
-
 
     @Override
     public User getUser() {
@@ -362,6 +360,59 @@ public abstract class AbstractLRProcessImpl implements LRProcess{
     @Override
     public void setToken(String token) {
         this.token = token;
+    }
+
+
+    public String getLoginname() {
+        return loginname;
+    }
+
+
+    public void setLoginname(String loginname) {
+        this.loginname = loginname;
+    }
+
+
+    public String getFirstname() {
+        return firstname;
+    }
+
+
+    public void setFirstname(String firstname) {
+        this.firstname = firstname;
+    }
+
+
+    public String getSurname() {
+        return surname;
+    }
+
+
+    public void setSurname(String surname) {
+        this.surname = surname;
+    }
+
+
+    @Override
+    public String getLoggedUserKey() {
+        return this.loggedUserKey;
+    }
+
+
+    @Override
+    public void setLoggedUserKey(String loggedUserKey) {
+        this.loggedUserKey = loggedUserKey;
+    }
+
+
+    public boolean isMasterProcess() {
+        return this.masterProcess;
+    }
+
+
+    @Override
+    public void setMasterProcess(boolean flag) {
+        this.masterProcess = flag;
     }
     
 }

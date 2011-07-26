@@ -28,6 +28,7 @@ import java.util.logging.Level;
 import javax.servlet.http.HttpServletRequest;
 
 import org.antlr.stringtemplate.StringTemplate;
+import org.antlr.stringtemplate.StringTemplateGroup;
 
 import com.google.inject.Inject;
 import com.google.inject.Provider;
@@ -39,7 +40,9 @@ import cz.incad.kramerius.security.UserManager;
 import cz.incad.kramerius.security.database.InitSecurityDatabase;
 import cz.incad.kramerius.security.database.SecurityDatabaseUtils;
 import cz.incad.kramerius.security.utils.SecurityDBUtils;
+import cz.incad.kramerius.utils.database.JDBCCommand;
 import cz.incad.kramerius.utils.database.JDBCQueryTemplate;
+import cz.incad.kramerius.utils.database.JDBCTransactionTemplate;
 import cz.incad.kramerius.utils.database.JDBCUpdateTemplate;
 
 public class DatabaseUserManager implements UserManager{
@@ -53,6 +56,8 @@ public class DatabaseUserManager implements UserManager{
     @Inject
     Provider<HttpServletRequest> requestProvider;
 
+    
+    
     
     @Override
     @InitSecurityDatabase
@@ -444,7 +449,51 @@ public class DatabaseUserManager implements UserManager{
             } else return false;
         } else return false;
     }
-    
-    
+
+    @Override
+    public void registerLoggedUser(final User user, final String loggedUserKey) throws SQLException {
+        final StringTemplateGroup stGroup = SecurityDatabaseUtils.stGroup();
+        final Connection connection = this.provider.get();
+        
+        List<JDBCCommand> commands = new ArrayList<JDBCCommand>();
+        commands.add(new JDBCCommand() {
+            
+            @Override
+            public Object executeJDBCCommand() throws SQLException {
+                StringTemplate template = stGroup.getInstanceOf("registerLoggedUser");
+                template.setAttribute("user", user);
+                template.setAttribute("userkey", loggedUserKey);
+
+                JDBCUpdateTemplate update = new JDBCUpdateTemplate(connection, false);
+                Integer retVal = new Integer(update.executeUpdate(template.toString()));
+                return retVal;
+            }
+        });
+        
+        Role[] roles = user.getGroups();
+        for (final Role role : roles) {
+            commands.add(new JDBCCommand() {
+                
+                @Override
+                public Object executeJDBCCommand() throws SQLException {
+                    Integer loggedUserID = (Integer) getPreviousResult();
+                    
+                    StringTemplate template = stGroup.getInstanceOf("registerLoggedUserUpdateRoles");
+                    template.setAttribute("loggeduserid", user.getId());
+                    template.setAttribute("roleid", role.getId());
+                    
+                    JDBCUpdateTemplate update = new JDBCUpdateTemplate(connection, false);
+                    update.executeUpdate(template.toString());
+                    
+                    return loggedUserID;
+                }
+            });
+            
+        }
+        
+        // update in transaction
+        new JDBCTransactionTemplate(connection, true).
+            updateWithTransaction(commands.toArray(new JDBCCommand[commands.size()]));
+    }
     
 }

@@ -70,7 +70,8 @@ public class DatabaseProcessManager implements LRProcessManager {
 			connection = connectionProvider.get();
 			if (connection == null) throw new NotReadyException("connection not ready");
 
-			stm = connection.prepareStatement("select p.DEFID,PID,p.UUID,p.STATUS,p.PLANNED,p.STARTED,p.NAME AS PNAME, p.PARAMS, p.STARTEDBY, p.TOKEN, u.* from PROCESSES p left join user_entity u on (u.user_id=p.startedby) where UUID = ?");
+			stm = connection.prepareStatement("select p.DEFID,PID,p.UUID,p.STATUS,p.PLANNED,p.STARTED,p.NAME AS PNAME, p.PARAMS, p.STARTEDBY, p.TOKEN, " +
+					"p.loginname,p.surname,p.firstname,p.user_key from PROCESSES p where UUID = ?");
 			stm.setString(1, uuid);
 			rs = stm.executeQuery();
 			if(rs.next()) {
@@ -118,13 +119,13 @@ public class DatabaseProcessManager implements LRProcessManager {
 
 	@Override
     @InitProcessDatabase
-	public void registerLongRunningProcess(LRProcess lp) {
+	public void registerLongRunningProcess(LRProcess lp,  String loggedUserKey) {
 		Connection connection = null;
 		try {
 			
 			connection = connectionProvider.get();
 			if (connection == null) throw new NotReadyException("connection not ready");
-			registerProcess(connection, lp, /*this.userProvider.get()*/ lp.getUser());
+			registerProcess(connection, lp, /*this.userProvider.get()*/ lp.getUser() ,lp.getLoggedUserKey());
 		} catch (SQLException e) {
 			LOGGER.log(Level.SEVERE, e.getMessage(), e);
 		} finally {
@@ -275,7 +276,9 @@ public class DatabaseProcessManager implements LRProcessManager {
 //			if (connection != null) {
 				// POZN: dotazovanych vet bude vzdycky malo, misto join budu provadet dodatecne selekty.  
 				// POZN: bude jich v radu jednotek. 
-				StringBuffer buffer = new StringBuffer("select p.DEFID,PID,p.UUID,p.STATUS,p.PLANNED,p.STARTED,p.NAME AS PNAME, p.PARAMS, p.STARTEDBY,p.TOKEN, u.* from processes p left join user_entity u on (u.user_id=p.startedby) where status = ?");
+				StringBuffer buffer = new StringBuffer("select p.DEFID,PID,p.UUID,p.STATUS,p.PLANNED,p.STARTED,p.NAME AS PNAME, p.PARAMS, p.STARTEDBY,p.TOKEN, " +
+						"p.loginname,p.surname,p.firstname,p.user_key " +
+						"from processes p where status = ?");
 				buffer.append(" ORDER BY PLANNED LIMIT ? ");
 				
 				stm = connection.prepareStatement(buffer.toString());
@@ -328,8 +331,9 @@ public class DatabaseProcessManager implements LRProcessManager {
 			connection = connectionProvider.get();
             if (connection == null) throw new NotReadyException("connection not ready ");
 
-            StringBuffer buffer = new StringBuffer("select count(*) from PROCESSES ");
-			stm = connection.prepareStatement(buffer.toString());
+            StringBuffer buffer = new StringBuffer("select count(*) from process_grouped_view ");
+
+            stm = connection.prepareStatement(buffer.toString());
 			rs = stm.executeQuery();
 			int count = 0;
 			if(rs.next()) {
@@ -377,7 +381,14 @@ public class DatabaseProcessManager implements LRProcessManager {
 		String params = rs.getString("PARAMS");
         String token = rs.getString("TOKEN");
         int startedBy = rs.getInt("STARTEDBY");
-		LRProcessDefinition definition = this.lrpdm.getLongRunningProcessDefinition(definitionId);
+        String loginname = rs.getString("LOGINNAME");
+        String firstname = rs.getString("FIRSTNAME");
+        String surname = rs.getString("SURNAME");
+        String userKey = rs.getString("USER_KEY");
+
+        
+        
+        LRProcessDefinition definition = this.lrpdm.getLongRunningProcessDefinition(definitionId);
 		if (definition == null) {
 			throw new RuntimeException("cannot find definition '"+definitionId+"'");
 		}
@@ -388,13 +399,11 @@ public class DatabaseProcessManager implements LRProcessManager {
 			String[] paramsArray = params.split(",");
 			process.setParameters(Arrays.asList(paramsArray));
 		}
-		process.setUserId(startedBy);
-		User user = SecurityDBUtils.createUser(rs);
-		if (user.getLoginname() != null) {
-	        process.setUser(user);
-		} else {
-		    process.setUser(null);
-		}
+		
+		process.setFirstname(firstname);
+		process.setSurname(surname);
+		process.setLoginname(loginname);
+		process.setLoggedUserKey(userKey);
 		
 		return process;
 	}
@@ -413,7 +422,8 @@ public class DatabaseProcessManager implements LRProcessManager {
                     returnsList.add(process);
                     return true;
                 }
-            }.executeQuery("select p.DEFID,PID,p.UUID,p.STATUS,p.PLANNED,p.STARTED,p.NAME AS PNAME, p.PARAMS, p.STARTEDBY,p.TOKEN, u.* from processes p left join user_entity u on (u.user_id=p.startedby) where token = ?", token);
+            }.executeQuery("select p.DEFID,PID,p.UUID,p.STATUS,p.PLANNED,p.STARTED,p.NAME AS PNAME, p.PARAMS, " +
+            		"p.STARTEDBY,p.TOKEN, p.loginname,p.surname,p.firstname,p.user_key from processes p where token = ?", token);
             return lpList;
 	    } catch (Exception e) {
             LOGGER.log(Level.SEVERE, e.getMessage(),e);
@@ -432,7 +442,8 @@ public class DatabaseProcessManager implements LRProcessManager {
 			List<LRProcess> processes = new ArrayList<LRProcess>();
 			connection = connectionProvider.get();
 			if (connection == null) throw new NotReadyException("connection not ready");
-			StringBuffer buffer = new StringBuffer("select p.DEFID,PID,p.UUID,p.STATUS,p.PLANNED,p.STARTED,p.NAME AS PNAME, p.PARAMS, p.STARTEDBY,p.TOKEN, u.* from PROCESSES p left join user_entity u on (u.user_id=p.startedby) where STATUS = ?");
+			StringBuffer buffer = new StringBuffer("select p.DEFID,PID,p.UUID,p.STATUS,p.PLANNED,p.STARTED,p.NAME AS PNAME, p.PARAMS, p.STARTEDBY,p.TOKEN" +
+					", p.loginname,p.surname,p.firstname,p.user_key from PROCESSES p  where STATUS = ?");
 			stm = connection.prepareStatement(buffer.toString());
 			stm.setInt(1, state.getVal());
 			rs = stm.executeQuery();
@@ -479,8 +490,18 @@ public class DatabaseProcessManager implements LRProcessManager {
 			connection = connectionProvider.get();
 			if (connection == null) throw new NotReadyException("connection not ready");
 
-			StringBuffer buffer = new StringBuffer("select p.DEFID,PID,p.UUID,p.STATUS,p.PLANNED,p.STARTED,p.NAME AS PNAME, p.PARAMS, p.STARTEDBY,p.TOKEN, u.* from PROCESSES p left join user_entity u on (u.user_id=p.startedby)");
-				if (ordering != null) {
+			StringBuffer buffer = new StringBuffer(
+    	        "select p.DEFID,PID,p.UUID,p.STATUS,p.PLANNED,p.STARTED,p.NAME AS PNAME, p.PARAMS, p.STARTEDBY,p.TOKEN,p.loginname,p.surname,p.firstname,p.user_key,v.pcount from processes p "+
+    	        " join process_grouped_view v on (p.process_id=v.process_id)"
+			);
+			
+			
+//			select p.uuid,p.planned,p.started,p.process_id,p.defid,p.status, v.pcount from processes p
+//			join process_grouped_view v on (p.process_id=v.process_id)
+//			order by p.planned
+	
+			
+			    if (ordering != null) {
 	                buffer.append(" order by ");
 	                ordering(ordering, typeOfOrdering, buffer);
 	                if (ordering != LRProcessOrdering.PLANNED) {
@@ -496,7 +517,10 @@ public class DatabaseProcessManager implements LRProcessManager {
 				stm = connection.prepareStatement(buffer.toString());
 				rs = stm.executeQuery();
 				while(rs.next()) {
-					processes.add(processFromResultSet(rs));
+					LRProcess lrProcess = processFromResultSet(rs);
+                    processes.add(lrProcess);
+                    int processCount = rs.getInt("pcount");
+                    lrProcess.setMasterProcess(processCount>1);
 				} 
 				
 //			for (LRProcess lrProcess : processes) {

@@ -163,9 +163,6 @@ public interface LRProcess {
 	
 	public File processWorkingDirectory();
 	
-	public int getUserId();
-	
-    public void setUserId(int userId);
 
     public User getUser();
     
@@ -174,5 +171,25 @@ public interface LRProcess {
     public String getToken();
     
     public void setToken(String token);
+
+    public String getLoginname();
     
+    public void setLoginname(String lname);
+    
+    public String getSurname();
+    
+    public void setSurname(String sname);
+    
+    public String getFirstname();
+    
+    public void setFirstname(String fname);
+    
+    
+    public String getLoggedUserKey();
+    
+    public void setLoggedUserKey(String loggedUserKey);
+    
+    public boolean isMasterProcess();
+    
+    public void setMasterProcess(boolean flag);
 }

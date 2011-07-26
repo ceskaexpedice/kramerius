@@ -29,6 +29,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.List;
+import java.util.logging.Level;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
@@ -53,6 +54,7 @@ import cz.incad.kramerius.security.jaas.K4LoginModule;
 import cz.incad.kramerius.security.utils.SecurityDBUtils;
 import cz.incad.kramerius.security.utils.UserUtils;
 import cz.incad.kramerius.shib.utils.ShibbolethUtils;
+import cz.incad.kramerius.users.LoggedUsersSingleton;
 import cz.incad.kramerius.utils.IOUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 import cz.incad.kramerius.utils.database.JDBCQueryTemplate;
@@ -96,9 +98,7 @@ public class DbCurrentLoggedUser extends AbstractLoggedUserProvider {
             saveRightsIntoSession(user);
         }
         
-        session.setAttribute(UserUtils.LOGGED_USER_KEY, user);
-
-        
+        storeLoggedUser(user, session);
     }
 
     public void tryToLogDB(HttpServletRequest httpServletRequest) throws NoSuchAlgorithmException, UnsupportedEncodingException {
@@ -126,9 +126,9 @@ public class DbCurrentLoggedUser extends AbstractLoggedUserProvider {
                 saveRightsIntoSession(user);
             }
             
-            session.setAttribute(UserUtils.LOGGED_USER_KEY, user);
-            //return user;
+            storeLoggedUser(user, session);
 
+            
         } else if ((httpServletRequest.getParameter(UserUtils.USER_NAME_PARAM) != null) && (httpServletRequest.getParameter(UserUtils.PSWD_PARAM) != null)) {
             HashMap<String, Object> foundUser = K4LoginModule.findUser(this.connectionProvider.get(), httpServletRequest.getParameter(UserUtils.USER_NAME_PARAM));
             if (foundUser != null) {
@@ -137,9 +137,20 @@ public class DbCurrentLoggedUser extends AbstractLoggedUserProvider {
                 if (K4LoginModule.checkPswd(httpServletRequest.getParameter(UserUtils.USER_NAME_PARAM), dbPswd, httpServletRequest.getParameter(UserUtils.PSWD_PARAM).toCharArray())) {
                     UserUtils.associateGroups(dbUser, userManager);
                     UserUtils.associateCommonGroup(dbUser, userManager);
-                    httpServletRequest.getSession(true).setAttribute(UserUtils.LOGGED_USER_KEY, dbUser);
+                    storeLoggedUser(dbUser, httpServletRequest.getSession(true));
                 }
             }
+        }
+    }
+
+
+    public void storeLoggedUser(User user, HttpSession session) {
+        try {
+            session.setAttribute(UserUtils.LOGGED_USER_PARAM, user);
+            String key = loggedUsersSingleton.registerLoggedUser(user);
+            session.setAttribute(UserUtils.LOGGED_USER_KEY_PARAM, key);
+        } catch (Exception e) {
+            LOGGER.log(Level.SEVERE,e.getMessage(),e);
         }
     }
 

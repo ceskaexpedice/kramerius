@@ -37,6 +37,7 @@ public class JDBCTransactionTemplate {
     
     
     public Object updateWithTransaction(final JDBCCommand... commands) throws SQLException {
+        boolean previous = this.connection.getAutoCommit();
         try {
             this.connection.setAutoCommit(false);
             
@@ -52,7 +53,7 @@ public class JDBCTransactionTemplate {
             this.connection.rollback();
             throw ex;
         } finally {
-            this.connection.setAutoCommit(true);
+            this.connection.setAutoCommit(previous);
             if (closeConnectionFlag ) {
                 try {
                     LOGGER.info("Closing connection !");

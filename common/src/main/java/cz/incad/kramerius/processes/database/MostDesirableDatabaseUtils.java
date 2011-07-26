@@ -25,12 +25,8 @@ public class MostDesirableDatabaseUtils {
     public static void createTable(Connection con) throws SQLException {
         PreparedStatement prepareStatement = con.prepareStatement(
                 "CREATE TABLE DESIRABLE(UUID VARCHAR(64), ACCESS TIMESTAMP)");
-        try {
-            int r = prepareStatement.executeUpdate();
-            LOGGER.log(Level.FINEST, "CREATE TABLE: updated rows {0}", r);
-        } finally {
-            DatabaseUtils.tryClose(prepareStatement);
-        }
+        int r = prepareStatement.executeUpdate();
+        LOGGER.log(Level.FINEST, "CREATE TABLE: updated rows {0}", r);
     }
 
     /**
