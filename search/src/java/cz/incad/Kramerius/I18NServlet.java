@@ -96,6 +96,7 @@ public class I18NServlet extends GuiceServlet {
 					} else {
 					    String json = formatTextToJSON(text, parameter);
                         resp.setCharacterEncoding("UTF-8");
+                        resp.setContentType("application/json");
                         resp.getWriter().write(json);
 					}
 
@@ -124,6 +125,7 @@ public class I18NServlet extends GuiceServlet {
 					    renderedBundle = formatBundleToXML(resourceBundle, parameter).toString();
 	                    resp.setContentType("application/xhtml+xml");
 					} else {
+                        resp.setContentType("application/json");
 					    renderedBundle = formatBundleToJSON(resourceBundle, parameter);
 					}
 					resp.setCharacterEncoding("UTF-8");
@@ -197,8 +199,8 @@ public class I18NServlet extends GuiceServlet {
             map.put("value", text.trim().replace("\n", "\\n"));
             StringTemplate template = new StringTemplate(
                     "{\"text\":{\n" +
-                        "  name:'$data.name$',"+
-                        "  value:'$data.value$'"+
+                        "  \"name\":\"$data.name$\","+
+                        "  \"value\":\"$data.value$\""+
                     "\n}}");
             template.setAttribute("data", map);
             return template.toString();
