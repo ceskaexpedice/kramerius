@@ -17,7 +17,7 @@
 <%@page import="cz.incad.kramerius.processes.LRProcessManager"%>
 <%@page import="cz.incad.kramerius.processes.DefinitionManager"%>
 
-<%@ include file="inc/initVars.jsp" %>
+
 <%@page import="javax.servlet.jsp.jstl.fmt.LocalizationContext"%>
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="cs" lang="cs">
 <head>
@@ -42,7 +42,7 @@
     <script src="js/jquery.cookie.js" type="text/javascript"></script>
 
     <script src="js/pageQuery.js" language="JavaScript" type="text/javascript"></script>
-    <script src="js/item.js" language="JavaScript" type="text/javascript"></script>
+    <script src="js/main.js" language="JavaScript" type="text/javascript"></script>
     <script src="js/incad.js" language="JavaScript" type="text/javascript"></script>
     <script src="js/dateAxis_formatV.js" language="javascript" type="text/javascript"></script>
     <script src="js/dateAxisV.js" language="javascript" type="text/javascript"></script>
@@ -79,9 +79,8 @@
 		$(document).ready(function(){
 
 		    var i18nurl = "i18n?action=bundle&name=labels&format=json";
-		    $.get(i18nurl, function(data){
-		    	var restResult = eval( data );
-		    	dictionary=restResult.bundle;
+		    $.getJSON(i18nurl, function(data){
+		    	dictionary=data.bundle;
 		    	loginDialog();
 	            <%if (request.getParameter("failure") != null) { %>
 	                $("#status").html(dictionary['login.dialog.authenticationfailed']); 
@@ -90,9 +89,8 @@
 
 		    
             var i18ntexts = "i18n?action=text&name=logininfo&format=json";
-            $.get(i18ntexts, function(data){
-                var restResult = eval( data );
-                $("#logininfo").html(restResult["text"].value); 
+            $.getJSON(i18ntexts, function(data){
+                $("#logininfo").html(data["text"].value); 
             });
             		    
 		});
