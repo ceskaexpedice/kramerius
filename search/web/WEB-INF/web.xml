@@ -10,8 +10,10 @@
 		<filter-name>guiceFilter</filter-name>
 		<url-pattern>/*</url-pattern>
 	</filter-mapping>
+
 	<listener>
 		<listener-class>cz.incad.Kramerius.backend.guice.GuiceConfigBean</listener-class>
+        <listener-class>cz.incad.kramerius.users.impl.http.LoggedUserSessionListener</listener-class>
 	</listener>
 
 	<!-- Servlets -->
