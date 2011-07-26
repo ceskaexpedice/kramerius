@@ -90,6 +90,7 @@ function _ref(ordering, offset, size, type) {
     <thead style="border-bottom: dashed 1px;background-image:url('img/bg_processheader.png');
                   background-repeat:  repeat-x;" >
         <tr>
+            <td width="5px"><strong> </strong></td>
             <td width="40%"><strong>${processView.nameOrdering}</strong></td>
             <td width="5%"><strong>${processView.pidOrdering}</strong></td>
             <td width="10%"><strong>${processView.stateOrdering}</strong></td>
@@ -102,6 +103,7 @@ function _ref(ordering, offset, size, type) {
     <tbody>
         <c:forEach var="lrProc" items="${processView.processes}" varStatus="i">
             <tr class="${(i.index mod 2 == 0) ? 'result r0': 'result r1'}">
+                <td>${lrProc.treeIcon}</td>
                 <td>${lrProc.processName} </td>
                 <td>${lrProc.pid} </td>
                 <td>${lrProc.processState}</td>
