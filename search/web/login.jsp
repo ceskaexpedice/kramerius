@@ -37,8 +37,8 @@
     <link rel="StyleSheet" href="css/styles.css" type="text/css"/>
 
         
-    <script src="js/jquery-1.3.2.min.js" type="text/javascript" ></script>
-    <script src="js/jquery-ui-1.7.2.custom.min.js" language="javascript" type="text/javascript"></script>
+    <script src="js/jquery-1.5.1.min.js" type="text/javascript" ></script>
+    <script src="js/jquery-ui-1.8.11.custom.min.js" language="javascript" type="text/javascript"></script>
     <script src="js/jquery.cookie.js" type="text/javascript"></script>
 
     <script src="js/pageQuery.js" language="JavaScript" type="text/javascript"></script>
@@ -80,7 +80,7 @@
 
 		    var i18nurl = "i18n?action=bundle&name=labels&format=json";
 		    $.get(i18nurl, function(data){
-		    	var restResult = eval('(' + data + ')');
+		    	var restResult = eval( data );
 		    	dictionary=restResult.bundle;
 		    	loginDialog();
 	            <%if (request.getParameter("failure") != null) { %>
@@ -91,7 +91,7 @@
 		    
             var i18ntexts = "i18n?action=text&name=logininfo&format=json";
             $.get(i18ntexts, function(data){
-                var restResult = eval('(' + data + ')');
+                var restResult = eval( data );
                 $("#logininfo").html(restResult["text"].value); 
             });
             		    
