@@ -1,0 +1,76 @@
+
+
+function PageQuery(q) {
+    if(q.length > 1) this.q = q.substring(1, q.length);
+    else this.q = null;
+    this.keyValuePairs = new Array();
+    if(q) {
+        for(var i=0; i < this.q.split("&").length; i++) {
+            this.keyValuePairs[i] = this.q.split("&")[i];
+        }
+    }
+
+    this.getKeyValuePairs = function() { return this.keyValuePairs; }
+	
+    this.getValue = function(s) {
+        for(var j=0; j < this.keyValuePairs.length; j++) {
+            if(this.keyValuePairs[j].split("=")[0] == s)
+                return this.keyValuePairs[j].split("=")[1];
+        }
+        return false;
+    }
+
+    this.getParamIndex = function(param) {
+        for(var j=0; j < this.keyValuePairs.length; j++) {
+            if(this.keyValuePairs[j].split("=")[0] == param)
+                return j;
+        }
+        return -1;
+    }
+
+    this.setValue = function(param, value) {
+        for(var j=0; j < this.keyValuePairs.length; j++) {
+            if(this.keyValuePairs[j].split("=")[0] == param){
+                this.keyValuePairs[j] = param + "=" + value;
+                return true;
+            }
+        }
+        this.keyValuePairs[this.keyValuePairs.length] = param + "=" + value;
+        return true;
+        return false;
+    }	
+
+    this.appendValue = function(param, value) {
+        for(var j=0; j < this.keyValuePairs.length; j++) {
+            if(this.keyValuePairs[j].split("=")[0] == param){
+                this.keyValuePairs[j] =this.keyValuePairs[j] + value;
+                return true;
+            }
+        }
+        return false;
+    }	
+
+
+    this.removeParam = function(param) {
+        var index = this.getParamIndex(param);
+        if(index>-1){
+           this.keyValuePairs.splice(index, 1); 
+        }
+        return(index);
+    }
+
+    this.getParameters = function() {
+        var a = new Array(this.getLength());
+        for(var j=0; j < this.keyValuePairs.length; j++) {
+            a[j] = this.keyValuePairs[j].split("=")[0];
+        }
+        return a;
+    }
+
+    this.toString = function() {
+        return this.keyValuePairs.join("&");
+    }
+
+    this.getLength = function() { return this.keyValuePairs.length; }
+}
+
