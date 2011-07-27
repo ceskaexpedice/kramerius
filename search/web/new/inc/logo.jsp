@@ -1,1 +1,0 @@
-<a href=".." ><img alt="Kramerius digitalní knihovna" src="img/logo.png" border="0" /></a>
