@@ -42,12 +42,14 @@ import cz.incad.kramerius.impl.FedoraAccessImpl;
 import cz.incad.kramerius.utils.FedoraUtils;
 import cz.incad.kramerius.utils.XMLUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
+import cz.incad.kramerius.utils.pid.LexerException;
 
 public class FedoraAccessImplTest {
     
-    /** Test getModelName method */
+    /** Test getModelName method 
+     * @throws LexerException */
     @Test
-    public void testGetKrameriusModelName() throws IOException, ParserConfigurationException, SAXException {
+    public void testGetKrameriusModelName() throws IOException, ParserConfigurationException, SAXException, LexerException {
         FedoraAccess fa = createMockBuilder(FedoraAccessImpl.class)
         .withConstructor(KConfiguration.getInstance())
         .addMockedMethod("getRelsExt")
@@ -57,10 +59,10 @@ public class FedoraAccessImplTest {
         
         replay(fa);
 
-        String monographModel = fa.getKrameriusModelName(fa.getRelsExt("0eaa6730-9068-11dd-97de-000d606f5dc6"));
+        String monographModel = fa.getKrameriusModelName(fa.getRelsExt("uuid:0eaa6730-9068-11dd-97de-000d606f5dc6"));
         assertEquals("monograph", monographModel);
-        for (String page : DataPrepare.DROBNUSTKY_UUIDS) {
-            if (!page.equals("0eaa6730-9068-11dd-97de-000d606f5dc6")) {
+        for (String page : DataPrepare.DROBNUSTKY_PIDS) {
+            if (!page.equals("uuid:0eaa6730-9068-11dd-97de-000d606f5dc6")) {
                 String pageModel = fa.getKrameriusModelName(fa.getRelsExt(page));
                 assertEquals("page", pageModel);
             }
@@ -69,9 +71,10 @@ public class FedoraAccessImplTest {
     
     
 
-    /** Test getDonator method */
+    /** Test getDonator method 
+     * @throws LexerException */
     @Test
-    public void testGetDonator() throws IOException, ParserConfigurationException, SAXException {
+    public void testGetDonator() throws IOException, ParserConfigurationException, SAXException, LexerException {
         FedoraAccess fa = createMockBuilder(FedoraAccessImpl.class)
         .withConstructor(KConfiguration.getInstance())
         .addMockedMethod("getRelsExt")
@@ -81,13 +84,14 @@ public class FedoraAccessImplTest {
         
         replay(fa);
 
-        String donator = fa.getDonator(fa.getRelsExt("0eaa6730-9068-11dd-97de-000d606f5dc6"));
+        String donator = fa.getDonator(fa.getRelsExt("uuid:0eaa6730-9068-11dd-97de-000d606f5dc6"));
         assertEquals("norway", donator);
     }
     
-    /** Test correct data - IMG_FULL present */
+    /** Test correct data - IMG_FULL present 
+     * @throws LexerException */
     @Test
-    public void testFindFirstViewablePid_good() throws IOException, ParserConfigurationException, SAXException {
+    public void testFindFirstViewablePid_good() throws IOException, ParserConfigurationException, SAXException, LexerException {
         // test correct data - IMG_FULL in pages
         FedoraAccess fa = createMockBuilder(FedoraAccessImpl.class)
         .withConstructor(KConfiguration.getInstance())
@@ -100,16 +104,17 @@ public class FedoraAccessImplTest {
         
         replay(fa);
         
-        String firstPageForDrobnustky = fa.findFirstViewablePid("0eaa6730-9068-11dd-97de-000d606f5dc6");
+        String firstPageForDrobnustky = fa.findFirstViewablePid("uuid:0eaa6730-9068-11dd-97de-000d606f5dc6");
         // accept right page
-        assertEquals("4308eb80-b03b-11dd-a0f6-000d606f5dc6", firstPageForDrobnustky);
+        assertEquals("uuid:4308eb80-b03b-11dd-a0f6-000d606f5dc6", firstPageForDrobnustky);
     }
     
     
     
-    /** Test bad data - IMG_FULL not present */
+    /** Test bad data - IMG_FULL not present 
+     * @throws LexerException */
     @Test
-    public void testFindFirstViewablePid_bad() throws IOException, ParserConfigurationException, SAXException {
+    public void testFindFirstViewablePid_bad() throws IOException, ParserConfigurationException, SAXException, LexerException {
         // test correct data - IMG_FULL in pages
         FedoraAccess fa = createMockBuilder(FedoraAccessImpl.class)
         .withConstructor(KConfiguration.getInstance())
@@ -122,7 +127,7 @@ public class FedoraAccessImplTest {
         
         replay(fa);
         
-        String firstPageForDrobnustky = fa.findFirstViewablePid("0eaa6730-9068-11dd-97de-000d606f5dc6");
+        String firstPageForDrobnustky = fa.findFirstViewablePid("uuid:0eaa6730-9068-11dd-97de-000d606f5dc6");
         // nic nenalezeno.. 
         assertNull(firstPageForDrobnustky);
     }
