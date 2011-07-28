@@ -29,12 +29,12 @@ public interface FedoraAccess {
     /**
      * Returns parsed rels-ext
      * 
-     * @param uuid
-     *            Object uuid
+     * @param pid
+     *            Object pid
      * @return
      * @throws IOException
      */
-    public Document getRelsExt(String uuid) throws IOException;
+    public Document getRelsExt(String pid) throws IOException;
 
     /**
      * Returns model's name of given object relsext
@@ -45,12 +45,12 @@ public interface FedoraAccess {
     public String getKrameriusModelName(Document relsExt) throws IOException;
     
     /**
-     * Returns model's name of given uuid
-     * @param uuid
+     * Returns model's name of given pid
+     * @param pid
      * @return
      * @throws IOException 
      */
-    public String getKrameriusModelName(String uuid) throws IOException;
+    public String getKrameriusModelName(String pid) throws IOException;
     
 
     
@@ -67,12 +67,12 @@ public interface FedoraAccess {
     /**
      * Returns KrameriusModel of given object
      *
-     * @param uuid
-     *            uuid of object
+     * @param pid
+     *            pid of object
      * @return
      * @throws IOException
      */
-    public List<String> getModelsOfRel(String uuid) throws IOException;
+    public List<String> getModelsOfRel(String pid) throws IOException;
     
     /**
      * Returns Donator parsed from given document
@@ -87,46 +87,46 @@ public interface FedoraAccess {
     /**
      * Returns Donator of given object
      * 
-     * @param uuid
-     *            uuid of object
+     * @param pid
+     *            pid of object
      * @return
      * if hasDonator dosn't exist return empty string
      * @throws IOException
      */
-    public String getDonator(String uuid) throws IOException;
+    public String getDonator(String pid) throws IOException;
 
 
     /**
      * Return parsed biblio mods stream
      * 
-     * @param uuid
+     * @param pid
      * @return
      * @throws IOException
      */
-    public Document getBiblioMods(String uuid) throws IOException;
+    public Document getBiblioMods(String pid) throws IOException;
 
     /**
      * Returns DC stream
      * 
-     * @param uuid
+     * @param pid
      * @return
      * @throws IOException
      */
-    public Document getDC(String uuid) throws IOException;
+    public Document getDC(String pid) throws IOException;
 
 
     /**
-     * Returns uuid of first document through rels-ext, which has IMG_FULL datastream
-     * @param uuid
+     * Returns pid of first document through rels-ext, which has IMG_FULL datastream
+     * @param pid
      * @return
      * @throws IOException
      */
-    public String findFirstViewablePid(String uuid) throws IOException;
+    public String findFirstViewablePid(String pid) throws IOException;
 
 
     /**
      * Fill path of pids and models up to first document throw rels-ext, which has IMG_FULL datastream
-     * @param uuid
+     * @param pid
      * @return true to stop recursion
      * @throws IOException
     */
@@ -138,104 +138,104 @@ public interface FedoraAccess {
     /**
      * Parse, find and returns all pages
      * 
-     * @param uuid
-     *            UUID of object
+     * @param pid
+     *            pid of object
      * @return
      */
     @Deprecated
-    public List<Element> getPages(String uuid, boolean deep) throws IOException;
+    public List<Element> getPages(String pid, boolean deep) throws IOException;
 
     /**
      * Find and returns all pages
      * 
-     * @param uuid
-     *            UUID of object
+     * @param pid
+     *            pid of object
      * @param rootElementOfRelsExt
      *            Root element of RelsExt
      * @return
      * @throws IOException
      */
     @Deprecated
-    public List<Element> getPages(String uuid, Element rootElementOfRelsExt) throws IOException;
+    public List<Element> getPages(String pid, Element rootElementOfRelsExt) throws IOException;
 
     /**
      * Returns input stream of thumbnail
      * 
-     * @param uuid
+     * @param pid
      * @return
      * @throws IOException
      */
-    public InputStream getSmallThumbnail(String uuid) throws IOException;
+    public InputStream getSmallThumbnail(String pid) throws IOException;
 
-    Document getSmallThumbnailProfile(String uuid) throws IOException;
+    Document getSmallThumbnailProfile(String pid) throws IOException;
 
-    public String getSmallThumbnailMimeType(String uuid) throws IOException, XPathExpressionException;
+    public String getSmallThumbnailMimeType(String pid) throws IOException, XPathExpressionException;
 
-    public boolean isFullthumbnailAvailable(String uuid) throws IOException;
+    public boolean isFullthumbnailAvailable(String pid) throws IOException;
 
-    public InputStream getFullThumbnail(String uuid) throws IOException;
+    public InputStream getFullThumbnail(String pid) throws IOException;
 
 
-    public String getFullThumbnailMimeType(String uuid) throws IOException, XPathExpressionException;
+    public String getFullThumbnailMimeType(String pid) throws IOException, XPathExpressionException;
 
     /**
      * Returns djvu image of the object
      * 
-     * @param uuid
+     * @param pid
      * @return
      * @throws IOException
      */
-    public InputStream getImageFULL(String uuid) throws IOException;
+    public InputStream getImageFULL(String pid) throws IOException;
 
     /**
      * REturns profile of full image stream
      * 
-     * @param uuid
+     * @param pid
      * @return
      * @throws IOException
      */
-    public Document getImageFULLProfile(String uuid) throws IOException;
+    public Document getImageFULLProfile(String pid) throws IOException;
 
     /**
      * Returns full image mime type
      * 
-     * @param uuid
+     * @param pid
      * @return
      * @throws IOException
      * @throws XPathExpressionException
      */
-    public String getImageFULLMimeType(String uuid) throws IOException, XPathExpressionException;
+    public String getImageFULLMimeType(String pid) throws IOException, XPathExpressionException;
 
     /**
      * Check whether full image is available, is present and accessible
      * 
-     * @param uuid
+     * @param pid
      * @return
      * @throws IOException
      */
-    public boolean isImageFULLAvailable(String uuid) throws IOException;
+    public boolean isImageFULLAvailable(String pid) throws IOException;
 
     
     /**
      * Check whether stream is available, is present and accessible
      * 
-     * @param uuid
+     * @param pid
      * @param streamName Stream name
      * @return
      * @throws IOException
      */
-    public boolean isStreamAvailable(String uuid, String streamName) throws IOException;
+    public boolean isStreamAvailable(String pid, String streamName) throws IOException;
 
     
     /**
      * Checks whetere content is acessiable
      * 
-     * @param uuid
-     *            uuid of object which can be protected
+     * @param pid
+     *            pid of object which can be protected
      * @return
      * @throws IOException
      */
-    public boolean isContentAccessible(String uuid) throws IOException;
+    public boolean isContentAccessible(String pid) throws IOException;
 
     public FedoraAPIA getAPIA();
 
@@ -249,7 +249,7 @@ public interface FedoraAccess {
 
     /**
      * Returns inputStream of given datastream 
-     * @param pid UUID of reqested object 
+     * @param pid pid of reqested object 
      * @param datastreamName datastream name
      * @return 
      * @throws IOException
@@ -260,7 +260,7 @@ public interface FedoraAccess {
     
     /**
      * Returns mimeType of given datastream
-     * @param pid UUID of requested object
+     * @param pid pid of requested object
      * @param datastreamName Datastream name
      * @return
      * @throws IOException
@@ -278,18 +278,18 @@ public interface FedoraAccess {
     
     /**
      * Returns profile for stream 
-     * @param uuid
+     * @param pid
      * @param stream
      * @return
      * @throws IOException
      */
-    Document getStreamProfile(String uuid, String stream) throws IOException;
+    Document getStreamProfile(String pid, String stream) throws IOException;
 
     /**
      * Returns profile for object
-     * @param uuid
+     * @param pid
      * @return
      * @throws IOException
      */
-    Document getObjectProfile(String uuid) throws IOException;
+    Document getObjectProfile(String pid) throws IOException;
 }
