@@ -232,10 +232,10 @@ public class FedoraAccessImpl implements FedoraAccess {
     }
     
     @Override
-    public String findFirstViewablePid(String uuid) throws IOException{
-        final List<String> foundUuids = new ArrayList<String>();
+    public String findFirstViewablePid(String pid) throws IOException{
+        final List<String> foundPids = new ArrayList<String>();
         try {
-            processSubtree(uuid, new TreeNodeProcessor() {
+            processSubtree(pid, new TreeNodeProcessor() {
                 
                 boolean breakProcess = false;
                 int previousLevel = 0;
@@ -254,7 +254,7 @@ public class FedoraAccessImpl implements FedoraAccess {
                     try {
                         if (previousLevel < level || level == 0) {
                             if(FedoraAccessImpl.this.isImageFULLAvailable(pid)) {
-                                foundUuids.add(pid);
+                                foundPids.add(pid);
                                 breakProcess = true;
                             }
                         } else if (previousLevel > level) {
@@ -273,7 +273,7 @@ public class FedoraAccessImpl implements FedoraAccess {
             throw new IOException(e);
         }
 
-        return foundUuids.isEmpty() ? null : foundUuids.get(0);
+        return foundPids.isEmpty() ? null : foundPids.get(0);
 //        if(isImageFULLAvailable(uuid)) return uuid;
 //        Document relsExt = getRelsExt(uuid);
 //        Element descEl = XMLUtils.findElement(relsExt.getDocumentElement(), "Description", FedoraNamespaces.RDF_NAMESPACE_URI);
