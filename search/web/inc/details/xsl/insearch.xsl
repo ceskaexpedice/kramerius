@@ -107,13 +107,13 @@
         </xsl:variable>
         <td class="resultThumb" valign="top">
             <a>
-                <xsl:attribute name="href">javascript:changeSelect('<xsl:value-of select="./str[@name='pid_path']"/>');</xsl:attribute>
+                <xsl:attribute name="href">javascript:changeSelect('<xsl:value-of select="./arr[@name='pid_path']/str"/>');</xsl:attribute>
             <img border="1"><xsl:attribute name="id">img_<xsl:value-of select="$pid"/></xsl:attribute>
             <xsl:attribute name="src"><xsl:value-of select="$imagepid" /></xsl:attribute></img></a>
         </td>
         <xsl:variable name="model"><xsl:value-of select="concat('fedora.model.', ./str[@name='fedora.model'])" /></xsl:variable>
         <td class="resultText">
-            <a><xsl:attribute name="href">javascript:changeSelect('<xsl:value-of select="./str[@name='pid_path']"/>');</xsl:attribute><b><xsl:value-of select="./str[@name='dc.title']"/></b></a>&#160;
+            <a><xsl:attribute name="href">javascript:changeSelect('<xsl:value-of select="./arr[@name='pid_path']/str"/>');</xsl:attribute><b><xsl:value-of select="./str[@name='dc.title']"/></b></a>&#160;
             (<xsl:value-of select="$bundle/value[@key=$model]"/>)
             <div>
             <xsl:call-template name="default">

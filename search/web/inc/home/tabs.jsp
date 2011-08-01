@@ -92,17 +92,23 @@
                 return false;
             }
         });
-        //alert(letter.charCodeAt(0));alert('A'.charCodeAt(0));
-        //if(letter.charCodeAt(0)<'A'.charCodeAt(0)) letter = '0';
         if(letters.indexOf(letter)<0)  letter = '0';
         $('#letters_'+field+'>div').removeClass('sel');
         $('#letters_'+field+'>div.'+letter).addClass('sel');
+    }
+    
+    function setBrowseScrollPosition(){
+        if(titleDivTopBorder==null){
+            titleDivTopBorder = $('#browse_title').offset().top;
+            titleDivBottomBorder = titleDivTopBorder + $('#browse_title').height() ;
+        }
     }
     
     function isTermVisible(id){
         var t = $('#'+id+">div.more_terms").offset().top;
         var b = $('#'+id+">div.more_terms").offset().top + $('#'+id+">div.more_terms").height();
         var reserve = 20;
+        setBrowseScrollPosition();
         if(t<titleDivBottomBorder+reserve && b>titleDivTopBorder-reserve){
             return true;
         }

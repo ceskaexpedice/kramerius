@@ -8,15 +8,6 @@
 <%@page import="javax.servlet.jsp.jstl.fmt.LocalizationContext"%>
 <%@page import="cz.incad.kramerius.FedoraAccess"%>
 <%@page import="cz.incad.kramerius.MostDesirable"%>
-<%
-            Injector ctxInj = (Injector) application.getAttribute(Injector.class.getName());
-            KConfiguration kconfig = ctxInj.getProvider(KConfiguration.class).get();
-            pageContext.setAttribute("kconfig", kconfig);
-            LocalizationContext lctx = ctxInj.getProvider(LocalizationContext.class).get();
-            pageContext.setAttribute("lctx", lctx);
-            FedoraAccess fedoraAccess = ctxInj.getInstance(com.google.inject.Key.get(FedoraAccess.class, com.google.inject.name.Names.named("securedFedoraAccess")));
-
-%>
 <!DOCTYPE html>
 <html>
     <head>
@@ -24,9 +15,10 @@
         <title>JSP Page</title>
     </head>
     <body>
-        <% 
-        String uuid = fedoraAccess.findFirstViewablePid("uuid:4308eb80-b03b-11dd-a0f6-000d606f5dc6"); 
-        System.out.println("------------");
-%>
+<div style="position:relative;border:1px solid red;">
+    <div style="float:right;">1</div>
+    <div style="float:right;">2</div>
+    <div style="float:right;">3</div>
+</div>
     </body>
 </html>

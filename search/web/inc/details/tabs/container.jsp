@@ -28,8 +28,8 @@
         <c:if test="${! empty tab}">
             <div id="itemtab_${tab}" class="viewer" style="overflow:hidden;"></div>
             <script type="text/javascript">
-                updateCustomTab('${tab}', '${param.pid}');
                 $(document).ready(function(){
+                    updateCustomTab('${tab}', '${param.pid}');
                     $('#itemtab_${tab}.viewer').bind('viewReady', function(event, viewerOptions){
                         updateCustomTab('${tab}', viewerOptions.uuid);
                     });
@@ -61,10 +61,9 @@
     }
 
     $(document).ready(function() {
-        $("#centralContent").tabs().addClass('ui-tabs-vertical ui-helper-clearfix');
-        $("#centralContent li").removeClass('ui-corner-top').addClass('ui-corner-left');
-        $("#centralContent").css('position', 'static');
-        //$('.vertical-text').mbFlipText(false);
+        $("#centralContent").tabs();//.addClass('ui-tabs-vertical ui-helper-clearfix');
+        //$("#centralContent li").removeClass('ui-corner-top').addClass('ui-corner-left');
+        //$("#centralContent").css('position', 'static');
     });
 
 </script>

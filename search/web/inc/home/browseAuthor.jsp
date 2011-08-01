@@ -33,13 +33,8 @@ pageContext.setAttribute("pismena", pismena);
 <c:forEach var="p" items="${pismena}"><div class="${p}"><a href="#">${p}</a></div></c:forEach>
                     </td>
                 </tr></table>
-        </div>
 <script type="text/javascript">
-
-
     $(document).ready(function(){
-        titleDivTopBorder = $('#browse_autor').offset().top;
-        titleDivBottomBorder = titleDivTopBorder + $('#browse_autor').height() ;
         doBrowse('', 'browse_autor');
         
         $("#browse_autor").bind('scroll', function(event){
@@ -52,3 +47,4 @@ pageContext.setAttribute("pismena", pismena);
 
     });
 </script>
+        </div>

@@ -84,6 +84,8 @@
         }
         
         if(viewerOptions.isContentDJVU()){
+            var h = $(window).height()- $('#fullImageContainer>div.header').height() - 20;
+            $('#djvuContainer').css('height', h + "px");
             $('#djvuContainer>iframe').attr('src', fullUrl);
             $('#djvuContainer').show();
             

@@ -37,8 +37,10 @@ pageContext.setAttribute("search_results_rows", search_results_rows);
     </c:if>
     
     <c:param name="fl" value="PID,score,root_title,path,pid_path,root_pid,dc.title,details,fedora.model,path,dc.creator,datum,page_format,text" />
+    <c:set var="isCollapsed" value="${param.collapsed != 'false'}" /> 
     <c:forEach var="fqs" items="${paramValues.fq}">
-        
+        <c:if test="${fn:startsWith(fqs, 'document_type')}"><c:set var="isCollapsed" value="false" /></c:if>
+         
         <c:param name="fq">${fqs}</c:param>
         <c:set var="rows" value="${rowsdefault}" scope="request" />
     </c:forEach>
@@ -48,7 +50,7 @@ pageContext.setAttribute("search_results_rows", search_results_rows);
     </c:if>
     <c:param name="start" value="${param.offset}" />
     
-    <c:if test="${param.collapsed != 'false'}">
+    <c:if test="${isCollapsed}">
         <c:param name="collapse.field" value="root_pid" />
         <c:param name="collapse.type" value="normal" />
         <c:param name="collapse.threshold" value="1" />

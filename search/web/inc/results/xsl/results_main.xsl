@@ -118,7 +118,8 @@
         </div>
         <xsl:variable name="model"><xsl:value-of select="concat('fedora.model.', ./str[@name='fedora.model'])" /></xsl:variable>
         <div class="resultText">
-            <a><xsl:attribute name="href"><xsl:value-of select="normalize-space($link)"/></xsl:attribute><b><xsl:value-of select="./str[@name='root_title']"/></b></a>&#160;
+            <a><xsl:attribute name="href"><xsl:value-of select="normalize-space($link)"/></xsl:attribute>
+            <b><xsl:value-of select="./str[@name='root_title']"/></b></a>&#160;
             <br/>(<xsl:value-of select="$bundle/value[@key=$model]"/>)
             <div><xsl:attribute name="id">more_<xsl:value-of select="$pid"/></xsl:attribute>
             

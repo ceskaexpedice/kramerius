@@ -26,25 +26,9 @@
     <c:if test="${numDocs==0}" >
         <c:redirect url="${kconfig.applicationURL}?error=uuid_not_found" />
     </c:if>
-    <c:set var="pid_path"><x:out select="$doc/response/result/doc/str[@name='pid_path']" /></c:set>
-    <jsp:useBean id="pid_path" type="java.lang.String"  />
-    <%
-        //String model_path = "";
-       
-        //String[] pids = pid_path.split("/");
-        //for(int i=0; i<pids.length; i++){
-        //    if(i>0){
-        //        model_path += "/";
-        //    }else{
-        //        
-        //    }
-        //    model_path += fedoraAccess.getKrameriusModelName(pids[i]);
-        //}
-        //pageContext.setAttribute("model_path", model_path);
-    %>
-    
-    <c:set var="path"><x:out select="$doc/response/result/doc/str[@name='model_path']" /></c:set>
-    <c:set var="model_path"><x:out select="$doc/response/result/doc/str[@name='model_path']" /></c:set>
+    <c:set var="pid_path"><x:out select="$doc/response/result/doc/arr[@name='pid_path']/str" /></c:set>
+    <c:set var="model_path"><x:out select="$doc/response/result/doc/arr[@name='model_path']/str" /></c:set>
+    <c:set var="path">${model_path}</c:set>
     <c:set var="model"><x:out select="$doc/response/result/doc/str[@name='fedora.model']" /></c:set>
     <c:set var="root_pid"><x:out select="$doc/response/result/doc/str[@name='root_pid']" /></c:set>
     <%--:set var="root_model"><x:out select="$doc/response/result/doc/str[@name='root_model']" /></c:set--%>
