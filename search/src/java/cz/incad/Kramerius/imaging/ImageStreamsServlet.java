@@ -204,9 +204,9 @@ public class ImageStreamsServlet extends AbstractImageServlet {
 
             @Override
             void doPerform(ImageStreamsServlet imageStreamsServlet, FedoraAccess fedoraAccess,String uuid, String stream, int page, HttpServletRequest req, HttpServletResponse resp) throws IOException, SecurityException, XPathExpressionException{
-                InputStream is = fedoraAccess.getDataStream(PIDParser.UUID_PREFIX+uuid, stream);
+                InputStream is = fedoraAccess.getDataStream(uuid, stream);
 
-                String mimeType = fedoraAccess.getMimeTypeForStream(PIDParser.UUID_PREFIX+uuid, stream);
+                String mimeType = fedoraAccess.getMimeTypeForStream(uuid, stream);
                 resp.setContentType(mimeType);
                 imageStreamsServlet.setDateHaders(uuid, resp);
                 imageStreamsServlet.setResponseCode(uuid, req, resp);
