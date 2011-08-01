@@ -23,7 +23,8 @@
         <xsl:for-each select="//doc[str[@name='fedora.model']=$fmodel]" >
             <xsl:variable name="solruuid"><xsl:value-of select="./str[@name='PID']"/></xsl:variable>
             <div>
-                <xsl:attribute name="class">r<xsl:value-of select="position() mod 2"/></xsl:attribute><a><xsl:attribute name="href">i.jsp?pid=<xsl:value-of select="./str[@name='PID']"/>&amp;pid_path=<xsl:value-of select="./str[@name='pid_path']"/>&amp;path=<xsl:value-of select="./str[@name='path']"/>&amp;q=<xsl:value-of select="$q"/>
+                <xsl:attribute name="class">r<xsl:value-of select="position() mod 2"/></xsl:attribute>
+                <a><xsl:attribute name="href">i.jsp?pid=<xsl:value-of select="./str[@name='PID']"/>&amp;q=<xsl:value-of select="$q"/>
                 </xsl:attribute>
                 <xsl:call-template name="details">
                     <xsl:with-param name="fmodel"><xsl:value-of select="$fmodel" /></xsl:with-param>

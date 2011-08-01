@@ -60,6 +60,7 @@
     }
 
 </style>
+<c:set var="class_viewable"><c:if test="${viewable=='true'}">viewable</c:if></c:set>
 <c:url var="url" value="${kconfig.applicationURL}/inc/details/treeNodeInfo.jsp" >
     <c:param name="pid" value="${root_pid}" />
     <c:param name="model_path" value="${root_model}" />
@@ -82,7 +83,7 @@
         <ul id="item_tree" class="viewer">
             <li id="${root_model}"><span class="ui-icon ui-icon-triangle-1-e folder " >folder</span>
                 <a href="#" class="model"><fmt:message bundle="${lctx}">fedora.model.${root_model}</fmt:message></a>
-                <ul><li id="${root_model}_${root_pid}"><span class="ui-icon ui-icon-triangle-1-e folder " >folder</span>
+                <ul><li id="${root_model}_${root_pid}" class="${class_viewable}"><span class="ui-icon ui-icon-triangle-1-e folder " >folder</span>
                         <input type="checkbox" /><a href="#" class="label">${infoa}</a></li></ul>
             </li>
         </ul>
@@ -168,7 +169,7 @@
                 }
                 id = path + "_" + pid_path[cur-1];
                 cur++;
-                if($(jq(id)+">ul").length>0){
+                if($(jq(id)+">ul>li").length>0){
                     loadInitNodes();
                 }else{
                     loadTreeNode(id);

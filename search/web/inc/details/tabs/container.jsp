@@ -24,16 +24,27 @@
         </ul>
     <%@include file="metadata.jsp" %>
     <%@include file="image.jsp" %>
-    <c:forEach varStatus="status" var="tab" items="${tabs}"><c:if test="${! empty tab}">
-            <div id="itemtab_${tab}" style="overflow:hidden;"></div>
+    <c:forEach varStatus="status" var="tab" items="${tabs}">
+        <c:if test="${! empty tab}">
+            <div id="itemtab_${tab}" class="viewer" style="overflow:hidden;"></div>
             <script type="text/javascript">
-                $.get('inc/details/tabs/loadCustom.jsp?tab=${tab}&pid=${param.pid}', function(data){
-                    $('#itemtab_${tab}').html(data) ;
+                updateCustomTab('${tab}', '${param.pid}');
+                $(document).ready(function(){
+                    $('#itemtab_${tab}.viewer').bind('viewReady', function(event, viewerOptions){
+                        updateCustomTab('${tab}', viewerOptions.uuid);
+                    });
                 });
             </script>
-        </c:if></c:forEach>
+        </c:if>
+    </c:forEach>
 </div>
 <script type="text/javascript">
+                
+    function updateCustomTab(tab, pid){
+         $.get('inc/details/tabs/loadCustom.jsp?tab='+tab+'&pid=' + pid, function(data){
+            $('#itemtab_'+tab).html(data) ;
+        });
+    }
     function setMainContentWidth(){ 
         var w = $(window).width()-6-$('#itemTree').width();
 
@@ -50,12 +61,10 @@
     }
 
     $(document).ready(function() {
-        $("#centralContent").tabs();//.addClass('ui-tabs-vertical ui-helper-clearfix');
-        //$("#centralContent li").removeClass('ui-corner-top').addClass('ui-corner-left');
-        //$("#centralContent").css('position', 'static');
+        $("#centralContent").tabs().addClass('ui-tabs-vertical ui-helper-clearfix');
+        $("#centralContent li").removeClass('ui-corner-top').addClass('ui-corner-left');
+        $("#centralContent").css('position', 'static');
         //$('.vertical-text').mbFlipText(false);
-
-
     });
 
 </script>

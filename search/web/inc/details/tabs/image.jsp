@@ -50,6 +50,7 @@
             showPreviewImage(viewerOptions);
         });
     });
+    
     function onLoadPlainImage() {
         //if (imageInitialized) {
         //    $("#plainImageImg").fadeIn();
@@ -132,7 +133,6 @@
     function viewChanged(id){
         hidePreviewImage();
         var uuid = id.split('_')[1];
-        currentSelectedPage = uuid;
         $.ajax({
             url:"viewInfo?uuid="+uuid,
             complete:function(req,textStatus) {
@@ -269,10 +269,12 @@
     var maxScroll = 0;
     function hideFullImage(){
         $('#main').show();
+        $('#footer').show();
         $('#fullImageContainer').hide();
     }
     function showFullImage(){
         $('#main').hide();
+        $('#footer').hide();
         $('#fullImageContainer').show();
         updateFullImage();
     }

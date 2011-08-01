@@ -29,20 +29,27 @@
     <c:set var="pid_path"><x:out select="$doc/response/result/doc/str[@name='pid_path']" /></c:set>
     <jsp:useBean id="pid_path" type="java.lang.String"  />
     <%
-        String model_path = "";
+        //String model_path = "";
        
-        String[] pids = pid_path.split("/");
-        for(int i=0; i<pids.length; i++){
-            if(i>0) model_path += "/";
-            model_path += fedoraAccess.getKrameriusModelName(pids[i]);
-        }
-        pageContext.setAttribute("model_path", model_path);
+        //String[] pids = pid_path.split("/");
+        //for(int i=0; i<pids.length; i++){
+        //    if(i>0){
+        //        model_path += "/";
+        //    }else{
+        //        
+        //    }
+        //    model_path += fedoraAccess.getKrameriusModelName(pids[i]);
+        //}
+        //pageContext.setAttribute("model_path", model_path);
     %>
     
-    <c:set var="path"><x:out select="$doc/response/result/doc/str[@name='path']" /></c:set>
+    <c:set var="path"><x:out select="$doc/response/result/doc/str[@name='model_path']" /></c:set>
+    <c:set var="model_path"><x:out select="$doc/response/result/doc/str[@name='model_path']" /></c:set>
     <c:set var="model"><x:out select="$doc/response/result/doc/str[@name='fedora.model']" /></c:set>
     <c:set var="root_pid"><x:out select="$doc/response/result/doc/str[@name='root_pid']" /></c:set>
-    <c:set var="root_model"><x:out select="$doc/response/result/doc/str[@name='root_model']" /></c:set>
+    <%--:set var="root_model"><x:out select="$doc/response/result/doc/str[@name='root_model']" /></c:set--%>
+    <c:set var="root_model"><c:out value="${fn:split(model_path, '/')[0]}" /></c:set>
+    <c:set var="viewable"><x:out select="$doc/response/result/doc/bool[@name='viewable']" /></c:set>
 </c:catch>
 <c:if test="${exceptions != null}">
     <%--

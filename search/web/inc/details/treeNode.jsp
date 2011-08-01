@@ -19,7 +19,7 @@
 %>
 <c:url var="url" value="${kconfig.solrHost}/select/" >
     <c:param name="q" >
-        parent_pid:"${param.pid}"<c:if test="${param.model!=null}"> and fedora.model:${param.model}</c:if>
+        parent_pid:"${param.pid}" AND NOT(PID:"${param.pid}")<c:if test="${param.model!=null}"> and fedora.model:${param.model}</c:if>
     </c:param>
     <c:choose>
         <c:when test="${param.rows != null}" >
@@ -30,7 +30,7 @@
         </c:otherwise>
     </c:choose>
     <c:param name="rows" value="${rows}" />
-    <c:param name="fl" value="PID,fedora.model,dc.title,details,page_format" />
+    <c:param name="fl" value="PID,fedora.model,dc.title,details,page_format,viewable" />
     <c:param name="start" value="${param.offset}" />
     <c:param name="sort" value="rels_ext_index asc, fedora.model asc" />
     <c:param name="fq" >

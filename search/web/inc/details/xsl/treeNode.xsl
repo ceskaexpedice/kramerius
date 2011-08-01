@@ -85,7 +85,7 @@
         <xsl:for-each select="//doc[str[@name='fedora.model']=$fmodel]" >
             <li>
                 <xsl:attribute name="id"><xsl:value-of select="$model_path" />-<xsl:value-of select="$fmodel" />_<xsl:value-of select="./str[@name='PID']" /></xsl:attribute>
-                <xsl:if test="./str[@name='page_format']" >
+                <xsl:if test="./bool[@name='viewable']" >
                     <xsl:attribute name="class">viewable</xsl:attribute>
                 </xsl:if>
                 <xsl:choose>
