@@ -43,7 +43,7 @@ public class FedoraOperations {
         logger.log(Level.INFO, "updateIndex action={0} value={1}", new Object[]{action, value});
 
         SolrOperations ops = new SolrOperations(this);
-        ops.updateIndex(action, value, requestParams);
+        ops.updateIndex(action, value);
     }
 
     public byte[] getAndReturnFoxmlFromPid(String pid) throws java.rmi.RemoteException, Exception {
@@ -64,6 +64,7 @@ public class FedoraOperations {
             foxmlRecord = fa.getAPIM().export(pid, foxmlFormat, "public");
 
         } catch (Exception e) {
+            logger.log(Level.SEVERE, "Error getting object", e);
             throw new Exception("Fedora Object " + pid + " not found. ", e);
         }
     }
@@ -105,7 +106,7 @@ public class FedoraOperations {
                 for (Element el : els) {
                     if (getTreePredicates().contains(el.getLocalName())) {
                         if (el.hasAttribute("rdf:resource")) {
-                            uuid = el.getAttributes().getNamedItem("rdf:resource").getNodeValue().split("uuid:")[1];
+                            uuid = el.getAttributes().getNamedItem("rdf:resource").getNodeValue();
                             if(uuid.equals(pid)) relsindex = Math.max(relsindex, i);
                             i++;
                         }
@@ -119,13 +120,9 @@ public class FedoraOperations {
     }
 
     public ArrayList<String> getPidPaths(String pid) {
-        logger.info("getPidPaths");
         ArrayList<String> pid_paths = new ArrayList<String>();
         pid_paths.add(pid);
         getPidPaths(pid_paths);
-        for (String s : pid_paths) {
-            logger.info(s);
-        }
         return pid_paths;
     }
 
@@ -177,8 +174,8 @@ public class FedoraOperations {
     }
 
     private String removeDiacritic(String old) {
-        char[] o = {'á', 'à', 'č', 'ď', 'ě', 'é', 'í', 'ľ', 'ň', 'ó', 'ř', 'r', 'š', 'ť', 'ů', 'ú', 'u', 'u', 'ý', 'ž', 'Á', 'À', 'Č', 'Ď', 'É', 'Ě', 'Í', 'Ĺ', 'Ň', 'Ó', 'Ř', 'Š', 'Ť', 'Ú', 'Ů', 'Ý', 'Ž'};
-        char[] n = {'a', 'a', 'c', 'd', 'e', 'e', 'i', 'l', 'n', 'o', 'r', 'r', 's', 't', 'u', 'u', 'u', 'u', 'y', 'z', 'A', 'A', 'C', 'D', 'E', 'E', 'I', 'L', 'N', 'O', 'R', 'S', 'T', 'U', 'U', 'Y', 'Z'};
+        String[] o = {"á", "à", "č", "ď", "ě", "é", "í", "ĺ", "ň", "ó", "ř", "š", "ť", "ů", "ú", "u", "u", "ý", "ž", "Á", "À", "Č", "Ď", "É", "Ě", "Í", "Ĺ", "Ň", "Ó", "Ř", "Š", "Ť", "Ú", "Ů", "Ý", "Ž"};
+        String[] n = {"a", "a", "cz", "dz", "ez", "ez", "i", "l", "nz", "o", "rz", "sz", "tz", "u", "u", "u", "u", "y", "zz", "A", "A", "Cz", "Dz", "E", "E", "I", "Lz", "Nz", "O", "Rz", "Sz", "Tz", "U", "U", "Y", "Zz"};
 
         String newStr = old;
         for (int i = 0; i < o.length; i++) {

@@ -23,10 +23,6 @@ import java.net.URL;
 
 import javax.xml.transform.stream.StreamSource;
 
-import org.apache.lucene.analysis.Analyzer;
-import org.apache.lucene.index.CorruptIndexException;
-import org.apache.lucene.index.IndexReader;
-
 import dk.defxws.fedoragsearch.server.GTransformer;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -43,7 +39,6 @@ import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpression;
 import javax.xml.xpath.XPathFactory;
 import org.apache.commons.configuration.Configuration;
-import org.apache.lucene.store.SimpleFSDirectory;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -64,16 +59,19 @@ public class SolrOperations {
     //protected String[] params = null;
     private FedoraOperations fedoraOperations;
     IResourceIndex rindex;
+    ExtendedFields extendedFields;
+    private GTransformer transformer;
+    private ArrayList<String> customTransformations;
 
-    public SolrOperations(FedoraOperations _fedoraOperations) {
+    public SolrOperations(FedoraOperations _fedoraOperations) throws IOException {
         fedoraOperations = _fedoraOperations;
         config = KConfiguration.getInstance().getConfiguration();
+        transformer = new GTransformer();
+        initCustomTransformations();
+        extendedFields = new ExtendedFields(fedoraOperations);
     }
 
-    public void updateIndex(
-            String action,
-            String value,
-            ArrayList<String> requestParams)
+    public void updateIndex(String action, String value)
             throws java.rmi.RemoteException, Exception {
         rindex = ResourceIndexService.getResourceIndexImpl();
         insertTotal = 0;
@@ -90,7 +88,7 @@ public class SolrOperations {
             } else if ("deletePid".equals(action)) {
                 deletePid(value);
             } else if ("fromPid".equals(action)) {
-                fromPid(value, requestParams);
+                fromPid(value);
             } else if ("fullRepo".equals(action)) {
                 fullRepo();
             } else if ("fullRepoWithClean".equals(action)) {
@@ -99,23 +97,20 @@ public class SolrOperations {
                 optimize();
             } else if ("fromKrameriusModel".equals(action)) {
                 checkIntegrityByDocument(value);
-                if (!value.startsWith("uuid:")) {
-                    value = "uuid:" + value;
-                }
-                fromKrameriusModel(value, requestParams);
+                fromKrameriusModel(value);
                 optimize();
             } else if ("krameriusModel".equals(action)) {
-                krameriusModel(value, requestParams);
+                krameriusModel(value);
                 optimize();
             } else if ("reindexDoc".equals(action)) {
-                reindexDoc(value, false, requestParams);
+                reindexDoc(value, false);
             } else if ("reindexDocForced".equals(action)) {
-                reindexDoc(value, true, requestParams);
+                reindexDoc(value, true);
             } else if ("checkIntegrityByModel".equals(action)) {
                 checkIntegrityByModel(value);
             } else if ("checkIntegrityByDocument".equals(action)) {
                 checkIntegrityByDocument(value);
-            }else if ("getPidPaths".equals(action)) {
+            } else if ("getPidPaths".equals(action)) {
                 fedoraOperations.getPidPaths(value);
             }
         } catch (Exception ex) {
@@ -136,8 +131,8 @@ public class SolrOperations {
         logger.log(Level.INFO, "insertTotal: {0}; updateTotal: {1}; deleteTotal: {2}; warnCount: {3}", new Object[]{insertTotal, updateTotal, deleteTotal, warnCount});
 
     }
-    
-    private int getDocCount(){
+
+    private int getDocCount() {
         try {
             String urlStr = config.getString("solrHost") + "/select/?q=*:*&rows=0";
             factory = XPathFactory.newInstance();
@@ -152,7 +147,7 @@ public class SolrOperations {
             expr = xpath.compile(xPathStr);
             Node node = (Node) expr.evaluate(solrDom, XPathConstants.NODE);
             return Integer.parseInt(node.getFirstChild().getNodeValue());
-        }catch(Exception e){
+        } catch (Exception e) {
             logger.log(Level.SEVERE, "Error retrieving index doc count", e);
             return 0;
         }
@@ -167,22 +162,18 @@ public class SolrOperations {
 
     }
 
-    private void reindexDoc(
-            String pid,
-            boolean force,
-            ArrayList<String> requestParams)
+    private void reindexDoc(String uuid, boolean force)
             throws java.rmi.RemoteException, IOException, Exception {
-        if (pid == null || pid.length() < 1) {
+        if (uuid == null || uuid.length() < 1) {
             return;
         }
         try {
-            String urlStr = config.getString("solrHost") + "/select/?q=PID:\"" + pid + "\"";
-            String uuid = pid.startsWith("uuid:") ? pid : "uuid:" + pid;
+            String urlStr = config.getString("solrHost") + "/select/?q=PID:\"" + uuid + "\"";
+
             fedoraOperations.getFoxmlFromPid(uuid);
             contentDom = getDocument(new ByteArrayInputStream(fedoraOperations.foxmlRecord));
             factory = XPathFactory.newInstance();
             xpath = factory.newXPath();
-            IndexParams indexParams = new IndexParams(uuid, contentDom);
 
             /* get current values */
             java.net.URL url = new java.net.URL(urlStr);
@@ -193,71 +184,6 @@ public class SolrOperations {
             expr = xpath.compile(xPathStr);
             Node node = (Node) expr.evaluate(solrDom, XPathConstants.NODE);
             //System.out.println(node.getFirstChild().getNodeValue());
-            indexParams.setParam("ROOT_PID", node.getFirstChild().getNodeValue());
-
-            xPathStr = "/response/result/doc/arr[@name='parent_pid']/str";
-            expr = xpath.compile(xPathStr);
-            node = (Node) expr.evaluate(solrDom, XPathConstants.NODE);
-            if (node != null && node.hasChildNodes()) {
-                indexParams.setParam("PARENT_PID", node.getFirstChild().getNodeValue());
-            }
-
-            xPathStr = "/response/result/doc/str[@name='parent_model']";
-            expr = xpath.compile(xPathStr);
-            node = (Node) expr.evaluate(solrDom, XPathConstants.NODE);
-            if (node != null && node.hasChildNodes()) {
-                indexParams.setParam("PARENT_MODEL", node.getFirstChild().getNodeValue());
-            }
-
-            xPathStr = "/response/result/doc/str[@name='pid_path']";
-            expr = xpath.compile(xPathStr);
-            node = (Node) expr.evaluate(solrDom, XPathConstants.NODE);
-            if (node != null && node.hasChildNodes()) {
-                indexParams.setParam("PID_PATH", node.getFirstChild().getNodeValue());
-            }
-
-            xPathStr = "/response/result/doc/str[@name='root_title']";
-            expr = xpath.compile(xPathStr);
-            node = (Node) expr.evaluate(solrDom, XPathConstants.NODE);
-            indexParams.setParam("ROOT_TITLE", node.getFirstChild().getNodeValue());
-
-
-            xPathStr = "/response/result/doc/str[@name='path']";
-            expr = xpath.compile(xPathStr);
-            node = (Node) expr.evaluate(solrDom, XPathConstants.NODE);
-            String path = node.getFirstChild().getNodeValue();
-            //jen do posledni
-            if (path.indexOf("/") > -1) {
-                path = path.substring(0, path.lastIndexOf("/"));
-                indexParams.setParam("PATH", path);
-            } else {
-                indexParams.removeParam("PATH");
-            }
-
-            xPathStr = "/response/result/doc/str[@name='root_model']";
-            expr = xpath.compile(xPathStr);
-            node = (Node) expr.evaluate(solrDom, XPathConstants.NODE);
-            indexParams.setParam("ROOT_MODEL", node.getFirstChild().getNodeValue());
-
-            xPathStr = "/response/result/doc/int[@name='level']";
-            expr = xpath.compile(xPathStr);
-            node = (Node) expr.evaluate(solrDom, XPathConstants.NODE);
-            indexParams.setParam("LEVEL", node.getFirstChild().getNodeValue());
-
-            xPathStr = "/response/result/doc/str[@name='language']";
-            expr = xpath.compile(xPathStr);
-            node = (Node) expr.evaluate(solrDom, XPathConstants.NODE);
-            indexParams.setParam("LANGUAGE", node.getFirstChild().getNodeValue());
-
-            xPathStr = "/response/result/doc/str[@name='datum']";
-            expr = xpath.compile(xPathStr);
-            node = (Node) expr.evaluate(solrDom, XPathConstants.NODE);
-            indexParams.setParam("DATUM", node.getFirstChild().getNodeValue());
-
-            xPathStr = "/response/result/doc/int[@name='rels_ext_index']";
-            expr = xpath.compile(xPathStr);
-            node = (Node) expr.evaluate(solrDom, XPathConstants.NODE);
-            indexParams.setParam("RELS_EXT_INDEX", node.getFirstChild().getNodeValue());
 
             xPathStr = "/response/result/doc/date[@name='timestamp']";
             expr = xpath.compile(xPathStr);
@@ -265,21 +191,21 @@ public class SolrOperations {
             DateFormat formatter = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
             Date date = formatter.parse(node.getFirstChild().getNodeValue());
 
-            indexByPid(pid, date, force, new ByteArrayInputStream(fedoraOperations.foxmlRecord), requestParams, indexParams);
+            indexByPid(uuid, date, force, new ByteArrayInputStream(fedoraOperations.foxmlRecord));
         } catch (Exception ex) {
-            logger.log(Level.SEVERE, "Error reindexing doc " + pid, ex);
+            logger.log(Level.SEVERE, "Error reindexing doc " + uuid, ex);
         }
     }
 
     private void fromPid(
-            String pid,
-            ArrayList<String> requestParams)
+            String pid)
             throws java.rmi.RemoteException, IOException, Exception {
         if (pid == null || pid.length() < 1) {
             return;
         }
         fedoraOperations.getFoxmlFromPid(pid);
-        indexDoc(new ByteArrayInputStream(fedoraOperations.foxmlRecord), requestParams, "1");
+        extendedFields.setFields(pid);
+        indexDoc(new ByteArrayInputStream(fedoraOperations.foxmlRecord), "1");
     }
     /* kramerius */
     XPathFactory factory = XPathFactory.newInstance();
@@ -290,7 +216,7 @@ public class SolrOperations {
     private void fullRepo() {
         String[] models = config.getStringArray("fedora.topLevelModels");
         for (String model : models) {
-            krameriusModel(model, new ArrayList<String>());
+            krameriusModel(model);
 
         }
     }
@@ -309,7 +235,6 @@ public class SolrOperations {
     }
 
     private void krameriusModel(String model,
-            ArrayList<String> requestParams,
             int offset) {
         int pageSize = 100;
         try {
@@ -326,11 +251,11 @@ public class SolrOperations {
 
             for (int i = 0; i < nodes.getLength(); i++) {
                 Node childnode = nodes.item(i);
-                fromKrameriusModel(childnode.getAttributes().getNamedItem("uri").getNodeValue(), requestParams);
+                fromKrameriusModel(childnode.getAttributes().getNamedItem("uri").getNodeValue());
                 hasRecords = true;
             }
             if (hasRecords) {
-                krameriusModel(model, requestParams, offset + pageSize);
+                krameriusModel(model, offset + pageSize);
             }
 
         } catch (Exception e) {
@@ -339,37 +264,29 @@ public class SolrOperations {
 
     }
 
-    private void krameriusModel(
-            String model,
-            ArrayList<String> requestParams) {
+    private void krameriusModel(String model) {
         try {
             logger.log(Level.INFO, "Indexing from kramerius model: {0}", model);
             checkIntegrityByModel(model);
-            krameriusModel(model, requestParams, 0);
+            krameriusModel(model, 0);
 
         } catch (Exception e) {
             logger.log(Level.SEVERE, null, e);
         }
     }
 
-    private void fromKrameriusModel(
-            String uuid,
-            ArrayList<String> requestParams)
+    private void fromKrameriusModel(String uuid)
             throws java.rmi.RemoteException, Exception {
-        String pid = uuid;
-        if (pid == null || pid.length() < 1) {
+        if (uuid == null || uuid.length() < 1) {
             return;
         }
-        if (!pid.startsWith("uuid:")) {
-            pid = "uuid:" + pid;
-        }
-        logger.log(Level.FINE, "fromKrameriusModel: {0}", pid);
-        
-        fedoraOperations.getFoxmlFromPid(pid);
+        logger.log(Level.FINE, "fromKrameriusModel: {0}", uuid);
+
+        fedoraOperations.getFoxmlFromPid(uuid);
         factory = XPathFactory.newInstance();
         xpath = factory.newXPath();
 
-        indexByPid(pid, null, true, new ByteArrayInputStream(fedoraOperations.foxmlRecord), requestParams, null);
+        indexByPid(uuid, null, true, new ByteArrayInputStream(fedoraOperations.foxmlRecord));
 
     }
 
@@ -385,9 +302,7 @@ public class SolrOperations {
     private int indexByPid(String pid,
             Date date,
             boolean force,
-            InputStream foxmlStream,
-            ArrayList<String> requestParams,
-            IndexParams indexParams) {
+            InputStream foxmlStream) {
 
         logger.log(Level.INFO, "indexing -> {0}", pid);
         int num = 0;
@@ -412,21 +327,11 @@ public class SolrOperations {
             }
 
             String fmodel = "";
-            if (indexParams == null) {
-                indexParams = new IndexParams(pid, contentDom);
-                fmodel = (String) indexParams.paramsMap.get("MODEL");
-            } else {
-                expr = xpath.compile("//datastream/datastreamVersion[last()]/xmlContent/RDF/Description/hasModel");
-                Node modelNode = (Node) expr.evaluate(contentDom, XPathConstants.NODE);
-                if (modelNode != null) {
-                    fmodel = modelNode.getAttributes().getNamedItem("rdf:resource").getNodeValue().split("model:")[1];
-                    indexParams.addPath(fmodel);
+            expr = xpath.compile("//datastream/datastreamVersion[last()]/xmlContent/RDF/Description/hasModel");
+            Node modelNode = (Node) expr.evaluate(contentDom, XPathConstants.NODE);
+            if (modelNode != null) {
+                fmodel = modelNode.getAttributes().getNamedItem("rdf:resource").getNodeValue().split("model:")[1];
 
-                }
-            }
-            if (fmodel.equals("page")) {
-                String p = fedoraOperations.getParents(pid);
-                indexParams.addParents(p);
             }
             //tady testujeme pripadne vicestrankovy pdf
             ///foxml:digitalObject/foxml:datastream[@ID='IMG_FULL']/foxml:datastreamVersion[last()]
@@ -462,6 +367,9 @@ public class SolrOperations {
                 } else {
                 }
             }
+            
+            extendedFields.setFields(pid);
+            indexDoc(foxmlStream, String.valueOf(docs - 1));
 
             for (int i = 0; i < pids.size(); i++) {
                 String relpid = pids.get(i);
@@ -470,18 +378,14 @@ public class SolrOperations {
                     byte[] foxmlRecord2 = fedoraOperations.getAndReturnFoxmlFromPid(relpid);
                     InputStream foxmlStream2 = new ByteArrayInputStream(foxmlRecord2);
                     contentDom = getDocument(foxmlStream2);
-                    IndexParams childParams = new IndexParams(relpid, model, contentDom, i);
-                    childParams.merge(indexParams);
                     foxmlStream2.reset();
-                    num += indexByPid(relpid, date, force, foxmlStream2, requestParams, childParams);
+                    num += indexByPid(relpid, date, force, foxmlStream2);
                 } catch (Exception ex) {
                     logger.log(Level.SEVERE, "Can't index doc: " + relpid + " Continuing...", ex);
                 }
             }
 
-
             num += docs - 1;
-            indexDoc(foxmlStream, indexParams.toArrayList(Integer.toString(num)), String.valueOf(docs - 1));
 
         } catch (Exception e) {
             logger.log(Level.SEVERE, "indexByPid error", e);
@@ -492,33 +396,31 @@ public class SolrOperations {
 
     private void indexDoc(
             InputStream foxmlStream,
-            ArrayList<String> requestParams,
             String docCount)
             throws java.rmi.RemoteException, IOException, Exception {
-        foxmlStream.reset();
+
         HashMap<String, String> params = new HashMap<String, String>();
         params.put("DOCCOUNT", docCount);
         params.put("PAGENUM", "0");
 
-
-        for (int i = 0; i < requestParams.size(); i = i + 2) {
-            params.put(requestParams.get(i), requestParams.get(i + 1));
-        }
-
         String xsltPath = config.getString("UpdateIndexDocXslt");
 
-        for(int i=0; i<=Integer.parseInt(docCount); i++){
-            params.put("PAGENUM", i+"");
-            StringBuffer sb = (new GTransformer()).transform(
+        for (int i = 0; i <= Integer.parseInt(docCount); i++) {
+            foxmlStream.reset();
+            params.put("PAGENUM", i + "");
+            StringBuffer sb = transformer.transform(
                     xsltPath,
                     new StreamSource(foxmlStream),
                     null,
                     params,
                     true);
 
-            customTransformations(sb, foxmlStream, params);
+            applyCustomTransformations(sb, foxmlStream, params);
             //logger.info("indexDoc=\n" + sb.toString());
-            String doc = "<?xml version=\"1.0\" encoding=\"UTF-8\"?><add><doc>" + sb.toString() + "</doc></add>";
+            String doc = "<?xml version=\"1.0\" encoding=\"UTF-8\"?><add><doc>"
+                    + sb.toString()
+                    + extendedFields.toXmlString(i)
+                    + "</doc></add>";
             //logger.info(doc);
             logger.log(Level.FINE, "indexDoc=\n{0}", sb.toString());
             if (sb.indexOf("name=\"" + UNIQUEKEY) > 0) {
@@ -527,23 +429,31 @@ public class SolrOperations {
             }
         }
     }
-    
-    private void customTransformations(StringBuffer sb, InputStream foxmlStream, HashMap<String, String> params) throws Exception{
+
+    private void initCustomTransformations() {
+        customTransformations = new ArrayList<String>();
         String dirname = Constants.WORKING_DIR + File.separator + "indexer" + File.separator + "xsl";
 
         File dir = new File(dirname);
-        if(dir.exists() && dir.isDirectory()){
-            for(File f : dir.listFiles()){
-                foxmlStream.reset();
-                StringBuffer newSb = (new GTransformer()).transform(
-                        f.getAbsolutePath(),
-                        new StreamSource(foxmlStream),
-                        null,
-                        params,
-                        false);
-                //logger.info("newSb: " +newSb.toString());
-                sb.append(newSb);
+        if (dir.exists() && dir.isDirectory()) {
+            for (File f : dir.listFiles()) {
+                customTransformations.add(f.getAbsolutePath());
             }
+        }
+
+    }
+
+    private void applyCustomTransformations(StringBuffer sb, InputStream foxmlStream, HashMap<String, String> params) throws Exception {
+        for (String f : customTransformations) {
+            foxmlStream.reset();
+            StringBuffer newSb = transformer.transform(
+                    f,
+                    new StreamSource(foxmlStream),
+                    null,
+                    params,
+                    false);
+            //logger.info("newSb: " +newSb.toString());
+            sb.append(newSb);
         }
     }
 
@@ -569,29 +479,6 @@ public class SolrOperations {
         postData(config.getString("IndexBase") + "/update", new StringReader(sb.toString()), new StringBuilder());
         optimize();
         deleteTotal++;
-    }
-
-    public Analyzer getAnalyzer(String analyzerClassName)
-            throws Exception {
-        Analyzer analyzer = null;
-        logger.log(Level.FINE, "analyzerClassName={0}", analyzerClassName);
-        try {
-            Class analyzerClass = Class.forName(analyzerClassName);
-            logger.log(Level.FINE, "analyzerClass={0}", analyzerClass.toString());
-            analyzer = (Analyzer) analyzerClass.getConstructor(new Class[]{}).newInstance(new Object[]{});
-            logger.log(Level.FINE, "analyzer={0}", analyzer.toString());
-        } catch (ClassNotFoundException e) {
-            throw new Exception(analyzerClassName + ": class not found.\n", e);
-        } catch (InstantiationException e) {
-            throw new Exception(analyzerClassName + ": instantiation error.\n", e);
-        } catch (IllegalAccessException e) {
-            throw new Exception(analyzerClassName + ": instantiation error.\n", e);
-        } catch (InvocationTargetException e) {
-            throw new Exception(analyzerClassName + ": instantiation error.\n", e);
-        } catch (NoSuchMethodException e) {
-            throw new Exception(analyzerClassName + ": instantiation error.\n", e);
-        }
-        return analyzer;
     }
 
     /**
@@ -707,30 +594,12 @@ public class SolrOperations {
         }
     }
 
-   
-    
-
-    private long indexDirSpace(File dir) {
-        long ids = 0;
-        File[] files = dir.listFiles();
-        for (int i = 0; i < files.length; i++) {
-            File f = files[i];
-            if (f.isDirectory()) {
-                ids += indexDirSpace(f);
-            } else {
-                ids += f.length();
-            }
-        }
-        return ids;
-    }
-
-    private int getActualNumOfPagesFromSolr(String pid) {
-        if (pid == null || pid.length() < 1) {
+    private int getActualNumOfPagesFromSolr(String uuid) {
+        if (uuid == null || uuid.length() < 1) {
             return 0;
         }
         try {
-            String urlStr = config.getString("solrHost") + "/select/?fl=pages_count&q=PID:\"" + pid.replaceAll("uuid:", "") + "\"";
-            String uuid = pid.startsWith("uuid:") ? pid : "uuid:" + pid;
+            String urlStr = config.getString("solrHost") + "/select/?fl=pages_count&q=PID:\"" + uuid + "\"";
             fedoraOperations.getFoxmlFromPid(uuid);
             contentDom = getDocument(new ByteArrayInputStream(fedoraOperations.foxmlRecord));
             factory = XPathFactory.newInstance();
@@ -753,6 +622,7 @@ public class SolrOperations {
     private void checkIntegrityByDocument(String pid_path) throws Exception {
         checkIntegrityByDocument(pid_path, 0);
     }
+
     private void checkIntegrityByDocument(String pid_path, int offset) throws Exception {
         logger.log(Level.INFO, "checkIntegrityByDocument. offset: {0}", offset);
         if (pid_path == null || pid_path.length() < 1) {
@@ -760,8 +630,8 @@ public class SolrOperations {
         }
         int numHits = 200;
         String PID;
-        String urlStr = config.getString("solrHost") + "/select/?q=pid_path:" + pid_path +
-                "*&fl=PID&start=" + offset + "&rows=" + numHits;
+        String urlStr = config.getString("solrHost") + "/select/?q=pid_path:\"" + pid_path
+                + "*\"&fl=PID&start=" + offset + "&rows=" + numHits;
         factory = XPathFactory.newInstance();
         xpath = factory.newXPath();
         java.net.URL url = new java.net.URL(urlStr);
@@ -772,25 +642,26 @@ public class SolrOperations {
         expr = xpath.compile(xPathStr);
         NodeList nodeList = (NodeList) expr.evaluate(solrDom, XPathConstants.NODESET);
         Node node;
-        for(int i=0; i < nodeList.getLength(); i++){
+        for (int i = 0; i < nodeList.getLength(); i++) {
             node = nodeList.item(i);
             PID = node.getFirstChild().getNodeValue();
-            try{
-                fedoraOperations.fa.getAPIM().getObjectXML("uuid:"+PID);
-            }catch (Exception e){
+            try {
+                fedoraOperations.fa.getAPIM().getObjectXML(PID);
+            } catch (Exception e) {
                 logger.log(Level.INFO, PID + " doesn't exist. Deleting...", e);
                 deletePid(PID);
             }
         }
 
-        if(nodeList.getLength()>0){
-            checkIntegrityByDocument(pid_path, offset+numHits);
+        if (nodeList.getLength() > 0) {
+            checkIntegrityByDocument(pid_path, offset + numHits);
         }
     }
 
     private void checkIntegrityByModel(String model) throws Exception {
         checkIntegrityByModel(model, 0);
     }
+
     private void checkIntegrityByModel(String model, int offset) throws Exception {
         logger.log(Level.INFO, "checkIntegrityByModel. offset: {0}", offset);
         if (model == null || model.length() < 1) {
@@ -799,8 +670,8 @@ public class SolrOperations {
         int numHits = 200;
         String PID;
         String pid_path;
-        String urlStr = config.getString("solrHost") + "/select/?q=fedora.model:\"" + model + "\"&fl=PID,pid_path&start=" + 
-                offset + "&rows=" + numHits;
+        String urlStr = config.getString("solrHost") + "/select/?q=fedora.model:\"" + model + "\"&fl=PID,pid_path&start="
+                + offset + "&rows=" + numHits;
         factory = XPathFactory.newInstance();
         xpath = factory.newXPath();
         java.net.URL url = new java.net.URL(urlStr);
@@ -811,20 +682,20 @@ public class SolrOperations {
         expr = xpath.compile(xPathStr);
         NodeList nodeList = (NodeList) expr.evaluate(solrDom, XPathConstants.NODESET);
         Node node;
-        for(int i=0; i < nodeList.getLength(); i++){
+        for (int i = 0; i < nodeList.getLength(); i++) {
             node = nodeList.item(i);
             PID = node.getFirstChild().getNodeValue();
             pid_path = node.getNextSibling().getFirstChild().getNodeValue();
-            try{
-                fedoraOperations.fa.getAPIM().getObjectXML("uuid:"+PID);
+            try {
+                fedoraOperations.fa.getAPIM().getObjectXML(PID);
                 //logger.info("je: " + PID+" ----- " + pid_path);
-            }catch (Exception e){
+            } catch (Exception e) {
                 logger.log(Level.INFO, PID + " doesn't exist. Deleting...", e);
                 deleteDocument(pid_path);
             }
         }
-        if(nodeList.getLength()>0){
-            checkIntegrityByModel(model, offset+numHits);
+        if (nodeList.getLength() > 0) {
+            checkIntegrityByModel(model, offset + numHits);
         }
     }
 }

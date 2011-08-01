@@ -57,8 +57,6 @@ public class Indexer {
             if (arguments.from == null) {
                 if ((new File(updateTimeFile)).exists()) {
                     BufferedReader in = new BufferedReader(new FileReader(updateTimeFile));
-//                    Date fromDate = formatter.parse(from);
-//                    fromDate.
                     from = in.readLine();
                 } else {
                     from = "1900-01-01";
