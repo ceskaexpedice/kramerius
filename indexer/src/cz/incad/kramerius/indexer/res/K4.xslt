@@ -23,32 +23,15 @@
 <!--
 	 This xslt stylesheet generates the Solr doc element consisting of field elements
      from a FOXML record. The PID field is mandatory.
-     Options for tailoring:
-       - generation of fields from other XML metadata streams than DC
-       - generation of fields from other datastream types than XML
-         - from datastream by ID, text fetched, if mimetype can be handled
-             currently the mimetypes text/plain, text/xml, text/html, application/pdf can be handled.
 -->
     
-    <xsl:param name="PAGESCOUNT" select="1"/>
     <xsl:param name="PAGENUM" select="0"/>
     <xsl:param name="DATUM" select="''"/>
     <xsl:param name="ROK" select="''"/>
     <xsl:param name="DATUM_BEGIN" select="''"/>
     <xsl:param name="DATUM_END" select="''"/>
-    <xsl:param name="PARENT_TITLE" select="''"/>
-    <xsl:param name="PARENT_PID" select="''"/>
-    <xsl:param name="PARENT_MODEL" select="''"/>
-    <xsl:param name="PATH" select="''"/>
-    <xsl:param name="PID_PATH" select="''"/>
-    <xsl:param name="ROOT_TITLE" select="''"/>
-    <xsl:param name="ROOT_MODEL" select="''"/>
-    <xsl:param name="ROOT_PID" select="''"/>
-    <xsl:param name="LANGUAGE" select="''"/>
-    <xsl:param name="LEVEL" select="''"/>
-    <xsl:param name="RELS_EXT_INDEX" select="1"/>
-    <xsl:param name="PARENTS" select="''"/>
     
+    <xsl:param name="RELS_EXT_INDEX" select="''"/>
     <xsl:variable name="generic" select="exts:new()" />
 
     <xsl:variable name="PID" select="/foxml:digitalObject/@PID"/>
@@ -85,7 +68,7 @@
         <xsl:choose>
             <xsl:when test="$pageNum = 0">
                 <field name="PID" boost="2.5">
-                    <xsl:value-of select="substring($PID, 6)"/>
+                    <xsl:value-of select="$PID"/>
                 </field>
                 <field name="fedora.model">
                     <xsl:value-of select="$MODEL" />
@@ -104,63 +87,15 @@
                         </field>
                     </xsl:otherwise>
                 </xsl:choose>
-
-                
                 <field name="dc.title"><xsl:value-of select="normalize-space($title)"/></field>
-                
-                <xsl:if test="$RELS_EXT_INDEX and not($RELS_EXT_INDEX = '')" >
-                    <field name="rels_ext_index">
-                        <xsl:value-of select="$RELS_EXT_INDEX" />
-                    </field>
-                </xsl:if>
-                
-                <xsl:if test="not($LEVEL = '')" >
-                    <field name="level">
-                        <xsl:value-of select="$LEVEL" />
-                    </field>
-                </xsl:if>
-                
-                <xsl:if test="$PATH and not($PATH = '')" >
-                    <field name="path"><xsl:value-of select="$PATH" /></field>
-                </xsl:if>
-                <xsl:if test="$PID_PATH and not($PID_PATH = '')" >
-                    <field name="pid_path"><xsl:value-of select="$PID_PATH" /></field>
-                </xsl:if>
-                <xsl:if test="$PAGESCOUNT and not($PAGESCOUNT = '')" >
-                    <field name="pages_count">
-                        <xsl:value-of select="$PAGESCOUNT" />
-                    </field>
-                </xsl:if>
             </xsl:when>
             <xsl:otherwise>
                 <field name="PID" boost="2.5">
-                    <xsl:value-of select="substring($PID, 6)"/>/@<xsl:value-of select="$pageNum"/>
+                    <xsl:value-of select="$PID"/>/@<xsl:value-of select="$pageNum"/>
                 </field>
                 <field name="fedora.model">page</field>
                 <field name="document_type">page</field>
                 <field name="dc.title"><xsl:value-of select="$pageNum"/></field>
-                <xsl:if test="not($LEVEL = '')" >
-                    <field name="level">
-                        <xsl:value-of select="$LEVEL + 1" />
-                    </field>
-                </xsl:if>
-                
-                <xsl:if test="$PATH and not($PATH = '')" >
-                    <field name="path"><xsl:value-of select="$PATH" />/page</field>
-                </xsl:if>
-                <xsl:if test="$PID_PATH and not($PID_PATH = '')" >
-                    <field name="pid_path">
-                        <xsl:value-of select="$PID_PATH" />/@<xsl:value-of select="$pageNum"/>
-                    </field>
-                </xsl:if>
-                <field name="pages_count">1</field>
-                <!--
-                <xsl:if test="$PAGESCOUNT and not($PAGESCOUNT = '')" >
-                    <field name="pages_count">
-                        <xsl:value-of select="$PAGESCOUNT" />
-                    </field>
-                </xsl:if>
-                -->
              </xsl:otherwise>   
         </xsl:choose>
         
@@ -173,6 +108,9 @@
         
         <field name="created_date">
             <xsl:value-of select="foxml:objectProperties/foxml:property[@NAME='info:fedora/fedora-system:def/model#createdDate']/@VALUE"/>
+        </field>
+        <field name="modified_date">
+            <xsl:value-of select="foxml:objectProperties/foxml:property[@NAME='info:fedora/fedora-system:def/view#lastModifiedDate']/@VALUE"/>
         </field>
         <field name="dostupnost">
             <xsl:value-of select="substring(/foxml:digitalObject/foxml:datastream[@CONTROL_GROUP='X' and @ID='RELS-EXT']/foxml:datastreamVersion[last()]/foxml:xmlContent/rdf:RDF/rdf:Description/kramerius:policy, 8)"/>
@@ -205,60 +143,7 @@
                 <xsl:value-of select="$DATUM_END" />
             </field>
         </xsl:if>
-        <xsl:if test="$PARENT_TITLE and not($PARENT_TITLE = '')" >
-            <field name="parent_title">
-                <xsl:value-of select="$PARENT_TITLE" />
-            </field>
-        </xsl:if>
-        <xsl:if test="$MODEL = 'page'">
-        <xsl:call-template name="parentTemplate">
-            <!--
-            <xsl:with-param name="parent"><xsl:value-of select="exts:getParents($generic, $PID)"/></xsl:with-param>
-            -->
-            <xsl:with-param name="parent"><xsl:value-of select="$PARENTS"/></xsl:with-param>
-        </xsl:call-template>
-        </xsl:if>
-        <xsl:if test="$MODEL != 'page'">
-            <xsl:choose>
-            <xsl:when test="$pageNum != 0">
-                <field name="parent_pid">
-                    <xsl:value-of select="substring($PID, 6)"/>
-                </field>
-            </xsl:when>
-            <xsl:when test="$PARENT_PID and not($PARENT_PID = '')" >
-                <field name="parent_pid">
-                    <xsl:value-of select="$PARENT_PID" />
-                </field>
-            </xsl:when>
-            </xsl:choose>
-        </xsl:if>
         
-        <xsl:if test="$PARENT_MODEL and not($PARENT_MODEL = '')" >
-            <field name="parent_model">
-                <xsl:value-of select="$PARENT_MODEL" />
-            </field>
-        </xsl:if>
-        <xsl:if test="not($ROOT_TITLE = '')" >
-            <field name="root_title">
-                <xsl:value-of select="$ROOT_TITLE" />
-            </field>
-        </xsl:if>
-        <xsl:if test="not($ROOT_MODEL = '')" >
-            <field name="root_model">
-                <xsl:value-of select="$ROOT_MODEL" />
-            </field>
-        </xsl:if>
-        <xsl:if test="not($ROOT_PID = '')" >
-            <field name="root_pid">
-                <xsl:value-of select="$ROOT_PID" />
-            </field>
-        </xsl:if>
-        
-        <xsl:if test="not($LANGUAGE = '')" >
-            <field name="language">
-                <xsl:value-of select="$LANGUAGE" />
-            </field>
-        </xsl:if>
         
         <!-- a managed datastream is fetched, if its mimetype 
              can be handled, the text becomes the value of the field.
@@ -282,12 +167,15 @@
     
     <xsl:template name="imgFull">
         <xsl:if test="/foxml:digitalObject/foxml:datastream[@ID='IMG_FULL']/foxml:datastreamVersion[last()]">
-            <field name="page_format"><xsl:value-of select="@MIMETYPE"/></field>
+            <field name="page_format"><xsl:value-of select="/foxml:digitalObject/foxml:datastream[@ID='IMG_FULL']/foxml:datastreamVersion[last()]/@MIMETYPE"/></field>
             <field name="viewable">true</field>
         </xsl:if>
     </xsl:template>
     
     <xsl:template match="/foxml:digitalObject/foxml:datastream[@ID='BIBLIO_MODS']/foxml:datastreamVersion[last()]/foxml:xmlContent/mods:modsCollection/mods:mods" mode="biblioMods">
+        <field name="language">
+            <xsl:value-of select="mods:language/mods:languageTerm/text()" />
+        </field>
         <field name="issn">
             <xsl:value-of select="mods:identifier[@type='isbn']/text()"/>
             <xsl:value-of select="mods:identifier[@type='issn']/text()"/>
@@ -364,10 +252,21 @@
                 <xsl:value-of select="exts:prepareCzech($generic, text())"/>##<xsl:value-of select="text()"/>
             </field>
         </xsl:for-each>
-        <xsl:if test="not($MODEL = 'page')">
-        <field name="browse_title" >
-            <xsl:value-of select="exts:prepareCzech($generic, $title)"/>##<xsl:value-of select="$title"/>
-        </field>
-        </xsl:if>
+        <xsl:choose>
+            <xsl:when test="$MODEL = 'internalpart'">
+                <xsl:variable name="bt"><xsl:value-of select="/foxml:digitalObject/foxml:datastream[@ID='BIBLIO_MODS']/foxml:datastreamVersion[last()]/foxml:xmlContent/mods:modsCollection/mods:mods/mods:titleInfo/mods:title" /></xsl:variable>
+                <field name="browse_title" >
+                    <xsl:value-of select="exts:prepareCzech($generic, $bt)"/>##<xsl:value-of select="$bt"/>
+                </field>
+            </xsl:when>
+            <xsl:when test="$MODEL = 'periodicalvolume'">
+                
+            </xsl:when>
+            <xsl:when test="not($MODEL = 'page') and not(normalize-space($title)='')">
+                <field name="browse_title" >
+                    <xsl:value-of select="exts:prepareCzech($generic, $title)"/>##<xsl:value-of select="$title"/>
+                </field>
+            </xsl:when>
+        </xsl:choose>
     </xsl:template>
 </xsl:stylesheet>	

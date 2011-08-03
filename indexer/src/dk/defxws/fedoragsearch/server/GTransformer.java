@@ -21,6 +21,7 @@ import java.util.Date;
 
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.xml.transform.Source;
 import javax.xml.transform.Transformer;
@@ -46,6 +47,8 @@ public class GTransformer {
         Logger.getLogger(GTransformer.class.getName());
     protected Configuration config;
     
+    HashMap<String, Transformer> cache = new HashMap<String, Transformer>();
+    
     public GTransformer() {
         config = KConfiguration.getInstance().getConfiguration();
     }
@@ -62,6 +65,9 @@ public class GTransformer {
     
     public Transformer getTransformer(String xsltPath, URIResolver uriResolver, boolean checkInHome) 
     throws Exception {
+        if(cache.containsKey(xsltPath)){
+            return cache.get(xsltPath);
+        }
         Transformer transformer = null;
         String xsltPathName = xsltPath+".xslt";
         try {
@@ -90,6 +96,9 @@ public class GTransformer {
             throw new Exception("getTransformer "+xsltPath+":\n", e);
         } catch (TransformerFactoryConfigurationError e) {
             throw new Exception("getTransformerFactory "+xsltPath+":\n", e);
+        }
+        if(transformer!=null){
+            cache.put(xsltPath, transformer);
         }
         return transformer;
     }
@@ -134,6 +143,7 @@ public class GTransformer {
         try {
             transformer.transform(sourceStream, destStream);
         } catch (TransformerException e) {
+            logger.log(Level.SEVERE, "transform "+xsltName+":\n", e);
             throw new Exception("transform "+xsltName+":\n", e);
         }
         StringWriter sw = (StringWriter)destStream.getWriter();
