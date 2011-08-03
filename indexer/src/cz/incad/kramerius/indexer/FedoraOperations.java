@@ -98,6 +98,7 @@ public class FedoraOperations {
         String uuid;
         int relsindex = 0;
         if (!p.isEmpty()) {
+            String fedoraPid = "info:fedora/" + pid;
             for (String s : p) {
                 Document relsExt = fa.getRelsExt(s);
                 Element descEl = XMLUtils.findElement(relsExt.getDocumentElement(), "Description", FedoraNamespaces.RDF_NAMESPACE_URI);
@@ -107,7 +108,7 @@ public class FedoraOperations {
                     if (getTreePredicates().contains(el.getLocalName())) {
                         if (el.hasAttribute("rdf:resource")) {
                             uuid = el.getAttributes().getNamedItem("rdf:resource").getNodeValue();
-                            if(uuid.equals(pid)) relsindex = Math.max(relsindex, i);
+                            if(uuid.equals(fedoraPid)) relsindex = Math.max(relsindex, i);
                             i++;
                         }
                     }
