@@ -33,7 +33,7 @@ import cz.incad.kramerius.security.jaas.K4LoginModule;
 
 public class SecurityDBUtils {
 
-    public static Role createGroup(ResultSet rs) throws SQLException {
+    public static Role createRole(ResultSet rs) throws SQLException {
         int id = rs.getInt("group_id");
         String gname = rs.getString("gname");    
         int personalAdminId = rs.getInt("personal_admin_id");
