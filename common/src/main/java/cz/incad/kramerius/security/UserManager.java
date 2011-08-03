@@ -45,7 +45,7 @@ public interface UserManager {
      * 
      * @see Role
      */
-    public Role[] findGroupsForGivenUser(int user_id);
+    public Role[] findRolesForGivenUser(int user_id);
     
     /**
      * Find user by given user_id
@@ -70,41 +70,41 @@ public interface UserManager {
      * 
      * @see Role
      */
-    public Role findGroup(int group_id);
+    public Role findRole(int group_id);
     
     /**
-     * Find all groups which can be administered by a user associated with given groups. 
-     * (Groups are represented by group ids)
-     * @param grpIds 
+     * Find all roles which can be administered by a user associated with given roles. 
+     * (Roles are represented by role ids)
+     * @param roleIds 
      * 
      * @see Role
      */
-    public Role[] findGroupsWhichIAdministrate(int[] grpIds);
+    public Role[] findRoleWhichIAdministrate(int[] roleIds);
     
     /**
      * Find groups which have groupname with given prefix
      * @param prefix prefix
      */
-    public Role[] findGroupByPrefix(String prefix);
+    public Role[] findRoleByPrefix(String prefix);
     
     /**
-     * Returns special group for everyone.
+     * Returns special role for everyone.
      * @return
      */
-    public Role findCommonUsersGroup();
+    public Role findCommonUsersRole();
     
     /**
-     * Returns special super admin group == Group can administrate everything. 
+     * Returns special super admin role == Role can administrate everything. 
      * @return
      */
-    public Role findGlobalAdminGroup();
+    public Role findGlobalAdminRole();
     
     /**
      * Find group by given group name
      * @param gname Name of group
      * @return
      */
-    public Role findGroupByName(String gname);
+    public Role findRoleByName(String gname);
 
     /**
      * Find user by login name
@@ -120,30 +120,30 @@ public interface UserManager {
      * @param groupId Group id. 
      * @return
      */
-    public User[] findUsersForGivenGroup(int groupId);
+    public User[] findUsersForGivenRole(int groupId);
     
     /**
      * Returns all users which can be administered by given groups 
-     * @param grpIds Master group ids
+     * @param roleIds Master group ids
      * @return
      */
-    public User[] findAllUsers(int[] grpIds);
+    public User[] findAllUsers(int[] roleIds);
 
     
     /**
      * Returns all users which can be administered by given groups and starts witgh given prefix
-     * @param grpIds Master group ids
+     * @param roleIds Master group ids
      * @param prefix for User
      * @return
      */
-    public User[] findAllUsers(int[] grpIds, String prefix);
+    public User[] findAllUsers(int[] roleIds, String prefix);
 
     /**
      * Returns all groups which can be administered by given groups
-     * @param grpIds Master group ids
+     * @param roleIds Master group ids
      * @return
      */
-    public Role[] findAllGroups(int[] grpIds, String prefix);
+    public Role[] findAllRoles(int[] roleIds, String prefix);
 
     /**
      * Change password
@@ -165,18 +165,18 @@ public interface UserManager {
      * @param prefix
      * @return
      */
-    public Role[] findAllGroups(String prefix);
+    public Role[] findAllRoles(String prefix);
     
     
-    public User[] findUserByPrefixForGroups(String prefix, int[] grpIds);
-    public Role[] findGroupByPrefixForGroups(String prefix, int[] grpIds);
+    public User[] findUserByPrefixForRoles(String prefix, int[] roleIds);
+    public Role[] findRoleByPrefixForRoles(String prefix, int[] roleIds);
     
 
-    public void insertGroup(Role grp) throws SQLException;
+    public void insertRole(Role role) throws SQLException;
     
-    public void removeGroup(Role grp) throws SQLException;
+    public void removeGroup(Role role) throws SQLException;
     
-    public void editGroup(Role grp) throws SQLException;
+    public void editRole(Role role) throws SQLException;
     
     public boolean isLoggedUser(User user);
     
