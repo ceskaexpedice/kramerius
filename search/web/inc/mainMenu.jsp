@@ -23,9 +23,12 @@
 <c:choose>
     <c:when test="${remoteUser != null}">
         :: <a id="adminHref" href="javascript:showAdminMenu();"><fmt:message bundle="${lctx}">administrator.menu</fmt:message></a>
+        
     </c:when>
 </c:choose>
-        <c:if test="${!empty pageContext.request.remoteUser}" >
+<c:if test="${!empty pageContext.request.remoteUser}" >
+    <%@include file="adminMenu.jsp" %>
+    <%--
     <div id="adminMenu" class="adminMenu ui-tabs ui-widget ui-corner-all facet shadow10">
         <div class="ui-state-default ui-corner-top ui-tabs-selected ui-state-active adminMenuHeader">
             <table width="100%">
@@ -43,4 +46,6 @@
             </c:forEach>
         </div>
     </div>
-    </c:if>
+    --%>
+    
+</c:if>

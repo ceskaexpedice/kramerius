@@ -60,7 +60,7 @@
     <script  src="js/pdf/pdf.js" language="javascript" type="text/javascript"></script>
 
     <%  if (request.getRemoteUser() != null) {%>
-        <script  src="js/admin/admin.js" language="javascript" type="text/javascript"></script>
+        <!--script  src="js/admin/admin.js" language="javascript" type="text/javascript"></script-->
         <script  src="js/rights/adminRights.js" language="javascript" type="text/javascript"></script>
     <% }%>
     

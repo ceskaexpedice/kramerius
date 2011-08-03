@@ -23,6 +23,8 @@
 <c:if test="${rows != 0}" ><a href="."><fmt:message bundle="${lctx}">home</fmt:message></a></c:if>
 </div>
 <c:if test="${pageContext.request.remoteUser != null}">
+<%@include file="adminMenu.jsp" %>
+<%--    
 <div id="adminMenu" class="ui-widget ui-corner-all shadow10">
     <div class="ui-state-default ui-corner-top ui-tabs-selected ui-state-active adminMenuHeader">
         <table width="100%">
@@ -41,4 +43,5 @@
         </c:forEach>
     </div>
 </div>
+--%>
 </c:if>

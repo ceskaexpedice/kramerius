@@ -26,8 +26,6 @@
 
 <scrd:securedContent action="reindex">
 
-
-<%@ include file="../inc/initVars.jsp" %>
 <fmt:setBundle basename="labels" />
 <fmt:setBundle basename="labels" var="bundleVar" />
 <c:set var="order" value="${param.sort}" />
@@ -38,12 +36,7 @@
 <c:if test="${empty param.sort_dir}">
     <c:set var="order_dir" value="asc" />
 </c:if>
-<table cellpadding="0" cellspacing="0" border="0"  width="100%">
-    <tr>
-        <td valign="top"><div  class="indexer_models">
-                <table width="100%" cellpadding="0" cellspacing="0" border="0" id="indexerModels"><tr><td colspan="3">Top level models:</td></tr>
-    <%
-    //String[] models = kconfig.getProperty("fedora.topLevelModels").split(",");
+<%
     String[] models = kconfig.getPropertyList("fedora.topLevelModels");
     String selectedModel = request.getParameter("model");
     if(selectedModel==null || selectedModel.length()==0){
@@ -52,57 +45,57 @@
     pageContext.setAttribute("selModel", selectedModel);
     int rows = 10;
     pageContext.setAttribute("rows", rows);
-    for(String model:models){
-        String css = "";
-        if(model.equals(selectedModel)) css = "class=\"indexer_selected\"";
-    %>
-    <tr <%=css%>><td><a href="javascript:loadFedoraDocuments('<%=model%>', 0, '<c:out value="${order}" />', '<c:out value="${order_dir}" />');"><%=model%></a></td>
-    <td valign="middle" width="20"><a href="javascript:loadFedoraDocuments('<%=model%>', 0, '<c:out value="${order}" />', '<c:out value="${order_dir}" />' );" title="select model"><img src="img/lupa_orange.png" border="0" alt="find" /></a></td>
-    <td valign="middle" width="20"><a href="javascript:indexModel('<%=model%>');" title="index model"><img src="img/reindex.png" alt="reindex" border="0" /></a></td>
-    </tr>
-    <%
-    }
-    %>
-</table></div></td>
-<td valign="top"><div class="indexer_selected">
-<%
-IResourceIndex g = ResourceIndexService.getResourceIndexImpl();
-String offsetStr = request.getParameter("offset");
-int offset = 0;
-if(offsetStr!=null){
-    offset = Integer.parseInt(offsetStr);
-}
-String sort_dir = request.getParameter("sort_dir");
-if(sort_dir==null){
-    sort_dir = "asc";
-}
-org.w3c.dom.Document doc = g.getFedoraObjectsFromModelExt(selectedModel, rows, offset, "date", sort_dir);
-
-pageContext.setAttribute("doc", doc);
+    pageContext.setAttribute("top_models", models);
 %>
-<table cellpadding="0" cellspacing="0" class="indexer_selected"  width="100%">
+<style type="text/css">
+    .indexer_result{
+        border-bottom:1px solid silver;
+        background:#eeeeee;
+    }
+    .indexer_result td{
+        border-bottom:1px solid silver;
+        padding-left:10px;
+        padding-top: 3px;
+        padding-bottom: 2px;
+    }
+    .indexer_result_indexed{
+        background: url("img/ok.png") no-repeat;
+    }
+    .indexer_result_notindexed{
+        background: url("img/alert.png") no-repeat;
+    }
+</style>
+
+<div style="border-bottom:1px solid #E66C00; padding-bottom: 5px; margin-bottom: 5px;">
+    Index by PID: 
+    <input type="text" id="pid_to_index" size="40" />
+    <input type="button" onclick="confirmIndexDocByPid($('#pid_to_index').val(), '');" value="index_pid" class="ui-state-default ui-corner-all" />
+</div>
+<div>Browse fedora top models: 
+    <select id="top_models_select" onChange="loadFedoraDocuments($('#top_models_select').val(), 0, '${order}', '${order_dir}' );">
+        <option>--</option>
+        <c:forEach var="top_model" items="${top_models}">
+        <option value="${top_model}">${top_model}</option>
+        </c:forEach>
+    </select>
+</div>
+        
+<table id="indexer_data_model" cellpadding="0" cellspacing="0" class="indexer_selected"  width="100%">
     <thead class="indexer_head ui-dialog-titlebar"><tr>
-        <td></td><td><fmt:message>filter.query.title</fmt:message></td>
+        <td></td><td><fmt:message bundle="${lctx}">administrator.menu.dialogs.dc.title</fmt:message></td>
         <td width="138">
             <c:choose>
                 <c:when test="${order_dir == 'desc'}">
-                    <a href="javascript:loadFedoraDocuments('<c:out value="${selModel}" />', 0, 'date', 'asc')"><fmt:message>common.date</fmt:message></a>
+                    <a href="javascript:loadFedoraDocuments('${selModel}', 0, 'date', 'asc')"><fmt:message>common.date</fmt:message></a>
                     <span class="ui-icon indexer_order_down">title</span>
                 </c:when>
                 <c:otherwise>
-                    <a href="javascript:loadFedoraDocuments('<c:out value="${selModel}" />', 0, 'date', 'desc')"><fmt:message>common.date</fmt:message></a>
+                    <a href="javascript:loadFedoraDocuments('${selModel}', 0, 'date', 'desc')"><fmt:message>common.date</fmt:message></a>
                     <span class="ui-icon indexer_order_up">title</span>
                 </c:otherwise>
             </c:choose>
         </td></tr></thead>
-<c:import url="indexer.xsl" var="xsltPage" charEncoding="UTF-8"  />
-<x:transform doc="${doc}"  xslt="${xsltPage}"  >
-    <x:param name="rows" value="${rows}" />
-    <x:param name="offset" value="${param.offset}" />
-    <x:param name="model" value="${selModel}" />
-    <x:param name="sort" value="${order}" />
-    <x:param name="sort_dir" value="${order_dir}" />
-</x:transform>
-</table></div></td></tr></table>
+    
+</table>
 
 </scrd:securedContent>

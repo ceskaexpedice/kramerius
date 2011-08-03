@@ -28,7 +28,7 @@
         </div>
     </div>
    
-   <div id="download" style="padding-top:10px; height:650; width:700px;  color: black; border:1px; position:relative;">
+   <div id="download" style="display:none;padding-top:10px; height:650; width:700px;  color: black; border:1px; position:relative;">
 	   <div> 
 	       <fmt:message bundle="${lctx}" key="img.display.downloadOriginal.text"></fmt:message> 
 	   </div>
@@ -129,9 +129,14 @@
             $("#plainImageImg").attr('src','img/empty.gif');
         }
     }
+    
+    function showLoadingImage(){
+        $("#loadingDeepZoomImage").show();
+    }
 
     function viewChanged(id){
         hidePreviewImage();
+        showLoadingImage();
         var uuid = id.split('_')[1];
         $.ajax({
             url:"viewInfo?uuid="+uuid,

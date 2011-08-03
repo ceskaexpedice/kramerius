@@ -84,16 +84,19 @@
         }
         
         if(viewerOptions.isContentDJVU()){
+            $('#divFullImageZoom').hide();
             var h = $(window).height()- $('#fullImageContainer>div.header').height() - 20;
             $('#djvuContainer').css('height', h + "px");
             $('#djvuContainer>iframe').attr('src', fullUrl);
             $('#djvuContainer').show();
             
         }else if(viewerOptions.isContentPDF()){
+            $('#divFullImageZoom').hide();
             fullUrl = fullUrl + "#page=" + $('#pdfContainer>input').val();
             $('#pdfContainer>iframe').attr('src', fullUrl);
             $('#pdfContainer').show();
         }else{
+            $('#divFullImageZoom').show();
             $('#imgContainer').show();
             $('#imgContainer>img').attr('src', fullUrl);
             setFullImageDimension();

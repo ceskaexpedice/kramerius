@@ -10,7 +10,7 @@
 <ul>
     <li>
         <span class="ui-icon ui-icon-triangle-1-e folder"></span>
-        <a href="">Used filters</a>
+        <a href=""><fmt:message bundle="${lctx}" key="filter.used" /></a>
         <ul id="usedFilters">
             <c:if test="${!empty param.q}" >
             <li>

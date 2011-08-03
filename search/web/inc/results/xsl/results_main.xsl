@@ -232,7 +232,7 @@
 
     <xsl:template name="internalpart">
         <xsl:param name="detail" />
-        <span class="translate"><xsl:value-of select="substring-before($detail, '##')" /></span>:&#160;
+        <xsl:value-of select="$bundle/value[@key=substring-before($detail, '##')]"/>:&#160;
         <xsl:variable name="remaining" select="substring-after($detail, '##')" />
         <xsl:value-of select="substring-before($remaining, '##')" />&#160;
         <xsl:variable name="remaining" select="substring-after($remaining, '##')" />

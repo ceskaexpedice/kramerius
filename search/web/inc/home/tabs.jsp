@@ -26,7 +26,6 @@
         <li><a href="#intro${status.count}"><fmt:message bundle="${lctx}">home.tab.${tab}</fmt:message></a></li>
     </c:forEach>
     </ul>
-    <%--<div id="browse"><%@ include file="browse.jsp" %></div>--%>
 
     <c:forEach varStatus="status" var="tab" items="${tabs}">
         <div id="intro${status.count}" style="height: 610px; overflow:hidden;"></div>
@@ -40,6 +39,10 @@
 <script type="text/javascript" language="javascript">
 
     var letters = "0,A,Á,B,C,Č,D,Ď,E,É,Ě,F,G,H,CH,I,Í,J,K,L,M,N,Ň,O,Ó,P,Q,R,Ř,S,Š,T,Ť,U,Ú,Ů,V,W,X,Y,Ý,Z,Ž";
+    
+    function escapeValue(value){
+        return '#' + value.replace(/(\"|\.)/g,'\\$1');
+    }
     function doBrowse(value, field){
         var url = 'terms.jsp?field=' + field + '&t=' + value;
         $.get(url, function(data){
@@ -107,7 +110,7 @@
     function isTermVisible(id){
         var t = $('#'+id+">div.more_terms").offset().top;
         var b = $('#'+id+">div.more_terms").offset().top + $('#'+id+">div.more_terms").height();
-        var reserve = 20;
+        var reserve = 40;
         setBrowseScrollPosition();
         if(t<titleDivBottomBorder+reserve && b>titleDivTopBorder-reserve){
             return true;
