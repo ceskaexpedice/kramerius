@@ -58,36 +58,39 @@ public class SecuredFedoraAccessImpl implements FedoraAccess {
         this.isActionAllowed = actionAllowed;
     }
 
-    public Document getBiblioMods(String uuid) throws IOException {
-        return rawAccess.getBiblioMods(uuid);
+    public Document getBiblioMods(String pid) throws IOException {
+        return rawAccess.getBiblioMods(pid);
     }
 
-    public Document getDC(String uuid) throws IOException {
-        return rawAccess.getDC(uuid);
+    public Document getDC(String pid) throws IOException {
+        return rawAccess.getDC(pid);
     }
 
-    public String findFirstViewablePid(String uuid) throws IOException {
-        return rawAccess.findFirstViewablePid(uuid);
+    public String findFirstViewablePid(String pid) throws IOException {
+        return rawAccess.findFirstViewablePid(pid);
     }
 
     public boolean getFirstViewablePath(List<String> pids, List<String> models) throws IOException{
         return rawAccess.getFirstViewablePath(pids, models);
     }
 
-    public InputStream getImageFULL(String uuid) throws IOException {
+    public InputStream getImageFULL(String pid) throws IOException {
+        throw new IllegalArgumentException("ussupported because of SolrAccess (uuid -> pid ?");
+        /*
         String[] pathOfUUIDs = this.solrAccess.getPathOfUUIDs(uuid);
         if (this.isActionAllowed.isActionAllowed(SecuredActions.READ.getFormalName(), uuid, pathOfUUIDs)) {
             return rawAccess.getImageFULL(uuid);
         } else throw new SecurityException("access denided");
+        */
     }
 
 
-    public String getImageFULLMimeType(String uuid) throws IOException, XPathExpressionException {
-        return rawAccess.getImageFULLMimeType(uuid);
+    public String getImageFULLMimeType(String pid) throws IOException, XPathExpressionException {
+        return rawAccess.getImageFULLMimeType(pid);
     }
 
-    public Document getImageFULLProfile(String uuid) throws IOException {
-        return rawAccess.getImageFULLProfile(uuid);
+    public Document getImageFULLProfile(String pid) throws IOException {
+        return rawAccess.getImageFULLProfile(pid);
     }
 
 
@@ -95,51 +98,54 @@ public class SecuredFedoraAccessImpl implements FedoraAccess {
         return rawAccess.getModelsOfRel(relsExt);
     }
     
-    public List<String> getModelsOfRel(String uuid) throws IOException{
-        return rawAccess.getModelsOfRel(uuid);
+    public List<String> getModelsOfRel(String pid) throws IOException{
+        return rawAccess.getModelsOfRel(pid);
     }
 
     public String getDonator(Document relsExt) {
         return rawAccess.getDonator(relsExt);
     }
 
-    public String getDonator(String uuid) throws IOException {
-        return rawAccess.getDonator(uuid);
+    public String getDonator(String pid) throws IOException {
+        return rawAccess.getDonator(pid);
     }
 
-    public List<Element> getPages(String uuid, boolean deep) throws IOException {
-        return rawAccess.getPages(uuid, deep);
+    public List<Element> getPages(String pid, boolean deep) throws IOException {
+        return rawAccess.getPages(pid, deep);
     }
 
-    public List<Element> getPages(String uuid, Element rootElementOfRelsExt) throws IOException {
-        return rawAccess.getPages(uuid, rootElementOfRelsExt);
+    public List<Element> getPages(String pid, Element rootElementOfRelsExt) throws IOException {
+        return rawAccess.getPages(pid, rootElementOfRelsExt);
     }
 
-    public Document getRelsExt(String uuid) throws IOException {
-        return rawAccess.getRelsExt(uuid);
+    public Document getRelsExt(String pid) throws IOException {
+        return rawAccess.getRelsExt(pid);
     }
 
-    public InputStream getSmallThumbnail(String uuid) throws IOException {
-        return rawAccess.getSmallThumbnail(uuid);
+    public InputStream getSmallThumbnail(String pid) throws IOException {
+        return rawAccess.getSmallThumbnail(pid);
     }
 
-    public String getSmallThumbnailMimeType(String uuid) throws IOException, XPathExpressionException {
-        return rawAccess.getSmallThumbnailMimeType(uuid);
+    public String getSmallThumbnailMimeType(String pid) throws IOException, XPathExpressionException {
+        return rawAccess.getSmallThumbnailMimeType(pid);
     }
 
-    public Document getSmallThumbnailProfile(String uuid) throws IOException {
-        return rawAccess.getSmallThumbnailProfile(uuid);
+    public Document getSmallThumbnailProfile(String pid) throws IOException {
+        return rawAccess.getSmallThumbnailProfile(pid);
     }
 
-    public boolean isImageFULLAvailable(String uuid) throws IOException {
+    public boolean isImageFULLAvailable(String pid) throws IOException {
         // not checked method
-        return rawAccess.isImageFULLAvailable(uuid);
+        return rawAccess.isImageFULLAvailable(pid);
     }
 
     @Override
-    public boolean isContentAccessible(String uuid) throws IOException {
+    public boolean isContentAccessible(String pid) throws IOException {
+        /*
         String[] pathOfUUIDs = this.solrAccess.getPathOfUUIDs(uuid);
         return (this.isActionAllowed.isActionAllowed(SecuredActions.READ.getFormalName(), uuid, pathOfUUIDs));
+        */
+        throw new IllegalArgumentException("ussupported because of SolrAccess (uuid -> pid ?");
     }
 
 
@@ -171,6 +177,9 @@ public class SecuredFedoraAccessImpl implements FedoraAccess {
     public InputStream getDataStream(String pid, String datastreamName) throws IOException {
         //if (FedoraUtils.IMG_FULL_STREAM.equals(datastreamName))
         
+        throw new IllegalArgumentException("ussupported because of SolrAccess (uuid -> pid ?");
+
+        /*
         if (securedStream(datastreamName)) {
             String[] pathOfUUIDs = this.solrAccess.getPathOfUUIDs(pid);
             if (!this.isActionAllowed.isActionAllowed(SecuredActions.READ.getFormalName(), pid, pathOfUUIDs)) {
@@ -178,13 +187,14 @@ public class SecuredFedoraAccessImpl implements FedoraAccess {
             }
         }
         return rawAccess.getDataStream(pid, datastreamName);
+        */
     }
 
     
     
     @Override
-    public boolean isStreamAvailable(String uuid, String streamName) throws IOException {
-        return this.rawAccess.isStreamAvailable(uuid, streamName);
+    public boolean isStreamAvailable(String pid, String streamName) throws IOException {
+        return this.rawAccess.isStreamAvailable(pid, streamName);
     }
 
     public String getMimeTypeForStream(String pid, String datastreamName) throws IOException {
@@ -192,7 +202,8 @@ public class SecuredFedoraAccessImpl implements FedoraAccess {
     }
 
     @Override
-    public InputStream getFullThumbnail(String uuid) throws IOException {
+    public InputStream getFullThumbnail(String pid) throws IOException {
+        /*
         String[] pathOfUUIDs = this.solrAccess.getPathOfUUIDs(uuid);
         if (!this.isActionAllowed.isActionAllowed(SecuredActions.READ.getFormalName(), uuid, pathOfUUIDs)) {
             throw new SecurityException("access denided");
@@ -206,19 +217,21 @@ public class SecuredFedoraAccessImpl implements FedoraAccess {
                 return new FileInputStream(fullImgThumb);
             } else
                 throw new IOException("cannot find ");
-        }
+        }*/
+        throw new IllegalArgumentException("ussupported because of SolrAccess (uuid -> pid ?");
+
         
     }
 
 
     @Override
-    public String getFullThumbnailMimeType(String uuid) throws IOException, XPathExpressionException {
+    public String getFullThumbnailMimeType(String pid) throws IOException, XPathExpressionException {
         return "image/jpeg";
     }
 
     @Override
-    public boolean isFullthumbnailAvailable(String uuid) throws IOException {
-        return (this.isStreamAvailable(uuid, FedoraUtils.IMG_PREVIEW_STREAM));
+    public boolean isFullthumbnailAvailable(String pid) throws IOException {
+        return (this.isStreamAvailable(pid, FedoraUtils.IMG_PREVIEW_STREAM));
     }
 
     @Override
@@ -227,8 +240,8 @@ public class SecuredFedoraAccessImpl implements FedoraAccess {
     }
 
     @Override
-    public String getKrameriusModelName(String uuid) throws IOException {
-        return rawAccess.getKrameriusModelName(uuid);
+    public String getKrameriusModelName(String pid) throws IOException {
+        return rawAccess.getKrameriusModelName(pid);
     }
 
     @Override
@@ -236,12 +249,12 @@ public class SecuredFedoraAccessImpl implements FedoraAccess {
         return rawAccess.getFedoraVersion();
     }
 
-    public Document getStreamProfile(String uuid, String stream) throws IOException {
-        return rawAccess.getStreamProfile(uuid, stream);
+    public Document getStreamProfile(String pid, String stream) throws IOException {
+        return rawAccess.getStreamProfile(pid, stream);
     }
 
-    public Document getObjectProfile(String uuid) throws IOException {
-        return rawAccess.getObjectProfile(uuid);
+    public Document getObjectProfile(String pid) throws IOException {
+        return rawAccess.getObjectProfile(pid);
     }
     
     
