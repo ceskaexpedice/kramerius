@@ -197,7 +197,8 @@ public class MPTStoreService implements IResourceIndex {
             xmldoc.appendChild(root);
             root.appendChild(results);
             c = dataSource.getConnection();
-            String sql = "select " + Table_dcTitle + ".s, " + Table_dcTitle + ".o, " + Table_lastModifiedDate + ".o from " + Table_dcTitle + "," + Table_lastModifiedDate + "," + Table_model
+            String sql = "select " + Table_dcTitle + ".s, " + Table_dcTitle + ".o, " + Table_lastModifiedDate + ".o from " 
+                    + Table_lastModifiedDate + "," + Table_dcTitle + "," + Table_model
                     + " where " + Table_model + ".o='<info:fedora/model:" + model + ">' and " + Table_dcTitle + ".s=" + Table_lastModifiedDate + ".s and " + Table_dcTitle + ".s=" + Table_model + ".s "
                     + " order by " + torder + " " + orderDir
                     + " limit " + limit + " offset " + offset;

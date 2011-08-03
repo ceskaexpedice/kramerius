@@ -44,7 +44,7 @@ public class SolrUtils   {
     static XPathFactory fact =XPathFactory.newInstance();
     
     public static XPathExpression pidPathExpr() throws XPathExpressionException {
-        XPathExpression pidPathExpr = fact.newXPath().compile("//str[@name='pid_path']");
+        XPathExpression pidPathExpr = fact.newXPath().compile("//arr[@name='pid_path']/str");
         return pidPathExpr;
     }
 
