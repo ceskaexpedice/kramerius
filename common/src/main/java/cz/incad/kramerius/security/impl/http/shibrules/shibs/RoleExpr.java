@@ -38,7 +38,7 @@ public class RoleExpr implements Expr {
 
     @Override
     public void evaluate(ShibContext ctx) {
-        Role grole = ctx.getUserManager().findGroupByName(this.value.getValue(ctx.getHttpServletRequest()));
+        Role grole = ctx.getUserManager().findRoleByName(this.value.getValue(ctx.getHttpServletRequest()));
         User user = ctx.getUser();
         Role[] groups = user.getGroups() == null ? new Role[0]:user.getGroups();
         List<Role> grpList = new ArrayList<Role>(Arrays.asList(groups));

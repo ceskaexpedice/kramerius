@@ -38,7 +38,7 @@ public class UserUtils {
     // synchronizace
     public static synchronized Role findCommonGoup(UserManager userManager) {
         if (commonUsersGroup == null) {
-            commonUsersGroup =  userManager.findCommonUsersGroup();
+            commonUsersGroup =  userManager.findCommonUsersRole();
         }
         return commonUsersGroup;
     }
@@ -62,7 +62,7 @@ public class UserUtils {
     }
 
     public static void associateGroups(User dbUser, UserManager userManager) {
-        Role[] grps = userManager.findGroupsForGivenUser(dbUser.getId());
+        Role[] grps = userManager.findRolesForGivenUser(dbUser.getId());
         //TODO: Zmenit
         ((UserImpl)dbUser).setGroups(grps);
     }

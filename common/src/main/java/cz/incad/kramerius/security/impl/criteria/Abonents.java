@@ -68,7 +68,7 @@ public class Abonents extends AbstractCriterium implements RightCriterium {
     public boolean validateParams(Object[] vals) {
         for (Object grp : vals) {
             UserManager userManager = getEvaluateContext().getUserManager();
-            Role dbGroup = userManager.findGroupByName(grp.toString());
+            Role dbGroup = userManager.findRoleByName(grp.toString());
             if (dbGroup == null)  return false;
         }
         return true;

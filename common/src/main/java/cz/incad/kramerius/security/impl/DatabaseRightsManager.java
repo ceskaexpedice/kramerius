@@ -90,7 +90,7 @@ public class DatabaseRightsManager implements RightsManager {
                 if (userId > 0) {
                     dbUser = userManager.findUser(userId);
                 } else {
-                    dbUser = userManager.findGroup(groupId);
+                    dbUser = userManager.findRole(groupId);
                 }
                 returnsList.add(RightsDBUtils.createRight(rs, dbUser, criteriumWrapperFactory));
                 return true;
@@ -123,7 +123,7 @@ public class DatabaseRightsManager implements RightsManager {
                 if (userId > 0) {
                     dbUser = userManager.findUser(userId);
                 } else {
-                    dbUser = userManager.findGroup(groupId);
+                    dbUser = userManager.findRole(groupId);
                 }
                 returnsList.add(RightsDBUtils.createRight(rs, dbUser, criteriumWrapperFactory));
                 return true;
@@ -278,7 +278,7 @@ public class DatabaseRightsManager implements RightsManager {
                 if (userId > 0) {
                     dbUser = userManager.findUser(userId);
                 } else {
-                    dbUser = userManager.findGroup(groupId);
+                    dbUser = userManager.findRole(groupId);
                 }
                 returnsList.add(RightsDBUtils.createRight(rs, dbUser, criteriumWrapperFactory));
                 return true;
