@@ -53,7 +53,7 @@ public class UsersJSAutocomplete extends ServletUsersCommand {
             User user = this.userProvider.get();
             if (hasCurrentUserHasSuperAdminRole(user)) {
                 if (autocompletetype.equals("group")) {
-                    Role[] groups = userManager.findGroupByPrefix(prefix.trim());
+                    Role[] groups = userManager.findRoleByPrefix(prefix.trim());
                     for (Role grp : groups) {
                         ausers.add(grp);
                     }
@@ -66,12 +66,12 @@ public class UsersJSAutocomplete extends ServletUsersCommand {
             } else {
                 int[] grps = getUserGroups(user);
                 if (autocompletetype.equals("group")) {
-                    Role[] groups = userManager.findGroupByPrefixForGroups(prefix.trim(),grps );
+                    Role[] groups = userManager.findRoleByPrefixForRoles(prefix.trim(),grps );
                     for (Role grp : groups) {
                         ausers.add(grp);
                     }
                 } else {
-                    User[] users = userManager.findUserByPrefixForGroups(prefix.trim(), grps);
+                    User[] users = userManager.findUserByPrefixForRoles(prefix.trim(), grps);
                     for (User auser : users) {
                         ausers.add(auser);
                     }
