@@ -48,7 +48,7 @@ public class HintGroupsForUserTable extends ServletUsersCommand {
                 LOGGER.log(Level.SEVERE, e.getMessage(),e);
             }
             User foundByLoginName = userManager.findUserByLoginName(requestedUser);
-            Role[] grps = userManager.findGroupsForGivenUser(foundByLoginName.getId());
+            Role[] grps = userManager.findRolesForGivenUser(foundByLoginName.getId());
             
             StringTemplate template = ServletUsersCommand.stFormsGroup().getInstanceOf("groupsTableForUser");
             template.setAttribute("groups", grps);
