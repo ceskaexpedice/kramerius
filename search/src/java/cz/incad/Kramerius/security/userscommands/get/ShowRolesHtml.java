@@ -65,9 +65,9 @@ public class ShowRolesHtml extends AbstractRoleCommand {
                 Arrays.sort(usedRoles);
                 Role[] groups = null;
                 if (hasCurrentUserHasSuperAdminRole(user)) {
-                    groups = userManager.findAllGroups(prefix);
+                    groups = userManager.findAllRoles(prefix);
                 } else {
-                    groups = userManager.findAllGroups(grps, prefix);
+                    groups = userManager.findAllRoles(grps, prefix);
                 }
                 
                 List<RoleWrapper> mappedList = K4Collections.map(RoleWrapper.wrap(Arrays.asList(groups),false), 
