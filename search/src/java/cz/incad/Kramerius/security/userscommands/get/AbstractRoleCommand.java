@@ -32,7 +32,7 @@ import cz.incad.utils.K4Collections;
 public abstract class AbstractRoleCommand extends ServletUsersCommand {
 
     public Role[] filterCommonGroup(Role[] grps) {
-        Role commonGroup = this.userManager.findCommonUsersGroup();
+        Role commonGroup = this.userManager.findCommonUsersRole();
         List<Role> grpList = new ArrayList<Role>();
         for (Role group : grps) {
             if (group.getId() != commonGroup.getId()) {
@@ -47,12 +47,12 @@ public abstract class AbstractRoleCommand extends ServletUsersCommand {
         final int personalAdminRoleId = -1;
         
         StringTemplate template = ServletUsersCommand.stFormsGroup().getInstanceOf("oneRole");
-        Role role = this.userManager.findGroupByName(rolename);
+        Role role = this.userManager.findRoleByName(rolename);
         
         if (hasCurrentUserHasSuperAdminRole(user)) {
-            admGroups = filterCommonGroup(this.userManager.findAllGroups(""));
+            admGroups = filterCommonGroup(this.userManager.findAllRoles(""));
         } else {
-            admGroups = filterCommonGroup(this.userManager.findGroupsWhichIAdministrate(getUserGroups(user)));
+            admGroups = filterCommonGroup(this.userManager.findRoleWhichIAdministrate(getUserGroups(user)));
         }
         
         template.setAttribute("role", role);
@@ -67,7 +67,7 @@ public abstract class AbstractRoleCommand extends ServletUsersCommand {
     
         template.setAttribute("admroles", mappedList);
         template.setAttribute("bundle", bundleToMap());
-        template.setAttribute("allroles", this.userManager.findAllGroups(""));
+        template.setAttribute("allroles", this.userManager.findAllRoles(""));
         return template;
     }
 
