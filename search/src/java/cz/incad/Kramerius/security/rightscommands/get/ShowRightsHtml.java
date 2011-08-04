@@ -159,7 +159,7 @@ public class ShowRightsHtml extends ServletRightsCommand{
                     filtered.add(right);
                 } else {
                     // administruje nekterou ze skupin
-                    Role[] grps = userManager.findGroupsForGivenUser(rightUsr.getId());
+                    Role[] grps = userManager.findRolesForGivenUser(rightUsr.getId());
                     for (Role group : grps) {
                         if (user.isAdministratorForGivenGroup(group.getPersonalAdminId())) {
                             filtered.add(right);
@@ -215,13 +215,13 @@ public class ShowRightsHtml extends ServletRightsCommand{
                     String parsedUser = userFieldParser.getUserValue();
                     AbstractUser foundUser = null;
                     if (typeOfList.equals(TypeOfList.group)) {
-                        foundUser = userManager.findGroupByName(parsedUser);
+                        foundUser = userManager.findRoleByName(parsedUser);
                     } else if (typeOfList.equals(TypeOfList.user)){
                         foundUser = userManager.findUserByLoginName(parsedUser);
                     } else {
                         foundUser = userManager.findUserByLoginName(parsedUser);
                         if (foundUser == null) {
-                            foundUser = userManager.findGroupByName(parsedUser);
+                            foundUser = userManager.findRoleByName(parsedUser);
                         }
                     }
 
