@@ -278,7 +278,7 @@ public class RightsServlet extends GuiceServlet {
         if (userTypeHidden.equals("user")) {
             auser = userManager.findUserByLoginName(user.trim());
         } else {
-            auser =  userManager.findGroupByName(user.trim());
+            auser =  userManager.findRoleByName(user.trim());
         }
 
         if (auser == null) {
