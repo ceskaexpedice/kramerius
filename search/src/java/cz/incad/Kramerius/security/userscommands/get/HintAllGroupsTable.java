@@ -39,9 +39,9 @@ public class HintAllGroupsTable extends ServletUsersCommand {
             int[] grps = getUserGroups(user);
             Role[] groups = null;
             if (hasCurrentUserHasSuperAdminRole(user)) {
-                groups = userManager.findAllGroups(prefix);
+                groups = userManager.findAllRoles(prefix);
             } else {
-                groups = userManager.findAllGroups(grps, prefix);
+                groups = userManager.findAllRoles(grps, prefix);
             }
             StringTemplate template = ServletUsersCommand.stFormsGroup().getInstanceOf("allGroupsTable");
             template.setAttribute("groups", groups);
