@@ -51,8 +51,8 @@ public class HintUsersForGroup extends ServletUsersCommand {
             } catch (LexerException e) {
                 LOGGER.log(Level.SEVERE, e.getMessage(),e);
             }
-            Role grp = userManager.findGroupByName(requestedGroup);
-            User[] users = userManager.findUsersForGivenGroup(grp.getId());
+            Role grp = userManager.findRoleByName(requestedGroup);
+            User[] users = userManager.findUsersForGivenRole(grp.getId());
             StringTemplate template = ServletUsersCommand.stFormsGroup().getInstanceOf("usersTableForGroup");
             List<AbstractUserWrapper> ausers = new ArrayList<AbstractUserWrapper>();
             for (int i = 0; i < users.length; i++) {
