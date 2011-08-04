@@ -35,7 +35,7 @@ public class DeleteRole extends AbstractPostRole {
         try {
             HttpServletRequest req = this.requestProvider.get();
             String name = req.getParameter(ROLENAME_PARAM);
-            Role role = this.userManager.findGroupByName(name);
+            Role role = this.userManager.findRoleByName(name);
             if (role != null) {
                 this.userManager.removeGroup(role);
             } else {
