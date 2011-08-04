@@ -49,7 +49,7 @@ public class GetCurrentLoggedUser {
                     List<Role> rolesList = new JDBCQueryTemplate<Role>(SecurityDBUtils.getConnection()) {
                         @Override
                         public boolean handleRow(ResultSet rs, List<Role> retList) throws SQLException {
-                            retList.add(SecurityDBUtils.createGroup(rs));
+                            retList.add(SecurityDBUtils.createRole(rs));
                             return true;
                         }
                     }.executeQuery("select * from user_group_mapping where user_id=?", user.getId());
@@ -58,7 +58,7 @@ public class GetCurrentLoggedUser {
                     List<Role> cmnUsers = new JDBCQueryTemplate<Role>(SecurityDBUtils.getConnection()) {
                         @Override
                         public boolean handleRow(ResultSet rs, List<Role> retList) throws SQLException {
-                            retList.add(SecurityDBUtils.createGroup(rs));
+                            retList.add(SecurityDBUtils.createRole(rs));
                             return true;
                         }
                     }.executeQuery("select * from group_entity where gname='common_users'");
