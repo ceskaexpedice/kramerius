@@ -1,3 +1,4 @@
+<%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <style type="text/css">
@@ -12,9 +13,22 @@
         border: 1px solid gray;
     }
     
-    #adminMenu>div.adminMenuItems{
+    #adminMenuItems{
         padding:5px;
     }
+    #adminMenuItems>div{
+        padding:2px;
+    }
+    
+    #adminMenuItems > span {
+    display: block;
+    float: left;
+    height: 16px;
+    overflow: hidden;
+    text-indent: -99999px;
+    width: 16px;
+}
+
     #adminMenu>div.header{
         height:20px;
         text-align: center;
@@ -33,6 +47,7 @@
     <div class="header"><fmt:message bundle="${lctx}">administrator.menu</fmt:message></div>
     <div id="adminMenuItems" class="adminMenuItems">
         <c:forEach var="item" items="${adminMenuViewObject.adminMenuItems}">
+            <span class="ui-icon ui-icon-triangle-1-e  ">item</span>
             ${item}
         </c:forEach>
     </div>
@@ -50,7 +65,11 @@
 
         <span id="proccess_confirm_text"></span>
 </div>
-    <%@include file="admin/_indexer.jsp" %>
+
+<!-- indexace dokumentu -->
+<div id="indexer" style="display:none;">
+    <div id="indexerContent"><fmt:message bundle="${lctx}" key="administrator.dialogs.waiting" /></div>
+</div>
 
 <script type="text/javascript">
     /* 
