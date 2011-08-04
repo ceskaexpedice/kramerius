@@ -40,7 +40,7 @@ public class SaveRole extends AbstractPostRole {
             String admRolesId = req.getParameter(PERSONAMADM_PARAM) != null ?req.getParameter(PERSONAMADM_PARAM) : "";
             
             Role role = new RoleImpl(Integer.parseInt(id), name, Integer.parseInt(admRolesId));
-            this.userManager.editGroup(role);
+            this.userManager.editRole(role);
         } catch (NumberFormatException e) {
             LOGGER.log(Level.SEVERE,e.getMessage(),e);
             this.responseProvider.get().sendError(HttpServletResponse.SC_BAD_REQUEST);
