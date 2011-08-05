@@ -61,7 +61,9 @@
     }
 
     $(document).ready(function() {
-        $("#centralContent").tabs();//.addClass('ui-tabs-vertical ui-helper-clearfix');
+        $("#centralContent").tabs({
+            
+        });//.addClass('ui-tabs-vertical ui-helper-clearfix');
         //$("#centralContent li").removeClass('ui-corner-top').addClass('ui-corner-left');
         //$("#centralContent").css('position', 'static');
     });

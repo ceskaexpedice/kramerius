@@ -13,6 +13,7 @@
 <%@page import="javax.servlet.jsp.jstl.fmt.LocalizationContext"%>
 <%@page import="cz.incad.kramerius.FedoraAccess"%>
 <%
+
             Injector ctxInj = (Injector) application.getAttribute(Injector.class.getName());
             LocalizationContext lctx = ctxInj.getProvider(LocalizationContext.class).get();
             pageContext.setAttribute("lctx", lctx);
@@ -21,8 +22,12 @@
             FedoraAccess fedoraAccess = ctxInj.getInstance(com.google.inject.Key.get(FedoraAccess.class, com.google.inject.name.Names.named("securedFedoraAccess")));
             String tab = request.getParameter("tab");
             if(tab.equals("text_ocr")){
-                InputStream is = fedoraAccess.getDataStream(request.getParameter("pid"), "TEXT_OCR");
-                out.println("<pre>"+IOUtils.readAsString(is, Charset.forName("UTF-8"), true)+"</pre>");
+                if(fedoraAccess.isStreamAvailable(request.getParameter("pid"), "TEXT_OCR")){
+                    InputStream is = fedoraAccess.getDataStream(request.getParameter("pid"), "TEXT_OCR");
+                    out.println("<pre>"+IOUtils.readAsString(is, Charset.forName("UTF-8"), true)+"</pre>");
+                    //out.println("<pre>"+ org.apache.commons.io.IOUtils.toString(is)+"</pre>");
+                    
+                }
                 return;
             }
             org.w3c.dom.Document xml = fedoraAccess.getBiblioMods(request.getParameter("pid"));

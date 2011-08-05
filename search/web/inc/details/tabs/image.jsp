@@ -210,7 +210,7 @@
         $.get(url, function(data){
             if(data.trim()!=""){
                 if($("#alto").length==0){
-                    $("#preview").append('<div id="alto" style="position:absolute;z-index:1003;overflow:hidden;" onclick="showFullImage()"></div>');
+                    $("#bigThumbZone").append('<div id="alto" style="position:absolute;z-index:1003;overflow:hidden;" onclick="showFullImage()"></div>');
                     //$('#bigThumbZone').append('<div id="alto" style="position:absolute;z-index:1003;overflow:hidden;" onclick="showFullImage()"></div>');
                 }else{
 
@@ -224,17 +224,14 @@
 
     function positionAlto(){
         var img = '#bigThumbZone .view_div:visible';
-        var h = 0;
-        h = $(img).height();
-        var t = $(img).offset().top;
-        t = t - $("#preview").offset().top;
+        var h = $(img).height();
+        var t = $(img).offset().top - $("#preview").offset().top - 4;
         if(img == 'imgFullImage'){
             h = $('#fullImageContainer').height();
             //t = t - $('#fullImageContainer').scrollTop;
         }
         var w = $(img).width();
-        var l = $(img).offset().left;
-        l = l - $("#preview").offset().left;
+        var l = $(img).offset().left - $("#preview").offset().left - 4;
         $("#alto").css('width', w);
         $("#alto").css('height', h);
         $("#alto").css('left', l);

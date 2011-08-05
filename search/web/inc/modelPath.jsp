@@ -18,8 +18,9 @@
             pageContext.setAttribute("kconfig", kconfig);
             FedoraAccess fedoraAccess = ctxInj.getInstance(com.google.inject.Key.get(FedoraAccess.class, com.google.inject.name.Names.named("securedFedoraAccess")));   
 %>
+<%--
 <c:url var="url" value="${kconfig.solrHost}/select/" >
-    <c:param name="q" >pid_path:${param.pid_path}</c:param>
+    <c:param name="q" >pid_path:"${param.pid_path}"</c:param>
     <c:param name="rows" value="1" />
     <c:param name="fl" value="pid_path" />
 </c:url>
@@ -28,8 +29,11 @@
     <x:parse var="doc" xml="${xml}"  />
     <c:set var="pid_path"><x:out select="$doc/response/result/doc/str[@name='pid_path']" /></c:set>
     <jsp:useBean id="pid_path" type="java.lang.String" />
+</c:catch>
+--%>
     <%
-        String model_path = "";    
+        String model_path = "";   
+String pid_path = request.getParameter("pid_path");
         String[] pids = pid_path.split("/");
         for(int i=0; i<pids.length; i++){
             if(i>0) model_path += "/";
@@ -38,4 +42,3 @@
         out.clear();
         out.print(model_path);
     %>
-</c:catch>

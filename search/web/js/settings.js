@@ -5,7 +5,8 @@ function _k4Settings(){
     });
     this.currentSelectedPage = "";
     this.activeUuids = [];
-    this.activeUuids = null;
+    this.activeUuid = null;
+    this.activePidPath = null;
     this.selectedPath = [];
     this.appUrl = '';
 }

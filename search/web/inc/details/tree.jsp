@@ -269,6 +269,7 @@
         }
 
         function setActiveUuids(id){
+            k4Settings.activePidPath = id;
             k4Settings.activeUuids = [];
             
             var i = 0;
@@ -280,7 +281,7 @@
             $(".viewer").trigger('activeUuidsChanged', [id]);
         }
 
-        function getPath(id){
+        function getPidPath(id){
             var curid = id;
             var selectedPathTemp = "";
             while($(jq(curid)).parent().parent().is('li')){
@@ -368,7 +369,7 @@
                     if(fq!=""){
                         fq += " OR ";
                     }
-                    fq += "pid_path:" + getPath(id).replace(":", "\\:") + "*";
+                    fq += "pid_path:" + getPidPath(id).replace(":", "\\:") + "*";
                 });
                 fq = "&fq=" + fq;
             }else{
