@@ -53,7 +53,7 @@ public class DeleteServiceImpl implements DeleteService {
         LOGGER.info("DeleteService: "+Arrays.toString(args));
         DeleteServiceImpl inst = new DeleteServiceImpl();
         inst.fedoraAccess = new FedoraAccessImpl(null);
-        inst.deleteTree("uuid:"+args[0], null);
+        inst.deleteTree(args[0], null);
         List<RelationshipTuple> parents = FedoraUtils.getSubjectPids("uuid:"+args[0]);
         for (RelationshipTuple parent:parents){
             try{
