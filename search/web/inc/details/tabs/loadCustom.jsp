@@ -1,3 +1,6 @@
+<%@page import="java.io.ByteArrayInputStream"%>
+<%@page import="java.io.InputStreamReader"%>
+<%@page import="cz.incad.kramerius.utils.UnicodeUtil"%>
 <%@page import="java.nio.charset.Charset"%>
 <%@page import="cz.incad.kramerius.utils.IOUtils"%>
 <%@page import="java.io.InputStream"%>
@@ -24,9 +27,11 @@
             if(tab.equals("text_ocr")){
                 if(fedoraAccess.isStreamAvailable(request.getParameter("pid"), "TEXT_OCR")){
                     InputStream is = fedoraAccess.getDataStream(request.getParameter("pid"), "TEXT_OCR");
-                    out.println("<pre>"+IOUtils.readAsString(is, Charset.forName("UTF-8"), true)+"</pre>");
-                    //out.println("<pre>"+ org.apache.commons.io.IOUtils.toString(is)+"</pre>");
-                    
+                    byte[] bytes = org.apache.commons.io.IOUtils.toByteArray(is);
+                    String enc = UnicodeUtil.getEncoding(bytes);
+                    System.out.println(enc);
+                    ByteArrayInputStream is2 = new ByteArrayInputStream(bytes);
+                    out.println("<pre>"+IOUtils.readAsString(is2, Charset.forName(enc), true)+"</pre>");
                 }
                 return;
             }
