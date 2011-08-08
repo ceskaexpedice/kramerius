@@ -71,6 +71,22 @@
     <div id="indexerContent"><fmt:message bundle="${lctx}" key="administrator.dialogs.waiting" /></div>
 </div>
 
+<!-- common -->
+<div id="common_started" style="display:none;">
+	<div id="common_started_waiting" style="margin: 16px; font-family: sans-serif; font-size: 10px; ">
+    	<table>
+    		<tr><td align="center"><img src="img/loading.gif" height="16px" width="16px"/></td></tr>
+			<tr><td align="center" id="common_started_text"></td></tr>
+    	</table>
+	</div>
+	<div id="common_started_ok" style="margin: 12px;">
+		<p style="font-family: sans-serif; font-size: 12px; font-weight: bold;" id="common_started_text_ok"><br/></p>
+	</div>
+	<div id="common_started_failed" style="margin: 12px;">
+		<p style="font-family: sans-serif; font-size: 12px; font-weight: bold;" id="common_started_text_failed"></p>
+	</div>
+</div>
+
 <script type="text/javascript">
     /* 
  * To change this template, choose Tools | Templates
@@ -763,24 +779,24 @@ function confirmIndexDocByPid(pid){
     var url = "inc/admin/_indexer_get_title.jsp?pid="+pid;
     $.get(url, function(data) {
         showConfirmDialog('Confirm index dokumentu: ' + data, function(){
-          var prefix = "info\:fedora\/uuid:";
-          var uuid = pid.replace(prefix,"");
+          //var prefix = "info\:fedora\/uuid:";
+          //var uuid = pid.replace(prefix,"");
           var escapedTitle = replaceAll(data, ',', '');
-          var url = "lr?action=start&def=reindex&out=text&params=fromKrameriusModel,"+uuid+","+escapedTitle;
+          var url = "lr?action=start&def=reindex&out=text&params=fromKrameriusModel,"+pid+","+escapedTitle;
           
           _startProcess(url);
-        });
-        
-        
+        });        
+    }).error(function(){
+        alert("PID not found");
     });
 }
 
 function indexDoc(pid, title){
     showConfirmDialog('Confirm index dokumentu', function(){
-      var prefix = "info\:fedora\/uuid:";
-      var uuid = pid.replace(prefix,"");
+      //var prefix = "info\:fedora\/uuid:";
+      //var uuid = pid.replace(prefix,"");
       var escapedTitle = replaceAll(title, ',', '');
-      var url = "lr?action=start&def=reindex&out=text&params=fromKrameriusModel,"+uuid+","+escapedTitle;
+      var url = "lr?action=start&def=reindex&out=text&params=fromKrameriusModel,"+pid+","+escapedTitle;
       _startProcess(url);
     });
 }

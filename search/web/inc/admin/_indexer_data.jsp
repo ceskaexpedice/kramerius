@@ -67,11 +67,12 @@
 </style>
 
 <div style="border-bottom:1px solid #E66C00; padding-bottom: 5px; margin-bottom: 5px;">
-    Index by PID: 
+    <fmt:message bundle="${lctx}">administrator.menu.dialogs.index_by_PID</fmt:message>: 
     <input type="text" id="pid_to_index" size="40" />
     <input type="button" onclick="confirmIndexDocByPid($('#pid_to_index').val(), '');" value="index_pid" class="ui-state-default ui-corner-all" />
 </div>
-<div>Browse fedora top models: 
+<div>
+    <fmt:message bundle="${lctx}">administrator.menu.dialogs.browse_fedora_top_models</fmt:message>: 
     <select id="top_models_select" onChange="loadFedoraDocuments($('#top_models_select').val(), 0, '${order}', '${order_dir}' );">
         <option>--</option>
         <c:forEach var="top_model" items="${top_models}">

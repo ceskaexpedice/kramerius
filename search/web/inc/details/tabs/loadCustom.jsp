@@ -29,7 +29,6 @@
                     InputStream is = fedoraAccess.getDataStream(request.getParameter("pid"), "TEXT_OCR");
                     byte[] bytes = org.apache.commons.io.IOUtils.toByteArray(is);
                     String enc = UnicodeUtil.getEncoding(bytes);
-                    System.out.println(enc);
                     ByteArrayInputStream is2 = new ByteArrayInputStream(bytes);
                     out.println("<pre>"+IOUtils.readAsString(is2, Charset.forName(enc), true)+"</pre>");
                 }

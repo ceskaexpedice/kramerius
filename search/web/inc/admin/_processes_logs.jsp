@@ -62,20 +62,18 @@
 
 <link rel="icon" href="img/favicon.ico" />
 <link rel="shortcut icon" href="img/favicon.ico" type="image/x-icon" />
-<link type="text/css" href="../css/themes/base/ui.base.css"
+<link type="text/css" href="../../css/themes/base/ui.base.css"
 	rel="stylesheet" />
-<link type="text/css" href="../css/themes/base/ui.theme.css"
+<link type="text/css" href="../../css/themes/base/ui.theme.css"
 	rel="stylesheet" />
-<link type="text/css" href="../css/themes/base/ui.dialog.css"
+<link type="text/css" href="../../css/themes/base/ui.dialog.css"
 	rel="stylesheet" />
-<link type="text/css" href="../css/themes/base/ui.slider.css"
+<link type="text/css" href="../../css/themes/base/ui.slider.css"
 	rel="stylesheet" />
-<link rel="stylesheet" href="../css/dateAxisV.css" type="text/css" />
-<link rel="stylesheet" href="../css/dtree.css" type="text/css" />
-<link rel="stylesheet" href="../css/styles.css" type="text/css" />
+<link rel="stylesheet" href="../../css/styles.css" type="text/css" />
     
-<script src="../js/jquery-1.3.2.min.js" type="text/javascript"></script> 
-<script src="../js/jquery-ui-1.7.2.custom.min.js" language="javascript" type="text/javascript"></script> 
+    <script src="../../js/jquery-1.5.1.min.js" type="text/javascript" ></script>
+    <script src="../../js/jquery-ui-1.8.11.custom.min.js" language="javascript" type="text/javascript"></script>
 <script src="../js/jquery.cookie.js" type="text/javascript"></script> 
 <script src="../js/jquery.history.js" type="text/javascript"></script> 
 
