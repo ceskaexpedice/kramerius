@@ -30,6 +30,7 @@ import cz.incad.Kramerius.backend.guice.GuiceServlet;
 import cz.incad.Kramerius.processes.ParamsLexer;
 import cz.incad.Kramerius.processes.ParamsParser;
 import cz.incad.Kramerius.security.KrameriusRoles;
+import cz.incad.kramerius.ObjectPidsPath;
 import cz.incad.kramerius.intconfig.InternalConfiguration;
 import cz.incad.kramerius.processes.DefinitionManager;
 import cz.incad.kramerius.processes.GCScheduler;
@@ -208,8 +209,8 @@ public class LongRunningProcessServlet extends GuiceServlet {
                         loggedUserKey = (String) req.getSession().getAttribute(UserUtils.LOGGED_USER_KEY_PARAM);
                         
                     }
-                    boolean permited = user!= null? (rightsResolver.isActionAllowed(user,SecuredActions.MANAGE_LR_PROCESS.getFormalName(), SpecialObjects.REPOSITORY.getUuid(), new String[]{}) || 
-                                        (actionFromDef != null && rightsResolver.isActionAllowed(user, actionFromDef.getFormalName(), SpecialObjects.REPOSITORY.getUuid(), new String[] {}))) : false ;
+                    boolean permited = user!= null? (rightsResolver.isActionAllowed(user,SecuredActions.MANAGE_LR_PROCESS.getFormalName(), SpecialObjects.REPOSITORY.getUuid(), ObjectPidsPath.REPOSITORY_PATH) || 
+                                        (actionFromDef != null && rightsResolver.isActionAllowed(user, actionFromDef.getFormalName(), SpecialObjects.REPOSITORY.getUuid(), ObjectPidsPath.REPOSITORY_PATH))) : false ;
                     if (permited) {
                         LRProcess nprocess = planNewProcess(req, context, def, defManager, params, user,loggedUserKey);
                         
@@ -250,7 +251,7 @@ public class LongRunningProcessServlet extends GuiceServlet {
         stop {
             @Override
             public void doAction(ServletContext context, HttpServletRequest req, HttpServletResponse resp, DefinitionManager defManager, LRProcessManager lrProcessManager, UserManager userManager, Provider<User> userProvider, IsActionAllowed actionIsAllowed, LoggedUsersSingleton loggedUserSingleton) {
-                if (actionIsAllowed.isActionAllowed(SecuredActions.MANAGE_LR_PROCESS.getFormalName(), SpecialObjects.REPOSITORY.getUuid(), new String[] {})) {
+                if (actionIsAllowed.isActionAllowed(SecuredActions.MANAGE_LR_PROCESS.getFormalName(), SpecialObjects.REPOSITORY.getUuid(), ObjectPidsPath.REPOSITORY_PATH)) {
                     try {
                         String uuid = req.getParameter("uuid");
                         String realPath = context.getRealPath("WEB-INF/lib");
@@ -283,7 +284,7 @@ public class LongRunningProcessServlet extends GuiceServlet {
         list {
             @Override
             public void doAction(ServletContext context, HttpServletRequest req, HttpServletResponse resp, DefinitionManager defManager, LRProcessManager lrProcessManager, UserManager userManager, Provider<User> userProvider, IsActionAllowed actionAllowed, LoggedUsersSingleton loggedUserSingleton) {
-                if (actionAllowed.isActionAllowed(SecuredActions.MANAGE_LR_PROCESS.getFormalName(), SpecialObjects.REPOSITORY.getUuid(), new String[] {})) {
+                if (actionAllowed.isActionAllowed(SecuredActions.MANAGE_LR_PROCESS.getFormalName(), SpecialObjects.REPOSITORY.getUuid(), ObjectPidsPath.REPOSITORY_PATH)) {
                     try {
                         StringBuffer buffer = new StringBuffer();
                         buffer.append("<html><body>");

@@ -10,7 +10,7 @@ viewinfo(data, globalActions) ::=<<
         
         mimeType:'$data.mimeType$', 
         hasAlto:$data.hasAlto$,
-        uuid:"$data.uuid$",
+        pid:"$data.pid$",
         displayableContent:$data.displayableContent$,
         
         imgfull:$data.imgfull$,
@@ -18,30 +18,43 @@ viewinfo(data, globalActions) ::=<<
         $if(data.canhandlecommongroup)$
         canhandlecommongroup:$data.canhandlecommongroup$,
         $endif$
-        pathOfUuids:[$data.pathOfUuids:{uuid| "$uuid$" };separator=","$],
+        pathsOfPids:[$data.pathsOfPids:{p|$path(path=p)$};separator=","$],
         imageServerConfigured:'$data.imageServerConfigured$', 
-        $rights(securedActionsMap=data.actions, globalActions=data.globalActions);separator=","$,                
+        $rights(securedActions=data.securedActions, globalActions=data.globalActions);separator=","$,                
         $supportfunctions()$
 }
 >>
             
 
 /* rights */
-rights(securedActionsMap, globalActions) ::=<<
+rights(securedActions, globalActions) ::=<<
+
     rights: 
     { 
-        $securedActionsMap.keys:{secaction |   $action(action=secaction,uuidMap=securedActionsMap.(secaction))$  };separator=",\n"$ 
+        $securedActions.keys:{secaction |   $action(action=secaction,mappedPaths=securedActions.(secaction))$  };separator=",\n"$ 
         $if(globalActions)$
         ,
-        $globalActions:{secaction | "$secaction$":{"1":true} };separator=",\n"$
+        $globalActions:{secaction | $action(action=secaction,mappedPaths=securedActions.(secaction))$  };separator=",\n"$
         $endif$
     }
 >>
 
 /* action's map */
-action(action, uuidMap) ::=<<
-    "$action$": { $uuidMap.keys:{uuid |  "$uuid$":$uuidMap.(uuid)$  };separator=","$ }
+action(action, mappedPaths) ::=<<
+    "$action$": { 
+        $mappedPaths:{mappedPath |  $mappedPath(mappedPath=mappedPath)$ };separator=","$
+    }
 >>
+
+mappedPath(mappedPath)::=<<
+        $mappedPath.mappedPathElements:{pelm|"$pelm.pid$":$pelm.flag$  };separator=","$
+>>
+
+path(path) ::=<<
+    [$path.pathFromLeafToRoot:{pid|"$pid$" };separator=","$]
+>>
+
+
 
 /* some support functions */
 supportfunctions() ::=<<

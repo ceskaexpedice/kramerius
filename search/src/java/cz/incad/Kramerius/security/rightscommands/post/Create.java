@@ -22,6 +22,8 @@ import java.util.logging.Level;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.commons.lang.NotImplementedException;
+
 import cz.incad.Kramerius.security.RightsServlet;
 import cz.incad.Kramerius.security.ServletCommand;
 import cz.incad.Kramerius.security.rightscommands.ServletRightsCommand;
@@ -41,19 +43,22 @@ public class Create extends ServletRightsCommand {
             HttpServletRequest req = this.requestProvider.get();
             Right right = RightsServlet.createRightFromPost(req, rightsManager, userManager, criteriumWrapperFactory);
 
+            /*
             String uuid = right.getPid().substring("uuid:".length());
-            String[] pathOfUUIDs = this.solrAccess.getPathOfUUIDs(uuid);
+            String[] pathOfUUIDs = this.solrAccess.getPath(uuid);
 
             if (this.actionAllowed.isActionAllowed(SecuredActions.ADMINISTRATE.getFormalName(), uuid, pathOfUUIDs)) {
                 rightsManager.insertRight(right);
             } else {
                 throw new SecurityException("operation is not permited");
             }
+            */
+            throw new NotImplementedException("not implemented");
 
         } catch (NumberFormatException e) {
             LOGGER.log(Level.SEVERE, e.getMessage(),e);
-        } catch (SQLException e) {
-            LOGGER.log(Level.SEVERE, e.getMessage(),e);
+//        } catch (SQLException e) {
+//            LOGGER.log(Level.SEVERE, e.getMessage(),e);
         } catch(Exception e) {
             LOGGER.log(Level.SEVERE, e.getMessage(),e);
         }

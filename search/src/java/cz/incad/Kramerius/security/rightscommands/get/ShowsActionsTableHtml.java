@@ -48,6 +48,7 @@ public class ShowsActionsTableHtml extends ServletRightsCommand {
         String uuid = this.requestProvider.get().getParameter(UUID_PARAMETER);
         try {
             if (this.loggedUsersSingleton.isLoggedUser(this.requestProvider)) {
+                /*
                 String[] path = getPathOfUUIDs(uuid);
                 String[] models = getModels(uuid);
 
@@ -72,6 +73,8 @@ public class ShowsActionsTableHtml extends ServletRightsCommand {
                 
                 String content = template.toString();
                 this.responseProvider.get().getOutputStream().write(content.getBytes("UTF-8"));
+                */
+                
             } else {
                 
                 this.responseProvider.get().sendError(HttpServletResponse.SC_FORBIDDEN);

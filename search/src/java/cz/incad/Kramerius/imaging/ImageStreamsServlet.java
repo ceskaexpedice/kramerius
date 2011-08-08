@@ -100,21 +100,21 @@ public class ImageStreamsServlet extends AbstractImageServlet {
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        String uuid = req.getParameter(UUID_PARAMETER);
+        String pid = req.getParameter(UUID_PARAMETER);
         String stream = req.getParameter(STREAM_PARAMETER);
         int page = disectPageParam(req);
 
-        if (uuid != null && stream != null) {
+        if (pid != null && stream != null) {
             // TODO: Change it !!
-            uuid = fedoraAccess.findFirstViewablePid(uuid);
-            if (uuid != null) {
+            pid = fedoraAccess.findFirstViewablePid(pid);
+            if (pid != null) {
                 Actions actionToDo = Actions.TRANSCODE;
                 String actionNameParam = req.getParameter(ACTION_NAME);
                 if (actionNameParam != null) {
                     actionToDo = Actions.valueOf(actionNameParam);
                 }
                 try {
-                    actionToDo.doPerform(this, this.fedoraAccess, uuid, stream, page, req, resp);
+                    actionToDo.doPerform(this, this.fedoraAccess, pid, stream, page, req, resp);
                 } catch (FileNotFoundException e1) {
                     LOGGER.log(Level.SEVERE, e1.getMessage(), e1);
                     resp.setStatus(HttpServletResponse.SC_NOT_FOUND);
@@ -162,16 +162,16 @@ public class ImageStreamsServlet extends AbstractImageServlet {
         TRANSCODE{
 
             @Override
-            void doPerform(ImageStreamsServlet imageStreamsServlet, FedoraAccess fedoraAccess,String uuid, String stream,int page, HttpServletRequest req, HttpServletResponse resp) throws IOException, SecurityException , XPathExpressionException {
+            void doPerform(ImageStreamsServlet imageStreamsServlet, FedoraAccess fedoraAccess,String pid, String stream,int page, HttpServletRequest req, HttpServletResponse resp) throws IOException, SecurityException , XPathExpressionException {
                 OutputFormats outputFormat = OutputFormats.JPEG;
                 String outputFormatParam = req.getParameter(OUTPUT_FORMAT_PARAMETER);
                 if (outputFormatParam != null) {
                     outputFormat = OutputFormats.valueOf(outputFormatParam);
                 }
 
-                BufferedImage image = imageStreamsServlet.rawImage(uuid, stream, req, page);
-                imageStreamsServlet.setDateHaders(uuid, resp);
-                imageStreamsServlet.setResponseCode(uuid, req, resp);
+                BufferedImage image = imageStreamsServlet.rawImage(pid, stream, req, page);
+                imageStreamsServlet.setDateHaders(pid, resp);
+                imageStreamsServlet.setResponseCode(pid, req, resp);
                 imageStreamsServlet.writeImage(req, resp, image, outputFormat);
             }
             
@@ -183,14 +183,14 @@ public class ImageStreamsServlet extends AbstractImageServlet {
         SCALE{
 
             @Override
-            void doPerform(ImageStreamsServlet imageStreamsServlet, FedoraAccess fedoraAccess,String uuid, String stream, int page,HttpServletRequest req, HttpServletResponse resp) throws IOException, SecurityException , XPathExpressionException {
-                BufferedImage image = imageStreamsServlet.rawImage(uuid, stream, req, page);
+            void doPerform(ImageStreamsServlet imageStreamsServlet, FedoraAccess fedoraAccess,String pid, String stream, int page,HttpServletRequest req, HttpServletResponse resp) throws IOException, SecurityException , XPathExpressionException {
+                BufferedImage image = imageStreamsServlet.rawImage(pid, stream, req, page);
                 
                 Rectangle rectangle = new Rectangle(image.getWidth(null), image.getHeight(null));
                 BufferedImage scale = imageStreamsServlet.scale(image, rectangle, req, imageStreamsServlet.getScalingMethod(stream));
                 if (scale != null) {
-                    imageStreamsServlet.setDateHaders(uuid, resp);
-                    imageStreamsServlet.setResponseCode(uuid, req, resp);
+                    imageStreamsServlet.setDateHaders(pid, resp);
+                    imageStreamsServlet.setResponseCode(pid, req, resp);
                     imageStreamsServlet.writeImage(req, resp, scale, OutputFormats.JPEG);
                 } else resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
             }
@@ -203,17 +203,17 @@ public class ImageStreamsServlet extends AbstractImageServlet {
         GETRAW{
 
             @Override
-            void doPerform(ImageStreamsServlet imageStreamsServlet, FedoraAccess fedoraAccess,String uuid, String stream, int page, HttpServletRequest req, HttpServletResponse resp) throws IOException, SecurityException, XPathExpressionException{
-                InputStream is = fedoraAccess.getDataStream(uuid, stream);
+            void doPerform(ImageStreamsServlet imageStreamsServlet, FedoraAccess fedoraAccess,String pid, String stream, int page, HttpServletRequest req, HttpServletResponse resp) throws IOException, SecurityException, XPathExpressionException{
+                InputStream is = fedoraAccess.getDataStream(pid, stream);
 
-                String mimeType = fedoraAccess.getMimeTypeForStream(uuid, stream);
+                String mimeType = fedoraAccess.getMimeTypeForStream(pid, stream);
                 resp.setContentType(mimeType);
-                imageStreamsServlet.setDateHaders(uuid, resp);
-                imageStreamsServlet.setResponseCode(uuid, req, resp);
+                imageStreamsServlet.setDateHaders(pid, resp);
+                imageStreamsServlet.setResponseCode(pid, req, resp);
                 
                 String asFileParam = req.getParameter("asFile");
                 if ((asFileParam != null) && (asFileParam.equals("true"))) {
-                    Document relsExt = fedoraAccess.getRelsExt(uuid);
+                    Document relsExt = fedoraAccess.getRelsExt(pid);
                     String fileNameFromRelsExt = FileNameUtils.disectFileNameFromRelsExt(relsExt);
                     if (fileNameFromRelsExt == null) {
                         LOGGER.severe("no <file.. element in RELS-EXT");
@@ -227,7 +227,7 @@ public class ImageStreamsServlet extends AbstractImageServlet {
             }
         };
         
-        abstract void doPerform(ImageStreamsServlet imageStreamsServlet, FedoraAccess fedoraAccess, String uuid, String stream, int page,  HttpServletRequest req, HttpServletResponse response) throws IOException, SecurityException , XPathExpressionException;
+        abstract void doPerform(ImageStreamsServlet imageStreamsServlet, FedoraAccess fedoraAccess, String pid, String stream, int page,  HttpServletRequest req, HttpServletResponse response) throws IOException, SecurityException , XPathExpressionException;
     }
     
 }

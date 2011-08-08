@@ -31,6 +31,7 @@ import java.util.logging.Level;
 import javax.servlet.http.HttpServletResponse;
 
 import org.antlr.stringtemplate.StringTemplate;
+import org.apache.commons.lang.NotImplementedException;
 
 import com.google.inject.Inject;
 import com.google.inject.Provider;
@@ -77,7 +78,10 @@ public class ShowRightsHtml extends ServletRightsCommand{
         try {
             if (this.loggedUsersSingleton.isLoggedUser(this.requestProvider)) {
                 String uuid = getUuid();
+
+                throw new NotImplementedException("not implemented");
                 
+                /*
                 TypeOfList typeOfList =TypeOfList.all;
                 String typeOfListParam = requestProvider.get().getParameter("typeoflist");
                 if ((typeOfListParam != null) && (!typeOfListParam.equals(""))) {
@@ -137,7 +141,7 @@ public class ShowRightsHtml extends ServletRightsCommand{
                 template.setAttribute("action",new SecuredActionWrapper(getResourceBundle(), SecuredActions.findByFormalName(getSecuredAction())));
                 template.setAttribute("canhandlecommongroup", userProvider.get().hasSuperAdministratorRole());
                 responseProvider.get().getOutputStream().write(template.toString().getBytes("UTF-8"));
-                
+                */
             } else {
 
                 responseProvider.get().sendError(HttpServletResponse.SC_FORBIDDEN);

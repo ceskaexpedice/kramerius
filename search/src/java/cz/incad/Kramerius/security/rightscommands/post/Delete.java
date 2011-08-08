@@ -20,6 +20,8 @@ import java.io.IOException;
 import java.sql.SQLException;
 import java.util.logging.Level;
 
+import org.apache.commons.lang.NotImplementedException;
+
 import com.google.inject.Inject;
 
 import cz.incad.Kramerius.security.RightsServlet;
@@ -39,9 +41,10 @@ public class Delete extends ServletRightsCommand {
     public void doCommand() {
         try {
             Right right = RightsServlet.createRightFromPostIds(this.requestProvider.get(), rightsManager, userManager);
-
+            
+            /*
             String uuid = right.getPid().substring("uuid:".length());
-            String[] pathOfUUIDs = this.solrAccess.getPathOfUUIDs(uuid);
+            String[] pathOfUUIDs = this.solrAccess.getPath(uuid);
 
             if (this.actionAllowed.isActionAllowed(SecuredActions.ADMINISTRATE.getFormalName(), uuid, pathOfUUIDs)) {
                 rightsManager.deleteRight(right);
@@ -49,16 +52,19 @@ public class Delete extends ServletRightsCommand {
             } else {
                 throw new SecurityException("operation is not permited");
             }
-        } catch (SQLException e) {
-            LOGGER.log(Level.SEVERE, e.getMessage(),e);
+            */
+            throw new NotImplementedException("not implemented");
+            
+//        } catch (SQLException e) {
+//            LOGGER.log(Level.SEVERE, e.getMessage(),e);
         } catch (InstantiationException e) {
             LOGGER.log(Level.SEVERE, e.getMessage(),e);
         } catch (IllegalAccessException e) {
             LOGGER.log(Level.SEVERE, e.getMessage(),e);
         } catch (ClassNotFoundException e) {
             LOGGER.log(Level.SEVERE, e.getMessage(),e);
-        } catch (IOException e) {
-            LOGGER.log(Level.SEVERE, e.getMessage(),e);
+//        } catch (IOException e) {
+//            LOGGER.log(Level.SEVERE, e.getMessage(),e);
         }
     }
 

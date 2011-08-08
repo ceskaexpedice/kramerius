@@ -11,6 +11,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.logging.Level;
 
 import javax.servlet.ServletException;
@@ -31,7 +32,9 @@ import com.google.inject.Provider;
 import com.google.inject.name.Named;
 
 import cz.incad.Kramerius.backend.guice.GuiceServlet;
+import cz.incad.kramerius.AbstractObjectPath;
 import cz.incad.kramerius.FedoraAccess;
+import cz.incad.kramerius.ObjectPidsPath;
 import cz.incad.kramerius.SolrAccess;
 import cz.incad.kramerius.imaging.DeepZoomCacheService;
 import cz.incad.kramerius.imaging.ImageStreams;
@@ -80,19 +83,20 @@ public class ViewInfoServlet extends GuiceServlet {
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         try {
-            String uuid = req.getParameter(UUID_PARAMETER);
-            String[] pathOfUUIDs = this.solrAccess.getPathOfUUIDs(uuid);
+            String pid = req.getParameter(UUID_PARAMETER);
+            ObjectPidsPath[] paths = this.solrAccess.getPath(pid);
+    
             
             User user = currentLoggedUserProvider.get();
-            if ((uuid != null) && (!uuid.equals(""))) {
-                boolean imgfullAvailable = this.fedoraAccess.isImageFULLAvailable(uuid);
+            if ((pid != null) && (!pid.equals(""))) {
+                boolean imgfullAvailable = this.fedoraAccess.isImageFULLAvailable(pid);
                 
                 
-                String mimeType = imgfullAvailable ? this.fedoraAccess.getImageFULLMimeType(uuid) : "";
-                boolean generated = imgfullAvailable ? resolutionFilePresent(uuid) : false;
-                boolean conf = imgfullAvailable ? deepZoomConfigurationEnabled(uuid) : false;
-                boolean hasAlto = this.fedoraAccess.isStreamAvailable(uuid, "ALTO");
-                String donator = this.fedoraAccess.getDonator(uuid);
+                String mimeType = imgfullAvailable ? this.fedoraAccess.getImageFULLMimeType(pid) : "";
+                boolean generated = imgfullAvailable ? resolutionFilePresent(pid) : false;
+                boolean conf = imgfullAvailable ? deepZoomConfigurationEnabled(pid) : false;
+                boolean hasAlto = this.fedoraAccess.isStreamAvailable(pid, "ALTO");
+                String donator = this.fedoraAccess.getDonator(pid);
                 
                 HashMap map = new HashMap();
                 // img full je dostupny
@@ -100,7 +104,7 @@ public class ViewInfoServlet extends GuiceServlet {
                 // pdf rozsah - TODO: dat do konfigurace 
                 map.put("pdfMaxRange", KConfiguration.getInstance().getConfiguration().getInt("generatePdfMaxRange",20));
                 // img preview dostupny
-                map.put("previewStreamGenerated", fedoraAccess.isStreamAvailable(uuid, ImageStreams.IMG_PREVIEW.getStreamName()));
+                map.put("previewStreamGenerated", fedoraAccess.isStreamAvailable(pid, ImageStreams.IMG_PREVIEW.getStreamName()));
                 // vygenerovano deepZoom
                 map.put("deepZoomCacheGenerated", ""+generated);
                 // povoleno deep zoom - TODO: dat do konfigurace
@@ -108,52 +112,63 @@ public class ViewInfoServlet extends GuiceServlet {
                 // forward to iip
                 map.put("imageServerConfigured", ""+(!KConfiguration.getInstance().getUrlOfIIPServer().equals("")));
                 // zobrazovane uuid
-                map.put("uuid", uuid);
+                map.put("pid", pid);
                 // cesta nahoru {uuid + parentofuuid + parentofparentofuuid + ... + root}
-                map.put("pathOfUuids",pathOfUUIDs);
+                map.put("pathsOfPids",paths);
                 
                 // nezobrazitelny obsah .. 
                 map.put("displayableContent", ImageMimeType.loadFromMimeType(mimeType) != null);
-                
                 
                 
                 if (this.currentLoggedUserProvider.get().hasSuperAdministratorRole()) {
                     // kam to jinam dat ?? 
                     map.put("canhandlecommongroup",true);
                 }
+
+                Map<String, List<MappedPath>> securedActions = new HashMap<String, List<MappedPath>>();
+                securedActions.put(SecuredActions.READ.getFormalName(), fillActionsToJSON(req, pid, paths,  SecuredActions.READ));
+                securedActions.put(SecuredActions.ADMINISTRATE.getFormalName(), fillActionsToJSON(req, pid, paths, SecuredActions.ADMINISTRATE));
+
                 
-                HashMap<String, HashMap<String, String>> secMapping = new HashMap<String, HashMap<String,String>>(); 
-                
+                //HashMap<String, HashMap<String, String>> secMapping = new HashMap<String, HashMap<String,String>>(); 
                 // interpretuj pravo READ pro celou cestu  -
                 // standardne jsou zdroje chraneny pres securedFedoraAccess, zde je to jine, 
                 // pravo se neineterpretuje vicekrat, interpretuje se jednou a vysledek 
                 // se pak vyhodnoti
-                boolean[] vals = fillActionsToJSON(req, uuid, pathOfUUIDs, secMapping, SecuredActions.READ);
+                /*
+                boolean[] vals = fillActionsToJSON(req, uuid, paths, secMapping, SecuredActions.READ);
                 if (!firstMustBeTrue(vals)) {
                     //throw new SecurityException("access denided");
                 }
                 
                 // pravo admin do kontext menu
-                fillActionsToJSON(req, uuid, pathOfUUIDs, secMapping, SecuredActions.ADMINISTRATE);
+                fillActionsToJSON(req, uuid, paths, secMapping, SecuredActions.ADMINISTRATE);
+                */
                 
-                map.put("actions",secMapping);
+                //map.put("actions",secMapping);
+                
+                Map<String, List<MappedPath>> globalActions = new HashMap<String, List<MappedPath>>();
                 
                 HttpSession session = req.getSession();
                 if (session != null) {
                     List<String> actions = (List<String>) session.getAttribute(AbstractLoggedUserProvider.SECURITY_FOR_REPOSITORY_KEY);
                     if (actions != null) {
                         actions = new ArrayList<String>(actions);
-                        SecuredActions[] acts = new SecuredActions[] {SecuredActions.ADMINISTRATE, SecuredActions.READ};
+                        SecuredActions[] acts = new SecuredActions[] { SecuredActions.ADMINISTRATE, SecuredActions.READ };
                         for (SecuredActions act : acts) {
                             actions.remove(act.getFormalName());
                         }
-                        map.put("globalActions", actions);
-                    } else {
-                        map.put("globalActions", null);
+                        for (SecuredActions act : acts) {
+                            List<MappedPath> pathElems = new ArrayList<MappedPath>();
+                            pathElems.add(new MappedPath(new ObjectPidsPath().injectRepository(), new boolean[] {true}));
+                            globalActions.put(act.getFormalName(), pathElems);
+                        }
                     }
-                } else {
-                    map.put("globalActions", null);
                 }
+
+                map.put("securedActions",securedActions); 
+                map.put("globalActions", globalActions);
+
                 
                 map.put("mimeType", mimeType);
                 map.put("hasAlto", ""+hasAlto);
@@ -165,6 +180,8 @@ public class ViewInfoServlet extends GuiceServlet {
                 template.setAttribute("data", map);
                 
                 resp.getWriter().println(template.toString());
+                
+                
             }
         } catch (XPathExpressionException e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
@@ -194,13 +211,99 @@ public class ViewInfoServlet extends GuiceServlet {
         return accessed;
     }
 
+    public static class MappedPath {
 
-    public boolean[] fillActionsToJSON(HttpServletRequest req, String uuid, String[] pathOfUUIDs, HashMap<String, HashMap<String, String>> secMapping,SecuredActions act) {
-        ArrayList<String> pathWithRepository = new ArrayList<String>(Arrays.asList(pathOfUUIDs));
+        private ObjectPidsPath path;
+        
+        private boolean[] flags;
+        
+        public MappedPath(ObjectPidsPath path, boolean[] flags) {
+            super();
+            this.path = path;
+            this.flags = flags;
+        }
+        
+        public boolean[] getFlags() {
+            return flags;
+        }
+        
+        public ObjectPidsPath getPath() {
+            return path;
+        }
+        
+        public List<MappedPathElement> getMappedPathElements() {
+            List<MappedPathElement> elms = new ArrayList<ViewInfoServlet.MappedPathElement>();
+            String[] pathFromLeafToRoot = this.path.getPathFromLeafToRoot();
+            for (int i = 0; i < pathFromLeafToRoot.length; i++) {
+                elms.add(new MappedPathElement(this.flags[i], pathFromLeafToRoot[i]));
+            }
+            return elms;
+        }
+    }
+
+    public static class MappedPathElement {
+        private boolean flag;
+        private String pid;
+        
+        public MappedPathElement(boolean flag, String pid) {
+            super();
+            this.flag = flag;
+            this.pid = pid;
+        }
+        
+        public String getPid() {
+            return pid;
+        }
+        
+        public boolean getFlag() {
+            return this.flag;
+        }
+        
+    }
+   
+    
+    public MappedPath findPathWithFirstAccess(HttpServletRequest req, String uuid, ObjectPidsPath[] paths,SecuredActions act) {
+        for (ObjectPidsPath objectPath : paths) {
+            ObjectPidsPath path = objectPath.injectRepository();
+            boolean[] allowedActionForPath = actionAllowed.isActionAllowedForAllPath(act.getFormalName(), uuid,path);
+            if (atLeastOneTrue(allowedActionForPath)) {
+                return new MappedPath(path, allowedActionForPath);
+            }
+        }
+        return null;
+    }
+    
+    public List<MappedPath> fillActionsToJSON(HttpServletRequest req, String pid, ObjectPidsPath[] paths, SecuredActions act) {
+        List<MappedPath> mappedPaths = new ArrayList<ViewInfoServlet.MappedPath>();
+        for (ObjectPidsPath objectPath : paths) {
+            ObjectPidsPath path = objectPath.injectRepository();
+            boolean[] allowedActionForPath = actionAllowed.isActionAllowedForAllPath(act.getFormalName(), pid,path);
+            mappedPaths.add(new MappedPath(path, allowedActionForPath));
+        }
+                
+        return mappedPaths;
+    }
+    
+    
+/*    
+    public boolean[] fillActionsToJSON(HttpServletRequest req, String uuid, ObjectPidsPath[] paths, HashMap<String, HashMap<String, String>> secMapping,SecuredActions act) {
+        
+        for (ObjectPidsPath objectPath : paths) {
+            ObjectPidsPath path = objectPath.injectRepository();
+            boolean[] allowedActionForPath = actionAllowed.isActionAllowedForAllPath(act.getFormalName(), uuid,path);
+            for (boolean b : allowedActionForPath) {
+                if (b) break;
+            }
+            
+            
+        }
+                
+        
+        ArrayList<String> pathWithRepository = new ArrayList<String>(Arrays.asList(paths));
         pathWithRepository.add(0, SpecialObjects.REPOSITORY.getUuid());
         Collections.reverse(pathWithRepository);
 
-        boolean[] allowedActionForPath = actionAllowed.isActionAllowedForAllPath(act.getFormalName(), uuid,pathOfUUIDs);
+        boolean[] allowedActionForPath = actionAllowed.isActionAllowedForAllPath(act.getFormalName(), uuid,paths);
         
         for (int j = 0; j < allowedActionForPath.length; j++) {
             if (!secMapping.containsKey(act.getFormalName())) {
@@ -211,7 +314,8 @@ public class ViewInfoServlet extends GuiceServlet {
         }
         return allowedActionForPath;
     }
-    
+  */  
+
 
     private boolean resolutionFilePresent(String uuid) throws IOException, ParserConfigurationException, SAXException {
         boolean resFile = deepZoomCacheService.isResolutionFilePresent(uuid);
@@ -241,8 +345,7 @@ public class ViewInfoServlet extends GuiceServlet {
     
     public static void main(String[] args) {
         StringTemplate template = new StringTemplate(
-"$data.keys:{action| $data.(action).keys:{ key| $key$ :  $data.(action).(key)$ };separator=\",\"$ }$") ;
-
+            "$data.keys:{action| $data.(action).keys:{ key| $key$ :  $data.(action).(key)$ };separator=\",\"$ }$") ;
         
         HashMap map = new HashMap();
 
@@ -257,4 +360,8 @@ public class ViewInfoServlet extends GuiceServlet {
         System.out.println(template.toString());
         
     }
+    
+    
+    
+    
 }

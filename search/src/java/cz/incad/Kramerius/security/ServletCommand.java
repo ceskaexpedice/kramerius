@@ -35,6 +35,8 @@ import com.google.inject.Provider;
 import com.google.inject.name.Named;
 
 import cz.incad.kramerius.FedoraAccess;
+import cz.incad.kramerius.ObjectModelsPath;
+import cz.incad.kramerius.ObjectPidsPath;
 import cz.incad.kramerius.SolrAccess;
 import cz.incad.kramerius.security.Role;
 import cz.incad.kramerius.security.IsActionAllowed;
@@ -92,12 +94,12 @@ public abstract class ServletCommand {
         return securedActionString;
     }
 
-    public String[] getModels(String uuid) throws IOException {
-        return uuid != null ? this.solrAccess.getPathOfModels(uuid) : new String[0];
+    public ObjectModelsPath[] getModels(String uuid) throws IOException {
+        return uuid != null ? this.solrAccess.getPathOfModels(uuid) : new ObjectModelsPath[0];
     }
 
-    public String[] getPathOfUUIDs(String uuid) throws IOException {
-        return uuid != null ? this.solrAccess.getPathOfUUIDs(uuid) : new String[0];
+    public ObjectPidsPath[] getPathOfUUIDs(String uuid) throws IOException {
+        return uuid != null ? this.solrAccess.getPath(uuid) : new ObjectPidsPath[0];
     }
 
     public ResourceBundle getResourceBundle() throws IOException {

@@ -104,15 +104,19 @@ public class SecuredContentTag extends BodyTagSupport {
 
     
     private boolean isActionAllowed() throws IOException {
-        return (allowed.isActionAllowed(this.currentUserProvider.get(), this.action, this.uuid, getPath()));
+        //return (allowed.isActionAllowed(this.currentUserProvider.get(), this.action, this.uuid, getPath()));
+        return true;
     }
 
     private String [] getPath() throws IOException {
+        /*
         if (this.uuid.equals(SpecialObjects.REPOSITORY.getUuid())) {
             return new String[]{this.uuid};
         } else {
-            return this.solrAccess.getPathOfUUIDs(this.uuid);
+            return this.solrAccess.getPath(this.uuid);
         }
+        */
+        return new String[0];
     }
     
     @Override

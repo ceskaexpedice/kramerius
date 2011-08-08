@@ -30,6 +30,7 @@ import java.util.logging.Level;
 import javax.servlet.http.HttpServletResponse;
 
 import org.antlr.stringtemplate.StringTemplate;
+import org.apache.commons.lang.NotImplementedException;
 
 import com.google.inject.Inject;
 import com.google.inject.Provider;
@@ -76,8 +77,13 @@ public class NewRightHtml extends ServletRightsCommand {
         try {
             if (this.loggedUsersSingleton.isLoggedUser(this.requestProvider)) {
                 String uuid = getUuid();
+                
+                throw new NotImplementedException("not implemented");
+                
+                /*
                 String[] path = getPathOfUUIDs(uuid);
                 String[] models = getModels(uuid);
+
                 ResourceBundle resourceBundle = getResourceBundle();
 
                 StringTemplate template = ServletRightsCommand.stFormsGroup().getInstanceOf("rightDialog");
@@ -102,7 +108,7 @@ public class NewRightHtml extends ServletRightsCommand {
                 String content = template.toString();
 
                 this.responseProvider.get().getOutputStream().write(content.getBytes("UTF-8"));
-                
+                */
             } else {
                 this.responseProvider.get().sendError(HttpServletResponse.SC_FORBIDDEN);
             }

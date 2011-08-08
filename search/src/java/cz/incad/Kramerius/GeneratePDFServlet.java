@@ -24,6 +24,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.commons.lang.NotImplementedException;
 import org.w3c.dom.DOMException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -126,15 +127,17 @@ public class GeneratePDFServlet extends GuiceServlet {
         String from = req.getParameter(UUID_FROM);
         String howMany = req.getParameter(HOW_MANY);
         
-        service.dynamicPDFExport(parentUuid(from), from, Integer.parseInt(howMany), from, resp.getOutputStream(), imgServletUrl, i18nUrl);
+        throw new NotImplementedException("not implemented exception");
+        //service.dynamicPDFExport(parentUuid(from), from, Integer.parseInt(howMany), from, resp.getOutputStream(), imgServletUrl, i18nUrl);
     }
 
+    /*
     public String parentUuid(String from) throws IOException {
-        String[] pathOfUUIDs = solrAccess.getPathOfUUIDs(from);
+        String[] pathOfUUIDs = solrAccess.getPath(from);
         if (pathOfUUIDs.length > 1) {
             return pathOfUUIDs[pathOfUUIDs.length-2];
         } else return pathOfUUIDs[pathOfUUIDs.length-1];
-    }
+    }*/
 	
 	
 }

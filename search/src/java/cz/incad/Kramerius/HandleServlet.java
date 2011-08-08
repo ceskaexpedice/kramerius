@@ -6,6 +6,7 @@ import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLEncoder;
+import java.util.List;
 import java.util.StringTokenizer;
 import java.util.logging.Level;
 
@@ -26,6 +27,8 @@ import com.google.inject.Inject;
 
 import cz.incad.Kramerius.backend.guice.GuiceServlet;
 import cz.incad.kramerius.FedoraAccess;
+import cz.incad.kramerius.ObjectModelsPath;
+import cz.incad.kramerius.ObjectPidsPath;
 import cz.incad.kramerius.SolrAccess;
 import cz.incad.kramerius.intconfig.InternalConfiguration;
 import cz.incad.kramerius.utils.ApplicationURL;
@@ -71,19 +74,29 @@ public class HandleServlet extends GuiceServlet {
     @Override
 	protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
 		try {
-			String pidPath = null;
+			List<String> pidPathStrings = null;
 			String pid = null;
-			String path = null;
+			List<String> modelsPathStrings = null;
 			
 			String requestURL = req.getRequestURL().toString();
 			String handle = disectHandle(requestURL);
 			Document parseDocument = HandleType.createType(handle).dataFromSolr(handle, solrAccess);
 		    
-			pidPath = SolrUtils.disectPidPath(parseDocument);
+			pidPathStrings = SolrUtils.disectPidPaths(parseDocument);
 		    pid = SolrUtils.disectPid(parseDocument);
-		    path = SolrUtils.disectPath(parseDocument);
+		    modelsPathStrings = SolrUtils.disectModelPaths(parseDocument);
+
+		    ObjectPidsPath[] pidPaths = new ObjectPidsPath[pidPathStrings.size()];
+		    for (int i = 0; i < pidPaths.length; i++) {
+		        pidPaths[i]=new ObjectPidsPath(pidPathStrings.get(i).split("/"));
+            }
+		    ObjectModelsPath[] modelPaths = new ObjectModelsPath[modelsPathStrings.size()];
+		    for (int i = 0; i < modelPaths.length; i++) {
+                modelPaths[i] = new ObjectModelsPath(modelsPathStrings.get(i).split("/"));
+            }
+		    
 		    String applicationCotext = ApplicationURL.applicationContextPath(req);
-		    String redirectUrl=  "/"+applicationCotext+"/item.jsp?pid="+pid+"&pid_path="+pidPath+"&path="+path;
+		    String redirectUrl=  "/"+applicationCotext+"/item.jsp?pid="+pid+"&pid_path="+pidPathStrings+"&path="+modelsPathStrings;
 		    resp.sendRedirect(redirectUrl);
 		    
 		} catch (XPathExpressionException e) {
@@ -125,10 +138,10 @@ public class HandleServlet extends GuiceServlet {
                 try {
                     PIDParser parser = new PIDParser(pid);
                     parser.objectPid();
-                    return solrAccess.getSolrDataDocumentByUUID(parser.getObjectId());
+                    return solrAccess.getSolrDataDocument(parser.getObjectId());
                 } catch (LexerException e) {
                     LOGGER.log(Level.SEVERE, e.getMessage(),e);
-                    return solrAccess.getSolrDataDocumentByUUID(pid);
+                    return solrAccess.getSolrDataDocument(pid);
                 }
             }
 		},
