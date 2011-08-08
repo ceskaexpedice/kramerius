@@ -458,7 +458,7 @@ public class SolrOperations {
     }
 
     private void deletePid(String pid) throws Exception {
-        StringBuilder sb = new StringBuilder("<delete><id>" + pid + "</id></delete>");
+        StringBuilder sb = new StringBuilder("<delete><id>" + pid.replace(":", "\\:") + "</id></delete>");
         logger.log(Level.FINE, "indexDoc=\n{0}", sb.toString());
         postData(config.getString("IndexBase") + "/update", new StringReader(sb.toString()), new StringBuilder());
         optimize();
@@ -466,7 +466,7 @@ public class SolrOperations {
     }
 
     private void deleteDocument(String pid_path) throws Exception {
-        StringBuilder sb = new StringBuilder("<delete><query>pid_path:" + pid_path + "*</query></delete>");
+        StringBuilder sb = new StringBuilder("<delete><query>pid_path:" + pid_path.replace(":", "\\:") + "*</query></delete>");
         logger.log(Level.FINE, "indexDoc=\n{0}", sb.toString());
         postData(config.getString("IndexBase") + "/update", new StringReader(sb.toString()), new StringBuilder());
         optimize();

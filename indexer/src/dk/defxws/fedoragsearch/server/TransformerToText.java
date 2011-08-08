@@ -7,7 +7,7 @@
  */
 package dk.defxws.fedoragsearch.server;
 
-import cz.incad.utils.UnicodeUtil;
+import cz.incad.kramerius.utils.UnicodeUtil;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
