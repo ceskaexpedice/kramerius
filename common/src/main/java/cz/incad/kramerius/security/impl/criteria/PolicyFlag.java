@@ -51,9 +51,9 @@ public class PolicyFlag extends AbstractCriterium {
     public EvaluatingResult evalute() throws RightCriteriumException {
         try {
             FedoraAccess fa = getEvaluateContext().getFedoraAccess();
-            String requestedUUID = getEvaluateContext().getRequestedUUID();
-            if (!requestedUUID.equals(SpecialObjects.REPOSITORY.getUuid())) {
-                Document relsExt = fa.getRelsExt(requestedUUID);
+            String requestedPID = getEvaluateContext().getRequestedPid();
+            if (!requestedPID.equals(SpecialObjects.REPOSITORY.getPid())) {
+                Document relsExt = fa.getRelsExt(requestedPID);
                 return checkPolicyElement(relsExt);
             } else return EvaluatingResult.TRUE;
         } catch (IOException e) {

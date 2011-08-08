@@ -18,13 +18,17 @@ package cz.incad.kramerius.impl;
 
 import java.io.IOException;
 import java.net.URLEncoder;
+import java.util.List;
 
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.xpath.XPathExpressionException;
 
+import org.apache.commons.lang.NotImplementedException;
 import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
 
+import cz.incad.kramerius.ObjectModelsPath;
+import cz.incad.kramerius.ObjectPidsPath;
 import cz.incad.kramerius.SolrAccess;
 import cz.incad.kramerius.security.SpecialObjects;
 import cz.incad.kramerius.utils.solr.SolrUtils;
@@ -32,10 +36,10 @@ import cz.incad.kramerius.utils.solr.SolrUtils;
 public class SolrAccessImpl implements SolrAccess {
 
     @Override
-    public Document getSolrDataDocumentByUUID(String uuid) throws IOException {
-        if (SpecialObjects.isSpecialObject(uuid)) return null;
+    public Document getSolrDataDocument(String pid) throws IOException {
+        if (SpecialObjects.isSpecialObject(pid)) return null;
         try {
-            return SolrUtils.getSolrDataInternal(SolrUtils.UUID_QUERY+"\""+uuid+"\"");
+            return SolrUtils.getSolrDataInternal(SolrUtils.UUID_QUERY+"\""+pid+"\"");
         } catch (ParserConfigurationException e) {
             throw new IOException(e);
         } catch (SAXException e) {
@@ -44,12 +48,16 @@ public class SolrAccessImpl implements SolrAccess {
     }
 
     @Override
-    public String[] getPathOfUUIDs(String uuid) throws IOException {
-        if (SpecialObjects.isSpecialObject(uuid)) return new String[0];
+    public ObjectPidsPath[] getPath(String pid) throws IOException {
+        if (SpecialObjects.isSpecialObject(pid)) return new ObjectPidsPath[] {ObjectPidsPath.REPOSITORY_PATH};
         try {
-            Document solrData = getSolrDataDocumentByUUID(uuid);
-            String pidPath = SolrUtils.disectPidPath(solrData);
-            return pidPath.split("/");
+            Document solrData = getSolrDataDocument(pid);
+            List<String> disected = SolrUtils.disectPidPaths(solrData);
+            ObjectPidsPath[] paths = new ObjectPidsPath[disected.size()];
+            for (int i = 0; i < paths.length; i++) {
+                paths[i] = new ObjectPidsPath(disected.get(i).split("/"));
+            }
+            return paths;
         } catch (XPathExpressionException e) {
             throw new IOException(e);
         }
@@ -68,11 +76,16 @@ public class SolrAccessImpl implements SolrAccess {
     }
 
     @Override
-    public String[] getPathOfModels(String uuid) throws IOException {
-        if (SpecialObjects.isSpecialObject(uuid)) return new String[0];
+    public ObjectModelsPath[] getPathOfModels(String pid) throws IOException {
+        if (SpecialObjects.isSpecialObject(pid)) return new ObjectModelsPath[] { ObjectModelsPath.REPOSITORY_PATH};
         try {
-            Document doc = getSolrDataDocumentByUUID(uuid);
-            return SolrUtils.disectPath(doc).split("/");
+            Document doc = getSolrDataDocument(pid);
+            List<String> disected = SolrUtils.disectModelPaths(doc);
+            ObjectModelsPath[] paths = new ObjectModelsPath[disected.size()];
+            for (int i = 0; i < paths.length; i++) {
+                paths[i] = new ObjectModelsPath(disected.get(i));
+            }
+            return paths;
         } catch (XPathExpressionException e) {
             throw new IOException(e);
        }

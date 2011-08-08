@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<response>
+    <lst name="responseHeader">
+        <int name="status">0</int>
+        <int name="QTime">3</int>
+        <lst name="params">
+            <str name="q">PID:"uuid:28286e70-64a6-11dd-981a-000d606f5dc6"
+            </str>
+        </lst>
+    </lst>
+    <result name="response" numFound="1" start="0">
+        <doc>
+            <str name="PID">uuid:28286e70-64a6-11dd-981a-000d606f5dc6
+            </str>
+            <date name="created_date">2010-08-11T09:21:19.993Z</date>
+            <str name="datum">1817</str>
+            <int name="datum_begin">0</int>
+            <int name="datum_end">0</int>
+            <str name="dc.title">[5]</str>
+            <str name="ddt" />
+            <arr name="details">
+                <str>[5]##NormalPage</str>
+            </arr>
+            <arr name="document_type">
+                <str>page</str>
+            </arr>
+            <str name="dostupnost">private</str>
+            <str name="fedora.model">page</str>
+            <str name="handle" />
+            <str name="issn" />
+            <str name="language" />
+            <int name="level">2</int>
+            <str name="mdt" />
+            <arr name="model_path">
+                <str>monograph/monographunit/page</str>
+                <str>monograph/monographunit/internalpart/page</str>
+            </arr>
+            <date name="modified_date">2010-11-30T11:45:18.68Z</date>
+            <str name="page_format">image/vnd.djvu</str>
+            <int name="pages_count">0</int>
+            <arr name="parent_pid">
+                <str>uuid:5fe0b160-62d5-11dd-bdc7-000d606f5dc6</str>
+                <str>uuid:f0da6570-8f3b-11dd-b796-000d606f5dc6</str>
+            </arr>
+            <arr name="pid_path">
+                <str>uuid:cd2b2ad0-62d4-11dd-ac0e-000d606f5dc6/uuid:5fe0b160-62d5-11dd-bdc7-000d606f5dc6/uuid:28286e70-64a6-11dd-981a-000d606f5dc6
+                </str>
+                <str>uuid:cd2b2ad0-62d4-11dd-ac0e-000d606f5dc6/uuid:5fe0b160-62d5-11dd-bdc7-000d606f5dc6/uuid:f0da6570-8f3b-11dd-b796-000d606f5dc6/uuid:28286e70-64a6-11dd-981a-000d606f5dc6
+                </str>
+            </arr>
+            <int name="rels_ext_index">0</int>
+            <int name="rok">1817</int>
+            <str name="root_pid">uuid:cd2b2ad0-62d4-11dd-ac0e-000d606f5dc6
+            </str>
+            <str name="root_title">Kniha zlatá, anebo, Nowý Zwěstowatel wsseho
+                dobrého a vžitečného pro Národ Slowenský</str>
+            <str name="status">Active</str>
+            <arr name="text">
+                <str>[5]</str>
+                <str />
+                <str>[5]##NormalPage</str>
+            </arr>
+            <date name="timestamp">2011-08-03T09:01:38.035Z</date>
+            <bool name="viewable">true</bool>
+        </doc>
+    </result>
+
+</response>

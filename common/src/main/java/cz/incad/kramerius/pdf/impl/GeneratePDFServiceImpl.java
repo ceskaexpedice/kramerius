@@ -60,8 +60,10 @@ import com.lowagie.text.pdf.draw.VerticalPositionMark;
 import cz.incad.kramerius.Constants;
 import cz.incad.kramerius.FedoraAccess;
 import cz.incad.kramerius.FedoraNamespaces;
+import cz.incad.kramerius.ObjectPidsPath;
 import cz.incad.kramerius.ProcessSubtreeException;
 import cz.incad.kramerius.SolrAccess;
+import cz.incad.kramerius.TreeNodeProcessor;
 import cz.incad.kramerius.imaging.ImageStreams;
 import cz.incad.kramerius.impl.AbstractTreeNodeProcessorAdapter;
 import cz.incad.kramerius.pdf.Break;
@@ -283,15 +285,17 @@ public class GeneratePDFServiceImpl implements GeneratePDFService {
 
 	@Override
     public void dynamicPDFExport(String requestinguuid, String uuidFrom, int numberOfPage, String titlePage, OutputStream os, String imgServletUrl, String i18nUrl) throws IOException, ProcessSubtreeException {
-	    String[] pathOfUUIDs = solrAccess.getPathOfUUIDs(uuidFrom);
 	    
+        ObjectPidsPath[] paths = solrAccess.getPath(uuidFrom);
+        String[] pathFromRootToLeaf = paths[0].getPathFromRootToLeaf();
+        
         org.w3c.dom.Document relsExt = this.fedoraAccess.getRelsExt(uuidFrom);
         String modelName = this.fedoraAccess.getKrameriusModelName(relsExt);
         
         final AbstractRenderedDocument renderedDocument = new RenderedDocument(modelName, uuidFrom);
         renderedDocument.setDocumentTitle(TitlesUtils.title(requestinguuid, this.solrAccess, this.fedoraAccess));
         renderedDocument.setUuidTitlePage(titlePage);
-        renderedDocument.setUuidMainTitle(pathOfUUIDs[0]);
+        renderedDocument.setUuidMainTitle(pathFromRootToLeaf[0]);
         
         buildRenderingDocumentAsFlat(renderedDocument, uuidFrom, numberOfPage);
         generateCustomPDF(renderedDocument, uuidFrom,os, imgServletUrl,i18nUrl);
@@ -365,23 +369,26 @@ public class GeneratePDFServiceImpl implements GeneratePDFService {
 	private void buildRenderingDocumentAsFlat(/*org.w3c.dom.Document relsExt, String uuid,*/ final AbstractRenderedDocument renderedDocument, final String uuidFrom, /*final String uuidTo*/ final int howMany ) throws IOException, ProcessSubtreeException {
 	    if (fedoraAccess.isImageFULLAvailable(uuidFrom)) {
 	        
-	        String[] pathOfModels = solrAccess.getPathOfUUIDs(uuidFrom);
-	        String parent = pathOfModels[pathOfModels.length -2];
+	        //String[] pathOfModels = solrAccess.getPath(uuidFrom);
+	        //String[] pathOfModels = solrAccess.getPath(uuidFrom);
+	        ObjectPidsPath[] path = solrAccess.getPath(uuidFrom);
+	        String[] pathFromLeafToRoot = path[0].getPathFromLeafToRoot();
+	        String parent = pathFromLeafToRoot[pathFromLeafToRoot.length -2];
 	        
-            fedoraAccess.processSubtree("uuid:"+parent, new AbstractTreeNodeProcessorAdapter() {
+	        fedoraAccess.processSubtree(parent, new TreeNodeProcessor() {
                 private int index = 0;
                 private boolean acceptingState = false;
                 
                 @Override
-                public void processUuid(String processingUuid, int level) {
+                public void process(String pid, int level) throws ProcessSubtreeException {
                     try{
-                        if (fedoraAccess.isImageFULLAvailable(processingUuid)) {
-                            if (processingUuid.equals(uuidFrom)) {
+                        if (fedoraAccess.isImageFULLAvailable(pid)) {
+                            if (pid.equals(uuidFrom)) {
                                 acceptingState = true;
                             }
                             if (acceptingState) {
                                 if (index < howMany) {
-                                    renderedDocument.addPage(createPage(renderedDocument, processingUuid));
+                                    renderedDocument.addPage(createPage(renderedDocument, pid));
                                 }
                                 index += 1;
                                 if (index>=howMany) {
@@ -395,7 +402,7 @@ public class GeneratePDFServiceImpl implements GeneratePDFService {
                         LOGGER.log(Level.SEVERE, e.getMessage(), e);
                     }
                 }
-
+                
                 @Override
                 public boolean breakProcessing(String pid, int level) {
                     return index >= howMany;
@@ -404,15 +411,17 @@ public class GeneratePDFServiceImpl implements GeneratePDFService {
 	        
 		    
 		} else {
-		    
-		    fedoraAccess.processSubtree("uuid:"+uuidFrom, new AbstractTreeNodeProcessorAdapter() {
+
+	          fedoraAccess.processSubtree(uuidFrom, new TreeNodeProcessor() {
+
                 private int index = 0;
+
                 @Override
-                public void processUuid(String processingUuid, int level) {
+                public void process(String pid, int level) throws ProcessSubtreeException {
                     try{
-                        if (fedoraAccess.isImageFULLAvailable(processingUuid)) {
+                        if (fedoraAccess.isImageFULLAvailable(pid)) {
                             if (index < howMany) {
-                                renderedDocument.addPage(createPage(renderedDocument, processingUuid));
+                                renderedDocument.addPage(createPage(renderedDocument, pid));
                             }
                             index += 1;
                         }
@@ -427,7 +436,9 @@ public class GeneratePDFServiceImpl implements GeneratePDFService {
                 public boolean breakProcessing(String pid, int level) {
                     return index >= howMany;
                 }
-            });
+	              
+	          });
+
 		}
 	}
 	

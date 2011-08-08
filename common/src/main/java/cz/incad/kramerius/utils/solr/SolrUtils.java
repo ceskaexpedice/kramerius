@@ -18,7 +18,8 @@ package cz.incad.kramerius.utils.solr;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.URLEncoder;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.xpath.XPathConstants;
@@ -29,6 +30,7 @@ import javax.xml.xpath.XPathFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
 import cz.incad.kramerius.utils.RESTHelper;
@@ -53,18 +55,24 @@ public class SolrUtils   {
         return pidExpr;
     }
 
-    public static XPathExpression pathExpr() throws XPathExpressionException {
-        XPathExpression pathExpr = fact.newXPath().compile("//str[@name='path']");
+
+    public static XPathExpression modelPathExpr() throws XPathExpressionException {
+        XPathExpression pathExpr = fact.newXPath().compile("//arr[@name='model_path']/str");
         return pathExpr;
     }
-
-    public static String disectPidPath( Document parseDocument) throws XPathExpressionException {
-        Node pidPathNode = (Node) pidPathExpr().evaluate(parseDocument, XPathConstants.NODE);
-        if (pidPathNode != null) {
-            Element pidPathElm = (Element) pidPathNode;
-            return pidPathElm.getTextContent();
+    
+    public static List<String> disectPidPaths( Document parseDocument) throws XPathExpressionException {
+        List<String> list = new ArrayList<String>();
+        NodeList paths = (org.w3c.dom.NodeList) pidPathExpr().evaluate(parseDocument, XPathConstants.NODESET);
+        if (paths != null) {
+            for (int i = 0,ll=paths.getLength(); i < ll; i++) {
+                Node n = paths.item(i);
+                String text = n.getTextContent();
+                list.add(text.trim());
+            }
+            return list;
         }
-        return null;
+        return new ArrayList<String>();
     }
     
     public static String disectPid(Document parseDocument) throws XPathExpressionException {
@@ -76,13 +84,18 @@ public class SolrUtils   {
         return null;
     }
 
-    public static String disectPath(Document parseDocument) throws XPathExpressionException {
-        Node pathNode = (Node) pathExpr().evaluate(parseDocument, XPathConstants.NODE);
-        if (pathNode != null) {
-            Element pathElm = (Element) pathNode;
-            return pathElm.getTextContent();
+    public static List<String> disectModelPaths(Document parseDocument) throws XPathExpressionException {
+        List<String> list = new ArrayList<String>();
+        NodeList pathNodes = (NodeList) modelPathExpr().evaluate(parseDocument, XPathConstants.NODESET);
+        if (pathNodes != null) {
+            for (int i = 0,ll=pathNodes.getLength(); i < ll; i++) {
+                Node n = pathNodes.item(i);
+                String text = n.getTextContent();
+                list.add(text.trim());
+            }
+            return list;
         }
-        return null;
+        return new ArrayList<String>();
     }
 
 //    public static Document getSolrData(String uuid) throws IOException, ParserConfigurationException, SAXException {

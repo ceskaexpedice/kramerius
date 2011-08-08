@@ -19,16 +19,18 @@ package cz.incad.kramerius.security;
 import java.sql.SQLException;
 import java.util.List;
 
+import cz.incad.kramerius.ObjectPidsPath;
+
 public interface RightsManager {
     
     // najde prava pro uzivatele
     public Right[] findRights(String[] uuids, String action, User user);
 
     // interpretuje prava
-    public EvaluatingResult resolve(RightCriteriumContext ctx, String uuid, String[] path, String action, User user) throws RightCriteriumException;
+    public EvaluatingResult resolve(RightCriteriumContext ctx, String uuid, ObjectPidsPath path, String action, User user) throws RightCriteriumException;
     
     // interpretuje prava skrz celou cestu.  Od listu az ke korenu.
-    public EvaluatingResult[] resolveAllPath(RightCriteriumContext ctx, String uuid, String[] path, String action, User user) throws RightCriteriumException;
+    public EvaluatingResult[] resolveAllPath(RightCriteriumContext ctx, String uuid, ObjectPidsPath path, String action, User user) throws RightCriteriumException;
 
     
     // najde prava pro skupinu

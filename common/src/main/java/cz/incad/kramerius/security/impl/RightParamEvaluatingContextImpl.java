@@ -25,6 +25,7 @@ import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
 
 import cz.incad.kramerius.FedoraAccess;
+import cz.incad.kramerius.ObjectPidsPath;
 import cz.incad.kramerius.SolrAccess;
 import cz.incad.kramerius.security.AbstractUser;
 import cz.incad.kramerius.security.RightCriteriumContext;
@@ -34,8 +35,8 @@ import cz.incad.kramerius.utils.solr.SolrUtils;
 
 public class RightParamEvaluatingContextImpl implements RightCriteriumContext {
 
-    private String requestedUUID;
-    private String associatedUUID;
+    private String requestedPID;
+    private String associatedPID;
     private User user;
     private FedoraAccess fedoraAccess;
     private SolrAccess solrAccess;
@@ -44,9 +45,9 @@ public class RightParamEvaluatingContextImpl implements RightCriteriumContext {
     private String remoteHost;
     private String remoteAddr;    
     
-    public RightParamEvaluatingContextImpl(String reqUUID, User user, FedoraAccess fedoraAccess, SolrAccess solrAccess, UserManager userManager, String remoteHost, String remoteAddr) {
+    public RightParamEvaluatingContextImpl(String reqPID, User user, FedoraAccess fedoraAccess, SolrAccess solrAccess, UserManager userManager, String remoteHost, String remoteAddr) {
         super();
-        this.requestedUUID = reqUUID;
+        this.requestedPID = reqPID;
         this.user = user;
         this.fedoraAccess = fedoraAccess;
         this.solrAccess = solrAccess;
@@ -56,14 +57,14 @@ public class RightParamEvaluatingContextImpl implements RightCriteriumContext {
     }
 
     @Override
-    public String getRequestedUUID() {
-        return this.requestedUUID;
+    public String getRequestedPid() {
+        return this.requestedPID;
     }
 
     
     @Override
-    public String getAssociatedUUID() {
-        return this.associatedUUID;
+    public String getAssociatedPid() {
+        return this.associatedPID;
     }
 
     @Override
@@ -80,17 +81,16 @@ public class RightParamEvaluatingContextImpl implements RightCriteriumContext {
     
     @Override
     public void setAssociatedPid(String uuid) {
-        this.associatedUUID = uuid;
+        this.associatedPID = uuid;
     }
 
     @Override
-    public String[] getPathOfUUIDs() {
+    public ObjectPidsPath[] getPathsToRoot() {
         try {
-            Document solrData = this.solrAccess.getSolrDataDocumentByUUID(getRequestedUUID());
-            return SolrUtils.disectPidPath(solrData).split("/");
+            Document solrData = this.solrAccess.getSolrDataDocument(getRequestedPid());
+            return this.solrAccess.getPath(getRequestedPid());
+        
         } catch (IOException e) {
-            throw new IllegalStateException(e);
-        } catch (XPathExpressionException e) {
             throw new IllegalStateException(e);
         }
     }

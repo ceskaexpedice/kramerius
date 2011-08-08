@@ -30,6 +30,7 @@ import javax.xml.xpath.XPathExpression;
 import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
 
+import org.apache.commons.lang.NotImplementedException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -65,18 +66,18 @@ public class MovingWall extends AbstractCriterium implements RightCriterium {
 
         int wallFromConf = Integer.parseInt((String)getObjects()[0]);
         try {
-            String[] pathOfUUIDs = getEvaluateContext().getPathOfUUIDs();
+            throw new NotImplementedException("not implemented !");
+            /*
+            String[] pathOfUUIDs = getEvaluateContext().getPathsToRoot();
             List<String> path = new ArrayList<String>(Arrays.asList(pathOfUUIDs));
             Collections.reverse(path);
             for (String uuid : path) {
                 EvaluatingResult resolved = resolveInternal(wallFromConf, uuid);
                 if (resolved != EvaluatingResult.NOT_APPLICABLE) return resolved;
             }
-            return EvaluatingResult.NOT_APPLICABLE;
+            */
+//            /return EvaluatingResult.NOT_APPLICABLE;
         } catch (NumberFormatException e) {
-            LOGGER.log(Level.SEVERE,e.getMessage());
-            return EvaluatingResult.FALSE;
-        } catch (IOException e) {
             LOGGER.log(Level.SEVERE,e.getMessage());
             return EvaluatingResult.FALSE;
         }

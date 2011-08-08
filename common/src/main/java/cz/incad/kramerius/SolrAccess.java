@@ -27,12 +27,12 @@ import org.w3c.dom.Document;
  */
 public interface SolrAccess {
 
-        public Document getSolrDataDocumentByUUID(String uuid) throws IOException;
+        public Document getSolrDataDocument(String pid) throws IOException;
         
         public Document getSolrDataDocumentByHandle(String handle) throws IOException;
         
-        public String[] getPathOfUUIDs(String uuid) throws IOException;
+        public ObjectPidsPath[] getPath(String pid) throws IOException;
         
-        public String[] getPathOfModels(String uuid) throws IOException;
+        public ObjectModelsPath[] getPathOfModels(String pid) throws IOException;
         
 }

@@ -21,6 +21,7 @@ import java.net.Inet4Address;
 import org.w3c.dom.Document;
 
 import cz.incad.kramerius.FedoraAccess;
+import cz.incad.kramerius.ObjectPidsPath;
 
 /**
  * Implementation of this interface holds information 
@@ -34,13 +35,13 @@ public interface RightCriteriumContext {
      * Puvodne dotazovany objekt
      * @return
      */
-    public String getRequestedUUID();
+    public String getRequestedPid();
     
     /**
      * Objekt, se kterym je pravo asociovano
      * @return
      */
-    public String getAssociatedUUID();
+    public String getAssociatedPid();
     
     public void setAssociatedPid(String uuid);
     
@@ -48,7 +49,7 @@ public interface RightCriteriumContext {
      * Returns path from leaf to root tree
      * @return
      */
-    public String[] getPathOfUUIDs();
+    public ObjectPidsPath[] getPathsToRoot();
     
     /**
      * Current logged user

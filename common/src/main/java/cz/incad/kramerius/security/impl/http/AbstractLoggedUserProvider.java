@@ -34,6 +34,7 @@ import com.google.inject.Inject;
 import com.google.inject.Provider;
 import com.google.inject.name.Named;
 
+import cz.incad.kramerius.ObjectPidsPath;
 import cz.incad.kramerius.security.IsActionAllowed;
 import cz.incad.kramerius.security.SecuredActions;
 import cz.incad.kramerius.security.SpecialObjects;
@@ -103,7 +104,7 @@ public abstract class AbstractLoggedUserProvider implements Provider<User>{
         if (session.getAttribute(SECURITY_FOR_REPOSITORY_KEY) == null) {
             SecuredActions[] values = SecuredActions.values();
             for (SecuredActions securedAction : values) {
-                if (isActionAllowed.isActionAllowed(user, securedAction.getFormalName(), SpecialObjects.REPOSITORY.getUuid(), new String[0])) {
+                if (isActionAllowed.isActionAllowed(user, securedAction.getFormalName(), SpecialObjects.REPOSITORY.getPid(), ObjectPidsPath.REPOSITORY_PATH)) {
                     actionsForUser.add(securedAction.getFormalName());
                 }
             }

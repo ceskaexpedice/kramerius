@@ -31,6 +31,7 @@ import com.google.inject.Inject;
 import com.google.inject.Provider;
 import com.google.inject.name.Named;
 
+import cz.incad.kramerius.ObjectPidsPath;
 import cz.incad.kramerius.security.AbstractUser;
 import cz.incad.kramerius.security.EvaluatingResult;
 import cz.incad.kramerius.security.Role;
@@ -193,8 +194,9 @@ public class DatabaseRightsManager implements RightsManager {
 
     @Override
     @InitSecurityDatabase
-    public EvaluatingResult resolve(RightCriteriumContext ctx, String uuid, String[] path, String action, User user) throws RightCriteriumException {
-        List<String> pids = saturatePathAndCreatesPIDs(uuid, path);
+    public EvaluatingResult resolve(RightCriteriumContext ctx, String uuid, ObjectPidsPath path, String action, User user) throws RightCriteriumException {
+        List<String> pids = Arrays.asList(path.injectRepository().getPathFromRootToLeaf());
+        
         Right[] findRights = findRights((String[]) pids.toArray(new String[pids.size()]), action, user);
         findRights = SortingRightsUtils.sortRights(findRights, pids);
         for (Right right : findRights) {
@@ -209,8 +211,8 @@ public class DatabaseRightsManager implements RightsManager {
     }
 
     @InitSecurityDatabase
-    public EvaluatingResult[] resolveAllPath(RightCriteriumContext ctx, String uuid, String[] path, String action, User user) throws RightCriteriumException {
-        List<String> pids = saturatePathAndCreatesPIDs(uuid, path);
+    public EvaluatingResult[] resolveAllPath(RightCriteriumContext ctx, String pid, ObjectPidsPath path, String action, User user) throws RightCriteriumException {
+        List<String> pids = Arrays.asList(path.injectRepository().getPathFromLeafToRoot());
         Right[] findRights = findRights((String[]) pids.toArray(new String[pids.size()]), action, user);
         findRights = SortingRightsUtils.sortRights(findRights, pids);
         EvaluatingResult[] results = new EvaluatingResult[pids.size()];

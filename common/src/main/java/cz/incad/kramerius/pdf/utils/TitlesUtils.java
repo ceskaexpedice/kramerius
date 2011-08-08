@@ -24,6 +24,7 @@ import java.util.Map;
 import org.antlr.stringtemplate.StringTemplate;
 
 import cz.incad.kramerius.FedoraAccess;
+import cz.incad.kramerius.ObjectPidsPath;
 import cz.incad.kramerius.SolrAccess;
 
 public class TitlesUtils {
@@ -33,18 +34,20 @@ public class TitlesUtils {
     }
         
     
-    public static String title(String uuid, SolrAccess solrAccess, FedoraAccess fa, boolean renderModel) throws IOException {
-        String[] pathOfUUIDs = solrAccess.getPathOfUUIDs(uuid);
-        Map<String, String> mapModels = TitlesMapUtils.mapModels(fa, pathOfUUIDs);
-        Map<String, String> mapTitlesToUUID = TitlesMapUtils.mapTitlesToUUID(fa, pathOfUUIDs);
+    public static String title(String pid, SolrAccess solrAccess, FedoraAccess fa, boolean renderModel) throws IOException {
+        ObjectPidsPath[] paths = solrAccess.getPath(pid);
+        
+        String[] path = paths[0].getPathFromRootToLeaf();
+        Map<String, String> mapModels = TitlesMapUtils.mapModels(fa, path);
+        Map<String, String> mapTitlesToUUID = TitlesMapUtils.mapTitlesToUUID(fa, path);
         List<String> titles = new ArrayList<String>();
-        for (int i = 0; i < pathOfUUIDs.length; i++) {
-            String u = pathOfUUIDs[i];
+        for (int i = 0; i < path.length; i++) {
+            String u = path[i];
             String title = mapTitlesToUUID.get(u);
             if (titles.contains(title)) {
                 title = "...";
             }
-            if (i == pathOfUUIDs.length -1) {
+            if (i == path.length -1) {
                 title = title + (renderModel ? " ("+mapModels.get(u)+")":"");
             }
             titles.add(title);

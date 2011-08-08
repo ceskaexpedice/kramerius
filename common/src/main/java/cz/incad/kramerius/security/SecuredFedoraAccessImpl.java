@@ -19,6 +19,7 @@ import com.google.inject.Inject;
 import com.google.inject.name.Named;
 
 import cz.incad.kramerius.FedoraAccess;
+import cz.incad.kramerius.ObjectPidsPath;
 import cz.incad.kramerius.ProcessSubtreeException;
 import cz.incad.kramerius.SolrAccess;
 import cz.incad.kramerius.TreeNodeProcessor;
@@ -75,13 +76,15 @@ public class SecuredFedoraAccessImpl implements FedoraAccess {
     }
 
     public InputStream getImageFULL(String pid) throws IOException {
-        throw new IllegalArgumentException("ussupported because of SolrAccess (uuid -> pid ?");
-        /*
-        String[] pathOfUUIDs = this.solrAccess.getPathOfUUIDs(uuid);
-        if (this.isActionAllowed.isActionAllowed(SecuredActions.READ.getFormalName(), uuid, pathOfUUIDs)) {
-            return rawAccess.getImageFULL(uuid);
-        } else throw new SecurityException("access denided");
-        */
+
+        ObjectPidsPath[] paths = this.solrAccess.getPath(pid);
+        for (ObjectPidsPath path : paths) {
+            if (this.isActionAllowed.isActionAllowed(SecuredActions.READ.getFormalName(), pid, path)) {
+                return rawAccess.getImageFULL(pid);
+            }
+        }
+        throw new SecurityException("access denided");
+        
     }
 
 
@@ -141,11 +144,13 @@ public class SecuredFedoraAccessImpl implements FedoraAccess {
 
     @Override
     public boolean isContentAccessible(String pid) throws IOException {
-        /*
-        String[] pathOfUUIDs = this.solrAccess.getPathOfUUIDs(uuid);
-        return (this.isActionAllowed.isActionAllowed(SecuredActions.READ.getFormalName(), uuid, pathOfUUIDs));
-        */
-        throw new IllegalArgumentException("ussupported because of SolrAccess (uuid -> pid ?");
+        ObjectPidsPath[] paths = this.solrAccess.getPath(pid);
+        for (ObjectPidsPath path : paths) {
+            if (this.isActionAllowed.isActionAllowed(SecuredActions.READ.getFormalName(), pid, path)) {
+                return true;
+            }
+        }
+        return false;
     }
 
 
@@ -175,19 +180,17 @@ public class SecuredFedoraAccessImpl implements FedoraAccess {
     }
     
     public InputStream getDataStream(String pid, String datastreamName) throws IOException {
-        //if (FedoraUtils.IMG_FULL_STREAM.equals(datastreamName))
-        
-        throw new IllegalArgumentException("ussupported because of SolrAccess (uuid -> pid ?");
-
-        /*
         if (securedStream(datastreamName)) {
-            String[] pathOfUUIDs = this.solrAccess.getPathOfUUIDs(pid);
-            if (!this.isActionAllowed.isActionAllowed(SecuredActions.READ.getFormalName(), pid, pathOfUUIDs)) {
-                throw new SecurityException("access denided");
+            ObjectPidsPath[] paths = this.solrAccess.getPath(pid);
+            for (int i = 0; i < paths.length; i++) {
+                if (this.isActionAllowed.isActionAllowed(SecuredActions.READ.getFormalName(), pid, paths[i])) { 
+                    return rawAccess.getDataStream(pid, datastreamName);
+                }
             }
+            throw new SecurityException("access denided");
+        } else {
+            return rawAccess.getDataStream(pid, datastreamName);
         }
-        return rawAccess.getDataStream(pid, datastreamName);
-        */
     }
 
     
@@ -203,23 +206,23 @@ public class SecuredFedoraAccessImpl implements FedoraAccess {
 
     @Override
     public InputStream getFullThumbnail(String pid) throws IOException {
-        /*
-        String[] pathOfUUIDs = this.solrAccess.getPathOfUUIDs(uuid);
-        if (!this.isActionAllowed.isActionAllowed(SecuredActions.READ.getFormalName(), uuid, pathOfUUIDs)) {
+        boolean accessed = false;
+        ObjectPidsPath[] paths = this.solrAccess.getPath(pid);
+        for (ObjectPidsPath path : paths) {
+            if (this.isActionAllowed.isActionAllowed(SecuredActions.READ.getFormalName(), pid, path)) {
+                accessed  = true;
+                break;
+            }
+        }
+        
+        if (accessed) {
+            if (this.isStreamAvailable(pid, FedoraUtils.IMG_PREVIEW_STREAM)) {
+                return rawAccess.getFullThumbnail(pid);
+            } else throw new IOException("preview not found");
+        } else {
             throw new SecurityException("access denided");
         }
-        if (this.isStreamAvailable(uuid, FedoraUtils.IMG_PREVIEW_STREAM)) {
-            return rawAccess.getFullThumbnail(uuid);
-        } else {
-            String rootPath = KConfiguration.getInstance().getConfiguration().getString("fullThumbnail.cacheDirectory", "${sys:user.home}/.kramerius4/fullThumb");
-            File fullImgThumb = discStrucutreForStore.getUUIDFile(uuid, rootPath);
-            if (fullImgThumb.exists()) {
-                return new FileInputStream(fullImgThumb);
-            } else
-                throw new IOException("cannot find ");
-        }*/
-        throw new IllegalArgumentException("ussupported because of SolrAccess (uuid -> pid ?");
-
+        
         
     }
 
@@ -256,8 +259,4 @@ public class SecuredFedoraAccessImpl implements FedoraAccess {
     public Document getObjectProfile(String pid) throws IOException {
         return rawAccess.getObjectProfile(pid);
     }
-    
-    
-
-    
 }

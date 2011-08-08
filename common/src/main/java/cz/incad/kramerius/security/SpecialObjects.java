@@ -16,6 +16,8 @@
  */
 package cz.incad.kramerius.security;
 
+import cz.incad.kramerius.utils.pid.PIDParser;
+
 /**
  * Enumeration for special objects used in security system
  */
@@ -33,10 +35,14 @@ public enum SpecialObjects {
     public String getUuid() {
         return uuid;
     }
+    
+    public String getPid() {
+        return PIDParser.UUID_PREFIX+this.uuid;
+    }
 
-    public static SpecialObjects findSpecialObject(String uuid) {
+    public static SpecialObjects findSpecialObject(String pid) {
         for (SpecialObjects specialObject : values()) {
-            if (specialObject.getUuid().equals(uuid))  {
+            if (specialObject.getPid().equals(pid))  {
                 return specialObject;
             }
         }
@@ -44,8 +50,8 @@ public enum SpecialObjects {
         
     }
     
-    public static boolean isSpecialObject(String uuid) {
-        return findSpecialObject(uuid) != null;
+    public static boolean isSpecialObject(String pid) {
+        return findSpecialObject(pid) != null;
     }
     
     

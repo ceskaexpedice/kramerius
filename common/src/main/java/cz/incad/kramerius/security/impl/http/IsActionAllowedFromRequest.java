@@ -25,6 +25,7 @@ import javax.servlet.http.HttpServletRequest;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
 
+import cz.incad.kramerius.ObjectPidsPath;
 import cz.incad.kramerius.security.EvaluatingResult;
 import cz.incad.kramerius.security.Role;
 import cz.incad.kramerius.security.IsActionAllowed;
@@ -57,10 +58,10 @@ public class IsActionAllowedFromRequest implements IsActionAllowed {
     }
 
     @Override
-    public boolean isActionAllowed(String actionName, String uuid, String[] pathOfUuids) {
+    public boolean isActionAllowed(String actionName, String uuid, ObjectPidsPath path) {
         try {
             User user = this.currentLoggedUser.get();
-            return isAllowedInternalForFedoraDocuments(actionName, uuid, pathOfUuids, user);
+            return isAllowedInternalForFedoraDocuments(actionName, uuid, path, user);
         } catch (RightCriteriumException e) {
             logger.log(Level.SEVERE, e.getMessage(), e);
         }
@@ -68,9 +69,9 @@ public class IsActionAllowedFromRequest implements IsActionAllowed {
         return false;
     }
 
-    public boolean isActionAllowed(User user, String actionName, String uuid, String[] pathOfUuids) {
+    public boolean isActionAllowed(User user, String actionName, String uuid, ObjectPidsPath path) {
         try {
-            return isAllowedInternalForFedoraDocuments(actionName, uuid, pathOfUuids, user);
+            return isAllowedInternalForFedoraDocuments(actionName, uuid, path, user);
         } catch (RightCriteriumException e) {
             logger.log(Level.SEVERE, e.getMessage(), e);
         }
@@ -82,11 +83,11 @@ public class IsActionAllowedFromRequest implements IsActionAllowed {
 
 
     @Override
-    public boolean[] isActionAllowedForAllPath(String actionName, String uuid, String[] pathOfUuids) {
+    public boolean[] isActionAllowedForAllPath(String actionName, String pid, ObjectPidsPath path) {
         try {
             User user = this.currentLoggedUser.get();
-            RightCriteriumContext ctx = this.ctxFactory.create(uuid, user, this.provider.get().getRemoteHost(), this.provider.get().getRemoteAddr());
-            EvaluatingResult[] evalResults = this.rightsManager.resolveAllPath(ctx, uuid, pathOfUuids, actionName, user);
+            RightCriteriumContext ctx = this.ctxFactory.create(pid, user, this.provider.get().getRemoteHost(), this.provider.get().getRemoteAddr());
+            EvaluatingResult[] evalResults = this.rightsManager.resolveAllPath(ctx, pid, path, actionName, user);
             boolean[] results = new boolean[evalResults.length];
             for (int i = 0; i < results.length; i++) {
                 results[i] = resultOfResult(evalResults[i]);
@@ -94,13 +95,13 @@ public class IsActionAllowedFromRequest implements IsActionAllowed {
             return results;
         } catch (RightCriteriumException e) {
             logger.log(Level.SEVERE, e.getMessage(), e);
-            return new boolean[pathOfUuids.length];
+            return new boolean[path.getLength()];
         }
     }
 
-    public boolean isAllowedInternalForFedoraDocuments(String actionName, String uuid, String[] pathOfUuids, User user) throws RightCriteriumException {
+    public boolean isAllowedInternalForFedoraDocuments(String actionName, String uuid, ObjectPidsPath path, User user) throws RightCriteriumException {
         RightCriteriumContext ctx = this.ctxFactory.create(uuid, user, this.provider.get().getRemoteHost(), this.provider.get().getRemoteAddr());
-        EvaluatingResult result = this.rightsManager.resolve(ctx, uuid, pathOfUuids, actionName, user);
+        EvaluatingResult result = this.rightsManager.resolve(ctx, uuid, path, actionName, user);
         return result != null ? resultOfResult(result) : false;
     }
 
