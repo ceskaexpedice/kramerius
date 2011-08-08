@@ -114,7 +114,8 @@ public class SolrOperations {
                 fedoraOperations.getPidPaths(value);
             }
         } catch (Exception ex) {
-            logger.log(Level.SEVERE, null, ex);
+            logger.log(Level.SEVERE, "Cant index. Action:" + action +
+                    " Value: " + value, ex);
         } finally {
 
             finalDocCount = getDocCount();
@@ -458,7 +459,7 @@ public class SolrOperations {
     }
 
     private void deletePid(String pid) throws Exception {
-        StringBuilder sb = new StringBuilder("<delete><id>" + pid.replace(":", "\\:") + "</id></delete>");
+        StringBuilder sb = new StringBuilder("<delete><query>PID:" + pid.replace(":", "\\:") + "</query></delete>");
         logger.log(Level.FINE, "indexDoc=\n{0}", sb.toString());
         postData(config.getString("IndexBase") + "/update", new StringReader(sb.toString()), new StringBuilder());
         optimize();
@@ -630,8 +631,8 @@ public class SolrOperations {
         }
         int numHits = 200;
         String PID;
-        String urlStr = config.getString("solrHost") + "/select/?q=pid_path:\"" + pid_path
-                + "*\"&fl=PID&start=" + offset + "&rows=" + numHits;
+        String urlStr = config.getString("solrHost") + "/select/?q=pid_path:" + pid_path.replace(":", "\\:")
+                + "*&fl=PID&start=" + offset + "&rows=" + numHits;
         factory = XPathFactory.newInstance();
         xpath = factory.newXPath();
         java.net.URL url = new java.net.URL(urlStr);
@@ -648,7 +649,7 @@ public class SolrOperations {
             try {
                 fedoraOperations.fa.getAPIM().getObjectXML(PID);
             } catch (Exception e) {
-                logger.log(Level.INFO, PID + " doesn't exist. Deleting...", e);
+                logger.log(Level.INFO, PID + " doesn't exist. Deleting...");
                 deletePid(PID);
             }
         }
