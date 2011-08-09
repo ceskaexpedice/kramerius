@@ -31,7 +31,10 @@
     <jsp:useBean id="pid_path" type="java.lang.String" />
 </c:catch>
 --%>
+
+
     <%
+    // Muzu to vyhodit z jspecka do javy? 
         String model_path = "";   
 String pid_path = request.getParameter("pid_path");
         String[] pids = pid_path.split("/");
