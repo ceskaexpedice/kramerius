@@ -275,37 +275,47 @@
         
     function deleteUuid(){
         var pids = getAffectedPids();
+        
+        //lr?action=start&def=aggregate&out=text&nparams={delete;{"+pid+";"+pidpath+"};{...};{..}}
         showConfirmDialog(dictionary['administrator.dialogs.deleteconfirm'], function(){
+            var urlbuffer = "lr?action=start&def=aggregate&out=text&nparams={delete;"
             for(var i=0; i<pids.length; i++){
                     var pidpath = getPidPath(pids[i]);
                     var pid = pidpath.substring(pidpath.lastIndexOf("/") + 1);
-                    var url = "lr?action=start&def=delete&out=text&params="+pid+","+pidpath;
-                    if (_commonDialog) {
-                        $("#common_started_ok").hide();
-                        $("#common_started_failed").hide();
-                        $("#common_started_waiting").show();
-                        _commonDialog.dialog('open');
-                    } else {
-                    $("#common_started_waiting").show();
-                        _commonDialog = $("#common_started").dialog({
-                            bgiframe: true,
-                            width: 400,
-                            height: 100,
-                            modal: true,
-                            title: '',
-                            buttons: {
-                                "Close": function() {
-                                    $(this).dialog("close"); 
-                                } 
-                            } 
-                        });
+                    urlbuffer=urlbuffer+"{"+pid+";"+pidpath+"}";
+                    if (i<pids.length-1) {
+                       urlbuffer=urlbuffer+";" 
                     }
-
-                    $("#common_started_text").text(dictionary['administrator.dialogs.waitingdelete']);
-                    $("#common_started" ).dialog( "option", "title",  dictionary['administrator.menu.deleteuuid']);
-
-                    _startProcess(url);
             }
+
+
+            if (_commonDialog) {
+                $("#common_started_ok").hide();
+                $("#common_started_failed").hide();
+                $("#common_started_waiting").show();
+                _commonDialog.dialog('open');
+            } else {
+            $("#common_started_waiting").show();
+                _commonDialog = $("#common_started").dialog({
+                    bgiframe: true,
+                    width: 400,
+                    height: 100,
+                    modal: true,
+                    title: '',
+                    buttons: {
+                        "Close": function() {
+                            $(this).dialog("close"); 
+                        } 
+                    } 
+                });
+            }
+            urlbuffer=urlbuffer+"}";
+
+            $("#common_started_text").text(dictionary['administrator.dialogs.waitingdelete']);
+            $("#common_started" ).dialog( "option", "title",  dictionary['administrator.menu.deleteuuid']);
+
+            _startProcess(urlbuffer);
+    
         });
     }
         
