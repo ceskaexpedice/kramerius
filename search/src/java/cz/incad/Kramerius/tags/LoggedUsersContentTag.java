@@ -36,9 +36,9 @@ import cz.incad.kramerius.security.SpecialObjects;
 import cz.incad.kramerius.security.User;
 import cz.incad.kramerius.users.LoggedUsersSingleton;
 
-public class OnlyLogedContentTag extends BodyTagSupport {
+public class LoggedUsersContentTag extends BodyTagSupport {
     
-    static java.util.logging.Logger LOGGER = java.util.logging.Logger.getLogger(OnlyLogedContentTag.class.getName());
+    static java.util.logging.Logger LOGGER = java.util.logging.Logger.getLogger(LoggedUsersContentTag.class.getName());
 
     
     private BodyContent bodyContent;
@@ -48,6 +48,9 @@ public class OnlyLogedContentTag extends BodyTagSupport {
     
     @Inject
     LoggedUsersSingleton loggedUsersSingleton;
+    
+    @Inject
+    Provider<User> usersProvider;
     
     
     public BodyContent getBodyContent() {
@@ -62,7 +65,9 @@ public class OnlyLogedContentTag extends BodyTagSupport {
     public int doStartTag() throws JspException {
         Injector inj = (Injector) pageContext.getServletContext().getAttribute(Injector.class.getName());
         inj.injectMembers(this);
-
+        // store users key to session
+        this.usersProvider.get();
+        
         if (this.loggedUsersSingleton.isLoggedUser(this.provider)) {
             return EVAL_BODY_INCLUDE;
         } else {

@@ -17,58 +17,37 @@
 package cz.incad.Kramerius.tags;
 
 import java.io.IOException;
-import java.util.logging.Level;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.jsp.JspException;
-import javax.servlet.jsp.JspWriter;
 import javax.servlet.jsp.tagext.BodyContent;
 import javax.servlet.jsp.tagext.BodyTagSupport;
-import javax.servlet.jsp.tagext.TagSupport;
 
 import com.google.inject.Inject;
 import com.google.inject.Injector;
 import com.google.inject.Provider;
 
-import cz.incad.kramerius.ObjectPidsPath;
-import cz.incad.kramerius.SolrAccess;
-import cz.incad.kramerius.security.IsActionAllowed;
-import cz.incad.kramerius.security.SpecialObjects;
 import cz.incad.kramerius.security.User;
+import cz.incad.kramerius.users.LoggedUsersSingleton;
 
-public class SecuredContentTag extends BodyTagSupport {
+public class NotLoggedUsersContentTag extends BodyTagSupport {
     
-    static java.util.logging.Logger LOGGER = java.util.logging.Logger.getLogger(SecuredContentTag.class.getName());
+    static java.util.logging.Logger LOGGER = java.util.logging.Logger.getLogger(LoggedUsersContentTag.class.getName());
+
     
     private BodyContent bodyContent;
-    private String action;
-    private String pid = SpecialObjects.REPOSITORY.getPid();
     
     @Inject
-    private IsActionAllowed allowed;
+    Provider<HttpServletRequest> provider;
     
     @Inject
-    private SolrAccess solrAccess;
+    LoggedUsersSingleton loggedUsersSingleton;
     
     @Inject
-    private Provider<User> currentUserProvider;
+    Provider<User> usersProvider;
+
     
-    public String getAction() {
-        return action;
-    }
-
-    public void setAction(String action) {
-        this.action = action;
-    }
-    
-    public String getPid() {
-        return pid;
-    }
-
-    public void setPid(String pid) {
-        this.pid = pid;
-    }
-
     public BodyContent getBodyContent() {
         return bodyContent;
     }
@@ -77,43 +56,20 @@ public class SecuredContentTag extends BodyTagSupport {
         this.bodyContent = bodyContent;
     }
     
-    
-    public SolrAccess getSolrAccess() {
-        return solrAccess;
-    }
-
-    public void setSolrAccess(SolrAccess solrAccess) {
-        this.solrAccess = solrAccess;
-    }
 
     public int doStartTag() throws JspException {
         Injector inj = (Injector) pageContext.getServletContext().getAttribute(Injector.class.getName());
         inj.injectMembers(this);
+
         // store users key to session
-        this.currentUserProvider.get();
-        
-        try {
-            if (isActionAllowed()) {
-                return EVAL_BODY_INCLUDE;
-            } else {
-                ((HttpServletResponse)pageContext.getResponse()).setStatus(HttpServletResponse.SC_FORBIDDEN);
-                return SKIP_BODY;
-            }
-        } catch (IOException e) {
-            LOGGER.log(Level.SEVERE,e.getMessage(),e);
+        this.usersProvider.get();
+
+        if (!this.loggedUsersSingleton.isLoggedUser(this.provider)) {
+            return EVAL_BODY_INCLUDE;
+        } else {
+            ((HttpServletResponse)pageContext.getResponse()).setStatus(HttpServletResponse.SC_FORBIDDEN);
             return SKIP_BODY;
         }
-    }
-
-    
-    private boolean isActionAllowed() throws IOException {
-        ObjectPidsPath[] paths = this.solrAccess.getPath(this.getPid());
-        for (ObjectPidsPath p : paths) {
-            boolean b =  allowed.isActionAllowed(this.currentUserProvider.get(),this.action, this.pid, p);
-            if (b) return true;
-            
-        }
-        return false;
     }
 
     
@@ -128,5 +84,5 @@ public class SecuredContentTag extends BodyTagSupport {
         }    
         return SKIP_BODY;
     }
-
 }
+
