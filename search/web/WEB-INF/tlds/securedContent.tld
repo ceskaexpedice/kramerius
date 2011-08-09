@@ -24,10 +24,17 @@
     </tag>
     
     <tag>
-        <name>onlylogged</name>
-        <tagclass>cz.incad.Kramerius.tags.OnlyLogedContentTag</tagclass>
+        <name>loggedusers</name>
+        <tagclass>cz.incad.Kramerius.tags.LoggedUsersContentTag</tagclass>
         <bodycontent>JSP</bodycontent>
-        <info>Only logged content</info>
+        <info>Only logged users content</info>
+    </tag>
+
+    <tag>
+        <name>notloggedusers</name>
+        <tagclass>cz.incad.Kramerius.tags.NotLoggedUsersContentTag</tagclass>
+        <bodycontent>JSP</bodycontent>
+        <info>Only not logged users content</info>
     </tag>
     
 </taglib>
