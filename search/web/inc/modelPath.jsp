@@ -34,7 +34,7 @@
 
 
     <%
-    // Muzu to vyhodit z jspecka do javy? 
+    // Muzu to vyhodit z jspecka a dat do javy? 
         String model_path = "";   
 String pid_path = request.getParameter("pid_path");
         String[] pids = pid_path.split("/");
