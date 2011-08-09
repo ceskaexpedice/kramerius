@@ -4,6 +4,8 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/xml" prefix="x" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt" %>
 <%@ taglib uri="/WEB-INF/tlds/securedContent.tld" prefix="scrd" %>
+<%@ taglib uri="/WEB-INF/tlds/viewObjects.tld" prefix="view" %>
+
 
 <%@ page isELIgnored="false"%>
 <%@ page trimDirectiveWhitespaces="true"%>
@@ -65,12 +67,10 @@
     	<!--script  src="js/admin/admin.js" language="javascript" type="text/javascript"></script-->
 	   <script  src="js/rights/adminRights.js" language="javascript" type="text/javascript"></script>
     </scrd:loggedusers>
-    <%
-		Injector headerInjector = (Injector) application.getAttribute(Injector.class.getName());
-		HeaderViewObject headerViewObject = new HeaderViewObject();
-		headerInjector.injectMembers(headerViewObject);
-		pageContext.setAttribute("headerViewObject", headerViewObject);
-    %>
+    
+    <!-- header view object -->
+    <view:object name="headerViewObject" clz="cz.incad.Kramerius.views.HeaderViewObject"></view:object>
+    
     <title>${title}</title>
     <script language="JavaScript" type="text/javascript">
         

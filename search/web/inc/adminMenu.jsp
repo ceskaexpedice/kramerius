@@ -1,6 +1,9 @@
-<%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
+<%@taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
+<%@ taglib uri="/WEB-INF/tlds/viewObjects.tld" prefix="view" %>
+<view:object name="adminMenuViewObject" clz="cz.incad.Kramerius.views.adminmenu.AdminMenuViewObject"></view:object>
+
 <style type="text/css">
     #adminMenu{
         padding:5px;
@@ -642,7 +645,6 @@ function showIndexerAdmin(){
             } 
         });
     }
-    
 }
 
 function checkIndexed(){

@@ -21,6 +21,8 @@
 <%@ page isELIgnored="false"%>
 
 <%
+
+//TODO: Move to jstl
 	Injector inj = (Injector)application.getAttribute(Injector.class.getName());
 	LRProcessManager lrProcessMan= inj.getInstance(LRProcessManager.class);
 	DefinitionManager defMan = inj.getInstance(DefinitionManager.class);
