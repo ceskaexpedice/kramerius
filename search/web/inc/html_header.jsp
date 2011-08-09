@@ -3,6 +3,8 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/xml" prefix="x" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt" %>
+<%@ taglib uri="/WEB-INF/tlds/securedContent.tld" prefix="scrd" %>
+
 <%@ page isELIgnored="false"%>
 <%@ page trimDirectiveWhitespaces="true"%>
 
@@ -59,11 +61,10 @@
     <script type="text/javascript"  src="js/seadragon-min.js"></script>
     <script  src="js/pdf/pdf.js" language="javascript" type="text/javascript"></script>
 
-    <%  if (request.getRemoteUser() != null) {%>
-        <!--script  src="js/admin/admin.js" language="javascript" type="text/javascript"></script-->
-        <script  src="js/rights/adminRights.js" language="javascript" type="text/javascript"></script>
-    <% }%>
-    
+    <scrd:loggedusers>    
+    	<!--script  src="js/admin/admin.js" language="javascript" type="text/javascript"></script-->
+	   <script  src="js/rights/adminRights.js" language="javascript" type="text/javascript"></script>
+    </scrd:loggedusers>
     <%
 		Injector headerInjector = (Injector) application.getAttribute(Injector.class.getName());
 		HeaderViewObject headerViewObject = new HeaderViewObject();
