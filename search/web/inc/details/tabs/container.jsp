@@ -31,9 +31,10 @@
             <div id="itemtab_${xsl}" class="viewer" style="overflow:hidden;"></div>
             <script type="text/javascript">
                 $(document).ready(function(){
-                    updateCustomTab('${tab}', '${pid_path}');
+                    //updateCustomTab('${tab}', '${pid_path}');
                     $('#itemtab_${xsl}.viewer').bind('viewReady', function(event, viewerOptions){
-                        updateCustomTab('${tab}', viewerOptions.fullid);
+                        var pid_path = getPidPath(viewerOptions.fullid);
+                        updateCustomTab('${tab}', pid_path);
                     });
                 });
             </script>
@@ -42,8 +43,7 @@
 </div>
 <script type="text/javascript">
                 
-    function updateCustomTab(tab, fullid){
-        var pid_path = getPidPath(fullid);
+    function updateCustomTab(tab, pid_path){
          $.get('inc/details/tabs/loadCustom.jsp?tab='+tab+'&pid_path=' + pid_path, function(data){
             $('#itemtab_'+tab.split(".")[1]).html(data) ;
         });

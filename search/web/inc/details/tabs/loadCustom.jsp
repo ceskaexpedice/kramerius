@@ -1,3 +1,8 @@
+<%@page import="java.util.Collections"%>
+<%@page import="java.util.Collection"%>
+<%@page import="java.util.List"%>
+<%@page import="java.util.Arrays"%>
+<%@page import="java.util.ArrayList"%>
 <%@page import="cz.incad.kramerius.utils.XMLUtils"%>
 <%@page import="java.io.ByteArrayInputStream"%>
 <%@page import="java.io.InputStreamReader"%>
@@ -28,8 +33,12 @@
     String ds = tab.split("\\.")[0];
     String xsl = tab.split("\\.")[1] + ".xsl";
     String pid_path = request.getParameter("pid_path");
-
-    for (String pid : pid_path.split("/")) {
+    List<String> pids =  Arrays.asList(pid_path.split("/"));
+    if(ds.startsWith("-")){ 
+        Collections.reverse(pids);
+        ds = ds.substring(1);
+    }
+    for (String pid : pids) {
         if (fedoraAccess.isStreamAvailable(pid, ds)) {
             String mime = fedoraAccess.getMimeTypeForStream(pid, ds);
             if (mime.equals("text/plain")) {

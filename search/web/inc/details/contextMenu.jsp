@@ -63,6 +63,15 @@
         %>
     </ul>
 </div>
+<scrd:loggedusers>
+    <div id="reindex">
+        <div style="border-bottom:1px solid #E66C00; padding-bottom: 5px; margin-bottom: 5px;">
+            <input type="checkbox" id="reindex_check_integrity" checked="checked" /><label  for="check_integrity"> <fmt:message bundle="${lctx}">administrator.menu.dialogs.check_integrity</fmt:message></label>
+            <input type="checkbox" id="reindex_only_newer" /><label  for="only_newer"> <fmt:message bundle="${lctx}">administrator.menu.dialogs.only_newer</fmt:message></label>
+        </div>
+        
+    </div>
+</scrd:loggedusers>
 <script type="text/javascript">
     
     $(document).ready(function(){
@@ -124,7 +133,6 @@
         }
     }
     
-
     var _metadataDialog;
     function viewMetadata(){
         var fullpid = getAffectedPids()[0];
@@ -225,19 +233,56 @@
         
     }
 <scrd:loggedusers>
+    var _reindexDialog;
     function reindex(){
-        var fullpid = getAffectedPids()[0];
-        var uuid = fullpid.split('_')[1];
-        var models = fullpid.split('_')[0].split('-');
-        var model = models[models.length-1];
+        if (_reindexDialog) {
+            _reindexDialog.dialog('open');
+        } else {
+            _reindexDialog = $("#reindex").dialog({
+                bgiframe: true,
+                width: 500,
+                modal: true,
+                title:'',
+                buttons: {
+                    "Ok": function() {
+                        doReindex();
+                        $(this).dialog("close");
+                    },
+                    "Close": function() {
+                        $(this).dialog("close");
+                    }
+                }
+            });
 
-        var title = $(jq(fullpid)+">a").html();
+        }
+    }
+    
+    function doReindex(){
+        var pids = getAffectedPids();
+        var action;
+        if($("#reindex_only_newer").is(':checked')){
+            action = "reindexDoc";
+        }else{
+            action = "fromKrameriusModel";
+        }
+        var urlbuffer = "lr?action=start&def=aggregate&out=text&nparams={reindex;"
+        for(var i=0; i<pids.length; i++){
+                var pidpath = getPidPath(pids[i]);
+                var pid = pidpath.substring(pidpath.lastIndexOf("/") + 1);
+                var title = $(jq(pids[i])+">a").html();
+                var escapedTitle = replaceAll(title, ',', '');
+                escapedTitle = replaceAll(escapedTitle, '\n', '');
+                escapedTitle = escapedTitle.replace(/ +(?= )/g,'');
+                urlbuffer=urlbuffer+"{"+action+";"+replaceAll(pid, ":","\\:")+";"+replaceAll(escapedTitle, ":","\\:")+"}";
+                if (i<pids.length-1) {
+                   urlbuffer=urlbuffer+";" 
+                }
+        }
+        urlbuffer=urlbuffer+"}";
 
-        var escapedTitle = replaceAll(title, ',', '');
-        escapedTitle = replaceAll(escapedTitle, '\n', '');
-        escapedTitle = escapedTitle.replace(/ +(?= )/g,'');
 
-        var url = "lr?action=start&def=reindex&out=text&params=reindexDoc,"+uuid+","+escapedTitle;
+
+        //var url = "lr?action=start&def=reindex&out=text&params="+action+","+uuid+","+escapedTitle;
         if (_commonDialog) {
 
             $("#common_started_ok").hide();
@@ -259,13 +304,12 @@
                     }
                 }
             });
-
         }
 
         $("#common_started_text").text(dictionary['administrator.dialogs.waitingreindex']);
         $("#common_started" ).dialog( "option", "title",  dictionary['administrator.menu.dialogs.reindex.title']);
 
-        _startProcess(url);
+        _startProcess(urlbuffer);
     }
         
     function deletefromindex(){
