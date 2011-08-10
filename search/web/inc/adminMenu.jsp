@@ -382,6 +382,7 @@ function _startProcess(url) {
 	$.get(url, function(data) {
 		var text = _texts[data];
 		var t = dictionary[text];
+                //alert(data);
 		if (data.match("PLANNED$")=="PLANNED") {
 			_processTextOk(t);
 			setTimeout(_processStarted, 3000);
@@ -440,7 +441,7 @@ function noParamsProcess(process)  {
     	_commonDialog = $("#common_started").dialog({
 	        bgiframe: true,
 	        width: 400,
-	        height: 100,
+	        //height: 100,
 	        modal: true,
 	        title: '',
 	        buttons: {

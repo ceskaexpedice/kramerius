@@ -9,7 +9,7 @@
     <xsl:param name="bundle" select="document($bundle_url)/bundle" />
     <xsl:param name="numOpenedRows" select="numOpenedRows" />
     <xsl:variable name="generic" select="exts:new()" />
-    
+    <xsl:variable name="fqVal"><xsl:value-of select="/response/lst[@name='responseHeader']/lst[@name='params']/str[@name='fq']/text()" /></xsl:variable>
     <xsl:template match="/">
         <ul>
             <xsl:call-template name="facets" />
@@ -55,14 +55,17 @@
             <span class="ui-icon ui-icon-triangle-1-e folder" ></span>
             <a href="#"><xsl:value-of select="$bundle/value[@key=$facetname]" /></a>
             <ul><xsl:for-each select="./int">
-                <xsl:if test="position() = $numOpenedRows+1"><li class="more_facets" style="display:none;">
-                    <a><xsl:attribute name="href">javascript:toggleFacet('facet_<xsl:value-of select="$facetname" />')</xsl:attribute>...</a>
-                </li></xsl:if>
-                <li><xsl:if test="position() &gt; $numOpenedRows">
-                    <xsl:attribute name="class">more_facets</xsl:attribute>
+                <xsl:variable name="fqId"><xsl:value-of select="$facetname" />:"<xsl:value-of select="@name" />"</xsl:variable>
+                <xsl:if test="not (contains($fqVal, $fqId))">
+                    <xsl:if test="position() = $numOpenedRows+1"><li class="more_facets" style="display:none;">
+                        <a><xsl:attribute name="href">javascript:toggleFacet('facet_<xsl:value-of select="$facetname" />')</xsl:attribute>...</a>
+                    </li></xsl:if>
+                    <li><xsl:if test="position() &gt; $numOpenedRows">
+                        <xsl:attribute name="class">more_facets</xsl:attribute>
+                    </xsl:if>
+                    <a><xsl:attribute name="href">javascript:addFilter('<xsl:value-of select="$facetname" />', '<xsl:value-of select="@name" />')</xsl:attribute><xsl:value-of select="@name" /></a> (<xsl:value-of select="." />)
+                    </li>
                 </xsl:if>
-                <a><xsl:attribute name="href">javascript:addFilter('<xsl:value-of select="$facetname" />', '<xsl:value-of select="@name" />')</xsl:attribute><xsl:value-of select="@name" /></a> (<xsl:value-of select="." />)
-                </li>
             </xsl:for-each>
             </ul>
         </li>

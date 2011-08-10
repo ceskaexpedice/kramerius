@@ -19,19 +19,21 @@
         <li><a href="#bigThumbZone" class="vertical-text" ><fmt:message bundle="${lctx}">item.tab.image</fmt:message></a>        </li>
         <li><a href="#extendedMetadata" class="vertical-text" ><fmt:message bundle="${lctx}">item.tab.metadata</fmt:message></a></li>
         <c:forEach varStatus="status" var="tab" items="${tabs}"><c:if test="${! empty tab}">
-                <li><a href="#itemtab_${tab}" class="vertical-text"><fmt:message bundle="${lctx}">item.tab.${tab}</fmt:message></a></li>
+                <li><a href="#itemtab_${fn:substringAfter(tab, '.')}" class="vertical-text"><fmt:message bundle="${lctx}">item.tab.${tab}</fmt:message></a></li>
             </c:if></c:forEach>
         </ul>
     <%@include file="metadata.jsp" %>
     <%@include file="image.jsp" %>
     <c:forEach varStatus="status" var="tab" items="${tabs}">
         <c:if test="${! empty tab}">
-            <div id="itemtab_${tab}" class="viewer" style="overflow:hidden;"></div>
+            <c:set var="ds" value="${fn:substringBefore(tab, '.')}" />
+            <c:set var="xsl" value="${fn:substringAfter(tab, '.')}" />
+            <div id="itemtab_${xsl}" class="viewer" style="overflow:hidden;"></div>
             <script type="text/javascript">
                 $(document).ready(function(){
-                    updateCustomTab('${tab}', '${param.pid}');
-                    $('#itemtab_${tab}.viewer').bind('viewReady', function(event, viewerOptions){
-                        updateCustomTab('${tab}', viewerOptions.uuid);
+                    updateCustomTab('${tab}', '${pid_path}');
+                    $('#itemtab_${xsl}.viewer').bind('viewReady', function(event, viewerOptions){
+                        updateCustomTab('${tab}', viewerOptions.fullid);
                     });
                 });
             </script>
@@ -40,9 +42,10 @@
 </div>
 <script type="text/javascript">
                 
-    function updateCustomTab(tab, pid){
-         $.get('inc/details/tabs/loadCustom.jsp?tab='+tab+'&pid=' + pid, function(data){
-            $('#itemtab_'+tab).html(data) ;
+    function updateCustomTab(tab, fullid){
+        var pid_path = getPidPath(fullid);
+         $.get('inc/details/tabs/loadCustom.jsp?tab='+tab+'&pid_path=' + pid_path, function(data){
+            $('#itemtab_'+tab.split(".")[1]).html(data) ;
         });
     }
     function setMainContentWidth(){ 

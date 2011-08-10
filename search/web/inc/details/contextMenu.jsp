@@ -3,6 +3,7 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/xml" prefix="x"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt"%>
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions"%>
+<%@ taglib uri="/WEB-INF/tlds/securedContent.tld" prefix="scrd" %>
 <%@ page isELIgnored="false"%>
 <%@ page import="java.util.*"%>
 <%@page import="com.google.inject.Injector"%>
@@ -19,11 +20,12 @@
             menus.add(new ContextMenuItem("administrator.menu.persistenturl", "", "persistentURL", "", true));
             menus.add(new ContextMenuItem("administrator.menu.generatepdf", "_data_x_role", "printMorePages", "", true));
             menus.add(new ContextMenuItem("administrator.menu.downloadOriginal", "_data_x_role", "downloadOriginal", "", true));
-
-            if (request.getRemoteUser() != null) {
+%>
+<scrd:loggedusers>
+<%
                 menus.add(new ContextMenuItem("administrator.menu.reindex", "_data_x_role", "reindex", "", true));
                 menus.add(new ContextMenuItem("administrator.menu.deletefromindex", "_data_x_role", "deletefromindex", "", true));
-                menus.add(new ContextMenuItem("administrator.menu.deleteuuid", "_data_x_role", "deleteUuid", "", true));
+                menus.add(new ContextMenuItem("administrator.menu.deleteuuid", "_data_x_role", "deletePid", "", true));
                 menus.add(new ContextMenuItem("administrator.menu.setpublic", "_data_x_role", "changeFlag", "", true));
                 menus.add(new ContextMenuItem("administrator.menu.exportFOXML", "_data_x_role", "exportFOXML", "", true));
                 menus.add(new ContextMenuItem("administrator.menu.exportcd", "_data_x_role", "generateStatic",
@@ -38,8 +40,8 @@
                         "'" + SecuredActions.READ.getFormalName() + "', '" + SecuredActions.ADMINISTRATE.getFormalName() + "'", true));
                 menus.add(new ContextMenuItem("administrator.menu.editor", "_data_x_role", "openEditor",
                         "'" + kconfig.getEditorURL() + "'", true));
-            }
 %>
+</scrd:loggedusers>
 <div>Scope</div>
 <div class="scope selected viewer" id="scope_single"><fmt:message bundle="${lctx}">administrator.menu.active</fmt:message>
     <ul id="context_items_active"></ul>
@@ -222,12 +224,9 @@
     function downloadOriginal(){
         
     }
-    <%
-                if (request.getRemoteUser() != null) {
-                    // tady js funkce pro prihlasene
-%>
+<scrd:loggedusers>
     function reindex(){
-        var fullpid = getTreeActiveUuid();
+        var fullpid = getAffectedPids()[0];
         var uuid = fullpid.split('_')[1];
         var models = fullpid.split('_')[0].split('-');
         var model = models[models.length-1];
@@ -251,7 +250,7 @@
             _commonDialog = $("#common_started").dialog({
                 bgiframe: true,
                 width: 400,
-                height: 100,
+                //height: 100,
                 modal: true,
                 title:'',
                 buttons: {
@@ -273,7 +272,7 @@
             
     }
         
-    function deleteUuid(){
+    function deletePid(){
         var pids = getAffectedPids();
         
         //lr?action=start&def=aggregate&out=text&nparams={delete;{"+pid+";"+pidpath+"};{...};{..}}
@@ -282,7 +281,7 @@
             for(var i=0; i<pids.length; i++){
                     var pidpath = getPidPath(pids[i]);
                     var pid = pidpath.substring(pidpath.lastIndexOf("/") + 1);
-                    urlbuffer=urlbuffer+"{"+pid+";"+pidpath+"}";
+                    urlbuffer=urlbuffer+"{"+replaceAll(pid, ":","\\:")+";"+replaceAll(pidpath, ":","\\:")+"}";
                     if (i<pids.length-1) {
                        urlbuffer=urlbuffer+";" 
                     }
@@ -299,7 +298,7 @@
                 _commonDialog = $("#common_started").dialog({
                     bgiframe: true,
                     width: 400,
-                    height: 100,
+                    //height: 100,
                     modal: true,
                     title: '',
                     buttons: {
@@ -347,7 +346,6 @@
             
     }
         
-    <%            }
-    %>
+</scrd:loggedusers>
     
 </script>

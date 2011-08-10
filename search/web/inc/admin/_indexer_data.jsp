@@ -65,7 +65,10 @@
         background: url("img/alert.png") no-repeat;
     }
 </style>
-
+<div style="border-bottom:1px solid #E66C00; padding-bottom: 5px; margin-bottom: 5px;">
+    <input type="checkbox" id="check_integrity" checked="checked" /><label  for="check_integrity"> <fmt:message bundle="${lctx}">administrator.menu.dialogs.check_integrity</fmt:message></label>
+    <input type="checkbox" id="only_newer" /><label  for="only_newer"> <fmt:message bundle="${lctx}">administrator.menu.dialogs.only_newer</fmt:message></label>
+</div>
 <div style="border-bottom:1px solid #E66C00; padding-bottom: 5px; margin-bottom: 5px;">
     <fmt:message bundle="${lctx}">administrator.menu.dialogs.index_by_PID</fmt:message>: 
     <input type="text" id="pid_to_index" size="40" />

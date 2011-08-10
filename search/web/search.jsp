@@ -41,5 +41,12 @@
         <div id="footer">
             <%@ include file="inc/footer.jsp" %>
         </div>
+        <c:if test="${!empty param.error}">
+            <script type="text/javascript">
+                $(document).ready(function(){
+                    alert('<fmt:message bundle="${lctx}">error.${param.error}</fmt:message>');
+                });
+            </script>
+        </c:if>
     </body>
 </html>
