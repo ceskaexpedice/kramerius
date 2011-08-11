@@ -96,7 +96,10 @@ public class SolrOperations {
             } else if ("optimize".equals(action)) {
                 optimize();
             } else if ("fromKrameriusModel".equals(action)) {
-                checkIntegrityByDocument(value);
+                deleteDocument(value);
+                fromKrameriusModel(value);
+                optimize();
+            } else if ("fromKrameriusModelNoCheck".equals(action)) {
                 fromKrameriusModel(value);
                 optimize();
             } else if ("krameriusModel".equals(action)) {
