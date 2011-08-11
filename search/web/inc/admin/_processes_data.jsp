@@ -64,29 +64,63 @@
 
 
 <scrd:securedContent action="manage_lr_process">
-<div> 
+<style type="text/css">
+    #processes_list>div.header{
+        height:20px;
+        padding-top:5px;
+        padding-right:10px;
+    }
+    #processes_list>div.header>div.title{
+        float:left;
+        padding-left: 30px;
+        width:100px;
+    }
+    #processes_list>div.header>div.title>a{
+        float:left;
+    }
+    #processes_list>div.header>div.buttons{
+        float:right;
+    }
+    #processes_list>div.header>div.buttons>a{
+        float:left;
+    }
+    #processes_list>div.separator{
+        width:100%;
+        border-top: 2px solid #E66C00;
+        margin-top: 3px;
+    }
+     
+         
+</style>
+<div id="processes_list" align="center">
 <script type="text/javascript">
 
 function _ref(ordering, offset, size, type) {
-	$('#animation').attr('src', 'img/refresh_ani.gif');
+	//$('#animation').attr('src', 'img/refresh_ani.gif');
 	var refreshurl = "inc/admin/_processes_data.jsp?ordering="+ordering+"&offset="+offset+"&size="+size+"&type="+type;
 	$.get(refreshurl, function(sdata) {
-		$('#animation').attr('src', 'img/refresh.png'); 
+		//$('#animation').attr('src', 'img/refresh.png'); 
 		$("#processes").html(sdata);
 	});
 }
 
 </script>
+<div class="header">
+    <div class="title">
+        <c:if test="${processView.offsetValue>0}">
+            <a href="javascript:modifyProcessDialogData('${processView.ordering}',${processView.offsetValue-processView.pageSize},${processView.pageSize},'${processView.typeOfOrdering}');"><span class="ui-icon ui-icon-arrowthick-1-w">previous</span></a>
+        </c:if>
+        &emsp;
+        <c:if test="${processView.hasNext}">
+            <a href="javascript:modifyProcessDialogData('${processView.ordering}',${processView.offsetValue+processView.pageSize},${processView.pageSize},'${processView.typeOfOrdering}');"><span class="ui-icon ui-icon-arrowthick-1-e">next</span></a>
+        </c:if>
+        
+    </div>
+    <div class="buttons" >
+        <a href="javascript:_ref('${processView.ordering}',${processView.offsetValue},${processView.pageSize},'${processView.typeOfOrdering}');"><span class="ui-icon ui-icon-transferthick-e-w">refresh</span></a>
+    </div>
+</div>
 
-<table width="100%">
-<tr>
-    <td width="80%">${processView.prevAHREF} &emsp;  ${processView.nextAHREF}</td> 
-    <td style="text-align: center;">
-        <a href="javascript:_ref('<%= ordering %>',<%= offset %>,<%= size %>,'<%= type %>');"> <img  border="0" id="animation" src="img/refresh.png" alt="refresh"></img> refresh   </a>
-    </td>
-    
-</tr>
-</table>
 </div>
 <table width="100%" style="width:100%; bottom:20px;">
     <thead style="border-bottom: dashed 1px;background-image:url('img/bg_processheader.png');

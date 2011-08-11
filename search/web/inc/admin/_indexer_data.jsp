@@ -60,9 +60,11 @@
     }
     .indexer_result_indexed{
         background: url("img/ok.png") no-repeat;
+        width:20px;
     }
     .indexer_result_notindexed{
         background: url("img/alert.png") no-repeat;
+        width:20px;
     }
 </style>
 <div style="border-bottom:1px solid #E66C00; padding-bottom: 5px; margin-bottom: 5px;">

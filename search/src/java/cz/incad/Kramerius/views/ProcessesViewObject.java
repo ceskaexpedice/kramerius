@@ -50,6 +50,29 @@ public class ProcessesViewObject {
 		}
 		return objects;
 	}
+        
+        public boolean getHasNext(){
+            int count = this.processManager.getNumberOfLongRunningProcesses();
+            int oset = Integer.parseInt(this.offset.getOffset());
+            int size = Integer.parseInt(this.offset.getSize());
+            return (oset+size) < count ;
+        }
+        
+        public int getOffsetValue(){
+            return Integer.parseInt(this.offset.getOffset());
+        }
+        
+        public int getPageSize(){
+            return Integer.parseInt(this.offset.getSize());
+        }
+        
+        public String getOrdering(){
+            return this.ordering.toString();
+        }
+        
+        public String getTypeOfOrdering(){
+            return this.typeOfOrdering.getTypeOfOrdering();
+        }
 	
 	public String getNextAHREF() {
 		try {
@@ -161,10 +184,21 @@ public class ProcessesViewObject {
 	}
 	
 	private String newOrderingURL(LRProcessOrdering nOrdering, String name, TypeOfOrdering ntypeOfOrdering) {
-		String href = "<a href=\"javascript:modifyProcessDialogData('"+nOrdering+"','"+this.offset.getOffset()+"','"+this.offset.getSize()+"','"+ntypeOfOrdering.getTypeOfOrdering()+"');\">"+name+"</a>";
+		String href = "<a href=\"javascript:modifyProcessDialogData('"+
+                        nOrdering+"','"+
+                        this.offset.getOffset()+"','"+
+                        this.offset.getSize()+"','"+
+                        ntypeOfOrdering.getTypeOfOrdering()+"');\"";
 		if (this.ordering.equals(nOrdering)) {
-			href += orderingImg(nOrdering);
+			//href += orderingImg(nOrdering);
+                    if (typeOfOrdering.equals(TypeOfOrdering.DESC)) {
+			href += " class=\"order_down\"";
+                    } else {
+                        href += " class=\"order_up\"";
+                    }
+                    
 		}
+                href += ">"+ name+"</a>";
 		return href;
 	}
 	

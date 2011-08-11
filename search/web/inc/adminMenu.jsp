@@ -657,9 +657,9 @@ function checkIndexed(){
         url = "inc/admin/_indexer_check.jsp?pid="+pid;
         $.get(url, function(data) {
             if(trim10(data)=="1"){
-              $(obj).addClass("indexer_result_indexed");
+              $(obj).children('td:eq(0)').addClass("indexer_result_indexed");
             }else{
-               $(obj).addClass("indexer_result_notindexed"); 
+               $(obj).children('td:eq(0)').addClass("indexer_result_notindexed"); 
             }
         });
     });
