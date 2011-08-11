@@ -76,9 +76,18 @@
                 <xsl:choose>
                     <xsl:when test="/foxml:digitalObject/foxml:datastream/foxml:datastreamVersion[last()]/foxml:xmlContent/oai_dc:dc/dc:type">
                         <xsl:for-each select="/foxml:digitalObject/foxml:datastream/foxml:datastreamVersion[last()]/foxml:xmlContent/oai_dc:dc/dc:type">
-                        <field name="document_type">
-                            <xsl:value-of select="substring(./text(), 7)"/>
-                        </field>
+                        <xsl:choose>
+                            <xsl:when test="starts-with(./text(), 'model:')">
+                                <field name="document_type">
+                                    <xsl:value-of select="substring(./text(), 7)"/>
+                                </field>
+                            </xsl:when>
+                            <xsl:otherwise>
+                                <field name="document_type">
+                                    <xsl:value-of select="./text()"/>
+                                </field>
+                            </xsl:otherwise>
+                        </xsl:choose>
                         </xsl:for-each>
                     </xsl:when>
                     <xsl:otherwise>
