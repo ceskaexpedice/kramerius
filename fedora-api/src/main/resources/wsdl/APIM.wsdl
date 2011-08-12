@@ -493,6 +493,21 @@
           </sequence>
         </complexType>
       </element>
+      <element name="validate">
+        <complexType>
+          <sequence>
+            <element name="pid" type="xsd:string"/>
+            <element name="asOfDateTime" nillable="true" type="xsd:string"/>
+          </sequence>
+        </complexType>
+      </element>
+      <element name="validateResponse">
+        <complexType>
+          <sequence>
+            <element name="validation" type="fedora-types:Validation"/>
+          </sequence>
+        </complexType>
+      </element>
       <!--             -->
       <!-- Array Types -->
       <!--             -->
@@ -753,6 +768,40 @@
           <element name="retainPIDs" nillable="true" type="fedora-types:ArrayOfString"/>
         </sequence>
       </complexType>
+      <complexType name="Validation">
+        <sequence>
+          <element name="asOfDateTime" nillable="true" type="xsd:dateTime"/>
+          <element name="objModels" nillable="true">
+            <complexType>
+              <sequence>
+                <element maxOccurs="unbounded" minOccurs="0" name="model" type="xsd:string"/>
+              </sequence>
+            </complexType>
+          </element>
+          <element name="objProblems" nillable="true">
+            <complexType>
+              <sequence>
+                <element maxOccurs="unbounded" minOccurs="0" name="problem" type="xsd:string"/>
+              </sequence>
+            </complexType>
+          </element>
+          <element name="datastreamProblems" nillable="true">
+            <complexType>
+              <sequence>
+                <element maxOccurs="unbounded" minOccurs="0" name="datastream" type="fedora-types:datastreamProblem"/>
+              </sequence>
+            </complexType>
+          </element>
+        </sequence>
+        <attribute name="pid" type="xsd:string" use="required"/>
+        <attribute name="valid" type="xsd:boolean" use="required"/>
+      </complexType>
+      <complexType name="datastreamProblem">
+        <sequence>
+          <element maxOccurs="1" minOccurs="1" name="datastreamID" type="xsd:string"/>
+          <element maxOccurs="unbounded" minOccurs="0" name="problem" type="xsd:string"/>
+        </sequence>
+      </complexType>
       <!--                   -->
       <!-- Misc Simple Types -->
       <!--                   -->
@@ -897,6 +946,12 @@
   <message name="purgeRelationshipResponse">
     <part element="fedora-types:purgeRelationshipResponse" name="parameters"/>
   </message>
+  <message name="validateRequest">
+    <part element="fedora-types:validate" name="parameters"/>
+  </message>
+  <message name="validateResponse">
+    <part element="fedora-types:validateResponse" name="parameters"/>
+  </message>
   <portType name="Fedora-API-M">
     <operation name="ingest">
       <input message="fedora-api:ingestRequest"/>
@@ -973,6 +1028,10 @@
     <operation name="purgeRelationship">
       <input message="fedora-api:purgeRelationshipRequest"/>
       <output message="fedora-api:purgeRelationshipResponse"/>
+    </operation>
+    <operation name="validate">
+      <input message="fedora-api:validateRequest"/>
+      <output message="fedora-api:validateResponse"/>
     </operation>
   </portType>
   <binding name="Fedora-API-M-Binding-SOAPHTTP" type="fedora-api:Fedora-API-M">
@@ -1160,6 +1219,16 @@
     <operation name="purgeRelationship">
       <soap:operation
         soapAction="http://www.fedora.info/definitions/1/0/api/#purgeRelationship" style="document"/>
+      <input>
+        <soap:body use="literal"/>
+      </input>
+      <output>
+        <soap:body use="literal"/>
+      </output>
+    </operation>
+    <operation name="validate">
+      <soap:operation
+        soapAction="http://www.fedora.info/definitions/1/0/api/#validate" style="document"/>
       <input>
         <soap:body use="literal"/>
       </input>
