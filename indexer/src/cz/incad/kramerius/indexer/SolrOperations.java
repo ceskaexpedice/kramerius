@@ -109,6 +109,8 @@ public class SolrOperations {
                 reindexDoc(value, false);
             } else if ("reindexDocForced".equals(action)) {
                 reindexDoc(value, true);
+            } else if ("checkIntegrity".equals(action)) {
+                checkIntegrity();
             } else if ("checkIntegrityByModel".equals(action)) {
                 checkIntegrityByModel(value);
             } else if ("checkIntegrityByDocument".equals(action)) {
@@ -465,7 +467,6 @@ public class SolrOperations {
         StringBuilder sb = new StringBuilder("<delete><query>PID:" + pid.replace(":", "\\:") + "</query></delete>");
         logger.log(Level.FINE, "indexDoc=\n{0}", sb.toString());
         postData(config.getString("IndexBase") + "/update", new StringReader(sb.toString()), new StringBuilder());
-        optimize();
         deleteTotal++;
     }
 
@@ -662,19 +663,27 @@ public class SolrOperations {
         }
     }
 
+    private void checkIntegrity() throws Exception {
+        String[] models = config.getStringArray("fedora.topLevelModels");
+        for (String model : models) {
+            checkIntegrityByModel(model, 0);
+        }
+    }
+
     private void checkIntegrityByModel(String model) throws Exception {
         checkIntegrityByModel(model, 0);
+        optimize();
     }
 
     private void checkIntegrityByModel(String model, int offset) throws Exception {
-        logger.log(Level.INFO, "checkIntegrityByModel. offset: {0}", offset);
+        logger.log(Level.INFO, "checkIntegrityByModel. model: {0}; offset: {1}", new String[]{model, Integer.toString(offset)});
         if (model == null || model.length() < 1) {
             return;
         }
         int numHits = 200;
         String PID;
         String pid_path;
-        String urlStr = config.getString("solrHost") + "/select/?q=fedora.model:\"" + model + "\"&fl=PID,pid_path&start="
+        String urlStr = config.getString("solrHost") + "/select/?q=model_path:" + model + "*&fl=PID,pid_path&start="
                 + offset + "&rows=" + numHits;
         factory = XPathFactory.newInstance();
         xpath = factory.newXPath();
@@ -690,13 +699,17 @@ public class SolrOperations {
             node = nodeList.item(i);
             PID = node.getFirstChild().getNodeValue();
             pid_path = node.getNextSibling().getFirstChild().getNodeValue();
-            try {
-                fedoraOperations.fa.getAPIM().getObjectXML(PID);
-                //logger.info("je: " + PID+" ----- " + pid_path);
-            } catch (Exception e) {
-                logger.log(Level.INFO, PID + " doesn't exist. Deleting...", e);
-                deleteDocument(pid_path);
+            
+            if(!rindex.existsPid(PID)){
+                logger.log(Level.INFO, PID + " doesn't exist. Deleting...");
+                deletePid(PID);
             }
+//            try {
+//                fedoraOperations.fa.getAPIM().getObjectXML(PID);
+//            } catch (Exception e) {
+//                logger.log(Level.INFO, PID + " doesn't exist. Deleting...", e);
+//                deleteDocument(pid_path);
+//            }
         }
         if (nodeList.getLength() > 0) {
             checkIntegrityByModel(model, offset + numHits);
