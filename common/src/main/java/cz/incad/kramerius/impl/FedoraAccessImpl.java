@@ -12,16 +12,15 @@ import java.io.InputStream;
 import java.io.StringReader;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
-import java.net.URL;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.logging.Level;
 
-import javax.xml.namespace.QName;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.ws.BindingProvider;
 import javax.xml.xpath.XPath;
@@ -531,40 +530,28 @@ public class FedoraAccessImpl implements FedoraAccess {
     }
 
     private void initAPIA() {
-        final String user = KConfiguration.getInstance().getFedoraUser();
-        final String pwd = KConfiguration.getInstance().getFedoraPass();
-        FedoraAPIAService APIAservice = null;
-        try {
-            APIAservice = new FedoraAPIAService(new URL(KConfiguration.getInstance().getFedoraHost() + "/wsdl?api=API-A"),
-                    new QName("http://www.fedora.info/definitions/1/0/api/", "Fedora-API-A-Service"));
-        } catch (MalformedURLException e) {
-            LOGGER.severe("InvalidURL API-A:" + e);
-            throw new RuntimeException(e);
-        }
-        APIAport = APIAservice.getPort(FedoraAPIA.class);
-        ((BindingProvider) APIAport).getRequestContext().put(BindingProvider.USERNAME_PROPERTY, user);
-        ((BindingProvider) APIAport).getRequestContext().put(BindingProvider.PASSWORD_PROPERTY, pwd);
-
-
+        FedoraAPIAService APIAservice = new FedoraAPIAService();
+        APIAport = APIAservice.getFedoraAPIAServiceHTTPPort();
+        connectFedora((BindingProvider) APIAport,
+                KConfiguration.getInstance().getFedoraHost() + "/services/access");
     }
 
     private void initAPIM() {
+        FedoraAPIMService APIMservice = new FedoraAPIMService();
+        APIMport = APIMservice.getFedoraAPIMServiceHTTPPort();
+        connectFedora((BindingProvider) APIMport,
+                KConfiguration.getInstance().getFedoraHost() + "/services/management");
+    }
+    
+    private static void connectFedora(BindingProvider portBinding, String endpointAddress) {
         final String user = KConfiguration.getInstance().getFedoraUser();
         final String pwd = KConfiguration.getInstance().getFedoraPass();
-        FedoraAPIMService APIMservice = null;
-        try {
-            APIMservice = new FedoraAPIMService(new URL(KConfiguration.getInstance().getFedoraHost() + "/wsdl?api=API-M"),
-                    new QName("http://www.fedora.info/definitions/1/0/api/", "Fedora-API-M-Service"));
-        } catch (MalformedURLException e) {
-            LOGGER.severe("InvalidURL API-M:" + e);
-            throw new RuntimeException(e);
-        }
-        APIMport = APIMservice.getPort(FedoraAPIM.class);
-        ((BindingProvider) APIMport).getRequestContext().put(BindingProvider.USERNAME_PROPERTY, user);
-        ((BindingProvider) APIMport).getRequestContext().put(BindingProvider.PASSWORD_PROPERTY, pwd);
-
-
+        final Map<String, Object> context = portBinding.getRequestContext();
+        context.put(BindingProvider.ENDPOINT_ADDRESS_PROPERTY, endpointAddress);
+        context.put(BindingProvider.USERNAME_PROPERTY, user);
+        context.put(BindingProvider.PASSWORD_PROPERTY, pwd);
     }
+    
     /*
     private List<String> treePredicates = Arrays.asList(new String[]{
     "http://www.nsdl.org/ontologies/relationships#hasPage",
