@@ -25,8 +25,9 @@
         <c:set var="qclass" >searchQuery ui-corner-all searching</c:set>
     </c:otherwise>
 </c:choose>
-    <input id="debug" name="debug" type="hidden"
-           value="${param.debug}" /> <input type="text"
+    <input id="debug" name="debug" type="hidden" value="${param.debug}" /> 
+    <input id="sort" name="sort" type="hidden" value="${param.sort}" /> 
+    <input type="text"
            alt="" name="q" id="q"
            value="${qtext}" size="50"
            class="${qclass}" type="text" onclick="checkSearchInput();"> &nbsp;

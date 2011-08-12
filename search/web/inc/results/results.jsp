@@ -1,4 +1,5 @@
 <%@ page contentType="text/html" pageEncoding="UTF-8" %>
+<%@ taglib uri="/WEB-INF/tlds/securedContent.tld" prefix="scrd" %>
 <div id="dateAxis" class="shadow box" style="float:right;right:0;z-index:2;background:white;position:absolute;">
 <div id="showHideDA" ><a href="javascript:toggleDA();" title="show/hide date axis"><span class="ui-state-default ui-icon ui-icon-image ui-icon-circle-triangle-e"></span></a></div>
     <div id="daBox">
@@ -7,11 +8,11 @@
 </div>
 <div id="facets">
     <%@ include file="../usedFilters.jsp" %>
-    <%@include file="../facets.jsp" %>
+    <%@ include file="../facets.jsp" %>
 </div>
 <div id="docs">
-    &#160;<c:out value="${numDocs}" />&#160;<c:out value="${numDocsStr}" />
-    <%@include file="docs.jsp" %>
+    <%--&#160;<c:out value="${numDocs}" />&#160;<c:out value="${numDocsStr}" />--%>
+    <%@ include file="docs.jsp" %>
 </div>
 <script type="text/javascript">
 
@@ -112,10 +113,20 @@ $(document).ready(function(){
             $(jq(id)).removeClass('more_docs');
             $('.loading_docs').hide();
             checkHeight(offset);
-<%  if (request.getRemoteUser() != null) {%>
+<scrd:loggedusers>
             $(jq(id)+' .result').append('<input type="checkbox" />');
-<% }%>
+</scrd:loggedusers>
         });
+    }
+    
+    function sortByTitle(dir){
+        $('#sort').val('root_title '+dir);
+        $('#searchForm').submit();
+    }
+    
+    function sortByRank(){
+        $('#sort').val('level asc, score desc');
+        $('#searchForm').submit();
     }
 
     function addFilter(field, value){

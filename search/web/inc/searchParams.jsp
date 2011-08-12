@@ -137,10 +137,10 @@ pageContext.setAttribute("search_results_rows", search_results_rows);
             <c:param name="sort" value="${sort}" />
         </c:when>
         <c:when test="${fieldedSearch}">
-            <c:param name="sort" value="level asc, title asc, score desc" />
+            <c:param name="sort" value="level asc, root_title_cs asc, score desc" />
         </c:when>
         <c:when test="${empty param.q}" >
-            <c:param name="sort" value="level asc, title asc, score desc" />
+            <c:param name="sort" value="level asc, root_title_cs asc, score desc" />
         </c:when>
         <c:otherwise>
             <c:param name="sort" value="level asc, score desc" />

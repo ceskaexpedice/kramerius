@@ -10,6 +10,7 @@
     <xsl:param name="fqs" select="fqs" />
     <xsl:param name="q" select="q" />
     <xsl:param name="numOpenedRows" select="5" />
+    <xsl:variable name="numDocs"><xsl:value-of select="number(/response/result/@numFound)" /></xsl:variable>
     <xsl:variable name="generic" select="exts:new()" />
     
     <xsl:template match="/">
@@ -26,12 +27,11 @@
                 </xsl:choose>
 
             </xsl:variable>
-            <xsl:variable name="numDocs"><xsl:value-of select="number(/response/result/@numFound)" /></xsl:variable>
 
         <xsl:if test="/response/result/doc" >
             <xsl:choose>
                 <xsl:when test="$start = 0">
-                <div style="float:right;margin-right:30px;">1 sloupec<input id="cols" type="checkbox" name="cols" value="1" onclick="toggleColumns();" /></div>
+                <xsl:call-template name="head" />
                 <div class="clear"></div>
                 <div>
                     <xsl:attribute name="id">offset_<xsl:value-of select="$start"/></xsl:attribute>
@@ -48,6 +48,26 @@
             <img src="img/loading.gif" /><br/>loading more documents...</div>
             </xsl:if>
          </xsl:if>
+    </xsl:template>
+    
+    <xsl:template name="head">
+        <xsl:variable name="numDocsStr">
+            <xsl:choose>
+                <xsl:when test="$numDocs=1"><xsl:value-of select="$bundle/value[@key='common.documents.singular']"/></xsl:when>
+                <xsl:when test="$numDocs&gt;1 and numDocs&lt;5"><xsl:value-of select="$bundle/value[@key='common.documents.plural_1']"/></xsl:when>
+                <xsl:otherwise><xsl:value-of select="$bundle/value[@key='common.documents.plural_2']"/></xsl:otherwise>
+            </xsl:choose>
+        </xsl:variable>
+        <div style="float:left;margin-left:5px;">
+            <xsl:value-of select="$numDocs" />&#160;<xsl:value-of select="$numDocsStr" />
+        </div>
+        <div style="float:left;margin-left:100px;">
+            <span>Sort by:</span>&#160;&#160;
+            <a href="javascript:sortByTitle('asc');">Abecedu</a>&#160;
+            <a href="javascript:sortByRank();">Relevance</a>
+        </div>
+        <div style="float:right;margin-right:30px;">1 sloupec<input id="cols" type="checkbox" name="cols" value="1" onclick="toggleColumns();" /></div>
+        
     </xsl:template>
 
     <xsl:template name="collapse">
