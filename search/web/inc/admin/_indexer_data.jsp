@@ -48,6 +48,11 @@
     pageContext.setAttribute("top_models", models);
 %>
 <style type="text/css">
+    #indexerContent>div.section{
+        border-bottom:1px solid #E66C00; 
+        padding-bottom: 5px; 
+        margin-bottom: 5px;
+    }
     .indexer_result{
         border-bottom:1px solid silver;
         background:#eeeeee;
@@ -66,16 +71,27 @@
         background: url("img/alert.png") no-repeat;
         width:20px;
     }
+    #indexer_data_model>thead{
+        width:100%;
+        font-size: 11px;
+    }
+    #indexer_data_model>thead span{
+        float:right;
+    }
 </style>
-<div style="border-bottom:1px solid #E66C00; padding-bottom: 5px; margin-bottom: 5px;">
-    <input type="checkbox" id="check_integrity" checked="checked" /><label  for="check_integrity"> <fmt:message bundle="${lctx}">administrator.menu.dialogs.check_integrity</fmt:message></label>
+<div class="section">
     <input type="checkbox" id="only_newer" /><label  for="only_newer"> <fmt:message bundle="${lctx}">administrator.menu.dialogs.only_newer</fmt:message></label>
 </div>
-<div style="border-bottom:1px solid #E66C00; padding-bottom: 5px; margin-bottom: 5px;">
+<div class="section">
     <fmt:message bundle="${lctx}">administrator.menu.dialogs.index_by_PID</fmt:message>: 
     <input type="text" id="pid_to_index" size="40" />
     <input type="button" onclick="confirmIndexDocByPid($('#pid_to_index').val(), '');" value="index_pid" class="ui-state-default ui-corner-all" />
 </div>
+<div class="section">
+    <fmt:message bundle="${lctx}">administrator.menu.dialogs.check_integrity</fmt:message>&nbsp;
+    <input type="button"  id="check_integrity" onclick="checkIndexIntegrity();" value="check" class="ui-state-default ui-corner-all" />    
+</div>
+<div id="indexer_data_container">   
 <div>
     <fmt:message bundle="${lctx}">administrator.menu.dialogs.browse_fedora_top_models</fmt:message>: 
     <select id="top_models_select" onChange="loadFedoraDocuments($('#top_models_select').val(), 0, '${order}', '${order_dir}' );">
@@ -84,12 +100,12 @@
         <option value="${top_model}">${top_model}</option>
         </c:forEach>
     </select>
-</div>
-        
+</div> 
 <table id="indexer_data_model" cellpadding="0" cellspacing="0" class="indexer_selected"  width="100%">
-    <thead class="indexer_head ui-dialog-titlebar"><tr>
-        <td></td><td><fmt:message bundle="${lctx}">administrator.menu.dialogs.dc.title</fmt:message></td>
-        <td width="138">
+    <thead class="indexer_head"><tr style="display:block;width:100%;">
+        <th width="20px"></th>
+        <th width="510px" align="left"><fmt:message bundle="${lctx}">administrator.menu.dialogs.dc.title</fmt:message></th>
+        <th width="138px">
             <c:choose>
                 <c:when test="${order_dir == 'desc'}">
                     <a href="javascript:loadFedoraDocuments('${selModel}', 0, 'date', 'asc')"><fmt:message>common.date</fmt:message></a>
@@ -100,8 +116,25 @@
                     <span class="ui-icon indexer_order_up">title</span>
                 </c:otherwise>
             </c:choose>
-        </td></tr></thead>
-    
+        </th></tr></thead>
+    <tbody style="overflow:auto;display:block;width:100%;"></tbody>
 </table>
-
+</div>    
+        <script type="text/javascript">
+            
+function loadFedoraDocuments(model, offset, sort, sort_dir){
+    var url = "inc/admin/_indexer_data_model.jsp?model="+model+"&offset="+offset+"&sort="+sort+"&sort_dir="+sort_dir;
+    $.get(url, function(data) {
+        $("#indexer_data_model>tbody>tr").remove();
+        var h = $("#indexer").height();
+        $("#indexerContent>div.section").each(function(){
+            h = h - $(this).height() - 11;
+        });
+        $("#indexer_data_container").css("height", h);
+        $("#indexer_data_model>tbody").css("height", h - $("#indexer_data_model>thead").height() - 25);
+        $("#indexer_data_model>tbody").append(data);
+        checkIndexed();
+    });
+}
+        </script>
 </scrd:securedContent>

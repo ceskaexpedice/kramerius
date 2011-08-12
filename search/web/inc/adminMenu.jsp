@@ -664,14 +664,6 @@ function checkIndexed(){
         });
     });
 }
-function loadFedoraDocuments(model, offset, sort, sort_dir){
-    var url = "inc/admin/_indexer_data_model.jsp?model="+model+"&offset="+offset+"&sort="+sort+"&sort_dir="+sort_dir;
-    $.get(url, function(data) {
-        $("#indexer_data_model>tbody>tr").remove();
-        $("#indexer_data_model").append(data);
-        checkIndexed();
-    });
-}
 
 
 function generateDeepZoomTiles(level, model) {
@@ -738,7 +730,6 @@ function deleteGeneratedDeepZoomTiles(level, model) {
     _startProcess(url);
 }
 
-
 function deletefromindex(level){
 	hideAdminOptions(level);
     showConfirmDialog('Confirm delete dokument from index', function(){
@@ -791,6 +782,14 @@ function confirmIndexDocByPid(pid){
         });        
     }).error(function(){
         alert("PID not found");
+    });
+}
+
+function checkIndexIntegrity(){
+var text = dictionary['administrator.dialogs.confirm'] + " " + dictionary['administrator.menu.dialogs.check_integrity'];
+    showConfirmDialog(text, function(){
+      var url = "lr?action=start&def=reindex&out=text&params=checkIntegrity,check,Check integrity";
+      _startProcess(url);
     });
 }
 

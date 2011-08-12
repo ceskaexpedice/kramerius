@@ -25,6 +25,7 @@
     }
     .tv_img_inactive{
         height:128px;
+        width:80px;
         background:white  url(img/loading.gif) no-repeat 50% 50%;
 
     }
@@ -61,6 +62,9 @@
     }
     #tv_path span{
         float:left;
+    }
+    #tv_container_row div.inactive>img{
+        width:80px;
     }
 
 </style>
@@ -104,7 +108,7 @@
     function updateThumbs(id){
         $('#tv_container_row>td').remove();
         for(var i=0; i<k4Settings.activeUuids.length; i++){
-            $('#tv_container_row').append('<td><div id="tv_'+k4Settings.activeUuids[i]+'"><img src="img/empty.gif" /></div></td>');
+            $('#tv_container_row').append('<td><div id="tv_'+k4Settings.activeUuids[i]+'" class="inactive"><img src="img/empty.gif" /></div></td>');
         }
         selectThumb(id);
         $('#tv_container_table').show();
@@ -112,9 +116,9 @@
     }
     
     function checkThumbsVisibility(){
-        for(var i=0; i<k4Settings.activeUuids.length; i++){
-            checkIsThumbVisible(k4Settings.activeUuids[i]);
-        }
+        $('#tv_container_row div.inactive').each(function(){
+            checkIsThumbVisible($(this).attr("id").substring(3));
+        });
     }
     
     function checkIsThumbVisible(uuid){
@@ -123,6 +127,7 @@
         var reserve = $('#tv_container').width();
         if(imgLeft<tv_containerRightBorder+reserve && imgRight>tv_containerLeftBorder-reserve){
             $(jq('tv_'+uuid)+'>img').attr('src', 'img?uuid='+uuid.split('_')[1]+'&stream=IMG_THUMB&action=GETRAW');
+            $(jq('tv_'+uuid)).removeClass('inactive');
         }
     }
     

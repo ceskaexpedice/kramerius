@@ -17,7 +17,7 @@ version="1.0">
             <td class="indexer_result_status"></td><td>
             - 
             <a><xsl:attribute name="href">javascript:indexDoc('<xsl:value-of select="./sp:object/@uri" />', '<xsl:value-of select="$title" />');</xsl:attribute><xsl:value-of select="./sp:title" /></a>
-            </td><td><xsl:value-of select="./sp:date" /></td>
+            </td><td width="138"><xsl:value-of select="./sp:date" /></td>
             </tr>
         </xsl:for-each>
         <tr><td class="indexer_pager" colspan="2">
