@@ -18,5 +18,6 @@ public interface IResourceIndex {
     public ArrayList<String> getFedoraPidsFromModel(String model, int limit, int offset) throws Exception;
     public ArrayList<String> getParentsPids(String pid) throws Exception;
     public ArrayList<String> getPidPaths(String pid) throws Exception;
+    public boolean existsPid(String pid) throws Exception;
 
 }

@@ -96,5 +96,25 @@ public class MulgaraImpl implements IResourceIndex {
             }
             return resList;
     }
+    
+    
+    @Override
+    public boolean existsPid(String pid) throws Exception{
+        Configuration config = KConfiguration.getInstance().getConfiguration();
+            String query = "<info:fedora/" + pid + "> <info:fedora/fedora-system:def/model#hasModel>  * ";
+            String urlStr = config.getString("FedoraResourceIndex") + "?type=triples&flush=true&lang=spo&format=N-Triples&limit=&distinct=off&stream=off" +
+                    "&query=" + java.net.URLEncoder.encode(query, "UTF-8");
+            java.net.URL url = new java.net.URL(urlStr);
+
+            java.io.BufferedReader in = new java.io.BufferedReader(new java.io.InputStreamReader(url.openStream()));
+            String inputLine;
+            if ((inputLine = in.readLine()) != null) {
+                in.close();
+                return true;
+            }else{
+                in.close();
+                return false;
+            }
+    }
 
 }
