@@ -268,7 +268,7 @@
    <!-- Here, default is used to create a "timestamp" field indicating
         When each document was indexed.
      -->
-        <field name="timestamp" type="date" indexed="true" stored="true" default="NOW" multiValued="false"/>
+        <field name="timestamp" type="date" indexed="true" stored="false" default="NOW" multiValued="false"/>
    
 
    <!-- Dynamic field definitions.  If a field name is not found, dynamicFields
@@ -341,6 +341,7 @@
         <field name="language" type="string"  indexed="true"  stored="true"  />
 		
         <field name="dc.description" type="text_fgs"  indexed="true"  stored="true" multiValued="true" />
+        <field name="text_ocr" type="text"  indexed="true"  stored="true" />
         <field name="details" type="string"  indexed="true"  stored="true" multiValued="true"  />
 		
         <field name="facet_title" type="localizedstring"  indexed="true"  stored="false" locale="cs" />
@@ -375,6 +376,7 @@
     <copyField source="dc.creator" dest="text"/>
     <copyField source="details" dest="text"/>
     <copyField source="issn" dest="text"/>
+    <copyField source="text_ocr" dest="text"/>
     
     <copyField source="dc.title" dest="search_title"/>
     <copyField source="dc.title" dest="title"/>
