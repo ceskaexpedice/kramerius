@@ -5,12 +5,12 @@
     import java.util.*;
 
 public interface ParamsParserTokenTypes {
-	int EOF = 1;
-	int NULL_TREE_LOOKAHEAD = 3;
-	int LPAREN = 4;
-	int SEMI = 5;
-	int RPAREN = 6;
-	int ANY = 7;
-	int DOUBLEDOT = 8;
-	int ESC = 9;
+    int EOF = 1;
+    int NULL_TREE_LOOKAHEAD = 3;
+    int LPAREN = 4;
+    int SEMI = 5;
+    int RPAREN = 6;
+    int ANY = 7;
+    int DOUBLEDOT = 8;
+    int ESC = 9;
 }

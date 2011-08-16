@@ -2,7 +2,9 @@ header {
 //    package cz.incad.kramerius.utils.params;
     package cz.incad.Kramerius.processes;
     import java.util.*;
-}  
+}
+
+  
 
 class ParamsParser extends Parser;
 {
@@ -36,6 +38,10 @@ paramkey returns[String pk]
 
 
 class ParamsLexer extends Lexer;
+
+options {
+    charVocabulary='\u0000'..'\uFFFE';
+}
 
 SEMI:   ';'
     ;

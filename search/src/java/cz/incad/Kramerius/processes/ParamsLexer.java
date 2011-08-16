@@ -80,44 +80,12 @@ tryAgain:
 					theRetToken=_returnToken;
 					break;
 				}
-				case '\u0000':  case '\u0001':  case '\u0002':  case '\u0003':
-				case '\u0004':  case '\u0005':  case '\u0006':  case '\u0007':
-				case '\u0008':  case '\t':  case '\n':  case '\u000b':
-				case '\u000c':  case '\r':  case '\u000e':  case '\u000f':
-				case '\u0010':  case '\u0011':  case '\u0012':  case '\u0013':
-				case '\u0014':  case '\u0015':  case '\u0016':  case '\u0017':
-				case '\u0018':  case '\u0019':  case '\u001a':  case '\u001b':
-				case '\u001c':  case '\u001d':  case '\u001e':  case '\u001f':
-				case ' ':  case '!':  case '"':  case '#':
-				case '$':  case '%':  case '&':  case '\'':
-				case '(':  case ')':  case '*':  case '+':
-				case ',':  case '-':  case '.':  case '/':
-				case '0':  case '1':  case '2':  case '3':
-				case '4':  case '5':  case '6':  case '7':
-				case '8':  case '9':  case '<':  case '=':
-				case '>':  case '?':  case '@':  case 'A':
-				case 'B':  case 'C':  case 'D':  case 'E':
-				case 'F':  case 'G':  case 'H':  case 'I':
-				case 'J':  case 'K':  case 'L':  case 'M':
-				case 'N':  case 'O':  case 'P':  case 'Q':
-				case 'R':  case 'S':  case 'T':  case 'U':
-				case 'V':  case 'W':  case 'X':  case 'Y':
-				case 'Z':  case '[':  case '\\':  case ']':
-				case '^':  case '_':  case '`':  case 'a':
-				case 'b':  case 'c':  case 'd':  case 'e':
-				case 'f':  case 'g':  case 'h':  case 'i':
-				case 'j':  case 'k':  case 'l':  case 'm':
-				case 'n':  case 'o':  case 'p':  case 'q':
-				case 'r':  case 's':  case 't':  case 'u':
-				case 'v':  case 'w':  case 'x':  case 'y':
-				case 'z':  case '|':  case '~':  case '\u007f':
-				{
-					mANY(true);
-					theRetToken=_returnToken;
-					break;
-				}
 				default:
-				{
+					if ((_tokenSet_0.member(LA(1)))) {
+						mANY(true);
+						theRetToken=_returnToken;
+					}
+				else {
 					if (LA(1)==EOF_CHAR) {uponEOF(); _returnToken = makeToken(Token.EOF_TYPE);}
 				else {throw new NoViableAltForCharException((char)LA(1), getFilename(), getLine(), getColumn());}
 				}
@@ -204,54 +172,18 @@ tryAgain:
 		int _cnt17=0;
 		_loop17:
 		do {
-			switch ( LA(1)) {
-			case '\\':
-			{
+			if ((LA(1)=='\\')) {
 				mESC(false);
-				break;
 			}
-			case '\u0000':  case '\u0001':  case '\u0002':  case '\u0003':
-			case '\u0004':  case '\u0005':  case '\u0006':  case '\u0007':
-			case '\u0008':  case '\t':  case '\n':  case '\u000b':
-			case '\u000c':  case '\r':  case '\u000e':  case '\u000f':
-			case '\u0010':  case '\u0011':  case '\u0012':  case '\u0013':
-			case '\u0014':  case '\u0015':  case '\u0016':  case '\u0017':
-			case '\u0018':  case '\u0019':  case '\u001a':  case '\u001b':
-			case '\u001c':  case '\u001d':  case '\u001e':  case '\u001f':
-			case ' ':  case '!':  case '"':  case '#':
-			case '$':  case '%':  case '&':  case '\'':
-			case '(':  case ')':  case '*':  case '+':
-			case ',':  case '-':  case '.':  case '/':
-			case '0':  case '1':  case '2':  case '3':
-			case '4':  case '5':  case '6':  case '7':
-			case '8':  case '9':  case '<':  case '=':
-			case '>':  case '?':  case '@':  case 'A':
-			case 'B':  case 'C':  case 'D':  case 'E':
-			case 'F':  case 'G':  case 'H':  case 'I':
-			case 'J':  case 'K':  case 'L':  case 'M':
-			case 'N':  case 'O':  case 'P':  case 'Q':
-			case 'R':  case 'S':  case 'T':  case 'U':
-			case 'V':  case 'W':  case 'X':  case 'Y':
-			case 'Z':  case '[':  case ']':  case '^':
-			case '_':  case '`':  case 'a':  case 'b':
-			case 'c':  case 'd':  case 'e':  case 'f':
-			case 'g':  case 'h':  case 'i':  case 'j':
-			case 'k':  case 'l':  case 'm':  case 'n':
-			case 'o':  case 'p':  case 'q':  case 'r':
-			case 's':  case 't':  case 'u':  case 'v':
-			case 'w':  case 'x':  case 'y':  case 'z':
-			case '|':  case '~':  case '\u007f':
-			{
+			else if ((_tokenSet_1.member(LA(1)))) {
 				{
-				match(_tokenSet_0);
+				match(_tokenSet_1);
 				}
-				break;
 			}
-			default:
-			{
+			else {
 				if ( _cnt17>=1 ) { break _loop17; } else {throw new NoViableAltForCharException((char)LA(1), getFilename(), getLine(), getColumn());}
 			}
-			}
+			
 			_cnt17++;
 		} while (true);
 		}
@@ -309,9 +241,22 @@ tryAgain:
 	
 	
 	private static final long[] mk_tokenSet_0() {
-		long[] data = { -864691128455135233L, -2882303761785552897L, 0L, 0L};
+		long[] data = new long[2048];
+		data[0]=-864691128455135233L;
+		data[1]=-2882303761517117441L;
+		for (int i = 2; i<=1022; i++) { data[i]=-1L; }
+		data[1023]=9223372036854775807L;
 		return data;
 	}
 	public static final BitSet _tokenSet_0 = new BitSet(mk_tokenSet_0());
+	private static final long[] mk_tokenSet_1() {
+		long[] data = new long[2048];
+		data[0]=-864691128455135233L;
+		data[1]=-2882303761785552897L;
+		for (int i = 2; i<=1022; i++) { data[i]=-1L; }
+		data[1023]=9223372036854775807L;
+		return data;
+	}
+	public static final BitSet _tokenSet_1 = new BitSet(mk_tokenSet_1());
 	
 	}
