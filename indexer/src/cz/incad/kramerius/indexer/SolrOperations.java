@@ -177,7 +177,7 @@ public class SolrOperations {
             String urlStr = config.getString("solrHost") + "/select/?q=PID:\"" + uuid + "\"";
 
             fedoraOperations.getFoxmlFromPid(uuid);
-            contentDom = getDocument(new ByteArrayInputStream(fedoraOperations.foxmlRecord));
+            //contentDom = getDocument(new ByteArrayInputStream(fedoraOperations.foxmlRecord));
             factory = XPathFactory.newInstance();
             xpath = factory.newXPath();
 
@@ -191,7 +191,7 @@ public class SolrOperations {
             Node node = (Node) expr.evaluate(solrDom, XPathConstants.NODE);
             //System.out.println(node.getFirstChild().getNodeValue());
 
-            xPathStr = "/response/result/doc/date[@name='timestamp']";
+            xPathStr = "/response/result/doc/date[@name='modified_date']";
             expr = xpath.compile(xPathStr);
             node = (Node) expr.evaluate(solrDom, XPathConstants.NODE);
             DateFormat formatter = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
@@ -323,7 +323,7 @@ public class SolrOperations {
                 if (dateNode != null) {
                     DateFormat formatter = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
                     Date dateValue = formatter.parse(dateNode.getNodeValue());
-                    if (dateValue.before(date)) {
+                    if (!dateValue.after(date)) {
                         if (!force) {
                             logger.info(String.format("Document %s is up to date. Skipping", pid));
                             return getActualNumOfPagesFromSolr(pid);

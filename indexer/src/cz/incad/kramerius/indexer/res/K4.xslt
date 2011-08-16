@@ -96,7 +96,7 @@
                         </field>
                     </xsl:otherwise>
                 </xsl:choose>
-                <field name="dc.title"><xsl:value-of select="normalize-space($title)"/></field>
+                <field name="dc.title" boost="2.0"><xsl:value-of select="normalize-space($title)"/></field>
             </xsl:when>
             <xsl:otherwise>
                 <field name="PID" boost="2.5">
@@ -104,7 +104,7 @@
                 </field>
                 <field name="fedora.model">page</field>
                 <field name="document_type">page</field>
-                <field name="dc.title"><xsl:value-of select="$pageNum"/></field>
+                <field name="dc.title" boost="2.0"><xsl:value-of select="$pageNum"/></field>
              </xsl:otherwise>   
         </xsl:choose>
         
@@ -126,7 +126,7 @@
         </field>
         
         <xsl:for-each select="foxml:datastream/foxml:datastreamVersion[last()]/foxml:xmlContent/oai_dc:dc/dc:creator">
-            <field name="dc.creator" >
+            <field name="dc.creator" boost="1.5">
                 <xsl:value-of select="text()"/>
             </field>
         </xsl:for-each>
@@ -167,7 +167,7 @@
             foxml:datastreamVersion/@MIMETYPE='application/msword') and
             (@ID='TEXT_OCR' or @ID='IMG_FULL')">
             
-                <field name="text">
+                <field name="text_ocr">
                     <xsl:value-of select="exts:getDatastreamText($generic, $PID, @ID, $pageNum)"/>
                 </field>
             </xsl:if>
@@ -229,7 +229,7 @@
             <field name="details">
                 <xsl:value-of select="mods:part/@type" /><xsl:value-of select="'##'" />
                 <xsl:value-of select="mods:titleInfo/mods:title" /><xsl:value-of select="'##'" />
-                <xsl:value-of select="/mods:titleInfo/mods:subTitle" /><xsl:value-of select="'##'" />
+                <xsl:value-of select="mods:titleInfo/mods:subTitle" /><xsl:value-of select="'##'" />
                 <xsl:value-of select="mods:part/mods:extent/mods:list" />
             </field>
         </xsl:if>
