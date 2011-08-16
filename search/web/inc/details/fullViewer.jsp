@@ -47,31 +47,40 @@
     <a href="javascript:hideFullImage();"><span class="ui-icon ui-icon-closethick">close</span></a>
     </div>
 </div>
-<div id="djvuContainer" style="display:none;">
-    <iframe src="" frameborder="0" width="100%" height="100%"></iframe>
-</div>
-
-<c:if test="${param.format == 'application/pdf'}">
-    <div id="pdfContainer" style="display:none;">
-        <%--input type="hidden" id="pdfPage" name="pdfPage" value="${itemViewObject.page}" /--%>
-        <iframe src="" width="100%" height="100%"></iframe>
+<div class="fullContent">
+    <div id="djvuContainer" style="display:none;">
+        <iframe src="" frameborder="0" width="100%" height="100%"></iframe>
     </div>
-</c:if>
-<div id="imgContainer" style="display:none;" align="center">
-    <img id="imgFullImage" src="img/empty.gif" />
-</div>
 
+    <c:if test="${param.format == 'application/pdf'}">
+        <div id="pdfContainer" style="display:none;">
+            <%--input type="hidden" id="pdfPage" name="pdfPage" value="${itemViewObject.page}" /--%>
+            <iframe src="" width="100%" height="100%"></iframe>
+        </div>
+    </c:if>
+    <div id="imgContainer" style="display:none;position:relative;" align="center">
+        <img id="loadingFull" src="img/loading.gif" style="display:none;position:absolute;top:3px;right:50%;" />
+        <img id="imgFullImage" class="view_div" src="img/empty.gif" onload="onLoadFullImage()" />
+    </div>
+</div>
 <script type="text/javascript">
     $(document).ready(function(){
         $('#fullImageContainer.viewer').bind('viewReady', function(event, viewerOptions){
             updateFullImage();
         });
+        $('#fullImageContainer.viewer').bind('viewChanged', function(event, id){
+            $('#imgFullImage').attr('src', 'img/empty.gif');
+            $("#loadingFull").show();
+            hideAltoFull();
+        });
     });
+    
+     
     function nextFullImage(){
         nextImage();
-        showFullImage();
     }
     function previousFullImage(){
+        previousImage();
         
     }
     function updateFullImage(){
@@ -80,7 +89,7 @@
            $('#fullImageContainer>div.header>div.title').html(k4Settings.selectedPathTexts[k4Settings.selectedPathTexts.length -1]);
 
         }else{
-            var fullUrl = "img/loading.gif";
+            var fullUrl = "img/empty.gif";
         }
         
         if(viewerOptions.isContentDJVU()){
@@ -98,22 +107,15 @@
         }else{
             $('#divFullImageZoom').show();
             $('#imgContainer').show();
-            $('#imgContainer>img').attr('src', fullUrl);
+            $('#imgFullImage').attr('src', fullUrl);
             setFullImageDimension();
         }
-
-        $('#fullImageContainer').scroll(function(){
-            if(viewerOptions.hasAlto){
-                positionAlto('imgFullImage');
-            }
-            
-        });
     }
     var fullImageWidth;
     var fullImageHeight;
     function setFullImageDimension(){
          var newImg = new Image();
-         newImg.src = $('#imgContainer>img').attr('src');
+         newImg.src = $('#imgFullImage').attr('src');
          fullImageWidth = newImg.width;
          fullImageHeight = newImg.height;
     }
@@ -122,19 +124,64 @@
         var zoom = $('#fullImageZoom').val();
         
         if(zoom=="width"){
-            $('#imgContainer>img').css({'width': $('#fullImageContainer').width(), 'height': ''});
+            $('#imgFullImage').css({'width': $('#fullImageContainer').width(), 'height': ''});
         }else if(zoom=="height"){
             //var w = 
-            $('#imgContainer>img').css({'height': $(window).height()-
+            $('#imgFullImage').css({'height': $(window).height()-
                     $('#fullImageContainer>div.header').height(),
                 'width': ''});
         }else{
             var w = Math.round(fullImageWidth * parseFloat(zoom));
             var h = Math.round(fullImageHeight * parseFloat(zoom));
-            $('#imgContainer>img').css({'width': w, 'height': h});
+            $('#imgFullImage').css({'width': w, 'height': h});
         }
         if(viewerOptions.hasAlto){
-            showAlto(viewerOptions.uuid, 'imgFullImage');
+            showAltoFull(viewerOptions.uuid);
+        }
+    }
+
+    function hideAltoFull(){
+        $("#alto_full").html('');
+        $("#alto_full").hide();
+    }
+    
+    function showAltoFull(pid){
+        var q = $("#q").val();
+        if($('#insideQuery').length>0) q =$('#insideQuery').val();
+        if(q=="") return;
+
+        var w = $('#imgFullImage').width();
+        var h = $('#imgFullImage').height();
+        var url = "inc/details/alto.jsp?q="+q+"&w="+w+"&h="+h+"&uuid=" + pid;
+        $.get(url, function(data){
+            if(data.trim()!=""){
+                if($("#alto_full").length==0){
+                     $("#fullImageContainer>div.fullContent").append('<div id="alto_full" style="position:absolute;z-index:1003;overflow:hidden;" ></div>');
+                }
+                positionAltoFull();
+                $("#alto_full").html(data);
+                $("#alto_full").show();
+            }
+        });
+    }
+    
+    function positionAltoFull(){
+        var h = $("#imgFullImage").height();
+        var t = $("#imgFullImage").offset().top - $("#preview").offset().top;
+        var w = $("#imgFullImage").width();
+        var l = $("#imgFullImage").offset().left - $("#preview").offset().left;
+        $("#alto_full").css('width', w);
+        $("#alto_full").css('height', h);
+        $("#alto_full").css('left', l);
+        $("#alto_full").css('top', t);
+    }
+    
+    function onLoadFullImage() {
+        if($('#imgFullImage').attr('src')!='img/empty.gif'){
+            if(viewerOptions.hasAlto){
+                showAltoFull(viewerOptions.uuid);
+            }
+            $("#loadingFull").hide();
         }
     }
 </script>

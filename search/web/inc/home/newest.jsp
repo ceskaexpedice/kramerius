@@ -46,11 +46,11 @@
         <x:parse var="doc" xml="${xml}"  />
         
         <x:forEach varStatus="status" select="$doc/response/result/doc">
-            <c:set var="uuid"><x:out select="./str[@name='PID']"/></c:set>
+            <c:set var="pid"><x:out select="./str[@name='PID']"/></c:set>
             <c:set var="t"><x:out select="./str[@name='root_title']"/></c:set>
-            <div align="center" style="overflow:hidden; border:1px solid #eeeeee; width:100px; height:100px; float:left; margin:5px;">
-                <a href="i.jsp?pid=${uuid}" >
-                    <img align="middle" vspace="2" id="img_${uuid}" src="img?uuid=${uuid}&stream=IMG_THUMB&action=SCALE&scaledHeight=96" border="0"
+            <div align="center" style="overflow:hidden; border:1px solid #eeeeee; height:100px; width:100px; float:left; margin:5px; ">
+                <a href="i.jsp?pid=${pid}" >
+                    <img align="middle" vspace="2" id="img_${pid}" src="img?uuid=${pid}&stream=IMG_THUMB&action=SCALE&scaledHeight=96" border="0"
                          title="${t}" alt="${t}" />
                 </a>
             </div>

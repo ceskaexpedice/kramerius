@@ -45,94 +45,74 @@ import cz.incad.kramerius.utils.solr.SolrUtils;
  */
 public class HandleServlet extends GuiceServlet {
 
-	private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L;
+    public static final java.util.logging.Logger LOGGER = java.util.logging.Logger.getLogger(HandleServlet.class.getName());
+    @Inject
+    transient KConfiguration kConfiguration;
+    @Inject
+    SolrAccess solrAccess;
 
-	public static final java.util.logging.Logger LOGGER = java.util.logging.Logger
-			.getLogger(HandleServlet.class.getName());
-	
-	@Inject
-	transient KConfiguration kConfiguration;
-
-	@Inject
-	SolrAccess solrAccess;
-	
-	
-	@Override
+    @Override
     public void init() throws ServletException {
         super.init();
     }
-
-
 
     @Override
     public void init(ServletConfig config) throws ServletException {
         super.init(config);
     }
 
-
-
     @Override
-	protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-		try {
-			List<String> pidPathStrings = null;
-			String pid = null;
-			List<String> modelsPathStrings = null;
-			
-			String requestURL = req.getRequestURL().toString();
-			String handle = disectHandle(requestURL);
-			Document parseDocument = HandleType.createType(handle).dataFromSolr(handle, solrAccess);
-		    
-			pidPathStrings = SolrUtils.disectPidPaths(parseDocument);
-		    pid = SolrUtils.disectPid(parseDocument);
-		    modelsPathStrings = SolrUtils.disectModelPaths(parseDocument);
+    protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        try {
 
-		    ObjectPidsPath[] pidPaths = new ObjectPidsPath[pidPathStrings.size()];
-		    for (int i = 0; i < pidPaths.length; i++) {
-		        pidPaths[i]=new ObjectPidsPath(pidPathStrings.get(i).split("/"));
-            }
-		    ObjectModelsPath[] modelPaths = new ObjectModelsPath[modelsPathStrings.size()];
-		    for (int i = 0; i < modelPaths.length; i++) {
-                modelPaths[i] = new ObjectModelsPath(modelsPathStrings.get(i).split("/"));
-            }
-		    
-		    String applicationCotext = ApplicationURL.applicationContextPath(req);
-		    String redirectUrl=  "/"+applicationCotext+"/item.jsp?pid="+pid+"&pid_path="+pidPathStrings+"&path="+modelsPathStrings;
-		    resp.sendRedirect(redirectUrl);
-		    
-		} catch (XPathExpressionException e) {
-			LOGGER.log(Level.SEVERE, e.getMessage(), e);;
-			resp.sendError(500);
-		}
-	}
+            String requestURL = req.getRequestURL().toString();
+            String handle = disectHandle(requestURL);
 
+            String applicationCotext = ApplicationURL.applicationContextPath(req);
+            String redirectUrl = "/" + applicationCotext + "/i.jsp?pid=" + handle;
+            resp.sendRedirect(redirectUrl);
 
+        } catch (Exception e) {
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);;
+            resp.sendError(500);
+        }
+    }
 
     public static String disectHandle(String requestURL) {
-		//"dvju"
-		try {
-			StringBuffer buffer = new StringBuffer();
-			URL url = new URL(requestURL);
-			String path = url.getPath();
-			String application = path;
-			StringTokenizer tokenizer = new StringTokenizer(path,"/");
-			if (tokenizer.hasMoreTokens()) application = tokenizer.nextToken();
-			String handleServlet = path;
-			if (tokenizer.hasMoreTokens()) handleServlet = tokenizer.nextToken();
-			// check handle servlet
-			while(tokenizer.hasMoreTokens()) {
-				buffer.append(tokenizer.nextElement());
-				if (tokenizer.hasMoreTokens()) buffer.append("/");
-			}
-			return buffer.toString();
-		} catch (MalformedURLException e) {
-			LOGGER.log(Level.SEVERE, e.getMessage(), e);
-			return "<no handle>";
-		}
-		
-	}
-	
-	enum HandleType {
-		UUID {
+        //"dvju"
+        try {
+            StringBuffer buffer = new StringBuffer();
+            URL url = new URL(requestURL);
+            String path = url.getPath();
+            String application = path;
+            StringTokenizer tokenizer = new StringTokenizer(path, "/");
+            if (tokenizer.hasMoreTokens()) {
+                application = tokenizer.nextToken();
+            }
+            String handleServlet = path;
+            if (tokenizer.hasMoreTokens()) {
+                handleServlet = tokenizer.nextToken();
+            }
+            // check handle servlet
+            while (tokenizer.hasMoreTokens()) {
+                buffer.append(tokenizer.nextElement());
+                if (tokenizer.hasMoreTokens()) {
+                    buffer.append("/");
+                }
+            }
+            return buffer.toString();
+        } catch (MalformedURLException e) {
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+            return "<no handle>";
+        }
+
+    }
+
+    enum HandleType {
+
+        UUID {
+
             @Override
             Document dataFromSolr(String pid, SolrAccess solrAccess) throws IOException {
                 try {
@@ -140,28 +120,28 @@ public class HandleServlet extends GuiceServlet {
                     parser.objectPid();
                     return solrAccess.getSolrDataDocument(parser.getObjectId());
                 } catch (LexerException e) {
-                    LOGGER.log(Level.SEVERE, e.getMessage(),e);
+                    LOGGER.log(Level.SEVERE, e.getMessage(), e);
                     return solrAccess.getSolrDataDocument(pid);
                 }
             }
-		},
-		KRAMERIUS3{
+        },
+        KRAMERIUS3 {
+
             @Override
             Document dataFromSolr(String handle, SolrAccess solrAccess) throws IOException {
                 return solrAccess.getSolrDataDocumentByHandle(handle);
             }
-		};		
-	
-		//abstract String construct(String handle);
-		abstract Document dataFromSolr(String handle, SolrAccess solrAccess) throws IOException;
-		
-		public static HandleType createType(String handle) {
-			if (handle.toLowerCase().startsWith("uuid:")) {
-				return UUID;
-			} else {
-				return KRAMERIUS3;
-			}
-		}
-	}
-	
+        };
+
+        //abstract String construct(String handle);
+        abstract Document dataFromSolr(String handle, SolrAccess solrAccess) throws IOException;
+
+        public static HandleType createType(String handle) {
+            if (handle.toLowerCase().startsWith("uuid:")) {
+                return UUID;
+            } else {
+                return KRAMERIUS3;
+            }
+        }
+    }
 }

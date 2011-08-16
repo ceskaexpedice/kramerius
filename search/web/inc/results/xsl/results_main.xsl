@@ -178,8 +178,8 @@
         <blockquote class="teaser">
         <xsl:for-each select="../../lst[@name='highlighting']/lst">
             <xsl:if test="@name = $pid">
-                <xsl:for-each select="./arr[@name='text']/str">
-                (... <xsl:value-of select="."   disable-output-escaping="yes" /> ...)<br/>
+                <xsl:for-each select="./arr[@name='text_ocr']/str">
+                (... <xsl:value-of select="." disable-output-escaping="yes" /> ...)<br/>
                 </xsl:for-each>
             </xsl:if>
         </xsl:for-each>

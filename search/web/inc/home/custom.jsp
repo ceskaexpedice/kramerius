@@ -14,13 +14,13 @@
             Injector ctxInj = (Injector) application.getAttribute(Injector.class.getName());
             KConfiguration kconfig = ctxInj.getProvider(KConfiguration.class).get();
             pageContext.setAttribute("kconfig", kconfig);
-            String[] uuids = kconfig.getPropertyList("search.home.tab.custom.uuids");
-            pageContext.setAttribute("uuids", uuids); 
+            String[] pids = kconfig.getPropertyList("search.home.tab.custom.uuids");
+            pageContext.setAttribute("pids", pids); 
 %>
-<c:forEach varStatus="status" var="uuid" items="${uuids}">
-    <c:set var="pid" value="${uuid}" />
+<c:forEach varStatus="status" var="pid" items="${pids}">
+    <c:set var="pid" value="${pid}" />
     <c:url var="url" value="${kconfig.solrHost}/select/" >
-        <c:param name="q" value="PID:\"${uuid}\"" />
+        <c:param name="q" value="PID:\"${pid}\"" />
         <c:param name="fl" value="root_title" />
     </c:url>
     <c:catch var="exceptions">
@@ -29,9 +29,9 @@
     </c:catch>
     <x:forEach varStatus="status" select="$doc/response/result/doc">
         <c:set var="t"><x:out select="./str[@name='root_title']"/></c:set>
-        <div align="center" style="overflow:hidden; border:1px solid #eeeeee; width:100px; height:100px; float:left; margin:5px;">
-            <a href="i.jsp?pid=${uuid}" >
-                <img align="middle" vspace="2" id="img_${uuid}" src="img?uuid=${uuid}&stream=IMG_THUMB&action=SCALE&scaledHeight=96" border="0"
+        <div align="center" style="overflow:hidden; border:1px solid #eeeeee; height:100px; width:100px; float:left; margin:5px;">
+            <a href="i.jsp?pid=${pid}" >
+                <img align="middle" vspace="2" id="img_${uuid}" src="img?uuid=${pid}&stream=IMG_THUMB&action=SCALE&scaledHeight=96" border="0"
                      title="${t}" alt="${t}" />
             </a>
         </div>

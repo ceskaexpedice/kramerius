@@ -122,7 +122,7 @@ pageContext.setAttribute("search_results_rows", search_results_rows);
     
     <%-- Hit highlight --%>
     <c:param name="hl" value="true" />
-    <c:param name="hl.fl" value="text" />
+    <c:param name="hl.fl" value="text_ocr" />
     <c:param name="hl.simple.pre" value="<span>" />
     <c:param name="hl.simple.post" value="</span>"  />
     <c:param name="hl.mergeContiguous" value="true" />

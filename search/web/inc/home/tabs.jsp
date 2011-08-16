@@ -91,11 +91,13 @@
         var letter = '0';
         $('#'+field+'>div.term').each(function(){
             if($(this).position().top>0){
-                letter = $(this).children('span').html().substring(0,1);
+                letter = $(this).children('span').html().substring(0,1).toUpperCase();
                 return false;
             }
         });
-        if(letters.indexOf(letter)<0)  letter = '0';
+        if(letters.indexOf(letter)<0){
+            letter = '0';
+        }  
         $('#letters_'+field+'>div').removeClass('sel');
         $('#letters_'+field+'>div.'+letter).addClass('sel');
     }

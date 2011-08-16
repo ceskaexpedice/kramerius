@@ -82,10 +82,10 @@
 			<tr><td align="center" id="common_started_text"></td></tr>
     	</table>
 	</div>
-	<div id="common_started_ok" style="margin: 12px;">
+	<div id="common_started_ok" style="margin: 12px;display:none;">
 		<p style="font-family: sans-serif; font-size: 12px; font-weight: bold;" id="common_started_text_ok"><br/></p>
 	</div>
-	<div id="common_started_failed" style="margin: 12px;">
+	<div id="common_started_failed" style="margin: 12px;display:none;">
 		<p style="font-family: sans-serif; font-size: 12px; font-weight: bold;" id="common_started_text_failed"></p>
 	</div>
 </div>
