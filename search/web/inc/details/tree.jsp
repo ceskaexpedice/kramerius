@@ -157,16 +157,14 @@
         var cur = 1;
         var loadingInitNodes = true;
         function loadInitNodes(){
-            
-            //alert(model_path_str);
             var id;
             var path = "";
             if(pid_path.length>cur-1){
                 for(var i = 0; i<cur; i++){
                     if(path!="") path = path + "-";
-                    //alert(model_path[i]);
                     path = path + model_path[i];
                 }
+                
                 id = path + "_" + pid_path[cur-1];
                 cur++;
                 if($(jq(id)+">ul>li").length>0){
@@ -174,21 +172,30 @@
                 }else{
                     loadTreeNode(id);
                 }
-                //nodeClick(id);
             }else{
                 for(var i = 0; i<pid_path.length; i++){
-                    if(path!="") path = path + "-";
-                    path = path + model_path[i];
+                    if(pid_path[i].indexOf("@")!=0){
+                        if(path!="") path = path + "-";
+                        path = path + model_path[i];
+                    }
                 }
-                id = path + "_" + pid_path[pid_path.length-1];
-            
+                if(pid_path[pid_path.length-1].indexOf("@")!=0){
+                    id = path + "_" + pid_path[pid_path.length-1];
+                }else{
+                    id = path + "_" + pid_path[pid_path.length-2];
+                }
                 while(!$(jq(id)).hasClass('viewable')){
                     if($(jq(id)+">ul>li").length>0){
                         id = $(jq(id)+">ul>li:first").attr("id");
                     }else{
                         //alert(id);
-                        if(id) loadTreeNode(id);
-                        return;
+                        if(id){
+                            if(id.split('_')[1].indexOf("@")!=0){
+                                loadTreeNode(id);
+                                return;
+                            } 
+                            
+                        } 
                     }
                 }
                 loadingInitNodes= false;
@@ -255,6 +262,7 @@
 
         function loadTreeNode(id){
             var pid = id.split('_')[1];
+            
             var path = id.split('_')[0];
             var url = 'inc/details/treeNode.jsp?pid=' + pid + '&model_path=' + path;
             $.get(url, function(data){

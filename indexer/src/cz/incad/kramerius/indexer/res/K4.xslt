@@ -104,6 +104,7 @@
                 </field>
                 <field name="fedora.model">page</field>
                 <field name="document_type">page</field>
+                <field name="virtual">true</field>
                 <field name="dc.title" boost="2.0"><xsl:value-of select="$pageNum"/></field>
              </xsl:otherwise>   
         </xsl:choose>
@@ -176,7 +177,7 @@
     
     <xsl:template name="imgFull">
         <xsl:if test="/foxml:digitalObject/foxml:datastream[@ID='IMG_FULL']/foxml:datastreamVersion[last()]">
-            <field name="page_format"><xsl:value-of select="/foxml:digitalObject/foxml:datastream[@ID='IMG_FULL']/foxml:datastreamVersion[last()]/@MIMETYPE"/></field>
+            <field name="img_full_mime"><xsl:value-of select="/foxml:digitalObject/foxml:datastream[@ID='IMG_FULL']/foxml:datastreamVersion[last()]/@MIMETYPE"/></field>
             <field name="viewable">true</field>
         </xsl:if>
     </xsl:template>

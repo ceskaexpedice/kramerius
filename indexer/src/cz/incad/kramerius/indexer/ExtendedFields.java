@@ -25,21 +25,6 @@ import org.w3c.dom.Node;
  * @author Alberto
  * Handles and manages the fields not cirectly present in doc FOXML
  * 
- * <xsl:param name="PAGESCOUNT" select="1"/>
-<xsl:param name="PAGENUM" select="0"/>
-
-<xsl:param name="PARENT_TITLE" select="''"/>
-<xsl:param name="PARENT_PID" select="''"/>
-<xsl:param name="PARENT_MODEL" select="''"/>
-<xsl:param name="PATH" select="''"/>
-<xsl:param name="PID_PATH" select="''"/>
-<xsl:param name="ROOT_TITLE" select="''"/>
-<xsl:param name="ROOT_MODEL" select="''"/>
-<xsl:param name="ROOT_PID" select="''"/>
-<xsl:param name="LANGUAGE" select="''"/>
-<xsl:param name="LEVEL" select="''"/>
-<xsl:param name="RELS_EXT_INDEX" select="1"/>
-<xsl:param name="PARENTS" select="''"/>
  */
 public class ExtendedFields {
 
@@ -111,18 +96,28 @@ public class ExtendedFields {
         for (String s : pid_paths) {
             sb.append("<field name=\"pid_path\">").append(s).append(pageNum == 0 ? "" : "/@" + pageNum).append("</field>");
             String[] pids = s.split("/");
-            if(pids.length==1){
-                sb.append("<field name=\"parent_pid\">").append(pids[0]).append("</field>");
+            if(pageNum != 0){
+                sb.append("<field name=\"parent_pid\">").append(pids[pids.length - 1]).append("</field>");
             }else{
-                sb.append("<field name=\"parent_pid\">").append(pids[pids.length - 2]).append("</field>");
+                if(pids.length==1){
+                    sb.append("<field name=\"parent_pid\">").append(pids[0]).append("</field>");
+                }else{
+                    sb.append("<field name=\"parent_pid\">").append(pids[pids.length - 2]).append("</field>");
+                }
             }
             
         }
-        for (String s : model_paths) {
-            sb.append("<field name=\"model_path\">").append(s).append("</field>");
-        }
         int level = pid_paths.get(0).split("/").length - 1;
-        if(pageNum != 0) level++;
+        if(pageNum != 0){
+            level++;
+        }
+        for (String s : model_paths) {
+            if(pageNum != 0){
+                sb.append("<field name=\"model_path\">").append(s).append("/page").append("</field>");
+            }else{
+                sb.append("<field name=\"model_path\">").append(s).append("</field>");
+            }
+        }
         sb.append("<field name=\"rels_ext_index\">").append(relsExtIndex).append("</field>");
         sb.append("<field name=\"root_title\">").append(root_title).append("</field>");
         sb.append("<field name=\"root_pid\">").append(pid_paths.get(0).split("/")[0]).append("</field>");

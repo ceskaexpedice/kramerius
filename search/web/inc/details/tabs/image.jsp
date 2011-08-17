@@ -9,10 +9,12 @@
         <fmt:message bundle="${lctx}" key="deep.zoom.loadingImage" />
     </div>
 
-    <div id="pdfImage">
-        <img class="view_div" id="pdfImageImg" onclick="showBornDigitalPDF('${itemViewObject.imagePid}','${itemViewObject.page}' )"
+    <div id="pdfImage" style="position:relative;text-align:center;">
+        <img class="view_div" id="pdfImageImg" onclick="showBornDigitalPDF()"
              onload='onLoadPDFImage()' border="0" alt="" src="${itemViewObject.firstPageImageUrl}" height="650px" />
-        <img id="pdfZoomButton" border='0' alt="" onclick='showBornDigitalPDF("${itemViewObject.imagePid}","${itemViewObject.page}" )'  src='img/lupa_shadow.png' style='position:relative; left:-60px; top:30px;' />
+        <div style="position:absolute; top:10px; left:10px;">
+            <img id="pdfZoomButton" border='0' alt="" onclick='showBornDigitalPDF()'  src='img/mime/application/pdf.png' />
+        </div>
     </div>
 
     <div id="plainImage" style="position:relative;text-align:center;">
@@ -51,11 +53,20 @@
         });
     });
     
-    function onLoadPlainImage() {
-        //if (imageInitialized) {
-        //    $("#plainImageImg").fadeIn();
-        //}
+    function showBornDigitalPDF(pid, page){
+        if  (!page) {
+		page = "1";	
+	}
+	var url ='img?uuid='+viewerOptions.uuid+'&stream=IMG_FULL&action=GETRAW#page='+page;
+	var pdfWindow = window.open(url, '_blank');
+	pdfWindow.focus();
+    }
+    
+    function onLoadPDFImage(){
         
+    }
+    
+    function onLoadPlainImage() {
         if(viewerOptions.hasAlto){
             showAlto(viewerOptions.uuid, 'plainImageImg');
         }
@@ -271,7 +282,10 @@
     function showFullImage(){
         $('#main').hide();
         $('#footer').hide();
+        
         $('#fullImageContainer').show();
+        $("#fullImageContainer>div.fullContent").css("height", $(window).height()-
+            $('#fullImageContainer>div.header').outerHeight(true));
         updateFullImage();
     }
 </script>

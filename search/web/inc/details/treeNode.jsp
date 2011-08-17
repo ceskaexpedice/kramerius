@@ -16,7 +16,10 @@
             pageContext.setAttribute("lctx", lctx);
             String i18nServlet = I18NServlet.i18nServlet(request) + "?action=bundle&lang="+lctx.getLocale().getLanguage()+"&country="+lctx.getLocale().getCountry()+"&name=labels";
             pageContext.setAttribute("i18nServlet", i18nServlet);
+            
 %>
+<c:set var="escaped_pid">\:</c:set>
+<c:set var="escaped_pid">${fn:replace(param.pid, ":" , escaped_pid)}</c:set>
 <c:url var="url" value="${kconfig.solrHost}/select/" >
     <c:param name="q" >
         parent_pid:"${param.pid}" AND NOT(PID:"${param.pid}")<c:if test="${param.model!=null}"> and fedora.model:${param.model}</c:if>
@@ -30,11 +33,10 @@
         </c:otherwise>
     </c:choose>
     <c:param name="rows" value="${rows}" />
-    <c:param name="fl" value="PID,fedora.model,dc.title,details,page_format,viewable" />
     <c:param name="start" value="${param.offset}" />
     <c:param name="sort" value="rels_ext_index asc, fedora.model asc" />
     <c:param name="fq" >
-        NOT(PID:"${param.pid}/@*")
+        NOT(PID:${escaped_pid}/@*)
     </c:param>
 </c:url>
 <c:import url="${url}" var="xml" charEncoding="UTF-8" />

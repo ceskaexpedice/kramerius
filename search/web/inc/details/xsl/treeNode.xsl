@@ -88,19 +88,20 @@
                 <xsl:if test="./bool[@name='viewable']" >
                     <xsl:attribute name="class">viewable</xsl:attribute>
                 </xsl:if>
-                <xsl:choose>
-                    <xsl:otherwise>
-                        <span class="ui-icon ui-icon-triangle-1-e folder" >folder</span>
-                        <input type="checkbox" />
-                        <a href="#">
-                            <xsl:call-template name="details">
-                                <xsl:with-param name="fmodel">
-                                    <xsl:value-of select="$fmodel" />
-                                </xsl:with-param>
-                            </xsl:call-template>
-                        </a>
-                    </xsl:otherwise>
-                </xsl:choose>
+                <span class="ui-icon ui-icon-triangle-1-e folder" >folder</span>
+                <input type="checkbox" />
+                <a href="#">
+                    <xsl:call-template name="details">
+                        <xsl:with-param name="fmodel">
+                            <xsl:value-of select="$fmodel" />
+                        </xsl:with-param>
+                    </xsl:call-template>
+                </a>
+                <xsl:if test="./str[@name='img_full_mime']" >
+                    <div>
+                        <xsl:attribute name="style">background: url('img/mime/<xsl:value-of select="./str[@name='img_full_mime']" />.png'); width:16px;height:16px;float:right;</xsl:attribute>
+                    </div>
+                </xsl:if>
             </li>
         </xsl:for-each>
     </xsl:template>

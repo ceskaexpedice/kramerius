@@ -47,7 +47,7 @@
     <a href="javascript:hideFullImage();"><span class="ui-icon ui-icon-closethick">close</span></a>
     </div>
 </div>
-<div class="fullContent">
+<div class="fullContent" style="width:100%;overflow:auto;">
     <div id="djvuContainer" style="display:none;">
         <iframe src="" frameborder="0" width="100%" height="100%"></iframe>
     </div>
@@ -59,7 +59,7 @@
         </div>
     </c:if>
     <div id="imgContainer" style="display:none;position:relative;" align="center">
-        <img id="loadingFull" src="img/loading.gif" style="display:none;position:absolute;top:3px;right:50%;" />
+        <img id="loadingFull" src="img/loading_big.gif" style="display:none;position:absolute;top:3px;right:50%;" />
         <img id="imgFullImage" class="view_div" src="img/empty.gif" onload="onLoadFullImage()" />
     </div>
 </div>
@@ -128,7 +128,7 @@
         }else if(zoom=="height"){
             //var w = 
             $('#imgFullImage').css({'height': $(window).height()-
-                    $('#fullImageContainer>div.header').height(),
+                    $('#fullImageContainer>div.header').outerHeight(true),
                 'width': ''});
         }else{
             var w = Math.round(fullImageWidth * parseFloat(zoom));
@@ -178,6 +178,7 @@
     
     function onLoadFullImage() {
         if($('#imgFullImage').attr('src')!='img/empty.gif'){
+            
             if(viewerOptions.hasAlto){
                 showAltoFull(viewerOptions.uuid);
             }
