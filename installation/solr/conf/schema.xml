@@ -351,8 +351,9 @@
         <field name="browse_autor" type="string"  indexed="true" stored="true" multiValued="true"  locale="cs" />
         <field name="search_autor" type="string_lower"  indexed="true"  stored="false" multiValued="true"  />
         
-        <field name="page_format" type="string"  indexed="true"  stored="true"  />
+        <field name="img_full_mime" type="string"  indexed="true"  stored="true"  />
         <field name="viewable" type="boolean"  indexed="true"  stored="true"  />
+        <field name="virtual" type="boolean"  indexed="true"  stored="true" default="false" />
         
     </fields>
 
