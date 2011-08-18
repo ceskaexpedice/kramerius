@@ -185,7 +185,7 @@ a.image:hover {
 /* facets */
 #facets ul{
     margin: 2px;
-    padding-left: 5px;
+    padding-left: 2px;
     margin-bottom: 10px;
 }
 #facets li{
@@ -196,7 +196,7 @@ a.image:hover {
     line-height: 16px;
 }
 #facets>ul>li{
-    padding-left: 3px;
+    padding-left: 0;
     border-bottom: 1px solid silver;
 }
 #facets>ul>li>a{
@@ -252,14 +252,18 @@ a.image:hover {
 }
 
 /*results*/
-#facets{
+#filters{
     float:left;
     width:200px;
+    margin-right: 3px;
+}
+#facets{
+    padding: 3px;
 }
 
 #docs{
     float:left;
-    width:790px;
+    width:780px;
 }
 
 .resultThumb{
@@ -285,7 +289,7 @@ a.image:hover {
 div.search_result{
     border: 1px solid silver;
     float:left;
-    width:370px;
+    width:357px;
     margin:2px;
     padding:5px;
 }

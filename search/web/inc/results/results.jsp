@@ -6,19 +6,27 @@
         <%@include file="../dateAxisV.jsp" %>
     </div>
 </div>
-<div id="facets">
+<div id="filters">
+    <ul><li><a href="#facets"><fmt:message bundle="${lctx}">results.filters</fmt:message></a></li></ul>
+    <div id="facets">
     <%@ include file="../usedFilters.jsp" %>
     <%@ include file="../facets.jsp" %>
+    </div>
 </div>
 <div id="docs">
+    <ul><li><a href="#docs_content"><fmt:message bundle="${lctx}">results.results</fmt:message></a></li></ul>
+    <div id="docs_content">
     <%--&#160;<c:out value="${numDocs}" />&#160;<c:out value="${numDocsStr}" />--%>
     <%@ include file="docs.jsp" %>
+    </div>
 </div>
 <script type="text/javascript">
 
 
 $(document).ready(function(){
     $('.loading_docs').hide();
+    $("#filters").tabs();
+    $("#docs").tabs();
     
     $(document).bind('scroll', function(event){
         var id = $('#docs .more_docs').attr('id');

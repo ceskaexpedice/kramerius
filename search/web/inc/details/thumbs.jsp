@@ -47,6 +47,7 @@
     }
     #tv_container tr td div img{
         height:128px;
+        margin:3px;
     }
 
     #tv_scroll_table{
