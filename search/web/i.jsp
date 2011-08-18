@@ -35,6 +35,7 @@
 <html>
     <%@ include file="inc/html_header.jsp" %>
     <body>
+
         <div id="main" class="shadow">
             <%@ include file="inc/header.jsp" %>
             <div style="display:block;">
@@ -46,6 +47,22 @@
         <div id="footer">
             <%@ include file="inc/footer.jsp" %>
         </div>
+    
+        <div id="i" class="viewer"></div>        
+        
+<script type="text/javascript">
+     $(document).ready(function(){
+        $('#i.viewer').bind('selectedPathChanged', function(event, level){
+            alert("Test selectedPathChanged");
+        });
+
+        $('#i.viewer').bind('viewReady', function(event, viewerOptions){
+            alert("Test viewReady");
+        });
+    });
+
+  
+</script>
         
      </body>
 </html>

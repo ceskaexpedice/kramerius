@@ -4,7 +4,7 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/xml" prefix="x" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt" %>
 <%@ taglib uri="/WEB-INF/tlds/securedContent.tld" prefix="scrd" %>
-<%@ taglib uri="/WEB-INF/tlds/viewObjects.tld" prefix="view" %>
+<%@ taglib uri="/WEB-INF/tlds/cmn.tld" prefix="view" %>
 
 
 <%@ page isELIgnored="false"%>
@@ -62,10 +62,11 @@
 
     <script type="text/javascript"  src="js/seadragon-min.js"></script>
     <script  src="js/pdf/pdf.js" language="javascript" type="text/javascript"></script>
+    <script  src="js/cmn/cmn.js" language="javascript" type="text/javascript"></script>
 
     <scrd:loggedusers>    
     	<!--script  src="js/admin/admin.js" language="javascript" type="text/javascript"></script-->
-	   <script  src="js/rights/adminRights.js" language="javascript" type="text/javascript"></script>
+       <script  src="js/admin/rights/rights.js" language="javascript" type="text/javascript"></script>
     </scrd:loggedusers>
     
     <!-- header view object -->

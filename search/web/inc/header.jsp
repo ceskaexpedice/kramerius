@@ -1,4 +1,4 @@
-<%@ taglib uri="/WEB-INF/tlds/viewObjects.tld" prefix="view" %>
+<%@ taglib uri="/WEB-INF/tlds/cmn.tld" prefix="view" %>
 <%@ page contentType="text/html" pageEncoding="UTF-8" %>
 
 <!-- search form object -->

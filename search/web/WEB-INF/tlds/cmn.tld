@@ -22,4 +22,11 @@
             <rtexprvalue>true</rtexprvalue>
         </attribute>
     </tag>
+    
+    <tag>
+        <name>msg</name>
+        <tagclass>cz.incad.Kramerius.tags.K4MessagesTag</tagclass>
+        <bodycontent>JSP</bodycontent>
+        <info>i18n</info>
+    </tag>
 </taglib>

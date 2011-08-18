@@ -6,7 +6,7 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/xml" prefix="x" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn" %>
-<%@ taglib uri="/WEB-INF/tlds/viewObjects.tld" prefix="view" %>
+<%@ taglib uri="/WEB-INF/tlds/cmn.tld" prefix="view" %>
 
 <view:object name="helpViewObject" clz="cz.incad.Kramerius.views.help.HelpViewObject"></view:object>
 
