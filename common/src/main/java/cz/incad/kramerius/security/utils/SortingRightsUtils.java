@@ -23,11 +23,12 @@ import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
 
+import cz.incad.kramerius.ObjectPidsPath;
 import cz.incad.kramerius.security.Right;
 
 public class SortingRightsUtils {
 
-    public static Right[] sortRights(Right[] findRights, List<String> uuids) {
+    public static Right[] sortRights(Right[] findRights, ObjectPidsPath path) {
 
         ArrayList<Right> noCriterium = new ArrayList<Right>();
         ArrayList<Right> negativeFixedPriorty = new ArrayList<Right>();
@@ -81,12 +82,12 @@ public class SortingRightsUtils {
             }
         }
         
-        SortingRightsUtils.sortByUUID(noCriterium, uuids);
+        SortingRightsUtils.sortByPID(noCriterium, path);
         SortingRightsUtils.sortByFixedPriority(negativeFixedPriorty);
         SortingRightsUtils.sortByFixedPriority(positiveFixedPriority);
-        SortingRightsUtils.sortByUUID(dynamicHintMax, uuids);
-        SortingRightsUtils.sortByUUID(dynamicHintNormal, uuids);
-        SortingRightsUtils.sortByUUID(dynamicHintMin, uuids);
+        SortingRightsUtils.sortByPID(dynamicHintMax, path);
+        SortingRightsUtils.sortByPID(dynamicHintNormal, path);
+        SortingRightsUtils.sortByPID(dynamicHintMin, path);
         
         ArrayList<Right> result = new ArrayList<Right>();
         result.addAll(noCriterium);
@@ -99,13 +100,28 @@ public class SortingRightsUtils {
         return (Right[]) result.toArray(new Right[result.size()]);
     }
 
-    public static void sortByUUID(final List<Right> list, final List<String>uuids) {
+    public static void sortByPID(final List<Right> list, final List<String>pids) {
         Collections.sort(list, new Comparator<Right>() {
     
             @Override
             public int compare(Right o1, Right o2) {
-                int thisVal = uuids.indexOf(o1.getPid());
-                int anotherVal = uuids.indexOf(o2.getPid());
+                int thisVal = pids.indexOf(o1.getPid());
+                int anotherVal = pids.indexOf(o2.getPid());
+                return (thisVal<anotherVal ? -1 : (thisVal==anotherVal ? 0 : 1));
+            }
+            
+        });
+    }
+
+    public static void sortByPID(final List<Right> list, final ObjectPidsPath path) {
+        Collections.sort(list, new Comparator<Right>() {
+            
+            List<String> pathStrings = Arrays.asList(path.getPathFromLeafToRoot());
+            
+            @Override
+            public int compare(Right o1, Right o2) {
+                int thisVal = pathStrings.indexOf(o1.getPid());
+                int anotherVal = pathStrings.indexOf(o2.getPid());
                 return (thisVal<anotherVal ? -1 : (thisVal==anotherVal ? 0 : 1));
             }
             

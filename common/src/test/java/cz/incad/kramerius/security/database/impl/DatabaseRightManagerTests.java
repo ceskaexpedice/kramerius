@@ -48,7 +48,8 @@ import cz.incad.kramerius.security.impl.http.MockGuiceSecurityHTTPModule;
 
 public class DatabaseRightManagerTests extends AbstractGuiceTestCase{
 
-    
+
+    /*
     public DatabaseRightManagerTests() {
         super();
     }
@@ -153,8 +154,7 @@ public class DatabaseRightManagerTests extends AbstractGuiceTestCase{
         int rid = manager.insertRight(rightImpl);
         return rid;
     }
-
-    
+    */
     
     @Override
     protected Injector injector() {

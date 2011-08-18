@@ -28,6 +28,22 @@ public class ObjectModelsPath extends AbstractObjectPath {
         super(pathFromRootToLeaf);
     }
 
+    
+    
+    @Override
+    public ObjectModelsPath cutHead(int indexFrom) {
+        return new ObjectModelsPath(super.cutHeadInternal(indexFrom));
+    }
+
+
+
+    @Override
+    public ObjectModelsPath cutTail(int indexFrom) {
+        return new ObjectModelsPath(super.cutTailInternal(indexFrom));
+    }
+
+
+
     public ObjectModelsPath injectRepository() {
         if (isEmptyPath()) return REPOSITORY_PATH;
         if (!this.pathFromRootToLeaf[0].equals(SpecialObjects.REPOSITORY.name())) {

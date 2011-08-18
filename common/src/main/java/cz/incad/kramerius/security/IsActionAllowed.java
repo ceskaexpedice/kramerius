@@ -30,7 +30,7 @@ public interface IsActionAllowed extends IsActionAllowedBase {
 	 * @param path Path of object. (from root to leaf)
 	 * @return
 	 */
-    public boolean isActionAllowed(String actionName, String uuid, ObjectPidsPath path);
+    public boolean isActionAllowed(String actionName, String pid, ObjectPidsPath path);
 
 	/**
 	 * Returns true given user is permitted to do action defined by parameter actionName for object defined by parameters uuid and pathOfUuuid

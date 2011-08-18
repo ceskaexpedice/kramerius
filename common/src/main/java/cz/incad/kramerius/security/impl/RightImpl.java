@@ -29,15 +29,15 @@ public class RightImpl implements Right {
     private int rightId;
     private int fixedPriority;
     private RightCriteriumWrapper crit;
-    private String uuid;
+    private String pid;
     private String action;
     private AbstractUser user;
     
-    public RightImpl(int rightId, RightCriteriumWrapper crit, String uuid, String action, AbstractUser user) {
+    public RightImpl(int rightId, RightCriteriumWrapper crit, String pid, String action, AbstractUser user) {
         super();
         this.rightId = rightId;
         this.crit = crit;
-        this.uuid = uuid;
+        this.pid = pid;
         this.action = action;
         this.user = user;
     }
@@ -53,9 +53,10 @@ public class RightImpl implements Right {
 
     @Override
     public String getPid() {
-        if (!this.uuid.startsWith("uuid:")) {
-            return "uuid:"+this.uuid;
-        } else return this.uuid;
+        //TODO: remove this test
+        if (!this.pid.startsWith("uuid:")) {
+            return "uuid:"+this.pid;
+        } else return this.pid;
     }
     
 
@@ -114,7 +115,7 @@ public class RightImpl implements Right {
     @Override
     public String toString() {
         StringBuffer buffer = new StringBuffer();
-        buffer.append("["+this.uuid+"] "+" ["+this.action+"] "+(this.crit!=null?this.crit.toString():""));
+        buffer.append("["+this.pid+"] "+" ["+this.action+"] "+(this.crit!=null?this.crit.toString():""));
         return buffer.toString();
     }
 
@@ -131,5 +132,60 @@ public class RightImpl implements Right {
     public int getFixedPriority() {
         return this.fixedPriority;
     }
+
+
+
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = 1;
+        result = prime * result + ((action == null) ? 0 : action.hashCode());
+        result = prime * result + ((crit == null) ? 0 : crit.hashCode());
+        result = prime * result + fixedPriority;
+        result = prime * result + rightId;
+        result = prime * result + ((pid == null) ? 0 : pid.hashCode());
+        return result;
+    }
+
+
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (obj == null)
+            return false;
+        if (getClass() != obj.getClass())
+            return false;
+        RightImpl other = (RightImpl) obj;
+        if (action == null) {
+            if (other.action != null)
+                return false;
+        } else if (!action.equals(other.action))
+            return false;
+        if (crit == null) {
+            if (other.crit != null)
+                return false;
+        } else if (!crit.equals(other.crit))
+            return false;
+        if (fixedPriority != other.fixedPriority)
+            return false;
+        if (rightId != other.rightId)
+            return false;
+        if (pid == null) {
+            if (other.pid != null)
+                return false;
+        } else if (!pid.equals(other.pid))
+            return false;
+        return true;
+    }
+
+
+
+
+
+    
+    
+    
 }
 

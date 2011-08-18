@@ -58,10 +58,10 @@ public class IsActionAllowedFromRequest implements IsActionAllowed {
     }
 
     @Override
-    public boolean isActionAllowed(String actionName, String uuid, ObjectPidsPath path) {
+    public boolean isActionAllowed(String actionName, String pid, ObjectPidsPath path) {
         try {
             User user = this.currentLoggedUser.get();
-            return isAllowedInternalForFedoraDocuments(actionName, uuid, path, user);
+            return isAllowedInternalForFedoraDocuments(actionName, pid, path, user);
         } catch (RightCriteriumException e) {
             logger.log(Level.SEVERE, e.getMessage(), e);
         }
@@ -99,9 +99,9 @@ public class IsActionAllowedFromRequest implements IsActionAllowed {
         }
     }
 
-    public boolean isAllowedInternalForFedoraDocuments(String actionName, String uuid, ObjectPidsPath path, User user) throws RightCriteriumException {
-        RightCriteriumContext ctx = this.ctxFactory.create(uuid, user, this.provider.get().getRemoteHost(), this.provider.get().getRemoteAddr());
-        EvaluatingResult result = this.rightsManager.resolve(ctx, uuid, path, actionName, user);
+    public boolean isAllowedInternalForFedoraDocuments(String actionName, String pid, ObjectPidsPath path, User user) throws RightCriteriumException {
+        RightCriteriumContext ctx = this.ctxFactory.create(pid, user, this.provider.get().getRemoteHost(), this.provider.get().getRemoteAddr());
+        EvaluatingResult result = this.rightsManager.resolve(ctx, pid, path, actionName, user);
         return result != null ? resultOfResult(result) : false;
     }
 

@@ -31,6 +31,19 @@ public class ObjectPidsPath extends AbstractObjectPath {
         super(pathFromRootToLeaf);
     }
     
+    @Override
+    public ObjectPidsPath cutHead(int indexFrom) {
+        return new ObjectPidsPath(super.cutHeadInternal(indexFrom));
+    }
+
+
+
+    @Override
+    public ObjectPidsPath cutTail(int indexFrom) {
+        return new ObjectPidsPath(super.cutTailInternal(indexFrom));
+    }
+
+    
     public ObjectPidsPath injectRepository() {
         if (isEmptyPath()) return REPOSITORY_PATH;
         if (!this.pathFromRootToLeaf[0].equals(SpecialObjects.REPOSITORY.getPid())) {

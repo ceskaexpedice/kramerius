@@ -195,10 +195,12 @@ public class DatabaseRightsManager implements RightsManager {
     @Override
     @InitSecurityDatabase
     public EvaluatingResult resolve(RightCriteriumContext ctx, String uuid, ObjectPidsPath path, String action, User user) throws RightCriteriumException {
-        List<String> pids = Arrays.asList(path.injectRepository().getPathFromRootToLeaf());
+        ObjectPidsPath processPath = path.injectRepository();
+        //List<String> pids = Arrays.asList(path.injectRepository().getPathFromRootToLeaf());
+        String[] pids = processPath.getPathFromLeafToRoot();
         
-        Right[] findRights = findRights((String[]) pids.toArray(new String[pids.size()]), action, user);
-        findRights = SortingRightsUtils.sortRights(findRights, pids);
+        Right[] findRights = findRights(pids, action, user);
+        findRights = SortingRightsUtils.sortRights(findRights, processPath);
         for (Right right : findRights) {
             ctx.setAssociatedPid(right.getPid());
             EvaluatingResult result = right.evaluate(ctx);
@@ -212,19 +214,21 @@ public class DatabaseRightsManager implements RightsManager {
 
     @InitSecurityDatabase
     public EvaluatingResult[] resolveAllPath(RightCriteriumContext ctx, String pid, ObjectPidsPath path, String action, User user) throws RightCriteriumException {
-        List<String> pids = Arrays.asList(path.injectRepository().getPathFromLeafToRoot());
-        Right[] findRights = findRights((String[]) pids.toArray(new String[pids.size()]), action, user);
-        findRights = SortingRightsUtils.sortRights(findRights, pids);
-        EvaluatingResult[] results = new EvaluatingResult[pids.size()];
+        //List<String> pids = Arrays.asList(path.injectRepository().getPathFromLeafToRoot());
+        Right[] findRights = findRights(path.getPathFromLeafToRoot(), action, user);
+        findRights = SortingRightsUtils.sortRights(findRights, path);
+        EvaluatingResult[] results = new EvaluatingResult[path.getLength()];
         for (int i = 0; i < results.length; i++) {
-            String curPid = pids.get(i);
-            String[] restOfPath = Arrays.copyOfRange(pids.toArray(new String[pids.size()]), i, results.length);
+            String curPid = path.getNodeFromLeafToRoot(i);
+            ObjectPidsPath restPath = path.cutTail(i);
+            //String[] restOfPath = Arrays.copyOfRange(pids.toArray(new String[pids.size()]), i, results.length);
             
             EvaluatingResult result = EvaluatingResult.FALSE;
             for (Right right : findRights) {
                 
                 boolean thisPid = right.getPid().equals(curPid);
-                boolean inTheRestOfPath = Arrays.asList(restOfPath).contains(right.getPid());
+                //boolean inTheRestOfPath = Arrays.asList(restOfPath).contains(right.getPid());
+                boolean inTheRestOfPath = restPath.contains(right.getPid());
                 if (thisPid || inTheRestOfPath) {
                     ctx.setAssociatedPid(right.getPid());
                     EvaluatingResult iresult = right.evaluate(ctx);

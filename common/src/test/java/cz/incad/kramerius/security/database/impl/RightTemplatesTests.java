@@ -41,7 +41,7 @@ import cz.incad.kramerius.security.impl.criteria.MovingWall;
 import cz.incad.kramerius.security.impl.http.MockGuiceSecurityHTTPModule;
 
 
-public class RightTemplatesTests extends AbstractGuiceTestCase{
+public class RightTemplatesTests {
 
     @Test
     public void testInsertCriteriumTemplate(){
@@ -145,7 +145,6 @@ public class RightTemplatesTests extends AbstractGuiceTestCase{
 
 
 
-    @Override
     protected Injector injector() {
         return Guice.createInjector(
                 new MockGuiceSecurityModule(), 

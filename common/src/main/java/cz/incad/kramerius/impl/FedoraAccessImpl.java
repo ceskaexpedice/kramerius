@@ -127,12 +127,7 @@ public class FedoraAccessImpl implements FedoraAccess {
     public Document getRelsExt(String pid) throws IOException {
         String relsExtUrl = relsExtUrl(KConfiguration.getInstance(), pid);
         LOGGER.fine("Reading rels ext +" + relsExtUrl);
-        InputStream docStream = null;
-        try{
-            docStream = RESTHelper.inputStream(relsExtUrl, KConfiguration.getInstance().getFedoraUser(), KConfiguration.getInstance().getFedoraPass());
-        } catch(Exception ex){
-        	return null;
-        }
+        InputStream docStream = RESTHelper.inputStream(relsExtUrl, KConfiguration.getInstance().getFedoraUser(), KConfiguration.getInstance().getFedoraPass());
         try {
             return XMLUtils.parseDocument(docStream, true);
         } catch (ParserConfigurationException e) {
