@@ -37,6 +37,8 @@
             $('#facets>ul>li>a').click(function(event){
                 var id = $(this).parent().attr('id');
                 toggleFacet(id);
+                event.stopPropagation();
+                return false;
             });
         });
         function toggleFacet(id){

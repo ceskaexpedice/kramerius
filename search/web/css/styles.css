@@ -266,6 +266,16 @@ a.image:hover {
     width:780px;
 }
 
+#docs_content>div.header span{
+    float:left;
+    font-size: 11px;
+}
+
+#docs_content>div.header a{
+    float:left;
+    margin-left: 5px;
+}
+
 .resultThumb{
     float:left;
     padding-right:5px;

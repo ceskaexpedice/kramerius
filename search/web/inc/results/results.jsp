@@ -31,19 +31,18 @@ $(document).ready(function(){
     $(document).bind('scroll', function(event){
         var id = $('#docs .more_docs').attr('id');
         if($('#docs .more_docs').length>0){
-            if(isScrolledIntoView($('#'+id)), window){
+            if(isScrolledIntoWindow($('#'+id))){
                 getMoreDocs(id);
+                //alert(id);
             }
         }
     });
-    //$('#docs img.th').live('ready', function(event){
-    //    resultThumbLoaded();
-    //});
     
     if($('#docs .more_docs').length>0){
         var id = $('#docs .more_docs').attr('id');
-        if(isScrolledIntoView($('#'+id)), window){
+        if(isScrolledIntoWindow($('#'+id))){
             getMoreDocs(id);
+            //alert(id);
         }
     }
 
@@ -78,18 +77,11 @@ $(document).ready(function(){
             left = $('#offset_'+offset+'>div.search_result')[i-1];
             right = $('#offset_'+offset+'>div.search_result')[i];
             checkRowHeight(left, right);
-            //max = Math.max($(left).height(), $(right).height());
-            //$(left).css('height', max);
-            //$(right).css('height', max);
         }
     }
     
     function checkRowHeight(left, right){
-        //var left;
-        //var right;
         var max;
-        //left = $(div1);
-        //right = $(div2);
         max = Math.max($(left).height(), $(right).height());
         var id1 = $(left).attr('id');
         max = Math.max(max, $(jq(id1)+' img.th').height());

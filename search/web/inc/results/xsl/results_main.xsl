@@ -58,16 +58,33 @@
                 <xsl:otherwise><xsl:value-of select="$bundle/value[@key='common.documents.plural_2']"/></xsl:otherwise>
             </xsl:choose>
         </xsl:variable>
-        <div style="float:left;margin-left:5px;">
-            <xsl:value-of select="$numDocs" />&#160;<xsl:value-of select="$numDocsStr" />
+        <div class="header">
+            <div style="float:left;margin-left:5px;width:100px;">
+                <span><xsl:value-of select="$numDocs" />&#160;<xsl:value-of select="$numDocsStr" /></span>
+            </div>
+            <div style="float:left;margin-left:100px;width:300px;text-align:center;">
+                <span><xsl:value-of select="$bundle/value[@key='results.sortby']"/>:</span>&#160;&#160;
+                <xsl:choose>
+                    <xsl:when test="/response/lst[@name='responseHeader']/lst[@name='params']/str[@name='sort']='root_title asc'">
+                        <a href="javascript:sortByTitle('desc');" ><xsl:value-of select="$bundle/value[@key='results.sortby.name']"/></a>&#160;
+                        <span class="ui-icon ui-icon-carat-1-n"  >asc</span>
+                        <a href="javascript:sortByRank();"><xsl:value-of select="$bundle/value[@key='results.sortby.relevance']"/></a>
+                    </xsl:when>
+                    <xsl:when test="/response/lst[@name='responseHeader']/lst[@name='params']/str[@name='sort']='root_title desc'">
+                        <a href="javascript:sortByTitle('asc');" ><xsl:value-of select="$bundle/value[@key='results.sortby.name']"/></a>&#160;
+                        <span class="ui-icon ui-icon-carat-1-s"  >desc</span>
+                        <a href="javascript:sortByRank();"><xsl:value-of select="$bundle/value[@key='results.sortby.relevance']"/></a>
+                    </xsl:when>
+                    <xsl:otherwise>
+                        <a href="javascript:sortByTitle('asc');"><xsl:value-of select="$bundle/value[@key='results.sortby.name']"/></a>&#160;
+                        <span>&#160;<xsl:value-of select="$bundle/value[@key='results.sortby.relevance']"/></span>
+                    </xsl:otherwise>
+                </xsl:choose>
+            </div>
+            <div style="float:right;margin-right:30px;">
+                <span><label for="cols"><xsl:value-of select="$bundle/value[@key='results.1column']"/></label><input id="cols" type="checkbox" name="cols" value="1" onclick="toggleColumns();" /></span>
+            </div>
         </div>
-        <div style="float:left;margin-left:100px;">
-            <span>Sort by:</span>&#160;&#160;
-            <a href="javascript:sortByTitle('asc');">Abecedu</a>&#160;
-            <a href="javascript:sortByRank();">Relevance</a>
-        </div>
-        <div style="float:right;margin-right:30px;">1 sloupec<input id="cols" type="checkbox" name="cols" value="1" onclick="toggleColumns();" /></div>
-        
     </xsl:template>
 
     <xsl:template name="collapse">

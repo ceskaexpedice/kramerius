@@ -64,13 +64,13 @@
     </ul>
 </div>
 <scrd:loggedusers>
-    <div id="reindex">
+    <div id="reindex" style="display:none;">
         <div style="border-bottom:1px solid #E66C00; padding-bottom: 5px; margin-bottom: 5px;">
             <div>
-                <input type="checkbox" id="reindex_check_integrity" checked="checked" /><label  for="reindex_check_integrity"> <fmt:message bundle="${lctx}">administrator.menu.dialogs.check_integrity</fmt:message></label>
+                <input type="checkbox" id="reindex_check_integrity" checked="checked" /><label for="reindex_check_integrity"> <fmt:message bundle="${lctx}">administrator.menu.dialogs.check_integrity</fmt:message></label>
             </div>
             <div>
-                <input type="checkbox" id="reindex_only_newer" /><label  for="reindex_only_newer"> <fmt:message bundle="${lctx}">administrator.menu.dialogs.only_newer</fmt:message></label>
+                <input type="checkbox" id="reindex_only_newer" /><label for="reindex_only_newer"> <fmt:message bundle="${lctx}">administrator.menu.dialogs.only_newer</fmt:message></label>
             </div>
         </div>
         
