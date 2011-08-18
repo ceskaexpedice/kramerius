@@ -28,11 +28,46 @@ import java.util.ResourceBundle;
 import org.antlr.stringtemplate.StringTemplate;
 
 import cz.incad.kramerius.FedoraAccess;
+import cz.incad.kramerius.ObjectPidsPath;
 import cz.incad.kramerius.security.RightsManager;
 import cz.incad.kramerius.security.SpecialObjects;
 import cz.incad.kramerius.utils.DCUtils;
 
 public class TitlesForObjects {
+
+    public static HashMap<String, String> createModelsForPaths(FedoraAccess fedoraAccess,  ObjectPidsPath path) throws IOException {
+        HashMap<String, String> modelsMap = new HashMap<String, String>();
+        String[] pathFromRootToLeaf = path.getPathFromRootToLeaf();
+        for (int i = 0; i < pathFromRootToLeaf.length; i++) {
+            String currentPid = pathFromRootToLeaf[i];
+            if (SpecialObjects.findSpecialObject(currentPid) != null) {
+                modelsMap.put(currentPid, SpecialObjects.findSpecialObject(currentPid).name());
+            } else {
+                String kramModel = fedoraAccess.getKrameriusModelName(currentPid);
+                modelsMap.put(currentPid, kramModel);
+            }
+        }
+        return modelsMap;
+    }
+    
+    public static HashMap<String, String> createTitlesForPaths(FedoraAccess fedoraAccess,  ObjectPidsPath path) throws IOException {
+        HashMap<String, String> dctitlesMap = new HashMap<String, String>();
+        String[] pathFromRootToLeaf = path.getPathFromRootToLeaf();
+        for (int i = 0; i < pathFromRootToLeaf.length; i++) {
+            String currentPid = pathFromRootToLeaf[i];
+            if (SpecialObjects.findSpecialObject(currentPid) != null) {
+                dctitlesMap.put(currentPid, SpecialObjects.findSpecialObject(currentPid).name());
+            } else {
+                String titleFromDC = DCUtils.titleFromDC(fedoraAccess.getDC(currentPid));
+                if (titleFromDC.length() > 10) {
+                    titleFromDC = titleFromDC.substring(0,10)+"...";
+                }
+                dctitlesMap.put(pathFromRootToLeaf[i], titleFromDC);
+            }
+        }
+        return dctitlesMap;
+    }
+    
 
     
     public static HashMap<String, String> createFinerTitles(FedoraAccess fedoraAccess, RightsManager rightsManager, String uuid, String[] path, String[] models, ResourceBundle bundle) throws IOException {

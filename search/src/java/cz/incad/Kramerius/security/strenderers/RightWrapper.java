@@ -40,11 +40,11 @@ public class RightWrapper implements Right{
     public RightWrapper(FedoraAccess fedoraAccess,Right right) {
         super();
         this.right = right;
-        if (("uuid:"+SpecialObjects.REPOSITORY.getUuid()).equals(right.getPid())) {
+        if (SpecialObjects.REPOSITORY.getPid().equals(right.getPid())) {
             this.pidTitle = SpecialObjects.REPOSITORY.name();
         } else {
             try {
-                this.pidTitle = DCUtils.titleFromDC(fedoraAccess.getDC(right.getPid().substring("uuid:".length())));
+                this.pidTitle = DCUtils.titleFromDC(fedoraAccess.getDC(right.getPid()));
             } catch (IOException e) {
                LOGGER.log(Level.SEVERE, e.getMessage(),e); 
             }
@@ -61,6 +61,10 @@ public class RightWrapper implements Right{
     }
     
     public String getDCTitle() {
+        return this.pidTitle;
+    }
+    
+    public String getTitle() {
         return this.pidTitle;
     }
     

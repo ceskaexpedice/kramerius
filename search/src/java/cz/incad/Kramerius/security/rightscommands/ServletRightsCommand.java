@@ -21,6 +21,7 @@ import java.io.InputStream;
 import java.io.StringReader;
 import java.nio.charset.Charset;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.ResourceBundle;
 import java.util.Set;
@@ -30,8 +31,12 @@ import org.antlr.stringtemplate.language.DefaultTemplateLexer;
 
 import cz.incad.Kramerius.security.RightsServlet;
 import cz.incad.Kramerius.security.ServletCommand;
+import cz.incad.kramerius.security.RightCriteriumParams;
+import cz.incad.kramerius.security.RightCriteriumWrapper;
 import cz.incad.kramerius.security.Role;
 import cz.incad.kramerius.security.User;
+import cz.incad.kramerius.security.impl.RightCriteriumParamsImpl;
+import cz.incad.kramerius.security.impl.RightImpl;
 import cz.incad.kramerius.utils.IOUtils;
 
 public abstract class ServletRightsCommand extends ServletCommand {
@@ -59,6 +64,45 @@ public abstract class ServletRightsCommand extends ServletCommand {
         StringTemplateGroup group = new StringTemplateGroup(new StringReader(string), DefaultTemplateLexer.class);
         return group;
     }
+
+    public RightImpl right(Map data, String pid) {
+        RightCriteriumWrapper criterium = this.criteriumWrapperFactory.createCriteriumWrapper((String)data.get("condition"));
+        if (criterium !=null)  criterium.setCriteriumParams(param(data));
+        Role role = this.userManager.findRoleByName((String) data.get("role"));
+        if (role == null) throw new RuntimeException("cannot find role '"+role+"'");
+        RightImpl right = new RightImpl(-1, criterium, pid, (String)data.get("securedAction"), role);
+        if ((data.get("priority") != null) && (Integer.parseInt((String)data.get("priority")) >0)) {
+            right.setFixedPriority(Integer.parseInt((String)data.get("priority")));
+        }
+        return right;
+    }
+
+    public RightCriteriumParams param(Map data) {
+    //        param: {
+    //        ident:0,
+    //        shortDesc:'',
+    //        objects:[]
+    //    },
+            Map param = (Map) data.get("param");
+            
+            String id = (String) param.get("ident");
+            String shortDsc = (String) param.get("shortDesc");
+            List objects = (List)param.get("objects");
+            if (objects.size() > 0) {
+                RightCriteriumParams params = null;
+                if ((id != null) && (!id.equals("")) && (Integer.parseInt(id) > 0)) {
+                    params = rightsManager.findParamById(Integer.parseInt(id));
+                    params.setObjects(objects.toArray(new Object[objects.size()]));
+                    params.setShortDescription(shortDsc);
+                } else {
+                    params = new RightCriteriumParamsImpl(-1);
+                    params.setObjects(objects.toArray(new Object[objects.size()]));
+                    params.setShortDescription(shortDsc);
+                }
+                return params;
+            }  else return null;
+            
+        }
 
 
 }

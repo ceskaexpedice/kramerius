@@ -172,10 +172,13 @@ public class RightsServlet extends GuiceServlet {
 
         /** zobrazeni tabulku akci - tlacitka pro zmenu */
         showglobalrights(ShowsActionsTableHtml.class),
+        
         /** nove pravo */
         newright(NewRightHtml.class),
+        
         /** editace prava - javascript */
         editrightjsdata(EditRightsJSData.class),
+        
         /** nove pravo - javascript */
         newrightjsdata(NewRightJSData.class);
 
