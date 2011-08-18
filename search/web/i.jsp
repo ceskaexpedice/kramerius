@@ -50,19 +50,6 @@
     
         <div id="i" class="viewer"></div>        
         
-<script type="text/javascript">
-     $(document).ready(function(){
-        $('#i.viewer').bind('selectedPathChanged', function(event, level){
-            alert("Test selectedPathChanged");
-        });
-
-        $('#i.viewer').bind('viewReady', function(event, viewerOptions){
-            alert("Test viewReady");
-        });
-    });
-
-  
-</script>
         
      </body>
 </html>
