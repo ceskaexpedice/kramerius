@@ -80,9 +80,6 @@
     }
 </style>
 <div class="section">
-    <input type="checkbox" id="only_newer" /><label  for="only_newer"> <fmt:message bundle="${lctx}">administrator.menu.dialogs.only_newer</fmt:message></label>
-</div>
-<div class="section">
     <fmt:message bundle="${lctx}">administrator.menu.dialogs.index_by_PID</fmt:message>: 
     <input type="text" id="pid_to_index" size="40" />
     <input type="button" onclick="confirmIndexDocByPid($('#pid_to_index').val(), '');" value="index_pid" class="ui-state-default ui-corner-all" />
@@ -100,6 +97,7 @@
         <option value="${top_model}">${top_model}</option>
         </c:forEach>
     </select>
+    <input type="button" onclick="confirmIndexModel($('#top_models_select').val());" value="<fmt:message bundle="${lctx}">administrator.menu.dialogs.index_model</fmt:message>" class="ui-state-default ui-corner-all" />
 </div> 
 <table id="indexer_data_model" cellpadding="0" cellspacing="0" class="indexer_selected"  width="100%">
     <thead class="indexer_head"><tr style="display:block;width:100%;">

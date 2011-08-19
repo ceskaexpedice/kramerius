@@ -52,7 +52,7 @@ input {
     font-family:Verdana, Arial, Helvetica, Tahoma;
     font-size:11px;
     color:#aaaaaa;
-    vertical-align:top;
+    vertical-align:middle;
 }
 
 input[type="checkbox"]{

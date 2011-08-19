@@ -785,6 +785,13 @@ function confirmIndexDocByPid(pid){
     });
 }
 
+function confirmIndexModel(model){
+    showConfirmDialog('Confirm index model: ' + model, function(){
+      var url = "lr?action=start&def=reindex&out=text&params=krameriusModel,"+model+","+model;
+      _startProcess(url);
+    });
+}
+
 function checkIndexIntegrity(){
 var text = dictionary['administrator.dialogs.confirm'] + " " + dictionary['administrator.menu.dialogs.check_integrity'];
     showConfirmDialog(text, function(){

@@ -103,6 +103,10 @@ public class SolrOperations {
                 fromKrameriusModel(value);
                 optimize();
             } else if ("krameriusModel".equals(action)) {
+                deleteModel(value);
+                krameriusModel(value);
+                optimize();
+            } else if ("krameriusModelNoCheck".equals(action)) {
                 krameriusModel(value);
                 optimize();
             } else if ("reindexDoc".equals(action)) {
@@ -143,10 +147,7 @@ public class SolrOperations {
             String urlStr = config.getString("solrHost") + "/select/?q=*:*&rows=0";
             factory = XPathFactory.newInstance();
             xpath = factory.newXPath();
-
-            /* get current values */
             java.net.URL url = new java.net.URL(urlStr);
-
             DocumentBuilder builder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
             org.w3c.dom.Document solrDom = builder.parse(url.openStream());
             String xPathStr = "/response/result/@numFound";
@@ -273,7 +274,6 @@ public class SolrOperations {
     private void krameriusModel(String model) {
         try {
             logger.log(Level.INFO, "Indexing from kramerius model: {0}", model);
-            checkIntegrityByModel(model);
             krameriusModel(model, 0);
 
         } catch (Exception e) {

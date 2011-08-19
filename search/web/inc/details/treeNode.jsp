@@ -3,6 +3,7 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/xml" prefix="x" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn" %>
+<%@ page trimDirectiveWhitespaces="true" %>
 <%@ page isELIgnored="false"%>
 <%@page import="com.google.inject.Injector"%>
 <%@page import="javax.servlet.jsp.jstl.fmt.LocalizationContext"%>
@@ -79,4 +80,3 @@ xslPage ${xslPage}<br/>
         <c:out value="${xml}" /><br/>
     </c:when>
 </c:choose>
-

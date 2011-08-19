@@ -1,6 +1,6 @@
 
 <xsl:stylesheet  version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform" >
-    <xsl:output method="xml" indent="no" encoding="UTF-8" omit-xml-declaration="yes" />
+    <xsl:output method="html" indent="no" encoding="UTF-8" omit-xml-declaration="yes" />
     <xsl:param name="bundle_url" select="bundle_url" />
     <xsl:param name="bundle" select="document($bundle_url)/bundle" />
     <xsl:param name="pid" select="pid"/>
@@ -97,11 +97,6 @@
                         </xsl:with-param>
                     </xsl:call-template>
                 </a>
-                <xsl:if test="./str[@name='img_full_mime']" >
-                    <div>
-                        <xsl:attribute name="style">background: url('img/mime/<xsl:value-of select="./str[@name='img_full_mime']" />.png'); width:16px;height:16px;float:right;</xsl:attribute>
-                    </div>
-                </xsl:if>
             </li>
         </xsl:for-each>
     </xsl:template>
@@ -122,7 +117,12 @@
 
     <xsl:template name="details">
         <xsl:param name="fmodel" />
-
+        <xsl:if test="./str[@name='img_full_mime']" >
+            <span>
+                <xsl:attribute name="style">text-indent:-200px;background: url('img/mime/<xsl:value-of select="./str[@name='img_full_mime']" />.png'); width:16px;height:16px;float:left;</xsl:attribute>
+                <xsl:attribute name="title"><xsl:value-of select="./str[@name='img_full_mime']" /></xsl:attribute>
+            mime</span>
+        </xsl:if>
         <xsl:choose>
             <xsl:when test="$fmodel='monograph'">
                 <xsl:value-of select="./str[@name='dc.title']" />
@@ -179,7 +179,6 @@
         <xsl:value-of select="substring-before($detail, '##')" />&#160;
         <xsl:value-of select="$bundle/value[@key='Číslo']"/>&#160;<xsl:value-of select="substring-after($detail, '##')" />
     </xsl:template>
-
 
     <xsl:template name="periodicalitem">
         <xsl:param name="detail" />

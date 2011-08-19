@@ -57,6 +57,13 @@ public class ExtendedFields {
         xpath.setNamespaceContext(new FedoraNamespaceContext());
     }
 
+    public void clearCache(){
+        models_cache.clear();
+        dates_cache.clear();
+        root_title_cache.clear();
+        
+    }
+    
     public void setFields(String pid) throws Exception {
         pid_paths = new ArrayList<String>();
         pid_paths = fo.getPidPaths(pid);
