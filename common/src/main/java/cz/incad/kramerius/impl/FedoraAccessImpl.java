@@ -6,6 +6,8 @@ import static cz.incad.kramerius.utils.FedoraUtils.getFedoraStreamPath;
 import static cz.incad.kramerius.utils.FedoraUtils.getThumbnailFromFedora;
 import static cz.incad.kramerius.utils.RESTHelper.openConnection;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
@@ -215,7 +217,9 @@ public class FedoraAccessImpl implements FedoraAccess {
         LOGGER.fine("Reading dc +" + dcUrl);
         InputStream docStream = RESTHelper.inputStream(dcUrl, KConfiguration.getInstance().getFedoraUser(), KConfiguration.getInstance().getFedoraPass());
         try {
-            return XMLUtils.parseDocument(docStream, true);
+            ByteArrayOutputStream bos = new ByteArrayOutputStream();
+            IOUtils.copyStreams(docStream, bos);
+            return XMLUtils.parseDocument(new ByteArrayInputStream(bos.toByteArray()), true);
         } catch (ParserConfigurationException e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
             throw new IOException(e);

@@ -32,7 +32,7 @@ public class ImagingTests extends AbstractGuiceTestCase {
 
     @Override
     protected Injector injector() {
-        Injector injector = Guice.createInjector(new ImagingModule());
+        Injector injector = Guice.createInjector(new ImagingModuleForTest());
         return injector;
     }
 

@@ -18,7 +18,7 @@ import cz.incad.kramerius.processes.impl.DatabaseProcessManager;
 import cz.incad.kramerius.processes.impl.LRProcessDefinitionManagerImpl;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 
-public class ImagingModule extends AbstractModule {
+public class ImagingModuleForTest extends AbstractModule {
 
     @Override
     protected void configure() {

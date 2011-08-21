@@ -23,7 +23,7 @@ import cz.incad.kramerius.utils.imgs.KrameriusImageSupport.ScalingMethod;
 public class TileSupportTest extends AbstractGuiceTestCase {
 
     public static void main(String[] args) throws IOException {
-        Injector injector = Guice.createInjector(new ImagingModule());
+        Injector injector = Guice.createInjector(new ImagingModuleForTest());
         DeepZoomTileSupport tileSupport = injector.getInstance(DeepZoomTileSupport.class);
         InputStream iStream = TileSupportTest.class.getResourceAsStream("res.jpg");
         TestCase.assertNotNull(iStream);
@@ -62,7 +62,7 @@ public class TileSupportTest extends AbstractGuiceTestCase {
 
     @Override
     protected Injector injector() {
-        Injector injector = Guice.createInjector(new ImagingModule());
+        Injector injector = Guice.createInjector(new ImagingModuleForTest());
         return injector;
     }
 

@@ -1,4 +1,4 @@
-package cz.incad.kramerius.pdf.pdfpages;
+package cz.incad.kramerius.document.model;
 
 import java.util.ArrayList;
 import java.util.Iterator;

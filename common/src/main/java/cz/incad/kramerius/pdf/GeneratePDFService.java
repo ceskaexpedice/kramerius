@@ -5,9 +5,10 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.util.List;
 
+import cz.incad.kramerius.ObjectPidsPath;
 import cz.incad.kramerius.ProcessSubtreeException;
+import cz.incad.kramerius.document.model.AbstractRenderedDocument;
 import cz.incad.kramerius.pdf.impl.OutputStreams;
-import cz.incad.kramerius.pdf.pdfpages.AbstractRenderedDocument;
 
 
 /**
@@ -26,7 +27,7 @@ public interface GeneratePDFService {
 	 * @throws IOException
 	 * @throws ProcessSubtreeException 
 	 */
-	public void fullPDFExport(String parentUUID, OutputStreams outputs, Break brk, String djvuUrl, String i18Url) throws IOException, ProcessSubtreeException;
+	public void fullPDFExport(ObjectPidsPath path, OutputStreams outputs, Break brk, String djvuUrl, String i18Url) throws IOException, ProcessSubtreeException;
 
 	/**
 	 * Generate dynamic export

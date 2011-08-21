@@ -1,4 +1,4 @@
-package cz.incad.kramerius.pdf.pdfpages;
+package cz.incad.kramerius.document.model;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -84,7 +84,7 @@ public abstract class AbstractRenderedDocument extends AbstractObject {
 		while(!this.pages.remove(0).getUuid().equals(uuid)) {
 			pocitadlo += 1;
 		};
-		System.out.println("Vymazanych stranek "+pocitadlo);
+		//System.out.println("Vymazanych stranek "+pocitadlo);
 	}
 	
 

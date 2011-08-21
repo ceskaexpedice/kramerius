@@ -1,4 +1,4 @@
-package cz.incad.kramerius.pdf.pdfpages;
+package cz.incad.kramerius.document.model;
 
 
 public abstract class AbstractPage extends AbstractObject {
@@ -47,5 +47,6 @@ public abstract class AbstractPage extends AbstractObject {
 
 	
 	
+	public abstract void visitPage(PageVisitor visitor, Object obj);
 	
 }

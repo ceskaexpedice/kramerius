@@ -64,16 +64,17 @@ import cz.incad.kramerius.ObjectPidsPath;
 import cz.incad.kramerius.ProcessSubtreeException;
 import cz.incad.kramerius.SolrAccess;
 import cz.incad.kramerius.TreeNodeProcessor;
+import cz.incad.kramerius.document.DocumentService;
+import cz.incad.kramerius.document.model.AbstractPage;
+import cz.incad.kramerius.document.model.AbstractRenderedDocument;
+import cz.incad.kramerius.document.model.ImagePage;
+import cz.incad.kramerius.document.model.OutlineItem;
+import cz.incad.kramerius.document.model.RenderedDocument;
+import cz.incad.kramerius.document.model.TextPage;
 import cz.incad.kramerius.imaging.ImageStreams;
 import cz.incad.kramerius.impl.AbstractTreeNodeProcessorAdapter;
 import cz.incad.kramerius.pdf.Break;
 import cz.incad.kramerius.pdf.GeneratePDFService;
-import cz.incad.kramerius.pdf.pdfpages.AbstractPage;
-import cz.incad.kramerius.pdf.pdfpages.AbstractRenderedDocument;
-import cz.incad.kramerius.pdf.pdfpages.ImagePage;
-import cz.incad.kramerius.pdf.pdfpages.OutlineItem;
-import cz.incad.kramerius.pdf.pdfpages.RenderedDocument;
-import cz.incad.kramerius.pdf.pdfpages.TextPage;
 import cz.incad.kramerius.pdf.utils.TitlesUtils;
 import cz.incad.kramerius.service.ResourceBundleService;
 import cz.incad.kramerius.service.TextsService;
@@ -113,9 +114,11 @@ public class GeneratePDFServiceImpl implements GeneratePDFService {
 	private TextsService textsService;
 	private ResourceBundleService resourceBundleService;
 	private SolrAccess solrAccess;
+	private DocumentService documentService;
+	
 	
 	@Inject
-	public GeneratePDFServiceImpl(@Named("securedFedoraAccess") FedoraAccess fedoraAccess, SolrAccess solrAccess, KConfiguration configuration, Provider<Locale> localeProvider, TextsService textsService, ResourceBundleService resourceBundleService) {
+	public GeneratePDFServiceImpl(@Named("securedFedoraAccess") FedoraAccess fedoraAccess, SolrAccess solrAccess, KConfiguration configuration, Provider<Locale> localeProvider, TextsService textsService, ResourceBundleService resourceBundleService, DocumentService documentService) {
 		super();
 		this.fedoraAccess = fedoraAccess;
 		this.configuration = configuration;
@@ -124,6 +127,7 @@ public class GeneratePDFServiceImpl implements GeneratePDFService {
 		this.configuration = configuration;
 		this.resourceBundleService = resourceBundleService;
 		this.solrAccess = solrAccess;
+		this.documentService = documentService;
 		try {
 			this.init();
 		} catch (IOException e) {
@@ -285,20 +289,20 @@ public class GeneratePDFServiceImpl implements GeneratePDFService {
 
 	@Override
     public void dynamicPDFExport(String requestinguuid, String uuidFrom, int numberOfPage, String titlePage, OutputStream os, String imgServletUrl, String i18nUrl) throws IOException, ProcessSubtreeException {
-	    
-        ObjectPidsPath[] paths = solrAccess.getPath(uuidFrom);
-        String[] pathFromRootToLeaf = paths[0].getPathFromRootToLeaf();
-        
-        org.w3c.dom.Document relsExt = this.fedoraAccess.getRelsExt(uuidFrom);
-        String modelName = this.fedoraAccess.getKrameriusModelName(relsExt);
-        
-        final AbstractRenderedDocument renderedDocument = new RenderedDocument(modelName, uuidFrom);
-        renderedDocument.setDocumentTitle(TitlesUtils.title(requestinguuid, this.solrAccess, this.fedoraAccess));
-        renderedDocument.setUuidTitlePage(titlePage);
-        renderedDocument.setUuidMainTitle(pathFromRootToLeaf[0]);
-        
-        buildRenderingDocumentAsFlat(renderedDocument, uuidFrom, numberOfPage);
-        generateCustomPDF(renderedDocument, uuidFrom,os, imgServletUrl,i18nUrl);
+//	    
+//        ObjectPidsPath[] paths = solrAccess.getPath(uuidFrom);
+//        String[] pathFromRootToLeaf = paths[0].getPathFromRootToLeaf();
+//        
+//        org.w3c.dom.Document relsExt = this.fedoraAccess.getRelsExt(uuidFrom);
+//        String modelName = this.fedoraAccess.getKrameriusModelName(relsExt);
+//        
+//        final AbstractRenderedDocument renderedDocument = new RenderedDocument(modelName, uuidFrom);
+//        renderedDocument.setDocumentTitle(TitlesUtils.title(requestinguuid, this.solrAccess, this.fedoraAccess));
+//        renderedDocument.setUuidTitlePage(titlePage);
+//        renderedDocument.setUuidMainTitle(pathFromRootToLeaf[0]);
+//        
+//        buildRenderingDocumentAsFlat(renderedDocument, uuidFrom, numberOfPage);
+//        generateCustomPDF(renderedDocument, uuidFrom,os, imgServletUrl,i18nUrl);
 	    
     }
 
@@ -326,33 +330,18 @@ public class GeneratePDFServiceImpl implements GeneratePDFService {
 
 
 	@Override
-	public void fullPDFExport(String parentUUID, OutputStreams streams, Break brk, String djvuUrl, String i18nUrl) throws IOException, ProcessSubtreeException {
-		org.w3c.dom.Document relsExt = this.fedoraAccess.getRelsExt(parentUUID);
-		String modelName = this.fedoraAccess.getKrameriusModelName(relsExt);
+	public void fullPDFExport(ObjectPidsPath path, OutputStreams streams, Break brk, String djvuUrl, String i18nUrl) throws IOException, ProcessSubtreeException {
+	    
+	    
+	    
 		
-		final AbstractRenderedDocument renderedDocument = new RenderedDocument(modelName, parentUUID);
-        renderedDocument.setDocumentTitle(TitlesUtils.title(parentUUID, this.solrAccess, this.fedoraAccess, false));
-
-		renderedDocument.setUuidMainTitle(parentUUID);
-		
-		TextPage dpage = new TextPage(modelName, parentUUID);
-		dpage.setOutlineDestination("desc");
-		dpage.setOutlineTitle("Popis");
-		renderedDocument.addPage(dpage);
-		OutlineItem item = new OutlineItem();
-		item.setLevel(1); item.setParent(renderedDocument.getOutlineItemRoot()); 
-		item.setTitle("Popis"); item.setDestination("desc");
-		renderedDocument.getOutlineItemRoot().addChild(item);
-		
-		buildRenderingDocumentAsTree(parentUUID,  renderedDocument);
-		
-		AbstractRenderedDocument restOfDoc = renderedDocument;
+		AbstractRenderedDocument restOfDoc = documentService.buildDocumentAsTree(path, path.getLeaf());
 		OutputStream os = null;
 		boolean konec = false;
 		while(!konec) {
 			if (!restOfDoc.getPages().isEmpty()) {
 				os = streams.newOutputStream();
-				restOfDoc = generateCustomPDF(restOfDoc, parentUUID, os, brk, djvuUrl,i18nUrl);
+				restOfDoc = generateCustomPDF(restOfDoc, path.getLeaf(), os, brk, djvuUrl,i18nUrl);
 				
 				StringBuffer buffer = new StringBuffer();
 				restOfDoc.getOutlineItemRoot().debugInformations(buffer, 1);
@@ -366,227 +355,8 @@ public class GeneratePDFServiceImpl implements GeneratePDFService {
 
 
 	
-	private void buildRenderingDocumentAsFlat(/*org.w3c.dom.Document relsExt, String uuid,*/ final AbstractRenderedDocument renderedDocument, final String uuidFrom, /*final String uuidTo*/ final int howMany ) throws IOException, ProcessSubtreeException {
-	    if (fedoraAccess.isImageFULLAvailable(uuidFrom)) {
-	        
-	        //String[] pathOfModels = solrAccess.getPath(uuidFrom);
-	        //String[] pathOfModels = solrAccess.getPath(uuidFrom);
-	        ObjectPidsPath[] path = solrAccess.getPath(uuidFrom);
-	        String[] pathFromLeafToRoot = path[0].getPathFromLeafToRoot();
-	        String parent = pathFromLeafToRoot[pathFromLeafToRoot.length -2];
-	        
-	        fedoraAccess.processSubtree(parent, new TreeNodeProcessor() {
-                private int index = 0;
-                private boolean acceptingState = false;
-                
-                @Override
-                public void process(String pid, int level) throws ProcessSubtreeException {
-                    try{
-                        if (fedoraAccess.isImageFULLAvailable(pid)) {
-                            if (pid.equals(uuidFrom)) {
-                                acceptingState = true;
-                            }
-                            if (acceptingState) {
-                                if (index < howMany) {
-                                    renderedDocument.addPage(createPage(renderedDocument, pid));
-                                }
-                                index += 1;
-                                if (index>=howMany) {
-                                    acceptingState = false;
-                                }
-                            }
-                        }
-                    } catch (LexerException e) {
-                        LOGGER.log(Level.SEVERE, e.getMessage(), e);
-                    } catch (IOException e) {
-                        LOGGER.log(Level.SEVERE, e.getMessage(), e);
-                    }
-                }
-                
-                @Override
-                public boolean breakProcessing(String pid, int level) {
-                    return index >= howMany;
-                }
-            });
-	        
-		    
-		} else {
-
-	          fedoraAccess.processSubtree(uuidFrom, new TreeNodeProcessor() {
-
-                private int index = 0;
-
-                @Override
-                public void process(String pid, int level) throws ProcessSubtreeException {
-                    try{
-                        if (fedoraAccess.isImageFULLAvailable(pid)) {
-                            if (index < howMany) {
-                                renderedDocument.addPage(createPage(renderedDocument, pid));
-                            }
-                            index += 1;
-                        }
-                    } catch (LexerException e) {
-                        LOGGER.log(Level.SEVERE, e.getMessage(), e);
-                    } catch (IOException e) {
-                        LOGGER.log(Level.SEVERE, e.getMessage(), e);
-                    }
-                }
-
-                @Override
-                public boolean breakProcessing(String pid, int level) {
-                    return index >= howMany;
-                }
-	              
-	          });
-
-		}
-	}
-	
-	private void buildRenderingDocumentAsTree(String uuid,/*org.w3c.dom.Document relsExt,*/ final AbstractRenderedDocument renderedDocument ) throws IOException, ProcessSubtreeException {
-	    fedoraAccess.processSubtree("uuid:"+uuid, new AbstractTreeNodeProcessorAdapter() {
-            
-            private int previousLevel = -1;
-            private OutlineItem currOutline = null;
-            @Override
-            public void processUuid(String pageUuid, int level) {
-                
-                try {
-                    AbstractPage page = createPage(renderedDocument, pageUuid);
-                    renderedDocument.addPage(page);
-                    if (previousLevel == -1) {
-                        // first
-                        this.currOutline = createOutlineItem(renderedDocument.getOutlineItemRoot(), page.getOutlineDestination(), page.getOutlineTitle(), level);
-                        StringBuffer buffer = new StringBuffer();
-                        this.currOutline.debugInformations(buffer, 0);
-                    } else if (previousLevel == level) {
-                        this.currOutline = this.currOutline.getParent();
-                        this.currOutline = createOutlineItem(this.currOutline, page.getOutlineDestination(), page.getOutlineTitle(), level);
-
-                        StringBuffer buffer = new StringBuffer();
-                        this.currOutline.debugInformations(buffer, 0);
-
-                    } else if (previousLevel < level) {
-                        // dolu
-                        this.currOutline = createOutlineItem(this.currOutline, page.getOutlineDestination(), page.getOutlineTitle(), level);
-
-                        StringBuffer buffer = new StringBuffer();
-                        this.currOutline.debugInformations(buffer, 0);
-
-                    } else if (previousLevel > level) {
-                        // nahoru // za poslednim smerem nahoru
-                        //this.currOutline = this.currOutline.getParent();
-                        int diff = previousLevel - level;
-                        for (int i = 0; i < diff; i++) {
-                            this.currOutline = this.currOutline.getParent();
-                        }
-                            
-                        
-                        StringBuffer buffer = new StringBuffer();
-                        this.currOutline.debugInformations(buffer, 0);
-                        
-                        this.currOutline = this.currOutline.getParent();
-                        this.currOutline = createOutlineItem(this.currOutline, page.getOutlineDestination(), page.getOutlineTitle(), level);
-                        
-                    }
-
-                    previousLevel = level;
-                } catch (DOMException e) {
-                    LOGGER.log(Level.SEVERE, e.getMessage(), e);
-                    throw new RuntimeException(e);
-                } catch (LexerException e) {
-                    LOGGER.log(Level.SEVERE, e.getMessage(), e);
-                    throw new RuntimeException(e);
-                } catch (IOException e) {
-                    LOGGER.log(Level.SEVERE, e.getMessage(), e);
-                    throw new RuntimeException(e);
-                }
-                
-            }
-            
-
-            private OutlineItem createOutlineItem(OutlineItem parent, String objectId, String biblioModsTitle, int level) {
-                OutlineItem item = new OutlineItem();
-                item.setDestination(objectId);
-
-                
-                item.setTitle(biblioModsTitle);
-                
-                parent.addChild(item);
-                item.setParent(parent);
-                item.setLevel(level);
-                return item;
-            }
-
-        });
-	}
 	
 
-	protected AbstractPage createPage( final AbstractRenderedDocument renderedDocument,
-			String objectId)
-			throws LexerException, IOException {
-//		String pid = elm.getAttributeNS(RDF_NAMESPACE_URI, "resource");
-//		PIDParser pidParse = new PIDParser(pid);
-//		pidParse.disseminationURI();
-//		String objectId = pidParse.getObjectId();
-//		
-		org.w3c.dom.Document biblioMods = fedoraAccess.getBiblioMods(objectId);
-		org.w3c.dom.Document dc = fedoraAccess.getDC(objectId);
-		String modelName = fedoraAccess.getKrameriusModelName(objectId);
-		
-		AbstractPage page = null;
-		
-		if (fedoraAccess.isImageFULLAvailable(objectId)) {
-            
-            page = new ImagePage(modelName, objectId);
-            page.setOutlineDestination(objectId);
-            String pageNumber = getPageNumber(biblioMods);
-            if (pageNumber.trim().equals("")) {
-                throw new IllegalStateException(objectId);
-            }
-            page.setPageNumber(pageNumber);
-            //renderedDocument.addPage(page);
-            Element part = XMLUtils.findElement(biblioMods.getDocumentElement(), "part", FedoraNamespaces.BIBILO_MODS_URI);
-            String attribute = part.getAttribute("type");
-            if (attribute != null) {
-                ResourceBundle resourceBundle = resourceBundleService.getResourceBundle("base", localeProvider.get());
-                String key = "pdf."+attribute;
-                if (resourceBundle.containsKey(key)) {
-                    page.setOutlineTitle(page.getPageNumber()+" "+resourceBundle.getString(key));
-                } else {
-                    page.setOutlineTitle(page.getPageNumber());
-                    //throw new RuntimeException("");
-                }
-            }
-            if ((renderedDocument.getUuidTitlePage() == null) && ("TitlePage".equals(attribute))) {
-                renderedDocument.setUuidTitlePage(objectId);
-            }
-
-            if ((renderedDocument.getUuidFrontCover() == null) && ("FrontCover".equals(attribute))) {
-                renderedDocument.setUuidFrontCover(objectId);
-            }
-
-            if ((renderedDocument.getUuidBackCover() == null) && ("BackCover".equals(attribute))) {
-                renderedDocument.setUuidBackCover(objectId);
-            }
-
-            if (renderedDocument.getFirstPage() == null)  {
-                renderedDocument.setFirstPage(objectId);
-            }
-		    
-
-		} else {
-			page = new TextPage(modelName, objectId);
-			page.setOutlineDestination(objectId);
-//			String title = DCUtils.titleFromDC(dc);
-//			if ((title == null) || title.equals("")) {
-//			    title = BiblioModsUtils.titleFromBiblioMods(biblioMods);
-//			    title = BiblioModsUtils.getTitle(biblioMods, fedoraAccess.getKrameriusModelName(objectId));
-//			}
-			//if (title.trim().equals("")) throw new IllegalArgumentException(objectId+" has no title ");
-			page.setOutlineTitle(TitlesUtils.title(objectId, solrAccess, fedoraAccess));
-		}
-		return page;
-	}
 
 
 	private static Document createDocument() {

@@ -1,4 +1,4 @@
-package cz.incad.kramerius.pdf.pdfpages;
+package cz.incad.kramerius.document.model;
 
 import cz.incad.kramerius.KrameriusModels;
 
@@ -8,5 +8,10 @@ public class ImagePage extends AbstractPage {
 		super(modelName, uuid);
 	}
 
+    @Override
+    public void visitPage(PageVisitor visitor, Object obj) {
+        visitor.visit(this, obj);
+    }
+	
 	
 }
