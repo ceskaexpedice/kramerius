@@ -55,6 +55,12 @@
 		<servlet-name>pdf</servlet-name>
 		<servlet-class>cz.incad.Kramerius.GeneratePDFServlet</servlet-class>
 	</servlet>
+
+    <servlet>
+        <servlet-name>print</servlet-name>
+        <servlet-class>cz.incad.Kramerius.PrintQueue</servlet-class>
+    </servlet>
+    
 	<!-- lr processes -->
 	<servlet>
 		<servlet-name>lr</servlet-name>
@@ -173,6 +179,11 @@
 		<servlet-name>pdf</servlet-name>
 		<url-pattern>/pdf</url-pattern>
 	</servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>print</servlet-name>
+        <url-pattern>/print</url-pattern>
+    </servlet-mapping>
 
 	<servlet-mapping>
 		<servlet-name>mets</servlet-name>
