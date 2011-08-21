@@ -20,6 +20,7 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.logging.Level;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -43,13 +44,14 @@ import cz.incad.kramerius.utils.conf.KConfiguration;
 
 public class PrintQueue extends GuiceServlet {
 
+    public static final java.util.logging.Logger LOGGER = java.util.logging.Logger.getLogger(PrintQueue.class.getName());
+    
     public static final String PID_FROM="pidFrom";
     public static final String HOW_MANY="howMany";
     public static final String PATH="path";
 
     @Inject
     PrintingService printService;
-
     
     @Inject
     @Named("securedFedoraAccess")
@@ -66,18 +68,15 @@ public class PrintQueue extends GuiceServlet {
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         try {
-            this.renderDynamicPDF(req, resp);
+            this.print(req, resp);
         } catch (ProcessSubtreeException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+            LOGGER.log(Level.SEVERE,e.getMessage(),e);
         }
     }
 
 
 
-
-
-    public void renderDynamicPDF(HttpServletRequest req, HttpServletResponse resp) throws MalformedURLException, IOException, ProcessSubtreeException {
+    public void print(HttpServletRequest req, HttpServletResponse resp) throws MalformedURLException, IOException, ProcessSubtreeException {
         String imgServletUrl = ApplicationURL.applicationURL(req)+"/img";
         if ((configuration.getApplicationURL() != null) && (!configuration.getApplicationURL().equals(""))){
             imgServletUrl = configuration.getApplicationURL()+"img";
@@ -95,11 +94,6 @@ public class PrintQueue extends GuiceServlet {
         } else {
             this.printService.print(new ObjectPidsPath(from), from, Integer.parseInt(howMany),  imgServletUrl, i18nUrl);
         }
-        
-        
-//        service.
-//        
-//        service.dynamicPDFExport(parentUuid(from), from, Integer.parseInt(howMany), from, resp.getOutputStream(), imgServletUrl, i18nUrl);
     }
 
 }
