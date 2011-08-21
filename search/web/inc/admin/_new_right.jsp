@@ -10,7 +10,7 @@
 
 <%@ page isELIgnored="false"%>
 
-<view:object name="newRight" clz="cz.incad.Kramerius.views.rights.DisplayNewRightView"></view:object>
+<view:object name="newRight" clz="cz.incad.Kramerius.views.rights.DisplayRightView"></view:object>
 
 
 <scrd:loggedusers>
@@ -19,29 +19,35 @@
     <div>
         <p style="">
             Aplikovat pravo <c:out value="${newRight.securedAction}" ></c:out>            
-            na vybrane objekty
+            <!--  na vybrane objekty-->
         </p>
     </div>
     
     
     <script type="text/javascript">
 
-    rightContainer = {
+    var rightContainer = {
    		affectedObjects: [
             <c:forEach var="pid" items="${newRight.pidsParams}" varStatus="st">${st.index > 0 ? "," :""} '${pid}'  </c:forEach>
         ],    
 	    data: {
-		    ident:'0',
+	        //action:'${newRight.action}',
+   		    ident:'${newRight.rightIdParam}',
 		    securedAction:'${newRight.securedAction}',
-            justcreated:true,
-            condition:'',
+            justcreated:${newRight.justCreated},
+            condition:'${newRight.criterium}',
             param: {
-                ident:0,
-                shortDesc:'',
-                objects:[]
+                ident:${newRight.critparamsid},
+                shortDesc:'${newRight.critparamdesc}',
+                objects:[
+                         <c:forEach var="p" items="${newRight.critparams}" varStatus="status">
+                         ${status.index > 0 ? "," :""} "${p}"   
+                      </c:forEach>
+
+                         ]
             },
             priority:0, 
-            role:'common_users'
+            role:'${newRight.appliedRole}'
         },
         options: {
             roles:[
@@ -59,9 +65,45 @@
                  }
                   </c:forEach>
              ]
-        }                
+        }               
     };
 
+    function initUI() {
+        alert("initializing ...");
+            if (!rightContainer.data.justcreated) {
+            if (rightContainer.data.role !== 'common_users') {
+                $("#roleType").attr("checked", "checked");
+                $("#userId").val(rightContainer.data.role);
+
+                $("#roleType").each(function(elm) {
+                    _radio_change(elm);
+                });
+            }            
+
+            if (rightContainer.data.condition) {
+                $("#criterium").val(rightContainer.data.condition);
+            }
+
+            if (rightContainer.data.param.ident) {
+                $("#rightParamsCreation").show();
+                $("#params").val(rightContainer.data.param.ident);
+            }
+
+            if (rightContainer.data.param.shortDesc) {
+                $("#shortDesc").val(rightContainer.data.param.shortDesc);
+            }
+
+            if (rightContainer.data.param.objects) {
+                var str = reduce(function(base, item, status) { return base+ (status.first ? "" : ";")  +item}, "", rightContainer.data.param.objects);
+                $("#paramsVals").val(str);
+            }
+        }
+
+    }
+
+    initUI();
+    
+    
     </script>
     
     <form method="post" id="modifyRight">
@@ -194,6 +236,7 @@
                                 if (rightContainer.data.param.ident > 0) {
                                 	rightContainer.data.param.dirty=true;
                                 }
+                                rightContainer.data.param.objects = $("#paramsVals").val().split(",");
                             }
                             
                             function _combo_params_change() {

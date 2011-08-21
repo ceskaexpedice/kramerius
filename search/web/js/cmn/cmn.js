@@ -16,6 +16,15 @@ String.prototype.startsWith = function(str){
     return (this.indexOf(str) === 0);
 }
 
+/** replace all in string */
+String.prototype.replaceAll=function(replace,with_t) {
+    return this.replace(new RegExp(replace, 'g'),with_t);
+}
+
+/** ends with in string */
+String.prototype.endsWith = function(suffix) {
+    return this.indexOf(suffix, this.length - suffix.length) !== -1;
+};
 
 
 /** 
@@ -27,7 +36,8 @@ String.prototype.startsWith = function(str){
  */
 function reduce(combine, base, array) {
 	$.each(array,function(index, element) {
-		base = combine(base, element);
+		var status = {index:index, first:index==0, last:index==array.length-1};
+		base = combine(base, element,status);
 	});
 	return base;
 }

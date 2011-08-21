@@ -9,6 +9,8 @@ function AffectedObjectsRights() {
 	this.dialog = null;
 	this.pids=[];
 	this.securedActionTabs = {};
+	
+	this.openedDetails=[];
 }
 
 
@@ -71,11 +73,12 @@ AffectedObjectsRights.prototype.openDialog = function(/** array of struct */pids
 
 /** construct url from selected pids
  */
-AffectedObjectsRights.prototype.url = function(/** String */baseUrl) {
+AffectedObjectsRights.prototype.url = function(/** String */baseUrl, /** Array */ pids) {
+	if (!pids) pids = this.pids;
 	return baseUrl+"{"+reduce(function(base, item) {
     	base = base+item.pid.replaceAll(":","\\:")+";";
         return base;
-    }, "",this.pids)+"}";        
+    }, "",pids)+"}";        
 }
 
 
@@ -86,9 +89,14 @@ AffectedObjectsRights.prototype.displayDetails = function(id) {
 	if ($("#"+id).is(':visible')) {
 		$("#"+id+"_icon").removeClass('ui-icon ui-icon-triangle-1-s folder');
 		$("#"+id+"_icon").addClass('ui-icon ui-icon-triangle-1-e folder');
+		var index = this.openedDetails.indexOf(id);
+		if (index >= 0) {
+			this.openedDetails.remove(index);
+		}
 	} else {
 		$("#"+id+"_icon").removeClass('ui-icon ui-icon-triangle-1-e folder');
 		$("#"+id+"_icon").addClass('ui-icon ui-icon-triangle-1-s folder');
+		this.openedDetails.push(id);
 	}
 	
 	$("#"+id).toggle();
@@ -120,7 +128,27 @@ function SecuredActionTab(struct) {
 	this.retrieveUrl = struct.retrieveUrl;
 	
 	this.newRightDialog = null;
+
+
+	/** 
+	 * Operation which we'll do
+	 * @param name
+	 * @returns {Operation}
+	 */
+	function Operation(name) {
+		this.name = name;
+	}
+	/** create right */
+	this.createop = new Operation("create");
+	/** edit right */
+	this.editop = new Operation("edit");
+	/** delete right */
+	this.deleteop = new Operation("delete");
+	
+	/** op*/
+	this.operation = this.createop;
 } 
+
 
 
 /** refreshing content
@@ -136,6 +164,7 @@ SecuredActionTab.prototype.retrieve = function() {
 }
 
 SecuredActionTab.prototype.newRight = function() {
+	this.operation = this.createop;
 	var url = this.url("inc/admin/_new_right.jsp?pids=")+"&securedaction="+this.securedAction;
 	$.get(url, bind(function(data){
 		
@@ -150,7 +179,8 @@ SecuredActionTab.prototype.newRight = function() {
                 title:"...",
                 buttons: {
                 	"Apply": bind(function() {
-                		$.post("rights?action=create", flatten({data:rightContainer.data,affectedObjects:rightContainer.affectedObjects}));
+                		this.post();
+                		//$.post("rights?action=create", flatten({data:rightContainer.data,affectedObjects:rightContainer.affectedObjects}));
                 		this.newRightDialog.dialog("close");
                 	},this),
                     "Close": bind(function() {
@@ -166,14 +196,77 @@ SecuredActionTab.prototype.newRight = function() {
 }
 
 
+SecuredActionTab.prototype.post = function() {
+	alert("sending post...");
+	$.post("rights?action="+this.operation.name, flatten({data:rightContainer.data,affectedObjects:rightContainer.affectedObjects}));
+} 
 
 SecuredActionTab.prototype.newRightForPath = function(path) {
-	// new right for path
+	this.operation = this.createop;
 	var arr = toStringArray(path);
+	var url = this.url("inc/admin/_new_right.jsp?pids=",[{pid:arr[arr.length-1].trim()}])+"&securedaction="+this.securedAction;
+	$.get(url, bind(function(data){
+		
+		if (this.newRightDialog) {
+    		this.newRightDialog.dialog('open');
+    	} else {
+            $(document.body).append('<div id="nRightDialog"></div>')
+            this.newRightDialog = $('#nRightDialog').dialog({
+                width:640,
+                height:480,
+                modal:true,
+                title:"...",
+                buttons: {
+                	"Apply": bind(function() {
+                		this.post();
+                		this.newRightDialog.dialog("close");
+                	},this),
+                    "Close": bind(function() {
+                		this.newRightDialog.dialog("close");
+                    },this)
+                }
+            });
+    	}
+    	
+    	$('#nRightDialog').html(data);
+    	
+	},this));
+	
+	
 }
 
 SecuredActionTab.prototype.editRightForPath=function(/** ident for right */rightId, path) {
+	this.operation = this.editop;
+	var arr = toStringArray(path);
+	var url = this.url("inc/admin/_new_right.jsp?pids=",[{pid:arr[arr.length-1].trim()}])+"&action=edit&ids="+rightId+"&securedaction="+this.securedAction;
+	$.get(url, bind(function(data){
+		
+		if (this.newRightDialog) {
+    		this.newRightDialog.dialog('open');
+    	} else {
+            $(document.body).append('<div id="nRightDialog"></div>')
+            this.newRightDialog = $('#nRightDialog').dialog({
+                width:640,
+                height:480,
+                modal:true,
+                title:"...",
+                buttons: {
+                	"Apply": bind(function() {
+                		this.post();
+                		this.newRightDialog.dialog("close");
+                	},this),
+                    "Close": bind(function() {
+                		this.newRightDialog.dialog("close");
+                    },this)
+                }
+            });
+    	}
+		
+    	
+    	$('#nRightDialog').html(data);
+	},this));
 	
+
 }
 
 SecuredActionTab.prototype.deleteRightForPath=function(/** ident for right */rightId, path) {
@@ -181,7 +274,7 @@ SecuredActionTab.prototype.deleteRightForPath=function(/** ident for right */rig
 }
 
 
-
+/** jedno editovane pravo */
 var rightContainer = {};
 
 var objects = {};
@@ -189,7 +282,7 @@ var objects = {};
 
 
 function toStringArray(str) {
-	var nstr = str.substring(1,str.length-2);
+	var nstr = str.substring(1,str.length-1);
 	return nstr.split(',');
 }
 
