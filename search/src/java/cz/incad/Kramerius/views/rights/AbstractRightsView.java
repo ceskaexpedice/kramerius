@@ -17,6 +17,7 @@
 package cz.incad.Kramerius.views.rights;
 
 import java.io.StringReader;
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
@@ -36,6 +37,8 @@ public class AbstractRightsView {
 
     public static final String PIDS = "pids";
 
+    public static final String RIGHT_ID="ids";
+    
     @Inject
     Provider<HttpServletRequest> requestProvider;
 
@@ -48,6 +51,12 @@ public class AbstractRightsView {
         return paramsList;
     }
 
+    public String getRightIdParam() throws RecognitionException, TokenStreamException {
+        HttpServletRequest httpServletRequest = this.requestProvider.get();
+        String parameter = httpServletRequest.getParameter(RIGHT_ID);
+        return parameter;
+    }
+    
     public String getSecuredAction() {
         String securedActionString = this.requestProvider.get().getParameter("securedaction");
         return securedActionString;

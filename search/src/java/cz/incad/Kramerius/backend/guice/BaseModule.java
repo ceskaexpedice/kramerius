@@ -75,19 +75,15 @@ public class BaseModule extends AbstractModule {
 		bind(DeleteService.class).to(DeleteServiceImpl.class).in(Scopes.SINGLETON);
 		bind(ExportService.class).to(ExportServiceImpl.class).in(Scopes.SINGLETON);
 		bind(PolicyService.class).to(PolicyServiceImpl.class).in(Scopes.SINGLETON);
-		bind(TextsService.class).to(TextsServiceImpl.class).in(Scopes.SINGLETON);
 		bind(XSLService.class).to(XSLServiceImpl.class).in(Scopes.SINGLETON);
-		bind(ResourceBundleService.class).to(ResourceBundleServiceImpl.class).in(Scopes.SINGLETON);
+
 		//bind(JNDIConnectionProvider.class).toInstance(createKramerius4Provider());
 		
-
+		// TODO: MOVE
 		bind(LocalizationContext.class).toProvider(CustomLocalizedContextProvider.class);
 		
 		bind(MostDesirable.class).to(MostDesirableImpl.class);
 		
-		bind(DeepZoomTileSupport.class).to(TileSupportImpl.class);
-		bind(DeepZoomCacheService.class).to(FileSystemCacheServiceImpl.class).in(Scopes.SINGLETON);
-		bind(DiscStrucutreForStore.class).to(Fedora3StreamsDiscStructure.class);
         bind(RelationService.class).to(RelationServiceImpl.class).in(Scopes.SINGLETON);
 	}
 	

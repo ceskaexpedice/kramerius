@@ -1,9 +1,5 @@
 package cz.incad.Kramerius.backend.guice;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.PrintWriter;
-
 import javax.servlet.ServletContextEvent;
 
 import com.google.inject.Guice;
@@ -11,9 +7,13 @@ import com.google.inject.Injector;
 import com.google.inject.servlet.GuiceServletContextListener;
 import com.google.inject.servlet.ServletModule;
 
-import cz.incad.Kramerius.security.GuiceSecurityModule;
+import cz.incad.kramerius.document.guice.DocumentServiceModule;
+import cz.incad.kramerius.imaging.guice.ImageModule;
+import cz.incad.kramerius.printing.guice.PrintModule;
 import cz.incad.kramerius.processes.guice.LongRunningProcessModule;
+import cz.incad.kramerius.security.guice.GuiceSecurityModule;
 import cz.incad.kramerius.security.impl.http.GuiceSecurityHTTPModule;
+import cz.incad.kramerius.service.guice.I18NModule;
 import cz.incad.kramerius.users.guice.LoggedUsersModule;
 
 public class GuiceConfigBean extends GuiceServletContextListener {
@@ -33,14 +33,20 @@ public class GuiceConfigBean extends GuiceServletContextListener {
 	@Override
 	protected Injector getInjector() {
 		Injector injector = Guice.createInjector(new BaseModule(), // base module
-		                    
-		                                           new LoggedUsersModule(),     
+		                                         new ImageModule(), // images
+		                                         new I18NModule(), // i18n module
+		                                         new LoggedUsersModule(),     
+		                                         
+		                                         new DocumentServiceModule(),
 		        
-		                                            new cz.incad.kramerius.security.guice.GuiceSecurityModule(),
-		                                            new GuiceSecurityHTTPModule(),
-		                                            
-		                                            new LongRunningProcessModule(), // for long running processes
-		                                            new ServletModule());
+                                                new GuiceSecurityModule(),
+                                                new GuiceSecurityHTTPModule(),
+                                                
+                                                new LongRunningProcessModule(), // for long running processes
+                                                
+                                                new PrintModule(),
+                                                
+                                                new ServletModule());
 
 		return injector;
 	}

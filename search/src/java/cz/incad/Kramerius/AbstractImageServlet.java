@@ -44,6 +44,7 @@ import com.sun.net.httpserver.HttpServer;
 
 import cz.incad.Kramerius.backend.guice.GuiceServlet;
 import cz.incad.kramerius.FedoraAccess;
+import cz.incad.kramerius.imaging.utils.ImageUtils;
 import cz.incad.kramerius.impl.fedora.FedoraDatabaseUtils;
 import cz.incad.kramerius.security.SecurityException;
 import cz.incad.kramerius.utils.FedoraUtils;
@@ -95,7 +96,7 @@ public abstract class AbstractImageServlet extends GuiceServlet {
     @Named("fedora3")
     protected Provider<Connection> fedora3Provider;
 	
-	protected BufferedImage scale(BufferedImage img, Rectangle pageBounds, HttpServletRequest req, ScalingMethod scalingMethod) {
+	public static BufferedImage scale(BufferedImage img, Rectangle pageBounds, HttpServletRequest req, ScalingMethod scalingMethod) {
 		String spercent = req.getParameter(SCALE_PARAMETER);
 		String sheight = req.getParameter(SCALED_HEIGHT_PARAMETER);
 		String swidth = req.getParameter(SCALED_WIDTH_PARAMETER);
@@ -105,49 +106,30 @@ public abstract class AbstractImageServlet extends GuiceServlet {
 				try {
 					percent = Double.parseDouble(spercent);
 				} catch (NumberFormatException e) {
-					log(e.getMessage());
+					LOGGER.log(Level.SEVERE, e.getMessage(), e);
 				}
 			}
-			return scaleByPercent(img, pageBounds, percent, scalingMethod);
+			return ImageUtils.scaleByPercent(img, pageBounds, percent, scalingMethod);
 		} else if (sheight != null){
 			int height = 200; {
 				try {
 					height = Integer.parseInt(sheight);
 				} catch (NumberFormatException e) {
-					log(e.getMessage());
+                    LOGGER.log(Level.SEVERE, e.getMessage(), e);
 				}
 			}
-			return scaleByHeight(img,pageBounds, height, scalingMethod);
+			return ImageUtils.scaleByHeight(img,pageBounds, height, scalingMethod);
 		} else if (swidth != null){
 			int width = 200; {
 				try {
 					width = Integer.parseInt(swidth);
 				} catch (NumberFormatException e) {
-					log(e.getMessage());
+                    LOGGER.log(Level.SEVERE, e.getMessage(), e);
 				}
 			}
-			return scaleByWidth(img,pageBounds, width, scalingMethod);
+			return ImageUtils.scaleByWidth(img,pageBounds, width, scalingMethod);
 		}else return null;
 	}
-	
-	protected BufferedImage scaleByHeight(BufferedImage img, Rectangle pageBounds, int height, ScalingMethod scalingMethod) {
-	    if (scalingMethod == null) scalingMethod = ScalingMethod.BILINEAR;
-	    int nHeight = height;
-		double div = (double)pageBounds.getHeight() / (double)nHeight;
-		double nWidth = (double)pageBounds.getWidth() / div;
-		BufferedImage scaledImage = KrameriusImageSupport.scale(img, (int)nWidth, nHeight, scalingMethod, false);
-		return scaledImage;
-	}
-
-	protected BufferedImage scaleByWidth(BufferedImage img, Rectangle pageBounds, int width ,ScalingMethod scalingMethod) {
-        if (scalingMethod == null) scalingMethod = ScalingMethod.BILINEAR;
-		int nWidth = width;
-		double div = (double)pageBounds.getWidth() / (double)nWidth;
-		double nHeight = (double)pageBounds.getHeight() / div;
-		BufferedImage scaledImage = KrameriusImageSupport.scale(img, nWidth,(int) nHeight,scalingMethod, false);
-		return scaledImage;
-	}
-
 	
 	protected BufferedImage rawThumbnailImage(String uuid, int page) throws XPathExpressionException, IOException, SecurityException, SQLException {
         return KrameriusImageSupport.readImage(uuid, FedoraUtils.IMG_THUMB_STREAM, this.fedoraAccess,page);
@@ -213,16 +195,6 @@ public abstract class AbstractImageServlet extends GuiceServlet {
             }
         }
     }
-	protected BufferedImage scaleByPercent(BufferedImage img, Rectangle pageBounds, double percent, ScalingMethod scalingMethod) {
-       if (scalingMethod == null) scalingMethod = ScalingMethod.BILINEAR;
-	    if ((percent <= 0.95) || (percent >= 1.15)) {
-			int nWidth = (int) (pageBounds.getWidth() * percent);
-			int nHeight = (int) (pageBounds.getHeight() * percent);
-			BufferedImage scaledImage = KrameriusImageSupport.scale(img, nWidth, nHeight,scalingMethod, false);
-			return scaledImage;
-		} else return (BufferedImage) img;
-	}
-
 	public FedoraAccess getFedoraAccess() {
 		return fedoraAccess;
 	}

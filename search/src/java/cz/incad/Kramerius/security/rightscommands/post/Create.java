@@ -87,6 +87,7 @@ public class Create extends ServletRightsCommand {
         RightImpl right = right(data, pid);
 
         ObjectPidsPath[] paths = this.solrAccess.getPath(pid);
+        
         boolean hasRight = false;
         for (int i = 0; i < paths.length; i++) {
             if (this.actionAllowed.isActionAllowed(SecuredActions.ADMINISTRATE.getFormalName(), pid, paths[i])) {
@@ -95,7 +96,16 @@ public class Create extends ServletRightsCommand {
             } else {
                 throw new SecurityException("operation is not permited");
             }
+        } 
+        // root object
+        if (paths.length  == 0) {
+            if (this.actionAllowed.isActionAllowed(SecuredActions.ADMINISTRATE.getFormalName(), pid, new ObjectPidsPath(pid))) {
+                hasRight = true;
+            } else {
+                throw new SecurityException("operation is not permited");
+            }
         }
+        
         if (hasRight) {
             rightsManager.insertRight(right);
         }

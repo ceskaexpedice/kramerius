@@ -21,9 +21,13 @@ import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
 
+import antlr.RecognitionException;
+import antlr.TokenStreamException;
+
 import com.google.inject.Inject;
 import com.google.inject.Provider;
 
+import cz.incad.kramerius.security.Right;
 import cz.incad.kramerius.security.RightCriterium;
 import cz.incad.kramerius.security.RightCriteriumLoader;
 import cz.incad.kramerius.security.RightCriteriumParams;
@@ -35,8 +39,10 @@ import cz.incad.kramerius.security.SecuredActions;
 import cz.incad.kramerius.security.User;
 import cz.incad.kramerius.security.UserManager;
 
-public class DisplayNewRightView extends AbstractRightsView {
 
+public class DisplayRightView extends AbstractRightsView {
+
+    public static final String ACTION="action";
 
     @Inject
     UserManager userManager;
@@ -50,6 +56,28 @@ public class DisplayNewRightView extends AbstractRightsView {
 
     @Inject
     RightsManager rightsManager;
+    
+    
+    Right right;
+    
+    
+    public String getAppliedRole() throws RecognitionException, TokenStreamException {
+        if (getAction() == Actions.create) {
+            return "common_users";
+        } else {
+            Right right = getRight();
+            //TODO: change it !!
+            Role role = (Role) right.getUser();
+            return role.getName();
+        }
+    }
+
+    public Right getRight() throws RecognitionException, TokenStreamException {
+        if ((this.right == null)  && (getRightIdParam() != null)){
+            this.right = this.rightsManager.findRightById(Integer.parseInt(getRightIdParam()));
+        }
+        return this.right;
+    }
     
     public String[] getRoles() {
         User user = this.userProvider.get();
@@ -83,6 +111,36 @@ public class DisplayNewRightView extends AbstractRightsView {
     }
 
     
+    public int getCritparamsid() throws RecognitionException, TokenStreamException {
+        RightCriteriumParams params = getParams();
+        return params != null ? params.getId() : 0; 
+    }
+
+    public RightCriteriumParams getParams() throws RecognitionException, TokenStreamException {
+        Right r = getRight();
+        if (r != null && r.getCriteriumWrapper() != null && r.getCriteriumWrapper().getCriteriumParams() != null) {
+            return r.getCriteriumWrapper().getCriteriumParams();
+        } else return null;
+        
+    }
+    
+    public String getCritparamdesc() throws RecognitionException, TokenStreamException {
+        RightCriteriumParams params = getParams();
+        return params != null ? params.getShortDescription() : ""; 
+    }
+    
+    public Object[] getCritparams() throws RecognitionException, TokenStreamException {
+        RightCriteriumParams params = getParams();
+        return params != null ? params.getObjects() : new Object[0];
+    }
+
+    public String getCriterium() throws RecognitionException, TokenStreamException {
+        Right r = getRight();
+        if (r != null) {
+            return r.getCriteriumWrapper() != null ? r.getCriteriumWrapper().getRightCriterium().getQName() : "";
+        } else return "";
+    }
+    
     public List<RightCriteriumWrapper> getCriteriums() {
         List<RightCriteriumWrapper> criteriums = factory.createAllCriteriumWrappers(SecuredActions.findByFormalName(getSecuredAction()));
         return criteriums;
@@ -93,5 +151,21 @@ public class DisplayNewRightView extends AbstractRightsView {
         return Arrays.asList(allParams);    
     }
     
+    public Actions getAction() {
+        String parameter = this.requestProvider.get().getParameter(ACTION);
+        if (parameter == null) return Actions.create;
+        else return Actions.valueOf(parameter);
+    }
+    
+    
+    public boolean isJustCreated() {
+        return getAction() == Actions.create;
+    }
+    
+    
 
+    public static enum Actions {
+        edit,
+        create;
+    }
 }

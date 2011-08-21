@@ -65,12 +65,12 @@ public class DisplayObjectsView extends AbstractRightsView {
     }
     
     
+    
+    
     public List<AffectedObject>getAffectedObjects() {
         List<AffectedObject> objects = new ArrayList<DisplayObjectsView.AffectedObject>();
         try {
-            
             List paramsList = getPidsParams();
-            
             for (Object pid : paramsList) {
                 boolean hasRight = false;
                 ObjectPidsPath[] paths = solrAccess.getPath(pid.toString());

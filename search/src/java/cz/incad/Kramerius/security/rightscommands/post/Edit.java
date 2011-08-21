@@ -16,7 +16,12 @@
  */
 package cz.incad.Kramerius.security.rightscommands.post;
 
+import java.io.IOException;
 import java.sql.SQLException;
+import java.util.Enumeration;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.logging.Level;
 
 import javax.servlet.http.HttpServletRequest;
@@ -27,9 +32,11 @@ import org.apache.commons.lang.NotImplementedException;
 import cz.incad.Kramerius.security.RightsServlet;
 import cz.incad.Kramerius.security.ServletCommand;
 import cz.incad.Kramerius.security.rightscommands.ServletRightsCommand;
+import cz.incad.kramerius.ObjectPidsPath;
 import cz.incad.kramerius.security.Right;
 import cz.incad.kramerius.security.SecuredActions;
 import cz.incad.kramerius.security.SecurityException;
+import cz.incad.kramerius.security.impl.RightImpl;
 
 public class Edit extends ServletRightsCommand {
 
@@ -39,25 +46,55 @@ public class Edit extends ServletRightsCommand {
     public void doCommand() {
         try {
             HttpServletRequest req = this.requestProvider.get();
-            Right right = RightsServlet.createRightFromPost(req, rightsManager, userManager, criteriumWrapperFactory);
-//
-//            String uuid = right.getPid().substring("uuid:".length());
-//            String[] pathOfUUIDs = this.solrAccess.getPath(uuid);
-//
-//            if (this.actionAllowed.isActionAllowed(SecuredActions.ADMINISTRATE.getFormalName(), uuid, pathOfUUIDs)) {
-//                rightsManager.updateRight(right);
-//            } else {
-//                throw new SecurityException("operation is not permited");
-//            }
-            throw new NotImplementedException("not implemented");
+            //Right right = RightsServlet.createRightFromPost(req, rightsManager, userManager, criteriumWrapperFactory);
+            Map values = new HashMap();
+            Enumeration parameterNames = req.getParameterNames();
+            
+            while(parameterNames.hasMoreElements()) {
+                String key = (String) parameterNames.nextElement();
+                String value = req.getParameter(key);
+                SimpleJSONObjects simpleJSONObjects = new SimpleJSONObjects();
+                simpleJSONObjects.createMap(key, values, value);
+            }
+            
+            List affectedObjects = (List) values.get("affectedObjects");
+            for (int i = 0; i < affectedObjects.size(); i++) {
+                String pid = affectedObjects.get(i).toString();
+                editRight((Map) values.get("data"), pid);
+            }
 
         } catch (NumberFormatException e) {
             LOGGER.log(Level.SEVERE, e.getMessage(),e);
-//        } catch (SQLException e) {
-//            LOGGER.log(Level.SEVERE, e.getMessage(),e);
         } catch(Exception e) {
             LOGGER.log(Level.SEVERE, e.getMessage(),e);
         }
+    }
+
+    private void editRight(Map data, String pid) throws IOException, SQLException {
+        RightImpl right = right(data, pid);
+        ObjectPidsPath[] paths = this.solrAccess.getPath(pid);
+        boolean hasRight = false;
+        for (int i = 0; i < paths.length; i++) {
+            if (this.actionAllowed.isActionAllowed(SecuredActions.ADMINISTRATE.getFormalName(), pid, paths[i])) {
+                hasRight = true;
+                break;
+            } else {
+                throw new SecurityException("operation is not permited");
+            }
+        } 
+        // root object
+        if (paths.length  == 0) {
+            if (this.actionAllowed.isActionAllowed(SecuredActions.ADMINISTRATE.getFormalName(), pid, new ObjectPidsPath(pid))) {
+                hasRight = true;
+            } else {
+                throw new SecurityException("operation is not permited");
+            }
+        }
+        
+        if (hasRight) {
+            rightsManager.updateRight(right);
+        }
+        
     }
     
 }

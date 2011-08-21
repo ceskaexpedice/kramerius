@@ -70,7 +70,10 @@ public abstract class ServletRightsCommand extends ServletCommand {
         if (criterium !=null)  criterium.setCriteriumParams(param(data));
         Role role = this.userManager.findRoleByName((String) data.get("role"));
         if (role == null) throw new RuntimeException("cannot find role '"+role+"'");
-        RightImpl right = new RightImpl(-1, criterium, pid, (String)data.get("securedAction"), role);
+
+        int index = Integer.parseInt(data.get("ident").toString());
+        
+        RightImpl right = new RightImpl(index > 0 ? index: -1, criterium, pid, (String)data.get("securedAction"), role);
         if ((data.get("priority") != null) && (Integer.parseInt((String)data.get("priority")) >0)) {
             right.setFixedPriority(Integer.parseInt((String)data.get("priority")));
         }
