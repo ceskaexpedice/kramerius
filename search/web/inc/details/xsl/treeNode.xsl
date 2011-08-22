@@ -123,6 +123,7 @@
                 <xsl:attribute name="title"><xsl:value-of select="./str[@name='img_full_mime']" /></xsl:attribute>
             mime</span>
         </xsl:if>
+        <label>
         <xsl:choose>
             <xsl:when test="$fmodel='monograph'">
                 <xsl:value-of select="./str[@name='dc.title']" />
@@ -171,6 +172,7 @@
                     <xsl:value-of select="./arr[@name='details']/str" />&#160;
             </xsl:otherwise>
         </xsl:choose>
+        </label>
     </xsl:template>
 
     <xsl:template name="periodicalvolume">

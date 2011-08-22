@@ -36,7 +36,7 @@ pageContext.setAttribute("search_results_rows", search_results_rows);
         <c:param name="facet.mincount" value="1" />
     </c:if>
     
-    <c:param name="fl" value="PID,score,root_title,path,pid_path,root_pid,dc.title,details,fedora.model,path,dc.creator,datum,page_format,text" />
+    <c:param name="fl" value="PID,score,root_title,path,pid_path,root_pid,dc.title,details,fedora.model,model_path,dc.creator,datum,page_format,text" />
     <c:set var="isCollapsed" value="${param.collapsed != 'false'}" /> 
     <c:forEach var="fqs" items="${paramValues.fq}">
         <c:if test="${fn:startsWith(fqs, 'document_type')}"><c:set var="isCollapsed" value="false" /></c:if>

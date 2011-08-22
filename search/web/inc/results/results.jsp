@@ -7,11 +7,21 @@
     </div>
 </div>
 <div id="filters">
-    <ul><li><a href="#facets"><fmt:message bundle="${lctx}">results.filters</fmt:message></a></li></ul>
+    <ul>
+        <li><a href="#facets"><fmt:message bundle="${lctx}">results.filters</fmt:message></a></li>
+        <scrd:loggedusers>
+        <li>
+            <a href="#contextMenu" title="<fmt:message bundle="${lctx}">administrator.menu</fmt:message>"><img height="17" border="0" alt="<fmt:message bundle="${lctx}">administrator.menu</fmt:message>" src="img/gear.png" /></a>
+        </li>   
+        </scrd:loggedusers>
+    </ul>
     <div id="facets">
     <%@ include file="../usedFilters.jsp" %>
     <%@ include file="../facets.jsp" %>
     </div>
+    <scrd:loggedusers>
+    <div id="contextMenu"><%@include file="../details/contextMenu.jsp" %></div>
+    </scrd:loggedusers>
 </div>
 <div id="docs">
     <ul><li><a href="#docs_content"><fmt:message bundle="${lctx}">results.results</fmt:message></a></li></ul>
@@ -25,7 +35,25 @@
 
 $(document).ready(function(){
     $('.loading_docs').hide();
-    $("#filters").tabs();
+    $("#filters").tabs({
+                show: function(event, ui){
+                    var tab = ui.tab.toString().split('#')[1];
+                    var t = "";
+                    if (tab=="contextMenu"){
+                        $('.result>input:checked').each(function(){
+                            var id = $(this).parent().parent().attr("id");
+                            var escapedId = id.substring(4).replace(/\//g,'-');
+                            t += '<li id="cm_' + escapedId + '">';
+                            t += '<span class="ui-icon ui-icon-triangle-1-e folder " >folder</span>';
+                            t += '<label>'+$(jq(id)+">div.result>div.resultText>a").html()+'</label></li>';
+                        });
+                        $('#context_items_selection').html(t);
+                        //t = '<li><span class="ui-icon ui-icon-triangle-1-e folder " >folder</span>'+$(jq(k4Settings.activeUuid)+">a").html()+'</li>';
+                        $('#context_items_active').html("");
+                    
+                    }
+                }
+            });
     $("#docs").tabs();
     
     $(document).bind('scroll', function(event){
@@ -47,11 +75,21 @@ $(document).ready(function(){
     }
 
 
-<%  if (request.getRemoteUser() != null) {%>
+<scrd:loggedusers>
         $('.result').append('<input type="checkbox" />');
-<% }%>
+</scrd:loggedusers>
     checkHeight(0);
 });
+
+    function getAffectedPids(){
+        var pids = [];
+        $('.result>input:checked').each(function(){
+            var id = $(this).parent().parent().attr("id").substring(4); //id=res_uuid:xxx
+            id = id.replace(/\//g,'-');
+            pids.push(id);
+        });
+        return pids;
+    }
     
     function toggleColumns(){
         var margin = parseInt($('.search_result:first').css("margin-left").replace("px", "")) +

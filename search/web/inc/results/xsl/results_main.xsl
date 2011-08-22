@@ -113,7 +113,7 @@
                     <xsl:variable name="pid" ><xsl:value-of select="./str[@name='PID']" /></xsl:variable>
                     <div>
                         <xsl:attribute name="class">search_result <xsl:value-of select="position() mod 2"/></xsl:attribute>
-                        <xsl:attribute name="id">res_<xsl:value-of select="./str[@name='root_pid']"/></xsl:attribute>
+                        <xsl:attribute name="id">res_<xsl:value-of select="./arr[@name='model_path']/str"/>_<xsl:value-of select="./str[@name='root_pid']"/></xsl:attribute>
                     <div>
                         <xsl:attribute name="class">result</xsl:attribute>
                         <xsl:call-template name="doc">

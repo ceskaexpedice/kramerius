@@ -122,7 +122,11 @@
                     if (tab=="contextMenu"){
                         $('#item_tree input:checked').each(function(){
                             var id = $(this).parent().attr("id");
-                            t += '<li><span class="ui-icon ui-icon-triangle-1-e folder " >folder</span>'+$(jq(id)+">a").html()+'</li>';
+                            //var escapedId = id.substring(4).replace(/\//g,'-');
+                            t += '<li id="cm_' + id + '">';
+                            t += '<span class="ui-icon ui-icon-triangle-1-e folder " >folder</span>';
+                            t += '<label>'+$(jq(id)+">a>label").html()+'</label></li>';
+                            //t += '<li><span class="ui-icon ui-icon-triangle-1-e folder " >folder</span>'+$(jq(id)+">a").html()+'</li>';
                         });
                         $('#context_items_selection').html(t);
                         t = '<li><span class="ui-icon ui-icon-triangle-1-e folder " >folder</span>'+$(jq(k4Settings.activeUuid)+">a").html()+'</li>';
@@ -400,6 +404,37 @@
                 $('#insideQuery').val('');
             }
         }
+        
+        function getTreeSelection(){
+        var uuids = [];
+        $('#item_tree input:checked').each(function(){
+            var id = $(this).parent().attr("id");
+            uuids.push(id);
+        });
+        return uuids;
+    }
+
+    function getTreeActivePid(){
+        return k4Settings.activePidPath;
+    }
+
+    /*
+     * returns 'single' or 'multiple'
+     */
+    function getScope(){
+        return $('#contextMenu>div.selected').attr('id').split('_')[1];
+    }
+    
+    /*
+     * returns array of affected pids by multiple or single selection
+     */
+    function getAffectedPids(){
+        if(getScope()=='single'){
+            return [getTreeActivePid()];
+        }else{
+            return getTreeSelection();
+        }
+    }
 
 </script>
             <div id="test" style="position:fixed;top:0px;left:0px;background:white;" ></div>

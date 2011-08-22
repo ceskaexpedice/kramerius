@@ -42,6 +42,28 @@
                         "'" + kconfig.getEditorURL() + "'", true));
 %>
 </scrd:loggedusers>
+<style type="text/css">
+
+    #contextMenu ul{
+        margin: 2px;
+        padding-left: 12px;
+    }
+    #contextMenu li{
+        list-style-type: none;
+        margin: 0;
+        padding: 0;
+        line-height: 16px;
+    }
+
+    #contextMenu li>span{
+        width: 16px;
+        height: 16px;
+        overflow:hidden;
+        text-indent: -99999px;
+        display:block;
+        float:left;
+    }
+</style>
 <div>Scope</div>
 <div class="scope selected viewer" id="scope_single"><fmt:message bundle="${lctx}">administrator.menu.active</fmt:message>
     <ul id="context_items_active"></ul>
@@ -104,38 +126,7 @@
 
     });
 
-    function getTreeSelection(){
-        var uuids = [];
-        $('#item_tree input:checked').each(function(){
-            var id = $(this).parent().attr("id");
-            uuids.push(id);
-        });
-        return uuids;
-    }
-
-    function getTreeActivePid(){
-        ///return k4Settings.activeUuid;
-        //for(var i =0; i<k4Settings.selectedPath.length; i++)
-        return k4Settings.activePidPath;
-    }
-
-    /*
-     * returns 'single' or 'multiple'
-     */
-    function getScope(){
-        return $('#contextMenu>div.selected').attr('id').split('_')[1];
-    }
     
-    /*
-     * returns array of affected pids by multiple or single selection
-     */
-    function getAffectedPids(){
-        if(getScope()=='single'){
-            return [getTreeActivePid()];
-        }else{
-            return getTreeSelection();
-        }
-    }
     
     var _metadataDialog;
     function viewMetadata(){
@@ -219,7 +210,7 @@
         var input;
         $('#'+textFieldID).html('');
         for(var i=0; i<uuids.length; i++){
-            input = $(jq(uuids[i])+">a").html() + ': <input name="'+textFieldID+'"  style="width:100%;" type="text" '+
+            input = $(jq("cm_" + uuids[i])+">label").html() + ': <input name="'+textFieldID+'"  style="width:100%;" type="text" '+
                 ' id="'+textFieldID+'" value="'+currentURL+"handle/"+uuids[i].split("_")[1]+'"  />';
             $('#'+textFieldID).append(input);
         }

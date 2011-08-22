@@ -117,6 +117,12 @@
         <servlet-class>cz.incad.Kramerius.ViewInfoServlet</servlet-class>
     </servlet>
 
+    <!-- isActionAllowedServlet -->
+    <servlet>
+        <servlet-name>isActionAllowedServlet</servlet-name>
+        <servlet-class>cz.incad.Kramerius.ActionAllowedServlet</servlet-class>
+    </servlet>
+    
     <!-- rightsServlet -->
     <servlet>
         <servlet-name>rightsServlet</servlet-name>
@@ -235,6 +241,12 @@
         <url-pattern>/viewInfo</url-pattern>
     </servlet-mapping>
 
+
+    <servlet-mapping>
+        <servlet-name>isActionAllowedServlet</servlet-name>
+        <url-pattern>/isActionAllowed</url-pattern>
+    </servlet-mapping>
+    
     <servlet-mapping>
         <servlet-name>rightsServlet</servlet-name>
         <url-pattern>/rights</url-pattern>
