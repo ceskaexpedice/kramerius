@@ -10,6 +10,10 @@
         padding-left: 2px;
         margin: 2px;
     }
+    #item_tree ul{
+        margin: 2px;
+        padding-left: 8px;
+    }
     #item_tree li a{
         overflow:hidden;
     }
@@ -57,6 +61,10 @@
         text-indent: -99999px;
         display:block;
         float:left;
+    }
+    #structure{
+        margin: 2px;
+        padding-left: 8px;
     }
 
 </style>
@@ -129,8 +137,8 @@
                             //t += '<li><span class="ui-icon ui-icon-triangle-1-e folder " >folder</span>'+$(jq(id)+">a").html()+'</li>';
                         });
                         $('#context_items_selection').html(t);
-                        t = '<li><span class="ui-icon ui-icon-triangle-1-e folder " >folder</span>'+$(jq(k4Settings.activeUuid)+">a").html()+'</li>';
-                        $('#context_items_active').html(t);
+                        //t = '<li><span class="ui-icon ui-icon-triangle-1-e folder " >folder</span>'+$(jq(k4Settings.activeUuid)+">a").html()+'</li>';
+                        //$('#context_items_active').html(t);
                     }else{
                         if($('#item_tree input:checked').length>0){
                             $('#item_tree input:checked').each(function(){
@@ -329,7 +337,7 @@
             k4Settings.selectedPathTexts = [];
             for(var j=0;j<selectedPathTemp.length; j++){
                 k4Settings.selectedPath[j]=selectedPathTemp[j];
-                k4Settings.selectedPathTexts[j]=$(jq(selectedPathTemp[j])+">a").html()
+                k4Settings.selectedPathTexts[j]=$(jq(selectedPathTemp[j])+">a>label").html()
             }
             $(".viewer").trigger('selectedPathChanged', [level]);
         }
@@ -405,35 +413,13 @@
             }
         }
         
-        function getTreeSelection(){
+     function getTreeSelection(){
         var uuids = [];
         $('#item_tree input:checked').each(function(){
             var id = $(this).parent().attr("id");
             uuids.push(id);
         });
         return uuids;
-    }
-
-    function getTreeActivePid(){
-        return k4Settings.activePidPath;
-    }
-
-    /*
-     * returns 'single' or 'multiple'
-     */
-    function getScope(){
-        return $('#contextMenu>div.selected').attr('id').split('_')[1];
-    }
-    
-    /*
-     * returns array of affected pids by multiple or single selection
-     */
-    function getAffectedPids(){
-        if(getScope()=='single'){
-            return [getTreeActivePid()];
-        }else{
-            return getTreeSelection();
-        }
     }
 
 </script>

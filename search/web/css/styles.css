@@ -193,7 +193,7 @@ a.image:hover {
     margin: 0;
     padding: 0;
     padding-left: 10px;
-    line-height: 16px;
+    /*line-height: 16px;*/
 }
 #facets>ul>li{
     padding-left: 0;
@@ -344,10 +344,6 @@ div.search_result{
     margin:0px;
 }
 
-#contextMenu{
-    /*display:none;*/
-}
-
 #searchInside{
     /*display:none;*/
 }
@@ -371,4 +367,9 @@ div.search_result{
 .alto_selection{
     border: 1px solid #e66c00;
     padding: 0;
+}
+
+.value{
+    font-family: Times;
+    font-size: 1.3em;
 }

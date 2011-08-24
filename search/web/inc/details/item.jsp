@@ -31,9 +31,9 @@
         width:330px;
     }
 
-    #rightPanel ul{
-        margin: 2px;
-        padding-left: 12px;
+    #rightPanel>ul{
+        margin: 0;
+        padding-left: 0;
     }
     #rightPanel li{
         list-style-type: none;

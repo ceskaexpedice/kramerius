@@ -44,6 +44,10 @@
 </scrd:loggedusers>
 <style type="text/css">
 
+    #contextMenu{
+        margin: 2px;
+        padding-left: 8px;
+    }
     #contextMenu ul{
         margin: 2px;
         padding-left: 12px;
@@ -108,23 +112,63 @@
         });
         $('#contextMenu>div.scope').click(function(e) {
             var id = $(this).attr('id');
-            var scope = id.split('_')[1];
-            var items = $(jq(id)+">ul>li").length;
-            if(scope=="multiple" && items >1){
-                $('#contextMenuList>li.no-multiple').addClass('disabled');
-            }else{
-                $('#contextMenuList>li.no-multiple').removeClass('disabled');
-            }
-            $('#contextMenu>div.scope').removeClass('selected');
-            $(this).addClass('selected');
+            setScope(id);
         });
 
         $('#scope_single.viewer').bind('viewReady', function(event, id){
-            var t = '<li><span class="ui-icon ui-icon-triangle-1-e " >item</span>'+$(jq(k4Settings.activeUuid)+">a").html()+'</li>';
+            //alert($(jq(k4Settings.activeUuid)+">a>label").html());
+            var t = '<li id="cms_'+ k4Settings.activeUuid+'"><span class="ui-icon ui-icon-triangle-1-e " >item</span>'+$(jq(k4Settings.activeUuid)+">a>label").html()+'</li>';
             $('#context_items_active').html(t);
         });
 
     });
+    
+    function getLabel(pid){
+        return $(jq("cm_" + uuids[i])+">label").html();
+    }
+
+    function getSinglePid(){
+        return $('#context_items_active>li').attr("id").substring(4); //id=cms_model-model_uuid:xxx
+    }
+
+    /*
+     * returns 'single' or 'multiple'
+     */
+    function getScope(){
+        return $('#contextMenu>div.selected').attr('id').split('_')[1];
+    }
+    
+    function getMultipleSelection(){
+        var pids = [];
+        $('#context_items_selection>li').each(function(){
+            var id = $(this).attr("id").substring(3); //id=cm_model-model_uuid:xxx
+            pids.push(id);
+        });
+        return pids;
+    }
+    
+    /*
+     * returns array of affected pids by multiple or single selection
+     */
+    function getAffectedPids(){
+        if(getScope()=='single'){
+            return [getSinglePid()];
+        }else{
+            return getMultipleSelection();
+        }
+    }
+    
+    function setScope(id){
+        var scope = id.split('_')[1];
+        var items = $(jq(id)+">ul>li").length;
+        if(scope=="multiple" && items >1){
+            $('#contextMenuList>li.no-multiple').addClass('disabled');
+        }else{
+            $('#contextMenuList>li.no-multiple').removeClass('disabled');
+        }
+        $('#contextMenu>div.scope').removeClass('selected');
+        $(jq(id)).addClass('selected');
+    }
 
     
     

@@ -56,6 +56,7 @@
 
         <xsl:variable name="partType"><xsl:value-of select="mods:part/@type" /></xsl:variable>
         <!-- page -->
+        <span class="value">
             <xsl:choose>
                 <xsl:when test="$partType='Blank'">
                     <xsl:value-of select="mods:part/mods:detail[@type = 'pageNumber']/mods:number" />&#160;(<xsl:value-of select="$bundle/value[@key='Blank']"/>)</xsl:when>
@@ -68,6 +69,7 @@
                 <xsl:when test="$partType='NormalPage'">
                     <xsl:value-of select="mods:part/mods:detail[@type = 'pageNumber']/mods:number" /></xsl:when>
             </xsl:choose>
+        </span>
         <!-- end page -->
 
         <!-- monograph unit -->
@@ -92,8 +94,6 @@
         <!-- end internal part -->
 
 
-
-        
 
         <xsl:if test="mods:language/mods:languageTerm">
         <li>

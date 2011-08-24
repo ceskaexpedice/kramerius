@@ -1,5 +1,5 @@
 /* Interface variables */
-var containerWidth = 200;
+var containerWidth = 175;
 var containerHeight = 300;
 var groupTitleHeight = 20;
 var maxHeight = 80;
@@ -51,29 +51,31 @@ function initDateAxisDelayed(){
     initialized =true;
     setBarsPositions();
     selectTime();
-    setTimeout('toggleDASlow()', 1000);
+    //setTimeout('toggleDASlow()', 1000);
 }
 
 function cloneElements(){
+    $('#bubbleDiv').appendTo(document.body);
+    return;
     $('#select-handle-top').appendTo(document.body);
     $('#select-handle-bottom').appendTo(document.body);
     $('#img_resize_right').appendTo(document.body);
     $('#img_resize_left').appendTo(document.body);
     $('#resizable-top').appendTo(document.body);
     $('#resizable-bottom').appendTo(document.body);
-    $('#bubbleDiv').appendTo(document.body);
     $('#constraint_top').prependTo(document.body);
     $('#constraint_bottom').prependTo(document.body);
 }
 
 function positionResizes(){
-    var y = $('#resizable-top').offset().top + $('#resizable-top').height();
+    //return;
+    var y = $('#resizable-top').height();
     var x = $('#resizable-bottom').offset().left;
-    $('#img_resize_top').css("left", x);
+    //$('#img_resize_top').css("left", x);
     $('#img_resize_top').css("top", y);
 
-    y = $('#resizable-bottom').offset().top;
-    $('#img_resize_bottom').css("left", x + "px");
+    y = $('#resizable-bottom').position().top;
+    //$('#img_resize_bottom').css("left", x + "px");
     $('#img_resize_bottom').css("top", y + "px");
 }
 
@@ -281,7 +283,7 @@ function onShowBubble(e){
     var y;
     if(window.event){ // IE check
         el = window.event.srcElement;
-        y = window.event.clientY + document.body.scrollTop  - document.body.clientTop;
+        y = window.event.clientY + document.body.scrollTop - document.body.clientTop;
     }else if(e && e.target){ // standard-compliant browsers
         el = e.target;
         y = e.pageY;
@@ -293,7 +295,7 @@ function onShowBubble(e){
 }
 function showBubble(el, y){
     
-    var l = $("#" + el.id).offset().left + $("#" + el.id).width();
+    var l = $("#" + el.id).width()+$("#content-scroll").offset().left;
     $("#bubbleDiv").css("left", l+ "px");
     //$("#bubbleDiv").css("top", $("#" + el.id).offset().top + "px");
     $("#bubbleDiv").css("top", (y-25) + "px");
@@ -325,13 +327,13 @@ function getPos(el){
 }
 
 function setSelectHandles(){
-    var y = $('#resizable-top').offset().top + $('#resizable-top').height();
+    var y = $('#resizable-top').height();
     var x = $('#resizable-bottom').offset().left;
-    $('#select-handle-top').css("left", x);
+    //$('#select-handle-top').css("left", x);
     $('#select-handle-top').css("top", y);
 
-    y = $('#resizable-bottom').offset().top;
-    $('#select-handle-bottom').css("left", x);
+    y = $('#resizable-bottom').position().top;
+    //$('#select-handle-bottom').css("left", x);
     $('#select-handle-bottom').css("top", y);
     
     var w = $("#content-scroll").width()+1;
@@ -342,9 +344,9 @@ function setSelectHandles(){
 /* scroll functions*/
 
 function setSelectContainmentBottom(){
-    $('#constraint_bottom').css("left", $("#resizable-top").offset().left);
+    //$('#constraint_bottom').css("left", $("#resizable-top").offset().left);
     $('#constraint_bottom').css("width", $('#content-scroll').width());
-    $('#constraint_bottom').css("top", $("#content-scroll").offset().top + $('#resizable-top').height());
+    $('#constraint_bottom').css("top",  $('#resizable-top').height());
     $('#constraint_bottom').css("height", $('#content-scroll').height() - $('#resizable-top').height());
     $("#select-handle-bottom").draggable('option', 'containment', '#constraint_bottom');
     //selectTime();
@@ -352,9 +354,9 @@ function setSelectContainmentBottom(){
 }
 
 function setSelectContainmentTop(){
-    $('#constraint_top').css("left", $("#content-scroll").offset().left);
+    //$('#constraint_top').css("left", $("#content-scroll").offset().left);
     $('#constraint_top').css("height", $('#resizable-bottom').offset().top - $("#content-scroll").offset().top);
-    $('#constraint_top').css("top", $("#content-scroll").offset().top);
+    //$('#constraint_top').css("top", $("#content-scroll").offset().top);
     $('#constraint_top').css("width", $('#content-scroll').width());
     $("#select-handle-top").draggable('option', 'containment', '#constraint_top');
     //selectTime();
@@ -362,7 +364,7 @@ function setSelectContainmentTop(){
 }
 
 function selectHandleChangeTop(e, ui){
-    var wTop = ui.position.top - $('#content-scroll').offset().top;
+    var wTop = ui.position.top;
     $("#resizable-top").css("height", wTop);
     selectTime();
     var bar = findActiveBar(ui.position.top);
@@ -374,7 +376,7 @@ function selectHandleChangeTop(e, ui){
 
 function selectHandleChangeBottom(e, ui){
     var pBottom = ui.position.top;
-    var wBottom = $('#content-scroll').height() + $('#content-scroll').offset().top - pBottom;
+    var wBottom = $('#content-scroll').height() - pBottom;
     $('#resizable-bottom').css("top", pBottom);
     $('#resizable-bottom').css("height", wBottom);
     selectTime();
@@ -383,6 +385,13 @@ function selectHandleChangeBottom(e, ui){
         //var y = $("#" + bar.id).offset().top;
         showBubble(bar, ui.position.top);
     }
+}
+
+function daScrolled(){
+    if(initialized){
+      setBarsPositions();
+    }
+    selectTime();
 }
 
 function scrollSliderChange(e, ui){
@@ -460,14 +469,16 @@ function positionCurtainsOnLoad(){
     */
 }
 function positionCurtains(){
-    
-        var w = $("#content-scroll").width()+1;
-        $("#resizable-top").css("top", $("#content-scroll").offset().top);
-        $("#resizable-top").css("left", $("#content-scroll").offset().left);
+    //return;
+        //var w = $("#content-scroll").width()+1;
+        var w = $("#da_container").width()+1;
+        //$("#resizable-top").css("top", $("#content-scroll").offset().top);
+        //$("#resizable-top").css("left", $("#content-scroll").offset().left);
         $("#resizable-top").css("width", w);
         var t = $("#content-scroll").offset().top + $("#content-scroll").height() - $("#resizable-bottom").height();
+        t = $("#content-scroll").height() - $("#resizable-bottom").height();
         $("#resizable-bottom").css("top", t);
-        $("#resizable-bottom").css("left", $("#content-scroll").offset().left);
+        //$("#resizable-bottom").css("left", $("#content-scroll").offset().left);
         $("#resizable-bottom").css("width", w);
         
         positionResizes();
@@ -607,7 +618,7 @@ function fillDateAxis(level){
     } 
     
     
-    $("#content-scroll").css("width", containerWidth + "px");
+   // $("#content-scroll").css("width", containerWidth + "px");
     $("#content-scroll").css("height", containerHeight + "px");
     var sliderh = $("#content-scroll").height();
     $("#content-slider2").css("height", sliderh);

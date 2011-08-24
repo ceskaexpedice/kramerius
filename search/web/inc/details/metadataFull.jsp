@@ -61,9 +61,7 @@
                     </x:transform>
                 </div>
                 <div id="mods-xml" style="overflow:scroll;height:80%">
-                    <pre>
-                    <c:out escapeXml="true" value="${xmlStr}" />
-                    </pre>
+<pre><c:out escapeXml="true" value="${xmlStr}" /></pre>
                 </div>
             </div>
         </c:catch>

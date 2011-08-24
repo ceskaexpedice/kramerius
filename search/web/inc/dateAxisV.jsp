@@ -185,7 +185,7 @@
     endTime = zooms[0][1];
   
 $(document).ready(function(){
- 
+ /*
         $("#content-slider").slider({
             animate: false,
             step: 1,
@@ -193,6 +193,7 @@ $(document).ready(function(){
             change: scrollSliderChange,
             slide: scrollSliderSlide
         });
+*/        
         $("#select-handle-top").draggable({
             containment: '#constraint_bottom',
             axis:'y',
@@ -205,14 +206,17 @@ $(document).ready(function(){
             drag: selectHandleChangeBottom,
             stop: setSelectContainmentTop
         });
+        $("#content-scroll").bind('scroll', function() {
+            daScrolled();
+        });
       
         initDateAxis();
         
         //set mouse wheel
         $('#content-scroll').mousewheel(function(event, delta){
-            var pos = $("#content-slider").slider("value") + delta*3;
-            $("#content-slider").slider("value", pos);
-            return false;
+            //var pos = $("#content-slider").slider("value") + delta*3;
+            //$("#content-slider").slider("value", pos);
+            //return false;
 
         });
 
@@ -225,51 +229,7 @@ $(document).ready(function(){
             resizeTimer = setTimeout(positionCurtains, 100);
         }
     });
-    function toggleDA(){
-        $('#daBox').toggle();
-        $('#showHideDA>a>span').toggleClass('ui-icon-circle-triangle-e');
-        $('#select-handle-top').toggle();
-        $('#select-handle-bottom').toggle();
-        $('#img_resize_right').toggle();
-        $('#img_resize_left').toggle();
-        $('#resizable-top').toggle();
-        $('#resizable-bottom').toggle();
-        $('#bubbleDiv').toggle();
-        $('#constraint_top').toggle();
-        $('#constraint_bottom').toggle();
-        if($('#daBox').is(':visible')){
-            positionCurtains();
-        }
-
-    }
-
-    function toggleDASlow(){
-        if($('#showHideDA').length == 0) return;
-        $('#daBox').toggle('slow');
-        $('#showHideDA>a>span').toggleClass('ui-icon-circle-triangle-e');
-
-        $('#select-handle-top').toggle();
-        $('#select-handle-bottom').toggle();
-        $('#img_resize_right').toggle();
-        $('#img_resize_left').toggle();
-        $('#resizable-top').toggle();
-        $('#resizable-bottom').toggle();
-        $('#bubbleDiv').toggle();
-        $('#constraint_top').toggle();
-        $('#constraint_bottom').toggle();
-
-    }
 </script>
-<div id="select-handle-top" class="da_select_handle" ><img src="img/resize.png" style="top:-4px;position:absolute;left:0px;" /></div>
-<div id="select-handle-bottom" class="da_select_handle"><img src="img/resize.png" style="top:-4px;position:absolute;left:0px;" /></div>
-<div id="resizable-top" class="ui-state-active"></div>
-<div id="resizable-bottom" class="ui-state-active"></div>
-<div id="bubbleDiv" class="da_bubble" ><div id="bubbleText" ></div></div>
-<div id="test"></div>
-<div id="img_resize_bottom" class="da_resize"></div>
-<div id="img_resize_top" class="da_resize"></div>
-<div id="constraint_bottom" style="border:1px red solid;position:absolute;z-index:0;visibility:hidden;"></div>
-<div id="constraint_top" style="border:1px red solid;position:absolute;z-index:0;visibility:hidden;"></div>
 
 <div id="selectDiv" class="da_select" style="display:none;" ></div>
 
@@ -281,17 +241,22 @@ $(document).ready(function(){
 <div style="position:relative;float:none;">
 <div id="content-scroll" style="float:left;" >
     <div class="da_container" id="da_container">
+<div id="select-handle-top" class="da_select_handle" ><img src="img/resize.png" style="top:-4px;position:absolute;left:0px;" /></div>
+<div id="select-handle-bottom" class="da_select_handle"><img src="img/resize.png" style="top:-4px;position:absolute;left:0px;" /></div>
+<div id="resizable-top" class="ui-state-active"></div>
+<div id="resizable-bottom" class="ui-state-active"></div>
+<div id="bubbleDiv" class="da_bubble" ><div id="bubbleText" ></div></div>
+<div id="img_resize_bottom" class="da_resize"></div>
+<div id="img_resize_top" class="da_resize"></div>
+<div id="constraint_bottom" style="border:1px red solid;position:absolute;z-index:0;visibility:hidden;"></div>
+<div id="constraint_top" style="border:1px red solid;position:absolute;z-index:0;visibility:hidden;"></div>
     </div>
-    <!--
-    <div class="da_range_container" id="da_range_container"></div>
-    -->
 </div>
-<div id="content-slider3" style="float:left;" ><div id="content-slider" ></div></div>
 </div><div class="clear"></div>
 <div id="da_zoom" style="display:none;" >
 <a href="javascript:zoomOut();" >zoom out</a>
 </div>
-
+<div id="kk"></div>
 <%}else{
 %>
 <script>

@@ -802,10 +802,10 @@ var text = dictionary['administrator.dialogs.confirm'] + " " + dictionary['admin
 
 function indexDoc(pid, title){
     showConfirmDialog('Confirm index dokumentu', function(){
-      //var prefix = "info\:fedora\/uuid:";
-      //var uuid = pid.replace(prefix,"");
+    var prefix = "info\:fedora\/";
+    var pid2 = pid.replace(prefix,"");
       var escapedTitle = replaceAll(title, ',', '');
-      var url = "lr?action=start&def=reindex&out=text&params=fromKrameriusModel,"+pid+","+escapedTitle;
+      var url = "lr?action=start&def=reindex&out=text&params=fromKrameriusModel,"+pid2+","+escapedTitle;
       _startProcess(url);
     });
 }

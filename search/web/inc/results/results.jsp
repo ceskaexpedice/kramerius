@@ -1,14 +1,15 @@
 <%@ page contentType="text/html" pageEncoding="UTF-8" %>
 <%@ taglib uri="/WEB-INF/tlds/securedContent.tld" prefix="scrd" %>
-<div id="dateAxis" class="shadow box" style="float:right;right:0;z-index:2;background:white;position:absolute;">
-<div id="showHideDA" ><a href="javascript:toggleDA();" title="show/hide date axis"><span class="ui-state-default ui-icon ui-icon-image ui-icon-circle-triangle-e"></span></a></div>
-    <div id="daBox">
-        <%@include file="../dateAxisV.jsp" %>
-    </div>
-</div>
+<style type="text/css">
+    #filters>ul>li>a{
+        line-height: 17px;
+    }
+
+</style>
 <div id="filters">
     <ul>
         <li><a href="#facets"><fmt:message bundle="${lctx}">results.filters</fmt:message></a></li>
+        <li><a href="#dadiv"><fmt:message bundle="${lctx}" key="Časová osa" /></a></li>
         <scrd:loggedusers>
         <li>
             <a href="#contextMenu" title="<fmt:message bundle="${lctx}">administrator.menu</fmt:message>"><img height="17" border="0" alt="<fmt:message bundle="${lctx}">administrator.menu</fmt:message>" src="img/gear.png" /></a>
@@ -19,6 +20,15 @@
     <%@ include file="../usedFilters.jsp" %>
     <%@ include file="../facets.jsp" %>
     </div>
+    <div id="dadiv" style="padding:3px;"><%@ include file="../dateAxisV.jsp" %></div>
+    <%--
+    <div id="dateAxis" class="shadow box" style="float:right;right:0;z-index:2;background:white;position:absolute;">
+    <div id="showHideDA" ><a href="javascript:toggleDA();" title="show/hide date axis"><span class="ui-state-default ui-icon ui-icon-image ui-icon-circle-triangle-e"></span></a></div>
+        <div id="daBox">
+            <%@include file="../dateAxisV.jsp" %>
+        </div>
+    </div>
+    --%>
     <scrd:loggedusers>
     <div id="contextMenu"><%@include file="../details/contextMenu.jsp" %></div>
     </scrd:loggedusers>
@@ -38,19 +48,12 @@ $(document).ready(function(){
     $("#filters").tabs({
                 show: function(event, ui){
                     var tab = ui.tab.toString().split('#')[1];
-                    var t = "";
                     if (tab=="contextMenu"){
-                        $('.result>input:checked').each(function(){
-                            var id = $(this).parent().parent().attr("id");
-                            var escapedId = id.substring(4).replace(/\//g,'-');
-                            t += '<li id="cm_' + escapedId + '">';
-                            t += '<span class="ui-icon ui-icon-triangle-1-e folder " >folder</span>';
-                            t += '<label>'+$(jq(id)+">div.result>div.resultText>a").html()+'</label></li>';
-                        });
-                        $('#context_items_selection').html(t);
-                        //t = '<li><span class="ui-icon ui-icon-triangle-1-e folder " >folder</span>'+$(jq(k4Settings.activeUuid)+">a").html()+'</li>';
-                        $('#context_items_active').html("");
-                    
+                        refreshSelection();
+                    }else if(tab=='dadiv'){
+                         positionCurtains();
+                         setBarsPositions();
+    
                     }
                 }
             });
@@ -77,9 +80,27 @@ $(document).ready(function(){
 
 <scrd:loggedusers>
         $('.result').append('<input type="checkbox" />');
+        $('.result>input').click(function(){
+            refreshSelection();
+        });
+        setScope('scope_multiple');
+        $('#scope_single').hide();
 </scrd:loggedusers>
     checkHeight(0);
 });
+
+    function refreshSelection(){
+        var t = "";
+        $('.result>input:checked').each(function(){
+            var id = $(this).parent().parent().attr("id");
+            var escapedId = id.substring(4).replace(/\//g,'-');
+            t += '<li id="cm_' + escapedId + '">';
+            t += '<span class="ui-icon ui-icon-triangle-1-e folder " >folder</span>';
+            t += '<label>'+$(jq(id)+">div.result>div.resultText>a").html()+'</label></li>';
+        });
+        $('#context_items_selection').html(t);
+        $('#context_items_active').html("");
+    }
 
     function getAffectedPids(){
         var pids = [];

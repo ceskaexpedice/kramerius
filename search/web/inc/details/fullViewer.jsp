@@ -156,7 +156,7 @@
         $.get(url, function(data){
             if(data.trim()!=""){
                 if($("#alto_full").length==0){
-                     $("#fullImageContainer>div.fullContent").append('<div id="alto_full" style="position:absolute;z-index:1003;overflow:hidden;" ></div>');
+                     $("#imgContainer").append('<div id="alto_full" style="position:absolute;z-index:1003;overflow:hidden;" ></div>');
                 }
                 positionAltoFull();
                 $("#alto_full").html(data);
@@ -167,9 +167,9 @@
     
     function positionAltoFull(){
         var h = $("#imgFullImage").height();
-        var t = $("#imgFullImage").offset().top - $("#preview").offset().top;
+        var t = $("#imgFullImage").offset().top - $("#imgContainer").offset().top;
         var w = $("#imgFullImage").width();
-        var l = $("#imgFullImage").offset().left - $("#preview").offset().left;
+        var l = $("#imgFullImage").offset().left - $("#imgContainer").offset().left;
         $("#alto_full").css('width', w);
         $("#alto_full").css('height', h);
         $("#alto_full").css('left', l);
