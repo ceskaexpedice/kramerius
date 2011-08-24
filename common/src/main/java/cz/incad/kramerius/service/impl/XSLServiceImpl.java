@@ -175,6 +175,7 @@ public class XSLServiceImpl implements XSLService {
         StringWriter sw = new StringWriter();
         Transformer serializer = TransformerFactory.newInstance().newTransformer();
         serializer.setParameter("xml-declaration", false);
+        serializer.setOutputProperty("omit-xml-declaration","yes" );
         serializer.transform(new DOMSource(xmldoc), new StreamResult(sw));
         return sw.toString();
     }

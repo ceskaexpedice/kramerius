@@ -231,8 +231,9 @@ public class MPTStoreService implements IResourceIndex {
             Node n;
             while (r.next()) {
                 e = xmldoc.createElementNS(SPARQL_NS, "result");
-                uuid = r.getString(1).split("info:fedora/")[1];
-                uuid = uuid.substring(0, uuid.length() - 1);
+                uuid = r.getString(1);
+                //uuid = r.getString(1).split("info:fedora/")[1];
+                uuid = uuid.substring(1, uuid.length() - 1);
 
                 e2 = xmldoc.createElementNS(SPARQL_NS, "object");
                 e2.setAttribute("uri", uuid);
