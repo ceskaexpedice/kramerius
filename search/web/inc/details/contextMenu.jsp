@@ -91,6 +91,7 @@
 </div>
 <scrd:loggedusers>
     <div id="reindex" style="display:none;">
+        <div class="allowed"></div>
         <div style="border-bottom:1px solid #E66C00; padding-bottom: 5px; margin-bottom: 5px;">
             <div>
                 <input type="checkbox" id="reindex_check_integrity" checked="checked" /><label for="reindex_check_integrity"> <fmt:message bundle="${lctx}">administrator.menu.dialogs.check_integrity</fmt:message></label>
@@ -294,6 +295,16 @@
             });
 
         }
+        var pids = getAffectedPids();
+        //var pids = [];
+        if(pids.length>1){
+        
+            for(var i=0; i<pids.length; i++){
+                var pidpath = getPidPath(pids[i]);
+                pids[i] = pidpath.substring(pidpath.lastIndexOf("/") + 1);
+            }
+            var s = getAllowed('reindex', pids, "#reindex>div.allowed");
+        }
     }
     
     function doReindex(){
@@ -309,7 +320,7 @@
         if(pids.length==1){
             var pidpath = getPidPath(pids[0]);
             var pid = pidpath.substring(pidpath.lastIndexOf("/") + 1);
-            var title = $(jq(pids[0])+">a").html();
+            var title = $(jq(pids[0])+">a>label").html();
             var escapedTitle = replaceAll(title, ',', '');
             escapedTitle = replaceAll(escapedTitle, '\n', '');
             escapedTitle = escapedTitle.replace(/ +(?= )/g,'');

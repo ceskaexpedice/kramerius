@@ -71,7 +71,7 @@ public class ActionAllowedServlet extends GuiceServlet {
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         try {
             StringBuilder out = new StringBuilder();
-            out.append("[");
+            out.append("{");
             String action = req.getParameter("action");
             String[] pids = req.getParameterValues("pid");
 
@@ -89,8 +89,8 @@ public class ActionAllowedServlet extends GuiceServlet {
                     out.append(",");
                 }
             }
-            out.append("]");
-            resp.setContentType("text/plain");
+            out.append("}");
+            resp.setContentType("application/json");
             resp.getWriter().println(out.toString());
         } catch (SecurityException e) {
             resp.sendError(HttpServletResponse.SC_FORBIDDEN);

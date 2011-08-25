@@ -817,4 +817,19 @@ function indexModel(model){
     });
 }
 
+function getAllowed(action, pids, div){
+    var s = "<ul>";
+    var url = "isActionAllowed?action="+action;
+    for(var i=0; i<pids.length; i++){
+        url += "&pid=" + pids[i];
+    }
+    $.getJSON(url, function(data) {
+        $.each(data, function(key, val) {
+            s += '<li id="' + key + '">' + val + '</li>';
+        });
+        s += '</ul>';
+        $(div).html(s);
+    });
+}
+
 </script>

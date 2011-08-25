@@ -82,8 +82,8 @@ $(document).ready(function(){
 
 
 <scrd:loggedusers>
-        $('.result').append('<input type="checkbox" />');
-        $('.result>input').click(function(){
+        $('.search_result').prepend('<input type="checkbox" style="float:right;" />');
+        $('.search_result>input').click(function(){
             refreshSelection();
         });
         setScope('scope_multiple');
@@ -94,8 +94,8 @@ $(document).ready(function(){
 
     function refreshSelection(){
         var t = "";
-        $('.result>input:checked').each(function(){
-            var id = $(this).parent().parent().attr("id");
+        $('.search_result>input:checked').each(function(){
+            var id = $(this).parent().attr("id");
             var escapedId = id.substring(4).replace(/\//g,'-');
             t += '<li id="cm_' + escapedId + '">';
             t += '<span class="ui-icon ui-icon-triangle-1-e folder " >folder</span>';
@@ -103,16 +103,6 @@ $(document).ready(function(){
         });
         $('#context_items_selection').html(t);
         $('#context_items_active').html("");
-    }
-
-    function getAffectedPids(){
-        var pids = [];
-        $('.result>input:checked').each(function(){
-            var id = $(this).parent().parent().attr("id").substring(4); //id=res_uuid:xxx
-            id = id.replace(/\//g,'-');
-            pids.push(id);
-        });
-        return pids;
     }
     
     function toggleColumns(){
@@ -177,7 +167,7 @@ $(document).ready(function(){
             $('.loading_docs').hide();
             checkHeight(offset);
 <scrd:loggedusers>
-            $(jq(id)+' .result').append('<input type="checkbox" />');
+            $(jq(id)).append('<input type="checkbox" />');
 </scrd:loggedusers>
         });
     }
