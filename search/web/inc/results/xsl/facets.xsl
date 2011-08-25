@@ -58,6 +58,10 @@
             <a href="#"><xsl:value-of select="$bundle/value[@key=$facetname]" /></a>
             <ul><xsl:for-each select="./int">
                 <xsl:variable name="fqId"><xsl:value-of select="$facetname" />:"<xsl:value-of select="@name" />"</xsl:variable>
+                <xsl:variable name="displayName"><xsl:choose>
+                    <xsl:when test="@name=''"><xsl:value-of select="$bundle/value[@key='facets.uknown']" /></xsl:when>
+                    <xsl:otherwise><xsl:value-of select="@name" /></xsl:otherwise>
+                </xsl:choose></xsl:variable>
                 <xsl:if test="not (contains($fqVal, $fqId))">
                     <xsl:if test="position() = $numOpenedRows+1"><li class="more_facets" style="display:none;">
                         <a><xsl:attribute name="href">javascript:toggleFacet('facet_<xsl:value-of select="$facetname" />')</xsl:attribute>...</a>
@@ -65,7 +69,7 @@
                     <li><xsl:if test="position() &gt; $numOpenedRows">
                         <xsl:attribute name="class">more_facets</xsl:attribute>
                     </xsl:if>
-                    <a><xsl:attribute name="href">javascript:addFilter('<xsl:value-of select="$facetname" />', '<xsl:value-of select="@name" />')</xsl:attribute><xsl:value-of select="@name" /></a> (<xsl:value-of select="." />)
+                    <a><xsl:attribute name="href">javascript:addFilter('<xsl:value-of select="$facetname" />', '<xsl:value-of select="@name" />')</xsl:attribute><xsl:value-of select="$displayName" /></a> (<xsl:value-of select="." />)
                     </li>
                 </xsl:if>
             </xsl:for-each>

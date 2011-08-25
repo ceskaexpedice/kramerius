@@ -10,7 +10,7 @@
 <ul>
     <li>
         <span class="ui-icon ui-icon-triangle-1-e folder"></span>
-        <span style="text-indent:0px;width:auto;"><fmt:message bundle="${lctx}" key="filter.used" /></span><div class="clear"> </div>
+        <span style="text-indent:0px;width:auto;font-weight: bold;"><fmt:message bundle="${lctx}" key="filter.used" /></span><div class="clear"> </div>
         <ul id="usedFilters">
             <c:if test="${!empty param.q}" >
             <li>

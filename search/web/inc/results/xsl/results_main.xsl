@@ -17,18 +17,18 @@
         <div class="loading_docs" style="position:absolute; z-index:3;margin:auto;background:white;border:1px silver;width:1000px;height:200px;">
             <img src="img/loading.gif" />
         </div>
-            <xsl:variable name="rows"><xsl:value-of select="number(/response/lst[@name='responseHeader']/lst[@name='params']/str[@name='rows'])" /></xsl:variable>
-            <xsl:variable name="start">
-                <xsl:choose>
-                    <xsl:when test="/response/lst[@name='responseHeader']/lst[@name='params']/str[@name='start']/text()">
-                        <xsl:value-of select="number(/response/lst[@name='responseHeader']/lst[@name='params']/str[@name='start'])" />
-                    </xsl:when>
-                    <xsl:otherwise>0</xsl:otherwise>
-                </xsl:choose>
+        <xsl:variable name="rows"><xsl:value-of select="number(/response/lst[@name='responseHeader']/lst[@name='params']/str[@name='rows'])" /></xsl:variable>
+        <xsl:variable name="start">
+            <xsl:choose>
+                <xsl:when test="/response/lst[@name='responseHeader']/lst[@name='params']/str[@name='start']/text()">
+                    <xsl:value-of select="number(/response/lst[@name='responseHeader']/lst[@name='params']/str[@name='start'])" />
+                </xsl:when>
+                <xsl:otherwise>0</xsl:otherwise>
+            </xsl:choose>
 
-            </xsl:variable>
-
-        <xsl:if test="/response/result/doc" >
+        </xsl:variable>
+        <xsl:choose>   
+        <xsl:when test="/response/result/doc" >
             <xsl:choose>
                 <xsl:when test="$start = 0">
                 <xsl:call-template name="head" />
@@ -47,14 +47,21 @@
                 <xsl:attribute name="id">offset_<xsl:value-of select="$start + $rows"/></xsl:attribute>
             <img src="img/loading.gif" /><br/>loading more documents...</div>
             </xsl:if>
-         </xsl:if>
+        </xsl:when>
+        <xsl:otherwise>
+            <xsl:if test="$start = 0">
+                <div style="font-weight:bold;"><xsl:value-of select="$bundle/value[@key='results.nohits']"/></div>
+                <div class="clear"></div>
+            </xsl:if>
+        </xsl:otherwise>
+        </xsl:choose>
     </xsl:template>
     
     <xsl:template name="head">
         <xsl:variable name="numDocsStr">
             <xsl:choose>
-                <xsl:when test="$numDocs=1"><xsl:value-of select="$bundle/value[@key='common.documents.singular']"/></xsl:when>
-                <xsl:when test="$numDocs&gt;1 and numDocs&lt;5"><xsl:value-of select="$bundle/value[@key='common.documents.plural_1']"/></xsl:when>
+                <xsl:when test="$numDocs = 1"><xsl:value-of select="$bundle/value[@key='common.documents.singular']"/></xsl:when>
+                <xsl:when test="$numDocs &gt; 1 and $numDocs &lt; 5"><xsl:value-of select="$bundle/value[@key='common.documents.plural_1']"/></xsl:when>
                 <xsl:otherwise><xsl:value-of select="$bundle/value[@key='common.documents.plural_2']"/></xsl:otherwise>
             </xsl:choose>
         </xsl:variable>
@@ -82,7 +89,8 @@
                 </xsl:choose>
             </div>
             <div style="float:right;margin-right:30px;">
-                <span><label for="cols"><xsl:value-of select="$bundle/value[@key='results.1column']"/></label><input id="cols" type="checkbox" name="cols" value="1" onclick="toggleColumns();" /></span>
+                <a id="cols1" class="cols" href="javascript:toggleColumns();"><xsl:value-of select="$bundle/value[@key='results.1column']"/></a>
+                <a id="cols2" class="cols" href="javascript:toggleColumns();" style="display:none;"><xsl:value-of select="$bundle/value[@key='results.2column']"/></a>
             </div>
         </div>
     </xsl:template>
@@ -90,11 +98,12 @@
     <xsl:template name="collapse">
         <xsl:param name="pid" />
         <xsl:param name="root_pid" />
+        <xsl:param name="model_path" />
         <xsl:for-each select="/response/lst[@name='collapse_counts']/lst[@name='results']/lst">
             <xsl:if test="./@name=$pid">
                 <xsl:variable name="collapseText" ><xsl:value-of select="./int[@name='collapseCount']/text()"/>&#160;<xsl:value-of select="$bundle/value[@key='collapsed']"/></xsl:variable>
                 <xsl:variable name="collapseCount" >
-                    (<a><xsl:attribute name="href">javascript:toggleCollapsed('<xsl:value-of select="$root_pid" />', '<xsl:value-of select="$pid" />', 0);</xsl:attribute>
+                    (<a><xsl:attribute name="href">javascript:toggleCollapsed('<xsl:value-of select="$model_path"/>_<xsl:value-of select="$root_pid" />', '<xsl:value-of select="$pid" />', 0);</xsl:attribute>
                     <xsl:value-of select="$collapseText"/>
                     <img border="0" src="img/empty.gif" class="collapseIcon">
                         <xsl:attribute name="id">uimg_<xsl:value-of select="$root_pid"/></xsl:attribute>
@@ -113,7 +122,7 @@
                     <xsl:variable name="pid" ><xsl:value-of select="./str[@name='PID']" /></xsl:variable>
                     <div>
                         <xsl:attribute name="class">search_result <xsl:value-of select="position() mod 2"/></xsl:attribute>
-                        <xsl:attribute name="id">res_<xsl:value-of select="./arr[@name='model_path']/str"/>_<xsl:value-of select="./str[@name='root_pid']"/></xsl:attribute>
+                        <xsl:attribute name="id">res_<xsl:value-of select="./arr[@name='model_path']/str[position()=1]"/>_<xsl:value-of select="./str[@name='root_pid']"/></xsl:attribute>
                     <div>
                         <xsl:attribute name="class">result</xsl:attribute>
                         <xsl:call-template name="doc">
@@ -173,6 +182,7 @@
             <xsl:call-template name="collapse">
                 <xsl:with-param name="pid"><xsl:value-of select="$pid" /></xsl:with-param>
                 <xsl:with-param name="root_pid"><xsl:value-of select="$root_pid"/></xsl:with-param>
+                <xsl:with-param name="model_path"><xsl:value-of select="./arr[@name='model_path']/str[position()=1]"/></xsl:with-param>
             </xsl:call-template>
             </div>
             </div>

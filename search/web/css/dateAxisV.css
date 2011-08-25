@@ -41,7 +41,6 @@
     border-top:solid 1px #EEEEEE;
     border-right:solid 1px #EEEEEE;
     width: 100px;
-    z-index:4;
 }
 
 .da_group_title{
@@ -168,4 +167,8 @@
     padding:0px;
     margin:0px;
     width:10px;
+}
+
+.ui-resizable-s{
+    background: url("../img/resize-handle.png") no-repeat 50% 50%; 
 }

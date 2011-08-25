@@ -45,6 +45,9 @@
 
 $(document).ready(function(){
     $('.loading_docs').hide();
+    
+    
+    
     $("#filters").tabs({
                 show: function(event, ui){
                     var tab = ui.tab.toString().split('#')[1];
@@ -118,8 +121,9 @@ $(document).ready(function(){
             parseInt($('.search_result:first').css("padding-left").replace("px", "")) +
             parseInt($('.search_result:first').css("padding-right").replace("px", ""));
         var w = $('#offset_0').width();
-        //alert(margin);
-        if($('#cols').is(':checked')){
+        
+        $('.cols').toggle();
+        if($('#cols2').is(':visible')){
             w = w - margin;
         }else{
             w = w / 2 - margin * 2;
@@ -211,7 +215,7 @@ $(document).ready(function(){
           var url =  "inc/results/uncollapse.jsp?rows=10&" + page.toString() +
               "&type=uncollapse&collapsed=false&root_pid=" + root_pid +
               "&pid=" + pid +
-              "&fq=root_pid:\"" + root_pid + "\"" + "&fq=-PID:\"" + pid + "\"";
+              "&fq=root_pid:\"" + root_pid.split("_")[1] + "\"" + "&fq=-PID:\"" + pid + "\"";
           $.get(url, function(xml) {
               $(jq("res_"+root_pid)+">div.uncollapsed").html(xml);
               $(jq("res_"+root_pid)+">div.uncollapsed").scrollTop(0);

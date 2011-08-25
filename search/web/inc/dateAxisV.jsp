@@ -211,23 +211,7 @@ $(document).ready(function(){
         });
       
         initDateAxis();
-        
-        //set mouse wheel
-        $('#content-scroll').mousewheel(function(event, delta){
-            //var pos = $("#content-slider").slider("value") + delta*3;
-            //$("#content-slider").slider("value", pos);
-            //return false;
 
-        });
-
-    });
-    
-    var resizeTimer = null;
-    $(window).bind('resize', function() {
-        if(dateAxisActive){
-            if (resizeTimer) clearTimeout(resizeTimer);
-            resizeTimer = setTimeout(positionCurtains, 100);
-        }
     });
 </script>
 
@@ -238,7 +222,7 @@ $(document).ready(function(){
 <fmt:message bundle="${lctx}">Do</fmt:message>: <input class="da_input" id="f2" size="4" type="text" value=""  /> 
 <a href="javascript:doFilter();" ><img align="top" src="img/lupa_orange.png" border="0" alt="<fmt:message bundle="${lctx}">použit</fmt:message>" title="<fmt:message bundle="${lctx}">použit</fmt:message>" /></a>
 </div>
-<div style="position:relative;float:none;">
+<div id="content-resizable" style="position:relative;float:none;">
 <div id="content-scroll" style="float:left;" >
     <div class="da_container" id="da_container">
 <div id="select-handle-top" class="da_select_handle" ><img src="img/resize.png" style="top:-4px;position:absolute;left:0px;" /></div>

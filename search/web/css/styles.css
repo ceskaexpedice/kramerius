@@ -178,15 +178,12 @@ a.image:hover {
     list-style: none;
     display: inline;
 }
-
-
 /* end home */
 
 /* facets */
 #facets ul{
-    margin: 2px;
+    margin: 6px 2px 10px;
     padding-left: 2px;
-    margin-bottom: 10px;
 }
 #facets li{
     list-style-type: none;
@@ -201,6 +198,7 @@ a.image:hover {
 }
 #facets>ul>li>a{
     font-size: 1.1em;
+    font-weight: bold;
 }
 
 #facets li span{
@@ -235,7 +233,7 @@ a.image:hover {
 .ui-tabs-vertical .ui-state-active {
     background: url("../img/scroll_handler_h.png") repeat-y scroll 50% 50% #FFFFFF;
 }
-
+    
 #centralContent1 .vertical-text {
     font-size:1.2em !important;
 
