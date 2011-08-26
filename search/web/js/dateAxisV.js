@@ -1,6 +1,6 @@
 /* Interface variables */
 var containerWidth = 175;
-var containerHeight = 300;
+var containerHeight = 600;
 var groupTitleHeight = 20;
 var maxHeight = 80;
 var barContainerHeight = 5;

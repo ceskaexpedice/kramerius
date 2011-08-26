@@ -8,8 +8,7 @@
             //jenom jeden, a prave 0. To nechceme
             if (dateAxisFacet != null)
                 Collections.sort(dateAxisFacet.infos, new CzechComparator());
-            if ((dateAxisFacet != null) &&
-                    (dateAxisFacet.infos.size() > 1)){
+            if ((dateAxisFacet != null) && (dateAxisFacet.infos.size() > 1)){
                 
             //ArrayList dates = new ArrayList();
             //ArrayList modCounts = new ArrayList();
@@ -244,6 +243,7 @@ $(document).ready(function(){
 <%}else{
 %>
 <script>
-     $('#dateAxis').hide();
+     //$('#dateAxis').hide();
+     $("#dadiv").remove();
 </script>
 <%}%>

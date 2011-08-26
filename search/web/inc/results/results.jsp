@@ -9,7 +9,7 @@
 <div id="filters">
     <ul>
         <li><a href="#facets"><fmt:message bundle="${lctx}">results.filters</fmt:message></a></li>
-        <li><a href="#dadiv"><fmt:message bundle="${lctx}" key="Časová osa" /></a></li>
+        <li id="dali"><a href="#dadiv"><fmt:message bundle="${lctx}" key="Časová osa" /></a></li>
         <scrd:loggedusers>
         <li>
             <a href="#contextMenu" title="<fmt:message bundle="${lctx}">administrator.menu</fmt:message>"><img height="17" border="0" alt="<fmt:message bundle="${lctx}">administrator.menu</fmt:message>" src="img/gear.png" /></a>
@@ -46,20 +46,23 @@
 $(document).ready(function(){
     $('.loading_docs').hide();
     
-    
+    if($('#dadiv').length==0){
+        $("#dali").remove();
+    }
+     
     
     $("#filters").tabs({
-                show: function(event, ui){
-                    var tab = ui.tab.toString().split('#')[1];
-                    if (tab=="contextMenu"){
-                        refreshSelection();
-                    }else if(tab=='dadiv'){
-                         positionCurtains();
-                         setBarsPositions();
-    
-                    }
-                }
-            });
+        show: function(event, ui){
+            var tab = ui.tab.toString().split('#')[1];
+            if (tab=="contextMenu"){
+                refreshSelection();
+            }else if(tab=='dadiv'){
+                 positionCurtains();
+                 setBarsPositions();
+
+            }
+        }
+    });
     $("#docs").tabs();
     
     $(document).bind('scroll', function(event){
@@ -174,7 +177,7 @@ $(document).ready(function(){
     }
     
     function sortByTitle(dir){
-        $('#sort').val('root_title '+dir);
+        $('#sort').val('root_title_cs '+dir);
         $('#searchForm').submit();
     }
     

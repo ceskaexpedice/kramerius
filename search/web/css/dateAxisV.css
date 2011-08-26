@@ -1,6 +1,6 @@
 #content-scroll {
     width: 100%;
-    height: 400px;
+    height: 600px;
     /*margin-left: 10px;*/
     overflow: auto;
     border: solid 1px #dddddd;
@@ -40,7 +40,7 @@
     left:80px;
     border-top:solid 1px #EEEEEE;
     border-right:solid 1px #EEEEEE;
-    width: 100px;
+    width: 94px;
 }
 
 .da_group_title{

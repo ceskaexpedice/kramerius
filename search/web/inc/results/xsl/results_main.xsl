@@ -72,14 +72,14 @@
             <div style="float:left;margin-left:100px;width:300px;text-align:center;">
                 <span><xsl:value-of select="$bundle/value[@key='results.sortby']"/>:</span>&#160;&#160;
                 <xsl:choose>
-                    <xsl:when test="/response/lst[@name='responseHeader']/lst[@name='params']/str[@name='sort']='root_title asc'">
+                    <xsl:when test="/response/lst[@name='responseHeader']/lst[@name='params']/str[@name='sort']='root_title_cs asc'">
                         <a href="javascript:sortByTitle('desc');" ><xsl:value-of select="$bundle/value[@key='results.sortby.name']"/></a>&#160;
-                        <span class="ui-icon ui-icon-carat-1-n"  >asc</span>
+                        <span class="ui-icon ui-icon-triangle-1-n"  >asc</span>
                         <a href="javascript:sortByRank();"><xsl:value-of select="$bundle/value[@key='results.sortby.relevance']"/></a>
                     </xsl:when>
-                    <xsl:when test="/response/lst[@name='responseHeader']/lst[@name='params']/str[@name='sort']='root_title desc'">
+                    <xsl:when test="/response/lst[@name='responseHeader']/lst[@name='params']/str[@name='sort']='root_title_cs desc'">
                         <a href="javascript:sortByTitle('asc');" ><xsl:value-of select="$bundle/value[@key='results.sortby.name']"/></a>&#160;
-                        <span class="ui-icon ui-icon-carat-1-s"  >desc</span>
+                        <span class="ui-icon ui-icon-triangle-1-s"  >desc</span>
                         <a href="javascript:sortByRank();"><xsl:value-of select="$bundle/value[@key='results.sortby.relevance']"/></a>
                     </xsl:when>
                     <xsl:otherwise>
