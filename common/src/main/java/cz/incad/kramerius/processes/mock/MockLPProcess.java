@@ -15,8 +15,7 @@ public class MockLPProcess {
 	
 	public static void main(String[] args) throws IOException {
 		LOGGER.info("args:"+Arrays.asList(args));
-		ProcessStarter.updateName("Jmeno kaktusu neni jmeno ruze a jmeno ruze neni jmeno kaktusu");
-		System.out.println(" TOKEN :"+System.getProperty(ProcessStarter.TOKEN_KEY));
+		ProcessStarter.updateName("Jmeno procesu mock..");
 
 		Logger rootLogger = Logger.getLogger("");
 		for (Handler handler : rootLogger.getHandlers()) {
@@ -31,17 +30,10 @@ public class MockLPProcess {
 		// 1GB  space
 		long gb = 1l << 30;
 		long start =System.currentTimeMillis();
-		for (long i = 0; i < mb; i++) {
+		for (long i = 0; i < gb; i++) {
 			if ((i%10000) == 0) {
-				//LOGGER.info("iterating "+i);
 				LOGGER.info("  diff = "+(System.currentTimeMillis()-start)+"ms and i ="+i);
 			}
-            if ((i%103) == 0) {
-                LOGGER.warning("  this is warning");
-            }			
-            if ((i%107) == 0) {
-                LOGGER.severe("  this is severe");
-            }
 		}
 		LOGGER.info(" stop with "+(System.currentTimeMillis()-start)+"ms");
 	}

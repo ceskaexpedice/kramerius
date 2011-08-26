@@ -14,21 +14,11 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
-package cz.incad.kramerius.printing;
+package cz.incad.kramerius.pdf.utils;
 
-import java.awt.print.PrinterException;
-import java.io.IOException;
-import java.io.OutputStream;
-import java.util.List;
+public interface ModelsVisitor {
+    
 
-import javax.print.PrintService;
-
-import cz.incad.kramerius.ObjectPidsPath;
-import cz.incad.kramerius.ProcessSubtreeException;
-import cz.incad.kramerius.document.model.AbstractRenderedDocument;
-
-public interface PrintingService {
-
-    public void print(ObjectPidsPath path, String pidFrom, int howMany, String imgUrl, String i18nUrl) throws IOException, ProcessSubtreeException, PrinterException;
-
+    public void visit(String modelName);
+    
 }

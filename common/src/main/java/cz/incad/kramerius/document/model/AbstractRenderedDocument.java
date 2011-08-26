@@ -5,9 +5,11 @@ import java.util.List;
 import java.util.Stack;
 
 import cz.incad.kramerius.KrameriusModels;
+import cz.incad.kramerius.ObjectPidsPath;
 
 public abstract class AbstractRenderedDocument extends AbstractObject {
 
+    // TODO: To remove it !
 	private String uuidTitlePage;
 	private String uuidFrontCover;
 	private String uuidBackCover;
@@ -15,6 +17,10 @@ public abstract class AbstractRenderedDocument extends AbstractObject {
 	private String uuidMainTitle;
 	
 	protected OutlineItem outlineItemRoot;
+	
+	private ObjectPidsPath path;
+	
+	
 	private List<AbstractPage> pages = new ArrayList<AbstractPage>();
 
 	private String documentTitle;

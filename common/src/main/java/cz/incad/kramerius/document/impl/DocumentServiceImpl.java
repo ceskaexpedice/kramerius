@@ -84,7 +84,7 @@ public class DocumentServiceImpl implements DocumentService {
     
 
     public void buildRenderingDocumentAsFlat(final AbstractRenderedDocument renderedDocument, final String pidFrom,  final int howMany ) throws IOException, ProcessSubtreeException {
-        if (fedoraAccess.isImageFULLAvailable(pidFrom)) {
+        if (pidFrom != null && fedoraAccess.isImageFULLAvailable(pidFrom)) {
             
             ObjectPidsPath[] path = solrAccess.getPath(pidFrom);
             String[] pathFromLeafToRoot = path[0].getPathFromLeafToRoot();
@@ -98,7 +98,7 @@ public class DocumentServiceImpl implements DocumentService {
                 public void process(String pid, int level) throws ProcessSubtreeException {
                     try{
                         if (fedoraAccess.isImageFULLAvailable(pid)) {
-                            if (pid.equals(pidFrom)) {
+                            if (pid.equals(pidFrom) || (pidFrom == null)) {
                                 acceptingState = true;
                             }
                             if (acceptingState) {
@@ -153,7 +153,6 @@ public class DocumentServiceImpl implements DocumentService {
                 }
                   
               });
-
         }
     }
 
@@ -239,26 +238,27 @@ public class DocumentServiceImpl implements DocumentService {
 
     
     protected AbstractPage createPage( final AbstractRenderedDocument renderedDocument,
-            String objectId)
+            String pid)
             throws LexerException, IOException {
-//      String pid = elm.getAttributeNS(RDF_NAMESPACE_URI, "resource");
-//      PIDParser pidParse = new PIDParser(pid);
-//      pidParse.disseminationURI();
-//      String objectId = pidParse.getObjectId();
 //      
-        org.w3c.dom.Document biblioMods = fedoraAccess.getBiblioMods(objectId);
-        org.w3c.dom.Document dc = fedoraAccess.getDC(objectId);
-        String modelName = fedoraAccess.getKrameriusModelName(objectId);
+        org.w3c.dom.Document biblioMods = fedoraAccess.getBiblioMods(pid);
+        org.w3c.dom.Document dc = fedoraAccess.getDC(pid);
+        String modelName = fedoraAccess.getKrameriusModelName(pid);
         
         AbstractPage page = null;
         
-        if (fedoraAccess.isImageFULLAvailable(objectId)) {
+        if (fedoraAccess.isImageFULLAvailable(pid)) {
             
-            page = new ImagePage(modelName, objectId);
-            page.setOutlineDestination(objectId);
+            page = new ImagePage(modelName, pid);
+            page.setOutlineDestination(pid);
+            
+            page.setBiblioMods(biblioMods);
+            page.setDc(dc);
+            
+            
             String pageNumber = getPageNumber(biblioMods);
             if (pageNumber.trim().equals("")) {
-                throw new IllegalStateException(objectId);
+                throw new IllegalStateException(pid);
             }
             page.setPageNumber(pageNumber);
             //renderedDocument.addPage(page);
@@ -275,34 +275,67 @@ public class DocumentServiceImpl implements DocumentService {
                 }
             }
             if ((renderedDocument.getUuidTitlePage() == null) && ("TitlePage".equals(attribute))) {
-                renderedDocument.setUuidTitlePage(objectId);
+                renderedDocument.setUuidTitlePage(pid);
             }
 
             if ((renderedDocument.getUuidFrontCover() == null) && ("FrontCover".equals(attribute))) {
-                renderedDocument.setUuidFrontCover(objectId);
+                renderedDocument.setUuidFrontCover(pid);
             }
 
             if ((renderedDocument.getUuidBackCover() == null) && ("BackCover".equals(attribute))) {
-                renderedDocument.setUuidBackCover(objectId);
+                renderedDocument.setUuidBackCover(pid);
             }
 
             if (renderedDocument.getFirstPage() == null)  {
-                renderedDocument.setFirstPage(objectId);
+                renderedDocument.setFirstPage(pid);
             }
             
 
         } else {
-            page = new TextPage(modelName, objectId);
-            page.setOutlineDestination(objectId);
+            // metadata
+            page = new TextPage(modelName, pid);
+            page.setOutlineDestination(pid);
 //          String title = DCUtils.titleFromDC(dc);
 //          if ((title == null) || title.equals("")) {
 //              title = BiblioModsUtils.titleFromBiblioMods(biblioMods);
 //              title = BiblioModsUtils.getTitle(biblioMods, fedoraAccess.getKrameriusModelName(objectId));
 //          }
             //if (title.trim().equals("")) throw new IllegalArgumentException(objectId+" has no title ");
-            page.setOutlineTitle(TitlesUtils.title(objectId, solrAccess, fedoraAccess));
+            
+            page.setBiblioMods(biblioMods);
+            page.setDc(dc);
+            
+            page.setOutlineTitle(TitlesUtils.title(pid, solrAccess, fedoraAccess));
         }
         return page;
+    }
+
+
+
+    
+    
+
+    @Override
+    public AbstractRenderedDocument buildDocumentFromSelection(String[] selection) throws IOException, ProcessSubtreeException {
+        
+
+        try {
+            final AbstractRenderedDocument renderedDocument = new RenderedDocument("selection", selection[0]);
+            for (String pid : selection) {
+                renderedDocument.addPage(createPage(renderedDocument, pid));
+            }
+            
+            /*
+            renderedDocument.setDocumentTitle(TitlesUtils.title(leaf, this.solrAccess, this.fedoraAccess));
+            renderedDocument.setUuidTitlePage(path.getLeaf());
+            renderedDocument.setUuidMainTitle(path.getRoot());
+            */
+            
+            return renderedDocument;
+        } catch (LexerException e) {
+            LOGGER.log(Level.SEVERE,e.getMessage(),e);
+            throw new RuntimeException(e);
+        }
     }
 
 

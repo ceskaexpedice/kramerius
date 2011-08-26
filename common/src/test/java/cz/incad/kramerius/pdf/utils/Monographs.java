@@ -14,21 +14,20 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
-package cz.incad.kramerius.printing;
+package cz.incad.kramerius.pdf.utils;
 
-import java.awt.print.PrinterException;
-import java.io.IOException;
-import java.io.OutputStream;
-import java.util.List;
+public class Monographs {
 
-import javax.print.PrintService;
-
-import cz.incad.kramerius.ObjectPidsPath;
-import cz.incad.kramerius.ProcessSubtreeException;
-import cz.incad.kramerius.document.model.AbstractRenderedDocument;
-
-public interface PrintingService {
-
-    public void print(ObjectPidsPath path, String pidFrom, int howMany, String imgUrl, String i18nUrl) throws IOException, ProcessSubtreeException, PrinterException;
-
+    public static String[] PIDS = {
+      "uuid:4ff703f0-66f6-11de-abff-000d606f5dc6",
+      "uuid:6b767ab8-c1a7-11df-b7b5-001b63bd97ba",
+      "uuid:5a801c16-c258-11df-b85a-001b63bd97ba",
+      "uuid:8c146516-c944-11df-84b1-001b63bd97ba",
+      "uuid:1038142",
+      "uuid:12f04d5e-c94c-11df-84b1-001b63bd97ba",
+      "uuid:12f04d5e-c94c-11df-84b1-001b63bd97ba",
+      "uuid:b79dd230-d2fb-11dc-b6af-000d606f5dc6",
+      "uuid:b79dd230-d2fb-11dc-b6af-000d606f5dc6",
+      
+    };
 }

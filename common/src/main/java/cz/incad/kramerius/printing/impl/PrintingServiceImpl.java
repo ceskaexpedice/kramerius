@@ -39,8 +39,15 @@ import java.util.List;
 import java.util.Locale;
 import java.util.logging.Level;
 
+import javax.print.DocPrintJob;
 import javax.print.PrintService;
+import javax.print.PrintServiceLookup;
+import javax.print.attribute.HashPrintRequestAttributeSet;
+import javax.print.attribute.PrintRequestAttributeSet;
+import javax.print.attribute.standard.MediaSize;
 import javax.print.attribute.standard.PrinterResolution;
+import javax.print.attribute.standard.Sides;
+import javax.print.attribute.standard.MediaSize.ISO;
 import javax.xml.xpath.XPathExpressionException;
 
 import org.w3c.dom.Document;
@@ -83,12 +90,7 @@ public class PrintingServiceImpl implements PrintingService {
 
     private DocumentService documentService;
     
-    //(210 × 297 mm)
     
-    public int dpi = Utils.DEFAUTL_DPI;
-    public Dimension page = Utils.A4;
-    
-
     
     
     
@@ -117,23 +119,24 @@ public class PrintingServiceImpl implements PrintingService {
     }
 
     @Override
-    public void print(ObjectPidsPath path, String pidFrom, int howMany, String imgUrl, String i18nUrl) throws IOException, ProcessSubtreeException {
+    public void print(ObjectPidsPath path, String pidFrom, int howMany, String imgUrl, String i18nUrl) throws IOException, ProcessSubtreeException, PrinterException {
         PrinterJob printerJob = PrinterJob.getPrinterJob();
         AbstractRenderedDocument documentAsFlat = this.documentService.buildDocumentAsFlat(path, pidFrom, howMany);
         printerJob.setPrintable(new PrintableDoc(this.fedoraAccess, documentAsFlat , imgUrl,Utils.A4, Utils.DEFAUTL_DPI));
-        
         printerJob.setJobName("K4 print");
+    
+//        PrintRequestAttributeSet aset = new HashPrintRequestAttributeSet(); 
+//        aset.add();
+//        aset.add(Sides.DUPLEX); 
         
-        try {
-            
-            printerJob.print();
-        } catch (PrinterException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
+        
+        printerJob.print();
+    
     }
 
 
+    
+    
 
     public static class PrintableDoc implements Printable{
         
@@ -211,15 +214,13 @@ public class PrintingServiceImpl implements PrintingService {
                     return PAGE_EXISTS;
                 } else return NO_SUCH_PAGE;
             } catch (XPathExpressionException e) {
-                e.printStackTrace();
+                LOGGER.log(Level.SEVERE, e.getMessage(),e);
                 return NO_SUCH_PAGE;
             } catch (MalformedURLException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
+                LOGGER.log(Level.SEVERE, e.getMessage(),e);
                 return NO_SUCH_PAGE;
             } catch (IOException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
+                LOGGER.log(Level.SEVERE, e.getMessage(),e);
                 return NO_SUCH_PAGE;
             }
         }

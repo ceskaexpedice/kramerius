@@ -16,12 +16,15 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.ResourceBundle;
 import java.util.logging.Level;
 
+import javax.management.modelmbean.ModelMBean;
+import javax.print.attribute.standard.Media;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
@@ -74,7 +77,14 @@ import cz.incad.kramerius.document.model.TextPage;
 import cz.incad.kramerius.imaging.ImageStreams;
 import cz.incad.kramerius.impl.AbstractTreeNodeProcessorAdapter;
 import cz.incad.kramerius.pdf.Break;
+import cz.incad.kramerius.pdf.FirstPageRenderer;
 import cz.incad.kramerius.pdf.GeneratePDFService;
+import cz.incad.kramerius.pdf.utils.BiblioMods;
+import cz.incad.kramerius.pdf.utils.BiblioModsDetail;
+import cz.incad.kramerius.pdf.utils.BiblioModsIdentifier;
+import cz.incad.kramerius.pdf.utils.BiblioModsPart;
+import cz.incad.kramerius.pdf.utils.BiblioModsTitleInfo;
+import cz.incad.kramerius.pdf.utils.ModsUtils;
 import cz.incad.kramerius.pdf.utils.TitlesUtils;
 import cz.incad.kramerius.service.ResourceBundleService;
 import cz.incad.kramerius.service.TextsService;
@@ -95,19 +105,6 @@ public class GeneratePDFServiceImpl implements GeneratePDFService {
     public static final int DEFAULT_WIDTH = 595;
     public static final int DEFAULT_HEIGHT = 842;
 
-	public static com.lowagie.text.Image DEFAULT_LOGO_IMAGE;
-	static {
-		try {
-			DEFAULT_LOGO_IMAGE = com.lowagie.text.Image.getInstance(GeneratePDFServiceImpl.class.getResource("res/kramerius_logo.png"));
-		} catch (BadElementException e) {
-			LOGGER.log(Level.SEVERE, e.getMessage(), e);
-		} catch (MalformedURLException e) {
-			LOGGER.log(Level.SEVERE, e.getMessage(), e);
-		} catch (IOException e) {
-			LOGGER.log(Level.SEVERE, e.getMessage(), e);
-		}
-	}
-
 	private FedoraAccess fedoraAccess;
 	private KConfiguration configuration;
 	private Provider<Locale> localeProvider;
@@ -115,6 +112,26 @@ public class GeneratePDFServiceImpl implements GeneratePDFService {
 	private ResourceBundleService resourceBundleService;
 	private SolrAccess solrAccess;
 	private DocumentService documentService;
+	
+	
+	public static Font bigFont = null;
+	public static Font smallerFont = null;
+	public static Font normalFont = null;
+	static {
+	    try {
+            bigFont = createFont();
+            smallerFont = createFont();
+            smallerFont.setSize(20f);
+            normalFont = createFont();
+            System.out.println(normalFont.getFamilyname());
+            System.out.println(normalFont);
+            
+        } catch (DocumentException e) {
+            LOGGER.log(Level.SEVERE, e.getMessage(),e);
+        } catch (IOException e) {
+            LOGGER.log(Level.SEVERE, e.getMessage(),e);
+        }
+	}
 	
 	
 	@Inject
@@ -128,20 +145,27 @@ public class GeneratePDFServiceImpl implements GeneratePDFService {
 		this.resourceBundleService = resourceBundleService;
 		this.solrAccess = solrAccess;
 		this.documentService = documentService;
+		
+		/*
 		try {
 			this.init();
 		} catch (IOException e) {
 			LOGGER.log(Level.SEVERE, e.getMessage(), e);
 		}
+		*/
 	}
 	
-	private void init() throws IOException {
+	public void init() throws IOException {
 		String[] texts = 
 		{
         "first_page",
 		"first_page_CZ_cs",
 		"first_page_html",
 		"first_page_html_CZ_cs",
+
+		"first_page_xml",
+        "first_page_xml_CZ_cs",
+
 		"security_fail",
 		"security_fail_CZ_cs",
 		
@@ -163,14 +187,20 @@ public class GeneratePDFServiceImpl implements GeneratePDFService {
 		IOUtils.copyBundledResources(this.getClass(), fonts,"res/", this.fontsFolder());
 	}
 
+	
 	@Override
-	public AbstractRenderedDocument generateCustomPDF(AbstractRenderedDocument rdoc, String parentUUID, OutputStream os, Break brk, String djvUrl, String i18nUrl) throws IOException {
+	public AbstractRenderedDocument generateCustomPDF(AbstractRenderedDocument rdoc,  OutputStream os, Break brk, String djvUrl, String i18nUrl, FirstPageRenderer firstPageListener) throws IOException {
 		try {
 			String brokenPage = null;
 			Document doc = createDocument();
 			PdfWriter writer = PdfWriter.getInstance(doc, os);
 			doc.open();
-			insertFirstPage(rdoc, parentUUID, rdoc.getUuidTitlePage(), writer, doc, djvUrl);
+			
+            //insertFirstPage(path, model, pdfWriter, pdfDoc)
+			firstPageListener.firstPage(doc, writer);
+			
+			//insertFirstPage(rdoc, parentUUID, rdoc.getUuidTitlePage(), writer, doc, djvUrl);
+
 			doc.newPage();
 			int pocetStranek = 0;
 			List<AbstractPage> pages = new ArrayList<AbstractPage>(rdoc.getPages());
@@ -228,15 +258,17 @@ public class GeneratePDFServiceImpl implements GeneratePDFService {
 	}
 
 
+	
+	
 	@Override
-	public void generateCustomPDF(AbstractRenderedDocument rdoc, String parentUUID, OutputStream os, String imgServletUrl, String i18nUrl) throws IOException {
+	public void generateCustomPDF(AbstractRenderedDocument rdoc/*, String parentUUID*/, OutputStream os, String imgServletUrl, String i18nUrl, FirstPageRenderer firstPageListener) throws IOException {
 		try {
 			Document doc = createDocument();
 			PdfWriter writer = PdfWriter.getInstance(doc, os);
 			doc.open();
 			
-			insertFirstPage(rdoc, parentUUID, rdoc.getUuidTitlePage(), writer, doc, imgServletUrl);
-
+			firstPageListener.firstPage(doc, writer);
+			
 			doc.newPage();
 			for (AbstractPage page : rdoc.getPages()) {
 				doc.newPage();
@@ -281,58 +313,50 @@ public class GeneratePDFServiceImpl implements GeneratePDFService {
 		}
 	}
 
-
-	
-
-	
 	
 
 	@Override
-    public void dynamicPDFExport(String requestinguuid, String uuidFrom, int numberOfPage, String titlePage, OutputStream os, String imgServletUrl, String i18nUrl) throws IOException, ProcessSubtreeException {
-//	    
-//        ObjectPidsPath[] paths = solrAccess.getPath(uuidFrom);
-//        String[] pathFromRootToLeaf = paths[0].getPathFromRootToLeaf();
-//        
-//        org.w3c.dom.Document relsExt = this.fedoraAccess.getRelsExt(uuidFrom);
-//        String modelName = this.fedoraAccess.getKrameriusModelName(relsExt);
-//        
-//        final AbstractRenderedDocument renderedDocument = new RenderedDocument(modelName, uuidFrom);
-//        renderedDocument.setDocumentTitle(TitlesUtils.title(requestinguuid, this.solrAccess, this.fedoraAccess));
-//        renderedDocument.setUuidTitlePage(titlePage);
-//        renderedDocument.setUuidMainTitle(pathFromRootToLeaf[0]);
-//        
-//        buildRenderingDocumentAsFlat(renderedDocument, uuidFrom, numberOfPage);
-//        generateCustomPDF(renderedDocument, uuidFrom,os, imgServletUrl,i18nUrl);
+    public void generateImagesSelection(String[] imagePids, String titlePage, OutputStream os, String imgServletUrl, String i18nUrl) throws IOException, ProcessSubtreeException {
+	    FirstPageSelectionRenderer fRenderer = new FirstPageSelectionRenderer(bigFont, normalFont);
+	    // injects???
+	    fRenderer.setFedoraAccess(this.fedoraAccess);
+	    fRenderer.setLocalesProvider(this.localeProvider);
+	    fRenderer.setSolrAccess(this.solrAccess);
+	    fRenderer.setTextsService(this.textsService);
+	    fRenderer.setResourceBundleService(this.resourceBundleService);
 	    
+	    generateCustomPDF(this.documentService.buildDocumentFromSelection(imagePids),os, imgServletUrl, i18nUrl, fRenderer);
     }
 
     @Override
-	public void dynamicPDFExport(List<String> path, String uuidFrom, String uuidTo, String titlePage, OutputStream os, String imgUrl, String i18nUrl) throws IOException, ProcessSubtreeException {
-        throw new UnsupportedOperationException("");
-//		LOGGER.info("current locale is "+localeProvider.get());
-//		
-//		
-//		if (!path.isEmpty()) {
-//			String lastUuid = path.get(path.size() -1);
-//
-//			org.w3c.dom.Document relsExt = this.fedoraAccess.getRelsExt(lastUuid);
-//			String modelName = this.fedoraAccess.getKrameriusModelName(relsExt);
-//			
-//			final AbstractRenderedDocument renderedDocument = new RenderedDocument(modelName, lastUuid);
-//			renderedDocument.setDocumentTitle(TitlesUtils.title(lastUuid, this.solrAccess, this.fedoraAccess));
-//			renderedDocument.setUuidTitlePage(titlePage);
-//			renderedDocument.setUuidMainTitle(path.get(0));
-//			
-//			buildRenderingDocumentAsFlat(relsExt, lastUuid, renderedDocument, uuidFrom, uuidTo);
-//			generateCustomPDF(renderedDocument, lastUuid,os, imgUrl,i18nUrl);
-//		}
-	}
+    public void generateParent(String requestedPid, int numberOfPages, String titlePage, OutputStream os, String imgServletUrl, String i18nUrl) throws IOException, ProcessSubtreeException {
+        ObjectPidsPath[] paths = solrAccess.getPath(requestedPid);
+        final ObjectPidsPath path = selectOnePath(requestedPid, paths);
+        
+        FirstPageFromParentRenderer fromParentRenderer = new FirstPageFromParentRenderer(GeneratePDFServiceImpl.bigFont, GeneratePDFServiceImpl.normalFont, path);
 
+        fromParentRenderer.setFedoraAccess(this.fedoraAccess);
+        fromParentRenderer.setLocalesProvider(this.localeProvider);
+        fromParentRenderer.setSolrAccess(this.solrAccess);
+        fromParentRenderer.setTextsService(this.textsService);
+        fromParentRenderer.setResourceBundleService(this.resourceBundleService);
+
+        generateCustomPDF(this.documentService.buildDocumentAsFlat(path, path.getLeaf(), numberOfPages),os, imgServletUrl,i18nUrl, fromParentRenderer);
+    }
+
+
+    public ObjectPidsPath selectOnePath(String requestedPid, ObjectPidsPath[] paths) {
+        ObjectPidsPath path;
+        if (paths.length > 0) {
+            path = paths[0];
+        } else {
+            path = new ObjectPidsPath(requestedPid);
+        }
+        return path;
+    }
 
 	@Override
 	public void fullPDFExport(ObjectPidsPath path, OutputStreams streams, Break brk, String djvuUrl, String i18nUrl) throws IOException, ProcessSubtreeException {
-	    
-	    
 	    
 		
 		AbstractRenderedDocument restOfDoc = documentService.buildDocumentAsTree(path, path.getLeaf());
@@ -341,7 +365,13 @@ public class GeneratePDFServiceImpl implements GeneratePDFService {
 		while(!konec) {
 			if (!restOfDoc.getPages().isEmpty()) {
 				os = streams.newOutputStream();
-				restOfDoc = generateCustomPDF(restOfDoc, path.getLeaf(), os, brk, djvuUrl,i18nUrl);
+				restOfDoc = generateCustomPDF(restOfDoc, os, brk, djvuUrl,i18nUrl, new FirstPageRenderer() {
+                    
+                    @Override
+                    public void firstPage(Document doc, PdfWriter writer) {
+                        
+                    }
+                });
 				
 				StringBuffer buffer = new StringBuffer();
 				restOfDoc.getOutlineItemRoot().debugInformations(buffer, 1);
@@ -364,6 +394,7 @@ public class GeneratePDFServiceImpl implements GeneratePDFService {
 		return doc;
 	}
 
+	/*
 	public PdfPTable insertTitleAndAuthors(AbstractRenderedDocument document) throws DocumentException, IOException {
 		PdfPTable pdfPTable = new PdfPTable(new float[] {1.0f});
 		
@@ -392,75 +423,9 @@ public class GeneratePDFServiceImpl implements GeneratePDFService {
 		
 		return pdfPTable;
 	}
+	 */
 
-	public void insertFirstPage(AbstractRenderedDocument model, String parentUuid, String titlePageUuid , PdfWriter pdfWriter, Document pdfDoc, String djvuUrl) throws IOException, DocumentException {
-		try {
-            ResourceBundle resBundle = this.resourceBundleService.getResourceBundle("base", this.localeProvider.get());
-			
-			//paragraph.add(DEFAULT_LOGO_IMAGE);
-	        Font bigFont = createFont();
-	        bigFont.setSize(48f);
-	        //TODO: Change in text
-	        pdfDoc.add(new Paragraph( resBundle.getString("pdf.firstpage.title"),bigFont));
 
-            Font smallerFont = createFont();
-            smallerFont.setSize(20f);
-            //TODO: Change in text
-            pdfDoc.add(new Paragraph( resBundle.getString("pdf.firstpage.library"),smallerFont));
-            pdfDoc.add(new Paragraph(" \n"));
-            pdfDoc.add(new LineSeparator());
-            pdfDoc.add(new Paragraph(" \n"));
-			
-	        pdfDoc.add(new Paragraph(model.getDocumentTitle(), smallerFont));
-            Font smallFont = createFont();
-            smallFont.setSize(12f);
-            StringBuffer buffer = new StringBuffer();
-            String[] creatorsFromDC = DCUtils.creatorsFromDC(fedoraAccess.getDC(model.getUuidMainTitle()));
-            for (String string : creatorsFromDC) {
-                buffer.append(string).append('\n');
-            }
-
-            pdfDoc.add(new Paragraph(buffer.toString(), smallerFont));
-            
-            pdfDoc.add(new Paragraph(" \n"));
-            pdfDoc.add(new Paragraph(" \n"));
-
-	        
-//			PdfPTable pdfPTable = new PdfPTable(new float[] {0.2f, 0.8f});
-//			pdfPTable.setSpacingBefore(3f);
-//
-//			pdfPTable.getDefaultCell().disableBorderSide(PdfPCell.TOP);
-//			pdfPTable.getDefaultCell().disableBorderSide(PdfPCell.LEFT);
-//			pdfPTable.getDefaultCell().disableBorderSide(PdfPCell.RIGHT);
-//			pdfPTable.getDefaultCell().disableBorderSide(PdfPCell.BOTTOM);
-//			pdfPTable.getDefaultCell().setBorderWidth(15f);
-//
-//			
-//			insertTitleImage(pdfPTable,model, djvuUrl);
-//			pdfPTable.addCell(insertTitleAndAuthors(model));
-//			
-//			
-//			final float[] mheights = new float[2];
-//			pdfPTable.setTableEvent(new PdfPTableEvent() {
-//				@Override
-//				public void tableLayout(PdfPTable arg0, float[][] widths, float[] heights, int arg3, int rowStart, PdfContentByte[] arg5) {
-//					mheights[0] = heights[0];
-//					mheights[1] = heights[1];
-//				}
-//			});
-//			pdfDoc.add(pdfPTable);
-//			
-//			lineInFirstPage(pdfWriter, pdfDoc, mheights[1]);
-//
-//			pdfDoc.add(new Paragraph(" "));
-//			pdfDoc.add(new Paragraph(" "));
-			
-			Paragraph parDesc = new Paragraph(this.textsService.getText("first_page", localeProvider.get()), createFont());		
-			pdfDoc.add(parDesc);
-		} catch (Exception e) {
-			LOGGER.log(Level.SEVERE, e.getMessage(), e);
-		}
-	}
 	
 
 	private  void lineInFirstPage(PdfWriter pdfWriter, Document document,
@@ -581,7 +546,7 @@ public class GeneratePDFServiceImpl implements GeneratePDFService {
 		cb.restoreState();
 	}
 
-	private Font createFont() throws DocumentException, IOException {
+	private static Font createFont() throws DocumentException, IOException {
 		String workingDir = Constants.WORKING_DIR;
 		File fontFile = new File(workingDir+File.separator+"fonts"+File.separator+"GentiumPlus-R.ttf");
 		if (fontFile.exists()) {
@@ -713,5 +678,8 @@ public class GeneratePDFServiceImpl implements GeneratePDFService {
 		}
 		return dir;
 	}
+	
+	
+
 	
 }

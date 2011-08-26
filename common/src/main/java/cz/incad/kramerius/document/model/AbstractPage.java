@@ -1,8 +1,13 @@
 package cz.incad.kramerius.document.model;
 
+import org.w3c.dom.Document;
+
 
 public abstract class AbstractPage extends AbstractObject {
 
+    private Document biblioMods = null;
+    private Document dc = null;
+    
 	
 	private String outlineTitle;
 	private String pageNumber;
@@ -47,6 +52,24 @@ public abstract class AbstractPage extends AbstractObject {
 
 	
 	
-	public abstract void visitPage(PageVisitor visitor, Object obj);
+	
+	
+	public Document getBiblioMods() {
+        return biblioMods;
+    }
+
+    public void setBiblioMods(Document biblioMods) {
+        this.biblioMods = biblioMods;
+    }
+
+    public Document getDc() {
+        return dc;
+    }
+
+    public void setDc(Document dc) {
+        this.dc = dc;
+    }
+
+    public abstract void visitPage(PageVisitor visitor, Object obj);
 	
 }

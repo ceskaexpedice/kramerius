@@ -28,4 +28,7 @@ public interface DocumentService {
     AbstractRenderedDocument buildDocumentAsTree(ObjectPidsPath path, String pidFrom) throws IOException, ProcessSubtreeException;
 
     AbstractRenderedDocument buildDocumentAsFlat(ObjectPidsPath path, String pidFrom, int howMany) throws IOException, ProcessSubtreeException;
+    
+    AbstractRenderedDocument buildDocumentFromSelection(String[] selection) throws IOException, ProcessSubtreeException;
+    
 }
