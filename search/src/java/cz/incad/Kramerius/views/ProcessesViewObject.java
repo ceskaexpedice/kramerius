@@ -46,7 +46,18 @@ public class ProcessesViewObject {
 		List<ProcessViewObject> objects = new ArrayList<ProcessViewObject>();
 		for (LRProcess lrProcess : lrProcesses) {
 			LRProcessDefinition def = this.definitionManager.getLongRunningProcessDefinition(lrProcess.getDefinitionId());
-			objects.add(new ProcessViewObject(lrProcess, def, this.ordering, this.offset, this.typeOfOrdering, this.bundleService, this.locale));
+            ProcessViewObject pw = new ProcessViewObject(lrProcess, def, this.ordering, this.offset, this.typeOfOrdering, this.bundleService, this.locale);
+			if (lrProcess.isMasterProcess()) {
+			    List<LRProcess> childSubprecesses = this.processManager.getLongRunningProcessesByToken(lrProcess.getToken());
+			    for (LRProcess child : childSubprecesses) {
+                    if (!child.getUUID().equals(lrProcess.getUUID())) {
+                        LRProcessDefinition childDef = this.definitionManager.getLongRunningProcessDefinition(child.getDefinitionId());
+                        ProcessViewObject childPW = new ProcessViewObject(child, childDef, this.ordering, this.offset, this.typeOfOrdering, this.bundleService, this.locale);
+                        pw.addChildProcess(childPW);
+                    }
+                }
+			}
+            objects.add(pw);
 		}
 		return objects;
 	}
@@ -81,7 +92,7 @@ public class ProcessesViewObject {
 			int offset = Integer.parseInt(this.offset.getOffset());
 			int size = Integer.parseInt(this.offset.getSize());
 			if ((offset+size) < count ) {
-				return "<a href=\"javascript:modifyProcessDialogData('"+this.ordering+"','"+this.offset.getNextOffset()+"','"+this.offset.getSize()+"','"+this.typeOfOrdering.getTypeOfOrdering()+"');\"> "+nextString+" <img  border=\"0\" src=\"img/next_arr.png\"/> </a>";
+				return "<a href=\"javascript:processes.modifyProcessDialogData('"+this.ordering+"','"+this.offset.getNextOffset()+"','"+this.offset.getSize()+"','"+this.typeOfOrdering.getTypeOfOrdering()+"');\"> "+nextString+" <img  border=\"0\" src=\"img/next_arr.png\"/> </a>";
 			} else {
 				return "<span>" + nextString+"</span> <img border=\"0\" src=\"img/next_arr.png\" alt=\"next\" />";
 			}
@@ -96,7 +107,7 @@ public class ProcessesViewObject {
 				String prevString = bundleService.getResourceBundle("labels", locale).getString("administrator.processes.prev");
 				int offset = Integer.parseInt(this.offset.getOffset());
 				if (offset > 0) {
-					return "<a href=\"javascript:modifyProcessDialogData('"+this.ordering+"','"+this.offset.getPrevOffset()+"','"+this.offset.getSize()+"','"+this.typeOfOrdering.getTypeOfOrdering()+"');\"> <img border=\"0\" src=\"img/prev_arr.png\"/> "+prevString+" </a>";
+					return "<a href=\"javascript:processes.modifyProcessDialogData('"+this.ordering+"','"+this.offset.getPrevOffset()+"','"+this.offset.getSize()+"','"+this.typeOfOrdering.getTypeOfOrdering()+"');\"> <img border=\"0\" src=\"img/prev_arr.png\"/> "+prevString+" </a>";
 				} else {
 					return "<img border=\"0\" src=\"img/prev_arr.png\" alt=\"prev\" /> <span>"+prevString+"</span>";
 				}
@@ -184,7 +195,7 @@ public class ProcessesViewObject {
 	}
 	
 	private String newOrderingURL(LRProcessOrdering nOrdering, String name, TypeOfOrdering ntypeOfOrdering) {
-		String href = "<a href=\"javascript:modifyProcessDialogData('"+
+		String href = "<a href=\"javascript:processes.modifyProcessDialogData('"+
                         nOrdering+"','"+
                         this.offset.getOffset()+"','"+
                         this.offset.getSize()+"','"+

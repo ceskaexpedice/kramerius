@@ -104,15 +104,17 @@ function _ref(ordering, offset, size, type) {
 	});
 }
 
+
+
 </script>
 <div class="header">
     <div class="title">
         <c:if test="${processView.offsetValue>0}">
-            <a href="javascript:modifyProcessDialogData('${processView.ordering}',${processView.offsetValue-processView.pageSize},${processView.pageSize},'${processView.typeOfOrdering}');"><span class="ui-icon ui-icon-arrowthick-1-w">previous</span></a>
+            <a href="javascript:processes.modifyProcessDialogData('${processView.ordering}',${processView.offsetValue-processView.pageSize},${processView.pageSize},'${processView.typeOfOrdering}');"><span class="ui-icon ui-icon-arrowthick-1-w">previous</span></a>
         </c:if>
         &emsp;
         <c:if test="${processView.hasNext}">
-            <a href="javascript:modifyProcessDialogData('${processView.ordering}',${processView.offsetValue+processView.pageSize},${processView.pageSize},'${processView.typeOfOrdering}');"><span class="ui-icon ui-icon-arrowthick-1-e">next</span></a>
+            <a href="javascript:processes.modifyProcessDialogData('${processView.ordering}',${processView.offsetValue+processView.pageSize},${processView.pageSize},'${processView.typeOfOrdering}');"><span class="ui-icon ui-icon-arrowthick-1-e">next</span></a>
         </c:if>
         
     </div>
@@ -147,6 +149,31 @@ function _ref(ordering, offset, size, type) {
                 <td>${lrProc.planned}</td>
                 <td>${lrProc.startedBy}</td>
                 <td>${lrProc.killURL}${lrProc.actionsURLs}${lrProc.deleteURL}</td>
+            </tr>
+            
+            <tr>
+                <td colspan="8">
+                    <c:if test="${lrProc.masterProcess}">
+                        <div style="border: 1px solid black; display: none;" id="${lrProc.UUID}"> 
+	                        <table style="width: 100%">
+                                <tbody>
+							        <c:forEach var="childLrProc" items="${lrProc.childProcesses}" varStatus="ch">
+							            <tr class="${(ch.index mod 2 == 0) ? 'result r0': 'result r1'}">
+							                <td>${childLrProc.processName} </td>
+							                <td>${childLrProc.pid} </td>
+							                <td>${childLrProc.processState}</td>
+							                <td>${childLrProc.start}</td>
+							                <td>${childLrProc.planned}</td>
+							                <td>${childLrProc.startedBy}</td>
+							                <td>${childLrProc.killURL}${childLrProc.actionsURLs}${childLrProc.deleteURL}</td>
+							            </tr>
+	                                </c:forEach>
+                                
+                                </tbody>	                        
+	                        </table>  
+                        </div>
+                    </c:if>
+                </td>
             </tr>
         </c:forEach>
     </tbody>

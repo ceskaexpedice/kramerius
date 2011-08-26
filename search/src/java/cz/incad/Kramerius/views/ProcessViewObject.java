@@ -36,6 +36,8 @@ public class ProcessViewObject {
     private ResourceBundleService bundleService;
     private Locale locale;
 
+    private List<ProcessViewObject> childProcesses = new ArrayList<ProcessViewObject>();
+    
     public ProcessViewObject(LRProcess lrProcess, LRProcessDefinition definition, LRProcessOrdering ordering, LRProcessOffset offset, TypeOfOrdering typeOfOrdering,  ResourceBundleService service, Locale locale) {
         super();
         this.lrProcess = lrProcess;
@@ -90,9 +92,17 @@ public class ProcessViewObject {
         return FORMAT.format(date);
     }
 
+    public boolean isMasterProcess() {
+        return lrProcess.isMasterProcess();
+    }
+    
+    public String getUUID() {
+        return lrProcess.getUUID();
+    }
+    
     public String getTreeIcon() {
         if (lrProcess.isMasterProcess()) {
-            return "<a href=\"#\"><img border=\"0\" src=\"img/nolines_plus.gif\"></img></a>";
+            return "<a href=\"javascript:processes.subprocesses('"+this.lrProcess.getUUID()+"');\"><img border=\"0\" src=\"img/nolines_plus.gif\" id='"+this.lrProcess.getUUID()+"_icon'></img></a>";
         } else {
             return "<img border=\"0\" src=\"img/nolines_minus.gif\"></img>";
         }
@@ -104,7 +114,7 @@ public class ProcessViewObject {
         try {
             if ((this.lrProcess.getProcessState().equals(States.RUNNING)) || (this.lrProcess.getProcessState().equals(States.PLANNED))) {
                 String url = "lr?action=stop&uuid=" + this.lrProcess.getUUID();
-                String renderedAHREF = "<a href=\"javascript:doActionAndRefresh('" + url + "','" + this.ordering.name() + "'," + this.offset.getOffset() + "," + this.offset.getSize() + ",'" + this.typeOfOrdering.name() + "');\">"
+                String renderedAHREF = "<a href=\"javascript:processes.doActionAndRefresh('" + url + "','" + this.ordering.name() + "'," + this.offset.getOffset() + "," + this.offset.getSize() + ",'" + this.typeOfOrdering.name() + "');\">"
                         + bundleService.getResourceBundle("labels", locale).getString("administrator.processes.kill.process") + "</a>";
                 if (!this.definition.getActions().isEmpty()) {
                     renderedAHREF += " || ";
@@ -124,7 +134,7 @@ public class ProcessViewObject {
         try {
             if ((this.lrProcess.getProcessState().equals(States.FINISHED)) || (this.lrProcess.getProcessState().equals(States.KILLED)) || (this.lrProcess.getProcessState().equals(States.FAILED))) {
                 String url = "lr?action=delete&uuid=" + this.lrProcess.getUUID();
-                String renderedAHREF = "<a href=\"javascript:doActionAndRefresh('" + url + "','" + this.ordering.name() + "'," + this.offset.getOffset() + "," + this.offset.getSize() + ",'" + this.typeOfOrdering.name() + "');\">"
+                String renderedAHREF = "<a href=\"javascript:processes.doActionAndRefresh('" + url + "','" + this.ordering.name() + "'," + this.offset.getOffset() + "," + this.offset.getSize() + ",'" + this.typeOfOrdering.name() + "');\">"
                         + bundleService.getResourceBundle("labels", locale).getString("administrator.processes.delete.process") + "</a>";
                 if (!this.definition.getActions().isEmpty()) {
                     renderedAHREF = " || "+ renderedAHREF;
@@ -175,5 +185,17 @@ public class ProcessViewObject {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
             return "";
         }
+    }
+    
+    public void addChildProcess(ProcessViewObject pw) {
+        this.childProcesses.add(pw);
+    }
+    
+    public void removeChildProcess(ProcessViewObject pw) {
+        this.childProcesses.remove(pw);
+    }
+    
+    public List<ProcessViewObject> getChildProcesses() {
+        return this.childProcesses;
     }
 }

@@ -102,6 +102,9 @@ function refreshProcesses(ordering, offset, size, type) {
 	});
 }
 
+
+
+
 /**
  * Promenne ve scriptu
  */

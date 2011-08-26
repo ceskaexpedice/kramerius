@@ -44,6 +44,7 @@ import cz.incad.kramerius.service.ResourceBundleService;
 import cz.incad.kramerius.service.TextsService;
 import cz.incad.kramerius.utils.DCUtils;
 import cz.incad.kramerius.utils.XMLUtils;
+import cz.incad.kramerius.utils.conf.KConfiguration;
 
 import antlr.RecognitionException;
 import antlr.TokenStreamException;
@@ -107,6 +108,9 @@ public class PDFGenerateViewObject extends AbstractViewObject {
         return bundle.getString("pdf.numberOfPages");
     }
 
+    public String getMaxNumberOfPages() {
+        return ""+KConfiguration.getInstance().getConfiguration().getInt("generatePdfMaxRange");
+    }
     
     public String getHeader() throws RecognitionException, TokenStreamException, IOException, ParserConfigurationException, SAXException {
         if (!this.initialized) {

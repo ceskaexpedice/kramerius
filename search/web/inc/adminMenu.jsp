@@ -134,58 +134,6 @@ function hideAdminMenu() {
 	$("#adminMenu").css("display","none");
 }
 
-var _processDialog; // dialog na zobrazovani proceus
-function openProcessDialog() {
-	if (_processDialog) {
-		_processDialog.dialog('open');
-	} else {
-    	_processDialog = $("#processes").dialog({
-	        bgiframe: true,
-	        width:  $(window).width()-20,
-	        height:  $(window).height()-60,
-	        modal: true,
-	        title: dictionary['administrator.menu.dialogs.lrprocesses.title'],
-	        buttons: {
-	            "Close": function() {
-	                $(this).dialog("close"); 
-	            } 
-	        }
-	    });
-	}
-	
-}
-
-function processes(){
-	var url = "inc/admin/_processes_data.jsp?offset=0&size=20&type=DESC";
-	$.get(url, function(data) {
-		openProcessDialog();
-		_processDialog.dialog('option', 'position', [10, 10]);
-		_processDialog.dialog("option", "width", $(window).width()-20);
-		_processDialog.dialog("option", "height", $(window).height()-60);
-		$("#processes>table").css('height',$(window).height()-160)
-		$("#processes").html(data);;
-	});
-}
-
-function modifyProcessDialogData(ordering, offset, size, type) {
-	var url = "inc/admin/_processes_data.jsp?ordering="+ordering+"&offset="+offset+"&size="+size+"&type="+type;
-	$.get(url, function(data) {
-		$("#processes").html(data);
-	});
-}
-
-function doActionAndRefresh(url,ordering, offset, size, type) {
-	$.get(url, function(fdata) {
-		refreshProcesses(ordering, offset, size, type);
-	});
-}
-
-function refreshProcesses(ordering, offset, size, type) {
-	var refreshurl = "inc/admin/_processes_data.jsp?ordering="+ordering+"&offset="+offset+"&size="+size+"&type="+type;
-	$.get(refreshurl, function(sdata) {
-		$("#processes").html(sdata);
-	});
-}
 
 /**
  * Promenne ve scriptu

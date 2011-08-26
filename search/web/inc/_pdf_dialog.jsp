@@ -37,7 +37,7 @@
                     <div id="${item.id}_option" style="display:none">
                         ${pdfView.numberOfGeneratedPages}:<span id="${item.id}_error" style="color: red;"></span>
                         <div>
-                            <input name="pdfSelection" id="${item.id}_input" type="text" onkeyup="pdf.onKeyup('${item.id}', '${item.type}','${item.pids}');" value="14"></input>
+                            <input name="pdfSelection" id="${item.id}_input" type="text" onkeyup="pdf.onKeyup('${item.id}', '${item.type}','${item.pids}');" value="${pdfView.maxNumberOfPages}"></input>
                         </div>
                     </div>
                 </td>

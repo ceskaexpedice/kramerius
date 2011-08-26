@@ -60,7 +60,7 @@ public class AdminMenuViewObject {
 
     public String processes() throws IOException {
         return renderMenuItem(
-                "javascript:processes(); javascript:hideAdminMenu();",
+                "javascript:processes.processes(); javascript:hideAdminMenu();",
                 "administrator.menu.dialogs.lrprocesses.title", false);
     }
 
