@@ -30,9 +30,9 @@
     <c:forEach varStatus="status" var="tab" items="${tabs}">
         <div id="intro${status.count}" style="height: 610px; overflow:hidden;"></div>
         <script type="text/javascript">
-                $.get('inc/home/${tab}.jsp', function(data){
-                   $('#intro${status.count}').html(data) ;
-                });
+            $.get('inc/home/${tab}.jsp', function(data){
+               $('#intro${status.count}').html(data) ;
+            });
         </script>
     </c:forEach>
 </div>

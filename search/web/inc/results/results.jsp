@@ -106,8 +106,9 @@ $(document).ready(function(){
     }
     
     function toggleColumns(){
-        var margin = parseInt($('.search_result:first').css("margin-left").replace("px", "")) +
-            parseInt($('.search_result:first').css("margin-right").replace("px", "")) +
+        var margin = 
+            //parseInt($('.search_result:first').css("margin-left").replace("px", "")) +
+            //parseInt($('.search_result:first').css("margin-right").replace("px", "")) +
             parseInt($('.search_result:first').css("padding-left").replace("px", "")) +
             parseInt($('.search_result:first').css("padding-right").replace("px", ""));
         var w = $('#offset_0').width();

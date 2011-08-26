@@ -15,9 +15,6 @@
 <%@page import="cz.incad.kramerius.FedoraAccess"%>
 <%@page import="cz.incad.Kramerius.views.item.ItemViewObject"%>
 <%@page import="cz.incad.Kramerius.views.item.menu.ItemMenuViewObject"%>
-<%
-            //try {
-%>
 <style type="text/css">
     #split {
         height: 700px;
@@ -94,6 +91,8 @@
     $(document).ready(function(){
        sp = $("#split").layout({
            north:{
+                togglerLength_closed:	'100%',
+                togglerLength_open:	'100%',
                 togglerTip_open: '<fmt:message bundle="${lctx}">thumbs.showhide</fmt:message>',
                 onopen_end: function(){
                     positionAlto();
@@ -104,8 +103,8 @@
            },
             east:{
                 size:340,
-                spacing_closed:	8,
-                spacing_open:	8,
+                spacing_closed:	6,
+                spacing_open:	6,
                 togglerLength_closed:	'100%',
                 togglerLength_open:	'100%',
                 togglerAlign_open:	"top",
@@ -114,7 +113,7 @@
                 togglerTip_open: '<fmt:message bundle="${lctx}">item.showhide</fmt:message>',
                 //togglerContent_closed:	'<div id="showHideRightMenu" class="shadow" ><span class="ui-state-default ui-icon ui-icon-triangle-1-w"></span></div>',
                 //togglerContent_open:	'<div id="showHideRightMenu" class="shadow" ><span class="ui-state-default ui-icon ui-icon-triangle-1-e"></span></div>',
-                togglerContent_open:	'<div id="showHideRightMenu" class="ui-layout-toggler ui-layout-toggler-east ui-layout-toggler-open ui-layout-toggler-east-open"></div>',
+                //togglerContent_open:	'<div id="showHideRightMenua" class="ui-layout-toggler ui-layout-toggler-east ui-layout-toggler-open ui-layout-toggler-east-open"></div>',
                 
                 onopen_end: function(){
                     positionAlto();
@@ -132,9 +131,6 @@
         $('#split.viewer').bind('viewReady', function(event, viewerOptions){
             resizeSplit(viewerOptions.fullid);
         });
-        //$('#preview').bind('scroll', function(event){
-            //positionAlto();
-        //});
     });
     function resizeSplit(){
         var h = Math.max(800, $('#centralContent').height()+80);
@@ -143,9 +139,3 @@
         sp.resizeAll();
     }
 </script>
-
-<%           // } catch (Exception exc) {
-           //     response.sendRedirect(kconfig.getApplicationURL() + "?error=item_error");
-           //     return;
-           // }
-%>

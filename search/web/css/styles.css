@@ -300,14 +300,15 @@ div.search_result{
     width:357px;
     margin:2px;
     padding:5px;
+    padding-bottom:8px;
 }
 
 .uncollapsed{
-    position:absolute;
+    position:relative;
     background:white;
     border:1px solid silver;
     border-top:none;
-    width:370px;
+    /*width:370px;*/
     max-height: 300px;
     _height: expression(this.scrollHeight > 300? "300px" : "auto" );
     overflow:auto;
