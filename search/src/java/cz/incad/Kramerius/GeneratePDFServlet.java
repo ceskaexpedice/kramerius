@@ -3,6 +3,7 @@ package cz.incad.Kramerius;
 import static cz.incad.kramerius.FedoraNamespaces.*;
 
 import java.io.IOException;
+import java.io.StringReader;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLEncoder;
@@ -29,10 +30,17 @@ import org.w3c.dom.DOMException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
+import sun.print.resources.serviceui;
+
+import antlr.RecognitionException;
+import antlr.TokenStreamException;
+
 import com.google.inject.Inject;
 import com.google.inject.name.Named;
 
 import cz.incad.Kramerius.backend.guice.GuiceServlet;
+import cz.incad.Kramerius.processes.ParamsLexer;
+import cz.incad.Kramerius.processes.ParamsParser;
 import cz.incad.kramerius.FedoraAccess;
 import cz.incad.kramerius.FedoraNamespaces;
 import cz.incad.kramerius.ProcessSubtreeException;
@@ -56,6 +64,7 @@ public class GeneratePDFServlet extends GuiceServlet {
 			.getLogger(GeneratePDFServlet.class.getName());
 	
 	public static final String UUID_FROM="uuidFrom";
+    public static final String PID_FROM="pidFrom";
 	public static final String UUID_TO="uuidTo";
     public static final String HOW_MANY="howMany";
 	public static final String PATH="path";
@@ -84,7 +93,7 @@ public class GeneratePDFServlet extends GuiceServlet {
 	        acquired =  PDF_SEMAPHORE.tryAcquire();
 	        if (acquired) {
 	            try {
-	                renderDynamicPDF(req, resp);
+	                renderPDF(req, resp);
 	            } catch (MalformedURLException e) {
 	                LOGGER.log(Level.SEVERE, e.getMessage(),e);
 	            } catch (IOException e) {
@@ -112,7 +121,7 @@ public class GeneratePDFServlet extends GuiceServlet {
         dispatcher.forward(req, resp);
     }
 
-    public void renderDynamicPDF(HttpServletRequest req, HttpServletResponse resp) throws MalformedURLException, IOException, ProcessSubtreeException {
+    public void renderPDF(HttpServletRequest req, HttpServletResponse resp) throws MalformedURLException, IOException, ProcessSubtreeException {
         String imgServletUrl = ApplicationURL.applicationURL(req)+"/img";
         if ((configuration.getApplicationURL() != null) && (!configuration.getApplicationURL().equals(""))){
         	imgServletUrl = configuration.getApplicationURL()+"img";
@@ -124,20 +133,53 @@ public class GeneratePDFServlet extends GuiceServlet {
         resp.setContentType("application/pdf");
         SimpleDateFormat sdate = new SimpleDateFormat("yyyyMMdd_mmhhss");
         resp.setHeader("Content-disposition","attachment; filename="+sdate.format(new Date())+".pdf");
-        String from = req.getParameter(UUID_FROM);
-        String howMany = req.getParameter(HOW_MANY);
+        String action = req.getParameter("action");
         
-        throw new NotImplementedException("not implemented exception");
+        Action.valueOf(action).renderPDF(req, resp, this.service, "", imgServletUrl, i18nUrl);
+        
+        //service.dynamicPDFExport(requestedUuid, uuidFrom, numberOfPages, "", os, imgServletUrl, i18nUrl);
+        //throw new NotImplementedException("not implemented exception");
         //service.dynamicPDFExport(parentUuid(from), from, Integer.parseInt(howMany), from, resp.getOutputStream(), imgServletUrl, i18nUrl);
+        
     }
 
-    /*
-    public String parentUuid(String from) throws IOException {
-        String[] pathOfUUIDs = solrAccess.getPath(from);
-        if (pathOfUUIDs.length > 1) {
-            return pathOfUUIDs[pathOfUUIDs.length-2];
-        } else return pathOfUUIDs[pathOfUUIDs.length-1];
-    }*/
-	
-	
+    
+    public enum Action {
+        SELECTION {
+            @Override
+            public void renderPDF(HttpServletRequest request, HttpServletResponse response, GeneratePDFService pdfService, String titlePage, String imgServletUrl, String i18nUrl) {
+                try {
+                    String par = request.getParameter("pids");
+                    ParamsParser parser = new ParamsParser(new ParamsLexer(new StringReader(par)));
+                    List params = parser.params();
+                    pdfService.generateImagesSelection((String[])params.toArray(new String[params.size()]), titlePage, response.getOutputStream(), imgServletUrl, i18nUrl);
+                } catch (IOException e) {
+                    LOGGER.log(Level.SEVERE,e.getMessage(),e);
+                } catch (ProcessSubtreeException e) {
+                    LOGGER.log(Level.SEVERE,e.getMessage(),e);
+                } catch (RecognitionException e) {
+                    LOGGER.log(Level.SEVERE,e.getMessage(),e);
+                } catch (TokenStreamException e) {
+                    LOGGER.log(Level.SEVERE,e.getMessage(),e);
+                }
+            }
+        }, 
+        PARENT {
+            @Override
+            public void renderPDF(HttpServletRequest request, HttpServletResponse response, GeneratePDFService pdfService, String titlePage, String imgServletUrl, String i18nUrl) {
+                try {
+                    String howMany = request.getParameter(HOW_MANY);
+                    String pid = request.getParameter(PID_FROM);
+                    pdfService.generateParent(pid, Integer.parseInt(howMany), titlePage, response.getOutputStream(), imgServletUrl, i18nUrl);
+                } catch (IOException e) {
+                    LOGGER.log(Level.SEVERE,e.getMessage(),e);
+                } catch (ProcessSubtreeException e) {
+                    LOGGER.log(Level.SEVERE,e.getMessage(),e);
+                }
+            }
+        };
+        
+        public abstract void renderPDF(HttpServletRequest request, HttpServletResponse response, GeneratePDFService pdfService, String titlePage, String imgServletUrl, String i18nUrl);
+    }
+    
 }

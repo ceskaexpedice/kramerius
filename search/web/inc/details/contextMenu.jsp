@@ -18,8 +18,8 @@
             ArrayList<ContextMenuItem> menus = new ArrayList<ContextMenuItem>();
             menus.add(new ContextMenuItem("administrator.menu.showmetadata", "", "viewMetadata", "", false));
             menus.add(new ContextMenuItem("administrator.menu.persistenturl", "", "persistentURL", "", true));
-            menus.add(new ContextMenuItem("administrator.menu.generatepdf", "_data_x_role", "printMorePages", "", true));
-            menus.add(new ContextMenuItem("administrator.menu.downloadOriginal", "_data_x_role", "downloadOriginal", "", true));
+            menus.add(new ContextMenuItem("administrator.menu.generatepdf", "_data_x_role", "generatepdf", "", true));
+            menus.add(new ContextMenuItem("administrator.menu.downloadOriginal", "_data_x_role", "downloadOriginalItem", "", true));
 %>
 <scrd:loggedusers>
 <%
@@ -265,14 +265,41 @@
         
     }
     
-    function printMorePages(){
-        alert("printMorePages");
+
+    function generatepdf() {
+        var pids = getAffectedPids();
+        var structs = map(function(pid) { 
+            var divided = pid.split("_");            
+            var structure = {
+                       models:divided[0],
+                       pid:divided[1]
+                };
+            return structure;            
+            
+        }, pids);    
+        // show pdf dialog 
+        pdf.generateSelection(structs);
     }
-    
-    function downloadOriginal(){
+
+
         
+    
+    function downloadOriginalItem(){
+          var pids = getAffectedPids();
+          var structs = map(function(pid) { 
+              var divided = pid.split("_");            
+              var structure = {
+                         models:divided[0],
+                         pid:divided[1]
+                  };
+              return structure;            
+              
+          }, pids); 
+          // show download original dialog
+          downloadOriginal.download(structs);          
     }
-<scrd:loggedusers>
+
+  <scrd:loggedusers>
     var _reindexDialog;
     function reindex(){
         if (_reindexDialog) {

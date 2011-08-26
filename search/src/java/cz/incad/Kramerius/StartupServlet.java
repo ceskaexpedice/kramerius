@@ -16,31 +16,45 @@
  */
 package cz.incad.Kramerius;
 
+import java.io.IOException;
 import java.sql.Connection;
+import java.util.logging.Level;
 
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
+
 
 import com.google.inject.Inject;
 import com.google.inject.Provider;
 import com.google.inject.name.Named;
 
 import cz.incad.Kramerius.backend.guice.GuiceServlet;
+import cz.incad.kramerius.pdf.GeneratePDFService;
 import cz.incad.kramerius.processes.database.MostDesirableDatabaseInitializator;
 import cz.incad.kramerius.processes.database.ProcessDatabaseInitializator;
 import cz.incad.kramerius.security.database.SecurityDatabaseInitializator;
+import cz.incad.kramerius.service.TextsService;
 import cz.incad.kramerius.users.database.LoggedUserDatabaseInitializator;
 import cz.incad.kramerius.utils.DatabaseUtils;
+import cz.incad.kramerius.utils.IOUtils;
 
 /**
  * Starting point for K4 application
  */
 public class StartupServlet extends GuiceServlet {
 
+    static java.util.logging.Logger LOGGER = java.util.logging.Logger.getLogger(StartupServlet.class.getName());
+    
     @Inject
     @Named("kramerius4")
     Provider<Connection> connectionProvider = null;
 
+    @Inject
+    TextsService textsService;
+
+    @Inject
+    GeneratePDFService pdfService;
+    
     @Override
     public void init() throws ServletException {
         super.init();
@@ -55,9 +69,15 @@ public class StartupServlet extends GuiceServlet {
             SecurityDatabaseInitializator.initDatabase(connection);
             // Logged users table
             //LoggedUserDatabaseInitializator.initDatabase(connection);
+        
+            this.pdfService.init();
+        } catch (IOException e) {
+            LOGGER.log(Level.SEVERE,e.getMessage(),e);
         } finally {
             if (connection != null) { DatabaseUtils.tryClose(connection); }
         }
+        
+        
     }
 
     @Override
@@ -66,5 +86,5 @@ public class StartupServlet extends GuiceServlet {
     }
     
     
-    
+
 }

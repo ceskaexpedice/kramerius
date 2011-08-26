@@ -61,8 +61,8 @@
     <script  src="js/autocomplete.js" language="javascript" type="text/javascript"></script>
 
     <script type="text/javascript"  src="js/seadragon-min.js"></script>
-    <script  src="js/pdf/pdf.js" language="javascript" type="text/javascript"></script>
     <script  src="js/cmn/cmn.js" language="javascript" type="text/javascript"></script>
+    <script src="js/pdf/pdf.js" language="javascript" type="text/javascript"></script>
 
     <scrd:loggedusers>    
     	<!--script  src="js/admin/admin.js" language="javascript" type="text/javascript"></script-->
@@ -85,10 +85,13 @@
         var selectStart = "";
         var selectEnd = "";
 
+        
         // localization
         ${headerViewObject.dictionary}
-            // selekce
+        // selekce
         ${headerViewObject.levelsModelSelectionArray}
+        
+        ${headerViewObject.injectSettings}
 
             // upravuje polozky menu tak aby byly resp. nebyly videt
             // presunout jinam, ale kam?

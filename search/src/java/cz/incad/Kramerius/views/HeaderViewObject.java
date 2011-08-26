@@ -104,6 +104,12 @@ public class HeaderViewObject {
         }
     }
     
+    
+    public String getInjectSettings() {
+        return "k4Settings.pdf = {" +
+                    "generatePdfMaxRange:" +KConfiguration.getInstance().getProperty("generatePdfMaxRange")+
+        "}";
+    }
 
     
     public String getLevelsModelSelectionArray() {

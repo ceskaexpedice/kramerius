@@ -16,6 +16,7 @@
  */
 package cz.incad.Kramerius;
 
+import java.awt.print.PrinterException;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.text.SimpleDateFormat;
@@ -71,12 +72,16 @@ public class PrintQueue extends GuiceServlet {
             this.print(req, resp);
         } catch (ProcessSubtreeException e) {
             LOGGER.log(Level.SEVERE,e.getMessage(),e);
+        } catch (NumberFormatException e) {
+            LOGGER.log(Level.SEVERE,e.getMessage(),e);
+        } catch (PrinterException e) {
+            LOGGER.log(Level.SEVERE,e.getMessage(),e);
         }
     }
 
 
 
-    public void print(HttpServletRequest req, HttpServletResponse resp) throws MalformedURLException, IOException, ProcessSubtreeException {
+    public void print(HttpServletRequest req, HttpServletResponse resp) throws MalformedURLException, IOException, ProcessSubtreeException, NumberFormatException, PrinterException {
         String imgServletUrl = ApplicationURL.applicationURL(req)+"/img";
         if ((configuration.getApplicationURL() != null) && (!configuration.getApplicationURL().equals(""))){
             imgServletUrl = configuration.getApplicationURL()+"img";

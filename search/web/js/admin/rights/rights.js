@@ -30,7 +30,7 @@ AffectedObjectsRights.prototype.openDialog = function(/** array of struct */pids
                 width:800,
                 height:600,
                 modal:true,
-                title:"Bez titulku..",
+                title:"#title",
                 buttons: {
                 	"Editovat vyber": function() {
                         $(this).dialog("close");
@@ -75,8 +75,8 @@ AffectedObjectsRights.prototype.openDialog = function(/** array of struct */pids
  */
 AffectedObjectsRights.prototype.url = function(/** String */baseUrl, /** Array */ pids) {
 	if (!pids) pids = this.pids;
-	return baseUrl+"{"+reduce(function(base, item) {
-    	base = base+item.pid.replaceAll(":","\\:")+";";
+	return baseUrl+"{"+reduce(function(base, item, status) {
+    	base = base+item.pid.replaceAll(":","\\:")+ (status.last ? "": ";");
         return base;
     }, "",pids)+"}";        
 }

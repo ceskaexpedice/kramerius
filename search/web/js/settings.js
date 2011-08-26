@@ -1,4 +1,3 @@
-var k4Settings = new _k4Settings();
 function _k4Settings(){
     $.ajaxSetup({
         cache: false
@@ -10,3 +9,6 @@ function _k4Settings(){
     this.selectedPath = [];
     this.appUrl = '';
 }
+
+var k4Settings = new _k4Settings();
+
