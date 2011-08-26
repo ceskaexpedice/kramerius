@@ -50,10 +50,12 @@ public class ProcessUtils {
         LOGGER.info(" spawn process '"+processDef+"'");
         String base = ProcessUtils.getLrServlet();    
         String url = base + "?action=start&def="+processDef+"&nparams="+nparams+"&token="+System.getProperty(ProcessStarter.TOKEN_KEY);
+        byte[] output = new byte[0];
         try {
-            ProcessStarter.httpGet(url);
+            output = ProcessStarter.httpGet(url);
         } catch (Exception e) {
             LOGGER.severe("Error spawning indexer for "+processDef+":"+e);
+            LOGGER.severe("content from stream "+new String(output));
         }
     }
 

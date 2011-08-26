@@ -17,6 +17,7 @@
 package cz.incad.kramerius.processes.impl;
 
 import java.io.IOException;
+import java.net.URLEncoder;
 import java.util.Arrays;
 
 import cz.incad.kramerius.processes.utils.ProcessUtils;
@@ -27,6 +28,8 @@ import cz.incad.kramerius.processes.utils.ProcessUtils;
  */
 public class ProcessAggregator {
 
+    static java.util.logging.Logger LOGGER = java.util.logging.Logger.getLogger(ProcessAggregator.class.getName());
+    
     public static void main(String[] args) throws IOException {
         String token = System.getProperty(ProcessStarter.TOKEN_KEY);
         // params parsing... 
@@ -34,8 +37,12 @@ public class ProcessAggregator {
         String def = args[0];
         String[] processDefsParams = Arrays.copyOfRange(args, 1, args.length);
         
+        
         for (int i = 0; i < processDefsParams.length; i++) {
-            ProcessUtils.startProcess(def, processDefsParams[i]);
+            LOGGER.info("starting process ("+def+" with params "+Arrays.asList(processDefsParams[i]));
+            String encodedParams =  URLEncoder.encode(processDefsParams[i], "UTF-8");
+            
+            ProcessUtils.startProcess(def, encodedParams);
         }
 
         //TODO: I18N

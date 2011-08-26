@@ -1,5 +1,6 @@
 package cz.incad.kramerius.processes.impl;
 
+import java.io.ByteArrayOutputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -128,16 +129,21 @@ public class ProcessStarter {
         httpGet(restURL);
     }
 
-    public static void httpGet(String restURL) throws MalformedURLException, IOException {
+    public static byte[] httpGet(String restURL) throws MalformedURLException, IOException {
         try {
+            ByteArrayOutputStream bos = new ByteArrayOutputStream();
             URL url = new URL(restURL);
             URLConnection connection = url.openConnection();
             InputStream inputStream = connection.getInputStream();
+            
             byte[] buffer = new byte[1 << 12];
             int read = -1;
             while ((read = inputStream.read(buffer)) > 0) {
+                bos.write(buffer,0,read);
             }
             ;
+            
+            return buffer;
         } catch (Exception ex) {
             LOGGER.severe("Problem connecting to REST URL: " + restURL + " - " + ex);
             throw new RuntimeException(ex);
