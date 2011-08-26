@@ -324,14 +324,16 @@
         }
         var pids = getAffectedPids();
         //var pids = [];
+        $("#reindex>div.allowed").html($("#context_items_selection").html());
         if(pids.length>1){
         
             for(var i=0; i<pids.length; i++){
                 var pidpath = getPidPath(pids[i]);
                 pids[i] = pidpath.substring(pidpath.lastIndexOf("/") + 1);
             }
-            var s = getAllowed('reindex', pids, "#reindex>div.allowed");
+            //var s = getAllowed('reindex', pids, "#reindex>div.allowed");
         }
+        
     }
     
     function doReindex(){
@@ -347,7 +349,7 @@
         if(pids.length==1){
             var pidpath = getPidPath(pids[0]);
             var pid = pidpath.substring(pidpath.lastIndexOf("/") + 1);
-            var title = $(jq(pids[0])+">a>label").html();
+            var title = $(jq(pids[0])+">a>label").text();
             var escapedTitle = replaceAll(title, ',', '');
             escapedTitle = replaceAll(escapedTitle, '\n', '');
             escapedTitle = escapedTitle.replace(/ +(?= )/g,'');
@@ -357,7 +359,7 @@
             for(var i=0; i<pids.length; i++){
                     var pidpath = getPidPath(pids[i]);
                     var pid = pidpath.substring(pidpath.lastIndexOf("/") + 1);
-                    var title = $(jq(pids[i])+">a").html();
+                    var title = $(jq(pids[i])+">a>label").text();
                     var escapedTitle = replaceAll(title, ',', '');
                     escapedTitle = replaceAll(escapedTitle, '\n', '');
                     escapedTitle = escapedTitle.replace(/ +(?= )/g,'');
@@ -368,8 +370,6 @@
             }
             urlbuffer=urlbuffer+"}";
         }
-
-
 
         //var url = "lr?action=start&def=reindex&out=text&params="+action+","+uuid+","+escapedTitle;
         if (_commonDialog) {
