@@ -464,15 +464,38 @@
     }
         
     function generateDeepZoomTiles(){
+        var pids = getAffectedPids();
+        var structs = map(function(pid) { 
+            var divided = pid.split("_");            
+            var structure = {
+                       models:divided[0],
+                       pid:divided[1]
+                };
+            return structure;            
             
+        }, pids);     
+        var u = urlWithPids("lr?action=start&def=aggregate&out=text&nparams={generateDeepZoomTiles;",structs);
+        processStarter("generateDeepZoomTiles").start(u);
     }
         
     function deleteGeneratedDeepZoomTiles(){
+        var pids = getAffectedPids();
+        var structs = map(function(pid) { 
+            var divided = pid.split("_");            
+            var structure = {
+                       models:divided[0],
+                       pid:divided[1]
+                };
+            return structure;            
             
+        }, pids);     
+
+        var u = urlWithPids("lr?action=start&def=aggregate&out=text&nparams={deleteGeneratedDeepZoomTiles;",structs);
+        processStarter("deleteGeneratedDeepZoomTiles").start(u);
     }
         
     function securedActionsTableForCtxMenu(read, administrate){
-             var pids = getAffectedPids();
+        var pids = getAffectedPids();
         var structs = map(function(pid) { 
             var divided = pid.split("_");            
             var structure = {

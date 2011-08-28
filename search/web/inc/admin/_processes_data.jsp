@@ -156,9 +156,25 @@ function _ref(ordering, offset, size, type) {
                     <c:if test="${lrProc.masterProcess}">
                         <div style="border: 1px solid black; display: none;" id="${lrProc.UUID}"> 
 	                        <table style="width: 100%">
+
+							    <thead style="border-bottom: dashed 1px;background-image:url('img/bg_processheader.png');
+							                  background-repeat:  repeat-x;" >
+							        <tr>
+							            <td width="5px"><strong> </strong></td>
+							            <td width="40%"><strong>${processView.nameOrdering}</strong></td>
+							            <td width="5%"><strong>${processView.pidOrdering}</strong></td>
+							            <td width="10%"><strong>${processView.stateOrdering}</strong></td>
+							            <td><strong>${processView.dateOrdering}</strong></td>
+							            <td><strong>${processView.plannedDateOrdering}</strong></td>
+							            <td><strong>${processView.userOrdering}</strong></td>
+							            <td  width="10%"><strong>Akce</strong></td>
+							        </tr>
+							    </thead>
+
                                 <tbody>
 							        <c:forEach var="childLrProc" items="${lrProc.childProcesses}" varStatus="ch">
 							            <tr class="${(ch.index mod 2 == 0) ? 'result r0': 'result r1'}">
+                                            <td><strong> </strong></td>
 							                <td>${childLrProc.processName} </td>
 							                <td>${childLrProc.pid} </td>
 							                <td>${childLrProc.processState}</td>
