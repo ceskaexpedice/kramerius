@@ -1,5 +1,6 @@
 <div id="bigThumbZone" class="viewer">
-    <div id="container" ></div>
+    <div id="container"  class="view_div"  style="display:none; min-height: 512px; min-width: 512px; width: 512px; height: 512px;">
+    </div>
 
     <div id="securityError" style="display:none;">
         <fmt:message bundle="${lctx}" key="rightMsg"></fmt:message>
@@ -183,13 +184,60 @@
 
     var viewer = null;
 
+    
+    
     function initViewer() {
+
+        function prevButton() {
+            var control = document.createElement("img");
+            control.setAttribute('src','img/prev_grouphover.png');
+            control.setAttribute('id','prevButton');
+
+            control.onmouseover = function(event) {
+                document.getElementById('prevButton').setAttribute('src','img/prev_hover.png');
+            };
+            control.onmouseout =function(event) {
+                document.getElementById('prevButton').setAttribute('src','img/prev_grouphover.png');
+            };
+            control.onclick = function(event) {
+                selectPrevious();
+            };
+
+
+            control.className = "control prevArrow";
+            return control;
+        }
+
+
+        function nextButton() {
+            var control = document.createElement("img");
+            control.setAttribute('src','img/next_grouphover.png');
+            control.setAttribute('id','nextButton');
+
+            control.className = "control nextArrow";
+
+            control.onmouseover = function(event) {
+                document.getElementById('nextButton').setAttribute('src','img/next_hover.png');
+            };
+            control.onmouseout =function(event) {
+                document.getElementById('nextButton').setAttribute('src','img/next_grouphover.png');
+            };
+            control.onclick = function(event) {
+                selectNext();
+            };
+
+            return control;
+        }
+
+    	
+    	
         viewer = new Seadragon.Viewer("container");
         viewer.clearControls();
         viewer.addControl(nextButton(),Seadragon.ControlAnchor.TOP_RIGHT);
         viewer.addControl(prevButton(),Seadragon.ControlAnchor.TOP_RIGHT);
         viewer.addControl(viewer.getNavControl(),  Seadragon.ControlAnchor.TOP_RIGHT);
 
+        
         //Seadragon.Config.maxZoomPixelRatio=1;
         //Seadragon.Config.imageLoaderLimit=1;
 
