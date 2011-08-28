@@ -28,7 +28,7 @@ public class GenerateDeepZoomCache {
                 numberStepsOverTile = Integer.parseInt(args[1]);
             }
             DeepZoomCacheService service = injector.getInstance(Key.get(DeepZoomCacheService.class, Names.named("memoryCacheForward")));
-            service.prepareCacheForUUID(args[0],numberStepsOverTile+1);
+            service.prepareCacheForPID(args[0],numberStepsOverTile+1);
             
             
             boolean spawnRELSEXTFlag = Boolean.getBoolean(GenerateDeepZoomFlag.class.getName());

@@ -24,14 +24,14 @@ public interface DeepZoomTileSupport {
     /**
      * Returns number of leves for image
      * 
-     * @param uuid
+     * @param pid
      * @param minSize
      *            the smallest size of image (in deepZoom protocol is 1px, in
      *            IIP is tileSize)
      * @return
      * @throws IOException
      */
-    public long getLevels(String uuid, int minSize, DeepZoomFullImageScaleFactor factor) throws IOException;
+    public long getLevels(String pid, int minSize, DeepZoomFullImageScaleFactor factor) throws IOException;
 
     /**
      * Calculate and returns number of leves of given image
@@ -52,23 +52,23 @@ public interface DeepZoomTileSupport {
     /**
      * Returns raw image
      * 
-     * @param uuid
+     * @param pid
      * @return
      * @throws IOException
      */
     @Deprecated
-    public BufferedImage getRawImage(String uuid) throws IOException;
+    public BufferedImage getRawImage(String pid) throws IOException;
 
-    public BufferedImage getScaledRawImage(String uuid, DeepZoomFullImageScaleFactor factor) throws IOException;
+    public BufferedImage getScaledRawImage(String pid, DeepZoomFullImageScaleFactor factor) throws IOException;
 
     /**
      * Returns max-size of the image
      * 
-     * @param uuid
+     * @param pid
      * @return
      * @throws IOException
      */
-    public Dimension getMaxSize(String uuid, DeepZoomFullImageScaleFactor factor) throws IOException;
+    public Dimension getMaxSize(String pid, DeepZoomFullImageScaleFactor factor) throws IOException;
 
     /**
      * Calculates and returns scaled dimension
@@ -82,7 +82,7 @@ public interface DeepZoomTileSupport {
     /**
      * Returns one tile
      * 
-     * @param uuid
+     * @param pid
      *            UUID of the raw image
      * @param displayLevel
      *            Scale level of the image
@@ -98,7 +98,7 @@ public interface DeepZoomTileSupport {
      * @return
      * @throws IOException
      */
-    public BufferedImage getTile(String uuid, int displayLevel, int displayTile, int minSize, ScalingMethod scalingMethod, boolean iterateScaling, DeepZoomFullImageScaleFactor scaleFactor) throws IOException;
+    public BufferedImage getTile(String pid, int displayLevel, int displayTile, int minSize, ScalingMethod scalingMethod, boolean iterateScaling, DeepZoomFullImageScaleFactor scaleFactor) throws IOException;
 
     /**
      * Returns tile from given image

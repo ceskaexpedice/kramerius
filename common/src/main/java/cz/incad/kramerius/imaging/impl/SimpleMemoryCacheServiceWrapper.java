@@ -40,10 +40,10 @@ public class SimpleMemoryCacheServiceWrapper implements DeepZoomCacheService {
 	
 	
 	@Override
-	public void prepareCacheImage(String uuid, Dimension dimensionToFit) {
+	public void prepareCacheImage(String pid, Dimension dimensionToFit) {
 		try {
-			BufferedImage rawImage = getDeepZoomOriginal(uuid);
-			prepareCacheImage(uuid, dimensionToFit, rawImage);
+			BufferedImage rawImage = getDeepZoomOriginal(pid);
+			prepareCacheImage(pid, dimensionToFit, rawImage);
 		} catch (IOException e) {
 			LOGGER.severe(e.getMessage());
 		}
@@ -57,8 +57,8 @@ public class SimpleMemoryCacheServiceWrapper implements DeepZoomCacheService {
 	}
 
 	@Override
-	public void prepareCacheForUUID(String uuid) throws IOException, ProcessSubtreeException {
-		this.wrappingInstance.prepareCacheForUUID(uuid);
+	public void prepareCacheForPID(String uuid) throws IOException, ProcessSubtreeException {
+		this.wrappingInstance.prepareCacheForPID(uuid);
 	}
 
 	@Override
@@ -111,8 +111,8 @@ public class SimpleMemoryCacheServiceWrapper implements DeepZoomCacheService {
 	
 
    @Override
-    public void prepareCacheForUUID(String uuid, int levelOverTileSize) throws IOException, ProcessSubtreeException {
-       this.wrappingInstance.prepareCacheForUUID(uuid, levelOverTileSize);
+    public void prepareCacheForPID(String pid, int levelOverTileSize) throws IOException, ProcessSubtreeException {
+       this.wrappingInstance.prepareCacheForPID(pid, levelOverTileSize);
     }
 
 

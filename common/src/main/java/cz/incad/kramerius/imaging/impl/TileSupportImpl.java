@@ -40,8 +40,8 @@ public class TileSupportImpl implements DeepZoomTileSupport {
     }
 
     @Override
-    public long getLevels(String uuid, int minSize, DeepZoomFullImageScaleFactor scaleFactor) throws IOException {
-        BufferedImage rawImg = getScaledRawImage(uuid, scaleFactor);
+    public long getLevels(String pid, int minSize, DeepZoomFullImageScaleFactor scaleFactor) throws IOException {
+        BufferedImage rawImg = getScaledRawImage(pid, scaleFactor);
         return getLevels( rawImg,minSize);
     }
 
@@ -69,8 +69,8 @@ public class TileSupportImpl implements DeepZoomTileSupport {
     
     
     
-//    public long getMaxLevels(String uuid) {
-//        Image rawImg = getRawImage(uuid);
+//    public long getMaxLevels(String pid) {
+//        Image rawImg = getRawImage(pid);
 //        int max = Math.max(rawImg.getHeight(null), rawImg.getWidth(null));
 //        int levels = Math.ceil(Math.log(max) / Math.log(2));
 //        return levels;
@@ -84,10 +84,10 @@ public class TileSupportImpl implements DeepZoomTileSupport {
 
     @Override
     @Deprecated
-    public BufferedImage getRawImage(String uuid) throws IOException {
+    public BufferedImage getRawImage(String pid) throws IOException {
     	LOGGER.info("reading raw image");
     	try {
-            BufferedImage rawImg = KrameriusImageSupport.readImage(uuid, FedoraUtils.IMG_FULL_STREAM, this.fedoraAccess, 0);
+            BufferedImage rawImg = KrameriusImageSupport.readImage(pid, FedoraUtils.IMG_FULL_STREAM, this.fedoraAccess, 0);
             return rawImg;
         } catch (XPathExpressionException e) {
             throw new IOException(e);
@@ -95,10 +95,10 @@ public class TileSupportImpl implements DeepZoomTileSupport {
     }
 
     
-    public BufferedImage getScaledRawImage(String uuid, DeepZoomFullImageScaleFactor factor) throws IOException {
+    public BufferedImage getScaledRawImage(String pid, DeepZoomFullImageScaleFactor factor) throws IOException {
     	LOGGER.info("reading raw image");
     	try {
-            BufferedImage rawImg = KrameriusImageSupport.readImage(uuid, FedoraUtils.IMG_FULL_STREAM, this.fedoraAccess, 0);
+            BufferedImage rawImg = KrameriusImageSupport.readImage(pid, FedoraUtils.IMG_FULL_STREAM, this.fedoraAccess, 0);
             if (factor != DeepZoomFullImageScaleFactor.ORIGINAL) {
                 double scale = factor.getValue();
                 int scaledWidth = (int) (rawImg.getWidth() * scale);
@@ -116,16 +116,16 @@ public class TileSupportImpl implements DeepZoomTileSupport {
 	}
     
     @Override
-    public Dimension getMaxSize(String uuid, DeepZoomFullImageScaleFactor factor) throws IOException {
-        Image rawImg = getRawImage(uuid);
+    public Dimension getMaxSize(String pid, DeepZoomFullImageScaleFactor factor) throws IOException {
+        Image rawImg = getRawImage(pid);
         return new Dimension(rawImg.getWidth(null), rawImg.getHeight(null));
     }
 
 
 
     @Override
-    public BufferedImage getTile(String uuid, int displayLevel, int displayTile, int minSize, ScalingMethod scalingMethod, boolean iterateScaling, DeepZoomFullImageScaleFactor scaledFactor) throws IOException {
-    	BufferedImage image = getScaledRawImage(uuid, scaledFactor);
+    public BufferedImage getTile(String pid, int displayLevel, int displayTile, int minSize, ScalingMethod scalingMethod, boolean iterateScaling, DeepZoomFullImageScaleFactor scaledFactor) throws IOException {
+    	BufferedImage image = getScaledRawImage(pid, scaledFactor);
     	return getTileFromBigImage(image, displayLevel, displayTile, minSize, scalingMethod, iterateScaling);
     }
 

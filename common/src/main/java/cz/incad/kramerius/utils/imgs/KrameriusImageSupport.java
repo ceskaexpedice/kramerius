@@ -58,6 +58,8 @@ public class KrameriusImageSupport {
 
     public static BufferedImage readImage(String pid, String stream, FedoraAccess fedoraAccess, int page) throws XPathExpressionException, IOException {
         String mimetype = fedoraAccess.getMimeTypeForStream(pid, stream);
+        //TODO: change logging 
+        LOGGER.fine("mimetype for pid '"+pid+"' is '"+mimetype+"'");
         ImageMimeType loadFromMimeType = ImageMimeType.loadFromMimeType(mimetype);
         URL url = new URL("fedora", "", 0, pid + "/" + stream, new Handler(fedoraAccess));
         return readImage(url, loadFromMimeType, page);
@@ -71,6 +73,8 @@ public class KrameriusImageSupport {
     }
 
     public static BufferedImage readImage(URL url, ImageMimeType type, int page) throws IOException {
+        LOGGER.fine("type is "+type);
+        if (type == null) return null;
         if (type.javaNativeSupport()) {
             return ImageIO.read(url.openStream());
         } else if ((type.equals(ImageMimeType.DJVU)) || (type.equals(ImageMimeType.VNDDJVU)) || (type.equals(ImageMimeType.XDJVU))) {

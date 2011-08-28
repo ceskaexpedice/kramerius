@@ -27,6 +27,8 @@ import com.google.inject.name.Named;
 
 import cz.incad.kramerius.FedoraAccess;
 import cz.incad.kramerius.FedoraNamespaces;
+import cz.incad.kramerius.ProcessSubtreeException;
+import cz.incad.kramerius.TreeNodeProcessor;
 import cz.incad.kramerius.imaging.DeepZoomFlagService;
 import cz.incad.kramerius.impl.AbstractTreeNodeProcessorAdapter;
 
@@ -38,20 +40,27 @@ public class DeepZoomFlagServiceImpl implements DeepZoomFlagService {
     @Named("securedFedoraAccess")
     FedoraAccess fedoraAccess;
     
-    public void deleteFlagToUUID(final String uuid) throws IOException {
-        if (fedoraAccess.isImageFULLAvailable(uuid)) {
-            deleteFlagToUUIDInternal(uuid);
+    public void deleteFlagToPID(final String pid) throws IOException {
+        if (fedoraAccess.isImageFULLAvailable(pid)) {
+            deleteFlagToPIDInternal(pid);
         } else {
  
             try {
-                fedoraAccess.processSubtree("uuid:"+uuid, new AbstractTreeNodeProcessorAdapter() {
+
+                fedoraAccess.processSubtree(pid, new TreeNodeProcessor() {
                     
                     @Override
-                    public void processUuid(String pageUuid, int level) {
-                        deleteFlagToUUIDInternal(pageUuid);
+                    public void process(String pid, int level) throws ProcessSubtreeException {
+                        deleteFlagToPIDInternal(pid);
+                        
                     }
-
+                    
+                    @Override
+                    public boolean breakProcessing(String pid, int level) {
+                        return false;
+                    }
                 });
+
                 
 //                fedoraAccess.processRelsExt(uuid, new RelsExtHandler() {
 //                    @Override
@@ -92,22 +101,35 @@ public class DeepZoomFlagServiceImpl implements DeepZoomFlagService {
     
     
     @Override
-    public void setFlagToUUID(final String uuid, final String tilesUrl) throws IOException {
-        if (fedoraAccess.isImageFULLAvailable(uuid)) {
-            setFlagToUUIDInternal(uuid, tilesUrl);
+    public void setFlagToPID(final String pid, final String tilesUrl) throws IOException {
+        if (fedoraAccess.isImageFULLAvailable(pid)) {
+            setFlagToPIDInternal(pid, tilesUrl);
         } else {
  
             try {
                 
-                
-                fedoraAccess.processSubtree("uuid:"+uuid, new AbstractTreeNodeProcessorAdapter() {
-
+//                
+//                fedoraAccess.processSubtree(pid, new AbstractTreeNodeProcessorAdapter() {
+//
+//                    
+//                    @Override
+//                    public void processUuid(String pageUuid, int level) {
+//                        setFlagToUUIDInternal(pageUuid, tilesUrl);
+//                    }
+//
+//                });
+                fedoraAccess.processSubtree(pid, new TreeNodeProcessor() {
                     
                     @Override
-                    public void processUuid(String pageUuid, int level) {
-                        setFlagToUUIDInternal(pageUuid, tilesUrl);
+                    public void process(String pid, int level) throws ProcessSubtreeException {
+                        setFlagToPIDInternal(pid, tilesUrl);
+                        
                     }
-
+                    
+                    @Override
+                    public boolean breakProcessing(String pid, int level) {
+                        return false;
+                    }
                 });
                 
             } catch (Exception e) {
@@ -119,10 +141,9 @@ public class DeepZoomFlagServiceImpl implements DeepZoomFlagService {
     }
 
 
-    public void deleteFlagToUUIDInternal(String uuid) {
-        LOGGER.info("deleting uuid '"+uuid+"'");
+    public void deleteFlagToPIDInternal(String pid) {
+        LOGGER.info("deleting uuid '"+pid+"'");
         FedoraAPIM apim = fedoraAccess.getAPIM();
-        String pid = "uuid:"+uuid;
         String tilesUrlNS = FedoraNamespaces.KRAMERIUS_URI+"tiles-url";
         List<RelationshipTuple> relationships = apim.getRelationships(pid, tilesUrlNS);
         if (!relationships.isEmpty()) {
@@ -132,9 +153,8 @@ public class DeepZoomFlagServiceImpl implements DeepZoomFlagService {
         }
     }
     
-    public void setFlagToUUIDInternal(String uuid, String tilesUrl) {
+    public void setFlagToPIDInternal(String pid, String tilesUrl) {
         FedoraAPIM apim = fedoraAccess.getAPIM();
-        String pid = "uuid:"+uuid;
         String tilesUrlNS = FedoraNamespaces.KRAMERIUS_URI+"tiles-url";
         List<RelationshipTuple> relationships = apim.getRelationships(pid, tilesUrlNS);
         if (relationships.isEmpty()) {

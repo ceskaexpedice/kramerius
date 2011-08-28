@@ -49,7 +49,7 @@ public class GenerateDeepZoomFlag {
                     LOGGER.info("setting flag ...");
                     Injector injector = Guice.createInjector(new GenerateDeepZoomCacheModule(), new Fedora3Module());
                     DeepZoomFlagService service = injector.getInstance(DeepZoomFlagService.class);
-                    service.setFlagToUUID(args[1],args[2]);
+                    service.setFlagToPID(args[1],args[2]);
                     LOGGER.info("Process finished");
                 }
             }
@@ -62,7 +62,7 @@ public class GenerateDeepZoomFlag {
                     LOGGER.info("deleting flag ...");
                     Injector injector = Guice.createInjector(new GenerateDeepZoomCacheModule(), new Fedora3Module());
                     DeepZoomFlagService service = injector.getInstance(DeepZoomFlagService.class);
-                    service.deleteFlagToUUID(args[1]);
+                    service.deleteFlagToPID(args[1]);
                     LOGGER.info("Process finished");
                 }
                 

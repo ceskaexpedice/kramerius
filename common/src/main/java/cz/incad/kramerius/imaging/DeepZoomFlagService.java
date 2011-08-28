@@ -22,8 +22,8 @@ import java.io.IOException;
 
 public interface DeepZoomFlagService {
 
-    public void deleteFlagToUUID(final String uuid) throws IOException;
+    public void deleteFlagToPID(final String uuid) throws IOException;
 
-    public void setFlagToUUID(String uuid, String tilesUrl) throws IOException;
+    public void setFlagToPID(String uuid, String tilesUrl) throws IOException;
 
 }
