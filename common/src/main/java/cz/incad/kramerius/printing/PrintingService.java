@@ -29,6 +29,7 @@ import cz.incad.kramerius.document.model.AbstractRenderedDocument;
 
 public interface PrintingService {
 
-    public void print(ObjectPidsPath path, String pidFrom, int howMany, String imgUrl, String i18nUrl) throws IOException, ProcessSubtreeException, PrinterException;
+    public void printMaster( String pidFrom, String imgUrl, String i18nUrl) throws IOException, ProcessSubtreeException, PrinterException;
 
+    public void printSelection(String[] selection,   String imgUrl, String i18nUrl) throws IOException, ProcessSubtreeException, PrinterException;
 }

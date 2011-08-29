@@ -74,11 +74,14 @@ import cz.incad.kramerius.printing.PrintingService;
 import cz.incad.kramerius.printing.utils.Utils;
 import cz.incad.kramerius.service.ResourceBundleService;
 import cz.incad.kramerius.service.TextsService;
+import cz.incad.kramerius.utils.DCUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 import cz.incad.kramerius.utils.imgs.ImageMimeType;
 
 public class PrintingServiceImpl implements PrintingService {
 
+    public static final int MAX_PAGES = 1000;
+    
     static java.util.logging.Logger LOGGER = java.util.logging.Logger.getLogger(PrintingServiceImpl.class.getName());
     
     private FedoraAccess fedoraAccess;
@@ -89,8 +92,6 @@ public class PrintingServiceImpl implements PrintingService {
     private SolrAccess solrAccess;
 
     private DocumentService documentService;
-    
-    
     
     
     
@@ -114,28 +115,46 @@ public class PrintingServiceImpl implements PrintingService {
     
     
     private void init() throws IOException {
-        // TODO Auto-generated method stub
-        
     }
 
     @Override
-    public void print(ObjectPidsPath path, String pidFrom, int howMany, String imgUrl, String i18nUrl) throws IOException, ProcessSubtreeException, PrinterException {
+    public void printMaster( String pidFrom, String imgUrl, String i18nUrl) throws IOException, ProcessSubtreeException, PrinterException {
         PrinterJob printerJob = PrinterJob.getPrinterJob();
-        AbstractRenderedDocument documentAsFlat = this.documentService.buildDocumentAsFlat(path, pidFrom, howMany);
+        ObjectPidsPath[] paths = this.solrAccess.getPath(pidFrom);
+        ObjectPidsPath selectedPath = selectOnePath(pidFrom, paths);
+        
+        AbstractRenderedDocument documentAsFlat = this.documentService.buildDocumentAsFlat(selectedPath, pidFrom, MAX_PAGES);
         printerJob.setPrintable(new PrintableDoc(this.fedoraAccess, documentAsFlat , imgUrl,Utils.A4, Utils.DEFAUTL_DPI));
-        printerJob.setJobName("K4 print");
-    
-//        PrintRequestAttributeSet aset = new HashPrintRequestAttributeSet(); 
-//        aset.add();
-//        aset.add(Sides.DUPLEX); 
-        
-        
+        printerJob.setJobName(getPrintJobName(pidFrom));
         printerJob.print();
+    }
+
     
+
+    public String getPrintJobName(String pidFrom) throws IOException {
+        String title = DCUtils.titleFromDC(this.fedoraAccess.getDC(pidFrom));
+        return "#k4 print - "+title;
+    }
+
+    public ObjectPidsPath selectOnePath(String requestedPid, ObjectPidsPath[] paths) {
+        ObjectPidsPath path;
+        if (paths.length > 0) {
+            path = paths[0];
+        } else {
+            path = new ObjectPidsPath(requestedPid);
+        }
+        return path;
     }
 
 
-    
+    @Override
+    public void printSelection(String[] selection, String imgUrl, String i18nUrl) throws IOException, ProcessSubtreeException, PrinterException {
+        PrinterJob printerJob = PrinterJob.getPrinterJob();
+        AbstractRenderedDocument document = this.documentService.buildDocumentFromSelection(selection);
+        printerJob.setPrintable(new PrintableDoc(this.fedoraAccess, document , imgUrl,Utils.A4, Utils.DEFAUTL_DPI));
+        printerJob.setJobName("#k4 print - selection");
+        printerJob.print();
+    }
     
 
     public static class PrintableDoc implements Printable{
@@ -197,8 +216,6 @@ public class PrintingServiceImpl implements PrintingService {
                                 //scaling..
                                  double hscale =  (pageHeight / imgHeight);
                                  double wscale =  (pageWidth / imgWidth);
-                                 System.out.println(hscale);
-                                 System.out.println(wscale);
                                  
                                  double scale = Math.max(hscale, wscale);
                                  

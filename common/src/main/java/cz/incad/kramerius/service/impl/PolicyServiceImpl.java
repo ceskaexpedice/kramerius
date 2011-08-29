@@ -152,7 +152,7 @@ public class PolicyServiceImpl implements PolicyService {
         PolicyServiceImpl inst = new PolicyServiceImpl();
         inst.fedoraAccess = new FedoraAccessImpl(null);
         inst.configuration = KConfiguration.getInstance();
-        inst.setPolicy("uuid:"+args[1], args[0]);
+        inst.setPolicy(args[1], args[0]);
         IndexerProcessStarter.spawnIndexer(true, "Reindex policy "+args[1]+":"+args[0], args[1]);
         LOGGER.info("PolicyService finished.");
     }
