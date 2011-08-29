@@ -104,7 +104,7 @@ public class ProcessViewObject {
         if (lrProcess.isMasterProcess()) {
             return "<a href=\"javascript:processes.subprocesses('"+this.lrProcess.getUUID()+"');\"><img border=\"0\" src=\"img/nolines_plus.gif\" id='"+this.lrProcess.getUUID()+"_icon'></img></a>";
         } else {
-            return "<img border=\"0\" src=\"img/nolines_minus.gif\"></img>";
+            return "<img border=\"0\" src=\"img/empty.gif\"></img>";
         }
     }
     
