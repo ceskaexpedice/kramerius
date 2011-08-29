@@ -39,6 +39,8 @@ import cz.incad.kramerius.imaging.lp.guice.GenerateDeepZoomCacheModule;
 import cz.incad.kramerius.impl.AbstractTreeNodeProcessorAdapter;
 import cz.incad.kramerius.processes.utils.ProcessUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
+import cz.incad.kramerius.utils.pid.LexerException;
+import cz.incad.kramerius.utils.pid.PIDParser;
 
 /**
  * Delete generated deep zoom cache
@@ -55,7 +57,7 @@ public class DeleteGeneratedDeepZoomCache {
             Injector injector = Guice.createInjector(new GenerateDeepZoomCacheModule(), new Fedora3Module());
             FedoraAccess fa = injector.getInstance(Key.get(FedoraAccess.class, Names.named("securedFedoraAccess")));
             DiscStrucutreForStore discStruct = injector.getInstance(DiscStrucutreForStore.class);
-            deleteCacheForUUID(args[0], fa, discStruct);
+            deleteCacheForPID(args[0], fa, discStruct);
             
             
             boolean spawnFlag = Boolean.getBoolean(GenerateDeepZoomFlag.class.getName());
@@ -66,7 +68,7 @@ public class DeleteGeneratedDeepZoomCache {
         }
     }
 
-    public static void deleteCacheForUUID(String uuid, final FedoraAccess fedoraAccess, final DiscStrucutreForStore discStruct) throws IOException, ProcessSubtreeException {
+    public static void deleteCacheForPID(String uuid, final FedoraAccess fedoraAccess, final DiscStrucutreForStore discStruct) throws IOException, ProcessSubtreeException {
         if (fedoraAccess.isImageFULLAvailable(uuid)) {
             try {
                 deleteFolder(uuid, discStruct);
@@ -98,9 +100,15 @@ public class DeleteGeneratedDeepZoomCache {
 
     }
 
-    private static void deleteFolder(String uuid,DiscStrucutreForStore discStruct) throws IOException, XPathExpressionException {
-        File uuidFolder = discStruct.getUUIDFile(uuid, KConfiguration.getInstance().getDeepZoomCacheDir());
-        FileUtils.deleteDirectory(uuidFolder);
+    private static void deleteFolder(String pid,DiscStrucutreForStore discStruct) throws IOException, XPathExpressionException {
+        try {
+            PIDParser pidParser = new PIDParser(pid);
+            pidParser.objectPid();
+            File uuidFolder = discStruct.getUUIDFile(pidParser.getObjectId(), KConfiguration.getInstance().getDeepZoomCacheDir());
+            FileUtils.deleteDirectory(uuidFolder);
+        } catch (LexerException e) {
+            LOGGER.severe(e.getMessage());
+        }
     }
 
 }
