@@ -441,66 +441,6 @@ function deleteUuid(level, model)  {
 	});
 }
 
-var _checkDialog;
-function changeFlag(level)  {
-	hideAdminOptions(level);
-	
-	var pid = $("#tabs_"+level).attr('pid');
-	var dialogurl = "adminActions?action=changeFlag&uuid="+pid;
-    $.get(dialogurl, function(htmldata) {
-
-    	if (_checkDialog) {
-    		_checkDialog.dialog('open');
-    	} else {
-            $(document.body).append('<div id="check_private_public">'+'</div>');
-    		_checkDialog = $("#check_private_public").dialog({
-    	        bgiframe: true,
-    	        width: 400,
-    	        height: 100,
-    	        modal: true,
-    	        title: dictionary['administrator.menu.dialogs.changevisflag.title'],
-    	        buttons: {
-    				"Close": function() {
-    						$(this).dialog("close"); 
-    	            }, 
-    	            // nevim jak lokalizovat button ?
-    	            "Aplikuj": function() {
-    					$(this).dialog("close"); 
-    					
-    					var flag = $('#flag').val();
-    	            	var url = "lr?action=start&def=set"+flag+"&out=text&params="+pid;
-    					if (_commonDialog) {
-    				    	$("#common_started_ok").hide();
-    				    	$("#common_started_failed").hide();
-    				    	$("#common_started_waiting").show();
-    				    	_commonDialog.dialog('open');
-    					} else {
-    				    	$("#common_started_waiting").show();
-    				    	_commonDialog = $("#common_started").dialog({
-    					        bgiframe: true,
-    					        width: 400,
-    					        height: 100,
-    					        modal: true,
-    					        title: dictionary['administrator.menu.dialogs.changevisflag.title'],
-    					        buttons: {
-    					            "Close": function() {
-    					                $(this).dialog("close"); 
-    					            } 
-    					        } 
-    					    });
-    					}
-    					_startProcess(url);
-    				
-    		        }
-            	}
-    	    });
-    	}
-    	$("#check_private_public").html(htmldata);
-	});
-}
-
-
-
 /**
  * Generovani staticke exportu
  * @param level
@@ -779,5 +719,70 @@ function getAllowed(action, pids, div){
         $(div).html(s);
     });
 }
+
+
+
+/** change policy flag  */
+function ChangeFlag() {
+    this.dialog = null;
+    this.policyName = "setpublic";
+    this.aggregate = true;
+}
+
+ChangeFlag.prototype.startProcess = function() {
+
+    
+    function _url(/** String */baseUrl, /** Array */ pids) {
+        return baseUrl+""+reduce(function(base, item, status) {
+            
+            base = base+"{"+item.pid.replaceAll(":","\\:")+ (status.last ? "}": "};");
+            return base;
+        }, "",pids)+"";        
+    }
+
+    var value = $("#changeFlag input:checked").val();
+    this.policyName = value;
+    var structs = pidstructs();     
+    this.aggregate = structs.length > 1;
+    var u = this.aggregate ?  _url("lr?action=start&out=text&def=aggregate&out=text&nparams={"+this.policyName+";",structs)+"}" : "lr?action=start&out=text&def="+this.policyName+"&nparams={"+structs[0].pid.replaceAll(":","\\:")+"}";
+    
+    processStarter(this.policyName).start(u);
+}
+
+ChangeFlag.prototype.change = function() {
+    $.get("inc/admin/_change_flag.jsp", bind(function(data){
+
+        
+        if (this.dialog) {
+            this.dialog.dialog('open');
+        } else {
+            var pdiv = '<div id="changeflagDialog"></div>';
+
+            $(document.body).append(pdiv);
+
+            this.dialog = $("#changeflagDialog").dialog({
+                bgiframe: true,
+                width:  400,
+                height:  200,
+                modal: true,
+                title: dictionary['administrator.menu.dialogs.changevisflag.title'],
+                buttons: {
+                    "Aplikuj": bind(function() {
+                        this.dialog.dialog("close");
+                        this.startProcess();                        
+                     },this),
+                    "Close": function() {
+                        $(this).dialog("close"); 
+                    } 
+                }
+            });
+                
+        }
+        $("#changeflagDialog").html(data);
+        
+    },this));
+}
+
+var changeFlag = new ChangeFlag();
 
 </script>

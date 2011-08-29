@@ -4,6 +4,8 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt"%>
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions"%>
 <%@ taglib uri="/WEB-INF/tlds/securedContent.tld" prefix="scrd" %>
+<%@ taglib uri="/WEB-INF/tlds/cmn.tld" prefix="view" %>
+
 <%@ page isELIgnored="false"%>
 <%@ page import="java.util.*"%>
 <%@page import="com.google.inject.Injector"%>
@@ -14,34 +16,9 @@
 <%@page import="cz.incad.Kramerius.views.item.menu.ContextMenuItem" %>
 <%@page import="cz.incad.kramerius.utils.conf.KConfiguration" %>
 <%@page import="cz.incad.kramerius.security.SecuredActions" %>
-<%
-            ArrayList<ContextMenuItem> menus = new ArrayList<ContextMenuItem>();
-            menus.add(new ContextMenuItem("administrator.menu.showmetadata", "", "viewMetadata", "", false));
-            menus.add(new ContextMenuItem("administrator.menu.persistenturl", "", "persistentURL", "", true));
-            menus.add(new ContextMenuItem("administrator.menu.generatepdf", "_data_x_role", "generatepdf", "", true));
-            menus.add(new ContextMenuItem("administrator.menu.downloadOriginal", "_data_x_role", "downloadOriginalItem", "", true));
-%>
-<scrd:loggedusers>
-<%
-                menus.add(new ContextMenuItem("administrator.menu.reindex", "_data_x_role", "reindex", "", true));
-                menus.add(new ContextMenuItem("administrator.menu.deletefromindex", "_data_x_role", "deletefromindex", "", true));
-                menus.add(new ContextMenuItem("administrator.menu.deleteuuid", "_data_x_role", "deletePid", "", true));
-                menus.add(new ContextMenuItem("administrator.menu.setpublic", "_data_x_role", "changeFlag.change", "", true));
-                menus.add(new ContextMenuItem("administrator.menu.exportFOXML", "_data_x_role", "exportFOXML", "", true));
-                menus.add(new ContextMenuItem("administrator.menu.exportcd", "_data_x_role", "generateStatic",
-                        "'static_export_CD','img','" + i18nServlet + "','" + lctx.getLocale().getISO3Country() + "','" + lctx.getLocale().getISO3Language() + "'", true));
 
-                menus.add(new ContextMenuItem("administrator.menu.exportdvd", "_data_x_role", "generateStatic",
-                        "'static_export_CD','img','" + i18nServlet + "','" + lctx.getLocale().getISO3Country() + "','" + lctx.getLocale().getISO3Language() + "'", true));
-                menus.add(new ContextMenuItem("administrator.menu.generateDeepZoomTiles", "_data_x_role", "generateDeepZoomTiles", "", true));
-                menus.add(new ContextMenuItem("administrator.menu.deleteGeneratedDeepZoomTiles", "_data_x_role", "deleteGeneratedDeepZoomTiles", "", true));
+<view:object name="ctxMenu" clz="cz.incad.Kramerius.views.item.menu.ContextMenuItemsHolder"></view:object>
 
-                menus.add(new ContextMenuItem("administrator.menu.showrights", "_data_x_role", "securedActionsTableForCtxMenu",
-                        "'" + SecuredActions.READ.getFormalName() + "', '" + SecuredActions.ADMINISTRATE.getFormalName() + "'", true));
-                menus.add(new ContextMenuItem("administrator.menu.editor", "_data_x_role", "openEditor",
-                        "'" + kconfig.getEditorURL() + "'", true));
-%>
-</scrd:loggedusers>
 <style type="text/css">
 
     #contextMenu{
@@ -78,15 +55,22 @@
 <div style="height:0px;border-top:1px solid silver;"></div>
 <div>Actions: 
     <ul id="contextMenuList">
-        <%
-                    for (ContextMenuItem menu : menus) {
-        %>
-        <li <%=menu.supportMultiple ? "" : "class=\"no-multiple\""%> ><span class="ui-icon ui-icon-triangle-1-e  " >item</span>
-            <a title="<fmt:message bundle="${bundle}"><%=menu.key%></fmt:message>" href="javascript:<%=menu.jsFunction%>(<%=menu.jsArgs%>);"><fmt:message bundle="${bundle}"><%=menu.key%></fmt:message></a>
-        </li>
-        <%
-                    }
-        %>
+        <c:forEach var="item" items="${ctxMenu.items}" varStatus="status">
+            <%-- multiple item --%>
+            <c:if test="${item.supportMultiple}">
+	            <li><span class="ui-icon ui-icon-triangle-1-e  " >item</span>
+	                <a title='<view:msg>${item.key}</view:msg>' href="javascript:${item.jsFunction}(${item.jsArgs});"><view:msg>${item.key}</view:msg></a>
+	            </li>
+            </c:if>
+            <%-- no multiple item --%>
+            <c:if test="${!item.supportMultiple}">
+                <li class="no-multiple"><span class="ui-icon ui-icon-triangle-1-e  " >item</span>
+                    <a title='<view:msg>${item.key}</view:msg>' href="javascript:${item.jsFunction}(${item.jsArgs});"><view:msg>${item.key}</view:msg></a>
+                </li>
+            </c:if>
+
+            
+        </c:forEach>
     </ul>
 </div>
 <scrd:loggedusers>
@@ -265,7 +249,7 @@
         
     }
     
-
+    /** Generating pdf */
     function generatepdf() {
         var pids = getAffectedPids();
         var structs = map(function(pid) { 
@@ -278,11 +262,10 @@
             
         }, pids);    
         // show pdf dialog 
-        pdf.generateSelection(structs);
+        pdf.generate(structs);
     }
 
 
-        
     
     function downloadOriginalItem(){
           var pids = getAffectedPids();
@@ -300,6 +283,23 @@
     }
 
   <scrd:loggedusers>
+
+  function ctxPrint(){
+      var pids = getAffectedPids();
+      var structs = map(function(pid) { 
+          var divided = pid.split("_");            
+          var structure = {
+                     models:divided[0],
+                     pid:divided[1]
+              };
+          return structure;            
+          
+      }, pids); 
+      // show print dialog
+      print.print(structs);          
+}
+  
+  
     var _reindexDialog;
     function reindex(){
         if (_reindexDialog) {
@@ -451,68 +451,6 @@
         });
     }
 
-    /** change flag functionality */
-    function ChangeFlag() {
-        this.dialog = null;
-        this.policyName = "setpublic";
-        this.aggregate = true;
-    }
-
-    ChangeFlag.prototype.startProcess = function() {
-
-    	
-    	function _url(/** String */baseUrl, /** Array */ pids) {
-    	    return baseUrl+""+reduce(function(base, item, status) {
-    	        
-    	        base = base+"{"+item.pid.replaceAll(":","\\:")+ (status.last ? "}": "};");
-    	        return base;
-    	    }, "",pids)+"";        
-    	}
-
-        var value = $("#changeFlag input:checked").val();
-        this.policyName = value;
-        var structs = pidstructs();     
-        this.aggregate = structs.length > 1;
-        var u = this.aggregate ?  _url("lr?action=start&out=text&def=aggregate&out=text&nparams={"+this.policyName+";",structs)+"}" : "lr?action=start&out=text&def="+this.policyName+"&nparams={"+structs[0].pid.replaceAll(":","\\:")+"}";
-        
-        processStarter(this.policyName).start(u);
-    }
-
-    ChangeFlag.prototype.change = function() {
-        $.get("inc/admin/_change_flag.jsp", bind(function(data){
-
-        	
-        	if (this.dialog) {
-                this.dialog.dialog('open');
-            } else {
-                var pdiv = '<div id="changeflagDialog"></div>';
-
-                $(document.body).append(pdiv);
-
-                this.dialog = $("#changeflagDialog").dialog({
-                    bgiframe: true,
-                    width:  400,
-                    height:  200,
-                    modal: true,
-                    title: dictionary['administrator.menu.dialogs.changevisflag.title'],
-                    buttons: {
-                        "Aplikuj": bind(function() {
-                            this.dialog.dialog("close");
-                            this.startProcess();                        
-                         },this),
-                        "Close": function() {
-                            $(this).dialog("close"); 
-                        } 
-                    }
-                });
-                    
-            }
-            $("#changeflagDialog").html(data);
-            
-        },this));
-    }
-    
-    var changeFlag = new ChangeFlag();
     
         
     function exportFOXML(){

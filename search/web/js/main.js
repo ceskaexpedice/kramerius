@@ -104,31 +104,36 @@ var downloadOriginal = new DownloadOriginal();
 /**  PDF */
 function PDF() {
 	this.dialog = null;
-	this.selectedType=null;
 	this.structs = null;
-	
-	this.masterObject = null;
-	this.howMany = null;
-	
-	this.selectedPids = null;
+	this.previous = null;
 }
 
 
 PDF.prototype.renderPDF = function() {
 	var u = null;
-	if (this.selectedType == "master") {
-		u = "pdf?action=PARENT&pidFrom="+this.selectedPids[0]+"&howMany="+this.howMany;
+	var selected = $("#pdf input:checked");
+	if (selected.length >= 1) {
+		var pidsstring = selected.val();
+		var id = selected.attr("id"); id = id.substring(0, id.length - "_radio".length);
+		if (id == "selection") {
+			var selectedPids = pidsstring.slice(1,pidsstring.length-1).split(",");
+			selectedPids = map(function(elm) {
+				return {model:'',pid:elm.trim() }	
+			},selectedPids);
+			u = urlWithPids("pdf?action=SELECTION&pids=",selectedPids);
+		} else {
+			var selectedPids = pidsstring.slice(1,pidsstring.length-1).split(",");
+			var howMany = parseInt($("#"+id+"_input").val());
+			u = "pdf?action=PARENT&pidFrom="+selectedPids[0]+"&howMany="+howMany;
+		}
+		u = u +"&redirectURL="+ escape(window.location.href);
+		window.location.href = u;
 	} else {
-		u = urlWithPids("pdf?action=SELECTION&pids=",this.selectedPids);
+		 throw new Error("No pdf option selected !");
 	}
-	u = u +"&redirectURL="+ escape(window.location.href);
-	window.location.href = u;
-	
 }
 
-
-
-PDF.prototype.generateSelection = function(objects) {
+PDF.prototype.generate = function(objects) {
 	this.structs = objects;
 	var urlDialog=urlWithPids("inc/_pdf_dialog.jsp?pids=",objects);
 	$.get(urlDialog, bind(function(data){
@@ -169,34 +174,96 @@ PDF.prototype.onKeyup=function(id,type,pidsstring) {
 	if (!isNaN(val)) {
 		var n=parseInt($("#"+id+"_input").val());;
 		if (n <= k4Settings.pdf.generatePdfMaxRange) {
-			this.howMany = n; 
 			$("#"+id+"_error").text("");
 		} else {
 			$("#"+id+"_error").text(dictionary["pdf.validationError.toomuch"]);
-			this.howMany = k4Settings.pdf.generatePdfMaxRange;
 		}
 	} else {
 		$("#"+id+"_error").text(dictionary["pdf.validationError.nan"]);
-		this.howMany = k4Settings.pdf.generatePdfMaxRange;
 	}
 }
 
 PDF.prototype.onChange = function(id,type,pidsstring) {
-	this.selectedType = type;
-	this.selectedPids = pidsstring.slice(1,pidsstring.length-1).split(",");
 	if (this.previous) {
 		$(this.previous).hide();
 	}
 	$("#"+id+"_option").show();
-	if ($("#"+id+"_input").length > 0) {
-		this.howMany = parseInt($("#"+id+"_input").val());
-	} else {
-		this.howMany = null;
-	}
-	this.previous = "#"+id+"_option";
+ 	this.previous = "#"+id+"_option";
 }
 
 /** PDF object */
 var pdf = new PDF();
 
+
+/** Print object */
+function Print() {
+	this.dialog = null;
+	this.structs = null;
+	this.previous = null;
+}
+
+
+Print.prototype.printTitle = function() {
+	var u = null;
+	var selected = $("#print input:checked");
+	if (selected.length >= 1) {
+
+		var pidsstring = selected.val();
+		var id = selected.attr("id"); id = id.substring(0, id.length - "_radio".length);
+		if (id == "selection") {
+			var selectedPids = pidsstring.slice(1,pidsstring.length-1).split(",");
+			selectedPids = map(function(elm) {
+				return {model:'',pid:elm.trim() }	
+			},selectedPids);
+			u = urlWithPids("print?action=SELECTION&pids=",selectedPids);
+		} else {
+			var selectedPids = pidsstring.slice(1,pidsstring.length-1).split(",");
+			u = "print?action=PARENT&pidFrom="+selectedPids[0];
+		}
+		//u = u +"&redirectURL="+ escape(window.location.href);
+		$.get(u, bind(function(data){
+			// spatne.. 
+		},this));
+		
+	} else {
+		 throw new Error("No print option selected !");
+	}
+}
+
+Print.prototype.onChange = function(id,type,pidsstring) {
+	this.selectedType = type;
+	this.selectedPids = pidsstring.slice(1,pidsstring.length-1).split(",");
+}
+
+Print.prototype.print = function(objects) {
+	this.structs = objects;
+	var urlDialog=urlWithPids("inc/_print_dialog.jsp?pids=",objects);
+	$.get(urlDialog, bind(function(data){
+		if (this.dialog) {
+    		this.dialog.dialog('open');
+    	} else {
+            $(document.body).append('<div id="print"></div>')
+            this.dialog = $('#print').dialog({
+                width:600,
+                height:500,
+                modal:true,
+                title: dictionary["administrator.dialogs.print"],
+                buttons: {
+                    "Generuj": bind(function() {
+                    	this.printTitle();
+                    	this.dialog.dialog("close");
+                    },this),
+
+                	"Close": function() {
+                        $(this).dialog("close");
+                    }
+                }
+            });
+		}
+		$('#print').html(data);
+		
+	}, this));
+}
+
+var print = new Print();
 

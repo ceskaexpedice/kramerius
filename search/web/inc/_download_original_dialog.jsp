@@ -1,5 +1,5 @@
 <%--
-    PDF dialog
+    Download original dialog
 --%>
 <%@ page contentType="text/html" pageEncoding="UTF-8" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
@@ -13,18 +13,19 @@
 <view:object name="download" clz="cz.incad.Kramerius.views.DownloadOriginalViewObject"></view:object>
 
 <div style="margin: 10px">
-    
-    <strong>Vybrane objekty:</strong>
+
+    <strong><view:msg>administrator.dialogs.menu.downloadOriginal.selectedObjects</view:msg>:</strong>
 
     <table style="width: 100%">
 
     <thead>
         <tr>
-            <td><strong>Jmeno</strong></td>
-            <td width="50%"><strong>Typ dokumentu</strong></td>
-            <td><strong>Stahnout original</strong></td>
+            <td><strong><view:msg>administrator.dialogs.menu.downloadOriginal.name</view:msg> </strong></td>
+            <td width="50%"><strong><view:msg>administrator.dialogs.menu.downloadOriginal.type</view:msg></strong></td>
+            <td><strong><view:msg>administrator.dialogs.menu.downloadOriginal.download</view:msg></strong></td>
         </tr>
     </thead>
+    
     <c:forEach items="${download.downloadItems}" var="item" varStatus="i">
         <tr class="${(i.index mod 2 == 0) ? 'result r0': 'result r1'}">
             <td>${item.label}</td>

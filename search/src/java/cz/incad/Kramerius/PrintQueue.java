@@ -18,9 +18,11 @@ package cz.incad.Kramerius;
 
 import java.awt.print.PrinterException;
 import java.io.IOException;
+import java.io.StringReader;
 import java.net.MalformedURLException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.List;
 import java.util.logging.Level;
 
 import javax.servlet.ServletException;
@@ -29,11 +31,16 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.lang.NotImplementedException;
 
+import antlr.RecognitionException;
+import antlr.TokenStreamException;
+
 import com.google.inject.Inject;
 import com.google.inject.name.Named;
 
 import cz.incad.Kramerius.I18NServlet.Actions;
 import cz.incad.Kramerius.backend.guice.GuiceServlet;
+import cz.incad.Kramerius.processes.ParamsLexer;
+import cz.incad.Kramerius.processes.ParamsParser;
 import cz.incad.kramerius.FedoraAccess;
 import cz.incad.kramerius.ObjectPidsPath;
 import cz.incad.kramerius.ProcessSubtreeException;
@@ -52,19 +59,16 @@ public class PrintQueue extends GuiceServlet {
     public static final String PATH="path";
 
     @Inject
-    PrintingService printService;
+    protected PrintingService printService;
     
     @Inject
     @Named("securedFedoraAccess")
-    FedoraAccess fedoraAccess;
+    protected FedoraAccess fedoraAccess;
     @Inject
-    KConfiguration configuration;
+    protected KConfiguration configuration;
     @Inject
-    SolrAccess solrAccess;
+    protected SolrAccess solrAccess;
 
-    
-
-    
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
@@ -82,23 +86,48 @@ public class PrintQueue extends GuiceServlet {
 
 
     public void print(HttpServletRequest req, HttpServletResponse resp) throws MalformedURLException, IOException, ProcessSubtreeException, NumberFormatException, PrinterException {
+
         String imgServletUrl = ApplicationURL.applicationURL(req)+"/img";
         if ((configuration.getApplicationURL() != null) && (!configuration.getApplicationURL().equals(""))){
             imgServletUrl = configuration.getApplicationURL()+"img";
         }
+        
         String i18nUrl = ApplicationURL.applicationURL(req)+"/i18n";
         if ((configuration.getApplicationURL() != null) && (!configuration.getApplicationURL().equals(""))){
             i18nUrl = configuration.getApplicationURL()+"i18n";
         }
-        String from = req.getParameter(PID_FROM);
-        String howMany = req.getParameter(HOW_MANY);
+        String action = req.getParameter("action");
+        Action.valueOf(action).print(req,resp, this.printService,imgServletUrl, i18nUrl);
+
+    }
+    
+    
+    static enum Action {
         
-        ObjectPidsPath[] paths = this.solrAccess.getPath(from);
-        if (paths.length > 0) {
-            this.printService.print(paths[0], from, Integer.parseInt(howMany),  imgServletUrl, i18nUrl);
-        } else {
-            this.printService.print(new ObjectPidsPath(from), from, Integer.parseInt(howMany),  imgServletUrl, i18nUrl);
-        }
+        PARENT {
+            @Override
+            protected void print(HttpServletRequest request, HttpServletResponse response, PrintingService service, String imgServlet, String i18nservlet) throws IOException, ProcessSubtreeException, PrinterException {
+                String from = request.getParameter(PID_FROM);
+                service.printMaster(from, imgServlet, i18nservlet);
+            }
+        }, SELECTION {
+            @Override
+            protected void print(HttpServletRequest request, HttpServletResponse response, PrintingService service, String imgServlet, String i18nservlet) throws IOException, ProcessSubtreeException, PrinterException {
+                try {
+                    String par = request.getParameter("pids");
+                    ParamsParser parser = new ParamsParser(new ParamsLexer(new StringReader(par)));
+                    List params = parser.params();
+                    service.printSelection((String[])params.toArray(new String[params.size()]), imgServlet, i18nservlet);
+                } catch (RecognitionException e) {
+                    throw new IOException(e);
+                } catch (TokenStreamException e) {
+                    throw new IOException(e);
+                }
+
+            }
+        };
+        
+        protected abstract void print(HttpServletRequest request, HttpServletResponse response,PrintingService service, String imgServlet, String i18nservlet) throws IOException, ProcessSubtreeException, PrinterException;
     }
 
 }

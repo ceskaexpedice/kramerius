@@ -10,6 +10,7 @@ public class ContextMenuItem {
     public String jsFunction;
     public String jsArgs;
     public boolean supportMultiple;
+    
     public ContextMenuItem(String key, String dataType, String jsFunction, String jsArgs, boolean supportMultiple){
         this.key = key;
         this.dataType = dataType;
@@ -17,4 +18,37 @@ public class ContextMenuItem {
         this.jsArgs = jsArgs;
         this.supportMultiple = supportMultiple;
     }
+    public String getKey() {
+        return key;
+    }
+    public void setKey(String key) {
+        this.key = key;
+    }
+    public String getDataType() {
+        return dataType;
+    }
+    public void setDataType(String dataType) {
+        this.dataType = dataType;
+    }
+    public String getJsFunction() {
+        return jsFunction;
+    }
+    public void setJsFunction(String jsFunction) {
+        this.jsFunction = jsFunction;
+    }
+    public String getJsArgs() {
+        return jsArgs;
+    }
+    public void setJsArgs(String jsArgs) {
+        this.jsArgs = jsArgs;
+    }
+    public boolean isSupportMultiple() {
+        return supportMultiple;
+    }
+    public void setSupportMultiple(boolean supportMultiple) {
+        this.supportMultiple = supportMultiple;
+    }
+    
+    
+    
 }

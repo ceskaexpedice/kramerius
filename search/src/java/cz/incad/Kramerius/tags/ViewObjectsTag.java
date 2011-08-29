@@ -21,6 +21,8 @@ import javax.servlet.jsp.tagext.TagSupport;
 
 import com.google.inject.Injector;
 
+import cz.incad.Kramerius.Initializable;
+
 public class ViewObjectsTag extends TagSupport {
 
     private String clz;
@@ -52,7 +54,9 @@ public class ViewObjectsTag extends TagSupport {
                 
                 Injector inj = (Injector) pageContext.getServletContext().getAttribute(Injector.class.getName());
                 inj.injectMembers(obj);
-
+                if (obj instanceof Initializable) {
+                    ((Initializable)obj).init();
+                }
                 pageContext.setAttribute(this.name, obj);
             } else {
                 throw new RuntimeException("cannot find clz '"+clz+"'");

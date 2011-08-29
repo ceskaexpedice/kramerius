@@ -23,8 +23,10 @@ import cz.incad.kramerius.utils.imgs.ImageMimeType;
 
 /**
  * View helper object for creating one context menu
+ * TODO: Remove
  * @author pavels
  */
+@Deprecated
 public class ItemMenuViewObject {
 
     public static final java.util.logging.Logger LOGGER = java.util.logging.Logger.getLogger(ItemMenuViewObject.class.getName());
