@@ -26,7 +26,7 @@
                 menus.add(new ContextMenuItem("administrator.menu.reindex", "_data_x_role", "reindex", "", true));
                 menus.add(new ContextMenuItem("administrator.menu.deletefromindex", "_data_x_role", "deletefromindex", "", true));
                 menus.add(new ContextMenuItem("administrator.menu.deleteuuid", "_data_x_role", "deletePid", "", true));
-                menus.add(new ContextMenuItem("administrator.menu.setpublic", "_data_x_role", "changeFlag", "", true));
+                menus.add(new ContextMenuItem("administrator.menu.setpublic", "_data_x_role", "changeFlag.change", "", true));
                 menus.add(new ContextMenuItem("administrator.menu.exportFOXML", "_data_x_role", "exportFOXML", "", true));
                 menus.add(new ContextMenuItem("administrator.menu.exportcd", "_data_x_role", "generateStatic",
                         "'static_export_CD','img','" + i18nServlet + "','" + lctx.getLocale().getISO3Country() + "','" + lctx.getLocale().getISO3Language() + "'", true));
@@ -450,10 +450,70 @@
     
         });
     }
-        
-    function changeFlag(){
-            
+
+    /** change flag functionality */
+    function ChangeFlag() {
+        this.dialog = null;
+        this.policyName = "setpublic";
+        this.aggregate = true;
     }
+
+    ChangeFlag.prototype.startProcess = function() {
+
+    	
+    	function _url(/** String */baseUrl, /** Array */ pids) {
+    	    return baseUrl+""+reduce(function(base, item, status) {
+    	        
+    	        base = base+"{"+item.pid.replaceAll(":","\\:")+ (status.last ? "}": "};");
+    	        return base;
+    	    }, "",pids)+"";        
+    	}
+
+        var value = $("#changeFlag input:checked").val();
+        this.policyName = value;
+        var structs = pidstructs();     
+        this.aggregate = structs.length > 1;
+        var u = this.aggregate ?  _url("lr?action=start&out=text&def=aggregate&out=text&nparams={"+this.policyName+";",structs)+"}" : "lr?action=start&out=text&def="+this.policyName+"&nparams={"+structs[0].pid.replaceAll(":","\\:")+"}";
+        
+        processStarter(this.policyName).start(u);
+    }
+
+    ChangeFlag.prototype.change = function() {
+        $.get("inc/admin/_change_flag.jsp", bind(function(data){
+
+        	
+        	if (this.dialog) {
+                this.dialog.dialog('open');
+            } else {
+                var pdiv = '<div id="changeflagDialog"></div>';
+
+                $(document.body).append(pdiv);
+
+                this.dialog = $("#changeflagDialog").dialog({
+                    bgiframe: true,
+                    width:  400,
+                    height:  200,
+                    modal: true,
+                    title: dictionary['administrator.menu.dialogs.changevisflag.title'],
+                    buttons: {
+                        "Aplikuj": bind(function() {
+                            this.dialog.dialog("close");
+                            this.startProcess();                        
+                         },this),
+                        "Close": function() {
+                            $(this).dialog("close"); 
+                        } 
+                    }
+                });
+                    
+            }
+            $("#changeflagDialog").html(data);
+            
+        },this));
+    }
+    
+    var changeFlag = new ChangeFlag();
+    
         
     function exportFOXML(){
             
@@ -464,48 +524,22 @@
     }
         
     function generateDeepZoomTiles(){
-        var pids = getAffectedPids();
-        var structs = map(function(pid) { 
-            var divided = pid.split("_");            
-            var structure = {
-                       models:divided[0],
-                       pid:divided[1]
-                };
-            return structure;            
-            
-        }, pids);     
+        var structs = pidstructs();     
         var u = urlWithPids("lr?action=start&def=aggregate&out=text&nparams={generateDeepZoomTiles;",structs);
         processStarter("generateDeepZoomTiles").start(u);
     }
         
     function deleteGeneratedDeepZoomTiles(){
         var pids = getAffectedPids();
-        var structs = map(function(pid) { 
-            var divided = pid.split("_");            
-            var structure = {
-                       models:divided[0],
-                       pid:divided[1]
-                };
-            return structure;            
-            
-        }, pids);     
-
+        var structs = pidstructs();
         var u = urlWithPids("lr?action=start&def=aggregate&out=text&nparams={deleteGeneratedDeepZoomTiles;",structs);
         processStarter("deleteGeneratedDeepZoomTiles").start(u);
     }
         
     function securedActionsTableForCtxMenu(read, administrate){
         var pids = getAffectedPids();
-        var structs = map(function(pid) { 
-            var divided = pid.split("_");            
-            var structure = {
-                       models:divided[0],
-                       pid:divided[1]
-                };
-            return structure;            
-            
-        }, pids);     
-
+        var structs = pidstructs();
+        
         
         if (!affectedObjectsRights) {
             affectedObjectsRights = new AffectedObjectsRights();   
