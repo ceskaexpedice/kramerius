@@ -84,7 +84,7 @@ public class ExportServiceImpl implements ExportService {
         ExportServiceImpl inst = new ExportServiceImpl();
         inst.fedoraAccess = new FedoraAccessImpl(null);
         inst.configuration = KConfiguration.getInstance();
-        inst.exportTree("uuid:"+args[0]);
+        inst.exportTree(args[0]);
         LOGGER.info("ExportService finished.");
     }
 }
