@@ -75,11 +75,14 @@ public class FedoraAccessImpl implements FedoraAccess {
     private String fedoraVersion;
     private StringTemplateGroup xpaths;
     
+    private XPathFactory xPathFactory;
+    
     
     @Inject
     public FedoraAccessImpl(KConfiguration configuration) throws IOException {
         super();
         this.configuration = configuration;
+        this.xPathFactory = XPathFactory.newInstance();
         readXPATHTemplateGroup();
     }
 
@@ -310,8 +313,7 @@ public class FedoraAccessImpl implements FedoraAccess {
         try {
             ArrayList<Element> elms = new ArrayList<Element>();
             String xPathStr = "/RDF/Description/hasPage";
-            XPathFactory xpfactory = XPathFactory.newInstance();
-            XPath xpath = xpfactory.newXPath();
+            XPath xpath = this.xPathFactory.newXPath();
             XPathExpression expr = xpath.compile(xPathStr);
             NodeList nodes = (NodeList) expr.evaluate(rootElementOfRelsExt, XPathConstants.NODESET);
             for (int i = 0, lastIndex = nodes.getLength() - 1; i <= lastIndex; i++) {
@@ -403,8 +405,7 @@ public class FedoraAccessImpl implements FedoraAccess {
     }
 
     boolean disectDatastreamInListOfDatastreams(Document datastreams, String dsId, String fedoraVersion) throws XPathExpressionException, IOException {
-        XPathFactory factory = XPathFactory.newInstance();
-        XPath xpath = factory.newXPath();
+        XPath xpath = this.xPathFactory.newXPath();
         xpath.setNamespaceContext(new FedoraNamespaceContext());
         String templateName = "find_datastream"+FedoraUtils.getVersionCompatibilityPrefix(fedoraVersion);
         StringTemplate xpathTemplate = xpaths.getInstanceOf(templateName);
@@ -417,7 +418,7 @@ public class FedoraAccessImpl implements FedoraAccess {
 
     String disectMimetypeFromProfile(Document profileDoc, String fedoraVersion)
             throws XPathExpressionException {
-        XPathFactory factory = XPathFactory.newInstance();
+        XPathFactory factory = this.xPathFactory;
         XPath xpath = factory.newXPath();
         xpath.setNamespaceContext(new FedoraNamespaceContext());
 
@@ -598,7 +599,7 @@ public class FedoraAccessImpl implements FedoraAccess {
         boolean breakProcessing = processor.breakProcessing(pid,level);
         if (breakProcessing) return breakProcessing;
         if (relsExt == null) return false; 
-        XPathFactory factory = XPathFactory.newInstance();
+        XPathFactory factory = this.xPathFactory;
         XPath xpath = factory.newXPath();
         xpath.setNamespaceContext(new FedoraNamespaceContext());
         XPathExpression expr = xpath.compile("/rdf:RDF/rdf:Description/*");
@@ -787,7 +788,7 @@ public class FedoraAccessImpl implements FedoraAccess {
     public String  disectFedoraVersionFromStream(InputStream stream) throws ParserConfigurationException, SAXException, IOException, XPathExpressionException {
         // do not use namespaces
         Document parseDocument = XMLUtils.parseDocument(stream, false);
-        XPathFactory factory = XPathFactory.newInstance();
+        XPathFactory factory = this.xPathFactory;
         XPath xpath = factory.newXPath();
         XPathExpression expr = xpath.compile("/fedoraRepository/repositoryVersion/text()");
         Node oneNode = (Node) expr.evaluate(parseDocument, XPathConstants.NODE);
