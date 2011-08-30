@@ -189,18 +189,17 @@ public class GeneratePDFServiceImpl implements GeneratePDFService {
 
 	
 	@Override
-	public AbstractRenderedDocument generateCustomPDF(AbstractRenderedDocument rdoc,  OutputStream os, Break brk, String djvUrl, String i18nUrl, FirstPageRenderer firstPageListener) throws IOException {
+	public AbstractRenderedDocument generateCustomPDF(AbstractRenderedDocument rdoc,  OutputStream os, Break brk, String djvUrl, String i18nUrl, FirstPageRenderer firstPageRenderer) throws IOException {
 		try {
 			String brokenPage = null;
 			Document doc = createDocument();
 			PdfWriter writer = PdfWriter.getInstance(doc, os);
 			doc.open();
 			
-            //insertFirstPage(path, model, pdfWriter, pdfDoc)
-			firstPageListener.firstPage(doc, writer);
+			if (firstPageRenderer != null) {
+	            firstPageRenderer.firstPage(doc, writer);
+			}
 			
-			//insertFirstPage(rdoc, parentUUID, rdoc.getUuidTitlePage(), writer, doc, djvUrl);
-
 			doc.newPage();
 			int pocetStranek = 0;
 			List<AbstractPage> pages = new ArrayList<AbstractPage>(rdoc.getPages());
@@ -261,20 +260,21 @@ public class GeneratePDFServiceImpl implements GeneratePDFService {
 	
 	
 	@Override
-	public void generateCustomPDF(AbstractRenderedDocument rdoc/*, String parentUUID*/, OutputStream os, String imgServletUrl, String i18nUrl, FirstPageRenderer firstPageListener) throws IOException {
+	public void generateCustomPDF(AbstractRenderedDocument rdoc/*, String parentUUID*/, OutputStream os, String imgServletUrl, String i18nUrl, FirstPageRenderer firstPageRenderer) throws IOException {
 		try {
 			Document doc = createDocument();
 			PdfWriter writer = PdfWriter.getInstance(doc, os);
 			doc.open();
 			
-			firstPageListener.firstPage(doc, writer);
+			if (firstPageRenderer != null) {
+			    firstPageRenderer.firstPage(doc, writer);
+			}
 			
 			doc.newPage();
 			for (AbstractPage page : rdoc.getPages()) {
 				doc.newPage();
 				if (page instanceof ImagePage) {
 					ImagePage iPage = (ImagePage) page;
-//					insertOutlinedImagePage(iPage, writer, doc, djvuUrl);
                     insertImage(iPage.getUuid(), writer, doc, (float)1.0, imgServletUrl);
 				} else {
 					TextPage tPage = (TextPage) page;

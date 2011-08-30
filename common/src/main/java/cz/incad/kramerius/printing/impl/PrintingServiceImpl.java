@@ -31,23 +31,36 @@ import java.awt.print.Printable;
 import java.awt.print.PrinterException;
 import java.awt.print.PrinterJob;
 import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.logging.Level;
 
+import javax.print.Doc;
+import javax.print.DocFlavor;
 import javax.print.DocPrintJob;
+import javax.print.PrintException;
 import javax.print.PrintService;
 import javax.print.PrintServiceLookup;
+import javax.print.SimpleDoc;
 import javax.print.attribute.HashPrintRequestAttributeSet;
+import javax.print.attribute.PrintJobAttributeSet;
 import javax.print.attribute.PrintRequestAttributeSet;
+import javax.print.attribute.standard.Copies;
 import javax.print.attribute.standard.MediaSize;
 import javax.print.attribute.standard.PrinterResolution;
 import javax.print.attribute.standard.Sides;
 import javax.print.attribute.standard.MediaSize.ISO;
+import javax.servlet.http.HttpServletRequest;
 import javax.xml.xpath.XPathExpressionException;
 
 import org.w3c.dom.Document;
@@ -69,11 +82,13 @@ import cz.incad.kramerius.document.model.RenderedDocument;
 import cz.incad.kramerius.document.model.TextPage;
 import cz.incad.kramerius.imaging.ImageStreams;
 import cz.incad.kramerius.imaging.utils.ImageUtils;
+import cz.incad.kramerius.pdf.GeneratePDFService;
 import cz.incad.kramerius.pdf.utils.TitlesUtils;
 import cz.incad.kramerius.printing.PrintingService;
 import cz.incad.kramerius.printing.utils.Utils;
 import cz.incad.kramerius.service.ResourceBundleService;
 import cz.incad.kramerius.service.TextsService;
+import cz.incad.kramerius.utils.ApplicationURL;
 import cz.incad.kramerius.utils.DCUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 import cz.incad.kramerius.utils.imgs.ImageMimeType;
@@ -86,26 +101,24 @@ public class PrintingServiceImpl implements PrintingService {
     
     private FedoraAccess fedoraAccess;
     private KConfiguration configuration;
-    private Provider<Locale> localeProvider;
-    private TextsService textsService;
-    private ResourceBundleService resourceBundleService;
+
     private SolrAccess solrAccess;
 
     private DocumentService documentService;
+    private GeneratePDFService pdfService;
+    
     
     
     
     @Inject
-    public PrintingServiceImpl(@Named("securedFedoraAccess") FedoraAccess fedoraAccess, SolrAccess solrAccess, KConfiguration configuration, Provider<Locale> localeProvider, TextsService textsService, ResourceBundleService resourceBundleService, DocumentService documentService) {
+    public PrintingServiceImpl(@Named("securedFedoraAccess") FedoraAccess fedoraAccess, SolrAccess solrAccess, KConfiguration configuration, Provider<Locale> localeProvider, TextsService textsService, ResourceBundleService resourceBundleService, DocumentService documentService, GeneratePDFService pdfService) {
         super();
         this.fedoraAccess = fedoraAccess;
         this.configuration = configuration;
-        this.localeProvider = localeProvider;
-        this.textsService = textsService;
         this.configuration = configuration;
-        this.resourceBundleService = resourceBundleService;
         this.solrAccess = solrAccess;
         this.documentService = documentService;
+        this.pdfService = pdfService;
         try {
             this.init();
         } catch (IOException e) {
@@ -118,23 +131,51 @@ public class PrintingServiceImpl implements PrintingService {
     }
 
     @Override
-    public void printMaster( String pidFrom, String imgUrl, String i18nUrl) throws IOException, ProcessSubtreeException, PrinterException {
-        PrinterJob printerJob = PrinterJob.getPrinterJob();
+    public void printMaster( String pidFrom, String imgUrl, String i18nUrl) throws IOException, ProcessSubtreeException, PrinterException, PrintException {
+        
         ObjectPidsPath[] paths = this.solrAccess.getPath(pidFrom);
         ObjectPidsPath selectedPath = selectOnePath(pidFrom, paths);
         
         AbstractRenderedDocument documentAsFlat = this.documentService.buildDocumentAsFlat(selectedPath, pidFrom, MAX_PAGES);
-        printerJob.setPrintable(new PrintableDoc(this.fedoraAccess, documentAsFlat , imgUrl,Utils.A4, Utils.DEFAUTL_DPI));
-        printerJob.setJobName(getPrintJobName(pidFrom));
-        printerJob.print();
+        
+        renderToPDFandPrint(imgUrl, i18nUrl, documentAsFlat);
     }
 
+
+    public void renderToPDFandPrint(String imgUrl, String i18nUrl, AbstractRenderedDocument document) throws IOException, FileNotFoundException, PrintException {
+        File pdfFile = File.createTempFile("pdf", "rendered");
+        pdfFile.deleteOnExit();
+        
+        this.pdfService.generateCustomPDF(document, new FileOutputStream(pdfFile), imgUrl, i18nUrl, null);
+
+        PrintService lps = PrintServiceLookup.lookupDefaultPrintService();
+        DocPrintJob printJob = lps.createPrintJob();
+        Doc doc = new SimpleDoc(new FileInputStream(pdfFile), DocFlavor.INPUT_STREAM.PDF, null);
+
+        PrintRequestAttributeSet aset = new HashPrintRequestAttributeSet(); 
+        aset.add(new Copies(KConfiguration.getInstance().getConfiguration().getInt("print.copies",1))); 
+        aset.add(resolveSidesConfiguration()); 
+        
+        printJob.print(doc, aset);
+    }
+
+
+    public Sides resolveSidesConfiguration() {
+        Map<String, Sides> mapping = new HashMap<String, Sides>(); {
+            mapping.put("ONE_SIDE", Sides.ONE_SIDED);
+            mapping.put("DUPLEX", Sides.DUPLEX);
+            mapping.put("TWO_SIDED_LONG_EDGE", Sides.TWO_SIDED_LONG_EDGE);
+            mapping.put("TWO_SIDED_SHORT_EDGE", Sides.TWO_SIDED_SHORT_EDGE);
+        }
+        
+        String side = KConfiguration.getInstance().getConfiguration().getString("print.sided","ONE_SIDE");
+        if (mapping.containsKey(side)) {
+            return mapping.get(side);
+        } else return Sides.ONE_SIDED;
+        
+    }
     
 
-    public String getPrintJobName(String pidFrom) throws IOException {
-        String title = DCUtils.titleFromDC(this.fedoraAccess.getDC(pidFrom));
-        return "#k4 print - "+title;
-    }
 
     public ObjectPidsPath selectOnePath(String requestedPid, ObjectPidsPath[] paths) {
         ObjectPidsPath path;
@@ -148,12 +189,9 @@ public class PrintingServiceImpl implements PrintingService {
 
 
     @Override
-    public void printSelection(String[] selection, String imgUrl, String i18nUrl) throws IOException, ProcessSubtreeException, PrinterException {
-        PrinterJob printerJob = PrinterJob.getPrinterJob();
+    public void printSelection(String[] selection, String imgUrl, String i18nUrl) throws IOException, ProcessSubtreeException, PrinterException, PrintException {
         AbstractRenderedDocument document = this.documentService.buildDocumentFromSelection(selection);
-        printerJob.setPrintable(new PrintableDoc(this.fedoraAccess, document , imgUrl,Utils.A4, Utils.DEFAUTL_DPI));
-        printerJob.setJobName("#k4 print - selection");
-        printerJob.print();
+        renderToPDFandPrint(imgUrl, i18nUrl, document);
     }
     
 
@@ -186,16 +224,15 @@ public class PrintingServiceImpl implements PrintingService {
         public int print(Graphics g, PageFormat pf, int pageIndex) throws PrinterException {
             try {
                 
-                
                 List<AbstractPage> pages = this.document.getPages();
-                if (pageIndex < pages.size() -1) {
+                if (pageIndex < pages.size()) {
                     AbstractPage page = pages.get(pageIndex);
                     
                     Graphics2D g2d = (Graphics2D)g;
                     g2d.translate(pf.getImageableX(), pf.getImageableY());
 
                     if (page instanceof TextPage) {
-                        
+                        // skip..
                     } else {
                         ImagePage ipage = (ImagePage) page;
                         String pid = ipage.getUuid();

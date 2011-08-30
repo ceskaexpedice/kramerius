@@ -21,6 +21,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.util.List;
 
+import javax.print.PrintException;
 import javax.print.PrintService;
 
 import cz.incad.kramerius.ObjectPidsPath;
@@ -29,7 +30,7 @@ import cz.incad.kramerius.document.model.AbstractRenderedDocument;
 
 public interface PrintingService {
 
-    public void printMaster( String pidFrom, String imgUrl, String i18nUrl) throws IOException, ProcessSubtreeException, PrinterException;
+    public void printMaster( String pidFrom, String imgUrl, String i18nUrl) throws IOException, ProcessSubtreeException, PrinterException, PrintException;
 
-    public void printSelection(String[] selection,   String imgUrl, String i18nUrl) throws IOException, ProcessSubtreeException, PrinterException;
+    public void printSelection(String[] selection,   String imgUrl, String i18nUrl) throws IOException, ProcessSubtreeException, PrinterException, PrintException;
 }
