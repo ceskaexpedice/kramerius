@@ -274,7 +274,7 @@
               var structure = {
                          models:divided[0],
                          pid:divided[1]
-                  };
+                };
               return structure;            
               
           }, pids); 
@@ -297,7 +297,7 @@
       }, pids); 
       // show print dialog
       print.print(structs);          
-}
+   }
   
   
     var _reindexDialog;
@@ -333,7 +333,6 @@
             }
             //var s = getAllowed('reindex', pids, "#reindex>div.allowed");
         }
-        
     }
     
     function doReindex(){
@@ -408,7 +407,6 @@
     function deletePid(){
         var pids = getAffectedPids();
         
-        //lr?action=start&def=aggregate&out=text&nparams={delete;{"+pid+";"+pidpath+"};{...};{..}}
         showConfirmDialog(dictionary['administrator.dialogs.deleteconfirm'], function(){
             var urlbuffer = "lr?action=start&def=aggregate&out=text&nparams={delete;"
             for(var i=0; i<pids.length; i++){
@@ -454,11 +452,18 @@
     
         
     function exportFOXML(){
-            
+        var structs = pidstructs();     
+        if (structs.length > 1) {
+            var u = urlWithPids("lr?action=start&def=aggregate&out=text&nparams={export;",structs)+"}";
+            processStarter("export").start(u);
+        } else {
+            var u = urlWithPids("lr?action=start&def=export&out=text&nparams={",structs)+"}";
+            processStarter("export").start(u);
+        }
     }
         
     function generateStatic(static_export_CD,img,i18nServlet,country,language){
-            
+                            
     }
         
     function generateDeepZoomTiles(){
@@ -484,7 +489,6 @@
         }
         // open dialog
         affectedObjectsRights.openDialog(structs);
-            
     }
         
     function openEditor(){
