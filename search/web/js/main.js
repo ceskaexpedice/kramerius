@@ -200,6 +200,8 @@ function Print() {
 	this.dialog = null;
 	this.structs = null;
 	this.previous = null;
+	
+	this.informDialog = null;
 }
 
 
@@ -220,10 +222,41 @@ Print.prototype.printTitle = function() {
 			var selectedPids = pidsstring.slice(1,pidsstring.length-1).split(",");
 			u = "print?action=PARENT&pidFrom="+selectedPids[0];
 		}
-		//u = u +"&redirectURL="+ escape(window.location.href);
+
+		
+		if (this.informDialog) {
+    		this.informDialog.dialog('open');
+		} else {
+			$(document.body).append('<div id="printInfo"></div>')
+            this.informDialog = $('#printInfo').dialog({
+                width:200,
+                height:120,
+                modal:true,
+                title: dictionary["administrator.dialogs.print"],
+                buttons: {
+                	"Close": function() {
+                        $(this).dialog("close");
+                    }
+                }
+            });
+			
+		}
+        $(document.body).append('<div id="printInfo"></div>');
+
+        
+		$('#printInfo').html(
+				'<table><tr><td aling="center" halign="center">'+
+				dictionary['print.info.waiting.message']+
+				'</td></tr></table>'
+		);
+
 		$.get(u, bind(function(data){
-			// spatne.. 
-		},this));
+			$('#printInfo').html(
+				'<table><tr><td aling="center" halign="center">'+
+				dictionary['print.info.done.message']+
+				'</td></tr></table>');
+
+		}, this));
 		
 	} else {
 		 throw new Error("No print option selected !");

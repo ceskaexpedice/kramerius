@@ -1,5 +1,5 @@
 <%--
-    PDF dialog
+    Print dialog
 --%>
 <%@ page contentType="text/html" pageEncoding="UTF-8" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
@@ -27,7 +27,7 @@
 	        <tr>
 	            <td>
 	                <div id="${item.id}">
-	                    <input type="radio" name="print" ${item.checkedAttribute} onchange="print.onChange('${item.id}', '${item.type}','${item.pids}');"> <view:msg>pdf.${item.type}.generate</view:msg> ${item.name}  </input>    
+	                    <input type="radio" id="${item.id}_radio" name="print" ${item.checkedAttribute} onchange="print.onChange('${item.id}', '${item.type}','${item.pids}');" value="${item.pids}"> <view:msg>print.${item.type}.generate</view:msg> ${item.name}  </input>    
 	                </div>
 	            </td>
 	        </tr>

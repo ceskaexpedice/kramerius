@@ -34,7 +34,7 @@
             <c:if test="${item.master}">
             <tr>
                 <td>
-                    <div id="${item.id}_option" style="display:none">
+                    <div id="${item.id}_option" ${item.checked ? "style='display:block'" : "style='display:none'"} style="display:none">
                         ${pdfView.numberOfGeneratedPages}:<span id="${item.id}_error" style="color: red;"></span>
                         <div>
                             <input name="pdfSelection" id="${item.id}_input" type="text" onkeyup="pdf.onKeyup('${item.id}', '${item.type}','${item.pids}');" value="${pdfView.maxNumberOfPages}"></input>

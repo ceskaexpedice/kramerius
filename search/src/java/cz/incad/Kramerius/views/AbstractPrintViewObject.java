@@ -69,7 +69,6 @@ public class AbstractPrintViewObject extends AbstractViewObject implements Initi
     public void init() {
         try {
             RadioItem selection = new RadioItem(Type.selection, "selection", true);
-            this.items.add(selection);
             List params = getPidsParams();
             for (int i = 0; i < params.size(); i++) {
                 Object pid = params.get(i);
@@ -83,6 +82,21 @@ public class AbstractPrintViewObject extends AbstractViewObject implements Initi
                 }
             }
 
+            if (!selection.getPids().isEmpty()) {
+                this.items.add(0,selection);
+            }
+
+            boolean checked = false;
+            for (RadioItem itm : this.items) {
+                if (itm.isChecked()) {
+                    checked = true;
+                    break;
+                }
+            }
+            
+            if ((!checked) && (!this.items.isEmpty())) {
+                this.items.get(0).setChecked(true);
+            }
             
             String xml = this.textsService.getText("first_page_xml", this.localesProvider.get());
             Document doc = XMLUtils.parseDocument(new ByteArrayInputStream(xml.getBytes()), false);
@@ -142,6 +156,9 @@ public class AbstractPrintViewObject extends AbstractViewObject implements Initi
         }
         
         
+        public void setChecked(boolean checked) {
+            this.checked = checked;
+        }
         
         public String getCheckedAttribute() {
             return this.checked ? " checked='checked' " : "";  
