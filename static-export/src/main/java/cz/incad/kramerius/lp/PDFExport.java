@@ -20,6 +20,8 @@ import com.google.inject.Key;
 import com.google.inject.name.Names;
 
 import cz.incad.kramerius.FedoraAccess;
+import cz.incad.kramerius.ObjectPidsPath;
+import cz.incad.kramerius.SolrAccess;
 import cz.incad.kramerius.lp.guice.ArgumentLocalesProvider;
 import cz.incad.kramerius.lp.guice.PDFModule;
 import cz.incad.kramerius.lp.utils.DecriptionHTML;
@@ -29,6 +31,8 @@ import cz.incad.kramerius.pdf.GeneratePDFService;
 import cz.incad.kramerius.processes.impl.ProcessStarter;
 import cz.incad.kramerius.utils.DCUtils;
 import cz.incad.kramerius.utils.IOUtils;
+import cz.incad.kramerius.utils.pid.LexerException;
+import cz.incad.kramerius.utils.pid.PIDParser;
 
 /**
  * Staticky export do pdf
@@ -39,14 +43,14 @@ public class PDFExport {
 	public static final java.util.logging.Logger LOGGER = java.util.logging.Logger
 			.getLogger(PDFExport.class.getName());
 	
-	public static void main(String[] args) throws IOException {
+	public static void main(String[] args) throws IOException, LexerException {
 		System.out.println("Spoustim staticky export .. ");
 		if (args.length >= 4) {
 			LOGGER.info("Parameters "+args[0]+", "+args[1]+", "+args[2]+", "+args[3]);
 
 			String outputFolderName = args[0];
 			Medium medium = Medium.valueOf(args[1]);
-			String uuid = args[2];
+			String pid = args[2];
 			String djvuUrl = args[3];
 			String i18nUrl = args[4];
 			
@@ -57,7 +61,9 @@ public class PDFExport {
 				System.setProperty(ArgumentLocalesProvider.ISO3LANG_KEY, args[6]);
 			}
 			
-			File uuidFolder = new File(getTmpDir(), uuid);
+			PIDParser pidParser = new PIDParser(pid);
+			pidParser.objectPid();
+			File uuidFolder = new File(getTmpDir(), pidParser.getObjectId());
 			if (uuidFolder.exists()) { 
 				FileUtils.deleteRecursive(uuidFolder);
 				if (!uuidFolder.delete()) throw new RuntimeException("cannot delete folder '"+uuidFolder.getAbsolutePath()+"'");
@@ -66,13 +72,13 @@ public class PDFExport {
 			Injector injector = Guice.createInjector(new PDFModule());
 			String titleFromDC = null;
 			if (System.getProperty("uuid") != null) {
-				titleFromDC = updateProcessName(uuid, injector, medium);
+				titleFromDC = updateProcessName(pid, injector, medium);
 			} else {
 				FedoraAccess fa = injector.getInstance(Key.get(FedoraAccess.class, Names.named("rawFedoraAccess"))); 
-				Document dc = fa.getDC(uuid);
+				Document dc = fa.getDC(pid);
 				titleFromDC = DCUtils.titleFromDC(dc);
 			}
-			generatePDFs(uuid, uuidFolder, injector,djvuUrl,i18nUrl);
+			generatePDFs(pid, uuidFolder, injector,djvuUrl,i18nUrl);
 			createFSStructure(uuidFolder, new File(outputFolderName), medium, titleFromDC);
 		}
 	}
@@ -157,7 +163,7 @@ public class PDFExport {
 	}
 
 
-	private static void generatePDFs(String uuid, File uuidFolder, Injector injector, String djvuUrl, String i18nUrl) {
+	private static void generatePDFs(String pid, File uuidFolder, Injector injector, String djvuUrl, String i18nUrl) {
 		try {
 			if (!uuidFolder.exists()) { 
 				boolean mkdirs = uuidFolder.mkdirs();
@@ -171,14 +177,20 @@ public class PDFExport {
 					}
 			}
 			FedoraAccess fa = injector.getInstance(Key.get(FedoraAccess.class, Names.named("rawFedoraAccess"))); 
+			SolrAccess sa = injector.getInstance(SolrAccess.class);
 			GeneratePDFService generatePDF = injector.getInstance(GeneratePDFService.class);
-			LOGGER.info("fedoraAccess.getDC("+uuid+")");
-			Document dc = fa.getDC(uuid);
+			LOGGER.info("fedoraAccess.getDC("+pid+")");
+			Document dc = fa.getDC(pid);
 			LOGGER.info("dcUtils.titleFromDC("+dc+")");
 			String title = DCUtils.titleFromDC(dc);
 			LOGGER.info("title is "+title);
 			GenerateController controller = new GenerateController(uuidFolder, title);
-			generatePDF.fullPDFExport(uuid, controller, controller, djvuUrl, i18nUrl);
+			//generatePDF.fullPDFExport(pid, controller, controller, djvuUrl, i18nUrl);
+			ObjectPidsPath[] path = sa.getPath(pid);
+			if (path.length == 0) {
+			    path = new ObjectPidsPath[]{new ObjectPidsPath(pid)};
+			}
+			generatePDF.fullPDFExport(path[0], controller, controller, djvuUrl, i18nUrl);
 		} catch (Exception e) {
 			LOGGER.log(Level.SEVERE, e.getMessage(), e);
 		}
