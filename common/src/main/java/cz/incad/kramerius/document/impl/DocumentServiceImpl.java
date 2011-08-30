@@ -159,15 +159,15 @@ public class DocumentServiceImpl implements DocumentService {
     
     
     public void buildRenderingDocumentAsTree(/*org.w3c.dom.Document relsExt,*/ final AbstractRenderedDocument renderedDocument , final String pid) throws IOException, ProcessSubtreeException {
-        fedoraAccess.processSubtree(pid, new AbstractTreeNodeProcessorAdapter() {
-            
+
+        fedoraAccess.processSubtree(pid, new TreeNodeProcessor() {
             private int previousLevel = -1;
             private OutlineItem currOutline = null;
+            
             @Override
-            public void processUuid(String pageUuid, int level) {
-                
+            public void process(String pid, int level) throws ProcessSubtreeException {
                 try {
-                    AbstractPage page = createPage(renderedDocument, pageUuid);
+                    AbstractPage page = createPage(renderedDocument, pid);
                     renderedDocument.addPage(page);
                     if (previousLevel == -1) {
                         // first
@@ -216,9 +216,7 @@ public class DocumentServiceImpl implements DocumentService {
                     LOGGER.log(Level.SEVERE, e.getMessage(), e);
                     throw new RuntimeException(e);
                 }
-                
             }
-            
 
             private OutlineItem createOutlineItem(OutlineItem parent, String objectId, String biblioModsTitle, int level) {
                 OutlineItem item = new OutlineItem();
@@ -233,7 +231,12 @@ public class DocumentServiceImpl implements DocumentService {
                 return item;
             }
 
+            @Override
+            public boolean breakProcessing(String pid, int level) {
+                return false;
+            }
         });
+        
     }
 
     
