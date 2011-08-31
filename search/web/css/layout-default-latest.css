@@ -20,7 +20,7 @@
 */
 .ui-layout-pane { /* all 'panes' */
     background:	#FFF; 
-    border:1px solid #BBB;
+/*border:1px solid #BBB;*/
     /* DO NOT add scrolling (or padding) to 'panes' that have a content-div,
        otherwise you may get double-scrollbars - on the pane AND on the content-div
     */
@@ -38,8 +38,8 @@
  *	RESIZER-BARS
 */
 .ui-layout-resizer	{ /* all 'resizer-bars' */
-    background:		#DDD;
-    border:	1px solid #BBB;
+/*    background:		#DDD;*/
+/*border:	1px solid #BBB;*/
     border-width:	0;
 }
 .ui-layout-resizer-drag {		/* REAL resizer while resize in progress */
@@ -74,17 +74,23 @@
 }
 /* sliding resizer - add 'outside-border' to resizer on-hover 
  * this sample illustrates how to target specific panes and states */
+
+/*
 .ui-layout-resizer-north-sliding-hover	{ border-bottom-width:	1px; }
 .ui-layout-resizer-south-sliding-hover	{ border-top-width:		1px; }
 .ui-layout-resizer-west-sliding-hover	{ border-right-width:	1px; }
 .ui-layout-resizer-east-sliding-hover	{ border-left-width:	1px; }
+*/
+
 
 /*
  *	TOGGLER-BUTTONS
 */
 .ui-layout-toggler {
-    border: 1px solid #BBB; /* match pane-border */
-    background-color: #BBB;
+/*    border: 1px solid #BBB;*/ /* match pane-border */
+/*    background-color: #BBB;*/
+    
+    
 }
 .ui-layout-resizer-hover .ui-layout-toggler {
     opacity: .60;

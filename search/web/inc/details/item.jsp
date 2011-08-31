@@ -103,8 +103,8 @@
            },
             east:{
                 size:340,
-                spacing_closed:	6,
-                spacing_open:	6,
+                spacing_closed:	5,
+                spacing_open:	5,
                 togglerLength_closed:	'100%',
                 togglerLength_open:	'100%',
                 togglerAlign_open:	"top",

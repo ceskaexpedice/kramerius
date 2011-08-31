@@ -44,6 +44,7 @@
 
 
 $(document).ready(function(){
+    getExtInfo();
     $('.loading_docs').hide();
     
     if($('#dadiv').length==0){
@@ -159,6 +160,19 @@ $(document).ready(function(){
             //checkRowHeight(div2, div);
         }
     }
+    
+    function getExtInfo(){
+        $(".extInfo").each(function(){
+            var info = $(this);
+            $(info).removeClass("extInfo");
+            var pid_path = $(info).text();
+            var url =  "inc/results/extendedInfo.jsp?pid_path=" + pid_path;
+            $.get(url, function(data) {
+                $(info).html(data);
+                $(info).show();
+            });
+        });
+    }
 
     function getMoreDocs(id){
         var offset = id.split('_')[1];
@@ -168,6 +182,7 @@ $(document).ready(function(){
         $.get(url, function(data) {
             $(jq(id)).html(data);
             $(jq(id)).removeClass('more_docs');
+            getExtInfo();
             $('.loading_docs').hide();
             checkHeight(offset);
 <scrd:loggedusers>

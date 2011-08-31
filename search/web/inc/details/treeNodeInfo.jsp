@@ -20,9 +20,8 @@
 
 <c:url var="url" value="${kconfig.solrHost}/select/" >
     <c:param name="q" >
-        PID:"${param.pid}"<c:if test="${param.model!=null}"> and fedora.model:${param.model}</c:if>
+        PID:"${param.pid}"
     </c:param>
-    <%--<c:param name="fl" value="PID,fedora.model,dc.title,details" />--%>
     
 </c:url>
 <c:import url="${url}" var="xml" charEncoding="UTF-8" />

@@ -147,7 +147,6 @@
         select="$pid"/>&amp;q=<xsl:value-of
         select="$q"/><xsl:value-of select="$fqs" disable-output-escaping="yes" />
         </xsl:variable>
-        
         <xsl:variable name="imagepid" >
             <xsl:choose>
                 <xsl:when test="contains($pid, '/@')">img?uuid=<xsl:value-of select="substring-before($pid, '/@')"/>&amp;stream=IMG_THUMB&amp;action=SCALE&amp;scaledHeight=128</xsl:when>
@@ -164,6 +163,12 @@
         </div>
         <xsl:variable name="model"><xsl:value-of select="concat('fedora.model.', ./str[@name='fedora.model'])" /></xsl:variable>
         <div class="resultText">
+            <xsl:if test="./str[@name='img_full_mime']" >
+                <span>
+                    <xsl:attribute name="style">overflow:hidden;text-indent:-200px;background: url('img/mime/<xsl:value-of select="./str[@name='img_full_mime']" />.png'); width:16px;height:16px;float:left;</xsl:attribute>
+                    <xsl:attribute name="title"><xsl:value-of select="./str[@name='img_full_mime']" /></xsl:attribute>
+                mime</span>
+            </xsl:if>
             <a><xsl:attribute name="href"><xsl:value-of select="normalize-space($link)"/></xsl:attribute>
             <b><xsl:value-of select="./str[@name='root_title']"/></b></a>&#160;
             <br/>(<xsl:value-of select="$bundle/value[@key=$model]"/>)
@@ -175,6 +180,7 @@
             <xsl:call-template name="details">
                 <xsl:with-param name="fmodel"><xsl:value-of select="$fmodel" /></xsl:with-param>
             </xsl:call-template>
+            <div class="extInfo" style="display:none;"><xsl:value-of select="./arr[@name='pid_path']/str[position()=1]"/></div>
             <xsl:call-template name="teaser">
                 <xsl:with-param name="pid"><xsl:value-of select="$pid" /></xsl:with-param>
             </xsl:call-template>

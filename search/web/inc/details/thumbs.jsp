@@ -76,9 +76,6 @@
         <tr id="tv_container_row"></tr>
     </table>
 </div>
-<table cellpadding="2" cellspacing="0" width="100%" id="tv_scroll_table">
-    <tr><td><div id="tv_slider" style="width: 100%"></div> </td></tr>
-</table>
 </div>
 <script type="text/javascript">
 
