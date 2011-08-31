@@ -5,9 +5,12 @@
     <xsl:param name="bundle" select="document($bundle_url)/bundle" />
     <xsl:param name="pid" select="pid"/>
     <xsl:template match="/">
-                <xsl:for-each select="//doc" >
-                        <xsl:call-template name="details" />
-                </xsl:for-each>
+        <xsl:for-each select="//doc" >
+            <xsl:sort select="position()" data-type="number" order="descending"/>
+            <xsl:variable name="model"><xsl:value-of select="concat('fedora.model.', ./str[@name='fedora.model'])" /></xsl:variable>
+            &gt; (<xsl:value-of select="$bundle/value[@key=$model]" />): 
+            <xsl:call-template name="details" />
+        </xsl:for-each>
     </xsl:template>
 
     <xsl:template name="details">
@@ -66,7 +69,6 @@
 
     <xsl:template name="periodicalvolume">
         <xsl:param name="detail" />
-        <xsl:value-of select="$bundle/value[@key='Datum vydání']"/>:
         <xsl:value-of select="substring-before($detail, '##')" />&#160;
         <xsl:value-of select="$bundle/value[@key='Číslo']"/>&#160;<xsl:value-of select="substring-after($detail, '##')" />
     </xsl:template>
@@ -81,7 +83,7 @@
             <span><xsl:value-of select="substring-before($remaining, '##')" />&#160;</span>
         </xsl:if>
         <xsl:variable name="remaining" select="substring-after($remaining, '##')" />
-        <span><xsl:value-of select="$bundle/value[@key='Datum vydání']"/>:
+        <span>
         <xsl:value-of select="substring-before($remaining, '##')" />&#160;
         <xsl:value-of select="$bundle/value[@key='Číslo']"/>&#160;<xsl:value-of select="substring-after($remaining, '##')" /></span>
 

@@ -20,12 +20,15 @@
     cz.incad.kramerius.service.XSLService xs = (cz.incad.kramerius.service.XSLService) ctxInj.getInstance(cz.incad.kramerius.service.XSLService.class);
     String xsl = "extInfo.xsl";
 %>
-<c:forTokens var="pid" varStatus="status" delims="/" items="${param.pid_path}">
-    <c:if test="${not(status.last || status.first)}">
-<c:url var="url" value="${kconfig.solrHost}/select/" >
-    <c:param name="q" >
-        PID:"${pid}"
-    </c:param>
+<c:set var="q"></c:set>
+<c:forTokens var="pid" varStatus="status" delims="/" items="${param.pid_path}">        
+<c:if test="${not(status.first)}">
+    <c:set var="q">${q} OR</c:set>
+</c:if> 
+    <c:set var="q">${q} PID:"${pid}"</c:set>
+</c:forTokens>
+<c:url var="url" value="${kconfig.solrHost}/select" >
+    <c:param name="q" value="${q}" />
 </c:url>
 <c:import url="${url}" var="xml" charEncoding="UTF-8" />
 <jsp:useBean id="xml" type="java.lang.String" />
@@ -57,5 +60,3 @@
         <c:out value="${xml}" />
     </c:when>
 </c:choose>
-</c:if> 
-</c:forTokens>

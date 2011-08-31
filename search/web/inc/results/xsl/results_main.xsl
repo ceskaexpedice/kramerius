@@ -130,6 +130,14 @@
                             <xsl:with-param name="pid"><xsl:value-of select="$pid" /></xsl:with-param>
                         </xsl:call-template>
                     </div>
+                    
+                    <div style="text-align:right;">&#160;
+                    <xsl:call-template name="collapse">
+                        <xsl:with-param name="pid"><xsl:value-of select="$pid" /></xsl:with-param>
+                        <xsl:with-param name="root_pid"><xsl:value-of select="./str[@name='root_pid']" /></xsl:with-param>
+                        <xsl:with-param name="model_path"><xsl:value-of select="./arr[@name='model_path']/str[position()=1]"/></xsl:with-param>
+                    </xsl:call-template>
+                    </div>
                     <div style="display:none;">
                         <xsl:attribute name="class">shadow-bottom uncollapsed </xsl:attribute>
                         <xsl:attribute name="id">uncollapsed_<xsl:value-of select="./str[@name='root_pid']"/></xsl:attribute>
@@ -154,24 +162,21 @@
                 <xsl:otherwise>img?uuid=<xsl:value-of select="$pid" />&amp;stream=IMG_THUMB&amp;action=SCALE&amp;scaledHeight=128</xsl:otherwise>
             </xsl:choose>
         </xsl:variable>
-        <div class="resultThumb" valign="top">
+        <xsl:variable name="model"><xsl:value-of select="concat('fedora.model.', ./str[@name='fedora.model'])" /></xsl:variable>
+        <table><tr><td valign="top">
+        <div class="resultThumb" valign="top" align="center">
             <a>
                 <xsl:attribute name="href"><xsl:value-of select="normalize-space($link)"/></xsl:attribute>
             <img class="th" border="1" onload="resultThumbLoaded(this);"><xsl:attribute name="id">img_<xsl:value-of select="$pid"/></xsl:attribute>
             <xsl:attribute name="src"><xsl:value-of select="$imagepid" /></xsl:attribute>
             </img></a>
+            <br/>(<xsl:value-of select="$bundle/value[@key=$model]"/>)
         </div>
-        <xsl:variable name="model"><xsl:value-of select="concat('fedora.model.', ./str[@name='fedora.model'])" /></xsl:variable>
+        </td><td valign="top">
         <div class="resultText">
-            <xsl:if test="./str[@name='img_full_mime']" >
-                <span>
-                    <xsl:attribute name="style">overflow:hidden;text-indent:-200px;background: url('img/mime/<xsl:value-of select="./str[@name='img_full_mime']" />.png'); width:16px;height:16px;float:left;</xsl:attribute>
-                    <xsl:attribute name="title"><xsl:value-of select="./str[@name='img_full_mime']" /></xsl:attribute>
-                mime</span>
-            </xsl:if>
             <a><xsl:attribute name="href"><xsl:value-of select="normalize-space($link)"/></xsl:attribute>
             <b><xsl:value-of select="./str[@name='root_title']"/></b></a>&#160;
-            <br/>(<xsl:value-of select="$bundle/value[@key=$model]"/>)
+            
             <div><xsl:attribute name="id">more_<xsl:value-of select="$pid"/></xsl:attribute>
             
             <xsl:call-template name="othersfields">
@@ -184,15 +189,9 @@
             <xsl:call-template name="teaser">
                 <xsl:with-param name="pid"><xsl:value-of select="$pid" /></xsl:with-param>
             </xsl:call-template>
-            <div style="text-align:right;">
-            <xsl:call-template name="collapse">
-                <xsl:with-param name="pid"><xsl:value-of select="$pid" /></xsl:with-param>
-                <xsl:with-param name="root_pid"><xsl:value-of select="$root_pid"/></xsl:with-param>
-                <xsl:with-param name="model_path"><xsl:value-of select="./arr[@name='model_path']/str[position()=1]"/></xsl:with-param>
-            </xsl:call-template>
-            </div>
             </div>
         </div>
+        </td></tr></table>
     </xsl:template>
 
     <xsl:template name="othersfields" >
@@ -208,7 +207,7 @@
 
     <xsl:template name="teaser">
         <xsl:param name="pid" />
-        <blockquote class="teaser">
+        <div class="teaser">
         <xsl:for-each select="../../lst[@name='highlighting']/lst">
             <xsl:if test="@name = $pid">
                 <xsl:for-each select="./arr[@name='text_ocr']/str">
@@ -216,7 +215,7 @@
                 </xsl:for-each>
             </xsl:if>
         </xsl:for-each>
-        </blockquote>
+        </div>
     </xsl:template>
 
     <xsl:template name="details">
@@ -280,7 +279,7 @@
     <xsl:template name="monographunit">
         <xsl:param name="detail" />
         <xsl:value-of select="$bundle/value[@key='Volume']"/>:&#160;<xsl:value-of select="substring-before($detail, '##')" />&#160;
-        <span class="translate"><xsl:value-of select="substring-after($detail, '##')" /></span>
+        <xsl:value-of select="substring-after($detail, '##')" />
     </xsl:template>
 
     <xsl:template name="internalpart">
@@ -296,7 +295,7 @@
     <xsl:template name="page">
         <xsl:param name="detail" />
         <xsl:value-of select="substring-before($detail, '##')" />&#160;
-        <span class="translate"><xsl:value-of select="substring-after($detail, '##')" /></span>
+        <xsl:value-of select="$bundle/value[@key=substring-after($detail, '##')]"/>
     </xsl:template>
 
 </xsl:stylesheet>

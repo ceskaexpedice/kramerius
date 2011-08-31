@@ -279,7 +279,7 @@ a.image:hover {
     padding-right:5px;
 }
 .resultText{
-    padding:5px;
+    /*padding:5px;*/
 }
 .resultText a{
     color:#e66c00;
@@ -287,7 +287,6 @@ a.image:hover {
 .teaser{
     color: #a2a2a2;
     font-size: 0.9em;
-    
 }
 .teaser span{
     color:black;

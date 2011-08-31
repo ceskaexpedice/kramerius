@@ -4,6 +4,10 @@
     #filters>ul>li>a{
         line-height: 17px;
     }
+    
+    .extInfo{
+        text-decoration: underline;
+    }
 
 </style>
 <div id="filters">
@@ -145,8 +149,8 @@ $(document).ready(function(){
         max = Math.max(max, $(jq(id1)+' img.th').height());
         var id2 = $(right).attr('id');
         max = Math.max(max, $(jq(id2)+' img.th').height());
-        $(left).css('height', max);
-        $(right).css('height', max);
+        $(left).css('height', max+13);
+        $(right).css('height', max+13);
     }
     
     function resultThumbLoaded(obj){
@@ -162,9 +166,9 @@ $(document).ready(function(){
     }
     
     function getExtInfo(){
-        $(".extInfo").each(function(){
+        $(".extInfo:hidden").each(function(){
             var info = $(this);
-            $(info).removeClass("extInfo");
+            //$(info).removeClass("extInfo");
             var pid_path = $(info).text();
             var url =  "inc/results/extendedInfo.jsp?pid_path=" + pid_path;
             $.get(url, function(data) {

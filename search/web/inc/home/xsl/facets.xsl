@@ -72,6 +72,14 @@
                 <xsl:variable name="fqId"><xsl:value-of select="$facetname" />:"<xsl:value-of select="@name" />"</xsl:variable>
                 <xsl:variable name="displayName"><xsl:choose>
                     <xsl:when test="@name=''"><xsl:value-of select="$bundle/value[@key='facets.uknown']" /></xsl:when>
+                    <xsl:when test="$facetname='document_type'">
+                        <xsl:variable name="f"><xsl:value-of select="concat('fedora.model.', @name)" /></xsl:variable>
+                        <xsl:value-of select="$bundle/value[@key=$f]" />
+                    </xsl:when>
+                    <xsl:when test="$facetname='dostupnost'">
+                        <xsl:variable name="f"><xsl:value-of select="concat('dostupnost.', @name)" /></xsl:variable>
+                        <xsl:value-of select="$bundle/value[@key=$f]" />
+                    </xsl:when>
                     <xsl:otherwise><xsl:value-of select="@name" /></xsl:otherwise>
                 </xsl:choose></xsl:variable>
                 <xsl:if test="not (contains($fqVal, $fqId))">
