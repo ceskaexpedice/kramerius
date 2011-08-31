@@ -280,8 +280,8 @@ a.image:hover {
 }
 .resultText{
     /*padding:5px;*/
-}
-.resultText a{
+} 
+.resultText a, .collapse_label a{
     color:#e66c00;
 }
 .teaser{

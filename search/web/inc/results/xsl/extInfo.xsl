@@ -8,9 +8,11 @@
         <xsl:for-each select="//doc" >
             <xsl:sort select="position()" data-type="number" order="descending"/>
             <xsl:variable name="model"><xsl:value-of select="concat('fedora.model.', ./str[@name='fedora.model'])" /></xsl:variable>
-            &gt; (<xsl:value-of select="$bundle/value[@key=$model]" />): 
-            <xsl:call-template name="details" />
+            <span class="ui-icon ui-icon-triangle-1-e" style="float:left;">a</span> 
+            <span style="float:left;">(<xsl:value-of select="$bundle/value[@key=$model]" />): 
+            <xsl:call-template name="details" /></span> 
         </xsl:for-each>
+        <div class="clear"></div>
     </xsl:template>
 
     <xsl:template name="details">
@@ -99,7 +101,9 @@
 
     <xsl:template name="internalpart">
         <xsl:param name="detail" />
+        <xsl:if test="substring-before($detail, '##')!=''">
         <xsl:value-of select="$bundle/value[@key=substring-before($detail, '##')]"/>:&#160;
+        </xsl:if>
         <xsl:variable name="remaining" select="substring-after($detail, '##')" />
         <xsl:value-of select="substring-before($remaining, '##')" />&#160;
         <xsl:variable name="remaining" select="substring-after($remaining, '##')" />

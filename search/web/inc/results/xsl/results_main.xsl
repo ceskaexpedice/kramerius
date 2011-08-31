@@ -131,7 +131,7 @@
                         </xsl:call-template>
                     </div>
                     
-                    <div style="text-align:right;">&#160;
+                    <div class="collapse_label" style="text-align:right;">&#160;
                     <xsl:call-template name="collapse">
                         <xsl:with-param name="pid"><xsl:value-of select="$pid" /></xsl:with-param>
                         <xsl:with-param name="root_pid"><xsl:value-of select="./str[@name='root_pid']" /></xsl:with-param>
@@ -167,7 +167,7 @@
         <div class="resultThumb" valign="top" align="center">
             <a>
                 <xsl:attribute name="href"><xsl:value-of select="normalize-space($link)"/></xsl:attribute>
-            <img class="th" border="1" onload="resultThumbLoaded(this);"><xsl:attribute name="id">img_<xsl:value-of select="$pid"/></xsl:attribute>
+            <img class="th" border="1" ><xsl:attribute name="id">img_<xsl:value-of select="$pid"/></xsl:attribute>
             <xsl:attribute name="src"><xsl:value-of select="$imagepid" /></xsl:attribute>
             </img></a>
             <br/>(<xsl:value-of select="$bundle/value[@key=$model]"/>)
@@ -284,12 +284,14 @@
 
     <xsl:template name="internalpart">
         <xsl:param name="detail" />
+        <!--
         <xsl:value-of select="$bundle/value[@key=substring-before($detail, '##')]"/>:&#160;
         <xsl:variable name="remaining" select="substring-after($detail, '##')" />
         <xsl:value-of select="substring-before($remaining, '##')" />&#160;
         <xsl:variable name="remaining" select="substring-after($remaining, '##')" />
         <xsl:value-of select="substring-before($remaining, '##')" />&#160;
         <xsl:value-of select="substring-after($remaining, '##')" />
+        -->
     </xsl:template>
 
     <xsl:template name="page">

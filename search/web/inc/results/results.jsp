@@ -6,7 +6,7 @@
     }
     
     .extInfo{
-        text-decoration: underline;
+        font-style: italic;
     }
 
 </style>
@@ -83,8 +83,7 @@ $(document).ready(function(){
     if($('#docs .more_docs').length>0){
         var id = $('#docs .more_docs').attr('id');
         if(isScrolledIntoWindow($('#'+id))){
-            getMoreDocs(id);
-            //alert(id);
+            //getMoreDocs(id);
         }
     }
 
@@ -144,24 +143,47 @@ $(document).ready(function(){
     
     function checkRowHeight(left, right){
         var max;
-        max = Math.max($(left).height(), $(right).height());
         var id1 = $(left).attr('id');
-        max = Math.max(max, $(jq(id1)+' img.th').height());
-        var id2 = $(right).attr('id');
-        max = Math.max(max, $(jq(id2)+' img.th').height());
-        $(left).css('height', max+13);
-        $(right).css('height', max+13);
+        if($(right).length>0){
+            var id2 = $(right).attr('id');
+            max = Math.max($(jq(id1)+'>div.result').height(), $(jq(id2)+'>div.result').height());
+            //max = Math.max(max, $(jq(id2)+' img.th').height());
+            max = Math.max(max, 140);
+        }else{
+            max = Math.max($(jq(id1)+'>div.result').height(), 140);
+        }
+        max = max + $(jq(id1)+'>div.collapse_label').height();
+        $(left).css('height', max);
+        $(right).css('height', max);
     }
     
     function resultThumbLoaded(obj){
+        checkRowHeightByElement(obj);
+        /*
         var div = $(obj).parent().parent().parent().parent();
         //alert($(div).attr('class'));
         if($(div).hasClass('0')){
             var div2 = $(div).prev();
             checkRowHeight(div2, div);
         }else{
-            //var div2 = $(div).prev();
-            //checkRowHeight(div2, div);
+            var div2 = $(div).prev();
+            checkRowHeight(div2, div);
+        }
+        */
+    }
+    
+    function checkRowHeightByElement(el){
+        var div = $(el);
+        while(!$(div).hasClass('search_result') && $(div).attr("id")!="docs_content"){
+            div = $(div).parent();
+        }
+        //alert( $(div).attr("id"));
+        if($(div).hasClass('0')){
+            var div2 = $(div).prev();
+            checkRowHeight(div2, div);
+        }else{
+            var div2 = $(div).next();
+            checkRowHeight(div, div2);
         }
     }
     
@@ -174,6 +196,7 @@ $(document).ready(function(){
             $.get(url, function(data) {
                 $(info).html(data);
                 $(info).show();
+                checkRowHeightByElement(info);
             });
         });
     }
