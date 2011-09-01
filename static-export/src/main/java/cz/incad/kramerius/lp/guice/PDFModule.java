@@ -9,6 +9,8 @@ import com.google.inject.name.Names;
 
 import cz.incad.kramerius.FedoraAccess;
 import cz.incad.kramerius.SolrAccess;
+import cz.incad.kramerius.document.DocumentService;
+import cz.incad.kramerius.document.impl.DocumentServiceImpl;
 import cz.incad.kramerius.impl.FedoraAccessImpl;
 import cz.incad.kramerius.impl.SolrAccessImpl;
 import cz.incad.kramerius.pdf.GeneratePDFService;
@@ -28,6 +30,7 @@ public class PDFModule extends AbstractModule {
 		bind(FedoraAccess.class).annotatedWith(Names.named("securedFedoraAccess")).to(FedoraAccessImpl.class).in(Scopes.SINGLETON);
 		bind(SolrAccess.class).to(SolrAccessImpl.class).in(Scopes.SINGLETON);
 		bind(GeneratePDFService.class).to(GeneratePDFServiceImpl.class).in(Scopes.SINGLETON);
+		bind(DocumentService.class).to(DocumentServiceImpl.class);
 		bind(Locale.class).toProvider(ArgumentLocalesProvider.class);
 
 		bind(TextsService.class).to(TextsServiceImpl.class).in(Scopes.SINGLETON);

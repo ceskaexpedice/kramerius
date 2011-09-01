@@ -61,3 +61,9 @@ htmlpage(dctitle, medium, files, mediumnumber) ::= <<
 file(name) ::= <<
 <tr><td><img src="img/pdf.png" /><a href="../$name$">$name$</a></td></tr>
 >>
+
+
+injectedAdminScripts() ::=<<
+<script  src="js/admin/admin.js" language="javascript" type="text/javascript"></script>
+<script  src="js/rights/adminRights.js" language="javascript" type="text/javascript"></script>
+>>
