@@ -6,7 +6,14 @@
     }
     
     .extInfo{
-        font-style: italic;
+        /*font-style: italic;*/
+    }
+    
+    .collapse_label{
+        position:absolute;
+        bottom:5px;
+        right:5px;
+        width:100%;
     }
 
 </style>
@@ -102,11 +109,12 @@ $(document).ready(function(){
     function refreshSelection(){
         var t = "";
         $('.search_result>input:checked').each(function(){
-            var id = $(this).parent().attr("id");
+            var li = getResultElement(this);
+            var id = $(li).attr("id");
             var escapedId = id.substring(4).replace(/\//g,'-');
             t += '<li id="cm_' + escapedId + '">';
             t += '<span class="ui-icon ui-icon-triangle-1-e folder " >folder</span>';
-            t += '<label>'+$(jq(id)+">div.result>div.resultText>a").html()+'</label></li>';
+            t += '<label>'+$(jq(id)+" div.resultText>a>b").html()+'</label></li>';
         });
         $('#context_items_selection').html(t);
         $('#context_items_active').html("");
@@ -157,27 +165,20 @@ $(document).ready(function(){
         $(right).css('height', max);
     }
     
-    function resultThumbLoaded(obj){
-        checkRowHeightByElement(obj);
-        /*
-        var div = $(obj).parent().parent().parent().parent();
-        //alert($(div).attr('class'));
-        if($(div).hasClass('0')){
-            var div2 = $(div).prev();
-            checkRowHeight(div2, div);
-        }else{
-            var div2 = $(div).prev();
-            checkRowHeight(div2, div);
-        }
-        */
-    }
-    
-    function checkRowHeightByElement(el){
+    function getResultElement(el){
         var div = $(el);
         while(!$(div).hasClass('search_result') && $(div).attr("id")!="docs_content"){
             div = $(div).parent();
         }
-        //alert( $(div).attr("id"));
+        return div;
+    }
+    
+    function resultThumbLoaded(obj){
+        checkRowHeightByElement(obj);
+    }
+    
+    function checkRowHeightByElement(el){
+        var div = getResultElement(el);
         if($(div).hasClass('0')){
             var div2 = $(div).prev();
             checkRowHeight(div2, div);
@@ -192,12 +193,14 @@ $(document).ready(function(){
             var info = $(this);
             //$(info).removeClass("extInfo");
             var pid_path = $(info).text();
-            var url =  "inc/results/extendedInfo.jsp?pid_path=" + pid_path;
-            $.get(url, function(data) {
-                $(info).html(data);
-                $(info).show();
-                checkRowHeightByElement(info);
-            });
+            if(pid_path.indexOf("/")>0){
+                var url =  "inc/results/extendedInfo.jsp?pid_path=" + pid_path;
+                $.get(url, function(data) {
+                    $(info).html(data);
+                    $(info).show();
+                    checkRowHeightByElement(info);
+                });
+            }
         });
     }
 
@@ -239,9 +242,9 @@ $(document).ready(function(){
     }
 
     function toggleCollapsed(root_pid, pid, offset){
-        $(jq("res_"+root_pid)+">div.uncollapsed").toggle();
+        $(jq("res_"+root_pid)+" div.uncollapsed").toggle();
         $(jq('uimg_' + root_pid) ).toggleClass('uncollapseIcon');
-        if($(jq("res_"+root_pid)+">div.uncollapsed").html()==""){
+        if($(jq("res_"+root_pid)+" div.uncollapsed").html()==""){
             uncollapse(root_pid, pid, offset);
         }
     }
@@ -253,8 +256,8 @@ $(document).ready(function(){
               "&pid=" + pid +
               "&fq=root_pid:\"" + root_pid.split("_")[1] + "\"" + "&fq=-PID:\"" + pid + "\"";
           $.get(url, function(xml) {
-              $(jq("res_"+root_pid)+">div.uncollapsed").html(xml);
-              $(jq("res_"+root_pid)+">div.uncollapsed").scrollTop(0);
+              $(jq("res_"+root_pid)+" div.uncollapsed").html(xml);
+              $(jq("res_"+root_pid)+" div.uncollapsed").scrollTop(0);
           });
     }
 </script>

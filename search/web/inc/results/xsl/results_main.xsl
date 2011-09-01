@@ -137,10 +137,10 @@
                         <xsl:with-param name="root_pid"><xsl:value-of select="./str[@name='root_pid']" /></xsl:with-param>
                         <xsl:with-param name="model_path"><xsl:value-of select="./arr[@name='model_path']/str[position()=1]"/></xsl:with-param>
                     </xsl:call-template>
-                    </div>
-                    <div style="display:none;">
-                        <xsl:attribute name="class">shadow-bottom uncollapsed </xsl:attribute>
-                        <xsl:attribute name="id">uncollapsed_<xsl:value-of select="./str[@name='root_pid']"/></xsl:attribute>
+                        <div style="display:none;">
+                            <xsl:attribute name="class">shadow-bottom uncollapsed </xsl:attribute>
+                            <xsl:attribute name="id">uncollapsed_<xsl:value-of select="./str[@name='root_pid']"/></xsl:attribute>
+                        </div>
                     </div>
                     </div>
                 </xsl:for-each>
@@ -164,18 +164,18 @@
         </xsl:variable>
         <xsl:variable name="model"><xsl:value-of select="concat('fedora.model.', ./str[@name='fedora.model'])" /></xsl:variable>
         <table><tr><td valign="top">
-        <div class="resultThumb" valign="top" align="center">
+        <div class="resultThumb" valign="top">
             <a>
                 <xsl:attribute name="href"><xsl:value-of select="normalize-space($link)"/></xsl:attribute>
             <img class="th" border="1" ><xsl:attribute name="id">img_<xsl:value-of select="$pid"/></xsl:attribute>
             <xsl:attribute name="src"><xsl:value-of select="$imagepid" /></xsl:attribute>
             </img></a>
-            <br/>(<xsl:value-of select="$bundle/value[@key=$model]"/>)
+            <br/><xsl:value-of select="$bundle/value[@key=$model]"/>
         </div>
         </td><td valign="top">
         <div class="resultText">
             <a><xsl:attribute name="href"><xsl:value-of select="normalize-space($link)"/></xsl:attribute>
-            <b><xsl:value-of select="./str[@name='root_title']"/></b></a>&#160;
+            <b><xsl:value-of select="./str[@name='dc.title']"/></b></a>&#160;
             
             <div><xsl:attribute name="id">more_<xsl:value-of select="$pid"/></xsl:attribute>
             
@@ -185,10 +185,10 @@
             <xsl:call-template name="details">
                 <xsl:with-param name="fmodel"><xsl:value-of select="$fmodel" /></xsl:with-param>
             </xsl:call-template>
-            <div class="extInfo" style="display:none;"><xsl:value-of select="./arr[@name='pid_path']/str[position()=1]"/></div>
             <xsl:call-template name="teaser">
                 <xsl:with-param name="pid"><xsl:value-of select="$pid" /></xsl:with-param>
             </xsl:call-template>
+            <div class="extInfo" style="display:none;"><xsl:value-of select="./arr[@name='pid_path']/str[position()=1]"/></div>
             </div>
         </div>
         </td></tr></table>

@@ -541,6 +541,8 @@ function checkIndexed(){
     var pid;
     $('.indexer_result').each(function(){
         pid = $(this).attr('pid');
+        var prefix = "info\:fedora\/";
+        pid = pid.replace(prefix,"");
         var obj = this;
         url = "inc/admin/_indexer_check.jsp?pid="+pid;
         $.get(url, function(data) {

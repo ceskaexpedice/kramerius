@@ -8,9 +8,10 @@
         <xsl:for-each select="//doc" >
             <xsl:sort select="position()" data-type="number" order="descending"/>
             <xsl:variable name="model"><xsl:value-of select="concat('fedora.model.', ./str[@name='fedora.model'])" /></xsl:variable>
-            <span class="ui-icon ui-icon-triangle-1-e" style="float:left;">a</span> 
-            <span style="float:left;">(<xsl:value-of select="$bundle/value[@key=$model]" />): 
-            <xsl:call-template name="details" /></span> 
+            <xsl:if test="position()&gt;1">| &#160;</xsl:if><xsl:value-of select="$bundle/value[@key=$model]" />: 
+            <a><xsl:attribute name="href">i.jsp?pid=<xsl:value-of
+        select="./str[@name='PID']"/></xsl:attribute><xsl:value-of select="./str[@name='dc.title']" /></a>
+            <!--<xsl:call-template name="details" />-->&#160;
         </xsl:for-each>
         <div class="clear"></div>
     </xsl:template>

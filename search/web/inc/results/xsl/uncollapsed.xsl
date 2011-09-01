@@ -8,11 +8,9 @@
         <xsl:if test="//doc" >
             <div><xsl:attribute name="id">uncoll_<xsl:value-of select="$root_pid"/></xsl:attribute>
                 <xsl:for-each select="//doc" >
-                    <xsl:if test="not(preceding-sibling::*[1]/str[@name='fedora.model'] = ./str[@name='fedora.model']/text())">
                     <xsl:call-template name="rels">
                         <xsl:with-param name="fmodel"><xsl:value-of select="./str[@name='fedora.model']" /></xsl:with-param>
                     </xsl:call-template>
-                    </xsl:if>
                 </xsl:for-each>
             </div>
          </xsl:if>
@@ -20,7 +18,6 @@
 
     <xsl:template name="rels">
         <xsl:param name="fmodel" />
-        <xsl:for-each select="//doc[str[@name='fedora.model']=$fmodel]" >
             <xsl:variable name="solruuid"><xsl:value-of select="./str[@name='PID']"/></xsl:variable>
             <div>
                 <xsl:attribute name="class">r<xsl:value-of select="position() mod 2"/></xsl:attribute>
@@ -29,18 +26,17 @@
                 <xsl:call-template name="details">
                     <xsl:with-param name="fmodel"><xsl:value-of select="$fmodel" /></xsl:with-param>
                 </xsl:call-template>
-            </a>
+                </a>
             <div class="teaser">
                 <xsl:for-each select="../../lst[@name='highlighting']/lst">
                     <xsl:if test="@name = $solruuid">
-                        <xsl:for-each select="./arr[@name='text']/str">
+                        <xsl:for-each select="./arr[@name='text_ocr']/str">
                         (... <xsl:value-of select="." disable-output-escaping="yes" /> ...)<br/>
                         </xsl:for-each>
                     </xsl:if>
                 </xsl:for-each>
             </div>
             </div>
-        </xsl:for-each>
 
     </xsl:template>
 
@@ -49,12 +45,11 @@
         <xsl:param name="fmodel" />
             <xsl:choose>
                 <xsl:when test="$fmodel='monograph'">
-                    <xsl:value-of select="./str[@name='dc.title']" /><br />
-                    autor: <xsl:value-of select="./arr[@name='dc.creator']/str" />
+                    <xsl:value-of select="./str[@name='dc.title']" />&#160;
                 </xsl:when>
                 <xsl:when test="$fmodel='monographunit'">
-                    <xsl:value-of select="$bundle/value[@key='fedora.model.monographunit']"/><br/>
-                    <xsl:value-of select="./str[@name='dc.title']" /><br/>
+                    <xsl:value-of select="$bundle/value[@key='fedora.model.monographunit']"/>:&#160;
+                    <xsl:value-of select="./str[@name='dc.title']" />&#160;
                     <xsl:call-template name="monographunit">
                         <xsl:with-param name="detail"><xsl:value-of select="./arr[@name='details']/str" /></xsl:with-param>
                     </xsl:call-template>
@@ -73,7 +68,7 @@
                     </xsl:call-template>
                 </xsl:when>
                 <xsl:when test="$fmodel='internalpart'">
-                    <xsl:value-of select="$bundle/value[@key='fedora.model.internalpart']"/><br/>
+                    <xsl:value-of select="$bundle/value[@key='fedora.model.internalpart']"/>:&#160;
                     <xsl:value-of select="dc.title" />&#160;
                     <xsl:call-template name="internalpart">
                         <xsl:with-param name="detail"><xsl:value-of select="./arr[@name='details']/str" /></xsl:with-param>

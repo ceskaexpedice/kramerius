@@ -23,6 +23,7 @@
             <span class="value"><xsl:value-of select="./mods:identifier[@type='issn']" /></span>
         </li>
         </xsl:if>
+        <xsl:if test="mods:titleInfo/mods:title/text()">
         <li>
             <span class="label"><xsl:value-of select="$bundle/value[@key='filter.maintitle']"/></span>:&#160;
             <span class="value"><xsl:value-of select="mods:titleInfo/mods:title" /></span>
@@ -32,25 +33,42 @@
                 <span class="value"><xsl:value-of select="mods:titleInfo/mods:subTitle" /></span>
             </xsl:if>
         </li>
+        </xsl:if>
         
         <xsl:if test="$level &gt; 0">
         </xsl:if>
+        
         <xsl:if test="mods:part/mods:detail[@type = 'volume']/mods:number">
-
         <li>
+        <span class="label">
         <xsl:value-of select="$bundle/value[@key='Datum vydání']"/>&#160;
+        </span>
+        <span class="value">
         <xsl:value-of select="mods:part/mods:date" />&#160;
+        </span>
+        <span class="label">
         <xsl:value-of select="$bundle/value[@key='Číslo']"/>&#160;
+        </span>
+        <span class="value">
         <xsl:value-of select="mods:part/mods:detail[@type = 'volume']/mods:number" />
+        </span>
         </li>
         </xsl:if>
 
         <xsl:if test="mods:part[@type = 'PeriodicalIssue']">
         <li>
+        <span class="label">
         <xsl:value-of select="$bundle/value[@key='Datum vydání']"/>&#160;
+        </span>
+        <span class="value">
         <xsl:value-of select="mods:part[@type = 'PeriodicalIssue']/mods:date" />&#160;
+        </span>
+        <span class="label">
         <xsl:value-of select="$bundle/value[@key='Číslo']"/>&#160;
+        </span>
+        <span class="value">
         <xsl:value-of select="mods:part[@type = 'PeriodicalIssue']/mods:detail[@type = 'issue']/mods:number" />
+        </span>
         </li>
         </xsl:if>
 
@@ -74,14 +92,19 @@
 
         <!-- monograph unit -->
         <xsl:if test="mods:part[@type = 'Volume']/mods:detail">
+        <span class="label">
         <xsl:value-of select="$bundle/value[@key='Volume']"/>
+        </span>
+        <span class="value">
         <xsl:if test="mods:part[@type = 'Volume']/mods:detail/mods:title != ''" >
             &#160;(<xsl:value-of select="mods:part[@type = 'Volume']/mods:detail/mods:title" />)
         </xsl:if> - <xsl:value-of select="mods:part[@type = 'Volume']/mods:detail/mods:number" />
+        </span>
         </xsl:if>
         <!-- end monograph unit -->
 
         <!-- internal part -->
+            <span class="label">
             <xsl:choose>
                 <xsl:when test="$partType='Chapter'">
                     (<xsl:value-of select="$bundle/value[@key='Chapter']"/>) - </xsl:when>
@@ -90,7 +113,10 @@
                 <xsl:when test="$partType='Introduction'">
                     (<xsl:value-of select="$bundle/value[@key='Introduction']"/>) - </xsl:when>
             </xsl:choose>
+            </span>
+            <span class="value">
             <xsl:value-of select="mods:part/mods:extent/mods:list" />
+            </span>
         <!-- end internal part -->
 
 
@@ -180,8 +206,10 @@
         <xsl:if test="mods:physicalDescription/mods:note[@type='preservationStateOfArt']">
         <h3><xsl:value-of select="$bundle/value[@key='Stav z hlediska ochrany fondů']"/></h3>
         <li>
-            <span class="value">
+            <span class="label">
                     <xsl:value-of select="$bundle/value[@key='Aktuální stav']"/>:
+            </span>
+            <span class="value">
                     <xsl:value-of select="mods:physicalDescription/mods:note[@type='preservationStateOfArt']" />
             </span>
         </li>

@@ -1,3 +1,13 @@
+<style type="text/css">
+    #extendedMetadata li{
+        list-style-type: none;
+    }
+    
+    #extendedMetadata h3{
+        margin-bottom:5px;
+    }
+    
+</style>
 <div id="extendedMetadata" class="viewer">
     <div class="level0"><div class="meta"></div></div>
 </div>

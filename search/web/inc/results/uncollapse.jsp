@@ -28,6 +28,20 @@
 <c:url var="xslPage" value="xsl/uncollapsed.xsl" />
 <c:catch var="exceptions"> 
     <c:import url="${xslPage}" var="xsltPage" charEncoding="UTF-8"  />
+    <% out.clear();%>
+    <c:if test="${param.debug =='true'}"><c:out value="${url}" /></c:if>
+    
+    <x:transform doc="${xml}"  xslt="${xsltPage}"  >
+        <x:param name="bundle_url" value="${i18nServlet}"/>
+        <x:param name="root_pid" value="${param.root_pid}"/>
+        <x:param name="q" value="${param.q}"/>
+    </x:transform>
+<%--    
+    <c:set var="obj" value="#tabs_${param.level}" />
+    <c:set var="href" value="#{href}" />
+    <c:set var="label" value="#{label}" />
+    <c:set var="target" value="#tab${label}-page" />
+--%>    
 </c:catch>
 <c:choose>
     <c:when test="${exceptions != null}">
@@ -35,22 +49,5 @@
         <c:out value="${url}" />
         <c:out value="${xml}" />
     </c:when>
-    <c:otherwise>
-        <% out.clear();%>
-        <c:if test="${param.debug =='true'}"><c:out value="${url}" /></c:if>
-        <c:catch var="exceptions2"> 
-            <x:transform doc="${xml}"  xslt="${xsltPage}"  >
-                <x:param name="bundle_url" value="${i18nServlet}"/>
-                <x:param name="root_pid" value="${param.root_pid}"/>
-                <x:param name="q" value="${param.q}"/>
-            </x:transform>
-            <c:set var="obj" value="#tabs_${param.level}" />
-            <c:set var="href" value="#{href}" />
-            <c:set var="label" value="#{label}" />
-            <c:set var="target" value="#tab${label}-page" />
-        </c:catch>
-        <c:if test="${exceptions2 != null}"><c:out value="${exceptions2}" />
-        </c:if>
-    </c:otherwise>
 </c:choose>
 <%@ include file="pagination.jsp" %>

@@ -287,6 +287,8 @@ a.image:hover {
 .teaser{
     color: #a2a2a2;
     font-size: 0.9em;
+    margin-bottom:5px;
+    margin-top:5px;
 }
 .teaser span{
     color:black;
@@ -300,10 +302,11 @@ div.search_result{
     margin:2px;
     padding:5px;
     padding-bottom:8px;
+    position:relative;
 }
 
 .uncollapsed{
-    position:relative;
+    position:absolute;
     background:white;
     border:1px solid silver;
     border-top:none;
@@ -311,6 +314,9 @@ div.search_result{
     max-height: 300px;
     _height: expression(this.scrollHeight > 300? "300px" : "auto" );
     overflow:auto;
+    z-index:100;
+    width:100%;
+    text-align: left;
 }
 .uncollapsed div{
     margin: 3px;
@@ -368,6 +374,11 @@ div.search_result{
 }
 
 .value{
-    font-family: Times;
-    font-size: 1.3em;
+    /*font-family: Times;*/
+    font-size: 1.1em;
+}
+
+.label{
+    /*font-family: Times;*/
+    color: #a2a2a2;
 }

@@ -63,6 +63,8 @@
     }
     #tv_path span{
         float:left;
+        line-height: 17px;
+        vertical-align: middle;
     }
     #tv_container_row div.inactive>img{
         width:80px;

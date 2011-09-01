@@ -23,11 +23,12 @@
 
     #contextMenu{
         margin: 2px;
-        padding-left: 8px;
+        padding-left: 4px;
+        padding-right: 4px;
     }
     #contextMenu ul{
         margin: 2px;
-        padding-left: 12px;
+        padding-left: 4px;
     }
     #contextMenu li{
         list-style-type: none;
@@ -44,16 +45,20 @@
         display:block;
         float:left;
     }
+    
+    #contextMenu .scope>span{
+        font-weight: bold;
+    }
 </style>
-<div>Scope</div>
-<div class="scope selected viewer" id="scope_single"><fmt:message bundle="${lctx}">administrator.menu.active</fmt:message>
+<div><h3><fmt:message bundle="${lctx}">administrator.menu.Scope</fmt:message>:</h3></div>
+<div class="scope selected viewer" id="scope_single"><span><fmt:message bundle="${lctx}">administrator.menu.active</fmt:message></span>
     <ul id="context_items_active"></ul>
 </div>
-<div class="scope" id="scope_multiple"><fmt:message bundle="${lctx}">administrator.menu.selected.scope</fmt:message>
+<div class="scope" id="scope_multiple"><span><fmt:message bundle="${lctx}">administrator.menu.selected.scope</fmt:message></span>
     <ul id="context_items_selection"></ul>
 </div>
 <div style="height:0px;border-top:1px solid silver;"></div>
-<div>Actions: 
+<div><h3><fmt:message bundle="${lctx}">administrator.menu.Actions</fmt:message>:</h3> 
     <ul id="contextMenuList">
         <c:forEach var="item" items="${ctxMenu.items}" varStatus="status">
             <%-- multiple item --%>
