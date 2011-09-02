@@ -26,9 +26,9 @@
     
     <script type="text/javascript">
 
-    var rightContainer = {
+    rightContainer = {
    		affectedObjects: [
-            <c:forEach var="pid" items="${newRight.pidsParams}" varStatus="st">${st.index > 0 ? "," :""} '${pid}'  </c:forEach>
+            <c:forEach var="pid" items="${newRight.pidsParams}" varStatus="st">${st.index > 0 ? "," :""} "${pid}"  </c:forEach>
         ],    
 	    data: {
 	        //action:'${newRight.action}',
@@ -40,11 +40,10 @@
                 ident:${newRight.critparamsid},
                 shortDesc:'${newRight.critparamdesc}',
                 objects:[
-                         <c:forEach var="p" items="${newRight.critparams}" varStatus="status">
+                      <c:forEach var="p" items="${newRight.critparams}" varStatus="status">
                          ${status.index > 0 ? "," :""} "${p}"   
                       </c:forEach>
-
-                         ]
+                 ]
             },
             priority:0, 
             role:'${newRight.appliedRole}'
@@ -68,16 +67,28 @@
         }               
     };
 
+    function _radio_change(elm) {
+        var rb = $("input:radio:checked");
+        if (rb.val()==="role")  {
+            $("#userId").show();
+            $("#userId").val("");
+        } else {
+            $("#userId").hide();
+        }
+     }        
+
+    
+
     function initUI() {
-        alert("initializing ...");
-            if (!rightContainer.data.justcreated) {
+
+        if (!rightContainer.data.justcreated) {
             if (rightContainer.data.role !== 'common_users') {
                 $("#roleType").attr("checked", "checked");
-                $("#userId").val(rightContainer.data.role);
 
                 $("#roleType").each(function(elm) {
                     _radio_change(elm);
                 });
+                $("#userId").val(rightContainer.data.role);
             }            
 
             if (rightContainer.data.condition) {
@@ -127,17 +138,6 @@
                         <img src="img/rights-group.png">
                     </span>
                     
-                    <script type="text/javascript">
-                                function _radio_change(elm) {
-                                	var rb = $("input:radio:checked");
-                                    if (rb.val()==="role")  {
-                                        $("#userId").show();
-                                        $("#userId").val("");
-                                    } else {
-                                        $("#userId").hide();
-                                    }
-                                 }        
-                    </script>
                 </td>
                 </tr>
             
@@ -243,7 +243,6 @@
                                 var selected = $("select[name='params'] option:selected").val();
                                 // edit
                                 if (selected) {
-                                    alert(selected);
                                 	var foundItem = reduce(function(base, item){
                                 		var str = ""+item.ident;
                                         if (base != null) return base; 

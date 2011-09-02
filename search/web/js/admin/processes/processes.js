@@ -61,7 +61,7 @@ Processes.prototype.subprocesses = function(id) {
     if (this.displayedRows.indexOf(id) >= 0) {
         $("#"+id).hide();
         $("#"+id+"_icon").attr("src","img/nolines_plus.gif");
-        this.displayedRows.remove(this.displayedRows.indexOf(id));
+        this.displayedRows.rm(this.displayedRows.indexOf(id));
     } else {
         $("#"+id).show();
         $("#"+id+"_icon").attr("src","img/nolines_minus.gif");

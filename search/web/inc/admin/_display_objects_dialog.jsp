@@ -38,26 +38,28 @@
 	            <tr>
 	                <td width="8px"></td>
 	                <td><strong>Jmeno</strong></td>
-	                <td><strong>Popis</strong></td>
+                    <td><strong>Model</strong></td>
+                    <td><strong>PID</strong></td>
 	            </tr>
 	        </thead>
 	        <tbody>
 	            <c:forEach items="${objectsView.affectedObjects}" var="object" varStatus="status">
 	                <tr id="${object.pid}" class="${(status.index mod 2 == 0) ? 'result r0': 'result r1'}">
-                       <td><span class="ui-icon ui-icon-triangle-1-e folder">folder</span>
                        </td>
 	                   <td>
 	                        <c:choose>
 	                            <c:when test="${object.accessed}">
-	                              <input id="_check_${object.pid}" type="checkbox" checked="checked" ></input>
+	                              <input id="_check_${object.pid}" type="checkbox" checked="checked"  onchange="affectedObjectsRights.onChange('${object.pid}');" value="${object.pid}"></input>
 	                            </c:when>
 	                            <c:otherwise>
-	                               <input id="_check_${object.pid}" type="checkbox" ></input>
+	                               <input id="_check_${object.pid}" type="checkbox" onchange="affectedObjectsRights.onChange('${object.pid}');" value="${object.pid}"></input>
 	                            </c:otherwise>
 	                        </c:choose>
+	                        
 	                   </td>
 	                   <td id="_title_${object.pid}">${object.title}</td>
-	                   <td id="_comment_${object.pid}">${object.comment}</td>
+	                   <td id="_comment_${object.pid}">${object.modelName}</td>
+                       <td id="_pid_${object.pid}">${object.pid}</td>
 	               </tr>
 	            </c:forEach>
 	        </tbody>

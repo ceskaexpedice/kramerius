@@ -41,11 +41,22 @@
         <div style="border-bottom: 1px solid gray;">
 			<table>
 			    <tr>
-			        <td width="100%"></td>
+			        <td width="100%"><span id="${rights.securedAction}_waiting"></span></td>
 			        <td>
 			          <a href="javascript:affectedObjectsRights.securedActionTabs['${rights.securedAction}'].newRight();" style="background:url('img/add.png') no-repeat scroll; border-width:0px; display:block; height:18px; width:18px;">
 			           </a>
 			       </td>
+
+                    <td>
+                      <a href="javascript:affectedObjectsRights.securedActionTabs['${rights.securedAction}'].globalDelete();" style="background:url('img/minus.png') no-repeat scroll; border-width:0px; display:block; height:18px; width:18px;">
+                       </a>
+                   </td>
+
+                    <td>
+                      <a href="javascript:affectedObjectsRights.securedActionTabs['${rights.securedAction}'].globalEdit();" style="background:url('img/edit.png') no-repeat scroll; border-width:0px; display:block; height:18px; width:18px;">
+                       </a>
+                   </td>
+
 			       <td><a href="javascript:affectedObjectsRights.securedActionTabs['${rights.securedAction}'].retrieve();" style="background:url('img/refresh.png') no-repeat scroll; border-width:0px; display:block; height:18px; width:18px;" >
 			        </a></td>    
 			    </tr>
@@ -88,11 +99,11 @@
 					                                   <thead style="border-bottom: 1px dashed; background-image: url('img/bg_rights_table.png'); background-repeat: repeat-x; height: 28px;">
 					                                       <tr>
 					                                           <td width="6px" style="border-top: 1px solid black;"></td>
-                                                               <td width="134px" align="center" style="border-top: 1px solid black;"><strong>Objekt</strong></td>
-                                                               <td width="100px" align="center" style="border-top: 1px solid black;"><strong>Akce</strong></td>
+                                                               <td width="60px" align="center" style="border-top: 1px solid black;"><strong>Objekt</strong></td>
+                                                               <td width="60px" align="center" style="border-top: 1px solid black;"><strong>Akce</strong></td>
                                                                <td width="130px" align="center" style="border-top: 1px solid black;"><strong>Uzivatelska role</strong></td>
-                                                               <td width="10px" align="center" style="border-top: 1px solid black;"><strong>Priorita</strong></td>
-                                                               <td width="100px" align="center" style="border-top: 1px solid black;"><strong>Kriterium</strong></td>
+                                                               <td title="Priorita" width="15px" align="center" style="border-top: 1px solid black;"><strong>..</strong></td>
+                                                               <td width="140px" align="center" style="border-top: 1px solid black;"><strong>Kriterium</strong></td>
                                                                <td align="center" style="border-top: 1px solid black;"><strong>Parametry kriteria</strong></td>
                                                                <td width="60px" align="center" style="border-top: 1px solid black;"><strong>Zmena</strong></td>
 					                                       </tr>
@@ -102,10 +113,10 @@
 					                                               <tr> 
 					                                                    <td><div style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${status.index}</div></td> 
                                                                         <td><div style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${right.title}</div></td> 
-					                                                    <td><div style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${right.action}</div></td> 
+					                                                    <td title="<view:msg>rights.action.${right.action}</view:msg>"><div style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;"><view:msg>rights.action.${right.action}.formalName</view:msg></div></td> 
                                                                         <td><div style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${right.user}</div></td> 
                                                                         <td><div style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${right.fixedPriority}</div></td> 
-					                                                    <td><div style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${right.criteriumWrapper!=null ? right.criteriumWrapper : ''}</div></td> 
+					                                                    <td title="${right.criteriumWrapper!=null ? right.criteriumWrapper : "cz.incad.kramerius.security.impl.criteria.none"}"><div style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;"> <view:msg>${right.criteriumWrapper!=null ? right.criteriumWrapper : 'cz.incad.kramerius.security.impl.criteria.none'}</view:msg></div></td> 
                                                                         <td><div style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;"> ${right.criteriumWrapper!=null ? right.criteriumWrapper.criteriumParams : '' }</div></td> 
                                                                         <td>
                                                                           <table>
