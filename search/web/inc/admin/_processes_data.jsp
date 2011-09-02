@@ -109,6 +109,8 @@
 
 function _ref(ordering, offset, size, type) {
 	//$('#animation').attr('src', 'img/refresh_ani.gif');
+        
+        $("#processes").html('<div style="margin-top:30px;width:100%;text-align:center;"><img src="img/loading.gif" alt="loading" /></div>');
 	var refreshurl = "inc/admin/_processes_data.jsp?ordering="+ordering+"&offset="+offset+"&size="+size+"&type="+type;
 	$.get(refreshurl, function(sdata) {
 		//$('#animation').attr('src', 'img/refresh.png'); 
