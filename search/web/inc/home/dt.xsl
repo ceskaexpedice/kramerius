@@ -3,7 +3,7 @@
     <xsl:param name="bundle_url" select="bundle_url" />
     <xsl:param name="bundle" select="document($bundle_url)/bundle" />
     <xsl:template match="/">
-        <div>KRAMERIUS 4 <xsl:value-of select="$bundle/value[@key='home.document.type']"/>&#160;
+        <div><xsl:value-of select="$bundle/value[@key='home.document.type']"/>&#160;
         <xsl:for-each select="response/lst[@name='facet_counts']/lst[@name='facet_fields']/lst[@name='document_type']/int">
             <span><b><a>
                 <xsl:attribute name="href">r.jsp?fq=document_type:<xsl:value-of select="@name" /></xsl:attribute>

@@ -1,6 +1,6 @@
 /* Interface variables */
-var containerWidth = 175;
-var containerHeight = 600;
+var containerWidth = 179;
+var containerHeight = 593;
 var groupTitleHeight = 20;
 var maxHeight = 80;
 var barContainerHeight = 5;
@@ -228,7 +228,7 @@ function doFilter(){
     page.setValue("offset", "0");
     page.setValue(fromField, decodeDate($("#" + fromField).val()));
     page.setValue(toField, decodeDate($("#" + toField).val()));
-    var newurl = "?" + page.toString() + dateAxisAdditionalParams;
+    var newurl = "r.jsp?" + page.toString() + dateAxisAdditionalParams;
 
     document.location.href = newurl;
 
@@ -537,7 +537,7 @@ function fillDateAxis(level){
     
    // $("#content-scroll").css("width", containerWidth + "px");
     $("#content-scroll").css("height", containerHeight + "px");
-    $("#content-resizable").css("height", (containerHeight+5) + "px");
+    $("#content-resizable").css("height", (containerHeight+7) + "px");
     var sliderh = $("#content-scroll").height();
     $("#content-slider2").css("height", sliderh);
     sliderh = sliderh - $(".ui-slider-handle").height();
@@ -547,7 +547,7 @@ function fillDateAxis(level){
 }
 
 function resizeContent(){
-    $("#content-scroll").css("height", $("#content-resizable").height()-5);
+    $("#content-scroll").css("height", $("#content-resizable").height()-7);
     positionCurtains();
 }
 /* ranges */

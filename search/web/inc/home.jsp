@@ -28,7 +28,7 @@
 
 <%@ include file="home/tabs.jsp" %>
 </div>
-<div id="homedabox" style="float:left;width:230px;margin-top:7px;margin-left:4px;">
+<div id="homedabox" style="float:left;width:239px;margin-top:7px;margin-left:4px;">
     <ul><li><a href="#dadiv"><fmt:message bundle="${lctx}" key="Časová osa" /></a></li></ul>
 <div id="dadiv" style="padding:3px;"><%@ include file="dateAxisV.jsp" %></div>
 </div>

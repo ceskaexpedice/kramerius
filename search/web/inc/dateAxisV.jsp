@@ -239,7 +239,6 @@ $(document).ready(function(){
 <div id="da_zoom" style="display:none;" >
 <a href="javascript:zoomOut();" >zoom out</a>
 </div>
-<div id="kk"></div>
 <%}else{
 %>
 <script>

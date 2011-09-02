@@ -8,7 +8,7 @@
 <div id="main_menu" style="">
     <%@ include file="menu.jsp" %>
 </div>
-<div id="searchFormDiv" style="vertical-align:middle;margin:auto;padding:15px;width:600px;">
+<div id="searchFormDiv" style="vertical-align:middle;margin:auto;padding:7px;width:600px;">
     <%@ include file="searchForm.jsp" %>
 </div>
 </div>
