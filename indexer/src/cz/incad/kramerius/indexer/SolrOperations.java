@@ -310,7 +310,7 @@ public class SolrOperations {
             boolean force,
             InputStream foxmlStream) {
 
-        logger.log(Level.INFO, "indexing -> {0}", pid);
+        logger.log(Level.INFO, "indexing -> {0}; count: {1}", new Object[]{pid, updateTotal});
         int num = 0;
         ArrayList<String> pids = new ArrayList<String>();
         ArrayList<String> models = new ArrayList<String>();
