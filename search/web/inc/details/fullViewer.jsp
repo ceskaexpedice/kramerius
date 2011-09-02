@@ -119,8 +119,6 @@
          fullImageWidth = newImg.width;
          fullImageHeight = newImg.height;
     }
-    function imgLoaded(){
-    }
     function changeFullImageZoom(){
         
         var zoom = $('#fullImageZoom').val();

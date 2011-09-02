@@ -453,8 +453,6 @@
     
         });
     }
-
-    
         
     function exportFOXML(){
         var structs = pidstructs();     
@@ -462,7 +460,7 @@
             var u = urlWithPids("lr?action=start&def=aggregate&out=text&nparams={export;",structs)+"}";
             processStarter("export").start(u);
         } else {
-            var u = urlWithPids("lr?action=start&def=export&out=text&nparams={",structs)+"}";
+            var u = urlWithPids("lr?action=start&def=export&out=text&nparams=",structs);
             processStarter("export").start(u);
         }
     }

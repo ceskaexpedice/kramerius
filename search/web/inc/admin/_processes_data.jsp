@@ -89,6 +89,18 @@
         border-top: 2px solid #E66C00;
         margin-top: 3px;
     }
+    #processes td{
+        padding-bottom:3px;
+    }
+    #processes tr.subprocess{
+        display: none;
+    }
+    #processes tr.subprocess>td.t1{
+        border-left:solid 1px #E66C00;
+    }
+    #processes tr.subprocess>td.t2{
+        padding-left:10px;
+    }
      
          
 </style>
@@ -124,7 +136,7 @@ function _ref(ordering, offset, size, type) {
 </div>
 
 </div>
-<table width="100%" style="width:100%; bottom:20px;">
+<table width="100%" style="width:100%; bottom:20px;" cellpadding="0" cellspacing="0">
     <thead style="border-bottom: dashed 1px;background-image:url('img/bg_processheader.png');
                   background-repeat:  repeat-x;" >
         <tr>
@@ -150,47 +162,21 @@ function _ref(ordering, offset, size, type) {
                 <td>${lrProc.startedBy}</td>
                 <td>${lrProc.killURL}${lrProc.actionsURLs}${lrProc.deleteURL}</td>
             </tr>
-            
-            <tr>
-                <td colspan="8">
-                    <c:if test="${lrProc.masterProcess}">
-                        <div style="display: none;" id="${lrProc.UUID}"> 
-	                        <table style="width: 100%">
-
-							    <thead style="border-bottom: dashed 1px;background-image:url('img/bg_processheader.png');
-							                  background-repeat:  repeat-x;" >
-							        <tr>
-							            <td width="16px"><strong> </strong></td>
-							            <td width="40%"><strong>${processView.nameOrdering}</strong></td>
-							            <td width="5%"><strong>${processView.pidOrdering}</strong></td>
-							            <td width="10%"><strong>${processView.stateOrdering}</strong></td>
-							            <td><strong>${processView.dateOrdering}</strong></td>
-							            <td><strong>${processView.plannedDateOrdering}</strong></td>
-							            <td><strong>${processView.userOrdering}</strong></td>
-							            <td  width="10%"><strong>Akce</strong></td>
-							        </tr>
-							    </thead>
-
-                                <tbody>
-							        <c:forEach var="childLrProc" items="${lrProc.childProcesses}" varStatus="ch">
-							            <tr class="${(ch.index mod 2 == 0) ? 'result r0': 'result r1'}">
-                                            <td><strong> </strong></td>
-							                <td>${childLrProc.processName} </td>
-							                <td>${childLrProc.pid} </td>
-							                <td>${childLrProc.processState}</td>
-							                <td>${childLrProc.start}</td>
-							                <td>${childLrProc.planned}</td>
-							                <td>${childLrProc.startedBy}</td>
-							                <td>${childLrProc.killURL}${childLrProc.actionsURLs}${childLrProc.deleteURL}</td>
-							            </tr>
-	                                </c:forEach>
-                                
-                                </tbody>	                        
-	                        </table>  
-                        </div>
-                    </c:if>
-                </td>
-            </tr>
+            <c:if test="${lrProc.masterProcess}">
+            <c:forEach var="childLrProc" items="${lrProc.childProcesses}" varStatus="ch">
+                <tr class="${(ch.index mod 2 == 0) ? 'result r0 ': 'result r1 '} ${lrProc.UUID} subprocess">
+                    <td class="t1"><strong> </strong></td>
+                    <td class="t2">${childLrProc.processName} </td>
+                    <td>${childLrProc.pid} </td>
+                    <td>${childLrProc.processState}</td>
+                    <td>${childLrProc.start}</td>
+                    <td>${childLrProc.planned}</td>
+                    <td>${childLrProc.startedBy}</td>
+                    <td>${childLrProc.killURL}${childLrProc.actionsURLs}${childLrProc.deleteURL}</td>
+                </tr>
+            </c:forEach>
+                <tr class="${lrProc.UUID} subprocess"><td colspan="8" style="border-top:solid 1px #E66C00;"></td></tr>
+            </c:if>
         </c:forEach>
     </tbody>
 </table>

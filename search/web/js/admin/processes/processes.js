@@ -59,11 +59,11 @@ Processes.prototype.refreshProcesses = function(ordering, offset, size, type) {
 
 Processes.prototype.subprocesses = function(id) {
     if (this.displayedRows.indexOf(id) >= 0) {
-        $("#"+id).hide();
+        $("."+id).hide();
         $("#"+id+"_icon").attr("src","img/nolines_plus.gif");
         this.displayedRows.rm(this.displayedRows.indexOf(id));
     } else {
-        $("#"+id).show();
+        $("."+id).show();
         $("#"+id+"_icon").attr("src","img/nolines_minus.gif");
         this.displayedRows.push(id);
     }
