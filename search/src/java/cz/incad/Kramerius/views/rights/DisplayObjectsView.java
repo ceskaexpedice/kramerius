@@ -26,6 +26,8 @@ import java.util.logging.Level;
 
 import javax.inject.Named;
 
+import org.w3c.dom.Document;
+
 import antlr.RecognitionException;
 import antlr.TokenStreamException;
 
@@ -36,9 +38,11 @@ import cz.incad.kramerius.FedoraAccess;
 import cz.incad.kramerius.ObjectPidsPath;
 import cz.incad.kramerius.SolrAccess;
 import cz.incad.kramerius.security.IsActionAllowed;
+import cz.incad.kramerius.security.RightCriteriumWrapperFactory;
 import cz.incad.kramerius.security.RightsManager;
 import cz.incad.kramerius.security.SecuredActions;
 import cz.incad.kramerius.security.User;
+import cz.incad.kramerius.utils.DCUtils;
 
 public class DisplayObjectsView extends AbstractRightsView {
 
@@ -60,6 +64,10 @@ public class DisplayObjectsView extends AbstractRightsView {
     @Inject
     SolrAccess solrAccess;
     
+    @Inject
+    RightCriteriumWrapperFactory factory;
+
+
     public DisplayObjectsView() {
         super();
     }
@@ -80,7 +88,10 @@ public class DisplayObjectsView extends AbstractRightsView {
                         break;
                     }
                 }
-                AffectedObject affectedObject = new AffectedObject(pid.toString(), hasRight);
+                Document dc = this.fedoraAccess.getDC(pid.toString());
+                String kmodelName = this.fedoraAccess.getKrameriusModelName(pid.toString());
+                
+                AffectedObject affectedObject = new AffectedObject(pid.toString(), DCUtils.titleFromDC(dc),kmodelName, hasRight);
                 objects.add(affectedObject);
             }
             
@@ -103,16 +114,25 @@ public class DisplayObjectsView extends AbstractRightsView {
         
         private String pid;
         private boolean accessed;
+        private String title;
+        private String modelName;
 
-        public AffectedObject(String pid, boolean accessed) {
+        public AffectedObject(String pid, String title, String modelName, boolean accessed) {
             super();
             this.pid = pid;
+            this.title = title;
             this.accessed = accessed;
+            this.modelName = modelName;
         }
         
         public String getTitle() {
-            return this.pid;
+            return this.title;
         }
+        
+        public String getModelName() {
+            return modelName;
+        }
+        
         
         public String getComment() {
             return this.accessed ? "" : "Nemate pravo zit !";

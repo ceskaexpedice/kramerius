@@ -71,9 +71,9 @@ public abstract class ServletRightsCommand extends ServletCommand {
         Role role = this.userManager.findRoleByName((String) data.get("role"));
         if (role == null) throw new RuntimeException("cannot find role '"+role+"'");
 
-        int index = Integer.parseInt(data.get("ident").toString());
+        String indexString = data.get("ident").toString();
         
-        RightImpl right = new RightImpl(index > 0 ? index: -1, criterium, pid, (String)data.get("securedAction"), role);
+        RightImpl right = new RightImpl(indexString !=null && !indexString.equals("")  ? Integer.parseInt(indexString) : -1, criterium, pid, (String)data.get("securedAction"), role);
         if ((data.get("priority") != null) && (Integer.parseInt((String)data.get("priority")) >0)) {
             right.setFixedPriority(Integer.parseInt((String)data.get("priority")));
         }
@@ -81,17 +81,12 @@ public abstract class ServletRightsCommand extends ServletCommand {
     }
 
     public RightCriteriumParams param(Map data) {
-    //        param: {
-    //        ident:0,
-    //        shortDesc:'',
-    //        objects:[]
-    //    },
             Map param = (Map) data.get("param");
             
             String id = (String) param.get("ident");
             String shortDsc = (String) param.get("shortDesc");
             List objects = (List)param.get("objects");
-            if (objects.size() > 0) {
+            if (objects != null &&  objects.size() > 0) {
                 RightCriteriumParams params = null;
                 if ((id != null) && (!id.equals("")) && (Integer.parseInt(id) > 0)) {
                     params = rightsManager.findParamById(Integer.parseInt(id));

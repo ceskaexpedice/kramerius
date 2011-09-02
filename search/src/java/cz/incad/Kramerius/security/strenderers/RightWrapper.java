@@ -86,7 +86,9 @@ public class RightWrapper implements Right{
     }
 
     public RightCriteriumWrapper getCriteriumWrapper() {
-        return new CriteriumGuiWrapper(right.getCriteriumWrapper());
+        if (right.getCriteriumWrapper() != null) {
+            return new CriteriumGuiWrapper(right.getCriteriumWrapper());
+        } else return null;
     }
     
 

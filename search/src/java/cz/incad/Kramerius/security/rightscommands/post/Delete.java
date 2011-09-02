@@ -49,7 +49,6 @@ public class Delete extends ServletRightsCommand {
     @Override
     public void doCommand() {
         try {
-            Right right = RightsServlet.createRightFromPostIds(this.requestProvider.get(), rightsManager, userManager);
 
             HttpServletRequest req = this.requestProvider.get();
             //Right right = RightsServlet.createRightFromPost(req, rightsManager, userManager, criteriumWrapperFactory);
@@ -63,34 +62,14 @@ public class Delete extends ServletRightsCommand {
                 simpleJSONObjects.createMap(key, values, value);
             }
             
-            List affectedObjects = (List) values.get("affectedObjects");
-            for (int i = 0; i < affectedObjects.size(); i++) {
-                String pid = affectedObjects.get(i).toString();
-                deleteRight((Map) values.get("data"), pid);
-            }
-
-            /*
-            String uuid = right.getPid().substring("uuid:".length());
-            String[] pathOfUUIDs = this.solrAccess.getPath(uuid);
-
-            if (this.actionAllowed.isActionAllowed(SecuredActions.ADMINISTRATE.getFormalName(), uuid, pathOfUUIDs)) {
-                rightsManager.deleteRight(right);
-                
-            } else {
-                throw new SecurityException("operation is not permited");
-            }
-            */
+            List rightsToDelete = (List) values.get("deletedrights");
             
-//        } catch (SQLException e) {
-//            LOGGER.log(Level.SEVERE, e.getMessage(),e);
-        } catch (InstantiationException e) {
-            LOGGER.log(Level.SEVERE, e.getMessage(),e);
-        } catch (IllegalAccessException e) {
-            LOGGER.log(Level.SEVERE, e.getMessage(),e);
-        } catch (ClassNotFoundException e) {
-            LOGGER.log(Level.SEVERE, e.getMessage(),e);
-//        } catch (IOException e) {
-//            LOGGER.log(Level.SEVERE, e.getMessage(),e);
+            for (int i = 0; i < rightsToDelete.size(); i++) {
+                String id = rightsToDelete.get(i).toString();
+                deleteRight(Integer.parseInt(id));
+                
+            }
+
         } catch (SQLException e) {
             try {
                 this.responseProvider.get().sendError(HttpServletResponse.SC_FORBIDDEN);
@@ -104,9 +83,11 @@ public class Delete extends ServletRightsCommand {
     }
 
 
-    private void deleteRight(Map data, String pid) throws SQLException, IOException {
-        RightImpl right = right(data, pid);
 
+    private void deleteRight(int id) throws SQLException, IOException {
+        //RightImpl right = right(data, pid);
+        Right right = rightsManager.findRightById(id);
+        String pid = right.getPid();
         ObjectPidsPath[] paths = this.solrAccess.getPath(pid);
         boolean hasRight = false;
         for (int i = 0; i < paths.length; i++) {
@@ -122,6 +103,4 @@ public class Delete extends ServletRightsCommand {
         }
         
     }
-
-    
 }
