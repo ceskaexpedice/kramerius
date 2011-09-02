@@ -29,7 +29,7 @@
     </c:catch>
     <x:forEach varStatus="status" select="$doc/response/result/doc">
         <c:set var="t"><x:out select="./str[@name='root_title']"/></c:set>
-        <div align="center" style="overflow:hidden; border:1px solid #eeeeee; height:100px; width:100px; float:left; margin:5px;">
+        <div align="center" style="overflow:hidden; border:1px solid #eeeeee; height:100px; padding-left:10px; padding-right:10px; float:left; margin:5px;">
             <a href="i.jsp?pid=${pid}" >
                 <img align="middle" vspace="2" id="img_${uuid}" src="img?uuid=${pid}&stream=IMG_THUMB&action=SCALE&scaledHeight=96" border="0"
                      title="${t}" alt="${t}" />
