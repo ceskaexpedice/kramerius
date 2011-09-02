@@ -66,11 +66,13 @@ public class ContextMenuItemsHolder extends AbstractViewObject implements Initia
             items.add(new ContextMenuItem("administrator.menu.deleteuuid", "_data_x_role", "deletePid", "", true));
             items.add(new ContextMenuItem("administrator.menu.setpublic", "_data_x_role", "changeFlag.change", "", true));
             items.add(new ContextMenuItem("administrator.menu.exportFOXML", "_data_x_role", "exportFOXML", "", true));
-            items.add(new ContextMenuItem("administrator.menu.exportcd", "_data_x_role", "generateStatic",
-                    "'static_export_CD','img','" + i18nServlet + "','" + localesProvider.get().getISO3Country() + "','" + localesProvider.get().getISO3Language() + "'", true));
 
-            items.add(new ContextMenuItem("administrator.menu.exportdvd", "_data_x_role", "generateStatic",
-                    "'static_export_CD','img','" + i18nServlet + "','" + localesProvider.get().getISO3Country() + "','" + localesProvider.get().getISO3Language() + "'", true));
+            items.add(new ContextMenuItem("administrator.menu.exportcd", "_data_x_role", "exportToCD",
+                    "'img','" + i18nServlet + "','" + localesProvider.get().getISO3Country() + "','" + localesProvider.get().getISO3Language() + "'", false));
+
+            items.add(new ContextMenuItem("administrator.menu.exportdvd", "_data_x_role", "exportToDVD",
+                    "'img','" + i18nServlet + "','" + localesProvider.get().getISO3Country() + "','" + localesProvider.get().getISO3Language() + "'", false));
+
             items.add(new ContextMenuItem("administrator.menu.generateDeepZoomTiles", "_data_x_role", "generateDeepZoomTiles", "", true));
             items.add(new ContextMenuItem("administrator.menu.deleteGeneratedDeepZoomTiles", "_data_x_role", "deleteGeneratedDeepZoomTiles", "", true));
 
