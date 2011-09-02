@@ -136,9 +136,10 @@ public class AdminMenuViewObject {
                 if (hasUserAllowedAction(SecuredActions.REINDEX.getFormalName())) {
                     menuItems.add(showIndexerAdmin());
                 }
+                /*
                 if (hasUserAllowedAction(SecuredActions.ADMINISTRATE.getFormalName())) {
                     menuItems.add(showActionsAdmin());
-                }
+                }*/
 
                 if (hasUserAllowedAction(SecuredActions.ENUMERATOR.getFormalName())) {
                     menuItems.add(noParamsProcess(KrameriusRoles.ENUMERATOR.getRoleName()));
@@ -155,17 +156,20 @@ public class AdminMenuViewObject {
                 if (hasUserAllowedAction(SecuredActions.EDITOR.getFormalName())) {
                     menuItems.add(editor());
                 }
+                /*
                 if (hasUserAllowedAction(SecuredActions.EDITOR.getFormalName())) {
                     menuItems.add(rolesEditor());
                 }
-
+                */
                 //TODO: Should it be in shibboleth ?
                 if (!ShibbolethUtils.isUnderShibbolethSession(this.request)) {
                     menuItems.add(openUsersAdmin());
                 }
+                
+                /*
                 if (!ShibbolethUtils.isUnderShibbolethSession(this.request)) {
                     menuItems.add(changepswd());
-                }
+                }*/
 
             }
             return menuItems.toArray(new String[menuItems.size()]);
