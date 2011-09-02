@@ -97,38 +97,52 @@
     function showPreviewImage(viewerOptions){
         if(!viewerOptions) return;
         hideAlto();
-        if (viewerOptions.isContentPDF()) {
-            displayImageContainer("#pdfImage");
-            if (viewerOptions.previewStreamGenerated) {
-                $("#pdfImageImg").attr('src','img?uuid='+viewerOptions.uuid+'&stream=IMG_PREVIEW&action=GETRAW');
-            } else {
-                $("#pdfImageImg").attr('src','img?uuid='+viewerOptions.uuid+'&stream=IMG_FULL&action=SCALE&scaledHeight=700');
-            }
+        if (!viewerOptions.rights["read"][viewerOptions.pid]) {
+            // no right
+            displayImageContainer("#securityError");
+        } else if (!viewerOptions.displayableContent) {
+            // no displayable content
+            displayImageContainer("#download");
+        } else if (!viewerOptions.displayableContent) {
+            // no displayable content
+            displayImageContainer("#noImageError");
         } else {
-            var tilesPrepared = viewerOptions.deepZoomGenerated || viewerOptions.imageServerConfigured;
-            var deepZoomDisplay = ((viewerOptions.deepZoomCofigurationEnabled) && (tilesPrepared));
-            if (deepZoomDisplay) {
-                if (viewer == null) {
-                    initViewer();
-                }
-                displayImageContainer("#container");
-                viewer.openDzi("deepZoom/"+viewerOptions.uuid+"/");
-            } else {
-                displayImageContainer("#plainImage");
-                
-                $("#plainImageImg").attr('src','img/empty.gif');
-                if (viewerOptions.previewStreamGenerated) { 
-                    $("#plainImageImg").attr('src','img?uuid='+viewerOptions.uuid+'&stream=IMG_PREVIEW&action=GETRAW');
+            // has right
+        	if (viewerOptions.isContentPDF()) {
+                displayImageContainer("#pdfImage");
+                if (viewerOptions.previewStreamGenerated) {
+                    $("#pdfImageImg").attr('src','img?uuid='+viewerOptions.uuid+'&stream=IMG_PREVIEW&action=GETRAW');
                 } else {
-                    // this should be directed by property or removed
-                    $("#plainImageImg").attr('src','img?uuid='+viewerOptions.uuid+'&stream=IMG_FULL&action=SCALE&scaledHeight=700');
+                    $("#pdfImageImg").attr('src','img?uuid='+viewerOptions.uuid+'&stream=IMG_FULL&action=SCALE&scaledHeight=700');
                 }
-                if(viewerOptions.hasAlto){
-                    showAlto(viewerOptions.uuid, 'plainImageImg');
-                }
+            } else {
+                var tilesPrepared = viewerOptions.deepZoomGenerated || viewerOptions.imageServerConfigured;
+                var deepZoomDisplay = ((viewerOptions.deepZoomCofigurationEnabled) && (tilesPrepared));
+                if (deepZoomDisplay) {
+                    if (viewer == null) {
+                        initViewer();
+                    }
+                    displayImageContainer("#container");
+                    viewer.openDzi("deepZoom/"+viewerOptions.uuid+"/");
+                } else {
+                    displayImageContainer("#plainImage");
+                    
+                    $("#plainImageImg").attr('src','img/empty.gif');
+                    if (viewerOptions.previewStreamGenerated) { 
+                        $("#plainImageImg").attr('src','img?uuid='+viewerOptions.uuid+'&stream=IMG_PREVIEW&action=GETRAW');
+                    } else {
+                        // this should be directed by property or removed
+                        $("#plainImageImg").attr('src','img?uuid='+viewerOptions.uuid+'&stream=IMG_FULL&action=SCALE&scaledHeight=700');
+                    }
+                    if(viewerOptions.hasAlto){
+                        showAlto(viewerOptions.uuid, 'plainImageImg');
+                    }
 
+                }
             }
+
         }
+            
         imageInitialized = true;
     }
     
@@ -140,6 +154,7 @@
         } else {
             $("#plainImageImg").attr('src','img/empty.gif');
         }
+        
     }
     
     function showLoadingImage(){
@@ -148,7 +163,7 @@
 
     function viewChanged(id){
         hidePreviewImage();
-        showLoadingImage();
+        displayImageContainer("#loadingDeepZoomImage");
         var uuid = id.split('_')[1];
         $.ajax({
             url:"viewInfo?uuid="+uuid,
@@ -159,18 +174,17 @@
                     viewerOptions.uuid = uuid;
                     viewerOptions.fullid = id;
                     viewerOptions.status=req.status;
-            	  
+
+                    // TODO: Vyhodit            	  
                     if ((viewerOptions.rights["read"][uuid]) && (viewerOptions.imgfull)) {
                         securedContent = false;
                         currentMime = req.responseText;
                     } else if (!viewerOptions.imgfull) {
                         currentMime = "unknown";
                         securedContent = false;
-                        displayImageContainer("#noImageError");
                     } else {
                         currentMime = "unknown";
                         securedContent = true;
-                        displayImageContainer("#securityError");
                     }
                 } else if (req.status==404){
                     alert("Neni velky nahled !");
