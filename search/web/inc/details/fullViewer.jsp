@@ -119,10 +119,11 @@
          fullImageWidth = newImg.width;
          fullImageHeight = newImg.height;
     }
+    function imgLoaded(){
+    }
     function changeFullImageZoom(){
         
         var zoom = $('#fullImageZoom').val();
-        
         if(zoom=="width"){
             $('#imgFullImage').css({'width': $('#fullImageContainer').width(), 'height': ''});
         }else if(zoom=="height"){
@@ -178,7 +179,7 @@
     
     function onLoadFullImage() {
         if($('#imgFullImage').attr('src')!='img/empty.gif'){
-            
+            setFullImageDimension();
             if(viewerOptions.hasAlto){
                 showAltoFull(viewerOptions.uuid);
             }
