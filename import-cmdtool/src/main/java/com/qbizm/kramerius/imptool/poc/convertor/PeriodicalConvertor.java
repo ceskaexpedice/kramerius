@@ -38,7 +38,7 @@ import com.qbizm.kramerius.imptool.poc.valueobj.ServiceException;
 
 /**
  * Konvertor periodika do sady foxml digitalnich objektu
- * 
+ *
  * @author xholcik
  */
 public class PeriodicalConvertor extends BaseConvertor {
@@ -62,7 +62,7 @@ public class PeriodicalConvertor extends BaseConvertor {
 
     /**
      * Pomocna metoda pro ziskani pid objektu
-     * 
+     *
      * @param uid
      * @return
      */
@@ -84,7 +84,7 @@ public class PeriodicalConvertor extends BaseConvertor {
 
     /**
      * Obskurni metoda pro ziskani nazvu z obskurniho objektu
-     * 
+     *
      * @param biblio
      * @return
      */
@@ -101,7 +101,7 @@ public class PeriodicalConvertor extends BaseConvertor {
 
     /**
      * Prevede periodikum a vsechny navazane objekty do sady foxml souboru
-     * 
+     *
      * @param peri
      * @throws ServiceException
      */
@@ -127,21 +127,21 @@ public class PeriodicalConvertor extends BaseConvertor {
         }
         String cleanTitle= StringUtils.replaceEach(title, new String[]{"\t", "\n"}, new String[]{" ", " "});
         if (volumeuuid== null){
-            convertedURI.append(cleanTitle).append("\t").append("pid=").append(uuid).append("&pid_path=").append(uuid).append("&path=periodical\n");
+            convertedURI.append(cleanTitle).append("\t").append("pid=").append(pid).append("&pid_path=").append(pid).append("&path=periodical\n");
         } else{
-            convertedURI.append(cleanTitle).append("\t").append("pid=").append(volumeuuid).append("&pid_path=").append(uuid).append("/").append(volumeuuid)
+            convertedURI.append(cleanTitle).append("\t").append("pid=").append(volumeuuid).append("&pid_path=").append(pid).append("/").append(volumeuuid)
             .append("&path=periodical/periodicalvolume\n");
         }
 
         addDonatorRelation(re, biblio.getCreator());
-        
+
         DublinCore dc = createPeriodicalDublinCore(pid, title, biblio);
-        
+
         convertHandle(uuid, dc, re);
-        
+
         String ISSN = peri.getISSN()==null?null:first(peri.getISSN().getContent());
         dc.addQualifiedIdentifier(RelsExt.ISSN, ISSN);
-        
+
         for (Subject subj : biblio.getSubject()) {
             if (subj.getDDC() != null) {
                 for (String ddc : subj.getDDC().getContent()) {
@@ -154,20 +154,20 @@ public class PeriodicalConvertor extends BaseConvertor {
                 }
             }
         }
-        
+
         dc.setDescription(biblio.getAnnotation() == null? null:concat(biblio.getAnnotation().getContent()));
         Publisher publ = firstItem(biblio.getPublisher());
         if (publ!= null){
             dc.setDate(publ.getDateOfPublication()==null?null:first(publ.getDateOfPublication().getContent()));
         }
-        
+
         dc.setType(MODEL_PERIODICAL);
-        
+
         Language lang = firstItem(biblio.getLanguage());
         if (lang != null){
             dc.setLanguage(first(lang.getContent()));
         }
-        
+
         ImageRepresentation[] files = new ImageRepresentation[1];
         if (peri.getTechnicalDescription() != null) {
             files[0] = this.createImageRepresentation(null, peri.getTechnicalDescription(), null);
@@ -176,7 +176,7 @@ public class PeriodicalConvertor extends BaseConvertor {
         DigitalObject foxmlPeri = this.createDigitalObject(peri, pid, title, dc, re, XSL_MODS_PERIODICAL, files, visibility);
 
         this.marshalDigitalObject(foxmlPeri);
-        
+
     }
 
     private void addDonatorRelation(RelsExt re, List<Creator> creators) {
@@ -191,7 +191,7 @@ public class PeriodicalConvertor extends BaseConvertor {
 
     /**
      * Prevede PeriodicalVolume do foxml
-     * 
+     *
      * @param volume
      * @param prefix
      * @throws ServiceException
@@ -212,9 +212,9 @@ public class PeriodicalConvertor extends BaseConvertor {
         String pid = pid (uuid);
 
         RelsExt re = new RelsExt(pid, MODEL_PERIODICAL_VOLUME);
-        
+
         boolean visibility = isPublic(uuid, parentVisibility, "p_periodicalvolume");
-        
+
         String contract = getContract(volume.getPeriodicalPage());
         if (contract == null){
             PeriodicalItem item = firstItem(volume.getPeriodicalItem());
@@ -246,37 +246,37 @@ public class PeriodicalConvertor extends BaseConvertor {
             this.convertInternalPart(part, pageIdMap, visibility);
             re.addRelation(RelsExt.HAS_INT_COMP_PART, pid(uuid(part.getUniqueIdentifier())),false);
         }
-        
+
         DublinCore dc = createPeriodicalDublinCore(pid, title, biblio);
-        
+
         dc.addQualifiedIdentifier(RelsExt.CONTRACT, contract);
         re.addRelation(RelsExt.CONTRACT, contract, true);
-        
+
         convertHandle(uuid, dc, re);
-        
+
         dc.setDescription(biblio.getAnnotation() == null? null:concat(biblio.getAnnotation().getContent()));
-        
+
         if (volume.getPeriodicalVolumeIdentification() != null && volume.getPeriodicalVolumeIdentification().getPeriodicalVolumeDate() != null) {
-        	 dc.setDate(first(volume.getPeriodicalVolumeIdentification().getPeriodicalVolumeDate().getContent()));
+             dc.setDate(first(volume.getPeriodicalVolumeIdentification().getPeriodicalVolumeDate().getContent()));
         }
-        
+
 
         dc.setType(MODEL_PERIODICAL_VOLUME);
-        
+
         ImageRepresentation[] files = new ImageRepresentation[1];
         if (volume.getTechnicalDescription() != null) {
             files[0] = this.createImageRepresentation(null, volume.getTechnicalDescription(), null);
         }
-        
+
         DigitalObject foxmlVolume = this.createDigitalObject(volume, pid, title, dc, re, XSL_MODS_PERIODICAL_VOLUME, files, visibility);
 
         this.marshalDigitalObject(foxmlVolume);
-        return uuid;
+        return pid;
     }
 
     /**
      * Prevede PeriodicalInternalComponentPart do foxml
-     * 
+     *
      * @param part
      * @param prefix
      * @throws ServiceException
@@ -303,24 +303,24 @@ public class PeriodicalConvertor extends BaseConvertor {
                 this.processPageIndex(re, piFrom, piTo, pageIdMap);
             }
         }
-        
+
         DublinCore dc = createPeriodicalDublinCore(pid, title, biblio);
-        
+
         convertHandle(uuid, dc, re);
         dc.setType(MODEL_INTERNAL_PART);
-        
+
         dc.setDescription(biblio.getAnnotation() == null? null:concat(biblio.getAnnotation().getContent()));
         Publisher publ = firstItem(biblio.getPublisher());
         if (publ!= null){
             dc.setDate(publ.getDateOfPublication()==null?null:first(publ.getDateOfPublication().getContent()));
         }
-        
-        
+
+
         Language lang = firstItem(biblio.getLanguage());
         if (lang != null){
             dc.setLanguage(first(lang.getContent()));
         }
-        
+
         DigitalObject foxmlPart = this.createDigitalObject(part, pid, title, dc, re, XSL_MODS_PERIODICAL_PART, null, visibility);
 
         this.marshalDigitalObject(foxmlPart);
@@ -328,7 +328,7 @@ public class PeriodicalConvertor extends BaseConvertor {
 
     /**
      * Prevede PeriodicalItem do foxml
-     * 
+     *
      * @param item
      * @param prefix
      * @throws ServiceException
@@ -347,7 +347,7 @@ public class PeriodicalConvertor extends BaseConvertor {
         }
         String uuid = uuid(item.getUniqueIdentifier());
         String pid = pid (uuid);
-        
+
         List<ImageRepresentation> files = new ArrayList<ImageRepresentation>(2);
         if (item.getItemRepresentation() != null) {
             ItemRepresentation r = item.getItemRepresentation();
@@ -384,17 +384,17 @@ public class PeriodicalConvertor extends BaseConvertor {
         String contract = getContract(item.getPeriodicalPage());
         dc.addQualifiedIdentifier(RelsExt.CONTRACT, contract);
         re.addRelation(RelsExt.CONTRACT, contract, true);
-        
+
         convertHandle(uuid, dc, re);
-        
+
         dc.setType(MODEL_PERIODICAL_ITEM);
-        
+
         dc.setDescription(biblio.getAnnotation() == null? null:concat(biblio.getAnnotation().getContent()));
-        
+
         if (item.getPeriodicalItemIdentification() != null && item.getPeriodicalItemIdentification().getPeriodicalItemDate() != null) {
-       	 dc.setDate(first(item.getPeriodicalItemIdentification().getPeriodicalItemDate().getContent()));
+            dc.setDate(first(item.getPeriodicalItemIdentification().getPeriodicalItemDate().getContent()));
         }
-        
+
         DigitalObject foxmlItem = this.createDigitalObject(item, pid, title, dc, re, XSL_MODS_PERIODICAL_ITEM, files.toArray(new ImageRepresentation[files.size()]), visibility);
 
         this.marshalDigitalObject(foxmlItem);
@@ -402,7 +402,7 @@ public class PeriodicalConvertor extends BaseConvertor {
 
     /**
      * Prevede stranku periodika do foxml
-     * 
+     *
      * @param page
      * @throws ServiceException
      */
@@ -414,7 +414,7 @@ public class PeriodicalConvertor extends BaseConvertor {
         }
         String uuid = uuid(page.getUniqueIdentifier());
         String pid = pid (uuid);
-        
+
         RelsExt re = new RelsExt(pid, MODEL_PAGE);
 
         List<ImageRepresentation> files = new ArrayList<ImageRepresentation>(2);
@@ -428,12 +428,12 @@ public class PeriodicalConvertor extends BaseConvertor {
             }
         }
 
-        
-        
+
+
         DublinCore dc = this.createPeriodicalDublinCore(pid, title, null);
-        
+
         convertHandle(uuid, dc, re);
-        
+
         dc.setType(MODEL_PAGE);
 
         DigitalObject foxmlPage = this.createDigitalObject(page, pid, title, dc, re, XSL_MODS_PERIODICAL_PAGE, files.toArray(new ImageRepresentation[files.size()]), visibility);
@@ -443,7 +443,7 @@ public class PeriodicalConvertor extends BaseConvertor {
 
     /**
      * Vytvori a naplni DublinCore data pro DC datastream
-     * 
+     *
      * @param biblio
      * @return
      */
@@ -492,7 +492,7 @@ public class PeriodicalConvertor extends BaseConvertor {
         return dc;
     }
 
-    
+
 
     private ImageRepresentation createImageRepresentation(String filename, TechnicalDescription td, UniqueIdentifier ui) {
         ImageRepresentation ir = new ImageRepresentation();
@@ -502,15 +502,15 @@ public class PeriodicalConvertor extends BaseConvertor {
         ir.setImageMetaData(ad);
 
         if (td != null) {
-        	if (td.getScanningDevice()!=null){
-        		ad.setScanningDevice(first(td.getScanningDevice().getContent()));
-        	}
-        	if (td.getScanningParameters()!= null){
-        		ad.setScanningParameters(first(td.getScanningParameters().getContent()));
-        	}
-        	if(td.getOtherImagingInformation()!=null){
-        		ad.setOtherImagingInformation(first(td.getOtherImagingInformation().getContent()));
-        	}
+            if (td.getScanningDevice()!=null){
+                ad.setScanningDevice(first(td.getScanningDevice().getContent()));
+            }
+            if (td.getScanningParameters()!= null){
+                ad.setScanningParameters(first(td.getScanningParameters().getContent()));
+            }
+            if(td.getOtherImagingInformation()!=null){
+                ad.setOtherImagingInformation(first(td.getOtherImagingInformation().getContent()));
+            }
         }
 
         if (ui != null) {
@@ -524,7 +524,7 @@ public class PeriodicalConvertor extends BaseConvertor {
 
         return ir;
     }
-    
+
     private String getContract(List<PeriodicalPage> pages) {
         if (pages != null) {
             for (PeriodicalPage page : pages) {

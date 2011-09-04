@@ -688,11 +688,10 @@ public abstract class BaseConvertor {
             version.setCREATED(getCurrentXMLGregorianCalendar());
             version.setID(FedoraUtils.IMG_FULL_STREAM + STREAM_VERSION_SUFFIX);
 
-            version.setMIMETYPE("image/jpeg");
-
             // long start = System.currentTimeMillis();
 
             if (!convertToJPG){
+                version.setMIMETYPE(getImageMime(filename));
                 File pageFile = new File(getConfig().getImportFolder() + System.getProperty("file.separator") + filename);
 
                 if ("encoded".equalsIgnoreCase(streamType)){
@@ -711,6 +710,7 @@ public abstract class BaseConvertor {
                     version.setContentLocation(cl);
                 }
             }else{
+                version.setMIMETYPE("image/jpeg");
                 byte[] binaryContent = scaleImage(img, 0, 0);
                 if (binaryContent.length == 0) {
                     return null;

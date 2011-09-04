@@ -43,7 +43,7 @@ import com.qbizm.kramerius.imptool.poc.valueobj.ServiceException;
 
 /**
  * Konvertor monografii do foxml
- * 
+ *
  * @author xholcik
  */
 
@@ -87,12 +87,12 @@ public class MonographConvertor extends BaseConvertor {
 
     /**
      * Konvertuje monografii a vsechny podobjekty do sady foxml souboru
-     * 
+     *
      * @param mono
      * @throws ServiceException
      */
     public void  convert(Monograph mono, StringBuffer convertedURI) throws ServiceException {
-    	MonographBibliographicRecord biblio = mono.getMonographBibliographicRecord();
+        MonographBibliographicRecord biblio = mono.getMonographBibliographicRecord();
         String title = first(biblio.getTitle().getMainTitle().getContent());
         if (mono.getUniqueIdentifier() == null) {
             mono.setUniqueIdentifier(new UniqueIdentifier());
@@ -101,7 +101,7 @@ public class MonographConvertor extends BaseConvertor {
         String pid = pid(uuid);
 
         String cleanTitle= StringUtils.replaceEach(title, new String[]{"\t", "\n"}, new String[]{" ", " "});
-        convertedURI.append(cleanTitle).append("\t").append("pid=").append(uuid).append("&pid_path=").append(uuid).append("&path=monograph\n");
+        convertedURI.append(cleanTitle).append("\t").append("pid=").append(pid).append("&pid_path=").append(pid).append("&path=monograph\n");
         // neplatny vstupni objekt
         //if (mono.getMonographBibliographicRecord().getSeries() != null && mono.getMonographBibliographicRecord().getSeries().size() > 1) {
         //    throw new IllegalArgumentException("Illegal multiple /Monograph/MonographBibliographicRecord/Series occurence!");
@@ -144,7 +144,7 @@ public class MonographConvertor extends BaseConvertor {
         addDonatorRelation(re, biblio.getCreator());
 
         DublinCore dc = this.createMonographDublinCore(pid, title, biblio.getCreator(), biblio.getPublisher(), biblio.getContributor());
-        
+
         dc.addQualifiedIdentifier(RelsExt.CONTRACT, contract);
         re.addRelation(RelsExt.CONTRACT, contract, true);
 
@@ -166,30 +166,30 @@ public class MonographConvertor extends BaseConvertor {
             }
         }
         convertHandle(uuid, dc, re);
-        
+
         dc.setDescription(biblio.getAnnotation() == null? null:concat(biblio.getAnnotation().getContent()));
         Publisher publ = firstItem(biblio.getPublisher());
         if (publ!= null){
             dc.setDate(publ.getDateOfPublication()==null?null:first(publ.getDateOfPublication().getContent()));
         }
-        
+
         dc.setType(MODEL_MONOGRAPH);
-        
+
         Language lang = firstItem(biblio.getLanguage());
         if (lang != null){
             dc.setLanguage(first(lang.getContent()));
         }
-        
-        
+
+
         ImageRepresentation[] files = new ImageRepresentation[1];
         if (mono.getTechnicalDescription() != null) {
             files[0] = this.createImageRepresentation(null, mono.getTechnicalDescription(), null);
         }
-        
+
         DigitalObject foxmlMono = this.createDigitalObject(mono, pid, title, dc, re, XSL_MODS_MONOGRAPH, files, visibility);
 
         this.marshalDigitalObject(foxmlMono);
-        
+
     }
 
     private String convertExtId(String pid) {
@@ -235,7 +235,7 @@ public class MonographConvertor extends BaseConvertor {
 
     /**
      * Konvertuje stranku monografie do foxml
-     * 
+     *
      * @param page
      * @param monograph
      * @param prefix
@@ -275,7 +275,7 @@ public class MonographConvertor extends BaseConvertor {
 
     /**
      * Konvertuje monograph unit do foxml
-     * 
+     *
      * @param unit
      * @param monograph
      * @param prefix
@@ -344,7 +344,7 @@ public class MonographConvertor extends BaseConvertor {
         }
         Publisher publ = firstItem(unit.getPublisher());
         if (publ!= null){
-        	dc.setDate(publ.getDateOfPublication()==null?null:first(publ.getDateOfPublication().getContent()));
+            dc.setDate(publ.getDateOfPublication()==null?null:first(publ.getDateOfPublication().getContent()));
         }
         DigitalObject foxmlUnit = this.createDigitalObject(unit, pid, title, dc, re, XSL_MODS_MONOGRAPH_UNIT, files.toArray(new ImageRepresentation[files.size()]), visibility);
 
@@ -353,7 +353,7 @@ public class MonographConvertor extends BaseConvertor {
 
     /**
      * Konvertuje MonographComponentPart do foxml
-     * 
+     *
      * @param part
      * @throws ServiceException
      */
@@ -411,7 +411,7 @@ public class MonographConvertor extends BaseConvertor {
 
     /**
      * Naplni dublin core data z monographu
-     * 
+     *
      * @param biblio
      * @return
      */
@@ -466,15 +466,15 @@ public class MonographConvertor extends BaseConvertor {
         ir.setImageMetaData(ad);
 
         if (td != null) {
-        	if (td.getScanningDevice()!=null){
-        		ad.setScanningDevice(first(td.getScanningDevice().getContent()));
-        	}
-        	if (td.getScanningParameters()!=null){
-        		ad.setScanningParameters(first(td.getScanningParameters().getContent()));
-        	}
-        	if (td.getOtherImagingInformation()!=null){
-        		ad.setOtherImagingInformation(first(td.getOtherImagingInformation().getContent()));
-        	}
+            if (td.getScanningDevice()!=null){
+                ad.setScanningDevice(first(td.getScanningDevice().getContent()));
+            }
+            if (td.getScanningParameters()!=null){
+                ad.setScanningParameters(first(td.getScanningParameters().getContent()));
+            }
+            if (td.getOtherImagingInformation()!=null){
+                ad.setOtherImagingInformation(first(td.getOtherImagingInformation().getContent()));
+            }
         }
 
         if (ui != null) {

@@ -14,10 +14,10 @@ public class IndexerProcessStarter {
 
 
     public static void spawnIndexer(boolean incremental, String title, String uuid) {
-        log.info("Spawn indexer: title: "+title+" uuid: "+uuid);
+        log.info("Spawn indexer: title: "+title+" pid: "+uuid);
         String base = ProcessUtils.getLrServlet();
         if (base == null || uuid == null){
-            log.severe("Cannot start indexer, invalid arguments: base:"+base+" uuid:"+uuid);
+            log.severe("Cannot start indexer, invalid arguments: base:"+base+" pid:"+uuid);
             return;
         }
         if (title == null || "".equals(title.trim())){
@@ -40,10 +40,10 @@ public class IndexerProcessStarter {
     }
 
     public static void spawnIndexRemover(String pid_path, String uuid) {
-        log.info("spawnIndexRemower: pid_path: "+pid_path+" uuid: "+uuid);
+        log.info("spawnIndexRemower: pid_path: "+pid_path+" pid: "+uuid);
         String base = ProcessUtils.getLrServlet();
         if (base == null || pid_path == null || uuid == null){
-            log.severe("Cannot start indexer, invalid arguments: base:"+base+" uuid:"+uuid+" pid_path:"+pid_path);
+            log.severe("Cannot start indexer, invalid arguments: base:"+base+" pid:"+uuid+" pid_path:"+pid_path);
             return;
         }
         if (pid_path.endsWith("/")){

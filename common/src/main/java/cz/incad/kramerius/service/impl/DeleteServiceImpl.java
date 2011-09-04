@@ -54,12 +54,12 @@ public class DeleteServiceImpl implements DeleteService {
         DeleteServiceImpl inst = new DeleteServiceImpl();
         inst.fedoraAccess = new FedoraAccessImpl(null);
         inst.deleteTree(args[0], null);
-        List<RelationshipTuple> parents = FedoraUtils.getSubjectPids("uuid:"+args[0]);
+        List<RelationshipTuple> parents = FedoraUtils.getSubjectPids(/*"uuid:"+*/args[0]);
         for (RelationshipTuple parent:parents){
             try{
                 inst.fedoraAccess.getAPIM().purgeRelationship(parent.getSubject(), parent.getPredicate(), parent.getObject(), parent.isIsLiteral(), parent.getDatatype());
                 LOGGER.info("Removed relation from parent:"+parent.getSubject()+" "+ parent.getPredicate()+" "+ parent.getObject());
-                IndexerProcessStarter.spawnIndexer(true, "Reindex delete "+args[0], parent.getSubject().replace("info:fedora/uuid:", ""));
+                IndexerProcessStarter.spawnIndexer(true, "Reindex delete "+args[0], parent.getSubject().replace("info:fedora/", ""));
             }catch (Exception e){
                 LOGGER.warning("Cannot delete object relation for"+parent.getSubject()+", skipping: "+e);
             }
