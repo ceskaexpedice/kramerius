@@ -4,21 +4,31 @@ group xpaths;
 find_datastream3_3(dsid) ::=<<
 /objectDatastreams/datastream[@dsid='$dsid$']
 >>
- 
+
 /** find datastream for fedora 3.4 */
 find_datastream3_4(dsid) ::=<<
 /apia:objectDatastreams/apia:datastream[@dsid='$dsid$']
 >>
 
-/** finds mimetype - fedora 3.3 */ 
+/** find datastream for fedora 3.5 */
+find_datastream3_5(dsid) ::=<<
+/apia:objectDatastreams/apia:datastream[@dsid='$dsid$']
+>>
+
+/** finds mimetype - fedora 3.3 */
 find_mimetype3_3() ::=<<
 /datastreamProfile/dsMIME
->> 
+>>
 
-/** finds mimetype - fedora 3.4 */ 
+/** finds mimetype - fedora 3.4 */
 find_mimetype3_4() ::=<<
 /apim:datastreamProfile/apim:dsMIME
->> 
+>>
+
+/** finds mimetype - fedora 3.5 */
+find_mimetype3_5() ::=<<
+/apim:datastreamProfile/apim:dsMIME
+>>
 
 /** dsCreateDate from profile - fedora 3.3 */
 dscreatedate3_3() ::=<<
@@ -27,5 +37,10 @@ dscreatedate3_3() ::=<<
 
 /** dsCreateDate from profile - fedora 3.4 */
 dscreatedate3_4() ::=<<
+/apim:datastreamProfile/apim:dsCreateDate/text()
+>>
+
+/** dsCreateDate from profile - fedora 3.5 */
+dscreatedate3_5() ::=<<
 /apim:datastreamProfile/apim:dsCreateDate/text()
 >>
