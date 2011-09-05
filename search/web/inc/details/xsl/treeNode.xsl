@@ -192,8 +192,7 @@
             <span><xsl:value-of select="substring-before($remaining, '##')" />&#160;</span>
         </xsl:if>
         <xsl:variable name="remaining" select="substring-after($remaining, '##')" />
-        <span><xsl:value-of select="$bundle/value[@key='Datum vydání']"/>:
-        <xsl:value-of select="substring-before($remaining, '##')" />&#160;
+        <span><xsl:value-of select="substring-before($remaining, '##')" />&#160;
         <xsl:value-of select="$bundle/value[@key='Číslo']"/>&#160;<xsl:value-of select="substring-after($remaining, '##')" /></span>
 
 

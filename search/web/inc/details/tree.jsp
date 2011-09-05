@@ -54,7 +54,7 @@
         padding: 0;
         line-height: 16px;
     }
-    #searchInsideScope li span{
+    #searchInsideScope li>span{
         width: 16px;
         height: 16px;
         overflow:hidden;
@@ -143,11 +143,11 @@
                         if($('#item_tree input:checked').length>0){
                             $('#item_tree input:checked').each(function(){
                                 var id = $(this).parent().attr("id");
-                                t += '<li><span class="ui-icon ui-icon-triangle-1-e folder " >folder</span>'+$(jq(id)+">a").html()+'</li>';
+                                t += '<li><span class="ui-icon ui-icon-triangle-1-e folder " >folder</span><label>'+$(jq(id)+">a>label").html()+'</label></li>';
                             });
                         }else{
                             var id = $('#item_tree>li>ul>li:first').attr("id");
-                            t = '<li><span class="ui-icon ui-icon-triangle-1-e folder " >folder</span>'+$(jq(id)+">a").html()+'</li>';
+                            t = '<li><span class="ui-icon ui-icon-triangle-1-e folder " >folder</span><label>'+$(jq(id)+">a>label").html()+'</label></li>';
                         }
                         $('#searchInsideScope').html(t);
                     }
