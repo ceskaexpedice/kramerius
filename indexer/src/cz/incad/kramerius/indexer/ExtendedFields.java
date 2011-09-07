@@ -23,7 +23,7 @@ import org.w3c.dom.Node;
 /**
  *
  * @author Alberto
- * Handles and manages the fields not cirectly present in doc FOXML
+ * Handles and manages the fields not directly present in doc FOXML
  * 
  */
 public class ExtendedFields {
@@ -38,7 +38,8 @@ public class ExtendedFields {
     HashMap<String, String> models_cache;
     HashMap<String, String> dates_cache;
     HashMap<String, String> root_title_cache;
-    String datum;
+    Date datum;
+    String datum_str;
     String rok;
     String datum_begin;
     String datum_end;
@@ -129,7 +130,10 @@ public class ExtendedFields {
         sb.append("<field name=\"root_title\">").append(root_title).append("</field>");
         sb.append("<field name=\"root_pid\">").append(pid_paths.get(0).split("/")[0]).append("</field>");
         sb.append("<field name=\"level\">").append(level).append("</field>");
-        sb.append("<field name=\"datum\">").append(datum).append("</field>");
+        sb.append("<field name=\"datum_str\">").append(datum_str).append("</field>");
+        if(datum!=null){
+            sb.append("<field name=\"datum\">").append(datum).append("</field>");
+        }
         if (!rok.equals("")) {
             sb.append("<field name=\"rok\">").append(rok).append("</field>");
         }
@@ -154,18 +158,19 @@ public class ExtendedFields {
     }
 
     private void setDate() throws Exception {
-        datum = "";
+        datum_str = "";
         rok = "";
         datum_begin = "";
         datum_end = "";
+        datum = null;
         for (int j = 0; j < pid_paths.size(); j++) {
             String[] pid_path = pid_paths.get(j).split("/");
             for (int i = pid_path.length - 1; i > -1; i--) {
                 String pid = pid_path[i];
                 Document foxml = fa.getBiblioMods(pid);
                 if (dates_cache.containsKey(pid)) {
-                    datum = dates_cache.get(pid);
-                    parseDatum(datum);
+                    datum_str = dates_cache.get(pid);
+                    parseDatum(datum_str);
                     return;
                 }  
                 xPathStr = prefix + "mods:part/mods:date/text()";
@@ -173,18 +178,18 @@ public class ExtendedFields {
                 Node node = (Node) expr.evaluate(foxml, XPathConstants.NODE);
 
                 if (node != null) {
-                    datum = node.getNodeValue();
-                    parseDatum(datum);
-                    dates_cache.put(pid, datum);
+                    datum_str = node.getNodeValue();
+                    parseDatum(datum_str);
+                    dates_cache.put(pid, datum_str);
                     return;
                 } else {
                     xPathStr = prefix + "mods:originInfo[@transliteration='publisher']/mods:dateIssued/text()";
                     expr = xpath.compile(xPathStr);
                     node = (Node) expr.evaluate(foxml, XPathConstants.NODE);
                     if (node != null) {
-                        datum = node.getNodeValue();
-                        parseDatum(datum);
-                        dates_cache.put(pid, datum);
+                        datum_str = node.getNodeValue();
+                        parseDatum(datum_str);
+                        dates_cache.put(pid, datum_str);
                         return;
                     }
                 }
@@ -194,6 +199,15 @@ public class ExtendedFields {
     }
 
     private void parseDatum(String datumStr) {
+        
+        try{
+            KConfiguration config = KConfiguration.getInstance();
+            
+            DateFormat df = new SimpleDateFormat(config.getProperty("mods.date.format", "dd.MM.yyyy"));
+            datum = df.parse(datumStr);
+        }catch(Exception e){
+            
+        }
         Integer dataInt;
         try {
             dataInt = Integer.parseInt(datumStr);

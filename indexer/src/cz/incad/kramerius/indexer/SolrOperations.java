@@ -255,10 +255,13 @@ public class SolrOperations {
             String xPathStr = "/sparql:sparql/sparql:results/sparql:result/sparql:object";
             expr = xpath.compile(xPathStr);
             NodeList nodes = (NodeList) expr.evaluate(doc, XPathConstants.NODESET);
+            String pid;
 
             for (int i = 0; i < nodes.getLength(); i++) {
                 Node childnode = nodes.item(i);
-                fromKrameriusModel(childnode.getAttributes().getNamedItem("uri").getNodeValue());
+                pid = childnode.getAttributes().getNamedItem("uri").getNodeValue();
+                pid = pid.replaceAll("info:fedora/", "");
+                fromKrameriusModel(pid);
                 hasRecords = true;
             }
             if (hasRecords) {
