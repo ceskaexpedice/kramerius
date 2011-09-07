@@ -5,6 +5,10 @@
         line-height: 17px;
     }
     
+    #docs_content{
+        padding:4px;
+    }
+    
     .extInfo{
         /*font-style: italic;*/
     }
@@ -31,7 +35,7 @@
     <%@ include file="../usedFilters.jsp" %>
     <%@ include file="../facets.jsp" %>
     </div>
-    <div id="dadiv" style="padding:3px;"><%@ include file="../dateAxisV.jsp" %></div>
+    <div id="dadiv" style="padding:3px;"><%@ include file="../da.jsp" %></div>
     <%--
     <div id="dateAxis" class="shadow box" style="float:right;right:0;z-index:2;background:white;position:absolute;">
     <div id="showHideDA" ><a href="javascript:toggleDA();" title="show/hide date axis"><span class="ui-state-default ui-icon ui-icon-image ui-icon-circle-triangle-e"></span></a></div>
@@ -222,7 +226,7 @@ $(document).ready(function(){
     }
     
     function sortByTitle(dir){
-        $('#sort').val('root_title_cs '+dir);
+        $('#sort').val('title_cs '+dir);
         $('#searchForm').submit();
     }
     

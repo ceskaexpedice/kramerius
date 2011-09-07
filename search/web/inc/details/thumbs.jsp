@@ -5,8 +5,11 @@
 <%@ page isELIgnored="false"%>
 <%@page import="cz.incad.kramerius.utils.conf.KConfiguration"%>
 <style type="text/css">
+    #thumbs{
+        overflow:hidden;
+    }
     #tv{
-        width: 983px;
+        width: auto;
     }
     #tv_container{
         width: 99%;

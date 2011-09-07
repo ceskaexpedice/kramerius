@@ -78,7 +78,7 @@ function formatGroupTitle(intDate){
 
 var romanNumerals = ['I','II','III','IV','V','VI','VII','VIII','IX','X','XI','XII'];
 function formatDate(intDate){ 
-  return intDate;
+  return '01.01.'+intDate;
 }
 
 function indexOf(value, array){

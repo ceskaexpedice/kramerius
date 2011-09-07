@@ -25,7 +25,7 @@
     }
     #rightPanel {
         overflow: hidden;
-        width:330px;
+        width:300px;
     }
 
     #rightPanel>ul{
@@ -69,11 +69,11 @@
     <%@ include file="thumbs.jsp" %>
 </div>
 
+    <div id="rightPanel"  class="ui-layout-west" >
+        <%@ include file="tree.jsp" %>
+    </div>
     <div id="preview" class="ui-layout-center" >
         <%@include  file="tabs/container.jsp" %>
-    </div>
-    <div id="rightPanel"  class="ui-layout-east" >
-        <%@ include file="tree.jsp" %>
     </div>
     <div style="clear:both;display:block;"></div>
 </div>
@@ -95,14 +95,14 @@
                 togglerLength_open:	'100%',
                 togglerTip_open: '<fmt:message bundle="${lctx}">thumbs.showhide</fmt:message>',
                 onopen_end: function(){
-                    positionAlto();
+                    //positionAlto();
                 },
                 onclose_end: function(){
-                    positionAlto();
+                    //positionAlto();
                 }
            },
-            east:{
-                size:340,
+            west:{
+                size:300,
                 spacing_closed:	5,
                 spacing_open:	5,
                 togglerLength_closed:	'100%',
@@ -116,15 +116,15 @@
                 //togglerContent_open:	'<div id="showHideRightMenua" class="ui-layout-toggler ui-layout-toggler-east ui-layout-toggler-open ui-layout-toggler-east-open"></div>',
                 
                 onopen_end: function(){
-                    positionAlto();
+                    //positionAlto();
                 },
                 onclose_end: function(){
-                    positionAlto();
+                    //positionAlto();
                 }
             },
             center:{
                 onresize_end: function(){
-                    positionAlto();
+                    //positionAlto();
                 }
             }
         });
@@ -133,9 +133,8 @@
         });
     });
     function resizeSplit(){
-        var h = Math.max(800, $('#centralContent').height()+80);
-        //alert(h);
-        $('#split').css('height', h);
-        sp.resizeAll();
+        //var h = Math.max(800, $('#centralContent').height()+80);
+        //$('#split').css('height', h);
+        //sp.resizeAll();
     }
 </script>

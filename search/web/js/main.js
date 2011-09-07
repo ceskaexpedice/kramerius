@@ -9,6 +9,15 @@ function jq(myid) {
     return '#' + myid.replace(/(:|\.|\/)/g,'\\$1');
 }
 
+function showHelp(language, part){
+    var url = 'help/help.jsp?';
+    if (part!=null && part!='')
+     url=url+'#'+part;
+     temp=window.open(url,'HELP','width=608,height=574,menubar=0,resizable=0,scrollbars=1,status=0,titlebar=0,toolbar=0,z-lock=0,left=200,top=20');
+     temp.opener=this;
+     temp.focus(); 
+}
+
 //Toggle visibility advanced search option
 function toggleAdv(){
     var y = $('#q').offset().top + $('#q').height() + 10;

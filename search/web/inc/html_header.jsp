@@ -50,7 +50,6 @@
 
     <script  src="js/settings.js" language="javascript" type="text/javascript"></script>
     <script src="js/jquery.mousewheel.js" type="text/javascript" ></script>
-    <script src="js/jquery.splitter.js" type="text/javascript" ></script>
     <script src="js/jquery.cookie.js" type="text/javascript"></script>
     <script src="js/jquery.layout-latest.js" type="text/javascript" ></script>
 

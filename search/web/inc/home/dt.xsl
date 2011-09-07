@@ -2,10 +2,13 @@
     <xsl:output method="html" indent="no" encoding="UTF-8" omit-xml-declaration="yes" />
     <xsl:param name="bundle_url" select="bundle_url" />
     <xsl:param name="bundle" select="document($bundle_url)/bundle" />
+    <xsl:param name="dts" select="dts" />
     <xsl:template match="/">
+        <xsl:value-of select="dts"/>
         <div><xsl:value-of select="$bundle/value[@key='home.document.type']"/>&#160;
         <xsl:for-each select="response/lst[@name='facet_counts']/lst[@name='facet_fields']/lst[@name='document_type']/int">
-            <span><b><a>
+            <xsl:variable name="tm">[<xsl:value-of select="@name" />]</xsl:variable>
+            <xsl:if test="contains($dts, $tm)"><span><b><a>
                 <xsl:attribute name="href">r.jsp?fq=document_type:<xsl:value-of select="@name" /></xsl:attribute>
                 <xsl:attribute name="title">javascript:addNavigation('document_type', '<xsl:value-of select="@name" />')</xsl:attribute>
             <xsl:variable name="t"><xsl:choose>
@@ -14,6 +17,7 @@
             <xsl:otherwise>document.type.<xsl:value-of select="@name" />.5</xsl:otherwise>
             </xsl:choose></xsl:variable>
             <xsl:value-of select="." />&#160;<xsl:value-of select="$bundle/value[@key=$t]"/></a></b></span>
+            </xsl:if>
         </xsl:for-each></div>
         <script type="text/javascript">
         <xsl:comment><![CDATA[

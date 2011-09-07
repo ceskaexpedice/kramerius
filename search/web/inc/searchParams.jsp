@@ -1,5 +1,8 @@
+<%@page import="java.text.SimpleDateFormat"%>
+<%@page import="java.text.DateFormat"%>
 <%@ page contentType="text/html" pageEncoding="UTF-8" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
+<%@ taglib uri="http://java.sun.com/jstl/core_rt" prefix="c-rt" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/xml" prefix="x" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn" %>
@@ -45,10 +48,28 @@ pageContext.setAttribute("search_results_rows", search_results_rows);
         <c:param name="fq">${fqs}</c:param>
         <c:set var="rows" value="${rowsdefault}" scope="request" />
     </c:forEach>
-    <c:if test="${param.f1 != null}">
-        <c:param name="fq" value="rok:[${param.f1} TO ${param.f2}] OR (datum_begin:[1 TO ${param.f1}] AND datum_end:[${param.f2} TO 3000])" />
+    
+    <%-- datum --%>
+    <c:if test="${param.da_od != null && !empty param.da_od}">
+<% 
+    String rok_od = request.getParameter("da_od");
+    rok_od = rok_od.substring(rok_od.lastIndexOf(".")+1);
+    String rok_do = request.getParameter("da_do");
+    rok_do = rok_do.substring(rok_do.lastIndexOf(".")+1);
+    pageContext.setAttribute("rok_od", rok_od);
+    pageContext.setAttribute("rok_do", rok_do);
+    DateFormat df = new SimpleDateFormat(kconfig.getProperty("mods.date.format", "dd.MM.yyyy"));
+    DateFormat dfout = new SimpleDateFormat(kconfig.getProperty("mods.date.format", "dd-MM-yyyy'T'hh:mm:ss.SSS'Z'"));
+    String datum_od = dfout.format(df.parse(request.getParameter("da_od"))) ;
+    String datum_do = dfout.format(df.parse(request.getParameter("da_do"))) ;
+    pageContext.setAttribute("datum_od", datum_od);
+    pageContext.setAttribute("datum_do", datum_do);
+%>
+        <c:set var="fieldedSearch" value="true" scope="request" />
+        <c:param name="fq" value="rok:[${rok_od} TO ${rok_do}] OR (datum_begin:[1 TO ${rok_od}] AND datum_end:[${rok_do} TO 3000]) OR datum:[${datum_od} TO ${datum_do}]" />
             <c:set var="rows" value="${rowsdefault}" scope="request" />
     </c:if>
+    
     <c:param name="start" value="${param.offset}" />
     
     <c:if test="${isCollapsed}">
@@ -138,10 +159,10 @@ pageContext.setAttribute("search_results_rows", search_results_rows);
             <c:param name="sort" value="${sort}" />
         </c:when>
         <c:when test="${fieldedSearch}">
-            <c:param name="sort" value="level asc, root_title_cs asc, score desc" />
+            <c:param name="sort" value="level asc, title asc, score desc" />
         </c:when>
         <c:when test="${empty param.q}" >
-            <c:param name="sort" value="level asc, root_title_cs asc, score desc" />
+            <c:param name="sort" value="level asc, title asc, score desc" />
         </c:when>
         <c:otherwise>
             <c:param name="sort" value="level asc, score desc" />

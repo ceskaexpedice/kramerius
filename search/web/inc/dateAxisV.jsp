@@ -217,8 +217,8 @@ $(document).ready(function(){
 <div id="selectDiv" class="da_select" style="display:none;" ></div>
 
 <div id="da-inputs">
-<fmt:message bundle="${lctx}">Od</fmt:message>: <input class="da_input" id="f1" size="4" type="text" value="" />
-<fmt:message bundle="${lctx}">Do</fmt:message>: <input class="da_input" id="f2" size="4" type="text" value=""  /> 
+<fmt:message bundle="${lctx}">Od</fmt:message>: <input class="da_input" id="f1" size="10" type="text" value="" />
+<fmt:message bundle="${lctx}">Do</fmt:message>: <input class="da_input" id="f2" size="10" type="text" value=""  /> 
 <a href="javascript:doFilter();" ><img align="top" src="img/lupa_orange.png" border="0" alt="<fmt:message bundle="${lctx}">použit</fmt:message>" title="<fmt:message bundle="${lctx}">použit</fmt:message>" /></a>
 </div>
 <div id="content-resizable" style="position:relative;float:none;">

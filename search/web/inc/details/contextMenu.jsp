@@ -406,7 +406,63 @@
     }
         
     function deletefromindex(){
-            
+         var pids = getAffectedPids();
+        var action = "deleteDocument";
+        
+        var urlbuffer;
+        if(pids.length==1){
+            var pidpath = getPidPath(pids[0]);
+            var pid = pidpath.substring(pidpath.lastIndexOf("/") + 1);
+            var title = $(jq(pids[0])+">a>label").text();
+            var escapedTitle = replaceAll(title, ',', '');
+            escapedTitle = replaceAll(escapedTitle, '\n', '');
+            escapedTitle = escapedTitle.replace(/ +(?= )/g,'');
+            urlbuffer = "lr?action=start&def=reindex&out=text&params="+action+","+pid+","+escapedTitle;
+        }else{
+            urlbuffer = "lr?action=start&def=aggregate&out=text&nparams={reindex;"
+            for(var i=0; i<pids.length; i++){
+                    var pidpath = getPidPath(pids[i]);
+                    var pid = pidpath.substring(pidpath.lastIndexOf("/") + 1);
+                    var title = $(jq(pids[i])+">a>label").text();
+                    var escapedTitle = replaceAll(title, ',', '');
+                    escapedTitle = replaceAll(escapedTitle, '\n', '');
+                    escapedTitle = escapedTitle.replace(/ +(?= )/g,'');
+                    urlbuffer=urlbuffer+"{"+action+";"+replaceAll(pid, ":","\\:")+";"+replaceAll(escapedTitle, ":","\\:")+"}";
+                    if (i<pids.length-1) {
+                       urlbuffer=urlbuffer+";" 
+                    }
+            }
+            urlbuffer=urlbuffer+"}";
+        }
+
+        //var url = "lr?action=start&def=reindex&out=text&params="+action+","+uuid+","+escapedTitle;
+        if (_commonDialog) {
+
+            $("#common_started_ok").hide();
+            $("#common_started_failed").hide();
+            $("#common_started_waiting").show();
+
+            _commonDialog.dialog('open');
+        } else {
+            $("#common_started_waiting").show();
+            _commonDialog = $("#common_started").dialog({
+                bgiframe: true,
+                width: 400,
+                //height: 100,
+                modal: true,
+                title:'',
+                buttons: {
+                    "Close": function() {
+                        $(this).dialog("close");
+                    }
+                }
+            });
+        }
+
+        $("#common_started_text").text(dictionary['administrator.dialogs.waitingreindex']);
+        $("#common_started" ).dialog( "option", "title",  dictionary['administrator.menu.dialogs.reindex.title']);
+
+        _startProcess(urlbuffer);
     }
         
     function deletePid(){

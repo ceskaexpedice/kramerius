@@ -30,7 +30,7 @@
     <c:import url="${xslPage}" var="xsltPage" charEncoding="UTF-8"  />
     <% out.clear();%>
     <c:if test="${param.debug =='true'}"><c:out value="${url}" /></c:if>
-    
+    <%@ include file="pagination.jsp" %>
     <x:transform doc="${xml}"  xslt="${xsltPage}"  >
         <x:param name="bundle_url" value="${i18nServlet}"/>
         <x:param name="root_pid" value="${param.root_pid}"/>

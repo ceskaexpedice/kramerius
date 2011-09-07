@@ -15,8 +15,12 @@
         <c:set var="facetValue">${fn:replace(facetValue, "", "")}</c:set>
         <input type="hidden" name="fq" id="fq${status2.count}" value="<c:out value="${facetName}" />:<c:out value="${facetValue}" />" />
     </c:forEach>
+    <c:if test="${!empty param.da_od}" >
+        <input type="hidden" id="da_od" name="da_od" value="${param.da_od}" />
+        <input type="hidden" id="da_do" name="da_do" value="${param.da_do}" />
+    </c:if>
 <c:choose>
-    <c:when test="${empty param.q && !searching}" >
+    <c:when test="${empty param.q && !searching && !fieldedSearch}" >
         <c:set var="qtext" ><fmt:message bundle="${lctx}">form.search</fmt:message></c:set>
         <c:set var="qclass" >searchQuery ui-corner-all</c:set>
     </c:when>

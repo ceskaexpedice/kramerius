@@ -29,8 +29,8 @@
         padding:1px;
     }
     #rightMenuBox{
-        width:330px;
-        /*margin-left:22px;*/
+       /*  width:100%;
+       margin-left:22px;*/
     }
     #rightMenuBox h3{
         margin:0px;
@@ -115,7 +115,9 @@
     var model_path_str = '${model_path}';
     var pid_path = pid_path_str.split('/');
     var model_path = model_path_str.split('/');
+    var loadingInitNodes;
         $(document).ready(function(){
+            loadingInitNodes = true;
             $('#item_tree').css('width', $('#itemTree').width()-20);
             $('#rightMenuBox>h3').addClass('ui-state-default ui-corner-top ui-tabs-selected ui-state-active ');
             $("#item_tree li>span.folder").live('click', function(event){
@@ -167,7 +169,6 @@
             loadInitNodes();
         });
         var cur = 1;
-        var loadingInitNodes = true;
         function loadInitNodes(){
             var id;
             var path = "";

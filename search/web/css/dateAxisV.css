@@ -15,24 +15,6 @@
     z-index:4;
 }
 
-.da_range_container{
-    position:relative;
-    padding:2px;
-    margin:0px;
-    float:left;
-    z-index:4;
-}
-
-.da_range_bar{
-    background:#e66c00;
-    width: 3px;
-    top: 2px;
-    cursor: pointer;
-    overflow:hidden;
-    margin:0px;
-    position:absolute;
-}
-
 .da_group{
     padding:0px;
     margin:0px;
@@ -69,6 +51,7 @@
     margin:0px;
     cursor: pointer;
     overflow:hidden;
+    text-indent: -1000px
 }
 
 
@@ -100,9 +83,13 @@
   width:100%;
   text-align:left;
   padding:5px 4px;
+  z-index:100;
 }
 #da-inputs input{
   border: 1px solid #333333;
+  z-index:100 !important;
+  position:relative;
+  width: 70px;
 }
 
 .clear{

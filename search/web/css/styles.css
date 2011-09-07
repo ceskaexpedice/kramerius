@@ -190,7 +190,7 @@ a.image:hover {
     margin: 0;
     padding: 0;
     padding-left: 10px;
-    /*line-height: 16px;*/
+    line-height: 16px;
 }
 #facets>ul>li{
     padding-left: 0;
@@ -252,7 +252,7 @@ a.image:hover {
 /*results*/
 #filters{
     float:left;
-    width:200px;
+    width:220px;
     margin-right: 3px;
 }
 #facets{
@@ -261,7 +261,7 @@ a.image:hover {
 
 #docs{
     float:left;
-    width:780px;
+    width:760px;
 }
 
 #docs_content>div.header span{
@@ -298,7 +298,7 @@ a.image:hover {
 div.search_result{
     border: 1px solid silver;
     float:left;
-    width:357px;
+    width:355px;
     margin:2px;
     padding:5px;
     padding-bottom:8px;
