@@ -315,7 +315,8 @@
         
         <field name="pages_count" type="sint" default="0" indexed="true" stored="true"  />
         
-        <field name="datum" type="string" indexed="true" stored="true"  />
+        <field name="datum_str" type="string" indexed="true" stored="true"  />
+        <field name="datum" type="date" indexed="true" stored="true"  />
         <field name="rok" type="sint" default="0" indexed="true"  stored="true"  />
         <field name="datum_begin" type="sint" default="0"  indexed="true"  stored="true"  />
         <field name="datum_end" type="sint" default="0"  indexed="true"  stored="true"  />
