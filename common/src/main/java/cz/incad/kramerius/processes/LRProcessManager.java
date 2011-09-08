@@ -87,17 +87,25 @@ public interface LRProcessManager {
 	 */
 	public void updateLongRunningProcessPID(LRProcess lrProcess);
 	
+	
 	/**
 	 * Update started date
 	 * @param lrProcess
 	 */
 	public void updateLongRunningProcessStartedDate(LRProcess lrProcess);
+
+//	public void updateRolesProcess(LRProcess lrProcess, User user);
+
+	public void updateTokenMapping(LRProcess lrProcess, String sessionKey);
+	
+	public String getSessionKey(String token);
 	
 	/**
 	 * Delete process
 	 * @param uuid
 	 */
 	public void deleteLongRunningProcess(LRProcess lrProcess);
+	
 	
 	
 	

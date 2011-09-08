@@ -25,8 +25,8 @@ import com.google.inject.Provider;
 import cz.incad.kramerius.security.User;
 import cz.incad.kramerius.users.impl.LoggedUsersSingletonImpl;
 
-public interface LoggedUsersSingleton {
  
+public interface LoggedUsersSingleton {
     //TODO: CHANGE IT
     //public LoggedUsersSingleton INSTANCE = new LoggedUsersSingletonImpl();
 
@@ -37,6 +37,10 @@ public interface LoggedUsersSingleton {
     public boolean isLoggedUser(String key);
     
     public boolean isLoggedUser(Provider<HttpServletRequest> provider);
-    
+
+    public int getSessionKeyId(String key);
+
     public User getLoggedUser(String key);
+    public User getUser(String key);
+
 }

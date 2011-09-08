@@ -2,6 +2,7 @@ package cz.incad.kramerius.processes.database;
 
 import cz.incad.kramerius.processes.LRProcess;
 import cz.incad.kramerius.processes.States;
+import cz.incad.kramerius.security.Role;
 import cz.incad.kramerius.security.User;
 import cz.incad.kramerius.utils.DatabaseUtils;
 import java.sql.Connection;
@@ -20,6 +21,40 @@ import java.util.logging.Logger;
 public class ProcessDatabaseUtils {
 
     public static final Logger LOGGER = Logger.getLogger(ProcessDatabaseUtils.class.getName());
+
+
+    public static void insertProcessMapping2RolesNotClosingOP(Connection con, String token, Role role) throws SQLException {
+        PreparedStatement prepareStatement = con.prepareStatement(
+            "insert into processes_2_role (token,role_id) values (?,?)");
+        prepareStatement.setString(1, token);
+        prepareStatement.setInt(2, role.getId());
+        
+        int r = prepareStatement.executeUpdate();
+        LOGGER.log(Level.FINEST, "CREATE TABLE: inserted rows {0}", r);
+    }
+    
+
+    public static void insertProcessMapping2SessionId(Connection con, String token, int processId, int sessionKeyId) throws SQLException {
+        PreparedStatement prepareStatement = con.prepareStatement(
+            "insert into PROCESS_2_TOKEN (PROCESS_2_TOKEN_ID, " +
+            "PROCESS_ID, " +
+            "TOKEN," +
+            "SESSION_KEYS_ID) " +
+            " " +
+            "values (nextval('PROCESS_2_TOKEN_ID_SEQUENCE')," +
+            "?," +
+            "?," +
+            "?)");
+        prepareStatement.setInt(1, processId);
+        prepareStatement.setString(2, token);
+        prepareStatement.setInt(3, sessionKeyId);
+        
+        
+        int r = prepareStatement.executeUpdate();
+        LOGGER.log(Level.FINEST, "CREATE TABLE: inserted rows {0}", r);
+    }
+
+    
 
     public static void createProcessTable(Connection con) throws SQLException {
         PreparedStatement prepareStatement = con.prepareStatement(
@@ -132,6 +167,7 @@ public class ProcessDatabaseUtils {
             DatabaseUtils.tryClose(prepareStatement);
         }
     }
+
 
     public static void updateProcessState(Connection con, String uuid, States state) throws SQLException {
         PreparedStatement prepareStatement = con.prepareStatement(

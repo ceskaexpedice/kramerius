@@ -1,6 +1,7 @@
 package cz.incad.kramerius.imaging.lp;
 
 import java.awt.Dimension;
+import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -19,6 +20,7 @@ import com.google.inject.name.Names;
 
 import cz.incad.kramerius.FedoraAccess;
 import cz.incad.kramerius.ProcessSubtreeException;
+import cz.incad.kramerius.TreeNodeProcessor;
 import cz.incad.kramerius.imaging.DeepZoomTileSupport;
 import cz.incad.kramerius.imaging.DiscStrucutreForStore;
 import cz.incad.kramerius.imaging.lp.guice.Fedora3Module;
@@ -26,8 +28,11 @@ import cz.incad.kramerius.imaging.lp.guice.GenerateDeepZoomCacheModule;
 import cz.incad.kramerius.impl.AbstractTreeNodeProcessorAdapter;
 import cz.incad.kramerius.pdf.impl.OutputStreams;
 import cz.incad.kramerius.utils.FedoraUtils;
+import cz.incad.kramerius.utils.IOUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 import cz.incad.kramerius.utils.imgs.KrameriusImageSupport;
+import cz.incad.kramerius.utils.imgs.KrameriusImageSupport.ScalingMethod;
+import cz.incad.kramerius.utils.pid.LexerException;
 import cz.incad.kramerius.utils.pid.PIDParser;
 
 public class GenerateThumbnail {
@@ -46,28 +51,39 @@ public class GenerateThumbnail {
         }
     }
 
-    public static void prepareCacheForUUID(String uuid, final FedoraAccess fedoraAccess, final DiscStrucutreForStore discStruct, final DeepZoomTileSupport tileSupport) throws IOException {
-        if (fedoraAccess.isImageFULLAvailable(uuid)) {
+    public static void prepareCacheForUUID(String pid, final FedoraAccess fedoraAccess, final DiscStrucutreForStore discStruct, final DeepZoomTileSupport tileSupport) throws IOException {
+        if (fedoraAccess.isImageFULLAvailable(pid)) {
             try {
-                prepareThumbnail(uuid, fedoraAccess, discStruct, tileSupport);
+                
+                prepareThumbnail(pid, fedoraAccess, discStruct, tileSupport);
             } catch (XPathExpressionException e) {
+                LOGGER.severe(e.getMessage());
+            } catch (LexerException e) {
                 LOGGER.severe(e.getMessage());
             }
         } else {
             try {
-                fedoraAccess.processSubtree(uuid, new AbstractTreeNodeProcessorAdapter() {
+                fedoraAccess.processSubtree(pid, new TreeNodeProcessor() {
                     
                     @Override
-                    public void processUuid(String pageUuid, int level) throws ProcessSubtreeException {
+                    public void process(String pid, int level) throws ProcessSubtreeException {
                         try {
-                            if (fedoraAccess.isImageFULLAvailable(pageUuid)) {
-                                prepareThumbnail(pageUuid, fedoraAccess, discStruct, tileSupport);
+                            if (fedoraAccess.isImageFULLAvailable(pid)) {
+                                prepareThumbnail(pid, fedoraAccess, discStruct, tileSupport);
                             }
                         } catch (XPathExpressionException e) {
                             LOGGER.log(Level.SEVERE, e.getMessage(),e);
                         } catch (IOException e) {
                             LOGGER.log(Level.SEVERE, e.getMessage(),e);
+                        } catch (LexerException e) {
+                            LOGGER.log(Level.SEVERE, e.getMessage(),e);
                         }
+                    }
+                    
+                    @Override
+                    public boolean breakProcessing(String pid, int level) {
+                        // TODO Auto-generated method stub
+                        return false;
                     }
                 });
             } catch (ProcessSubtreeException e1) {
@@ -113,40 +129,57 @@ public class GenerateThumbnail {
         }
     }
 
-    public static void prepareThumbnail(String uuid, FedoraAccess fedoraAccess, DiscStrucutreForStore discStruct, DeepZoomTileSupport tileSupport) throws IOException, XPathExpressionException {
-        if (!fedoraAccess.isFullthumbnailAvailable(uuid)) {
-            BufferedImage scaled = scaleToFullThumb(uuid, fedoraAccess, tileSupport);
+    public static void prepareThumbnail(String pid, FedoraAccess fedoraAccess, DiscStrucutreForStore discStruct, DeepZoomTileSupport tileSupport) throws IOException, XPathExpressionException, LexerException {
+        PIDParser pidParser = new PIDParser(pid);
+        pidParser.objectPid();
+        String uuid = pidParser.getObjectId();
 
+        BufferedImage scaled = scaleToFullThumb(pid, fedoraAccess, tileSupport);
+        if (scaled != null) {
             File tmpFile = File.createTempFile("img_preview", ""+System.currentTimeMillis());
+            tmpFile.deleteOnExit();
             FileOutputStream fos = new FileOutputStream(tmpFile);
             try {
                 KrameriusImageSupport.writeImageToStream(scaled, "jpeg", fos);
-                // vytvori novy ds
+                if (fedoraAccess.isFullthumbnailAvailable(pid)) {
+                    LOGGER.info("Purge previous IMG_PREVIEW datastream ... for pid "+pid);
+                    fedoraAccess.getAPIM().purgeDatastream(pid, FedoraUtils.IMG_PREVIEW_STREAM, 
+                            null, null, null, false);
+                }
+                    // vytvori novy ds
+                LOGGER.info("Adding new IMG_PREVIEW datastream ... for pid "+pid);
                 fedoraAccess.getAPIM().addDatastream("uuid:"+uuid, FedoraUtils.IMG_PREVIEW_STREAM, null, null, false, "image/jpeg", null, 
                         tmpFile.toURI().toString(), "M", "A", "MD5", null, "noLog");
+//                    fedoraAccess.getAPIM().modifyDatastreamByValue(pid,  FedoraUtils.IMG_PREVIEW_STREAM, null, null, null, null, bos, null, null, null, false);
+                
+
                 
             } finally {
                 fos.close();
                 tmpFile.delete();
             }
+        }
 
+    }
+
+    public static BufferedImage scaleToFullThumb(String pid, FedoraAccess fedoraAccess, DeepZoomTileSupport tileSupport) throws XPathExpressionException, IOException {
+        BufferedImage img = KrameriusImageSupport.readImage(pid, FedoraUtils.IMG_FULL_STREAM, fedoraAccess, 0);
+        if (img != null) {
+            Dimension dim = new Dimension(img.getWidth(), img.getHeight());
+            return scaleByHeight(img, new Rectangle(dim), KConfiguration.getInstance().getConfiguration().getInt("preview.height",700), null);
         } else {
-            LOGGER.info(" for '"+uuid+"' is not necessary generate full thumbnail");
+            LOGGER.severe("skipping image "+pid);
+            return null;
         }
     }
-
-    public static BufferedImage scaleToFullThumb(String uuid, FedoraAccess fedoraAccess, DeepZoomTileSupport tileSupport) throws XPathExpressionException, IOException {
-        BufferedImage img = KrameriusImageSupport.readImage(uuid, FedoraUtils.IMG_FULL_STREAM, fedoraAccess, 0);
-        int width = img.getWidth();
-        int height = img.getHeight();
-        
-        Dimension dim = new Dimension(img.getWidth(), img.getHeight());
-        double scale = tileSupport.getClosestScale(dim,tileSupport.getTileSize());
-        
-        int targetWidth = (int) (width / scale);
-        int targetHeight = (int) (height / scale);
-
-        BufferedImage scaled = KrameriusImageSupport.scale(img, targetWidth, targetHeight);
-        return scaled;
+    
+    public static BufferedImage scaleByHeight(BufferedImage img, Rectangle pageBounds, int height, ScalingMethod scalingMethod) {
+        if (scalingMethod == null) scalingMethod = ScalingMethod.BILINEAR;
+        int nHeight = height;
+        double div = (double)pageBounds.getHeight() / (double)nHeight;
+        double nWidth = (double)pageBounds.getWidth() / div;
+        BufferedImage scaledImage = KrameriusImageSupport.scale(img, (int)nWidth, nHeight, scalingMethod, false);
+        return scaledImage;
     }
+
 }

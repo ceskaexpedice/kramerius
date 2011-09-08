@@ -36,6 +36,10 @@ public class JDBCTransactionTemplate {
     }
     
     
+    public Object updateWithTransaction(final List<JDBCCommand> commands) throws SQLException {
+        return this.updateWithTransaction((JDBCCommand[]) commands.toArray(new JDBCCommand[commands.size()]));
+    }    
+    
     public Object updateWithTransaction(final JDBCCommand... commands) throws SQLException {
         boolean previous = this.connection.getAutoCommit();
         try {

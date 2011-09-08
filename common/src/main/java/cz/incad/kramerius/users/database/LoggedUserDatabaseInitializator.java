@@ -39,7 +39,7 @@ public class LoggedUserDatabaseInitializator {
     
     public static void initDatabase(final Connection connection) {
         try {
-            boolean loggedUserTable = DatabaseUtils.tableExists(connection, "LOGGED_USERS");
+            boolean loggedUserTable = DatabaseUtils.tableExists(connection, "ACTIVE_USERS");
             if (!loggedUserTable) {
                 createLoggedUsersTables(connection);
             }

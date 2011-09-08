@@ -17,13 +17,17 @@
 package cz.incad.kramerius.processes.database;
 
 import java.io.IOException;
+import java.io.InputStream;
+import java.nio.charset.Charset;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.logging.Level;
 
 import cz.incad.kramerius.security.database.InitSecurityDatabaseMethodInterceptor;
+import cz.incad.kramerius.users.database.LoggedUserDatabaseInitializator;
 import cz.incad.kramerius.utils.DatabaseUtils;
+import cz.incad.kramerius.utils.IOUtils;
 
 /**
  * Database initialization - processes table
@@ -52,6 +56,11 @@ public class ProcessDatabaseInitializator {
                 changeDatabaseBecauseShibb(connection);
             }
             
+            
+            if (!DatabaseUtils.tableExists(connection, "PROCESS_2_TOKEN")) {
+                createToken2SessionkeysMapping(connection);
+            }
+            
             /*
             if (!DatabaseUtils.tableExists(connection,"USER_ENTITY")) {
                 InitSecurityDatabaseMethodInterceptor.createSecurityTables(connection);
@@ -60,10 +69,20 @@ public class ProcessDatabaseInitializator {
             
         } catch (SQLException e) {
             LOGGER.log(Level.SEVERE,e.getMessage(),e);
+        } catch (IOException e) {
+            LOGGER.log(Level.SEVERE,e.getMessage(),e);
         }
-
     }
 
+    public static void createToken2SessionkeysMapping(Connection connection) throws SQLException, IOException {
+        InputStream is = ProcessDatabaseInitializator.class.getResourceAsStream("res/initprocesstoken.sql");
+        String sqlScript = IOUtils.readAsString(is, Charset.forName("UTF-8"), true);
+        PreparedStatement prepareStatement = connection.prepareStatement(sqlScript);
+        int r = prepareStatement.executeUpdate();
+        LOGGER.log(Level.FINEST, "CREATE TABLE: updated rows {0}", r);
+    }
+
+    
     public static void createProcessTable(Connection con) throws SQLException {
         PreparedStatement prepareStatement = con.prepareStatement(
                 "CREATE TABLE PROCESSES(DEFID VARCHAR(255), " +

@@ -1,43 +1,104 @@
-group loggedusers;
+group activeusers;
 
-registerLoggedUser(user, userkey) ::=<<
-    insert into LOGGED_USERS 
+
+/** find user by loginname  **/
+findUserByLoginName() ::=<<
+    select * from ACTIVE_USERS 
+        where LOGINNAME = ?
+>>
+
+
+/** update active user **/
+updateActiveUser() ::=<<
+    update ACTIVE_USERS set 
+        firstname = ?,
+        surname = ?
+    where active_users_id = ?
+>>
+
+
+/** register new user **/
+registerActiveUser()::=<<
+    insert into ACTIVE_USERS(
+        active_users_id, 
+        loginname,
+        firstname,
+        surname)
     values (
-        nextval('LOGGED_USERS_ID_SEQUENCE'),
-        CURRENT_TIMESTAMP,
-        '$userkey$',
-        '$user.loginname$',
-        '$user.firstName$',
-        '$user.surname$')
+        nextval('active_users_id_sequence'),
+        ?, /* loginname */
+        ?, /* firstname */
+        ? /* surname */)
 >>
 
-
-registerLoggedUserUpdateRoles(loggeduserid, roleid) ::=<<
-    insert into LOGGED_USERS_2_ROLES
+/** register user's role */
+registerLoggedUserUpdateRoles() ::=<<
+    insert into active_users_2_roles
         values( 
-            nextval('LOGGED_USERS_2_ROLES_ID_SEQUENCE'),
-            $loggeduserid$,
-            $roleid$)
+            nextval('active_users_id_sequence_2_roles_id_sequence'),
+            ?,?)
 >>
 
 
-deleteLoggedUser(loggeduserid) ::=<<
-    delete from LOGGED_USERS
-        where logged_user_id=$loggeduserid$   
+/** delete roles **/
+deleteRoleByActiveIdAdnRoleId() ::=<<
+    delete from active_users_2_roles 
+        where active_users_id=? 
+        and role_id=?;
 >>
 
-deleteLoggedUserRoles(loggeduserid, roleid) ::=<<
-    delete from LOGGED_USERS_2_ROLES
-        where (
-            logged_user_id=$loggeduserid$  
-                and 
-            ROLE_ID = $roleid$          
-        )
+
+/** delete roles **/
+deleteRoleActiveId() ::=<<
+    delete from active_users_2_roles 
+        where active_users_id=?;
 >>
 
-selectLoggedUser() ::=<<
-    select * from LOGGED_USERS
-        where logged_users_id = ?
+
+/** register new user **/
+registerSessionKey()::=<<
+    insert into SESSION_KEYS (
+        session_keys_id, 
+        session_key,
+        active_users_id,
+        logged,
+        ACTIVE,
+        remote_address)
+    values (
+        nextval('session_keys_id_sequence'),
+        ?, /*session key*/
+        ?, /*active user id*/
+        CURRENT_TIMESTAMP, /*logged  */
+        '1',
+        ? /*remote addr*/)
+>>
+
+
+/** deregister session key */
+deregisterSessionKey() ::=<<
+    update SESSION_KEYS set ACTIVE='0' where session_key = ?
+>>
+
+/** select logged user */
+isLoggedUser() ::=<<
+    select * from SESSION_KEYS
+        where session_key = ? AND ACTIVE='1';
+>>
+
+/** select logged user */
+user() ::=<<
+    select * from SESSION_KEYS
+        where session_key = ?;
+>>
+
+/** select logged user */
+getLoggedUser() ::=<<
+    
+    select au.loginname,au.firstname,au.surname, ge.group_id,ge.gname,ge.personal_admin_id from active_users au
+    join active_users_2_roles aur on (au.active_users_id = aur.active_users_id)
+    join group_entity ge on (ge.group_id = aur.role_id)
+    where au.active_users_id = ?
+    
 >>
 
 
