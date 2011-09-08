@@ -13,8 +13,6 @@
 <%@page import="cz.incad.kramerius.utils.conf.KConfiguration"%>
 <%@page import="javax.servlet.jsp.jstl.fmt.LocalizationContext"%>
 <%@page import="cz.incad.kramerius.FedoraAccess"%>
-
-
 <%
     String[] dtsa = kconfig.getPropertyList("search.home.document.types");
     String dts = "";
@@ -39,4 +37,13 @@
     <ul><li><a href="#dadiv"><fmt:message bundle="${lctx}" key="Časová osa" /></a></li></ul>
 <div id="dadiv" style="padding:3px;"><%@ include file="da.jsp" %></div>
 </div>
+<script type="text/javascript">
+    $(document).ready(function(){
+        var d = $(window).height() - $("#main").height() - $("#footer").outerHeight(true);
+        var a = $("#intro>div.ui-tabs-panel:first").height() + d;
+        //var h = $(window).height() - $("#header").height()
+        //    - $("#footer").height()- $("#intro>ul").height() - 34 -11-6;
+        $("#intro>div.ui-tabs-panel").css("height", a);
+    });
+</script>
 

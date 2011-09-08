@@ -14,7 +14,7 @@
     padding-left:1px;
     cursor:pointer;
     overflow:auto;
-    height:546px;
+    height:440px;
     position:relative;
 }
 .autocomplete div{
@@ -23,7 +23,7 @@
     position:relative;
 }
 
-.autocomplete div:hover{
+ div.term:hover{
     cursor:pointer;
     background: silver;
 }

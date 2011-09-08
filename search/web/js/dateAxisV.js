@@ -1,6 +1,6 @@
 /* Interface variables */
 var containerWidth = 179;
-var containerHeight = 593;
+var containerHeight = 493;
 var groupTitleHeight = 20;
 var maxHeight = 80;
 var barContainerHeight = 5;
@@ -73,6 +73,7 @@ function setDatePicker(){
             dates.not( this ).datepicker( "option", option, date );
         }
     });
+    $('#ui-datepicker-div').hide();
 }
 
 function cloneElements(){

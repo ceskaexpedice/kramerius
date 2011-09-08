@@ -19,6 +19,21 @@
     String[] tabs = kconfig.getPropertyList("search.home.tabs");
     pageContext.setAttribute("tabs", tabs);
 %>
+<style type="text/css">
+    .suggest{
+        position: absolute;
+        top:20px;
+        z-index:3;
+        height:200px;
+        width:400px;
+        overflow: auto;
+        padding:5px;
+        display:none;
+    }
+    .suggest>div.content{
+        clear:right;
+    }
+</style>
 <div id="intro" >
     <ul>
         <%--<li><a href="#browse"><fmt:message bundle="${lctx}" key="Procházet" /></a></li>--%>
@@ -28,7 +43,7 @@
     </ul>
 
     <c:forEach varStatus="status" var="tab" items="${tabs}">
-        <div id="intro${status.count}" style="height: 610px; overflow:hidden;"></div>
+        <div id="intro${status.count}" style="height: 510px; overflow:hidden;"></div>
         <script type="text/javascript">
             $.get('inc/home/${tab}.jsp', function(data){
                $('#intro${status.count}').html(data) ;
@@ -39,6 +54,25 @@
 <script type="text/javascript" language="javascript">
 
     var letters = "0,A,Á,B,C,Č,D,Ď,E,É,Ě,F,G,H,CH,I,Í,J,K,L,M,N,Ň,O,Ó,P,Q,R,Ř,S,Š,T,Ť,U,Ú,Ů,V,W,X,Y,Ý,Z,Ž";
+    
+    function hideSuggest(obj){
+        $(obj).hide();
+    }
+    function doSuggest(input){
+        var input_id = $(input).attr("id");
+        var value = $("#"+input_id).val();
+        var res_id = input_id + "_res";
+        var field_id = input_id.substring(3);
+        var url = 'terms.jsp?i=false&field=' + field_id + '&t=' + value;
+        $.get(url, function(data){
+            $('#'+res_id+">div.content").html(data);
+            if(data!=""){
+                $('#'+res_id).show();
+            }else{
+                $('#'+res_id).hide();
+            }
+        });
+    }
     
     function escapeValue(value){
         return '#' + value.replace(/(\"|\.)/g,'\\$1');
@@ -67,10 +101,10 @@
         $('.term').live('click', function(){
             var field = $(this).parent().attr('id');
             var value = $(this).children("span").html();
-            if(field=='browse_title'){
+            if(field.indexOf('browse_title')>-1){
                 window.location = "r.jsp?title=\"" + value + "\"";
             } else{
-                window.location = "r.jsp?fq=" + field + ":\"" + value + "\"";
+                window.location = "r.jsp?author=\"" + value + "\"";
             }
         });
 

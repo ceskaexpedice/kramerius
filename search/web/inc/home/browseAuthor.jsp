@@ -19,7 +19,14 @@
         <div class="ui-tabs-panel ui-corner-bottom">
             <table width="100%">
                 <tr>
-                    <td valign="top" colspan="2"><fmt:message bundle="${lctx}" key="common.author" /></td>
+                    <td valign="top" colspan="2">
+                        <div style="position:relative;"><fmt:message bundle="${lctx}" key="common.author" />: 
+                        <input type="text" id="br_browse_autor" onkeyup="doSuggest(this)" size="70"/>
+                        <div id="br_browse_autor_res" class="suggest border shadow">
+                            <div class="header"><a href="javascript:hideSuggest('#br_autor_res');"><span class="ui-icon ui-icon-close" style="float:right;">close</span></a></div>
+                            <div class="content"></div>
+                        </div></div>
+                    </td>
                 </tr>
                 <tr>
                     <td width="90%" valign="top">
@@ -27,7 +34,7 @@
                     </td>
                     <td align="center" valign="top" id="letters_browse_autor" class="letters letters_l">
 <%
-String[] pismena = {"0","A","Á","B","C","Č","D","Ď","E","É","Ě","F","G","H","CH","I","Í","J","K","L","M","N","Ň","O","Ó","P","Q","R","Ř","S","Š","T","Ť","U","Ú","Ů","V","W","X","Y","Ý","Z","Ž"};
+String[] pismena = {"0","A","B","C","Č","D","Ď","E","F","G","H","CH","I","J","K","L","M","N","Ň","O","P","Q","R","Ř","S","Š","T","Ť","U","V","W","X","Y","Z","Ž"};
 pageContext.setAttribute("pismena", pismena);
 %>
 <c:forEach var="p" items="${pismena}"><div class="${p}"><a href="#">${p}</a></div></c:forEach>

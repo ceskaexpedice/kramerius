@@ -15,11 +15,11 @@
             <c:if test="${!empty param.q}" >
             <li>
                  <a class="mainNav" href="javascript:removeQuery();"><c:out value="${param.q}" /></a>
-                 <span class="ui-icon ui-icon-close">remove</span></li>
+                 </li>
             </c:if>
             <%-- datum --%>
             <c:if test="${param.da_od != null && param.da_do != ''}">
-                <li><span class="ui-icon ui-icon-close">remove</span>
+                <li>
                 <a title="" class="mainNav" href="javascript:removeDateAxisFilter();">
                 <fmt:message bundle="${lctx}" key="common.date" />: <c:out value="${param.da_od}" /> - <c:out value="${param.da_do}" /></a>
                 </li>
@@ -39,7 +39,7 @@
                 <c:if test="${facetName == 'dostupnost'}">
                     <c:set var="facetValueDisp"><fmt:message bundle="${lctx}" >dostupnost.<c:out value="${facetValueDisp}" /></fmt:message></c:set>
                 </c:if>
-                <li><span class="ui-icon ui-icon-close">remove</span> <a  class="mainNav" href="javascript:removeFacet(<c:out value="${status.count}" />);">
+                <li> <a  class="mainNav" href="javascript:removeFacet(<c:out value="${status.count}" />);">
                 <fmt:message bundle="${lctx}" ><c:out value="${facetName}" /></fmt:message>: <c:out value="${facetValueDisp}"/></a>
                 <input type="hidden" name="fq" id="fq<c:out value="${status.count}" />" value="<c:out value="${facetName}" />:<c:out value="${facetValue}" />" />
                 </li>
@@ -59,61 +59,68 @@
                         </a>
                     <input type="hidden" name="suggest_q" id="suggest_q" value="<c:out value="${param.suggest_q}" />" />
                     <input type="hidden" name="suggest" id="suggest" value="true" />
-                    <span class="ui-icon ui-icon-close">remove</span></li>
+                    </li>
             </c:if>
 
             <%-- advanced params --%>
             <c:if test="${!empty param.issn}">
                 <li> <a title="" class="mainNav" href="javascript:removeAdvFilter('issn', '<c:out value="${param.issn}" />');">
                 <fmt:message bundle="${lctx}" key="issn" />: <c:out value="${param.issn}"/></a>
-                <span class="ui-icon ui-icon-close">remove</span></li>
+                </li>
             </c:if>
             <c:if test="${!empty param.title}">
                 <li>
                 <a title="" class="mainNav" href="javascript:removeAdvFilter('title', '<c:out value="${param.title}" />');">
+                
                 <fmt:message bundle="${lctx}">filter.maintitle</fmt:message>: <c:out value="${param.title}"/></a>
-                <span class="ui-icon ui-icon-close">remove</span></li>
+                </li>
             </c:if>
             <c:if test="${!empty param.author}">
                 <li>
                 <a title="" class="mainNav" href="javascript:removeAdvFilter('author', '<c:out value="${param.author}" />');">
                 <fmt:message bundle="${lctx}" key="author" /> &#160;<c:out value="${param.author}"/></a>
-                <span class="ui-icon ui-icon-close">remove</span></li>
+                </li>
             </c:if>
             <c:if test="${!empty param.rok}">
                 <li>
                 <a title="" class="mainNav" href="javascript:removeAdvFilter('rok', '<c:out value="${param.rok}" />');">
+                
                 <fmt:message bundle="${lctx}" key="rok" />: &#160;<c:out value="${param.rok}"/></a>
-                <span class="ui-icon ui-icon-close">remove</span></li>
+                </li>
             </c:if>
             <c:if test="${!empty param.keywords}">
                 <li>
                 <a title="" class="mainNav" href="javascript:removeAdvFilter('keywords', '<c:out value="${param.keywords}" />');">
+                
                 <fmt:message bundle="${lctx}" key="Keywords" />: &#160;<c:out value="${param.keywords}"/></a>
-                <span class="ui-icon ui-icon-close">remove</span></li>
+                </li>
             </c:if>
             <c:if test="${!empty param.udc}">
                 <li>
                 <a title="" class="mainNav" href="javascript:removeAdvFilter('udc', '<c:out value="${param.udc}" />');">
                 MDT: &#160;<c:out value="${param.udc}"/></a>
-                <span class="ui-icon ui-icon-close">remove</span></li>
+                </li>
             </c:if>
             <c:if test="${!empty param.ddc}">
                 <li>
                 <a title="" class="mainNav" href="javascript:removeAdvFilter('ddc', '<c:out value="${param.ddc}" />');">
                 DDT: &#160;<c:out value="${param.ddc}"/></a>
-                <span class="ui-icon ui-icon-close">remove</span></li>
+                </li>
             </c:if>
             <c:if test="${!empty param.onlyPublic}">
                 <li>
                 <a title="" class="mainNav" href="javascript:removeAdvFilter('onlyPublic', '<c:out value="${param.onlyPublic}" />');">
                 <fmt:message bundle="${lctx}" key="Pouze veřejné dokumenty" />:&#160; <c:out value="${param.onlyPublic}"/></a>
-                <span class="ui-icon ui-icon-close">remove</span></li>
+                </li>
             </c:if>
         </ul>
     </li>
 </ul>
 <script type="text/javascript">
+    $(document).ready(function(){
+        $("#usedFilters>li>a").prepend('<span class="ui-icon ui-icon-close">remove</span>');
+    });
+    
     function removeFacet(index){
         $('#fq'+index).remove();
         //checkQuery();

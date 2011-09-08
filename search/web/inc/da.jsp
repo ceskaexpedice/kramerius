@@ -69,12 +69,16 @@
     var longMonths= ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
     var shortDays= ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
     var longDays= ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
-    dateAxisActive = true;
     
-    var showStaticAxis = true;
+    //var showStaticAxis = true;
     var maxCount;
   
     $(document).ready(function(){
+        if(number_of_items<2){
+            $("#dadiv").remove();
+            return;
+        }
+        dateAxisActive = true;
         times[0] = {"1800":[5742, '1800','1899'], "1900":[3047, '1900','1999'], "2000":[94, '2000','2099']};
         var a = new Array();
         $(".da_group").each(function(){

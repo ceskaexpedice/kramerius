@@ -10,6 +10,9 @@ form{
     margin:0px;
     padding:0px;
 }
+.border{
+    border: 1px solid #e66c00;
+}
 #header{
     background: url("../img/header.png") no-repeat 0 0 #FFFFFF;
     border-bottom: 1px solid #e66c00;

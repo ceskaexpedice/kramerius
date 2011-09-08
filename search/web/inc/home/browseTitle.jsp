@@ -19,7 +19,15 @@
         <div class="ui-tabs-panel ui-corner-bottom">
             <table width="100%">
                 <tr>
-                    <td valign="top" colspan="2"><fmt:message bundle="${lctx}" key="filter.maintitle" /></td>
+                    <td valign="top" colspan="2">
+                        <div style="position:relative;"><fmt:message bundle="${lctx}" key="filter.maintitle" />: 
+                        <input type="text" id="br_browse_title" onkeyup="doSuggest(this)" size="70" />
+                        <div id="br_browse_title_res" class="suggest border shadow">
+                            <div class="header"><a href="javascript:hideSuggest('#br_browse_title_res');"><span class="ui-icon ui-icon-close" style="float:right;">close</span></a></div>
+                            <div class="content"></div>
+                        </div>    
+                        </div>
+                    </td>
                 </tr>
                 <tr>
                     <td width="90%" valign="top">
@@ -27,19 +35,15 @@
                     </td>
                     <td align="center" valign="top" id="letters_browse_title" class="letters letters_l">
 <%
-String[] pismena = {"0","A","Á","B","C","Č","D","Ď","E","É","Ě","F","G","H","CH","I","Í","J","K","L","M","N","Ň","O","Ó","P","Q","R","Ř","S","Š","T","Ť","U","Ú","Ů","V","W","X","Y","Ý","Z","Ž"};
+String[] pismena = {"0","A","B","C","Č","D","Ď","E","F","G","H","CH","I","J","K","L","M","N","Ň","O","P","Q","R","Ř","S","Š","T","Ť","U","V","W","X","Y","Z","Ž"};
 pageContext.setAttribute("pismena", pismena);
 %>
 <c:forEach var="p" items="${pismena}"><div class="${p}"><a href="#">${p}</a></div></c:forEach>
                     </td>
                 </tr></table>
 <script type="text/javascript">
-
-
     $(document).ready(function(){
-        
         doBrowse('', 'browse_title');
-        
         $("#browse_title").bind('scroll', function(event){
             var id = $(this).attr('id');
             if($('#'+id+">div.more_terms").length>0 && isTermVisible(id)){
@@ -47,7 +51,6 @@ pageContext.setAttribute("pismena", pismena);
             }
             selectLetter(id);
         });
-
     });
 </script>
         </div>

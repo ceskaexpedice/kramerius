@@ -20,7 +20,7 @@
             <xsl:with-param name="max"><xsl:value-of select="number($maxy)" /></xsl:with-param>
        </xsl:call-template>
        <script type="text/javascript">
-        
+        var number_of_items = <xsl:value-of select="count(response/lst[@name='facet_counts']/lst[@name='facet_fields']/lst[@name='rok']/int)" />;
         var zooms = new Array();
         zooms[0] = [<xsl:value-of select="number($minyear)" />, <xsl:value-of select="number($maxy)" />];
         zooms[1] = [<xsl:value-of select="number($minyear)" />, <xsl:value-of select="number($maxy)" />];

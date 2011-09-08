@@ -10,7 +10,22 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn" %>
 <%@ page isELIgnored="false"%>
-
+<style type="text/css">
+    #intro_text{
+        font-size:1.1em;
+        overflow: auto;
+        height: 510px;
+    }
+    
+    #intro_text a{
+        color:#e66c00;
+        font-size:1.1em;
+        
+    }
+     
+         
+</style>
+<div id="intro_text">
 <%
     Injector wellcomeInjector = (Injector)application.getAttribute(Injector.class.getName());
     WellcomeViewObject wellcomeViewObject = new WellcomeViewObject();
@@ -18,3 +33,4 @@
     out.print(wellcomeViewObject.getIntro());
     //pageContext.setAttribute("wellcomeViewObject", wellcomeViewObject);
 %>
+</div>
