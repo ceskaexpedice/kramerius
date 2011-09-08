@@ -25,6 +25,7 @@ import antlr.TokenStreamException;
 
 import com.google.inject.Inject;
 import com.google.inject.Provider;
+import com.sun.corba.se.impl.activation.ProcessMonitorThread;
 
 import cz.incad.Kramerius.backend.guice.GuiceServlet;
 import cz.incad.Kramerius.processes.ParamsLexer;
@@ -44,11 +45,13 @@ import cz.incad.kramerius.processes.States;
 import cz.incad.kramerius.processes.TypeOfOrdering;
 import cz.incad.kramerius.processes.utils.ProcessUtils;
 import cz.incad.kramerius.security.IsActionAllowed;
+import cz.incad.kramerius.security.Role;
 import cz.incad.kramerius.security.SecuredActions;
 import cz.incad.kramerius.security.SecurityException;
 import cz.incad.kramerius.security.SpecialObjects;
 import cz.incad.kramerius.security.User;
 import cz.incad.kramerius.security.UserManager;
+import cz.incad.kramerius.security.impl.UserImpl;
 import cz.incad.kramerius.security.utils.UserUtils;
 import cz.incad.kramerius.users.LoggedUsersSingleton;
 import cz.incad.kramerius.utils.ApplicationURL;
@@ -177,6 +180,10 @@ public class LongRunningProcessServlet extends GuiceServlet {
         return null;
     }
 
+    private static void updateProcessTokenMapping(LRProcess nprocess,String loggedUserKey, LRProcessManager lrProcessManager) {
+        lrProcessManager.updateTokenMapping(nprocess, loggedUserKey);
+    }
+    
     static enum Actions {
 
         /**
@@ -198,11 +205,12 @@ public class LongRunningProcessServlet extends GuiceServlet {
                         
                         List<LRProcess> processes = lrProcessManager.getLongRunningProcessesByToken(token);
                         if (!processes.isEmpty()) {
-                            // Nemuzu hledat v databazi. 
-                            // Musim najit dle loginname v prihlasenych uzivatelich... 
-                            loggedUserKey = processes.get(0).getLoggedUserKey();
-                            user = loggedUserSingleton.getLoggedUser(loggedUserKey);
-                            
+                            // hledani klice 
+                            LRProcess process = processes.get(0);
+                            loggedUserKey = lrProcessManager.getSessionKey(process.getToken());
+                            user = loggedUserSingleton.getUser(loggedUserKey);
+                        } else {
+                            throw new RuntimeException("cannot find process with token '"+token+"'");
                         }
                     } else {
                         user = userProvider.get();
@@ -213,6 +221,8 @@ public class LongRunningProcessServlet extends GuiceServlet {
                                         (actionFromDef != null && rightsResolver.isActionAllowed(user, actionFromDef.getFormalName(), SpecialObjects.REPOSITORY.getPid(), ObjectPidsPath.REPOSITORY_PATH))) : false ;
                     if (permited) {
                         LRProcess nprocess = planNewProcess(req, context, def, defManager, params, user,loggedUserKey);
+                        // update process and token mapping
+                        updateProcessTokenMapping(nprocess,  loggedUserKey,lrProcessManager);
                         
                         if ((out != null) && (out.equals("text"))) {
                             resp.setContentType("text/plain");
@@ -418,6 +428,8 @@ public class LongRunningProcessServlet extends GuiceServlet {
         abstract void doAction(ServletContext context, HttpServletRequest req, HttpServletResponse resp, DefinitionManager defManager, LRProcessManager processManager, UserManager userManager, Provider<User> userProvider, IsActionAllowed actionAllowed, LoggedUsersSingleton loggedUserSingleton);
     }
 
+    
+    
     public static String lrServlet(HttpServletRequest request) {
         return ApplicationURL.urlOfPath(request, InternalConfiguration.get().getProperties().getProperty("servlets.mapping.lrcontrol"));
     }

@@ -68,7 +68,7 @@ public class StartupServlet extends GuiceServlet {
             // all security tables
             SecurityDatabaseInitializator.initDatabase(connection);
             // Logged users table
-            //LoggedUserDatabaseInitializator.initDatabase(connection);
+            LoggedUserDatabaseInitializator.initDatabase(connection);
         
             this.pdfService.init();
         } catch (IOException e) {
