@@ -153,6 +153,7 @@
                         }
                         $('#searchInsideScope').html(t);
                     }
+                    onShowContextMenu();
                 }
             });
 

@@ -83,11 +83,11 @@
   width:100%;
   text-align:left;
   padding:5px 4px;
-  z-index:100;
+  z-index:3;
 }
 #da-inputs input{
   border: 1px solid #333333;
-  z-index:100 !important;
+  z-index:3 !important;
   position:relative;
   width: 70px;
 }

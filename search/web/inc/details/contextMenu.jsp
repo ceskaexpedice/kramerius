@@ -113,6 +113,34 @@
 
     });
     
+    function clearContextMenuSelection(){
+        $('#context_items_selection').html("");
+    }
+    
+    function removeFromContextMenuSelection(id){
+        $(jq('cm_'+id)).remove();
+    }
+    
+    function addToContextMenuSelection(id, label){
+        var t = '<li id="cm_' + id + '">';
+            t += '<span class="ui-icon ui-icon-triangle-1-e folder " >folder</span>';
+            t += '<label>'+label+'</label></li>';
+            
+        $('#context_items_selection').append(t);
+    }
+    
+    function onShowContextMenu(){
+        if($('#context_items_selection>li').length>0){
+            setScope('scope_multiple');
+            $('#scope_multiple').show();
+            $('#scope_single').hide();
+        }else{
+            setScope('scope_single');
+            $('#scope_multiple').hide();
+            $('#scope_single').show();
+        }
+    }
+    
     function getLabel(pid){
         return $(jq("cm_" + uuids[i])+">label").html();
     }

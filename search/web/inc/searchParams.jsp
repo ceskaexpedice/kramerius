@@ -59,14 +59,14 @@ pageContext.setAttribute("search_results_rows", search_results_rows);
     pageContext.setAttribute("rok_od", rok_od);
     pageContext.setAttribute("rok_do", rok_do);
     DateFormat df = new SimpleDateFormat(kconfig.getProperty("mods.date.format", "dd.MM.yyyy"));
-    DateFormat dfout = new SimpleDateFormat(kconfig.getProperty("mods.date.format", "dd-MM-yyyy'T'hh:mm:ss.SSS'Z'"));
+    DateFormat dfout = new SimpleDateFormat(kconfig.getProperty("mods.date.format", "yyyy-MM-dd'T'hh:mm:ss.SSS'Z'"));
     String datum_od = dfout.format(df.parse(request.getParameter("da_od"))) ;
     String datum_do = dfout.format(df.parse(request.getParameter("da_do"))) ;
     pageContext.setAttribute("datum_od", datum_od);
     pageContext.setAttribute("datum_do", datum_do);
 %>
         <c:set var="fieldedSearch" value="true" scope="request" />
-        <c:param name="fq" value="rok:[${rok_od} TO ${rok_do}] OR (datum_begin:[1 TO ${rok_od}] AND datum_end:[${rok_do} TO 3000]) OR datum:[${datum_od} TO ${datum_do}]" />
+        <c:param name="fq" value="(datum_begin:[1 TO ${rok_od}] AND datum_end:[${rok_do} TO 3000]) OR datum:[${datum_od} TO ${datum_do}]" />
             <c:set var="rows" value="${rowsdefault}" scope="request" />
     </c:if>
     

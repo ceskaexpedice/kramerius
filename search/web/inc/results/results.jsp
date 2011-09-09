@@ -65,14 +65,11 @@ $(document).ready(function(){
     if($('#dadiv').length==0){
         $("#dali").remove();
     }
-     
     
     $("#filters").tabs({
         show: function(event, ui){
             var tab = ui.tab.toString().split('#')[1];
-            if (tab=="contextMenu"){
-                refreshSelection();
-            }else if(tab=='dadiv'){
+            if (tab=='dadiv'){
                  positionCurtains();
                  setBarsPositions();
 
@@ -102,7 +99,8 @@ $(document).ready(function(){
 <scrd:loggedusers>
         $('.search_result').prepend('<input type="checkbox" style="float:right;" />');
         $('.search_result>input').click(function(){
-            refreshSelection();
+            //refreshSelection(this);
+            changeResSelection(this);
         });
         setScope('scope_multiple');
         $('#scope_single').hide();
@@ -110,18 +108,17 @@ $(document).ready(function(){
     checkHeight(0);
 });
 
-    function refreshSelection(){
-        var t = "";
-        $('.search_result>input:checked').each(function(){
-            var li = getResultElement(this);
-            var id = $(li).attr("id");
-            var escapedId = id.substring(4).replace(/\//g,'-');
-            t += '<li id="cm_' + escapedId + '">';
-            t += '<span class="ui-icon ui-icon-triangle-1-e folder " >folder</span>';
-            t += '<label>'+$(jq(id)+" div.resultText>a>b").html()+'</label></li>';
-        });
-        $('#context_items_selection').html(t);
-        $('#context_items_active').html("");
+    function changeResSelection(o){
+        //alert("Checked: " + $(o).is(":checked"));
+        var id =  $(getResultElement(o)).attr("id");
+        var escapedId = id.substring(4).replace(/\//g,'-');
+        if($(o).is(":checked")){
+            var label = $(jq(id)+" div.resultText>a>b").html();
+            addToContextMenuSelection(escapedId, label);
+        }else{
+            removeFromContextMenuSelection(escapedId);
+        }
+        
     }
     
     function toggleColumns(){
@@ -171,7 +168,7 @@ $(document).ready(function(){
     
     function getResultElement(el){
         var div = $(el);
-        while(!$(div).hasClass('search_result') && $(div).attr("id")!="docs_content"){
+        while(!$(div).hasClass('search_result') && $(div).attr("id")!="docs_content" && $(div).parent().length>0){
             div = $(div).parent();
         }
         return div;

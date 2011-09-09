@@ -45,7 +45,7 @@ function initDateAxis(){
     selectTime();
     $("#content-resizable").resizable({
         handles: 's',
-        resize: function(event, ui) {resizeContent()}
+        resize: function(event, ui) {resizeDateAxisContent()}
     });
     setDatePicker();
     //$("#content-resizable>div.ui-resizable-s").append('<span class="ui-icon ui-icon-arrowthick-2-n-s">handle</span>');
@@ -376,7 +376,7 @@ function positionCurtains(){
 
 var lastPosition = 0;
 
-function resizeContent(){
+function resizeDateAxisContent(){
     $("#content-scroll").css("height", $("#content-resizable").height()-7);
     positionCurtains();
 }

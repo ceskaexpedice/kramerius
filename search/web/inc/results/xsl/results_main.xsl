@@ -75,16 +75,16 @@
                     <xsl:when test="/response/lst[@name='responseHeader']/lst[@name='params']/str[@name='sort']='root_title_cs asc'">
                         <a href="javascript:sortByTitle('desc');" ><xsl:value-of select="$bundle/value[@key='results.sortby.name']"/></a>&#160;
                         <span class="ui-icon ui-icon-triangle-1-n"  >asc</span>
-                        <a href="javascript:sortByRank();"><xsl:value-of select="$bundle/value[@key='results.sortby.relevance']"/></a>
+                        <span>&#160;|&#160;</span><a href="javascript:sortByRank();"><xsl:value-of select="$bundle/value[@key='results.sortby.relevance']"/></a>
                     </xsl:when>
                     <xsl:when test="/response/lst[@name='responseHeader']/lst[@name='params']/str[@name='sort']='root_title_cs desc'">
                         <a href="javascript:sortByTitle('asc');" ><xsl:value-of select="$bundle/value[@key='results.sortby.name']"/></a>&#160;
                         <span class="ui-icon ui-icon-triangle-1-s"  >desc</span>
-                        <a href="javascript:sortByRank();"><xsl:value-of select="$bundle/value[@key='results.sortby.relevance']"/></a>
+                        <span>&#160;|&#160;</span><a href="javascript:sortByRank();"><xsl:value-of select="$bundle/value[@key='results.sortby.relevance']"/></a>
                     </xsl:when>
                     <xsl:otherwise>
                         <a href="javascript:sortByTitle('asc');"><xsl:value-of select="$bundle/value[@key='results.sortby.name']"/></a>&#160;
-                        <span>&#160;<xsl:value-of select="$bundle/value[@key='results.sortby.relevance']"/></span>
+                        <span>&#160;|&#160;</span><span><xsl:value-of select="$bundle/value[@key='results.sortby.relevance']"/></span>
                     </xsl:otherwise>
                 </xsl:choose>
             </div>
@@ -295,9 +295,11 @@
     </xsl:template>
 
     <xsl:template name="page">
+        <!--
         <xsl:param name="detail" />
         <xsl:value-of select="substring-before($detail, '##')" />&#160;
         <xsl:value-of select="$bundle/value[@key=substring-after($detail, '##')]"/>
+        -->
     </xsl:template>
 
 </xsl:stylesheet>

@@ -39,11 +39,15 @@
 </div>
 <script type="text/javascript">
     $(document).ready(function(){
-        var d = $(window).height() - $("#main").height() - $("#footer").outerHeight(true);
-        var a = $("#intro>div.ui-tabs-panel:first").height() + d;
-        //var h = $(window).height() - $("#header").height()
-        //    - $("#footer").height()- $("#intro>ul").height() - 34 -11-6;
-        $("#intro>div.ui-tabs-panel").css("height", a);
+        var w = $("#intro>div.ui-tabs-panel:first").height() +
+            $(window).height() -
+            $("#main").height() - 
+            $("#footer").outerHeight(true);
+        $("#intro>div.ui-tabs-panel").css("height", w);
+        
+        w = w -$("#da-inputs").outerHeight(true);
+        $("#content-resizable").css("height", w);
+        resizeDateAxisContent();
     });
 </script>
 

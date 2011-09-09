@@ -161,6 +161,12 @@ a.image:hover {
 /* end advanced search */
 
 /* home */
+
+#intro>div.ui-tabs-panel{
+    padding: 3px;
+}
+
+
 #dt_home>div>span{
     display:none;
 }
