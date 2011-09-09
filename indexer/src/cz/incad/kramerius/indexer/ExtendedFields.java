@@ -15,7 +15,6 @@ import java.util.logging.Logger;
 import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpression;
-import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
@@ -48,14 +47,19 @@ public class ExtendedFields {
     XPath xpath = factory.newXPath();
     XPathExpression expr;
     private final String prefix = "//mods:mods/";
+    DateFormat df;
+    DateFormat solrDateFormat;
 
     public ExtendedFields(FedoraOperations fo) throws IOException {
         this.fo = fo;
-        this.fa = new FedoraAccessImpl(KConfiguration.getInstance());
+        KConfiguration config = KConfiguration.getInstance();
+        this.fa = new FedoraAccessImpl(config);
         models_cache = new HashMap<String, String>();
         dates_cache = new HashMap<String, String>();
         root_title_cache = new HashMap<String, String>();
         xpath.setNamespaceContext(new FedoraNamespaceContext());
+        df = new SimpleDateFormat(config.getProperty("mods.date.format", "dd.MM.yyyy"));
+        solrDateFormat = new SimpleDateFormat("yyyy-MM-dd'T'hh:mm:ss.SSS'Z'");
     }
 
     public void clearCache(){
@@ -132,7 +136,7 @@ public class ExtendedFields {
         sb.append("<field name=\"level\">").append(level).append("</field>");
         sb.append("<field name=\"datum_str\">").append(datum_str).append("</field>");
         if(datum!=null){
-            sb.append("<field name=\"datum\">").append(datum).append("</field>");
+            sb.append("<field name=\"datum\">").append(solrDateFormat.format(datum)).append("</field>");
         }
         if (!rok.equals("")) {
             sb.append("<field name=\"rok\">").append(rok).append("</field>");
@@ -198,44 +202,29 @@ public class ExtendedFields {
         
     }
 
-    private void parseDatum(String datumStr) {
-        
+    private void parseDatum(String datumStr) {        
         try{
-            KConfiguration config = KConfiguration.getInstance();
-            
-            DateFormat df = new SimpleDateFormat(config.getProperty("mods.date.format", "dd.MM.yyyy"));
-            datum = df.parse(datumStr);
+            Date dateValue = df.parse(datumStr);
+            DateFormat outformatter = new SimpleDateFormat("yyyy");
+            rok = outformatter.format(dateValue);
+            datum = dateValue;
         }catch(Exception e){
-            
-        }
-        Integer dataInt;
-        try {
-            dataInt = Integer.parseInt(datumStr);
-            rok = datumStr;
-        } catch (NumberFormatException ex) {
-        }
-        //Datum muze byt typu 1906 - 1945
-        if (datumStr.contains("-")) {
-
-            try {
+            if(datumStr.matches("\\d\\d\\d\\d")){ //rok
+                rok = datumStr;
+                datum_begin = rok;
+                datum_end = rok;
+            }else if (datumStr.matches("\\d\\d--")) {  //Datum muze byt typu 18--
+                datum_begin = datumStr.substring(0,2)+"00";
+                datum_end = datumStr.substring(0,2)+"99";
+            }else if (datumStr.matches("\\d---")) {  //Datum muze byt typu 187-
+                datum_begin = datumStr.substring(0,3)+"0";
+                datum_end = datumStr.substring(0,3)+"9";
+            }else if (datumStr.matches("\\d\\d\\d\\d[\\s]*-[\\s]*\\d\\d\\d\\d")) {  //Datum muze byt typu 1906 - 1945
                 String begin = datumStr.split("-")[0].trim();
                 String end = datumStr.split("-")[1].trim();
-                dataInt = Integer.parseInt(begin);
-                dataInt = Integer.parseInt(end);
                 datum_begin = begin;
                 datum_end = end;
-            } catch (Exception ex) {
             }
-        }
-
-        //Datum je typu dd.mm.yyyy
-        try {
-            DateFormat formatter = new SimpleDateFormat("dd.mm.yyyy");
-            DateFormat outformatter = new SimpleDateFormat("yyyy");
-            Date dateValue = formatter.parse(datumStr);
-
-            rok = outformatter.format(dateValue);
-        } catch (Exception e) {
         }
     }
 }
