@@ -7,6 +7,7 @@ import cz.incad.kramerius.resourceindex.IResourceIndex;
 import cz.incad.kramerius.resourceindex.ResourceIndexService;
 import cz.incad.kramerius.utils.XMLUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
+import cz.incad.utils.UTFSort;
 import dk.defxws.fedoragsearch.server.*;
 
 import java.util.ArrayList;
@@ -33,10 +34,13 @@ public class FedoraOperations {
     String foxmlFormat;
     FedoraAccess fa;
     IResourceIndex rindex;
+    UTFSort utf_sort;
 
     public FedoraOperations() throws Exception {
         fa = new FedoraAccessImpl(KConfiguration.getInstance());
         foxmlFormat = KConfiguration.getInstance().getConfiguration().getString("FOXMLFormat");
+        utf_sort = new UTFSort();
+        utf_sort.init();
     }
 
     public void updateIndex(String action, String value, ArrayList<String> requestParams) throws java.rmi.RemoteException, Exception {
@@ -185,9 +189,11 @@ public class FedoraOperations {
         newStr = newStr.replace(" ", "");
         return newStr;
     }
+    
 
     public String prepareCzech(String s) throws Exception {
-        return removeDiacritic(s).toLowerCase().replace("ch", "hz");
+        //return removeDiacritic(s).toLowerCase().replace("ch", "hz");
+        return utf_sort.translate(s);
     }
 
     public String getDatastreamText(String pid, String dsId, String pageNum) throws Exception {
