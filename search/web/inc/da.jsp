@@ -63,8 +63,8 @@
     var times = new Array();
     var sizes = new Array();
     var maximums = new Array();
-    var level = 1;
-    var levels = 2;
+    var level = 0;
+    var levels = 1;
     var shortMonths= ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
     var longMonths= ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
     var shortDays= ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
@@ -79,22 +79,19 @@
             return;
         }
         dateAxisActive = true;
-        times[0] = {"1800":[5742, '1800','1899'], "1900":[3047, '1900','1999'], "2000":[94, '2000','2099']};
         var a = new Array();
         $(".da_group").each(function(){
             var id = $(this).attr("id").split("_")[2];
             a[id + "0"] = [0, id + "0", id + "9"];
-            //times[1] = {"1810":[763, '1810','1819'],
         });
-        times[1] = a;
+        times[0] = a;
         
         var a2 = new Array();
         $(".da_bar").each(function(){
             var id = $(this).attr("id").split("_")[2];
-            //times[2] = {"1810":[0, '1810', '1810']};
             a2[id] = [0, id, id];
         });
-        times[2] = a2;
+        times[1] = a2;
         
         $(".da_bar_container").bind("mouseover", function(){
             var l = $(this).width()+$("#content-scroll").offset().left;
@@ -108,8 +105,10 @@
         
         $(".da_bar_container").bind("click", function(){
             var id = $(this).attr("id").split("_")[3];
-            $("#" + fromField).val(formatDate(id));
-            $("#" + toField).val(formatDate(id));
+            //$("#" + fromField).val(formatDate(id));
+            //$("#" + toField).val(formatDate(id));
+            $("#" + fromField).val("01.01."+id);
+            $("#" + toField).val("12.31."+id);
             if($(this).text()=="0"){
                 return;
             }

@@ -63,6 +63,8 @@
         var value = $("#"+input_id).val();
         var res_id = input_id + "_res";
         var field_id = input_id.substring(3);
+        doBrowse(value, field_id);
+        return;
         var url = 'terms.jsp?i=false&field=' + field_id + '&t=' + value;
         $.get(url, function(data){
             $('#'+res_id+">div.content").html(data);

@@ -5,8 +5,10 @@ function formatSelectedTime(){
     html += fromStr + " " + formatDate(selectStart);
     html += "<br/> " + toStr + " " + formatDate(selectEnd); 
     $('#selectDiv').html(html);
-    $("#" + fromField).val(formatDate(selectStart));
-    $("#" + toField).val(formatDate(selectEnd));
+    $("#" + fromField).val("01.01."+selectStart);
+    $("#" + toField).val("12.31."+selectEnd);
+    //$("#" + fromField).val(formatDate(selectStart));
+    //$("#" + toField).val(formatDate(selectEnd));
 
 }
 

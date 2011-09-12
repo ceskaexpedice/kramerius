@@ -10,7 +10,7 @@ var bubbleYPosition = 40;
 var barContainerHeights = [13, 3];
 
 
-var currentLevel = 1;
+var currentLevel = 0;
 var firstBar = null;
 var lastBar = null;
 var dateAxisActive = false;
@@ -59,10 +59,10 @@ function setDatePicker(){
         numberOfMonths: 1,
         dateFormat: "dd.mm.yy",
         minDate: "01.01."+times[currentLevel+1][firstBar][1],
-        maxDate: "01.01."+times[currentLevel+1][lastBar][1],
-        beforeShow: function(input, inst) {
-            $("#ui-datepicker-div").css("z-index", 100);
-        },
+        maxDate: "31.12."+times[currentLevel+1][lastBar][1],
+        //beforeShow: function(input, inst) {
+        //    $("#ui-datepicker-div").css("z-index", 100);
+        //},
         onSelect: function( selectedDate ) {
             var option = this.id == "f1" ? "minDate" : "maxDate",
                 instance = $( this ).data( "datepicker" ),
@@ -132,9 +132,10 @@ function filterOnItem(e){
         el = e.target;
     }
     if(currentLevel==levels-1){
-        //alert(parseInt(el.item));
-        $("#" + fromField).val(formatDate(el.selectStart));
-        $("#" + toField).val(formatDate(el.selectEnd));
+        //$("#" + fromField).val(formatDate(el.selectStart));
+        //$("#" + toField).val(formatDate(el.selectEnd));
+        $("#" + fromField).val("01.01."+el.selectStart);
+        $("#" + toField).val("12.31."+el.selectEnd);
         if(el.hits==0){
             return;
         }
