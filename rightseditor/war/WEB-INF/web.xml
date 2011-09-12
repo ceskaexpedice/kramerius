@@ -4,53 +4,61 @@
     "http://java.sun.com/dtd/web-app_2_3.dtd">
 
 <web-app>
-  
-  <!-- Servlets -->
-  <servlet>
-    <servlet-name>aplikatorInitializer</servlet-name>
-    <servlet-class>cz.incad.kramerius.rights.server.RightsLoaderServlet</servlet-class>
-    <load-on-startup>1</load-on-startup>
-  </servlet>
-    
-  <servlet>
-    <servlet-name>aplikatorServlet</servlet-name>
-    <servlet-class>org.aplikator.server.rpc.AplikatorServiceImpl</servlet-class>
-  </servlet>
-  
-  <servlet>
-    <servlet-name>fileUploadServlet</servlet-name>
-    <servlet-class>org.aplikator.server.FileUploadServlet</servlet-class>
-  </servlet>
-  
-  <servlet>
-    <servlet-name>fileDownloadServlet</servlet-name>
-    <servlet-class>org.aplikator.server.FileDownloadServlet</servlet-class>
-  </servlet>
-  
-  
-  <servlet-mapping>
-    <servlet-name>aplikatorInitializer</servlet-name>
-    <url-pattern>/rightseditor/ddl</url-pattern>
-  </servlet-mapping>
-  
-  <servlet-mapping>
-    <servlet-name>aplikatorServlet</servlet-name>
-    <url-pattern>/rightseditor/aplikatorService</url-pattern>
-  </servlet-mapping>
-  
-  <servlet-mapping>
-    <servlet-name>fileUploadServlet</servlet-name>
-    <url-pattern>/rightseditor/upload</url-pattern>
-  </servlet-mapping>
-  
-  <servlet-mapping>
-    <servlet-name>fileDownloadServlet</servlet-name>
-    <url-pattern>/rightseditor/download</url-pattern>
-  </servlet-mapping>
-  
-	<security-role>
-		<role-name>krameriusAdmin</role-name>
-	</security-role>
+
+    <!-- Servlets -->
+    <servlet>
+        <servlet-name>aplikatorInitializer</servlet-name>
+        <servlet-class>cz.incad.kramerius.rights.server.RightsLoaderServlet</servlet-class>
+        <load-on-startup>1</load-on-startup>
+    </servlet>
+
+    <servlet>
+        <servlet-name>aplikatorServlet</servlet-name>
+        <servlet-class>org.aplikator.server.rpc.AplikatorServiceImpl</servlet-class>
+    </servlet>
+
+    <servlet>
+        <servlet-name>fileUploadServlet</servlet-name>
+        <servlet-class>org.aplikator.server.FileUploadServlet</servlet-class>
+    </servlet>
+
+    <servlet>
+        <servlet-name>fileDownloadServlet</servlet-name>
+        <servlet-class>org.aplikator.server.FileDownloadServlet</servlet-class>
+    </servlet>
+
+
+    <servlet-mapping>
+        <servlet-name>aplikatorInitializer</servlet-name>
+        <url-pattern>/rightseditor/ddl</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>aplikatorServlet</servlet-name>
+        <url-pattern>/rightseditor/aplikatorService</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>fileUploadServlet</servlet-name>
+        <url-pattern>/rightseditor/upload</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>fileDownloadServlet</servlet-name>
+        <url-pattern>/rightseditor/download</url-pattern>
+    </servlet-mapping>
+    <!-- Default page to serve -->
+
+    <welcome-file-list>
+        <welcome-file>Rightseditor.html</welcome-file>
+    </welcome-file-list>
+
+    <resource-ref>
+        <description>DataSource Reference For The Database</description>
+        <res-ref-name>jdbc/aplikatorDS</res-ref-name>
+        <res-type>javax.sql.DataSource</res-type>
+        <res-auth>Container</res-auth>
+    </resource-ref>
 
     <security-constraint>
         <web-resource-collection>
@@ -71,29 +79,23 @@
         <auth-method>BASIC</auth-method>
         <realm-name>protected</realm-name>
     </login-config>
-  
-  <!-- Default page to serve -->
-  <welcome-file-list>
-    <welcome-file>Rightseditor.html</welcome-file>
-  </welcome-file-list>
 
-  <resource-ref>
-    <description>DataSource Reference For The Database</description>
-    <res-ref-name>jdbc/aplikatorDS</res-ref-name>
-    <res-type>javax.sql.DataSource</res-type>
-    <res-auth>Container</res-auth>
-  </resource-ref>
-  
-  <env-entry>
-	<env-entry-name>aplikator.structure</env-entry-name>
-	<env-entry-value>cz.incad.kramerius.rights.server.Structure</env-entry-value>
-	<env-entry-type>java.lang.String</env-entry-type>
-  </env-entry>
-  
-  <env-entry>
-    <env-entry-name>aplikator.datasourceName</env-entry-name>
-    <env-entry-value>java:comp/env/jdbc/kramerius4</env-entry-value>
-    <env-entry-type>java.lang.String</env-entry-type>
-  </env-entry>
+
+    <security-role>
+        <role-name>krameriusAdmin</role-name>
+    </security-role>
+
+
+    <env-entry>
+        <env-entry-name>aplikator.structure</env-entry-name>
+        <env-entry-value>cz.incad.kramerius.rights.server.Structure</env-entry-value>
+        <env-entry-type>java.lang.String</env-entry-type>
+    </env-entry>
+
+    <env-entry>
+        <env-entry-name>aplikator.datasourceName</env-entry-name>
+        <env-entry-value>java:comp/env/jdbc/kramerius4</env-entry-value>
+        <env-entry-type>java.lang.String</env-entry-type>
+    </env-entry>
 
 </web-app>
