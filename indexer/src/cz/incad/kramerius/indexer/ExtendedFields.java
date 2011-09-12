@@ -180,7 +180,6 @@ public class ExtendedFields {
                 xPathStr = prefix + "mods:part/mods:date/text()";
                 expr = xpath.compile(xPathStr);
                 Node node = (Node) expr.evaluate(foxml, XPathConstants.NODE);
-
                 if (node != null) {
                     datum_str = node.getNodeValue();
                     parseDatum(datum_str);
