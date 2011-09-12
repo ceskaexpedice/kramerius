@@ -85,11 +85,21 @@ isLoggedUser() ::=<<
         where session_key = ? AND ACTIVE='1';
 >>
 
-/** select logged user */
+
+/** select user (logged or not logged) */
 user() ::=<<
     select * from SESSION_KEYS
         where session_key = ?;
 >>
+
+/** delete session */
+deleteSessionKey() ::=<<
+    delete from SESSION_KEYS
+        where session_key = ?;
+>>
+
+
+
 
 /** select logged user */
 getLoggedUser() ::=<<

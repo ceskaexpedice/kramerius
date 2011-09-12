@@ -25,22 +25,52 @@ import com.google.inject.Provider;
 import cz.incad.kramerius.security.User;
 import cz.incad.kramerius.users.impl.LoggedUsersSingletonImpl;
 
- 
+/**
+ * Manages logged users 
+ * @author pavels
+ */
 public interface LoggedUsersSingleton {
-    //TODO: CHANGE IT
-    //public LoggedUsersSingleton INSTANCE = new LoggedUsersSingletonImpl();
 
+    /**
+     * Register logged user
+     * @param user User to register
+     * @return Session key
+     */
     public String registerLoggedUser(User user);
 
+    /**
+     * Deregister logged user
+     * @param key Session key
+     */
     public void deregisterLoggedUser(String key);
 
+    /**
+     * Returns true when given key is live session key 
+     * @param key Tested key
+     * @return
+     */
     public boolean isLoggedUser(String key);
     
     public boolean isLoggedUser(Provider<HttpServletRequest> provider);
-
+    
+    /**
+     * Find database record associated with given session key and returns id. Otherwise returns -1;
+     * @param key
+     * @return
+     */
     public int getSessionKeyId(String key);
 
+    /**
+     * Returns logged user assoicated with session key
+     * @param key Session key
+     * @return
+     */
     public User getLoggedUser(String key);
+    
+    /**
+     * Returns user (logged or not logged) assocated with session key
+     * @param key Session key
+     */
     public User getUser(String key);
 
 }

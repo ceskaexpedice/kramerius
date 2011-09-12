@@ -7,7 +7,7 @@ import cz.incad.kramerius.security.User;
 
 
 /**
- * This class can manage LR processes
+ * Manages LR processes
  * @author pavels
  */
 public interface LRProcessManager {
@@ -15,9 +15,9 @@ public interface LRProcessManager {
 	/**
 	 * Register new lr process
 	 * @param lp
-	 * @param loggedUserKey TODO
+	 * @param sessionKey TODO
 	 */
-	public void registerLongRunningProcess(LRProcess lp, String loggedUserKey);
+	public void registerLongRunningProcess(LRProcess lp, String sessionKey);
 	
 	/**
 	 * Returns lr process with given uuid
@@ -46,8 +46,10 @@ public interface LRProcessManager {
 	 * @param offset offset
 	 * @return
 	 */
-	public List<LRProcess> getLongRunningProcesses(LRProcessOrdering ordering,TypeOfOrdering typeOfOrdering, LRProcessOffset offset);
-	
+	public List<LRProcess> getLongRunningProcessesAsGrouped(LRProcessOrdering ordering,TypeOfOrdering typeOfOrdering, LRProcessOffset offset,LRPRocessFilter filter);
+
+	public List<LRProcess> getLongRunningProcessesAsFlat(LRProcessOrdering ordering,TypeOfOrdering typeOfOrdering, LRProcessOffset offset);
+
 	/**
 	 * Returns all processes for given state
 	 * @param state
@@ -94,11 +96,28 @@ public interface LRProcessManager {
 	 */
 	public void updateLongRunningProcessStartedDate(LRProcess lrProcess);
 
-//	public void updateRolesProcess(LRProcess lrProcess, User user);
-
+	
+	/**
+	 * Update mappings between process and sessionKey 
+	 * @param lrProcess Started processs
+	 * @param sessionKey key represents logged user
+	 */
 	public void updateTokenMapping(LRProcess lrProcess, String sessionKey);
 	
+	/**
+	 * Returns session key associated with process
+	 * @param token Token associated with process
+	 * @return
+	 */
 	public String getSessionKey(String token);
+	
+	/**
+	 * Returns true if there is any association betweeen process and session key
+	 * @param sessionKey Session key -> logged user
+	 * @return
+	 */
+    public boolean isSessionKeyAssociatedWithProcess(String sessionKey);
+
 	
 	/**
 	 * Delete process

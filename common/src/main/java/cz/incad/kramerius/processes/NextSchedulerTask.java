@@ -34,7 +34,7 @@ public class NextSchedulerTask extends TimerTask {
 			List<LRProcess> plannedProcess = lrProcessManager.getPlannedProcess(allowRunningProcesses());
 			if (!plannedProcess.isEmpty()) {
 				int runningProcesses = 0;
-				List<LRProcess> longRunningProcesses = this.lrProcessManager.getLongRunningProcesses();
+				List<LRProcess> longRunningProcesses = this.lrProcessManager.getLongRunningProcessesAsFlat(null, null, null);
 				for (LRProcess lrProcess : longRunningProcesses) {
 					if (lrProcess.getProcessState().equals(States.RUNNING)) {
 						runningProcesses +=1;

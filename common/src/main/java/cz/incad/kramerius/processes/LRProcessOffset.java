@@ -9,6 +9,8 @@ public class LRProcessOffset {
 		super();
 		this.offset = offset;
 		this.size = size;
+		Integer.parseInt(this.size);
+		Integer.parseInt(this.offset);
 	}
 	
 	public String getSQLOffset	() {

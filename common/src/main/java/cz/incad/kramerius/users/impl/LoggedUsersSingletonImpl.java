@@ -40,6 +40,7 @@ import com.google.inject.Inject;
 import com.google.inject.Provider;
 import com.google.inject.name.Named;
 
+import cz.incad.kramerius.processes.LRProcessManager;
 import cz.incad.kramerius.processes.NotReadyException;
 import cz.incad.kramerius.processes.database.ProcessDatabaseUtils;
 import cz.incad.kramerius.security.Role;
@@ -76,6 +77,9 @@ public class LoggedUsersSingletonImpl implements LoggedUsersSingleton {
     @Inject
     Provider<HttpServletRequest> requeProvider;
     
+    
+    @Inject
+    LRProcessManager lrProcessManager;
     
 
     @Override
@@ -170,19 +174,32 @@ public class LoggedUsersSingletonImpl implements LoggedUsersSingleton {
 
     @Override
     public synchronized void deregisterLoggedUser(String key) {
+        boolean isSessionKeyAssociatedWithProcess = lrProcessManager.isSessionKeyAssociatedWithProcess(key);
+
         Connection con = null;
         try {
             con = this.connectionProvider.get();
-            deregisterLoggedUser(key, con);
+            if (!isSessionKeyAssociatedWithProcess) {
+                deleteSessionKey(key, con);
+            } else {
+                deregisterLoggedUser(key, con);
+            }
         } catch (SQLException e) {
             LOGGER.log(Level.SEVERE,e.getMessage(),e);
+        } finally {
+            DatabaseUtils.tryClose(con);
         }
     }
 
 
+    public void deleteSessionKey(String key, Connection con) throws SQLException {
+        StringTemplate deregisterTemplate = stGroup.getInstanceOf("deleteSessionKey");
+        new JDBCUpdateTemplate(con,false).executeUpdate(deregisterTemplate.toString(), key);
+    }
+    
     public void deregisterLoggedUser(String key, Connection con) throws SQLException {
         StringTemplate deregisterTemplate = stGroup.getInstanceOf("deregisterSessionKey");
-        new JDBCUpdateTemplate(con,true).executeUpdate(deregisterTemplate.toString(), key);
+        new JDBCUpdateTemplate(con,false).executeUpdate(deregisterTemplate.toString(), key);
     }
 
     @Override
@@ -210,7 +227,7 @@ public class LoggedUsersSingletonImpl implements LoggedUsersSingleton {
     }
     
     public int sessionKey(String key, Connection con) throws SQLException {
-        StringTemplate islogged = stGroup.getInstanceOf("isLoggedUser");
+        StringTemplate islogged = stGroup.getInstanceOf("user");
         List<Integer> list = new JDBCQueryTemplate<Integer>(con) {
 
             @Override

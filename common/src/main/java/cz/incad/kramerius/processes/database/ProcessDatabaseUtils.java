@@ -1,12 +1,17 @@
 package cz.incad.kramerius.processes.database;
 
 import cz.incad.kramerius.processes.LRProcess;
+import cz.incad.kramerius.processes.ProcessManagerException;
 import cz.incad.kramerius.processes.States;
 import cz.incad.kramerius.security.Role;
 import cz.incad.kramerius.security.User;
 import cz.incad.kramerius.utils.DatabaseUtils;
+import cz.incad.kramerius.utils.database.JDBCQueryTemplate;
+import cz.incad.kramerius.utils.database.JDBCUpdateTemplate;
+
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.util.List;
@@ -82,19 +87,6 @@ public class ProcessDatabaseUtils {
 
     }
 
-//    public static void create
-//    public static void createRuntimeParametersTable(Connection con) throws SQLException {
-//        PreparedStatement prepareStatement = null;
-//        try {
-//            prepareStatement = con.prepareStatement("CREATE TABLE RUNTIME_PARAMS(PARAM VARCHAR(1024), UUID VARCHAR(255) REFERENCES PROCESSES(UUID))");
-//            int r = prepareStatement.executeUpdate();
-//            LOGGER.finest("CREATE TABLE: updated rows " + r);
-//        } finally {
-//            if (prepareStatement != null) {
-//                prepareStatement.close();
-//            }
-//        }
-//    }
     
     public static void registerProcess(Connection con, LRProcess lp, User user, String loggedUserKey) throws SQLException {
         PreparedStatement prepareStatement = con.prepareStatement(
@@ -193,9 +185,11 @@ public class ProcessDatabaseUtils {
         }
     }
 
+    /*
     public static void updateProcessPID(Connection con, String pid, String uuid) throws SQLException {
         PreparedStatement prepareStatement = con.prepareStatement(
                 "update processes set PID = ? where UUID = ?");
+        
         try {
             prepareStatement.setInt(1, Integer.parseInt(pid));
             prepareStatement.setString(2, uuid);
@@ -203,8 +197,10 @@ public class ProcessDatabaseUtils {
         } finally {
             DatabaseUtils.tryClose(prepareStatement);
         }
-    }
+    }*/
 
+    
+    
     public static void deleteProcess(Connection con, String uuid) throws SQLException {
         PreparedStatement prepareStatement = con.prepareStatement(
                 "delete from processes where UUID = ?");
@@ -213,6 +209,63 @@ public class ProcessDatabaseUtils {
             prepareStatement.executeUpdate();
         } finally {
             DatabaseUtils.tryClose(prepareStatement);
+        }
+    }
+
+
+    public static List<String> getAssociatedTokens(String sessionKey, Connection connection) {
+        List<String> list = new JDBCQueryTemplate<String>(connection, false) {
+            public boolean handleRow(ResultSet rs, List<String> returnsList) throws SQLException {
+                returnsList.add(rs.getString("TOKEN"));
+                return true;
+            }
+        }.executeQuery("select m.*,sk.* from PROCESS_2_TOKEN m" +
+                " join session_keys sk on (sk.session_keys_id = m.session_keys_id)" +
+                " where SESSION_KEY = ?", sessionKey);
+        return list;
+    }
+
+
+    public static List<String> getAssociatedSessionKeys(String token, Connection connection) {
+        List<String> list = new JDBCQueryTemplate<String>(connection, false) {
+            public boolean handleRow(ResultSet rs, List<String> returnsList) throws SQLException {
+                returnsList.add(rs.getString("SESSION_KEY"));
+                return true;
+            }
+        }.executeQuery("select m.*,sk.* from PROCESS_2_TOKEN m" +
+        		" join session_keys sk on (sk.session_keys_id = m.session_keys_id)" +
+        		" where token = ?", token);
+        return list;
+    }
+
+
+    public static int getProcessId(LRProcess lrProcess, Connection con) {
+        List<Integer> list = new JDBCQueryTemplate<Integer>(con, false) {
+            public boolean handleRow(ResultSet rs, List<Integer> returnsList) throws SQLException {
+                returnsList.add(rs.getInt("process_id"));
+                return true;
+            }
+        }.executeQuery("select * from processes where token = ?", lrProcess.getToken());
+        return !list.isEmpty() ? list.get(0) : -1;
+    }
+
+
+    public static void updateTokenMapping(LRProcess lrProcess, Connection con, int sessionKeyId) throws SQLException {
+        int id = getProcessId(lrProcess, con);
+        if (id > -1) {
+            new JDBCUpdateTemplate(con, true).executeUpdate("insert into PROCESS_2_TOKEN (PROCESS_2_TOKEN_ID, PROCESS_ID, TOKEN,SESSION_KEYS_ID) " + "values (nextval('PROCESS_2_TOKEN_ID_SEQUENCE')," + "?,?,?)", id, lrProcess.getToken(), sessionKeyId);
+        } else {
+            throw new ProcessManagerException("cannot find process id associated with token "+lrProcess.getToken());
+        }
+    }
+
+
+    public static void deleteTokenMappings(LRProcess lrProcess, Connection con) throws SQLException {
+        int id = getProcessId(lrProcess, con);
+        if (id > -1) {
+            new JDBCUpdateTemplate(con, true).executeUpdate("delete from PROCESS_2_TOKEN where process_id = ?)", id);
+        } else {
+            throw new ProcessManagerException("cannot find process id associated with token "+lrProcess.getToken());
         }
     }
 }

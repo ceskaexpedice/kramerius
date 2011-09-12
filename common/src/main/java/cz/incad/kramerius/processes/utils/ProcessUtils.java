@@ -19,8 +19,10 @@ package cz.incad.kramerius.processes.utils;
 import java.io.StringReader;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
+import java.util.ArrayList;
 import java.util.List;
 
+import cz.incad.kramerius.processes.States;
 import cz.incad.kramerius.processes.impl.ProcessStarter;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 
@@ -91,12 +93,19 @@ public class ProcessUtils {
         }
         return string;
     }
-
+    
+    
     public static void main(String[] args) {
-        //SET;4308eb80-b03b-11dd-a0f6-000d606f5dc6;kramerius4://deepZoomCache
-        //String[] prms = new String[] {"SET","4308eb80-b03b-11dd-a0f6-000d606f5dc6","kramerius4://deepZoomCache"};
-
+        List<States> states = new ArrayList<States>();
+        states.add(States.PLANNED);
+        states.add(States.RUNNING);
+        states.add(States.KILLED);
+        states.add(States.FINISHED);
+        states.add(States.FAILED);
         
-       // System.out.println(nparams(prms));
+        States aggr = States.calculateBatchState(states);
+        System.out.println(aggr);
+        
+        
     }
 }
