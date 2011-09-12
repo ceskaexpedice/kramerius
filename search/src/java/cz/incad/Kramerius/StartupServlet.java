@@ -61,14 +61,15 @@ public class StartupServlet extends GuiceServlet {
         
         Connection connection = this.connectionProvider.get();
         try {
+            // Logged users table
+            LoggedUserDatabaseInitializator.initDatabase(connection);
+
             // process tables
             ProcessDatabaseInitializator.initDatabase(connection);
             // mostdesirable table
             MostDesirableDatabaseInitializator.initDatabase(connection);
             // all security tables
             SecurityDatabaseInitializator.initDatabase(connection);
-            // Logged users table
-            LoggedUserDatabaseInitializator.initDatabase(connection);
         
             this.pdfService.init();
         } catch (IOException e) {

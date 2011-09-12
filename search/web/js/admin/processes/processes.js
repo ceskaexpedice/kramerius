@@ -1,7 +1,58 @@
 
+function ProcessessFilter() {
+	this.filter = [];
+}
+
+
+ProcessessFilter.prototype.apply=function(ordering, offset, size, type) {
+	this.filter = [];
+	$(".filter-vals").each(bind(function(i,val) {
+		if ($(val).val()) {
+			if ($(val).hasClass("eq")) {
+				this.filter.push({name:$(val).attr('name'),op:"EQ",val:$(val).val()});
+			} else if ($(val).hasClass("lt")) {
+				this.filter.push({name:$(val).attr('name'),op:"LT",val:$(val).val()});
+			} else if ($(val).hasClass("gt")) {
+				this.filter.push({name:$(val).attr('name'),op:"GT",val:$(val).val()});
+			}
+		}
+	},this));
+	
+
+	var url = "inc/admin/_processes_data.jsp?ordering="+ordering+"&offset="+offset+"&size="+size+"&type="+type+this.filterPostfix();
+	$.get(url, function(data) {
+		$("#processes").html(data);
+	});
+	
+	$(".filter").toggle();
+    $(".displayButton").toggle();
+}
+
+
+ProcessessFilter.prototype.filterPostfix = function() {
+	if (this.filter) {
+		var furl = this.curl();
+		return "&filter="+this.curl();
+	} else return "";
+}
+
+ProcessessFilter.prototype.curl=function() {
+	return "{"+reduce(function(base, item, status) {
+    	base = base+reduceItem(item)+ (status.last ? "": ";");
+        return base;
+    }, "",this.filter)+"}";    
+	
+	function reduceItem(item) {
+		return "{"+item.name+";"+item.op+";"+item.val.replaceAll(":","\\:")+"}";
+	}
+}
+
+
 function Processes() {
 	this.dialog = null;
 	this.displayedRows = [];
+	
+	this.currentFilter = new ProcessessFilter();
 }
 
 Processes.prototype.openProcessDialog = function() {
@@ -38,7 +89,7 @@ Processes.prototype.processes = function (){
 
 
 Processes.prototype.modifyProcessDialogData = function(ordering, offset, size, type) {
-	var url = "inc/admin/_processes_data.jsp?ordering="+ordering+"&offset="+offset+"&size="+size+"&type="+type;
+	var url = "inc/admin/_processes_data.jsp?ordering="+ordering+"&offset="+offset+"&size="+size+"&type="+type+this.currentFilter.filterPostfix();
 	$.get(url, function(data) {
 		$("#processes").html(data);
 	});

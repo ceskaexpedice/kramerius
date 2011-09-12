@@ -8,6 +8,8 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLDecoder;
+import java.sql.BatchUpdateException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
@@ -126,7 +128,6 @@ public class LongRunningProcessServlet extends GuiceServlet {
                 String nextToken = tokenizer.nextToken();
                 File nfile = new File(new URI(nextToken));
                 return nfile.getAbsolutePath();
-                
             } else return null;
         } else return null;
     }
@@ -141,7 +142,7 @@ public class LongRunningProcessServlet extends GuiceServlet {
         try {
             String action = req.getParameter("action");
             if (action == null)
-                action = Actions.list.name();
+                action = Actions.start.name();
             Actions selectedAction = Actions.valueOf(action);
             selectedAction.doAction(getServletContext(), req, resp, this.definitionManager, this.lrProcessManager, this.usersManager, this.userProvider, this.actionAllowed, this.loggedUsersSingleton);
         } catch (SecurityException e) {
@@ -206,7 +207,18 @@ public class LongRunningProcessServlet extends GuiceServlet {
                         List<LRProcess> processes = lrProcessManager.getLongRunningProcessesByToken(token);
                         if (!processes.isEmpty()) {
                             // hledani klice 
+                            List<States> childStates = new ArrayList<States>();
+                            childStates.add(States.PLANNED);
+                            // prvni je master process -> vynechavam
+                            for (int i = 1,ll=processes.size(); i < ll; i++) {
+                                childStates.add(processes.get(i).getProcessState());
+                            }
+
+
                             LRProcess process = processes.get(0);
+                            process.setProcessState(States.calculateBatchState(childStates));
+                            lrProcessManager.updateLongRunningProcessState(process);
+                            
                             loggedUserKey = lrProcessManager.getSessionKey(process.getToken());
                             user = loggedUserSingleton.getUser(loggedUserKey);
                         } else {
@@ -288,9 +300,7 @@ public class LongRunningProcessServlet extends GuiceServlet {
 
         },
 
-        /**
-         * list all processes
-         */
+        /*
         list {
             @Override
             public void doAction(ServletContext context, HttpServletRequest req, HttpServletResponse resp, DefinitionManager defManager, LRProcessManager lrProcessManager, UserManager userManager, Provider<User> userProvider, IsActionAllowed actionAllowed, LoggedUsersSingleton loggedUserSingleton) {
@@ -334,7 +344,7 @@ public class LongRunningProcessServlet extends GuiceServlet {
                     resp.setStatus(HttpServletResponse.SC_FORBIDDEN);
                 }
             }
-        },
+        },*/
 
         updatePID {
             @Override
@@ -363,20 +373,61 @@ public class LongRunningProcessServlet extends GuiceServlet {
                 lock.lock();
                 try  {
                     LRProcess longRunningProcess = processManager.getLongRunningProcess(uuid);
-                    if (state != null) {
-
-                        States st = States.valueOf(state);
-
-                        if (st.equals(States.KILLED) && longRunningProcess.getProcessState().equals(States.RUNNING)) {
-                            longRunningProcess.setProcessState(st);
-                            processManager.updateLongRunningProcessState(longRunningProcess);
-                        } else if (!st.equals(States.KILLED)) {
-                            longRunningProcess.setProcessState(st);
-                            processManager.updateLongRunningProcessState(longRunningProcess);
+                    List<LRProcess> processes = processManager.getLongRunningProcessesByToken(longRunningProcess.getToken());
+                    if (processes.size() > 1) {
+                        // zmena master processu
+                        if (longRunningProcess.getUUID().equals(processes.get(0).getUUID())) {
+                            boolean hasBatchState = States.expect(longRunningProcess.getProcessState(), States.BATCH_FAILED, States.BATCH_FINISHED, States.BATCH_STARTED);
+                            boolean newStateIsBatch = States.expect(States.valueOf(state), States.BATCH_FAILED, States.BATCH_FINISHED, States.BATCH_STARTED);
+                            if (hasBatchState && newStateIsBatch) {
+                                longRunningProcess.setProcessState(States.valueOf(state));
+                                processManager.updateLongRunningProcessState(longRunningProcess);
+                            } else {
+                                LOGGER.fine("calculating new master state");
+                                List<States> childStates = new ArrayList<States>();
+                                // prvni je master process -> vynechavam
+                                for (int i = 1,ll=processes.size(); i < ll; i++) {
+                                    childStates.add(processes.get(i).getProcessState());
+                                }
+                                longRunningProcess.setProcessState(States.calculateBatchState(childStates));
+                                processManager.updateLongRunningProcessState(longRunningProcess);
+                            }
+                        // zmena child procesu    
+                        } else {
+                            
+                            List<States> childStates = new ArrayList<States>();
+                            childStates.add(States.valueOf(state));
+                            // prvni je master process -> vynechavam
+                            for (int i = 1,ll=processes.size(); i < ll; i++) {
+                                childStates.add(processes.get(i).getProcessState());
+                            }
+                            processes.get(0).setProcessState(States.calculateBatchState(childStates));
+                            processManager.updateLongRunningProcessState(processes.get(0));
+                            
+                            changeChildProcessState(processManager, state, longRunningProcess);
                         }
+                    } else {
+                        // uprava stavu pro jeden samotinky proces
+                        changeChildProcessState(processManager, state, longRunningProcess);
                     }
+                    
+//                    if (!processes.isEmpty()) {
+
                 } finally {
                     lock.unlock();
+                }
+            }
+
+            public void changeChildProcessState(LRProcessManager processManager, String state, LRProcess longRunningProcess) {
+                if (state != null) {
+                    States st = States.valueOf(state);
+                    if (st.equals(States.KILLED) && longRunningProcess.getProcessState().equals(States.RUNNING)) {
+                        longRunningProcess.setProcessState(st);
+                        processManager.updateLongRunningProcessState(longRunningProcess);
+                    } else if (!st.equals(States.KILLED)) {
+                        longRunningProcess.setProcessState(st);
+                        processManager.updateLongRunningProcessState(longRunningProcess);
+                    }
                 }
             }
         },

@@ -49,9 +49,12 @@
 		size = "5";
 	}
 
+	String filter = request.getParameter("filter");
+	
 	LRProcessOrdering lrProcOrder = LRProcessOrdering.valueOf(ordering);
 	LRProcessOffset lrOffset = new LRProcessOffset(offset, size);
-	ProcessesViewObject viewObj = new ProcessesViewObject(lrProcessMan, defMan, lrProcOrder,TypeOfOrdering.valueOf(type), lrOffset,LongRunningProcessServlet.lrServlet(request), bundle, loc);
+	ProcessesViewObject viewObj = new ProcessesViewObject(lrProcessMan, defMan, lrProcOrder,TypeOfOrdering.valueOf(type), lrOffset,LongRunningProcessServlet.lrServlet(request), bundle, loc, filter);
+    
 	pageContext.setAttribute("processView", viewObj);
 	
 %>
@@ -101,6 +104,40 @@
     #processes tr.subprocess>td.t2{
         padding-left:10px;
     }
+
+    /* filter */
+    #processes div.filter{
+        width:35%;
+        display: none;
+        padding-bottom: 20px;
+        
+        position: absolute; 
+        top: 15px;
+        right: 15px;
+    }
+
+     
+     
+    #processes div.displayButton{ 
+    }
+
+    #processes div.displayButton div.dropdown{ 
+        float:right;
+        height:10px;
+        padding-top:5px;
+        padding-right:10px;
+    }
+
+    div.apply{ 
+        float:right;
+        height:15px;
+    }
+
+    div.applyContent{ 
+        height:20px;
+        border:1px solid black;
+        width:100%;
+    }
      
          
 </style>
@@ -108,16 +145,21 @@
 <script type="text/javascript">
 
 function _ref(ordering, offset, size, type) {
-	//$('#animation').attr('src', 'img/refresh_ani.gif');
-        
-        $("#processes").html('<div style="margin-top:30px;width:100%;text-align:center;"><img src="img/loading.gif" alt="loading" /></div>');
+    $("#processes").html('<div style="margin-top:30px;width:100%;text-align:center;"><img src="img/loading.gif" alt="loading" /></div>');
 	var refreshurl = "inc/admin/_processes_data.jsp?ordering="+ordering+"&offset="+offset+"&size="+size+"&type="+type;
+
 	$.get(refreshurl, function(sdata) {
-		//$('#animation').attr('src', 'img/refresh.png'); 
 		$("#processes").html(sdata);
 	});
+
+	/* function filter() { } */
 }
 
+
+function _toggle_filter() {
+	$(".filter").toggle();
+    $(".displayButton").toggle();
+}
 
 
 </script>
@@ -130,14 +172,131 @@ function _ref(ordering, offset, size, type) {
         <c:if test="${processView.hasNext}">
             <a href="javascript:processes.modifyProcessDialogData('${processView.ordering}',${processView.offsetValue+processView.pageSize},${processView.pageSize},'${processView.typeOfOrdering}');"><span class="ui-icon ui-icon-arrowthick-1-e">next</span></a>
         </c:if>
+
         
     </div>
-    <div class="buttons" >
+    <div class="buttons">
         <a href="javascript:_ref('${processView.ordering}',${processView.offsetValue},${processView.pageSize},'${processView.typeOfOrdering}');"><span class="ui-icon ui-icon-transferthick-e-w">refresh</span></a>
+    </div>
+    
+</div>
+
+<div class="displayButton">
+    <div class="dropdown">
+        <a href="javascript:_toggle_filter();">Filtr</a>
     </div>
 </div>
 
-</div>
+<div class="filter shadow" style="">
+    
+     <h3>Pouzity filtr:</h3>
+
+    <table style="width: 100%">
+        <thead>
+            <tr>
+                <td style="width: 10px;"></td>
+                <td style="width:150px;"></td>
+                <td></td>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td><span class="ui-icon ui-icon-triangle-1-e"></span></td>
+                <td><label for="filter-state">Stav:</label></td>
+                <td>
+		         <select class="filter-vals eq" name="status"> 
+		             <c:forEach var="item" items="${processView.statesForFilter}">
+		                <option value="${item.val}" ${item.selected ? 'selected' : ''}>${item.name}</option> 
+		            </c:forEach>                
+		         </select>
+                </td>
+        </tr>
+            <tr>
+                
+                <td><span class="ui-icon ui-icon-triangle-1-e"></span></td>
+                <td><label for="filter-state">Jmeno procesu obsahuje:</label></td>
+                <td><input type="text" name="name" class="filter-vals like"></input></td>
+            </tr>
+
+            <tr>
+                <td><span class="ui-icon ui-icon-triangle-1-e"></span></td>
+                <td><label for="filter-planned-after">Naplanovano po:</label></td>
+    		    <td><input type="text" name="planned" class="filter-vals gt" id="planned-after" value="${processView.plannedAfter}"></input></td>
+            </tr>
+
+            <tr>
+                <td><span class="ui-icon ui-icon-triangle-1-e"></span></td>
+                <td><label for="planned">Naplanovano pred:</label></td>
+                <td><input type="text" name="planned" class="filter-vals lt" id="planned-before" value="${processView.plannedBefore}"></input></td>
+            </tr>
+
+            <tr>
+                <td><span class="ui-icon ui-icon-triangle-1-e"></span></td>
+                <td><label for="filter-started-after">Spusteno po:</label></td>
+                <td><input type="text" name="started" class="filter-vals gt" id="started-after" value="${processView.startedAfter}"></input></td>
+            </tr>
+
+            <tr>
+                <td><span class="ui-icon ui-icon-triangle-1-e"></span></td>
+                <td><label for="filter-started-before">Spusteno pred:</label></td>
+                <td><input type="text" name="started" class="filter-vals gt" id="started-before" value="${processView.startedBefore}"></input></td>
+            </tr>
+
+        </tbody>
+        
+    </table>    
+
+    <script type="text/javascript">
+        $(function() {
+                $( "#planned-after" ).datetimepicker();
+                $( "#planned-before" ).datetimepicker();
+
+                $( "#started-after" ).datetimepicker();
+                $( "#started-before" ).datetimepicker();
+          });
+    </script>    
+    <!--
+     <div>
+        <span class="ui-icon ui-icon-triangle-1-e"></span>
+         <label for="planned">Naplanovano pred:</label> 
+         <input type="text" name="planned" class="filter-vals lt"></input>
+    </div>     
+     <div>
+        <span class="ui-icon ui-icon-triangle-1-e"></span>
+         <label for="started">Sputeno po:</label> 
+         <input type="text" name="started" class="filter-vals gt"></input>
+    </div>     
+     <div>
+        <span class="ui-icon ui-icon-triangle-1-e"></span>
+         <label for="started">Sputeno pred:</label> 
+         <input type="text" name="started" class="filter-vals lt"></input>
+    </div>     
+     <div>
+        <span class="ui-icon ui-icon-triangle-1-e"></span>
+         <label for="loginname">Sputeno kym:</label> 
+         <input type="text" name="loginname" class="filter-vals eq"></input>
+    </div>     
+    -->
+
+    <!--
+     <div>
+         <label for="name">Jmeno procesu obsahuje:</label> 
+         <input type="text" name="name"></input>
+         <label for="dateplanning">Datum spusteni:</label> 
+         <input name="dateplanning" type="text"></input>
+         <label for="datestarting">Datum spusteni:</label> 
+         <input name="datestating" type="text"></input>
+         <label for="user">Uzivatel:</label> 
+         <input name="user" type="text"></input>
+     </div>
+-->
+
+     <div class="apply" style="width:70px;">
+        <button name="apply" title="Pouzit" onclick="processes.currentFilter.apply('${processView.ordering}',0,${processView.pageSize},'${processView.typeOfOrdering}')"> Pouzit </button>
+     </div>
+     
+ </div>
+
 <table width="100%" style="width:100%; bottom:20px;" cellpadding="0" cellspacing="0">
     <thead style="border-bottom: dashed 1px;background-image:url('img/bg_processheader.png');
                   background-repeat:  repeat-x;" >

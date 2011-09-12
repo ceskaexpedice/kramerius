@@ -53,6 +53,8 @@
     <script src="js/jquery.cookie.js" type="text/javascript"></script>
     <script src="js/jquery.layout-latest.js" type="text/javascript" ></script>
 
+    <script src="js/jquery-ui-timepicker-addon.js" language="JavaScript" type="text/javascript"></script>
+
     <script src="js/pageQuery.js" language="JavaScript" type="text/javascript"></script>
     <script src="js/main.js" language="JavaScript" type="text/javascript"></script>
     <script src="js/dateAxis_formatV.js" language="javascript" type="text/javascript"></script>
