@@ -26,7 +26,7 @@
             Injector ctxInj = (Injector) application.getAttribute(Injector.class.getName());
             KConfiguration kconfig = ctxInj.getProvider(KConfiguration.class).get();
             try {
-                String term = removeDiacritic(request.getParameter("t").toLowerCase()) +
+                String term = removeDiacritic(request.getParameter("t").toUpperCase()) +
                         "##" + request.getParameter("t");
                 String including = request.getParameter("i");
                 if (including==null){
