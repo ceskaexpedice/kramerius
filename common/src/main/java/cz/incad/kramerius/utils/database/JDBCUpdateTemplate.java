@@ -20,6 +20,7 @@ import java.lang.reflect.Array;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.sql.Timestamp;
@@ -60,9 +61,18 @@ public class JDBCUpdateTemplate {
             }
             pstm.executeUpdate();
             rs = pstm.getGeneratedKeys();
-            if (rs.next()) {
-                result = rs.getInt(1);
+            
+            ResultSetMetaData metaData = rs.getMetaData();
+            int columnCount = metaData.getColumnCount();
+            if (columnCount >=1) {
+                String clzName = metaData.getColumnClassName(1);
+                if (clzName.equals(Integer.class.getName())) {
+                    if (rs.next()) {
+                        result = rs.getInt(1);
+                    }
+                }
             }
+
         } finally {
             if (rs != null) {
                 DatabaseUtils.tryClose(rs);

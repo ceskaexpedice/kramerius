@@ -41,6 +41,8 @@ public class LoggedUserSessionListener implements HttpSessionListener {
         LoggedUsersSingleton loggedUsersSingleton = injector.getInstance(LoggedUsersSingleton.class);
         
         String userKey = (String) session.getAttribute(UserUtils.LOGGED_USER_KEY_PARAM);
-        loggedUsersSingleton.deregisterLoggedUser(userKey);
+        if (userKey != null) {
+            loggedUsersSingleton.deregisterLoggedUser(userKey);
+        }
     }
 }
