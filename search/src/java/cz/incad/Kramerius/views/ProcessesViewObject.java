@@ -98,9 +98,11 @@ public class ProcessesViewObject {
             }
             LRPRocessFilter filter = LRPRocessFilter.createFilter(tripples);
             // TODO: do it better
-            Tripple statusTripple = filter.findTripple("status");
-            if (((Integer) statusTripple.getVal()) == -1) {
-                filter.removeTripple(statusTripple);
+            if (filter!= null) {
+                Tripple statusTripple = filter.findTripple("status");
+                if (((Integer) statusTripple.getVal()) == -1) {
+                    filter.removeTripple(statusTripple);
+                }
             }
 
             return filter;
