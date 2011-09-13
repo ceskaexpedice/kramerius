@@ -192,7 +192,10 @@ public class DatabaseProcessManager implements LRProcessManager {
             Connection connection = connectionProvider.get();
             if (connection == null)
                 throw new NotReadyException("connection not ready");
-            new JDBCUpdateTemplate(connection).executeUpdate("update processes set STATUS = ? where UUID = ?", lrProcess.getProcessState().getVal(), lrProcess.getUUID());
+            int val = lrProcess.getProcessState().getVal();
+            String processUuid = lrProcess.getUUID();
+            LOGGER.fine("params is "+val+","+processUuid);
+            new JDBCUpdateTemplate(connection).executeUpdate("update processes set STATUS = ? where UUID = ?", val, processUuid);
         } catch (SQLException e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
         }
