@@ -14,6 +14,16 @@ ProcessessFilter.prototype.apply=function(ordering, offset, size, type) {
 				this.filter.push({name:$(val).attr('name'),op:"LT",val:$(val).val()});
 			} else if ($(val).hasClass("gt")) {
 				this.filter.push({name:$(val).attr('name'),op:"GT",val:$(val).val()});
+			} else if ($(val).hasClass("like")) {
+				var rval = $(val).val();
+				if (!rval.startsWith("%")) {
+					rval = "%"+rval; 
+				}
+				if (!rval.endsWith("%")) {
+					rval = rval+"%"; 
+				}
+				rval = escape(rval);
+				this.filter.push({name:$(val).attr('name'),op:"LIKE",val:rval});
 			}
 		}
 	},this));

@@ -146,7 +146,7 @@
 
 function _ref(ordering, offset, size, type) {
     $("#processes").html('<div style="margin-top:30px;width:100%;text-align:center;"><img src="img/loading.gif" alt="loading" /></div>');
-	var refreshurl = "inc/admin/_processes_data.jsp?ordering="+ordering+"&offset="+offset+"&size="+size+"&type="+type;
+	var refreshurl = "inc/admin/_processes_data.jsp?ordering="+ordering+"&offset="+offset+"&size="+size+"&type="+type+processes.currentFilter.filterPostfix();
 
 	$.get(refreshurl, function(sdata) {
 		$("#processes").html(sdata);
@@ -215,7 +215,7 @@ function _toggle_filter() {
                 
                 <td><span class="ui-icon ui-icon-triangle-1-e"></span></td>
                 <td><label for="filter-state">Jmeno procesu obsahuje:</label></td>
-                <td><input type="text" name="name" class="filter-vals like"></input></td>
+                <td><input type="text" name="name" class="filter-vals like" value="${processView.nameLike}"></input></td>
             </tr>
 
             <tr>

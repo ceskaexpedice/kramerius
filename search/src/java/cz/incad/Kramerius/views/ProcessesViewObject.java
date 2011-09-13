@@ -334,6 +334,17 @@ public class ProcessesViewObject {
         return "";
     }
 
+    public String getNameLike() {
+        if (this.filter != null) {
+            List<Tripple> tripples = this.filter.getTripples();
+            for (Tripple tripple : tripples) {
+                if (tripple.getName().equals("name") && tripple.getOp().equals(LRPRocessFilter.Op.LIKE)) {
+                    return LRPRocessFilter.getFormattedValue(tripple);
+                }
+            }
+        }    
+        return "";
+    }
 
     public List<ProcessStateWrapper> getStatesForFilter() {
         List<ProcessStateWrapper> wrap = ProcessStateWrapper.wrap(true, States.values());
