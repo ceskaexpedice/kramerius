@@ -93,7 +93,7 @@ public class LRPRocessFilter {
         for (int i = 0,ll=this.tripples.size(); i < ll; i++) {
             Tripple trp = this.tripples.get(i);
             this.objectsToPreparedStm.add(trp.val);
-            builder.append(trp.name).append(" ").append(trp.op.getRawString()).append("?");
+            builder.append(trp.name).append(" ").append(trp.getOp().getRenderOperator()).append(" ");
             if (i < ll-1) { builder.append(" and "); }
         }
         
@@ -211,21 +211,25 @@ public class LRPRocessFilter {
         public Op getOp() {
             return op;
         }
-
-
-        
-        
     }
     
     public enum Op {
-        EQ("="), LT("<"), GT(">"), LIKE("like");
+        EQ("="," ?"), LT("<", " ?"), GT(">"," ?"), LIKE("like"," ?");
         
-        private Op(String r) {
+        private Op(String r, String valueOffset) {
             this.r = r;
+            this.valueOffset = valueOffset;
         }
+
         public String getRawString() {
             return r;
         }
+        
+        public String getRenderOperator() {
+            return this.r + this.valueOffset;
+        }
+        
+        private String valueOffset;
         private String r;
         
     }
