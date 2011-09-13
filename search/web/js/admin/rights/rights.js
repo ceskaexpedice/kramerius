@@ -3,17 +3,20 @@
  */
 
 /** object that can manage rights */
-var affectedObjectsRights = null;
+var affectedObjectsRights = new AffectedObjectsRights();
 
 function AffectedObjectsRights() {
 	this.dialog = null;
 	this.pids=[];
+
+	// special tabs for context menu
 	this.securedActionTabs = {};
-	
 	this.openedDetails=[];
 	
+	
 }
-
+/** On change -> event called from objects selection dialog
+ */
 AffectedObjectsRights.prototype.onChange=function(pid) {
 	
 	var npids = [];
@@ -22,10 +25,19 @@ AffectedObjectsRights.prototype.onChange=function(pid) {
 		npids.push( {pid:v,model:''} );
 	});
 	this.pids = npids;
+	
+	this.clearTabs(function(tab) {
+		return this.url("inc/admin/_display_rights_dialog.jsp?pids=")+"&securedaction="+tab;
+	});
+}
 
+/** clears tab objects
+ */
+AffectedObjectsRights.prototype.clearTabs = function(/** Function */ retrieveUrlFunction) {
 	for(var tab in this.securedActionTabs) {
 		this.securedActionTabs[tab].dirty=true;	
-		this.securedActionTabs[tab].retrieveUrl = this.url("inc/admin/_display_rights_dialog.jsp?pids=")+"&securedaction="+tab;
+		//this.securedActionTabs[tab].retrieveUrl = this.url("inc/admin/_display_rights_dialog.jsp?pids=")+"&securedaction="+tab;
+		this.securedActionTabs[tab].retrieveUrl = bind(retrieveUrlFunction, this)(tab);
 	}
 }
 
@@ -35,7 +47,14 @@ AffectedObjectsRights.prototype.openDialog = function(/** array of struct */pids
 	
 	this.pids = pids;
 	var url = this.url("inc/admin/_display_objects_dialog.jsp?pids=");
-	
+
+	// clear tabs with retreive url -> context menu
+	/*
+	this.clearTabs(function(tab) {
+		return this.url("inc/admin/_display_rights_dialog.jsp?pids=")+"&securedaction="+tab;
+	});
+	*/
+
 	$.get(url, bind(function(data){
     	if (this.dialog) {
     		this.dialog.dialog('open');
@@ -64,13 +83,9 @@ AffectedObjectsRights.prototype.openDialog = function(/** array of struct */pids
     	$('a[href*="rightsAffectedObject"]').each(bind(function(index,elm) {
     		var action = $(elm).data('action');
     		if (action) {
-        		var url = this.url("inc/admin/_display_rights_dialog.jsp?pids=")+"&securedaction="+action;
-        		this.securedActionTabs[action] = new SecuredActionTab( {
-        			securedAction:action,
-        			retrieveUrl: url,
-        			pids:this.pids
-        		});
-        		this.securedActionTabs[action].url = bind(this.url, this);
+        		this.securedActionTabs[action] = this.createSecurityActionTab(action,this.url("inc/admin/_display_rights_dialog.jsp?pids=")+"&securedaction="+action);
+        		// change retrive function
+        		this.securedActionTabs[action].retrieve = this.securedActionTabs[action].retrieveContextContent;
     		}
     	}, this));    
 
@@ -85,6 +100,17 @@ AffectedObjectsRights.prototype.openDialog = function(/** array of struct */pids
     	$("#rightsAffectedObject_tabs").tabs( "select" , 0);
     	
     },this));
+}
+
+/** creates secured action tab */
+AffectedObjectsRights.prototype.createSecurityActionTab = function(/** String */ action, /** retrieve url */url) {
+	var securedActionTab = new SecuredActionTab( {
+		securedAction:action,
+		retrieveUrl: url,
+		pids:this.pids
+	});
+	securedActionTab.url = bind(this.url, this);
+	return securedActionTab;
 }
 
 /** construct url from selected pids
@@ -151,29 +177,13 @@ function SecuredActionTab(struct) {
 	this.globalDeleteDialog = null;
 	this.globalEditDialog = null;
 
-
-	/** 
-	 * Operation which we'll do
-	 * @param name
-	 * @returns {Operation}
-	 */
-	function Operation(name) {
-		this.name = name;
-	}
-	/** create right */
-	this.createop = new Operation("create");
-	/** edit right */
-	this.editop = new Operation("edit");
-	/** delete right */
-	this.deleteop = new Operation("delete");
-	
 	/** op*/
-	this.operation = this.createop;
+	this.operation = CREATEOP;
 } 
 
 
 SecuredActionTab.prototype.globalEdit = function() {
-	this.operation = this.editop;
+	this.operation = EDITOP;
 	var editUrl = this.url("inc/admin/_display_rights_for_edit.jsp?pids=")+"&securedaction="+this.securedAction;
 	$.get(editUrl, bind(function(data){
 		if (this.globalEditDialog) {
@@ -207,7 +217,7 @@ SecuredActionTab.prototype.globalEdit = function() {
 }
 
 SecuredActionTab.prototype.globalDelete = function() {
-	this.operation = this.deleteop;
+	this.operation = DELETEOP;
 
 	var deleteUrl = this.url("inc/admin/_display_rights_for_delete.jsp?pids=")+"&securedaction="+this.securedAction;
 	$.get(deleteUrl, bind(function(data){
@@ -227,7 +237,7 @@ SecuredActionTab.prototype.globalDelete = function() {
 	            			rightIds.push($(val).val());
 	            		});
 	            		rightContainer = {deletedrights:rightIds};
-	            		this.post();
+        				this.post();
 
 	            		this.globalDeleteDialog.dialog("close");
 	            	},this),
@@ -250,7 +260,7 @@ SecuredActionTab.prototype.globalDelete = function() {
 
 /** refreshing content
  */
-SecuredActionTab.prototype.retrieve = function() {
+SecuredActionTab.prototype.retrieveContextContent = function() {
 	$("#"+this.securedAction+"_waiting").html("Nacitani...");
 	
 	$.get(this.retrieveUrl, bind(function(data){
@@ -261,8 +271,19 @@ SecuredActionTab.prototype.retrieve = function() {
 	this.dirty = false;
 }
 
+SecuredActionTab.prototype.retrieveGlobalContent = function() {
+	$("#rightsForAction").html("Nacitani...");
+	
+	$.get(this.retrieveUrl, bind(function(data){
+    	$("#rightsForAction").html(data);
+	},this));
+
+	this.dirty = false;
+	
+}
+
 SecuredActionTab.prototype.newRight = function() {
-	this.operation = this.createop;
+	this.operation = CREATEOP;
 	var url = this.url("inc/admin/_new_right.jsp?pids=")+"&securedaction="+this.securedAction;
 	$.get(url, bind(function(data){
 		if (this.newRightDialog) {
@@ -273,10 +294,10 @@ SecuredActionTab.prototype.newRight = function() {
                 width:640,
                 height:480,
                 modal:true,
-                title:"...",
+                title:"#title",
                 buttons: {
                 	"Apply": bind(function() {
-                		this.post();
+        				this.post();
                 		//$.post("rights?action=create", flatten({data:rightContainer.data,affectedObjects:rightContainer.affectedObjects}));
                 		this.newRightDialog.dialog("close");
                 	},this),
@@ -301,9 +322,10 @@ SecuredActionTab.prototype.post = function() {
 }
 
 SecuredActionTab.prototype.newRightForPath = function(path) {
-	this.operation = this.createop;
+	this.operation = CREATEOP;
 	var arr = toStringArray(path);
 	var url = this.url("inc/admin/_new_right.jsp?pids=",[{pid:arr[arr.length-1].trim()}])+"&securedaction="+this.securedAction;
+
 	$.get(url, bind(function(data){
 		
 		if (this.newRightDialog) {
@@ -314,11 +336,11 @@ SecuredActionTab.prototype.newRightForPath = function(path) {
                 width:640,
                 height:480,
                 modal:true,
-                title:"...",
+                title:"#title",
                 buttons: {
                 	"Apply": bind(function() {
-                		this.post();
-                		this.newRightDialog.dialog("close");
+                				this.post();
+                				this.newRightDialog.dialog("close");
                 	},this),
                     "Close": bind(function() {
                 		this.newRightDialog.dialog("close");
@@ -330,12 +352,10 @@ SecuredActionTab.prototype.newRightForPath = function(path) {
     	$('#nRightDialog').html(data);
     	
 	},this));
-	
-	
 }
 
 SecuredActionTab.prototype.editRightForPath=function(/** ident for right */rightId, path) {
-	this.operation = this.editop;
+	this.operation = EDITOP;
 	var arr = toStringArray(path);
 	var url = this.url("inc/admin/_new_right.jsp?pids=",[{pid:arr[arr.length-1].trim()}])+"&action=edit&ids="+rightId+"&securedaction="+this.securedAction;
 	$.get(url, bind(function(data){
@@ -351,7 +371,7 @@ SecuredActionTab.prototype.editRightForPath=function(/** ident for right */right
                 title:"...",
                 buttons: {
                 	"Apply": bind(function() {
-                		this.post();
+        				this.post();
                 		this.newRightDialog.dialog("close");
                 	},this),
                     "Close": bind(function() {
@@ -369,7 +389,7 @@ SecuredActionTab.prototype.editRightForPath=function(/** ident for right */right
 }
 
 SecuredActionTab.prototype.deleteRightForPath=function(/** ident for right */rightId, path) {
-	this.operation = this.deleteop;
+	this.operation = DELETEOP;
 	rightContainer = {deletedrights:[rightId]};
 	this.post();
 }
@@ -409,7 +429,106 @@ function flatten(struct, prefix) {
 				retval[cprefix+item]=cstruct[item]; 				
 			}
 		}
-
 	}
 	return retval;
 }
+
+
+
+/** Global actions */
+function GlobalActions() {
+	this.dialog = null;
+	this.actionDialog = null;
+}
+
+GlobalActions.prototype.rigthsForAction=function(action) {
+	// affected rights secured actions 
+	affectedObjectsRights.securedActionTabs[action] = affectedObjectsRights.createSecurityActionTab(action,"inc/admin/_display_rights_for_global_actions.jsp?pids={uuid\\:1}&securedaction="+action);
+	affectedObjectsRights.securedActionTabs[action].retrieve = affectedObjectsRights.securedActionTabs[action].retrieveGlobalContent;
+	
+	var url = "inc/admin/_display_rights_for_global_actions.jsp?pids={uuid\\:1}&securedaction="+action;
+	$.get(url, bind(function(data) {
+		if (this.actionDialog) {
+			this.actionDialog.dialog('open');
+		} else {
+			var items = mapJQuerySelector(function (item) {
+				return items;
+			},$("#rightsForAction"));
+
+			if (items || items.length == 0) {
+				$(document.body).append('<div id="rightsForAction"></div>');
+			}
+		    
+			
+		    this.actionDialog = $('#rightsForAction').dialog({
+		        width:640,
+		        height:480,
+		        modal:true,
+		        title:"#title",
+		        buttons: {
+		            "Close": bind(function() {
+		        		this.actionDialog.dialog("close");
+		            },this)
+		        }
+		    });
+		    
+		}
+		$("#rightsForAction").html(data);
+	}, this));		    	
+}
+
+/** Open global actions dialog */
+GlobalActions.prototype.globalActions=function() {
+	// change affected pids
+	affectedObjectsRights.pids = [{pid:'uuid:1',model:'REPOSITORY'}];
+		
+	var url = "inc/admin/_global_actions.jsp";
+	$.get(url, bind(function(data) {
+		if (this.dialog) {
+			this.dialog.dialog('open');
+		} else {
+			var items = mapJQuerySelector(function (item) {
+				return items;
+			},$("#globalActions"));
+
+			if (items || items.length == 0) {
+				$(document.body).append('<div id="globalActions"></div>');
+			}
+		    
+		    this.dialog = $('#globalActions').dialog({
+		        width:640,
+		        height:480,
+		        modal:true,
+		        title:"#title",
+		        buttons: {
+		            "Close": bind(function() {
+		        		this.dialog.dialog("close");
+		            },this)
+		        }
+		    });
+		    
+		}
+		
+		$("#globalActions").html(data);
+	}, this));
+}
+
+
+var globalActions = new GlobalActions();
+
+
+/** 
+ * Operation which we'll do
+ * @param name
+ * @returns {Operation}
+ */
+function Operation(name) {
+	this.name = name;
+}
+
+/** create right */
+var CREATEOP = new Operation("create");
+/** edit right */
+var EDITOP = new Operation("edit");
+/** delete right */
+var DELETEOP = new Operation("delete");

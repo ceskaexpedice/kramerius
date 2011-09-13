@@ -84,7 +84,7 @@ public class AdminMenuViewObject {
 
     public String showActionsAdmin() throws IOException {
         return renderMenuItem(
-                "javascript:securedActionsObject.securedActionsTable('"+SpecialObjects.REPOSITORY.getUuid()+"'); javascript:hideAdminMenu();",
+                "javascript:globalActions.globalActions(); javascript:hideAdminMenu();",
                 "administrator.menu.dialogs.actionsAdmin.title", false);
     }
 
@@ -136,10 +136,9 @@ public class AdminMenuViewObject {
                 if (hasUserAllowedAction(SecuredActions.REINDEX.getFormalName())) {
                     menuItems.add(showIndexerAdmin());
                 }
-                /*
                 if (hasUserAllowedAction(SecuredActions.ADMINISTRATE.getFormalName())) {
                     menuItems.add(showActionsAdmin());
-                }*/
+                }
 
                 if (hasUserAllowedAction(SecuredActions.ENUMERATOR.getFormalName())) {
                     menuItems.add(noParamsProcess(KrameriusRoles.ENUMERATOR.getRoleName()));

@@ -40,9 +40,6 @@ import com.google.inject.name.Named;
 
 import cz.incad.Kramerius.backend.guice.GuiceServlet;
 import cz.incad.Kramerius.security.rightscommands.get.EditRightsJSData;
-import cz.incad.Kramerius.security.rightscommands.get.NewRightHtml;
-import cz.incad.Kramerius.security.rightscommands.get.NewRightJSData;
-import cz.incad.Kramerius.security.rightscommands.get.ShowRightsHtml;
 import cz.incad.Kramerius.security.rightscommands.get.ShowsActionsTableHtml;
 import cz.incad.Kramerius.security.rightscommands.post.Create;
 import cz.incad.Kramerius.security.rightscommands.post.Delete;
@@ -167,20 +164,14 @@ public class RightsServlet extends GuiceServlet {
 
     static enum GetCommandsEnum {
 
-        /** zobrazeni prav */
-        showrights(ShowRightsHtml.class),
 
         /** zobrazeni tabulku akci - tlacitka pro zmenu */
         showglobalrights(ShowsActionsTableHtml.class),
         
-        /** nove pravo */
-        newright(NewRightHtml.class),
         
         /** editace prava - javascript */
-        editrightjsdata(EditRightsJSData.class),
+        editrightjsdata(EditRightsJSData.class);
         
-        /** nove pravo - javascript */
-        newrightjsdata(NewRightJSData.class);
 
         /** validuje parametry kriteria */
         //validatecriteriums(ValidateCriteriumParamsHtml.class);

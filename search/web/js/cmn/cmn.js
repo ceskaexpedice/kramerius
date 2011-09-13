@@ -31,6 +31,13 @@ String.prototype.endsWith = function(suffix) {
     return this.indexOf(suffix, this.length - suffix.length) !== -1;
 };
 
+/** compose function */
+Function.prototype.compose  = function(argFunction) {
+    var invokingFunction = this;
+    return function() {
+        return  invokingFunction.call(this,argFunction.apply(this,arguments));
+    }
+}
 
 /** 
  * Reduce function can reduce given array to one result. 

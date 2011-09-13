@@ -30,7 +30,6 @@ import com.google.inject.Inject;
 import com.google.inject.Provider;
 
 import cz.incad.Kramerius.security.rightscommands.ServletRightsCommand;
-import cz.incad.Kramerius.security.rightscommands.get.ShowRightsHtml;
 import cz.incad.Kramerius.security.strenderers.RoleWrapper;
 import cz.incad.Kramerius.security.userscommands.ServletUsersCommand;
 import cz.incad.kramerius.security.Role;
@@ -43,7 +42,7 @@ import cz.incad.utils.K4Collections;
 
 public class ShowRolesHtml extends AbstractRoleCommand {
 
-    static java.util.logging.Logger LOGGER = java.util.logging.Logger.getLogger(ShowRightsHtml.class.getName());
+    java.util.logging.Logger LOGGER = java.util.logging.Logger.getLogger(ShowRolesHtml.class.getName());
 
     @Inject
     IsActionAllowed actionAllowed;
