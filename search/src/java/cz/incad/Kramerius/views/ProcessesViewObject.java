@@ -100,8 +100,10 @@ public class ProcessesViewObject {
             // TODO: do it better
             if (filter!= null) {
                 Tripple statusTripple = filter.findTripple("status");
-                if (((Integer) statusTripple.getVal()) == -1) {
-                    filter.removeTripple(statusTripple);
+                if (statusTripple != null) {
+                    if (((Integer) statusTripple.getVal()) == -1) {
+                        filter.removeTripple(statusTripple);
+                    }
                 }
             }
 

@@ -155,11 +155,9 @@ public class AdminMenuViewObject {
                 if (hasUserAllowedAction(SecuredActions.EDITOR.getFormalName())) {
                     menuItems.add(editor());
                 }
-                /*
                 if (hasUserAllowedAction(SecuredActions.EDITOR.getFormalName())) {
                     menuItems.add(rolesEditor());
                 }
-                */
                 //TODO: Should it be in shibboleth ?
                 if (!ShibbolethUtils.isUnderShibbolethSession(this.request)) {
                     menuItems.add(openUsersAdmin());

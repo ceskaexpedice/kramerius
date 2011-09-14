@@ -30,12 +30,13 @@ public class RoleWrapper implements Role {
     private boolean selected = false;
     private ResourceBundle resourceBundle;
     private boolean canbedeleted = true;
+
+    private RoleWrapper roleAdministrator = null;
     
     public RoleWrapper(Role rl) {
         super();
         this.role = rl;
     }
-    
     
     
 
@@ -63,8 +64,6 @@ public class RoleWrapper implements Role {
     public String toString() {
         return getName();
     }
-
-    
 
     
     public static List<RoleWrapper> wrap(List<Role> grps, boolean b) {
@@ -110,6 +109,18 @@ public class RoleWrapper implements Role {
     @Override
     public Boolean isPersonalAdminDefined() {
         return this.role.isPersonalAdminDefined();
+    }
+
+
+
+    public RoleWrapper getRoleAdministrator() {
+        return roleAdministrator;
+    }
+
+
+
+    public void setRoleAdministrator(RoleWrapper roleAdministrator) {
+        this.roleAdministrator = roleAdministrator;
     }
 
     
