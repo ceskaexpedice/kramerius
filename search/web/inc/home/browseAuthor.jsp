@@ -43,15 +43,6 @@ pageContext.setAttribute("pismena", pismena);
 <script type="text/javascript">
     $(document).ready(function(){
         doBrowse('', 'browse_autor');
-        
-        $("#browse_autor").bind('scroll', function(event){
-            var id = $(this).attr('id');
-            if($('#'+id+">div.more_terms").length>0 && isTermVisible(id)){
-                getMoreTerms(id);
-            }
-            selectLetter(id);
-        });
-
     });
 </script>
         </div>

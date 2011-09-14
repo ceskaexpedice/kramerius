@@ -44,6 +44,7 @@
             $("#main").height() - 
             $("#footer").outerHeight(true);
         $("#intro>div.ui-tabs-panel").css("height", w);
+        //$("#intro_text").css("height", w);
         
         w = w -$("#da-inputs").outerHeight(true);
         $("#content-resizable").css("height", w);

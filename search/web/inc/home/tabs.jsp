@@ -85,6 +85,16 @@
             $('#'+field).html(data);
             $('#'+field).scrollTop(0);
             selectLetter(field);
+            
+            
+            $('#'+field).bind('scroll', function(event){
+                var id = $(this).attr('id');
+                if($('#'+id+">div.more_terms").length>0 && isTermVisible(id)){
+                    getMoreTerms(id);
+                }
+                selectLetter(id);
+            });
+        
         });
     }
 

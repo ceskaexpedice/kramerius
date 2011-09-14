@@ -14,7 +14,7 @@
     #intro_text{
         font-size:1.1em;
         overflow: auto;
-        height: 510px;
+        height: 100%;
     }
     
     #intro_text a{
