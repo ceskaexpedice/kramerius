@@ -84,6 +84,7 @@
   text-align:left;
   padding:5px 4px;
   z-index:3;
+  font-size: 0.9em;
 }
 #da-inputs input{
   border: 1px solid #333333;

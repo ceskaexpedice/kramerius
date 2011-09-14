@@ -49,6 +49,36 @@
     #contextMenu .scope>span{
         font-weight: bold;
     }
+    
+    
+    #reindex ul{
+        margin: 2px;
+        padding-left: 4px;
+    }
+    #reindex li{
+        list-style-type: none;
+        margin: 0;
+        padding: 0;
+        line-height: 16px;
+    }
+
+    #reindex li>span{
+        width: 16px;
+        height: 16px;
+        overflow:hidden;
+        text-indent: -99999px;
+        display:block;
+        float:left;
+    }
+    
+    #reindex .scope>span{
+        font-weight: bold;
+    }
+    #reindex>div.allowed{
+        border-bottom:1px solid #E66C00; 
+        margin-bottom:5px;
+        padding-bottom:3px;
+    }
 </style>
 <div><h3><fmt:message bundle="${lctx}">administrator.menu.Scope</fmt:message>:</h3></div>
 <div class="scope selected viewer" id="scope_single"><span><fmt:message bundle="${lctx}">administrator.menu.active</fmt:message></span>
@@ -81,7 +111,7 @@
 <scrd:loggedusers>
     <div id="reindex" style="display:none;">
         <div class="allowed"></div>
-        <div style="border-bottom:1px solid #E66C00; padding-bottom: 5px; margin-bottom: 5px;">
+        <div style="padding-bottom: 5px; margin-bottom: 5px;">
             <div>
                 <input type="checkbox" id="reindex_check_integrity" checked="checked" /><label for="reindex_check_integrity"> <fmt:message bundle="${lctx}">administrator.menu.dialogs.check_integrity</fmt:message></label>
             </div>
@@ -342,7 +372,7 @@
                 bgiframe: true,
                 width: 500,
                 modal: true,
-                title:'',
+                title:'<fmt:message bundle="${lctx}">administrator.menu.reindex</fmt:message>',
                 buttons: {
                     "Ok": function() {
                         doReindex();

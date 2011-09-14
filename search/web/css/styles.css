@@ -399,3 +399,22 @@ div.search_result{
 .ui-timepicker-div dl dd { margin: -25px 10px 10px 65px; }
 .ui-timepicker-div td { font-size: 90%; }
 .ui-tpicker-grid-label { background: none; border: none; margin: 0; padding: 0; }
+
+
+    .vsplitbar {
+        width: 5px;
+        background: silver;
+    }
+
+    .ui-layout-toggler-east-closed, .ui-layout-toggler-west-open {
+        background: url("../img/toggle-lt.gif") no-repeat scroll left top transparent;
+    }
+    .ui-layout-toggler-west-closed, .ui-layout-toggler-east-open {
+        background: url("../img/toggle-rt.gif") no-repeat scroll right top transparent;
+    }
+    .ui-layout-toggler-north-closed, .ui-layout-toggler-south-open {
+        background: url("../img/toggle-dw.gif") no-repeat scroll center top transparent;
+    }
+    .ui-layout-toggler-south-closed, .ui-layout-toggler-north-open {
+        background: url("../img/toggle-up.gif") no-repeat scroll center top transparent;
+    }

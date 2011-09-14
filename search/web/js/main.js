@@ -45,11 +45,15 @@ function trim10(str) {
 }
 
 function isScrolledIntoView(elem, view){
-    var docViewTop = $(view).scrollTop();
+    var docViewTop = $(view).offset().top;
     var docViewBottom = docViewTop + $(view).height();
 
     var elemTop = $(elem).offset().top;
     var elemBottom = elemTop + $(elem).height();
+    //$("#test").html("elemBottom: "+elemBottom+
+    //    " docViewTop: "+docViewTop+
+   //     " elemTop: "+elemTop+
+   //     " docViewBottom: "+docViewBottom);
     return ((elemBottom >= docViewTop) && (elemTop <= docViewBottom));
 }
 

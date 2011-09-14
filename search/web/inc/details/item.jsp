@@ -47,22 +47,6 @@
         display:block;
         float:left;
     }
-    .vsplitbar {
-        width: 5px;
-        background: silver;
-    }
-    .ui-layout-toggler-east-closed, .ui-layout-toggler-west-open {
-        background: url("img/toggle-lt.gif") no-repeat scroll left top transparent;
-    }
-    .ui-layout-toggler-west-closed, .ui-layout-toggler-east-open {
-        background: url("img/toggle-rt.gif") no-repeat scroll right top transparent;
-    }
-    .ui-layout-toggler-north-closed, .ui-layout-toggler-south-open {
-        background: url("img/toggle-dw.gif") no-repeat scroll center top transparent;
-    }
-    .ui-layout-toggler-south-closed, .ui-layout-toggler-north-open {
-        background: url("img/toggle-up.gif") no-repeat scroll center top transparent;
-    }
 </style>
 <div id="split" class="viewer" style="position:relative;"> 
 <div id="thumbs"  class="ui-layout-north">
@@ -89,6 +73,14 @@
     };
     var sp;
     $(document).ready(function(){
+        
+        var w = $("#split").height() +
+            $(window).height() -
+            $("#main").height() - 
+            $("#footer").outerHeight(true);
+        $("#split").css("height", w);
+        
+        
        sp = $("#split").layout({
            north:{
                 togglerLength_closed:	'100%',
@@ -131,7 +123,11 @@
         $('#split.viewer').bind('viewReady', function(event, viewerOptions){
             resizeSplit(viewerOptions.fullid);
         });
+        
+        
     });
+    
+    
     function resizeSplit(){
         //var h = Math.max(800, $('#centralContent').height()+80);
         //$('#split').css('height', h);

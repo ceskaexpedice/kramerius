@@ -7,6 +7,15 @@
     
     #docs_content{
         padding:4px;
+        
+    }
+    #docs_content>div.header{
+        height:17px;
+        border-bottom:1px solid #E66C00; 
+        margin-bottom:2px;
+    }
+    #docs_content>div.content{
+        overflow:auto;
     }
     
     .extInfo{
@@ -19,9 +28,14 @@
         right:5px;
         width:100%;
     }
+    
+    #split {
+        height: 700px;
+        width: 1000px;
+    }
 
 </style>
-<div id="filters">
+<div id="filters" class="ui-layout-west">
     <ul>
         <li><a href="#facets"><fmt:message bundle="${lctx}">results.filters</fmt:message></a></li>
         <li id="dali"><a href="#dadiv"><fmt:message bundle="${lctx}" key="Časová osa" /></a></li>
@@ -48,17 +62,45 @@
     <div id="contextMenu"><%@include file="../details/contextMenu.jsp" %></div>
     </scrd:loggedusers>
 </div>
-<div id="docs">
+<div id="docs" class="ui-layout-center">
     <ul><li><a href="#docs_content"><fmt:message bundle="${lctx}">results.results</fmt:message></a></li></ul>
     <div id="docs_content">
-    <%--&#160;<c:out value="${numDocs}" />&#160;<c:out value="${numDocsStr}" />--%>
-    <%@ include file="docs.jsp" %>
+    <%@ include file="head.jsp" %>
+    <div class="content"><%@ include file="docs.jsp" %></div>
     </div>
 </div>
 <script type="text/javascript">
 
 
 $(document).ready(function(){
+    
+    var w = $(window).height() -
+            $("#header").height() - 
+            $("#footer").outerHeight(true);
+    $("#split").css("height", w);
+    w = w - $("#docs>ul").outerHeight(true) - 6 - 15 - 8;
+    $("#docs_content>div.content").css("height", w);
+        
+    sp = $("#split").layout({
+        west:{
+            size:220,
+            spacing_closed:	5,
+            spacing_open:	5,
+            togglerLength_closed:	'100%',
+            togglerLength_open:	'100%',
+            togglerAlign_open:	"top",
+            togglerAlign_closed:	"top",
+            togglerTip_closed: '<fmt:message bundle="${lctx}">item.showhide</fmt:message>',
+            togglerTip_open: '<fmt:message bundle="${lctx}">item.showhide</fmt:message>',
+            onopen_end: function(){
+                setColumnsWidth();
+            },
+            onclose_end: function(){
+                setColumnsWidth();
+            }
+        }
+        
+    });
     getExtInfo();
     $('.loading_docs').hide();
     
@@ -78,10 +120,12 @@ $(document).ready(function(){
     });
     $("#docs").tabs();
     
-    $(document).bind('scroll', function(event){
-        var id = $('#docs .more_docs').attr('id');
-        if($('#docs .more_docs').length>0){
-            if(isScrolledIntoWindow($('#'+id))){
+    //$(document).bind('scroll', function(event){
+    $('#docs_content>div.content').bind('scroll', function(event){
+        if($('#docs_content .more_docs').length>0){
+            var id = $('#docs_content .more_docs').attr('id');
+            //if(isScrolledIntoWindow($('#'+id))){
+            if(isScrolledIntoView($('#'+id), $('#docs_content>div.content'))){
                 getMoreDocs(id);
                 //alert(id);
             }
@@ -122,20 +166,23 @@ $(document).ready(function(){
     }
     
     function toggleColumns(){
+        
+        $('.cols').toggle();
+        setColumnsWidth();
+    }
+    
+    function setColumnsWidth(){
         var margin = 
-            //parseInt($('.search_result:first').css("margin-left").replace("px", "")) +
-            //parseInt($('.search_result:first').css("margin-right").replace("px", "")) +
             parseInt($('.search_result:first').css("padding-left").replace("px", "")) +
             parseInt($('.search_result:first').css("padding-right").replace("px", ""));
         var w = $('#offset_0').width();
-        
-        $('.cols').toggle();
         if($('#cols2').is(':visible')){
             w = w - margin;
         }else{
             w = w / 2 - margin * 2;
         }
         $('.search_result').css('width', w);
+        
     }
 
     function checkHeight(offset){

@@ -9,7 +9,7 @@
 <%@page import="javax.servlet.jsp.jstl.fmt.LocalizationContext, cz.incad.kramerius.FedoraAccess"%>
 <%
     try {
-        String xsl = "results_main.xsl";
+        String xsl = "results_header.xsl";
         if (xs.isAvailable(xsl)) {
             String text = xs.transform(xml, xsl, lctx.getLocale());
             out.println(text);
@@ -20,7 +20,7 @@
     }
 %>
 <c:catch var="exceptions">
-    <c:url var="results" value="inc/results/xsl/results_main.xsl" />
+    <c:url var="results" value="inc/results/xsl/results_header.xsl" />
     <c:import url="${results}" var="resultsxsl" charEncoding="UTF-8"  />
 </c:catch>
 <c:choose>

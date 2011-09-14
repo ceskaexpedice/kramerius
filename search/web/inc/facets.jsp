@@ -21,7 +21,7 @@
             out.println(text);
             return;
         }
-        String numOpenedRows = kconfig.getProperty("search.results.numOpenedRows", "5");
+        String numOpenedRows = kconfig.getProperty("search.results.numOpenedFacets", "8");
         pageContext.setAttribute("numOpenedRows", numOpenedRows);
     } catch (Exception e) {
         out.println(e);

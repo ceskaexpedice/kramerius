@@ -40,7 +40,7 @@
             <%@ include file="inc/header.jsp" %>
             <div class="clear"></div>
             
-            <div style="display:block;">
+            <div id="split" style="display:block;">
                 <%@ include file="inc/results/results.jsp" %>
             </div>
             <div class="clear"></div>
