@@ -66,6 +66,7 @@
 
     <scrd:loggedusers>    
     	<!--script  src="js/admin/admin.js" language="javascript" type="text/javascript"></script-->
+       <script  src="js/admin/roles/roles.js" language="javascript" type="text/javascript"></script>
        <script  src="js/admin/rights/rights.js" language="javascript" type="text/javascript"></script>
        <script  src="js/admin/processes/processes.js" language="javascript" type="text/javascript"></script>
        <script  src="js/admin/processes/starter.js" language="javascript" type="text/javascript"></script>

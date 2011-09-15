@@ -29,11 +29,15 @@
 	
     ProcessLogsViewObject processLogs = new ProcessLogsViewObject(request.getParameter("stdFrom"), request.getParameter("stdErr"),request.getParameter("count"),lrProces,defMan.getLongRunningProcessDefinition(lrProces.getDefinitionId()));
 	pageContext.setAttribute("processLogs", processLogs);
+    response.setCharacterEncoding("UTF-8");
+    response.setContentType("application/json");
+
 %>
 
 
 <%@page import="cz.incad.Kramerius.views.ProcessLogsViewObject"%>
 <%@page import="cz.incad.kramerius.processes.LRProcess"%>
 
-<c:out value="${processLogs.stdOutData}"></c:out>
+
+{"size": ${processLogs.errorFileSize}, "offset": 0 }
 

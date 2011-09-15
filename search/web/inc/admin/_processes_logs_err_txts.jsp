@@ -27,7 +27,7 @@
 	DefinitionManager defMan = inj.getInstance(DefinitionManager.class);
 	LRProcess lrProces = lrProcessMan.getLongRunningProcess(uuid);
 	
-	ProcessLogsViewObject processLogs = new ProcessLogsViewObject(request.getParameter("stdFrom"), request.getParameter("stdErr"),request.getParameter("count"),lrProces);
+	ProcessLogsViewObject processLogs = new ProcessLogsViewObject(request.getParameter("stdFrom"), request.getParameter("stdErr"),request.getParameter("count"),lrProces,defMan.getLongRunningProcessDefinition(lrProces.getDefinitionId()));
 	pageContext.setAttribute("processLogs", processLogs);
 %>
 
