@@ -346,8 +346,8 @@
         <field name="details" type="string"  indexed="true"  stored="true" multiValued="true"  />
 		
         <field name="facet_title" type="localizedstring"  indexed="true"  stored="false" locale="cs" />
-        <field name="browse_title" type="localizedstring"  indexed="true"  stored="false" locale="cs" />
-        <field name="search_title" type="string_lower"  indexed="true"  stored="false"  />
+        <field name="browse_title" type="string"  indexed="true"  stored="true" />
+        <field name="search_title" type="text_fgs"  indexed="true"  stored="false"  />
         <field name="facet_autor" type="string"  indexed="true"  stored="true" multiValued="true"  locale="cs" />
         <field name="browse_autor" type="string"  indexed="true" stored="true" multiValued="true"  locale="cs" />
         <field name="search_autor" type="string_lower"  indexed="true"  stored="false" multiValued="true"  />
@@ -380,7 +380,7 @@
     <copyField source="issn" dest="text"/>
     <copyField source="text_ocr" dest="text"/>
     
-    <copyField source="dc.title" dest="search_title"/>
+    <copyField source="browse_title" dest="search_title"/>
     <copyField source="dc.title" dest="title"/>
     <copyField source="dc.title" dest="title_en"/>
     <copyField source="dc.creator" dest="facet_autor"/>
