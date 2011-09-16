@@ -112,6 +112,7 @@ Processes.prototype.doActionAndRefresh=function(url,ordering, offset, size, type
 }
 
 Processes.prototype.refreshProcesses = function(ordering, offset, size, type) {
+	_wait();
 	var refreshurl = "inc/admin/_processes_data.jsp?ordering="+ordering+"&offset="+offset+"&size="+size+"&type="+type;
 	$.get(refreshurl, function(sdata) {
 		$("#processes").html(sdata);

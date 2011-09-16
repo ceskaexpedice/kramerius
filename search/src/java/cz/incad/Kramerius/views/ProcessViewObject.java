@@ -132,7 +132,8 @@ public class ProcessViewObject {
     
     public String getDeleteURL() {
         try {
-            if ((this.lrProcess.getProcessState().equals(States.FINISHED)) || (this.lrProcess.getProcessState().equals(States.KILLED)) || (this.lrProcess.getProcessState().equals(States.FAILED))) {
+            if ((this.lrProcess.getProcessState().equals(States.FINISHED)) ||  (this.lrProcess.getProcessState().equals(States.BATCH_FINISHED)) ||  (this.lrProcess.getProcessState().equals(States.BATCH_FAILED))
+                    || (this.lrProcess.getProcessState().equals(States.KILLED)) || (this.lrProcess.getProcessState().equals(States.FAILED))) {
                 String url = "lr?action=delete&uuid=" + this.lrProcess.getUUID();
                 String renderedAHREF = "<a href=\"javascript:processes.doActionAndRefresh('" + url + "','" + this.ordering.name() + "'," + this.offset.getOffset() + "," + this.offset.getSize() + ",'" + this.typeOfOrdering.name() + "');\">"
                         + bundleService.getResourceBundle("labels", locale).getString("administrator.processes.delete.process") + "</a>";

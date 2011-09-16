@@ -140,6 +140,27 @@ public class ProcessesViewObject {
         return Integer.parseInt(this.offset.getSize());
     }
 
+    public int getPrevPageValue() {
+        return Math.max(0, getOffsetValue() - getPageSize());
+    }
+
+    public int getNextPageValue() {
+        int count = this.processManager.getNumberOfLongRunningProcesses();
+        return Math.min(count - getPageSize(), getOffsetValue() + getPageSize());
+    }
+    
+    public int getSkipPrevPageValue() {
+        int r = getOffsetValue() - (getPageSize() * 10);
+        return Math.max(0, r);
+    }
+    
+    public int getSkipNextPageValue() {
+        int count = this.processManager.getNumberOfLongRunningProcesses();
+        int r = getOffsetValue() + (getPageSize() * 10);
+        return Math.min(count - getPageSize(), r);
+    }
+    
+    
     public String getOrdering() {
         return this.ordering.toString();
     }

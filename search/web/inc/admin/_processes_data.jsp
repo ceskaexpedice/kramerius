@@ -5,6 +5,8 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/xml" prefix="x" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt" %>
 <%@ taglib uri="/WEB-INF/tlds/securedContent.tld" prefix="scrd" %>
+<%@ taglib uri="/WEB-INF/tlds/cmn.tld" prefix="view" %>
+
 
 <%@ page trimDirectiveWhitespaces="true"%>
 
@@ -144,15 +146,17 @@
 <div id="processes_list" align="center">
 <script type="text/javascript">
 
+function _wait() {
+	   $("#processes").html('<div style="margin-top:30px;width:100%;text-align:center;"><img src="img/loading.gif" alt="loading" /></div>');
+}
 function _ref(ordering, offset, size, type) {
-    $("#processes").html('<div style="margin-top:30px;width:100%;text-align:center;"><img src="img/loading.gif" alt="loading" /></div>');
+    _wait();
 	var refreshurl = "inc/admin/_processes_data.jsp?ordering="+ordering+"&offset="+offset+"&size="+size+"&type="+type+processes.currentFilter.filterPostfix();
 
 	$.get(refreshurl, function(sdata) {
 		$("#processes").html(sdata);
 	});
 
-	/* function filter() { } */
 }
 
 
@@ -166,11 +170,13 @@ function _toggle_filter() {
 <div class="header">
     <div class="title">
         <c:if test="${processView.offsetValue>0}">
-            <a href="javascript:processes.modifyProcessDialogData('${processView.ordering}',${processView.offsetValue-processView.pageSize},${processView.pageSize},'${processView.typeOfOrdering}');"><span class="ui-icon ui-icon-arrowthick-1-w">previous</span></a>
+            <a href="javascript:processes.modifyProcessDialogData('${processView.ordering}',${processView.skipPrevPageValue},${processView.pageSize},'${processView.typeOfOrdering}');"><span class="ui-icon ui-icon-seek-prev">previous skip</span></a>
+            <a href="javascript:processes.modifyProcessDialogData('${processView.ordering}',${processView.prevPageValue},${processView.pageSize},'${processView.typeOfOrdering}');"><span class="ui-icon ui-icon-arrowthick-1-w">previous</span></a>
         </c:if>
         &emsp;
         <c:if test="${processView.hasNext}">
-            <a href="javascript:processes.modifyProcessDialogData('${processView.ordering}',${processView.offsetValue+processView.pageSize},${processView.pageSize},'${processView.typeOfOrdering}');"><span class="ui-icon ui-icon-arrowthick-1-e">next</span></a>
+            <a href="javascript:processes.modifyProcessDialogData('${processView.ordering}',${processView.nextPageValue},${processView.pageSize},'${processView.typeOfOrdering}');"><span class="ui-icon ui-icon-arrowthick-1-e">next</span></a>
+            <a href="javascript:processes.modifyProcessDialogData('${processView.ordering}',${processView.skipNextPageValue},${processView.pageSize},'${processView.typeOfOrdering}');"><span class="ui-icon ui-icon-seek-next">next</span></a>
         </c:if>
 
         
@@ -189,7 +195,7 @@ function _toggle_filter() {
 
 <div class="filter shadow" style="">
     
-     <h3>Pouzity filtr:</h3>
+     <h3><view:msg>administrator.processes.filter.label</view:msg></h3>
 
     <table style="width: 100%">
         <thead>
@@ -202,7 +208,7 @@ function _toggle_filter() {
         <tbody>
             <tr>
                 <td><span class="ui-icon ui-icon-triangle-1-e"></span></td>
-                <td><label for="filter-state">Stav:</label></td>
+                <td><label for="filter-state"><view:msg>administrator.processes.filter.state</view:msg>:</label></td>
                 <td>
 		         <select class="filter-vals eq" name="status"> 
 		             <c:forEach var="item" items="${processView.statesForFilter}">
@@ -214,31 +220,31 @@ function _toggle_filter() {
             <tr>
                 
                 <td><span class="ui-icon ui-icon-triangle-1-e"></span></td>
-                <td><label for="filter-state">Jmeno procesu obsahuje:</label></td>
+                <td><label for="filter-state"><view:msg>administrator.processes.filter.pname</view:msg>:</label></td>
                 <td><input type="text" name="name" class="filter-vals like" value="${processView.nameLike}"></input></td>
             </tr>
 
             <tr>
                 <td><span class="ui-icon ui-icon-triangle-1-e"></span></td>
-                <td><label for="filter-planned-after">Naplanovano po:</label></td>
+                <td><label for="filter-planned-after"> <view:msg>administrator.processes.filter.plannedafter</view:msg>:</label></td>
     		    <td><input type="text" name="planned" class="filter-vals gt" id="planned-after" value="${processView.plannedAfter}"></input></td>
             </tr>
 
             <tr>
                 <td><span class="ui-icon ui-icon-triangle-1-e"></span></td>
-                <td><label for="planned">Naplanovano pred:</label></td>
+                <td><label for="planned"><view:msg>administrator.processes.filter.plannedbefore</view:msg>:</label></td>
                 <td><input type="text" name="planned" class="filter-vals lt" id="planned-before" value="${processView.plannedBefore}"></input></td>
             </tr>
 
             <tr>
                 <td><span class="ui-icon ui-icon-triangle-1-e"></span></td>
-                <td><label for="filter-started-after">Spusteno po:</label></td>
+                <td><label for="filter-started-after"><view:msg>administrator.processes.filter.startedafter</view:msg>:</label></td>
                 <td><input type="text" name="started" class="filter-vals gt" id="started-after" value="${processView.startedAfter}"></input></td>
             </tr>
 
             <tr>
                 <td><span class="ui-icon ui-icon-triangle-1-e"></span></td>
-                <td><label for="filter-started-before">Spusteno pred:</label></td>
+                <td><label for="filter-started-before"><view:msg>administrator.processes.filter.startedbefore</view:msg>::</label></td>
                 <td><input type="text" name="started" class="filter-vals gt" id="started-before" value="${processView.startedBefore}"></input></td>
             </tr>
 
@@ -255,44 +261,9 @@ function _toggle_filter() {
                 $( "#started-before" ).datetimepicker();
           });
     </script>    
-    <!--
-     <div>
-        <span class="ui-icon ui-icon-triangle-1-e"></span>
-         <label for="planned">Naplanovano pred:</label> 
-         <input type="text" name="planned" class="filter-vals lt"></input>
-    </div>     
-     <div>
-        <span class="ui-icon ui-icon-triangle-1-e"></span>
-         <label for="started">Sputeno po:</label> 
-         <input type="text" name="started" class="filter-vals gt"></input>
-    </div>     
-     <div>
-        <span class="ui-icon ui-icon-triangle-1-e"></span>
-         <label for="started">Sputeno pred:</label> 
-         <input type="text" name="started" class="filter-vals lt"></input>
-    </div>     
-     <div>
-        <span class="ui-icon ui-icon-triangle-1-e"></span>
-         <label for="loginname">Sputeno kym:</label> 
-         <input type="text" name="loginname" class="filter-vals eq"></input>
-    </div>     
-    -->
-
-    <!--
-     <div>
-         <label for="name">Jmeno procesu obsahuje:</label> 
-         <input type="text" name="name"></input>
-         <label for="dateplanning">Datum spusteni:</label> 
-         <input name="dateplanning" type="text"></input>
-         <label for="datestarting">Datum spusteni:</label> 
-         <input name="datestating" type="text"></input>
-         <label for="user">Uzivatel:</label> 
-         <input name="user" type="text"></input>
-     </div>
--->
 
      <div class="apply" style="width:70px;">
-        <button name="apply" title="Pouzit" onclick="processes.currentFilter.apply('${processView.ordering}',0,${processView.pageSize},'${processView.typeOfOrdering}')"> Pouzit </button>
+        <button name="apply" title="Ok" onclick="processes.currentFilter.apply('${processView.ordering}',0,${processView.pageSize},'${processView.typeOfOrdering}')"> Pouzit </button>
      </div>
      
  </div>

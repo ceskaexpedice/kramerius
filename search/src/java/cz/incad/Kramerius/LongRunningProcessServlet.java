@@ -463,9 +463,16 @@ public class LongRunningProcessServlet extends GuiceServlet {
                 try {
                     String uuid = req.getParameter("uuid");
                     LRProcess longRunningProcess = processManager.getLongRunningProcess(uuid);
+                    
                     if (longRunningProcess != null) {
-                        processManager.deleteLongRunningProcess(longRunningProcess);
+                        if (longRunningProcess.getProcessState().equals(States.BATCH_FAILED) || 
+                                longRunningProcess.getProcessState().equals(States.BATCH_FINISHED)) {
+                            processManager.deleteBatchLongRunningProcess(longRunningProcess);
+                        } else {
+                            processManager.deleteLongRunningProcess(longRunningProcess);
+                        }
                     }
+                    
                 } finally {
                     lock.unlock();
                 }
