@@ -114,7 +114,7 @@
             var field = $(this).parent().attr('id');
             var value = $(this).children("span").html();
             if(field.indexOf('browse_title')>-1){
-                window.location = "r.jsp?title=\"" + value + "\"";
+                window.location = "r.jsp?suggest=true&browse_title=" + value + "";
             } else{
                 window.location = "r.jsp?author=\"" + value + "\"";
             }

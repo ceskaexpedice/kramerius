@@ -477,6 +477,8 @@ public class SolrOperations {
         StringBuilder sb = new StringBuilder("<delete><query>pid_path:" + pid_path.replace(":", "\\:") + "*</query></delete>");
         logger.log(Level.FINE, "indexDoc=\n{0}", sb.toString());
         postData(config.getString("IndexBase") + "/update", new StringReader(sb.toString()), new StringBuilder());
+        sb = new StringBuilder("<delete><query>pid_path:" + pid_path.replace(":", "\\:") + "</query></delete>");
+        postData(config.getString("IndexBase") + "/update", new StringReader(sb.toString()), new StringBuilder());
         optimize();
         deleteTotal++;
     }

@@ -35,6 +35,7 @@
     }
 
 </style>
+<div class="ui-layout-west">
 <div id="filters" class="ui-layout-west">
     <ul>
         <li><a href="#facets"><fmt:message bundle="${lctx}">results.filters</fmt:message></a></li>
@@ -62,13 +63,16 @@
     <div id="contextMenu"><%@include file="../details/contextMenu.jsp" %></div>
     </scrd:loggedusers>
 </div>
-<div id="docs" class="ui-layout-center">
+    </div>
+    <div class="ui-layout-center">
+<div id="docs">
     <ul><li><a href="#docs_content"><fmt:message bundle="${lctx}">results.results</fmt:message></a></li></ul>
     <div id="docs_content">
     <%@ include file="head.jsp" %>
     <div class="content"><%@ include file="docs.jsp" %></div>
     </div>
 </div>
+    </div>
 <script type="text/javascript">
 
 
@@ -83,19 +87,26 @@ $(document).ready(function(){
         
     sp = $("#split").layout({
         west:{
-            size:220,
+            size:300,
             spacing_closed:	5,
             spacing_open:	5,
             togglerLength_closed:	'100%',
             togglerLength_open:	'100%',
             togglerAlign_open:	"top",
-            togglerAlign_closed:	"top",
+            togglerAlign_closed: "top",
             togglerTip_closed: '<fmt:message bundle="${lctx}">item.showhide</fmt:message>',
             togglerTip_open: '<fmt:message bundle="${lctx}">item.showhide</fmt:message>',
             onopen_end: function(){
                 setColumnsWidth();
             },
             onclose_end: function(){
+                setColumnsWidth();
+            }
+        },
+        center:{
+            spacing_closed:	5,
+            spacing_open:	5,
+            onresize: function(){
                 setColumnsWidth();
             }
         }
@@ -139,7 +150,6 @@ $(document).ready(function(){
         }
     }
 
-
 <scrd:loggedusers>
         $('.search_result').prepend('<input type="checkbox" style="float:right;" />');
         $('.search_result>input').click(function(){
@@ -149,6 +159,15 @@ $(document).ready(function(){
         setScope('scope_multiple');
         $('#scope_single').hide();
 </scrd:loggedusers>
+<c:choose> 
+<c:when test="${numDocs==1}">
+    toggleColumns();
+    $('.cols').hide();
+</c:when>    
+<c:otherwise>
+     setColumnsWidth();
+</c:otherwise>
+</c:choose>   
     checkHeight(0);
 });
 
@@ -166,7 +185,6 @@ $(document).ready(function(){
     }
     
     function toggleColumns(){
-        
         $('.cols').toggle();
         setColumnsWidth();
     }
@@ -174,12 +192,14 @@ $(document).ready(function(){
     function setColumnsWidth(){
         var margin = 
             parseInt($('.search_result:first').css("padding-left").replace("px", "")) +
-            parseInt($('.search_result:first').css("padding-right").replace("px", ""));
+            parseInt($('.search_result:first').css("padding-right").replace("px", "")) +
+            parseInt($('#docs_content').css("padding-left").replace("px", ""))+
+            parseInt($('#docs_content').css("padding-right").replace("px", ""));
         var w = $('#offset_0').width();
         if($('#cols2').is(':visible')){
             w = w - margin;
         }else{
-            w = w / 2 - margin * 2;
+            w = w / 2 - margin;
         }
         $('.search_result').css('width', w);
         
@@ -266,6 +286,7 @@ $(document).ready(function(){
 <scrd:loggedusers>
             $(jq(id)).append('<input type="checkbox" />');
 </scrd:loggedusers>
+            setColumnsWidth();
         });
     }
     

@@ -1,4 +1,4 @@
-package cz.incad.utils;
+package cz.incad.kramerius.utils;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -26,7 +26,7 @@ public class UTFSort {
 
     private void loadMapFile() throws IOException {
         
-        InputStream is = UTFSort.class.getResourceAsStream("/cz/incad/kramerius/indexer/res/unicode_map.st");
+        InputStream is = UTFSort.class.getResourceAsStream("unicode_map.st");
         BufferedReader br = new BufferedReader(new InputStreamReader(is));
         String strLine;
         int sp;
@@ -59,7 +59,7 @@ public class UTFSort {
             c = (char)Integer.parseInt(key, 16) + "";
             newStr = newStr.replace(c, maps.get(key));
         }
-        return newStr;
+        return newStr.replace("CH", "H|");
     }
     
     public void printMap(){

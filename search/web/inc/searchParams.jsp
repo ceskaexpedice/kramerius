@@ -1,3 +1,4 @@
+<%@page import="cz.incad.kramerius.utils.UTFSort"%>
 <%@page import="java.text.SimpleDateFormat"%>
 <%@page import="java.text.DateFormat"%>
 <%@ page contentType="text/html" pageEncoding="UTF-8" %>
@@ -81,8 +82,16 @@ pageContext.setAttribute("search_results_rows", search_results_rows);
     
     <%-- suggest --%>
     <c:if test="${param.suggest}">
-        <c:param name="fq" value="${param.suggest_q}" />
-        <c:param name="fq" value="level:0" />
+        <%
+            String t = request.getParameter("browse_title");
+            UTFSort utf_sort = new UTFSort();
+            utf_sort.init();
+            String browse_title = utf_sort.translate(t);
+            browse_title = "\"" + browse_title + "##" + t + "\"";
+            //browse_title = java.net.URLEncoder.encode(browse_title, "UTF-8");
+            pageContext.setAttribute("browse_title", browse_title);
+        %>
+        <c:param name="fq" value="search_title:${browse_title}" />
         <c:set var="rows" value="${rowsdefault}" scope="request" />
     </c:if>
     

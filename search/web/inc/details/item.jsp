@@ -21,7 +21,7 @@
         width: 1000px;
     }
     #preview {
-        overflow: auto;
+        overflow: hidden;
     }
     #rightPanel {
         overflow: hidden;
@@ -79,6 +79,16 @@
             $("#main").height() - 
             $("#footer").outerHeight(true);
         $("#split").css("height", w);
+        w = w -
+            $("#thumbs").outerHeight(true) -
+            $("#centralContent>ul").outerHeight(true) - 8 - 5 - 6;
+        //w = $("#preview>div.ui-tabs-panel:first").height() +
+        //    $(window).height() -
+        //    $("#main").height() - 
+        //    $("#footer").outerHeight(true);
+        $("#centralContent>div.ui-tabs-panel").css("overflow", "auto");
+        $("#centralContent>div.ui-tabs-panel").css("padding", "3px");
+        $("#centralContent>div.ui-tabs-panel").css("height", w);
         
         
        sp = $("#split").layout({

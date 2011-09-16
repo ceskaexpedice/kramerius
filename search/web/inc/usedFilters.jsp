@@ -48,17 +48,9 @@
 
             <%-- suggest params --%>
             <c:if test="${param.suggest=='true'}">
-                    <c:set var="facetName"><c:out value="${fn:substringBefore(param.suggest_q,':')}" /></c:set>
-                    <c:set var="facetName">${fn:replace(facetName, "\"", "")}</c:set>
-                    <c:set var="facetValue"><c:out value="${fn:substringAfter(param.suggest_q,':')}" escapeXml="false" /></c:set>
-                    <c:set var="facetValue">${fn:replace(facetValue, "\"", "")}</c:set>
-                    <c:set var="facetValueDisp"><c:out value="${facetValue}" /></c:set>
                     <li>
-                        <a class="mainNav" href="javascript:removeSuggest();">
-                            <fmt:message bundle="${lctx}" key="Procházet" />: <fmt:message bundle="${lctx}" >suggest.<c:out value="${facetName}"/></fmt:message> - <c:out value="${facetValueDisp}"/>
-                        </a>
-                    <input type="hidden" name="suggest_q" id="suggest_q" value="<c:out value="${param.suggest_q}" />" />
-                    <input type="hidden" name="suggest" id="suggest" value="true" />
+                    <a class="mainNav" href="javascript:removeSuggest();">
+                    <fmt:message bundle="${lctx}">filter.maintitle</fmt:message>: <c:out value="${param.browse_title}"/></a>
                     </li>
             </c:if>
 
@@ -71,7 +63,6 @@
             <c:if test="${!empty param.title}">
                 <li>
                 <a title="" class="mainNav" href="javascript:removeAdvFilter('title', '<c:out value="${param.title}" />');">
-                
                 <fmt:message bundle="${lctx}">filter.maintitle</fmt:message>: <c:out value="${param.title}"/></a>
                 </li>
             </c:if>
@@ -84,14 +75,12 @@
             <c:if test="${!empty param.rok}">
                 <li>
                 <a title="" class="mainNav" href="javascript:removeAdvFilter('rok', '<c:out value="${param.rok}" />');">
-                
                 <fmt:message bundle="${lctx}" key="rok" />: &#160;<c:out value="${param.rok}"/></a>
                 </li>
             </c:if>
             <c:if test="${!empty param.keywords}">
                 <li>
                 <a title="" class="mainNav" href="javascript:removeAdvFilter('keywords', '<c:out value="${param.keywords}" />');">
-                
                 <fmt:message bundle="${lctx}" key="Keywords" />: &#160;<c:out value="${param.keywords}"/></a>
                 </li>
             </c:if>

@@ -260,8 +260,8 @@ a.image:hover {
 
 /*results*/
 #filters{
-    float:left;
-    width:220px;
+    /*float:left;
+    width:100%;*/
     margin-right: 3px;
 }
 #facets{
@@ -269,8 +269,9 @@ a.image:hover {
 }
 
 #docs{
+    /*
     float:left;
-    width:760px;
+    width:760px;*/
 }
 
 #docs_content>div.header span{

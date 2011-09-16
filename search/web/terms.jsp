@@ -1,74 +1,54 @@
-<%@ page contentType="text/html;charset=utf-8" %>
-<%@ page session="false"%>
-<%@ page import="java.net.*,java.io.*" %>
+<%@ page contentType="text/html;charset=utf-8" pageEncoding="UTF-8" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/xml" prefix="x" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn" %>
+<%@ page trimDirectiveWhitespaces="true" %>
 <%@ page isELIgnored="false"%>
-<%@page import="cz.incad.kramerius.utils.FedoraUtils"%>
 <%@page import="com.google.inject.Injector"%>
+<%@page import="javax.servlet.jsp.jstl.fmt.LocalizationContext"%>
+<%@page import="cz.incad.Kramerius.I18NServlet"%>
 <%@page import="cz.incad.kramerius.utils.conf.KConfiguration"%>
-<%!
-    public String removeDiacritic(String old) {
-        char[] o = {'á', 'à', 'č', 'ď', 'ě', 'é', 'í', 'ľ', 'ň', 'ó', 'ř', 'r', 'š', 'ť', 'ů', 'ú', 'u', 'u', 'ý', 'ž', 'Á', 'À', 'Č', 'Ď', 'É', 'Ě', 'Í', 'Ĺ', 'Ň', 'Ó', 'Ř', 'Š', 'Ť', 'Ú', 'Ů', 'Ý', 'Ž'};
-        char[] n = {'a', 'a', 'c', 'd', 'e', 'e', 'i', 'l', 'n', 'o', 'r', 'r', 's', 't', 'u', 'u', 'u', 'u', 'y', 'z', 'A', 'A', 'C', 'D', 'E', 'E', 'I', 'L', 'N', 'O', 'R', 'S', 'T', 'U', 'U', 'Y', 'Z'};
-
-        String newStr = old;
-        for (int i = 0; i < o.length; i++) {
-            newStr = newStr.replace(o[i], n[i]);
-        }
-        newStr = newStr.replace(" ", "");
-        return newStr;
-    }
-%>
+<%@page import="cz.incad.kramerius.utils.UTFSort"%>
 <%
             Injector ctxInj = (Injector) application.getAttribute(Injector.class.getName());
             KConfiguration kconfig = ctxInj.getProvider(KConfiguration.class).get();
-            try {
-                String term = removeDiacritic(request.getParameter("t").toUpperCase()) +
-                        "##" + request.getParameter("t");
-                String including = request.getParameter("i");
-                if (including==null){
-                    including = "true";
-                }
-                //if (term.length() > 0) {
+            pageContext.setAttribute("kconfig", kconfig);
+            LocalizationContext lctx = ctxInj.getProvider(LocalizationContext.class).get();
+            pageContext.setAttribute("lctx", lctx);
+            String i18nServlet = I18NServlet.i18nServlet(request) + "?action=bundle&lang="+lctx.getLocale().getLanguage()+"&country="+lctx.getLocale().getCountry()+"&name=labels";
+            pageContext.setAttribute("i18nServlet", i18nServlet);
+            String t = request.getParameter("t");
+            UTFSort utf_sort = new UTFSort();
+            utf_sort.init();
 
-                    term = java.net.URLEncoder.encode(term, "UTF-8");
-                    String reqUrl = kconfig.getSolrHost() + "/terms?terms.fl="
-                            + request.getParameter("field")
-                            + "&terms.lower.incl=" + including
-                            + "&terms.sort=index&terms.limit=50&terms.lower="
-                            + term;
-                    URL url = new URL(reqUrl);
-                    HttpURLConnection con = (HttpURLConnection) url.openConnection();
-                    con.setDoOutput(true);
-                    con.setRequestMethod(request.getMethod());
-                    int clength = request.getContentLength();
-                    if (clength > 0) {
-                        con.setDoInput(true);
-                        byte[] idata = new byte[clength];
-                        request.getInputStream().read(idata, 0, clength);
-                        con.getOutputStream().write(idata, 0, clength);
-                    }
-
-                    //response.setContentType(con.getContentType()); 
-                    BufferedReader rd = new BufferedReader(new InputStreamReader(con.getInputStream(), java.nio.charset.Charset.forName("UTF-8")));
-                    String line;
-                    String res = "";
-                    out.clear();
-                    while ((line = rd.readLine()) != null) {
-                        res += line;
-                    }
-                    rd.close();
-                    pageContext.setAttribute("res", res);
- %>
-<c:url var="xslPage" value="inc/home/xsl/autocomplete.xsl" />
-<c:import url="${xslPage}" var="xsltPage" charEncoding="UTF-8"  />
-<x:transform doc="${res}"  xslt="${xsltPage}"  />
-<%
-
-            } catch (Exception e) {
-                response.setStatus(500);
+            String term = utf_sort.translate(t);
+            String including = request.getParameter("i");
+            if (including==null){
+                including = "true";
             }
+            //term = java.net.URLEncoder.encode(term, "UTF-8");
+            pageContext.setAttribute("term", term);
+            pageContext.setAttribute("including", including);
 %>
+<c:url var="url" value="${kconfig.solrHost}/terms" >
+    <c:param name="terms.fl" value="${param.field}" />
+    <c:param name="terms.lower.incl" value="${param.including}" />
+    <c:param name="terms.sort" value="index" />
+    <c:param name="terms.limit" value="50" />
+    <c:param name="terms.lower" value="${term}" />
+</c:url>
+<c:import url="${url}" var="xml" charEncoding="UTF-8" />
+<c:url var="xslPage" value="inc/home/xsl/autocomplete.xsl" />
+<c:catch var="exceptions">
+    <c:import url="${xslPage}" var="xsltPage" charEncoding="UTF-8"  />
+    <c:if test="${param.debug =='true'}"><c:out value="${url}" /></c:if>
+    <x:transform doc="${xml}"  xslt="${xsltPage}"  >
+        <x:param name="bundle_url" value="${i18nServlet}"/>
+    </x:transform>
+</c:catch>
+<c:choose>
+    <c:when test="${exceptions != null}">
+        <c:out value="${exceptions}" />
+    </c:when>
+</c:choose>

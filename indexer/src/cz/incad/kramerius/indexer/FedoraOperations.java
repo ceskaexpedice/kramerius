@@ -7,7 +7,7 @@ import cz.incad.kramerius.resourceindex.IResourceIndex;
 import cz.incad.kramerius.resourceindex.ResourceIndexService;
 import cz.incad.kramerius.utils.XMLUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
-import cz.incad.utils.UTFSort;
+import cz.incad.kramerius.utils.UTFSort;
 import dk.defxws.fedoragsearch.server.*;
 
 import java.util.ArrayList;
@@ -177,19 +177,6 @@ public class FedoraOperations {
             return null;
         }
     }
-
-    private String removeDiacritic(String old) {
-        String[] o = {"á", "à", "č", "ď", "ě", "é", "í", "ĺ", "ň", "ó", "ř", "š", "ť", "ů", "ú", "u", "u", "ý", "ž", "Á", "À", "Č", "Ď", "É", "Ě", "Í", "Ĺ", "Ň", "Ó", "Ř", "Š", "Ť", "Ú", "Ů", "Ý", "Ž"};
-        String[] n = {"a", "a", "cz", "dz", "ez", "ez", "i", "l", "nz", "o", "rz", "sz", "tz", "u", "u", "u", "u", "y", "zz", "A", "A", "Cz", "Dz", "E", "E", "I", "Lz", "Nz", "O", "Rz", "Sz", "Tz", "U", "U", "Y", "Zz"};
-
-        String newStr = old;
-        for (int i = 0; i < o.length; i++) {
-            newStr = newStr.replace(o[i], n[i]);
-        }
-        newStr = newStr.replace(" ", "");
-        return newStr;
-    }
-    
 
     public String prepareCzech(String s) throws Exception {
         //return removeDiacritic(s).toLowerCase().replace("ch", "hz");
