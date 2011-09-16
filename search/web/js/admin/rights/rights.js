@@ -3,6 +3,70 @@
  */
 
 /** object that can manage rights */
+
+/** Object for changing password */
+function ChangePswd() {
+
+	/** 
+	 * changepswd dialog variable
+	 * @private
+	 */
+	this.dialog = null;
+}
+
+/** Change pswd dialog */
+ChangePswd.prototype.changePassword  = function () {
+	var urlForPost = "users?action=savenewpswd";
+	var url = "inc/admin/_change_pswd.jsp";
+    $.get(url, function(data) {
+    	if (this.dialog) {
+    		this.dialog.dialog('open');
+        } else {
+            $(document.body).append('<div id="changePswd">'+'</div>');
+            this.dialog = $('#changePswd').dialog({
+                width:400,
+                height:250,
+                modal:true,
+                title:"",
+                buttons: {
+                    "Zmen heslo": function() {
+                    	if ($("#pswd").val() == $("#pswdRepeat").val()) {
+                        	$.post(urlForPost, {
+                        		nswpd:$("#pswd").val()},
+                        		function (data,textStatus) {
+                        			if (textStatus =="success") {
+                        				$("#checkPswdStatus").text('Heslo zmeneno');
+                        				$("#checkPswdStatus").css('color','black');
+
+                        				$(this).dialog("close"); 
+                                    	$("#changePswd").remove();
+                                    	
+                        			} else {
+                        				$("#checkPswdStatus").css('color','red');
+                        				$("#checkPswdStatus").text(dictionary['rights.changepswd.nochangepswd']);
+                        			}
+                        		}
+                    		);
+
+
+                    	} else {
+            				$("#checkPswdStatus").css('color','red');
+                    		$("#checkPswdStatus").text(dictionary['rights.changepswd.notsamepswd']);
+                    	}
+                    }, 
+                    "Close": function() {
+                    	$(this).dialog("close"); 
+                    	$("#changePswd").remove();
+                    } 
+                } 
+            });
+        }
+    	$("#changePswd").html(data);
+    	$("#changePswd").dialog('option','title',dictionary['rights.changepswd.title']);
+    });
+}
+
+
 var affectedObjectsRights = new AffectedObjectsRights();
 
 function AffectedObjectsRights() {

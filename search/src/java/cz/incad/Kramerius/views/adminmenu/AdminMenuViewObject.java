@@ -163,10 +163,9 @@ public class AdminMenuViewObject {
                     menuItems.add(openUsersAdmin());
                 }
                 
-                /*
                 if (!ShibbolethUtils.isUnderShibbolethSession(this.request)) {
                     menuItems.add(changepswd());
-                }*/
+                }
 
             }
             return menuItems.toArray(new String[menuItems.size()]);
