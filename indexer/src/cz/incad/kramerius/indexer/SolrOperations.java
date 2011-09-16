@@ -62,6 +62,7 @@ public class SolrOperations {
     ExtendedFields extendedFields;
     private GTransformer transformer;
     private ArrayList<String> customTransformations;
+    private ArrayList<String> indexedCache = new ArrayList<String>();
 
     public SolrOperations(FedoraOperations _fedoraOperations) throws IOException {
         fedoraOperations = _fedoraOperations;
@@ -313,11 +314,16 @@ public class SolrOperations {
             boolean force,
             InputStream foxmlStream) {
 
+        if(indexedCache.contains(pid)){
+            logger.log(Level.INFO, "Pid {0} already indexed", new Object[]{pid});
+            return 0;
+        }
         logger.log(Level.INFO, "indexing -> {0}; count: {1}", new Object[]{pid, updateTotal});
         int num = 0;
         ArrayList<String> pids = new ArrayList<String>();
         ArrayList<String> models = new ArrayList<String>();
         try {
+            indexedCache.add(pid);
             contentDom = getDocument(foxmlStream);
             //tady testujeme datum
             if (date != null) {
@@ -399,6 +405,7 @@ public class SolrOperations {
         } catch (Exception e) {
             logger.log(Level.SEVERE, "indexByPid error", e);
         }
+        
         return num;
     }
     /* kramerius */
@@ -570,7 +577,7 @@ public class SolrOperations {
             }
 
         } catch (IOException e) {
-            throw new Exception("Connection error (is Solr running at " + solrUrl + " ?): " + e);
+            throw new Exception("Solr has throw an error. Check tomcat log. " + e);
         } finally {
             if (urlc != null) {
                 urlc.disconnect();

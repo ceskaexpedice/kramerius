@@ -86,6 +86,9 @@
         //    $(window).height() -
         //    $("#main").height() - 
         //    $("#footer").outerHeight(true);
+        $("#rightMenuBox>div.ui-tabs-panel").css("overflow", "auto");
+        $("#rightMenuBox>div.ui-tabs-panel").css("padding", "3px");
+        $("#rightMenuBox>div.ui-tabs-panel").css("height", w);
         $("#centralContent>div.ui-tabs-panel").css("overflow", "auto");
         $("#centralContent>div.ui-tabs-panel").css("padding", "3px");
         $("#centralContent>div.ui-tabs-panel").css("height", w);

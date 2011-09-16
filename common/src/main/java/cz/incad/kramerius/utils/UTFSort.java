@@ -32,16 +32,18 @@ public class UTFSort {
         int sp;
         String l,t;
         
-        //Read File Line By Line
         while ((strLine = br.readLine()) != null) {
             sp = strLine.indexOf(" ");
             l = strLine.substring(0, sp);
-            //l = (char)Integer.parseInt(l, 16) + "";
-            //System.out.println(l + " -> " + (char)Integer.parseInt(l, 16) + "");
             t = strLine.substring(sp+1);
             String r = "";
             for(String s:t.split(" ")){
-                r += (char)Integer.parseInt(s, 16);
+                if(s.equals("0000")){
+                    r += "";
+                }else{
+                    r += (char)Integer.parseInt(s, 16);
+                }
+                
             }
             maps.put(l, r);
             
@@ -71,14 +73,10 @@ public class UTFSort {
         }
     }
     
-    public static void main(String[] args){
-        try{
+    public static void main(String[] args) throws IOException{
             UTFSort u = new UTFSort();
             u.init();
             //u.printMap();
             System.out.println(u.translate("která mají řadicí platnost (tj. č,ř,š,ž)"));
-        }catch(Exception ex){
-            ex.printStackTrace();
-        }
     }
 }

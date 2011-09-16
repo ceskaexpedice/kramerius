@@ -137,6 +137,8 @@ public class ExtendedFields {
         sb.append("<field name=\"datum_str\">").append(datum_str).append("</field>");
         if(datum!=null){
             sb.append("<field name=\"datum\">").append(solrDateFormat.format(datum)).append("</field>");
+        }else{
+            sb.append("<field name=\"datum\">").append(solrDateFormat.format(new Date(0))).append("</field>");
         }
         if (!rok.equals("")) {
             sb.append("<field name=\"rok\">").append(rok).append("</field>");
