@@ -7,7 +7,7 @@
     
     #docs_content{
         padding:4px;
-        
+        padding-bottom:1px;
     }
     #docs_content>div.header{
         height:17px;
@@ -82,7 +82,7 @@ $(document).ready(function(){
             $("#header").height() - 
             $("#footer").outerHeight(true);
     $("#split").css("height", w);
-    w = w - $("#docs>ul").outerHeight(true) - 6 - 15 - 8;
+    w = w - $("#docs>ul").outerHeight(true) - 6 - 15 - 8 - 2;
     $("#docs_content>div.content").css("height", w);
         
     sp = $("#split").layout({
