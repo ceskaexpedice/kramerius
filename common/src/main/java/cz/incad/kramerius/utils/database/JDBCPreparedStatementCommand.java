@@ -57,7 +57,7 @@ public class JDBCPreparedStatementCommand extends JDBCCommand {
     
 
     @Override
-    public Object executeJDBCCommand() throws SQLException {
+    public Object executeJDBCCommand(Connection con) throws SQLException {
         this.prepareStatement();
         int executeUpdate = this.preparedStatement.executeUpdate();
         ResultSet rs = this.preparedStatement.getGeneratedKeys();

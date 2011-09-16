@@ -125,8 +125,10 @@ public interface LRProcessManager {
 	 */
 	public void deleteLongRunningProcess(LRProcess lrProcess);
 	
+    public void deleteBatchLongRunningProcess(LRProcess longRunningProcess);
 	
 	
 	
 	public Lock getSynchronizingLock();
+
 }

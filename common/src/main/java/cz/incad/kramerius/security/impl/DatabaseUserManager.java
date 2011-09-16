@@ -462,7 +462,7 @@ public class DatabaseUserManager implements UserManager{
         commands.add(new JDBCCommand() {
             
             @Override
-            public Object executeJDBCCommand() throws SQLException {
+            public Object executeJDBCCommand(Connection con) throws SQLException {
                 StringTemplate template = stGroup.getInstanceOf("registerLoggedUser");
                 template.setAttribute("user", user);
                 template.setAttribute("userkey", loggedUserKey);
@@ -478,7 +478,7 @@ public class DatabaseUserManager implements UserManager{
             commands.add(new JDBCCommand() {
                 
                 @Override
-                public Object executeJDBCCommand() throws SQLException {
+                public Object executeJDBCCommand(Connection con) throws SQLException {
                     Integer loggedUserID = (Integer) getPreviousResult();
                     
                     StringTemplate template = stGroup.getInstanceOf("registerLoggedUserUpdateRoles");

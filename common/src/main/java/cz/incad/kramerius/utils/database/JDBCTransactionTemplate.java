@@ -29,16 +29,34 @@ public class JDBCTransactionTemplate {
     
     private Connection connection;
     private boolean closeConnectionFlag = true;
+
+    private Callbacks callbacks;
+    
     
     public JDBCTransactionTemplate(Connection con, boolean closeConnection) {
         this.connection = con;
         this.closeConnectionFlag = closeConnection;
     }
     
+
     
+    public Callbacks getCallbacks() {
+        return callbacks;
+    }
+
+    public void setCallbacks(Callbacks callbacks) {
+        this.callbacks = callbacks;
+    }
+
+
     public Object updateWithTransaction(final List<JDBCCommand> commands) throws SQLException {
         return this.updateWithTransaction((JDBCCommand[]) commands.toArray(new JDBCCommand[commands.size()]));
     }    
+    
+    public Object updateWithTransaction(Callbacks callbacks, final JDBCCommand... commands) throws SQLException {
+        this.setCallbacks(callbacks);
+        return this.updateWithTransaction(commands);
+    }
     
     public Object updateWithTransaction(final JDBCCommand... commands) throws SQLException {
         boolean previous = this.connection.getAutoCommit();
@@ -49,12 +67,18 @@ public class JDBCTransactionTemplate {
             for (int i = 0,ll=commands.length; i < ll; i++) {
                 JDBCCommand command = commands[i];
                 command.setPreviousResult(obj);
-                obj = command.executeJDBCCommand();
+                obj = command.executeJDBCCommand(this.connection);
             }
             this.connection.commit();
+            if (callbacks != null) {
+                callbacks.commited();
+            }
             return obj;
         } catch (SQLException ex) {
             this.connection.rollback();
+            if (callbacks != null) {
+                callbacks.rollbacked();
+            }
             throw ex;
         } finally {
             this.connection.setAutoCommit(previous);
@@ -70,16 +94,10 @@ public class JDBCTransactionTemplate {
 
     }
     
-    
-    public static void main(String[] args) {
-        JDBCUpdateTemplate updateRightCriterium = new JDBCUpdateTemplate(null);
-        JDBCUpdateTemplate updateRightCriterumParam = new JDBCUpdateTemplate(null);
-        JDBCUpdateTemplate updateRight = new JDBCUpdateTemplate(null);
+
+    public static interface Callbacks {
         
-        
-        
-//        JDBCTransactionTemplate template = new JDBCTransactionTemplate(null, templates, closeConnection)
-//        template.updateWithTransaction();
-        
+        void commited();
+        void rollbacked();
     }
 }

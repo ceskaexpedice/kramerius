@@ -260,10 +260,11 @@ public class ProcessDatabaseUtils {
     }
 
 
+    
     public static void deleteTokenMappings(LRProcess lrProcess, Connection con) throws SQLException {
         int id = getProcessId(lrProcess, con);
         if (id > -1) {
-            new JDBCUpdateTemplate(con, true).executeUpdate("delete from PROCESS_2_TOKEN where process_id = ?)", id);
+            new JDBCUpdateTemplate(con, true).executeUpdate("delete from PROCESS_2_TOKEN where process_id = ?", id);
         } else {
             throw new ProcessManagerException("cannot find process id associated with token "+lrProcess.getToken());
         }

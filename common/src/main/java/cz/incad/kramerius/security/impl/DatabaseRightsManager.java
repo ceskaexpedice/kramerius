@@ -365,7 +365,7 @@ public class DatabaseRightsManager implements RightsManager {
         return (Integer) new JDBCTransactionTemplate(con, true).updateWithTransaction(new JDBCCommand() {
 
             @Override
-            public Object executeJDBCCommand() throws SQLException {
+            public Object executeJDBCCommand(Connection con) throws SQLException {
                 if (params != null) {
                     if (params.getId() < 1) {
                         params.setId(insertRightCriteriumParamsImpl(con, params));
@@ -380,7 +380,7 @@ public class DatabaseRightsManager implements RightsManager {
         }, new JDBCCommand() {
 
             @Override
-            public Object executeJDBCCommand() throws SQLException {
+            public Object executeJDBCCommand(Connection con) throws SQLException {
                 if (criteriumWrapper != null) {
                     if (criteriumWrapper.getId() < 1) {
                         criteriumWrapper.setId(insertRightCriteriumImpl(con, criteriumWrapper));
@@ -395,7 +395,7 @@ public class DatabaseRightsManager implements RightsManager {
         }, new JDBCCommand() {
 
             @Override
-            public Object executeJDBCCommand() throws SQLException {
+            public Object executeJDBCCommand(Connection con) throws SQLException {
                 return insertRightImpl(con, right);
             }
         });
@@ -412,7 +412,7 @@ public class DatabaseRightsManager implements RightsManager {
         new JDBCTransactionTemplate(con, true).updateWithTransaction(new JDBCCommand() {
             
             @Override
-            public Object executeJDBCCommand() throws SQLException {
+            public Object executeJDBCCommand(Connection con) throws SQLException {
                 if (params != null) {
                     if (params.getId() < 1) {
                         params.setId(insertRightCriteriumParamsImpl(con, params));
@@ -427,7 +427,7 @@ public class DatabaseRightsManager implements RightsManager {
         }, new JDBCCommand() {
 
             @Override
-            public Object executeJDBCCommand() throws SQLException {
+            public Object executeJDBCCommand(Connection con) throws SQLException {
                 if (criteriumWrapper != null) {
                     if (criteriumWrapper.getId() < 1) {
                         criteriumWrapper.setId(insertRightCriteriumImpl(con, criteriumWrapper));
@@ -442,7 +442,7 @@ public class DatabaseRightsManager implements RightsManager {
         }, new JDBCCommand() {
 
             @Override
-            public Object executeJDBCCommand() throws SQLException {
+            public Object executeJDBCCommand(Connection con) throws SQLException {
                 updateRightImpl(con, right);
                 return -1;
             }
@@ -467,7 +467,7 @@ public class DatabaseRightsManager implements RightsManager {
         final Connection con = provider.get();
         new JDBCTransactionTemplate(con, true).updateWithTransaction(new JDBCCommand() {
             @Override
-            public Object executeJDBCCommand() throws SQLException {
+            public Object executeJDBCCommand(Connection con) throws SQLException {
                 if (params != null) {
                     if (params.getId() < 1) {
                         params.setId(insertRightCriteriumParamsImpl(con, params));
@@ -481,7 +481,7 @@ public class DatabaseRightsManager implements RightsManager {
             }
         }, new JDBCCommand() {
             @Override
-            public Object executeJDBCCommand() throws SQLException {
+            public Object executeJDBCCommand(Connection con) throws SQLException {
                 updateRightCriteriumImpl(con, criterium);
                 return -1;
             }
@@ -495,13 +495,13 @@ public class DatabaseRightsManager implements RightsManager {
         final Connection con = provider.get();
         new JDBCTransactionTemplate(con, true).updateWithTransaction(new JDBCCommand() {
             @Override
-            public Object executeJDBCCommand() throws SQLException {
+            public Object executeJDBCCommand(Connection con) throws SQLException {
                 deleteRightImpl(con, right);
                 return -1;
             }
         }, new JDBCCommand() {
             @Override
-            public Object executeJDBCCommand() throws SQLException {
+            public Object executeJDBCCommand(Connection con) throws SQLException {
                 if (right.getCriteriumWrapper() != null) {
                     deleteRightCriteriumImpl(con, right.getCriteriumWrapper());
                 }
@@ -569,7 +569,7 @@ public class DatabaseRightsManager implements RightsManager {
 
         return (Integer) new JDBCTransactionTemplate(con, true).updateWithTransaction(new JDBCCommand() {
             @Override
-            public Object executeJDBCCommand() throws SQLException {
+            public Object executeJDBCCommand(Connection con) throws SQLException {
                 if (params != null) {
                     if (params.getId() < 1) {
                         params.setId(insertRightCriteriumParamsImpl(con, params));
@@ -583,7 +583,7 @@ public class DatabaseRightsManager implements RightsManager {
             }
         }, new JDBCCommand() {
             @Override
-            public Object executeJDBCCommand() throws SQLException {
+            public Object executeJDBCCommand(Connection con) throws SQLException {
                 return insertRightCriteriumImpl(con, criterium);
             }
         });
@@ -607,7 +607,7 @@ public class DatabaseRightsManager implements RightsManager {
         final Connection con = provider.get();
         return (Integer) new JDBCTransactionTemplate(con, true).updateWithTransaction(new JDBCCommand() {
             @Override
-            public Object executeJDBCCommand() throws SQLException {
+            public Object executeJDBCCommand(Connection con) throws SQLException {
                 return insertRightCriteriumParamsImpl(con, criteriumParams);
             }
         });

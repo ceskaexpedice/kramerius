@@ -141,32 +141,110 @@ public class DatabaseProcessManager implements LRProcessManager {
         }
     }
 
+    
     @Override
-    public void deleteLongRunningProcess(LRProcess lrProcess) {
+    public void deleteBatchLongRunningProcess(LRProcess longRunningProcess) {
+        try {
+            final String token = longRunningProcess.getToken();
+            final List<LRProcess> childSubprecesses = getLongRunningProcessesByToken(token);
+
+            JDBCCommand deleteTokensMapping = new JDBCCommand() {
+                
+                @Override
+                public Object executeJDBCCommand(Connection con) throws SQLException {
+                    PreparedStatement prepareStatement = con.prepareStatement("delete from PROCESS_2_TOKEN where token = ?");
+                    prepareStatement.setString(1, token);
+                    return prepareStatement.executeUpdate();
+                }
+            };
+
+            JDBCCommand deleteProcess = new JDBCCommand() {
+                
+                @Override
+                public Object executeJDBCCommand(Connection con) throws SQLException {
+                    PreparedStatement prepareStatement = con.prepareStatement("delete from PROCESSES where token = ?");
+                    prepareStatement.setString(1, token);
+                    return prepareStatement.executeUpdate();
+                }
+            };
+            JDBCTransactionTemplate.Callbacks callbacks = new JDBCTransactionTemplate.Callbacks() {
+                
+                @Override
+                public void rollbacked() {
+                    // do nothing
+                }
+                
+                @Override
+                public void commited() {
+                    for (int i = 0; i < childSubprecesses.size(); i++) {
+                        LRProcess child = childSubprecesses.get(i);
+                        File chWDir = child.processWorkingDirectory();
+                        try {
+                            FileUtils.deleteDirectory(chWDir);
+                        } catch (IOException e) {
+                            LOGGER.log(Level.SEVERE,e.getMessage(),e);
+                        }
+                    }
+                }
+            };
+            
+            new JDBCTransactionTemplate(connectionProvider.get(),true).updateWithTransaction(callbacks, deleteTokensMapping, deleteProcess);
+        } catch (SQLException e) {
+            LOGGER.log(Level.SEVERE,e.getMessage(),e);
+        }
+    }
+
+    @Override
+    public void deleteLongRunningProcess(final LRProcess lrProcess) {
         Connection connection = null;
         try {
             connection = connectionProvider.get();
             if (connection == null)
                 throw new NotReadyException("connection not ready");
 
-            ProcessDatabaseUtils.deleteTokenMappings(lrProcess, connection);
-            ProcessDatabaseUtils.deleteProcess(connection, lrProcess.getUUID());
-            File processWorkingDirectory = lrProcess.processWorkingDirectory();
-            FileUtils.deleteDirectory(processWorkingDirectory);
+            final int id = ProcessDatabaseUtils.getProcessId(lrProcess, connection);
+            final String uuid = lrProcess.getUUID();
+            JDBCCommand deleteTokensMapping = new JDBCCommand() {
+                
+                @Override
+                public Object executeJDBCCommand(Connection con) throws SQLException {
+                    PreparedStatement prepareStatement = con.prepareStatement("delete from PROCESS_2_TOKEN where process_id = ?");
+                    prepareStatement.setInt(1, id);
+                    return prepareStatement.executeUpdate();
+                }
+            };
+
+            JDBCCommand deleteProcess = new JDBCCommand() {
+                
+                @Override
+                public Object executeJDBCCommand(Connection con) throws SQLException {
+                    PreparedStatement prepareStatement = con.prepareStatement("delete from processes where UUID = ?");
+                    prepareStatement.setString(1, uuid);
+                    return prepareStatement.executeUpdate();
+                }
+            };
+            JDBCTransactionTemplate.Callbacks callbacks = new JDBCTransactionTemplate.Callbacks() {
+                
+                @Override
+                public void rollbacked() {
+                    // do nothing
+                }
+                
+                @Override
+                public void commited() {
+                    try {
+                        File processWorkingDirectory = lrProcess.processWorkingDirectory();
+                        FileUtils.deleteDirectory(processWorkingDirectory);
+                    } catch (IOException e) {
+                        LOGGER.log(Level.SEVERE,e.getMessage(),e);
+                    }
+                }
+            };
+            new JDBCTransactionTemplate(connectionProvider.get(),true).updateWithTransaction(callbacks, deleteTokensMapping, deleteProcess);
 
             // TODO: zruseni associace uzivatel - session -> aby se nehromadili
             // hornici
-            /**
-             * List<String> list =
-             * ProcessDatabaseUtils.getAssociatedSessionKeys(
-             * lrProcess.getToken(), connection); if (list.size() == 1) { String
-             * sessionKey = list.get(0); if
-             * (!loggedUsersSingleton.isLoggedUser(sessionKey)) {
-             * loggedUsersSingleton.deregisterLoggedUser(sessionKey); } }
-             **/
         } catch (SQLException e) {
-            LOGGER.log(Level.SEVERE, e.getMessage(), e);
-        } catch (IOException e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
         } finally {
             DatabaseUtils.tryClose(connection);

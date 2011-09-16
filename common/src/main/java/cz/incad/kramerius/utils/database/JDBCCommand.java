@@ -16,6 +16,7 @@
  */
 package cz.incad.kramerius.utils.database;
 
+import java.sql.Connection;
 import java.sql.SQLException;
 
 public abstract class JDBCCommand {
@@ -30,5 +31,6 @@ public abstract class JDBCCommand {
         return this.obj;
     }
     
-    public abstract Object executeJDBCCommand() throws SQLException;
+    
+    public abstract Object executeJDBCCommand(Connection con) throws SQLException;
 }

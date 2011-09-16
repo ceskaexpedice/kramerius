@@ -141,8 +141,8 @@ public class LoggedUsersSingletonImpl implements LoggedUsersSingleton {
                     }
 
                     @Override
-                    public Object executeJDBCCommand() throws SQLException {
-                        super.executeJDBCCommand();
+                    public Object executeJDBCCommand(Connection con) throws SQLException {
+                        super.executeJDBCCommand(con);
                         return getPreviousResult();
                     }
                 });
