@@ -60,6 +60,7 @@
 			<parameter>$default_lp_work_dir$/reindexer/log4j.properties</parameter>
 		</parameters>
 		-->
+        <javaProcessParameters>-Xmx1024m -Xms512m</javaProcessParameters>
 		
 	</process>
 
