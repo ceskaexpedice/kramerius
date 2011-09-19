@@ -278,7 +278,6 @@ public class SimpleJSONObjects {
             
             // konec
             if (obj == null) break;
-            System.out.println(token.containerType.name());
             
             if (obj instanceof Map) {
                 Map map = ((Map)obj);

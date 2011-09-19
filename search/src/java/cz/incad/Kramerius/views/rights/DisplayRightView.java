@@ -92,6 +92,7 @@ public class DisplayRightView extends AbstractRightsView {
         return getRoleNames(roles);
     }
 
+    
     public String[] getRoleNames(Role[] roles) {
         String[] strRoles = new String[roles.length];
         for (int i = 0; i < strRoles.length; i++) {
@@ -165,7 +166,22 @@ public class DisplayRightView extends AbstractRightsView {
     
 
     public static enum Actions {
-        edit,
-        create;
+        edit {
+
+            @Override
+            public String getName() {
+                return name();
+            }
+        },
+        create {
+
+            @Override
+            public String getName() {
+                return name();
+            }
+            
+        };
+        
+        public abstract String getName();
     }
 }

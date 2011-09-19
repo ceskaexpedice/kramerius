@@ -2,7 +2,51 @@
  * @fileoverview <h3>Rights administration module</h3>
  */
 
-/** object that can manage rights */
+
+
+/** input field dialog */
+function InputTextDialog(options) {
+	this.options = options || {title:'#ntitle',label:'',value:''};
+	this.dialog = null;
+}
+
+InputTextDialog.prototype.open = function(okfunc,cancelfunc) {
+	if (this.dialog ) {
+		this.dialog.dialog('open');
+    } else {
+		var items = mapJQuerySelector(function (item) {
+			return items;
+		},$("#inputDialog"));
+
+		if (items || items.length == 0) {
+	        $(document.body).append('<div id="inputDialog"> <strong><label id="inputDialogLabel" forname="fortxt"></label></strong><br><input id="inputDialogTxt" style="width:100%"></input></div>');
+		}
+        this.dialog = $('#inputDialog').dialog({
+            width:400,
+            height:250,
+            modal:true,
+            title:'#title',
+            buttons: {
+                "Ok": bind(function() {
+                	if (okfunc) okfunc($("#inputDialogTxt").val());
+                	this.dialog.dialog("close"); 
+                },this),
+                "Cancel":bind(function() {
+                	if(cancelfunc) cancelfunc();
+                	this.dialog.dialog("close"); 
+                },this)
+            }
+        });   
+    }
+
+	$("#inputDialogTxt").val(this.options.value);
+	$("#inputDialogLabel").text(this.options.label);
+	
+	this.dialog.dialog("option","title",this.options.title);
+	$( '#inputDialog' ).dialog( "option", "title", this.options.title );
+			
+}
+
 
 /** Object for changing password */
 function ChangePswd() {
@@ -69,6 +113,7 @@ ChangePswd.prototype.changePassword  = function () {
 
 var affectedObjectsRights = new AffectedObjectsRights();
 
+/** object that can manage rights */
 function AffectedObjectsRights() {
 	this.dialog = null;
 	this.pids=[];
@@ -248,7 +293,7 @@ function SecuredActionTab(struct) {
 
 SecuredActionTab.prototype.globalEdit = function() {
 	this.operation = EDITOP;
-	var editUrl = this.url("inc/admin/_display_rights_for_edit.jsp?pids=")+"&securedaction="+this.securedAction;
+	var editUrl = this.url("inc/admin/_display_rights_for_edit.jsp?pids=")+"&action=edit&securedaction="+this.securedAction;
 	$.get(editUrl, bind(function(data){
 		if (this.globalEditDialog) {
 			this.globalEditDialog.dialog('open');
@@ -336,7 +381,7 @@ SecuredActionTab.prototype.retrieveContextContent = function() {
 }
 
 SecuredActionTab.prototype.retrieveGlobalContent = function() {
-	$("#rightsForAction").html("Nacitani...");
+	$("#rightsForAction").html(dictionary['administrator.dialogs.waiting']);
 	
 	$.get(this.retrieveUrl, bind(function(data){
     	$("#rightsForAction").html(data);
@@ -348,7 +393,7 @@ SecuredActionTab.prototype.retrieveGlobalContent = function() {
 
 SecuredActionTab.prototype.newRight = function() {
 	this.operation = CREATEOP;
-	var url = this.url("inc/admin/_new_right.jsp?pids=")+"&securedaction="+this.securedAction;
+	var url = this.url("inc/admin/_new_right.jsp?pids=")+"&action=create&securedaction="+this.securedAction;
 	$.get(url, bind(function(data){
 		if (this.newRightDialog) {
     		this.newRightDialog.dialog('open');
@@ -388,7 +433,7 @@ SecuredActionTab.prototype.post = function() {
 SecuredActionTab.prototype.newRightForPath = function(path) {
 	this.operation = CREATEOP;
 	var arr = toStringArray(path);
-	var url = this.url("inc/admin/_new_right.jsp?pids=",[{pid:arr[arr.length-1].trim()}])+"&securedaction="+this.securedAction;
+	var url = this.url("inc/admin/_new_right.jsp?pids=",[{pid:arr[arr.length-1].trim()}])+"&action=create&securedaction="+this.securedAction;
 
 	$.get(url, bind(function(data){
 		

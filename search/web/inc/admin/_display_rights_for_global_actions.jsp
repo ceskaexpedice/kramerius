@@ -12,7 +12,7 @@
     <table style="width: 100%">
             <c:forEach var="rightsPath" items="${rights.rightsPath}" varStatus="rstatus">
                 
-                <strong>  ${rights.securedAction}  - <c:out value="${rightsPath.titleForPath} (${rightsPath.models[rightsPath.path.leaf]})"></c:out></strong>
+                <strong>  <view:msg>rights.action.${rights.securedAction}.formalName</view:msg>  - <c:out value="${rightsPath.titleForPath} (${rightsPath.models[rightsPath.path.leaf]})"></c:out></strong>
                 
                 <tr>
                     <td colspan="2">
@@ -23,7 +23,7 @@
                                 <tr>
                                     <td width="100%"></td>
                                     <td>
-                                      <a href="javascript:affectedObjectsRights.securedActionTabs['${rights.securedAction}'].newRightForPath('${rightsPath.path}');" style="background:url('img/add.png') no-repeat scroll; border-width:0px; display:block; height:18px; width:18px;">
+                                      <a href="javascript:affectedObjectsRights.securedActionTabs['${rights.securedAction}'].newRightForPath('${rightsPath.path}');"  class="ui-icon ui-icon-plus">
                                        </a>
                                    </td>
                                 </tr>
@@ -41,13 +41,13 @@
                                                        <thead style="border-bottom: 1px dashed; background-image: url('img/bg_rights_table.png'); background-repeat: repeat-x; height: 28px;">
                                                            <tr>
                                                                <td width="6px" style="border-top: 1px solid black;"></td>
-                                                               <td width="60px" align="center" style="border-top: 1px solid black;"><strong>Objekt</strong></td>
-                                                               <td width="60px" align="center" style="border-top: 1px solid black;"><strong>Akce</strong></td>
-                                                               <td width="130px" align="center" style="border-top: 1px solid black;"><strong>Uzivatelska role</strong></td>
+                                                               <td width="60px" align="center" style="border-top: 1px solid black;"><strong><view:msg>rights.dialog.table.column.object</view:msg></strong></td>
+                                                               <td width="60px" align="center" style="border-top: 1px solid black;"><strong><view:msg>rights.dialog.table.column.action</view:msg></strong></td>
+                                                               <td width="130px" align="center" style="border-top: 1px solid black;"><strong><view:msg>rights.dialog.table.column.user</view:msg></strong></td>
                                                                <td title="Priorita" width="15px" align="center" style="border-top: 1px solid black;"><strong>..</strong></td>
-                                                               <td width="140px" align="center" style="border-top: 1px solid black;"><strong>Kriterium</strong></td>
-                                                               <td align="center" style="border-top: 1px solid black;"><strong>Parametry kriteria</strong></td>
-                                                               <td width="60px" align="center" style="border-top: 1px solid black;"><strong>Zmena</strong></td>
+                                                               <td width="140px" align="center" style="border-top: 1px solid black;"><strong><view:msg>rights.dialog.table.column.criterium</view:msg></strong></td>
+                                                               <td align="center" style="border-top: 1px solid black;"><strong><view:msg>rights.dialog.table.column.criteriumparams</view:msg></strong></td>
+                                                               <td width="60px" align="center" style="border-top: 1px solid black;"><strong><view:msg>rights.dialog.table.column.change</view:msg></strong></td>
                                                            </tr>
                                                        </thead>
                                                         <tbody>
@@ -64,12 +64,12 @@
                                                                           <table>
 
                                                                           <tr><td>
-                                                                          <a title="Remove" href="javascript:affectedObjectsRights.securedActionTabs['${rights.securedAction}'].deleteRightForPath(${right.id},'${rightsPath.path}');" style="background:url('img/minus.png') no-repeat scroll; border-width:0px; display:block; height:18px; width:18px;">
+                                                                          <a title="Remove" href="javascript:affectedObjectsRights.securedActionTabs['${rights.securedAction}'].deleteRightForPath(${right.id},'${rightsPath.path}');" class="ui-icon ui-icon-minus">
                                                                            </a>
                                                                           </td>
 
                                                                           <td>
-                                                                          <a title="Edit" href="javascript:affectedObjectsRights.securedActionTabs['${rights.securedAction}'].editRightForPath(${right.id},'${rightsPath.path}');" style="background:url('img/edit.png') no-repeat scroll; border-width:0px; display:block; height:18px; width:18px;">
+                                                                          <a title="Edit" href="javascript:affectedObjectsRights.securedActionTabs['${rights.securedAction}'].editRightForPath(${right.id},'${rightsPath.path}');" class="ui-icon ui-icon-pencil">
                                                                            </a>
                                                                            </td></tr>
 

@@ -219,6 +219,7 @@ public class RightsServlet extends GuiceServlet {
     }
     
 
+    /*
     public static Right createRightFromPost(HttpServletRequest req, RightsManager rightsManager, UserManager userManager, RightCriteriumWrapperFactory factory) throws InstantiationException, IllegalAccessException, ClassNotFoundException {
         String rightId = req.getParameter("rightId");
         String uuidHidden = req.getParameter("uuidHidden");
@@ -251,7 +252,7 @@ public class RightsServlet extends GuiceServlet {
         
         right.setAction(formalActionHidden);
         return right;
-    }
+    }*/
 
 
 
@@ -283,6 +284,7 @@ public class RightsServlet extends GuiceServlet {
 
 
 
+    /*
     public static RightCriteriumWrapper criteriumFromPost(RightsManager rightsManager, HttpServletRequest req, RightCriteriumParams params, RightCriteriumWrapperFactory factory) throws InstantiationException, IllegalAccessException, ClassNotFoundException {
         String rightCriteriumId = req.getParameter("rightCriteriumId");
         String criteriumHidden = req.getParameter("criteriumHidden");
@@ -302,10 +304,11 @@ public class RightsServlet extends GuiceServlet {
             rightCriterium.setCriteriumParams(params);
         }
         return rightCriterium;
-    }
+    }*/
 
 
 
+    /*
     public static RightCriteriumParams criteriumParamsFromPost(RightsManager rightsManager, HttpServletRequest req) {
         String critParamId = req.getParameter("rightCriteriumParamId");
         String paramsHidden = req.getParameter("paramsHidden");
@@ -324,7 +327,7 @@ public class RightsServlet extends GuiceServlet {
             params.setLongDescription(paramsLongDescHidden);
         }
         return params;
-    }
+    }*/
 
     
 }
