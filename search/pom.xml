@@ -242,6 +242,7 @@
                 <configuration>
                     <entries>
                         <entry>
+                            <path>${project.basedir}/..</path>
                             <prefix>prefix</prefix>
                         </entry>
                     </entries>
