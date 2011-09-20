@@ -122,7 +122,8 @@ public class DatabaseProcessManager implements LRProcessManager {
             connection = connectionProvider.get();
             if (connection == null)
                 throw new NotReadyException("connection not ready");
-            new JDBCUpdateTemplate(connection).executeUpdate("update processes set PID = ? where UUID = ?", lrProcess.getPid(), lrProcess.getUUID());
+            int pid = Integer.parseInt(lrProcess.getPid());
+            new JDBCUpdateTemplate(connection).executeUpdate("update processes set PID = ? where UUID = ?", pid, lrProcess.getUUID());
         } catch (SQLException e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
         }
@@ -521,7 +522,7 @@ public class DatabaseProcessManager implements LRProcessManager {
         } catch (SQLException e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
         } finally {
-            DatabaseUtils.tryClose(con);
+            //DatabaseUtils.tryClose(con);
         }
 
     }
