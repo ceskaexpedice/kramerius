@@ -394,6 +394,10 @@ div.search_result{
     color: #a2a2a2;
 }
 
+/* fix .ui-resizable-handle z-index */
+.ui-resizable-handle{
+    z-index: 1;
+}
 
 .ui-timepicker-div .ui-widget-header { margin-bottom: 8px; }
 .ui-timepicker-div dl { text-align: left; }
@@ -420,3 +424,4 @@ div.search_result{
     .ui-layout-toggler-south-closed, .ui-layout-toggler-north-open {
         background: url("../img/toggle-up.gif") no-repeat scroll center top transparent;
     }
+    

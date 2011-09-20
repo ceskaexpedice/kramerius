@@ -87,16 +87,19 @@ Processes.prototype.openProcessDialog = function() {
 
 Processes.prototype.processes = function (){
 	var url = "inc/admin/_processes_data.jsp?offset=0&size=20&type=DESC";
-	$.get(url, bind(function(data) {
 		this.openProcessDialog();
 		this.dialog.dialog('option', 'position', [10, 10]);
 		this.dialog.dialog("option", "width", $(window).width()-20);
 		this.dialog.dialog("option", "height", $(window).height()-60);
-		$("#processes>table").css('height',$(window).height()-160)
+		$("#processes>table").css('height',$(window).height()-160);
+                this.wait();
+	$.get(url, bind(function(data) {
 		$("#processes").html(data);;
 	}, this));
 }
-
+Processes.prototype.wait = function() {
+	   $("#processes").html('<div style="margin-top:30px;width:100%;text-align:center;"><img src="img/loading.gif" alt="loading" /></div>');
+}
 
 Processes.prototype.modifyProcessDialogData = function(ordering, offset, size, type) {
 	var url = "inc/admin/_processes_data.jsp?ordering="+ordering+"&offset="+offset+"&size="+size+"&type="+type+this.currentFilter.filterPostfix();
