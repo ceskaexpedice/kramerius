@@ -183,9 +183,11 @@
     </xsl:template>
     
     <xsl:template match="/foxml:digitalObject/foxml:datastream[@ID='BIBLIO_MODS']/foxml:datastreamVersion[last()]/foxml:xmlContent/mods:modsCollection/mods:mods" mode="biblioMods">
+        <xsl:for-each select="mods:language/mods:languageTerm/text()">
         <field name="language">
-            <xsl:value-of select="mods:language/mods:languageTerm/text()" />
+            <xsl:value-of select="." />
         </field>
+        </xsl:for-each>
         <field name="issn">
             <xsl:value-of select="mods:identifier[@type='isbn']/text()"/>
             <xsl:value-of select="mods:identifier[@type='issn']/text()"/>

@@ -287,7 +287,6 @@
         <dynamicField name="*_f"  type="sfloat"  indexed="true"  stored="true"/>
         <dynamicField name="*_d"  type="sdouble" indexed="true"  stored="true"/>
         <dynamicField name="*_dt" type="date"    indexed="true"  stored="true"/>
-        <dynamicField name="fgs.*" type="text_fgs"  indexed="true"  stored="true" multiValued="true"/>
         <dynamicField name="dsm.*" type="text"  indexed="true"  stored="false" multiValued="true"/>
         <dynamicField name="rdf.*" type="text_fgs"  indexed="true"  stored="true" multiValued="true"/>
         <dynamicField name="dc.*" type="text_fgs"  indexed="true"  stored="true" multiValued="true"/>
@@ -340,7 +339,7 @@
         <field name="title" type="localizedstring"  indexed="true"  stored="false"  locale="cs" />
         <field name="title_en" type="localizedstring"  indexed="true"  stored="false"  locale="en" />
         <field name="dc.creator" type="text_fgs"  indexed="true"  stored="true" multiValued="true" />
-        <field name="language" type="string"  indexed="true"  stored="true"  />
+        <field name="language" type="string"  indexed="true"  stored="true" multiValued="true"  />
 		
         <field name="dc.description" type="text_fgs"  indexed="true"  stored="true" multiValued="true" />
         <field name="text_ocr" type="text"  indexed="true"  stored="true" />
