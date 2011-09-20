@@ -43,13 +43,13 @@
     <div class="da_container" id="da_container">
 <div id="select-handle-top" class="da_select_handle" ><img src="img/resize.png" style="top:-4px;position:absolute;left:0px;" /></div>
 <div id="select-handle-bottom" class="da_select_handle"><img src="img/resize.png" style="top:-4px;position:absolute;left:0px;" /></div>
-<div id="resizable-top" class="ui-state-active"></div>
-<div id="resizable-bottom" class="ui-state-active"></div>
+<div id="resizable-top" class="ui-state-active da_resizable"></div>
+<div id="resizable-bottom" class="ui-state-active da_resizable"></div>
 <div id="bubbleDiv" class="da_bubble" ><div id="bubbleText" ></div></div>
 <div id="img_resize_bottom" class="da_resize"></div>
 <div id="img_resize_top" class="da_resize"></div>
-<div id="constraint_bottom" style="border:1px red solid;position:absolute;z-index:0;visibility:hidden;"></div>
-<div id="constraint_top" style="border:1px red solid;position:absolute;z-index:0;visibility:hidden;"></div>
+<div id="constraint_bottom" class="da_constraint" ></div>
+<div id="constraint_top" class="da_constraint" style="top:0px;left:0px;" ></div>
     <x:transform doc="${xml}"  xslt="${facetxsl}">
         <x:param name="bundle_url" value="${i18nServlet}"/>
     </x:transform>
@@ -133,6 +133,7 @@
       
         initDateAxis();
         $("#content-resizable").css("height", (containerHeight+7) + "px");
+        daScrollToMax();
 
     });
 </script>

@@ -54,6 +54,9 @@
         <xsl:param name="facetname" />
         <li>
             <xsl:attribute name="id">facet_<xsl:value-of select="$facetname"/></xsl:attribute>
+            <xsl:if test="position() = last()">
+                <xsl:attribute name="style">border-bottom:none;</xsl:attribute>
+            </xsl:if>
             <span class="ui-icon ui-icon-triangle-1-e folder" ></span>
             <a href="#"><xsl:value-of select="$bundle/value[@key=$facetname]" /></a>
             <ul><xsl:for-each select="./int">

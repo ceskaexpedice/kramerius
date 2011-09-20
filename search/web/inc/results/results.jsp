@@ -77,13 +77,19 @@
 
 
 $(document).ready(function(){
-    
-    var w = $(window).height() -
+    var w;
+    var w1 = $(window).height() -
             $("#header").height() - 
             $("#footer").outerHeight(true);
-    $("#split").css("height", w);
-    w = w - $("#docs>ul").outerHeight(true) - 6 - 15 - 8 - 2;
+    $("#split").css("height", w1);
+    w = w1 - $("#docs>ul").outerHeight(true) - 6 - 15 - 8 - 2;
     $("#docs_content>div.content").css("height", w);
+    w = w1 - $("#filters>ul").outerHeight(true) + 7;
+    $("#facets").css("height", w);
+    w = w - $("#da-inputs").outerHeight(true);
+    $("#content-resizable").css("height", w);
+    resizeDateAxisContent();
+    setMaxResize($("#content-resizable").height());
         
     sp = $("#split").layout({
         west:{

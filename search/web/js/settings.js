@@ -1,6 +1,11 @@
 function _k4Settings(){
     $.ajaxSetup({
-        cache: false
+	statusCode: {
+		403: function() {
+			window.location="./?error=accessdenied";	
+		}
+	},
+	cache:false
     });
     this.currentSelectedPage = "";
     this.activeUuids = [];

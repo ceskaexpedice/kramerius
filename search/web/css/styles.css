@@ -266,6 +266,7 @@ a.image:hover {
 }
 #facets{
     padding: 3px;
+    overflow: auto;
 }
 
 #docs{

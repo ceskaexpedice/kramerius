@@ -19,19 +19,19 @@
     padding:0px;
     margin:0px;
     position:relative;
-    left:80px;
+    left:50%;
     border-top:solid 1px #EEEEEE;
-    border-right:solid 1px #EEEEEE;
-    width: 94px;
+    
+    width: 50%;
 }
 
 .da_group_title{
     vertical-align:middle;
     border-top:solid 1px #EEEEEE;
     position:absolute;
-    top:1px;
-    left:-70px;
-    width: 70px;
+    top:-1px;
+    left:-100%;
+    width: 100%;
 }
 
 .da_bar_container{
@@ -106,6 +106,13 @@
     z-index:5;
     cursor:n-resize;
 }
+.da_constraint{
+    width:100%;
+    position:absolute;
+    z-index:0;
+    visibility:hidden;
+    /*border: solid 1px green;*/
+}
 
 #content-slider2 {
     width: 6px;
@@ -126,10 +133,8 @@
 }
 
 
-
-#resizable-top, #resizable-bottom { 
-    background-position: top left; 
-    width: 14px; 
+#resizable-top, #resizable-bottom {
+    background-position: top left;
     height: 10px; 
     background:#cccccc;
     

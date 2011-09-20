@@ -45,11 +45,16 @@ function initDateAxis(){
     selectTime();
     $("#content-resizable").resizable({
         handles: 's',
-        resize: function(event, ui) {resizeDateAxisContent()}
+        resize: function(event, ui) {resizeDateAxisContent()},
+        minHeight: 150
     });
     setDatePicker();
     //$("#content-resizable>div.ui-resizable-s").append('<span class="ui-icon ui-icon-arrowthick-2-n-s">handle</span>');
     //setTimeout('toggleDASlow()', 1000);
+}
+
+function setMaxResize(h){
+    $( "#content-resizable" ).resizable( "option", "maxHeight", h );
 }
 
 function setDatePicker(){
@@ -287,7 +292,7 @@ function setSelectHandles(){
 
 function setSelectContainmentBottom(){
     //$('#constraint_bottom').css("left", $("#resizable-top").offset().left);
-    $('#constraint_bottom').css("width", $('#content-scroll').width());
+    //$('#constraint_bottom').css("width", $('#content-scroll').width());
     $('#constraint_bottom').css("top",  $('#resizable-top').height());
     $('#constraint_bottom').css("height", $('#content-scroll').height() - $('#resizable-top').height());
     $("#select-handle-bottom").draggable('option', 'containment', '#constraint_bottom');
@@ -296,7 +301,7 @@ function setSelectContainmentBottom(){
 
 function setSelectContainmentTop(){
     $('#constraint_top').css("height", $('#resizable-bottom').offset().top - $("#content-scroll").offset().top);
-    $('#constraint_top').css("width", $('#content-scroll').width());
+    //$('#constraint_top').css("width", $('#content-scroll').width());
     $("#select-handle-top").draggable('option', 'containment', '#constraint_top');
     hideBubble(null);
 }
@@ -353,24 +358,48 @@ function daScrolled(){
     selectTime();
 }
 
+function daGetMaxBar(){
+    var id;
+    var bar;
+    var wmax = $(bars[0]).width();
+    for(var i=0; i<bars.length;i++){
+        id = $(bars[i]).attr("id");
+        bar = $("#"+id+">div.da_bar");
+        if($(bar).width()==wmax){
+            return bars[i];
+        }
+    }
+    return null;
+    
+}
 
+function daScrollToMax(){
+    var bar = daGetMaxBar();
+    //alert($(bar).offset().top);
+    var pos = $(bar).offset().top 
+        - $('#da_container').offset().top
+        + $('#content-scroll').scrollTop() 
+        - ($('#content-scroll').height()/2);
+
+        $('#content-scroll').scrollTop(pos);
+}
 
 function positionCurtainsOnLoad(){
     positionCurtains();
 }
 
 function positionCurtains(){
-        var w = $("#da_container").width()+1;
-        $("#resizable-top").css("width", w);
+        var w = $("#da_container").width();
         var t = $("#content-scroll").offset().top + $("#content-scroll").height() - $("#resizable-bottom").height();
         t = $("#content-scroll").height() - $("#resizable-bottom").height();
         $("#resizable-bottom").css("top", t);
-        $("#resizable-bottom").css("width", w);
         
         positionResizes();
         setSelectHandles();
         setSelectContainmentBottom();
         setSelectContainmentTop();
+        $("#resizable-top").css("width", w);
+        $("#resizable-bottom").css("width", w);
 }
 /* end scroll functions*/
 
