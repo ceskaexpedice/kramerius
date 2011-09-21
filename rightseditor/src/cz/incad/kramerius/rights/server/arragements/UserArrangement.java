@@ -121,8 +121,9 @@ public class UserArrangement extends Arrangement {
         public RefGroupArrangement() {
             super(struct.group);
             addProperty(struct.group.GNAME);
-            addProperty(struct.group.PERSONAL_ADMIN.relate(struct.group.GNAME));
-            setSortProperty(struct.group.GNAME);
+            // TODO: problem with joins 
+            //addProperty(struct.group.PERSONAL_ADMIN.relate(struct.group.GNAME));
+            //setSortProperty(struct.group.GNAME);
             setForm(createGroupForm());
             setQueryGenerator(new FormGroupGenerator());
         }
