@@ -7,6 +7,9 @@
     import cz.incad.kramerius.security.impl.http.shibrules.shibs.*;
     // Generated from ANTLR tool
 
+
+
+
 import java.io.InputStream;
 import antlr.TokenStreamException;
 import antlr.TokenStreamIOException;
@@ -51,7 +54,8 @@ public ShibRuleLexer(LexerSharedInputState state) {
 	literals.put(new ANTLRHashString("user", this), new Integer(11));
 	literals.put(new ANTLRHashString("role", this), new Integer(13));
 	literals.put(new ANTLRHashString("match", this), new Integer(4));
-	literals.put(new ANTLRHashString("principal", this), new Integer(15));
+	literals.put(new ANTLRHashString("attribute", this), new Integer(15));
+	literals.put(new ANTLRHashString("principal", this), new Integer(16));
 }
 
 public Token nextToken() throws TokenStreamException {
@@ -239,8 +243,8 @@ tryAgain:
 		int _saveIndex;
 		
 		{
-		int _cnt26=0;
-		_loop26:
+		int _cnt27=0;
+		_loop27:
 		do {
 			if ((_tokenSet_0.member(LA(1)))) {
 				{
@@ -248,10 +252,10 @@ tryAgain:
 				}
 			}
 			else {
-				if ( _cnt26>=1 ) { break _loop26; } else {throw new NoViableAltForCharException((char)LA(1), getFilename(), getLine(), getColumn());}
+				if ( _cnt27>=1 ) { break _loop27; } else {throw new NoViableAltForCharException((char)LA(1), getFilename(), getLine(), getColumn());}
 			}
 			
-			_cnt26++;
+			_cnt27++;
 		} while (true);
 		}
 		if ( _createToken && _token==null && _ttype!=Token.SKIP ) {
@@ -268,7 +272,7 @@ tryAgain:
 		
 		match('"');
 		{
-		_loop30:
+		_loop31:
 		do {
 			if ((_tokenSet_1.member(LA(1)))) {
 				{
@@ -276,7 +280,7 @@ tryAgain:
 				}
 			}
 			else {
-				break _loop30;
+				break _loop31;
 			}
 			
 		} while (true);
@@ -296,7 +300,7 @@ tryAgain:
 		
 		match('/');
 		{
-		_loop34:
+		_loop35:
 		do {
 			if ((_tokenSet_2.member(LA(1)))) {
 				{
@@ -304,7 +308,7 @@ tryAgain:
 				}
 			}
 			else {
-				break _loop34;
+				break _loop35;
 			}
 			
 		} while (true);
@@ -324,7 +328,7 @@ tryAgain:
 		
 		match("//");
 		{
-		_loop38:
+		_loop39:
 		do {
 			if ((_tokenSet_3.member(LA(1)))) {
 				{
@@ -332,7 +336,7 @@ tryAgain:
 				}
 			}
 			else {
-				break _loop38;
+				break _loop39;
 			}
 			
 		} while (true);
@@ -376,7 +380,7 @@ tryAgain:
 		
 		match("/*");
 		{
-		_loop44:
+		_loop45:
 		do {
 			if (((LA(1)=='*'))&&( LA(2)!='/' )) {
 				match('*');
@@ -406,7 +410,7 @@ tryAgain:
 				}
 			}
 			else {
-				break _loop44;
+				break _loop45;
 			}
 			
 		} while (true);
@@ -424,10 +428,10 @@ tryAgain:
 		_ttype = REXP_OR_COMMENT;
 		int _saveIndex;
 		
-		boolean synPredMatched47 = false;
+		boolean synPredMatched48 = false;
 		if (((LA(1)=='/'))) {
-			int _m47 = mark();
-			synPredMatched47 = true;
+			int _m48 = mark();
+			synPredMatched48 = true;
 			inputState.guessing++;
 			try {
 				{
@@ -435,22 +439,22 @@ tryAgain:
 				}
 			}
 			catch (RecognitionException pe) {
-				synPredMatched47 = false;
+				synPredMatched48 = false;
 			}
-			rewind(_m47);
+			rewind(_m48);
 inputState.guessing--;
 		}
-		if ( synPredMatched47 ) {
+		if ( synPredMatched48 ) {
 			mML_COMMENT(false);
 			if ( inputState.guessing==0 ) {
 				_ttype = Token.SKIP;
 			}
 		}
 		else {
-			boolean synPredMatched49 = false;
+			boolean synPredMatched50 = false;
 			if (((LA(1)=='/'))) {
-				int _m49 = mark();
-				synPredMatched49 = true;
+				int _m50 = mark();
+				synPredMatched50 = true;
 				inputState.guessing++;
 				try {
 					{
@@ -458,12 +462,12 @@ inputState.guessing--;
 					}
 				}
 				catch (RecognitionException pe) {
-					synPredMatched49 = false;
+					synPredMatched50 = false;
 				}
-				rewind(_m49);
+				rewind(_m50);
 inputState.guessing--;
 			}
-			if ( synPredMatched49 ) {
+			if ( synPredMatched50 ) {
 				mSL_COMMENT(false);
 				if ( inputState.guessing==0 ) {
 					_ttype = Token.SKIP;newline();
@@ -491,10 +495,10 @@ inputState.guessing--;
 		_ttype = NEWLINE;
 		int _saveIndex;
 		
-		boolean synPredMatched52 = false;
+		boolean synPredMatched53 = false;
 		if (((LA(1)=='\r'))) {
-			int _m52 = mark();
-			synPredMatched52 = true;
+			int _m53 = mark();
+			synPredMatched53 = true;
 			inputState.guessing++;
 			try {
 				{
@@ -503,12 +507,12 @@ inputState.guessing--;
 				}
 			}
 			catch (RecognitionException pe) {
-				synPredMatched52 = false;
+				synPredMatched53 = false;
 			}
-			rewind(_m52);
+			rewind(_m53);
 inputState.guessing--;
 		}
-		if ( synPredMatched52 ) {
+		if ( synPredMatched53 ) {
 			match('\r');
 			match('\n');
 		}

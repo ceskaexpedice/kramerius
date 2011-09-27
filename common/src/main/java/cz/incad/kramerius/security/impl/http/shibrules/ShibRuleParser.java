@@ -7,6 +7,9 @@
     import cz.incad.kramerius.security.impl.http.shibrules.shibs.*;
     // Generated from ANTLR tool
 
+
+
+
 import antlr.TokenBuffer;
 import antlr.TokenStreamException;
 import antlr.TokenStreamIOException;
@@ -23,6 +26,12 @@ import antlr.collections.impl.BitSet;
 
 public class ShibRuleParser extends antlr.LLkParser       implements ShibRuleParserTokenTypes
  {
+
+    String getStringVal(String val) {
+        if ( val.startsWith("\"") && (val.endsWith("\"")) ) {
+            return val.substring(1,val.length()-1);
+        } else return val;
+    }
 
 protected ShibRuleParser(TokenBuffer tokenBuf, int k) {
   super(tokenBuf,k);
@@ -110,6 +119,7 @@ public ShibRuleParser(ParserSharedInputState state) {
 			switch ( LA(1)) {
 			case STRING_LITERAL:
 			case HEADER_KWD:
+			case ATTRIBUTE_KWD:
 			case PRINCIPAL_KWD:
 			{
 				r=value();
@@ -190,10 +200,11 @@ public ShibRuleParser(ParserSharedInputState state) {
 			{
 				s = LT(1);
 				match(STRING_LITERAL);
-				value = new StringValue(s.getText());
+				value = new StringValue( getStringVal(s.getText()));
 				break;
 			}
 			case HEADER_KWD:
+			case ATTRIBUTE_KWD:
 			case PRINCIPAL_KWD:
 			{
 				value=funcvalue();
@@ -256,7 +267,7 @@ public ShibRuleParser(ParserSharedInputState state) {
 			match(COMMA);
 			v=value();
 			match(R_BRACKET);
-			u=new UserExpr(s.getText(),v);
+			u=new UserExpr( getStringVal(s.getText()) ,v);
 		}
 		catch (RecognitionException ex) {
 			reportError(ex);
@@ -288,6 +299,7 @@ public ShibRuleParser(ParserSharedInputState state) {
 		Value value;
 		
 		Token  s = null;
+		Token  s1 = null;
 		value=null;
 		
 		try {      // for error handling
@@ -301,7 +313,19 @@ public ShibRuleParser(ParserSharedInputState state) {
 				match(STRING_LITERAL);
 				match(R_BRACKET);
 				}
-				value = new HeaderValue(s.getText());
+				value = new HeaderValue(  getStringVal(s.getText()) );
+				break;
+			}
+			case ATTRIBUTE_KWD:
+			{
+				{
+				match(ATTRIBUTE_KWD);
+				match(L_BRACKET);
+				s1 = LT(1);
+				match(STRING_LITERAL);
+				match(R_BRACKET);
+				}
+				value = new AttributeValue( getStringVal(s1.getText()) );
 				break;
 			}
 			case PRINCIPAL_KWD:
@@ -344,6 +368,7 @@ public ShibRuleParser(ParserSharedInputState state) {
 		"STRING_LITERAL",
 		"\"role\"",
 		"\"header\"",
+		"\"attribute\"",
 		"\"principal\"",
 		"EQUAL",
 		"IDENT",

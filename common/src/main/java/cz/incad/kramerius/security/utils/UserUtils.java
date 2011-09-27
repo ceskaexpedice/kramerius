@@ -47,12 +47,15 @@ public class UserUtils {
         Role commonGroup = findCommonGoup(userManager);
         boolean containsCommonGroup = false;
         Role[] grps = user.getGroups();
+        if (grps == null) grps = new Role[0];
+        
         for (Role group : grps) {
             if (commonGroup.equals(group)) {
                 containsCommonGroup = true;
                 break;
             }
         }
+            
         if (!containsCommonGroup) {
             Role[] newGroups = new Role[grps.length +1];
             System.arraycopy(grps, 0, newGroups, 0, grps.length);

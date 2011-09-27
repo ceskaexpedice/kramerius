@@ -18,26 +18,28 @@ package cz.incad.kramerius.security.impl.http.shibrules.shibs;
 
 import javax.servlet.http.HttpServletRequest;
 
-public class StringValue implements Value {
+public class AttributeValue implements Value {
     
-    private String value;
+    private String key;
 
-    public StringValue(String value) {
+    public AttributeValue(String key) {
         super();
-        //this.value = value.substring(1,value.length()-1);
-        this.value = value;
+        this.key = key;
     }
 
     @Override
     public String getValue(HttpServletRequest request) {
-        return this.value;
+        return request.getAttribute(this.key).toString();
     }
 
     @Override
     public boolean match(Value val, HttpServletRequest request) {
-        return this.value.equals(val.getValue(request));
+        String thisVal = getValue(request);
+        String foreignVal = val.getValue(request);
+        if (thisVal != null && foreignVal != null) {
+            return thisVal.equals(foreignVal);
+        } else if (thisVal == null && foreignVal == null) {
+            return true;
+        } else return false;
     }
-    
-    
-    
 }

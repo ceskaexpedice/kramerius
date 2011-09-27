@@ -1,3 +1,8 @@
+match(principal(),"testik") {
+    
+}
+
+
 // test comment
 match(header("AJP_RESP"), /regexp.*/) {
     user("loginname","admin")
@@ -6,6 +11,7 @@ match(header("AJP_RESP"), /regexp.*/) {
     }
     role("k4_admins") role("users")
 }
+
 
 // komentar sveta
 /* dalsi komentar */

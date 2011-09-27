@@ -5,9 +5,19 @@ header {
     import cz.incad.kramerius.security.impl.http.shibrules.*;
     import cz.incad.kramerius.security.impl.http.shibrules.shibs.*;
     // Generated from ANTLR tool
+
+
+
 }
 
 class ShibRuleParser extends Parser;
+{
+    String getStringVal(String val) {
+        if ( val.startsWith("\"") && (val.endsWith("\"")) ) {
+            return val.substring(1,val.length()-1);
+        } else return val;
+    }
+}
 
     shibRules returns[ShibRules rules]
     {rules = new ShibRules(); 
@@ -31,18 +41,20 @@ class ShibRuleParser extends Parser;
 
     userassoc returns [Expr u]  
     {u=null; Value v;} :
-    USER_KWD L_BRACKET  s:STRING_LITERAL COMMA v=value R_BRACKET {u=new UserExpr(s.getText(),v);};
+    USER_KWD L_BRACKET  s:STRING_LITERAL COMMA v=value R_BRACKET {u=new UserExpr( getStringVal(s.getText()) ,v);};
     
     roleassoc returns [Expr r] 
     {r=null; Value v;}: 
     ROLE_KWD L_BRACKET  v=value R_BRACKET {r=new RoleExpr(v);};
 
     value returns [Value value] 
-    {value=null;}: s:STRING_LITERAL {value = new StringValue(s.getText());} | value=funcvalue;
+    {value=null;}: s:STRING_LITERAL {value = new StringValue( getStringVal(s.getText())); } | value=funcvalue;
     
     
-    funcvalue returns [Value value] {value=null;}: (HEADER_KWD L_BRACKET s:STRING_LITERAL R_BRACKET) {value = new HeaderValue(s.getText());} 
+    funcvalue returns [Value value] {value=null;}: (HEADER_KWD L_BRACKET s:STRING_LITERAL R_BRACKET) {value = new HeaderValue(  getStringVal(s.getText()) );} 
                 | 
+                (ATTRIBUTE_KWD L_BRACKET s1:STRING_LITERAL R_BRACKET) {value = new AttributeValue( getStringVal(s1.getText()) );}
+                |
                 (PRINCIPAL_KWD L_BRACKET R_BRACKET) {value = new PrincipalValue();};
 
 
@@ -57,6 +69,7 @@ tokens {
     USER_KWD="user";
     ROLE_KWD="role";
     HEADER_KWD="header";
+    ATTRIBUTE_KWD="attribute";
     PRINCIPAL_KWD="principal";
 }
 

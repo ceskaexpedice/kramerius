@@ -7,6 +7,9 @@
     import cz.incad.kramerius.security.impl.http.shibrules.shibs.*;
     // Generated from ANTLR tool
 
+
+
+
 public interface ShibRuleParserTokenTypes {
 	int EOF = 1;
 	int NULL_TREE_LOOKAHEAD = 3;
@@ -21,12 +24,13 @@ public interface ShibRuleParserTokenTypes {
 	int STRING_LITERAL = 12;
 	int ROLE_KWD = 13;
 	int HEADER_KWD = 14;
-	int PRINCIPAL_KWD = 15;
-	int EQUAL = 16;
-	int IDENT = 17;
-	int SL_COMMENT = 18;
-	int ML_COMMENT = 19;
-	int REXP_OR_COMMENT = 20;
-	int NEWLINE = 21;
-	int WS = 22;
+	int ATTRIBUTE_KWD = 15;
+	int PRINCIPAL_KWD = 16;
+	int EQUAL = 17;
+	int IDENT = 18;
+	int SL_COMMENT = 19;
+	int ML_COMMENT = 20;
+	int REXP_OR_COMMENT = 21;
+	int NEWLINE = 22;
+	int WS = 23;
 }
