@@ -4,8 +4,16 @@ import cz.incad.kramerius.FedoraAccess;
 import cz.incad.kramerius.FedoraNamespaceContext;
 import cz.incad.kramerius.impl.FedoraAccessImpl;
 import cz.incad.kramerius.utils.DCUtils;
+import cz.incad.kramerius.utils.UnicodeUtil;
 import cz.incad.kramerius.utils.conf.KConfiguration;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
+import java.io.StringWriter;
+import java.io.Writer;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -16,6 +24,12 @@ import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpression;
 import javax.xml.xpath.XPathFactory;
+import org.apache.pdfbox.cos.COSDocument;
+import org.apache.pdfbox.cos.COSName;
+import org.apache.pdfbox.pdfparser.PDFParser;
+import org.apache.pdfbox.pdmodel.PDDocument;
+import org.apache.pdfbox.pdmodel.PDDocumentInformation;
+import org.apache.pdfbox.util.PDFTextStripper;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 
@@ -79,6 +93,79 @@ public class ExtendedFields {
         }
         setRootTitle();
         setDate();
+        setPDFDocument(pid);
+    }
+    
+    COSDocument cosDoc = null;
+    PDDocument pdDoc = null;
+    String pdfPid = "";
+
+    private void setPDFDocument(String pid) throws Exception {
+        if (!pdfPid.equals(pid)) {
+            pdfPid = "";
+            closePDFDocument();
+            InputStream is = fa.getDataStream(pid, "IMG_FULL");
+            try {
+                PDFParser parser = new PDFParser(is);
+                parser.parse();
+                cosDoc = parser.getDocument();
+            } catch (IOException e) {
+                closePDFDocument();
+                throw new Exception("Cannot parse PDF document", e);
+            }
+
+            pdDoc = new PDDocument(cosDoc);
+            pdfPid = pid;
+        }
+    }
+
+    public void closePDFDocument() throws IOException {
+        pdfPid = "";
+        if (cosDoc != null) {
+            cosDoc.close();
+        }
+        if (pdDoc != null) {
+            pdDoc.close();
+        }
+    }
+    
+    public int getPDFPagesCount(){
+        if(pdDoc != null){
+            return pdDoc.getNumberOfPages();
+        }else{
+            return 0;
+        }
+    }
+    
+    private String getPDFPage(int page) throws Exception{
+        StringBuffer docText = new StringBuffer();
+        PDFTextStripper stripper = new PDFTextStripper();
+        if(page!=-1){
+            stripper.setStartPage(page);
+            stripper.setEndPage(page);
+        }
+        docText = new StringBuffer(stripper.getText(pdDoc));
+            /*
+            ByteArrayOutputStream bout = new ByteArrayOutputStream();
+            OutputStreamWriter writer = new OutputStreamWriter(bout);
+            //StringWriter writer = new StringWriter();
+            stripper.writeText(pdDoc, writer);
+            
+            bout.flush();
+            writer.flush();
+            byte[] bytes = bout.toByteArray();
+            String enc = UnicodeUtil.getEncoding(bytes);
+            enc = "UTF-8";
+            InputStreamReader isr = new InputStreamReader(new ByteArrayInputStream(bytes), enc);
+            int c = isr.read();
+            while (c > -1) {
+                docText.append((char) c);
+                c = isr.read();
+            }
+            
+             */
+            
+        return docText.toString();
     }
 
     private String getModelPath(String pid_path) throws IOException {
@@ -103,13 +190,14 @@ public class ExtendedFields {
         return paramsMap;
     }
 
-    public String toXmlString(int pageNum) {
+    public String toXmlString(int pageNum) throws Exception {
         StringBuilder sb = new StringBuilder();
         for (String s : pid_paths) {
             sb.append("<field name=\"pid_path\">").append(s).append(pageNum == 0 ? "" : "/@" + pageNum).append("</field>");
             String[] pids = s.split("/");
             if(pageNum != 0){
                 sb.append("<field name=\"parent_pid\">").append(pids[pids.length - 1]).append("</field>");
+                sb.append("<field name=\"text\">").append(getPDFPage(pageNum)).append("</field>");
             }else{
                 if(pids.length==1){
                     sb.append("<field name=\"parent_pid\">").append(pids[0]).append("</field>");
@@ -122,6 +210,7 @@ public class ExtendedFields {
         int level = pid_paths.get(0).split("/").length - 1;
         if(pageNum != 0){
             level++;
+            
         }
         for (String s : model_paths) {
             if(pageNum != 0){

@@ -128,6 +128,7 @@ public class SolrOperations {
                     " Value: " + value, ex);
         } finally {
 
+            extendedFields.closePDFDocument();
             finalDocCount = getDocCount();
             logger.log(Level.FINE, "initDocCount={0} docCount={1} updateTotal={2}", new Object[]{initDocCount, finalDocCount, updateTotal});
 
@@ -350,14 +351,6 @@ public class SolrOperations {
             }
             //tady testujeme pripadne vicestrankovy pdf
             ///foxml:digitalObject/foxml:datastream[@ID='IMG_FULL']/foxml:datastreamVersion[last()]
-            expr = xpath.compile("//datastream[@ID='IMG_FULL']/datastreamVersion[last()]");
-            Node imgFullMimeNode = (Node) expr.evaluate(contentDom, XPathConstants.NODE);
-            int docs = 1;
-            if (imgFullMimeNode != null) {
-                if (imgFullMimeNode.getAttributes().getNamedItem("MIMETYPE").getNodeValue().indexOf("pdf") > -1) {
-                    docs = fedoraOperations.getPdfPagesCount(pid, "IMG_FULL");
-                }
-            }
 
             expr = xpath.compile("//datastream/datastreamVersion[last()]/xmlContent/RDF/Description/*");
             NodeList nodes = (NodeList) expr.evaluate(contentDom, XPathConstants.NODESET);
@@ -383,8 +376,18 @@ public class SolrOperations {
                 }
             }
             
+            
+            expr = xpath.compile("//datastream[@ID='IMG_FULL']/datastreamVersion[last()]");
+            Node imgFullMimeNode = (Node) expr.evaluate(contentDom, XPathConstants.NODE);
+            int docs = 0;
             extendedFields.setFields(pid);
-            indexDoc(foxmlStream, String.valueOf(docs - 1));
+            if (imgFullMimeNode != null) {
+                if (imgFullMimeNode.getAttributes().getNamedItem("MIMETYPE").getNodeValue().indexOf("pdf") > -1) {
+                    docs = extendedFields.getPDFPagesCount();
+                    //docs = fedoraOperations.getPdfPagesCount_(pid, "IMG_FULL");
+                }
+            }            
+            indexDoc(foxmlStream, String.valueOf(docs));
 
             for (int i = 0; i < pids.size(); i++) {
                 String relpid = pids.get(i);
@@ -400,7 +403,7 @@ public class SolrOperations {
                 }
             }
 
-            num += docs - 1;
+            num += docs;
 
         } catch (Exception e) {
             logger.log(Level.SEVERE, "indexByPid error", e);
@@ -422,6 +425,9 @@ public class SolrOperations {
         String xsltPath = config.getString("UpdateIndexDocXslt");
 
         for (int i = 0; i <= Integer.parseInt(docCount); i++) {
+            if(i>0){
+                logger.log(Level.INFO, "indexing pdf page {0}", i);
+            }
             foxmlStream.reset();
             params.put("PAGENUM", i + "");
             StringBuffer sb = transformer.transform(

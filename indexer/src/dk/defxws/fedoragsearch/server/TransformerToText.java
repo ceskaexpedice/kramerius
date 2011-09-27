@@ -18,13 +18,13 @@ import java.util.logging.Logger;
 import javax.xml.transform.stream.StreamSource;
 
 import org.apache.lucene.demo.html.HTMLParser;
-import org.pdfbox.cos.COSDocument;
-import org.pdfbox.encryption.DocumentEncryption;
-import org.pdfbox.exceptions.CryptographyException;
-import org.pdfbox.exceptions.InvalidPasswordException;
-import org.pdfbox.pdfparser.PDFParser;
-import org.pdfbox.pdmodel.PDDocument;
-import org.pdfbox.util.PDFTextStripper;
+import org.apache.pdfbox.cos.COSDocument;
+import org.apache.pdfbox.encryption.DocumentEncryption;
+import org.apache.pdfbox.exceptions.CryptographyException;
+import org.apache.pdfbox.exceptions.InvalidPasswordException;
+import org.apache.pdfbox.pdfparser.PDFParser;
+import org.apache.pdfbox.pdmodel.PDDocument;
+import org.apache.pdfbox.util.PDFTextStripper;
 
 /**
  * performs transformations from formatted documents to text
@@ -124,9 +124,20 @@ public class TransformerToText {
         }
         return docText;
     }
-
     
-    public int getPdfPagesCount(byte[] doc) throws Exception{
+    public COSDocument getCOSDocument(byte[] doc) throws Exception{
+        COSDocument cosDoc = null;
+        String password = "";
+        try {
+            cosDoc = parseDocument(new ByteArrayInputStream(doc));
+        } catch (IOException e) {
+            closeCOSDocument(cosDoc);
+            throw new Exception("Cannot parse PDF document", e);
+        }
+        return cosDoc;
+    }
+    
+    public int getPdfPagesCount_(byte[] doc) throws Exception{
         COSDocument cosDoc = null;
         PDDocument pdDoc = null;
         String password = "";
@@ -170,6 +181,26 @@ public class TransformerToText {
             closeCOSDocument(cosDoc);
             closePDDocument(pdDoc);
         }
+    }
+    
+    public static StringBuffer getTextFromPDF(PDDocument pdDoc, String pageNum)
+            throws Exception {
+        StringBuffer docText = new StringBuffer();
+        String password = "";
+        // extract PDF document's textual content
+        try {
+            PDFTextStripper stripper = new PDFTextStripper();
+            int page = Integer.parseInt(pageNum);
+            if(page!=-1){
+                stripper.setStartPage(page);
+                stripper.setEndPage(page);
+            }
+            docText = new StringBuffer(stripper.getText(pdDoc));
+        } catch (IOException e) {
+            throw new Exception(
+                    "Cannot parse PDF document", e);
+        } 
+        return docText;
     }
             
     /**

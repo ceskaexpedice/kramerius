@@ -163,7 +163,6 @@
             <xsl:if test="(foxml:datastreamVersion/@MIMETYPE= 'text/plain' or
             foxml:datastreamVersion/@MIMETYPE='text/xml' or
             foxml:datastreamVersion/@MIMETYPE='text/html' or
-            foxml:datastreamVersion/@MIMETYPE='application/pdf' or
             foxml:datastreamVersion/@MIMETYPE='application/ps' or
             foxml:datastreamVersion/@MIMETYPE='application/msword') and
             (@ID='TEXT_OCR' or @ID='IMG_FULL')">

@@ -10,11 +10,14 @@ import cz.incad.kramerius.utils.conf.KConfiguration;
 import cz.incad.kramerius.utils.UTFSort;
 import dk.defxws.fedoragsearch.server.*;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import org.apache.pdfbox.cos.COSDocument;
+import org.apache.pdfbox.pdmodel.PDDocument;
 import org.fedora.api.FedoraAPIA;
 import org.fedora.api.MIMETypedStream;
 import org.w3c.dom.Document;
@@ -72,23 +75,23 @@ public class FedoraOperations {
             throw new Exception("Fedora Object " + pid + " not found. ", e);
         }
     }
+    
 
-    public int getPdfPagesCount(String pid, String dsId) throws Exception {
+    public int getPdfPagesCount_(String pid, String dsId) throws Exception {
         ds = null;
         if (dsId != null) {
-            try {
-                FedoraAPIA apia = fa.getAPIA();
-                MIMETypedStream mts = apia.getDatastreamDissemination(pid,
-                        dsId, null);
-                if (mts == null) {
-                    return 1;
-                }
-                ds = mts.getStream();
-                return (new TransformerToText().getPdfPagesCount(ds) + 1);
-
-            } catch (Exception e) {
-                throw new Exception(e.getClass().getName() + ": " + e.toString());
+            FedoraAPIA apia = fa.getAPIA();
+            MIMETypedStream mts = apia.getDatastreamDissemination(pid,
+                    dsId, null);
+            if (mts == null) {
+                return 1;
             }
+            ds = mts.getStream();
+//            getPDFDocument(pid);
+//            int ret = (pdDoc.getNumberOfPages() + 1);
+//            closePDFDocument();
+//            return ret;
+            return (new TransformerToText().getPdfPagesCount_(ds) + 1);
         }
         return 1;
     }
@@ -96,7 +99,7 @@ public class FedoraOperations {
     private List<String> getTreePredicates() {
         return Arrays.asList(KConfiguration.getInstance().getPropertyList("fedora.treePredicates"));
     }
-    
+
     public int getRelsIndex(String pid) throws Exception {
         ArrayList<String> p = getParentsArray(pid);
         String uuid;
@@ -112,7 +115,9 @@ public class FedoraOperations {
                     if (getTreePredicates().contains(el.getLocalName())) {
                         if (el.hasAttribute("rdf:resource")) {
                             uuid = el.getAttributes().getNamedItem("rdf:resource").getNodeValue();
-                            if(uuid.equals(fedoraPid)) relsindex = Math.max(relsindex, i);
+                            if (uuid.equals(fedoraPid)) {
+                                relsindex = Math.max(relsindex, i);
+                            }
                             i++;
                         }
                     }
@@ -203,7 +208,12 @@ public class FedoraOperations {
             }
         }
         if (ds != null) {
-            dsBuffer = (new TransformerToText().getText(ds, mimetype, pageNum));
+            if (mimetype.equals("application/pdf")) {
+                //getPDFDocument(pid);
+                //dsBuffer = TransformerToText.getTextFromPDF(pdDoc, pageNum);
+            } else {
+                dsBuffer = (new TransformerToText().getText(ds, mimetype, pageNum));
+            }
         } else {
             logger.fine("ds is null");
         }
