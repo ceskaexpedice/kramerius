@@ -45,13 +45,14 @@
 }
 
 .da_bar{
-    background:#e66c00;
+    /*background:#e66c00;*/
     height: 5px;
     padding:0px;
     margin:0px;
     cursor: pointer;
     overflow:hidden;
-    text-indent: -1000px
+    text-indent: -1000px;
+    border:none;
 }
 
 

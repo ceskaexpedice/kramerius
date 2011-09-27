@@ -41,8 +41,8 @@
 <div id="content-resizable" style="position:relative;float:none;">
 <div id="content-scroll" style="float:left;" >
     <div class="da_container" id="da_container">
-<div id="select-handle-top" class="da_select_handle" ><img src="img/resize.png" style="top:-4px;position:absolute;left:0px;" /></div>
-<div id="select-handle-bottom" class="da_select_handle"><img src="img/resize.png" style="top:-4px;position:absolute;left:0px;" /></div>
+<div id="select-handle-top" class="da_select_handle" ><span class="ui-icon ui-icon-triangle-2-n-s" style="z-index:2;top:-7px;position:absolute;left:50%;">handle</span></div>
+<div id="select-handle-bottom" class="da_select_handle"><span class="ui-icon ui-icon-triangle-2-n-s" style="z-index:1;top:-7px;position:absolute;left:50%;">handle</span></div>
 <div id="resizable-top" class="ui-state-active da_resizable"></div>
 <div id="resizable-bottom" class="ui-state-active da_resizable"></div>
 <div id="bubbleDiv" class="da_bubble" ><div id="bubbleText" ></div></div>

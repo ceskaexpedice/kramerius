@@ -86,10 +86,14 @@ $(document).ready(function(){
     $("#docs_content>div.content").css("height", w);
     w = w1 - $("#filters>ul").outerHeight(true) + 7;
     $("#facets").css("height", w);
-    w = w - $("#da-inputs").outerHeight(true);
-    $("#content-resizable").css("height", w);
-    resizeDateAxisContent();
-    setMaxResize($("#content-resizable").height());
+    
+    if($("#content-resizable").length>0){
+        
+        w = w - $("#da-inputs").outerHeight(true);
+        $("#content-resizable").css("height", w);
+        resizeDateAxisContent();
+        setMaxResize($("#content-resizable").height());
+    }
         
     sp = $("#split").layout({
         west:{

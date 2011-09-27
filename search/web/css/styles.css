@@ -100,7 +100,6 @@ input.checkbox {
 
 a:link, a:active, a:visited {
     font-size:11px;
-    color:black;
     text-decoration:none;
 }
 a:hover {
@@ -293,7 +292,7 @@ a.image:hover {
     /*padding:5px;*/
 } 
 .resultText a, .collapse_label a{
-    color:#e66c00;
+    border: none !important;
 }
 .teaser{
     color: #a2a2a2;

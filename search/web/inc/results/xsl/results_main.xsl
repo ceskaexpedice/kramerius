@@ -133,7 +133,7 @@
             <br/><xsl:value-of select="$bundle/value[@key=$model]"/>
         </div>
         </td><td valign="top">
-        <div class="resultText">
+        <div class="resultText ">
             <a><xsl:attribute name="href"><xsl:value-of select="normalize-space($link)"/></xsl:attribute>
             <b><xsl:value-of select="./str[@name='dc.title']"/></b></a>&#160;
             

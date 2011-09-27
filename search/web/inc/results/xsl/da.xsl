@@ -86,7 +86,7 @@
         </xsl:choose></xsl:variable>
         <div class="da_bar_container">
             <xsl:attribute name="id">da_bar_container_<xsl:value-of select="$y" /></xsl:attribute>
-            <div class="da_bar">
+            <div class="da_bar ui-widget-header">
                 <xsl:attribute name="id">da_bar_<xsl:value-of select="$y" /></xsl:attribute>
                 <xsl:attribute name="style">width: <xsl:value-of select="$w" />;</xsl:attribute><xsl:value-of select="$c" />
             </div>
