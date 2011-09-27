@@ -42,7 +42,7 @@ public class TestShib {
     
     
     public static void main(String[] args) throws RecognitionException, TokenStreamException {
-        ShibRuleLexer lexer = new ShibRuleLexer(TestShib.class.getResourceAsStream("test.rules"));
+        ShibRuleLexer lexer = new ShibRuleLexer(TestShib.class.getResourceAsStream("test2.rules"));
         ShibRuleParser parser = new ShibRuleParser(lexer);
         ShibRules shibRules = parser.shibRules();
         List<MatchRule> rules = shibRules.getRules();

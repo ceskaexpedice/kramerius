@@ -1,11 +1,18 @@
-match(principal(),"testik") {
-    
+match(header("AJP_uid"),"happy") {
+        username("firstname",header("AJP_uid"))
+        username("surname", header("AJP_uid"))
+
+        role("k4_admins")
+
 }
+
 
 
 // test comment
 match(header("AJP_RESP"), /regexp.*/) {
-    user("loginname","admin")
+    user("firstname","admin")
+    user("surname","admin")
+
     match("AJP_DRUD",/dajdaj/) {
         role("ahoj")
     }
