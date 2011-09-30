@@ -252,7 +252,7 @@ function refresh() {
 
  <div class="buttons"><a href="javascript:stdStart();"
   title="<%=resBundleServ.getResourceBundle("labels", locale).getString("administrator.processes.logs.first")%>"><span
-  class="ui-icon ui-icon ui-icon-arrowthickstop-1-w">first</span></a> 
+  class="ui-icon ui-icon-seek-prev">first</span></a> 
   
   <a href="javascript:stdLeft();"
   title="<%=resBundleServ.getResourceBundle("labels", locale).getString("administrator.processes.logs.prev")%>"><span
@@ -263,7 +263,7 @@ function refresh() {
   
   <a href="javascript:stdEnd();"
   title="<%=resBundleServ.getResourceBundle("labels", locale).getString("administrator.processes.logs.last")%>"><span
-  class="ui-icon ui-icon ui-icon-arrowthickstop-1-e">last</span></a></div>
+  class="ui-icon ui-icon-seek-next">last</span></a></div>
  </div>
 
  <div align="center"><textarea id="stdTextArea">
@@ -280,7 +280,9 @@ function refresh() {
  
  <a href="javascript:errStart();"
   title="<%=resBundleServ.getResourceBundle("labels", locale).getString("administrator.processes.logs.first")%>"><span
-  class="ui-icon ui-icon ui-icon-arrowthickstop-1-w">first</span></a> 
+  class="ui-icon ui-icon-seek-prev">first</span></a> 
+  
+  
  
  <a href="javascript:errLeft();"
   title="<%=resBundleServ.getResourceBundle("labels", locale).getString("administrator.processes.logs.prev")%>"><span
@@ -292,7 +294,7 @@ function refresh() {
 
   <a href="javascript:errEnd();"
   title="<%=resBundleServ.getResourceBundle("labels", locale).getString("administrator.processes.logs.last")%>"><span
-  class="ui-icon ui-icon ui-icon-arrowthickstop-1-e">last</span></a></div>
+  class="ui-icon ui-icon-seek-next">last</span></a></div>
   
   </div>
  </div>
