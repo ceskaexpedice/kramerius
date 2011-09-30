@@ -61,16 +61,16 @@ public class StartupServlet extends GuiceServlet {
         
         Connection connection = this.connectionProvider.get();
         try {
-            // Logged users table
-            LoggedUserDatabaseInitializator.initDatabase(connection);
 
-            // process tables
-            ProcessDatabaseInitializator.initDatabase(connection);
             // mostdesirable table
             MostDesirableDatabaseInitializator.initDatabase(connection);
             // all security tables
             SecurityDatabaseInitializator.initDatabase(connection);
-        
+            // Logged users table -> must be after security tables
+            LoggedUserDatabaseInitializator.initDatabase(connection);
+            // process tables - > must be after security tables and must be after logged user tables
+            ProcessDatabaseInitializator.initDatabase(connection);
+
             this.pdfService.init();
         } catch (IOException e) {
             LOGGER.log(Level.SEVERE,e.getMessage(),e);
