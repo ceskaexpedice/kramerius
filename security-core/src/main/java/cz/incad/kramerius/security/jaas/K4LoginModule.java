@@ -106,7 +106,7 @@ public class K4LoginModule implements LoginModule {
                 return false;
             }
 
-        }.executeQuery("select * from user_entity where loginname=?", loginName);
+        }.executeQuery("select * from user_entity where loginname=? and deactivated=false", loginName);
         return list.isEmpty() ? null : list.get(0);
     }
 
