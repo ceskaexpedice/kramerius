@@ -20,11 +20,14 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.Charset;
 import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.logging.Level;
 
 import cz.incad.kramerius.utils.DatabaseUtils;
 import cz.incad.kramerius.utils.IOUtils;
+import cz.incad.kramerius.utils.database.JDBCCommand;
+import cz.incad.kramerius.utils.database.JDBCTransactionTemplate;
 import cz.incad.kramerius.utils.database.JDBCUpdateTemplate;
 
 public class SecurityDatabaseInitializator {
@@ -36,6 +39,27 @@ public class SecurityDatabaseInitializator {
             if (!DatabaseUtils.tableExists(connection, "USER_ENTITY")) {
                 createSecurityTables(connection);
             }
+            if (!DatabaseUtils.columnExists(connection, "USER_ENTITY","DEACTIVATED")) {
+                
+                new JDBCTransactionTemplate(connection, false).updateWithTransaction( 
+                    new JDBCCommand() {
+                        
+                        @Override
+                        public Object executeJDBCCommand(Connection con) throws SQLException {
+                            alterSecurityTableActiveColumn(con);
+                            return null;
+                        }
+                    },
+                    new JDBCCommand() {
+                        
+                        @Override
+                        public Object executeJDBCCommand(Connection con) throws SQLException {
+                            updateSecurityTableActiveColumn(con);
+                            return null;
+                        }
+                    }
+                );
+            }            
         } catch (SQLException e) {
             LOGGER.log(Level.SEVERE,e.getMessage(),e);
         } catch (IOException e) {
@@ -48,4 +72,20 @@ public class SecurityDatabaseInitializator {
         JDBCUpdateTemplate template = new JDBCUpdateTemplate(connection, false);
         template.executeUpdate(IOUtils.readAsString(is, Charset.forName("UTF-8"), true));
     }
+    
+    
+    public static void alterSecurityTableActiveColumn(Connection con) throws SQLException {
+        PreparedStatement prepareStatement = con.prepareStatement(
+                "ALTER TABLE USER_ENTITY ADD COLUMN DEACTIVATED BOOLEAN"); 
+            int r = prepareStatement.executeUpdate();
+            LOGGER.log(Level.FINEST, "ALTER TABLE: updated rows {0}", r);
+    }
+
+    public static void updateSecurityTableActiveColumn(Connection con) throws SQLException {
+        PreparedStatement prepareStatement = con.prepareStatement(
+                "UPDATE USER_ENTITY set DEACTIVATED = FALSE"); 
+            int r = prepareStatement.executeUpdate();
+            LOGGER.log(Level.FINEST, "UPDATE TABLE: updated rows {0}", r);
+    }
+
 }
