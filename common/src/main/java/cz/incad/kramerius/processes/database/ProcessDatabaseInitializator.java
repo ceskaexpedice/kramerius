@@ -58,14 +58,9 @@ public class ProcessDatabaseInitializator {
             
             
             if (!DatabaseUtils.tableExists(connection, "PROCESS_2_TOKEN")) {
-                createToken2SessionkeysMapping(connection);
+                createToken2SessionkeysMapping(connection); // zavislost na session_keys
             }
             
-            /*
-            if (!DatabaseUtils.tableExists(connection,"USER_ENTITY")) {
-                InitSecurityDatabaseMethodInterceptor.createSecurityTables(connection);
-            }
-            */
             
         } catch (SQLException e) {
             LOGGER.log(Level.SEVERE,e.getMessage(),e);

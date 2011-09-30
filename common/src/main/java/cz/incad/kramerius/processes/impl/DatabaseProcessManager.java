@@ -432,7 +432,6 @@ public class DatabaseProcessManager implements LRProcessManager {
             throw new NotReadyException("connection not ready");
         StringBuffer buffer = new StringBuffer("select p.DEFID,PID,p.UUID,p.STATUS,p.PLANNED,p.STARTED,p.NAME AS PNAME, p.PARAMS, p.STARTEDBY,p.TOKEN,p.loginname,p.surname,p.firstname,p.user_key,v.pcount as pcount from processes p " + " join process_grouped_view v on (p.process_id=v.process_id)");
 
-
         if (filter != null) {
             buffer.append(filter.getSQLOffset());
         }
@@ -449,7 +448,6 @@ public class DatabaseProcessManager implements LRProcessManager {
         if (offset != null) {
             buffer.append(offset.getSQLOffset());
         }
-        
 
         List<LRProcess> processes = new JDBCQueryTemplate<LRProcess>(connection) {
             @Override
