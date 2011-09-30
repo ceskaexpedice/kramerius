@@ -3,8 +3,10 @@ package cz.incad.kramerius.rights.server.arragements;
 import java.util.List;
 
 import org.aplikator.client.descriptor.QueryParameter;
+import org.aplikator.client.widgets.CheckBoxWidget;
 import org.aplikator.server.Context;
 import org.aplikator.server.descriptor.Arrangement;
+import org.aplikator.server.descriptor.CheckBox;
 import org.aplikator.server.descriptor.Form;
 import org.aplikator.server.descriptor.Function;
 import org.aplikator.server.descriptor.HorizontalPanel;
@@ -90,7 +92,9 @@ public class UserArrangement extends Arrangement {
         .addChild(new VerticalPanel().addChild(new TextField<String>(struct.user.LOGINNAME)).addChild(vygenerovatHeslo)
 		.addChild(new TextField<String>(struct.user.PASSWORD))
 		.addChild(new TextField<String>(struct.user.EMAIL))
-		.addChild(new TextField<String>(struct.user.ORGANISATION)))
+		.addChild(new TextField<String>(struct.user.ORGANISATION))
+		.addChild(new CheckBox(struct.user.DEACTIVATED))
+        )
 
         //.addChild(new RefButton(struct.user.PERSONAL_ADMIN, this.referenceToAdmin, new HorizontalPanel().addChild(new TextField<String>(struct.user.PERSONAL_ADMIN.relate(struct.group.GNAME)))))
         .addChild(new RepeatedForm(struct.user.GROUP_ASSOCIATIONS, new UserGroupsArrangement()))

@@ -29,6 +29,8 @@ public class Structure extends Application {
         public final Property<String> EMAIL;
         public final Property<String> ORGANISATION;
 
+        public final Property<Boolean> DEACTIVATED;
+        
         // administrator uzivatele
         public Reference<GroupEntity> PERSONAL_ADMIN;
 
@@ -40,7 +42,8 @@ public class Structure extends Application {
             SURNAME = stringProperty("SURNAME",  255, true);
             LOGINNAME = stringProperty("LOGINNAME",  255, true);
             PASSWORD = stringProperty("PSWD",  255, false);
-
+            DEACTIVATED = booleanProperty("DEACTIVATED");
+            
             EMAIL = stringProperty("EMAIL",  255, false);
             ORGANISATION = stringProperty("ORGANISATION",  255, false);
 
