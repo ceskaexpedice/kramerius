@@ -175,9 +175,6 @@ AffectedObjectsRights.prototype.openDialog = function(/** array of struct */pids
                 modal:true,
                 title:"#title",
                 buttons: {
-                	"Editovat vyber": function() {
-                        $(this).dialog("close");
-                	},
                     "Close": function() {
                         $(this).dialog("close");
                     }
