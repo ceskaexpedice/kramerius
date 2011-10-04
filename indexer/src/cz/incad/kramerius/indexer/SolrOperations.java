@@ -383,6 +383,7 @@ public class SolrOperations {
             extendedFields.setFields(pid);
             if (imgFullMimeNode != null) {
                 if (imgFullMimeNode.getAttributes().getNamedItem("MIMETYPE").getNodeValue().indexOf("pdf") > -1) {
+                    extendedFields.setPDFDocument(pid);
                     docs = extendedFields.getPDFPagesCount();
                     //docs = fedoraOperations.getPdfPagesCount_(pid, "IMG_FULL");
                 }
@@ -411,7 +412,8 @@ public class SolrOperations {
         
         return num;
     }
-    /* kramerius */
+    
+    
 
     private void indexDoc(
             InputStream foxmlStream,
@@ -438,13 +440,13 @@ public class SolrOperations {
                     true);
 
             applyCustomTransformations(sb, foxmlStream, params);
-            //logger.info("indexDoc=\n" + sb.toString());
             String doc = "<?xml version=\"1.0\" encoding=\"UTF-8\"?><add><doc>"
                     + sb.toString()
                     + extendedFields.toXmlString(i)
+                    //+ removeTroublesomeCharacters(extendedFields.toXmlString(i))
                     + "</doc></add>";
             //logger.info(doc);
-            logger.log(Level.FINE, "indexDoc=\n{0}", sb.toString());
+            logger.log(Level.FINE, "indexDoc=\n{0}", doc);
             if (sb.indexOf("name=\"" + UNIQUEKEY) > 0) {
                 postData(config.getString("IndexBase") + "/update", new StringReader(doc), new StringBuilder());
                 updateTotal++;

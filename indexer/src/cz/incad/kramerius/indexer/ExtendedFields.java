@@ -24,6 +24,7 @@ import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpression;
 import javax.xml.xpath.XPathFactory;
+import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.pdfbox.cos.COSDocument;
 import org.apache.pdfbox.cos.COSName;
 import org.apache.pdfbox.pdfparser.PDFParser;
@@ -93,14 +94,13 @@ public class ExtendedFields {
         }
         setRootTitle();
         setDate();
-        setPDFDocument(pid);
     }
     
     COSDocument cosDoc = null;
     PDDocument pdDoc = null;
     String pdfPid = "";
 
-    private void setPDFDocument(String pid) throws Exception {
+    public void setPDFDocument(String pid) throws Exception {
         if (!pdfPid.equals(pid)) {
             pdfPid = "";
             closePDFDocument();
@@ -165,7 +165,22 @@ public class ExtendedFields {
             
              */
             
-        return docText.toString();
+        return StringEscapeUtils.escapeXml(removeTroublesomeCharacters(docText.toString()));
+    }
+    
+    private String removeTroublesomeCharacters(String inString){
+        if (null == inString ) return null;
+        byte[] byteArr = inString.getBytes();
+        for ( int i=0; i < byteArr.length; i++ ) {
+            byte ch= byteArr[i]; 
+            // remove any characters outside the valid UTF-8 range as well as all control characters
+            // except tabs and new lines
+            if ( !( (ch > 31 && ch < 253 ) || ch == '\t' || ch == '\n' || ch == '\r') ) {
+                byteArr[i]=' ';
+            }
+        }
+        return new String( byteArr );
+
     }
 
     private String getModelPath(String pid_path) throws IOException {
