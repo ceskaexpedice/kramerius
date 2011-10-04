@@ -1,4 +1,5 @@
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
+<%@taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <div id="advSearch" class="shadow" style="display:none;z-index:11">
     <table class="advancedSearch">
@@ -36,7 +37,7 @@
             <tr>
                 <td colspan="2" align="right">
                     <input type="submit" value="OK" class="ui-state-default ui-corner-all" />
-                    <input type="button" value="close" class="ui-state-default ui-corner-all"  onclick="$('#advSearch').hide();" />
+                    <input type="button" value="<fmt:message bundle="${lctx}" key="common.close" />" class="ui-state-default ui-corner-all"  onclick="$('#advSearch').hide();" />
                 </td>
             </tr>
     </tbody></table>

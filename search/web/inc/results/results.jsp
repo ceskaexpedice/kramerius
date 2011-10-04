@@ -1,4 +1,5 @@
 <%@ page contentType="text/html" pageEncoding="UTF-8" %>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt"%>
 <%@ taglib uri="/WEB-INF/tlds/securedContent.tld" prefix="scrd" %>
 <style type="text/css">
     #filters>ul>li>a{
@@ -39,11 +40,9 @@
 <div id="filters" class="ui-layout-west">
     <ul>
         <li><a href="#facets"><fmt:message bundle="${lctx}">results.filters</fmt:message></a></li>
-        <li id="dali"><a href="#dadiv"><fmt:message bundle="${lctx}" key="Časová osa" /></a></li>
+        <li id="dali"><a href="#dadiv" title="<fmt:message bundle="${lctx}" key="Časová osa" />"><span  class="ui-icon ui-icon-calendar" ><fmt:message bundle="${lctx}">Časová osa</fmt:message></span></a></li>
         <scrd:loggedusers>
-        <li>
-            <a href="#contextMenu" title="<fmt:message bundle="${lctx}">administrator.menu</fmt:message>"><img height="17" border="0" alt="<fmt:message bundle="${lctx}">administrator.menu</fmt:message>" src="img/gear.png" /></a>
-        </li>   
+        <li><a href="#contextMenu" title="<fmt:message bundle="${lctx}" key="administrator.menu" />"><span  class="ui-icon ui-icon-gear" ><fmt:message bundle="${lctx}">administrator.menu</fmt:message></span></a></li>
         </scrd:loggedusers>
     </ul>
     <div id="facets">
@@ -51,14 +50,6 @@
     <%@ include file="../facets.jsp" %>
     </div>
     <div id="dadiv" style="padding:3px;"><%@ include file="../da.jsp" %></div>
-    <%--
-    <div id="dateAxis" class="shadow box" style="float:right;right:0;z-index:2;background:white;position:absolute;">
-    <div id="showHideDA" ><a href="javascript:toggleDA();" title="show/hide date axis"><span class="ui-state-default ui-icon ui-icon-image ui-icon-circle-triangle-e"></span></a></div>
-        <div id="daBox">
-            <%@include file="../dateAxisV.jsp" %>
-        </div>
-    </div>
-    --%>
     <scrd:loggedusers>
     <div id="contextMenu"><%@include file="../details/contextMenu.jsp" %></div>
     </scrd:loggedusers>
@@ -141,14 +132,11 @@ $(document).ready(function(){
     });
     $("#docs").tabs();
     
-    //$(document).bind('scroll', function(event){
     $('#docs_content>div.content').bind('scroll', function(event){
         if($('#docs_content .more_docs').length>0){
             var id = $('#docs_content .more_docs').attr('id');
-            //if(isScrolledIntoWindow($('#'+id))){
             if(isScrolledIntoView($('#'+id), $('#docs_content>div.content'))){
                 getMoreDocs(id);
-                //alert(id);
             }
         }
     });
@@ -191,7 +179,6 @@ $(document).ready(function(){
         }else{
             removeFromContextMenuSelection(escapedId);
         }
-        
     }
     
     function toggleColumns(){

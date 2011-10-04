@@ -36,7 +36,7 @@
 <div id="da-inputs">
 <fmt:message bundle="${lctx}">Od</fmt:message>: <input class="da_input" id="f1" size="10" type="text" value="" />
 <fmt:message bundle="${lctx}">Do</fmt:message>: <input class="da_input" id="f2" size="10" type="text" value=""  /> 
-<a href="javascript:doFilter();" ><img align="top" src="img/lupa_orange.png" border="0" alt="<fmt:message bundle="${lctx}">použit</fmt:message>" title="<fmt:message bundle="${lctx}">použit</fmt:message>" /></a>
+<a href="javascript:doFilter();" ><span style="float:right;" class="ui-icon ui-icon-search"><fmt:message bundle="${lctx}">dateaxis.use</fmt:message>" </span></a>
 </div>
 <div id="content-resizable" style="position:relative;float:none;">
 <div id="content-scroll" style="float:left;" >

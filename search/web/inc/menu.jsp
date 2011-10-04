@@ -23,9 +23,9 @@
             <a href="logout.jsp?redirectURL=${searchFormViewObject.requestedAddress}"><fmt:message bundle="${lctx}">application.logout</fmt:message></a>
         </scrd:loggedusers>
 
-<a href="javascript:showHelp('<c:out value="${param.language}" />');"><fmt:message bundle="${lctx}">nápověda</fmt:message>
+<a href="javascript:showHelp('<c:out value="${param.language}" />');"><fmt:message bundle="${lctx}">application.help</fmt:message>
 </a>
-<c:if test="${rows != 0}" ><a href="."><fmt:message bundle="${lctx}">home</fmt:message></a></c:if>
+<c:if test="${rows != 0}" ><a href="."><fmt:message bundle="${lctx}">application.home</fmt:message></a></c:if>
 </div>
 
 <scrd:loggedusers>

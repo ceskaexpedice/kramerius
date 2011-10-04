@@ -9,6 +9,7 @@
 <%@page import="cz.incad.kramerius.utils.conf.KConfiguration"%>
 <%@page import="javax.servlet.jsp.jstl.fmt.LocalizationContext"%>
 <%@page import="cz.incad.Kramerius.I18NServlet"%>
+<%@page import="cz.incad.kramerius.service.*"%>
 <%
 	Injector ctxInj = (Injector)application.getAttribute(Injector.class.getName());
         KConfiguration kconfig = ctxInj.getProvider(KConfiguration.class).get();
@@ -17,11 +18,25 @@
             pageContext.setAttribute("lctx", lctx);
             String i18nServlet = I18NServlet.i18nServlet(request) + "?action=bundle&lang="+lctx.getLocale().getLanguage()+"&country="+lctx.getLocale().getCountry()+"&name=labels";
             pageContext.setAttribute("i18nServlet", i18nServlet);
-
 %>
+
 <c:set var="sort" scope="request">level asc, title asc</c:set>
 <%@ include file="inc/searchParams.jsp" %>
 <% out.clear(); %>
+<%            
+XSLService xs = (XSLService) ctxInj.getInstance(XSLService.class);
+
+    try {
+        String xsl = "uncollapsed.xsl";
+        if (xs.isAvailable(xsl)) {
+            String text = xs.transform(xml, xsl, lctx.getLocale());
+            out.println(text);
+            return;
+        }
+    } catch (Exception e) {
+        out.println(e);
+    }
+%>
 <c:if test="${param.debug}" >
     <c:out value="${url}" /><br/><c:out value="${exceptions}" />
 </c:if>

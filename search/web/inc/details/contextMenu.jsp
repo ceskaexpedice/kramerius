@@ -290,11 +290,14 @@
                 //height:100,
                 modal:true,
                 title:dictionary["administrator.menu.dialogs.persistenturl.title"],
-                buttons: {
-                    "Close": function() {
-                        $(this).dialog("close");
+                buttons:  [
+                    {
+                        text: dictionary['common.close'],
+                        click: function() {
+                            $(this).dialog("close"); 
+                        }
                     }
-                }
+                ]
             });
         }
         
@@ -373,15 +376,21 @@
                 width: 500,
                 modal: true,
                 title:'<fmt:message bundle="${lctx}">administrator.menu.reindex</fmt:message>',
-                buttons: {
-                    "Ok": function() {
-                        doReindex();
-                        $(this).dialog("close");
+                buttons: [
+                    {
+                        text: "Ok",
+                        click: function() {
+                            doReindex();
+                            $(this).dialog("close"); 
+                        }
                     },
-                    "Close": function() {
-                        $(this).dialog("close");
+                    {
+                        text: dictionary['common.close'],
+                        click: function() {
+                            $(this).dialog("close"); 
+                        }
                     }
-                }
+                ]
             });
 
         }

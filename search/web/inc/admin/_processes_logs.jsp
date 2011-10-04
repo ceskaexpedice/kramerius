@@ -61,9 +61,22 @@
 
 <link rel="icon" href="img/favicon.ico" />
 <link rel="shortcut icon" href="img/favicon.ico" type="image/x-icon" />
-<link type="text/css"
- href="../../css/smoothness/jquery-ui-1.8.11.custom.css"
- rel="stylesheet" />
+    <%
+    String theme;
+    String parameter = request.getParameter("theme");
+    if (parameter != null) {
+        theme = parameter;
+        session.setAttribute("theme",parameter);
+    } else if (session.getAttribute("theme") != null) {
+        theme = (String)session.getAttribute("theme");
+    } else {
+        theme = "smoothness";
+    }
+    pageContext.setAttribute("theme", theme);
+    %>
+    <link type="text/css" href="../../css/${theme}/jquery-ui.custom.css" rel="stylesheet" />
+    
+
 <link rel="stylesheet" href="../../css/styles.css" type="text/css" />
 
 <script src="../../js/jquery-1.5.1.min.js" type="text/javascript"></script>

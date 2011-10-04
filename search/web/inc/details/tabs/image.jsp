@@ -1,3 +1,8 @@
+<style type="text/css">
+    .image_buttons>a>span.ui-button-text{
+        padding:3px;
+    }
+</style>
 <div id="bigThumbZone" class="viewer">
     <div id="container"  class="view_div"  style="display:none; min-height: 512px; min-width: 512px; width: 512px; height: 512px;">
     </div>
@@ -21,13 +26,10 @@
     <div id="plainImage" style="position:relative;text-align:center;">
         <img id="plainImageImg" class="view_div" onclick="showFullImage()" onload="onLoadPlainImage()" border="0"  src="img/empty.gif" alt="" />
 
-        <div style="position:absolute; top:10px; left:10px;">
-            <span><img id="seadragonButton" border='0' onclick='showFullImage()'  src='img/fullpage_grouphover.png' />
-            </span>
-            <span><img id="leftButtonPlainImage" class="prevArrow" onclick="previousImage()" src="img/prev_grouphover.png" />
-            </span>
-            <span><img id="rightButtonPlainImage" class="nextArrow" onclick="nextImage()" src="img/next_grouphover.png" />
-            </span>
+        <div class="image_buttons" style="position:absolute; top:10px; left:10px;">
+            <a id="seadragonButton" onclick="javascript:showFullImage();"><span class=" ui-icon ui-icon-arrow-4-diag" >full</span></a>
+            <a id="seadragonButton" onclick="javascript:previousImage();"><span class="ui-icon ui-icon-triangle-1-w" >prev</span></a>
+            <a id="seadragonButton" onclick="javascript:nextImage();"><span class="ui-icon ui-icon-triangle-1-e" >next</span></a>
         </div>
     </div>
    
@@ -42,6 +44,7 @@
     
 </div>
 <script type="text/javascript">
+    $(".image_buttons>a").button();
     $(document).ready(function(){
         $('#bigThumbZone.viewer').bind('viewChanged', function(event, id){
             viewChanged(id);
@@ -52,6 +55,7 @@
         $('#bigThumbZone>div.preview').bind('click', function(event, viewerOptions){
             showPreviewImage(viewerOptions);
         });
+        
     });
     
     function showBornDigitalPDF(pid, page){

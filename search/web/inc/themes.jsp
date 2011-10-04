@@ -7,7 +7,6 @@ String[] themes = {"smoothness",
                     "blitzer",
                     "dark-hive",
                     "redmond",
-                    "swanky-purse",
                     "ui-lightness",
                     "sunny"
                     };

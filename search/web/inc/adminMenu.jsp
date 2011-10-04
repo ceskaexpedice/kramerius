@@ -46,7 +46,7 @@
      
          
 </style>
-<div id="adminMenu" class="shadow">
+<div id="adminMenu" class="shadow ui-widget-content">
     <div class="header"><fmt:message bundle="${lctx}">administrator.menu</fmt:message></div>
     <div id="adminMenuItems" class="adminMenuItems">
         <c:forEach var="item" items="${adminMenuViewObject.adminMenuItems}">

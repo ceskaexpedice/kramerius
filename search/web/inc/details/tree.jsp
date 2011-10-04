@@ -79,13 +79,9 @@
 --%>
 <div id="rightMenuBox" class="shadow_">
     <ul>   
-        <li><a href="#structure" title="<fmt:message bundle="${lctx}">item.structure</fmt:message>"><img border="0" height="17" alt="<fmt:message bundle="${lctx}">item.structure</fmt:message>" src="img/tree.png" /></a></li>
-        <li>
-        <a href="#searchInside" title="<fmt:message bundle="${lctx}">administrator.menu.searchinside</fmt:message>"><img border="0" alt="<fmt:message bundle="${lctx}">administrator.menu.searchinside</fmt:message>" src="img/lupa_orange.png" /></a>
-        </li>
-        <li>
-            <a href="#contextMenu" title="<fmt:message bundle="${lctx}">administrator.menu</fmt:message>"><img height="17" border="0" alt="<fmt:message bundle="${lctx}">administrator.menu</fmt:message>" src="img/gear.png" /></a>
-        </li>    
+        <li><a href="#structure" title="<fmt:message bundle="${lctx}" key="item.structure" />"><span class="ui-icon ui-icon-folder-open"><fmt:message bundle="${lctx}">item.structure</fmt:message></span></a></li>
+        <li><a href="#searchInside" title="<fmt:message key="administrator.menu.searchinside"/>"><span class="ui-icon ui-icon-search"><fmt:message bundle="${lctx}">administrator.menu.searchinside</fmt:message></span></a></li>
+        <li><a href="#contextMenu" title="<fmt:message key="administrator.menu" />"><span  class="ui-icon ui-icon-gear" ><fmt:message bundle="${lctx}">administrator.menu</fmt:message></span></a></li>
     </ul>
     <div id="structure"  >
         <ul id="item_tree" class="viewer">
