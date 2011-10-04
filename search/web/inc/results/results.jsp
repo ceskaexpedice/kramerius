@@ -39,10 +39,10 @@
 <div class="ui-layout-west">
 <div id="filters" class="ui-layout-west">
     <ul>
-        <li><a href="#facets"><fmt:message bundle="${lctx}">results.filters</fmt:message></a></li>
-        <li id="dali"><a href="#dadiv" title="<fmt:message bundle="${lctx}" key="Časová osa" />"><span  class="ui-icon ui-icon-calendar" ><fmt:message bundle="${lctx}">Časová osa</fmt:message></span></a></li>
+        <li><a href="#facets" title="<fmt:message bundle="${lctx}" key="results.filters" />"><span  class="ui-icon ui-icon-scissors" ><fmt:message bundle="${lctx}" key="results.filters" /></span></a></li>
+        <li id="dali"><a href="#dadiv" title="<fmt:message bundle="${lctx}" key="Časová osa" />"><span  class="ui-icon ui-icon-calendar" ><fmt:message bundle="${lctx}" key="Časová osa" /></span></a></li>
         <scrd:loggedusers>
-        <li><a href="#contextMenu" title="<fmt:message bundle="${lctx}" key="administrator.menu" />"><span  class="ui-icon ui-icon-gear" ><fmt:message bundle="${lctx}">administrator.menu</fmt:message></span></a></li>
+        <li><a href="#contextMenu" title="<fmt:message bundle="${lctx}" key="administrator.menu" />"><span  class="ui-icon ui-icon-gear" ><fmt:message bundle="${lctx}" key="administrator.menu" /></span></a></li>
         </scrd:loggedusers>
     </ul>
     <div id="facets">

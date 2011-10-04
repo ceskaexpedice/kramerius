@@ -112,12 +112,6 @@ a.image:hover {
     text-decoration:underline;
 }
 
-.r0{
-    background: white;
-}
-.r1{
-    background: #efefef;
-}
 
 .clear{
     display:block;
@@ -128,7 +122,6 @@ a.image:hover {
     -moz-box-shadow:0 4px 10px rgba(0, 0, 0, 0.5);
     -webkit-box-shadow:0 4px 10px rgba(0, 0, 0, 0.5);
     box-shadow:0 4px 10px rgba(0, 0, 0, 0.5);
-    background: url("images/ui-bg_glass_75_ffffff_1x400.png") repeat-x scroll 0 0 #FFFFFF;
     filter: progid:DXImageTransform.Microsoft.dropShadow(color=#bbbbbb, offX=3, offY=3, positive=true);
 }
 
@@ -136,7 +129,6 @@ a.image:hover {
     -moz-box-shadow:0 8px 10px rgba(0, 0, 0, 0.5);
     -webkit-box-shadow:0 8px 10px rgba(0, 0, 0, 0.5);
     box-shadow:0 8px 10px rgba(0, 0, 0, 0.5);
-    background: url("images/ui-bg_glass_75_ffffff_1x400.png") repeat-x scroll 0 0 #FFFFFF;
     filter: progid:DXImageTransform.Microsoft.dropShadow(color=#bbbbbb, offX=3, offY=3, positive=true);
 }
 
@@ -152,7 +144,6 @@ a.image:hover {
     border:solid 1px gray;
     position:absolute;
     z-index:8;
-    background:white;
 }
 #advancedSearch td{
     color:#0B0F0A;;
@@ -317,7 +308,6 @@ div.search_result{
 
 .uncollapsed{
     position:absolute;
-    background:white;
     border:1px solid silver;
     border-top:none;
     /*width:370px;*/
@@ -370,7 +360,6 @@ div.search_result{
 }
 
 #contextMenu>div{
-    border: solid 1px white;
     cursor:pointer;
 }
 

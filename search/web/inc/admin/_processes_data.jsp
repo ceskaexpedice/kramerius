@@ -140,6 +140,15 @@
         border:1px solid black;
         width:100%;
     }
+    .buttons{
+        margin-bottom: 5px;
+    }
+    .buttons>a{
+        margin-right:3px;
+    }
+    .buttons>a>.ui-button-text{
+        padding:3px;
+    }
      
          
 </style>
@@ -156,7 +165,6 @@ function _ref(ordering, offset, size, type) {
 	$.get(refreshurl, function(sdata) {
 		$("#processes").html(sdata);
 	});
-
 }
 
 
@@ -165,32 +173,26 @@ function _toggle_filter() {
     $(".displayButton").toggle();
 }
 
+$(document).ready(function(){
+    $(".buttons>a").button();
+});
 
 </script>
 <div class="header">
-    <div class="title">
+    <div class="buttons">
         <c:if test="${processView.offsetValue>0}">
             <a href="javascript:processes.modifyProcessDialogData('${processView.ordering}',${processView.skipPrevPageValue},${processView.pageSize},'${processView.typeOfOrdering}');"><span class="ui-icon ui-icon-seek-prev">previous skip</span></a>
-            <a href="javascript:processes.modifyProcessDialogData('${processView.ordering}',${processView.prevPageValue},${processView.pageSize},'${processView.typeOfOrdering}');"><span class="ui-icon ui-icon-arrowthick-1-w">previous</span></a>
+            <a title="<view:msg>administrator.processes.prev</view:msg>" href="javascript:processes.modifyProcessDialogData('${processView.ordering}',${processView.prevPageValue},${processView.pageSize},'${processView.typeOfOrdering}');"><span class="ui-icon ui-icon-arrowthick-1-w">previous</span></a>
         </c:if>
         &emsp;
         <c:if test="${processView.hasNext}">
-            <a href="javascript:processes.modifyProcessDialogData('${processView.ordering}',${processView.nextPageValue},${processView.pageSize},'${processView.typeOfOrdering}');"><span class="ui-icon ui-icon-arrowthick-1-e">next</span></a>
+            <a title="<view:msg>administrator.processes.next</view:msg>" href="javascript:processes.modifyProcessDialogData('${processView.ordering}',${processView.nextPageValue},${processView.pageSize},'${processView.typeOfOrdering}');"><span class="ui-icon ui-icon-arrowthick-1-e">next</span></a>
             <a href="javascript:processes.modifyProcessDialogData('${processView.ordering}',${processView.skipNextPageValue},${processView.pageSize},'${processView.typeOfOrdering}');"><span class="ui-icon ui-icon-seek-next">next</span></a>
         </c:if>
-
-        
-    </div>
-    <div class="buttons">
-        <a href="javascript:_ref('${processView.ordering}',${processView.offsetValue},${processView.pageSize},'${processView.typeOfOrdering}');"><span class="ui-icon ui-icon-transferthick-e-w">refresh</span></a>
+        <a title="<view:msg>administrator.processes.refresh</view:msg>" href="javascript:_ref('${processView.ordering}',${processView.offsetValue},${processView.pageSize},'${processView.typeOfOrdering}');"><span class="ui-icon ui-icon-transferthick-e-w">refresh</span></a>
+        <a href="javascript:_toggle_filter();" title="<view:msg>administrator.processes.filter</view:msg>"><span class="ui-icon ui-icon-scissors">filter</span></a>
     </div>
     
-</div>
-
-<div class="displayButton">
-    <div class="dropdown">
-        <a href="javascript:_toggle_filter();">Filtr</a>
-    </div>
 </div>
 
 <div class="filter shadow" style="">
@@ -284,7 +286,7 @@ function _toggle_filter() {
     </thead>
     <tbody>
         <c:forEach var="lrProc" items="${processView.processes}" varStatus="i">
-            <tr class="${(i.index mod 2 == 0) ? 'result r0': 'result r1'}">
+            <tr class="${(i.index mod 2 == 0) ? 'result ui-state-default': 'result '}">
                 <td>${lrProc.treeIcon}</td>
                 <td>${lrProc.processName} </td>
                 <td>${lrProc.pid} </td>

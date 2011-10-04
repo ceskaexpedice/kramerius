@@ -242,11 +242,14 @@
                 height:480,
                 modal:true,
                 title:titul,
-                buttons: {
-                    "Close": function() {
-                        $(this).dialog("close");
+                buttons: [
+                    {
+                        text: dictionary['common.close'],
+                        click: function() {
+                            $(this).dialog("close"); 
+                        }
                     }
-                }
+                ]
             });
         }
 

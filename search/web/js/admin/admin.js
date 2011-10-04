@@ -21,11 +21,9 @@ function showConfirmDialog(t,f){
             Ok: function() {
                 $(this).dialog('destroy');
                 f();
-                //return true;
             },
             Cancel: function() {
                 $(this).dialog('destroy');
-                //return false;
             }
         }
 
@@ -60,11 +58,14 @@ function openProcessDialog() {
 	        height:  $(window).height()-60,
 	        modal: true,
 	        title: dictionary['administrator.menu.dialogs.lrprocesses.title'],
-	        buttons: {
-	            "Close": function() {
-	                $(this).dialog("close"); 
-	            } 
-	        }
+	        buttons: [
+                    {
+                        text: dictionary['common.close'],
+                        click: function() {
+                            $(this).dialog("close"); 
+                        }
+                    }
+                ]
 	    });
 	}
 	
@@ -180,7 +181,7 @@ var _texts=function() {
 
 
 function importMonographs() {
-    showConfirmDialog('Confirm import monografii', function(){
+    showConfirmDialog(dictionary['administrator.dialogs.importMonograph.confirm'], function(){
 		var url = "lr?action=start&def=replikator_monographs&out=text";
 		if (_commonDialog) {
 
@@ -198,11 +199,14 @@ function importMonographs() {
 		        height: 100,
 		        modal: true,
 		        title:'',
-		        buttons: {
-		            "Close": function() {
-		                $(this).dialog("close"); 
-		            } 
-		        } 
+		        buttons: [
+                            {
+                                text: dictionary['common.close'],
+                                click: function() {
+                                    $(this).dialog("close"); 
+                                }
+                            }
+                        ]
 		    });
 		}
 		$("#common_started_text").text(dictionary['administrator.dialogs.waitingmonographimport']);
@@ -214,7 +218,7 @@ function importMonographs() {
 
 
 function importPeriodicals() {
-    showConfirmDialog('Confirm import periodik', function(){
+    showConfirmDialog(dictionary['administrator.dialogs.importMonograph.confirm'], function(){
 		var url = "lr?action=start&def=replikator_periodicals&out=text";
 
 		if (_commonDialog) {
@@ -232,11 +236,14 @@ function importPeriodicals() {
 		        height: 100,
 		        modal: true,
 		        title:'',
-		        buttons: {
-		            "Close": function() {
-		                $(this).dialog("close"); 
-		            } 
-		        } 
+		        buttons: [
+                            {
+                                text: dictionary['common.close'],
+                                click: function() {
+                                    $(this).dialog("close"); 
+                                }
+                            }
+                        ] 
 		    });
 		}
 
@@ -281,11 +288,14 @@ function reindex(level, model) {
 	        height: 100,
 	        modal: true,
 	        title:'',
-	        buttons: {
-	            "Close": function() {
-	                $(this).dialog("close"); 
-	            } 
-	        } 
+	        buttons: [
+                    {
+                        text: dictionary['common.close'],
+                        click: function() {
+                            $(this).dialog("close"); 
+                        }
+                    }
+                ]
 	    });
 	
 	}
@@ -331,11 +341,14 @@ function exportTOFOXML(level)  {
 	        height: 100,
 	        modal: true,
 	        title: '',
-	        buttons: {
-	            "Close": function() {
-	                $(this).dialog("close"); 
-	            } 
-	        } 
+	        buttons: [
+                    {
+                        text: dictionary['common.close'],
+                        click: function() {
+                            $(this).dialog("close"); 
+                        }
+                    }
+                ]
 	    });
 	}
 
@@ -361,11 +374,14 @@ function noParamsProcess(process)  {
 	        height: 100,
 	        modal: true,
 	        title: '',
-	        buttons: {
-	            "Close": function() {
-	                $(this).dialog("close"); 
-	            } 
-	        } 
+	        buttons: [
+                    {
+                        text: dictionary['common.close'],
+                        click: function() {
+                            $(this).dialog("close"); 
+                        }
+                    }
+                ]
 	    });
 	}
 
@@ -395,11 +411,14 @@ function deleteUuid(level, model)  {
 		        height: 100,
 		        modal: true,
 		        title: '',
-		        buttons: {
-		            "Close": function() {
-		                $(this).dialog("close"); 
-		            } 
-		        } 
+		        buttons: [
+                            {
+                                text: dictionary['common.close'],
+                                click: function() {
+                                    $(this).dialog("close"); 
+                                }
+                            }
+                        ] 
 		    });
 		}
 	
@@ -435,11 +454,14 @@ function generateStatic(level, exportType, imgUrl, i18nUrl,iso3Country, iso3Lang
 	        height: 100,
 	        modal: true,
 	        title: "",
-	        buttons: {
-	            "Close": function() {
-	                $(this).dialog("close"); 
-	            } 
-	        } 
+	        buttons: [
+                    {
+                        text: dictionary['common.close'],
+                        click: function() {
+                            $(this).dialog("close"); 
+                        }
+                    }
+                ]
 	    });
 	}
 	
@@ -499,11 +521,14 @@ function showIndexerAdmin(){
             height: 400,
             modal: true,
 	        title: dictionary['administrator.menu.dialogs.indexDocuments.title'],
-            buttons: {
-                "Close": function() {
-                    $(this).dialog("close"); 
-                } 
-            } 
+            buttons: [
+                    {
+                        text: dictionary['common.close'],
+                        click: function() {
+                            $(this).dialog("close"); 
+                        }
+                    }
+                ]
         });
     }
     
@@ -549,11 +574,14 @@ function generateDeepZoomTiles(level, model) {
 	        height: 100,
 	        modal: true,
 	        title: '',
-	        buttons: {
-	            "Close": function() {
-	                $(this).dialog("close"); 
-	            } 
-	        } 
+	        buttons: [
+                    {
+                        text: dictionary['common.close'],
+                        click: function() {
+                            $(this).dialog("close"); 
+                        }
+                    }
+                ]
 	    });
 	}
 
@@ -581,11 +609,14 @@ function deleteGeneratedDeepZoomTiles(level, model) {
             height: 100,
             modal: true,
             title: '',
-            buttons: {
-                "Close": function() {
-                    $(this).dialog("close"); 
-                } 
-            } 
+            buttons: [
+                {
+                    text: dictionary['common.close'],
+                    click: function() {
+                        $(this).dialog("close"); 
+                    }
+                }
+            ]
         });
     }
 
@@ -599,7 +630,7 @@ function deleteGeneratedDeepZoomTiles(level, model) {
 
 function deletefromindex(level){
 	hideAdminOptions(level);
-    showConfirmDialog('Confirm delete dokument from index', function(){
+    showConfirmDialog(dictionary['administrator.dialogs.indexdeleteconfirm'], function(){
       var pid = $("#tabs_"+level).attr('pid');
       var pid_path = "";
       for(var i = level; i>0; i--){
@@ -620,11 +651,14 @@ function deletefromindex(level){
 	        height: 100,
 	        modal: true,
 	        title: '',
-	        buttons: {
-	            "Close": function() {
-	                $(this).dialog("close"); 
-	            } 
-	        } 
+	        buttons: [
+                    {
+                        text: dictionary['common.close'],
+                        click: function() {
+                            $(this).dialog("close"); 
+                        }
+                    }
+                ]
 	    });
 	}
 
@@ -637,7 +671,7 @@ function deletefromindex(level){
 }
 
 function indexDoc(pid, title){
-    showConfirmDialog('Confirm index dokumentu', function(){
+    showConfirmDialog(dictionary['administrator.dialogs.indexdocument.confirm'], function(){
       var prefix = "info\:fedora\/uuid:";
       var uuid = pid.replace(prefix,"");
       var escapedTitle = replaceAll(title, ',', '');
@@ -647,7 +681,7 @@ function indexDoc(pid, title){
 }
 
 function indexModel(model){
-    showConfirmDialog('Confirm index cely model', function(){
+    showConfirmDialog(dictionary['administrator.dialogs.indexmodel.confirm'], function(){
       var url = "lr?action=start&def=reindex&out=text&params=krameriusModel,"+model+","+model;
       _startProcess(url);
     });
@@ -699,15 +733,22 @@ ChangeFlag.prototype.change = function() {
                 height:  200,
                 modal: true,
                 title: dictionary['administrator.menu.dialogs.changevisflag.title'],
-                buttons: {
-                    "Aplikuj": bind(function() {
-                        this.dialog.dialog("close");
-                        this.startProcess();                        
-                     },this),
-                    "Close": function() {
-                        $(this).dialog("close"); 
-                    } 
-                }
+                buttons: [
+                    {
+                        text: dictionary["common.set"],
+                        click: bind(function() {
+                            this.dialog.dialog("close");
+                            this.startProcess();                        
+                         },this)
+                    },
+                    {
+                        text: dictionary["common.close"],
+                        click:function() {
+                            $(this).dialog("close"); 
+                        } 
+                    }
+                ]
+                    
             });
                 
         }

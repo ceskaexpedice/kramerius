@@ -52,13 +52,14 @@
 
     <xsl:template name="facet">
         <xsl:param name="facetname" />
+        <xsl:variable name="facetname_bundle">facet.<xsl:value-of select="$facetname" /></xsl:variable>
         <li>
             <xsl:attribute name="id">facet_<xsl:value-of select="$facetname"/></xsl:attribute>
             <xsl:if test="position() = last()">
                 <xsl:attribute name="style">border-bottom:none;</xsl:attribute>
             </xsl:if>
             <span class="ui-icon ui-icon-triangle-1-e folder" ></span>
-            <a href="#"><xsl:value-of select="$bundle/value[@key=$facetname]" /></a>
+            <a href="#"><xsl:value-of select="$bundle/value[@key=$facetname_bundle]" /></a>
             <ul><xsl:for-each select="./int">
                 <xsl:variable name="fqId"><xsl:value-of select="$facetname" />:"<xsl:value-of select="@name" />"</xsl:variable>
                 <xsl:variable name="displayName"><xsl:choose>

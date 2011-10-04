@@ -72,37 +72,43 @@ ChangePswd.prototype.changePassword  = function () {
                 height:250,
                 modal:true,
                 title:"",
-                buttons: {
-                    "Zmen heslo": function() {
-                    	if ($("#pswd").val() == $("#pswdRepeat").val()) {
-                        	$.post(urlForPost, {
-                        		nswpd:$("#pswd").val()},
-                        		function (data,textStatus) {
-                        			if (textStatus =="success") {
-                        				$("#checkPswdStatus").text('Heslo zmeneno');
-                        				$("#checkPswdStatus").css('color','black');
+                buttons: [
+                    {
+                        text: dictionary["rights.changepswd.button"],
+                        click: function() {
+                            if ($("#pswd").val() == $("#pswdRepeat").val()) {
+                                    $.post(urlForPost, {
+                                            nswpd:$("#pswd").val()},
+                                            function (data,textStatus) {
+                                                    if (textStatus =="success") {
+                                                            $("#checkPswdStatus").text('Heslo zmeneno');
+                                                            $("#checkPswdStatus").css('color','black');
 
-                        				$(this).dialog("close"); 
-                                    	$("#changePswd").remove();
-                                    	
-                        			} else {
-                        				$("#checkPswdStatus").css('color','red');
-                        				$("#checkPswdStatus").text(dictionary['rights.changepswd.nochangepswd']);
-                        			}
-                        		}
-                    		);
+                                                            $(this).dialog("close"); 
+                                            $("#changePswd").remove();
+
+                                                    } else {
+                                                            $("#checkPswdStatus").css('color','red');
+                                                            $("#checkPswdStatus").text(dictionary['rights.changepswd.nochangepswd']);
+                                                    }
+                                            }
+                                    );
 
 
-                    	} else {
-            				$("#checkPswdStatus").css('color','red');
-                    		$("#checkPswdStatus").text(dictionary['rights.changepswd.notsamepswd']);
-                    	}
-                    }, 
-                    "Close": function() {
-                    	$(this).dialog("close"); 
-                    	$("#changePswd").remove();
-                    } 
-                } 
+                            } else {
+                                            $("#checkPswdStatus").css('color','red');
+                                    $("#checkPswdStatus").text(dictionary['rights.changepswd.notsamepswd']);
+                            }
+                        }
+                    },
+                    {
+                        text: dictionary['common.close'],
+                        click:function() {
+                            $(this).dialog("close"); 
+                            $("#changePswd").remove();
+                        } 
+                    }
+                ] 
             });
         }
     	$("#changePswd").html(data);

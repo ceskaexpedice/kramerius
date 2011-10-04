@@ -1,5 +1,8 @@
 <style type="text/css">
-    .image_buttons>a>span.ui-button-text{
+    .buttons>a{
+        margin-right: 3px;
+    }
+    .buttons>a>span.ui-button-text{
         padding:3px;
     }
 </style>
@@ -26,10 +29,10 @@
     <div id="plainImage" style="position:relative;text-align:center;">
         <img id="plainImageImg" class="view_div" onclick="showFullImage()" onload="onLoadPlainImage()" border="0"  src="img/empty.gif" alt="" />
 
-        <div class="image_buttons" style="position:absolute; top:10px; left:10px;">
+        <div class="buttons" style="position:absolute; top:10px; left:10px;">
             <a id="seadragonButton" onclick="javascript:showFullImage();"><span class=" ui-icon ui-icon-arrow-4-diag" >full</span></a>
-            <a id="seadragonButton" onclick="javascript:previousImage();"><span class="ui-icon ui-icon-triangle-1-w" >prev</span></a>
-            <a id="seadragonButton" onclick="javascript:nextImage();"><span class="ui-icon ui-icon-triangle-1-e" >next</span></a>
+            <a id="seadragonButton" onclick="javascript:previousImage();"><span class="ui-icon ui-icon-arrowthick-1-w" >prev</span></a>
+            <a id="seadragonButton" onclick="javascript:nextImage();"><span class="ui-icon ui-icon-arrowthick-1-e" >next</span></a>
         </div>
     </div>
    
@@ -44,8 +47,8 @@
     
 </div>
 <script type="text/javascript">
-    $(".image_buttons>a").button();
     $(document).ready(function(){
+        $(".buttons>a").button();
         $('#bigThumbZone.viewer').bind('viewChanged', function(event, id){
             viewChanged(id);
         });
