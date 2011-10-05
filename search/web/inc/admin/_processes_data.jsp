@@ -195,7 +195,7 @@ $(document).ready(function(){
     
 </div>
 
-<div class="filter shadow" style="">
+<div class="filter shadow ui-widget ui-widget-content" style="">
     
      <h3><view:msg>administrator.processes.filter.label</view:msg></h3>
 
