@@ -64,10 +64,11 @@
 
     <xsl:template name="facet">
         <xsl:param name="facetname" />
+        <xsl:variable name="facetname_bundle">facet.<xsl:value-of select="$facetname" /></xsl:variable>
         <li style="float:left; border:1px solid silver;margin:5px;padding:5px;width:30%;">
             <xsl:attribute name="id">facet_<xsl:value-of select="$facetname"/></xsl:attribute>
             <span class="ui-icon ui-icon-triangle-1-e folder" ></span>
-            <a href="#"><xsl:value-of select="$bundle/value[@key=$facetname]" /></a>
+            <a href="#"><xsl:value-of select="$bundle/value[@key=$facetname_bundle]" /></a>
             <ul><xsl:for-each select="./int">
                 <xsl:variable name="fqId"><xsl:value-of select="$facetname" />:"<xsl:value-of select="@name" />"</xsl:variable>
                 <xsl:variable name="displayName"><xsl:choose>

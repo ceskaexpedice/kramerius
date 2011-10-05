@@ -21,11 +21,9 @@
     </c:if>
 <c:choose>
     <c:when test="${empty param.q && !searching && !fieldedSearch}" >
-        <c:set var="qtext" ><fmt:message bundle="${lctx}">form.search</fmt:message></c:set>
         <c:set var="qclass" >searchQuery ui-corner-all</c:set>
     </c:when>
     <c:otherwise>
-        <c:set var="qtext" ><c:out value="${param.q}" /></c:set>
         <c:set var="qclass" >searchQuery ui-corner-all searching</c:set>
     </c:otherwise>
 </c:choose>
@@ -33,7 +31,7 @@
     <input id="sort" name="sort" type="hidden" value="${param.sort}" /> 
     <input type="text"
            alt="" name="q" id="q"
-           value="${qtext}" size="50"
+           value="${param.q}" size="50"
            class="${qclass}" type="text" onclick="checkSearchInput();"> &nbsp;
     <input class="submit" title="Vyhledat" type="submit" value="" />
     <span><a href="javascript:toggleAdv();"
@@ -44,13 +42,18 @@
 
     var inputSearchInitialized = false;
     function checkSearchInput(){
-        var iniVal = '<fmt:message bundle="${lctx}">form.search</fmt:message>';
+        //var iniVal = '<fmt:message bundle="${lctx}">form.search</fmt:message>';
+        var iniVal = '';
         var q = $('#q').val();
+        //alert(inputSearchInitialized);
+        //alert(iniVal);
+        //alert(q);
         if(!inputSearchInitialized && iniVal == q){
             inputSearchInitialized = true;
             $('#q').val('');
             $('#q').addClass('searching');
         }
+        //alert($('#q').hasClass('searching'));
     }
     function checkQuery(){
         if ($('#q.searching').length==0) {

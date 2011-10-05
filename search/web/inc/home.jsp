@@ -49,6 +49,7 @@
         w = w -$("#da-inputs").outerHeight(true);
         $("#content-resizable").css("height", w);
         resizeDateAxisContent();
+        //alert($(".ui-widget-content").first().css("color"));
     });
 </script>
 

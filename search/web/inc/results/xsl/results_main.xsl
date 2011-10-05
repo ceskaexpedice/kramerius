@@ -27,8 +27,7 @@
             </xsl:choose>
 
         </xsl:variable>
-        <xsl:choose>   
-        <xsl:when test="/response/result/doc" >
+        <xsl:if test="/response/result/doc" >
             <xsl:choose>
                 <xsl:when test="$start = 0">
                     <div>
@@ -45,14 +44,7 @@
                 <xsl:attribute name="id">offset_<xsl:value-of select="$start + $rows"/></xsl:attribute>
             <img src="img/loading.gif" /><br/>loading more documents...</div>
             </xsl:if>
-        </xsl:when>
-        <xsl:otherwise>
-            <xsl:if test="$start = 0">
-                <div style="font-weight:bold;"><xsl:value-of select="$bundle/value[@key='results.nohits']"/></div>
-                <div class="clear"></div>
-            </xsl:if>
-        </xsl:otherwise>
-        </xsl:choose>
+        </xsl:if>
     </xsl:template>
 
     <xsl:template name="collapse">

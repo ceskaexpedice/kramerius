@@ -65,9 +65,8 @@
 </div>
     </div>
 <script type="text/javascript">
-
-
 $(document).ready(function(){
+    
     var w;
     var w1 = $(window).height() -
             $("#header").height() - 
@@ -167,10 +166,10 @@ $(document).ready(function(){
 </c:otherwise>
 </c:choose>   
     checkHeight(0);
+    $(".resultText>a").css("color", $("#docs>ul>li.ui-state-active a").first().css("color"));
 });
 
     function changeResSelection(o){
-        //alert("Checked: " + $(o).is(":checked"));
         var id =  $(getResultElement(o)).attr("id");
         var escapedId = id.substring(4).replace(/\//g,'-');
         if($(o).is(":checked")){
