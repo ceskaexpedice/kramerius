@@ -1,7 +1,7 @@
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 <%@taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
-<div id="advSearch" class="shadow" style="display:none;z-index:11">
+<div id="advSearch" class="shadow ui-widget ui-widget-content" style="display:none;z-index:11">
     <table class="advancedSearch">
         <col width="150px">
         <tbody>

@@ -90,7 +90,7 @@
                         <xsl:with-param name="model_path"><xsl:value-of select="./arr[@name='model_path']/str[position()=1]"/></xsl:with-param>
                     </xsl:call-template>
                         <div style="display:none;">
-                            <xsl:attribute name="class">shadow-bottom uncollapsed </xsl:attribute>
+                            <xsl:attribute name="class">shadow-bottom ui-widget ui-widget-content uncollapsed </xsl:attribute>
                             <xsl:attribute name="id">uncollapsed_<xsl:value-of select="./str[@name='root_pid']"/></xsl:attribute>
                         </div>
                     </div>

@@ -5,14 +5,15 @@
     <xsl:param name="bundle" select="document($bundle_url)/bundle" />
     <xsl:param name="pid" select="pid"/>
     <xsl:template match="/">
-        <xsl:for-each select="//doc" >
+        <div class="ui-tabs-panel ui-widget-content">
+            <xsl:for-each select="//doc" >
             <xsl:sort select="position()" data-type="number" order="descending"/>
             <xsl:variable name="model"><xsl:value-of select="concat('fedora.model.', ./str[@name='fedora.model'])" /></xsl:variable>
             <xsl:if test="position()&gt;1">| &#160;</xsl:if><xsl:value-of select="$bundle/value[@key=$model]" />: 
             <a><xsl:attribute name="href">i.jsp?pid=<xsl:value-of
         select="./str[@name='PID']"/></xsl:attribute><xsl:value-of select="./str[@name='dc.title']" /></a>
             <!--<xsl:call-template name="details" />-->&#160;
-        </xsl:for-each>
+        </xsl:for-each></div>
         <div class="clear"></div>
     </xsl:template>
 

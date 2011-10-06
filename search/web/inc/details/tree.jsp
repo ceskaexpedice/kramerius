@@ -18,7 +18,8 @@
         overflow:hidden;
     }
     #item_tree li a.sel{
-        color:#e66c00;
+        /*color:#e66c00;*/
+        border:none;
     }
     #showHideRightMenu{
         width:20px;
@@ -219,6 +220,7 @@
         function highLigthNode(id){
             $(jq(id)+">a").addClass('sel');
             $(jq(id)).addClass('sel');
+            $(jq(id)+">a").addClass('ui-state-active');
             if($(jq(id)).parent().parent().is('li')){
                 highLigthNode($($(jq(id)).parent().parent()).attr('id'));
             }
@@ -228,6 +230,7 @@
             $(jq(id)+">ul").show();
             $(jq(id)+">span.folder").addClass('ui-icon-triangle-1-s');
             $(jq(id)+">a").addClass('sel');
+            $(jq(id)+">a").addClass('ui-state-active');
             $(jq(id)).addClass('sel');
             if($(jq(id)).parent().parent().is('li')){
                 showNode($($(jq(id)).parent().parent()).attr('id'));
@@ -251,6 +254,8 @@
             }
             $("#item_tree li>a").removeClass('sel');
             $("#item_tree li").removeClass('sel');
+            $("#item_tree li>a").removeClass('ui-state-active');
+            $("#item_tree li").removeClass('ui-state-active');
             highLigthNode(id);
             if(fire){
                 setActiveUuids(id);

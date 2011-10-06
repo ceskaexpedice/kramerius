@@ -7,6 +7,25 @@
 
 <%@ page isELIgnored="false"%>
 <div  id="main_menu_in">
+    <%
+    String[] langs = kconfig.getPropertyList("interface.languages");
+    String base  =  request.getRequestURL().toString();
+    String curLanguage = request.getLocale().getCountry();
+    String queryString = request.getQueryString();
+    String link = "";
+        
+    if (queryString == null) {
+        queryString =  "";
+    }
+    
+    for(int i=0; i<langs.length; i=i+2){
+        
+         link = base + "?language="+ langs[i+1] + "&" + queryString;
+    %>
+    <a href="<%=link%>"><%=langs[i]%></a>
+    <%
+    }
+    %>
 
         <!--  show admin menu - only for logged users -->
         <scrd:loggedusers>

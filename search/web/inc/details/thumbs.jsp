@@ -74,7 +74,7 @@
     }
 
 </style>
-<div id="tv" class="viewer">
+<div id="tv" class="viewer ui-widget ui-widget-content">
     <div id="tv_path"></div>
 <div id="tv_container" align="center" >
     <table cellpadding="2" cellspacing="0" id="tv_container_table">
