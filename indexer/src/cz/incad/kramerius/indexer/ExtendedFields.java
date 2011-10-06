@@ -19,6 +19,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathConstants;
@@ -77,13 +78,13 @@ public class ExtendedFields {
         solrDateFormat = new SimpleDateFormat("yyyy-MM-dd'T'hh:mm:ss.SSS'Z'");
     }
 
-    public void clearCache(){
+    public void clearCache() {
         models_cache.clear();
         dates_cache.clear();
         root_title_cache.clear();
-        
+
     }
-    
+
     public void setFields(String pid) throws Exception {
         pid_paths = new ArrayList<String>();
         pid_paths = fo.getPidPaths(pid);
@@ -95,28 +96,30 @@ public class ExtendedFields {
         setRootTitle();
         setDate();
     }
-    
     COSDocument cosDoc = null;
     PDDocument pdDoc = null;
     String pdfPid = "";
 
     public void setPDFDocument(String pid) throws Exception {
         if (!pdfPid.equals(pid)) {
+            try {
             pdfPid = "";
             closePDFDocument();
-            InputStream is = fa.getDataStream(pid, "IMG_FULL");
-            try {
+                InputStream is = fa.getDataStream(pid, "IMG_FULL");
                 PDFParser parser = new PDFParser(is);
                 parser.parse();
                 cosDoc = parser.getDocument();
-            } catch (IOException e) {
+
+                pdDoc = new PDDocument(cosDoc);
+                pdfPid = pid;
+
+            } catch (Exception ex) {
                 closePDFDocument();
-                throw new Exception("Cannot parse PDF document", e);
+                logger.log(Level.WARNING, "Cannot parse PDF document", ex);
             }
 
-            pdDoc = new PDDocument(cosDoc);
-            pdfPid = pid;
         }
+
     }
 
     public void closePDFDocument() throws IOException {
@@ -128,23 +131,24 @@ public class ExtendedFields {
             pdDoc.close();
         }
     }
-    
-    public int getPDFPagesCount(){
-        if(pdDoc != null){
+
+    public int getPDFPagesCount() {
+        if (pdDoc != null) {
             return pdDoc.getNumberOfPages();
-        }else{
+        } else {
             return 0;
         }
     }
-    
-    private String getPDFPage(int page) throws Exception{
-        StringBuffer docText = new StringBuffer();
-        PDFTextStripper stripper = new PDFTextStripper();
-        if(page!=-1){
-            stripper.setStartPage(page);
-            stripper.setEndPage(page);
-        }
-        docText = new StringBuffer(stripper.getText(pdDoc));
+
+    private String getPDFPage(int page) throws Exception {
+        try {
+            StringBuffer docText = new StringBuffer();
+            PDFTextStripper stripper = new PDFTextStripper();
+            if (page != -1) {
+                stripper.setStartPage(page);
+                stripper.setEndPage(page);
+            }
+            docText = new StringBuffer(stripper.getText(pdDoc));
             /*
             ByteArrayOutputStream bout = new ByteArrayOutputStream();
             OutputStreamWriter writer = new OutputStreamWriter(bout);
@@ -159,27 +163,32 @@ public class ExtendedFields {
             InputStreamReader isr = new InputStreamReader(new ByteArrayInputStream(bytes), enc);
             int c = isr.read();
             while (c > -1) {
-                docText.append((char) c);
-                c = isr.read();
+            docText.append((char) c);
+            c = isr.read();
             }
             
              */
-            
-        return StringEscapeUtils.escapeXml(removeTroublesomeCharacters(docText.toString()));
+
+            return StringEscapeUtils.escapeXml(removeTroublesomeCharacters(docText.toString()));
+        } catch (Exception ex) {
+            return "";
+        }
     }
-    
-    private String removeTroublesomeCharacters(String inString){
-        if (null == inString ) return null;
+
+    private String removeTroublesomeCharacters(String inString) {
+        if (null == inString) {
+            return null;
+        }
         byte[] byteArr = inString.getBytes();
-        for ( int i=0; i < byteArr.length; i++ ) {
-            byte ch= byteArr[i]; 
+        for (int i = 0; i < byteArr.length; i++) {
+            byte ch = byteArr[i];
             // remove any characters outside the valid UTF-8 range as well as all control characters
             // except tabs and new lines
-            if ( !( (ch > 31 && ch < 253 ) || ch == '\t' || ch == '\n' || ch == '\r') ) {
-                byteArr[i]=' ';
+            if (!((ch > 31 && ch < 253) || ch == '\t' || ch == '\n' || ch == '\r')) {
+                byteArr[i] = ' ';
             }
         }
-        return new String( byteArr );
+        return new String(byteArr);
 
     }
 
@@ -197,7 +206,7 @@ public class ExtendedFields {
                 models_cache.put(s, model);
             }
         }
-        return model_path.deleteCharAt(model_path.length()-1).toString();
+        return model_path.deleteCharAt(model_path.length() - 1).toString();
     }
 
     public HashMap<String, String> toArray() {
@@ -210,27 +219,27 @@ public class ExtendedFields {
         for (String s : pid_paths) {
             sb.append("<field name=\"pid_path\">").append(s).append(pageNum == 0 ? "" : "/@" + pageNum).append("</field>");
             String[] pids = s.split("/");
-            if(pageNum != 0){
+            if (pageNum != 0) {
                 sb.append("<field name=\"parent_pid\">").append(pids[pids.length - 1]).append("</field>");
                 sb.append("<field name=\"text\">").append(getPDFPage(pageNum)).append("</field>");
-            }else{
-                if(pids.length==1){
+            } else {
+                if (pids.length == 1) {
                     sb.append("<field name=\"parent_pid\">").append(pids[0]).append("</field>");
-                }else{
+                } else {
                     sb.append("<field name=\"parent_pid\">").append(pids[pids.length - 2]).append("</field>");
                 }
             }
-            
+
         }
         int level = pid_paths.get(0).split("/").length - 1;
-        if(pageNum != 0){
+        if (pageNum != 0) {
             level++;
-            
+
         }
         for (String s : model_paths) {
-            if(pageNum != 0){
+            if (pageNum != 0) {
                 sb.append("<field name=\"model_path\">").append(s).append("/page").append("</field>");
-            }else{
+            } else {
                 sb.append("<field name=\"model_path\">").append(s).append("</field>");
             }
         }
@@ -239,9 +248,9 @@ public class ExtendedFields {
         sb.append("<field name=\"root_pid\">").append(pid_paths.get(0).split("/")[0]).append("</field>");
         sb.append("<field name=\"level\">").append(level).append("</field>");
         sb.append("<field name=\"datum_str\">").append(datum_str).append("</field>");
-        if(datum!=null){
+        if (datum != null) {
             sb.append("<field name=\"datum\">").append(solrDateFormat.format(datum)).append("</field>");
-        }else{
+        } else {
             sb.append("<field name=\"datum\">").append(solrDateFormat.format(new Date(0))).append("</field>");
         }
         if (!rok.equals("")) {
@@ -258,11 +267,11 @@ public class ExtendedFields {
 
     private void setRootTitle() throws Exception {
         String root_pid = pid_paths.get(0).split("/")[0];
-        if(root_title_cache.containsKey(root_pid)){
+        if (root_title_cache.containsKey(root_pid)) {
             root_title = root_title_cache.get(root_pid);
-        }else{
+        } else {
             Document doc = fa.getDC(root_pid);
-            root_title =  DCUtils.titleFromDC(doc);
+            root_title = DCUtils.titleFromDC(doc);
             root_title_cache.put(root_pid, root_title);
         }
     }
@@ -282,7 +291,7 @@ public class ExtendedFields {
                     datum_str = dates_cache.get(pid);
                     parseDatum(datum_str);
                     return;
-                }  
+                }
                 xPathStr = prefix + "mods:part/mods:date/text()";
                 expr = xpath.compile(xPathStr);
                 Node node = (Node) expr.evaluate(foxml, XPathConstants.NODE);
@@ -304,27 +313,27 @@ public class ExtendedFields {
                 }
             }
         }
-        
+
     }
 
-    private void parseDatum(String datumStr) {        
-        try{
+    private void parseDatum(String datumStr) {
+        try {
             Date dateValue = df.parse(datumStr);
             DateFormat outformatter = new SimpleDateFormat("yyyy");
             rok = outformatter.format(dateValue);
             datum = dateValue;
-        }catch(Exception e){
-            if(datumStr.matches("\\d\\d\\d\\d")){ //rok
+        } catch (Exception e) {
+            if (datumStr.matches("\\d\\d\\d\\d")) { //rok
                 rok = datumStr;
                 datum_begin = rok;
                 datum_end = rok;
-            }else if (datumStr.matches("\\d\\d--")) {  //Datum muze byt typu 18--
-                datum_begin = datumStr.substring(0,2)+"00";
-                datum_end = datumStr.substring(0,2)+"99";
-            }else if (datumStr.matches("\\d---")) {  //Datum muze byt typu 187-
-                datum_begin = datumStr.substring(0,3)+"0";
-                datum_end = datumStr.substring(0,3)+"9";
-            }else if (datumStr.matches("\\d\\d\\d\\d[\\s]*-[\\s]*\\d\\d\\d\\d")) {  //Datum muze byt typu 1906 - 1945
+            } else if (datumStr.matches("\\d\\d--")) {  //Datum muze byt typu 18--
+                datum_begin = datumStr.substring(0, 2) + "00";
+                datum_end = datumStr.substring(0, 2) + "99";
+            } else if (datumStr.matches("\\d---")) {  //Datum muze byt typu 187-
+                datum_begin = datumStr.substring(0, 3) + "0";
+                datum_end = datumStr.substring(0, 3) + "9";
+            } else if (datumStr.matches("\\d\\d\\d\\d[\\s]*-[\\s]*\\d\\d\\d\\d")) {  //Datum muze byt typu 1906 - 1945
                 String begin = datumStr.split("-")[0].trim();
                 String end = datumStr.split("-")[1].trim();
                 datum_begin = begin;
