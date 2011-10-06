@@ -57,6 +57,17 @@ public class ViewInfoServlet extends GuiceServlet {
     public static final java.util.logging.Logger LOGGER = java.util.logging.Logger
             .getLogger(MimeTypeServlet.class.getName());
     
+    private static StringTemplateGroup ST_GROUP = null;
+
+    
+    static {
+        try {
+            ST_GROUP = stGroup();
+        } catch (IOException e) {
+            LOGGER.log(Level.SEVERE,e.getMessage(),e);
+        }
+    }
+    
     @Inject
     @Named("rawFedoraAccess")
     FedoraAccess fedoraAccess;
@@ -79,6 +90,7 @@ public class ViewInfoServlet extends GuiceServlet {
 
     @Inject
     Provider<User> currentLoggedUserProvider;
+
     
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
@@ -115,7 +127,8 @@ public class ViewInfoServlet extends GuiceServlet {
                 map.put("pid", pid);
                 // cesta nahoru {uuid + parentofuuid + parentofparentofuuid + ... + root}
                 map.put("pathsOfPids",paths);
-                
+                // donator
+                map.put("donator", fedoraAccess.getDonator(pid));
                 // nezobrazitelny obsah .. 
                 map.put("displayableContent", ImageMimeType.loadFromMimeType(mimeType) != null);
                 
@@ -176,7 +189,7 @@ public class ViewInfoServlet extends GuiceServlet {
 
                 
                 resp.setContentType("text/plain");
-                StringTemplate template = stGroup().getInstanceOf("viewinfo");
+                StringTemplate template = ST_GROUP.getInstanceOf("viewinfo");
                 template.setAttribute("data", map);
                 
                 resp.getWriter().println(template.toString());
@@ -335,7 +348,7 @@ public class ViewInfoServlet extends GuiceServlet {
         return false;
     }
     
-    private StringTemplateGroup stGroup() throws IOException {
+    private static StringTemplateGroup stGroup() throws IOException {
         InputStream stream = ViewInfoServlet.class.getResourceAsStream("viewinfo.stg");
         String string = IOUtils.readAsString(stream, Charset.forName("UTF-8"), true);
         StringTemplateGroup group = new StringTemplateGroup(new StringReader(string), DefaultTemplateLexer.class);
