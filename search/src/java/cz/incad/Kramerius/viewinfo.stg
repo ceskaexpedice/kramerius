@@ -14,6 +14,8 @@ viewinfo(data, globalActions) ::=<<
         displayableContent:$data.displayableContent$,
         
         imgfull:$data.imgfull$,
+    
+        donator:$data.donator$,
         
         $if(data.canhandlecommongroup)$
         canhandlecommongroup:$data.canhandlecommongroup$,
