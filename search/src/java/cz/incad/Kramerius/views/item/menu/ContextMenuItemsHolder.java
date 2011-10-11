@@ -52,7 +52,7 @@ public class ContextMenuItemsHolder extends AbstractViewObject implements Initia
     @Override
     public void init() {
         
-        String i18nServlet ="something..";
+        String i18nServlet ="i18n";
         
         items.add(new ContextMenuItem("administrator.menu.showmetadata", "", "viewMetadata", "", false));
         items.add(new ContextMenuItem("administrator.menu.persistenturl", "", "persistentURL", "", true));

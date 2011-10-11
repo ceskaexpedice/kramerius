@@ -83,6 +83,11 @@ Right.prototype.onPriorityChange = function() {
 
 
 Right.prototype.initUI = function(/* right container */rightContainer) {
+
+    $("#tabs").tabs({
+		select: bind(this.onTabChange,this)
+	});
+
 	if (!rightContainer.data.justcreated) {
 		if (rightContainer.data.role !== 'common_users') {
 
@@ -102,10 +107,7 @@ Right.prototype.initUI = function(/* right container */rightContainer) {
 			$("#rightParamsCreation").show();
 			$("#params").val(rightContainer.data.param.ident);
 	    }
-
-		$("#tabs").tabs({
-			select: bind(this.onTabChange,this)
-		});
+	    
 		
 		if (rightContainer.data.param.ident != -1) {
 	    	$("#tabs").tabs( "select" , 1);
@@ -114,6 +116,8 @@ Right.prototype.initUI = function(/* right container */rightContainer) {
 		}
 		
 		this.rebuildParamsTab();
+	} else {
+    	$("#tabs").tabs( "select" , 0);
 	}
 }
 

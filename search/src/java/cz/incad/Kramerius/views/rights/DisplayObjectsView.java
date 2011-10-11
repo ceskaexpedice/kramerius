@@ -17,11 +17,15 @@
 package cz.incad.Kramerius.views.rights;
 
 
-import static cz.incad.kramerius.security.SecuredActions.*;
+import static cz.incad.kramerius.security.SecuredActions.ADMINISTRATE;
+import static cz.incad.kramerius.security.SecuredActions.EXPORT_K4_REPLICATIONS;
+import static cz.incad.kramerius.security.SecuredActions.IMPORT_K4_REPLICATIONS;
+import static cz.incad.kramerius.security.SecuredActions.READ;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.logging.Level;
 
 import javax.inject.Named;
@@ -42,6 +46,7 @@ import cz.incad.kramerius.security.RightCriteriumWrapperFactory;
 import cz.incad.kramerius.security.RightsManager;
 import cz.incad.kramerius.security.SecuredActions;
 import cz.incad.kramerius.security.User;
+import cz.incad.kramerius.service.ResourceBundleService;
 import cz.incad.kramerius.utils.DCUtils;
 
 public class DisplayObjectsView extends AbstractRightsView {
@@ -67,6 +72,13 @@ public class DisplayObjectsView extends AbstractRightsView {
     @Inject
     RightCriteriumWrapperFactory factory;
 
+    @Inject
+    ResourceBundleService resourceBundleService;
+    
+    @Inject
+    Provider<Locale> localesProvider;
+    
+    
 
     public DisplayObjectsView() {
         super();
@@ -89,9 +101,12 @@ public class DisplayObjectsView extends AbstractRightsView {
                     }
                 }
                 Document dc = this.fedoraAccess.getDC(pid.toString());
-                String kmodelName = this.fedoraAccess.getKrameriusModelName(pid.toString());
                 
-                AffectedObject affectedObject = new AffectedObject(pid.toString(), DCUtils.titleFromDC(dc),kmodelName, hasRight);
+                Locale locale = this.localesProvider.get();
+                String kmodelName = this.fedoraAccess.getKrameriusModelName(pid.toString());
+                String translatedKModelName = resourceBundleService.getResourceBundle("labels", locale).getString("document.type."+kmodelName);
+                
+                AffectedObject affectedObject = new AffectedObject(pid.toString(), DCUtils.titleFromDC(dc),translatedKModelName, hasRight);
                 objects.add(affectedObject);
             }
             

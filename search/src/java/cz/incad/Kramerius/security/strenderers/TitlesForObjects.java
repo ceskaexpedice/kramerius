@@ -23,6 +23,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Locale;
 import java.util.ResourceBundle;
 
 import org.antlr.stringtemplate.StringTemplate;
@@ -31,11 +32,12 @@ import cz.incad.kramerius.FedoraAccess;
 import cz.incad.kramerius.ObjectPidsPath;
 import cz.incad.kramerius.security.RightsManager;
 import cz.incad.kramerius.security.SpecialObjects;
+import cz.incad.kramerius.service.ResourceBundleService;
 import cz.incad.kramerius.utils.DCUtils;
 
 public class TitlesForObjects {
 
-    public static HashMap<String, String> createModelsForPaths(FedoraAccess fedoraAccess,  ObjectPidsPath path) throws IOException {
+    public static HashMap<String, String> createModelsForPaths(FedoraAccess fedoraAccess,  ObjectPidsPath path, ResourceBundleService bundleService, Locale locale) throws IOException {
         HashMap<String, String> modelsMap = new HashMap<String, String>();
         String[] pathFromRootToLeaf = path.getPathFromRootToLeaf();
         for (int i = 0; i < pathFromRootToLeaf.length; i++) {
@@ -44,11 +46,13 @@ public class TitlesForObjects {
                 modelsMap.put(currentPid, SpecialObjects.findSpecialObject(currentPid).name());
             } else {
                 String kramModel = fedoraAccess.getKrameriusModelName(currentPid);
-                modelsMap.put(currentPid, kramModel);
+                String localizedModel = bundleService.getResourceBundle("labels", locale).getString("document.type."+kramModel);
+                modelsMap.put(currentPid, localizedModel);
             }
         }
         return modelsMap;
     }
+    
     
     public static HashMap<String, String> createTitlesForPaths(FedoraAccess fedoraAccess,  ObjectPidsPath path) throws IOException {
         HashMap<String, String> dctitlesMap = new HashMap<String, String>();
@@ -59,9 +63,10 @@ public class TitlesForObjects {
                 dctitlesMap.put(currentPid, SpecialObjects.findSpecialObject(currentPid).name());
             } else {
                 String titleFromDC = DCUtils.titleFromDC(fedoraAccess.getDC(currentPid));
+                /*
                 if (titleFromDC.length() > 10) {
                     titleFromDC = titleFromDC.substring(0,10)+"...";
-                }
+                }*/
                 dctitlesMap.put(pathFromRootToLeaf[i], titleFromDC);
             }
         }

@@ -37,28 +37,31 @@
 </style>
 
 
-<div id="rightsTableContent"><scrd:loggedusers>	
+<div id="rightsTableContent">
+
+<scrd:loggedusers>	
+
         <div style="border-bottom: 1px solid gray;">
 			<table>
 			    <tr>
 			        <td width="100%"><span id="${rights.securedAction}_waiting"></span></td>
-			        <td>
-			          <a href="javascript:affectedObjectsRights.securedActionTabs['${rights.securedAction}'].newRight();" style="background:url('img/add.png') no-repeat scroll; border-width:0px; display:block; height:18px; width:18px;">
-			           </a>
-			       </td>
-
                     <td>
-                      <a href="javascript:affectedObjectsRights.securedActionTabs['${rights.securedAction}'].globalDelete();" style="background:url('img/minus.png') no-repeat scroll; border-width:0px; display:block; height:18px; width:18px;">
+                      <a href="javascript:affectedObjectsRights.securedActionTabs['${rights.securedAction}'].newRight();" class="ui-icon ui-icon-plus">
                        </a>
                    </td>
 
                     <td>
-                      <a href="javascript:affectedObjectsRights.securedActionTabs['${rights.securedAction}'].globalEdit();" style="background:url('img/edit.png') no-repeat scroll; border-width:0px; display:block; height:18px; width:18px;">
+                      <a href="javascript:affectedObjectsRights.securedActionTabs['${rights.securedAction}'].globalDelete();" class="ui-icon ui-icon-minus">
                        </a>
                    </td>
 
-			       <td><a href="javascript:affectedObjectsRights.securedActionTabs['${rights.securedAction}'].retrieve();" style="background:url('img/refresh.png') no-repeat scroll; border-width:0px; display:block; height:18px; width:18px;" >
-			        </a></td>    
+                    <td>
+                      <a href="javascript:affectedObjectsRights.securedActionTabs['${rights.securedAction}'].globalEdit();" class="ui-icon ui-icon-wrench">
+                       </a>
+                   </td>
+
+                   <td><a href="javascript:affectedObjectsRights.securedActionTabs['${rights.securedAction}'].retrieve();" class="ui-icon ui-icon-transferthick-e-w" >
+                    </a></td>    
 			    </tr>
 			</table>    
         </div>
@@ -67,9 +70,9 @@
         <tbody>    
 	        <c:forEach var="rightsPath" items="${rights.rightsPath}" varStatus="rstatus">
                 <tr>
-                    <td><a href="javascript:affectedObjectsRights.displayDetails('${rightsPath.rowId}_${rstatus.index}_${rights.securedAction}');"><span id="${rightsPath.rowId}_${rstatus.index}_${rights.securedAction}_icon" class="ui-icon ui-icon-triangle-1-e folder">folder</span></a></td>
+                    <td><a title="${rightsPath.tooltipForPath}" href="javascript:affectedObjectsRights.displayDetails('${rightsPath.rowId}_${rstatus.index}_${rights.securedAction}');"><span id="${rightsPath.rowId}_${rstatus.index}_${rights.securedAction}_icon" class="ui-icon ui-icon-triangle-1-e folder">folder</span></a></td>
                     <td>
-                         <div>Pravo pro objekt <strong><c:out value="${rightsPath.titleForPath} (${rightsPath.models[rightsPath.path.leaf]})"></c:out></strong></div>
+                         <div><view:msg>rights.dialog.rightassociationtitle</view:msg> <strong><c:out value="${rightsPath.titleForPath} (${rightsPath.models[rightsPath.path.leaf]})"></c:out></strong></div>
                     </td>
                 </tr>
                 <tr>
@@ -81,7 +84,7 @@
 				                <tr>
 				                    <td width="100%"></td>
 				                    <td>
-				                      <a href="javascript:affectedObjectsRights.securedActionTabs['${rights.securedAction}'].newRightForPath('${rightsPath.path}');" style="background:url('img/add.png') no-repeat scroll; border-width:0px; display:block; height:18px; width:18px;">
+				                      <a href="javascript:affectedObjectsRights.securedActionTabs['${rights.securedAction}'].newRightForPath('${rightsPath.path}');" class="ui-icon ui-icon-plus">
 				                       </a>
 				                   </td>
 				                </tr>
@@ -99,13 +102,13 @@
 					                                   <thead style="border-bottom: 1px dashed; background-image: url('img/bg_rights_table.png'); background-repeat: repeat-x; height: 28px;">
 					                                       <tr>
 					                                           <td width="6px" style="border-top: 1px solid black;"></td>
-                                                               <td width="60px" align="center" style="border-top: 1px solid black;"><strong>Objekt</strong></td>
-                                                               <td width="60px" align="center" style="border-top: 1px solid black;"><strong>Akce</strong></td>
-                                                               <td width="130px" align="center" style="border-top: 1px solid black;"><strong>Uzivatelska role</strong></td>
+                                                               <td width="60px" align="center" style="border-top: 1px solid black;"><strong><view:msg>rights.dialog.table.column.object</view:msg></strong></td>
+                                                               <td width="60px" align="center" style="border-top: 1px solid black;"><strong><view:msg>rights.dialog.table.column.action</view:msg></strong></td>
+                                                               <td width="130px" align="center" style="border-top: 1px solid black;"><strong><view:msg>rights.dialog.table.column.group</view:msg></strong></td>
                                                                <td title="Priorita" width="15px" align="center" style="border-top: 1px solid black;"><strong>..</strong></td>
-                                                               <td width="140px" align="center" style="border-top: 1px solid black;"><strong>Kriterium</strong></td>
-                                                               <td align="center" style="border-top: 1px solid black;"><strong>Parametry kriteria</strong></td>
-                                                               <td width="60px" align="center" style="border-top: 1px solid black;"><strong>Zmena</strong></td>
+                                                               <td width="140px" align="center" style="border-top: 1px solid black;"><strong><view:msg>rights.dialog.table.column.criterium</view:msg></strong></td>
+                                                               <td align="center" style="border-top: 1px solid black;"><strong><view:msg>rights.dialog.table.column.criteriumparams</view:msg></strong></td>
+                                                               <td width="60px" align="center" style="border-top: 1px solid black;"><strong><view:msg>rights.dialog.table.column.change</view:msg></strong></td>
 					                                       </tr>
 					                                   </thead>
 					                                    <tbody>
@@ -122,12 +125,12 @@
                                                                           <table>
 
                                                                           <tr><td>
-													                      <a title="Remove" href="javascript:affectedObjectsRights.securedActionTabs['${rights.securedAction}'].deleteRightForPath(${right.id},'${rightsPath.path}');" style="background:url('img/minus.png') no-repeat scroll; border-width:0px; display:block; height:18px; width:18px;">
+													                      <a title="Remove" href="javascript:affectedObjectsRights.securedActionTabs['${rights.securedAction}'].deleteRightForPath(${right.id},'${rightsPath.path}');" class="ui-icon ui-icon-minus">
                                                                            </a>
 													                      </td>
 
 													                      <td>
-													                      <a title="Edit" href="javascript:affectedObjectsRights.securedActionTabs['${rights.securedAction}'].editRightForPath(${right.id},'${rightsPath.path}');" style="background:url('img/edit.png') no-repeat scroll; border-width:0px; display:block; height:18px; width:18px;">
+													                      <a title="Edit" href="javascript:affectedObjectsRights.securedActionTabs['${rights.securedAction}'].editRightForPath(${right.id},'${rightsPath.path}');" class="ui-icon ui-icon-wrench">
 													                       </a>
 													                       </td></tr>
 

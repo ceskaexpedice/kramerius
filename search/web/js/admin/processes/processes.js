@@ -39,6 +39,12 @@ ProcessessFilter.prototype.apply=function(ordering, offset, size, type) {
 }
 
 
+ProcessessFilter.prototype.close=function() {
+	$(".filter").toggle();
+    $(".displayButton").toggle();
+}
+
+
 ProcessessFilter.prototype.filterPostfix = function() {
 	if (this.filter) {
 		var furl = this.curl();

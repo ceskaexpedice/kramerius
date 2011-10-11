@@ -594,14 +594,14 @@
     function exportToCD(img, i18nServlet, country,language) {
         var structs = pidstructs();     
         if (structs.length > 0) {
-            var u = "lr?action=start&def=static_export_CD&out=text&nparams={"+structs[0].pid.replaceAll(":","\\:")+";"+img+";"+country+";"+language+"}";
+            var u = "lr?action=start&def=static_export_CD&out=text&nparams={"+structs[0].pid.replaceAll(":","\\:")+";"+img+";"+i18nServlet+";"+country+";"+language+"}";
             processStarter("static_export_CD").start(u);
         }
     }
     function exportToDVD(img, i18nServlet, country,language) {
         var structs = pidstructs();     
         if (structs.length > 0) {
-            var u = "lr?action=start&def=static_export_CD&out=text&nparams={"+structs[0].pid.replaceAll(":","\\:")+";"+img+";"+country+";"+language+"}";
+            var u = "lr?action=start&def=static_export_CD&out=text&nparams={"+structs[0].pid.replaceAll(":","\\:")+";"+img+";"+i18nServlet+";"+country+";"+language+"}";
             processStarter("static_export_DVD").start(u);
         }
     }

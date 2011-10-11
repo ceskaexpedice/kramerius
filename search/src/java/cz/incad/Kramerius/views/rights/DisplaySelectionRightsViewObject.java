@@ -31,7 +31,7 @@ import com.google.inject.Inject;
 import com.google.inject.Provider;
 
 import cz.incad.Kramerius.security.strenderers.RightWrapper;
-import cz.incad.Kramerius.views.rights.DisplayRightsForObjectsView.RightsForPath;
+import cz.incad.Kramerius.views.rights.DisplayRightsForObjectsView.DialogContent;
 import cz.incad.kramerius.FedoraAccess;
 import cz.incad.kramerius.ObjectPidsPath;
 import cz.incad.kramerius.SolrAccess;

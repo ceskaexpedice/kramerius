@@ -15,7 +15,7 @@ viewinfo(data, globalActions) ::=<<
         
         imgfull:$data.imgfull$,
     
-        donator:$data.donator$,
+        donator:'$data.donator$',
         
         $if(data.canhandlecommongroup)$
         canhandlecommongroup:$data.canhandlecommongroup$,

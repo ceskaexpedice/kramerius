@@ -40,7 +40,7 @@
                                                     <table width="100%" style="table-layout:fixed;  ">
                                                        <thead style="border-bottom: 1px dashed; background-image: url('img/bg_rights_table.png'); background-repeat: repeat-x; height: 28px;">
                                                            <tr>
-                                                               <td width="6px" style="border-top: 1px solid black;"></td>
+                                                               <td width="20px" style="border-top: 1px solid black;"></td>
                                                                <td width="60px" align="center" style="border-top: 1px solid black;"><strong><view:msg>rights.dialog.table.column.object</view:msg></strong></td>
                                                                <td width="60px" align="center" style="border-top: 1px solid black;"><strong><view:msg>rights.dialog.table.column.action</view:msg></strong></td>
                                                                <td width="130px" align="center" style="border-top: 1px solid black;"><strong><view:msg>rights.dialog.table.column.user</view:msg></strong></td>
@@ -53,13 +53,13 @@
                                                         <tbody>
                                                               <c:forEach items="${rightsPath.rights}" var="right" varStatus="status">
                                                                    <tr> 
-                                                                        <td><div style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${status.index}</div></td> 
-                                                                        <td><div style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${right.title}</div></td> 
+                                                                        <td title="${status.index}" ><div style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${status.index}</div></td> 
+                                                                        <td title="${right.title}"><div style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${right.title}</div></td> 
                                                                         <td title="<view:msg>rights.action.${right.action}</view:msg>"><div style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;"><view:msg>rights.action.${right.action}.formalName</view:msg></div></td> 
                                                                         <td><div style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${right.user}</div></td> 
-                                                                        <td><div style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${right.fixedPriority}</div></td> 
+                                                                        <td title="${right.fixedPriority}"><div style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${right.fixedPriority}</div></td> 
                                                                         <td title="${right.criteriumWrapper!=null ? right.criteriumWrapper : "cz.incad.kramerius.security.impl.criteria.none"}"><div style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;"> <view:msg>${right.criteriumWrapper!=null ? right.criteriumWrapper : 'cz.incad.kramerius.security.impl.criteria.none'}</view:msg></div></td> 
-                                                                        <td><div style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;"> ${right.criteriumWrapper!=null ? right.criteriumWrapper.criteriumParams : '' }</div></td> 
+                                                                        <td title="${right.criteriumWrapper!=null ? right.criteriumWrapper.criteriumParams : '' }"><div style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;"> ${right.criteriumWrapper!=null ? right.criteriumWrapper.criteriumParams : '' }</div></td> 
                                                                         <td>
                                                                           <table>
 
@@ -69,7 +69,7 @@
                                                                           </td>
 
                                                                           <td>
-                                                                          <a title="Edit" href="javascript:affectedObjectsRights.securedActionTabs['${rights.securedAction}'].editRightForPath(${right.id},'${rightsPath.path}');" class="ui-icon ui-icon-pencil">
+                                                                          <a title="Edit" href="javascript:affectedObjectsRights.securedActionTabs['${rights.securedAction}'].editRightForPath(${right.id},'${rightsPath.path}');" class="ui-icon ui-icon-wrench">
                                                                            </a>
                                                                            </td></tr>
 

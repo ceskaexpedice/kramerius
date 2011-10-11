@@ -265,7 +265,8 @@ $(document).ready(function(){
     </script>    
 
      <div class="apply" style="width:70px;">
-        <button name="apply" title="Ok" onclick="processes.currentFilter.apply('${processView.ordering}',0,${processView.pageSize},'${processView.typeOfOrdering}')"> Pouzit </button>
+        <button name="apply" title="Ok" onclick="processes.currentFilter.apply('${processView.ordering}',0,${processView.pageSize},'${processView.typeOfOrdering}')"> <view:msg>common.apply</view:msg> </button>
+        <button name="apply" title="Close" onclick="processes.currentFilter.close()"> <view:msg>common.close</view:msg> </button>
      </div>
      
  </div>

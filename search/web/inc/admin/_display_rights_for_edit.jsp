@@ -22,6 +22,8 @@
             <thead style="border-bottom: 1px dashed; background-image: url('img/bg_processheader.png'); background-repeat: repeat-x;">
                 <tr>
                     <td width="8px"></td>
+                    <td width="16px"><strong><view:msg>rights.dialog.table.column.id</view:msg> </strong></td>
+                    
                     <td><strong><view:msg>rights.dialog.table.column.object</view:msg> </strong></td>
                     <td><strong><view:msg>rights.dialog.table.column.action</view:msg> </strong></td>
                     <td><strong><view:msg>rights.dialog.table.column.group</view:msg></strong></td>
@@ -36,6 +38,7 @@
     <c:forEach var="right" items="${selection.rights}">
         <tr>
             <td><input type="radio"  name="edit" value="${right.id}_${right.pid}"></input> </td>
+            <td><div>${right.id}</div></td>
             <td><div style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${right.title}</div></td>
             <td title="<view:msg>rights.action.${right.action}</view:msg>">${right.action}</td>
             <td><div style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${right.user}</div></td>

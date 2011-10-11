@@ -22,6 +22,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.logging.Level;
 
@@ -45,9 +46,11 @@ import cz.incad.kramerius.security.Right;
 import cz.incad.kramerius.security.RightsManager;
 import cz.incad.kramerius.security.Role;
 import cz.incad.kramerius.security.SecuredActions;
+import cz.incad.kramerius.security.SpecialObjects;
 import cz.incad.kramerius.security.User;
 import cz.incad.kramerius.security.UserManager;
 import cz.incad.kramerius.security.utils.SortingRightsUtils;
+import cz.incad.kramerius.service.ResourceBundleService;
 
 public class DisplayRightsForObjectsView extends AbstractRightsView {
 
@@ -72,6 +75,13 @@ public class DisplayRightsForObjectsView extends AbstractRightsView {
     @Inject
     UserManager userManager;
     
+    @Inject
+    Provider<Locale> localesProvider;
+    
+    @Inject
+    ResourceBundleService resourceBundleService;
+    
+    
     public DisplayRightsForObjectsView() {
         super();
     }
@@ -81,88 +91,53 @@ public class DisplayRightsForObjectsView extends AbstractRightsView {
         return rightsManager.findAllRights(path.getPathFromRootToLeaf(), getSecuredAction());
     }
 
-    private List<Right> findAllRightWithPid(String pid, List<Right> foundRights) {
-        List<Right> rightsWithPID = new ArrayList<Right>();
-        for (Right right : foundRights) {
-            if (pid.equals(right.getPid())) {
-                rightsWithPID.add(right);
-            }
-        }
-        return rightsWithPID;
-    }
-
 
     
-    private List<Right> findAllRightWithUserWhichIAdministrate(User user, List<Right> foundRights) {
-        List<Right> filtered = new ArrayList<Right>();
-        for (Right right : foundRights) {
-            // prava s uzivatelem jdou do kytek
-            // uzivatel
-            if (right.getUser() instanceof User) {
-                /*
-                User rightUsr = (User) right.getUser();
-                // administruje primo uzivatele
-                if (user.isAdministratorForGivenGroup(rightUsr.getPersonalAdminId())) {
-                    filtered.add(right);
-                } else {
-                    // administruje nekterou ze skupin
-                    Role[] grps = userManager.findRolesForGivenUser(rightUsr.getId());
-                    for (Role group : grps) {
-                        if (user.isAdministratorForGivenGroup(group.getPersonalAdminId())) {
-                            filtered.add(right);
-                            break;
-                        }                        
-                    }
-                }
-                */
-                filtered.add(right);
-           // skupina
-            } else if (user.isAdministratorForGivenGroup(right.getUser().getPersonalAdminId())) {
-                filtered.add(right);
-            }
-        }
-        return filtered;
-    }
-
-    /*
-    public String getTitleOfSelected() {
-        TitlesForObjects.createFinerTitles(this.fedoraAccess, this.rightsManager, this., path, models, bundle)
-    }*/
-    
-    
-    public List<RightsForPath> getRightsPath() {
+    public List<DialogContent> getRightsPath() {
         try {
             List params = getPidsParams();
-            List<DisplayRightsForObjectsView.RightsForPath> rightsForPaths = new ArrayList<DisplayRightsForObjectsView.RightsForPath>();
+            List<DisplayRightsForObjectsView.DialogContent> rightsForPaths = new ArrayList<DisplayRightsForObjectsView.DialogContent>();
 
             for (Object pid : params) {
                 ObjectPidsPath[] paths = solrAccess.getPath(pid.toString());
                 
-                
                 for (ObjectPidsPath path : paths) {
                     path = path.injectRepository();
                     List<Right> pathRights = new ArrayList<Right>(Arrays.asList(allRights(path)));
+                    Map<Integer, Boolean> map = new HashMap<Integer, Boolean>();
                     
+                    // ma superadmin roli ?
                     if (!hasSuperAdminRole(this.userProvider.get())) {
                         boolean[] booleans = actionAllowed.isActionAllowedForAllPath(SecuredActions.ADMINISTRATE.getFormalName(), pid.toString(), path);
-                        List<Right> filtered = new ArrayList<Right>();
                         for (int i = 0; i < booleans.length; i++) {
+                            // can administrate
                             if (booleans[i]) {
-                                String curPid = path.getNodeFromLeafToRoot(i);
-                                //ObjectPidsPath cuttedTail = path.cutTail(i);
                                 
-                                List<Right> rights = findAllRightWithPid(curPid, pathRights);
-                                rights = findAllRightWithUserWhichIAdministrate(userProvider.get(), rights);
-                                filtered.addAll(rights);
+                                for (Right right : pathRights) {
+                                    if (pid.equals(right.getPid())) {
+                                        map.put(right.getId(), true);
+                                    }
+                                }
+                                
+                            } else {
+                                for (Right right : pathRights) {
+                                    if (pid.equals(right.getPid())) {
+                                        map.put(right.getId(), false);
+                                    }
+                                }
                             }
                         }
-                        pathRights = filtered;
+                    } else {
+                        
+                        for (Right right : pathRights) {
+                            map.put(right.getId(), true);
+                        }
                     }
                     
                     Right[] resultRights = SortingRightsUtils.sortRights(pathRights.toArray(new Right[pathRights.size()]), path);
-                    if (resultRights.length > 0) {
-                        rightsForPaths.add(new RightsForPath(this.fedoraAccess, path, resultRights));
-                    }
+                    DialogContent dialogContent = new DialogContent(this.fedoraAccess, path, resultRights, this.resourceBundleService, this.localesProvider.get());
+                    dialogContent.setRightsAccess(map);
+                    rightsForPaths.add(dialogContent);
                 }
             }
             
@@ -176,27 +151,39 @@ public class DisplayRightsForObjectsView extends AbstractRightsView {
         } catch (IOException e) {
             LOGGER.log(Level.SEVERE,e.getMessage(),e);
         }
-        return new ArrayList<RightsForPath>();
+        return new ArrayList<DialogContent>();
     }
 
 
     
-    public static class RightsForPath {
+    // reprezentuje jeden dialog prav. Kolik vybranych objektu, tolik dialogu 
+    
+    public static class DialogContent {
 
-        static java.util.logging.Logger LOGGER = java.util.logging.Logger.getLogger(DisplayRightsForObjectsView.RightsForPath.class.getName());
-        
+        static java.util.logging.Logger LOGGER = java.util.logging.Logger.getLogger(DisplayRightsForObjectsView.DialogContent.class.getName());
+        // cesta k vybranemu objektu
         private ObjectPidsPath path;
+
+        // prava
         private RightWrapper[] wrappers;
+        private Map<Integer, Boolean> rightsAccess;
+        
+        
         private HashMap<String, String> titles;    
         private HashMap<String, String> models;    
+
         
-        public RightsForPath(FedoraAccess fedoraAccess, ObjectPidsPath path, Right[] rights) {
+        
+        // muze administrovat vybrany objekt
+        private boolean canAdministrate;
+        
+        public DialogContent(FedoraAccess fedoraAccess, ObjectPidsPath path, Right[] rights, ResourceBundleService resourceBundleService, Locale locale) {
             super();
             try {
                 this.path = path;
                 this.wrappers = RightWrapper.wrapRights(fedoraAccess, rights);
                 this.titles = TitlesForObjects.createTitlesForPaths(fedoraAccess,  this.path);
-                this.models = TitlesForObjects.createModelsForPaths(fedoraAccess,  this.path);
+                this.models = TitlesForObjects.createModelsForPaths(fedoraAccess,  this.path, resourceBundleService, locale);
                 
             } catch (IOException e) {
                 throw new RuntimeException(e.getMessage());
@@ -222,6 +209,22 @@ public class DisplayRightsForObjectsView extends AbstractRightsView {
         public Map<String, String> getTitles() {
             return this.titles;
         }
+
+        public String getTooltipForPath() {
+            String[] pathFromRootToLeaf = this.path.getPathFromRootToLeaf();
+            StringBuilder builder = new StringBuilder();
+            for (int i = 0,ll= pathFromRootToLeaf.length; i < ll; i++) {
+                builder.append(this.titles.get(pathFromRootToLeaf[i]));
+                if (SpecialObjects.findSpecialObject(pathFromRootToLeaf[i]) ==null) {
+                    builder.append("(").append(this.models.get(pathFromRootToLeaf[i])).append(")");
+                }
+                if (i < ll -1) {
+                    builder.append("::");
+                }
+            }
+            return builder.toString();
+        }
+
         
         public String getTitleForPath() {
             String[] pathFromRootToLeaf = this.path.getPathFromRootToLeaf();
@@ -234,77 +237,29 @@ public class DisplayRightsForObjectsView extends AbstractRightsView {
             }
             return builder.toString();
         }
+        
 
         public HashMap<String, String> getModels() {
             return models;
         }
 
-        
-        
-    }
-    
-    
-    /*
-    TypeOfList typeOfList =TypeOfList.all;
-    String typeOfListParam = requestProvider.get().getParameter("typeoflist");
-    if ((typeOfListParam != null) && (!typeOfListParam.equals(""))) {
-        typeOfList = TypeOfList.valueOf(typeOfListParam);
-    }
-
-    List<String> saturatedPath = rightsManager.saturatePathAndCreatesPIDs(uuid, getPathOfUUIDs(uuid));
-    List<Right> foundRights = new ArrayList<Right>(Arrays.asList(allRights(saturatedPath)));
-    // filtrovani objektu na ktere nemam pravo TODO: jeste uzviatele na ktere nemam pravo
-    if (!ServletRightsCommand.hasSuperAdminRole(this.userProvider.get())) {
-        boolean[] booleans = actionAllowed.isActionAllowedForAllPath(SecuredActions.ADMINISTRATE.getFormalName(), uuid, getPathOfUUIDs(uuid));
-        List<Right> filtered = new ArrayList<Right>();
-        for (int i = 0; i < booleans.length; i++) {
-            if (booleans[i]) {
-                String allowedUUID =  saturatedPath.get(i);
-                List<Right> rights = findAllRightWithUserWhichIAdministrate(userProvider.get(), findAllRightWithUuid(allowedUUID,foundRights)) ;
-                findAllRightWithUserWhichIAdministrate(userProvider.get(), foundRights);
-                
-                filtered.addAll(rights);
-            }
+        public boolean isCanAdministrate() {
+            return canAdministrate;
         }
-        foundRights = filtered;
-    }
-    
-    foundRights = typeOfList.filter(foundRights);
 
-        
-    // acumulate users
-    List<AbstractUser> users = accumulateUsersToCombo(foundRights);
-
-    foundRights = filterRequestedUser(foundRights, typeOfList);
-
-    Right[] resultRights = SortingRightsUtils.sortRights(foundRights.toArray(new Right[foundRights.size()]), saturatedPath);
-
-    List<AbstractUserWrapper> wrapped = AbstractUserWrapper.wrap(users, true);
-    String requestedParameter = this.requestProvider.get().getParameter("requesteduser");
-    if ((requestedParameter != null) && (!requestedParameter.equals(""))) {
-        for (AbstractUserWrapper wrappedUser : wrapped) {
-            if (wrappedUser.getWrappedValue() instanceof User) {
-                if (wrappedUser.getLoginname().equals(requestedParameter)) {
-                    wrappedUser.setSelected(true);
-                }
-            } else if (wrappedUser.getWrappedValue() instanceof Role) {
-                if (wrappedUser.getName().equals(requestedParameter)) {
-                    wrappedUser.setSelected(true);
-                }
-            }
+        public void setCanAdministrate(boolean canAdministrate) {
+            this.canAdministrate = canAdministrate;
         }
-    }
-    
-    StringTemplate template = ServletRightsCommand.stFormsGroup().getInstanceOf("rightsTable");
-    template.setAttribute("rights", RightWrapper.wrapRights(fedoraAccess, resultRights));
-    template.setAttribute("uuid", uuid);
-    template.setAttribute("bundle", bundleToMap());
-    template.setAttribute("users", wrapped);
-    template.setAttribute("typeOfLists",TypeOfList.typeOfListAsMap(typeOfList));
-    template.setAttribute("action",new SecuredActionWrapper(getResourceBundle(), SecuredActions.findByFormalName(getSecuredAction())));
-    template.setAttribute("canhandlecommongroup", userProvider.get().hasSuperAdministratorRole());
-    responseProvider.get().getOutputStream().write(template.toString().getBytes("UTF-8"));
-    */
 
-    
+        public Map<Integer, Boolean> getRightsAccess() {
+            return rightsAccess;
+        }
+
+        public void setRightsAccess(Map<Integer, Boolean> rightsAccess) {
+            this.rightsAccess = rightsAccess;
+        }
+        
+        
+        
+    }
 }

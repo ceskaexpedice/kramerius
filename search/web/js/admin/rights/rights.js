@@ -25,7 +25,7 @@ InputTextDialog.prototype.open = function(okfunc,cancelfunc) {
             width:400,
             height:250,
             modal:true,
-            title:'#title',
+            title:'',
             buttons: {
                 "Ok": bind(function() {
                 	if (okfunc) okfunc($("#inputDialogTxt").val());
@@ -179,12 +179,15 @@ AffectedObjectsRights.prototype.openDialog = function(/** array of struct */pids
                 width:800,
                 height:600,
                 modal:true,
-                title:"#title",
-                buttons: {
-                    "Close": function() {
-                        $(this).dialog("close");
-                    }
-                }
+                title:"",
+                buttons: [
+                       {
+                    	   text: dictionary['common.close'],
+                    	   click: function() {
+                               $(this).dialog("close");
+                           }
+                       }   
+                ]
             });
     	}
     	
@@ -306,20 +309,28 @@ SecuredActionTab.prototype.globalEdit = function() {
 	            width:640,
 	            height:480,
 	            modal:true,
-	            title:"#title",
-	            buttons: {
-	            	"Edit": bind(function() {
-	            		$("#editRights input:checked").each(bind(function(i, val) {
-	            			var arr = $(val).val().split("_");
-	            			this.editRightForPath(arr[0], arr[1]);
-	            		},this));
-
-	            		this.globalEditDialog.dialog("close");
-	            	},this),
-	                "Close": bind(function() {
-	            		this.globalEditDialog.dialog("close");
-	                },this)
-	            }
+	            title:dictionary[''],
+	            buttons: [
+			                {
+			                    text: dictionary["common.edit"], //TODO: change key
+			                    click: bind(function() {
+				            		$("#editRights input:checked").each(bind(function(i, val) {
+				            			var arr = $(val).val().split("_");
+				            			this.editRightForPath(arr[0], arr[1]);
+				            		},this));
+			
+				            		this.globalEditDialog.dialog("close");
+				            	},this)
+			                },
+			                {
+			                    text: dictionary["common.close"], //TODO: change key
+			                    click: bind(function() {
+				            		this.globalEditDialog.dialog("close");
+				                },this)
+			                }
+			                
+	            	]
+	            	
 	        });
 			
 		}
@@ -341,22 +352,29 @@ SecuredActionTab.prototype.globalDelete = function() {
 	            width:640,
 	            height:480,
 	            modal:true,
-	            title:"#title",
-	            buttons: {
-	            	"Smazat": bind(function() {
-	            		var rightIds= [];
-	            		$("#delRights input:checked").each(function(i, val) {
-	            			rightIds.push($(val).val());
-	            		});
-	            		rightContainer = {deletedrights:rightIds};
-        				this.post();
+	            title:"",
+	            buttons: [
+	                      {
+	                    	  text:dictionary['common.delete'],
+	                    	  click:bind(function() {
+	      	            		var rightIds= [];
+	    	            		$("#delRights input:checked").each(function(i, val) {
+	    	            			rightIds.push($(val).val());
+	    	            		});
+	    	            		rightContainer = {deletedrights:rightIds};
+	            				this.post();
 
-	            		this.globalDeleteDialog.dialog("close");
-	            	},this),
-	                "Close": bind(function() {
-	            		this.globalDeleteDialog.dialog("close");
-	                },this)
-	            }
+	    	            		this.globalDeleteDialog.dialog("close");
+	    	            	},this)
+	                      },
+	                      	{
+	                    	  text:dictionary['common.close'],
+	                    	  click: bind(function() {
+	    	            		this.globalDeleteDialog.dialog("close");
+	    	                },this)
+	                      }
+                 ]
+	            
 	        });
 			
 		}
@@ -406,17 +424,24 @@ SecuredActionTab.prototype.newRight = function() {
                 width:640,
                 height:480,
                 modal:true,
-                title:"#title",
-                buttons: {
-                	"Apply": bind(function() {
-        				this.post();
-                		//$.post("rights?action=create", flatten({data:rightContainer.data,affectedObjects:rightContainer.affectedObjects}));
-                		this.newRightDialog.dialog("close");
-                	},this),
-                    "Close": bind(function() {
-                		this.newRightDialog.dialog("close");
-                    },this)
-                }
+                title:"",
+                buttons: [
+                          {
+                        	  text:dictionary['common.apply'],
+                        	  click:bind(function() {
+                  				this.post();
+                        		//$.post("rights?action=create", flatten({data:rightContainer.data,affectedObjects:rightContainer.affectedObjects}));
+                        		this.newRightDialog.dialog("close");
+                        	},this)
+                          },
+                          {
+                        	 text:dictionary['common.close'],
+                        	 click:bind(function() {
+                         		this.newRightDialog.dialog("close");
+                             },this)
+                          }
+                ]
+                
             });
     	}
     	
@@ -448,19 +473,21 @@ SecuredActionTab.prototype.newRightForPath = function(path) {
                 width:640,
                 height:480,
                 modal:true,
-                title:"#title",
-                buttons: {
-                	"Apply": bind(function() {
-                				this.post();
-                				this.newRightDialog.dialog("close");
-                	},this),
-                    "Close": bind(function() {
-                		this.newRightDialog.dialog("close");
-                    },this)
-                }
+                title:"",
+                buttons: [{
+					text:dictionary['common.apply'],
+					click:bind(function() {
+						this.post();
+						this.newRightDialog.dialog("close");
+					},this)
+                  },{
+					text:dictionary['common.close'],
+					click:bind(function() {
+						  this.newRightDialog.dialog("close");
+					},this)
+                  }]
             });
     	}
-    	
     	$('#nRightDialog').html(data);
     	
 	},this));
@@ -480,16 +507,20 @@ SecuredActionTab.prototype.editRightForPath=function(/** ident for right */right
                 width:640,
                 height:480,
                 modal:true,
-                title:"...",
-                buttons: {
-                	"Apply": bind(function() {
+                title:"",
+                buttons: [{
+                	text:dictionary['common.apply'],
+                	click:bind(function() {
         				this.post();
                 		this.newRightDialog.dialog("close");
-                	},this),
-                    "Close": bind(function() {
+                	},this)
+                  },{
+                	text:dictionary['common.close'],
+                	click:bind(function() {
+        				this.post();
                 		this.newRightDialog.dialog("close");
-                    },this)
-                }
+                	},this)
+                  }]
             });
     	}
 		
@@ -576,12 +607,13 @@ GlobalActions.prototype.rigthsForAction=function(action) {
 		        width:640,
 		        height:480,
 		        modal:true,
-		        title:"#title",
-		        buttons: {
-		            "Close": bind(function() {
-		        		this.actionDialog.dialog("close");
-		            },this)
-		        }
+		        title:"",
+		        buttons: [{
+		        	text:dictionary['common.close'],
+					click:bind(function() {
+						this.actionDialog.dialog("close");
+						},this)
+		        }]
 		    });
 		    
 		}
@@ -611,12 +643,13 @@ GlobalActions.prototype.globalActions=function() {
 		        width:640,
 		        height:480,
 		        modal:true,
-		        title:"#title",
-		        buttons: {
-		            "Close": bind(function() {
-		        		this.dialog.dialog("close");
-		            },this)
-		        }
+		        title:"",
+		        buttons: [{
+                	  text:dictionary['common.close'],
+                	  click:bind(function() {
+  		        		this.dialog.dialog("close");
+                	  },this)
+		        }]
 		    });
 		    
 		}
