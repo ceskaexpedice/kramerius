@@ -209,58 +209,203 @@
     
     function initViewer() {
 
+    	var group = null;
+    	var zooming = false; // whether we should be continuously zooming
+    	var zoomFactor = null; // how much we should be continuously zooming by
+    	var lastZoomTime = null;
+     
         function prevButton() {
-            var control = document.createElement("img");
-            control.setAttribute('src','img/prev_grouphover.png');
-            control.setAttribute('id','prevButton');
+            var control = document.createElement("a");
+            $(control).html("<span class='ui-icon ui-icon-arrowthick-1-w' >full</span>")
 
-            control.onmouseover = function(event) {
-                document.getElementById('prevButton').setAttribute('src','img/prev_hover.png');
-            };
-            control.onmouseout =function(event) {
-                document.getElementById('prevButton').setAttribute('src','img/prev_grouphover.png');
-            };
             control.onclick = function(event) {
-                selectPrevious();
+                previousImage();
             };
 
-
-            control.className = "control prevArrow";
+            $(control).button();
             return control;
         }
 
-
+        function goHomeButton() {
+            var control = document.createElement("a");
+            var span = document.createElement("span");
+            $(control).html("<span class='ui-icon ui-icon-home' >full</span>")
+            control.setAttribute('id','goHome');
+            control.onclick = function(event) {
+                if (viewer.viewport) {
+                    viewer.viewport.goHome();
+                }
+            };
+            $(control).button();
+            
+            return control;
+        }
+        
         function nextButton() {
-            var control = document.createElement("img");
-            control.setAttribute('src','img/next_grouphover.png');
+            var control = document.createElement("a");
+            var span = document.createElement("span");
+            $(control).html("<span class='ui-icon ui-icon-arrowthick-1-e' >full</span>")
             control.setAttribute('id','nextButton');
 
-            control.className = "control nextArrow";
-
-            control.onmouseover = function(event) {
-                document.getElementById('nextButton').setAttribute('src','img/next_hover.png');
-            };
-            control.onmouseout =function(event) {
-                document.getElementById('nextButton').setAttribute('src','img/next_grouphover.png');
-            };
+            control.className = "control";
             control.onclick = function(event) {
-                selectNext();
+                nextImage();
             };
 
+            $(control).button();
             return control;
         }
 
-    	
-    	
+
+        function fullPageButton() {
+            var control = document.createElement("a");
+            var span = document.createElement("span");
+            $(control).html("<span class='ui-icon ui-icon-arrowthick-2-ne-sw' >full</span>")
+            control.setAttribute('id','fullPageButton');
+         
+            control.className = "control";
+            control.onclick = function(event) {
+            	viewer.setFullPage(!viewer.isFullPage());
+                group.emulateExit(); // correct for no mouseout event on change
+                 
+                if (viewer.viewport) {
+                    viewer.viewport.ensureVisible();
+                }
+            };
+
+            $(control).button();
+            return control;
+        }    	
+
+        function endZooming() {
+        	zooming = false;
+      	}
+
+        function scheduleZoom() {
+        	window.setTimeout(doZoom, 10);
+       	}
+
+        function doZoom() {
+            if (zooming && viewer.viewport) {
+             var currentTime = new Date().getTime();
+             var deltaTime = currentTime - lastZoomTime;
+             var adjustedFactor = Math.pow(zoomFactor, deltaTime / 1000);
+             
+             viewer.viewport.zoomBy(adjustedFactor);
+             viewer.viewport.ensureVisible();
+             lastZoomTime = currentTime;
+             scheduleZoom();
+             }
+       	}
+
+
+        function beginZoomingIn() {
+        	lastZoomTime = new Date().getTime();
+        	zoomFactor = Seadragon.Config.zoomPerSecond;
+        	zooming = true;
+        	scheduleZoom();
+       	}
+        	 
+
+      	function beginZoomingOut() {
+        	lastZoomTime = new Date().getTime();
+        	zoomFactor = 1.0 / Seadragon.Config.zoomPerSecond;
+        	zooming = true;
+        	scheduleZoom();
+      	}
+           
+        function zoomInButton() {
+        	var control = document.createElement("a");
+            var span = document.createElement("span");
+            $(control).html("<span class='ui-icon ui-icon-plusthick' >full</span>")
+            control.setAttribute('id','plusButton');
+         
+            control.className = "control";
+
+            var tracker = new Seadragon.MouseTracker(control);
+            tracker.clickHandler = function(tracker, position, quick, shift) {
+                if (viewer.viewport) {
+                    zooming = false;
+                    viewer.viewport.zoomBy(Seadragon.Config.zoomPerClick / 1.0);
+                    viewer.viewport.ensureVisible();
+                }
+            }         
+
+            tracker.pressHandler = function(tracker, position) {
+            	beginZoomingIn();
+            }
+
+            tracker.enterHandler = function(tracker,position, buttonDownElm, buttonDownAny) {
+                beginZoomingIn();
+            }
+
+
+            tracker.releaseHandler = function(tracker, position, insideElmtPress,insideElmtRelease ) {
+            	endZooming();
+            }
+
+            tracker.exitHandler = function(tracker, position, buttonDownElmt, buttonDownAny) {
+                endZooming();
+            }
+            
+            
+            $(control).button();
+            tracker.setTracking(true);
+            return control;
+        }
+        
+
+        function zoomOutButton() {
+            var control = document.createElement("a");
+            var span = document.createElement("span");
+            $(control).html("<span class='ui-icon ui-icon-minusthick' >full</span>")
+            control.setAttribute('id','plusButton');
+         
+            control.className = "control";
+
+            var tracker = new Seadragon.MouseTracker(control);
+            tracker.clickHandler = function(tracker, position, quick, shift) {
+            	if (viewer.viewport) {
+            		zooming = false;
+            		viewer.viewport.zoomBy(1.0 / Seadragon.Config.zoomPerClick);
+            		viewer.viewport.ensureVisible();
+           		}           
+          }   
+
+            tracker.pressHandler = function(tracker, position) {
+                beginZoomingOut();
+            }
+
+            tracker.enterHandler = function(tracker,position, buttonDownElm, buttonDownAny) {
+                beginZoomingOut();
+            }
+
+
+            tracker.releaseHandler = function(tracker, position, insideElmtPress,insideElmtRelease ) {
+                endZooming();
+            }
+
+            tracker.exitHandler = function(tracker, position, buttonDownElmt, buttonDownAny) {
+                endZooming();
+            }
+            
+            
+            $(control).button();
+            tracker.setTracking(true);
+            return control;
+        }
+        
         viewer = new Seadragon.Viewer("container");
         viewer.clearControls();
         viewer.addControl(nextButton(),Seadragon.ControlAnchor.TOP_RIGHT);
         viewer.addControl(prevButton(),Seadragon.ControlAnchor.TOP_RIGHT);
-        viewer.addControl(viewer.getNavControl(),  Seadragon.ControlAnchor.TOP_RIGHT);
+        viewer.addControl(goHomeButton(),  Seadragon.ControlAnchor.TOP_RIGHT);
+        viewer.addControl(fullPageButton(),  Seadragon.ControlAnchor.TOP_RIGHT);
+        viewer.addControl(zoomOutButton(),Seadragon.ControlAnchor.TOP_RIGHT);
+        viewer.addControl(zoomInButton(),Seadragon.ControlAnchor.TOP_RIGHT);
 
         
-        //Seadragon.Config.maxZoomPixelRatio=1;
-        //Seadragon.Config.imageLoaderLimit=1;
+        
 
         // lokalizacenextImage
         Seadragon.Strings.setString("Tooltips.FullPage",dictionary["deep.zoom.Tooltips.FullPage"]);
