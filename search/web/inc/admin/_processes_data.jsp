@@ -264,7 +264,7 @@ $(document).ready(function(){
           });
     </script>    
 
-     <div class="apply" style="width:70px;">
+     <div class="apply" style="width:170px;">
         <button name="apply" title="Ok" onclick="processes.currentFilter.apply('${processView.ordering}',0,${processView.pageSize},'${processView.typeOfOrdering}')"> <view:msg>common.apply</view:msg> </button>
         <button name="apply" title="Close" onclick="processes.currentFilter.close()"> <view:msg>common.close</view:msg> </button>
      </div>
@@ -282,7 +282,7 @@ $(document).ready(function(){
             <td><strong>${processView.dateOrdering}</strong></td>
             <td><strong>${processView.plannedDateOrdering}</strong></td>
             <td><strong>${processView.userOrdering}</strong></td>
-            <td  width="10%"><strong>Akce</strong></td>
+            <td  width="10%"><strong><view:msg>administrator.processes.change</view:msg></strong></td>
         </tr>
     </thead>
     <tbody>
