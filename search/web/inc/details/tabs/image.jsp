@@ -2,9 +2,17 @@
     .buttons>a{
         margin-right: 3px;
     }
+    
     .buttons>a>span.ui-button-text{
         padding:3px;
     }
+
+/*    
+    span.ui-button-text {
+        padding: 3px;
+    }
+    */
+    
 </style>
 <div id="bigThumbZone" class="viewer">
     <div id="container"  class="view_div"  style="display:none; min-height: 512px; min-width: 512px; width: 512px; height: 512px;">
@@ -227,7 +235,6 @@
 
         function goHomeButton() {
             var control = document.createElement("a");
-            var span = document.createElement("span");
             $(control).html("<span class='ui-icon ui-icon-home' >full</span>")
             control.setAttribute('id','goHome');
             control.onclick = function(event) {
@@ -258,7 +265,6 @@
 
         function fullPageButton() {
             var control = document.createElement("a");
-            var span = document.createElement("span");
             $(control).html("<span class='ui-icon ui-icon-arrowthick-2-ne-sw' >full</span>")
             control.setAttribute('id','fullPageButton');
          
