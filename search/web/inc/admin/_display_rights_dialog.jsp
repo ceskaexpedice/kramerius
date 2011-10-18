@@ -102,7 +102,7 @@
 					                                   <thead style="border-bottom: 1px dashed; background-image: url('img/bg_rights_table.png'); background-repeat: repeat-x; height: 28px;">
 					                                       <tr>
 					                                           <td width="6px" style="border-top: 1px solid black;"></td>
-                                                               <td width="60px" align="center" style="border-top: 1px solid black;"><strong><view:msg>rights.dialog.table.column.object</view:msg></strong></td>
+                                                               <td width="120px" align="center" style="border-top: 1px solid black;"><strong><view:msg>rights.dialog.table.column.object</view:msg></strong></td>
                                                                <td width="60px" align="center" style="border-top: 1px solid black;"><strong><view:msg>rights.dialog.table.column.action</view:msg></strong></td>
                                                                <td width="130px" align="center" style="border-top: 1px solid black;"><strong><view:msg>rights.dialog.table.column.group</view:msg></strong></td>
                                                                <td title="Priorita" width="15px" align="center" style="border-top: 1px solid black;"><strong>..</strong></td>
@@ -115,7 +115,7 @@
 					                                          <c:forEach items="${rightsPath.rights}" var="right" varStatus="status">
 					                                               <tr> 
 					                                                    <td><div style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${status.index}</div></td> 
-                                                                        <td><div style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${right.title}</div></td> 
+                                                                        <td title="${right.title}"><div style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${right.title}</div></td> 
 					                                                    <td title="<view:msg>rights.action.${right.action}</view:msg>"><div style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;"><view:msg>rights.action.${right.action}.formalName</view:msg></div></td> 
                                                                         <td><div style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${right.user}</div></td> 
                                                                         <td><div style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${right.fixedPriority}</div></td> 

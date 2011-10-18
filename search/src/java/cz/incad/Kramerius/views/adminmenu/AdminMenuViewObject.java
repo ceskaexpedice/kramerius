@@ -88,11 +88,35 @@ public class AdminMenuViewObject {
                 "administrator.menu.dialogs.actionsAdmin.title", false);
     }
 
+    public String enumerator() throws IOException {
+        return renderMenuItem(
+                "javascript:enumerator(); javascript:hideAdminMenu();",
+                "administrator.menu.dialogs.enumerator.title", false);
+    }
+
+    public String replicationrights() throws IOException {
+        return renderMenuItem(
+                "javascript:replicationRights(); javascript:hideAdminMenu();",
+                "administrator.menu.dialogs.replicationrights.title", false);
+    }
+
     public String openUsersAdmin() throws IOException {
         String href = kconfig.getUsersEditorURL();
         return renderMenuItem(href, "administrator.menu.userseditor",true);
        
 
+    }
+
+    public String convert() throws IOException {
+        return renderMenuItem(
+                "javascript:convert(); javascript:hideAdminMenu();",
+                "administrator.menu.dialogs.convert.title", false);
+    }
+
+    public String impor() throws IOException {
+        return renderMenuItem(
+                "javascript:impor(); javascript:hideAdminMenu();",
+                "administrator.menu.dialogs.import.title", false);
     }
 
     public String noParamsProcess(String processName) throws IOException {
@@ -141,16 +165,16 @@ public class AdminMenuViewObject {
                 }
 
                 if (hasUserAllowedAction(SecuredActions.ENUMERATOR.getFormalName())) {
-                    menuItems.add(noParamsProcess(KrameriusRoles.ENUMERATOR.getRoleName()));
+                    menuItems.add(enumerator());
                 }
                 if (hasUserAllowedAction(SecuredActions.REPLICATIONRIGHTS.getFormalName())) {
-                    menuItems.add(noParamsProcess(KrameriusRoles.REPLICATIONRIGHTS.getRoleName()));
+                    menuItems.add(replicationrights());
                 }
                 if (hasUserAllowedAction(SecuredActions.CONVERT.getFormalName())) {
-                    menuItems.add(noParamsProcess(KrameriusRoles.CONVERT.getRoleName()));
+                    menuItems.add(convert());
                 }
                 if (hasUserAllowedAction(SecuredActions.IMPORT.getFormalName())) {
-                    menuItems.add(noParamsProcess(KrameriusRoles.IMPORT.getRoleName()));
+                    menuItems.add(impor());
                 }
                 if (hasUserAllowedAction(SecuredActions.EDITOR.getFormalName())) {
                     menuItems.add(editor());

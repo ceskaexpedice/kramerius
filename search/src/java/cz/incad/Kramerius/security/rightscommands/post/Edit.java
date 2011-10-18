@@ -17,6 +17,7 @@
 package cz.incad.Kramerius.security.rightscommands.post;
 
 import java.io.IOException;
+import java.net.URLEncoder;
 import java.sql.SQLException;
 import java.util.Enumeration;
 import java.util.HashMap;

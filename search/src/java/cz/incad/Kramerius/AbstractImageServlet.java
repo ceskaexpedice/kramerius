@@ -154,8 +154,8 @@ public abstract class AbstractImageServlet extends GuiceServlet {
 		} else throw new IllegalArgumentException("unsupported mimetype '"+format+"'");
 	}
 
-    protected void setDateHaders(String uuid, HttpServletResponse resp) throws IOException {
-        Date lastModifiedDate = lastModified(uuid);
+    protected void setDateHaders(String pid, String streamName, HttpServletResponse resp) throws IOException {
+        Date lastModifiedDate = lastModified(pid, streamName);
         Calendar instance = Calendar.getInstance();
         instance.roll(Calendar.YEAR, 1);
         resp.setDateHeader("Last Modified", lastModifiedDate.getTime());
@@ -163,10 +163,11 @@ public abstract class AbstractImageServlet extends GuiceServlet {
         resp.setDateHeader("Expires", instance.getTime().getTime());
     }
 
-    private Date lastModified(String uuid) throws IOException {
+    private Date lastModified(String pid, String stream) throws IOException {
         Date date = null;
-        Document fullProfile = fedoraAccess.getImageFULLProfile(uuid);
-        Element elm = XMLUtils.findElement(fullProfile.getDocumentElement(), "dsCreateDate", null);
+        Document streamProfile = fedoraAccess.getStreamProfile(pid, stream);
+        
+        Element elm = XMLUtils.findElement(streamProfile.getDocumentElement(), "dsCreateDate", null);
         if (elm != null) {
             String textContent = elm.getTextContent();
             for(DateFormat df:XSD_DATE_FORMATS) {
@@ -185,11 +186,11 @@ public abstract class AbstractImageServlet extends GuiceServlet {
     }
     
     
-    protected void setResponseCode(String uuid, HttpServletRequest request, HttpServletResponse response) throws IOException {
+    protected void setResponseCode(String pid, String streamName, HttpServletRequest request, HttpServletResponse response) throws IOException {
         long dateHeader = request.getDateHeader("If-Modified-Since");
         if (dateHeader != -1) {
             Date reqDate = new Date(dateHeader);
-            Date lastModified = lastModified(uuid);
+            Date lastModified = lastModified(pid, streamName);
             if (lastModified.after(reqDate)) {
                 response.setStatus(HttpServletResponse.SC_NOT_MODIFIED);
             }

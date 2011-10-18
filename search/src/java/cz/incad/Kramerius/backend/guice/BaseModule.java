@@ -34,6 +34,7 @@ import cz.incad.kramerius.relation.impl.RelationServiceImpl;
 import cz.incad.kramerius.security.SecuredFedoraAccessImpl;
 import cz.incad.kramerius.service.DeleteService;
 import cz.incad.kramerius.service.ExportService;
+import cz.incad.kramerius.service.GoogleAnalytics;
 import cz.incad.kramerius.service.METSService;
 import cz.incad.kramerius.service.PolicyService;
 import cz.incad.kramerius.service.ResourceBundleService;
@@ -41,6 +42,7 @@ import cz.incad.kramerius.service.TextsService;
 import cz.incad.kramerius.service.XSLService;
 import cz.incad.kramerius.service.impl.DeleteServiceImpl;
 import cz.incad.kramerius.service.impl.ExportServiceImpl;
+import cz.incad.kramerius.service.impl.GoogleAnalyticsImpl;
 import cz.incad.kramerius.service.impl.METSServiceImpl;
 import cz.incad.kramerius.service.impl.PolicyServiceImpl;
 import cz.incad.kramerius.service.impl.ResourceBundleServiceImpl;
@@ -83,10 +85,8 @@ public class BaseModule extends AbstractModule {
 		bind(LocalizationContext.class).toProvider(CustomLocalizedContextProvider.class);
 		
 		bind(MostDesirable.class).to(MostDesirableImpl.class);
-		
         bind(RelationService.class).to(RelationServiceImpl.class).in(Scopes.SINGLETON);
-	}
-	
 
-	
+        bind(GoogleAnalytics.class).to(GoogleAnalyticsImpl.class).in(Scopes.SINGLETON);
+	}
 }

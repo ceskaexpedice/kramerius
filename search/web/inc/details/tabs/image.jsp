@@ -209,7 +209,6 @@
     
     function initViewer() {
 
-    	var group = null;
     	var zooming = false; // whether we should be continuously zooming
     	var zoomFactor = null; // how much we should be continuously zooming by
     	var lastZoomTime = null;
@@ -266,7 +265,6 @@
             control.className = "control";
             control.onclick = function(event) {
             	viewer.setFullPage(!viewer.isFullPage());
-                group.emulateExit(); // correct for no mouseout event on change
                  
                 if (viewer.viewport) {
                     viewer.viewport.ensureVisible();

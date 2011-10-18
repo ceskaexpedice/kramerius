@@ -182,6 +182,12 @@ public class DisplayRightsForObjectsView extends AbstractRightsView {
             try {
                 this.path = path;
                 this.wrappers = RightWrapper.wrapRights(fedoraAccess, rights);
+                int length = path.getLength();
+                String curPid = path.getNodeFromRootToLeaf(length-1);
+                for (RightWrapper rw : this.wrappers) {
+                    rw.setEditable(rw.getPid().equals(curPid));
+                }
+                
                 this.titles = TitlesForObjects.createTitlesForPaths(fedoraAccess,  this.path);
                 this.models = TitlesForObjects.createModelsForPaths(fedoraAccess,  this.path, resourceBundleService, locale);
                 
@@ -204,6 +210,7 @@ public class DisplayRightsForObjectsView extends AbstractRightsView {
         public Right[] getRights() {
             return wrappers;
         }
+        
         
         
         public Map<String, String> getTitles() {
@@ -258,8 +265,24 @@ public class DisplayRightsForObjectsView extends AbstractRightsView {
         public void setRightsAccess(Map<Integer, Boolean> rightsAccess) {
             this.rightsAccess = rightsAccess;
         }
+    }
+    
+    public static class RightContainer {
+        private String currentPID;
+        private Right right;
+        private RightContainer(String currentPID, Right right) {
+            super();
+            this.currentPID = currentPID;
+            this.right = right;
+        }
         
+        public Right getRight() {
+            return right;
+        }
         
-        
+        public boolean isEditable() {
+            return this.right.getPid().equals(this.currentPID);
+        }
+    
     }
 }

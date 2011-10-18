@@ -36,8 +36,9 @@ public class RightWrapper implements Right{
     
     private Right right;
     private String pidTitle;
-
-    public RightWrapper(FedoraAccess fedoraAccess,Right right) {
+    private boolean editable = true;
+    
+    public RightWrapper(FedoraAccess fedoraAccess,Right right, boolean editable) {
         super();
         this.right = right;
         if (SpecialObjects.REPOSITORY.getPid().equals(right.getPid())) {
@@ -96,10 +97,20 @@ public class RightWrapper implements Right{
         throw new IllegalStateException();
     }
     
+    
+    
+    public boolean isEditable() {
+        return editable;
+    }
+
+    public void setEditable(boolean editable) {
+        this.editable = editable;
+    }
+
     public static RightWrapper[] wrapRights(FedoraAccess fedoraAccess, Right...rights) {
         RightWrapper[] wrappers = new RightWrapper[rights.length];
         for (int i = 0; i < rights.length; i++) {
-            wrappers[i]= new RightWrapper(fedoraAccess, rights[i]);
+            wrappers[i]= new RightWrapper(fedoraAccess, rights[i], true);
         }
         return wrappers;
     }

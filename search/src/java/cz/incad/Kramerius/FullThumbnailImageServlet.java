@@ -66,20 +66,20 @@ public class FullThumbnailImageServlet extends AbstractImageServlet {
 	@Override
 	protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
 	    try {
-            String uuid = req.getParameter(UUID_PARAMETER);
+            String pid = req.getParameter(UUID_PARAMETER);
                 
-            if (fedoraAccess.isFullthumbnailAvailable(uuid)) {
-                String mimeType = this.fedoraAccess.getFullThumbnailMimeType(uuid);
+            if (fedoraAccess.isFullthumbnailAvailable(pid)) {
+                String mimeType = this.fedoraAccess.getFullThumbnailMimeType(pid);
                 resp.setContentType(mimeType);
-                setDateHaders(uuid, resp);
-                setResponseCode(uuid, req, resp);
-                copyStreams(fedoraAccess.getFullThumbnail(uuid), resp.getOutputStream());
+                setDateHaders(pid,FedoraUtils.IMG_PREVIEW_STREAM, resp);
+                setResponseCode(pid,FedoraUtils.IMG_PREVIEW_STREAM, req, resp);
+                copyStreams(fedoraAccess.getFullThumbnail(pid), resp.getOutputStream());
             } else {
-                if (fedoraAccess.isContentAccessible(uuid)) {
-                    BufferedImage scaled = GenerateThumbnail.scaleToFullThumb(uuid, fedoraAccess, tileSupport);
+                if (fedoraAccess.isContentAccessible(pid)) {
+                    BufferedImage scaled = GenerateThumbnail.scaleToFullThumb(pid, fedoraAccess, tileSupport);
                     resp.setContentType(ImageMimeType.JPEG.getValue());
-                    setDateHaders(uuid, resp);
-                    setResponseCode(uuid, req, resp);
+                    setDateHaders(pid, FedoraUtils.IMG_PREVIEW_STREAM, resp);
+                    setResponseCode(pid, FedoraUtils.IMG_PREVIEW_STREAM, req, resp);
                     KrameriusImageSupport.writeImageToStream(scaled, "jpeg", resp.getOutputStream());
                 } else {
                     resp.setStatus(HttpServletResponse.SC_FORBIDDEN);

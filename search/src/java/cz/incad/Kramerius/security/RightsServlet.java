@@ -39,8 +39,6 @@ import com.google.inject.Provider;
 import com.google.inject.name.Named;
 
 import cz.incad.Kramerius.backend.guice.GuiceServlet;
-import cz.incad.Kramerius.security.rightscommands.get.EditRightsJSData;
-import cz.incad.Kramerius.security.rightscommands.get.ShowsActionsTableHtml;
 import cz.incad.Kramerius.security.rightscommands.post.Create;
 import cz.incad.Kramerius.security.rightscommands.post.Delete;
 import cz.incad.Kramerius.security.rightscommands.post.Edit;
@@ -112,12 +110,7 @@ public class RightsServlet extends GuiceServlet {
             String action = req.getParameter("action");
             this.responseProvider.get().setContentType("text/html");
                     
-            try {
-                GetCommandsEnum command = GetCommandsEnum.valueOf(action);
-                command.doAction(getInjector());
-            } catch (Exception e) {
-                LOGGER.log(Level.SEVERE, e.getMessage(),e);
-            }
+            throw new UnsupportedOperationException("get is unsupported");
             
         } catch (LexerException e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
@@ -162,19 +155,10 @@ public class RightsServlet extends GuiceServlet {
     }
 
 
+    /*
     static enum GetCommandsEnum {
 
 
-        /** zobrazeni tabulku akci - tlacitka pro zmenu */
-        showglobalrights(ShowsActionsTableHtml.class),
-        
-        
-        /** editace prava - javascript */
-        editrightjsdata(EditRightsJSData.class);
-        
-
-        /** validuje parametry kriteria */
-        //validatecriteriums(ValidateCriteriumParamsHtml.class);
         
         private Class<? extends ServletCommand> commandClass;
         
@@ -187,7 +171,7 @@ public class RightsServlet extends GuiceServlet {
             injector.injectMembers(command);
             command.doCommand();
         }
-    }
+    }*/
     
     
     

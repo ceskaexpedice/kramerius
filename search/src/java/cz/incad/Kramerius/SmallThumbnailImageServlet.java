@@ -31,6 +31,7 @@ import cz.incad.kramerius.FedoraAccess;
 import cz.incad.kramerius.intconfig.InternalConfiguration;
 import cz.incad.kramerius.security.SecurityException;
 import cz.incad.kramerius.utils.ApplicationURL;
+import cz.incad.kramerius.utils.FedoraUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 import cz.incad.kramerius.utils.imgs.KrameriusImageSupport.ScalingMethod;
 import cz.incad.utils.IKeys;
@@ -58,9 +59,9 @@ public class SmallThumbnailImageServlet extends AbstractImageServlet {
 	protected void doGet(HttpServletRequest req, HttpServletResponse resp)
 			throws ServletException, IOException {
 		OutputFormats outputFormat = null;
-		String uuid = req.getParameter(UUID_PARAMETER);
+		String pid = req.getParameter(UUID_PARAMETER);
 		// TODO: Change it !!
-		uuid = fedoraAccess.findFirstViewablePid(uuid);
+		pid = fedoraAccess.findFirstViewablePid(pid);
 		
 		String outputFormatParam = req.getParameter(OUTPUT_FORMAT_PARAMETER);
 		if (outputFormatParam != null) {
@@ -68,24 +69,24 @@ public class SmallThumbnailImageServlet extends AbstractImageServlet {
 		}
 		try {
 			if (outputFormat == null) {
-				BufferedImage image = rawThumbnailImage(uuid, 0);
+				BufferedImage image = rawThumbnailImage(pid, 0);
 				Rectangle rectangle = new Rectangle(image.getWidth(null), image.getHeight(null));
 				BufferedImage scale = scale(image, rectangle, req, getScalingMethod());
 				if (scale != null) {
-                    setDateHaders(uuid, resp);
-                    setResponseCode(uuid, req, resp);
+                    setDateHaders(pid,FedoraUtils.IMG_THUMB_STREAM, resp);
+                    setResponseCode(pid,FedoraUtils.IMG_THUMB_STREAM, req, resp);
 					writeImage(req, resp, scale, OutputFormats.JPEG);
 				} else resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
 			} else {
 
-				InputStream is = this.fedoraAccess.getSmallThumbnail(uuid);
+				InputStream is = this.fedoraAccess.getSmallThumbnail(pid);
 				if (outputFormat.equals(OutputFormats.RAW)) {
-					rawContent(req, resp, uuid, is);
+					rawContent(req, resp, pid, is);
 				} else {
 				    
-					BufferedImage rawImage = rawThumbnailImage(uuid,0);
-                    setDateHaders(uuid, resp);
-                    setResponseCode(uuid, req, resp);
+					BufferedImage rawImage = rawThumbnailImage(pid,0);
+                    setDateHaders(pid,FedoraUtils.IMG_THUMB_STREAM, resp);
+                    setResponseCode(pid,FedoraUtils.IMG_THUMB_STREAM, req, resp);
 					writeImage(req, resp, rawImage, outputFormat);
 				}
 			}
@@ -103,8 +104,8 @@ public class SmallThumbnailImageServlet extends AbstractImageServlet {
         String mimeType = this.fedoraAccess.getSmallThumbnailMimeType(uuid);
         if (mimeType == null) mimeType = DEFAULT_MIMETYPE;
         resp.setContentType(mimeType);
-        setDateHaders(uuid, resp);
-        setResponseCode(uuid, req, resp);
+        setDateHaders(uuid, mimeType, resp);
+        setResponseCode(uuid,FedoraUtils.IMG_THUMB_STREAM, req, resp);
         copyStreams(is, resp.getOutputStream());
     }
 

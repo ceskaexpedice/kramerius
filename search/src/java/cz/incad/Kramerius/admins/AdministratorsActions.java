@@ -36,6 +36,7 @@ public class AdministratorsActions extends GuiceServlet {
 
     static java.util.logging.Logger LOGGER = java.util.logging.Logger.getLogger(AdministratorsActions.class.getName());
     
+    
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         String uuid = req.getParameter(UUID_PARAMETER);

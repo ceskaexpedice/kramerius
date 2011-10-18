@@ -50,6 +50,5 @@
     
         <div id="i" class="viewer"></div>        
         
-        
      </body>
 </html>

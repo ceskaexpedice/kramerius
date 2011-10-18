@@ -59,6 +59,7 @@ import cz.incad.kramerius.security.User;
 import cz.incad.kramerius.security.utils.SortingRightsUtils;
 import cz.incad.kramerius.utils.ApplicationURL;
 import cz.incad.kramerius.utils.DCUtils;
+import cz.incad.kramerius.utils.FedoraUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 import cz.incad.kramerius.utils.imgs.ImageMimeType;
 import cz.incad.kramerius.utils.imgs.KrameriusImageSupport;
@@ -118,8 +119,8 @@ public class FullImageServlet extends AbstractImageServlet {
                 BufferedImage scale = scale(image, rectangle, req, getScalingMethod());
                 if (scale != null) {
                     start = System.currentTimeMillis();
-                    setDateHaders(uuid, resp);
-                    setResponseCode(uuid, req, resp);
+                    setDateHaders(uuid,FedoraUtils.IMG_FULL_STREAM, resp);
+                    setResponseCode(uuid,FedoraUtils.IMG_FULL_STREAM, req, resp);
                     start = System.currentTimeMillis();
                     writeImage(req, resp, scale, OutputFormats.JPEG);
                 } else
@@ -128,16 +129,13 @@ public class FullImageServlet extends AbstractImageServlet {
             } else {
                 InputStream is = this.fedoraAccess.getImageFULL(uuid);
                 if (outputFormat.equals(OutputFormats.RAW)) {
-                    
-                    
                     String asFileParam = req.getParameter("asFile");
-                    
                     String mimeType = this.fedoraAccess.getImageFULLMimeType(uuid);
                     if (mimeType == null)
                         mimeType = DEFAULT_MIMETYPE;
                     resp.setContentType(mimeType);
-                    setDateHaders(uuid, resp);
-                    setResponseCode(uuid, req, resp);
+                    setDateHaders(uuid, FedoraUtils.IMG_FULL_STREAM, resp);
+                    setResponseCode(uuid,FedoraUtils.IMG_FULL_STREAM, req, resp);
                     if ((asFileParam != null) && (asFileParam.equals("true"))) {
                         Document dc = this.fedoraAccess.getDC(uuid);
                         String title = DCUtils.titleFromDC(dc);
@@ -152,8 +150,8 @@ public class FullImageServlet extends AbstractImageServlet {
                     BufferedImage rawImage = rawFullImage(uuid, req, page);
                     // writeDeepZoomFiles(uuid, rawImage);
 
-                    setDateHaders(uuid, resp);
-                    setResponseCode(uuid, req, resp);
+                    setDateHaders(uuid,FedoraUtils.IMG_FULL_STREAM, resp);
+                    setResponseCode(uuid,FedoraUtils.IMG_FULL_STREAM, req, resp);
                     writeImage(req, resp, rawImage, outputFormat);
                 }
             }

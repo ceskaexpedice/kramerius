@@ -170,8 +170,8 @@ public class ImageStreamsServlet extends AbstractImageServlet {
                 }
 
                 BufferedImage image = imageStreamsServlet.rawImage(pid, stream, req, page);
-                imageStreamsServlet.setDateHaders(pid, resp);
-                imageStreamsServlet.setResponseCode(pid, req, resp);
+                imageStreamsServlet.setDateHaders(pid,stream, resp);
+                imageStreamsServlet.setResponseCode(pid,stream, req, resp);
                 imageStreamsServlet.writeImage(req, resp, image, outputFormat);
             }
             
@@ -189,8 +189,8 @@ public class ImageStreamsServlet extends AbstractImageServlet {
                 Rectangle rectangle = new Rectangle(image.getWidth(null), image.getHeight(null));
                 BufferedImage scale = imageStreamsServlet.scale(image, rectangle, req, imageStreamsServlet.getScalingMethod(stream));
                 if (scale != null) {
-                    imageStreamsServlet.setDateHaders(pid, resp);
-                    imageStreamsServlet.setResponseCode(pid, req, resp);
+                    imageStreamsServlet.setDateHaders(pid, stream, resp);
+                    imageStreamsServlet.setResponseCode(pid, stream, req, resp);
                     imageStreamsServlet.writeImage(req, resp, scale, OutputFormats.JPEG);
                 } else resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
             }
@@ -208,8 +208,8 @@ public class ImageStreamsServlet extends AbstractImageServlet {
 
                 String mimeType = fedoraAccess.getMimeTypeForStream(pid, stream);
                 resp.setContentType(mimeType);
-                imageStreamsServlet.setDateHaders(pid, resp);
-                imageStreamsServlet.setResponseCode(pid, req, resp);
+                imageStreamsServlet.setDateHaders(pid, stream, resp);
+                imageStreamsServlet.setResponseCode(pid, stream, req, resp);
                 
                 String asFileParam = req.getParameter("asFile");
                 if ((asFileParam != null) && (asFileParam.equals("true"))) {

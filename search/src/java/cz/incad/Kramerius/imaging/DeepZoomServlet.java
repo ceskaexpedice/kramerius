@@ -92,19 +92,19 @@ public class DeepZoomServlet extends AbstractImageServlet {
         return (!mimeType.equals(ImageMimeType.PDF));
     }
 
-    private void renderDZI(String uuid, HttpServletRequest req, HttpServletResponse resp) throws IOException, XPathExpressionException {
-        setDateHaders(uuid, resp);
-        setResponseCode(uuid, req, resp);
-        String relsExtUrl = RelsExtHelper.getRelsExtTilesUrl(uuid, this.fedoraAccess);
+    private void renderDZI(String pid, HttpServletRequest req, HttpServletResponse resp) throws IOException, XPathExpressionException {
+        setDateHaders(pid,FedoraUtils.IMG_FULL_STREAM, resp);
+        setResponseCode(pid,FedoraUtils.IMG_FULL_STREAM, req, resp);
+        String relsExtUrl = RelsExtHelper.getRelsExtTilesUrl(pid, this.fedoraAccess);
         if (!relsExtUrl.equals(RelsExtHelper.CACHE_RELS_EXT_LITERAL)) {
             try {
-                renderIIPDZIDescriptor(uuid, resp, relsExtUrl);
+                renderIIPDZIDescriptor(pid, resp, relsExtUrl);
             } catch (SQLException e) {
                 LOGGER.log(Level.SEVERE, e.getMessage(), e);
                 resp.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
             }
         } else {
-            renderEmbededDZIDescriptor(uuid, resp);
+            renderEmbededDZIDescriptor(pid, resp);
         }
     }
     
@@ -162,19 +162,19 @@ public class DeepZoomServlet extends AbstractImageServlet {
         }
     }
 
-    private void renderTile(String uuid, String slevel, String stile, HttpServletRequest req, HttpServletResponse resp) throws IOException, XPathExpressionException {
-        setDateHaders(uuid, resp);
-        setResponseCode(uuid, req, resp);
-        String relsExtUrl = RelsExtHelper.getRelsExtTilesUrl(uuid, this.fedoraAccess);
+    private void renderTile(String pid, String slevel, String stile, HttpServletRequest req, HttpServletResponse resp) throws IOException, XPathExpressionException {
+        setDateHaders(pid, FedoraUtils.IMG_FULL_STREAM, resp);
+        setResponseCode(pid,FedoraUtils.IMG_FULL_STREAM, req, resp);
+        String relsExtUrl = RelsExtHelper.getRelsExtTilesUrl(pid, this.fedoraAccess);
         if (!relsExtUrl.equals(RelsExtHelper.CACHE_RELS_EXT_LITERAL)) {
             try {
-                renderIIPTile(uuid, slevel, stile, resp, relsExtUrl);
+                renderIIPTile(pid, slevel, stile, resp, relsExtUrl);
             } catch (SQLException e) {
                 LOGGER.log(Level.SEVERE, e.getMessage(), e);
                 resp.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
             }
         } else {
-            renderEmbededTile(uuid, slevel, stile, req, resp);
+            renderEmbededTile(pid, slevel, stile, req, resp);
         }
     }
 
@@ -191,7 +191,7 @@ public class DeepZoomServlet extends AbstractImageServlet {
         }
     }
 
-    private void renderEmbededTile(String uuid, String slevel, String stile, HttpServletRequest req, HttpServletResponse resp) throws IOException {
+    private void renderEmbededTile(String pid, String slevel, String stile, HttpServletRequest req, HttpServletResponse resp) throws IOException {
         try {
             int ilevel = Integer.parseInt(slevel);
             if (stile.contains(".")) {
@@ -199,19 +199,19 @@ public class DeepZoomServlet extends AbstractImageServlet {
                 StringTokenizer tokenizer = new StringTokenizer(stile, "_");
                 String scol = tokenizer.nextToken();
                 String srow = tokenizer.nextToken();
-                Dimension originalResolution = cacheService.getResolutionFromFile(uuid);
+                Dimension originalResolution = cacheService.getResolutionFromFile(pid);
                 int maxLevels = tileSupport.getLevels(originalResolution, 1);
                 
                 Dimension scaledResolution = tileSupport.getScaledDimension(originalResolution, ilevel,maxLevels);
                 if ((scaledResolution.width <= tileSupport.getTileSize()) && (scaledResolution.height <= tileSupport.getTileSize())) {
                     // obrazek se vejde na jednu dlazdici, vracime velky nahled
                     
-                    if (fedoraAccess.isFullthumbnailAvailable(uuid)) {
-                        String mimeType = this.fedoraAccess.getFullThumbnailMimeType(uuid);
+                    if (fedoraAccess.isFullthumbnailAvailable(pid)) {
+                        String mimeType = this.fedoraAccess.getFullThumbnailMimeType(pid);
                         resp.setContentType(mimeType);
-                        setDateHaders(uuid, resp);
-                        setResponseCode(uuid, req, resp);
-                        copyStreams(fedoraAccess.getFullThumbnail(uuid), resp.getOutputStream());
+                        setDateHaders(pid,FedoraUtils.IMG_FULL_STREAM, resp);
+                        setResponseCode(pid, FedoraUtils.IMG_FULL_STREAM, req, resp);
+                        copyStreams(fedoraAccess.getFullThumbnail(pid), resp.getOutputStream());
                     } else {
                         resp.sendError(HttpServletResponse.SC_NOT_FOUND);
                     }
@@ -219,15 +219,15 @@ public class DeepZoomServlet extends AbstractImageServlet {
                     
                 } else {
                     // bereme z cache nebo pocitame, vykresulejeme, ukladame a vracime 
-                    boolean tilePresent = cacheService.isDeepZoomTilePresent(uuid, ilevel, Integer.parseInt(srow), Integer.parseInt(scol));
+                    boolean tilePresent = cacheService.isDeepZoomTilePresent(pid, ilevel, Integer.parseInt(srow), Integer.parseInt(scol));
                     if (!tilePresent) {
                         // File dFile = cacheService.getDeepZoomLevelsFile(uuid);
                         BufferedImage original = null;
-                        if (cacheService.isDeepZoomOriginalPresent(uuid)) {
-                            original = cacheService.getDeepZoomOriginal(uuid);
+                        if (cacheService.isDeepZoomOriginalPresent(pid)) {
+                            original = cacheService.getDeepZoomOriginal(pid);
                         } else {
-                            original = cacheService.createDeepZoomOriginalImageFromFedoraRAW(uuid);
-                            cacheService.writeDeepZoomOriginalImage(uuid, original);
+                            original = cacheService.createDeepZoomOriginalImageFromFedoraRAW(pid);
+                            cacheService.writeDeepZoomOriginalImage(pid, original);
                         }
 
                         long levels = tileSupport.getLevels(original, 1);
@@ -240,9 +240,9 @@ public class DeepZoomServlet extends AbstractImageServlet {
                         base = base + Integer.parseInt(scol);
 
                         BufferedImage tile = this.tileSupport.getTileFromBigImage(original, ilevel, base, 1, getScalingMethod(), turnOnIterateScaling());
-                        cacheService.writeDeepZoomTile(uuid, ilevel, Integer.parseInt(srow), Integer.parseInt(scol), tile);
+                        cacheService.writeDeepZoomTile(pid, ilevel, Integer.parseInt(srow), Integer.parseInt(scol), tile);
                     }
-                    InputStream is = cacheService.getDeepZoomTileStream(uuid, ilevel, Integer.parseInt(srow), Integer.parseInt(scol));
+                    InputStream is = cacheService.getDeepZoomTileStream(pid, ilevel, Integer.parseInt(srow), Integer.parseInt(scol));
                     resp.setContentType(ImageMimeType.JPEG.getValue());
                     IOUtils.copyStreams(is, resp.getOutputStream());
                 }
