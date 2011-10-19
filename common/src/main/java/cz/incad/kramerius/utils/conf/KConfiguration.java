@@ -263,6 +263,11 @@ public class KConfiguration {
     public String getDataFolderOnIIPServer() {
         return getConfiguration().getString("dataFolderOnIIPServer", "");
     }
+
+    public File getGoogleCodeFile() {
+        return new File(getConfiguration().getString("googleanalytics.file", "${sys:user.home}/.kramerius4/googleanalytics/code.txt"));
+    }
+
     
     private static String normalizeURL(String url) {
         if (url != null) {
