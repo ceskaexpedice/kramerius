@@ -604,7 +604,7 @@ GlobalActions.prototype.rigthsForAction=function(action) {
 		    
 			
 		    this.actionDialog = $('#rightsForAction').dialog({
-		        width:640,
+		        width:800,
 		        height:480,
 		        modal:true,
 		        title:"",

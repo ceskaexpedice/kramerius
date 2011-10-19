@@ -90,7 +90,7 @@ public class Create extends ServletRightsCommand {
         
         boolean hasRight = false;
         for (int i = 0; i < paths.length; i++) {
-            if (this.actionAllowed.isActionAllowed(SecuredActions.ADMINISTRATE.getFormalName(), pid, paths[i])) {
+            if (this.actionAllowed.isActionAllowed(SecuredActions.ADMINISTRATE.getFormalName(), pid, null, paths[i])) {
                 hasRight = true;
                 break;
             } else {
@@ -99,7 +99,7 @@ public class Create extends ServletRightsCommand {
         } 
         // root object
         if (paths.length  == 0) {
-            if (this.actionAllowed.isActionAllowed(SecuredActions.ADMINISTRATE.getFormalName(), pid, new ObjectPidsPath(pid))) {
+            if (this.actionAllowed.isActionAllowed(SecuredActions.ADMINISTRATE.getFormalName(), pid, null, new ObjectPidsPath(pid))) {
                 hasRight = true;
             } else {
                 throw new SecurityException("operation is not permited");

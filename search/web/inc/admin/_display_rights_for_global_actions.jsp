@@ -65,7 +65,7 @@
        style="border-bottom: 1px dashed; background-image: url('img/bg_rights_table.png'); background-repeat: repeat-x; height: 28px;">
        <tr>
         <td width="20px" style="border-top: 1px solid black;"></td>
-        <td width="60px" align="center"
+        <td width="20%" align="center"
          style="border-top: 1px solid black;"><strong><view:msg>rights.dialog.table.column.object</view:msg></strong></td>
         <td width="60px" align="center"
          style="border-top: 1px solid black;"><strong><view:msg>rights.dialog.table.column.action</view:msg></strong></td>

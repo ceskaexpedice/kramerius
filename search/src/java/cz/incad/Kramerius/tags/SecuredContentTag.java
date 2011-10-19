@@ -33,6 +33,7 @@ import cz.incad.kramerius.SolrAccess;
 import cz.incad.kramerius.security.IsActionAllowed;
 import cz.incad.kramerius.security.SpecialObjects;
 import cz.incad.kramerius.security.User;
+import cz.incad.kramerius.utils.FedoraUtils;
 
 public class SecuredContentTag extends BodyTagSupport {
     
@@ -41,6 +42,7 @@ public class SecuredContentTag extends BodyTagSupport {
     private BodyContent bodyContent;
     private String action;
     private String pid = SpecialObjects.REPOSITORY.getPid();
+    private String stream = FedoraUtils.IMG_FULL_STREAM;
     
     @Inject
     private IsActionAllowed allowed;
@@ -65,6 +67,16 @@ public class SecuredContentTag extends BodyTagSupport {
 
     public void setPid(String pid) {
         this.pid = pid;
+    }
+
+    
+    
+    public String getStream() {
+        return stream;
+    }
+
+    public void setStream(String stream) {
+        this.stream = stream;
     }
 
     public BodyContent getBodyContent() {
@@ -107,7 +119,7 @@ public class SecuredContentTag extends BodyTagSupport {
     private boolean isActionAllowed() throws IOException {
         ObjectPidsPath[] paths = this.solrAccess.getPath(this.getPid());
         for (ObjectPidsPath p : paths) {
-            boolean b =  allowed.isActionAllowed(this.currentUserProvider.get(),this.action, this.pid, p);
+            boolean b =  allowed.isActionAllowed(this.currentUserProvider.get(),this.action, this.pid,this.stream, p);
             if (b) return true;
             
         }

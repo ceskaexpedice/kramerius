@@ -46,6 +46,7 @@ import cz.incad.kramerius.security.SecurityException;
 import cz.incad.kramerius.security.SpecialObjects;
 import cz.incad.kramerius.security.User;
 import cz.incad.kramerius.security.impl.http.AbstractLoggedUserProvider;
+import cz.incad.kramerius.utils.FedoraUtils;
 import cz.incad.kramerius.utils.IOUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 import cz.incad.kramerius.utils.imgs.ImageMimeType;
@@ -275,10 +276,10 @@ public class ViewInfoServlet extends GuiceServlet {
     }
    
     
-    public MappedPath findPathWithFirstAccess(HttpServletRequest req, String uuid, ObjectPidsPath[] paths,SecuredActions act) {
+    public MappedPath findPathWithFirstAccess(HttpServletRequest req, String pid, ObjectPidsPath[] paths,SecuredActions act) {
         for (ObjectPidsPath objectPath : paths) {
             ObjectPidsPath path = objectPath.injectRepository();
-            boolean[] allowedActionForPath = actionAllowed.isActionAllowedForAllPath(act.getFormalName(), uuid,path);
+            boolean[] allowedActionForPath = actionAllowed.isActionAllowedForAllPath(act.getFormalName(), pid, FedoraUtils.IMG_FULL_STREAM ,path);
             if (atLeastOneTrue(allowedActionForPath)) {
                 return new MappedPath(path, allowedActionForPath);
             }
@@ -290,7 +291,7 @@ public class ViewInfoServlet extends GuiceServlet {
         List<MappedPath> mappedPaths = new ArrayList<ViewInfoServlet.MappedPath>();
         for (ObjectPidsPath objectPath : paths) {
             ObjectPidsPath path = objectPath.injectRepository();
-            boolean[] allowedActionForPath = actionAllowed.isActionAllowedForAllPath(act.getFormalName(), pid,path);
+            boolean[] allowedActionForPath = actionAllowed.isActionAllowedForAllPath(act.getFormalName(), pid, FedoraUtils.IMG_FULL_STREAM,path);
             mappedPaths.add(new MappedPath(path, allowedActionForPath));
         }
                 

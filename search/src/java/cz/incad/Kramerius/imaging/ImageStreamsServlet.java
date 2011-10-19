@@ -43,6 +43,7 @@ import cz.incad.Kramerius.backend.guice.GuiceServlet;
 import cz.incad.Kramerius.imaging.utils.FileNameUtils;
 import cz.incad.kramerius.FedoraAccess;
 import cz.incad.kramerius.security.SecurityException;
+import cz.incad.kramerius.utils.FedoraUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 import cz.incad.kramerius.utils.imgs.KrameriusImageSupport.ScalingMethod;
 import cz.incad.kramerius.utils.pid.PIDParser;
@@ -204,7 +205,13 @@ public class ImageStreamsServlet extends AbstractImageServlet {
 
             @Override
             void doPerform(ImageStreamsServlet imageStreamsServlet, FedoraAccess fedoraAccess,String pid, String stream, int page, HttpServletRequest req, HttpServletResponse resp) throws IOException, SecurityException, XPathExpressionException{
-                InputStream is = fedoraAccess.getDataStream(pid, stream);
+                InputStream is = null; 
+                if (stream.equals(FedoraUtils.IMG_THUMB_STREAM)) {
+                    // small thumb -> no rights
+                    is = fedoraAccess.getSmallThumbnail(pid);
+                } else {
+                    is = fedoraAccess.getDataStream(pid, stream);
+                }
 
                 String mimeType = fedoraAccess.getMimeTypeForStream(pid, stream);
                 resp.setContentType(mimeType);

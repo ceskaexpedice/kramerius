@@ -52,7 +52,7 @@ public class WellcomeViewObject {
     IsActionAllowed actionAllowed;
     
     public String getIntro() throws IOException {
-        boolean operationPermited = actionAllowed.isActionAllowed(SecuredActions.EDIT_INFO_TEXT.getFormalName(), SpecialObjects.REPOSITORY.getPid(), ObjectPidsPath.REPOSITORY_PATH);
+        boolean operationPermited = actionAllowed.isActionAllowed(SecuredActions.EDIT_INFO_TEXT.getFormalName(), SpecialObjects.REPOSITORY.getPid(), null, ObjectPidsPath.REPOSITORY_PATH);
         return operationPermited ? getEditIntro() : getTextIntro();
     }
     

@@ -108,7 +108,7 @@ public class DisplayRightsForObjectsView extends AbstractRightsView {
                     
                     // ma superadmin roli ?
                     if (!hasSuperAdminRole(this.userProvider.get())) {
-                        boolean[] booleans = actionAllowed.isActionAllowedForAllPath(SecuredActions.ADMINISTRATE.getFormalName(), pid.toString(), path);
+                        boolean[] booleans = actionAllowed.isActionAllowedForAllPath(SecuredActions.ADMINISTRATE.getFormalName(), pid.toString(),null, path);
                         for (int i = 0; i < booleans.length; i++) {
                             // can administrate
                             if (booleans[i]) {

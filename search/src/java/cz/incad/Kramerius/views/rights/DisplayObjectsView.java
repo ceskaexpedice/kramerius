@@ -95,7 +95,7 @@ public class DisplayObjectsView extends AbstractRightsView {
                 boolean hasRight = false;
                 ObjectPidsPath[] paths = solrAccess.getPath(pid.toString());
                 for (ObjectPidsPath path : paths) {
-                    if (this.isActionAllowed.isActionAllowed(this.userProvider.get(),SecuredActions.ADMINISTRATE.getFormalName(),pid.toString(), path)) {
+                    if (this.isActionAllowed.isActionAllowed(this.userProvider.get(),SecuredActions.ADMINISTRATE.getFormalName(),pid.toString(), null, path)) {
                         hasRight = true;
                         break;
                     }

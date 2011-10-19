@@ -29,6 +29,7 @@ import cz.incad.kramerius.SolrAccess;
 import cz.incad.kramerius.security.IsActionAllowed;
 import cz.incad.kramerius.security.SecuredActions;
 import cz.incad.kramerius.utils.DCUtils;
+import cz.incad.kramerius.utils.FedoraUtils;
 
 import antlr.RecognitionException;
 import antlr.TokenStreamException;
@@ -54,7 +55,7 @@ public class DownloadOriginalViewObject extends AbstractViewObject {
             ObjectPidsPath[] path = solrAccess.getPath(param.toString());
             for (ObjectPidsPath objectPidsPath : path) {
                 objectPidsPath = objectPidsPath.injectRepository();
-                if (isActionAllowed.isActionAllowed(SecuredActions.READ.getFormalName(), param.toString(), objectPidsPath)) {
+                if (isActionAllowed.isActionAllowed(SecuredActions.READ.getFormalName(), param.toString(), FedoraUtils.IMG_FULL_STREAM, objectPidsPath)) {
                     accessed = true;
                     break;
                 }
