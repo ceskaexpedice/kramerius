@@ -38,6 +38,12 @@ public interface RightCriteriumContext {
     public String getRequestedPid();
     
     /**
+     * Dotazovany stream
+     * @return
+     */
+    public String getRequestedStream();
+    
+    /**
      * Objekt, se kterym je pravo asociovano
      * @return
      */

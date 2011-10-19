@@ -25,10 +25,11 @@ public interface RightCriteriumContextFactory {
     
     /**
      * Create instance of RightParamEvaluatingContext
-     * @param uuid PRocessing uuid
+     * @param reqPID Requested pid
+     * @param reqStream Requested stream
      * @param user Current logged user
      * @param string 
      * @return
      */
-    public RightCriteriumContext create(String reqUUID, User user, String remoteHost, String remoteAddr);
+    public RightCriteriumContext create(String reqPID, String reqStream, User user, String remoteHost, String remoteAddr);
 }

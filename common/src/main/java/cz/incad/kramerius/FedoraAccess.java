@@ -226,6 +226,8 @@ public interface FedoraAccess {
      */
     public boolean isStreamAvailable(String pid, String streamName) throws IOException;
 
+    public boolean isStreamAccessible(String pid, String streamName) throws IOException;
+
     
     /**
      * Checks whetere content is acessiable

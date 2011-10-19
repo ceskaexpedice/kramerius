@@ -26,30 +26,33 @@ public interface IsActionAllowed extends IsActionAllowedBase {
 	/**
 	 * Returns true if current logged user is permitted to do action defined by first parameter (actionName) for object defined by second and third parameter (uuid and pathOfUuuid)
 	 * @param actionName Formal action's name
-	 * @param uuid UUID of requested object
+	 * @param pid Pid of requested object
+	 * @param stream Stream of requested object or null
 	 * @param path Path of object. (from root to leaf)
 	 * @return
 	 */
-    public boolean isActionAllowed(String actionName, String pid, ObjectPidsPath path);
+    public boolean isActionAllowed(String actionName, String pid, String stream, ObjectPidsPath path);
 
 	/**
 	 * Returns true given user is permitted to do action defined by parameter actionName for object defined by parameters uuid and pathOfUuuid
 	 * @param user User
 	 * @param actionName Formal action's name
-	 * @param uuid UUID of requested object
+	 * @param pid PID of requested object
+	 * @param stream of requested object or null
 	 * @param path Path of object. (from root to leaf)
 	 * @return
 	 */
-    public boolean isActionAllowed(User user, String actionName, String uuid, ObjectPidsPath path);
+    public boolean isActionAllowed(User user, String actionName, String pid, String stream, ObjectPidsPath path);
 
     
     /**
      * Returns array of results for all path (from root to leaf) for current logged user.    
      * @param actionName Action name
-     * @param pid UUID of requesting object
+     * @param pid PID of requesting object
+     * @param stream Requested stream or null
      * @param path Path from root to leaf 
      * @return
      */
-    public boolean[] isActionAllowedForAllPath(String actionName, String pid, ObjectPidsPath path);
+    public boolean[] isActionAllowedForAllPath(String actionName, String pid, String stream, ObjectPidsPath path);
     
 }

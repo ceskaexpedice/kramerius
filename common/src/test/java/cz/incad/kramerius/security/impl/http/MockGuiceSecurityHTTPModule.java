@@ -31,6 +31,7 @@ import cz.incad.kramerius.security.IsActionAllowed;
 import cz.incad.kramerius.security.SecuredActions;
 import cz.incad.kramerius.security.SpecialObjects;
 import cz.incad.kramerius.security.User;
+import cz.incad.kramerius.utils.FedoraUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 
 public class MockGuiceSecurityHTTPModule extends AbstractModule {
@@ -38,7 +39,7 @@ public class MockGuiceSecurityHTTPModule extends AbstractModule {
     @Override
     protected void configure() {
         IsActionAllowed isAllowed = EasyMock.createMock(IsActionAllowed.class);
-        EasyMock.expect(isAllowed.isActionAllowed(SecuredActions.READ.getFormalName(), SpecialObjects.REPOSITORY.getPid(), new ObjectPidsPath(SpecialObjects.REPOSITORY.getPid()))).andReturn(true);
+        EasyMock.expect(isAllowed.isActionAllowed(SecuredActions.READ.getFormalName(), FedoraUtils.IMG_FULL_STREAM, SpecialObjects.REPOSITORY.getPid(), new ObjectPidsPath(SpecialObjects.REPOSITORY.getPid()))).andReturn(true);
         replay(isAllowed);
 
         bind(IsActionAllowed.class).toInstance(isAllowed);

@@ -58,10 +58,10 @@ public class IsActionAllowedFromRequest implements IsActionAllowed {
     }
 
     @Override
-    public boolean isActionAllowed(String actionName, String pid, ObjectPidsPath path) {
+    public boolean isActionAllowed(String actionName, String pid, String stream, ObjectPidsPath path) {
         try {
             User user = this.currentLoggedUser.get();
-            return isAllowedInternalForFedoraDocuments(actionName, pid, path, user);
+            return isAllowedInternalForFedoraDocuments(actionName, pid, stream, path, user);
         } catch (RightCriteriumException e) {
             logger.log(Level.SEVERE, e.getMessage(), e);
         }
@@ -69,9 +69,9 @@ public class IsActionAllowedFromRequest implements IsActionAllowed {
         return false;
     }
 
-    public boolean isActionAllowed(User user, String actionName, String uuid, ObjectPidsPath path) {
+    public boolean isActionAllowed(User user, String actionName, String pid,String stream, ObjectPidsPath path) {
         try {
-            return isAllowedInternalForFedoraDocuments(actionName, uuid, path, user);
+            return isAllowedInternalForFedoraDocuments(actionName, pid, stream, path, user);
         } catch (RightCriteriumException e) {
             logger.log(Level.SEVERE, e.getMessage(), e);
         }
@@ -83,10 +83,10 @@ public class IsActionAllowedFromRequest implements IsActionAllowed {
 
 
     @Override
-    public boolean[] isActionAllowedForAllPath(String actionName, String pid, ObjectPidsPath path) {
+    public boolean[] isActionAllowedForAllPath(String actionName, String pid, String stream, ObjectPidsPath path) {
         try {
             User user = this.currentLoggedUser.get();
-            RightCriteriumContext ctx = this.ctxFactory.create(pid, user, this.provider.get().getRemoteHost(), this.provider.get().getRemoteAddr());
+            RightCriteriumContext ctx = this.ctxFactory.create(pid,stream, user, this.provider.get().getRemoteHost(), this.provider.get().getRemoteAddr());
             EvaluatingResult[] evalResults = this.rightsManager.resolveAllPath(ctx, pid, path, actionName, user);
             boolean[] results = new boolean[evalResults.length];
             for (int i = 0; i < results.length; i++) {
@@ -99,8 +99,8 @@ public class IsActionAllowedFromRequest implements IsActionAllowed {
         }
     }
 
-    public boolean isAllowedInternalForFedoraDocuments(String actionName, String pid, ObjectPidsPath path, User user) throws RightCriteriumException {
-        RightCriteriumContext ctx = this.ctxFactory.create(pid, user, this.provider.get().getRemoteHost(), this.provider.get().getRemoteAddr());
+    public boolean isAllowedInternalForFedoraDocuments(String actionName, String pid, String stream, ObjectPidsPath path, User user) throws RightCriteriumException {
+        RightCriteriumContext ctx = this.ctxFactory.create(pid, stream, user, this.provider.get().getRemoteHost(), this.provider.get().getRemoteAddr());
         EvaluatingResult result = this.rightsManager.resolve(ctx, pid, path, actionName, user);
         return result != null ? resultOfResult(result) : false;
     }

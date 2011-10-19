@@ -36,6 +36,8 @@ import cz.incad.kramerius.utils.solr.SolrUtils;
 public class RightParamEvaluatingContextImpl implements RightCriteriumContext {
 
     private String requestedPID;
+    private String requestedStream;
+    
     private String associatedPID;
     private User user;
     private FedoraAccess fedoraAccess;
@@ -45,9 +47,10 @@ public class RightParamEvaluatingContextImpl implements RightCriteriumContext {
     private String remoteHost;
     private String remoteAddr;    
     
-    public RightParamEvaluatingContextImpl(String reqPID, User user, FedoraAccess fedoraAccess, SolrAccess solrAccess, UserManager userManager, String remoteHost, String remoteAddr) {
+    public RightParamEvaluatingContextImpl(String reqPID, String reqStream, User user, FedoraAccess fedoraAccess, SolrAccess solrAccess, UserManager userManager, String remoteHost, String remoteAddr) {
         super();
         this.requestedPID = reqPID;
+        this.requestedStream = reqStream;
         this.user = user;
         this.fedoraAccess = fedoraAccess;
         this.solrAccess = solrAccess;
@@ -109,5 +112,11 @@ public class RightParamEvaluatingContextImpl implements RightCriteriumContext {
     public UserManager getUserManager() {
         return this.userManager;
     }
+
+    @Override
+    public String getRequestedStream() {
+        return this.requestedStream;
+    }
+    
     
 }
