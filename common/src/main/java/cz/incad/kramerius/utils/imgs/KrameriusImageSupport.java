@@ -15,6 +15,7 @@ import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URL;
 import java.util.Iterator;
@@ -32,7 +33,6 @@ import javax.xml.xpath.XPathExpressionException;
 
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.PDPage;
-import org.apache.pdfbox.util.PDFImageWriter;
 
 import com.lizardtech.djvu.DjVuInfo;
 import com.lizardtech.djvu.DjVuOptions;
@@ -58,7 +58,7 @@ public class KrameriusImageSupport {
 
     public static BufferedImage readImage(String pid, String stream, FedoraAccess fedoraAccess, int page) throws XPathExpressionException, IOException {
         String mimetype = fedoraAccess.getMimeTypeForStream(pid, stream);
-        //TODO: change logging 
+        //TODO: change logging
         LOGGER.fine("mimetype for pid '"+pid+"' is '"+mimetype+"'");
         ImageMimeType loadFromMimeType = ImageMimeType.loadFromMimeType(mimetype);
         URL url = new URL("fedora", "", 0, pid + "/" + stream, new Handler(fedoraAccess));
@@ -72,11 +72,21 @@ public class KrameriusImageSupport {
         return readDimension(url, loadFromMimeType);
     }
 
+    public static boolean useCache(){
+        return KConfiguration.getInstance().getConfiguration().getBoolean("convert.useCache", true);
+    }
+
     public static BufferedImage readImage(URL url, ImageMimeType type, int page) throws IOException {
         LOGGER.fine("type is "+type);
         if (type == null) return null;
         if (type.javaNativeSupport()) {
-            return ImageIO.read(url.openStream());
+            InputStream stream = url.openStream();
+            try{
+                ImageIO.setUseCache(useCache());
+                return ImageIO.read(stream);
+            }finally{
+                org.apache.commons.io.IOUtils.closeQuietly(stream);
+            }
         } else if ((type.equals(ImageMimeType.DJVU)) || (type.equals(ImageMimeType.VNDDJVU)) || (type.equals(ImageMimeType.XDJVU))) {
             com.lizardtech.djvu.Document doc = new com.lizardtech.djvu.Document(url);
             doc.setAsync(false);
@@ -104,8 +114,10 @@ public class KrameriusImageSupport {
                 return null;
         } else if (type.equals(ImageMimeType.PDF)) {
             PDDocument document = null;
+            InputStream stream = url.openStream();
             try {
-                document = PDDocument.load(url.openStream());
+
+                document = PDDocument.load(stream);
                 int resolution = 96;
                 List pages = document.getDocumentCatalog().getAllPages();
                 PDPage pdPage = (PDPage) pages.get(page);
@@ -115,6 +127,7 @@ public class KrameriusImageSupport {
                 if (document != null) {
                     document.close();
                 }
+                org.apache.commons.io.IOUtils.closeQuietly(stream);
             }
         } else
             throw new IllegalArgumentException("unsupported mimetype '" + type.getValue() + "'");
@@ -147,7 +160,7 @@ public class KrameriusImageSupport {
             Rectangle pageBounds = djvuImage.getPageBounds(0);
             System.out.println(pageBounds);
             System.out.println(new Dimension(info.width, info.height));
-            
+
             return new Dimension(info.width, info.height);
         }
     }
@@ -213,7 +226,7 @@ public class KrameriusImageSupport {
     /**
      * Convenience method that returns a scaled instance of the provided
      * {@code BufferedImage}.
-     * 
+     *
      * @param img
      *            the original image to be scaled
      * @param targetWidth

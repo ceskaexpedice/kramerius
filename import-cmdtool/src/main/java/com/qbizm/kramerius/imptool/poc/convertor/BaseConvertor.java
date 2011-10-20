@@ -964,8 +964,13 @@ public abstract class BaseConvertor {
             BufferedImage scaledImage = scaleByHeightOrWidth(img, width, height);
 
             ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-            ImageIO.write(scaledImage, "jpg", outputStream);
-            return outputStream.toByteArray();
+            try{
+                ImageIO.setUseCache(KrameriusImageSupport.useCache());
+                ImageIO.write(scaledImage, "jpg", outputStream);
+                return outputStream.toByteArray();
+            }finally{
+                outputStream.close();
+            }
         }
         return new byte[0];
     }
