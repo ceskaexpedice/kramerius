@@ -34,8 +34,8 @@
 <div id="selectDiv" class="da_select" style="display:none;" ></div>
 
 <div id="da-inputs">
-<fmt:message bundle="${lctx}">Od</fmt:message>: <input class="da_input" id="f1" size="10" type="text" value="" />
-<fmt:message bundle="${lctx}">Do</fmt:message>: <input class="da_input" id="f2" size="10" type="text" value=""  /> 
+<fmt:message bundle="${lctx}">Od</fmt:message>: <input class="da_input" id="f1" size="10" type="text" value="" onkeyup="checkDoFilter(event)" />
+<fmt:message bundle="${lctx}">Do</fmt:message>: <input class="da_input" id="f2" size="10" type="text" value="" onkeyup="checkDoFilter(event)"  /> 
 <a href="javascript:doFilter();" ><span style="float:right;" class="ui-icon ui-icon-search"><fmt:message bundle="${lctx}">dateaxis.use</fmt:message>" </span></a>
 </div>
 <div id="content-resizable" style="position:relative;float:none;">
@@ -56,7 +56,6 @@
     </div>
 </div>
 </div><div class="clear"></div>
-
 
 <script>
     
@@ -136,6 +135,11 @@
         daScrollToMax();
 
     });
+    function checkDoFilter(event){
+        if( event.keyCode == 13){
+            doFilter();
+        }
+    }
 </script>
 
 
