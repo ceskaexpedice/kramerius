@@ -49,10 +49,9 @@
     }
 </style>
 <div id="split" class="viewer" style="position:relative;"> 
-<div id="thumbs"  class="ui-layout-north">
-    <%@ include file="thumbs.jsp" %>
-</div>
-
+    <div id="thumbs"  class="ui-layout-north">
+        <%@ include file="thumbs.jsp" %>
+    </div>
     <div id="rightPanel"  class="ui-layout-west" >
         <%@ include file="tree.jsp" %>
     </div>
@@ -82,10 +81,6 @@
         w = w -
             $("#thumbs").outerHeight(true) -
             $("#centralContent>ul").outerHeight(true) - 8 - 5 - 6;
-        //w = $("#preview>div.ui-tabs-panel:first").height() +
-        //    $(window).height() -
-        //    $("#main").height() - 
-        //    $("#footer").outerHeight(true);
         $("#rightMenuBox>div.ui-tabs-panel").css("overflow", "auto");
         $("#rightMenuBox>div.ui-tabs-panel").css("padding", "3px");
         $("#rightMenuBox>div.ui-tabs-panel").css("height", w);

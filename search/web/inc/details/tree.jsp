@@ -92,6 +92,7 @@
                         <input type="checkbox" /><a href="#" class="label">${infoa}</a></li></ul>
             </li>
         </ul>
+    <div id="donator" class="viewer" style="position:relative; bottom:0px; width:100%; text-align:center;"></div>  
     </div>
     <div id="contextMenu"><%@include file="contextMenu.jsp" %></div>
     <div id="searchInside">
@@ -102,8 +103,8 @@
             <a href="javascript:searchInside();"><img border="0" align="top" alt="<fmt:message bundle="${lctx}">administrator.menu.searchinside</fmt:message>" src="img/lupa_orange.png" /></a>
         </div>
         <div id="searchInsideResults"></div>
-    </div>
-</div>
+    </div> 
+</div> 
 <script type="text/javascript">
     var pid_path_str = '${pid_path}';
     var model_path_str = '${model_path}';
@@ -160,6 +161,10 @@
 
             $('#item_tree.viewer').bind('viewChanged', function(event, id){
                 selectNodeView(id);
+            });
+
+            $('#donator.viewer').bind('viewReady', function(event, viewerOptions){
+                checkDonator(viewerOptions);
             });
             loadInitNodes();
         });
@@ -420,6 +425,12 @@
             uuids.push(id);
         });
         return uuids;
+    }
+    
+    function checkDonator(id){
+            $.get('inc/details/donator.jsp?uuid='+k4Settings.selectedPath[0].split("_")[1], function(data){
+                $('#donator').html(data);
+            });
     }
 
 </script>
