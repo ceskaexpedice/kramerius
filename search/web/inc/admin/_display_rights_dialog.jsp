@@ -40,6 +40,7 @@
 </style>
 
 
+
 <div id="rightsTableContent"><scrd:loggedusers>
 
  <script type="text/javascript">
@@ -57,25 +58,25 @@
    <td width="100%"><span id="${rights.securedAction}_waiting"></span></td>
    <td>
    <div class="buttons"><span class="button"> <a
-    href="javascript:affectedObjectsRights.securedActionTabs['${rights.securedAction}'].newRight();"
+    href="javascript:findObjectsDialog('${rights.requestedStream}').securedActionTabs['${rights.securedAction}'].newRight();"
     class="ui-icon ui-icon-plus"> </a> </span></div>
    </td>
 
    <td>
    <div class="buttons"><span class="button"> <a
-    href="javascript:affectedObjectsRights.securedActionTabs['${rights.securedAction}'].globalDelete();"
+    href="javascript:findObjectsDialog('${rights.requestedStream}').securedActionTabs['${rights.securedAction}'].globalDelete();"
     class="ui-icon ui-icon-minus"> </a> </span></div>
    </td>
 
    <td>
    <div class="buttons"><span class="button"> <a
-    href="javascript:affectedObjectsRights.securedActionTabs['${rights.securedAction}'].globalEdit();"
+    href="javascript:findObjectsDialog('${rights.requestedStream}').securedActionTabs['${rights.securedAction}'].globalEdit();"
     class="ui-icon ui-icon-wrench"> </a> </span></div>
    </td>
 
    <td>
    <div class="buttons"><span class="button"> <a
-    href="javascript:affectedObjectsRights.securedActionTabs['${rights.securedAction}'].retrieve();"
+    href="javascript:findObjectsDialog('${rights.requestedStream}').securedActionTabs['${rights.securedAction}'].retrieve();"
     class="ui-icon ui-icon-transferthick-e-w"> </a> </span></div>
    </td>
   </tr>
@@ -88,7 +89,7 @@
     varStatus="rstatus">
     <tr>
      <td><a title="${rightsPath.tooltipForPath}"
-      href="javascript:affectedObjectsRights.displayDetails('${rightsPath.rowId}_${rstatus.index}_${rights.securedAction}');"><span
+      href="javascript:findObjectsDialog('${rights.requestedStream}').displayDetails('${rightsPath.rowId}_${rstatus.index}_${rights.securedAction}');"><span
       id="${rightsPath.rowId}_${rstatus.index}_${rights.securedAction}_icon"
       class="ui-icon ui-icon-triangle-1-e folder">folder</span></a></td>
      <td>
@@ -110,7 +111,7 @@
 
        <td>
        <div class="buttons"><span class="button"> <a
-        href="javascript:affectedObjectsRights.securedActionTabs['${rights.securedAction}'].newRightForPath('${rightsPath.path}');"
+        href="javascript:findObjectsDialog('${rights.requestedStream}').securedActionTabs['${rights.securedAction}'].newRightForPath('${rightsPath.path}');"
         class="ui-icon ui-icon-plus"> </a> </span></div>
        </td>
 
@@ -192,7 +193,7 @@
               <c:when test="${right.editable}">
                <div class="buttons"><span class="button"> <a
                 title="Remove"
-                href="javascript:affectedObjectsRights.securedActionTabs['${rights.securedAction}'].deleteRightForPath(${right.id},'${rightsPath.path}');"
+                href="javascript:findObjectsDialog('${rights.requestedStream}').securedActionTabs['${rights.securedAction}'].deleteRightForPath(${right.id},'${rightsPath.path}');"
                 class="ui-icon ui-icon-minus"></a> </span></div>
               </c:when>
 
@@ -208,7 +209,7 @@
               <c:when test="${right.editable}">
                <div class="buttons"><span class="button"> <a
                 title="Edit"
-                href="javascript:affectedObjectsRights.securedActionTabs['${rights.securedAction}'].editRightForPath(${right.id},'${rightsPath.path}');"
+                href="javascript:findObjectsDialog('${rights.requestedStream}').securedActionTabs['${rights.securedAction}'].editRightForPath(${right.id},'${rightsPath.path}');"
                 class="ui-icon ui-icon-wrench"> </a> </span></div>
               </c:when>
 

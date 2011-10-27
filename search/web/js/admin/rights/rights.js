@@ -117,25 +117,92 @@ ChangePswd.prototype.changePassword  = function () {
 }
 
 
-var affectedObjectsRights = new AffectedObjectsRights();
-
-/** object that can manage rights */
-function AffectedObjectsRights() {
+function AdditionalObjectRights() {
 	this.dialog = null;
+	this.pids = [];
+	this.securedActionsTabs = {};
+}
+
+
+var selectStreams = new SecuredStreamsSelection();
+
+/**  
+ * Display dialog with secured streams
+ */
+function SecuredStreamsSelection() {
+}
+
+SecuredStreamsSelection.prototype.openDialog=function(pids) {
+	var url = urlWithPids("inc/admin/secstream/_display_secured_streams.jsp?pids=", pids);
+	$.get(url, bind(function(data){
+    	if (this.dialog) {
+    		this.dialog.dialog('open');
+    	} else {
+            $(document.body).append('<div id="securedStreams"></div>')
+            this.dialog = $('#securedStreams').dialog({
+                width:600,
+                height:400,
+                modal:true,
+                title:"",
+                buttons: [
+                       {
+                    	   text: dictionary['common.close'],
+                    	   click: function() {
+                               $(this).dialog("close");
+                           }
+                       }   
+                ]
+            });
+    	}
+    	$('#securedStreams').html(data);
+	}, this));
+	
+}
+
+
+// affectedObjectRights for streams
+var additionalAffectedObjectsRights = [];
+
+/** main function for lookup dialog for rights */
+function findObjectsDialog(stream) {
+	if ((stream) && (stream != "default")) {
+		if (!additionalAffectedObjectsRights[stream]) {
+			additionalAffectedObjectsRights[stream] = new AffectedObjectsRights(['READ'],stream);
+		}
+		return additionalAffectedObjectsRights[stream];
+	} else {
+		return affectedObjectsRights;
+	}
+}
+
+
+
+// default 
+var affectedObjectsRights = new AffectedObjectsRights(null, "default");
+
+/** object that can manage rights - internal or user defined streams */
+function AffectedObjectsRights(actions, id) {
+	this.id = id;
 	this.pids=[];
 
 	// special tabs for context menu
 	this.securedActionTabs = {};
 	this.openedDetails=[];
-	
-	
+
+	// displayed actions
+	this.actions = actions ?  actions : null;
+
+	this.dialog = null;
 }
+
+
+
 /** On change -> event called from objects selection dialog
  */
 AffectedObjectsRights.prototype.onChange=function(pid) {
 	
 	var npids = [];
-	$("#rightsAffectedObject_selected input:checked").each(function(index,val) {
+	$("#rightsAffectedObject_selected_"+this.id+" input:checked").each(function(index,val) {
 		var v = $(val).val();
 		npids.push( {pid:v,model:''} );
 	});
@@ -145,6 +212,11 @@ AffectedObjectsRights.prototype.onChange=function(pid) {
 		return this.url("inc/admin/_display_rights_dialog.jsp?pids=")+"&securedaction="+tab;
 	});
 }
+
+AffectedObjectsRights.prototype.dialogId=function() {
+	return 'affectedObjectRights_'+this.id;
+}
+
 
 /** clears tab objects
  */
@@ -156,28 +228,34 @@ AffectedObjectsRights.prototype.clearTabs = function(/** Function */ retrieveUrl
 	}
 }
 
+
 /** opens dialog for displaying selected objects 
  */
 AffectedObjectsRights.prototype.openDialog = function(/** array of struct */pids) {
+	// clear previous
 	
 	this.pids = pids;
 	var url = this.url("inc/admin/_display_objects_dialog.jsp?pids=");
 
-	// clear tabs with retreive url -> context menu
-	/*
-	this.clearTabs(function(tab) {
-		return this.url("inc/admin/_display_rights_dialog.jsp?pids=")+"&securedaction="+tab;
-	});
-	*/
+	if (this.id) { url += "&id="+this.id; }
+	
+	if (this.actions) {
+		url=url+"&actions={"+reduce(function(base, item, status) {
+	    	base = base+item+ (status.last ? "": ";");
+	        return base;
+	    }, "",this.actions)+"}";        
+	}
+	
 
 	$.get(url, bind(function(data){
-    	if (this.dialog) {
-    		this.dialog.dialog('open');
+		
+		if (this.dialog) {
+			this.dialog.dialog('open');
     	} else {
-            $(document.body).append('<div id="affectedObjectRights"></div>')
-            this.dialog = $('#affectedObjectRights').dialog({
-                width:800,
-                height:600,
+    		$(document.body).append('<div id="'+this.dialogId()+'"></div>')
+        	this.dialog = $('#'+this.dialogId()).dialog({
+                width:750,
+                height:450,
                 modal:true,
                 title:"",
                 buttons: [
@@ -191,52 +269,46 @@ AffectedObjectsRights.prototype.openDialog = function(/** array of struct */pids
             });
     	}
     	
+    	$('#'+this.dialogId()).html(data);
     	
-    	$('#affectedObjectRights').html(data);
-
-
     	$('a[href*="rightsAffectedObject"]').each(bind(function(index,elm) {
     		var action = $(elm).data('action');
     		if (action) {
-        		this.securedActionTabs[action] = this.createSecurityActionTab(action,this.url("inc/admin/_display_rights_dialog.jsp?pids=")+"&securedaction="+action);
+        		this.securedActionTabs[action] = this.createSecurityActionTab(action,this.url("inc/admin/_display_rights_dialog.jsp?pids=")+"&securedaction="+action, this.id);
         		// change retrive function
         		this.securedActionTabs[action].retrieve = this.securedActionTabs[action].retrieveContextContent;
     		}
     	}, this));    
 
-    	
-    	// display tabs
-    	$("#rightsAffectedObject_tabs").tabs({
-    		select: bind(function(event, ui) { 
-    			this.changeTab(event,ui);
-    		},this)
-    	});
-    	
-    	$("#rightsAffectedObject_tabs").tabs( "select" , 0);
-    	
     },this));
 }
 
 /** creates secured action tab */
-AffectedObjectsRights.prototype.createSecurityActionTab = function(/** String */ action, /** retrieve url */url) {
-	var securedActionTab = new SecuredActionTab( {
+AffectedObjectsRights.prototype.createSecurityActionTab = function(/** String */ action, /** retrieve url */url, /** string */ id) {
+	var securedActionTab = new SecuredActionTab({
 		securedAction:action,
 		retrieveUrl: url,
+		id:id,
 		pids:this.pids
 	});
 	securedActionTab.url = bind(this.url, this);
 	return securedActionTab;
 }
 
+
+
 /** construct url from selected pids
  */
 AffectedObjectsRights.prototype.url = function(/** String */baseUrl, /** Array */ pids) {
 	if (!pids) pids = this.pids;
-	return baseUrl+"{"+reduce(function(base, item, status) {
+	baseUrl = baseUrl+"{"+reduce(function(base, item, status) {
     	base = base+item.pid.replaceAll(":","\\:")+ (status.last ? "": ";");
         return base;
+        
     }, "",pids)+"}";        
+	return baseUrl;
 }
+
 
 
 
@@ -286,6 +358,8 @@ function SecuredActionTab(struct) {
 	this.pids = struct.pids;
 	this.securedAction = struct.securedAction;
 	this.retrieveUrl = struct.retrieveUrl;
+	
+	this.affectedObjectsInstanceId = struct.id;
 	
 	this.newRightDialog = null;
 
@@ -381,8 +455,6 @@ SecuredActionTab.prototype.globalDelete = function() {
 		$('#gDeleteDialog').html(data);		
 	},this));
 
-		
-	
 }
 
 
@@ -394,7 +466,8 @@ SecuredActionTab.prototype.retrieveContextContent = function() {
 	$("#"+this.securedAction+"_waiting").html("Nacitani...");
 	
 	$.get(this.retrieveUrl, bind(function(data){
-    	$('#rightsAffectedObject_'+this.securedAction).html(data);
+    	$('#rightsAffectedObject_'+this.securedAction+"_"+this.affectedObjectsInstanceId).html(data);
+
     	$("#"+this.securedAction+"_waiting").html("");
 	},this));
 
@@ -586,8 +659,8 @@ function GlobalActions() {
 
 GlobalActions.prototype.rigthsForAction=function(action) {
 	// affected rights secured actions 
-	affectedObjectsRights.securedActionTabs[action] = affectedObjectsRights.createSecurityActionTab(action,"inc/admin/_display_rights_for_global_actions.jsp?pids={uuid\\:1}&securedaction="+action);
-	affectedObjectsRights.securedActionTabs[action].retrieve = affectedObjectsRights.securedActionTabs[action].retrieveGlobalContent;
+	findObjectsDialog().securedActionTabs[action] = findObjectsDialog().createSecurityActionTab(action,"inc/admin/_display_rights_for_global_actions.jsp?pids={uuid\\:1}&securedaction="+action);
+	findObjectsDialog().securedActionTabs[action].retrieve = findObjectsDialog().securedActionTabs[action].retrieveGlobalContent;
 	
 	var url = "inc/admin/_display_rights_for_global_actions.jsp?pids={uuid\\:1}&securedaction="+action;
 	$.get(url, bind(function(data) {
@@ -624,7 +697,7 @@ GlobalActions.prototype.rigthsForAction=function(action) {
 /** Open global actions dialog */
 GlobalActions.prototype.globalActions=function() {
 	// change affected pids
-	affectedObjectsRights.pids = [{pid:'uuid:1',model:'REPOSITORY'}];
+	findObjectsDialog().pids = [{pid:'uuid:1',model:'REPOSITORY'}];
 		
 	var url = "inc/admin/_global_actions.jsp";
 	$.get(url, bind(function(data) {

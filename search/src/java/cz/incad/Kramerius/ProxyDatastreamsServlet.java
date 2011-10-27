@@ -30,12 +30,12 @@ public class ProxyDatastreamsServlet extends GuiceServlet {
 
 	@Override
 	protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-		String uuid = req.getParameter(PID_PARAMETER);
+		String pid = req.getParameter(PID_PARAMETER);
 		String dsName = req.getParameter(DS_NAME);
-		checkNull(PID_PARAMETER, uuid, resp);
+		checkNull(PID_PARAMETER, pid, resp);
 		checkNull(DS_NAME, dsName, resp);
-		String mimeType = this.fedoraAccess.getMimeTypeForStream(uuid, dsName);
-		InputStream is = this.fedoraAccess.getDataStream(uuid, dsName);
+		String mimeType = this.fedoraAccess.getMimeTypeForStream(pid, dsName);
+		InputStream is = this.fedoraAccess.getDataStream(pid, dsName);
 		resp.setContentType(mimeType);
 		copyStreams(is, resp.getOutputStream());
 	}

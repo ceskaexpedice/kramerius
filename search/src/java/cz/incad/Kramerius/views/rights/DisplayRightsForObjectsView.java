@@ -51,8 +51,12 @@ import cz.incad.kramerius.security.User;
 import cz.incad.kramerius.security.UserManager;
 import cz.incad.kramerius.security.utils.SortingRightsUtils;
 import cz.incad.kramerius.service.ResourceBundleService;
+import cz.incad.kramerius.utils.pid.LexerException;
+import cz.incad.kramerius.utils.pid.PIDParser;
 
 public class DisplayRightsForObjectsView extends AbstractRightsView {
+
+    private static final String DEFAULT_NAME_INSTANCE = "default";
 
     static java.util.logging.Logger LOGGER = java.util.logging.Logger.getLogger(DisplayRightsForObjectsView.class.getName());
     
@@ -92,6 +96,30 @@ public class DisplayRightsForObjectsView extends AbstractRightsView {
     }
 
 
+    public String getRequestedStream() {
+        try {
+            String retVal = null;
+            List params = getPidsParams();
+            if (!params.isEmpty()) {
+                PIDParser pidParser = new PIDParser(params.get(0).toString());
+                pidParser.objectPid();
+                retVal =  pidParser.isDatastreamPid() ? pidParser.getDataStream() : DEFAULT_NAME_INSTANCE;
+            } else {
+                retVal = DEFAULT_NAME_INSTANCE;
+            }
+            return retVal;
+        } catch (RecognitionException e) {
+            LOGGER.log(Level.SEVERE,e.getMessage(),e);
+            return DEFAULT_NAME_INSTANCE;
+        } catch (TokenStreamException e) {
+            LOGGER.log(Level.SEVERE,e.getMessage(),e);
+            return DEFAULT_NAME_INSTANCE;
+        } catch (LexerException e) {
+            LOGGER.log(Level.SEVERE,e.getMessage(),e);
+            return DEFAULT_NAME_INSTANCE;
+        }
+        
+    }
     
     public List<DialogContent> getRightsPath() {
         try {
@@ -184,14 +212,22 @@ public class DisplayRightsForObjectsView extends AbstractRightsView {
                 this.wrappers = RightWrapper.wrapRights(fedoraAccess, rights);
                 int length = path.getLength();
                 String curPid = path.getNodeFromRootToLeaf(length-1);
+                
+                PIDParser pidParser = new PIDParser(curPid);
+                pidParser.objectPid();
+                
+                
                 for (RightWrapper rw : this.wrappers) {
                     rw.setEditable(rw.getPid().equals(curPid));
                 }
+                
                 
                 this.titles = TitlesForObjects.createTitlesForPaths(fedoraAccess,  this.path);
                 this.models = TitlesForObjects.createModelsForPaths(fedoraAccess,  this.path, resourceBundleService, locale);
                 
             } catch (IOException e) {
+                throw new RuntimeException(e.getMessage());
+            } catch (LexerException e) {
                 throw new RuntimeException(e.getMessage());
             }
         }

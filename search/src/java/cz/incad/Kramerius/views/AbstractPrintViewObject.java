@@ -47,6 +47,9 @@ public class AbstractPrintViewObject extends AbstractViewObject implements Initi
 
     protected List<RadioItem> items = new ArrayList<RadioItem>();
 
+    
+    // test
+    
     @Named("securedFedoraAccess")
     @Inject
     protected FedoraAccess fedoraAccess;
@@ -68,6 +71,7 @@ public class AbstractPrintViewObject extends AbstractViewObject implements Initi
     @Override
     public void init() {
         try {
+            
             RadioItem selection = new RadioItem(Type.selection, "selection", true);
             List params = getPidsParams();
             for (int i = 0; i < params.size(); i++) {

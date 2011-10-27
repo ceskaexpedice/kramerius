@@ -29,6 +29,8 @@ import cz.incad.kramerius.security.RightCriteriumException;
 import cz.incad.kramerius.security.RightCriteriumWrapper;
 import cz.incad.kramerius.security.SpecialObjects;
 import cz.incad.kramerius.utils.DCUtils;
+import cz.incad.kramerius.utils.pid.LexerException;
+import cz.incad.kramerius.utils.pid.PIDParser;
 
 public class RightWrapper implements Right{
     
@@ -45,9 +47,15 @@ public class RightWrapper implements Right{
             this.pidTitle = SpecialObjects.REPOSITORY.name();
         } else {
             try {
-                this.pidTitle = DCUtils.titleFromDC(fedoraAccess.getDC(right.getPid()));
+                PIDParser pidParser = new PIDParser(this.right.getPid());
+                pidParser.objectPid();
+                
+                this.pidTitle = pidParser.isDatastreamPid() ?  DCUtils.titleFromDC(fedoraAccess.getDC(pidParser.getParentObjectPid()))+"/"+pidParser.getDataStream() : DCUtils.titleFromDC(fedoraAccess.getDC(right.getPid()));
+
             } catch (IOException e) {
                LOGGER.log(Level.SEVERE, e.getMessage(),e); 
+            } catch (LexerException e) {
+                LOGGER.log(Level.SEVERE, e.getMessage(),e); 
             }
         }
     }

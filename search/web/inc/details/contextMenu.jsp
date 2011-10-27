@@ -625,15 +625,25 @@
         var structs = pidstructs();
         
         
-        if (!affectedObjectsRights) {
-            affectedObjectsRights = new AffectedObjectsRights();   
-        }
         // open dialog
-        affectedObjectsRights.openDialog(structs);
+        findObjectsDialog().openDialog(structs);
     }
+
+    function securedStreamsTableForCtxMenu(read, administrate){
+        var pids = getAffectedPids();
+        var structs = pidstructs();
         
-    function openEditor(){
-            
+        if (!selectStreams) {
+        	selectStreams = new SecuredStreamsSelection();   
+        }
+
+        // open dialog
+        selectStreams.openDialog(structs);
+    }
+    
+    
+    function openEditor(url){
+        window.open(url,'_blank');   
     }
         
 </scrd:loggedusers>

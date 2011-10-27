@@ -23,12 +23,14 @@ import static cz.incad.kramerius.security.SecuredActions.IMPORT_K4_REPLICATIONS;
 import static cz.incad.kramerius.security.SecuredActions.READ;
 
 import java.io.IOException;
+import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.logging.Level;
 
 import javax.inject.Named;
+import javax.servlet.http.HttpServletRequest;
 
 import org.w3c.dom.Document;
 
@@ -38,6 +40,8 @@ import antlr.TokenStreamException;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
 
+import cz.incad.Kramerius.processes.ParamsLexer;
+import cz.incad.Kramerius.processes.ParamsParser;
 import cz.incad.kramerius.FedoraAccess;
 import cz.incad.kramerius.ObjectPidsPath;
 import cz.incad.kramerius.SolrAccess;
@@ -48,8 +52,12 @@ import cz.incad.kramerius.security.SecuredActions;
 import cz.incad.kramerius.security.User;
 import cz.incad.kramerius.service.ResourceBundleService;
 import cz.incad.kramerius.utils.DCUtils;
+import cz.incad.kramerius.utils.pid.LexerException;
+import cz.incad.kramerius.utils.pid.PIDParser;
 
 public class DisplayObjectsView extends AbstractRightsView {
+
+    public static final String ACTIONS = "actions";
 
     static java.util.logging.Logger LOGGER = java.util.logging.Logger.getLogger(DisplayObjectsView.class.getName());
     
@@ -86,8 +94,13 @@ public class DisplayObjectsView extends AbstractRightsView {
     
     
     
+    public String getIdent() {
+        String idParam = super.requestProvider.get().getParameter("id");
+        return idParam;
+    }
     
-    public List<AffectedObject>getAffectedObjects() {
+    
+    public List<AffectedObject>getAffectedObjects() throws LexerException {
         List<AffectedObject> objects = new ArrayList<DisplayObjectsView.AffectedObject>();
         try {
             List paramsList = getPidsParams();
@@ -100,10 +113,21 @@ public class DisplayObjectsView extends AbstractRightsView {
                         break;
                     }
                 }
-                Document dc = this.fedoraAccess.getDC(pid.toString());
+                
+                
+                PIDParser pidParser = new PIDParser(pid.toString());
+                pidParser.objectPid();
+                String displayingPid = null;
+                if (pidParser.isDatastreamPid()) {
+                    displayingPid = pidParser.getParentObjectPid();
+                } else {
+                    displayingPid = pid.toString();
+                }
+                
+                Document dc = this.fedoraAccess.getDC(displayingPid);
                 
                 Locale locale = this.localesProvider.get();
-                String kmodelName = this.fedoraAccess.getKrameriusModelName(pid.toString());
+                String kmodelName = this.fedoraAccess.getKrameriusModelName(displayingPid);
                 String translatedKModelName = resourceBundleService.getResourceBundle("labels", locale).getString("document.type."+kmodelName);
                 
                 AffectedObject affectedObject = new AffectedObject(pid.toString(), DCUtils.titleFromDC(dc),translatedKModelName, hasRight);
@@ -120,9 +144,30 @@ public class DisplayObjectsView extends AbstractRightsView {
         return objects;
     }
 
+    private List getActionsParam() throws RecognitionException, TokenStreamException {
+        HttpServletRequest httpServletRequest = this.requestProvider.get();
+        String parameter = httpServletRequest.getParameter(ACTIONS);
+        
+        ParamsParser params = new ParamsParser(new ParamsLexer(new StringReader(parameter)));
+        List paramsList = params.params();
+        return paramsList;
+    }
 
-    public SecuredActions[] getActions() {
-        return new SecuredActions[] {READ,ADMINISTRATE,IMPORT_K4_REPLICATIONS,EXPORT_K4_REPLICATIONS};
+    public SecuredActions[] getActions() throws RecognitionException, TokenStreamException {
+        String parameter = this.requestProvider.get().getParameter(ACTIONS);
+        if (parameter != null) {
+            
+            List actionsParam = getActionsParam();
+            List<SecuredActions> secList = new ArrayList<SecuredActions>();
+            for (Object act : actionsParam) {
+                secList.add(SecuredActions.valueOf(act.toString()));
+            }   
+            return (SecuredActions[]) secList.toArray(new SecuredActions[secList.size()]);
+            
+        } else {
+            return new SecuredActions[] {READ,ADMINISTRATE,IMPORT_K4_REPLICATIONS,EXPORT_K4_REPLICATIONS};
+        }
+
     }
     
     public class AffectedObject {

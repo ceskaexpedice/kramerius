@@ -11,25 +11,39 @@
 <%@ page isELIgnored="false"%>
 
 
+
 <view:object name="objectsView" clz="cz.incad.Kramerius.views.rights.DisplayObjectsView"></view:object>
 
-<div id="rightsAffectedObjects">
+
+<div id="rightsAffectedObjects_${objectsView.ident}">
+
+<script type="text/javascript">
+
+
+$("#rightsAffectedObject_tabs_${objectsView.ident}").tabs({
+    select: bind(function(event, ui) { 
+        this.changeTab(event,ui);
+    }, findObjectsDialog('${objectsView.ident}'))
+});
+
+$("#rightsAffectedObject_tabs_${objectsView.ident}").tabs( "select" , 0);
+</script>
+
 
 <scrd:loggedusers>
 
-
-<div id="rightsAffectedObject_tabs">
-
+<div id="rightsAffectedObject_tabs_${objectsView.ident}">
+    
     
     <%-- zalozky --%>
     <ul>
-        <li><a title="<view:msg>rights.action.read</view:msg>" href="#rightsAffectedObject_selected"><view:msg>rights.dialog.selectedobjects</view:msg></a></li>
+        <li><a title="<view:msg>rights.action.read</view:msg>" href="#rightsAffectedObject_selected_${objectsView.ident}"><view:msg>rights.dialog.selectedobjects</view:msg></a></li>
         <c:forEach var="act" items="${objectsView.actions}">
-            <li><a title="<view:msg>rights.action.${act.formalName}</view:msg>" href="#rightsAffectedObject_${act.formalName}" data-action="${act.formalName}">${act.formalName}</a></li>
+            <li><a title="<view:msg>rights.action.${act.formalName}</view:msg>" href="#rightsAffectedObject_${act.formalName}_${objectsView.ident}" data-action="${act.formalName}">${act.formalName}</a></li>
         </c:forEach>
     </ul>
     
-    <div id="rightsAffectedObject_selected">
+    <div id="rightsAffectedObject_selected_${objectsView.ident}">
 	    <table style="width: 100%;" class="ui-dialog-content ui-widget-content">
 	        <thead style="border-bottom: 1px dashed; background-image: url('img/bg_processheader.png'); background-repeat: repeat-x;">
 	            <tr>
@@ -45,10 +59,10 @@
 	                   <td>
 	                        <c:choose>
 	                            <c:when test="${object.accessed}">
-	                              <input id="_check_${object.pid}" type="checkbox" checked="checked"  onchange="affectedObjectsRights.onChange('${object.pid}');" value="${object.pid}"></input>
+	                              <input id="_check_${object.pid}" type="checkbox" checked="checked"  onchange="findObjectsDialog('${objectsView.ident}').onChange('${object.pid}');" value="${object.pid}"></input>
 	                            </c:when>
 	                            <c:otherwise>
-	                               <input id="_check_${object.pid}" type="checkbox" onchange="affectedObjectsRights.onChange('${object.pid}');" value="${object.pid}"></input>
+	                               <input id="_check_${object.pid}" type="checkbox" onchange="findObjectsDialog('${objectsView.ident}').onChange('${object.pid}');" value="${object.pid}"></input>
 	                            </c:otherwise>
 	                        </c:choose>
 	                        
@@ -64,7 +78,7 @@
 
     <%-- Obsahy zalozek --%>
     <c:forEach var="act" items="${objectsView.actions}">
-    <div id="rightsAffectedObject_${act.formalName}" data-action="${act.formalName}">
+    <div id="rightsAffectedObject_${act.formalName}_${objectsView.ident}" data-action="${act.formalName}">
         <span><view:msg>administrator.dialogs.waiting</view:msg></span>
         
     </div>

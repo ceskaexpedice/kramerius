@@ -18,6 +18,7 @@ package cz.incad.Kramerius;
 
 import java.io.IOException;
 import java.sql.Connection;
+import java.sql.SQLException;
 import java.util.logging.Level;
 
 import javax.servlet.ServletConfig;
@@ -29,6 +30,8 @@ import com.google.inject.Provider;
 import com.google.inject.name.Named;
 
 import cz.incad.Kramerius.backend.guice.GuiceServlet;
+import cz.incad.kramerius.database.VersionInitializer;
+import cz.incad.kramerius.database.VersionService;
 import cz.incad.kramerius.pdf.GeneratePDFService;
 import cz.incad.kramerius.processes.database.MostDesirableDatabaseInitializator;
 import cz.incad.kramerius.processes.database.ProcessDatabaseInitializator;
@@ -55,24 +58,36 @@ public class StartupServlet extends GuiceServlet {
     @Inject
     GeneratePDFService pdfService;
     
+    @Inject
+    VersionService versionService;
+    
+    
     @Override
     public void init() throws ServletException {
         super.init();
         
         Connection connection = this.connectionProvider.get();
         try {
-
+            // read previous db version
+            VersionInitializer.initDatabase(connection);
+            
+            
             // mostdesirable table
-            MostDesirableDatabaseInitializator.initDatabase(connection);
+            MostDesirableDatabaseInitializator.initDatabase(connection, versionService);
             // all security tables
-            SecurityDatabaseInitializator.initDatabase(connection);
+            SecurityDatabaseInitializator.initDatabase(connection, versionService);
             // Logged users table -> must be after security tables
-            LoggedUserDatabaseInitializator.initDatabase(connection);
+            LoggedUserDatabaseInitializator.initDatabase(connection, versionService);
             // process tables - > must be after security tables and must be after logged user tables
-            ProcessDatabaseInitializator.initDatabase(connection);
+            ProcessDatabaseInitializator.initDatabase(connection, versionService);
 
+            // stores new db version to doatabase
+            versionService.updateNewVersion();
+            
             this.pdfService.init();
         } catch (IOException e) {
+            LOGGER.log(Level.SEVERE,e.getMessage(),e);
+        } catch (SQLException e) {
             LOGGER.log(Level.SEVERE,e.getMessage(),e);
         } finally {
             if (connection != null) { DatabaseUtils.tryClose(connection); }

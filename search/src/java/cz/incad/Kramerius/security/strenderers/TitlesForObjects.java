@@ -34,40 +34,56 @@ import cz.incad.kramerius.security.RightsManager;
 import cz.incad.kramerius.security.SpecialObjects;
 import cz.incad.kramerius.service.ResourceBundleService;
 import cz.incad.kramerius.utils.DCUtils;
+import cz.incad.kramerius.utils.pid.LexerException;
+import cz.incad.kramerius.utils.pid.PIDParser;
 
 public class TitlesForObjects {
 
-    public static HashMap<String, String> createModelsForPaths(FedoraAccess fedoraAccess,  ObjectPidsPath path, ResourceBundleService bundleService, Locale locale) throws IOException {
+    public static HashMap<String, String> createModelsForPaths(FedoraAccess fedoraAccess,  ObjectPidsPath path, ResourceBundleService bundleService, Locale locale) throws IOException, LexerException {
         HashMap<String, String> modelsMap = new HashMap<String, String>();
         String[] pathFromRootToLeaf = path.getPathFromRootToLeaf();
         for (int i = 0; i < pathFromRootToLeaf.length; i++) {
             String currentPid = pathFromRootToLeaf[i];
+            
+            PIDParser pidParser = new PIDParser(currentPid);
+            pidParser.objectPid();
+            String displayedPid = pidParser.isDatastreamPid() ? pidParser.getParentObjectPid() : currentPid;
+            String modelPostfix = pidParser.isDatastreamPid() ? "/"+pidParser.getDataStream() : "";
+
+            
+            
             if (SpecialObjects.findSpecialObject(currentPid) != null) {
-                modelsMap.put(currentPid, SpecialObjects.findSpecialObject(currentPid).name());
+                modelsMap.put(currentPid, SpecialObjects.findSpecialObject(displayedPid).name()+modelPostfix);
             } else {
-                String kramModel = fedoraAccess.getKrameriusModelName(currentPid);
+                String kramModel = fedoraAccess.getKrameriusModelName(displayedPid);
                 String localizedModel = bundleService.getResourceBundle("labels", locale).getString("document.type."+kramModel);
-                modelsMap.put(currentPid, localizedModel);
+                modelsMap.put(currentPid, localizedModel+modelPostfix);
             }
         }
         return modelsMap;
     }
     
     
-    public static HashMap<String, String> createTitlesForPaths(FedoraAccess fedoraAccess,  ObjectPidsPath path) throws IOException {
+    public static HashMap<String, String> createTitlesForPaths(FedoraAccess fedoraAccess,  ObjectPidsPath path) throws IOException, LexerException {
         HashMap<String, String> dctitlesMap = new HashMap<String, String>();
         String[] pathFromRootToLeaf = path.getPathFromRootToLeaf();
         for (int i = 0; i < pathFromRootToLeaf.length; i++) {
             String currentPid = pathFromRootToLeaf[i];
+            PIDParser pidParser = new PIDParser(currentPid);
+            pidParser.objectPid();
+            
+            String titlePostfix = pidParser.isDatastreamPid() ? "/"+pidParser.getDataStream() : "";
+            
+            String pidForTitle = pidParser.isDatastreamPid() ? pidParser.getParentObjectPid() : currentPid;
             if (SpecialObjects.findSpecialObject(currentPid) != null) {
-                dctitlesMap.put(currentPid, SpecialObjects.findSpecialObject(currentPid).name());
+                dctitlesMap.put(currentPid, SpecialObjects.findSpecialObject(pidForTitle).name()+titlePostfix);
             } else {
-                String titleFromDC = DCUtils.titleFromDC(fedoraAccess.getDC(currentPid));
+                String titleFromDC = DCUtils.titleFromDC(fedoraAccess.getDC(pidForTitle));
                 /*
                 if (titleFromDC.length() > 10) {
                     titleFromDC = titleFromDC.substring(0,10)+"...";
                 }*/
-                dctitlesMap.put(pathFromRootToLeaf[i], titleFromDC);
+                dctitlesMap.put(pathFromRootToLeaf[i], titleFromDC+titlePostfix);
             }
         }
         return dctitlesMap;

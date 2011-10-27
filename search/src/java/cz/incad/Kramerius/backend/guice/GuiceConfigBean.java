@@ -7,6 +7,7 @@ import com.google.inject.Injector;
 import com.google.inject.servlet.GuiceServletContextListener;
 import com.google.inject.servlet.ServletModule;
 
+import cz.incad.kramerius.database.guice.DatabaseVersionGuiceModule;
 import cz.incad.kramerius.document.guice.DocumentServiceModule;
 import cz.incad.kramerius.imaging.guice.ImageModule;
 import cz.incad.kramerius.printing.guice.PrintModule;
@@ -45,6 +46,8 @@ public class GuiceConfigBean extends GuiceServletContextListener {
                                                 new LongRunningProcessModule(), // for long running processes
                                                 
                                                 new PrintModule(),
+                                             
+                                                new DatabaseVersionGuiceModule(), // db versions
                                                 
                                                 new ServletModule());
 

@@ -46,7 +46,7 @@
      <td width="100%"></td>
      <td>
      <div class="buttons"><span class="button"> <a
-      href="javascript:affectedObjectsRights.securedActionTabs['${rights.securedAction}'].newRightForPath('${rightsPath.path}');"
+      href="javascript:findObjectsDialog().securedActionTabs['${rights.securedAction}'].newRightForPath('${rightsPath.path}');"
       class="ui-icon ui-icon-plus"> </a> </span></div>
      </td>
     </tr>
@@ -126,7 +126,7 @@
 
              <div class="buttons"><span class="button"> <a
               title="Remove"
-              href="javascript:affectedObjectsRights.securedActionTabs['${rights.securedAction}'].deleteRightForPath(${right.id},'${rightsPath.path}');"
+              href="javascript:findObjectsDialog().securedActionTabs['${rights.securedAction}'].deleteRightForPath(${right.id},'${rightsPath.path}');"
               class="ui-icon ui-icon-minus"> </a> </span></div>
 
             </c:when>
@@ -141,7 +141,7 @@
 
              <div class="buttons"><span class="button"> <a
               title="Edit"
-              href="javascript:affectedObjectsRights.securedActionTabs['${rights.securedAction}'].editRightForPath(${right.id},'${rightsPath.path}');"
+              href="javascript:findObjectsDialog().securedActionTabs['${rights.securedAction}'].editRightForPath(${right.id},'${rightsPath.path}');"
               class="ui-icon ui-icon-wrench"> </a> </span></div>
             </c:when>
 
