@@ -1,0 +1,21 @@
+group updaterights;
+
+
+insertParams_SecuredStreams() ::=<<
+insert into criterium_param_entity(crit_param_id, vals,short_desc, long_desc)
+    values(nextval('crit_param_id_sequence'), 'IMG_FULL;IMG_PREVIEW;IMG_FULL_ADM', 'Secured streams','')
+>>
+
+insertCriterium_SecuredStreams() ::=<<
+insert into rights_criterium_entity(crit_id,qname,type,citeriumparam)
+    values(nextval('crit_id_sequence'),'cz.incad.kramerius.security.impl.criteria.SecuredStreams',1,?)
+>>
+
+insertRight_SecuredStreams() ::=<<
+insert into right_entity(right_id,uuid,action,rights_crit,group_id)
+    values(nextval('right_id_sequence'),'uuid:1','read',?,?)
+>>
+
+select_common_role() ::=<<
+    select group_id from group_entity where gname='common_users'
+>>

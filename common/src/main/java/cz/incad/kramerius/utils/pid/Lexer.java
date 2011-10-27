@@ -159,6 +159,10 @@ public class Lexer {
                 this.matchChar('@');
                 return new Token(TokenType.AT,"@");
             }
+            case '/': {
+                this.matchChar('/');
+                return new Token(TokenType.DIV,"/");
+            }
 			case '%': {
 				this.matchChar('%');
 				if (Character.isDigit(charLookAhead(2)) && hexDigitPostfix(charLookAhead(3))) {

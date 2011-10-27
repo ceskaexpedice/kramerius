@@ -31,6 +31,8 @@ import cz.incad.kramerius.ObjectModelsPath;
 import cz.incad.kramerius.ObjectPidsPath;
 import cz.incad.kramerius.SolrAccess;
 import cz.incad.kramerius.security.SpecialObjects;
+import cz.incad.kramerius.utils.pid.LexerException;
+import cz.incad.kramerius.utils.pid.PIDParser;
 import cz.incad.kramerius.utils.solr.SolrUtils;
 
 public class SolrAccessImpl implements SolrAccess {
@@ -39,10 +41,18 @@ public class SolrAccessImpl implements SolrAccess {
     public Document getSolrDataDocument(String pid) throws IOException {
         if (SpecialObjects.isSpecialObject(pid)) return null;
         try {
-            return SolrUtils.getSolrDataInternal(SolrUtils.UUID_QUERY+"\""+pid+"\"");
+            PIDParser parser  = new PIDParser(pid);
+            parser.objectPid();
+            if (parser.isDatastreamPid()) {
+                return SolrUtils.getSolrDataInternal(SolrUtils.UUID_QUERY+"\""+parser.getParentObjectPid()+"\"");
+            } else {
+                return SolrUtils.getSolrDataInternal(SolrUtils.UUID_QUERY+"\""+pid+"\"");
+            }
         } catch (ParserConfigurationException e) {
             throw new IOException(e);
         } catch (SAXException e) {
+            throw new IOException(e);
+        } catch (LexerException e) {
             throw new IOException(e);
         }
     }
@@ -51,14 +61,31 @@ public class SolrAccessImpl implements SolrAccess {
     public ObjectPidsPath[] getPath(String pid) throws IOException {
         if (SpecialObjects.isSpecialObject(pid)) return new ObjectPidsPath[] {ObjectPidsPath.REPOSITORY_PATH};
         try {
-            Document solrData = getSolrDataDocument(pid);
+
+            PIDParser parser  = new PIDParser(pid);
+            parser.objectPid();
+
+            String processPid  =  parser.isDatastreamPid() ? parser.getParentObjectPid() : parser.getObjectPid();
+
+            Document solrData = getSolrDataDocument(processPid);
             List<String> disected = SolrUtils.disectPidPaths(solrData);
             ObjectPidsPath[] paths = new ObjectPidsPath[disected.size()];
             for (int i = 0; i < paths.length; i++) {
-                paths[i] = new ObjectPidsPath(disected.get(i).split("/"));
+                String[] splitted = disected.get(i).split("/");
+                if (parser.isDatastreamPid()) {
+                    String[] splittedWithStreams = new String[splitted.length];
+                    for (int j = 0; j < splittedWithStreams.length; j++) {
+                        splittedWithStreams[j] = splitted[j]+"/"+parser.getDataStream();
+                    }
+                    splitted = splittedWithStreams;
+                }
+                paths[i] = new ObjectPidsPath(splitted);
             }
             return paths;
+
         } catch (XPathExpressionException e) {
+            throw new IOException(e);
+        } catch (LexerException e) {
             throw new IOException(e);
         }
     }

@@ -146,10 +146,6 @@ public class FedoraAccessImpl implements FedoraAccess {
 
 
 
-    @Override
-    public boolean isStreamAccessible(String pid, String streamName) throws IOException {
-        return this.isStreamAvailable(pid, streamName);
-    }
 
 
     @Override

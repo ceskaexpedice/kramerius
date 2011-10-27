@@ -21,12 +21,16 @@ import java.io.InputStream;
 import java.nio.charset.Charset;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.List;
 import java.util.logging.Level;
 
+import cz.incad.kramerius.database.VersionService;
 import cz.incad.kramerius.utils.DatabaseUtils;
 import cz.incad.kramerius.utils.IOUtils;
 import cz.incad.kramerius.utils.database.JDBCCommand;
+import cz.incad.kramerius.utils.database.JDBCQueryTemplate;
 import cz.incad.kramerius.utils.database.JDBCTransactionTemplate;
 import cz.incad.kramerius.utils.database.JDBCUpdateTemplate;
 
@@ -34,37 +38,103 @@ public class SecurityDatabaseInitializator {
 
     static java.util.logging.Logger LOGGER = java.util.logging.Logger.getLogger(SecurityDatabaseInitializator.class.getName());
 
-    public static void initDatabase(Connection connection) {
+    public static void initDatabase(Connection connection, VersionService versionService) {
         try {
-            if (!DatabaseUtils.tableExists(connection, "USER_ENTITY")) {
-                createSecurityTables(connection);
-            }
-            if (!DatabaseUtils.columnExists(connection, "USER_ENTITY","DEACTIVATED")) {
+            if (versionService.getVersion()  == null) {
                 
-                new JDBCTransactionTemplate(connection, false).updateWithTransaction( 
-                    new JDBCCommand() {
-                        
-                        @Override
-                        public Object executeJDBCCommand(Connection con) throws SQLException {
-                            alterSecurityTableActiveColumn(con);
-                            return null;
+                if (!DatabaseUtils.tableExists(connection, "USER_ENTITY")) {
+                    createSecurityTables(connection);
+                }
+
+                if (!DatabaseUtils.columnExists(connection, "USER_ENTITY","DEACTIVATED")) {
+                    
+                    new JDBCTransactionTemplate(connection, false).updateWithTransaction( 
+                        new JDBCCommand() {
+                            
+                            @Override
+                            public Object executeJDBCCommand(Connection con) throws SQLException {
+                                alterSecurityTableActiveColumn(con);
+                                return null;
+                            }
+                        },
+                        new JDBCCommand() {
+                            
+                            @Override
+                            public Object executeJDBCCommand(Connection con) throws SQLException {
+                                updateSecurityTableActiveColumn(con);
+                                return null;
+                            }
                         }
-                    },
-                    new JDBCCommand() {
-                        
-                        @Override
-                        public Object executeJDBCCommand(Connection con) throws SQLException {
-                            updateSecurityTableActiveColumn(con);
-                            return null;
+                    );
+                }
+                
+                // create one rule 
+                /*
+                new JDBCTransactionTemplate(connection, false).updateWithTransaction(
+                        new JDBCCommand() {
+                            
+                            @Override
+                            public Object executeJDBCCommand(Connection con) throws SQLException {
+                                return insertParams(con);
+                            }
+
+                        },
+                        new JDBCCommand() {
+                            
+                            @Override
+                            public Object executeJDBCCommand(Connection con) throws SQLException {
+                                return insertCriterium(con, (Integer)getPreviousResult());
+                            }
+                        },
+                        new JDBCCommand() {
+                            
+                            @Override
+                            public Object executeJDBCCommand(Connection con) throws SQLException {
+                                String sql = SecurityDatabaseUtils.stUdateRightGroup().getInstanceOf("select_common_role").toString();
+
+                                List<Integer> ids = new JDBCQueryTemplate<Integer>(con, false){
+
+                                    @Override
+                                    public boolean handleRow(ResultSet rs, List<Integer> returnsList) throws SQLException {
+                                        returnsList.add(rs.getInt("group_id"));
+                                        return false;
+                                    }
+                                }.executeQuery(sql);
+
+                                if (ids.isEmpty()) throw new SQLException("cannot find common group entity !");
+                                return insertRight(con, ids.get(0), (Integer)getPreviousResult());
+                            }
                         }
-                    }
-                );
-            }            
+
+                );*/ 
+
+                
+                
+            } else { /* already created */ }
         } catch (SQLException e) {
             LOGGER.log(Level.SEVERE,e.getMessage(),e);
         } catch (IOException e) {
             LOGGER.log(Level.SEVERE,e.getMessage(),e);
         }
+    }
+
+    public static int insertParams(Connection connection) throws SQLException {
+        String sql = SecurityDatabaseUtils.stUdateRightGroup().getInstanceOf("insertParams_SecuredStreams").toString();
+        JDBCUpdateTemplate template = new JDBCUpdateTemplate(connection,false);
+        return template.executeUpdate(sql);
+    }
+    
+    
+    public static int insertCriterium(Connection connection, int paramid) throws SQLException {
+        String sql = SecurityDatabaseUtils.stUdateRightGroup().getInstanceOf("insertCriterium_SecuredStreams").toString();
+        JDBCUpdateTemplate template = new JDBCUpdateTemplate(connection,false);
+        return template.executeUpdate(sql, paramid);
+    }
+
+    public static int insertRight(Connection connection, int groupId,int criteriumid) throws SQLException {
+        String sql = SecurityDatabaseUtils.stUdateRightGroup().getInstanceOf("insertRight_SecuredStreams").toString();
+        JDBCUpdateTemplate template = new JDBCUpdateTemplate(connection,false);
+        return template.executeUpdate(sql, criteriumid, groupId);
     }
 
     public static void createSecurityTables(Connection connection) throws SQLException, IOException {

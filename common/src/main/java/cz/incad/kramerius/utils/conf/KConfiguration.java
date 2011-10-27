@@ -155,6 +155,7 @@ public class KConfiguration {
         return allConfigurations.getStringArray(key);
     }
 
+
     public String getProperty(String key, String defaultValue) {
         return allConfigurations.getString(key, defaultValue);
     }
@@ -176,6 +177,10 @@ public class KConfiguration {
 
     public String getLRServletURL() {
         return getProperty("lrControlUrl");
+    }
+
+    public String[] getSecuredAditionalStreams() {
+        return getPropertyList("securedstreams");
     }
 
     public String getApplicationURL() {
@@ -276,7 +281,7 @@ public class KConfiguration {
         return url;
     }
 
-    public static void main(String[] args) throws IOException {
+    /*public static void main(String[] args) throws IOException {
         KConfiguration kconf = KConfiguration.getInstance();
         Configuration conf = kconf.findAllConfigurations();
         System.out.println(conf);
@@ -284,7 +289,6 @@ public class KConfiguration {
 
         System.out.println(conf.getString("_fedoraTomcatHost"));
         System.out.println(conf.getString("indexerHost"));
-
-    }
+    }*/
 
 }

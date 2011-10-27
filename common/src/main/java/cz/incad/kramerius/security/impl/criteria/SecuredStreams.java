@@ -26,11 +26,6 @@ public class SecuredStreams extends AbstractCriterium implements RightCriterium 
 
     @Override
     public EvaluatingResult evalute() throws RightCriteriumException {
-        String rstream = this.getEvaluateContext().getRequestedStream();
-        Object[] objects = getObjects() != null ? getObjects() : new Object[0];
-        for (Object stream : objects) {
-            if (stream.equals(rstream)) return EvaluatingResult.NOT_APPLICABLE;
-        }
         return EvaluatingResult.TRUE;
     }
 

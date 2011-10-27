@@ -24,6 +24,7 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.logging.Level;
 
+import cz.incad.kramerius.database.VersionService;
 import cz.incad.kramerius.security.database.InitSecurityDatabaseMethodInterceptor;
 import cz.incad.kramerius.users.database.LoggedUserDatabaseInitializator;
 import cz.incad.kramerius.utils.DatabaseUtils;
@@ -37,30 +38,31 @@ public class ProcessDatabaseInitializator {
 
     static java.util.logging.Logger LOGGER = java.util.logging.Logger.getLogger(ProcessDatabaseInitializator.class.getName());
     
-    public static void initDatabase(Connection connection) {
+    public static void initDatabase(Connection connection, VersionService versionService) {
         try {
             
-            if (!DatabaseUtils.tableExists(connection,"PROCESSES")) {
-                createProcessTable(connection);
+            if (versionService.getVersion() == null) {
+                if (!DatabaseUtils.tableExists(connection,"PROCESSES")) {
+                    createProcessTable(connection);
+                }
+                
+                if (!DatabaseUtils.columnExists(connection, "PROCESSES", "STARTEDBY")) {
+                    alterProcessTableStartedByColumn(connection);
+                }
+                
+                if (!DatabaseUtils.columnExists(connection, "PROCESSES", "TOKEN")) {
+                    alterProcessTableProcessToken(connection);
+                }
+                
+                if (!DatabaseUtils.columnExists(connection, "PROCESSES", "PROCESS_ID")) {
+                    changeDatabaseBecauseShibb(connection);
+                }
+                
+                
+                if (!DatabaseUtils.tableExists(connection, "PROCESS_2_TOKEN")) {
+                    createToken2SessionkeysMapping(connection); // zavislost na session_keys
+                }
             }
-            
-            if (!DatabaseUtils.columnExists(connection, "PROCESSES", "STARTEDBY")) {
-                alterProcessTableStartedByColumn(connection);
-            }
-            
-            if (!DatabaseUtils.columnExists(connection, "PROCESSES", "TOKEN")) {
-                alterProcessTableProcessToken(connection);
-            }
-            
-            if (!DatabaseUtils.columnExists(connection, "PROCESSES", "PROCESS_ID")) {
-                changeDatabaseBecauseShibb(connection);
-            }
-            
-            
-            if (!DatabaseUtils.tableExists(connection, "PROCESS_2_TOKEN")) {
-                createToken2SessionkeysMapping(connection); // zavislost na session_keys
-            }
-            
             
         } catch (SQLException e) {
             LOGGER.log(Level.SEVERE,e.getMessage(),e);

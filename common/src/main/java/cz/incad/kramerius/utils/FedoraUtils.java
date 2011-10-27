@@ -46,9 +46,22 @@ public class FedoraUtils {
     public static final String ALTO_STREAM = "ALTO";
     public static final String DC_STREAM = "DC";
     public static final String BIBLIO_MODS_STREAM = "BIBLIO_MODS";
+
+    public static List<String> INTERNAL_STREAM = new ArrayList<String>(){{
+       add(RELS_EXT_STREAM);
+       add(IMG_THUMB_STREAM);
+       add(IMG_FULL_STREAM);
+       add(IMG_PREVIEW_STREAM);
+       add(ALTO_STREAM);
+       add(DC_STREAM);
+       add(BIBLIO_MODS_STREAM);
+    }};
+    
     public static final int THUMBNAIL_HEIGHT = 128;
     public static final int PREVIEW_HEIGHT = 700;
 
+    
+    
     public static ArrayList<String> getRdfPids(String pid, String relation) {
         ArrayList<String> pids = new ArrayList<String>();
         try {

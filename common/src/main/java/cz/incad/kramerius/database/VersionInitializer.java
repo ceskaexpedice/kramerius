@@ -14,7 +14,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
-package cz.incad.kramerius.users.database;
+package cz.incad.kramerius.database;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -22,30 +22,23 @@ import java.nio.charset.Charset;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.logging.Level;
 
-import cz.incad.kramerius.database.VersionService;
 import cz.incad.kramerius.security.database.InitSecurityDatabaseMethodInterceptor;
 import cz.incad.kramerius.utils.DatabaseUtils;
 import cz.incad.kramerius.utils.IOUtils;
-import cz.incad.kramerius.utils.database.JDBCCommand;
-import cz.incad.kramerius.utils.database.JDBCTransactionTemplate;
 import cz.incad.kramerius.utils.database.JDBCUpdateTemplate;
 
-public class LoggedUserDatabaseInitializator {
+public class VersionInitializer {
 
-    static java.util.logging.Logger LOGGER = java.util.logging.Logger.getLogger(LoggedUserDatabaseInitializator.class.getName());
+    static java.util.logging.Logger LOGGER = java.util.logging.Logger.getLogger(VersionInitializer.class.getName());
     
-    public static void initDatabase(final Connection connection, VersionService versionService) {
+    public static void initDatabase(final Connection connection) {
         try {
-            if (versionService.getVersion() == null) {
-                boolean loggedUserTable = DatabaseUtils.tableExists(connection, "ACTIVE_USERS");
-                if (!loggedUserTable) {
-                    createLoggedUsersTables(connection);
-                }
-            } else {/* no version */}
+            boolean versionTable = DatabaseUtils.tableExists(connection, "DBVERSIONS");
+            if (!versionTable) {
+                createDBVersionsTable(connection);
+            }
         } catch (SQLException e) {
             LOGGER.log(Level.SEVERE, e.getMessage(),e);
         } catch (IOException e) {
@@ -53,14 +46,10 @@ public class LoggedUserDatabaseInitializator {
         }
     }
 
-    
-
-    
-    public static void createLoggedUsersTables(Connection connection) throws SQLException, IOException {
-        InputStream is = LoggedUserDatabaseInitializator.class.getResourceAsStream("res/initloggedusers.sql");
-        String sqlScript = IOUtils.readAsString(is, Charset.forName("UTF-8"), true);
-        PreparedStatement prepareStatement = connection.prepareStatement(
-        sqlScript);
+    private static void createDBVersionsTable(Connection connection) throws IOException, SQLException {
+        InputStream is = VersionInitializer.class.getResourceAsStream("res/initversions.sql");
+        String sql = IOUtils.readAsString(is, Charset.forName("UTF-8"), true);
+        PreparedStatement prepareStatement = connection.prepareStatement(sql);
         int r = prepareStatement.executeUpdate();
         LOGGER.log(Level.FINEST, "CREATE TABLE: updated rows {0}", r);
     }

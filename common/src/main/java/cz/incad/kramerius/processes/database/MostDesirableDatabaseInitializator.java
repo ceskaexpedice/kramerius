@@ -22,6 +22,7 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.logging.Level;
 
+import cz.incad.kramerius.database.VersionService;
 import cz.incad.kramerius.utils.DatabaseUtils;
 
 
@@ -29,11 +30,13 @@ public class MostDesirableDatabaseInitializator {
 
     static java.util.logging.Logger LOGGER = java.util.logging.Logger.getLogger(MostDesirableDatabaseInitializator.class.getName());
     
-    public static void initDatabase(Connection conn) {
+    public static void initDatabase(Connection conn, VersionService versionService) {
         try {
-            if (!DatabaseUtils.tableExists(conn,"DESIRABLE")) {
-                createTable(conn);
-            }
+            if (versionService.getVersion() == null) {
+                if (!DatabaseUtils.tableExists(conn,"DESIRABLE")) {
+                    createTable(conn);
+                }
+            } else { /* already created */ }
         } catch (SQLException e) {
             LOGGER.log(Level.SEVERE,e.getMessage(),e);
         }

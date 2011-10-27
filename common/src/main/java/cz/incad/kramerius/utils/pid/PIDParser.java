@@ -3,6 +3,8 @@ package cz.incad.kramerius.utils.pid;
 import java.util.Arrays;
 import java.util.List;
 
+import org.fedora.api.GetDatastream;
+
 import cz.incad.kramerius.utils.pid.Token.TokenType;
 
 
@@ -29,16 +31,30 @@ public class PIDParser {
 		return namespaceId;
 	}
         
-        public String getObjectPid() {
-		return namespaceId + ":" + objectId;
+    public String getObjectPid() {
+		return namespaceId + ":" + objectId + (isDatastreamPid() ? "/"+this.dataStream : "");
 	}
+    
+    public String getParentObjectPid() {
+        if (this.isDatastreamPid()) {
+            return namespaceId + ":" + objectId;
+        } else return getObjectPid();
+    }
+    
+    public String getDataStream() {
+        return dataStream;
+    }
 
-
+    public boolean isDatastreamPid() {
+        return this.dataStream != null;
+    }
 
 	private Token token;
 
 	private String objectId;
 	private String namespaceId;
+
+    private String dataStream;
 		
 	public PIDParser(String sform) throws LexerException {
 		super();
@@ -53,12 +69,27 @@ public class PIDParser {
 		matchDoubleDot();
 		String objectId = objectId();
         LOGGER.fine("parsed objectId '"+objectId+"'");
-		
+        
 		this.namespaceId = namespaceId;
 		this.objectId = objectId;
+
+		if (token.getType() != TokenType.EOI) {
+		    this.dataStream = dataStream();
+        }
 	}
 
-	public void disseminationURI() throws LexerException {
+	public String dataStream() throws LexerException {
+	    StringBuilder builder = new StringBuilder();
+	    this.matchToken(TokenType.DIV);
+	    while(this.token.getType() != TokenType.EOI) {
+	        builder.append(token.getValue());
+	        this.consume();
+	    }
+	    return builder.toString();
+	}
+
+
+    public void disseminationURI() throws LexerException {
 		this.lexer.matchString(INFO_FEDORA_PREFIX);
 		this.objectPid();
 	}
@@ -116,7 +147,7 @@ public class PIDParser {
 				TokenType.TILDA,
 				TokenType.UNDERSCOPE,
 				TokenType.PERCENT,
-				TokenType.HEXDIGIT
+				TokenType.HEXDIGIT,
 		});
 		StringBuffer buffer = new StringBuffer();
 		if (!types.contains(this.token.getType())) throw new LexerException("expecting ALPHA, DIGIT, MINUS or DOT");

@@ -27,11 +27,29 @@ import org.antlr.stringtemplate.language.DefaultTemplateLexer;
 
 public class SecurityDatabaseUtils {
 
+    static StringTemplateGroup DATABASE_GROUP = loadStGroup();
+    static StringTemplateGroup RIGHT_GROUP = loadUpdateRightGroup();
+    
     static java.util.logging.Logger LOGGER = java.util.logging.Logger.getLogger(SecurityDatabaseUtils.class.getName());
 
     public static StringTemplateGroup stGroup() {
+        return DATABASE_GROUP;
+    }
+
+    private static StringTemplateGroup loadStGroup() {
         InputStream is = SecurityDatabaseUtils.class.getResourceAsStream("database.stg");
         StringTemplateGroup grp = new StringTemplateGroup(new InputStreamReader(is), DefaultTemplateLexer.class);
         return grp;
     }
+    
+    public static StringTemplateGroup stUdateRightGroup() {
+        return RIGHT_GROUP;
+    }
+
+    private static StringTemplateGroup loadUpdateRightGroup() {
+        InputStream is = SecurityDatabaseUtils.class.getResourceAsStream("updateright.stg");
+        StringTemplateGroup grp = new StringTemplateGroup(new InputStreamReader(is), DefaultTemplateLexer.class);
+        return grp;
+    }
+
 }
