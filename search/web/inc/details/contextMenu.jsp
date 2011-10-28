@@ -136,7 +136,6 @@
         });
 
         $('#scope_single.viewer').bind('viewReady', function(event, id){
-            //alert($(jq(k4Settings.activeUuid)+">a>label").html());
             var t = '<li id="cms_'+ k4Settings.activeUuid+'"><span class="ui-icon ui-icon-triangle-1-e " >item</span>'+$(jq(k4Settings.activeUuid)+">a>label").html()+'</li>';
             $('#context_items_active').html(t);
         });
@@ -223,11 +222,6 @@
     var _metadataDialog;
     function viewMetadata(){
         var fullpid = getAffectedPids()[0];
-        //if(getScope()=='single'){
-        //    fullpid = getTreeActiveUuid();
-        //}else{
-        //    fullpid = getTreeSelection()[0];
-        //}
         var pid = fullpid.split('_')[1];
         var models = fullpid.split('_')[0].split('-');
         var model = models[models.length-1];
@@ -254,13 +248,11 @@
         }
 
         $('#metaData').html('imgLoadingBig');
-        //var url = "inc/details/biblioToRdf.jsp?pid=uuid:"+pid+"&xsl=default.jsp&display=full&model="+model;
         var url = "inc/details/metadataFull.jsp?pid="+pid+"&model="+model;
         $.get(url, function(data){
             $('#metaData').html(data);
             $('#mods-full').tabs();
         });
-        //toggleAdminOptions(level, model);
     }
 
     var _persistentURLDialog;
@@ -284,13 +276,10 @@
             $(document.body).append('<div id="persistentURL">'+
                 '<span>'+dictionary['administrator.dialogs.persistenturl.text']+'</span>'+
                 '<div id="'+textFieldID+'" ></div>' +
-                //'<input name="'+textFieldID+'"  style="width:100%;" type="text"  maxlength="255"'+
-            //' id="'+textFieldID+'" title="'+dictionary['administrator.menu.persistenturl']+'" />'+
             '</div>');
 
             _persistentURLDialog = $('#persistentURL').dialog({
                 width:640,
-                //height:100,
                 modal:true,
                 title:dictionary["administrator.menu.dialogs.persistenturl.title"],
                 buttons:  [
@@ -398,7 +387,6 @@
 
         }
         var pids = getAffectedPids();
-        //var pids = [];
         $("#reindex>div.allowed").html($("#context_items_selection").html());
         if(pids.length>1){
         
@@ -406,133 +394,86 @@
                 var pidpath = getPidPath(pids[i]);
                 pids[i] = pidpath.substring(pidpath.lastIndexOf("/") + 1);
             }
-            //var s = getAllowed('reindex', pids, "#reindex>div.allowed");
         }
     }
     
     function doReindex(){
-        var pids = getAffectedPids();
-        var action;
-        if($("#reindex_only_newer").is(':checked')){
-            action = "reindexDoc";
-        }else{
-            action = "fromKrameriusModel";
-        }
-        
-        var urlbuffer;
-        if(pids.length==1){
-            var pidpath = getPidPath(pids[0]);
-            var pid = pidpath.substring(pidpath.lastIndexOf("/") + 1);
-            var title = $(jq(pids[0])+">a>label").text();
-            var escapedTitle = replaceAll(title, ',', '');
-            escapedTitle = replaceAll(escapedTitle, '\n', '');
-            escapedTitle = escapedTitle.replace(/ +(?= )/g,'');
-            urlbuffer = "lr?action=start&def=reindex&out=text&params="+action+","+pid+","+escapedTitle;
-        }else{
-            urlbuffer = "lr?action=start&def=aggregate&out=text&nparams={reindex;"
-            for(var i=0; i<pids.length; i++){
-                    var pidpath = getPidPath(pids[i]);
-                    var pid = pidpath.substring(pidpath.lastIndexOf("/") + 1);
-                    var title = $(jq(pids[i])+">a>label").text();
-                    var escapedTitle = replaceAll(title, ',', '');
-                    escapedTitle = replaceAll(escapedTitle, '\n', '');
-                    escapedTitle = escapedTitle.replace(/ +(?= )/g,'');
-                    urlbuffer=urlbuffer+"{"+action+";"+replaceAll(pid, ":","\\:")+";"+replaceAll(escapedTitle, ":","\\:")+"}";
-                    if (i<pids.length-1) {
-                       urlbuffer=urlbuffer+";" 
-                    }
+        showConfirmDialog(dictionary['administrator.dialogs.deleteconfirm'], function(){
+            var pids = getAffectedPids();
+            var action;
+            if($("#reindex_only_newer").is(':checked')){
+                action = "reindexDoc";
+            }else{
+                action = "fromKrameriusModel";
             }
-            urlbuffer=urlbuffer+"}";
-        }
-
-        //var url = "lr?action=start&def=reindex&out=text&params="+action+","+uuid+","+escapedTitle;
-        if (_commonDialog) {
-
-            $("#common_started_ok").hide();
-            $("#common_started_failed").hide();
-            $("#common_started_waiting").show();
-
-            _commonDialog.dialog('open');
-        } else {
-            $("#common_started_waiting").show();
-            _commonDialog = $("#common_started").dialog({
-                bgiframe: true,
-                width: 400,
-                //height: 100,
-                modal: true,
-                title:'',
-                buttons: {
-                    "Close": function() {
-                        $(this).dialog("close");
-                    }
+            
+            var urlbuffer;
+            if(pids.length==1){
+                var pidpath = getPidPath(pids[0]);
+                var pid = pidpath.substring(pidpath.lastIndexOf("/") + 1);
+                var title = $(jq(pids[0])+">a>label").text();
+                var escapedTitle = replaceAll(title, ',', '');
+                escapedTitle = replaceAll(escapedTitle, '\n', '');
+                escapedTitle = escapedTitle.replace(/ +(?= )/g,'');
+                urlbuffer = "lr?action=start&def=reindex&out=text&params="+action+","+pid+","+escapedTitle;
+            }else{
+                urlbuffer = "lr?action=start&def=aggregate&out=text&nparams={reindex;"
+                for(var i=0; i<pids.length; i++){
+                        var pidpath = getPidPath(pids[i]);
+                        var pid = pidpath.substring(pidpath.lastIndexOf("/") + 1);
+                        var title = $(jq(pids[i])+">a>label").text();
+                        var escapedTitle = replaceAll(title, ',', '');
+                        escapedTitle = replaceAll(escapedTitle, '\n', '');
+                        escapedTitle = escapedTitle.replace(/ +(?= )/g,'');
+                        urlbuffer=urlbuffer+"{"+action+";"+replaceAll(pid, ":","\\:")+";"+replaceAll(escapedTitle, ":","\\:")+"}";
+                        if (i<pids.length-1) {
+                           urlbuffer=urlbuffer+";" 
+                        }
                 }
-            });
-        }
+                urlbuffer=urlbuffer+"}";
+            }
 
-        $("#common_started_text").text(dictionary['administrator.dialogs.waitingreindex']);
-        $("#common_started" ).dialog( "option", "title",  dictionary['administrator.menu.dialogs.reindex.title']);
-
-        _startProcess(urlbuffer);
+            processStarter("reindex").start(urlbuffer);
+            
+        });
     }
         
     function deletefromindex(){
-         var pids = getAffectedPids();
-        var action = "deleteDocument";
-        
-        var urlbuffer;
-        if(pids.length==1){
-            var pidpath = getPidPath(pids[0]);
-            var pid = pidpath.substring(pidpath.lastIndexOf("/") + 1);
-            var title = $(jq(pids[0])+">a>label").text();
-            var escapedTitle = replaceAll(title, ',', '');
-            escapedTitle = replaceAll(escapedTitle, '\n', '');
-            escapedTitle = escapedTitle.replace(/ +(?= )/g,'');
-            urlbuffer = "lr?action=start&def=reindex&out=text&params="+action+","+pid+","+escapedTitle;
-        }else{
-            urlbuffer = "lr?action=start&def=aggregate&out=text&nparams={reindex;"
-            for(var i=0; i<pids.length; i++){
-                    var pidpath = getPidPath(pids[i]);
-                    var pid = pidpath.substring(pidpath.lastIndexOf("/") + 1);
-                    var title = $(jq(pids[i])+">a>label").text();
-                    var escapedTitle = replaceAll(title, ',', '');
-                    escapedTitle = replaceAll(escapedTitle, '\n', '');
-                    escapedTitle = escapedTitle.replace(/ +(?= )/g,'');
-                    urlbuffer=urlbuffer+"{"+action+";"+replaceAll(pid, ":","\\:")+";"+replaceAll(escapedTitle, ":","\\:")+"}";
-                    if (i<pids.length-1) {
-                       urlbuffer=urlbuffer+";" 
-                    }
-            }
-            urlbuffer=urlbuffer+"}";
-        }
 
-        //var url = "lr?action=start&def=reindex&out=text&params="+action+","+uuid+","+escapedTitle;
-        if (_commonDialog) {
+        showConfirmDialog(dictionary['administrator.dialogs.deleteconfirm'], function(){
+            var pids = getAffectedPids();
 
-            $("#common_started_ok").hide();
-            $("#common_started_failed").hide();
-            $("#common_started_waiting").show();
-
-            _commonDialog.dialog('open');
-        } else {
-            $("#common_started_waiting").show();
-            _commonDialog = $("#common_started").dialog({
-                bgiframe: true,
-                width: 400,
-                //height: 100,
-                modal: true,
-                title:'',
-                buttons: {
-                    "Close": function() {
-                        $(this).dialog("close");
-                    }
+            var action = "deleteDocument";
+            
+            var urlbuffer;
+            if(pids.length==1){
+                var pidpath = getPidPath(pids[0]);
+                var pid = pidpath.substring(pidpath.lastIndexOf("/") + 1);
+                var title = $(jq(pids[0])+">a>label").text();
+                var escapedTitle = replaceAll(title, ',', '');
+                escapedTitle = replaceAll(escapedTitle, '\n', '');
+                escapedTitle = escapedTitle.replace(/ +(?= )/g,'');
+                urlbuffer = "lr?action=start&def=reindex&out=text&params="+action+","+pid+","+escapedTitle;
+            }else{
+                urlbuffer = "lr?action=start&def=aggregate&out=text&nparams={reindex;"
+                for(var i=0; i<pids.length; i++){
+                        var pidpath = getPidPath(pids[i]);
+                        var pid = pidpath.substring(pidpath.lastIndexOf("/") + 1);
+                        var title = $(jq(pids[i])+">a>label").text();
+                        var escapedTitle = replaceAll(title, ',', '');
+                        escapedTitle = replaceAll(escapedTitle, '\n', '');
+                        escapedTitle = escapedTitle.replace(/ +(?= )/g,'');
+                        urlbuffer=urlbuffer+"{"+action+";"+replaceAll(pid, ":","\\:")+";"+replaceAll(escapedTitle, ":","\\:")+"}";
+                        if (i<pids.length-1) {
+                           urlbuffer=urlbuffer+";" 
+                        }
                 }
-            });
-        }
-
-        $("#common_started_text").text(dictionary['administrator.dialogs.waitingreindex']);
-        $("#common_started" ).dialog( "option", "title",  dictionary['administrator.menu.dialogs.reindex.title']);
-
-        _startProcess(urlbuffer);
+                urlbuffer=urlbuffer+"}";
+            }
+                
+            processStarter("reindex").start(urlbuffer);
+        });
+        
     }
         
     function deletePid(){
@@ -549,34 +490,8 @@
                     }
             }
 
+            processStarter("delete").start(urlbuffer);
 
-            if (_commonDialog) {
-                $("#common_started_ok").hide();
-                $("#common_started_failed").hide();
-                $("#common_started_waiting").show();
-                _commonDialog.dialog('open');
-            } else {
-            $("#common_started_waiting").show();
-                _commonDialog = $("#common_started").dialog({
-                    bgiframe: true,
-                    width: 400,
-                    //height: 100,
-                    modal: true,
-                    title: '',
-                    buttons: {
-                        "Close": function() {
-                            $(this).dialog("close"); 
-                        } 
-                    } 
-                });
-            }
-            urlbuffer=urlbuffer+"}";
-
-            $("#common_started_text").text(dictionary['administrator.dialogs.waitingdelete']);
-            $("#common_started" ).dialog( "option", "title",  dictionary['administrator.menu.deleteuuid']);
-
-            _startProcess(urlbuffer);
-    
         });
     }
         

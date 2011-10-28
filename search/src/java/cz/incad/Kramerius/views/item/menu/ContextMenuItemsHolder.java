@@ -79,8 +79,12 @@ public class ContextMenuItemsHolder extends AbstractViewObject implements Initia
             items.add(new ContextMenuItem("administrator.menu.showrights", "_data_x_role", "securedActionsTableForCtxMenu",
                     "'" + SecuredActions.READ.getFormalName() + "', '" + SecuredActions.ADMINISTRATE.getFormalName() + "'", true));
 
-            items.add(new ContextMenuItem("administrator.menu.showstremrights", "_data_x_role", "securedStreamsTableForCtxMenu",
-                    "'" + SecuredActions.READ.getFormalName() + "', '" + SecuredActions.ADMINISTRATE.getFormalName() + "'", true));
+            java.util.logging.Logger tlogger = java.util.logging.Logger.getLogger(ContextMenuItemsHolder.class.getName());
+            tlogger.info("configuration .... ");
+            if (this.kconfig.getSecuredAditionalStreams() != null && this.kconfig.getSecuredAditionalStreams().length > 0) {
+                items.add(new ContextMenuItem("administrator.menu.showstremrights", "_data_x_role", "securedStreamsTableForCtxMenu",
+                        "'" + SecuredActions.READ.getFormalName() + "', '" + SecuredActions.ADMINISTRATE.getFormalName() + "'", true));
+            }
 
             items.add(new ContextMenuItem("administrator.menu.editor", "_data_x_role", "openEditor",
                     "'" + kconfig.getEditorURL() + "'", true));

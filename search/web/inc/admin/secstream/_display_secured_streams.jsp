@@ -17,10 +17,10 @@
 <scrd:loggedusers>
     
         <table style="width: 100%;" class="ui-dialog-content ui-widget-content">
-            <thead style="border-bottom: 1px dashed; background-image: url('img/bg_processheader.png'); background-repeat: repeat-x;">
+            <thead style="border-bottom: 1px dashed;">
                 <tr>
-                    <td style="width:80%"><strong>Stream</strong></td>
-                    <td><strong>Editace</strong></td>
+                    <td style="width:80%"><strong> <view:msg>common.stream</view:msg></strong></td>
+                    <td><strong><view:msg>common.change</view:msg></strong></td>
                 </tr>
             </thead>
             <tbody>
