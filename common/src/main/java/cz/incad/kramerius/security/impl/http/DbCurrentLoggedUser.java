@@ -29,6 +29,8 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.logging.Level;
 
 import javax.servlet.http.HttpServletRequest;
@@ -61,11 +63,37 @@ import cz.incad.kramerius.utils.database.JDBCQueryTemplate;
 
 public class DbCurrentLoggedUser extends AbstractLoggedUserProvider {
 
+    public static final String SHIB_USER_KEY="SHIB_USER_KEY";
+    
     public DbCurrentLoggedUser() {
         super();
         LOGGER.fine("Creating db userprovider");
     }
 
+
+    public User getPreviousLoggedUser(HttpServletRequest httpServletRequest) {
+        HttpSession session = httpServletRequest.getSession();
+        if (session !=  null) {
+            if (session.getAttribute(SHIB_USER_KEY) != null) { 
+                    if (session.getAttribute(SHIB_USER_KEY).equals("true")) {
+                        if (ShibbolethUtils.isUnderShibbolethSession(httpServletRequest)) {
+                          return getSessionUser(session);  
+                        } else return null;
+                    } else return getSessionUser(session);
+            } else {
+                return getSessionUser(session);
+            }
+        } else return null;        
+    }
+
+
+    public User getSessionUser(HttpSession session) {
+        User loggedUser = (User) session.getAttribute(UserUtils.LOGGED_USER_PARAM);
+        if (loggedUser != null) {
+            return loggedUser;
+        } else return null;
+    }
+    
     
     protected void tryToLog(HttpServletRequest httpServletRequest) throws NoSuchAlgorithmException, FileNotFoundException, RecognitionException, TokenStreamException, IOException {
         if (ShibbolethUtils.isUnderShibbolethSession(httpServletRequest)) {
@@ -75,6 +103,8 @@ public class DbCurrentLoggedUser extends AbstractLoggedUserProvider {
         }
     }
 
+    
+    
     public void tryToLogShib(HttpServletRequest httpServletRequest) throws FileNotFoundException, IOException, RecognitionException, TokenStreamException {
         //String loginName = principal.getName();
         User user = new UserImpl(-1, "", "", "shibuser", 1);
@@ -98,7 +128,9 @@ public class DbCurrentLoggedUser extends AbstractLoggedUserProvider {
             saveRightsIntoSession(user);
         }
         
-        storeLoggedUser(user, session);
+        storeLoggedUser(user, session, new HashMap<String, String>(){{
+            put(SHIB_USER_KEY,"true");
+        }});
     }
 
     public void tryToLogDB(HttpServletRequest httpServletRequest) throws NoSuchAlgorithmException, UnsupportedEncodingException {
@@ -126,8 +158,10 @@ public class DbCurrentLoggedUser extends AbstractLoggedUserProvider {
                 saveRightsIntoSession(user);
             }
             
-            storeLoggedUser(user, session);
-
+            storeLoggedUser(user, session, new HashMap<String, String>(){{
+                put(SHIB_USER_KEY,"false");
+            }});
+            
             
         } else if ((httpServletRequest.getParameter(UserUtils.USER_NAME_PARAM) != null) && (httpServletRequest.getParameter(UserUtils.PSWD_PARAM) != null)) {
             HashMap<String, Object> foundUser = K4LoginModule.findUser(this.connectionProvider.get(), httpServletRequest.getParameter(UserUtils.USER_NAME_PARAM));
@@ -137,18 +171,25 @@ public class DbCurrentLoggedUser extends AbstractLoggedUserProvider {
                 if (K4LoginModule.checkPswd(httpServletRequest.getParameter(UserUtils.USER_NAME_PARAM), dbPswd, httpServletRequest.getParameter(UserUtils.PSWD_PARAM).toCharArray())) {
                     UserUtils.associateGroups(dbUser, userManager);
                     UserUtils.associateCommonGroup(dbUser, userManager);
-                    storeLoggedUser(dbUser, httpServletRequest.getSession(true));
+                    storeLoggedUser(dbUser, httpServletRequest.getSession(true), new HashMap<String, String>(){{
+                        put(SHIB_USER_KEY,"false");
+                    }});
                 }
             }
         }
+        
     }
 
 
-    public void storeLoggedUser(User user, HttpSession session) {
+    public void storeLoggedUser(User user, HttpSession session, Map<String, String> additionalValues) {
         try {
             session.setAttribute(UserUtils.LOGGED_USER_PARAM, user);
             String key = loggedUsersSingleton.registerLoggedUser(user);
             session.setAttribute(UserUtils.LOGGED_USER_KEY_PARAM, key);
+            Set<String> keySet = additionalValues.keySet();
+            for (String k : keySet) {
+                session.setAttribute(k, additionalValues.get(k));
+            }
         } catch (Exception e) {
             LOGGER.log(Level.SEVERE,e.getMessage(),e);
         }

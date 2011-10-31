@@ -68,19 +68,17 @@ public abstract class AbstractLoggedUserProvider implements Provider<User>{
     @Override
     public User get() {
         try {
-            
             HttpServletRequest httpServletRequest = this.provider.get();
-            if (httpServletRequest.getSession() != null) {
-                User loggedUser = (User) httpServletRequest.getSession().getAttribute(UserUtils.LOGGED_USER_PARAM);
-                if (loggedUser != null) {
-                    return loggedUser;
-                }
-            }
+            // previous logged user
+            User loggedUser = getPreviousLoggedUser(httpServletRequest);
+            if (loggedUser != null) return loggedUser;
 
+            // try to log
             tryToLog(httpServletRequest);
             
+            // returns user from session
             if (httpServletRequest.getSession() != null) {
-                User loggedUser = (User) httpServletRequest.getSession().getAttribute(UserUtils.LOGGED_USER_PARAM);
+                loggedUser = (User) httpServletRequest.getSession().getAttribute(UserUtils.LOGGED_USER_PARAM);
                 if (loggedUser != null) {
                     return loggedUser;
                 } else return UserUtils.getNotLoggedUser(userManager);
@@ -96,6 +94,7 @@ public abstract class AbstractLoggedUserProvider implements Provider<User>{
 
     protected abstract void tryToLog(HttpServletRequest httpServletRequest) throws NoSuchAlgorithmException, UnsupportedEncodingException, FileNotFoundException, RecognitionException, TokenStreamException, IOException;
 
+    protected abstract User getPreviousLoggedUser(HttpServletRequest httpServletRequest);
 
     protected synchronized void saveRightsIntoSession(User user) {
         List<String> actionsForUser = new ArrayList<String>();
