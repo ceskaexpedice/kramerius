@@ -4,28 +4,15 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn"%>
 <%@ taglib uri="/WEB-INF/tlds/securedContent.tld" prefix="scrd" %>
+<%@ taglib uri="/WEB-INF/tlds/cmn.tld" prefix="view" %>
 
 <%@ page isELIgnored="false"%>
 <div  id="main_menu_in">
-    <%
-    String[] langs = kconfig.getPropertyList("interface.languages");
-    String base  =  request.getRequestURL().toString();
-    String curLanguage = request.getLocale().getCountry();
-    String queryString = request.getQueryString();
-    String link = "";
-        
-    if (queryString == null) {
-        queryString =  "";
-    }
-    
-    for(int i=0; i<langs.length; i=i+2){
-        
-         link = base + "?language="+ langs[i+1] + "&" + queryString;
-    %>
-    <a href="<%=link%>"><%=langs[i]%></a>
-    <%
-    }
-    %>
+    <view:object name="buttons" clz="cz.incad.Kramerius.views.inc.MenuButtonsViewObject"></view:object>
+
+    <c:forEach items="${buttons.languageItems}" var="langitm">
+        <a href="${langitm.link}">${langitm.name}</a>
+    </c:forEach>
 
         <!--  show admin menu - only for logged users -->
         <scrd:loggedusers>
@@ -39,7 +26,14 @@
         
         <!-- logout - only for logged -->
         <scrd:loggedusers>
-            <a href="logout.jsp?redirectURL=${searchFormViewObject.requestedAddress}"><fmt:message bundle="${lctx}">application.logout</fmt:message></a>
+            <c:choose>
+                <c:when test="${empty buttons.shibbLogout}">
+                            <a href="logout.jsp?redirectURL=${searchFormViewObject.requestedAddress}"><fmt:message bundle="${lctx}">application.logout</fmt:message></a>
+                </c:when>
+                <c:otherwise>
+                            <a href="${buttons.shibbLogout}"><fmt:message bundle="${lctx}">application.logout</fmt:message></a>
+                </c:otherwise>
+            </c:choose>
         </scrd:loggedusers>
 
 <a href="javascript:showHelp('<c:out value="${param.language}" />');"><fmt:message bundle="${lctx}">application.help</fmt:message>
