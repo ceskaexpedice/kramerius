@@ -108,19 +108,9 @@ public class DbCurrentLoggedUser extends AbstractLoggedUserProvider {
     public void tryToLogShib(HttpServletRequest httpServletRequest) throws FileNotFoundException, IOException, RecognitionException, TokenStreamException {
         //String loginName = principal.getName();
         User user = new UserImpl(-1, "", "", "shibuser", 1);
-        
-        ShibContext ctx = new ShibContext(this.provider.get(), user, this.userManager);
-        
-        
-        String shibRulesPath = KConfiguration.getInstance().getShibAssocRules();
-        String readAsString = IOUtils.readAsString(new FileInputStream(shibRulesPath), Charset.forName("UTF-8"), true);
-        ShibRuleLexer shibRuleLexer = new ShibRuleLexer(new StringReader(readAsString));
-        ShibRuleParser shibRuleParser = new ShibRuleParser(shibRuleLexer);
-        
-        ShibRules shibRules = shibRuleParser.shibRules();
-        shibRules.evaluate(ctx);
+        // evaluating shib mapping file
+        evaluateShibRules(user);
 
-        //((UserImpl) user).setGroups((Group[]) groupsList.toArray(new Group[groupsList.size()]));
         cz.incad.kramerius.security.utils.UserUtils.associateCommonGroup(user, userManager);
         HttpServletRequest request = this.provider.get();
         HttpSession session = request.getSession(true);
@@ -131,6 +121,19 @@ public class DbCurrentLoggedUser extends AbstractLoggedUserProvider {
         storeLoggedUser(user, session, new HashMap<String, String>(){{
             put(SHIB_USER_KEY,"true");
         }});
+    }
+
+
+    public void evaluateShibRules(User user) throws IOException, FileNotFoundException, RecognitionException, TokenStreamException {
+        ShibContext ctx = new ShibContext(this.provider.get(), user, this.userManager);
+        
+        String shibRulesPath = KConfiguration.getInstance().getShibAssocRules();
+        String readAsString = IOUtils.readAsString(new FileInputStream(shibRulesPath), Charset.forName("UTF-8"), true);
+        ShibRuleLexer shibRuleLexer = new ShibRuleLexer(new StringReader(readAsString));
+        ShibRuleParser shibRuleParser = new ShibRuleParser(shibRuleLexer);
+        
+        ShibRules shibRules = shibRuleParser.shibRules();
+        shibRules.evaluate(ctx);
     }
 
     public void tryToLogDB(HttpServletRequest httpServletRequest) throws NoSuchAlgorithmException, UnsupportedEncodingException {
