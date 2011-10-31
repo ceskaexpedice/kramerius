@@ -126,14 +126,18 @@ public class DbCurrentLoggedUser extends AbstractLoggedUserProvider {
 
     public void evaluateShibRules(User user) throws IOException, FileNotFoundException, RecognitionException, TokenStreamException {
         ShibContext ctx = new ShibContext(this.provider.get(), user, this.userManager);
-        
+
         String shibRulesPath = KConfiguration.getInstance().getShibAssocRules();
+        LOGGER.fine("reading rules file :"+shibRulesPath);
         String readAsString = IOUtils.readAsString(new FileInputStream(shibRulesPath), Charset.forName("UTF-8"), true);
         ShibRuleLexer shibRuleLexer = new ShibRuleLexer(new StringReader(readAsString));
         ShibRuleParser shibRuleParser = new ShibRuleParser(shibRuleLexer);
         
         ShibRules shibRules = shibRuleParser.shibRules();
+        LOGGER.fine("shib rules parsed and trying to evaluate");
+ 
         shibRules.evaluate(ctx);
+        LOGGER.fine("shib rules evaluated");
     }
 
     public void tryToLogDB(HttpServletRequest httpServletRequest) throws NoSuchAlgorithmException, UnsupportedEncodingException {
