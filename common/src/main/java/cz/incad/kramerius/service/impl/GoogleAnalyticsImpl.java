@@ -29,14 +29,16 @@ import cz.incad.kramerius.utils.conf.KConfiguration;
 public class GoogleAnalyticsImpl implements GoogleAnalytics {
 
     @Override
-    public boolean isCodeDefined() {
-        File file = KConfiguration.getInstance().getGoogleCodeFile();
-        return file.exists() && file.canRead();
+    public String getWebPropertyId() {
+        String webPropertyId = KConfiguration.getInstance().getWebPropertyId();
+        return webPropertyId;
     }
 
     @Override
-    public String getCodeDefine() throws  IOException {
-        File file = KConfiguration.getInstance().getGoogleCodeFile();
-        return IOUtils.readAsString(new FileInputStream(file), Charset.forName("UTF-8"),true);
+    public boolean isWebPropertyIdDefined() {
+        String webPropertyId = KConfiguration.getInstance().getWebPropertyId();
+        return webPropertyId != null && !webPropertyId.trim().equals("");
     }
+
+    
 }

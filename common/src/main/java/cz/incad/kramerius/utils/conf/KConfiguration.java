@@ -21,8 +21,6 @@ import org.apache.commons.configuration.reloading.FileChangedReloadingStrategy;
 
 public class KConfiguration {
     
-    
-
     public static final String DEFAULT_CONF_LOCATION = "res/configuration.properties";
 
     public static final java.util.logging.Logger LOGGER = java.util.logging.Logger.getLogger(KConfiguration.class.getName());
@@ -256,6 +254,9 @@ public class KConfiguration {
         return getConfiguration().getString("security.shib.rules", "${sys:user.home}/.kramerius4/shibrules.txt");
     }
 
+    public String getShibLogout() {
+        return getConfiguration().getString("security.shib.logout");
+    }
     
     public String getUrlOfIIPServer() {
         return getConfiguration().getString("UrlOfIIPserver", "");
@@ -269,8 +270,9 @@ public class KConfiguration {
         return getConfiguration().getString("dataFolderOnIIPServer", "");
     }
 
-    public File getGoogleCodeFile() {
-        return new File(getConfiguration().getString("googleanalytics.file", "${sys:user.home}/.kramerius4/googleanalytics/code.txt"));
+
+    public String getWebPropertyId() {
+        return getConfiguration().getString("googleanalytics.webpropertyid");
     }
 
     

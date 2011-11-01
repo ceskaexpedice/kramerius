@@ -20,7 +20,8 @@ import java.io.IOException;
 
 public interface GoogleAnalytics {
 
-    public boolean isCodeDefined();
     
-    public String getCodeDefine() throws IOException;
+    public String getWebPropertyId();
+    
+    public boolean isWebPropertyIdDefined();
 }

@@ -118,7 +118,7 @@ public class DbCurrentLoggedUser extends AbstractLoggedUserProvider {
             saveRightsIntoSession(user);
         }
         
-        storeLoggedUser(user, session, new HashMap<String, String>(){{
+        storeLoggedUser(user,  new HashMap<String, String>(){{
             put(SHIB_USER_KEY,"true");
         }});
     }
@@ -165,7 +165,7 @@ public class DbCurrentLoggedUser extends AbstractLoggedUserProvider {
                 saveRightsIntoSession(user);
             }
             
-            storeLoggedUser(user, session, new HashMap<String, String>(){{
+            storeLoggedUser(user,  new HashMap<String, String>(){{
                 put(SHIB_USER_KEY,"false");
             }});
             
@@ -178,7 +178,7 @@ public class DbCurrentLoggedUser extends AbstractLoggedUserProvider {
                 if (K4LoginModule.checkPswd(httpServletRequest.getParameter(UserUtils.USER_NAME_PARAM), dbPswd, httpServletRequest.getParameter(UserUtils.PSWD_PARAM).toCharArray())) {
                     UserUtils.associateGroups(dbUser, userManager);
                     UserUtils.associateCommonGroup(dbUser, userManager);
-                    storeLoggedUser(dbUser, httpServletRequest.getSession(true), new HashMap<String, String>(){{
+                    storeLoggedUser(dbUser,  new HashMap<String, String>(){{
                         put(SHIB_USER_KEY,"false");
                     }});
                 }
@@ -188,8 +188,9 @@ public class DbCurrentLoggedUser extends AbstractLoggedUserProvider {
     }
 
 
-    public void storeLoggedUser(User user, HttpSession session, Map<String, String> additionalValues) {
+    public void storeLoggedUser(User user,  Map<String, String> additionalValues) {
         try {
+            HttpSession session = this.provider.get().getSession();
             session.setAttribute(UserUtils.LOGGED_USER_PARAM, user);
             String key = loggedUsersSingleton.registerLoggedUser(user);
             session.setAttribute(UserUtils.LOGGED_USER_KEY_PARAM, key);
