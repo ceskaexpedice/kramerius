@@ -29,17 +29,13 @@ public class GoogleAnalyticsViewObject {
     
     @Inject
     GoogleAnalytics googleAnalytics;
-    
-    public String getGoogleAnalyticsCode() {
-        try {
-            return googleAnalytics.getCodeDefine();
-        } catch (IOException e) {
-            LOGGER.log(Level.SEVERE, e.getMessage(),e);
-            return "";
-        }
-    }
 
-    public boolean isGoogleAnalyticsDefined() {
-        return googleAnalytics.isCodeDefined();
+    public boolean isWebPropertyIdDefined() {
+        return googleAnalytics.isWebPropertyIdDefined();
     }
+    
+    public String getWebPropertyId() {
+        return googleAnalytics.getWebPropertyId();
+    }
+    
 }
