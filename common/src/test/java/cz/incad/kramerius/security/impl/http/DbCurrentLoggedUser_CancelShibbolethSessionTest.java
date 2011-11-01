@@ -24,17 +24,13 @@ import java.sql.Connection;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Hashtable;
-import java.util.Map;
-import java.util.Set;
 import java.util.logging.Level;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
-import org.dbunit.assertion.DbUnitAssert;
 import org.easymock.EasyMock;
 import org.easymock.IAnswer;
-import org.fedora.api.FedoraAPIM;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -47,19 +43,15 @@ import com.google.inject.Injector;
 import com.google.inject.Provides;
 import com.google.inject.name.Named;
 
-import cz.incad.kramerius.impl.FedoraAccessImpl;
 import cz.incad.kramerius.security.IsActionAllowed;
 import cz.incad.kramerius.security.Role;
 import cz.incad.kramerius.security.User;
 import cz.incad.kramerius.security.UserManager;
 import cz.incad.kramerius.security.impl.RoleImpl;
 import cz.incad.kramerius.security.impl.UserImpl;
-import cz.incad.kramerius.security.impl.http.DbCurrentLoggedUser_ShibbLoggingTest.TestModule;
 import cz.incad.kramerius.security.utils.UserUtils;
-import cz.incad.kramerius.shib.utils.ShibbolethUtils;
 import cz.incad.kramerius.shib.utils.ShibbolethUtilsTest;
 import cz.incad.kramerius.users.LoggedUsersSingleton;
-import cz.incad.kramerius.utils.conf.KConfiguration;
 
 public class DbCurrentLoggedUser_CancelShibbolethSessionTest {
 
