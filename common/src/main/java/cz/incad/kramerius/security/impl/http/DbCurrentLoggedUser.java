@@ -78,7 +78,16 @@ public class DbCurrentLoggedUser extends AbstractLoggedUserProvider {
                     if (session.getAttribute(SHIB_USER_KEY).equals("true")) {
                         if (ShibbolethUtils.isUnderShibbolethSession(httpServletRequest)) {
                           return getSessionUser(session);  
-                        } else return null;
+                        } else {
+                            LOGGER.fine("shib key defined but no shibboleth session");
+                            LOGGER.fine("clear attributes");
+                            User sessionUser = getSessionUser(session);
+                            if (sessionUser != null) {
+                                clearRightsInSession(sessionUser);
+                                clearSessionUser(session);
+                            }
+                            return null;
+                        }
                     } else return getSessionUser(session);
             } else {
                 return getSessionUser(session);
@@ -87,6 +96,12 @@ public class DbCurrentLoggedUser extends AbstractLoggedUserProvider {
     }
 
 
+    public void clearSessionUser(HttpSession session) {
+        if (session.getAttribute(UserUtils.LOGGED_USER_PARAM) != null) {
+            session.removeAttribute(UserUtils.LOGGED_USER_PARAM);
+        }
+    }
+    
     public User getSessionUser(HttpSession session) {
         User loggedUser = (User) session.getAttribute(UserUtils.LOGGED_USER_PARAM);
         if (loggedUser != null) {
@@ -184,10 +199,18 @@ public class DbCurrentLoggedUser extends AbstractLoggedUserProvider {
                 }
             }
         }
-        
     }
 
 
+    public boolean isShibKeyDefined() {
+        HttpSession session = this.provider.get().getSession();
+        Object shibKey = session.getAttribute(SHIB_USER_KEY);
+        if ((shibKey != null) && (shibKey.equals("true"))) {
+            return true;
+        } else return false;
+    }
+    
+    
     public void storeLoggedUser(User user,  Map<String, String> additionalValues) {
         try {
             HttpSession session = this.provider.get().getSession();

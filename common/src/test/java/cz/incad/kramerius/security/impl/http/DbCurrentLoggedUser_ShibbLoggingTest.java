@@ -68,10 +68,13 @@ public class DbCurrentLoggedUser_ShibbLoggingTest {
         Role role = new RoleImpl(1, "common_users", -1);
         user.setGroups(new Role[] {role});
         
-        Injector inj = Guice.createInjector(new TestModule(user));
+        TestModule testModule = new TestModule(user);
+        Injector inj = Guice.createInjector(testModule);
         DbCurrentLoggedUser dbCurUser = inj.getInstance(DbCurrentLoggedUser.class);
         
         User gotUserFromMock = dbCurUser.get();
+
+        HashMap<String,Object> sessionStoreMap = testModule.getSessionStoreMap();
         
         Assert.assertEquals(user, gotUserFromMock);
     }
@@ -82,9 +85,14 @@ public class DbCurrentLoggedUser_ShibbLoggingTest {
         private User user;
         private HashMap<String, Object> sessionStoreMap = new HashMap<String, Object>();
         
+        
         private TestModule(User user) {
             super();
             this.user = user;
+        }
+
+        public HashMap<String, Object> getSessionStoreMap() {
+            return sessionStoreMap;
         }
 
         @Override

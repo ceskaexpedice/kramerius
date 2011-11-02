@@ -20,6 +20,7 @@ import static org.easymock.EasyMock.createMockBuilder;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.security.Principal;
 import java.sql.Connection;
 import java.util.Enumeration;
 import java.util.HashMap;
@@ -69,7 +70,8 @@ public class DbCurrentLoggedUser_CancelShibbolethSessionTest {
         
         User gotUserFromMock = dbCurUser.get();
         
-        Assert.assertEquals(user, gotUserFromMock);
+        User notLoggedUser = UserUtils.getNotLoggedUser(inj.getInstance(UserManager.class));
+        junit.framework.Assert.assertEquals(gotUserFromMock, notLoggedUser);
     }
     
     
@@ -151,7 +153,7 @@ public class DbCurrentLoggedUser_CancelShibbolethSessionTest {
         @Provides
         public HttpServletRequest getRequest() {
 
-            final Hashtable<String,String> table = ShibbolethUtilsTest.getLoggedShibTable();
+            final Hashtable<String,String> table = ShibbolethUtilsTest.getNotLoggedShibTable();
             
             HttpServletRequest request = EasyMock.createMock(HttpServletRequest.class);
             EasyMock.expect(request.getHeaderNames()).andAnswer(new IAnswer<Enumeration>() {
@@ -162,7 +164,35 @@ public class DbCurrentLoggedUser_CancelShibbolethSessionTest {
                 }
             }).anyTimes();
 
+            
+            EasyMock.expect(request.getUserPrincipal()).andAnswer(new IAnswer<Principal>() {
+
+                @Override
+                public Principal answer() throws Throwable {
+                    return null;
+                }
+            }).anyTimes();
          
+
+
+            // ((httpServletRequest.getParameter(UserUtils.USER_NAME_PARAM) != null) && (httpServletRequest.getParameter(UserUtils.PSWD_PARAM) != null)) {
+            EasyMock.expect(request.getParameter(UserUtils.USER_NAME_PARAM)).andAnswer(new IAnswer<String>() {
+
+                @Override
+                public String answer() throws Throwable {
+                    return null;
+                }
+            }).anyTimes();
+            
+            EasyMock.expect(request.getParameter(UserUtils.PSWD_PARAM)).andAnswer(new IAnswer<String>() {
+
+                @Override
+                public String answer() throws Throwable {
+                    return null;
+                }
+            }).anyTimes();
+
+            
             Enumeration<String> keys = table.keys();
             while(keys.hasMoreElements()) {
                 final String k = keys.nextElement();
@@ -181,12 +211,38 @@ public class DbCurrentLoggedUser_CancelShibbolethSessionTest {
             getSessionExpectation(request, session);
             getSessionParamsExpectations(session);
             setSessionParamsExpectations(session);
+            removeSessionParamsExpectations(session);
             
             EasyMock.replay(request,session);
             
             return request;
         }
 
+        public void removeSessionParamsExpectations(final HttpSession session) {
+
+            session.removeAttribute(AbstractLoggedUserProvider.SECURITY_FOR_REPOSITORY_KEY);
+            EasyMock.expectLastCall().andAnswer(new IAnswer<Object>() {
+
+                @Override
+                public Object answer() throws Throwable {
+                    sessionStoreMap.remove(AbstractLoggedUserProvider.SECURITY_FOR_REPOSITORY_KEY);
+                    return null;
+                }
+            });
+            
+            session.removeAttribute(UserUtils.LOGGED_USER_PARAM);
+            EasyMock.expectLastCall().andAnswer(new IAnswer<Object>() {
+
+                @Override
+                public Object answer() throws Throwable {
+                    sessionStoreMap.remove(UserUtils.LOGGED_USER_PARAM);
+                    return null;
+                }
+            });
+
+            
+        }
+        
         public void setSessionParamsExpectations(final HttpSession session) {
             final User user = this.user;
             session.setAttribute(UserUtils.LOGGED_USER_PARAM,this.user);

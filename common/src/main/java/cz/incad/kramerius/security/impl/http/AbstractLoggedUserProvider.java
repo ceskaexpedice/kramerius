@@ -96,6 +96,14 @@ public abstract class AbstractLoggedUserProvider implements Provider<User>{
 
     protected abstract User getPreviousLoggedUser(HttpServletRequest httpServletRequest);
 
+    protected synchronized void clearRightsInSession(User user) {
+        HttpServletRequest request = this.provider.get();
+        HttpSession session = request.getSession();
+        if (session.getAttribute(SECURITY_FOR_REPOSITORY_KEY) != null) {
+            session.removeAttribute(SECURITY_FOR_REPOSITORY_KEY);
+        }
+    }
+    
     protected synchronized void saveRightsIntoSession(User user) {
         List<String> actionsForUser = new ArrayList<String>();
         HttpServletRequest request = this.provider.get();
