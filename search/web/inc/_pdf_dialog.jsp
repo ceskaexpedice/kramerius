@@ -13,6 +13,7 @@
 <view:object name="pdfView" clz="cz.incad.Kramerius.views.PDFGenerateViewObject"></view:object>
 
 <div style="margin: 10px">
+
     
     <h3>${pdfView.header}</h3>
     
@@ -32,6 +33,14 @@
             </td>
         </tr>
             <c:if test="${item.master}">
+            
+            <c:if test="${item.checked}">
+            <script type="text/javascript">
+                 // set previous 
+                pdf.previous= "#${item.id}_option";
+            </script>
+            </c:if>            
+            
             <tr>
                 <td>
                     <div id="${item.id}_option" ${item.checked ? "style='display:block'" : "style='display:none'"} style="display:none">
