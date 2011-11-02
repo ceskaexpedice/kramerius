@@ -55,11 +55,11 @@ import cz.incad.kramerius.shib.utils.ShibbolethUtilsTest;
 import cz.incad.kramerius.users.LoggedUsersSingleton;
 
 /**
- * Tests situation when session keeps logged user and shibboleth session has been broken.
+ * Tests situation when session keeps logged user and shibboleth session hasn't been broken.
  * @author pavels
  *
  */
-public class DbCurrentLoggedUser_CancelShibbolethSessionTest {
+public class DbCurrentLoggedUser_ContinueShibbolethSessionTest {
 
     static java.util.logging.Logger LOGGER = java.util.logging.Logger.getLogger(DbCurrentLoggedUser_ShibbLoggingTest.class.getName());
     
@@ -74,9 +74,7 @@ public class DbCurrentLoggedUser_CancelShibbolethSessionTest {
         DbCurrentLoggedUser dbCurUser = inj.getInstance(DbCurrentLoggedUser.class);
         
         User gotUserFromMock = dbCurUser.get();
-        
-        User notLoggedUser = UserUtils.getNotLoggedUser(inj.getInstance(UserManager.class));
-        junit.framework.Assert.assertEquals(gotUserFromMock, notLoggedUser);
+        junit.framework.Assert.assertEquals(gotUserFromMock, user);
     }
     
     
@@ -158,7 +156,7 @@ public class DbCurrentLoggedUser_CancelShibbolethSessionTest {
         @Provides
         public HttpServletRequest getRequest() {
 
-            final Hashtable<String,String> table = ShibbolethUtilsTest.getNotLoggedShibTable();
+            final Hashtable<String,String> table = ShibbolethUtilsTest.getLoggedShibTable();
             
             HttpServletRequest request = EasyMock.createMock(HttpServletRequest.class);
             EasyMock.expect(request.getHeaderNames()).andAnswer(new IAnswer<Enumeration>() {

@@ -54,7 +54,7 @@ import cz.incad.kramerius.shib.utils.ShibbolethUtilsTest;
 import cz.incad.kramerius.users.LoggedUsersSingleton;
 
 /**
- * Tests shibboleth login situation
+ * Tests shibboleth login
  * @author pavels
  */
 public class DbCurrentLoggedUser_ShibbLoggingTest {
