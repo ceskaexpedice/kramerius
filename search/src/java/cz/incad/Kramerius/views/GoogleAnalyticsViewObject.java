@@ -37,14 +37,6 @@ public class GoogleAnalyticsViewObject {
     public boolean isWebPropertyIdDefined() {
         return googleAnalytics.isWebPropertyIdDefined();
     }
-
-    public String getPokus() {
-        return "Pokusny";
-    }
-
-    public boolean isBPokus() {
-        return true;
-    }
     
     public String getWebPropertyId() {
         return googleAnalytics.getWebPropertyId();
