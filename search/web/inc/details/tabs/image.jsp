@@ -1,3 +1,18 @@
+
+<%@ page contentType="text/html" pageEncoding="UTF-8" %>
+<%@ page trimDirectiveWhitespaces="true"%>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/xml" prefix="x" %>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt" %>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn" %>
+
+<%@ taglib uri="/WEB-INF/tlds/securedContent.tld" prefix="scrd"%>
+<%@ taglib uri="/WEB-INF/tlds/cmn.tld" prefix="view"%>
+
+<%@ page isELIgnored="false"%>
+
+<view:object name="image" clz="cz.incad.Kramerius.views.inc.details.tabs.ImageViewObject"></view:object>
+
 <style type="text/css">
     .buttons>a{
         margin-right: 3px;
@@ -19,7 +34,7 @@
     </div>
 
     <div id="securityError" style="display:none;">
-        <fmt:message bundle="${lctx}" key="rightMsg"></fmt:message>
+        ${image.notAllowedMessageText}            
     </div>
 
     <div id="loadingDeepZoomImage" class="view_div">
@@ -45,6 +60,7 @@
     </div>
    
    <div id="download" style="display:none;padding-top:10px; height:650px; width:700px;  color: black; border:1px; position:relative;">
+        
        <div> 
            <fmt:message bundle="${lctx}" key="img.display.downloadOriginal.text"></fmt:message> 
        </div>

@@ -6,6 +6,8 @@
 <%@ taglib uri="/WEB-INF/tlds/securedContent.tld" prefix="scrd" %>
 <%@ taglib uri="/WEB-INF/tlds/cmn.tld" prefix="view" %>
 
+<%@ page isELIgnored="false"%>
+
 <view:object name="ga" clz="cz.incad.Kramerius.views.GoogleAnalyticsViewObject"></view:object>
 
 <div align="center" >
@@ -15,6 +17,9 @@
 </div>
 <c:if test="${param.debug==true}">${url}</c:if>
 <div id="test"></div>
+
+
+
 <c:if test="${ga.webPropertyIdDefined}">
 
 <script type="text/javascript">

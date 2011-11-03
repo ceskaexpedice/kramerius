@@ -26,10 +26,12 @@ import cz.incad.kramerius.service.GoogleAnalytics;
 public class GoogleAnalyticsViewObject {
 
     static java.util.logging.Logger LOGGER = java.util.logging.Logger.getLogger(GoogleAnalyticsViewObject.class.getName());
+
     
     @Inject
     GoogleAnalytics googleAnalytics;
 
+    
     public boolean getWebPropertyIdDefined() {
         return googleAnalytics.isWebPropertyIdDefined();
     }
