@@ -33,7 +33,7 @@ Roles.prototype.editRole = function(rname) {
 	            width:300,
 	            height:250,
 	            modal:true,
-	            title:"#title",
+	            title:"",
 	            buttons: {
 	            	"Ok": bind(function() {
 	            		var struct = {	id: $("#editRoleId").val(), 
@@ -66,7 +66,7 @@ Roles.prototype.newRole = function() {
 	            width:300,
 	            height:250,
 	            modal:true,
-	            title:"#title",
+	            title:"",
 	            buttons: {
 	            	"Ok": bind(function() {
 
@@ -101,7 +101,7 @@ Roles.prototype.showRoles = function() {
 	            width:640,
 	            height:480,
 	            modal:true,
-	            title:"#title",
+	            title:"",
 	            buttons: {
 	            	"Close": bind(function() {
 	            		this.dialog.dialog("close");
