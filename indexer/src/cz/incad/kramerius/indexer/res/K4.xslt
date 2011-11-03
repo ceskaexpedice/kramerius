@@ -35,7 +35,8 @@
     <xsl:variable name="generic" select="exts:new()" />
 
     <xsl:variable name="PID" select="/foxml:digitalObject/@PID"/>
-    <xsl:variable name="title" select="/foxml:digitalObject/foxml:datastream/foxml:datastreamVersion[last()]/foxml:xmlContent/oai_dc:dc/dc:title/text()"/>
+    <xsl:variable name="title" 
+    select="translate(normalize-space(/foxml:digitalObject/foxml:datastream/foxml:datastreamVersion[last()]/foxml:xmlContent/oai_dc:dc/dc:title/text()),'&#xA;','')"/>
     
     <xsl:variable name="MODEL" 
     select="substring(/foxml:digitalObject/foxml:datastream[@CONTROL_GROUP='X' and @ID='RELS-EXT']/foxml:datastreamVersion[last()]/foxml:xmlContent/rdf:RDF/rdf:Description/fedora-model:hasModel/@rdf:resource, 19)" />
@@ -45,22 +46,20 @@
     
     
     <xsl:template match="/">
-
         <xsl:param name="i" />
-
-                    <!-- Indexujeme vsechny activa a ne activ. -->
-                    <xsl:if test="foxml:digitalObject/foxml:objectProperties/foxml:property[@NAME='info:fedora/fedora-system:def/model#state' and @VALUE='Active']">
-                        <xsl:if test="not(foxml:digitalObject/foxml:datastream[@ID='METHODMAP'] or foxml:digitalObject/foxml:datastream[@ID='DS-COMPOSITE-MODEL'])">
-                            <xsl:apply-templates mode="activeDemoFedoraObject" select="/foxml:digitalObject" >
-                                <xsl:with-param name="pageNum">
-                                      <xsl:value-of select="$PAGENUM"/>
-                                  </xsl:with-param>
-                            </xsl:apply-templates>
-                            <xsl:apply-templates mode="biblioMods" select="/foxml:digitalObject/foxml:datastream[@ID='BIBLIO_MODS']/foxml:datastreamVersion[last()]/foxml:xmlContent/mods:modsCollection/mods:mods" />
-                            <xsl:call-template name="imgFull"  />
-                            <xsl:call-template name="browse" />
-                        </xsl:if>
-                    </xsl:if>
+        <!-- Indexujeme vsechny activa a ne activ. -->
+        <xsl:if test="foxml:digitalObject/foxml:objectProperties/foxml:property[@NAME='info:fedora/fedora-system:def/model#state' and @VALUE='Active']">
+            <xsl:if test="not(foxml:digitalObject/foxml:datastream[@ID='METHODMAP'] or foxml:digitalObject/foxml:datastream[@ID='DS-COMPOSITE-MODEL'])">
+                <xsl:apply-templates mode="activeDemoFedoraObject" select="/foxml:digitalObject" >
+                    <xsl:with-param name="pageNum">
+                          <xsl:value-of select="$PAGENUM"/>
+                      </xsl:with-param>
+                </xsl:apply-templates>
+                <xsl:apply-templates mode="biblioMods" select="/foxml:digitalObject/foxml:datastream[@ID='BIBLIO_MODS']/foxml:datastreamVersion[last()]/foxml:xmlContent/mods:modsCollection/mods:mods" />
+                <xsl:call-template name="imgFull"  />
+                <xsl:call-template name="browse" />
+            </xsl:if>
+        </xsl:if>
   </xsl:template>
   
     <xsl:template match="/foxml:digitalObject" mode="activeDemoFedoraObject">
@@ -96,7 +95,8 @@
                         </field>
                     </xsl:otherwise>
                 </xsl:choose>
-                <field name="dc.title" boost="2.0"><xsl:value-of select="normalize-space($title)"/></field>
+                <field name="dc.title" boost="2.0"><xsl:value-of select="$title"/></field>
+                <field name="title_sort" ><xsl:value-of select="exts:prepareCzech($generic, $title)"/></field>
             </xsl:when>
             <xsl:otherwise>
                 <field name="PID" boost="2.5">
@@ -280,4 +280,4 @@
             </xsl:when>
         </xsl:choose>
     </xsl:template>
-</xsl:stylesheet>	
+</xsl:stylesheet>

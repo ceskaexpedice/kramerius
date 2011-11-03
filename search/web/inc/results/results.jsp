@@ -287,7 +287,7 @@ $(document).ready(function(){
     }
     
     function sortByTitle(dir){
-        $('#sort').val('title_cs '+dir);
+        $('#sort').val('title_sort '+dir);
         $('#searchForm').submit();
     }
     

@@ -42,7 +42,7 @@
                     
                 <li>
                 <a title="<fmt:message bundle="${lctx}" key="filter.remove_criteria" />" class="mainNav" href="javascript:removeFacet(${status.count});">
-                <fmt:message bundle="${lctx}" ><c:out value="${facetName}" /></fmt:message>: <c:out value="${facetValueDisp}"/></a>
+                <fmt:message bundle="${lctx}" >facet.<c:out value="${facetName}" /></fmt:message>: <c:out value="${facetValueDisp}"/></a>
                 <input type="hidden" name="fq" id="fq<c:out value="${status.count}" />" value="<c:out value="${facetName}" />:<c:out value="${facetValue}" />" />
                 </li>
 

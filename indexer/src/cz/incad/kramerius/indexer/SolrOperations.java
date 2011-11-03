@@ -499,7 +499,7 @@ public class SolrOperations {
     }
 
     private void deleteModel(String path) throws Exception {
-        StringBuilder sb = new StringBuilder("<delete><query>path:" + path + "*</query></delete>");
+        StringBuilder sb = new StringBuilder("<delete><query>model_path:" + path + "*</query></delete>");
         logger.log(Level.FINE, "indexDoc=\n{0}", sb.toString());
         postData(config.getString("IndexBase") + "/update", new StringReader(sb.toString()), new StringBuilder());
         optimize();
