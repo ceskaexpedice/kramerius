@@ -311,7 +311,6 @@
         <field name="root_model" type="string"  indexed="true"  stored="true" />
         <field name="root_pid" type="string"  indexed="true"  stored="true" />
         <field name="root_title" type="string"  indexed="true"  stored="true"  />
-        <field name="root_title_cs" type="localizedstring"  indexed="true"  stored="false" locale="cs" />
         
         <field name="pages_count" type="sint" default="0" indexed="true" stored="true"  />
         
@@ -336,8 +335,7 @@
         <field name="rels_ext_index" type="sint" indexed="true"  stored="true"  />
         <field name="level" type="sint" indexed="true"  stored="true"  />
         <field name="dc.title" type="text_fgs"  indexed="true"  stored="true" />
-        <field name="title" type="localizedstring"  indexed="true"  stored="false"  locale="cs" />
-        <field name="title_en" type="localizedstring"  indexed="true"  stored="false"  locale="en" />
+        <field name="title_sort" type="string"  indexed="true"  stored="true" />
         <field name="dc.creator" type="text_fgs"  indexed="true"  stored="true" multiValued="true" />
         <field name="language" type="string"  indexed="true"  stored="true" multiValued="true"  />
 		
@@ -345,10 +343,10 @@
         <field name="text_ocr" type="text"  indexed="true"  stored="true" />
         <field name="details" type="string"  indexed="true"  stored="true" multiValued="true"  />
 		
-        <field name="facet_title" type="localizedstring"  indexed="true"  stored="false" locale="cs" />
+        <field name="facet_title" type="string"  indexed="true"  stored="false"  />
         <field name="browse_title" type="string"  indexed="true"  stored="false" />
         <field name="search_title" type="text_fgs"  indexed="true"  stored="false"  />
-        <field name="facet_autor" type="string"  indexed="true"  stored="true" multiValued="true"  locale="cs" />
+        <field name="facet_autor" type="string"  indexed="true"  stored="true" multiValued="true"  />
         <field name="browse_autor" type="string"  indexed="true" stored="false" multiValued="true" />
         <field name="search_autor" type="string_lower"  indexed="true"  stored="false" multiValued="true"  />
         
@@ -381,10 +379,6 @@
     <copyField source="text_ocr" dest="text"/>
     
     <copyField source="browse_title" dest="search_title"/>
-    <copyField source="dc.title" dest="title"/>
-    <copyField source="dc.title" dest="title_en"/>
     <copyField source="dc.creator" dest="facet_autor"/>
     <copyField source="dc.creator" dest="search_autor"/>
-    <copyField source="root_title" dest="root_title_cs" />
-
 </schema>
