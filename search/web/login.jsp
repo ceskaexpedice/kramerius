@@ -79,6 +79,16 @@
 	<script type="text/javascript">
     var dictionary = null;
 	var dialogForm = null;
+
+		// differ in different browsers
+		function dialogHeight() {
+			if (jQuery.browser.msie) {
+				return 250;
+			} else {
+				return 170;				
+			}
+		}
+
 		function loginDialog() {
 			$("#dialogForm").show();
 			if (dialogForm) {
@@ -87,6 +97,9 @@
 				dialogForm =  $("#dialogForm").dialog({
 			        modal: true,
 			        draggable:false,
+				height:dialogHeight(),
+				width:300,
+
 			        resizable:false,
 			        close: function(event, ui) { 
 						var url = "search.jsp";    
