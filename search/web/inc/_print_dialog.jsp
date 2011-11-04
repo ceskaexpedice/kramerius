@@ -27,7 +27,7 @@
 	        <tr>
 	            <td>
 	                <div id="${item.id}">
-	                    <input type="radio" id="${item.id}_radio" name="print" ${item.checkedAttribute} onchange="print.onChange('${item.id}', '${item.type}','${item.pids}');" value="${item.pids}"> <view:msg>print.${item.type}.generate</view:msg> ${item.name}  </input>    
+	                    <input type="radio" id="${item.id}_radio" name="print" ${item.checkedAttribute} onclick="print.onChange('${item.id}', '${item.type}','${item.pids}');" value="${item.pids}"> <view:msg>print.${item.type}.generate</view:msg> ${item.name}  </input>    
 	                </div>
 	            </td>
 	        </tr>
