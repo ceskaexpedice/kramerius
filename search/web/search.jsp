@@ -1,3 +1,4 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
 <%@ page contentType="text/html" pageEncoding="UTF-8" %>
 <%@ page trimDirectiveWhitespaces="true"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
@@ -23,7 +24,7 @@
             String i18nServlet = I18NServlet.i18nServlet(request) + "?action=bundle&lang=" + lctx.getLocale().getLanguage() + "&country=" + lctx.getLocale().getCountry() + "&name=labels";
             pageContext.setAttribute("i18nServlet", i18nServlet);
 %>
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+
 <%@ include file="inc/searchParams.jsp" %>
 <c:set var="title"><fmt:message bundle="${lctx}">application.title</fmt:message></c:set>
 <jsp:useBean id="xml" type="java.lang.String" />

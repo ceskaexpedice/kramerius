@@ -67,19 +67,36 @@
 <script type="text/javascript">
 $(document).ready(function(){
     
+    if($('#dadiv').length==0){
+        $("#dali").remove();
+    }
+    
+    $("#filters").tabs({
+        show: function(event, ui){
+            var tab = ui.tab.toString().split('#')[1];
+            if (tab=='dadiv'){
+                 positionCurtains();
+                 setBarsPositions();
+
+            }
+        }
+    });
+    $("#docs").tabs();
+    
     var w;
     var w1 = $(window).height() -
             $("#header").height() - 
-            $("#footer").outerHeight(true);
+            $("#footer").outerHeight(true) - 2;
     $("#split").css("height", w1);
-    w = w1 - $("#docs>ul").outerHeight(true) - 6 - 15 - 8 - 2;
+    w = w1 - $("#docs>ul").outerHeight(true) - 35;
     $("#docs_content>div.content").css("height", w);
-    w = w1 - $("#filters>ul").outerHeight(true) + 7;
+    w = w1 - $("#filters>ul").outerHeight(true) - 16;
     $("#facets").css("height", w);
     
     if($("#content-resizable").length>0){
         
-        w = w - $("#da-inputs").outerHeight(true);
+        //w = w - $("#da-inputs").outerHeight(true);
+        w = w -42;
         $("#content-resizable").css("height", w);
         resizeDateAxisContent();
         setMaxResize($("#content-resizable").height());
@@ -114,22 +131,6 @@ $(document).ready(function(){
     });
     getExtInfo();
     $('.loading_docs').hide();
-    
-    if($('#dadiv').length==0){
-        $("#dali").remove();
-    }
-    
-    $("#filters").tabs({
-        show: function(event, ui){
-            var tab = ui.tab.toString().split('#')[1];
-            if (tab=='dadiv'){
-                 positionCurtains();
-                 setBarsPositions();
-
-            }
-        }
-    });
-    $("#docs").tabs();
     
     $('#docs_content>div.content').bind('scroll', function(event){
         if($('#docs_content .more_docs').length>0){

@@ -179,12 +179,7 @@ pageContext.setAttribute("search_results_rows", search_results_rows);
     </c:choose>
 </c:url>
 
-<c:catch var="exceptions"> 
-    <c:import url="${url}" var="xml" charEncoding="UTF-8" />
-</c:catch>
-<c:if test="${exceptions != null}" >
-    <c:import url="empty.xml" var="xml" />
-</c:if>
+<c:import url="${url}" var="xml" charEncoding="UTF-8" />
 <x:parse var="doc" xml="${xml}"  />
 <c:set var="numDocs" scope="request" >
     <x:out select="$doc/response/result/@numFound" />
@@ -201,4 +196,4 @@ pageContext.setAttribute("search_results_rows", search_results_rows);
         <c:when test="${numDocs>4}"><fmt:message bundle="${lctx}">common.documents.plural_2</fmt:message></c:when>
     </c:choose>
     (<c:out value="${numDocsCollapsed}" />)
-</c:set>
+</c:set> 

@@ -26,6 +26,7 @@
     <meta name="description" content="Digitized documents access aplication." />
     <meta name="keywords" content="periodical, monograph, library,  book, publication, kramerius, fedora" />
     <meta name="author" content="INCAD, www.incad.cz" />
+    <meta http-equiv="X-UA-Compatible" content="IE=8"  />
 
     <link rel="icon" href="img/favicon.ico"/>
     <link rel="shortcut icon" href="img/favicon.ico" type="image/x-icon" />

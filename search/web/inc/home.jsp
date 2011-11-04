@@ -48,11 +48,8 @@
         
         //w = w -$("#da-inputs").outerHeight(true);
         //alert($("#da-inputs").outerHeight(true));
-        if($.browser.msie){
-            w = w -40;
-        }else{
+        
             w = w -42;
-        }
         $("#content-resizable").css("height", w);
         resizeDateAxisContent();
     });

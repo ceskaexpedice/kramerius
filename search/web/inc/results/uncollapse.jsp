@@ -19,7 +19,7 @@
             pageContext.setAttribute("i18nServlet", i18nServlet);
 
 %>
-<c:set var="sort" scope="request">level asc, title asc</c:set>
+<c:set var="sort" scope="request">level asc, title_sort asc</c:set>
 <%@ include file="../searchParams.jsp" %>
 <% out.clear(); %>
 <c:if test="${param.debug}" >
