@@ -63,7 +63,7 @@ Right.prototype.onRolesKeyUp=function(elm) {
 	if (narr.length > 0) {
 	    var nhtml = "";
 	    	narr.forEach(function(item) {
-	    		nhtml = nhtml + "<div><a href='javascript:_role_select(\""+item+"\");'>"+item+"</a></div>";
+	    		nhtml = nhtml + "<div><a href='javascript:right.roleSelection(\""+item+"\");'>"+item+"</a></div>";
 		});
     	$("#userautocomplete").html(nhtml);                                              
     	$("#userautocomplete").show();
