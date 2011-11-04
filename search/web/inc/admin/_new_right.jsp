@@ -96,12 +96,12 @@
                 <tr><td>
         
                     <span id="roleTypeSpan">
-                        <input type="radio"  onchange="right.onUserRadioChange();" value="role" name="abstractUser" id="roleType"><view:msg>rights.dialog.table.column.group</view:msg> 
+                        <input type="radio"  onclick="right.onUserRadioChange();" value="role" name="abstractUser" id="roleType"><view:msg>rights.dialog.table.column.group</view:msg> 
                         <img src="img/rights-group.png">
                     </span>
     
                     <span id="allTypeSpan">
-                        <input type="radio" onchange="right.onUserRadioChange();" checked="checked" value="all" name="abstractUser" id="allType"><view:msg>rights.dialog.table.column.common_users</view:msg> 
+                        <input type="radio" onclick="right.onUserRadioChange();" checked="checked" value="all" name="abstractUser" id="allType"><view:msg>rights.dialog.table.column.common_users</view:msg> 
                         <img src="img/rights-person.png">
                         <img src="img/rights-group.png">
                     </span>
