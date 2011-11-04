@@ -28,7 +28,7 @@
         <tr>
             <td>
                 <div id="${item.id}">
-                    <input type="radio" id="${item.id}_radio" name="pdfSelection" ${item.checkedAttribute} onchange="pdf.onChange('${item.id}', '${item.type}','${item.pids}');"  value="${item.pids}"> <view:msg>pdf.${item.type}.generate</view:msg> ${item.name}  </input>    
+                    <input type="radio" id="${item.id}_radio" name="pdfSelection" ${item.checkedAttribute} onclick="pdf.onChange('${item.id}', '${item.type}','${item.pids}');"  value="${item.pids}"> <view:msg>pdf.${item.type}.generate</view:msg> ${item.name}  </input>    
                 </div>
             </td>
         </tr>
