@@ -31,6 +31,12 @@ String.prototype.endsWith = function(suffix) {
     return this.indexOf(suffix, this.length - suffix.length) !== -1;
 };
 
+/** trim in prototype - IE doesnt support this function*/
+if(typeof String.prototype.trim !== 'function') {
+  String.prototype.trim = function() {
+    return this.replace(/^\s\s*/, '').replace(/\s\s*$/, ''); 
+  }
+}
 /** compose function */
 Function.prototype.compose  = function(argFunction) {
     var invokingFunction = this;
