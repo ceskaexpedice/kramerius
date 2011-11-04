@@ -46,10 +46,15 @@
         $("#intro>div.ui-tabs-panel").css("height", w);
         //$("#intro_text").css("height", w);
         
-        w = w -$("#da-inputs").outerHeight(true);
+        //w = w -$("#da-inputs").outerHeight(true);
+        //alert($("#da-inputs").outerHeight(true));
+        if($.browser.msie){
+            w = w -40;
+        }else{
+            w = w -42;
+        }
         $("#content-resizable").css("height", w);
         resizeDateAxisContent();
-        //alert($(".ui-widget-content").first().css("color"));
     });
 </script>
 
