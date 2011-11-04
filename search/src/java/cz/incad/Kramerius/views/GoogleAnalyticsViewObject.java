@@ -31,6 +31,10 @@ public class GoogleAnalyticsViewObject {
     @Inject
     GoogleAnalytics googleAnalytics;
 
+
+    public boolean isReady() {
+        return googleAnalytics.isWebPropertyIdDefined();
+    }
     
     public boolean getWebPropertyIdDefined() {
         return googleAnalytics.isWebPropertyIdDefined();
