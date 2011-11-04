@@ -19,8 +19,7 @@
 <div id="test"></div>
 
 
-
-<c:if test="${ga.webPropertyIdDefined}">
+<c:if test="${ga.ready}">
 
 <script type="text/javascript">
 
