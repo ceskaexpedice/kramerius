@@ -217,7 +217,7 @@
                 <xsl:value-of select="mods:titleInfo/mods:title" /><xsl:value-of select="'##'" />
                 <xsl:value-of select="/mods:titleInfo/mods:subTitle" /><xsl:value-of select="'##'" />
                 <xsl:value-of select="mods:part/mods:date" /><xsl:value-of select="'##'" />
-                <xsl:value-of select="mods:part[@type = 'PeriodicalIssue']/mods:detail/mods:number" />
+                <xsl:value-of select="mods:part/mods:detail[@type = 'issue']/mods:number" />
             </field>
         </xsl:if>
         <xsl:if test="$MODEL = 'periodicalvolume'">
