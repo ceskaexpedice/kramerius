@@ -75,7 +75,7 @@ public class FedoraOperations {
             throw new Exception("Fedora Object " + pid + " not found. ", e);
         }
     }
-    
+
 
     public int getPdfPagesCount_(String pid, String dsId) throws Exception {
         ds = null;
@@ -112,7 +112,7 @@ public class FedoraOperations {
                 List<Element> els = XMLUtils.getElements(descEl);
                 int i = 0;
                 for (Element el : els) {
-                    if (getTreePredicates().contains(el.getLocalName())) {
+                    if (getTreePredicates().contains(el.getLocalName()) && !el.getLocalName().contains("isOnPage")) {
                         if (el.hasAttribute("rdf:resource")) {
                             uuid = el.getAttributes().getNamedItem("rdf:resource").getNodeValue();
                             if (uuid.equals(fedoraPid)) {

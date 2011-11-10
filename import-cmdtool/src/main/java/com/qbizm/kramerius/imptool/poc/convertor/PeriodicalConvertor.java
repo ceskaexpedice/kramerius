@@ -229,17 +229,13 @@ public class PeriodicalConvertor extends BaseConvertor {
             re.addRelation(RelsExt.HAS_ITEM, pid(uuid(item.getUniqueIdentifier())),false);
         }
 
-        Map<String, String> pageIdMap = new TreeMap<String, String>();
+        Map<Integer, String> pageIdMap = new TreeMap<Integer, String>();
         for (PeriodicalPage page : volume.getPeriodicalPage()) {
             this.convertPage(page, visibility);
 
             String ppid = pid(uuid(page.getUniqueIdentifier()));
             re.addRelation(RelsExt.HAS_PAGE, ppid,false);
-            if (page.getIndex() != null) {
-                pageIdMap.put(page.getIndex(), ppid);
-            } else {
-                log.warn(WARN_PAGE_INDEX);
-            }
+            fillPageIdMap(pageIdMap, page.getIndex(), ppid);
         }
 
         for (PeriodicalInternalComponentPart part : volume.getPeriodicalInternalComponentPart()) {
@@ -281,7 +277,7 @@ public class PeriodicalConvertor extends BaseConvertor {
      * @param prefix
      * @throws ServiceException
      */
-    private void convertInternalPart(PeriodicalInternalComponentPart part, Map<String, String> pageIdMap, boolean visibility) throws ServiceException {
+    private void convertInternalPart(PeriodicalInternalComponentPart part, Map<Integer, String> pageIdMap, boolean visibility) throws ServiceException {
         CoreBibliographicDescriptionPeriodical biblio = part.getCoreBibliographicDescriptionPeriodical();
         if (biblio == null) {
             biblio = new CoreBibliographicDescriptionPeriodical();
@@ -362,17 +358,13 @@ public class PeriodicalConvertor extends BaseConvertor {
         RelsExt re = new RelsExt(pid, MODEL_PERIODICAL_ITEM);
         boolean visibility = isPublic(uuid, parentVisibility, "p_periodicalitem");
 
-        Map<String, String> pageIdMap = new TreeMap<String, String>();
+        Map<Integer, String> pageIdMap = new TreeMap<Integer, String>();
         for (PeriodicalPage page : item.getPeriodicalPage()) {
             this.convertPage(page,visibility);
 
             String ppid = pid(uuid(page.getUniqueIdentifier()));
             re.addRelation(RelsExt.HAS_PAGE, ppid,false);
-            if (page.getIndex() != null) {
-                pageIdMap.put(page.getIndex(), ppid);
-            } else {
-                log.warn(WARN_PAGE_INDEX);
-            }
+            fillPageIdMap(pageIdMap, page.getIndex(), ppid);
         }
 
         for (PeriodicalInternalComponentPart part : item.getPeriodicalInternalComponentPart()) {

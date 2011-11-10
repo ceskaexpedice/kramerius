@@ -1151,20 +1151,33 @@ public abstract class BaseConvertor {
         return sb.length()>0?sb.toString():null;
     }
 
+
+    protected void fillPageIdMap(Map<Integer, String> pageIdMap,
+            String pageIndex, String ppid) {
+        if (pageIndex != null) {
+            String pageNumberStr = pageIndex.replaceAll("[^0-9]", "");
+            if (NumberUtils.isDigits(pageNumberStr)) {
+                Integer pageIndexInt = Integer.valueOf(pageNumberStr);
+                pageIdMap.put(pageIndexInt, ppid);
+            } else {
+                log.warn("Page index invalid! Data inconsistency warning!!");
+            }
+        } else {
+            log.warn("Page index missing! Data inconsistency warning!!");
+        }
+    }
+
     /**
      * @param re
      * @param piFrom
      * @param piTo
      * @param pageIdMap
      */
-    protected void processPageIndex(RelsExt re, Integer piFrom, Integer piTo, Map<String, String> pageIdMap) {
-        for (Map.Entry<String, String> e : pageIdMap.entrySet()) {
-            String pageNumberStr = e.getKey().replaceAll("[^0-9]", "");
-            if (NumberUtils.isDigits(pageNumberStr)) {
-                Integer pageNumber = Integer.valueOf(pageNumberStr);
-                if (pageNumber.compareTo(piFrom) >= 0 && pageNumber.compareTo(piTo) <= 0) {
-                    re.addRelation(RelsExt.IS_ON_PAGE, e.getValue(), false);
-                }
+    protected void processPageIndex(RelsExt re, Integer piFrom, Integer piTo, Map<Integer, String> pageIdMap) {
+        for (Map.Entry<Integer, String> e : pageIdMap.entrySet()) {
+            Integer pageNumber =  e.getKey();
+            if (pageNumber.compareTo(piFrom) >= 0 && pageNumber.compareTo(piTo) <= 0) {
+                re.addRelation(RelsExt.IS_ON_PAGE, e.getValue(), false);
             }
         }
     }

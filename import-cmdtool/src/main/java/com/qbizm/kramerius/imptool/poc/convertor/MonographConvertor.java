@@ -11,6 +11,7 @@ import java.util.TreeMap;
 import java.util.regex.Pattern;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.math.NumberUtils;
 
 import com.qbizm.kramerius.imp.jaxb.Contributor;
 import com.qbizm.kramerius.imp.jaxb.ContributorName;
@@ -123,17 +124,13 @@ public class MonographConvertor extends BaseConvertor {
             re.addRelation(RelsExt.HAS_UNIT,pid( uuid(unit.getUniqueIdentifier())), false);
         }
 
-        Map<String, String> pageIdMap = new TreeMap<String, String>();
+        Map<Integer, String> pageIdMap = new TreeMap<Integer, String>();
         for (MonographPage page : mono.getMonographPage()) {
             this.convertPage(page, visibility);
 
             String ppid = pid(uuid(page.getUniqueIdentifier()));
             re.addRelation(RelsExt.HAS_PAGE, ppid, false);
-            if (page.getIndex() != null) {
-                pageIdMap.put(page.getIndex(), ppid);
-            } else {
-                log.warn(WARN_PAGE_INDEX);
-            }
+            fillPageIdMap(pageIdMap, page.getIndex(), ppid);
         }
 
         for (MonographComponentPart part : mono.getMonographComponentPart()) {
@@ -310,17 +307,13 @@ public class MonographConvertor extends BaseConvertor {
 
         RelsExt re = new RelsExt(pid, MODEL_MONOGRAPH_UNIT);
 
-        Map<String, String> pageIdMap = new TreeMap<String, String>();
+        Map<Integer, String> pageIdMap = new TreeMap<Integer, String>();
         for (MonographPage page : unit.getMonographPage()) {
             this.convertPage(page, visibility);
 
             String ppid = pid(uuid(page.getUniqueIdentifier()));
             re.addRelation(RelsExt.HAS_PAGE, ppid, false);
-            if (page.getIndex() != null) {
-                pageIdMap.put(page.getIndex(), ppid);
-            } else {
-                log.warn("Page index missing! Data inconsistency warning!!");
-            }
+            fillPageIdMap(pageIdMap, page.getIndex(), ppid);
         }
 
         for (MonographComponentPart part : unit.getMonographComponentPart()) {
@@ -351,13 +344,15 @@ public class MonographConvertor extends BaseConvertor {
         this.marshalDigitalObject(foxmlUnit);
     }
 
+
+
     /**
      * Konvertuje MonographComponentPart do foxml
      *
      * @param part
      * @throws ServiceException
      */
-    private void convertPart(MonographComponentPart part, Map<String, String> pageIdMap, boolean visibility) throws ServiceException {
+    private void convertPart(MonographComponentPart part, Map<Integer, String> pageIdMap, boolean visibility) throws ServiceException {
         if (part.getUniqueIdentifier() == null) {
             part.setUniqueIdentifier(new UniqueIdentifier());
         }
