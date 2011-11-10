@@ -176,7 +176,7 @@ public class FirstPageFromParentRenderer extends AbstractFirstPageRenderer {
             }
         });
 
-        filledMap.put("Default", new ModelRender() {
+        filledMap.put("default", new ModelRender() {
 
             @Override
             public void render(BiblioMods bmods, com.lowagie.text.List list) {
