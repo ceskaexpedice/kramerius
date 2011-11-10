@@ -73,8 +73,6 @@ public class DbCurrentLoggedUser_ShibbLoggingTest {
         DbCurrentLoggedUser dbCurUser = inj.getInstance(DbCurrentLoggedUser.class);
         
         User gotUserFromMock = dbCurUser.get();
-
-        HashMap<String,Object> sessionStoreMap = testModule.getSessionStoreMap();
         
         Assert.assertEquals(user, gotUserFromMock);
     }
