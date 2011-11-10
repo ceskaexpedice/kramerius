@@ -134,7 +134,7 @@ public class SortingRightsUtils {
             public int compare(Right o1, Right o2) {
                 int thisVal = o1.getFixedPriority();
                 int anotherVal = o2.getFixedPriority();
-                return (thisVal<anotherVal ? -1 : (thisVal==anotherVal ? 0 : 1));
+                return (thisVal>anotherVal ? -1 : (thisVal==anotherVal ? 0 : 1));
             }
         });
     }
