@@ -6,7 +6,7 @@ function formatSelectedTime(){
     html += "<br/> " + toStr + " " + formatDate(selectEnd); 
     $('#selectDiv').html(html);
     $("#" + fromField).val("01.01."+selectStart);
-    $("#" + toField).val("12.31."+selectEnd);
+    $("#" + toField).val("31.12."+selectEnd);
     //$("#" + fromField).val(formatDate(selectStart));
     //$("#" + toField).val(formatDate(selectEnd));
 
@@ -27,7 +27,7 @@ function formatBreadCrumb(){
     }
 }
 
-function isValidDate(strString){
+function isValidDate(strString, field){
     return true;
      var strValidChars = "0123456789";
      var strChar;

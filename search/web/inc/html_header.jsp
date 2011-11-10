@@ -88,7 +88,7 @@
     
     <!-- header view object -->
     <view:object name="headerViewObject" clz="cz.incad.Kramerius.views.HeaderViewObject"></view:object>
-    
+    ${headerViewObject.localizationScripts}
     <title>${title}</title>
     <script language="JavaScript" type="text/javascript">
         

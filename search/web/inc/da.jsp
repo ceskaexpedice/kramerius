@@ -35,9 +35,9 @@
 
 <div id="da-inputs">
     <span style="float:left;"><fmt:message bundle="${lctx}">Od</fmt:message>:&nbsp;</span>
-    <input style="float:left;" class="da_input" id="f1" size="10" type="text" value="" onkeyup="checkDoFilter(event)" />
+    <input style="float:left;" class="da_input" id="f1" size="10" type="text" value="" readonly="true" onkeyup="checkDoFilter(event)" />
     <span style="float:left;">&nbsp;<fmt:message bundle="${lctx}">Do</fmt:message>:&nbsp;</span>
-    <input style="float:left;" class="da_input" id="f2" size="10" type="text" value="" onkeyup="checkDoFilter(event)"  /> 
+    <input style="float:left;" class="da_input" id="f2" size="10" type="text" value="" readonly="true" onkeyup="checkDoFilter(event)"  /> 
 <a href="javascript:doFilter();" style="float:right; width:16px;overflow:hidden;" ><span class="ui-icon ui-icon-search" title="<fmt:message bundle="${lctx}">dateaxis.use</fmt:message>" >a</span></a>
 </div>
 <div id="content-resizable" style="position:relative;float:none;">
@@ -46,12 +46,12 @@
     <div id="select-handle-bottom" class="da_select_handle"><span class="ui-icon ui-icon-triangle-2-n-s" style="z-index:1;top:-7px;position:absolute;left:50%;">handle</span></div>
     <div id="resizable-top" class="ui-state-active da_resizable"></div>
     <div id="resizable-bottom" class="ui-state-active da_resizable"></div>
-    <div class="da_container" id="da_container">
-        <div id="bubbleDiv" class="da_bubble" ><div id="bubbleText" ></div></div>
         <div id="img_resize_bottom" class="da_resize"></div>
         <div id="img_resize_top" class="da_resize"></div>
         <div id="constraint_bottom" class="da_constraint" ></div>
         <div id="constraint_top" class="da_constraint" style="top:0px;left:0px;" ></div>
+    <div class="da_container" id="da_container">
+        <div id="bubbleDiv" class="da_bubble" ><div id="bubbleText" ></div></div>
     <x:transform doc="${xml}"  xslt="${facetxsl}">
         <x:param name="bundle_url" value="${i18nServlet}"/>
     </x:transform>

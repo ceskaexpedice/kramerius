@@ -110,6 +110,13 @@ public class HeaderViewObject {
                     "generatePdfMaxRange:" +KConfiguration.getInstance().getProperty("generatePdfMaxRange")+
         "}";
     }
+    
+    
+    public String getLocalizationScripts() {
+        Locale locale = this.localeProvider.get();
+        return "<script src=\"js/localization/jquery.ui.datepicker-"+locale.getLanguage()+".js\" language=\"javascript\" type=\"text/javascript\"></script>"+
+            "<script src=\"js/localization/jquery-ui-timepicker-"+locale.getLanguage()+".js\" language=\"javascript\" type=\"text/javascript\"></script>";
+    }
 
     
     public String getLevelsModelSelectionArray() {
