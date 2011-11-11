@@ -18,6 +18,11 @@
             <fedora-model:isContractorOf rdf:resource="info:fedora/model:periodical"/>
             <fedora-model:isContractorOf rdf:resource="info:fedora/model:periodicalitem"/>
             <fedora-model:isContractorOf rdf:resource="info:fedora/model:periodicalvolume"/>
+            <fedora-model:isContractorOf rdf:resource="info:fedora/model:manuscript"/>
+            <fedora-model:isContractorOf rdf:resource="info:fedora/model:graphic"/>
+            <fedora-model:isContractorOf rdf:resource="info:fedora/model:map"/>
+            <fedora-model:isContractorOf rdf:resource="info:fedora/model:sheetmusic"/>
+            <fedora-model:isContractorOf rdf:resource="info:fedora/model:article"/>
           </rdf:Description>
         </rdf:RDF>
       </foxml:xmlContent>
