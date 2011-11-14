@@ -15,6 +15,7 @@ import org.aplikator.server.descriptor.Arrangement;
 import org.aplikator.server.descriptor.Function;
 
 import cz.incad.kramerius.rights.server.arragements.GroupArrangement;
+import cz.incad.kramerius.rights.server.arragements.PublicUserArrangement;
 import cz.incad.kramerius.rights.server.arragements.RefenrenceToPersonalAdminArrangement;
 import cz.incad.kramerius.rights.server.arragements.RightArrangement;
 import cz.incad.kramerius.rights.server.arragements.RightsCriteriumArrangement;
@@ -34,9 +35,8 @@ public class RightsLoaderServlet extends ApplicationLoaderServlet {
     //GroupArrangement groupArr;
     Arrangement groupUserAssocArr;
 
-    RightArrangement rightsArr;
-    RightsCriteriumArrangement rightsCriteriumArr;
-    RightsCriteriumParamArrangement rightsCriteriumParamArr;
+
+	PublicUserArrangement publicUserArr;
 
     @Override
     public void init() throws ServletException {
@@ -47,47 +47,39 @@ public class RightsLoaderServlet extends ApplicationLoaderServlet {
             struct = (Structure) Application.get();
             LOG.fine("ApplicationLoader 2");
 
-            VygenerovatHeslo execVygenerovatHeslo = new VygenerovatHeslo();
+            GeneratePasswordExec generatePasswordForPrivate = new GeneratePasswordExec();
 
             referenceToAdmin = new RefenrenceToPersonalAdminArrangement(struct);
 
-//            groupArr = new GroupArrangement(struct, struct.group, referenceToAdmin);
-            userArr = new UserArrangement(struct, struct.user, referenceToAdmin, new Function("VygenerovatHeslo", execVygenerovatHeslo));
+			userArr = new UserArrangement(struct, struct.user, referenceToAdmin,  new Function("VygenerovatHeslo", generatePasswordForPrivate));
             {
-                execVygenerovatHeslo.setUserArr(userArr);
-                execVygenerovatHeslo.setMailer(new PropertiesMailer());
+                generatePasswordForPrivate.setArrangement(userArr);
+                generatePasswordForPrivate.setMailer(new PropertiesMailer());
                 userArr.setMailer(new PropertiesMailer());
-
+            }
+            
+            GeneratePasswordExec generatePasswordForPublic = new GeneratePasswordExec();
+            publicUserArr = new PublicUserArrangement(struct, struct.publicUser, referenceToAdmin, new Function("VygenerovatHeslo", generatePasswordForPublic));
+            {
+            	generatePasswordForPublic.setArrangement(publicUserArr);
+                generatePasswordForPrivate.setMailer(new PropertiesMailer());
+                userArr.setMailer(new PropertiesMailer());
+            	
             }
 
-            rightsArr = new RightArrangement(struct.rights, struct);
-            rightsCriteriumParamArr = new RightsCriteriumParamArrangement(struct.criteriumParam, struct);
-            rightsCriteriumArr = new RightsCriteriumArrangement(struct.rightCriterium, struct, rightsCriteriumParamArr);
 
             LOG.fine("ApplicationLoader 3");
             // CLIENT SIDE MENU
             ApplicationDTO applicationDescriptor = ApplicationDTO.get();
-
-            ServiceDTO uzivatele = new ServiceDTO("Uzivatele");
+            //TODO: I18N
+            ServiceDTO uzivatele = new ServiceDTO("Interni uzivatele");
             uzivatele.addAction(new ActionDTO("Uzivatele", new ListEntities("Uzivatele", uzivatele, userArr.getId())));
-            //uzivatele.addAction(new ActionDTO("Skupiny", new ListEntities("Skupiny", uzivatele, groupArr.getId())));
-
-            /*
-             * uzivatele.addAction(new
-             * ActionDTO("Vazby (Uzivatele <-> Skupiny)", new ListEntities(
-             * "Vazby (Uzivatele <-> Skupiny)", uzivatele,
-             * groupUserAssocArr.getId()))); ServiceDTO prava = new
-             * ServiceDTO("Prava"); prava.addAction(new ActionDTO("Prava", new
-             * ListEntities( "Prava", prava, rightsArr.getId())));
-             * 
-             * prava.addAction(new ActionDTO("Kriteria", new ListEntities(
-             * "Kriteria", prava, rightsCriteriumArr.getId())));
-             * 
-             * prava.addAction(new ActionDTO("Parametry kriteria", new
-             * ListEntities( "Parametry kriteria", prava,
-             * rightsCriteriumParamArr.getId())));
-             */
+            //TODO: I18N
+            ServiceDTO publicUzivatele = new ServiceDTO("Verejni Uzivatele");
+            publicUzivatele.addAction(new ActionDTO("Uzivatele", new ListEntities("IUzivatele", publicUzivatele, publicUserArr.getId())));
+    
             applicationDescriptor.addService(uzivatele);
+            applicationDescriptor.addService(publicUzivatele);
 
             /*
              * ServiceDTO functions = new ServiceDTO("Funkce");
