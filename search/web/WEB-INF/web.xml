@@ -154,6 +154,12 @@
         <load-on-startup>1</load-on-startup>
     </servlet>
 
+    <!-- user's profile servlet -->
+    <servlet>
+        <servlet-name>profileServlet</servlet-name>
+        <servlet-class>cz.incad.Kramerius.ProfilesServlet</servlet-class>
+    </servlet>
+
 	<!-- 
 		// Mapovani servletu
 	 -->
@@ -271,6 +277,11 @@
     <servlet-mapping>
         <servlet-name>startupServlet</servlet-name>
         <url-pattern>/startupServlet</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>profileServlet</servlet-name>
+        <url-pattern>/profile</url-pattern>
     </servlet-mapping>
 
 	
