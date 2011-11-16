@@ -113,6 +113,18 @@ getLoggedUser() ::=<<
 
 
 
+findUserProfile() ::=<<
+    select active_users_id,profile from profiles
+    where active_users_id=?
+>>
 
 
+updateUserProfile() ::=<<
+    update profiles set profile=? 
+    where active_users_id=?
+>>
+
+insertProfile() ::=<<
+    insert into profiles(active_users_id,profile) values(?,?);
+>>
 

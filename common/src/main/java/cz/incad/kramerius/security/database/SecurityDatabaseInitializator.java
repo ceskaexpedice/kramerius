@@ -16,10 +16,13 @@
  */
 package cz.incad.kramerius.security.database;
 
+import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.StringReader;
 import java.nio.charset.Charset;
 import java.sql.Connection;
+import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -68,49 +71,17 @@ public class SecurityDatabaseInitializator {
                     );
                 }
                 
-                // create one rule 
-                /*
-                new JDBCTransactionTemplate(connection, false).updateWithTransaction(
-                        new JDBCCommand() {
-                            
-                            @Override
-                            public Object executeJDBCCommand(Connection con) throws SQLException {
-                                return insertParams(con);
-                            }
 
-                        },
-                        new JDBCCommand() {
-                            
-                            @Override
-                            public Object executeJDBCCommand(Connection con) throws SQLException {
-                                return insertCriterium(con, (Integer)getPreviousResult());
-                            }
-                        },
-                        new JDBCCommand() {
-                            
-                            @Override
-                            public Object executeJDBCCommand(Connection con) throws SQLException {
-                                String sql = SecurityDatabaseUtils.stUdateRightGroup().getInstanceOf("select_common_role").toString();
-
-                                List<Integer> ids = new JDBCQueryTemplate<Integer>(con, false){
-
-                                    @Override
-                                    public boolean handleRow(ResultSet rs, List<Integer> returnsList) throws SQLException {
-                                        returnsList.add(rs.getInt("group_id"));
-                                        return false;
-                                    }
-                                }.executeQuery(sql);
-
-                                if (ids.isEmpty()) throw new SQLException("cannot find common group entity !");
-                                return insertRight(con, ids.get(0), (Integer)getPreviousResult());
-                            }
-                        }
-
-                );*/ 
-
+                // create tables for public users
+                createPublicUsersAndProfilesTables(connection);
                 
                 
-            } else { /* already created */ }
+            } else { 
+                if (versionService.getVersion().equals("4.5.0")) {
+                    // create tables for public users
+                    createPublicUsersAndProfilesTables(connection);
+                }
+            }
         } catch (SQLException e) {
             LOGGER.log(Level.SEVERE,e.getMessage(),e);
         } catch (IOException e) {
@@ -143,6 +114,37 @@ public class SecurityDatabaseInitializator {
         template.executeUpdate(IOUtils.readAsString(is, Charset.forName("UTF-8"), true));
     }
     
+    public static void createPublicUsersAndProfilesTables(Connection connection) throws SQLException, IOException {
+        InputStream is = SecurityDatabaseInitializator.class.getResourceAsStream("res/initpublicusers.sql");
+        JDBCUpdateTemplate template = new JDBCUpdateTemplate(connection, false);
+        template.setUseReturningKeys(false);
+        String sqlScript = IOUtils.readAsString(is, Charset.forName("UTF-8"), true);
+        template.executeUpdate(sqlScript);
+    }
+    
+    
+    public static void main(String[] args) throws IOException, ClassNotFoundException, SQLException {
+//        InputStream is = SecurityDatabaseInitializator.class.getResourceAsStream("res/initpublicusers.sql");
+//        String sqlScript = IOUtils.readAsString(is, Charset.forName("UTF-8"), true);
+//        Class<?> clz = Class.forName("org.postgresql.Driver");
+//        Connection conn = DriverManager.getConnection("jdbc:postgresql://localhost/kramerius4","fedoraAdmin","fedoraAdmin");
+//
+//        StringReader reader = new StringReader(sqlScript);
+//        BufferedReader bufReader = new BufferedReader(reader);
+//        String line = null;
+//        while((line = bufReader.readLine())!=null) {
+//            System.out.println(line +" = "+line.length());
+//            
+//        }
+//
+//        createPublicUsersAndProfilesTables(conn);
+        
+//        String str = "ALTER TABLE PROFILES ADD CONSTRAINT PROFILES_ACTIVE_USER_ID_FK FOREIGN KEY (active_users_id) REFERENCES ACTIVE_USERS (ACTIVE_USERS_ID);";
+//        System.out.println(str.substring(0,135));
+        
+    }
+
+
     
     public static void alterSecurityTableActiveColumn(Connection con) throws SQLException {
         PreparedStatement prepareStatement = con.prepareStatement(

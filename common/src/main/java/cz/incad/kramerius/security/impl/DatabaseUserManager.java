@@ -41,6 +41,7 @@ import cz.incad.kramerius.security.UserManager;
 import cz.incad.kramerius.security.database.InitSecurityDatabase;
 import cz.incad.kramerius.security.database.SecurityDatabaseUtils;
 import cz.incad.kramerius.security.utils.SecurityDBUtils;
+import cz.incad.kramerius.users.UserProfile;
 import cz.incad.kramerius.utils.database.JDBCCommand;
 import cz.incad.kramerius.utils.database.JDBCQueryTemplate;
 import cz.incad.kramerius.utils.database.JDBCTransactionTemplate;
@@ -59,8 +60,6 @@ public class DatabaseUserManager implements UserManager{
     @Inject
     Provider<HttpServletRequest> requestProvider;
 
-    
-    
     
     @Override
     @InitSecurityDatabase
@@ -498,5 +497,5 @@ public class DatabaseUserManager implements UserManager{
         new JDBCTransactionTemplate(connection, true).
             updateWithTransaction(commands.toArray(new JDBCCommand[commands.size()]));
     }
-    
+
 }

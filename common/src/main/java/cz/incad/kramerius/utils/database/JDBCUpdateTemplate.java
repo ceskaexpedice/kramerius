@@ -37,6 +37,7 @@ public class JDBCUpdateTemplate {
     
     private Connection connection;
     private boolean closeConnectionFlag = true;
+    private boolean useReturningKeys = true;
     
     public JDBCUpdateTemplate(Connection connection) {
         super();
@@ -88,7 +89,16 @@ public class JDBCUpdateTemplate {
     }
 
     public PreparedStatement createPreparedStatement(Connection con, String sql) throws SQLException {
-        return con.prepareStatement(sql,Statement.RETURN_GENERATED_KEYS);
+        return this.useReturningKeys ? 
+                con.prepareStatement(sql,Statement.RETURN_GENERATED_KEYS) : con.prepareStatement(sql);
+    }
+    
+    public boolean isUseReturningKeys() {
+        return useReturningKeys;
+    }
+    
+    public void setUseReturningKeys(boolean useReturningKeys) {
+        this.useReturningKeys = useReturningKeys;
     }
     
     private void setParam(int i, Object object, PreparedStatement pstm) throws SQLException {

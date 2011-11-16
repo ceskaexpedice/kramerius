@@ -371,4 +371,3 @@ registerLoggedUserUpdateRoles(loggeduserid, roleid) ::=<<
             $roleid$)
 >>
 
-

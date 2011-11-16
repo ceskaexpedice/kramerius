@@ -22,7 +22,6 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Set;
@@ -51,11 +50,9 @@ import cz.incad.kramerius.security.impl.UserImpl;
 import cz.incad.kramerius.security.utils.UserUtils;
 import cz.incad.kramerius.users.LoggedUsersSingleton;
 import cz.incad.kramerius.users.database.LoggedUserDatabaseInitializator;
+import cz.incad.kramerius.users.utils.ActiveUsersUtils;
 import cz.incad.kramerius.utils.DatabaseUtils;
-import cz.incad.kramerius.utils.database.JDBCCommand;
-import cz.incad.kramerius.utils.database.JDBCPreparedStatementCommand;
 import cz.incad.kramerius.utils.database.JDBCQueryTemplate;
-import cz.incad.kramerius.utils.database.JDBCTransactionTemplate;
 import cz.incad.kramerius.utils.database.JDBCUpdateTemplate;
 import cz.incad.kramerius.utils.database.JDBCPreparedStatementCommand.NULLS;
 
@@ -63,7 +60,7 @@ public class LoggedUsersSingletonImpl implements LoggedUsersSingleton {
 
     static java.util.logging.Logger LOGGER = java.util.logging.Logger.getLogger(LoggedUsersSingletonImpl.class.getName());
     
-    private static StringTemplateGroup stGroup;
+    public static StringTemplateGroup stGroup;
     static {
         InputStream is = LoggedUserDatabaseInitializator.class.getResourceAsStream("res/database.stg");
         stGroup = new StringTemplateGroup(new InputStreamReader(is), DefaultTemplateLexer.class);
@@ -88,7 +85,7 @@ public class LoggedUsersSingletonImpl implements LoggedUsersSingleton {
         Connection con = null;
         try {
             con = this.connectionProvider.get();
-            Integer activeUserId = activeUser(user, con);
+            Integer activeUserId = ActiveUsersUtils.findAndRegisterActiveUser(user, con);
             sessionKeyId(con, activeUserId, randomUUID);
             return randomUUID;
             
@@ -108,70 +105,6 @@ public class LoggedUsersSingletonImpl implements LoggedUsersSingleton {
         update.executeUpdate(tmpl.toString(), loggedUserKey,activeUserId, req.getRemoteAddr());
     }
     
-    public Integer activeUser(User user, Connection con) throws SQLException {
-        StringTemplate template = stGroup.getInstanceOf("findUserByLoginName");
-        List<Integer> list = new JDBCQueryTemplate<Integer>(con, false) {
-            @Override
-            public boolean handleRow(ResultSet rs, List<Integer> returnsList) throws SQLException {
-                int id = rs.getInt("active_users_id");
-                returnsList.add(id);
-                return true;
-            }
-
-        }.executeQuery(template.toString(), user.getLoginname());
-        if (list.isEmpty()) {
-
-            List<JDBCCommand> commands = new ArrayList<JDBCCommand>();
-            StringTemplate userTmpl = stGroup.getInstanceOf("registerActiveUser");
-            commands.add(new JDBCPreparedStatementCommand(con, userTmpl.toString(), user.getLoginname(), user.getFirstName(), user.getSurname()));
-
-            Role[] grps = user.getGroups();
-            for (Role role : grps) {
-                StringTemplate mappingTmpl = stGroup.getInstanceOf("registerLoggedUserUpdateRoles");
-
-                commands.add(new JDBCPreparedStatementCommand(con, mappingTmpl.toString(), role.getId()) {
-
-                    @Override
-                    public void prepareStatement() throws SQLException {
-                        this.preparedStatement.setInt(1, (Integer) getPreviousResult());
-                        for (int i = 0, index = 2; i < params.length; i++) {
-                            int changedIndex = setParam(index, params[i], this.preparedStatement);
-                            index = changedIndex + 1;
-                        }
-                    }
-
-                    @Override
-                    public Object executeJDBCCommand(Connection con) throws SQLException {
-                        super.executeJDBCCommand(con);
-                        return getPreviousResult();
-                    }
-                });
-            }
-
-            return (Integer) new JDBCTransactionTemplate(con, false).updateWithTransaction(commands);
-        } else {
-            final Integer activeUserId = list.get(0);
-            List<JDBCCommand> commands = new ArrayList<JDBCCommand>();
-
-            StringTemplate updateUserTemplate = stGroup.getInstanceOf("updateActiveUser");
-            commands.add(new JDBCPreparedStatementCommand(con, updateUserTemplate.toString(),
-                    user.getFirstName(),user.getSurname(), activeUserId));
-
-            StringTemplate delTemplate = stGroup.getInstanceOf("deleteRoleActiveId");
-            commands.add(new JDBCPreparedStatementCommand(con, delTemplate.toString(), activeUserId));
-
-            StringTemplate mappingTmpl = stGroup.getInstanceOf("registerLoggedUserUpdateRoles");
-
-            Role[] grps = user.getGroups();
-            for (Role role : grps) {
-                commands.add(new JDBCPreparedStatementCommand(con, mappingTmpl.toString(), activeUserId, role.getId()));
-            }
-
-            new JDBCTransactionTemplate(con, false).updateWithTransaction(commands);
-            return activeUserId;
-        }
-    }
-
     @Override
     public synchronized void deregisterLoggedUser(String key) {
         boolean isSessionKeyAssociatedWithProcess = lrProcessManager.isSessionKeyAssociatedWithProcess(key);

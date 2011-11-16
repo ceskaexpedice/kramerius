@@ -38,6 +38,7 @@ public interface LoggedUsersSingleton {
      */
     public String registerLoggedUser(User user);
 
+    
     /**
      * Deregister logged user
      * @param key Session key

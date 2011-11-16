@@ -14,23 +14,32 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
-package cz.incad.kramerius.users.guice;
+package cz.incad.kramerius.users;
 
-import com.google.inject.AbstractModule;
-import com.google.inject.Scopes;
+import net.sf.json.JSONObject;
 
-import cz.incad.kramerius.users.LoggedUsersSingleton;
-import cz.incad.kramerius.users.UserProfileManager;
-import cz.incad.kramerius.users.impl.LoggedUsersSingletonImpl;
-import cz.incad.kramerius.users.impl.UserProfileManagerImpl;
-
-public class LoggedUsersModule extends AbstractModule {
-
-    @Override
-    protected void configure() {
-        bind(LoggedUsersSingleton.class).to(LoggedUsersSingletonImpl.class).in(Scopes.SINGLETON);
-        bind(UserProfileManager.class).to(UserProfileManagerImpl.class).in(Scopes.SINGLETON);
-    }
-
+/**
+ * Represents users profile
+ * @author pavels
+ */
+public interface UserProfile {
+    
+    /**
+     * Returns raw string data
+     * @return
+     */
+    public String getRawData();
+    
+    /**
+     * Returns parsed JSON object
+     * @return
+     */
+    public JSONObject getJSONData();
+    
+    /**
+     * Marshall jsonobject to string representation
+     * @param jsonObject
+     */
+    public void setJSONData(JSONObject jsonObject);
     
 }

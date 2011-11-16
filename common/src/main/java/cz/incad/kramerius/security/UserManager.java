@@ -19,6 +19,7 @@ package cz.incad.kramerius.security;
 import java.sql.SQLException;
 
 import cz.incad.kramerius.security.jaas.K4LoginModule;
+import cz.incad.kramerius.users.UserProfile;
 
 /**
  * User's and group's manager
@@ -183,4 +184,5 @@ public interface UserManager {
     //TODO:  Move it !!
     
     public void registerLoggedUser(User user, String loggedUserKey) throws SQLException;
+
 }

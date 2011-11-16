@@ -14,23 +14,24 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
-package cz.incad.kramerius.users.guice;
+package cz.incad.kramerius.users;
 
-import com.google.inject.AbstractModule;
-import com.google.inject.Scopes;
+import cz.incad.kramerius.security.User;
 
-import cz.incad.kramerius.users.LoggedUsersSingleton;
-import cz.incad.kramerius.users.UserProfileManager;
-import cz.incad.kramerius.users.impl.LoggedUsersSingletonImpl;
-import cz.incad.kramerius.users.impl.UserProfileManagerImpl;
+public interface UserProfileManager {
 
-public class LoggedUsersModule extends AbstractModule {
+    /**
+     * Returns user profile 
+     * @param user
+     * @return
+     */
+    public UserProfile getProfile(User user);
 
-    @Override
-    protected void configure() {
-        bind(LoggedUsersSingleton.class).to(LoggedUsersSingletonImpl.class).in(Scopes.SINGLETON);
-        bind(UserProfileManager.class).to(UserProfileManagerImpl.class).in(Scopes.SINGLETON);
-    }
+    /**
+     * Sets new user profile
+     * @param user
+     * @param profile
+     */
+    public void saveProfile(User user, UserProfile profile);
 
-    
 }
