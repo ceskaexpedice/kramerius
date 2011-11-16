@@ -590,7 +590,6 @@ SecuredActionTab.prototype.editRightForPath=function(/** ident for right */right
                   },{
                 	text:dictionary['common.close'],
                 	click:bind(function() {
-        				this.post();
                 		this.newRightDialog.dialog("close");
                 	},this)
                   }]

@@ -52,7 +52,7 @@
                               </c:forEach>
                          ]
                     },
-                    priority:0, 
+                    priority:${newRight.priority}, 
                     role:'${newRight.appliedRole}'
                 },
                 options: {
@@ -163,7 +163,7 @@
     
             <table width="100%">
                 <tbody><tr><td> <h3><label for="priority"><view:msg>rights.dialog.priority</view:msg></label></h3><view:msg>rights.dialog.prioritynote</view:msg></td></tr>
-                <tr><td> <input type="text" style="width: 100%;" size="10" onkeyup="right.onPriorityChange();" name="priority" id="priority"></td></tr>
+                <tr><td> <input type="text" style="width: 100%;" size="10" onkeyup="right.onPriorityChange();" name="priority" id="priority" value="${newRight.priority==0 ? '' : newRight.priority}"></input></td></tr>
             </tbody></table>
             
         </fieldset>

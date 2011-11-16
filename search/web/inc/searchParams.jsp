@@ -6,14 +6,20 @@
 <%@ taglib uri="http://java.sun.com/jstl/core_rt" prefix="c-rt" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/xml" prefix="x" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt" %>
+
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn" %>
+
+<%@ taglib uri="/WEB-INF/tlds/securedContent.tld" prefix="scrd" %>
+<%@ taglib uri="/WEB-INF/tlds/cmn.tld" prefix="view" %>
+
 <%@ page isELIgnored="false"%>
 <%@ page import="java.util.*, cz.incad.Kramerius.*, cz.incad.Solr.*" %>
-<%
-String search_results_rows = kconfig.getProperty("search.results.rows", "20");
-pageContext.setAttribute("search_results_rows", search_results_rows);
-%>
-    <c:set var="rowsdefault" value="${search_results_rows}" scope="request" />
+
+
+<view:object name="searchParams" clz="cz.incad.Kramerius.views.inc.SearchParamsViews"></view:object>
+
+
+    <c:set var="rowsdefault" value="${searchParams.searchResultsRows}" scope="request" />
     <c:set var="rows" value="${rowsdefault}" scope="request" />
 <c:url var="url" value="${kconfig.solrHost}/select/" >
     <c:choose>
@@ -52,22 +58,8 @@ pageContext.setAttribute("search_results_rows", search_results_rows);
     
     <%-- datum --%>
     <c:if test="${param.da_od != null && !empty param.da_od}">
-<% 
-    String rok_od = request.getParameter("da_od");
-    rok_od = rok_od.substring(rok_od.lastIndexOf(".")+1);
-    String rok_do = request.getParameter("da_do");
-    rok_do = rok_do.substring(rok_do.lastIndexOf(".")+1);
-    pageContext.setAttribute("rok_od", rok_od);
-    pageContext.setAttribute("rok_do", rok_do);
-    DateFormat df = new SimpleDateFormat(kconfig.getProperty("mods.date.format", "dd.MM.yyyy"));
-    DateFormat dfout = new SimpleDateFormat(kconfig.getProperty("mods.date.format", "yyyy-MM-dd'T'hh:mm:ss.SSS'Z'"));
-    String datum_od = dfout.format(df.parse(request.getParameter("da_od"))) ;
-    String datum_do = dfout.format(df.parse(request.getParameter("da_do"))) ;
-    pageContext.setAttribute("datum_od", datum_od);
-    pageContext.setAttribute("datum_do", datum_do);
-%>
         <c:set var="fieldedSearch" value="true" scope="request" />
-        <c:param name="fq" value="(datum_begin:[1 TO ${rok_od}] AND datum_end:[${rok_do} TO 3000]) OR datum:[${datum_od} TO ${datum_do}]" />
+        <c:param name="fq" value="(datum_begin:[1 TO ${searchParams.yearFrom}] AND datum_end:[${searchParams.yearUntil} TO 3000]) OR datum:[${searchParams.dateFromFormatted} TO ${searchParams.dateUntilFormatted}]" />
             <c:set var="rows" value="${rowsdefault}" scope="request" />
     </c:if>
     
@@ -82,18 +74,10 @@ pageContext.setAttribute("search_results_rows", search_results_rows);
     
     <%-- suggest --%>
     <c:if test="${param.suggest}">
-        <%
-            String t = request.getParameter("browse_title");
-            UTFSort utf_sort = new UTFSort();
-            utf_sort.init();
-            String browse_title = utf_sort.translate(t);
-            browse_title = "\"" + browse_title + "##" + t + "\"";
-            //browse_title = java.net.URLEncoder.encode(browse_title, "UTF-8");
-            pageContext.setAttribute("browse_title", browse_title);
-        %>
-        <c:param name="fq" value="search_title:${browse_title}" />
+        <c:param name="fq" value="search_title:${searchParams.browserTitle}" />
         <c:set var="rows" value="${rowsdefault}" scope="request" />
     </c:if>
+
     
     <c:set var="fieldedSearch" value="false" scope="request" />
     <%-- advanced params --%>

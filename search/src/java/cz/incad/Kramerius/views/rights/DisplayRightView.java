@@ -117,6 +117,14 @@ public class DisplayRightView extends AbstractRightsView {
         return params != null ? params.getId() : 0; 
     }
 
+    
+    public int getPriority() throws RecognitionException, TokenStreamException {
+        Right r = getRight();
+        if (r != null ) {
+            return r.getFixedPriority();
+        } else return 0;
+    }
+    
     public RightCriteriumParams getParams() throws RecognitionException, TokenStreamException {
         Right r = getRight();
         if (r != null && r.getCriteriumWrapper() != null && r.getCriteriumWrapper().getCriteriumParams() != null) {
