@@ -47,6 +47,7 @@ import cz.incad.kramerius.users.UserProfile;
 import cz.incad.kramerius.users.UserProfileManager;
 import cz.incad.kramerius.utils.UTFSort;
 import cz.incad.kramerius.utils.conf.KConfiguration;
+import cz.incad.kramerius.utils.json.JSONUtils;
 
 public class SearchParamsViews implements Initializable {
 
@@ -81,19 +82,21 @@ public class SearchParamsViews implements Initializable {
 
                 UserProfile profile = this.userProfileManager.getProfile(this.userProvider.get());
                 JSONObject jsonData = profile.getJSONData();
+                
                 if (!jsonData.containsKey(SEARCH_HISTORY)) {
                     jsonData.put(SEARCH_HISTORY, new JSONArray());
                 }
                 JSONArray shistory = jsonData.getJSONArray(SEARCH_HISTORY);
 
                 JSONObject searchObj = new JSONObject();
-                searchObj.put("url", urlString+"?"+this.requestProvider.get().getQueryString());
-                searchObj.put("query", params.get("q"));
+                String url = urlString+"?"+this.requestProvider.get().getQueryString();
+                searchObj.put("url", JSONUtils.escapeQuotes(url));
+                String query = params.get("q");
+                searchObj.put("query", JSONUtils.escapeQuotes(query));
                 shistory.add(searchObj);
-
+                
                 profile.setJSONData(jsonData);
                 this.userProfileManager.saveProfile(this.userProvider.get(), profile);
-
             }
 
         }
