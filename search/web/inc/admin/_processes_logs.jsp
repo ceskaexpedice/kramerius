@@ -51,9 +51,9 @@
 <html>
 
 <head>
-<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-<meta http-equiv="Pragma" content="no-cache" />
-<meta http-equiv="Cache-Control" content="no-cache" />
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" >
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Cache-Control" content="no-cache">
 <meta name="description"
  content="National Library of Czech Republic digitized documents (periodical, monographs) access aplication." />
 <meta name="keywords"
@@ -85,6 +85,7 @@
  language="javascript" type="text/javascript"></script>
 
 <script type="text/javascript">
+<!--
 var processUUID = '<%=uuid%>';
 var stdFrom = 0;
 var errFrom = 0;
@@ -226,6 +227,8 @@ function refresh() {
     });
 
 }
+//-->
+
 </script>
 
 <style type="text/css">
