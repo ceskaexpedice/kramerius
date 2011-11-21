@@ -186,10 +186,14 @@ public class AdminMenuViewObject {
                 if (!ShibbolethUtils.isUnderShibbolethSession(this.request)) {
                     menuItems.add(openUsersAdmin());
                 }
-                
+
+                menuItems.add(showProfile());
+
                 if (!ShibbolethUtils.isUnderShibbolethSession(this.request)) {
                     menuItems.add(changepswd());
                 }
+
+                
 
             }
             return menuItems.toArray(new String[menuItems.size()]);
@@ -199,12 +203,20 @@ public class AdminMenuViewObject {
         }
     }
     
+    private String showProfile() throws IOException {
+        return renderMenuItem(
+                "javascript:showSearchHistory.showHistory(); javascript:hideAdminMenu();",
+                "administrator.menu.dialogs.profile.title", false);
+    }
+
     private String changepswd() throws IOException {
         return renderMenuItem(
                 "javascript:(new ChangePswd()).changePassword(); javascript:hideAdminMenu();",
                 "administrator.menu.dialogs.changePswd.title", false);
     }
 
+    
+    
     private boolean hasUserAllowedAction(String actionFormalName) {
         User user = currentUserProvider.get();
         HttpSession session = this.request.getSession();

@@ -25,9 +25,11 @@ import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.StringTokenizer;
 import java.util.logging.Level;
@@ -55,8 +57,11 @@ public class SearchParamsViews implements Initializable {
 
     public static final String SEARCH_HISTORY = "searchHistory";
 
-    private static final String DA_DO = "da_do";
-    private static final String DA_OD = "da_od";
+    public static final String DA_DO = "da_do";
+    public static final String DA_OD = "da_od";
+    
+    public static final String FROM_PROFILE ="fromProfile";
+    
 
     @Inject
     Provider<HttpServletRequest> requestProvider;
@@ -77,8 +82,8 @@ public class SearchParamsViews implements Initializable {
 
             String urlString = this.requestProvider.get().getRequestURL().toString();
 
-            Map<String, String> params = this.requestProvider.get().getParameterMap();
-            if (params.containsKey("q")) {
+            Map params = this.requestProvider.get().getParameterMap();
+            if (params.containsKey("q") && (!params.containsKey(FROM_PROFILE))) {
 
                 UserProfile profile = this.userProfileManager.getProfile(this.userProvider.get());
                 JSONObject jsonData = profile.getJSONData();
@@ -91,8 +96,16 @@ public class SearchParamsViews implements Initializable {
                 JSONObject searchObj = new JSONObject();
                 String url = urlString+"?"+this.requestProvider.get().getQueryString();
                 searchObj.put("url", JSONUtils.escapeQuotes(url));
-                String query = params.get("q");
-                searchObj.put("query", JSONUtils.escapeQuotes(query));
+                Object query = params.get("q");
+                if (query.getClass().isArray()) {
+                    String[] paramVals = this.requestProvider.get().getParameterValues("q");
+                    if (paramVals.length > 0) {
+                        searchObj.put("query", JSONUtils.escapeQuotes(paramVals[0]));
+                    }
+                } else {
+                    searchObj.put("query", JSONUtils.escapeQuotes((String) query));
+                }
+
                 shistory.add(searchObj);
                 
                 profile.setJSONData(jsonData);
@@ -197,7 +210,14 @@ public class SearchParamsViews implements Initializable {
         System.out.println(url.getPath());
         
         JSONObject obj = new JSONObject();
-        System.out.println(obj.containsKey("test"));
+        obj.put("date", new Date());
+        
+        System.out.println(obj);
+        
+        System.out.println(obj.get("date"));
+        
+        
+        //System.out.println(obj.containsKey("test"));
 
         /*
          * System.out.println(url.getUserInfo());

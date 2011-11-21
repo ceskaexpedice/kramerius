@@ -78,7 +78,7 @@ public class ProfilesServlet extends GuiceServlet {
             public void process(HttpServletRequest request, HttpServletResponse response, User user, UserProfileManager profileManager) {
                 try {
                     UserProfile profile = profileManager.getProfile(user);
-                    response.setContentType("text/plain");
+                    response.setContentType("application/json");
                     response.getWriter().println(profile.getRawData());
                 } catch (IOException e) {
                     LOGGER.log(Level.SEVERE,e.getMessage(),e);
