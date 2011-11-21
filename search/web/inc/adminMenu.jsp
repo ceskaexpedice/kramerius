@@ -377,6 +377,56 @@ function getAllowed(action, pids, div){
 }
 
 
+function ShowSearchHistory() {
+    this.dialog = null;     
+}
+
+
+ShowSearchHistory.prototype.showHistory = function() {
+    $.get("profile?action=GET", bind(function(data){
+        
+        if (this.dialog) {
+            this.dialog.dialog('open');
+        } else {
+            var pdiv = '<div id="searchHistory"></div>';
+            $(document.body).append(pdiv);
+            this.dialog = $("#searchHistory").dialog({
+                bgiframe: true,
+                width:  400,
+                height:  200,
+                modal: true,
+                title: dictionary['administrator.menu.dialogs.changevisflag.title'],
+                buttons: 
+                    [{
+                        text:dictionary['common.close'],
+                        click:function() {
+                            $(this).dialog("close") 
+                        } 
+                    }]
+            });
+
+        }
+
+        var htmlheader = "<table style='width:100%'>"+
+        "<thead><tr><td><strong>Hledana slova</strong></td><td><strong>URL</strong></td></tr> </thead>"+
+        "<tbody>";
+        
+        var html = reduce(function(base, element, status) {
+            base = base + "<tr>"+
+            "<td>"+ element["query"][0] +"</td>"+
+            "<td> <a href='"+ element["url"]+"&fromProfile=true'>_link</a></td>"+
+            "</tr>";       
+            return base;         
+        }, htmlheader, data['searchHistory'].reverse())+"</tbody></table>";
+                   
+        $("#searchHistory").html(html);
+        
+    },this));
+}
+
+var showSearchHistory = new ShowSearchHistory();
+
+
 
 /** change policy flag  */
 function ChangeFlag() {
@@ -444,5 +494,7 @@ ChangeFlag.prototype.change = function() {
 }
 
 var changeFlag = new ChangeFlag();
+
+
 
 </script>
