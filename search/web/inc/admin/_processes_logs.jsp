@@ -280,7 +280,7 @@ function refresh() {
   class="ui-icon ui-icon-seek-next">last</span></a></div>
  </div>
 
- <div align="center"><textarea id="stdTextArea" disabled="disabled">
+ <div align="center"><textarea id="stdTextArea" disabled="disabled" rows="40" cols="140">
                 </textarea></div>
  <div class="separator"></div>
 
@@ -315,7 +315,6 @@ function refresh() {
  <div></div>
  <div align="center"><textarea id="errTextArea" disabled="disabled" rows="40"
   cols="140"> </textarea></div>
- </div>
 </scrd:securedContent>
 </body>
 </html>
