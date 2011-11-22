@@ -68,7 +68,7 @@ public class MenuButtonsViewObject {
         for (int i = 0; i < items.length; i++) {
             String name = items[i];
             String link = i < items.length ? getBaseURL() + "?language="+ items[++i] + "&" + getQueryString() : "";
-            LanguageItem itm = new LanguageItem(link, name);
+            LanguageItem itm = new LanguageItem(link, name, items[i]);
             links.add(itm);
         }
         return links;
@@ -78,11 +78,13 @@ public class MenuButtonsViewObject {
         
         private String link;
         private String name;
+        private String key;
         
-        private LanguageItem(String link, String name) {
+        private LanguageItem(String link, String name, String key) {
             super();
             this.link = link;
             this.name = name;
+            this.key = key;
         }
         
         public String getLink() {
@@ -91,6 +93,10 @@ public class MenuButtonsViewObject {
         
         public String getName() {
             return name;
+        }
+        
+        public String getKey(){
+            return this.key;
         }
     }
 }

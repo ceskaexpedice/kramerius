@@ -121,6 +121,7 @@
         </div>
         
     </div>
+                <div id="vc_dialog" style="display:none;"><div class="content"></div></div>
 </scrd:loggedusers>
 <script type="text/javascript">
     
@@ -341,6 +342,126 @@
     }
 
   <scrd:loggedusers>
+  
+  /* Administrate virtual collections */
+  var _vcollDialog;
+  function vcAddToVirtualCollection(){
+      $("#vc_dialog>div.content").html('<p align="center"><img src="img/loading.gif" alt="loading" /></p>');
+      if (_vcollDialog) {
+            _vcollDialog.dialog('open');
+        } else {
+            _vcollDialog = $("#vc_dialog").dialog({
+                bgiframe: true,
+                width: 500,
+                modal: true,
+                title:'<fmt:message bundle="${lctx}">administrator.menu.dialogs.virtualcollections</fmt:message>',
+                buttons: [
+                    {
+                        text: "Ok",
+                        click: function() {
+                            vcDoAdd();
+                            $(this).dialog("close"); 
+                        }
+                    },
+                    {
+                        text: dictionary['common.close'],
+                        click: function() {
+                            $(this).dialog("close"); 
+                        }
+                    }
+                ]
+            });
+
+        }
+        $.get("inc/details/vc.jsp", function(data){
+            $("#vc_dialog>div.content").html(data);
+            var pids = getAffectedPids();
+            if(pids.length==1){
+                var pidpath = getPidPath(pids[0]);
+                var pid = pidpath.substring(pidpath.lastIndexOf("/") + 1);
+                $(".vcoll").each(function(){
+                    var id = $(this).attr('id');
+                    var coll = id.split('vc_')[1];
+                    var url = 'vc?action=CHECK&pid=' + pid + "&collection=" + coll;
+                    $.get(url, function(data){
+                        if(data.toString()=='1'){
+                            $(jq(id)+'>td>input').attr("checked", true).addClass('checked');
+                        }else{
+                            $(jq(id)+'>td>input').attr("checked", false);
+                        }
+                    });
+                });
+            }
+        });
+  }
+  
+  function vcDoAdd(){
+    var pids = getAffectedPids();
+    
+    var urlbuffer;
+    var action;
+    var coll;
+    var hasChanges = false;
+    urlbuffer = "lr?action=start&def=aggregate&out=text&nparams={virtualcollections;";
+    if(pids.length==1){
+        var pidpath = getPidPath(pids[0]);
+        var pid = pidpath.substring(pidpath.lastIndexOf("/") + 1);
+        var j = 0;
+        var changed = false;
+        $(".vcoll").each(function(){
+            var id = $(this).attr('id');
+            coll = id.split('vc_')[1];
+            if($(jq(id)+'>td>input').is(":checked") && !$(jq(id)+'>td>input').hasClass("checked")){
+                action = "add";
+                changed = true;
+            }else if(!$(jq(id)+'>td>input').is(":checked") && $(jq(id)+'>td>input').hasClass("checked")){
+                action = "remove";
+                changed = true;
+            }else{
+                changed = false;
+            }
+            if(changed){
+                hasChanges = true;
+                if (j>0) {
+                   urlbuffer=urlbuffer + ";";
+                }
+                j++;
+                urlbuffer=urlbuffer+"{"+action+";"+replaceAll(pid, ":","\\:")+";"+replaceAll(coll, ":","\\:")+"}";
+            }
+        });
+        urlbuffer=urlbuffer+"}";
+    }else{
+        var j = 0;
+        hasChanges = true;
+        for(var i=0; i<pids.length; i++){
+            var pidpath = getPidPath(pids[i]);
+            var pid = pidpath.substring(pidpath.lastIndexOf("/") + 1);
+            $(".vcoll").each(function(){
+                var id = $(this).attr('id');
+                coll = id.split('vc_')[1];
+                if($(jq(id)+'>td>input').is(":checked")){
+                    action = "add";
+                }else{
+                    action = "remove";
+                }
+                if (j>0) {
+                   urlbuffer=urlbuffer + ";";
+                }
+                j++;
+                urlbuffer=urlbuffer+"{"+action+";"+replaceAll(pid, ":","\\:")+";"+replaceAll(coll, ":","\\:")+"}";
+            });
+        }
+        urlbuffer=urlbuffer+"}";
+                
+    }
+
+    
+    //alert(urlbuffer);
+    if(hasChanges){
+        processStarter("virtualcollections").start(urlbuffer);
+    }
+    
+  }
 
   function ctxPrint(){
       var pids = getAffectedPids();
@@ -372,7 +493,7 @@
                     {
                         text: "Ok",
                         click: function() {
-                            doReindex();
+                            askReindex();
                             $(this).dialog("close"); 
                         }
                     },
@@ -389,7 +510,6 @@
         var pids = getAffectedPids();
         $("#reindex>div.allowed").html($("#context_items_selection").html());
         if(pids.length>1){
-        
             for(var i=0; i<pids.length; i++){
                 var pidpath = getPidPath(pids[i]);
                 pids[i] = pidpath.substring(pidpath.lastIndexOf("/") + 1);
@@ -397,8 +517,13 @@
         }
     }
     
+    function askReindex(){
+        showConfirmDialog(dictionary['administrator.dialogs.reindexconfirm'], function(){
+            doReindex();
+        });
+    }
     function doReindex(){
-        showConfirmDialog(dictionary['administrator.dialogs.deleteconfirm'], function(){
+        
             var pids = getAffectedPids();
             var action;
             if($("#reindex_only_newer").is(':checked')){
@@ -434,8 +559,6 @@
             }
 
             processStarter("reindex").start(urlbuffer);
-            
-        });
     }
         
     function deletefromindex(){

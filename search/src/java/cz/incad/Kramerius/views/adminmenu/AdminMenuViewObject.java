@@ -88,6 +88,12 @@ public class AdminMenuViewObject {
                 "administrator.menu.dialogs.actionsAdmin.title", false);
     }
 
+    public String showVirtualCollectionsAdmin() throws IOException {
+        return renderMenuItem(
+                "javascript:showVirtualCollectionsAdmin(); javascript:hideAdminMenu();",
+                "administrator.menu.dialogs.virtualcollections.title", false);
+    }
+
     public String enumerator() throws IOException {
         return renderMenuItem(
                 "javascript:enumerator(); javascript:hideAdminMenu();",
@@ -192,6 +198,11 @@ public class AdminMenuViewObject {
                 if (!ShibbolethUtils.isUnderShibbolethSession(this.request)) {
                     menuItems.add(changepswd());
                 }
+                
+                //TODO add administrate virtual collections to actions
+                //if (hasUserAllowedAction(SecuredActions.VIRTUALCOLLECTION.getFormalName())) {
+                    menuItems.add(showVirtualCollectionsAdmin());
+                //}
 
                 
 

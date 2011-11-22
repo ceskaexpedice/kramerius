@@ -26,8 +26,7 @@ public class Main {
      * @param args
      *            the command line arguments
      */
-    public static void main(String[] args) {
-        try {
+    public static void main(String[] args) throws Exception {
             LOG.log(Level.INFO, "process args: {0}", Arrays.toString(args));
             ProgramArguments arguments = new ProgramArguments();
             if (!arguments.parse(args)) {
@@ -46,9 +45,6 @@ public class Main {
 
             Indexer indexer = new Indexer(arguments);
             indexer.run();
-        } catch (Exception ex) {
-            LOG.log(Level.SEVERE, null, ex);
-        }
     }
 
     private static void checkFileOrCreateNew(String log4jFile, String resPath) throws IOException {

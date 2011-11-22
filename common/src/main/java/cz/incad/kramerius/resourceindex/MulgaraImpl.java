@@ -7,7 +7,9 @@ package cz.incad.kramerius.resourceindex;
 
 import cz.incad.kramerius.utils.XMLUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
+import cz.incad.kramerius.virtualcollections.VirtualCollection;
 import java.util.ArrayList;
+import java.util.List;
 import org.w3c.dom.Document;
 import org.apache.commons.configuration.Configuration;
 
@@ -22,7 +24,7 @@ public class MulgaraImpl implements IResourceIndex {
         
             Configuration config = KConfiguration.getInstance().getConfiguration();
             String query = "select $object $title $date from <#ri> " +
-                    "where $object <fedora-model:hasModel> <info:fedora/model:" + model + ">  " + 
+                    " where $object <fedora-model:hasModel> <info:fedora/model:" + model + ">  " + 
                     " and  $object <dc:title> $title " +
                     " and  $object <fedora-view:lastModifiedDate> $date " +
                     " order by  $" + orderby + " " + orderDir +
@@ -116,5 +118,25 @@ public class MulgaraImpl implements IResourceIndex {
                 return false;
             }
     }
+
+    @Override
+    public ArrayList<String> getObjectsInCollection(String collection, int limit, int offset) throws Exception {
+        Configuration config = KConfiguration.getInstance().getConfiguration();
+            String query = "* <rdf:isMemberOfCollection>  <info:fedora/" + collection + ">  ";
+            
+            ArrayList<String> resList = new ArrayList<String>();
+            String urlStr = config.getString("FedoraResourceIndex") + "?type=triples&flush=true&lang=spo&format=N-Triples&limit=&distinct=off&stream=off" +
+                    "&query=" + java.net.URLEncoder.encode(query, "UTF-8");
+            java.net.URL url = new java.net.URL(urlStr);
+
+            java.io.BufferedReader in = new java.io.BufferedReader(new java.io.InputStreamReader(url.openStream()));
+            String inputLine = in.readLine();
+            while ((inputLine = in.readLine()) != null) {
+                resList.add(inputLine.substring(1, inputLine.indexOf("> <")));
+            }
+            in.close();
+            return resList;
+    }
+
 
 }

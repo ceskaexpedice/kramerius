@@ -122,6 +122,8 @@ public class SolrOperations {
                 checkIntegrityByDocument(value);
             } else if ("getPidPaths".equals(action)) {
                 fedoraOperations.getPidPaths(value);
+            }else if ("reindexCollection".equals(action)) {
+                reindexCollection(value);
             }
         } catch (Exception ex) {
             logger.log(Level.SEVERE, "Cant index. Action:" + action +
@@ -213,8 +215,19 @@ public class SolrOperations {
             return;
         }
         fedoraOperations.getFoxmlFromPid(pid);
+        contentDom = getDocument(new ByteArrayInputStream(fedoraOperations.foxmlRecord));
         extendedFields.setFields(pid);
-        indexDoc(new ByteArrayInputStream(fedoraOperations.foxmlRecord), "1");
+        
+        expr = xpath.compile("//datastream[@ID='IMG_FULL']/datastreamVersion[last()]");
+        Node imgFullMimeNode = (Node) expr.evaluate(contentDom, XPathConstants.NODE);
+        int docs = 0;
+        if (imgFullMimeNode != null) {
+            if (imgFullMimeNode.getAttributes().getNamedItem("MIMETYPE").getNodeValue().indexOf("pdf") > -1) {
+                extendedFields.setPDFDocument(pid);
+                docs = extendedFields.getPDFPagesCount();
+            }
+        }    
+        indexDoc(new ByteArrayInputStream(fedoraOperations.foxmlRecord), String.valueOf(docs));
     }
     /* kramerius */
     XPathFactory factory = XPathFactory.newInstance();
@@ -367,6 +380,7 @@ public class SolrOperations {
                 }
                 if (!nodeName.contains("hasModel") && !nodeName.contains("isOnPage")
                         && !nodeName.contains("hasDonator")
+                        && !nodeName.contains("isMemberOfCollection")
                         && childnode.hasAttributes()
                         && childnode.getAttributes().getNamedItem("rdf:resource") != null) {
                     pids.add(childnode.getAttributes().getNamedItem("rdf:resource").getNodeValue().split("/")[1]);
@@ -733,6 +747,35 @@ public class SolrOperations {
         }
         if (nodeList.getLength() > 0) {
             checkIntegrityByModel(model, offset + numHits);
+        }
+    }
+    
+    private void reindexCollection(String collection) throws Exception{
+        logger.log(Level.INFO, "Reindex documents in collection: {0}", collection);
+        if (collection == null || collection.length() < 1) {
+            return;
+        }
+        int numHits = 200;
+        String PID;
+        String urlStr = config.getString("solrHost") + "/select?q=collection:\"" + collection + "\"&fl=PID&rows=" + numHits;
+        factory = XPathFactory.newInstance();
+        xpath = factory.newXPath();
+        java.net.URL url = new java.net.URL(urlStr);
+
+        DocumentBuilder builder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
+        org.w3c.dom.Document solrDom = builder.parse(url.openStream());
+        String xPathStr = "/response/result/doc/str[@name='PID']";
+        expr = xpath.compile(xPathStr);
+        NodeList nodeList = (NodeList) expr.evaluate(solrDom, XPathConstants.NODESET);
+        Node node;
+        for (int i = 0; i < nodeList.getLength(); i++) {
+            node = nodeList.item(i);
+            PID = node.getFirstChild().getNodeValue();
+            fromPid(PID);
+        }
+        optimize();
+        if (nodeList.getLength() > 0) {
+            reindexCollection(collection);
         }
     }
 }

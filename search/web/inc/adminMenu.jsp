@@ -68,6 +68,11 @@
         <span id="proccess_confirm_text"></span>
 </div>
 
+<!-- administrace virtualnich sbirek -->
+<div id="vcAdminDialog" style="display:none;">
+    <div class="content"><fmt:message bundle="${lctx}" key="administrator.dialogs.waiting" /></div>
+</div>
+
 <!-- indexace dokumentu -->
 <div id="indexer" style="display:none;">
     <div id="indexerContent"><fmt:message bundle="${lctx}" key="administrator.dialogs.waiting" /></div>
@@ -244,6 +249,30 @@ function generateStatic(level, exportType, imgUrl, i18nUrl,iso3Country, iso3Lang
 
     processStarter("staticPDF").start(url);
 	 
+}
+
+
+var _vcAdminDialog;
+function showVirtualCollectionsAdmin(){
+    $("#vcAdminDialog>div.content").html('<p align="center"><img src="img/loading.gif" alt="loading" /></p>');
+    if (_vcAdminDialog) {
+        _vcAdminDialog.dialog('open');
+    } else {
+    	_vcAdminDialog = $("#vcAdminDialog").dialog({
+            bgiframe: true,
+            width: 700,
+            height: 400,
+            modal: true,
+	        title: dictionary['administrator.menu.dialogs.virtualcollections.title'],
+            buttons: [{
+                text:dictionary['common.close'],
+                click: function() {
+                    $(this).dialog("close") 
+                } 
+            }]
+        });
+    }
+    $("#vcAdminDialog>div.content").load("inc/admin/_virtual_collection_admin.jsp");
 }
 
 

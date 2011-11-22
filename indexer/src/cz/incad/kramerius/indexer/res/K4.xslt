@@ -58,6 +58,9 @@
                 <xsl:apply-templates mode="biblioMods" select="/foxml:digitalObject/foxml:datastream[@ID='BIBLIO_MODS']/foxml:datastreamVersion[last()]/foxml:xmlContent/mods:modsCollection/mods:mods" />
                 <xsl:call-template name="imgFull"  />
                 <xsl:call-template name="browse" />
+                <xsl:call-template name="collection">
+                    <xsl:with-param name="rels" select="/foxml:digitalObject/foxml:datastream[@CONTROL_GROUP='X' and @ID='RELS-EXT']/foxml:datastreamVersion[last()]/foxml:xmlContent/rdf:RDF/rdf:Description" />
+                </xsl:call-template>
             </xsl:if>
         </xsl:if>
   </xsl:template>
@@ -279,5 +282,13 @@
                 </field>
             </xsl:when>
         </xsl:choose>
+    </xsl:template>
+    <xsl:template name="collection" >
+        <xsl:param name="rels" />
+        <xsl:for-each  select="$rels/rdf:isMemberOfCollection">
+            <field name="collection" >
+                <xsl:value-of select="substring-after(./@rdf:resource, 'info:fedora/')"/>
+            </field>
+        </xsl:for-each>    
     </xsl:template>
 </xsl:stylesheet>

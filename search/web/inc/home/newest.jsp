@@ -3,6 +3,7 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/xml" prefix="x" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn" %>
+<%@ taglib uri="/WEB-INF/tlds/cmn.tld" prefix="view" %>
 <%@ page isELIgnored="false"%>
 <%@page import="cz.incad.kramerius.utils.FedoraUtils"%>
 <%@page import="com.google.inject.Injector"%>
@@ -13,10 +14,8 @@
         KConfiguration kconfig = ctxInj.getProvider(KConfiguration.class).get();
         pageContext.setAttribute("kconfig", kconfig);
 
-        FedoraAccess fedoraAccess = ctxInj.getInstance(com.google.inject.Key.get(FedoraAccess.class, com.google.inject.name.Names.named("securedFedoraAccess")));
-
 %>
-<c:url var="url" value="${kconfig.solrHost}/select/" >
+<c:url var="url" value="${kconfig.solrHost}/select" >
     <c:param name="q" value="level:0" />
     <c:choose>
         <c:when test="${param.rows != null}" >
@@ -26,6 +25,10 @@
             <c:set var="rows" value="18" scope="request" />
         </c:otherwise>
     </c:choose>
+    <view:object name="cols" clz="cz.incad.Kramerius.views.virtualcollection.VirtualCollectionViewObject"></view:object>
+    <c:if test="${cols.current != null}">
+        <c:param name="fq" value="collection:\"${cols.current.pid}\"" />
+    </c:if>
     <c:param name="rows" value="${rows}" />
     <c:forEach var="fqs" items="${paramValues.fq}">
         <c:param name="fq" value="${fqs}" />

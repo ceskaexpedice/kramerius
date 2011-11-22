@@ -27,7 +27,6 @@
 
 <%@ include file="inc/searchParams.jsp" %>
 <c:set var="title"><fmt:message bundle="${lctx}">application.title</fmt:message></c:set>
-<jsp:useBean id="xml" type="java.lang.String" />
 <html>
     <%@ include file="inc/html_header.jsp" %>
     <body>

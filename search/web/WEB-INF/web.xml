@@ -27,6 +27,12 @@
 		<servlet-name>fullImageServlet</servlet-name>
 		<servlet-class>cz.incad.Kramerius.FullImageServlet</servlet-class>
 	</servlet>
+        
+        <!-- Servelt pro manipulaci virtualnich sbirek -->
+	<servlet>
+		<servlet-name>vc</servlet-name>
+		<servlet-class>cz.incad.Kramerius.views.virtualcollection.VirtualCollectionServlet</servlet-class>
+	</servlet>
 
 
     <!--  
@@ -84,6 +90,12 @@
 	<servlet>
 		<servlet-name>handle</servlet-name>
 		<servlet-class>cz.incad.Kramerius.HandleServlet</servlet-class>
+	</servlet>
+
+	<!-- handle servlet -->
+	<servlet>
+		<servlet-name>virtualcollectionhandle</servlet-name>
+		<servlet-class>cz.incad.Kramerius.VirtualCollectionHandleServlet</servlet-class>
 	</servlet>
 
 
@@ -168,12 +180,16 @@
         <servlet-name>imageServlet</servlet-name>
         <url-pattern>/img</url-pattern>
     </servlet-mapping>
+    
+    <servlet-mapping>
+        <servlet-name>vc</servlet-name>
+        <url-pattern>/vc</url-pattern>
+    </servlet-mapping>
 
-
-	<servlet-mapping>
-		<servlet-name>thumb</servlet-name>
-		<url-pattern>/thumb</url-pattern>
-	</servlet-mapping>
+    <servlet-mapping>
+            <servlet-name>thumb</servlet-name>
+            <url-pattern>/thumb</url-pattern>
+    </servlet-mapping>
 
     <servlet-mapping>
         <servlet-name>fullThumb</servlet-name>
@@ -221,6 +237,21 @@
 		<servlet-name>handle</servlet-name>
 		<url-pattern>/handle/*</url-pattern>
 	</servlet-mapping>
+
+	<servlet-mapping>
+		<servlet-name>virtualcollectionhandle</servlet-name>
+		<url-pattern>/vc/*</url-pattern>
+	</servlet-mapping>
+    
+        <servlet-mapping>
+            <servlet-name>virtualcollectionhandle</servlet-name>
+            <url-pattern>/collection/*</url-pattern>
+        </servlet-mapping>
+    
+        <servlet-mapping>
+            <servlet-name>virtualcollectionhandle</servlet-name>
+            <url-pattern>/sbirka/*</url-pattern>
+        </servlet-mapping>
 
 	<servlet-mapping>
 		<servlet-name>dsProxyServlet</servlet-name>

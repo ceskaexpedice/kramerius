@@ -3,6 +3,7 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/xml" prefix="x" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn" %>
+<%@ taglib uri="/WEB-INF/tlds/cmn.tld" prefix="view" %>
 <%@ page trimDirectiveWhitespaces="true" %>
 <%@ page isELIgnored="false"%>
 <%@page import="com.google.inject.Injector"%>
@@ -17,14 +18,20 @@
             pageContext.setAttribute("lctx", lctx);
             String i18nServlet = I18NServlet.i18nServlet(request) + "?action=bundle&lang="+lctx.getLocale().getLanguage()+"&country="+lctx.getLocale().getCountry()+"&name=labels";
             pageContext.setAttribute("i18nServlet", i18nServlet);
-            
 %>
 <c:set var="escaped_pid">\:</c:set>
 <c:set var="escaped_pid">${fn:replace(param.pid, ":" , escaped_pid)}</c:set>
-<c:url var="url" value="${kconfig.solrHost}/select/" >
-    <c:param name="q" >
-        parent_pid:"${param.pid}" AND NOT(PID:"${param.pid}")<c:if test="${param.model!=null}"> and fedora.model:${param.model}</c:if>
-    </c:param>
+
+<c:set var="q">parent_pid:"${param.pid}" AND NOT(PID:"${param.pid}")</c:set>
+<c:if test="${param.model!=null}">
+    <c:set var="q"> ${q} AND fedora.model:${param.model}</c:set>
+</c:if>
+<view:object name="cols" clz="cz.incad.Kramerius.views.virtualcollection.VirtualCollectionViewObject"></view:object>
+<c:if test="${cols.current != null}">
+    <c:set var="q"> ${q} AND collection:"${cols.current.pid}"</c:set>
+</c:if>
+<c:url var="url" value="${kconfig.solrHost}/select" >
+    <c:param name="q" value="${q}" />
     <c:choose>
         <c:when test="${param.rows != null}" >
             <c:set var="rows" value="${param.rows}" scope="request" />

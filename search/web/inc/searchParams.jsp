@@ -21,7 +21,7 @@
 
     <c:set var="rowsdefault" value="${searchParams.searchResultsRows}" scope="request" />
     <c:set var="rows" value="${rowsdefault}" scope="request" />
-<c:url var="url" value="${kconfig.solrHost}/select/" >
+<c:url var="url" value="${kconfig.solrHost}/select" >
     <c:choose>
         <c:when test="${empty param.q}" >
             <c:param name="q" value="*:*" />
@@ -121,6 +121,11 @@
         <c:set var="rows" value="${rowsdefault}" scope="request" />
         <c:set var="fieldedSearch" value="true" scope="request" />
     </c:if>
+    
+    <view:object name="cols" clz="cz.incad.Kramerius.views.virtualcollection.VirtualCollectionViewObject"></view:object>
+    <c:if test="${cols.current != null}">
+        <c:param name="fq" value="collection:\"${cols.current.pid}\"" />
+    </c:if>
 
     <c:if test="${param.rows != null}" >
         <c:set var="rows" value="${param.rows}" scope="request" />
@@ -163,8 +168,30 @@
     </c:choose>
 </c:url>
 
-<c:import url="${url}" var="xml" charEncoding="UTF-8" />
-<x:parse var="doc" xml="${xml}"  />
+<c:catch var="searchException">
+    <c:import url="${url}" var="xml" charEncoding="UTF-8" />
+    <x:parse var="doc" xml="${xml}"  />
+</c:catch>
+<c:choose>
+    <c:when test="${searchException!=null}">
+        <%--<c:import url="empty.xml" var="xml" charEncoding="UTF-8" />--%>
+        <c:set var="xml">
+        <?xml version="1.0" encoding="UTF-8"?>
+        <response>
+            <lst name="responseHeader">
+                <int name="status">1</int>
+                <str name="error"><fmt:message bundle="${lctx}" key="search.error" /></str>
+                <lst name="params">
+                    <str name="q"></str>
+                </lst>
+            </lst>
+            <result name="response" numFound="0" start="0"/>
+        </response>
+    </c:set>
+        <x:parse var="doc" xml="${xml}"  />
+    </c:when>
+</c:choose>
+<jsp:useBean id="xml" type="java.lang.String" />
 <c:set var="numDocs" scope="request" >
     <x:out select="$doc/response/result/@numFound" />
 </c:set>
@@ -180,4 +207,4 @@
         <c:when test="${numDocs>4}"><fmt:message bundle="${lctx}">common.documents.plural_2</fmt:message></c:when>
     </c:choose>
     (<c:out value="${numDocsCollapsed}" />)
-</c:set> 
+</c:set>

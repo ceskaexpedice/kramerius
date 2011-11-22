@@ -22,7 +22,6 @@
 
 %>
 <%@ include file="../searchParams.jsp" %>
-<jsp:useBean id="xml" type="java.lang.String" />
 <%
     cz.incad.kramerius.service.XSLService xs = (cz.incad.kramerius.service.XSLService) ctxInj.getInstance(cz.incad.kramerius.service.XSLService.class);
     try {

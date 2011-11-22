@@ -49,6 +49,7 @@ import cz.incad.kramerius.service.impl.ResourceBundleServiceImpl;
 import cz.incad.kramerius.service.impl.TextsServiceImpl;
 import cz.incad.kramerius.service.impl.XSLServiceImpl;
 import cz.incad.kramerius.utils.conf.KConfiguration;
+import cz.incad.kramerius.virtualcollections.VirtualCollection;
 
 /**
  * Base kramerius module 
@@ -85,8 +86,12 @@ public class BaseModule extends AbstractModule {
 		bind(LocalizationContext.class).toProvider(CustomLocalizedContextProvider.class);
 		
 		bind(MostDesirable.class).to(MostDesirableImpl.class);
-        bind(RelationService.class).to(RelationServiceImpl.class).in(Scopes.SINGLETON);
+                
+                
+		bind(VirtualCollection.class).toProvider(VirtualCollectionProvider.class);
+                
+            bind(RelationService.class).to(RelationServiceImpl.class).in(Scopes.SINGLETON);
 
-        bind(GoogleAnalytics.class).to(GoogleAnalyticsImpl.class).in(Scopes.SINGLETON);
+            bind(GoogleAnalytics.class).to(GoogleAnalyticsImpl.class).in(Scopes.SINGLETON);
 	}
 }

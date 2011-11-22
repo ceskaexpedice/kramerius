@@ -19,6 +19,8 @@
     <div style="float:right;">1</div>
     <div style="float:right;">2</div>
     <div style="float:right;">3</div>
+    
 </div>
+        <%=request.getRequestURI()%>
     </body>
 </html>

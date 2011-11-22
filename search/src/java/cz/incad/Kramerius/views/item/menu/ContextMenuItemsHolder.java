@@ -89,6 +89,9 @@ public class ContextMenuItemsHolder extends AbstractViewObject implements Initia
             items.add(new ContextMenuItem("administrator.menu.editor", "_data_x_role", "openEditor",
                     "'" + kconfig.getEditorURL() + "'", true));
 
+            items.add(new ContextMenuItem("administrator.menu.virtualcollection.add", "_data_x_role", "vcAddToVirtualCollection",
+                    "", true));
+
         }
     }
         

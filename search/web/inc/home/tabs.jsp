@@ -10,13 +10,12 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn" %>
 <%@ page isELIgnored="false"%>
+<%@ taglib uri="/WEB-INF/tlds/cmn.tld" prefix="view" %>
+<view:object name="cols" clz="cz.incad.Kramerius.views.virtualcollection.VirtualCollectionViewObject"></view:object>
 
 <%
-    Injector wellcomeInjector = (Injector)application.getAttribute(Injector.class.getName());
-    WellcomeViewObject wellcomeViewObject = new WellcomeViewObject();
-    wellcomeInjector.injectMembers(wellcomeViewObject);
-    pageContext.setAttribute("wellcomeViewObject", wellcomeViewObject);
     String[] tabs = kconfig.getPropertyList("search.home.tabs");
+    
     pageContext.setAttribute("tabs", tabs);
 %>
 <style type="text/css">
@@ -36,13 +35,12 @@
 </style>
 <div id="intro" >
     <ul>
-        <%--<li><a href="#browse"><fmt:message bundle="${lctx}" key="Procházet" /></a></li>--%>
-    <c:forEach varStatus="status" var="tab" items="${tabs}">
+    <c:forEach varStatus="status" var="tab" items="${cols.homeTabs}">
         <li><a href="#intro${status.count}"><fmt:message bundle="${lctx}">home.tab.${tab}</fmt:message></a></li>
     </c:forEach>
     </ul>
 
-    <c:forEach varStatus="status" var="tab" items="${tabs}">
+    <c:forEach varStatus="status" var="tab" items="${cols.homeTabs}">
         <div id="intro${status.count}" style="height: 510px; overflow:auto;"></div>
         <script type="text/javascript">
             $.get('inc/home/${tab}.jsp', function(data){

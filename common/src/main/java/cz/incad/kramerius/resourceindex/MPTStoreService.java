@@ -10,11 +10,13 @@ package cz.incad.kramerius.resourceindex;
  */
 import cz.incad.kramerius.utils.DatabaseUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
+import cz.incad.kramerius.virtualcollections.VirtualCollection;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.text.ParseException;
+import java.util.List;
 import java.util.logging.Level;
 
 import javax.sql.DataSource;
@@ -191,7 +193,9 @@ public class MPTStoreService implements IResourceIndex {
         PreparedStatement s = null;
         ResultSet r = null;
         try {
-            DocumentBuilder builder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
+            DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+            factory.setNamespaceAware(true);
+            DocumentBuilder builder = factory.newDocumentBuilder();
             xmldoc = builder.newDocument();
             Element root = xmldoc.createElementNS(SPARQL_NS, "sparql");
             Element results = xmldoc.createElementNS(SPARQL_NS, "results");
@@ -462,5 +466,24 @@ public class MPTStoreService implements IResourceIndex {
                 in.close();
                 return false;
             }
+    }
+
+    @Override
+    public ArrayList<String> getObjectsInCollection(String collection, int limit, int offset) throws Exception {
+        Configuration config = KConfiguration.getInstance().getConfiguration();
+        String query = "* <rdf:isMemberOfCollection>  <info:fedora/" + collection + ">  ";
+            
+            ArrayList<String> resList = new ArrayList<String>();
+            String urlStr = config.getString("FedoraResourceIndex") + "?type=triples&flush=true&lang=spo&format=N-Triples&limit=&distinct=off&stream=off" +
+                    "&query=" + java.net.URLEncoder.encode(query, "UTF-8");
+            java.net.URL url = new java.net.URL(urlStr);
+
+            java.io.BufferedReader in = new java.io.BufferedReader(new java.io.InputStreamReader(url.openStream()));
+            String inputLine = in.readLine();
+            while ((inputLine = in.readLine()) != null) {
+                resList.add(inputLine.substring(1, inputLine.indexOf("> <")));
+            }
+            in.close();
+            return resList;
     }
 }

@@ -18,7 +18,7 @@
             pageContext.setAttribute("i18nServlet", i18nServlet);
 %>
 
-<c:url var="url" value="${kconfig.solrHost}/select/" >
+<c:url var="url" value="${kconfig.solrHost}/select" >
     <c:param name="q" >
         PID:"${param.pid}"
     </c:param>

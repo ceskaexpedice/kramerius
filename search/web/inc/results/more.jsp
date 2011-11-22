@@ -26,5 +26,4 @@
 %>
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
 <%@ include file="../searchParams.jsp" %>
-<jsp:useBean id="xml" type="java.lang.String" />
 <%@ include file="docs.jsp" %>

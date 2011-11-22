@@ -13,7 +13,7 @@
 <%@page import="javax.servlet.jsp.jstl.fmt.LocalizationContext"%>
 <%@page import="cz.incad.Kramerius.I18NServlet"%>
 <%@page import="cz.incad.kramerius.utils.conf.KConfiguration"%>
-<c:url var="url" value="${kconfig.solrHost}/select/" >
+<c:url var="url" value="${kconfig.solrHost}/select" >
     <c:param name="q" >PID:"${param.pid}"</c:param>
     <c:param name="rows" value="1" />
 </c:url>

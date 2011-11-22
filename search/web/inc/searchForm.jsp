@@ -56,10 +56,6 @@
         //alert($('#q').hasClass('searching'));
     }
     function checkQuery(){
-        if ($('#q.searching').length==0) {
-            //$('#q').val('');
-            return false;
-        }
         return true;
     }
 </script>

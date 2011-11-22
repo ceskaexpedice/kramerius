@@ -14,6 +14,7 @@
 <%@page import="cz.incad.Kramerius.I18NServlet"%>
 <%@page import="cz.incad.kramerius.utils.conf.KConfiguration"%>
 <%@page import="cz.incad.kramerius.FedoraAccess"%>
+<%@ taglib uri="/WEB-INF/tlds/cmn.tld" prefix="view" %>
 <%
             Injector ctxInj = (Injector) application.getAttribute(Injector.class.getName());
             KConfiguration kconfig = ctxInj.getProvider(KConfiguration.class).get();
@@ -28,6 +29,12 @@
     <c:param name="q" >
         *:*
     </c:param>
+        
+    
+    <view:object name="cols" clz="cz.incad.Kramerius.views.virtualcollection.VirtualCollectionViewObject"></view:object>
+    <c:if test="${cols.current != null}">
+        <c:param name="fq" value="collection:\"${cols.current.pid}\"" />
+    </c:if>
     <c:param name="rows" value="0" />
     <c:param name="facet.field" value="document_type" />
     <c:param name="facet.field" value="language" />

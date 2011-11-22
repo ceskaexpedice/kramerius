@@ -27,7 +27,6 @@
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
 <%@ include file="inc/searchParams.jsp" %>
 <c:set var="title"><fmt:message bundle="${lctx}">application.title</fmt:message>. <fmt:message bundle="${lctx}">search.results</fmt:message></c:set>
-<jsp:useBean id="xml" type="java.lang.String" />
 <c:choose>
     <c:when test="${param.onlymore}">
         <%@ include file="inc/results/docs.jsp" %>
@@ -39,7 +38,7 @@
         <div id="main" class="shadow">
             <%@ include file="inc/header.jsp" %>
             <div class="clear"></div>
-            
+
             <div id="split" style="display:block;">
                 <%@ include file="inc/results/results.jsp" %>
             </div>

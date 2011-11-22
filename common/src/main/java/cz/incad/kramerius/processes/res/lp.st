@@ -65,6 +65,15 @@
 	</process>
 
 	<process>
+		<id>virtualcollections</id>
+		<description>Virtual Collections manager</description>
+		<mainClass>cz.incad.kramerius.virtualcollections.VirtualCollectionsManager</mainClass>
+		<standardOs>lrOut</standardOs>
+		<errOs>lrErr</errOs>
+		
+	</process>
+
+	<process>
 		<id>replikator_monographs</id>
 		<description>Replikator (monografie)</description>
 		<mainClass>org.kramerius.Replicate</mainClass>

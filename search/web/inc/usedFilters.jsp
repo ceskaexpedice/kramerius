@@ -4,14 +4,24 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn" %>
 <%@ page isELIgnored="false"%>
+<%@ taglib uri="/WEB-INF/tlds/cmn.tld" prefix="view" %>
+<view:object name="cols" clz="cz.incad.Kramerius.views.virtualcollection.VirtualCollectionViewObject"></view:object>
 <c:if test="${!empty param.q || param.da_od != null && param.da_od != '' || !empty paramValues.fq ||
-              !empty param.issn || !empty param.title || !empty param.author || !empty param.rok || !empty param.keywords ||
-              !empty param.udc ||!empty param.ddc || !empty param.onlyPublic || param.suggest=='true' }" >
+      !empty param.issn || !empty param.title || !empty param.author || !empty param.rok || !empty param.keywords ||
+      !empty param.udc ||!empty param.ddc || !empty param.onlyPublic || param.suggest=='true' ||
+      cols.current != null}" >
 <ul>
     <li style="border-color: #E66C00;border-right: 1px solid #E66C00;">
         <span class="ui-icon ui-icon-triangle-1-e folder"></span>
         <span style="text-indent:0px;width:auto;font-weight: bold;"><fmt:message bundle="${lctx}" key="filter.used" /></span><div class="clear"> </div>
         <ul id="usedFilters">
+            <c:if test="${cols.current != null}">
+            <li>
+                 <a title="<fmt:message bundle="${lctx}" key="filter.remove_criteria" />" class="mainNav" href="javascript:removeVirtualCollection();">
+                     <fmt:message bundle="${lctx}" key="filter.collection" />: ${cols.current.label}
+                 </a>
+            </li>
+            </c:if>
             <c:if test="${!empty param.q}" >
             <li>
                  <a title="<fmt:message bundle="${lctx}" key="filter.remove_criteria" />" class="mainNav" href="javascript:removeQuery();"><c:out value="${param.q}" /></a>
@@ -151,6 +161,8 @@
         //checkQuery();
         $('#searchForm').submit();
     }
+    
+    
     
 </script>
 </c:if>

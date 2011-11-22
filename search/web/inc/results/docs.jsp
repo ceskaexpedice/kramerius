@@ -33,6 +33,9 @@
             <x:transform doc="${xml}"  xslt="${resultsxsl}">
                 <x:param name="bundle_url" value="${i18nServlet}"/>
                 <x:param name="q" value="${param.q}"/>
+                <c:if test="${!empty param.collection}">
+                    <x:param name="collection" value="&collection=${param.collection}" />
+                </c:if>
                 <x:param name="fqs"><c:forEach var="fqs" items="${paramValues.fq}">&fq=<c:out value="${fqs}" escapeXml="false" /></c:forEach></x:param>
             </x:transform>
     </c:otherwise>

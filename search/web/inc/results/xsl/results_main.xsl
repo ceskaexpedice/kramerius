@@ -9,43 +9,55 @@
     <xsl:param name="bundle" select="document($bundle_url)/bundle" />
     <xsl:param name="fqs" select="fqs" />
     <xsl:param name="q" select="q" />
+    <xsl:param name="collection" select="collection" />
     <xsl:param name="cols" select="cols" />
     <xsl:param name="numOpenedRows" select="5" />
     <xsl:variable name="numDocs"><xsl:value-of select="number(/response/result/@numFound)" /></xsl:variable>
     <xsl:variable name="generic" select="exts:new()" />
     
     <xsl:template match="/">
-        <div class="loading_docs" style="position:absolute; z-index:3;margin:auto;background:white;border:1px silver;width:1000px;height:200px;">
-            <img src="img/loading.gif" />
-        </div>
-        <xsl:variable name="rows"><xsl:value-of select="number(/response/lst[@name='responseHeader']/lst[@name='params']/str[@name='rows'])" /></xsl:variable>
-        <xsl:variable name="start">
-            <xsl:choose>
-                <xsl:when test="/response/lst[@name='responseHeader']/lst[@name='params']/str[@name='start']/text()">
-                    <xsl:value-of select="number(/response/lst[@name='responseHeader']/lst[@name='params']/str[@name='start'])" />
-                </xsl:when>
-                <xsl:otherwise>0</xsl:otherwise>
-            </xsl:choose>
+        <xsl:choose>
+            <xsl:when test="/response/lst[@name='responseHeader']/int[@name='status'] = '0'">
+                <div class="loading_docs" style="position:absolute; z-index:3;margin:auto;background:white;border:1px silver;width:1000px;height:200px;">
+                    <img src="img/loading.gif" />
+                </div>
+                <xsl:variable name="rows"><xsl:value-of select="number(/response/lst[@name='responseHeader']/lst[@name='params']/str[@name='rows'])" /></xsl:variable>
+                <xsl:variable name="start">
+                    <xsl:choose>
+                        <xsl:when test="/response/lst[@name='responseHeader']/lst[@name='params']/str[@name='start']/text()">
+                            <xsl:value-of select="number(/response/lst[@name='responseHeader']/lst[@name='params']/str[@name='start'])" />
+                        </xsl:when>
+                        <xsl:otherwise>0</xsl:otherwise>
+                    </xsl:choose>
 
-        </xsl:variable>
-        <xsl:if test="/response/result/doc" >
-            <xsl:choose>
-                <xsl:when test="$start = 0">
-                    <div>
-                        <xsl:attribute name="id">offset_<xsl:value-of select="$start"/></xsl:attribute>
-                        <xsl:call-template name="docs" />
-                    </div>
-                </xsl:when>
-                <xsl:otherwise>
-                    <xsl:call-template name="docs" />
-                </xsl:otherwise>
-            </xsl:choose>
-            <xsl:if test="count(/response/result/doc) &lt; $numDocs">
-            <div class="more_docs">
-                <xsl:attribute name="id">offset_<xsl:value-of select="$start + $rows"/></xsl:attribute>
-            <img src="img/loading.gif" /><br/>loading more documents...</div>
-            </xsl:if>
-        </xsl:if>
+                </xsl:variable>
+                <xsl:if test="/response/result/doc" >
+                    <xsl:choose>
+                        <xsl:when test="$start = 0">
+                            <div>
+                                <xsl:attribute name="id">offset_<xsl:value-of select="$start"/></xsl:attribute>
+                                <xsl:call-template name="docs" />
+                            </div>
+                        </xsl:when>
+                        <xsl:otherwise>
+                            <xsl:call-template name="docs" />
+                        </xsl:otherwise>
+                    </xsl:choose>
+                    <xsl:if test="count(/response/result/doc) &lt; $numDocs">
+                    <div class="more_docs">
+                        <xsl:attribute name="id">offset_<xsl:value-of select="$start + $rows"/></xsl:attribute>
+                    <img src="img/loading.gif" /><br/>loading more documents...</div>
+                    </xsl:if>
+                </xsl:if>
+
+
+        
+            </xsl:when>
+            <xsl:otherwise>
+                <xsl:value-of select="/response/lst[@name='responseHeader']/str[@name='error']" />
+            </xsl:otherwise>
+        </xsl:choose>
+        
     </xsl:template>
 
     <xsl:template name="collapse">
@@ -106,7 +118,7 @@
         <xsl:variable name="root_pid" ><xsl:value-of select="./str[@name='root_pid']" /></xsl:variable>
         <xsl:variable name="link" >./i.jsp?pid=<xsl:value-of
         select="$pid"/>&amp;q=<xsl:value-of
-        select="$q"/><xsl:value-of select="$fqs" disable-output-escaping="yes" />
+        select="$q"/><xsl:value-of select="$fqs" disable-output-escaping="yes" /><xsl:value-of select="$collection" disable-output-escaping="yes" />
         </xsl:variable>
         <xsl:variable name="imagepid" >
             <xsl:choose>
