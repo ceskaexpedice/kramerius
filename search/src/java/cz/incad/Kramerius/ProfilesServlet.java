@@ -17,11 +17,16 @@
 package cz.incad.Kramerius;
 
 import java.io.IOException;
+import java.util.Enumeration;
 import java.util.logging.Level;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+
+import net.sf.json.JSONObject;
+
+import biz.sourcecode.base64Coder.Base64Coder;
 
 import com.google.inject.Inject;
 import com.google.inject.Provider;
@@ -60,12 +65,29 @@ public class ProfilesServlet extends GuiceServlet {
     }
     
     
+    
+
+    @Override
+    protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        String action = req.getParameter("action");
+        PostActions.valueOf(action).process(req, resp, this.userProvider.get(), this.userProfileManager);
+    }
+
+
+
 
     public enum PostActions {
         POST{
             @Override
             public void process(HttpServletRequest request, HttpServletResponse response, User user, UserProfileManager profileManager) {
-
+                String encodedProfile = request.getParameter("encodedData");
+                if (encodedProfile != null) {
+                    byte[] decoded = Base64Coder.decode(encodedProfile);
+                    JSONObject jsonNObject = JSONObject.fromObject(new String(decoded));
+                    UserProfile profile = profileManager.getProfile(user);
+                    profile.setJSONData(jsonNObject);
+                    profileManager.saveProfile(user, profile);
+                }
             }
         };
         public abstract void process(HttpServletRequest request, HttpServletResponse response, User user, UserProfileManager profileManager);
@@ -85,7 +107,24 @@ public class ProfilesServlet extends GuiceServlet {
                 }
             }
             
+        },
+        UPDATE_FIELD {
+
+            @Override
+            public void process(HttpServletRequest request, HttpServletResponse response, User user, UserProfileManager profileManager) {
+                UserProfile profile = profileManager.getProfile(user);
+                JSONObject jsonData = profile.getJSONData();
+                String field = request.getParameter("field");
+                String value = request.getParameter("value");
+                jsonData.put(field, value);
+                profile.setJSONData(jsonData);
+                profileManager.saveProfile(user, profile);
+            }
+            
         };
+        
+        
+        
         public abstract void process(HttpServletRequest request, HttpServletResponse response, User user, UserProfileManager profileManager);
     }
 

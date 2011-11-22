@@ -91,28 +91,45 @@ public class SearchParamsViews implements Initializable {
                 if (!jsonData.containsKey(SEARCH_HISTORY)) {
                     jsonData.put(SEARCH_HISTORY, new JSONArray());
                 }
-                JSONArray shistory = jsonData.getJSONArray(SEARCH_HISTORY);
 
-                JSONObject searchObj = new JSONObject();
-                String url = urlString+"?"+this.requestProvider.get().getQueryString();
-                searchObj.put("url", JSONUtils.escapeQuotes(url));
-                Object query = params.get("q");
-                if (query.getClass().isArray()) {
+                Object queryParam = params.get("q");
+                String query = null;
+                if (queryParam.getClass().isArray()) {
                     String[] paramVals = this.requestProvider.get().getParameterValues("q");
                     if (paramVals.length > 0) {
-                        searchObj.put("query", JSONUtils.escapeQuotes(paramVals[0]));
+                        query =  JSONUtils.escapeQuotes(paramVals[0]);
                     }
                 } else {
-                    searchObj.put("query", JSONUtils.escapeQuotes((String) query));
+                    query =  JSONUtils.escapeQuotes((String) queryParam);
                 }
 
-                shistory.add(searchObj);
-                
-                profile.setJSONData(jsonData);
-                this.userProfileManager.saveProfile(this.userProvider.get(), profile);
+                JSONArray shistory = jsonData.getJSONArray(SEARCH_HISTORY);
+                if (!findQuery(shistory, query)) {
+                    
+                    JSONObject searchObj = new JSONObject();
+                    String url = urlString+"?"+this.requestProvider.get().getQueryString();
+                    searchObj.put("url", JSONUtils.escapeQuotes(url));
+                    searchObj.put("query", query);
+
+                    shistory.add(searchObj);
+                    
+                    profile.setJSONData(jsonData);
+                    this.userProfileManager.saveProfile(this.userProvider.get(), profile);
+                }
+
             }
 
         }
+    }
+
+    private boolean findQuery(JSONArray shistory, String query) {
+        for(int i = 0,ll = shistory.size();i<ll;i++) {
+            JSONObject obj = (JSONObject) shistory.get(i);
+            if (query.equals(obj.getString("query"))) {
+                return true;
+            }
+        }
+        return false;
     }
 
     public String getSearchResultsRows() {

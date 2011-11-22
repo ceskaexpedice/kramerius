@@ -9,6 +9,7 @@
     <xsl:param name="bundle" select="document($bundle_url)/bundle" />
     <xsl:param name="fqs" select="fqs" />
     <xsl:param name="q" select="q" />
+    <xsl:param name="cols" select="cols" />
     <xsl:param name="numOpenedRows" select="5" />
     <xsl:variable name="numDocs"><xsl:value-of select="number(/response/result/@numFound)" /></xsl:variable>
     <xsl:variable name="generic" select="exts:new()" />

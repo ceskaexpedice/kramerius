@@ -395,7 +395,7 @@ ShowSearchHistory.prototype.showHistory = function() {
                 width:  400,
                 height:  200,
                 modal: true,
-                title: dictionary['administrator.menu.dialogs.changevisflag.title'],
+                title: '',
                 buttons: 
                     [{
                         text:dictionary['common.close'],
@@ -406,15 +406,25 @@ ShowSearchHistory.prototype.showHistory = function() {
             });
 
         }
+/*
+        administrator.menu.dialogs.profile.searchedWords=Searching words 
+        administrator.menu.dialogs.profile.searchedUrl=URL
+        administrator.menu.dialogs.profile.searchedRSS=RSS
+*/
 
         var htmlheader = "<table style='width:100%'>"+
-        "<thead><tr><td><strong>Hledana slova</strong></td><td><strong>URL</strong></td></tr> </thead>"+
+        "<thead><tr>"+
+        "<td><strong>"+dictionary['administrator.menu.dialogs.profile.searchedWords']+"</strong></td>"
+        +"<td><strong>"+dictionary['administrator.menu.dialogs.profile.searchedUrl']+"</strong></td>"
+        +"<td><strong>"+dictionary['administrator.menu.dialogs.profile.searchedRSS']+"</strong></td>"
+        +"</tr> </thead>"+
         "<tbody>";
         
         var html = reduce(function(base, element, status) {
             base = base + "<tr>"+
-            "<td>"+ element["query"][0] +"</td>"+
-            "<td> <a href='"+ element["url"]+"&fromProfile=true'>_link</a></td>"+
+            "<td>"+ element["query"] +"</td>"+
+            "<td> <a class='ui-icon ui-icon-link' href='"+ element["url"]+"&fromProfile=true'>_link</a></td>"+
+            "<td> <a class='ui-icon ui-icon-signal-diag' href='"+ element["url"]+"&fromProfile=true'></a></td>"+
             "</tr>";       
             return base;         
         }, htmlheader, data['searchHistory'].reverse())+"</tbody></table>";

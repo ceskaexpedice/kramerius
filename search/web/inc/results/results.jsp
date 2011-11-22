@@ -156,7 +156,19 @@ $(document).ready(function(){
         });
         setScope('scope_multiple');
         $('#scope_single').hide();
+
+        /*
+        $.get("profile?action=GET", function(data) {
+            var results = data["results"];
+            var sloupce = $('#cols2').is(':visible') ? 1 : 2;
+            if (results["columns"]!=sloupce) {
+            	toggleColumns();
+            }
+        });
+        */
+        
 </scrd:loggedusers>
+
 <c:choose> 
 <c:when test="${numDocs==1}">
     toggleColumns();
@@ -180,10 +192,29 @@ $(document).ready(function(){
             removeFromContextMenuSelection(escapedId);
         }
     }
+
+    
     
     function toggleColumns(){
         $('.cols').toggle();
         setColumnsWidth();
+        var sloupce = $('#cols2').is(':visible') ? 1 : 2;
+        
+        
+        $.get("profile?action=GET", function(data) {
+            var results = data["results"];
+            if (!results) {
+                results = {'columns':sloupce};
+            } else {
+                results['columns'] = sloupce;
+            }
+            data['results'] = results;
+
+         
+            var encodedData = Base64.encode(JSON.stringify(data))
+            $.post("profile?action=POST",{'encodedData':encodedData},"json");
+        });
+        
     }
     
     function setColumnsWidth(){

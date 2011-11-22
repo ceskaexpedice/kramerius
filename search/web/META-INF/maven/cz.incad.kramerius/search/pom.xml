@@ -1,0 +1,282 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <artifactId>search</artifactId>
+    <packaging>war</packaging>
+
+    <description>System Kramerius</description>
+    <developers>
+        <developer>
+            <id>alberto.en.vlasim</id>
+            <name>Alberto Hernandez</name>
+        </developer>
+        <developer>
+            <id>pavel.en.ltm</id>
+            <name>Pavel Stastny</name>
+        </developer>
+        <developer>
+            <id>vlada.en</id>
+            <name>Vlada Lahoda</name>
+        </developer>
+        <developer>
+            <id>jan.pokorsky</id>
+            <name>Jan Pokorsky</name>
+        </developer>
+    </developers>
+
+
+    <parent>
+        <groupId>cz.incad.kramerius</groupId>
+        <artifactId>kramerius</artifactId>
+        <version>3.4.0-SNAPSHOT</version>
+    </parent>
+
+    <dependencies>
+
+        <dependency>
+            <groupId>javax.servlet</groupId>
+            <artifactId>servlet-api</artifactId>
+            <version>2.5</version>
+            <scope>provided</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>javax.servlet</groupId>
+            <artifactId>jsp-api</artifactId>
+            <version>2.0</version>
+            <scope>provided</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>javax.servlet</groupId>
+            <artifactId>jstl</artifactId>
+            <version>1.1.2</version>
+        </dependency>
+
+        <dependency>
+            <groupId>taglibs</groupId>
+            <artifactId>standard</artifactId>
+            <version>1.1.2</version>
+        </dependency>
+
+        <dependency>
+            <groupId>xalan</groupId>
+            <artifactId>xalan</artifactId>
+            <version>2.7.1</version>
+        </dependency>
+
+
+
+        <dependency>
+            <groupId>xerces</groupId>
+            <artifactId>xercesImpl</artifactId>
+            <version>2.9.1</version>
+        </dependency>
+
+        <!-- DJVU dependencies -->
+        <dependency>
+            <groupId>com.foxtrottechnologies</groupId>
+            <artifactId>javadjvu</artifactId>
+            <version>0.8.09</version>
+        </dependency>
+
+
+        <!--
+                        dependency> <groupId>log4j</groupId> <artifactId>log4j</artifactId>
+                        <version>1.2.8</version> </dependency
+                -->
+
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+            <version>${slf4j.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>log4j-over-slf4j</artifactId>
+            <version>${slf4j.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-jdk14</artifactId>
+            <version>${slf4j.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>4.1</version>
+            <scope>test</scope>
+        </dependency>
+
+
+        <dependency>
+            <groupId>com.foxtrottechnologies</groupId>
+            <artifactId>djvuframe</artifactId>
+            <version>0.8.09</version>
+        </dependency>
+
+        <!-- kramerius komon -->
+        <dependency>
+            <groupId>cz.incad.kramerius</groupId>
+            <artifactId>common</artifactId>
+            <version>${project.parent.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>cz.incad.kramerius</groupId>
+            <artifactId>fedora_api</artifactId>
+            <version>${project.parent.version}</version>
+        </dependency>
+
+
+        <!-- dlouhotravici export do pdf -->
+        <dependency>
+            <groupId>cz.incad.kramerius</groupId>
+            <artifactId>static-export</artifactId>
+            <version>${project.parent.version}</version>
+        </dependency>
+
+
+        <!-- dlouhotrvajici indexer -->
+        <dependency>
+            <groupId>cz.incad.kramerius</groupId>
+            <artifactId>indexer</artifactId>
+            <version>${project.parent.version}</version>
+        </dependency>
+
+        <!-- dlouhotrvajici import dat -->
+        <dependency>
+            <groupId>cz.incad.kramerius</groupId>
+            <artifactId>import</artifactId>
+            <version>${project.parent.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>javax.portlet</groupId>
+            <artifactId>portlet-api</artifactId>
+            <version>2.0</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>cz.incad.kramerius</groupId>
+            <artifactId>security-core</artifactId>
+            <version>${project.parent.version}</version>
+            <scope>provided</scope>
+        </dependency>
+
+
+        <dependency>
+            <groupId>org.easymock</groupId>
+            <artifactId>easymock</artifactId>
+            <version>3.0</version>
+            <scope>test</scope>
+        </dependency>
+
+
+    </dependencies>
+
+    <build>
+        <sourceDirectory>${basedir}/src/java</sourceDirectory>
+        <testSourceDirectory>${basedir}/src/test</testSourceDirectory>
+        <resources>
+            <resource>
+                <directory>${basedir}/src/conf</directory>
+                <filtering>true</filtering>
+                <includes>
+                    <include>**/*</include>
+                </includes>
+                <excludes>
+                    <exclude>**/*.java</exclude>
+                </excludes>
+            </resource>
+            <resource>
+                <directory>${basedir}/src/java</directory>
+                <includes>
+                    <include>**/*.properties</include>
+                    <include>**/*.st*</include>
+                </includes>
+            </resource>
+            <resource>
+                <directory>${basedir}/src/test</directory>
+                <includes>
+                    <include>**/*.properties</include>
+                    <include>**/*.xml</include>
+                    <include>**/*.st*</include>
+                </includes>
+            </resource>
+        <!--
+            <resource>
+                <directory>${basedir}/web/js</directory>
+                <includes>
+                    <include>**/*.js</include>
+                </includes>
+            </resource>
+       -->
+        </resources>
+
+
+        <plugins>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-war-plugin</artifactId>
+                <version>2.0</version>
+                <configuration>
+                    <warSourceDirectory>${basedir}/web</warSourceDirectory>
+                </configuration>
+            </plugin>
+
+            <plugin>
+                <groupId>com.google.code.maven-svn-revision-number-plugin</groupId>
+                <artifactId>maven-svn-revision-number-plugin</artifactId>
+                <version>1.5</version>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>revision</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <entries>
+                        <entry>
+                            <path>${project.basedir}/..</path>
+                            <prefix>prefix</prefix>
+                        </entry>
+                    </entries>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+
+
+    <reporting>
+        <plugins>
+            <plugin>
+                <groupId>nl.windgazer</groupId>
+                <artifactId>jsdoctk-plugin</artifactId>
+                <version>1.0</version>
+                <configuration>
+                    <template>htm</template> <!-- Alternatives are not pre-installed for version 2.x-->
+                    <directory>${project.build.directory}/jsdoc</directory>
+                    <recurse>2</recurse>
+                    <ext>js</ext>
+                    <allfunctions>true</allfunctions>
+                    <Allfunctions>false</Allfunctions>
+                    <privateOption>false</privateOption>
+                    <!-- If you're using the maven default setup this alternative is sometimes required
+                    to make the plugin work: ${basedir}/src/main/webapp/ -->
+                    <srcDir>${basedir}/web/js</srcDir>
+
+                </configuration>
+            </plugin>
+        </plugins>
+    </reporting>
+
+    <properties>
+        <netbeans.hint.deploy.server>Tomcat60</netbeans.hint.deploy.server>
+    </properties>
+</project>
+

@@ -1,0 +1,10 @@
+Manifest-Version: 1.0
+Archiver-Version: Plexus Archiver
+Created-By: Apache Maven
+Built-By: pavels
+Build-Jdk: 1.6.0_21
+Extension-Name: search
+Specification-Title: System Kramerius
+Implementation-Title: search
+Implementation-Version: 3.4.0-SNAPSHOT
+

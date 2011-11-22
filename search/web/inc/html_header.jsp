@@ -74,6 +74,8 @@
 
     <script type="text/javascript"  src="js/seadragon-min.js"></script>
     <script  src="js/cmn/cmn.js" language="javascript" type="text/javascript"></script>
+    <script  src="js/json2.js" language="javascript" type="text/javascript"></script>
+
 
     <scrd:loggedusers>    
     	<!--script  src="js/admin/admin.js" language="javascript" type="text/javascript"></script-->

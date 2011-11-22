@@ -9,6 +9,7 @@
     <xsl:param name="bundle" select="document($bundle_url)/bundle" />
     <xsl:param name="fqs" select="fqs" />
     <xsl:param name="q" select="q" />
+    <xsl:param name="cols" select="cols" />
     <xsl:param name="numOpenedRows" select="5" />
     <xsl:variable name="numDocs"><xsl:value-of select="number(/response/result/@numFound)" /></xsl:variable>
     <xsl:variable name="generic" select="exts:new()" />
@@ -77,8 +78,16 @@
                 </xsl:choose>
             </div>
             <div style="float:right;margin-right:30px;">
-                <a id="cols1" class="cols" href="javascript:toggleColumns();"><xsl:value-of select="$bundle/value[@key='results.1column']"/></a>
-                <a id="cols2" class="cols" href="javascript:toggleColumns();" style="display:none;"><xsl:value-of select="$bundle/value[@key='results.2column']"/></a>
+                <xsl:choose>
+                    <xsl:when test="$cols='1'">
+                        <a id="cols1" class="cols" href="javascript:toggleColumns();"><xsl:value-of select="$bundle/value[@key='results.1column']"/></a>
+                        <a id="cols2" class="cols" href="javascript:toggleColumns();" style="display:none;"><xsl:value-of select="$bundle/value[@key='results.2column']"/></a>
+                    </xsl:when>
+                    <xsl:otherwise>
+                        <a id="cols1" class="cols" href="javascript:toggleColumns();" style="display:none;"><xsl:value-of select="$bundle/value[@key='results.1column']"/></a>
+                        <a id="cols2" class="cols" href="javascript:toggleColumns();"><xsl:value-of select="$bundle/value[@key='results.2column']"/></a>
+                    </xsl:otherwise>
+                </xsl:choose>                            
             </div>
         </div>
     </xsl:template>
