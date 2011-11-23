@@ -52,7 +52,7 @@ public class MulgaraImpl implements IResourceIndex {
             java.net.URL url = new java.net.URL(urlStr);
 
             java.io.BufferedReader in = new java.io.BufferedReader(new java.io.InputStreamReader(url.openStream()));
-            String inputLine = in.readLine();
+            String inputLine;
             while ((inputLine = in.readLine()) != null) {
                 resList.add(inputLine.split("/")[1]);
             }
@@ -130,7 +130,7 @@ public class MulgaraImpl implements IResourceIndex {
             java.net.URL url = new java.net.URL(urlStr);
 
             java.io.BufferedReader in = new java.io.BufferedReader(new java.io.InputStreamReader(url.openStream()));
-            String inputLine = in.readLine();
+            String inputLine;
             while ((inputLine = in.readLine()) != null) {
                 resList.add(inputLine.substring(1, inputLine.indexOf("> <")));
             }

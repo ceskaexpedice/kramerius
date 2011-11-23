@@ -474,12 +474,12 @@ public class MPTStoreService implements IResourceIndex {
         String query = "* <rdf:isMemberOfCollection>  <info:fedora/" + collection + ">  ";
             
             ArrayList<String> resList = new ArrayList<String>();
-            String urlStr = config.getString("FedoraResourceIndex") + "?type=triples&flush=true&lang=spo&format=N-Triples&limit=&distinct=off&stream=off" +
+            String urlStr = config.getString("FedoraResourceIndex") + "?type=triples&flush=true&lang=spo&format=N-Triples&limit="+limit+"&distinct=off&stream=off" +
                     "&query=" + java.net.URLEncoder.encode(query, "UTF-8");
             java.net.URL url = new java.net.URL(urlStr);
 
             java.io.BufferedReader in = new java.io.BufferedReader(new java.io.InputStreamReader(url.openStream()));
-            String inputLine = in.readLine();
+            String inputLine;
             while ((inputLine = in.readLine()) != null) {
                 resList.add(inputLine.substring(1, inputLine.indexOf("> <")));
             }
