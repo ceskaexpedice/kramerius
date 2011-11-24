@@ -458,10 +458,10 @@ ShowSearchHistory.prototype.showHistory = function() {
             return ret;
         }
 
-        function field(element, arr, field) {
+        function field(element, arr, field, key) {
             var f = element[field];
             if (f) {
-                return "<strong>"+dictionary[field]+"</strong>:"+f; 
+                return "<strong>"+(key ?  dictionary[key] : dictionary[field]) +"</strong>:"+f; 
             } else return "";
          }
         
@@ -522,6 +522,7 @@ ShowSearchHistory.prototype.showHistory = function() {
            el = append(el,field(element,k,'author'));
            el = append(el,field(element,k,'udc'));
            el = append(el,field(element,k,'ddc'));
+           el = append(el,field(element,k,'browse_title','suggest.search_title'));
            
         	base = base + "<tr>"+
             "<td>"+ el +"</td>"+
