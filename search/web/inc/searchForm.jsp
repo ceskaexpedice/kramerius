@@ -6,6 +6,10 @@
 <form name="searchForm" id="searchForm" method="GET" action="r.jsp" onsubmit="return checkQuery()">
 <%@ page isELIgnored="false"%>
 
+    <input type="hidden" name="forProfile" id="forProfile" value="search" />
+    <input type="hidden" name="forProfile_sorting_dir" id="forProfile_sorting_dir" value="" />
+
+
     <c:forEach varStatus="status2" var="fqs2" items="${paramValues.fq}">
         <c:set var="searching" value="true" />
         <c:set var="js">${fn:replace(fqs, "\"", "")}</c:set>

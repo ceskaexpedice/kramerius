@@ -112,9 +112,9 @@
             var field = $(this).parent().attr('id');
             var value = $(this).children("span").html();
             if(field.indexOf('browse_title')>-1){
-                window.location = "r.jsp?suggest=true&browse_title=" + value + "";
+                window.location = "r.jsp?suggest=true&browse_title=" + value + "&forProfile=search";
             } else{
-                window.location = "r.jsp?author=\"" + value + "\"";
+                window.location = "r.jsp?author=\"" + value + "\"&forProfile=search";
             }
         });
 

@@ -40,7 +40,7 @@ public class HeadView {
         JSONObject jsonData = profile.getJSONData();
     
         JSONObject results = (JSONObject) jsonData.get("results");
-        if (results != null) {
+        if (results != null && results.containsKey("columns")) {
             int retval = results.getInt("columns");
             return retval;
         } else return 2; // default

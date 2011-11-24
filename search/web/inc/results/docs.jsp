@@ -7,6 +7,7 @@
 <%@ page isELIgnored="false"%>
 <%@page import="com.google.inject.Injector"%>
 <%@page import="javax.servlet.jsp.jstl.fmt.LocalizationContext, cz.incad.kramerius.FedoraAccess"%>
+
 <%
     try {
         String xsl = "results_main.xsl";

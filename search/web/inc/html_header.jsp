@@ -20,6 +20,10 @@
 <%@page import="java.util.ResourceBundle"%>
 <%@page import="java.util.Enumeration"%><head>
 
+    <!-- header view object -->
+    <view:object name="headerViewObject" clz="cz.incad.Kramerius.views.HeaderViewObject"></view:object>
+
+
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
     <meta http-equiv="Pragma" content="no-cache" />
     <meta http-equiv="Cache-Control" content="no-cache" />
@@ -54,7 +58,9 @@
     <!--[if IE ]>
     <link rel="StyleSheet" href="css/ie.css" type="text/css" />
     <![endif]-->
-
+    
+    <%-- rss --%>
+    ${headerViewObject.searchingRSSChannels}
 
     <script src="js/jquery-1.5.1.min.js" type="text/javascript" ></script>
     <script src="js/jquery-ui-1.8.11.custom.min.js" language="javascript" type="text/javascript"></script>
@@ -88,8 +94,6 @@
 
     </scrd:loggedusers>
     
-    <!-- header view object -->
-    <view:object name="headerViewObject" clz="cz.incad.Kramerius.views.HeaderViewObject"></view:object>
     ${headerViewObject.localizationScripts}
     <title>${title}</title>
     <script language="JavaScript" type="text/javascript">

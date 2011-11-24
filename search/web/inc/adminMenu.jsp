@@ -421,8 +421,8 @@ ShowSearchHistory.prototype.showHistory = function() {
             $(document.body).append(pdiv);
             this.dialog = $("#searchHistory").dialog({
                 bgiframe: true,
-                width:  400,
-                height:  200,
+                width:  800,
+                height:  400,
                 modal: true,
                 title: '',
                 buttons: 
@@ -448,12 +448,85 @@ ShowSearchHistory.prototype.showHistory = function() {
         +"<td><strong>"+dictionary['administrator.menu.dialogs.profile.searchedRSS']+"</strong></td>"
         +"</tr> </thead>"+
         "<tbody>";
+
+
+        function keys(elm) {
+            var ret = [];
+            for(var key in elm) {
+                ret.push(key);
+            }
+            return ret;
+        }
+
+        function field(element, arr, field) {
+            var f = element[field];
+            if (f) {
+                return "<strong>"+dictionary[field]+"</strong>:"+f; 
+            } else return "";
+         }
+        
+        function facet(element,arr) {
+            var fq_index = arr.indexOf("fq");
+            if (fq_index >= 0) {
+                var fq = element['fq'];
+                var retval = reduce(function(base, fqel, status) {
+                    var splitted = fqel.split(':');
+                    var type = splitted[0];
+                    var val = splitted[1];
+                    if (val.startsWith('"') && val.endsWith('"')) {
+                        val = val.substring(1,val.length-1);
+                    }
+                    return base+"<strong>"+dictionary["facet."+type]+"</strong>:"+ (dictionary[val] ? dictionary[val]:val) +(status.last ? "" : " ");                
+                },"",fq);
+                return retval;
+                
+            } else return "";
+        }
+
+        function casovaosa(element,arr) {
+            var da_od_index = arr.indexOf("da_od");
+            var da_do_index = arr.indexOf("da_do");
+            if (da_od_index >= 0 && da_do_index>=0) {
+                var da_od = element["da_od"];
+                var da_do = element["da_do"];
+                if (da_od_index >= 0) arr.rm(da_od_index); 
+                if (da_do_index >= 0) arr.rm(da_do_index); 
+                return "<strong>"+dictionary['common.date']+"</strong>:"+da_od+"-"+da_do; 
+            } else return "";
+        }
+
+        function query(element,arr) {
+            var q = element["q"];
+            if (q) {
+                return "<strong>"+dictionary['filter.query']+"</strong>"+q;
+            } else return "";
+        }
+
+        function append(prev, nval) {
+            if (nval.length > 0 && prev.length > 0) {
+                prev = prev +", ";
+            }
+            prev = prev+nval;
+            return prev;
+        }
         
         var html = reduce(function(base, element, status) {
-            base = base + "<tr>"+
-            "<td>"+ element["query"] +"</td>"+
+           var k = keys(element);
+           var el = casovaosa(element,k);
+           el = append(el, query(element,k));
+           el = append(el, facet(element,k));
+           
+           el = append(el,field(element,k,'title'));
+           el = append(el,field(element,k,'rok'));
+           el = append(el,field(element,k,'issn'))
+           el = append(el,field(element,k,'author'));
+           el = append(el,field(element,k,'udc'));
+           el = append(el,field(element,k,'ddc'));
+           
+        	base = base + "<tr>"+
+            "<td>"+ el +"</td>"+
             "<td> <a class='ui-icon ui-icon-link' href='"+ element["url"]+"&fromProfile=true'>_link</a></td>"+
-            "<td> <a class='ui-icon ui-icon-signal-diag' href='"+ element["url"]+"&fromProfile=true'></a></td>"+
+            "<td> <a class='ui-icon ui-icon-signal-diag' href='"+ element["rss"]+"&fromProfile=true'></a></td>"+
             "</tr>";       
             return base;         
         }, htmlheader, data['searchHistory'].reverse())+"</tbody></table>";

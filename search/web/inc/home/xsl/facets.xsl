@@ -51,6 +51,8 @@
     function addFilter(field, value){
         var page = new PageQuery(window.location.search);
         page.setValue("offset", "0");
+        page.setValue("forProfile", "facet");
+        
         var f = "fq=" + field + ":\"" + value + "\"";
         if(window.location.search.indexOf(f)==-1){
             window.location = "r.jsp?" +

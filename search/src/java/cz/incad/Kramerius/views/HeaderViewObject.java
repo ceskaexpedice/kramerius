@@ -4,11 +4,16 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.lang.reflect.Method;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.ResourceBundle;
 import java.util.Set;
+import java.util.StringTokenizer;
 import java.util.logging.Level;
 
 import javax.servlet.http.HttpServletRequest;
@@ -27,6 +32,7 @@ import cz.incad.kramerius.security.UserManager;
 import cz.incad.kramerius.service.ResourceBundleService;
 import cz.incad.kramerius.users.LoggedUsersSingleton;
 import cz.incad.kramerius.utils.conf.KConfiguration;
+import cz.incad.kramerius.utils.json.JSONUtils;
 
 /**
  * Objekt inicializujici js promenne v hlavicce 
@@ -109,6 +115,28 @@ public class HeaderViewObject {
         return "k4Settings.pdf = {" +
                     "generatePdfMaxRange:" +KConfiguration.getInstance().getProperty("generatePdfMaxRange")+
         "}";
+    }
+    
+    
+    
+    public String getSearchingRSSChannels() throws MalformedURLException {
+        if (isSearchingURL()) {
+            
+            String urlString = this.requestProvider.get().getRequestURL().toString();
+            String rss = urlString.substring(0,urlString.length()-"r.jsp".length())+"r-rss.jsp?"+this.requestProvider.get().getQueryString();
+
+            return "<link rel=\"alternate\" title=\"K4 - vyhledavani\" href=\""+rss+"\" type=\"application/rss+xml\"/>";
+        } else return "";
+    }
+
+    public boolean isSearchingURL() throws MalformedURLException {
+        URL url = new URL(this.requestProvider.get().getRequestURL().toString());
+        String file = url.getFile();
+        if (file.endsWith("r.jsp")) {
+            return true;
+        } else {
+            return false;
+        }
     }
     
     

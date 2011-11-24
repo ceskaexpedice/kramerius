@@ -184,15 +184,25 @@ $(document).ready(function(){
         }
     }
 
-    
+
+    function Profile() {}
+
+    Profile.prototype.modify = function(func) {
+        $.get("profile?action=GET", function(data) {
+            data = func(data);
+            var encodedData = Base64.encode(JSON.stringify(data))
+            $.post("profile?action=POST",{'encodedData':encodedData},"json");
+        });
+    }
+        
     
     function toggleColumns(){
         $('.cols').toggle();
         setColumnsWidth();
         var sloupce = $('#cols2').is(':visible') ? 1 : 2;
-        
-        
-        $.get("profile?action=GET", function(data) {
+
+        // modify profile
+        (new Profile()).modify(function(data) {
             var results = data["results"];
             if (!results) {
                 results = {'columns':sloupce};
@@ -200,11 +210,8 @@ $(document).ready(function(){
                 results['columns'] = sloupce;
             }
             data['results'] = results;
-
-         
-            var encodedData = Base64.encode(JSON.stringify(data))
-            $.post("profile?action=POST",{'encodedData':encodedData},"json");
-        });
+            return data;
+         });        
         
     }
     
@@ -311,17 +318,22 @@ $(document).ready(function(){
     
     function sortByTitle(dir){
         $('#sort').val('title_sort '+dir);
+        $('#forProfile').val('sortbytitle');
+        $('#forProfile_sorting_dir').val(dir);
         $('#searchForm').submit();
     }
     
     function sortByRank(){
         $('#sort').val('level asc, score desc');
+        $('#forProfile').val('sortbyrank');
         $('#searchForm').submit();
     }
 
     function addFilter(field, value){
         var page = new PageQuery(window.location.search);
         page.setValue("offset", "0");
+        page.setValue("forProfile", "facet");
+                
         var f = "fq=" + field + ":\"" + value + "\"";
         if(window.location.search.indexOf(f)==-1){
             window.location = "r.jsp?" +
@@ -336,6 +348,7 @@ $(document).ready(function(){
             uncollapse(root_pid, pid, offset);
         }
     }
+    
     function uncollapse(root_pid, pid, offset){
           var page = new PageQuery(window.location.search);
           page.setValue("offset", offset);

@@ -203,6 +203,7 @@ function doFilter(){
   
     var page = new PageQuery(window.location.search);
     page.setValue("offset", "0");
+    page.setValue("forProfile", "dateaxis");
     //page.setValue(fromField, decodeDate($("#" + fromField).val()));
     //page.setValue(toField, decodeDate($("#" + toField).val()));
     

@@ -1,7 +1,6 @@
 <%@page import="cz.incad.kramerius.utils.UTFSort"%>
 <%@page import="java.text.SimpleDateFormat"%>
 <%@page import="java.text.DateFormat"%>
-<%@ page contentType="text/html" pageEncoding="UTF-8" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib uri="http://java.sun.com/jstl/core_rt" prefix="c-rt" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/xml" prefix="x" %>
@@ -15,13 +14,16 @@
 <%@ page isELIgnored="false"%>
 <%@ page import="java.util.*, cz.incad.Kramerius.*, cz.incad.Solr.*" %>
 
-
-<view:object name="searchParams" clz="cz.incad.Kramerius.views.inc.SearchParamsViews"></view:object>
+<%--
+! Zde je nutne mit instanciovan view objekt searchParams ! 
+! nejde includovat primo !
+--%>
 
 
     <c:set var="rowsdefault" value="${searchParams.searchResultsRows}" scope="request" />
     <c:set var="rows" value="${rowsdefault}" scope="request" />
-<c:url var="url" value="${kconfig.solrHost}/select" >
+    
+    <c:url var="url" value="${kconfig.solrHost}/select" >
     <c:choose>
         <c:when test="${empty param.q}" >
             <c:param name="q" value="*:*" />
@@ -156,6 +158,11 @@
         <c:when test="${sort != null}" >
             <c:param name="sort" value="${sort}" />
         </c:when>
+
+        <c:when test="${searchParams.sortingFromProfile != null}" >
+            <c:param name="sort" value="${searchParams.sortingFromProfile }" />
+        </c:when>
+        
         <c:when test="${fieldedSearch}">
             <c:param name="sort" value="level asc, title_sort asc, score desc" />
         </c:when>
