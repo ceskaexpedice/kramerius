@@ -259,7 +259,7 @@ public class SearchParamsHTMLView extends AbstractSearchParamsViews implements I
             if (sobj.get("url").equals(url)) {
                 return true;
             }
-            if (sobj.get("rss").equals(rss)) {
+            if (sobj.get("rss")!= null && sobj.get("rss").equals(rss)) {
                 return true;
             }
         }
