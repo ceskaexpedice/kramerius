@@ -103,7 +103,8 @@ public class JDBCUpdateTemplate {
     
     private void setParam(int i, Object object, PreparedStatement pstm) throws SQLException {
         if (object instanceof String) {
-            pstm.setString(i, (String) object);
+            String string = (String) object;
+            pstm.setString(i, string);
         } else if (object instanceof Integer) {
             pstm.setInt(i, (Integer) object);
         } else if (object instanceof Timestamp) {
