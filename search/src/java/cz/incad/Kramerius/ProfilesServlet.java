@@ -101,6 +101,7 @@ public class ProfilesServlet extends GuiceServlet {
                 try {
                     UserProfile profile = profileManager.getProfile(user);
                     response.setContentType("application/json");
+                    response.setCharacterEncoding("UTF-8");
                     response.getWriter().println(profile.getRawData());
                 } catch (IOException e) {
                     LOGGER.log(Level.SEVERE,e.getMessage(),e);
