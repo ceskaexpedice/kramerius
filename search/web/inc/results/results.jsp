@@ -162,7 +162,7 @@ $(document).ready(function(){
 
 <c:choose> 
 <c:when test="${numDocs==1}">
-    toggleColumns();
+    toggleColumns(false);
     $('.cols').hide();
 </c:when>    
 <c:otherwise>
@@ -190,28 +190,31 @@ $(document).ready(function(){
     Profile.prototype.modify = function(func) {
         $.get("profile?action=GET", function(data) {
             data = func(data);
-            var encodedData = Base64.encode(JSON.stringify(data))
+            var encodedData = Base64.encode(JSON.stringify(data));
             $.post("profile?action=POST",{'encodedData':encodedData},"json");
         });
     }
         
     
-    function toggleColumns(){
+    function toggleColumns(post){
         $('.cols').toggle();
         setColumnsWidth();
         var sloupce = $('#cols2').is(':visible') ? 1 : 2;
+        
+        if (post) {
+            // modify profile
+            (new Profile()).modify(function(data) {
+                var results = data["results"];
+                if (!results) {
+                    results = {'columns':sloupce};
+                } else {
+                    results['columns'] = sloupce;
+                }
+                data['results'] = results;
 
-        // modify profile
-        (new Profile()).modify(function(data) {
-            var results = data["results"];
-            if (!results) {
-                results = {'columns':sloupce};
-            } else {
-                results['columns'] = sloupce;
-            }
-            data['results'] = results;
-            return data;
-         });        
+                return data;
+             });        
+        }
         
     }
     
