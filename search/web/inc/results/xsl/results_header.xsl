@@ -79,7 +79,7 @@
             </div>
             <div style="float:right;margin-right:30px;">
                 <xsl:choose>
-                    <xsl:when test="$cols='1'">
+                    <xsl:when test="$cols='2'">
                         <a id="cols1" class="cols" href="javascript:toggleColumns(true);"><xsl:value-of select="$bundle/value[@key='results.1column']"/></a>
                         <a id="cols2" class="cols" href="javascript:toggleColumns(true);" style="display:none;"><xsl:value-of select="$bundle/value[@key='results.2column']"/></a>
                     </xsl:when>
