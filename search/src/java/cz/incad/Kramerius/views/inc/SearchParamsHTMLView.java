@@ -187,7 +187,8 @@ public class SearchParamsHTMLView extends AbstractSearchParamsViews implements I
             }
         }
         
-
+        LOGGER.fine("single params :"+singleParams);
+        
         Map<String, List<String>> multiParams = new HashMap<String, List<String>>();
         enumNames = this.requestProvider.get().getParameterNames();
         while(enumNames.hasMoreElements()) {
@@ -201,6 +202,9 @@ public class SearchParamsHTMLView extends AbstractSearchParamsViews implements I
                 }
             }
         }
+        
+        LOGGER.fine("multi params :"+multiParams);
+        
         if (singleParams.size() > 0 || multiParams.size() > 0) {
             
             UserProfile profile = this.userProfileManager.getProfile(this.userProvider.get());
@@ -228,7 +232,7 @@ public class SearchParamsHTMLView extends AbstractSearchParamsViews implements I
 
             Set<String> singleKeySet = singleParams.keySet();
             for (String key : singleKeySet) {
-                String val = JSONUtils.escapeQuotes(singleParams.get(key));
+                String val = JSONUtils.escapeQuotes(JSONUtils.cutQuotes(singleParams.get(key)));
                 searchObj.put(key, val);
             }
             

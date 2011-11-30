@@ -18,11 +18,11 @@ package cz.incad.Kramerius.security.userscommands.post;
 
 import cz.incad.Kramerius.security.userscommands.ServletUsersCommand;
 
-public abstract class AbstractPostRole extends ServletUsersCommand {
+public abstract class AbstractPostUser extends ServletUsersCommand {
 
-    public static final String ROLEID_PARAM = "id";
-    public static final String ROLENAME_PARAM = "name";
-    public static final String PERSONAMADM_PARAM = "personalAdminId";
+    public static final String LOGIN_NAME="loginName";
+    public static final String SURNAME ="surname";
+    public static final String FIRSTNAME="firstName";
+    public static final String PASSWORD = "password";
 
-    
 }

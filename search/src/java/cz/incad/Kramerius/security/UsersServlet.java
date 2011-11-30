@@ -43,6 +43,7 @@ import cz.incad.Kramerius.security.userscommands.get.ShowRolesHtml;
 import cz.incad.Kramerius.security.userscommands.get.UsersJSAutocomplete;
 import cz.incad.Kramerius.security.userscommands.post.CreateRole;
 import cz.incad.Kramerius.security.userscommands.post.DeleteRole;
+import cz.incad.Kramerius.security.userscommands.post.RegisterPublicUser;
 import cz.incad.Kramerius.security.userscommands.post.SaveNewPassword;
 import cz.incad.Kramerius.security.userscommands.post.SaveRole;
 import cz.incad.kramerius.FedoraAccess;
@@ -118,7 +119,11 @@ public class UsersServlet extends GuiceServlet {
     enum PostCommandsEnum {
 
         /** zmena hesla */
-        savenewpswd(SaveNewPassword.class), saverole(SaveRole.class), deleterole(DeleteRole.class), newrole(CreateRole.class);
+        savenewpswd(SaveNewPassword.class), saverole(SaveRole.class), deleterole(DeleteRole.class), 
+
+        newrole(CreateRole.class),
+        registernew(RegisterPublicUser.class);
+        
 
         private Class<? extends ServletCommand> commandClass;
 

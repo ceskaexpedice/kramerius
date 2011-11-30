@@ -23,32 +23,30 @@ import java.util.logging.Level;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import cz.incad.Kramerius.security.userscommands.ServletUsersCommand;
 import cz.incad.kramerius.security.Role;
 import cz.incad.kramerius.security.impl.RoleImpl;
+import cz.incad.kramerius.security.impl.UserImpl;
 
-public class DeleteRole extends AbstractPostRole {
-    static java.util.logging.Logger LOGGER = java.util.logging.Logger.getLogger(DeleteRole.class.getName());
+public class RegisterPublicUser extends AbstractPostUser{
+
+    static java.util.logging.Logger LOGGER = java.util.logging.Logger.getLogger(CreateRole.class.getName());
     
     @Override
     public void doCommand() throws IOException {
         try {
             HttpServletRequest req = this.requestProvider.get();
-            String name = req.getParameter(ROLENAME_PARAM);
-            Role role = this.userManager.findRoleByName(name);
-            if (role != null) {
-                this.userManager.removeRole(role);
-            } else {
-                this.responseProvider.get().sendError(HttpServletResponse.SC_NOT_FOUND);
-            }
+            String loginName = req.getParameter(LOGIN_NAME);
+            String surname = req.getParameter(SURNAME);
+            String firstName = req.getParameter(FIRSTNAME);
+            String pswd = req.getParameter(PASSWORD);
+
+            UserImpl user = new UserImpl(-1, firstName, surname, loginName, -1);
+            this.userManager.insertPublicUser(user);
+            //this.userManager.insertRole(role);
         } catch (NumberFormatException e) {
             LOGGER.log(Level.SEVERE,e.getMessage(),e);
             this.responseProvider.get().sendError(HttpServletResponse.SC_BAD_REQUEST);
-        } catch (SQLException e) {
-            LOGGER.log(Level.SEVERE,e.getMessage(),e);
-            this.responseProvider.get().sendError(HttpServletResponse.SC_NOT_IMPLEMENTED);
         }
-        
     }
     
 }
