@@ -438,9 +438,9 @@ ShowSearchHistory.prototype.showHistory = function() {
 
         var htmlheader = "<table style='width:100%'>"+
         "<thead><tr>"+
-        "<td><strong>"+dictionary['administrator.menu.dialogs.profile.searchedWords']+"</strong></td>"
-        +"<td><strong>"+dictionary['administrator.menu.dialogs.profile.searchedUrl']+"</strong></td>"
-        +"<td><strong>"+dictionary['administrator.menu.dialogs.profile.searchedRSS']+"</strong></td>"
+        "<td><h3>"+dictionary['administrator.menu.dialogs.profile.searchedWords']+"</h3></td>"
+        +"<td><h3>"+dictionary['administrator.menu.dialogs.profile.searchedUrl']+"</h3></td>"
+        +"<td><h3>"+dictionary['administrator.menu.dialogs.profile.searchedRSS']+"</h3></td>"
         +"</tr> </thead>"+
         "<tbody>";
 
