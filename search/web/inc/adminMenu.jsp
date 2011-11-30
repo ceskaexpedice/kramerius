@@ -435,11 +435,6 @@ ShowSearchHistory.prototype.showHistory = function() {
             });
 
         }
-/*
-        administrator.menu.dialogs.profile.searchedWords=Searching words 
-        administrator.menu.dialogs.profile.searchedUrl=URL
-        administrator.menu.dialogs.profile.searchedRSS=RSS
-*/
 
         var htmlheader = "<table style='width:100%'>"+
         "<thead><tr>"+
@@ -466,9 +461,9 @@ ShowSearchHistory.prototype.showHistory = function() {
          }
         
         function facet(element,arr) {
-            var fq_index = arr.indexOf("fq");
+        	var fq_index = arr.indexOf("fq");
             if (fq_index >= 0) {
-                var fq = element['fq'];
+            	var fq = element['fq'];
                 var retval = reduce(function(base, fqel, status) {
                     var splitted = fqel.split(':');
                     var type = splitted[0];
@@ -489,8 +484,8 @@ ShowSearchHistory.prototype.showHistory = function() {
             if (da_od_index >= 0 && da_do_index>=0) {
                 var da_od = element["da_od"];
                 var da_do = element["da_do"];
-                if (da_od_index >= 0) arr.rm(da_od_index); 
-                if (da_do_index >= 0) arr.rm(da_do_index); 
+                if (da_od_index >= 0) arr.rm(arr.indexOf("da_od")); 
+                if (da_do_index >= 0) arr.rm(arr.indexOf("da_do")); 
                 return "<strong>"+dictionary['common.date']+"</strong>:"+da_od+"-"+da_do; 
             } else return "";
         }
@@ -510,7 +505,7 @@ ShowSearchHistory.prototype.showHistory = function() {
             return prev;
         }
         
-        var html = reduce(function(base, element, status) {
+        var html = data['searchHistory'] ? reduce(function(base, element, status) {
            var k = keys(element);
            var el = casovaosa(element,k);
            el = append(el, query(element,k));
@@ -530,7 +525,7 @@ ShowSearchHistory.prototype.showHistory = function() {
             "<td> <a class='ui-icon ui-icon-signal-diag' href='"+ element["rss"]+"&fromProfile=true'></a></td>"+
             "</tr>";       
             return base;         
-        }, htmlheader, data['searchHistory'].reverse())+"</tbody></table>";
+        }, htmlheader, data['searchHistory'].reverse())+"</tbody></table>" : htmlheader;
                    
         $("#searchHistory").html(html);
         
