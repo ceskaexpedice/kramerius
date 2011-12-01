@@ -108,9 +108,9 @@ public class VirtualCollectionsManager {
                 children = node.getChildNodes();
                 for (int j = 0; j < children.getLength(); j++) {
                     child = children.item(j);
-                    if (child.getLocalName().equals("title")) {
+                    if ("title".equals(child.getLocalName())) {
                         name = child.getFirstChild().getNodeValue();
-                    } else if (child.getLocalName().equals("object")) {
+                    } else if ("object".equals(child.getLocalName())) {
                         pid = ((Element) child).getAttribute("uri").replaceAll("info:fedora/", "");
                     }
                 }
