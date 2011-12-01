@@ -1,16 +1,16 @@
 /*
  * Copyright (C) 2011 Alberto Hernandez
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -68,9 +68,9 @@ public class VirtualCollectionsManager {
                 children = node.getChildNodes();
                 for (int j = 0; j < children.getLength(); j++) {
                     child = children.item(j);
-                    if (child.getLocalName().equals("title")) {
+                    if ("title".equals(child.getLocalName())) {
                         name = child.getFirstChild().getNodeValue();
-                    } else if (child.getLocalName().equals("object")) {
+                    } else if ("object".equals(child.getLocalName())) {
                         pid = ((Element) child).getAttribute("uri").replaceAll("info:fedora/", "");
                     }
                 }
@@ -143,7 +143,7 @@ public class VirtualCollectionsManager {
         fedoraAccess.getAPIM().purgeObject(pid, "Virtual collection deleted", true);
         startIndexer(pid, "reindexCollection", "Reindex docs in collection");
     }
-    
+
     public static void removeDocumentsFromCollection(String collection, FedoraAccess fedoraAccess) throws Exception {
         final String predicate = FedoraNamespaces.RDF_NAMESPACE_URI + "isMemberOfCollection";
         final String fedoraColl = collection.startsWith("info:fedora/") ? collection : "info:fedora/" + collection;
@@ -278,15 +278,15 @@ public class VirtualCollectionsManager {
             throw new IOException(e);
         }
     }
-    
+
     public static void startIndexer(String pid, String action, String title) throws Exception{
         String base = ProcessUtils.getLrServlet();
-                
+
         if (base == null || pid == null) {
             logger.severe("Cannot start long running process");
             return;
-        }  
-        String url = base + "?action=start&def=reindex&out=text&params="+action+"," + 
+        }
+        String url = base + "?action=start&def=reindex&out=text&params="+action+"," +
                 URLEncoder.encode(pid, "UTF8") + "," + URLEncoder.encode(title, "UTF8") +
                 "&token=" + System.getProperty(ProcessStarter.TOKEN_KEY);
 
@@ -304,7 +304,7 @@ public class VirtualCollectionsManager {
         String action = args[0];
         String pid = args[1];
         String collection = args[2];
-        
+
         if (action.equals("remove")) {
             ProcessStarter.updateName("Remove " + pid + " from collection " + collection);
             VirtualCollectionsManager.removeFromCollection(pid, collection, fa);
@@ -320,7 +320,7 @@ public class VirtualCollectionsManager {
             logger.log(Level.INFO, "Unsupported action: {0}", action);
             return;
         }
-        
+
         logger.log(Level.INFO, "Finished");
 
     }
