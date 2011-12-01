@@ -16,26 +16,11 @@
             <xsl:call-template name="facets" />
         </ul>
         </div>
-    </xsl:template>
-
-    <xsl:template name="facets">
-        <xsl:for-each select="response/lst[@name='facet_counts']/lst[@name='facet_fields']/lst">
-            <xsl:variable name="nav" >
-                <xsl:copy-of select="."/>
-            </xsl:variable>
-            <xsl:variable name="navName" >
-                <xsl:value-of select="./@name"/>
-            </xsl:variable>
-            <xsl:if test="count(./int) > 1 and not($navName = 'rok')">
-                <xsl:call-template name="facet">
-                    <xsl:with-param name="facetname"><xsl:value-of select="./@name" /></xsl:with-param>
-                </xsl:call-template>
-            </xsl:if>
-        </xsl:for-each>
+        
         <script type="text/javascript">
         <xsl:comment><![CDATA[
         $(document).ready(function(){
-            $('#facets>ul>li>ul>li.more_facets').toggle();
+            //$('#facets>ul>li>ul>li.more_facets').toggle();
             $('#facets>ul>li>a').click(function(event){
                 var id = $(this).parent().attr('id');
                 toggleFacet(id);
@@ -64,6 +49,22 @@
         </script>
     </xsl:template>
 
+    <xsl:template name="facets">
+        <xsl:for-each select="response/lst[@name='facet_counts']/lst[@name='facet_fields']/lst">
+            <xsl:variable name="nav" >
+                <xsl:copy-of select="."/>
+            </xsl:variable>
+            <xsl:variable name="navName" >
+                <xsl:value-of select="./@name"/>
+            </xsl:variable>
+            <xsl:if test="count(./int) > 1 and not($navName = 'rok')">
+                <xsl:call-template name="facet">
+                    <xsl:with-param name="facetname"><xsl:value-of select="./@name" /></xsl:with-param>
+                </xsl:call-template>
+            </xsl:if>
+        </xsl:for-each>
+    </xsl:template>
+
     <xsl:template name="facet">
         <xsl:param name="facetname" />
         <xsl:variable name="facetname_bundle">facet.<xsl:value-of select="$facetname" /></xsl:variable>
@@ -86,11 +87,12 @@
                     <xsl:otherwise><xsl:value-of select="@name" /></xsl:otherwise>
                 </xsl:choose></xsl:variable>
                 <xsl:if test="not (contains($fqVal, $fqId))">
-                    <xsl:if test="position() = $numOpenedRows+1"><li class="more_facets" style="display:none;">
+                    <xsl:if test="position() = $numOpenedRows+1"><li class="more_facets">
                         <a><xsl:attribute name="href">javascript:toggleFacet('facet_<xsl:value-of select="$facetname" />')</xsl:attribute>...</a>
                     </li></xsl:if>
                     <li><xsl:if test="position() &gt; $numOpenedRows">
                         <xsl:attribute name="class">more_facets</xsl:attribute>
+                        <xsl:attribute name="style">display:none;</xsl:attribute>
                     </xsl:if>
                     <a><xsl:attribute name="href">javascript:addFilter('<xsl:value-of select="$facetname" />', '<xsl:value-of select="@name" />')</xsl:attribute><xsl:value-of select="$displayName" /></a> (<xsl:value-of select="." />)
                     </li>

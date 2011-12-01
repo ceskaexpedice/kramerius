@@ -30,7 +30,7 @@
                 </tr>
                 <tr>
                     <td width="90%" valign="top">
-                        <div id="browse_autor" class="autocomplete"></div>
+                        <div id="browse_autor" class="autocomplete" onscroll="checkScroll('browse_autor');"></div>
                     </td>
                     <td align="center" valign="top" id="letters_browse_autor" class="letters letters_l">
 <%
@@ -42,6 +42,14 @@ pageContext.setAttribute("pismena", pismena);
                 </tr></table>
 <script type="text/javascript">
     $(document).ready(function(){
+        /*
+        $('#browse_autor').bind('scroll', function(event){
+            if($('#browse_autor>div.more_terms').length>0 && isTermVisible("browse_autor")){
+                getMoreTerms("browse_autor");
+            }
+            selectLetter("browse_autor");
+        });
+        */
         doBrowse('', 'browse_autor');
     });
 </script>

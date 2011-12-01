@@ -124,6 +124,7 @@
 
     <xsl:template name="page">
         <xsl:param name="detail" />
+        <xsl:value-of select="./str[@name='dc.title']"/>&#160;
         <xsl:value-of select="$bundle/value[@key='fedora.model.page']"/>&#160;
         <xsl:value-of select="substring-before($detail, '##')" />&#160;
         <xsl:value-of select="$bundle/value[@key=substring-after($detail, '##')]"/>

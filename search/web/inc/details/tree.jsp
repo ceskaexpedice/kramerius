@@ -3,6 +3,7 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/xml" prefix="x"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt"%>
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions"%>
+<%@ taglib uri="/WEB-INF/tlds/cmn.tld" prefix="view"%>
 <%@ page isELIgnored="false"%>
 <%@ page import="java.util.*"%>
 <style type="text/css">
@@ -83,6 +84,10 @@
         <li><a href="#structure" title="<fmt:message bundle="${lctx}" key="item.structure" />"><span class="ui-icon ui-icon-folder-open"><fmt:message bundle="${lctx}">item.structure</fmt:message></span></a></li>
         <li><a href="#searchInside" title="<fmt:message bundle="${lctx}" key="administrator.menu.searchinside"/>"><span class="ui-icon ui-icon-search"><fmt:message bundle="${lctx}">administrator.menu.searchinside</fmt:message></span></a></li>
         <li><a href="#contextMenu" title="<fmt:message bundle="${lctx}" key="administrator.menu" />"><span  class="ui-icon ui-icon-gear" ><fmt:message bundle="${lctx}">administrator.menu</fmt:message></span></a></li>
+        <view:kconfig var="showSuggest" key="search.details.showSuggest" />
+        <c:if test="${!empty showSuggest && showSuggest=='true' }">
+        <li><a href="#suggest" title="<fmt:message bundle="${lctx}" key="search.results.suggested.documents" />"><span  class="ui-icon ui-icon-lightbulb" ><fmt:message bundle="${lctx}" key="search.results.suggested.documents" /></span></a></li>
+        </c:if>
     </ul>
     <div id="structure"  >
         <ul id="item_tree" class="viewer">
@@ -104,6 +109,12 @@
         </div>
         <div id="searchInsideResults"></div>
     </div> 
+    <c:if test="${!empty showSuggest && showSuggest=='true' }">
+    <div id="suggest" style="padding:3px;" class="viewer">
+        <div><view:msg>search.results.suggested.documents</view:msg></div>
+        <div class="content"></div>
+    </div>
+    </c:if>
 </div> 
 <script type="text/javascript">
     var pid_path_str = '${pid_path}';
@@ -166,6 +177,11 @@
             $('#donator.viewer').bind('viewReady', function(event, viewerOptions){
                 checkDonator(viewerOptions);
             });
+<c:if test="${!empty showSuggest && showSuggest=='true' }">
+            $('#suggest.viewer').bind('viewReady', function(event, viewerOptions){
+                getSuggested(viewerOptions);
+            });
+</c:if>            
             loadInitNodes();
         });
         var cur = 1;
@@ -433,5 +449,13 @@
             });
     }
 
+<c:if test="${!empty showSuggest && showSuggest=='true' }">   
+    function getSuggested(viewerOptions){
+            $.get('inc/details/suggest.jsp?pid='+viewerOptions.pid+
+                "&pid_path="+getPidPath(k4Settings.activePidPath), function(data){
+                $('#suggest>div.content').html(data);
+            });
+    }
+</c:if> 
 </script>
             <div id="test" style="position:fixed;top:0px;left:0px;background:white;" ></div>

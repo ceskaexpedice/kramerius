@@ -77,6 +77,14 @@
     function escapeValue(value){
         return '#' + value.replace(/(\"|\.)/g,'\\$1');
     }
+    
+    function checkScroll(id, id2){
+        if($('#'+id+">div.more_terms").length>0 && isTermVisible(id)){
+           getMoreTerms(id);
+        }
+        selectLetter(id);
+    }
+    
     function doBrowse(value, field){
         var url = 'terms.jsp?field=' + field + '&t=' + value;
         $.get(url, function(data){
@@ -85,13 +93,13 @@
             selectLetter(field);
             
             
-            $('#'+field).bind('scroll', function(event){
-                var id = $(this).attr('id');
-                if($('#'+id+">div.more_terms").length>0 && isTermVisible(id)){
-                    getMoreTerms(id);
-                }
-                selectLetter(id);
-            });
+            //$('#'+field).bind('scroll', function(event){
+            //    var id = $(this).attr('id');
+            //    if($('#'+id+">div.more_terms").length>0 && isTermVisible(id)){
+            //        getMoreTerms(id);
+            //    }
+            //    selectLetter(id);
+            //});
         
         });
     }
@@ -154,8 +162,8 @@
     }
     
     function isTermVisible(id){
-        var t = $('#'+id+">div.more_terms").offset().top;
-        var b = $('#'+id+">div.more_terms").offset().top + $('#'+id+">div.more_terms").height();
+        var t = $('#'+id+">div.more_terms").position().top;
+        var b = $('#'+id+">div.more_terms").position().top + $('#'+id+">div.more_terms").height();
         var reserve = 40;
         setBrowseScrollPosition();
         if(t<titleDivBottomBorder+reserve && b>titleDivTopBorder-reserve){
@@ -163,4 +171,5 @@
         }
         return false;
     }
+
 </script>

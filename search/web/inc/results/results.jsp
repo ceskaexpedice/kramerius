@@ -41,6 +41,7 @@
     <ul>
         <li><a href="#facets" title="<fmt:message bundle="${lctx}" key="results.filters" />"><span  class="ui-icon ui-icon-scissors" ><fmt:message bundle="${lctx}" key="results.filters" /></span></a></li>
         <li id="dali"><a href="#dadiv" title="<fmt:message bundle="${lctx}" key="Časová osa" />"><span  class="ui-icon ui-icon-calendar" ><fmt:message bundle="${lctx}" key="Časová osa" /></span></a></li>
+        
         <scrd:loggedusers>
         <li><a href="#contextMenu" title="<fmt:message bundle="${lctx}" key="administrator.menu" />"><span  class="ui-icon ui-icon-gear" ><fmt:message bundle="${lctx}" key="administrator.menu" /></span></a></li>
         </scrd:loggedusers>
@@ -313,10 +314,17 @@ $(document).ready(function(){
             $('.loading_docs').hide();
             checkHeight(offset);
 <scrd:loggedusers>
-            $(jq(id)).append('<input type="checkbox" />');
+            $(jq(id)+' div.search_result').prepend('<input type="checkbox" style="float:right;" />');
+            $(jq(id)+' div.search_result>input').click(function(){
+                changeResSelection(this);
+            });
 </scrd:loggedusers>
             setColumnsWidth();
         });
+    }
+    
+    function getPidPath(id){
+        return id.split('_')[1];
     }
     
     function sortByTitle(dir){

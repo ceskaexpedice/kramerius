@@ -8,16 +8,27 @@
 
     <xsl:param name="bundle_url" select="bundle_url" />
     <xsl:param name="bundle" select="document($bundle_url)/bundle" />
+    <xsl:param name="cfgmin" select="cfgmin" />
+    <xsl:param name="cfgmax" select="cfgmax" />
     <xsl:variable name="generic" select="exts:new()" />
     <xsl:variable name="maxv"><xsl:value-of select="math:max(response/lst[@name='facet_counts']/lst[@name='facet_fields']/lst[@name='rok']/int[not(@name='0')])" /></xsl:variable>
     
     <xsl:template match="/">
         <xsl:variable name="miny"><xsl:value-of select="response/lst[@name='facet_counts']/lst[@name='facet_fields']/lst[@name='rok']/int[not(@name='0')][position()=1]/@name" /></xsl:variable>
+        <xsl:variable name="minyear"><xsl:choose>
+            <xsl:when test="number($miny) &lt; number($cfgmin)"><xsl:value-of select="$cfgmin" /></xsl:when>
+            <xsl:otherwise><xsl:value-of select="substring($miny, 1, 3)" />0</xsl:otherwise>
+        </xsl:choose></xsl:variable>
+        
         <xsl:variable name="maxy"><xsl:value-of select="response/lst[@name='facet_counts']/lst[@name='facet_fields']/lst[@name='rok']/int[last()]/@name" /></xsl:variable>
-        <xsl:variable name="minyear"><xsl:value-of select="substring($miny, 1, 3)" />0</xsl:variable>
+        <xsl:variable name="maxyear"><xsl:choose>
+            <xsl:when test="number($maxy) &gt; number($cfgmax)"><xsl:value-of select="$cfgmax" /></xsl:when>
+            <xsl:otherwise><xsl:value-of select="$maxy" /></xsl:otherwise>
+        </xsl:choose></xsl:variable>
+        
         <xsl:call-template name="years">
             <xsl:with-param name="i"><xsl:value-of select="number($minyear)" /></xsl:with-param>
-            <xsl:with-param name="max"><xsl:value-of select="number($maxy)" /></xsl:with-param>
+            <xsl:with-param name="max"><xsl:value-of select="number($maxyear)" /></xsl:with-param>
        </xsl:call-template>
        <script type="text/javascript">
         var number_of_items = <xsl:value-of select="count(response/lst[@name='facet_counts']/lst[@name='facet_fields']/lst[@name='rok']/int[not(@name='0')])" />;

@@ -248,7 +248,7 @@
             });
         }
 
-        $('#metaData').html('imgLoadingBig');
+        $('#metaData').html('<p align="center"><img src="img/loading.gif" alt="loading" /></p>');
         var url = "inc/details/metadataFull.jsp?pid="+pid+"&model="+model;
         $.get(url, function(data){
             $('#metaData').html(data);

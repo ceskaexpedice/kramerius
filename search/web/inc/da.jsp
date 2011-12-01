@@ -4,6 +4,7 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/xml" prefix="x" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn" %>
+<%@ taglib uri="/WEB-INF/tlds/cmn.tld" prefix="view"%>
 <%@ page isELIgnored="false"%>
 <%@page import="com.google.inject.Injector"%>
 <%@page import="java.util.Locale"%>
@@ -27,6 +28,12 @@
         out.println(xml);
     }
 %>
+<view:kconfig var="damin" key="search.dateaxis.min" defaultValue="1000" />
+<jsp:useBean id="now" class="java.util.Date" scope="request" />
+<c:set var="year"><fmt:formatDate value="${now}" pattern="yyyy" /></c:set>
+<c:if test="${year=='now'}"><c:set var="year" value="${now}" /></c:if>
+
+<view:kconfig var="damax" key="search.dateaxis.max" defaultValue="year" />
 <c:catch var="exceptions">
     <c:url var="facetxslurl" value="inc/results/xsl/da.xsl" />
     <c:import url="${facetxslurl}" var="facetxsl" charEncoding="UTF-8"  />
@@ -54,6 +61,8 @@
         <div id="bubbleDiv" class="da_bubble" ><div id="bubbleText" ></div></div>
     <x:transform doc="${xml}"  xslt="${facetxsl}">
         <x:param name="bundle_url" value="${i18nServlet}"/>
+        <x:param name="cfgmin" value="${damin}"/>
+        <x:param name="cfgmax" value="${damax}"/>
     </x:transform>
     </div>
 </div>

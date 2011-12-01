@@ -37,6 +37,8 @@
     </c:if>
     <c:param name="rows" value="0" />
     <c:param name="facet.field" value="document_type" />
+    <c:param name="facet.field" value="keywords" />
+    <c:param name="f.keywords.facet.limit" value="30" />
     <c:param name="facet.field" value="language" />
     <c:param name="facet.field" value="dostupnost" />
     <c:param name="facet" value="true" />
@@ -74,7 +76,7 @@ cz.incad.kramerius.service.XSLService xs = (cz.incad.kramerius.service.XSLServic
     <c:otherwise>
             <x:transform doc="${xml}"  xslt="${facetxsl}">
                 <x:param name="bundle_url" value="${i18nServlet}"/>
-                <x:param name="numOpenedRows" value="${numOpenedRows}"/>
+                <x:param name="numOpenedRows" value="10"/>
             </x:transform>
     </c:otherwise>
 </c:choose>

@@ -31,7 +31,7 @@
                 </tr>
                 <tr>
                     <td width="90%" valign="top">
-                        <div id="browse_title" class="autocomplete"></div>
+                        <div id="browse_title" class="autocomplete" onscroll="checkScroll('browse_title');"></div>
                     </td>
                     <td align="center" valign="top" id="letters_browse_title" class="letters letters_l">
 <%

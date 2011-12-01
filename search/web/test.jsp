@@ -1,26 +1,11 @@
-<%@page contentType="text/html" pageEncoding="UTF-8"%>
-<%@page import="com.google.inject.Injector"%>
-<%@page import="java.util.Locale"%>
-<%@page import="com.google.inject.Provider"%>
-<%@page import="cz.incad.Kramerius.backend.guice.LocalesProvider"%>
-<%@page import="java.io.*, cz.incad.kramerius.service.*"  %>
-<%@page import="cz.incad.kramerius.utils.conf.KConfiguration"%>
-<%@page import="javax.servlet.jsp.jstl.fmt.LocalizationContext"%>
-<%@page import="cz.incad.kramerius.FedoraAccess"%>
-<%@page import="cz.incad.kramerius.MostDesirable"%>
-<!DOCTYPE html>
-<html>
-    <head>
-        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-        <title>JSP Page</title>
-    </head>
-    <body>
-<div style="position:relative;border:1px solid red;">
-    <div style="float:right;">1</div>
-    <div style="float:right;">2</div>
-    <div style="float:right;">3</div>
-    
-</div>
-        <%=request.getRequestURI()%>
-    </body>
-</html>
+<%@ page contentType="text/html" pageEncoding="UTF-8" %>
+<%@ page trimDirectiveWhitespaces="true"%>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/xml" prefix="x" %>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt" %>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn" %>
+<%@ taglib uri="/WEB-INF/tlds/cmn.tld" prefix="view"%>
+<%@ page isELIgnored="false"%>
+<view:kconfig var="damin" key="search.dateaxis.min" defaultValue="2000" />
+<view:kconfig var="damax" key="search.dateaxis.max" defaultValue="2011" />
+${damin}

@@ -29,4 +29,25 @@
         <bodycontent>JSP</bodycontent>
         <info>i18n</info>
     </tag>
+    <tag>
+        <name>kconfig</name>
+        <tagclass>cz.incad.Kramerius.tags.KConfigTag</tagclass>
+        <bodycontent>JSP</bodycontent>
+        <info>Get kconfiguration properties</info>
+        <attribute>
+            <name>key</name>
+            <required>true</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
+            <name>var</name>
+            <required>true</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
+            <name>defaultValue</name>
+            <required>false</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+    </tag>
 </taglib>

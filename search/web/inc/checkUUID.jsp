@@ -34,6 +34,7 @@
     <%--:set var="root_model"><x:out select="$doc/response/result/doc/str[@name='root_model']" /></c:set--%>
     <c:set var="root_model"><c:out value="${fn:split(model_path, '/')[0]}" /></c:set>
     <c:set var="viewable"><x:out select="$doc/response/result/doc/bool[@name='viewable']" /></c:set>
+    <c:set var="dc_creator"><x:out select="$doc/response/result/doc/arr[@name='dc.creator']/str" /></c:set>
 </c:catch>
 <c:if test="${exceptions != null}">
     <%--

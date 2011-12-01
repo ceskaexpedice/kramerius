@@ -30,8 +30,8 @@
             MostDesirable mostDesirable = ctxInj.getInstance(MostDesirable.class);
             mostDesirable.saveAccess(request.getParameter("pid"), new java.util.Date());
 %>            
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <c:set var="title"><fmt:message bundle="${lctx}">application.title</fmt:message>. <x:out select="$doc/response/result/doc/str[@name='root_title']" /></c:set>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html>
     <%@ include file="inc/html_header.jsp" %>
     <body>

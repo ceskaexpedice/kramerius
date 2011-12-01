@@ -38,6 +38,9 @@
         padding: 0;
         line-height: 16px;
     }
+    #rightPanel li.sel a.sel{
+        font-weight: bolder;
+    }
 
     #rightPanel li>span{
         width: 16px;

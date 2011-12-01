@@ -190,6 +190,11 @@
             <xsl:value-of select="." />
         </field>
         </xsl:for-each>
+        <xsl:for-each select="mods:subject/mods:topic/text()">
+            <field name="keywords" boost="1.2">
+                <xsl:value-of select="."/>
+            </field>
+        </xsl:for-each>
         <field name="issn">
             <xsl:value-of select="mods:identifier[@type='isbn']/text()"/>
             <xsl:value-of select="mods:identifier[@type='issn']/text()"/>
@@ -198,7 +203,7 @@
             <xsl:value-of select="mods:classification[@authority='udc']/text()"/>
         </field>
         <field name="ddt">
-            <xsl:value-of select="mods:classification[@authority='ddt']/text()"/>
+            <xsl:value-of select="mods:classification[@authority='ddc']/text()"/>
         </field>
         
         <xsl:if test="$MODEL = 'monographunit'">

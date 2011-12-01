@@ -75,6 +75,7 @@ public class ExtendedFields {
         root_title_cache = new HashMap<String, String>();
         xpath.setNamespaceContext(new FedoraNamespaceContext());
         df = new SimpleDateFormat(config.getProperty("mods.date.format", "dd.MM.yyyy"));
+        df.setLenient(false);
         solrDateFormat = new SimpleDateFormat("yyyy-MM-dd'T'hh:mm:ss.SSS'Z'");
     }
 
@@ -317,9 +318,9 @@ public class ExtendedFields {
     }
 
     private void parseDatum(String datumStr) {
+            DateFormat outformatter = new SimpleDateFormat("yyyy");
         try {
             Date dateValue = df.parse(datumStr);
-            DateFormat outformatter = new SimpleDateFormat("yyyy");
             rok = outformatter.format(dateValue);
             datum = dateValue;
         } catch (Exception e) {
@@ -330,6 +331,16 @@ public class ExtendedFields {
             } else if (datumStr.matches("\\d\\d--")) {  //Datum muze byt typu 18--
                 datum_begin = datumStr.substring(0, 2) + "00";
                 datum_end = datumStr.substring(0, 2) + "99";
+            } else if (datumStr.matches("\\d\\d\\.-\\d\\d\\.\\d\\d\\.\\d\\d\\\\d\\d\\")) {  //Datum muze byt typu 19.-20.03.1890
+                
+                String end = datumStr.split("-")[1].trim();
+                try{
+                    Date dateValue = df.parse(end);
+                    rok = outformatter.format(dateValue);
+                    datum = dateValue;
+                }catch (Exception ex) {
+                    logger.log(Level.FINE, "Cant parse date "+datumStr);
+                }
             } else if (datumStr.matches("\\d---")) {  //Datum muze byt typu 187-
                 datum_begin = datumStr.substring(0, 3) + "0";
                 datum_end = datumStr.substring(0, 3) + "9";
