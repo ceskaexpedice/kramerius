@@ -25,5 +25,5 @@
             XSLService xs = (XSLService) ctxInj.getInstance(XSLService.class);
 %>
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
-<%@ include file="../searchParams.jsp" %>
+<%@ include file="../searchParams-html.jsp" %>
 <%@ include file="docs.jsp" %>

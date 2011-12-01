@@ -21,7 +21,7 @@
 %>
 
 <c:set var="sort" scope="request">level asc, title asc</c:set>
-<%@ include file="inc/searchParams.jsp" %>
+<%@ include file="inc/searchParams-html.jsp" %>
 <% out.clear(); %>
 <%            
 XSLService xs = (XSLService) ctxInj.getInstance(XSLService.class);

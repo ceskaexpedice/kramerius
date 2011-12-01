@@ -21,7 +21,7 @@
             pageContext.setAttribute("i18nServlet", i18nServlet);
 
 %>
-<%@ include file="../searchParams.jsp" %>
+<%@ include file="../searchParams-html.jsp" %>
 <%
     cz.incad.kramerius.service.XSLService xs = (cz.incad.kramerius.service.XSLService) ctxInj.getInstance(cz.incad.kramerius.service.XSLService.class);
     try {

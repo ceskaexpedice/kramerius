@@ -48,6 +48,7 @@ public class KConfigTag extends TagSupport {
     public void setDefaultValue(String defaultValue) {
         this.defaultValue = defaultValue;
     }
+    
     private String defaultValue;
 
     @Override

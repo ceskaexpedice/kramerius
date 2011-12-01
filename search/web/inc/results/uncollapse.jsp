@@ -20,7 +20,7 @@
 
 %>
 <c:set var="sort" scope="request">level asc, title_sort asc</c:set>
-<%@ include file="../searchParams.jsp" %>
+<%@ include file="../searchParams-html.jsp" %>
 <% out.clear(); %>
 <c:if test="${param.debug}" >
     <c:out value="${url}" /><br/><c:out value="${exceptions}" />

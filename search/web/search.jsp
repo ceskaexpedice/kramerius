@@ -25,7 +25,7 @@
             pageContext.setAttribute("i18nServlet", i18nServlet);
 %>
 
-<%@ include file="inc/searchParams.jsp" %>
+<%@ include file="inc/searchParams-html.jsp" %>
 <c:set var="title"><fmt:message bundle="${lctx}">application.title</fmt:message></c:set>
 <html>
     <%@ include file="inc/html_header.jsp" %>
