@@ -49,6 +49,8 @@ import cz.incad.kramerius.utils.database.JDBCUpdateTemplate;
 
 public class DatabaseUserManager implements UserManager{
 
+    private static final String PUBLIC_USERS_ROLE_NAME = "public_users";
+
     private static final StringTemplateGroup ST_GROUP = SecurityDatabaseUtils.stGroup();
 
     static java.util.logging.Logger LOGGER = java.util.logging.Logger.getLogger(DatabaseUserManager.class.getName());
@@ -424,7 +426,7 @@ public class DatabaseUserManager implements UserManager{
     }
 
     @Override
-    public void removeGroup(Role role) throws SQLException {
+    public void removeRole(Role role) throws SQLException {
             StringTemplate template = ST_GROUP.getInstanceOf("deleteRole");
             template.setAttribute("role", role);
             JDBCUpdateTemplate jdbcTemplate = new JDBCUpdateTemplate(this.provider.get(), true);
@@ -498,4 +500,27 @@ public class DatabaseUserManager implements UserManager{
             updateWithTransaction(commands.toArray(new JDBCCommand[commands.size()]));
     }
 
+    @Override
+    public void insertPublicUser(User user) {
+        // TODO Auto-generated method stub
+        
+    }
+
+    @Override
+    public void insertPublicUsersRole() throws SQLException {
+        Role role = new RoleImpl(-1, PUBLIC_USERS_ROLE_NAME, -1);
+        StringTemplate template = ST_GROUP.getInstanceOf("insertRole");
+        template.setAttribute("role", role);
+        JDBCUpdateTemplate jdbcTemplate = new JDBCUpdateTemplate(this.provider.get(), true);
+        String sql = template.toString();
+        LOGGER.fine(sql);
+        jdbcTemplate.executeUpdate(sql);
+    }
+
+    @Override
+    public Role findPublicUsersRole() {
+        // TODO Auto-generated method stub
+        return null;
+    }
+    
 }

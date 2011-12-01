@@ -371,3 +371,19 @@ registerLoggedUserUpdateRoles(loggeduserid, roleid) ::=<<
             $roleid$)
 >>
 
+
+
+/** vlozi uzivatele */
+insertPublicUser(user) ::=<<
+
+    insert into user_entity(user_id,name, surname,loginname,pswd,email,deactivated)
+        values(
+            nextval('user_id_sequence'),
+            '$user.firstname$',
+            '$user.surname$',
+            '$user.loginname$',
+            '$user.email$','f')
+    
+>>
+
+

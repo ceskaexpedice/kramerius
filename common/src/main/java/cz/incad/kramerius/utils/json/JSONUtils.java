@@ -22,6 +22,16 @@ public class JSONUtils {
         return data.replace("\"", "\\\"");
     }
     
+    public static String cutQuotes(String data) {
+        if (data.startsWith("\"")) {
+            data = data.substring(1);
+        }
+        if (data.endsWith("\"")) {
+            data = data.substring(0,data.length() -1);
+        }
+        return data;
+    }
+    
     public static void main(String[] args) {
         String data = "nevi\"m";
         System.out.println(data);

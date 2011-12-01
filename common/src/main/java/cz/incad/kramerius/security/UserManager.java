@@ -168,21 +168,56 @@ public interface UserManager {
      */
     public Role[] findAllRoles(String prefix);
     
-    
+    /**
+     * Find users by prefix and roles which can administrate users
+     * @param prefix prefix
+     * @param roleIds admin roles
+     * @return 
+     */
+    @Deprecated
     public User[] findUserByPrefixForRoles(String prefix, int[] roleIds);
+    
+    /**
+     * Find roles by prefix and roles ids
+     * @param prefix prefix
+     * @param roleIds admin roles
+     * @return
+     */
     public Role[] findRoleByPrefixForRoles(String prefix, int[] roleIds);
     
 
+    /**
+     * Create new roles
+     * @param role
+     * @throws SQLException
+     */
     public void insertRole(Role role) throws SQLException;
     
-    public void removeGroup(Role role) throws SQLException;
+    /**
+     * Remove role
+     * @param role
+     * @throws SQLException
+     */
+    public void removeRole(Role role) throws SQLException;
     
+    /**
+     * Edit role
+     * @param role
+     * @throws SQLException
+     */
     public void editRole(Role role) throws SQLException;
     
-    public boolean isLoggedUser(User user);
+    
+    public void insertPublicUser(User user);
+
+    public void insertPublicUsersRole() throws SQLException;
+    
+    public Role findPublicUsersRole();
+    
+    
     
     //TODO:  Move it !!
-    
+    public boolean isLoggedUser(User user);
     public void registerLoggedUser(User user, String loggedUserKey) throws SQLException;
-
+    
 }

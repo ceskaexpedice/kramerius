@@ -87,13 +87,10 @@ public class UserProfileManagerImpl implements UserProfileManager {
                 update.executeUpdate(updateTemplate.toString(), profile.getRawData(),activeUser);
                 
             } else {
-
                 StringTemplate updateTemplate = LoggedUsersSingletonImpl.stGroup.getInstanceOf("insertProfile");
                 JDBCUpdateTemplate update = new JDBCUpdateTemplate(con, false);
                 update.executeUpdate(updateTemplate.toString(), activeUser,profile.getRawData());
-                
             }
-            
             
         } catch (SQLException e) {
             LOGGER.log(Level.SEVERE,e.getMessage(),e);
