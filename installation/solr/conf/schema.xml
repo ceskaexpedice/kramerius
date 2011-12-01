@@ -263,7 +263,7 @@
    
    <!-- catchall field, containing all other searchable text fields (implemented
         via copyField further on in this schema  -->
-        <field name="text" type="text" indexed="true" stored="true" multiValued="true"/>
+        <field name="text" type="text" indexed="true" stored="false" multiValued="true"/>
         
    <!-- Here, default is used to create a "timestamp" field indicating
         When each document was indexed.
