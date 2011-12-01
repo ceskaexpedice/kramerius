@@ -53,7 +53,7 @@ public class VirtualCollectionsManager {
     public static VirtualCollection getVirtualCollection(FedoraAccess fedoraAccess, String collection, String[] langs) {
         try {
             IResourceIndex g = ResourceIndexService.getResourceIndexImpl();
-            Document doc = g.getFedoraObjectsFromModelExt("collection", 1000, 0, "", "");
+            Document doc = g.getFedoraObjectsFromModelExt("collection", 1000, 0, "title", "");
 
             NodeList nodes = doc.getDocumentElement().getElementsByTagNameNS(SPARQL_NS, "result");
             NodeList children;
