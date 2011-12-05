@@ -46,6 +46,15 @@ public class VirtualCollection {
         descriptions.add(new CollectionDescription(lang, text));
     }
     
+    public String getDescriptionLocale(String lang){
+        for(CollectionDescription ds : descriptions){
+            if(lang.equals(ds.id)){
+                return ds.text;
+            }
+        }
+        return null;
+    }
+    
     public class CollectionDescription{
         protected String text;
         protected String id;

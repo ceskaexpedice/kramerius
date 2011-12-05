@@ -17,7 +17,7 @@
 <c:if test="${cols.current != null}">
 <div id="current_vc">
      <a title="<fmt:message bundle="${lctx}" key="filter.remove_criteria" />" class="mainNav" href="javascript:removeVirtualCollection();">
-         ${cols.current.descriptions[0].text}
+         ${cols.currentText}
      </a>
 </div>
 </c:if>

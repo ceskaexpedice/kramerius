@@ -62,6 +62,11 @@ public class VirtualCollectionViewObject {
         
     } 
     
+    public String getCurrentText(){
+         VirtualCollection c = this.getCurrent();
+         return c.getDescriptionLocale(this.localeProvider.get().getLanguage());
+    } 
+    
     public List<String> getHomeTabs(){
          String[] tabs = kConfiguration.getPropertyList("search.home.tabs");
          // Mozne hodnoty custom,mostDesirables,newest,facets,browseAuthor,browseTitle,info
@@ -74,7 +79,7 @@ public class VirtualCollectionViewObject {
                  tab.equals("info") ||
                  tab.equals("facets") ||
                  tab.equals("newest") ||
-                 (tab.equals("collections") && getVirtualCollections().size()>0)){
+                 (tab.equals("collections") && vc==null && getVirtualCollections().size()>0 ) ){
                  validTabs.add(tab);
              }
          }

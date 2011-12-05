@@ -331,7 +331,7 @@ public class ExtendedFields {
             } else if (datumStr.matches("\\d\\d--")) {  //Datum muze byt typu 18--
                 datum_begin = datumStr.substring(0, 2) + "00";
                 datum_end = datumStr.substring(0, 2) + "99";
-            } else if (datumStr.matches("\\d\\d\\.-\\d\\d\\.\\d\\d\\.\\d\\d\\\\d\\d\\")) {  //Datum muze byt typu 19.-20.03.1890
+            } else if (datumStr.matches("\\d\\d\\.-\\d\\d\\.\\d\\d\\.\\d\\d\\d\\d")) {  //Datum muze byt typu 19.-20.03.1890
                 
                 String end = datumStr.split("-")[1].trim();
                 try{
