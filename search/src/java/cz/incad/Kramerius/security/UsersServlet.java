@@ -120,10 +120,9 @@ public class UsersServlet extends GuiceServlet {
 
         /** zmena hesla */
         savenewpswd(SaveNewPassword.class), saverole(SaveRole.class), deleterole(DeleteRole.class), 
-
         newrole(CreateRole.class),
-        registernew(RegisterPublicUser.class);
         
+        registernew(RegisterPublicUser.class);
 
         private Class<? extends ServletCommand> commandClass;
 

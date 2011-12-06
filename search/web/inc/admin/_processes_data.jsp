@@ -295,7 +295,7 @@ $(document).ready(function(){
                 <td>${lrProc.start}</td>
                 <td>${lrProc.planned}</td>
                 <td>${lrProc.startedBy}</td>
-                <td>${lrProc.killURL}${lrProc.actionsURLs}${lrProc.deleteURL}</td>
+                <td>${lrProc.killURL} ${lrProc.actionsURLs} ${lrProc.deleteURL}</td>
             </tr>
             <c:if test="${lrProc.masterProcess}">
             <c:forEach var="childLrProc" items="${lrProc.childProcesses}" varStatus="ch">

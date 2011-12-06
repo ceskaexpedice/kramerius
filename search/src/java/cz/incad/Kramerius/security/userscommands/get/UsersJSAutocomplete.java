@@ -32,6 +32,7 @@ import cz.incad.kramerius.security.Role;
 import cz.incad.kramerius.security.User;
 import cz.incad.kramerius.utils.pid.LexerException;
 
+@Deprecated
 public class UsersJSAutocomplete extends ServletUsersCommand {
 
     static java.util.logging.Logger LOGGER = java.util.logging.Logger.getLogger(UsersJSAutocomplete.class.getName());

@@ -91,7 +91,11 @@ public class AbstractUserWrapper implements User, Role {
     }
     
     
-    
+    @Override
+    public String getEmail() {
+        return ((User)this.user).getEmail();
+    }
+
     @Override
     public Boolean isPersonalAdminDefined() {
         return getPersonalAdminId() > 0;

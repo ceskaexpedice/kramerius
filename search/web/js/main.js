@@ -313,3 +313,93 @@ Print.prototype.print = function(objects) {
 
 var print = new Print();
 
+
+
+function RegisterUser() {
+	this.dialog = null; this.checkDialog = null;
+	
+}
+
+RegisterUser.prototype.emailCheck = function() {
+	if (this.checkDialog) {
+		this.checkDialog.dialog('open');
+	} else {
+		$(document.body).append('<div id="checkEmailRegisterUser"></div>');
+		$("#checkEmailRegisterUser").html('<div> <h3> '+dictionary['registeruser.message.checkmailtitle']+'</h3><div> '+dictionary['registeruser.message.checkemail']+'</div></div>');
+
+		this.checkDialog = $('#checkEmailRegisterUser').dialog({
+            width:400,
+            height:250,
+            modal:true,
+            title: "",
+            buttons: [
+                {
+                    text: dictionary['common.close'],
+                    click: function() {
+                        $(this).dialog("close"); 
+                    }
+                }
+            ]
+		});		
+	}
+}
+
+
+
+
+RegisterUser.prototype.register = function() {
+	$.get("inc/_register_new_user.jsp", bind(function(data){
+		if (this.dialog) {
+    		this.dialog.dialog('open');
+    	} else {
+    		$(document.body).append('<div id="registerUser"></div>');
+            
+    		this.dialog = $('#registerUser').dialog({
+                width:400,
+                height:400,
+                modal:true,
+                title: dictionary["administrator.dialogs.print"],
+                buttons: [
+                	// create button
+                	{
+                        text: dictionary['common.create'],
+                        click: bind(function() {
+                        	// validation...
+                        	if (regUserValidate.validate()) {
+                        		var data = regUserValidate.grabData();
+                                $.post("users?action=registernew",
+                                	{
+                                	'loginName':data.loginName,
+                                	'email':data.email,
+                                	'password':data.pswd,
+                                	'name':data.name
+                                	},
+                                	bind(function() {
+                                		this.emailCheck();
+                                	},this)
+                                );
+                                
+                    			this.dialog.dialog("close");
+                        	}
+                        },this)
+
+                    },
+
+                	
+                    {
+                        text: dictionary['common.close'],
+                        click: function() {
+                            $(this).dialog("close"); 
+                        }
+                    }
+
+                ]
+            });
+    	}
+		
+		$("#registerUser").html(data);
+	},this));
+	
+}
+
+var registerUser = new RegisterUser();

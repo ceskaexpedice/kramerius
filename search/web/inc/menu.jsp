@@ -14,6 +14,10 @@
         <a href="${langitm.link}">${langitm.name}</a>
     </c:forEach>
 
+        <scrd:notloggedusers>
+            <a id="registerHref" href="javascript:registerUser.register();">register.user</a>
+        </scrd:notloggedusers>
+
         <!--  show admin menu - only for logged users -->
         <scrd:loggedusers>
             <a id="adminHref" href="javascript:showAdminMenu();"><fmt:message bundle="${lctx}">administrator.menu</fmt:message></a>

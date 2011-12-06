@@ -26,7 +26,7 @@ public class ProcessViewObject {
     public static final java.util.logging.Logger LOGGER = java.util.logging.Logger.getLogger(ProcessViewObject.class.getName());
 
     public static final SimpleDateFormat FORMAT = new SimpleDateFormat("yyyy/dd/MM - HH:mm:ss");
-
+    
     private LRProcess lrProcess;
     private LRProcessDefinition definition;
     private LRProcessOrdering ordering;
@@ -84,12 +84,16 @@ public class ProcessViewObject {
 
     public String getStart() {
         Date date = new Date(lrProcess.getStartTime());
-        return FORMAT.format(date);
+        if (date.getTime() != 0) {
+            return FORMAT.format(date);
+        } else return "";
     }
 
     public String getPlanned() {
         Date date = new Date(lrProcess.getPlannedTime());
-        return FORMAT.format(date);
+        if (date.getTime() != 0L) {
+            return FORMAT.format(date);
+        } else return "";
     }
 
     public boolean isMasterProcess() {
@@ -132,8 +136,12 @@ public class ProcessViewObject {
     
     public String getDeleteURL() {
         try {
-            if ((this.lrProcess.getProcessState().equals(States.FINISHED)) ||  (this.lrProcess.getProcessState().equals(States.BATCH_FINISHED)) ||  (this.lrProcess.getProcessState().equals(States.BATCH_FAILED))
-                    || (this.lrProcess.getProcessState().equals(States.KILLED)) || (this.lrProcess.getProcessState().equals(States.FAILED))) {
+            if ((this.lrProcess.getProcessState().equals(States.FINISHED)) ||  (this.lrProcess.getProcessState().equals(States.BATCH_FINISHED)) 
+                    ||  (this.lrProcess.getProcessState().equals(States.BATCH_FAILED))
+                    || (this.lrProcess.getProcessState().equals(States.KILLED)) 
+                    // ?? je to dobre?
+                    || (this.lrProcess.getProcessState().equals(States.BATCH_STARTED)) 
+                    || (this.lrProcess.getProcessState().equals(States.FAILED))) {
                 String url = "lr?action=delete&uuid=" + this.lrProcess.getUUID();
                 String renderedAHREF = "<a href=\"javascript:processes.doActionAndRefresh('" + url + "','" + this.ordering.name() + "'," + this.offset.getOffset() + "," + this.offset.getSize() + ",'" + this.typeOfOrdering.name() + "');\">"
                         + bundleService.getResourceBundle("labels", locale).getString("administrator.processes.delete.process") + "</a>";

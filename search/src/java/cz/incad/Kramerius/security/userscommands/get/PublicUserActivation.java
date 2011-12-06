@@ -14,15 +14,16 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
-package cz.incad.Kramerius.security.userscommands.post;
+package cz.incad.Kramerius.security.userscommands.get;
+
+import java.io.IOException;
 
 import cz.incad.Kramerius.security.userscommands.ServletUsersCommand;
 
-public abstract class AbstractPostUser extends ServletUsersCommand {
+public class PublicUserActivation extends ServletUsersCommand {
 
-    public static final String LOGIN_NAME="loginName";
-    public static final String NAME ="name";
-    public static final String PASSWORD = "password";
-    public static final String EMAIL = "email";
-
+    @Override
+    public void doCommand() throws IOException {
+        // activation
+    }
 }

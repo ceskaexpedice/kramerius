@@ -16,7 +16,7 @@
 <%@page import="cz.incad.kramerius.FedoraAccess"%>
 <%@page import="cz.incad.Kramerius.*"%>
 
-<view:object name="docsRSS" clz="cz.incad.Kramerius.views.inc.results.DocsRSSView"></view:object>
+    <view:object name="docsRSS" clz="cz.incad.Kramerius.views.inc.results.DocsRSSView"></view:object>
 
     <c:url var="results" value="inc/results/xsl/results_main_rss.xsl" />
     <c:import url="${results}" var="resultsxsl" charEncoding="UTF-8"  />

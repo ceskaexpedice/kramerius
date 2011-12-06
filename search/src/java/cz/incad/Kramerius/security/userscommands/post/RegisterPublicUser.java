@@ -18,6 +18,7 @@ package cz.incad.Kramerius.security.userscommands.post;
 
 import java.io.IOException;
 import java.sql.SQLException;
+import java.util.StringTokenizer;
 import java.util.logging.Level;
 
 import javax.servlet.http.HttpServletRequest;
@@ -36,14 +37,23 @@ public class RegisterPublicUser extends AbstractPostUser{
         try {
             HttpServletRequest req = this.requestProvider.get();
             String loginName = req.getParameter(LOGIN_NAME);
-            String surname = req.getParameter(SURNAME);
-            String firstName = req.getParameter(FIRSTNAME);
+            String name = req.getParameter(NAME);
+            String email = req.getParameter(EMAIL);
             String pswd = req.getParameter(PASSWORD);
+            String firstName = name;
+            String surName = "";
 
-            UserImpl user = new UserImpl(-1, firstName, surname, loginName, -1);
-            this.userManager.insertPublicUser(user);
-            //this.userManager.insertRole(role);
+            StringTokenizer tokenizer = new StringTokenizer(name," ");
+            firstName = tokenizer.hasMoreTokens() ? tokenizer.nextToken() : name;
+            surName  = tokenizer.hasMoreTokens() ? tokenizer.nextToken() : "";
+            
+            UserImpl user = new UserImpl(-1, firstName, surName, loginName, -1);
+            user.setEmail(email);
+            this.userManager.insertPublicUser(user,pswd);
         } catch (NumberFormatException e) {
+            LOGGER.log(Level.SEVERE,e.getMessage(),e);
+            this.responseProvider.get().sendError(HttpServletResponse.SC_BAD_REQUEST);
+        } catch (SQLException e) {
             LOGGER.log(Level.SEVERE,e.getMessage(),e);
             this.responseProvider.get().sendError(HttpServletResponse.SC_BAD_REQUEST);
         }
