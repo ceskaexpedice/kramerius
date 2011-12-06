@@ -373,17 +373,37 @@ registerLoggedUserUpdateRoles(loggeduserid, roleid) ::=<<
 
 
 
-/** vlozi uzivatele */
+/** vlozi public uzivatele */
 insertPublicUser(user) ::=<<
 
-    insert into user_entity(user_id,name, surname,loginname,pswd,email,deactivated)
+    insert into user_entity(user_id,name, surname,loginname,email,deactivated, update_timestamp)
         values(
             nextval('user_id_sequence'),
-            '$user.firstname$',
+            '$user.firstName$',
             '$user.surname$',
             '$user.loginname$',
-            '$user.email$','f')
+            '$user.email$','f',
+            ?
+            )
     
 >>
 
 
+findPublicRole() ::=<<
+    select * from group_entity where 
+    gname = ?
+>>
+
+
+/** vlozi public roli */
+insertPublicRole() ::=<<
+    insert into group_entity 
+        values( nextval('group_id_sequence'),  NULL,'public_users', -1, '')
+>>
+
+
+/** asociace role a uzivatele */
+insertRoleAssoc() ::=<<
+    insert into group_user_assoc 
+        values( nextval('group_user_assoc_id_sequence'), NULL,?,?)
+>>

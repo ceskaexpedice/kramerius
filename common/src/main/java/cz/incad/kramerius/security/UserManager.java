@@ -208,8 +208,10 @@ public interface UserManager {
     public void editRole(Role role) throws SQLException;
     
     
-    public void insertPublicUser(User user);
+    public void insertPublicUser(User user, String pswd) throws SQLException;
 
+    public void saveUserPassword(User user, String pswd) throws SQLException;
+    
     public void insertPublicUsersRole() throws SQLException;
     
     public Role findPublicUsersRole();

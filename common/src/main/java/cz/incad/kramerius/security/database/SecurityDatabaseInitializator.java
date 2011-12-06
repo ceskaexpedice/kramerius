@@ -29,6 +29,8 @@ import java.sql.SQLException;
 import java.util.List;
 import java.util.logging.Level;
 
+import org.antlr.stringtemplate.StringTemplate;
+
 import cz.incad.kramerius.database.VersionService;
 import cz.incad.kramerius.utils.DatabaseUtils;
 import cz.incad.kramerius.utils.IOUtils;
@@ -72,15 +74,24 @@ public class SecurityDatabaseInitializator {
                 }
                 
 
-                // create tables for public users
+                // create tables for public users - 4.5.0 - version
                 createPublicUsersAndProfilesTables(connection);
+                // create public role
+                insertPublicRole(connection);
                 
                 
             } else { 
                 if (versionService.getVersion().equals("4.5.0")) {
                     // create tables for public users
                     createPublicUsersAndProfilesTables(connection);
+                    // create public role
+                    insertPublicRole(connection);
                 }
+                if (versionService.getVersion().equals("4.6.0")) {
+                    // create public role
+                    insertPublicRole(connection);
+                }
+                
             }
         } catch (SQLException e) {
             LOGGER.log(Level.SEVERE,e.getMessage(),e);
@@ -89,6 +100,12 @@ public class SecurityDatabaseInitializator {
         }
     }
 
+    public static int insertPublicRole(Connection connection) throws SQLException {
+        StringTemplate stemplate = SecurityDatabaseUtils.stGroup().getInstanceOf("insertPublicRole");
+        JDBCUpdateTemplate template = new JDBCUpdateTemplate(connection,false);
+        return template.executeUpdate(stemplate.toString());
+    }
+    
     public static int insertParams(Connection connection) throws SQLException {
         String sql = SecurityDatabaseUtils.stUdateRightGroup().getInstanceOf("insertParams_SecuredStreams").toString();
         JDBCUpdateTemplate template = new JDBCUpdateTemplate(connection,false);

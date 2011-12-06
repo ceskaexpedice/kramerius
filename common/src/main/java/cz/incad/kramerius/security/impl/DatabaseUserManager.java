@@ -18,8 +18,9 @@ package cz.incad.kramerius.security.impl;
 
 
 
+import java.io.UnsupportedEncodingException;
+import java.security.NoSuchAlgorithmException;
 import java.sql.Connection;
-import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -40,8 +41,8 @@ import cz.incad.kramerius.security.User;
 import cz.incad.kramerius.security.UserManager;
 import cz.incad.kramerius.security.database.InitSecurityDatabase;
 import cz.incad.kramerius.security.database.SecurityDatabaseUtils;
+import cz.incad.kramerius.security.utils.PasswordDigest;
 import cz.incad.kramerius.security.utils.SecurityDBUtils;
-import cz.incad.kramerius.users.UserProfile;
 import cz.incad.kramerius.utils.database.JDBCCommand;
 import cz.incad.kramerius.utils.database.JDBCQueryTemplate;
 import cz.incad.kramerius.utils.database.JDBCTransactionTemplate;
@@ -501,26 +502,102 @@ public class DatabaseUserManager implements UserManager{
     }
 
     @Override
-    public void insertPublicUser(User user) {
-        // TODO Auto-generated method stub
+    public void insertPublicUser(final User user, final String pswd) throws SQLException {
+
+        final Connection connection = this.provider.get();
         
+        List<JDBCCommand> commands = new ArrayList<JDBCCommand>();
+        commands.add(new JDBCCommand() {
+
+            @Override
+            public Object executeJDBCCommand(Connection con) throws SQLException {
+                StringTemplate template = ST_GROUP.getInstanceOf("insertPublicUser");
+                template.setAttribute("user", user);
+                //template.setAttribute("curdate", new Date(System.currentTimeMillis()));
+                JDBCUpdateTemplate jdbcTemplate = new JDBCUpdateTemplate(con, false);
+                String sql = template.toString();
+                LOGGER.fine(sql);
+                return jdbcTemplate.executeUpdate(sql, new java.sql.Timestamp(System.currentTimeMillis()));
+            }
+        });
+        
+        commands.add(new JDBCCommand() {
+            
+            @Override
+            public Object executeJDBCCommand(Connection con) throws SQLException {
+                Integer nuser = (Integer) getPreviousResult();
+
+                Role prole = findPublicUsersRole();
+                StringTemplate template = ST_GROUP.getInstanceOf("insertRoleAssoc");
+                JDBCUpdateTemplate jdbcTemplate = new JDBCUpdateTemplate(con, false);
+                String sql = template.toString();
+
+                jdbcTemplate.executeUpdate(sql,nuser,prole.getId());
+                return nuser;
+            }
+        });
+        
+        commands.add(new JDBCCommand() {
+            
+            @Override
+            public Object executeJDBCCommand(Connection con) throws SQLException {
+                try {
+                    Integer nuser = (Integer) getPreviousResult();
+                    String digested = PasswordDigest.messageDigest(pswd);
+                    StringTemplate template = ST_GROUP.getInstanceOf("updatePassword");
+                    String sql = template.toString();
+                    JDBCUpdateTemplate jdbcTemplate = new JDBCUpdateTemplate(connection,false);
+                    jdbcTemplate.setUseReturningKeys(false);
+                    jdbcTemplate.executeUpdate(sql, digested,nuser);
+                    return nuser;
+                } catch (NoSuchAlgorithmException e) {
+                    throw new SQLException(e);
+                } catch (UnsupportedEncodingException e) {
+                    throw new SQLException(e);
+                }
+            }
+        });
+        
+        // update in transaction
+        new JDBCTransactionTemplate(connection, true).
+            updateWithTransaction(commands.toArray(new JDBCCommand[commands.size()]));
+    }
+
+    
+    @Override
+    public void saveUserPassword(User user, String pswd) throws SQLException {
+        try {
+            final Connection connection = this.provider.get();
+            String digested = PasswordDigest.messageDigest(pswd);
+            StringTemplate template = ST_GROUP.getInstanceOf("updatePassword");
+            String sql = template.toString();
+            new JDBCUpdateTemplate(connection,true).executeUpdate(sql, user.getId(), digested);
+        } catch (NoSuchAlgorithmException e) {
+            LOGGER.log(Level.SEVERE, e.getMessage(),e);
+        } catch (UnsupportedEncodingException e) {
+            LOGGER.log(Level.SEVERE, e.getMessage(),e);
+        }
     }
 
     @Override
     public void insertPublicUsersRole() throws SQLException {
         Role role = new RoleImpl(-1, PUBLIC_USERS_ROLE_NAME, -1);
-        StringTemplate template = ST_GROUP.getInstanceOf("insertRole");
-        template.setAttribute("role", role);
-        JDBCUpdateTemplate jdbcTemplate = new JDBCUpdateTemplate(this.provider.get(), true);
-        String sql = template.toString();
-        LOGGER.fine(sql);
-        jdbcTemplate.executeUpdate(sql);
+        this.insertRole(role);
     }
 
     @Override
     public Role findPublicUsersRole() {
-        // TODO Auto-generated method stub
-        return null;
+        StringTemplate template = ST_GROUP.getInstanceOf("findPublicRole");
+        List<Role> roles = new JDBCQueryTemplate<Role>(this.provider.get()) {
+
+            @Override
+            public boolean handleRow(ResultSet rs, List<Role> returnsList) throws SQLException {
+                Role role = SecurityDBUtils.createRole(rs);
+                returnsList.add(role);
+                return true;
+            }
+        }.executeQuery(template.toString(), PUBLIC_USERS_ROLE_NAME);
+
+        return roles.isEmpty() ? null:roles.get(0);
     }
-    
 }

@@ -51,7 +51,12 @@ public interface LoggedUsersSingleton {
      * @return
      */
     public boolean isLoggedUser(String key);
-    
+
+    /**
+     * Returns true when user associated with given http request is live user
+     * @param provider http servlet request provider
+     * @return
+     */
     public boolean isLoggedUser(Provider<HttpServletRequest> provider);
     
     /**
