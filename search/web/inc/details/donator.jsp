@@ -23,7 +23,11 @@
         String donator_text = IOUtils.readAsString(is, Charset.forName("UTF-8"), true).trim();
         
         List<RelationshipTuple> rels = fa.getAPIM().getRelationships("donator:"+donator, FedoraNamespaces.RDF_NAMESPACE_URI + "link");
-        String link = rels.get(0).getObject();
+        
+        String link = "";
+        if(!rels.isEmpty()){
+            link = rels.get(0).getObject();
+        }
         
         pageContext.setAttribute("donator", donator);
         pageContext.setAttribute("donator_text", donator_text);
