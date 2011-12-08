@@ -111,7 +111,7 @@
     </div> 
     <c:if test="${!empty showSuggest && showSuggest=='true' }">
     <div id="suggest" style="padding:3px;" class="viewer">
-        <div><view:msg>search.results.suggested.documents</view:msg></div>
+        <div><h3><view:msg>search.results.suggested.documents</view:msg></h3></div>
         <div class="content"></div>
     </div>
     </c:if>

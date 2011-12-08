@@ -33,7 +33,7 @@
         <script type="text/javascript">
         <xsl:comment><![CDATA[
         $(document).ready(function(){
-            $('#facets>ul>li>ul>li.more_facets').toggle();
+            //$('#facets>ul>li>ul>li.more_facets').toggle();
             $('#facets>ul>li>a').click(function(event){
                 var id = $(this).parent().attr('id');
                 toggleFacet(id);
@@ -84,11 +84,12 @@
                     <xsl:otherwise><xsl:value-of select="@name" /></xsl:otherwise>
                 </xsl:choose></xsl:variable>
                 <xsl:if test="not (contains($fqVal, $fqId))">
-                    <xsl:if test="position() = $numOpenedRows+1"><li class="more_facets" style="display:none;">
+                    <xsl:if test="position() = $numOpenedRows+1"><li class="more_facets" >
                         <a><xsl:attribute name="href">javascript:toggleFacet('facet_<xsl:value-of select="$facetname" />')</xsl:attribute>...</a>
                     </li></xsl:if>
                     <li><xsl:if test="position() &gt; $numOpenedRows">
                         <xsl:attribute name="class">more_facets</xsl:attribute>
+                        <xsl:attribute name="style">display:none;</xsl:attribute>
                     </xsl:if>
                     <a><xsl:attribute name="href">javascript:addFilter('<xsl:value-of select="$facetname" />', '<xsl:value-of select="@name" />')</xsl:attribute><xsl:value-of select="$displayName" /></a> (<xsl:value-of select="." />)
                     </li>

@@ -21,7 +21,10 @@
     }
 %>
 <c:catch var="exceptions">
-    <c:url var="results" value="inc/results/xsl/results_main.xsl" />
+    <c:choose>
+        <c:when test="${isCollapsed}"><c:url var="results" value="inc/results/xsl/grouped_results.xsl" /></c:when>
+        <c:otherwise><c:url var="results" value="inc/results/xsl/not_grouped_results.xsl" /></c:otherwise>
+    </c:choose>
     <c:import url="${results}" var="resultsxsl" charEncoding="UTF-8"  />
 </c:catch>
 <c:choose>

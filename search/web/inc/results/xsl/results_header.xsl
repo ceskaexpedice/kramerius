@@ -11,7 +11,14 @@
     <xsl:param name="q" select="q" />
     <xsl:param name="cols" select="cols" />
     <xsl:param name="numOpenedRows" select="5" />
-    <xsl:variable name="numDocs"><xsl:value-of select="number(/response/result/@numFound)" /></xsl:variable>
+    <xsl:variable name="numDocs"><xsl:choose>
+        <xsl:when test="/response/lst[@name='grouped']"><xsl:value-of select="number(/response/lst[@name='grouped']/lst/int[@name='matches'])" /></xsl:when>
+        <xsl:otherwise><xsl:value-of select="number(/response/result/@numFound)" /></xsl:otherwise>
+    </xsl:choose></xsl:variable>
+    <xsl:variable name="numGroups"><xsl:choose>
+        <xsl:when test="/response/lst[@name='grouped']"><xsl:value-of select="number(/response/lst[@name='grouped']/lst/int[@name='ngroups'])" /></xsl:when>
+        <xsl:otherwise>0</xsl:otherwise>
+    </xsl:choose></xsl:variable>
     <xsl:variable name="generic" select="exts:new()" />
     
     <xsl:template match="/">
@@ -29,7 +36,7 @@
 
         </xsl:variable>
         <xsl:choose>   
-        <xsl:when test="/response/result/doc" >
+        <xsl:when test="//result/doc" >
             <xsl:choose>
                 <xsl:when test="$start = 0">
                     <xsl:call-template name="head" />
@@ -53,27 +60,30 @@
                 <xsl:when test="$numDocs &gt; 1 and $numDocs &lt; 5"><xsl:value-of select="$bundle/value[@key='common.documents.plural_1']"/></xsl:when>
                 <xsl:otherwise><xsl:value-of select="$bundle/value[@key='common.documents.plural_2']"/></xsl:otherwise>
             </xsl:choose>
+            <xsl:if test="$numGroups &gt; 0">
+                &#160;<xsl:value-of select="$bundle/value[@key='results.collapsed.to']"/>&#160;<xsl:value-of select="$numGroups" />
+            </xsl:if>
         </xsl:variable>
         <div class="header">
-            <div style="float:left;margin-left:5px;width:100px;">
+            <div style="float:left;margin-left:5px;width:180px;">
                 <span><xsl:value-of select="$numDocs" />&#160;<xsl:value-of select="$numDocsStr" /></span>
             </div>
-            <div style="float:left;margin-left:100px;width:300px;text-align:center;">
+            <div style="float:left;margin-left:80px;width:300px;text-align:center;">
                 <span><xsl:value-of select="$bundle/value[@key='results.sortby']"/>:</span>&#160;&#160;
                 <xsl:choose>
                     <xsl:when test="/response/lst[@name='responseHeader']/lst[@name='params']/str[@name='sort']='title_sort asc'">
-                        <a href="javascript:sortByTitle('desc');" ><xsl:value-of select="$bundle/value[@key='results.sortby.name']"/></a>&#160;
+                        <a href="javascript:sortByTitle('desc');"  style="font-weight:bolder;"><xsl:value-of select="$bundle/value[@key='results.sortby.name']"/></a>&#160;
                         <span class="ui-icon ui-icon-triangle-1-n"  >asc</span>
                         <span>&#160;|&#160;</span><a href="javascript:sortByRank();"><xsl:value-of select="$bundle/value[@key='results.sortby.relevance']"/></a>
                     </xsl:when>
                     <xsl:when test="/response/lst[@name='responseHeader']/lst[@name='params']/str[@name='sort']='title_sort desc'">
-                        <a href="javascript:sortByTitle('asc');" ><xsl:value-of select="$bundle/value[@key='results.sortby.name']"/></a>&#160;
+                        <a href="javascript:sortByTitle('asc');"  style="font-weight:bolder;"><xsl:value-of select="$bundle/value[@key='results.sortby.name']"/></a>&#160;
                         <span class="ui-icon ui-icon-triangle-1-s"  >desc</span>
                         <span>&#160;|&#160;</span><a href="javascript:sortByRank();"><xsl:value-of select="$bundle/value[@key='results.sortby.relevance']"/></a>
                     </xsl:when>
                     <xsl:otherwise>
                         <a href="javascript:sortByTitle('asc');"><xsl:value-of select="$bundle/value[@key='results.sortby.name']"/></a>&#160;
-                        <span>&#160;|&#160;</span><span><xsl:value-of select="$bundle/value[@key='results.sortby.relevance']"/></span>
+                        <span>&#160;|&#160;</span><span style="font-weight:bolder;"><xsl:value-of select="$bundle/value[@key='results.sortby.relevance']"/></span>
                     </xsl:otherwise>
                 </xsl:choose>
             </div>

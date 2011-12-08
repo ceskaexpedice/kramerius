@@ -55,16 +55,19 @@
     <c:param name="start" value="${param.offset}" />
     
     <c:if test="${isCollapsed}">
+        <%--
         <c:param name="collapse.field" value="root_pid" />
         <c:param name="collapse.type" value="normal" />
         <c:param name="collapse.threshold" value="1" />
         <c:param name="collapse.facet" value="before" />
+        <c:param name="group.main" value="true" />
+        --%>
         <c:param name="group.field" value="root_pid" />
         <c:param name="group.type" value="normal" />
         <c:param name="group.threshold" value="1" />
         <c:param name="group.facet" value="before" />
-        <c:param name="group.main" value="true" />
         <c:param name="group" value="true" />
+        <c:param name="group.ngroups" value="true" />
     </c:if>
     
     <%-- suggest --%>
@@ -156,7 +159,7 @@
     
     <%-- sort param --%>    
     <c:choose>
-        <c:when test="${param.sort != null}" >
+        <c:when test="${param.sort != null && !empty param.sort}" >
             <c:param name="sort" value="${param.sort}" />
         </c:when>
         <c:when test="${sort != null}" >
@@ -198,9 +201,10 @@
     </c:when>
 </c:choose>
 <jsp:useBean id="xml" type="java.lang.String" />
-<c:set var="numDocs" scope="request" >
-    <x:out select="$doc/response/result/@numFound" />
-</c:set>
+<c:choose>
+    <c:when test="${isCollapsed}"><c:set var="numDocs" scope="request" ><x:out select="$doc//response/lst[@name='grouped']/lst/int" /></c:set></c:when>
+    <c:otherwise><c:set var="numDocs" scope="request" ><x:out select="$doc/response/result/@numFound" /></c:set></c:otherwise>
+</c:choose>
 <c:set var="numDocsCollapsed" scope="request" value="${0}" />
 <x:forEach select="$doc/response/lst[@name='collapse_counts']/lst[@name='results']/lst">
     <c:set var="curCol"><x:out select="./int[@name='collapseCount']/text()"/></c:set>
