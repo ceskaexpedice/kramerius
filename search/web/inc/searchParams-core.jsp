@@ -160,10 +160,11 @@
     <%-- sort param --%>    
     <c:choose>
         <c:when test="${param.sort != null && !empty param.sort}" >
-            <c:param name="sort" value="${param.sort}" />
+            <c:param name="sort" value="level asc, ${param.sort}" />
         </c:when>
         <c:when test="${sort != null}" >
-            <c:param name="sort" value="${sort}" />
+            <c:param name="sort" value="level asc, ${sort}" />
+            <c:param name="group.sort" value="level asc, ${sort}" />
         </c:when>
         <c:when test="${fieldedSearch}">
             <c:param name="sort" value="level asc, title_sort asc, score desc" />

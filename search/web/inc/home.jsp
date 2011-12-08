@@ -22,7 +22,7 @@
     pageContext.setAttribute("dts", dts);
 %>
 
-<div id="homedabox" style="float:left;width:239px;margin-top:7px;margin-left:4px;">
+<div id="homedabox" style="float:left;width:239px;margin-left:4px;">
     <ul><li><a href="#dadiv"><fmt:message bundle="${lctx}" key="Časová osa" /></a></li></ul>
 <div id="dadiv" style="padding:3px;"><%@ include file="da.jsp" %></div>
 </div>
@@ -44,12 +44,7 @@
             $("#main").height() - 
             $("#footer").outerHeight(true);
         $("#intro>div.ui-tabs-panel").css("height", w);
-        //$("#intro_text").css("height", w);
-        
-        //w = w -$("#da-inputs").outerHeight(true);
-        //alert($("#da-inputs").outerHeight(true));
-        
-            w = w -42;
+        w = w -35;
         $("#content-resizable").css("height", w);
         resizeDateAxisContent();
     });

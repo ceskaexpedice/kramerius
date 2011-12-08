@@ -65,7 +65,7 @@
             </xsl:if>
         </xsl:variable>
         <div class="header">
-            <div style="float:left;margin-left:5px;width:180px;">
+            <div style="float:left;margin-left:5px;width:190px;">
                 <span><xsl:value-of select="$numDocs" />&#160;<xsl:value-of select="$numDocsStr" /></span>
             </div>
             <div style="float:left;margin-left:80px;width:300px;text-align:center;">
