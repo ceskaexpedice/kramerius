@@ -27,8 +27,10 @@ import javax.servlet.ServletException;
 
 import com.google.inject.Inject;
 import com.google.inject.Provider;
+import com.google.inject.grapher.GrapherModule;
 import com.google.inject.name.Named;
 
+import cz.incad.Kramerius.backend.guice.GuiceConfigBean;
 import cz.incad.Kramerius.backend.guice.GuiceServlet;
 import cz.incad.kramerius.database.VersionInitializer;
 import cz.incad.kramerius.database.VersionService;
@@ -65,6 +67,15 @@ public class StartupServlet extends GuiceServlet {
     @Override
     public void init() throws ServletException {
         super.init();
+
+        /**
+        try {
+            GuiceConfigBean.Grapher grapher = new GuiceConfigBean.Grapher();
+            grapher.graph("google-dependency.dot", getInjector());
+        } catch (IOException e1) {
+            LOGGER.log(Level.SEVERE, e1.getMessage(),e1);
+        }
+        **/
         
         Connection connection = this.connectionProvider.get();
         try {
@@ -100,7 +111,5 @@ public class StartupServlet extends GuiceServlet {
     public void init(ServletConfig config) throws ServletException {
         super.init(config);
     }
-    
-    
 
 }

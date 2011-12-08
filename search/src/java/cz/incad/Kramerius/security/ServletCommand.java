@@ -45,6 +45,7 @@ import cz.incad.kramerius.security.RightsManager;
 import cz.incad.kramerius.security.User;
 import cz.incad.kramerius.security.UserManager;
 import cz.incad.kramerius.service.ResourceBundleService;
+import cz.incad.kramerius.users.NotActivatedUsersSingleton;
 import cz.incad.kramerius.utils.pid.LexerException;
 import cz.incad.kramerius.utils.pid.PIDParser;
 
@@ -59,32 +60,35 @@ public abstract class ServletCommand {
     protected Provider<HttpServletResponse> responseProvider;
 
     @Inject
-    protected transient RightsManager rightsManager;
+    protected RightsManager rightsManager;
 
     @Inject
-    protected transient Provider<User> userProvider;
+    protected Provider<User> userProvider;
 
     @Inject
-    protected transient SolrAccess solrAccess;
+    protected SolrAccess solrAccess;
 
     @Inject
-    protected transient ResourceBundleService resourceBundleService;
+    protected ResourceBundleService resourceBundleService;
 
     @Inject
-    protected transient Provider<Locale> localesProvider;
+    protected Provider<Locale> localesProvider;
 
     @Inject
     @Named("securedFedoraAccess")
-    protected transient FedoraAccess fedoraAccess;
+    protected FedoraAccess fedoraAccess;
 
     @Inject
-    protected transient UserManager userManager;
+    protected UserManager userManager;
 
     @Inject
-    protected transient IsActionAllowed actionAllowed;
+    protected IsActionAllowed actionAllowed;
 
     @Inject
-    protected transient RightCriteriumWrapperFactory criteriumWrapperFactory;
+    protected RightCriteriumWrapperFactory criteriumWrapperFactory;
+    
+    @Inject
+    protected NotActivatedUsersSingleton notActivatedUsersSingleton;
     
     public abstract void doCommand() throws IOException;
 

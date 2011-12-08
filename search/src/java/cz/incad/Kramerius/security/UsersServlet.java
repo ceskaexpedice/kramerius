@@ -39,6 +39,7 @@ import cz.incad.Kramerius.security.userscommands.get.HintAllUsersTable;
 import cz.incad.Kramerius.security.userscommands.get.HintGroupsForUserTable;
 import cz.incad.Kramerius.security.userscommands.get.HintUsersForGroup;
 import cz.incad.Kramerius.security.userscommands.get.NewRoleHtml;
+import cz.incad.Kramerius.security.userscommands.get.PublicUserActivation;
 import cz.incad.Kramerius.security.userscommands.get.ShowRolesHtml;
 import cz.incad.Kramerius.security.userscommands.get.UsersJSAutocomplete;
 import cz.incad.Kramerius.security.userscommands.post.CreateRole;
@@ -139,30 +140,34 @@ public class UsersServlet extends GuiceServlet {
 
     enum GetCommandsEnum {
 
-        /** zobrazeni roli */
-        showroles(ShowRolesHtml.class),
-
-        /** editace roli */
-        editrole(EditRoleHtml.class),
-
-        /** nova role */
-        newrole(NewRoleHtml.class),
-
-        /** dialog pro zmenu hesla */
-        changepswd(ChangePassword.class),
-        /** tabulka uzivatelu */
-        hintallusers(HintAllUsersTable.class),
-
-        /** zobrazi skupiny pro uzivatele */
-        hintgroupforuser(HintGroupsForUserTable.class),
-
-        /** zobrazi uzivatele pro skupinu */
-        hintusersforgroup(HintUsersForGroup.class),
-
-        /** tabulka uzivatelu */
-        hintallgroups(HintAllGroupsTable.class),
-        /** zobrazeni prav */
-        userjsautocomplete(UsersJSAutocomplete.class);
+//TODO: Delete !!
+//        /** zobrazeni roli */
+//        showroles(ShowRolesHtml.class),
+//
+//        /** editace roli */
+//        editrole(EditRoleHtml.class),
+//
+//        /** nova role */
+//        newrole(NewRoleHtml.class),
+//
+//        /** dialog pro zmenu hesla */
+//        changepswd(ChangePassword.class),
+//
+//        /** tabulka uzivatelu */
+//        hintallusers(HintAllUsersTable.class),
+//
+//        /** zobrazi skupiny pro uzivatele */
+//        hintgroupforuser(HintGroupsForUserTable.class),
+//
+//        /** zobrazi uzivatele pro skupinu */
+//        hintusersforgroup(HintUsersForGroup.class),
+//
+//        /** tabulka uzivatelu */
+//        hintallgroups(HintAllGroupsTable.class),
+//        /** zobrazeni prav */
+//        userjsautocomplete(UsersJSAutocomplete.class),
+        
+        activation(PublicUserActivation.class);
 
         private Class<? extends ServletCommand> commandClass;
 
