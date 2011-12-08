@@ -212,6 +212,8 @@ public interface UserManager {
 
     public void saveUserPassword(User user, String pswd) throws SQLException;
     
+    public void activatePublicUser(User user) throws SQLException;
+    
     public void insertPublicUsersRole() throws SQLException;
     
     public Role findPublicUsersRole();

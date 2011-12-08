@@ -298,6 +298,13 @@ updatePassword() ::=<<
     where user_id=? 
 >>
 
+/** aktivace uzivatele */
+activateUser() ::=<<
+    update user_entity 
+    set deactivated='f'
+    where loginname=? 
+>>
+
 /** najde vsechny uzivatele skupiny */
 findUsersForGivenGroup() ::=<<
   select * from group_users_mapping 
@@ -382,9 +389,8 @@ insertPublicUser(user) ::=<<
             '$user.firstName$',
             '$user.surname$',
             '$user.loginname$',
-            '$user.email$','f',
-            ?
-            )
+            '$user.email$','t',
+            ?)
     
 >>
 

@@ -14,24 +14,18 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
-package cz.incad.kramerius.users.guice;
+package cz.incad.kramerius.service.guice;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.Scopes;
 
-import cz.incad.kramerius.users.LoggedUsersSingleton;
-import cz.incad.kramerius.users.NotActivatedUsersSingleton;
-import cz.incad.kramerius.users.UserProfileManager;
-import cz.incad.kramerius.users.impl.LoggedUsersSingletonImpl;
-import cz.incad.kramerius.users.impl.NotActivatedUsersSingletonImpl;
-import cz.incad.kramerius.users.impl.UserProfileManagerImpl;
+import cz.incad.kramerius.service.Mailer;
+import cz.incad.kramerius.service.impl.MailerImpl;
 
-public class LoggedUsersModule extends AbstractModule {
+public class MailModule extends AbstractModule {
 
     @Override
     protected void configure() {
-        bind(LoggedUsersSingleton.class).to(LoggedUsersSingletonImpl.class).in(Scopes.SINGLETON);
-        bind(UserProfileManager.class).to(UserProfileManagerImpl.class).in(Scopes.SINGLETON);
-        bind(NotActivatedUsersSingleton.class).to(NotActivatedUsersSingletonImpl.class).in(Scopes.SINGLETON);
+        bind(Mailer.class).to(MailerImpl.class).in(Scopes.SINGLETON);
     }
 }

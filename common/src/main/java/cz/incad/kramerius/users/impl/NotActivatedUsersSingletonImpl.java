@@ -14,20 +14,34 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
-package cz.incad.kramerius.users;
+package cz.incad.kramerius.users.impl;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 
 import cz.incad.kramerius.security.User;
+import cz.incad.kramerius.users.NotActivatedUsersSingleton;
 
-/**
- * Manages all registred but not activated users
- * @author pavels
- *
- */
-public interface NotActivatedUsersSingleton {
+public class NotActivatedUsersSingletonImpl implements NotActivatedUsersSingleton {
     
-    public String addNotActivatedUser(User user);
+    private Map<String, User> map = new HashMap<String, User>();
     
-    public void removeNotActivatedUser(User user, String key);
+    @Override
+    public String addNotActivatedUser(User user) {
+        String randomUUID = UUID.randomUUID().toString();
+        map.put(randomUUID, user);
+        return randomUUID;
+    }
+
+    @Override
+    public void removeNotActivatedUser(User user, String key) {
+        this.map.remove(key);
+    }
+
+    public User getNotActivatedUser(String key) {
+        return this.map.get(key);
+    }
     
-    public User getNotActivatedUser(String key);
 }

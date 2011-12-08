@@ -16,11 +16,32 @@
  */
 package cz.incad.kramerius.service;
 
+import javax.mail.PasswordAuthentication;
+import javax.mail.Session;
+
+
 /**
  * Simple mailing service
  * @author pavels
  */
-public interface MailService {
+public interface Mailer {
     
-    public void sendMail(String msgTo,String subject,String message);
+    public Session getSession(String name,String pswd);
+
+    public class SMTPAuthenticator extends javax.mail.Authenticator {
+
+        private String name;
+        private String pass;
+
+        public SMTPAuthenticator(String name, String pass) {
+            super();
+            this.name = name;
+            this.pass = pass;
+        }
+
+        public PasswordAuthentication getPasswordAuthentication() {
+            return new PasswordAuthentication(name, pass);
+        }
+    }
+
 }

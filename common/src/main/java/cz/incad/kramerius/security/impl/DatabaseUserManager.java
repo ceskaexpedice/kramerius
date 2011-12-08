@@ -579,6 +579,16 @@ public class DatabaseUserManager implements UserManager{
         }
     }
 
+    
+    
+    @Override
+    public void activatePublicUser(User user) throws SQLException {
+        final Connection connection = this.provider.get();
+        StringTemplate template = ST_GROUP.getInstanceOf("activateUser");
+        String sql = template.toString();
+        new JDBCUpdateTemplate(connection,true).executeUpdate(sql, user.getLoginname());
+    }
+
     @Override
     public void insertPublicUsersRole() throws SQLException {
         Role role = new RoleImpl(-1, PUBLIC_USERS_ROLE_NAME, -1);
