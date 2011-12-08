@@ -47,8 +47,12 @@ public enum SecuredActions {
     
     // editace uzivatelu
     USERSADMIN("rightsadmin"),
-    USERSSUBADMIN("rightssubadmin");
+    USERSSUBADMIN("rightssubadmin"),
 
+    // sprava virtualnich sbirek !
+    VIRTUALCOLLECTION_MANAGE("virtualcollection_manage"),
+    
+    DISPLAY_ADMIN_MENU("display_admin_menu");
     
     
     private String formalName;

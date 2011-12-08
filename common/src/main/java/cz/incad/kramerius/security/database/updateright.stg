@@ -19,3 +19,14 @@ insert into right_entity(right_id,uuid,action,rights_crit,group_id)
 select_common_role() ::=<<
     select group_id from group_entity where gname='common_users'
 >>
+
+select_admin_role() ::=<<
+    select group_id from group_entity where gname='k4_admins'
+>>
+
+insertDisplayAdminMenuRight() ::=<<
+    insert into right_entity (right_id, uuid, "action", group_id)
+        select nextval('right_id_sequence'),'uuid:1','display_admin_menu',group_id 
+        from group_entity
+        where gname='k4_admins'
+>>
