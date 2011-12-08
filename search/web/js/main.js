@@ -358,7 +358,7 @@ RegisterUser.prototype.register = function() {
                 width:400,
                 height:400,
                 modal:true,
-                title: dictionary["administrator.dialogs.print"],
+                title: dictionary["registeruser.title"],
                 buttons: [
                 	// create button
                 	{

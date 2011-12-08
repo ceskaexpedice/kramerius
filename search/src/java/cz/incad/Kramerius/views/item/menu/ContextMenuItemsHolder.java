@@ -38,6 +38,7 @@ import cz.incad.kramerius.utils.conf.KConfiguration;
 public class ContextMenuItemsHolder extends AbstractViewObject implements Initializable  {
     /* menu items*/
     private List<ContextMenuItem> items = new ArrayList<ContextMenuItem>();
+    private List<ContextMenuItem> adminItems = new ArrayList<ContextMenuItem>();
     
     @Inject
     LoggedUsersSingleton loggedUsersSingleton;
@@ -61,40 +62,44 @@ public class ContextMenuItemsHolder extends AbstractViewObject implements Initia
 
         if (this.loggedUsersSingleton.isLoggedUser(this.requestProvider)) {
             items.add(new ContextMenuItem("administrator.menu.print", "", "ctxPrint", "", true));
-            items.add(new ContextMenuItem("administrator.menu.reindex", "_data_x_role", "reindex", "", true));
-            items.add(new ContextMenuItem("administrator.menu.deletefromindex", "_data_x_role", "deletefromindex", "", true));
-            items.add(new ContextMenuItem("administrator.menu.deleteuuid", "_data_x_role", "deletePid", "", true));
-            items.add(new ContextMenuItem("administrator.menu.setpublic", "_data_x_role", "changeFlag.change", "", true));
-            items.add(new ContextMenuItem("administrator.menu.exportFOXML", "_data_x_role", "exportFOXML", "", true));
+            adminItems.add(new ContextMenuItem("administrator.menu.reindex", "_data_x_role", "reindex", "", true));
+            adminItems.add(new ContextMenuItem("administrator.menu.deletefromindex", "_data_x_role", "deletefromindex", "", true));
+            adminItems.add(new ContextMenuItem("administrator.menu.deleteuuid", "_data_x_role", "deletePid", "", true));
+            adminItems.add(new ContextMenuItem("administrator.menu.setpublic", "_data_x_role", "changeFlag.change", "", true));
+            adminItems.add(new ContextMenuItem("administrator.menu.exportFOXML", "_data_x_role", "exportFOXML", "", true));
 
-            items.add(new ContextMenuItem("administrator.menu.exportcd", "_data_x_role", "exportToCD",
+            adminItems.add(new ContextMenuItem("administrator.menu.exportcd", "_data_x_role", "exportToCD",
                     "'img','" + i18nServlet + "','" + localesProvider.get().getISO3Country() + "','" + localesProvider.get().getISO3Language() + "'", false));
 
-            items.add(new ContextMenuItem("administrator.menu.exportdvd", "_data_x_role", "exportToDVD",
+            adminItems.add(new ContextMenuItem("administrator.menu.exportdvd", "_data_x_role", "exportToDVD",
                     "'img','" + i18nServlet + "','" + localesProvider.get().getISO3Country() + "','" + localesProvider.get().getISO3Language() + "'", false));
 
-            items.add(new ContextMenuItem("administrator.menu.generateDeepZoomTiles", "_data_x_role", "generateDeepZoomTiles", "", true));
-            items.add(new ContextMenuItem("administrator.menu.deleteGeneratedDeepZoomTiles", "_data_x_role", "deleteGeneratedDeepZoomTiles", "", true));
+            adminItems.add(new ContextMenuItem("administrator.menu.generateDeepZoomTiles", "_data_x_role", "generateDeepZoomTiles", "", true));
+            adminItems.add(new ContextMenuItem("administrator.menu.deleteGeneratedDeepZoomTiles", "_data_x_role", "deleteGeneratedDeepZoomTiles", "", true));
 
-            items.add(new ContextMenuItem("administrator.menu.showrights", "_data_x_role", "securedActionsTableForCtxMenu",
+            adminItems.add(new ContextMenuItem("administrator.menu.showrights", "_data_x_role", "securedActionsTableForCtxMenu",
                     "'" + SecuredActions.READ.getFormalName() + "', '" + SecuredActions.ADMINISTRATE.getFormalName() + "'", true));
 
             java.util.logging.Logger tlogger = java.util.logging.Logger.getLogger(ContextMenuItemsHolder.class.getName());
             tlogger.info("configuration .... ");
             if (this.kconfig.getSecuredAditionalStreams() != null && this.kconfig.getSecuredAditionalStreams().length > 0) {
-                items.add(new ContextMenuItem("administrator.menu.showstremrights", "_data_x_role", "securedStreamsTableForCtxMenu",
+                adminItems.add(new ContextMenuItem("administrator.menu.showstremrights", "_data_x_role", "securedStreamsTableForCtxMenu",
                         "'" + SecuredActions.READ.getFormalName() + "', '" + SecuredActions.ADMINISTRATE.getFormalName() + "'", true));
             }
 
-            items.add(new ContextMenuItem("administrator.menu.editor", "_data_x_role", "openEditor",
+            adminItems.add(new ContextMenuItem("administrator.menu.editor", "_data_x_role", "openEditor",
                     "'" + kconfig.getEditorURL() + "'", true));
 
-            items.add(new ContextMenuItem("administrator.menu.virtualcollection.add", "_data_x_role", "vcAddToVirtualCollection",
+            adminItems.add(new ContextMenuItem("administrator.menu.virtualcollection.add", "_data_x_role", "vcAddToVirtualCollection",
                     "", true));
 
         }
     }
         
+
+    public List<ContextMenuItem> getAdminItems() {
+        return new ArrayList<ContextMenuItem>(this.adminItems);
+    }    
     
     public List<ContextMenuItem> getItems() {
         return new ArrayList<ContextMenuItem>(this.items);

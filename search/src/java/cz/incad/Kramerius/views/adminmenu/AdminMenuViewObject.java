@@ -150,6 +150,25 @@ public class AdminMenuViewObject {
                 href, label);
     }
 
+    public String[] getUserMenuItems() {
+        try {
+            List<String> menuItems = new ArrayList<String>();
+
+            menuItems.add(showProfile());
+
+            if (!ShibbolethUtils.isUnderShibbolethSession(this.request)) {
+                menuItems.add(changepswd());
+            }
+
+            return menuItems.toArray(new String[menuItems.size()]);
+            
+        } catch (IOException e) {
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+            return new String[0];
+        }
+        
+    }
+    
     public String[] getAdminMenuItems() {
         try {
             List<String> menuItems = new ArrayList<String>();
@@ -190,21 +209,15 @@ public class AdminMenuViewObject {
                 }
                 //TODO: Should it be in shibboleth ?
                 if (!ShibbolethUtils.isUnderShibbolethSession(this.request)) {
-                    menuItems.add(openUsersAdmin());
+                    if (hasUserAllowedAction(SecuredActions.ADMINISTRATE.getFormalName())) {
+                        menuItems.add(openUsersAdmin());
+                    }
                 }
 
-                menuItems.add(showProfile());
-
-                if (!ShibbolethUtils.isUnderShibbolethSession(this.request)) {
-                    menuItems.add(changepswd());
-                }
                 
-                //TODO add administrate virtual collections to actions
-                //if (hasUserAllowedAction(SecuredActions.VIRTUALCOLLECTION.getFormalName())) {
+                if (hasUserAllowedAction(SecuredActions.VIRTUALCOLLECTION_MANAGE.getFormalName())) {
                     menuItems.add(showVirtualCollectionsAdmin());
-                //}
-
-                
+                }
 
             }
             return menuItems.toArray(new String[menuItems.size()]);

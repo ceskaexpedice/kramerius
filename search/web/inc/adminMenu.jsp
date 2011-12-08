@@ -2,6 +2,7 @@
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib uri="/WEB-INF/tlds/cmn.tld" prefix="view" %>
+<%@ taglib uri="/WEB-INF/tlds/securedContent.tld" prefix="scrd" %>
 <view:object name="adminMenuViewObject" clz="cz.incad.Kramerius.views.adminmenu.AdminMenuViewObject"></view:object>
 
 <style type="text/css">
@@ -46,12 +47,24 @@
          
 </style>
 <div id="adminMenu" class="shadow ui-widget-content">
-    <div class="header"><fmt:message bundle="${lctx}">administrator.menu</fmt:message></div>
+    <div class="header"><view:msg>administrator.menu</view:msg></div>
     <div id="adminMenuItems" class="adminMenuItems">
-        <c:forEach var="item" items="${adminMenuViewObject.adminMenuItems}">
+
+        <c:forEach var="item" items="${adminMenuViewObject.userMenuItems}">
             <span class="ui-icon ui-icon-triangle-1-e  ">item</span>
             ${item}
         </c:forEach>
+        
+        <scrd:securedContent action="display_admin_menu">
+         <c:if test="${not empty adminMenuViewObject.adminMenuItems}">
+             <hr/>            
+         </c:if>
+         
+         <c:forEach var="item" items="${adminMenuViewObject.adminMenuItems}">
+             <span class="ui-icon ui-icon-triangle-1-e  ">item</span>
+             ${item}
+         </c:forEach>
+        </scrd:securedContent>
     </div>
     <div class="footer">
         <input type="button" value="close" class="ui-state-default ui-corner-all"  onclick="hideAdminMenu();" />

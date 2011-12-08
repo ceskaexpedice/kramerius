@@ -13,19 +13,22 @@
     <c:forEach items="${buttons.languageItems}" var="langitm">
         <a href="${langitm.link}">${langitm.name}</a>
     </c:forEach>
-
+        <!-- Registrace pouze pro neprihlasene -->
         <scrd:notloggedusers>
-            <a id="registerHref" href="javascript:registerUser.register();">register.user</a>
+            <view:kconfig var="showthisbutton" key="search.mainbuttons.showregistrationbutton"></view:kconfig>
+            <c:if test="${showthisbutton == 'true'}">
+                <a id="registerHref" href="javascript:registerUser.register();"><view:msg>registeruser.menu.title</view:msg></a>
+            </c:if>
         </scrd:notloggedusers>
 
         <!--  show admin menu - only for logged users -->
         <scrd:loggedusers>
-            <a id="adminHref" href="javascript:showAdminMenu();"><fmt:message bundle="${lctx}">administrator.menu</fmt:message></a>
+            <a id="adminHref" href="javascript:showAdminMenu();"><view:msg>administrator.menu</view:msg></a>
         </scrd:loggedusers>
         
         <!-- login - only for notlogged -->
         <scrd:notloggedusers>
-            <a href="redirect.jsp?redirectURL=${searchFormViewObject.requestedAddress}"><fmt:message bundle="${lctx}">application.login</fmt:message></a>
+            <a href="redirect.jsp?redirectURL=${searchFormViewObject.requestedAddress}"><view:msg>application.login</view:msg></a>
         </scrd:notloggedusers>
         
         <!-- logout - only for logged -->
@@ -35,14 +38,14 @@
                             <a href="logout.jsp?redirectURL=${searchFormViewObject.requestedAddress}"><fmt:message bundle="${lctx}">application.logout</fmt:message></a>
                 </c:when>
                 <c:otherwise>
-                            <a href="${buttons.shibbLogout}"><fmt:message bundle="${lctx}">application.logout</fmt:message></a>
+                            <a href="${buttons.shibbLogout}"><view:msg>application.logout</view:msg></a>
                 </c:otherwise>
             </c:choose>
         </scrd:loggedusers>
 
-<a href="javascript:showHelp('<c:out value="${param.language}" />');"><fmt:message bundle="${lctx}">application.help</fmt:message>
+<a href="javascript:showHelp('<c:out value="${param.language}" />');"><view:msg>application.help</view:msg>
 </a>
-<c:if test="${rows != 0}" ><a href="."><fmt:message bundle="${lctx}">application.home</fmt:message></a></c:if>
+<c:if test="${rows != 0}" ><a href="."><view:msg>application.home</view:msg></a></c:if>
 </div>
 
 <scrd:loggedusers>

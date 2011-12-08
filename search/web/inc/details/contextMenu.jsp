@@ -80,16 +80,18 @@
         padding-bottom:3px;
     }
 </style>
-<div><h3><fmt:message bundle="${lctx}">administrator.menu.Scope</fmt:message>:</h3></div>
-<div class="scope selected viewer" id="scope_single"><span><fmt:message bundle="${lctx}">administrator.menu.active</fmt:message></span>
+<div><h3><view:msg>administrator.menu.Scope</view:msg>:</h3></div>
+<div class="scope selected viewer" id="scope_single"><span><view:msg>administrator.menu.active</view:msg></span>
     <ul id="context_items_active"></ul>
 </div>
-<div class="scope" id="scope_multiple"><span><fmt:message bundle="${lctx}">administrator.menu.selected.scope</fmt:message></span>
+<div class="scope" id="scope_multiple"><span><view:msg>administrator.menu.selected.scope</view:msg></span>
     <ul id="context_items_selection"></ul>
 </div>
 <div style="height:0px;border-top:1px solid silver;"></div>
-<div><h3><fmt:message bundle="${lctx}">administrator.menu.Actions</fmt:message>:</h3> 
+<div><h3><view:msg>administrator.menu.Actions</view:msg>:</h3> 
     <ul id="contextMenuList">
+        
+        <!-- common items -->       
         <c:forEach var="item" items="${ctxMenu.items}" varStatus="status">
             <%-- multiple item --%>
             <c:if test="${item.supportMultiple}">
@@ -103,9 +105,31 @@
                     <a title='<view:msg>${item.key}</view:msg>' href="javascript:${item.jsFunction}(${item.jsArgs});"><view:msg>${item.key}</view:msg></a>
                 </li>
             </c:if>
-
-            
         </c:forEach>
+    
+        <!-- admin items -->        
+        <scrd:securedContent action="display_admin_menu">
+          <c:if test="${not empty ctxMenu.adminItems}">
+              <hr/>
+          </c:if>
+  
+          <c:forEach var="item" items="${ctxMenu.adminItems}" varStatus="status">
+              <%-- multiple item --%>
+              <c:if test="${item.supportMultiple}">
+                  <li><span class="ui-icon ui-icon-triangle-1-e  " >item</span>
+                      <a title='<view:msg>${item.key}</view:msg>' href="javascript:${item.jsFunction}(${item.jsArgs});"><view:msg>${item.key}</view:msg></a>
+                  </li>
+              </c:if>
+              <%-- no multiple item --%>
+              <c:if test="${!item.supportMultiple}">
+                  <li class="no-multiple"><span class="ui-icon ui-icon-triangle-1-e  " >item</span>
+                      <a title='<view:msg>${item.key}</view:msg>' href="javascript:${item.jsFunction}(${item.jsArgs});"><view:msg>${item.key}</view:msg></a>
+                  </li>
+              </c:if>
+            </c:forEach>
+        </scrd:securedContent>
+        
+        
     </ul>
 </div>
 <scrd:loggedusers>
@@ -113,10 +137,10 @@
         <div class="allowed"></div>
         <div style="padding-bottom: 5px; margin-bottom: 5px;">
             <div>
-                <input type="checkbox" id="reindex_check_integrity" checked="checked" /><label for="reindex_check_integrity"> <fmt:message bundle="${lctx}">administrator.menu.dialogs.check_integrity</fmt:message></label>
+                <input type="checkbox" id="reindex_check_integrity" checked="checked" /><label for="reindex_check_integrity"> <view:msg>administrator.menu.dialogs.check_integrity</view:msg></label>
             </div>
             <div>
-                <input type="checkbox" id="reindex_only_newer" /><label for="reindex_only_newer"> <fmt:message bundle="${lctx}">administrator.menu.dialogs.only_newer</fmt:message></label>
+                <input type="checkbox" id="reindex_only_newer" /><label for="reindex_only_newer"> <view:msg>administrator.menu.dialogs.only_newer</view:msg></label>
             </div>
         </div>
         
@@ -354,7 +378,7 @@
                 bgiframe: true,
                 width: 500,
                 modal: true,
-                title:'<fmt:message bundle="${lctx}">administrator.menu.dialogs.virtualcollections</fmt:message>',
+                title:dictionary['administrator.menu.dialogs.virtualcollections'],
                 buttons: [
                     {
                         text: "Ok",
