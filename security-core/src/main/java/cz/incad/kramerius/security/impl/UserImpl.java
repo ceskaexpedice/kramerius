@@ -29,6 +29,7 @@ public class UserImpl implements User {
     private String firstName;
     private String surName;
     private String loginName;
+    private String email;
     
     private int personalAdminId;
 
@@ -101,6 +102,14 @@ public class UserImpl implements User {
 
     
     
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
     @Override
     public boolean hasSuperAdministratorRole() {
         Role[] groups = this.getGroups();
