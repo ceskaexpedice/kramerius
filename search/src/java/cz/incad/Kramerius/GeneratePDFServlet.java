@@ -71,11 +71,14 @@ public class GeneratePDFServlet extends GuiceServlet {
 	
 	@Inject
 	GeneratePDFService service;
+	
 	@Inject
 	@Named("securedFedoraAccess")
 	FedoraAccess fedoraAccess;
+	
 	@Inject
 	KConfiguration configuration;
+	
 	@Inject
 	SolrAccess solrAccess;
 	
@@ -140,7 +143,6 @@ public class GeneratePDFServlet extends GuiceServlet {
         //service.dynamicPDFExport(requestedUuid, uuidFrom, numberOfPages, "", os, imgServletUrl, i18nUrl);
         //throw new NotImplementedException("not implemented exception");
         //service.dynamicPDFExport(parentUuid(from), from, Integer.parseInt(howMany), from, resp.getOutputStream(), imgServletUrl, i18nUrl);
-        
     }
 
     
@@ -149,10 +151,11 @@ public class GeneratePDFServlet extends GuiceServlet {
             @Override
             public void renderPDF(HttpServletRequest request, HttpServletResponse response, GeneratePDFService pdfService, String titlePage, String imgServletUrl, String i18nUrl) {
                 try {
-                    String par = request.getParameter("pids");
+                    String par = request.getParameter(PIDS);
+                    String srect = request.getParameter(RECT);
                     ParamsParser parser = new ParamsParser(new ParamsLexer(new StringReader(par)));
                     List params = parser.params();
-                    pdfService.generateImagesSelection((String[])params.toArray(new String[params.size()]), titlePage, response.getOutputStream(), imgServletUrl, i18nUrl);
+                    pdfService.generateImagesSelection((String[])params.toArray(new String[params.size()]), titlePage, response.getOutputStream(), imgServletUrl, i18nUrl,srect(srect));
                 } catch (IOException e) {
                     LOGGER.log(Level.SEVERE,e.getMessage(),e);
                 } catch (ProcessSubtreeException e) {
@@ -163,6 +166,7 @@ public class GeneratePDFServlet extends GuiceServlet {
                     LOGGER.log(Level.SEVERE,e.getMessage(),e);
                 }
             }
+
         }, 
         PARENT {
             @Override
@@ -170,7 +174,8 @@ public class GeneratePDFServlet extends GuiceServlet {
                 try {
                     String howMany = request.getParameter(HOW_MANY);
                     String pid = request.getParameter(PID_FROM);
-                    pdfService.generateParent(pid, Integer.parseInt(howMany), titlePage, response.getOutputStream(), imgServletUrl, i18nUrl);
+                    String srect = request.getParameter(RECT);
+                    pdfService.generateParent(pid, Integer.parseInt(howMany), titlePage, response.getOutputStream(), imgServletUrl, i18nUrl, srect(srect));
                 } catch (IOException e) {
                     LOGGER.log(Level.SEVERE,e.getMessage(),e);
                 } catch (ProcessSubtreeException e) {
@@ -179,7 +184,23 @@ public class GeneratePDFServlet extends GuiceServlet {
             }
         };
         
+
+        public int[] srect(String srect) {
+            int[] rect = null;
+            if (srect != null) {
+                String[] arr = srect.split(",");
+                if (arr.length == 2) {
+                    rect = new int[2];
+                    rect[0] = Integer.parseInt(arr[0]);
+                    rect[1] = Integer.parseInt(arr[1]);
+                }
+            }
+            return rect;
+        }
+
         public abstract void renderPDF(HttpServletRequest request, HttpServletResponse response, GeneratePDFService pdfService, String titlePage, String imgServletUrl, String i18nUrl);
     }
     
+    private static final String PIDS = "pids";
+    private static final String RECT = "rect";
 }
