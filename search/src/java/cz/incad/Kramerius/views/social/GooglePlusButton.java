@@ -38,6 +38,6 @@ public class GooglePlusButton extends AbstractSocialButton {
     @Override
     public boolean isButtonEnabled() {
         boolean gplusEnabled = configuration.getConfiguration().getBoolean("googleplus.plus");
-        return gplusEnabled && (this.isItemPage() || isHomePage());
+        return gplusEnabled && (this.isItemPage() || this.isHomePage());
     }
 }
