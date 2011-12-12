@@ -190,7 +190,7 @@ public class PDFExport {
 			if (path.length == 0) {
 			    path = new ObjectPidsPath[]{new ObjectPidsPath(pid)};
 			}
-			generatePDF.fullPDFExport(path[0], controller, controller, djvuUrl, i18nUrl);
+			generatePDF.fullPDFExport(path[0], controller, controller, djvuUrl, i18nUrl, null /*use default*/);
 		} catch (Exception e) {
 			LOGGER.log(Level.SEVERE, e.getMessage(), e);
 		}
