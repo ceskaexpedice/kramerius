@@ -422,4 +422,33 @@ div.search_result{
 
     #current_vc a{
         font-size: 2.2em;
-    }    
+    }
+
+/* facebook and gplus buttons */
+.socialbuttons {
+    height:40px;
+    padding-left: 10px;
+}
+
+.socialbuttons .fb {
+    height:38px;
+    width:90px;
+    float: left;
+}
+
+
+
+.socialbuttons .gplus {
+    padding-top: 3px;
+    height: 40px;
+    width: 55px;    
+    float: left;
+}
+.socialbuttons .tweet {
+    width: 100px;    
+    float: left;
+}
+.socialbuttons .clear {
+    clear: both;
+    font-size: 0;    
+}

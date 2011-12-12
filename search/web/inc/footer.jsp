@@ -20,22 +20,32 @@
 <!-- tweet button -->
 <view:object name="tweet" clz="cz.incad.Kramerius.views.social.TweetButton"></view:object>
 
-<div style="padding-left:10px; padding-bottom:2px;">
+<div class="socialbuttons">
+
+    <div class="gplus">
+     <!-- Umístěte tuto značku na místo, kde chcete zobrazovat tlačítko +1. -->
+     <c:if test="${gplus.buttonEnabled}">
+        <g:plusone size="small" href="${tweet.locale}" annotation="bubble"></g:plusone>
+     </c:if>
+    </div>
+
+    <div class="fb">
      <c:if test="${fb.buttonEnabled}">
       <!-- like button -->
       <fb:like href="${fb.shareURL}" send="false" width="16"  layout="button_count" show_faces="false"></fb:like>
      </c:if>
+    </div>
 
+
+    <div class="tweet">
      <c:if test="${tweet.buttonEnabled}">
       <!-- twitter -->
       <a href="https://twitter.com/share" class="twitter-share-button" data-url="${tweet.shareURL}" data-lang="${tweet.locale}">Tweet</a>
      </c:if>
-     
-     <!-- Umístěte tuto značku na místo, kde chcete zobrazovat tlačítko +1. -->
-     <c:if test="${gplus.buttonEnabled}">
-        <g:plusone size="small" href="${tweet.locale}" annotation="inline"></g:plusone>
-     </c:if>
+    </div>
+
     
+    <div class="clear"></div>
 
 </div>
 
