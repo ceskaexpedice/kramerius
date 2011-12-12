@@ -27,7 +27,7 @@ public interface GeneratePDFService {
 	 * @throws IOException
 	 * @throws ProcessSubtreeException 
 	 */
-	public void fullPDFExport(ObjectPidsPath path, OutputStreams outputs, Break brk, String djvuUrl, String i18Url) throws IOException, ProcessSubtreeException;
+	public void fullPDFExport(ObjectPidsPath path, OutputStreams outputs, Break brk, String djvuUrl, String i18Url, int[] rect) throws IOException, ProcessSubtreeException;
 
 	/**
 	 * Generate dynamic export
@@ -43,10 +43,10 @@ public interface GeneratePDFService {
 	
 
 	
-	public void generateImagesSelection(String[] imagePids, String titlePage, OutputStream os, String imgServletUrl, String i18nUrl) throws IOException, ProcessSubtreeException;
+	public void generateImagesSelection(String[] imagePids, String titlePage, OutputStream os, String imgServletUrl, String i18nUrl, int[] rectangle) throws IOException, ProcessSubtreeException;
 
 	
-	public void generateParent(String requestedPid, int numberOfPages, String titlePage, OutputStream os, String imgServletUrl, String i18nUrl) throws IOException, ProcessSubtreeException;
+	public void generateParent(String requestedPid, int numberOfPages, String titlePage, OutputStream os, String imgServletUrl, String i18nUrl, int[] rect) throws IOException, ProcessSubtreeException;
 	
 	
 	

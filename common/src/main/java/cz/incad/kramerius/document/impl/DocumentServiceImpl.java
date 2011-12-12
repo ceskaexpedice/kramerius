@@ -319,11 +319,15 @@ public class DocumentServiceImpl implements DocumentService {
     
 
     @Override
-    public AbstractRenderedDocument buildDocumentFromSelection(String[] selection) throws IOException, ProcessSubtreeException {
+    public AbstractRenderedDocument buildDocumentFromSelection(String[] selection, int[] rect) throws IOException, ProcessSubtreeException {
         
 
         try {
             final AbstractRenderedDocument renderedDocument = new RenderedDocument("selection", selection[0]);
+            if ((rect != null) && (rect.length == 2)) {
+                renderedDocument.setWidth(rect[0]);
+                renderedDocument.setHeight(rect[1]);
+            }
             for (String pid : selection) {
                 renderedDocument.addPage(createPage(renderedDocument, pid));
             }
@@ -345,10 +349,14 @@ public class DocumentServiceImpl implements DocumentService {
 
 
     @Override
-    public AbstractRenderedDocument buildDocumentAsFlat(ObjectPidsPath path, String pidFrom, int howMany) throws IOException, ProcessSubtreeException {
+    public AbstractRenderedDocument buildDocumentAsFlat(ObjectPidsPath path, String pidFrom, int howMany, int[] rect) throws IOException, ProcessSubtreeException {
         String leaf = path.getLeaf();
         final AbstractRenderedDocument renderedDocument = new RenderedDocument(fedoraAccess.getKrameriusModelName(leaf), pidFrom);
-
+        if ((rect != null) && (rect.length == 2)) {
+            renderedDocument.setWidth(rect[0]);
+            renderedDocument.setHeight(rect[1]);
+        }
+        
         renderedDocument.setDocumentTitle(TitlesUtils.title(leaf, this.solrAccess, this.fedoraAccess));
         renderedDocument.setUuidTitlePage(path.getLeaf());
         renderedDocument.setUuidMainTitle(path.getRoot());
@@ -361,12 +369,16 @@ public class DocumentServiceImpl implements DocumentService {
 
 
     @Override
-    public AbstractRenderedDocument buildDocumentAsTree(ObjectPidsPath path, String pidFrom) throws IOException, ProcessSubtreeException {
+    public AbstractRenderedDocument buildDocumentAsTree(ObjectPidsPath path, String pidFrom,int[] rect) throws IOException, ProcessSubtreeException {
         String leaf = path.getLeaf();
         String modelName = fedoraAccess.getKrameriusModelName(leaf);
 
         final AbstractRenderedDocument renderedDocument = new RenderedDocument(modelName, pidFrom);
-
+        if ((rect != null) && (rect.length == 2)) {
+            renderedDocument.setWidth(rect[0]);
+            renderedDocument.setHeight(rect[1]);
+        }
+        
         renderedDocument.setDocumentTitle(TitlesUtils.title(leaf, this.solrAccess, this.fedoraAccess));
         renderedDocument.setUuidTitlePage(path.getLeaf());
         renderedDocument.setUuidMainTitle(path.getRoot());

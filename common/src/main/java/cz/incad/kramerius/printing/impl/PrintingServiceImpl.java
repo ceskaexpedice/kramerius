@@ -136,7 +136,7 @@ public class PrintingServiceImpl implements PrintingService {
         ObjectPidsPath[] paths = this.solrAccess.getPath(pidFrom);
         ObjectPidsPath selectedPath = selectOnePath(pidFrom, paths);
         
-        AbstractRenderedDocument documentAsFlat = this.documentService.buildDocumentAsFlat(selectedPath, pidFrom, MAX_PAGES);
+        AbstractRenderedDocument documentAsFlat = this.documentService.buildDocumentAsFlat(selectedPath, pidFrom, MAX_PAGES, null /* used default values */);
         
         renderToPDFandPrint(imgUrl, i18nUrl, documentAsFlat);
     }
@@ -190,7 +190,7 @@ public class PrintingServiceImpl implements PrintingService {
 
     @Override
     public void printSelection(String[] selection, String imgUrl, String i18nUrl) throws IOException, ProcessSubtreeException, PrinterException, PrintException {
-        AbstractRenderedDocument document = this.documentService.buildDocumentFromSelection(selection);
+        AbstractRenderedDocument document = this.documentService.buildDocumentFromSelection(selection, null /* use default values */);
         renderToPDFandPrint(imgUrl, i18nUrl, document);
     }
     

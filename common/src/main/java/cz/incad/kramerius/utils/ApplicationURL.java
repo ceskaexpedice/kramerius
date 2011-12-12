@@ -40,9 +40,24 @@ public class ApplicationURL {
 			LOGGER.log(Level.SEVERE, e.getMessage(), e);
 			return "<no url>";
 		}
-
 	}
 
+	/*
+	   public static String applicationURL(HttpServletRequest request) {
+	        try {
+	            String string = request.getRequestURL().toString();
+	            URL url = new URL(string);
+	            url.getFile();
+	            String application = applicationContextPath(url);
+	            String aURL = url.getProtocol()+"://"+url.getHost()+":"+url.getPort()+"/"+application;
+	            return aURL;
+	        } catch (MalformedURLException e) {
+	            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+	            return "<no url>";
+	        }
+	    }
+*/
+	
     public static String applicationContextPath(URL url) {
         String path = url.getPath();
         String application = path;
@@ -69,4 +84,22 @@ public class ApplicationURL {
 			return applicationURL(request)+"/"+path;
 		}
 	}
+	
+	public static void main(String[] args) throws MalformedURLException {
+        String surl = "http://localhost:8080/search/";
+        URL url = new URL(surl);
+        String file = url.getFile();
+        String query = url.getQuery();
+        System.out.println(file);
+        System.out.println(query);
+        
+        System.out.println(minus(surl,"?"+query));
+	}
+	
+	public static String minus(String bigger, String smaller) {
+	    if (bigger.length() > smaller.length()) {
+            return bigger.replace(smaller, "");
+	    } else throw new IllegalArgumentException("");
+	}
+
 }

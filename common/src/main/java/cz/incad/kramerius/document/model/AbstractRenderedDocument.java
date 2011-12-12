@@ -9,6 +9,10 @@ import cz.incad.kramerius.ObjectPidsPath;
 
 public abstract class AbstractRenderedDocument extends AbstractObject {
 
+    public static final int DEFAULT_WIDTH = 595;
+    public static final int DEFAULT_HEIGHT = 842;
+
+    
     // TODO: To remove it !
 	private String uuidTitlePage;
 	private String uuidFrontCover;
@@ -20,11 +24,13 @@ public abstract class AbstractRenderedDocument extends AbstractObject {
 	
 	private ObjectPidsPath path;
 	
-	
 	private List<AbstractPage> pages = new ArrayList<AbstractPage>();
 
 	private String documentTitle;
 
+	private int width = DEFAULT_WIDTH;
+	private int height = DEFAULT_HEIGHT; 
+	
 	public AbstractRenderedDocument(String modelName, String uuid) {
 		super(modelName, uuid);
 	}
@@ -174,5 +180,20 @@ public abstract class AbstractRenderedDocument extends AbstractObject {
 	}
 
 	
+	public int getWidth() {
+        return width;
+    }
 	
+	public void setWidth(int width) {
+        this.width = width;
+    }
+	
+	public int getHeight() {
+        return height;
+    }
+	
+	public void setHeight(int height) {
+        this.height = height;
+    }
 }
+
