@@ -25,6 +25,16 @@
     #coll_add_row td{
         border-bottom: none;
     }
+    #coll_loading{
+        width: 100%;
+        margin:0px;
+        display:none;
+        position:absolute;
+        left:0;
+        top:0;
+        text-align: center;
+        background:white;
+    }
 </style>
 <table id="coll_table" cellpadding="0" cellspacing="0">
     <thead class="ui-widget-header">
@@ -70,6 +80,7 @@
         </td>
     </tr>    
 </table>
+<div id="coll_loading"><br/><img src="img/loading.gif" alt="loading"/></div>
 <script type="text/javascript">
     $("td.buttons>a").button();
     $("td.buttons>a").css("float", "left");
@@ -99,6 +110,8 @@
             url = url + "&text_" + $(this).children("input.id").val() +
                 "=" + encodeURIComponent($(this).children("input.val").val());
         });
+        $("#coll_loading").css("height", $("#vcAdminDialog").height());
+        $("#coll_loading").show();
         $.get(url, function(data){
             $(jq("vc_"+pid)+" td.editable").each(function(){
                 $(this).children("span.val").html($(this).children("input.val").val());
@@ -106,6 +119,7 @@
             vcToggleEdit(pid);
         }).error(function(data, msg, status){
             alert(status + ": " + data.responseText);
+            $("#coll_loading").hide();
         });
         
     }
@@ -123,6 +137,8 @@
             url = url + "&text_" + $(this).children("input.id").val() +
                 "=" + encodeURIComponent($(this).children("input.val").val());
         });
+        $("#coll_loading").css("height", $("#vcAdminDialog").height());
+        $("#coll_loading").show();
         $.get(url, function(data){
             var tr = '<tr id="vc_'+pid+'">' +
                 '<td>'+pid+'</td>'+
@@ -148,9 +164,11 @@
             $("td.buttons>a").button();
             $("td.buttons>a").css("float", "left");
             $("td.buttons>a>span").css("padding", "2");
+            $("#coll_loading").hide();
             
         }).error(function(data, msg, status){
             alert(status + ": " + data.responseText);
+            $("#coll_loading").hide();
         });
     }
 </script>
