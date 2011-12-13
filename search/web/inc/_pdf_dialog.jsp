@@ -23,6 +23,8 @@
 
     <br></br>
     <strong><view:msg>pdf.generate</view:msg></strong>
+
+
     <table style="width: 100%">
     <c:forEach items="${pdfView.items}" var="item">
         <tr>
@@ -53,7 +55,32 @@
              </tr>
             </c:if>
     </c:forEach>
-    
     </table>
     
+    <hr></hr>
+    <!--
+    <a href="javascript:alert('show');" class="ui-icon ui-icon-triangle-1-n"></a> 
+    <div style="float: left;"><strong>Parametry</strong></div>    
+    <div style="clear: both;"></div>
+    -->
+    
+    <div id="pdfsettings">
+    
+     <input type="radio" id="standard" name="device" checked="checked"   value="desktop" onclick="pdf.onSettingsChange('standard')" >Standardni PDF </input>     
+     <input type="radio" id="device" name="device"   value="ereader" onclick="pdf.onSettingsChange('ereader')"> PDF pro ctecky(ruzne rozmery) </input>     
+     
+     <div id="pdfsettings_ereader" style="display: none">
+         <div style="padding: 5px;">
+          <div style="padding-bottom: 3px;">  
+              <input type="checkbox" value="psfont">Pouzit postscript fonty (typ 1)</input> 
+          </div>
+          <div>
+            <select>
+                <option selected="selected"> A4 format (Pocket reader)</option>
+                <option selected="selected"> Kindle format </option>
+            </select>    
+         </div>
+         </div>
+     </div>
+    </div>
 </div>

@@ -119,6 +119,30 @@ function PDF() {
 	this.dialog = null;
 	this.structs = null;
 	this.previous = null;
+	
+	this.deviceSelection = {
+			"standard" : function() {
+				$("#pdfsettings_ereader").hide();
+				this.rectangle = null;
+
+			},
+			"ereader" : function() {
+				$("#pdfsettings_ereader").show();
+			}
+	};
+
+	
+	this.rectangleSelections = {
+		"a4": function() {
+			return  [595,842];
+		},
+		"kindle": function() {
+			return [595,842];
+		}	
+	};
+
+
+	this.rectangle = null;
 }
 
 
@@ -140,6 +164,10 @@ PDF.prototype.renderPDF = function() {
 			u = "pdf?action=PARENT&pidFrom="+selectedPids[0]+"&howMany="+howMany;
 		}
 		u = u +"&redirectURL="+ escape(window.location.href);
+
+		if (this.rectangle) {
+			u += "&rect="+this.rectangle[0]+","+this.rectangle[1];
+		}
 		window.location.href = u;
 	} else {
 		 throw new Error("No pdf option selected !");
@@ -202,6 +230,21 @@ PDF.prototype.onChange = function(id,type,pidsstring) {
 	}
 	$("#"+id+"_option").show();
  	this.previous = "#"+id+"_option";
+}
+
+/** zmena nastaveni (Desktop | Reader ) */
+PDF.prototype.onSettingsChange = function(type) {
+	if(this.deviceSelection[type]) {
+		var invf = this.deviceSelection[type];
+		invf.call(this);
+	}
+	
+}
+PDF.prototype.onFormatChange = function(type) {
+	if (this.rectangleSelections[type]) {
+		var invf = this.rectangleSelections[type];
+		this.rectangle = invf.call(this);
+	}
 }
 
 /** PDF object */
