@@ -32,28 +32,28 @@
             <c:param name="q" value="${param.q}" />
             <c:set var="rows" value="${rowsdefault}" scope="request" />
         </c:when>
-        
+
     </c:choose>
     <%--
     <c:param name="fl" value="PID,score,root_title,path,pid_path,root_pid,dc.title,details,fedora.model,model_path,dc.creator,datum,page_format,text" />
     --%>
-    <c:set var="isCollapsed" value="${param.collapsed != 'false'}" /> 
+    <c:set var="isCollapsed" value="${param.collapsed != 'false'}" />
     <c:forEach var="fqs" items="${paramValues.fq}">
         <c:if test="${fn:startsWith(fqs, 'document_type')}"><c:set var="isCollapsed" value="false" /></c:if>
-         
+
         <c:param name="fq">${fqs}</c:param>
         <c:set var="rows" value="${rowsdefault}" scope="request" />
     </c:forEach>
-    
+
     <%-- datum --%>
     <c:if test="${param.da_od != null && !empty param.da_od}">
         <c:set var="fieldedSearch" value="true" scope="request" />
         <c:param name="fq" value="(datum_begin:[1 TO ${searchParams.yearFrom}] AND datum_end:[${searchParams.yearUntil} TO 3000]) OR datum:[${searchParams.dateFromFormatted} TO ${searchParams.dateUntilFormatted}]" />
             <c:set var="rows" value="${rowsdefault}" scope="request" />
     </c:if>
-    
+
     <c:param name="start" value="${param.offset}" />
-    
+
     <c:if test="${isCollapsed}">
         <%--
         <c:param name="collapse.field" value="root_pid" />
@@ -69,14 +69,14 @@
         <c:param name="group" value="true" />
         <c:param name="group.ngroups" value="true" />
     </c:if>
-    
+
     <%-- suggest --%>
     <c:if test="${param.suggest}">
         <c:param name="fq" value="search_title:${searchParams.browserTitle}" />
         <c:set var="rows" value="${rowsdefault}" scope="request" />
     </c:if>
 
-    
+
     <c:set var="fieldedSearch" value="false" scope="request" />
     <%-- advanced params --%>
     <c:if test="${!empty param.issn}">
@@ -119,7 +119,7 @@
         <c:set var="rows" value="${rowsdefault}" scope="request" />
         <c:set var="fieldedSearch" value="true" scope="request" />
     </c:if>
-    
+
     <view:object name="cols" clz="cz.incad.Kramerius.views.virtualcollection.VirtualCollectionViewObject"></view:object>
     <c:if test="${cols.current != null}">
         <c:param name="fq" value="collection:\"${cols.current.pid}\"" />
@@ -129,10 +129,10 @@
         <c:set var="rows" value="${param.rows}" scope="request" />
         <c:set var="fieldedSearch" value="true" scope="request" />
     </c:if>
-        
+
     <c:param name="rows" value="${rows}" />
     <jsp:useBean id="rows" type="java.lang.String" scope="request" />
-    
+
     <c:if test="${param.facet != 'false'}">
         <c:param name="facet.field" value="document_type" />
         <c:param name="facet.field" value="language" />
@@ -148,7 +148,7 @@
         <c:param name="facet.field" value="dostupnost" />
         <c:param name="f.facet_autor.facet.sort" value="false" />
     </c:if>
-    
+
     <%-- Hit highlight --%>
     <c:param name="hl" value="true" />
     <c:param name="hl.fl" value="text_ocr" />
@@ -156,13 +156,13 @@
     <c:param name="hl.simple.post" value="</span>"  />
     <c:param name="hl.mergeContiguous" value="true" />
     <c:param name="hl.snippets" value="2" />
-    
-    <%-- sort param --%>    
+
+    <%-- sort param --%>
     <c:choose>
         <c:when test="${param.sort != null && !empty param.sort}" >
             <c:param name="sort" value="level asc, ${param.sort}" />
         </c:when>
-        <c:when test="${sort != null}" >
+        <c:when test="${sort != null && !empty sort}" >
             <c:param name="sort" value="level asc, ${sort}" />
             <c:param name="group.sort" value="level asc, ${sort}" />
         </c:when>
@@ -209,7 +209,7 @@
 <c:set var="numDocsCollapsed" scope="request" value="${0}" />
 <x:forEach select="$doc/response/lst[@name='collapse_counts']/lst[@name='results']/lst">
     <c:set var="curCol"><x:out select="./int[@name='collapseCount']/text()"/></c:set>
-    <c:set var="numDocsCollapsed" scope="request" value="${numDocsCollapsed + curCol}" /> 
+    <c:set var="numDocsCollapsed" scope="request" value="${numDocsCollapsed + curCol}" />
 </x:forEach>
 <c:set var="numDocsStr" scope="request" >
     <c:choose>
