@@ -17,7 +17,7 @@
     #coll_table{
         width: 100%;
         margin:0px;
-        
+
     }
     #coll_table td{
         border-bottom: 1px solid silver;
@@ -78,7 +78,7 @@
         <td class="buttons">
             <a href="javascript:vcAdd();"><span class="ui-icon ui-icon-plus">add</span></a>
         </td>
-    </tr>    
+    </tr>
 </table>
 <div id="coll_loading"><br/><img src="img/loading.gif" alt="loading"/></div>
 <script type="text/javascript">
@@ -90,9 +90,9 @@
             var url = "lr?action=start&def=virtualcollections&out=text&params=removecollection,none,"+pid;
             processStarter("virtualcollectionsdelete").start(url);
         });
-        
+
     }
-    
+
     function vcBeginEdit(pid){
         vcToggleEdit(pid);
     }
@@ -100,15 +100,15 @@
         $(jq("vc_"+pid)+">td.editable").children().toggle();
         $(jq("vc_"+pid)+" a.save").toggle();
         $(jq("vc_"+pid)+" a.edit>span>span").toggleClass('ui-icon-cancel');
-        
+
     }
 
     function vcSaveEdit(pid){
         var url = "vc?action=CHANGE&pid="+pid+
-            "&label=" + encodeURIComponent($(jq("vc_"+pid)+" input.label").val());
+            "&label=" + encodeURI($(jq("vc_"+pid)+" input.label").val());
         $(jq("vc_"+pid)+" td.lang").each(function(){
             url = url + "&text_" + $(this).children("input.id").val() +
-                "=" + encodeURIComponent($(this).children("input.val").val());
+                "=" + encodeURI($(this).children("input.val").val());
         });
         $("#coll_loading").css("height", $("#vcAdminDialog").height());
         $("#coll_loading").show();
@@ -117,14 +117,15 @@
                 $(this).children("span.val").html($(this).children("input.val").val());
             });
             vcToggleEdit(pid);
+            $("#coll_loading").hide();
         }).error(function(data, msg, status){
             alert(status + ": " + data.responseText);
             $("#coll_loading").hide();
         });
-        
+
     }
-    
-    
+
+
     function vcAdd(){
         var pid = $("#coll_add_id").val();
         if(!pid.startsWith('vc:')){
@@ -132,10 +133,10 @@
         }
         var label = $("#coll_add_label").val();
         var url = "vc?action=CREATE&pid="+pid+
-            "&label=" + encodeURIComponent(label);
+            "&label=" + encodeURI(label);
         $(".coll_add_lang").each(function(){
             url = url + "&text_" + $(this).children("input.id").val() +
-                "=" + encodeURIComponent($(this).children("input.val").val());
+                "=" + encodeURI($(this).children("input.val").val());
         });
         $("#coll_loading").css("height", $("#vcAdminDialog").height());
         $("#coll_loading").show();
@@ -147,7 +148,7 @@
                 '<input style="display:none;" type="text" class="label val" value="'+label+'" />'+
                 '</td>';
             $(".coll_add_lang").each(function(){
-                tr = tr + 
+                tr = tr +
                     '<td class="editable lang">'+
                     '<span class="val">'+$(this).children("input.val").val()+'</span>'+
                     '<input style="display:none;" type="text" class="val" value="'+$(this).children("input.val").val()+'" />'+
@@ -160,12 +161,12 @@
                 '<a href="javascript:vcDelete(\''+pid+'\');"><span class="ui-icon ui-icon-trash">delete</span></a>'+
                 '</td></tr>'
             $("#coll_add_row").before(tr);
-            
+
             $("td.buttons>a").button();
             $("td.buttons>a").css("float", "left");
             $("td.buttons>a>span").css("padding", "2");
             $("#coll_loading").hide();
-            
+
         }).error(function(data, msg, status){
             alert(status + ": " + data.responseText);
             $("#coll_loading").hide();
