@@ -58,11 +58,6 @@
     </table>
     
     <hr></hr>
-    <!--
-    <a href="javascript:alert('show');" class="ui-icon ui-icon-triangle-1-n"></a> 
-    <div style="float: left;"><strong>Parametry</strong></div>    
-    <div style="clear: both;"></div>
-    -->
     
     <div id="pdfsettings">
     
@@ -71,13 +66,10 @@
      
      <div id="pdfsettings_ereader" style="display: none">
          <div style="padding: 5px;">
-          <div style="padding-bottom: 3px;">  
-              <input type="checkbox" value="psfont">Pouzit postscript fonty (typ 1)</input> 
-          </div>
           <div>
-            <select>
-                <option selected="selected"> A4 format (Pocket reader)</option>
-                <option selected="selected"> Kindle format </option>
+            <select onchange="pdf.onFormatChange();">
+                <option selected="selected" value="a4"> A4 format (Pocket reader)</option>
+                <option value="kindle"> Kindle format </option>
             </select>    
          </div>
          </div>

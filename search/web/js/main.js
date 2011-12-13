@@ -137,7 +137,7 @@ function PDF() {
 			return  [595,842];
 		},
 		"kindle": function() {
-			return [595,842];
+			return [420,595];
 		}	
 	};
 
@@ -240,9 +240,11 @@ PDF.prototype.onSettingsChange = function(type) {
 	}
 	
 }
-PDF.prototype.onFormatChange = function(type) {
-	if (this.rectangleSelections[type]) {
-		var invf = this.rectangleSelections[type];
+
+PDF.prototype.onFormatChange = function() {
+	var val = $("#pdfsettings_ereader select option:selected").val();
+	if (this.rectangleSelections[val]) {
+		var invf = this.rectangleSelections[val];
 		this.rectangle = invf.call(this);
 	}
 }
