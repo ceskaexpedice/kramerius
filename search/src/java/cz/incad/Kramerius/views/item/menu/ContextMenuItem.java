@@ -5,11 +5,12 @@ package cz.incad.Kramerius.views.item.menu;
  * @author Alberto
  */
 public class ContextMenuItem {
-    public String key;
-    public String dataType;
-    public String jsFunction;
-    public String jsArgs;
-    public boolean supportMultiple;
+
+    private String key;
+    private String dataType;
+    private String jsFunction;
+    private String jsArgs;
+    private boolean supportMultiple;
     
     public ContextMenuItem(String key, String dataType, String jsFunction, String jsArgs, boolean supportMultiple){
         this.key = key;
@@ -48,7 +49,5 @@ public class ContextMenuItem {
     public void setSupportMultiple(boolean supportMultiple) {
         this.supportMultiple = supportMultiple;
     }
-    
-    
     
 }
