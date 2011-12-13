@@ -48,11 +48,11 @@ public class VirtualCollectionViewObject {
 	@Named("securedFedoraAccess")
 	protected transient FedoraAccess fedoraAccess;
     
-    public List<VirtualCollection> getVirtualCollections() {
+    public List<VirtualCollection> getVirtualCollections() throws Exception {
         return VirtualCollectionsManager.getVirtualCollections(this.fedoraAccess, kConfiguration.getPropertyList("interface.languages"));
     }
     
-    public List<VirtualCollection> getVirtualCollectionsLocale() {
+    public List<VirtualCollection> getVirtualCollectionsLocale() throws Exception {
         Locale locale = this.localeProvider.get();
         return VirtualCollectionsManager.getVirtualCollections(this.fedoraAccess, new String[]{"lang", locale.getLanguage()});
     }
@@ -67,7 +67,7 @@ public class VirtualCollectionViewObject {
          return c.getDescriptionLocale(this.localeProvider.get().getLanguage());
     } 
     
-    public List<String> getHomeTabs(){
+    public List<String> getHomeTabs() throws Exception{
          String[] tabs = kConfiguration.getPropertyList("search.home.tabs");
          // Mozne hodnoty custom,mostDesirables,newest,facets,browseAuthor,browseTitle,info
          // Pokud mame nastavenou sbirku NEzobrazime mostDesirables, custom, browseAuthor,browseTitle
