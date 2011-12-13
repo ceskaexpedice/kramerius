@@ -41,7 +41,10 @@ import cz.incad.kramerius.security.SpecialObjects;
 import cz.incad.kramerius.security.User;
 import cz.incad.kramerius.security.UserManager;
 import cz.incad.kramerius.security.utils.UserUtils;
+import cz.incad.kramerius.service.TextsService;
 import cz.incad.kramerius.users.LoggedUsersSingleton;
+import cz.incad.kramerius.users.UserProfile;
+import cz.incad.kramerius.users.UserProfileManager;
 
 public abstract class AbstractLoggedUserProvider implements Provider<User>{
     public static java.util.logging.Logger LOGGER = java.util.logging.Logger.getLogger(AbstractLoggedUserProvider.class.getName());
@@ -63,6 +66,12 @@ public abstract class AbstractLoggedUserProvider implements Provider<User>{
 
     @Inject
     LoggedUsersSingleton loggedUsersSingleton;
+    
+    @Inject
+    UserProfileManager userProfileManager;
+
+    @Inject
+    TextsService textsService;
     
     
     @Override

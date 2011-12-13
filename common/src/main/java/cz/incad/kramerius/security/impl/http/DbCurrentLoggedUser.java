@@ -29,6 +29,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.logging.Level;
@@ -57,6 +58,7 @@ import cz.incad.kramerius.security.utils.SecurityDBUtils;
 import cz.incad.kramerius.security.utils.UserUtils;
 import cz.incad.kramerius.shib.utils.ShibbolethUtils;
 import cz.incad.kramerius.users.LoggedUsersSingleton;
+import cz.incad.kramerius.users.UserProfile;
 import cz.incad.kramerius.utils.IOUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 import cz.incad.kramerius.utils.database.JDBCQueryTemplate;
@@ -133,8 +135,12 @@ public class DbCurrentLoggedUser extends AbstractLoggedUserProvider {
             saveRightsIntoSession(user);
         }
         
-        storeLoggedUser(user,  new HashMap<String, String>(){{
+        final Locale foundLocale = localeFromProfile(user);
+        storeLoggedUser(user,  new HashMap<String, Object>(){{
             put(SHIB_USER_KEY,"true");
+            if (foundLocale != null) {
+                put("client_locale",foundLocale);
+            }
         }});
     }
 
@@ -180,10 +186,24 @@ public class DbCurrentLoggedUser extends AbstractLoggedUserProvider {
                 saveRightsIntoSession(user);
             }
             
-            storeLoggedUser(user,  new HashMap<String, String>(){{
+            final Locale foundLocale = localeFromProfile(user);
+
+            storeLoggedUser(user,  new HashMap<String, Object>(){{
                 put(SHIB_USER_KEY,"false");
+                if (foundLocale != null) {
+                    put("client_locale",foundLocale);
+                }
             }});
+
+            /*
+        } else if (profile.getJSONData().containsKey(CLIENT_LOCALE)) {
+            String lang =  profile.getJSONData().getString(CLIENT_LOCALE);
+            Locale foundLocale = this.textsService.findLocale(lang);
+            return foundLocale != null ? foundLocale : getDefault(request);
+       */
+
             
+
             
         } else if ((httpServletRequest.getParameter(UserUtils.USER_NAME_PARAM) != null) && (httpServletRequest.getParameter(UserUtils.PSWD_PARAM) != null)) {
             HashMap<String, Object> foundUser = K4LoginModule.findUser(this.connectionProvider.get(), httpServletRequest.getParameter(UserUtils.USER_NAME_PARAM));
@@ -193,12 +213,24 @@ public class DbCurrentLoggedUser extends AbstractLoggedUserProvider {
                 if (K4LoginModule.checkPswd(httpServletRequest.getParameter(UserUtils.USER_NAME_PARAM), dbPswd, httpServletRequest.getParameter(UserUtils.PSWD_PARAM).toCharArray())) {
                     UserUtils.associateGroups(dbUser, userManager);
                     UserUtils.associateCommonGroup(dbUser, userManager);
-                    storeLoggedUser(dbUser,  new HashMap<String, String>(){{
+                    final Locale foundLocale = localeFromProfile(dbUser);
+                    storeLoggedUser(dbUser,  new HashMap<String, Object>(){{
                         put(SHIB_USER_KEY,"false");
+                        if (foundLocale != null) {
+                            put("client_locale",foundLocale);
+                        }
                     }});
                 }
             }
         }
+    }
+
+
+    public Locale localeFromProfile(User user) {
+        UserProfile profile = this.userProfileManager.getProfile(user);
+        String lang =  profile.getJSONData().getString("client_locale");
+        final Locale foundLocale = this.textsService.findLocale(lang);
+        return foundLocale;
     }
 
 
@@ -211,7 +243,7 @@ public class DbCurrentLoggedUser extends AbstractLoggedUserProvider {
     }
     
     
-    public void storeLoggedUser(User user,  Map<String, String> additionalValues) {
+    public void storeLoggedUser(User user,  Map<String, Object> additionalValues) {
         try {
             HttpSession session = this.provider.get().getSession();
             session.setAttribute(UserUtils.LOGGED_USER_PARAM, user);
