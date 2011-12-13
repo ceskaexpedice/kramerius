@@ -1,16 +1,16 @@
 /*
  * Copyright (C) 2010 Pavel Stastny
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -68,7 +68,7 @@ import cz.incad.kramerius.utils.database.JDBCQueryTemplate;
 public class DbCurrentLoggedUser extends AbstractLoggedUserProvider {
 
     public static final String SHIB_USER_KEY="SHIB_USER_KEY";
-    
+
     public DbCurrentLoggedUser() {
         super();
         LOGGER.fine("Creating db userprovider");
@@ -78,10 +78,10 @@ public class DbCurrentLoggedUser extends AbstractLoggedUserProvider {
     public User getPreviousLoggedUser(HttpServletRequest httpServletRequest) {
         HttpSession session = httpServletRequest.getSession();
         if (session !=  null) {
-            if (session.getAttribute(SHIB_USER_KEY) != null) { 
+            if (session.getAttribute(SHIB_USER_KEY) != null) {
                     if (session.getAttribute(SHIB_USER_KEY).equals("true")) {
                         if (ShibbolethUtils.isUnderShibbolethSession(httpServletRequest)) {
-                          return getSessionUser(session);  
+                          return getSessionUser(session);
                         } else {
                             LOGGER.fine("shib key defined but no shibboleth session");
                             LOGGER.fine("clear attributes");
@@ -96,7 +96,7 @@ public class DbCurrentLoggedUser extends AbstractLoggedUserProvider {
             } else {
                 return getSessionUser(session);
             }
-        } else return null;        
+        } else return null;
     }
 
 
@@ -105,15 +105,15 @@ public class DbCurrentLoggedUser extends AbstractLoggedUserProvider {
             session.removeAttribute(UserUtils.LOGGED_USER_PARAM);
         }
     }
-    
+
     public User getSessionUser(HttpSession session) {
         User loggedUser = (User) session.getAttribute(UserUtils.LOGGED_USER_PARAM);
         if (loggedUser != null) {
             return loggedUser;
         } else return null;
     }
-    
-    
+
+
     protected void tryToLog(HttpServletRequest httpServletRequest) throws NoSuchAlgorithmException, FileNotFoundException, RecognitionException, TokenStreamException, IOException {
         if (ShibbolethUtils.isUnderShibbolethSession(httpServletRequest)) {
             tryToLogShib(httpServletRequest);
@@ -122,8 +122,8 @@ public class DbCurrentLoggedUser extends AbstractLoggedUserProvider {
         }
     }
 
-    
-    
+
+
     public void tryToLogShib(HttpServletRequest httpServletRequest) throws FileNotFoundException, IOException, RecognitionException, TokenStreamException {
         //String loginName = principal.getName();
         User user = new UserImpl(-1, "", "", "shibuser", 1);
@@ -136,7 +136,7 @@ public class DbCurrentLoggedUser extends AbstractLoggedUserProvider {
         if (session.getAttribute(SECURITY_FOR_REPOSITORY_KEY) == null) {
             saveRightsIntoSession(user);
         }
-        
+
         final Locale foundLocale = localeFromProfile(user);
         storeLoggedUser(user,  new HashMap<String, Object>(){{
             put(SHIB_USER_KEY,"true");
@@ -155,10 +155,10 @@ public class DbCurrentLoggedUser extends AbstractLoggedUserProvider {
         String readAsString = IOUtils.readAsString(new FileInputStream(shibRulesPath), Charset.forName("UTF-8"), true);
         ShibRuleLexer shibRuleLexer = new ShibRuleLexer(new StringReader(readAsString));
         ShibRuleParser shibRuleParser = new ShibRuleParser(shibRuleLexer);
-        
+
         ShibRules shibRules = shibRuleParser.shibRules();
         LOGGER.fine("shib rules parsed and trying to evaluate");
- 
+
         shibRules.evaluate(ctx);
         LOGGER.fine("shib rules evaluated");
     }
@@ -187,12 +187,12 @@ public class DbCurrentLoggedUser extends AbstractLoggedUserProvider {
             if (session.getAttribute(SECURITY_FOR_REPOSITORY_KEY) == null) {
                 saveRightsIntoSession(user);
             }
-            
+
             final Locale foundLocale = localeFromProfile(user);
 
             final Map<String, String> PREPARED_PROFILE = new HashMap<String, String>();
             PREPARED_PROFILE.put("columns", getColumnsFromProfile(user));
-            
+
             storeLoggedUser(user,  new HashMap<String, Object>(){{
                 put(SHIB_USER_KEY,"false");
                 if (foundLocale != null) {
@@ -209,9 +209,9 @@ public class DbCurrentLoggedUser extends AbstractLoggedUserProvider {
             return foundLocale != null ? foundLocale : getDefault(request);
        */
 
-            
 
-            
+
+
         } else if ((httpServletRequest.getParameter(UserUtils.USER_NAME_PARAM) != null) && (httpServletRequest.getParameter(UserUtils.PSWD_PARAM) != null)) {
             HashMap<String, Object> foundUser = K4LoginModule.findUser(this.connectionProvider.get(), httpServletRequest.getParameter(UserUtils.USER_NAME_PARAM));
             if (foundUser != null) {
@@ -240,7 +240,12 @@ public class DbCurrentLoggedUser extends AbstractLoggedUserProvider {
 
     public Locale localeFromProfile(User user) {
         UserProfile profile = this.userProfileManager.getProfile(user);
-        String lang =  profile.getJSONData().getString("client_locale");
+        String lang =  "";
+        if (profile.getJSONData().containsKey("client_locale")){
+            lang = profile.getJSONData().getString("client_locale");
+        } else{
+            return null;
+        }
         final Locale foundLocale = this.textsService.findLocale(lang);
         return foundLocale;
     }
@@ -264,8 +269,8 @@ public class DbCurrentLoggedUser extends AbstractLoggedUserProvider {
             return true;
         } else return false;
     }
-    
-    
+
+
     public void storeLoggedUser(User user,  Map<String, Object> additionalValues) {
         try {
             HttpSession session = this.provider.get().getSession();
