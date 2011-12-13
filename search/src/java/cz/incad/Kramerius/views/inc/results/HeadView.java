@@ -16,11 +16,16 @@
  */
 package cz.incad.Kramerius.views.inc.results;
 
+import java.util.Map;
+
+import javax.servlet.http.HttpServletRequest;
+
 import net.sf.json.JSONObject;
 
 import com.google.inject.Inject;
 import com.google.inject.Provider;
 
+import cz.incad.Kramerius.users.ProfilePrepareUtils;
 import cz.incad.kramerius.security.User;
 import cz.incad.kramerius.users.UserProfile;
 import cz.incad.kramerius.users.UserProfileManager;
@@ -33,6 +38,15 @@ public class HeadView {
     @Inject
     UserProfileManager userProfileManager;
 
+    @Inject
+    Provider<HttpServletRequest> requestProvider;
+    
+    public int getSessionColumns() {
+        Map<String, String> preparedProperties = ProfilePrepareUtils.getPreparedProperties(this.requestProvider.get().getSession());
+        if (preparedProperties.containsKey("columns")) {
+            return Integer.parseInt(preparedProperties.get("columns"));
+        } else return 2;
+    }
     
     public int getProfileColumns() {
         User user = this.userProvider.get();

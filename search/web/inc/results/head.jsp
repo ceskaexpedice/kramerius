@@ -41,7 +41,7 @@
             <x:transform doc="${xml}"  xslt="${resultsxsl}">
                 <x:param name="bundle_url" value="${i18nServlet}"/>
                 <x:param name="q" value="${param.q}"/>
-                <x:param name="cols" value="${headView.profileColumns}"/>
+                <x:param name="cols" value="${headView.sessionColumns}"/>
                 <x:param name="fqs"><c:forEach var="fqs" items="${paramValues.fq}">&fq=<c:out value="${fqs}" escapeXml="false" /></c:forEach></x:param>
             </x:transform>
     </c:otherwise>
