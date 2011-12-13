@@ -37,6 +37,8 @@ import java.util.logging.Level;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
+import net.sf.json.JSONObject;
+
 import antlr.RecognitionException;
 import antlr.TokenStreamException;
 
@@ -188,12 +190,17 @@ public class DbCurrentLoggedUser extends AbstractLoggedUserProvider {
             
             final Locale foundLocale = localeFromProfile(user);
 
+            final Map<String, String> PREPARED_PROFILE = new HashMap<String, String>();
+            PREPARED_PROFILE.put("columns", getColumnsFromProfile(user));
+            
             storeLoggedUser(user,  new HashMap<String, Object>(){{
                 put(SHIB_USER_KEY,"false");
                 if (foundLocale != null) {
                     put("client_locale",foundLocale);
                 }
+                put("PREPARING_PROFILE",PREPARED_PROFILE);
             }});
+
 
             /*
         } else if (profile.getJSONData().containsKey(CLIENT_LOCALE)) {
@@ -214,11 +221,16 @@ public class DbCurrentLoggedUser extends AbstractLoggedUserProvider {
                     UserUtils.associateGroups(dbUser, userManager);
                     UserUtils.associateCommonGroup(dbUser, userManager);
                     final Locale foundLocale = localeFromProfile(dbUser);
+
+                    final Map<String, String> PREPARED_PROFILE = new HashMap<String, String>();
+                    PREPARED_PROFILE.put("columns", getColumnsFromProfile(dbUser));
+
                     storeLoggedUser(dbUser,  new HashMap<String, Object>(){{
                         put(SHIB_USER_KEY,"false");
                         if (foundLocale != null) {
                             put("client_locale",foundLocale);
                         }
+                        put("PREPARING_PROFILE",PREPARED_PROFILE);
                     }});
                 }
             }
@@ -231,6 +243,17 @@ public class DbCurrentLoggedUser extends AbstractLoggedUserProvider {
         String lang =  profile.getJSONData().getString("client_locale");
         final Locale foundLocale = this.textsService.findLocale(lang);
         return foundLocale;
+    }
+
+    public String getColumnsFromProfile(User user) {
+        UserProfile profile = this.userProfileManager.getProfile(user);
+        if (profile.getJSONData().containsKey("results")) {
+            JSONObject results = profile.getJSONData().getJSONObject("results");
+            if (results.containsKey("columns")) {
+                return results.getString("columns");
+            }
+        }
+        return "2";
     }
 
 
