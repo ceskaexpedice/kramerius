@@ -18,6 +18,7 @@ package cz.incad.Kramerius.views.inc;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.StringTokenizer;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -65,9 +66,24 @@ public class MenuButtonsViewObject {
     public List<LanguageItem> getLanguageItems() {
         String[] items = getConfigredItems();
         List<LanguageItem> links = new ArrayList<LanguageItem>();
+        
+
+        StringBuffer buffer = new StringBuffer();
+        String queryString = getQueryString();
+        StringTokenizer tokenizer = new StringTokenizer(queryString,"&");
+        while(tokenizer.hasMoreTokens()) {
+            String token = tokenizer.nextToken();
+            if (!token.trim().startsWith("language")) {
+                if (buffer.length() > 0) {
+                    buffer.append("&");
+                }
+                buffer.append(token);
+            }
+        }
+        
         for (int i = 0; i < items.length; i++) {
             String name = items[i];
-            String link = i < items.length ? getBaseURL() + "?language="+ items[++i] + "&" + getQueryString() : "";
+            String link = i < items.length ? getBaseURL() + "?language="+ items[++i] + "&" + buffer.toString() : "";
             LanguageItem itm = new LanguageItem(link, name, items[i]);
             links.add(itm);
         }
