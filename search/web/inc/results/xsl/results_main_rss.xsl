@@ -13,16 +13,18 @@
   <title><xsl:value-of select="$bundle/value[@key='application.title']"/></title> 
   <description><xsl:value-of select="$bundle/value[@key='search.results.title']"/></description> 
   <link>  <xsl:value-of select="$channelUrl" />   <xsl:value-of select="$bundle_url" />  </link> 
-  <xsl:apply-templates select="/response/result"></xsl:apply-templates>
+  
+  <xsl:call-template name="docs" />
   </channel>
   </rss>
 </xsl:template>
 
 
-<xsl:template match="doc">
-    <xsl:param name="pid" select="./str[@name='PID']"></xsl:param>
-    <xsl:param name="title" select="./str[@name='dc.title']"></xsl:param>
-    <xsl:param name="model_path" select="./arr[@name='model_path']/str/text()"></xsl:param>
+<xsl:template name="docs">
+  <xsl:for-each select="//doc">  
+    <xsl:variable name="pid" select="./str[@name='PID']"></xsl:variable>
+    <xsl:variable name="title" select="./str[@name='dc.title']"></xsl:variable>
+    <xsl:variable name="model_path" select="./arr[@name='model_path']/str/text()"></xsl:variable>
     <xsl:variable name="fmodel" ><xsl:value-of select="./str[@name='fedora.model']" /></xsl:variable>
     
     <item>
@@ -32,6 +34,7 @@
         <link><xsl:value-of select="$applUrl" />/i.jsp?pid=<xsl:value-of select="$pid" /></link>
         <guid><xsl:value-of select="$applUrl" />/i.jsp?pid=<xsl:value-of select="$pid" /></guid>
     </item>
+  </xsl:for-each>  
 </xsl:template>  
 
   

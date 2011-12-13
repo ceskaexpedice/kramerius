@@ -1,4 +1,4 @@
-<%@ page contentType="text/html" pageEncoding="UTF-8" %>
+<%@ page contentType="text/xml" pageEncoding="UTF-8" %><rss version="2.0">
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/xml" prefix="x" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt" %>
@@ -9,12 +9,21 @@
 <%@page import="com.google.inject.Injector"%>
 <%@page import="cz.incad.kramerius.FedoraAccess"%>
 <%@page import="cz.incad.kramerius.utils.conf.KConfiguration"%>
+
+  <channel> 
 <%
 	Injector ctxInj = (Injector)application.getAttribute(Injector.class.getName());
         KConfiguration kconfig = ctxInj.getProvider(KConfiguration.class).get();
         pageContext.setAttribute("kconfig", kconfig);
+        
+        String urlString = request.getRequestURL().toString();
+        String query = request.getQueryString();
+        pageContext.setAttribute("channelUrl", urlString +"?"+query);
 
 %>
+  <title><view:msg>application.title</view:msg></title> 
+  <description><view:msg>home.tab.newest</view:msg></description> 
+  <link>   <c:out value="${channelUrl}" escapeXml="true" />   </link> 
 <c:url var="url" value="${kconfig.solrHost}/select" >
     <c:param name="q" value="level:0" />
     <c:choose>
@@ -51,18 +60,24 @@
         <x:forEach varStatus="status" select="$doc/response/result/doc">
             <c:set var="pid"><x:out select="./str[@name='PID']"/></c:set>
             <c:set var="t"><x:out select="./str[@name='root_title']"/></c:set>
-            <div align="center" style="overflow:hidden; border:1px solid #eeeeee; height:100px; width:100px; float:left; margin:5px; ">
-                <a href="i.jsp?pid=${pid}" >
-                    <img align="middle" vspace="2" id="img_${pid}" src="img?uuid=${pid}&stream=IMG_THUMB&action=SCALE&scaledHeight=96" border="0"
-                         title="${t}" alt="${t}" />
-                </a>
-            </div>
+            <c:set var="title"><x:out select="./str[@name='dc.title']"/></c:set>
+            <c:set var="fmodel"><x:out select="./str[@name='fedora.model']"/></c:set>
+            <item>
+                <title>${title}</title>    
+                <description>PID: ${pid} Model: <view:msg>${fmodel}</view:msg>     
+                </description>
+                <link>${applUrl}/i.jsp?pid=${pid}</link>
+                <guid>${applUrl}/i.jsp?pid=${pid}</guid>
+            </item>
         </x:forEach>
-<div ><a href="inc/home/newest-rss.jsp"><span class="ui-icon ui-icon-signal-diag"></span></a></div>
+        
     </c:otherwise>
 </c:choose>
 <c:if test="${param.debug}" >
     <c:out value="${url}" /><br/>
     <c:out value="${param.parentPid}" />
 </c:if>
+        
+  </channel>
+  </rss>
 
