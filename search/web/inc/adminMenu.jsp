@@ -547,7 +547,99 @@ ShowSearchHistory.prototype.showHistory = function() {
 
 var showSearchHistory = new ShowSearchHistory();
 
+/**
+ * Saving profile dialog
+ */
+function SaveProfile() {
+    this.dialog = null;
+    this.savingFields = []
+    //"results":{"columns":1,"sorting":"title","sorting_dir":"asc"}
+    this.ops = {
+         "sorting_dir": bind(function(profile, val){
+             if (!profile["results"]) {
+                 profile["results"] = {};
+             }
+             var results = profile["results"];
+             results['sorting_dir'] = val;
+         },this),
+         "columns":bind(function(profile, val){
+             if (!profile["results"]) {
+                 profile["results"] = {};
+             }
+             var results = profile["results"];
+             results['columns'] = val;
+         },this),
+         "sorting":bind(function(profile, val){
+             if (!profile["results"]) {
+                 profile["results"] = {};
+             }
+             var results = profile["results"];
+             results['sorting'] = val;
+         },this),
+         "client_locale":bind(function(profile,val){
+        	 profile['client_locale'] = val;
+         },this)
+    };
+    //sorting_dir,columns,sorting,client_locale
+}
 
+
+
+SaveProfile.prototype.saveProfile = function() {
+    $.get("inc/_save_profile.jsp", bind(function(data){
+
+        	this.savingFileds = [];
+         
+            if (this.dialog) {
+                this.dialog.dialog('open');
+            } else {
+                var pdiv = '<div id="saveProfile"></div>';
+                $(document.body).append(pdiv);
+                this.dialog = $("#saveProfile").dialog({
+                    bgiframe: true,
+                    width:  600,
+                    height:  350,
+                    modal: true,
+                    title: dictionary['userprofile.forsave.saveprofiletitle'],
+                    buttons: 
+                        [{
+                             text:dictionary['common.save'],
+                             click:bind(function() {
+                            	 this.dialog.dialog("close");
+                                 $("#saveProfile input:checked").each(bind(function(index,item) {
+                                     var id = $(item).attr("id");
+                                     this.savingFields.push(id);
+                                 },this));
+
+                                 // saving profile
+                                 (new Profile()).modify(bind(function(data) {
+                                     this.savingFields.forEach(bind(function(item) {
+                                         var val = $("#"+item).val();
+                                         if (this.ops[item]) {
+                                        	 this.ops[item](data,val);
+                                         }
+                                     },this));
+                                     return data;
+                                  },this), bind(function() {
+                                  }, this));
+                                 
+                             },this) 
+                         },
+                         {
+                            text:dictionary['common.close'],
+                            click:function() {
+                                $(this).dialog("close");
+                            } 
+                        }]
+                });
+
+            }
+            $("#saveProfile").html(data);
+        	
+     },this));
+}
+
+var saveProfile = new SaveProfile();
 
 /** change policy flag  */
 function ChangeFlag() {

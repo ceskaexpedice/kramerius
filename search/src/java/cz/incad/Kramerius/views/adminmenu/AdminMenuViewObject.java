@@ -155,7 +155,9 @@ public class AdminMenuViewObject {
             List<String> menuItems = new ArrayList<String>();
 
             menuItems.add(showProfile());
-
+            menuItems.add(saveProfile());
+            
+            
             if (!ShibbolethUtils.isUnderShibbolethSession(this.request)) {
                 menuItems.add(changepswd());
             }
@@ -218,7 +220,6 @@ public class AdminMenuViewObject {
                 if (hasUserAllowedAction(SecuredActions.VIRTUALCOLLECTION_MANAGE.getFormalName())) {
                     menuItems.add(showVirtualCollectionsAdmin());
                 }
-
             }
             return menuItems.toArray(new String[menuItems.size()]);
         } catch (IOException e) {
@@ -226,7 +227,13 @@ public class AdminMenuViewObject {
             return new String[0];
         }
     }
-    
+
+    private String saveProfile() throws IOException {
+        return renderMenuItem(
+                "javascript:saveProfile.saveProfile(); javascript:hideAdminMenu();",
+                "administrator.menu.dialogs.saveprofile.title", false);
+    }
+
     private String showProfile() throws IOException {
         return renderMenuItem(
                 "javascript:showSearchHistory.showHistory(); javascript:hideAdminMenu();",

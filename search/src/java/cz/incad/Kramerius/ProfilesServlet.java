@@ -23,6 +23,7 @@ import java.util.logging.Level;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 
 import net.sf.json.JSONObject;
 
@@ -34,6 +35,7 @@ import com.google.inject.name.Named;
 
 import cz.incad.Kramerius.GeneratePDFServlet.Action;
 import cz.incad.Kramerius.backend.guice.GuiceServlet;
+import cz.incad.Kramerius.users.ProfilePrepareUtils;
 import cz.incad.kramerius.FedoraAccess;
 import cz.incad.kramerius.pdf.GeneratePDFService;
 import cz.incad.kramerius.security.User;
@@ -90,12 +92,12 @@ public class ProfilesServlet extends GuiceServlet {
                 }
             }
         };
+        
         public abstract void process(HttpServletRequest request, HttpServletResponse response, User user, UserProfileManager profileManager);
     }
     
     public enum GetActions {
         GET {
-
             @Override
             public void process(HttpServletRequest request, HttpServletResponse response, User user, UserProfileManager profileManager) {
                 try {
@@ -107,7 +109,6 @@ public class ProfilesServlet extends GuiceServlet {
                     LOGGER.log(Level.SEVERE,e.getMessage(),e);
                 }
             }
-            
         },
         UPDATE_FIELD {
 
@@ -122,10 +123,22 @@ public class ProfilesServlet extends GuiceServlet {
                 profileManager.saveProfile(user, profile);
             }
             
+        }, 
+        PREPARE_FIELD_TO_SESSION {
+
+            @Override
+            public void process(HttpServletRequest request, HttpServletResponse response, User user, UserProfileManager profileManager) {
+                HttpSession session = request.getSession(true);
+
+                String fpar = request.getParameter("field");
+                String key = request.getParameter("key");
+                ProfilePrepareUtils.prepareProperty(session, key, fpar);
+            }
         };
         
         
         
+
         public abstract void process(HttpServletRequest request, HttpServletResponse response, User user, UserProfileManager profileManager);
     }
 

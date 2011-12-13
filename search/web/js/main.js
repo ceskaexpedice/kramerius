@@ -446,3 +446,15 @@ RegisterUser.prototype.register = function() {
 }
 
 var registerUser = new RegisterUser();
+
+
+/* profile functionality */
+function Profile() {}
+
+Profile.prototype.modify = function(func,okfunc) {
+    $.get("profile?action=GET", function(data) {
+        data = func(data);
+        var encodedData = Base64.encode(JSON.stringify(data));
+        $.post("profile?action=POST",{'encodedData':encodedData},okfunc,"json");
+    });
+}

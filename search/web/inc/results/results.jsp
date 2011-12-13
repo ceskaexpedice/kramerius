@@ -186,15 +186,6 @@ $(document).ready(function(){
     }
 
 
-    function Profile() {}
-
-    Profile.prototype.modify = function(func) {
-        $.get("profile?action=GET", function(data) {
-            data = func(data);
-            var encodedData = Base64.encode(JSON.stringify(data));
-            $.post("profile?action=POST",{'encodedData':encodedData},"json");
-        });
-    }
         
     
     function toggleColumns(post){
@@ -202,8 +193,14 @@ $(document).ready(function(){
         setColumnsWidth();
         var sloupce = $('#cols2').is(':visible') ? 1 : 2;
         
+        
         if (post) {
-            // modify profile
+            var key = "columns";
+            var val = sloupce;
+
+            $.get("profile?action=PREPARE_FIELD_TO_SESSION&key=columns&field="+sloupce, function() {});
+            
+            /*                           
             (new Profile()).modify(function(data) {
                 var results = data["results"];
                 if (!results) {
@@ -214,7 +211,8 @@ $(document).ready(function(){
                 data['results'] = results;
 
                 return data;
-             });        
+             });
+            */        
         }
         
     }

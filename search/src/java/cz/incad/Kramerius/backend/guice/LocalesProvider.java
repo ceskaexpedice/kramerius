@@ -1,6 +1,7 @@
 package cz.incad.Kramerius.backend.guice;
 
 import java.util.Locale;
+import java.util.Map;
 import java.util.logging.Logger;
 
 import javax.servlet.http.HttpServletRequest;
@@ -9,6 +10,7 @@ import javax.servlet.http.HttpSession;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
 
+import cz.incad.Kramerius.users.ProfilePrepareUtils;
 import cz.incad.kramerius.security.User;
 import cz.incad.kramerius.service.ResourceBundleService;
 import cz.incad.kramerius.service.TextsService;
@@ -58,12 +60,8 @@ public class LocalesProvider implements Provider<Locale>{
 			}
 			storeLocale(session, foundLocale, profile);
 			return foundLocale;
-        } else if (profile.getJSONData().containsKey(CLIENT_LOCALE)) {
-            String lang =  profile.getJSONData().getString(CLIENT_LOCALE);
-            Locale foundLocale = this.textsService.findLocale(lang);
-            return foundLocale != null ? foundLocale : getDefault(request);
-		} else if (session.getAttribute(CLIENT_LOCALE) != null) {
-			return (Locale) session.getAttribute(CLIENT_LOCALE);
+        } else if (session.getAttribute(CLIENT_LOCALE) != null) {
+            return (Locale) session.getAttribute(CLIENT_LOCALE);
 		} else {
 			return getDefault(request);
 		}
@@ -75,12 +73,10 @@ public class LocalesProvider implements Provider<Locale>{
 
     public void storeLocale(HttpSession session, Locale foundLocale, UserProfile profile) {
         session.setAttribute(CLIENT_LOCALE,foundLocale);
+        // do not store to database but keep only in session
         if (this.loggedUsersSingleton.isLoggedUser(this.provider)) {
-            net.sf.json.JSONObject jsonData = profile.getJSONData();
-            jsonData.put(CLIENT_LOCALE, foundLocale.getLanguage());
-            profile.setJSONData(jsonData);
-            this.userProfileManager.saveProfile(this.userProvider.get(), profile);
-        }
+            ProfilePrepareUtils.prepareProperty(session, CLIENT_LOCALE,foundLocale.getLanguage());
+        }        
     }
 
 

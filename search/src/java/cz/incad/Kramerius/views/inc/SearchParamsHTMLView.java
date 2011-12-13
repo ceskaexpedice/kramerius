@@ -33,12 +33,16 @@ import java.util.Set;
 import java.util.StringTokenizer;
 import java.util.logging.Level;
 
+import javax.servlet.http.HttpSession;
+
+
 
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 
 
 import cz.incad.Kramerius.Initializable;
+import cz.incad.Kramerius.users.ProfilePrepareUtils;
 import cz.incad.kramerius.users.UserProfile;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 import cz.incad.kramerius.utils.json.JSONUtils;
@@ -106,11 +110,13 @@ public class SearchParamsHTMLView extends AbstractSearchParamsViews implements I
                                 saveSearchIntoProfile();
                                 break;
                             case SORTING_BY_RANK: 
-                                saveSortingType("rank",  null);
+                                //saveSortingType("rank",  null);
+                                prepareSortingType(this.requestProvider.get().getSession(), "rank", null);
                                 break;
                             case SORTING_BY_TITLE: 
                                 String dir = this.requestProvider.get().getParameter("forProfile_sorting_dir");
-                                saveSortingType("title",dir);
+                                //saveSortingType("title",dir);
+                                prepareSortingType(this.requestProvider.get().getSession(), "title", dir);
                                 break;
                             default:
                                 break;
@@ -125,6 +131,14 @@ public class SearchParamsHTMLView extends AbstractSearchParamsViews implements I
     }
 
     
+    private void prepareSortingType(HttpSession session, String sorting, String dir) {
+        ProfilePrepareUtils.prepareProperty(session, "sorting", sorting);
+        if (dir != null) {
+            ProfilePrepareUtils.prepareProperty(session, "sorting_dir", dir);
+        }
+    }
+
+
     
     private void saveSortingType(String sorting, String dir) {
         UserProfile profile = this.userProfileManager.getProfile(this.userProvider.get());
