@@ -43,7 +43,7 @@ public class HeadView {
     
     public int getSessionColumns() {
         Map<String, String> preparedProperties = ProfilePrepareUtils.getPreparedProperties(this.requestProvider.get().getSession());
-        if (preparedProperties.containsKey("columns")) {
+        if (preparedProperties != null &&  preparedProperties.containsKey("columns")) {
             return Integer.parseInt(preparedProperties.get("columns"));
         } else return 2;
     }
