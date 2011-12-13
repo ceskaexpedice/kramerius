@@ -191,6 +191,7 @@ $(document).ready(function(){
         </c:if>
         <a title="<view:msg>administrator.processes.refresh</view:msg>" href="javascript:_ref('${processView.ordering}',${processView.offsetValue},${processView.pageSize},'${processView.typeOfOrdering}');"><span class="ui-icon ui-icon-transferthick-e-w">refresh</span></a>
         <a href="javascript:_toggle_filter();" title="<view:msg>administrator.processes.filter</view:msg>"><span class="ui-icon ui-icon-scissors">filter</span></a>
+        &nbsp;
     </div>
     
 </div>
