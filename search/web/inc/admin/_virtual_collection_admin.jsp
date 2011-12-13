@@ -104,11 +104,16 @@
     }
 
     function vcSaveEdit(pid){
+        var escapedText;
         var url = "vc?action=CHANGE&pid="+pid+
-            "&label=" + encodeURI($(jq("vc_"+pid)+" input.label").val());
+            "&label=" + $(jq("vc_"+pid)+" input.label").val();
         $(jq("vc_"+pid)+" td.lang").each(function(){
+            escapedText = replaceAll($(this).children("input.val").val(), ',', '');
+            escapedText = replaceAll(escapedText, '\n', '');
+            escapedText = escapedText.replace(/ +(?= )/g,'');
+            escapedText = escapedText.replace(/&/g,'%26');
             url = url + "&text_" + $(this).children("input.id").val() +
-                "=" + encodeURI($(this).children("input.val").val());
+                "=" + escapedText ;
         });
         $("#coll_loading").css("height", $("#vcAdminDialog").height());
         $("#coll_loading").show();
@@ -131,12 +136,17 @@
         if(!pid.startsWith('vc:')){
             pid = "vc:" + pid;
         }
+        var escapedText;
         var label = $("#coll_add_label").val();
         var url = "vc?action=CREATE&pid="+pid+
-            "&label=" + encodeURI(label);
+            "&label=" + label;
         $(".coll_add_lang").each(function(){
+            escapedText = replaceAll($(this).children("input.val").val(), ',', '');
+            escapedText = replaceAll(escapedText, '\n', '');
+            escapedText = escapedText.replace(/ +(?= )/g,'');
+            escapedText = escapedText.replace(/&/g,'%26');
             url = url + "&text_" + $(this).children("input.id").val() +
-                "=" + encodeURI($(this).children("input.val").val());
+                "=" + escapedText;
         });
         $("#coll_loading").css("height", $("#vcAdminDialog").height());
         $("#coll_loading").show();

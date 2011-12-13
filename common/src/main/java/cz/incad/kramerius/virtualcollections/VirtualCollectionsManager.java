@@ -90,7 +90,7 @@ public class VirtualCollectionsManager {
         }
     }
 
-    public static List<VirtualCollection> getVirtualCollections(FedoraAccess fedoraAccess, String[] langs) {
+    public static List<VirtualCollection> getVirtualCollections(FedoraAccess fedoraAccess, String[] langs) throws Exception {
         try {
             IResourceIndex g = ResourceIndexService.getResourceIndexImpl();
             Document doc = g.getFedoraObjectsFromModelExt("collection", 1000, 0, "title", "");
@@ -117,8 +117,12 @@ public class VirtualCollectionsManager {
                 if (name != null && pid != null) {
                     VirtualCollection vc = new VirtualCollection(name, pid);
                     for (int k = 0; k < langs.length; k++) {
-                        String text = IOUtils.readAsString(fedoraAccess.getDataStream(pid, TEXT_DS_PREFIX + langs[++k]), Charset.forName("UTF-8"), true);
-                        vc.addDescription(langs[k], text);
+                        try{
+                            String text = IOUtils.readAsString(fedoraAccess.getDataStream(pid, TEXT_DS_PREFIX + langs[++k]), Charset.forName("UTF-8"), true);
+                            vc.addDescription(langs[k], text);
+                        }catch(Exception e){
+                            logger.log(Level.WARNING, "Error getting datastream", e);
+                        }
                     }
                     vcs.add(vc);
 
@@ -127,7 +131,7 @@ public class VirtualCollectionsManager {
             return vcs;
         } catch (Exception ex) {
             logger.log(Level.SEVERE, "Error getting virtual collections", ex);
-            return null;
+            throw new Exception(ex);
         }
     }
 

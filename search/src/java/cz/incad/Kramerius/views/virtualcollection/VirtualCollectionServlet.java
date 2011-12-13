@@ -65,6 +65,7 @@ public class VirtualCollectionServlet extends GuiceServlet {
     }
 
     protected void writeOutput(HttpServletRequest req, HttpServletResponse resp, String s) throws IOException {
+        resp.setCharacterEncoding("UTF-8");
         PrintWriter out = resp.getWriter();
         out.print(s);
     }
