@@ -27,10 +27,8 @@ import javax.servlet.ServletException;
 
 import com.google.inject.Inject;
 import com.google.inject.Provider;
-import com.google.inject.grapher.GrapherModule;
 import com.google.inject.name.Named;
 
-import cz.incad.Kramerius.backend.guice.GuiceConfigBean;
 import cz.incad.Kramerius.backend.guice.GuiceServlet;
 import cz.incad.kramerius.database.VersionInitializer;
 import cz.incad.kramerius.database.VersionService;
