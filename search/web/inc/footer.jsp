@@ -20,43 +20,34 @@
 <!-- tweet button -->
 <view:object name="tweet" clz="cz.incad.Kramerius.views.social.TweetButton"></view:object>
 
-<div class="socialbuttons">
-
-    <div class="gplus">
+<table class="socialbuttons" align="center">
+    <tr>
+    <td class="gplus">
      <!-- Umístěte tuto značku na místo, kde chcete zobrazovat tlačítko +1. -->
      <c:if test="${gplus.buttonEnabled}">
         <g:plusone size="small" href="${tweet.locale}" annotation="bubble"></g:plusone>
      </c:if>
-    </div>
+    </td>
 
-    <div class="fb">
+    <td class="fb">
      <c:if test="${fb.buttonEnabled}">
       <!-- like button -->
       <fb:like href="${fb.shareURL}" send="false" width="16"  layout="button_count" show_faces="false"></fb:like>
      </c:if>
-    </div>
+    </td>
 
-
-    <div class="tweet">
+    <td class="tweet">
      <c:if test="${tweet.buttonEnabled}">
       <!-- twitter -->
       <a href="https://twitter.com/share" class="twitter-share-button" data-url="${tweet.shareURL}" data-lang="${tweet.locale}">Tweet</a>
      </c:if>
-    </div>
-
-    
-    <div class="clear"></div>
-
-</div>
+    </td>
+    </tr>
+</table>
 
 <div align="center" >
-
-    <br/>
-    <br/>
-
     ©2008-2011. 
     Developed under GNU GPL by <a href="http://www.incad.cz/">Incad</a>, <a href="http://www.nkp.cz/">NKČR</a>, <a href="http://www.lib.cas.cz/">KNAV</a> and <a href="http://www.mzk.cz/">MZK</a> 
-
 </div>
 
 

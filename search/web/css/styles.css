@@ -426,27 +426,22 @@ div.search_result{
 
 /* facebook and gplus buttons */
 .socialbuttons {
-    height:40px;
+    height:20px;
     padding-left: 10px;
 }
 
 .socialbuttons .fb {
-    height:38px;
+    height:18px;
     width:90px;
-    float: left;
 }
-
-
 
 .socialbuttons .gplus {
     padding-top: 3px;
-    height: 40px;
-    width: 55px;    
-    float: left;
+    height: 20px;
+    width: 55px;  
 }
 .socialbuttons .tweet {
-    width: 100px;    
-    float: left;
+    width: 100px;  
 }
 .socialbuttons .clear {
     clear: both;
