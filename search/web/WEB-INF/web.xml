@@ -92,12 +92,6 @@
 		<servlet-class>cz.incad.Kramerius.HandleServlet</servlet-class>
 	</servlet>
 
-	<!-- handle servlet -->
-	<servlet>
-		<servlet-name>virtualcollectionhandle</servlet-name>
-		<servlet-class>cz.incad.Kramerius.VirtualCollectionHandleServlet</servlet-class>
-	</servlet>
-
 
 	<!-- title page servlet -->
 	<servlet>
@@ -171,6 +165,18 @@
         <servlet-name>profileServlet</servlet-name>
         <servlet-class>cz.incad.Kramerius.ProfilesServlet</servlet-class>
     </servlet>
+
+	<!-- virtual collection handle servlet -->
+	<servlet>
+		<servlet-name>virtualcollectionhandle</servlet-name>
+		<servlet-class>cz.incad.Kramerius.VirtualCollectionHandleServlet</servlet-class>
+	</servlet>
+
+	<!-- feedback servlet -->
+	<servlet>
+		<servlet-name>feedback</servlet-name>
+		<servlet-class>cz.incad.Kramerius.FeedbackServlet</servlet-class>
+	</servlet>
 
 	<!-- 
 		// Mapovani servletu
@@ -313,6 +319,11 @@
     <servlet-mapping>
         <servlet-name>profileServlet</servlet-name>
         <url-pattern>/profile</url-pattern>
+    </servlet-mapping>
+    
+    <servlet-mapping>
+        <servlet-name>feedback</servlet-name>
+        <url-pattern>/feedback</url-pattern>
     </servlet-mapping>
 
 	

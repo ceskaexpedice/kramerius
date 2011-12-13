@@ -79,6 +79,9 @@
         margin-bottom:5px;
         padding-bottom:3px;
     }
+    #feedbackDialog{
+        display:none;
+    }
 </style>
 <div><h3><view:msg>administrator.menu.Scope</view:msg>:</h3></div>
 <div class="scope selected viewer" id="scope_single"><span><view:msg>administrator.menu.active</view:msg></span>
@@ -132,6 +135,21 @@
         
     </ul>
 </div>
+
+<div id="feedbackDialog">
+    <h3><view:msg>administrator.menu.feedback.title</view:msg>:</h3>
+    <table>
+        <tr>
+            <td valign="top"><view:msg>administrator.menu.feedback.from</view:msg></td>
+            <td><input type="text" id="feedback_from" /></td>
+        </tr>
+        <tr>
+            <td valign="top"><view:msg>administrator.menu.feedback.content</view:msg></td>
+            <td><textarea id="feedback_content" cols="60" rows="10" ></textarea></td>
+        </tr>
+    </table>
+</div>
+
 <scrd:loggedusers>
     <div id="reindex" style="display:none;">
         <div class="allowed"></div>
@@ -242,7 +260,47 @@
         $(jq(id)).addClass('selected');
     }
 
+    var _feedbackDialog;
+    function feedbackDialog(){
+        if(_feedbackDialog){
+            _feedbackDialog.dialog('open');
+        }else{
+            _feedbackDialog = $('#feedbackDialog').dialog({
+                width:500,
+                height:330,
+                modal:true,
+                title: '<view:msg>administrator.menu.feedback.title</view:msg>',
+                buttons: [
+                    {
+                        text: dictionary['common.send'],
+                        click: function() {
+                            sendFeedback();
+                            $(this).dialog("close"); 
+                        }
+                    },
+                    {
+                        text: dictionary['common.close'],
+                        click: function() {
+                            $(this).dialog("close"); 
+                        }
+                    }
+                ]
+            });
+        }
+    }
     
+    function sendFeedback(){
+        var url = "feedback?from="+$("#feedback_from").val() +
+            "&pid="+getAffectedPids() +
+            "&content="+$("#feedback_content").val();
+        $("#feedback_sending").show();
+        $.post(url, function(data){
+            alert('<view:msg>administrator.menu.feedback.success</view:msg>');
+        }).error(function(data, msg, status){
+            alert('<view:msg>administrator.menu.feedback.fail</view:msg>');
+            $("#feedback_sending").hide();
+        });
+    }
     
     var _metadataDialog;
     function viewMetadata(){
