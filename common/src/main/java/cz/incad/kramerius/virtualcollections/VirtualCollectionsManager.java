@@ -77,8 +77,12 @@ public class VirtualCollectionsManager {
                 if (name != null && pid != null && pid.equals(collection)) {
                     VirtualCollection vc = new VirtualCollection(name, pid);
                     for (int k = 0; k < langs.length; k++) {
-                        String text = IOUtils.readAsString(fedoraAccess.getDataStream(pid, TEXT_DS_PREFIX + langs[++k]), Charset.forName("UTF-8"), true);
-                        vc.addDescription(langs[k], text);
+                        try{
+                            String text = IOUtils.readAsString(fedoraAccess.getDataStream(pid, TEXT_DS_PREFIX + langs[++k]), Charset.forName("UTF-8"), true);
+                            vc.addDescription(langs[k], text);
+                        }catch(Exception e){
+                            logger.log(Level.WARNING, "Error getting datastream", e);
+                        }
                     }
                     return vc;
                 }
