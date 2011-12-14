@@ -186,14 +186,15 @@ public class ImageStreamsServlet extends AbstractImageServlet {
             @Override
             void doPerform(ImageStreamsServlet imageStreamsServlet, FedoraAccess fedoraAccess,String pid, String stream, int page,HttpServletRequest req, HttpServletResponse resp) throws IOException, SecurityException , XPathExpressionException {
                 BufferedImage image = imageStreamsServlet.rawImage(pid, stream, req, page);
-                
-                Rectangle rectangle = new Rectangle(image.getWidth(null), image.getHeight(null));
-                BufferedImage scale = imageStreamsServlet.scale(image, rectangle, req, imageStreamsServlet.getScalingMethod(stream));
-                if (scale != null) {
-                    imageStreamsServlet.setDateHaders(pid, stream, resp);
-                    imageStreamsServlet.setResponseCode(pid, stream, req, resp);
-                    imageStreamsServlet.writeImage(req, resp, scale, OutputFormats.JPEG);
-                } else resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+                if (image !=  null) {
+                    Rectangle rectangle = new Rectangle(image.getWidth(null), image.getHeight(null));
+                    BufferedImage scale = imageStreamsServlet.scale(image, rectangle, req, imageStreamsServlet.getScalingMethod(stream));
+                    if (scale != null) {
+                        imageStreamsServlet.setDateHaders(pid, stream, resp);
+                        imageStreamsServlet.setResponseCode(pid, stream, req, resp);
+                        imageStreamsServlet.writeImage(req, resp, scale, OutputFormats.JPEG);
+                    } else resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+                } else resp.setStatus(HttpServletResponse.SC_NOT_FOUND);
             }
             
         }, 
