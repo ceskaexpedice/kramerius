@@ -34,13 +34,22 @@ public class ApplicationURL {
 			String string = request.getRequestURL().toString();
 			URL url = new URL(string);
 			String application = applicationContextPath(url);
-			String aURL = url.getProtocol()+"://"+url.getHost()+":"+url.getPort()+"/"+application;
+			
+			String port = extractPort(url);
+            String aURL = url.getProtocol() + "://" + url.getHost() + port + "/" + application;
 			return aURL;
 		} catch (MalformedURLException e) {
 			LOGGER.log(Level.SEVERE, e.getMessage(), e);
 			return "<no url>";
 		}
 	}
+
+
+    public static String extractPort(URL url) {
+        if (url.getPort() > 0) {
+            return ":"+url.getPort();
+        } else return "";
+    }
 
 	/*
 	   public static String applicationURL(HttpServletRequest request) {
