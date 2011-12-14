@@ -96,7 +96,9 @@ public class DisplayRightView extends AbstractRightsView {
     public String[] getRoleNames(Role[] roles) {
         String[] strRoles = new String[roles.length];
         for (int i = 0; i < strRoles.length; i++) {
-            strRoles[i] = roles[i].getName();
+            String rname = roles[i].getName();
+            rname = rname.replace("\"", "\\\"");
+            strRoles[i] = rname;
         }
         return strRoles;
     }
