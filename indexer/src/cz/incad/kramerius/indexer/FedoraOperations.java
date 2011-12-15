@@ -128,6 +128,44 @@ public class FedoraOperations {
         }
         return relsindex;
     }
+    
+    public ArrayList<Integer> getRelsIndexByPath(ArrayList<String> pid_paths) throws Exception {
+        
+        ArrayList<Integer> idxs = new ArrayList<Integer>();
+        String parent;
+        String fedoraPid;
+        String uuid;
+        if (!pid_paths.isEmpty()) {
+            for (String s : pid_paths) {
+                String[] pids = s.split("/");
+                if(pids.length==1){
+                    idxs.add(0);
+                }else{
+                    fedoraPid = "info:fedora/" + pids[pids.length-1];
+                    parent = pids[pids.length-2];
+                    Document relsExt = fa.getRelsExt(parent);
+                    Element descEl = XMLUtils.findElement(relsExt.getDocumentElement(), "Description", FedoraNamespaces.RDF_NAMESPACE_URI);
+                    List<Element> els = XMLUtils.getElements(descEl);
+                    int i = 0;
+                    for (Element el : els) {
+                        if (getTreePredicates().contains(el.getLocalName())) {
+                            if (el.hasAttribute("rdf:resource")) {
+                                uuid = el.getAttributes().getNamedItem("rdf:resource").getNodeValue();
+                                if (uuid.equals(fedoraPid)) {
+                                    idxs.add(i);
+                                    break;
+                                }
+                                i++;
+                            }
+                        }
+                    }
+                }
+            }
+        } else {
+            idxs.add(0);
+        }
+        return idxs;
+    }
 
     public ArrayList<String> getPidPaths(String pid) {
         ArrayList<String> pid_paths = new ArrayList<String>();

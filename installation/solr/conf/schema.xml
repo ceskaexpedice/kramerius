@@ -575,7 +575,7 @@
         
         <field name="model_path" type="string"  indexed="true"  stored="true" multiValued="true"  />
         <field name="pid_path" type="string_lower"  indexed="true"  stored="true" multiValued="true"  />
-        <field name="rels_ext_index" type="sint" indexed="true"  stored="true"  />
+        <field name="rels_ext_index" type="sint" indexed="true"  stored="true" multiValued="true"  />
         <field name="level" type="sint" indexed="true"  stored="true"  />
         <field name="dc.title" type="text_fgs"  indexed="true"  stored="true" />
         <field name="title_sort" type="string"  indexed="true"  stored="true" />

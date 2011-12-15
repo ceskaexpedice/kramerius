@@ -216,14 +216,14 @@
                 while(!$(jq(id)).hasClass('viewable')){
                     if($(jq(id)+">ul>li").length>0){
                         id = $(jq(id)+">ul>li:first").attr("id");
+                    }else if($(jq(id)+">ul").length>0){
+                        break;
                     }else{
-                        //alert(id);
                         if(id){
                             if(id.split('_')[1].indexOf("@")!=0){
                                 loadTreeNode(id);
                                 return;
-                            } 
-                            
+                            }
                         } 
                     }
                 }

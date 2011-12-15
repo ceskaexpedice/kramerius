@@ -42,7 +42,7 @@
     </c:choose>
     <c:param name="rows" value="${rows}" />
     <c:param name="start" value="${param.offset}" />
-    <c:param name="sort" value="rels_ext_index asc, fedora.model asc" />
+    <c:param name="sort" value="fedora.model asc" />
     <c:param name="fq" >
         NOT(PID:${escaped_pid}/@*)
     </c:param>

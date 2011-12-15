@@ -1,4 +1,3 @@
-
 <xsl:stylesheet  version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform" >
     <xsl:output method="html" indent="no" encoding="UTF-8" omit-xml-declaration="yes" />
     <xsl:param name="bundle_url" select="bundle_url" />
@@ -79,10 +78,13 @@
 
     <xsl:template name="rels">
         <xsl:param name="fmodel" />
-        <xsl:variable name="modelLoc" >
-            fedora.model.<xsl:value-of select="$fmodel" />
-        </xsl:variable>
+        <xsl:variable name="modelLoc" >fedora.model.<xsl:value-of select="$fmodel" /></xsl:variable>
         <xsl:for-each select="//doc[str[@name='fedora.model']=$fmodel]" >
+            <xsl:sort data-type="number" 
+                select="number(arr[@name='rels_ext_index']/int[position()=(count(../../arr[@name='parent_pid']/str[.=$pid]/preceding-sibling::*)+1)])" 
+                order="ascending" /> 
+            <xsl:variable name="posss"><xsl:value-of select="count(arr[@name='parent_pid']/str[.=$pid]/preceding-sibling::*)+1" /></xsl:variable>
+            <xsl:variable name="idx"><xsl:value-of select="number(arr[@name='rels_ext_index']/int[position()=$posss])" /></xsl:variable>
             <li>
                 <xsl:attribute name="id"><xsl:value-of select="$model_path" />-<xsl:value-of select="$fmodel" />_<xsl:value-of select="./str[@name='PID']" /></xsl:attribute>
                 <xsl:if test="./bool[@name='viewable']" >
@@ -103,7 +105,7 @@
 
     <xsl:template name="model" >
         <xsl:param name="fmodel" />
-        <ul style="display:none;">
+        <ul style="display:block;">
             <xsl:attribute name="class">
                 <xsl:value-of select="$fmodel" />
             </xsl:attribute>

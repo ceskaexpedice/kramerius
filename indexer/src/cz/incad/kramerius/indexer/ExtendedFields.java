@@ -4,16 +4,9 @@ import cz.incad.kramerius.FedoraAccess;
 import cz.incad.kramerius.FedoraNamespaceContext;
 import cz.incad.kramerius.impl.FedoraAccessImpl;
 import cz.incad.kramerius.utils.DCUtils;
-import cz.incad.kramerius.utils.UnicodeUtil;
 import cz.incad.kramerius.utils.conf.KConfiguration;
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
-import java.io.StringWriter;
-import java.io.Writer;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -27,10 +20,8 @@ import javax.xml.xpath.XPathExpression;
 import javax.xml.xpath.XPathFactory;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.pdfbox.cos.COSDocument;
-import org.apache.pdfbox.cos.COSName;
 import org.apache.pdfbox.pdfparser.PDFParser;
 import org.apache.pdfbox.pdmodel.PDDocument;
-import org.apache.pdfbox.pdmodel.PDDocumentInformation;
 import org.apache.pdfbox.util.PDFTextStripper;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
@@ -45,7 +36,8 @@ public class ExtendedFields {
 
     private static final Logger logger = Logger.getLogger(ExtendedFields.class.getName());
     private String root_title;
-    private int relsExtIndex;
+    //private int relsExtIndex;
+    private ArrayList<Integer> rels_ext_indexes;
     private ArrayList<String> pid_paths;
     private ArrayList<String> model_paths;
     private FedoraOperations fo;
@@ -89,7 +81,8 @@ public class ExtendedFields {
     public void setFields(String pid) throws Exception {
         pid_paths = new ArrayList<String>();
         pid_paths = fo.getPidPaths(pid);
-        relsExtIndex = fo.getRelsIndex(pid);
+        rels_ext_indexes = fo.getRelsIndexByPath(pid_paths);
+        //relsExtIndex = fo.getRelsIndex(pid);
         model_paths = new ArrayList<String>();
         for (String s : pid_paths) {
             model_paths.add(getModelPath(s));
@@ -230,7 +223,10 @@ public class ExtendedFields {
                     sb.append("<field name=\"parent_pid\">").append(pids[pids.length - 2]).append("</field>");
                 }
             }
-
+        }
+        
+        for (Integer i : rels_ext_indexes) {
+            sb.append("<field name=\"rels_ext_index\">").append(i).append("</field>");
         }
         int level = pid_paths.get(0).split("/").length - 1;
         if (pageNum != 0) {
@@ -244,7 +240,6 @@ public class ExtendedFields {
                 sb.append("<field name=\"model_path\">").append(s).append("</field>");
             }
         }
-        sb.append("<field name=\"rels_ext_index\">").append(relsExtIndex).append("</field>");
         sb.append("<field name=\"root_title\">").append(root_title).append("</field>");
         sb.append("<field name=\"root_pid\">").append(pid_paths.get(0).split("/")[0]).append("</field>");
         sb.append("<field name=\"level\">").append(level).append("</field>");
