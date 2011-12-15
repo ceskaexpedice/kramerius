@@ -6,7 +6,6 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.sql.Connection;
 import java.util.Arrays;
 import java.util.logging.Level;
 
@@ -15,7 +14,6 @@ import javax.xml.xpath.XPathExpressionException;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.google.inject.Key;
-import com.google.inject.Provider;
 import com.google.inject.name.Names;
 
 import cz.incad.kramerius.FedoraAccess;
@@ -25,10 +23,7 @@ import cz.incad.kramerius.imaging.DeepZoomTileSupport;
 import cz.incad.kramerius.imaging.DiscStrucutreForStore;
 import cz.incad.kramerius.imaging.lp.guice.Fedora3Module;
 import cz.incad.kramerius.imaging.lp.guice.GenerateDeepZoomCacheModule;
-import cz.incad.kramerius.impl.AbstractTreeNodeProcessorAdapter;
-import cz.incad.kramerius.pdf.impl.OutputStreams;
 import cz.incad.kramerius.utils.FedoraUtils;
-import cz.incad.kramerius.utils.IOUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 import cz.incad.kramerius.utils.imgs.KrameriusImageSupport;
 import cz.incad.kramerius.utils.imgs.KrameriusImageSupport.ScalingMethod;
@@ -44,7 +39,6 @@ public class GenerateThumbnail {
         if (args.length == 1) {
             Injector injector = Guice.createInjector(new GenerateDeepZoomCacheModule(), new Fedora3Module());
             FedoraAccess fa = injector.getInstance(Key.get(FedoraAccess.class, Names.named("securedFedoraAccess")));
-            Provider<Connection> conProvider = injector.getProvider(Key.get(Connection.class, Names.named("fedora3")));
             DeepZoomTileSupport tileSupport = injector.getInstance(DeepZoomTileSupport.class);
             DiscStrucutreForStore discStruct = injector.getInstance(DiscStrucutreForStore.class);
             prepareCacheForUUID(args[0], fa, discStruct, tileSupport);
