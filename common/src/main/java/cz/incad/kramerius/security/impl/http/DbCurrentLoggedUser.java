@@ -241,7 +241,8 @@ public class DbCurrentLoggedUser extends AbstractLoggedUserProvider {
     public Locale localeFromProfile(User user) {
         UserProfile profile = this.userProfileManager.getProfile(user);
         String lang =  "";
-        if (profile.getJSONData().containsKey("client_locale")){
+        
+        if (profile != null && profile.getJSONData().containsKey("client_locale")){
             lang = profile.getJSONData().getString("client_locale");
         } else{
             return null;
