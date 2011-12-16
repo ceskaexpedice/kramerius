@@ -51,8 +51,12 @@ import cz.incad.kramerius.security.UserManager;
 import cz.incad.kramerius.security.impl.RoleImpl;
 import cz.incad.kramerius.security.impl.UserImpl;
 import cz.incad.kramerius.security.utils.UserUtils;
+import cz.incad.kramerius.service.TextsService;
+import cz.incad.kramerius.service.impl.TextsServiceImpl;
 import cz.incad.kramerius.shib.utils.ShibbolethUtilsTest;
 import cz.incad.kramerius.users.LoggedUsersSingleton;
+import cz.incad.kramerius.users.UserProfileManager;
+import cz.incad.kramerius.users.impl.UserProfileManagerImpl;
 
 /**
  * Tests situation when session keeps logged user and shibboleth session has been broken.
@@ -66,17 +70,17 @@ public class DbCurrentLoggedUser_CancelShibbolethSessionTest {
     @Test
     public void test() {
         // expecting user
-//        UserImpl user = new UserImpl(-1, "", "", "shibuser", 1);
-//        Role role = new RoleImpl(1, "common_users", -1);
-//        user.setGroups(new Role[] {role});
-//        
-//        Injector inj = Guice.createInjector(new TestModule(user));
-//        DbCurrentLoggedUser dbCurUser = inj.getInstance(DbCurrentLoggedUser.class);
-//        
-//        User gotUserFromMock = dbCurUser.get();
-//        
-//        User notLoggedUser = UserUtils.getNotLoggedUser(inj.getInstance(UserManager.class));
-//        junit.framework.Assert.assertEquals(gotUserFromMock, notLoggedUser);
+        UserImpl user = new UserImpl(-1, "", "", "shibuser", 1);
+        Role role = new RoleImpl(1, "common_users", -1);
+        user.setGroups(new Role[] {role});
+        
+        Injector inj = Guice.createInjector(new TestModule(user));
+        DbCurrentLoggedUser dbCurUser = inj.getInstance(DbCurrentLoggedUser.class);
+        
+        User gotUserFromMock = dbCurUser.get();
+        
+        User notLoggedUser = UserUtils.getNotLoggedUser(inj.getInstance(UserManager.class));
+        junit.framework.Assert.assertEquals(gotUserFromMock, notLoggedUser);
     }
     
     
@@ -105,12 +109,19 @@ public class DbCurrentLoggedUser_CancelShibbolethSessionTest {
                 .addMockedMethod("saveRightsIntoSession")
                 .createMock();
                 
-                
+                UserProfileManager userProfileManager = createMockBuilder(UserProfileManagerImpl.class)
+                .withConstructor()
+                // no profile
+                .addMockedMethod("getProfile")
+                .createMock();
+
                 dbCurUser.evaluateShibRules(user);
                 dbCurUser.saveRightsIntoSession(user);
                 
                 EasyMock.replay(dbCurUser);
 
+                bind(TextsService.class).to(TextsServiceImpl.class);
+                bind(UserProfileManager.class).toInstance(userProfileManager);
                 bind(DbCurrentLoggedUser.class).toInstance(dbCurUser);
             } catch (FileNotFoundException e) {
                 LOGGER.log(Level.SEVERE,e.getMessage(),e);

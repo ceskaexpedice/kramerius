@@ -50,8 +50,12 @@ import cz.incad.kramerius.security.UserManager;
 import cz.incad.kramerius.security.impl.RoleImpl;
 import cz.incad.kramerius.security.impl.UserImpl;
 import cz.incad.kramerius.security.utils.UserUtils;
+import cz.incad.kramerius.service.TextsService;
+import cz.incad.kramerius.service.impl.TextsServiceImpl;
 import cz.incad.kramerius.shib.utils.ShibbolethUtilsTest;
 import cz.incad.kramerius.users.LoggedUsersSingleton;
+import cz.incad.kramerius.users.UserProfileManager;
+import cz.incad.kramerius.users.impl.UserProfileManagerImpl;
 
 /**
  * Tests shibboleth login
@@ -64,17 +68,17 @@ public class DbCurrentLoggedUser_ShibbLoggingTest {
     @Test
     public void test() {
         // expecting user
-//        UserImpl user = new UserImpl(-1, "", "", "shibuser", 1);
-//        Role role = new RoleImpl(1, "common_users", -1);
-//        user.setGroups(new Role[] {role});
-//        
-//        TestModule testModule = new TestModule(user);
-//        Injector inj = Guice.createInjector(testModule);
-//        DbCurrentLoggedUser dbCurUser = inj.getInstance(DbCurrentLoggedUser.class);
-//        
-//        User gotUserFromMock = dbCurUser.get();
-//        
-//        Assert.assertEquals(user, gotUserFromMock);
+        UserImpl user = new UserImpl(-1, "", "", "shibuser", 1);
+        Role role = new RoleImpl(1, "common_users", -1);
+        user.setGroups(new Role[] {role});
+        
+        TestModule testModule = new TestModule(user);
+        Injector inj = Guice.createInjector(testModule);
+        DbCurrentLoggedUser dbCurUser = inj.getInstance(DbCurrentLoggedUser.class);
+        
+        User gotUserFromMock = dbCurUser.get();
+        
+        Assert.assertEquals(user, gotUserFromMock);
     }
     
     
@@ -103,13 +107,21 @@ public class DbCurrentLoggedUser_ShibbLoggingTest {
                 // evaluate without save rights to session
                 .addMockedMethod("saveRightsIntoSession")
                 .createMock();
-                
+
+                UserProfileManager userProfileManager = createMockBuilder(UserProfileManagerImpl.class)
+                .withConstructor()
+                // no profile
+                .addMockedMethod("getProfile")
+                .createMock();
+
                 
                 dbCurUser.evaluateShibRules(user);
                 dbCurUser.saveRightsIntoSession(user);
                 
                 EasyMock.replay(dbCurUser);
 
+                bind(TextsService.class).to(TextsServiceImpl.class);
+                bind(UserProfileManager.class).toInstance(userProfileManager);
                 bind(DbCurrentLoggedUser.class).toInstance(dbCurUser);
             } catch (FileNotFoundException e) {
                 LOGGER.log(Level.SEVERE,e.getMessage(),e);
