@@ -8,17 +8,6 @@
 
 <%@ page isELIgnored="false"%>
 
-<!--  google analytics view -->
-<view:object name="ga" clz="cz.incad.Kramerius.views.GoogleAnalyticsViewObject"></view:object>
-
-<!-- facebook button view -->
-<view:object name="fb" clz="cz.incad.Kramerius.views.social.FacebookLikeItButton"></view:object>
-
-<!-- google plus button view -->
-<view:object name="gplus" clz="cz.incad.Kramerius.views.social.GooglePlusButton"></view:object>
-
-<!-- tweet button -->
-<view:object name="tweet" clz="cz.incad.Kramerius.views.social.TweetButton"></view:object>
 
 <table class="socialbuttons" align="center">
     <tr>

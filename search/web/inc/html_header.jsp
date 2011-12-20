@@ -14,6 +14,20 @@
             String fromValue = "";
             String toValue = "";
 %>
+
+<!--  google analytics view -->
+<view:object name="ga" clz="cz.incad.Kramerius.views.GoogleAnalyticsViewObject"></view:object>
+
+<!-- facebook button view -->
+<view:object name="fb" clz="cz.incad.Kramerius.views.social.FacebookLikeItButton"></view:object>
+
+<!-- google plus button view -->
+<view:object name="gplus" clz="cz.incad.Kramerius.views.social.GooglePlusButton"></view:object>
+
+<!-- tweet button -->
+<view:object name="tweet" clz="cz.incad.Kramerius.views.social.TweetButton"></view:object>
+
+
 <%@page import="com.google.inject.Injector"%>
 <%@page import="cz.incad.kramerius.service.ResourceBundleService"%>
 <%@page import="java.util.Locale"%>
@@ -31,6 +45,17 @@
     <meta name="keywords" content="periodical, monograph, library,  book, publication, kramerius, fedora" />
     <meta name="author" content="INCAD, www.incad.cz" />
     <meta http-equiv="X-UA-Compatible" content="IE=8"  />
+
+
+     <c:if test="${fb.buttonEnabled}">
+    <meta property="og:title" content="Kramerius 4"/>
+    <meta property="og:type" content="${fb.metadataType}"/>
+    <meta property="og:url" content="${fb.shareURL}"/>
+    <meta property="og:image" content="${fb.metadataImage}"/>
+    <meta property="og:site_name" content="K4"/>
+    <meta property="og:description"
+          content="K4 virtual library"/>
+    </c:if>
 
     <link rel="icon" href="img/favicon.ico"/>
     <link rel="shortcut icon" href="img/favicon.ico" type="image/x-icon" />
