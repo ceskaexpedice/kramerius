@@ -18,11 +18,14 @@ package cz.incad.Kramerius.views.social;
 
 import java.util.Locale;
 
+import javax.servlet.http.HttpServletRequest;
+
 
 
 import com.google.inject.Inject;
 import com.google.inject.Provider;
 
+import cz.incad.kramerius.utils.ApplicationURL;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 
 public class FacebookLikeItButton extends AbstractSocialButton {
@@ -34,6 +37,25 @@ public class FacebookLikeItButton extends AbstractSocialButton {
 
     @Inject
     KConfiguration configuration;
+    
+    public String getMetadataType() {
+        if (isItemPage()) {
+            return "book";
+        } else {
+            return "product";
+        }
+    }
+    
+    public String getMetadataImage() {
+        HttpServletRequest request = this.requestProvider.get();
+        String applUrl = ApplicationURL.applicationURL(request);
+        String pid = request.getParameter("pid");
+        if (isItemPage()) {
+            return applUrl+"/img?uuid="+pid+"&stream=IMG_THUMB";
+        } else {
+            return applUrl+"/img/logo.png";
+        }
+    }
     
     public String getLocale() {
         Locale locale = this.localeProvider.get();
