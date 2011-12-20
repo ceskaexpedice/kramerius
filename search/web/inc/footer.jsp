@@ -25,7 +25,7 @@
     <td class="gplus">
      <!-- Umístěte tuto značku na místo, kde chcete zobrazovat tlačítko +1. -->
      <c:if test="${gplus.buttonEnabled}">
-        <g:plusone size="small" href="${tweet.locale}" annotation="bubble"></g:plusone>
+        <g:plusone size="small" href="${gplus.shareURL}" annotation="bubble"></g:plusone>
      </c:if>
     </td>
 
