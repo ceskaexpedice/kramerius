@@ -106,7 +106,8 @@ public class SecuredContentTag extends BodyTagSupport {
             if (isActionAllowed()) {
                 return EVAL_BODY_INCLUDE;
             } else {
-                ((HttpServletResponse)pageContext.getResponse()).setStatus(HttpServletResponse.SC_FORBIDDEN);
+                // No response code
+                //((HttpServletResponse)pageContext.getResponse()).setStatus(HttpServletResponse.SC_FORBIDDEN);
                 return SKIP_BODY;
             }
         } catch (IOException e) {
