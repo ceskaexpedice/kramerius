@@ -66,7 +66,8 @@ public class LoggedUsersContentTag extends BodyTagSupport {
         if (this.loggedUsersSingleton.isLoggedUser(this.provider)) {
             return EVAL_BODY_INCLUDE;
         } else {
-            ((HttpServletResponse)pageContext.getResponse()).setStatus(HttpServletResponse.SC_FORBIDDEN);
+            // No response code:
+            //((HttpServletResponse)pageContext.getResponse()).setStatus(HttpServletResponse.SC_FORBIDDEN);
             return SKIP_BODY;
         }
     }
