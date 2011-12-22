@@ -71,7 +71,6 @@ public class HandleServlet extends GuiceServlet {
 
             HandleType handleType = HandleType.createType(handle);
 
-            handleType.dataFromSolr(handle, solrAccess);
             handleType.redirect(handle, solrAccess, req, resp);
             
         } catch (Exception e) {
