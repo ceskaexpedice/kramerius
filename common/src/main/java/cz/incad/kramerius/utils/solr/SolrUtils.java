@@ -79,7 +79,7 @@ public class SolrUtils   {
         Node pidNode = (Node) pidExpr().evaluate(parseDocument, XPathConstants.NODE);
         if (pidNode != null) {
             Element pidElm = (Element) pidNode;
-            return pidElm.getTextContent();
+            return pidElm.getTextContent().trim();
         }
         return null;
     }
