@@ -43,8 +43,30 @@ public class SolrUtilsTest {
         Assert.assertEquals("uuid:cd2b2ad0-62d4-11dd-ac0e-000d606f5dc6/uuid:5fe0b160-62d5-11dd-bdc7-000d606f5dc6/uuid:f0da6570-8f3b-11dd-b796-000d606f5dc6/uuid:28286e70-64a6-11dd-981a-000d606f5dc6",disected.get(1));
     }
 
+    @Test
+    public void disectPIDPath2() throws ParserConfigurationException, SAXException, IOException, XPathExpressionException {
+        Document parsed = solrDocument2();
+        List<String> disected = SolrUtils.disectPidPaths(parsed);
+        Assert.assertTrue(disected.size() == 1);
+        Assert.assertEquals("uuid:bdc405b0-e5f9-11dc-bfb2-000d606f5dc6/uuid:b236d435-435d-11dd-b505-00145e5790ea/uuid:b7df7f2b-435d-11dd-b505-00145e5790ea/uuid:55219067-435f-11dd-b505-00145e5790ea", disected.get(0));
+    }
+
+    @Test
+    public void disectPID() throws ParserConfigurationException, SAXException, IOException, XPathExpressionException {
+        Document parsed = solrDocument2();
+        String disectedPid = SolrUtils.disectPid(parsed);
+        Assert.assertNotNull(disectedPid);
+        Assert.assertEquals("uuid:55219067-435f-11dd-b505-00145e5790ea", disectedPid);
+    }
+
     public static Document solrDocument() throws ParserConfigurationException, SAXException, IOException {
         InputStream is = SolrUtilsTest.class.getResourceAsStream("solr1.xml");
+        Document parsed = XMLUtils.parseDocument(is);
+        return parsed;
+    }
+
+    public static Document solrDocument2() throws ParserConfigurationException, SAXException, IOException {
+        InputStream is = SolrUtilsTest.class.getResourceAsStream("solr2.xml");
         Document parsed = XMLUtils.parseDocument(is);
         return parsed;
     }

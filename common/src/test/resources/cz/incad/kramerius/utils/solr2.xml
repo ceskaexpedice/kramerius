@@ -1,0 +1,529 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<response>
+    <lst name="responseHeader">
+        <int name="status">0</int>
+        <int name="QTime">0</int>
+        <lst name="params">
+            <str name="q">handle:BOA001/20184</str>
+        </lst>
+    </lst>
+    <result name="response" numFound="1" start="0">
+        <doc>
+            <str name="PID">uuid:55219067-435f-11dd-b505-00145e5790ea
+            </str>
+            <date name="created_date">2010-09-28T01:15:44.823Z</date>
+            <date name="datum">1899-02-26T12:00:00Z</date>
+            <int name="datum_begin">0</int>
+            <int name="datum_end">0</int>
+            <str name="datum_str">26.2.1899</str>
+            <str name="dc.title">11</str>
+            <str name="ddt" />
+            <arr name="details">
+                <str>11##NormalPage</str>
+            </arr>
+            <arr name="document_type">
+                <str>page</str>
+            </arr>
+            <str name="dostupnost">public</str>
+            <str name="fedora.model">page</str>
+            <str name="handle">BOA001/20184</str>
+            <str name="img_full_mime">image/vnd.djvu</str>
+            <str name="issn" />
+            <int name="level">3</int>
+            <str name="mdt" />
+            <arr name="model_path">
+                <str>periodical/periodicalvolume/periodicalitem/page
+                </str>
+            </arr>
+            <date name="modified_date">2010-09-28T01:41:26.394Z</date>
+            <int name="pages_count">0</int>
+            <arr name="parent_pid">
+                <str>uuid:b7df7f2b-435d-11dd-b505-00145e5790ea</str>
+            </arr>
+            <arr name="pid_path">
+                <str>uuid:bdc405b0-e5f9-11dc-bfb2-000d606f5dc6/uuid:b236d435-435d-11dd-b505-00145e5790ea/uuid:b7df7f2b-435d-11dd-b505-00145e5790ea/uuid:55219067-435f-11dd-b505-00145e5790ea
+                </str>
+            </arr>
+            <int name="rels_ext_index">10</int>
+            <int name="rok">1899</int>
+            <str name="root_pid">uuid:bdc405b0-e5f9-11dc-bfb2-000d606f5dc6
+            </str>
+            <str name="root_title">Lidové noviny</str>
+            <str name="status">Active</str>
+            <arr name="text">
+                <str>11</str>
+                <str>﻿•i.
+                    I
+                    V Brn*, 26. února 1899
+                    LIDOVĚ NO VINÍ.
+                    Strana 11
+                    obchodech zbožím
+                    l iest iediné toho druhu jež okamžité zlepšuje a BÍlí každou s!aboi
+                    polévku způsobem překvapujícím. Několik kapek
+                    pontuři. NM Mtladě v lahvičkách od f-u halířů poíí-
+                    n lahůdkářským, drugernhn a opadnickým. Původní
+                    lahvičky se naplŘuji polévkovým kofrenim Maggi f o
+                    neJIrviuMI- NH vňnu prodává ne l dekgr kořenf za 10
+                    hal.
+                    Nolvětii vyznám. 10. zl. medaili.
+                    ZIKMUND FLDSS,
+                    Vidět BMíO, BudíDíSt,
+                    PRAHA, YáclaTskrnám. í. 52 noře.
+                    Zárod prrníbo ráda pro •ejnoderné]ii
+                    parní barveni a chem, strojní prádelna
+                    pro iaty t látky všeho
+                    druhu. — Centrálka:
+                    BRNO,
+                    Ferdinandská 28
+                    Filiálky: 19036
+                    'KoTiBLHLl3aM»tmtžiilia.i3í
+                    ZVLÁŠTNOST: Barvírna a resort hedv.
+                    šatů a pštrosích per. — Objednávky na
+                    venek přesné a rychle.
+                    Žádná dřevní htuba (dřevomorka) a vlhkost zdí
+                    L více. Značné lepší v každém ohledu než všechny
+                    " ostatní prostředky ochranné. 10.000 důkazů,
+                    10 med., 2 diplomy, 2 stát. znaky. — l Zkouška
+                    postačil Brožury zdarma! Piaárna ve Vídni, III.
+                    Parkgwse 10. Zástupci se hledají. 20731
+                    Vf
+                    HODIN, jakož i ZLATÉHO a STŘÍBRNÉHO Z
+                    20669 přijímá a k uspokojení každého provede
+                    14 Sawciuste uta. 14*. FOI.TIST, Kapocinskě m. U.
+                    VidiVi
+                    18043
+                    Starobrnénská nlloe 5
+                    první český c. k. místo-l
+                    držitelatTÍm koncessovj
+                    akadem. ÚHtav v Brn&lt;
+                    ku vyu(xtvÁDÍ střihů, bra-l
+                    ní míry a ftití dámských!
+                    šatů. V electóné dámy BC|
+                    uctivě zvou k učeni s&lt;
+                    -dlenejnov. method, praž
+                    &lt;ké i drážďanské střihač-
+                    íké akademie. Nastou
+                    piti možno 1. a 15. kaz
+                    dého měsíce. — Yeéker&lt;
+                    druhy dámských eleg.|
+                    oděvů se zhotovují pres
+                    mé za cenv mírné.
+                    PAENTY
+                    ve všech zemích
+                    )bstarárá rychle a pečliví
+                    M. SGHMOLKA
+                    T Brně,
+                    ríová ulice čig. 3.
+                    17753
+                    Pro P,T, obchodníky!
+                    KLAD SUKEN
+                    pozůstlvajfcf z lepších druhů látek,
+                    úředně povolený výprodej se za pří-
+                    činou vyprázdnění místností předá
+                    zkušeným obchodníkům v néjakém
+                    okresním mésté proti kauci do ko-
+                    mise. Po případe se i za výhodných pod-
+                    mínek prodá. 20668
+                    Nabídky pod „B. S.fc d&gt; adm. t. 1.
+                    MamaaaaaJaaaaWm^aaaa%aaaaWaWa%aWaU
+                    Průtržni pásky
+                    nejmodernější soustavy, kompletní irigátory,
+                    inhalaftní přístroje, gumové podložky do
+                    postelí, vaky na led a vzduchové polštáře
+                    na sezení i pro nemocné, jakož i veškeré
+                    jiné zboží k ošetřování a úlově nemocných
+                    nabízí 19105
+                    Sýkora &amp; Florian, Brno,
+                    Ferdinandova úl. 35,
+                    velkoobchod gmnoTfln t Cuirnrgirtfm zbožím.
+                    Velký sklal koberců linoleových, voskova-
+                    ných pláten a gumových stolních přikrývek.
+                    Sklad pian
+                    a půjčovna
+                    naloženo 1809)
+                    VILÉM BACHMA8N,
+                    Brno, Nová úl. 27,
+                    doporučuje bohatý sklad
+                    koncertních křídlových
+                    Mlgnon, planin a harmonií
+                    z nejosvědčenějších továreo
+                    tu* i cizozemských jako:
+                    Bosendorfer, Ehrbar,
+                    Heitzmann, Kaps, Kuse
+                    atd. Nejlepší obsluha a
+                    nejlevuéjfií ceny se zaru-
+                    čují. Stará piana se vy-
+                    mění neb koupí. — Opravy
+                    a ladiní provede se
+                    přesné. 13591
+                    Výtečný
+                    žajo výr um
+                    litr po 50 kr. (láhev
+                    5 kr.) nabízí
+                    T. G-rollcii,
+                    droguerie
+                    Brno, Janská úl. č. 5.
+                    19085
+                    Jindřich Mayr,
+                    Janská ulice 7, BRNO, Janská ulice ?,
+                    doj.oruíuje 17 liíó
+                    nejlépe zásobeiif sklad strí-
+                    bruého, zlatého zboží a zboží
+                    z iioveho Htribra, hudební
+                    automaty, váechny druhy
+                    hodin, též původní ameri-
+                    cké 14karai. zlaté plaque.
+                    Velká dílna na správky.
+                    České pani neradě přehlédnouti!
+                    ČOKOLÁDY a KAKAO
+                    lučebně čisté, beze vSech přísad, svétornámé čajové
+                    bonbony, zákusky k čaji, orientálské cukrovinky,
+                    čokoládové bonbony
+                    Prral 6osk4 torámy na orientálské cukrovinky
+                    a čokoládu
+                    A. Marěner, Ér. Tinohrady
+                    lili
+                    UPERFOSFÁTY
+                    původu auimáluiho a minerálního
+                    nejosvědčenijši, nejspolehlivěji! a nejlevněji! hnojivo, sušené a jemně
+                    práškovite, pro všechny pudy s přesné zaručeném obsalem kyseliny
+                    fosforečné ve vodé rozpustné od 10 20°, 0.
+                    Zajišťuj! rychlý účinek a nejvyšší výnosnost
+                    ^m* ^^f ^^^m ^^^
+                    ^^aV ^^^^^^ ^^^ _ ^^^^ _ mr^ __ ^^É^ ^^^1 _ ^aw g
+                    nenahraditelného ani dvojnásobným množstvím kyseliny fosforečné
+                    v citrátu rozpustné: — dáte: 203^7
+                    kostní moučku, chilský ledek, síran amonatý, soli dra-
+                    seluaté, štař»hfurtsky kainit, speciálu! hnojivo pro stébliny
+                    a okopanin) (kuiov&amp;tiny)
+                    Poštornskou sádru superiosfáťovou
+                    Ira vrchnímu hnojení jetelifcf a kooscrvování chlévské mrvy, píCfli
+                    vápno (fosforečnan vápenatý prostý chloru a arsenu)
+                    atl.
+                    dodávají správné za nejlevnější konkurenční ceny
+                    továrny na kyselinu A CPU DÁ M v Břeclavi Pošiorné
+                    sirovoi a uaělá hoojiva **• Ul/IInttUl a v Lišku-Roztokách.
+                    Ústřední pisároa: PRAHA Jindřišská úl. 27.
+                    Založeno r. 1856.
+                    Telefon tislo
+                    Koloniální B materiální zboží.
+                    Obchod barvami. *^(
+                    sol
+                    z G. k. solních komor v Ebensee, Bochně a Věllčce.
+                    ToYámi silad sádry, portlanflstólio a IrafšteinskéliQ cementu.
+                    První brněnská pražírna kávy
+                    a mlýny na koření s použitím elektr. motoru.
+                    F. Kallina,
+                    Křenová, •
+                    If N O, mm Křenová L.
+                    „u horníka".
+                    Veškeré potraviny při nejlepší Jakosti za ceny co nejlevnější.
+                    Pijte jen
+                    Oppenheimův
+                    .^NH^
+                    zdravý a příjemné
+                    chutnajici.
+                    _n ppat .
+                    z továrny na likéry
+                    J. Oppenheima
+                    ff v Benešové, "W
+                    rak. Slezsko.
+                    V zásobé ve všech re-
+                    nomovaných smíšených
+                    a lahůdkárakých obcho-
+                    dech, restauracích, ca
+                    krářskych obchodech a
+                    kavárnách. L0488
+                    Před padílír
+                    Kupujte přímo u výrobce.
+                    Nejdokonalejší
+                    průtržní pásy
+                    pro kýlu
+                    tříselnf i
+                    pupeřní,
+                    dobře při-
+                    léhajicí pá-
+                    sy břišní,
+                    suspenso-
+                    rla,
+                    přímidla
+                    ptruřuji za
+                    pro zk Mře-
+                    né páteře,
+                    umělé části
+                    télaatd.do-
+                    nejlevnější
+                    cenr se zárukou.
+                    bandažista a orthopediata
+                    T Praze, Juogmannova
+                    třída č. 34 n.
+                    Jediná česká dílna toho
+                    druhu! Pozor na firmu!
+                    Pfero?l893 irnCKt 1898.
+                    Aístaí.mefl. Vtlíásiátiel
+                    Vyznamenané
+                    brněnský
+                    19576 (tvarůžky),
+                    výtečné jakosti nabízí ze
+                    stanice Hulín proti dob.:
+                    kopu č, l . . .70 kr.
+                    kopu L 2 . . . 60 kr.
+                    kopu č. 3 . . . 50 kr.
+                    kopu č. 4 . . . 80 kr.
+                    la homolky B kmí-
+                    nem . . . . 75 kr.
+                    VINCENC SOPEK,
+                    sínraa T Bf estč a Hfliiaa.
+                    Na vzorek zasílá 5kg.
+                    bedničku za l 80 zl. franko
+                    na každou poštovní stanici
+                    při zasláníobnosu předem.
+                    Nejlepší reklamou Jest s
+                    f
+                    Na tomto základe založený chvalné známý u o ve zřízený
+                    dům nábytkem
+                    •^^^^^^^^^^^m ^^^^ — ^^^ ^to .^^^ .^_^^^^^ ^^B^^^^^^^ . ^^^k ^^^^
+                    Běhounská ulice 7
+                    Prodej za původní ceny mého vídeňského skladu se zárukou.
+</str>
+                <str />
+                <str>11##NormalPage</str>
+            </arr>
+            <str name="text_ocr">﻿•i.
+                I
+                V Brn*, 26. února 1899
+                LIDOVĚ NO VINÍ.
+                Strana 11
+                obchodech zbožím
+                l iest iediné toho druhu jež okamžité zlepšuje a BÍlí každou s!aboi
+                polévku způsobem překvapujícím. Několik kapek pontuři.
+                NM Mtladě v lahvičkách od f-u halířů poíí-
+                n lahůdkářským, drugernhn a opadnickým. Původní lahvičky se naplŘuji
+                polévkovým kofrenim Maggi f o neJIrviuMI- NH vňnu
+                prodává ne l dekgr kořenf za 10 hal.
+                Nolvětii vyznám. 10. zl. medaili.
+                ZIKMUND FLDSS,
+                Vidět BMíO, BudíDíSt,
+                PRAHA, YáclaTskrnám. í. 52 noře.
+                Zárod prrníbo ráda pro •ejnoderné]ii
+                parní barveni a chem, strojní prádelna
+                pro iaty t látky všeho
+                druhu. — Centrálka:
+                BRNO,
+                Ferdinandská 28
+                Filiálky: 19036
+                'KoTiBLHLl3aM»tmtžiilia.i3í
+                ZVLÁŠTNOST: Barvírna a resort hedv.
+                šatů a pštrosích per. — Objednávky na
+                venek přesné a rychle.
+                Žádná dřevní htuba (dřevomorka) a vlhkost zdí
+                L více. Značné lepší v každém ohledu než všechny
+                " ostatní prostředky ochranné. 10.000 důkazů,
+                10 med., 2 diplomy, 2 stát. znaky. — l Zkouška
+                postačil Brožury zdarma! Piaárna ve Vídni, III.
+                Parkgwse 10. Zástupci se hledají. 20731
+                Vf
+                HODIN, jakož i ZLATÉHO a STŘÍBRNÉHO Z
+                20669 přijímá a k uspokojení každého provede
+                14 Sawciuste uta. 14*. FOI.TIST, Kapocinskě m. U.
+                VidiVi
+                18043
+                Starobrnénská nlloe 5
+                první český c. k. místo-l
+                držitelatTÍm koncessovj
+                akadem. ÚHtav v Brn&lt;
+                ku vyu(xtvÁDÍ střihů, bra-l
+                ní míry a ftití dámských!
+                šatů. V electóné dámy BC|
+                uctivě zvou k učeni s&lt;
+                -dlenejnov. method, praž
+                &lt;ké i drážďanské střihač-
+                íké akademie. Nastou
+                piti možno 1. a 15. kaz
+                dého měsíce. — Yeéker&lt;
+                druhy dámských eleg.|
+                oděvů se zhotovují pres
+                mé za cenv mírné.
+                PAENTY
+                ve všech zemích
+                )bstarárá rychle a pečliví
+                M. SGHMOLKA
+                T Brně,
+                ríová ulice čig. 3.
+                17753
+                Pro P,T, obchodníky!
+                KLAD SUKEN
+                pozůstlvajfcf z lepších druhů látek,
+                úředně povolený výprodej se za pří-
+                činou vyprázdnění místností předá
+                zkušeným obchodníkům v néjakém
+                okresním mésté proti kauci do ko-
+                mise. Po případe se i za výhodných pod-
+                mínek prodá. 20668
+                Nabídky pod „B. S.fc d&gt; adm. t. 1.
+                MamaaaaaJaaaaWm^aaaa%aaaaWaWa%aWaU
+                Průtržni pásky
+                nejmodernější soustavy, kompletní irigátory,
+                inhalaftní přístroje, gumové podložky do
+                postelí, vaky na led a vzduchové polštáře
+                na sezení i pro nemocné, jakož i veškeré
+                jiné zboží k ošetřování a úlově nemocných
+                nabízí 19105
+                Sýkora &amp; Florian, Brno,
+                Ferdinandova úl. 35,
+                velkoobchod gmnoTfln t Cuirnrgirtfm zbožím.
+                Velký sklal koberců linoleových, voskova-
+                ných pláten a gumových stolních přikrývek.
+                Sklad pian
+                a půjčovna
+                naloženo 1809)
+                VILÉM BACHMA8N,
+                Brno, Nová úl. 27,
+                doporučuje bohatý sklad
+                koncertních křídlových
+                Mlgnon, planin a harmonií
+                z nejosvědčenějších továreo
+                tu* i cizozemských jako:
+                Bosendorfer, Ehrbar,
+                Heitzmann, Kaps, Kuse
+                atd. Nejlepší obsluha a
+                nejlevuéjfií ceny se zaru-
+                čují. Stará piana se vy-
+                mění neb koupí. — Opravy
+                a ladiní provede se
+                přesné. 13591
+                Výtečný
+                žajo výr um
+                litr po 50 kr. (láhev
+                5 kr.) nabízí
+                T. G-rollcii,
+                droguerie
+                Brno, Janská úl. č. 5.
+                19085
+                Jindřich Mayr,
+                Janská ulice 7, BRNO, Janská ulice ?,
+                doj.oruíuje 17 liíó
+                nejlépe zásobeiif sklad strí-
+                bruého, zlatého zboží a zboží
+                z iioveho Htribra, hudební
+                automaty, váechny druhy
+                hodin, též původní ameri-
+                cké 14karai. zlaté plaque.
+                Velká dílna na správky.
+                České pani neradě přehlédnouti!
+                ČOKOLÁDY a KAKAO
+                lučebně čisté, beze vSech přísad, svétornámé čajové
+                bonbony, zákusky k čaji, orientálské cukrovinky,
+                čokoládové bonbony
+                Prral 6osk4 torámy na orientálské cukrovinky
+                a čokoládu
+                A. Marěner, Ér. Tinohrady
+                lili
+                UPERFOSFÁTY
+                původu auimáluiho a minerálního
+                nejosvědčenijši, nejspolehlivěji! a nejlevněji! hnojivo, sušené a jemně
+                práškovite, pro všechny pudy s přesné zaručeném obsalem kyseliny
+                fosforečné ve vodé rozpustné od 10 20°, 0.
+                Zajišťuj! rychlý účinek a nejvyšší výnosnost
+                ^m* ^^f ^^^m ^^^
+                ^^aV ^^^^^^ ^^^ _ ^^^^ _ mr^ __ ^^É^ ^^^1 _ ^aw g
+                nenahraditelného ani dvojnásobným množstvím kyseliny fosforečné
+                v citrátu rozpustné: — dáte: 203^7
+                kostní moučku, chilský ledek, síran amonatý, soli dra-
+                seluaté, štař»hfurtsky kainit, speciálu! hnojivo pro stébliny
+                a okopanin) (kuiov&amp;tiny)
+                Poštornskou sádru superiosfáťovou
+                Ira vrchnímu hnojení jetelifcf a kooscrvování chlévské mrvy, píCfli
+                vápno (fosforečnan vápenatý prostý chloru a arsenu) atl.
+                dodávají správné za nejlevnější konkurenční ceny
+                továrny na kyselinu A CPU DÁ M v Břeclavi Pošiorné
+                sirovoi a uaělá hoojiva **• Ul/IInttUl a v Lišku-Roztokách.
+                Ústřední pisároa: PRAHA Jindřišská úl. 27.
+                Založeno r. 1856.
+                Telefon tislo
+                Koloniální B materiální zboží.
+                Obchod barvami. *^(
+                sol
+                z G. k. solních komor v Ebensee, Bochně a Věllčce.
+                ToYámi silad sádry, portlanflstólio a IrafšteinskéliQ cementu.
+                První brněnská pražírna kávy
+                a mlýny na koření s použitím elektr. motoru.
+                F. Kallina,
+                Křenová, •
+                If N O, mm Křenová L.
+                „u horníka".
+                Veškeré potraviny při nejlepší Jakosti za ceny co nejlevnější.
+                Pijte jen
+                Oppenheimův
+                .^NH^
+                zdravý a příjemné
+                chutnajici.
+                _n ppat .
+                z továrny na likéry
+                J. Oppenheima
+                ff v Benešové, "W
+                rak. Slezsko.
+                V zásobé ve všech re-
+                nomovaných smíšených
+                a lahůdkárakých obcho-
+                dech, restauracích, ca
+                krářskych obchodech a
+                kavárnách. L0488
+                Před padílír
+                Kupujte přímo u výrobce.
+                Nejdokonalejší
+                průtržní pásy
+                pro kýlu
+                tříselnf i
+                pupeřní,
+                dobře při-
+                léhajicí pá-
+                sy břišní,
+                suspenso-
+                rla,
+                přímidla
+                ptruřuji za
+                pro zk Mře-
+                né páteře,
+                umělé části
+                télaatd.do-
+                nejlevnější
+                cenr se zárukou.
+                bandažista a orthopediata
+                T Praze, Juogmannova
+                třída č. 34 n.
+                Jediná česká dílna toho
+                druhu! Pozor na firmu!
+                Pfero?l893 irnCKt 1898.
+                Aístaí.mefl. Vtlíásiátiel
+                Vyznamenané
+                brněnský
+                19576 (tvarůžky),
+                výtečné jakosti nabízí ze
+                stanice Hulín proti dob.:
+                kopu č, l . . .70 kr.
+                kopu L 2 . . . 60 kr.
+                kopu č. 3 . . . 50 kr.
+                kopu č. 4 . . . 80 kr.
+                la homolky B kmí-
+                nem . . . . 75 kr.
+                VINCENC SOPEK,
+                sínraa T Bf estč a Hfliiaa.
+                Na vzorek zasílá 5kg.
+                bedničku za l 80 zl. franko
+                na každou poštovní stanici
+                při zasláníobnosu předem.
+                Nejlepší reklamou Jest s
+                f
+                Na tomto základe založený chvalné známý u o ve zřízený
+                dům nábytkem
+                •^^^^^^^^^^^m ^^^^ — ^^^ ^to .^^^ .^_^^^^^ ^^B^^^^^^^ . ^^^k ^^^^
+                Běhounská ulice 7
+                Prodej za původní ceny mého vídeňského skladu se zárukou.
+</str>
+            <str name="title_sort">11</str>
+            <bool name="viewable">true</bool>
+            <bool name="virtual">false</bool>
+        </doc>
+    </result>
+</response> 
