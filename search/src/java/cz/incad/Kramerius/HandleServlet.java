@@ -69,12 +69,13 @@ public class HandleServlet extends GuiceServlet {
             String requestURL = req.getRequestURL().toString();
             String handle = disectHandle(requestURL);
 
-            String applicationCotext = ApplicationURL.applicationContextPath(req);
-            String redirectUrl = "/" + applicationCotext + "/i.jsp?pid=" + handle;
-            resp.sendRedirect(redirectUrl);
+            HandleType handleType = HandleType.createType(handle);
 
+            handleType.dataFromSolr(handle, solrAccess);
+            handleType.redirect(handle, solrAccess, req, resp);
+            
         } catch (Exception e) {
-            LOGGER.log(Level.SEVERE, e.getMessage(), e);;
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
             resp.sendError(500);
         }
     }
@@ -124,6 +125,13 @@ public class HandleServlet extends GuiceServlet {
                     return solrAccess.getSolrDataDocument(pid);
                 }
             }
+
+            @Override
+            void redirect(String handle, SolrAccess solrAccess, HttpServletRequest request, HttpServletResponse response) throws IOException {
+                String applicationCotext = ApplicationURL.applicationContextPath(request);
+                String redirectUrl = "/" + applicationCotext + "/i.jsp?pid=" + handle;
+                response.sendRedirect(redirectUrl);
+            }
         },
         KRAMERIUS3 {
 
@@ -131,11 +139,27 @@ public class HandleServlet extends GuiceServlet {
             Document dataFromSolr(String handle, SolrAccess solrAccess) throws IOException {
                 return solrAccess.getSolrDataDocumentByHandle(handle);
             }
+
+            @Override
+            void redirect(String handle, SolrAccess solrAccess, HttpServletRequest request, HttpServletResponse response) throws IOException {
+                try {
+                    Document parsedDocument = dataFromSolr(handle, solrAccess);
+                    String pid = SolrUtils.disectPid(parsedDocument);
+                    String applicationCotext = ApplicationURL.applicationContextPath(request);
+                    String redirectUrl = "/" + applicationCotext + "/i.jsp?pid=" + pid;
+                    response.sendRedirect(redirectUrl);
+                } catch (XPathExpressionException e) {
+                    throw new IOException(e);
+                }
+            }
+            
         };
 
         //abstract String construct(String handle);
         abstract Document dataFromSolr(String handle, SolrAccess solrAccess) throws IOException;
-
+        
+        abstract void redirect(String handle, SolrAccess solrAccess, HttpServletRequest request, HttpServletResponse response) throws IOException;
+        
         public static HandleType createType(String handle) {
             if (handle.toLowerCase().startsWith("uuid:")) {
                 return UUID;
