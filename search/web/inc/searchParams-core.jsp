@@ -48,7 +48,7 @@
     <%-- datum --%>
     <c:if test="${param.da_od != null && !empty param.da_od}">
         <c:set var="fieldedSearch" value="true" scope="request" />
-        <c:param name="fq" value="(datum_begin:[1 TO ${searchParams.yearFrom}] AND datum_end:[${searchParams.yearUntil} TO 3000]) OR datum:[${searchParams.dateFromFormatted} TO ${searchParams.dateUntilFormatted}]" />
+        <c:param name="fq" value="(rok:[${searchParams.yearFrom} TO ${searchParams.yearUntil}]) OR (datum_begin:[1 TO ${searchParams.yearUntil}] AND datum_end:[${searchParams.yearFrom} TO 3000]) OR datum:[${searchParams.dateFromFormatted} TO ${searchParams.dateUntilFormatted}]" />
             <c:set var="rows" value="${rowsdefault}" scope="request" />
     </c:if>
 
