@@ -53,7 +53,6 @@ public class BaseModule extends AbstractModule {
 
         bind(SolrAccess.class).to(SolrAccessImpl.class).in(Scopes.SINGLETON);
 
-        bind(GeneratePDFService.class).to(GeneratePDFServiceImpl.class);
         bind(METSService.class).to(METSServiceImpl.class);
         bind(KConfiguration.class).toInstance(KConfiguration.getInstance());
 

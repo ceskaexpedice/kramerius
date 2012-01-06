@@ -116,28 +116,56 @@ var downloadOriginal = new DownloadOriginal();
 
 /**  PDF */
 function PDF() {
+	
 	this.dialog = null;
 	this.structs = null;
 	this.previous = null;
 	
+	
 	this.deviceSelection = {
 			"standard" : function() {
 				$("#pdfsettings_ereader").hide();
-				this.rectangle = null;
-
+				this.devconf = null;
 			},
 			"ereader" : function() {
 				$("#pdfsettings_ereader").show();
+				// change this ?? 
+				pdf.onFormatChange();
 			}
 	};
 
 	
 	this.rectangleSelections = {
+		// a4 format 
 		"a4": function() {
-			return  [595,842];
+			return { 
+				"pageSize":[595,842],
+				"fontsSettings": {
+					"logoFont": {
+						"style": PDF.PDF_FONT_STANDARD,
+						"size": 48
+					},
+					"infFont": {
+						"style": PDF.PDF_FONT_BOLD,
+						"size": 14
+					}
+				}
+			}
 		},
-		"kindle": function() {
-			return [420,595];
+		"a5": function() {
+			return {
+				"pageSize":[420,595],
+				"fontsSettings": {
+					"logoFont": {
+						"style": PDF.PDF_FONT_STANDARD,
+						"size": 48
+					},
+					"infFont": {
+						"style": PDF.PDF_FONT_BOLD,
+						"size": 14
+					}
+				}
+			};
 		}	
 	};
 
@@ -165,8 +193,11 @@ PDF.prototype.renderPDF = function() {
 		}
 		u = u +"&redirectURL="+ escape(window.location.href);
 
-		if (this.rectangle) {
-			u += "&rect="+this.rectangle[0]+","+this.rectangle[1];
+		if (this.devconf) {
+			var rectangle = this.devconf["pageSize"];
+			var logoFont = this.devconf["fontsSettings"]["logoFont"];
+			var infFont = this.devconf["fontsSettings"]["infFont"];
+			u += "&rect="+rectangle[0]+","+rectangle[1]+"&logo={"+logoFont["style"]+";"+logoFont["size"]+"}&info={"+infFont["style"]+";"+infFont["size"]+"}&firstpageType=IMAGES";
 		}
 		window.location.href = u;
 	} else {
@@ -175,6 +206,8 @@ PDF.prototype.renderPDF = function() {
 }
 
 PDF.prototype.generate = function(objects) {
+	this.devconf = null;
+	
 	this.structs = objects;
 	var urlDialog=urlWithPids("inc/_pdf_dialog.jsp?pids=",objects);
 	$.get(urlDialog, bind(function(data){
@@ -238,19 +271,24 @@ PDF.prototype.onSettingsChange = function(type) {
 		var invf = this.deviceSelection[type];
 		invf.call(this);
 	}
-	
 }
 
 PDF.prototype.onFormatChange = function() {
 	var val = $("#pdfsettings_ereader select option:selected").val();
 	if (this.rectangleSelections[val]) {
 		var invf = this.rectangleSelections[val];
-		this.rectangle = invf.call(this);
+		this.devconf = invf.call(this);
 	}
 }
 
 /** PDF object */
 var pdf = new PDF();
+
+// font constants
+PDF.PDF_FONT_STANDARD = 0;
+PDF.PDF_FONT_ITALIC = 1;
+PDF.PDF_FONT_BOLD = 2;
+PDF.PDF_FONT_BOLDITALIC = 3;
 
 
 /** Print object */

@@ -2,6 +2,9 @@ package cz.incad.Kramerius;
 
 import static cz.incad.kramerius.FedoraNamespaces.*;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.StringReader;
 import java.net.MalformedURLException;
@@ -26,6 +29,9 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.lang.NotImplementedException;
+import org.apache.pdfbox.PDFMerger;
+import org.apache.pdfbox.exceptions.COSVisitorException;
+import org.apache.pdfbox.util.PDFMergerUtility;
 import org.w3c.dom.DOMException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -43,9 +49,15 @@ import cz.incad.Kramerius.processes.ParamsLexer;
 import cz.incad.Kramerius.processes.ParamsParser;
 import cz.incad.kramerius.FedoraAccess;
 import cz.incad.kramerius.FedoraNamespaces;
+import cz.incad.kramerius.ObjectPidsPath;
 import cz.incad.kramerius.ProcessSubtreeException;
 import cz.incad.kramerius.SolrAccess;
+import cz.incad.kramerius.document.DocumentService;
+import cz.incad.kramerius.document.model.AbstractRenderedDocument;
+import cz.incad.kramerius.pdf.FirstPagePDFService;
 import cz.incad.kramerius.pdf.GeneratePDFService;
+import cz.incad.kramerius.pdf.PDFFontConfigBean;
+import cz.incad.kramerius.pdf.utils.pdf.FontMap;
 import cz.incad.kramerius.utils.ApplicationURL;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 import cz.incad.kramerius.utils.pid.LexerException;
@@ -73,6 +85,15 @@ public class GeneratePDFServlet extends GuiceServlet {
 	GeneratePDFService service;
 	
 	@Inject
+	@Named("TEXT")
+	FirstPagePDFService textFirstPage;
+	
+    @Inject
+    @Named("IMAGE")
+    FirstPagePDFService imageFirstPage;
+	
+	
+	@Inject
 	@Named("securedFedoraAccess")
 	FedoraAccess fedoraAccess;
 	
@@ -81,6 +102,10 @@ public class GeneratePDFServlet extends GuiceServlet {
 	
 	@Inject
 	SolrAccess solrAccess;
+	
+	
+	@Inject
+	DocumentService documentService;
 	
 	
 	
@@ -120,7 +145,6 @@ public class GeneratePDFServlet extends GuiceServlet {
 
     private void renderErrorPagePDF(HttpServletRequest req, HttpServletResponse resp) throws IOException, ServletException {
         RequestDispatcher dispatcher = req.getRequestDispatcher("serverbusy.jsp");
-        //req.setAttribute("redirectURL", URLEncoder.encode(req.getParameter(arg0), "UTF-8"));
         dispatcher.forward(req, resp);
     }
 
@@ -137,25 +161,52 @@ public class GeneratePDFServlet extends GuiceServlet {
         SimpleDateFormat sdate = new SimpleDateFormat("yyyyMMdd_mmhhss");
         resp.setHeader("Content-disposition","attachment; filename="+sdate.format(new Date())+".pdf");
         String action = req.getParameter("action");
+        String imagesOnly = req.getParameter("firstpageType");
         
-        Action.valueOf(action).renderPDF(req, resp, this.service, "", imgServletUrl, i18nUrl);
-        
-        //service.dynamicPDFExport(requestedUuid, uuidFrom, numberOfPages, "", os, imgServletUrl, i18nUrl);
-        //throw new NotImplementedException("not implemented exception");
-        //service.dynamicPDFExport(parentUuid(from), from, Integer.parseInt(howMany), from, resp.getOutputStream(), imgServletUrl, i18nUrl);
+        FirstPage fp = (imagesOnly != null && (!imagesOnly.trim().equals(""))) ? FirstPage.valueOf(imagesOnly) : FirstPage.TEXT;
+        if (fp == FirstPage.IMAGES) {
+            Action.valueOf(action).renderPDF(req, resp, this.imageFirstPage, this.service,this.solrAccess, this.documentService, "", imgServletUrl, i18nUrl);
+        } else {
+            Action.valueOf(action).renderPDF(req, resp, this.textFirstPage ,this.service,this.solrAccess, this.documentService, "", imgServletUrl, i18nUrl);
+        }
     }
 
     
+    public enum FirstPage {
+        IMAGES, TEXT;
+    }
+    
     public enum Action {
         SELECTION {
+            @SuppressWarnings("unchecked")
             @Override
-            public void renderPDF(HttpServletRequest request, HttpServletResponse response, GeneratePDFService pdfService, String titlePage, String imgServletUrl, String i18nUrl) {
+            public void renderPDF(HttpServletRequest request, HttpServletResponse response, FirstPagePDFService firstPagePDFService, GeneratePDFService pdfService, SolrAccess solrAccess, DocumentService documentService, String titlePage, String imgServletUrl, String i18nUrl) {
                 try {
+                    
+                    
                     String par = request.getParameter(PIDS);
                     String srect = request.getParameter(RECT);
                     ParamsParser parser = new ParamsParser(new ParamsLexer(new StringReader(par)));
                     List params = parser.params();
-                    pdfService.generateImagesSelection((String[])params.toArray(new String[params.size()]), titlePage, response.getOutputStream(), imgServletUrl, i18nUrl,srect(srect));
+                    
+                    PDFFontConfigBean configBean = fontConfigParams(fontConfigParams(null, request.getParameter(LOGO_FONT), FontMap.BIG_FONT), request.getParameter(INF_FONT), FontMap.NORMAL_FONT);
+
+                    File tmpFile = File.createTempFile("body", "pdf");
+                    FileOutputStream bodyTmpFos = new FileOutputStream(tmpFile);
+                    File fpage = File.createTempFile("head", "pdf");
+                    FileOutputStream fpageFos = new FileOutputStream(fpage);
+
+                    int[] irects = srect(srect);
+                    AbstractRenderedDocument rdoc = documentService.buildDocumentFromSelection((String[])params.toArray(new String[params.size()]), irects);
+                    
+                    firstPagePDFService.generateFirstPageForSelection(rdoc, fpageFos, imgServletUrl, i18nUrl, configBean);
+                    pdfService.generateCustomPDF(rdoc, bodyTmpFos, imgServletUrl, i18nUrl);
+                    
+                    bodyTmpFos.close();
+                    fpageFos.close();
+
+                    mergeToOutput(response, tmpFile, fpage);
+                    
                 } catch (IOException e) {
                     LOGGER.log(Level.SEVERE,e.getMessage(),e);
                 } catch (ProcessSubtreeException e) {
@@ -164,26 +215,57 @@ public class GeneratePDFServlet extends GuiceServlet {
                     LOGGER.log(Level.SEVERE,e.getMessage(),e);
                 } catch (TokenStreamException e) {
                     LOGGER.log(Level.SEVERE,e.getMessage(),e);
+                } catch (COSVisitorException e) {
+                    LOGGER.log(Level.SEVERE,e.getMessage(),e);
                 }
             }
 
         }, 
         PARENT {
             @Override
-            public void renderPDF(HttpServletRequest request, HttpServletResponse response, GeneratePDFService pdfService, String titlePage, String imgServletUrl, String i18nUrl) {
+            public void renderPDF(HttpServletRequest request, HttpServletResponse response, FirstPagePDFService firstPagePDFService, GeneratePDFService pdfService,SolrAccess solrAccess , DocumentService documentService, String titlePage, String imgServletUrl, String i18nUrl) {
                 try {
                     String howMany = request.getParameter(HOW_MANY);
                     String pid = request.getParameter(PID_FROM);
                     String srect = request.getParameter(RECT);
-                    pdfService.generateParent(pid, Integer.parseInt(howMany), titlePage, response.getOutputStream(), imgServletUrl, i18nUrl, srect(srect));
+         
+                    File tmpFile = File.createTempFile("body", "pdf");
+                    FileOutputStream bodyTmpFos = new FileOutputStream(tmpFile);
+                    File fpage = File.createTempFile("head", "pdf");
+                    FileOutputStream fpageFos = new FileOutputStream(fpage);
+
+                    ObjectPidsPath[] paths = solrAccess.getPath(pid);
+                    final ObjectPidsPath path = selectOnePath(pid, paths);
+
+                    int[] irects = srect(srect);
+
+                    PDFFontConfigBean configBean = fontConfigParams(fontConfigParams(null, request.getParameter(LOGO_FONT), FontMap.BIG_FONT), request.getParameter(INF_FONT), FontMap.NORMAL_FONT);
+
+                    AbstractRenderedDocument rdoc = documentService.buildDocumentAsFlat(path, path.getLeaf(), Integer.parseInt(howMany), irects);
+
+                    firstPagePDFService.generateFirstPageForSelection(rdoc, fpageFos, imgServletUrl, i18nUrl, configBean);
+                    pdfService.generateCustomPDF(rdoc, bodyTmpFos, imgServletUrl, i18nUrl);
+
+                    bodyTmpFos.close();
+                    fpageFos.close();
+                    
+                    mergeToOutput(response, tmpFile, fpage);
+
                 } catch (IOException e) {
                     LOGGER.log(Level.SEVERE,e.getMessage(),e);
                 } catch (ProcessSubtreeException e) {
+                    LOGGER.log(Level.SEVERE,e.getMessage(),e);
+                } catch (COSVisitorException e) {
+                    LOGGER.log(Level.SEVERE,e.getMessage(),e);
+                } catch (RecognitionException e) {
+                    LOGGER.log(Level.SEVERE,e.getMessage(),e);
+                } catch (TokenStreamException e) {
                     LOGGER.log(Level.SEVERE,e.getMessage(),e);
                 }
             }
         };
         
+
 
         public int[] srect(String srect) {
             int[] rect = null;
@@ -198,8 +280,48 @@ public class GeneratePDFServlet extends GuiceServlet {
             return rect;
         }
 
-        public abstract void renderPDF(HttpServletRequest request, HttpServletResponse response, GeneratePDFService pdfService, String titlePage, String imgServletUrl, String i18nUrl);
+        public abstract void renderPDF(HttpServletRequest request, HttpServletResponse response, FirstPagePDFService firstPagePDFService, GeneratePDFService pdfService, SolrAccess solrAccess, DocumentService documentService, String titlePage, String imgServletUrl, String i18nUrl);
+
+
+        public void mergeToOutput(HttpServletResponse response, File bodyFile, File firstPageFile) throws IOException, COSVisitorException {
+            PDFMergerUtility utility = new PDFMergerUtility();
+            utility.addSource(firstPageFile);
+            utility.addSource(bodyFile);
+            utility.setDestinationStream(response.getOutputStream());
+            utility.mergeDocuments();
+        }
+
+        public PDFFontConfigBean fontConfigParams(PDFFontConfigBean config, String parameter, String fontMapName) throws RecognitionException, TokenStreamException {
+            if (parameter == null) return config;
+            PDFFontConfigBean pdfFontConfig = config != null ? config : new PDFFontConfigBean();
+            ParamsParser bfparser = new ParamsParser(new ParamsLexer(new StringReader(parameter)));
+            List bfs = bfparser.params();
+            if (!bfs.isEmpty()) {
+                String style = (String) bfs.remove(0);
+                pdfFontConfig.setFontStyle(fontMapName, Integer.parseInt(style));
+                
+                if (!bfs.isEmpty()) {
+                    String size = (String) bfs.remove(0);
+                    pdfFontConfig.setFontSize(fontMapName, Integer.parseInt(size));
+                }
+            }
+            return pdfFontConfig;
+        }
+
+        public static ObjectPidsPath selectOnePath(String requestedPid, ObjectPidsPath[] paths) {
+            ObjectPidsPath path;
+            if (paths.length > 0) {
+                path = paths[0];
+            } else {
+                path = new ObjectPidsPath(requestedPid);
+            }
+            return path;
+        }
+
     }
+    
+    private static final String LOGO_FONT = "logo";
+    private static final String INF_FONT = "info";
     
     private static final String PIDS = "pids";
     private static final String RECT = "rect";

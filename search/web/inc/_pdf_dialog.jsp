@@ -68,8 +68,8 @@
          <div style="padding: 5px;">
           <div>
             <select onchange="pdf.onFormatChange();">
-                <option selected="selected" value="a4"> A4 format (Pocket reader)</option>
-                <option value="kindle"> Kindle format </option>
+                <option selected="selected" value="a4"> A4 format</option>
+                <option value="a5"> A5 format </option>
             </select>    
          </div>
          </div>

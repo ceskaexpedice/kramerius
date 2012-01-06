@@ -83,12 +83,24 @@ public abstract class AbstractSocialButton {
 
     public String getShareURL() {
         HttpServletRequest request = this.requestProvider.get();
-        String requestedURL = request.getRequestURL().toString();
-        String query = request.getQueryString();
-        String returnedShareURL = requestedURL;
-        if (!emptyString(query)) {
-            returnedShareURL = requestedURL+"?"+query;
+        if (isItemPage()) {
+            String applicationURL = ApplicationURL.applicationURL(request);
+            return applicationURL+"/handle/"+getPidParam(request);
+        } else {
+            String requestedURL = request.getRequestURL().toString();
+            String query = request.getQueryString();
+            String returnedShareURL = requestedURL;
+            if (!emptyString(query)) {
+                returnedShareURL = requestedURL+"?"+query;
+            }
+            return returnedShareURL;
         }
-        return returnedShareURL;
+        
+        
+    }
+
+    public String getPidParam(HttpServletRequest request) {
+        String pid = request.getParameter("pid");
+        return pid;
     }
 }

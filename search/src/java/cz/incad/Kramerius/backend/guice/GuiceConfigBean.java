@@ -10,6 +10,7 @@ import com.google.inject.servlet.ServletModule;
 import cz.incad.kramerius.database.guice.DatabaseVersionGuiceModule;
 import cz.incad.kramerius.document.guice.DocumentServiceModule;
 import cz.incad.kramerius.imaging.guice.ImageModule;
+import cz.incad.kramerius.pdf.guice.PDFModule;
 import cz.incad.kramerius.printing.guice.PrintModule;
 import cz.incad.kramerius.processes.guice.LongRunningProcessModule;
 import cz.incad.kramerius.security.guice.GuiceSecurityModule;
@@ -35,7 +36,9 @@ public class GuiceConfigBean extends GuiceServletContextListener {
     protected Injector getInjector() {
         Injector injector = Guice.createInjector(
                 new BaseModule(), // base  module
-
+                
+                new PDFModule(), // pdf services
+                
                 new ImageModule(), // images
                 new I18NModule(), // i18n module
                 new LoggedUsersModule(), new MailModule(), // mail service
