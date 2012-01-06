@@ -87,36 +87,6 @@ public class DisplaySelectionRightsViewObject extends AbstractRightsView {
         return new RightWrapper[0];
     }
 
-//    private List<Right> findAllRightWithUserWhichIAdministrate(User user, List<Right> foundRights) {
-//        List<Right> filtered = new ArrayList<Right>();
-//        for (Right right : foundRights) {
-//            // prava s uzivatelem jdou do kytek
-//            // uzivatel
-//            if (right.getUser() instanceof User) {
-//                /*
-//                User rightUsr = (User) right.getUser();
-//                // administruje primo uzivatele
-//                if (user.isAdministratorForGivenGroup(rightUsr.getPersonalAdminId())) {
-//                    filtered.add(right);
-//                } else {
-//                    // administruje nekterou ze skupin
-//                    Role[] grps = userManager.findRolesForGivenUser(rightUsr.getId());
-//                    for (Role group : grps) {
-//                        if (user.isAdministratorForGivenGroup(group.getPersonalAdminId())) {
-//                            filtered.add(right);
-//                            break;
-//                        }                        
-//                    }
-//                }
-//                */
-//                filtered.add(right);
-//           // skupina
-//            } else if (user.isAdministratorForGivenGroup(right.getUser().getPersonalAdminId())) {
-//                filtered.add(right);
-//            }
-//        }
-//        return filtered;
-//    }
 
 
 }
