@@ -169,7 +169,7 @@ function negate(func) {
 }
 
 /**
- * Bind property or method from object to this object
+ * Bind property or method to given object
  * @param func
  * @param object
  * @returns {Function}
@@ -179,7 +179,6 @@ function bind(func, object) {
     return func.apply(object, arguments);
   };
 }
-
 
 
 
