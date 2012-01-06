@@ -146,7 +146,7 @@ public class PrintingServiceImpl implements PrintingService {
         File pdfFile = File.createTempFile("pdf", "rendered");
         pdfFile.deleteOnExit();
         
-        this.pdfService.generateCustomPDF(document, new FileOutputStream(pdfFile), imgUrl, i18nUrl, null);
+        this.pdfService.generateCustomPDF(document, new FileOutputStream(pdfFile), imgUrl, i18nUrl);
 
         PrintService lps = PrintServiceLookup.lookupDefaultPrintService();
         DocPrintJob printJob = lps.createPrintJob();

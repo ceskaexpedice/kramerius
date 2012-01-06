@@ -16,10 +16,32 @@
  */
 package cz.incad.kramerius.pdf;
 
-import com.lowagie.text.Document;
-import com.lowagie.text.pdf.PdfWriter;
+import cz.incad.kramerius.pdf.impl.GeneratePDFServiceImpl;
+import cz.incad.kramerius.pdf.utils.pdf.FontMap;
 
-public interface FirstPageRenderer {
+public class PDFContext {
     
-    public void firstPage(Document doc, PdfWriter writer);
+    private cz.incad.kramerius.pdf.utils.pdf.FontMap fontMap;
+    private String djvuUrl;
+    private String i18nUrl;
+    
+    public PDFContext(FontMap fontMap , String djvuUrl, String i18nUrl) {
+        super();
+        this.fontMap = fontMap;
+        this.djvuUrl = djvuUrl;
+        this.i18nUrl = i18nUrl;
+    }
+    
+    public FontMap getFontMap() {
+        return fontMap;
+    }
+    
+    public String getDjvuUrl() {
+        return djvuUrl;
+    }
+    
+    public String getI18nUrl() {
+        return i18nUrl;
+    }
+
 }

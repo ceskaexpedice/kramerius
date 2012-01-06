@@ -118,7 +118,8 @@ public class KrameriusImageSupport {
             try {
 
                 document = PDDocument.load(stream);
-                int resolution = 96;
+                //int resolution = 96;
+                int resolution = 160;
                 List pages = document.getDocumentCatalog().getAllPages();
                 PDPage pdPage = (PDPage) pages.get(page);
                 BufferedImage image = pdPage.convertToImage(BufferedImage.TYPE_INT_RGB, resolution);

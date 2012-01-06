@@ -49,7 +49,6 @@ public abstract class AbstractGuiceTestCase {
 	            String sqls = IOUtils.readAsString(is, Charset.forName("UTF-8"), true);
 	            String[] splitted = sqls.split("\n");
 	            for (String oneSql : splitted) {
-	                System.out.println("'"+oneSql+"'");
 	                new JDBCUpdateTemplate(con,false){
 	                    @Override
 	                    public PreparedStatement createPreparedStatement(Connection con, String sql) throws SQLException {
