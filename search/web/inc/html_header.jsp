@@ -92,7 +92,6 @@
 
     <script  src="js/settings.js" language="javascript" type="text/javascript"></script>
     <script src="js/jquery.mousewheel.js" type="text/javascript" ></script>
-    <script src="js/jquery.cookie.js" type="text/javascript"></script>
     <script src="js/jquery.layout-latest.js" type="text/javascript" ></script>
 
     <script src="js/jquery-ui-timepicker-addon.js" language="JavaScript" type="text/javascript"></script>
