@@ -2,6 +2,8 @@ package cz.incad.kramerius.utils;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
+import java.io.PrintStream;
 import java.io.Reader;
 import java.io.StringReader;
 import java.util.ArrayList;
@@ -11,6 +13,11 @@ import java.util.Stack;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerException;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -91,4 +98,12 @@ public class XMLUtils {
         return null;
     }
 
+    public static void print(Document doc, OutputStream out) throws TransformerException {
+        TransformerFactory tFactory = TransformerFactory.newInstance();
+        Transformer transformer = tFactory.newTransformer();
+
+        DOMSource source = new DOMSource(doc);
+        StreamResult result = new StreamResult(out);
+        transformer.transform(source, result);
+    }
 }

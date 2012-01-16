@@ -36,10 +36,12 @@ public class TitlesUtils {
     
     public static String title(String pid, SolrAccess solrAccess, FedoraAccess fa, boolean renderModel) throws IOException {
         ObjectPidsPath[] paths = solrAccess.getPath(pid);
+                
         
         String[] path = paths[0].getPathFromRootToLeaf();
         Map<String, String> mapModels = TitlesMapUtils.mapModels(fa, path);
         Map<String, String> mapTitlesToUUID = TitlesMapUtils.mapTitlesToUUID(fa, path);
+        System.out.println(mapTitlesToUUID);
         List<String> titles = new ArrayList<String>();
         for (int i = 0; i < path.length; i++) {
             String u = path[i];

@@ -19,7 +19,9 @@ package cz.incad.kramerius.pdf.utils;
 import com.google.inject.AbstractModule;
 
 import cz.incad.kramerius.FedoraAccess;
+import cz.incad.kramerius.SolrAccess;
 import cz.incad.kramerius.impl.FedoraAccessImpl;
+import cz.incad.kramerius.impl.SolrAccessImpl;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 
 public class SimpleFedoraAccessModule extends AbstractModule {
@@ -28,5 +30,6 @@ public class SimpleFedoraAccessModule extends AbstractModule {
     protected void configure() {
         bind(KConfiguration.class).toInstance(KConfiguration.getInstance());
         bind(FedoraAccess.class).to(FedoraAccessImpl.class);
+        bind(SolrAccess.class).to(SolrAccessImpl.class);
     }
 }

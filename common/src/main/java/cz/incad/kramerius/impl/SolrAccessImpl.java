@@ -68,24 +68,30 @@ public class SolrAccessImpl implements SolrAccess {
             String processPid  =  parser.isDatastreamPid() ? parser.getParentObjectPid() : parser.getObjectPid();
 
             Document solrData = getSolrDataDocument(processPid);
+            return getPath(parser.isDatastreamPid() ? parser.getDataStream() : null, solrData);
+
+        } catch (LexerException e) {
+            throw new IOException(e);
+        }
+    }
+
+    public ObjectPidsPath[] getPath(String datastreamName, Document solrData) throws IOException  {
+        try {
             List<String> disected = SolrUtils.disectPidPaths(solrData);
             ObjectPidsPath[] paths = new ObjectPidsPath[disected.size()];
             for (int i = 0; i < paths.length; i++) {
                 String[] splitted = disected.get(i).split("/");
-                if (parser.isDatastreamPid()) {
+                if (datastreamName != null) {
                     String[] splittedWithStreams = new String[splitted.length];
                     for (int j = 0; j < splittedWithStreams.length; j++) {
-                        splittedWithStreams[j] = splitted[j]+"/"+parser.getDataStream();
+                        splittedWithStreams[j] = splitted[j]+"/"+datastreamName;
                     }
                     splitted = splittedWithStreams;
                 }
                 paths[i] = new ObjectPidsPath(splitted);
             }
             return paths;
-
         } catch (XPathExpressionException e) {
-            throw new IOException(e);
-        } catch (LexerException e) {
             throw new IOException(e);
         }
     }

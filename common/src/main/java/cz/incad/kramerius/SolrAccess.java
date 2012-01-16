@@ -32,6 +32,8 @@ public interface SolrAccess {
         public Document getSolrDataDocumentByHandle(String handle) throws IOException;
         
         public ObjectPidsPath[] getPath(String pid) throws IOException;
+
+        public ObjectPidsPath[] getPath(String datastreamName, Document solrDataDoc) throws IOException;
         
         public ObjectModelsPath[] getPathOfModels(String pid) throws IOException;
         
