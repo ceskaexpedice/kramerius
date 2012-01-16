@@ -48,13 +48,15 @@
 
 
      <c:if test="${fb.buttonEnabled}">
-    <meta property="og:title" content="Kramerius 4"/>
-    <meta property="og:type" content="${fb.metadataType}"/>
-    <meta property="og:url" content="${fb.shareURL}"/>
-    <meta property="og:image" content="${fb.metadataImage}"/>
-    <meta property="og:site_name" content="K4"/>
-    <meta property="og:description"
-          content="K4 virtual library"/>
+        <meta property="og:title" content="${fb.title}"/>
+
+        <meta property="og:type" content="${fb.metadataType}"/>
+        <meta property="og:url" content="${fb.shareURL}"/>
+        <meta property="og:image" content="${fb.metadataImage}"/>
+        <meta property="og:site_name" content="${fb.applicationTitle}"/>
+
+        <meta property="og:description"
+              content="${fb.description}"/>
     </c:if>
 
     <link rel="icon" href="img/favicon.ico"/>
