@@ -91,6 +91,7 @@ public class FacebookLikeItButton extends AbstractSocialButton {
         }
     }
     
+    
     public String getLocale() {
         Locale locale = this.localeProvider.get();
         String country = locale.getCountry();

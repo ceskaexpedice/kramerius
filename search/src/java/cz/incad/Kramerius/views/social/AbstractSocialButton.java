@@ -25,6 +25,7 @@ import javax.servlet.http.HttpServletRequest;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
 
+import cz.incad.Kramerius.backend.guice.LocalesProvider;
 import cz.incad.kramerius.utils.ApplicationURL;
 
 public abstract class AbstractSocialButton {
@@ -38,6 +39,9 @@ public abstract class AbstractSocialButton {
     @Inject
     Provider<HttpServletRequest> requestProvider;
 
+    @Inject
+    LocalesProvider localeProvider;
+    
     public abstract boolean isButtonEnabled();
 
     public boolean emptyString(String str) {
@@ -83,18 +87,18 @@ public abstract class AbstractSocialButton {
 
     public String getShareURL() {
         HttpServletRequest request = this.requestProvider.get();
-        if (isItemPage()) {
-            String applicationURL = ApplicationURL.applicationURL(request);
-            return applicationURL+"/handle/"+getPidParam(request);
-        } else {
+//        if (isItemPage()) {
+//            String applicationURL = ApplicationURL.applicationURL(request);
+//            return applicationURL+"/handle/"+getPidParam(request);
+//        } else {
             String requestedURL = request.getRequestURL().toString();
             String query = request.getQueryString();
             String returnedShareURL = requestedURL;
             if (!emptyString(query)) {
-                returnedShareURL = requestedURL+"?"+query;
+                returnedShareURL = requestedURL+"?"+query+"&language="+localeProvider.get().getLanguage();
             }
             return returnedShareURL;
-        }
+//        }
         
         
     }
