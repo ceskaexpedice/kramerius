@@ -11,14 +11,14 @@
     </lst>
     <result name="response" numFound="4" start="0">
         <doc>
-            <str name="PID">0eaa6730-9068-11dd-97de-000d606f5dc6</str>
+            <str name="PID">uuid:0eaa6730-9068-11dd-97de-000d606f5dc6</str>
             <str name="dc.title">Drobnůstky</str>
             <str name="fedora.model">monograph</str>
             <str name="root_title">Drobnůstky</str>
         </doc>
         <doc>
             <str name="PID">
-                5fe0b160-62d5-11dd-bdc7-000d606f5dc6
+                uuid:5fe0b160-62d5-11dd-bdc7-000d606f5dc6
             </str>
             <str name="dc.title">Kniha zlatá, anebo, Nowý Zwěstowatel wsseho dobrého a vžitečného pro Národ Slowenský.</str>
             <str name="fedora.model">monographunit</str>
