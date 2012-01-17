@@ -32,8 +32,7 @@ public final class GetSuggestionResult extends SuggestOracle.Response implements
 
     public static final class Suggestion implements SuggestOracle.Suggestion, IsSerializable {
 
-        private transient String pid;
-        private String uuid;
+        private String pid;
         private String title;
         private Kind kind;
         private transient String displayString;
@@ -42,8 +41,8 @@ public final class GetSuggestionResult extends SuggestOracle.Response implements
         private Suggestion() {
         }
 
-        public Suggestion(String uuid, String title, Kind kind) {
-            this.uuid = uuid;
+        public Suggestion(String pid, String title, Kind kind) {
+            this.pid = pid;
             this.title = title;
             this.kind = kind;
         }
@@ -53,9 +52,6 @@ public final class GetSuggestionResult extends SuggestOracle.Response implements
         }
 
         public String getPid() {
-            if (pid == null) {
-                pid = "uuid:" + uuid;
-            }
             return pid;
         }
 
@@ -67,7 +63,7 @@ public final class GetSuggestionResult extends SuggestOracle.Response implements
         public String toString() {
 //            return String.format("Suggestion[%s, %s, %s]", pid, kind, title);
             return "Suggestion["
-                    + uuid
+                    + pid
                     + ", " + kind
                     + ", " + title
                     + "]";
@@ -90,7 +86,7 @@ public final class GetSuggestionResult extends SuggestOracle.Response implements
             }
             displayString = "<b>" + ViewUtils.makeLabelVisible(title, 50) + "</b>"
                     + "<br/>" + kind.toLocalizedString()
-                    + "<br/>" + uuid;
+                    + "<br/>" + pid;
         }
     }
 
