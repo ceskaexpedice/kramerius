@@ -82,8 +82,7 @@ public class GetSuggestionQueryHandlerTest {
         assertEquals("uuid:5fe0b160-62d5-11dd-bdc7-000d606f5dc6", suggestions.get(1).getPid());
     }
 
-//    @Test
-    // XXX add mocked KConfiguration.getInstance().getSolrHost() otherwise it uses live settings from .kramerius4
+    @Test
     public void testBuildSolrQuery() throws Exception {
         SolrSuggestionQuery query = new SolrSuggestionQuery();
         String exp = "http://localhost:8080/solr/select"
