@@ -33,8 +33,14 @@ import cz.incad.kramerius.utils.imgs.ImageMimeType;
 
 public class AbstractPDFRenderSupport {
 
+    
+    
     public void insertImageFromURL(Document document, float percentage, String imgUrl, ImageMimeType mimetype) throws IOException, MalformedURLException, BadElementException, DocumentException {
         BufferedImage javaImg = readImage(new URL(imgUrl), mimetype, 0);
+        insertJavaImage(document, percentage, javaImg);
+    }
+
+    public void insertJavaImage(Document document, float percentage, BufferedImage javaImg) throws IOException, BadElementException, MalformedURLException, DocumentException {
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
         writeImageToStream(javaImg, "jpeg", bos);
     

@@ -3,11 +3,11 @@ package cz.incad.kramerius.pdf;
 import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.util.List;
 
 import cz.incad.kramerius.ObjectPidsPath;
 import cz.incad.kramerius.ProcessSubtreeException;
 import cz.incad.kramerius.document.model.AbstractRenderedDocument;
+import cz.incad.kramerius.pdf.impl.ImageFetcher;
 import cz.incad.kramerius.pdf.impl.OutputStreams;
 
 
@@ -37,10 +37,10 @@ public interface GeneratePDFService {
 	public void generateParent(String requestedPid, int numberOfPages, String titlePage, OutputStream os, String imgServletUrl, String i18nUrl, int[] rect) throws IOException, ProcessSubtreeException;
 	
 	
-	public void generateCustomPDF(AbstractRenderedDocument doc, /*String parentUUID,*/ OutputStream os, String djvuUrl, String i18nUrl) throws IOException;
+	public void generateCustomPDF(AbstractRenderedDocument doc, /*String parentUUID,*/ OutputStream os, String djvuUrl, String i18nUrl, ImageFetcher fetcher) throws IOException;
 
 	
-	public AbstractRenderedDocument generateCustomPDF( AbstractRenderedDocument doc,  OutputStream os, Break brk,   String djvuUrl, String i18nUrl) throws IOException;
+	public AbstractRenderedDocument generateCustomPDF( AbstractRenderedDocument doc,  OutputStream os, Break brk,   String djvuUrl, String i18nUrl, ImageFetcher fetcher) throws IOException;
 
 	//public 
 	

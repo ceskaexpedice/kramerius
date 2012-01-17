@@ -83,6 +83,7 @@ import cz.incad.kramerius.document.model.TextPage;
 import cz.incad.kramerius.imaging.ImageStreams;
 import cz.incad.kramerius.imaging.utils.ImageUtils;
 import cz.incad.kramerius.pdf.GeneratePDFService;
+import cz.incad.kramerius.pdf.impl.ImageFetcher;
 import cz.incad.kramerius.pdf.utils.TitlesUtils;
 import cz.incad.kramerius.printing.PrintingService;
 import cz.incad.kramerius.printing.utils.Utils;
@@ -146,7 +147,7 @@ public class PrintingServiceImpl implements PrintingService {
         File pdfFile = File.createTempFile("pdf", "rendered");
         pdfFile.deleteOnExit();
         
-        this.pdfService.generateCustomPDF(document, new FileOutputStream(pdfFile), imgUrl, i18nUrl);
+        this.pdfService.generateCustomPDF(document, new FileOutputStream(pdfFile), imgUrl, i18nUrl, ImageFetcher.WEB);
 
         PrintService lps = PrintServiceLookup.lookupDefaultPrintService();
         DocPrintJob printJob = lps.createPrintJob();
