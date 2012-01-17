@@ -102,6 +102,9 @@ public class ImageStreamsServlet extends AbstractImageServlet {
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         String pid = req.getParameter(UUID_PARAMETER);
+        if (pid == null || pid.trim().equals("")) {
+            pid = req.getParameter(PID_PARAMETER);
+        }
         String stream = req.getParameter(STREAM_PARAMETER);
         int page = disectPageParam(req);
 
