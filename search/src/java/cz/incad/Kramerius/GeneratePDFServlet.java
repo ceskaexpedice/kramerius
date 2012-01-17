@@ -57,6 +57,7 @@ import cz.incad.kramerius.document.model.AbstractRenderedDocument;
 import cz.incad.kramerius.pdf.FirstPagePDFService;
 import cz.incad.kramerius.pdf.GeneratePDFService;
 import cz.incad.kramerius.pdf.PDFFontConfigBean;
+import cz.incad.kramerius.pdf.impl.ImageFetcher;
 import cz.incad.kramerius.pdf.utils.pdf.FontMap;
 import cz.incad.kramerius.utils.ApplicationURL;
 import cz.incad.kramerius.utils.conf.KConfiguration;
@@ -200,7 +201,7 @@ public class GeneratePDFServlet extends GuiceServlet {
                     AbstractRenderedDocument rdoc = documentService.buildDocumentFromSelection((String[])params.toArray(new String[params.size()]), irects);
                     
                     firstPagePDFService.generateFirstPageForSelection(rdoc, fpageFos, imgServletUrl, i18nUrl, configBean);
-                    pdfService.generateCustomPDF(rdoc, bodyTmpFos, imgServletUrl, i18nUrl);
+                    pdfService.generateCustomPDF(rdoc, bodyTmpFos, imgServletUrl, i18nUrl, ImageFetcher.WEB);
                     
                     bodyTmpFos.close();
                     fpageFos.close();
@@ -244,7 +245,7 @@ public class GeneratePDFServlet extends GuiceServlet {
                     AbstractRenderedDocument rdoc = documentService.buildDocumentAsFlat(path, path.getLeaf(), Integer.parseInt(howMany), irects);
 
                     firstPagePDFService.generateFirstPageForSelection(rdoc, fpageFos, imgServletUrl, i18nUrl, configBean);
-                    pdfService.generateCustomPDF(rdoc, bodyTmpFos, imgServletUrl, i18nUrl);
+                    pdfService.generateCustomPDF(rdoc, bodyTmpFos, imgServletUrl, i18nUrl, ImageFetcher.WEB);
 
                     bodyTmpFos.close();
                     fpageFos.close();
