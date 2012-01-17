@@ -74,7 +74,7 @@ public final class LoadViewImpl extends Composite implements LoadView {
 
         errorLabel.setVisible(false);
         clearError();
-        textBox.setText("uuid:");
+        textBox.setText("");
         oracleTextBox.setText("");
         waiting(false);
 

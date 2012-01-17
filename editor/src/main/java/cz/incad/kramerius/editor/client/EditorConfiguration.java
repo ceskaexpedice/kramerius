@@ -57,12 +57,12 @@ public final class EditorConfiguration {
         return krameriusURL;
     }
 
-    public String getPreviewURL(String uuid) {
-        return getKrameriusURL() + "img?uuid=" + uuid + "&stream=IMG_FULL&action=SCALE&scaledWidth=450";
+    public String getPreviewURL(String pid) {
+        return getKrameriusURL() + "img?pid=" + pid + "&stream=IMG_FULL&action=SCALE&scaledWidth=450";
     }
 
-    public String getThumbnailURL(String uuid) {
-        return getKrameriusURL() + "img?uuid=" + uuid+"&stream=IMG_THUMB";//&action=SCALE&scaledHeight=96";
+    public String getThumbnailURL(String pid) {
+        return getKrameriusURL() + "img?pid=" + pid + "&stream=IMG_THUMB";//&action=SCALE&scaledHeight=96";
     }
 
     public Collection<String> getStartupPIDs() {

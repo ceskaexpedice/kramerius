@@ -129,22 +129,20 @@ public final class GWTKrameriusObject {
     }
 
     public String getLocation() {
-        String uuid = getUUID();
-        return EditorConfiguration.getInstance().getThumbnailURL(uuid);
+        return EditorConfiguration.getInstance().getThumbnailURL(getPID());
     }
 
     public String getPreviewLocation() {
-        String uuid = getUUID();
-        return EditorConfiguration.getInstance().getPreviewURL(uuid);
+        return EditorConfiguration.getInstance().getPreviewURL(getPID());
     }
 
-    private String getUUID() {
-        String uuid = pid;
-        if (pid.startsWith(UUID_PREFIX)) {
-            uuid = pid.substring(UUID_PREFIX.length());
-        }
-        return uuid;
-    }
+//    private String getUUID() {
+//        String uuid = pid;
+//        if (pid.startsWith(UUID_PREFIX)) {
+//            uuid = pid.substring(UUID_PREFIX.length());
+//        }
+//        return uuid;
+//    }
 
     @Override
     public String toString() {
