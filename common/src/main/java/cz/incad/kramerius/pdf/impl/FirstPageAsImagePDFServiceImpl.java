@@ -61,8 +61,10 @@ public class FirstPageAsImagePDFServiceImpl extends AbstractPDFRenderSupport imp
 
             File pdfFile = writeSelectionToPDF(rdoc,  imgServlet,  i18nServlet, fontConfigBean);
             BufferedImage image = KrameriusImageSupport.readImage(pdfFile.toURI().toURL(), ImageMimeType.PDF, 0);
+            LOGGER.fine("Original first page file :"+pdfFile.getAbsolutePath());
             
             File imageFile = File.createTempFile("image", ImageMimeType.PNG.getDefaultFileExtension());
+            LOGGER.fine("Original first page file as image :"+imageFile.getAbsolutePath());
             ImageIO.write(image, ImageMimeType.PNG.getDefaultFileExtension(), imageFile);
             
             insertImage(rdoc, os, imageFile);
