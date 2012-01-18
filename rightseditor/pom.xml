@@ -7,8 +7,9 @@
     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
     See the GNU General Public License for more details. You should have received
     a copy of the GNU General Public License along with this program. If not,
-    see <http://www.gnu.org/licenses />. -->
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    see <http://www.gnu.org/licenses/>. -->
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
     <modelVersion>4.0.0</modelVersion>
     <artifactId>rightseditor</artifactId>
@@ -28,7 +29,8 @@
     </parent>
 
     <properties>
-        <gwt.version>2.3.0</gwt.version>
+        <gwt.version>2.4.0</gwt.version>
+        <gwt.maven.version>2.3.0-1</gwt.maven.version>
     </properties>
 
     <dependencies>
@@ -52,7 +54,7 @@
         <dependency>
             <groupId>org.aplikator</groupId>
             <artifactId>aplikator</artifactId>
-            <version>1.0-SNAPSHOT</version>
+            <version>0.2-SNAPSHOT</version>
         </dependency>
         <!-- GWT dependencies -->
         <dependency>
@@ -98,7 +100,7 @@
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>gwt-maven-plugin</artifactId>
-                <version>2.2.0</version>
+                <version>${gwt.maven.version}</version>
 
                 <configuration>
                     <hostedWebapp>${basedir}/war</hostedWebapp>
