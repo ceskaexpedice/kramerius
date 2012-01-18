@@ -5,23 +5,16 @@ import java.util.logging.Logger;
 
 import javax.servlet.ServletException;
 
-import org.aplikator.client.command.ListEntities;
-import org.aplikator.client.descriptor.ActionDTO;
-import org.aplikator.client.descriptor.ApplicationDTO;
-import org.aplikator.client.descriptor.ServiceDTO;
 import org.aplikator.server.ApplicationLoaderServlet;
 import org.aplikator.server.descriptor.Application;
-import org.aplikator.server.descriptor.Arrangement;
 import org.aplikator.server.descriptor.Function;
+import org.aplikator.server.descriptor.Menu;
+import org.aplikator.server.descriptor.View;
 
-import cz.incad.kramerius.rights.server.arragements.GroupArrangement;
-import cz.incad.kramerius.rights.server.arragements.PublicUserArrangement;
-import cz.incad.kramerius.rights.server.arragements.RefenrenceToPersonalAdminArrangement;
-import cz.incad.kramerius.rights.server.arragements.RightArrangement;
-import cz.incad.kramerius.rights.server.arragements.RightsCriteriumArrangement;
-import cz.incad.kramerius.rights.server.arragements.RightsCriteriumParamArrangement;
-import cz.incad.kramerius.rights.server.arragements.UserArrangement;
 import cz.incad.kramerius.rights.server.impl.PropertiesMailer;
+import cz.incad.kramerius.rights.server.views.PublicUserView;
+import cz.incad.kramerius.rights.server.views.RefenrenceToPersonalAdminView;
+import cz.incad.kramerius.rights.server.views.UserView;
 
 @SuppressWarnings("serial")
 public class RightsLoaderServlet extends ApplicationLoaderServlet {
@@ -30,13 +23,13 @@ public class RightsLoaderServlet extends ApplicationLoaderServlet {
 
     Structure struct;
 
-    UserArrangement userArr;
-    RefenrenceToPersonalAdminArrangement referenceToAdmin;
-    //GroupArrangement groupArr;
-    Arrangement groupUserAssocArr;
+    UserView userView;
+    RefenrenceToPersonalAdminView referenceToAdmin;
+    //GroupView groupView;
+    View groupUserAssocView;
 
 
-	PublicUserArrangement publicUserArr;
+    PublicUserView publicUserArr;
 
     @Override
     public void init() throws ServletException {
@@ -49,37 +42,51 @@ public class RightsLoaderServlet extends ApplicationLoaderServlet {
 
             GeneratePasswordExec generatePasswordForPrivate = new GeneratePasswordExec();
 
-            referenceToAdmin = new RefenrenceToPersonalAdminArrangement(struct);
+            referenceToAdmin = new RefenrenceToPersonalAdminView(struct);
 
-			userArr = new UserArrangement(struct, struct.user, referenceToAdmin,  new Function("VygenerovatHeslo", generatePasswordForPrivate));
+//            groupView= new GroupView(struct, struct.group, referenceToAdmin);
+            userView = new UserView(struct, struct.user, referenceToAdmin, new Function("VygenerovatHeslo", generatePasswordForPrivate));
             {
-                generatePasswordForPrivate.setArrangement(userArr);
+                generatePasswordForPrivate.setArrangement(userView);
                 generatePasswordForPrivate.setMailer(new PropertiesMailer());
-                userArr.setMailer(new PropertiesMailer());
+                userView.setMailer(new PropertiesMailer());
+
             }
-            
+
             GeneratePasswordExec generatePasswordForPublic = new GeneratePasswordExec();
-            publicUserArr = new PublicUserArrangement(struct, struct.publicUser, referenceToAdmin, new Function("VygenerovatHeslo", generatePasswordForPublic));
+            publicUserArr = new PublicUserView(struct, struct.publicUser, referenceToAdmin, new Function("VygenerovatHeslo", generatePasswordForPublic));
             {
-            	generatePasswordForPublic.setArrangement(publicUserArr);
+                generatePasswordForPublic.setArrangement(publicUserArr);
                 generatePasswordForPrivate.setMailer(new PropertiesMailer());
-                userArr.setMailer(new PropertiesMailer());
-            	
+                userView.setMailer(new PropertiesMailer());
+
             }
-
-
             LOG.fine("ApplicationLoader 3");
             // CLIENT SIDE MENU
-            ApplicationDTO applicationDescriptor = ApplicationDTO.get();
-            //TODO: I18N
-            ServiceDTO uzivatele = new ServiceDTO("Interni uzivatele");
-            uzivatele.addAction(new ActionDTO("Uzivatele", new ListEntities("Uzivatele", uzivatele, userArr.getId())));
-            //TODO: I18N
-            ServiceDTO publicUzivatele = new ServiceDTO("Verejni Uzivatele");
-            publicUzivatele.addAction(new ActionDTO("Uzivatele", new ListEntities("IUzivatele", publicUzivatele, publicUserArr.getId())));
-    
-            applicationDescriptor.addService(uzivatele);
-            applicationDescriptor.addService(publicUzivatele);
+
+            Menu uzivatele = new Menu("Uzivatele");
+            uzivatele.addView(userView);
+            Menu publicUzivatele = new Menu("Uzivatele");
+            publicUzivatele.addView(publicUserArr);
+            //uzivatele.addAction(new ActionDTO("Skupiny", new ListEntities("Skupiny", groupArr.getId())));
+
+            /*
+             * uzivatele.addAction(new
+             * ActionDTO("Vazby (Uzivatele <-> Skupiny)", new ListEntities(
+             * "Vazby (Uzivatele <-> Skupiny)", uzivatele,
+             * groupUserAssocArr.getId()))); ServiceDTO prava = new
+             * ServiceDTO("Prava"); prava.addAction(new ActionDTO("Prava", new
+             * ListEntities( "Prava", prava, rightsArr.getId())));
+             *
+             * prava.addAction(new ActionDTO("Kriteria", new ListEntities(
+             * "Kriteria", prava, rightsCriteriumArr.getId())));
+             *
+             * prava.addAction(new ActionDTO("Parametry kriteria", new
+             * ListEntities( "Parametry kriteria", prava,
+             * rightsCriteriumParamArr.getId())));
+             */
+            struct.addMenu(uzivatele);
+            struct.addMenu(publicUzivatele);
 
             /*
              * ServiceDTO functions = new ServiceDTO("Funkce");

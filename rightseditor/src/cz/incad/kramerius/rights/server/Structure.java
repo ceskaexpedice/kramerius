@@ -4,6 +4,7 @@ import org.aplikator.client.data.ListItem;
 import org.aplikator.server.descriptor.Application;
 import org.aplikator.server.descriptor.Collection;
 import org.aplikator.server.descriptor.Entity;
+import org.aplikator.server.descriptor.ListProvider;
 import org.aplikator.server.descriptor.Property;
 import org.aplikator.server.descriptor.Reference;
 
@@ -164,7 +165,7 @@ public class Structure extends Application {
             TYPE = integerProperty("TYPE");
 
             QNAME = stringProperty("QNAME", 255, true);
-            QNAME.setListValues(new ListItem<String>("cz.incad.kramerius.security.impl.criteria.MovingWall", "cz.incad.kramerius.security.impl.criteria.MovingWall"), new ListItem<String>("cz.incad.kramerius.security.impl.criteria.DefaultIPAddressFilter", "cz.incad.kramerius.security.impl.criteria.DefaultIPAddressFilter"));
+            QNAME.setListProvider(new ListProvider.Default<String>(new ListItem<String>("cz.incad.kramerius.security.impl.criteria.MovingWall", "cz.incad.kramerius.security.impl.criteria.MovingWall"), new ListItem<String>("cz.incad.kramerius.security.impl.criteria.DefaultIPAddressFilter", "cz.incad.kramerius.security.impl.criteria.DefaultIPAddressFilter")));
 
             PARAM = referenceProperty(criteriumParam, "citeriumParam");
         }
