@@ -26,8 +26,9 @@ public class IndexerProcessStarter {
         title = title.replaceAll(",", " ");
         String url = null;
         final String param = incremental?"reindexDoc":"fromKrameriusModel";
+        String token = System.getProperty(ProcessStarter.TOKEN_KEY);
         try {
-            url = base + "?action=start&def=reindex&out=text&params="+param+","+uuid+","+URLEncoder.encode(title, "UTF-8")+"&token="+System.getProperty(ProcessStarter.TOKEN_KEY);
+            url = base + "?action=start&def=reindex&out=text&params="+param+","+uuid+","+URLEncoder.encode(title, "UTF-8")+(token!=null?"&token="+token:"");
         } catch (UnsupportedEncodingException e1) {
             log.severe(e1.getMessage());
         }
@@ -49,7 +50,8 @@ public class IndexerProcessStarter {
         if (pid_path.endsWith("/")){
             pid_path = pid_path.substring(0,pid_path.length()-1);
         }
-        String url = base +"?action=start&def=reindex&out=text&params=deleteDocument,"+pid_path+","+uuid+"&token="+System.getProperty(ProcessStarter.TOKEN_KEY);
+        String token = System.getProperty(ProcessStarter.TOKEN_KEY);
+        String url = base +"?action=start&def=reindex&out=text&params=deleteDocument,"+pid_path+","+uuid+(token!=null?"&token="+token:"");
         log.info("indexRemover URL:"+url);
         try {
             ProcessStarter.httpGet(url);
