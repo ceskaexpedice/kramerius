@@ -1,16 +1,16 @@
 /*
  * Copyright (C) 2010 Jan Pokorsky
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -27,7 +27,7 @@ import cz.incad.kramerius.editor.client.EditorMessages;
  * @author Jan Pokorsky
  */
 public final class InputValidator {
-    
+
     public interface Validator<T> {
         boolean isValid();
         T getNormalized();
@@ -50,6 +50,7 @@ public final class InputValidator {
 
         @Override
         public boolean isValid() {
+
             String pid = input;
             if (valid != null) {
                 return valid;
@@ -59,6 +60,7 @@ public final class InputValidator {
                 return false;
             }
             pid = pid.trim();
+            /*
             // https://wiki.duraspace.org/display/FCR30/Fedora+Identifiers
             if (pid.matches("^[Uu]{2}[Ii][Dd]:(([A-Za-z0-9])|-|\\.|~|_|(%[0-9A-F]{2}))+$")) {
                 // for now we support only UUID as PID
@@ -72,7 +74,9 @@ public final class InputValidator {
             } else {
                 fetchInvalidPidMessage();
                 return false;
-            }
+            }*/ //temporarily switched off
+            normalized = pid;
+            return true;
 
         }
 
@@ -127,7 +131,7 @@ public final class InputValidator {
             leastSigBits <<= 48;
             leastSigBits |= Long.decode(components[4]).longValue();
         }
-        
+
     }
 
 }

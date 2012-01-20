@@ -143,6 +143,7 @@ public class EditorPresenter implements Presenter, LoadView.Callback, EditorView
 
             @Override
             public void onFailure(Throwable caught) {
+                loadView.hide();
                 Window.alert(I18N_MSG.remoteConnectionFailure(caught.getMessage()));
                 GWT.log(caught.getMessage(), caught);
             }
@@ -409,7 +410,7 @@ public class EditorPresenter implements Presenter, LoadView.Callback, EditorView
         }
         return saveables;
     }
-    
+
     private void setModified(GWTRelationModel relModel) {
         Display relView = this.relModel2viewMap.get(relModel);
         this.display.setModified(relView, relModel.isModified());
