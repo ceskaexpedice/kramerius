@@ -29,31 +29,31 @@ public class ExportServiceImpl implements ExportService {
     FedoraAccess fedoraAccess;
     @Inject
     KConfiguration configuration;
-    
+
     private static final String INFO = "info:fedora/";
 
     @Override
     public void exportTree(String pid) throws IOException {
         Set<String> pids = fedoraAccess.getPids(pid);
-        if (pids.isEmpty()) 
-        	return;
+        if (pids.isEmpty())
+            return;
         String exportRoot = configuration.getProperty("export.directory");
         IOUtils.checkDirectory(exportRoot);
         File exportDirectory = IOUtils.checkDirectory(exportRoot+File.separator+pid.replace("uuid:", "").replaceAll(":", "_"));//create subdirectory for given PID
         IOUtils.cleanDirectory(exportDirectory);
         for (String s : pids) {
-        	String p = s.replace(INFO, "");
-        	LOGGER.info("Exporting "+p);
-        	try{
-        		store(exportDirectory, p, fedoraAccess.getAPIM().export(p, "info:fedora/fedora-system:FOXML-1.1", "archive"));
-        	}catch(Exception ex){
-        		LOGGER.warning("Cannot export object "+p+", skipping: "+ex);
-        	}
+            String p = s.replace(INFO, "");
+            LOGGER.info("Exporting "+exportDirectory+" "+p);
+            try{
+                store(exportDirectory, p, fedoraAccess.getAPIM().export(p, "info:fedora/fedora-system:FOXML-1.1", "archive"));
+            }catch(Exception ex){
+                LOGGER.warning("Cannot export object "+p+", skipping: "+ex);
+            }
         }
     }
 
-    
-    
+
+
     private void store(File exportDirectory, String name, byte[] contents) {
         String convertedName = name.replace("uuid:", "").replaceAll(":", "_")+ ".xml";
         File toFile = new File(exportDirectory, convertedName);
@@ -77,10 +77,10 @@ public class ExportServiceImpl implements ExportService {
 
     /**
      * args[0] uuid of the root object (without uuid: prefix)
-     * @throws IOException 
+     * @throws IOException
      */
     public static void main(String[] args) throws IOException {
-    	LOGGER.info("Export service: "+Arrays.toString(args));
+        LOGGER.info("Export service: "+Arrays.toString(args));
         ExportServiceImpl inst = new ExportServiceImpl();
         inst.fedoraAccess = new FedoraAccessImpl(null);
         inst.configuration = KConfiguration.getInstance();
