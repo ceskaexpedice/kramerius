@@ -50,6 +50,11 @@ public class InputValidatorTest {
     public void tearDown() {
     }
 
+    @Test
+    public void dummyTest(){
+
+    }
+
     /* temporarily removed
     @Test
     public void testValidatePID() {
