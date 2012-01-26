@@ -45,7 +45,7 @@ public class RightsLoaderServlet extends ApplicationLoaderServlet {
             referenceToAdmin = new RefenrenceToPersonalAdminView(struct);
 
 //            groupView= new GroupView(struct, struct.group, referenceToAdmin);
-            userView = new UserView(struct, struct.user, referenceToAdmin, new Function("VygenerovatHeslo", generatePasswordForPrivate));
+            userView = new UserView(struct, struct.user, referenceToAdmin, new Function("generatePasswordForPrivate","VygenerovatHeslo", generatePasswordForPrivate));
             {
                 generatePasswordForPrivate.setArrangement(userView);
                 generatePasswordForPrivate.setMailer(new PropertiesMailer());
@@ -54,7 +54,7 @@ public class RightsLoaderServlet extends ApplicationLoaderServlet {
             }
 
             GeneratePasswordExec generatePasswordForPublic = new GeneratePasswordExec();
-            publicUserArr = new PublicUserView(struct, struct.publicUser, referenceToAdmin, new Function("VygenerovatHeslo", generatePasswordForPublic));
+            publicUserArr = new PublicUserView(struct, struct.publicUser, referenceToAdmin, new Function("generatePasswordForPublic","VygenerovatHeslo", generatePasswordForPublic));
             {
                 generatePasswordForPublic.setArrangement(publicUserArr);
                 generatePasswordForPrivate.setMailer(new PropertiesMailer());
@@ -66,7 +66,7 @@ public class RightsLoaderServlet extends ApplicationLoaderServlet {
 
             Menu uzivatele = new Menu("Uzivatele");
             uzivatele.addView(userView);
-            Menu publicUzivatele = new Menu("Uzivatele");
+            Menu publicUzivatele = new Menu("UzivatelePublic");
             publicUzivatele.addView(publicUserArr);
             //uzivatele.addAction(new ActionDTO("Skupiny", new ListEntities("Skupiny", groupArr.getId())));
 

@@ -45,7 +45,7 @@ public class UserView extends View {
         addProperty(struct.user.LOGINNAME).addProperty(struct.user.NAME).addProperty(struct.user.SURNAME).addProperty(struct.user.PERSONAL_ADMIN.relate(struct.group.GNAME));
         setSortProperty(struct.user.LOGINNAME);
         setQueryGenerator(new UserQueryGenerator());
-        // setForm(createUserFormFormSuperAdmin(vygenerovatHeslo));
+         //setForm(createUserFormForSuperAdmin(vygenerovatHeslo));
         this.trigger = new UserTriggers(this.struct);
 
     }
