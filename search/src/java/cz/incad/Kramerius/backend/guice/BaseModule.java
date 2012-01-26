@@ -57,7 +57,7 @@ public class BaseModule extends AbstractModule {
         bind(KConfiguration.class).toInstance(KConfiguration.getInstance());
 
         bind(Connection.class).annotatedWith(Names.named("kramerius4")).toProvider(Kramerius4ConnectionProvider.class);
-        bind(Connection.class).annotatedWith(Names.named("fedora3")).toProvider(Fedora3ConnectionProvider.class);
+        //bind(Connection.class).annotatedWith(Names.named("fedora3")).toProvider(Fedora3ConnectionProvider.class);
 
         bind(Locale.class).toProvider(LocalesProvider.class);
 

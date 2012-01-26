@@ -92,9 +92,9 @@ public abstract class AbstractImageServlet extends GuiceServlet {
 	protected transient FedoraAccess fedoraAccess;
 
 
-    @Inject
-    @Named("fedora3")
-    protected Provider<Connection> fedora3Provider;
+//    @Inject
+//    @Named("fedora3")
+//    protected Provider<Connection> fedora3Provider;
 	
 	public static BufferedImage scale(BufferedImage img, Rectangle pageBounds, HttpServletRequest req, ScalingMethod scalingMethod) {
 		String spercent = req.getParameter(SCALE_PARAMETER);
@@ -223,13 +223,13 @@ public abstract class AbstractImageServlet extends GuiceServlet {
 
 	protected String getURLForStream(String uuid, String urlFromRelsExt) throws IOException, XPathExpressionException, SQLException {
 	    StringTemplate template = new StringTemplate(urlFromRelsExt);
-	    template.setAttribute("internalstream", getPathForInternalStream(uuid));
+	    //template.setAttribute("internalstream", getPathForInternalStream(uuid));
 	    return template.toString();
 	}
 	
-    protected String getPathForInternalStream(String uuid) throws SQLException, IOException {
-        return FedoraDatabaseUtils.getRelativeDataStreamPathAsString(uuid, this.fedora3Provider);
-    }
+//    protected String getPathForInternalStream(String uuid) throws SQLException, IOException {
+//        return FedoraDatabaseUtils.getRelativeDataStreamPathAsString(uuid, this.fedora3Provider);
+//    }
 
 //    public String getThumbnailIIPUrl(String uuid) throws SQLException, UnsupportedEncodingException, IOException, XPathExpressionException {
 //        String dataStreamPath = getPathForFullImageStream(uuid);
