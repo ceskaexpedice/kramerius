@@ -7,9 +7,7 @@ package cz.incad.kramerius.resourceindex;
 
 import cz.incad.kramerius.utils.XMLUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
-import cz.incad.kramerius.virtualcollections.VirtualCollection;
 import java.util.ArrayList;
-import java.util.List;
 import org.w3c.dom.Document;
 import org.apache.commons.configuration.Configuration;
 

@@ -186,6 +186,9 @@ public class MPTStoreService implements IResourceIndex {
         offset <c:out value="${param.offset}" />
          */
         String torder = Table_lastModifiedDate + ".o";
+        if(orderby.equals("title")){
+            torder = Table_dcTitle + ".o";
+        }
         
         logger.fine("getFedoraObjectsFromModelExt");
         Document xmldoc;
@@ -202,9 +205,13 @@ public class MPTStoreService implements IResourceIndex {
             xmldoc.appendChild(root);
             root.appendChild(results);
             c = dataSource.getConnection();
-            String sql = "select " + Table_dcTitle + ".s, " + Table_dcTitle + ".o, " + Table_lastModifiedDate + ".o from " 
-                    + Table_lastModifiedDate + "," + Table_dcTitle + "," + Table_model
-                    + " where " + Table_model + ".o='<info:fedora/model:" + model + ">' and " + Table_dcTitle + ".s=" + Table_lastModifiedDate + ".s and " + Table_dcTitle + ".s=" + Table_model + ".s "
+            String sql = "select " + Table_dcTitle + ".s, " + Table_dcTitle + ".o, " + Table_lastModifiedDate + ".o from ";
+            if(orderby.equals("title")){
+                sql += Table_dcTitle + "," + Table_lastModifiedDate + "," + Table_model;
+            }else{
+                sql += Table_lastModifiedDate + "," + Table_dcTitle + "," + Table_model;
+            }
+             sql += " where " + Table_model + ".o='<info:fedora/model:" + model + ">' and " + Table_dcTitle + ".s=" + Table_lastModifiedDate + ".s and " + Table_dcTitle + ".s=" + Table_model + ".s "
                     + " order by " + torder + " " + orderDir
                     + " limit " + limit + " offset " + offset;
 

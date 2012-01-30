@@ -306,8 +306,8 @@ function showIndexerAdmin(){
     } else {
     	_indexerDialog = $("#indexer").dialog({
             bgiframe: true,
-            width: 700,
-            height: 400,
+            width: 800,
+            height: 500,
             modal: true,
 	        title: dictionary['administrator.menu.dialogs.indexDocuments.title'],
             buttons: [{

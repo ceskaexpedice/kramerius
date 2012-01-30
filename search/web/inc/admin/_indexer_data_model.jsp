@@ -38,7 +38,7 @@
 </c:if>
         <%
 
-    int rows = 40;
+    int rows = 10;
     pageContext.setAttribute("rows", rows);
     
 
@@ -52,11 +52,15 @@ String sort_dir = request.getParameter("sort_dir");
 if(sort_dir==null){
     sort_dir = "asc";
 }
+String sort = request.getParameter("sort");
+if(sort==null || sort.equals("")){
+    sort = "date";
+}
 String selectedModel = request.getParameter("model");
 if(selectedModel==null || selectedModel.length()==0){
     return;
 }
-org.w3c.dom.Document doc = g.getFedoraObjectsFromModelExt(selectedModel, rows, offset, "date", sort_dir);
+org.w3c.dom.Document doc = g.getFedoraObjectsFromModelExt(selectedModel, rows, offset, sort, sort_dir);
 
 pageContext.setAttribute("selModel", selectedModel);
 pageContext.setAttribute("doc", doc);

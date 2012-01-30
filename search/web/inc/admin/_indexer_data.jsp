@@ -102,25 +102,38 @@
 <table id="indexer_data_model" cellpadding="0" cellspacing="0" class="indexer_selected"  width="100%">
     <thead class="indexer_head"><tr style="display:block;width:100%;">
         <th width="20px"></th>
-        <th width="510px" align="left"><fmt:message bundle="${lctx}">administrator.menu.dialogs.dc.title</fmt:message></th>
+        <th width="610px" align="left">
+            <a href="javascript:loadFedoraDocuments('${selModel}', 0, 'title')"><fmt:message bundle="${lctx}">administrator.menu.dialogs.dc.title</fmt:message></a>
+        </th>
         <th width="138px">
-            <c:choose>
-                <c:when test="${order_dir == 'desc'}">
-                    <a href="javascript:loadFedoraDocuments('${selModel}', 0, 'date', 'asc')"><fmt:message>common.date</fmt:message></a>
-                    <span class="ui-icon indexer_order_down">title</span>
-                </c:when>
-                <c:otherwise>
-                    <a href="javascript:loadFedoraDocuments('${selModel}', 0, 'date', 'desc')"><fmt:message>common.date</fmt:message></a>
-                    <span class="ui-icon indexer_order_up">title</span>
-                </c:otherwise>
-            </c:choose>
+            <input type="hidden" id="indexer_order" value="${order}" />
+            <input type="hidden" id="indexer_order_dir" value="${order_dir}" />
+            <input type="hidden" id="indexer_offset" value="0" />
+            <a href="javascript:loadFedoraDocuments('${selModel}', 0, 'date')"><fmt:message>common.date</fmt:message></a>
+            <span id="date_order_arrow" class="ui-icon ui-icon-arrowthick-1-n">order</span>
         </th></tr></thead>
     <tbody style="overflow:auto;display:block;width:100%;"></tbody>
+    <tfoot class="indexer_head">
+        <tr>
+        <td width="100%" class="pager"  align="right">
+            <span class="prev"><a href="javascript:prevFedoraDocuments();">previous</a></span>
+            <span class="next"><a href="javascript:nextFedoraDocuments();">next</a></span>
+        </td></tr>
+    </tfoot>
 </table>
+            
+
 </div>    
         <script type="text/javascript">
-            
-function loadFedoraDocuments(model, offset, sort, sort_dir){
+var rows = ${rows}; 
+function prevFedoraDocuments(){
+    loadFedoraDocuments($('#top_models_select').val(), parseInt($('#indexer_offset').val())-rows, $("#indexer_order").val());
+}
+function nextFedoraDocuments(){
+    loadFedoraDocuments($('#top_models_select').val(), parseInt($('#indexer_offset').val())+rows, $("#indexer_order").val());
+}
+function loadFedoraDocuments(model, offset, sort){
+    var sort_dir = $("#indexer_order_dir").val()=="asc"?"desc":"asc";
     var url = "inc/admin/_indexer_data_model.jsp?model="+model+"&offset="+offset+"&sort="+sort+"&sort_dir="+sort_dir;
     $.get(url, function(data) {
         $("#indexer_data_model>tbody>tr").remove();
@@ -129,8 +142,28 @@ function loadFedoraDocuments(model, offset, sort, sort_dir){
             h = h - $(this).height() - 11;
         });
         $("#indexer_data_container").css("height", h);
-        $("#indexer_data_model>tbody").css("height", h - $("#indexer_data_model>thead").height() - 25);
+        $("#indexer_data_model>tbody").css("height", h - $("#indexer_data_model>thead").height()*2 - 25);
         $("#indexer_data_model>tbody").append(data);
+        $("#indexer_order").val(sort);
+        $("#indexer_order_dir").val(sort_dir);
+        $("#indexer_offset").val(offset);
+        if(sort_dir=="asc"){
+            $("#date_order_arrow").removeClass('ui-icon-arrowthick-1-n');
+            $("#date_order_arrow").addClass('ui-icon-arrowthick-1-s');
+        }else{
+            $("#date_order_arrow").removeClass('ui-icon-arrowthick-1-s');
+            $("#date_order_arrow").addClass('ui-icon-arrowthick-1-n');
+        }
+        if(offset>0){
+            $("#indexer_data_model .prev").show();
+        }else{
+            $("#indexer_data_model .prev").hide();
+        }
+        if($("#indexer_data_model>tbody>tr").length==rows){
+            $("#indexer_data_model .next").show();
+        }else{
+            $("#indexer_data_model .next").hide();
+        }
         checkIndexed();
     });
 }

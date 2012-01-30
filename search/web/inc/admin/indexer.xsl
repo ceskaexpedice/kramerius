@@ -23,10 +23,6 @@ version="1.0">
             </td><td width="138"><xsl:value-of select="./sp:date" /></td>
             </tr>
         </xsl:for-each>
-        <tr><td class="indexer_pager" colspan="2">
-            <xsl:if test="$offset>0"><a><xsl:attribute name="href">javascript:loadFedoraDocuments('<xsl:value-of select="$model" />', <xsl:value-of select="$offset - $rows" />, '<xsl:value-of select="$sort" />', '<xsl:value-of select="$sort_dir" />')</xsl:attribute>previous</a></xsl:if>
-            <xsl:if test="count(/sp:sparql/sp:results/sp:result)=$rows"><a><xsl:attribute name="href">javascript:loadFedoraDocuments('<xsl:value-of select="$model" />', <xsl:value-of select="$offset + $rows" />, '<xsl:value-of select="$sort" />', '<xsl:value-of select="$sort_dir" />')</xsl:attribute>next</a></xsl:if>
-        </td></tr>
     </xsl:template>
 
 </xsl:stylesheet>
