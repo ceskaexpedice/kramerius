@@ -17,10 +17,11 @@ version="1.0">
             <xsl:variable name="titleescaped" select="translate($title, $q, $qescaped)" />
             <xsl:variable name="date" select="normalize-space(./sp:date)" />
             <tr class="indexer_result"><xsl:attribute name="pid"><xsl:value-of select="./sp:object/@uri" /></xsl:attribute>
-            <td class="indexer_result_status"></td><td>
-            - 
+            <td class="indexer_result_status" width="20px"></td>
+            <td width="610px"> - 
             <a><xsl:attribute name="href">javascript:indexDoc('<xsl:value-of select="./sp:object/@uri" />', '<xsl:value-of select="$titleescaped" />');</xsl:attribute><xsl:value-of select="./sp:title" /></a>
-            </td><td width="138"><xsl:value-of select="./sp:date" /></td>
+            </td>
+            <td width="138px"><xsl:value-of select="./sp:date" /></td>
             </tr>
         </xsl:for-each>
     </xsl:template>

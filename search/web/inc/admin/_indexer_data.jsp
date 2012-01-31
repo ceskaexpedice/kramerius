@@ -30,7 +30,7 @@
 <fmt:setBundle basename="labels" var="bundleVar" />
 <c:set var="order" value="${param.sort}" />
 <c:if test="${empty param.sort}">
-    <c:set var="order" value="title" />
+    <c:set var="order" value="date" />
 </c:if>
 <c:set var="order_dir" value="${param.sort_dir}" />
 <c:if test="${empty param.sort_dir}">
@@ -43,7 +43,7 @@
         selectedModel = models[0];
     }
     pageContext.setAttribute("selModel", selectedModel);
-    int rows = 10;
+    int rows = 40;
     pageContext.setAttribute("rows", rows);
     pageContext.setAttribute("top_models", models);
 %>
@@ -91,7 +91,7 @@
 <div id="indexer_data_container">   
 <div>
     <fmt:message bundle="${lctx}">administrator.menu.dialogs.browse_fedora_top_models</fmt:message>: 
-    <select id="top_models_select" onChange="loadFedoraDocuments($('#top_models_select').val(), 0, '${order}', '${order_dir}' );">
+    <select id="top_models_select" onChange="loadFedoraDocuments($('#top_models_select').val(), 0);$('#indexer_data_model').show();">
         <option>--</option>
         <c:forEach var="top_model" items="${top_models}">
         <option value="${top_model}">${top_model}</option>
@@ -99,20 +99,20 @@
     </select>
     <input type="button" onclick="confirmIndexModel($('#top_models_select').val());" value="<fmt:message bundle="${lctx}">administrator.menu.dialogs.index_model</fmt:message>" class="ui-state-default ui-corner-all" />
 </div> 
-<table id="indexer_data_model" cellpadding="0" cellspacing="0" class="indexer_selected"  width="100%">
+<table id="indexer_data_model" cellpadding="0" cellspacing="0" class="indexer_selected" style="display:none;" width="100%">
     <thead class="indexer_head"><tr style="display:block;width:100%;">
         <th width="20px"></th>
         <th width="610px" align="left">
-            <a href="javascript:loadFedoraDocuments('${selModel}', 0, 'title')"><fmt:message bundle="${lctx}">administrator.menu.dialogs.dc.title</fmt:message></a>
+            <a href="javascript:orderDocuments('title')"><fmt:message bundle="${lctx}">administrator.menu.dialogs.dc.title</fmt:message></a>
         </th>
         <th width="138px">
             <input type="hidden" id="indexer_order" value="${order}" />
             <input type="hidden" id="indexer_order_dir" value="${order_dir}" />
             <input type="hidden" id="indexer_offset" value="0" />
-            <a href="javascript:loadFedoraDocuments('${selModel}', 0, 'date')"><fmt:message>common.date</fmt:message></a>
+            <a href="javascript:orderDocuments('date')"><fmt:message>common.date</fmt:message></a>
             <span id="date_order_arrow" class="ui-icon ui-icon-arrowthick-1-n">order</span>
         </th></tr></thead>
-    <tbody style="overflow:auto;display:block;width:100%;"></tbody>
+    <tbody style="overflow:auto;display:block;width:100%;"><tr><td align="center" colspan="3"><img src="img/loading.gif" /></td></tr></tbody>
     <tfoot class="indexer_head">
         <tr>
         <td width="100%" class="pager"  align="right">
@@ -132,7 +132,12 @@ function prevFedoraDocuments(){
 function nextFedoraDocuments(){
     loadFedoraDocuments($('#top_models_select').val(), parseInt($('#indexer_offset').val())+rows, $("#indexer_order").val());
 }
+function orderDocuments(field){
+    loadFedoraDocuments($('#top_models_select').val(), 0, field);
+}
 function loadFedoraDocuments(model, offset, sort){
+    if(!sort) sort = $("#indexer_order").val();
+    if(!model) model = $('#top_models_select').val();
     var sort_dir = $("#indexer_order_dir").val()=="asc"?"desc":"asc";
     var url = "inc/admin/_indexer_data_model.jsp?model="+model+"&offset="+offset+"&sort="+sort+"&sort_dir="+sort_dir;
     $.get(url, function(data) {

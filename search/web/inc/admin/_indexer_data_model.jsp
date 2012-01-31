@@ -38,7 +38,7 @@
 </c:if>
         <%
 
-    int rows = 10;
+    int rows = 40;
     pageContext.setAttribute("rows", rows);
     
 
