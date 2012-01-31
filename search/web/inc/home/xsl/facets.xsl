@@ -78,7 +78,10 @@
                     <xsl:when test="@name=''"><xsl:value-of select="$bundle/value[@key='facets.uknown']" /></xsl:when>
                     <xsl:when test="$facetname='document_type'">
                         <xsl:variable name="f"><xsl:value-of select="concat('fedora.model.', @name)" /></xsl:variable>
-                        <xsl:value-of select="$bundle/value[@key=$f]" />
+                        <xsl:choose>
+                             <xsl:when test="$bundle/value[@key=$f]!=''"><xsl:value-of select="$bundle/value[@key=$f]" /></xsl:when>
+                             <xsl:otherwise><xsl:value-of select="@name" /></xsl:otherwise>
+                        </xsl:choose>
                     </xsl:when>
                     <xsl:when test="$facetname='dostupnost'">
                         <xsl:variable name="f"><xsl:value-of select="concat('dostupnost.', @name)" /></xsl:variable>

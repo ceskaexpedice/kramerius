@@ -27,7 +27,7 @@
         </c:when>
         <c:when test="${param.q != null}" >
             <c:if test="${fn:containsIgnoreCase(param.q, '*')}" >
-                <c:param name="qt" value="czparser" />
+                
             </c:if>
             <c:param name="q" value="${param.q}" />
             <c:set var="rows" value="${rowsdefault}" scope="request" />
