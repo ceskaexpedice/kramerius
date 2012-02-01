@@ -147,6 +147,7 @@ public class SecurityDatabaseInitializator {
     public static void createSecurityTables(Connection connection) throws SQLException, IOException {
         InputStream is = InitSecurityDatabaseMethodInterceptor.class.getResourceAsStream("res/initsecdb.sql");
         JDBCUpdateTemplate template = new JDBCUpdateTemplate(connection, false);
+        template.setUseReturningKeys(false);
         template.executeUpdate(IOUtils.readAsString(is, Charset.forName("UTF-8"), true));
     }
     
@@ -174,10 +175,8 @@ public class SecurityDatabaseInitializator {
 //        }
 //
 //        createPublicUsersAndProfilesTables(conn);
-        
 //        String str = "ALTER TABLE PROFILES ADD CONSTRAINT PROFILES_ACTIVE_USER_ID_FK FOREIGN KEY (active_users_id) REFERENCES ACTIVE_USERS (ACTIVE_USERS_ID);";
 //        System.out.println(str.substring(0,135));
-        
     }
 
 
@@ -185,8 +184,8 @@ public class SecurityDatabaseInitializator {
     public static void alterSecurityTableActiveColumn(Connection con) throws SQLException {
         PreparedStatement prepareStatement = con.prepareStatement(
                 "ALTER TABLE USER_ENTITY ADD COLUMN DEACTIVATED BOOLEAN"); 
-            int r = prepareStatement.executeUpdate();
-            LOGGER.log(Level.FINEST, "ALTER TABLE: updated rows {0}", r);
+            prepareStatement.executeUpdate();
+            LOGGER.log(Level.FINEST, "ALTER TABLE: updated rows");
     }
 
     public static void updateSecurityTableActiveColumn(Connection con) throws SQLException {
