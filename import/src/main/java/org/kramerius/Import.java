@@ -3,6 +3,7 @@ package org.kramerius;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.IOException;
 import java.net.Authenticator;
 import java.net.MalformedURLException;
 import java.net.PasswordAuthentication;
@@ -11,6 +12,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import javax.xml.namespace.QName;
@@ -25,6 +27,8 @@ import org.fedora.api.FedoraAPIMService;
 import org.fedora.api.ObjectFactory;
 import org.fedora.api.RelationshipTuple;
 
+import cz.incad.kramerius.FedoraAccess;
+import cz.incad.kramerius.impl.FedoraAccessImpl;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 
 public class Import {
@@ -32,52 +36,53 @@ public class Import {
     static FedoraAPIM port;
     static ObjectFactory of;
     static int counter = 0;
-    
+
     private static final Logger log = Logger.getLogger(Import.class.getName());
 
     /**
      * @param args
      */
     public static void main(String[] args) {
-    	Import.ingest(KConfiguration.getInstance().getProperty("ingest.url"), KConfiguration.getInstance().getProperty("ingest.user"), KConfiguration.getInstance().getProperty("ingest.password"), KConfiguration.getInstance().getProperty("import.directory"));
+        Import.ingest(KConfiguration.getInstance().getProperty("ingest.url"), KConfiguration.getInstance().getProperty("ingest.user"), KConfiguration.getInstance().getProperty("ingest.password"), KConfiguration.getInstance().getProperty("import.directory"));
     }
 
     public static void ingest(final String url, final String user, final String pwd, String importRoot) {
         log.info("INGEST:"+url+user+pwd+importRoot);
         if (KConfiguration.getInstance().getConfiguration().getBoolean("ingest.skip",false)){
-        	log.info("INGEST CONFIGURED TO BE SKIPPED, RETURNING");
-        	return;
+            log.info("INGEST CONFIGURED TO BE SKIPPED, RETURNING");
+            return;
         }
         long start = System.currentTimeMillis();
-        
+
         File importFile = new File(importRoot);
         if (!importFile.exists()) {
             log.severe("Import root folder doesn't exist: " + importFile.getAbsolutePath());
             return;
         }
-        
-       
-        
-        Authenticator.setDefault(new Authenticator() { 
-            protected PasswordAuthentication getPasswordAuthentication() { 
-               return new PasswordAuthentication(user, pwd.toCharArray()); 
-             } 
-           }); 
 
+
+
+        Authenticator.setDefault(new Authenticator() {
+            protected PasswordAuthentication getPasswordAuthentication() {
+               return new PasswordAuthentication(user, pwd.toCharArray());
+             }
+           });
+
+        FedoraAccess fedoraAccess = null;
         try {
-            service = new FedoraAPIMService(new URL(url+"/wsdl?api=API-M"),
-                    new QName("http://www.fedora.info/definitions/1/0/api/", "Fedora-API-M-Service"));
-        } catch (MalformedURLException e) {
-            System.out.println("InvalidURL"+e);
+            fedoraAccess = new FedoraAccessImpl(null);
+            log.info("Instantiated FedoraAccess");
+        } catch (IOException e) {
+            log.log(Level.SEVERE,"Cannot instantiate FedoraAccess",e);
             throw new RuntimeException(e);
         }
-        port = service.getPort(FedoraAPIM.class);
-        ((BindingProvider) port).getRequestContext().put(BindingProvider.USERNAME_PROPERTY, user);
-        ((BindingProvider) port).getRequestContext().put(BindingProvider.PASSWORD_PROPERTY, pwd);
+        port = fedoraAccess.getAPIM();
+
+
         of = new ObjectFactory();
 
         visitAllDirsAndFiles(importFile);
-        System.out.println("FINISHED INGESTION IN "+((System.currentTimeMillis()-start)/1000.0)+"s, processed "+counter+" files");
+        log.info("FINISHED INGESTION IN "+((System.currentTimeMillis()-start)/1000.0)+"s, processed "+counter+" files");
     }
 
     private static void visitAllDirsAndFiles(File importFile) {
@@ -85,7 +90,7 @@ public class Import {
 
             File[] children = importFile.listFiles();
             if (children.length>1 && children[0].isDirectory()){//Issue 36
-            	Arrays.sort(children);
+                Arrays.sort(children);
             }
             for (int i = 0; i < children.length; i++) {
                 visitAllDirsAndFiles(children[i]);
@@ -96,9 +101,9 @@ public class Import {
     }
 
     private static void ingest(File file) {
-    	if (!file.getName().toLowerCase().endsWith(".xml")){
-    		return;
-    	}
+        if (!file.getName().toLowerCase().endsWith(".xml")){
+            return;
+        }
         try {
             long start = System.currentTimeMillis();
             //System.out.println("Processing:"+file.getAbsolutePath());
@@ -131,7 +136,7 @@ public class Import {
             try {
                 pid = port.ingest(bytes, "info:fedora/fedora-system:FOXML-1.1", "Initial ingest");
             } catch (SOAPFaultException sfex) {
-                
+
                 if (sfex.getMessage().contains("ObjectExistsException")) {
                     merge(bytes);
                 }else{
@@ -141,9 +146,9 @@ public class Import {
             }
             counter++;
             log.info("Ingested:" + pid + " in " + (System.currentTimeMillis() - start) + "ms, count:"+counter);
-            
+
         } catch (Exception ex) {
-            log.severe(ex.toString());
+            log.log(Level.SEVERE,"Ingestion error ",ex);
             throw new RuntimeException(ex);
         }
     }
