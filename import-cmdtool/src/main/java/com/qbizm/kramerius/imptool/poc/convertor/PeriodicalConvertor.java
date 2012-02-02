@@ -127,10 +127,9 @@ public class PeriodicalConvertor extends BaseConvertor {
         }
         String cleanTitle= StringUtils.replaceEach(title, new String[]{"\t", "\n"}, new String[]{" ", " "});
         if (volumeuuid== null){
-            convertedURI.append(cleanTitle).append("\t").append("pid=").append(pid).append("&pid_path=").append(pid).append("&path=periodical\n");
+            convertedURI.append(cleanTitle).append("\t").append("pid=").append(pid);
         } else{
-            convertedURI.append(cleanTitle).append("\t").append("pid=").append(volumeuuid).append("&pid_path=").append(pid).append("/").append(volumeuuid)
-            .append("&path=periodical/periodicalvolume\n");
+            convertedURI.append(cleanTitle).append("\t").append("pid=").append(volumeuuid);
         }
 
         addDonatorRelation(re, biblio.getCreator());

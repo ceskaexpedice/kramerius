@@ -102,7 +102,7 @@ public class MonographConvertor extends BaseConvertor {
         String pid = pid(uuid);
 
         String cleanTitle= StringUtils.replaceEach(title, new String[]{"\t", "\n"}, new String[]{" ", " "});
-        convertedURI.append(cleanTitle).append("\t").append("pid=").append(pid).append("&pid_path=").append(pid).append("&path=monograph\n");
+        convertedURI.append(cleanTitle).append("\t").append("pid=").append(pid);
         // neplatny vstupni objekt
         //if (mono.getMonographBibliographicRecord().getSeries() != null && mono.getMonographBibliographicRecord().getSeries().size() > 1) {
         //    throw new IllegalArgumentException("Illegal multiple /Monograph/MonographBibliographicRecord/Series occurence!");
