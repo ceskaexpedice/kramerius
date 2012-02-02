@@ -45,7 +45,7 @@ public class RightsLoaderServlet extends ApplicationLoaderServlet {
             referenceToAdmin = new RefenrenceToPersonalAdminView(struct);
 
 //            groupView= new GroupView(struct, struct.group, referenceToAdmin);
-            userView = new UserView(struct, struct.user, referenceToAdmin, new Function("generatePasswordForPrivate","VygenerovatHeslo", generatePasswordForPrivate));
+            userView = new UserView(struct, Structure.user, referenceToAdmin, new Function("generatePasswordForPrivate","VygenerovatHeslo", generatePasswordForPrivate));
             {
                 generatePasswordForPrivate.setArrangement(userView);
                 generatePasswordForPrivate.setMailer(new PropertiesMailer());
@@ -54,7 +54,7 @@ public class RightsLoaderServlet extends ApplicationLoaderServlet {
             }
 
             GeneratePasswordExec generatePasswordForPublic = new GeneratePasswordExec();
-            publicUserArr = new PublicUserView(struct, struct.publicUser, referenceToAdmin, new Function("generatePasswordForPublic","VygenerovatHeslo", generatePasswordForPublic));
+            publicUserArr = new PublicUserView(struct, Structure.publicUser, referenceToAdmin, new Function("generatePasswordForPublic","VygenerovatHeslo", generatePasswordForPublic));
             {
                 generatePasswordForPublic.setArrangement(publicUserArr);
                 generatePasswordForPrivate.setMailer(new PropertiesMailer());

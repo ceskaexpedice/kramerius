@@ -9,7 +9,7 @@ import java.util.logging.Logger;
 import javax.mail.MessagingException;
 import javax.mail.internet.AddressException;
 
-import org.aplikator.client.data.RecordDTO;
+import org.aplikator.client.data.Record;
 import org.aplikator.client.descriptor.PropertyDTO;
 import org.aplikator.server.Context;
 import org.aplikator.server.persistence.PersisterTriggers;
@@ -26,30 +26,28 @@ public class UserTriggers extends AbstractUserTriggers implements PersisterTrigg
 
     public static final Logger LOGGER = Logger.getLogger(UserTriggers.class.getName());
 
-    private Structure structure;
     private Mailer mailer;
 
     public UserTriggers(Structure structure) {
         super();
-        this.structure = structure;
     }
 
     @Override
-    public RecordDTO beforeCreate(RecordDTO record, Context ctx) {
+    public Record beforeCreate(Record record, Context ctx) {
         try {
             User user = GetCurrentLoggedUser.getCurrentLoggedUser(ctx.getHttpServletRequest());
             if ((user == null) || (!user.hasSuperAdministratorRole())) {
                 List<Integer> groupsList = GetAdminGroupIds.getAdminGroupId(ctx);
-                PropertyDTO<Integer> personalAdminDTO = structure.user.PERSONAL_ADMIN.clientClone(ctx);
-                record.setValue(personalAdminDTO, groupsList.get(0));
+                PropertyDTO<Integer> personalAdminDTO = Structure.user.PERSONAL_ADMIN.clientClone(ctx);
+                personalAdminDTO.setValue(record, groupsList.get(0));
             }
 
-            PropertyDTO<String> pswdDTO = structure.user.PASSWORD.clientClone(ctx);
+            PropertyDTO<String> pswdDTO = Structure.user.PASSWORD.clientClone(ctx);
             String generated = GeneratePasswordUtils.generatePswd();
 
-            GeneratePasswordUtils.sendGeneratedPasswordToMail((String) record.getValue(structure.user.EMAIL.clientClone(ctx)), (String) record.getValue(structure.user.LOGINNAME.clientClone(ctx)), generated, mailer, ctx);
+            GeneratePasswordUtils.sendGeneratedPasswordToMail( Structure.user.EMAIL.getValue(record), Structure.user.LOGINNAME.getValue(record), generated, mailer, ctx);
 
-            record.setValue(pswdDTO, PasswordDigest.messageDigest(generated));
+            pswdDTO.setValue(record, PasswordDigest.messageDigest(generated));
 
         } catch (NoSuchAlgorithmException e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
@@ -64,12 +62,12 @@ public class UserTriggers extends AbstractUserTriggers implements PersisterTrigg
     }
 
     @Override
-    public RecordDTO afterCreate(RecordDTO record, Context ctx) {
+    public Record afterCreate(Record record, Context ctx) {
         return null;
     }
 
     @Override
-    public RecordDTO beforeUpdate(RecordDTO recordDTO, Context ctx) {
+    public Record beforeUpdate(Record record, Context ctx) {/*
         String[] bfs = recordDTO.getModifiedByBfs();
         if (bfs.length == 0) {
             PropertyDTO<String> pswdDTO = structure.user.PASSWORD.clientClone(ctx);
@@ -80,22 +78,22 @@ public class UserTriggers extends AbstractUserTriggers implements PersisterTrigg
                 recordDTO.setNotForSave(personalAdminDTO, true);
             }
         }
-
+*/
         return null;
     }
 
     @Override
-    public RecordDTO afterUpdate(RecordDTO recordDTO, Context ctx) {
+    public Record afterUpdate(Record record, Context ctx) {
         return null;
     }
 
     @Override
-    public RecordDTO beforeDelete(RecordDTO recordDTO, Context ctx) {
+    public Record beforeDelete(Record record, Context ctx) {
         return null;
     }
 
     @Override
-    public RecordDTO afterDelete(RecordDTO recordDTO, Context ctx) {
+    public Record afterDelete(Record record, Context ctx) {
         return null;
     }
 

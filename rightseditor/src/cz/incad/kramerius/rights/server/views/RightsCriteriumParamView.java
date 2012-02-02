@@ -11,14 +11,12 @@ import cz.incad.kramerius.rights.server.Structure;
 
 public class RightsCriteriumParamView extends View {
 
-    private Structure structure;
 
     public RightsCriteriumParamView(Entity entity, Structure struct) {
         super(entity);
-        this.structure = struct;
-        setSortProperty(struct.criteriumParam.SHORT_DESC);
-        addProperty(struct.criteriumParam.SHORT_DESC);
-        addProperty(struct.criteriumParam.VALS);
+        setSortProperty(Structure.criteriumParam.SHORT_DESC);
+        addProperty(Structure.criteriumParam.SHORT_DESC);
+        addProperty(Structure.criteriumParam.VALS);
 
         setForm(createRightCriteriumParamForm());
     }
@@ -26,13 +24,13 @@ public class RightsCriteriumParamView extends View {
     private Form createRightCriteriumParamForm() {
         Form form = new Form();
 
-        TextField<String> shortDesc = new TextField<String>(structure.criteriumParam.SHORT_DESC);
+        TextField<String> shortDesc = new TextField<String>(Structure.criteriumParam.SHORT_DESC);
         shortDesc.setWidth("100%");
 
-        TextArea longDesc = new TextArea(structure.criteriumParam.LONG_DESC);
+        TextArea longDesc = new TextArea(Structure.criteriumParam.LONG_DESC);
         longDesc.setWidth("100%");
 
-        TextArea values = new TextArea(structure.criteriumParam.VALS);
+        TextArea values = new TextArea(Structure.criteriumParam.VALS);
         values.setWidth("100%");
 
         form.setLayout(column().add(shortDesc).add(longDesc).add(values));

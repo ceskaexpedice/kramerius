@@ -22,7 +22,7 @@ public class UserGroupAssoc extends View {
     public UserGroupAssoc(Structure structure, GroupUserAssoction assoc, UserView userView, GroupView groupView) {
         super(assoc);
 
-        setLocalizationKey(structure.user.getId());
+        setLocalizationKey(Structure.user.getId());
 
         this.structure = structure;
         this.groupUserAssoction = assoc;
@@ -30,11 +30,11 @@ public class UserGroupAssoc extends View {
         this.groupView = groupView;
 
         // addProperty(structure.groupUserAssoction.USERS);
-        addProperty(structure.groupUserAssoction.USERS.relate(structure.user.NAME));
-        addProperty(structure.groupUserAssoction.USERS.relate(structure.user.SURNAME));
+        addProperty(Structure.groupUserAssoction.USERS.relate(Structure.user.NAME));
+        addProperty(Structure.groupUserAssoction.USERS.relate(Structure.user.SURNAME));
 
         // addProperty(structure.groupUserAssoction.GROUP);
-        addProperty(structure.groupUserAssoction.GROUP.relate(structure.group.GNAME));
+        addProperty(Structure.groupUserAssoction.GROUP.relate(Structure.group.GNAME));
         setForm(createForm());
 
     }
@@ -42,8 +42,8 @@ public class UserGroupAssoc extends View {
     Form createForm() {
         Form form = new Form();
         form.setLayout(column().add(
-                reference(structure.groupUserAssoction.USERS, this.userView, column().add(new TextField<String>(structure.groupUserAssoction.USERS.relate(structure.user.NAME))).add(new TextField<String>(structure.groupUserAssoction.USERS.relate(structure.user.SURNAME))))).add(
-                reference(structure.groupUserAssoction.GROUP, this.groupView, row().add(new TextField<String>(structure.groupUserAssoction.GROUP.relate(structure.group.GNAME))))));
+                reference(Structure.groupUserAssoction.USERS, this.userView, column().add(new TextField<String>(Structure.groupUserAssoction.USERS.relate(Structure.user.NAME))).add(new TextField<String>(Structure.groupUserAssoction.USERS.relate(Structure.user.SURNAME))))).add(
+                reference(Structure.groupUserAssoction.GROUP, this.groupView, row().add(new TextField<String>(Structure.groupUserAssoction.GROUP.relate(Structure.group.GNAME))))));
         return form;
     }
 

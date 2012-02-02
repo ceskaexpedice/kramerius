@@ -9,20 +9,18 @@ import cz.incad.kramerius.rights.server.Structure;
 
 public class RightView extends View {
 
-    private Structure struct;
 
     public RightView(Entity entity, Structure structure) {
         super(entity);
-        this.struct = structure;
 
-        addProperty(struct.rights.ACTION);
-        addProperty(struct.rights.UUID);
+        addProperty(Structure.rights.ACTION);
+        addProperty(Structure.rights.UUID);
 
         // rozdelit do nejakeho sloupce
-        addProperty(struct.rights.USER);
-        addProperty(struct.rights.GROUP);
+        addProperty(Structure.rights.USER);
+        addProperty(Structure.rights.GROUP);
 
-        addProperty(struct.rights.RIGHT_CRITERIUM);
+        addProperty(Structure.rights.RIGHT_CRITERIUM);
 
         setForm(createRightForm());
 

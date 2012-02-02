@@ -35,9 +35,9 @@ public class GroupView extends View {
         this.struct = structure;
         this.groupEntity = entity;
         this.reference = reference;
-        setLocalizationKey(struct.group.getId());
-        addProperty(struct.group.GNAME);
-        setSortProperty(struct.group.GNAME);
+        setLocalizationKey(Structure.group.getId());
+        addProperty(Structure.group.GNAME);
+        setSortProperty(Structure.group.GNAME);
         // setForm(createGroupForm());
         setQueryGenerator(new GroupQueryGenerator());
         this.trigger = new GroupTriggers(this.struct);
@@ -57,18 +57,18 @@ public class GroupView extends View {
 
     private Form createSubadminGroupForm() {
         Form form = new Form();
-        form.setLayout(column().add(new TextField<String>(struct.group.GNAME)).add(new TextArea(struct.group.DESCRIPTION).setWidth("100%")).add(new RepeatedForm(struct.group.USER_ASSOCIATIONS, new GroupUsersView()))
+        form.setLayout(column().add(new TextField<String>(Structure.group.GNAME)).add(new TextArea(Structure.group.DESCRIPTION).setWidth("100%")).add(new RepeatedForm(Structure.group.USER_ASSOCIATIONS, new GroupUsersView()))
 
         );
-        form.addProperty(struct.group.PERSONAL_ADMIN);
+        form.addProperty(Structure.group.PERSONAL_ADMIN);
         return form;
 
     }
 
     private Form createAdminGroupForm() {
         Form form = new Form();
-        form.setLayout(column().add(new TextField<String>(struct.group.GNAME)).add(new TextArea(struct.group.DESCRIPTION).setWidth("100%"))
-                .add(ReferenceField.reference(struct.group.PERSONAL_ADMIN, this.reference, row().add(new TextField<String>(struct.group.PERSONAL_ADMIN.relate(struct.group.GNAME))))).add(new RepeatedForm(struct.group.USER_ASSOCIATIONS, new GroupUsersView()))
+        form.setLayout(column().add(new TextField<String>(Structure.group.GNAME)).add(new TextArea(Structure.group.DESCRIPTION).setWidth("100%")).add(ReferenceField.reference(Structure.group.PERSONAL_ADMIN, this.reference, row().add(new TextField<String>(Structure.group.PERSONAL_ADMIN.relate(Structure.group.GNAME)))))
+                .add(new RepeatedForm(Structure.group.USER_ASSOCIATIONS, new GroupUsersView()))
 
         );
         return form;
@@ -78,19 +78,20 @@ public class GroupView extends View {
     public class GroupUsersView extends View {
 
         public GroupUsersView() {
-            super(struct.groupUserAssoction);
-            setLocalizationKey(struct.user.getLocalizationKey());
+            super(Structure.groupUserAssoction);
+            setLocalizationKey(Structure.user.getLocalizationKey());
 
             // addProperty(structure.groupUserAssoction.GROUP);
-            addProperty(struct.groupUserAssoction.USERS.relate(struct.user.LOGINNAME));
+            addProperty(Structure.groupUserAssoction.USERS.relate(Structure.user.LOGINNAME));
             setForm(createForm());
             // setQueryGenerator(new FormUsersGenerator());
         }
 
         Form createForm() {
             Form form = new Form();
-            form.setLayout(column().add(ReferenceField.reference(struct.groupUserAssoction.USERS, new RefUserView(), column().add(new TextField<String>(struct.groupUserAssoction.USERS.relate(struct.user.LOGINNAME))).add(new TextField<String>(struct.groupUserAssoction.USERS.relate(struct.user.NAME)))
-                    .add(new TextField<String>(struct.groupUserAssoction.USERS.relate(struct.user.SURNAME))))));
+            form.setLayout(column().add(
+                    ReferenceField.reference(Structure.groupUserAssoction.USERS, new RefUserView(),
+                            column().add(new TextField<String>(Structure.groupUserAssoction.USERS.relate(Structure.user.LOGINNAME))).add(new TextField<String>(Structure.groupUserAssoction.USERS.relate(Structure.user.NAME))).add(new TextField<String>(Structure.groupUserAssoction.USERS.relate(Structure.user.SURNAME))))));
             return form;
         }
 
@@ -98,21 +99,21 @@ public class GroupView extends View {
 
     public class RefUserView extends View {
         public RefUserView() {
-            super(struct.user);
-            setLocalizationKey(struct.user.getId());
-            addProperty(struct.user.LOGINNAME);
-            setSortProperty(struct.user.LOGINNAME);
+            super(Structure.user);
+            setLocalizationKey(Structure.user.getId());
+            addProperty(Structure.user.LOGINNAME);
+            setSortProperty(Structure.user.LOGINNAME);
             setForm(createUserForm());
             setQueryGenerator(new RefUsersGenerator());
         }
 
         private Form createUserForm() {
             Form form = new Form();
-            form.setLayout(column().add(column().add(new TextField<String>(struct.user.NAME)).add(new TextField<String>(struct.user.SURNAME)))
+            form.setLayout(column().add(column().add(new TextField<String>(Structure.user.NAME)).add(new TextField<String>(Structure.user.SURNAME)))
 
-            .add(column().add(new TextField<String>(struct.user.LOGINNAME)).add(new TextField<String>(struct.user.PASSWORD)))
+            .add(column().add(new TextField<String>(Structure.user.LOGINNAME)).add(new TextField<String>(Structure.user.PASSWORD)))
 
-            .add(ReferenceField.reference(struct.user.PERSONAL_ADMIN, reference, row().add(new TextField<String>(struct.user.PERSONAL_ADMIN.relate(struct.group.GNAME)))))
+            .add(ReferenceField.reference(Structure.user.PERSONAL_ADMIN, reference, row().add(new TextField<String>(Structure.user.PERSONAL_ADMIN.relate(Structure.group.GNAME)))))
 
             );
             return form;
@@ -130,7 +131,7 @@ public class GroupView extends View {
                 User user = GetCurrentLoggedUser.getCurrentLoggedUser(ctx.getHttpServletRequest());
                 if (!user.hasSuperAdministratorRole()) {
                     List<Integer> admId = GetAdminGroupIds.getAdminGroupId(ctx);
-                    return new QueryCompareExpression<Integer>(struct.user.PERSONAL_ADMIN, QueryCompareOperator.IS, admId.get(0));
+                    return new QueryCompareExpression<Integer>(Structure.user.PERSONAL_ADMIN, QueryCompareOperator.IS, admId.get(0));
                 } else {
                     return null;
                 }
@@ -150,7 +151,7 @@ public class GroupView extends View {
             User user = GetCurrentLoggedUser.getCurrentLoggedUser(ctx.getHttpServletRequest());
             if (!user.hasSuperAdministratorRole()) {
                 List<Integer> admId = GetAdminGroupIds.getAdminGroupId(ctx);
-                return new QueryCompareExpression<Integer>(struct.group.PERSONAL_ADMIN, QueryCompareOperator.IS, admId.get(0));
+                return new QueryCompareExpression<Integer>(Structure.group.PERSONAL_ADMIN, QueryCompareOperator.IS, admId.get(0));
             } else
                 return null;
         }

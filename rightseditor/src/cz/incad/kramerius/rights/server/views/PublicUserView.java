@@ -44,8 +44,8 @@ import cz.incad.kramerius.security.User;
             this.referenceToAdmin = reference;
             this.vygenerovatHeslo = vygenerovatHeslo;
 
-            addProperty(struct.user.LOGINNAME).addProperty(struct.user.NAME).addProperty(struct.user.SURNAME).addProperty(struct.user.PERSONAL_ADMIN.relate(struct.group.GNAME));
-            setSortProperty(struct.user.LOGINNAME);
+            addProperty(Structure.user.LOGINNAME).addProperty(Structure.user.NAME).addProperty(Structure.user.SURNAME).addProperty(Structure.user.PERSONAL_ADMIN.relate(Structure.group.GNAME));
+            setSortProperty(Structure.user.LOGINNAME);
             setQueryGenerator(new UserQueryGenerator());
             // setForm(createUserFormFormSuperAdmin(vygenerovatHeslo));
             this.trigger = new UserTriggers(this.struct);
@@ -73,35 +73,35 @@ import cz.incad.kramerius.security.User;
 
         private Form createUserFormForSuperAdmin(Function vygenerovatHeslo) {
             Form form = new Form();
-            form.setLayout(column().add(column().add(new TextField<String>(struct.user.NAME)).add(new TextField<String>(struct.user.SURNAME)))
+            form.setLayout(column().add(column().add(new TextField<String>(Structure.user.NAME)).add(new TextField<String>(Structure.user.SURNAME)))
 
-            .add(column().add(new TextField<String>(struct.user.LOGINNAME))
-            .add(new TextField<String>(struct.user.PASSWORD))
-            .add(new TextField<String>(struct.user.EMAIL))
-            .add(new TextField<String>(struct.user.ORGANISATION))
-            .add(new CheckBox(struct.user.DEACTIVATED))
+            .add(column().add(new TextField<String>(Structure.user.LOGINNAME))
+            .add(new TextField<String>(Structure.user.PASSWORD))
+            .add(new TextField<String>(Structure.user.EMAIL))
+            .add(new TextField<String>(Structure.user.ORGANISATION))
+            .add(new CheckBox(Structure.user.DEACTIVATED))
             )
 
             //.addChild(new RefButton(struct.user.PERSONAL_ADMIN, this.referenceToAdmin, new HorizontalPanel().addChild(new TextField<String>(struct.user.PERSONAL_ADMIN.relate(struct.group.GNAME)))))
-            .add(new RepeatedForm(struct.user.GROUP_ASSOCIATIONS, new UserGroupsView()))
+            .add(new RepeatedForm(Structure.user.GROUP_ASSOCIATIONS, new UserGroupsView()))
 
             );
-            form.addProperty(struct.user.PASSWORD);
+            form.addProperty(Structure.user.PASSWORD);
             return form;
         }
 
         public class UserGroupsView extends View {
 
             public UserGroupsView() {
-                super(struct.groupUserAssoction);
-                setLocalizationKey(struct.group.getLocalizationKey());
-                addProperty(struct.groupUserAssoction.GROUP.relate(struct.group.GNAME));
+                super(Structure.groupUserAssoction);
+                setLocalizationKey(Structure.group.getLocalizationKey());
+                addProperty(Structure.groupUserAssoction.GROUP.relate(Structure.group.GNAME));
                 setForm(createForm());
             }
 
             Form createForm() {
                 Form form = new Form();
-                form.setLayout(column().add(reference(struct.groupUserAssoction.GROUP, new RefGroupView(), row().add(new TextField<String>(struct.groupUserAssoction.GROUP.relate(struct.group.GNAME))))));
+                form.setLayout(column().add(reference(Structure.groupUserAssoction.GROUP, new RefGroupView(), row().add(new TextField<String>(Structure.groupUserAssoction.GROUP.relate(Structure.group.GNAME))))));
                 return form;
             }
 
@@ -109,8 +109,8 @@ import cz.incad.kramerius.security.User;
 
         public class RefGroupView extends View {
             public RefGroupView() {
-                super(struct.group);
-                addProperty(struct.group.GNAME);
+                super(Structure.group);
+                addProperty(Structure.group.GNAME);
                 // TODO: problem with joins
                 //addProperty(struct.group.PERSONAL_ADMIN.relate(struct.group.GNAME));
                 //setSortProperty(struct.group.GNAME);
@@ -120,8 +120,8 @@ import cz.incad.kramerius.security.User;
 
             private Form createGroupForm() {
                 Form form = new Form();
-                form.setLayout(column().add(new TextField<String>(struct.group.GNAME)).add(new TextArea(struct.group.DESCRIPTION).setWidth("100%"))
-                        .add(reference(struct.group.PERSONAL_ADMIN, referenceToAdmin, row().add(new TextField<String>(struct.group.PERSONAL_ADMIN.relate(struct.group.GNAME)))))
+                form.setLayout(column().add(new TextField<String>(Structure.group.GNAME)).add(new TextArea(Structure.group.DESCRIPTION).setWidth("100%"))
+                        .add(reference(Structure.group.PERSONAL_ADMIN, referenceToAdmin, row().add(new TextField<String>(Structure.group.PERSONAL_ADMIN.relate(Structure.group.GNAME)))))
 
                 );
                 return form;
@@ -139,7 +139,7 @@ import cz.incad.kramerius.security.User;
                     User user = GetCurrentLoggedUser.getCurrentLoggedUser(ctx.getHttpServletRequest());
                     if (!user.hasSuperAdministratorRole()) {
                         List<Integer> admId = GetAdminGroupIds.getAdminGroupId(ctx);
-                        return new QueryCompareExpression<Integer>(struct.group.PERSONAL_ADMIN, QueryCompareOperator.IS, admId.get(0));
+                        return new QueryCompareExpression<Integer>(Structure.group.PERSONAL_ADMIN, QueryCompareOperator.IS, admId.get(0));
                     } else {
                         return null;
                     }
@@ -158,7 +158,7 @@ import cz.incad.kramerius.security.User;
                 User user = GetCurrentLoggedUser.getCurrentLoggedUser(ctx.getHttpServletRequest());
                 if (!user.hasSuperAdministratorRole()) {
                     List<Integer> admId = GetAdminGroupIds.getAdminGroupId(ctx);
-                    return new QueryCompareExpression<Integer>(struct.user.PERSONAL_ADMIN, QueryCompareOperator.IS, admId.get(0));
+                    return new QueryCompareExpression<Integer>(Structure.user.PERSONAL_ADMIN, QueryCompareOperator.IS, admId.get(0));
                 } else
                     return null;
             }

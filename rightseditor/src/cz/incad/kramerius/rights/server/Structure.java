@@ -15,9 +15,9 @@ import org.aplikator.server.descriptor.Reference;
  */
 public class Structure extends Application {
 
-	public class PublicUserEntity extends Entity {
+    public static class PublicUserEntity extends Entity {
 
-		// vlastnosti uzivatele
+        // vlastnosti uzivatele
         public final Property<String> NAME;
         public final Property<String> SURNAME;
         public final Property<String> LOGINNAME;
@@ -30,7 +30,7 @@ public class Structure extends Application {
 
         public Collection<GroupUserAssoction> GROUP_ASSOCIATIONS;
 
-        
+
         public PublicUserEntity() {
             super("public_users_table", "PUBLIC_USER_ENTITY", "USER_ID");
             NAME = stringProperty("NAME",  255, true);
@@ -38,7 +38,7 @@ public class Structure extends Application {
             LOGINNAME = stringProperty("LOGINNAME",  255, true);
             PASSWORD = stringProperty("PSWD",  255, false);
             DEACTIVATED = booleanProperty("DEACTIVATED");
-            
+
             EMAIL = stringProperty("EMAIL",  255, false);
             ORGANISATION = stringProperty("ORGANISATION",  255, false);
 
@@ -48,15 +48,15 @@ public class Structure extends Application {
             addIndex("PASSWORD_IDX", false, PASSWORD);
 
         }
-        
-	}
-	
+
+    }
+
     /**
      * Entita uzivatel
      *
      * @author pavels
      */
-    public class UserEntity extends Entity {
+    public static class UserEntity extends Entity {
         // vlastnosti uzivatele
         public final Property<String> NAME;
         public final Property<String> SURNAME;
@@ -67,7 +67,7 @@ public class Structure extends Application {
         public final Property<String> ORGANISATION;
 
         public final Property<Boolean> DEACTIVATED;
-        
+
         // administrator uzivatele
         public Reference<GroupEntity> PERSONAL_ADMIN;
 
@@ -80,7 +80,7 @@ public class Structure extends Application {
             LOGINNAME = stringProperty("LOGINNAME",  255, true);
             PASSWORD = stringProperty("PSWD",  255, false);
             DEACTIVATED = booleanProperty("DEACTIVATED");
-            
+
             EMAIL = stringProperty("EMAIL",  255, false);
             ORGANISATION = stringProperty("ORGANISATION",  255, false);
 
@@ -96,7 +96,7 @@ public class Structure extends Application {
      *
      * @author pavels
      */
-    public class GroupEntity extends Entity {
+    public static class GroupEntity extends Entity {
 
         // vlastnosti skupiny
         public final Property<String> GNAME;
@@ -115,7 +115,7 @@ public class Structure extends Application {
         }
     }
 
-    public class GroupUserAssoction extends Entity {
+    public static class GroupUserAssoction extends Entity {
 
         public final Reference<UserEntity> USERS;
         public final Reference<GroupEntity> GROUP;
@@ -127,7 +127,7 @@ public class Structure extends Application {
         }
     }
 
-    public class RightsEntity extends Entity {
+    public static class RightsEntity extends Entity {
 
         public final Property<String> UUID;
         public final Property<String> ACTION;
@@ -153,7 +153,7 @@ public class Structure extends Application {
         }
     }
 
-    public class RightCriteriumEntity extends Entity {
+    public static class RightCriteriumEntity extends Entity {
 
         public final Property<String> QNAME;
         public final Property<Integer> TYPE;
@@ -171,7 +171,7 @@ public class Structure extends Application {
         }
     }
 
-    public class RightCriteriumParamEntity extends Entity {
+    public static class RightCriteriumParamEntity extends Entity {
 
         public final Property<String> VALS;
         public final Property<String> LONG_DESC;
@@ -186,15 +186,15 @@ public class Structure extends Application {
         }
     }
 
-    public final PublicUserEntity publicUser = new PublicUserEntity();
-    
-    public final UserEntity user = new UserEntity();
-    public final GroupEntity group = new GroupEntity();
-    public final GroupUserAssoction groupUserAssoction = new GroupUserAssoction();
+    public static final PublicUserEntity publicUser = new Structure.PublicUserEntity();
 
-    public final RightCriteriumParamEntity criteriumParam = new RightCriteriumParamEntity();
-    public final RightCriteriumEntity rightCriterium = new RightCriteriumEntity();
-    public final RightsEntity rights = new RightsEntity();
+    public static final UserEntity user = new UserEntity();
+    public static final GroupEntity group = new GroupEntity();
+    public static final GroupUserAssoction groupUserAssoction = new GroupUserAssoction();
+
+    public static final RightCriteriumParamEntity criteriumParam = new RightCriteriumParamEntity();
+    public static final RightCriteriumEntity rightCriterium = new RightCriteriumEntity();
+    public static final RightsEntity rights = new RightsEntity();
 
     public Structure() {
 

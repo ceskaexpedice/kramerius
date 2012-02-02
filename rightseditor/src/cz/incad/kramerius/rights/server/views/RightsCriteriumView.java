@@ -15,15 +15,13 @@ import cz.incad.kramerius.rights.server.Structure;
 
 public class RightsCriteriumView extends View {
 
-    private Structure struct;
     private RightsCriteriumParamView rightsCriteriumParamView;
 
     public RightsCriteriumView(Entity entity, Structure struct, RightsCriteriumParamView rightsCriteriumParamView) {
         super(entity);
-        this.struct = struct;
         this.rightsCriteriumParamView = rightsCriteriumParamView;
 
-        addProperty(struct.rightCriterium.QNAME);
+        addProperty(Structure.rightCriterium.QNAME);
         // addProperty(struct.rightCriterium.FIXED_PRIORITY);
 
         setForm(createCriteriumForm());
@@ -31,9 +29,9 @@ public class RightsCriteriumView extends View {
 
     private Form createCriteriumForm() {
         Form form = new Form();
-        form.setLayout(column().add(column().add(new ComboBox<String>(struct.rightCriterium.QNAME)).add(
-                reference(struct.rightCriterium.PARAM, rightsCriteriumParamView, column().add(new TextField<String>(struct.rightCriterium.PARAM.relate(struct.criteriumParam.SHORT_DESC)).setWidth("30em"))
-                        .add(new TextArea(struct.rightCriterium.PARAM.relate(struct.criteriumParam.LONG_DESC)).setWidth("30em")).add(new TextField<String>(struct.rightCriterium.PARAM.relate(struct.criteriumParam.VALS)).setWidth("30em"))))));
+        form.setLayout(column().add(column().add(new ComboBox<String>(Structure.rightCriterium.QNAME)).add(
+                reference(Structure.rightCriterium.PARAM, rightsCriteriumParamView, column().add(new TextField<String>(Structure.rightCriterium.PARAM.relate(Structure.criteriumParam.SHORT_DESC)).setWidth("30em"))
+                        .add(new TextArea(Structure.rightCriterium.PARAM.relate(Structure.criteriumParam.LONG_DESC)).setWidth("30em")).add(new TextField<String>(Structure.rightCriterium.PARAM.relate(Structure.criteriumParam.VALS)).setWidth("30em"))))));
         return form;
     }
 
