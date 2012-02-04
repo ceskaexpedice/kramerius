@@ -4,12 +4,14 @@ import static cz.incad.kramerius.utils.imgs.KrameriusImageSupport.readImage;
 import static cz.incad.kramerius.utils.imgs.KrameriusImageSupport.writeImageToStream;
 
 import java.awt.FontFormatException;
+import java.awt.GraphicsEnvironment;
 import java.awt.image.BufferedImage;
 import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.StringReader;
 import java.net.URL;
@@ -112,6 +114,16 @@ public class GeneratePDFServiceImpl extends AbstractPDFRenderSupport implements 
 
         String[] fonts = { "ext_ontheflypdf_ArialCE.ttf", "GentiumPlus-I.ttf", "GentiumPlus-R.ttf" };
         IOUtils.copyBundledResources(this.getClass(), fonts, "res/", this.fontsFolder());
+        
+        for (String fontName : fonts) {
+            try {
+                InputStream is = this.getClass().getResourceAsStream("res/"+fontName);
+                java.awt.Font font = java.awt.Font.createFont(java.awt.Font.TRUETYPE_FONT, is);
+                GraphicsEnvironment.getLocalGraphicsEnvironment().registerFont(font);
+            } catch (FontFormatException e) {
+                throw new IOException(e);
+            }
+        }
     }
 
     @Override
