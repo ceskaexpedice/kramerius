@@ -32,6 +32,7 @@ import java.util.logging.Level;
 import org.antlr.stringtemplate.StringTemplate;
 
 import cz.incad.kramerius.database.VersionService;
+import cz.incad.kramerius.users.database.LoggedUserDatabaseInitializator;
 import cz.incad.kramerius.utils.DatabaseUtils;
 import cz.incad.kramerius.utils.IOUtils;
 import cz.incad.kramerius.utils.database.JDBCCommand;
@@ -73,9 +74,12 @@ public class SecurityDatabaseInitializator {
                     );
                 }
                 
-
+                
+                //TODO: Move method
+                LoggedUserDatabaseInitializator.createLoggedUsersTables(connection);
+                
                 // create tables for public users - 4.5.0 - version
-                createPublicUsersAndProfilesTables(connection);
+                createPublicUsersAndProfilesTables(connection); // Zavislost na active users
                 // create public role
                 insertPublicRole(connection);
                 // create public role
@@ -85,6 +89,10 @@ public class SecurityDatabaseInitializator {
             } else { 
                 
                 if (versionService.getVersion().equals("4.5.0")) {
+                    
+                    //TODO: Move method
+                    LoggedUserDatabaseInitializator.createLoggedUsersTables(connection);
+
                     // create tables for public users
                     createPublicUsersAndProfilesTables(connection);
                     // create public role
@@ -94,6 +102,7 @@ public class SecurityDatabaseInitializator {
                 }
                 
                 if (versionService.getVersion().equals("4.6.0")) {
+
                     // create public role
                     insertPublicRole(connection);
                     // create public role
