@@ -33,7 +33,7 @@ public class GCSchedulerImpl implements GCScheduler {
 	public void init() {
 		String sinterval  = KConfiguration.getInstance().getProperty("gcScheduler.checkInterval","10000");
 		this.interval =  Integer.parseInt(sinterval);
-		this.scheduleFindGCCandidates();
+		//this.scheduleFindGCCandidates();
 	}
 
 	
