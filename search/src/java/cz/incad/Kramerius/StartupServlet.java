@@ -33,6 +33,8 @@ import cz.incad.Kramerius.backend.guice.GuiceServlet;
 import cz.incad.kramerius.database.VersionInitializer;
 import cz.incad.kramerius.database.VersionService;
 import cz.incad.kramerius.pdf.GeneratePDFService;
+import cz.incad.kramerius.processes.GCScheduler;
+import cz.incad.kramerius.processes.ProcessScheduler;
 import cz.incad.kramerius.processes.database.MostDesirableDatabaseInitializator;
 import cz.incad.kramerius.processes.database.ProcessDatabaseInitializator;
 import cz.incad.kramerius.security.database.SecurityDatabaseInitializator;
@@ -61,6 +63,12 @@ public class StartupServlet extends GuiceServlet {
     @Inject
     VersionService versionService;
     
+    @Inject
+    ProcessScheduler processScheduler;
+    
+    @Inject
+    GCScheduler gcScheduler;
+    
     
     @Override
     public void init() throws ServletException {
@@ -85,8 +93,6 @@ public class StartupServlet extends GuiceServlet {
             MostDesirableDatabaseInitializator.initDatabase(connection, versionService);
             // all security tables
             SecurityDatabaseInitializator.initDatabase(connection, versionService);
-            // Logged users table -> must be after security tables
-            LoggedUserDatabaseInitializator.initDatabase(connection, versionService);
             // process tables - > must be after security tables and must be after logged user tables
             ProcessDatabaseInitializator.initDatabase(connection, versionService);
 
@@ -103,6 +109,10 @@ public class StartupServlet extends GuiceServlet {
         }
         
         
+        // find dead process
+        this.gcScheduler.scheduleFindGCCandidates();
+        // find process to start
+        this.processScheduler.scheduleNextTask();
     }
 
     @Override
