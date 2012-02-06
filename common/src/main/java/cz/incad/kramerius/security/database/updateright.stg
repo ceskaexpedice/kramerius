@@ -30,3 +30,12 @@ insertDisplayAdminMenuRight() ::=<<
         from group_entity
         where gname='k4_admins'
 >>
+
+
+insertRight_VirtualCollections() ::=<<
+    insert into right_entity (right_id, uuid, "action", group_id)
+        select nextval('right_id_sequence'),'uuid:1','virtualcollection_manage',group_id 
+        from group_entity
+        where gname='k4_admins'
+>>
+

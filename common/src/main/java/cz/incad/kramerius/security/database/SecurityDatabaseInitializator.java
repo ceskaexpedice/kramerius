@@ -84,7 +84,10 @@ public class SecurityDatabaseInitializator {
                 insertPublicRole(connection);
                 // create public role
                 insertRightForDisplayAdminMenu(connection);
-                
+
+                // insert right for virtual collection manage
+                insertRightForVirtualCollection(connection);
+
                 
             } else { 
                 
@@ -99,6 +102,9 @@ public class SecurityDatabaseInitializator {
                     insertPublicRole(connection);
                     // create public role
                     insertRightForDisplayAdminMenu(connection);
+
+                    insertRightForVirtualCollection(connection);
+
                 }
                 
                 if (versionService.getVersion().equals("4.6.0")) {
@@ -107,13 +113,24 @@ public class SecurityDatabaseInitializator {
                     insertPublicRole(connection);
                     // create public role
                     insertRightForDisplayAdminMenu(connection);
+
+                    // insert right for virtual collection manage
+                    insertRightForVirtualCollection(connection);
+
                 }
 
                 if (versionService.getVersion().equals("4.7.0")) {
                     // create public role
                     insertRightForDisplayAdminMenu(connection);
-                }
 
+                    // insert right for virtual collection manage
+                    insertRightForVirtualCollection(connection);
+                }
+                
+                if (versionService.getVersion().equals("4.8.0")) {
+                    // insert right for virtual collection manage
+                    insertRightForVirtualCollection(connection);
+                }
             }
         } catch (SQLException e) {
             LOGGER.log(Level.SEVERE,e.getMessage(),e);
@@ -139,7 +156,13 @@ public class SecurityDatabaseInitializator {
         JDBCUpdateTemplate template = new JDBCUpdateTemplate(connection,false);
         return template.executeUpdate(sql);
     }
-    
+
+    public static int insertRightForVirtualCollection(Connection connection) throws SQLException {
+        String sql = SecurityDatabaseUtils.stUdateRightGroup().getInstanceOf("insertRight_VirtualCollections").toString();
+        JDBCUpdateTemplate template = new JDBCUpdateTemplate(connection,false);
+        return template.executeUpdate(sql);
+    }
+
     
     public static int insertCriterium(Connection connection, int paramid) throws SQLException {
         String sql = SecurityDatabaseUtils.stUdateRightGroup().getInstanceOf("insertCriterium_SecuredStreams").toString();

@@ -48,6 +48,15 @@ public class PIDParserTest {
         } catch (LexerException e) {
             // ok
         }
-        
+	}
+	
+	@Test
+	public void testPidParser4() throws LexerException {
+            String pid = "uuid:MED00170455";
+            boolean matches = pid.matches("^[Uu]{2}[Ii][Dd]:(([A-Za-z0-9])|-|\\.|~|_|(%[0-9A-F]{2}))+$");
+            System.out.println(matches);
+            PIDParser parser = new PIDParser(pid);
+            parser.objectPid();
+	    
 	}
 }
