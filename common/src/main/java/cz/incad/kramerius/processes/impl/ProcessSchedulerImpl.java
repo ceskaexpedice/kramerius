@@ -46,7 +46,7 @@ public class ProcessSchedulerImpl implements ProcessScheduler {
 		this.jarFiles = jarFiles;
 		String sinterval  = KConfiguration.getInstance().getProperty("processQueue.checkInterval","10000");
 		this.interval =  Integer.parseInt(sinterval);
-		this.scheduleNextTask();
+		//this.scheduleNextTask();
 	}
 
 	@Override
