@@ -267,7 +267,7 @@ public class ExtendedFields {
             root_title = root_title_cache.get(root_pid);
         } else {
             Document doc = fa.getDC(root_pid);
-            root_title = DCUtils.titleFromDC(doc);
+            root_title = StringEscapeUtils.escapeXml(DCUtils.titleFromDC(doc));
             root_title_cache.put(root_pid, root_title);
         }
     }
