@@ -250,9 +250,7 @@ $(document).ready(function(){
                 <td><label for="filter-started-before"><view:msg>administrator.processes.filter.startedbefore</view:msg>::</label></td>
                 <td><input type="text" name="started" class="filter-vals gt" id="started-before" value="${processView.startedBefore}"></input></td>
             </tr>
-
         </tbody>
-        
     </table>    
 
     <script type="text/javascript">
@@ -273,8 +271,7 @@ $(document).ready(function(){
  </div>
 
 <table width="100%" style="width:100%; bottom:20px;" cellpadding="0" cellspacing="0">
-    <thead style="border-bottom: dashed 1px;background-image:url('img/bg_processheader.png');
-                  background-repeat:  repeat-x;" >
+    <thead style="border-bottom: dashed 1px;" >
         <tr>
             <td width="5px"><strong> </strong></td>
             <td width="40%"><strong>${processView.nameOrdering}</strong></td>
@@ -296,8 +293,9 @@ $(document).ready(function(){
                 <td>${lrProc.start}</td>
                 <td>${lrProc.planned}</td>
                 <td>${lrProc.startedBy}</td>
-                <td>${lrProc.actionsURLs} ${lrProc.killURL} ${lrProc.deleteURL}</td>
+                <td>${lrProc.actionsURLs} ${empty lrProc.actionsURLs ? "" : " || "}  ${lrProc.killURL} ${empty lrProc.killURL ? "" : " || "} ${lrProc.deleteURL} </td>
             </tr>
+            
             <c:if test="${lrProc.masterProcess}">
             <c:forEach var="childLrProc" items="${lrProc.childProcesses}" varStatus="ch">
                 <tr class="${(ch.index mod 2 == 0) ? 'result r0 ': 'result r1 '} ${lrProc.UUID} subprocess">
@@ -308,7 +306,7 @@ $(document).ready(function(){
                     <td>${childLrProc.start}</td>
                     <td>${childLrProc.planned}</td>
                     <td>${childLrProc.startedBy}</td>
-                    <td>${childLrProc.killURL}${childLrProc.actionsURLs}${childLrProc.deleteURL}</td>
+                    <td>${childLrProc.actionsURLs} ${empty childLrProc.actionsURLs ? "" : " || "} ${childLrProc.killURL} ${empty childLrProc.killURL ? "" : " || "} ${childLrProc.deleteURL}</td>
                 </tr>
             </c:forEach>
                 <tr class="${lrProc.UUID} subprocess"><td colspan="8" style="border-top:solid 1px #E66C00;"></td></tr>

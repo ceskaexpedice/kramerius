@@ -18,7 +18,7 @@
 
     <h3> <view:msg>rights.dialog.blobaldelete.title</view:msg></h3>
     <table style="width: 100%">
-            <thead style="border-bottom: 1px dashed; background-image: url('img/bg_processheader.png'); background-repeat: repeat-x;">
+            <thead style="border-bottom: 1px dashed; ">
                 <tr>
                     <td width="8px"></td>
                     <td width="16px"><strong><view:msg>rights.dialog.table.column.id</view:msg> </strong></td>

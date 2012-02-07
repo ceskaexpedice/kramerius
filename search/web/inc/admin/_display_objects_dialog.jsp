@@ -45,7 +45,7 @@ $("#rightsAffectedObject_tabs_${objectsView.ident}").tabs( "select" , 0);
     
     <div id="rightsAffectedObject_selected_${objectsView.ident}">
 	    <table style="width: 100%;" class="ui-dialog-content ui-widget-content">
-	        <thead style="border-bottom: 1px dashed; background-image: url('img/bg_processheader.png'); background-repeat: repeat-x;">
+	        <thead style="border-bottom: 1px dashed; ">
 	            <tr>
 	                <td width="8px"></td>
 	                <td><strong><view:msg>rights.dialog.table.column.name</view:msg></strong></td>
