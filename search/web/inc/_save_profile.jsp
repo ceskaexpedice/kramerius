@@ -18,7 +18,7 @@
        <c:forEach items="${pfp.profileCandidateItems}" var="item">
             <tr>
                 <td>
-                    <input type="checkbox" id="${item.key}" checked="checked" value="${item.value}">  
+                    <input type="checkbox" id="${item.key}" ${item.checked ? "checked=\"checked\"" : ""} value="${item.value}">  
                         ${item.localizedKey} -  ${item.localizedValue}</input>
                 </td>
             </tr>
