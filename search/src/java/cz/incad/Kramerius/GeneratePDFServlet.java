@@ -194,7 +194,9 @@ public class GeneratePDFServlet extends GuiceServlet {
 
                     File tmpFile = File.createTempFile("body", "pdf");
                     FileOutputStream bodyTmpFos = new FileOutputStream(tmpFile);
+                    tmpFile.deleteOnExit();
                     File fpage = File.createTempFile("head", "pdf");
+                    fpage.deleteOnExit();
                     FileOutputStream fpageFos = new FileOutputStream(fpage);
 
                     int[] irects = srect(srect);
