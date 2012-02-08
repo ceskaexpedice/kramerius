@@ -18,6 +18,8 @@ package cz.incad.Kramerius.views;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -36,6 +38,17 @@ import cz.incad.kramerius.service.ResourceBundleService;
 
 public class PreparedForProfileView {
 
+    //"results":{"sorting_dir":"desc","columns":"2","sorting":"title"},
+    //"client_locale":"cs"}"
+    
+    protected List<String> KEYS = new ArrayList<String>(Arrays.asList(new String[]{"sorting","sorting_dir","columns","client_locale"}));
+    protected HashMap<String, String> DEFAULT_VALS = new HashMap<String, String>(); {
+        DEFAULT_VALS.put("sorting","title");
+        DEFAULT_VALS.put("sorting_dir","desc");
+        DEFAULT_VALS.put("columns","2");
+    };
+    
+    
     @Inject
     Provider<HttpServletRequest> requestProvider;
 
@@ -45,28 +58,49 @@ public class PreparedForProfileView {
     @Inject
     ResourceBundleService resourceBundleService;
     
+
+    
+    
+    public PreparedForProfileView() {
+        super();
+        
+    }
+
+
     public List<ProfileCandidateItem> getProfileCandidateItems() throws IOException {
+        
         Locale locale = this.localesProvider.get();
         ResourceBundle bundle = this.resourceBundleService.getResourceBundle("labels", locale);
         
+        this.DEFAULT_VALS.put("client_locale", locale.getLanguage());
+        
         HttpSession session = this.requestProvider.get().getSession();
         Map<String, String> preparedProperties = ProfilePrepareUtils.getPreparedProperties(session);
+        if (preparedProperties == null) preparedProperties = new HashMap<String, String>();
+
         List<ProfileCandidateItem> items = new ArrayList<PreparedForProfileView.ProfileCandidateItem>();
-        if (preparedProperties != null) {
-            Set<String> keySet = preparedProperties.keySet();
-            for (String key : keySet) {
-                ProfileCandidateItem candidateItem = new ProfileCandidateItem(key, preparedProperties.get(key));
-                String val = preparedProperties.get(key);
-                if (bundle.containsKey("userprofile.forsave.value."+val)) {
-                    candidateItem.setLocalizedValue(bundle.getString("userprofile.forsave.value."+val));
-                }
-                if (bundle.containsKey("userprofile.forsave."+key)) {
-                    candidateItem.setLocalizedKey(bundle.getString("userprofile.forsave."+key));
-                }                
-                items.add(candidateItem);
-            }
+        for (String key : KEYS) {
+            boolean flag = preparedProperties.containsKey(key);
+            String value = flag ? preparedProperties.get(key) : DEFAULT_VALS.get(key);
+            ProfileCandidateItem item = item(bundle, key, value);
+            item.setChecked(flag);
+            items.add(item);
         }
         return items;
+    }
+
+
+    public ProfileCandidateItem item(ResourceBundle bundle,  String key, String value) {
+        ProfileCandidateItem candidateItem = new ProfileCandidateItem(key, value);
+        
+        if (bundle.containsKey("userprofile.forsave.value."+value)) {
+            candidateItem.setLocalizedValue(bundle.getString("userprofile.forsave.value."+value));
+        }
+        if (bundle.containsKey("userprofile.forsave."+key)) {
+            candidateItem.setLocalizedKey(bundle.getString("userprofile.forsave."+key));
+        }       
+        
+        return candidateItem;
     }
     
     
@@ -77,6 +111,8 @@ public class PreparedForProfileView {
 
         private String localizedKey;
         private String localizedValue;
+    
+        private boolean checked = false;
         
         
         private ProfileCandidateItem(String key, String value) {
@@ -109,6 +145,15 @@ public class PreparedForProfileView {
             if (this.localizedValue == null) return this.value;
             return localizedValue;
         }
+
+        public boolean isChecked() {
+            return checked;
+        }
+
+        public void setChecked(boolean checked) {
+            this.checked = checked;
+        }
+        
     }
     
 }

@@ -130,9 +130,14 @@ public class ProfilesServlet extends GuiceServlet {
             public void process(HttpServletRequest request, HttpServletResponse response, User user, UserProfileManager profileManager) {
                 HttpSession session = request.getSession(true);
 
-                String fpar = request.getParameter("field");
-                String key = request.getParameter("key");
-                ProfilePrepareUtils.prepareProperty(session, key, fpar);
+                String[] fpars = request.getParameterValues("field");
+                String[] keys = request.getParameterValues("key");
+                for (int i = 0; i < keys.length; i++) {
+                    String key = keys[i];
+                    String fpar = fpars[i];
+                    ProfilePrepareUtils.prepareProperty(session, key, fpar);
+                    
+                }
             }
         };
         

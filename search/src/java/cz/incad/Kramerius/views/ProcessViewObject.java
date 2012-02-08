@@ -120,9 +120,6 @@ public class ProcessViewObject {
                 String url = "lr?action=stop&uuid=" + this.lrProcess.getUUID();
                 String renderedAHREF = "<a href=\"javascript:processes.doActionAndRefresh('" + url + "','" + this.ordering.name() + "'," + this.offset.getOffset() + "," + this.offset.getSize() + ",'" + this.typeOfOrdering.name() + "');\">"
                         + bundleService.getResourceBundle("labels", locale).getString("administrator.processes.kill.process") + "</a>";
-                if (!this.definition.getActions().isEmpty()) {
-                    renderedAHREF += " || ";
-                }
                 return renderedAHREF;
             } else {
                 return "";
@@ -164,7 +161,7 @@ public class ProcessViewObject {
         for (int i = 0, ll = actions.size(); i < ll; i++) {
             LRDefinitionAction action = actions.get(i);
             builder.append(getActionAHREF(action));
-            if (i != ll - 1) {
+            if (i < ll -1) {
                 builder.append(" || ");
             }
         }
