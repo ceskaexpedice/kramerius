@@ -611,6 +611,15 @@ SaveProfile.prototype.saveProfile = function() {
                                      this.savingFields.push(id);
                                  },this));
 
+
+                                 // prepare fields to session                                 
+                                var url = reduce(function(base, item, status) {
+                                    var val = $("#"+item).val();
+                                    return base+"&key="+item+"&field="+val; 
+                                }, "profile?action=PREPARE_FIELD_TO_SESSION", this.savingFields);
+                                $.get(url, function() {});
+                                 
+
                                  // saving profile
                                  (new Profile()).modify(bind(function(data) {
                                      this.savingFields.forEach(bind(function(item) {

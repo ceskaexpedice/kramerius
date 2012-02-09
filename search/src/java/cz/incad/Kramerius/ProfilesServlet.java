@@ -19,6 +19,7 @@ package cz.incad.Kramerius;
 import java.io.IOException;
 import java.util.Enumeration;
 import java.util.logging.Level;
+import java.util.spi.LocaleServiceProvider;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -35,6 +36,7 @@ import com.google.inject.name.Named;
 
 import cz.incad.Kramerius.GeneratePDFServlet.Action;
 import cz.incad.Kramerius.backend.guice.GuiceServlet;
+import cz.incad.Kramerius.backend.guice.LocalesProvider;
 import cz.incad.Kramerius.users.ProfilePrepareUtils;
 import cz.incad.kramerius.FedoraAccess;
 import cz.incad.kramerius.pdf.GeneratePDFService;
@@ -86,11 +88,15 @@ public class ProfilesServlet extends GuiceServlet {
                 if (encodedProfile != null) {
                     byte[] decoded = Base64Coder.decode(encodedProfile);
                     JSONObject jsonNObject = JSONObject.fromObject(new String(decoded));
+                    
+                    //ProfilePrepareUtils.prepareProperitesFromProfile(jsonNObject, request.getSession());
+                    
                     UserProfile profile = profileManager.getProfile(user);
                     profile.setJSONData(jsonNObject);
                     profileManager.saveProfile(user, profile);
                 }
             }
+
         };
         
         public abstract void process(HttpServletRequest request, HttpServletResponse response, User user, UserProfileManager profileManager);

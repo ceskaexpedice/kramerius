@@ -21,6 +21,10 @@ import java.util.Map;
 
 import javax.servlet.http.HttpSession;
 
+import cz.incad.Kramerius.backend.guice.LocalesProvider;
+
+import net.sf.json.JSONObject;
+
 public class ProfilePrepareUtils {
 
     public static final String PREPARING_PROFILE_KEY = "PREPARING_PROFILE";
@@ -39,4 +43,27 @@ public class ProfilePrepareUtils {
         preparedMap.put(key, fpar);
     }
 
+    
+    public static void prepareProperitesFromProfile(JSONObject jsonObject, HttpSession session) {
+        if (jsonObject.containsKey("client_locale")) {
+            ProfilePrepareUtils.prepareProperty(session,"client_locale",jsonObject.getString("client_locale"));
+        }
+
+        JSONObject jsonResults = jsonObject.getJSONObject("results");
+        if (jsonResults != null) {
+            if (jsonResults.containsKey("sorting_dir")) {
+                String sortingDir = jsonResults.getString("sorting_dir");
+                ProfilePrepareUtils.prepareProperty(session,"sorting_dir",sortingDir);
+            }
+            if (jsonResults.containsKey("columns")) {
+                String columns = jsonResults.getString("columns");
+                ProfilePrepareUtils.prepareProperty(session,"columns",columns);
+            }
+            if (jsonResults.containsKey("sorting")) {
+                String columns = jsonResults.getString("sorting");
+                ProfilePrepareUtils.prepareProperty(session,"sorting",columns);
+            }
+        }
+
+    }
 }
