@@ -47,7 +47,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=8"  />
 
 
-     <c:if test="${fb.buttonEnabled}">
+     <c:if test="${fb.buttonEnabled || gplus.buttonEnabled}">
         <meta property="og:title" content="${fb.title}"/>
 
         <meta property="og:type" content="${fb.metadataType}"/>
@@ -59,17 +59,6 @@
               content="${fb.description}"/>
     </c:if>
 
-     <c:if test="${gplus.buttonEnabled}">
-        <meta property="og:title" content="${gplus.title}"/>
-
-        <meta property="og:type" content="${gplus.metadataType}"/>
-        <meta property="og:url" content="${gplus.shareURL}"/>
-        <meta property="og:image" content="${gplus.metadataImage}"/>
-        <meta property="og:site_name" content="${gplus.applicationTitle}"/>
-
-        <meta property="og:description"
-              content="${gplus.description}"/>
-    </c:if>
 
     <link rel="icon" href="img/favicon.ico"/>
     <link rel="shortcut icon" href="img/favicon.ico" type="image/x-icon" />
