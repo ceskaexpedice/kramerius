@@ -15,41 +15,7 @@ import org.aplikator.server.descriptor.Reference;
  */
 public class Structure extends Application {
 
-    public static class PublicUserEntity extends Entity {
 
-        // vlastnosti uzivatele
-        public final Property<String> NAME;
-        public final Property<String> SURNAME;
-        public final Property<String> LOGINNAME;
-        public final Property<String> PASSWORD;
-
-        public final Property<String> EMAIL;
-        public final Property<String> ORGANISATION;
-
-        public final Property<Boolean> DEACTIVATED;
-
-        public Collection<GroupUserAssoction> GROUP_ASSOCIATIONS;
-
-
-        public PublicUserEntity() {
-            super("public_users_table", "PUBLIC_USER_ENTITY", "USER_ID");
-            NAME = stringProperty("NAME",  255, true);
-            SURNAME = stringProperty("SURNAME",  255, true);
-            LOGINNAME = stringProperty("LOGINNAME",  255, true);
-            PASSWORD = stringProperty("PSWD",  255, false);
-            DEACTIVATED = booleanProperty("DEACTIVATED");
-
-            EMAIL = stringProperty("EMAIL",  255, false);
-            ORGANISATION = stringProperty("ORGANISATION",  255, false);
-
-            addIndex("UNAME_IDX", false, NAME);
-            addIndex("SURNAME_IDX", false, SURNAME);
-            addIndex("LOGINNAME_IDX", false, LOGINNAME);
-            addIndex("PASSWORD_IDX", false, PASSWORD);
-
-        }
-
-    }
 
     /**
      * Entita uzivatel
@@ -165,7 +131,7 @@ public class Structure extends Application {
             TYPE = integerProperty("TYPE");
 
             QNAME = stringProperty("QNAME", 255, true);
-            QNAME.setListProvider(new ListProvider.Default<String>(new ListItem<String>("cz.incad.kramerius.security.impl.criteria.MovingWall", "cz.incad.kramerius.security.impl.criteria.MovingWall"), new ListItem<String>("cz.incad.kramerius.security.impl.criteria.DefaultIPAddressFilter", "cz.incad.kramerius.security.impl.criteria.DefaultIPAddressFilter")));
+            QNAME.setListProvider(new ListProvider.Default<String>(new ListItem.Default<String>("cz.incad.kramerius.security.impl.criteria.MovingWall", "cz.incad.kramerius.security.impl.criteria.MovingWall"), new ListItem.Default<String>("cz.incad.kramerius.security.impl.criteria.DefaultIPAddressFilter", "cz.incad.kramerius.security.impl.criteria.DefaultIPAddressFilter")));
 
             PARAM = referenceProperty(criteriumParam, "citeriumParam");
         }
@@ -186,7 +152,6 @@ public class Structure extends Application {
         }
     }
 
-    public static final PublicUserEntity publicUser = new Structure.PublicUserEntity();
 
     public static final UserEntity user = new UserEntity();
     public static final GroupEntity group = new GroupEntity();

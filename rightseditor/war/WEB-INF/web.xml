@@ -87,16 +87,5 @@
     </security-role>
 
 
-    <env-entry>
-        <env-entry-name>aplikator.structure</env-entry-name>
-        <env-entry-value>cz.incad.kramerius.rights.server.Structure</env-entry-value>
-        <env-entry-type>java.lang.String</env-entry-type>
-    </env-entry>
-
-    <env-entry>
-        <env-entry-name>aplikator.datasourceName</env-entry-name>
-        <env-entry-value>java:comp/env/jdbc/kramerius4</env-entry-value>
-        <env-entry-type>java.lang.String</env-entry-type>
-    </env-entry>
 
 </web-app>

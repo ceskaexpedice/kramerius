@@ -37,7 +37,7 @@ public class GeneratePasswordExec implements Executable {
                 Record currentRecord = parameters.getClientContext().getCurrentRecord();
                 Structure.user.PASSWORD.setValue(currentRecord, PasswordDigest.messageDigest(generated));
                 RecordContainer container = new RecordContainer();
-                container.addRecord(getView().getViewDTO(context), currentRecord, currentRecord, Operation.UPDATE);
+                container.addRecord(getView().getId(), currentRecord, currentRecord, Operation.UPDATE);
                 AplikatorService service = context.getAplikatorService();
                 service.execute(new ProcessRecords(container));
                 GeneratePasswordUtils.sendGeneratedPasswordToMail(emailAddres, Structure.user.LOGINNAME.getValue(currentRecord), generated, mailer, context);

@@ -2,22 +2,8 @@
 <!DOCTYPE Configure PUBLIC "-//Mort Bay Consulting//DTD Configure//EN" "http://jetty.mortbay.org/configure.dtd">
 <Configure class="org.mortbay.jetty.webapp.WebAppContext">
 
-  <New id="aplikator.structure" class="org.mortbay.jetty.plus.naming.EnvEntry">
-    <Arg></Arg>
-    <Arg>java:comp/env/aplikator.structure</Arg>
-    <Arg type="java.lang.String">cz.incad.kramerius.rights.server.Structure</Arg>
-    <Arg type="boolean">true</Arg>
-  </New>
-  
-  <New id="aplikator.datasourceName" class="org.mortbay.jetty.plus.naming.EnvEntry">
-    <Arg></Arg>
-    <Arg>java:comp/env/aplikator.datasourceName</Arg>
-    <Arg type="java.lang.String">java:comp/env/jdbc/kramerius4</Arg>
-    <Arg type="boolean">true</Arg>
-  </New>
 
-  
-  
+
   <New id="kramerius4" class="org.mortbay.jetty.plus.naming.Resource">
     <Arg></Arg>
     <Arg>java:comp/env/jdbc/kramerius4</Arg>
@@ -30,7 +16,7 @@
      </New>
     </Arg>
    </New>
-   
+
    <Get name="securityHandler">
     <Set name="userRealm">
         <New class="org.mortbay.jetty.security.HashUserRealm">
@@ -39,7 +25,7 @@
         </New>
     </Set>
   </Get>
-   
+
 </Configure>
 
 

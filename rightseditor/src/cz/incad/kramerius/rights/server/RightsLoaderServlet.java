@@ -12,7 +12,6 @@ import org.aplikator.server.descriptor.Menu;
 import org.aplikator.server.descriptor.View;
 
 import cz.incad.kramerius.rights.server.impl.PropertiesMailer;
-import cz.incad.kramerius.rights.server.views.PublicUserView;
 import cz.incad.kramerius.rights.server.views.RefenrenceToPersonalAdminView;
 import cz.incad.kramerius.rights.server.views.UserView;
 
@@ -29,7 +28,6 @@ public class RightsLoaderServlet extends ApplicationLoaderServlet {
     View groupUserAssocView;
 
 
-    PublicUserView publicUserArr;
 
     @Override
     public void init() throws ServletException {
@@ -53,21 +51,22 @@ public class RightsLoaderServlet extends ApplicationLoaderServlet {
 
             }
 
-            GeneratePasswordExec generatePasswordForPublic = new GeneratePasswordExec();
-            publicUserArr = new PublicUserView(struct, Structure.publicUser, referenceToAdmin, new Function("generatePasswordForPublic","VygenerovatHeslo", generatePasswordForPublic));
-            {
+            //GeneratePasswordExec generatePasswordForPublic = new GeneratePasswordExec();
+            //publicUserArr = new PublicUserView(struct, Structure.publicUser, referenceToAdmin, new Function("generatePasswordForPublic","VygenerovatHeslo", generatePasswordForPublic));
+            /*{
                 generatePasswordForPublic.setArrangement(publicUserArr);
                 generatePasswordForPrivate.setMailer(new PropertiesMailer());
                 userView.setMailer(new PropertiesMailer());
 
-            }
+            }*/
             LOG.fine("ApplicationLoader 3");
             // CLIENT SIDE MENU
 
             Menu uzivatele = new Menu("Uzivatele");
             uzivatele.addView(userView);
-            Menu publicUzivatele = new Menu("UzivatelePublic");
-            publicUzivatele.addView(publicUserArr);
+           // Menu publicUzivatele = new Menu("UzivatelePublic");
+            //publicUzivatele.addView(publicUserArr);
+
             //uzivatele.addAction(new ActionDTO("Skupiny", new ListEntities("Skupiny", groupArr.getId())));
 
             /*
@@ -86,7 +85,7 @@ public class RightsLoaderServlet extends ApplicationLoaderServlet {
              * rightsCriteriumParamArr.getId())));
              */
             struct.addMenu(uzivatele);
-            struct.addMenu(publicUzivatele);
+            //struct.addMenu(publicUzivatele);
 
             /*
              * ServiceDTO functions = new ServiceDTO("Funkce");
