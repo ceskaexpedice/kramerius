@@ -22,6 +22,8 @@ import java.util.logging.Level;
 
 import javax.servlet.http.HttpServletRequest;
 
+import org.apache.commons.io.filefilter.RegexFileFilter;
+
 import com.google.inject.Inject;
 
 import cz.incad.Kramerius.security.userscommands.ServletUsersCommand;
@@ -48,7 +50,7 @@ public class PublicUserActivation extends ServletUsersCommand {
                 this.userManager.activatePublicUser(user);
             }
             String appContext = ApplicationURL.applicationContextPath(request);
-            this.responseProvider.get().sendRedirect("/"+appContext);
+            this.responseProvider.get().sendRedirect("/"+appContext+"/useractivated.jsp");
         } catch (SQLException e) {
             LOGGER.log(Level.SEVERE, e.getMessage(),e);
         }
