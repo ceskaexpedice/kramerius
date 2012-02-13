@@ -23,10 +23,14 @@ import com.google.inject.Provider;
 
 import com.google.inject.name.Named;
 import cz.incad.kramerius.FedoraAccess;
+import cz.incad.kramerius.security.User;
+import cz.incad.kramerius.users.LoggedUsersSingleton;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 import cz.incad.kramerius.virtualcollections.VirtualCollection;
 import cz.incad.kramerius.virtualcollections.VirtualCollectionsManager;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 
@@ -47,6 +51,14 @@ public class VirtualCollectionViewObject {
     @Inject
 	@Named("securedFedoraAccess")
 	protected transient FedoraAccess fedoraAccess;
+
+    
+    @Inject
+    LoggedUsersSingleton loggedUsersSingleton;
+    
+    @Inject
+    Provider<User> userProvider;
+    
     
     public List<VirtualCollection> getVirtualCollections() throws Exception {
         return VirtualCollectionsManager.getVirtualCollections(this.fedoraAccess, kConfiguration.getPropertyList("interface.languages"));
@@ -67,8 +79,13 @@ public class VirtualCollectionViewObject {
          return c.getDescriptionLocale(this.localeProvider.get().getLanguage());
     } 
     
+    
     public List<String> getHomeTabs() throws Exception{
          String[] tabs = kConfiguration.getPropertyList("search.home.tabs");
+         if (!this.loggedUsersSingleton.isLoggedUser(this.requestProvider)) {
+             tabs= filterLogged(tabs);
+         }
+         
          // Mozne hodnoty custom,mostDesirables,newest,facets,browseAuthor,browseTitle,info
          // Pokud mame nastavenou sbirku NEzobrazime mostDesirables, custom, browseAuthor,browseTitle
          
@@ -85,6 +102,17 @@ public class VirtualCollectionViewObject {
          }
          
          return validTabs;
+    }
+
+    private String[] filterLogged(String[] tabs) {
+        List<String> mustBeLoggedList = new ArrayList<String>(Arrays.asList(kConfiguration.getPropertyList("search.home.tabs.onlylogged")));
+        List<String> alist = new ArrayList<String>();
+        for (int i = 0; i < tabs.length; i++) {
+            if (!mustBeLoggedList.contains(tabs[i])) {
+                alist.add(tabs[i]);
+            }
+        }
+        return (String[]) alist.toArray(new String[alist.size()]);
     }
     
     

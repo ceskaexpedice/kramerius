@@ -35,7 +35,6 @@ public class LoggedUsersContentTag extends BodyTagSupport {
     
     static java.util.logging.Logger LOGGER = java.util.logging.Logger.getLogger(LoggedUsersContentTag.class.getName());
 
-    
     private BodyContent bodyContent;
     
     @Inject

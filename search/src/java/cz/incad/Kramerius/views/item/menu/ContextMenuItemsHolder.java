@@ -94,6 +94,9 @@ public class ContextMenuItemsHolder extends AbstractViewObject implements Initia
             adminItems.add(new ContextMenuItem("administrator.menu.virtualcollection.add", "_data_x_role", "vcAddToVirtualCollection",
                     "", true));
 
+            adminItems.add(new ContextMenuItem("administrator.menu.favorites.add", "_data_x_role", "addToFavorites",
+                    "", true));
+
         }
     }
         
