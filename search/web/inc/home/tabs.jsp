@@ -13,11 +13,7 @@
 <%@ taglib uri="/WEB-INF/tlds/cmn.tld" prefix="view" %>
 <view:object name="cols" clz="cz.incad.Kramerius.views.virtualcollection.VirtualCollectionViewObject"></view:object>
 
-<%
-    String[] tabs = kconfig.getPropertyList("search.home.tabs");
-    
-    pageContext.setAttribute("tabs", tabs);
-%>
+
 <style type="text/css">
     .suggest{
         position: absolute;

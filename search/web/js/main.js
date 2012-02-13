@@ -498,3 +498,7 @@ Profile.prototype.modify = function(func,okfunc) {
         $.post("profile?action=POST",{'encodedData':encodedData},okfunc,"json");
     });
 }
+
+
+
+
