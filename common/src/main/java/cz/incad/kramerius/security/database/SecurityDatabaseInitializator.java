@@ -51,16 +51,18 @@ public class SecurityDatabaseInitializator {
                 if (!DatabaseUtils.tableExists(connection, "USER_ENTITY")) {
                     createSecurityTables(connection);
                 }
-
-                userEntity_DEACTIVATED(connection);
+                // column DEACTIVATED has been created
+                makeSureThatUserEntity_DEACTIVATED(connection);
                 
                 //TODO: Move method
                 LoggedUserDatabaseInitializator.createLoggedUsersTablesIfNotExists(connection);
                 
-                // create tables for public users - 4.5.0 - version
-                createPublicUsersAndProfilesTables(connection); // Zavislost na active users
-                // create public role
-                insertPublicRole(connection);
+                // the profiles table has been created + insert public role
+                makeSureThatProfilesTable(connection);
+                
+                // public role created
+                makeSurePublicRoleInserted(connection);
+
                 // create public role
                 insertRightForDisplayAdminMenu(connection);
 
@@ -72,15 +74,15 @@ public class SecurityDatabaseInitializator {
                 
                 if (versionService.getVersion().equals("4.5.0")) {
 
-                    userEntity_DEACTIVATED(connection);
+                    makeSureThatUserEntity_DEACTIVATED(connection);
 
                     //TODO: Move method
                     LoggedUserDatabaseInitializator.createLoggedUsersTablesIfNotExists(connection);
-
-                    // create tables for public users
-                    createPublicUsersAndProfilesTables(connection);
+                    // the profiles table has been created
+                    makeSureThatProfilesTable(connection);
                     // create public role
-                    insertPublicRole(connection);
+                    makeSurePublicRoleInserted(connection);
+
                     // create public role
                     insertRightForDisplayAdminMenu(connection);
 
@@ -90,10 +92,16 @@ public class SecurityDatabaseInitializator {
                 
                 if (versionService.getVersion().equals("4.6.0")) {
 
-                    userEntity_DEACTIVATED(connection);
+                    makeSureThatUserEntity_DEACTIVATED(connection);
 
+                    makeSureThatProfilesTable(connection);
+                    
+                    makeSurePublicRoleInserted(connection);
+
+                    
                     // create public role
                     insertPublicRole(connection);
+                    
                     // create public role
                     insertRightForDisplayAdminMenu(connection);
 
@@ -104,8 +112,13 @@ public class SecurityDatabaseInitializator {
 
                 if (versionService.getVersion().equals("4.7.0")) {
 
-                    userEntity_DEACTIVATED(connection);
+                    makeSureThatUserEntity_DEACTIVATED(connection);
 
+                    makeSureThatProfilesTable(connection);
+
+                    makeSurePublicRoleInserted(connection);
+
+                    
                     // create public role
                     insertRightForDisplayAdminMenu(connection);
 
@@ -115,8 +128,11 @@ public class SecurityDatabaseInitializator {
                 
                 if (versionService.getVersion().equals("4.8.0")) {
 
-                    userEntity_DEACTIVATED(connection);
+                    makeSureThatUserEntity_DEACTIVATED(connection);
 
+                    makeSureThatProfilesTable(connection);
+
+                    makeSurePublicRoleInserted(connection);
                     
                     // insert right for virtual collection manage
                     insertRightForVirtualCollection(connection);
@@ -129,7 +145,34 @@ public class SecurityDatabaseInitializator {
         }
     }
 
-    public static void userEntity_DEACTIVATED(Connection connection) throws SQLException {
+    public static void makeSureThatProfilesTable(Connection connection) throws SQLException, IOException {
+        if (!DatabaseUtils.tableExists(connection, "PROFILES")) {
+            // create tables for public users - 4.5.0 - version
+            createPublicUsersAndProfilesTables(connection); // Zavislost na active users
+
+
+        }
+    }
+    
+    public static void makeSurePublicRoleInserted(Connection conn) throws SQLException {
+        List<Integer> result = new JDBCQueryTemplate<Integer>(conn,false){
+
+            @Override
+            public boolean handleRow(ResultSet rs, List<Integer> returnsList) throws SQLException {
+                returnsList.add(rs.getInt("group_id"));
+                return true;
+            }
+            
+        }.executeQuery("select * from group_entity where gname = ?", "public_users");
+        
+        if (result.isEmpty()) {
+            // create public role
+            insertPublicRole(conn);
+        }
+    }
+
+    public static void makeSureThatUserEntity_DEACTIVATED(Connection connection) throws SQLException {
+        // nesmi byt v transakci ... ?
         if (!DatabaseUtils.columnExists(connection, "USER_ENTITY","DEACTIVATED")) {
             
             new JDBCTransactionTemplate(connection, false).updateWithTransaction( 
