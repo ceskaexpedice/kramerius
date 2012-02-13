@@ -41,16 +41,23 @@ public class LoggedUserDatabaseInitializator {
     public static void initDatabase(final Connection connection, VersionService versionService) {
         try {
             if (versionService.getVersion() == null) {
-                boolean loggedUserTable = DatabaseUtils.tableExists(connection, "ACTIVE_USERS");
-                if (!loggedUserTable) {
-                    createLoggedUsersTables(connection);
-                }
+                createLoggedUsersTablesIfNotExists(connection);
             } else {/* no version */}
         } catch (SQLException e) {
             LOGGER.log(Level.SEVERE, e.getMessage(),e);
         } catch (IOException e) {
             LOGGER.log(Level.SEVERE, e.getMessage(),e);
         }
+    }
+
+
+
+
+    public static void createLoggedUsersTablesIfNotExists(final Connection connection) throws SQLException, IOException {
+            boolean loggedUserTable = DatabaseUtils.tableExists(connection, "ACTIVE_USERS");
+            if (!loggedUserTable) {
+                createLoggedUsersTables(connection);
+            }
     }
 
     

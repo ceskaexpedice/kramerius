@@ -76,7 +76,7 @@ public class SecurityDatabaseInitializator {
                 
                 
                 //TODO: Move method
-                LoggedUserDatabaseInitializator.createLoggedUsersTables(connection);
+                LoggedUserDatabaseInitializator.createLoggedUsersTablesIfNotExists(connection);
                 
                 // create tables for public users - 4.5.0 - version
                 createPublicUsersAndProfilesTables(connection); // Zavislost na active users
@@ -94,7 +94,7 @@ public class SecurityDatabaseInitializator {
                 if (versionService.getVersion().equals("4.5.0")) {
                     
                     //TODO: Move method
-                    LoggedUserDatabaseInitializator.createLoggedUsersTables(connection);
+                    LoggedUserDatabaseInitializator.createLoggedUsersTablesIfNotExists(connection);
 
                     // create tables for public users
                     createPublicUsersAndProfilesTables(connection);
