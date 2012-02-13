@@ -52,28 +52,7 @@ public class SecurityDatabaseInitializator {
                     createSecurityTables(connection);
                 }
 
-                if (!DatabaseUtils.columnExists(connection, "USER_ENTITY","DEACTIVATED")) {
-                    
-                    new JDBCTransactionTemplate(connection, false).updateWithTransaction( 
-                        new JDBCCommand() {
-                            
-                            @Override
-                            public Object executeJDBCCommand(Connection con) throws SQLException {
-                                alterSecurityTableActiveColumn(con);
-                                return null;
-                            }
-                        },
-                        new JDBCCommand() {
-                            
-                            @Override
-                            public Object executeJDBCCommand(Connection con) throws SQLException {
-                                updateSecurityTableActiveColumn(con);
-                                return null;
-                            }
-                        }
-                    );
-                }
-                
+                userEntity_DEACTIVATED(connection);
                 
                 //TODO: Move method
                 LoggedUserDatabaseInitializator.createLoggedUsersTablesIfNotExists(connection);
@@ -92,7 +71,9 @@ public class SecurityDatabaseInitializator {
             } else { 
                 
                 if (versionService.getVersion().equals("4.5.0")) {
-                    
+
+                    userEntity_DEACTIVATED(connection);
+
                     //TODO: Move method
                     LoggedUserDatabaseInitializator.createLoggedUsersTablesIfNotExists(connection);
 
@@ -109,6 +90,8 @@ public class SecurityDatabaseInitializator {
                 
                 if (versionService.getVersion().equals("4.6.0")) {
 
+                    userEntity_DEACTIVATED(connection);
+
                     // create public role
                     insertPublicRole(connection);
                     // create public role
@@ -120,6 +103,9 @@ public class SecurityDatabaseInitializator {
                 }
 
                 if (versionService.getVersion().equals("4.7.0")) {
+
+                    userEntity_DEACTIVATED(connection);
+
                     // create public role
                     insertRightForDisplayAdminMenu(connection);
 
@@ -128,6 +114,10 @@ public class SecurityDatabaseInitializator {
                 }
                 
                 if (versionService.getVersion().equals("4.8.0")) {
+
+                    userEntity_DEACTIVATED(connection);
+
+                    
                     // insert right for virtual collection manage
                     insertRightForVirtualCollection(connection);
                 }
@@ -136,6 +126,30 @@ public class SecurityDatabaseInitializator {
             LOGGER.log(Level.SEVERE,e.getMessage(),e);
         } catch (IOException e) {
             LOGGER.log(Level.SEVERE,e.getMessage(),e);
+        }
+    }
+
+    public static void userEntity_DEACTIVATED(Connection connection) throws SQLException {
+        if (!DatabaseUtils.columnExists(connection, "USER_ENTITY","DEACTIVATED")) {
+            
+            new JDBCTransactionTemplate(connection, false).updateWithTransaction( 
+                new JDBCCommand() {
+                    
+                    @Override
+                    public Object executeJDBCCommand(Connection con) throws SQLException {
+                        alterSecurityTableActiveColumn(con);
+                        return null;
+                    }
+                },
+                new JDBCCommand() {
+                    
+                    @Override
+                    public Object executeJDBCCommand(Connection con) throws SQLException {
+                        updateSecurityTableActiveColumn(con);
+                        return null;
+                    }
+                }
+            );
         }
     }
 
