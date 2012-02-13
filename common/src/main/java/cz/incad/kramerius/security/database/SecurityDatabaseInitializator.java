@@ -72,7 +72,11 @@ public class SecurityDatabaseInitializator {
                 
             } else { 
                 
-                if (versionService.getVersion().equals("4.5.0")) {
+                String v = versionService.getVersion();
+                if (v.equals("4.5.0") || 
+                        v.equals("4.6.0") || 
+                        v.equals("4.7.0") || 
+                        v.equals("4.8.0")) {
 
                     makeSureThatUserEntity_DEACTIVATED(connection);
 
@@ -90,53 +94,6 @@ public class SecurityDatabaseInitializator {
 
                 }
                 
-                if (versionService.getVersion().equals("4.6.0")) {
-
-                    makeSureThatUserEntity_DEACTIVATED(connection);
-
-                    makeSureThatProfilesTable(connection);
-                    
-                    makeSurePublicRoleInserted(connection);
-
-                    
-                    // create public role
-                    insertPublicRole(connection);
-                    
-                    // create public role
-                    insertRightForDisplayAdminMenu(connection);
-
-                    // insert right for virtual collection manage
-                    insertRightForVirtualCollection(connection);
-
-                }
-
-                if (versionService.getVersion().equals("4.7.0")) {
-
-                    makeSureThatUserEntity_DEACTIVATED(connection);
-
-                    makeSureThatProfilesTable(connection);
-
-                    makeSurePublicRoleInserted(connection);
-
-                    
-                    // create public role
-                    insertRightForDisplayAdminMenu(connection);
-
-                    // insert right for virtual collection manage
-                    insertRightForVirtualCollection(connection);
-                }
-                
-                if (versionService.getVersion().equals("4.8.0")) {
-
-                    makeSureThatUserEntity_DEACTIVATED(connection);
-
-                    makeSureThatProfilesTable(connection);
-
-                    makeSurePublicRoleInserted(connection);
-                    
-                    // insert right for virtual collection manage
-                    insertRightForVirtualCollection(connection);
-                }
             }
         } catch (SQLException e) {
             LOGGER.log(Level.SEVERE,e.getMessage(),e);
