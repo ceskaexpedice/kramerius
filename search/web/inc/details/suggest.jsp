@@ -22,7 +22,6 @@
     <c:param name="q" >PID:"${param.pid}"</c:param>
     <c:param name="rows" value="1" />
 </c:url>
-    
 <c:catch var="searchException">
     <c:import url="${url}" var="xml" charEncoding="UTF-8" />
     <x:parse var="doc" xml="${xml}"  />
@@ -33,7 +32,7 @@
             <c:set var="pp"><x:out select="." /></c:set>
             <c:set var="parents" value="${fn:split(pp, '/')}" />
             <c:forEach items="${parents}" var="parent" varStatus="status">
-                <c:if test="${status.count<fn:length(parents)}">
+                <c:if test="${status.count < fn:length(parents)}">
                     <c:if test="${!fn:contains(pid_path,parent)}">
                         <c:set var="pid_path">${pid_path}/${parent}</c:set>
                     </c:if>
@@ -74,9 +73,10 @@
                         <c:if test="${param.noparents!='true'}">
                         <c:set var="parents" value="${fn:split(pid_path, '/')}" />
                         <c:set var="imp" value="true" />
-                        <c:forEach end="${fn:length(parents)}" begin="1" var="i"  step="1">
+                        <c:set var="l" value="${fn:length(parents)}"  />
+                        <c:forEach var="i" items="${parents}" varStatus="status">
                             <c:if test="${imp}">
-                                <c:import url="suggest.jsp?pid=${parents[fn:length(parents)-i]}&noparents=true" var="res" charEncoding="UTF-8"  />
+                                <c:import url="suggest.jsp?pid=${parents[l-status.count]}&noparents=true" var="res" charEncoding="UTF-8"  />
                                 <c:if test="${res!=''}">
                                    ${res}<c:set var="imp" value="false" />
                                 </c:if>
@@ -90,9 +90,10 @@
                 <c:if test="${param.noparents!='true'}">
                 <c:set var="parents" value="${fn:split(pid_path, '/')}" />
                 <c:set var="imp" value="true" />
-                <c:forEach end="${fn:length(parents)}" begin="1" var="i"  step="1">
+                <c:set var="l" value="${fn:length(parents)}"  />
+                <c:forEach var="i" items="${parents}" varStatus="status">
                     <c:if test="${imp}">
-                        <c:import url="suggest.jsp?pid=${parents[fn:length(parents)-i]}&noparents=true" var="res" charEncoding="UTF-8"  />
+                        <c:import url="suggest.jsp?pid=${parents[l-status.count]}&noparents=true" var="res" charEncoding="UTF-8"  />
                         <c:if test="${res!=''}">
                            ${res}<c:set var="imp" value="false" />
                         </c:if>
