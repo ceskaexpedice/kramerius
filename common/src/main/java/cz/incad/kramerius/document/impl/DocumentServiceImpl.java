@@ -247,6 +247,7 @@ public class DocumentServiceImpl implements DocumentService {
         org.w3c.dom.Document biblioMods = fedoraAccess.getBiblioMods(pid);
         org.w3c.dom.Document dc = fedoraAccess.getDC(pid);
         String modelName = fedoraAccess.getKrameriusModelName(pid);
+        ResourceBundle resourceBundle = resourceBundleService.getResourceBundle("base", localeProvider.get());
         
         AbstractPage page = null;
         
@@ -268,7 +269,6 @@ public class DocumentServiceImpl implements DocumentService {
             Element part = XMLUtils.findElement(biblioMods.getDocumentElement(), "part", FedoraNamespaces.BIBILO_MODS_URI);
             String attribute = part.getAttribute("type");
             if (attribute != null) {
-                ResourceBundle resourceBundle = resourceBundleService.getResourceBundle("base", localeProvider.get());
                 String key = "pdf."+attribute;
                 if (resourceBundle.containsKey(key)) {
                     page.setOutlineTitle(page.getPageNumber()+" "+resourceBundle.getString(key));
@@ -308,7 +308,7 @@ public class DocumentServiceImpl implements DocumentService {
             page.setBiblioMods(biblioMods);
             page.setDc(dc);
             
-            page.setOutlineTitle(TitlesUtils.title(pid, solrAccess, fedoraAccess));
+            page.setOutlineTitle(TitlesUtils.title(pid, solrAccess, fedoraAccess, resourceBundle));
         }
         return page;
     }
@@ -351,13 +351,15 @@ public class DocumentServiceImpl implements DocumentService {
     @Override
     public AbstractRenderedDocument buildDocumentAsFlat(ObjectPidsPath path, String pidFrom, int howMany, int[] rect) throws IOException, ProcessSubtreeException {
         String leaf = path.getLeaf();
+        ResourceBundle resourceBundle = resourceBundleService.getResourceBundle("base", localeProvider.get());
+
         final AbstractRenderedDocument renderedDocument = new RenderedDocument(fedoraAccess.getKrameriusModelName(leaf), pidFrom);
         if ((rect != null) && (rect.length == 2)) {
             renderedDocument.setWidth(rect[0]);
             renderedDocument.setHeight(rect[1]);
         }
         
-        renderedDocument.setDocumentTitle(TitlesUtils.title(leaf, this.solrAccess, this.fedoraAccess));
+        renderedDocument.setDocumentTitle(TitlesUtils.title(leaf, this.solrAccess, this.fedoraAccess, resourceBundle));
         renderedDocument.setUuidTitlePage(path.getLeaf());
         renderedDocument.setUuidMainTitle(path.getRoot());
         
@@ -370,6 +372,8 @@ public class DocumentServiceImpl implements DocumentService {
 
     @Override
     public AbstractRenderedDocument buildDocumentAsTree(ObjectPidsPath path, String pidFrom,int[] rect) throws IOException, ProcessSubtreeException {
+        ResourceBundle resourceBundle = resourceBundleService.getResourceBundle("base", localeProvider.get());
+
         String leaf = path.getLeaf();
         String modelName = fedoraAccess.getKrameriusModelName(leaf);
 
@@ -379,7 +383,7 @@ public class DocumentServiceImpl implements DocumentService {
             renderedDocument.setHeight(rect[1]);
         }
         
-        renderedDocument.setDocumentTitle(TitlesUtils.title(leaf, this.solrAccess, this.fedoraAccess));
+        renderedDocument.setDocumentTitle(TitlesUtils.title(leaf, this.solrAccess, this.fedoraAccess, resourceBundle));
         renderedDocument.setUuidTitlePage(path.getLeaf());
         renderedDocument.setUuidMainTitle(path.getRoot());
         
