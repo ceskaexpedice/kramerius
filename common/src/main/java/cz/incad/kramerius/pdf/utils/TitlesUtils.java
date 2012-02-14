@@ -18,8 +18,11 @@ package cz.incad.kramerius.pdf.utils;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.ResourceBundle;
+import java.util.Set;
 
 import org.antlr.stringtemplate.StringTemplate;
 
@@ -29,19 +32,19 @@ import cz.incad.kramerius.SolrAccess;
 
 public class TitlesUtils {
 
-    public static String title(String uuid, SolrAccess solrAccess, FedoraAccess fa) throws IOException {
-        return title(uuid, solrAccess, fa, true);
+    public static String title(String uuid, SolrAccess solrAccess, FedoraAccess fa, ResourceBundle bundle) throws IOException {
+        return title(uuid, solrAccess, fa, true, bundle);
     }
         
     
-    public static String title(String pid, SolrAccess solrAccess, FedoraAccess fa, boolean renderModel) throws IOException {
+    public static String title(String pid, SolrAccess solrAccess, FedoraAccess fa, boolean renderModel, ResourceBundle resourceBundle) throws IOException {
         ObjectPidsPath[] paths = solrAccess.getPath(pid);
                 
         
         String[] path = paths[0].getPathFromRootToLeaf();
-        Map<String, String> mapModels = TitlesMapUtils.mapModels(fa, path);
+        Map<String, String> mapModels = translateModels(fa, path, resourceBundle);
+        
         Map<String, String> mapTitlesToUUID = TitlesMapUtils.mapTitlesToUUID(fa, path);
-        System.out.println(mapTitlesToUUID);
         List<String> titles = new ArrayList<String>();
         for (int i = 0; i < path.length; i++) {
             String u = path[i];
@@ -49,16 +52,32 @@ public class TitlesUtils {
             if (titles.contains(title)) {
                 title = "...";
             }
-            if (i == path.length -1) {
-                title = title + (renderModel ? " ("+mapModels.get(u)+")":"");
-            }
+            title = title + (renderModel ? " ("+mapModels.get(u)+")":"");
             titles.add(title);
         }
         
-        StringTemplate template = new StringTemplate("$titles;separator=\"->\"$");
+        StringTemplate template = new StringTemplate("$titles;separator=\", \"$");
         template.setAttribute("titles", titles);
         String calculatedTitle = template.toString();
         return calculatedTitle;
+    }
+
+
+    public static Map<String, String> translateModels(FedoraAccess fa, String[] path, ResourceBundle resourceBundle) throws IOException {
+        Map<String, String> nmodels = new HashMap<String, String>();
+        Map<String, String> mapModels = TitlesMapUtils.mapModels(fa, path);
+        
+        Set<String> keySet = mapModels.keySet();
+        for (String key : keySet) {
+            String val = mapModels.get(key);
+            val = val.toUpperCase();
+            if (resourceBundle.containsKey("pdf."+val)) {
+                nmodels.put(key, resourceBundle.getString("pdf."+val));
+            } else {
+                nmodels.put(key, val);
+            }
+        }
+        return nmodels;
     }
 
 }
