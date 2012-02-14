@@ -42,21 +42,28 @@ import cz.incad.kramerius.utils.XMLUtils;
 
 public class STUtils {
 
+    
+    static java.util.logging.Logger LOGGER = java.util.logging.Logger.getLogger(STUtils.class.getName());
+    
 	
-	public static String localizedXslt(Locale locale, String i18nUrl, File file, String title, String modelName) throws IOException {
+	public static String localizedXslt(Locale locale, String i18nUrl, File file, String title, String modelName, String pid) throws IOException {
 		String read = IOUtils.readAsString(STUtils.class.getResourceAsStream("templates/localized_xslt_template.xslt"), Charset.forName("UTF-8"), true);
 		StringTemplate st = new StringTemplate(read);
 		st.setAttribute("bundle_url", createBundleURL(locale,i18nUrl));
 		st.setAttribute("template_folder", file.getAbsoluteFile().toURI().toURL().toString());
 		st.setAttribute("model", modelName);
+        st.setAttribute("pid", pid);
 		st.setAttribute("parent_title", title);
-		return st.toString();
+		String string = st.toString();
+		return string;
 	}
 	
 	private static String createBundleURL(Locale locale, String i18nUrl) {
 		// http://localhost:8080/search/i18n
 		//?action=bundle&amp;lang=cs&amp;country=CZ&amp;name=base
-		return i18nUrl+"?action=bundle&amp;lang="+locale.getLanguage()+"&amp;country="+locale.getCountry()+"&amp;name=base";
+		String localeURl = i18nUrl+"?action=bundle&amp;lang="+locale.getLanguage()+"&amp;country="+locale.getCountry()+"&amp;name=base";
+		LOGGER.info("i18n url = "+localeURl);
+		return localeURl;
 	}
 
 	public static void main(String[] args) {
