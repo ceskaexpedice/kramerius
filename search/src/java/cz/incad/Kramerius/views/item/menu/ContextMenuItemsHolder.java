@@ -60,7 +60,11 @@ public class ContextMenuItemsHolder extends AbstractViewObject implements Initia
         items.add(new ContextMenuItem("administrator.menu.generatepdf", "_data_x_role", "generatepdf", "", true));
         items.add(new ContextMenuItem("administrator.menu.downloadOriginal", "_data_x_role", "downloadOriginalItem", "", true));
         items.add(new ContextMenuItem("administrator.menu.feedback", "_data_x_role", "feedbackDialog", "", true));
-
+        if (this.loggedUsersSingleton.isLoggedUser(this.requestProvider)) {
+            items.add(new ContextMenuItem("administrator.menu.favorites.add", "_data_x_role", "addToFavorites",
+                    "", true));
+        }
+        
         if (this.loggedUsersSingleton.isLoggedUser(this.requestProvider)) {
             items.add(new ContextMenuItem("administrator.menu.print", "", "ctxPrint", "", true));
             adminItems.add(new ContextMenuItem("administrator.menu.reindex", "_data_x_role", "reindex", "", true));
@@ -94,8 +98,6 @@ public class ContextMenuItemsHolder extends AbstractViewObject implements Initia
             adminItems.add(new ContextMenuItem("administrator.menu.virtualcollection.add", "_data_x_role", "vcAddToVirtualCollection",
                     "", true));
 
-            adminItems.add(new ContextMenuItem("administrator.menu.favorites.add", "_data_x_role", "addToFavorites",
-                    "", true));
 
         }
     }
