@@ -8,6 +8,7 @@ import java.nio.charset.Charset;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.Date;
+import java.util.Locale;
 import java.util.logging.Level;
 
 import javax.swing.border.TitledBorder;
@@ -28,9 +29,12 @@ import cz.incad.kramerius.lp.utils.DecriptionHTML;
 import cz.incad.kramerius.lp.utils.FileUtils;
 import cz.incad.kramerius.lp.utils.PackUtils;
 import cz.incad.kramerius.pdf.GeneratePDFService;
+import cz.incad.kramerius.pdf.utils.TitlesUtils;
 import cz.incad.kramerius.processes.impl.ProcessStarter;
+import cz.incad.kramerius.service.ResourceBundleService;
 import cz.incad.kramerius.utils.DCUtils;
 import cz.incad.kramerius.utils.IOUtils;
+import cz.incad.kramerius.utils.conf.KConfiguration;
 import cz.incad.kramerius.utils.pid.LexerException;
 import cz.incad.kramerius.utils.pid.PIDParser;
 
@@ -43,16 +47,30 @@ public class PDFExport {
 	public static final java.util.logging.Logger LOGGER = java.util.logging.Logger
 			.getLogger(PDFExport.class.getName());
 	
-	public static void main(String[] args) throws IOException, LexerException {
-		System.out.println("Spoustim staticky export .. ");
-		if (args.length >= 4) {
+	public static void main(String[] args) throws Exception {
+	    LOGGER.info("starting static export ...");
+	    if (args.length >= 4) {
 			LOGGER.info("Parameters "+args[0]+", "+args[1]+", "+args[2]+", "+args[3]);
 
 			String outputFolderName = args[0];
 			Medium medium = Medium.valueOf(args[1]);
 			String pid = args[2];
+			
 			String djvuUrl = args[3];
 			String i18nUrl = args[4];
+			
+			if (!djvuUrl.startsWith("http")) {
+			    String applicationURL = KConfiguration.getInstance().getApplicationURL();
+			    djvuUrl = applicationURL + (djvuUrl.startsWith("/") ? "" : "/") + djvuUrl;
+			}
+			
+			if (!i18nUrl.startsWith("http")) {
+                String applicationURL = KConfiguration.getInstance().getApplicationURL();
+                i18nUrl = applicationURL + (i18nUrl.startsWith("/") ? "" : "/") + i18nUrl;
+			}
+			LOGGER.info("imgurl = "+djvuUrl);
+			LOGGER.info("i18nurl = "+i18nUrl);
+
 			
 			if (args.length > 6) {
 				LOGGER.info("Country "+args[5]);
@@ -75,13 +93,22 @@ public class PDFExport {
 				titleFromDC = updateProcessName(pid, injector, medium);
 			} else {
 				FedoraAccess fa = injector.getInstance(Key.get(FedoraAccess.class, Names.named("rawFedoraAccess"))); 
-				Document dc = fa.getDC(pid);
+                Document dc = fa.getDC(pid);
 				titleFromDC = DCUtils.titleFromDC(dc);
+				
+				
+	             
 			}
+
+
+            FedoraAccess fa = injector.getInstance(Key.get(FedoraAccess.class, Names.named("rawFedoraAccess"))); 
+            Locale locale = injector.getProvider(Locale.class).get();
+
 			generatePDFs(pid, uuidFolder, injector,djvuUrl,i18nUrl);
 			createFSStructure(uuidFolder, new File(outputFolderName), medium, titleFromDC);
 		}
 	}
+	
 
 	private static String updateProcessName(String uuid, Injector injector, Medium medium)
 			throws IOException {
@@ -163,7 +190,7 @@ public class PDFExport {
 	}
 
 
-	private static void generatePDFs(String pid, File uuidFolder, Injector injector, String djvuUrl, String i18nUrl) {
+	private static void generatePDFs(String pid, File uuidFolder, Injector injector, String djvuUrl, String i18nUrl) throws Exception {
 		try {
 			if (!uuidFolder.exists()) { 
 				boolean mkdirs = uuidFolder.mkdirs();
@@ -193,6 +220,7 @@ public class PDFExport {
 			generatePDF.fullPDFExport(path[0], controller, controller, djvuUrl, i18nUrl, null /*use default*/);
 		} catch (Exception e) {
 			LOGGER.log(Level.SEVERE, e.getMessage(), e);
+			throw e;
 		}
 	}
 
