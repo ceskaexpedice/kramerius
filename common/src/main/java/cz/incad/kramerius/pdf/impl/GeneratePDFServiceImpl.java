@@ -109,7 +109,7 @@ public class GeneratePDFServiceImpl extends AbstractPDFRenderSupport implements 
         };
 
         IOUtils.copyBundledResources(this.getClass(), texts, "res/", this.textsService.textsFolder());
-        String[] xlsts = { "template.xslt" };
+        String[] xlsts = { "template_static_export.xslt" };
         IOUtils.copyBundledResources(this.getClass(), xlsts, "templates/", this.templatesFolder());
 
         String[] fonts = { "ext_ontheflypdf_ArialCE.ttf", "GentiumPlus-I.ttf", "GentiumPlus-R.ttf" };
@@ -303,12 +303,12 @@ public class GeneratePDFServiceImpl extends AbstractPDFRenderSupport implements 
         cb.stroke();
     }
 
-    private File prepareXSLStyleSheet(Locale locale, String i18nUrl, String title, String modelName) throws IOException {
+    private File prepareXSLStyleSheet(Locale locale, String i18nUrl, String title, String modelName, String pid) throws IOException {
         File tmpFile = File.createTempFile("temporary", "stylesheet");
         tmpFile.deleteOnExit();
         FileOutputStream fos = null;
         try {
-            String localizedXslt = STUtils.localizedXslt(locale, i18nUrl, templatesFolder(), title, modelName);
+            String localizedXslt = STUtils.localizedXslt(locale, i18nUrl, templatesFolder(), title, modelName, pid);
             fos = new FileOutputStream(tmpFile);
             fos.write(localizedXslt.getBytes(Charset.forName("UTF-8")));
             fos.close();
@@ -329,7 +329,7 @@ public class GeneratePDFServiceImpl extends AbstractPDFRenderSupport implements 
     }
 
     public void insertOutlinedTextPage(TextPage page, PdfWriter pdfWriter, Document document, String title, PDFContext pdfContext) throws XPathExpressionException, IOException, DocumentException, TransformerException {
-        File styleSheet = prepareXSLStyleSheet(localeProvider.get(), pdfContext.getI18nUrl(), title, page.getModel());
+        File styleSheet = prepareXSLStyleSheet(localeProvider.get(), pdfContext.getI18nUrl(), title, page.getModel(), page.getUuid());
         String text = xslt(this.fedoraAccess, styleSheet, page.getUuid());
 
         BufferedReader strReader = new BufferedReader(new StringReader(text));
