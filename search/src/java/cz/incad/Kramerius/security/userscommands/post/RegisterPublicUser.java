@@ -90,7 +90,7 @@ public class RegisterPublicUser extends AbstractPostUser{
             Message msg = new MimeMessage(sess);
             msg.addRecipient(RecipientType.TO, new InternetAddress(user.getEmail()));
             msg.setSubject(resourceBundle.getString("registeruser.mail.subject"));
-            String formatted = MessageFormat.format(resourceBundle.getString("registeruser.mail.message"),user.getFirstName()+" "+user.getSurname(), ApplicationURL.applicationURL(request)+"/users?action=activation&key="+key);
+            String formatted = MessageFormat.format(resourceBundle.getString("registeruser.mail.message"),user.getFirstName()+" "+user.getSurname(), user.getLoginname(), ApplicationURL.applicationURL(request)+"/users?action=activation&key="+key);
             msg.setText(formatted);
             Transport.send(msg);
         } catch (NoSuchProviderException e) {
