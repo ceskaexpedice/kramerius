@@ -145,6 +145,7 @@ public class GeneratePDFServlet extends GuiceServlet {
 	}
 
     private void renderErrorPagePDF(HttpServletRequest req, HttpServletResponse resp) throws IOException, ServletException {
+        LOGGER.info("server busy forward");
         RequestDispatcher dispatcher = req.getRequestDispatcher("serverbusy.jsp");
         dispatcher.forward(req, resp);
     }
@@ -244,8 +245,11 @@ public class GeneratePDFServlet extends GuiceServlet {
 
                     PDFFontConfigBean configBean = fontConfigParams(fontConfigParams(null, request.getParameter(LOGO_FONT), FontMap.BIG_FONT), request.getParameter(INF_FONT), FontMap.NORMAL_FONT);
 
-                    AbstractRenderedDocument rdoc = documentService.buildDocumentAsFlat(path, path.getLeaf(), Integer.parseInt(howMany), irects);
-
+                    AbstractRenderedDocument rdoc = documentService.buildDocumentAsFlat(path, pid, Integer.parseInt(howMany), irects);
+                    if (rdoc.getPages().isEmpty()) {
+                        rdoc = documentService.buildDocumentAsFlat(path, path.getLeaf(), Integer.parseInt(howMany), irects);
+                    }
+                    
                     firstPagePDFService.generateFirstPageForSelection(rdoc, fpageFos, imgServletUrl, i18nUrl, configBean);
                     pdfService.generateCustomPDF(rdoc, bodyTmpFos, imgServletUrl, i18nUrl, ImageFetcher.WEB);
 
