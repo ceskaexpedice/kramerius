@@ -245,19 +245,34 @@ public class GeneratePDFServlet extends GuiceServlet {
 
                     PDFFontConfigBean configBean = fontConfigParams(fontConfigParams(null, request.getParameter(LOGO_FONT), FontMap.BIG_FONT), request.getParameter(INF_FONT), FontMap.NORMAL_FONT);
 
+                    long time = System.currentTimeMillis();
+                    LOGGER.fine("Generating document ");
                     AbstractRenderedDocument rdoc = documentService.buildDocumentAsFlat(path, pid, Integer.parseInt(howMany), irects);
                     if (rdoc.getPages().isEmpty()) {
                         rdoc = documentService.buildDocumentAsFlat(path, path.getLeaf(), Integer.parseInt(howMany), irects);
                     }
+                    LOGGER.fine("took "+(System.currentTimeMillis() - time));
                     
+                    
+                    time = System.currentTimeMillis();
+                    LOGGER.fine("Generating first page ");
                     firstPagePDFService.generateFirstPageForSelection(rdoc, fpageFos, imgServletUrl, i18nUrl, configBean);
+                    LOGGER.fine("took "+(System.currentTimeMillis() - time));
+                    
+                    
+                    time = System.currentTimeMillis();
+                    LOGGER.fine("generating rest of document ");
                     pdfService.generateCustomPDF(rdoc, bodyTmpFos, imgServletUrl, i18nUrl, ImageFetcher.WEB);
+                    LOGGER.fine(" took "+(System.currentTimeMillis() - time));
 
                     bodyTmpFos.close();
                     fpageFos.close();
                     
+                    time = System.currentTimeMillis();
+                    LOGGER.fine("merging  ");
                     mergeToOutput(response, tmpFile, fpage);
-
+                    LOGGER.fine(" took "+(System.currentTimeMillis() - time));
+                    
                 } catch (IOException e) {
                     LOGGER.log(Level.SEVERE,e.getMessage(),e);
                 } catch (ProcessSubtreeException e) {
