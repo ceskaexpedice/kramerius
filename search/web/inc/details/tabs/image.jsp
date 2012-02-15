@@ -30,7 +30,7 @@
     
 </style>
 <div id="bigThumbZone" class="viewer">
-    <div id="container"  class="view_div"  style="display:none; min-height: 512px; min-width: 512px; width: 512px; height: 512px;">
+    <div id="container"  class="view_div"  style="display:none; min-height: 512px; min-width: 512px; width: 662px; height: 512px;">
     </div>
 
     <div id="securityError" style="display:none;">
