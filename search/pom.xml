@@ -241,10 +241,11 @@
                 <configuration>
                     <entries>
                         <entry>
-                            <path>${project.basedir}</path>
+                            <path>${project.basedir}/..</path>
                             <prefix>prefix</prefix>
                         </entry>
                     </entries>
+                    <verbose>true</verbose>
                 </configuration>
             </plugin>
         </plugins>
