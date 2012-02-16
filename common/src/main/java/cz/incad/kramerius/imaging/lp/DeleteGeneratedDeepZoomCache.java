@@ -68,23 +68,24 @@ public class DeleteGeneratedDeepZoomCache {
         }
     }
 
-    public static void deleteCacheForPID(String uuid, final FedoraAccess fedoraAccess, final DiscStrucutreForStore discStruct) throws IOException, ProcessSubtreeException {
-        if (fedoraAccess.isImageFULLAvailable(uuid)) {
+    public static void deleteCacheForPID(String pid, final FedoraAccess fedoraAccess, final DiscStrucutreForStore discStruct) throws IOException, ProcessSubtreeException {
+        if (fedoraAccess.isImageFULLAvailable(pid)) {
             try {
-                deleteFolder(uuid, discStruct);
+                deleteFolder(pid, discStruct);
             } catch (XPathExpressionException e) {
                 LOGGER.severe(e.getMessage());
             }
         } else {
             
-            fedoraAccess.processSubtree("uuid:"+uuid, new AbstractTreeNodeProcessorAdapter() {
+            fedoraAccess.processSubtree(pid, new AbstractTreeNodeProcessorAdapter() {
+                
                 
                 @Override
-                public void processUuid(String uuid, int level) {
+                public void processUuid(String pid, int level) {
                     try {
-                        if (fedoraAccess.isImageFULLAvailable(uuid)) {
+                        if (fedoraAccess.isImageFULLAvailable(pid)) {
                             //LOGGER.info("Deleting " + (pageIndex++) +" uuid = "+uuid);
-                            deleteFolder(uuid, discStruct);
+                            deleteFolder(pid, discStruct);
                         }
                     } catch (DOMException e) {
                         LOGGER.severe(e.getMessage());
