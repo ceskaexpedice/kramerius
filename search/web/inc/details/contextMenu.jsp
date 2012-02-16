@@ -45,12 +45,12 @@
         display:block;
         float:left;
     }
-    
+
     #contextMenu .scope>span{
         font-weight: bold;
     }
-    
-    
+
+
     #reindex ul{
         margin: 2px;
         padding-left: 4px;
@@ -70,12 +70,12 @@
         display:block;
         float:left;
     }
-    
+
     #reindex .scope>span{
         font-weight: bold;
     }
     #reindex>div.allowed{
-        border-bottom:1px solid #E66C00; 
+        border-bottom:1px solid #E66C00;
         margin-bottom:5px;
         padding-bottom:3px;
     }
@@ -91,16 +91,16 @@
     <ul id="context_items_selection"></ul>
 </div>
 <div style="height:0px;border-top:1px solid silver;"></div>
-<div><h3><view:msg>administrator.menu.Actions</view:msg>:</h3> 
+<div><h3><view:msg>administrator.menu.Actions</view:msg>:</h3>
     <ul id="contextMenuList">
-        
-        <!-- common items -->       
+
+        <!-- common items -->
         <c:forEach var="item" items="${ctxMenu.items}" varStatus="status">
             <%-- multiple item --%>
             <c:if test="${item.supportMultiple}">
-	            <li><span class="ui-icon ui-icon-triangle-1-e  " >item</span>
-	                <a title='<view:msg>${item.key}</view:msg>' href="javascript:${item.jsFunction}(${item.jsArgs});"><view:msg>${item.key}</view:msg></a>
-	            </li>
+                <li><span class="ui-icon ui-icon-triangle-1-e  " >item</span>
+                    <a title='<view:msg>${item.key}</view:msg>' href="javascript:${item.jsFunction}(${item.jsArgs});"><view:msg>${item.key}</view:msg></a>
+                </li>
             </c:if>
             <%-- no multiple item --%>
             <c:if test="${!item.supportMultiple}">
@@ -109,13 +109,13 @@
                 </li>
             </c:if>
         </c:forEach>
-    
-        <!-- admin items -->        
+
+        <!-- admin items -->
         <scrd:securedContent action="display_admin_menu">
           <c:if test="${not empty ctxMenu.adminItems}">
               <hr/>
           </c:if>
-  
+
           <c:forEach var="item" items="${ctxMenu.adminItems}" varStatus="status">
               <%-- multiple item --%>
               <c:if test="${item.supportMultiple}">
@@ -131,8 +131,8 @@
               </c:if>
             </c:forEach>
         </scrd:securedContent>
-        
-        
+
+
     </ul>
 </div>
 
@@ -161,12 +161,12 @@
                 <input type="checkbox" id="reindex_only_newer" /><label for="reindex_only_newer"> <view:msg>administrator.menu.dialogs.only_newer</view:msg></label>
             </div>
         </div>
-        
+
     </div>
                 <div id="vc_dialog" style="display:none;"><div class="content"></div></div>
 </scrd:loggedusers>
 <script type="text/javascript">
-    
+
     $(document).ready(function(){
         $('#contextMenuList>li>a').click(function(e) {
             if($(this).parent().hasClass('disabled')){
@@ -184,23 +184,23 @@
         });
 
     });
-    
+
     function clearContextMenuSelection(){
         $('#context_items_selection').html("");
     }
-    
+
     function removeFromContextMenuSelection(id){
         $(jq('cm_'+id)).remove();
     }
-    
+
     function addToContextMenuSelection(id, label){
         var t = '<li id="cm_' + id + '">';
             t += '<span class="ui-icon ui-icon-triangle-1-e folder " >folder</span>';
             t += '<label>'+label+'</label></li>';
-            
+
         $('#context_items_selection').append(t);
     }
-    
+
     function onShowContextMenu(){
         if($('#context_items_selection>li').length>0){
             setScope('scope_multiple');
@@ -212,7 +212,7 @@
             $('#scope_single').show();
         }
     }
-    
+
     function getLabel(pid){
         return $(jq("cm_" + uuids[i])+">label").html();
     }
@@ -227,7 +227,7 @@
     function getScope(){
         return $('#contextMenu>div.selected').attr('id').split('_')[1];
     }
-    
+
     function getMultipleSelection(){
         var pids = [];
         $('#context_items_selection>li').each(function(){
@@ -236,7 +236,7 @@
         });
         return pids;
     }
-    
+
     /*
      * returns array of affected pids by multiple or single selection
      */
@@ -247,7 +247,7 @@
             return getMultipleSelection();
         }
     }
-    
+
     function setScope(id){
         var scope = id.split('_')[1];
         var items = $(jq(id)+">ul>li").length;
@@ -275,20 +275,20 @@
                         text: dictionary['common.send'],
                         click: function() {
                             sendFeedback();
-                            $(this).dialog("close"); 
+                            $(this).dialog("close");
                         }
                     },
                     {
                         text: dictionary['common.close'],
                         click: function() {
-                            $(this).dialog("close"); 
+                            $(this).dialog("close");
                         }
                     }
                 ]
             });
         }
     }
-    
+
     function sendFeedback(){
         var url = "feedback?from="+$("#feedback_from").val() +
             "&pid="+getAffectedPids() +
@@ -301,7 +301,7 @@
             $("#feedback_sending").hide();
         });
     }
-    
+
     var _metadataDialog;
     function viewMetadata(){
         var fullpid = getAffectedPids()[0];
@@ -323,7 +323,7 @@
                     {
                         text: dictionary['common.close'],
                         click: function() {
-                            $(this).dialog("close"); 
+                            $(this).dialog("close");
                         }
                     }
                 ]
@@ -369,13 +369,13 @@
                     {
                         text: dictionary['common.close'],
                         click: function() {
-                            $(this).dialog("close"); 
+                            $(this).dialog("close");
                         }
                     }
                 ]
             });
         }
-        
+
         var uuids = getAffectedPids();
         var input;
         $('#'+textFieldID).html('');
@@ -387,40 +387,40 @@
         $('#'+textFieldID+'>input').focus(function() {
             $(this).select();
         });
-        
+
     }
-    
+
     /** Generating pdf */
     function generatepdf() {
         var pids = getAffectedPids();
-        var structs = map(function(pid) { 
-            var divided = pid.split("_");            
+        var structs = map(function(pid) {
+            var divided = pid.split("_");
             var structure = {
                        models:divided[0],
                        pid:divided[1]
                 };
-            return structure;            
-            
-        }, pids);    
-        // show pdf dialog 
+            return structure;
+
+        }, pids);
+        // show pdf dialog
         pdf.generate(structs);
     }
 
 
-    
+
     function downloadOriginalItem(){
           var pids = getAffectedPids();
-          var structs = map(function(pid) { 
-              var divided = pid.split("_");            
+          var structs = map(function(pid) {
+              var divided = pid.split("_");
               var structure = {
                          models:divided[0],
                          pid:divided[1]
                 };
-              return structure;            
-              
-          }, pids); 
+              return structure;
+
+          }, pids);
           // show download original dialog
-          downloadOriginal.download(structs);          
+          downloadOriginal.download(structs);
     }
 
   <scrd:loggedusers>
@@ -429,12 +429,12 @@
     this.dialog = null;
     this.id = id;
   }
-  
+
   Message.prototype.show=function() {
-	  if (this.dialog) {
-		   this.dialog.dialog('open');
+      if (this.dialog) {
+           this.dialog.dialog('open');
        } else {
-    	   $(document.body).append("<div id='message_dialog_"+this.id+"'></div>");
+           $(document.body).append("<div id='message_dialog_"+this.id+"'></div>");
            this.dialog = $("#message_dialog_"+this.id).dialog({
                bgiframe: true,
                width: 350,
@@ -444,34 +444,34 @@
                buttons: [{
                        text: "Ok",
                        click: function() {
-                           $(this).dialog("close"); 
+                           $(this).dialog("close");
                        }
                    }]
            });
-       }  
+       }
        $("#message_dialog_"+this.id).html("<div style='height: 6em; width:350px; display: table-cell; vertical-align: middle; text-align:center;'>"+dictionary['message.text.'+this.id]+"</div>");
   }
-  
+
   /* add to favorite */
   function addToFavorites() {
 
-	  new Profile().modify(
- 	   function(json){
+      new Profile().modify(
+        function(json){
          if (!json.favorites) {
              json["favorites"] = [];
          }
-         var structs = map(function(pid) { 
-             var divided = pid.split("_");            
+         var structs = map(function(pid) {
+             var divided = pid.split("_");
              var structure = {
                         models:divided[0],
                         pid:divided[1]
                };
-             return structure;            
-             
-         },getAffectedPids()); 
+             return structure;
+
+         },getAffectedPids());
 
          reduce(function(base, element, status){
-        	 if (base.indexOf(element.pid) < 0) {
+             if (base.indexOf(element.pid) < 0) {
                  base.push(element.pid);
              }
              return base;
@@ -482,7 +482,7 @@
          (new Message("favorites_add_success")).show();
      });
   }
-  
+
   /* Administrate virtual collections */
   var _vcollDialog;
   function vcAddToVirtualCollection(){
@@ -500,13 +500,13 @@
                         text: "Ok",
                         click: function() {
                             vcDoAdd();
-                            $(this).dialog("close"); 
+                            $(this).dialog("close");
                         }
                     },
                     {
                         text: dictionary['common.close'],
                         click: function() {
-                            $(this).dialog("close"); 
+                            $(this).dialog("close");
                         }
                     }
                 ]
@@ -534,10 +534,10 @@
             }
         });
   }
-  
+
   function vcDoAdd(){
     var pids = getAffectedPids();
-    
+
     var urlbuffer;
     var action;
     var coll;
@@ -592,33 +592,33 @@
             });
         }
         urlbuffer=urlbuffer+"}";
-                
+
     }
 
-    
+
     //alert(urlbuffer);
     if(hasChanges){
         processStarter("virtualcollections").start(urlbuffer);
     }
-    
+
   }
 
   function ctxPrint(){
       var pids = getAffectedPids();
-      var structs = map(function(pid) { 
-          var divided = pid.split("_");            
+      var structs = map(function(pid) {
+          var divided = pid.split("_");
           var structure = {
                      models:divided[0],
                      pid:divided[1]
               };
-          return structure;            
-          
-      }, pids); 
+          return structure;
+
+      }, pids);
       // show print dialog
-      print.print(structs);          
+      print.print(structs);
    }
-  
-  
+
+
     var _reindexDialog;
     function reindex(){
         if (_reindexDialog) {
@@ -634,13 +634,13 @@
                         text: "Ok",
                         click: function() {
                             askReindex();
-                            $(this).dialog("close"); 
+                            $(this).dialog("close");
                         }
                     },
                     {
                         text: dictionary['common.close'],
                         click: function() {
-                            $(this).dialog("close"); 
+                            $(this).dialog("close");
                         }
                     }
                 ]
@@ -656,14 +656,14 @@
             }
         }
     }
-    
+
     function askReindex(){
         showConfirmDialog(dictionary['administrator.dialogs.reindexconfirm'], function(){
             doReindex();
         });
     }
     function doReindex(){
-        
+
             var pids = getAffectedPids();
             var action;
             if($("#reindex_only_newer").is(':checked')){
@@ -671,7 +671,7 @@
             }else{
                 action = "fromKrameriusModel";
             }
-            
+
             var urlbuffer;
             if(pids.length==1){
                 var pidpath = getPidPath(pids[0]);
@@ -692,7 +692,7 @@
                         escapedTitle = escapedTitle.replace(/ +(?= )/g,'');
                         urlbuffer=urlbuffer+"{"+action+";"+replaceAll(pid, ":","\\:")+";"+replaceAll(escapedTitle, ":","\\:")+"}";
                         if (i<pids.length-1) {
-                           urlbuffer=urlbuffer+";" 
+                           urlbuffer=urlbuffer+";"
                         }
                 }
                 urlbuffer=urlbuffer+"}";
@@ -700,14 +700,14 @@
 
             processStarter("reindex").start(urlbuffer);
     }
-        
+
     function deletefromindex(){
 
         showConfirmDialog(dictionary['administrator.dialogs.deleteconfirm'], function(){
             var pids = getAffectedPids();
 
             var action = "deleteDocument";
-            
+
             var urlbuffer;
             if(pids.length==1){
                 var pidpath = getPidPath(pids[0]);
@@ -728,20 +728,20 @@
                         escapedTitle = escapedTitle.replace(/ +(?= )/g,'');
                         urlbuffer=urlbuffer+"{"+action+";"+replaceAll(pid, ":","\\:")+";"+replaceAll(escapedTitle, ":","\\:")+"}";
                         if (i<pids.length-1) {
-                           urlbuffer=urlbuffer+";" 
+                           urlbuffer=urlbuffer+";"
                         }
                 }
                 urlbuffer=urlbuffer+"}";
             }
-                
+
             processStarter("reindex").start(urlbuffer);
         });
-        
+
     }
-        
+
     function deletePid(){
         var pids = getAffectedPids();
-        
+
         showConfirmDialog(dictionary['administrator.dialogs.deleteconfirm'], function(){
             var urlbuffer = "lr?action=start&def=aggregate&out=text&nparams={delete;"
             for(var i=0; i<pids.length; i++){
@@ -749,7 +749,7 @@
                     var pid = pidpath.substring(pidpath.lastIndexOf("/") + 1);
                     urlbuffer=urlbuffer+"{"+replaceAll(pid, ":","\\:")+";"+replaceAll(pidpath, ":","\\:")+"}";
                     if (i<pids.length-1) {
-                       urlbuffer=urlbuffer+";" 
+                       urlbuffer=urlbuffer+";"
                     }
             }
 
@@ -757,9 +757,9 @@
 
         });
     }
-        
+
     function exportFOXML(){
-        var structs = pidstructs();     
+        var structs = pidstructs();
         if (structs.length > 1) {
             var u = urlWithPids("lr?action=start&def=aggregate&out=text&nparams={export;",structs)+"}";
             processStarter("export").start(u);
@@ -770,39 +770,39 @@
     }
 
     function exportToCD(img, i18nServlet, country,language) {
-        var structs = pidstructs();     
+        var structs = pidstructs();
         if (structs.length > 0) {
             var u = "lr?action=start&def=static_export_CD&out=text&nparams={"+structs[0].pid.replaceAll(":","\\:")+";"+img+";"+i18nServlet+";"+country+";"+language+"}";
             processStarter("static_export_CD").start(u);
         }
     }
     function exportToDVD(img, i18nServlet, country,language) {
-        var structs = pidstructs();     
+        var structs = pidstructs();
         if (structs.length > 0) {
             var u = "lr?action=start&def=static_export_CD&out=text&nparams={"+structs[0].pid.replaceAll(":","\\:")+";"+img+";"+i18nServlet+";"+country+";"+language+"}";
             processStarter("static_export_DVD").start(u);
         }
     }
-    
-        
+
+
     function generateDeepZoomTiles(){
-        var structs = pidstructs();     
+        var structs = pidstructs();
         var u = urlWithPids("lr?action=start&def=aggregate&out=text&nparams={generateDeepZoomTiles;",structs);
         processStarter("generateDeepZoomTiles").start(u);
     }
-        
+
     function deleteGeneratedDeepZoomTiles(){
         var pids = getAffectedPids();
         var structs = pidstructs();
         var u = urlWithPids("lr?action=start&def=aggregate&out=text&nparams={deleteGeneratedDeepZoomTiles;",structs);
         processStarter("deleteGeneratedDeepZoomTiles").start(u);
     }
-        
+
     function securedActionsTableForCtxMenu(read, administrate){
         var pids = getAffectedPids();
         var structs = pidstructs();
-        
-        
+
+
         // open dialog
         findObjectsDialog().openDialog(structs);
     }
@@ -810,20 +810,24 @@
     function securedStreamsTableForCtxMenu(read, administrate){
         var pids = getAffectedPids();
         var structs = pidstructs();
-        
+
         if (!selectStreams) {
-        	selectStreams = new SecuredStreamsSelection();   
+            selectStreams = new SecuredStreamsSelection();
         }
 
         // open dialog
         selectStreams.openDialog(structs);
     }
-    
-    
+
+
     function openEditor(url){
-        window.open(url,'_blank');   
+        var pids = getAffectedPids();
+        var structs = pidstructs();
+        if(structs.length>=1){
+            window.open(url+"?pids="+structs[0].pid,'_blank');
+        }
     }
-        
+
 </scrd:loggedusers>
-    
+
 </script>
