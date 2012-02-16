@@ -168,10 +168,5 @@ public class Structure extends Application {
 
         user.PERSONAL_ADMIN = user.referenceProperty(group, "PERSONAL_ADMIN_ID");
         group.PERSONAL_ADMIN = group.referenceProperty(group, "PERSONAL_ADMIN_ID");
-
-        // digitalniReprezentace.ZVEREJNENO =
-        // digitalniReprezentace.addReverseCollection("DIGITALNI_REPREZENTACE",
-        // zverejneno, zverejneno.DIGITALNI_REPREZENTACE);
-
     }
 }

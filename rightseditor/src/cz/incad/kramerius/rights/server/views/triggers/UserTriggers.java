@@ -28,7 +28,7 @@ public class UserTriggers extends AbstractUserTriggers implements PersisterTrigg
 
     private Mailer mailer;
 
-    public UserTriggers(Structure structure) {
+    public UserTriggers() {
         super();
     }
 

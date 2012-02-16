@@ -11,11 +11,9 @@ import cz.incad.kramerius.rights.server.Structure;
 
 public class RefenrenceToPersonalAdminView extends View {
 
-    Structure struct;
 
-    public RefenrenceToPersonalAdminView(Structure structure) {
-        super(Structure.group);
-        this.struct = structure;
+    public RefenrenceToPersonalAdminView() {
+        super(Structure.group, "RefenrenceToPersonalAdmin");
         addProperty(Structure.group.GNAME);
         setSortProperty(Structure.group.GNAME);
         setForm(createGroupForm());
