@@ -30,7 +30,7 @@
 
     <properties>
         <gwt.version>2.4.0</gwt.version>
-        <gwt.maven.version>2.3.0-1</gwt.maven.version>
+        <gwt.maven.version>2.4.0</gwt.maven.version>
     </properties>
 
     <dependencies>
