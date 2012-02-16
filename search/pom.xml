@@ -230,7 +230,7 @@
             <plugin>
                 <groupId>com.google.code.maven-svn-revision-number-plugin</groupId>
                 <artifactId>maven-svn-revision-number-plugin</artifactId>
-                <version>1.5</version>
+                <version>1.7</version>
                 <executions>
                     <execution>
                         <goals>
