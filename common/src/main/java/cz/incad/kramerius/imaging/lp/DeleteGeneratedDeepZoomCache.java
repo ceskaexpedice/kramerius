@@ -33,6 +33,7 @@ import com.google.inject.name.Names;
 
 import cz.incad.kramerius.FedoraAccess;
 import cz.incad.kramerius.ProcessSubtreeException;
+import cz.incad.kramerius.TreeNodeProcessor;
 import cz.incad.kramerius.imaging.DiscStrucutreForStore;
 import cz.incad.kramerius.imaging.lp.guice.Fedora3Module;
 import cz.incad.kramerius.imaging.lp.guice.GenerateDeepZoomCacheModule;
@@ -77,11 +78,13 @@ public class DeleteGeneratedDeepZoomCache {
             }
         } else {
             
-            fedoraAccess.processSubtree(pid, new AbstractTreeNodeProcessorAdapter() {
+            fedoraAccess.processSubtree(pid, new TreeNodeProcessor() {
+                
+                
                 
                 
                 @Override
-                public void processUuid(String pid, int level) {
+                public void process(String pid, int level) throws ProcessSubtreeException {
                     try {
                         if (fedoraAccess.isImageFULLAvailable(pid)) {
                             //LOGGER.info("Deleting " + (pageIndex++) +" uuid = "+uuid);
@@ -95,6 +98,12 @@ public class DeleteGeneratedDeepZoomCache {
                         LOGGER.severe(e.getMessage());
                     }
                 }
+
+                @Override
+                public boolean breakProcessing(String pid, int level) {
+                    return false;
+                }
+
             });
             
         }
