@@ -5,20 +5,20 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.SQLException;
+import java.util.Arrays;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
 import javax.xml.bind.PropertyException;
 import javax.xml.bind.Unmarshaller;
+import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.sax.SAXSource;
+import javax.xml.xpath.XPathExpressionException;
 
-import org.apache.commons.configuration.Configuration;
 import org.apache.commons.io.FileUtils;
 import org.apache.log4j.Logger;
+import org.kramerius.mets.Mets;
 import org.xml.sax.EntityResolver;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
@@ -29,7 +29,8 @@ import com.qbizm.kramerius.imp.jaxb.DigitalObject;
 import com.qbizm.kramerius.imp.jaxb.Monograph;
 import com.qbizm.kramerius.imp.jaxb.periodical.Periodical;
 import com.qbizm.kramerius.imptool.poc.convertor.MonographConvertor;
-import com.qbizm.kramerius.imptool.poc.convertor.PeriodicalConvertor;
+import com.qbizm.kramerius.imptool.poc.convertor.MetsPeriodicalConvertor;
+import com.qbizm.kramerius.imptool.poc.utils.XMLTools;
 import com.qbizm.kramerius.imptool.poc.valueobj.ConvertorConfig;
 import com.qbizm.kramerius.imptool.poc.valueobj.ServiceException;
 
@@ -38,67 +39,64 @@ import cz.incad.kramerius.utils.conf.KConfiguration;
 
 
 /**
- * Nastroj pro konverzi XML z Krameria do formatu Fedora Object XML
- * 
- * @author xholcik
+ * Nastroj pro konverzi XML z ANL do formatu Fedora Object XML
+ *
+ * @author vlahoda
  */
-public class Main {
+public class MetsConvertor {
 
-    private static final Logger log = Logger.getLogger(Main.class);
+    private static final Logger log = Logger.getLogger(MetsConvertor.class);
 
     private static Marshaller marshaller = null;
     private static Unmarshaller unmarshaller = null;
 
     public static void main(String[] args) throws InterruptedException, JAXBException, FileNotFoundException, SAXException, ServiceException {
 
-        if (args.length > 4) {
-            System.out.println("KrameriusXML to FOXML conversion tool.\n");
-            System.out.println("Usage: conversion-tool useDB defaultVisibility <input-file> [<output-folder>]");
+        if (args.length  != 3) {
+            System.out.println("ANL METS to FOXML conversion tool.\n");
+            System.out.println("Usage: conversion-tool defaultVisibility <input-file> <output-folder>");
             System.exit(1);
         }
-        
-        boolean useDB = Boolean.parseBoolean(args[0]);
-        boolean defaultVisibility = Boolean.parseBoolean(args[1]);
+
+        boolean defaultVisibility = Boolean.parseBoolean(args[0]);
 
         String importRoot = null;
-        if (args.length == 2){
+        if (args.length == 1){
             importRoot = KConfiguration.getInstance().getConfiguration().getString("migration.directory");
         } else{
-            importRoot = args[2];
+            importRoot = args[1];
         }
         String exportRoot = null;
-        if (args.length == 4) {
-            exportRoot = args[3];
+        if (args.length == 3) {
+            exportRoot = args[2];
         } else {
             exportRoot = importRoot + "-converted";
         }
 
-        convert(importRoot, exportRoot, useDB, defaultVisibility, null);
+        convert(importRoot, exportRoot,  defaultVisibility, null);
 
     }
 
-    
-    
-    public static String convert(String importRoot, String exportRoot, boolean useDB, boolean defaultVisibility, String titleId) throws InterruptedException, JAXBException, FileNotFoundException, SAXException, ServiceException {
+
+
+    public static String convert(String importRoot, String exportRoot, boolean defaultVisibility, String titleId) throws InterruptedException, JAXBException, FileNotFoundException, SAXException, ServiceException {
         System.setProperty("java.awt.headless", "true");
         StringBuffer convertedURI = new StringBuffer();
-        if (useDB){
-            initDB();
-        }
+
         try {
-            JAXBContext jaxbContext = JAXBContext.newInstance(Monograph.class, DigitalObject.class, Periodical.class);
+            JAXBContext jaxbContext = JAXBContext.newInstance(Mets.class, DigitalObject.class/*, Periodical.class*/);
             marshaller = jaxbContext.createMarshaller();
             marshaller.setProperty(Marshaller.JAXB_ENCODING, "utf-8");
             marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
             try{
-            	marshaller.setProperty("com.sun.xml.internal.bind.namespacePrefixMapper", new NamespacePrefixMapperInternalImpl());
+                marshaller.setProperty("com.sun.xml.internal.bind.namespacePrefixMapper", new NamespacePrefixMapperInternalImpl());
             } catch (PropertyException ex){
-            	marshaller.setProperty("com.sun.xml.bind.namespacePrefixMapper", new NamespacePrefixMapperImpl());
+                marshaller.setProperty("com.sun.xml.bind.namespacePrefixMapper", new NamespacePrefixMapperImpl());
             }
             marshaller.setProperty(Marshaller.JAXB_SCHEMA_LOCATION, "info:fedora/fedora-system:def/foxml# http://www.fedora.info/definitions/1/0/foxml1-1.xsd");
 
             unmarshaller = jaxbContext.createUnmarshaller();
-            
+
 
         } catch (Exception e) {
             log.error("Cannot init JAXB", e);
@@ -111,39 +109,47 @@ public class Main {
             System.exit(1);
         }
 
-        visitAllDirsAndFiles(importFile, importRoot, exportRoot,  useDB, defaultVisibility,  convertedURI, titleId);
-        if (conn != null){
-            try {
-                conn.close();
-            } catch (SQLException e) {
-                
-            }
+        //visitAllDirsAndFiles(importFile, importRoot, exportRoot,   defaultVisibility,  convertedURI, titleId);
+
+
+        File exportFolderFile = IOUtils.checkDirectory(exportRoot);
+        if (!useContractSubfolders()){
+            IOUtils.cleanDirectory(exportFolderFile);
         }
+        String importFolder = importFile.getParent();
+        if (importFolder == null) {
+            importFolder = ".";
+        }
+        //String subFolderName = importFolder.substring(importRoot.length());
+
+        String exportFolder = exportRoot; //+ subFolderName;
+
+        ConvertorConfig config = new ConvertorConfig();
+        config.setMarshaller(marshaller);
+        config.setExportFolder(exportFolder);
+        config.setImportFolder(importFolder);
+
+        config.setDefaultVisibility(defaultVisibility);
+        int l=5;
+        try{
+            l=KConfiguration.getInstance().getConfiguration().getInt("contractNo.length");
+        }catch(NumberFormatException ex){
+            log.error("Cannot parse property contractNo.length", ex);
+        }
+        config.setContractLength(l);
+        //try {
+            convertOneDirectory(unmarshaller, importFile, config, convertedURI, titleId);
+
         return convertedURI.toString();
     }
-    
-    static Connection conn = null;
-    
-    // "jdbc:postgresql://localhost:5432/kramerius", "kramerius", "f8TasR"
-    private static void initDB() {
-        try {
-        	Configuration configuration = KConfiguration.getInstance().getConfiguration();
-            Class.forName(configuration.getString("k3.db.driver"));
-            String url = configuration.getString("k3.db.url");
-            String user = configuration.getString("k3.db.user");
-            String pwd = configuration.getString("k3.db.password");
-            conn = DriverManager.getConnection(url, user, pwd);
-            conn.setAutoCommit(true);
-            log.info("Database initialized.");
-        } catch (Exception ex) {
-            throw new RuntimeException(ex);
-        }
 
-    }
-    
-    
 
-    private static void visitAllDirsAndFiles(File importFile, String importRoot, String exportRoot, boolean useDB, boolean defaultVisibility, StringBuffer convertedURI, String titleId) throws InterruptedException, JAXBException, FileNotFoundException, SAXException, ServiceException {
+
+
+
+
+
+    private static void visitAllDirsAndFiles(File importFile, String importRoot, String exportRoot, boolean defaultVisibility, StringBuffer convertedURI, String titleId) throws InterruptedException, JAXBException, FileNotFoundException, SAXException, ServiceException {
 
         if (importFile.isDirectory()) {
             String subFolderName = importFile.getAbsolutePath().substring(importRoot.length());
@@ -152,11 +158,11 @@ public class Main {
 
             File exportFolderFile = IOUtils.checkDirectory(exportFolder);
             if (!useContractSubfolders()){
-            	IOUtils.cleanDirectory(exportFolderFile);
+                IOUtils.cleanDirectory(exportFolderFile);
             }
             File[] children = importFile.listFiles();
             for (int i = 0; i < children.length; i++) {
-                visitAllDirsAndFiles(children[i], importRoot, exportRoot,  useDB, defaultVisibility, convertedURI, titleId);
+                visitAllDirsAndFiles(children[i], importRoot, exportRoot, defaultVisibility, convertedURI, titleId);
             }
         } else {
             if (importFile.getName().endsWith(".xml")) {
@@ -173,11 +179,9 @@ public class Main {
                 config.setMarshaller(marshaller);
                 config.setExportFolder(exportFolder);
                 config.setImportFolder(importFolder);
-                if (useDB){
-                    config.setDbConnection(conn);
-                }
+
                 config.setDefaultVisibility(defaultVisibility);
-                int l=5; 
+                int l=5;
                 try{
                     l=KConfiguration.getInstance().getConfiguration().getInt("contractNo.length");
                 }catch(NumberFormatException ex){
@@ -191,10 +195,10 @@ public class Main {
                 } catch (JAXBException e) {
                     log.error("Cannot convert "+importFile, e);
                 } catch (FileNotFoundException e) {
-                	log.error("Cannot convert "+importFile, e);
-				} catch (SAXException e) {
-					log.error("Cannot convert "+importFile, e);
-				}*/
+                    log.error("Cannot convert "+importFile, e);
+                } catch (SAXException e) {
+                    log.error("Cannot convert "+importFile, e);
+                }*/
 
             }
         }
@@ -203,24 +207,34 @@ public class Main {
     private static void convertOneDirectory(Unmarshaller unmarshaller, File importFile, ConvertorConfig config, StringBuffer convertedURI, String titleId) throws InterruptedException, JAXBException, FileNotFoundException, SAXException, ServiceException {
         long timeStart = System.currentTimeMillis();
 
-        long before = getFreeMem();
-        
         XMLReader reader = XMLReaderFactory.createXMLReader();
         reader.setEntityResolver(new EntityResolver(){
-			@Override
-			public InputSource resolveEntity(String publicId, String systemId) throws SAXException, IOException {
-					return new InputSource(new ByteArrayInputStream("<?xml version='1.0' encoding='UTF-8'?>".getBytes()));
-			}
-		});
+            @Override
+            public InputSource resolveEntity(String publicId, String systemId) throws SAXException, IOException {
+                    return new InputSource(new ByteArrayInputStream("<?xml version='1.0' encoding='UTF-8'?>".getBytes()));
+            }
+        });
         SAXSource saxSource = new SAXSource( reader, new InputSource( new FileInputStream(importFile) ) );
-		Object source = unmarshaller.unmarshal(saxSource);
+        Object source = unmarshaller.unmarshal(saxSource);
+        log.info("File "+importFile +" loaded"+source);
 
-		long after = getFreeMem();
-        if (log.isInfoEnabled()) {
-            log.info("Memory eaten: " + ((after - before) / 1024) + "KB");
+/*
+        XMLTools reader = new XMLTools();
+        reader.loadXmlFromFile(importFile);
+        log.info("File "+importFile +" loaded");
+        try {
+            log.info("TEXT:"+reader.nodeToString(reader.getListOfNodes("/mets/dmdSec/mdWrap/xmlData").item(0)));
+        } catch (Throwable e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
         }
-
+*/
         int objectCounter = 0;
+        MetsPeriodicalConvertor pc = new MetsPeriodicalConvertor(config);
+        pc.convert((Mets)source, convertedURI);
+        objectCounter = pc.getObjectCounter();
+
+        /*
         //try {
             if (source instanceof Monograph) {
                 MonographConvertor mc = new MonographConvertor(config);
@@ -236,33 +250,34 @@ public class Main {
                 throw new UnsupportedOperationException("Unsupported object class: " + source.getClass());
             }
             if (useContractSubfolders()&&config.getContract()!=null&&copyOriginal()){
-            	String targetName = null;
-            	if (titleId == null || titleId.trim().isEmpty()){
-            		targetName = config.getContract()+".k3";
-            	} else{
-            		targetName = titleId.replace(':','_')+".k3";
-            	}
-            	File target = new File(config.getExportFolder() + System.getProperty("file.separator") +targetName);
-            	try {
-					FileUtils.copyFile(importFile, target);
-				} catch (IOException e) {
-					log.error(importFile.getName() + ": copyOriginal failed", e);
-				}
+                String targetName = null;
+                if (titleId == null || titleId.trim().isEmpty()){
+                    targetName = config.getContract()+".k3";
+                } else{
+                    targetName = titleId.replace(':','_')+".k3";
+                }
+                File target = new File(config.getExportFolder() + System.getProperty("file.separator") +targetName);
+                try {
+                    FileUtils.copyFile(importFile, target);
+                } catch (IOException e) {
+                    log.error(importFile.getName() + ": copyOriginal failed", e);
+                }
             }
         //} catch (ServiceException e) {
         //    log.error(importFile.getName() + ": conversion failed", e);
-        //}
+        //}*/
+
         long timeFinish = System.currentTimeMillis();
         if (log.isInfoEnabled()) {
             log.info("Elapsed time: " + ((timeFinish - timeStart) / 1000.0) + " seconds. "+objectCounter + " digital objects (files) written.");
         }
     }
 
- 
+
     /**
-   * 
+   *
    */
-    
+
     static class NamespacePrefixMapperInternalImpl extends com.sun.xml.internal.bind.marshaller.NamespacePrefixMapper {
 
         public String getPreferredPrefix(String namespaceUri, String suggestion, boolean requirePrefix) {
@@ -291,7 +306,7 @@ public class Main {
         }
 
     }
-    
+
     static class NamespacePrefixMapperImpl extends com.sun.xml.bind.marshaller.NamespacePrefixMapper {
 
         public String getPreferredPrefix(String namespaceUri, String suggestion, boolean requirePrefix) {
@@ -321,19 +336,14 @@ public class Main {
 
     }
 
-    private static long getFreeMem() throws InterruptedException {
-        Runtime runtime = Runtime.getRuntime();
-        runtime.gc();
-        Thread.sleep(100);
-        return runtime.totalMemory() - runtime.freeMemory();
-    }
-    
+
+
     public static boolean useContractSubfolders(){
-    	return KConfiguration.getInstance().getConfiguration().getBoolean("convert.useContractSubfolders", false);
+        return KConfiguration.getInstance().getConfiguration().getBoolean("convert.useContractSubfolders", false);
     }
-    
+
     public static boolean copyOriginal(){
-    	return KConfiguration.getInstance().getConfiguration().getBoolean("convert.copyOriginal", false);
+        return KConfiguration.getInstance().getConfiguration().getBoolean("convert.copyOriginal", false);
     }
 
 }

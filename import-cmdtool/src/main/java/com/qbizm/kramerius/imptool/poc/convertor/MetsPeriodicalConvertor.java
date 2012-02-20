@@ -7,6 +7,9 @@ import java.util.TreeMap;
 import java.util.regex.Pattern;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.log4j.Logger;
+import org.kramerius.mets.Mets;
+import org.w3c.dom.Node;
 
 import com.qbizm.kramerius.imp.jaxb.DigitalObject;
 import com.qbizm.kramerius.imp.jaxb.periodical.Contributor;
@@ -29,6 +32,7 @@ import com.qbizm.kramerius.imp.jaxb.periodical.Subject;
 import com.qbizm.kramerius.imp.jaxb.periodical.TechnicalDescription;
 import com.qbizm.kramerius.imp.jaxb.periodical.UniqueIdentifier;
 import com.qbizm.kramerius.imp.jaxb.periodical.UniqueIdentifierURNType;
+import com.qbizm.kramerius.imptool.poc.utils.XMLTools;
 import com.qbizm.kramerius.imptool.poc.valueobj.ConvertorConfig;
 import com.qbizm.kramerius.imptool.poc.valueobj.DublinCore;
 import com.qbizm.kramerius.imptool.poc.valueobj.ImageMetaData;
@@ -41,7 +45,7 @@ import com.qbizm.kramerius.imptool.poc.valueobj.ServiceException;
  *
  * @author xholcik
  */
-public class PeriodicalConvertor extends BaseConvertor {
+public class MetsPeriodicalConvertor extends BaseConvertor {
 
     /**
      * XSL transformacni sablony
@@ -56,7 +60,10 @@ public class PeriodicalConvertor extends BaseConvertor {
 
     private static final String XSL_MODS_PERIODICAL_VOLUME = "model_periodicalVolume_MODS.xsl";
 
-    public PeriodicalConvertor(ConvertorConfig config) throws ServiceException {
+
+    private static final Logger log = Logger.getLogger(MetsPeriodicalConvertor.class);
+
+    public MetsPeriodicalConvertor(ConvertorConfig config) throws ServiceException {
         super(config);
     }
 
@@ -99,6 +106,17 @@ public class PeriodicalConvertor extends BaseConvertor {
         return StringUtils.EMPTY;
     }
 
+
+    public void  convert(Mets mets, StringBuffer convertedURI) throws ServiceException {
+        try {
+            log.info("METS:"+XMLTools.nodeToString((Node)mets.getDmdSec().get(0).getMdWrap().getXmlData().getAny().get(0)));
+            log.info("STRUCT:"+mets.getStructMap().get(0).getLabel2());
+            log.info("DIVS:"+mets.getStructMap().get(0).getDiv().getDiv().get(0).getLabel3());
+        } catch (Exception e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+    }
     /**
      * Prevede periodikum a vsechny navazane objekty do sady foxml souboru
      *
@@ -132,7 +150,6 @@ public class PeriodicalConvertor extends BaseConvertor {
             convertedURI.append(cleanTitle).append("\t").append("pid=").append(volumeuuid);
         }
 
-        addDonatorRelation(re, biblio.getCreator());
 
         DublinCore dc = createPeriodicalDublinCore(pid, title, biblio);
 
@@ -178,15 +195,7 @@ public class PeriodicalConvertor extends BaseConvertor {
 
     }
 
-    private void addDonatorRelation(RelsExt re, List<Creator> creators) {
-        if (creators != null) {
-            for (Creator creator : creators) {
-                if (DONATOR_ID.equals(creator.getCreatorSurname()== null?"":first(creator.getCreatorSurname().getContent()))) {
-                    re.addRelation(RelsExt.HAS_DONATOR, DONATOR_PID,false);
-                }
-            }
-        }
-    }
+
 
     /**
      * Prevede PeriodicalVolume do foxml
