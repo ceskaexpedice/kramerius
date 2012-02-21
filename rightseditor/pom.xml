@@ -30,7 +30,6 @@
 
     <properties>
         <gwt.version>2.4.0</gwt.version>
-        <gwt.maven.version>2.4.0</gwt.maven.version>
     </properties>
 
     <dependencies>
@@ -100,7 +99,7 @@
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>gwt-maven-plugin</artifactId>
-                <version>${gwt.maven.version}</version>
+                <version>${gwt.version}</version>
 
                 <configuration>
                     <hostedWebapp>${basedir}/war</hostedWebapp>
