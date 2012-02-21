@@ -168,38 +168,42 @@ public class DbCurrentLoggedUser extends AbstractLoggedUserProvider {
         if (principal != null) {
             String loginName = principal.getName();
             User user = userManager.findUserByLoginName(loginName);
-            List<Role> groupsList = new JDBCQueryTemplate<Role>(SecurityDBUtils.getConnection()) {
-                @Override
-                public boolean handleRow(ResultSet rs, List<Role> retList) throws SQLException {
-                    retList.add(SecurityDBUtils.createRole(rs));
-                    return true;
+            if (user != null) {
+                List<Role> groupsList = new JDBCQueryTemplate<Role>(SecurityDBUtils.getConnection()) {
+                    @Override
+                    public boolean handleRow(ResultSet rs, List<Role> retList) throws SQLException {
+                        retList.add(SecurityDBUtils.createRole(rs));
+                        return true;
+                    }
+                }.executeQuery("select * from user_group_mapping where user_id=?", user.getId());
+
+                // TODO:Zmenit
+                ((UserImpl) user).setGroups((Role[]) groupsList.toArray(new Role[groupsList.size()]));
+
+                // User user = k4principal.getUser();
+                cz.incad.kramerius.security.utils.UserUtils.associateCommonGroup(user, userManager);
+
+                HttpServletRequest request = this.provider.get();
+                HttpSession session = request.getSession(true);
+                if (session.getAttribute(SECURITY_FOR_REPOSITORY_KEY) == null) {
+                    saveRightsIntoSession(user);
                 }
-            }.executeQuery("select * from user_group_mapping where user_id=?", user.getId());
 
-            // TODO:Zmenit
-            ((UserImpl) user).setGroups((Role[]) groupsList.toArray(new Role[groupsList.size()]));
+                final Locale foundLocale = localeFromProfile(user);
 
-            // User user = k4principal.getUser();
-            cz.incad.kramerius.security.utils.UserUtils.associateCommonGroup(user, userManager);
+                final Map<String, String> PREPARED_PROFILE = new HashMap<String, String>();
+                PREPARED_PROFILE.put("columns", getColumnsFromProfile(user));
 
-            HttpServletRequest request = this.provider.get();
-            HttpSession session = request.getSession(true);
-            if (session.getAttribute(SECURITY_FOR_REPOSITORY_KEY) == null) {
-                saveRightsIntoSession(user);
+                storeLoggedUser(user,  new HashMap<String, Object>(){{
+                    put(SHIB_USER_KEY,"false");
+                    if (foundLocale != null) {
+                        put("client_locale",foundLocale);
+                    }
+                    put("PREPARING_PROFILE",PREPARED_PROFILE);
+                }});
+            } else {
+                // do nothing
             }
-
-            final Locale foundLocale = localeFromProfile(user);
-
-            final Map<String, String> PREPARED_PROFILE = new HashMap<String, String>();
-            PREPARED_PROFILE.put("columns", getColumnsFromProfile(user));
-
-            storeLoggedUser(user,  new HashMap<String, Object>(){{
-                put(SHIB_USER_KEY,"false");
-                if (foundLocale != null) {
-                    put("client_locale",foundLocale);
-                }
-                put("PREPARING_PROFILE",PREPARED_PROFILE);
-            }});
 
 
             /*
