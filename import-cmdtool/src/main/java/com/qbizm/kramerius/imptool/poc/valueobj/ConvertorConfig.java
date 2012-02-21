@@ -4,7 +4,7 @@ import java.sql.Connection;
 
 import javax.xml.bind.Marshaller;
 
-import com.qbizm.kramerius.imptool.poc.MetsConvertor;
+import com.qbizm.kramerius.imptool.poc.Main;
 
 import cz.incad.kramerius.utils.IOUtils;
 
@@ -80,7 +80,7 @@ public class ConvertorConfig {
 
 	public void setContract(String contract) {
 		this.contract = contract;
-		if (MetsConvertor.useContractSubfolders()){
+		if (Main.useContractSubfolders()){
 			this.exportFolder = this.exportFolder+ System.getProperty("file.separator")+contract;
 			IOUtils.checkDirectory(this.exportFolder);
 			String xmlSubfolder = this.exportFolder+ System.getProperty("file.separator")+"xml";//Issue 73

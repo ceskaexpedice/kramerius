@@ -48,7 +48,7 @@ import com.qbizm.kramerius.imp.jaxb.ObjectPropertiesType;
 import com.qbizm.kramerius.imp.jaxb.PropertyType;
 import com.qbizm.kramerius.imp.jaxb.StateType;
 import com.qbizm.kramerius.imp.jaxb.XmlContentType;
-import com.qbizm.kramerius.imptool.poc.MetsConvertor;
+import com.qbizm.kramerius.imptool.poc.Main;
 import com.qbizm.kramerius.imptool.poc.utils.UUIDManager;
 import com.qbizm.kramerius.imptool.poc.utils.XSLTransformer;
 import com.qbizm.kramerius.imptool.poc.valueobj.ConvertorConfig;
@@ -297,7 +297,7 @@ public abstract class BaseConvertor {
     protected void marshalDigitalObject(DigitalObject foxmlObject) throws ServiceException {
         String fileName = foxmlObject.getPID().substring(foxmlObject.getPID().lastIndexOf(':') + 1) + ".xml";
         String targetFolder = getConfig().getExportFolder();
-        if (MetsConvertor.useContractSubfolders()){//Issue 73
+        if (Main.useContractSubfolders()){//Issue 73
             targetFolder = targetFolder + System.getProperty("file.separator")+"xml";
         }
         this.marshalDigitalObject(foxmlObject, targetFolder, fileName);

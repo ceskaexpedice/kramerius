@@ -80,7 +80,7 @@
                     </execution>
                 </executions>
                 <configuration>
-                    <generatePackage>org.kramerius.mets</generatePackage>
+                    <generatePackage>com.qbizm.kramerius.imp.jaxb.periodical</generatePackage>
                 </configuration>
             </plugin>
         </plugins>
