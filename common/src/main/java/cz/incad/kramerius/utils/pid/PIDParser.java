@@ -26,7 +26,7 @@ import cz.incad.kramerius.utils.pid.Token.TokenType;
  * {@code
  * 
  * page-pid: object-id "/@" page-ident
- * page-ident: 1*( ALPHA / DIGIT / "-" / "." )
+ * page-ident: 1*( ALPHA / DIGIT )
  * 
  * }
  * 
@@ -63,7 +63,7 @@ public class PIDParser {
     }
     
     public String getParentObjectPid() {
-        if (this.isDatastreamPid()) {
+        if (this.isDatastreamPid() || this.isPagePid()) {
             return namespaceId + ":" + objectId;
         } else return getObjectPid();
     }
