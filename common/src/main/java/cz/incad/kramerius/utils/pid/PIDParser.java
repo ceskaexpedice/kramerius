@@ -11,6 +11,25 @@ import cz.incad.kramerius.utils.pid.Token.TokenType;
 
 /**
  * Simple parser for PID 
+ * 
+ * There are two extensions. <br>
+ * 
+ * First allows to address concrete stream. 
+ * {@code
+ * 
+ * stream-pid: object-id "/" stream-name
+ * stream-name: 1*( ALPHA / DIGIT / "-" / "." )
+ * 
+ * }
+ * 
+ * Second allows to address concrete page within one object (PDF for example).
+ * {@code
+ * 
+ * page-pid: object-id "/@" page-ident
+ * page-ident: 1*( ALPHA / DIGIT / "-" / "." )
+ * 
+ * }
+ * 
  * @see EBNF http://www.fedora-commons.org/confluence/display/FCR30/Fedora+Identifiers
  * @author pavels
  */
@@ -32,8 +51,16 @@ public class PIDParser {
 	}
         
     public String getObjectPid() {
-		return namespaceId + ":" + objectId + (isDatastreamPid() ? "/"+this.dataStream : "");
+		return namespaceId + ":" + objectId + ((isDatastreamPid() || isPagePid()) ? "/"+getDatastreamPostfix() +getPagePostfix() : "");
 	}
+    
+    private String getDatastreamPostfix() {
+        return this.dataStream != null ? this.dataStream : "";
+    }
+
+    private String getPagePostfix() {
+        return this.page != null ? "@"+this.page : "";
+    }
     
     public String getParentObjectPid() {
         if (this.isDatastreamPid()) {
@@ -48,6 +75,10 @@ public class PIDParser {
     public boolean isDatastreamPid() {
         return this.dataStream != null;
     }
+    
+    public boolean isPagePid() {
+        return this.page != null;
+    }
 
 	private Token token;
 
@@ -55,6 +86,7 @@ public class PIDParser {
 	private String namespaceId;
 
     private String dataStream;
+    private String page;
 		
 	public PIDParser(String sform) throws LexerException {
 		super();
@@ -74,13 +106,18 @@ public class PIDParser {
 		this.objectId = objectId;
 
 		if (token.getType() != TokenType.EOI) {
-		    this.dataStream = dataStream();
+	        this.matchToken(TokenType.DIV);
+	        if (token.getType() == TokenType.AT) {
+	            this.matchToken(TokenType.AT);
+	            this.page = postfix();
+	        } else {
+	            this.dataStream = postfix();
+	        }
         }
 	}
-
-	public String dataStream() throws LexerException {
+	
+	public String postfix() throws LexerException {
 	    StringBuilder builder = new StringBuilder();
-	    this.matchToken(TokenType.DIV);
 	    while(this.token.getType() != TokenType.EOI) {
 	        builder.append(token.getValue());
 	        this.consume();
