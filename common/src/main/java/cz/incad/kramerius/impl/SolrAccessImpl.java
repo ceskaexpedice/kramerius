@@ -43,7 +43,7 @@ public class SolrAccessImpl implements SolrAccess {
         try {
             PIDParser parser  = new PIDParser(pid);
             parser.objectPid();
-            if (parser.isDatastreamPid()) {
+            if (parser.isDatastreamPid() || parser.isPagePid()) {
                 return SolrUtils.getSolrDataInternal(SolrUtils.UUID_QUERY+"\""+parser.getParentObjectPid()+"\"");
             } else {
                 return SolrUtils.getSolrDataInternal(SolrUtils.UUID_QUERY+"\""+pid+"\"");
