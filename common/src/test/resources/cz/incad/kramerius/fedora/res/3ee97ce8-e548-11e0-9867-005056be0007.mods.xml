@@ -1,0 +1,84 @@
+<mods:modsCollection xmlns:mods="http://www.loc.gov/mods/v3">
+    <mods:mods version="3.4">
+        <mods:identifier type="urn">{64F4D6B0-D2F6-11E0-8B85-0030487BE43A}
+            3ee97ce8-e548-11e0-9867-005056be0007</mods:identifier>
+        <mods:identifier type="isbn">978-80-200-1921-9
+        </mods:identifier>
+        <mods:titleInfo>
+            <mods:title>Můj život s Hitlerem, Stalinem a Havlem
+            </mods:title>
+        </mods:titleInfo>
+
+        <mods:subject>
+            <mods:topic>Pavel Kohout</mods:topic>
+            <mods:topic>beletrie 2011</mods:topic>
+            <mods:topic>česká exilová literatura</mods:topic>
+            <mods:topic>česká literatura</mods:topic>
+            <mods:topic>český exil</mods:topic>
+
+            <mods:topic>čeští spisovatelé</mods:topic>
+            <mods:topic>disidenti</mods:topic>
+            <mods:topic>KMET (piktogram)</mods:topic>
+            <mods:topic>memoárová literatura (texty a beletrie MK)
+            </mods:topic>
+            <mods:topic>autobiografická vyprávění</mods:topic>
+            <mods:topic>autobiografické vzpomínky</mods:topic>
+
+            <mods:topic>prózy (texty a beletrie MK)</mods:topic>
+            <mods:topic>společenské romány (beletrie MK)</mods:topic>
+        </mods:subject>
+        <mods:abstract>První část souboru čtyř děl představujících
+            samostatnou linii tvorby českého dramatika, scenáristy,
+            romanopisce a fejetonisty. Publikace obsahuje jednak první
+            autorovu prózu - Z deníku kontrarevolucionáře, v níž užívá
+            dobové citace i jazyk padesátých let k přiblížení atmosféry
+            vzrušujících událostí Pražského jara 1968. Další část textu
+            tvoří román Kde je zakopán pes, politická sága sugestivně
+            zobrazující dusnou atmosféru sedmdesátých let a zároveň
+            rekapitulace období normalizace, které autor prožíval na
+            vlastní kůži.</mods:abstract>
+        <mods:location>
+            <mods:physicalLocation>ABG001</mods:physicalLocation>
+            <mods:shelfLocator>AA 65663/1</mods:shelfLocator>
+
+        </mods:location>
+        <mods:name type="personal">
+            <mods:namePart type="family">Kohout</mods:namePart>
+            <mods:namePart type="given">Pavel</mods:namePart>
+            <mods:role>
+                <mods:roleTerm type="code">cre</mods:roleTerm>
+                <mods:roleTerm type="text">Author</mods:roleTerm>
+
+            </mods:role>
+        </mods:name>
+        <mods:typeOfResource>text</mods:typeOfResource>
+        <mods:originInfo transliteration="publisher">
+            <mods:place>
+                <mods:placeTerm type="text">Praha
+                </mods:placeTerm>
+            </mods:place>
+            <mods:publisher>Academia</mods:publisher>
+
+            <mods:dateIssued>2011</mods:dateIssued>
+        </mods:originInfo>
+        <mods:originInfo>
+            <mods:issuance>monographic</mods:issuance>
+        </mods:originInfo>
+        <mods:language>
+            <mods:languageTerm authority="iso639-2b"
+                type="code">cze</mods:languageTerm>
+
+        </mods:language>
+        <mods:physicalDescription>
+            <mods:extent>865 s., fot.</mods:extent>
+            <mods:extent>21 cm</mods:extent>
+            <mods:note></mods:note>
+        </mods:physicalDescription>
+        <mods:relatedItem type="series">
+            <mods:titleInfo>
+
+                <mods:title>Paměť</mods:title>
+            </mods:titleInfo>
+        </mods:relatedItem>
+    </mods:mods>
+</mods:modsCollection>

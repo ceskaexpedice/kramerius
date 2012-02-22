@@ -277,4 +277,11 @@ public class SecuredFedoraAccessImpl implements FedoraAccess {
     public Document getObjectProfile(String pid) throws IOException {
         return rawAccess.getObjectProfile(pid);
     }
+
+    @Override
+    public InputStream getFedoraDataStreamsList(String pid) throws IOException {
+        return rawAccess.getFedoraDataStreamsList(pid);
+    }
+    
+    
 }

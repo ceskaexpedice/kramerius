@@ -16,6 +16,7 @@
  */
 package cz.incad.kramerius.fedora.impl;
 
+import static cz.incad.kramerius.fedora.impl.DataPrepare.dataStreams;
 import static cz.incad.kramerius.fedora.impl.DataPrepare.drobnustkyRelsExt;
 import static cz.incad.kramerius.fedora.impl.DataPrepare.drobnustkyWithIMGFULL;
 import static cz.incad.kramerius.fedora.impl.DataPrepare.drobnustkyWithOutIMGFULL;
@@ -25,13 +26,10 @@ import static org.easymock.EasyMock.createMockBuilder;
 import static org.easymock.EasyMock.replay;
 
 import java.io.IOException;
-import java.io.InputStream;
-import java.net.MalformedURLException;
 
 import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.xpath.XPathExpressionException;
 
-import junit.framework.TestCase;
+import junit.framework.Assert;
 
 import org.easymock.EasyMock;
 import org.junit.Test;
@@ -39,12 +37,94 @@ import org.xml.sax.SAXException;
 
 import cz.incad.kramerius.FedoraAccess;
 import cz.incad.kramerius.impl.FedoraAccessImpl;
-import cz.incad.kramerius.utils.FedoraUtils;
-import cz.incad.kramerius.utils.XMLUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 import cz.incad.kramerius.utils.pid.LexerException;
 
 public class FedoraAccessImplTest {
+    
+
+    //getFedoraDataStreamsList
+    /** Test isFullThumbnailAvailable method (page pid)
+     * @throws LexerException */
+    @Test
+    public void testIsFullthumbnailAvailableWithPage() throws IOException, ParserConfigurationException, SAXException, LexerException {
+        FedoraAccessImpl fa = createMockBuilder(FedoraAccessImpl.class)
+        .withConstructor(KConfiguration.getInstance())
+        .addMockedMethod("getFedoraVersion")
+        .addMockedMethod("getFedoraDataStreamsList")
+        .createMock();
+        
+
+        EasyMock.expect(fa.getFedoraVersion()).andReturn("3.4.2");
+        dataStreams(fa, "uuid:3ee97ce8-e548-11e0-9867-005056be0007");
+        
+        replay(fa);
+
+        boolean flag = fa.isFullthumbnailAvailable("uuid:3ee97ce8-e548-11e0-9867-005056be0007/@886");
+        Assert.assertTrue(flag);
+    }
+
+    /** Test isFullThumbnailAvailable method 
+     * @throws LexerException */
+    @Test
+    public void testIsFullThumbnailAvailableWithoutPage() throws IOException, ParserConfigurationException, SAXException, LexerException {
+        FedoraAccessImpl fa = createMockBuilder(FedoraAccessImpl.class)
+        .withConstructor(KConfiguration.getInstance())
+        .addMockedMethod("getFedoraVersion")
+        .addMockedMethod("getFedoraDataStreamsList")
+        .createMock();
+        
+        EasyMock.expect(fa.getFedoraVersion()).andReturn("3.4.2");
+        dataStreams(fa, "uuid:3ee97ce8-e548-11e0-9867-005056be0007");
+        
+        replay(fa);
+
+        boolean flag = fa.isFullthumbnailAvailable("uuid:3ee97ce8-e548-11e0-9867-005056be0007");
+        Assert.assertTrue(flag);
+    }
+
+
+    /** Test isFullImageAvailable method (page pid)
+     * @throws LexerException */
+    @Test
+    public void testIsFullImageAvailableWithPage() throws IOException, ParserConfigurationException, SAXException, LexerException {
+        FedoraAccessImpl fa = createMockBuilder(FedoraAccessImpl.class)
+        .withConstructor(KConfiguration.getInstance())
+        .addMockedMethod("getFedoraVersion")
+        .addMockedMethod("getFedoraDataStreamsList")
+        .createMock();
+        
+
+        EasyMock.expect(fa.getFedoraVersion()).andReturn("3.4.2");
+        dataStreams(fa, "uuid:3ee97ce8-e548-11e0-9867-005056be0007");
+        
+        replay(fa);
+
+        boolean flag = fa.isFullthumbnailAvailable("uuid:3ee97ce8-e548-11e0-9867-005056be0007/@886");
+        Assert.assertTrue(flag);
+    }
+    
+
+    /** Test isFullImageAvailable method 
+     * @throws LexerException */
+    @Test
+    public void testIsFullImageAvailableWithoutPage() throws IOException, ParserConfigurationException, SAXException, LexerException {
+        FedoraAccessImpl fa = createMockBuilder(FedoraAccessImpl.class)
+        .withConstructor(KConfiguration.getInstance())
+        .addMockedMethod("getFedoraVersion")
+        .addMockedMethod("getFedoraDataStreamsList")
+        .createMock();
+        
+        EasyMock.expect(fa.getFedoraVersion()).andReturn("3.4.2");
+        dataStreams(fa, "uuid:3ee97ce8-e548-11e0-9867-005056be0007");
+        
+        replay(fa);
+
+        boolean flag = fa.isFullthumbnailAvailable("uuid:3ee97ce8-e548-11e0-9867-005056be0007");
+        Assert.assertTrue(flag);
+    }
+    
+
     
     /** Test getModelName method 
      * @throws LexerException */
@@ -68,7 +148,8 @@ public class FedoraAccessImplTest {
             }
         }
     }
-    
+
+
     
 
     /** Test getDonator method 
@@ -131,5 +212,6 @@ public class FedoraAccessImplTest {
         // nic nenalezeno.. 
         assertNull(firstPageForDrobnustky);
     }
+    
     
 }

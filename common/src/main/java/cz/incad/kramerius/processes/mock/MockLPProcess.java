@@ -33,6 +33,7 @@ public class MockLPProcess {
 		for (long i = 0; i < gb; i++) {
 			if ((i%10000) == 0) {
 				LOGGER.info("  diff = "+(System.currentTimeMillis()-start)+"ms and i ="+i);
+				
 			}
 		}
 		LOGGER.info(" stop with "+(System.currentTimeMillis()-start)+"ms");

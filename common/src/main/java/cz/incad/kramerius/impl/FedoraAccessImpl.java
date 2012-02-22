@@ -83,14 +83,14 @@ public class FedoraAccessImpl implements FedoraAccess {
         super();
         this.configuration = configuration;
         this.xPathFactory = XPathFactory.newInstance();
-        readXPATHTemplateGroup();
+
+        InputStream stream = FedoraAccessImpl.class.getResourceAsStream("fedora_xpaths.stg");
+        String string = IOUtils.readAsString(stream, Charset.forName("UTF-8"), true);
+        xpaths = new StringTemplateGroup(new StringReader(string), DefaultTemplateLexer.class);
     }
 
 
     public void readXPATHTemplateGroup() throws IOException {
-        InputStream stream = FedoraAccessImpl.class.getResourceAsStream("fedora_xpaths.stg");
-        String string = IOUtils.readAsString(stream, Charset.forName("UTF-8"), true);
-        xpaths = new StringTemplateGroup(new StringReader(string), DefaultTemplateLexer.class);
     }
     
 
@@ -130,10 +130,11 @@ public class FedoraAccessImpl implements FedoraAccess {
 
     @Override
     public Document getRelsExt(String pid) throws IOException {
-        String relsExtUrl = relsExtUrl(KConfiguration.getInstance(), pid);
-        LOGGER.fine("Reading rels ext +" + relsExtUrl);
-        InputStream docStream = RESTHelper.inputStream(relsExtUrl, KConfiguration.getInstance().getFedoraUser(), KConfiguration.getInstance().getFedoraPass());
         try {
+            String relsExtUrl = relsExtUrl(KConfiguration.getInstance(), makeSureObjectPid(pid));
+            LOGGER.fine("Reading rels ext +" + relsExtUrl);
+            InputStream docStream = RESTHelper.inputStream(relsExtUrl, KConfiguration.getInstance().getFedoraUser(), KConfiguration.getInstance().getFedoraPass());
+
             return XMLUtils.parseDocument(docStream, true);
         } catch (ParserConfigurationException e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
@@ -141,11 +142,21 @@ public class FedoraAccessImpl implements FedoraAccess {
         } catch (SAXException e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
             throw new IOException(e);
+        } catch (LexerException e) {
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+            throw new IOException(e);
         }
     }
 
 
+    private String makeSureObjectPid(String pid) throws LexerException {
+        PIDParser pidParser = new PIDParser(pid);
+        pidParser.objectPid();
+        String sureObjectPid = pidParser.isPagePid() ? pidParser.getParentObjectPid() : pidParser.getObjectPid();
+        return sureObjectPid;
+    }
 
+    
 
 
     @Override
@@ -202,10 +213,10 @@ public class FedoraAccessImpl implements FedoraAccess {
 
     @Override
     public Document getBiblioMods(String pid) throws IOException {
-        String biblioModsUrl = biblioMods(KConfiguration.getInstance(), pid);
-        LOGGER.fine("Reading bibliomods +" + biblioModsUrl);
-        InputStream docStream = RESTHelper.inputStream(biblioModsUrl, KConfiguration.getInstance().getFedoraUser(), KConfiguration.getInstance().getFedoraPass());
         try {
+            String biblioModsUrl = biblioMods(KConfiguration.getInstance(), makeSureObjectPid(pid));
+            LOGGER.fine("Reading bibliomods +" + biblioModsUrl);
+            InputStream docStream = RESTHelper.inputStream(biblioModsUrl, KConfiguration.getInstance().getFedoraUser(), KConfiguration.getInstance().getFedoraPass());
             return XMLUtils.parseDocument(docStream, true);
         } catch (ParserConfigurationException e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
@@ -213,15 +224,18 @@ public class FedoraAccessImpl implements FedoraAccess {
         } catch (SAXException e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
             throw new IOException(e);
+        } catch (LexerException e) {
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+            throw new IOException(e);
         }
     }
 
     @Override
     public Document getDC(String pid) throws IOException {
-        String dcUrl = dc(KConfiguration.getInstance(), pid);
-        LOGGER.fine("Reading dc +" + dcUrl);
-        InputStream docStream = RESTHelper.inputStream(dcUrl, KConfiguration.getInstance().getFedoraUser(), KConfiguration.getInstance().getFedoraPass());
         try {
+            String dcUrl = dc(KConfiguration.getInstance(), makeSureObjectPid(pid));
+            LOGGER.fine("Reading dc +" + dcUrl);
+            InputStream docStream = RESTHelper.inputStream(dcUrl, KConfiguration.getInstance().getFedoraUser(), KConfiguration.getInstance().getFedoraPass());
             ByteArrayOutputStream bos = new ByteArrayOutputStream();
             IOUtils.copyStreams(docStream, bos);
             return XMLUtils.parseDocument(new ByteArrayInputStream(bos.toByteArray()), true);
@@ -231,6 +245,9 @@ public class FedoraAccessImpl implements FedoraAccess {
         } catch (SAXException e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
             throw new IOException(e);
+        } catch (LexerException e) {
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+            throw new IOException(e);
         }
     }
     
@@ -238,7 +255,7 @@ public class FedoraAccessImpl implements FedoraAccess {
     public String findFirstViewablePid(String pid) throws IOException{
         final List<String> foundPids = new ArrayList<String>();
         try {
-            processSubtree(pid, new TreeNodeProcessor() {
+            processSubtree(makeSureObjectPid(pid), new TreeNodeProcessor() {
                 
                 boolean breakProcess = false;
                 int previousLevel = 0;
@@ -270,6 +287,8 @@ public class FedoraAccessImpl implements FedoraAccess {
                 
             });
         } catch (ProcessSubtreeException e) {
+            throw new IOException(e);
+        } catch (LexerException e) {
             throw new IOException(e);
         }
 
@@ -331,16 +350,21 @@ public class FedoraAccessImpl implements FedoraAccess {
 
     @Override
     public InputStream getSmallThumbnail(String pid) throws IOException {
-        HttpURLConnection con = (HttpURLConnection) openConnection(getThumbnailFromFedora(configuration, pid), configuration.getFedoraUser(), configuration.getFedoraPass());
-        InputStream thumbInputStream = con.getInputStream();
-        return thumbInputStream;
+        try {
+            HttpURLConnection con = (HttpURLConnection) openConnection(getThumbnailFromFedora(configuration, makeSureObjectPid(pid)), configuration.getFedoraUser(), configuration.getFedoraPass());
+            InputStream thumbInputStream = con.getInputStream();
+            return thumbInputStream;
+        } catch (LexerException e) {
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+            throw new IOException(e);
+         }
     }
 
     @Override
     public Document getSmallThumbnailProfile(String pid) throws IOException {
-        HttpURLConnection con = (HttpURLConnection) openConnection(thumbImageProfile(configuration, pid), configuration.getFedoraUser(), configuration.getFedoraPass());
-        InputStream stream = con.getInputStream();
         try {
+            HttpURLConnection con = (HttpURLConnection) openConnection(thumbImageProfile(configuration, makeSureObjectPid(pid)), configuration.getFedoraUser(), configuration.getFedoraPass());
+            InputStream stream = con.getInputStream();
             return XMLUtils.parseDocument(stream, true);
         } catch (ParserConfigurationException e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
@@ -348,41 +372,64 @@ public class FedoraAccessImpl implements FedoraAccess {
         } catch (SAXException e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
             throw new IOException(e);
+        } catch (LexerException e) {
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+            throw new IOException(e);
         }
     }
 
     @Override
     public String getSmallThumbnailMimeType(String pid) throws IOException, XPathExpressionException {
-        Document profileDoc = getSmallThumbnailProfile(pid);
-        return disectMimetypeFromProfile(profileDoc,getFedoraVersion());
+        try {
+            Document profileDoc = getSmallThumbnailProfile(makeSureObjectPid(pid));
+            return disectMimetypeFromProfile(profileDoc,getFedoraVersion());
+        } catch (LexerException e) {
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+            throw new IOException(e);
+        }
     }
 
     public InputStream getImageFULL(String pid) throws IOException {
-        HttpURLConnection con = (HttpURLConnection) openConnection(getFedoraStreamPath(configuration, pid, IMG_FULL_STREAM), configuration.getFedoraUser(), configuration.getFedoraPass());
-        con.connect();
-        if (con.getResponseCode() == HttpURLConnection.HTTP_OK) {
-            InputStream thumbInputStream = con.getInputStream();
-            return thumbInputStream;
-        } else {
-            throw new IOException("404");
+        try {
+            HttpURLConnection con = (HttpURLConnection) openConnection(getFedoraStreamPath(configuration, makeSureObjectPid(pid), IMG_FULL_STREAM), configuration.getFedoraUser(), configuration.getFedoraPass());
+            con.connect();
+            if (con.getResponseCode() == HttpURLConnection.HTTP_OK) {
+                InputStream thumbInputStream = con.getInputStream();
+                return thumbInputStream;
+            } else {
+                throw new IOException("404");
+            }
+        } catch (LexerException e) {
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+            throw new IOException(e);
         }
     }
 
     @Override
     public boolean isImageFULLAvailable(String pid) throws IOException {
-        return isStreamAvailable(pid, FedoraUtils.IMG_FULL_STREAM);
+        try {
+            return isStreamAvailable(makeSureObjectPid(pid), FedoraUtils.IMG_FULL_STREAM);
+        } catch (LexerException e) {
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+            throw new IOException(e);
+        }
     }
 
-    public InputStream getFedoraDataStreamsList(String pid ) throws MalformedURLException, IOException {
-        HttpURLConnection con = (HttpURLConnection) openConnection(getFedoraDatastreamsList(configuration, pid), configuration.getFedoraUser(), configuration.getFedoraPass());
-        InputStream stream = con.getInputStream();
-        return stream;
+    public InputStream getFedoraDataStreamsList(String pid ) throws IOException {
+        try {
+            HttpURLConnection con = (HttpURLConnection) openConnection(getFedoraDatastreamsList(configuration, makeSureObjectPid(pid)), configuration.getFedoraUser(), configuration.getFedoraPass());
+            InputStream stream = con.getInputStream();
+            return stream;
+        } catch (LexerException e) {
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+            throw new IOException(e);
+        }
     }
     
     
     public boolean isStreamAvailable(String pid, String streamName) throws IOException {
         try {
-            Document parseDocument = XMLUtils.parseDocument(getFedoraDataStreamsList(pid), true);
+            Document parseDocument = XMLUtils.parseDocument(getFedoraDataStreamsList(makeSureObjectPid(pid)), true);
             return disectDatastreamInListOfDatastreams(parseDocument, streamName, getFedoraVersion());
         } catch (ParserConfigurationException e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
@@ -391,6 +438,9 @@ public class FedoraAccessImpl implements FedoraAccess {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
             throw new IOException(e);
         } catch (XPathExpressionException e) {
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+            throw new IOException(e);
+        } catch (LexerException e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
             throw new IOException(e);
         }

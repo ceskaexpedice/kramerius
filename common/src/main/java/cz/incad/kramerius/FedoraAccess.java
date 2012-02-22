@@ -2,6 +2,7 @@ package cz.incad.kramerius;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.MalformedURLException;
 import java.util.List;
 import java.util.Set;
 
@@ -244,6 +245,13 @@ public interface FedoraAccess {
 
     public ObjectFactory getObjectFactory();
 
+    /**
+     * Process fedora object tree
+     * @param pid PID of processing object
+     * @param processor Processing tree handler (receives callbacks)
+     * @throws ProcessSubtreeException
+     * @throws IOException
+     */
     public void processSubtree(String pid, TreeNodeProcessor processor) throws ProcessSubtreeException, IOException;
 
     public Set<String> getPids(String pid) throws IOException;
@@ -287,10 +295,20 @@ public interface FedoraAccess {
     Document getStreamProfile(String pid, String stream) throws IOException;
 
     /**
-     * Returns profile for object
-     * @param pid
+     * Datastreams description document
+     * @param pid PID of requested object
      * @return
      * @throws IOException
      */
     Document getObjectProfile(String pid) throws IOException;
+
+    
+    /**
+     * Returns document which describes datastrem of requested pid
+     * @param pid requested pid
+     * @return
+     * @throws IOException 
+     */
+    InputStream getFedoraDataStreamsList(String pid ) throws IOException;
+
 }

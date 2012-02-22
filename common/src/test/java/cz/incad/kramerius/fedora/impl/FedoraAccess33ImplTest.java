@@ -59,17 +59,17 @@ public class FedoraAccess33ImplTest {
         .createMock();
 
         EasyMock.expect(fa33.getFedoraDescribeStream()).andReturn(DataPrepare.fedoraProfile33());
-        EasyMock.expect(fa33.getFedoraDataStreamsList("0eaa6730-9068-11dd-97de-000d606f5dc6")).andReturn(DataPrepare.datastreams33());
-        EasyMock.expect(fa33.getFedoraDataStreamsList("0eaa6730-9068-11dd-97de-000d606f5dc6")).andReturn(DataPrepare.datastreams33());
-        EasyMock.expect(fa33.getFedoraDataStreamsList("0eaa6730-9068-11dd-97de-000d606f5dc6")).andReturn(DataPrepare.datastreams33());
+        EasyMock.expect(fa33.getFedoraDataStreamsList("uuid:0eaa6730-9068-11dd-97de-000d606f5dc6")).andReturn(DataPrepare.datastreams33());
+        EasyMock.expect(fa33.getFedoraDataStreamsList("uuid:0eaa6730-9068-11dd-97de-000d606f5dc6")).andReturn(DataPrepare.datastreams33());
+        EasyMock.expect(fa33.getFedoraDataStreamsList("uuid:0eaa6730-9068-11dd-97de-000d606f5dc6")).andReturn(DataPrepare.datastreams33());
         
         replay(fa33);
         
         fa33.readXPATHTemplateGroup();
         
-        assertEquals(fa33.isStreamAvailable("0eaa6730-9068-11dd-97de-000d606f5dc6", FedoraUtils.IMG_FULL_STREAM),false);
-        assertEquals(fa33.isStreamAvailable("0eaa6730-9068-11dd-97de-000d606f5dc6", FedoraUtils.RELS_EXT_STREAM),true);
-        assertEquals(fa33.isStreamAvailable("0eaa6730-9068-11dd-97de-000d606f5dc6", FedoraUtils.DC_STREAM),true);
+        assertEquals(fa33.isStreamAvailable("uuid:0eaa6730-9068-11dd-97de-000d606f5dc6", FedoraUtils.IMG_FULL_STREAM),false);
+        assertEquals(fa33.isStreamAvailable("uuid:0eaa6730-9068-11dd-97de-000d606f5dc6", FedoraUtils.RELS_EXT_STREAM),true);
+        assertEquals(fa33.isStreamAvailable("uuid:0eaa6730-9068-11dd-97de-000d606f5dc6", FedoraUtils.DC_STREAM),true);
     }
 
     @Test

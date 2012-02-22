@@ -35,7 +35,10 @@ public class DataPrepare {
 
     public static final String[] DROBNUSTKY_PIDS = "uuid:0eaa6730-9068-11dd-97de-000d606f5dc6,uuid:4a7c2e50-af36-11dd-9643-000d606f5dc6,uuid:4a7ec660-af36-11dd-a782-000d606f5dc6,uuid:4a79bd50-af36-11dd-a60c-000d606f5dc6,uuid:4a8a8630-af36-11dd-ae9c-000d606f5dc6,uuid:4a8cf730-af36-11dd-ae88-000d606f5dc6,uuid:4a80c230-af36-11dd-ace4-000d606f5dc6,uuid:4a835a40-af36-11dd-b951-000d606f5dc6,uuid:4a85f250-af36-11dd-8535-000d606f5dc6,uuid:430d7f60-b03b-11dd-82fa-000d606f5dc6,uuid:4308eb80-b03b-11dd-a0f6-000d606f5dc6,uuid:431e4840-b03b-11dd-8818-000d606f5dc6,uuid:43101770-b03b-11dd-8673-000d606f5dc6,uuid:4314ab50-b03b-11dd-89db-000d606f5dc6,uuid:43171c50-b03b-11dd-b0c2-000d606f5dc6,uuid:4319b460-b03b-11dd-83ca-000d606f5dc6,uuid:4320e050-b03b-11dd-9b4a-000d606f5dc6".split(",");
 
-
+    
+    public static final String MUJ_ZIVOT_S_HITLEREM = "uuid:3ee97ce8-e548-11e0-9867-005056be0007";
+    
+    
     public static InputStream datastreams33() {
         String path = "/cz/incad/kramerius/fedora/res/datastreams_3_3";
         InputStream resStream = FedoraAccessImpl.class.getResourceAsStream(path);
@@ -71,7 +74,8 @@ public class DataPrepare {
         InputStream resStream = FedoraAccessImpl.class.getResourceAsStream(path);
         return resStream;
     }
-    
+
+    // DROBNUSTKY
     public static void drobnustkyRelsExt(FedoraAccess fa) throws IOException, ParserConfigurationException, SAXException, LexerException {
         for (int i = 0; i < DROBNUSTKY_PIDS.length; i++) {
             PIDParser pidParser = new PIDParser(DROBNUSTKY_PIDS[i]);
@@ -84,6 +88,7 @@ public class DataPrepare {
         }        
     }
 
+    
     public static void drobnustkyWithIMGFULL(FedoraAccess fa) throws IOException {
         for (int i = 0; i < DROBNUSTKY_PIDS.length; i++) {
             if (DROBNUSTKY_PIDS[i].equals("uuid:0eaa6730-9068-11dd-97de-000d606f5dc6")) {
@@ -98,6 +103,25 @@ public class DataPrepare {
         for (int i = 0; i < DROBNUSTKY_PIDS.length; i++) {
             expect(fa.isImageFULLAvailable(DROBNUSTKY_PIDS[i])).andReturn(false);
         }
+    }
+
+    
+    public static void relsExt(FedoraAccess fa, String pid) throws IOException, ParserConfigurationException, SAXException, LexerException {
+        PIDParser pidParser = new PIDParser(pid);
+        pidParser.objectPid();
+
+        String path = "/cz/incad/kramerius/fedora/res/"+pidParser.getObjectId()+".xml";
+        InputStream resStream = FedoraAccessImpl.class.getResourceAsStream(path);
+        expect(fa.getRelsExt(pid)).andReturn(XMLUtils.parseDocument(resStream, true));
+    }
+    
+    public static void dataStreams(FedoraAccess fa, String pid) throws IOException, ParserConfigurationException, SAXException, LexerException {
+        PIDParser pidParser = new PIDParser(pid);
+        pidParser.objectPid();
+
+        String path = "/cz/incad/kramerius/fedora/res/"+pidParser.getObjectId()+".datastreams.xml";
+        InputStream resStream = FedoraAccessImpl.class.getResourceAsStream(path);
+        expect(fa.getFedoraDataStreamsList(pid)).andReturn(resStream);
     }
 
 }

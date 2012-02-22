@@ -39,18 +39,19 @@ public class ProcessStarter {
     public static final String SOUT_FILE = "SOUT";
     public static final String SERR_FILE = "SERR";
 
-    public static void main(String[] args) throws ClassNotFoundException, SecurityException, NoSuchMethodException, IllegalArgumentException, IllegalAccessException,
-            InvocationTargetException, SQLException, MalformedURLException, IOException {
-        
-        String mainClass = System.getProperty(MAIN_CLASS_KEY);
-        PrintStream outStream = createPrintStream(System.getProperty(SOUT_FILE));
-        PrintStream errStream = createPrintStream(System.getProperty(SERR_FILE));
-        System.setErr(errStream);
-        System.setOut(outStream);
-        
-        setDefaultLoggingIfNecessary();
-        
+    public static void main(String[] args)  {
+        PrintStream outStream = null;
+        PrintStream errStream = null;
         try {
+
+            String mainClass = System.getProperty(MAIN_CLASS_KEY);
+            outStream = createPrintStream(System.getProperty(SOUT_FILE));
+            errStream = createPrintStream(System.getProperty(SERR_FILE));
+            System.setErr(errStream);
+            System.setOut(outStream);
+            
+            setDefaultLoggingIfNecessary();
+
             Runtime.getRuntime().addShutdownHook(new Thread() {
 
                 @Override
@@ -74,7 +75,11 @@ public class ProcessStarter {
             updateStatus(States.FINISHED);
         } catch (Throwable e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
-            updateStatus(States.FAILED);
+            try {
+                updateStatus(States.FAILED);
+            } catch(IOException ex) {
+                LOGGER.log(Level.SEVERE, e.getMessage(), e);
+            }
             if (outStream != null) {
                 try {
                     outStream.close();
