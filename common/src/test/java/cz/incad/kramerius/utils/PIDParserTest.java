@@ -52,11 +52,22 @@ public class PIDParserTest {
 	
 	@Test
 	public void testPidParser4() throws LexerException {
-            String pid = "uuid:MED00170455";
-            boolean matches = pid.matches("^[Uu]{2}[Ii][Dd]:(([A-Za-z0-9])|-|\\.|~|_|(%[0-9A-F]{2}))+$");
-            System.out.println(matches);
-            PIDParser parser = new PIDParser(pid);
-            parser.objectPid();
+        String pid = "uuid:MED00170455";
+        boolean matches = pid.matches("^[Uu]{2}[Ii][Dd]:(([A-Za-z0-9])|-|\\.|~|_|(%[0-9A-F]{2}))+$");
+        Assert.assertTrue(matches);
+        PIDParser parser = new PIDParser(pid);
+        parser.objectPid();
+	}
+
+	
+	@Test
+	public void testPidParserWitPage() throws LexerException {
+	    String pid = "uuid:3ee97ce8-e548-11e0-9867-005056be0007/@886";
+	    PIDParser parser = new PIDParser(pid);
+	    parser.objectPid();
+	    Assert.assertFalse(parser.isDatastreamPid());
+        Assert.assertTrue( parser.getObjectPid().equals(pid));
 	    
 	}
+	
 }
