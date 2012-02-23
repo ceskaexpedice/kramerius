@@ -269,8 +269,12 @@
         }
 
         function selectNodeView(id){
+            var currentLevel = k4Settings.activePidPath.split("_")[0].split("-").length;
+            var newLevel = id.split("_")[0].split("-").length;
+            var changeLevel = currentLevel != newLevel;
             var fire = false;
-            if(!$(jq(id)).parent().parent().hasClass('sel')){
+            if(!$(jq(id)).parent().parent().hasClass('sel') ||
+                ($(jq(id)).hasClass('viewable') && changeLevel)){
                 fire = true;
             }
             $("#item_tree li>a").removeClass('sel');
