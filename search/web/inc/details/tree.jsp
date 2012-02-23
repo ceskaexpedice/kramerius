@@ -70,7 +70,7 @@
     }
 
 </style>
-<c:set var="class_viewable"><c:if test="${viewable=='true'}">viewable</c:if></c:set>
+<c:set var="class_viewable"><c:if test="${viewable=='true' && root_pid==param.pid}">viewable</c:if></c:set>
 <c:url var="url" value="${kconfig.applicationURL}/inc/details/treeNodeInfo.jsp" >
     <c:param name="pid" value="${root_pid}" />
     <c:param name="model_path" value="${root_model}" />
