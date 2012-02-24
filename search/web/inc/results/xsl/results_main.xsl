@@ -122,7 +122,7 @@
         </xsl:variable>
         <xsl:variable name="imagepid" >
             <xsl:choose>
-                <xsl:when test="contains($pid, '/@')">img?uuid=<xsl:value-of select="substring-before($pid, '/@')"/>&amp;stream=IMG_THUMB&amp;action=SCALE&amp;scaledHeight=128</xsl:when>
+                <xsl:when test="contains($pid, '/@')">img?uuid=<xsl:value-of select="substring-before($pid, '/@')"/>&amp;page=<xsl:value-of select="substring-after($pid, '/@')"/>&amp;stream=IMG_THUMB&amp;action=SCALE&amp;scaledHeight=128</xsl:when>
                 <xsl:when test="$fmodel='page'">img?uuid=<xsl:value-of select="$pid"/>&amp;stream=IMG_THUMB&amp;action=SCALE&amp;scaledHeight=128</xsl:when>
                 <xsl:otherwise>img?uuid=<xsl:value-of select="$pid" />&amp;stream=IMG_THUMB&amp;action=SCALE&amp;scaledHeight=128</xsl:otherwise>
             </xsl:choose>
