@@ -168,15 +168,47 @@ public interface FedoraAccess {
      */
     public InputStream getSmallThumbnail(String pid) throws IOException;
 
+    /**
+     * Returns profile for thumbnail
+     * @param pid PID of requested object
+     * @return
+     * @throws IOException
+     */
     Document getSmallThumbnailProfile(String pid) throws IOException;
 
+    /**
+     * Returns mime type of mime type
+     * @param pid PID of requested object
+     * @return
+     * @throws IOException
+     * @throws XPathExpressionException
+     */
     public String getSmallThumbnailMimeType(String pid) throws IOException, XPathExpressionException;
 
+    /**
+     * Tests whether IMG_PREVIEW is available
+     * @param pid PID of reqested object
+     * @return
+     * @throws IOException
+     */
     public boolean isFullthumbnailAvailable(String pid) throws IOException;
 
+    /**
+     * Returns data of IMG_PREVIEW stream
+     * @param pid PID of requested object
+     * @return
+     * @throws IOException
+     */
     public InputStream getFullThumbnail(String pid) throws IOException;
 
-
+    
+    /**
+     * Returns mime type of requested IMG_PREVIEW
+     * @param pid PID of reqested object
+     * @return
+     * @throws IOException
+     * @throws XPathExpressionException
+     */
     public String getFullThumbnailMimeType(String pid) throws IOException, XPathExpressionException;
 
     /**
@@ -239,8 +271,16 @@ public interface FedoraAccess {
      */
     public boolean isContentAccessible(String pid) throws IOException;
 
+    /**
+     * Returns API-A stub
+     * @return
+     */
     public FedoraAPIA getAPIA();
 
+    /**
+     * Returns API-M stub
+     * @return
+     */
     public FedoraAPIM getAPIM();
 
     public ObjectFactory getObjectFactory();
