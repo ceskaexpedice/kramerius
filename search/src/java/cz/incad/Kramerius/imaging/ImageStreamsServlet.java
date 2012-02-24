@@ -130,7 +130,10 @@ public class ImageStreamsServlet extends AbstractImageServlet {
                     resp.setStatus(HttpServletResponse.SC_FORBIDDEN);
                 } catch (XPathExpressionException e1) {
                     LOGGER.log(Level.SEVERE, e1.getMessage(), e1);
-                    resp.setStatus(HttpServletResponse.SC_EXPECTATION_FAILED);
+                    resp.setStatus(HttpServletResponse.SC_NOT_IMPLEMENTED);
+                } catch (Exception e1) {
+                    LOGGER.log(Level.SEVERE, e1.getMessage(), e1);
+                    resp.setStatus(HttpServletResponse.SC_NOT_IMPLEMENTED);
                 }
             } else {
                 resp.sendError(HttpServletResponse.SC_NOT_FOUND);
