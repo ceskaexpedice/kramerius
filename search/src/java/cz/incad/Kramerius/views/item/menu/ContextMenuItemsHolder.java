@@ -75,7 +75,7 @@ public class ContextMenuItemsHolder extends AbstractViewObject implements Initia
         String i18nServlet ="i18n";
         String pid = this.requestProvider.get().getParameter(PID_PARAMETER);
         try {
-            boolean imgfullAvailable = this.fedoraAccess.isImageFULLAvailable(pid);
+            boolean imgfullAvailable = (pid != null && !pid.trim().equals("")) ? this.fedoraAccess.isImageFULLAvailable(pid) : false;
             String mimeType = imgfullAvailable ? this.fedoraAccess.getImageFULLMimeType(pid) : "";
 
             items.add(new ContextMenuItem("administrator.menu.showmetadata", "", "viewMetadata", "", false));
