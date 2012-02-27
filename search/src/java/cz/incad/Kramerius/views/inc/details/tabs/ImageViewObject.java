@@ -18,16 +18,28 @@ package cz.incad.Kramerius.views.inc.details.tabs;
 
 import java.io.IOException;
 import java.util.Locale;
+import java.util.logging.Level;
+
+import javax.servlet.http.HttpServletRequest;
 
 import com.google.inject.Inject;
 import com.google.inject.Provider;
 
 import cz.incad.kramerius.service.ResourceBundleService;
 import cz.incad.kramerius.service.TextsService;
+import cz.incad.kramerius.utils.pid.LexerException;
+import cz.incad.kramerius.utils.pid.PIDParser;
 
+/**
+ * View object for images
+ * @author pavels
+ */
 public class ImageViewObject {
 
+    static java.util.logging.Logger LOGGER = java.util.logging.Logger.getLogger(ImageViewObject.class.getName());
     
+    private static final String PID = "pid";
+
     private static final String RIGHT_MSG = "rightMsg";
 
     @Inject
@@ -39,10 +51,49 @@ public class ImageViewObject {
     @Inject
     Provider<Locale> localeProvider;
     
+    @Inject
+    Provider<HttpServletRequest> requestProvider;
+    
+    
     public String getNotAllowedMessageText() throws IOException {
         Locale locale = this.localeProvider.get();
         if (textsService.isAvailable(RIGHT_MSG, locale)) {
             return textsService.getText(RIGHT_MSG, locale);
         } else return this.resourceBundleService.getResourceBundle("labels", locale).getString(RIGHT_MSG);
+    }
+    
+    
+    public int getPageInt() {
+        return isPagePid() ? Integer.parseInt(getPage())-1 : 0;
+     }
+    
+    public String getPage() {
+        try {
+            String pidParam = this.requestProvider.get().getParameter(PID);
+            if (pidParam != null) {
+                PIDParser pidParser = new PIDParser(pidParam);
+                pidParser.objectPid();
+                if (pidParser.isPagePid()) {
+                    return pidParser.getPage();
+                } 
+            } 
+        } catch (LexerException e) {
+            LOGGER.log(Level.SEVERE, e.getMessage(),e);
+        }
+        return "";
+    }
+    
+    public boolean isPagePid() {
+        try {
+            String pidParam = this.requestProvider.get().getParameter(PID);
+            if (pidParam != null) {
+                PIDParser pidParser = new PIDParser(pidParam);
+                pidParser.objectPid();
+                return pidParser.isPagePid();
+            } else return false;
+        } catch (LexerException e) {
+            LOGGER.log(Level.SEVERE, e.getMessage(),e);
+            return false;
+        }
     }
 }

@@ -57,7 +57,9 @@ public class ContextMenuItemsHolder extends AbstractViewObject implements Initia
         
         items.add(new ContextMenuItem("administrator.menu.showmetadata", "", "viewMetadata", "", false));
         items.add(new ContextMenuItem("administrator.menu.persistenturl", "", "persistentURL", "", true));
+            
         items.add(new ContextMenuItem("administrator.menu.generatepdf", "_data_x_role", "generatepdf", "", true));
+
         items.add(new ContextMenuItem("administrator.menu.downloadOriginal", "_data_x_role", "downloadOriginalItem", "", true));
         items.add(new ContextMenuItem("administrator.menu.feedback", "_data_x_role", "feedbackDialog", "", true));
         if (this.loggedUsersSingleton.isLoggedUser(this.requestProvider)) {
