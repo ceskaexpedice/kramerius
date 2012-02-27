@@ -138,7 +138,9 @@ public class PolicyServiceImpl implements PolicyService {
     }
 
     private void setPolicyPOLICY(String pid, String policyName) {
-        fedoraAccess.getAPIM().modifyDatastreamByReference(pid, "POLICY", null, null, null, null, "http://local.fedora.server/fedora/get/policy:" + policyName + "/POLICYDEF", null, null, null, false);
+        fedoraAccess.getAPIM().purgeDatastream(pid,"POLICY",null,null,"", false);
+        fedoraAccess.getAPIM().addDatastream(pid, "POLICY", null, null, false,"application/rdf+xml", null, "http://local.fedora.server/fedora/get/policy:" + policyName + "/POLICYDEF", "E", "A", "DISABLED", null, "");
+        //fedoraAccess.getAPIM().modifyDatastreamByReference(pid, "POLICY", null, null, null, null, "http://local.fedora.server/fedora/get/policy:" + policyName + "/POLICYDEF", null, null, null, false);
     }
 
     /**
