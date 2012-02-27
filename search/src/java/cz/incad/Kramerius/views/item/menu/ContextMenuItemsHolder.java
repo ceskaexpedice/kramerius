@@ -16,7 +16,7 @@
  */
 package cz.incad.Kramerius.views.item.menu;
 
-import static cz.incad.utils.IKeys.UUID_PARAMETER;
+import static cz.incad.utils.IKeys.PID_PARAMETER;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -73,7 +73,7 @@ public class ContextMenuItemsHolder extends AbstractViewObject implements Initia
     
         
         String i18nServlet ="i18n";
-        String pid = this.requestProvider.get().getParameter(UUID_PARAMETER);
+        String pid = this.requestProvider.get().getParameter(PID_PARAMETER);
         try {
             boolean imgfullAvailable = this.fedoraAccess.isImageFULLAvailable(pid);
             String mimeType = imgfullAvailable ? this.fedoraAccess.getImageFULLMimeType(pid) : "";
