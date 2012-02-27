@@ -13,6 +13,8 @@
 
 <view:object name="image" clz="cz.incad.Kramerius.views.inc.details.tabs.ImageViewObject"></view:object>
 
+
+
 <style type="text/css">
     .buttons>a{
         margin-right: 3px;
@@ -29,6 +31,20 @@
     */
     
 </style>
+
+<script type="text/javascript">
+function onLoadPDFImage(){
+    
+}
+
+function onLoadPlainImage() {
+    if(viewerOptions.hasAlto){
+        showAlto(viewerOptions.uuid, 'plainImageImg');
+    }
+}
+
+</script>
+
 <div id="bigThumbZone" class="viewer">
     <div id="container"  class="view_div"  style="display:none; min-height: 512px; min-width: 512px; width: 662px; height: 512px;">
     </div>
@@ -42,11 +58,9 @@
     </div>
 
     <div id="pdfImage" style="position:relative;text-align:center;">
-        <img class="view_div" id="pdfImageImg" onclick="showBornDigitalPDF()"
-             onload='onLoadPDFImage()' border="0" alt="" src="${itemViewObject.firstPageImageUrl}" height="650px" />
-        <div style="position:absolute; top:10px; left:10px;">
-            <img id="pdfZoomButton" border='0' alt="" onclick='showBornDigitalPDF()'  src='img/mime/application/pdf.png' />
-        </div>
+        <img class="view_div" id="pdfImageImg" onclick="showBornDigitalPDF(viewerOptions.uuid,${image.pagePid ? image.page : "1"})"
+             onload='onLoadPDFImage()' border="0" alt="" src="" height="650px" />
+        
     </div>
 
     <div id="plainImage" style="position:relative;text-align:center;">
@@ -94,15 +108,6 @@
 	pdfWindow.focus();
     }
     
-    function onLoadPDFImage(){
-        
-    }
-    
-    function onLoadPlainImage() {
-        if(viewerOptions.hasAlto){
-            showAlto(viewerOptions.uuid, 'plainImageImg');
-        }
-    }
 
     function displayImageContainer(contentToShow) {
         
@@ -141,11 +146,20 @@
             // has right
         	if (viewerOptions.isContentPDF()) {
                 displayImageContainer("#pdfImage");
-                if (viewerOptions.previewStreamGenerated) {
-                    $("#pdfImageImg").attr('src','img?uuid='+viewerOptions.uuid+'&stream=IMG_PREVIEW&action=GETRAW');
+
+                var requestedImg = null;
+                var pagePid = ${image.pagePid};
+                // neni page pid
+                if ((!pagePid) && viewerOptions.previewStreamGenerated) {
+                    requestedImg = 'img?uuid='+viewerOptions.uuid+'&stream=IMG_PREVIEW&action=SCALE&scaledHeight=700';
+                } else if ((!pagePid) && (!viewerOptions.previewStreamGenerated)) {
+                	requestedImg = 'img?uuid='+viewerOptions.uuid+'&stream=IMG_FULL&action=SCALE&scaledHeight=700&page=1';
                 } else {
-                    $("#pdfImageImg").attr('src','img?uuid='+viewerOptions.uuid+'&stream=IMG_FULL&action=SCALE&scaledHeight=700');
-                }
+                    requestedImg = 'img?uuid='+viewerOptions.uuid+'&stream=IMG_FULL&action=SCALE&scaledHeight=700&page=${image.pageInt}';
+                }      
+                
+                $("#pdfImageImg").attr('src',requestedImg);
+                
             } else {
                 var tilesPrepared = viewerOptions.deepZoomGenerated || viewerOptions.imageServerConfigured;
                 var deepZoomDisplay = ((viewerOptions.deepZoomCofigurationEnabled) && (tilesPrepared));
