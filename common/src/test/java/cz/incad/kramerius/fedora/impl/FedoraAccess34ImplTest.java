@@ -71,7 +71,6 @@ public class FedoraAccess34ImplTest {
         
         replay(fa34);
 
-        fa34.readXPATHTemplateGroup();
 
         assertEquals(fa34.isStreamAvailable("uuid:0eaa6730-9068-11dd-97de-000d606f5dc6", FedoraUtils.IMG_FULL_STREAM),false);
         assertEquals(fa34.isStreamAvailable("uuid:0eaa6730-9068-11dd-97de-000d606f5dc6", FedoraUtils.RELS_EXT_STREAM),true);
@@ -94,7 +93,6 @@ public class FedoraAccess34ImplTest {
         
         replay(fa34);
         
-        fa34.readXPATHTemplateGroup();
         
         String mimeType34 = fa34.getMimeTypeForStream("uuid:0eaa6730-9068-11dd-97de-000d606f5dc6", FedoraUtils.IMG_FULL_STREAM);
         TestCase.assertTrue(mimeType34.equals("image/vnd.djvu"));

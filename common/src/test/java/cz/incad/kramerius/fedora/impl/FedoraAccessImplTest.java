@@ -43,7 +43,6 @@ import cz.incad.kramerius.utils.pid.LexerException;
 public class FedoraAccessImplTest {
     
 
-    //getFedoraDataStreamsList
     /** Test isFullThumbnailAvailable method (page pid)
      * @throws LexerException */
     @Test

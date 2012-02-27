@@ -83,15 +83,12 @@ public class FedoraAccessImpl implements FedoraAccess {
         super();
         this.configuration = configuration;
         this.xPathFactory = XPathFactory.newInstance();
-
+        // read template
         InputStream stream = FedoraAccessImpl.class.getResourceAsStream("fedora_xpaths.stg");
         String string = IOUtils.readAsString(stream, Charset.forName("UTF-8"), true);
         xpaths = new StringTemplateGroup(new StringReader(string), DefaultTemplateLexer.class);
     }
 
-
-    public void readXPATHTemplateGroup() throws IOException {
-    }
     
 
     @Override

@@ -65,7 +65,6 @@ public class FedoraAccess33ImplTest {
         
         replay(fa33);
         
-        fa33.readXPATHTemplateGroup();
         
         assertEquals(fa33.isStreamAvailable("uuid:0eaa6730-9068-11dd-97de-000d606f5dc6", FedoraUtils.IMG_FULL_STREAM),false);
         assertEquals(fa33.isStreamAvailable("uuid:0eaa6730-9068-11dd-97de-000d606f5dc6", FedoraUtils.RELS_EXT_STREAM),true);
@@ -86,7 +85,6 @@ public class FedoraAccess33ImplTest {
         
         replay(fa33);
         
-        fa33.readXPATHTemplateGroup();
         
         String mimeType33 = fa33.getMimeTypeForStream("uuid:0eaa6730-9068-11dd-97de-000d606f5dc6", FedoraUtils.IMG_FULL_STREAM);
         TestCase.assertTrue(mimeType33.equals("image/vnd.djvu"));

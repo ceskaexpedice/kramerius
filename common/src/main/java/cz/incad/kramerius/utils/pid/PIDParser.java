@@ -79,7 +79,11 @@ public class PIDParser {
     public boolean isPagePid() {
         return this.page != null;
     }
-
+    
+    public String getPage() {
+        return this.page;
+    }
+    
 	private Token token;
 
 	private String objectId;
