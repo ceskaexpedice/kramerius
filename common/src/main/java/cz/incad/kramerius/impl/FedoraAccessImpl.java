@@ -294,31 +294,40 @@ public class FedoraAccessImpl implements FedoraAccess {
 
     @Override
     public boolean getFirstViewablePath(List<String> pids, List<String> models) throws IOException{
-        String pid = pids.get(pids.size() - 1);
-        if(isImageFULLAvailable(pid)){
-            return true;
-        }
-        Document relsExt = getRelsExt(pid);
-        Element descEl = XMLUtils.findElement(relsExt.getDocumentElement(), "Description", FedoraNamespaces.RDF_NAMESPACE_URI);
-        List<Element> els = XMLUtils.getElements(descEl);
-        for(Element el: els){
-            if (getTreePredicates().contains( el.getLocalName())) {
-                if(el.hasAttribute("rdf:resource")){
-                    pid = el.getAttributes().getNamedItem("rdf:resource").getNodeValue();
-                    pids.add(pid);
-                    models.add(getKrameriusModelName(pid));
-                    //return getFirstViewablePath(pids, models);
-                    boolean hit = getFirstViewablePath(pids, models);
-                    if(hit){
-                        return true;
-                    }else{
-                        pids.remove(pids.size() - 1);
-                        models.remove(pids.size() - 1);
+        try {
+            String pid = pids.get(pids.size() - 1);
+            pid = makeSureObjectPid(pid);
+            if(isImageFULLAvailable(pid)){
+                return true;
+            }
+            Document relsExt = getRelsExt(pid);
+            Element descEl = XMLUtils.findElement(relsExt.getDocumentElement(), "Description", FedoraNamespaces.RDF_NAMESPACE_URI);
+            List<Element> els = XMLUtils.getElements(descEl);
+            for(Element el: els){
+                if (getTreePredicates().contains( el.getLocalName())) {
+                    if(el.hasAttribute("rdf:resource")){
+                        pid = el.getAttributes().getNamedItem("rdf:resource").getNodeValue();
+                        pids.add(pid);
+                        models.add(getKrameriusModelName(pid));
+                        //return getFirstViewablePath(pids, models);
+                        boolean hit = getFirstViewablePath(pids, models);
+                        if(hit){
+                            return true;
+                        }else{
+                            pids.remove(pids.size() - 1);
+                            models.remove(pids.size() - 1);
+                        }
                     }
                 }
-            }
-         }
-        return false;
+             }
+            return false;
+        } catch (DOMException e) {
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+            throw new IOException(e);
+        } catch (LexerException e) {
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+            throw new IOException(e);
+        }
         
     }
 
@@ -348,6 +357,7 @@ public class FedoraAccessImpl implements FedoraAccess {
     @Override
     public InputStream getSmallThumbnail(String pid) throws IOException {
         try {
+            pid = makeSureObjectPid(pid);
             HttpURLConnection con = (HttpURLConnection) openConnection(getThumbnailFromFedora(configuration, makeSureObjectPid(pid)), configuration.getFedoraUser(), configuration.getFedoraPass());
             InputStream thumbInputStream = con.getInputStream();
             return thumbInputStream;
@@ -360,6 +370,7 @@ public class FedoraAccessImpl implements FedoraAccess {
     @Override
     public Document getSmallThumbnailProfile(String pid) throws IOException {
         try {
+            pid = makeSureObjectPid(pid);
             HttpURLConnection con = (HttpURLConnection) openConnection(thumbImageProfile(configuration, makeSureObjectPid(pid)), configuration.getFedoraUser(), configuration.getFedoraPass());
             InputStream stream = con.getInputStream();
             return XMLUtils.parseDocument(stream, true);
@@ -388,6 +399,7 @@ public class FedoraAccessImpl implements FedoraAccess {
 
     public InputStream getImageFULL(String pid) throws IOException {
         try {
+            pid = makeSureObjectPid(pid);
             HttpURLConnection con = (HttpURLConnection) openConnection(getFedoraStreamPath(configuration, makeSureObjectPid(pid), IMG_FULL_STREAM), configuration.getFedoraUser(), configuration.getFedoraPass());
             con.connect();
             if (con.getResponseCode() == HttpURLConnection.HTTP_OK) {
@@ -449,8 +461,12 @@ public class FedoraAccessImpl implements FedoraAccess {
     }
 
     public String getImageFULLMimeType(String pid) throws IOException, XPathExpressionException {
-        Document profileDoc = getImageFULLProfile(pid);
-        return disectMimetypeFromProfile(profileDoc, getFedoraVersion());
+        try {
+            Document profileDoc = getImageFULLProfile(makeSureObjectPid(pid));
+            return disectMimetypeFromProfile(profileDoc, getFedoraVersion());
+        } catch (LexerException e) {
+            throw new IOException(e.getMessage());
+        }
     }
 
     boolean disectDatastreamInListOfDatastreams(Document datastreams, String dsId, String fedoraVersion) throws XPathExpressionException, IOException {
@@ -491,14 +507,18 @@ public class FedoraAccessImpl implements FedoraAccess {
 
     @Override
     public Document getImageFULLProfile(String pid) throws IOException {
-        HttpURLConnection con = (HttpURLConnection) openConnection(fullImageProfile(configuration, pid), configuration.getFedoraUser(), configuration.getFedoraPass());
-        InputStream stream = con.getInputStream();
         try {
+            pid = makeSureObjectPid(pid);
+            HttpURLConnection con = (HttpURLConnection) openConnection(fullImageProfile(configuration, pid), configuration.getFedoraUser(), configuration.getFedoraPass());
+            InputStream stream = con.getInputStream();
             return XMLUtils.parseDocument(stream, true);
         } catch (ParserConfigurationException e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
             throw new IOException(e);
         } catch (SAXException e) {
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+            throw new IOException(e);
+        } catch (LexerException e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
             throw new IOException(e);
         }
@@ -632,9 +652,8 @@ public class FedoraAccessImpl implements FedoraAccess {
 
     public void processSubtree(String pid, TreeNodeProcessor processor) throws ProcessSubtreeException, IOException {
         try {
-            PIDParser pidParser = new PIDParser(pid);
-            pidParser.objectPid();
-            Document relsExt = getRelsExt(pidParser.getObjectPid());
+            pid = makeSureObjectPid(pid);
+            Document relsExt = getRelsExt(pid);
             processSubtreeInternal(pid, relsExt, processor,0);
         } catch (LexerException e) {
             throw new ProcessSubtreeException(e);
@@ -709,20 +728,30 @@ public class FedoraAccessImpl implements FedoraAccess {
 
     @Override
     public InputStream getDataStream(String pid, String datastreamName) throws IOException {
-        String datastream = configuration.getFedoraHost() + "/get/" + pid + "/" + datastreamName;
-        HttpURLConnection con = (HttpURLConnection) openConnection(datastream, configuration.getFedoraUser(), configuration.getFedoraPass());
-        con.connect();
-        if (con.getResponseCode() == HttpURLConnection.HTTP_OK) {
-            InputStream thumbInputStream = con.getInputStream();
-            return thumbInputStream;
+        try {
+            pid = makeSureObjectPid(pid);
+            String datastream = configuration.getFedoraHost() + "/get/" + pid + "/" + datastreamName;
+            HttpURLConnection con = (HttpURLConnection) openConnection(datastream, configuration.getFedoraUser(), configuration.getFedoraPass());
+            con.connect();
+            if (con.getResponseCode() == HttpURLConnection.HTTP_OK) {
+                InputStream thumbInputStream = con.getInputStream();
+                return thumbInputStream;
+            }
+            throw new FileNotFoundException(datastream);
+        } catch (LexerException e) {
+            throw new IOException(e);
         }
-        throw new FileNotFoundException(datastream);
     }
 
     public InputStream getDsProfileForPIDStream(String pid, String streamName) throws MalformedURLException, IOException {
-        HttpURLConnection con = (HttpURLConnection) openConnection(dsProfileForPid(configuration, streamName, pid), configuration.getFedoraUser(), configuration.getFedoraPass());
-        InputStream stream = con.getInputStream();
-        return stream;
+        try {
+            pid = makeSureObjectPid(pid);
+            HttpURLConnection con = (HttpURLConnection) openConnection(dsProfileForPid(configuration, streamName, pid), configuration.getFedoraUser(), configuration.getFedoraPass());
+            InputStream stream = con.getInputStream();
+            return stream;
+        } catch (LexerException e) {
+            throw new IOException(e);
+        }
     }
 
     
