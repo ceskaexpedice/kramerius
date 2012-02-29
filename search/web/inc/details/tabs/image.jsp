@@ -103,7 +103,8 @@ function onLoadPlainImage() {
         if  (!page) {
 		page = "1";	
 	}
-	var url ='img?uuid='+viewerOptions.uuid+'&stream=IMG_FULL&action=GETRAW#page='+page;
+	var url ='nimg/IMG_FULL/'+viewerOptions.uuid+'/'+page;
+    
 	var pdfWindow = window.open(url, '_blank');
 	pdfWindow.focus();
     }
