@@ -110,6 +110,7 @@ public class ImageStreamsServlet extends AbstractImageServlet {
 
         if (pid != null && stream != null) {
             // TODO: Change it !!
+            pid = cutHREF(pid);
             pid = fedoraAccess.findFirstViewablePid(pid);
             if (pid != null) {
                 Actions actionToDo = Actions.TRANSCODE;
@@ -144,6 +145,12 @@ public class ImageStreamsServlet extends AbstractImageServlet {
             resp.setStatus(HttpServletResponse.SC_NOT_FOUND);
         }
 
+    }
+
+    // cat href from param
+    private String cutHREF(String pid) {
+        int indexOf = pid.indexOf('#');
+        return indexOf > 0  ? pid.substring(0,indexOf) : pid;
     }
 
 
