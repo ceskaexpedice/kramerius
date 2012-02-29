@@ -79,7 +79,8 @@ public class ImageFilter implements Filter {
         StringTokenizer tokenizer = new StringTokenizer(p,"/");
         while(tokenizer.hasMoreTokens()) {
             if (!expectingTokens.isEmpty()) {
-                map.put(expectingTokens.remove(0),tokenizer.nextToken()); 
+                String key = expectingTokens.remove(0);
+                map.put(key,tokenizer.nextToken()); 
             } else {
                 LOGGER.log(Level.SEVERE,"skiping "+tokenizer.nextToken());
             }
@@ -91,7 +92,7 @@ public class ImageFilter implements Filter {
         //String url = "http://vmkramerius:8080/search/img/IMG_FULL/uuid:ae876087-435d-11dd-b505-00145e5790ea";
 
         //http://vmkramerius:8080/search/img?uuid=uuid:3ee97ce8-e548-11e0-9867-005056be0007&stream=IMG_FULL&action=GETRAW#page=1
-        String url = "http://vmkramerius:8080/search/img/IMG_FULL/uuid:ae876087-435d-11dd-b505-00145e5790ea/3";
+        String url = "http://vmkramerius:8080/search/img/IMG_FULL/uuid:ae876087-435d-11dd-b505-00145e5790ea#page=3";
 
         URL urlObject = new URL(url);
         Map<String, String> map = disectObject(urlObject.getPath());

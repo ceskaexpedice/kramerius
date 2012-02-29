@@ -4,8 +4,10 @@ import static cz.incad.kramerius.FedoraNamespaces.*;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.io.StringReader;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -14,8 +16,10 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Stack;
+import java.util.UUID;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Lock;
@@ -28,6 +32,8 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.antlr.stringtemplate.StringTemplate;
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.NotImplementedException;
 import org.apache.pdfbox.PDFMerger;
 import org.apache.pdfbox.exceptions.COSVisitorException;
@@ -68,10 +74,13 @@ import cz.incad.utils.IKeys;
 public class GeneratePDFServlet extends GuiceServlet {
 
     
+    // controls genrating PDF     
     private static final Semaphore PDF_SEMAPHORE = new Semaphore(KConfiguration.getInstance().getConfiguration().getInt("pdfQueue.activeProcess",5));
 
+    // stores handle for pdf 
+    private static HashMap<String, File> PREPARED_FILES = new HashMap<String,File>();
+    
 	private static final long serialVersionUID = 1L;
-	
 	
 	public static final java.util.logging.Logger LOGGER = java.util.logging.Logger
 			.getLogger(GeneratePDFServlet.class.getName());
@@ -107,6 +116,16 @@ public class GeneratePDFServlet extends GuiceServlet {
 	
 	@Inject
 	DocumentService documentService;
+	
+
+	
+	public static synchronized void pullFile(String uuid, File renderedPDF) {
+	    PREPARED_FILES.put(uuid, renderedPDF);
+	}
+	
+	public static synchronized File popFile(String uuid) {
+	    return PREPARED_FILES.remove(uuid);
+	}
 	
 	
 	
@@ -159,9 +178,8 @@ public class GeneratePDFServlet extends GuiceServlet {
         if ((configuration.getApplicationURL() != null) && (!configuration.getApplicationURL().equals(""))){
         	i18nUrl = configuration.getApplicationURL()+"i18n";
         }
-        resp.setContentType("application/pdf");
-        SimpleDateFormat sdate = new SimpleDateFormat("yyyyMMdd_mmhhss");
-        resp.setHeader("Content-disposition","attachment; filename="+sdate.format(new Date())+".pdf");
+
+        
         String action = req.getParameter("action");
         String imagesOnly = req.getParameter("firstpageType");
         
@@ -183,8 +201,9 @@ public class GeneratePDFServlet extends GuiceServlet {
             @SuppressWarnings("unchecked")
             @Override
             public void renderPDF(HttpServletRequest request, HttpServletResponse response, FirstPagePDFService firstPagePDFService, GeneratePDFService pdfService, SolrAccess solrAccess, DocumentService documentService, String titlePage, String imgServletUrl, String i18nUrl) {
+                List<File> filesToDelete = new ArrayList<File>();
+                FileOutputStream generatedPDFFos = null;
                 try {
-                    
                     
                     String par = request.getParameter(PIDS);
                     String srect = request.getParameter(RECT);
@@ -194,10 +213,10 @@ public class GeneratePDFServlet extends GuiceServlet {
                     PDFFontConfigBean configBean = fontConfigParams(fontConfigParams(null, request.getParameter(LOGO_FONT), FontMap.BIG_FONT), request.getParameter(INF_FONT), FontMap.NORMAL_FONT);
 
                     File tmpFile = File.createTempFile("body", "pdf");
+                    filesToDelete.add(tmpFile);
                     FileOutputStream bodyTmpFos = new FileOutputStream(tmpFile);
-                    tmpFile.deleteOnExit();
                     File fpage = File.createTempFile("head", "pdf");
-                    fpage.deleteOnExit();
+                    filesToDelete.add(fpage);
                     FileOutputStream fpageFos = new FileOutputStream(fpage);
 
                     int[] irects = srect(srect);
@@ -206,10 +225,13 @@ public class GeneratePDFServlet extends GuiceServlet {
                     firstPagePDFService.generateFirstPageForSelection(rdoc, fpageFos, imgServletUrl, i18nUrl, configBean);
                     pdfService.generateCustomPDF(rdoc, bodyTmpFos, imgServletUrl, i18nUrl, ImageFetcher.WEB);
                     
-                    bodyTmpFos.close();
-                    fpageFos.close();
+                    bodyTmpFos.close();fpageFos.close();
 
-                    mergeToOutput(response, tmpFile, fpage);
+                    File generatedPDF = File.createTempFile("rendered","pdf");
+                    generatedPDFFos = new FileOutputStream(generatedPDF);
+                    
+                    outputJSON(response, generatedPDF, generatedPDFFos, tmpFile, fpage);
+                    
                     
                 } catch (IOException e) {
                     LOGGER.log(Level.SEVERE,e.getMessage(),e);
@@ -221,6 +243,11 @@ public class GeneratePDFServlet extends GuiceServlet {
                     LOGGER.log(Level.SEVERE,e.getMessage(),e);
                 } catch (COSVisitorException e) {
                     LOGGER.log(Level.SEVERE,e.getMessage(),e);
+                } finally {
+                    for (File file : filesToDelete) {
+                        file.delete();
+                    }
+                    if (generatedPDFFos != null) IOUtils.closeQuietly(generatedPDFFos);
                 }
             }
 
@@ -228,14 +255,20 @@ public class GeneratePDFServlet extends GuiceServlet {
         PARENT {
             @Override
             public void renderPDF(HttpServletRequest request, HttpServletResponse response, FirstPagePDFService firstPagePDFService, GeneratePDFService pdfService,SolrAccess solrAccess , DocumentService documentService, String titlePage, String imgServletUrl, String i18nUrl) {
+                List<File> filesToDelete = new ArrayList<File>();
+                FileOutputStream generatedPDFFos = null;
                 try {
                     String howMany = request.getParameter(HOW_MANY);
                     String pid = request.getParameter(PID_FROM);
                     String srect = request.getParameter(RECT);
          
                     File tmpFile = File.createTempFile("body", "pdf");
+                    filesToDelete.add(tmpFile);
+
                     FileOutputStream bodyTmpFos = new FileOutputStream(tmpFile);
                     File fpage = File.createTempFile("head", "pdf");
+                    filesToDelete.add(fpage);
+
                     FileOutputStream fpageFos = new FileOutputStream(fpage);
 
                     ObjectPidsPath[] paths = solrAccess.getPath(pid);
@@ -245,34 +278,27 @@ public class GeneratePDFServlet extends GuiceServlet {
 
                     PDFFontConfigBean configBean = fontConfigParams(fontConfigParams(null, request.getParameter(LOGO_FONT), FontMap.BIG_FONT), request.getParameter(INF_FONT), FontMap.NORMAL_FONT);
 
-                    long time = System.currentTimeMillis();
-                    LOGGER.fine("Generating document ");
+
                     AbstractRenderedDocument rdoc = documentService.buildDocumentAsFlat(path, pid, Integer.parseInt(howMany), irects);
                     if (rdoc.getPages().isEmpty()) {
                         rdoc = documentService.buildDocumentAsFlat(path, path.getLeaf(), Integer.parseInt(howMany), irects);
                     }
-                    LOGGER.fine("took "+(System.currentTimeMillis() - time));
                     
                     
-                    time = System.currentTimeMillis();
-                    LOGGER.fine("Generating first page ");
                     firstPagePDFService.generateFirstPageForSelection(rdoc, fpageFos, imgServletUrl, i18nUrl, configBean);
-                    LOGGER.fine("took "+(System.currentTimeMillis() - time));
                     
-                    
-                    time = System.currentTimeMillis();
-                    LOGGER.fine("generating rest of document ");
                     pdfService.generateCustomPDF(rdoc, bodyTmpFos, imgServletUrl, i18nUrl, ImageFetcher.WEB);
-                    LOGGER.fine(" took "+(System.currentTimeMillis() - time));
 
                     bodyTmpFos.close();
                     fpageFos.close();
-                    
-                    time = System.currentTimeMillis();
-                    LOGGER.fine("merging  ");
-                    mergeToOutput(response, tmpFile, fpage);
-                    LOGGER.fine(" took "+(System.currentTimeMillis() - time));
-                    
+
+                    File generatedPDF = File.createTempFile("rendered","pdf");
+                    generatedPDFFos = new FileOutputStream(generatedPDF);
+
+                    mergeToOutput(generatedPDFFos, tmpFile, fpage);
+
+                    outputJSON(response, generatedPDF, generatedPDFFos, tmpFile, fpage);
+
                 } catch (IOException e) {
                     LOGGER.log(Level.SEVERE,e.getMessage(),e);
                 } catch (ProcessSubtreeException e) {
@@ -283,6 +309,35 @@ public class GeneratePDFServlet extends GuiceServlet {
                     LOGGER.log(Level.SEVERE,e.getMessage(),e);
                 } catch (TokenStreamException e) {
                     LOGGER.log(Level.SEVERE,e.getMessage(),e);
+                } finally {
+                    for (File file : filesToDelete) {
+                        file.delete();
+                    }
+                    if (generatedPDFFos != null) IOUtils.closeQuietly(generatedPDFFos);
+                }
+            }
+        }, 
+        FILE {
+
+            @Override
+            public void renderPDF(HttpServletRequest request, HttpServletResponse response, FirstPagePDFService firstPagePDFService, GeneratePDFService pdfService, SolrAccess solrAccess, DocumentService documentService, String titlePage, String imgServletUrl, String i18nUrl) {
+                File f = null;
+                FileInputStream fis = null;
+                try {
+                    response.setContentType("application/pdf");
+                    SimpleDateFormat sdate = new SimpleDateFormat("yyyyMMdd_mmhhss");
+                    response.setHeader("Content-disposition","attachment; filename="+sdate.format(new Date())+".pdf");
+                    String handle = request.getParameter("pdfhandle");
+                    f = popFile(handle);
+                    fis = new FileInputStream(f);
+                    cz.incad.kramerius.utils.IOUtils.copyStreams(fis, response.getOutputStream());
+                } catch (FileNotFoundException e) {
+                    LOGGER.log(Level.SEVERE,e.getMessage(),e);
+                } catch (IOException e) {
+                    LOGGER.log(Level.SEVERE,e.getMessage(),e);
+                } finally {
+                    if (fis != null) IOUtils.closeQuietly(fis);
+                    f.delete();
                 }
             }
         };
@@ -305,11 +360,11 @@ public class GeneratePDFServlet extends GuiceServlet {
         public abstract void renderPDF(HttpServletRequest request, HttpServletResponse response, FirstPagePDFService firstPagePDFService, GeneratePDFService pdfService, SolrAccess solrAccess, DocumentService documentService, String titlePage, String imgServletUrl, String i18nUrl);
 
 
-        public void mergeToOutput(HttpServletResponse response, File bodyFile, File firstPageFile) throws IOException, COSVisitorException {
+        public void mergeToOutput(OutputStream fos, File bodyFile, File firstPageFile) throws IOException, COSVisitorException {
             PDFMergerUtility utility = new PDFMergerUtility();
             utility.addSource(firstPageFile);
             utility.addSource(bodyFile);
-            utility.setDestinationStream(response.getOutputStream());
+            utility.setDestinationStream(fos);
             utility.mergeDocuments();
         }
 
@@ -328,6 +383,15 @@ public class GeneratePDFServlet extends GuiceServlet {
                 }
             }
             return pdfFontConfig;
+        }
+
+        public void outputJSON(HttpServletResponse response, File generatedPDF, FileOutputStream generatedPDFFos, File tmpFile, File fpage) throws IOException, COSVisitorException {
+            response.setContentType("text/plain");
+            String uuid = UUID.randomUUID().toString();
+            pullFile(uuid, generatedPDF);
+            response.getWriter().println("{" +
+            	"pdfhandle:'" +uuid+"'"+
+            "}");
         }
 
         public static ObjectPidsPath selectOnePath(String requestedPid, ObjectPidsPath[] paths) {
