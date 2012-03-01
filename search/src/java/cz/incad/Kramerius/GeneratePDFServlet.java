@@ -229,7 +229,9 @@ public class GeneratePDFServlet extends GuiceServlet {
 
                     File generatedPDF = File.createTempFile("rendered","pdf");
                     generatedPDFFos = new FileOutputStream(generatedPDF);
-                    
+
+                    mergeToOutput(generatedPDFFos, tmpFile, fpage);
+
                     outputJSON(response, generatedPDF, generatedPDFFos, tmpFile, fpage);
                     
                     
