@@ -120,9 +120,9 @@ public class Download {
             String uuid = Main.convert(KConfiguration.getInstance().getProperty("migration.directory"), KConfiguration.getInstance().getProperty("migration.target.directory"), true, visible, rep.getID());
             Import.ingest(KConfiguration.getInstance().getProperty("ingest.url"), KConfiguration.getInstance().getProperty("ingest.user"), KConfiguration.getInstance().getProperty("ingest.password"), KConfiguration.getInstance().getProperty("migration.target.directory"));
             logSuccess(rep.getID(), uuid);
-            if (!KConfiguration.getInstance().getConfiguration().getBoolean("ingest.skip",false)){
+            /*if (!KConfiguration.getInstance().getConfiguration().getBoolean("ingest.skip",false)){
                 startIndexing(rep.getID(), uuid);
-            }
+            }*/
         }catch (Exception t){
             if (rep!=null){
                 logFailed(rep.getID(), t);

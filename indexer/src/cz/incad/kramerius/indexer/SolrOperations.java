@@ -112,8 +112,10 @@ public class SolrOperations {
                 optimize();
             } else if ("reindexDoc".equals(action)) {
                 reindexDoc(value, false);
+                optimize();
             } else if ("reindexDocForced".equals(action)) {
                 reindexDoc(value, true);
+                optimize();
             } else if ("checkIntegrity".equals(action)) {
                 checkIntegrity();
             } else if ("checkIntegrityByModel".equals(action)) {
@@ -200,7 +202,12 @@ public class SolrOperations {
             expr = xpath.compile(xPathStr);
             node = (Node) expr.evaluate(solrDom, XPathConstants.NODE);
             DateFormat formatter = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
-            Date date = formatter.parse(node.getFirstChild().getNodeValue());
+            Date date = null;
+            try{
+                date = formatter.parse(node.getFirstChild().getNodeValue());
+            }catch(Exception e){
+                logger.info("Problem parsing modified_date, document "+ uuid +" will be fully reindexed. ("+e+")");
+            }
 
             indexByPid(uuid, date, force, new ByteArrayInputStream(fedoraOperations.foxmlRecord));
         } catch (Exception ex) {
@@ -217,7 +224,7 @@ public class SolrOperations {
         fedoraOperations.getFoxmlFromPid(pid);
         contentDom = getDocument(new ByteArrayInputStream(fedoraOperations.foxmlRecord));
         extendedFields.setFields(pid);
-        
+
         expr = xpath.compile("//datastream[@ID='IMG_FULL']/datastreamVersion[last()]");
         Node imgFullMimeNode = (Node) expr.evaluate(contentDom, XPathConstants.NODE);
         int docs = 0;
@@ -226,7 +233,7 @@ public class SolrOperations {
                 extendedFields.setPDFDocument(pid);
                 docs = extendedFields.getPDFPagesCount();
             }
-        }    
+        }
         indexDoc(new ByteArrayInputStream(fedoraOperations.foxmlRecord), String.valueOf(docs));
     }
     /* kramerius */
@@ -389,8 +396,8 @@ public class SolrOperations {
                 } else {
                 }
             }
-            
-            
+
+
             expr = xpath.compile("//datastream[@ID='IMG_FULL']/datastreamVersion[last()]");
             Node imgFullMimeNode = (Node) expr.evaluate(contentDom, XPathConstants.NODE);
             int docs = 0;
@@ -401,7 +408,7 @@ public class SolrOperations {
                     docs = extendedFields.getPDFPagesCount();
                     //docs = fedoraOperations.getPdfPagesCount_(pid, "IMG_FULL");
                 }
-            }            
+            }
             indexDoc(foxmlStream, String.valueOf(docs));
 
             for (int i = 0; i < pids.size(); i++) {
@@ -423,11 +430,11 @@ public class SolrOperations {
         } catch (Exception e) {
             logger.log(Level.SEVERE, "indexByPid error", e);
         }
-        
+
         return num;
     }
-    
-    
+
+
 
     private void indexDoc(
             InputStream foxmlStream,
@@ -733,7 +740,7 @@ public class SolrOperations {
             node = nodeList.item(i);
             PID = node.getFirstChild().getNodeValue();
             pid_path = node.getNextSibling().getFirstChild().getNodeValue();
-            
+
             if(!rindex.existsPid(PID)){
                 logger.log(Level.INFO, PID + " doesn't exist. Deleting...");
                 deletePid(PID);
@@ -749,7 +756,7 @@ public class SolrOperations {
             checkIntegrityByModel(model, offset + numHits);
         }
     }
-    
+
     private void reindexCollection(String collection) throws Exception{
         logger.log(Level.INFO, "Reindex documents in collection: {0}", collection);
         if (collection == null || collection.length() < 1) {

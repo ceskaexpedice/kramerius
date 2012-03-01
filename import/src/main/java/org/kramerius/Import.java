@@ -5,30 +5,35 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.net.Authenticator;
-import java.net.MalformedURLException;
 import java.net.PasswordAuthentication;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Iterator;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import javax.xml.namespace.QName;
+import javax.xml.bind.JAXBContext;
+import javax.xml.bind.Unmarshaller;
 import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
-import javax.xml.ws.BindingProvider;
 import javax.xml.ws.soap.SOAPFaultException;
 
 import org.fedora.api.FedoraAPIM;
 import org.fedora.api.FedoraAPIMService;
 import org.fedora.api.ObjectFactory;
 import org.fedora.api.RelationshipTuple;
+import org.w3c.dom.Element;
+import org.w3c.dom.NodeList;
+
+import com.qbizm.kramerius.imp.jaxb.DatastreamType;
+import com.qbizm.kramerius.imp.jaxb.DatastreamVersionType;
+import com.qbizm.kramerius.imp.jaxb.DigitalObject;
+import com.qbizm.kramerius.imp.jaxb.XmlContentType;
 
 import cz.incad.kramerius.FedoraAccess;
 import cz.incad.kramerius.impl.FedoraAccessImpl;
+import cz.incad.kramerius.service.impl.IndexerProcessStarter;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 
 public class Import {
@@ -38,6 +43,29 @@ public class Import {
     static int counter = 0;
 
     private static final Logger log = Logger.getLogger(Import.class.getName());
+
+    private static Unmarshaller unmarshaller = null;
+
+    private static List<String> rootModels = null;
+
+
+    static{
+        try {
+            JAXBContext jaxbContext = JAXBContext.newInstance( DigitalObject.class);
+
+            unmarshaller = jaxbContext.createUnmarshaller();
+
+
+        } catch (Exception e) {
+            log.log(Level.SEVERE,"Cannot init JAXB", e);
+            throw new RuntimeException(e);
+        }
+
+        rootModels = Arrays.asList(KConfiguration.getInstance().getPropertyList("fedora.topLevelModels"));
+        if (rootModels==null){
+            rootModels = new ArrayList<String>();
+        }
+    }
 
     /**
      * @param args
@@ -81,11 +109,16 @@ public class Import {
 
         of = new ObjectFactory();
 
-        visitAllDirsAndFiles(importFile);
+        List<TitlePidTuple> roots = new ArrayList<TitlePidTuple>();
+        visitAllDirsAndFiles(importFile, roots);
         log.info("FINISHED INGESTION IN "+((System.currentTimeMillis()-start)/1000.0)+"s, processed "+counter+" files");
+        for (TitlePidTuple tpt :roots){
+            IndexerProcessStarter.spawnIndexer(true, tpt.title, tpt.pid);
+        }
+        log.info("ALL ROOT OBJECTS SCHEDULED FOR INDEXING.");
     }
 
-    private static void visitAllDirsAndFiles(File importFile) {
+    private static void visitAllDirsAndFiles(File importFile, List<TitlePidTuple> roots) {
         if (importFile.isDirectory()) {
 
             File[] children = importFile.listFiles();
@@ -93,10 +126,11 @@ public class Import {
                 Arrays.sort(children);
             }
             for (int i = 0; i < children.length; i++) {
-                visitAllDirsAndFiles(children[i]);
+                visitAllDirsAndFiles(children[i], roots);
             }
         } else {
             ingest(importFile);
+            checkRoot(importFile, roots);
         }
     }
 
@@ -208,6 +242,51 @@ public class Import {
         }
         return retval;
     }
+
+
+    /**
+     * Parse FOXML file and if it has model in fedora.topLevelModels, add its PID to roots list. Objects in the roots list then will be submitted to indexer
+     */
+    private static void checkRoot(File importFile, List<TitlePidTuple> roots){
+        try{
+            Object obj = unmarshaller.unmarshal(importFile);
+            if (obj instanceof DigitalObject){
+                DigitalObject dobj = (DigitalObject)obj;
+                for (DatastreamType ds : dobj.getDatastream()){
+                    if("DC".equals(ds.getID())){
+                        List<DatastreamVersionType> versions = ds.getDatastreamVersion();
+                        if (versions!= null){
+                            DatastreamVersionType v = versions.get(versions.size()-1);
+                            XmlContentType dcxml = v.getXmlContent();
+                            List<Element> elements = dcxml.getAny();
+                            for (Element el:elements){
+                                NodeList types = el.getElementsByTagNameNS("http://purl.org/dc/elements/1.1/", "type");
+                                for (int i= 0; i<types.getLength();i++){
+                                    String type = types.item(i).getTextContent();
+                                    if (type.startsWith("model:")){
+                                        String model = type.substring(6);
+
+                                        if (rootModels.contains(model)){
+                                            NodeList titles = el.getElementsByTagNameNS("http://purl.org/dc/elements/1.1/", "title");
+                                            String title = "";
+                                            if (titles.getLength()>0){
+                                                title = titles.item(0).getTextContent();
+                                            }
+                                            TitlePidTuple npt = new TitlePidTuple(title, dobj.getPID());
+                                            roots.add(npt);
+                                            log.info("Found object for indexing - "+npt);
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }catch (Exception ex){
+            log.log(Level.SEVERE,"Error in Ingest.checkRoot:",ex);
+        }
+    }
 }
 
 class RDFTuple {
@@ -262,6 +341,22 @@ class RDFTuple {
     @Override
     public String toString() {
         return "RDFTuple [subject=" + subject + ", predicate=" + predicate + ", object=" + object + "]";
+    }
+
+}
+
+class TitlePidTuple {
+    public String title;
+    public String pid;
+
+    public TitlePidTuple(String name, String pid){
+        this.title = name;
+        this.pid=pid;
+    }
+
+    @Override
+    public String toString() {
+        return "Title:"+title+" PID:"+pid;
     }
 
 }
