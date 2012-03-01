@@ -39,6 +39,8 @@ public class ProcessStarter {
     public static final String SOUT_FILE = "SOUT";
     public static final String SERR_FILE = "SERR";
 
+    private static boolean STATUS_UPDATED = false;
+    
     public static void main(String[] args)  {
         PrintStream outStream = null;
         PrintStream errStream = null;
@@ -57,7 +59,9 @@ public class ProcessStarter {
                 @Override
                 public void run() {
                     try {
-                        updateStatus(States.KILLED);
+                        if (!STATUS_UPDATED) {
+                            updateStatus(States.KILLED);
+                        }
                     } catch (MalformedURLException e) {
                         LOGGER.log(Level.SEVERE, e.getMessage(), e);
                     } catch (IOException e) {
@@ -115,6 +119,7 @@ public class ProcessStarter {
         String lrURl = ProcessUtils.getLrServlet();
         String restURL = lrURl + "?action=updateStatus&uuid=" + uuid + "&state=" + state;
         httpGet(restURL);
+        STATUS_UPDATED = true;
     }
 
     public static void updatePID(String pid) throws IOException {
