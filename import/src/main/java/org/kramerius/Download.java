@@ -181,13 +181,11 @@ public class Download {
     public static void startIndexing(String title, String processedPath){
         if (processedPath == null)
             return;
-        int uuidStart = processedPath.indexOf("&pid_path=")+10;
-        int uuidEnd = processedPath.indexOf("/",uuidStart);
-        if (uuidEnd == -1){
-            uuidEnd = processedPath.indexOf("&path=",uuidStart);
+        int uuidStart = processedPath.indexOf("\tpid=")+5;
+        if (uuidStart > -1){
+            String uuid = processedPath.substring(uuidStart);
+            IndexerProcessStarter.spawnIndexer(false, title, uuid);
         }
-        String uuid = processedPath.substring(uuidStart, uuidEnd);
-        IndexerProcessStarter.spawnIndexer(false, title, uuid);
     }
 
     /** buffer size used when data from remote connection are written to disc */
