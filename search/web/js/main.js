@@ -121,6 +121,7 @@ function PDF() {
 	this.structs = null;
 	this.previous = null;
 	
+	this.waitDialog = null;
 	
 	this.deviceSelection = {
 			"standard" : function() {
@@ -199,7 +200,40 @@ PDF.prototype.renderPDF = function() {
 			var infFont = this.devconf["fontsSettings"]["infFont"];
 			u += "&rect="+rectangle[0]+","+rectangle[1]+"&logo={"+logoFont["style"]+";"+logoFont["size"]+"}&info={"+infFont["style"]+";"+infFont["size"]+"}&firstpageType=IMAGES";
 		}
-		window.location.href = u;
+		
+
+
+		if (this.waitDialog) {
+			this.waitDialog.dialog('open');
+		} else {
+			$(document.body).append('<div id="waitPdf">'+
+			'<div style="margin: 16px; font-family: sans-serif; font-size: 10px; ">'+
+				'<table width="100%">'+
+			    		'<tr><td align="center"><img src="img/loading.gif" height="16px" width="16px"/></td></tr>'+
+						'<tr><td align="center" id="waitPdf_message">'+dictionary['pdf.waitDialog.message']+'</td></tr>'+
+			    	'</table>'+
+				'</div>'+
+			'</div>')
+		    this.waitDialog = $('#waitPdf').dialog({
+		    	width:400,
+		    	height:270,
+		    	modal:true,
+		    	title: dictionary["generatePdfTitle"],
+		    	buttons: {
+		    		"Close": function() {
+		    			$(this).dialog("close");
+		            }
+		        }
+		    });
+		}
+		
+		
+		$.get(u, bind(function(data) {
+			this.waitDialog.dialog("close");
+			var obj = eval('(' + data + ')');
+			window.location.href = 'pdf?action=FILE&pdfhandle='+obj.pdfhandle;
+		},this));
+		
 	} else {
 		 throw new Error("No pdf option selected !");
 	}
