@@ -131,7 +131,8 @@ public class GeneratePDFServlet extends GuiceServlet {
 	
 	@Override
     public void init() throws ServletException {
-        super.init();
+	    super.init();
+	    LOGGER.fine("initializing servlet ...");
 	}
 
     @Override
@@ -205,6 +206,7 @@ public class GeneratePDFServlet extends GuiceServlet {
                 FileOutputStream generatedPDFFos = null;
                 try {
                     
+                    long start = System.currentTimeMillis();
                     String par = request.getParameter(PIDS);
                     String srect = request.getParameter(RECT);
                     ParamsParser parser = new ParamsParser(new ParamsLexer(new StringReader(par)));
@@ -221,16 +223,24 @@ public class GeneratePDFServlet extends GuiceServlet {
 
                     int[] irects = srect(srect);
                     AbstractRenderedDocument rdoc = documentService.buildDocumentFromSelection((String[])params.toArray(new String[params.size()]), irects);
+                    LOGGER.fine("creating documents takes "+(System.currentTimeMillis() - start)+" ms ");
                     
+                    start = System.currentTimeMillis();
                     firstPagePDFService.generateFirstPageForSelection(rdoc, fpageFos, imgServletUrl, i18nUrl, configBean);
+                    LOGGER.fine("generating first page takes "+(System.currentTimeMillis() - start)+" ms ");
+                    
+                    start = System.currentTimeMillis();
                     pdfService.generateCustomPDF(rdoc, bodyTmpFos, imgServletUrl, i18nUrl, ImageFetcher.WEB);
+                    LOGGER.fine("generating custom pdf takes "+(System.currentTimeMillis() - start)+" ms ");
                     
                     bodyTmpFos.close();fpageFos.close();
 
                     File generatedPDF = File.createTempFile("rendered","pdf");
                     generatedPDFFos = new FileOutputStream(generatedPDF);
 
+                    start = System.currentTimeMillis();
                     mergeToOutput(generatedPDFFos, tmpFile, fpage);
+                    LOGGER.fine("merging document pdf takes "+(System.currentTimeMillis() - start)+" ms ");
 
                     outputJSON(response, generatedPDF, generatedPDFFos, tmpFile, fpage);
                     

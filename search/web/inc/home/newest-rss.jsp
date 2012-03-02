@@ -11,20 +11,14 @@
 <%@page import="cz.incad.kramerius.utils.conf.KConfiguration"%>
 
   <channel> 
-<%
-	Injector ctxInj = (Injector)application.getAttribute(Injector.class.getName());
-        KConfiguration kconfig = ctxInj.getProvider(KConfiguration.class).get();
-        pageContext.setAttribute("kconfig", kconfig);
-        
-        String urlString = request.getRequestURL().toString();
-        String query = request.getQueryString();
-        pageContext.setAttribute("channelUrl", urlString +"?"+query);
 
-%>
+<view:object name="rssHome"
+ clz="cz.incad.Kramerius.views.inc.home.RSSHomeViewObject"></view:object> 
+
   <title><view:msg>application.title</view:msg></title> 
   <description><view:msg>home.tab.newest</view:msg></description> 
-  <link>   <c:out value="${channelUrl}" escapeXml="true" />   </link> 
-<c:url var="url" value="${kconfig.solrHost}/select" >
+  <link>   <c:out value="${rssHome.channelURL}" escapeXml="true" />   </link> 
+<c:url var="url" value="${rssHome.configuration.solrHost}/select" >
     <c:param name="q" value="level:0" />
     <c:choose>
         <c:when test="${param.rows != null}" >
@@ -66,8 +60,8 @@
                 <title>${title}</title>    
                 <description>PID: ${pid} Model: <view:msg>${fmodel}</view:msg>     
                 </description>
-                <link>${kconfig.applicationURL}/handle/${pid}</link>
-                <guid>${kconfig.applicationURL}/handle/${pid}</guid>
+                <link>${rssHome.applicationURL}/handle/${pid}</link>
+                <guid>${rssHome.applicationURL}/handle/${pid}</guid>
             </item>
         </x:forEach>
         
