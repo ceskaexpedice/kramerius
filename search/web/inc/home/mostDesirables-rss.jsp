@@ -78,8 +78,8 @@
                 <title>${title}</title>    
                 <description>PID: ${pid} Model: <view:msg>${fmodel}</view:msg>     
                 </description>
-                <link>${applUrl}/i.jsp?pid=${pid}</link>
-                <guid>${applUrl}/i.jsp?pid=${pid}</guid>
+                <link>${kconfig.applicationURL}/handle/${pid}</link>
+                <guid>${kconfig.applicationURL}/handle/${pid}</guid>
             </item>
         </x:forEach>
         
