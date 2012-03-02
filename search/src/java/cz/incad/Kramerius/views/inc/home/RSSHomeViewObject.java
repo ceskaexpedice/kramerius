@@ -49,7 +49,7 @@ public class RSSHomeViewObject {
         HttpServletRequest request = this.requestProvider.get();
         String urlString = request.getRequestURL().toString();
         String query = request.getQueryString();
-        return urlString +"?"+query;
+        return urlString + ((query != null && query.length() > 0) ?  "?"+query : "");
     }
 
     

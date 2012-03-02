@@ -29,8 +29,8 @@
 </link> <c:forEach items="${rssHome.mostDesirables}" var="uuid">
 
 
- <c:url var="url" value="${kconfig.solrHost}/select/">
-  <c:param name="q" value="PID:\" ${uuid}\"" />
+ <c:url var="url" value="${rssHome.configuration.solrHost}/select/">
+  <c:param name="q" value="PID:\"${uuid}\"" />
  </c:url>
 
  <c:catch var="exceptions">
