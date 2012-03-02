@@ -10,14 +10,11 @@ import cz.incad.kramerius.utils.conf.KConfiguration;
 import cz.incad.kramerius.utils.UTFSort;
 import dk.defxws.fedoragsearch.server.*;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import org.apache.pdfbox.cos.COSDocument;
-import org.apache.pdfbox.pdmodel.PDDocument;
 import org.fedora.api.FedoraAPIA;
 import org.fedora.api.MIMETypedStream;
 import org.w3c.dom.Document;

@@ -42,7 +42,7 @@ public class Indexer {
         logger.info("Indexer initialized");
     }
 
-    public void run() {
+    public void run() throws Exception {
         long startTime = System.currentTimeMillis();
         try {
             Date date = new Date();
@@ -71,11 +71,6 @@ public class Indexer {
             if (arguments.docId > 0) {
                 //indexDoc(arguments.docId);
                 success = false;
-            } else if (arguments.fullIndex) {
-                logger.info("full index from db...");
-                if (!fullIndex(arguments.maxDocuments)) {
-                    success = false;
-                }
             } else {
                 if (!update(from, to)) {
                     success = false;
@@ -86,7 +81,9 @@ public class Indexer {
                 BufferedWriter out = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(dateFile)));
                 out.write(to);
                 out.close();
-                logger.info("Update index success");
+                logger.info("Index process success");
+            }else{
+                throw new Exception("Index process failed");
             }
 
 
@@ -95,18 +92,7 @@ public class Indexer {
             logger.info(formatElapsedTime(timeInMiliseconds));
         } catch (Exception ex) {
             logger.log(Level.SEVERE, null, ex);
-        } finally {
-            //disconnect();
-        }
-    }
-
-    private boolean fullIndex(int max) {
-        try {
-            logger.info("Full index...");
-            return true;
-        } catch (Exception ex) {
-            logger.log(Level.SEVERE, "Full index failed", ex);
-            return false;
+            throw new Exception(ex);
         }
     }
 
