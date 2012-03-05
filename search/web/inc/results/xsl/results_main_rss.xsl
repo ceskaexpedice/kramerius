@@ -31,8 +31,8 @@
         <title><xsl:value-of select="$title" /></title>    
         <description>PID: <xsl:value-of select="$pid" /> Model: <xsl:value-of select="$bundle/value[@key=$fmodel]"/>        
         </description>
-        <link><xsl:value-of select="$applUrl" />/i.jsp?pid=<xsl:value-of select="$pid" /></link>
-        <guid><xsl:value-of select="$applUrl" />/i.jsp?pid=<xsl:value-of select="$pid" /></guid>
+        <link><xsl:value-of select="$applUrl" />/handle/<xsl:value-of select="$pid" /></link>
+        <guid><xsl:value-of select="$applUrl" />/handle/<xsl:value-of select="$pid" /></guid>
     </item>
   </xsl:for-each>  
 </xsl:template>  
