@@ -114,9 +114,6 @@
                 togglerAlign_closed:	"top",
                 togglerTip_closed: '<fmt:message bundle="${lctx}">item.showhide</fmt:message>',
                 togglerTip_open: '<fmt:message bundle="${lctx}">item.showhide</fmt:message>',
-                //togglerContent_closed:	'<div id="showHideRightMenu" class="shadow" ><span class="ui-state-default ui-icon ui-icon-triangle-1-w"></span></div>',
-                //togglerContent_open:	'<div id="showHideRightMenu" class="shadow" ><span class="ui-state-default ui-icon ui-icon-triangle-1-e"></span></div>',
-                //togglerContent_open:	'<div id="showHideRightMenua" class="ui-layout-toggler ui-layout-toggler-east ui-layout-toggler-open ui-layout-toggler-east-open"></div>',
                 
                 onopen_end: function(){
                     //positionAlto();
@@ -128,6 +125,7 @@
             center:{
                 onresize_end: function(){
                     //positionAlto();
+                    var h = $("#bigThumbZone").height();$("#container").height(h);
                 }
             }
         });
@@ -139,9 +137,5 @@
     });
     
     
-    function resizeSplit(){
-        //var h = Math.max(800, $('#centralContent').height()+80);
-        //$('#split').css('height', h);
-        //sp.resizeAll();
-    }
+    function resizeSplit(){ var h = $("#bigThumbZone").height();$("#container").height(h); }
 </script>
