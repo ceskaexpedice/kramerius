@@ -140,9 +140,12 @@ function onLoadPlainImage() {
         } else if (!viewerOptions.displayableContent) {
             // no displayable content
             displayImageContainer("#download");
+            var url ='img?action=GETRAW&stream=IMG_FULL&pid='+viewerOptions.uuid;
+            $('#downloadOriginalHref').attr('href',url);
         } else if (!viewerOptions.displayableContent) {
             // no displayable content
             displayImageContainer("#noImageError");
+            
         } else {
             // has right
         	if (viewerOptions.isContentPDF()) {
