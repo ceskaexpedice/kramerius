@@ -31,7 +31,8 @@
           //Facebook like
             if(typeof(FB) !== 'undefined') {
                 $("#fbbutton_elm").attr("href",url);                
-            	FB.XFBML.parse(document.getElementById('fbbutton'));
+                alert($("#fbbutton_elm").html());
+                FB.XFBML.parse(document.getElementById('fbbutton'));
             }
 
             //Google plus one
@@ -45,7 +46,7 @@
 
             //Twitter tweet button
             if(typeof(twttr) !== 'undefined') {
-                $('.twitter-share-button').attr('data-url',location.href);
+                $('.twitter-share-button').attr('data-url',url);
                 twttr.widgets.load();
             }
             
@@ -59,7 +60,7 @@
     <td id="gplusbutton"  class="gplus">
      <!-- Umístěte tuto značku na místo, kde chcete zobrazovat tlačítko +1. -->
      <c:if test="${gplus.buttonEnabled}">
-        <g:plusone size="small" href="${gplus.shareURL}" annotation="bubble"></g:plusone>
+        <g:plusone size="small"  annotation="bubble"></g:plusone>
      </c:if>
     </td>
 
