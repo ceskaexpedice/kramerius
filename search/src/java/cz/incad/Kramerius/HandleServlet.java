@@ -7,6 +7,8 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.StringTokenizer;
 import java.util.logging.Level;
 
@@ -127,8 +129,13 @@ public class HandleServlet extends GuiceServlet {
 
             @Override
             void redirect(String handle, SolrAccess solrAccess, HttpServletRequest request, HttpServletResponse response) throws IOException {
+                Map parameterMap = request.getParameterMap();
                 String applicationCotext = ApplicationURL.applicationContextPath(request);
                 String redirectUrl = "/" + applicationCotext + "/i.jsp?pid=" + handle;
+                Set keySet = parameterMap.keySet();
+                for (Object key : keySet) {
+                    redirectUrl = redirectUrl+"&"+key+"="+parameterMap.get(key);
+                }
                 response.sendRedirect(redirectUrl);
             }
         },

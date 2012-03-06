@@ -43,6 +43,7 @@ import cz.incad.kramerius.utils.ApplicationURL;
 import cz.incad.kramerius.utils.DCUtils;
 import cz.incad.kramerius.utils.pid.LexerException;
 import cz.incad.kramerius.utils.pid.PIDParser;
+import cz.incad.utils.IKeys;
 
 public abstract class AbstractSocialButton {
 
@@ -121,16 +122,21 @@ public abstract class AbstractSocialButton {
 
     public String getShareURL() {
         HttpServletRequest request = this.requestProvider.get();
-        String requestedURL = request.getRequestURL().toString();
-        String query = request.getQueryString();
-        String returnedShareURL = requestedURL;
-        if (!emptyString(query)) {
-            returnedShareURL = requestedURL+"?"+query;
-            if ((request.getParameter("language") != null) && (!request.getParameter("language").trim().equals(""))) {
-                returnedShareURL = requestedURL +"&language="+localeProvider.get().getLanguage();
+        if (isItemPage()) {
+            String pidParameter = request.getParameter(IKeys.PID_PARAMETER);
+            return ApplicationURL.applicationURL(request)+"/handle/"+pidParameter+"?language="+localeProvider.get().getLanguage();
+        } else {
+            String requestedURL = request.getRequestURL().toString();
+            String query = request.getQueryString();
+            String returnedShareURL = requestedURL;
+            if (!emptyString(query)) {
+                returnedShareURL = requestedURL+"?"+query;
+                if ((request.getParameter("language") != null) && (!request.getParameter("language").trim().equals(""))) {
+                    returnedShareURL = requestedURL +"&language="+localeProvider.get().getLanguage();
+                }
             }
+            return returnedShareURL;
         }
-        return returnedShareURL;
     }
 
     public String getPidParam(HttpServletRequest request) {
