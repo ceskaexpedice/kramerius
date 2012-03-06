@@ -134,7 +134,10 @@ public class HandleServlet extends GuiceServlet {
                 String redirectUrl = "/" + applicationCotext + "/i.jsp?pid=" + handle;
                 Set keySet = parameterMap.keySet();
                 for (Object key : keySet) {
-                    redirectUrl = redirectUrl+"&"+key+"="+parameterMap.get(key);
+                    String[] vals = (String[]) parameterMap.get(key);
+                    for (String val : vals) {
+                        redirectUrl = redirectUrl+"&"+key+"="+val;
+                    }
                 }
                 response.sendRedirect(redirectUrl);
             }
