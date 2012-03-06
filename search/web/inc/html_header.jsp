@@ -57,6 +57,8 @@
 
         <meta property="og:description"
               content="${fb.description}"/>
+              
+        <link rel="canonical" href="${fb.shareURL}" />
     </c:if>
 
 

@@ -11,11 +11,14 @@ viewinfo(data, globalActions) ::=<<
         mimeType:'$data.mimeType$', 
         hasAlto:$data.hasAlto$,
         pid:"$data.pid$",
+        model:"$data.model$",
+        
         displayableContent:$data.displayableContent$,
         
         imgfull:$data.imgfull$,
     
         donator:'$data.donator$',
+        
         
         $if(data.canhandlecommongroup)$
         canhandlecommongroup:$data.canhandlecommongroup$,

@@ -124,8 +124,10 @@ public class ViewInfoServlet extends GuiceServlet {
                 map.put("deepZoomCofigurationEnabled", ""+conf);
                 // forward to iip
                 map.put("imageServerConfigured", ""+(!KConfiguration.getInstance().getUrlOfIIPServer().equals("")));
-                // zobrazovane uuid
+                // zobrazovany pid
                 map.put("pid", pid);
+                // model zobrazovaneho pidu
+                map.put("model", fedoraAccess.getKrameriusModelName(fedoraAccess.getRelsExt(pid)));
                 // cesta nahoru {uuid + parentofuuid + parentofparentofuuid + ... + root}
                 map.put("pathsOfPids",paths);
                 // donator

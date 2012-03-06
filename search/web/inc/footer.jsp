@@ -9,19 +9,64 @@
 <%@ page isELIgnored="false"%>
 
 
+<div id="socialbuttons_div" class="viewer socialbuttons" style="visibility: hidden;">
+     <c:if test="${gplus.buttonEnabled || fb.buttonEnabled}">
+      <script type="text/javascript">
+        // changing og metadata
+        $('#socialbuttons_div.viewer').bind('viewReady', function(event, viewerOptions){
+        	if(!viewerOptions) return;
+            var pathname = window.location.pathname;
+            if (pathname.startsWith("/")) {
+                pathname=pathname.substring(1,pathname.length);
+            }
+            var url = window.location.protocol+"://"+window.location.host+"/"+pathname.split("/")[0]+"/handle/uuid:"+viewerOptions.pid;
+            var imgUrl = window.location.protocol+"://"+window.location.host+"/"+pathname.split("/")[0]+"/img?uuid=uuid:4a79bd50-af36-11dd-a60c-000d606f5dc6&stream=IMG_THUMB&action=GETRAW"
+
+            $('meta[property="og:url"]').attr('content',url);
+            $('meta[property="og:image"]').attr("content", imgUrl);
+
+            $('link[rel="canonical"]').attr("href", url);
+
+
+          //Facebook like
+            if(typeof(FB) !== 'undefined') {
+                $("#fbbutton_elm").attr("href",url);                
+            	FB.XFBML.parse(document.getElementById('fbbutton'));
+            }
+
+            //Google plus one
+            if(typeof(gapi) !== 'undefined') {
+                gapi.plusone.render(document.getElementById('gplusbutton'),{
+                    'href':url,
+                    'annotation':'bubble',
+                    'size': 'small'
+                });
+            }
+
+            //Twitter tweet button
+            if(typeof(twttr) !== 'undefined') {
+                $('.twitter-share-button').attr('data-url',location.href);
+                twttr.widgets.load();
+            }
+            
+        });
+      </script>
+    </c:if>
+</div>
+
 <table class="socialbuttons" align="center">
     <tr>
-    <td class="gplus">
+    <td id="gplusbutton"  class="gplus">
      <!-- Umístěte tuto značku na místo, kde chcete zobrazovat tlačítko +1. -->
      <c:if test="${gplus.buttonEnabled}">
         <g:plusone size="small" href="${gplus.shareURL}" annotation="bubble"></g:plusone>
      </c:if>
     </td>
 
-    <td class="fb">
+    <td id="fbbutton" class="fb">
      <c:if test="${fb.buttonEnabled}">
       <!-- like button -->
-      <fb:like href="${fb.shareURL}" send="false" width="16"  layout="button_count" show_faces="false"></fb:like>
+      <fb:like id="fbbutton_elm"  href="${fb.shareURL}" send="false" width="16"  layout="button_count" show_faces="false"></fb:like>
      </c:if>
     </td>
 

@@ -124,7 +124,7 @@ public abstract class AbstractSocialButton {
         HttpServletRequest request = this.requestProvider.get();
         if (isItemPage()) {
             String pidParameter = request.getParameter(IKeys.PID_PARAMETER);
-            return ApplicationURL.applicationURL(request)+"/handle/"+pidParameter+"?language="+localeProvider.get().getLanguage();
+            return ApplicationURL.applicationURL(request)+"/handle/"+pidParameter;
         } else {
             String requestedURL = request.getRequestURL().toString();
             String query = request.getQueryString();
