@@ -30,7 +30,7 @@
 
           //Facebook like
             if(typeof(FB) !== 'undefined') {
-                $("#fbbutton_elm").attr("href",url);                
+                $('#fbbutton').html('<fb:like href="' + url + '" layout="button_count" show_faces="false" width="16" action="like" />');
                 FB.XFBML.parse(document.getElementById('fbbutton'));
             }
 
