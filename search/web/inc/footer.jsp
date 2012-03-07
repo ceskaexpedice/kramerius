@@ -19,8 +19,8 @@
             if (pathname.startsWith("/")) {
                 pathname=pathname.substring(1,pathname.length);
             }
-            var url = window.location.protocol+"://"+window.location.host+"/"+pathname.split("/")[0]+"/handle/"+viewerOptions.pid;
-            var imgUrl = window.location.protocol+"://"+window.location.host+"/"+pathname.split("/")[0]+"/img?uuid="+viewerOptions.pid+"&stream=IMG_THUMB&action=GETRAW"
+            var url = window.location.protocol+"//"+window.location.host+"/"+pathname.split("/")[0]+"/handle/"+viewerOptions.pid;
+            var imgUrl = window.location.protocol+"//"+window.location.host+"/"+pathname.split("/")[0]+"/img?uuid="+viewerOptions.pid+"&stream=IMG_THUMB&action=GETRAW"
 
             $('meta[property="og:url"]').attr('content',url);
             $('meta[property="og:image"]').attr("content", imgUrl);
