@@ -20,7 +20,7 @@
                 pathname=pathname.substring(1,pathname.length);
             }
             var url = window.location.protocol+"://"+window.location.host+"/"+pathname.split("/")[0]+"/handle/"+viewerOptions.pid;
-            var imgUrl = window.location.protocol+"://"+window.location.host+"/"+pathname.split("/")[0]+"/img?uuid=uuid:4a79bd50-af36-11dd-a60c-000d606f5dc6&stream=IMG_THUMB&action=GETRAW"
+            var imgUrl = window.location.protocol+"://"+window.location.host+"/"+pathname.split("/")[0]+"/img?uuid="+viewerOptions.pid+"&stream=IMG_THUMB&action=GETRAW"
 
             $('meta[property="og:url"]').attr('content',url);
             $('meta[property="og:image"]').attr("content", imgUrl);
@@ -31,7 +31,6 @@
           //Facebook like
             if(typeof(FB) !== 'undefined') {
                 $("#fbbutton_elm").attr("href",url);                
-                alert($("#fbbutton_elm").html());
                 FB.XFBML.parse(document.getElementById('fbbutton'));
             }
 
