@@ -36,11 +36,7 @@
 
             //Google plus one
             if(typeof(gapi) !== 'undefined') {
-                gapi.plusone.render(document.getElementById('gplusbutton'),{
-                    'href':url,
-                    'annotation':'bubble',
-                    'size': 'small'
-                });
+                gapi.plusone.go("gplusbutton");
             }
 
             //Twitter tweet button
@@ -59,7 +55,7 @@
     <td id="gplusbutton"  class="gplus">
      <!-- Umístěte tuto značku na místo, kde chcete zobrazovat tlačítko +1. -->
      <c:if test="${gplus.buttonEnabled}">
-        <g:plusone size="small"  annotation="bubble"></g:plusone>
+        <div class="g-plusone" data-size="small" data-annotation="bubble"></div>
      </c:if>
     </td>
 
@@ -123,7 +119,10 @@
 <c:if test="${gplus.buttonEnabled}">
 <!-- Umístěte tuto žádost o vykreslení na příslušné místo. -->
 <script type="text/javascript">
-  window.___gcfg = {lang: '${gplus.locale}'};
+  window.___gcfg = {
+    lang: '${gplus.locale}',
+    parsetags:'explicit'
+  };
 
   (function() {
     var po = document.createElement('script'); po.type = 'text/javascript'; po.async = true;
