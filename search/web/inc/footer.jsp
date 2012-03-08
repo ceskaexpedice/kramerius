@@ -15,22 +15,47 @@
         // changing og metadata
         $('#socialbuttons_div.viewer').bind('viewReady', function(event, viewerOptions){
         	if(!viewerOptions) return;
+            var rbs = new RebuildSocialButtons();
+            rbs.rebuild(rbs.buildItemsURLS())
+        });
+
+
+        function RebuildSocialButtons() {}
+
+        RebuildSocialButtons.prototype.isItemPage = function() {
+            if(viewerOptions) return true;
+            return false;
+        }
+
+        RebuildSocialButtons.prototype.buildSearchURLS = function() {
+            return {
+                "url":window.location.href,
+                "imgUrl":window.location.href+'/img/logo.png'
+            };            
+        }
+        
+        RebuildSocialButtons.prototype.buildItemsURLS = function() {
             var pathname = window.location.pathname;
             if (pathname.startsWith("/")) {
                 pathname=pathname.substring(1,pathname.length);
             }
             var url = window.location.protocol+"//"+window.location.host+"/"+pathname.split("/")[0]+"/handle/"+viewerOptions.pid;
             var imgUrl = window.location.protocol+"//"+window.location.host+"/"+pathname.split("/")[0]+"/img?uuid="+viewerOptions.pid+"&stream=IMG_THUMB&action=GETRAW"
+            return {
+                "url":url,
+                "imgUrl":imgUrl
+            };            
+        }
+        
+        RebuildSocialButtons.prototype.rebuild = function(urls) {
+        	$('meta[property="og:url"]').attr('content',urls.url);
+            $('meta[property="og:image"]').attr("content", urls.imgUrl);
 
-            $('meta[property="og:url"]').attr('content',url);
-            $('meta[property="og:image"]').attr("content", imgUrl);
+            $('link[rel="canonical"]').attr("href", urls.url);
 
-            $('link[rel="canonical"]').attr("href", url);
-
-
-          //Facebook like
+            //Facebook like
             if(typeof(FB) !== 'undefined') {
-                $('#fbbutton').html('<fb:like href="' + url + '" layout="button_count" show_faces="false" width="16" action="like" />');
+                $('#fbbutton').html('<fb:like href="' + urls.url + '" layout="button_count" show_faces="false" width="16" action="like" />');
                 FB.XFBML.parse(document.getElementById('fbbutton'));
             }
 
@@ -41,11 +66,11 @@
 
             //Twitter tweet button
             if(typeof(twttr) !== 'undefined') {
-                $('.twitter-share-button').attr('data-url',url);
+                $('.twitter-share-button').attr('data-url',urls.url);
                 twttr.widgets.load();
             }
-            
-        });
+        }
+        
       </script>
     </c:if>
 </div>

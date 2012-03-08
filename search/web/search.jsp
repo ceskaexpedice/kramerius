@@ -40,6 +40,10 @@
         </div>
         <div id="footer">
             <%@ include file="inc/footer.jsp" %>
+            <script type="text/javascript">
+              var rbs = new RebuildSocialButtons();
+              rbs.rebuild(rbs.buildSearchURLS())
+            </script>
         </div>
         <c:if test="${!empty param.error}">
             <script type="text/javascript">
@@ -48,5 +52,6 @@
                 });
             </script>
         </c:if>
+        
     </body>
 </html>
