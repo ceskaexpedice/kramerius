@@ -42,7 +42,8 @@
             <%@ include file="inc/footer.jsp" %>
             <script type="text/javascript">
               var rbs = new RebuildSocialButtons();
-              rbs.rebuild(rbs.buildSearchURLS())
+              // rebuild gplus button - explicit initialization
+              rbs.rebuildExplicit(rbs.buildSearchURLS())
             </script>
         </div>
         <c:if test="${!empty param.error}">
