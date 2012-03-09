@@ -16,6 +16,7 @@
         $('#socialbuttons_div.viewer').bind('viewReady', function(event, viewerOptions){
         	if(!viewerOptions) return;
             var rbs = new RebuildSocialButtons();
+            // rebuild all buttons
             rbs.rebuild(rbs.buildItemsURLS())
         });
 
@@ -32,6 +33,14 @@
                 "url":window.location.href,
                 "imgUrl":window.location.href+'/img/logo.png'
             };            
+        }
+
+        // gplus button - explicit initialization
+        RebuildSocialButtons.prototype.rebuildExplicit(urls) {
+            //Google plus one
+            if(typeof(gapi) !== 'undefined') {
+                gapi.plusone.go("gplusbutton");
+            }
         }
         
         RebuildSocialButtons.prototype.buildItemsURLS = function() {
@@ -50,7 +59,6 @@
         RebuildSocialButtons.prototype.rebuild = function(urls) {
         	$('meta[property="og:url"]').attr('content',urls.url);
             $('meta[property="og:image"]').attr("content", urls.imgUrl);
-
             $('link[rel="canonical"]').attr("href", urls.url);
 
             //Facebook like
@@ -65,7 +73,7 @@
             }
 
             //Twitter tweet button
-            if(typeof(twttr) !== 'undefined') {
+            if(typeof(twttr) !== 'undefined' && typeof(twttr.widgets) !== 'undefined') {
                 $('.twitter-share-button').attr('data-url',urls.url);
                 twttr.widgets.load();
             }
