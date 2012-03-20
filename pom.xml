@@ -103,6 +103,10 @@
         <module>import-cmdtool</module>
         <module>import-jaxb</module>
         <module>import-jaxb-periodical</module>
+        <module>import-jaxb-dc</module>
+        <module>import-jaxb-mets</module>
+        <module>import-jaxb-mods</module>
+        <module>import-mets</module>
         <module>indexer</module>
         <module>static-export</module>
         <module>search</module>
