@@ -73,7 +73,6 @@ public class FedoraOperations {
         }
     }
 
-
     public int getPdfPagesCount_(String pid, String dsId) throws Exception {
         ds = null;
         if (dsId != null) {
@@ -125,9 +124,9 @@ public class FedoraOperations {
         }
         return relsindex;
     }
-    
+
     public ArrayList<Integer> getRelsIndexByPath(ArrayList<String> pid_paths) throws Exception {
-        
+
         ArrayList<Integer> idxs = new ArrayList<Integer>();
         String parent;
         String fedoraPid;
@@ -135,11 +134,11 @@ public class FedoraOperations {
         if (!pid_paths.isEmpty()) {
             for (String s : pid_paths) {
                 String[] pids = s.split("/");
-                if(pids.length==1){
+                if (pids.length == 1) {
                     idxs.add(0);
-                }else{
-                    fedoraPid = "info:fedora/" + pids[pids.length-1];
-                    parent = pids[pids.length-2];
+                } else {
+                    fedoraPid = "info:fedora/" + pids[pids.length - 1];
+                    parent = pids[pids.length - 2];
                     Document relsExt = fa.getRelsExt(parent);
                     Element descEl = XMLUtils.findElement(relsExt.getDocumentElement(), "Description", FedoraNamespaces.RDF_NAMESPACE_URI);
                     List<Element> els = XMLUtils.getElements(descEl);
@@ -224,37 +223,40 @@ public class FedoraOperations {
     }
 
     public String getDatastreamText(String pid, String dsId, String pageNum) throws Exception {
-
+        if (dsId == null) {
+            return "";
+        }
         StringBuffer dsBuffer = new StringBuffer();
         String mimetype = "";
         ds = null;
-        if (dsId != null) {
-            try {
-                FedoraAPIA apia = fa.getAPIA();
-                MIMETypedStream mts = apia.getDatastreamDissemination(pid,
-                        dsId, null);
-                if (mts == null) {
-                    return "";
+
+        try {
+            FedoraAPIA apia = fa.getAPIA();
+            MIMETypedStream mts = apia.getDatastreamDissemination(pid,
+                    dsId, null);
+            if (mts == null) {
+                return "";
+            }
+            ds = mts.getStream();
+            mimetype = mts.getMIMEType();
+
+            if (ds != null) {
+                if (mimetype.equals("application/pdf")) {
+                    //getPDFDocument(pid);
+                    //dsBuffer = TransformerToText.getTextFromPDF(pdDoc, pageNum);
+                } else {
+                    dsBuffer = (new TransformerToText().getText(ds, mimetype, pageNum));
                 }
-                ds = mts.getStream();
-                mimetype = mts.getMIMEType();
-            } catch (Exception e) {
-                throw new Exception(e.getClass().getName() + ": " + e.toString());
-            }
-        }
-        if (ds != null) {
-            if (mimetype.equals("application/pdf")) {
-                //getPDFDocument(pid);
-                //dsBuffer = TransformerToText.getTextFromPDF(pdDoc, pageNum);
             } else {
-                dsBuffer = (new TransformerToText().getText(ds, mimetype, pageNum));
+                logger.fine("ds is null");
             }
-        } else {
-            logger.fine("ds is null");
+            logger.log(Level.FINE,
+                    "getDatastreamText  pid={0} dsId={1} mimetype={2} dsBuffer={3}",
+                    new Object[]{pid, dsId, mimetype, dsBuffer.toString()});
+            return dsBuffer.toString();
+        } catch (Exception e) {
+            logger.log(Level.SEVERE, "Cant get datastream " + dsId);
+            throw new Exception(e.getClass().getName() + ": " + e.toString());
         }
-        logger.log(Level.FINE,
-                "getDatastreamText  pid={0} dsId={1} mimetype={2} dsBuffer={3}",
-                new Object[]{pid, dsId, mimetype, dsBuffer.toString()});
-        return dsBuffer.toString();
     }
 }

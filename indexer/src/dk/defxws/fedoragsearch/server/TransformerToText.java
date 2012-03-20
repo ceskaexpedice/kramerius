@@ -41,7 +41,7 @@ public class TransformerToText {
     }
     
     public StringBuffer getText(byte[] doc, String mimetype, String page)
-            throws Exception, Exception {
+            throws Exception {
         if (mimetype.equals("text/plain")) {
             return getTextFromText(doc);
         } else if (mimetype.equals("plain/text")) {

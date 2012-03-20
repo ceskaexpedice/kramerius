@@ -63,10 +63,12 @@ public class SolrOperations {
     private GTransformer transformer;
     private ArrayList<String> customTransformations;
     private ArrayList<String> indexedCache = new ArrayList<String>();
+    private boolean runOptimize = true;
 
     public SolrOperations(FedoraOperations _fedoraOperations) throws IOException {
         fedoraOperations = _fedoraOperations;
         config = KConfiguration.getInstance().getConfiguration();
+        runOptimize = config.getBoolean("indexer.runOptimize", true);
         transformer = new GTransformer();
         initCustomTransformations();
         extendedFields = new ExtendedFields(fedoraOperations);
@@ -99,23 +101,23 @@ public class SolrOperations {
             } else if ("fromKrameriusModel".equals(action)) {
                 deleteDocument(value);
                 fromKrameriusModel(value);
-                optimize();
+                if (runOptimize) optimize();
             } else if ("fromKrameriusModelNoCheck".equals(action)) {
                 fromKrameriusModel(value);
-                optimize();
+                if (runOptimize) optimize();
             } else if ("krameriusModel".equals(action)) {
                 deleteModel(value);
                 krameriusModel(value);
-                optimize();
+                if (runOptimize) optimize();
             } else if ("krameriusModelNoCheck".equals(action)) {
                 krameriusModel(value);
-                optimize();
+                if (runOptimize) optimize();
             } else if ("reindexDoc".equals(action)) {
                 reindexDoc(value, false);
-                optimize();
+                if (runOptimize) optimize();
             } else if ("reindexDocForced".equals(action)) {
                 reindexDoc(value, true);
-                optimize();
+                if (runOptimize) optimize();
             } else if ("checkIntegrity".equals(action)) {
                 checkIntegrity();
             } else if ("checkIntegrityByModel".equals(action)) {
@@ -515,7 +517,7 @@ public class SolrOperations {
         postData(config.getString("IndexBase") + "/update", new StringReader(sb.toString()), new StringBuilder());
         sb = new StringBuilder("<delete><query>pid_path:" + pid_path.replace(":", "\\:") + "</query></delete>");
         postData(config.getString("IndexBase") + "/update", new StringReader(sb.toString()), new StringBuilder());
-        optimize();
+        if (runOptimize) optimize();
         deleteTotal++;
     }
 
@@ -523,7 +525,7 @@ public class SolrOperations {
         StringBuilder sb = new StringBuilder("<delete><query>model_path:" + path + "*</query></delete>");
         logger.log(Level.FINE, "indexDoc=\n{0}", sb.toString());
         postData(config.getString("IndexBase") + "/update", new StringReader(sb.toString()), new StringBuilder());
-        optimize();
+        if (runOptimize) optimize();
         deleteTotal++;
     }
 
@@ -713,7 +715,7 @@ public class SolrOperations {
 
     private void checkIntegrityByModel(String model) throws Exception {
         checkIntegrityByModel(model, 0);
-        optimize();
+        if (runOptimize) optimize();
     }
 
     private void checkIntegrityByModel(String model, int offset) throws Exception {
@@ -780,7 +782,7 @@ public class SolrOperations {
             PID = node.getFirstChild().getNodeValue();
             fromPid(PID);
         }
-        optimize();
+        if (runOptimize) optimize();
         if (nodeList.getLength() > 0) {
             reindexCollection(collection);
         }
