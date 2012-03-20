@@ -15,7 +15,6 @@ import java.io.OutputStreamWriter;
 import java.io.Reader;
 import java.io.StringReader;
 import java.io.Writer;
-import java.lang.reflect.InvocationTargetException;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.ProtocolException;
@@ -63,12 +62,12 @@ public class SolrOperations {
     private GTransformer transformer;
     private ArrayList<String> customTransformations;
     private ArrayList<String> indexedCache = new ArrayList<String>();
-    private boolean runOptimize = true;
+    private boolean isSoftCommit = true;
 
     public SolrOperations(FedoraOperations _fedoraOperations) throws IOException {
         fedoraOperations = _fedoraOperations;
         config = KConfiguration.getInstance().getConfiguration();
-        runOptimize = config.getBoolean("indexer.runOptimize", true);
+        isSoftCommit = config.getBoolean("indexer.isHardCommit", false);
         transformer = new GTransformer();
         initCustomTransformations();
         extendedFields = new ExtendedFields(fedoraOperations);
@@ -101,23 +100,23 @@ public class SolrOperations {
             } else if ("fromKrameriusModel".equals(action)) {
                 deleteDocument(value);
                 fromKrameriusModel(value);
-                if (runOptimize) optimize();
+                commit();
             } else if ("fromKrameriusModelNoCheck".equals(action)) {
                 fromKrameriusModel(value);
-                if (runOptimize) optimize();
+                commit();
             } else if ("krameriusModel".equals(action)) {
                 deleteModel(value);
                 krameriusModel(value);
-                if (runOptimize) optimize();
+                commit();
             } else if ("krameriusModelNoCheck".equals(action)) {
                 krameriusModel(value);
-                if (runOptimize) optimize();
+                commit();
             } else if ("reindexDoc".equals(action)) {
                 reindexDoc(value, false);
-                if (runOptimize) optimize();
+                commit();
             } else if ("reindexDocForced".equals(action)) {
                 reindexDoc(value, true);
-                if (runOptimize) optimize();
+                commit();
             } else if ("checkIntegrity".equals(action)) {
                 checkIntegrity();
             } else if ("checkIntegrityByModel".equals(action)) {
@@ -517,7 +516,7 @@ public class SolrOperations {
         postData(config.getString("IndexBase") + "/update", new StringReader(sb.toString()), new StringBuilder());
         sb = new StringBuilder("<delete><query>pid_path:" + pid_path.replace(":", "\\:") + "</query></delete>");
         postData(config.getString("IndexBase") + "/update", new StringReader(sb.toString()), new StringBuilder());
-        if (runOptimize) optimize();
+        commit();
         deleteTotal++;
     }
 
@@ -525,7 +524,7 @@ public class SolrOperations {
         StringBuilder sb = new StringBuilder("<delete><query>model_path:" + path + "*</query></delete>");
         logger.log(Level.FINE, "indexDoc=\n{0}", sb.toString());
         postData(config.getString("IndexBase") + "/update", new StringReader(sb.toString()), new StringBuilder());
-        if (runOptimize) optimize();
+        commit();
         deleteTotal++;
     }
 
@@ -614,6 +613,21 @@ public class SolrOperations {
                 urlc.disconnect();
             }
         }
+    }
+    
+    
+
+    private void commit() throws java.rmi.RemoteException, Exception {
+        String s;
+        if(isSoftCommit){
+            s = "<commit softCommit=\"false\" />";
+        }else{
+            s = "<commit />";
+        }
+        logger.log(Level.FINE, "commit");
+
+        postData(config.getString("IndexBase") + "/update", new StringReader(s), new StringBuilder());
+
     }
 
     /**
@@ -715,7 +729,7 @@ public class SolrOperations {
 
     private void checkIntegrityByModel(String model) throws Exception {
         checkIntegrityByModel(model, 0);
-        if (runOptimize) optimize();
+        commit();
     }
 
     private void checkIntegrityByModel(String model, int offset) throws Exception {
@@ -782,7 +796,7 @@ public class SolrOperations {
             PID = node.getFirstChild().getNodeValue();
             fromPid(PID);
         }
-        if (runOptimize) optimize();
+        commit();
         if (nodeList.getLength() > 0) {
             reindexCollection(collection);
         }
