@@ -34,7 +34,8 @@ public class GCCheckFoundCandidatesTask extends TimerTask {
 					if (lr.getProcessState().equals(States.RUNNING)) {
 						if (lr.getPid()!=null) {
 							if (!pids.contains(lr.getPid())) {
-								lr.setProcessState(States.FAILED);
+							    LOGGER.warning("changing state of process '"+lr.getUUID()+"' to FAILED");
+							    lr.setProcessState(States.FAILED);
 								this.lrProcessManager.updateLongRunningProcessState(lr);
 							}
 						} else {
