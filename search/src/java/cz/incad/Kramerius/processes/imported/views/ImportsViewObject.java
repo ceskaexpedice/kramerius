@@ -35,6 +35,18 @@ public class ImportsViewObject {
 		}
 	}
 	
+	public ImportsViewObject(File processWrokingDir) {
+        this.successLog = new File(processWrokingDir, "replication-success.txt");
+        this.failureLog = new File(processWrokingDir, "replication-failed.txt");
+        try {
+            readFiles();
+        } catch (IOException e) {
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+        }
+	}
+	
+	
+	
 	private void readFiles() throws IOException {
 		FileReader reader = new FileReader(this.successLog);
 		BufferedReader bufReader = null;
@@ -85,7 +97,9 @@ public class ImportsViewObject {
 	}
 
 	private SuccessfulImportViewObject readSucceedItem(String line) {
-		StringTokenizer tokenizer = new StringTokenizer(line,"\t");
+	    int indexOf = line.indexOf('\t');
+	    
+	    StringTokenizer tokenizer = new StringTokenizer(line,"\t");
 		String data = tokenizer.hasMoreTokens() ? tokenizer.nextToken() : "";
 		String name = tokenizer.hasMoreTokens() ? tokenizer.nextToken() : "";
 		String href = tokenizer.hasMoreTokens() ? tokenizer.nextToken() : "";

@@ -22,9 +22,19 @@ public class SuccessfulImportViewObject {
 		return href;
 	}
 
+	public String getPid() {
+	    if (href != null) {
+	        String h = href.trim();
+	        if (h.indexOf('=') >= 0 ) {
+	            return h.substring(h.indexOf('=')+1);
+	        } else return h;
+	    } else return "";
+	}
+	
 	public String getName() {
 		return name;
 	}
 
+	
 	
 }
