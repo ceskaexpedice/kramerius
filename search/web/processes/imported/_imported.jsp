@@ -80,12 +80,6 @@
 			<tr>
 				<td align="center">
 				<div style="width: 600px">
-				<ul
-					class="ui-tabs-nav ui-helper-reset ui-helper-clearfix ui-widget-header ui-corner-all">
-					<li style="width: 100%; height: 20px; text-align: center;"
-						class="facetTitle ui-state-default ui-corner-top  ui-state-active">
-					</li>
-				</ul>
 				<table width="600px">
 					<thead
 						style="border-bottom: dashed 1px; background-image: url('../../img/bg_processheader.png'); background-repeat: repeat-x;">
@@ -99,7 +93,7 @@
 							<c:forEach var="item" items="${imported.items}" varStatus="i">
 								<tr class="${(i.index mod 2 == 0) ? 'result r0': 'result r1'}">
 									<td width="20%">${item.data}</td>
-									<td><a href="../../item.jsp?${item.href}" target="_blank">${item.name}</a>
+									<td><a href="../../handle/${item.pid}" target="_blank">${item.name}</a>
 									</td>
 								</tr>
 							</c:forEach>
@@ -123,12 +117,6 @@
 			<tr>
 				<td align="center">
 				<div style="width: 600px;">
-				<ul
-					class="ui-tabs-nav ui-helper-reset ui-helper-clearfix ui-widget-header ui-corner-all">
-					<li style="width: 100%; height: 20px; text-align: center;"
-						class="facetTitle ui-state-default ui-corner-top  ui-state-active">
-					</li>
-				</ul>
 				<table style="width: 600px; table-layout: fixed;">
 					<thead
 						style="border-bottom: dashed 1px; background-image: url('../../img/bg_processheader.png'); background-repeat: repeat-x;">
