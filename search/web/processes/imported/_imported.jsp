@@ -34,7 +34,6 @@
 <%@page import="cz.incad.Kramerius.views.ProcessLogsViewObject"%>
 <%@page import="cz.incad.kramerius.processes.LRProcess"%>
 <%@page import="cz.incad.Kramerius.processes.imported.views.ImportsViewObject"%>
-<%@ include file="../../inc/initVars.jsp"%>
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="cs" lang="cs">
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
