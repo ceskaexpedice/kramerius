@@ -171,7 +171,7 @@ public class MPTStoreService implements IResourceIndex {
     static final String PRED_model = "<info:fedora/fedora-system:def/model#hasModel>";
     static final String SPARQL_NS = "http://www.w3.org/2001/sw/DataAccess/rf1/result";
     static final String OUTPUT_DATE_FORMAT = "dd-MM-yyyy HH:mm:ss";
-    static final String INPUT_DATE_FORMAT = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'";
+    static final String INPUT_DATE_FORMAT = "yyyy-MM-dd'T'HH:mm:ss";
 
     @Override
     public Document getFedoraObjectsFromModelExt(String model, int limit, int offset, String orderby, String orderDir) throws Exception {
@@ -189,7 +189,7 @@ public class MPTStoreService implements IResourceIndex {
         if(orderby.equals("title")){
             torder = Table_dcTitle + ".o";
         }
-        
+
         logger.fine("getFedoraObjectsFromModelExt");
         Document xmldoc;
         Connection c = null;
@@ -298,7 +298,7 @@ public class MPTStoreService implements IResourceIndex {
         limit <c:out value="${rows}" />
         offset <c:out value="${param.offset}" />
          */
-        
+
         logger.fine("getting latest record date");
         Document xmldoc;
         Connection c = null;
@@ -348,7 +348,7 @@ public class MPTStoreService implements IResourceIndex {
         return resList;
     }
 
-    
+
     //@Override
     public ArrayList<String> getModelsPath(String uuid) throws Exception {
         ArrayList<String> modelPaths = new ArrayList<String>();
@@ -369,12 +369,12 @@ public class MPTStoreService implements IResourceIndex {
         /*
          * iTQL query
             select $object $model from <#ri>
-            where  $object <dc:identifier>  'uuid' 
+            where  $object <dc:identifier>  'uuid'
             and  $object <fedora-model:hasModel> $model
          */
-        
+
         String model = "";
-        
+
         logger.fine("getting latest record date");
         Connection c;
         try {
@@ -409,12 +409,12 @@ public class MPTStoreService implements IResourceIndex {
         //return result.toString();
         return model;
     }
-    
+
     @Override
     public ArrayList<String> getParentsPids(String uuid) throws Exception {
 
         //Can use risearch with SPO language
-        
+
         String query = "$object * <info:fedora/" + uuid + ">  ";
         ArrayList<String> resList = new ArrayList<String>();
         String urlStr = config.getConfiguration().getString("FedoraResourceIndex") + "?type=triples&flush=true&lang=spo&format=N-Triples&limit=&distinct=off&stream=off"
@@ -455,7 +455,7 @@ public class MPTStoreService implements IResourceIndex {
         }
         return resList;
     }
-    
+
     @Override
     public boolean existsPid(String pid) throws Exception{
         Configuration config = KConfiguration.getInstance().getConfiguration();
@@ -479,7 +479,7 @@ public class MPTStoreService implements IResourceIndex {
     public ArrayList<String> getObjectsInCollection(String collection, int limit, int offset) throws Exception {
         Configuration config = KConfiguration.getInstance().getConfiguration();
         String query = "* <rdf:isMemberOfCollection>  <info:fedora/" + collection + ">  ";
-            
+
             ArrayList<String> resList = new ArrayList<String>();
             String urlStr = config.getString("FedoraResourceIndex") + "?type=triples&flush=true&lang=spo&format=N-Triples&limit="+limit+"&distinct=off&stream=off" +
                     "&query=" + java.net.URLEncoder.encode(query, "UTF-8");
