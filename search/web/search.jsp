@@ -43,8 +43,9 @@
             <script type="text/javascript">
               var rbs = new RebuildSocialButtons();
               // rebuild gplus button - explicit initialization
-              rbs.rebuildExplicit(rbs.buildSearchURLS())
-            </script>
+              rbs.rebuildExplicit(rbs.buildSearchURLS());
+              
+              </script>
         </div>
         <c:if test="${!empty param.error}">
             <script type="text/javascript">

@@ -78,7 +78,6 @@
     pageContext.setAttribute("theme", theme);
     %>
     <link type="text/css" href="css/${theme}/jquery-ui.custom.css" rel="stylesheet" />
-    <!--link type="text/css" href="css/ui-lightness/jquery-ui-1.8.11.custom.css" rel="stylesheet" /-->
 
     <link rel="stylesheet" href="css/dateAxisV.css" type="text/css"/>
     <link rel="StyleSheet" href="css/styles.css" type="text/css" />
@@ -108,9 +107,18 @@
     <script  src="js/autocomplete.js" language="javascript" type="text/javascript"></script>
 
     <script type="text/javascript"  src="js/seadragon-min.js"></script>
+
     <script  src="js/cmn/cmn.js" language="javascript" type="text/javascript"></script>
     <script  src="js/json2.js" language="javascript" type="text/javascript"></script>
 
+     <c:if test="${gplus.buttonEnabled}">
+        <script type="text/javascript" src="https://apis.google.com/js/plusone.js">
+        {
+            "lang" : '${gplus.locale}',
+            "parsetags": "explicit"
+        }
+        </script>
+    </c:if>
 
     <scrd:loggedusers>    
     	<!--script  src="js/admin/admin.js" language="javascript" type="text/javascript"></script-->

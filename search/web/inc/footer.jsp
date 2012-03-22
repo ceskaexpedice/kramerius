@@ -36,11 +36,17 @@
         }
 
         // gplus button - explicit initialization
-        RebuildSocialButtons.prototype.rebuildExplicit(urls) {
-            //Google plus one
+        RebuildSocialButtons.prototype.rebuildExplicit=function(urls) {
+            //alert("rebuilding explicit ...");
+            $('meta[property="og:url"]').attr('content',urls.url);
+            $('meta[property="og:image"]').attr("content", urls.imgUrl);
+            $('link[rel="canonical"]').attr("href", urls.url);
+
+        	//Google plus one
             if(typeof(gapi) !== 'undefined') {
                 gapi.plusone.go("gplusbutton");
             }
+            
         }
         
         RebuildSocialButtons.prototype.buildItemsURLS = function() {
@@ -149,21 +155,6 @@
 
 
 
-<c:if test="${gplus.buttonEnabled}">
-<!-- Umístěte tuto žádost o vykreslení na příslušné místo. -->
-<script type="text/javascript">
-  window.___gcfg = {
-    lang: '${gplus.locale}',
-    parsetags:'explicit'
-  };
-
-  (function() {
-    var po = document.createElement('script'); po.type = 'text/javascript'; po.async = true;
-    po.src = 'https://apis.google.com/js/plusone.js';
-    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(po, s);
-  })();
-</script>
-</c:if>
 
 <c:if test="${tweet.buttonEnabled}">
 <!--  twitter -->
