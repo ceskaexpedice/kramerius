@@ -249,6 +249,10 @@ public class Import {
      */
     private static void checkRoot(File importFile, List<TitlePidTuple> roots){
         try{
+            if (importFile == null) return;
+            if (!importFile.getName().toLowerCase().endsWith(".xml")){
+                return;
+            }
             Object obj = unmarshaller.unmarshal(importFile);
             if (obj instanceof DigitalObject){
                 DigitalObject dobj = (DigitalObject)obj;
@@ -284,7 +288,7 @@ public class Import {
                 }
             }
         }catch (Exception ex){
-            log.log(Level.SEVERE,"Error in Ingest.checkRoot:",ex);
+            log.log(Level.WARNING,"Error in Ingest.checkRoot for file "+importFile.getName()+", file cannot be checked for auto-indexing : " + ex);
         }
     }
 }
