@@ -179,9 +179,16 @@
 
     <xsl:template name="periodicalvolume">
         <xsl:param name="detail" />
-        <xsl:value-of select="$bundle/value[@key='Datum vydání']"/>:
+        <xsl:choose>
+            <xsl:when test="not(string(number(node())) = 'NaN')">
+                <xsl:value-of select="$bundle/value[@key='Datum vydání']"/>:
+            </xsl:when>
+            <xsl:otherwise></xsl:otherwise>
+        </xsl:choose>
         <xsl:value-of select="substring-before($detail, '##')" />&#160;
-        <xsl:value-of select="$bundle/value[@key='Číslo']"/>&#160;<xsl:value-of select="substring-after($detail, '##')" />
+        <xsl:if test="substring-after($detail, '##')">
+            <xsl:value-of select="$bundle/value[@key='Číslo']"/>&#160;<xsl:value-of select="substring-after($detail, '##')" />
+        </xsl:if>
     </xsl:template>
 
     <xsl:template name="periodicalitem">
@@ -196,8 +203,6 @@
         <xsl:variable name="remaining" select="substring-after($remaining, '##')" />
         <span><xsl:value-of select="substring-before($remaining, '##')" />&#160;
         <xsl:value-of select="$bundle/value[@key='Číslo']"/>&#160;<xsl:value-of select="substring-after($remaining, '##')" /></span>
-
-
     </xsl:template>
 
     <xsl:template name="monographunit">
