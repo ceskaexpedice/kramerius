@@ -96,7 +96,7 @@
     }
     #processes td{
         padding-bottom:3px;
-        text-align: center;
+        text-align: left;
     }
     #processes tr.subprocess{
         display: none;
