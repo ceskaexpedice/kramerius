@@ -5,6 +5,7 @@
         padding-top:5px;
         padding-right:10px;
         border-bottom:1px solid #E66C00;
+        background-color: white;
     }
     #fullImageContainer>div.header>div.title{
         float:left;
@@ -86,7 +87,12 @@
     function updateFullImage(){
         if($('#fullImageContainer').is(":visible")){
            var fullUrl = "img?uuid="+viewerOptions.uuid+"&stream=IMG_FULL&action=GETRAW";
-           $('#fullImageContainer>div.header>div.title').html(k4Settings.selectedPathTexts[k4Settings.selectedPathTexts.length -1]);
+           var p = '';
+            for(var i=0; i<k4Settings.selectedPathTexts.length; i++){
+                p += '<span style="float:left;" class="ui-icon ui-icon-triangle-1-e">folder</span><span style="float:left;">' + k4Settings.selectedPathTexts[i] + '</span>' ;
+            }
+            $('#fullImageContainer>div.header>div.title').html(p);
+           //$('#fullImageContainer>div.header>div.title').html(k4Settings.selectedPathTexts[k4Settings.selectedPathTexts.length -1]);
 
         }else{
             var fullUrl = "img/empty.gif";
