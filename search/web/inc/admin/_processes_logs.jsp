@@ -258,6 +258,16 @@ function refresh() {
     border-top: 2px solid #E66C00;
     margin-top: 3px;
 }
+
+#processes_log span.ui-icon {
+        float:left;
+}
+
+div.buttons {
+        float:right;
+}
+
+
 </style>
 </head>
 <body>
