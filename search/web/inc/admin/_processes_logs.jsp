@@ -277,13 +277,12 @@ function refresh() {
   <a href="javascript:stdRight();"
   title="<%=resBundleServ.getResourceBundle("labels", locale).getString("administrator.processes.logs.next")%>"><span
   class="ui-icon ui-icon-arrowthick-1-e">next</span></a> 
-  
   <a href="javascript:stdEnd();"
   title="<%=resBundleServ.getResourceBundle("labels", locale).getString("administrator.processes.logs.last")%>"><span
   class="ui-icon ui-icon-seek-next">last</span></a></div>
  </div>
 
- <div align="center"><textarea id="stdTextArea" disabled="disabled" rows="40" cols="140">
+ <div align="center"><textarea id="stdTextArea" readonly="readonly" rows="40" cols="140">
                 </textarea></div>
  <div class="separator"></div>
 
@@ -316,7 +315,7 @@ function refresh() {
   </div>
  </div>
  <div></div>
- <div align="center"><textarea id="errTextArea" disabled="disabled" rows="40"
+ <div align="center"><textarea id="errTextArea" readonly="readonly" rows="40"
   cols="140"> </textarea></div>
 </scrd:securedContent>
 </body>
