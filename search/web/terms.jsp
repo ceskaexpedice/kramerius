@@ -33,7 +33,7 @@
 %>
 <c:url var="url" value="${kconfig.solrHost}/terms" >
     <c:param name="terms.fl" value="${param.field}" />
-    <c:param name="terms.lower.incl" value="${param.including}" />
+    <c:param name="terms.lower.incl" value="${including}" />
     <c:param name="terms.sort" value="index" />
     <c:param name="terms.limit" value="50" />
     <c:param name="terms.lower" value="${term}" />
@@ -45,6 +45,7 @@
     <c:if test="${param.debug =='true'}"><c:out value="${url}" /></c:if>
     <x:transform doc="${xml}"  xslt="${xsltPage}"  >
         <x:param name="bundle_url" value="${i18nServlet}"/>
+        <x:param name="incl" value="${including}" />
     </x:transform>
 </c:catch>
 <c:choose>
