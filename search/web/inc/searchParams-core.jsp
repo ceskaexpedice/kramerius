@@ -18,6 +18,7 @@
 <view:object name="searchParams" clz="cz.incad.Kramerius.views.inc.SearchParamsViews"></view:object>
 --%>
 
+<c:catch var="searchException">
     <c:set var="rowsdefault" value="${searchParams.searchResultsRows}" scope="request" />
     <c:set var="rows" value="${rowsdefault}" scope="request" />
 <c:url var="url" value="${kconfig.solrHost}/select" >
@@ -178,7 +179,6 @@
     </c:choose>
 </c:url>
 
-<c:catch var="searchException">
     <c:import url="${url}" var="xml" charEncoding="UTF-8" />
     <x:parse var="doc" xml="${xml}"  />
 </c:catch>
