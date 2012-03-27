@@ -43,8 +43,8 @@
             </select>
         </span>
     </div>
-    <a href="javascript:previousFullImage();"><span class="ui-icon ui-icon-arrowthick-1-w">previous</span></a>
-    <a href="javascript:nextFullImage();"><span class="ui-icon ui-icon-arrowthick-1-e">next</span></a>
+    <a id="fullButtonPrev" href="javascript:previousFullImage();"><span class="ui-icon ui-icon-arrowthick-1-w">previous</span></a>
+    <a id="fullButtonNext" href="javascript:nextFullImage();"><span class="ui-icon ui-icon-arrowthick-1-e">next</span></a>
     <a href="javascript:hideFullImage();"><span class="ui-icon ui-icon-closethick">close</span></a>
     </div>
 </div>

@@ -67,9 +67,9 @@ function onLoadPlainImage() {
         <img id="plainImageImg" class="view_div" onclick="showFullImage()" onload="onLoadPlainImage()" border="0"  src="img/empty.gif" alt="" />
 
         <div class="buttons" style="position:absolute; top:10px; left:10px;">
-            <a id="seadragonButton" onclick="javascript:showFullImage();"><span class=" ui-icon ui-icon-arrow-4-diag" >full</span></a>
-            <a id="seadragonButton" onclick="javascript:previousImage();"><span class="ui-icon ui-icon-arrowthick-1-w" >prev</span></a>
-            <a id="seadragonButton" onclick="javascript:nextImage();"><span class="ui-icon ui-icon-arrowthick-1-e" >next</span></a>
+            <a id="plainButtonFull" onclick="javascript:showFullImage();"><span class=" ui-icon ui-icon-arrow-4-diag" >full</span></a>
+            <a id="plainButtonPrev" onclick="javascript:previousImage();"><span class="ui-icon ui-icon-arrowthick-1-w" >prev</span></a>
+            <a id="plainButtonNext" onclick="javascript:nextImage();"><span class="ui-icon ui-icon-arrowthick-1-e" >next</span></a>
         </div>
     </div>
    
@@ -92,6 +92,7 @@ function onLoadPlainImage() {
         });
         $('#bigThumbZone.viewer').bind('viewReady', function(event, viewerOptions){
             showPreviewImage(viewerOptions);
+            checkArrows();
         });
         $('#bigThumbZone>div.preview').bind('click', function(event, viewerOptions){
             showPreviewImage(viewerOptions);
@@ -263,6 +264,7 @@ function onLoadPlainImage() {
                 previousImage();
             };
 
+            $(control).attr('id','seadragonButtonPrev');
             $(control).button();
             return control;
         }
@@ -283,6 +285,7 @@ function onLoadPlainImage() {
         
         function nextButton() {
             var control = document.createElement("a");
+            
             var span = document.createElement("span");
             $(control).html("<span class='ui-icon ui-icon-arrowthick-1-e' >full</span>")
             control.setAttribute('id','nextButton');
@@ -292,6 +295,7 @@ function onLoadPlainImage() {
                 nextImage();
             };
 
+            $(control).attr('id','seadragonButtonNext');
             $(control).button();
             return control;
         }
@@ -493,6 +497,28 @@ function onLoadPlainImage() {
             $("#alto").css('height', h);
             $("#alto").css('left', l);
             $("#alto").css('top', t);
+    }
+    
+    function checkArrows(){
+        if(k4Settings.activeUuids[0]==k4Settings.activeUuid){
+            $('#plainButtonPrev').hide();
+            $('#seadragonButtonPrev').hide();
+            $('#fullButtonPrev').hide();
+        }else{
+            $('#plainButtonPrev').show();
+            $('#seadragonButtonPrev').show();
+            $('#fullButtonPrev').show();
+        }
+        
+        if(k4Settings.activeUuids[k4Settings.activeUuids.length-1]==k4Settings.activeUuid){
+            $('#plainButtonNext').hide();
+            $('#seadragonButtonNext').hide();
+            $('#fullButtonNext').hide();
+        }else{
+            $('#plainButtonNext').show();
+            $('#seadragonButtonNext').show();
+            $('#fullButtonNext').show();
+        }
     }
     
     function nextImage(){
