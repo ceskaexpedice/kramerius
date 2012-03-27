@@ -271,6 +271,7 @@
                 <xsl:value-of select="exts:prepareCzech($generic, text())"/>##<xsl:value-of select="text()"/>
             </field>
         </xsl:for-each>
+        <!--
         <xsl:choose>
             <xsl:when test="$MODEL = 'internalpart'">
                 <xsl:variable name="bt"><xsl:value-of select="/foxml:digitalObject/foxml:datastream[@ID='BIBLIO_MODS']/foxml:datastreamVersion[last()]/foxml:xmlContent/mods:modsCollection/mods:mods/mods:titleInfo/mods:title" /></xsl:variable>
@@ -287,6 +288,12 @@
                 </field>
             </xsl:when>
         </xsl:choose>
+        -->
+        <xsl:if test="$MODEL = 'monograph' or $MODEL = 'periodical'">
+            <field name="browse_title" >
+                <xsl:value-of select="exts:prepareCzech($generic, $title)"/>##<xsl:value-of select="$title"/>
+            </field>
+        </xsl:if>
     </xsl:template>
     <xsl:template name="collection" >
         <xsl:param name="rels" />
