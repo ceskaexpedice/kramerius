@@ -93,7 +93,7 @@ public class ContextMenuItemsHolder extends AbstractViewObject implements Initia
             }
             
             if (this.loggedUsersSingleton.isLoggedUser(this.requestProvider)) {
-                items.add(new ContextMenuItem("administrator.menu.print", "", "ctxPrint", "", true));
+                adminItems.add(new ContextMenuItem("administrator.menu.print", "", "ctxPrint", "", true));
                 adminItems.add(new ContextMenuItem("administrator.menu.reindex", "_data_x_role", "reindex", "", true));
                 adminItems.add(new ContextMenuItem("administrator.menu.deletefromindex", "_data_x_role", "deletefromindex", "", true));
                 adminItems.add(new ContextMenuItem("administrator.menu.deleteuuid", "_data_x_role", "deletePid", "", true));
