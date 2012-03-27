@@ -1,8 +1,11 @@
 package org.kramerius;
 
+import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
 import java.io.IOException;
 import java.net.Authenticator;
 import java.net.PasswordAuthentication;
@@ -23,6 +26,8 @@ import org.fedora.api.FedoraAPIM;
 import org.fedora.api.FedoraAPIMService;
 import org.fedora.api.ObjectFactory;
 import org.fedora.api.RelationshipTuple;
+import org.kramerius.Download.DocType;
+import org.kramerius.Download.Replication;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
@@ -78,14 +83,13 @@ public class Import {
         log.info("INGEST:"+url+user+pwd+importRoot);
         if (KConfiguration.getInstance().getConfiguration().getBoolean("ingest.skip",false)){
             log.info("INGEST CONFIGURED TO BE SKIPPED, RETURNING");
-            return;
         }
         long start = System.currentTimeMillis();
 
         File importFile = new File(importRoot);
         if (!importFile.exists()) {
-            log.severe("Import root folder doesn't exist: " + importFile.getAbsolutePath());
-            return;
+            log.severe("Import root folder or control file doesn't exist: " + importFile.getAbsolutePath());
+            throw new RuntimeException("Import root folder or control file doesn't exist: " + importFile.getAbsolutePath());
         }
 
 
@@ -110,7 +114,37 @@ public class Import {
         of = new ObjectFactory();
 
         List<TitlePidTuple> roots = new ArrayList<TitlePidTuple>();
-        visitAllDirsAndFiles(importFile, roots);
+        if (importFile.isDirectory()){
+            visitAllDirsAndFiles(importFile, roots);
+        }else{
+            BufferedReader reader = null;
+            try {
+                reader = new BufferedReader(new FileReader(importFile));
+            } catch (FileNotFoundException e) {
+                log.severe("Import file list "+importFile+" not found: "+e);
+                throw new RuntimeException(e);
+            }
+            try {
+                for (String line; (line = reader.readLine()) != null;) {
+                    if ("".equals(line)) continue;
+                    File importItem = new File(line);
+                    if (!importItem.exists()) {
+                        log.severe("Import folder doesn't exist: " + importItem.getAbsolutePath());
+                        continue;
+                    }
+                    if (!importItem.isDirectory()){
+                        log.severe("Import item is not a folder: " + importItem.getAbsolutePath());
+                        continue;
+                    }
+                    log.info("Importing "+importItem.getAbsolutePath());
+                    visitAllDirsAndFiles(importItem, roots);
+                }
+                reader.close();
+            } catch (IOException e) {
+                log.severe("Exception reading import list file: " + e);
+                throw new RuntimeException(e);
+            }
+        }
         log.info("FINISHED INGESTION IN "+((System.currentTimeMillis()-start)/1000.0)+"s, processed "+counter+" files");
         for (TitlePidTuple tpt :roots){
             IndexerProcessStarter.spawnIndexer(true, tpt.title, tpt.pid);
