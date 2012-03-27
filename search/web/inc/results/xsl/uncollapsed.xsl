@@ -27,6 +27,9 @@
                     <xsl:with-param name="fmodel"><xsl:value-of select="$fmodel" /></xsl:with-param>
                 </xsl:call-template>
                 </a>
+                <xsl:if test="./str[@name='datum_str']/text()">
+                    <div><xsl:value-of select="./str[@name='datum_str']" /></div>
+                </xsl:if>
             <div class="teaser">
                 <xsl:for-each select="../../lst[@name='highlighting']/lst">
                     <xsl:if test="@name = $solruuid">
@@ -124,7 +127,6 @@
 
     <xsl:template name="page">
         <xsl:param name="detail" />
-        <xsl:value-of select="./str[@name='dc.title']"/>&#160;
         <xsl:value-of select="$bundle/value[@key='fedora.model.page']"/>&#160;
         <xsl:value-of select="substring-before($detail, '##')" />&#160;
         <xsl:value-of select="$bundle/value[@key=substring-after($detail, '##')]"/>
