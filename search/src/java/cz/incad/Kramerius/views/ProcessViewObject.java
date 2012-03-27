@@ -115,12 +115,20 @@ public class ProcessViewObject {
     // function killAndRefresh(url,ordering, offset, size, type) {
 
     public String getKillURL() {
+
+
         try {
+            
             if ((this.lrProcess.getProcessState().equals(States.RUNNING)) || (this.lrProcess.getProcessState().equals(States.PLANNED))) {
                 String url = "lr?action=stop&uuid=" + this.lrProcess.getUUID();
-                String renderedAHREF = "<a href=\"javascript:processes.doActionAndRefresh('" + url + "','" + this.ordering.name() + "'," + this.offset.getOffset() + "," + this.offset.getSize() + ",'" + this.typeOfOrdering.name() + "');\">"
+                String fn = "showConfirmDialog(dictionary['administrator.processes.kill.process.confirm'], function() {" +
+                        "processes.doActionAndRefresh('" + url + "','" + this.ordering.name() + "'," + this.offset.getOffset() + "," + this.offset.getSize() + ",'" + this.typeOfOrdering.name() + "');" +
+                "});";
+                
+                String renderedAHREF = "<a href=\"javascript:"+fn+ "\">"
                         + bundleService.getResourceBundle("labels", locale).getString("administrator.processes.kill.process") + "</a>";
                 return renderedAHREF;
+                
             } else {
                 return "";
             }
@@ -139,8 +147,13 @@ public class ProcessViewObject {
                     // ?? je to dobre?
                     || (this.lrProcess.getProcessState().equals(States.BATCH_STARTED)) 
                     || (this.lrProcess.getProcessState().equals(States.FAILED))) {
+
                 String url = "lr?action=delete&uuid=" + this.lrProcess.getUUID();
-                String renderedAHREF = "<a href=\"javascript:processes.doActionAndRefresh('" + url + "','" + this.ordering.name() + "'," + this.offset.getOffset() + "," + this.offset.getSize() + ",'" + this.typeOfOrdering.name() + "');\">"
+                String fn = "showConfirmDialog(dictionary['administrator.processes.delete.process.confirm'], function() {" +
+                    "processes.doActionAndRefresh('" + url + "','" + this.ordering.name() + "'," + this.offset.getOffset() + "," + this.offset.getSize() + ",'" + this.typeOfOrdering.name() + "');" +
+                "});";
+
+                String renderedAHREF = "<a href=\"javascript:"+fn+ "\">"
                         + bundleService.getResourceBundle("labels", locale).getString("administrator.processes.delete.process") + "</a>";
                 if (!this.definition.getActions().isEmpty()) {
                     renderedAHREF = " || "+ renderedAHREF;
