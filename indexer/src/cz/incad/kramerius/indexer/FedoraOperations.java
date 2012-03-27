@@ -204,15 +204,13 @@ public class FedoraOperations {
 
     public ArrayList<String> getParentsArray(String pid) {
         try {
-
-            //logger.info("getParents: " + pid);
             if (rindex == null) {
                 rindex = ResourceIndexService.getResourceIndexImpl();
             }
             return rindex.getParentsPids(pid);
 
         } catch (Exception ex) {
-            logger.log(Level.SEVERE, null, ex);
+            logger.log(Level.WARNING, ex.toString());
             return null;
         }
     }

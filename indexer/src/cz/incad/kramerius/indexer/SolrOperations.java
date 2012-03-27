@@ -129,8 +129,8 @@ public class SolrOperations {
                 reindexCollection(value);
             }
         } catch (Exception ex) {
-            logger.log(Level.SEVERE, "Cant index. Action:" + action +
-                    " Value: " + value, ex);
+            logger.log(Level.SEVERE, "Cant index. Action:" + action + " Value: " + value, ex);
+            throw new Exception(ex);
         } finally {
 
             extendedFields.closePDFDocument();
@@ -162,7 +162,7 @@ public class SolrOperations {
             Node node = (Node) expr.evaluate(solrDom, XPathConstants.NODE);
             return Integer.parseInt(node.getFirstChild().getNodeValue());
         } catch (Exception e) {
-            logger.log(Level.SEVERE, "Error retrieving index doc count", e);
+            logger.log(Level.WARNING, "Error retrieving index doc count", e);
             return 0;
         }
     }
@@ -212,12 +212,11 @@ public class SolrOperations {
 
             indexByPid(uuid, date, force, new ByteArrayInputStream(fedoraOperations.foxmlRecord));
         } catch (Exception ex) {
-            logger.log(Level.SEVERE, "Error reindexing doc " + uuid, ex);
+            logger.log(Level.WARNING, "Error reindexing doc " + uuid + " with: " + ex.toString());
         }
     }
 
-    private void fromPid(
-            String pid)
+    private void fromPid(String pid)
             throws java.rmi.RemoteException, IOException, Exception {
         if (pid == null || pid.length() < 1) {
             return;
@@ -243,7 +242,7 @@ public class SolrOperations {
     XPathExpression expr;
     Document contentDom;
 
-    private void fullRepo() {
+    private void fullRepo() throws Exception {
         String[] models = config.getStringArray("fedora.topLevelModels");
         for (String model : models) {
             krameriusModel(model);
@@ -264,8 +263,7 @@ public class SolrOperations {
         deleteTotal++;
     }
 
-    private void krameriusModel(String model,
-            int offset) {
+    private void krameriusModel(String model, int offset) throws Exception {
         int pageSize = 100;
         try {
             boolean hasRecords = false;
@@ -292,19 +290,15 @@ public class SolrOperations {
             }
 
         } catch (Exception e) {
-            logger.log(Level.SEVERE, null, e);
+            logger.log(Level.SEVERE, "Error indexing model " + model, e);
+            throw new Exception(e);
         }
 
     }
 
-    private void krameriusModel(String model) {
-        try {
+    private void krameriusModel(String model) throws Exception {
             logger.log(Level.INFO, "Indexing from kramerius model: {0}", model);
             krameriusModel(model, 0);
-
-        } catch (Exception e) {
-            logger.log(Level.SEVERE, null, e);
-        }
     }
 
     private void fromKrameriusModel(String uuid)
@@ -331,10 +325,7 @@ public class SolrOperations {
         return builder.parse(foxmlStream);
     }
 
-    private int indexByPid(String pid,
-            Date date,
-            boolean force,
-            InputStream foxmlStream) {
+    private int indexByPid(String pid, Date date, boolean force, InputStream foxmlStream) throws Exception {
 
         if(indexedCache.contains(pid)){
             logger.log(Level.INFO, "Pid {0} already indexed", new Object[]{pid});
@@ -422,14 +413,15 @@ public class SolrOperations {
                     foxmlStream2.reset();
                     num += indexByPid(relpid, date, force, foxmlStream2);
                 } catch (Exception ex) {
-                    logger.log(Level.SEVERE, "Can't index doc: " + relpid + " Continuing...", ex);
+                    logger.log(Level.WARNING, "Can't index doc: " + relpid + " Continuing...", ex);
                 }
             }
 
             num += docs;
 
         } catch (Exception e) {
-            logger.log(Level.SEVERE, "indexByPid error", e);
+            logger.log(Level.SEVERE, "Error indexing document " + pid, e);
+            throw new Exception(e);
         }
 
         return num;

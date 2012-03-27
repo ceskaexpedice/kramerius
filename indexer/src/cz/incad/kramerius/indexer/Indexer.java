@@ -91,7 +91,7 @@ public class Indexer {
             showResults();
             logger.info(formatElapsedTime(timeInMiliseconds));
         } catch (Exception ex) {
-            logger.log(Level.SEVERE, null, ex);
+            logger.log(Level.SEVERE, "Run failed", ex);
             throw new Exception(ex);
         }
     }
