@@ -83,6 +83,7 @@ public class Import {
         log.info("INGEST:"+url+user+pwd+importRoot);
         if (KConfiguration.getInstance().getConfiguration().getBoolean("ingest.skip",false)){
             log.info("INGEST CONFIGURED TO BE SKIPPED, RETURNING");
+            return;
         }
         long start = System.currentTimeMillis();
 
