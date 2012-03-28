@@ -81,8 +81,7 @@
 				<td align="center">
 				<div style="width: 600px">
 				<table width="600px">
-					<thead
-						style="border-bottom: dashed 1px; background-image: url('../../img/bg_processheader.png'); background-repeat: repeat-x;">
+					<thead>
 						<tr>
 							<td width="20%">Data</td>
 							<td>URL</td>
@@ -118,8 +117,7 @@
 				<td align="center">
 				<div style="width: 600px;">
 				<table style="width: 600px; table-layout: fixed;">
-					<thead
-						style="border-bottom: dashed 1px; background-image: url('../../img/bg_processheader.png'); background-repeat: repeat-x;">
+					<thead>
 						<tr>
 							<td width="20%">Data</td>
 							<td>Chyba</td>
@@ -130,8 +128,7 @@
 							<c:forEach var="item" items="${imported.fails}" varStatus="i">
 								<tr class="${(i.index mod 2 == 0) ? 'result r0': 'result r1'}">
 									<td width="20%">${item.name}</td>
-									<td id="import_excp_id_${i.index}"
-										style="text-overflow: ellipsis; overflow: hidden; white-space: nowrap;">
+									<td id="import_excp_id_${i.index}">
 									${item.exception}</td>
 								</tr>
 							</c:forEach>
