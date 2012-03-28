@@ -73,6 +73,9 @@ public interface LRProcessDefinition {
 	public String getStandardStreamFolder();
 
 	
+   public LRDefinitionAction getLogsAction();
+
+	
 	/**
 	 * Actions defined over LR process
 	 * @return

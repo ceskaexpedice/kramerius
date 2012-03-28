@@ -59,10 +59,14 @@ public class LRProcessDefinitionImpl implements LRProcessDefinition {
 	}
 
 	
+	public LRDefinitionAction getLogsAction() {
+	    return LRDefinitionAction.LOGS_ACTION;
+	}
+
 	public List<LRDefinitionAction> getActions() {
-		if (!this.actions.contains(LRDefinitionAction.LOGS_ACTION)) {
-			this.actions.add(0,LRDefinitionAction.LOGS_ACTION);
-		}
+//		if (!this.actions.contains(LRDefinitionAction.LOGS_ACTION)) {
+//			this.actions.add(0,LRDefinitionAction.LOGS_ACTION);
+//		}
 		return new ArrayList<LRDefinitionAction>(this.actions);
 	}
 
