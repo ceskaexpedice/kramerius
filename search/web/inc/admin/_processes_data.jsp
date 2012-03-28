@@ -282,6 +282,7 @@ $(document).ready(function(){
             <td><strong>${processView.plannedDateOrdering}</strong></td>
             <td><strong>${processView.userOrdering}</strong></td>
             <td  width="10%"><strong><view:msg>administrator.processes.change</view:msg></strong></td>
+            <td  width="16px">...</td>
         </tr>
     </thead>
     <tbody>
@@ -294,7 +295,30 @@ $(document).ready(function(){
                 <td>${lrProc.start}</td>
                 <td>${lrProc.planned}</td>
                 <td>${lrProc.startedBy}</td>
-                <td>${lrProc.actionsURLs} ${empty lrProc.actionsURLs ? "" : " || "}  ${lrProc.killURL} ${empty lrProc.killURL ? "" : " || "} ${lrProc.deleteURL} </td>
+                <td>${lrProc.logsURLs} || ${lrProc.killURL} || ${lrProc.deleteURL} </td>
+                <td>
+                    <div class="ui-state-default ui-corner-all ui-state-active">
+                        <c:choose>
+                            <c:when test="${not empty lrProc.actionsURLs}">
+                                <a href="javascript: (function(){ $('.lr_actions').hide(); $('#actions_${lrProc.UUID}').toggle(); })();" class="ui-icon ui-icon-carat-1-s"></a>
+                            </c:when>
+                            <c:otherwise>
+                                <span class="ui-icon ui-icon-carat-1-s"></span>
+                            </c:otherwise>
+                        </c:choose>
+                    </div>
+                    <div style="position:relative">
+                     <div id="actions_${lrProc.UUID}" style="position:absolute; right: 5px; top: 3px;  background: white; width:80px; display:none;" class="shadow ui-widget ui-widget-content lr_actions">
+                        <table style="width: 100%">
+                             <c:forEach items="${lrProc.actionsURLs}" var="action">
+                                <tr>
+                                    <td style="text-align: center;">${action}</td>
+                                 </tr>
+                          </c:forEach>
+                        </table>
+                     </div>
+                    </div>
+                </td>
             </tr>
             
             <c:if test="${lrProc.masterProcess}">
@@ -307,7 +331,12 @@ $(document).ready(function(){
                     <td>${childLrProc.start}</td>
                     <td>${childLrProc.planned}</td>
                     <td>${childLrProc.startedBy}</td>
-                    <td>${childLrProc.actionsURLs} ${empty childLrProc.actionsURLs ? "" : " || "} ${childLrProc.killURL} ${empty childLrProc.killURL ? "" : " || "} ${childLrProc.deleteURL}</td>
+                    <td>${childLrProc.logsURLs} ||  ${childLrProc.killURL} ||  ${childLrProc.deleteURL} </td>
+                    <td>
+                        <div class="ui-state-default ui-corner-all ui-state-active">
+                            <a href="javascript:alert('testik');" class="ui-icon ui-icon-carat-1-s"></a>
+                        </div>
+                    </td>
                 </tr>
             </c:forEach>
                 <tr class="${lrProc.UUID} subprocess"><td colspan="8" style="border-top:solid 1px #E66C00;"></td></tr>

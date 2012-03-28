@@ -130,7 +130,7 @@ public class ProcessViewObject {
                 return renderedAHREF;
                 
             } else {
-                return "";
+                return "<i>"+bundleService.getResourceBundle("labels", locale).getString("administrator.processes.kill.process")+"</i>" ;
             }
         } catch (IOException e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
@@ -155,12 +155,9 @@ public class ProcessViewObject {
 
                 String renderedAHREF = "<a href=\"javascript:"+fn+ "\">"
                         + bundleService.getResourceBundle("labels", locale).getString("administrator.processes.delete.process") + "</a>";
-                if (!this.definition.getActions().isEmpty()) {
-                    renderedAHREF = " || "+ renderedAHREF;
-                }
                 return renderedAHREF;
             } else {
-                return "";
+                return "<i>"+bundleService.getResourceBundle("labels", locale).getString("administrator.processes.delete.process")+"</i>";
             }
         } catch (IOException e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
@@ -168,17 +165,17 @@ public class ProcessViewObject {
         }
     }
 
-    public String getActionsURLs() {
-        StringBuilder builder = new StringBuilder();
+    public String getLogsURLs() {
+        return getActionAHREF(this.definition.getLogsAction());
+    }
+    
+    public String[] getActionsURLs() {
+        List<String> hrefs = new ArrayList<String>();
         List<LRDefinitionAction> actions = this.definition.getActions();
         for (int i = 0, ll = actions.size(); i < ll; i++) {
-            LRDefinitionAction action = actions.get(i);
-            builder.append(getActionAHREF(action));
-            if (i < ll -1) {
-                builder.append(" || ");
-            }
+            hrefs.add(getActionAHREF(actions.get(i)));
         }
-        return builder.toString();
+        return (String[]) hrefs.toArray(new String[hrefs.size()]);
     }
 
     
@@ -190,7 +187,8 @@ public class ProcessViewObject {
         builder.append(loginname).append(" (").append(firstName).append(" ").append(surName).append(")");
         return builder.toString();
     }
-    
+
+
     private String getActionAHREF(LRDefinitionAction act) {
         try {
             String bundleKey = act.getResourceBundleKey();
