@@ -50,7 +50,7 @@
 cz.incad.kramerius.service.XSLService xs = (cz.incad.kramerius.service.XSLService) ctxInj.getInstance(cz.incad.kramerius.service.XSLService.class);
 
     try {
-        String xsl = "facets.xsl";
+        String xsl = "facets_home.xsl";
         if (xs.isAvailable(xsl)) {
             String text = xs.transform(xml, xsl, lctx.getLocale());
             out.println(text);
@@ -64,7 +64,7 @@ cz.incad.kramerius.service.XSLService xs = (cz.incad.kramerius.service.XSLServic
     }
 %>
 <c:catch var="exceptions">
-    <c:url var="facetxslurl" value="xsl/facets.xsl" />
+    <c:url var="facetxslurl" value="xsl/facets_home.xsl" />
     <c:import url="${facetxslurl}" var="facetxsl" charEncoding="UTF-8"  />
 </c:catch>
 <c:choose>

@@ -10,7 +10,12 @@
 
 <%
     try {
-        String xsl = "results_main.xsl";
+        
+        String xsl = "grouped_results.xsl";
+        boolean isCollapsed = (Boolean)pageContext.getAttribute("isCollapsed");
+        if(!isCollapsed){
+            xsl = "not_grouped_results.xsl";
+        }
         if (xs.isAvailable(xsl)) {
             String text = xs.transform(xml, xsl, lctx.getLocale());
             out.println(text);

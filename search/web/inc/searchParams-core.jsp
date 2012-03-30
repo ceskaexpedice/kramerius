@@ -38,9 +38,9 @@
     <%--
     <c:param name="fl" value="PID,score,root_title,path,pid_path,root_pid,dc.title,details,fedora.model,model_path,dc.creator,datum,page_format,text" />
     --%>
-    <c:set var="isCollapsed" value="${param.collapsed != 'false'}" />
+    <c:set var="isCollapsed" value="${param.collapsed != 'false'}" scope="request" />
     <c:forEach var="fqs" items="${paramValues.fq}">
-        <c:if test="${fn:startsWith(fqs, 'document_type')}"><c:set var="isCollapsed" value="false" /></c:if>
+        <c:if test="${fn:startsWith(fqs, 'document_type')}"><c:set var="isCollapsed" value="false" scope="request" /></c:if>
 
         <c:param name="fq">${fqs}</c:param>
         <c:set var="rows" value="${rowsdefault}" scope="request" />
@@ -181,6 +181,7 @@
 
     <c:import url="${url}" var="xml" charEncoding="UTF-8" />
     <x:parse var="doc" xml="${xml}"  />
+    <jsp:useBean id="isCollapsed" type="java.lang.Boolean" scope="request" />
 </c:catch>
 <c:choose>
     <c:when test="${searchException!=null}">
