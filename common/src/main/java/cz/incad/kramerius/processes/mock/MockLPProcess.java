@@ -9,19 +9,18 @@ import cz.incad.kramerius.processes.impl.ProcessStarter;
 
 public class MockLPProcess {
 
+    public static final boolean SA_FLAG = false;
+    
 	public static final java.util.logging.Logger LOGGER = java.util.logging.Logger
 			.getLogger(MockLPProcess.class.getName());
 
 	
 	public static void main(String[] args) throws IOException {
 		LOGGER.info("args:"+Arrays.asList(args));
-		ProcessStarter.updateName("Jmeno procesu mock..");
+		if (!SA_FLAG) {
+	        ProcessStarter.updateName("Jmeno procesu mock..");
+		}
 
-		Logger rootLogger = Logger.getLogger("");
-		for (Handler handler : rootLogger.getHandlers()) {
-            System.out.println(handler.toString());
-        }
-		rootLogger.info("TESTICEK");
 		   
 		//1MB space
 		long mb = 1l << 20;
@@ -33,9 +32,11 @@ public class MockLPProcess {
 		for (long i = 0; i < gb; i++) {
 			if ((i%10000) == 0) {
 				LOGGER.info("  diff = "+(System.currentTimeMillis()-start)+"ms and i ="+i);
-				
 			}
 		}
 		LOGGER.info(" stop with "+(System.currentTimeMillis()-start)+"ms");
+//        LOGGER.info(" invoking exception ");
+//        
+//        "".substring(10, 20);
 	}
 }
