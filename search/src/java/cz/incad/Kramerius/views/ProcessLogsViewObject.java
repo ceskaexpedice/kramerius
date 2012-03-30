@@ -7,8 +7,16 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.RandomAccessFile;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.ResourceBundle;
 import java.util.logging.Level;
 
+import org.apache.commons.collections.map.HashedMap;
+
+import cz.incad.kramerius.processes.LRDefinitionAction;
 import cz.incad.kramerius.processes.LRProcess;
 import cz.incad.kramerius.processes.LRProcessDefinition;
 
@@ -26,8 +34,9 @@ public class ProcessLogsViewObject {
 	private String count;
 	private LRProcess process;
 	private LRProcessDefinition definition;
+	private ResourceBundle resBundle;
 	
-	public ProcessLogsViewObject(String stdFrom, String errFrom,  String count, LRProcess process, LRProcessDefinition definition) {
+	public ProcessLogsViewObject(String stdFrom, String errFrom,  String count, LRProcess process, LRProcessDefinition definition, ResourceBundle re) {
 		super();
 		this.stdFrom = stdFrom != null ? stdFrom : "0";
 		this.errFrom = errFrom != null ? errFrom : "0";
@@ -36,6 +45,7 @@ public class ProcessLogsViewObject {
 		this.count = count != null ? count : "4096";
 		this.process = process;
 		this.definition = definition;
+		this.resBundle = re;
 	}
 	
 	public String getProcessUUID() {
@@ -117,31 +127,23 @@ public class ProcessLogsViewObject {
 
 	
 	
-//	private String readEndFromFile(RandomAccessFile raf) throws IOException {
-//	    long length = raf.length();
-//	    
-//	    if (length > BUFFER_SIZE) {
-//	        raf.seek(length-BUFFER_SIZE);
-//	    } else {
-//	        raf.seek(0);
-//	    }
-//        byte[] buffer = new byte[BUFFER_SIZE];
-//	    int read = raf.read(buffer);
-//	    byte[] nbuffer = new byte[read];
-//	    System.arraycopy(buffer, 0, nbuffer, 0, read);
-//	    return new String(nbuffer);
-//	}
-//	
-//	
-//	public String readHeadFromFile(RandomAccessFile raf) throws IOException {
-//        raf.seek(0);
-//        byte[] buffer = new byte[BUFFER_SIZE];
-//        int read = raf.read(buffer);
-//        byte[] nbuffer = new byte[read];
-//        System.arraycopy(buffer, 0, nbuffer, 0, read);
-//        return new String(nbuffer);
-//	}
-//	
+
+	public boolean isActionsDefined() {
+	    return !this.definition.getActions().isEmpty();
+	}
+	
+	public List<Map<String, String>> getActionURLs() {
+	    List<Map<String, String>> lst = new ArrayList<Map<String, String>>();
+        List<LRDefinitionAction> actions = this.definition.getActions();
+        for (LRDefinitionAction defAct : actions) {
+            Map<String, String> map = new HashMap<String, String>();
+            map.put("name", defAct.getName());
+            map.put("url", defAct.getActionURL());
+            map.put("i18nName", this.resBundle.getString(defAct.getResourceBundleKey()));
+            lst.add(map);
+        }
+        return lst;
+	}
 	
 	
 	private String bufferFromRAF(RandomAccessFile raf, String from) throws IOException {
@@ -189,7 +191,11 @@ public class ProcessLogsViewObject {
 		return  "<a href=\"_processes_logs.jsp?uuid="+this.process.getUUID()+"&stdFrom="+this.stdFrom+"&stdErr="+next+"&count="+this.count+"\"> &lt; prev </a>";
 	}
 
+	
+	
 	public static void main(String[] args) {
         System.out.println(BUFFER_SIZE);
     }
+	
+	
 }
