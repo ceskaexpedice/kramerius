@@ -10,7 +10,7 @@ import org.w3c.dom.NodeList;
  */
 public class LRDefinitionAction {
 
-	public static final LRDefinitionAction LOGS_ACTION = new LRDefinitionAction("inc/admin/_processes_logs.jsp","logs","administrator.processes.logs");
+	public static final LRDefinitionAction LOGS_ACTION = new LRDefinitionAction("inc/admin/_processes_outputs.jsp","logs","administrator.processes.logs");
 	
 	
 	private String actionURL;
