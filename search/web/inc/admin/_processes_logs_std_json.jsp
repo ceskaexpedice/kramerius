@@ -1,3 +1,5 @@
+<%@page import="cz.incad.kramerius.service.ResourceBundleService"%>
+<%@page import="java.util.Locale"%>
 <%@ page pageEncoding="UTF-8" %>
 
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
@@ -26,8 +28,11 @@
 	
 	DefinitionManager defMan = inj.getInstance(DefinitionManager.class);
 	LRProcess lrProces = lrProcessMan.getLongRunningProcess(uuid);
-	
-    ProcessLogsViewObject processLogs = new ProcessLogsViewObject(request.getParameter("stdFrom"), request.getParameter("stdErr"),request.getParameter("count"),lrProces,defMan.getLongRunningProcessDefinition(lrProces.getDefinitionId()));
+
+    Locale locale = inj.getInstance(Locale.class);
+    ResourceBundleService resBundleServ = inj.getInstance(ResourceBundleService.class);
+
+    ProcessLogsViewObject processLogs = new ProcessLogsViewObject(request.getParameter("stdFrom"), request.getParameter("stdErr"),request.getParameter("count"),lrProces,defMan.getLongRunningProcessDefinition(lrProces.getDefinitionId()), resBundleServ.getResourceBundle("labels", locale));
 	pageContext.setAttribute("processLogs", processLogs);
     response.setCharacterEncoding("UTF-8");
     response.setContentType("application/json");

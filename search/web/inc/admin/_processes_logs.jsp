@@ -5,6 +5,7 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/xml" prefix="x"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt"%>
 <%@ taglib uri="/WEB-INF/tlds/securedContent.tld" prefix="scrd"%>
+<%@ taglib uri="/WEB-INF/tlds/cmn.tld" prefix="view"%>
 
 
 <%@ page trimDirectiveWhitespaces="true"%>
@@ -33,7 +34,7 @@
     DefinitionManager defMan = inj.getInstance(DefinitionManager.class);
     LRProcess lrProces = lrProcessMan.getLongRunningProcess(uuid);
 
-    ProcessLogsViewObject processLogs = new ProcessLogsViewObject(request.getParameter("stdFrom"), request.getParameter("stdErr"), request.getParameter("count"), lrProces, defMan.getLongRunningProcessDefinition(lrProces.getDefinitionId()));
+    ProcessLogsViewObject processLogs = new ProcessLogsViewObject(request.getParameter("stdFrom"), request.getParameter("stdErr"), request.getParameter("count"), lrProces, defMan.getLongRunningProcessDefinition(lrProces.getDefinitionId()), resBundleServ.getResourceBundle("labels",locale));
 
     pageContext.setAttribute("processLogs", processLogs);
     pageContext.setAttribute("labels", resBundleServ.getResourceBundle("labels", locale));
@@ -41,12 +42,15 @@
     pageContext.setAttribute("process", processLogs);
 %>
 
+<view:object name="themes" clz="cz.incad.Kramerius.views.themes.ThemeViewObject"></view:object>
 
 <%@page import="cz.incad.Kramerius.views.ProcessLogsViewObject"%>
 <%@page import="cz.incad.kramerius.processes.LRProcess"%>
 
 <%@page import="java.util.Locale"%>
 <%@page import="cz.incad.kramerius.service.ResourceBundleService"%>
+
+
 
 <html>
 
@@ -62,21 +66,7 @@
 
 <link rel="icon" href="img/favicon.ico" />
 <link rel="shortcut icon" href="img/favicon.ico" type="image/x-icon" />
-    <%
-    String theme;
-    String parameter = request.getParameter("theme");
-    if (parameter != null) {
-        theme = parameter;
-        session.setAttribute("theme",parameter);
-    } else if (session.getAttribute("theme") != null) {
-        theme = (String)session.getAttribute("theme");
-    } else {
-        theme = "smoothness";
-    }
-    pageContext.setAttribute("theme", theme);
-    %>
-    <link type="text/css" href="../../css/${theme}/jquery-ui.custom.css" rel="stylesheet" />
-    
+<link type="text/css" href="../../css/${themes.selectedTheme}/jquery-ui.custom.css" rel="stylesheet" />
 
 <link rel="stylesheet" href="../../css/styles.css" type="text/css" />
 
@@ -86,7 +76,7 @@
 
 <script type="text/javascript">
 <!--
-var processUUID = '<%=uuid%>';
+var processUUID = '${process.processUUID}';
 var stdFrom = 0;
 var errFrom = 0;
 
@@ -166,13 +156,45 @@ function stdLeft() {
      }
 }
 
+function repairScrolls() {
+
+    function stdOutScroll() {
+        $("textarea#stdTextArea").each(function(index,textArea) {
+            textArea.scrollTop = textArea.scrollHeight;
+            if (stdScrollLast) {
+                textArea.scrollTop = textArea.scrollHeight;
+            } else if (stdScrollFirst) {
+                textArea.scrollTop = 0;
+            }
+        });
+    }
+
+    function errOutScroll() {
+        $("textarea#errTextArea").each(function(index,textArea) {
+            if (errScrollLast) {
+                textArea.scrollTop = textArea.scrollHeight;
+            } else if (errScrollFirst) {
+                textArea.scrollTop = 0;
+            }
+        });
+    }
+    stdOutScroll(); 
+    errOutScroll(); 
+}
+
 function stdRight() {
      stdFrom = stdFrom + count;
      refresh();
 }
-	
+
+crListeners.add(function() {
+    stdEnd();
+});
+
 $(document).ready(function(){
-    refresh();
+    //refresh();
+
+    
     $("#processes_log>div.header").css('width',$(window).width()-50);
     $("#stdTextArea").css('width',$(window).width()-50);
     $("#stdTextArea").css('height',($(window).height()/2)-60);		
@@ -180,13 +202,15 @@ $(document).ready(function(){
     $("#errTextArea").css('height',($(window).height()/2)-60);		
 });
 
-function refresh() {
 
+function refresh() {
+    
+	 
 	var errJson = "_processes_logs_err_json.jsp?uuid="+processUUID;   
     var errUrl ="_processes_logs_err_txts.jsp?uuid="+processUUID+"&stdErr="+errFrom;
     $.getJSON(errJson, function(jsonval) {
         errSize = jsonval.size;              
-         $.get(errUrl, function(data) {
+        $.get(errUrl, function(data) {
             if (data == "" ) {
                 $("textarea#errTextArea").val("--none--");
             } else {
@@ -215,9 +239,9 @@ function refresh() {
             } else {
                 $("textarea#stdTextArea").val(data);
                 $("textarea#stdTextArea").each(function(index,textArea) {
-                    textArea.scrollTop = textArea.scrollHeight;
+                	textArea.scrollTop = textArea.scrollHeight;
                     if (stdScrollLast) {
-                        textArea.scrollTop = textArea.scrollHeight;
+                    	textArea.scrollTop = textArea.scrollHeight;
                     } else if (stdScrollFirst) {
                         textArea.scrollTop = 0;
                     }
@@ -292,7 +316,7 @@ div.buttons {
   class="ui-icon ui-icon-seek-next">last</span></a></div>
  </div>
 
- <div align="center"><textarea id="stdTextArea" readonly="readonly" rows="40" cols="140">
+ <div align="center"><textarea id="stdTextArea" readonly="readonly" rows="40" cols="140" >
                 </textarea></div>
  <div class="separator"></div>
 
@@ -325,7 +349,7 @@ div.buttons {
   </div>
  </div>
  <div></div>
- <div align="center"><textarea id="errTextArea" readonly="readonly" rows="40"
+ <div align="center"><textarea id="errTextArea" readonly="readonly" rows="40"  
   cols="140"> </textarea></div>
 </scrd:securedContent>
 </body>
