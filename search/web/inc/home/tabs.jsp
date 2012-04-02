@@ -47,7 +47,7 @@
 </div>
 <script type="text/javascript" language="javascript">
 
-    var letters = "0,A,Á,B,C,Č,D,Ď,E,É,Ě,F,G,H,CH,I,Í,J,K,L,M,N,Ň,O,Ó,P,Q,R,Ř,S,Š,T,Ť,U,Ú,Ů,V,W,X,Y,Ý,Z,Ž";
+    var letters = "0,A,B,C,Č,D,E,F,G,H,CH,I,J,K,L,M,N,O,P,Q,R,Ř,S,Š,T,U,V,W,X,Y,Z,Ž";
     
     function hideSuggest(obj){
         $(obj).hide();
@@ -139,7 +139,11 @@
         var letter = '0';
         $('#'+field+'>div.term').each(function(){
             if($(this).position().top>0){
-                letter = $(this).children('span').html().substring(0,1).toUpperCase();
+                letter = $(this).children('span').html().substring(0,2).toUpperCase();
+                if(letter != "CH"){
+                    letter = letter.substring(0,1);
+                }
+                
                 return false;
             }
         });

@@ -35,7 +35,7 @@
                     </td>
                     <td align="center" valign="top" id="letters_browse_title" class="letters letters_l">
 <%
-String[] pismena = {"0","A","B","C","Č","D","Ď","E","F","G","H","CH","I","J","K","L","M","N","Ň","O","P","Q","R","Ř","S","Š","T","Ť","U","V","W","X","Y","Z","Ž"};
+String[] pismena = {"0","A","B","C","Č","D","E","F","G","H","CH","I","J","K","L","M","N","O","P","Q","R","Ř","S","Š","T","U","V","W","X","Y","Z","Ž"};
 pageContext.setAttribute("pismena", pismena);
 %>
 <c:forEach var="p" items="${pismena}"><div class="${p}"><a href="#">${p}</a></div></c:forEach>
