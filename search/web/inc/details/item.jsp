@@ -98,10 +98,10 @@
                 togglerLength_open:	'100%',
                 togglerTip_open: '<fmt:message bundle="${lctx}">thumbs.showhide</fmt:message>',
                 onopen_end: function(){
-                    //positionAlto();
+                    resizeAll();
                 },
                 onclose_end: function(){
-                    //positionAlto();
+                    resizeAll();
                 }
            },
             west:{
@@ -126,6 +126,7 @@
                 onresize_end: function(){
                     //positionAlto();
                     var h = $("#bigThumbZone").height();$("#container").height(h);
+                    resizeAll();
                 }
             }
         });
@@ -146,9 +147,10 @@
             $("#main").height() - 
             $("#footer").outerHeight(true);
         $("#split").css("height", w);
-        w = w -
-            $("#thumbs").outerHeight(true) -
-            $("#centralContent>ul").outerHeight(true) - 8 - 5 - 6;
+        w = w - $("#centralContent>ul").outerHeight(true) - 8 - 5 - 6;
+        if($("#thumbs").is(':visible')){
+            w = w - $("#thumbs").outerHeight(true) ;
+        }
         $("#rightMenuBox>div.ui-tabs-panel").css("overflow", "auto");
         $("#rightMenuBox>div.ui-tabs-panel").css("padding", "3px");
         $("#rightMenuBox>div.ui-tabs-panel").css("height", w);
