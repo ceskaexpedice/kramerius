@@ -39,6 +39,12 @@
 </div>
 <script type="text/javascript">
     $(document).ready(function(){
+        resizeAll();
+        $(window).resize(function(event, viewerOptions){
+            resizeAll();
+        });
+    });
+    function resizeAll(){
         var w = $("#intro>div.ui-tabs-panel:first").height() +
             $(window).height() -
             $("#main").height() - 
@@ -47,6 +53,6 @@
         w = w -35;
         $("#content-resizable").css("height", w);
         resizeDateAxisContent();
-    });
+    }
 </script>
 

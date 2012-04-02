@@ -172,7 +172,30 @@ $(document).ready(function(){
 </c:choose>   
     checkHeight(0);
     $(".resultText>a").css("color", $("#docs>ul>li.ui-state-active a").first().css("color"));
+    $(window).resize(function(event, viewerOptions){
+        resizeAll();
+    });
 });
+
+    function resizeAll(){
+        var w;
+        var w1 = $(window).height() -
+                $("#header").height() - 
+                $("#footer").outerHeight(true) - 2;
+        $("#split").css("height", w1);
+        w = w1 - $("#docs>ul").outerHeight(true) - 35;
+        $("#docs_content>div.content").css("height", w);
+        w = w1 - $("#filters>ul").outerHeight(true) - 16;
+        $("#facets").css("height", w);
+
+        if($("#content-resizable").length>0){
+            w = w -42;
+            $("#content-resizable").css("height", w);
+            resizeDateAxisContent();
+            setMaxResize($("#content-resizable").height());
+        }
+        checkHeight(0);
+    }
 
     function changeResSelection(o){
         var id =  $(getResultElement(o)).attr("id");

@@ -133,8 +133,30 @@
             resizeSplit(viewerOptions.fullid);
         });
         
+        $(window).resize(function(event, viewerOptions){
+            resizeAll();
+        });
+        
         
     });
+    
+    function resizeAll(){
+        var w = $("#split").height() +
+            $(window).height() -
+            $("#main").height() - 
+            $("#footer").outerHeight(true);
+        $("#split").css("height", w);
+        w = w -
+            $("#thumbs").outerHeight(true) -
+            $("#centralContent>ul").outerHeight(true) - 8 - 5 - 6;
+        $("#rightMenuBox>div.ui-tabs-panel").css("overflow", "auto");
+        $("#rightMenuBox>div.ui-tabs-panel").css("padding", "3px");
+        $("#rightMenuBox>div.ui-tabs-panel").css("height", w);
+        $("#centralContent>div.ui-tabs-panel").css("overflow", "auto");
+        $("#centralContent>div.ui-tabs-panel").css("padding", "3px");
+        $("#centralContent>div.ui-tabs-panel").css("height", w);
+        resizeSplit();
+    }
     
     
     function resizeSplit(){ var h = $("#bigThumbZone").height();$("#container").height(h); }
