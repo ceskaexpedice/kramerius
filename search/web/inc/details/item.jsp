@@ -124,7 +124,6 @@
             },
             center:{
                 onresize_end: function(){
-                    //positionAlto();
                     var h = $("#bigThumbZone").height();$("#container").height(h);
                     resizeAll();
                 }
