@@ -12,7 +12,8 @@
     try {
         
         String xsl = "grouped_results.xsl";
-        boolean isCollapsed = (Boolean)pageContext.getAttribute("isCollapsed");
+        
+        boolean isCollapsed = Boolean.parseBoolean(request.getAttribute("isCollapsed").toString());
         if(!isCollapsed){
             xsl = "not_grouped_results.xsl";
         }
