@@ -70,6 +70,7 @@
     }
 
 </style>
+<div id="kkk"></div>
 <c:set var="class_viewable"><c:if test="${viewable=='true' && root_pid==param.pid}">viewable</c:if></c:set>
 <c:url var="url" value="${kconfig.applicationURL}/inc/details/treeNodeInfo.jsp" >
     <c:param name="pid" value="${root_pid}" />
@@ -185,6 +186,8 @@
             loadInitNodes();
         });
         var cur = 1;
+        var initView = true;
+
         function loadInitNodes(){
             var id;
             var path = "";
@@ -227,15 +230,18 @@
                         } 
                     }
                 }
-                loadingInitNodes= false;
                 //alert(id);
+                loadingInitNodes= false;
                 if(id){
                     showNode(id);
                     setActiveUuids(id);
+                    initView = true;
+                    setInitActive();
                     $(".viewer").trigger('viewChanged', [id]);
-                }   
-                //setTimeout("toggleRightMenu('slow')", 3000);
+                }
+                 
             }
+            
         }
 
         function highLigthNode(id){
@@ -259,6 +265,7 @@
         }
 
         function nodeClick(id){
+            initView = false;
             if($(jq(id)).hasClass('viewable')){
                 selectNodeView(id);
                 nodeOpen(id);
@@ -309,7 +316,9 @@
                 }else{
                     $(jq(id)+">span.folder").removeClass();
                 }
-                if(loadingInitNodes) loadInitNodes();
+                if(loadingInitNodes){
+                    loadInitNodes();
+                }
             });
         }
 

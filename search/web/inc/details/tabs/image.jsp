@@ -527,6 +527,7 @@ function onLoadPlainImage() {
             if(k4Settings.activeUuids[i]==k4Settings.activeUuid){
                 index = i;
                 id = k4Settings.activeUuids[i+1];
+                initView = false;
                 $(".viewer").trigger('viewChanged', [id]);
                 break;
             }
@@ -539,6 +540,7 @@ function onLoadPlainImage() {
             if(k4Settings.activeUuids[i]==k4Settings.activeUuid){
                 index = i;
                 id = k4Settings.activeUuids[i-1];
+                initView = false;
                 $(".viewer").trigger('viewChanged', [id]);
                 break;
             }

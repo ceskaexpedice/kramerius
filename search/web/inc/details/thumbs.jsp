@@ -97,6 +97,7 @@
         });
         $('#tv_container_row>td>div').live('click', function(){
             var id = $(this).attr('id').substring(3);
+            initView = false;
             selectThumb(id);
             $(".viewer").trigger('viewChanged', [id]);
         });

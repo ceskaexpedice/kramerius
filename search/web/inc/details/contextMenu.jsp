@@ -100,35 +100,35 @@
             <c:if test="${item.supportMultiple}">
                 <li><span class="ui-icon ui-icon-triangle-1-e  " >item</span>
                     <a title='<view:msg>${item.key}</view:msg>' href="javascript:${item.jsFunction}(${item.jsArgs});"><view:msg>${item.key}</view:msg></a>
-                </li>
+                    </li>
             </c:if>
             <%-- no multiple item --%>
             <c:if test="${!item.supportMultiple}">
                 <li class="no-multiple"><span class="ui-icon ui-icon-triangle-1-e  " >item</span>
                     <a title='<view:msg>${item.key}</view:msg>' href="javascript:${item.jsFunction}(${item.jsArgs});"><view:msg>${item.key}</view:msg></a>
-                </li>
+                    </li>
             </c:if>
         </c:forEach>
 
         <!-- admin items -->
         <scrd:securedContent action="display_admin_menu">
-          <c:if test="${not empty ctxMenu.adminItems}">
-              <hr/>
-          </c:if>
+            <c:if test="${not empty ctxMenu.adminItems}">
+                <hr/>
+            </c:if>
 
-          <c:forEach var="item" items="${ctxMenu.adminItems}" varStatus="status">
-              <%-- multiple item --%>
-              <c:if test="${item.supportMultiple}">
-                  <li><span class="ui-icon ui-icon-triangle-1-e  " >item</span>
-                      <a title='<view:msg>${item.key}</view:msg>' href="javascript:${item.jsFunction}(${item.jsArgs});"><view:msg>${item.key}</view:msg></a>
-                  </li>
-              </c:if>
-              <%-- no multiple item --%>
-              <c:if test="${!item.supportMultiple}">
-                  <li class="no-multiple"><span class="ui-icon ui-icon-triangle-1-e  " >item</span>
-                      <a title='<view:msg>${item.key}</view:msg>' href="javascript:${item.jsFunction}(${item.jsArgs});"><view:msg>${item.key}</view:msg></a>
-                  </li>
-              </c:if>
+            <c:forEach var="item" items="${ctxMenu.adminItems}" varStatus="status">
+                <%-- multiple item --%>
+                <c:if test="${item.supportMultiple}">
+                    <li><span class="ui-icon ui-icon-triangle-1-e  " >item</span>
+                        <a title='<view:msg>${item.key}</view:msg>' href="javascript:${item.jsFunction}(${item.jsArgs});"><view:msg>${item.key}</view:msg></a>
+                        </li>
+                </c:if>
+                <%-- no multiple item --%>
+                <c:if test="${!item.supportMultiple}">
+                    <li class="no-multiple"><span class="ui-icon ui-icon-triangle-1-e  " >item</span>
+                        <a title='<view:msg>${item.key}</view:msg>' href="javascript:${item.jsFunction}(${item.jsArgs});"><view:msg>${item.key}</view:msg></a>
+                        </li>
+                </c:if>
             </c:forEach>
         </scrd:securedContent>
 
@@ -156,14 +156,14 @@
         <div style="padding-bottom: 5px; margin-bottom: 5px;">
             <div>
                 <input type="checkbox" id="reindex_check_integrity" checked="checked" /><label for="reindex_check_integrity"> <view:msg>administrator.menu.dialogs.check_integrity</view:msg></label>
+                </div>
+                <div>
+                    <input type="checkbox" id="reindex_only_newer" /><label for="reindex_only_newer"> <view:msg>administrator.menu.dialogs.only_newer</view:msg></label>
+                </div>
             </div>
-            <div>
-                <input type="checkbox" id="reindex_only_newer" /><label for="reindex_only_newer"> <view:msg>administrator.menu.dialogs.only_newer</view:msg></label>
-            </div>
-        </div>
 
-    </div>
-                <div id="vc_dialog" style="display:none;"><div class="content"></div></div>
+        </div>
+        <div id="vc_dialog" style="display:none;"><div class="content"></div></div>
 </scrd:loggedusers>
 <script type="text/javascript">
 
@@ -179,11 +179,18 @@
         });
 
         $('#scope_single.viewer').bind('viewReady', function(event, id){
-            var t = '<li id="cms_'+ k4Settings.activeUuid+'"><span class="ui-icon ui-icon-triangle-1-e " >item</span>'+$(jq(k4Settings.activeUuid)+">a>label").html()+'</li>';
-            $('#context_items_active').html(t);
+            if(!initView){
+                var t = '<li id="cms_'+ k4Settings.activeUuid+'"><span class="ui-icon ui-icon-triangle-1-e " >item</span>'+$(jq(k4Settings.activeUuid)+">a>label").html()+'</li>';
+                $('#context_items_active').html(t);               
+            }
         });
 
     });
+    
+    function setInitActive(){
+        var initialPid = model_path_str.replaceAll('/', '-') + "_" + pid_path[pid_path.length - 1];
+        $('#context_items_active').html('<li id="cms_'+ initialPid+'"><span class="ui-icon ui-icon-triangle-1-e " >item</span><label>'+$(jq(initialPid)+">a>label").html()+'</label></li>');
+    }
 
     function clearContextMenuSelection(){
         $('#context_items_selection').html("");
@@ -195,8 +202,8 @@
 
     function addToContextMenuSelection(id, label){
         var t = '<li id="cm_' + id + '">';
-            t += '<span class="ui-icon ui-icon-triangle-1-e folder " >folder</span>';
-            t += '<label>'+label+'</label></li>';
+        t += '<span class="ui-icon ui-icon-triangle-1-e folder " >folder</span>';
+        t += '<label>'+label+'</label></li>';
 
         $('#context_items_selection').append(t);
     }
@@ -359,7 +366,7 @@
             $(document.body).append('<div id="persistentURL">'+
                 '<span>'+dictionary['administrator.dialogs.persistenturl.text']+'</span>'+
                 '<div id="'+textFieldID+'" ></div>' +
-            '</div>');
+                '</div>');
 
             _persistentURLDialog = $('#persistentURL').dialog({
                 width:640,
@@ -379,8 +386,14 @@
         var uuids = getAffectedPids();
         var input;
         $('#'+textFieldID).html('');
+        var prefix;
+        if(getScope()=='single'){
+            prefix = 'cms_';
+        }else{
+            prefix = 'cm_';
+        }
         for(var i=0; i<uuids.length; i++){
-            input = $(jq("cm_" + uuids[i])+">label").html() + ': <input name="'+textFieldID+'"  style="width:100%;" type="text" '+
+            input = $(jq(prefix + uuids[i])+">label").html() + ': <input name="'+textFieldID+'"  style="width:100%;" type="text" '+
                 ' id="'+textFieldID+'" value="'+currentURL+"handle/"+uuids[i].split("_")[1]+'"  />';
             $('#'+textFieldID).append(input);
         }
@@ -396,9 +409,9 @@
         var structs = map(function(pid) {
             var divided = pid.split("_");
             var structure = {
-                       models:divided[0],
-                       pid:divided[1]
-                };
+                models:divided[0],
+                pid:divided[1]
+            };
             return structure;
 
         }, pids);
@@ -409,425 +422,425 @@
 
 
     function downloadOriginalItem(){
+        var pids = getAffectedPids();
+        var structs = map(function(pid) {
+            var divided = pid.split("_");
+            var structure = {
+                models:divided[0],
+                pid:divided[1]
+            };
+            return structure;
+
+        }, pids);
+        // show download original dialog
+        downloadOriginal.download(structs);
+    }
+
+    <scrd:loggedusers>
+
+      function Message(id) {
+          this.dialog = null;
+          this.id = id;
+      }
+
+      Message.prototype.show=function() {
+          if (this.dialog) {
+              this.dialog.dialog('open');
+          } else {
+              $(document.body).append("<div id='message_dialog_"+this.id+"'></div>");
+              this.dialog = $("#message_dialog_"+this.id).dialog({
+                  bgiframe: true,
+                  width: 350,
+                  height: 150,
+                  modal: true,
+                  title:'',
+                  buttons: [{
+                          text: "Ok",
+                          click: function() {
+                              $(this).dialog("close");
+                          }
+                      }]
+              });
+          }
+          $("#message_dialog_"+this.id).html("<div style='height: 6em; width:350px; display: table-cell; vertical-align: middle; text-align:center;'>"+dictionary['message.text.'+this.id]+"</div>");
+      }
+
+      /* add to favorite */
+      function addToFavorites() {
+
+          new Profile().modify(
+          function(json){
+              if (!json.favorites) {
+                  json["favorites"] = [];
+              }
+              var structs = map(function(pid) {
+                  var divided = pid.split("_");
+                  var structure = {
+                      models:divided[0],
+                      pid:divided[1]
+                  };
+                  return structure;
+
+              },getAffectedPids());
+
+              reduce(function(base, element, status){
+                  if (base.indexOf(element.pid) < 0) {
+                      base.push(element.pid);
+                  }
+                  return base;
+              },json["favorites"],structs);
+
+              return json;
+          }, function () {
+              (new Message("favorites_add_success")).show();
+          });
+      }
+
+      /* Administrate virtual collections */
+      var _vcollDialog;
+      function vcAddToVirtualCollection(){
+          $("#vc_dialog>div.content").html('<p align="center"><img src="img/loading.gif" alt="loading" /></p>');
+          if (_vcollDialog) {
+              _vcollDialog.dialog('open');
+          } else {
+              _vcollDialog = $("#vc_dialog").dialog({
+                  bgiframe: true,
+                  width: 500,
+                  modal: true,
+                  title:dictionary['administrator.menu.dialogs.virtualcollections'],
+                  buttons: [
+                      {
+                          text: "Ok",
+                          click: function() {
+                              vcDoAdd();
+                              $(this).dialog("close");
+                          }
+                      },
+                      {
+                          text: dictionary['common.close'],
+                          click: function() {
+                              $(this).dialog("close");
+                          }
+                      }
+                  ]
+              });
+
+          }
+          $.get("inc/details/vc.jsp", function(data){
+              $("#vc_dialog>div.content").html(data);
+              var pids = getAffectedPids();
+              if(pids.length==1){
+                  var pidpath = getPidPath(pids[0]);
+                  var pid = pidpath.substring(pidpath.lastIndexOf("/") + 1);
+                  $(".vcoll").each(function(){
+                      var id = $(this).attr('id');
+                      var coll = id.split('vc_')[1];
+                      var url = 'vc?action=CHECK&pid=' + pid + "&collection=" + coll;
+                      $.get(url, function(data){
+                          if(data.toString()=='1'){
+                              $(jq(id)+'>td>input').attr("checked", true).addClass('checked');
+                          }else{
+                              $(jq(id)+'>td>input').attr("checked", false);
+                          }
+                      });
+                  });
+              }
+          });
+      }
+
+      function vcDoAdd(){
+          var pids = getAffectedPids();
+
+          var urlbuffer;
+          var action;
+          var coll;
+          var hasChanges = false;
+          urlbuffer = "lr?action=start&def=aggregate&out=text&nparams={virtualcollections;";
+          if(pids.length==1){
+              var pidpath = getPidPath(pids[0]);
+              var pid = pidpath.substring(pidpath.lastIndexOf("/") + 1);
+              var j = 0;
+              var changed = false;
+              $(".vcoll").each(function(){
+                  var id = $(this).attr('id');
+                  coll = id.split('vc_')[1];
+                  if($(jq(id)+'>td>input').is(":checked") && !$(jq(id)+'>td>input').hasClass("checked")){
+                      action = "add";
+                      changed = true;
+                  }else if(!$(jq(id)+'>td>input').is(":checked") && $(jq(id)+'>td>input').hasClass("checked")){
+                      action = "remove";
+                      changed = true;
+                  }else{
+                      changed = false;
+                  }
+                  if(changed){
+                      hasChanges = true;
+                      if (j>0) {
+                          urlbuffer=urlbuffer + ";";
+                      }
+                      j++;
+                      urlbuffer=urlbuffer+"{"+action+";"+replaceAll(pid, ":","\\:")+";"+replaceAll(coll, ":","\\:")+"}";
+                  }
+              });
+              urlbuffer=urlbuffer+"}";
+          }else{
+              var j = 0;
+              hasChanges = true;
+              for(var i=0; i<pids.length; i++){
+                  var pidpath = getPidPath(pids[i]);
+                  var pid = pidpath.substring(pidpath.lastIndexOf("/") + 1);
+                  $(".vcoll").each(function(){
+                      var id = $(this).attr('id');
+                      coll = id.split('vc_')[1];
+                      if($(jq(id)+'>td>input').is(":checked")){
+                          action = "add";
+                      }else{
+                          action = "remove";
+                      }
+                      if (j>0) {
+                          urlbuffer=urlbuffer + ";";
+                      }
+                      j++;
+                      urlbuffer=urlbuffer+"{"+action+";"+replaceAll(pid, ":","\\:")+";"+replaceAll(coll, ":","\\:")+"}";
+                  });
+              }
+              urlbuffer=urlbuffer+"}";
+
+          }
+
+
+          //alert(urlbuffer);
+          if(hasChanges){
+              processStarter("virtualcollections").start(urlbuffer);
+          }
+
+      }
+
+      function ctxPrint(){
           var pids = getAffectedPids();
           var structs = map(function(pid) {
               var divided = pid.split("_");
               var structure = {
-                         models:divided[0],
-                         pid:divided[1]
-                };
+                  models:divided[0],
+                  pid:divided[1]
+              };
               return structure;
 
           }, pids);
-          // show download original dialog
-          downloadOriginal.download(structs);
-    }
-
-  <scrd:loggedusers>
-
-  function Message(id) {
-    this.dialog = null;
-    this.id = id;
-  }
-
-  Message.prototype.show=function() {
-      if (this.dialog) {
-           this.dialog.dialog('open');
-       } else {
-           $(document.body).append("<div id='message_dialog_"+this.id+"'></div>");
-           this.dialog = $("#message_dialog_"+this.id).dialog({
-               bgiframe: true,
-               width: 350,
-               height: 150,
-               modal: true,
-               title:'',
-               buttons: [{
-                       text: "Ok",
-                       click: function() {
-                           $(this).dialog("close");
-                       }
-                   }]
-           });
-       }
-       $("#message_dialog_"+this.id).html("<div style='height: 6em; width:350px; display: table-cell; vertical-align: middle; text-align:center;'>"+dictionary['message.text.'+this.id]+"</div>");
-  }
-
-  /* add to favorite */
-  function addToFavorites() {
-
-      new Profile().modify(
-        function(json){
-         if (!json.favorites) {
-             json["favorites"] = [];
-         }
-         var structs = map(function(pid) {
-             var divided = pid.split("_");
-             var structure = {
-                        models:divided[0],
-                        pid:divided[1]
-               };
-             return structure;
-
-         },getAffectedPids());
-
-         reduce(function(base, element, status){
-             if (base.indexOf(element.pid) < 0) {
-                 base.push(element.pid);
-             }
-             return base;
-         },json["favorites"],structs);
-
-         return json;
-     }, function () {
-         (new Message("favorites_add_success")).show();
-     });
-  }
-
-  /* Administrate virtual collections */
-  var _vcollDialog;
-  function vcAddToVirtualCollection(){
-      $("#vc_dialog>div.content").html('<p align="center"><img src="img/loading.gif" alt="loading" /></p>');
-      if (_vcollDialog) {
-            _vcollDialog.dialog('open');
-        } else {
-            _vcollDialog = $("#vc_dialog").dialog({
-                bgiframe: true,
-                width: 500,
-                modal: true,
-                title:dictionary['administrator.menu.dialogs.virtualcollections'],
-                buttons: [
-                    {
-                        text: "Ok",
-                        click: function() {
-                            vcDoAdd();
-                            $(this).dialog("close");
-                        }
-                    },
-                    {
-                        text: dictionary['common.close'],
-                        click: function() {
-                            $(this).dialog("close");
-                        }
-                    }
-                ]
-            });
-
-        }
-        $.get("inc/details/vc.jsp", function(data){
-            $("#vc_dialog>div.content").html(data);
-            var pids = getAffectedPids();
-            if(pids.length==1){
-                var pidpath = getPidPath(pids[0]);
-                var pid = pidpath.substring(pidpath.lastIndexOf("/") + 1);
-                $(".vcoll").each(function(){
-                    var id = $(this).attr('id');
-                    var coll = id.split('vc_')[1];
-                    var url = 'vc?action=CHECK&pid=' + pid + "&collection=" + coll;
-                    $.get(url, function(data){
-                        if(data.toString()=='1'){
-                            $(jq(id)+'>td>input').attr("checked", true).addClass('checked');
-                        }else{
-                            $(jq(id)+'>td>input').attr("checked", false);
-                        }
-                    });
-                });
-            }
-        });
-  }
-
-  function vcDoAdd(){
-    var pids = getAffectedPids();
-
-    var urlbuffer;
-    var action;
-    var coll;
-    var hasChanges = false;
-    urlbuffer = "lr?action=start&def=aggregate&out=text&nparams={virtualcollections;";
-    if(pids.length==1){
-        var pidpath = getPidPath(pids[0]);
-        var pid = pidpath.substring(pidpath.lastIndexOf("/") + 1);
-        var j = 0;
-        var changed = false;
-        $(".vcoll").each(function(){
-            var id = $(this).attr('id');
-            coll = id.split('vc_')[1];
-            if($(jq(id)+'>td>input').is(":checked") && !$(jq(id)+'>td>input').hasClass("checked")){
-                action = "add";
-                changed = true;
-            }else if(!$(jq(id)+'>td>input').is(":checked") && $(jq(id)+'>td>input').hasClass("checked")){
-                action = "remove";
-                changed = true;
-            }else{
-                changed = false;
-            }
-            if(changed){
-                hasChanges = true;
-                if (j>0) {
-                   urlbuffer=urlbuffer + ";";
-                }
-                j++;
-                urlbuffer=urlbuffer+"{"+action+";"+replaceAll(pid, ":","\\:")+";"+replaceAll(coll, ":","\\:")+"}";
-            }
-        });
-        urlbuffer=urlbuffer+"}";
-    }else{
-        var j = 0;
-        hasChanges = true;
-        for(var i=0; i<pids.length; i++){
-            var pidpath = getPidPath(pids[i]);
-            var pid = pidpath.substring(pidpath.lastIndexOf("/") + 1);
-            $(".vcoll").each(function(){
-                var id = $(this).attr('id');
-                coll = id.split('vc_')[1];
-                if($(jq(id)+'>td>input').is(":checked")){
-                    action = "add";
-                }else{
-                    action = "remove";
-                }
-                if (j>0) {
-                   urlbuffer=urlbuffer + ";";
-                }
-                j++;
-                urlbuffer=urlbuffer+"{"+action+";"+replaceAll(pid, ":","\\:")+";"+replaceAll(coll, ":","\\:")+"}";
-            });
-        }
-        urlbuffer=urlbuffer+"}";
-
-    }
+          // show print dialog
+          print.print(structs);
+      }
 
 
-    //alert(urlbuffer);
-    if(hasChanges){
-        processStarter("virtualcollections").start(urlbuffer);
-    }
+      var _reindexDialog;
+      function reindex(){
+          if (_reindexDialog) {
+              _reindexDialog.dialog('open');
+          } else {
+              _reindexDialog = $("#reindex").dialog({
+                  bgiframe: true,
+                  width: 500,
+                  modal: true,
+                  title:'<fmt:message bundle="${lctx}">administrator.menu.reindex</fmt:message>',
+                  buttons: [
+                      {
+                          text: "Ok",
+                          click: function() {
+                              askReindex();
+                              $(this).dialog("close");
+                          }
+                      },
+                      {
+                          text: dictionary['common.close'],
+                          click: function() {
+                              $(this).dialog("close");
+                          }
+                      }
+                  ]
+              });
 
-  }
+          }
+          var pids = getAffectedPids();
+          $("#reindex>div.allowed").html($("#context_items_selection").html());
+          if(pids.length>1){
+              for(var i=0; i<pids.length; i++){
+                  var pidpath = getPidPath(pids[i]);
+                  pids[i] = pidpath.substring(pidpath.lastIndexOf("/") + 1);
+              }
+          }
+      }
 
-  function ctxPrint(){
-      var pids = getAffectedPids();
-      var structs = map(function(pid) {
-          var divided = pid.split("_");
-          var structure = {
-                     models:divided[0],
-                     pid:divided[1]
-              };
-          return structure;
+      function askReindex(){
+          showConfirmDialog(dictionary['administrator.dialogs.reindexconfirm'], function(){
+              doReindex();
+          });
+      }
+      function doReindex(){
 
-      }, pids);
-      // show print dialog
-      print.print(structs);
-   }
+          var pids = getAffectedPids();
+          var action;
+          if($("#reindex_only_newer").is(':checked')){
+              action = "reindexDoc";
+          }else{
+              action = "fromKrameriusModel";
+          }
 
+          var urlbuffer;
+          if(pids.length==1){
+              var pidpath = getPidPath(pids[0]);
+              var pid = pidpath.substring(pidpath.lastIndexOf("/") + 1);
+              var title = $(jq(pids[0])+">a>label").text();
+              var escapedTitle = replaceAll(title, ',', '');
+              escapedTitle = replaceAll(escapedTitle, '\n', '');
+              escapedTitle = escapedTitle.replace(/ +(?= )/g,'');
+              urlbuffer = "lr?action=start&def=reindex&out=text&params="+action+","+pid+","+escapedTitle;
+          }else{
+              urlbuffer = "lr?action=start&def=aggregate&out=text&nparams={reindex;"
+              for(var i=0; i<pids.length; i++){
+                  var pidpath = getPidPath(pids[i]);
+                  var pid = pidpath.substring(pidpath.lastIndexOf("/") + 1);
+                  var title = $(jq(pids[i])+">a>label").text();
+                  var escapedTitle = replaceAll(title, ',', '');
+                  escapedTitle = replaceAll(escapedTitle, '\n', '');
+                  escapedTitle = escapedTitle.replace(/ +(?= )/g,'');
+                  urlbuffer=urlbuffer+"{"+action+";"+replaceAll(pid, ":","\\:")+";"+replaceAll(escapedTitle, ":","\\:")+"}";
+                  if (i<pids.length-1) {
+                      urlbuffer=urlbuffer+";"
+                  }
+              }
+              urlbuffer=urlbuffer+"}";
+          }
 
-    var _reindexDialog;
-    function reindex(){
-        if (_reindexDialog) {
-            _reindexDialog.dialog('open');
-        } else {
-            _reindexDialog = $("#reindex").dialog({
-                bgiframe: true,
-                width: 500,
-                modal: true,
-                title:'<fmt:message bundle="${lctx}">administrator.menu.reindex</fmt:message>',
-                buttons: [
-                    {
-                        text: "Ok",
-                        click: function() {
-                            askReindex();
-                            $(this).dialog("close");
-                        }
-                    },
-                    {
-                        text: dictionary['common.close'],
-                        click: function() {
-                            $(this).dialog("close");
-                        }
-                    }
-                ]
-            });
+          processStarter("reindex").start(urlbuffer);
+      }
 
-        }
-        var pids = getAffectedPids();
-        $("#reindex>div.allowed").html($("#context_items_selection").html());
-        if(pids.length>1){
-            for(var i=0; i<pids.length; i++){
-                var pidpath = getPidPath(pids[i]);
-                pids[i] = pidpath.substring(pidpath.lastIndexOf("/") + 1);
-            }
-        }
-    }
+      function deletefromindex(){
 
-    function askReindex(){
-        showConfirmDialog(dictionary['administrator.dialogs.reindexconfirm'], function(){
-            doReindex();
-        });
-    }
-    function doReindex(){
+          showConfirmDialog(dictionary['administrator.dialogs.deleteconfirm'], function(){
+              var pids = getAffectedPids();
 
-            var pids = getAffectedPids();
-            var action;
-            if($("#reindex_only_newer").is(':checked')){
-                action = "reindexDoc";
-            }else{
-                action = "fromKrameriusModel";
-            }
+              var action = "deleteDocument";
 
-            var urlbuffer;
-            if(pids.length==1){
-                var pidpath = getPidPath(pids[0]);
-                var pid = pidpath.substring(pidpath.lastIndexOf("/") + 1);
-                var title = $(jq(pids[0])+">a>label").text();
-                var escapedTitle = replaceAll(title, ',', '');
-                escapedTitle = replaceAll(escapedTitle, '\n', '');
-                escapedTitle = escapedTitle.replace(/ +(?= )/g,'');
-                urlbuffer = "lr?action=start&def=reindex&out=text&params="+action+","+pid+","+escapedTitle;
-            }else{
-                urlbuffer = "lr?action=start&def=aggregate&out=text&nparams={reindex;"
-                for(var i=0; i<pids.length; i++){
-                        var pidpath = getPidPath(pids[i]);
-                        var pid = pidpath.substring(pidpath.lastIndexOf("/") + 1);
-                        var title = $(jq(pids[i])+">a>label").text();
-                        var escapedTitle = replaceAll(title, ',', '');
-                        escapedTitle = replaceAll(escapedTitle, '\n', '');
-                        escapedTitle = escapedTitle.replace(/ +(?= )/g,'');
-                        urlbuffer=urlbuffer+"{"+action+";"+replaceAll(pid, ":","\\:")+";"+replaceAll(escapedTitle, ":","\\:")+"}";
-                        if (i<pids.length-1) {
-                           urlbuffer=urlbuffer+";"
-                        }
-                }
-                urlbuffer=urlbuffer+"}";
-            }
+              var urlbuffer;
+              if(pids.length==1){
+                  var pidpath = getPidPath(pids[0]);
+                  var pid = pidpath.substring(pidpath.lastIndexOf("/") + 1);
+                  var title = $(jq(pids[0])+">a>label").text();
+                  var escapedTitle = replaceAll(title, ',', '');
+                  escapedTitle = replaceAll(escapedTitle, '\n', '');
+                  escapedTitle = escapedTitle.replace(/ +(?= )/g,'');
+                  urlbuffer = "lr?action=start&def=reindex&out=text&params="+action+","+pid+","+escapedTitle;
+              }else{
+                  urlbuffer = "lr?action=start&def=aggregate&out=text&nparams={reindex;"
+                  for(var i=0; i<pids.length; i++){
+                      var pidpath = getPidPath(pids[i]);
+                      var pid = pidpath.substring(pidpath.lastIndexOf("/") + 1);
+                      var title = $(jq(pids[i])+">a>label").text();
+                      var escapedTitle = replaceAll(title, ',', '');
+                      escapedTitle = replaceAll(escapedTitle, '\n', '');
+                      escapedTitle = escapedTitle.replace(/ +(?= )/g,'');
+                      urlbuffer=urlbuffer+"{"+action+";"+replaceAll(pid, ":","\\:")+";"+replaceAll(escapedTitle, ":","\\:")+"}";
+                      if (i<pids.length-1) {
+                          urlbuffer=urlbuffer+";"
+                      }
+                  }
+                  urlbuffer=urlbuffer+"}";
+              }
 
-            processStarter("reindex").start(urlbuffer);
-    }
+              processStarter("reindex").start(urlbuffer);
+          });
 
-    function deletefromindex(){
+      }
 
-        showConfirmDialog(dictionary['administrator.dialogs.deleteconfirm'], function(){
-            var pids = getAffectedPids();
+      function deletePid(){
+          var pids = getAffectedPids();
 
-            var action = "deleteDocument";
+          showConfirmDialog(dictionary['administrator.dialogs.deleteconfirm'], function(){
+              var urlbuffer = "lr?action=start&def=aggregate&out=text&nparams={delete;"
+              for(var i=0; i<pids.length; i++){
+                  var pidpath = getPidPath(pids[i]);
+                  var pid = pidpath.substring(pidpath.lastIndexOf("/") + 1);
+                  urlbuffer=urlbuffer+"{"+replaceAll(pid, ":","\\:")+";"+replaceAll(pidpath, ":","\\:")+"}";
+                  if (i<pids.length-1) {
+                      urlbuffer=urlbuffer+";"
+                  }
+              }
 
-            var urlbuffer;
-            if(pids.length==1){
-                var pidpath = getPidPath(pids[0]);
-                var pid = pidpath.substring(pidpath.lastIndexOf("/") + 1);
-                var title = $(jq(pids[0])+">a>label").text();
-                var escapedTitle = replaceAll(title, ',', '');
-                escapedTitle = replaceAll(escapedTitle, '\n', '');
-                escapedTitle = escapedTitle.replace(/ +(?= )/g,'');
-                urlbuffer = "lr?action=start&def=reindex&out=text&params="+action+","+pid+","+escapedTitle;
-            }else{
-                urlbuffer = "lr?action=start&def=aggregate&out=text&nparams={reindex;"
-                for(var i=0; i<pids.length; i++){
-                        var pidpath = getPidPath(pids[i]);
-                        var pid = pidpath.substring(pidpath.lastIndexOf("/") + 1);
-                        var title = $(jq(pids[i])+">a>label").text();
-                        var escapedTitle = replaceAll(title, ',', '');
-                        escapedTitle = replaceAll(escapedTitle, '\n', '');
-                        escapedTitle = escapedTitle.replace(/ +(?= )/g,'');
-                        urlbuffer=urlbuffer+"{"+action+";"+replaceAll(pid, ":","\\:")+";"+replaceAll(escapedTitle, ":","\\:")+"}";
-                        if (i<pids.length-1) {
-                           urlbuffer=urlbuffer+";"
-                        }
-                }
-                urlbuffer=urlbuffer+"}";
-            }
+              processStarter("delete").start(urlbuffer);
 
-            processStarter("reindex").start(urlbuffer);
-        });
+          });
+      }
 
-    }
+      function exportFOXML(){
+          var structs = pidstructs();
+          if (structs.length > 1) {
+              var u = urlWithPids("lr?action=start&def=aggregate&out=text&nparams={export;",structs)+"}";
+              processStarter("export").start(u);
+          } else {
+              var u = urlWithPids("lr?action=start&def=export&out=text&nparams=",structs);
+              processStarter("export").start(u);
+          }
+      }
 
-    function deletePid(){
-        var pids = getAffectedPids();
-
-        showConfirmDialog(dictionary['administrator.dialogs.deleteconfirm'], function(){
-            var urlbuffer = "lr?action=start&def=aggregate&out=text&nparams={delete;"
-            for(var i=0; i<pids.length; i++){
-                    var pidpath = getPidPath(pids[i]);
-                    var pid = pidpath.substring(pidpath.lastIndexOf("/") + 1);
-                    urlbuffer=urlbuffer+"{"+replaceAll(pid, ":","\\:")+";"+replaceAll(pidpath, ":","\\:")+"}";
-                    if (i<pids.length-1) {
-                       urlbuffer=urlbuffer+";"
-                    }
-            }
-
-            processStarter("delete").start(urlbuffer);
-
-        });
-    }
-
-    function exportFOXML(){
-        var structs = pidstructs();
-        if (structs.length > 1) {
-            var u = urlWithPids("lr?action=start&def=aggregate&out=text&nparams={export;",structs)+"}";
-            processStarter("export").start(u);
-        } else {
-            var u = urlWithPids("lr?action=start&def=export&out=text&nparams=",structs);
-            processStarter("export").start(u);
-        }
-    }
-
-    function exportToCD(img, i18nServlet, country,language) {
-        var structs = pidstructs();
-        if (structs.length > 0) {
-            var u = "lr?action=start&def=static_export_CD&out=text&nparams={"+structs[0].pid.replaceAll(":","\\:")+";"+img+";"+i18nServlet+";"+country+";"+language+"}";
-            processStarter("static_export_CD").start(u);
-        }
-    }
-    function exportToDVD(img, i18nServlet, country,language) {
-        var structs = pidstructs();
-        if (structs.length > 0) {
-            var u = "lr?action=start&def=static_export_CD&out=text&nparams={"+structs[0].pid.replaceAll(":","\\:")+";"+img+";"+i18nServlet+";"+country+";"+language+"}";
-            processStarter("static_export_DVD").start(u);
-        }
-    }
+      function exportToCD(img, i18nServlet, country,language) {
+          var structs = pidstructs();
+          if (structs.length > 0) {
+              var u = "lr?action=start&def=static_export_CD&out=text&nparams={"+structs[0].pid.replaceAll(":","\\:")+";"+img+";"+i18nServlet+";"+country+";"+language+"}";
+              processStarter("static_export_CD").start(u);
+          }
+      }
+      function exportToDVD(img, i18nServlet, country,language) {
+          var structs = pidstructs();
+          if (structs.length > 0) {
+              var u = "lr?action=start&def=static_export_CD&out=text&nparams={"+structs[0].pid.replaceAll(":","\\:")+";"+img+";"+i18nServlet+";"+country+";"+language+"}";
+              processStarter("static_export_DVD").start(u);
+          }
+      }
 
 
-    function generateDeepZoomTiles(){
-        var structs = pidstructs();
-        var u = urlWithPids("lr?action=start&def=aggregate&out=text&nparams={generateDeepZoomTiles;",structs);
-        processStarter("generateDeepZoomTiles").start(u);
-    }
+      function generateDeepZoomTiles(){
+          var structs = pidstructs();
+          var u = urlWithPids("lr?action=start&def=aggregate&out=text&nparams={generateDeepZoomTiles;",structs);
+          processStarter("generateDeepZoomTiles").start(u);
+      }
 
-    function deleteGeneratedDeepZoomTiles(){
-        var pids = getAffectedPids();
-        var structs = pidstructs();
-        var u = urlWithPids("lr?action=start&def=aggregate&out=text&nparams={deleteGeneratedDeepZoomTiles;",structs);
-        processStarter("deleteGeneratedDeepZoomTiles").start(u);
-    }
+      function deleteGeneratedDeepZoomTiles(){
+          var pids = getAffectedPids();
+          var structs = pidstructs();
+          var u = urlWithPids("lr?action=start&def=aggregate&out=text&nparams={deleteGeneratedDeepZoomTiles;",structs);
+          processStarter("deleteGeneratedDeepZoomTiles").start(u);
+      }
 
-    function securedActionsTableForCtxMenu(read, administrate){
-        var pids = getAffectedPids();
-        var structs = pidstructs();
-
-
-        // open dialog
-        findObjectsDialog().openDialog(structs);
-    }
-
-    function securedStreamsTableForCtxMenu(read, administrate){
-        var pids = getAffectedPids();
-        var structs = pidstructs();
-
-        if (!selectStreams) {
-            selectStreams = new SecuredStreamsSelection();
-        }
-
-        // open dialog
-        selectStreams.openDialog(structs);
-    }
+      function securedActionsTableForCtxMenu(read, administrate){
+          var pids = getAffectedPids();
+          var structs = pidstructs();
 
 
-    function openEditor(url){
-        var pids = getAffectedPids();
-        var structs = pidstructs();
-        if(structs.length>=1){
-            window.open(url+"?pids="+structs[0].pid,'_blank');
-        }
-    }
+          // open dialog
+          findObjectsDialog().openDialog(structs);
+      }
 
-</scrd:loggedusers>
+      function securedStreamsTableForCtxMenu(read, administrate){
+          var pids = getAffectedPids();
+          var structs = pidstructs();
+
+          if (!selectStreams) {
+              selectStreams = new SecuredStreamsSelection();
+          }
+
+          // open dialog
+          selectStreams.openDialog(structs);
+      }
+
+
+      function openEditor(url){
+          var pids = getAffectedPids();
+          var structs = pidstructs();
+          if(structs.length>=1){
+              window.open(url+"?pids="+structs[0].pid,'_blank');
+          }
+      }
+
+    </scrd:loggedusers>
 
 </script>
