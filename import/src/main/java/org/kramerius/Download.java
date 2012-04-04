@@ -146,7 +146,7 @@ public class Download {
 
     private static void logSuccess(String ID, String uuid){
         try {
-            successWriter.append(ID+"\t"+uuid);
+            successWriter.append(ID+"\t"+uuid+"\n");
             successWriter.flush();
         } catch (Exception e) {
             e.printStackTrace();
