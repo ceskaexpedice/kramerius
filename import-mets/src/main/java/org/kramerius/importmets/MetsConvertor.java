@@ -132,6 +132,9 @@ public class MetsConvertor {
         config.setImportFolder(importFolder);
 
         config.setDefaultVisibility(defaultVisibility);
+
+        String contract = importFile.getName().replace("METS_", "").replace(".xml","");
+        config.setContract(contract);
         int l=5;
         try{
             l=KConfiguration.getInstance().getConfiguration().getInt("contractNo.length");

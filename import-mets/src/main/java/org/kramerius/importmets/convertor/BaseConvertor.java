@@ -135,6 +135,10 @@ public abstract class BaseConvertor {
 
     protected static final String MODEL_ARTICLE = "model:article";
 
+    protected static final String MODEL_SUPPLEMENT = "model:supplement";
+
+    protected static final String MODEL_PICTURE = "model:picture";
+
     private static final String CUSTOM_MODEL_PREFIX = "kramerius";
 
     /**
@@ -204,6 +208,11 @@ public abstract class BaseConvertor {
      * mapa fileId -> fileName;
      */
     protected Map<String, String> fileMap = new HashMap<String, String>();
+
+    /*
+     * mapa logicalDivId -> FOXML reprezentace
+     */
+    protected Map<String, Foxml> objects = new HashMap<String, Foxml>();
     /**
      * globální viditelnost foxml objektů (publi/private), nastavuje se podle konfigurace
      */
@@ -666,6 +675,10 @@ public abstract class BaseConvertor {
                                 foxmlObject.getDatastream().add(base64Stream);
                                 break;
                             case AMD:
+                                DatastreamType amdStream = this.createAMDStream( f.getFilename());
+                                if (amdStream != null) {
+                                    foxmlObject.getDatastream().add(amdStream);
+                                }
                                 /*if (f.getImageMetaData() != null) {
                                 DatastreamType imageAdmStream = this.createImageMetaStream(getBase64StreamId(f.getFilename()) + "_ADM", f.getImageMetaData());
                                 foxmlObject.getDatastream().add(imageAdmStream);
@@ -734,22 +747,22 @@ public abstract class BaseConvertor {
     }
 
     /**
-     * Extract title from mods
+     * Extract title + subtitle + partnumber as string from mods
      * @param mods
      * @return extracted title or empty string
      */
     protected String getTitlefromMods(ModsDefinition mods){
-        String title = "";
+        StringBuilder title = new StringBuilder();
         for(Object mg:    mods.getModsGroup()){
             if (mg instanceof TitleInfoDefinition){
                 TitleInfoDefinition ti = (TitleInfoDefinition)mg;
                 for (JAXBElement<XsString> el:ti.getTitleOrSubTitleOrPartNumber()){
                     XsString val = el.getValue();
-                    title = val.getValue();
+                    title.append(" ").append(val.getValue());
                 }
             }
         }
-        return title;
+        return title.toString().trim();
     }
 
     /**
@@ -764,34 +777,17 @@ public abstract class BaseConvertor {
     }
 
     protected static final String MC_PREFIX = "MC_";
+    protected static final String UC_PREFIX = "UC_";
     protected static final String ALTO_PREFIX = "ALTO_";
     protected static final String TXT_PREFIX = "TXT_";
     protected static final String AMD_METS_PREFIX = "AMD_METS_";
 
-    /**
-     * Removes prefix from the file Id in the METS physical structure map
-     * @param fullPrefix
-     * @return
-     */
-    protected String removeFileTypePrefix(String fullPrefix){
-        if (fullPrefix == null)
-            return null;
-        if (fullPrefix.startsWith(MC_PREFIX)){
-            return fullPrefix.replace(MC_PREFIX, "");
-        } else if (fullPrefix.startsWith(ALTO_PREFIX)){
-            return fullPrefix.replace(ALTO_PREFIX, "");
-        } else if (fullPrefix.startsWith(TXT_PREFIX)){
-            return fullPrefix.replace(TXT_PREFIX, "");
-        } else if (fullPrefix.startsWith(AMD_METS_PREFIX)){
-            return fullPrefix.replace(AMD_METS_PREFIX, "");
-        }
-        return fullPrefix;
-    }
 
     protected StreamFileType getFileType(String fullPrefix){
-        if (fullPrefix == null)
-            return null;
-        if (fullPrefix.startsWith(MC_PREFIX)){
+        if (fullPrefix == null){
+            throw new ServiceException("Unknown file type: NULL");
+        }
+        if (fullPrefix.startsWith(MC_PREFIX)||fullPrefix.startsWith(UC_PREFIX)){
             return StreamFileType.IMAGE;
         } else if (fullPrefix.startsWith(ALTO_PREFIX)){
             return StreamFileType.ALTO;
@@ -800,7 +796,7 @@ public abstract class BaseConvertor {
         } else if (fullPrefix.startsWith(AMD_METS_PREFIX)){
             return StreamFileType.AMD;
         }
-        return null;
+        throw new ServiceException("Unknown file type: "+fullPrefix);
     }
 
     /**
@@ -1154,6 +1150,61 @@ public abstract class BaseConvertor {
             throw new ServiceException(e);
         }
     }
+
+
+    private DatastreamType createAMDStream(String filename) throws ServiceException {
+        if (filename == null){
+            return null;
+        }
+
+        try {
+            File amdFile = new File(getConfig().getImportFolder() + System.getProperty("file.separator") + filename);
+            if (! amdFile.exists() || !amdFile.canRead()) {
+                return null;
+            }
+            String streamType = KConfiguration.getInstance().getConfiguration().getString("convert.files", "encoded");
+            DatastreamType stream = new DatastreamType();
+            stream.setID(FedoraUtils.IMG_FULL_STREAM+"_AMD");
+            if ("external".equalsIgnoreCase(streamType)){
+                stream.setCONTROLGROUP("E");
+            }else{
+                stream.setCONTROLGROUP("M");
+            }
+            stream.setVERSIONABLE(false);
+            stream.setSTATE(StateType.A);
+
+            DatastreamVersionType version = new DatastreamVersionType();
+            version.setCREATED(getCurrentXMLGregorianCalendar());
+            version.setID(FedoraUtils.IMG_FULL_STREAM+"_AMD" + STREAM_VERSION_SUFFIX);
+
+            version.setMIMETYPE("text/xml");
+
+            // long start = System.currentTimeMillis();
+
+
+            if ("encoded".equalsIgnoreCase(streamType)){
+                byte[] binaryContent = FileUtils.readFileToByteArray(amdFile);
+                version.setBinaryContent(binaryContent);
+            }else{//external or referenced
+                String binaryDirectory = getConfig().getExportFolder() + System.getProperty("file.separator") + "amd";
+                // Destination directory
+                File dir = IOUtils.checkDirectory(binaryDirectory);
+                // Move file to new directory
+                File target = new File(dir, amdFile.getName());
+                FileUtils.copyFile(amdFile, target);
+                ContentLocationType cl = new ContentLocationType();
+                cl.setREF(FILE_SCHEME_PREFIX+fixWindowsFileURL(target.getAbsolutePath()));
+                cl.setTYPE("URL");
+                version.setContentLocation(cl);
+            }
+            stream.getDatastreamVersion().add(version);
+
+            return stream;
+        } catch (IOException e) {
+            throw new ServiceException(e);
+        }
+    }
+
 
     private BufferedImage readImage(String fileName)throws IOException, MalformedURLException{
         /*String[] suffixes = ImageIO.getReaderFileSuffixes();
