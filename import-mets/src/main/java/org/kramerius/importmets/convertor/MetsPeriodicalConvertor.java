@@ -253,9 +253,31 @@ public class MetsPeriodicalConvertor extends BaseConvertor {
     }
 
 
-    private void processDiv(Foxml parent, DivType div) {
+    private Foxml processDiv(Foxml parent, DivType div) {
+        String divType = div.getTYPE();
+        if ("PICTURE".equalsIgnoreCase(divType)) return null;//divs for PICTURE are not supported in K4
+        if ("MONOGRAPH".equalsIgnoreCase(divType)){//special hack to ignore extra div for monograph
+            List<DivType> volumeDivs = div.getDiv();
+            if (volumeDivs == null) return null;
+            if (volumeDivs.size()==1){//process volume as top level
+                processDiv(null, volumeDivs.get(0));
+                return null;
+            }
+            if (volumeDivs.size()>1){//if monograph div contains more subdivs, first is supposed to be the volume, the rest are supplements that will be nested in the volume.
+                Foxml volume = processDiv(null, volumeDivs.get(0));
+                for (int i =1;i<volumeDivs.size();i++){
+                    processDiv(volume,volumeDivs.get(i));
+                }
+            }
+            return null;
+        }
+
         MdSecType modsIdObj = (MdSecType) firstItem(div.getDMDID());
-        if (modsIdObj == null) return;
+        if (modsIdObj == null) return null;//we consider only div with associated metadata (DMDID)
+
+
+        String model = mapModel(divType);
+
 
         String modsId = modsIdObj.getID();
         String dcId = modsId.replaceFirst("MODS", "DC");
@@ -265,8 +287,6 @@ public class MetsPeriodicalConvertor extends BaseConvertor {
             throw new ServiceException("Cannot find mods: " + modsId);
         }
 
-        String divType = div.getTYPE();
-        String model = mapModel(divType);
 
         String uuid = getUUIDfromMods(mods);
         if (uuid == null) {
@@ -301,6 +321,7 @@ public class MetsPeriodicalConvertor extends BaseConvertor {
         for (DivType partDiv : div.getDiv()) {
             processDiv(foxml, partDiv);
         }
+        return foxml;
     }
 
     private String mapModel(String divType){
@@ -316,6 +337,10 @@ public class MetsPeriodicalConvertor extends BaseConvertor {
             return MODEL_SUPPLEMENT;
         }else if ("PICTURE".equalsIgnoreCase(divType)){
             return MODEL_PICTURE;
+        }else if ("VOLUME".equalsIgnoreCase(divType)){
+            return MODEL_MONOGRAPH;
+        }else if ("CHAPTER".equalsIgnoreCase(divType)){
+            return MODEL_INTERNAL_PART;
         }
         throw new ServiceException("Unsupported div type in logical structure: "+divType);
     }
@@ -330,6 +355,8 @@ public class MetsPeriodicalConvertor extends BaseConvertor {
         }else if (MODEL_SUPPLEMENT.equalsIgnoreCase(model)){
             return RelsExt.HAS_INT_COMP_PART;
         }else if (MODEL_PICTURE.equalsIgnoreCase(model)){
+            return RelsExt.HAS_INT_COMP_PART;
+        }else if (MODEL_INTERNAL_PART.equalsIgnoreCase(model)){
             return RelsExt.HAS_INT_COMP_PART;
         }
         throw new ServiceException("Unsupported model mapping in logical structure: "+model);
@@ -353,7 +380,7 @@ public class MetsPeriodicalConvertor extends BaseConvertor {
                     log.warn("Invalid structLink from: "+from+" to: "+to);
                     continue;
                 }
-                if (from.startsWith("ISSUE")||from.startsWith("SUPPLEMENT")){
+                if (from.startsWith("ISSUE")||from.startsWith("VOLUME")||from.startsWith("SUPPLEMENT")){
                     part.getRe().addRelation(RelsExt.HAS_PAGE, target.getPid(), false);
                 }else{
                     part.getRe().addRelation(RelsExt.IS_ON_PAGE, target.getPid(), false);
