@@ -499,8 +499,6 @@ function _processFailed() {
 
 }
 
-
-
 var _indexerDialog;
 /**
  * Zobrazuje spravu indexace
@@ -517,8 +515,8 @@ function showIndexerAdmin(){
     } else {
     	_indexerDialog = $("#indexer").dialog({
             bgiframe: true,
-            width: 800,
-            height: 550,
+            width: 1000,
+            height: 650,
             modal: true,
 	        title: dictionary['administrator.menu.dialogs.indexDocuments.title'],
             buttons: [

@@ -37,8 +37,11 @@
     <c:set var="order_dir" value="asc" />
 </c:if>
         <%
-
-    int rows = 40;
+    String rowsStr = request.getParameter("rows");
+    int rows = 20;
+    if(rowsStr!=null){
+        rows = Integer.parseInt(rowsStr);
+    }
     pageContext.setAttribute("rows", rows);
     
 
@@ -60,7 +63,7 @@ String selectedModel = request.getParameter("model");
 if(selectedModel==null || selectedModel.length()==0){
     return;
 }
-org.w3c.dom.Document doc = g.getFedoraObjectsFromModelExt(selectedModel, rows, offset, sort, sort_dir);
+org.w3c.dom.Document doc = g.getFedoraObjectsFromModelExt(selectedModel, rows+1, offset, sort, sort_dir);
 
 pageContext.setAttribute("selModel", selectedModel);
 pageContext.setAttribute("doc", doc);

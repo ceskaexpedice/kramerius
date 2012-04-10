@@ -76,14 +76,17 @@ cz.incad.kramerius.service.XSLService xs = (cz.incad.kramerius.service.XSLServic
 </c:catch>
 <c:choose>
     <c:when test="${exceptions != null}">
-        <c:out value="${exceptions}" /><br/>
+        <c:out value="${exceptions}" />
+<c:if test="${param.debug =='true'}"><c:out value="${url}" />
+<br/>
 i18nServlet: ${i18nServlet}<br/>
 pid: ${param.pid}<br/>
 level: ${param.level}<br/>
 onlyrels: ${param.onlyrels}<br/>
 onlyinfo: ${param.onlyinfo}<br/>
 xslPage ${xslPage}<br/>
-        <c:out value="${url}" /><br/>
-        <c:out value="${xml}" /><br/>
+<c:out value="${url}" /><br/>
+<c:out value="${xml}" /><br/>
+</c:if>
     </c:when>
 </c:choose>

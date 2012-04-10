@@ -306,8 +306,8 @@ function showIndexerAdmin(){
     } else {
     	_indexerDialog = $("#indexer").dialog({
             bgiframe: true,
-            width: 800,
-            height: 500,
+            width: 900,
+            height: 550,
             modal: true,
 	        title: dictionary['administrator.menu.dialogs.indexDocuments.title'],
             buttons: [{
@@ -331,16 +331,15 @@ function checkIndexed(){
         url = "inc/admin/_indexer_check.jsp?pid="+pid;
         $.get(url, function(data) {
             if(trim10(data)=="1"){
-              $(obj).children('td:eq(0)').addClass("indexer_result_indexed");
+                var el = $(obj).children('td:eq(0)');
+              $(el).addClass("indexer_result_indexed");
+              $(el).attr("title", "view document");
             }else{
                $(obj).children('td:eq(0)').addClass("indexer_result_notindexed"); 
             }
         });
     });
 }
-
-
-
 
 function deletefromindex(level){
 	hideAdminOptions(level);

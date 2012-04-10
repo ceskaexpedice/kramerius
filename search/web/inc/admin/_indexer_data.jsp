@@ -48,7 +48,7 @@
     pageContext.setAttribute("top_models", models);
 %>
 <style type="text/css">
-    #indexerContent>div.section{
+    #indexerContent div.section{
         border-bottom:1px solid #E66C00; 
         padding-bottom: 5px; 
         margin-bottom: 5px;
@@ -66,89 +66,156 @@
     .indexer_result_indexed{
         background: url("img/ok.png") no-repeat;
         width:20px;
+        cursor: pointer;
     }
     .indexer_result_notindexed{
         background: url("img/alert.png") no-repeat;
         width:20px;
     }
-    #indexer_data_model>thead{
+    #indexer_tabs thead{
         width:100%;
         font-size: 11px;
     }
-    #indexer_data_model>thead span{
-        float:right;
+    #indexer_tabs thead span{
+        float:left;
+    }
+    .indexer_result_status{
+        min-width:16px;
     }
 </style>
-<div class="section">
-    <fmt:message bundle="${lctx}">administrator.menu.dialogs.index_by_PID</fmt:message>: 
-    <input type="text" id="pid_to_index" size="40" />
-    <input type="button" onclick="confirmIndexDocByPid($('#pid_to_index').val(), '');" value="index_pid" class="ui-state-default ui-corner-all" />
-</div>
-<div class="section">
-    <fmt:message bundle="${lctx}">administrator.menu.dialogs.check_integrity</fmt:message>&nbsp;
-    <input type="button"  id="check_integrity" onclick="checkIndexIntegrity();" value="check" class="ui-state-default ui-corner-all" />    
-</div>
-<div id="indexer_data_container">   
-<div>
-    <fmt:message bundle="${lctx}">administrator.menu.dialogs.browse_fedora_top_models</fmt:message>: 
-    <select id="top_models_select" onChange="loadFedoraDocuments($('#top_models_select').val(), 0);$('#indexer_data_model').show();">
-        <option>--</option>
-        <c:forEach var="top_model" items="${top_models}">
-        <option value="${top_model}">${top_model}</option>
-        </c:forEach>
-    </select>
-    <input type="button" onclick="confirmIndexModel($('#top_models_select').val());" value="<fmt:message bundle="${lctx}">administrator.menu.dialogs.index_model</fmt:message>" class="ui-state-default ui-corner-all" />
-</div> 
-<table id="indexer_data_model" cellpadding="0" cellspacing="0" class="indexer_selected" style="display:none;" width="100%">
-    <thead class="indexer_head"><tr style="display:block;width:100%;">
-        <th width="20px"></th>
-        <th width="610px" align="left">
-            <a href="javascript:orderDocuments('title')"><fmt:message bundle="${lctx}">administrator.menu.dialogs.dc.title</fmt:message></a>
-        </th>
-        <th width="138px">
-            <input type="hidden" id="indexer_order" value="${order}" />
-            <input type="hidden" id="indexer_order_dir" value="${order_dir}" />
-            <input type="hidden" id="indexer_offset" value="0" />
-            <a href="javascript:orderDocuments('date')"><fmt:message>common.date</fmt:message></a>
-            <span id="date_order_arrow" class="ui-icon ui-icon-arrowthick-1-n">order</span>
-        </th></tr></thead>
-    <tbody style="overflow:auto;display:block;width:100%;"><tr><td align="center" colspan="3"><img src="img/loading.gif" /></td></tr></tbody>
-    <tfoot class="indexer_head">
-        <tr>
-        <td width="100%" class="pager"  align="right">
-            <span class="prev"><a href="javascript:prevFedoraDocuments();">previous</a></span>
-            <span class="next"><a href="javascript:nextFedoraDocuments();">next</a></span>
-        </td></tr>
-    </tfoot>
-</table>
-            
+<div id="indexer_tabs">
+    <ul>
+        <li><a href="#indexer_browse_models"><fmt:message bundle="${lctx}">administrator.menu.dialogs.browse_fedora_models</fmt:message></a></li>
+        <li><a href="#indexer_search_fedora"><fmt:message bundle="${lctx}">administrator.menu.dialogs.search_fedora</fmt:message></a></li>
+        <li><a href="#indexer_other"><fmt:message bundle="${lctx}">administrator.menu.dialogs.other</fmt:message></a></li>
+    </ul>
+    <div id="indexer_other">       
+        <div class="section">
+            <fmt:message bundle="${lctx}">administrator.menu.dialogs.index_by_PID</fmt:message>: 
+            <input type="text" id="pid_to_index" size="40" />
+            <input type="button" onclick="confirmIndexDocByPid($('#pid_to_index').val(), '');" value="index_pid" class="ui-state-default ui-corner-all" />
+        </div>
+        <div class="section">
+            <fmt:message bundle="${lctx}">administrator.menu.dialogs.check_integrity</fmt:message>&nbsp;
+            <input type="button"  id="check_integrity" onclick="checkIndexIntegrity();" value="check" class="ui-state-default ui-corner-all" />    
+        </div>
+    </div>
+    <div id="indexer_browse_models" class="indexer_data_container">  
+        <div class="section">
+            <fmt:message bundle="${lctx}">fedora.model</fmt:message>: 
+            <%@include file="_indexer_models.jsp" %>&nbsp;
+        <fmt:message bundle="${lctx}">administrator.menu.dialogs.rows</fmt:message>: <input type="text" id="doc_rows" value="50" size="4" style="text-align: right;" />
+            <input type="button" onclick="confirmIndexModel($('#top_models_select').val());" value="<fmt:message bundle="${lctx}">administrator.menu.dialogs.index_model</fmt:message>" class="ui-state-default ui-corner-all" />
+        </div> 
+        <table id="indexer_data_model" cellpadding="0" cellspacing="0" class="indexer_selected" style="display:none;" width="100%">
+            <thead class="indexer_head"><tr style="display:block;width:100%;">
+                <th style="min-width:40px;"></th>
+                <th width="100%" align="left">
+                <fmt:message bundle="${lctx}">administrator.menu.dialogs.dc.title</fmt:message>
+                </th>
+                <th style="min-width:138px;" align="left">
+                    <input type="hidden" id="indexer_order" value="${order}" />
+                    <input type="hidden" id="indexer_order_dir" value="${order_dir}" />
+                    <input type="hidden" id="indexer_offset" value="0" />
+                    <a href="javascript:orderDocuments('date')"><fmt:message>common.date</fmt:message></a>
+                    <span id="date_order_arrow" class="ui-icon ui-icon-arrowthick-1-n">order</span>
+                </th></tr></thead>
+            <tbody style="overflow:auto;display:block;width:100%;"><tr><td align="center" colspan="3" width="768"><img src="img/loading.gif" /></td></tr></tbody>
+            <tfoot class="indexer_head">
+                <tr>
+                <td width="100%" class="pager"  align="center">
+                    <span class="prev"><a href="javascript:prevFedoraDocuments();">previous</a></span>&nbsp;&nbsp;&nbsp;
+                    <span class="next"><a href="javascript:nextFedoraDocuments();">next</a></span>
+                </td></tr>
+            </tfoot>
 
-</div>    
-        <script type="text/javascript">
-var rows = ${rows}; 
+        </table>
+    </div>
+    <div id="indexer_search_fedora" class="indexer_data_container">  
+    
+    <div class="section">
+        <input id="search_fedora_text" type="text" />
+        <a href="javascript:searchFedora(0);"><img border="0" align="top" src="img/lupa_orange.png" alt="Search"></a>&nbsp;
+        <fmt:message bundle="${lctx}">administrator.menu.dialogs.rows</fmt:message>: <input type="text" id="indexer_search_doc_rows" value="25" size="4" style="text-align: right;" />
+    </div>
+    <table id="indexer_data_search" cellpadding="0" cellspacing="0" class="indexer_selected" style="display:none;" width="100%">
+        <thead class="indexer_head"><tr style="display:block;width:100%;">
+            <th style="min-width:40px;"></th>
+            <th width="100%" align="left">
+            <fmt:message bundle="${lctx}">administrator.menu.dialogs.dc.title</fmt:message>
+            (<fmt:message bundle="${lctx}">document.type</fmt:message>)
+            </th>
+            <th style="min-width:240px;" align="left">PID</th>
+            <th style="min-width:138px;" align="left"><fmt:message>common.date</fmt:message></th></tr></thead>
+        <tbody style="overflow:auto;display:block;width:100%;"><tr><td align="center" colspan="5" width="768"><img src="img/loading.gif" /></td></tr></tbody>
+        
+
+    </table>
+    </div>
+ 
+</div>  
+<script type="text/javascript">
+    $(document).ready(function(){
+        $('.indexer_result_indexed').live('click', function(){
+            var pid = $(this).parent().attr('pid');
+            window.location = "i.jsp?pid="+pid;
+        });
+        $('#search_fedora_text').keypress(function(key){
+            
+            if( key.which == 13){
+                searchFedora();
+            }
+        })
+    });
+    $('#indexer_tabs').tabs();
 function prevFedoraDocuments(){
+    var rows = parseInt($('#doc_rows').val());
     loadFedoraDocuments($('#top_models_select').val(), parseInt($('#indexer_offset').val())-rows, $("#indexer_order").val());
 }
 function nextFedoraDocuments(){
+    var rows = parseInt($('#doc_rows').val());
     loadFedoraDocuments($('#top_models_select').val(), parseInt($('#indexer_offset').val())+rows, $("#indexer_order").val());
 }
 function orderDocuments(field){
     loadFedoraDocuments($('#top_models_select').val(), 0, field);
 }
-function loadFedoraDocuments(model, offset, sort){
+
+function searchFedora(){
+    $('#indexer_data_search').show();
+    var rows = $('#indexer_search_doc_rows').val();
+    var url = "inc/admin/_indexer_data_search.jsp?s="+$('#search_fedora_text').val()+"&rows="+rows;
+    $("#indexer_data_search>tbody").html('<tr><td align="center" colspan="3" width="768"><img src="img/loading.gif" /></td></tr>');
+    var diff = $("#indexer_search_fedora.indexer_data_container").outerHeight(true)
+        - $("#indexer_search_fedora.indexer_data_container").height();
+    var h = $("#indexer").height() - $("#indexer_tabs>ul").height() - diff - 12;
+    $("#indexer_search_fedora.indexer_data_container").css("height", h);
+    
+    $.get(url, function(data) {
+        $("#indexer_data_search>tbody>tr").remove();
+        $("#indexer_data_search>tbody").css("height", h - $("#indexer_data_search>thead").height() - 25);
+        $("#indexer_data_search>tbody").append(data);
+        checkIndexed();
+    });
+}
+function loadFedoraDocuments(model, offset, sort, rows){
+    $('#indexer_data_model').show();
     if(!sort) sort = $("#indexer_order").val();
     if(!model) model = $('#top_models_select').val();
+    if(!rows) rows = $('#doc_rows').val();
+    
     var sort_dir = $("#indexer_order_dir").val()=="asc"?"desc":"asc";
-    var url = "inc/admin/_indexer_data_model.jsp?model="+model+"&offset="+offset+"&sort="+sort+"&sort_dir="+sort_dir;
+    var url = "inc/admin/_indexer_data_model.jsp?model="+model+"&offset="+offset+"&sort="+sort+"&sort_dir="+sort_dir+"&rows="+rows;
+    $("#indexer_data_model>tbody").html('<tr><td align="center" colspan="3" width="768"><img src="img/loading.gif" /></td></tr>');
+    var diff = $("#indexer_browse_models.indexer_data_container").outerHeight(true)
+        - $("#indexer_browse_models.indexer_data_container").height();
+    var h = $("#indexer").height() - $("#indexer_tabs>ul").height() - diff - 12;
+    
+    $("#indexer_browse_models.indexer_data_container").css("height", h);
     $.get(url, function(data) {
         $("#indexer_data_model>tbody>tr").remove();
-        var h = $("#indexer").height();
-        $("#indexerContent>div.section").each(function(){
-            h = h - $(this).height() - 11;
-        });
-        $("#indexer_data_container").css("height", h);
         $("#indexer_data_model>tbody").css("height", h - $("#indexer_data_model>thead").height()*2 - 25);
         $("#indexer_data_model>tbody").append(data);
+        
         $("#indexer_order").val(sort);
         $("#indexer_order_dir").val(sort_dir);
         $("#indexer_offset").val(offset);
@@ -164,7 +231,7 @@ function loadFedoraDocuments(model, offset, sort){
         }else{
             $("#indexer_data_model .prev").hide();
         }
-        if($("#indexer_data_model>tbody>tr").length==rows){
+        if($('#indexer_result_rows').length>0){
             $("#indexer_data_model .next").show();
         }else{
             $("#indexer_data_model .next").hide();
