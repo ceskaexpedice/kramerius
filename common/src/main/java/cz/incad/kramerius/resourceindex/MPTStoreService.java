@@ -68,15 +68,13 @@ public class MPTStoreService implements IResourceIndex {
         this.adaptor = getTableManager();
         loadTableNames();
     }
-
-
     String Table_lastModifiedDate;
     String Table_dcTitle;
     String Table_model;
 
-    private void loadTableNames(){
+    private void loadTableNames() {
         try {
-            if(Table_model==null){
+            if (Table_model == null) {
                 Table_dcTitle = adaptor.getTableFor(NTriplesUtil.parsePredicate(PRED_dcTitle));
                 Table_lastModifiedDate = adaptor.getTableFor(NTriplesUtil.parsePredicate(PRED_lastModifiedDate));
                 Table_model = adaptor.getTableFor(NTriplesUtil.parsePredicate(PRED_model));
@@ -174,6 +172,85 @@ public class MPTStoreService implements IResourceIndex {
     static final String INPUT_DATE_FORMAT = "yyyy-MM-dd'T'HH:mm:ss";
 
     @Override
+    public Document getFedoraModels() throws Exception {
+//            String query = "select $object $title from <#ri> " +
+//                            "where $object <fedora-model:hasModel> <info:fedora/fedora-system:ContentModel-3.0>  " +
+//                            "and  $object <dc:title> $title" ;
+        Document xmldoc;
+        Connection c = null;
+        PreparedStatement s = null;
+        ResultSet r = null;
+        try {
+            DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+            factory.setNamespaceAware(true);
+            DocumentBuilder builder = factory.newDocumentBuilder();
+            xmldoc = builder.newDocument();
+            Element root = xmldoc.createElementNS(SPARQL_NS, "sparql");
+            Element results = xmldoc.createElementNS(SPARQL_NS, "results");
+            xmldoc.appendChild(root);
+            root.appendChild(results);
+            c = dataSource.getConnection();
+            String sql = "select " + Table_dcTitle + ".s, " + Table_dcTitle + ".o, " + Table_lastModifiedDate + ".o from ";
+            sql += Table_dcTitle + "," + Table_lastModifiedDate + "," + Table_model;
+            sql += " where " + Table_model + ".o='<info:fedora/fedora-system:ContentModel-3.0>' and " + Table_dcTitle + ".s=" + Table_lastModifiedDate + ".s and " + Table_dcTitle + ".s=" + Table_model + ".s "
+                    + " order by " + Table_dcTitle + ".o ";
+
+            s = c.prepareStatement(sql,
+                    ResultSet.FETCH_FORWARD,
+                    ResultSet.CONCUR_READ_ONLY);
+            r = s.executeQuery();
+            String uuid;
+            Element e, e2;
+            Node n;
+            while (r.next()) {
+                e = xmldoc.createElementNS(SPARQL_NS, "result");
+                uuid = r.getString(1);
+                //uuid = r.getString(1).split("info:fedora/")[1];
+                uuid = uuid.substring(1, uuid.length() - 1);
+
+                e2 = xmldoc.createElementNS(SPARQL_NS, "object");
+                e2.setAttribute("uri", uuid);
+                //n = xmldoc.createTextNode(uuid);
+                //e.appendChild(n);
+                e.appendChild(e2);
+
+                e2 = xmldoc.createElementNS(SPARQL_NS, "title");
+                n = xmldoc.createTextNode(org.nsdl.mptstore.util.NTriplesUtil.unescapeLiteralValue(org.nsdl.mptstore.util.DBUtil.quotedString(r.getString(2), true)));
+                //n = xmldoc.createTextNode(r.getString(2));
+                e2.appendChild(n);
+                e.appendChild(e2);
+
+                e2 = xmldoc.createElementNS(SPARQL_NS, "date");
+                String date = r.getString(3);
+                date = date.split("\"")[1];
+                DateFormat formatter = new SimpleDateFormat(INPUT_DATE_FORMAT);
+                Date dateValue = formatter.parse(date);
+                formatter = new SimpleDateFormat(OUTPUT_DATE_FORMAT);
+                n = xmldoc.createTextNode(formatter.format(dateValue));
+                e2.appendChild(n);
+                e.appendChild(e2);
+
+                results.appendChild(e);
+            }
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        } finally {
+            if (r != null) {
+                DatabaseUtils.tryClose(r);
+            }
+            if (s != null) {
+                DatabaseUtils.tryClose(s);
+            }
+            if (c != null) {
+                DatabaseUtils.tryClose(c);
+            }
+        }
+        //return result.toString();
+        return xmldoc;
+
+    }
+
+    @Override
     public Document getFedoraObjectsFromModelExt(String model, int limit, int offset, String orderby, String orderDir) throws Exception {
         /*
          * iTQL query
@@ -186,7 +263,7 @@ public class MPTStoreService implements IResourceIndex {
         offset <c:out value="${param.offset}" />
          */
         String torder = Table_lastModifiedDate + ".o";
-        if(orderby.equals("title")){
+        if (orderby.equals("title")) {
             torder = Table_dcTitle + ".o";
         }
 
@@ -206,12 +283,12 @@ public class MPTStoreService implements IResourceIndex {
             root.appendChild(results);
             c = dataSource.getConnection();
             String sql = "select " + Table_dcTitle + ".s, " + Table_dcTitle + ".o, " + Table_lastModifiedDate + ".o from ";
-            if(orderby.equals("title")){
+            if (orderby.equals("title")) {
                 sql += Table_dcTitle + "," + Table_lastModifiedDate + "," + Table_model;
-            }else{
+            } else {
                 sql += Table_lastModifiedDate + "," + Table_dcTitle + "," + Table_model;
             }
-             sql += " where " + Table_model + ".o='<info:fedora/model:" + model + ">' and " + Table_dcTitle + ".s=" + Table_lastModifiedDate + ".s and " + Table_dcTitle + ".s=" + Table_model + ".s "
+            sql += " where " + Table_model + ".o='<info:fedora/model:" + model + ">' and " + Table_dcTitle + ".s=" + Table_lastModifiedDate + ".s and " + Table_dcTitle + ".s=" + Table_model + ".s "
                     + " order by " + torder + " " + orderDir
                     + " limit " + limit + " offset " + offset;
 
@@ -232,11 +309,11 @@ public class MPTStoreService implements IResourceIndex {
             <results>
             <result>
             <object uri="info:fedora/uuid:9c1ad6d4-e645-11de-a504-001143e3f55c"/>
-
+            
             <title>Spisy Masarykovy Akademie Prace 1921</title>
             <date datatype="http://www.w3.org/2001/XMLSchema#dateTime">2010-05-03T08:24:40.776Z</date>
             </result>
-
+            
              */
             Element e, e2;
             Node n;
@@ -348,29 +425,30 @@ public class MPTStoreService implements IResourceIndex {
         return resList;
     }
 
-
     //@Override
     public ArrayList<String> getModelsPath(String uuid) throws Exception {
         ArrayList<String> modelPaths = new ArrayList<String>();
         ArrayList<String> pidpaths = getPidPaths(uuid);
-        for(String pidpath : pidpaths){
+        for (String pidpath : pidpaths) {
             String modelPath = "";
             String[] pids = pidpath.split("/");
-            for(int i = 0; i<pids.length; i++){
+            for (int i = 0; i < pids.length; i++) {
                 modelPath += getModel(pids[i]);
-                if(i<pids.length-1) modelPath += "/";
+                if (i < pids.length - 1) {
+                    modelPath += "/";
+                }
             }
             modelPaths.add(uuid);
         }
         return modelPaths;
     }
 
-    private String getModel(String uuid) throws Exception{
+    private String getModel(String uuid) throws Exception {
         /*
          * iTQL query
-            select $object $model from <#ri>
-            where  $object <dc:identifier>  'uuid'
-            and  $object <fedora-model:hasModel> $model
+        select $object $model from <#ri>
+        where  $object <dc:identifier>  'uuid'
+        and  $object <fedora-model:hasModel> $model
          */
 
         String model = "";
@@ -392,7 +470,7 @@ public class MPTStoreService implements IResourceIndex {
                     try {
                         if (r.next()) {
                             model = r.getString(1);
-                            model = model.substring("<info:fedora/model:".length(), model.length()-1);
+                            model = model.substring("<info:fedora/model:".length(), model.length() - 1);
                         }
                     } finally {
                         DatabaseUtils.tryClose(r);
@@ -457,22 +535,22 @@ public class MPTStoreService implements IResourceIndex {
     }
 
     @Override
-    public boolean existsPid(String pid) throws Exception{
+    public boolean existsPid(String pid) throws Exception {
         Configuration config = KConfiguration.getInstance().getConfiguration();
-            String query = "<info:fedora/" + pid + "> <info:fedora/fedora-system:def/model#hasModel>  * ";
-            String urlStr = config.getString("FedoraResourceIndex") + "?type=triples&flush=true&lang=spo&format=N-Triples&limit=&distinct=off&stream=off" +
-                    "&query=" + java.net.URLEncoder.encode(query, "UTF-8");
-            java.net.URL url = new java.net.URL(urlStr);
+        String query = "<info:fedora/" + pid + "> <info:fedora/fedora-system:def/model#hasModel>  * ";
+        String urlStr = config.getString("FedoraResourceIndex") + "?type=triples&flush=true&lang=spo&format=N-Triples&limit=&distinct=off&stream=off"
+                + "&query=" + java.net.URLEncoder.encode(query, "UTF-8");
+        java.net.URL url = new java.net.URL(urlStr);
 
-            java.io.BufferedReader in = new java.io.BufferedReader(new java.io.InputStreamReader(url.openStream()));
-            String inputLine;
-            if ((inputLine = in.readLine()) != null) {
-                in.close();
-                return true;
-            }else{
-                in.close();
-                return false;
-            }
+        java.io.BufferedReader in = new java.io.BufferedReader(new java.io.InputStreamReader(url.openStream()));
+        String inputLine;
+        if ((inputLine = in.readLine()) != null) {
+            in.close();
+            return true;
+        } else {
+            in.close();
+            return false;
+        }
     }
 
     @Override
@@ -480,17 +558,17 @@ public class MPTStoreService implements IResourceIndex {
         Configuration config = KConfiguration.getInstance().getConfiguration();
         String query = "* <rdf:isMemberOfCollection>  <info:fedora/" + collection + ">  ";
 
-            ArrayList<String> resList = new ArrayList<String>();
-            String urlStr = config.getString("FedoraResourceIndex") + "?type=triples&flush=true&lang=spo&format=N-Triples&limit="+limit+"&distinct=off&stream=off" +
-                    "&query=" + java.net.URLEncoder.encode(query, "UTF-8");
-            java.net.URL url = new java.net.URL(urlStr);
+        ArrayList<String> resList = new ArrayList<String>();
+        String urlStr = config.getString("FedoraResourceIndex") + "?type=triples&flush=true&lang=spo&format=N-Triples&limit=" + limit + "&distinct=off&stream=off"
+                + "&query=" + java.net.URLEncoder.encode(query, "UTF-8");
+        java.net.URL url = new java.net.URL(urlStr);
 
-            java.io.BufferedReader in = new java.io.BufferedReader(new java.io.InputStreamReader(url.openStream()));
-            String inputLine;
-            while ((inputLine = in.readLine()) != null) {
-                resList.add(inputLine.substring(1, inputLine.indexOf("> <")));
-            }
-            in.close();
-            return resList;
+        java.io.BufferedReader in = new java.io.BufferedReader(new java.io.InputStreamReader(url.openStream()));
+        String inputLine;
+        while ((inputLine = in.readLine()) != null) {
+            resList.add(inputLine.substring(1, inputLine.indexOf("> <")));
+        }
+        in.close();
+        return resList;
     }
 }

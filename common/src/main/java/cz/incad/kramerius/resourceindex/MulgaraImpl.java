@@ -34,6 +34,21 @@ public class MulgaraImpl implements IResourceIndex {
             //TODO: Zrusit 
             return XMLUtils.parseDocument(url.openStream(), true);
     }
+    
+    @Override
+    public Document getFedoraModels() throws Exception{
+        
+            Configuration config = KConfiguration.getInstance().getConfiguration();
+            String query = "select $object $title from <#ri> " +
+                            "where $object <fedora-model:hasModel> <info:fedora/fedora-system:ContentModel-3.0>  " +
+                            "and  $object <dc:title> $title" ;
+            String urlStr = config.getString("FedoraResourceIndex") + "?type=tuples&flush=true&lang=itql&format=Sparql&distinct=off&stream=off" +
+                    "&query=" + java.net.URLEncoder.encode(query, "UTF-8");
+            java.net.URL url = new java.net.URL(urlStr);
+            //TODO: Zrusit 
+            return XMLUtils.parseDocument(url.openStream(), true);
+        
+    }
 
     @Override
     public ArrayList<String> getFedoraPidsFromModel(String model, int limit, int offset) throws Exception {
