@@ -114,7 +114,6 @@
                 <fmt:message bundle="${lctx}">administrator.menu.dialogs.dc.title</fmt:message>
                 </th>
                 <th style="min-width:138px;" align="left">
-                    <input type="hidden" id="indexer_order" value="${order}" />
                     <input type="hidden" id="indexer_order_dir" value="${order_dir}" />
                     <input type="hidden" id="indexer_offset" value="0" />
                     <a href="javascript:orderDocuments('date')"><fmt:message>common.date</fmt:message></a>
@@ -170,11 +169,11 @@
     $('#indexer_tabs').tabs();
 function prevFedoraDocuments(){
     var rows = parseInt($('#doc_rows').val());
-    loadFedoraDocuments($('#top_models_select').val(), parseInt($('#indexer_offset').val())-rows, $("#indexer_order").val());
+    loadFedoraDocuments($('#top_models_select').val(), parseInt($('#indexer_offset').val())-rows);
 }
 function nextFedoraDocuments(){
     var rows = parseInt($('#doc_rows').val());
-    loadFedoraDocuments($('#top_models_select').val(), parseInt($('#indexer_offset').val())+rows, $("#indexer_order").val());
+    loadFedoraDocuments($('#top_models_select').val(), parseInt($('#indexer_offset').val())+rows);
 }
 function orderDocuments(field){
     loadFedoraDocuments($('#top_models_select').val(), 0, field);
@@ -199,12 +198,11 @@ function searchFedora(){
 }
 function loadFedoraDocuments(model, offset, sort, rows){
     $('#indexer_data_model').show();
-    if(!sort) sort = $("#indexer_order").val();
     if(!model) model = $('#top_models_select').val();
     if(!rows) rows = $('#doc_rows').val();
     
     var sort_dir = $("#indexer_order_dir").val()=="asc"?"desc":"asc";
-    var url = "inc/admin/_indexer_data_model.jsp?model="+model+"&offset="+offset+"&sort="+sort+"&sort_dir="+sort_dir+"&rows="+rows;
+    var url = "inc/admin/_indexer_data_model.jsp?model="+model+"&offset="+offset+"&sort=date&sort_dir="+sort_dir+"&rows="+rows;
     $("#indexer_data_model>tbody").html('<tr><td align="center" colspan="3" width="768"><img src="img/loading.gif" /></td></tr>');
     var diff = $("#indexer_browse_models.indexer_data_container").outerHeight(true)
         - $("#indexer_browse_models.indexer_data_container").height();
@@ -216,7 +214,6 @@ function loadFedoraDocuments(model, offset, sort, rows){
         $("#indexer_data_model>tbody").css("height", h - $("#indexer_data_model>thead").height()*2 - 25);
         $("#indexer_data_model>tbody").append(data);
         
-        $("#indexer_order").val(sort);
         $("#indexer_order_dir").val(sort_dir);
         $("#indexer_offset").val(offset);
         if(sort_dir=="asc"){
