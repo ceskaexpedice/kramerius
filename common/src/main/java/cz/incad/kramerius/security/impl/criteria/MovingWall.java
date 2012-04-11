@@ -93,7 +93,6 @@ public class MovingWall extends AbstractCriterium implements RightCriterium {
     
     
     public EvaluatingResult resolveInternal(int wallFromConf, String pid) throws IOException, XPathExpressionException {
-        // configurable ??
         if (pid.equals(SpecialObjects.REPOSITORY.getPid())) return EvaluatingResult.FALSE;
         Document mods = getEvaluateContext().getFedoraAccess().getBiblioMods(pid);
 
