@@ -39,6 +39,7 @@ import org.w3c.dom.Text;
 
 import cz.incad.kramerius.FedoraNamespaceContext;
 import cz.incad.kramerius.FedoraNamespaces;
+import cz.incad.kramerius.ObjectPidsPath;
 import cz.incad.kramerius.security.AbstractUser;
 import cz.incad.kramerius.security.RightCriteriumException;
 import cz.incad.kramerius.security.RightCriterium;
@@ -63,61 +64,63 @@ public class MovingWall extends AbstractCriterium implements RightCriterium {
     
     @Override
     public EvaluatingResult evalute() throws RightCriteriumException {
-
         int wallFromConf = Integer.parseInt((String)getObjects()[0]);
         try {
-            throw new NotImplementedException("not implemented !");
-            /*
-            String[] pathOfUUIDs = getEvaluateContext().getPathsToRoot();
-            List<String> path = new ArrayList<String>(Arrays.asList(pathOfUUIDs));
-            Collections.reverse(path);
-            for (String uuid : path) {
-                EvaluatingResult resolved = resolveInternal(wallFromConf, uuid);
-                if (resolved != EvaluatingResult.NOT_APPLICABLE) return resolved;
+
+            ObjectPidsPath[] pathsToRoot = getEvaluateContext().getPathsToRoot();
+            EvaluatingResult result = null;
+            for (ObjectPidsPath pth : pathsToRoot) {
+                String[] pids = pth.getPathFromLeafToRoot();
+                for (String pid : pids) {
+                    result = resolveInternal(wallFromConf, pid);
+                    if (result != null && result.equals(EvaluatingResult.TRUE)) return result; 
+                }
             }
-            */
-//            /return EvaluatingResult.NOT_APPLICABLE;
+
+            return result != null ? result :EvaluatingResult.FALSE;
         } catch (NumberFormatException e) {
+            LOGGER.log(Level.SEVERE,e.getMessage());
+            return EvaluatingResult.FALSE;
+        } catch (IOException e) {
+            LOGGER.log(Level.SEVERE,e.getMessage());
+            return EvaluatingResult.FALSE;
+        } catch (XPathExpressionException e) {
             LOGGER.log(Level.SEVERE,e.getMessage());
             return EvaluatingResult.FALSE;
         }
     }
 
-    public EvaluatingResult resolveInternal(int wallFromConf, String uuid) throws IOException {
-        //AbstractUser user = this.evalContext.getUser();
-        Document dc = getEvaluateContext().getFedoraAccess().getDC(uuid);
-        Element dateElem = XMLUtils.findElement(dc.getDocumentElement(), "date", FedoraNamespaces.DC_NAMESPACE_URI);
-        if (dateElem != null) {
-            String dateString = dateElem.getTextContent();
+    
+    
+    public EvaluatingResult resolveInternal(int wallFromConf, String pid) throws IOException, XPathExpressionException {
+        Document mods = getEvaluateContext().getFedoraAccess().getBiblioMods(pid);
 
-            int yearFromMetadata = Integer.parseInt(dateString);
+        XPathFactory xpfactory = XPathFactory.newInstance();
+        XPath xpath = xpfactory.newXPath();
+        xpath.setNamespaceContext(new FedoraNamespaceContext());
+        XPathExpression expr = xpath.compile("//mods:originInfo[@transliteration='publisher']/mods:dateIssued/text()");
+        Object date = expr.evaluate(mods, XPathConstants.NODE);
+        if (date != null) {
+            String year = ((Text) date).getData();
+
+            int biblioModsYear = Integer.parseInt(year);
+            
             Calendar calFromMetadata = Calendar.getInstance();
-            calFromMetadata.set(Calendar.YEAR, yearFromMetadata);
+            calFromMetadata.set(Calendar.YEAR, biblioModsYear);
+            System.out.println(calFromMetadata.getTime());
             
             Calendar calFromConf = Calendar.getInstance();
-            calFromConf.set(Calendar.YEAR, wallFromConf);
-            
-            return createResult(calFromMetadata, calFromConf);
-        } else return EvaluatingResult.NOT_APPLICABLE;
+            calFromConf.add(Calendar.YEAR, -1*wallFromConf);
+            System.out.println(calFromConf.getTime());
+
+            return calFromMetadata.before(calFromConf) ?  EvaluatingResult.TRUE:EvaluatingResult.FALSE;
+        }
+
+        
+        return null;
+        
     }
 
-    public EvaluatingResult createResult(Calendar calFromMetadata, Calendar calFromConf) {
-        return calFromMetadata.before(calFromConf) ?  EvaluatingResult.TRUE:EvaluatingResult.FALSE;
-    }
-
-//    @Override
-//    public boolean validate(Object[] objs) {
-//        if ((objs != null) && (objs.length == 1)) {
-//            String val = (String) objs[0];
-//            try {
-//                Integer.parseInt(val);
-//                return true;
-//            } catch (NumberFormatException e) {
-//                LOGGER.log(Level.SEVERE, e.getMessage(), e);
-//                return false;
-//            }
-//        } else return false;
-//    }
 
     @Override
     public RightCriteriumPriorityHint getPriorityHint() {
