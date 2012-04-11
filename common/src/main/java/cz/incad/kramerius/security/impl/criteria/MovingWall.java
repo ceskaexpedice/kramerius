@@ -93,6 +93,8 @@ public class MovingWall extends AbstractCriterium implements RightCriterium {
     
     
     public EvaluatingResult resolveInternal(int wallFromConf, String pid) throws IOException, XPathExpressionException {
+        // configurable ??
+        if (pid.equals(SpecialObjects.REPOSITORY.getPid())) return EvaluatingResult.FALSE;
         Document mods = getEvaluateContext().getFedoraAccess().getBiblioMods(pid);
 
         XPathFactory xpfactory = XPathFactory.newInstance();
@@ -107,11 +109,9 @@ public class MovingWall extends AbstractCriterium implements RightCriterium {
             
             Calendar calFromMetadata = Calendar.getInstance();
             calFromMetadata.set(Calendar.YEAR, biblioModsYear);
-            System.out.println(calFromMetadata.getTime());
             
             Calendar calFromConf = Calendar.getInstance();
             calFromConf.add(Calendar.YEAR, -1*wallFromConf);
-            System.out.println(calFromConf.getTime());
 
             return calFromMetadata.before(calFromConf) ?  EvaluatingResult.TRUE:EvaluatingResult.FALSE;
         }
