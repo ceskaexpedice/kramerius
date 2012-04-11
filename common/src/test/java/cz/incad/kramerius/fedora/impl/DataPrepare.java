@@ -149,7 +149,6 @@ public class DataPrepare {
         pidParser.objectPid();
 
         String path = "/cz/incad/kramerius/fedora/res/"+pidParser.getObjectId()+".mods.xml";
-        System.out.println(path);
         InputStream resStream = FedoraAccessImpl.class.getResourceAsStream(path);
         Document document = XMLUtils.parseDocument(resStream, true);
         EasyMock.expect(fa.getBiblioMods(pid)).andReturn(document).anyTimes();
