@@ -297,8 +297,14 @@
     }
 
     function sendFeedback(){
+        var pid = "";
+        var urls = getPersistentURLs();
+        for(var i=0; i<urls.length; i++){
+            pid = pid + '[' + urls[i] + '] ';
+        }
+        
         var url = "feedback?from="+$("#feedback_from").val() +
-            "&pid="+getAffectedPids() +
+            "&pid="+pid +
             "&content="+$("#feedback_content").val();
         $("#feedback_sending").show();
         $.post(url, function(data){
@@ -347,17 +353,7 @@
 
     var _persistentURLDialog;
     function persistentURL(){
-        var currentURL = window.location.href;
-        if (currentURL.match("^https")=='https') {
-            currentURL = currentURL.substr('https://'.length, currentURL.length);
-            var urlparts = currentURL.split('/');
-            currentURL="https://"+urlparts[0]+"/"+urlparts[1]+"/";
-        } else {
-            currentURL = currentURL.substr('http://'.length, currentURL.length);
-            var urlparts = currentURL.split('/');
-            currentURL="http://"+urlparts[0]+"/"+urlparts[1]+"/";
-        }
-
+        
         var textFieldID = 'persistentURLTextField';
 
         if (_persistentURLDialog) {
@@ -383,6 +379,17 @@
             });
         }
 
+        var currentURL = window.location.href;
+        if (currentURL.match("^https")=='https') {
+            currentURL = currentURL.substr('https://'.length, currentURL.length);
+            var urlparts = currentURL.split('/');
+            currentURL="https://"+urlparts[0]+"/"+urlparts[1]+"/";
+        } else {
+            currentURL = currentURL.substr('http://'.length, currentURL.length);
+            var urlparts = currentURL.split('/');
+            currentURL="http://"+urlparts[0]+"/"+urlparts[1]+"/";
+        }
+
         var uuids = getAffectedPids();
         var input;
         $('#'+textFieldID).html('');
@@ -392,14 +399,39 @@
         }else{
             prefix = 'cm_';
         }
-        for(var i=0; i<uuids.length; i++){
-            input = $(jq(prefix + uuids[i])+">label").html() + ': <input name="'+textFieldID+'"  style="width:100%;" type="text" '+
-                ' id="'+textFieldID+'" value="'+currentURL+"handle/"+uuids[i].split("_")[1]+'"  />';
+        var urls = getPersistentURLs();
+        for(var i=0; i<urls.length; i++){
+            input = $(jq(prefix + uuids[i])+">label").html() + ': <input style="width:100%;" type="text" '+
+                'value="'+urls[i]+'"  />';
             $('#'+textFieldID).append(input);
         }
         $('#'+textFieldID+'>input').focus(function() {
             $(this).select();
         });
+
+    }
+    
+    
+    function getPersistentURLs(){
+        var urls = new Array();
+
+        var currentURL = window.location.href;
+        if (currentURL.match("^https")=='https') {
+            currentURL = currentURL.substr('https://'.length, currentURL.length);
+            var urlparts = currentURL.split('/');
+            currentURL="https://"+urlparts[0]+"/"+urlparts[1]+"/";
+        } else {
+            currentURL = currentURL.substr('http://'.length, currentURL.length);
+            var urlparts = currentURL.split('/');
+            currentURL="http://"+urlparts[0]+"/"+urlparts[1]+"/";
+        }
+
+
+        var uuids = getAffectedPids();
+        for(var i=0; i<uuids.length; i++){
+            urls.push(currentURL+"handle/"+uuids[i].split("_")[1]);
+        }
+        return urls;
 
     }
 

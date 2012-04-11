@@ -76,6 +76,8 @@ public class FeedbackServlet extends GuiceServlet {
             HttpServletRequest request = this.requestProvider.get();
             javax.mail.Session sess = mailer.getSession(null, null);
             Message msg = new MimeMessage(sess);
+            msg.setHeader("Content-Type", "text/plain; charset=UTF-8");
+            
             String mailto = configuration.getProperty("administrator.email");
             msg.addRecipient(RecipientType.TO, new InternetAddress(mailto));
             msg.setSubject(resourceBundle.getString("feedback.mail.subject"));
