@@ -19,8 +19,11 @@ package cz.incad.Kramerius.views;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
+import java.util.ResourceBundle;
 
 import javax.xml.parsers.ParserConfigurationException;
 
@@ -33,11 +36,13 @@ import antlr.RecognitionException;
 import antlr.TokenStreamException;
 
 import com.google.inject.Inject;
-import com.google.inject.Provider;
 import com.google.inject.name.Named;
 
 import cz.incad.Kramerius.Initializable;
 import cz.incad.kramerius.FedoraAccess;
+import cz.incad.kramerius.ObjectPidsPath;
+import cz.incad.kramerius.SolrAccess;
+import cz.incad.kramerius.document.model.DCConent;
 import cz.incad.kramerius.service.ResourceBundleService;
 import cz.incad.kramerius.service.TextsService;
 import cz.incad.kramerius.utils.DCUtils;
@@ -47,9 +52,7 @@ public class AbstractPrintViewObject extends AbstractViewObject implements Initi
 
     protected List<RadioItem> items = new ArrayList<RadioItem>();
 
-    
     // test
-    
     @Named("securedFedoraAccess")
     @Inject
     protected FedoraAccess fedoraAccess;
@@ -59,10 +62,13 @@ public class AbstractPrintViewObject extends AbstractViewObject implements Initi
     protected TextsService textsService;
     
     @Inject
-    protected Provider<Locale> localesProvider;
+    protected Locale locale;
     
     @Inject
     protected ResourceBundleService resourceBundleService;
+    
+    @Inject
+    protected SolrAccess solrAccess;
     
     protected String header;
     protected String desc;
@@ -72,7 +78,8 @@ public class AbstractPrintViewObject extends AbstractViewObject implements Initi
     public void init() {
         try {
             
-            RadioItem selection = new RadioItem(Type.selection, "selection", true);
+            
+            SelectionRadioItem selection = new SelectionRadioItem("selection", true);
             List params = getPidsParams();
             for (int i = 0; i < params.size(); i++) {
                 Object pid = params.get(i);
@@ -80,7 +87,7 @@ public class AbstractPrintViewObject extends AbstractViewObject implements Initi
                     selection.addPid(pid.toString());
                 } else {
                     String id = pid.toString().replace(":", "_");
-                    RadioItem radioItem = new RadioItem(Type.master,i+"_"+id, false);
+                    MasterRadioItem radioItem = new MasterRadioItem(i+"_"+id, false);
                     radioItem.addPid(pid.toString());
                     this.items.add(radioItem);
                 }
@@ -102,7 +109,7 @@ public class AbstractPrintViewObject extends AbstractViewObject implements Initi
                 this.items.get(0).setChecked(true);
             }
             
-            String xml = this.textsService.getText("first_page_xml", this.localesProvider.get());
+            String xml = this.textsService.getText("first_page_xml", this.locale);
             Document doc = XMLUtils.parseDocument(new ByteArrayInputStream(xml.getBytes()), false);
             Element head = XMLUtils.findElement(doc.getDocumentElement(), "head");
             Element desc = XMLUtils.findElement(doc.getDocumentElement(), "desc");
@@ -140,16 +147,17 @@ public class AbstractPrintViewObject extends AbstractViewObject implements Initi
 
 
 
-    public class RadioItem {
+    
+    
+    
+    public abstract class RadioItem {
         
-        private Type type;
-        private List<String> pids;
-        private String id;
-        private boolean checked = false;
+        protected List<String> pids;
+        protected String id;
+        protected boolean checked = false;
         
-        private RadioItem(Type type, String id, boolean checked) {
+        public RadioItem( String id, boolean checked) {
             super();
-            this.type = type;
             this.pids = new ArrayList<String>();
             this.id = id;
             this.checked = checked;
@@ -158,7 +166,6 @@ public class AbstractPrintViewObject extends AbstractViewObject implements Initi
         public boolean isChecked() {
             return this.checked;
         }
-        
         
         public void setChecked(boolean checked) {
             this.checked = checked;
@@ -176,9 +183,6 @@ public class AbstractPrintViewObject extends AbstractViewObject implements Initi
             this.pids.remove(pid);
         }
         
-        public boolean isMaster() {
-            return this.type == Type.master;
-        }
         
         public String getId() {
             return id;
@@ -188,35 +192,221 @@ public class AbstractPrintViewObject extends AbstractViewObject implements Initi
             return new ArrayList<String>(this.pids);
         }
         
-        public String getName() throws IOException {
-            String first = this.pids.get(0);
-            Document dcf = AbstractPrintViewObject.this.fedoraAccess.getDC(first);
-            String firstTitle = DCUtils.titleFromDC(dcf);
 
-            if (type == Type.selection) {
-                if (this.pids.size() > 1) {
-                    String last = this.pids.get(this.pids.size()-1);
-                    Document dcl = AbstractPrintViewObject.this.fedoraAccess.getDC(last);
-                    String lastTitle = DCUtils.titleFromDC(dcl);
-                    return firstTitle +" - "+lastTitle;
-                } else {
-                    return firstTitle;
+        public Map<String, List<DCConent>> getDCS() throws IOException {
+            Map<String, List<DCConent>> maps = new HashMap<String, List<DCConent>>();
+            for (String pid : this.pids) {
+                ObjectPidsPath[] paths = AbstractPrintViewObject.this.solrAccess.getPath(pid);
+                if (paths.length > 0) {
+                    List<DCConent> dcs = new ArrayList<DCConent>();
+                    String[] pathFromLeaf = paths[0].getPathFromLeafToRoot();
+                    for (int i = 0; i < pathFromLeaf.length; i++) {
+                        String pidFromPath = pathFromLeaf[i];
+                        Document dcl = AbstractPrintViewObject.this.fedoraAccess.getDC(pidFromPath);
+                        DCConent content = DCUtils.contentFromDC(dcl);
+                        dcs.add(content);
+                    }
+                    maps.put(pid, dcs);
                 }
-            } else {
-                return firstTitle;
             }
+            return maps;
         }
         
-        public Type getType() {
-            return type;
+
+        public String[] getDescriptions() throws IOException {
+            ResourceBundle resBundle = resourceBundleService.getResourceBundle("labels", locale);
+
+            List<String> descs = new ArrayList<String>();
+
+            Map<String, List<DCConent>> dcs = getDCS();
+            for (String pid : getPids()) {
+                List<DCConent> list = dcs.get(pid);
+                DCConent dcConent = DCConent.collectFirstWin(list);
+
+                StringBuilder line = new StringBuilder();
+                // issn 
+                String[] idents = dcConent.getIdentifiers();
+                for (String id : idents) {
+                    if(id.startsWith("issn:")) {
+                        line.append(resBundle.getString("pdf.dc.issn")).append(":");
+                        line.append(id.substring("issn:".length()));
+                    }
+                }
+                if (line.length() > 0) {
+                    descs.add(line.toString());
+                }
+
+                //publishers
+                line = new StringBuilder();
+                String[] publishers = dcConent.getPublishers();
+                if (publishers.length > 0) {
+                    line.append(resBundle.getString("pdf.dc.publishers")).append(":");
+                    for (int i = 0; i < publishers.length; i++) {
+                        if (i > 0) line.append(",");
+                        line.append(publishers[i]);
+                    }
+                }
+                if (line.length() > 0) {
+                    descs.add(line.toString());
+                }
+
+                //creators
+                line = new StringBuilder();
+                String[] creators = dcConent.getCreators();
+                if (creators.length > 0) {
+                    line.append(resBundle.getString("pdf.dc.creators")).append(":");
+                    for (int i = 0; i < creators.length; i++) {
+                        if (i > 0) line.append(",");
+                        line.append(creators[i]);
+                    }
+                }
+
+                if (line.length() > 0) {
+                    descs.add(line.toString());
+                }
+                
+            }
+            
+            return (String[]) descs.toArray(new String[descs.size()]);
         }
+        
+        public boolean isDescriptionDefined() {
+            // more heuristic
+            return !isPidsMoreThenOne();
+        }
+        
+        public boolean isPidsMoreThenOne() {
+            return getPids().size() > 1;
+        }
+
+        public String[] getDetailedItemNames() throws IOException {
+            ResourceBundle resBundle = resourceBundleService.getResourceBundle("labels", locale);
+            if (isPidsMoreThenOne()) {
+                List<String> names = new ArrayList<String>();
+                for (String pid : this.pids) {
+                    names.add(getDetailedItemName(resBundle, pid));
+                }
+                return (String[]) names.toArray(new String[names.size()]);
+            } else return new String[0];
+        }
+        
+        public String getName() throws IOException {
+            ResourceBundle resBundle = resourceBundleService.getResourceBundle("labels", locale);
+            if (isPidsMoreThenOne()) {
+                // vice pidu -> napis a podtim seznam polozek
+                Map<String, List<DCConent>> dcs = getDCS();
+                List<String> pids = getPids();
+                if (pids.size() == 1) {
+                    List<DCConent> contents = dcs.get(pids.get(0));
+                    DCConent content = contents.get(0);
+                    return content.getTitle();
+                } else {
+                    List<String> models = new ArrayList<String>();
+                    for (String pid : pids) {
+                        DCConent dc = dcs.get(pid).get(0);
+                        String type = dc.getType();
+                        if (!models.contains(type)) { models.add(type); }
+                    }
+                    
+                    
+                    StringBuilder builder = new StringBuilder();
+                    for (int i = 0,ll=models.size(); i < ll; i++) {
+                        if (i > 0) builder.append(",");
+                        builder.append(resBundle.getString("fedora.model."+models.get(i)+"s"));
+                    }
+ 
+                    if (builder.length() > 0) builder.append(": ");
+                    
+                    String first = pids.get(0);
+                    String last = pids.get(pids.size() - 1);
+
+                    builder.append(dcs.get(first).get(0).getTitle()).append(" - ");
+                    builder.append(dcs.get(last).get(0).getTitle());
+                
+                    return builder.toString();
+                }
+                
+            } else {
+                String onePid = getPids().get(0);
+                return getDetailedItemName(resBundle, onePid);
+            }
+            
+        }
+
+        public String getDetailedItemName(ResourceBundle resBundle, String onePid) throws IOException {
+            StringBuilder builder = new StringBuilder();
+            List<DCConent> contents = getDCS().get(onePid);
+            for (int i = 0,ll=contents.size(); i < ll; i++) {
+                DCConent dcConent = contents.get(i);
+                String model = dcConent.getType();
+                String i18n = null;
+                String resBundleKey = "fedora.model."+model;
+                if (resBundle.containsKey(resBundleKey)) {
+                    i18n = resBundle.getString(model);
+                } else {
+                    i18n = model;
+                }
+                if (i > 0) builder.append(" | ");
+                builder.append(i18n).append(":").append(dcConent.getTitle());
+            }
+            
+            return builder.toString();
+        }
+        
+
+        
+        public abstract Type getType();
+
+        public abstract boolean isMaster();
+    }
+
+    
+    public class SelectionRadioItem extends RadioItem {
+        
+        public SelectionRadioItem(String id, boolean checked) {
+            super(id, checked);
+        }
+
+        @Override
+        public Type getType() {
+            return Type.selection;
+        }
+
+        @Override
+        public boolean isMaster() {
+            return false;
+        }
+
+
+        
     }
     
+    public class MasterRadioItem extends RadioItem {
+
+        public MasterRadioItem(String id, boolean checked) {
+            super(id, checked);
+        }
+
+        @Override
+        public boolean isMaster() {
+            return true;
+        }
+
+        @Override
+        public Type getType() {
+            return Type.master;
+        }
+
+        
+    }
+    
+
     static enum Type {
         selection,
         master;
     }
 
 
+    
 }
 

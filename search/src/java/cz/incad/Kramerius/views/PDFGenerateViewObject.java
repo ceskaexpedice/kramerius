@@ -49,8 +49,10 @@ import antlr.TokenStreamException;
 public class PDFGenerateViewObject extends AbstractPrintViewObject {
 
 
+    
+    
     public String getNumberOfGeneratedPages() throws IOException, RecognitionException, TokenStreamException, ParserConfigurationException, SAXException {
-        ResourceBundle bundle = this.resourceBundleService.getResourceBundle("labels", localesProvider.get());
+        ResourceBundle bundle = this.resourceBundleService.getResourceBundle("labels", this.locale);
         return bundle.getString("pdf.numberOfPages");
     }
 
