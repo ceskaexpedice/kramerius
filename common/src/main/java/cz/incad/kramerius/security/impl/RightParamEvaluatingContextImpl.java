@@ -90,9 +90,7 @@ public class RightParamEvaluatingContextImpl implements RightCriteriumContext {
     @Override
     public ObjectPidsPath[] getPathsToRoot() {
         try {
-            Document solrData = this.solrAccess.getSolrDataDocument(getRequestedPid());
             return this.solrAccess.getPath(getRequestedPid());
-        
         } catch (IOException e) {
             throw new IllegalStateException(e);
         }
