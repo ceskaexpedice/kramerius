@@ -303,11 +303,13 @@ function showIndexerAdmin(){
     });
     if (_indexerDialog) {
         _indexerDialog.dialog('open');
+        _indexerDialog.dialog("option", "width", $(window).width()-20);
+        _indexerDialog.dialog("option", "height", $(window).height()-60);
     } else {
     	_indexerDialog = $("#indexer").dialog({
             bgiframe: true,
-            width: 900,
-            height: 550,
+            width: $(window).width()-20,
+            height: $(window).height()-60,
             modal: true,
 	        title: dictionary['administrator.menu.dialogs.indexDocuments.title'],
             buttons: [{
