@@ -1,15 +1,10 @@
 package cz.incad.Kramerius;
 
-import static cz.incad.utils.IKeys.UUID_PARAMETER;
 
 import java.io.IOException;
-import java.util.HashMap;
 
 import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 
-import org.antlr.stringtemplate.StringTemplate;
 
 import com.google.inject.Inject;
 import com.google.inject.Provider;
@@ -17,12 +12,9 @@ import com.google.inject.name.Named;
 
 import cz.incad.Kramerius.backend.guice.GuiceServlet;
 import cz.incad.kramerius.FedoraAccess;
-import cz.incad.kramerius.security.IsActionAllowed;
 import cz.incad.kramerius.security.SecurityException;
-import cz.incad.kramerius.security.User;
 import cz.incad.kramerius.service.Mailer;
 import cz.incad.kramerius.service.ResourceBundleService;
-import cz.incad.kramerius.utils.ApplicationURL;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 import java.rmi.ServerException;
 import java.text.MessageFormat;
@@ -99,26 +91,5 @@ public class FeedbackServlet extends GuiceServlet {
             LOGGER.log(Level.SEVERE, e.getMessage());
             throw new ServerException(e.toString());
         }
-    }
-    
-
-
-    
-    public static void main(String[] args) {
-        StringTemplate template = new StringTemplate(
-            "$data.keys:{action| $data.(action).keys:{ key| $key$ :  $data.(action).(key)$ };separator=\",\"$ }$") ;
-        
-        HashMap map = new HashMap();
-
-        HashMap<String, String> data = new HashMap<String, String>(); {
-            data.put("drobnustky","true");
-            data.put("stranka","true");
-            data.put("repository","true");
-        };
-        map.put("edit",data);
-        
-        template.setAttribute("data", map);
-        System.out.println(template.toString());
-        
     }
 }
