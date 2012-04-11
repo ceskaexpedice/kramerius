@@ -107,6 +107,7 @@ public class DocumentServiceTest {
         .addMockedMethod("getRelsExt")
         .addMockedMethod("isImageFULLAvailable")
         .addMockedMethod("getDC")
+        .addMockedMethod("getBiblioMods")
         .addMockedMethod(FedoraAccessImpl.class.getMethod("getKrameriusModelName", String.class))
         .createMock();
         
@@ -115,7 +116,7 @@ public class DocumentServiceTest {
         DataPrepare.drobnustkyRelsExt(fa33);
         DataPrepare.drobnustkyWithIMGFULL(fa33);
         DataPrepare.drobnustkyDCS(fa33);
-        
+        DataPrepare.drobnustkyMODS(fa33);
         
         Set<String> keySet = MODELS_MAPPING.keySet();
         for (String key : keySet) {
@@ -125,9 +126,6 @@ public class DocumentServiceTest {
             String modelK4Name  = pidParser.getObjectId();
             EasyMock.expect(fa33.getKrameriusModelName(key)).andReturn(modelK4Name).anyTimes();
         }
-        
-        
-        
         
  
         ResourceBundleService bundleService = EasyMock.createMock(ResourceBundleService.class);
@@ -172,6 +170,8 @@ public class DocumentServiceTest {
         .addMockedMethod("getFedoraDescribeStream")
         .addMockedMethod("getRelsExt")
         .addMockedMethod("isImageFULLAvailable")
+        .addMockedMethod("getDC")
+        .addMockedMethod("getBiblioMods")
         .addMockedMethod(FedoraAccessImpl.class.getMethod("getKrameriusModelName", String.class))
         .createMock();
         
@@ -179,6 +179,8 @@ public class DocumentServiceTest {
         
         DataPrepare.drobnustkyRelsExt(fa33);
         DataPrepare.drobnustkyWithIMGFULL(fa33);
+        DataPrepare.drobnustkyDCS(fa33);
+        DataPrepare.drobnustkyMODS(fa33);
         
         
         
@@ -249,6 +251,8 @@ public class DocumentServiceTest {
         .addMockedMethod("getFedoraDescribeStream")
         .addMockedMethod("getRelsExt")
         .addMockedMethod("isImageFULLAvailable")
+        .addMockedMethod("getDC")
+        .addMockedMethod("getBiblioMods")
         .addMockedMethod(FedoraAccessImpl.class.getMethod("getKrameriusModelName", String.class))
         .createMock();
         
@@ -256,8 +260,8 @@ public class DocumentServiceTest {
         
         DataPrepare.drobnustkyRelsExt(fa33);
         DataPrepare.drobnustkyWithIMGFULL(fa33);
-
-//        DataPrepare.drobnustkyDCS(fa33);
+        DataPrepare.drobnustkyDCS(fa33);
+        DataPrepare.drobnustkyMODS(fa33);
 
         Set<String> keySet = MODELS_MAPPING.keySet();
         for (String key : keySet) {
