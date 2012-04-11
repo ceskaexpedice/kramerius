@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
     <modelVersion>4.0.0</modelVersion>
     <artifactId>common</artifactId>
@@ -44,13 +45,13 @@
             </exclusions>
         </dependency>
         <dependency>
-          <groupId>com.ibm.icu</groupId>
-          <artifactId>icu4j</artifactId>
-          <version>3.8</version>
+            <groupId>com.ibm.icu</groupId>
+            <artifactId>icu4j</artifactId>
+            <version>3.8</version>
         </dependency>
 
-        <!-- dependency> <groupId>xalan</groupId> <artifactId>xalan</artifactId>
-            <version>2.7.1</version> </dependency> <dependency> <groupId>org.apache</groupId>
+        <!-- dependency> <groupId>xalan</groupId> <artifactId>xalan</artifactId> 
+            <version>2.7.1</version> </dependency> <dependency> <groupId>org.apache</groupId> 
             <artifactId>xercesImpl</artifactId> <version>2.7.1</version> </dependency -->
 
         <!-- database for long running processes -->
@@ -84,13 +85,8 @@
             <version>${guice.version}</version>
         </dependency>
 
-        <!-- 
-        <dependency>
-            <groupId>com.google.inject</groupId>
-            <artifactId>guice-grapher</artifactId>
-            <version>${guice.version}</version>
-        </dependency>
-         -->
+        <!-- <dependency> <groupId>com.google.inject</groupId> <artifactId>guice-grapher</artifactId> 
+            <version>${guice.version}</version> </dependency> -->
 
         <dependency>
             <groupId>javax.inject</groupId>
@@ -145,7 +141,7 @@
             <artifactId>stringtemplate</artifactId>
             <version>3.2.1</version>
         </dependency>
-        
+
         <!-- json lib -->
         <dependency>
             <groupId>net.sf.json-lib</groupId>
@@ -153,7 +149,7 @@
             <version>2.3</version>
             <classifier>jdk15</classifier>
         </dependency>
-        
+
 
 
         <!-- DJVU dependencies -->
@@ -175,7 +171,8 @@
             <groupId>commons-configuration</groupId>
             <artifactId>commons-configuration</artifactId>
             <version>1.6</version>
-            <!-- remove commons logging and commons digester from dependency graph -->
+            <!-- remove commons logging and commons digester from dependency 
+                graph -->
             <exclusions>
                 <exclusion>
                     <groupId>commons-logging</groupId>
@@ -258,8 +255,24 @@
             <type>jar</type>
         </dependency>
     </dependencies>
+
+    <reporting>
+        <plugins>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>cobertura-maven-plugin</artifactId>
+                <configuration>
+                    <formats>
+                        <format>html</format>
+                        <format>xml</format>
+                    </formats>
+                </configuration>
+            </plugin>
+        </plugins>
+    </reporting>
+
     <build>
-<!--        <testSourceDirectory>${basedir}/src/main/test</testSourceDirectory> -->
+        <!-- <testSourceDirectory>${basedir}/src/main/test</testSourceDirectory> -->
         <resources>
             <resource>
                 <directory>${basedir}/src/main/java</directory>
@@ -290,6 +303,28 @@
         </resources>
         <plugins>
 
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>cobertura-maven-plugin</artifactId>
+                <version>2.5.1</version>
+                <configuration>
+                    <instrumentation>
+                        <ignores>
+                            <ignore>com.example.boringcode.*</ignore>
+                        </ignores>
+                        <excludes>
+                            <exclude>cz/**/*Test.class</exclude>
+                        </excludes>
+                    </instrumentation>
+                </configuration>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>clean</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
 
             <plugin>
                 <artifactId>maven-surefire-plugin</artifactId>
@@ -318,7 +353,7 @@
     <profiles>
 
         <profile>
-          <!-- profile to ignore stuff connecting to internal infrastructure-->
+            <!-- profile to ignore stuff connecting to internal infrastructure -->
             <id>offline</id>
             <build>
                 <plugins>
