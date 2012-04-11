@@ -181,12 +181,12 @@
         $('#scope_single.viewer').bind('viewReady', function(event, id){
             if(!initView){
                 var t = '<li id="cms_'+ k4Settings.activeUuid+'"><span class="ui-icon ui-icon-triangle-1-e " >item</span>'+$(jq(k4Settings.activeUuid)+">a>label").html()+'</li>';
-                $('#context_items_active').html(t);               
+                $('#context_items_active').html(t);
             }
         });
 
     });
-    
+
     function setInitActive(){
         var initialPid = model_path_str.replaceAll('/', '-') + "_" + pid_path[pid_path.length - 1];
         $('#context_items_active').html('<li id="cms_'+ initialPid+'"><span class="ui-icon ui-icon-triangle-1-e " >item</span><label>'+$(jq(initialPid)+">a>label").html()+'</label></li>');
@@ -302,10 +302,10 @@
         for(var i=0; i<urls.length; i++){
             pid = pid + '[' + urls[i] + '] ';
         }
-        
+
         var url = "feedback?from="+$("#feedback_from").val() +
             "&pid="+pid +
-            "&content="+$("#feedback_content").val();
+            "&content="+encodeURIComponent($("#feedback_content").val());
         $("#feedback_sending").show();
         $.post(url, function(data){
             alert('<view:msg>administrator.menu.feedback.success</view:msg>');
@@ -353,7 +353,7 @@
 
     var _persistentURLDialog;
     function persistentURL(){
-        
+
         var textFieldID = 'persistentURLTextField';
 
         if (_persistentURLDialog) {
@@ -410,8 +410,8 @@
         });
 
     }
-    
-    
+
+
     function getPersistentURLs(){
         var urls = new Array();
 
