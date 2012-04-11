@@ -1,16 +1,16 @@
 /*
  * Copyright (C) 2010 Pavel Stastny
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -57,28 +57,28 @@ public class AbstractPrintViewObject extends AbstractViewObject implements Initi
     @Inject
     protected FedoraAccess fedoraAccess;
 
-    
+
     @Inject
     protected TextsService textsService;
-    
+
     @Inject
     protected Locale locale;
-    
+
     @Inject
     protected ResourceBundleService resourceBundleService;
-    
+
     @Inject
     protected SolrAccess solrAccess;
-    
+
     protected String header;
     protected String desc;
 
-    
+
     @Override
     public void init() {
         try {
-            
-            
+
+
             SelectionRadioItem selection = new SelectionRadioItem("selection", true);
             List params = getPidsParams();
             for (int i = 0; i < params.size(); i++) {
@@ -104,13 +104,13 @@ public class AbstractPrintViewObject extends AbstractViewObject implements Initi
                     break;
                 }
             }
-            
+
             if ((!checked) && (!this.items.isEmpty())) {
                 this.items.get(0).setChecked(true);
             }
-            
+
             String xml = this.textsService.getText("first_page_xml", this.locale);
-            Document doc = XMLUtils.parseDocument(new ByteArrayInputStream(xml.getBytes()), false);
+            Document doc = XMLUtils.parseDocument(new ByteArrayInputStream(xml.getBytes("UTF-8")), false);
             Element head = XMLUtils.findElement(doc.getDocumentElement(), "head");
             Element desc = XMLUtils.findElement(doc.getDocumentElement(), "desc");
             this.header = head.getTextContent();
@@ -128,11 +128,11 @@ public class AbstractPrintViewObject extends AbstractViewObject implements Initi
         } catch (SAXException e) {
             throw new RuntimeException(e);
         }
-        
+
     }
 
 
-    
+
     public String getHeader() throws RecognitionException, TokenStreamException, IOException, ParserConfigurationException, SAXException {
         return header;
     }
@@ -147,34 +147,34 @@ public class AbstractPrintViewObject extends AbstractViewObject implements Initi
 
 
 
-    
-    
-    
+
+
+
     public abstract class RadioItem {
-        
+
         protected List<String> pids;
         protected String id;
         protected boolean checked = false;
-        
+
         public RadioItem( String id, boolean checked) {
             super();
             this.pids = new ArrayList<String>();
             this.id = id;
             this.checked = checked;
         }
-        
+
         public boolean isChecked() {
             return this.checked;
         }
-        
+
         public void setChecked(boolean checked) {
             this.checked = checked;
         }
-        
+
         public String getCheckedAttribute() {
-            return this.checked ? " checked='checked' " : "";  
+            return this.checked ? " checked='checked' " : "";
         }
-        
+
         public void addPid(String pid) {
             this.pids.add(pid);
         }
@@ -182,16 +182,16 @@ public class AbstractPrintViewObject extends AbstractViewObject implements Initi
         public void removePid(String pid) {
             this.pids.remove(pid);
         }
-        
-        
+
+
         public String getId() {
             return id;
         }
-        
+
         public List<String> getPids() {
             return new ArrayList<String>(this.pids);
         }
-        
+
 
         public Map<String, List<DCConent>> getDCS() throws IOException {
             Map<String, List<DCConent>> maps = new HashMap<String, List<DCConent>>();
@@ -211,7 +211,7 @@ public class AbstractPrintViewObject extends AbstractViewObject implements Initi
             }
             return maps;
         }
-        
+
 
         public String[] getDescriptions() throws IOException {
             ResourceBundle resBundle = resourceBundleService.getResourceBundle("labels", locale);
@@ -224,7 +224,7 @@ public class AbstractPrintViewObject extends AbstractViewObject implements Initi
                 DCConent dcConent = DCConent.collectFirstWin(list);
 
                 StringBuilder line = new StringBuilder();
-                // issn 
+                // issn
                 String[] idents = dcConent.getIdentifiers();
                 for (String id : idents) {
                     if(id.startsWith("issn:")) {
@@ -264,17 +264,17 @@ public class AbstractPrintViewObject extends AbstractViewObject implements Initi
                 if (line.length() > 0) {
                     descs.add(line.toString());
                 }
-                
+
             }
-            
+
             return (String[]) descs.toArray(new String[descs.size()]);
         }
-        
+
         public boolean isDescriptionDefined() {
             // more heuristic
             return !isPidsMoreThenOne();
         }
-        
+
         public boolean isPidsMoreThenOne() {
             return getPids().size() > 1;
         }
@@ -289,7 +289,7 @@ public class AbstractPrintViewObject extends AbstractViewObject implements Initi
                 return (String[]) names.toArray(new String[names.size()]);
             } else return new String[0];
         }
-        
+
         public String getName() throws IOException {
             ResourceBundle resBundle = resourceBundleService.getResourceBundle("labels", locale);
             if (isPidsMoreThenOne()) {
@@ -307,30 +307,30 @@ public class AbstractPrintViewObject extends AbstractViewObject implements Initi
                         String type = dc.getType();
                         if (!models.contains(type)) { models.add(type); }
                     }
-                    
-                    
+
+
                     StringBuilder builder = new StringBuilder();
                     for (int i = 0,ll=models.size(); i < ll; i++) {
                         if (i > 0) builder.append(",");
                         builder.append(resBundle.getString("fedora.model."+models.get(i)+"s"));
                     }
- 
+
                     if (builder.length() > 0) builder.append(": ");
-                    
+
                     String first = pids.get(0);
                     String last = pids.get(pids.size() - 1);
 
                     builder.append(dcs.get(first).get(0).getTitle()).append(" - ");
                     builder.append(dcs.get(last).get(0).getTitle());
-                
+
                     return builder.toString();
                 }
-                
+
             } else {
                 String onePid = getPids().get(0);
                 return getDetailedItemName(resBundle, onePid);
             }
-            
+
         }
 
         public String getDetailedItemName(ResourceBundle resBundle, String onePid) throws IOException {
@@ -349,20 +349,20 @@ public class AbstractPrintViewObject extends AbstractViewObject implements Initi
                 if (i > 0) builder.append(" | ");
                 builder.append(i18n).append(":").append(dcConent.getTitle());
             }
-            
+
             return builder.toString();
         }
-        
 
-        
+
+
         public abstract Type getType();
 
         public abstract boolean isMaster();
     }
 
-    
+
     public class SelectionRadioItem extends RadioItem {
-        
+
         public SelectionRadioItem(String id, boolean checked) {
             super(id, checked);
         }
@@ -378,9 +378,9 @@ public class AbstractPrintViewObject extends AbstractViewObject implements Initi
         }
 
 
-        
+
     }
-    
+
     public class MasterRadioItem extends RadioItem {
 
         public MasterRadioItem(String id, boolean checked) {
@@ -397,9 +397,9 @@ public class AbstractPrintViewObject extends AbstractViewObject implements Initi
             return Type.master;
         }
 
-        
+
     }
-    
+
 
     static enum Type {
         selection,
@@ -407,6 +407,6 @@ public class AbstractPrintViewObject extends AbstractViewObject implements Initi
     }
 
 
-    
+
 }
 
