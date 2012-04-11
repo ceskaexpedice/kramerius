@@ -16,10 +16,6 @@
  */
 package cz.incad.kramerius.views;
 
-import static junit.framework.Assert.assertEquals;
-import static org.easymock.EasyMock.createMockBuilder;
-import static org.easymock.EasyMock.replay;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -35,7 +31,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.xml.parsers.ParserConfigurationException;
 
 import junit.framework.Assert;
-import junit.framework.TestCase;
 
 import org.easymock.EasyMock;
 import org.junit.Test;
@@ -46,26 +41,18 @@ import antlr.TokenStreamException;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
-import com.google.inject.Inject;
 import com.google.inject.Injector;
-import com.google.inject.Provider;
 import com.google.inject.Provides;
-import com.google.inject.name.Named;
 import com.google.inject.name.Names;
 
 import cz.incad.Kramerius.views.AbstractPrintViewObject.RadioItem;
 import cz.incad.Kramerius.views.PDFGenerateViewObject;
-import cz.incad.kramerius.AbstractGuiceTestCase;
 import cz.incad.kramerius.FedoraAccess;
 import cz.incad.kramerius.ObjectPidsPath;
 import cz.incad.kramerius.SolrAccess;
-import cz.incad.kramerius.fedora.impl.DataPrepare;
-import cz.incad.kramerius.impl.FedoraAccessImpl;
 import cz.incad.kramerius.service.ResourceBundleService;
 import cz.incad.kramerius.service.TextsService;
-import cz.incad.kramerius.utils.FedoraUtils;
 import cz.incad.kramerius.utils.XMLUtils;
-import cz.incad.kramerius.utils.conf.KConfiguration;
 
 public class PDFGenerateViewObjectTest  {
 
