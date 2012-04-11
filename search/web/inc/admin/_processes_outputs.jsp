@@ -87,8 +87,8 @@ CreatedListeners.prototype.remove = function(listener) {
 
 CreatedListeners.prototype.fire = function() {
 	this.listeners.forEach(function(f) {
-     f.apply(this,[]);
-    });   
+		f.apply(this,[]);
+    }); 
 }
 
 var crListeners  = new CreatedListeners(); 

@@ -12,6 +12,35 @@
 
 <view:object name="pdfView" clz="cz.incad.Kramerius.views.PDFGenerateViewObject"></view:object>
 
+<style>
+<!--
+.r0{
+    background: white;
+}
+.r1{
+    background: #efefef;
+}
+
+.pdfSelection {
+    padding: 4px;
+}
+
+.pdfSelected {
+    border-left: 1px solid; 
+}
+
+.pages {
+        border:solid white 1px;
+        overflow:hidden;
+        background:#F1F1F1;
+        margin: 0px 4px;
+        -moz-box-shadow:0 0 6px rgba(0, 0, 0, 0.5);
+        -webkit-box-shadow:0 0 6px rgba(0, 0, 0, 0.5);
+        box-shadow:0 0 6px rgba(0, 0, 0, 0.5);
+}
+-->
+</style>
+
 <div style="margin: 10px">
 
     
@@ -26,34 +55,76 @@
 
 
     <table style="width: 100%">
-    <c:forEach items="${pdfView.items}" var="item">
-        <tr>
+    <c:forEach items="${pdfView.items}" var="item" varStatus="status">
+        <tr class="${(status.index mod 2 == 0) ? 'selection r0 ': 'selection r1 '}">
             <td>
-                <div id="${item.id}">
-                    <input type="radio" id="${item.id}_radio" name="pdfSelection" ${item.checkedAttribute} onclick="pdf.onChange('${item.id}', '${item.type}','${item.pids}');"  value="${item.pids}"> <view:msg>pdf.${item.type}.generate</view:msg> ${item.name}  </input>    
+
+                <div id="${item.id}" class="pdfSelection ${(item.checked) ? 'pdfSelected': ''}">
+
+                    <input type="radio" id="${item.id}_radio" name="pdfSelection" ${item.checkedAttribute} onclick="pdf.onChange('${item.id}', '${item.type}','${item.pids}');"  value="${item.pids}"/> 
+                    <strong>${item.name}</strong>
+                    <c:if test="${item.pidsMoreThenOne}">
+                        <div style="font-size: 85%;font-family:monospace;" >
+                            <ul>
+                                <c:forEach items="${item.detailedItemNames}" var="detailName">
+                                    <li>${detailName}</li>
+                                </c:forEach>
+                            </ul>
+                        </div>
+                    </c:if>
+                    <c:if test="${item.descriptionDefined}">
+                        <div style="font-size: 85%;font-family:monospace; margin-left: 10px;">
+                                <c:forEach items="${item.descriptions}" var="desc">
+                                    <c:out value="${desc}"></c:out><br>                               
+                                </c:forEach>                               
+                        </div>
+                    </c:if>
+
+                <c:if test="${item.master}">
+            
+                <c:if test="${item.checked}">
+                 <script type="text/javascript">
+                     // set previous 
+                     pdf.previous= "#${item.id}_option";
+                     
+                </script>
+                </c:if>            
+                <div style="font-size: small;font-family:monospace; margin-left: 10px;">
+
+                <div id="${item.id}_option" ${item.checked ? "style='display:block'" : "style='display:none'"} style="display:none">
+ 
+                      <span id="${item.id}_error" style="color: red;"></span>
+ 
+                  <div>
+                        <table>
+                        <tr><td><view:msg>pdf.numberOfPages</view:msg></td> </tr>
+                        <tr><td>
+                        <input name="pdfSelection" id="${item.id}_input" type="text" onkeyup="pdf.onKeyup('${item.id}', '${item.type}','${item.pids}');" value="${pdfView.maxNumberOfPages}" size="4"></input>
+                        </td> </tr>
+                        </table> 
+                  </div>
+              </div>
+              </div>
+            
+            </c:if>
+
+                    
+                </div>
+                
+            </td>
+            <td width="40%">
+                <div style="position: relative; width: 200px; height: 100px;" >
+                  <c:forEach items="${item.pids}" var="pid" varStatus="pidStatus">
+                    <c:if test="${pidStatus.index < 10}">
+                      <span  class="pages" style="position: absolute; z-index: ${-1* pidStatus.index+10}; right:  ${-15+pidStatus.index*15}px;  "> 
+                          <img src="img?uuid=${pid}&stream=IMG_THUMB&action=SCALE&scaledHeight=96" />
+                      </span>
+                    </c:if>
+                  </c:forEach>  
                 </div>
             </td>
         </tr>
-            <c:if test="${item.master}">
-            
-            <c:if test="${item.checked}">
-            <script type="text/javascript">
-                 // set previous 
-                pdf.previous= "#${item.id}_option";
-            </script>
-            </c:if>            
-            
-            <tr>
-                <td>
-                    <div id="${item.id}_option" ${item.checked ? "style='display:block'" : "style='display:none'"} style="display:none">
-                        ${pdfView.numberOfGeneratedPages}:<span id="${item.id}_error" style="color: red;"></span>
-                        <div>
-                            <input name="pdfSelection" id="${item.id}_input" type="text" onkeyup="pdf.onKeyup('${item.id}', '${item.type}','${item.pids}');" value="${pdfView.maxNumberOfPages}"></input>
-                        </div>
-                    </div>
-                </td>
-             </tr>
-            </c:if>
+
     </c:forEach>
     </table>
     

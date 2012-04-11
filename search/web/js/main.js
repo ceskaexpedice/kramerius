@@ -297,6 +297,9 @@ PDF.prototype.onChange = function(id,type,pidsstring) {
 	}
 	$("#"+id+"_option").show();
  	this.previous = "#"+id+"_option";
+
+ 	$(".pdfSelected").removeClass("pdfSelected");
+ 	$("#"+id).addClass("pdfSelected");
 }
 
 /** zmena nastaveni (Desktop | Reader ) */
