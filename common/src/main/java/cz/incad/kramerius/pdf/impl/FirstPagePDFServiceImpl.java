@@ -75,7 +75,6 @@ public class FirstPagePDFServiceImpl implements FirstPagePDFService {
 
     public void logo(Document pdfDoc, ResourceBundle resBundle, Font bigFont) throws DocumentException {
         bigFont.setSize(48f);
-        // TODO: Change in text
         pdfDoc.add(new Paragraph(getLogoString(resBundle), bigFont));
     }
 
@@ -166,6 +165,7 @@ public class FirstPagePDFServiceImpl implements FirstPagePDFService {
 
                 Paragraph parDesc = new Paragraph(textsService.getText("first_page", localesProvider.get()), smallerFont);
                 doc.add(parDesc);
+                
             } catch (IOException e) {
                 LOGGER.log(Level.SEVERE, e.getMessage(), e);
             } catch (DocumentException e) {

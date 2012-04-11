@@ -4,16 +4,43 @@ import static cz.incad.kramerius.FedoraNamespaces.DC_NAMESPACE_URI;
 import static cz.incad.kramerius.utils.XMLUtils.findElement;
 
 import java.util.ArrayList;
-import java.util.List;
 import java.util.StringTokenizer;
 
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
+import cz.incad.kramerius.document.model.DCConent;
+
 
 public class DCUtils {
 
+    
+
+    public static DCConent contentFromDC(org.w3c.dom.Document dc) {
+        DCConent content = new DCConent();
+        String title = titleFromDC(dc);
+        if (title != null) content.setTitle(title);
+        
+        String model = modelFromDC(dc);
+        if (model != null) content.setType(model);
+        
+        String date = dateFromDC(dc);
+        if (date != null) content.setDate(date);
+        
+        String[] publishersFromDC = publishersFromDC(dc);
+        if (publishersFromDC != null) content.setPublishers(publishersFromDC);
+        
+        String[] creatorsFromDC = creatorsFromDC(dc);
+        if (creatorsFromDC != null) content.setCreators(creatorsFromDC);
+        
+        String[] identsFromDC = identifierlsFromDC(dc);
+        if (identsFromDC != null) content.setIdentifiers(identsFromDC);
+        
+        return content;
+         
+    }
+    
 	public static String titleFromDC(org.w3c.dom.Document dc) {
 		Element elm = findElement(dc.getDocumentElement(), "title", DC_NAMESPACE_URI);	
 		if (elm == null) elm = findElement(dc.getDocumentElement(), "identifier", DC_NAMESPACE_URI);
@@ -49,6 +76,11 @@ public class DCUtils {
         else return null;
     }
 	
+    
+    public static String[] identifierlsFromDC(org.w3c.dom.Document dc) {
+        ArrayList<String> idents = findElmTexts(dc, "identifier");
+        return (String[]) idents.toArray(new String[idents.size()]);
+    }
     
     public static ArrayList<String> findElmTexts(org.w3c.dom.Document dc, String elmName) {
         ArrayList<String> texts  = new ArrayList<String>();

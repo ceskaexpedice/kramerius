@@ -1,10 +1,12 @@
 package cz.incad.kramerius.document.model;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Stack;
 
-import cz.incad.kramerius.KrameriusModels;
 import cz.incad.kramerius.ObjectPidsPath;
 
 public abstract class AbstractRenderedDocument extends AbstractObject {
@@ -22,14 +24,17 @@ public abstract class AbstractRenderedDocument extends AbstractObject {
 	
 	protected OutlineItem outlineItemRoot;
 	
-	private ObjectPidsPath path;
-	
 	private List<AbstractPage> pages = new ArrayList<AbstractPage>();
 
 	private String documentTitle;
 
 	private int width = DEFAULT_WIDTH;
 	private int height = DEFAULT_HEIGHT; 
+	
+	private ObjectPidsPath objectPidsPath;
+	
+	
+	private Map<String, DCConent> dcs = new HashMap<String, DCConent>();
 	
 	public AbstractRenderedDocument(String modelName, String uuid) {
 		super(modelName, uuid);
@@ -96,11 +101,31 @@ public abstract class AbstractRenderedDocument extends AbstractObject {
 		while(!this.pages.remove(0).getUuid().equals(uuid)) {
 			pocitadlo += 1;
 		};
-		//System.out.println("Vymazanych stranek "+pocitadlo);
+	}
+
+	
+	public DCConent getDCContent(String pid) {
+	    return this.dcs.get(pid);
 	}
 	
+	public void mapDCConent(String pid, DCConent conent) {
+	    this.dcs.put(pid, conent);
+	}
+	
+	public void unmapDCContent(String pid) {
+	    this.dcs.remove(pid);
+	}
 
-	public void divide(OutlineItem leftRoot, OutlineItem rightRoot, String uuid) {
+	
+	public ObjectPidsPath getObjectPidsPath() {
+        return objectPidsPath;
+    }
+
+    public void setObjectPidsPath(ObjectPidsPath objectPidsPath) {
+        this.objectPidsPath = objectPidsPath;
+    }
+
+    public void divide(OutlineItem leftRoot, OutlineItem rightRoot, String uuid) {
 		State state = State.COPY_TO_RIGHT;
 		Stack<OutlineItem> stack = new Stack<OutlineItem>();
 		stack.push(this.outlineItemRoot);

@@ -22,12 +22,17 @@ import cz.incad.kramerius.ObjectPidsPath;
 import cz.incad.kramerius.ProcessSubtreeException;
 import cz.incad.kramerius.document.model.AbstractRenderedDocument;
 
+/**
+ * Service for creating documents model for printing and generating pdf
+ * @author pavels
+ */
 public interface DocumentService {
 
-
+    
     AbstractRenderedDocument buildDocumentAsTree(ObjectPidsPath path, String pidFrom, int[]rect) throws IOException, ProcessSubtreeException;
 
     AbstractRenderedDocument buildDocumentAsFlat(ObjectPidsPath path, String pidFrom, int howMany, int[] rect) throws IOException, ProcessSubtreeException;
+    
     
     AbstractRenderedDocument buildDocumentFromSelection(String[] selection, int[] rect) throws IOException, ProcessSubtreeException;
     

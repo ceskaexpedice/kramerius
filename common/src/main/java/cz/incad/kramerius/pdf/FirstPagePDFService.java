@@ -31,7 +31,6 @@ public interface FirstPagePDFService {
     public enum FirstPageType {TEXT, IMAGE};
 
     public void generateFirstPageForSelection(AbstractRenderedDocument rdoc, OutputStream os, String imgServlet, String i18nServlet, PDFFontConfigBean fontConfigBean);
-
     
     public void generateFirstPageForParent(AbstractRenderedDocument rdoc, OutputStream os, ObjectPidsPath path,String imgServlet, String i18nServlet, PDFFontConfigBean fontConfigBean);
     

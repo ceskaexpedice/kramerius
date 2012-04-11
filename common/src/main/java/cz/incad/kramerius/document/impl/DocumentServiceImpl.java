@@ -19,11 +19,14 @@ package cz.incad.kramerius.document.impl;
 import static cz.incad.kramerius.utils.BiblioModsUtils.getPageNumber;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Locale;
 import java.util.ResourceBundle;
 import java.util.logging.Level;
 
 import org.w3c.dom.DOMException;
+import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 import com.google.inject.Inject;
@@ -39,6 +42,7 @@ import cz.incad.kramerius.TreeNodeProcessor;
 import cz.incad.kramerius.document.DocumentService;
 import cz.incad.kramerius.document.model.AbstractPage;
 import cz.incad.kramerius.document.model.AbstractRenderedDocument;
+import cz.incad.kramerius.document.model.DCConent;
 import cz.incad.kramerius.document.model.ImagePage;
 import cz.incad.kramerius.document.model.OutlineItem;
 import cz.incad.kramerius.document.model.RenderedDocument;
@@ -47,6 +51,7 @@ import cz.incad.kramerius.impl.AbstractTreeNodeProcessorAdapter;
 import cz.incad.kramerius.pdf.utils.TitlesUtils;
 import cz.incad.kramerius.service.ResourceBundleService;
 import cz.incad.kramerius.service.TextsService;
+import cz.incad.kramerius.utils.DCUtils;
 import cz.incad.kramerius.utils.XMLUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 import cz.incad.kramerius.utils.pid.LexerException;
@@ -61,7 +66,7 @@ public class DocumentServiceImpl implements DocumentService {
     private SolrAccess solrAccess;
     
     @Inject
-    public DocumentServiceImpl(@Named("securedFedoraAccess") FedoraAccess fedoraAccess, SolrAccess solrAccess, KConfiguration configuration, Provider<Locale> localeProvider, TextsService textsService, ResourceBundleService resourceBundleService) {
+    public DocumentServiceImpl(@Named("securedFedoraAccess") FedoraAccess fedoraAccess, SolrAccess solrAccess, KConfiguration configuration, Provider<Locale> localeProvider,  ResourceBundleService resourceBundleService) {
         super();
         this.fedoraAccess = fedoraAccess;
         this.localeProvider = localeProvider;
@@ -88,7 +93,14 @@ public class DocumentServiceImpl implements DocumentService {
             
             ObjectPidsPath[] path = solrAccess.getPath(pidFrom);
             String[] pathFromLeafToRoot = path[0].getPathFromLeafToRoot();
-            String parent = pathFromLeafToRoot[pathFromLeafToRoot.length -2];
+            // {str, clanek, monografie }
+            String parent = null;
+            if (pathFromLeafToRoot.length > 1) {
+                parent = pathFromLeafToRoot[1];
+            } else {
+                parent = pidFrom;
+            }
+ 
             
             fedoraAccess.processSubtree(parent, new TreeNodeProcessor() {
                 private int index = 0;
@@ -158,6 +170,11 @@ public class DocumentServiceImpl implements DocumentService {
 
     
     
+    
+
+
+
+
     public void buildRenderingDocumentAsTree(/*org.w3c.dom.Document relsExt,*/ final AbstractRenderedDocument renderedDocument , final String pid) throws IOException, ProcessSubtreeException {
 
         fedoraAccess.processSubtree(pid, new TreeNodeProcessor() {
@@ -330,7 +347,9 @@ public class DocumentServiceImpl implements DocumentService {
             }
             for (String pid : selection) {
                 renderedDocument.addPage(createPage(renderedDocument, pid));
+                renderedDocument.mapDCConent(pid, DCUtils.contentFromDC(fedoraAccess.getDC(pid)));
             }
+            
             
             /*
             renderedDocument.setDocumentTitle(TitlesUtils.title(leaf, this.solrAccess, this.fedoraAccess));
@@ -350,6 +369,8 @@ public class DocumentServiceImpl implements DocumentService {
 
     @Override
     public AbstractRenderedDocument buildDocumentAsFlat(ObjectPidsPath path, String pidFrom, int howMany, int[] rect) throws IOException, ProcessSubtreeException {
+        
+        
         String leaf = path.getLeaf();
         ResourceBundle resourceBundle = resourceBundleService.getResourceBundle("base", localeProvider.get());
 
@@ -358,11 +379,18 @@ public class DocumentServiceImpl implements DocumentService {
             renderedDocument.setWidth(rect[0]);
             renderedDocument.setHeight(rect[1]);
         }
-        
+        renderedDocument.setObjectPidsPath(path);
+        // title ?? 
         renderedDocument.setDocumentTitle(TitlesUtils.title(leaf, this.solrAccess, this.fedoraAccess, resourceBundle));
         renderedDocument.setUuidTitlePage(path.getLeaf());
         renderedDocument.setUuidMainTitle(path.getRoot());
-        
+
+        String[] pids = path.getPathFromLeafToRoot();
+        for (String pid : pids) {
+            Document dcDocument = fedoraAccess.getDC(pid);
+            renderedDocument.mapDCConent(pid, DCUtils.contentFromDC(dcDocument));
+        }
+
         buildRenderingDocumentAsFlat(renderedDocument, pidFrom, howMany);
         return renderedDocument;
     }

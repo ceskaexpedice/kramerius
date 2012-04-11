@@ -1,0 +1,17 @@
+<commands>
+    <paragraph>
+        <textsarray>
+        <text font-formal-name="big">One font</text>
+        <text font-formal-name="small">Two font</text>
+        <text font-formal-name="normal">Three font</text>
+        </textsarray>
+    </paragraph>
+
+    <hr></hr>
+    <ul>
+        <li><textsarray><text font-formal-name="small"> Prvni polozka</text></textsarray></li>
+        <li><textsarray><text font-formal-name="small">Druha polozka</text></textsarray></li>
+    </ul>
+    
+    <image pid="onepid"></image>
+</commands>
