@@ -29,12 +29,16 @@ import cz.incad.kramerius.processes.utils.ProcessUtils;
 import cz.incad.kramerius.resourceindex.IResourceIndex;
 import cz.incad.kramerius.resourceindex.ResourceIndexService;
 import cz.incad.kramerius.utils.IOUtils;
+import cz.incad.kramerius.utils.XMLUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 import java.io.InputStream;
 import java.net.URLEncoder;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.UUID;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.apache.commons.lang.StringEscapeUtils;
@@ -50,7 +54,7 @@ public class VirtualCollectionsManager {
     static final String SPARQL_NS = "http://www.w3.org/2001/sw/DataAccess/rf1/result";
     static final String TEXT_DS_PREFIX = "TEXT_";
 
-    public static VirtualCollection getVirtualCollection(FedoraAccess fedoraAccess, String collection, String[] langs) {
+    public static VirtualCollection getVirtualCollection(FedoraAccess fedoraAccess, String collection, ArrayList<String> langs) {
         try {
             IResourceIndex g = ResourceIndexService.getResourceIndexImpl();
             Document doc = g.getFedoraObjectsFromModelExt("collection", 1000, 0, "title", "");
@@ -76,14 +80,25 @@ public class VirtualCollectionsManager {
                 }
                 if (name != null && pid != null && pid.equals(collection)) {
                     VirtualCollection vc = new VirtualCollection(name, pid);
-                    for (int k = 0; k < langs.length; k++) {
-                        try{
-                            String text = IOUtils.readAsString(fedoraAccess.getDataStream(pid, TEXT_DS_PREFIX + langs[++k]), Charset.forName("UTF-8"), true);
-                            vc.addDescription(langs[k], text);
-                        }catch(Exception e){
-                            logger.log(Level.WARNING, "Error getting datastream", e);
+                    String lang;
+                    try{
+                        Document textdoc = XMLUtils.parseDocument(fedoraAccess.getDataStream(pid, "TEXT"));
+                        NodeList textnodes = textdoc.getDocumentElement().getElementsByTagName("text");
+                        for (int k = 0; k < textnodes.getLength(); k++) {
+                            try{
+                                node = textnodes.item(k);
+                                lang = node.getAttributes().getNamedItem("language").getNodeValue();
+                                if(langs.contains(lang)){
+                                    vc.addDescription(lang, node.getFirstChild().getNodeValue());
+                                }
+                            }catch(Exception e){
+                                logger.log(Level.WARNING, "Error getting datastream", e);
+                            }
                         }
+                    }catch(Exception e){
+                        logger.log(Level.WARNING, "Error getting datastream", e);
                     }
+                    
                     return vc;
                 }
             }
@@ -94,7 +109,7 @@ public class VirtualCollectionsManager {
         }
     }
 
-    public static List<VirtualCollection> getVirtualCollections(FedoraAccess fedoraAccess, String[] langs) throws Exception {
+    public static List<VirtualCollection> getVirtualCollections(FedoraAccess fedoraAccess, ArrayList<String> langs) throws Exception {
         try {
             IResourceIndex g = ResourceIndexService.getResourceIndexImpl();
             Document doc = g.getFedoraObjectsFromModelExt("collection", 1000, 0, "title", "");
@@ -118,18 +133,28 @@ public class VirtualCollectionsManager {
                         pid = ((Element) child).getAttribute("uri").replaceAll("info:fedora/", "");
                     }
                 }
+                String lang;
+                
                 if (name != null && pid != null) {
-                    VirtualCollection vc = new VirtualCollection(name, pid);
-                    for (int k = 0; k < langs.length; k++) {
-                        try{
-                            String text = IOUtils.readAsString(fedoraAccess.getDataStream(pid, TEXT_DS_PREFIX + langs[++k]), Charset.forName("UTF-8"), true);
-                            vc.addDescription(langs[k], text);
-                        }catch(Exception e){
-                            logger.log(Level.WARNING, "Error getting datastream", e);
+                    try{
+                        VirtualCollection vc = new VirtualCollection(name, pid);
+                        Document textdoc = XMLUtils.parseDocument(fedoraAccess.getDataStream(pid, "TEXT"));
+                        NodeList textnodes = textdoc.getDocumentElement().getElementsByTagName("text");
+                        for (int k = 0; k < textnodes.getLength(); k++) {
+                            try{
+                                node = textnodes.item(k);
+                                lang = node.getAttributes().getNamedItem("language").getNodeValue();
+                                if(langs.contains(lang)){
+                                    vc.addDescription(lang, node.getFirstChild().getNodeValue());
+                                }
+                            }catch(Exception e){
+                                logger.log(Level.WARNING, "Error getting datastream", e);
+                            }
                         }
+                        vcs.add(vc);
+                    }catch(Exception vcex){
+                        logger.log(Level.WARNING, "Could not get virtual collection for  " + pid + ": " + vcex.toString());
                     }
-                    vcs.add(vc);
-
                 }
             }
             return vcs;
@@ -139,11 +164,13 @@ public class VirtualCollectionsManager {
         }
     }
 
-    public static void create(String label, String pid, FedoraAccess fedoraAccess) throws IOException {
+    public static String create(FedoraAccess fedoraAccess) throws IOException {
+        String pid = "vc:"+UUID.randomUUID().toString();
         InputStream is = VirtualCollectionsManager.class.getResourceAsStream("vc.xml");
         String s = IOUtils.readAsString(is, Charset.forName("UTF-8"), true);
-        s = s.replaceAll("##title##", StringEscapeUtils.escapeXml(label)).replaceAll("##pid##", pid);
+        s = s.replaceAll("##title##", StringEscapeUtils.escapeXml(pid)).replaceAll("##pid##", pid);
         fedoraAccess.getAPIM().ingest(s.getBytes(), "info:fedora/fedora-system:FOXML-1.1", "Create virtual collection");
+        return pid;
     }
 
     public static void delete(String pid, FedoraAccess fedoraAccess) throws Exception {
@@ -182,7 +209,23 @@ public class VirtualCollectionsManager {
             System.out.println("Datastream added");
         } else {
             fedoraAccess.getAPIM().modifyDatastreamByReference(pid, dsName, null, "Description " + lang, "text/plain", null, url, "DISABLED", null, "Change text description", true);
+            
         }
+    }
+
+    public static void modifyTexts(String pid, FedoraAccess fedoraAccess, Map<String, String> textsMap) throws IOException {
+        
+        String texts = "<texts>";
+        Iterator it = textsMap.keySet().iterator();
+        while(it.hasNext()){
+            String lang = (String)it.next();
+            String text = textsMap.get(lang);
+            if (text != null) {
+                texts += String.format("<text language=\"%s\">%s</text>", lang, text, lang);
+            }
+        }
+        texts += "</texts>";
+        fedoraAccess.getAPIM().modifyDatastreamByValue(pid, "TEXT", null, "Localized texts for this object", "text/plain", null, texts.getBytes(), "DISABLED", null, "Change text description", true);        
     }
 
     public static boolean isInCollection(String pid, String collection, final FedoraAccess fedoraAccess) throws IOException {

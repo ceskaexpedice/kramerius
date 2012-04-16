@@ -17,7 +17,9 @@
 package cz.incad.kramerius.virtualcollections;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class VirtualCollection {
     
@@ -37,6 +39,14 @@ public class VirtualCollection {
         return this.descriptions;
     }
     
+    public Map<String, String> getDescriptionsMap(){
+        Map map = new HashMap<String, String>();
+        for(CollectionDescription cd : descriptions){
+            map.put(cd.lang, cd.text);
+        }
+        return map;
+    }
+    
     public VirtualCollection(String label, String pid){
         this.label = label;
         this.pid = pid;
@@ -48,7 +58,7 @@ public class VirtualCollection {
     
     public String getDescriptionLocale(String lang){
         for(CollectionDescription ds : descriptions){
-            if(lang.equals(ds.id)){
+            if(lang.equals(ds.lang)){
                 return ds.text;
             }
         }
@@ -57,10 +67,10 @@ public class VirtualCollection {
     
     public class CollectionDescription{
         protected String text;
-        protected String id;
+        protected String lang;
         
-        public CollectionDescription(String id, String text){
-            this.id = id;
+        public CollectionDescription(String lang, String text){
+            this.lang = lang;
             this.text = text;
         }
 
@@ -68,8 +78,8 @@ public class VirtualCollection {
             return this.text;
         }
 
-        public String getId(){
-            return this.id;
+        public String getLang(){
+            return this.lang;
         }
     }
 }

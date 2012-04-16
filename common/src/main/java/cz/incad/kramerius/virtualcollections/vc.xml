@@ -20,6 +20,14 @@ xsi:schemaLocation="info:fedora/fedora-system:def/foxml# http://www.fedora.info/
             </foxml:xmlContent>
         </foxml:datastreamVersion>
     </foxml:datastream>
+    <foxml:datastream ID="TEXT" STATE="A" CONTROL_GROUP="X" VERSIONABLE="false">
+        <foxml:datastreamVersion ID="TEXT1.0" LABEL="Localized texts for this object" MIMETYPE="text/xml">
+            <foxml:xmlContent>
+                <texts>
+                </texts>
+            </foxml:xmlContent>
+        </foxml:datastreamVersion>
+    </foxml:datastream>
     <foxml:datastream VERSIONABLE="false" STATE="A" CONTROL_GROUP="X" ID="RELS-EXT">
         <foxml:datastreamVersion FORMAT_URI="info:fedora/fedora-system:FedoraRELSExt-1.0" MIMETYPE="application/rdf+xml" CREATED="2011-11-11T11:11:11" LABEL="RDF Statements about this object" ID="RELS-EXT.0">
             <foxml:xmlContent>
