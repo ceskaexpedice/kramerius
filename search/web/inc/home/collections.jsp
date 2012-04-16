@@ -11,6 +11,9 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn" %>
 <%@ taglib uri="/WEB-INF/tlds/cmn.tld" prefix="view" %>
 <%@ page isELIgnored="false"%><view:object name="cols" clz="cz.incad.Kramerius.views.virtualcollection.VirtualCollectionViewObject"></view:object>
+
+
+<c:if test="${empty param.refresh}">
 <style type="text/css">
     .collections li{
         line-height: 22px;
@@ -23,7 +26,32 @@
         font-weight: bold;
     }
 </style>
-<div class="collections" style="font-size:1.2em;">
+
+<script type="text/javascript">
+    $(document).ready(function(){
+        $("#col_refresh").button();
+    });
+    
+    function setVirtualCollection(collection){
+        var page = new PageQuery(window.location.search);
+        page.setValue("collection", collection);
+        var url = "?" + page.toString();
+        window.location = url;
+    }
+    
+    function refreshCollections(){
+        $("#collection_list").html('<div style="text-align:center; width:100%;display:block;margin-top:30px;"><img src="img/loading.gif" /></div>') ;
+        $.get('inc/home/collections.jsp?refresh=true', function(data){
+           $("#collection_list").html(data) ;
+        }).error(function(data){
+           $("#collection_list").html("Error") ;
+        });
+    }
+    
+</script>
+<a id="col_refresh" style="float:right;" href="javascript:refreshCollections();" title="<view:msg>common.refresh</view:msg>"><span class="ui-icon ui-icon-refresh">refresh</span></a>
+<div class="collections" id="collection_list" style="font-size:1.2em;">
+</c:if>
         <ul>
 <c:forEach var="col" items="${cols.virtualCollectionsLocale}">
     <li>
@@ -33,15 +61,6 @@
     </li>
 </c:forEach>
         </ul>
+    <c:if test="${empty param.refresh}">
 </div>
-
-<script type="text/javascript">
-    
-    function setVirtualCollection(collection){
-        var page = new PageQuery(window.location.search);
-        page.setValue("collection", collection);
-        var url = "?" + page.toString();
-        window.location = url;
-    }
-    
-</script>
+    </c:if>

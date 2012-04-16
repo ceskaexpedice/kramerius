@@ -13,6 +13,8 @@ import cz.incad.kramerius.FedoraAccess;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 import cz.incad.kramerius.virtualcollections.VirtualCollection;
 import cz.incad.kramerius.virtualcollections.VirtualCollectionsManager;
+import java.util.ArrayList;
+import java.util.Arrays;
 
 public class VirtualCollectionProvider implements Provider<VirtualCollection> {
 
@@ -45,7 +47,7 @@ public class VirtualCollectionProvider implements Provider<VirtualCollection> {
                 if (!parameter.startsWith("vc:")) {
                     parameter = "vc:" + parameter;
                 }
-                String[] langs = kConfiguration.getPropertyList("interface.languages");
+                ArrayList<String> langs = new ArrayList<String>(Arrays.asList(kConfiguration.getPropertyList("interface.languages")));
                 VirtualCollection vc = VirtualCollectionsManager.getVirtualCollection(fedoraAccess, parameter, langs);
                 session.setAttribute(VIRTUAL_COLLECTION, vc);
                 return vc;

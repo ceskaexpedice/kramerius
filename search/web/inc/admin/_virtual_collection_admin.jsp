@@ -39,36 +39,30 @@
 <table id="coll_table" cellpadding="0" cellspacing="0">
     <thead class="ui-widget-header">
     <th>pid</th>
-    <th>label</th>
     <c:forEach items="${buttons.languageItems}" var="langitm">
         <th>${langitm.name}</th>
     </c:forEach>
         <th></th>
     </thead>
-<c:forEach var="col" items="${cols.virtualCollections}">
-    <tr id="vc_${col.pid}">
-        <td>${col.pid}</td>
-        <td class="editable">
-            <span class="val">${col.label}</span>
-            <input style="display:none;" type="text" class="label val" value="${fn:replace(col.label, "\"", "")}" />
-        </td>
-        <c:forEach items="${col.descriptions}" var="desc">
-            <td class="editable lang">
-                <span class="val">${desc.text}</span>
-                <input style="display:none;" type="text" class="val" value="${desc.text}" />
-                <input type="hidden" class="id" value="${desc.id}" />
+    <c:forEach var="col" items="${cols.virtualCollections}">
+        <tr id="vc_${col.pid}">
+            <td>${col.pid}</td>
+            <c:forEach items="${buttons.languageItems}" var="langitm">
+                <td class="editable lang">
+                    <span class="val">${col.descriptionsMap[langitm.key]}</span>
+                    <input style="display:none;" type="text" class="val" value="${col.descriptionsMap[langitm.key]}" />
+                    <input type="hidden" class="id" value="${langitm.key}" />
+                </td>
+            </c:forEach>
+            <td class="buttons">
+                <a class="edit" title="<view:msg>administrator.dialogs.virtualcollections.edit</view:msg>" href="javascript:vcBeginEdit('${col.pid}');"><span class="ui-icon ui-icon-pencil">edit</span></a>
+                <a class="save" title="<view:msg>administrator.dialogs.virtualcollections.save</view:msg>" style="display:none;" href="javascript:vcSaveEdit('${col.pid}');"><span class="ui-icon ui-icon-disk">save</span></a>
+                <a class="delete" title="<view:msg>administrator.dialogs.virtualcollections.delete</view:msg>" href="javascript:vcDelete('${col.pid}');"><span class="ui-icon ui-icon-trash">delete</span></a>
             </td>
-        </c:forEach>
-        <td class="buttons">
-            <a class="edit" href="javascript:vcBeginEdit('${col.pid}');"><span class="ui-icon ui-icon-pencil">edit</span></a>
-            <a style="display:none;" class="save" href="javascript:vcSaveEdit('${col.pid}');"><span class="ui-icon ui-icon-disk">save</span></a>
-            <a href="javascript:vcDelete('${col.pid}');"><span class="ui-icon ui-icon-trash">delete</span></a>
-        </td>
-    </tr>
-</c:forEach>
+        </tr>
+    </c:forEach>
     <tr id="coll_add_row">
-        <td><input type="text" id="coll_add_id" value="" /></td>
-        <td><input type="text" id="coll_add_label" value="" /></td>
+        <td></td>
     <c:forEach items="${buttons.languageItems}" var="langitm">
         <td class="coll_add_lang">
             <input type="text" class="val" value="" />
@@ -76,7 +70,7 @@
         </td>
     </c:forEach>
         <td class="buttons">
-            <a href="javascript:vcAdd();"><span class="ui-icon ui-icon-plus">add</span></a>
+            <a href="javascript:vcAdd();" title="<view:msg>administrator.dialogs.virtualcollections.add</view:msg>"><span class="ui-icon ui-icon-plus">add</span></a>
         </td>
     </tr>
 </table>
@@ -99,14 +93,14 @@
     function vcToggleEdit(pid){
         $(jq("vc_"+pid)+">td.editable").children().toggle();
         $(jq("vc_"+pid)+" a.save").toggle();
+        $(jq("vc_"+pid)+" a.delete").toggle();
         $(jq("vc_"+pid)+" a.edit>span>span").toggleClass('ui-icon-cancel');
 
     }
 
     function vcSaveEdit(pid){
         var escapedText;
-        var url = "vc?action=CHANGE&pid="+pid+
-            "&label=" + $(jq("vc_"+pid)+" input.label").val();
+        var url = "vc?action=CHANGE&pid="+pid;
         $(jq("vc_"+pid)+" td.lang").each(function(){
             escapedText = replaceAll($(this).children("input.val").val(), ',', '');
             escapedText = replaceAll(escapedText, '\n', '');
@@ -132,14 +126,8 @@
 
 
     function vcAdd(){
-        var pid = $("#coll_add_id").val();
-        if(!pid.startsWith('vc:')){
-            pid = "vc:" + pid;
-        }
         var escapedText;
-        var label = $("#coll_add_label").val();
-        var url = "vc?action=CREATE&pid="+pid+
-            "&label=" + label;
+        var url = "vc?action=CREATE";
         $(".coll_add_lang").each(function(){
             escapedText = replaceAll($(this).children("input.val").val(), ',', '');
             escapedText = replaceAll(escapedText, '\n', '');
@@ -150,13 +138,9 @@
         });
         $("#coll_loading").css("height", $("#vcAdminDialog").height());
         $("#coll_loading").show();
-        $.get(url, function(data){
+        $.get(url, function(pid){
             var tr = '<tr id="vc_'+pid+'">' +
-                '<td>'+pid+'</td>'+
-                '<td class="editable">'+
-                '<span class="val">'+label+'</span>'+
-                '<input style="display:none;" type="text" class="label val" value="'+label+'" />'+
-                '</td>';
+                '<td>'+pid+'</td>';
             $(".coll_add_lang").each(function(){
                 tr = tr +
                     '<td class="editable lang">'+
@@ -178,7 +162,8 @@
             $("#coll_loading").hide();
 
         }).error(function(data, msg, status){
-            alert(status + ": " + data.responseText);
+            //alert(status + ": " + data.responseText);
+            alert("Error trying to create virtual collection");
             $("#coll_loading").hide();
         });
     }
