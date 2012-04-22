@@ -1,4 +1,5 @@
 <commands>
+
     <paragraph>
         <textsarray>
         <text font-formal-name="big">One font</text>
@@ -7,11 +8,13 @@
         </textsarray>
     </paragraph>
 
-    <hr></hr>
-    <ul>
-        <li><textsarray><text font-formal-name="small"> Prvni polozka</text></textsarray></li>
-        <li><textsarray><text font-formal-name="small">Druha polozka</text></textsarray></li>
-    </ul>
+    <break></break>
+    
+    <list>
+        <item><textsarray><text font-formal-name="small"> Prvni polozka</text></textsarray></item>
+        <item><textsarray><text font-formal-name="small">Druha polozka</text></textsarray></item>
+    </list>
     
     <image pid="onepid"></image>
+    
 </commands>

@@ -1,0 +1,95 @@
+<commands>
+    <paragraph spacing-after="3" spacing-before="20">
+        <textsarray>
+        <text font-formal-name="logo">Kramerius 4</text>
+        </textsarray>
+    </paragraph>
+
+    <paragraph  spacing-after="3">
+        <textsarray>
+        <text font-formal-name="normal">Digitální knihovna</text>
+        </textsarray>
+    </paragraph>
+        
+    <break></break>
+
+    <paragraph  spacing-after="10">
+        <textsarray>
+        <text font-formal-name="normal">  </text>
+     </textsarray>
+</paragraph>
+
+    
+    <paragraph  spacing-after="3">
+        <textsarray>
+        <text font-formal-name="normal"> Podmínky využití  </text>
+     </textsarray>
+</paragraph>
+
+<paragraph  spacing-after="20">
+<textsarray>
+<text font-formal-name="normal" hyph-country="CZ" hyph-lang="cs">
+Knihovna poskytuje přístup k digitalizovaným dokumentům pouze pro nekomerční, vědecké, studijní účely a pouze pro osobní potřeby uživatelů. Část dokumentů digitální knihovny podléhá autorským právům. Využitím digitální knihovny  a vygenerováním kopie části digitalizovaného dokumentu se uživatel zavazuje dodržovat tyto podmínky využití, které musí být součástí každé zhotovené kopie. Jakékoli další kopírování materiálu z digitální knihovny není možné bez případného písemného svolení knihovny.
+</text>
+</textsarray>
+</paragraph>
+
+
+ 
+
+<list list-type="unordered">
+
+
+                    <item list-symbol=" ">
+                        <textsarray>
+                            <text font-formal-name="normal">Hlavní název: </text>
+                            <text font-formal-name="strong">Národní listy</text>
+                        </textsarray>
+                    </item>
+                            <item list-symbol=" ">
+                        <textsarray>
+                            <text font-formal-name="normal">Vydavatel: </text>
+                            <text font-formal-name="strong">Julius Grégr</text>
+                        </textsarray>
+                    </item>
+                            <item list-symbol=" ">
+                        <textsarray>
+                            <text font-formal-name="normal">Vydáváno v letech: </text>
+                            <text font-formal-name="strong">1861 - 1941</text>
+                        </textsarray>
+                    </item>
+                            <item list-symbol=" ">
+                        <textsarray>
+                            <text font-formal-name="normal">Číslo ročníku: </text>
+                            <text font-formal-name="strong">81</text>
+                        </textsarray>
+                    </item>
+                            <item list-symbol=" ">
+                        <textsarray>
+                            <text font-formal-name="normal">Číslo výtisku: </text>
+                            <text font-formal-name="strong">1</text>
+                        </textsarray>
+                    </item>
+                            <item list-symbol=" ">
+                        <textsarray>
+                            <text font-formal-name="normal">Datum vydání čísla: </text>
+                            <text font-formal-name="strong">1.1.1941</text>
+                        </textsarray>
+                    </item>
+                            <item list-symbol=" ">
+                        <textsarray>
+                            <text font-formal-name="normal">Identifikátor ISSN: </text>
+                            <text font-formal-name="strong">1214-1240</text>
+                        </textsarray>
+                    </item>
+                            <item list-symbol=" ">
+                        <textsarray>
+                            <text font-formal-name="normal">Stránky: </text>
+                            <text font-formal-name="strong">[1] - 16</text>
+                        </textsarray>
+                    </item>
+                
+    
+     
+</list> 
+</commands>

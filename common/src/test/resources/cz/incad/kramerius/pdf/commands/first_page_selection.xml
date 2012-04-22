@@ -1,0 +1,82 @@
+<commands>
+    <paragraph spacing-after="20">
+        <textsarray>
+            <text>Kramerius 4</text>
+        </textsarray>
+    </paragraph>
+
+    <paragraph spacing-after="5">
+        <textsarray>
+
+<text hyph-country="cz" hyph-lang="cs">
+
+ Podmínky využití
+ 
+ Knihovna poskytuje přístup k digitalizovaným dokumentům pouze pro nekomerční, vědecké, studijní
+ účely a pouze pro osobní potřeby uživatelů. Část dokumentů digitální knihovny podléhá autorským
+ právům. Využitím digitální knihovny NK ČR a vygenerováním kopie části digitalizovaného
+ dokumentu se uživatel zavazuje dodržovat tyto podmínky využití, které musí být součástí každé
+ zhotovené kopie. Jakékoli další kopírování materiálu z digitální knihovny NK ČR není možné bez
+ případného písemného svolení NK ČR.
+
+</text>
+        </textsarray>
+    </paragraph>
+
+<line></line>
+
+<paragraph spacing-after="4">
+    <textsarray><text>
+Generovan vyber stranek    
+    </text></textsarray>
+</paragraph>
+
+    <paragraph spacing-after="4">
+        <list>
+            <item>
+                <paragraph spacing-after="15">
+                <textsarray>
+                    <text>Stranka [1]</text>
+                </textsarray>
+                </paragraph>
+                <list list-type="ORDERED" ordering-type="NUMERICAL">
+                    <item><textsarray><text>Periodikum: Zivot ve vode </text></textsarray></item>
+                    <item><textsarray><text>Rocnik: 1956</text></textsarray></item>
+                    <item><textsarray><text>Cislo: </text></textsarray></item>
+                    <item><textsarray><text>Vydavatele: Praha.. </text></textsarray></item>
+                </list>
+            </item>
+            
+            <item>
+                <paragraph spacing-after="3">
+                <textsarray>
+                    <text>Stranka [2]</text>
+                </textsarray>
+                </paragraph>
+                <list list-type="ORDERED" ordering-type="NUMERICAL">
+                    <item><textsarray><text>Periodikum: Zivot ve vode </text></textsarray></item>
+                    <item><textsarray><text>Rocnik: 1956</text></textsarray></item>
+                    <item><textsarray><text>Cislo: 2 </text></textsarray></item>
+                    <item><textsarray><text>Vydavatele: Praha.. </text></textsarray></item>
+                </list>
+            </item>
+
+            <item>
+                <paragraph spacing-after="3">
+                <textsarray>
+                    <text>Stranka [3]</text>
+                </textsarray>
+                </paragraph>
+                <list list-type="ORDERED" ordering-type="NUMERICAL">
+                    <item><textsarray><text>Periodikum: Zivot ve vode </text></textsarray></item>
+                    <item><textsarray><text>Rocnik: 1956</text></textsarray></item>
+                    <item><textsarray><text>Cislo: 2 </text></textsarray></item>
+                    <item><textsarray><text>Vydavatele: Praha.. </text></textsarray></item>
+                </list>
+            </item>
+            
+        </list>
+    </paragraph>
+
+    
+</commands>
