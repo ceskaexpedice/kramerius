@@ -231,7 +231,7 @@ public class FirstPagePDFServiceImplTest {
         
         Document renderedDoc = XMLUtils.parseDocument(new StringReader(generatedTemplate));
         
-        InputStream expected = this.getClass().getResourceAsStream("drobnustky_parent_first_page.xml");
+        InputStream expected = FirstPagePDFServiceImplTest.class.getResourceAsStream("drobnustky_parent_first_page.xml");
         Document expectedDoc = XMLUtils.parseDocument(expected);
         
     
@@ -297,7 +297,7 @@ public class FirstPagePDFServiceImplTest {
 
         Document renderedDoc = XMLUtils.parseDocument(new StringReader(generatedTemplate));
         
-        InputStream expected = this.getClass().getResourceAsStream("drobnustky_pages_selection.xml");
+        InputStream expected = FirstPagePDFServiceImplTest.class.getResourceAsStream("drobnustky_pages_selection.xml");
         Document expectedDoc = XMLUtils.parseDocument(expected);
         
     
@@ -401,7 +401,7 @@ public class FirstPagePDFServiceImplTest {
         Document renderedDoc = XMLUtils.parseDocument(new StringReader(generatedTemplate));
         
         
-        InputStream expected = this.getClass().getResourceAsStream("narodni_listy_selection_pages.xml");
+        InputStream expected = FirstPagePDFServiceImplTest.class.getResourceAsStream("narodni_listy_selection_pages.xml");
         Document expectedDoc = XMLUtils.parseDocument(expected);
         
     
@@ -488,7 +488,7 @@ public class FirstPagePDFServiceImplTest {
         Document renderedDoc = XMLUtils.parseDocument(new StringReader(generatedTemplate));
         
         
-        InputStream expected = this.getClass().getResourceAsStream("narodni_listy_parent.xml");
+        InputStream expected = FirstPagePDFServiceImplTest.class.getResourceAsStream("narodni_listy_parent.xml");
         Document expectedDoc = XMLUtils.parseDocument(expected);
         
     
