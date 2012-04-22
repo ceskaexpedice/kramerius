@@ -188,7 +188,8 @@ public class FirstPagePDFServiceImplTest {
     
     @Test
     public void testGenerateParent_DROBNUSTKY() throws SecurityException, NoSuchMethodException, IOException, ParserConfigurationException, SAXException, LexerException, ProcessSubtreeException, DocumentException, XPathExpressionException, JAXBException {
-        Locale locale = Locale.getDefault();
+        //hyph-country="CZ" hyph-lang="cs"
+        Locale locale = new Locale("cs","CZ");
 
         FedoraAccessImpl fa33 = createMockBuilder(FedoraAccessImpl.class).withConstructor(KConfiguration.getInstance()).addMockedMethod("getFedoraDescribeStream").addMockedMethod("getRelsExt").addMockedMethod("isImageFULLAvailable").addMockedMethod("getDC").addMockedMethod("getBiblioMods")
                 //.addMockedMethod(FedoraAccessImpl.class.getMethod("getKrameriusModelName", String.class))
@@ -245,7 +246,7 @@ public class FirstPagePDFServiceImplTest {
 
     @Test
     public void testGenerateParent_DROBNUSTKYPage() throws SecurityException, NoSuchMethodException, IOException, ParserConfigurationException, SAXException, LexerException, ProcessSubtreeException, DocumentException, XPathExpressionException, JAXBException {
-        Locale locale = Locale.getDefault();
+        Locale locale = new Locale("cs","CZ");
 
         FedoraAccessImpl fa33 = createMockBuilder(FedoraAccessImpl.class).withConstructor(KConfiguration.getInstance()).addMockedMethod("getFedoraDescribeStream").addMockedMethod("getRelsExt").addMockedMethod("isImageFULLAvailable").addMockedMethod("getDC").addMockedMethod("getBiblioMods")
                 .addMockedMethod(FedoraAccessImpl.class.getMethod("getKrameriusModelName", String.class))
@@ -312,7 +313,7 @@ public class FirstPagePDFServiceImplTest {
 
     @Test
     public void testGenerateSelection_NarodniListy() throws SecurityException, NoSuchMethodException, IOException, ParserConfigurationException, SAXException, LexerException, ProcessSubtreeException, DocumentException, InstantiationException, IllegalAccessException, XPathExpressionException, JAXBException {
-        Locale locale = Locale.getDefault();
+        Locale locale = new Locale("cs","CZ");
 
         FedoraAccessImpl fa33 = createMockBuilder(FedoraAccessImpl.class).withConstructor(KConfiguration.getInstance())
         .addMockedMethod("getFedoraDescribeStream")
@@ -376,7 +377,6 @@ public class FirstPagePDFServiceImplTest {
         DocumentService docService = injector.getInstance(DocumentService.class);
 
 
-//        String pid = "uuid:b32d1210-91f6-11dc-94d0-000d606f5dc6";
 
         String[] pids = {
 
@@ -386,8 +386,6 @@ public class FirstPagePDFServiceImplTest {
                 "uuid:94a3ed60-92d6-11dc-93df-000d606f5dc6",
                 "uuid:b3a21b00-91f6-11dc-b8b2-000d606f5dc6",
                 "uuid:94a68570-92d6-11dc-be5a-000d606f5dc6",
-                
-                //"uuid:4a7c2e50-af36-11dd-9643-000d606f5dc6"
         };
 
         // vytvoreny dokument
@@ -415,7 +413,7 @@ public class FirstPagePDFServiceImplTest {
 
     @Test
     public void testGenerateParent_NarodniListy() throws SecurityException, NoSuchMethodException, IOException, ParserConfigurationException, SAXException, LexerException, ProcessSubtreeException, DocumentException, InstantiationException, IllegalAccessException, XPathExpressionException, JAXBException {
-        Locale locale = Locale.getDefault();
+        Locale locale = new Locale("cs","CZ");
 
         FedoraAccessImpl fa33 = createMockBuilder(FedoraAccessImpl.class).withConstructor(KConfiguration.getInstance())
         .addMockedMethod("getFedoraDescribeStream")
