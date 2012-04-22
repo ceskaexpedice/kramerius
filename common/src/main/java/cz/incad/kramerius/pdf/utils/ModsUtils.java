@@ -44,19 +44,19 @@ public class ModsUtils {
 
     
     
-    public static BiblioMods biblioMods(String pid, FedoraAccess fa) throws IOException {
-        BiblioMods mods = new BiblioMods(fa.getKrameriusModelName(pid));
-        Document modsDocument = fa.getBiblioMods(pid);
-        NodeList nlist = modsDocument.getElementsByTagNameNS(FedoraNamespaces.BIBILO_MODS_URI, "mods");
-        
-        for (int i = 0, ll = nlist.getLength(); i < ll; i++) {
-            Node item = nlist.item(i);
-            if (item.getNodeType() == Node.ELEMENT_NODE) {
-                mods.init((Element) item);
-            }
-        }
-        return mods;
-    }
+//    public static BiblioMods biblioMods(String pid, FedoraAccess fa) throws IOException {
+//        BiblioMods mods = new BiblioMods(fa.getKrameriusModelName(pid));
+//        Document modsDocument = fa.getBiblioMods(pid);
+//        NodeList nlist = modsDocument.getElementsByTagNameNS(FedoraNamespaces.BIBILO_MODS_URI, "mods");
+//        
+//        for (int i = 0, ll = nlist.getLength(); i < ll; i++) {
+//            Node item = nlist.item(i);
+//            if (item.getNodeType() == Node.ELEMENT_NODE) {
+//                mods.init((Element) item);
+//            }
+//        }
+//        return mods;
+//    }
     
 
     public static Map<String, String> getTitleInfo(String pid, FedoraAccess fedoraAccess) throws XPathExpressionException, IOException {
