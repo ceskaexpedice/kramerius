@@ -240,7 +240,7 @@ public class FirstPagePDFServiceImplTest {
 
         // vlastni generovani z xml do pdf uz testovat nelze
         Diff diff = XMLUnit.compareXML(expectedWOws, renderedWOws);
-        Assert.assertTrue(diff.similar());
+        Assert.assertTrue(diff.toString(),diff.similar());
     }
 
     @Test
@@ -306,7 +306,7 @@ public class FirstPagePDFServiceImplTest {
 
         // vlastni generovani z xml do pdf uz testovat nelze
         Diff diff = XMLUnit.compareXML(expectedWOws, renderedWOws);
-        Assert.assertTrue(diff.similar());
+        Assert.assertTrue(diff.toString(),diff.similar());
     }
 
 
@@ -410,7 +410,7 @@ public class FirstPagePDFServiceImplTest {
 
         // vlastni generovani z xml do pdf uz testovat nelze
         Diff diff = XMLUnit.compareXML(expectedWOws, renderedWOws);
-        Assert.assertTrue(diff.similar());
+        Assert.assertTrue(diff.toString(),diff.similar());
     }
 
     @Test
@@ -497,7 +497,7 @@ public class FirstPagePDFServiceImplTest {
 
         // vlastni generovani z xml do pdf uz testovat nelze
         Diff diff = XMLUnit.compareXML(expectedWOws, renderedWOws);
-        Assert.assertTrue(diff.similar());
+        Assert.assertTrue(diff.toString(),diff.similar());
     }
 
 
