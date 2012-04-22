@@ -88,6 +88,9 @@ public  class DCConent {
         }
 
         DCConent cont = new DCConent();
+        cont.setTitle(title);
+        cont.setType(type);
+        cont.setDate(date);
         cont.setCreators((String[]) creators.toArray(new String[creators.size()]));
         cont.setPublishers((String[]) publishers.toArray(new String[publishers.size()]));
         cont.setIdentifiers((String[]) identifiers.toArray(new String[identifiers.size()]));
@@ -141,4 +144,10 @@ public  class DCConent {
             return false;
         return true;
     }
+
+    @Override
+    public String toString() {
+        return "DCConent [title=" + title + ", type=" + type + ", date=" + date + ", identifiers=" + Arrays.toString(identifiers) + ", publishers=" + Arrays.toString(publishers) + ", creators=" + Arrays.toString(creators) + "]";
+    }
+    
 }

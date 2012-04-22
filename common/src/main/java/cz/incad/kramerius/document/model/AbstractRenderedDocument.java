@@ -9,6 +9,7 @@ import java.util.Stack;
 
 import cz.incad.kramerius.ObjectPidsPath;
 
+// 
 public abstract class AbstractRenderedDocument extends AbstractObject {
 
     public static final int DEFAULT_WIDTH = 595;
@@ -33,7 +34,7 @@ public abstract class AbstractRenderedDocument extends AbstractObject {
 	
 	private ObjectPidsPath objectPidsPath;
 	
-	
+	//TODO: Remove
 	private Map<String, DCConent> dcs = new HashMap<String, DCConent>();
 	
 	public AbstractRenderedDocument(String modelName, String uuid) {
