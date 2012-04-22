@@ -26,13 +26,19 @@ import com.lowagie.text.Font;
 import com.lowagie.text.pdf.BaseFont;
 
 import cz.incad.kramerius.Constants;
-import cz.incad.kramerius.pdf.PDFFontConfigBean;
 
 public class FontMap {
+    
+    // different headers' fonts
+    public static final String LOGO_FONT = "logo";
+    public static final String HEADER4_FONT = "header4";
 
-    public static final String BIG_FONT = "big";
+    // normal texts' fonts
+    public static final String STRONG_FONT = "strong";
     public static final String NORMAL_FONT = "normal";
-
+    public static final String SMALLER_FONT = "smaller";
+    public static final String SMALL_FONT = "small";
+    
 
     public enum TYPE {
         EMBEDED_TTF,  NOT_EMBEDED;
@@ -48,46 +54,38 @@ public class FontMap {
         return map.get(fid);
     }
 
-    public static FontMap createFontMap(PDFFontConfigBean conf) throws DocumentException, IOException {
+    public static FontMap createFontMap() throws DocumentException, IOException {
         
-        Font bigFont = createFont();
-        if (conf != null) {
-            setFontAttrs(conf, FontMap.BIG_FONT, bigFont);
-        } else {
-            bigFont.setSize(48f);
-        }
+        Font logoFont = createFont();
+        logoFont.setSize(48f);
 
         Font normalFont = createFont();
-        if (conf != null) {
-            setFontAttrs(conf, FontMap.NORMAL_FONT, normalFont);
-        } else {
-            normalFont.setSize(14f);
-        }
+        normalFont.setSize(14f);
 
+        Font strongFont = createFont();
+        strongFont.setSize(14f);
+        strongFont.setStyle(Font.BOLD);
+
+        Font header4Font = createFont();
+        header4Font.setSize(16f);
+        header4Font.setStyle(Font.BOLD);
+
+        Font smallerFont = createFont();
+        smallerFont.setSize(12f);
+
+        Font smallFont = createFont();
+        smallFont.setSize(10f);
+        
         FontMap fmap = new FontMap();
         fmap.registerFont(NORMAL_FONT, normalFont);
-        fmap.registerFont(BIG_FONT, bigFont);
+        fmap.registerFont(STRONG_FONT, strongFont);
+        fmap.registerFont(LOGO_FONT, logoFont);
+        fmap.registerFont(HEADER4_FONT, header4Font);
+        fmap.registerFont(SMALLER_FONT, smallerFont);
+        fmap.registerFont(SMALL_FONT, smallFont);
         return fmap;
     }
 
-    public static void setFontAttrs(PDFFontConfigBean conf, String mapName, Font font) {
-        int fontFlag = conf.getFontStyle(mapName);
-        switch(fontFlag) {
-            case PDFFontConfigBean.BOLD: {
-                font.setStyle(Font.BOLD);
-            }
-            break;
-            case PDFFontConfigBean.ITALIC: {
-                font.setStyle(Font.ITALIC);
-            }
-            break;
-            case PDFFontConfigBean.BOLDITALIC: {
-                font.setStyle(Font.BOLDITALIC);
-            }
-            break;
-        }
-        font.setSize(conf.getFontSize(mapName));
-    }
     
     
 
