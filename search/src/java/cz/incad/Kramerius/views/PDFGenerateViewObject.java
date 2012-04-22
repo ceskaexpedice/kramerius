@@ -16,40 +16,20 @@
  */
 package cz.incad.Kramerius.views;
 
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.StringReader;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Locale;
-import java.util.Map;
 import java.util.ResourceBundle;
 
 import javax.xml.parsers.ParserConfigurationException;
 
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
 import org.xml.sax.SAXException;
-
-import com.google.gwt.user.client.ui.RadioButton;
-import com.google.inject.Inject;
-import com.google.inject.Provider;
-import com.google.inject.name.Named;
-
-import cz.incad.kramerius.FedoraAccess;
-import cz.incad.kramerius.service.ResourceBundleService;
-import cz.incad.kramerius.service.TextsService;
-import cz.incad.kramerius.utils.XMLUtils;
-import cz.incad.kramerius.utils.conf.KConfiguration;
 
 import antlr.RecognitionException;
 import antlr.TokenStreamException;
+import cz.incad.kramerius.utils.conf.KConfiguration;
 
 public class PDFGenerateViewObject extends AbstractPrintViewObject {
 
 
-    
     
     public String getNumberOfGeneratedPages() throws IOException, RecognitionException, TokenStreamException, ParserConfigurationException, SAXException {
         ResourceBundle bundle = this.resourceBundleService.getResourceBundle("labels", this.locale);

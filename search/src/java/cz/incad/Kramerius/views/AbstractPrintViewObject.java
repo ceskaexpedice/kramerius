@@ -47,6 +47,7 @@ import cz.incad.kramerius.service.ResourceBundleService;
 import cz.incad.kramerius.service.TextsService;
 import cz.incad.kramerius.utils.DCUtils;
 import cz.incad.kramerius.utils.XMLUtils;
+import cz.incad.kramerius.utils.conf.KConfiguration;
 
 public class AbstractPrintViewObject extends AbstractViewObject implements Initializable {
 
@@ -192,6 +193,7 @@ public class AbstractPrintViewObject extends AbstractViewObject implements Initi
             return new ArrayList<String>(this.pids);
         }
 
+        private Map<String, DCConent> cache = new HashMap<String, DCConent>();
 
         public Map<String, List<DCConent>> getDCS() throws IOException {
             Map<String, List<DCConent>> maps = new HashMap<String, List<DCConent>>();
@@ -202,9 +204,12 @@ public class AbstractPrintViewObject extends AbstractViewObject implements Initi
                     String[] pathFromLeaf = paths[0].getPathFromLeafToRoot();
                     for (int i = 0; i < pathFromLeaf.length; i++) {
                         String pidFromPath = pathFromLeaf[i];
-                        Document dcl = AbstractPrintViewObject.this.fedoraAccess.getDC(pidFromPath);
-                        DCConent content = DCUtils.contentFromDC(dcl);
-                        dcs.add(content);
+                        if (!cache.containsKey(pidFromPath)) {
+                            Document dcl = AbstractPrintViewObject.this.fedoraAccess.getDC(pidFromPath);
+                            DCConent content = DCUtils.contentFromDC(dcl);
+                            cache.put(pidFromPath, content);
+                        }
+                        dcs.add(cache.get(pidFromPath));
                     }
                     maps.put(pid, dcs);
                 }
@@ -358,6 +363,9 @@ public class AbstractPrintViewObject extends AbstractViewObject implements Initi
         public abstract Type getType();
 
         public abstract boolean isMaster();
+        
+        
+        public abstract boolean isInvalidOption();
     }
 
 
@@ -365,6 +373,7 @@ public class AbstractPrintViewObject extends AbstractViewObject implements Initi
 
         public SelectionRadioItem(String id, boolean checked) {
             super(id, checked);
+            
         }
 
         @Override
@@ -377,8 +386,15 @@ public class AbstractPrintViewObject extends AbstractViewObject implements Initi
             return false;
         }
 
+        @Override
+        public boolean isInvalidOption() {
+            int maxPage = KConfiguration.getInstance().getConfiguration().getInt("generatePdfMaxRange");
+            return getPids().size() > maxPage;
+        }   
 
 
+        
+        
     }
 
     public class MasterRadioItem extends RadioItem {
@@ -397,7 +413,10 @@ public class AbstractPrintViewObject extends AbstractViewObject implements Initi
             return Type.master;
         }
 
-
+        @Override
+        public boolean isInvalidOption() {
+            return false;
+        }
     }
 
 

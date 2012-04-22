@@ -1,7 +1,5 @@
 package cz.incad.Kramerius;
 
-import static cz.incad.kramerius.FedoraNamespaces.*;
-
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -10,51 +8,35 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.io.StringReader;
 import java.net.MalformedURLException;
-import java.net.URL;
-import java.net.URLEncoder;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Stack;
 import java.util.UUID;
 import java.util.concurrent.Semaphore;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantLock;
 import java.util.logging.Level;
 
 import javax.servlet.RequestDispatcher;
-import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.antlr.stringtemplate.StringTemplate;
 import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang.NotImplementedException;
-import org.apache.pdfbox.PDFMerger;
 import org.apache.pdfbox.exceptions.COSVisitorException;
 import org.apache.pdfbox.util.PDFMergerUtility;
-import org.w3c.dom.DOMException;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-
-import sun.print.resources.serviceui;
 
 import antlr.RecognitionException;
 import antlr.TokenStreamException;
 
 import com.google.inject.Inject;
 import com.google.inject.name.Named;
+import com.lowagie.text.DocumentException;
 
 import cz.incad.Kramerius.backend.guice.GuiceServlet;
 import cz.incad.Kramerius.processes.ParamsLexer;
 import cz.incad.Kramerius.processes.ParamsParser;
 import cz.incad.kramerius.FedoraAccess;
-import cz.incad.kramerius.FedoraNamespaces;
 import cz.incad.kramerius.ObjectPidsPath;
 import cz.incad.kramerius.ProcessSubtreeException;
 import cz.incad.kramerius.SolrAccess;
@@ -62,14 +44,10 @@ import cz.incad.kramerius.document.DocumentService;
 import cz.incad.kramerius.document.model.AbstractRenderedDocument;
 import cz.incad.kramerius.pdf.FirstPagePDFService;
 import cz.incad.kramerius.pdf.GeneratePDFService;
-import cz.incad.kramerius.pdf.PDFFontConfigBean;
 import cz.incad.kramerius.pdf.impl.ImageFetcher;
 import cz.incad.kramerius.pdf.utils.pdf.FontMap;
 import cz.incad.kramerius.utils.ApplicationURL;
 import cz.incad.kramerius.utils.conf.KConfiguration;
-import cz.incad.kramerius.utils.pid.LexerException;
-import cz.incad.kramerius.utils.pid.PIDParser;
-import cz.incad.utils.IKeys;
 
 public class GeneratePDFServlet extends GuiceServlet {
 
@@ -212,7 +190,7 @@ public class GeneratePDFServlet extends GuiceServlet {
                     ParamsParser parser = new ParamsParser(new ParamsLexer(new StringReader(par)));
                     List params = parser.params();
                     
-                    PDFFontConfigBean configBean = fontConfigParams(fontConfigParams(null, request.getParameter(LOGO_FONT), FontMap.BIG_FONT), request.getParameter(INF_FONT), FontMap.NORMAL_FONT);
+                    //PDFFontConfigBean configBean = fontConfigParams(fontConfigParams(null, request.getParameter(LOGO_FONT), FontMap.BIG_FONT), request.getParameter(INF_FONT), FontMap.NORMAL_FONT);
 
                     File tmpFile = File.createTempFile("body", "pdf");
                     filesToDelete.add(tmpFile);
@@ -226,7 +204,7 @@ public class GeneratePDFServlet extends GuiceServlet {
                     LOGGER.fine("creating documents takes "+(System.currentTimeMillis() - start)+" ms ");
                     
                     start = System.currentTimeMillis();
-                    firstPagePDFService.generateFirstPageForSelection(rdoc, fpageFos, imgServletUrl, i18nUrl, configBean);
+                    firstPagePDFService.generateFirstPageForSelection(rdoc, fpageFos, (String[])params.toArray(new String[params.size()]) , imgServletUrl, i18nUrl, FontMap.createFontMap());
                     LOGGER.fine("generating first page takes "+(System.currentTimeMillis() - start)+" ms ");
                     
                     start = System.currentTimeMillis();
@@ -254,6 +232,8 @@ public class GeneratePDFServlet extends GuiceServlet {
                 } catch (TokenStreamException e) {
                     LOGGER.log(Level.SEVERE,e.getMessage(),e);
                 } catch (COSVisitorException e) {
+                    LOGGER.log(Level.SEVERE,e.getMessage(),e);
+                } catch (DocumentException e) {
                     LOGGER.log(Level.SEVERE,e.getMessage(),e);
                 } finally {
                     for (File file : filesToDelete) {
@@ -288,7 +268,7 @@ public class GeneratePDFServlet extends GuiceServlet {
 
                     int[] irects = srect(srect);
 
-                    PDFFontConfigBean configBean = fontConfigParams(fontConfigParams(null, request.getParameter(LOGO_FONT), FontMap.BIG_FONT), request.getParameter(INF_FONT), FontMap.NORMAL_FONT);
+                    //PDFFontConfigBean configBean = fontConfigParams(fontConfigParams(null, request.getParameter(LOGO_FONT), FontMap.BIG_FONT), request.getParameter(INF_FONT), FontMap.NORMAL_FONT);
 
 
                     AbstractRenderedDocument rdoc = documentService.buildDocumentAsFlat(path, pid, Integer.parseInt(howMany), irects);
@@ -296,8 +276,7 @@ public class GeneratePDFServlet extends GuiceServlet {
                         rdoc = documentService.buildDocumentAsFlat(path, path.getLeaf(), Integer.parseInt(howMany), irects);
                     }
                     
-                    
-                    firstPagePDFService.generateFirstPageForSelection(rdoc, fpageFos, imgServletUrl, i18nUrl, configBean);
+                    firstPagePDFService.generateFirstPageForParent(rdoc, fpageFos, path, imgServletUrl, i18nUrl, FontMap.createFontMap());
                     
                     pdfService.generateCustomPDF(rdoc, bodyTmpFos, imgServletUrl, i18nUrl, ImageFetcher.WEB);
 
@@ -317,9 +296,7 @@ public class GeneratePDFServlet extends GuiceServlet {
                     LOGGER.log(Level.SEVERE,e.getMessage(),e);
                 } catch (COSVisitorException e) {
                     LOGGER.log(Level.SEVERE,e.getMessage(),e);
-                } catch (RecognitionException e) {
-                    LOGGER.log(Level.SEVERE,e.getMessage(),e);
-                } catch (TokenStreamException e) {
+                } catch (DocumentException e) {
                     LOGGER.log(Level.SEVERE,e.getMessage(),e);
                 } finally {
                     for (File file : filesToDelete) {
@@ -380,22 +357,22 @@ public class GeneratePDFServlet extends GuiceServlet {
             utility.mergeDocuments();
         }
 
-        public PDFFontConfigBean fontConfigParams(PDFFontConfigBean config, String parameter, String fontMapName) throws RecognitionException, TokenStreamException {
-            if (parameter == null) return config;
-            PDFFontConfigBean pdfFontConfig = config != null ? config : new PDFFontConfigBean();
-            ParamsParser bfparser = new ParamsParser(new ParamsLexer(new StringReader(parameter)));
-            List bfs = bfparser.params();
-            if (!bfs.isEmpty()) {
-                String style = (String) bfs.remove(0);
-                pdfFontConfig.setFontStyle(fontMapName, Integer.parseInt(style));
-                
-                if (!bfs.isEmpty()) {
-                    String size = (String) bfs.remove(0);
-                    pdfFontConfig.setFontSize(fontMapName, Integer.parseInt(size));
-                }
-            }
-            return pdfFontConfig;
-        }
+//        public PDFFontConfigBean fontConfigParams(PDFFontConfigBean config, String parameter, String fontMapName) throws RecognitionException, TokenStreamException {
+//            if (parameter == null) return config;
+//            PDFFontConfigBean pdfFontConfig = config != null ? config : new PDFFontConfigBean();
+//            ParamsParser bfparser = new ParamsParser(new ParamsLexer(new StringReader(parameter)));
+//            List bfs = bfparser.params();
+//            if (!bfs.isEmpty()) {
+//                String style = (String) bfs.remove(0);
+//                pdfFontConfig.setFontStyle(fontMapName, Integer.parseInt(style));
+//                
+//                if (!bfs.isEmpty()) {
+//                    String size = (String) bfs.remove(0);
+//                    pdfFontConfig.setFontSize(fontMapName, Integer.parseInt(size));
+//                }
+//            }
+//            return pdfFontConfig;
+//        }
 
         public void outputJSON(HttpServletResponse response, File generatedPDF, FileOutputStream generatedPDFFos, File tmpFile, File fpage) throws IOException, COSVisitorException {
             response.setContentType("text/plain");
