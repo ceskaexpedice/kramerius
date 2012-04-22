@@ -18,10 +18,13 @@ package cz.incad.kramerius.pdf.commands;
 
 import org.w3c.dom.Element;
 
-public class Text implements Command {
+public class Text extends AbstractITextCommand {
 
     private String fontFormalName;
     private String text;
+    
+    private String hyphLang;
+    private String hyphCountry;
     
     public String getFontFormalName() {
         return fontFormalName;
@@ -32,16 +35,42 @@ public class Text implements Command {
     }
     
     @Override
-    public void load(Element elm, Commands cmnds) throws InstantiationException, IllegalAccessException {
+    public void load(Element elm, ITextCommands cmnds) throws InstantiationException, IllegalAccessException {
         if (elm.getNodeName().equals("text")) {
+
+            this.hyphenation = this.hyphenationFromAttibutes(elm);
+
             this.fontFormalName = elm.getAttribute("font-formal-name");
             this.text = elm.getTextContent();
+            if ((elm.getAttribute("hyphLang") != null) && 
+                (elm.getAttribute("hyphCountry") != null)) {
+                
+                this.hyphCountry = elm.getAttribute("hyph-country");
+                this.hyphLang = elm.getAttribute("hyph-lang");
+            }
         }        
     }
 
+
+    public String getHyphLang() {
+        return hyphLang;
+    }
+
+    public void setHyphLang(String hyphLang) {
+        this.hyphLang = hyphLang;
+    }
+
+    public String getHyphCountry() {
+        return hyphCountry;
+    }
+
+    public void setHyphLand(String hyphLand) {
+        this.hyphCountry = hyphLand;
+    }
+
     @Override
-    public Object acceptVisitor(CommandVisitor visitor, Object obj) {
-        obj = visitor.visit(this, obj);
-        return obj;
+    public void process(ITextCommandProcessListener procsListener) {
+        procsListener.before(this);
+        procsListener.after(this);
     }
 }

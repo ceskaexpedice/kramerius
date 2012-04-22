@@ -16,42 +16,96 @@
  */
 package cz.incad.kramerius.pdf.commands;
 
+import java.util.ArrayList;
+
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
-public class ListItem implements Command{
+public class ListItem extends AbstractITextCommand implements ITextCommand{
 
     static java.util.logging.Logger LOGGER = java.util.logging.Logger.getLogger(ListItem.class.getName());
     
-    private TextsArray textsArray;
+    
+    private java.util.List<ITextCommand> cmdns = new ArrayList<ITextCommand>();
 
+
+    private int spacingAfter = -1;
+    private int spacingBefore = -1;
+
+
+    private String listSymbol = null;
+    
 
     @Override
-    public void load(Element elm, Commands cmnds) throws InstantiationException, IllegalAccessException {
+    public void load(Element elm, ITextCommands cmnds) throws InstantiationException, IllegalAccessException {
         String name = elm.getNodeName();
-        if (name.equals("li")) {
+        if (name.equals("item")) {
+           
+            if (notEmptyAttribute(elm,"spacing-after")) {
+                this.spacingAfter = Integer.parseInt(elm.getAttribute("spacing-after"));
+            }
+            if (notEmptyAttribute(elm,"spacing-before")) {
+                this.spacingBefore = Integer.parseInt(elm.getAttribute("spacing-before"));
+            }
+            
+            if (elm.hasAttribute("list-symbol")) {
+                this.listSymbol = elm.getAttribute("list-symbol");
+            }
             NodeList nList = elm.getChildNodes();
             for (int i = 0, ll = nList.getLength(); i < ll; i++) {
                 Node node = nList.item(i);
                 if (node.getNodeType() == Node.ELEMENT_NODE) {
                     String nName = node.getNodeName();
-                    Command itm = cmnds.createInstance(nName);
+                    ITextCommand itm = cmnds.createInstance(nName);
                     if (itm instanceof TextsArray) {
                         itm.load((Element) node, cmnds);
-                        this.textsArray = (TextsArray) itm;
+                        this.setParent(this);
+                        this.cmdns.add(itm);
+                    } else if (itm instanceof List) {
+                        itm.load((Element) node, cmnds);
+                        this.setParent(this);
+                        this.cmdns.add(itm);
+                    } else if (itm instanceof Paragraph) {
+                        itm.load((Element) node, cmnds);
+                        this.setParent(this);
+                        this.cmdns.add(itm);
                     } else {
-                        LOGGER.warning(" only texts accepting");
+                        LOGGER.warning(" only texts accepting but "+itm );
                     }
                 }
             }
         }
     }
 
+    
+    public boolean isSpacingAfterDefined() {
+        return this.spacingAfter != -1;
+    }
+    
+    public boolean isSpacingBeforeDefined() {
+        return this.spacingBefore != -1;
+    }
+
+    
+    public int getSpacingAfter() {
+        return spacingAfter;
+    }
+    
+    public int getSpacingBefore() {
+        return spacingBefore;
+    }
+
+    public String getListSymbol() {
+        return listSymbol;
+    }
+
     @Override
-    public Object acceptVisitor(CommandVisitor visitor, Object obj) {
-        obj = visitor.visit(this, obj);
-        if (this.textsArray != null) obj = this.textsArray.acceptVisitor(visitor, obj);
-        return obj;
+    public void process(ITextCommandProcessListener procsListener) {
+        procsListener.before(this);
+        for (ITextCommand cmd : this.cmdns) {
+            cmd.process(procsListener);
+        }
+        procsListener.after(this);
     }
 }

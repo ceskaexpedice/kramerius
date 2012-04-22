@@ -16,43 +16,18 @@
  */
 package cz.incad.kramerius.pdf.commands;
 
-import java.util.logging.Level;
-
 import org.w3c.dom.Element;
 
-public class Image extends AbstractITextCommand implements ITextCommand {
+public class PageBreak extends AbstractITextCommand implements ITextCommand {
 
-    static java.util.logging.Logger LOGGER = java.util.logging.Logger.getLogger(Image.class.getName());
-    
-    private String pid;
-    
     @Override
     public void load(Element elm, ITextCommands cmnds) throws InstantiationException, IllegalAccessException {
-        if (elm.getNodeName().equals("image")) {
-            String pid = elm.getAttribute("pid");
-            if ((pid != null) && (!pid.equals(""))) {
-                this.pid = pid;
-            } else {
-                LOGGER.log(Level.WARNING, "cannot load image component. No pid "); 
-            }
-        } else {
-           LOGGER.log(Level.WARNING, "cannot load image component. No image elm."); 
-        }
+        
     }
 
-    
-
-    
     @Override
     public void process(ITextCommandProcessListener procsListener) {
         procsListener.before(this);
         procsListener.after(this);
-    }
-
-
-
-
-    public String getPid() {
-        return pid;
     }
 }

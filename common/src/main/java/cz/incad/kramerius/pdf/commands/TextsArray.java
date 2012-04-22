@@ -24,22 +24,26 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 
-public class TextsArray implements Command {
+public class TextsArray extends AbstractITextCommand {
     
     static java.util.logging.Logger LOGGER = java.util.logging.Logger.getLogger(TextsArray.class.getName());
     
     private List<Text> texts = new ArrayList<Text>();
     
     @Override
-    public void load(Element elm, Commands cmnds) throws InstantiationException, IllegalAccessException {
+    public void load(Element elm, ITextCommands cmnds) throws InstantiationException, IllegalAccessException {
+
+        this.hyphenation = this.hyphenationFromAttibutes(elm);
+
         NodeList nList = elm.getChildNodes();
         for (int i = 0, ll = nList.getLength(); i < ll; i++) {
             Node node = nList.item(i);
             if (node.getNodeType() == Node.ELEMENT_NODE) {
                 String nName = node.getNodeName();
-                Command itm = cmnds.createInstance(nName);
+                ITextCommand itm = cmnds.createInstance(nName);
                 if (itm instanceof Text) {
                     itm.load((Element) node, cmnds);
+                    itm.setParent(this);
                     this.texts.add((Text) itm);
                 } else {
                     LOGGER.warning(" only texts accepting");
@@ -49,11 +53,13 @@ public class TextsArray implements Command {
     }
 
     @Override
-    public Object acceptVisitor(CommandVisitor visitor, Object obj) {
+    public void process(ITextCommandProcessListener procsListener) {
+        procsListener.before(this);
         for (Text txt : this.texts) {
-            obj = txt.acceptVisitor(visitor, obj);
+            txt.process(procsListener);
         }
-        return obj;
+        procsListener.after(this);
     }
+
     
 }

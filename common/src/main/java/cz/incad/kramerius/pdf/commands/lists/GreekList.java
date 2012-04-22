@@ -14,20 +14,29 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
-package cz.incad.kramerius.pdf.commands;
+package cz.incad.kramerius.pdf.commands.lists;
+
+import java.util.ArrayList;
 
 import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 
-public class Line extends AbstractITextCommand implements ITextCommand {
+import cz.incad.kramerius.pdf.commands.AbstractITextCommand;
+import cz.incad.kramerius.pdf.commands.ITextCommand;
+import cz.incad.kramerius.pdf.commands.ITextCommandProcessListener;
+import cz.incad.kramerius.pdf.commands.ITextCommands;
+import cz.incad.kramerius.pdf.commands.List;
+
+public class GreekList extends List {
 
     @Override
-    public void load(Element elm, ITextCommands cmnds) {
-    }
-
-    @Override
-    public void process(ITextCommandProcessListener procsListener) {
-        procsListener.before(this);
-        procsListener.after(this);
+    public void load(Element elm, ITextCommands cmnds) throws InstantiationException, IllegalAccessException {
+        String name = elm.getNodeName();
+        if (name.equals("greeklist")) {
+            loadOrdering(elm);
+            loadItems(elm, cmnds);
+        }
     }
     
 }

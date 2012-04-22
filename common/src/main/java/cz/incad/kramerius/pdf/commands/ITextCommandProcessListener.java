@@ -16,12 +16,9 @@
  */
 package cz.incad.kramerius.pdf.commands;
 
-import org.w3c.dom.Element;
-
-public interface Command {
-
-    public void load(Element elm, Commands cmnds) throws InstantiationException, IllegalAccessException;
- 
-    public Object acceptVisitor(CommandVisitor visitor, Object obj);
+public interface ITextCommandProcessListener {
     
+    public void after(ITextCommand iTextCommand);
+
+    public void before(ITextCommand iTextCommand);
 }

@@ -14,20 +14,27 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
-package cz.incad.kramerius.pdf.commands;
+package cz.incad.kramerius.pdf.commands.lists;
 
 import org.w3c.dom.Element;
 
-public class Line extends AbstractITextCommand implements ITextCommand {
+import cz.incad.kramerius.pdf.commands.AbstractITextCommand;
+import cz.incad.kramerius.pdf.commands.ITextCommand;
+import cz.incad.kramerius.pdf.commands.ITextCommandProcessListener;
+import cz.incad.kramerius.pdf.commands.ITextCommands;
+import cz.incad.kramerius.pdf.commands.List;
+
+public class RomanList extends List {
+
 
     @Override
-    public void load(Element elm, ITextCommands cmnds) {
+    public void load(Element elm, ITextCommands cmnds) throws InstantiationException, IllegalAccessException {
+        String name = elm.getNodeName();
+        if (name.equals("romanlist")) {
+            loadOrdering(elm);
+            loadItems(elm, cmnds);
+        }
     }
 
-    @Override
-    public void process(ITextCommandProcessListener procsListener) {
-        procsListener.before(this);
-        procsListener.after(this);
-    }
     
 }

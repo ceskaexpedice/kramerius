@@ -16,19 +16,16 @@
  */
 package cz.incad.kramerius.pdf.commands;
 
-public interface CommandVisitor {
+import org.w3c.dom.Element;
+
+// abstract iText command
+public interface ITextCommand {
+
+    public void load(Element elm, ITextCommands cmnds) throws InstantiationException, IllegalAccessException;
+
+    public ITextCommand getParent();
+
+    public void setParent(ITextCommand parent);
     
-    public Object visit(Line line, Object obj);
-
-    public Object visit(List list, Object obj);
-
-    public Object visit(ListItem listItem, Object obj);
-
-    public Object visit(Paragraph text, Object obj);
-
-    public Object visit(Commands cmnds, Object obj);
-
-    public Object visit(Image image, Object obj);
-    
-    public Object visit(Text text, Object obj);
+    public void process(ITextCommandProcessListener procsListener);
 }

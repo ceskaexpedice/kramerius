@@ -22,39 +22,82 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
-public class List implements Command {
+public class List extends AbstractITextCommand implements ITextCommand {
 
-    private java.util.List<Command> items = new ArrayList<Command>();
+    protected java.util.List<ITextCommand> items = new ArrayList<ITextCommand>();
     
-    public Command[] getItems() {
-        return (Command[]) this.items.toArray(new Command[this.items.size()]);
+    protected String  listType; // ordered, unordered
+    protected String orderingType; //alphabetical, numerical
+    
+    protected Boolean autoIndent = null;
+    protected int symbolIndent = -1;
+    
+    public ITextCommand[] getItems() {
+        return (ITextCommand[]) this.items.toArray(new ITextCommand[this.items.size()]);
     }
     
     @Override
-    public void load(Element elm, Commands cmnds) throws InstantiationException, IllegalAccessException {
+    public void load(Element elm, ITextCommands cmnds) throws InstantiationException, IllegalAccessException {
         String name = elm.getNodeName();
-        if (name.equals("ul")) {
-            NodeList nList = elm.getChildNodes();
-            for (int i = 0, ll = nList.getLength(); i < ll; i++) {
-                Node node = nList.item(i);
-                if (node.getNodeType() == Node.ELEMENT_NODE) {
-                    String nName = node.getNodeName();
-                    Command itm = cmnds.createInstance(nName);
-                    itm.load((Element) node, cmnds);
-                    this.items.add(itm);
-                }
+        if (name.equals("list")) {
+            if (notEmptyAttribute(elm, "auto-indent")) {
+                this.autoIndent = Boolean.parseBoolean(elm.getAttribute("auto-indent"));
+            }
+            
+            if (notEmptyAttribute(elm, "symbol-indent")) {
+                this.symbolIndent = Integer.parseInt(elm.getAttribute("symbol-indent"));
+            }
+            
+            loadOrdering(elm);
+            loadItems(elm, cmnds);
+        }
+    }
+
+    protected void loadItems(Element elm, ITextCommands cmnds) throws InstantiationException, IllegalAccessException {
+        NodeList nList = elm.getChildNodes();
+        for (int i = 0, ll = nList.getLength(); i < ll; i++) {
+            Node node = nList.item(i);
+            if (node.getNodeType() == Node.ELEMENT_NODE) {
+                String nName = node.getNodeName();
+                ITextCommand itm = cmnds.createInstance(nName);
+                itm.setParent(this);
+                itm.load((Element) node, cmnds);
+                this.items.add(itm);
             }
         }
-        
     }
 
-    @Override
-    public Object acceptVisitor(CommandVisitor visitor, Object obj) {
-        obj =  visitor.visit(this, obj);
-        for (Command cmd : this.items) {
-            obj = cmd.acceptVisitor(visitor, obj);
+    protected void loadOrdering(Element elm) {
+        if (super.notEmptyAttribute(elm, "ordering-type")) {
+            this.orderingType = elm.getAttribute("ordering-type");
         }
-        return obj;
+        if (super.notEmptyAttribute(elm, "list-type")) {
+            this.listType = elm.getAttribute("list-type");
+        }
+    }
 
+    public String getListType() {
+        return listType;
+    }
+    
+    public String getOrderingType() {
+        return orderingType;
+    }
+    
+    @Override
+    public void process(ITextCommandProcessListener procsListener) {
+        procsListener.before(this);
+        for (ITextCommand cmd : this.items) {
+            cmd.process(procsListener);
+        }
+        procsListener.after(this);
+    }
+
+    public Boolean getAutoIndent() {
+        return autoIndent;
+    }
+    
+    public int getSymbolIndent() {
+        return symbolIndent;
     }
 }

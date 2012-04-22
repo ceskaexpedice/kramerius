@@ -23,43 +23,91 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 
-public class Paragraph implements Command {
+public class Paragraph extends AbstractITextCommand  {
 
     static java.util.logging.Logger LOGGER = java.util.logging.Logger.getLogger(Paragraph.class.getName());
     
-    
     private TextsArray textsArray;
-        
+    private List lists;
+    
+    private int spacingAfter = -1;
+    private int spacingBefore = -1;
+    
+    
     
     @Override
-    public void load(Element elm, Commands cmnds) throws InstantiationException, IllegalAccessException {
+    public void load(Element elm, ITextCommands cmnds) throws InstantiationException, IllegalAccessException {
         String name = elm.getNodeName();
         if (name.equals("paragraph")) {
+            if (notEmptyAttribute(elm,"spacing-after")) {
+                this.spacingAfter = Integer.parseInt(elm.getAttribute("spacing-after"));
+            }
+            if (notEmptyAttribute(elm,"spacing-before")) {
+                this.spacingBefore = Integer.parseInt(elm.getAttribute("spacing-before"));
+            }
+            
+            this.hyphenation = this.hyphenationFromAttibutes(elm);
+            
             NodeList nList = elm.getChildNodes();
             for (int i = 0, ll = nList.getLength(); i < ll; i++) {
                 Node node = nList.item(i);
                 if (node.getNodeType() == Node.ELEMENT_NODE) {
                     String nName = node.getNodeName();
-                    Command itm = cmnds.createInstance(nName);
+                    ITextCommand itm = cmnds.createInstance(nName);
                     if (itm instanceof TextsArray) {
                         itm.load((Element) node, cmnds);
                         this.textsArray = (TextsArray) itm;
+                        this.textsArray.setParent(this);
+                    } else if (itm instanceof List) {
+                        itm.load((Element) node, cmnds);
+                        this.lists = (List) itm;
+                        this.lists.setParent(this);
                     } else {
-                        LOGGER.warning(" only texts accepting TextsArray");
+                        LOGGER.warning(" only List or TextArray accepting");
                     }
                 }
             }
         }
     }
 
-    @Override
-    public Object acceptVisitor(CommandVisitor visitor, Object obj) {
-        obj =  visitor.visit(this, obj);
-        if (this.textsArray != null) textsArray.acceptVisitor(visitor, obj);
-        return obj;
-    }
     
     public TextsArray getTextsArray() {
         return textsArray;
     }
+    
+    public List getList() {
+        return lists;
+    }
+
+    public boolean isSpacingAfterDefined() {
+        return this.spacingAfter != -1;
+    }
+    
+    public boolean isSpacingBeforeDefined() {
+        return this.spacingBefore != -1;
+    }
+
+    public int getSpacingAfter() {
+        return spacingAfter;
+    }
+    
+    public int getSpacingBefore() {
+        return spacingBefore;
+    }
+    
+    @Override
+    public void process(ITextCommandProcessListener procsListener) {
+        procsListener.before(this);
+
+        if (textsArray != null) {
+            textsArray.process(procsListener);
+        }
+        if (this.lists != null) {
+            this.lists.process(procsListener);
+        }
+        
+        procsListener.after(this);
+    }
+    
+    
 }
