@@ -20,18 +20,31 @@ import java.io.OutputStream;
 
 import cz.incad.kramerius.ObjectPidsPath;
 import cz.incad.kramerius.document.model.AbstractRenderedDocument;
+import cz.incad.kramerius.pdf.utils.pdf.FontMap;
 
 /**
- * Service for 
- * @author pavels
- *
+ * Sluzba pro generovani prvni stranky 
  */
 public interface FirstPagePDFService {
 
-    public enum FirstPageType {TEXT, IMAGE};
+    /**
+     * Typ prvni stranky
+     */
+    public enum FirstPageType {
+        // Textova prvni stranka
+        TEXT, 
+        // Vyrendrovany obrazek
+        IMAGE
+    };
 
-    public void generateFirstPageForSelection(AbstractRenderedDocument rdoc, OutputStream os, String imgServlet, String i18nServlet, PDFFontConfigBean fontConfigBean);
+    /**
+     * Generovani prvni stranky pro vyber
+     */
+    public void generateFirstPageForSelection(AbstractRenderedDocument rdoc, OutputStream os, String[] pids, String imgServlet, String i18nServlet, FontMap fontMap);
     
-    public void generateFirstPageForParent(AbstractRenderedDocument rdoc, OutputStream os, ObjectPidsPath path,String imgServlet, String i18nServlet, PDFFontConfigBean fontConfigBean);
+    /**
+     * Generovani prvni stranky pro parent titul
+     */
+    public void generateFirstPageForParent(AbstractRenderedDocument rdoc, OutputStream os, ObjectPidsPath path,String imgServlet, String i18nServlet, FontMap fontMap);
     
 }

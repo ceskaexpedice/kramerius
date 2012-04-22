@@ -16,7 +16,6 @@
  */
 package cz.incad.kramerius.pdf;
 
-import cz.incad.kramerius.pdf.impl.GeneratePDFServiceImpl;
 import cz.incad.kramerius.pdf.utils.pdf.FontMap;
 
 public class PDFContext {
