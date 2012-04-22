@@ -131,7 +131,7 @@ public class GeneratePDFServiceImpl extends AbstractPDFRenderSupport implements 
         try {
             String brokenPage = null;
 
-            PDFContext pdfContext = new PDFContext(FontMap.createFontMap(null), djvUrl, i18nUrl);
+            PDFContext pdfContext = new PDFContext(FontMap.createFontMap(), djvUrl, i18nUrl);
 
             Document doc = DocumentUtils.createDocument(rdoc);
 
@@ -199,7 +199,7 @@ public class GeneratePDFServiceImpl extends AbstractPDFRenderSupport implements 
                                                                 */, OutputStream os, String imgServletUrl, String i18nUrl, ImageFetcher fetcher) throws IOException {
         try {
 
-            PDFContext pdfContext = new PDFContext(FontMap.createFontMap(null), imgServletUrl, i18nUrl);
+            PDFContext pdfContext = new PDFContext(FontMap.createFontMap(), imgServletUrl, i18nUrl);
 
             Document doc = DocumentUtils.createDocument(rdoc);
             PdfWriter writer = PdfWriter.getInstance(doc, os);

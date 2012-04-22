@@ -16,42 +16,59 @@
  */
 package cz.incad.kramerius.pdf.impl;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.io.StringReader;
+import java.io.UnsupportedEncodingException;
+import java.nio.charset.Charset;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.ResourceBundle;
 import java.util.logging.Level;
 
+import javax.xml.bind.JAXBException;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.xpath.XPathExpressionException;
+
+import org.antlr.stringtemplate.StringTemplate;
+import org.w3c.dom.Element;
+import org.xml.sax.SAXException;
+
 import com.google.inject.Inject;
 import com.google.inject.Provider;
 import com.google.inject.name.Named;
-import com.lowagie.text.Chunk;
 import com.lowagie.text.Document;
 import com.lowagie.text.DocumentException;
-import com.lowagie.text.Font;
-import com.lowagie.text.Paragraph;
 import com.lowagie.text.pdf.PdfWriter;
-import com.lowagie.text.pdf.draw.LineSeparator;
 
 import cz.incad.kramerius.FedoraAccess;
 import cz.incad.kramerius.ObjectPidsPath;
 import cz.incad.kramerius.SolrAccess;
+import cz.incad.kramerius.document.model.AbstractPage;
 import cz.incad.kramerius.document.model.AbstractRenderedDocument;
 import cz.incad.kramerius.pdf.FirstPagePDFService;
-import cz.incad.kramerius.pdf.ModelRender;
-import cz.incad.kramerius.pdf.PDFContext;
-import cz.incad.kramerius.pdf.PDFFontConfigBean;
-import cz.incad.kramerius.pdf.utils.BiblioMods;
-import cz.incad.kramerius.pdf.utils.BiblioModsIdentifier;
-import cz.incad.kramerius.pdf.utils.BiblioModsPart;
-import cz.incad.kramerius.pdf.utils.BiblioModsTitleInfo;
-import cz.incad.kramerius.pdf.utils.ModsUtils;
+import cz.incad.kramerius.pdf.commands.ITextCommands;
+import cz.incad.kramerius.pdf.commands.render.RenderPDF;
 import cz.incad.kramerius.pdf.utils.pdf.DocumentUtils;
 import cz.incad.kramerius.pdf.utils.pdf.FontMap;
 import cz.incad.kramerius.service.ResourceBundleService;
 import cz.incad.kramerius.service.TextsService;
+import cz.incad.kramerius.utils.IOUtils;
+import cz.incad.kramerius.utils.XMLUtils;
+import cz.incad.kramerius.utils.mods.AuthorBuilder;
+import cz.incad.kramerius.utils.mods.BuilderFilter;
+import cz.incad.kramerius.utils.mods.IdentifiersBuilder;
+import cz.incad.kramerius.utils.mods.ModsBuildersDirector;
+import cz.incad.kramerius.utils.mods.PeriodicalIssueNumberBuilder;
+import cz.incad.kramerius.utils.mods.PeriodicalVolumeNumberBuilder;
+import cz.incad.kramerius.utils.mods.PublisherBuilder;
+import cz.incad.kramerius.utils.mods.TitleBuilder;
 
 public class FirstPagePDFServiceImpl implements FirstPagePDFService {
 
@@ -73,66 +90,336 @@ public class FirstPagePDFServiceImpl implements FirstPagePDFService {
     @Inject
     Provider<Locale> localesProvider;
 
-    public void logo(Document pdfDoc, ResourceBundle resBundle, Font bigFont) throws DocumentException {
-        bigFont.setSize(48f);
-        pdfDoc.add(new Paragraph(getLogoString(resBundle), bigFont));
+    public Map<String, Map<String, List<String>>> processMods(String... pids) throws IOException, JAXBException, XPathExpressionException {
+        Map<String, Map<String, List<String>>> maps = new HashMap<String, Map<String, List<String>>>();
+        for (String pid : pids) {
+            ObjectPidsPath selectedPath = selectOnePath(pid);
+            Map<String, Map<String, List<String>>> nmaps = processModsFromPath(selectedPath, null);
+            maps.putAll(nmaps);
+        }
+        return maps;
     }
 
-    public String getLogoString(ResourceBundle resBundle) {
-        return resBundle.getString("pdf.firstpage.title");
+    public Map<String, Map<String, List<String>>> processModsFromPath(ObjectPidsPath selectedPath, BuilderFilter filter) throws IOException, XPathExpressionException {
+        Map<String, Map<String, List<String>>> maps = new HashMap<String, Map<String, List<String>>>();
+        if (selectedPath != null) {
+            String[] pathFromLeaf = selectedPath.getPathFromLeafToRoot();
+            for (int i = 0; i < pathFromLeaf.length; i++) {
+                String pidFromPath = pathFromLeaf[i];
+                if (!maps.containsKey(pidFromPath)) {
+                    org.w3c.dom.Document modsCol = this.fedoraAccess.getBiblioMods(pidFromPath);
+                    String modelName = this.fedoraAccess.getKrameriusModelName(pidFromPath);
+                    ModsBuildersDirector director = new ModsBuildersDirector();
+                    director.setBuilderFilter(filter);
+                    Map<String, List<String>> map = new HashMap<String, List<String>>();
+                    director.build(modsCol, map, modelName);
+                    maps.put(pidFromPath, map);
+                }
+            }
+        }
+        return maps;
     }
 
-    public void digitalLibrary(Document pdfDoc, ResourceBundle resBundle, Font smallerFont) throws DocumentException {
-        // TODO: Change in text
-        pdfDoc.add(new Paragraph(getDigitalLibraryString(resBundle), smallerFont));
-        pdfDoc.add(new Paragraph(" \n"));
-        pdfDoc.add(new LineSeparator());
-        pdfDoc.add(new Paragraph(" \n"));
-    }
-
-    public String getDigitalLibraryString(ResourceBundle resBundle) {
-        return resBundle.getString("pdf.firstpage.library");
+    public ObjectPidsPath selectOnePath(String pid) throws IOException {
+        ObjectPidsPath[] paths = this.solrAccess.getPath(pid);
+        ObjectPidsPath selectedPath = paths.length > 0 ? paths[0] : null;
+        return selectedPath;
     }
 
     @Override
-    public void generateFirstPageForSelection(AbstractRenderedDocument rdoc, OutputStream os, String imgServlet, String i18nServlet, PDFFontConfigBean fontConfigBean) {
+    public void generateFirstPageForSelection(AbstractRenderedDocument rdoc, OutputStream os, String[] pids, String imgServlet, String i18nServlet, FontMap fontMap) {
         try {
-            PDFContext pdfContext = new PDFContext(FontMap.createFontMap(fontConfigBean), imgServlet, i18nServlet);
-
-            Font bigFont = pdfContext.getFontMap().getRegistredFont(FontMap.BIG_FONT);
-            Font smallerFont = pdfContext.getFontMap().getRegistredFont(FontMap.NORMAL_FONT);
-
 
             Document doc = DocumentUtils.createDocument(rdoc);
-
-            PdfWriter writer = PdfWriter.getInstance(doc, os);
+            PdfWriter.getInstance(doc, os);
             doc.open();
-
-            new FirstPage(bigFont, smallerFont).render(doc, writer, pdfContext);
+            String itextCommands = templateSelection(rdoc, pids);
+            renderFromTemplate(rdoc, doc, fontMap, new StringReader(itextCommands));
 
             doc.close();
             os.flush();
         } catch (IOException e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
+        } catch (InstantiationException e) {
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+        } catch (IllegalAccessException e) {
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+        } catch (ParserConfigurationException e) {
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+        } catch (SAXException e) {
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
         } catch (DocumentException e) {
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+        } catch (XPathExpressionException e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
         }
     }
 
-    @Override
-    public void generateFirstPageForParent(AbstractRenderedDocument rdoc, OutputStream os, ObjectPidsPath path,  String imgServlet, String i18nServlet, PDFFontConfigBean configBean) {
-        try {
-            PDFContext pdfContext = new PDFContext(FontMap.createFontMap(configBean), imgServlet, i18nServlet);
+    public void renderFromTemplate(AbstractRenderedDocument rdoc,Document doc, FontMap fontMap, StringReader reader) throws IOException, InstantiationException, IllegalAccessException, ParserConfigurationException, SAXException {
+        ITextCommands cmnds = new ITextCommands();
+        cmnds.load(XMLUtils.parseDocument(reader).getDocumentElement(), cmnds);
+
+        RenderPDF render = new RenderPDF(fontMap);
+        render.render(doc, cmnds);
+    }
+
+    public String templateSelection(AbstractRenderedDocument rdoc, String ... pids) throws XPathExpressionException, IOException, ParserConfigurationException, SAXException {
+        ResourceBundle resourceBundle = resourceBundleService.getResourceBundle("base", localesProvider.get());
+
+        StringTemplate template = new StringTemplate(IOUtils.readAsString(this.getClass().getResourceAsStream("templates/_first_page.st"), Charset.forName("UTF-8"), true));
+        FirstPageViewObject fpvo = prepareViewObject(resourceBundle);
+
+        // tistena polozka
+        GeneratedItem itm = new GeneratedItem();
+        
+  
+        Map<String, LinkedHashSet<String>> detailItemValues = new HashMap<String, LinkedHashSet<String>>();
+        Map<String, ObjectPidsPath> pathsMapping = new HashMap<String, ObjectPidsPath>();
+        LinkedHashSet<String> roots = new LinkedHashSet<String>();
+        for (String pid : pids) {
+            ObjectPidsPath sPath = selectOnePath(pid);
+            pathsMapping.put(pid, sPath);
+            roots.add(sPath.getRoot());
+        }
+        
+        for (String pid : pids) {
+            ObjectPidsPath path = pathsMapping.get(pid);
+            Map<String, Map<String, List<String>>> mods = processModsFromPath(path, null);
+            String rootPid = path.getRoot();
+            if (mods.get(rootPid).containsKey(TitleBuilder.MODS_TITLE)) {
+                List<String> list = mods.get(rootPid).get(TitleBuilder.MODS_TITLE);
+                if (!list.isEmpty()) {
+                    String key = TitleBuilder.MODS_TITLE;
+                    itemVals(detailItemValues, list, key);
+                }
+            }
+            
+            String[] rProps = renderedProperties(roots.size() == 1);
+            String[] fromRootToLeaf = path.getPathFromRootToLeaf();
+            for (int i = 0; i < fromRootToLeaf.length; i++) {
+                String pidPath = fromRootToLeaf[i];
+                for (String prop : rProps) {
+
+                    if (mods.get(pidPath).containsKey(prop)) {
+                        List<String> list = mods.get(pidPath).get(prop);
+                        itemVals(detailItemValues, list, prop);
+                    }
+                }
+            }
+        }
+        
+        
+
+        // hlavni nazev
+        List<DetailItem> details = new ArrayList<FirstPagePDFServiceImpl.DetailItem>();
+        LinkedHashSet<String> maintitles = detailItemValues.get(TitleBuilder.MODS_TITLE);
+        String key =  maintitles != null && maintitles.size() > 1 ? resourceBundle.getString("pdf.fp.titles") :  resourceBundle.getString("pdf.fp.title");
+        if (maintitles != null && (!maintitles.isEmpty())) {
+            details.add(new DetailItem(key, vals(maintitles).toString()));
+        }
+
+        for(String prop: renderedProperties(roots.size() == 1)) {
+            LinkedHashSet<String> vals = detailItemValues.get(prop);
+            key = vals != null && vals.size() > 1 ? resourceBundle.getString(i18nKey(prop)+"s") :  resourceBundle.getString(i18nKey(prop));
+            if (vals != null && (!vals.isEmpty())) {
+                details.add(new DetailItem(key, vals(vals).toString()));
+            }
+        }
+
+        // stranky v pdfku
+        pagesInPdf(rdoc, resourceBundle, details);
+        
+        itm.setDetailItems((DetailItem[]) details.toArray(new DetailItem[details.size()]));
+        fpvo.setGeneratedItems(new GeneratedItem[] {itm});
+
+        template.setAttribute("viewinfo", fpvo);
+        String templateText = template.toString();
+        
+        return templateText;
+    }
+
+    public String[] renderedProperties(boolean oneRoot) {
+        String[] rProps;
+        // v pripade, ze je jeden rodic, ma smysl mit vice informaci
+        if (oneRoot) {
+            rProps = new String[] {
+                    AuthorBuilder.MODS_AUTHOR,
+                    PublisherBuilder.MODS_PUBLISHER, 
+                    PublisherBuilder.MODS_DATE, 
+                    PeriodicalVolumeNumberBuilder.MODS_VOLUMENUMBER, 
+                    PeriodicalIssueNumberBuilder.MODS_ISSUESNUMBER, 
+                    PeriodicalIssueNumberBuilder.MODS_DATE,
+                    IdentifiersBuilder.MODS_ISBN,
+                    IdentifiersBuilder.MODS_ISSN,
+                    IdentifiersBuilder.MODS_SICI,
+                    IdentifiersBuilder.MODS_CODEN
+
+            };
+        } else {
+            rProps = new String[] {
+                    PeriodicalVolumeNumberBuilder.MODS_VOLUMENUMBER, 
+                    PeriodicalIssueNumberBuilder.MODS_ISSUESNUMBER, 
+                    IdentifiersBuilder.MODS_ISBN,
+                    IdentifiersBuilder.MODS_ISSN,
+                    IdentifiersBuilder.MODS_SICI,
+                    IdentifiersBuilder.MODS_CODEN
+
+            };
+        }
+        return rProps;
+    }
+
+    public void itemVals(Map<String, LinkedHashSet<String>> detailItemValues, List<String> list, String key) {
+        LinkedHashSet<String> vals = detailItemValues.get(key);
+        if (vals == null) { 
+            vals = new LinkedHashSet<String>();
+            detailItemValues.put(key, vals);
+        }
+        vals.addAll(list);
+    }
+
+    public String templateParent(AbstractRenderedDocument rdoc, ObjectPidsPath path) throws IOException, ParserConfigurationException, SAXException, XPathExpressionException, JAXBException {
+        ResourceBundle resourceBundle = resourceBundleService.getResourceBundle("base", localesProvider.get());
+
+        StringTemplate template = new StringTemplate(IOUtils.readAsString(this.getClass().getResourceAsStream("templates/_first_page.st"), Charset.forName("UTF-8"), true));
+        FirstPageViewObject fpvo = prepareViewObject(resourceBundle);
+
+        // tistena polozka
+        GeneratedItem itm = new GeneratedItem();
+        
+        // detaily
+        Map<String, LinkedHashSet<String>> detailItemValues = new HashMap<String, LinkedHashSet<String>>();
+        Map<String, Map<String, List<String>>> mods = processModsFromPath(path, null);
+
+        // Hlavni nazev
+        String rootPid = path.getRoot();
+        if (mods.get(rootPid).containsKey(TitleBuilder.MODS_TITLE)) {
+            List<String> list = mods.get(rootPid).get(TitleBuilder.MODS_TITLE);
+            if (!list.isEmpty()) {
+                String key = TitleBuilder.MODS_TITLE;
+                itemVals(detailItemValues, list, key);
+            }
+        }
+
+        // pouze jeden root
+        String[] rProps = renderedProperties(true);
+        String[] fromRootToLeaf = path.getPathFromRootToLeaf();
+        for (int i = 0; i < fromRootToLeaf.length; i++) {
+            String pidPath = fromRootToLeaf[i];
+            for (String prop : rProps) {
+
+                if (mods.get(pidPath).containsKey(prop)) {
+                    List<String> list = mods.get(pidPath).get(prop);
+                    itemVals(detailItemValues, list, prop);
+                }
+            }
+        }
+
+        // hlavni nazev
+        List<DetailItem> details = new ArrayList<FirstPagePDFServiceImpl.DetailItem>();
+        LinkedHashSet<String> maintitles = detailItemValues.get(TitleBuilder.MODS_TITLE);
+        String key =  maintitles != null && maintitles.size() > 1 ? resourceBundle.getString("pdf.fp.titles") :  resourceBundle.getString("pdf.fp.title");
+        if (maintitles != null && (!maintitles.isEmpty())) {
+            details.add(new DetailItem(key, vals(maintitles).toString()));
+        }
+
+        String[] props = renderedProperties(true);
+        for(String prop: props) {
+            LinkedHashSet<String> vals = detailItemValues.get(prop);
+            key = vals != null && vals.size() > 1 ? resourceBundle.getString(i18nKey(prop)+"s") :  resourceBundle.getString(i18nKey(prop));
+            if (vals != null && (!vals.isEmpty())) {
+                details.add(new DetailItem(key, vals(vals).toString()));
+            }
+        }
+
+        
+        // stranky v pdfku
+        pagesInPdf(rdoc, resourceBundle, details);
+        
+        itm.setDetailItems((DetailItem[]) details.toArray(new DetailItem[details.size()]));
+        
+
+        fpvo.setGeneratedItems( new GeneratedItem[] { itm });
+        template.setAttribute("viewinfo", fpvo);
+        String templateText = template.toString();
+        return templateText;
+    }
+
+    public void pagesInPdf(AbstractRenderedDocument rdoc, ResourceBundle resourceBundle, List<DetailItem> details) {
+        // tistene stranky
+        List<AbstractPage> pages = rdoc.getPages();
+        if (pages.size() == 1) {
+            details.add(new DetailItem(resourceBundle.getString("pdf.fp.page"),pages.get(0).getPageNumber()));
+        } else if (pages.size() > 1) {
+            details.add(new DetailItem(resourceBundle.getString("pdf.fp.pages"),""+pages.get(0).getPageNumber() +" - "+pages.get(pages.size() - 1).getPageNumber() ));
+        }
+    }
+
+
+    public StringTemplate vals(Collection<String> list) {
+        StringTemplate dataTemplate = new StringTemplate("$data;separator=\", \"$");
+        dataTemplate.setAttribute("data", list);
+        return dataTemplate;
+    }
+
+    public FirstPageViewObject prepareViewObject(ResourceBundle resourceBundle) throws IOException, ParserConfigurationException, SAXException, UnsupportedEncodingException {
+        FirstPageViewObject fpvo = new FirstPageViewObject();
+
+        String xml = this.textsService.getText("first_page_nolines_xml", this.localesProvider.get());
+        org.w3c.dom.Document doc = XMLUtils.parseDocument(new ByteArrayInputStream(xml.getBytes("UTF-8")), false);
+        Element head = XMLUtils.findElement(doc.getDocumentElement(), "head");
+        Element desc = XMLUtils.findElement(doc.getDocumentElement(), "desc");
+
+        fpvo.setConditionUsage(head.getTextContent());
+        fpvo.setConditionUsageText(desc.getTextContent());
+
+        fpvo.setDitigalLibrary(resourceBundle.getString("pdf.digitallibrary"));
+        fpvo.setHyphLang(this.localesProvider.get().getLanguage());
+        fpvo.setHyphCountry(this.localesProvider.get().getCountry());
+        fpvo.setPdfContainsTitle(resourceBundle.getString("pdf.pdfcontainstitle"));
+        return fpvo;
+    }
+
     
-            Font bigFont = pdfContext.getFontMap().getRegistredFont(FontMap.BIG_FONT);
-            Font smallerFont = pdfContext.getFontMap().getRegistredFont(FontMap.NORMAL_FONT);
+    public String i18nValue(ResourceBundle bundle, String modsKey) {
+        String key = i18nKey(modsKey);
+        if (key != null) {
+            if (bundle.containsKey(key)) {
+                return bundle.getString(key);
+            } else {
+                LOGGER.log(Level.WARNING, "cannot find key '"+ key+"'");
+                return modsKey;
+            }
+        } else
+            return modsKey;
+    }
+
+    public String i18nKey(String modsKey) {
+        String[] splitted = modsKey.split(":");
+        if (splitted.length == 2 && splitted[0].equals("mods")) {
+            return "pdf.fp." + splitted[1];
+        } else return modsKey;
+    }
+
+    public String localizedModel(ResourceBundle resourceBundle, String pid) throws IOException {
+        String modelName = this.fedoraAccess.getKrameriusModelName(pid);
+        String localizedModelName = resourceBundle.getString("fedora.model." + modelName);
+        return localizedModelName;
+    }
+
+    @Override
+    public void generateFirstPageForParent(AbstractRenderedDocument rdoc, OutputStream os, ObjectPidsPath path, String imgServlet, String i18nServlet, FontMap fontMap) {
+        try {
+            processMods(path.getLeaf());
 
             Document doc = DocumentUtils.createDocument(rdoc);
 
             PdfWriter writer = PdfWriter.getInstance(doc, os);
             doc.open();
 
-            new FirsPageFromParent(bigFont, smallerFont, path).render(doc, writer, pdfContext);
+            String itextCommands = templateParent(rdoc, path);
+
+            renderFromTemplate(rdoc, doc, fontMap, new StringReader(itextCommands));
 
             doc.close();
             os.flush();
@@ -140,206 +427,138 @@ public class FirstPagePDFServiceImpl implements FirstPagePDFService {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
         } catch (IOException e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
+        } catch (InstantiationException e) {
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+        } catch (IllegalAccessException e) {
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+        } catch (ParserConfigurationException e) {
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+        } catch (SAXException e) {
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+        } catch (XPathExpressionException e) {
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+        } catch (JAXBException e) {
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
         }
 
     }
 
-    private class FirstPage {
-        private final Font bigFont;
-        private final Font smallerFont;
+    // Reprezentuje objekt do sablony pro zobrazeni
+    class FirstPageViewObject {
 
-        public FirstPage(final Font bigFont, final Font smallerFont) {
-            this.bigFont = bigFont;
-            this.smallerFont = smallerFont;
+        private String ditigalLibrary;
+        private String conditionUsage;
+        private String conditionUsageText;
+        private String pdfContainsTitle;
+
+        private String hyphCountry;
+        private String hyphLang;
+
+        private GeneratedItem[] generatedItems = new GeneratedItem[0];
+
+        
+        public String getDitigalLibrary() {
+            return ditigalLibrary;
         }
 
-        public void render(Document doc, PdfWriter writer, PDFContext pdfContext) {
-            try {
-                ResourceBundle resBundle = resourceBundleService.getResourceBundle("base", localesProvider.get());
-                logo(doc, resBundle, bigFont);
-                digitalLibrary(doc, resBundle, smallerFont);
-
-                Paragraph paragraph = new Paragraph("\n");
-                paragraph.setSpacingAfter(10);
-                doc.add(paragraph);
-
-                Paragraph parDesc = new Paragraph(textsService.getText("first_page", localesProvider.get()), smallerFont);
-                doc.add(parDesc);
-                
-            } catch (IOException e) {
-                LOGGER.log(Level.SEVERE, e.getMessage(), e);
-            } catch (DocumentException e) {
-                LOGGER.log(Level.SEVERE, e.getMessage(), e);
-            }
+        public void setDitigalLibrary(String ditigalLibrary) {
+            this.ditigalLibrary = ditigalLibrary;
         }
+
+        public String getConditionUsage() {
+            return conditionUsage;
+        }
+
+        public void setConditionUsage(String conditionUsage) {
+            this.conditionUsage = conditionUsage;
+        }
+
+        public String getConditionUsageText() {
+            return conditionUsageText;
+        }
+
+        public void setConditionUsageText(String conditionUsageText) {
+            this.conditionUsageText = conditionUsageText;
+        }
+
+        public String getPdfContainsTitle() {
+            return pdfContainsTitle;
+        }
+
+        public void setPdfContainsTitle(String pdfContainsTitle) {
+            this.pdfContainsTitle = pdfContainsTitle;
+        }
+
+        public String getHyphCountry() {
+            return hyphCountry;
+        }
+
+        public void setHyphCountry(String hyphCountry) {
+            this.hyphCountry = hyphCountry;
+        }
+
+        public String getHyphLang() {
+            return hyphLang;
+        }
+
+        public void setHyphLang(String hyphLang) {
+            this.hyphLang = hyphLang;
+        }
+
+        public GeneratedItem[] getGeneratedItems() {
+            return generatedItems;
+        }
+
+        public void setGeneratedItems(GeneratedItem[] generatedItems) {
+            this.generatedItems = generatedItems;
+        }
+
+        public boolean isMoreGeneratedItems() {
+            return this.generatedItems != null && this.generatedItems.length > 0;
+        }
+
     }
 
-    private class FirsPageFromParent {
+    // reprezentuje generovanou polozku
+    class GeneratedItem {
 
-        final Map<String, ModelRender> filledMap = new HashMap<String, ModelRender>();
+        private DetailItem[] detailItems = new DetailItem[0];
 
-        private final Font bigFont;
-        private final Font smallerFont;
-
-        private ObjectPidsPath objectPidsPath;
-
-        public FirsPageFromParent(final Font bigFont, final Font smallerFont, ObjectPidsPath path) {
-
-            this.bigFont = bigFont;
-            this.smallerFont = smallerFont;
-            this.objectPidsPath = path;
-
-            filledMap.put("periodical", new ModelRender() {
-
-                @Override
-                public void render(BiblioMods bmods, com.lowagie.text.List list) {
-                    BiblioModsTitleInfo title = bmods.findTitle();
-                    if (title != null) {
-                        list.setListSymbol(new Chunk("Hlavni nazev: ", smallerFont));
-                        com.lowagie.text.ListItem item = new com.lowagie.text.ListItem(new Chunk(title.getTitle(), smallerFont));
-                        list.add(item);
-                    }
-
-                    BiblioModsIdentifier issn = bmods.findIdent("issn");
-                    if (issn != null) {
-                        list.setListSymbol(new Chunk("ISSN: ", smallerFont));
-                        com.lowagie.text.ListItem item = new com.lowagie.text.ListItem(new Chunk(issn.getIdent(), smallerFont));
-                        list.add(item);
-                    }
-                }
-            });
-
-            filledMap.put("monograph", new ModelRender() {
-
-                @Override
-                public void render(BiblioMods bmods, com.lowagie.text.List list) {
-                    BiblioModsTitleInfo title = bmods.findTitle();
-                    if (title != null) {
-                        list.setListSymbol(new Chunk("Hlavni nazev: ", smallerFont));
-                        com.lowagie.text.ListItem item = new com.lowagie.text.ListItem(new Chunk(title.getTitle(), smallerFont));
-                        list.add(item);
-                    }
-
-                    BiblioModsIdentifier isbn = bmods.findIdent("isbn");
-                    if (isbn != null) {
-                        list.setListSymbol(new Chunk("ISBN: ", smallerFont));
-                        com.lowagie.text.ListItem item = new com.lowagie.text.ListItem(new Chunk(isbn.getIdent(), smallerFont));
-                        list.add(item);
-                    }
-                }
-            });
-
-            filledMap.put("periodicalvolume", new ModelRender() {
-
-                @Override
-                public void render(BiblioMods bmods, com.lowagie.text.List list) {
-                    BiblioModsPart part = bmods.findDetail("volume");
-                    if (part != null) {
-                        String detail = part.findDetail("volume").getNumber();
-
-                        list.setListSymbol(new Chunk("Cislo rocniku:", smallerFont));
-                        com.lowagie.text.ListItem item = new com.lowagie.text.ListItem(new Chunk(detail, smallerFont));
-                        list.add(item);
-
-                        String date = part.getDate();
-                        if (date != null) {
-                            list.setListSymbol(new Chunk("Rok:", smallerFont));
-                            com.lowagie.text.ListItem itemY = new com.lowagie.text.ListItem(new Chunk(date, smallerFont));
-                            list.add(itemY);
-                        }
-                    }
-                }
-            });
-
-            filledMap.put("periodicalitem", new ModelRender() {
-
-                @Override
-                public void render(BiblioMods bmods, com.lowagie.text.List list) {
-
-                    BiblioModsPart part = bmods.findDetail("issue");
-                    if (part != null) {
-                        String detail = part.findDetail("issue").getNumber();
-
-                        list.setListSymbol(new Chunk("Cislo :", smallerFont));
-                        com.lowagie.text.ListItem item = new com.lowagie.text.ListItem(new Chunk(detail, smallerFont));
-                        list.add(item);
-
-                        String date = part.getDate();
-                        if (date != null) {
-                            list.setListSymbol(new Chunk("Rok:", smallerFont));
-                            com.lowagie.text.ListItem itemY = new com.lowagie.text.ListItem(new Chunk(date, smallerFont));
-                            list.add(itemY);
-                        }
-                    }
-                }
-            });
-
-            filledMap.put("internalpart", new ModelRender() {
-
-                @Override
-                public void render(BiblioMods bmods, com.lowagie.text.List list) {
-                    BiblioModsTitleInfo title = bmods.findTitle();
-                    if (title != null) {
-                        list.setListSymbol(new Chunk("Nazev: ", smallerFont));
-                        com.lowagie.text.ListItem item = new com.lowagie.text.ListItem(new Chunk(title.getTitle(), smallerFont));
-                        list.add(item);
-                    }
-                }
-            });
-
-            filledMap.put("default", new ModelRender() {
-
-                @Override
-                public void render(BiblioMods bmods, com.lowagie.text.List list) {
-                    BiblioModsTitleInfo title = bmods.findTitle();
-                    if (title != null) {
-                        list.setListSymbol(new Chunk("Nazev: ", smallerFont));
-                        com.lowagie.text.ListItem item = new com.lowagie.text.ListItem(new Chunk(title.getTitle(), smallerFont));
-                        list.add(item);
-                    }
-                }
-            });
-
+        public GeneratedItem() {
         }
 
-        public void render(Document doc, PdfWriter writer, PDFContext pdfContext) {
-            try {
-
-                ResourceBundle resBundle = resourceBundleService.getResourceBundle("base", localesProvider.get());
-
-                logo(doc, resBundle, bigFont);
-                digitalLibrary(doc, resBundle, smallerFont);
-
-                com.lowagie.text.List metadatalist = new com.lowagie.text.List(com.lowagie.text.List.UNORDERED);
-                BiblioMods[] mods = new BiblioMods[this.objectPidsPath.getLength()];
-                for (int i = 0; i < mods.length; i++) {
-                    mods[i] = ModsUtils.biblioMods(this.objectPidsPath.getPathFromLeafToRoot()[i], fedoraAccess);
-                }
-
-                for (int j = 0; j < mods.length; j++) {
-                    if (filledMap.get(mods[j].getModelName()) != null) {
-                        filledMap.get(mods[j].getModelName()).render(mods[j], metadatalist);
-
-                    } else {
-                        filledMap.get("default").render(mods[j], metadatalist);
-                    }
-                }
-
-                doc.add(metadatalist);
-
-                Paragraph paragraph = new Paragraph("\n");
-                paragraph.setSpacingAfter(10);
-                doc.add(paragraph);
-
-                Paragraph parDesc = new Paragraph(textsService.getText("first_page", localesProvider.get()), smallerFont);
-                doc.add(parDesc);
-                doc.newPage();
-            } catch (IOException e) {
-                LOGGER.log(Level.SEVERE, e.getMessage(), e);
-            } catch (DocumentException e) {
-                LOGGER.log(Level.SEVERE, e.getMessage(), e);
-            }
+        public DetailItem[] getDetailItems() {
+            return detailItems;
         }
 
+        public void setDetailItems(DetailItem[] dCItems) {
+            this.detailItems = dCItems;
+        }
+
+        public boolean isDetailItemsDefined() {
+            return this.detailItems != null && this.detailItems.length > 0;
+        }
+
+    }
+
+
+    class DetailItem {
+
+        private String key;
+        private String value;
+
+        public DetailItem(String key, String value) {
+            super();
+            this.key = key;
+            this.value = value;
+        }
+
+        public String getKey() {
+            return key;
+        }
+
+        public String getValue() {
+            return value;
+        }
     }
 }
