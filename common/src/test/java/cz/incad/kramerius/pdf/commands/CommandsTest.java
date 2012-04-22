@@ -41,7 +41,7 @@ public class CommandsTest {
     
     @Test
     public void testCommands() throws ParserConfigurationException, SAXException, IOException, InstantiationException, IllegalAccessException {
-        InputStream stream = this.getClass().getResourceAsStream("commands.xml");
+        InputStream stream = CommandsTest.class.getResourceAsStream("commands.xml");
         Document document = XMLUtils.parseDocument(stream);
         
         ITextCommands cmnds = new ITextCommands();
@@ -59,7 +59,7 @@ public class CommandsTest {
     
     @Test
     public void testCommandsListener() throws ParserConfigurationException, SAXException, IOException, InstantiationException, IllegalAccessException {
-        InputStream stream = this.getClass().getResourceAsStream("commands.xml");
+        InputStream stream = CommandsTest.class.getResourceAsStream("commands.xml");
         Document document = XMLUtils.parseDocument(stream);
 
         ITextCommands cmnds = new ITextCommands();
