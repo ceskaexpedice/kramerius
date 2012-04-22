@@ -58,11 +58,14 @@
     <c:forEach items="${pdfView.items}" var="item" varStatus="status">
         <tr class="${(status.index mod 2 == 0) ? 'selection r0 ': 'selection r1 '}">
             <td>
-
                 <div id="${item.id}" class="pdfSelection ${(item.checked) ? 'pdfSelected': ''}">
 
                     <input type="radio" id="${item.id}_radio" name="pdfSelection" ${item.checkedAttribute} onclick="pdf.onChange('${item.id}', '${item.type}','${item.pids}');"  value="${item.pids}"/> 
                     <strong>${item.name}</strong>
+                    <c:if test="${item.invalidOption}">
+                          <span id="${item.id}_error" style="color: red;"><view:msg>pdf.validationError.toomuch</view:msg></span>
+                    </c:if>
+
                     <c:if test="${item.pidsMoreThenOne}">
                         <div style="font-size: 85%;font-family:monospace;" >
                             <ul>
