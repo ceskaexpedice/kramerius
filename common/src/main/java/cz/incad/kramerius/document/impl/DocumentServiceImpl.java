@@ -16,14 +16,18 @@
  */
 package cz.incad.kramerius.document.impl;
 
-import static cz.incad.kramerius.utils.BiblioModsUtils.getPageNumber;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.ResourceBundle;
 import java.util.logging.Level;
+
+import javax.xml.bind.JAXBException;
+import javax.xml.xpath.XPathExpressionException;
 
 import org.w3c.dom.DOMException;
 import org.w3c.dom.Document;
@@ -54,6 +58,7 @@ import cz.incad.kramerius.service.TextsService;
 import cz.incad.kramerius.utils.DCUtils;
 import cz.incad.kramerius.utils.XMLUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
+import cz.incad.kramerius.utils.mods.PageNumbersBuilder;
 import cz.incad.kramerius.utils.pid.LexerException;
 
 public class DocumentServiceImpl implements DocumentService {
@@ -93,7 +98,7 @@ public class DocumentServiceImpl implements DocumentService {
             
             ObjectPidsPath[] path = solrAccess.getPath(pidFrom);
             String[] pathFromLeafToRoot = path[0].getPathFromLeafToRoot();
-            // {str, clanek, monografie }
+            // { str, clanek, monografie }
             String parent = null;
             if (pathFromLeafToRoot.length > 1) {
                 parent = pathFromLeafToRoot[1];
@@ -260,74 +265,80 @@ public class DocumentServiceImpl implements DocumentService {
     protected AbstractPage createPage( final AbstractRenderedDocument renderedDocument,
             String pid)
             throws LexerException, IOException {
-//      
-        org.w3c.dom.Document biblioMods = fedoraAccess.getBiblioMods(pid);
-        org.w3c.dom.Document dc = fedoraAccess.getDC(pid);
-        String modelName = fedoraAccess.getKrameriusModelName(pid);
-        ResourceBundle resourceBundle = resourceBundleService.getResourceBundle("base", localeProvider.get());
-        
-        AbstractPage page = null;
-        
-        if (fedoraAccess.isImageFULLAvailable(pid)) {
+
+        try {
+            org.w3c.dom.Document biblioMods = fedoraAccess.getBiblioMods(pid);
+            org.w3c.dom.Document dc = fedoraAccess.getDC(pid);
+            String modelName = fedoraAccess.getKrameriusModelName(pid);
+            ResourceBundle resourceBundle = resourceBundleService.getResourceBundle("base", localeProvider.get());
             
-            page = new ImagePage(modelName, pid);
-            page.setOutlineDestination(pid);
+            AbstractPage page = null;
             
-            page.setBiblioMods(biblioMods);
-            page.setDc(dc);
-            
-            
-            String pageNumber = getPageNumber(biblioMods);
-            if (pageNumber.trim().equals("")) {
-                throw new IllegalStateException(pid);
-            }
-            page.setPageNumber(pageNumber);
-            //renderedDocument.addPage(page);
-            Element part = XMLUtils.findElement(biblioMods.getDocumentElement(), "part", FedoraNamespaces.BIBILO_MODS_URI);
-            String attribute = part.getAttribute("type");
-            if (attribute != null) {
-                String key = "pdf."+attribute;
-                if (resourceBundle.containsKey(key)) {
-                    page.setOutlineTitle(page.getPageNumber()+" "+resourceBundle.getString(key));
-                } else {
-                    page.setOutlineTitle(page.getPageNumber());
-                    //throw new RuntimeException("");
+            if (fedoraAccess.isImageFULLAvailable(pid)) {
+                
+                page = new ImagePage(modelName, pid);
+                page.setOutlineDestination(pid);
+                
+                page.setBiblioMods(biblioMods);
+                page.setDc(dc);
+                
+
+                Map<String, List<String>> map = new HashMap<String, List<String>>();
+                PageNumbersBuilder pageNumbersBuilder = new PageNumbersBuilder();
+                pageNumbersBuilder.build(biblioMods, map, modelName);
+                List<String> pageNumbers = map.get(PageNumbersBuilder.MODS_PAGENUMBER);
+                String pageNumber = pageNumbers.isEmpty() ? "" : pageNumbers.get(0);    
+
+                page.setPageNumber(pageNumber);
+                //renderedDocument.addPage(page);
+                Element part = XMLUtils.findElement(biblioMods.getDocumentElement(), "part", FedoraNamespaces.BIBILO_MODS_URI);
+                String attribute = part.getAttribute("type");
+                if (attribute != null) {
+                    String key = "pdf."+attribute;
+                    if (resourceBundle.containsKey(key)) {
+                        page.setOutlineTitle(page.getPageNumber()+" "+resourceBundle.getString(key));
+                    } else {
+                        page.setOutlineTitle(page.getPageNumber());
+                        //throw new RuntimeException("");
+                    }
                 }
-            }
-            if ((renderedDocument.getUuidTitlePage() == null) && ("TitlePage".equals(attribute))) {
-                renderedDocument.setUuidTitlePage(pid);
-            }
+                if ((renderedDocument.getUuidTitlePage() == null) && ("TitlePage".equals(attribute))) {
+                    renderedDocument.setUuidTitlePage(pid);
+                }
 
-            if ((renderedDocument.getUuidFrontCover() == null) && ("FrontCover".equals(attribute))) {
-                renderedDocument.setUuidFrontCover(pid);
-            }
+                if ((renderedDocument.getUuidFrontCover() == null) && ("FrontCover".equals(attribute))) {
+                    renderedDocument.setUuidFrontCover(pid);
+                }
 
-            if ((renderedDocument.getUuidBackCover() == null) && ("BackCover".equals(attribute))) {
-                renderedDocument.setUuidBackCover(pid);
-            }
+                if ((renderedDocument.getUuidBackCover() == null) && ("BackCover".equals(attribute))) {
+                    renderedDocument.setUuidBackCover(pid);
+                }
 
-            if (renderedDocument.getFirstPage() == null)  {
-                renderedDocument.setFirstPage(pid);
-            }
-            
+                if (renderedDocument.getFirstPage() == null)  {
+                    renderedDocument.setFirstPage(pid);
+                }
+                
 
-        } else {
-            // metadata
-            page = new TextPage(modelName, pid);
-            page.setOutlineDestination(pid);
+            } else {
+                // metadata
+                page = new TextPage(modelName, pid);
+                page.setOutlineDestination(pid);
 //          String title = DCUtils.titleFromDC(dc);
 //          if ((title == null) || title.equals("")) {
 //              title = BiblioModsUtils.titleFromBiblioMods(biblioMods);
 //              title = BiblioModsUtils.getTitle(biblioMods, fedoraAccess.getKrameriusModelName(objectId));
 //          }
-            //if (title.trim().equals("")) throw new IllegalArgumentException(objectId+" has no title ");
-            
-            page.setBiblioMods(biblioMods);
-            page.setDc(dc);
-            
-            page.setOutlineTitle(TitlesUtils.title(pid, solrAccess, fedoraAccess, resourceBundle));
+                //if (title.trim().equals("")) throw new IllegalArgumentException(objectId+" has no title ");
+                
+                page.setBiblioMods(biblioMods);
+                page.setDc(dc);
+                
+                page.setOutlineTitle(TitlesUtils.title(pid, solrAccess, fedoraAccess, resourceBundle));
+            }
+            return page;
+        } catch (XPathExpressionException e) {
+            throw new IOException(e);
         }
-        return page;
     }
 
 

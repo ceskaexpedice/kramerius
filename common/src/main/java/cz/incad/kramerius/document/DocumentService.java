@@ -23,17 +23,18 @@ import cz.incad.kramerius.ProcessSubtreeException;
 import cz.incad.kramerius.document.model.AbstractRenderedDocument;
 
 /**
- * Service for creating documents model for printing and generating pdf
- * @author pavels
+ * Sluzba pro vytvareni dokumentu
  */
 public interface DocumentService {
 
-    
+    // Vytvori model dokumentu s obsahem
     AbstractRenderedDocument buildDocumentAsTree(ObjectPidsPath path, String pidFrom, int[]rect) throws IOException, ProcessSubtreeException;
 
+    // vytvori dokument bez obsahu
     AbstractRenderedDocument buildDocumentAsFlat(ObjectPidsPath path, String pidFrom, int howMany, int[] rect) throws IOException, ProcessSubtreeException;
     
-    
+    // vytvori dokument pouze jako vyber objektu
     AbstractRenderedDocument buildDocumentFromSelection(String[] selection, int[] rect) throws IOException, ProcessSubtreeException;
     
+
 }
