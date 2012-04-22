@@ -35,15 +35,6 @@ $viewinfo.conditionUsageText$
 </paragraph>
 
 
-<!--
-<paragraph  spacing-after="20">
-<textsarray>
-<text font-formal-name="strong">$generatedItem.mainTitle$</text>
-</text>
-</textsarray>
-</paragraph>
--->
-
 $if(viewinfo.moreGeneratedItems)$ 
 
 <list list-type="unordered">
