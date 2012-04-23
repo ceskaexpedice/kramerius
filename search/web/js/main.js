@@ -219,11 +219,12 @@ PDF.prototype.renderPDF = function() {
 		    	height:270,
 		    	modal:true,
 		    	title: dictionary["generatePdfTitle"],
-		    	buttons: {
-		    		"Close": function() {
-		    			$(this).dialog("close");
-		            }
-		        }
+                buttons:[
+                     text: dictionary['common.close'],
+                     click: bind(function() {
+                    	this.dialog.dialog("close");
+                     },this);
+                ]
 		    });
 		}
 		
@@ -255,16 +256,23 @@ PDF.prototype.generate = function(objects) {
                 height:500,
                 modal:true,
                 title: dictionary["generatePdfTitle"],
-                buttons: {
-                    "Generuj": bind(function() {
-                    	this.renderPDF();
-                    	this.dialog.dialog("close");
-                    },this),
+                buttons:[
+                         {
+                             text: dictionary['pdf.dialog.button.generate'],
+                             click: bind(function() {
+                             	this.renderPDF();
+                            	this.dialog.dialog("close");
+                             },this);
+                         },
+                         
+                         {
+                             text: dictionary['common.close'],
+                             click: function() {
+                                 $(this).dialog("close"); 
+                             }
+                         }
+                ] 
 
-                	"Close": function() {
-                        $(this).dialog("close");
-                    }
-                }
             });
 		}
 		
