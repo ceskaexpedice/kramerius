@@ -397,10 +397,14 @@ public class LongRunningProcessServlet extends GuiceServlet {
                             
                             List<States> childStates = new ArrayList<States>();
                             childStates.add(States.valueOf(state));
-                            // prvni je master process -> vynechavam
+                            // prvni je master process -> vynechavam + meneny proces vynechavam
                             for (int i = 1,ll=processes.size(); i < ll; i++) {
-                                childStates.add(processes.get(i).getProcessState());
+                                LRProcess lrProcess = processes.get(i);
+                                if (!lrProcess.getUUID().equals(uuid)) {
+                                    childStates.add(lrProcess.getProcessState());
+                                }
                             }
+                            
                             processes.get(0).setProcessState(States.calculateBatchState(childStates));
                             processManager.updateLongRunningProcessState(processes.get(0));
                             
@@ -410,8 +414,6 @@ public class LongRunningProcessServlet extends GuiceServlet {
                         // uprava stavu pro jeden samotinky proces
                         changeChildProcessState(processManager, state, longRunningProcess);
                     }
-                    
-//                    if (!processes.isEmpty()) {
 
                 } finally {
                     lock.unlock();
