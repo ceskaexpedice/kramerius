@@ -51,11 +51,12 @@ td {
     font-family:Verdana, Arial, Helvetica, Tahoma;
     font-size:11px;
 }
+
 input {
     border:1px solid #A7A9A7;
     font-family:Verdana, Arial, Helvetica, Tahoma;
     font-size:11px;
-    color:#aaaaaa;
+    /*color:#aaaaaa;*/
     vertical-align:middle;
 }
 
