@@ -335,9 +335,8 @@ public class FirstPagePDFServiceImpl implements FirstPagePDFService {
         }
 
         
-        // stranky v pdfku
         pagesInParentPdf(rdoc, resourceBundle, details);
-        
+
         itm.setDetailItems((DetailItem[]) details.toArray(new DetailItem[details.size()]));
         
 
@@ -364,7 +363,7 @@ public class FirstPagePDFServiceImpl implements FirstPagePDFService {
         if (pages.size() == 1) {
             details.add(new DetailItem(resourceBundle.getString("pdf.fp.page"),pages.get(0).getPageNumber()));
         } else if (pages.size() > 1) {
-            StringTemplate template = new StringTemplate("$data:{page| $page.pageNumber$ };separator=\", \"$");
+            StringTemplate template = new StringTemplate("$data:{page|$page.pageNumber$};separator=\", \"$");
             template.setAttribute("data", pages);
             details.add(new DetailItem(resourceBundle.getString("pdf.fp.pages"),
                     template.toString()));
