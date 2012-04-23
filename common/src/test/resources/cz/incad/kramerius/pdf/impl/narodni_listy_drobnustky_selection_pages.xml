@@ -42,20 +42,14 @@ Knihovna poskytuje přístup k digitalizovaným dokumentům pouze pro nekomerčn
 
                     <item list-symbol=" ">
                         <textsarray>
-                            <text font-formal-name="normal">Hlavní název: </text>
-                            <text font-formal-name="strong">Národní listy</text>
+                            <text font-formal-name="normal">Hlavní názvy: </text>
+                            <text font-formal-name="strong">Národní listy, Drobnůstky</text>
                         </textsarray>
                     </item>
                             <item list-symbol=" ">
                         <textsarray>
-                            <text font-formal-name="normal">Vydavatel: </text>
-                            <text font-formal-name="strong">Julius Grégr</text>
-                        </textsarray>
-                    </item>
-                            <item list-symbol=" ">
-                        <textsarray>
-                            <text font-formal-name="normal">Vydáváno v letech: </text>
-                            <text font-formal-name="strong">1861 - 1941</text>
+                            <text font-formal-name="normal">Hlavní názvy: </text>
+                            <text font-formal-name="strong">Národní listy, Drobnůstky</text>
                         </textsarray>
                     </item>
                             <item list-symbol=" ">
@@ -72,12 +66,6 @@ Knihovna poskytuje přístup k digitalizovaným dokumentům pouze pro nekomerčn
                     </item>
                             <item list-symbol=" ">
                         <textsarray>
-                            <text font-formal-name="normal">Datum vydání čísla: </text>
-                            <text font-formal-name="strong">1.1.1941</text>
-                        </textsarray>
-                    </item>
-                            <item list-symbol=" ">
-                        <textsarray>
                             <text font-formal-name="normal">Identifikátor ISSN: </text>
                             <text font-formal-name="strong">1214-1240</text>
                         </textsarray>
@@ -85,7 +73,7 @@ Knihovna poskytuje přístup k digitalizovaným dokumentům pouze pro nekomerčn
                             <item list-symbol=" ">
                         <textsarray>
                             <text font-formal-name="normal">Stránky: </text>
-                            <text font-formal-name="strong">[1] , 2 , 3 , 4 , 5 , 6 </text>
+                            <text font-formal-name="strong">[1] , 2 , 3 , 4 , 5 , 6 , [4] , [6] </text>
                         </textsarray>
                     </item>
                 

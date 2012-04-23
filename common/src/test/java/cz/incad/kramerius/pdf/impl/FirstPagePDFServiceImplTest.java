@@ -229,7 +229,6 @@ public class FirstPagePDFServiceImplTest {
         // vygenerovana xml pro itext
         String generatedTemplate = ((FirstPagePDFServiceImpl)fpageService).templateParent(renderedDocument, DataPrepare.PATHS_MAPPING.get( DataPrepare.DROBNUSTKY_PIDS[0]));
         
-        
         Document renderedDoc = XMLUtils.parseDocument(new StringReader(generatedTemplate));
         
         InputStream expected = FirstPagePDFServiceImplTest.class.getResourceAsStream("drobnustky_parent_first_page.xml");
@@ -396,11 +395,15 @@ public class FirstPagePDFServiceImplTest {
 
         // vygenerovana xml pro itext
         String generatedTemplate = ((FirstPagePDFServiceImpl)fpageService).templateSelection(renderedDocument,pids);
+
         Document renderedDoc = XMLUtils.parseDocument(new StringReader(generatedTemplate));
         
         
         InputStream expected = FirstPagePDFServiceImplTest.class.getResourceAsStream("narodni_listy_selection_pages.xml");
-        Document expectedDoc = XMLUtils.parseDocument(expected);
+        String docString = IOUtils.readAsString(expected, Charset.forName("UTF-8"), true);
+        System.out.println(docString);
+        
+        Document expectedDoc = XMLUtils.parseDocument(new StringReader(docString));
         
     
         Document expectedWOws = XMLUnit.getWhitespaceStrippedDocument(expectedDoc);
@@ -518,7 +521,112 @@ public class FirstPagePDFServiceImplTest {
         pdfDoc.close();
     }
 
+
+    @Test
+    public void testGenerateSelection_NarodniListyDrobnustky() throws SecurityException, NoSuchMethodException, IOException, ParserConfigurationException, SAXException, LexerException, ProcessSubtreeException, DocumentException, InstantiationException, IllegalAccessException, XPathExpressionException, JAXBException {
+        Locale locale = new Locale("cs","CZ");
+
+        FedoraAccessImpl fa33 = createMockBuilder(FedoraAccessImpl.class).withConstructor(KConfiguration.getInstance())
+        .addMockedMethod("getFedoraDescribeStream")
+        .addMockedMethod("getRelsExt").addMockedMethod("isImageFULLAvailable")
+        .addMockedMethod("getDC").addMockedMethod("getBiblioMods")
+        .addMockedMethod(FedoraAccessImpl.class.getMethod("getKrameriusModelName", String.class))
+        .createMock();
+
+        EasyMock.expect(fa33.getFedoraDescribeStream()).andReturn(DataPrepare.fedoraProfile33());
+
+        for (int i = 0; i < DataPrepare.NARODNI_LISTY.length; i++) {
+            String pid = DataPrepare.NARODNI_LISTY[i];
+            String model = DataPrepare.MODELS_MAPPING.get(pid);
+            PIDParser parser = new PIDParser(model);
+            parser.disseminationURI();
+            String objectId = parser.getObjectId();
+
+            EasyMock.expect(fa33.getKrameriusModelName(pid)).andReturn(objectId).anyTimes();
+        }
+
+
+        for (int i = 0; i < DataPrepare.DROBNUSTKY_PIDS.length; i++) {
+            String pid = DataPrepare.DROBNUSTKY_PIDS[i];
+            String model = DataPrepare.MODELS_MAPPING.get(pid);
+            PIDParser parser = new PIDParser(model);
+            parser.disseminationURI();
+            String objectId = parser.getObjectId();
+
+            EasyMock.expect(fa33.getKrameriusModelName(pid)).andReturn(objectId).anyTimes();
+        }
+
+        DataPrepare.narodniListyRelsExt(fa33);
+        DataPrepare.narodniListyIMGFULL(fa33);
+        DataPrepare.narodniListyDCs(fa33);
+        DataPrepare.narodniListyMods(fa33);
+
+        DataPrepare.drobnustkyRelsExt(fa33);
+        DataPrepare.drobnustkyWithIMGFULL(fa33);
+        DataPrepare.drobnustkyDCS(fa33);
+        DataPrepare.drobnustkyMODS(fa33);
+
+
+        ResourceBundleService bundleService = EasyMock.createMock(ResourceBundleService.class);
+        EasyMock.expect(bundleService.getResourceBundle("labels", locale)).andReturn(new PropertyResourceBundle(new InputStreamReader(new ByteArrayInputStream(BUNLDE.getBytes()), Charset.forName("UTF-8")))).anyTimes();
+        EasyMock.expect(bundleService.getResourceBundle("base", locale)).andReturn(new PropertyResourceBundle(new InputStreamReader(new ByteArrayInputStream(BUNLDE.getBytes()), Charset.forName("UTF-8")))).anyTimes();
+
+        
+        SolrAccess solrAccess = EasyMock.createMock(SolrAccess.class);
+        Set<String> keys = DataPrepare.PATHS_MAPPING.keySet();
+        for (String key : keys) {
+            EasyMock.expect(solrAccess.getPath(key)).andReturn(new ObjectPidsPath[] { DataPrepare.PATHS_MAPPING.get(key) }).anyTimes();
+        }
+        
+
+        
+        replay(fa33, solrAccess, bundleService);
+
+        Injector injector = Guice.createInjector(new _Module(locale, fa33, bundleService, solrAccess));
+        
+        FirstPagePDFService fpageService = injector.getInstance(FirstPagePDFService.class);
+        
+        DocumentService docService = injector.getInstance(DocumentService.class);
+
+
+
+        String[] pids = {
+
+                "uuid:b38eba10-91f6-11dc-9eec-000d606f5dc6",
+                "uuid:94a3ed60-92d6-11dc-beb4-000d606f5dc6",
+                "uuid:b3987e10-91f6-11dc-96f6-000d606f5dc6",
+                "uuid:94a3ed60-92d6-11dc-93df-000d606f5dc6",
+                "uuid:b3a21b00-91f6-11dc-b8b2-000d606f5dc6",
+                "uuid:94a68570-92d6-11dc-be5a-000d606f5dc6",
+                
+                
+                "uuid:4a7c2e50-af36-11dd-9643-000d606f5dc6",
+                "uuid:4a7ec660-af36-11dd-a782-000d606f5dc6"
+        };
+
+        // vytvoreny dokument
+        AbstractRenderedDocument renderedDocument = 
+            docService.buildDocumentFromSelection(pids, null);
+            //docService.buildDocumentAsFlat(DataPrepare.PATHS_MAPPING.get(pid), pid, 20, null);
+        Assert.assertNotNull(renderedDocument.getPages().size() > 0);
+
+        // vygenerovana xml pro itext
+        String generatedTemplate = ((FirstPagePDFServiceImpl)fpageService).templateSelection(renderedDocument,pids);
+        Document renderedDoc = XMLUtils.parseDocument(new StringReader(generatedTemplate));
+        
+        
+        InputStream expected = FirstPagePDFServiceImplTest.class.getResourceAsStream("narodni_listy_drobnustky_selection_pages.xml");
+        Document expectedDoc = XMLUtils.parseDocument(expected);
+        
     
+        Document expectedWOws = XMLUnit.getWhitespaceStrippedDocument(expectedDoc);
+        Document renderedWOws = XMLUnit.getWhitespaceStrippedDocument(renderedDoc);
+
+        // vlastni generovani z xml do pdf uz testovat nelze
+        Diff diff = XMLUnit.compareXML(expectedWOws, renderedWOws);
+        Assert.assertTrue(diff.toString(),diff.similar());
+    }
+
     class _Module extends AbstractModule {
 
         private Locale locale;

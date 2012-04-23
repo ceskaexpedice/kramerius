@@ -193,6 +193,7 @@ public class FirstPagePDFServiceImpl implements FirstPagePDFService {
                     itemVals(detailItemValues, list, key);
                 }
             }
+
             
             String[] rProps = renderedProperties(roots.size() == 1);
             String[] fromRootToLeaf = path.getPathFromRootToLeaf();
@@ -227,7 +228,7 @@ public class FirstPagePDFServiceImpl implements FirstPagePDFService {
         }
 
         // stranky v pdfku
-        pagesInPdf(rdoc, resourceBundle, details);
+        pagesInSelectiontPdf(rdoc, resourceBundle, details);
         
         itm.setDetailItems((DetailItem[]) details.toArray(new DetailItem[details.size()]));
         fpvo.setGeneratedItems(new GeneratedItem[] {itm});
@@ -257,6 +258,7 @@ public class FirstPagePDFServiceImpl implements FirstPagePDFService {
             };
         } else {
             rProps = new String[] {
+                    TitleBuilder.MODS_TITLE,
                     PeriodicalVolumeNumberBuilder.MODS_VOLUMENUMBER, 
                     PeriodicalIssueNumberBuilder.MODS_ISSUESNUMBER, 
                     IdentifiersBuilder.MODS_ISBN,
@@ -334,7 +336,7 @@ public class FirstPagePDFServiceImpl implements FirstPagePDFService {
 
         
         // stranky v pdfku
-        pagesInPdf(rdoc, resourceBundle, details);
+        pagesInParentPdf(rdoc, resourceBundle, details);
         
         itm.setDetailItems((DetailItem[]) details.toArray(new DetailItem[details.size()]));
         
@@ -345,13 +347,27 @@ public class FirstPagePDFServiceImpl implements FirstPagePDFService {
         return templateText;
     }
 
-    public void pagesInPdf(AbstractRenderedDocument rdoc, ResourceBundle resourceBundle, List<DetailItem> details) {
+    public void pagesInParentPdf(AbstractRenderedDocument rdoc, ResourceBundle resourceBundle, List<DetailItem> details) {
         // tistene stranky
         List<AbstractPage> pages = rdoc.getPages();
         if (pages.size() == 1) {
             details.add(new DetailItem(resourceBundle.getString("pdf.fp.page"),pages.get(0).getPageNumber()));
         } else if (pages.size() > 1) {
             details.add(new DetailItem(resourceBundle.getString("pdf.fp.pages"),""+pages.get(0).getPageNumber() +" - "+pages.get(pages.size() - 1).getPageNumber() ));
+        }
+    }
+    
+    
+    public void pagesInSelectiontPdf(AbstractRenderedDocument rdoc, ResourceBundle resourceBundle, List<DetailItem> details) {
+        // tistene stranky
+        List<AbstractPage> pages = rdoc.getPages();
+        if (pages.size() == 1) {
+            details.add(new DetailItem(resourceBundle.getString("pdf.fp.page"),pages.get(0).getPageNumber()));
+        } else if (pages.size() > 1) {
+            StringTemplate template = new StringTemplate("$data:{page| $page.pageNumber$ };separator=\", \"$");
+            template.setAttribute("data", pages);
+            details.add(new DetailItem(resourceBundle.getString("pdf.fp.pages"),
+                    template.toString()));
         }
     }
 
