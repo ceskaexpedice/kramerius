@@ -135,15 +135,17 @@
     
     <div id="pdfsettings">
     
-     <input type="radio" id="standard" name="device" checked="checked"   value="desktop" onclick="pdf.onSettingsChange('standard')" >Standardni PDF </input>     
-     <input type="radio" id="device" name="device"   value="ereader" onclick="pdf.onSettingsChange('ereader')"> PDF pro ctecky(ruzne rozmery) </input>     
+     <input type="radio" id="standard" name="device" checked="checked"   value="desktop" onclick="pdf.onSettingsChange('standard')" >
+     <view:msg>pdf.typeofreader.standard</view:msg></input>     
+     <input type="radio" id="device" name="device"   value="ereader" onclick="pdf.onSettingsChange('ereader')"> 
+     <view:msg>pdf.typeofreader.ebook</view:msg> </input>     
      
      <div id="pdfsettings_ereader" style="display: none">
          <div style="padding: 5px;">
           <div>
             <select onchange="pdf.onFormatChange();">
-                <option selected="selected" value="a4"> A4 format</option>
-                <option value="a5"> A5 format </option>
+                <option selected="selected" value="a4"><view:msg>pdf.typeofreader.ebook.format.a4</view:msg></option>
+                <option value="a5"><view:msg>pdf.typeofreader.ebook.format.a5</view:msg></option>
             </select>    
          </div>
          </div>
