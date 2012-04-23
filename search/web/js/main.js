@@ -219,11 +219,12 @@ PDF.prototype.renderPDF = function() {
 		    	height:270,
 		    	modal:true,
 		    	title: dictionary["generatePdfTitle"],
-                buttons:[
-                     text: dictionary['common.close'],
-                     click: bind(function() {
-                    	this.dialog.dialog("close");
-                     },this);
+                buttons:[{
+		                     text: dictionary['common.close'],
+		                     click: bind(function() {
+		                    	this.dialog.dialog("close");
+		                     },this)
+                     }
                 ]
 		    });
 		}
@@ -262,7 +263,7 @@ PDF.prototype.generate = function(objects) {
                              click: bind(function() {
                              	this.renderPDF();
                             	this.dialog.dialog("close");
-                             },this);
+                             },this)
                          },
                          
                          {
