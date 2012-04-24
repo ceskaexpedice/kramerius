@@ -31,6 +31,7 @@ public class ModsBuildersDirector {
     
     List<AbstractBuilder> BUILDERS = new ArrayList<AbstractBuilder>(); {
         BUILDERS.add(new AuthorBuilder());
+        BUILDERS.add(new ArticleTitleBuilder());
         BUILDERS.add(new IdentifiersBuilder());
         BUILDERS.add(new PageNumbersBuilder());
         BUILDERS.add(new PeriodicalIssueNumberBuilder());

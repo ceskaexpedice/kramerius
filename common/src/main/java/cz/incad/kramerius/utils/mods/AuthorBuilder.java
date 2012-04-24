@@ -16,6 +16,7 @@
  */
 package cz.incad.kramerius.utils.mods;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -38,6 +39,9 @@ import cz.incad.kramerius.FedoraNamespaceContext;
 public class AuthorBuilder extends AbstractBuilder {
 
     private static final String AUTHOR_CONSTANT = "cre";
+    private static final String ALTERNATIVE_AUTHOR_CONSTANT = "aut";
+    
+    
     public static final String MODS_AUTHOR="mods:author";
 
 
@@ -65,7 +69,7 @@ public class AuthorBuilder extends AbstractBuilder {
             Object textNode = subExpr.evaluate(item, XPathConstants.NODE);
             if ((textNode !=null ) && (textNode instanceof Text)) {
                 String role   = ((Text)textNode).getData();
-                if (role.trim().equals(AUTHOR_CONSTANT)) {
+                if (roleIsAuthor(role)) {
                     String givenName = null; String familyName = null;
                     XPathExpression givenNameExpr = xpath.compile("mods:namePart[@type='given']/text()");
                     textNode = givenNameExpr.evaluate(item, XPathConstants.NODE);
@@ -85,5 +89,10 @@ public class AuthorBuilder extends AbstractBuilder {
                 }
             }
         }
+    }
+
+
+    public boolean roleIsAuthor(String role) {
+        return Arrays.asList(AUTHOR_CONSTANT, ALTERNATIVE_AUTHOR_CONSTANT).contains(role);
     }
 }

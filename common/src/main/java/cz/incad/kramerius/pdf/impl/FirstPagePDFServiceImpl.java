@@ -61,6 +61,7 @@ import cz.incad.kramerius.service.ResourceBundleService;
 import cz.incad.kramerius.service.TextsService;
 import cz.incad.kramerius.utils.IOUtils;
 import cz.incad.kramerius.utils.XMLUtils;
+import cz.incad.kramerius.utils.mods.ArticleTitleBuilder;
 import cz.incad.kramerius.utils.mods.AuthorBuilder;
 import cz.incad.kramerius.utils.mods.BuilderFilter;
 import cz.incad.kramerius.utils.mods.IdentifiersBuilder;
@@ -245,6 +246,7 @@ public class FirstPagePDFServiceImpl implements FirstPagePDFService {
         if (oneRoot) {
             rProps = new String[] {
                     AuthorBuilder.MODS_AUTHOR,
+                    ArticleTitleBuilder.MODS_TITLE,
                     PublisherBuilder.MODS_PUBLISHER, 
                     PublisherBuilder.MODS_DATE, 
                     PeriodicalVolumeNumberBuilder.MODS_VOLUMENUMBER, 
@@ -259,6 +261,7 @@ public class FirstPagePDFServiceImpl implements FirstPagePDFService {
         } else {
             rProps = new String[] {
                     TitleBuilder.MODS_TITLE,
+                    ArticleTitleBuilder.MODS_TITLE,
                     PeriodicalVolumeNumberBuilder.MODS_VOLUMENUMBER, 
                     PeriodicalIssueNumberBuilder.MODS_ISSUESNUMBER, 
                     IdentifiersBuilder.MODS_ISBN,
