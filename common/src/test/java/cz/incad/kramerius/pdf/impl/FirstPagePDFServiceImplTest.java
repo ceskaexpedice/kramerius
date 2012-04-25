@@ -149,6 +149,7 @@ public class FirstPagePDFServiceImplTest {
 
     + "pdf.fp.publisher=Vydavatel\n"
     + "pdf.fp.publisherDate=Vydáváno v letech\n"
+    + "pdf.fp.articletitle=Název článku\n"
     
     + "pdf.fp.title=Hlavní název\n"
     + "pdf.fp.titles=Hlavní názvy\n"
