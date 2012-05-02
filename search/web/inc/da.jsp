@@ -33,7 +33,7 @@
 <c:set var="year"><fmt:formatDate value="${now}" pattern="yyyy" /></c:set>
 <c:if test="${year=='now'}"><c:set var="year" value="${now}" /></c:if>
 
-<view:kconfig var="damax" key="search.dateaxis.max" defaultValue="year" />
+<view:kconfig var="damax" key="search.dateaxis.max" defaultValue="${year}" />
 <c:catch var="exceptions">
     <c:url var="facetxslurl" value="inc/results/xsl/da.xsl" />
     <c:import url="${facetxslurl}" var="facetxsl" charEncoding="UTF-8"  />

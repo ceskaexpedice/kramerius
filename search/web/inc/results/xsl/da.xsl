@@ -45,7 +45,8 @@
     <xsl:template name="years">
         <xsl:param name="i" />
         <xsl:param name="max" />
-        <xsl:variable name="d1"><xsl:value-of select="substring(string($i), 1, 3)" /></xsl:variable>
+        <xsl:variable name="len" select="number(string-length($i)) - 1" />
+        <xsl:variable name="d1"><xsl:value-of select="substring(string($i), 1, $len)" /></xsl:variable>
         <div class="da_group">
             <xsl:attribute name="id">da_group_<xsl:value-of select="$d1" /></xsl:attribute>
             <div class="da_group_title"><xsl:value-of select="$d1" />0 - <xsl:value-of select="$d1" />9</div>
