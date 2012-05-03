@@ -1,12 +1,16 @@
 package cz.incad.kramerius.lp.guice;
 
+import java.io.File;
 import java.sql.Connection;
 import java.util.Locale;
 
 import com.google.inject.AbstractModule;
+import com.google.inject.Provides;
 import com.google.inject.Scopes;
+import com.google.inject.name.Named;
 import com.google.inject.name.Names;
 
+import cz.incad.kramerius.Constants;
 import cz.incad.kramerius.FedoraAccess;
 import cz.incad.kramerius.SolrAccess;
 import cz.incad.kramerius.document.DocumentService;
@@ -36,4 +40,13 @@ public class PDFModule extends AbstractModule {
 		bind(TextsService.class).to(TextsServiceImpl.class).in(Scopes.SINGLETON);
 		bind(ResourceBundleService.class).to(ResourceBundleServiceImpl.class).in(Scopes.SINGLETON);
 	}
+
+	
+    @Provides
+    @Named("fontsDir")
+    public File getProcessFontsFolder() {
+        String dirName = System.getProperty("user.dir") + File.separator + "fonts";
+        return new File(dirName);
+    }
+
 }

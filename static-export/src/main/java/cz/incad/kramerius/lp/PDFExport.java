@@ -68,19 +68,24 @@ public class PDFExport {
                 String applicationURL = KConfiguration.getInstance().getApplicationURL();
                 i18nUrl = applicationURL + (i18nUrl.startsWith("/") ? "" : "/") + i18nUrl;
 			}
-			LOGGER.info("imgurl = "+djvuUrl);
-			LOGGER.info("i18nurl = "+i18nUrl);
+
+			LOGGER.fine("imgurl = "+djvuUrl);
+			LOGGER.fine("i18nurl = "+i18nUrl);
 
 			
 			if (args.length > 6) {
-				LOGGER.info("Country "+args[5]);
-				LOGGER.info("Lang "+args[6]);
+				LOGGER.fine("Country "+args[5]);
+				LOGGER.fine("Lang "+args[6]);
 				System.setProperty(ArgumentLocalesProvider.ISO3COUNTRY_KEY, args[5]);
 				System.setProperty(ArgumentLocalesProvider.ISO3LANG_KEY, args[6]);
 			}
 			
+
+			
+			
 			PIDParser pidParser = new PIDParser(pid);
 			pidParser.objectPid();
+
 			File uuidFolder = new File(getTmpDir(), pidParser.getObjectId());
 			if (uuidFolder.exists()) { 
 				FileUtils.deleteRecursive(uuidFolder);
@@ -95,17 +100,11 @@ public class PDFExport {
 				FedoraAccess fa = injector.getInstance(Key.get(FedoraAccess.class, Names.named("rawFedoraAccess"))); 
                 Document dc = fa.getDC(pid);
 				titleFromDC = DCUtils.titleFromDC(dc);
-				
-				
-	             
 			}
 
-
-            FedoraAccess fa = injector.getInstance(Key.get(FedoraAccess.class, Names.named("rawFedoraAccess"))); 
-            Locale locale = injector.getProvider(Locale.class).get();
-
 			generatePDFs(pid, uuidFolder, injector,djvuUrl,i18nUrl);
-			createFSStructure(uuidFolder, new File(outputFolderName), medium, titleFromDC);
+			String staticExportFolder = KConfiguration.getInstance().getConfiguration().getString("static.export.folder");
+			createFSStructure(uuidFolder, new File(staticExportFolder), medium, titleFromDC);
 		}
 	}
 	
@@ -123,7 +122,6 @@ public class PDFExport {
 		int pocitadlo = 0;
 		long bytes = 0;
 		File currentFolder = createFolder(outputFodler, medium, ++pocitadlo);
-		System.out.println(currentFolder.getAbsolutePath());
 		File[] listFiles = pdfsFolder.listFiles();
 		if (listFiles != null) {
 			Arrays.sort(listFiles, new Comparator<File>() {
@@ -144,10 +142,7 @@ public class PDFExport {
 				File newFile = new File(currentFolder, file.getName());
 				FileUtils.copyFile(file, newFile);
 				file.deleteOnExit();
-//				boolean renamed = file.renameTo(newFile);
-//				if (!renamed) throw new RuntimeException("cannot rename file '"+file.getAbsolutePath()+"' to '"+newFile+"'");
 			}
-			//copyHTMLContent(currentFolder, titleFromDC, medium, ""+pocitadlo);
 		}
 	}
 
@@ -190,13 +185,13 @@ public class PDFExport {
 	}
 
 
-	private static void generatePDFs(String pid, File uuidFolder, Injector injector, String djvuUrl, String i18nUrl) throws Exception {
+	private static void generatePDFs(String pid, File pdfsFolder, Injector injector, String djvuUrl, String i18nUrl) throws Exception {
 		try {
-			if (!uuidFolder.exists()) { 
-				boolean mkdirs = uuidFolder.mkdirs();
-				if (!mkdirs) throw new RuntimeException("cannot create dir '"+uuidFolder.getAbsolutePath()+"'");
+			if (!pdfsFolder.exists()) { 
+				boolean mkdirs = pdfsFolder.mkdirs();
+				if (!mkdirs) throw new RuntimeException("cannot create dir '"+pdfsFolder.getAbsolutePath()+"'");
 			} else {
-					File[] files = uuidFolder.listFiles(); 
+					File[] files = pdfsFolder.listFiles(); 
 					if (files != null) {
 						for (File file : files) { 
 							file.deleteOnExit(); 
@@ -206,13 +201,11 @@ public class PDFExport {
 			FedoraAccess fa = injector.getInstance(Key.get(FedoraAccess.class, Names.named("rawFedoraAccess"))); 
 			SolrAccess sa = injector.getInstance(SolrAccess.class);
 			GeneratePDFService generatePDF = injector.getInstance(GeneratePDFService.class);
-			LOGGER.info("fedoraAccess.getDC("+pid+")");
+			generatePDF.init();
 			Document dc = fa.getDC(pid);
-			LOGGER.info("dcUtils.titleFromDC("+dc+")");
 			String title = DCUtils.titleFromDC(dc);
 			LOGGER.info("title is "+title);
-			GenerateController controller = new GenerateController(uuidFolder, title);
-			//generatePDF.fullPDFExport(pid, controller, controller, djvuUrl, i18nUrl);
+			GenerateController controller = new GenerateController(pdfsFolder, title);
 			ObjectPidsPath[] path = sa.getPath(pid);
 			if (path.length == 0) {
 			    path = new ObjectPidsPath[]{new ObjectPidsPath(pid)};
