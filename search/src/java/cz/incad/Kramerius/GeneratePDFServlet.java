@@ -30,6 +30,7 @@ import antlr.RecognitionException;
 import antlr.TokenStreamException;
 
 import com.google.inject.Inject;
+import com.google.inject.Provider;
 import com.google.inject.name.Named;
 import com.lowagie.text.DocumentException;
 
@@ -179,7 +180,9 @@ public class GeneratePDFServlet extends GuiceServlet {
         SELECTION {
             @SuppressWarnings("unchecked")
             @Override
-            public void renderPDF(HttpServletRequest request, HttpServletResponse response, FirstPagePDFService firstPagePDFService, GeneratePDFService pdfService, SolrAccess solrAccess, DocumentService documentService, String titlePage, String imgServletUrl, String i18nUrl) {
+            public void renderPDF(HttpServletRequest request, 
+                                HttpServletResponse response, 
+                                FirstPagePDFService firstPagePDFService, GeneratePDFService pdfService, SolrAccess solrAccess, DocumentService documentService, String titlePage, String imgServletUrl, String i18nUrl) {
                 List<File> filesToDelete = new ArrayList<File>();
                 FileOutputStream generatedPDFFos = null;
                 try {
@@ -200,15 +203,18 @@ public class GeneratePDFServlet extends GuiceServlet {
                     FileOutputStream fpageFos = new FileOutputStream(fpage);
 
                     int[] irects = srect(srect);
+                    
+                    FontMap fMap = new FontMap(pdfService.fontsFolder());
+                    
                     AbstractRenderedDocument rdoc = documentService.buildDocumentFromSelection((String[])params.toArray(new String[params.size()]), irects);
                     LOGGER.fine("creating documents takes "+(System.currentTimeMillis() - start)+" ms ");
                     
                     start = System.currentTimeMillis();
-                    firstPagePDFService.generateFirstPageForSelection(rdoc, fpageFos, (String[])params.toArray(new String[params.size()]) , imgServletUrl, i18nUrl, FontMap.createFontMap());
+                    firstPagePDFService.generateFirstPageForSelection(rdoc, fpageFos, (String[])params.toArray(new String[params.size()]) , imgServletUrl, i18nUrl, fMap);
                     LOGGER.fine("generating first page takes "+(System.currentTimeMillis() - start)+" ms ");
                     
                     start = System.currentTimeMillis();
-                    pdfService.generateCustomPDF(rdoc, bodyTmpFos, imgServletUrl, i18nUrl, ImageFetcher.WEB);
+                    pdfService.generateCustomPDF(rdoc, bodyTmpFos, fMap, imgServletUrl, i18nUrl, ImageFetcher.WEB);
                     LOGGER.fine("generating custom pdf takes "+(System.currentTimeMillis() - start)+" ms ");
                     
                     bodyTmpFos.close();fpageFos.close();
@@ -246,10 +252,11 @@ public class GeneratePDFServlet extends GuiceServlet {
         }, 
         PARENT {
             @Override
-            public void renderPDF(HttpServletRequest request, HttpServletResponse response, FirstPagePDFService firstPagePDFService, GeneratePDFService pdfService,SolrAccess solrAccess , DocumentService documentService, String titlePage, String imgServletUrl, String i18nUrl) {
+            public void renderPDF(HttpServletRequest request, HttpServletResponse response, FirstPagePDFService firstPagePDFService, GeneratePDFService pdfService,SolrAccess solrAccess , DocumentService documentService,String titlePage, String imgServletUrl, String i18nUrl) {
                 List<File> filesToDelete = new ArrayList<File>();
                 FileOutputStream generatedPDFFos = null;
                 try {
+                    FontMap fmap = new FontMap(pdfService.fontsFolder());
                     String howMany = request.getParameter(HOW_MANY);
                     String pid = request.getParameter(PID_FROM);
                     String srect = request.getParameter(RECT);
@@ -276,9 +283,9 @@ public class GeneratePDFServlet extends GuiceServlet {
                         rdoc = documentService.buildDocumentAsFlat(path, path.getLeaf(), Integer.parseInt(howMany), irects);
                     }
                     
-                    firstPagePDFService.generateFirstPageForParent(rdoc, fpageFos, path, imgServletUrl, i18nUrl, FontMap.createFontMap());
+                    firstPagePDFService.generateFirstPageForParent(rdoc, fpageFos, path, imgServletUrl, i18nUrl, fmap);
                     
-                    pdfService.generateCustomPDF(rdoc, bodyTmpFos, imgServletUrl, i18nUrl, ImageFetcher.WEB);
+                    pdfService.generateCustomPDF(rdoc, bodyTmpFos, fmap, imgServletUrl, i18nUrl, ImageFetcher.WEB);
 
                     bodyTmpFos.close();
                     fpageFos.close();
@@ -346,7 +353,7 @@ public class GeneratePDFServlet extends GuiceServlet {
             return rect;
         }
 
-        public abstract void renderPDF(HttpServletRequest request, HttpServletResponse response, FirstPagePDFService firstPagePDFService, GeneratePDFService pdfService, SolrAccess solrAccess, DocumentService documentService, String titlePage, String imgServletUrl, String i18nUrl);
+        public abstract void renderPDF(HttpServletRequest request, HttpServletResponse response, FirstPagePDFService firstPagePDFService, GeneratePDFService pdfService, SolrAccess solrAccess, DocumentService documentService,  String titlePage, String imgServletUrl, String i18nUrl);
 
 
         public void mergeToOutput(OutputStream fos, File bodyFile, File firstPageFile) throws IOException, COSVisitorException {

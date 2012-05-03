@@ -33,6 +33,7 @@ public class ParamsParserTest {
         
         String decode = URLDecoder.decode("%20Drobn%C5%AFstky%20", "UTF-8");
         String string = "{reindex;{fromKrameriusModel;uuid\\:0eaa6730-9068-11dd-97de-000d606f5dc6;"+decode+"}}";
+        //String str = "{{mock};{mock}}";
         System.out.println(string);
         
         

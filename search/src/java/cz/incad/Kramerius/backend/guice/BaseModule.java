@@ -1,14 +1,18 @@
 package cz.incad.Kramerius.backend.guice;
 
+import java.io.File;
 import java.sql.Connection;
 import java.util.Locale;
 
 import javax.servlet.jsp.jstl.fmt.LocalizationContext;
 
 import com.google.inject.AbstractModule;
+import com.google.inject.Provides;
 import com.google.inject.Scopes;
+import com.google.inject.name.Named;
 import com.google.inject.name.Names;
 
+import cz.incad.kramerius.Constants;
 import cz.incad.kramerius.FedoraAccess;
 import cz.incad.kramerius.MostDesirable;
 import cz.incad.kramerius.SolrAccess;
@@ -57,7 +61,6 @@ public class BaseModule extends AbstractModule {
         bind(KConfiguration.class).toInstance(KConfiguration.getInstance());
 
         bind(Connection.class).annotatedWith(Names.named("kramerius4")).toProvider(Kramerius4ConnectionProvider.class);
-        //bind(Connection.class).annotatedWith(Names.named("fedora3")).toProvider(Fedora3ConnectionProvider.class);
 
         bind(Locale.class).toProvider(LocalesProvider.class);
 
@@ -69,7 +72,6 @@ public class BaseModule extends AbstractModule {
         bind(PolicyService.class).to(PolicyServiceImpl.class).in(Scopes.SINGLETON);
         bind(XSLService.class).to(XSLServiceImpl.class).in(Scopes.SINGLETON);
 
-        // bind(JNDIConnectionProvider.class).toInstance(createKramerius4Provider());
 
         // TODO: MOVE
         bind(LocalizationContext.class).toProvider(CustomLocalizedContextProvider.class);
@@ -78,7 +80,15 @@ public class BaseModule extends AbstractModule {
 
         bind(VirtualCollection.class).toProvider(VirtualCollectionProvider.class);
         bind(RelationService.class).to(RelationServiceImpl.class).in(Scopes.SINGLETON);
-
         bind(GoogleAnalytics.class).to(GoogleAnalyticsImpl.class).in(Scopes.SINGLETON);
     }
+    
+    
+    @Provides
+    @Named("fontsDir")
+    public File getProcessFontsFolder() {
+        String dirName = Constants.WORKING_DIR + File.separator + "fonts";
+        return new File(dirName);
+    }
+
 }
