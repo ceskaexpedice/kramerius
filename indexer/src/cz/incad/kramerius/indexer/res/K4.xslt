@@ -225,13 +225,32 @@
                 <xsl:value-of select="mods:titleInfo/mods:title" /><xsl:value-of select="'##'" />
                 <xsl:value-of select="/mods:titleInfo/mods:subTitle" /><xsl:value-of select="'##'" />
                 <xsl:value-of select="mods:part/mods:date" /><xsl:value-of select="'##'" />
-                <xsl:value-of select="mods:part/mods:detail[@type = 'issue']/mods:number" />
+                <xsl:choose>
+                    <xsl:when test="mods:part/mods:detail[@type = 'issue']/mods:number">
+                        <xsl:value-of select="mods:part/mods:detail[@type = 'issue']/mods:number" />
+                    </xsl:when>
+                    <xsl:otherwise>
+                        <xsl:value-of select="mods:titleInfo/mods:partNumber" />
+                    </xsl:otherwise>
+                </xsl:choose>
             </field>
         </xsl:if>
         <xsl:if test="$MODEL = 'periodicalvolume'">
             <field name="details">
-                <xsl:value-of select="mods:part/mods:date" /><xsl:value-of select="'##'" />
-                <xsl:value-of select="mods:part/mods:detail[@type = 'volume']/mods:number" />
+                <xsl:choose>
+                    <xsl:when test="mods:part/mods:date">
+                        <xsl:value-of select="mods:part/mods:date" /><xsl:value-of select="'##'" />
+                        <xsl:value-of select="mods:part/mods:detail[@type = 'volume']/mods:number" />
+                    </xsl:when>
+                    <xsl:when test="mods:originInfo[@transliteration='publisher']/mods:dateIssued/text()">
+                        <xsl:value-of select="mods:originInfo[@transliteration='publisher']/mods:dateIssued/text()" /><xsl:value-of select="'##'" />
+                        <xsl:value-of select="mods:part/mods:detail[@type = 'volume']/mods:number" />
+                    </xsl:when>
+                    <xsl:otherwise>
+                        <xsl:value-of select="mods:originInfo/mods:dateIssued" /><xsl:value-of select="'##'" />
+                        <xsl:value-of select="mods:part/mods:detail[@type = 'volume']/mods:number" />
+                    </xsl:otherwise>
+                 </xsl:choose>
             </field>
         </xsl:if>
         

@@ -305,6 +305,16 @@ public class ExtendedFields {
                         parseDatum(datum_str);
                         dates_cache.put(pid, datum_str);
                         return;
+                    }else{
+                        xPathStr = prefix + "mods:originInfo/mods:dateIssued/text()";
+                        expr = xpath.compile(xPathStr);
+                        node = (Node) expr.evaluate(foxml, XPathConstants.NODE);
+                        if (node != null) {
+                            datum_str = node.getNodeValue();
+                            parseDatum(datum_str);
+                            dates_cache.put(pid, datum_str);
+                            return;
+                        }
                     }
                 }
             }
