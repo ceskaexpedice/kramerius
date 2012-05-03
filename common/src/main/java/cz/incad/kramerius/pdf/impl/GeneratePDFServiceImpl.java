@@ -7,6 +7,7 @@ import java.awt.FontFormatException;
 import java.awt.GraphicsEnvironment;
 import java.awt.image.BufferedImage;
 import java.io.BufferedReader;
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -24,6 +25,7 @@ import java.util.Map;
 import java.util.logging.Level;
 
 import javax.imageio.ImageIO;
+import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
@@ -31,6 +33,8 @@ import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 import javax.xml.transform.stream.StreamSource;
 import javax.xml.xpath.XPathExpressionException;
+
+import org.xml.sax.SAXException;
 
 import com.google.inject.Inject;
 import com.google.inject.Provider;
@@ -66,11 +70,15 @@ import cz.incad.kramerius.imaging.ImageStreams;
 import cz.incad.kramerius.pdf.Break;
 import cz.incad.kramerius.pdf.GeneratePDFService;
 import cz.incad.kramerius.pdf.PDFContext;
+import cz.incad.kramerius.pdf.commands.ITextCommands;
+import cz.incad.kramerius.pdf.commands.render.RenderPDF;
 import cz.incad.kramerius.pdf.utils.pdf.DocumentUtils;
+import cz.incad.kramerius.pdf.utils.pdf.FontDirectoryProvider;
 import cz.incad.kramerius.pdf.utils.pdf.FontMap;
 import cz.incad.kramerius.service.ResourceBundleService;
 import cz.incad.kramerius.service.TextsService;
 import cz.incad.kramerius.utils.IOUtils;
+import cz.incad.kramerius.utils.XMLUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 import cz.incad.kramerius.utils.imgs.ImageMimeType;
 import cz.incad.kramerius.utils.imgs.KrameriusImageSupport;
@@ -87,8 +95,13 @@ public class GeneratePDFServiceImpl extends AbstractPDFRenderSupport implements 
     private SolrAccess solrAccess;
     private DocumentService documentService;
 
+    
+    private Provider<File> fontDirectory;
+    
+    
     @Inject
-    public GeneratePDFServiceImpl(@Named("securedFedoraAccess") FedoraAccess fedoraAccess, SolrAccess solrAccess, KConfiguration configuration, Provider<Locale> localeProvider, TextsService textsService, ResourceBundleService resourceBundleService, DocumentService documentService) {
+    public GeneratePDFServiceImpl(@Named("securedFedoraAccess") FedoraAccess fedoraAccess, SolrAccess solrAccess, KConfiguration configuration, Provider<Locale> localeProvider, TextsService textsService, ResourceBundleService resourceBundleService, DocumentService documentService, 
+            @Named("fontsDir")Provider<File> fontDirectoryProvider) {
         super();
         this.fedoraAccess = fedoraAccess;
         this.localeProvider = localeProvider;
@@ -96,7 +109,7 @@ public class GeneratePDFServiceImpl extends AbstractPDFRenderSupport implements 
         this.resourceBundleService = resourceBundleService;
         this.solrAccess = solrAccess;
         this.documentService = documentService;
-
+        this.fontDirectory = fontDirectoryProvider;
     }
 
     public void init() throws IOException {
@@ -109,9 +122,11 @@ public class GeneratePDFServiceImpl extends AbstractPDFRenderSupport implements 
         };
 
         IOUtils.copyBundledResources(this.getClass(), texts, "res/", this.textsService.textsFolder());
-        String[] xlsts = { "template_static_export.xslt" };
+
+        String[] xlsts = { "template_static_export.0.1.xslt" };
         IOUtils.copyBundledResources(this.getClass(), xlsts, "templates/", this.templatesFolder());
 
+        // copy fonts to fonts folder
         String[] fonts = { "ext_ontheflypdf_ArialCE.ttf", "GentiumPlus-I.ttf", "GentiumPlus-R.ttf" };
         IOUtils.copyBundledResources(this.getClass(), fonts, "res/", this.fontsFolder());
         
@@ -127,11 +142,11 @@ public class GeneratePDFServiceImpl extends AbstractPDFRenderSupport implements 
     }
 
     @Override
-    public AbstractRenderedDocument generateCustomPDF(AbstractRenderedDocument rdoc, OutputStream os, Break brk, String djvUrl, String i18nUrl, ImageFetcher fetcher) throws IOException {
+    public AbstractRenderedDocument generateCustomPDF(AbstractRenderedDocument rdoc, OutputStream os, Break brk, FontMap fmap, String djvUrl, String i18nUrl, ImageFetcher fetcher) throws IOException {
         try {
             String brokenPage = null;
 
-            PDFContext pdfContext = new PDFContext(FontMap.createFontMap(), djvUrl, i18nUrl);
+            PDFContext pdfContext = new PDFContext(fmap, djvUrl, i18nUrl);
 
             Document doc = DocumentUtils.createDocument(rdoc);
 
@@ -188,18 +203,28 @@ public class GeneratePDFServiceImpl extends AbstractPDFRenderSupport implements 
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
         } catch (TransformerException e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
+        } catch (InstantiationException e) {
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+        } catch (IllegalAccessException e) {
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+        } catch (ParserConfigurationException e) {
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+        } catch (SAXException e) {
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
         }
         return rdoc;
     }
 
     @Override
-    public void generateCustomPDF(AbstractRenderedDocument rdoc/*
-                                                                * , String
-                                                                * parentUUID
-                                                                */, OutputStream os, String imgServletUrl, String i18nUrl, ImageFetcher fetcher) throws IOException {
+    public void generateCustomPDF(AbstractRenderedDocument rdoc, 
+                                OutputStream os, 
+                                FontMap fmap, 
+                                String imgServletUrl, 
+                                String i18nUrl, 
+                                ImageFetcher fetcher) throws IOException {
         try {
 
-            PDFContext pdfContext = new PDFContext(FontMap.createFontMap(), imgServletUrl, i18nUrl);
+            PDFContext pdfContext = new PDFContext(fmap, imgServletUrl, i18nUrl);
 
             Document doc = DocumentUtils.createDocument(rdoc);
             PdfWriter writer = PdfWriter.getInstance(doc, os);
@@ -236,6 +261,14 @@ public class GeneratePDFServiceImpl extends AbstractPDFRenderSupport implements 
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
         } catch (TransformerException e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
+        } catch (InstantiationException e) {
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+        } catch (IllegalAccessException e) {
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+        } catch (ParserConfigurationException e) {
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+        } catch (SAXException e) {
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
         }
 
     }
@@ -250,7 +283,7 @@ public class GeneratePDFServiceImpl extends AbstractPDFRenderSupport implements 
 
     @Override
     public void generateImagesSelection(String[] imagePids, String titlePage, OutputStream os, String imgServletUrl, String i18nUrl, int[] rect) throws IOException, ProcessSubtreeException {
-        generateCustomPDF(this.documentService.buildDocumentFromSelection(imagePids, rect), os, imgServletUrl, i18nUrl, ImageFetcher.WEB);
+        generateCustomPDF(this.documentService.buildDocumentFromSelection(imagePids, rect), os, null, imgServletUrl, i18nUrl, ImageFetcher.WEB);
     }
 
     
@@ -258,7 +291,7 @@ public class GeneratePDFServiceImpl extends AbstractPDFRenderSupport implements 
     public void generateParent(String requestedPid, int numberOfPages, String titlePage, OutputStream os, String imgServletUrl, String i18nUrl, int[] rect) throws IOException, ProcessSubtreeException {
         ObjectPidsPath[] paths = solrAccess.getPath(requestedPid);
         final ObjectPidsPath path = selectOnePath(requestedPid, paths);
-        generateCustomPDF(this.documentService.buildDocumentAsFlat(path, path.getLeaf(), numberOfPages, rect), os, imgServletUrl, i18nUrl, ImageFetcher.WEB);
+        generateCustomPDF(this.documentService.buildDocumentAsFlat(path, path.getLeaf(), numberOfPages, rect), os, null, imgServletUrl, i18nUrl, ImageFetcher.WEB);
     }
 
 
@@ -275,7 +308,7 @@ public class GeneratePDFServiceImpl extends AbstractPDFRenderSupport implements 
     
 
     @Override
-    public void fullPDFExport(ObjectPidsPath path, OutputStreams streams, Break brk, String djvuUrl, String i18nUrl, int[] rect) throws IOException, ProcessSubtreeException {
+    public void fullPDFExport(ObjectPidsPath path, OutputStreams streams, Break brk, String djvuUrl, String i18nUrl, int[] rect) throws IOException, ProcessSubtreeException, DocumentException {
 
         AbstractRenderedDocument restOfDoc = documentService.buildDocumentAsTree(path, path.getLeaf(), rect);
         OutputStream os = null;
@@ -283,7 +316,7 @@ public class GeneratePDFServiceImpl extends AbstractPDFRenderSupport implements 
         while (!konec) {
             if (!restOfDoc.getPages().isEmpty()) {
                 os = streams.newOutputStream();
-                restOfDoc = generateCustomPDF(restOfDoc, os, brk, djvuUrl, i18nUrl, ImageFetcher.PROCESS);
+                restOfDoc = generateCustomPDF(restOfDoc, os, brk, new FontMap(this.fontsFolder()), djvuUrl, i18nUrl, ImageFetcher.PROCESS);
 
                 StringBuffer buffer = new StringBuffer();
                 restOfDoc.getOutlineItemRoot().debugInformations(buffer, 1);
@@ -295,13 +328,13 @@ public class GeneratePDFServiceImpl extends AbstractPDFRenderSupport implements 
         }
     }
 
-    private void lineInFirstPage(PdfWriter pdfWriter, Document document, float y) {
-        PdfContentByte cb = pdfWriter.getDirectContent();
-
-        cb.moveTo(5f, y - 10);
-        cb.lineTo(document.getPageSize().getWidth() - 10, y - 10);
-        cb.stroke();
-    }
+//    private void lineInFirstPage(PdfWriter pdfWriter, Document document, float y) {
+//        PdfContentByte cb = pdfWriter.getDirectContent();
+//
+//        cb.moveTo(5f, y - 10);
+//        cb.lineTo(document.getPageSize().getWidth() - 10, y - 10);
+//        cb.stroke();
+//    }
 
     private File prepareXSLStyleSheet(Locale locale, String i18nUrl, String title, String modelName, String pid) throws IOException {
         File tmpFile = File.createTempFile("temporary", "stylesheet");
@@ -328,64 +361,20 @@ public class GeneratePDFServiceImpl extends AbstractPDFRenderSupport implements 
         return new String(bos.toByteArray(), Charset.forName("UTF-8"));
     }
 
-    public void insertOutlinedTextPage(TextPage page, PdfWriter pdfWriter, Document document, String title, PDFContext pdfContext) throws XPathExpressionException, IOException, DocumentException, TransformerException {
+    public void insertOutlinedTextPage(TextPage page, PdfWriter pdfWriter, Document document, String title, PDFContext pdfContext) throws XPathExpressionException, IOException, DocumentException, TransformerException, InstantiationException, IllegalAccessException, ParserConfigurationException, SAXException {
         File styleSheet = prepareXSLStyleSheet(localeProvider.get(), pdfContext.getI18nUrl(), title, page.getModel(), page.getUuid());
         String text = xslt(this.fedoraAccess, styleSheet, page.getUuid());
-
-        BufferedReader strReader = new BufferedReader(new StringReader(text));
-        StringBuffer oneChunkBuffer = new StringBuffer();
-        String line = null;
-        while ((line = strReader.readLine()) != null) {
-            SimpleTextCommands command = SimpleTextCommands.findCommand(line);
-            if (command == SimpleTextCommands.LINE) {
-                insertPara(page, pdfWriter, document, oneChunkBuffer.toString(), pdfContext.getFontMap().getRegistredFont("normal"));
-                document.add(new Paragraph(" "));
-                VerticalPositionMark vsep = new LineSeparator();
-                document.add(vsep);
-                document.add(new Paragraph(" "));
-
-                oneChunkBuffer = new StringBuffer();
-
-            } else if (command == SimpleTextCommands.PARA) {
-                insertPara(page, pdfWriter, document, oneChunkBuffer.toString(), pdfContext.getFontMap().getRegistredFont("normal"));
-                oneChunkBuffer = new StringBuffer();
-            } else if (command == SimpleTextCommands.FONT) {
-                oneChunkBuffer.append(line);
-                Font font = pdfContext.getFontMap().getRegistredFont("normal");
-                String oneChunkText = oneChunkBuffer.toString();
-                Map<String, String> parameters = command.parameters(oneChunkText);
-                if (parameters.containsKey("size")) {
-                    font.setSize(Integer.parseInt(parameters.get("size")));
-                }
-                insertPara(page, pdfWriter, document, oneChunkText.substring(0, command.indexStart(oneChunkText)), font);
-                oneChunkBuffer = new StringBuffer();
-            } else {
-                oneChunkBuffer.append(line).append('\n');
-            }
-        }
-
-        if (oneChunkBuffer.length() > 0) {
-            insertPara(page, pdfWriter, document, oneChunkBuffer.toString(), pdfContext.getFontMap().getRegistredFont("normal"));
-        }
-    }
-
-    private void insertPara(TextPage page, PdfWriter pdfWriter, Document document, String text, Font font) throws DocumentException, IOException {
-
-        text = text.trim().replace('\t', ' ');
-
-        Chunk chunk = new Chunk(text, font);
-        chunk.setLocalDestination(page.getOutlineDestination());
-        pdfWriter.setOpenAction(page.getOutlineDestination());
         
-        Paragraph para = new Paragraph(chunk);
-        document.add(para);
+        ITextCommands cmnds = new ITextCommands();
+        cmnds.load(XMLUtils.parseDocument(new ByteArrayInputStream(text.getBytes(Charset.forName("UTF-8"))), true).getDocumentElement(), cmnds);
+        
+        RenderPDF render = new RenderPDF(pdfContext.getFontMap());
+        render.render(document, cmnds);
+
     }
 
-    public void insertOutlinedImagePage(ImagePage page, PdfWriter pdfWriter, Document document, /*
-                                                                                                 * String
-                                                                                                 * djvuUrl
-                                                                                                 * ,
-                                                                                                 */PDFContext pdfContext, ImageFetcher fetcher) throws XPathExpressionException, IOException, DocumentException {
+
+    public void insertOutlinedImagePage(ImagePage page, PdfWriter pdfWriter, Document document, PDFContext pdfContext, ImageFetcher fetcher) throws XPathExpressionException, IOException, DocumentException {
         String pageNumber = page.getPageNumber();
         insertImage(page.getUuid(), pdfWriter, document, 0.7f, pdfContext.getDjvuUrl(), fetcher, pdfContext.getFontMap().getRegistredFont(FontMap.NORMAL_FONT));
         
@@ -412,22 +401,6 @@ public class GeneratePDFServiceImpl extends AbstractPDFRenderSupport implements 
     }
 
 
-    public static Font createFont(FontMap.TYPE type) throws DocumentException, IOException {
-        switch (type) {
-        case EMBEDED_TTF: {
-            String workingDir = Constants.WORKING_DIR;
-            File fontFile = new File(workingDir + File.separator + "fonts" + File.separator + "GentiumPlus-R.ttf");
-            BaseFont bf = BaseFont.createFont(fontFile.getAbsolutePath(), BaseFont.CP1250, true);
-            return new Font(bf);
-        }
-        case NOT_EMBEDED: {
-            BaseFont bf = BaseFont.createFont("Helvetica", BaseFont.CP1250, BaseFont.NOT_EMBEDDED);
-            return new Font(bf);
-        }
-        default:
-            throw new IllegalStateException("");
-        }
-    }
 
 
     public void insertTitleImage(PdfPTable pdfPTable, AbstractRenderedDocument model, String djvuUrl, ImageFetcher fetcher) throws IOException, BadElementException, XPathExpressionException {
@@ -445,10 +418,6 @@ public class GeneratePDFServiceImpl extends AbstractPDFRenderSupport implements 
 
             }
             if (uuidToFirstPage != null) {
-                //BufferedImage bufferedImage = KrameriusImageSupport.readImage(uuidToFirstPage, ImageStreams.IMG_FULL.name(), this.fedoraAccess, 0);
-                
-                // for static exports
-                //String imgUrl = createIMGFULL(uuidToFirstPage, djvuUrl);
                 String mimetypeString = fedoraAccess.getImageFULLMimeType(uuidToFirstPage);
                 ImageMimeType mimetype = ImageMimeType.loadFromMimeType(mimetypeString);
                 if (mimetype != null) {
@@ -522,8 +491,8 @@ public class GeneratePDFServiceImpl extends AbstractPDFRenderSupport implements 
     }
 
     public File fontsFolder() {
-        String dirName = Constants.WORKING_DIR + File.separator + "fonts";
-        File dir = new File(dirName);
+        //String dirName = Constants.WORKING_DIR + File.separator + "fonts";
+        File dir = this.fontDirectory.get();
         if (!dir.exists()) {
             boolean mkdirs = dir.mkdirs();
             if (!mkdirs)

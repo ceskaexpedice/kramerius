@@ -38,15 +38,44 @@ public class FontMap {
     public static final String NORMAL_FONT = "normal";
     public static final String SMALLER_FONT = "smaller";
     public static final String SMALL_FONT = "small";
-    
 
-    public enum TYPE {
-        EMBEDED_TTF,  NOT_EMBEDED;
-    }
-
+    private File fontDirectory; 
     private Map<String, Font> map = new HashMap<String, Font>();
 
-    public void registerFont(String fid, Font font) {
+    
+    public FontMap(File fontDirectory) throws DocumentException, IOException {
+        super();
+        this.fontDirectory = fontDirectory;
+    
+        Font logoFont = createFont(this.fontDirectory);
+        logoFont.setSize(48f);
+
+        Font normalFont = createFont(this.fontDirectory);
+        normalFont.setSize(14f);
+
+        Font strongFont = createFont(this.fontDirectory);
+        strongFont.setSize(14f);
+        strongFont.setStyle(Font.BOLD);
+
+        Font header4Font = createFont(this.fontDirectory);
+        header4Font.setSize(16f);
+        header4Font.setStyle(Font.BOLD);
+
+        Font smallerFont = createFont(this.fontDirectory);
+        smallerFont.setSize(12f);
+
+        Font smallFont = createFont(this.fontDirectory);
+        smallFont.setSize(10f);
+        
+        this.registerFont(NORMAL_FONT, normalFont);
+        this.registerFont(STRONG_FONT, strongFont);
+        this.registerFont(LOGO_FONT, logoFont);
+        this.registerFont(HEADER4_FONT, header4Font);
+        this.registerFont(SMALLER_FONT, smallerFont);
+        this.registerFont(SMALL_FONT, smallFont);
+    }
+
+    private void registerFont(String fid, Font font) {
         map.put(fid, font);
     }
 
@@ -54,44 +83,14 @@ public class FontMap {
         return map.get(fid);
     }
 
-    public static FontMap createFontMap() throws DocumentException, IOException {
-        
-        Font logoFont = createFont();
-        logoFont.setSize(48f);
-
-        Font normalFont = createFont();
-        normalFont.setSize(14f);
-
-        Font strongFont = createFont();
-        strongFont.setSize(14f);
-        strongFont.setStyle(Font.BOLD);
-
-        Font header4Font = createFont();
-        header4Font.setSize(16f);
-        header4Font.setStyle(Font.BOLD);
-
-        Font smallerFont = createFont();
-        smallerFont.setSize(12f);
-
-        Font smallFont = createFont();
-        smallFont.setSize(10f);
-        
-        FontMap fmap = new FontMap();
-        fmap.registerFont(NORMAL_FONT, normalFont);
-        fmap.registerFont(STRONG_FONT, strongFont);
-        fmap.registerFont(LOGO_FONT, logoFont);
-        fmap.registerFont(HEADER4_FONT, header4Font);
-        fmap.registerFont(SMALLER_FONT, smallerFont);
-        fmap.registerFont(SMALL_FONT, smallFont);
-        return fmap;
-    }
-
     
     
 
-    public static Font createFont() throws DocumentException, IOException {
-        String workingDir = Constants.WORKING_DIR;
-        File fontFile = new File(workingDir + File.separator + "fonts" + File.separator + "GentiumPlus-R.ttf");
+    private Font createFont(File fontDirectory) throws DocumentException, IOException {
+//        String workingDir = Constants.WORKING_DIR;
+//        File fontFile = new File(workingDir + File.separator + "fonts" + File.separator + "GentiumPlus-R.ttf");
+
+        File fontFile = new File(fontDirectory.getAbsolutePath(), "GentiumPlus-R.ttf");
         BaseFont bf = BaseFont.createFont(fontFile.getAbsolutePath(), BaseFont.CP1250, true);
         return new Font(bf);
     }

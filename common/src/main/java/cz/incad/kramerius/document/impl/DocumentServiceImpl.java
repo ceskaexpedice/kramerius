@@ -427,14 +427,15 @@ public class DocumentServiceImpl implements DocumentService {
         renderedDocument.setUuidMainTitle(path.getRoot());
         
         
-        TextPage dpage = new TextPage(modelName, path.getRoot());
-        dpage.setOutlineDestination("desc");
-        dpage.setOutlineTitle("Popis");
-        renderedDocument.addPage(dpage);
-        OutlineItem item = new OutlineItem();
-        item.setLevel(1); item.setParent(renderedDocument.getOutlineItemRoot()); 
-        item.setTitle("Popis"); item.setDestination("desc");
-        renderedDocument.getOutlineItemRoot().addChild(item);
+//        TextPage dpage = new TextPage(modelName, path.getRoot());
+//        dpage.setOutlineDestination("desc");
+//        dpage.setOutlineTitle("Popis");
+//        renderedDocument.addPage(dpage);
+        
+//        OutlineItem item = new OutlineItem();
+//        item.setLevel(1); item.setParent(renderedDocument.getOutlineItemRoot()); 
+//        item.setTitle("Popis"); item.setDestination("desc");
+//        renderedDocument.getOutlineItemRoot().addChild(item);
 
         buildRenderingDocumentAsTree(renderedDocument, pidFrom);
 

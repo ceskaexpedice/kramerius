@@ -130,7 +130,8 @@ public class IOUtils {
     		try {
     			File file = new File(folder, def);
     			if (!file.exists()) {
-    				String res = prefix+def;
+    			    LOGGER.fine("destination file "+file);
+    			    String res = prefix+def;
     				is= caller.getResourceAsStream(res);
     				if (is == null) throw new IOException("cannot find resource "+res);
     				os = new FileOutputStream(file);

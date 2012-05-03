@@ -68,6 +68,7 @@ import org.w3c.dom.Document;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
 import com.google.inject.name.Named;
+import com.lowagie.text.DocumentException;
 
 import cz.incad.kramerius.FedoraAccess;
 import cz.incad.kramerius.ObjectPidsPath;
@@ -85,6 +86,7 @@ import cz.incad.kramerius.imaging.utils.ImageUtils;
 import cz.incad.kramerius.pdf.GeneratePDFService;
 import cz.incad.kramerius.pdf.impl.ImageFetcher;
 import cz.incad.kramerius.pdf.utils.TitlesUtils;
+import cz.incad.kramerius.pdf.utils.pdf.FontMap;
 import cz.incad.kramerius.printing.PrintingService;
 import cz.incad.kramerius.printing.utils.Utils;
 import cz.incad.kramerius.service.ResourceBundleService;
@@ -97,9 +99,9 @@ import cz.incad.kramerius.utils.imgs.ImageMimeType;
 public class PrintingServiceImpl implements PrintingService {
 
     public static final int MAX_PAGES = 1000;
-    
+
     static java.util.logging.Logger LOGGER = java.util.logging.Logger.getLogger(PrintingServiceImpl.class.getName());
-    
+
     private FedoraAccess fedoraAccess;
     private KConfiguration configuration;
 
@@ -107,10 +109,7 @@ public class PrintingServiceImpl implements PrintingService {
 
     private DocumentService documentService;
     private GeneratePDFService pdfService;
-    
-    
-    
-    
+
     @Inject
     public PrintingServiceImpl(@Named("securedFedoraAccess") FedoraAccess fedoraAccess, SolrAccess solrAccess, KConfiguration configuration, Provider<Locale> localeProvider, TextsService textsService, ResourceBundleService resourceBundleService, DocumentService documentService, GeneratePDFService pdfService) {
         super();
@@ -126,57 +125,63 @@ public class PrintingServiceImpl implements PrintingService {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
         }
     }
-    
-    
+
     private void init() throws IOException {
     }
 
     @Override
-    public void printMaster( String pidFrom, String imgUrl, String i18nUrl) throws IOException, ProcessSubtreeException, PrinterException, PrintException {
-        
-        ObjectPidsPath[] paths = this.solrAccess.getPath(pidFrom);
-        ObjectPidsPath selectedPath = selectOnePath(pidFrom, paths);
-        
-        AbstractRenderedDocument documentAsFlat = this.documentService.buildDocumentAsFlat(selectedPath, pidFrom, MAX_PAGES, null /* used default values */);
-        
-        renderToPDFandPrint(imgUrl, i18nUrl, documentAsFlat);
+    public void printMaster(String pidFrom, String imgUrl, String i18nUrl) throws IOException, ProcessSubtreeException, PrinterException, PrintException {
+
+        try {
+            ObjectPidsPath[] paths = this.solrAccess.getPath(pidFrom);
+            ObjectPidsPath selectedPath = selectOnePath(pidFrom, paths);
+
+            AbstractRenderedDocument documentAsFlat = this.documentService.buildDocumentAsFlat(selectedPath, pidFrom, MAX_PAGES, null /*
+                                                                                                                                       * used
+                                                                                                                                       * default
+                                                                                                                                       * values
+                                                                                                                                       */);
+
+            renderToPDFandPrint(imgUrl, i18nUrl, documentAsFlat);
+        } catch (DocumentException e) {
+            throw new PrintException(e);
+        }
     }
 
-
-    public void renderToPDFandPrint(String imgUrl, String i18nUrl, AbstractRenderedDocument document) throws IOException, FileNotFoundException, PrintException {
+    public void renderToPDFandPrint(String imgUrl, String i18nUrl, AbstractRenderedDocument document) throws IOException, FileNotFoundException, PrintException, DocumentException {
+        FontMap fontMap = new FontMap(this.pdfService.fontsFolder());
         File pdfFile = File.createTempFile("pdf", "rendered");
         pdfFile.deleteOnExit();
-        
-        this.pdfService.generateCustomPDF(document, new FileOutputStream(pdfFile), imgUrl, i18nUrl, ImageFetcher.WEB);
+
+        this.pdfService.generateCustomPDF(document, new FileOutputStream(pdfFile), fontMap, imgUrl, i18nUrl, ImageFetcher.WEB);
 
         PrintService lps = PrintServiceLookup.lookupDefaultPrintService();
         DocPrintJob printJob = lps.createPrintJob();
         Doc doc = new SimpleDoc(new FileInputStream(pdfFile), DocFlavor.INPUT_STREAM.PDF, null);
 
-        PrintRequestAttributeSet aset = new HashPrintRequestAttributeSet(); 
-        aset.add(new Copies(KConfiguration.getInstance().getConfiguration().getInt("print.copies",1))); 
-        aset.add(resolveSidesConfiguration()); 
-        
+        PrintRequestAttributeSet aset = new HashPrintRequestAttributeSet();
+        aset.add(new Copies(KConfiguration.getInstance().getConfiguration().getInt("print.copies", 1)));
+        aset.add(resolveSidesConfiguration());
+
         printJob.print(doc, aset);
     }
 
-
     public Sides resolveSidesConfiguration() {
-        Map<String, Sides> mapping = new HashMap<String, Sides>(); {
+        Map<String, Sides> mapping = new HashMap<String, Sides>();
+        {
             mapping.put("ONE_SIDE", Sides.ONE_SIDED);
             mapping.put("DUPLEX", Sides.DUPLEX);
             mapping.put("TWO_SIDED_LONG_EDGE", Sides.TWO_SIDED_LONG_EDGE);
             mapping.put("TWO_SIDED_SHORT_EDGE", Sides.TWO_SIDED_SHORT_EDGE);
         }
-        
-        String side = KConfiguration.getInstance().getConfiguration().getString("print.sided","ONE_SIDE");
+
+        String side = KConfiguration.getInstance().getConfiguration().getString("print.sided", "ONE_SIDE");
         if (mapping.containsKey(side)) {
             return mapping.get(side);
-        } else return Sides.ONE_SIDED;
-        
-    }
-    
+        } else
+            return Sides.ONE_SIDED;
 
+    }
 
     public ObjectPidsPath selectOnePath(String requestedPid, ObjectPidsPath[] paths) {
         ObjectPidsPath path;
@@ -188,48 +193,53 @@ public class PrintingServiceImpl implements PrintingService {
         return path;
     }
 
-
     @Override
     public void printSelection(String[] selection, String imgUrl, String i18nUrl) throws IOException, ProcessSubtreeException, PrinterException, PrintException {
-        AbstractRenderedDocument document = this.documentService.buildDocumentFromSelection(selection, null /* use default values */);
-        renderToPDFandPrint(imgUrl, i18nUrl, document);
+        try {
+            AbstractRenderedDocument document = this.documentService.buildDocumentFromSelection(selection, null /*
+                                                                                                                 * use
+                                                                                                                 * default
+                                                                                                                 * values
+                                                                                                                 */);
+            renderToPDFandPrint(imgUrl, i18nUrl, document);
+        } catch (DocumentException e) {
+            throw new PrintException(e);
+        }
     }
-    
 
-    public static class PrintableDoc implements Printable{
-        
+    public static class PrintableDoc implements Printable {
+
         private AbstractRenderedDocument document;
         private String imgServletUrl;
         private FedoraAccess fedoraAccess;
-        
+
         private Dimension page;
         private int dpi;
-        
+
         public PrintableDoc(FedoraAccess fedoraAccess, AbstractRenderedDocument document, String imgServletUrl, Dimension page, int dpi) {
             super();
             this.fedoraAccess = fedoraAccess;
             this.document = document;
             this.imgServletUrl = imgServletUrl;
-            
+
             this.page = page;
             this.dpi = dpi;
         }
 
         private String createIMGFULL(String objectId, String imgServletUrl) {
-            String imgUrl = imgServletUrl +"?uuid="+objectId+"&action=GETRAW&stream="+ImageStreams.IMG_FULL.getStreamName();
+            String imgUrl = imgServletUrl + "?uuid=" + objectId + "&action=GETRAW&stream=" + ImageStreams.IMG_FULL.getStreamName();
             return imgUrl;
         }
 
-        
         @Override
         public int print(Graphics g, PageFormat pf, int pageIndex) throws PrinterException {
             try {
-                
+
                 List<AbstractPage> pages = this.document.getPages();
                 if (pageIndex < pages.size()) {
                     AbstractPage page = pages.get(pageIndex);
-                    
-                    Graphics2D g2d = (Graphics2D)g;
+
+                    Graphics2D g2d = (Graphics2D) g;
                     g2d.translate(pf.getImageableX(), pf.getImageableY());
 
                     if (page instanceof TextPage) {
@@ -237,52 +247,50 @@ public class PrintingServiceImpl implements PrintingService {
                     } else {
                         ImagePage ipage = (ImagePage) page;
                         String pid = ipage.getUuid();
-                        
+
                         String imgUrl = createIMGFULL(pid, imgServletUrl);
                         String mimetypeString = fedoraAccess.getImageFULLMimeType(pid);
                         ImageMimeType mimetype = ImageMimeType.loadFromMimeType(mimetypeString);
                         if (mimetype != null) {
-                            BufferedImage javaImg = readImage(new URL(imgUrl), mimetype,0);
-                            
-                            double imgWidth = javaImg.getWidth();    
-                            double imgHeight = javaImg.getHeight() ;
-                            
+                            BufferedImage javaImg = readImage(new URL(imgUrl), mimetype, 0);
+
+                            double imgWidth = javaImg.getWidth();
+                            double imgHeight = javaImg.getHeight();
+
                             double pageWidth = pf.getImageableWidth();
                             double pageHeight = pf.getImageableHeight();
-                            
-                            if ((imgHeight>pageHeight) || (imgWidth > pageWidth)) {
-                                //scaling..
-                                 double hscale =  (pageHeight / imgHeight);
-                                 double wscale =  (pageWidth / imgWidth);
-                                 
-                                 double scale = Math.max(hscale, wscale);
-                                 
-                                 BufferedImage scaled = ImageUtils.scaleByPercent(javaImg, new Rectangle(javaImg.getWidth(), javaImg.getHeight()), scale, null);
-                                 g2d.drawImage(scaled, 0,0,null);
-                                 
+
+                            if ((imgHeight > pageHeight) || (imgWidth > pageWidth)) {
+                                // scaling..
+                                double hscale = (pageHeight / imgHeight);
+                                double wscale = (pageWidth / imgWidth);
+
+                                double scale = Math.max(hscale, wscale);
+
+                                BufferedImage scaled = ImageUtils.scaleByPercent(javaImg, new Rectangle(javaImg.getWidth(), javaImg.getHeight()), scale, null);
+                                g2d.drawImage(scaled, 0, 0, null);
+
                             } else {
-                                g2d.drawImage(javaImg, 5,5,null);
+                                g2d.drawImage(javaImg, 5, 5, null);
                             }
-                        }                    
-                        
+                        }
+
                     }
                     return PAGE_EXISTS;
-                } else return NO_SUCH_PAGE;
+                } else
+                    return NO_SUCH_PAGE;
             } catch (XPathExpressionException e) {
-                LOGGER.log(Level.SEVERE, e.getMessage(),e);
+                LOGGER.log(Level.SEVERE, e.getMessage(), e);
                 return NO_SUCH_PAGE;
             } catch (MalformedURLException e) {
-                LOGGER.log(Level.SEVERE, e.getMessage(),e);
+                LOGGER.log(Level.SEVERE, e.getMessage(), e);
                 return NO_SUCH_PAGE;
             } catch (IOException e) {
-                LOGGER.log(Level.SEVERE, e.getMessage(),e);
+                LOGGER.log(Level.SEVERE, e.getMessage(), e);
                 return NO_SUCH_PAGE;
             }
         }
 
-        
-        
-        
     }
-    
+
 }

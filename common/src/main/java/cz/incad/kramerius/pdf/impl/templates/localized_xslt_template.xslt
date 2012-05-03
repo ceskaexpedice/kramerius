@@ -16,11 +16,11 @@
         xmlns:kramerius="http://www.nsdl.org/ontologies/relationships#"
 		xmlns:kram4i18n="http://nothing_url">
 
-		<xsl:output method="text" indent="no" encoding="UTF-8" />
+        <xsl:output method="xml" indent="no" encoding="UTF-8" />
 		
         <xsl:param name="pid" select="'$pid$'"></xsl:param>
 		<xsl:param name="model" select="'$model$'"></xsl:param>
 		<xsl:param name="parent_title" select="'$parent_title$'"></xsl:param>
 		<xsl:param name="bundle" select="document('$bundle_url$')/bundle" />
-		<xsl:include href="$template_folder$/template_static_export.xslt"/>		
+		<xsl:include href="$template_folder$/template_static_export.0.1.xslt"/>		
 </xsl:stylesheet>
