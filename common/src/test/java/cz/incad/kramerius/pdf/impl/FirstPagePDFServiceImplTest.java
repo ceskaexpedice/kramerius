@@ -56,6 +56,7 @@ import com.google.inject.name.Names;
 import com.lowagie.text.DocumentException;
 import com.lowagie.text.pdf.PdfWriter;
 
+import cz.incad.kramerius.Constants;
 import cz.incad.kramerius.FedoraAccess;
 import cz.incad.kramerius.ObjectPidsPath;
 import cz.incad.kramerius.ProcessSubtreeException;
@@ -66,6 +67,7 @@ import cz.incad.kramerius.document.model.AbstractRenderedDocument;
 import cz.incad.kramerius.fedora.impl.DataPrepare;
 import cz.incad.kramerius.impl.FedoraAccessImpl;
 import cz.incad.kramerius.pdf.FirstPagePDFService;
+import cz.incad.kramerius.pdf.GeneratePDFService;
 import cz.incad.kramerius.pdf.commands.ITextCommands;
 import cz.incad.kramerius.pdf.commands.render.RenderPDF;
 import cz.incad.kramerius.pdf.utils.pdf.FontMap;
@@ -402,7 +404,6 @@ public class FirstPagePDFServiceImplTest {
         
         InputStream expected = FirstPagePDFServiceImplTest.class.getResourceAsStream("narodni_listy_selection_pages.xml");
         String docString = IOUtils.readAsString(expected, Charset.forName("UTF-8"), true);
-        System.out.println(docString);
         
         Document expectedDoc = XMLUtils.parseDocument(new StringReader(docString));
         
@@ -503,7 +504,7 @@ public class FirstPagePDFServiceImplTest {
     }
 
 
-    public void toTmpPDF(Document renderedDoc) throws InstantiationException, IllegalAccessException, IOException, FileNotFoundException, DocumentException {
+    public void toTmpPDF(Document renderedDoc, GeneratePDFService pdfService) throws InstantiationException, IllegalAccessException, IOException, FileNotFoundException, DocumentException {
         ITextCommands cmnds = new ITextCommands();
         cmnds.load(renderedDoc.getDocumentElement(), cmnds);
         
@@ -516,7 +517,7 @@ public class FirstPagePDFServiceImplTest {
         PdfWriter.getInstance(pdfDoc, fos);
         pdfDoc.open();
         
-        RenderPDF render = new RenderPDF(FontMap.createFontMap());
+        RenderPDF render = new RenderPDF(new FontMap(pdfService.fontsFolder()));
         render.render(pdfDoc, cmnds);
         
         pdfDoc.close();

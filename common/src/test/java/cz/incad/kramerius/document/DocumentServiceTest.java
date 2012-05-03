@@ -60,6 +60,7 @@ import cz.incad.kramerius.document.impl.DocumentServiceImpl;
 import cz.incad.kramerius.document.model.AbstractPage;
 import cz.incad.kramerius.document.model.AbstractRenderedDocument;
 import cz.incad.kramerius.document.model.DCConent;
+import cz.incad.kramerius.document.model.OutlineItem;
 import cz.incad.kramerius.fedora.impl.DataPrepare;
 import cz.incad.kramerius.impl.FedoraAccessImpl;
 import cz.incad.kramerius.service.ResourceBundleService;
@@ -319,6 +320,91 @@ public class DocumentServiceTest {
             String pid = relsExtOrder[i];
             Assert.assertEquals(pid, page.getUuid());
         }   
+    }
+    
+    // vytvori dokument od urciteho pidu
+    @Test
+    public void testDocumentServiceTreeFromPid() throws IOException, ParserConfigurationException, SAXException, LexerException, ProcessSubtreeException, SecurityException, NoSuchMethodException {
+
+        Locale locale = Locale.getDefault();
+        
+        FedoraAccessImpl fa33 = createMockBuilder(FedoraAccessImpl.class)
+        .withConstructor(KConfiguration.getInstance())
+        .addMockedMethod("getFedoraDescribeStream")
+        .addMockedMethod("getRelsExt")
+        .addMockedMethod("isImageFULLAvailable")
+        .addMockedMethod("getDC")
+        .addMockedMethod("getBiblioMods")
+        .addMockedMethod(FedoraAccessImpl.class.getMethod("getKrameriusModelName", String.class))
+        .createMock();
+        
+        EasyMock.expect(fa33.getFedoraDescribeStream()).andReturn(DataPrepare.fedoraProfile33());
+        
+        DataPrepare.drobnustkyRelsExt(fa33);
+        DataPrepare.drobnustkyWithIMGFULL(fa33);
+        DataPrepare.drobnustkyDCS(fa33);
+        DataPrepare.drobnustkyMODS(fa33);
+        
+        Set<String> keySet = MODELS_MAPPING.keySet();
+        for (String key : keySet) {
+            String model = MODELS_MAPPING.get(key);
+            PIDParser pidParser = new PIDParser(model);
+            pidParser.disseminationURI();
+            String modelK4Name  = pidParser.getObjectId();
+            EasyMock.expect(fa33.getKrameriusModelName(key)).andReturn(modelK4Name).anyTimes();
+        }
+        
+ 
+        ResourceBundleService bundleService = EasyMock.createMock(ResourceBundleService.class);
+        EasyMock.expect(bundleService.getResourceBundle("labels", locale)).andReturn(new PropertyResourceBundle(new InputStreamReader(new ByteArrayInputStream(BUNLDE.getBytes()), Charset.forName("UTF-8")))).anyTimes();
+        EasyMock.expect(bundleService.getResourceBundle("base", locale)).andReturn(new PropertyResourceBundle(new InputStreamReader(new ByteArrayInputStream(BUNLDE.getBytes()), Charset.forName("UTF-8")))).anyTimes();
+        
+ 
+        SolrAccess solrAccess = EasyMock.createMock(SolrAccess.class);
+        Set<String> keys = PATHS_MAPPING.keySet();
+        for (String key : keys) {
+            EasyMock.expect(solrAccess.getPath(key)).andReturn(new ObjectPidsPath[] { PATHS_MAPPING.get(key)}).anyTimes();
+        }
+        
+        replay(fa33, solrAccess, bundleService);
+        
+        Injector injector = Guice.createInjector(new _Module(locale, fa33, bundleService,solrAccess));
+        
+        DocumentService docService = injector.getInstance(DocumentService.class);
+        ObjectPidsPath path = PATHS_MAPPING.get(DataPrepare.DROBNUSTKY_PIDS[0]);
+        AbstractRenderedDocument doc = docService.buildDocumentAsTree(path, path.getLeaf(), new int[]{300,300});
+        
+        String model = doc.getModel();
+
+        System.out.println(doc.getDocumentTitle());
+        System.out.println(doc.getFirstPage());
+        System.out.println(doc.getUuid());
+        
+        System.out.println(model);
+        List<AbstractPage> pages = doc.getPages();
+        for (AbstractPage page : pages) {
+            System.out.println(page);
+        }
+        
+        OutlineItem itemRoot = doc.getOutlineItemRoot();
+        OutlineItem[] children = itemRoot.getChildren();
+        for (OutlineItem itm : children) {
+            System.out.println(itm);
+        }
+
+//        List<AbstractPage> pages = doc.getPages();
+//        Assert.assertTrue(pages.size() == 3);
+//        
+//
+//        String[] relsExtOrder = new String[] {
+//                "uuid:4a7ec660-af36-11dd-a782-000d606f5dc6",
+//                "uuid:4314ab50-b03b-11dd-89db-000d606f5dc6",
+//                "uuid:4a80c230-af36-11dd-ace4-000d606f5dc6"};
+//        for (int i = 0; i < relsExtOrder.length; i++) {
+//            AbstractPage page = pages.get(i);
+//            String pid = relsExtOrder[i];
+//            Assert.assertEquals(pid, page.getUuid());
+//        }   
     }
 
 }
