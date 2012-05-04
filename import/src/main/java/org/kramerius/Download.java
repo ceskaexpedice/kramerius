@@ -330,13 +330,12 @@ public class Download {
         try {
             BufferedReader in = new BufferedReader(new FileReader(documentListFile));
             for (String line; (line = in.readLine()) != null;) {
-                // log.debug("line: " + line);
-                StringTokenizer st = new StringTokenizer(line);
-                String id = st.nextToken();
-                // log.debug("id: " + id);
-                String name = st.nextToken();
-                // log.debug("name" + name);
-                documents.put(name, id);
+                String[] tokens = line.split(" ",2);
+                if (tokens.length == 2){
+                    String id = tokens[0];
+                    String name = tokens[1];
+                    documents.put(name, id);
+                }
             }
             in.close();
         } catch (IOException e) {
