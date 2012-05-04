@@ -7,7 +7,7 @@
     <parent>
         <groupId>cz.incad.kramerius</groupId>
         <artifactId>kramerius</artifactId>
-        <version>4.5.2</version>
+        <version>4.6.0-SNAPSHOT</version>
     </parent>
 
     <dependencies>
@@ -49,8 +49,8 @@
             <version>3.8</version>
         </dependency>
 
-        <!-- dependency> <groupId>xalan</groupId> <artifactId>xalan</artifactId> 
-            <version>2.7.1</version> </dependency> <dependency> <groupId>org.apache</groupId> 
+        <!-- dependency> <groupId>xalan</groupId> <artifactId>xalan</artifactId>
+            <version>2.7.1</version> </dependency> <dependency> <groupId>org.apache</groupId>
             <artifactId>xercesImpl</artifactId> <version>2.7.1</version> </dependency -->
 
         <!-- database for long running processes -->
@@ -84,7 +84,7 @@
             <version>${guice.version}</version>
         </dependency>
 
-        <!-- <dependency> <groupId>com.google.inject</groupId> <artifactId>guice-grapher</artifactId> 
+        <!-- <dependency> <groupId>com.google.inject</groupId> <artifactId>guice-grapher</artifactId>
             <version>${guice.version}</version> </dependency> -->
 
         <dependency>
@@ -170,7 +170,7 @@
             <groupId>commons-configuration</groupId>
             <artifactId>commons-configuration</artifactId>
             <version>1.6</version>
-            <!-- remove commons logging and commons digester from dependency 
+            <!-- remove commons logging and commons digester from dependency
                 graph -->
             <exclusions>
                 <exclusion>
