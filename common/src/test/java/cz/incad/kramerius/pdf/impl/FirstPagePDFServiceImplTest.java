@@ -235,7 +235,8 @@ public class FirstPagePDFServiceImplTest {
         Document renderedDoc = XMLUtils.parseDocument(new StringReader(generatedTemplate));
         
         InputStream expected = FirstPagePDFServiceImplTest.class.getResourceAsStream("drobnustky_parent_first_page.xml");
-        Document expectedDoc = XMLUtils.parseDocument(expected);
+        String expectedString = IOUtils.readAsString(expected, Charset.forName("UTF-8"), true);
+        Document expectedDoc = XMLUtils.parseDocument(new StringReader(expectedString));
         
     
         Document expectedWOws = XMLUnit.getWhitespaceStrippedDocument(expectedDoc);
@@ -301,7 +302,8 @@ public class FirstPagePDFServiceImplTest {
         Document renderedDoc = XMLUtils.parseDocument(new StringReader(generatedTemplate));
         
         InputStream expected = FirstPagePDFServiceImplTest.class.getResourceAsStream("drobnustky_pages_selection.xml");
-        Document expectedDoc = XMLUtils.parseDocument(expected);
+        String expectedString = IOUtils.readAsString(expected, Charset.forName("UTF-8"), true);
+        Document expectedDoc = XMLUtils.parseDocument(new StringReader(expectedString));
         
     
         Document expectedWOws = XMLUnit.getWhitespaceStrippedDocument(expectedDoc);
@@ -398,13 +400,11 @@ public class FirstPagePDFServiceImplTest {
 
         // vygenerovana xml pro itext
         String generatedTemplate = ((FirstPagePDFServiceImpl)fpageService).templateSelection(renderedDocument,pids);
-
         Document renderedDoc = XMLUtils.parseDocument(new StringReader(generatedTemplate));
         
         
         InputStream expected = FirstPagePDFServiceImplTest.class.getResourceAsStream("narodni_listy_selection_pages.xml");
         String docString = IOUtils.readAsString(expected, Charset.forName("UTF-8"), true);
-        
         Document expectedDoc = XMLUtils.parseDocument(new StringReader(docString));
         
     
