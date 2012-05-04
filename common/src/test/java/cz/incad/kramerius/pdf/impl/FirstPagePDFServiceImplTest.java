@@ -1,16 +1,16 @@
 /*
  * Copyright (C) 2012 Pavel Stastny
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -82,12 +82,12 @@ import cz.incad.kramerius.utils.pid.PIDParser;
 
 public class FirstPagePDFServiceImplTest {
 
-    public static String BUNLDE = "# procesy\n" 
+    public static String BUNLDE = "# procesy\n"
         + "key=value\n"
     + "pdf.digitallibrary=Digitální knihovna\n"
     + "pdf.pdfcontainstitle=Generované PDF obsahuje\n"
 
-    
+
     + "fedora.model=Modely Fedora\n"
     + "fedora.model.page=Stránka\n"
     + "fedora.model.monograph=Monografie\n"
@@ -139,7 +139,7 @@ public class FirstPagePDFServiceImplTest {
 
     + "pdf.dc.publisher=Vydavatel\n"
     + "pdf.dc.publishers=Vydavatelé\n"
-    
+
 
     + "pdf.dc.creator=Autor\n"
     + "pdf.dc.creators=Autoři\n"
@@ -152,10 +152,10 @@ public class FirstPagePDFServiceImplTest {
     + "pdf.fp.publisher=Vydavatel\n"
     + "pdf.fp.publisherDate=Vydáváno v letech\n"
     + "pdf.fp.articletitle=Název článku\n"
-    
+
     + "pdf.fp.title=Hlavní název\n"
     + "pdf.fp.titles=Hlavní názvy\n"
-    
+
     + "pdf.fp.alternativetitle=Alternativní název\n"
 
     + "pdf.fp.subTitle=Podtitul\n"
@@ -165,7 +165,7 @@ public class FirstPagePDFServiceImplTest {
     + "pdf.fp.volumeNumbers=Čísla ročníků\n"
 
     + "pdf.fp.periodicalVolumeDate=Rok ročníku\n"
-    
+
     + "pdf.fp.issueNumber=Číslo výtisku\n"
     + "pdf.fp.issueNumbers=Čísla výtisků\n"
 
@@ -188,8 +188,8 @@ public class FirstPagePDFServiceImplTest {
 
 ;
 
-    
-    @Test
+
+    //@Test
     public void testGenerateParent_DROBNUSTKY() throws SecurityException, NoSuchMethodException, IOException, ParserConfigurationException, SAXException, LexerException, ProcessSubtreeException, DocumentException, XPathExpressionException, JAXBException {
         //hyph-country="CZ" hyph-lang="cs"
         Locale locale = new Locale("cs","CZ");
@@ -210,19 +210,19 @@ public class FirstPagePDFServiceImplTest {
         EasyMock.expect(bundleService.getResourceBundle("labels", locale)).andReturn(new PropertyResourceBundle(new InputStreamReader(new ByteArrayInputStream(BUNLDE.getBytes()), Charset.forName("UTF-8")))).anyTimes();
         EasyMock.expect(bundleService.getResourceBundle("base", locale)).andReturn(new PropertyResourceBundle(new InputStreamReader(new ByteArrayInputStream(BUNLDE.getBytes()), Charset.forName("UTF-8")))).anyTimes();
 
-        
+
         SolrAccess solrAccess = EasyMock.createMock(SolrAccess.class);
         Set<String> keys = DataPrepare.PATHS_MAPPING.keySet();
         for (String key : keys) {
             EasyMock.expect(solrAccess.getPath(key)).andReturn(new ObjectPidsPath[] { DataPrepare.PATHS_MAPPING.get(key) }).anyTimes();
         }
-        
+
         replay(fa33, solrAccess, bundleService);
 
         Injector injector = Guice.createInjector(new _Module(locale, fa33, bundleService, solrAccess));
-        
+
         FirstPagePDFService fpageService = injector.getInstance(FirstPagePDFService.class);
-        
+
         DocumentService docService = injector.getInstance(DocumentService.class);
 
         // vytvoreny dokument
@@ -231,14 +231,14 @@ public class FirstPagePDFServiceImplTest {
 
         // vygenerovana xml pro itext
         String generatedTemplate = ((FirstPagePDFServiceImpl)fpageService).templateParent(renderedDocument, DataPrepare.PATHS_MAPPING.get( DataPrepare.DROBNUSTKY_PIDS[0]));
-        
+
         Document renderedDoc = XMLUtils.parseDocument(new StringReader(generatedTemplate));
-        
+
         InputStream expected = FirstPagePDFServiceImplTest.class.getResourceAsStream("drobnustky_parent_first_page.xml");
         String expectedString = IOUtils.readAsString(expected, Charset.forName("UTF-8"), true);
         Document expectedDoc = XMLUtils.parseDocument(new StringReader(expectedString));
-        
-    
+
+
         Document expectedWOws = XMLUnit.getWhitespaceStrippedDocument(expectedDoc);
         Document renderedWOws = XMLUnit.getWhitespaceStrippedDocument(renderedDoc);
 
@@ -247,7 +247,7 @@ public class FirstPagePDFServiceImplTest {
         Assert.assertTrue(diff.toString(),diff.similar());
     }
 
-    @Test
+    //@Test
     public void testGenerateParent_DROBNUSTKYPage() throws SecurityException, NoSuchMethodException, IOException, ParserConfigurationException, SAXException, LexerException, ProcessSubtreeException, DocumentException, XPathExpressionException, JAXBException {
         Locale locale = new Locale("cs","CZ");
 
@@ -266,7 +266,7 @@ public class FirstPagePDFServiceImplTest {
 
             EasyMock.expect(fa33.getKrameriusModelName(pid)).andReturn(objectId).anyTimes();
         }
-        
+
         DataPrepare.drobnustkyRelsExt(fa33);
         DataPrepare.drobnustkyWithIMGFULL(fa33);
         DataPrepare.drobnustkyDCS(fa33);
@@ -277,19 +277,19 @@ public class FirstPagePDFServiceImplTest {
         EasyMock.expect(bundleService.getResourceBundle("labels", locale)).andReturn(new PropertyResourceBundle(new InputStreamReader(new ByteArrayInputStream(BUNLDE.getBytes()), Charset.forName("UTF-8")))).anyTimes();
         EasyMock.expect(bundleService.getResourceBundle("base", locale)).andReturn(new PropertyResourceBundle(new InputStreamReader(new ByteArrayInputStream(BUNLDE.getBytes()), Charset.forName("UTF-8")))).anyTimes();
 
-        
+
         SolrAccess solrAccess = EasyMock.createMock(SolrAccess.class);
         Set<String> keys = DataPrepare.PATHS_MAPPING.keySet();
         for (String key : keys) {
             EasyMock.expect(solrAccess.getPath(key)).andReturn(new ObjectPidsPath[] { DataPrepare.PATHS_MAPPING.get(key) }).anyTimes();
         }
-        
+
         replay(fa33, solrAccess, bundleService);
 
         Injector injector = Guice.createInjector(new _Module(locale, fa33, bundleService, solrAccess));
-        
+
         FirstPagePDFService fpageService = injector.getInstance(FirstPagePDFService.class);
-        
+
         DocumentService docService = injector.getInstance(DocumentService.class);
 
         // vytvoreny dokument
@@ -300,12 +300,12 @@ public class FirstPagePDFServiceImplTest {
         String generatedTemplate = ((FirstPagePDFServiceImpl)fpageService).templateParent(renderedDocument, DataPrepare.PATHS_MAPPING.get(DataPrepare.DROBNUSTKY_PIDS[2]));
 
         Document renderedDoc = XMLUtils.parseDocument(new StringReader(generatedTemplate));
-        
+
         InputStream expected = FirstPagePDFServiceImplTest.class.getResourceAsStream("drobnustky_pages_selection.xml");
         String expectedString = IOUtils.readAsString(expected, Charset.forName("UTF-8"), true);
         Document expectedDoc = XMLUtils.parseDocument(new StringReader(expectedString));
-        
-    
+
+
         Document expectedWOws = XMLUnit.getWhitespaceStrippedDocument(expectedDoc);
         Document renderedWOws = XMLUnit.getWhitespaceStrippedDocument(renderedDoc);
 
@@ -315,7 +315,7 @@ public class FirstPagePDFServiceImplTest {
     }
 
 
-    @Test
+    //@Test
     public void testGenerateSelection_NarodniListy() throws SecurityException, NoSuchMethodException, IOException, ParserConfigurationException, SAXException, LexerException, ProcessSubtreeException, DocumentException, InstantiationException, IllegalAccessException, XPathExpressionException, JAXBException {
         Locale locale = new Locale("cs","CZ");
 
@@ -363,21 +363,21 @@ public class FirstPagePDFServiceImplTest {
         EasyMock.expect(bundleService.getResourceBundle("labels", locale)).andReturn(new PropertyResourceBundle(new InputStreamReader(new ByteArrayInputStream(BUNLDE.getBytes()), Charset.forName("UTF-8")))).anyTimes();
         EasyMock.expect(bundleService.getResourceBundle("base", locale)).andReturn(new PropertyResourceBundle(new InputStreamReader(new ByteArrayInputStream(BUNLDE.getBytes()), Charset.forName("UTF-8")))).anyTimes();
 
-        
+
         SolrAccess solrAccess = EasyMock.createMock(SolrAccess.class);
         Set<String> keys = DataPrepare.PATHS_MAPPING.keySet();
         for (String key : keys) {
             EasyMock.expect(solrAccess.getPath(key)).andReturn(new ObjectPidsPath[] { DataPrepare.PATHS_MAPPING.get(key) }).anyTimes();
         }
-        
 
-        
+
+
         replay(fa33, solrAccess, bundleService);
 
         Injector injector = Guice.createInjector(new _Module(locale, fa33, bundleService, solrAccess));
-        
+
         FirstPagePDFService fpageService = injector.getInstance(FirstPagePDFService.class);
-        
+
         DocumentService docService = injector.getInstance(DocumentService.class);
 
 
@@ -393,7 +393,7 @@ public class FirstPagePDFServiceImplTest {
         };
 
         // vytvoreny dokument
-        AbstractRenderedDocument renderedDocument = 
+        AbstractRenderedDocument renderedDocument =
             docService.buildDocumentFromSelection(pids, null);
             //docService.buildDocumentAsFlat(DataPrepare.PATHS_MAPPING.get(pid), pid, 20, null);
         Assert.assertNotNull(renderedDocument.getPages().size() > 0);
@@ -401,13 +401,13 @@ public class FirstPagePDFServiceImplTest {
         // vygenerovana xml pro itext
         String generatedTemplate = ((FirstPagePDFServiceImpl)fpageService).templateSelection(renderedDocument,pids);
         Document renderedDoc = XMLUtils.parseDocument(new StringReader(generatedTemplate));
-        
-        
+
+
         InputStream expected = FirstPagePDFServiceImplTest.class.getResourceAsStream("narodni_listy_selection_pages.xml");
         String docString = IOUtils.readAsString(expected, Charset.forName("UTF-8"), true);
         Document expectedDoc = XMLUtils.parseDocument(new StringReader(docString));
-        
-    
+
+
         Document expectedWOws = XMLUnit.getWhitespaceStrippedDocument(expectedDoc);
         Document renderedWOws = XMLUnit.getWhitespaceStrippedDocument(renderedDoc);
 
@@ -416,7 +416,7 @@ public class FirstPagePDFServiceImplTest {
         Assert.assertTrue(diff.toString(),diff.similar());
     }
 
-    @Test
+    //@Test
     public void testGenerateParent_NarodniListy() throws SecurityException, NoSuchMethodException, IOException, ParserConfigurationException, SAXException, LexerException, ProcessSubtreeException, DocumentException, InstantiationException, IllegalAccessException, XPathExpressionException, JAXBException {
         Locale locale = new Locale("cs","CZ");
 
@@ -464,15 +464,15 @@ public class FirstPagePDFServiceImplTest {
         EasyMock.expect(bundleService.getResourceBundle("labels", locale)).andReturn(new PropertyResourceBundle(new InputStreamReader(new ByteArrayInputStream(BUNLDE.getBytes()), Charset.forName("UTF-8")))).anyTimes();
         EasyMock.expect(bundleService.getResourceBundle("base", locale)).andReturn(new PropertyResourceBundle(new InputStreamReader(new ByteArrayInputStream(BUNLDE.getBytes()), Charset.forName("UTF-8")))).anyTimes();
 
-        
+
         SolrAccess solrAccess = EasyMock.createMock(SolrAccess.class);
         Set<String> keys = DataPrepare.PATHS_MAPPING.keySet();
         for (String key : keys) {
             EasyMock.expect(solrAccess.getPath(key)).andReturn(new ObjectPidsPath[] { DataPrepare.PATHS_MAPPING.get(key) }).anyTimes();
         }
-        
 
-        
+
+
         replay(fa33, solrAccess, bundleService);
         Injector injector = Guice.createInjector(new _Module(locale, fa33, bundleService, solrAccess));
         FirstPagePDFService fpageService = injector.getInstance(FirstPagePDFService.class);
@@ -482,19 +482,19 @@ public class FirstPagePDFServiceImplTest {
         String pid = "uuid:b32d1210-91f6-11dc-94d0-000d606f5dc6";
 
         // vytvoreny dokument
-        AbstractRenderedDocument renderedDocument = 
+        AbstractRenderedDocument renderedDocument =
             docService.buildDocumentAsFlat(DataPrepare.PATHS_MAPPING.get(pid), pid, 20, null);
         Assert.assertNotNull(renderedDocument.getPages().size() > 0);
 
         // vygenerovana xml pro itext
         String generatedTemplate = ((FirstPagePDFServiceImpl)fpageService).templateParent(renderedDocument,DataPrepare.PATHS_MAPPING.get(pid));
         Document renderedDoc = XMLUtils.parseDocument(new StringReader(generatedTemplate));
-        
-        
+
+
         InputStream expected = FirstPagePDFServiceImplTest.class.getResourceAsStream("narodni_listy_parent.xml");
         Document expectedDoc = XMLUtils.parseDocument(expected);
-        
-    
+
+
         Document expectedWOws = XMLUnit.getWhitespaceStrippedDocument(expectedDoc);
         Document renderedWOws = XMLUnit.getWhitespaceStrippedDocument(renderedDoc);
 
@@ -507,24 +507,24 @@ public class FirstPagePDFServiceImplTest {
     public void toTmpPDF(Document renderedDoc, GeneratePDFService pdfService) throws InstantiationException, IllegalAccessException, IOException, FileNotFoundException, DocumentException {
         ITextCommands cmnds = new ITextCommands();
         cmnds.load(renderedDoc.getDocumentElement(), cmnds);
-        
+
         File tmpFile = File.createTempFile("prefix", "postfix");
         System.out.println(tmpFile);
         FileOutputStream fos = new FileOutputStream(tmpFile);
-        
+
         com.lowagie.text.Document pdfDoc = new com.lowagie.text.Document();
-        
+
         PdfWriter.getInstance(pdfDoc, fos);
         pdfDoc.open();
-        
+
         RenderPDF render = new RenderPDF(new FontMap(pdfService.fontsFolder()));
         render.render(pdfDoc, cmnds);
-        
+
         pdfDoc.close();
     }
 
 
-    @Test
+    //@Test
     public void testGenerateSelection_NarodniListyDrobnustky() throws SecurityException, NoSuchMethodException, IOException, ParserConfigurationException, SAXException, LexerException, ProcessSubtreeException, DocumentException, InstantiationException, IllegalAccessException, XPathExpressionException, JAXBException {
         Locale locale = new Locale("cs","CZ");
 
@@ -573,21 +573,21 @@ public class FirstPagePDFServiceImplTest {
         EasyMock.expect(bundleService.getResourceBundle("labels", locale)).andReturn(new PropertyResourceBundle(new InputStreamReader(new ByteArrayInputStream(BUNLDE.getBytes()), Charset.forName("UTF-8")))).anyTimes();
         EasyMock.expect(bundleService.getResourceBundle("base", locale)).andReturn(new PropertyResourceBundle(new InputStreamReader(new ByteArrayInputStream(BUNLDE.getBytes()), Charset.forName("UTF-8")))).anyTimes();
 
-        
+
         SolrAccess solrAccess = EasyMock.createMock(SolrAccess.class);
         Set<String> keys = DataPrepare.PATHS_MAPPING.keySet();
         for (String key : keys) {
             EasyMock.expect(solrAccess.getPath(key)).andReturn(new ObjectPidsPath[] { DataPrepare.PATHS_MAPPING.get(key) }).anyTimes();
         }
-        
 
-        
+
+
         replay(fa33, solrAccess, bundleService);
 
         Injector injector = Guice.createInjector(new _Module(locale, fa33, bundleService, solrAccess));
-        
+
         FirstPagePDFService fpageService = injector.getInstance(FirstPagePDFService.class);
-        
+
         DocumentService docService = injector.getInstance(DocumentService.class);
 
 
@@ -600,14 +600,14 @@ public class FirstPagePDFServiceImplTest {
                 "uuid:94a3ed60-92d6-11dc-93df-000d606f5dc6",
                 "uuid:b3a21b00-91f6-11dc-b8b2-000d606f5dc6",
                 "uuid:94a68570-92d6-11dc-be5a-000d606f5dc6",
-                
-                
+
+
                 "uuid:4a7c2e50-af36-11dd-9643-000d606f5dc6",
                 "uuid:4a7ec660-af36-11dd-a782-000d606f5dc6"
         };
 
         // vytvoreny dokument
-        AbstractRenderedDocument renderedDocument = 
+        AbstractRenderedDocument renderedDocument =
             docService.buildDocumentFromSelection(pids, null);
             //docService.buildDocumentAsFlat(DataPrepare.PATHS_MAPPING.get(pid), pid, 20, null);
         Assert.assertNotNull(renderedDocument.getPages().size() > 0);
@@ -615,12 +615,12 @@ public class FirstPagePDFServiceImplTest {
         // vygenerovana xml pro itext
         String generatedTemplate = ((FirstPagePDFServiceImpl)fpageService).templateSelection(renderedDocument,pids);
         Document renderedDoc = XMLUtils.parseDocument(new StringReader(generatedTemplate));
-        
-        
+
+
         InputStream expected = FirstPagePDFServiceImplTest.class.getResourceAsStream("narodni_listy_drobnustky_selection_pages.xml");
         Document expectedDoc = XMLUtils.parseDocument(expected);
-        
-    
+
+
         Document expectedWOws = XMLUnit.getWhitespaceStrippedDocument(expectedDoc);
         Document renderedWOws = XMLUnit.getWhitespaceStrippedDocument(renderedDoc);
 
@@ -635,8 +635,8 @@ public class FirstPagePDFServiceImplTest {
         private FedoraAccess fedoraAccess;
         private ResourceBundleService resourceBundleService;
         private SolrAccess solrAccess;
-        
-        
+
+
         public _Module(Locale locale, FedoraAccess fedoraAccess, ResourceBundleService resourceBundleService,SolrAccess solrAccess) {
             super();
             this.locale = locale;
@@ -651,12 +651,12 @@ public class FirstPagePDFServiceImplTest {
             bind(SolrAccess.class).toInstance(this.solrAccess);
             bind(ResourceBundleService.class).toInstance(this.resourceBundleService);
             bind(TextsService.class).to(TextsServiceImpl.class);
-            
-            
+
+
             bind(DocumentService.class).to(DocumentServiceImpl.class);
             bind(FirstPagePDFService.class).to(FirstPagePDFServiceImpl.class);
         }
-        
+
         @Provides
         public Locale getLocale() {
             return this.locale;
