@@ -109,7 +109,6 @@ function refreshProcesses(ordering, offset, size, type) {
 /**
  * Promenne ve scriptu
  */
-// Command pattern
 var _texts=function() {
 	var intArr = new Array(); {
 		intArr["[static_export_CD]WAITING"]='administrator.dialogs.waitingstaticPDF';
