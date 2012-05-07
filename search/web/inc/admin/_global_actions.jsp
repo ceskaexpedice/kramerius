@@ -9,6 +9,7 @@
 
 <view:object name="ga" clz="cz.incad.Kramerius.views.rights.GlobalActionsView"></view:object>
 
+<scrd:securedContent action="display_admin_menu" sendForbidden="true">
 
 <div>
     
@@ -31,3 +32,5 @@
         </tbody>
     </table>
 </div>
+
+</scrd:securedContent>
