@@ -14,6 +14,7 @@
 
 <view:object name="objectsView" clz="cz.incad.Kramerius.views.rights.DisplayObjectsView"></view:object>
 
+<scrd:securedContent action="display_admin_menu" sendForbidden="true">
 
 <div id="rightsAffectedObjects_${objectsView.ident}">
 
@@ -30,7 +31,7 @@ $("#rightsAffectedObject_tabs_${objectsView.ident}").tabs( "select" , 0);
 </script>
 
 
-<scrd:loggedusers>
+
 
 <div id="rightsAffectedObject_tabs_${objectsView.ident}">
     
@@ -85,5 +86,7 @@ $("#rightsAffectedObject_tabs_${objectsView.ident}").tabs( "select" , 0);
     </c:forEach>
 
 </div>
-</scrd:loggedusers>
+
 </div>
+
+</scrd:securedContent>

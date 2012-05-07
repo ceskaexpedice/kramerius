@@ -9,10 +9,13 @@
 
 <div id="changeFlag">
 
-<scrd:loggedusers>
+
+<scrd:securedContent action="display_admin_menu" sendForbidden="true">
+
     <h3><view:msg>administrator.dialogs.changevisibility.combo</view:msg></h3>
     <input type="radio" value="setpublic" name="flag" checked="checked"><view:msg>administrator.dialogs.changevisibility.public</view:msg></input>
     <input type="radio" value="setprivate" name="flag"><view:msg>administrator.dialogs.changevisibility.private</view:msg></input>
-</scrd:loggedusers>
+
+</scrd:securedContent>
 
 </div>
