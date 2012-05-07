@@ -17,41 +17,70 @@
 package cz.incad.kramerius.security;
 
 /**
- * Secured actions enum 
+ * Vyctovy typ chranenych akci systemu K4 
  */
 public enum SecuredActions {
 
-    // common user actions
+    /** Akce cist */
     READ("read"),
     
-    // Admin actions
+    /** Akce pro proces import */
     IMPORT( "import"),
+    
+    /** Akce pro proces konvert */
     CONVERT( "convert"),
-    REPLICATIONRIGHTS( "replicationrights"),
+    
+    /** Akce pro proces replicationrights */
+    REPLICATIONRIGHTS("replicationrights"),
+    
+    /** Akce pro proces enumerator */
     ENUMERATOR( "enumerator"),
+
+    /** Akce pro proces indexace */
     REINDEX( "reindex"),
+    
+    /** Akce pro proces replikace - periodika */
     REPLIKATOR_PERIODICALS( "replikator_periodicals"),
+    
+    /** Akce pro proces replikace - monografie */
     REPLIKATOR_MONOGRAPHS( "replikator_monographs"),
+    
+    /** Akce pro proces delete */
     DELETE( "delete"),
+    
+    /** Akce pro proces export FOXML*/
     EXPORT( "export"),
-    SETPRIVATE( "setprivate"),
-    SETPUBLIC( "setpublic"),
+    
+    /** Akce pro nastave priznaku PRIVATE, PUBLIC */
+    SETPRIVATE( "setprivate"), SETPUBLIC( "setpublic"),
+ 
     ADMINISTRATE( "administrate"),
+
+    /** Akce pro spusteni metadata editoru */
     EDITOR("editor"),
+    
+    /** Akce umozni spravu procesu */
     MANAGE_LR_PROCESS("manage_lr_process"),
+    
+    /** Akce pro replikace do K4 */
     EXPORT_K4_REPLICATIONS("export_k4_replications"),
     IMPORT_K4_REPLICATIONS("import_k4_replications"),
     
-    // editace informaci na uvodni strance
     EDIT_INFO_TEXT("edit_info_text"),
     
-    // editace uzivatelu
+    /** Akce umozni spoustet editor uzivatelu superadmin modu */
     USERSADMIN("rightsadmin"),
+    
+    /** Akce umoznu spoustet editor v subadmin modu */
     USERSSUBADMIN("rightssubadmin"),
 
-    // sprava virtualnich sbirek !
+    /** Akce umoznuje spravu virtualnich sbirek */
     VIRTUALCOLLECTION_MANAGE("virtualcollection_manage"),
     
+    /** Akce umoznuje sprav u kriterii */
+    CRITERIUMS_RIGHTS_MANAGE("criteriums_rights_manage"),
+    
+    /** Akce umozni zobrazit administratorskou cast menu */
     DISPLAY_ADMIN_MENU("display_admin_menu");
     
     
