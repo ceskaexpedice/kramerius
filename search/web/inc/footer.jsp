@@ -37,7 +37,6 @@
 
         // gplus button - explicit initialization
         RebuildSocialButtons.prototype.rebuildExplicit=function(urls) {
-            //alert("rebuilding explicit ...");
             $('meta[property="og:url"]').attr('content',urls.url);
             $('meta[property="og:image"]').attr("content", urls.imgUrl);
             $('link[rel="canonical"]').attr("href", urls.url);

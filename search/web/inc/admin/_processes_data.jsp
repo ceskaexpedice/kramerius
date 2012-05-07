@@ -68,7 +68,7 @@
 <%@page import="cz.incad.kramerius.service.ResourceBundleService"%>
 
 
-<scrd:securedContent action="manage_lr_process">
+<scrd:securedContent action="manage_lr_process" sendForbidden="true">
 <style type="text/css">
     #processes_list>div.header{
         height:20px;

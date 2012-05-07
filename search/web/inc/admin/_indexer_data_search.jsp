@@ -15,7 +15,8 @@
             String i18nServlet = I18NServlet.i18nServlet(request) + "?action=bundle&lang="+lctx.getLocale().getLanguage()+"&country="+lctx.getLocale().getCountry()+"&name=labels";
             pageContext.setAttribute("i18nServlet", i18nServlet);
 %>
-<scrd:securedContent action="reindex">
+<scrd:securedContent action="reindex" sendForbidden="true">
+
 <view:kconfig var="fedoraHost" key="fedoraHost" />
 <c:catch var="ex">
 <c:url var="url" value="${fedoraHost}/objects" >

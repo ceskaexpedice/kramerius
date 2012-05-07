@@ -149,7 +149,7 @@ div.buttons {
  
  
  <body>
-    <scrd:securedContent action="manage_lr_process">
+    <scrd:securedContent action="manage_lr_process" sendForbidden="true">
         <div id="output_tabs">
             <ul>
                 <c:if test="${process.actionsDefined}">
