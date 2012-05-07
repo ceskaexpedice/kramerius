@@ -29,7 +29,7 @@ public interface RightsManager {
     
     // najde prava pro uzivatele
     /**
-     * Najde prava vztazena na objekty (definovane pidy), akci a daneho uzivatele
+     * Najde prava vztazena na objekty (definovane pidy), akce a daneho uzivatele
      * @param pids Objekty pro ktere hledame prava
      * @param action Chranena akce
      * @param user Uzivatel
