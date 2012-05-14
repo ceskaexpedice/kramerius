@@ -9,7 +9,7 @@
 <%@ page isELIgnored="false"%>
 
 
-<div id="socialbuttons_div" class="viewer socialbuttons" style="visibility: hidden;">
+<div id="socialbuttons_div" class="viewer socialbuttons" style="visibility: hidden; height: 0px;">
      <c:if test="${gplus.buttonEnabled || fb.buttonEnabled}">
       <script type="text/javascript">
         // changing og metadata
@@ -110,13 +110,20 @@
       <a href="https://twitter.com/share" class="twitter-share-button" data-url="${tweet.shareURL}" data-lang="${tweet.locale}">Tweet</a>
      </c:if>
     </td>
-    </tr>
-</table>
-
+    
+    
+    <td>
+    
 <div align="center" >
     ©2008-2011. 
     Developed under GNU GPL by <a href="http://www.incad.cz/">Incad</a>, <a href="http://www.nkp.cz/">NKČR</a>, <a href="http://www.lib.cas.cz/">KNAV</a> and <a href="http://www.mzk.cz/">MZK</a> 
 </div>
+    </td>
+    
+    </tr>
+    
+</table>
+
 
 
 <c:if test="${param.debug==true}">${url}</c:if>
