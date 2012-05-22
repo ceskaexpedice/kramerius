@@ -41,6 +41,7 @@ import com.google.inject.name.Named;
 import cz.incad.Kramerius.backend.guice.GuiceServlet;
 import cz.incad.Kramerius.security.rightscommands.post.Create;
 import cz.incad.Kramerius.security.rightscommands.post.Delete;
+import cz.incad.Kramerius.security.rightscommands.post.DeleteCriteriumParams;
 import cz.incad.Kramerius.security.rightscommands.post.Edit;
 import cz.incad.Kramerius.security.userscommands.get.EditRoleHtml;
 import cz.incad.Kramerius.security.userscommands.get.ShowRolesHtml;
@@ -138,8 +139,9 @@ public class RightsServlet extends GuiceServlet {
     static enum PostCommandsEnum {
         delete(Delete.class),
         edit(Edit.class),
-        create(Create.class);
-
+        create(Create.class),
+        deleteparams(DeleteCriteriumParams.class);
+        
         
         private Class<? extends ServletCommand> commandClass;
         
@@ -154,24 +156,6 @@ public class RightsServlet extends GuiceServlet {
         }
     }
 
-
-    /*
-    static enum GetCommandsEnum {
-
-
-        
-        private Class<? extends ServletCommand> commandClass;
-        
-        private GetCommandsEnum(Class<? extends ServletCommand> command) {
-            this.commandClass = command;
-        }
-        
-        public void doAction(Injector injector) throws InstantiationException, Exception {
-            ServletCommand command = commandClass.newInstance();
-            injector.injectMembers(command);
-            command.doCommand();
-        }
-    }*/
     
     
     
@@ -203,40 +187,6 @@ public class RightsServlet extends GuiceServlet {
     }
     
 
-    /*
-    public static Right createRightFromPost(HttpServletRequest req, RightsManager rightsManager, UserManager userManager, RightCriteriumWrapperFactory factory) throws InstantiationException, IllegalAccessException, ClassNotFoundException {
-        String rightId = req.getParameter("rightId");
-        String uuidHidden = req.getParameter("uuidHidden");
-        String priorityHidden = req.getParameter("priorityHidden");
-
-        String formalActionHidden = req.getParameter("formalActionHidden");
-        
-        
-        RightCriteriumParams params = criteriumParamsFromPost(rightsManager, req);
-        RightCriteriumWrapper rightCriterium = criteriumFromPost(rightsManager, req, params, factory);
-        AbstractUser auser = userFromPost(userManager, req);
-        
-        SecuredActions securedAction = SecuredActions.findByFormalName(formalActionHidden);
-        Right right = null;
-        if (securedAction != null) {
-            if ((rightId != null) && (!rightId.equals("")) && (Integer.parseInt(rightId) > 0)) {
-                right = rightsManager.findRightById(Integer.parseInt(rightId));
-                right.setCriteriumWrapper(rightCriterium);
-                right.setUser(auser);
-            } else {
-                right = new RightImpl(-1, rightCriterium, uuidHidden, securedAction.getFormalName(), auser);
-            }
-        } else {
-            throw new IllegalArgumentException("cannot find action '"+formalActionHidden+"'");
-        }
-        
-        if ((priorityHidden != null) && (!priorityHidden.equals(""))) {
-            right.setFixedPriority(Integer.parseInt(priorityHidden));
-        }
-        
-        right.setAction(formalActionHidden);
-        return right;
-    }*/
 
 
 

@@ -49,6 +49,7 @@ import cz.incad.kramerius.security.IsActionAllowed;
 import cz.incad.kramerius.security.RightCriteriumWrapperFactory;
 import cz.incad.kramerius.security.RightsManager;
 import cz.incad.kramerius.security.SecuredActions;
+import cz.incad.kramerius.security.SpecialObjects;
 import cz.incad.kramerius.security.User;
 import cz.incad.kramerius.service.ResourceBundleService;
 import cz.incad.kramerius.utils.DCUtils;
@@ -115,23 +116,32 @@ public class DisplayObjectsView extends AbstractRightsView {
                 }
                 
                 
-                PIDParser pidParser = new PIDParser(pid.toString());
-                pidParser.objectPid();
-                String displayingPid = null;
-                if (pidParser.isDatastreamPid()) {
-                    displayingPid = pidParser.getParentObjectPid();
+                if (pid.equals(SpecialObjects.REPOSITORY.getPid())) {
+                
+                    String kmodelName = SpecialObjects.REPOSITORY.name();
+                    AffectedObject affectedObject = new AffectedObject(pid.toString(), SpecialObjects.REPOSITORY.name(),kmodelName, hasRight);
+                    objects.add(affectedObject);
+
                 } else {
-                    displayingPid = pid.toString();
+                    PIDParser pidParser = new PIDParser(pid.toString());
+                    pidParser.objectPid();
+                    String displayingPid = null;
+                    if (pidParser.isDatastreamPid()) {
+                        displayingPid = pidParser.getParentObjectPid();
+                    } else {
+                        displayingPid = pid.toString();
+                    }
+                    
+                    Document dc = this.fedoraAccess.getDC(displayingPid);
+                    
+                    Locale locale = this.localesProvider.get();
+                    String kmodelName = this.fedoraAccess.getKrameriusModelName(displayingPid);
+                    String translatedKModelName = resourceBundleService.getResourceBundle("labels", locale).getString("document.type."+kmodelName);
+                    
+                    AffectedObject affectedObject = new AffectedObject(pid.toString(), DCUtils.titleFromDC(dc),translatedKModelName, hasRight);
+                    objects.add(affectedObject);
+                    
                 }
-                
-                Document dc = this.fedoraAccess.getDC(displayingPid);
-                
-                Locale locale = this.localesProvider.get();
-                String kmodelName = this.fedoraAccess.getKrameriusModelName(displayingPid);
-                String translatedKModelName = resourceBundleService.getResourceBundle("labels", locale).getString("document.type."+kmodelName);
-                
-                AffectedObject affectedObject = new AffectedObject(pid.toString(), DCUtils.titleFromDC(dc),translatedKModelName, hasRight);
-                objects.add(affectedObject);
             }
             
         } catch (RecognitionException e) {
@@ -160,7 +170,12 @@ public class DisplayObjectsView extends AbstractRightsView {
             List actionsParam = getActionsParam();
             List<SecuredActions> secList = new ArrayList<SecuredActions>();
             for (Object act : actionsParam) {
-                secList.add(SecuredActions.valueOf(act.toString()));
+                SecuredActions action = SecuredActions.findByFormalName(act.toString());
+                if (action  == null) {
+                    secList.add(SecuredActions.valueOf(act.toString()));
+                } else {
+                    secList.add(action);
+                }
             }   
             return (SecuredActions[]) secList.toArray(new SecuredActions[secList.size()]);
             

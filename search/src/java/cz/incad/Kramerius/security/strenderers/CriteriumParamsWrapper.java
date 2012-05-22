@@ -19,9 +19,12 @@ package cz.incad.Kramerius.security.strenderers;
 import java.util.Arrays;
 import java.util.List;
 
+import org.antlr.stringtemplate.StringTemplate;
+
 import cz.incad.kramerius.security.Right;
 import cz.incad.kramerius.security.RightCriterium;
 import cz.incad.kramerius.security.RightCriteriumParams;
+import cz.incad.kramerius.security.RightsManager;
 
 public class CriteriumParamsWrapper implements RightCriteriumParams {
 
@@ -38,16 +41,17 @@ public class CriteriumParamsWrapper implements RightCriteriumParams {
     }
 
 
-
-
-
     public void setId(int id) {
         criteriumParams.setId(id);
     }
 
 
-
-
+    public String getObjectsToString() {
+        StringTemplate template = new StringTemplate("$objects;separator=\";\"$");
+        template.setAttribute("objects", getObjects());
+        return template.toString();
+    }
+    
 
     public Object[] getObjects() {
         return criteriumParams.getObjects();
@@ -76,7 +80,6 @@ public class CriteriumParamsWrapper implements RightCriteriumParams {
     public void setLongDescription(String longDesc) {
         criteriumParams.setLongDescription(longDesc);
     }
-
 
 
 

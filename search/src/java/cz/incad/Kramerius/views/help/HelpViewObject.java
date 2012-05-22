@@ -1,5 +1,7 @@
 package cz.incad.Kramerius.views.help;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Locale;
@@ -18,6 +20,7 @@ import cz.incad.kramerius.FedoraAccess;
 import cz.incad.kramerius.MostDesirable;
 import cz.incad.kramerius.service.ResourceBundleService;
 import cz.incad.kramerius.service.TextsService;
+import cz.incad.kramerius.utils.IOUtils;
 
 public class HelpViewObject {
 
@@ -43,9 +46,7 @@ public class HelpViewObject {
     }
     
     public boolean getTextAccessible() {
-        LOGGER.info("getTextAccessible");
         boolean available = textsService.isAvailable("help", localeProvider.get());
-        LOGGER.info("text is available :"+available);
         return available;
     }
     
@@ -70,10 +71,32 @@ public class HelpViewObject {
         }
     }
     
+    public String getVersion() {
+        try {
+            InputStream revisions = getInputStream();
+            if (revisions != null) {
+                Properties props = new Properties();
+                props.load(revisions);
+                return props.getProperty("version");
+            } else return "";
+        } catch (IOException e) {
+            LOGGER.severe(e.getMessage());
+            return "";
+        }
+    }
+
+    public InputStream getInputStream() throws IOException {
+        InputStream revisions = this.getClass().getClassLoader().getResourceAsStream("revision.properties");
+        if (revisions != null) {
+            ByteArrayOutputStream bos = new ByteArrayOutputStream();
+            IOUtils.copyStreams(revisions,true, bos, false);
+            return new ByteArrayInputStream(bos.toByteArray());
+        } else return null;
+    }
     
     public String getRevision() {
     	try {
-			InputStream revisions = this.getClass().getClassLoader().getResourceAsStream("revision.properties");
+            InputStream revisions = getInputStream();
 			if (revisions != null) {
 				Properties props = new Properties();
 				props.load(revisions);

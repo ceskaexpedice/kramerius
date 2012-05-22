@@ -10,26 +10,19 @@ import java.util.logging.Logger;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
-import org.antlr.stringtemplate.StringTemplate;
-
-
 import com.google.inject.Inject;
 import com.google.inject.Provider;
 
-import cz.incad.Kramerius.security.KrameriusRoles;
 import cz.incad.kramerius.security.SecuredActions;
-import cz.incad.kramerius.security.SpecialObjects;
 import cz.incad.kramerius.security.User;
 import cz.incad.kramerius.security.UserManager;
 import cz.incad.kramerius.service.ResourceBundleService;
 import cz.incad.kramerius.shib.utils.ShibbolethUtils;
 import cz.incad.kramerius.users.LoggedUsersSingleton;
-import cz.incad.kramerius.utils.ApplicationURL;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 
 public class AdminMenuViewObject {
 
-    //private static final String SHIBBOLETH_KEY = "shibboleth";
 
     public static final Logger LOGGER = Logger.getLogger(AdminMenuViewObject.class.getName());
     @Inject
@@ -216,6 +209,9 @@ public class AdminMenuViewObject {
                     }
                 }
 
+                if (hasUserAllowedAction(SecuredActions.CRITERIUMS_RIGHTS_MANAGE.getFormalName())) {
+                    menuItems.add(criteriumsEditor());
+                }
                 
                 if (hasUserAllowedAction(SecuredActions.VIRTUALCOLLECTION_MANAGE.getFormalName())) {
                     menuItems.add(showVirtualCollectionsAdmin());
@@ -226,6 +222,13 @@ public class AdminMenuViewObject {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
             return new String[0];
         }
+    }
+
+
+    private String criteriumsEditor() throws IOException {
+        return renderMenuItem(
+                "javascript:criteriumsSearcher.showCriteriums(); javascript:hideAdminMenu();",
+                "rights.criteriumedit.title", false);
     }
 
     private String saveProfile() throws IOException {
