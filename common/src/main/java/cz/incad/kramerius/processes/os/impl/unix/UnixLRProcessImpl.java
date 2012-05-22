@@ -17,6 +17,7 @@ import java.util.logging.Level;
 
 import cz.incad.kramerius.processes.LRProcessDefinition;
 import cz.incad.kramerius.processes.LRProcessManager;
+import cz.incad.kramerius.processes.PIDList;
 import cz.incad.kramerius.processes.impl.AbstractLRProcessImpl;
 import cz.incad.kramerius.processes.impl.ProcessStarter;
 import cz.incad.kramerius.utils.IOUtils;
@@ -87,6 +88,9 @@ public class UnixLRProcessImpl extends AbstractLRProcessImpl {
 						data.add(array);
 					}
 				}
+				
+				IOUtils.tryClose(inputStream);
+				
 				return data.size() == 1;
 			}
 		} catch (IOException e) {
@@ -100,7 +104,11 @@ public class UnixLRProcessImpl extends AbstractLRProcessImpl {
 
 	
 	public static void main(String[] args) throws IOException, InterruptedException {
-		test();
+	    for (int i = 0; i < 2222; i++) {
+            PIDList createPIDList = UnixPIDList.createPIDList();
+            Thread.sleep(2500);
+            System.out.println(createPIDList);
+	    }
 	}
 	
 	private static void test() throws IOException, InterruptedException {
