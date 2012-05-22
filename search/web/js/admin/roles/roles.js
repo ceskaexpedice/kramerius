@@ -1,15 +1,13 @@
 
-function Roles() {
-	this.dialog = null;
-	this.newRoleDialog = null;
-	this.editRoleDialog = null;
-}
+function Roles() { this.dialog = null; this.newRoleDialog = null; this.editRoleDialog = null; }
 
 Roles.prototype.post = function(action,struct, retrieveFuncion) {
 	$.post("users?action="+action, struct, retrieveFuncion);
 }
 
 Roles.prototype.refresh = function() {
+    $("#roles-waiting").toggle();
+    $("#roles-content").toggle();
 	$.get("inc/admin/_roles.jsp", bind(function(data){ 
 		$('#rolesDialog').html(data);
 	},this));	
@@ -114,3 +112,7 @@ Roles.prototype.showRoles = function() {
 }
 
 var roles = new Roles();
+
+
+
+

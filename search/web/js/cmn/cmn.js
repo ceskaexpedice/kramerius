@@ -15,6 +15,7 @@ Array.prototype.forEach =  function (action) {
 		action(this[i]);
 	}
 }
+
 // IndexOf doesnt work in IE 
 if (!Array.prototype.indexOf) {
   Array.prototype.indexOf = function(elt /*, from*/) {
@@ -33,6 +34,7 @@ if (!Array.prototype.indexOf) {
     return -1;
   };
 }
+
 
 /** starts with in string */
 String.prototype.startsWith = function(str){

@@ -23,7 +23,7 @@
 
 $("#rightsAffectedObject_tabs_${objectsView.ident}").tabs({
     select: bind(function(event, ui) { 
-        this.changeTab(event,ui);
+    	this.changeTab(event,ui);
     }, findObjectsDialog('${objectsView.ident}'))
 });
 

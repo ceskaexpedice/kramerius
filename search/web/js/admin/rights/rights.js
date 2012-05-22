@@ -331,8 +331,6 @@ AffectedObjectsRights.prototype.displayDetails = function(id) {
 	}
 	
 	$("#"+id).toggle();
-
-	
 }
 
 
@@ -655,7 +653,7 @@ function GlobalActions() {
 	this.dialog = null;
 	this.actionDialog = null;
 }
-
+// volano z hlavniho menu .
 GlobalActions.prototype.rigthsForAction=function(action) {
 	// affected rights secured actions 
 	findObjectsDialog().securedActionTabs[action] = findObjectsDialog().createSecurityActionTab(action,"inc/admin/_display_rights_for_global_actions.jsp?pids={uuid\\:1}&securedaction="+action);
@@ -749,3 +747,88 @@ var CREATEOP = new Operation("create");
 var EDITOP = new Operation("edit");
 /** delete right */
 var DELETEOP = new Operation("delete");
+
+
+
+
+/** Criteriums search */
+function CriteriumsSearch() {}
+
+/**
+ * Show all criteriums
+ */
+CriteriumsSearch.prototype.showCriteriums = function() {
+	$.get("inc/admin/_criterium_params_manage.jsp", bind(function(data){ 
+		if (this.dialog) {
+			this.dialog.dialog('open');
+		} else {
+			$(document.body).append('<div id="criteriumsDialog"></div>')
+	        this.dialog = $('#criteriumsDialog').dialog({ 
+	            width:720,
+	            height:480,
+	            modal:true,
+	            title:"",
+	            buttons: {
+	            	"Close": bind(function() {
+	            		this.dialog.dialog("close");
+	            	},this)
+	            }
+	    	});
+		}
+		$('#criteriumsDialog').html(data);
+	},this));
+}
+
+/**
+ * Show dialog with all pids
+ */
+CriteriumsSearch.prototype.search = function(objects) {
+	if (objects.length  == 0) return;
+	
+	function searcher(arr, obj) {
+		var found = false;
+		arr.forEach(function(elm) {
+			if (elm.pid === obj.pid) {
+				found = true;
+			}
+		});
+		return found;
+	}
+	
+	var reducedObjects = reduce(function(base, object, status) {
+		if (!searcher(base, object)) {
+			base.push(object);
+		}
+		return base;
+	},[], objects);
+	
+	
+	var actions = reduce(function(base, object, status) {
+		if (base.indexOf(object.action)<0) {
+			base.push(object.action);
+		}
+		return base;
+	}, [], objects);
+	
+	
+	var d = findObjectsDialog(); 
+	d.actions = actions;
+	findObjectsDialog().openDialog(reducedObjects);
+}
+
+CriteriumsSearch.prototype.refresh = function() {
+	$("#criteriums-manage-waiting").toggle();
+	$("#criteriums-manage-content").toggle();
+	$.get("inc/admin/_criterium_params_manage.jsp", bind(function(data){ 
+		$('#criteriumsDialog').html(data);
+	},this));
+	
+}
+
+CriteriumsSearch.prototype.deleteCriterium=function(id) {
+    showConfirmDialog(dictionary['administrator.dialogs.criteriumparams.delete.confirm'], bind(function(){
+    	$.post("rights?action=deleteparams", {deletedparams:[id]}, this.refresh);
+    },this));
+}
+
+var criteriumsSearcher = new CriteriumsSearch();
