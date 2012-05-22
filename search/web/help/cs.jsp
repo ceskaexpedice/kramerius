@@ -27,7 +27,9 @@
 
 <table id="help" class="header ui-corner-top-8" >
 <tr><td> <img src="../img/logo.png" border="0" /></td>
-<td width="500px"> </td> <td>revize:${helpViewObject.revision}</td></tr>
+<td width="500px"> </td> 
+<td>verze:${helpViewObject.version}</td>
+<td>revize:${helpViewObject.revision}</td></tr>
 </table>
 
 <table cellpadding="0" cellspacing="0" border="0" height="100%">
