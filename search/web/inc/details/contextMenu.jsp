@@ -849,7 +849,9 @@
 
 
           // open dialog
-          findObjectsDialog().openDialog(structs);
+          var affectedDialog = findObjectsDialog();
+          affectedDialog.actions = null;
+          affectedDialog.openDialog(structs);
       }
 
       function securedStreamsTableForCtxMenu(read, administrate){
