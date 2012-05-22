@@ -22,7 +22,9 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.logging.Level;
 
 import org.antlr.stringtemplate.StringTemplate;
@@ -158,8 +160,6 @@ public class DatabaseRightsManager implements RightsManager {
 
         List<Right> rights = new JDBCQueryTemplate<Right>(this.provider.get()) {
             
-            
-            
             @Override
             public boolean handleRow(ResultSet rs, List<Right> returnsList) throws SQLException {
                 //userId - blby
@@ -214,20 +214,17 @@ public class DatabaseRightsManager implements RightsManager {
 
     @InitSecurityDatabase
     public EvaluatingResult[] resolveAllPath(RightCriteriumContext ctx, String pid, ObjectPidsPath path, String action, User user) throws RightCriteriumException {
-        //List<String> pids = Arrays.asList(path.injectRepository().getPathFromLeafToRoot());
         Right[] findRights = findRights(path.getPathFromLeafToRoot(), action, user);
         findRights = SortingRightsUtils.sortRights(findRights, path);
         EvaluatingResult[] results = new EvaluatingResult[path.getLength()];
         for (int i = 0; i < results.length; i++) {
             String curPid = path.getNodeFromLeafToRoot(i);
             ObjectPidsPath restPath = path.cutTail(i);
-            //String[] restOfPath = Arrays.copyOfRange(pids.toArray(new String[pids.size()]), i, results.length);
             
             EvaluatingResult result = EvaluatingResult.FALSE;
             for (Right right : findRights) {
                 
                 boolean thisPid = right.getPid().equals(curPid);
-                //boolean inTheRestOfPath = Arrays.asList(restOfPath).contains(right.getPid());
                 boolean inTheRestOfPath = restPath.contains(right.getPid());
                 if (thisPid || inTheRestOfPath) {
                     ctx.setAssociatedPid(right.getPid());
@@ -509,6 +506,19 @@ public class DatabaseRightsManager implements RightsManager {
             }
         });
     }
+    
+    
+
+    @Override
+    public void deleteRightCriteriumParams(int id) throws SQLException {
+        StringTemplate template = SecurityDatabaseUtils.stGroup().getInstanceOf("deleteRightCriteriumParams");
+        JDBCUpdateTemplate jdbcTemplate = new JDBCUpdateTemplate(provider.get(), true);
+        String sql = template.toString();
+        LOGGER.fine(sql);
+        jdbcTemplate.executeUpdate(sql, id);
+        
+    }
+
 
     @InitSecurityDatabase
     public void deleteRightImpl(Connection con, Right right) throws SQLException {
@@ -651,5 +661,28 @@ public class DatabaseRightsManager implements RightsManager {
         }
         return retArray;
     }
+
+
+    @Override
+    public List<Map<String,String>> findObjectUsingParams(int paramId) {
+
+        StringTemplate template = SecurityDatabaseUtils.stGroup().getInstanceOf("select_object_using_param");
+        List<Map<String,String>> vals = new JDBCQueryTemplate<Map<String,String>>(this.provider.get()) {
+            @Override
+            public boolean handleRow(ResultSet rs, List<Map<String,String>> returnsList) throws SQLException {
+                String pid = rs.getString("pid");
+                String action = rs.getString("action");
+                Map<String, String> map = new HashMap<String, String>(); {
+                    map.put("pid", pid);
+                    map.put("action", action);
+                }
+                returnsList.add(map);
+                return true;
+            }
+        }.executeQuery(template.toString(), new Integer(paramId));
+        return vals;
+    }
 }
+
+
 

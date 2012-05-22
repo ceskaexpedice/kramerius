@@ -250,6 +250,13 @@ deleteRightCriterium() ::=<<
     where crit_id=?
 >>
 
+/** smaze parametry kriteria */
+deleteRightCriteriumParams() ::=<<
+    DELETE from criterium_param_entity
+    where crit_param_id=?
+>>
+
+
 /** update existujiciho prava */
 updateRight(right,association, priority) ::=<<
     UPDATE right_entity
@@ -412,4 +419,13 @@ insertPublicRole() ::=<<
 insertRoleAssoc() ::=<<
     insert into group_user_assoc 
         values( nextval('group_user_assoc_id_sequence'), NULL,?,?)
+>>
+
+
+/** vyhleda vsechny objekty ktere pouzivaji dane parametry */
+select_object_using_param() ::=<<
+    select r.uuid as pid ,r.action  as action from right_entity r
+        join rights_criterium_entity c on (c.crit_id = r.rights_crit)
+        join criterium_param_entity p on (c.citeriumparam= p.crit_param_id)
+    where p.crit_param_id= ? 
 >>

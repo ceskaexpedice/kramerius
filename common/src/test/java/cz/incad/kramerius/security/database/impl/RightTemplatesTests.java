@@ -142,6 +142,7 @@ public class RightTemplatesTests {
         Assert.assertEquals(expectedSql, sql);
     }
 
+    
 
 
 

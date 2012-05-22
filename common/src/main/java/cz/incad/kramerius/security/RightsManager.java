@@ -18,6 +18,7 @@ package cz.incad.kramerius.security;
 
 import java.sql.SQLException;
 import java.util.List;
+import java.util.Map;
 
 import cz.incad.kramerius.ObjectPidsPath;
 
@@ -84,6 +85,7 @@ public interface RightsManager {
      */
     public RightCriteriumParams[] findAllParams();
 
+    
     /**
      * Najde parametr pro dle zadaneho id
      * @param paramId Identifikator parametru
@@ -141,6 +143,13 @@ public interface RightsManager {
     public int insertRightCriteriumParams(RightCriteriumParams criteriumParams) throws SQLException;
 
     /**
+     * Smaze parametry kriteria
+     * @param id Identifikator parametru kriteria
+     * @throws SQLException
+     */
+    public void deleteRightCriteriumParams(int id) throws SQLException;
+    
+    /**
      * Upravi parametry kriteria
      * @param criteriumParams Upravovane parametry
      * @throws SQLException
@@ -168,4 +177,12 @@ public interface RightsManager {
      * @return
      */
     public int[] findUsedRoleIDs();
+    
+    
+    /**
+     * Najde vsechny pidy ktere pouzivaji dane parametry dodatecne podminky
+     * @param paramId Identifikator parametru dodatecne podminky
+     * @return
+     */
+    public List<Map<String,String>> findObjectUsingParams(int paramId);
 }
