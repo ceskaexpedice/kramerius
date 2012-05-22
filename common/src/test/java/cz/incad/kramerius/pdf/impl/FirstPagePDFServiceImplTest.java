@@ -189,7 +189,7 @@ public class FirstPagePDFServiceImplTest {
 ;
 
 
-    //@Test
+    @Test
     public void testGenerateParent_DROBNUSTKY() throws SecurityException, NoSuchMethodException, IOException, ParserConfigurationException, SAXException, LexerException, ProcessSubtreeException, DocumentException, XPathExpressionException, JAXBException {
         //hyph-country="CZ" hyph-lang="cs"
         Locale locale = new Locale("cs","CZ");
@@ -247,7 +247,7 @@ public class FirstPagePDFServiceImplTest {
         Assert.assertTrue(diff.toString(),diff.similar());
     }
 
-    //@Test
+    @Test
     public void testGenerateParent_DROBNUSTKYPage() throws SecurityException, NoSuchMethodException, IOException, ParserConfigurationException, SAXException, LexerException, ProcessSubtreeException, DocumentException, XPathExpressionException, JAXBException {
         Locale locale = new Locale("cs","CZ");
 
@@ -315,7 +315,7 @@ public class FirstPagePDFServiceImplTest {
     }
 
 
-    //@Test
+    @Test
     public void testGenerateSelection_NarodniListy() throws SecurityException, NoSuchMethodException, IOException, ParserConfigurationException, SAXException, LexerException, ProcessSubtreeException, DocumentException, InstantiationException, IllegalAccessException, XPathExpressionException, JAXBException {
         Locale locale = new Locale("cs","CZ");
 
@@ -416,7 +416,7 @@ public class FirstPagePDFServiceImplTest {
         Assert.assertTrue(diff.toString(),diff.similar());
     }
 
-    //@Test
+    @Test
     public void testGenerateParent_NarodniListy() throws SecurityException, NoSuchMethodException, IOException, ParserConfigurationException, SAXException, LexerException, ProcessSubtreeException, DocumentException, InstantiationException, IllegalAccessException, XPathExpressionException, JAXBException {
         Locale locale = new Locale("cs","CZ");
 
@@ -524,7 +524,7 @@ public class FirstPagePDFServiceImplTest {
     }
 
 
-    //@Test
+    @Test
     public void testGenerateSelection_NarodniListyDrobnustky() throws SecurityException, NoSuchMethodException, IOException, ParserConfigurationException, SAXException, LexerException, ProcessSubtreeException, DocumentException, InstantiationException, IllegalAccessException, XPathExpressionException, JAXBException {
         Locale locale = new Locale("cs","CZ");
 
