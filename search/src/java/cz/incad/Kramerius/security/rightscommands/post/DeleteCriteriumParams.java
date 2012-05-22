@@ -28,6 +28,9 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import cz.incad.Kramerius.security.rightscommands.ServletRightsCommand;
+import cz.incad.kramerius.ObjectPidsPath;
+import cz.incad.kramerius.security.SecuredActions;
+import cz.incad.kramerius.security.SpecialObjects;
 
 public class DeleteCriteriumParams extends ServletRightsCommand {
 
@@ -51,14 +54,22 @@ public class DeleteCriteriumParams extends ServletRightsCommand {
             }
 
             Object paramsToDelete = values.get("deletedparams");
-            rightsManager.deleteRightCriteriumParams(Integer.parseInt(paramsToDelete.toString()));
-            
+
+            if (this.actionAllowed.isActionAllowed(SecuredActions.CRITERIUMS_RIGHTS_MANAGE.getFormalName(), SpecialObjects.REPOSITORY.getPid(), null, new ObjectPidsPath(SpecialObjects.REPOSITORY.getPid()))) {
+                rightsManager.deleteRightCriteriumParams(Integer.parseInt(paramsToDelete.toString()));
+                
+            } else {
+                this.responseProvider.get().sendError(HttpServletResponse.SC_FORBIDDEN);
+            }
+
         } catch (SQLException e) {
             try {
                 this.responseProvider.get().sendError(HttpServletResponse.SC_FORBIDDEN);
             } catch (IOException e1) {
                 LOGGER.log(Level.SEVERE, e.getMessage(), e);
             }
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+        } catch (IOException e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
         }
     }
