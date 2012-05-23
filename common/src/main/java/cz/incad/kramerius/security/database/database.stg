@@ -257,6 +257,17 @@ deleteRightCriteriumParams() ::=<<
 >>
 
 
+/** zjisti zavislost parametru na kriteriu */
+findCriteriumsDependsOnParams() ::=<<
+
+    select rce.crit_id as crit_id from rights_criterium_entity rce  
+        join criterium_param_entity cpe  
+            on cpe.crit_param_id = rce.citeriumparam 
+    where rce.citeriumparam = ?
+
+>>
+
+
 /** update existujiciho prava */
 updateRight(right,association, priority) ::=<<
     UPDATE right_entity

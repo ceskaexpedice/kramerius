@@ -149,6 +149,14 @@ public interface RightsManager {
      */
     public void deleteRightCriteriumParams(int id) throws SQLException;
     
+    
+    /**
+     * Smaze kriterium dle zadaneho id
+     * @param id ID kriteria
+     * @throws SQLException
+     */
+    public void deleteRightCriterium(int id) throws SQLException;
+    
     /**
      * Upravi parametry kriteria
      * @param criteriumParams Upravovane parametry
