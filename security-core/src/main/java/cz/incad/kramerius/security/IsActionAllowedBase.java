@@ -16,7 +16,16 @@
  */
 package cz.incad.kramerius.security;
 
+/**
+ * Base rights resolver.   
+ */
 public interface IsActionAllowedBase {
 
+    /**
+     * Returns true if given user is permitted perform given action
+     * @param user Testing user
+     * @param actionName Action which user is about to do
+     */
     public boolean isActionAllowed(User user, String actionName);
+
 }
