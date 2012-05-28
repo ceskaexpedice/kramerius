@@ -23,15 +23,35 @@ import java.io.Serializable;
  * @author pavels
  */
 public interface User extends AbstractUser,Serializable {
-
+    
+    /**
+     * Returns user's first name
+     * @return
+     */
     public String getFirstName();
     
+    /**
+     * Returns user's surname
+     * @return
+     */
     public String getSurname();
 
+    /**
+     * Returns user's loginname
+     * @return
+     */
     public String getLoginname();
     
+    /**
+     * Returns user's email
+     * @return
+     */
     public String getEmail();
     
+    /**
+     * Returns roles associated with this user
+     * @return
+     */
     public Role[] getGroups();
     
     public boolean isAdministratorForGivenGroup(int personalAdminId);
