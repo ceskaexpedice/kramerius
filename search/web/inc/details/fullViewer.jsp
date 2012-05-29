@@ -60,8 +60,8 @@
         </div>
     </c:if>
     <div id="imgContainer" style="display:none;position:relative;" align="center">
-        <img id="loadingFull" src="img/loading_big.gif" style="display:none;position:absolute;top:3px;right:50%;" />
         <img id="imgFullImage" class="view_div" src="img/empty.gif" onload="onLoadFullImage()" />
+        <img id="loadingFull" src="img/loading11.gif" style="display:none;margin-top:30px;" />
     </div>
 </div>
 <script type="text/javascript">
