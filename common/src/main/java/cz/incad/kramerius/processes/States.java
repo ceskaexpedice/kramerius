@@ -53,7 +53,7 @@ public enum States {
     BATCH_FAILED(7),
 
     /**
-     * Batch process finished (all process finished with state FINISH)
+     * Batch process finished (all child processes finished with state FINISH)
      */
     BATCH_FINISHED(8);
 
