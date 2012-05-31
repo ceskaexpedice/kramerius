@@ -207,8 +207,8 @@ public class FirstPagePDFServiceImplTest {
 
 
         ResourceBundleService bundleService = EasyMock.createMock(ResourceBundleService.class);
-        EasyMock.expect(bundleService.getResourceBundle("labels", locale)).andReturn(new PropertyResourceBundle(new InputStreamReader(new ByteArrayInputStream(BUNLDE.getBytes()), Charset.forName("UTF-8")))).anyTimes();
-        EasyMock.expect(bundleService.getResourceBundle("base", locale)).andReturn(new PropertyResourceBundle(new InputStreamReader(new ByteArrayInputStream(BUNLDE.getBytes()), Charset.forName("UTF-8")))).anyTimes();
+        EasyMock.expect(bundleService.getResourceBundle("labels", locale)).andReturn(new PropertyResourceBundle(new StringReader(BUNLDE))).anyTimes();
+        EasyMock.expect(bundleService.getResourceBundle("base", locale)).andReturn(new PropertyResourceBundle(new StringReader(BUNLDE))).anyTimes();
 
 
         SolrAccess solrAccess = EasyMock.createMock(SolrAccess.class);
@@ -274,8 +274,8 @@ public class FirstPagePDFServiceImplTest {
 
 
         ResourceBundleService bundleService = EasyMock.createMock(ResourceBundleService.class);
-        EasyMock.expect(bundleService.getResourceBundle("labels", locale)).andReturn(new PropertyResourceBundle(new InputStreamReader(new ByteArrayInputStream(BUNLDE.getBytes()), Charset.forName("UTF-8")))).anyTimes();
-        EasyMock.expect(bundleService.getResourceBundle("base", locale)).andReturn(new PropertyResourceBundle(new InputStreamReader(new ByteArrayInputStream(BUNLDE.getBytes()), Charset.forName("UTF-8")))).anyTimes();
+        EasyMock.expect(bundleService.getResourceBundle("labels", locale)).andReturn(new PropertyResourceBundle(new StringReader(BUNLDE))).anyTimes();
+        EasyMock.expect(bundleService.getResourceBundle("base", locale)).andReturn(new PropertyResourceBundle(new StringReader(BUNLDE))).anyTimes();
 
 
         SolrAccess solrAccess = EasyMock.createMock(SolrAccess.class);
@@ -360,8 +360,8 @@ public class FirstPagePDFServiceImplTest {
 
 
         ResourceBundleService bundleService = EasyMock.createMock(ResourceBundleService.class);
-        EasyMock.expect(bundleService.getResourceBundle("labels", locale)).andReturn(new PropertyResourceBundle(new InputStreamReader(new ByteArrayInputStream(BUNLDE.getBytes()), Charset.forName("UTF-8")))).anyTimes();
-        EasyMock.expect(bundleService.getResourceBundle("base", locale)).andReturn(new PropertyResourceBundle(new InputStreamReader(new ByteArrayInputStream(BUNLDE.getBytes()), Charset.forName("UTF-8")))).anyTimes();
+        EasyMock.expect(bundleService.getResourceBundle("labels", locale)).andReturn(new PropertyResourceBundle(new StringReader(BUNLDE))).anyTimes();
+        EasyMock.expect(bundleService.getResourceBundle("base", locale)).andReturn(new PropertyResourceBundle(new StringReader(BUNLDE))).anyTimes();
 
 
         SolrAccess solrAccess = EasyMock.createMock(SolrAccess.class);
@@ -461,8 +461,9 @@ public class FirstPagePDFServiceImplTest {
 
 
         ResourceBundleService bundleService = EasyMock.createMock(ResourceBundleService.class);
-        EasyMock.expect(bundleService.getResourceBundle("labels", locale)).andReturn(new PropertyResourceBundle(new InputStreamReader(new ByteArrayInputStream(BUNLDE.getBytes()), Charset.forName("UTF-8")))).anyTimes();
-        EasyMock.expect(bundleService.getResourceBundle("base", locale)).andReturn(new PropertyResourceBundle(new InputStreamReader(new ByteArrayInputStream(BUNLDE.getBytes()), Charset.forName("UTF-8")))).anyTimes();
+        EasyMock.expect(bundleService.getResourceBundle("labels", locale)).andReturn(new PropertyResourceBundle(new StringReader(BUNLDE))).anyTimes();
+        EasyMock.expect(bundleService.getResourceBundle("base", locale)).andReturn(new PropertyResourceBundle(new StringReader(BUNLDE))).anyTimes();
+
 
 
         SolrAccess solrAccess = EasyMock.createMock(SolrAccess.class);
@@ -492,7 +493,7 @@ public class FirstPagePDFServiceImplTest {
 
 
         InputStream expected = FirstPagePDFServiceImplTest.class.getResourceAsStream("narodni_listy_parent.xml");
-        Document expectedDoc = XMLUtils.parseDocument(expected);
+        Document expectedDoc = XMLUtils.parseDocument(new InputStreamReader(expected, "UTF-8" ));
 
 
         Document expectedWOws = XMLUnit.getWhitespaceStrippedDocument(expectedDoc);
@@ -570,8 +571,8 @@ public class FirstPagePDFServiceImplTest {
 
 
         ResourceBundleService bundleService = EasyMock.createMock(ResourceBundleService.class);
-        EasyMock.expect(bundleService.getResourceBundle("labels", locale)).andReturn(new PropertyResourceBundle(new InputStreamReader(new ByteArrayInputStream(BUNLDE.getBytes()), Charset.forName("UTF-8")))).anyTimes();
-        EasyMock.expect(bundleService.getResourceBundle("base", locale)).andReturn(new PropertyResourceBundle(new InputStreamReader(new ByteArrayInputStream(BUNLDE.getBytes()), Charset.forName("UTF-8")))).anyTimes();
+        EasyMock.expect(bundleService.getResourceBundle("labels", locale)).andReturn(new PropertyResourceBundle(new StringReader(BUNLDE))).anyTimes();
+        EasyMock.expect(bundleService.getResourceBundle("base", locale)).andReturn(new PropertyResourceBundle(new StringReader(BUNLDE))).anyTimes();
 
 
         SolrAccess solrAccess = EasyMock.createMock(SolrAccess.class);
@@ -618,7 +619,7 @@ public class FirstPagePDFServiceImplTest {
 
 
         InputStream expected = FirstPagePDFServiceImplTest.class.getResourceAsStream("narodni_listy_drobnustky_selection_pages.xml");
-        Document expectedDoc = XMLUtils.parseDocument(expected);
+        Document expectedDoc = XMLUtils.parseDocument(new InputStreamReader(expected, "UTF-8"));
 
 
         Document expectedWOws = XMLUnit.getWhitespaceStrippedDocument(expectedDoc);
@@ -628,6 +629,9 @@ public class FirstPagePDFServiceImplTest {
         Diff diff = XMLUnit.compareXML(expectedWOws, renderedWOws);
         Assert.assertTrue(diff.toString(),diff.similar());
     }
+
+
+
 
     class _Module extends AbstractModule {
 
