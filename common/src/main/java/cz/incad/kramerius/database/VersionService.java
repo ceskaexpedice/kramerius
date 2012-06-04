@@ -19,9 +19,23 @@ package cz.incad.kramerius.database;
 import java.io.IOException;
 import java.sql.SQLException;
 
+/**
+ * Database model version service 
+ * @author pavels
+ */
 public interface VersionService {
-
+    
+    /**
+     * Returns current database model version
+     * @return Database model version
+     * @throws SQLException
+     */
     public String getVersion() throws SQLException;
 
+    /**
+     * Update database model version
+     * @throws IOException
+     * @throws SQLException
+     */
     public void updateNewVersion() throws IOException, SQLException;
 }
