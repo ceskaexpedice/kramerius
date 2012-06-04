@@ -28,9 +28,32 @@ import cz.incad.kramerius.ObjectPidsPath;
 import cz.incad.kramerius.ProcessSubtreeException;
 import cz.incad.kramerius.document.model.AbstractRenderedDocument;
 
+/**
+ * Print service 
+ * @author pavels
+ */
 public interface PrintingService {
-
+    
+    /**
+     * Prints master option (top selection)
+     * @param imgUrl Image servlet URL
+     * @param i18nUrl I18N servlet URL
+     * @throws IOException 
+     * @throws ProcessSubtreeException
+     * @throws PrinterException
+     * @throws PrintException
+     */
     public void printMaster( String pidFrom, String imgUrl, String i18nUrl) throws IOException, ProcessSubtreeException, PrinterException, PrintException;
-
+    
+    /**
+     * Print selection option (from - to)
+     * @param selection Selected pids
+     * @param imgUrl Image servlet URL
+     * @param i18nUrl I18N servlet URL
+     * @throws IOException
+     * @throws ProcessSubtreeException
+     * @throws PrinterException
+     * @throws PrintException
+     */
     public void printSelection(String[] selection,   String imgUrl, String i18nUrl) throws IOException, ProcessSubtreeException, PrinterException, PrintException;
 }
