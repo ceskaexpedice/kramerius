@@ -1,0 +1,30 @@
+
+<div>
+    <script language="JavaScript" type="text/javascript"> 
+    <!--    
+
+        window.onProcessFormSend = function() {
+            
+            
+            var vals = ''; 
+            vals = vals +  'first  ='+$('#first').val();
+                        vals = vals +  'second  ='+$('#second').val();
+                        
+            
+            var url = "lr?action=form_post&def=_4test_&paramsMapping={"+vals+"}&out=text";
+            processStarter("_4test_").start(url);
+                                    
+        }
+    -->        
+    </script>
+
+<form>
+
+        <label>prvni</label><br>
+        <input type="text" size="30" id="first" value="default"></input><br>    <label>druhy</label><br>
+        <input type="text" size="30" id="second" value=""></input><br> 
+
+</form>
+
+  
+</div>
