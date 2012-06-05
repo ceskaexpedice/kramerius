@@ -14,29 +14,16 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
-package cz.incad.kramerius.processes;
+package cz.incad.kramerius.processes.template;
 
-import java.util.List;
+import java.io.IOException;
+import java.io.Writer;
 
-/**
- * Scheduler finds all killed process
- * @author pavels
- */
-public interface GCScheduler {
-    
-    /**
-     * Initialization
-     */
-	public void init();
+import cz.incad.kramerius.processes.LRProcess;
+import cz.incad.kramerius.processes.LRProcessDefinition;
 
-	/**
-	 * Schedule finding all process which are propably not running
-	 */
-	void scheduleFindGCCandidates();
-	
-	/**
-	 * Schedule checking and changing states of the processes
-	 * @param procUuids
-	 */
-	void scheduleCheckFoundGCCandidates(List<String> procUuids);
+public interface ProcessOutputTemplate {
+
+    public void executeGet(LRProcess lrProcess, LRProcessDefinition definition, Writer writer) throws IOException;
+
 }

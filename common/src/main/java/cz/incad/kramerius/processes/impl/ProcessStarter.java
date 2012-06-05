@@ -1,3 +1,19 @@
+/*
+ * Copyright (C) 2012 Pavel Stastny
+ * 
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
+ */
 package cz.incad.kramerius.processes.impl;
 
 import java.io.ByteArrayOutputStream;
@@ -6,24 +22,32 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintStream;
+import java.lang.annotation.Annotation;
 import java.lang.management.ManagementFactory;
+import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.net.URLEncoder;
-import java.sql.Connection;
-import java.sql.SQLException;
-import java.util.logging.ConsoleHandler;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Properties;
 import java.util.logging.Level;
-import java.util.logging.LogManager;
 
 import cz.incad.kramerius.processes.States;
-import cz.incad.kramerius.processes.database.ProcessDatabaseUtils;
+import cz.incad.kramerius.processes.annotations.ParameterName;
+import cz.incad.kramerius.processes.annotations.Process;
 import cz.incad.kramerius.processes.logging.LoggingLoader;
 import cz.incad.kramerius.processes.utils.ProcessUtils;
 
+/**
+ * Process starting point 
+ * @author pavels
+ */
 public class ProcessStarter {
 
     public static final java.util.logging.Logger LOGGER = java.util.logging.Logger.getLogger(ProcessStarter.class.getName());
@@ -69,13 +93,25 @@ public class ProcessStarter {
                     }
                 }
             });
+            
             Class<?> clz = Class.forName(mainClass);
-            Method method = clz.getMethod("main", args.getClass());
+            
             String pid = getPID();
             updatePID(pid);
-            Object[] objs = new Object[1];
-            objs[0] = args;
-            method.invoke(null, objs);
+            
+
+            MethodType processMethod = annotatedMethod(clz);
+            if (processMethod == null) processMethod = mainMethod(clz);
+
+            if (processMethod.getType() == MethodType.Type.ANNOTATED) {
+                Object[] params = map(processMethod.getMethod(), args, System.getProperties());
+                processMethod.getMethod().invoke(null, params);
+            } else {
+                Object[] objs = new Object[1];
+                objs[0] = args;
+                processMethod.getMethod().invoke(null, objs);
+            }
+            
             updateStatus(States.FINISHED);
         } catch (Throwable e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
@@ -160,6 +196,10 @@ public class ProcessStarter {
         }
     }
 
+    /**
+     * Returns PID of process
+     * @return
+     */
     public static String getPID() {
         String pid = null;
         String name = ManagementFactory.getRuntimeMXBean().getName();
@@ -169,4 +209,117 @@ public class ProcessStarter {
         }
         return pid;
     }
+
+    /**
+     * Finds annotated method
+     * @param clz Exploring class
+     * @return
+     */
+    public static MethodType annotatedMethod(Class clz) {
+        Method annotatedMethod = null;
+        for (Method m : clz.getMethods()) {
+            if (m.isAnnotationPresent(Process.class)) {
+                if (Modifier.isStatic(m.getModifiers()) && Modifier.isPublic(m.getModifiers())) {
+                    annotatedMethod = m;
+                    break;
+                }
+            }
+        }
+        return annotatedMethod != null  ? new MethodType(annotatedMethod, MethodType.Type.ANNOTATED) : null;
+    }
+
+    /**
+     * Find main method
+     * @param clz Exploring class
+     * @return
+     * @throws SecurityException
+     * @throws NoSuchMethodException
+     */
+    public static MethodType mainMethod(Class clz) throws SecurityException, NoSuchMethodException {
+        Method mainMethod = clz.getMethod("main", (new String[0]).getClass());
+        return mainMethod != null ? new MethodType(mainMethod, MethodType.Type.MAIN) : null;
+    }
+
+    
+    public static Annotation findNameAnnot(Annotation[] ann) {
+        Annotation nameAnnot = null;
+        for (Annotation paramAn : ann) {
+            if (paramAn instanceof ParameterName) {
+                nameAnnot = paramAn;
+                break;
+            }
+        }
+        return nameAnnot;
+    }
+    
+    private static Object instantiate(String val, Class<?> class1) throws IllegalArgumentException, InstantiationException, IllegalAccessException, InvocationTargetException, SecurityException, NoSuchMethodException {
+        Constructor<?> constructor = class1.getConstructor(new Class[] {String.class});
+        return constructor.newInstance(val);
+    }
+
+    
+    private static Object[] map(Method processMethod, String[] defaultParams, Properties processParametersProperties) throws IllegalArgumentException, SecurityException, InstantiationException, IllegalAccessException, InvocationTargetException, NoSuchMethodException {
+        Annotation[][] annots = processMethod.getParameterAnnotations();
+        Class<?>[] types = processMethod.getParameterTypes();
+        if (defaultParams.length < types.length) throw new IllegalArgumentException("defaultParams.length is small array. It must have at least "+types.length+" items");
+        List<Object> params = new ArrayList<Object>();
+        for (int i = 0; i < types.length; i++) {
+            Annotation[] ann = annots[i];
+            Annotation nameAnnot = findNameAnnot(ann);
+            String val = null;
+            if (nameAnnot != null) {
+                String parameterName = ((ParameterName)nameAnnot).value();
+                val = (String) processParametersProperties.get(parameterName);
+                val = val != null ? val : defaultParams[i];
+            } else {
+                val = defaultParams[i];
+            }
+
+            if (!(types[i].equals(String.class))) {
+                params.add(instantiate(val, types[i]));
+            } else {
+                params.add(val);
+            }
+        }
+        return params.toArray();
+    }
+
+
+    
+    /**
+     * Wrapper which represents found method
+     * @author pavels
+     */
+    static class MethodType { 
+
+        /** enum for type of method */
+        static enum Type { MAIN, ANNOTATED };
+        
+        private Method method;
+        private Type type;
+        
+        public MethodType(Method method, Type type) {
+            super();
+            this.method = method;
+            this.type = type;
+        }
+        
+        
+        /**
+         * Returns type of method
+         * @return
+         */
+        public Type getType() {
+            return type;
+        }
+        
+        /**
+         * Returns method
+         * @return
+         */
+        public Method getMethod() {
+            return method;
+        }
+    }
+
 }

@@ -14,29 +14,17 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
-package cz.incad.kramerius.processes;
-
-import java.util.List;
+package cz.incad.kramerius.processes.template;
 
 /**
- * Scheduler finds all killed process
+ * Input template factory
  * @author pavels
  */
-public interface GCScheduler {
+public interface InputTemplateFactory {
     
     /**
-     * Initialization
+     * Creates instance of input template
+     * @return Instance of input template
      */
-	public void init();
-
-	/**
-	 * Schedule finding all process which are propably not running
-	 */
-	void scheduleFindGCCandidates();
-	
-	/**
-	 * Schedule checking and changing states of the processes
-	 * @param procUuids
-	 */
-	void scheduleCheckFoundGCCandidates(List<String> procUuids);
+    public ProcessInputTemplate create(String clz) throws ClassNotFoundException, InstantiationException, IllegalAccessException;
 }

@@ -31,9 +31,12 @@ import com.lowagie.text.DocumentException;
 
 import cz.incad.kramerius.utils.imgs.ImageMimeType;
 
+/**
+ * Support for pdf rendering
+ * @author pavels
+ */
 public class AbstractPDFRenderSupport {
 
-    
     
     public void insertImageFromURL(Document document, float percentage, String imgUrl, ImageMimeType mimetype) throws IOException, MalformedURLException, BadElementException, DocumentException {
         BufferedImage javaImg = readImage(new URL(imgUrl), mimetype, 0);

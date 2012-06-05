@@ -41,12 +41,14 @@ public enum States {
      */
     PLANNED(5),
 
+    
     /**
      * Batch process started (contains child processes and all of them are
      * PLANNED or RUNNING).
      */
     BATCH_STARTED(6),
 
+    
     /**
      * Batch process failed (some of child process FAILED)
      */
@@ -55,7 +57,10 @@ public enum States {
     /**
      * Batch process finished (all child processes finished with state FINISH)
      */
-    BATCH_FINISHED(8);
+    BATCH_FINISHED(8),
+
+    
+    BATCH_STARTING(9);
 
     /**
      * Load state from value

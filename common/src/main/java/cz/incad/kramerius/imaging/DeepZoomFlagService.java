@@ -16,14 +16,28 @@
  */
 package cz.incad.kramerius.imaging;
 
-import java.awt.Dimension;
-import java.awt.image.BufferedImage;
 import java.io.IOException;
 
+/**
+ * Deep zoom flag service
+ * @author pavels
+ *
+ */
 public interface DeepZoomFlagService {
 
-    public void deleteFlagToPID(final String uuid) throws IOException;
-
-    public void setFlagToPID(String uuid, String tilesUrl) throws IOException;
-
+    
+    /**
+     * Delete deepzoom flag
+     * @param pid PID of object
+     * @throws IOException
+     */
+    public void deleteFlagToPID(final String pid) throws IOException;
+    
+    /**
+     * Sets deepzoom flag
+     * @param pid PID of object
+     * @param tilesUrl Tiles url
+     * @throws IOException
+     */
+    public void setFlagToPID(String pid, String tilesUrl) throws IOException;
 }

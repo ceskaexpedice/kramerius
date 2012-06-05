@@ -14,29 +14,22 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
-package cz.incad.kramerius.processes;
+package cz.incad.kramerius.processes.annotations;
 
-import java.util.List;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
+
 
 /**
- * Scheduler finds all killed process
+ * Annotation represents name of parameter
  * @author pavels
  */
-public interface GCScheduler {
-    
-    /**
-     * Initialization
-     */
-	public void init();
+@Retention(RetentionPolicy.RUNTIME)
+@Target(ElementType.PARAMETER)
+public @interface ParameterName {
 
-	/**
-	 * Schedule finding all process which are propably not running
-	 */
-	void scheduleFindGCCandidates();
-	
-	/**
-	 * Schedule checking and changing states of the processes
-	 * @param procUuids
-	 */
-	void scheduleCheckFoundGCCandidates(List<String> procUuids);
+    String value();
+
 }

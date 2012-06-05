@@ -21,12 +21,19 @@ import cz.incad.kramerius.pdf.utils.pdf.FontMap;
 public interface GeneratePDFService {
 	
 
+    /**
+     * Full PDF export 
+     * @param path Path of exported pid
+     * @param outputs Outputs
+     * @param brk Break for dividing pages into more pdfs
+     * @param djvuUrl Image serlvet URL
+     * @param i18Url I18N servlet URL
+     * @param rect Page sizes
+     */
     public void fullPDFExport(ObjectPidsPath path, OutputStreams outputs, Break brk, String djvuUrl, String i18Url, int[] rect) throws IOException, ProcessSubtreeException, DocumentException;
 	
-
-    public void generateImagesSelection(String[] imagePids, String titlePage, OutputStream os, String imgServletUrl, String i18nUrl, int[] rectangle) throws IOException, ProcessSubtreeException;
-
-	
+    
+    
 	public void generateParent(String requestedPid, int numberOfPages, String titlePage, OutputStream os, String imgServletUrl, String i18nUrl, int[] rect) throws IOException, ProcessSubtreeException;
 	
 	

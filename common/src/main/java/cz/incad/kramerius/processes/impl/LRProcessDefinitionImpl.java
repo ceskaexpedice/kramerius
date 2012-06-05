@@ -5,14 +5,10 @@ import java.util.List;
 import java.util.StringTokenizer;
 import java.util.UUID;
 
-import javax.net.ssl.SSLEngineResult.Status;
-
 import org.apache.commons.lang.SystemUtils;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
-
-import com.google.inject.Inject;
 
 import cz.incad.kramerius.processes.LRDefinitionAction;
 import cz.incad.kramerius.processes.LRProcess;
@@ -20,11 +16,12 @@ import cz.incad.kramerius.processes.LRProcessDefinition;
 import cz.incad.kramerius.processes.LRProcessManager;
 import cz.incad.kramerius.processes.States;
 import cz.incad.kramerius.processes.os.impl.windows.WindowsLRProcessImpl;
+import cz.incad.kramerius.processes.template.ProcessInputTemplate;
+import cz.incad.kramerius.utils.XMLUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 
 public class LRProcessDefinitionImpl implements LRProcessDefinition {
 
-	//public static final String DEFAULT_LIB_DIR="lib";
 	public static final String DEFAULT_USER_DIR ="";
 	
 	private String libsDir;
@@ -36,6 +33,9 @@ public class LRProcessDefinitionImpl implements LRProcessDefinition {
 	
 	private List<String> parameters = new ArrayList<String>();
 	private List<String> javaProcessParameters = new ArrayList<String>();
+	
+
+	private String inputTemplateClz = null;
 	
 	private LRProcessManager pm;
 	private KConfiguration configuration;
@@ -64,13 +64,22 @@ public class LRProcessDefinitionImpl implements LRProcessDefinition {
 	}
 
 	public List<LRDefinitionAction> getActions() {
-//		if (!this.actions.contains(LRDefinitionAction.LOGS_ACTION)) {
-//			this.actions.add(0,LRDefinitionAction.LOGS_ACTION);
-//		}
 		return new ArrayList<LRDefinitionAction>(this.actions);
 	}
 
 
+	
+	
+    @Override
+    public String getInputTemplateClass() {
+        return this.inputTemplateClz;
+    }
+
+    public boolean isInputTemplateDefined() {
+        return this.inputTemplateClz != null;
+    }
+
+    
 	public void loadFromXml(Element elm) {
 		NodeList nodes = elm.getChildNodes();
 		for (int i = 0,ll=nodes.getLength(); i < ll; i++) {
@@ -107,13 +116,29 @@ public class LRProcessDefinitionImpl implements LRProcessDefinition {
 				if (nodeName.equals("actions")) {
 					actions(item);
 				}
+				if (nodeName.equals("templates")){
+				    NodeList templateItems = item.getChildNodes();
+				    for (int j = 0,itl=templateItems.getLength(); j < itl; j++) {
+                        Node templateItem = templateItems.item(j);
+                        if (templateItem.getNodeType() == Node.ELEMENT_NODE) {
+                            if (templateItem.getNodeName().equals("input")) {
+                                Element inputElm = (Element) templateItem;
+                                inputElm(inputElm);
+                            } else if (templateItem.getNodeName().equals("output")) {
+                                //TODO..
+                            }
+                        }
+                    }
+				}
 			}
 		}
 	}
 	
-	
+	private void inputElm(Element inputElm) {
+	    this.inputTemplateClz = inputElm.getAttribute("class");
+	}
 
-	private void javaProcessParameters(Node item) {
+    private void javaProcessParameters(Node item) {
 		Element jpElem = (Element) item;
 		String textContent = jpElem.getTextContent();
 		StringTokenizer tokenizer = new StringTokenizer(textContent, " ");
@@ -131,7 +156,6 @@ public class LRProcessDefinitionImpl implements LRProcessDefinition {
 		for (int i = 0,ll=nodes.getLength(); i < ll; i++) {
 			Node chItem = nodes.item(i);
 			if (chItem.getNodeType() == Node.ELEMENT_NODE) {
-				//String chItemName = chItem.getNodeName();
 				LRDefinitionAction action = new LRDefinitionAction();
 				action.loadFromXml((Element) chItem);
 				this.actions.add(action);
@@ -140,7 +164,8 @@ public class LRProcessDefinitionImpl implements LRProcessDefinition {
 	}
 
 	private void oldStyleParameters(Node item) {
-		Element elm = (Element) item;
+	    
+	    Element elm = (Element) item;
 		NodeList nodes = elm.getChildNodes();
 		for (int i = 0,ll=nodes.getLength(); i < ll; i++) {
 			Node chItem = nodes.item(i);
@@ -161,7 +186,7 @@ public class LRProcessDefinitionImpl implements LRProcessDefinition {
 		while(tokenizer.hasMoreTokens()) {
 			String param = tokenizer.nextToken();
 			if (!param.trim().equals("")) {
-				this.parameters.add(param);
+			    this.parameters.add(param);
 			}
 		}
 		
@@ -238,12 +263,5 @@ public class LRProcessDefinitionImpl implements LRProcessDefinition {
 	public List<String> getJavaProcessParameters() {
 		return this.javaProcessParameters;
 	}
-
-//	@Override
-//	public String getProcessOutputURL() {
-//		return this.processOutputURL;
-//	}
-
-	
 	
 }

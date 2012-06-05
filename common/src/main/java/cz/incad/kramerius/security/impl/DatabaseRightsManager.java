@@ -83,7 +83,6 @@ public class DatabaseRightsManager implements RightsManager {
 
         String sql = template.toString();
 
-        
         List<Right> rights = new JDBCQueryTemplate<Right>(this.provider.get()) {
             @Override
             public boolean handleRow(ResultSet rs, List<Right> returnsList) throws SQLException {

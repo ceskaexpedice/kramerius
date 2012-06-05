@@ -281,10 +281,6 @@ public class GeneratePDFServiceImpl extends AbstractPDFRenderSupport implements 
         }
     }
 
-    @Override
-    public void generateImagesSelection(String[] imagePids, String titlePage, OutputStream os, String imgServletUrl, String i18nUrl, int[] rect) throws IOException, ProcessSubtreeException {
-        generateCustomPDF(this.documentService.buildDocumentFromSelection(imagePids, rect), os, null, imgServletUrl, i18nUrl, ImageFetcher.WEB);
-    }
 
     
     @Override

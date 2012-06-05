@@ -9,19 +9,20 @@ import cz.incad.kramerius.utils.DatabaseUtils;
 import cz.incad.kramerius.utils.database.JDBCQueryTemplate;
 import cz.incad.kramerius.utils.database.JDBCUpdateTemplate;
 
+import java.io.StringWriter;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.util.List;
+import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
  * Utility class which contains methods for manipulation of processes
  * @author pavels
- *
  */
 public class ProcessDatabaseUtils {
 
@@ -88,7 +89,8 @@ public class ProcessDatabaseUtils {
     }
 
     
-    public static void registerProcess(Connection con, LRProcess lp, User user, String loggedUserKey) throws SQLException {
+    public static void registerProcess(Connection con, LRProcess lp, User user, String loggedUserKey, String storedParams) throws SQLException {
+        
         PreparedStatement prepareStatement = con.prepareStatement(
                 "insert into processes(" +
                 "   DEFID, " + //1
@@ -101,7 +103,8 @@ public class ProcessDatabaseUtils {
                 "   LOGINNAME," + //7
                 "   FIRSTNAME," + //8
                 "   SURNAME," +  // 9
-                "   USER_KEY) " + //10
+                "   USER_KEY," +
+                "   PARAMS_MAPPING ) " + //11
                 "       values " +
                 "   (" +
                 "       ?," + //1 - DEFID
@@ -114,7 +117,8 @@ public class ProcessDatabaseUtils {
                 "       ?," + //7 LOGINNAME
                 "       ?," + //8 FIRSTNAME
                 "       ?," + //9 SURNAME
-                "       ?" + //10 USERKEY
+                "       ?," + //10 USERKEY
+                "       ?" + //11 PARAMS_MAPPING
                 "   )");
         try {
             prepareStatement.setString(1, lp.getDefinitionId());
@@ -141,6 +145,7 @@ public class ProcessDatabaseUtils {
             prepareStatement.setString(8, user.getFirstName());
             prepareStatement.setString(9, user.getSurname());
             prepareStatement.setString(10, loggedUserKey);
+            prepareStatement.setString(11, storedParams);
             
             prepareStatement.executeUpdate();
         } finally {

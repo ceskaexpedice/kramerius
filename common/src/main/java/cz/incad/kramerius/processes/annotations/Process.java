@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2010 Pavel Stastny
+ * Copyright (C) 2012 Pavel Stastny
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -14,7 +14,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
-package cz.incad.kramerius.processes.database;
+package cz.incad.kramerius.processes.annotations;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -22,10 +22,11 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Inicializace databaze procesu
+ * Annotation points to process method
  * @author pavels
  */
-@Retention(RetentionPolicy.RUNTIME) @Target(ElementType.METHOD)
-public @interface InitProcessDatabase {
+@Retention(RetentionPolicy.RUNTIME)
+@Target(ElementType.METHOD)
+public @interface Process {
 
 }

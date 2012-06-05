@@ -40,8 +40,8 @@ public class ProcessDatabaseInitializator {
     
     public static void initDatabase(Connection connection, VersionService versionService) {
         try {
-            
-            if (versionService.getVersion() == null) {
+            String v = versionService.getVersion();
+            if (v == null) {
                 if (!DatabaseUtils.tableExists(connection,"PROCESSES")) {
                     createProcessTable(connection);
                 }
@@ -62,8 +62,15 @@ public class ProcessDatabaseInitializator {
                 if (!DatabaseUtils.tableExists(connection, "PROCESS_2_TOKEN")) {
                     createToken2SessionkeysMapping(connection); // zavislost na session_keys
                 }
+
+                if (!DatabaseUtils.columnExists(connection, "PROCESSES","PARAMS_MAPPING")) {
+                    alterProcessTableParamsMappingToken(connection);
+                }
+            } else if (v.equals("4.5.0") ||  v.equals("4.6.0") ||  v.equals("4.7.0") || v.equals("4.8.0") ||  v.equals("4.9.0")) {
+                if (!DatabaseUtils.columnExists(connection, "PROCESSES","PARAMS_MAPPING")) {
+                    alterProcessTableParamsMappingToken(connection);
+                }
             }
-            
         } catch (SQLException e) {
             LOGGER.log(Level.SEVERE,e.getMessage(),e);
         } catch (IOException e) {
@@ -117,7 +124,16 @@ public class ProcessDatabaseInitializator {
         }
     }
     
-    
+    public static void alterProcessTableParamsMappingToken(Connection con) throws SQLException {
+        PreparedStatement prepareStatement = con.prepareStatement(
+            "ALTER TABLE PROCESSES ADD COLUMN PARAMS_MAPPING VARCHAR(4096);");
+        try {
+            int r = prepareStatement.executeUpdate();
+            LOGGER.log(Level.FINEST, "ALTER TABLE: updated rows {0}", r);
+        } finally {
+            DatabaseUtils.tryClose(prepareStatement);
+        }
+    }    
 
     
     public static void changeDatabaseBecauseShibb(Connection con) throws SQLException {

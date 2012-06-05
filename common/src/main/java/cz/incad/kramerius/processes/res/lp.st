@@ -15,6 +15,26 @@
     </process>
 
     <process>
+        <!-- wiz...  -->
+        <id>wmock</id>
+        <!-- jenom popis -->
+        <description>Mocked process</description>
+        <!-- spoustena trida -->
+        <mainClass>cz.incad.kramerius.processes.mock.wizard.WizardMockLPProcess</mainClass>
+        <!-- standardni vystup -->
+        <standardOs>lrOut</standardOs>
+        <!-- err vystup -->
+        <errOs>lrErr</errOs>
+        <javaProcessParameters>-Xmx1024m -Xms256m</javaProcessParameters>
+        <parameters>/home/pavels/tmp two</parameters>
+
+        <templates>
+            <input class="cz.incad.kramerius.processes.mock.wizard.FolderTemplates"></input>
+        </templates>
+        
+    </process>
+
+    <process>
         <id>static_export_CD</id>
         <description>Statický export do PDF na CD</description>
         <mainClass>cz.incad.kramerius.lp.PDFExport</mainClass>
