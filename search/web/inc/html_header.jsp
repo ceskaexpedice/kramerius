@@ -106,6 +106,8 @@
     <script src="js/dateAxisV.js" language="javascript" type="text/javascript"></script>
     <script  src="js/autocomplete.js" language="javascript" type="text/javascript"></script>
 
+    <script  src="js/jquery.jstree.js" language="javascript" type="text/javascript"></script>
+
     <script type="text/javascript"  src="js/seadragon-min.js"></script>
 
     <script  src="js/cmn/cmn.js" language="javascript" type="text/javascript"></script>
