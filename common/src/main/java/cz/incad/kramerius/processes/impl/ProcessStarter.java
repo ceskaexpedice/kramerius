@@ -100,8 +100,8 @@ public class ProcessStarter {
             updatePID(pid);
             
 
-            MethodType processMethod = annotatedMethod(clz);
-            if (processMethod == null) processMethod = mainMethod(clz);
+            MethodType processMethod = annotatedMethodType(clz);
+            if (processMethod == null) processMethod = mainMethodType(clz);
 
             if (processMethod.getType() == MethodType.Type.ANNOTATED) {
                 Object[] params = map(processMethod.getMethod(), args, System.getProperties());
@@ -215,7 +215,12 @@ public class ProcessStarter {
      * @param clz Exploring class
      * @return
      */
-    public static MethodType annotatedMethod(Class clz) {
+    public static MethodType annotatedMethodType(Class clz) {
+        Method annotatedMethod = annotatedMethod(clz);
+        return annotatedMethod != null  ? new MethodType(annotatedMethod, MethodType.Type.ANNOTATED) : null;
+    }
+
+    public static Method annotatedMethod(Class clz) {
         Method annotatedMethod = null;
         for (Method m : clz.getMethods()) {
             if (m.isAnnotationPresent(Process.class)) {
@@ -225,7 +230,7 @@ public class ProcessStarter {
                 }
             }
         }
-        return annotatedMethod != null  ? new MethodType(annotatedMethod, MethodType.Type.ANNOTATED) : null;
+        return annotatedMethod;
     }
 
     /**
@@ -235,9 +240,14 @@ public class ProcessStarter {
      * @throws SecurityException
      * @throws NoSuchMethodException
      */
-    public static MethodType mainMethod(Class clz) throws SecurityException, NoSuchMethodException {
-        Method mainMethod = clz.getMethod("main", (new String[0]).getClass());
+    public static MethodType mainMethodType(Class clz) throws SecurityException, NoSuchMethodException {
+        Method mainMethod = mainMethod(clz);
         return mainMethod != null ? new MethodType(mainMethod, MethodType.Type.MAIN) : null;
+    }
+
+    public static Method mainMethod(Class clz) throws NoSuchMethodException {
+        Method mainMethod = clz.getMethod("main", (new String[0]).getClass());
+        return mainMethod;
     }
 
     

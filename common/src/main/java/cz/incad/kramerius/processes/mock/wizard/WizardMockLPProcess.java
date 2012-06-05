@@ -26,6 +26,7 @@ public class WizardMockLPProcess {
 
     static java.util.logging.Logger LOGGER = java.util.logging.Logger.getLogger(WizardMockLPProcess.class.getName());
     
+    
     @Process
     public static void process(@ParameterName("inputFolder") File inputFolder, @ParameterName("processName") String processName) {
 
