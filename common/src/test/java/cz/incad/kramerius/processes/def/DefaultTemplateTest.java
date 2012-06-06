@@ -30,23 +30,16 @@ import junit.framework.Assert;
 import org.easymock.EasyMock;
 import org.junit.Test;
 
-import sun.text.normalizer.Replaceable;
-
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.google.inject.Provides;
 
-import cz.incad.kramerius.ObjectPidsPath;
 import cz.incad.kramerius.processes.LRProcessDefinition;
 import cz.incad.kramerius.processes.annotations.DefaultParameterValue;
 import cz.incad.kramerius.processes.annotations.ParameterName;
 import cz.incad.kramerius.processes.annotations.Process;
-import cz.incad.kramerius.security.IsActionAllowed;
-import cz.incad.kramerius.security.SecuredActions;
-import cz.incad.kramerius.security.SpecialObjects;
 import cz.incad.kramerius.service.ResourceBundleService;
-import cz.incad.kramerius.utils.FedoraUtils;
 import cz.incad.kramerius.utils.IOUtils;
 
 public class DefaultTemplateTest {
