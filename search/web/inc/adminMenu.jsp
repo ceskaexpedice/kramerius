@@ -48,23 +48,21 @@
 </style>
 <div id="adminMenu" class="shadow ui-widget-content">
     <div class="header"><view:msg>administrator.menu</view:msg></div>
+    
     <div id="adminMenuItems" class="adminMenuItems">
 
-        <c:forEach var="item" items="${adminMenuViewObject.userMenuItems}">
-            <span class="ui-icon ui-icon-triangle-1-e  ">item</span>
-            ${item}
+        <c:forEach var="part" items="${adminMenuViewObject.mainMenu.parts}" varStatus="status">
+            <c:if test="${part.renderable}">
+                <c:forEach var="item" items="${part.items}" >
+                    <c:if test="${item.renderable}">
+                    <span class="ui-icon ui-icon-triangle-1-e">item</span>
+                        ${item.renderedItem}
+                    </c:if>
+                </c:forEach>
+                <c:if test="${not status.last}"> <hr/> </c:if>
+            </c:if>
         </c:forEach>
-        
-        <scrd:securedContent action="display_admin_menu">
-         <c:if test="${not empty adminMenuViewObject.adminMenuItems}">
-             <hr/>            
-         </c:if>
-         
-         <c:forEach var="item" items="${adminMenuViewObject.adminMenuItems}">
-             <span class="ui-icon ui-icon-triangle-1-e  ">item</span>
-             ${item}
-         </c:forEach>
-        </scrd:securedContent>
+
     </div>
     <div class="footer">
         <input type="button" value="close" class="ui-state-default ui-corner-all"  onclick="hideAdminMenu();" />
@@ -719,6 +717,52 @@ ChangeFlag.prototype.change = function() {
 
 var changeFlag = new ChangeFlag();
 
+
+
+function ParameterizedProcess() {
+    this.dialog = null;
+}
+
+ParameterizedProcess.prototype.open = function(definition) {
+    $.get("lr?action=form_get&def="+definition, function(data){
+
+    	if (this.dialog) {
+    		this.dialog.dialog('open');
+        } else {
+            var pdiv = '<div id="parametrized_process"></div>';
+            $(document.body).append(pdiv);
+
+            this.openMockDialog = $("#parametrized_process").dialog({
+                bgiframe: true,
+                width:  700,
+                height:  500,
+                modal: true,
+                title: '',
+                buttons: [
+                    {
+                        text: 'Process',
+                        click: function() {
+                            window.onProcessFormSend();
+                            $(this).dialog("close"); 
+                        }
+                    },
+                    {
+                        text: dictionary["common.close"],
+                        click:function() {
+                            $(this).dialog("close"); 
+                        } 
+                    }
+                ]
+                    
+            });
+        }
+
+        $("#parametrized_process").html(data);
+    });
+}
+
+
+var parametrizedProcess = new ParameterizedProcess();
 
 
 </script>

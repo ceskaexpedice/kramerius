@@ -41,8 +41,6 @@ public class DeleteCriteriumParams extends ServletRightsCommand {
         try {
 
             HttpServletRequest req = this.requestProvider.get();
-            // Right right = RightsServlet.createRightFromPost(req,
-            // rightsManager, userManager, criteriumWrapperFactory);
             Map values = new HashMap();
             Enumeration parameterNames = req.getParameterNames();
 
