@@ -14,19 +14,25 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
-package cz.incad.kramerius.processes.mock;
-
-import java.io.File;
+package cz.incad.kramerius.processes.mock.wizard;
 
 import cz.incad.kramerius.processes.annotations.DefaultParameterValue;
+import cz.incad.kramerius.processes.annotations.ParameterName;
+import cz.incad.kramerius.processes.annotations.Process;
 
-public class WizardMockLPProcess2 {
-
-    @DefaultParameterValue("inputName")
-    public static String defaultProcessName = null;
-
-    @DefaultParameterValue("inputFolder")
-    public static File defaultInputFolder = null;
+public class DefaultWizardMockLPProcess {
     
+    public static java.util.logging.Logger LOGGER = java.util.logging.Logger.getLogger(DefaultWizardMockLPProcess.class.getName());
     
+    @DefaultParameterValue("name")
+    public static String DEFAULT_NAME = "DEFAULT";
+
+    @DefaultParameterValue("value")
+    public static String DEFAULT_VALUE = "VALUE";
+
+    @Process
+    public static void process(@ParameterName("name") String name, @ParameterName("value") String value) {
+        LOGGER.info("parameter name is :"+name);
+        LOGGER.info("parametr value is "+value);
+    }
 }

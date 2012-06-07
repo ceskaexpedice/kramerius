@@ -31,8 +31,26 @@
         <templates>
             <input class="cz.incad.kramerius.processes.mock.wizard.FolderTemplates"></input>
         </templates>
-        
     </process>
+
+    <process>
+        <id>defaultmock</id>
+        <description>Mocked process</description>
+        <!-- spoustena trida -->
+        <mainClass>cz.incad.kramerius.processes.mock.wizard.DefaultWizardMockLPProcess</mainClass>
+        <!-- standardni vystup -->
+        <standardOs>lrOut</standardOs>
+        <!-- err vystup -->
+        <errOs>lrErr</errOs>
+        <javaProcessParameters>-Xmx1024m -Xms256m</javaProcessParameters>
+        <parameters>lp-name lp-value</parameters>
+
+        <templates>
+            <input class="cz.incad.kramerius.processes.def.DefaultTemplate"></input>
+        </templates>
+
+    </process>
+
 
     <process>
         <id>static_export_CD</id>

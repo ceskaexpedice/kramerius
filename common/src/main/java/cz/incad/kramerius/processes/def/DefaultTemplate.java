@@ -74,7 +74,6 @@ public class DefaultTemplate implements ProcessInputTemplate {
             Annotation[][] annots = method.getParameterAnnotations();
             
             Class<?>[] types = method.getParameterTypes();
-            List<Object> params = new ArrayList<Object>();
             for (int i = 0; i < types.length; i++) {
                 Annotation[] ann = annots[i];
                 Annotation paramAnnot = ProcessStarter.findNameAnnot(ann);

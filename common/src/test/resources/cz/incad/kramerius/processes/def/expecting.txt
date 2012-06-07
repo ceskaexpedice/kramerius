@@ -7,8 +7,8 @@
             
             
             var vals = ''; 
-            vals = vals +  'first  ='+$('#first').val();
-                        vals = vals +  'second  ='+$('#second').val();
+            vals = vals + 'first='+$('#first').val();
+                        vals = vals +  ';second='+$('#second').val();
                         
             
             var url = "lr?action=form_post&def=_4test_&paramsMapping={"+vals+"}&out=text";

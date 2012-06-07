@@ -17,7 +17,9 @@ form(bundle, fields, process) ::=<<
             
             
             var vals = ''; 
-            $fields:{f|vals = vals +  '$f.name$  ='+\$('#$f.name$').val();
+            vals = vals + '$first(fields).name$='+\$('#$first(fields).name$').val();
+            $rest(fields):{f|
+            vals = vals +  ';$f.name$='+\$('#$f.name$').val();
             }$
             
             var url = "lr?action=form_post&def=$process$&paramsMapping={"+vals+"}&out=text";

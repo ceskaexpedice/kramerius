@@ -41,7 +41,7 @@ public class PropertiesStoreUtils {
         //Set<Object> keys = properties.keySet();
         for (int i = 0,ll=keys.length; i < ll; i++) {
             String key = keys[i].toString();
-            writer.write(key);
+            writer.write(key.trim());
             writer.write("=");
             writer.write(properties.getProperty(key));
             if (i<ll-1) {
