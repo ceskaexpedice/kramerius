@@ -33,6 +33,7 @@ import cz.incad.Kramerius.exts.menu.main.impl.adm.items.ImportMonographs;
 import cz.incad.Kramerius.exts.menu.main.impl.adm.items.ImportPeriodicals;
 import cz.incad.Kramerius.exts.menu.main.impl.adm.items.IndexerAdministration;
 import cz.incad.Kramerius.exts.menu.main.impl.adm.items.MetadataEditor;
+import cz.incad.Kramerius.exts.menu.main.impl.adm.items.ParametrizedConvertMenuItem;
 import cz.incad.Kramerius.exts.menu.main.impl.adm.items.ParametrizedImportMenuItem;
 import cz.incad.Kramerius.exts.menu.main.impl.adm.items.ProcessesDialog;
 import cz.incad.Kramerius.exts.menu.main.impl.adm.items.ReplicationRights;
@@ -86,7 +87,9 @@ public class MenuConfiguration extends AbstractModule {
         adminItems.addBinding().to(UsersAdministration.class);
         adminItems.addBinding().to(VirtualCollectionsAdministration.class);
 
+        // pridani parametrizovanych procesu
         adminItems.addBinding().to(ParametrizedImportMenuItem.class);
+        adminItems.addBinding().to(ParametrizedConvertMenuItem.class);
 
 //        adminItems.addBinding().to(WMock.class);
 //        adminItems.addBinding().to(DefaultWMock.class);
