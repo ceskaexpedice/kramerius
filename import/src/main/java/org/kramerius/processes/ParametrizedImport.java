@@ -25,17 +25,6 @@ public class ParametrizedImport {
 
     static java.util.logging.Logger LOGGER = java.util.logging.Logger.getLogger(ParametrizedImport.class.getName());
     
-//    @DefaultParameterValue("ingestUrl")
-//    public static final String INGEST_URL = KConfiguration.getInstance().getProperty("ingest.url");
-//
-//    @DefaultParameterValue("ingestUser")
-//    public static final String INGEST_USER = KConfiguration.getInstance().getProperty("ingest.user");
-//
-//    @DefaultParameterValue("ingestPassword")
-//    public static final String INGEST_PASSWORD = KConfiguration.getInstance().getProperty("ingest.password");
-//
-//    @DefaultParameterValue("importDirectory")
-//    public static final File IMPORT_DIRECTORY = new File(KConfiguration.getInstance().getProperty("import.directory"));
 
     
     @Process
