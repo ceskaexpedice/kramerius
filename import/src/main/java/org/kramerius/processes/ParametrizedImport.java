@@ -18,6 +18,8 @@ package org.kramerius.processes;
 
 import java.io.File;
 
+import org.kramerius.Import;
+
 import cz.incad.kramerius.processes.annotations.ParameterName;
 import cz.incad.kramerius.processes.annotations.Process;
 
@@ -33,6 +35,6 @@ public class ParametrizedImport {
         LOGGER.info("ingestUser = "+ingestUser);
         LOGGER.info("ingestPassword = "+ingestPassword);
         LOGGER.info("importDirectory = "+importDirectory);
-        //Import.ingest(ingestUrl, ingestUser, ingestUser, importDirectory.getAbsolutePath());
+        Import.ingest(ingestUrl, ingestUser, ingestUser, importDirectory.getAbsolutePath());
     }
 }
