@@ -1,0 +1,164 @@
+/** sablony pro mock process */
+group mockwizard;
+
+
+/** jedna polozka stromu */
+treeNode(item) ::=<<
+    $if(item.leaf)$
+
+    <li id="$item.id$"><a href="#">$item.itemName$</a></li>
+
+    $else$
+    <li id="$item.id$">
+    <a href="#">$item.itemName$</a>
+    $tree(root=item)$
+    </li>
+    $endif$
+
+>>
+
+
+/** strom */
+tree(root) ::=<<
+    <ul>
+        $root.children:{item|$treeNode(item=item)$}$ 
+    </ul>
+>>
+
+
+
+
+
+form(ingestUrl,ingestUser,ingestPassword,importDirectory,importRootDirectory, bundle) ::=<<
+
+<div style="width:100%">
+    <script language="JavaScript" type="text/javascript"> 
+    <!--    
+        // send parameters to server
+        window.onProcessFormSend = function() {
+            var charsThatMustBeEscaped = [':',';','}','{'];
+
+            var vals = 'importDirectory='+\$('#importDirectory').val()
+                +';ingestUrl='+   \$('#ingestUrl').val().escapeChars(charsThatMustBeEscaped)
+                +';ingestUser='+ \$('#ingestUser').val().escapeChars(charsThatMustBeEscaped)
+                +';ingestPassword='+\$('#ingestPassword').val().escapeChars(charsThatMustBeEscaped);
+            
+            var url = "lr?action=form_post&def=parametrizedimport&paramsMapping={"+vals+"}&out=text";
+            processStarter("parametrizedimport").start(url);
+        }
+
+        // show directory dialog
+        function ShowDirectoryTree() {
+            this.dialog = null;
+        }
+    
+        ShowDirectoryTree.prototype.openTree=function() {
+            if (this.dialog) {
+                this.dialog.dialog('open');
+            } else {
+                this.dialog = \$("#_selectImportFolderDialog").dialog({
+                bgiframe: true,
+                width:  450,
+                height:  400,
+                modal: true,
+                title: '',
+                buttons: 
+                    [{
+                        text:dictionary['common.ok'],
+                        click:bind(function() {
+                            \$("#importDirectory").val(\$("#_selectedImportFolder").text());
+                            this.dialog.dialog("close"); 
+                        },this) 
+                    },{
+                        text:dictionary['common.close'],
+                        click:bind(function() {
+                            this.dialog.dialog("close"); 
+                        },this) 
+                    }]
+                });
+                
+            }
+
+        \$(function () {
+            \$("#_selectImportFolderTree").jstree({ 
+                "plugins" : [ "themes", "html_data", "ui" ]
+            })
+            .bind("select_node.jstree", function (event, data) { 
+                var p = data.rslt.obj.attr("id");
+                \$("#_selectedImportFolder").text(p);
+            });
+        });
+
+        }
+    
+        var directoryTree = new ShowDirectoryTree();
+        
+    -->        
+    </script>
+
+
+        <table style="width:100%;">
+            <thead>
+                <tr> <td width="80%"></td><td></td>
+            </thead>
+            <tbody>
+
+                <tr>
+                    <td colspan="2"> <label>$bundle.("import.directory")$</label> </td>
+                </tr>
+            
+                <tr>
+                        <td>
+                            <input style="width:100%" type="text"  id="importDirectory" value="$importDirectory$"></input>
+                        </td>
+                        <td>
+                            <input type="button" onclick="directoryTree.openTree();" value="$bundle.("import.directory.selection")$"></input>
+                        </td>
+                </tr>
+            
+                <tr>
+                    <td colspan="2"> <label>$bundle.("import.url")$</label> </td>
+                </tr>
+    
+                <tr>
+                        <td>
+                            <input  style="width:100%"  type="text"  id="ingestUrl" value="$ingestUrl$"></input>
+                        </td>
+                        <td></td>
+                </tr>
+            
+                <tr>
+                    <td colspan="2"> <label>$bundle.("import.user")$</label> </td>
+                </tr>
+            
+                <tr>
+                    <td>
+                        <input  style="width:100%"  type="text"  id="ingestUser" value="$ingestUser$"></input>
+                    </td>
+                    <td></td>
+                </tr>
+
+                <tr>
+                    <td colspan="2"> <label>$bundle.("import.password")$</label> </td>
+                </tr>
+            
+                <tr>
+                        <td>
+                                <input style="width:100%" type="text"  id="ingestPassword" value="$ingestPassword$"></input>
+                        </td>
+                        <td></td>
+                </tr>
+            </tbody>
+        </table>
+    
+    <div id="_selectImportFolderDialog" style="display:none">
+        <h3>  $bundle.("import.selection.dialog")$</h3>
+        <div id="_selectImportFolderTree">
+            $tree(root=importRootDirectory)$
+        </div>
+
+        <div id="_selectedImportFolder" style="display:none"></div>    
+    </div>    
+</div>
+
+>>
