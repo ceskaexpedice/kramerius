@@ -234,6 +234,20 @@
         <javaProcessParameters>-Xmx3072m -Xms512m</javaProcessParameters>
     </process>
 
+
+    <!-- parametrizovany process -->
+    <process>
+        <id>parametrizedimport</id>
+        <description>Import FOXML</description>
+        <mainClass>org.kramerius.processes.ParametrizedImport</mainClass>
+        <standardOs>lrOut</standardOs>
+        <errOs>lrErr</errOs>
+        <templates>
+            <input class="org.kramerius.processes.ParametrizedImportInputTemplate"></input>
+        </templates>
+
+    </process>
+
     <process>
         <id>import</id>
         <description>Import FOXML</description>
@@ -241,6 +255,7 @@
         <standardOs>lrOut</standardOs>
         <errOs>lrErr</errOs>
     </process>
+
     <!-- Proces  generovani deepZoomDlazdic -->
     <process>
         <id>generateDeepZoomTiles</id>

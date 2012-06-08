@@ -15,11 +15,12 @@ form(bundle, fields, process) ::=<<
 
         window.onProcessFormSend = function() {
             
+            var charsThatMustBeEscaped = [':',';','}','{'];
             
             var vals = ''; 
-            vals = vals + '$first(fields).name$='+\$('#$first(fields).name$').val();
+            vals = vals + '$first(fields).name$='+\$('#$first(fields).name$').val().escapeChars(charsThatMustBeEscaped);
             $rest(fields):{f|
-            vals = vals +  ';$f.name$='+\$('#$f.name$').val();
+            vals = vals +  ';$f.name$='+\$('#$f.name$').val().escapeChars(charsThatMustBeEscaped);
             }$
             
             var url = "lr?action=form_post&def=$process$&paramsMapping={"+vals+"}&out=text";

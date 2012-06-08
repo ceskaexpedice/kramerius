@@ -271,7 +271,7 @@ public class ProcessStarter {
     private static Object[] map(Method processMethod, String[] defaultParams, Properties processParametersProperties) throws IllegalArgumentException, SecurityException, InstantiationException, IllegalAccessException, InvocationTargetException, NoSuchMethodException {
         Annotation[][] annots = processMethod.getParameterAnnotations();
         Class<?>[] types = processMethod.getParameterTypes();
-        if (defaultParams.length < types.length) throw new IllegalArgumentException("defaultParams.length is small array. It must have at least "+types.length+" items");
+        //if (defaultParams.length < types.length) throw new IllegalArgumentException("defaultParams.length is small array. It must have at least "+types.length+" items");
         List<Object> params = new ArrayList<Object>();
         for (int i = 0; i < types.length; i++) {
             Annotation[] ann = annots[i];
@@ -280,9 +280,9 @@ public class ProcessStarter {
             if (nameAnnot != null) {
                 String parameterName = ((ParameterName)nameAnnot).value();
                 val = (String) processParametersProperties.get(parameterName);
-                val = val != null ? val : defaultParams[i];
+                val = val != null ? val : defaultParam(defaultParams, i);
             } else {
-                val = defaultParams[i];
+                val = defaultParam(defaultParams, i);
             }
 
             if (!(types[i].equals(String.class))) {
@@ -292,6 +292,10 @@ public class ProcessStarter {
             }
         }
         return params.toArray();
+    }
+
+    public static String defaultParam(String[] defaultParams, int i) {
+        return defaultParams.length > i ? defaultParams[i] : null;
     }
 
 
