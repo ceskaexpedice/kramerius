@@ -60,6 +60,18 @@ public class ParamsParserTest {
         assertCollection((List)params.get(2), "c1","c2","c3");
     }
 
+    @Test
+    public void testParser3() throws RecognitionException, TokenStreamException {
+        String string = "{importDirectory=/home/pavels/.kramerius4/import;ingestUrl=http\\://localhost\\:8080/fedora}";
+        ParamsParser paramsParser = new ParamsParser(new ParamsLexer(new StringReader(string)));
+        List params = paramsParser.params();
+        Assert.assertTrue(params.size() == 2);
+        
+        Assert.assertTrue(params.get(0).equals("importDirectory=/home/pavels/.kramerius4/import"));
+        Assert.assertTrue(params.get(1).equals("ingestUrl=http://localhost:8080/fedora"));
+        
+    }
+    
     private static void assertCollection(Collection<?> testedCol, Object ...objects ) {
         Assert.assertTrue(testedCol.size() == objects.length);
         List<Object> processList = new ArrayList<Object>(Arrays.asList(objects));
