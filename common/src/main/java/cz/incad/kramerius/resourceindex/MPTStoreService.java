@@ -281,7 +281,10 @@ public class MPTStoreService implements IResourceIndex {
             Element results = xmldoc.createElementNS(SPARQL_NS, "results");
             xmldoc.appendChild(root);
             root.appendChild(results);
+            this.adaptor = null;
+            this.dataSource = null;
             c = dataSource.getConnection();
+            
             String sql = "select " + Table_dcTitle + ".s, " + Table_dcTitle + ".o, " + Table_lastModifiedDate + ".o from ";
             if (orderby.equals("title")) {
                 sql += Table_dcTitle + "," + Table_lastModifiedDate + "," + Table_model;
