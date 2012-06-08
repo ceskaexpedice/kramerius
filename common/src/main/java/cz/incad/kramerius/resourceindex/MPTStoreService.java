@@ -283,6 +283,7 @@ public class MPTStoreService implements IResourceIndex {
             root.appendChild(results);
             this.adaptor = null;
             this.dataSource = null;
+            this.adaptor = getTableManager();
             c = dataSource.getConnection();
             
             String sql = "select " + Table_dcTitle + ".s, " + Table_dcTitle + ".o, " + Table_lastModifiedDate + ".o from ";
