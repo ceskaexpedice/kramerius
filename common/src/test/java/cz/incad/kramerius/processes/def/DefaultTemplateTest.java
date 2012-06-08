@@ -75,7 +75,7 @@ public class DefaultTemplateTest {
         
         StringWriter stringWriter = new StringWriter();
         template.executeGet(definition, stringWriter);
-        //System.out.println("'"+stringWriter.toString()+"'");
+        System.out.println("'"+stringWriter.toString()+"'");
         
         InputStream resStream = DefaultTemplateTest.class.getResourceAsStream("expecting.txt");
         String expected = IOUtils.readAsString(resStream, Charset.forName("UTF-8"), true);

@@ -5,10 +5,11 @@
 
         window.onProcessFormSend = function() {
             
+            var charsThatMustBeEscaped = [':',';','}','{'];
             
             var vals = ''; 
-            vals = vals + 'first='+$('#first').val();
-                        vals = vals +  ';second='+$('#second').val();
+            vals = vals + 'first='+$('#first').val().escapeChars(charsThatMustBeEscaped);
+                        vals = vals +  ';second='+$('#second').val().escapeChars(charsThatMustBeEscaped);
                         
             
             var url = "lr?action=form_post&def=_4test_&paramsMapping={"+vals+"}&out=text";
@@ -21,8 +22,8 @@
 <form>
 
         <label>prvni</label><br>
-        <input type="text" size="30" id="first" value="default"></input><br>    <label>druhy</label><br>
-        <input type="text" size="30" id="second" value=""></input><br> 
+        <input type="text" style="width:100%" id="first" value="default"></input><br>    <label>druhy</label><br>
+        <input type="text" style="width:100%" id="second" value=""></input><br> 
 
 </form>
 

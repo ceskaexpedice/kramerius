@@ -3,7 +3,7 @@ group defaultTemplate;
 
 formfield(bundle, field) ::=<<
     <label>$bundle.(field.name)$</label><br>
-    <input type="text" size="30" id="$field.name$" value="$field.value$"></input><br>
+    <input type="text" style="width:100%" id="$field.name$" value="$field.value$"></input><br>
 >>
 
 /** formular */

@@ -226,6 +226,20 @@
 
 
     <process>
+        <id>parametrizedconvert</id>
+        <description>Convert and import</description>
+        <mainClass>org.kramerius.processes.ParametrizedConvert</mainClass>
+        <standardOs>lrOut</standardOs>
+        <errOs>lrErr</errOs>
+        <javaProcessParameters>-Xmx1024m -Xms512m</javaProcessParameters>
+        
+        <templates>
+            <input class="cz.incad.kramerius.processes.def.DefaultTemplate"></input>
+        </templates>
+        
+    </process>
+
+    <process>
         <id>convert</id>
         <description>Convert and import</description>
         <mainClass>org.kramerius.Convert</mainClass>
@@ -235,7 +249,7 @@
     </process>
 
 
-    <!-- parametrizovany process -->
+    <!-- parametrizovany process importu -->
     <process>
         <id>parametrizedimport</id>
         <description>Import FOXML</description>
