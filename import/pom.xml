@@ -33,6 +33,15 @@
             <artifactId>import-cmdtool</artifactId>
             <version>${project.parent.version}</version>
         </dependency>
+        
+        <!-- test dependencies -->
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>4.1</version>
+            <scope>test</scope>
+        </dependency>
+        
     </dependencies>
     <build>
     </build>
