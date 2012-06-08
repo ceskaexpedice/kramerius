@@ -16,6 +16,34 @@ Array.prototype.forEach =  function (action) {
 	}
 }
 
+/** forEach in String */
+String.prototype.forEach =  function (action) {
+	for (var i = 0; i < this.length; i++) {
+		action(this.charAt(i));
+	}
+}
+
+/** escape all bad chars in string */
+String.prototype.escapeChars = function(allEscapedChars) {
+    var retVal = "";
+
+	for (var i = 0; i < this.length; i++) {
+		var ch = this.charAt(i);
+		
+        var found = reduce(function(base, element,status) {
+            if (base) return base;
+            if (element === ch) {
+                base = true;
+            }
+            return base;
+        }, false, allEscapedChars);
+        
+        if (!found) { retVal = retVal + ch; } else { retVal = retVal +  "\\"+ ch; }
+	}	
+    return retVal;
+}
+
+
 // IndexOf doesnt work in IE 
 if (!Array.prototype.indexOf) {
   Array.prototype.indexOf = function(elt /*, from*/) {
@@ -199,7 +227,6 @@ function bind(func, object) {
     return func.apply(object, arguments);
   };
 }
-
 
 
 
