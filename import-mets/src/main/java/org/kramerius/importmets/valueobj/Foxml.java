@@ -14,6 +14,8 @@ public class Foxml {
     private OaiDcType dc;
     private RelsExt re;
     private List<ImageRepresentation> files;
+    private StringBuilder ocr = null;
+    private StringBuilder struct = null;
 
     public String getPid() {
         return pid;
@@ -53,6 +55,28 @@ public class Foxml {
             this.files = new ArrayList<ImageRepresentation>();
         }
         this.files.add(file);
+    }
+
+    public void appendOcr(String part){
+        if (ocr == null){
+            ocr = new StringBuilder();
+        }
+        ocr.append(part);
+    }
+
+    public String getOcr(){
+        return ocr == null ? null : ocr.toString();
+    }
+
+    public void appendStruct(String part){
+        if (struct == null){
+            struct = new StringBuilder();
+        }
+        struct.append(part);
+    }
+
+    public String getStruct(){
+        return struct == null ? null : struct.toString();
     }
 
 }

@@ -42,6 +42,7 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.math.NumberUtils;
 import org.apache.log4j.Logger;
+import org.kramerius.alto.Alto;
 import org.kramerius.dc.ElementType;
 import org.kramerius.dc.OaiDcType;
 import org.kramerius.importmets.MetsConvertor;
@@ -220,8 +221,10 @@ public abstract class BaseConvertor {
 
     protected Unmarshaller unmarshallerMODS;
     protected Unmarshaller unmarshallerDC;
+    protected Unmarshaller unmarshallerALTO;
     protected Marshaller marshallerMODS;
     protected Marshaller marshallerDC;
+    protected Marshaller marshallerALTO;
     protected org.kramerius.dc.ObjectFactory dcObjectFactory = new org.kramerius.dc.ObjectFactory();
     protected org.kramerius.mods.ObjectFactory modsObjectFactory = new org.kramerius.mods.ObjectFactory();
 
@@ -231,6 +234,7 @@ public abstract class BaseConvertor {
         //this.unmarshaller = unmarshaller;
         initMODSJAXB();
         initDCJAXB();
+        initALTOJAXB();
 
         try {
             DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
@@ -288,6 +292,28 @@ public abstract class BaseConvertor {
 
         } catch (Exception e) {
             log.error("Cannot init DC JAXB", e);
+            throw new RuntimeException(e);
+        }
+    }
+
+    private void initALTOJAXB(){
+        try {
+            JAXBContext jaxbContext = JAXBContext.newInstance( Alto.class );
+            marshallerALTO = jaxbContext.createMarshaller();
+            marshallerALTO.setProperty(Marshaller.JAXB_ENCODING, "utf-8");
+            marshallerALTO.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
+            try{
+                marshallerALTO.setProperty("com.sun.xml.internal.bind.namespacePrefixMapper", new NamespacePrefixMapperInternalImpl());
+            } catch (PropertyException ex){
+                marshallerALTO.setProperty("com.sun.xml.bind.namespacePrefixMapper", new NamespacePrefixMapperImpl());
+            }
+            //marshaller.setProperty(Marshaller.JAXB_SCHEMA_LOCATION, "info:fedora/fedora-system:def/foxml# http://www.fedora.info/definitions/1/0/foxml1-1.xsd");
+
+            unmarshallerALTO = jaxbContext.createUnmarshaller();
+
+
+        } catch (Exception e) {
+            log.error("Cannot init ALTO JAXB", e);
             throw new RuntimeException(e);
         }
     }
@@ -1206,33 +1232,32 @@ public abstract class BaseConvertor {
     }
 
 
+    private DatastreamType createEncodedStream(String streamID, String mimeType, String contents) throws ServiceException {
+
+        try {
+            DatastreamType stream = new DatastreamType();
+            stream.setID(streamID);
+            stream.setCONTROLGROUP("M");
+            stream.setVERSIONABLE(false);
+            stream.setSTATE(StateType.A);
+
+            DatastreamVersionType version = new DatastreamVersionType();
+            version.setCREATED(getCurrentXMLGregorianCalendar());
+            version.setID(streamID + STREAM_VERSION_SUFFIX);
+            version.setMIMETYPE(mimeType);
+
+            byte[] binaryContent = contents.getBytes("UTF-8");
+            version.setBinaryContent(binaryContent);
+
+            stream.getDatastreamVersion().add(version);
+            return stream;
+        } catch (IOException e) {
+            throw new ServiceException(e);
+        }
+    }
+
+
     private BufferedImage readImage(String fileName)throws IOException, MalformedURLException{
-        /*String[] suffixes = ImageIO.getReaderFileSuffixes();
-        Image img = ImageIO.read(new File(fileName));
-        if (img == null) {
-            try{
-
-                com.lizardtech.djvu.Document doc = new com.lizardtech.djvu.Document(new File(fileName).toURI().toURL());
-                doc.setAsync(true);
-                DjVuPage[] p = new DjVuPage[1];
-                // read page from the document - index 0, priority 1, favorFast true
-                p[0] = doc.getPage(0, 1, true);
-                p[0].setAsync(false);
-                DjVuImage djvuImage = new DjVuImage(p, true);
-
-                Rectangle pageBounds = djvuImage.getPageBounds(0);
-                Image[] images = djvuImage.getImage(new JPanel(), new Rectangle(pageBounds.width, pageBounds.height));
-                if (images.length == 1) {
-                    img = images[0];
-                }
-            }catch (Throwable t){
-                log.warn("Unsupported image type", t);
-            }
-        }
-        if (img != null) {
-            return KrameriusImageSupport.toBufferedImage(img);
-        }
-        return null;*/
         return KrameriusImageSupport.readImage(new URL(FILE_SCHEME_PREFIX+fixWindowsFileURL(fileName)), ImageMimeType.loadFromMimeType(getImageMime(fileName)), 0);
     }
 
@@ -1538,6 +1563,13 @@ public abstract class BaseConvertor {
         }
         try{
         DigitalObject foxmlPeri = this.createDigitalObject( foxml.getPid(),foxml.getTitle(), createDublinCoreElement(foxml.getDc()), createRelsExtElement(foxml.getRe()), createBiblioModsElement(foxml.getMods()), files);
+        if (foxml.getOcr()!= null){
+            foxmlPeri.getDatastream().add(createEncodedStream(STREAM_ID_TXT, "text/plain", foxml.getOcr()));
+        }
+        if (foxml.getStruct()!= null){
+            foxmlPeri.getDatastream().add(createEncodedStream("STRUCT_MAP", "text/xml", "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<parts>\n"+foxml.getStruct()+"</parts>\n"));
+            //System.out.print("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<parts>\n"+foxml.getStruct()+"</parts>");
+        }
         this.marshalDigitalObject(foxmlPeri);
         }catch (ServiceException ex){
             log.error("Error marshalling FOXML:"+foxml.getTitle());

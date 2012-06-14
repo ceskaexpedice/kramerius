@@ -1,34 +1,34 @@
 package org.kramerius.importmets.convertor;
 
+import java.io.File;
 import java.math.BigInteger;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.TreeMap;
-import java.util.regex.Pattern;
 
 import javax.xml.bind.JAXBElement;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Unmarshaller;
 
-import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
-import org.kramerius.dc.ElementType;
+import org.kramerius.alto.Alto;
+import org.kramerius.alto.Alto.Layout.Page;
+import org.kramerius.alto.BlockType;
+import org.kramerius.alto.StringType;
+import org.kramerius.alto.TextBlockType;
+import org.kramerius.alto.TextBlockType.TextLine;
+import org.kramerius.alto.TextBlockType.TextLine.SP;
 import org.kramerius.dc.OaiDcType;
-import org.kramerius.importmets.utils.XMLTools;
 import org.kramerius.importmets.valueobj.ConvertorConfig;
-import org.kramerius.importmets.valueobj.DublinCore;
 import org.kramerius.importmets.valueobj.Foxml;
-import org.kramerius.importmets.valueobj.ImageMetaData;
 import org.kramerius.importmets.valueobj.ImageRepresentation;
 import org.kramerius.importmets.valueobj.RelsExt;
 import org.kramerius.importmets.valueobj.ServiceException;
 import org.kramerius.mets.AreaType;
 import org.kramerius.mets.DivType;
 import org.kramerius.mets.DivType.Fptr;
-import org.kramerius.mets.FileType.FLocat;
 import org.kramerius.mets.FileType;
+import org.kramerius.mets.FileType.FLocat;
 import org.kramerius.mets.MdSecType;
 import org.kramerius.mets.Mets;
 import org.kramerius.mets.MetsType.FileSec;
@@ -36,39 +36,11 @@ import org.kramerius.mets.MetsType.FileSec.FileGrp;
 import org.kramerius.mets.MetsType.StructLink;
 import org.kramerius.mets.StructLinkType.SmLink;
 import org.kramerius.mets.StructMapType;
-import org.kramerius.mods.DateBaseDefinition;
 import org.kramerius.mods.DetailDefinition;
-import org.kramerius.mods.IdentifierDefinition;
 import org.kramerius.mods.ModsDefinition;
-import org.kramerius.mods.ObjectFactory;
 import org.kramerius.mods.PartDefinition;
-import org.kramerius.mods.TitleInfoDefinition;
 import org.kramerius.mods.XsString;
-import org.w3c.dom.Document;
 import org.w3c.dom.Element;
-import org.w3c.dom.Node;
-
-import com.qbizm.kramerius.imp.jaxb.DigitalObject;
-import com.qbizm.kramerius.imp.jaxb.periodical.Contributor;
-import com.qbizm.kramerius.imp.jaxb.periodical.ContributorName;
-import com.qbizm.kramerius.imp.jaxb.periodical.CoreBibliographicDescriptionPeriodical;
-import com.qbizm.kramerius.imp.jaxb.periodical.Creator;
-import com.qbizm.kramerius.imp.jaxb.periodical.CreatorName;
-import com.qbizm.kramerius.imp.jaxb.periodical.ItemRepresentation;
-import com.qbizm.kramerius.imp.jaxb.periodical.Language;
-import com.qbizm.kramerius.imp.jaxb.periodical.MainTitle;
-import com.qbizm.kramerius.imp.jaxb.periodical.PageIndex;
-import com.qbizm.kramerius.imp.jaxb.periodical.PageRepresentation;
-import com.qbizm.kramerius.imp.jaxb.periodical.Periodical;
-import com.qbizm.kramerius.imp.jaxb.periodical.PeriodicalInternalComponentPart;
-import com.qbizm.kramerius.imp.jaxb.periodical.PeriodicalItem;
-import com.qbizm.kramerius.imp.jaxb.periodical.PeriodicalPage;
-import com.qbizm.kramerius.imp.jaxb.periodical.PeriodicalVolume;
-import com.qbizm.kramerius.imp.jaxb.periodical.Publisher;
-import com.qbizm.kramerius.imp.jaxb.periodical.Subject;
-import com.qbizm.kramerius.imp.jaxb.periodical.TechnicalDescription;
-import com.qbizm.kramerius.imp.jaxb.periodical.UniqueIdentifier;
-import com.qbizm.kramerius.imp.jaxb.periodical.UniqueIdentifierURNType;
 
 import cz.incad.kramerius.utils.conf.KConfiguration;
 
@@ -97,8 +69,8 @@ public class MetsPeriodicalConvertor extends BaseConvertor {
             loadModsAndDcMap(mets);
             loadFileMap(mets);
             processStructMap(mets);
-            for (Foxml page : objects.values()) {
-                exportFoxml(page);
+            for (Foxml obj : objects.values()) {
+                exportFoxml(obj);
             }
         } catch (Exception e) {
             throw new ServiceException(e);
@@ -178,6 +150,7 @@ public class MetsPeriodicalConvertor extends BaseConvertor {
 
     }
 
+    private Map<String, String> filePageMap = new HashMap<String, String>();
 
     private void processPages(StructMapType sm) {
         DivType issueDiv = sm.getDiv();
@@ -233,6 +206,7 @@ public class MetsPeriodicalConvertor extends BaseConvertor {
                         }
                     }
                     page.addFiles(new ImageRepresentation(fileName, getFileType(fileId.getID())));
+                    filePageMap.put(fileId.getID(),page.getPid());//map file ID to page uuid - for collecting alto references from struct map in method collectAlto
             }
 
             String pageId = pageDiv.getID();
@@ -273,8 +247,10 @@ public class MetsPeriodicalConvertor extends BaseConvertor {
         }
 
         MdSecType modsIdObj = (MdSecType) firstItem(div.getDMDID());
-        if (modsIdObj == null) return null;//we consider only div with associated metadata (DMDID)
-
+        if (modsIdObj == null) {
+            collectAlto(parent, div);
+            return null;//we consider only div with associated metadata (DMDID)
+        }
 
         String model = mapModel(divType);
 
@@ -362,6 +338,70 @@ public class MetsPeriodicalConvertor extends BaseConvertor {
         throw new ServiceException("Unsupported model mapping in logical structure: "+model);
     }
 
+
+    private Map<String,Alto> altoMap = new HashMap<String, Alto>();
+
+    private void collectAlto(Foxml parent, DivType div){
+        for (DivType subdiv: div.getDiv()){
+            collectAlto(parent,subdiv);
+        }
+        for (Fptr fptr: div.getFptr()){
+            AreaType area = fptr.getArea();
+            if (area != null){
+                Object fileid = area.getFILEID();
+                String begin = area.getBEGIN();
+                if (fileid instanceof FileType){
+                    FileType altofile = (FileType) fileid;
+                    String id = altofile.getID();
+                    String altoStream = filePageMap.get(id)+"/ALTO";
+                    parent.appendStruct("<part type=\""+div.getTYPE()+"\" order=\""+div.getORDER()+"\" alto=\""+altoStream+"\" begin=\""+begin+"\" />\n");
+                    //System.out.print("<part type=\""+div.getTYPE()+"\" order=\""+div.getORDER()+"\" alto=\""+altoStream+"\" begin=\""+begin+"\" />\n");
+                    Alto alto = getAlto(id);
+                    for (Page page: alto.getLayout().getPage()){
+                        for(BlockType block: page.getPrintSpace().getTextBlockOrIllustrationOrGraphicalElement()){
+                            if (begin.equals(block.getID())){
+                                if (block instanceof TextBlockType){
+                                    TextBlockType textBlock = (TextBlockType) block;
+                                    for( TextLine line: textBlock.getTextLine()){
+                                        for (Object st: line.getStringAndSP()){
+                                            if (st instanceof StringType){
+                                                StringType stt = (StringType) st;
+                                                parent.appendOcr(stt.getCONTENT());
+                                                //System.out.print(stt.getCONTENT());
+                                            }else if (st instanceof TextBlockType.TextLine.SP){
+                                                parent.appendOcr(" ");
+                                                //System.out.print(" ");
+                                            }
+                                        }
+                                        parent.appendOcr("\n");
+                                        //System.out.print("\n");
+                                    }
+                                    parent.appendOcr("\n");
+                                    //System.out.print("\n");
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    private Alto getAlto(String id){
+        Alto retval = altoMap.get(id);
+        if (retval == null){
+            String fileLoc = fileMap.get(id);
+            if (fileLoc != null){
+                try {
+                    retval = (Alto) unmarshallerALTO.unmarshal(new File(config.getImportFolder()+ System.getProperty("file.separator")+fileLoc));
+                    altoMap.put(id, retval);
+                } catch (JAXBException e) {
+                    throw new ServiceException(e);
+                }
+            }
+        }
+        return retval;
+    }
 
     protected void processStructLink(StructLink structLink){
         for ( Object o: structLink.getSmLinkOrSmLinkGrp()){

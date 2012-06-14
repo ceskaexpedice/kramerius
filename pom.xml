@@ -105,6 +105,7 @@
         <module>import-jaxb-periodical</module>
         <module>import-jaxb-dc</module>
         <module>import-jaxb-mets</module>
+        <module>import-jaxb-alto</module>
         <module>import-jaxb-mods</module>
         <module>import-mets</module>
         <module>indexer</module>
