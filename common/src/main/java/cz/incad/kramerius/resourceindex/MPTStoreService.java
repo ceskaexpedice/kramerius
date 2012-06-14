@@ -65,8 +65,8 @@ public class MPTStoreService implements IResourceIndex {
 
     public MPTStoreService() {
         config = KConfiguration.getInstance();
-        this.adaptor = getTableManager();
-        loadTableNames();
+        //this.adaptor = getTableManager();
+        //loadTableNames();
     }
     String Table_lastModifiedDate;
     String Table_dcTitle;
@@ -128,17 +128,19 @@ public class MPTStoreService implements IResourceIndex {
 
     public String latestRecordDate() {
 
-        String mods;
-        try {
-            mods = adaptor.getTableFor(NTriplesUtil.parsePredicate(PRED_lastModifiedDate));
-        } catch (ParseException e) {
-            /* Should never get here :) */
-            throw new RuntimeException("Could not parse predicate ", e);
-        }
         logger.fine("getting latest record date");
         String date;
         Connection c;
         try {
+            this.adaptor = getTableManager();
+            loadTableNames();
+            String mods;
+            try {
+                mods = adaptor.getTableFor(NTriplesUtil.parsePredicate(PRED_lastModifiedDate));
+            } catch (ParseException e) {
+                /* Should never get here :) */
+                throw new RuntimeException("Could not parse predicate ", e);
+            }
             c = dataSource.getConnection();
             try {
                 PreparedStatement s = c.prepareStatement(
@@ -189,6 +191,8 @@ public class MPTStoreService implements IResourceIndex {
             Element results = xmldoc.createElementNS(SPARQL_NS, "results");
             xmldoc.appendChild(root);
             root.appendChild(results);
+            this.adaptor = getTableManager();
+            loadTableNames();
             c = dataSource.getConnection();
             String sql = "select " + Table_dcTitle + ".s, " + Table_dcTitle + ".o, " + Table_lastModifiedDate + ".o from ";
             sql += Table_dcTitle + "," + Table_lastModifiedDate + "," + Table_model;
@@ -262,10 +266,6 @@ public class MPTStoreService implements IResourceIndex {
         limit <c:out value="${rows}" />
         offset <c:out value="${param.offset}" />
          */
-        String torder = Table_lastModifiedDate + ".o";
-        if (orderby.equals("title")) {
-            torder = Table_dcTitle + ".o";
-        }
 
         logger.fine("getFedoraObjectsFromModelExt");
         Document xmldoc;
@@ -273,6 +273,13 @@ public class MPTStoreService implements IResourceIndex {
         PreparedStatement s = null;
         ResultSet r = null;
         try {
+            this.adaptor = getTableManager();
+            loadTableNames();
+            String torder = Table_lastModifiedDate + ".o";
+            if (orderby.equals("title")) {
+                torder = Table_dcTitle + ".o";
+            }
+            c = dataSource.getConnection();
             DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
             factory.setNamespaceAware(true);
             DocumentBuilder builder = factory.newDocumentBuilder();
@@ -281,10 +288,6 @@ public class MPTStoreService implements IResourceIndex {
             Element results = xmldoc.createElementNS(SPARQL_NS, "results");
             xmldoc.appendChild(root);
             root.appendChild(results);
-            this.adaptor = null;
-            this.dataSource = null;
-            this.adaptor = getTableManager();
-            c = dataSource.getConnection();
             
             String sql = "select " + Table_dcTitle + ".s, " + Table_dcTitle + ".o, " + Table_lastModifiedDate + ".o from ";
             if (orderby.equals("title")) {
@@ -387,13 +390,16 @@ public class MPTStoreService implements IResourceIndex {
         ResultSet r = null;
         ArrayList<String> resList = new ArrayList<String>();
         try {
+            
+            this.adaptor = getTableManager();
+            loadTableNames();
+            c = dataSource.getConnection();
             DocumentBuilder builder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
             xmldoc = builder.newDocument();
             Element root = xmldoc.createElementNS(SPARQL_NS, "sparql");
             Element results = xmldoc.createElementNS(SPARQL_NS, "results");
             xmldoc.appendChild(root);
             root.appendChild(results);
-            c = dataSource.getConnection();
             String sql = "select " + Table_model + ".s"
                     + " where " + Table_model + ".o='<info:fedora/model:" + model + ">' "
                     + " order by " + Table_model + ".s"
@@ -460,6 +466,8 @@ public class MPTStoreService implements IResourceIndex {
         logger.fine("getting latest record date");
         Connection c;
         try {
+            this.adaptor = getTableManager();
+            loadTableNames();
             String sql = "select o from " + Table_model
                     + " where s='<info:fedora/uuid:43101770-b03b-11dd-8673-000d606f5dc6>" + uuid + ">' "
                     + " and o <> '<info:fedora/fedora-system:FedoraObject-3.0>' ";
