@@ -34,7 +34,7 @@
 </c:if>
 <c:set var="order_dir" value="${param.sort_dir}" />
 <c:if test="${empty param.sort_dir}">
-    <c:set var="order_dir" value="asc" />
+    <c:set var="order_dir" value="desc" />
 </c:if>
 <%
     String[] models = kconfig.getPropertyList("fedora.topLevelModels");

@@ -20,14 +20,7 @@
 
 <fmt:setBundle basename="labels" />
 <fmt:setBundle basename="labels" var="bundleVar" />
-<c:set var="order" value="${param.sort}" />
-<c:if test="${empty param.sort}">
-    <c:set var="order" value="title" />
-</c:if>
-<c:set var="order_dir" value="${param.sort_dir}" />
-<c:if test="${empty param.sort_dir}">
-    <c:set var="order_dir" value="asc" />
-</c:if>
+
 <%
 
 IResourceIndex g = ResourceIndexService.getResourceIndexImpl();

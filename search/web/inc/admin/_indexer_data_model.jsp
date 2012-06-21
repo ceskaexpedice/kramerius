@@ -30,11 +30,11 @@
 <fmt:setBundle basename="labels" var="bundleVar" />
 <c:set var="order" value="${param.sort}" />
 <c:if test="${empty param.sort}">
-    <c:set var="order" value="title" />
+    <c:set var="order" value="date" />
 </c:if>
 <c:set var="order_dir" value="${param.sort_dir}" />
 <c:if test="${empty param.sort_dir}">
-    <c:set var="order_dir" value="asc" />
+    <c:set var="order_dir" value="desc" />
 </c:if>
         <%
     String rowsStr = request.getParameter("rows");
@@ -53,7 +53,7 @@ if(offsetStr!=null){
 }
 String sort_dir = request.getParameter("sort_dir");
 if(sort_dir==null){
-    sort_dir = "asc";
+    sort_dir = "desc";
 }
 String sort = request.getParameter("sort");
 if(sort==null || sort.equals("")){
