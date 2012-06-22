@@ -14,10 +14,10 @@ package cz.incad.kramerius;
 
 public class RDFModels {
 
-	public static final java.util.logging.Logger LOGGER = java.util.logging.Logger
-			.getLogger(RDFModels.class.getName());
-	
-	
+    public static final java.util.logging.Logger LOGGER = java.util.logging.Logger
+            .getLogger(RDFModels.class.getName());
+
+
     public static KrameriusModels convertRDFToModel(String rdf) {
         if(rdf.contains("hasPage")){
                 return KrameriusModels.PAGE;
@@ -34,11 +34,11 @@ public class RDFModels {
         }else if(rdf.contains("hasDonator")){
                 return KrameriusModels.DONATOR;
         }else{
-            System.out.println("Unfffsupported rdf: " + rdf);
+            //System.out.println("Unfffsupported rdf: " + rdf);
             return null;
         }
     }
-    
+
     public static String convertToRdf(KrameriusModels km){
         switch(km){
             case MONOGRAPH:
