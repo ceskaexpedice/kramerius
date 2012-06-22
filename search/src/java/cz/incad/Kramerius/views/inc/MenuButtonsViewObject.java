@@ -26,6 +26,7 @@ import com.google.inject.Inject;
 import com.google.inject.Provider;
 
 import cz.incad.kramerius.shib.utils.ShibbolethUtils;
+import cz.incad.kramerius.utils.ApplicationURL;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 
 public class MenuButtonsViewObject {
@@ -41,10 +42,10 @@ public class MenuButtonsViewObject {
         return langs;
     }
     
-    public String getBaseURL() {
-        String base  =  this.requestProvider.get().getRequestURL().toString();
-        return base;
-    }
+//    public String getBaseURL() {
+//        String base  =  this.requestProvider.get().getRequestURL().toString();
+//        return base;
+//    }
     
     public String getQueryString() {
         HttpServletRequest request = this.requestProvider.get();
@@ -83,7 +84,8 @@ public class MenuButtonsViewObject {
         
         for (int i = 0; i < items.length; i++) {
             String name = items[i];
-            String link = i < items.length ? getBaseURL() + "?language="+ items[++i] + "&" + buffer.toString() : "";
+            String appUrl = ApplicationURL.applicationURL(this.requestProvider.get());
+            String link = i < items.length ? appUrl + "?language="+ items[++i] + "&" + buffer.toString() : "";
             LanguageItem itm = new LanguageItem(link, name, items[i]);
             links.add(itm);
         }
