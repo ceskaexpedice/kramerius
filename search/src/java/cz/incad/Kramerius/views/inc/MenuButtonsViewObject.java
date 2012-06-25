@@ -42,10 +42,6 @@ public class MenuButtonsViewObject {
         return langs;
     }
     
-//    public String getBaseURL() {
-//        String base  =  this.requestProvider.get().getRequestURL().toString();
-//        return base;
-//    }
     
     public String getQueryString() {
         HttpServletRequest request = this.requestProvider.get();
@@ -85,6 +81,7 @@ public class MenuButtonsViewObject {
         for (int i = 0; i < items.length; i++) {
             String name = items[i];
             String appUrl = ApplicationURL.applicationURL(this.requestProvider.get());
+            if (!appUrl.endsWith("/")) appUrl = appUrl +"/";
             String link = i < items.length ? appUrl + "?language="+ items[++i] + "&" + buffer.toString() : "";
             LanguageItem itm = new LanguageItem(link, name, items[i]);
             links.add(itm);
