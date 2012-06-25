@@ -147,10 +147,14 @@ public class Import {
             }
         }
         log.info("FINISHED INGESTION IN "+((System.currentTimeMillis()-start)/1000.0)+"s, processed "+counter+" files");
-        for (TitlePidTuple tpt :roots){
-            IndexerProcessStarter.spawnIndexer(true, tpt.title, tpt.pid);
+        if (KConfiguration.getInstance().getConfiguration().getBoolean("ingest.startIndexer",true)){
+            for (TitlePidTuple tpt :roots){
+                IndexerProcessStarter.spawnIndexer(true, tpt.title, tpt.pid);
+            }
+            log.info("ALL ROOT OBJECTS SCHEDULED FOR INDEXING.");
+        }else{
+            log.info("AUTO INDEXING DISABLED.");
         }
-        log.info("ALL ROOT OBJECTS SCHEDULED FOR INDEXING.");
     }
 
     private static void visitAllDirsAndFiles(File importFile, List<TitlePidTuple> roots) {
