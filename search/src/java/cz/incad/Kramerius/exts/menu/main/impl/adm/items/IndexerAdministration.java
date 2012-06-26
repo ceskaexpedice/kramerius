@@ -31,7 +31,7 @@ public class IndexerAdministration extends AbstractMainMenuItem implements Admin
 
     @Override
     public String getRenderedItem() throws IOException {
-        return renderMenuItem(
+        return renderMainMenuItem(
                 "javascript:showIndexerAdmin(); javascript:hideAdminMenu();",
                 "administrator.menu.dialogs.indexDocuments.title", false);
     }

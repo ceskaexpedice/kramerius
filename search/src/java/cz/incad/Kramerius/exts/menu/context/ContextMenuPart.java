@@ -18,6 +18,10 @@ package cz.incad.Kramerius.exts.menu.context;
 
 import cz.incad.Kramerius.exts.menu.MenuPart;
 
+/**
+ * Represents context menu part
+ * @author pavels
+ */
 public interface ContextMenuPart extends MenuPart {
 
 }

@@ -14,23 +14,14 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
-package cz.incad.Kramerius.exts.menu.context.impl;
+package cz.incad.Kramerius.exts.menu.main.impl.pub;
 
-import cz.incad.Kramerius.exts.menu.context.ContextMenuPart;
-import cz.incad.Kramerius.exts.menu.impl.AbstractMenuPart;
+import cz.incad.Kramerius.exts.menu.main.MainMenuItem;
 
-public class PublicContextMenuPartImpl extends AbstractMenuPart implements ContextMenuPart {
+/**
+ * Represents public menu item
+ * @author pavels
+ */
+public interface PublicMainMenuItem extends MainMenuItem {
 
-    public static final String FORMAL_NAME="PUBLIC";
-    
-    @Override
-    public String getFormalName() {
-        return FORMAL_NAME;
-    }
-
-    @Override
-    public boolean isRenderable() {
-        // TODO Auto-generated method stub
-        return false;
-    }
 }

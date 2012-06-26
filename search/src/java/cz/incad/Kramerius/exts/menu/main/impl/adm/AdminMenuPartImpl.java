@@ -25,7 +25,7 @@ import com.google.inject.Provider;
 
 import cz.incad.Kramerius.exts.menu.impl.AbstractMenuPart;
 import cz.incad.Kramerius.exts.menu.main.MainMenuPart;
-import cz.incad.Kramerius.exts.menu.main.impl.pub.PublicMenuItem;
+import cz.incad.Kramerius.exts.menu.main.impl.pub.PublicMainMenuItem;
 import cz.incad.Kramerius.exts.menu.utils.GlobalRightsUtils;
 import cz.incad.kramerius.ObjectPidsPath;
 import cz.incad.kramerius.security.IsActionAllowed;

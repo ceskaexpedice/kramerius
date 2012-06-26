@@ -14,14 +14,23 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
-package cz.incad.Kramerius.exts.menu.main.impl.adm.items;
+package cz.incad.Kramerius.exts.menu.context.impl.adm.items;
 
 import java.io.IOException;
 
-import cz.incad.Kramerius.exts.menu.main.impl.AbstractMainMenuItem;
-import cz.incad.Kramerius.exts.menu.main.impl.adm.AdminMenuItem;
+import cz.incad.Kramerius.exts.menu.context.impl.AbstractContextMenuItem;
+import cz.incad.Kramerius.exts.menu.context.impl.adm.AdminContextMenuItem;
 
-public class ParametrizedImportMenuItem extends AbstractMainMenuItem implements AdminMenuItem {
+public class DeleteGeneratedDeepZoom extends AbstractContextMenuItem implements AdminContextMenuItem {
+
+//  adminItems.add(new ContextMenuItem("administrator.menu.generateDeepZoomTiles", "_data_x_role", "generateDeepZoomTiles", "", true));
+//  adminItems.add(new ContextMenuItem("administrator.menu.deleteGeneratedDeepZoomTiles", "_data_x_role", "deleteGeneratedDeepZoomTiles", "", true));
+
+    
+    @Override
+    public boolean isMultipleSelectSupported() {
+        return true;
+    }
 
     @Override
     public boolean isRenderable() {
@@ -30,8 +39,6 @@ public class ParametrizedImportMenuItem extends AbstractMainMenuItem implements 
 
     @Override
     public String getRenderedItem() throws IOException {
-        return renderMenuItem(
-            "javascript:parametrizedProcess.open('parametrizedimport'); javascript:hideAdminMenu();",
-            "administrator.menu.dialogs.parametrizedimport.title", false);
+        return super.renderContextMenuItem("javascript:deleteGeneratedDeepZoomTiles();", "administrator.menu.deleteGeneratedDeepZoomTiles");
     }
 }

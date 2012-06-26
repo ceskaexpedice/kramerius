@@ -14,33 +14,41 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
-package cz.incad.Kramerius.exts.menu.main.impl.adm.items;
+package cz.incad.Kramerius.exts.menu.context.impl.adm.items;
 
 import java.io.IOException;
 
 import com.google.inject.Inject;
 
-import cz.incad.Kramerius.exts.menu.main.impl.AbstractMainMenuItem;
-import cz.incad.Kramerius.exts.menu.main.impl.adm.AdminMenuItem;
+import cz.incad.Kramerius.exts.menu.context.impl.AbstractContextMenuItem;
+import cz.incad.Kramerius.exts.menu.context.impl.adm.AdminContextMenuItem;
+import cz.incad.Kramerius.exts.menu.context.impl.adm.AdminContextMenuPartImpl;
+import cz.incad.Kramerius.views.item.menu.ContextMenuItem;
 import cz.incad.kramerius.security.SecuredActions;
-import cz.incad.kramerius.shib.utils.ShibbolethUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 
-public class UsersAdministration extends AbstractMainMenuItem implements AdminMenuItem {
+public class Editor extends AbstractContextMenuItem implements AdminContextMenuItem {
+
+//    adminItems.add(new ContextMenuItem("administrator.menu.editor", "_data_x_role", "openEditor",
+//            "'" + kconfig.getEditorURL() + "'", true));
 
     @Inject
-    KConfiguration kConfiguration;
+    KConfiguration configuration;
+
     
     @Override
     public boolean isRenderable() {
-        return (!ShibbolethUtils.isUnderShibbolethSession(this.requestProvider.get())) &&
-                (hasUserAllowedAction(SecuredActions.ADMINISTRATE.getFormalName()));
+        return true;
     }
 
     @Override
     public String getRenderedItem() throws IOException {
-      String href = kConfiguration.getUsersEditorURL();
-      return renderMainMenuItem(href, "administrator.menu.userseditor",true);
+        return super.renderContextMenuItem("javascript:editor('"+this.configuration.getEditorURL()+"');", "administrator.menu.editor");
     }
 
+    @Override
+    public boolean isMultipleSelectSupported() {
+        return false;
+    }
+    
 }

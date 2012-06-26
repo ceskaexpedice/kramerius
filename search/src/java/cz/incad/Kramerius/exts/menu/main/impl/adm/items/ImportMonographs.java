@@ -31,7 +31,7 @@ public class ImportMonographs extends AbstractMainMenuItem implements AdminMenuI
 
     @Override
     public String getRenderedItem() throws IOException {
-        return renderMenuItem(
+        return renderMainMenuItem(
                 "javascript:importMonographs(); javascript:hideAdminMenu();",
                 "administrator.menu.dialogs.importMonograph.title", false);
     }

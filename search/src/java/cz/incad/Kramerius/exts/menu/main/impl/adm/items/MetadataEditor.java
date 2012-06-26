@@ -44,7 +44,7 @@ public class MetadataEditor extends AbstractMainMenuItem implements AdminMenuIte
     public String getRenderedItem() throws IOException {
       String localeParam = this.provider.get() == null ? "" : "?locale=" + this.provider.get().getLanguage();
       String href = kconfig.getEditorURL() + localeParam;
-      return renderMenuItem(href, "administrator.menu.dialogs.editor.title", true);
+      return renderMainMenuItem(href, "administrator.menu.dialogs.editor.title", true);
     }
 
 

@@ -31,7 +31,7 @@ public class Enumerator extends AbstractMainMenuItem implements AdminMenuItem {
 
     @Override
     public String getRenderedItem() throws IOException {
-        return renderMenuItem(
+        return renderMainMenuItem(
                 "javascript:enumerator(); javascript:hideAdminMenu();",
                 "administrator.menu.dialogs.enumerator.title", false);
     }

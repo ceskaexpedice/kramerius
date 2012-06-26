@@ -24,10 +24,10 @@ import com.google.inject.Inject;
 import com.google.inject.Provider;
 
 import cz.incad.Kramerius.exts.menu.main.impl.AbstractMainMenuItem;
-import cz.incad.Kramerius.exts.menu.main.impl.pub.PublicMenuItem;
+import cz.incad.Kramerius.exts.menu.main.impl.pub.PublicMainMenuItem;
 import cz.incad.kramerius.shib.utils.ShibbolethUtils;
 
-public class ChangePassword extends AbstractMainMenuItem implements PublicMenuItem {
+public class ChangePassword extends AbstractMainMenuItem implements PublicMainMenuItem {
 
     @Inject
     Provider<HttpServletRequest> requestProvider;
@@ -39,7 +39,7 @@ public class ChangePassword extends AbstractMainMenuItem implements PublicMenuIt
 
     @Override
     public String getRenderedItem() throws IOException {
-        return renderMenuItem(
+        return renderMainMenuItem(
             "javascript:(new ChangePswd()).changePassword(); javascript:hideAdminMenu();",
         "administrator.menu.dialogs.changePswd.title", false);
     }

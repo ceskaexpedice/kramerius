@@ -31,7 +31,7 @@ public class CriteriumsEditor extends AbstractMainMenuItem implements AdminMenuI
 
     @Override
     public String getRenderedItem() throws IOException {
-        return renderMenuItem(
+        return renderMainMenuItem(
                 "javascript:criteriumsSearcher.showCriteriums(); javascript:hideAdminMenu();",
                 "rights.criteriumedit.title", false);
     }

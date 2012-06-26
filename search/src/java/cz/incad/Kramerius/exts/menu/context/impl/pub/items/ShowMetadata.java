@@ -14,14 +14,28 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
-package cz.incad.Kramerius.exts.menu.main.impl.pub;
+package cz.incad.Kramerius.exts.menu.context.impl.pub.items;
 
-import cz.incad.Kramerius.exts.menu.main.MainMenuItem;
+import java.io.IOException;
 
-/**
- * Represents public menu item
- * @author pavels
- */
-public interface PublicMenuItem extends MainMenuItem {
+import cz.incad.Kramerius.exts.menu.context.impl.AbstractContextMenuItem;
+import cz.incad.Kramerius.exts.menu.context.impl.pub.PublicContextMenuItem;
 
+public class ShowMetadata extends AbstractContextMenuItem implements PublicContextMenuItem {
+
+    
+    @Override
+    public boolean isMultipleSelectSupported() {
+        return false;
+    }
+
+    @Override
+    public boolean isRenderable() {
+        return true;
+    }
+
+    @Override
+    public String getRenderedItem() throws IOException {
+        return super.renderContextMenuItem("javascript:viewMetadata();", "administrator.menu.showmetadata");
+    }
 }

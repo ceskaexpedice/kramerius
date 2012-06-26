@@ -18,6 +18,10 @@ package cz.incad.Kramerius.exts.menu.context;
 
 import cz.incad.Kramerius.exts.menu.Menu;
 
+/**
+ * Represents context menu container
+ * @author pavels
+ */
 public interface ContextMenu extends Menu {
 
 }

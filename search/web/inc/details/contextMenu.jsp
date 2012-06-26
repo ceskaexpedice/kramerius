@@ -12,12 +12,10 @@
 <%@page import="cz.incad.kramerius.utils.FedoraUtils"%>
 <%@page import="javax.servlet.jsp.jstl.fmt.LocalizationContext"%>
 <%@page import="cz.incad.kramerius.processes.LRProcessManager,cz.incad.kramerius.processes.DefinitionManager" %>
-<%@page import="cz.incad.Kramerius.views.item.ItemViewObject"%>
 <%@page import="cz.incad.Kramerius.views.item.menu.ContextMenuItem" %>
 <%@page import="cz.incad.kramerius.utils.conf.KConfiguration" %>
 <%@page import="cz.incad.kramerius.security.SecuredActions" %>
 
-<view:object name="ctxMenu" clz="cz.incad.Kramerius.views.item.menu.ContextMenuItemsHolder"></view:object>
 
 <style type="text/css">
 
@@ -90,49 +88,25 @@
 <div class="scope" id="scope_multiple"><span><view:msg>administrator.menu.selected.scope</view:msg></span>
     <ul id="context_items_selection"></ul>
 </div>
+
+
+
+
 <div style="height:0px;border-top:1px solid silver;"></div>
 <div><h3><view:msg>administrator.menu.Actions</view:msg>:</h3>
     <ul id="contextMenuList">
-
-        <!-- common items -->
-        <c:forEach var="item" items="${ctxMenu.items}" varStatus="status">
-            <%-- multiple item --%>
-            <c:if test="${item.supportMultiple}">
-                <li><span class="ui-icon ui-icon-triangle-1-e  " >item</span>
-                    <a title='<view:msg>${item.key}</view:msg>' href="javascript:${item.jsFunction}(${item.jsArgs});"><view:msg>${item.key}</view:msg></a>
-                    </li>
-            </c:if>
-            <%-- no multiple item --%>
-            <c:if test="${!item.supportMultiple}">
-                <li class="no-multiple"><span class="ui-icon ui-icon-triangle-1-e  " >item</span>
-                    <a title='<view:msg>${item.key}</view:msg>' href="javascript:${item.jsFunction}(${item.jsArgs});"><view:msg>${item.key}</view:msg></a>
-                    </li>
-            </c:if>
-        </c:forEach>
-
-        <!-- admin items -->
-        <scrd:securedContent action="display_admin_menu">
-            <c:if test="${not empty ctxMenu.adminItems}">
-                <hr/>
-            </c:if>
-
-            <c:forEach var="item" items="${ctxMenu.adminItems}" varStatus="status">
-                <%-- multiple item --%>
-                <c:if test="${item.supportMultiple}">
-                    <li><span class="ui-icon ui-icon-triangle-1-e  " >item</span>
-                        <a title='<view:msg>${item.key}</view:msg>' href="javascript:${item.jsFunction}(${item.jsArgs});"><view:msg>${item.key}</view:msg></a>
-                        </li>
-                </c:if>
-                <%-- no multiple item --%>
-                <c:if test="${!item.supportMultiple}">
-                    <li class="no-multiple"><span class="ui-icon ui-icon-triangle-1-e  " >item</span>
-                        <a title='<view:msg>${item.key}</view:msg>' href="javascript:${item.jsFunction}(${item.jsArgs});"><view:msg>${item.key}</view:msg></a>
-                        </li>
-                </c:if>
-            </c:forEach>
-        </scrd:securedContent>
+         <c:forEach var="part" items="${itm.contextMenu.parts}" varStatus="status">
 
 
+           <c:if test="${part.renderable}">
+               <c:if test="${status.index > 0}">
+                     <hr/>
+                 </c:if>
+               <c:forEach var="item" items="${part.items}" >
+                   <c:if test="${item.renderable}">${item.renderedItem}</c:if>
+               </c:forEach>
+             </c:if>
+         </c:forEach>
     </ul>
 </div>
 

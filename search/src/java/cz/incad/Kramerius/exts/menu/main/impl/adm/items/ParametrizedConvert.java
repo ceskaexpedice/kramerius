@@ -21,7 +21,7 @@ import java.io.IOException;
 import cz.incad.Kramerius.exts.menu.main.impl.AbstractMainMenuItem;
 import cz.incad.Kramerius.exts.menu.main.impl.adm.AdminMenuItem;
 
-public class DefaultWMock extends AbstractMainMenuItem implements AdminMenuItem {
+public class ParametrizedConvert extends AbstractMainMenuItem implements AdminMenuItem {
 
     @Override
     public boolean isRenderable() {
@@ -30,8 +30,11 @@ public class DefaultWMock extends AbstractMainMenuItem implements AdminMenuItem 
 
     @Override
     public String getRenderedItem() throws IOException {
+        // vyrendrovani polozky pro proces 'parametrizedconvert'
         return renderMainMenuItem(
-                "javascript:parametrizedProcess.open('defaultmock'); javascript:hideAdminMenu();",
-                "administrator.menu.dialogs.virtualcollections.title", false);
+            "javascript:parametrizedProcess.open('parametrizedconvert'); javascript:hideAdminMenu();",
+            "administrator.menu.dialogs.parametrizedconvert.title", false);
     }
+
+    
 }

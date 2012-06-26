@@ -33,15 +33,15 @@ import cz.incad.Kramerius.exts.menu.main.impl.adm.items.ImportMonographs;
 import cz.incad.Kramerius.exts.menu.main.impl.adm.items.ImportPeriodicals;
 import cz.incad.Kramerius.exts.menu.main.impl.adm.items.IndexerAdministration;
 import cz.incad.Kramerius.exts.menu.main.impl.adm.items.MetadataEditor;
-import cz.incad.Kramerius.exts.menu.main.impl.adm.items.ParametrizedConvertMenuItem;
-import cz.incad.Kramerius.exts.menu.main.impl.adm.items.ParametrizedImportMenuItem;
+import cz.incad.Kramerius.exts.menu.main.impl.adm.items.ParametrizedConvert;
+import cz.incad.Kramerius.exts.menu.main.impl.adm.items.ParametrizedImport;
 import cz.incad.Kramerius.exts.menu.main.impl.adm.items.ProcessesDialog;
 import cz.incad.Kramerius.exts.menu.main.impl.adm.items.ReplicationRights;
 import cz.incad.Kramerius.exts.menu.main.impl.adm.items.RolesEditor;
 import cz.incad.Kramerius.exts.menu.main.impl.adm.items.UsersAdministration;
 import cz.incad.Kramerius.exts.menu.main.impl.adm.items.VirtualCollectionsAdministration;
 import cz.incad.Kramerius.exts.menu.main.impl.adm.items.WMock;
-import cz.incad.Kramerius.exts.menu.main.impl.pub.PublicMenuItem;
+import cz.incad.Kramerius.exts.menu.main.impl.pub.PublicMainMenuItem;
 import cz.incad.Kramerius.exts.menu.main.impl.pub.PublicMenuPartImpl;
 import cz.incad.Kramerius.exts.menu.main.impl.pub.items.ChangePassword;
 import cz.incad.Kramerius.exts.menu.main.impl.pub.items.SaveProfile;
@@ -51,10 +51,11 @@ import cz.incad.Kramerius.exts.menu.main.impl.pub.items.ShowProfile;
  * Menu configuration bean
  * @author pavels
  */
-public class MenuConfiguration extends AbstractModule {
+public class MainMenuConfiguration extends AbstractModule {
 
     @Override
     protected void configure() {
+
         // casti menu
         Multibinder<MainMenuPart> parts
             = Multibinder.newSetBinder(binder(), MainMenuPart.class);
@@ -63,8 +64,8 @@ public class MenuConfiguration extends AbstractModule {
         
         
         // polozky public menu
-        Multibinder<PublicMenuItem> publicItems
-        = Multibinder.newSetBinder(binder(), PublicMenuItem.class);
+        Multibinder<PublicMainMenuItem> publicItems
+        = Multibinder.newSetBinder(binder(), PublicMainMenuItem.class);
         publicItems.addBinding().to(ShowProfile.class);
         publicItems.addBinding().to(SaveProfile.class);
         publicItems.addBinding().to(ChangePassword.class);
@@ -88,8 +89,8 @@ public class MenuConfiguration extends AbstractModule {
         adminItems.addBinding().to(VirtualCollectionsAdministration.class);
 
         // pridani parametrizovanych procesu
-        adminItems.addBinding().to(ParametrizedImportMenuItem.class);
-        adminItems.addBinding().to(ParametrizedConvertMenuItem.class);
+        adminItems.addBinding().to(ParametrizedImport.class);
+        adminItems.addBinding().to(ParametrizedConvert.class);
 
 //        adminItems.addBinding().to(WMock.class);
 //        adminItems.addBinding().to(DefaultWMock.class);

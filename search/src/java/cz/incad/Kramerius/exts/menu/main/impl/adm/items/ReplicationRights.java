@@ -31,7 +31,7 @@ public class ReplicationRights extends AbstractMainMenuItem implements AdminMenu
 
     @Override
     public String getRenderedItem() throws IOException {
-      return renderMenuItem(
+      return renderMainMenuItem(
           "javascript:replicationRights(); javascript:hideAdminMenu();",
               "administrator.menu.dialogs.replicationrights.title", false);
     }

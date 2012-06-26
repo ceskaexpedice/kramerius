@@ -30,7 +30,7 @@ public class WMock extends AbstractMainMenuItem implements AdminMenuItem {
 
     @Override
     public String getRenderedItem() throws IOException {
-        return renderMenuItem(
+        return renderMainMenuItem(
                 "javascript:parametrizedProcess.open('wmock'); javascript:hideAdminMenu();",
                 "administrator.menu.dialogs.virtualcollections.title", false);
     }

@@ -14,36 +14,21 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
-package cz.incad.Kramerius.exts.menu.main.impl.pub;
+package cz.incad.Kramerius.exts.menu.context.impl.adm.items;
 
-import java.util.Set;
+import java.io.IOException;
 
-import com.google.inject.Inject;
+import cz.incad.Kramerius.exts.menu.context.impl.AbstractContextMenuItem;
+import cz.incad.Kramerius.exts.menu.context.impl.adm.AdminContextMenuItem;
+import cz.incad.Kramerius.views.item.menu.ContextMenuItem;
 
-import cz.incad.Kramerius.exts.menu.MenuPart;
-import cz.incad.Kramerius.exts.menu.impl.AbstractMenuPart;
-import cz.incad.Kramerius.exts.menu.main.MainMenuPart;
+public class ServerPrint extends AbstractContextMenuItem implements AdminContextMenuItem {
 
-/**
- * Public menu part -> visible for everyone
- * @author pavels
- */
-public class PublicMenuPartImpl extends AbstractMenuPart implements MainMenuPart {
+    //adminItems.add(new ContextMenuItem("administrator.menu.print", "", "ctxPrint", "", true));
 
-    public static String FORMAL_NAME="PUBLIC";
-
-    @Inject
-    public PublicMenuPartImpl(Set<PublicMainMenuItem> items) {
-        super();
-        for (PublicMainMenuItem i : items) {
-            this.items.add(i);
-        }
-    }
-
-    
     @Override
-    public String getFormalName() {
-        return FORMAL_NAME;
+    public boolean isMultipleSelectSupported() {
+        return true;
     }
 
     @Override
@@ -51,4 +36,8 @@ public class PublicMenuPartImpl extends AbstractMenuPart implements MainMenuPart
         return true;
     }
 
+    @Override
+    public String getRenderedItem() throws IOException {
+        return super.renderContextMenuItem("javascript:ctxPrint();", "administrator.menu.print");
+    }
 }

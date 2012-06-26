@@ -18,6 +18,15 @@ package cz.incad.Kramerius.exts.menu.context;
 
 import cz.incad.Kramerius.exts.menu.MenuItem;
 
+/**
+ * Represents one context menu item
+ * @author pavels
+ */
 public interface ContextMenuItem extends MenuItem {
 
+    /**
+     * Returns true if this menu can accept multiple selection
+     * @return
+     */
+    public boolean isMultipleSelectSupported();
 }

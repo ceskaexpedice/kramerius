@@ -31,7 +31,7 @@ public class ImportPeriodicals extends AbstractMainMenuItem implements AdminMenu
 
     @Override
     public String getRenderedItem() throws IOException {
-        return renderMenuItem(
+        return renderMainMenuItem(
                 "javascript:importPeriodicals(); javascript:hideAdminMenu();",
                 "administrator.menu.dialogs.importPeriodical.title", false);
     }

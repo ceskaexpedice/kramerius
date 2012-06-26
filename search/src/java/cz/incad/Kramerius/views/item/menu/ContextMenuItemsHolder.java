@@ -86,6 +86,7 @@ public class ContextMenuItemsHolder extends AbstractViewObject implements Initia
             }
 
             items.add(new ContextMenuItem("administrator.menu.downloadOriginal", "_data_x_role", "downloadOriginalItem", "", true));
+
             items.add(new ContextMenuItem("administrator.menu.feedback", "_data_x_role", "feedbackDialog", "", true));
             if (this.loggedUsersSingleton.isLoggedUser(this.requestProvider)) {
                 items.add(new ContextMenuItem("administrator.menu.favorites.add", "_data_x_role", "addToFavorites",
@@ -111,6 +112,7 @@ public class ContextMenuItemsHolder extends AbstractViewObject implements Initia
                 adminItems.add(new ContextMenuItem("administrator.menu.generateDeepZoomTiles", "_data_x_role", "generateDeepZoomTiles", "", true));
                 adminItems.add(new ContextMenuItem("administrator.menu.deleteGeneratedDeepZoomTiles", "_data_x_role", "deleteGeneratedDeepZoomTiles", "", true));
 
+    
                 adminItems.add(new ContextMenuItem("administrator.menu.showrights", "_data_x_role", "securedActionsTableForCtxMenu",
                         "'" + SecuredActions.READ.getFormalName() + "', '" + SecuredActions.ADMINISTRATE.getFormalName() + "'", true));
 

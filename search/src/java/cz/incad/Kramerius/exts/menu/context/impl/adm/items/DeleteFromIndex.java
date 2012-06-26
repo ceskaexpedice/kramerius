@@ -14,14 +14,17 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
-package cz.incad.Kramerius.exts.menu.main.impl.adm.items;
+package cz.incad.Kramerius.exts.menu.context.impl.adm.items;
 
 import java.io.IOException;
 
-import cz.incad.Kramerius.exts.menu.main.impl.AbstractMainMenuItem;
-import cz.incad.Kramerius.exts.menu.main.impl.adm.AdminMenuItem;
+import cz.incad.Kramerius.exts.menu.context.impl.AbstractContextMenuItem;
+import cz.incad.Kramerius.exts.menu.context.impl.adm.AdminContextMenuItem;
+import cz.incad.Kramerius.views.item.menu.ContextMenuItem;
 
-public class DefaultWMock extends AbstractMainMenuItem implements AdminMenuItem {
+public class DeleteFromIndex extends AbstractContextMenuItem implements AdminContextMenuItem  {
+
+    //adminItems.add(new ContextMenuItem("administrator.menu.deletefromindex", "_data_x_role", "deletefromindex", "", true));
 
     @Override
     public boolean isRenderable() {
@@ -30,8 +33,12 @@ public class DefaultWMock extends AbstractMainMenuItem implements AdminMenuItem 
 
     @Override
     public String getRenderedItem() throws IOException {
-        return renderMainMenuItem(
-                "javascript:parametrizedProcess.open('defaultmock'); javascript:hideAdminMenu();",
-                "administrator.menu.dialogs.virtualcollections.title", false);
+        return super.renderContextMenuItem("javascript:deletefromindex();", "administrator.menu.deletefromindex");
     }
+
+    @Override
+    public boolean isMultipleSelectSupported() {
+        return true;
+    }
+
 }

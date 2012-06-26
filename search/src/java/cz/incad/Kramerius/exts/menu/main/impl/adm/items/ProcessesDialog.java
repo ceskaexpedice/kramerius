@@ -31,7 +31,7 @@ public class ProcessesDialog extends AbstractMainMenuItem implements AdminMenuIt
 
     @Override
     public String getRenderedItem() throws IOException {
-        return renderMenuItem(
+        return renderMainMenuItem(
             "javascript:processes.processes(); javascript:hideAdminMenu();",
             "administrator.menu.dialogs.lrprocesses.title", false);
     }

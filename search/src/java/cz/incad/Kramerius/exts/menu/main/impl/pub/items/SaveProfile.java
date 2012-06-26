@@ -19,9 +19,9 @@ package cz.incad.Kramerius.exts.menu.main.impl.pub.items;
 import java.io.IOException;
 
 import cz.incad.Kramerius.exts.menu.main.impl.AbstractMainMenuItem;
-import cz.incad.Kramerius.exts.menu.main.impl.pub.PublicMenuItem;
+import cz.incad.Kramerius.exts.menu.main.impl.pub.PublicMainMenuItem;
 
-public class SaveProfile extends AbstractMainMenuItem implements PublicMenuItem {
+public class SaveProfile extends AbstractMainMenuItem implements PublicMainMenuItem {
 
     @Override
     public boolean isRenderable() {
@@ -30,7 +30,7 @@ public class SaveProfile extends AbstractMainMenuItem implements PublicMenuItem 
 
     @Override
     public String getRenderedItem() throws IOException {
-        return renderMenuItem(
+        return renderMainMenuItem(
                 "javascript:saveProfile.saveProfile(); javascript:hideAdminMenu();",
                 "administrator.menu.dialogs.saveprofile.title", false);
 

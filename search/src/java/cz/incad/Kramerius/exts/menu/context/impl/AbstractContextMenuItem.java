@@ -14,27 +14,27 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
-package cz.incad.Kramerius.exts.menu.main.impl;
+package cz.incad.Kramerius.exts.menu.context.impl;
 
 import java.io.IOException;
 import java.util.Locale;
+import java.util.logging.Level;
 
 import javax.servlet.http.HttpServletRequest;
+
+import org.antlr.stringtemplate.StringTemplate;
 
 import com.google.inject.Inject;
 import com.google.inject.Provider;
 
-import cz.incad.Kramerius.exts.menu.main.MainMenuItem;
-import cz.incad.Kramerius.exts.menu.utils.GlobalRightsUtils;
-import cz.incad.kramerius.security.User;
+import cz.incad.Kramerius.exts.menu.context.ContextMenuItem;
 import cz.incad.kramerius.service.ResourceBundleService;
 
-/**
- * Abstract main menu item
- * @author pavels
- */
-public abstract class AbstractMainMenuItem implements MainMenuItem {
 
+public abstract class AbstractContextMenuItem implements ContextMenuItem {
+
+    static java.util.logging.Logger LOGGER = java.util.logging.Logger.getLogger(AbstractContextMenuItem.class.getName());
+    
     @Inject
     protected ResourceBundleService resourceBundleService;
 
@@ -43,18 +43,17 @@ public abstract class AbstractMainMenuItem implements MainMenuItem {
     
     @Inject
     protected Provider<HttpServletRequest> requestProvider;
-    
-    
-    protected boolean hasUserAllowedAction(String actionFormalName) {
-        HttpServletRequest request = this.requestProvider.get();
-        return GlobalRightsUtils.hasUserAllowedAction(actionFormalName, request);
-    }
 
 
-    protected String renderMainMenuItem(String href, String labelKey, boolean newWindow) throws IOException {
+    protected String renderContextMenuItem(String href, String labelKey) throws IOException {
         String label = this.resourceBundleService.getResourceBundle("labels", this.localesProvider.get()).getString(labelKey);
-        return String.format("<div align=\"left\"> <a href=\"%s\""+(newWindow?" target=\"_blank\"":"")+"> %s </a> </div>",
-                href, label);
+        StringTemplate template = new StringTemplate(
+        "<li $if(multiselect)$ > $else$ class='no-multiple'> $endif$ <span class='ui-icon ui-icon-triangle-1-e  ' >item</span> <a title='$label$' href=\"$href$\">$label$</a></li>");
+        template.setAttribute("multiselect", this.isMultipleSelectSupported());
+        template.setAttribute("label", label);
+        template.setAttribute("href",href);
+        String rendered = template.toString();
+        LOGGER.log(Level.INFO,"rendered item is '"+rendered+"'");
+        return rendered;
     }
-    
 }

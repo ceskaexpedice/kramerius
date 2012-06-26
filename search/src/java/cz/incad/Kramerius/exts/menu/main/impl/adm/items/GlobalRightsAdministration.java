@@ -31,7 +31,7 @@ public class GlobalRightsAdministration extends AbstractMainMenuItem implements 
 
     @Override
     public String getRenderedItem() throws IOException {
-        return renderMenuItem(
+        return renderMainMenuItem(
                 "javascript:globalActions.globalActions(); javascript:hideAdminMenu();",
                 "administrator.menu.dialogs.actionsAdmin.title", false);
     }

@@ -31,7 +31,7 @@ public class VirtualCollectionsAdministration extends AbstractMainMenuItem imple
 
     @Override
     public String getRenderedItem() throws IOException {
-        return renderMenuItem(
+        return renderMainMenuItem(
                 "javascript:showVirtualCollectionsAdmin(); javascript:hideAdminMenu();",
                 "administrator.menu.dialogs.virtualcollections.title", false);
     }

@@ -31,7 +31,7 @@ public class RolesEditor extends AbstractMainMenuItem implements AdminMenuItem {
 
     @Override
     public String getRenderedItem() throws IOException {
-        return renderMenuItem(
+        return renderMainMenuItem(
                 "javascript:roles.showRoles(); javascript:hideAdminMenu();",
                 "rights.rolesedit.title", false);
     }

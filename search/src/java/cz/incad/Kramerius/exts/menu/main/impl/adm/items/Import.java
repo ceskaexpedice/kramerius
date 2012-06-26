@@ -31,7 +31,7 @@ public class Import extends AbstractMainMenuItem implements AdminMenuItem {
 
     @Override
     public String getRenderedItem() throws IOException {
-        return renderMenuItem(
+        return renderMainMenuItem(
                 "javascript:impor(); javascript:hideAdminMenu();",
                 "administrator.menu.dialogs.import.title", false);
     }

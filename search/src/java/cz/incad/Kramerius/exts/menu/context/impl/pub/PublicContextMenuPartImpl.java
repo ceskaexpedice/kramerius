@@ -14,33 +14,32 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
-package cz.incad.Kramerius.exts.menu.main.impl.pub;
+package cz.incad.Kramerius.exts.menu.context.impl.pub;
 
 import java.util.Set;
 
 import com.google.inject.Inject;
 
-import cz.incad.Kramerius.exts.menu.MenuPart;
+import cz.incad.Kramerius.exts.menu.context.ContextMenuPart;
 import cz.incad.Kramerius.exts.menu.impl.AbstractMenuPart;
-import cz.incad.Kramerius.exts.menu.main.MainMenuPart;
+import cz.incad.Kramerius.exts.menu.main.impl.pub.PublicMainMenuItem;
 
 /**
- * Public menu part -> visible for everyone
+ * Public context menu part
  * @author pavels
  */
-public class PublicMenuPartImpl extends AbstractMenuPart implements MainMenuPart {
+public class PublicContextMenuPartImpl extends AbstractMenuPart implements ContextMenuPart {
 
-    public static String FORMAL_NAME="PUBLIC";
-
+    public static final String FORMAL_NAME="PUBLIC";
+   
     @Inject
-    public PublicMenuPartImpl(Set<PublicMainMenuItem> items) {
+    public PublicContextMenuPartImpl(Set<PublicContextMenuItem> items) {
         super();
-        for (PublicMainMenuItem i : items) {
+        for (PublicContextMenuItem i : items) {
             this.items.add(i);
         }
     }
 
-    
     @Override
     public String getFormalName() {
         return FORMAL_NAME;
@@ -50,5 +49,4 @@ public class PublicMenuPartImpl extends AbstractMenuPart implements MainMenuPart
     public boolean isRenderable() {
         return true;
     }
-
 }

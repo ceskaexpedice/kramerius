@@ -14,6 +14,13 @@
 <%@page import="javax.servlet.jsp.jstl.fmt.LocalizationContext"%>
 <%@page import="cz.incad.kramerius.FedoraAccess"%>
 <%@page import="cz.incad.kramerius.MostDesirable"%>
+
+<%@ taglib uri="/WEB-INF/tlds/securedContent.tld" prefix="scrd" %>
+<%@ taglib uri="/WEB-INF/tlds/cmn.tld" prefix="view" %>
+
+<view:object name="itm" clz="cz.incad.Kramerius.views.ItemViewObject"></view:object>
+
+
 <%
             Injector ctxInj = (Injector) application.getAttribute(Injector.class.getName());
             KConfiguration kconfig = ctxInj.getProvider(KConfiguration.class).get();
@@ -24,7 +31,9 @@
             String i18nServlet = I18NServlet.i18nServlet(request) + "?action=bundle&lang=" + lctx.getLocale().getLanguage() + "&country=" + lctx.getLocale().getCountry() + "&name=labels";
             pageContext.setAttribute("i18nServlet", i18nServlet);
 %>
+
 <%@ include file="inc/checkUUID.jsp" %>
+
 <%
 
             MostDesirable mostDesirable = ctxInj.getInstance(MostDesirable.class);

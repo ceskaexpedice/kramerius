@@ -31,7 +31,7 @@ public class Convert extends AbstractMainMenuItem implements AdminMenuItem {
 
     @Override
     public String getRenderedItem() throws IOException {
-      return renderMenuItem(
+      return renderMainMenuItem(
               "javascript:convert(); javascript:hideAdminMenu();",
               "administrator.menu.dialogs.convert.title", false);
     }

@@ -14,7 +14,6 @@
 <%@page import="javax.servlet.jsp.jstl.fmt.LocalizationContext"%>
 <%@page import="cz.incad.kramerius.FedoraAccess"%>
 <%@page import="cz.incad.Kramerius.views.item.ItemViewObject"%>
-<%@page import="cz.incad.Kramerius.views.item.menu.ItemMenuViewObject"%>
 <style type="text/css">
     #split {
         height: 700px;
