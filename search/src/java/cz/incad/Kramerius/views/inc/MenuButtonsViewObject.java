@@ -39,6 +39,7 @@ public class MenuButtonsViewObject {
 
     String[] getConfigredItems() {
         String[] langs = kConfiguration.getPropertyList("interface.languages");
+
         return langs;
     }
     
@@ -80,14 +81,15 @@ public class MenuButtonsViewObject {
         
         for (int i = 0; i < items.length; i++) {
             String name = items[i];
-            String appUrl = ApplicationURL.applicationURL(this.requestProvider.get());
-            if (!appUrl.endsWith("/")) appUrl = appUrl +"/";
-            String link = i < items.length ? appUrl + "?language="+ items[++i] + "&" + buffer.toString() : "";
+            String link = "" + "?language="+ items[++i] + "&" + buffer.toString() ;
             LanguageItem itm = new LanguageItem(link, name, items[i]);
             links.add(itm);
         }
         return links;
+    
+    
     }
+
     
     public static class LanguageItem {
         
