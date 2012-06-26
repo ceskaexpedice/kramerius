@@ -81,7 +81,7 @@ public class MenuButtonsViewObject {
         
         for (int i = 0; i < items.length; i++) {
             String name = items[i];
-            String link = "" + "?language="+ items[++i] + "&" + buffer.toString() ;
+            String link =  "?language="+ items[++i] + "&" + buffer.toString() ;
             LanguageItem itm = new LanguageItem(link, name, items[i]);
             links.add(itm);
         }
