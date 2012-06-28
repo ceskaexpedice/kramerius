@@ -43,8 +43,8 @@ public final class RemoteServicesImpl implements RemoteServices {
 
     @Override
     public void reindex(String pid) {
-        String uuid = EditorServerUtils.resolveUUID(pid);
-        if (uuid == null) {
+        //String uuid = EditorServerUtils.resolveUUID(pid);
+        if (pid == null) {
             return;
         }
         String title;
@@ -55,7 +55,7 @@ public final class RemoteServicesImpl implements RemoteServices {
             title = pid;
         }
 
-        reindex(uuid, title);
+        reindex(pid, title);
     }
 
     void reindex(String uuid, String title) {
