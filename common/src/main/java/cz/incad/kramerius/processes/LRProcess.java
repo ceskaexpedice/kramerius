@@ -31,8 +31,6 @@ import cz.incad.kramerius.security.User;
  */
 public interface LRProcess {
 	
-    
-	
 	/**
 	 * Parameters to process
 	 * @return
@@ -127,12 +125,26 @@ public interface LRProcess {
 	 */
 	public States getProcessState();
 	
+	
 	/**
 	 * Setting process's state
 	 * @param st
 	 */
 	public void setProcessState(States st);
 
+	/**
+     * Returns current batch state
+     * @return
+     */
+    public BatchStates getBatchState();
+
+    /**
+     * Sets batch state
+     * @param st
+     */
+    public void setBatchState(BatchStates st);
+    
+    
 	/**
 	 * Returns true, if the process is alive
 	 * @return

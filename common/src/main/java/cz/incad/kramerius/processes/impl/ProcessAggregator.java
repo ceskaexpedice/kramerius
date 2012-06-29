@@ -30,7 +30,7 @@ public class ProcessAggregator {
 
     static java.util.logging.Logger LOGGER = java.util.logging.Logger.getLogger(ProcessAggregator.class.getName());
     
-    public static void main(String[] args) throws IOException {
+    public static void main(String[] args) throws Exception {
         String token = System.getProperty(ProcessStarter.TOKEN_KEY);
         // params parsing... 
         

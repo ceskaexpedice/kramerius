@@ -6,6 +6,8 @@ import java.util.TimerTask;
 import java.util.concurrent.locks.Lock;
 import java.util.logging.Level;
 
+import cz.incad.kramerius.processes.utils.PIDList;
+
 public class GCCheckFoundCandidatesTask extends TimerTask {
 
 	public static final java.util.logging.Logger LOGGER = java.util.logging.Logger

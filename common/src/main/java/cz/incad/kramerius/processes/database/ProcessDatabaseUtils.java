@@ -20,6 +20,8 @@ import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import org.antlr.stringtemplate.StringTemplate;
+
 /**
  * Utility class which contains methods for manipulation of processes
  * @author pavels
@@ -104,7 +106,8 @@ public class ProcessDatabaseUtils {
                 "   FIRSTNAME," + //8
                 "   SURNAME," +  // 9
                 "   USER_KEY," +
-                "   PARAMS_MAPPING ) " + //11
+                "   PARAMS_MAPPING , " + //11
+                "   BATCH_STATUS ) " + //12
                 "       values " +
                 "   (" +
                 "       ?," + //1 - DEFID
@@ -118,7 +121,8 @@ public class ProcessDatabaseUtils {
                 "       ?," + //8 FIRSTNAME
                 "       ?," + //9 SURNAME
                 "       ?," + //10 USERKEY
-                "       ?" + //11 PARAMS_MAPPING
+                "       ?," + //11 PARAMS_MAPPING
+                "       ?" + //12 BATCH_STATUS
                 "   )");
         try {
             prepareStatement.setString(1, lp.getDefinitionId());
@@ -146,6 +150,7 @@ public class ProcessDatabaseUtils {
             prepareStatement.setString(9, user.getSurname());
             prepareStatement.setString(10, loggedUserKey);
             prepareStatement.setString(11, storedParams);
+            prepareStatement.setInt(12, lp.getBatchState().getVal());
             
             prepareStatement.executeUpdate();
         } finally {
@@ -273,5 +278,20 @@ public class ProcessDatabaseUtils {
         } else {
             throw new ProcessManagerException("cannot find process id associated with token "+lrProcess.getToken());
         }
+    }
+
+
+
+    public static String [] QUERY_PROCESS_COLUMNS= {
+        "p.DEFID,PID", "p.UUID", "p.STATUS", "p.PLANNED", "p.STARTED",
+        "p.NAME AS PNAME", "p.PARAMS", "p.STARTEDBY", "p.TOKEN",  
+        "p.loginname","p.surname","p.firstname","p.user_key","p.params_mapping", "p.batch_status" 
+    };
+
+
+    public static String printQueryProcessColumns() {
+        StringTemplate template = new StringTemplate("$columns;separator=\",\"$");
+        template.setAttribute("columns", QUERY_PROCESS_COLUMNS);
+        return template.toString();
     }
 }

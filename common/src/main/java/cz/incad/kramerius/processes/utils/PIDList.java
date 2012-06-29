@@ -1,4 +1,4 @@
-package cz.incad.kramerius.processes;
+package cz.incad.kramerius.processes.utils;
 
 import java.io.IOException;
 import java.util.List;

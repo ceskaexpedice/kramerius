@@ -66,9 +66,22 @@ public class ProcessDatabaseInitializator {
                 if (!DatabaseUtils.columnExists(connection, "PROCESSES","PARAMS_MAPPING")) {
                     alterProcessTableParamsMappingToken(connection);
                 }
+                if (!DatabaseUtils.columnExists(connection, "PROCESSES","BATCH_STATUS")) {
+                    alterProcessTableBatchState(connection);
+                    updateProcessTableBatchStates(connection);
+                }
             } else if (v.equals("4.5.0") ||  v.equals("4.6.0") ||  v.equals("4.7.0") || v.equals("4.8.0") ||  v.equals("4.9.0")) {
                 if (!DatabaseUtils.columnExists(connection, "PROCESSES","PARAMS_MAPPING")) {
                     alterProcessTableParamsMappingToken(connection);
+                }
+                if (!DatabaseUtils.columnExists(connection, "PROCESSES","BATCH_STATUS")) {
+                    alterProcessTableBatchState(connection);
+                    updateProcessTableBatchStates(connection);
+                }
+            } else if (v.equals("5.0.0"))  {
+                if (!DatabaseUtils.columnExists(connection, "PROCESSES","BATCH_STATUS")) {
+                    alterProcessTableBatchState(connection);
+                    updateProcessTableBatchStates(connection);
                 }
             }
         } catch (SQLException e) {
@@ -134,6 +147,34 @@ public class ProcessDatabaseInitializator {
             DatabaseUtils.tryClose(prepareStatement);
         }
     }    
+
+
+    public static void alterProcessTableBatchState(Connection con) throws SQLException {
+        PreparedStatement prepareStatement = con.prepareStatement(
+            "ALTER TABLE PROCESSES ADD COLUMN BATCH_STATUS INTEGER;");
+        try {
+            int r = prepareStatement.executeUpdate();
+            LOGGER.log(Level.FINEST, "ALTER TABLE: updated rows {0}", r);
+        } finally {
+            DatabaseUtils.tryClose(prepareStatement);
+        }
+    }    
+    
+    public static void  updateProcessTableBatchStates(Connection con) throws SQLException {
+        PreparedStatement prepareStatement = con.prepareStatement(
+            "update processes set batch_status = case "+
+                "   when status = 6 then 1"+
+                "   when status = 7 then 2"+
+                "   when status = 8 then 3"+
+                "   else 0"+
+                "   end");
+        try {
+            int r = prepareStatement.executeUpdate();
+            LOGGER.log(Level.FINEST, "UPDATE TABLE: updated rows {0}", r);
+        } finally {
+            DatabaseUtils.tryClose(prepareStatement);
+        }
+    }
 
     
     public static void changeDatabaseBecauseShibb(Connection con) throws SQLException {

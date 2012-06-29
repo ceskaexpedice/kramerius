@@ -59,9 +59,11 @@ public interface LRProcessDefinition {
 	 * @param uuid UUID of process UUID of process 
 	 * @param pid PID of proccess PID of process
 	 * @param start Timestamp when process has been started
+	 * @param state Process state
+	 * @param bstate Batch process state
 	 * @return
 	 */
-	public LRProcess loadProcess(String uuid, String pid, long start, States state, String name);
+	public LRProcess loadProcess(String uuid, String pid, long start, States state, BatchStates bstate, String name);
 	
 	/**
 	 * Returns file error stream file 

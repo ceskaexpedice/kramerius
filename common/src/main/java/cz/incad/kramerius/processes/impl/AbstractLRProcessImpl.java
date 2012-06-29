@@ -29,6 +29,7 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.logging.Level;
 
+import cz.incad.kramerius.processes.BatchStates;
 import cz.incad.kramerius.processes.DefinitionManager;
 import cz.incad.kramerius.processes.LRProcess;
 import cz.incad.kramerius.processes.LRProcessDefinition;
@@ -51,7 +52,10 @@ public abstract class AbstractLRProcessImpl implements LRProcess{
 	private long startTime;
 	private long plannedTime;
 	private String uuid;
+	
 	private States state = States.NOT_RUNNING;
+	private BatchStates batchState = BatchStates.NO_BATCH;
+	
 	private String name;
 	//private int userId;
 	
@@ -194,7 +198,9 @@ public abstract class AbstractLRProcessImpl implements LRProcess{
 			processBuilder.environment().put(ProcessStarter.CLASSPATH_NAME, buffer.toString());
 			this.setStartTime(System.currentTimeMillis());
 			this.state = States.RUNNING;
+	
 			manager.updateLongRunningProcessState(this);
+			
 			manager.updateLongRunningProcessStartedDate(this);
             
 			LOGGER.fine(""+command);
@@ -300,8 +306,6 @@ public abstract class AbstractLRProcessImpl implements LRProcess{
 	}
 
 
-
-
 	public void setStartTime(long startTime) {
 		this.startTime = startTime;
 	}
@@ -326,13 +330,22 @@ public abstract class AbstractLRProcessImpl implements LRProcess{
 		return this.state;
 	}
 
-
 	@Override
+    public BatchStates getBatchState() {
+	    return this.batchState;
+	}
+
+	
+    @Override
+    public void setBatchState(BatchStates st) {
+        this.batchState = st;
+    }
+
+
+    @Override
 	public String getProcessName() {
 		return this.name;
 	}
-
-
 
 	@Override
 	public void setProcessName(String nm) {

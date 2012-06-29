@@ -41,26 +41,31 @@ public enum States {
      */
     PLANNED(5),
 
+    /*
+     * WARNING(10)
+     */
     
     /**
      * Batch process started (contains child processes and all of them are
      * PLANNED or RUNNING).
      */
+    @Deprecated
     BATCH_STARTED(6),
 
     
     /**
      * Batch process failed (some of child process FAILED)
      */
+    @Deprecated
     BATCH_FAILED(7),
 
     /**
      * Batch process finished (all child processes finished with state FINISH)
      */
-    BATCH_FINISHED(8),
+    @Deprecated
+    BATCH_FINISHED(8);
 
     
-    BATCH_STARTING(9);
 
     /**
      * Load state from value
@@ -85,22 +90,22 @@ public enum States {
         return val;
     }
 
-    /**
-     * Calculate master batch process state
-     * @param childStates Child process states
-     * @return
-     */
-    public static States calculateBatchState(List<States> childStates) {
-        // ve stavu planned nebo running
-        if (one(childStates, FAILED)) {
-            return BATCH_FAILED;
-        } else {
-            if (one(childStates, PLANNED, RUNNING)) {
-                return BATCH_STARTED;
-            }
-            return BATCH_FINISHED;
-        }
-    }
+//    /**
+//     * Calculate master batch process state
+//     * @param childStates Child process states
+//     * @return
+//     */
+//    public static States calculateBatchState(List<States> childStates) {
+//        // ve stavu planned nebo running
+//        if (one(childStates, FAILED)) {
+//            return BATCH_FAILED;
+//        } else {
+//            if (one(childStates, PLANNED, RUNNING)) {
+//                return BATCH_STARTED;
+//            }
+//            return BATCH_FINISHED;
+//        }
+//    }
 
     /**
      * Returns true if one of given childStates contains any expecting state
@@ -142,5 +147,14 @@ public enum States {
                 return true;
         }
         return false;
+    }
+
+    /**
+     * Returns true given state is not running state
+     * @param realState
+     * @return
+     */
+    public static boolean notRunningState(States realState) {
+        return expect(realState, States.FAILED, States.FINISHED, States.KILLED);
     }
 }

@@ -10,7 +10,7 @@ import java.util.List;
 
 import org.apache.commons.lang.SystemUtils;
 
-import cz.incad.kramerius.processes.PIDList;
+import cz.incad.kramerius.processes.utils.PIDList;
 import cz.incad.kramerius.utils.IOUtils;
 
 public class UnixPIDList extends PIDList {

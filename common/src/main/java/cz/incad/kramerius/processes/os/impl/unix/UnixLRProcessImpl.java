@@ -17,9 +17,9 @@ import java.util.logging.Level;
 
 import cz.incad.kramerius.processes.LRProcessDefinition;
 import cz.incad.kramerius.processes.LRProcessManager;
-import cz.incad.kramerius.processes.PIDList;
 import cz.incad.kramerius.processes.impl.AbstractLRProcessImpl;
 import cz.incad.kramerius.processes.impl.ProcessStarter;
+import cz.incad.kramerius.processes.utils.PIDList;
 import cz.incad.kramerius.utils.IOUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 

@@ -9,7 +9,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.StringTokenizer;
 
-import cz.incad.kramerius.processes.PIDList;
+import cz.incad.kramerius.processes.utils.PIDList;
 import cz.incad.kramerius.utils.IOUtils;
 
 public class WindowsPIDList extends PIDList {

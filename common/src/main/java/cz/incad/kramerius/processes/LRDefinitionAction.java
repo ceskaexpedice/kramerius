@@ -7,6 +7,7 @@ import org.w3c.dom.NodeList;
 /**
  * Actions defined for LR PROCESS
  * @author pavels
+ * @deprecated
  */
 public class LRDefinitionAction {
 

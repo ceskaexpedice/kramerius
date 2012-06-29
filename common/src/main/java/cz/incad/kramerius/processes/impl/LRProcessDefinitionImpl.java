@@ -10,6 +10,7 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
+import cz.incad.kramerius.processes.BatchStates;
 import cz.incad.kramerius.processes.LRDefinitionAction;
 import cz.incad.kramerius.processes.LRProcess;
 import cz.incad.kramerius.processes.LRProcessDefinition;
@@ -209,14 +210,16 @@ public class LRProcessDefinitionImpl implements LRProcessDefinition {
 	
 	
 	@Override
-	public LRProcess loadProcess(String uuid, String pid, long planned, States state, String name) {
+	public LRProcess loadProcess(String uuid, String pid, long planned, States state, BatchStates bstate, String name) {
 	    AbstractLRProcessImpl abs = createProcessInternal();
 		abs.setUuid(uuid);
 		abs.setDefinition(this);
 		abs.setPlannedTime(planned);
 		abs.setPid(pid);
 		abs.setProcessState(state);
+		abs.setBatchState(bstate);
 		abs.setProcessName(name);
+		
 		return abs;
 	}
 

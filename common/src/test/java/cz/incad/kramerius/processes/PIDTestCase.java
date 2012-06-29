@@ -3,6 +3,8 @@ package cz.incad.kramerius.processes;
 import java.io.IOException;
 import java.util.List;
 
+import cz.incad.kramerius.processes.utils.PIDList;
+
 import junit.framework.TestCase;
 
 public class PIDTestCase extends TestCase {

@@ -40,6 +40,7 @@ import com.google.inject.Inject;
 import com.google.inject.Provider;
 import com.google.inject.name.Named;
 
+import cz.incad.kramerius.processes.BatchStates;
 import cz.incad.kramerius.processes.DefinitionManager;
 import cz.incad.kramerius.processes.LRPRocessFilter;
 import cz.incad.kramerius.processes.LRProcess;
@@ -65,7 +66,9 @@ public class DatabaseProcessManager implements LRProcessManager {
 
 
     public static final java.util.logging.Logger LOGGER = java.util.logging.Logger.getLogger(DatabaseProcessManager.class.getName());
-
+    
+    
+    
     @Inject
     @Named("kramerius4")
     private Provider<Connection> connectionProvider;
@@ -85,14 +88,14 @@ public class DatabaseProcessManager implements LRProcessManager {
         super();
     }
 
+    
     @Override
     public LRProcess getLongRunningProcess(String uuid) {
         Connection connection = connectionProvider.get();
         if (connection == null)
             throw new NotReadyException("connection not ready");
 
-        String sql = "select p.DEFID,PID,p.UUID,p.STATUS,p.PLANNED,p.STARTED,p.NAME AS PNAME, p.PARAMS, p.STARTEDBY, p.TOKEN, " 
-            + "p.loginname,p.surname,p.firstname,p.user_key,p.params_mapping from PROCESSES p where UUID = ?";
+        String sql = "select "+ProcessDatabaseUtils.printQueryProcessColumns()+" from PROCESSES p where UUID = ?";
         List<LRProcess> processes = new JDBCQueryTemplate<LRProcess>(connection) {
             @Override
             public boolean handleRow(ResultSet rs, List<LRProcess> returnsList) throws SQLException {
@@ -292,18 +295,31 @@ public class DatabaseProcessManager implements LRProcessManager {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
         }
     }
+    
+    
+
+    @Override
+    public void updateLongRunninngProcessBatchState(LRProcess lrProcess) {
+        try {
+            Connection connection = connectionProvider.get();
+            if (connection == null)
+                throw new NotReadyException("connection not ready");
+            int val = lrProcess.getBatchState().getVal();
+            String processUuid = lrProcess.getUUID();
+            LOGGER.fine("params is "+val+","+processUuid);
+            new JDBCUpdateTemplate(connection).executeUpdate("update processes set BATCH_STATUS = ? where UUID = ?", val, processUuid);
+        } catch (SQLException e) {
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+        }
+        
+    }
 
     public List<LRProcess> getPlannedProcess(int howMany) {
         Connection connection = connectionProvider.get();
         if (connection == null)
             throw new NotReadyException("connection not ready");
         
-        // if (connection != null) {
-        // POZN: dotazovanych vet bude vzdycky malo, misto join budu
-        // provadet dodatecne selekty.
-        // POZN: bude jich v radu jednotek.
-        StringBuffer buffer = new StringBuffer("select p.DEFID,PID,p.UUID,p.STATUS,p.PLANNED,p.STARTED,p.NAME AS PNAME, p.PARAMS, p.STARTEDBY,p.TOKEN, " + "p.loginname,p.surname,p.firstname,p.user_key,p.params_mapping " + "from processes p where status = ?");
-        buffer.append(" ORDER BY PLANNED LIMIT ? ");
+        StringBuffer buffer = new StringBuffer("select "+ProcessDatabaseUtils.printQueryProcessColumns()+ " from processes p where status = ? ORDER BY PLANNED LIMIT ? ");
 
         List<LRProcess> processes = new JDBCQueryTemplate<LRProcess>(connection){
 
@@ -351,15 +367,17 @@ public class DatabaseProcessManager implements LRProcessManager {
         String firstname = rs.getString("FIRSTNAME");
         String surname = rs.getString("SURNAME");
         String userKey = rs.getString("USER_KEY");
-
         String paramsMapping = rs.getString("params_mapping");
+        int batchStatus = rs.getInt("BATCH_STATUS");
         
         
         LRProcessDefinition definition = this.lrpdm.getLongRunningProcessDefinition(definitionId);
         if (definition == null) {
             throw new RuntimeException("cannot find definition '" + definitionId + "'");
         }
-        LRProcess process = definition.loadProcess(uuid, pid, planned != null ? planned.getTime() : 0, States.load(status), name);
+        
+        LRProcess process = definition.loadProcess(uuid, pid, planned != null ? planned.getTime() : 0, States.load(status), BatchStates.load(batchStatus), name);
+
         process.setToken(token);
         if (started != null)
             process.setStartTime(started.getTime());
@@ -394,7 +412,7 @@ public class DatabaseProcessManager implements LRProcessManager {
                     returnsList.add(process);
                     return true;
                 }
-            }.executeQuery("select p.DEFID,PID,p.UUID,p.STATUS,p.PLANNED,p.STARTED,p.NAME AS PNAME, p.PARAMS, " + "p.STARTEDBY,p.TOKEN, p.loginname,p.surname,p.firstname,p.user_key,p.params_mapping from processes p where token = ? " + " order by p.process_id ", token);
+            }.executeQuery("select "+ProcessDatabaseUtils.printQueryProcessColumns()+" from processes p where token = ? " + " order by p.process_id ", token);
             return lpList;
         } catch (Exception e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
@@ -413,8 +431,7 @@ public class DatabaseProcessManager implements LRProcessManager {
                 returnsList.add(processFromResultSet(rs));
                 return super.handleRow(rs, returnsList);
             }
-        }.executeQuery("select p.DEFID,PID,p.UUID,p.STATUS,p.PLANNED,p.STARTED,p.NAME AS PNAME, p.PARAMS, p.STARTEDBY,p.TOKEN" 
-                    + ", p.loginname,p.surname,p.firstname,p.user_key,p.params_mapping from PROCESSES p  where STATUS = ?",
+        }.executeQuery("select "+ProcessDatabaseUtils.printQueryProcessColumns()+" from PROCESSES p  where STATUS = ?",
                 state.getVal());
         return processes;
     }
@@ -424,7 +441,7 @@ public class DatabaseProcessManager implements LRProcessManager {
         Connection connection = connectionProvider.get();
         if (connection == null)
             throw new NotReadyException("connection not ready");
-        StringBuffer buffer = new StringBuffer("select p.DEFID,PID,p.UUID,p.STATUS,p.PLANNED,p.STARTED,p.NAME AS PNAME, p.PARAMS, p.STARTEDBY,p.TOKEN,p.loginname,p.surname,p.firstname,p.user_key,p.params_mapping from processes p ");
+        StringBuffer buffer = new StringBuffer("select "+ProcessDatabaseUtils.printQueryProcessColumns()+" from processes p ");
         if (ordering != null) {
             buffer.append(" order by ");
             ordering(ordering, typeOfOrdering, buffer);
@@ -451,7 +468,8 @@ public class DatabaseProcessManager implements LRProcessManager {
         Connection connection = connectionProvider.get();
         if (connection == null)
             throw new NotReadyException("connection not ready");
-        StringBuffer buffer = new StringBuffer("select p.DEFID,PID,p.UUID,p.STATUS,p.PLANNED,p.STARTED,p.NAME AS PNAME, p.PARAMS, p.STARTEDBY,p.TOKEN,p.loginname,p.surname,p.firstname,p.user_key,p.params_mapping,v.pcount as pcount from processes p " + " join process_grouped_view v on (p.process_id=v.process_id)");
+        StringBuffer buffer = new StringBuffer("select "+ProcessDatabaseUtils.printQueryProcessColumns()+",v.pcount as pcount from processes p " 
+                + " join process_grouped_view v on (p.process_id=v.process_id)");
 
         if (filter != null) {
             buffer.append(filter.getSQLOffset());
@@ -556,19 +574,15 @@ public class DatabaseProcessManager implements LRProcessManager {
 
     @Override
     public void updateTokenMapping(LRProcess lrProcess, String sessionKey) {
-        Connection con = null;
         try {
-            con = this.connectionProvider.get();
             int sessionKeyId = this.loggedUsersSingleton.getSessionKeyId(sessionKey);
             if (sessionKeyId > -1) {
-                ProcessDatabaseUtils.updateTokenMapping(lrProcess, con, sessionKeyId);
+                ProcessDatabaseUtils.updateTokenMapping(lrProcess, this.connectionProvider.get(), sessionKeyId);
             } else {
                 throw new ProcessManagerException("cannot find session associated with sessionKey '" + sessionKey + "'");
             }
         } catch (SQLException e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
-        } finally {
-            //DatabaseUtils.tryClose(con);
         }
 
     }

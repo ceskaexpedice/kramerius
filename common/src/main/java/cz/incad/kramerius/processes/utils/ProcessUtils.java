@@ -22,6 +22,7 @@ import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.List;
 
+import cz.incad.kramerius.processes.BatchStates;
 import cz.incad.kramerius.processes.States;
 import cz.incad.kramerius.processes.impl.ProcessStarter;
 import cz.incad.kramerius.utils.conf.KConfiguration;
@@ -48,16 +49,15 @@ public class ProcessUtils {
         return lrServlet;
     }
 
-    public static void startProcess(String processDef, String nparams) {
+    public static void startProcess(String processDef, String nparams) throws Exception{
         LOGGER.info(" spawn process '"+processDef+"'");
         String base = ProcessUtils.getLrServlet();    
         String url = base + "?action=start&def="+processDef+"&nparams="+nparams+"&token="+System.getProperty(ProcessStarter.TOKEN_KEY);
         byte[] output = new byte[0];
         try {
             output = ProcessStarter.httpGet(url);
-        } catch (Exception e) {
-            LOGGER.severe("Error spawning indexer for "+processDef+":"+e);
-            LOGGER.severe("content from stream "+new String(output));
+        } catch (RuntimeException e) {
+            throw e;
         }
     }
 
@@ -97,13 +97,10 @@ public class ProcessUtils {
     
     public static void main(String[] args) {
         List<States> states = new ArrayList<States>();
-        states.add(States.PLANNED);
-        states.add(States.RUNNING);
-        states.add(States.KILLED);
         states.add(States.FINISHED);
-        states.add(States.FAILED);
+        states.add(States.FINISHED);
         
-        States aggr = States.calculateBatchState(states);
+        BatchStates aggr = BatchStates.calculateBatchState(states);
         System.out.println(aggr);
         
         

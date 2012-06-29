@@ -96,10 +96,17 @@ public interface LRProcessManager {
 	public int getNumberOfLongRunningProcesses();
 	
 	/**
-	 * Update state 
+	 * Update process state 
 	 * @param lrProcess
 	 */
 	public void updateLongRunningProcessState(LRProcess lrProcess);
+	
+	/**
+	 * Update batch state of the process
+	 * @param lrProcess
+	 */
+	public void updateLongRunninngProcessBatchState(LRProcess lrProcess);
+	
 	
 	/**
 	 * Update name
