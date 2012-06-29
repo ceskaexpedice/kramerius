@@ -295,6 +295,10 @@ public class ProcessesViewObject {
         }
     }
 
+    public String getBatchStateOrdering() {
+        return "Davka";
+    }
+    
     private String newOrderingURL(LRProcessOrdering nOrdering, String name, TypeOfOrdering ntypeOfOrdering) {
         String href = "<a href=\"javascript:processes.modifyProcessDialogData('" + nOrdering + "','" + this.offset.getOffset() + "','" + this.offset.getSize() + "','" + ntypeOfOrdering.getTypeOfOrdering() + "');\"";
         if (this.ordering.equals(nOrdering)) {

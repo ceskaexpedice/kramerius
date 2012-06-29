@@ -278,6 +278,9 @@ $(document).ready(function(){
             <td width="40%"><strong>${processView.nameOrdering}</strong></td>
             <td width="5%"><strong>${processView.pidOrdering}</strong></td>
             <td width="10%"><strong>${processView.stateOrdering}</strong></td>
+
+            <td width="10%"><strong>${processView.batchStateOrdering}</strong></td>
+            
             <td><strong>${processView.dateOrdering}</strong></td>
             <td><strong>${processView.plannedDateOrdering}</strong></td>
             <td><strong>${processView.userOrdering}</strong></td>
@@ -290,7 +293,10 @@ $(document).ready(function(){
                 <td>${lrProc.treeIcon}</td>
                 <td>${lrProc.processName} </td>
                 <td>${lrProc.pid} </td>
+
                 <td>${lrProc.processState}</td>
+                <td>${lrProc.batchState}</td>
+
                 <td>${lrProc.start}</td>
                 <td>${lrProc.planned}</td>
                 <td>${lrProc.startedBy}</td>

@@ -10,6 +10,7 @@ import java.util.logging.Level;
 
 import com.google.inject.Provider;
 
+import cz.incad.kramerius.processes.BatchStates;
 import cz.incad.kramerius.processes.LRDefinitionAction;
 import cz.incad.kramerius.processes.LRProcess;
 import cz.incad.kramerius.processes.LRProcessDefinition;
@@ -81,6 +82,13 @@ public class ProcessViewObject {
     public String getProcessState() {
         return lrProcess.getProcessState().getVal() + " " + lrProcess.getProcessState().name();
     }
+    
+    public String getBatchState() {
+        BatchStates bState = lrProcess.getBatchState();
+        if (!bState.equals(BatchStates.NO_BATCH)) {
+            return lrProcess.getBatchState().getVal() +" "+lrProcess.getBatchState().name();
+        } else return "";
+    }
 
     public String getStart() {
         Date date = new Date(lrProcess.getStartTime());
@@ -141,12 +149,12 @@ public class ProcessViewObject {
     
     public String getDeleteURL() {
         try {
-            if ((this.lrProcess.getProcessState().equals(States.FINISHED)) ||  (this.lrProcess.getProcessState().equals(States.BATCH_FINISHED)) 
-                    ||  (this.lrProcess.getProcessState().equals(States.BATCH_FAILED))
-                    || (this.lrProcess.getProcessState().equals(States.KILLED)) 
-                    // ?? je to dobre?
-                    || (this.lrProcess.getProcessState().equals(States.BATCH_STARTED)) 
-                    || (this.lrProcess.getProcessState().equals(States.FAILED))) {
+
+            boolean notRunning = States.notRunningState(this.lrProcess.getProcessState());
+            boolean notInBatch = BatchStates.notRunningBatch(this.lrProcess.getBatchState());
+            
+            
+            if (notRunning && notInBatch) {
 
                 String url = "lr?action=delete&uuid=" + this.lrProcess.getUUID();
                 String fn = "showConfirmDialog(dictionary['administrator.processes.delete.process.confirm'], function() {" +
