@@ -20,7 +20,6 @@ import java.io.IOException;
 
 import cz.incad.Kramerius.exts.menu.context.impl.AbstractContextMenuItem;
 import cz.incad.Kramerius.exts.menu.context.impl.pub.PublicContextMenuItem;
-import cz.incad.Kramerius.views.item.menu.ContextMenuItem;
 
 public class DownloadOriginals extends AbstractContextMenuItem implements PublicContextMenuItem {
     

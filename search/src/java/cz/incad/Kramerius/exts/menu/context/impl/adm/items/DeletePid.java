@@ -20,7 +20,6 @@ import java.io.IOException;
 
 import cz.incad.Kramerius.exts.menu.context.impl.AbstractContextMenuItem;
 import cz.incad.Kramerius.exts.menu.context.impl.adm.AdminContextMenuItem;
-import cz.incad.Kramerius.views.item.menu.ContextMenuItem;
 
 public class DeletePid extends AbstractContextMenuItem implements AdminContextMenuItem  {
 

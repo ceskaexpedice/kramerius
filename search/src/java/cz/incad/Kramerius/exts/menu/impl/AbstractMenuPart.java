@@ -21,26 +21,14 @@ import java.util.List;
 
 import cz.incad.Kramerius.exts.menu.MenuItem;
 import cz.incad.Kramerius.exts.menu.MenuPart;
-import cz.incad.Kramerius.exts.menu.main.MainMenu;
 
 public abstract class AbstractMenuPart implements MenuPart {
     
     protected List<MenuItem> items = new ArrayList<MenuItem>();
     
     @Override
-    public void registerItem(MenuItem item) {
-        this.items.add(item);
-    }
-
-    @Override
-    public void deregisterItem(MenuItem item) {
-        this.items.remove(item);
-    }
-
-    @Override
     public MenuItem[] getItems() {
         return (MenuItem[]) this.items.toArray(new MenuItem[this.items.size()]);
     }
-
 
 }

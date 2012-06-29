@@ -25,6 +25,7 @@ public class GlobalRightsUtils {
 
     public static boolean hasUserAllowedAction(String actionFormalName, HttpServletRequest request) {
         HttpSession session = request.getSession();
+        @SuppressWarnings("unchecked")
         List<String> actionsForRepository = (List<String>) session.getAttribute("securityForRepository");
         return actionsForRepository != null ? actionsForRepository.contains(actionFormalName) : false;
     }

@@ -22,7 +22,6 @@ import com.google.inject.Inject;
 
 import cz.incad.Kramerius.exts.menu.context.ContextMenuPart;
 import cz.incad.Kramerius.exts.menu.impl.AbstractMenuPart;
-import cz.incad.Kramerius.exts.menu.main.impl.pub.PublicMainMenuItem;
 
 /**
  * Public context menu part

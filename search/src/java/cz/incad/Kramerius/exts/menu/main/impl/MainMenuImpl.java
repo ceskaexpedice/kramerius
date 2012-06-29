@@ -16,13 +16,10 @@
  */
 package cz.incad.Kramerius.exts.menu.main.impl;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Set;
 
 import com.google.inject.Inject;
 
-import cz.incad.Kramerius.exts.menu.Menu;
 import cz.incad.Kramerius.exts.menu.MenuPart;
 import cz.incad.Kramerius.exts.menu.impl.AbstractMenu;
 import cz.incad.Kramerius.exts.menu.main.MainMenu;

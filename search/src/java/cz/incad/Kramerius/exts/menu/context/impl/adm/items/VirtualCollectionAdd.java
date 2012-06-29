@@ -20,8 +20,6 @@ import java.io.IOException;
 
 import cz.incad.Kramerius.exts.menu.context.impl.AbstractContextMenuItem;
 import cz.incad.Kramerius.exts.menu.context.impl.adm.AdminContextMenuItem;
-import cz.incad.Kramerius.views.item.menu.ContextMenuItem;
-import cz.incad.kramerius.security.SecuredActions;
 
 public class VirtualCollectionAdd extends AbstractContextMenuItem implements AdminContextMenuItem {
 

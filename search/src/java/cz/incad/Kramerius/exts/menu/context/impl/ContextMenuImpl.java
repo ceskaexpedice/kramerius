@@ -16,8 +16,6 @@
  */
 package cz.incad.Kramerius.exts.menu.context.impl;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Set;
 
 import com.google.inject.Inject;
@@ -26,7 +24,6 @@ import cz.incad.Kramerius.exts.menu.MenuPart;
 import cz.incad.Kramerius.exts.menu.context.ContextMenu;
 import cz.incad.Kramerius.exts.menu.context.ContextMenuPart;
 import cz.incad.Kramerius.exts.menu.impl.AbstractMenu;
-import cz.incad.Kramerius.exts.menu.main.MainMenuPart;
 
 public class ContextMenuImpl extends AbstractMenu implements ContextMenu {
 

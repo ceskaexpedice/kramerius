@@ -27,16 +27,6 @@ public class AbstractMenu implements Menu {
     protected List<MenuPart> parts = new ArrayList<MenuPart>();
     
     @Override
-    public void registerMenuPart(MenuPart part) {
-        this.parts.add(part);
-    }
-
-    @Override
-    public void deregisterMenuPart(MenuPart part) {
-        this.parts.remove(part);
-    }
-
-    @Override
     public MenuPart[] getParts() {
         return (MenuPart[]) this.parts.toArray(new MenuPart[this.parts.size()]);
     }

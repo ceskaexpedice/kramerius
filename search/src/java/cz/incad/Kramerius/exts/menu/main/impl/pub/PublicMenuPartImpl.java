@@ -20,7 +20,6 @@ import java.util.Set;
 
 import com.google.inject.Inject;
 
-import cz.incad.Kramerius.exts.menu.MenuPart;
 import cz.incad.Kramerius.exts.menu.impl.AbstractMenuPart;
 import cz.incad.Kramerius.exts.menu.main.MainMenuPart;
 

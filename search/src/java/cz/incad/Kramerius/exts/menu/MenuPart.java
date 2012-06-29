@@ -34,9 +34,6 @@ public interface MenuPart{
      */
     public String getFormalName();
 
-    public void registerItem(MenuItem item);
-    
-    public void deregisterItem(MenuItem item);
 
     /**
      * Returns all part's items

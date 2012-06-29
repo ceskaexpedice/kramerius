@@ -16,7 +16,6 @@
  */
 package cz.incad.Kramerius.exts.menu.main.impl.adm;
 
-import cz.incad.Kramerius.exts.menu.MenuItem;
 import cz.incad.Kramerius.exts.menu.main.MainMenuItem;
 
 public interface AdminMenuItem extends MainMenuItem{

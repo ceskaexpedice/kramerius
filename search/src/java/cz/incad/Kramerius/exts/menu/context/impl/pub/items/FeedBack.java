@@ -22,7 +22,6 @@ import com.google.inject.Inject;
 
 import cz.incad.Kramerius.exts.menu.context.impl.AbstractContextMenuItem;
 import cz.incad.Kramerius.exts.menu.context.impl.pub.PublicContextMenuItem;
-import cz.incad.Kramerius.views.item.menu.ContextMenuItem;
 import cz.incad.kramerius.users.LoggedUsersSingleton;
 
 public class FeedBack extends AbstractContextMenuItem implements PublicContextMenuItem {

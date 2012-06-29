@@ -20,10 +20,8 @@ import java.io.IOException;
 
 import com.google.inject.Inject;
 
-
 import cz.incad.Kramerius.exts.menu.context.impl.AbstractContextMenuItem;
 import cz.incad.Kramerius.exts.menu.context.impl.adm.AdminContextMenuItem;
-import cz.incad.Kramerius.views.item.menu.ContextMenuItem;
 import cz.incad.kramerius.security.SecuredActions;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 

@@ -26,7 +26,6 @@ import com.google.inject.Provider;
 
 import cz.incad.Kramerius.exts.menu.main.MainMenuItem;
 import cz.incad.Kramerius.exts.menu.utils.GlobalRightsUtils;
-import cz.incad.kramerius.security.User;
 import cz.incad.kramerius.service.ResourceBundleService;
 
 /**

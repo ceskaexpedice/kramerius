@@ -25,7 +25,6 @@ import com.google.inject.Provider;
 
 import cz.incad.Kramerius.exts.menu.context.ContextMenuPart;
 import cz.incad.Kramerius.exts.menu.impl.AbstractMenuPart;
-import cz.incad.Kramerius.exts.menu.main.impl.adm.AdminMenuItem;
 import cz.incad.Kramerius.exts.menu.utils.GlobalRightsUtils;
 
 public class AdminContextMenuPartImpl extends AbstractMenuPart implements ContextMenuPart {

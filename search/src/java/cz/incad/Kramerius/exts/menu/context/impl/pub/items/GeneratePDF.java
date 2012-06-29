@@ -28,7 +28,6 @@ import com.google.inject.name.Named;
 import cz.incad.Kramerius.exts.menu.context.impl.AbstractContextMenuItem;
 import cz.incad.Kramerius.exts.menu.context.impl.pub.PublicContextMenuItem;
 import cz.incad.Kramerius.exts.menu.context.impl.utils.MenuMimeTypesUtils;
-import cz.incad.Kramerius.views.item.menu.ContextMenuItem;
 import cz.incad.kramerius.FedoraAccess;
 
 public class GeneratePDF extends AbstractContextMenuItem implements PublicContextMenuItem {

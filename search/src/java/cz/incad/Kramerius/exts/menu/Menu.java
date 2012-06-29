@@ -22,9 +22,6 @@ package cz.incad.Kramerius.exts.menu;
  */
 public interface Menu {
     
-    public void registerMenuPart(MenuPart part);
-    
-    public void deregisterMenuPart(MenuPart part);
     
     /**
      * Returns all menu parts
