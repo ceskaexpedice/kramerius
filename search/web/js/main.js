@@ -535,7 +535,7 @@ var registerUser = new RegisterUser();
 
 
 /* profile functionality */
-function Profile() {}
+function Profile() { this.dialog = null; this.text="AHOJ,..."; }
 
 Profile.prototype.modify = function(func,okfunc) {
     $.get("profile?action=GET", function(data) {
@@ -545,6 +545,91 @@ Profile.prototype.modify = function(func,okfunc) {
     });
 }
 
+Profile.prototype.openDialog = function(structs) {
+	this.receive(function() {
+
+		if (!this.profile.favorites) this.profile.favorites = [];
+			
+		var url = "inc/_modify_favorites.jsp?pids="+urlWithPids("",structs);
+		$.get(url, bind(function(data) {
+			if (this.dialog) {
+	    		this.dialog.dialog('open');
+			} else {
+	    		$(document.body).append('<div id="modifyFavorites"></div>');
+	    		this.dialog = $('#modifyFavorites').dialog({
+	                width:640,
+	                height:480,
+	                modal:true,
+	                title: '',
+	                buttons: [{
+						text: dictionary['common.save'],
+						click: bind(function() {
+							this._checked = [];
+							$(".favoriteSelection input").each(bind(function(index, elm) {
+								var str = {
+										pid:$(elm).val(),
+										checked:$(elm).is(':checked')
+								};
+								this._checked.push(str);
+							},this));
+							
+							alert(this.profile.favorites);
+							
+							var pidsToAdd = [];
+							var pidsToRemove = [];
+							$.each(this._checked,bind(function(index, elm) {
+								if (elm.checked) {
+									if (this.profile.favorites.indexOf(elm.pid) < 0) {
+										pidsToAdd.push(elm.pid);
+									}
+								} else {
+									if (this.profile.favorites.indexOf(elm.pid) >=0) {
+										pidsToRemove.push(elm.pid);
+									}
+								}
+							},this));
+
+							$.each(pidsToAdd,bind(function(index, elm) {
+								this.profile.favorites.push(elm);
+							},this));
+
+							$.each(pidsToRemove,bind(function(index, elm) {
+								var index = this.profile.favorites.indexOf(elm);
+								this.profile.favorites.rm(index);
+							},this));
+
+							
+
+							this.post(bind(function() {
+								this.dialog.dialog('close');
+								(new Message("favorites_add_success")).show();
+							},this));
+							
+						},this)
+	            	},{
+						text: dictionary['common.close'],
+						click: bind(function() {
+							this.dialog.dialog('close');
+						},this)
+	            	}]	
+	    		});
+			}
+			$("#modifyFavorites").html(data);
+		}, this));	
+	});
+}
+
+Profile.prototype.receive = function(func) {
+    $.get("profile?action=GET", bind(function(data) {
+        this.profile= data;
+        return func.apply(this, []);
+    },this));
+}
 
 
+Profile.prototype.post = function(okfunc) {
+	alert(this.profile.favorites);
+    var encodedData = Base64.encode(JSON.stringify(this.profile));
+    $.post("profile?action=POST",{'encodedData':encodedData},okfunc,"json");
+}
 

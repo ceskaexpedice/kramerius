@@ -75,6 +75,7 @@
                             </ul>
                         </div>
                     </c:if>
+                    
                     <c:if test="${item.descriptionDefined}">
                         <div style="font-size: 85%;font-family:monospace; margin-left: 10px;">
                                 <c:forEach items="${item.descriptions}" var="desc">

@@ -473,8 +473,48 @@
 
       /* add to favorite */
       function addToFavorites() {
+         var structs = map(function(pid) {
+             var divided = pid.split("_");
+             var structure = {
+                 models:divided[0],
+                 pid:divided[1]
+             };
+             return structure;
 
-          new Profile().modify(
+         },getAffectedPids());
+
+         var profile = new Profile();
+         profile.openDialog(structs);
+         
+         /*         
+         profile.receive(function() {
+
+        	 if (!this.profile.favorites) {
+            	 this.profile.favorites = [];
+             }
+
+             var structs = map(function(pid) {
+                 var divided = pid.split("_");
+                 var structure = {
+                     models:divided[0],
+                     pid:divided[1]
+                 };
+                 return structure;
+
+             },getAffectedPids());
+
+
+             var models = map(bind(function(mds) {
+                 var item = {
+                         selected:this.profile.favorites.indexOf(mds.pid) >=0 ,
+                         pid:mds.pid
+                  };
+                 return item;
+             },this),structs);
+             
+         });*/
+
+         /** new Profile().modify(
           function(json){
               if (!json.favorites) {
                   json["favorites"] = [];
@@ -500,6 +540,7 @@
           }, function () {
               (new Message("favorites_add_success")).show();
           });
+         */
       }
 
       /* Administrate virtual collections */
