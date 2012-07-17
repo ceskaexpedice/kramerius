@@ -22,8 +22,29 @@ import java.io.Writer;
 import cz.incad.kramerius.processes.LRProcess;
 import cz.incad.kramerius.processes.LRProcessDefinition;
 
+/**
+ * Represents output template for process
+ * @author pavels
+ */
 public interface ProcessOutputTemplate {
 
-    public void executeGet(LRProcess lrProcess, LRProcessDefinition definition, Writer writer) throws IOException;
-
+    /**
+     * Renders process output
+     * @param lrProcess LR process
+     * @param definition Definition
+     * @param writer Output writer
+     * @throws IOException
+     */
+    public void renderOutput(LRProcess lrProcess, LRProcessDefinition definition, Writer writer) throws IOException;
+    
+    
+    /**
+     * Render name of output template
+     * @param lrProcess Long running process
+     * @param definition Process definition
+     * @param writer Output writer
+     * @throws IOException
+     */
+    public void renderName(LRProcess lrProcess, LRProcessDefinition definition, Writer writer) throws IOException;
+    
 }

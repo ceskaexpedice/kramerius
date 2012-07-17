@@ -32,9 +32,11 @@ public class LRPRocessFilter {
     static Map<String, ConverterAndFormatter> CONVERTERS = new HashMap<String, LRPRocessFilter.ConverterAndFormatter>(); 
     static {
         CONVERTERS.put("status", new IntegerConverter());
+        CONVERTERS.put("batch_status", new IntegerConverter());
         CONVERTERS.put("planned", new DateConvereter());
         CONVERTERS.put("started", new DateConvereter());
         CONVERTERS.put("default", new StringConverter());
+    
     }
     
     private List<Tripple> tripples = new ArrayList<LRPRocessFilter.Tripple>();
@@ -89,6 +91,8 @@ public class LRPRocessFilter {
     
     
     public String getSQLOffset() {
+        this.objectsToPreparedStm.clear();
+        
         StringBuilder builder = new StringBuilder();
         for (int i = 0,ll=this.tripples.size(); i < ll; i++) {
             Tripple trp = this.tripples.get(i);

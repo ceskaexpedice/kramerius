@@ -336,19 +336,30 @@ public class DatabaseProcessManager implements LRProcessManager {
     }
 
     @Override
-    public int getNumberOfLongRunningProcesses() {
+    public int getNumberOfLongRunningProcesses(LRPRocessFilter filter) {
         Connection connection = connectionProvider.get();
         if (connection == null)
             throw new NotReadyException("connection not ready ");
+
+        StringBuilder builder = new StringBuilder("select count(*) from processes p " 
+                + " join process_grouped_view v on (p.process_id=v.process_id) ");
+
+        if (filter != null) {
+            builder.append(filter.getSQLOffset());
+        }
+        
         List<Integer> countList = new JDBCQueryTemplate<Integer>(connection) {
             @Override
             public boolean handleRow(ResultSet rs, List<Integer> returnsList) throws SQLException {
                 returnsList.add(rs.getInt(1));
                 return super.handleRow(rs, returnsList);
             }
-        }.executeQuery("select count(*) from process_grouped_view ");
+        }.executeQuery(builder.toString(),filter!=null ? filter.getObjectsToPreparedStm().toArray() : new Object[]{});
+
         return !countList.isEmpty() ? countList.get(0) : 0;
     }
+    
+    
 
     private LRProcess processFromResultSet(ResultSet rs) throws SQLException {
         // CREATE TABLE PROCESSES(DEFID VARCHAR, UUID VARCHAR ,PID

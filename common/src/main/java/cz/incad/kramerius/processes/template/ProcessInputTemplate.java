@@ -33,6 +33,6 @@ public interface ProcessInputTemplate {
      * @param writer Output writer
      * @throws IOException 
      */
-    public void executeGet(LRProcessDefinition definition, Writer writer) throws IOException;
+    public void renderInput(LRProcessDefinition definition, Writer writer) throws IOException;
 
 }

@@ -93,7 +93,7 @@ public interface LRProcessManager {
 	 * Returns number of running processes
 	 * @return
 	 */
-	public int getNumberOfLongRunningProcesses();
+	public int getNumberOfLongRunningProcesses(LRPRocessFilter filter);
 	
 	/**
 	 * Update process state 

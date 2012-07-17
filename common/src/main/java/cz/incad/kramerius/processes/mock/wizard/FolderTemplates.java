@@ -42,7 +42,7 @@ public class FolderTemplates implements ProcessInputTemplate {
     KConfiguration configuration;
     
     @Override
-    public void executeGet(LRProcessDefinition definition, Writer writer) throws IOException {
+    public void renderInput(LRProcessDefinition definition, Writer writer) throws IOException {
         File homeFolder = new File(System.getProperty("user.home")+File.separator+".kramerius4");
         InputStream iStream = this.getClass().getResourceAsStream("wizard.st");
         

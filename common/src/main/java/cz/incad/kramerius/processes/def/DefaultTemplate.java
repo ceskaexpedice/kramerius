@@ -61,7 +61,7 @@ public class DefaultTemplate implements ProcessInputTemplate {
     
     
     @Override
-    public void executeGet(LRProcessDefinition definition, Writer writer) throws IOException {
+    public void renderInput(LRProcessDefinition definition, Writer writer) throws IOException {
         try {
             
             List<FieldDesc> fdescs = new ArrayList<DefaultTemplate.FieldDesc>();

@@ -37,11 +37,13 @@ public class LRProcessDefinitionImpl implements LRProcessDefinition {
 	
 
 	private String inputTemplateClz = null;
+	private List<String> outputTemplateClzs = new ArrayList<String>();
 	
 	private LRProcessManager pm;
 	private KConfiguration configuration;
 
 	private List<LRDefinitionAction> actions = new ArrayList<LRDefinitionAction>();
+
 
 	public LRProcessDefinitionImpl(LRProcessManager pm, KConfiguration configuration) {
 		super();
@@ -80,8 +82,20 @@ public class LRProcessDefinitionImpl implements LRProcessDefinition {
         return this.inputTemplateClz != null;
     }
 
+
     
-	public void loadFromXml(Element elm) {
+    
+	@Override
+    public List<String> getOutputTemplateClasses() {
+	    return new ArrayList<String>(this.outputTemplateClzs);
+	}
+
+    @Override
+    public boolean isOutputTemplatesDefined() {
+        return !this.outputTemplateClzs.isEmpty();
+    }
+
+    public void loadFromXml(Element elm) {
 		NodeList nodes = elm.getChildNodes();
 		for (int i = 0,ll=nodes.getLength(); i < ll; i++) {
 			Node item = nodes.item(i);
@@ -126,7 +140,8 @@ public class LRProcessDefinitionImpl implements LRProcessDefinition {
                                 Element inputElm = (Element) templateItem;
                                 inputElm(inputElm);
                             } else if (templateItem.getNodeName().equals("output")) {
-                                //TODO..
+                                Element outputElm = (Element) templateItem;
+                                outputElm(outputElm);
                             }
                         }
                     }
@@ -135,7 +150,11 @@ public class LRProcessDefinitionImpl implements LRProcessDefinition {
 		}
 	}
 	
-	private void inputElm(Element inputElm) {
+	private void outputElm(Element outputElm) {
+	    this.outputTemplateClzs.add(outputElm.getAttribute("class"));
+    }
+
+    private void inputElm(Element inputElm) {
 	    this.inputTemplateClz = inputElm.getAttribute("class");
 	}
 

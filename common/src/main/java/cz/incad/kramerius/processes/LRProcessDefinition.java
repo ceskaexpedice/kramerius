@@ -89,9 +89,25 @@ public interface LRProcessDefinition {
 	@Deprecated
 	public List<LRDefinitionAction> getActions();
 
-
+	
+	/**
+	 * Returns input template class
+	 * @return
+	 */
 	public String getInputTemplateClass();
 
-
+	/**
+	 * REturns true if input template defined
+	 * @return
+	 */
 	public boolean isInputTemplateDefined();
+
+	/**
+	 * Returns output template class
+	 * @return
+	 */
+	public List<String> getOutputTemplateClasses();
+
+	public boolean isOutputTemplatesDefined();
+	
 }
