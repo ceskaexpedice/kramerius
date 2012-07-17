@@ -211,6 +211,7 @@ public class LoggedUsersSingletonImpl implements LoggedUsersSingleton {
     @Override
     public User getUser(String key) {
         try {
+            if (key == null) return null;
             int activeUserId =  user(key, this.connectionProvider.get());
             if (activeUserId > -1) {
                 Connection connection = this.connectionProvider.get();
