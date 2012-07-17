@@ -3,6 +3,7 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/xml" prefix="x"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt"%>
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions"%>
+
 <%@ taglib uri="/WEB-INF/tlds/securedContent.tld" prefix="scrd" %>
 <%@ taglib uri="/WEB-INF/tlds/cmn.tld" prefix="view" %>
 
@@ -16,6 +17,7 @@
 <%@page import="cz.incad.kramerius.utils.conf.KConfiguration" %>
 <%@page import="cz.incad.kramerius.security.SecuredActions" %>
 
+<view:object name="ctxView" clz="cz.incad.Kramerius.views.ContextMenuViewObject"></view:object>
 
 <style type="text/css">
 
@@ -95,7 +97,7 @@
 <div style="height:0px;border-top:1px solid silver;"></div>
 <div><h3><view:msg>administrator.menu.Actions</view:msg>:</h3>
     <ul id="contextMenuList">
-         <c:forEach var="part" items="${itm.contextMenu.parts}" varStatus="status">
+         <c:forEach var="part" items="${ctxView.contextMenu.parts}" varStatus="status">
 
 
            <c:if test="${part.renderable}">

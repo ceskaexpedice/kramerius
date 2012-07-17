@@ -22,15 +22,10 @@ public class ItemViewObject {
     HttpServletRequest request;
     
     
-    @Inject
-    ContextMenu contextMenu;
     
 	public ItemViewObject() {
 		super();
 	}
 	
 	
-	public ContextMenu getContextMenu() {
-        return contextMenu;
-    }
 }
