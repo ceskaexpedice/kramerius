@@ -306,7 +306,7 @@ public class LongRunningProcessServlet extends GuiceServlet {
                         resp.setContentType("text/html;charset=UTF-8");
                         String inputTemplateClz = definition.getInputTemplateClass();
                         ProcessInputTemplate template = iTemplateFactory.create(inputTemplateClz);
-                        template.executeGet(definition,  resp.getWriter());
+                        template.renderInput(definition,  resp.getWriter());
                     }
                 } catch (IOException e) {
                     LOGGER.log(Level.SEVERE,e.getMessage());

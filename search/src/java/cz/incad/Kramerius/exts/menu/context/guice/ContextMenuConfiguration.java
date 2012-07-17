@@ -38,7 +38,7 @@ import cz.incad.Kramerius.exts.menu.context.impl.adm.items.StreamRights;
 import cz.incad.Kramerius.exts.menu.context.impl.adm.items.VirtualCollectionAdd;
 import cz.incad.Kramerius.exts.menu.context.impl.pub.PublicContextMenuItem;
 import cz.incad.Kramerius.exts.menu.context.impl.pub.PublicContextMenuPartImpl;
-import cz.incad.Kramerius.exts.menu.context.impl.pub.items.AddFavorites;
+import cz.incad.Kramerius.exts.menu.context.impl.pub.items.ModifyFavorites;
 import cz.incad.Kramerius.exts.menu.context.impl.pub.items.DownloadOriginals;
 import cz.incad.Kramerius.exts.menu.context.impl.pub.items.FeedBack;
 import cz.incad.Kramerius.exts.menu.context.impl.pub.items.GeneratePDF;
@@ -64,7 +64,7 @@ public class ContextMenuConfiguration extends AbstractModule {
         publicItems.addBinding().to(GeneratePDF.class);
         publicItems.addBinding().to(DownloadOriginals.class);
         publicItems.addBinding().to(FeedBack.class);
-        publicItems.addBinding().to(AddFavorites.class);
+        publicItems.addBinding().to(ModifyFavorites.class);
         
         // admin  menu items
         Multibinder<AdminContextMenuItem> adminMenuItems

@@ -29,7 +29,6 @@ import cz.incad.kramerius.utils.conf.KConfiguration;
 
 public class PDFGenerateViewObject extends AbstractPrintViewObject {
 
-
     
     public String getNumberOfGeneratedPages() throws IOException, RecognitionException, TokenStreamException, ParserConfigurationException, SAXException {
         ResourceBundle bundle = this.resourceBundleService.getResourceBundle("labels", this.locale);

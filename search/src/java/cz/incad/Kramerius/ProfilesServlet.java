@@ -89,7 +89,6 @@ public class ProfilesServlet extends GuiceServlet {
                     byte[] decoded = Base64Coder.decode(encodedProfile);
                     JSONObject jsonNObject = JSONObject.fromObject(new String(decoded));
                     
-                    //ProfilePrepareUtils.prepareProperitesFromProfile(jsonNObject, request.getSession());
                     
                     UserProfile profile = profileManager.getProfile(user);
                     profile.setJSONData(jsonNObject);

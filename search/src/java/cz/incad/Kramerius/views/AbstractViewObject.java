@@ -17,6 +17,7 @@
 package cz.incad.Kramerius.views;
 
 import java.io.StringReader;
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
@@ -39,10 +40,11 @@ public class AbstractViewObject {
     public List getPidsParams() throws RecognitionException, TokenStreamException {
         HttpServletRequest httpServletRequest = this.requestProvider.get();
         String parameter = httpServletRequest.getParameter(PIDS);
-    
-        ParamsParser params = new ParamsParser(new ParamsLexer(new StringReader(parameter)));
-        List paramsList = params.params();
-        return paramsList;
+        if (parameter != null) {
+            ParamsParser params = new ParamsParser(new ParamsLexer(new StringReader(parameter)));
+            List paramsList = params.params();
+            return paramsList;
+        } else return new ArrayList<String>();
     }
 
 }

@@ -24,7 +24,7 @@ import cz.incad.Kramerius.exts.menu.context.impl.AbstractContextMenuItem;
 import cz.incad.Kramerius.exts.menu.context.impl.pub.PublicContextMenuItem;
 import cz.incad.kramerius.users.LoggedUsersSingleton;
 
-public class AddFavorites extends AbstractContextMenuItem implements PublicContextMenuItem {
+public class ModifyFavorites extends AbstractContextMenuItem implements PublicContextMenuItem {
 
     @Inject
     LoggedUsersSingleton loggedUsersSingleton;

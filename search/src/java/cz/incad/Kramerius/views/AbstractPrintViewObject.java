@@ -39,6 +39,8 @@ import com.google.inject.Inject;
 import com.google.inject.name.Named;
 
 import cz.incad.Kramerius.Initializable;
+import cz.incad.Kramerius.views.utils.DCContentUtils;
+import cz.incad.Kramerius.views.utils.DescriptionUtils;
 import cz.incad.kramerius.FedoraAccess;
 import cz.incad.kramerius.ObjectPidsPath;
 import cz.incad.kramerius.SolrAccess;
@@ -53,7 +55,6 @@ public class AbstractPrintViewObject extends AbstractViewObject implements Initi
 
     protected List<RadioItem> items = new ArrayList<RadioItem>();
 
-    // test
     @Named("securedFedoraAccess")
     @Inject
     protected FedoraAccess fedoraAccess;
@@ -79,8 +80,8 @@ public class AbstractPrintViewObject extends AbstractViewObject implements Initi
     public void init() {
         try {
 
-
             SelectionRadioItem selection = new SelectionRadioItem("selection", true);
+          
             List params = getPidsParams();
             for (int i = 0; i < params.size(); i++) {
                 Object pid = params.get(i);
@@ -146,11 +147,7 @@ public class AbstractPrintViewObject extends AbstractViewObject implements Initi
         return items;
     }
 
-
-
-
-
-
+    
     public abstract class RadioItem {
 
         protected List<String> pids;
@@ -193,87 +190,15 @@ public class AbstractPrintViewObject extends AbstractViewObject implements Initi
             return new ArrayList<String>(this.pids);
         }
 
-        private Map<String, DCConent> cache = new HashMap<String, DCConent>();
 
         public Map<String, List<DCConent>> getDCS() throws IOException {
-            Map<String, List<DCConent>> maps = new HashMap<String, List<DCConent>>();
-            for (String pid : this.pids) {
-                ObjectPidsPath[] paths = AbstractPrintViewObject.this.solrAccess.getPath(pid);
-                if (paths.length > 0) {
-                    List<DCConent> dcs = new ArrayList<DCConent>();
-                    String[] pathFromLeaf = paths[0].getPathFromLeafToRoot();
-                    for (int i = 0; i < pathFromLeaf.length; i++) {
-                        String pidFromPath = pathFromLeaf[i];
-                        if (!cache.containsKey(pidFromPath)) {
-                            Document dcl = AbstractPrintViewObject.this.fedoraAccess.getDC(pidFromPath);
-                            DCConent content = DCUtils.contentFromDC(dcl);
-                            cache.put(pidFromPath, content);
-                        }
-                        dcs.add(cache.get(pidFromPath));
-                    }
-                    maps.put(pid, dcs);
-                }
-            }
-            return maps;
+            return DCContentUtils.getDCS(fedoraAccess, solrAccess, getPids());
         }
 
 
         public String[] getDescriptions() throws IOException {
-            ResourceBundle resBundle = resourceBundleService.getResourceBundle("labels", locale);
-
-            List<String> descs = new ArrayList<String>();
-
-            Map<String, List<DCConent>> dcs = getDCS();
-            for (String pid : getPids()) {
-                List<DCConent> list = dcs.get(pid);
-                DCConent dcConent = DCConent.collectFirstWin(list);
-
-                StringBuilder line = new StringBuilder();
-                // issn
-                String[] idents = dcConent.getIdentifiers();
-                for (String id : idents) {
-                    if(id.startsWith("issn:")) {
-                        line.append(resBundle.getString("pdf.dc.issn")).append(":");
-                        line.append(id.substring("issn:".length()));
-                    }
-                }
-                if (line.length() > 0) {
-                    descs.add(line.toString());
-                }
-
-                //publishers
-                line = new StringBuilder();
-                String[] publishers = dcConent.getPublishers();
-                if (publishers.length > 0) {
-                    line.append(resBundle.getString("pdf.dc.publishers")).append(":");
-                    for (int i = 0; i < publishers.length; i++) {
-                        if (i > 0) line.append(",");
-                        line.append(publishers[i]);
-                    }
-                }
-                if (line.length() > 0) {
-                    descs.add(line.toString());
-                }
-
-                //creators
-                line = new StringBuilder();
-                String[] creators = dcConent.getCreators();
-                if (creators.length > 0) {
-                    line.append(resBundle.getString("pdf.dc.creators")).append(":");
-                    for (int i = 0; i < creators.length; i++) {
-                        if (i > 0) line.append(",");
-                        line.append(creators[i]);
-                    }
-                }
-
-                if (line.length() > 0) {
-                    descs.add(line.toString());
-                }
-
-            }
-
-            return (String[]) descs.toArray(new String[descs.size()]);
-        }
+            return DescriptionUtils.getDescriptions(AbstractPrintViewObject.this.resourceBundleService.getResourceBundle("labels", locale), getDCS(), getPids());
+        }        
 
         public boolean isDescriptionDefined() {
             // more heuristic
@@ -306,6 +231,7 @@ public class AbstractPrintViewObject extends AbstractViewObject implements Initi
                     DCConent content = contents.get(0);
                     return content.getTitle();
                 } else {
+                    
                     List<String> models = new ArrayList<String>();
                     for (String pid : pids) {
                         DCConent dc = dcs.get(pid).get(0);
@@ -359,13 +285,12 @@ public class AbstractPrintViewObject extends AbstractViewObject implements Initi
         }
 
 
-
         public abstract Type getType();
 
         public abstract boolean isMaster();
-        
-        
+
         public abstract boolean isInvalidOption();
+
     }
 
 
@@ -391,10 +316,6 @@ public class AbstractPrintViewObject extends AbstractViewObject implements Initi
             int maxPage = KConfiguration.getInstance().getConfiguration().getInt("generatePdfMaxRange");
             return getPids().size() > maxPage;
         }   
-
-
-        
-        
     }
 
     public class MasterRadioItem extends RadioItem {
@@ -424,8 +345,5 @@ public class AbstractPrintViewObject extends AbstractViewObject implements Initi
         selection,
         master;
     }
-
-
-
 }
 
