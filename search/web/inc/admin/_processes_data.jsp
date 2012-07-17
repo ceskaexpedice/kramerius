@@ -130,9 +130,10 @@ function _wait() {
 function _ref(ordering, offset, size, type) {
     _wait();
 	var refreshurl = "inc/admin/_processes_data.jsp?ordering="+ordering+"&offset="+offset+"&size="+size+"&type="+type+processes.currentFilter.filterPostfix();
-
 	$.get(refreshurl, function(sdata) {
 		$("#processes").html(sdata);
+
+	    processes.repairDisplayed();
 	});
 }
 
@@ -157,7 +158,7 @@ $(document).ready(function(){
 
     <div class="buttons">
         <c:if test="${processView.offsetValue>0}" >
-            <a href="javascript:_wait();processes.modifyProcessDialogData('${processView.ordering}',${processView.skipPrevPageValue},${processView.pageSize},'${processView.typeOfOrdering}');"><span class="ui-icon ui-icon-seek-prev">previous skip</span></a>
+            <a href="javascript:processes.modifyProcessDialogData('${processView.ordering}',${processView.skipPrevPageValue},${processView.pageSize},'${processView.typeOfOrdering}');"><span class="ui-icon ui-icon-seek-prev">previous skip</span></a>
             <a title="<view:msg>administrator.processes.prev</view:msg>" href="javascript:processes.modifyProcessDialogData('${processView.ordering}',${processView.prevPageValue},${processView.pageSize},'${processView.typeOfOrdering}');"><span class="ui-icon ui-icon-arrowthick-1-w">previous</span></a>
         </c:if>
 
@@ -165,7 +166,7 @@ $(document).ready(function(){
         &emsp;
         <c:if test="${processView.hasNext}">
             <a title="<view:msg>administrator.processes.next</view:msg>" href=" javascript:processes.modifyProcessDialogData('${processView.ordering}',${processView.nextPageValue},${processView.pageSize},'${processView.typeOfOrdering}');"><span class="ui-icon ui-icon-arrowthick-1-e">next</span></a>
-            <a href="javascript:_wait();processes.modifyProcessDialogData('${processView.ordering}',${processView.skipNextPageValue},${processView.pageSize},'${processView.typeOfOrdering}');"><span class="ui-icon ui-icon-seek-next">next</span></a>
+            <a href="javascript:processes.modifyProcessDialogData('${processView.ordering}',${processView.skipNextPageValue},${processView.pageSize},'${processView.typeOfOrdering}');"><span class="ui-icon ui-icon-seek-next">next</span></a>
         </c:if>
         <a title="<view:msg>administrator.processes.refresh</view:msg>" href="javascript:_ref('${processView.ordering}',${processView.offsetValue},${processView.pageSize},'${processView.typeOfOrdering}');"><span class="ui-icon ui-icon-transferthick-e-w">refresh</span></a>
         <a href="javascript:_toggle_filter();" title="<view:msg>administrator.processes.filter</view:msg>"><span class="ui-icon ui-icon-scissors">filter</span></a>
@@ -261,7 +262,7 @@ $(document).ready(function(){
     </script>    
 
      <div class="apply" style="width:170px;">
-        <button name="apply" title='<view:msg>common.ok</view:msg>' onclick="processes.currentFilter.apply('${processView.ordering}',0,${processView.pageSize},'${processView.typeOfOrdering}'); _wait();"> <view:msg>common.apply</view:msg> </button>
+        <button name="apply" title='<view:msg>common.ok</view:msg>' onclick="processes.currentFilter.apply('${processView.ordering}',0,${processView.pageSize},'${processView.typeOfOrdering}'); "> <view:msg>common.apply</view:msg> </button>
         <button name="apply" title='<view:msg>common.apply</view:msg>' onclick="processes.currentFilter.close()"> <view:msg>common.close</view:msg> </button>
      </div>
      
