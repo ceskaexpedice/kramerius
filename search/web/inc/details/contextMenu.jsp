@@ -444,103 +444,35 @@
 
     <scrd:loggedusers>
 
-      function Message(id) {
-          this.dialog = null;
-          this.id = id;
-      }
-
-      Message.prototype.show=function() {
-          if (this.dialog) {
-              this.dialog.dialog('open');
-          } else {
-              $(document.body).append("<div id='message_dialog_"+this.id+"'></div>");
-              this.dialog = $("#message_dialog_"+this.id).dialog({
-                  bgiframe: true,
-                  width: 350,
-                  height: 150,
-                  modal: true,
-                  title:'',
-                  buttons: [{
-                          text: "Ok",
-                          click: function() {
-                              $(this).dialog("close");
-                          }
-                      }]
-              });
-          }
-          $("#message_dialog_"+this.id).html("<div style='height: 6em; width:350px; display: table-cell; vertical-align: middle; text-align:center;'>"+dictionary['message.text.'+this.id]+"</div>");
-      }
 
       /* add to favorite */
       function addToFavorites() {
-         var structs = map(function(pid) {
-             var divided = pid.split("_");
-             var structure = {
-                 models:divided[0],
-                 pid:divided[1]
-             };
-             return structure;
+          new Profile().modify(
+                  function(json){
+                      if (!json.favorites) {
+                          json["favorites"] = [];
+                      }
+                      var structs = map(function(pid) {
+                          var divided = pid.split("_");
+                          var structure = {
+                              models:divided[0],
+                              pid:divided[1]
+                          };
+                          return structure;
 
-         },getAffectedPids());
+                      },getAffectedPids());
 
-         var profile = new Profile();
-         profile.openDialog(structs);
-         
-         /*         
-         profile.receive(function() {
+                      reduce(function(base, element, status){
+                          if (base.indexOf(element.pid) < 0) {
+                              base.push(element.pid);
+                          }
+                          return base;
+                      },json["favorites"],structs);
 
-        	 if (!this.profile.favorites) {
-            	 this.profile.favorites = [];
-             }
-
-             var structs = map(function(pid) {
-                 var divided = pid.split("_");
-                 var structure = {
-                     models:divided[0],
-                     pid:divided[1]
-                 };
-                 return structure;
-
-             },getAffectedPids());
-
-
-             var models = map(bind(function(mds) {
-                 var item = {
-                         selected:this.profile.favorites.indexOf(mds.pid) >=0 ,
-                         pid:mds.pid
-                  };
-                 return item;
-             },this),structs);
-             
-         });*/
-
-         /** new Profile().modify(
-          function(json){
-              if (!json.favorites) {
-                  json["favorites"] = [];
-              }
-              var structs = map(function(pid) {
-                  var divided = pid.split("_");
-                  var structure = {
-                      models:divided[0],
-                      pid:divided[1]
-                  };
-                  return structure;
-
-              },getAffectedPids());
-
-              reduce(function(base, element, status){
-                  if (base.indexOf(element.pid) < 0) {
-                      base.push(element.pid);
-                  }
-                  return base;
-              },json["favorites"],structs);
-
-              return json;
-          }, function () {
-              (new Message("favorites_add_success")).show();
-          });
-         */
+                      return json;
+                  }, function () {
+                      (new Message("favorites_add_success")).show();
+                  });
       }
 
       /* Administrate virtual collections */
