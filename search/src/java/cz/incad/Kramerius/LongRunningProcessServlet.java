@@ -196,7 +196,11 @@ public class LongRunningProcessServlet extends GuiceServlet {
                     String token = req.getParameter("token");
                     String loggedUserKey = findLoggedUserKey(req, lrProcessManager, token);
                     User user = loggedUserSingleton.getUser(loggedUserKey);
-
+                    if (user == null) {
+                        // no user
+                        throw new SecurityException("access denided");
+                    }
+                    
                     boolean permited = permitStart(rightsResolver, actionFromDef, user);
                     if (permited) {
                         
