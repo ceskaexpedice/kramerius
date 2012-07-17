@@ -22,50 +22,15 @@
 
 <%@ page isELIgnored="false"%>
 
-<%
-
-//TODO: Move to jstl
-	Injector inj = (Injector)application.getAttribute(Injector.class.getName());
-	LRProcessManager lrProcessMan= inj.getInstance(LRProcessManager.class);
-	DefinitionManager defMan = inj.getInstance(DefinitionManager.class);
-	Locale loc = inj.getInstance(Locale.class);
-	ResourceBundleService bundle = inj.getInstance(ResourceBundleService.class);
-	
-	
-	String ordering = request.getParameter("ordering");
-	if ((ordering == null) || (ordering.trim().equals(""))) {
-		ordering = LRProcessOrdering.PLANNED.name();
-	}
-	String offset = request.getParameter("offset");
-	if ((offset == null) || (offset.trim().equals(""))) {
-		offset = "0";
-	}
-
-	String type = request.getParameter("type");
-	if ((type == null) || (type.trim().equals(""))) {
-		type = "DESC";
-	}
-
-	String size = request.getParameter("size");
-	if ((size == null) || (size.trim().equals(""))) {
-		size = "5";
-	}
-
-	String filter = request.getParameter("filter");
-	
-	LRProcessOrdering lrProcOrder = LRProcessOrdering.valueOf(ordering);
-	LRProcessOffset lrOffset = new LRProcessOffset(offset, size);
-	ProcessesViewObject viewObj = new ProcessesViewObject(lrProcessMan, defMan, lrProcOrder,TypeOfOrdering.valueOf(type), lrOffset,LongRunningProcessServlet.lrServlet(request), bundle, loc, filter);
-    
-	pageContext.setAttribute("processView", viewObj);
-	
-%>
 
 <%@page import="cz.incad.kramerius.processes.TypeOfOrdering"%>
 
 <%@page import="cz.incad.Kramerius.LongRunningProcessServlet"%>
 <%@page import="java.util.Locale"%>
 <%@page import="cz.incad.kramerius.service.ResourceBundleService"%>
+
+<view:object name="processView" clz="cz.incad.Kramerius.views.ProcessesViewObject"></view:object>
+
 
 
 <scrd:securedContent action="manage_lr_process" sendForbidden="true">
@@ -153,11 +118,14 @@
      
          
 </style>
+
+
 <div id="processes_list" align="center">
 <script type="text/javascript">
 
+<!--
 function _wait() {
-	   $("#processes").html('<div style="margin-top:30px;width:100%;text-align:center;"><img src="img/loading.gif" alt="loading" /></div>');
+	$("#processes").html('<div style="margin-top:30px;width:100%;text-align:center;"><img src="img/loading.gif" alt="loading" /></div>');
 }
 function _ref(ordering, offset, size, type) {
     _wait();
@@ -176,23 +144,36 @@ function _toggle_filter() {
 
 $(document).ready(function(){
     $(".buttons>a").button();
+
+    var title = dictionary['administrator.menu.dialogs.lrprocesses.title']  + " - #"+${processView.pageNumber};
+    processes.dialog.dialog('option', 'title',title);
+        
 });
 
+
+//-->
 </script>
 <div class="header">
+
     <div class="buttons">
-        <c:if test="${processView.offsetValue>0}">
-            <a href="javascript:processes.modifyProcessDialogData('${processView.ordering}',${processView.skipPrevPageValue},${processView.pageSize},'${processView.typeOfOrdering}');"><span class="ui-icon ui-icon-seek-prev">previous skip</span></a>
+        <c:if test="${processView.offsetValue>0}" >
+            <a href="javascript:_wait();processes.modifyProcessDialogData('${processView.ordering}',${processView.skipPrevPageValue},${processView.pageSize},'${processView.typeOfOrdering}');"><span class="ui-icon ui-icon-seek-prev">previous skip</span></a>
             <a title="<view:msg>administrator.processes.prev</view:msg>" href="javascript:processes.modifyProcessDialogData('${processView.ordering}',${processView.prevPageValue},${processView.pageSize},'${processView.typeOfOrdering}');"><span class="ui-icon ui-icon-arrowthick-1-w">previous</span></a>
         </c:if>
+
+        
         &emsp;
         <c:if test="${processView.hasNext}">
-            <a title="<view:msg>administrator.processes.next</view:msg>" href="javascript:processes.modifyProcessDialogData('${processView.ordering}',${processView.nextPageValue},${processView.pageSize},'${processView.typeOfOrdering}');"><span class="ui-icon ui-icon-arrowthick-1-e">next</span></a>
-            <a href="javascript:processes.modifyProcessDialogData('${processView.ordering}',${processView.skipNextPageValue},${processView.pageSize},'${processView.typeOfOrdering}');"><span class="ui-icon ui-icon-seek-next">next</span></a>
+            <a title="<view:msg>administrator.processes.next</view:msg>" href=" javascript:processes.modifyProcessDialogData('${processView.ordering}',${processView.nextPageValue},${processView.pageSize},'${processView.typeOfOrdering}');"><span class="ui-icon ui-icon-arrowthick-1-e">next</span></a>
+            <a href="javascript:_wait();processes.modifyProcessDialogData('${processView.ordering}',${processView.skipNextPageValue},${processView.pageSize},'${processView.typeOfOrdering}');"><span class="ui-icon ui-icon-seek-next">next</span></a>
         </c:if>
         <a title="<view:msg>administrator.processes.refresh</view:msg>" href="javascript:_ref('${processView.ordering}',${processView.offsetValue},${processView.pageSize},'${processView.typeOfOrdering}');"><span class="ui-icon ui-icon-transferthick-e-w">refresh</span></a>
         <a href="javascript:_toggle_filter();" title="<view:msg>administrator.processes.filter</view:msg>"><span class="ui-icon ui-icon-scissors">filter</span></a>
         &nbsp;
+    </div>
+
+    <div class="buttons" style="padding-right: 20px;">
+        <c:forEach items="${processView.directPages}" var="pageHref">${pageHref}</c:forEach>
     </div>
     
 </div>
@@ -220,9 +201,22 @@ $(document).ready(function(){
 		            </c:forEach>                
 		         </select>
                 </td>
-        </tr>
+            </tr>
+
             <tr>
-                
+                <td><span class="ui-icon ui-icon-triangle-1-e"></span></td>
+                <td><label for="filter-state"><view:msg>administrator.processes.filter.batch</view:msg>:</label></td>
+
+                <td>
+                    <select class="filter-vals eq" name="batch_status"> 
+                        <c:forEach var="item" items="${processView.batchStatesForFilter}">
+                           <option value="${item.val}" ${item.selected ? 'selected' : ''}>${item.name}</option> 
+                       </c:forEach>                
+                    </select>
+                </td>
+            </tr>
+
+            <tr>
                 <td><span class="ui-icon ui-icon-triangle-1-e"></span></td>
                 <td><label for="filter-state"><view:msg>administrator.processes.filter.pname</view:msg>:</label></td>
                 <td><input type="text" name="name" class="filter-vals like" value="${processView.nameLike}"></input></td>
@@ -255,6 +249,7 @@ $(document).ready(function(){
     </table>    
 
     <script type="text/javascript">
+    <!--
         $(function() {
                 $( "#planned-after" ).datetimepicker();
                 $( "#planned-before" ).datetimepicker();
@@ -262,11 +257,12 @@ $(document).ready(function(){
                 $( "#started-after" ).datetimepicker();
                 $( "#started-before" ).datetimepicker();
           });
+    //-->
     </script>    
 
      <div class="apply" style="width:170px;">
-        <button name="apply" title="Ok" onclick="processes.currentFilter.apply('${processView.ordering}',0,${processView.pageSize},'${processView.typeOfOrdering}')"> <view:msg>common.apply</view:msg> </button>
-        <button name="apply" title="Close" onclick="processes.currentFilter.close()"> <view:msg>common.close</view:msg> </button>
+        <button name="apply" title='<view:msg>common.ok</view:msg>' onclick="processes.currentFilter.apply('${processView.ordering}',0,${processView.pageSize},'${processView.typeOfOrdering}'); _wait();"> <view:msg>common.apply</view:msg> </button>
+        <button name="apply" title='<view:msg>common.apply</view:msg>' onclick="processes.currentFilter.close()"> <view:msg>common.close</view:msg> </button>
      </div>
      
  </div>
@@ -275,15 +271,46 @@ $(document).ready(function(){
     <thead style="border-bottom: dashed 1px;" >
         <tr>
             <td width="5px"><strong> </strong></td>
-            <td width="40%"><strong>${processView.nameOrdering}</strong></td>
-            <td width="5%"><strong>${processView.pidOrdering}</strong></td>
-            <td width="10%"><strong>${processView.stateOrdering}</strong></td>
-
-            <td width="10%"><strong>${processView.batchStateOrdering}</strong></td>
+            <td width="20%">
+                <table><tr>
+                    <td><c:if test="${processView.nameOrdered}">${processView.orderingIcon}</c:if></td>
+                    <td><strong>${processView.nameOrdering}</strong></td>   
+                 </tr></table>
+             </td>
             
-            <td><strong>${processView.dateOrdering}</strong></td>
-            <td><strong>${processView.plannedDateOrdering}</strong></td>
-            <td><strong>${processView.userOrdering}</strong></td>
+            <td width="5%">
+             <strong>${processView.pidOrdering}</strong>  
+            </td>
+            
+            <td width="5%">
+                <table><tr>
+                    <td><c:if test="${processView.stateOrdered}">${processView.orderingIcon}</c:if></td>
+                    <td><strong>${processView.stateOrdering}</strong>  </td>
+                </tr></table>
+            </td>
+
+            <td width="10%"> 
+                <table><tr>
+                    <td><c:if test="${processView.batchStateOrdered}">${processView.orderingIcon}</c:if></td>
+                    <td><strong>${processView.batchStateOrdering} </strong>  </td>
+                </tr></table>
+            </td>
+            
+            <td> 
+                <table><tr>
+                    <td><c:if test="${processView.startedDateOrdered}">${processView.orderingIcon}</c:if></td>
+                    <td> <strong>${processView.dateOrdering}</strong> </td>
+              </tr></table>
+            </td>
+              
+            <td>
+                <table><tr>
+                    <td><c:if test="${processView.plannedDateOrdered}">${processView.orderingIcon}</c:if> </td>
+                    <td><strong>${processView.plannedDateOrdering}</strong> </td>
+                  </tr></table>
+            </td>
+            
+            <td><span> <strong>${processView.userOrdering}</strong> <c:if test="${processView.userOrdered}">${processView.orderingIcon}</c:if></span></td>
             <td  width="10%"><strong><view:msg>administrator.processes.change</view:msg></strong></td>
         </tr>
     </thead>
@@ -310,6 +337,8 @@ $(document).ready(function(){
                     <td class="t2">${childLrProc.processName} </td>
                     <td>${childLrProc.pid} </td>
                     <td>${childLrProc.processState}</td>
+                    <td>${childLrProc.batchState}</td>
+
                     <td>${childLrProc.start}</td>
                     <td>${childLrProc.planned}</td>
                     <td>${childLrProc.startedBy}</td>
@@ -317,7 +346,7 @@ $(document).ready(function(){
 
                 </tr>
             </c:forEach>
-                <tr class="${lrProc.UUID} subprocess"><td colspan="8" style="border-top:solid 1px #E66C00;"></td></tr>
+                <tr class="${lrProc.UUID} subprocess"><td colspan="9" style="border-top:solid 1px #E66C00;"></td></tr>
             </c:if>
         </c:forEach>
     </tbody>
