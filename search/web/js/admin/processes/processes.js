@@ -29,9 +29,11 @@ ProcessessFilter.prototype.apply=function(ordering, offset, size, type) {
 	},this));
 	
 
+	processes.wait();
 	var url = "inc/admin/_processes_data.jsp?ordering="+ordering+"&offset="+offset+"&size="+size+"&type="+type+this.filterPostfix();
 	$.get(url, function(data) {
 		$("#processes").html(data);
+		process.repairDisplayed();
 	});
 	
 	$(".filter").toggle();
@@ -71,6 +73,13 @@ function Processes() {
 	this.currentFilter = new ProcessessFilter();
 }
 
+Processes.prototype.repairDisplayed = function() {
+	$(this.displayedRows).each(function(index, val) {
+		$("."+val).show();
+        $("#"+val+"_icon").attr("src","img/nolines_minus.gif");
+	});
+}
+
 Processes.prototype.openProcessDialog = function() {
 	if (this.dialog) {
 		this.dialog.dialog('open');
@@ -81,11 +90,13 @@ Processes.prototype.openProcessDialog = function() {
 	        height:  $(window).height()-60,
 	        modal: true,
 	        title: dictionary['administrator.menu.dialogs.lrprocesses.title'],
-	        buttons: {
-	            "Close": function() {
-	                $(this).dialog("close"); 
-	            } 
-	        }
+	        buttons: [{
+	                	  text:dictionary['common.close'],
+	                	  click:function() {
+	        	        	 $(this).dialog("close"); 
+	                	  }
+        	}]
+		
 	    });
 	}
 }
@@ -98,20 +109,24 @@ Processes.prototype.processes = function (){
 		this.dialog.dialog("option", "width", $(window).width()-20);
 		this.dialog.dialog("option", "height", $(window).height()-60);
 		$("#processes>table").css('height',$(window).height()-160);
-                this.wait();
-	$.get(url, bind(function(data) {
-		$("#processes").html(data);;
-	}, this));
+		this.wait();
+		$.get(url, bind(function(data) {
+			$("#processes").html(data);;
+		}, this));
 }
+
 Processes.prototype.wait = function() {
 	   $("#processes").html('<div style="margin-top:30px;width:100%;text-align:center;"><img src="img/loading.gif" alt="loading" /></div>');
 }
 
 Processes.prototype.modifyProcessDialogData = function(ordering, offset, size, type) {
+	this.wait();
+	
 	var url = "inc/admin/_processes_data.jsp?ordering="+ordering+"&offset="+offset+"&size="+size+"&type="+type+this.currentFilter.filterPostfix();
-	$.get(url, function(data) {
+	$.get(url, bind(function(data) {
 		$("#processes").html(data);
-	});
+	    this.repairDisplayed();
+	},this));
 }
 
 Processes.prototype.doActionAndRefresh=function(url,ordering, offset, size, type) {
@@ -121,7 +136,7 @@ Processes.prototype.doActionAndRefresh=function(url,ordering, offset, size, type
 }
 
 Processes.prototype.refreshProcesses = function(ordering, offset, size, type) {
-	_wait();
+	this.wait();
 	var refreshurl = "inc/admin/_processes_data.jsp?ordering="+ordering+"&offset="+offset+"&size="+size+"&type="+type;
 	$.get(refreshurl, function(sdata) {
 		$("#processes").html(sdata);
@@ -129,7 +144,7 @@ Processes.prototype.refreshProcesses = function(ordering, offset, size, type) {
 }
 
 Processes.prototype.subprocesses = function(id) {
-    if (this.displayedRows.indexOf(id) >= 0) {
+	if (this.displayedRows.indexOf(id) >= 0) {
         $("."+id).hide();
         $("#"+id+"_icon").attr("src","img/nolines_plus.gif");
         this.displayedRows.rm(this.displayedRows.indexOf(id));
