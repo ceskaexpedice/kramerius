@@ -239,6 +239,7 @@ $(document).ready(function(){
                 <td><span class="ui-icon ui-icon-triangle-1-e"></span></td>
                 <td><label for="filter-started-after"><view:msg>administrator.processes.filter.startedafter</view:msg>:</label></td>
                 <td><input type="text" name="started" class="filter-vals gt" id="started-after" value="${processView.startedAfter}"></input></td>
+
             </tr>
 
             <tr>
@@ -246,18 +247,54 @@ $(document).ready(function(){
                 <td><label for="filter-started-before"><view:msg>administrator.processes.filter.startedbefore</view:msg>::</label></td>
                 <td><input type="text" name="started" class="filter-vals gt" id="started-before" value="${processView.startedBefore}"></input></td>
             </tr>
+
+            <tr>
+                <td><span class="ui-icon ui-icon-triangle-1-e"></span></td>
+                <td><label for="filter-started-after"><view:msg>administrator.processes.filter.finishedafter </view:msg>:</label></td>
+                <td><input type="text" name="finished" class="filter-vals gt" id="finished-after" value="${processView.finishedAfter}"></input></td>
+            </tr>
+
+            <tr>
+                <td><span class="ui-icon ui-icon-triangle-1-e"></span></td>
+                <td><label for="planned"><view:msg>administrator.processes.filter.finishedbefore</view:msg>:</label></td>
+                <td><input type="text" name="finished" class="filter-vals lt" id="finished-before" value="${processView.finishedBefore}"></input></td>
+            </tr>
+
+
         </tbody>
     </table>    
 
     <script type="text/javascript">
     <!--
         $(function() {
-                $( "#planned-after" ).datetimepicker();
-                $( "#planned-before" ).datetimepicker();
+                $( "#planned-after" ).datetimepicker({
+                    dateFormat: 'mm/dd/yy',
+                	timeFormat: 'hh:mm'  
+                });
+                $( "#planned-before" ).datetimepicker({
+                    dateFormat: 'mm/dd/yy',
+                        timeFormat: 'hh:mm'  
+                });
 
-                $( "#started-after" ).datetimepicker();
-                $( "#started-before" ).datetimepicker();
-          });
+                $( "#started-after" ).datetimepicker({
+                    dateFormat: 'mm/dd/yy',
+                        timeFormat: 'hh:mm'  
+                });
+                $( "#started-before" ).datetimepicker({
+                    dateFormat: 'mm/dd/yy',
+                        timeFormat: 'hh:mm'  
+                });
+
+                $( "#finished-after" ).datetimepicker({
+                    dateFormat: 'mm/dd/yy',
+                        timeFormat: 'hh:mm'  
+                });
+                $( "#finished-before" ).datetimepicker({
+                    dateFormat: 'mm/dd/yy',
+                        timeFormat: 'hh:mm'  
+                });
+                
+        });
     //-->
     </script>    
 
@@ -279,7 +316,7 @@ $(document).ready(function(){
                  </tr></table>
              </td>
             
-            <td width="5%">
+            <td width="15px;">
              <strong>${processView.pidOrdering}</strong>  
             </td>
             
@@ -297,21 +334,37 @@ $(document).ready(function(){
                 </tr></table>
             </td>
             
-            <td> 
+            <td width="20px;"> 
                 <table><tr>
                     <td><c:if test="${processView.startedDateOrdered}">${processView.orderingIcon}</c:if></td>
                     <td> <strong>${processView.dateOrdering}</strong> </td>
               </tr></table>
             </td>
+
               
-            <td>
+            <td width="20px;">
                 <table><tr>
                     <td><c:if test="${processView.plannedDateOrdered}">${processView.orderingIcon}</c:if> </td>
                     <td><strong>${processView.plannedDateOrdering}</strong> </td>
                   </tr></table>
             </td>
+
+            <td width="20px;"> 
+                <table><tr>
+                    <td><c:if test="${processView.finishedDateOrdered}">${processView.orderingIcon}</c:if></td>
+                    <td> <strong>${processView.finishedDateOrdering}</strong> </td>
+              </tr></table>
+            </td>
+
             
-            <td><span> <strong>${processView.userOrdering}</strong> <c:if test="${processView.userOrdered}">${processView.orderingIcon}</c:if></span></td>
+            <td width="40px;">
+            
+              <table><tr>
+                    <td><c:if test="${processView.userOrdered}">${processView.orderingIcon}</c:if></td>
+                    <td> <strong>${processView.userOrdering}</strong> </td>
+              </tr></table>
+            
+            </td>
             <td  width="10%"><strong><view:msg>administrator.processes.change</view:msg></strong></td>
         </tr>
     </thead>
@@ -319,14 +372,27 @@ $(document).ready(function(){
         <c:forEach var="lrProc" items="${processView.processes}" varStatus="i">
             <tr class="${(i.index mod 2 == 0) ? 'result ui-state-default': 'result '}">
                 <td>${lrProc.treeIcon}</td>
-                <td>${lrProc.processName} </td>
-                <td>${lrProc.pid} </td>
+                <td title="${lrProc.processName}">${lrProc.processName} </td>
+                <td title="${lrProc.pid}">${lrProc.pid} </td>
 
-                <td>${lrProc.processState}</td>
-                <td>${lrProc.batchState}</td>
+                <c:if test="${lrProc.failedState}">
+                    <td title="${lrProc.processState}" style="color: red;"><strong> ${lrProc.processState}</strong></td>
+                </c:if>
+                <c:if test="${!lrProc.failedState}">
+                    <td title="${lrProc.processState}">${lrProc.processState}</td>
+                </c:if>
 
-                <td>${lrProc.start}</td>
-                <td>${lrProc.planned}</td>
+                <c:if test="${lrProc.failedBatchState}">
+                    <td title="${lrProc.batchState}" style="color: red;"><strong> ${lrProc.batchState}</strong></td>
+                </c:if>                
+                <c:if test="${!lrProc.failedBatchState}">
+                    <td title="${lrProc.batchState}">${lrProc.batchState}</td>
+                </c:if>                
+
+                <td title="${lrProc.start}">${lrProc.start}</td>
+                <td title="${lrProc.planned}">${lrProc.planned}</td>
+                <td title="${lrProc.finished} ( ${lrProc.duration} )">${lrProc.finished}</td>
+                
                 <td>${lrProc.startedBy}</td>
                 <td>${lrProc.logsURLs} || ${lrProc.killURL} || ${lrProc.deleteURL} </td>
             </tr>
@@ -335,19 +401,33 @@ $(document).ready(function(){
             <c:forEach var="childLrProc" items="${lrProc.childProcesses}" varStatus="ch">
                 <tr class="${(ch.index mod 2 == 0) ? 'result r0 ': 'result r1 '} ${lrProc.UUID} subprocess">
                     <td class="t1"><strong> </strong></td>
-                    <td class="t2">${childLrProc.processName} </td>
-                    <td>${childLrProc.pid} </td>
-                    <td>${childLrProc.processState}</td>
-                    <td>${childLrProc.batchState}</td>
+                    <td class="t2" title="${childLrProc.processName}">${childLrProc.processName} </td>
+                    <td title="${childLrProc.pid}">${childLrProc.pid} </td>
 
-                    <td>${childLrProc.start}</td>
-                    <td>${childLrProc.planned}</td>
+                    <c:if test="${childLrProc.failedState}">
+                        <td title="${childLrProc.processState}" style="color: red;"><strong> ${childLrProc.processState}</strong></td>
+                    </c:if>
+                    <c:if test="${!childLrProc.failedState}">
+                        <td title="${childLrProc.processState}">${childLrProc.processState}</td>
+                    </c:if>
+
+                    <c:if test="${childLrProc.failedBatchState}">
+                        <td title="${childLrProc.batchState}" style="color: red;"><strong> ${childLrProc.batchState}</strong></td>
+                    </c:if>                
+                    <c:if test="${!childLrProc.failedBatchState}">
+                        <td title="${childLrProc.batchState}">${childLrProc.batchState}</td>
+                    </c:if>                
+
+                    <td title="${childLrProc.start}">${childLrProc.start}</td>
+                    <td title="${childLrProc.planned}">${childLrProc.planned}</td>
+                    <td title="${childLrProc.finished} ( ${childLrProc.duration} )">${childLrProc.finished}</td>
+
                     <td>${childLrProc.startedBy}</td>
                     <td>${childLrProc.logsURLs} ||  ${childLrProc.killURL} ||  ${childLrProc.deleteURL} </td>
 
                 </tr>
             </c:forEach>
-                <tr class="${lrProc.UUID} subprocess"><td colspan="9" style="border-top:solid 1px #E66C00;"></td></tr>
+                <tr class="${lrProc.UUID} subprocess"><td colspan="10" style="border-top:solid 1px #E66C00;"></td></tr>
             </c:if>
         </c:forEach>
     </tbody>

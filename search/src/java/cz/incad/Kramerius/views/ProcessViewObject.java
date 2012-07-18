@@ -3,10 +3,14 @@ package cz.incad.Kramerius.views;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
+import java.util.ResourceBundle;
 import java.util.logging.Level;
+
+import org.antlr.stringtemplate.StringTemplate;
 
 import com.google.inject.Provider;
 
@@ -80,16 +84,116 @@ public class ProcessViewObject {
     }
 
     public String getProcessState() {
-        return lrProcess.getProcessState().getVal() + " " + lrProcess.getProcessState().name();
+        return lrProcess.getProcessState().name();
+    }
+    
+    public boolean isFailedState() {
+        return lrProcess.getProcessState().equals(States.FAILED);
+    }
+    
+    public boolean isFailedBatchState() {
+        return lrProcess.getBatchState() != null && lrProcess.getBatchState().equals(BatchStates.BATCH_FAILED);
     }
     
     public String getBatchState() {
         BatchStates bState = lrProcess.getBatchState();
         if (!bState.equals(BatchStates.NO_BATCH)) {
-            return lrProcess.getBatchState().getVal() +" "+lrProcess.getBatchState().name();
+            return lrProcess.getBatchState().name();
         } else return "";
     }
 
+    public String getFinished() {
+        Date date = new Date(lrProcess.getFinishedTime());
+        if (date.getTime() != 0) {
+            return FORMAT.format(date);
+        } else return "";
+    }
+
+    public String getDuration() throws IOException {
+        if (lrProcess.getFinishedTime() != 0) {
+
+            ResourceBundle bundle = bundleService.getResourceBundle("labels", locale);
+
+            int days = 0;
+            int hours = 0;
+            int minutes = 0;
+            int seconds = 0;
+            long milisconds = 0;
+            
+            long startTime =  lrProcess.getStartTime();
+            Calendar startTimeCal = Calendar.getInstance(); startTimeCal.setTimeInMillis(startTime);
+
+            long finishTime = lrProcess.getFinishedTime();
+            Calendar finishTimeCal = Calendar.getInstance(); finishTimeCal.setTimeInMillis(finishTime);
+
+
+            Calendar processingCal = Calendar.getInstance();
+            processingCal.setTimeInMillis(startTime);
+
+            if (moreThenDay(processingCal.getTimeInMillis(), startTimeCal.getTimeInMillis())) {
+                days = changeCalendar(finishTimeCal, processingCal, Calendar.DAY_OF_MONTH);
+            }
+            
+            if (moreThenHour(finishTimeCal.getTimeInMillis(),startTimeCal.getTimeInMillis())) {
+                hours = changeCalendar(finishTimeCal, processingCal, Calendar.HOUR_OF_DAY);
+            }
+            if (moreThenMinute(finishTimeCal.getTimeInMillis(),startTimeCal.getTimeInMillis())) {
+                minutes = changeCalendar(finishTimeCal, processingCal, Calendar.MINUTE);
+            }
+
+            if (moreThenSecond(finishTimeCal.getTimeInMillis(),startTimeCal.getTimeInMillis())) {
+                seconds = changeCalendar(finishTimeCal, processingCal, Calendar.SECOND);
+            }
+
+            milisconds = processingCal.getTime().getTime() - finishTimeCal.getTime().getTime();
+            
+            StringBuilder builder = new StringBuilder();
+
+
+            if (days > 0) builder.append(days).append(" ").append(bundle.getString("administrator.processes.duration.days")).append(" ");
+            if (hours > 0) builder.append(hours).append(" ").append(bundle.getString("administrator.processes.duration.hours")).append(" ");
+            if (minutes > 0) builder.append(minutes).append(" ").append(bundle.getString("administrator.processes.duration.minutes")).append(" ");
+            if (seconds > 0) builder.append(seconds).append(" ").append(bundle.getString("administrator.processes.duration.seconds")).append(" ");
+            if (milisconds > 0) builder.append(seconds).append(" ").append(bundle.getString("administrator.processes.duration.miliseconds")).append(" ");
+            
+            return builder.toString();
+        } else return "";
+    }
+
+    public int changeCalendar(Calendar finishTimeCal, Calendar processingCal, int calendarField) {
+        int calculated = 0;
+        Calendar tmpCal = Calendar.getInstance();
+        tmpCal.setTime(processingCal.getTime());
+     
+        while(tmpCal.get(calendarField) < finishTimeCal.get(calendarField)) {
+            calculated+= 1;
+            tmpCal.add(calendarField,1);
+        }
+        
+        processingCal.setTime(tmpCal.getTime());
+        return calculated;
+    }
+    
+    private boolean moreThenDay(long finishTime, long startTime) {
+        final long day = 1000*60*60*24;
+        return (finishTime - startTime) > day;
+    }
+
+    private boolean moreThenHour(long finishTime, long startTime) {
+        final long hour = 1000*60*60;
+        return (finishTime - startTime) > hour;
+    }
+    
+    private boolean moreThenMinute(long finishTime, long startTime) {
+        final long minute = 1000*60;
+        return (finishTime - startTime) > minute;
+    }
+    
+    private boolean moreThenSecond(long finishTime, long startTime) {
+        final long second = 1000;
+        return (finishTime - startTime) > second;
+    }
+    
     public String getStart() {
         Date date = new Date(lrProcess.getStartTime());
         if (date.getTime() != 0) {

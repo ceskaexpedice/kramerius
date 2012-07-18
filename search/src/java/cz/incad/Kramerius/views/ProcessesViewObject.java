@@ -359,9 +359,27 @@ public class ProcessesViewObject implements Initializable {
         }
     }
 
+    public boolean isFinishedDateOrdered() {
+        return this.ordering.equals(LRProcessOrdering.FINISHED);
+    }
+
+    public String getFinishedDateOrdering() {
+        try {
+            String startedString = bundleService.getResourceBundle("labels", this.localesProvider.get()).getString("administrator.processes.finished");
+            LRProcessOrdering nOrdering = LRProcessOrdering.FINISHED;
+            boolean changeTypeOfOrdering = this.ordering.equals(nOrdering);
+            return newOrderingURL(nOrdering, startedString, changeTypeOfOrdering ? switchOrdering() : TypeOfOrdering.ASC);
+        } catch (IOException e) {
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+            return e.getMessage();
+        }
+    }
+
     public boolean isUserOrdered() {
         return this.ordering.equals(LRProcessOrdering.LOGINNAME);
     }
+
+    
 
     public String getUserOrdering() {
         try {
@@ -483,6 +501,32 @@ public class ProcessesViewObject implements Initializable {
         return "";
     }
 
+
+    public String getFinishedAfter() {
+        if (this.filter != null) {
+            List<Tripple> tripples = this.filter.getTripples();
+            for (Tripple tripple : tripples) {
+                if (tripple.getName().equals("finished") && tripple.getOp().equals(LRPRocessFilter.Op.GT)) {
+                    return LRPRocessFilter.getFormattedValue(tripple);
+                }
+            }
+        } 
+        return "";
+    }
+
+    public String getFinishedBefore() {
+        if (this.filter != null) {
+            List<Tripple> tripples = this.filter.getTripples();
+            for (Tripple tripple : tripples) {
+                if (tripple.getName().equals("finished") && tripple.getOp().equals(LRPRocessFilter.Op.LT)) {
+                    return LRPRocessFilter.getFormattedValue(tripple);
+                }
+            }
+        } 
+        return "";
+    }
+
+    
     public String getNameLike() {
         if (this.filter != null) {
             List<Tripple> tripples = this.filter.getTripples();

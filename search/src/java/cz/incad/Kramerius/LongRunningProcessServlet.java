@@ -164,7 +164,9 @@ public class LongRunningProcessServlet extends GuiceServlet {
 
     public static LRProcess stopOldProcess(String defaultLibDir, String uuidOfProcess, DefinitionManager defManager, LRProcessManager lrProcessManager) {
         defManager.load();
-        lrProcessManager.getLongRunningProcess(uuidOfProcess).stopMe();
+        LRProcess lrProcess = lrProcessManager.getLongRunningProcess(uuidOfProcess);
+        lrProcess.stopMe();
+        lrProcessManager.updateLongRunningProcessFinishedDate(lrProcess);
         return lrProcessManager.getLongRunningProcess(uuidOfProcess);
     }
 
@@ -420,6 +422,13 @@ public class LongRunningProcessServlet extends GuiceServlet {
                     
                     // zmena procesu
                     changeProcessState(processManager, state, longRunningProcess);
+
+                    if (States.isFinishState(States.valueOf(state))) {
+                        longRunningProcess.setFinishedTime(System.currentTimeMillis());
+                        processManager.updateLongRunningProcessFinishedDate(longRunningProcess);
+                    }
+                    
+                    
                     // nacteni z db ? 
                     List<LRProcess> processes = processManager.getLongRunningProcessesByToken(longRunningProcess.getToken());
                     if (processes.size() > 1) {
@@ -432,23 +441,7 @@ public class LongRunningProcessServlet extends GuiceServlet {
                         LOGGER.fine("calculated state '"+processes.get(0)+"'");
                         processManager.updateLongRunninngProcessBatchState(processes.get(0));
 
-                    // zmena child procesu
-//                    } else {
-//                            List<States> childStates = new ArrayList<States>();
-//                            childStates.add(States.valueOf(state));
-//                            // prvni je master process -> vynechavam + meneny proces vynechavam
-//                            for (int i = 1,ll=processes.size(); i < ll; i++) {
-//                                LRProcess lrProcess = processes.get(i);
-//                                if (!lrProcess.getUUID().equals(uuid)) {
-//                                    childStates.add(lrProcess.getProcessState());
-//                                }
-//                            }
-//                            
-//                            processes.get(0).setBatchState(BatchStates.calculateBatchState(childStates));
-//                            //processManager.updateLongRunningProcessState(processes.get(0));
-//                            processManager.updateLongRunninngProcessBatchState(processes.get(0));
-                            
-                        }
+                    }
 
                 } finally {
                     lock.unlock();
