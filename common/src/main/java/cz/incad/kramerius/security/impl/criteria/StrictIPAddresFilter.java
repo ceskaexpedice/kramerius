@@ -26,7 +26,7 @@ import cz.incad.kramerius.security.RightCriteriumPriorityHint;
 import cz.incad.kramerius.security.SecuredActions;
 
 /**
- * Omezujici filter -> Pokud je z daneho rozsahu pusti dal, neni tak zakaze
+ * Omezujici filter -> Pokud je z daneho rozsahu - pusti dal. Pokud neni - zakaze
  * @author pavels
  *
  */
