@@ -3,4 +3,5 @@ cz.incad.kramerius.security.impl.criteria.MovingWall
 cz.incad.kramerius.security.impl.criteria.StrictIPAddresFilter
 cz.incad.kramerius.security.impl.criteria.DefaultIPAddressFilter
 cz.incad.kramerius.security.impl.criteria.PolicyFlag
-# cz.incad.kramerius.security.impl.criteria.SecuredStreams
+cz.incad.kramerius.security.impl.criteria.DefaultDomainFilter
+cz.incad.kramerius.security.impl.criteria.StrictDomainFilter
