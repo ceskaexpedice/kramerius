@@ -51,6 +51,7 @@ public abstract class AbstractLRProcessImpl implements LRProcess{
 	private String pid;
 	private long startTime;
 	private long plannedTime;
+	private long finishedTime;
 	private String uuid;
 	
 	private States state = States.NOT_RUNNING;
@@ -276,6 +277,7 @@ public abstract class AbstractLRProcessImpl implements LRProcess{
 	        
 	        this.stopMeOsDependent();
 	    }
+	    this.setFinishedTime(System.currentTimeMillis());
 	}
 
 	protected abstract void stopMeOsDependent();
@@ -467,5 +469,16 @@ public abstract class AbstractLRProcessImpl implements LRProcess{
     public void setMasterProcess(boolean flag) {
         this.masterProcess = flag;
     }
-    
+
+
+    @Override
+    public long getFinishedTime() {
+        return this.finishedTime;
+    }
+
+
+    @Override
+    public void setFinishedTime(long finishedtime) {
+        this.finishedTime = finishedtime;
+    }
 }

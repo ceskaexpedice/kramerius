@@ -280,6 +280,21 @@ public class DatabaseProcessManager implements LRProcessManager {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
         }
     }
+    
+
+    public void updateLongRunningProcessFinishedDate(LRProcess lrProcess) {
+        Connection connection = null;
+        try {
+            connection = connectionProvider.get();
+            if (connection == null)
+                throw new NotReadyException("connection not ready");
+            new JDBCUpdateTemplate(connection).executeUpdate("update processes set FINISHED = ? where UUID = ?", new Timestamp(lrProcess.getFinishedTime()), lrProcess.getUUID());
+        } catch (SQLException e) {
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+        }
+    }
+    
+
 
     @Override
     public void updateLongRunningProcessState(LRProcess lrProcess) {
@@ -370,6 +385,7 @@ public class DatabaseProcessManager implements LRProcessManager {
         int status = rs.getInt("STATUS");
         Timestamp planned = rs.getTimestamp("PLANNED");
         Timestamp started = rs.getTimestamp("STARTED");
+        Timestamp finished = rs.getTimestamp("FINISHED");
         String name = rs.getString("PNAME");
         String params = rs.getString("PARAMS");
         String token = rs.getString("TOKEN");
@@ -405,6 +421,10 @@ public class DatabaseProcessManager implements LRProcessManager {
         if (paramsMapping != null) {
             Properties props = PropertiesStoreUtils.loadProperties(paramsMapping);
             process.setParametersMapping(props);
+        }
+        
+        if (finished != null) {
+            process.setFinishedTime(finished.getTime());
         }
         
         return process;

@@ -98,6 +98,7 @@ public interface LRProcess {
 	 */
 	public long getStartTime();
 	
+	
 	/**
 	 * Set time of the start of the process 
 	 * @param start
@@ -105,17 +106,31 @@ public interface LRProcess {
 	public void setStartTime(long start);
 	
 	/**
-	 * Return time of 
+	 * Return time planned time
 	 * @return
 	 */
 	public long getPlannedTime();
 	
 	/**
-	 * Sets time of 
+	 * Sets time planned time
 	 * @param ptime
 	 */
 	public void setPlannedTime(long ptime);
 
+	/**
+     * Returns finished time
+     * @return
+     */
+    public long getFinishedTime();
+
+	
+    /**
+     * Sets finished time
+     * @param finishedtime
+     */
+    public void setFinishedTime(long finishedtime);
+    
+    
 	//TODO: Vyhodit
 	public boolean canBeStopped();
 	

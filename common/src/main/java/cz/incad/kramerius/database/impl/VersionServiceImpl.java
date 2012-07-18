@@ -55,7 +55,7 @@ public class VersionServiceImpl implements VersionService {
                 }
             }.executeQuery("select DBVER_ID, ver from DBVERSIONS v join MAX_VERSION_VIEW mv " +
             		"on (v.DBVER_ID = mv.MAX_ID) ");
-            return ids != null && ids.size() > 0 ? ids.get(0) : null;
+            return ids != null && ids.size() > 0 ? ids.get(0).trim() : null;
         } else return null;
         
     }

@@ -284,7 +284,7 @@ public class ProcessDatabaseUtils {
 
     public static String [] QUERY_PROCESS_COLUMNS= {
         "p.DEFID,PID", "p.UUID", "p.STATUS", "p.PLANNED", "p.STARTED",
-        "p.NAME AS PNAME", "p.PARAMS", "p.STARTEDBY", "p.TOKEN",  
+        "p.NAME AS PNAME", "p.PARAMS", "p.STARTEDBY", "p.TOKEN", "p.FINISHED", 
         "p.loginname","p.surname","p.firstname","p.user_key","p.params_mapping", "p.batch_status" 
     };
 

@@ -35,6 +35,5 @@ public class AbstractDomainFilterTest extends TestCase {
             String remoteAddr = i+".77.74.72";
             assertTrue("adresa "+remoteAddr, defaultDomainFilter.matchDomain(objs, remoteAddr,remoteHost));
         }
-   
     }
 }

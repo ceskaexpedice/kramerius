@@ -36,6 +36,7 @@ import cz.incad.kramerius.utils.IOUtils;
  */
 public class ProcessDatabaseInitializator {
 
+    
     static java.util.logging.Logger LOGGER = java.util.logging.Logger.getLogger(ProcessDatabaseInitializator.class.getName());
     
     public static void initDatabase(Connection connection, VersionService versionService) {
@@ -78,10 +79,20 @@ public class ProcessDatabaseInitializator {
                     alterProcessTableBatchState(connection);
                     updateProcessTableBatchStates(connection);
                 }
-            } else if (v.equals("5.0.0"))  {
+                if (!DatabaseUtils.columnExists(connection, "PROCESSES","FINISHED")) {
+                    alterProcessTableFinished(connection);
+                }
+            } else if ((v.equals("5.0.0")) || (v.equals("5.1.0")))  {
                 if (!DatabaseUtils.columnExists(connection, "PROCESSES","BATCH_STATUS")) {
                     alterProcessTableBatchState(connection);
                     updateProcessTableBatchStates(connection);
+                }
+                if (!DatabaseUtils.columnExists(connection, "PROCESSES","FINISHED")) {
+                    alterProcessTableFinished(connection);
+                }
+            } else if (v.equals("5.1.0"))  {
+                if (!DatabaseUtils.columnExists(connection, "PROCESSES","FINISHED")) {
+                    alterProcessTableFinished(connection);
                 }
             }
         } catch (SQLException e) {
@@ -159,7 +170,18 @@ public class ProcessDatabaseInitializator {
             DatabaseUtils.tryClose(prepareStatement);
         }
     }    
-    
+
+    public static void alterProcessTableFinished(Connection con) throws SQLException {
+        PreparedStatement prepareStatement = con.prepareStatement(
+            "ALTER TABLE PROCESSES ADD COLUMN FINISHED TIMESTAMP;");
+        try {
+            int r = prepareStatement.executeUpdate();
+            LOGGER.log(Level.FINEST, "ALTER TABLE: updated rows {0}", r);
+        } finally {
+            DatabaseUtils.tryClose(prepareStatement);
+        }
+    }    
+
     public static void  updateProcessTableBatchStates(Connection con) throws SQLException {
         PreparedStatement prepareStatement = con.prepareStatement(
             "update processes set batch_status = case "+

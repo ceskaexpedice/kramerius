@@ -65,6 +65,9 @@ public enum States {
     @Deprecated
     BATCH_FINISHED(8);
 
+    public static boolean isFinishState(States st) {
+        return States.FAILED.equals(st) || States.KILLED.equals(st) || States.FINISHED.equals(st);
+    }
     
 
     /**

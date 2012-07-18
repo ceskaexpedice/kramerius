@@ -127,6 +127,12 @@ public interface LRProcessManager {
 	 */
 	public void updateLongRunningProcessStartedDate(LRProcess lrProcess);
 
+	/**
+     * Update finished date
+     * @param lrProcess
+     */
+    public void updateLongRunningProcessFinishedDate(LRProcess lrProcess);
+
 	
 	/**
 	 * Update mappings between process and sessionKey 

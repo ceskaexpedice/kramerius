@@ -8,7 +8,8 @@ public enum LRProcessOrdering {
 	STARTED("started"),
 	LOGINNAME("loginname"),
     PLANNED("planned"),
-	BATCHSTATE("batch_status");
+	BATCHSTATE("batch_status"), 
+	FINISHED("finished");
 	
 	private String ordering;
 

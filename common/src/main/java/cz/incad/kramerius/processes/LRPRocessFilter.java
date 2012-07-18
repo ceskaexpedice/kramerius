@@ -35,6 +35,7 @@ public class LRPRocessFilter {
         CONVERTERS.put("batch_status", new IntegerConverter());
         CONVERTERS.put("planned", new DateConvereter());
         CONVERTERS.put("started", new DateConvereter());
+        CONVERTERS.put("finished", new DateConvereter());
         CONVERTERS.put("default", new StringConverter());
     
     }
@@ -144,9 +145,15 @@ public class LRPRocessFilter {
     }
     
 
+    
     public static class DateConvereter implements ConverterAndFormatter {
 
         public static SimpleDateFormat FORMATTER = new SimpleDateFormat("MM/dd/yyyy HH:mm");
+//        public static SimpleDateFormat FORMATTER_1 = new SimpleDateFormat("MM/dd/yyyy H:mm");
+//        public static SimpleDateFormat FORMATTER_2 = new SimpleDateFormat("MM/dd/yyyy H:m");
+//        public static SimpleDateFormat FORMATTER_3 = new SimpleDateFormat("MM/dd/yyyy HH:m");
+        
+        //public static SimpleDateFormat[] FORMATS = new SimpleDateFormat[] {FORMATTER, FORMATTER_1, FORMATTER_2, FORMATTER_3};
         
         @Override
         public Object convert(String strVal) {
@@ -242,6 +249,8 @@ public class LRPRocessFilter {
     
     public static void main(String[] args) throws ParseException {
         String str= "09/22/2011 06:00";
+        String str1 = "17.07.2012 0:0";
+        
         DateConvereter converter = new DateConvereter();
         System.out.println(converter.convert(str));
         
