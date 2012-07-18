@@ -25,6 +25,7 @@ import cz.incad.Kramerius.exts.menu.main.impl.MainMenuImpl;
 import cz.incad.Kramerius.exts.menu.main.impl.adm.AdminMenuItem;
 import cz.incad.Kramerius.exts.menu.main.impl.adm.AdminMenuPartImpl;
 import cz.incad.Kramerius.exts.menu.main.impl.adm.items.Convert;
+import cz.incad.Kramerius.exts.menu.main.impl.adm.items.CriteriumsEditor;
 import cz.incad.Kramerius.exts.menu.main.impl.adm.items.Enumerator;
 import cz.incad.Kramerius.exts.menu.main.impl.adm.items.GlobalRightsAdministration;
 import cz.incad.Kramerius.exts.menu.main.impl.adm.items.Import;
@@ -74,9 +75,10 @@ public class MainMenuConfiguration extends AbstractModule {
         adminItems.addBinding().to(ProcessesDialog.class);
         adminItems.addBinding().to(ImportMonographs.class);
         adminItems.addBinding().to(ImportPeriodicals.class);
-        adminItems.addBinding().to(ImportPeriodicals.class);
         adminItems.addBinding().to(IndexerAdministration.class);
         adminItems.addBinding().to(GlobalRightsAdministration.class);
+        adminItems.addBinding().to(CriteriumsEditor.class);
+        
         adminItems.addBinding().to(Enumerator.class);
         adminItems.addBinding().to(ReplicationRights.class);
         adminItems.addBinding().to(Convert.class);
@@ -90,12 +92,8 @@ public class MainMenuConfiguration extends AbstractModule {
         adminItems.addBinding().to(ParametrizedImport.class);
         adminItems.addBinding().to(ParametrizedConvert.class);
 
-//        adminItems.addBinding().to(WMock.class);
-//        adminItems.addBinding().to(DefaultWMock.class);
         
         // menu
         bind(MainMenu.class).to(MainMenuImpl.class);
     }
-
-    
 }
