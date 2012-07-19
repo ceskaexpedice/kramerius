@@ -85,20 +85,18 @@
                 order="ascending" /> 
             <xsl:variable name="posss"><xsl:value-of select="count(arr[@name='parent_pid']/str[.=$pid]/preceding-sibling::*)+1" /></xsl:variable>
             <xsl:variable name="idx"><xsl:value-of select="number(arr[@name='rels_ext_index']/int[position()=$posss])" /></xsl:variable>
-            <li>
+            <li style="clear:both;">
                 <xsl:attribute name="id"><xsl:value-of select="$model_path" />-<xsl:value-of select="$fmodel" />_<xsl:value-of select="./str[@name='PID']" /></xsl:attribute>
-                <xsl:if test="./bool[@name='viewable']" >
-                    <xsl:attribute name="class">viewable</xsl:attribute>
-                </xsl:if>
+                <xsl:attribute name="class"><xsl:value-of select="./str[@name='dostupnost']" /><xsl:if test="./bool[@name='viewable']" > viewable</xsl:if></xsl:attribute>
                 <span class="ui-icon ui-icon-triangle-1-e folder" >folder</span>
-                <input type="checkbox" />
-                <a href="#">
+                <div style="float:left;"><input type="checkbox"  /></div>
+                <div style="float:left;"><a href="#">
                     <xsl:call-template name="details">
                         <xsl:with-param name="fmodel">
                             <xsl:value-of select="$fmodel" />
                         </xsl:with-param>
                     </xsl:call-template>
-                </a>
+                </a></div>
             </li>
         </xsl:for-each>
     </xsl:template>
@@ -124,6 +122,13 @@
                 <xsl:attribute name="style">text-indent:-200px;background: url('img/mime/<xsl:value-of select="./str[@name='img_full_mime']" />.png'); width:16px;height:16px;float:left;</xsl:attribute>
                 <xsl:attribute name="title"><xsl:value-of select="./str[@name='img_full_mime']" /></xsl:attribute>
             mime</span>
+        </xsl:if>
+        <xsl:if test="not(./str[@name='dostupnost']='public')" >
+            <span>
+                <xsl:attribute name="style">text-indent:-200px;background: url('img/lock.png'); width:16px;height:16px;float:left;</xsl:attribute>
+                <xsl:attribute name="title"><xsl:value-of select="./str[@name='dostupnost']" /></xsl:attribute>
+            private</span>
+            <!--<img src="img/lock.png" />-->
         </xsl:if>
         <label>
         <xsl:choose>

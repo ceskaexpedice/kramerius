@@ -32,7 +32,7 @@
         background:white  url(img/loading.gif) no-repeat 50% 50%;
 
     }
-    #tv_container tr td div{
+    #tv_container tr td div.t{
         height:134px;
         /*width:128px;*/
         border:solid white 1px;
@@ -42,13 +42,14 @@
         -moz-box-shadow:0 0 6px rgba(0, 0, 0, 0.5);
         -webkit-box-shadow:0 0 6px rgba(0, 0, 0, 0.5);
         box-shadow:0 0 6px rgba(0, 0, 0, 0.5);
+        position:relative;
 
     }
     #tv_container tr td div.sel{
         border:solid 2px #e75c01;
         padding:0;
     }
-    #tv_container tr td div img{
+    #tv_container tr td div.t>img{
         height:128px;
         margin:3px;
     }
@@ -112,7 +113,9 @@
     function updateThumbs(id){
         $('#tv_container_row>td').remove();
         for(var i=0; i<k4Settings.activeUuids.length; i++){
-            $('#tv_container_row').append('<td><div id="tv_'+k4Settings.activeUuids[i]+'" class="inactive"><img src="img/empty.gif" /></div></td>');
+            $('#tv_container_row').append('<td><div id="tv_'+k4Settings.activeUuids[i]+'" class="t inactive"><img src="img/empty.gif" />'+
+                '<div id="dost_'+k4Settings.activeUuids[i]+'" style="position:absolute;left:2px;top:2px;"><img src="img/empty.gif" /></div></div>'+
+                '</td>');
         }
         selectThumb(id);
         $('#tv_container_table').show();
@@ -133,6 +136,9 @@
             $(jq('tv_'+uuid)+'>img').attr('src', 'img?uuid='+uuid.split('_')[1]+'&stream=IMG_THUMB&action=GETRAW');
             $(jq('tv_'+uuid)).removeClass('inactive');
         }
+        if(isPrivate(uuid)){
+            $(jq('dost_'+uuid)+'>img').attr('src', 'img/lock.png');
+        } 
     }
     
     function selectThumb(id){

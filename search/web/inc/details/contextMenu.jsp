@@ -242,6 +242,10 @@
         $('#contextMenu>div.scope').removeClass('selected');
         $(jq(id)).addClass('selected');
     }
+    
+    function isPrivate(id){
+        return $(jq(id)).hasClass('private');
+    }
 
     var _feedbackDialog;
     function feedbackDialog(){
