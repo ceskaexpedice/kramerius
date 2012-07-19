@@ -42,9 +42,9 @@
 
 <div id="da-inputs">
     <span style="float:left;"><fmt:message bundle="${lctx}">Od</fmt:message>:&nbsp;</span>
-    <input style="float:left;" class="da_input" id="f1" size="10" type="text" value="" readonly="true" onkeyup="checkDoFilter(event)" />
+    <input style="float:left;" class="da_input" id="f1" size="10" type="text" value="" onkeyup="checkDoFilter(event)" />
     <span style="float:left;">&nbsp;<fmt:message bundle="${lctx}">Do</fmt:message>:&nbsp;</span>
-    <input style="float:left;" class="da_input" id="f2" size="10" type="text" value="" readonly="true" onkeyup="checkDoFilter(event)"  /> 
+    <input style="float:left;" class="da_input" id="f2" size="10" type="text" value="" onkeyup="checkDoFilter(event)"  /> 
 <a href="javascript:doFilter();" style="float:right; width:16px;overflow:hidden;" ><span class="ui-icon ui-icon-search" title="<fmt:message bundle="${lctx}">dateaxis.use</fmt:message>" >a</span></a>
 </div>
 <div id="content-resizable" style="position:relative;float:none;">
