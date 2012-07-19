@@ -13,7 +13,6 @@
 <%@page import="cz.incad.kramerius.utils.conf.KConfiguration"%>
 <%@page import="javax.servlet.jsp.jstl.fmt.LocalizationContext"%>
 <%@page import="cz.incad.kramerius.FedoraAccess"%>
-<%@page import="cz.incad.Kramerius.views.item.ItemViewObject"%>
 <style type="text/css">
     #split {
         height: 700px;
