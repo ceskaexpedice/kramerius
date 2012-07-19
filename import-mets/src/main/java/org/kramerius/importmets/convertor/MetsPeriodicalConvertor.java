@@ -137,9 +137,9 @@ public class MetsPeriodicalConvertor extends BaseConvertor {
 
     private void processStructMap(Mets mets) throws ServiceException {
         for (StructMapType sm : mets.getStructMap()) {
-            if ("PHYSICAL".equals(sm.getTYPE())) {
+            if ("PHYSICAL".equalsIgnoreCase(sm.getTYPE())) {
                 processPages(sm);
-            } else if ("LOGICAL".equals(sm.getTYPE())) {
+            } else if ("LOGICAL".equalsIgnoreCase(sm.getTYPE())) {
                 processDiv(null, sm.getDiv());
             } else {
                 log.warn("Unsupported StructMap type: " + sm.getTYPE()
@@ -178,7 +178,7 @@ public class MetsPeriodicalConvertor extends BaseConvertor {
             DetailDefinition orderDetail = modsObjectFactory.createDetailDefinition();
             orderDetail.setType("pageIndex");
             XsString orderString = modsObjectFactory.createXsString();
-            orderString.setValue(order.toString());
+            orderString.setValue(order!= null?order.toString():"");
             JAXBElement<XsString> orderElement = modsObjectFactory.createNumber(orderString);
             orderDetail.getNumberOrCaptionOrTitle().add(orderElement);
             pagePart.getDetailOrExtentOrDate().add(orderDetail);
