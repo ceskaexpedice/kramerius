@@ -22,10 +22,17 @@ public class ItemViewObject {
     HttpServletRequest request;
     
     
-    
 	public ItemViewObject() {
 		super();
 	}
 	
+	/**
+	 * Only save to most desirable access
+	 * @return
+	 */
+	public String getMostDesirableAccess() {
+        mostDesirable.saveAccess(request.getParameter("pid"), new java.util.Date());
+        return "";
+	}
 	
 }
