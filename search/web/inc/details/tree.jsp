@@ -138,11 +138,11 @@
                     var t = "";
                     if (tab=="contextMenu"){
                         $('#item_tree input:checked').each(function(){
-                            var id = $(this).parent().attr("id");
+                            var id = $(this).parent().parent().attr("id");
                             //var escapedId = id.substring(4).replace(/\//g,'-');
                             t += '<li id="cm_' + id + '">';
                             t += '<span class="ui-icon ui-icon-triangle-1-e folder " >folder</span>';
-                            t += '<label>'+$(jq(id)+">a>label").html()+'</label></li>';
+                            t += '<label>'+$(jq(id)+">div>a>label").html()+'</label></li>';
                             //t += '<li><span class="ui-icon ui-icon-triangle-1-e folder " >folder</span>'+$(jq(id)+">a").html()+'</li>';
                         });
                         $('#context_items_selection').html(t);
@@ -151,12 +151,12 @@
                     }else{
                         if($('#item_tree input:checked').length>0){
                             $('#item_tree input:checked').each(function(){
-                                var id = $(this).parent().attr("id");
-                                t += '<li><span class="ui-icon ui-icon-triangle-1-e folder " >folder</span><label>'+$(jq(id)+">a>label").html()+'</label></li>';
+                                var id = $(this).parent().parent().attr("id");
+                                t += '<li><span class="ui-icon ui-icon-triangle-1-e folder " >folder</span><label>'+$(jq(id)+">div>a>label").html()+'</label></li>';
                             });
                         }else{
                             var id = $('#item_tree>li>ul>li:first').attr("id");
-                            t = '<li><span class="ui-icon ui-icon-triangle-1-e folder " >folder</span><label>'+$(jq(id)+">a>label").html()+'</label></li>';
+                            t = '<li><span class="ui-icon ui-icon-triangle-1-e folder " >folder</span><label>'+$(jq(id)+">div>a>label").html()+'</label></li>';
                         }
                         $('#searchInsideScope').html(t);
                     }
@@ -164,8 +164,8 @@
                 }
             });
 
-            $("#item_tree li>a").live('click', function(event){
-                var id = $(this).parent().attr('id');
+            $("#item_tree li>div>a").live('click', function(event){
+                var id = $(this).parent().parent().attr('id');
                 nodeClick(id);
                 event.preventDefault();
                 event.stopPropagation();
@@ -284,9 +284,9 @@
                 ($(jq(id)).hasClass('viewable') && changeLevel)){
                 fire = true;
             }
-            $("#item_tree li>a").removeClass('sel');
+            $("#item_tree li>div>a").removeClass('sel');
             $("#item_tree li").removeClass('sel');
-            $("#item_tree li>a").removeClass('ui-state-active');
+            $("#item_tree li>div>a").removeClass('ui-state-active');
             $("#item_tree li").removeClass('ui-state-active');
             highLigthNode(id);
             if(fire){
@@ -371,7 +371,7 @@
             k4Settings.selectedPathTexts = [];
             for(var j=0;j<selectedPathTemp.length; j++){
                 k4Settings.selectedPath[j]=selectedPathTemp[j];
-                k4Settings.selectedPathTexts[j]=$(jq(selectedPathTemp[j])+">a>label").html()
+                k4Settings.selectedPathTexts[j]=$(jq(selectedPathTemp[j])+">div>a>label").html()
             }
             $(".viewer").trigger('selectedPathChanged', [level]);
         }
@@ -387,7 +387,7 @@
 
         function showContextMenu(){
             $('#item_tree input:checked').each(function(){
-                var id = $(this).parent().attr("id");
+                var id = $(this).parent().parent().attr("id");
                 $('#context_items').append('<div>'+id+'</div>');
             });
             
@@ -419,7 +419,7 @@
             var fq = "";
             if($('#item_tree input:checked').length>0){
                 $('#item_tree input:checked').each(function(){
-                    var id = $(this).parent().attr("id");//.split('_')[1];
+                    var id = $(this).parent().parent().attr("id");//.split('_')[1];
                     if(fq!=""){
                         fq += " OR ";
                     }
@@ -450,7 +450,7 @@
      function getTreeSelection(){
         var uuids = [];
         $('#item_tree input:checked').each(function(){
-            var id = $(this).parent().attr("id");
+            var id = $(this).parent().parent().attr("id");
             uuids.push(id);
         });
         return uuids;

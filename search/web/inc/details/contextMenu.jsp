@@ -156,7 +156,7 @@
 
         $('#scope_single.viewer').bind('viewReady', function(event, id){
             if(!initView){
-                var t = '<li id="cms_'+ k4Settings.activeUuid+'"><span class="ui-icon ui-icon-triangle-1-e " >item</span>'+$(jq(k4Settings.activeUuid)+">a>label").html()+'</li>';
+                var t = '<li id="cms_'+ k4Settings.activeUuid+'"><span class="ui-icon ui-icon-triangle-1-e " >item</span>'+$(jq(k4Settings.activeUuid)+">div>a>label").html()+'</li>';
                 $('#context_items_active').html(t);
             }
         });
@@ -165,7 +165,7 @@
 
     function setInitActive(){
         var initialPid = model_path_str.replaceAll('/', '-') + "_" + pid_path[pid_path.length - 1];
-        $('#context_items_active').html('<li id="cms_'+ initialPid+'"><span class="ui-icon ui-icon-triangle-1-e " >item</span><label>'+$(jq(initialPid)+">a>label").html()+'</label></li>');
+        $('#context_items_active').html('<li id="cms_'+ initialPid+'"><span class="ui-icon ui-icon-triangle-1-e " >item</span><label>'+$(jq(initialPid)+">div>a>label").html()+'</label></li>');
     }
 
     function clearContextMenuSelection(){
@@ -674,7 +674,7 @@
           if(pids.length==1){
               var pidpath = getPidPath(pids[0]);
               var pid = pidpath.substring(pidpath.lastIndexOf("/") + 1);
-              var title = $(jq(pids[0])+">a>label").text();
+              var title = $(jq(pids[0])+">div>a>label").text();
               var escapedTitle = replaceAll(title, ',', '');
               escapedTitle = replaceAll(escapedTitle, '\n', '');
               escapedTitle = escapedTitle.replace(/ +(?= )/g,'');
@@ -684,7 +684,7 @@
               for(var i=0; i<pids.length; i++){
                   var pidpath = getPidPath(pids[i]);
                   var pid = pidpath.substring(pidpath.lastIndexOf("/") + 1);
-                  var title = $(jq(pids[i])+">a>label").text();
+                  var title = $(jq(pids[i])+">div>a>label").text();
                   var escapedTitle = replaceAll(title, ',', '');
                   escapedTitle = replaceAll(escapedTitle, '\n', '');
                   escapedTitle = escapedTitle.replace(/ +(?= )/g,'');
@@ -710,7 +710,7 @@
               if(pids.length==1){
                   var pidpath = getPidPath(pids[0]);
                   var pid = pidpath.substring(pidpath.lastIndexOf("/") + 1);
-                  var title = $(jq(pids[0])+">a>label").text();
+                  var title = $(jq(pids[0])+">div>a>label").text();
                   var escapedTitle = replaceAll(title, ',', '');
                   escapedTitle = replaceAll(escapedTitle, '\n', '');
                   escapedTitle = escapedTitle.replace(/ +(?= )/g,'');
@@ -720,7 +720,7 @@
                   for(var i=0; i<pids.length; i++){
                       var pidpath = getPidPath(pids[i]);
                       var pid = pidpath.substring(pidpath.lastIndexOf("/") + 1);
-                      var title = $(jq(pids[i])+">a>label").text();
+                      var title = $(jq(pids[i])+">div>a>label").text();
                       var escapedTitle = replaceAll(title, ',', '');
                       escapedTitle = replaceAll(escapedTitle, '\n', '');
                       escapedTitle = escapedTitle.replace(/ +(?= )/g,'');
