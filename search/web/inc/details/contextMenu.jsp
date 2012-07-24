@@ -828,6 +828,88 @@
           }
       }
 
+
+
+      /** change policy flag  */
+      function ChangeFlag() {
+          this.dialog = null;
+          this.policyName = "setpublic";
+          this.aggregate = true;
+      }
+
+      ChangeFlag.prototype.startProcess = function() {
+
+          
+          function _url(/** String */baseUrl, /** Array */ pids) {
+              return baseUrl+""+reduce(function(base, item, status) {
+                  
+                  base = base+"{"+item.pid.replaceAll(":","\\:")+ (status.last ? "}": "};");
+                  return base;
+              }, "",pids)+"";        
+          }
+
+          var value = $("#changeFlag input:checked").val();
+          this.policyName = value;
+          var structs = pidstructs();     
+          this.aggregate = structs.length > 1;
+          var u = this.aggregate ?  _url("lr?action=start&out=text&def=aggregate&out=text&nparams={"+this.policyName+";",structs)+"}" : "lr?action=start&out=text&def="+this.policyName+"&nparams={"+structs[0].pid.replaceAll(":","\\:")+"}";
+          
+          processStarter(this.policyName).start(u);
+      }
+
+      ChangeFlag.prototype.change = function() {
+          $.get("inc/admin/_change_flag.jsp", bind(function(data){
+
+              
+              if (this.dialog) {
+                  this.dialog.dialog('open');
+              } else {
+                  var pdiv = '<div id="changeflagDialog"></div>';
+
+                  $(document.body).append(pdiv);
+
+                  this.dialog = $("#changeflagDialog").dialog({
+                      bgiframe: true,
+                      width:  400,
+                      height:  200,
+                      modal: true,
+                      title: dictionary['administrator.menu.dialogs.changevisflag.title'],
+                      buttons: 
+                          [{
+                              text:dictionary['common.apply'],
+                              click:bind(function() {
+                                  this.dialog.dialog("close");
+                                  this.startProcess();                        
+                               },this)
+                          },{
+                              text:dictionary['common.close'],
+                              click:function() {
+                                  $(this).dialog("close") 
+                              } 
+                          }]
+                  });
+                      
+              }
+              $("#changeflagDialog").html(data);
+                      
+              $("#changeFlag_pids").html($("#context_items_selection").html());
+
+              $("#changeFlag_pids li").each(function(i, val) {
+                  var label = $(val).find('> label').text();
+
+                  var id = $(val).attr("id");
+                  var pidmodel = id.substring(3);
+                  var key = isPrivate(pidmodel) ? "administrator.dialogs.changevisibility.private" : "administrator.dialogs.changevisibility.public";
+
+                  $(val).html(" <table><tr><td><span class='ui-icon ui-icon-triangle-1-e folder'>folder</span></td> <td>"+label+"</td> <td><strong>"+dictionary[key]+"</strong></td>  </tr></table>");
+               });
+              
+              
+          },this));
+      }
+
+      var changeFlag = new ChangeFlag();
+            
     </scrd:loggedusers>
 
 </script>
