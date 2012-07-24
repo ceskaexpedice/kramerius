@@ -902,20 +902,15 @@
                       
               }
               $("#changeflagDialog").html(data);
-                      
-              $("#changeFlag_pids").html($("#context_items_selection").html());
 
-              $("#changeFlag_pids li").each(function(i, val) {
-                  var label = $(val).find('> label').text();
-
-                  var id = $(val).attr("id");
-                  var pidmodel = id.substring(3);
-                  var key = isPrivate(pidmodel) ? "administrator.dialogs.changevisibility.private" : "administrator.dialogs.changevisibility.public";
-
-                  $(val).html(" <table><tr><td><span class='ui-icon ui-icon-triangle-1-e folder'>folder</span></td> <td>"+label+"</td> <td><strong>"+dictionary[key]+"</strong></td>  </tr></table>");
-               });
+              var html = reduce(function(base,element, status) {
+            	  var key = isPrivate(element) ? "administrator.dialogs.changevisibility.private" : "administrator.dialogs.changevisibility.public";
+                  var label = $(jq(element)+">div>a>label").text();
+                  return base+  "<tr><td><span class='ui-icon ui-icon-triangle-1-e folder'>folder</span></td> <td width='60%'>"+label+"</td> <td><strong>"+dictionary[key]+"</strong></td>  </tr>";                 
+               },"<table style='width:100%;'>",getAffectedPids())+"</table>";
               
-              
+              $("#changeFlag_pids").html(html);
+
           },this));
       }
 
