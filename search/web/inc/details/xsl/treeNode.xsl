@@ -58,7 +58,7 @@
                     <xsl:value-of select="$lstModel[1]/str[@name='fedora.model']" />
                 </xsl:variable>
                 <xsl:variable name="modelLoc" >fedora.model.<xsl:value-of select="$model" /></xsl:variable>
-                <li class="model">
+                <li class="model" style="clear:both;">
                     <xsl:attribute name="id"><xsl:value-of select="$model_path" />-<xsl:value-of select="$model" />_<xsl:value-of select="$pid" /></xsl:attribute>
                     <span class="ui-icon ui-icon-triangle-1-e folder" ></span>
                     

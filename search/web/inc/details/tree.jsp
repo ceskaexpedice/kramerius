@@ -95,10 +95,11 @@
             <li id="${root_model}"><span class="ui-icon ui-icon-triangle-1-e folder " >folder</span>
                 <a href="#" class="model"><fmt:message bundle="${lctx}">fedora.model.${root_model}</fmt:message></a>
                 <ul><li id="${root_model}_${root_pid}" class="${class_viewable}"><span class="ui-icon ui-icon-triangle-1-e folder " >folder</span>
-                        <input type="checkbox" /><a href="#" class="label">${infoa}</a></li></ul>
+                        <div style="float:left;"><input type="checkbox"  /></div>
+                <div style="float:left;"><a href="#" class="label">${infoa}</a></div></li></ul>
             </li>
         </ul>
-    <div id="donator" class="viewer" style="position:relative; bottom:0px; width:100%; text-align:center;"></div>  
+    <div id="donator" class="viewer" style="position:relative; bottom:0px; width:100%; text-align:center;clear:both;"></div>  
     </div>
     <div id="contextMenu"><%@include file="contextMenu.jsp" %></div>
     <div id="searchInside">
@@ -245,9 +246,9 @@
         }
 
         function highLigthNode(id){
-            $(jq(id)+">a").addClass('sel');
+            $(jq(id)+">div>a").addClass('sel');
             $(jq(id)).addClass('sel');
-            $(jq(id)+">a").addClass('ui-state-active');
+            $(jq(id)+">div>a").addClass('ui-state-active');
             if($(jq(id)).parent().parent().is('li')){
                 highLigthNode($($(jq(id)).parent().parent()).attr('id'));
             }
@@ -256,8 +257,8 @@
         function showNode(id){
             $(jq(id)+">ul").show();
             $(jq(id)+">span.folder").addClass('ui-icon-triangle-1-s');
-            $(jq(id)+">a").addClass('sel');
-            $(jq(id)+">a").addClass('ui-state-active');
+            $(jq(id)+">div>a").addClass('sel');
+            $(jq(id)+">div>a").addClass('ui-state-active');
             $(jq(id)).addClass('sel');
             if($(jq(id)).parent().parent().is('li')){
                 showNode($($(jq(id)).parent().parent()).attr('id'));
@@ -272,6 +273,27 @@
                 $(".viewer").trigger('viewChanged', [id]);
             }else{
                 nodeOpen(id);
+            }
+        }
+        
+        function selectBranch(id){
+            var node =  $(jq(id));
+            if(node.hasClass('viewable')){
+                selectNodeView(id);
+                nodeOpen(id);
+                $(jq(id)+">ul").show();
+                $(jq(id)+">span.folder").toggleClass('ui-icon-triangle-1-s');
+
+                $(".viewer").trigger('viewChanged', [id]);
+            }else{
+                nodeOpen(id);
+                $(jq(id)+">ul").show();
+                $(jq(id)+">span.folder").toggleClass('ui-icon-triangle-1-s');
+                var id1 = $(node).find('>ul>li>ul>li:first');
+                if(id1.length>0){
+                    selectBranch(id1.attr("id"));
+                }
+                
             }
         }
 

@@ -157,7 +157,7 @@
         //var p = '<span class="ui-icon ui-icon-triangle-1-e folder">folder</span>' + $(jq(k4Settings.selectedPath[0])+">a").html();
         var p = '';
         for(var i=0; i<k4Settings.selectedPathTexts.length; i++){
-            p += '<span class="ui-icon ui-icon-triangle-1-e">folder</span><span>' + k4Settings.selectedPathTexts[i] + '</span>' ;
+            p += '<span class="ui-icon ui-icon-triangle-1-e">folder</span><span><a href="javascript:selectBranch(\'' + k4Settings.selectedPath[i] + '\');">' + k4Settings.selectedPathTexts[i] + '</a></span>' ;
         }
         $('#tv_path').html(p);
     }
