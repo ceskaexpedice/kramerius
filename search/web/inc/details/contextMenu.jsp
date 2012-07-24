@@ -646,7 +646,18 @@
 
           }
           var pids = getAffectedPids();
-          $("#reindex>div.allowed").html($("#context_items_selection").html());
+          
+          
+          //$("#reindex>div.allowed").html($("#context_items_selection").html());
+          var t = "";
+          for(var i=0; i<pids.length; i++){
+            var id = pids[i];
+            t += '<li>';
+            t += '<span class="ui-icon ui-icon-triangle-1-e folder " >folder</span>';
+            t += '<label>'+$(jq(id)+">div>a>label").html()+'</label></li>';
+
+          }
+          $("#reindex>div.allowed").html(t);
           if(pids.length>1){
               for(var i=0; i<pids.length; i++){
                   var pidpath = getPidPath(pids[i]);
