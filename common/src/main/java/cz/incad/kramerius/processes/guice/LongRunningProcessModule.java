@@ -9,7 +9,9 @@ import cz.incad.kramerius.processes.LRProcessManager;
 import cz.incad.kramerius.processes.impl.DatabaseProcessManager;
 import cz.incad.kramerius.processes.impl.LRProcessDefinitionManagerImpl;
 import cz.incad.kramerius.processes.template.InputTemplateFactory;
+import cz.incad.kramerius.processes.template.OutputTemplateFactory;
 import cz.incad.kramerius.processes.template.impl.InputTemplateFactoryImpl;
+import cz.incad.kramerius.processes.template.impl.OutputTemplateFactoryImpl;
 
 /**
  * Modul pro dlouhotrvajici procesy
@@ -26,6 +28,7 @@ public class LongRunningProcessModule extends AbstractModule {
 		bind(LRProcessManager.class).to(DatabaseProcessManager.class).in(Scopes.SINGLETON);
 		bind(String.class).annotatedWith(Names.named("LIBS")).toInstance(System.getProperty(DEFAULT_LIBS_KEY));
 		bind(InputTemplateFactory.class).to(InputTemplateFactoryImpl.class).in(Scopes.SINGLETON);
+		bind(OutputTemplateFactory.class).to(OutputTemplateFactoryImpl.class).in(Scopes.SINGLETON);
 	}
 
 }

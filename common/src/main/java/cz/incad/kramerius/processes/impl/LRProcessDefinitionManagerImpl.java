@@ -47,8 +47,6 @@ public class LRProcessDefinitionManagerImpl implements DefinitionManager {
 	private KConfiguration configuration;
 	private LRProcessManager processManager;
 
-	private String realLibsDir = null;
-	private String configurationFile;
 	
 	@Inject
 	public LRProcessDefinitionManagerImpl(KConfiguration configuration,
@@ -58,7 +56,6 @@ public class LRProcessDefinitionManagerImpl implements DefinitionManager {
 		super();
 		this.configuration = configuration;
 		this.processManager = processManager;
-		this.realLibsDir = defaultLibsdir;
 		LOGGER.fine("loading configuration ...");
 		this.load();
 		

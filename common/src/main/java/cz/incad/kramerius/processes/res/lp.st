@@ -30,7 +30,9 @@
 
         <templates>
             <input class="cz.incad.kramerius.processes.mock.wizard.FolderTemplates"></input>
+            <output class="cz.incad.kramerius.processes.mock.logs.LogsOutputTemplate"></output>
         </templates>
+        
     </process>
 
     <process>
@@ -47,8 +49,9 @@
 
         <templates>
             <input class="cz.incad.kramerius.processes.def.DefaultTemplate"></input>
+            <output class="cz.incad.kramerius.processes.mock.logs.LogsOutputTemplate"></output>
         </templates>
-
+        
     </process>
 
 

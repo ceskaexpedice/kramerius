@@ -108,6 +108,11 @@ public interface LRProcessDefinition {
 	 */
 	public List<String> getOutputTemplateClasses();
 
+	
+	/**
+	 * Returns true if output template is defined
+	 * @return
+	 */
 	public boolean isOutputTemplatesDefined();
 	
 }
