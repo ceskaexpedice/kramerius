@@ -21,15 +21,9 @@ import java.io.IOException;
 import cz.incad.Kramerius.exts.menu.context.impl.AbstractContextMenuItem;
 import cz.incad.Kramerius.exts.menu.context.impl.adm.AdminContextMenuItem;
 
-public class SetVisibilityFlag extends AbstractContextMenuItem implements AdminContextMenuItem {
+public class SetPolicyFlag extends AbstractContextMenuItem implements AdminContextMenuItem {
 
     //adminItems.add(new ContextMenuItem("administrator.menu.setpublic", "_data_x_role", "changeFlag.change", "", true));
-
-    
-    @Override
-    public boolean isRenderable() {
-        return true;
-    }
 
     @Override
     public String getRenderedItem() throws IOException {

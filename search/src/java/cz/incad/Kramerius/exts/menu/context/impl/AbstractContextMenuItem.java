@@ -29,6 +29,7 @@ import com.google.inject.Provider;
 
 import cz.incad.Kramerius.exts.menu.context.ContextMenuItem;
 import cz.incad.kramerius.service.ResourceBundleService;
+import cz.incad.kramerius.utils.conf.KConfiguration;
 
 
 public abstract class AbstractContextMenuItem implements ContextMenuItem {
@@ -44,6 +45,8 @@ public abstract class AbstractContextMenuItem implements ContextMenuItem {
     @Inject
     protected Provider<HttpServletRequest> requestProvider;
 
+    @Inject
+    protected KConfiguration configuration;
 
     protected String renderContextMenuItem(String href, String labelKey) throws IOException {
         String label = this.resourceBundleService.getResourceBundle("labels", this.localesProvider.get()).getString(labelKey);
@@ -56,4 +59,13 @@ public abstract class AbstractContextMenuItem implements ContextMenuItem {
         LOGGER.log(Level.INFO,"rendered item is '"+rendered+"'");
         return rendered;
     }
+
+    @Override
+    public boolean isRenderable() {
+        return this.configuration.getConfiguration().getBoolean(this.getClass().getName()+".enabled",true);
+    }
+
+    
+    
 }
+

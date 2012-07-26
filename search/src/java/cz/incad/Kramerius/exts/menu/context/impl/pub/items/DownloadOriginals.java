@@ -25,10 +25,6 @@ public class DownloadOriginals extends AbstractContextMenuItem implements Public
     
     //items.add(new ContextMenuItem("administrator.menu.downloadOriginal", "_data_x_role", "downloadOriginalItem", "", true));
 
-    @Override
-    public boolean isRenderable() {
-        return true;
-    }
 
     @Override
     public String getRenderedItem() throws IOException {

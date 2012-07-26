@@ -30,10 +30,6 @@ public class ExportFOXML extends AbstractContextMenuItem implements AdminContext
         return true;
     }
 
-    @Override
-    public boolean isRenderable() {
-        return true;
-    }
 
     @Override
     public String getRenderedItem() throws IOException {

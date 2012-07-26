@@ -32,11 +32,6 @@ public class PersistentURL extends AbstractContextMenuItem implements PublicCont
     }
 
     @Override
-    public boolean isRenderable() {
-        return true;
-    }
-
-    @Override
     public String getRenderedItem() throws IOException {
         return super.renderContextMenuItem("javascript:persistentURL();", "administrator.menu.persistenturl");
     }

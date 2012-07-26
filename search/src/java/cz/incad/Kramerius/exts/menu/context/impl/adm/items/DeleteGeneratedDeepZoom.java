@@ -32,10 +32,6 @@ public class DeleteGeneratedDeepZoom extends AbstractContextMenuItem implements 
         return true;
     }
 
-    @Override
-    public boolean isRenderable() {
-        return true;
-    }
 
     @Override
     public String getRenderedItem() throws IOException {

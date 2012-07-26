@@ -37,10 +37,6 @@ public class ExportDVD extends AbstractContextMenuItem implements AdminContextMe
         return false;
     }
 
-    @Override
-    public boolean isRenderable() {
-        return true;
-    }
 
     @Override
     public String getRenderedItem() throws IOException {

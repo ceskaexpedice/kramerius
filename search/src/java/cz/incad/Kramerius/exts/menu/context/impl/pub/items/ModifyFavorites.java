@@ -37,7 +37,7 @@ public class ModifyFavorites extends AbstractContextMenuItem implements PublicCo
     @Override
     public boolean isRenderable() {
         boolean flag = (this.loggedUsersSingleton.isLoggedUser(this.requestProvider));
-        return flag;
+        return super.isRenderable() && flag;
     }
 
     @Override

@@ -29,14 +29,6 @@ public class Editor extends AbstractContextMenuItem implements AdminContextMenuI
 //    adminItems.add(new ContextMenuItem("administrator.menu.editor", "_data_x_role", "openEditor",
 //            "'" + kconfig.getEditorURL() + "'", true));
 
-    @Inject
-    KConfiguration configuration;
-
-    
-    @Override
-    public boolean isRenderable() {
-        return true;
-    }
 
     @Override
     public String getRenderedItem() throws IOException {

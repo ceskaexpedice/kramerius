@@ -30,23 +30,12 @@ public class FeedBack extends AbstractContextMenuItem implements PublicContextMe
     @Inject
     LoggedUsersSingleton loggedUserSingleton;
     
-    //items.add(new ContextMenuItem("administrator.menu.feedback", "_data_x_role", "feedbackDialog", "", true));
-    
-//    if (this.loggedUsersSingleton.isLoggedUser(this.requestProvider)) {
-//        items.add(new ContextMenuItem("administrator.menu.favorites.add", "_data_x_role", "addToFavorites",
-//                "", true));
-//    }
 
     @Override
     public boolean isMultipleSelectSupported() {
         return true;
     }
 
-    @Override
-    public boolean isRenderable() {
-        //return (this.loggedUserSingleton.isLoggedUser(this.requestProvider));
-        return true;
-    }
 
     @Override
     public String getRenderedItem() throws IOException {

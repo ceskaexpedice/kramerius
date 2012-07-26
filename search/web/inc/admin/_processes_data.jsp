@@ -84,6 +84,15 @@
         right: 15px;
     }
 
+    /* outputTemplates */
+    #processes div.outputTemplate{
+        width:250px;
+        display: none;
+        padding-bottom: 20px;
+        position: absolute; 
+        left: -255px;
+    }
+
      
      
     #processes div.displayButton{ 
@@ -143,18 +152,54 @@ function _toggle_filter() {
     $(".displayButton").toggle();
 }
 
-$(document).ready(function(){
-    $(".buttons>a").button();
+function OutputTemplates() {}
 
+OutputTemplates.prototype.show=function(uuid) {
+    $(".outputTemplate").hide();
+    $("#outputTemplate_"+uuid).toggle();
+}
+
+OutputTemplates.prototype.close=function(uuid) {
+    $("#outputTemplate_"+uuid).hide();
+} 
+
+OutputTemplates.prototype.select=function(templateId, processUUID) {
+    var link = "lr?action=outputTemplate&templateId="+templateId+"&uuid="+processUUID;
+    window.open(link);
+    this.close(processUUID);
+}
+
+var outoutTemplates = new OutputTemplates();
+
+
+/*
+function _toggle_output_template(uuid) {
+    $(".outputTemplate").hide();
+	$("#outputTemplate_"+uuid).toggle();
+}
+
+function _toggle_close_template(uuid) {
+    $("#outputTemplate_"+uuid).hide();
+}
+*/
+
+
+$(document).ready(function(){
+    // buttons in list
+	$(".buttons>a").button();
+
+    // page number title 
     var title = dictionary['administrator.menu.dialogs.lrprocesses.title']  + " - #"+${processView.pageNumber};
     processes.dialog.dialog('option', 'title',title);
-        
 });
 
 
 //-->
 </script>
 <div class="header">
+
+       <div class="buttons">  </div>
+
 
     <div class="buttons">
         <c:if test="${processView.offsetValue>0}" >
@@ -295,6 +340,8 @@ $(document).ready(function(){
                 });
                 
         });
+
+    
     //-->
     </script>    
 
@@ -304,6 +351,8 @@ $(document).ready(function(){
      </div>
      
  </div>
+
+
 
 <table width="100%" style="width:100%; bottom:20px;" cellpadding="0" cellspacing="0">
     <thead style="border-bottom: dashed 1px;" >
@@ -366,28 +415,37 @@ $(document).ready(function(){
             
             </td>
             <td  width="10%"><strong><view:msg>administrator.processes.change</view:msg></strong></td>
+            <td  width="24px"></td>
         </tr>
     </thead>
     <tbody>
         <c:forEach var="lrProc" items="${processView.processes}" varStatus="i">
             <tr class="${(i.index mod 2 == 0) ? 'result ui-state-default': 'result '}">
                 <td>${lrProc.treeIcon}</td>
-                <td title="${lrProc.processName}">${lrProc.processName} </td>
+                <td title="${lrProc.simpleProcessName}">${lrProc.formatedProcessName} </td>
                 <td title="${lrProc.pid}">${lrProc.pid} </td>
 
-                <c:if test="${lrProc.failedState}">
-                    <td title="${lrProc.processState}" style="color: red;"><strong> ${lrProc.processState}</strong></td>
-                </c:if>
-                <c:if test="${!lrProc.failedState}">
-                    <td title="${lrProc.processState}">${lrProc.processState}</td>
-                </c:if>
+                <c:choose>
+                    <c:when test="${lrProc.failedState}">
+                        <td title="${lrProc.processState}" style="color: red;"><strong> ${lrProc.processState}</strong></td>
+                    </c:when>
+                    <c:when test="${lrProc.runningState}">
+                        <td title="${lrProc.processState}" style="color: green;"><strong> ${lrProc.processState}</strong></td>
+                    </c:when>
+                    <c:otherwise><td title="${lrProc.processState}">${lrProc.processState}</td></c:otherwise>
+                </c:choose>
 
-                <c:if test="${lrProc.failedBatchState}">
-                    <td title="${lrProc.batchState}" style="color: red;"><strong> ${lrProc.batchState}</strong></td>
-                </c:if>                
-                <c:if test="${!lrProc.failedBatchState}">
-                    <td title="${lrProc.batchState}">${lrProc.batchState}</td>
-                </c:if>                
+
+                <c:choose>
+                    <c:when test="${lrProc.failedBatchState}">
+                        <td title="${lrProc.batchState}" style="color: red;"><strong> ${lrProc.batchState}</strong></td>
+                    </c:when>
+                    <c:when test="${lrProc.runningdBatchState}">
+                        <td title="${lrProc.batchState}" style="color: green;"><strong> ${lrProc.batchState}</strong></td>
+                    </c:when>
+                    <c:otherwise><td title="${lrProc.batchState}">${lrProc.batchState}</td></c:otherwise>
+                </c:choose>
+
 
                 <td title="${lrProc.start}">${lrProc.start}</td>
                 <td title="${lrProc.planned}">${lrProc.planned}</td>
@@ -395,13 +453,35 @@ $(document).ready(function(){
                 
                 <td>${lrProc.startedBy}</td>
                 <td>${lrProc.logsURLs} || ${lrProc.killURL} || ${lrProc.deleteURL} </td>
+
+                <c:choose>
+                    <c:when test="${lrProc.outputTemplatesDefined}">
+                        <td id="outputTemplateCell_${lrProc.UUID}" class="buttons"> <a href="javascript:outoutTemplates.show('${lrProc.UUID}');"><span class="ui-icon ui-icon-circle-triangle-s"></span> </a> 
+                            <div style="position: relative;">
+                               <div id="outputTemplate_${lrProc.UUID}" style="display: none;" class="outputTemplate shadow ui-widget ui-widget-content">
+                                    <table style="width: 100%">
+                                        <thead><tr><td colspan="3" align="center" style="text-align: center;"> <strong><view:msg>administrator.processes.templates.output.label</view:msg></strong></td> </thead>
+                                        <tbody>
+                                            <c:forEach items="${lrProc.outputTemplateViewObjects}" var="output" varStatus="status">
+                                                <tr> <td width="20px;"></td>  <td width="80%"> <a href="javascript:outoutTemplates.select('${output.id}','${lrProc.UUID}');" target="_blank">${output.name}</a> </td></tr>
+                                            </c:forEach>
+                                        </tbody>
+                                    </table>
+                               </div>
+                            </div>
+                        </td>
+                    </c:when>                
+                    <c:otherwise> 
+                        <td>  </td>
+                    </c:otherwise>
+                </c:choose>            
             </tr>
             
             <c:if test="${lrProc.masterProcess}">
             <c:forEach var="childLrProc" items="${lrProc.childProcesses}" varStatus="ch">
                 <tr class="${(ch.index mod 2 == 0) ? 'result r0 ': 'result r1 '} ${lrProc.UUID} subprocess">
                     <td class="t1"><strong> </strong></td>
-                    <td class="t2" title="${childLrProc.processName}">${childLrProc.processName} </td>
+                    <td class="t2" title="${childLrProc.simpleProcessName}">${childLrProc.formatedProcessName} </td>
                     <td title="${childLrProc.pid}">${childLrProc.pid} </td>
 
                     <c:if test="${childLrProc.failedState}">
@@ -424,10 +504,33 @@ $(document).ready(function(){
 
                     <td>${childLrProc.startedBy}</td>
                     <td>${childLrProc.logsURLs} ||  ${childLrProc.killURL} ||  ${childLrProc.deleteURL} </td>
+            
+                    <c:choose>
+                      <c:when test="${childLrProc.outputTemplatesDefined}">
+                          <td class="buttons" id="outputTemplateCell_${childLrProc.UUID}"> <a href="javascript:_toggle_output_template('${childLrProc.UUID}');">
+                            <span class="ui-icon ui-icon-circle-triangle-s"></span> </a> 
+                            <div style="position: relative;">
+                               <div id="outputTemplate_${childLrProc.UUID}" style="display: none; border: 1px solid black;"  class="outputTemplate shadow ui-widget ui-widget-content">
+                                    <table style="width: 100%">
+                                        <thead><tr><td colspan="3" align="center" style="text-align: center;"> <strong><view:msg>administrator.processes.templates.output.label</view:msg></strong></td> </thead>
+                                        <tbody>
+                                            <c:forEach items="${childLrProc.outputTemplateViewObjects}" var="output" varStatus="status">
+                                                <tr> <td width="20px;"></td>  <td width="80%"> <a href="javascript:outoutTemplates.select('${output.id}','${lrProc.UUID}');" target="_blank">${output.name}</a> </td></tr>
+                                            </c:forEach>
+                                        </tbody>
+                                    </table>
+                               </div>
+                            </div>
+                          </td>
+                      </c:when>                
+                      <c:otherwise> 
+                          <td>  </td>
+                      </c:otherwise>
+                    </c:choose>
 
                 </tr>
             </c:forEach>
-                <tr class="${lrProc.UUID} subprocess"><td colspan="10" style="border-top:solid 1px #E66C00;"></td></tr>
+                <tr class="${lrProc.UUID} subprocess"><td colspan="11" style="border-top:solid 1px #E66C00;"></td></tr>
             </c:if>
         </c:forEach>
     </tbody>

@@ -31,10 +31,6 @@ public class GenerateDeepZoom extends AbstractContextMenuItem implements AdminCo
         return true;
     }
 
-    @Override
-    public boolean isRenderable() {
-        return true;
-    }
 
     @Override
     public String getRenderedItem() throws IOException {

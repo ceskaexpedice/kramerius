@@ -32,10 +32,6 @@ public class VirtualCollectionAdd extends AbstractContextMenuItem implements Adm
         return true;
     }
 
-    @Override
-    public boolean isRenderable() {
-        return true;
-    }
 
     @Override
     public String getRenderedItem() throws IOException {

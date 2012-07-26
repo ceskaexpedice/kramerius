@@ -23,12 +23,7 @@ import cz.incad.Kramerius.exts.menu.context.impl.adm.AdminContextMenuItem;
 
 public class DeleteFromIndex extends AbstractContextMenuItem implements AdminContextMenuItem  {
 
-    //adminItems.add(new ContextMenuItem("administrator.menu.deletefromindex", "_data_x_role", "deletefromindex", "", true));
 
-    @Override
-    public boolean isRenderable() {
-        return true;
-    }
 
     @Override
     public String getRenderedItem() throws IOException {

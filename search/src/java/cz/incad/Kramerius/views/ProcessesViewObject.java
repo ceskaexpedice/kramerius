@@ -29,6 +29,7 @@ import cz.incad.kramerius.processes.LRProcessOrdering;
 import cz.incad.kramerius.processes.States;
 import cz.incad.kramerius.processes.TypeOfOrdering;
 import cz.incad.kramerius.processes.LRPRocessFilter.Tripple;
+import cz.incad.kramerius.processes.template.OutputTemplateFactory;
 import cz.incad.kramerius.service.ResourceBundleService;
 
 public class ProcessesViewObject implements Initializable {
@@ -49,7 +50,9 @@ public class ProcessesViewObject implements Initializable {
     
     @Inject
     protected Provider<HttpServletRequest> requestProvider;
-    
+
+    @Inject
+    protected OutputTemplateFactory outputTemplateFactory;
     
     private LRProcessOrdering ordering;
     private LRProcessOffset offset;
@@ -111,13 +114,13 @@ public class ProcessesViewObject implements Initializable {
         List<ProcessViewObject> objects = new ArrayList<ProcessViewObject>();
         for (LRProcess lrProcess : lrProcesses) {
             LRProcessDefinition def = this.definitionManager.getLongRunningProcessDefinition(lrProcess.getDefinitionId());
-            ProcessViewObject pw = new ProcessViewObject(lrProcess, def, this.ordering, this.offset, this.typeOfOrdering, this.bundleService, this.localesProvider.get());
+            ProcessViewObject pw = new ProcessViewObject(lrProcess, def, this.ordering, this.offset, this.typeOfOrdering, this.bundleService, this.localesProvider.get(), this.outputTemplateFactory);
             if (lrProcess.isMasterProcess()) {
                 List<LRProcess> childSubprecesses = this.processManager.getLongRunningProcessesByToken(lrProcess.getToken());
                 for (LRProcess child : childSubprecesses) {
                     if (!child.getUUID().equals(lrProcess.getUUID())) {
                         LRProcessDefinition childDef = this.definitionManager.getLongRunningProcessDefinition(child.getDefinitionId());
-                        ProcessViewObject childPW = new ProcessViewObject(child, childDef, this.ordering, this.offset, this.typeOfOrdering, this.bundleService, this.localesProvider.get());
+                        ProcessViewObject childPW = new ProcessViewObject(child, childDef, this.ordering, this.offset, this.typeOfOrdering, this.bundleService, this.localesProvider.get(), this.outputTemplateFactory);
                         pw.addChildProcess(childPW);
                     }
                 }

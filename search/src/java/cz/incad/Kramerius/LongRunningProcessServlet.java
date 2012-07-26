@@ -43,7 +43,9 @@ import cz.incad.kramerius.processes.LRProcessManager;
 import cz.incad.kramerius.processes.ProcessScheduler;
 import cz.incad.kramerius.processes.States;
 import cz.incad.kramerius.processes.template.InputTemplateFactory;
+import cz.incad.kramerius.processes.template.OutputTemplateFactory;
 import cz.incad.kramerius.processes.template.ProcessInputTemplate;
+import cz.incad.kramerius.processes.template.ProcessOutputTemplate;
 import cz.incad.kramerius.processes.utils.ProcessUtils;
 import cz.incad.kramerius.security.IsActionAllowed;
 import cz.incad.kramerius.security.SecuredActions;
@@ -98,6 +100,10 @@ public class LongRunningProcessServlet extends GuiceServlet {
     @Inject
     InputTemplateFactory iTemplateFactory;
 
+
+    @Inject
+    OutputTemplateFactory outputTemplateFactory;
+    
     @Override
     public void init() throws ServletException {
         super.init();
@@ -144,7 +150,7 @@ public class LongRunningProcessServlet extends GuiceServlet {
             if (action == null)
                 action = Actions.start.name();
             Actions selectedAction = Actions.valueOf(action);
-            selectedAction.doAction(getServletContext(), req, resp, this.definitionManager, this.lrProcessManager, this.usersManager, this.userProvider, this.actionAllowed, this.loggedUsersSingleton, this.iTemplateFactory);
+            selectedAction.doAction(getServletContext(), req, resp, this.definitionManager, this.lrProcessManager, this.usersManager, this.userProvider, this.actionAllowed, this.loggedUsersSingleton, this.iTemplateFactory, this.outputTemplateFactory);
         } catch (SecurityException e) {
             LOGGER.log(Level.SEVERE, e.getMessage(),e);
             resp.sendError(HttpServletResponse.SC_FORBIDDEN);
@@ -188,7 +194,7 @@ public class LongRunningProcessServlet extends GuiceServlet {
          * Plan new process
          */
         start {
-            public void doAction(ServletContext context, HttpServletRequest req, HttpServletResponse resp, DefinitionManager defManager, LRProcessManager lrProcessManager, UserManager userManager, Provider<User> userProvider, IsActionAllowed rightsResolver, LoggedUsersSingleton loggedUserSingleton, InputTemplateFactory iTemplateFactory) {
+            public void doAction(ServletContext context, HttpServletRequest req, HttpServletResponse resp, DefinitionManager defManager, LRProcessManager lrProcessManager, UserManager userManager, Provider<User> userProvider, IsActionAllowed rightsResolver, LoggedUsersSingleton loggedUserSingleton, InputTemplateFactory iTemplateFactory, OutputTemplateFactory oTemplateFactory) {
                 try {
                     String def = req.getParameter("def");
                     String out = req.getParameter("out");
@@ -272,7 +278,7 @@ public class LongRunningProcessServlet extends GuiceServlet {
          */
         stop {
             @Override
-            public void doAction(ServletContext context, HttpServletRequest req, HttpServletResponse resp, DefinitionManager defManager, LRProcessManager lrProcessManager, UserManager userManager, Provider<User> userProvider, IsActionAllowed actionIsAllowed, LoggedUsersSingleton loggedUserSingleton, InputTemplateFactory iTemplateFactory) {
+            public void doAction(ServletContext context, HttpServletRequest req, HttpServletResponse resp, DefinitionManager defManager, LRProcessManager lrProcessManager, UserManager userManager, Provider<User> userProvider, IsActionAllowed actionIsAllowed, LoggedUsersSingleton loggedUserSingleton, InputTemplateFactory iTemplateFactory, OutputTemplateFactory oTemplateFactory) {
                 if (actionIsAllowed.isActionAllowed(SecuredActions.MANAGE_LR_PROCESS.getFormalName(), SpecialObjects.REPOSITORY.getPid(),null, ObjectPidsPath.REPOSITORY_PATH)) {
                     try {
                         String uuid = req.getParameter("uuid");
@@ -303,7 +309,7 @@ public class LongRunningProcessServlet extends GuiceServlet {
         form_get {
 
             @Override
-            void doAction(ServletContext context, HttpServletRequest req, HttpServletResponse resp, DefinitionManager defManager, LRProcessManager processManager, UserManager userManager, Provider<User> userProvider, IsActionAllowed actionAllowed, LoggedUsersSingleton loggedUserSingleton, InputTemplateFactory iTemplateFactory) {
+            void doAction(ServletContext context, HttpServletRequest req, HttpServletResponse resp, DefinitionManager defManager, LRProcessManager processManager, UserManager userManager, Provider<User> userProvider, IsActionAllowed actionAllowed, LoggedUsersSingleton loggedUserSingleton, InputTemplateFactory iTemplateFactory, OutputTemplateFactory oTemplateFactory) {
                 try {
                     
                     String def = req.getParameter("def");
@@ -335,7 +341,7 @@ public class LongRunningProcessServlet extends GuiceServlet {
         form_post {
 
             @Override
-            void doAction(ServletContext context, HttpServletRequest req, HttpServletResponse resp, DefinitionManager defManager, LRProcessManager processManager, UserManager userManager, Provider<User> userProvider, IsActionAllowed actionAllowed, LoggedUsersSingleton loggedUserSingleton, InputTemplateFactory iTemplateFactory) {
+            void doAction(ServletContext context, HttpServletRequest req, HttpServletResponse resp, DefinitionManager defManager, LRProcessManager processManager, UserManager userManager, Provider<User> userProvider, IsActionAllowed actionAllowed, LoggedUsersSingleton loggedUserSingleton, InputTemplateFactory iTemplateFactory, OutputTemplateFactory oTemplateFactory) {
 
                 try {
                     String def = req.getParameter("def");
@@ -392,9 +398,50 @@ public class LongRunningProcessServlet extends GuiceServlet {
 
         },        
         
+        outputTemplate {
+
+            @Override
+            void doAction(ServletContext context, HttpServletRequest req, HttpServletResponse resp, DefinitionManager defManager, LRProcessManager processManager, UserManager userManager, Provider<User> userProvider, IsActionAllowed actionAllowed, LoggedUsersSingleton loggedUserSingleton,
+                    InputTemplateFactory iTemplateFactory, OutputTemplateFactory oTemplateFactory) {
+                try {
+                    String uuid = req.getParameter("uuid");
+                    String templateId = req.getParameter("templateId");
+                    
+                    LRProcess longRunningProcess = processManager.getLongRunningProcess(uuid);
+                    String definitionId = longRunningProcess.getDefinitionId();
+                    LRProcessDefinition definition = defManager.getLongRunningProcessDefinition(definitionId);
+                    ProcessOutputTemplate oTemplate = template(oTemplateFactory, templateId, definition);
+                    
+                    resp.setContentType("text/html;charset=UTF-8");
+                    oTemplate.renderOutput(longRunningProcess, definition, resp.getWriter());
+                    
+                } catch (ClassNotFoundException e) {
+                    LOGGER.log(Level.SEVERE,e.getMessage(),e);
+                } catch (InstantiationException e) {
+                    LOGGER.log(Level.SEVERE,e.getMessage(),e);
+                } catch (IllegalAccessException e) {
+                    LOGGER.log(Level.SEVERE,e.getMessage(),e);
+                } catch (IOException e) {
+                    LOGGER.log(Level.SEVERE,e.getMessage(),e);
+                }
+            }
+
+            public ProcessOutputTemplate template(OutputTemplateFactory oTemplateFactory, String templateId, LRProcessDefinition definition) throws ClassNotFoundException, InstantiationException, IllegalAccessException {
+                List<String> outputTemplateClasses = definition.getOutputTemplateClasses();
+                for (String clz : outputTemplateClasses) {
+                    ProcessOutputTemplate oT = oTemplateFactory.create(clz);
+                    if (oT.getOutputTemplateId().equals(templateId)) {
+                        return oT;
+                    }
+                }
+                return null;
+            }
+            
+        },
+        
         updatePID {
             @Override
-            public void doAction(ServletContext context, HttpServletRequest req, HttpServletResponse resp, DefinitionManager defManager, LRProcessManager lrProcessManager, UserManager userManager, Provider<User> userProvider, IsActionAllowed actionAllowed, LoggedUsersSingleton loggedUserSingleton, InputTemplateFactory iTemplateFactory) {
+            public void doAction(ServletContext context, HttpServletRequest req, HttpServletResponse resp, DefinitionManager defManager, LRProcessManager lrProcessManager, UserManager userManager, Provider<User> userProvider, IsActionAllowed actionAllowed, LoggedUsersSingleton loggedUserSingleton, InputTemplateFactory iTemplateFactory, OutputTemplateFactory oTemplateFactory) {
                 Lock lock = lrProcessManager.getSynchronizingLock();
                 lock.lock();
                 try {
@@ -412,7 +459,7 @@ public class LongRunningProcessServlet extends GuiceServlet {
         updateStatus {
 
             @Override
-            public void doAction(ServletContext context, HttpServletRequest req, HttpServletResponse resp, DefinitionManager defManager, LRProcessManager processManager, UserManager userManager, Provider<User> userProvider, IsActionAllowed actionAllowed, LoggedUsersSingleton loggedUserSingleton, InputTemplateFactory iTemplateFactory) {
+            public void doAction(ServletContext context, HttpServletRequest req, HttpServletResponse resp, DefinitionManager defManager, LRProcessManager processManager, UserManager userManager, Provider<User> userProvider, IsActionAllowed actionAllowed, LoggedUsersSingleton loggedUserSingleton, InputTemplateFactory iTemplateFactory, OutputTemplateFactory oTemplateFactory) {
                 String uuid = req.getParameter("uuid");
                 String state = req.getParameter("state");
                 Lock lock = processManager.getSynchronizingLock();
@@ -460,7 +507,7 @@ public class LongRunningProcessServlet extends GuiceServlet {
         updateName {
 
             @Override
-            public void doAction(ServletContext context, HttpServletRequest req, HttpServletResponse resp, DefinitionManager defManager, LRProcessManager processManager, UserManager userManager, Provider<User> userProvider, IsActionAllowed actionAllowed, LoggedUsersSingleton loggedUserSingleton, InputTemplateFactory iTemplateFactory) {
+            public void doAction(ServletContext context, HttpServletRequest req, HttpServletResponse resp, DefinitionManager defManager, LRProcessManager processManager, UserManager userManager, Provider<User> userProvider, IsActionAllowed actionAllowed, LoggedUsersSingleton loggedUserSingleton, InputTemplateFactory iTemplateFactory, OutputTemplateFactory oTemplateFactory) {
                 Lock lock = processManager.getSynchronizingLock();
                 lock.lock();
                 try {
@@ -482,7 +529,7 @@ public class LongRunningProcessServlet extends GuiceServlet {
 
         delete {
             @Override
-            public void doAction(ServletContext context, HttpServletRequest req, HttpServletResponse resp, DefinitionManager defManager, LRProcessManager processManager, UserManager userManager, Provider<User> userProvider, IsActionAllowed actionAllowed, LoggedUsersSingleton loggedUserSingleton, InputTemplateFactory iTemplateFactory) {
+            public void doAction(ServletContext context, HttpServletRequest req, HttpServletResponse resp, DefinitionManager defManager, LRProcessManager processManager, UserManager userManager, Provider<User> userProvider, IsActionAllowed actionAllowed, LoggedUsersSingleton loggedUserSingleton, InputTemplateFactory iTemplateFactory, OutputTemplateFactory oTemplateFactory) {
                 Lock lock = processManager.getSynchronizingLock();
                 lock.lock();
                 try {
@@ -504,7 +551,7 @@ public class LongRunningProcessServlet extends GuiceServlet {
         };
 
 
-        abstract void doAction(ServletContext context, HttpServletRequest req, HttpServletResponse resp, DefinitionManager defManager, LRProcessManager processManager, UserManager userManager, Provider<User> userProvider, IsActionAllowed actionAllowed, LoggedUsersSingleton loggedUserSingleton, InputTemplateFactory iTemplateFactory);
+        abstract void doAction(ServletContext context, HttpServletRequest req, HttpServletResponse resp, DefinitionManager defManager, LRProcessManager processManager, UserManager userManager, Provider<User> userProvider, IsActionAllowed actionAllowed, LoggedUsersSingleton loggedUserSingleton, InputTemplateFactory iTemplateFactory, OutputTemplateFactory oTemplateFactory);
 
         public String findLoggedUserKey(HttpServletRequest req, LRProcessManager lrProcessManager, String token) {
             if (token != null) {

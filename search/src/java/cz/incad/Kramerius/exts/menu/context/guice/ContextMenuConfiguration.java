@@ -33,7 +33,7 @@ import cz.incad.Kramerius.exts.menu.context.impl.adm.items.GenerateDeepZoom;
 import cz.incad.Kramerius.exts.menu.context.impl.adm.items.Reindex;
 import cz.incad.Kramerius.exts.menu.context.impl.adm.items.Rights;
 import cz.incad.Kramerius.exts.menu.context.impl.adm.items.ServerPrint;
-import cz.incad.Kramerius.exts.menu.context.impl.adm.items.SetVisibilityFlag;
+import cz.incad.Kramerius.exts.menu.context.impl.adm.items.SetPolicyFlag;
 import cz.incad.Kramerius.exts.menu.context.impl.adm.items.StreamRights;
 import cz.incad.Kramerius.exts.menu.context.impl.adm.items.VirtualCollectionAdd;
 import cz.incad.Kramerius.exts.menu.context.impl.pub.PublicContextMenuItem;
@@ -74,7 +74,7 @@ public class ContextMenuConfiguration extends AbstractModule {
         adminMenuItems.addBinding().to(Reindex.class);
         adminMenuItems.addBinding().to(DeleteFromIndex.class);
         adminMenuItems.addBinding().to(DeletePid.class);
-        adminMenuItems.addBinding().to(SetVisibilityFlag.class);
+        adminMenuItems.addBinding().to(SetPolicyFlag.class);
         adminMenuItems.addBinding().to(ExportCD.class);
         adminMenuItems.addBinding().to(ExportDVD.class);
         adminMenuItems.addBinding().to(GenerateDeepZoom.class);

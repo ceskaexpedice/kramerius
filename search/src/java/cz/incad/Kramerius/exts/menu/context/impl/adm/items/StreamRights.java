@@ -41,7 +41,7 @@ public class StreamRights extends AbstractContextMenuItem implements AdminContex
 
     @Override
     public boolean isRenderable() {
-        return this.configuration.getSecuredAditionalStreams() != null && this.configuration.getSecuredAditionalStreams().length > 0;
+        return super.isRenderable() && (this.configuration.getSecuredAditionalStreams() != null && this.configuration.getSecuredAditionalStreams().length > 0);
     }
 
     @Override

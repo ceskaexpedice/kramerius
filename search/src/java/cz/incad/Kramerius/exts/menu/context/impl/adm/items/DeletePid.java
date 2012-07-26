@@ -26,10 +26,6 @@ public class DeletePid extends AbstractContextMenuItem implements AdminContextMe
     //adminItems.add(new ContextMenuItem("administrator.menu.deleteuuid", "_data_x_role", "deletePid", "", true));
 
     
-    @Override
-    public boolean isRenderable() {
-        return true;
-    }
 
     @Override
     public String getRenderedItem() throws IOException {

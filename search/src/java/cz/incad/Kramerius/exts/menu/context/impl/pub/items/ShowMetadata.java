@@ -29,10 +29,6 @@ public class ShowMetadata extends AbstractContextMenuItem implements PublicConte
         return false;
     }
 
-    @Override
-    public boolean isRenderable() {
-        return true;
-    }
 
     @Override
     public String getRenderedItem() throws IOException {

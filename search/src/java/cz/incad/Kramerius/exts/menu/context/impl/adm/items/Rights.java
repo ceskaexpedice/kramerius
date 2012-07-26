@@ -28,10 +28,6 @@ public class Rights extends AbstractContextMenuItem implements AdminContextMenuI
 //            "'" + SecuredActions.READ.getFormalName() + "', '" + SecuredActions.ADMINISTRATE.getFormalName() + "'", true));
 
     
-    @Override
-    public boolean isRenderable() {
-        return true;
-    }
 
     @Override
     public String getRenderedItem() throws IOException {

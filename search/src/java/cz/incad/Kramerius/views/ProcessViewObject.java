@@ -22,6 +22,8 @@ import cz.incad.kramerius.processes.LRProcessOffset;
 import cz.incad.kramerius.processes.LRProcessOrdering;
 import cz.incad.kramerius.processes.States;
 import cz.incad.kramerius.processes.TypeOfOrdering;
+import cz.incad.kramerius.processes.template.OutputTemplateFactory;
+import cz.incad.kramerius.processes.template.ProcessOutputTemplate;
 import cz.incad.kramerius.security.User;
 import cz.incad.kramerius.service.ResourceBundleService;
 import cz.incad.kramerius.utils.conf.KConfiguration;
@@ -41,9 +43,11 @@ public class ProcessViewObject {
     private ResourceBundleService bundleService;
     private Locale locale;
 
+    private OutputTemplateFactory outputTemplateFactory;
+    
     private List<ProcessViewObject> childProcesses = new ArrayList<ProcessViewObject>();
     
-    public ProcessViewObject(LRProcess lrProcess, LRProcessDefinition definition, LRProcessOrdering ordering, LRProcessOffset offset, TypeOfOrdering typeOfOrdering,  ResourceBundleService service, Locale locale) {
+    public ProcessViewObject(LRProcess lrProcess, LRProcessDefinition definition, LRProcessOrdering ordering, LRProcessOffset offset, TypeOfOrdering typeOfOrdering,  ResourceBundleService service, Locale locale, OutputTemplateFactory factory) {
         super();
         this.lrProcess = lrProcess;
         this.ordering = ordering;
@@ -52,6 +56,7 @@ public class ProcessViewObject {
         this.definition = definition;
         this.bundleService = service;
         this.locale = locale;
+        this.outputTemplateFactory = factory;
     }
 
     public String getPid() {
@@ -72,7 +77,7 @@ public class ProcessViewObject {
         }
     }
 
-    public String getProcessName() {
+    public String getFormatedProcessName() {
         return getName();
         // if (this.definition.getProcessOutputURL() != null) {
         // return
@@ -83,18 +88,38 @@ public class ProcessViewObject {
         // }
     }
 
+    public String getSimpleProcessName() {
+        try {
+            String unnamed = bundleService.getResourceBundle("labels", locale).getString("administrator.processes.unnamedprocess");
+            return this.lrProcess.getProcessName() != null ? lrProcess.getProcessName() : unnamed;
+        } catch (IOException e) {
+            LOGGER.log(Level.SEVERE,e.getMessage(),e);
+            return "";
+        }
+    }
+    
     public String getProcessState() {
         return lrProcess.getProcessState().name();
+    }
+    
+    
+    public boolean isRunningState() {
+        return lrProcess.getProcessState().equals(States.RUNNING);
     }
     
     public boolean isFailedState() {
         return lrProcess.getProcessState().equals(States.FAILED);
     }
     
+    
     public boolean isFailedBatchState() {
         return lrProcess.getBatchState() != null && lrProcess.getBatchState().equals(BatchStates.BATCH_FAILED);
     }
-    
+
+    public boolean isRunningdBatchState() {
+        return lrProcess.getBatchState() != null && lrProcess.getBatchState().equals(BatchStates.BATCH_STARTED);
+    }
+
     public String getBatchState() {
         BatchStates bState = lrProcess.getBatchState();
         if (!bState.equals(BatchStates.NO_BATCH)) {
@@ -327,4 +352,29 @@ public class ProcessViewObject {
     public List<ProcessViewObject> getChildProcesses() {
         return this.childProcesses;
     }
+    
+
+    public boolean isOutputTemplatesDefined() {
+        return this.definition.isOutputTemplatesDefined();
+    }
+    
+
+    public List<OutputTemplateViewObjectItem> getOutputTemplateViewObjects() {
+        try {
+            List<OutputTemplateViewObjectItem> outItems = new ArrayList<OutputTemplateViewObjectItem>();
+            List<String> outputTemplateClasses = this.definition.getOutputTemplateClasses();
+            for (String clzName : outputTemplateClasses) {
+                outItems.add(new OutputTemplateViewObjectItem(clzName, this.outputTemplateFactory, this.lrProcess, this.definition));
+            }
+            return outItems;
+        } catch (ClassNotFoundException e) {
+            LOGGER.log(Level.SEVERE,e.getMessage(),e);
+        } catch (InstantiationException e) {
+            LOGGER.log(Level.SEVERE,e.getMessage(),e);
+        } catch (IllegalAccessException e) {
+            LOGGER.log(Level.SEVERE,e.getMessage(),e);
+        }
+        return new ArrayList<OutputTemplateViewObjectItem>();
+    }
+    
 }

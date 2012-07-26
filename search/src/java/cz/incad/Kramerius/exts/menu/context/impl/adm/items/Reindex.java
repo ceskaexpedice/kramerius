@@ -25,10 +25,6 @@ public class Reindex extends AbstractContextMenuItem implements AdminContextMenu
 
     //adminItems.add(new ContextMenuItem("administrator.menu.reindex", "_data_x_role", "reindex", "", true));
 
-    @Override
-    public boolean isRenderable() {
-        return true;
-    }
 
     @Override
     public String getRenderedItem() throws IOException {

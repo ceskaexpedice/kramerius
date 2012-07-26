@@ -37,10 +37,6 @@ public class ExportCD extends AbstractContextMenuItem implements AdminContextMen
         return false;
     }
 
-    @Override
-    public boolean isRenderable() {
-        return true;
-    }
 
     @Override
     public String getRenderedItem() throws IOException {

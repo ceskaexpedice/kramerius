@@ -46,6 +46,10 @@ public class GeneratePDF extends AbstractContextMenuItem implements PublicContex
 
     @Override
     public boolean isRenderable() {
+        return super.isRenderable() && isEnabledForMimeType();
+    }
+
+    public boolean isEnabledForMimeType() {
         try {
             String mimeType = MenuMimeTypesUtils.mimeTypeDisect(this.requestProvider.get(), this.fedoraAccess);
             return !MenuMimeTypesUtils.isPDFMimeType(mimeType);
