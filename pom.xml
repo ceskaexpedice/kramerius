@@ -44,6 +44,21 @@
             </snapshots>
         </repository>
 
+        <!-- jersey repository -->
+        <repository>
+            <id>snapshot-repository.java.net</id>
+            <name>Java.net Snapshot Repository for Maven</name>
+            <url>https://maven.java.net/content/repositories/snapshots/</url>
+            <layout>default</layout>
+        </repository>
+        
+        <!-- guice fruit -->
+        <repository>
+            <id>guice-maven</id>
+            <name>guice maven</name>
+            <url>http://guiceyfruit.googlecode.com/svn/repo/releases/</url>
+        </repository>
+
     </repositories>
 
     <pluginRepositories>
