@@ -185,9 +185,12 @@ public class SecuredFedoraAccessImpl implements FedoraAccess {
     }
 
     
-    boolean securedStream(String streamName) {
-        return FedoraUtils.IMG_FULL_STREAM.equals(streamName) || FedoraUtils.IMG_PREVIEW_STREAM.equals(streamName);
-   }
+    
+    static boolean securedStream(String streamName) {
+        return FedoraUtils.IMG_FULL_STREAM.equals(streamName) || 
+            FedoraUtils.IMG_PREVIEW_STREAM.equals(streamName) || 
+            FedoraUtils.TEXT_OCR_STREAM.equals(streamName);
+    }
 
     
     public InputStream getDataStream(String pid, String datastreamName) throws IOException {
