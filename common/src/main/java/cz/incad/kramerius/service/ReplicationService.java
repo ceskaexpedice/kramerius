@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2010 Pavel Stastny
+ * Copyright (C) 2012 Pavel Stastny
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,33 +16,29 @@
  */
 package cz.incad.kramerius.service;
 
-import javax.mail.PasswordAuthentication;
-import javax.mail.Session;
-
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
 
 /**
- * Simple mailing service
+ * Main replication service
  * @author pavels
  */
-public interface Mailer {
+public interface ReplicationService {
     
+    /**
+     * Preparing list of exporting pids
+     * @param pid Root PID
+     * @return
+     * @throws ReplicateException
+     */
+    public String prepareExport(String pid) throws ReplicateException;
+
+    /**
+     * Returns data of current pid
+     * @param pid PID
+     * @return
+     * @throws ReplicateException
+     */
+    public byte[] getExportedFOXML(String pid) throws ReplicateException;
     
-    public Session getSession(String name,String pswd);
-
-    public class SMTPAuthenticator extends javax.mail.Authenticator {
-
-        private String name;
-        private String pass;
-
-        public SMTPAuthenticator(String name, String pass) {
-            super();
-            this.name = name;
-            this.pass = pass;
-        }
-
-        public PasswordAuthentication getPasswordAuthentication() {
-            return new PasswordAuthentication(name, pass);
-        }
-    }
-
 }

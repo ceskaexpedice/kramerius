@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2010 Pavel Stastny
+ * Copyright (C) 2012 Pavel Stastny
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,33 +16,27 @@
  */
 package cz.incad.kramerius.service;
 
-import javax.mail.PasswordAuthentication;
-import javax.mail.Session;
-
-
 /**
- * Simple mailing service
+ * Replication failed
  * @author pavels
  */
-public interface Mailer {
-    
-    
-    public Session getSession(String name,String pswd);
+public class ReplicateException extends Exception {
 
-    public class SMTPAuthenticator extends javax.mail.Authenticator {
-
-        private String name;
-        private String pass;
-
-        public SMTPAuthenticator(String name, String pass) {
-            super();
-            this.name = name;
-            this.pass = pass;
-        }
-
-        public PasswordAuthentication getPasswordAuthentication() {
-            return new PasswordAuthentication(name, pass);
-        }
+    public ReplicateException() {
+        super();
     }
 
+    public ReplicateException(String message, Throwable cause) {
+        super(message, cause);
+    }
+
+    public ReplicateException(String message) {
+        super(message);
+    }
+
+    public ReplicateException(Throwable cause) {
+        super(cause);
+    }
+
+    
 }

@@ -46,6 +46,7 @@ public class FedoraUtils {
     public static final String ALTO_STREAM = "ALTO";
     public static final String DC_STREAM = "DC";
     public static final String BIBLIO_MODS_STREAM = "BIBLIO_MODS";
+    public static final String TEXT_OCR_STREAM = "TEXT_OCR";
 
     public static List<String> INTERNAL_STREAM = new ArrayList<String>(){{
        add(RELS_EXT_STREAM);
