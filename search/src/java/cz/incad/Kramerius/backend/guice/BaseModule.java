@@ -67,11 +67,6 @@ public class BaseModule extends AbstractModule {
         bind(ProcessScheduler.class).to(ProcessSchedulerImpl.class).in(Scopes.SINGLETON);
         bind(GCScheduler.class).to(GCSchedulerImpl.class).in(Scopes.SINGLETON);
 
-        bind(DeleteService.class).to(DeleteServiceImpl.class).in(Scopes.SINGLETON);
-        bind(ExportService.class).to(ExportServiceImpl.class).in(Scopes.SINGLETON);
-        bind(PolicyService.class).to(PolicyServiceImpl.class).in(Scopes.SINGLETON);
-        bind(XSLService.class).to(XSLServiceImpl.class).in(Scopes.SINGLETON);
-
 
         // TODO: MOVE
         bind(LocalizationContext.class).toProvider(CustomLocalizedContextProvider.class);

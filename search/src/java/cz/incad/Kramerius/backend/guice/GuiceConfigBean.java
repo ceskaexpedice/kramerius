@@ -1,6 +1,7 @@
 package cz.incad.Kramerius.backend.guice;
 
 import java.io.File;
+import java.util.logging.Level;
 
 import javax.portlet.ProcessAction;
 import javax.servlet.ServletContextEvent;
@@ -11,7 +12,10 @@ import com.google.inject.Provides;
 import com.google.inject.name.Named;
 import com.google.inject.servlet.GuiceServletContextListener;
 import com.google.inject.servlet.ServletModule;
+import com.sun.jersey.guice.JerseyServletModule;
+import com.sun.jersey.guice.spi.container.servlet.GuiceContainer;
 
+import cz.incad.Kramerius.LongRunningProcessServlet;
 import cz.incad.Kramerius.exts.menu.context.guice.ContextMenuConfiguration;
 import cz.incad.Kramerius.exts.menu.main.guice.MainMenuConfiguration;
 import cz.incad.kramerius.Constants;
@@ -21,14 +25,18 @@ import cz.incad.kramerius.imaging.guice.ImageModule;
 import cz.incad.kramerius.pdf.guice.PDFModule;
 import cz.incad.kramerius.printing.guice.PrintModule;
 import cz.incad.kramerius.processes.guice.LongRunningProcessModule;
+import cz.incad.kramerius.rest.api.guice.ApiServletModule;
 import cz.incad.kramerius.security.guice.GuiceSecurityModule;
 import cz.incad.kramerius.security.impl.http.GuiceSecurityHTTPModule;
 import cz.incad.kramerius.service.guice.I18NModule;
 import cz.incad.kramerius.service.guice.MailModule;
+import cz.incad.kramerius.service.guice.ServicesModule;
 import cz.incad.kramerius.users.guice.LoggedUsersModule;
 
 public class GuiceConfigBean extends GuiceServletContextListener {
 
+    static java.util.logging.Logger LOGGER = java.util.logging.Logger.getLogger(GuiceConfigBean.class.getName());
+    
     public GuiceConfigBean() {
         super();
     }
@@ -44,6 +52,8 @@ public class GuiceConfigBean extends GuiceServletContextListener {
     protected Injector getInjector() {
         Injector injector = Guice.createInjector(
                 new BaseModule(), // base  module
+                
+                new ServicesModule(), // base services
                 
                 new PDFModule(), // pdf services
                 
@@ -62,16 +72,29 @@ public class GuiceConfigBean extends GuiceServletContextListener {
                 
                 new MainMenuConfiguration(), // menu modules
                 new ContextMenuConfiguration(), // menu modules
-                
-                new ServletModule()
-                
+    
+                servletModule()
         );
 
         
         return injector;
     }
 
+    public static ServletModule servletModule() {
+        try {
+            Class<?> clz = Class.forName("cz.incad.kramerius.rest.api.guice.ApiServletModule");
+            return (ServletModule) clz.newInstance();
+        } catch (ClassNotFoundException e) {
+            // no problem
+        } catch (InstantiationException e) {
+            LOGGER.log(Level.SEVERE,e.getMessage(),e);
+        } catch (IllegalAccessException e) {
+            LOGGER.log(Level.SEVERE,e.getMessage(),e);
+        }
+        return new ServletModule();
+    }
 
+    
     @Provides
     @Named("fontsDir")
     public File getWebAppsFontsFolder() {
