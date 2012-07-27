@@ -186,7 +186,7 @@ public class SecuredFedoraAccessImpl implements FedoraAccess {
 
     
     
-    static boolean securedStream(String streamName) {
+    static boolean isDefaultSecuredStream(String streamName) {
         return FedoraUtils.IMG_FULL_STREAM.equals(streamName) || 
             FedoraUtils.IMG_PREVIEW_STREAM.equals(streamName) || 
             FedoraUtils.TEXT_OCR_STREAM.equals(streamName);
@@ -194,7 +194,7 @@ public class SecuredFedoraAccessImpl implements FedoraAccess {
 
     
     public InputStream getDataStream(String pid, String datastreamName) throws IOException {
-        if (securedStream(datastreamName)) {
+        if (isDefaultSecuredStream(datastreamName)) {
             ObjectPidsPath[] paths = this.solrAccess.getPath(pid);
             for (int i = 0; i < paths.length; i++) {
                 if (this.isActionAllowed.isActionAllowed(SecuredActions.READ.getFormalName(), pid, datastreamName, paths[i])) { 
@@ -203,8 +203,8 @@ public class SecuredFedoraAccessImpl implements FedoraAccess {
             }
             throw new SecurityException("access denided");
         } else {
-            String[] securedStreams = KConfiguration.getInstance().getSecuredAditionalStreams();
-            int indexOf = Arrays.asList(securedStreams).indexOf(datastreamName);
+            String[] securedStreamsExtension = KConfiguration.getInstance().getSecuredAditionalStreams();
+            int indexOf = Arrays.asList(securedStreamsExtension).indexOf(datastreamName);
             if (indexOf >= 0) {
                 ObjectPidsPath[] paths = this.solrAccess.getPath(pid+"/"+datastreamName);
                 for (int i = 0; i < paths.length; i++) {
