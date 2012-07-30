@@ -41,6 +41,7 @@ public class ReplicationsResource {
 
     @GET
     @Path("prepare")
+    @Produces(MediaType.APPLICATION_XML)
     public String prepareExport(@PathParam("pid") String pid) throws ReplicateException {
         return replicationService.prepareExport(pid);
     }
