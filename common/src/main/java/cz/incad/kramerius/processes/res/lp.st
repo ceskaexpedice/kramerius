@@ -282,6 +282,7 @@
         <errOs>lrErr</errOs>
         <javaProcessParameters>-Xmx3072m -Xms512m -Dcz.incad.kramerius.imaging.lp.GenerateDeepZoomFlag=true -Dcz.incad.kramerius.imaging.lp.GenerateThumbnail=true</javaProcessParameters>
     </process>
+
     <!-- Proces generovani priznaku do RELS-EXT -->
     <process>
         <id>generateDeepZoomFlag</id>
@@ -291,6 +292,7 @@
         <errOs>lrErr</errOs>
         <javaProcessParameters>-Xmx3072m -Xms512m</javaProcessParameters>
     </process>
+
     <!-- smazani cache pro dlazdice -->
     <process>
         <id>deleteGeneratedDeepZoomTiles</id>
@@ -318,5 +320,22 @@
         <standardOs>lrOut</standardOs>
         <errOs>lrErr</errOs>
     </process>
+
+
+    <!-- k4 replication process -->
+    <process>
+        <id>k4_replication</id>
+        <description>K4 Replication process</description>
+        <mainClass>cz.incad.kramerius.service.processes.K4ReplicationProcess</mainClass>
+        <standardOs>lrOut</standardOs>
+        <errOs>lrErr</errOs>
+        <javaProcessParameters>-Xmx1024m -Xms512m</javaProcessParameters>
+        
+        <templates>
+            <input class="cz.incad.kramerius.processes.def.DefaultTemplate"></input>
+        </templates>
+        
+    </process>
+
 
 </processes>
