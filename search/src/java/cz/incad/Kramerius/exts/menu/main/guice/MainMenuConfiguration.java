@@ -35,6 +35,7 @@ import cz.incad.Kramerius.exts.menu.main.impl.adm.items.IndexerAdministration;
 import cz.incad.Kramerius.exts.menu.main.impl.adm.items.MetadataEditor;
 import cz.incad.Kramerius.exts.menu.main.impl.adm.items.ParametrizedConvert;
 import cz.incad.Kramerius.exts.menu.main.impl.adm.items.ParametrizedImport;
+import cz.incad.Kramerius.exts.menu.main.impl.adm.items.ParametrizedK4Replication;
 import cz.incad.Kramerius.exts.menu.main.impl.adm.items.ProcessesDialog;
 import cz.incad.Kramerius.exts.menu.main.impl.adm.items.ReplicationRights;
 import cz.incad.Kramerius.exts.menu.main.impl.adm.items.RolesEditor;
@@ -87,12 +88,12 @@ public class MainMenuConfiguration extends AbstractModule {
         adminItems.addBinding().to(RolesEditor.class);
         adminItems.addBinding().to(UsersAdministration.class);
         adminItems.addBinding().to(VirtualCollectionsAdministration.class);
-
+        
         // pridani parametrizovanych procesu
         adminItems.addBinding().to(ParametrizedImport.class);
         adminItems.addBinding().to(ParametrizedConvert.class);
+        adminItems.addBinding().to(ParametrizedK4Replication.class);
 
-        
         // menu
         bind(MainMenu.class).to(MainMenuImpl.class);
     }

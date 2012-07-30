@@ -8,6 +8,7 @@ import javax.servlet.ServletContextEvent;
 
 import com.google.inject.Guice;
 import com.google.inject.Injector;
+import com.google.inject.Module;
 import com.google.inject.Provides;
 import com.google.inject.name.Named;
 import com.google.inject.servlet.GuiceServletContextListener;
@@ -79,7 +80,7 @@ public class GuiceConfigBean extends GuiceServletContextListener {
         
         return injector;
     }
-
+    
     public static ServletModule servletModule() {
         try {
             Class<?> clz = Class.forName("cz.incad.kramerius.rest.api.guice.ApiServletModule");
