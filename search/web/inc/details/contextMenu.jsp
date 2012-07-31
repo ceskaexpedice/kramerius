@@ -13,7 +13,6 @@
 <%@page import="cz.incad.kramerius.utils.FedoraUtils"%>
 <%@page import="javax.servlet.jsp.jstl.fmt.LocalizationContext"%>
 <%@page import="cz.incad.kramerius.processes.LRProcessManager,cz.incad.kramerius.processes.DefinitionManager" %>
-<%@page import="cz.incad.Kramerius.views.item.menu.ContextMenuItem" %>
 <%@page import="cz.incad.kramerius.utils.conf.KConfiguration" %>
 <%@page import="cz.incad.kramerius.security.SecuredActions" %>
 
