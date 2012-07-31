@@ -17,12 +17,18 @@
 package cz.incad.kramerius.rest.api;
 
 import java.io.UnsupportedEncodingException;
+import java.util.List;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
+
+import net.sf.json.JSONArray;
+import net.sf.json.JSONObject;
+
+import biz.sourcecode.base64Coder.Base64Coder;
 
 import com.google.inject.Inject;
 
@@ -41,16 +47,26 @@ public class ReplicationsResource {
 
     @GET
     @Path("prepare")
-    @Produces(MediaType.APPLICATION_XML)
+    @Produces(MediaType.APPLICATION_JSON)
     public String prepareExport(@PathParam("pid") String pid) throws ReplicateException {
-        return replicationService.prepareExport(pid);
+        List<String> pidList = replicationService.prepareExport(pid);
+        JSONArray jsonArray = new JSONArray();
+        for (String npid : pidList) {
+            jsonArray.add(npid);
+        }
+        JSONObject jsonObj = new JSONObject();
+        jsonObj.put("pids", jsonArray);
+        return jsonObj.toString();
     }
 
     @GET
     @Path("exportedFOXML")
-    @Produces(MediaType.APPLICATION_XML)
+    @Produces(MediaType.APPLICATION_JSON)
     public String getExportedFOXML(@PathParam("pid")String pid) throws ReplicateException, UnsupportedEncodingException {
-        return new String(replicationService.getExportedFOXML(pid), "UTF-8");
+        JSONObject jsonObj = new JSONObject();
+        char[] encoded = Base64Coder.encode(replicationService.getExportedFOXML(pid));
+        jsonObj.put("raw", new String(encoded));
+        return jsonObj.toString();
     }
     
 }
