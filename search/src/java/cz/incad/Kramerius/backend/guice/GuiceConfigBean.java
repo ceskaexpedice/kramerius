@@ -3,20 +3,15 @@ package cz.incad.Kramerius.backend.guice;
 import java.io.File;
 import java.util.logging.Level;
 
-import javax.portlet.ProcessAction;
 import javax.servlet.ServletContextEvent;
 
 import com.google.inject.Guice;
 import com.google.inject.Injector;
-import com.google.inject.Module;
 import com.google.inject.Provides;
 import com.google.inject.name.Named;
 import com.google.inject.servlet.GuiceServletContextListener;
 import com.google.inject.servlet.ServletModule;
-import com.sun.jersey.guice.JerseyServletModule;
-import com.sun.jersey.guice.spi.container.servlet.GuiceContainer;
 
-import cz.incad.Kramerius.LongRunningProcessServlet;
 import cz.incad.Kramerius.exts.menu.context.guice.ContextMenuConfiguration;
 import cz.incad.Kramerius.exts.menu.main.guice.MainMenuConfiguration;
 import cz.incad.kramerius.Constants;
@@ -26,7 +21,6 @@ import cz.incad.kramerius.imaging.guice.ImageModule;
 import cz.incad.kramerius.pdf.guice.PDFModule;
 import cz.incad.kramerius.printing.guice.PrintModule;
 import cz.incad.kramerius.processes.guice.LongRunningProcessModule;
-import cz.incad.kramerius.rest.api.guice.ApiServletModule;
 import cz.incad.kramerius.security.guice.GuiceSecurityModule;
 import cz.incad.kramerius.security.impl.http.GuiceSecurityHTTPModule;
 import cz.incad.kramerius.service.guice.I18NModule;
