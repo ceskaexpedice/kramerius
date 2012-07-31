@@ -164,7 +164,11 @@
             <version>${project.parent.version}</version>
             <scope>provided</scope>
         </dependency>
-
+ <dependency>
+            <groupId>cz.incad.kramerius</groupId>
+            <artifactId>rest</artifactId>
+            <version>${project.parent.version}</version>
+        </dependency>
 
         <dependency>
             <groupId>org.easymock</groupId>
