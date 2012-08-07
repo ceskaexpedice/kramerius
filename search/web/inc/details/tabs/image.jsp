@@ -54,7 +54,7 @@ function onLoadPlainImage() {
     </div>
 
     <div id="loadingDeepZoomImage" class="view_div">
-        <fmt:message bundle="${lctx}" key="deep.zoom.loadingImage" />
+        <view:msg>deep.zoom.loadingImage</view:msg>
     </div>
 
     <div id="pdfImage" style="position:relative;text-align:center;">
@@ -76,10 +76,11 @@ function onLoadPlainImage() {
    <div id="download" style="display:none;padding-top:10px; height:650px; width:700px;  color: black; border:1px; position:relative;">
         
        <div> 
-           <fmt:message bundle="${lctx}" key="img.display.downloadOriginal.text"></fmt:message> 
+            <view:msg>img.display.downloadOriginal.text</view:msg>
        </div>
        <div>
-           <a id="downloadOriginalHref" href="none"><fmt:message bundle="${lctx}" key="img.display.downloadOriginal"></fmt:message></a>
+           <a id="downloadOriginalHref" href="none">
+            <view:msg>img.display.downloadOriginal</view:msg>
         </div>    
     </div>
     

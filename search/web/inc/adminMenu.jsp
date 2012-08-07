@@ -653,12 +653,38 @@ var saveProfile = new SaveProfile();
 
 
 
+/** 
+ * Parametrized processes
+ */
 function ParameterizedProcess() {
     this.dialog = null;
 }
 
-ParameterizedProcess.prototype.open = function(definition) {
-    $.get("lr?action=form_get&def="+definition, function(data){
+ParameterizedProcess.prototype._asArr=function(struct) {
+    var arr = [];
+    for (var key in struct) { arr.push(key+"="+struct[key]); } 
+    return arr;        	 
+}
+
+/**
+ * opens parameters dialog
+ */
+ParameterizedProcess.prototype.open = function(definition, paramsMapping) {
+    paramsMapping = paramsMapping ? paramsMapping : {};
+
+    var pMappingsUrl = "{"+reduce(function(base, element, status) {
+    	if (!status.first) {
+        	base = base + ";";
+        }
+    	base = base + element;
+    	return base; 
+    }, "", this._asArr(paramsMapping))+"}";
+    		  
+    var url = "lr?action=form_get&def="+definition;
+
+    if (pMappingsUrl) url = url+"&paramsMapping="+pMappingsUrl;
+
+    $.get(url , function(data){
 
     	if (this.dialog) {
     		this.dialog.dialog('open');
@@ -674,7 +700,7 @@ ParameterizedProcess.prototype.open = function(definition) {
                 title: '',
                 buttons: [
                     {
-                        text: 'Process',
+                        text: dictionary['common.start'],
                         click: function() {
                             window.onProcessFormSend();
                             $(this).dialog("close"); 
@@ -691,6 +717,7 @@ ParameterizedProcess.prototype.open = function(definition) {
             });
         }
 
+    	$("#parametrized_process").dialog( "option", "title", dictionary['parametrizedprocess.dialog.title'] );
         $("#parametrized_process").html(data);
     });
 }

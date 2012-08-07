@@ -90,27 +90,25 @@
 
 <table class="socialbuttons" align="center">
     <tr>
-    <td id="gplusbutton"  class="gplus">
-     <!-- Umístěte tuto značku na místo, kde chcete zobrazovat tlačítko +1. -->
      <c:if test="${gplus.buttonEnabled}">
-        <div class="g-plusone" data-size="small" data-annotation="bubble"></div>
+       <td id="gplusbutton"  class="gplus">
+           <div class="g-plusone" data-size="small" data-annotation="bubble"></div>
+       </td>
      </c:if>
-    </td>
 
-    <td id="fbbutton" class="fb">
      <c:if test="${fb.buttonEnabled}">
       <!-- like button -->
-      <fb:like id="fbbutton_elm"  href="${fb.shareURL}" send="false" width="16"  layout="button_count" show_faces="false"></fb:like>
+      <td id="fbbutton" class="fb">
+        <!--  place for fb -->
+      </td>
      </c:if>
-    </td>
 
-    <td class="tweet">
      <c:if test="${tweet.buttonEnabled}">
       <!-- twitter -->
-      <a href="https://twitter.com/share" class="twitter-share-button" data-url="${tweet.shareURL}" data-lang="${tweet.locale}">Tweet</a>
+      <td class="tweet">
+        <a href="https://twitter.com/share" class="twitter-share-button" data-lang="${tweet.locale}">Tweet</a>
+      </td>
      </c:if>
-    </td>
-    
     
     <td>
     
