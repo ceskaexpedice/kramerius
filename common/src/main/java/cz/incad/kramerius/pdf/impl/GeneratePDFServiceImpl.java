@@ -487,7 +487,6 @@ public class GeneratePDFServiceImpl extends AbstractPDFRenderSupport implements 
     }
 
     public File fontsFolder() {
-        //String dirName = Constants.WORKING_DIR + File.separator + "fonts";
         File dir = this.fontDirectory.get();
         if (!dir.exists()) {
             boolean mkdirs = dir.mkdirs();
