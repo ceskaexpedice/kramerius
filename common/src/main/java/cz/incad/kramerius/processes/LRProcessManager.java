@@ -141,6 +141,7 @@ public interface LRProcessManager {
 	 */
 	public void updateTokenMapping(LRProcess lrProcess, String sessionKey);
 	
+	
 	/**
 	 * Returns session key associated with process
 	 * @param token Token associated with process
@@ -155,6 +156,21 @@ public interface LRProcessManager {
 	 */
     public boolean isSessionKeyAssociatedWithProcess(String sessionKey);
 
+    
+    /**
+     * Sets given token as inactive
+     * @param token
+     */
+    public void closeToken(String token);
+
+    
+    /**
+     * Returns true if given token is closed
+     * @param token
+     * @return
+     */
+    public boolean isTokenClosed(String token);
+    
 	
 	/**
 	 * Delete process

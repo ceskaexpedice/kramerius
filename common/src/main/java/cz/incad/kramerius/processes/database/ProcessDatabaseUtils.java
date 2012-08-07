@@ -107,7 +107,8 @@ public class ProcessDatabaseUtils {
                 "   SURNAME," +  // 9
                 "   USER_KEY," +
                 "   PARAMS_MAPPING , " + //11
-                "   BATCH_STATUS ) " + //12
+                "   BATCH_STATUS ," + //12
+                "   TOKEN_ACTIVE) " + //
                 "       values " +
                 "   (" +
                 "       ?," + //1 - DEFID
@@ -122,7 +123,8 @@ public class ProcessDatabaseUtils {
                 "       ?," + //9 SURNAME
                 "       ?," + //10 USERKEY
                 "       ?," + //11 PARAMS_MAPPING
-                "       ?" + //12 BATCH_STATUS
+                "       ?," + //12 BATCH_STATUS
+                "       TRUE" + //
                 "   )");
         try {
             prepareStatement.setString(1, lp.getDefinitionId());
@@ -269,6 +271,13 @@ public class ProcessDatabaseUtils {
         }
     }
 
+    public static void updateTokenActive(Connection con, String token, boolean activityFlag) {
+        try {
+            new JDBCUpdateTemplate(con, true).executeUpdate("update PROCESSES set TOKEN_ACTIVE=? where token=?", activityFlag,token);
+        } catch (SQLException e) {
+            throw new ProcessManagerException("change token "+token);
+        }
+    }
 
     
     public static void deleteTokenMappings(LRProcess lrProcess, Connection con) throws SQLException {

@@ -111,6 +111,8 @@ public class JDBCUpdateTemplate {
             pstm.setTimestamp(i, (java.sql.Timestamp) object);
         } else if (object instanceof Long) {
             pstm.setLong(i, (Long) object);
+        } else if (object instanceof Boolean) {
+            pstm.setBoolean(i, ((Boolean) object).booleanValue());
         } else if (object.getClass().isArray()) {
             int length = Array.getLength(object);
             for (int j = 0; j < length; j++) {

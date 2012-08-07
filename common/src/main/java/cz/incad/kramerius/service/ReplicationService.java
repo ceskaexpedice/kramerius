@@ -16,6 +16,8 @@
  */
 package cz.incad.kramerius.service;
 
+import java.util.List;
+
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 
@@ -31,7 +33,7 @@ public interface ReplicationService {
      * @return
      * @throws ReplicateException
      */
-    public String prepareExport(String pid) throws ReplicateException;
+    public List<String> prepareExport(String pid) throws ReplicateException;
 
     /**
      * Returns data of current pid

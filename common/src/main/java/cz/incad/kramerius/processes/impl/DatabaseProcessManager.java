@@ -563,6 +563,40 @@ public class DatabaseProcessManager implements LRProcessManager {
     }
     
     
+    
+    
+
+    @Override
+    public void closeToken(String token) {
+        Connection connection = connectionProvider.get();
+        if (connection == null)
+            throw new NotReadyException("connection not ready");
+        ProcessDatabaseUtils.updateTokenActive(connection, token, false);
+    }
+
+
+    
+    @Override
+    public boolean isTokenClosed(String token) {
+        Connection connection = connectionProvider.get();
+        if (connection == null)
+            throw new NotReadyException("connection not ready");
+        
+        List<Boolean> flags = new JDBCQueryTemplate<Boolean>(connection){
+
+            @Override
+            public boolean handleRow(ResultSet rs, List<Boolean> returnsList) throws SQLException {
+                returnsList.add(rs.getBoolean("token_active"));
+                return super.handleRow(rs, returnsList);
+            }
+        }.executeQuery("select token_active from processes where token=?", token);
+        
+        for (Boolean flag : flags) {
+            if (!flag.booleanValue()) return true;
+        }
+        return false;
+    }
+
 
     @Override
     public Properties loadParametersMapping(LRProcess lrProcess)  {
@@ -615,7 +649,6 @@ public class DatabaseProcessManager implements LRProcessManager {
         } catch (SQLException e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
         }
-
     }
 
     @Override

@@ -72,6 +72,17 @@ public class ProcessUtils {
         }
     }
 
+    public static void closeToken(String processUuid) {
+        LOGGER.info(" close token for '"+processUuid+"'");
+        String base = ProcessUtils.getLrServlet();    
+        String url = base + "?action=closeToken&uuid="+processUuid;
+        try {
+            ProcessStarter.httpGet(url);
+        } catch (Exception e) {
+            LOGGER.severe("Error closing token for "+processUuid+":"+e);
+        }
+    }
+    
     public static String nparams(String[] params) {
         StringBuffer buffer = new StringBuffer("{");
         for (int i = 0; i < params.length; i++) {

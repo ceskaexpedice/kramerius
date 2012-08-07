@@ -18,6 +18,7 @@ package cz.incad.kramerius.processes.template;
 
 import java.io.IOException;
 import java.io.Writer;
+import java.util.Properties;
 
 import cz.incad.kramerius.processes.LRProcessDefinition;
 
@@ -31,8 +32,9 @@ public interface ProcessInputTemplate {
      * Render input from template
      * @param definition Process definition 
      * @param writer Output writer
+     * @param paramsMapping TODO
      * @throws IOException 
      */
-    public void renderInput(LRProcessDefinition definition, Writer writer) throws IOException;
-
+    public void renderInput(LRProcessDefinition definition, Writer writer, Properties paramsMapping) throws IOException;
+    
 }

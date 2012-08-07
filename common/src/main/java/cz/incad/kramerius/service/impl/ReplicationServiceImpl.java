@@ -17,9 +17,9 @@
 package cz.incad.kramerius.service.impl;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.logging.Level;
-
-import org.antlr.stringtemplate.StringTemplate;
 
 import com.google.inject.Inject;
 import com.google.inject.name.Named;
@@ -32,27 +32,21 @@ import cz.incad.kramerius.service.ReplicationService;
 
 public class ReplicationServiceImpl implements ReplicationService{
 
-    java.util.logging.Logger LOGGER = java.util.logging.Logger.getLogger(ReplicationServiceImpl.class.getName());
+    static java.util.logging.Logger LOGGER = java.util.logging.Logger.getLogger(ReplicationServiceImpl.class.getName());
     
     @Inject
     @Named("securedFedoraAccess")
     FedoraAccess fedoraAccess;
 
     
-    private static String emitElement(String pid) {
-        StringTemplate template = new StringTemplate("<exportedPid>$pid$</exportedPid>");
-        template.setAttribute("pid", pid);
-        return template.toString();
-    }
-    
     @Override
-    public String prepareExport(String pid) throws ReplicateException {
-        final StringBuilder builder = new StringBuilder("<exported>");
+    public List<String> prepareExport(String pid) throws ReplicateException {
+        final List<String> pids = new ArrayList<String>();
         try {
             fedoraAccess.processSubtree(pid, new TreeNodeProcessor() {
                 @Override
                 public void process(String pid, int level) throws ProcessSubtreeException {
-                    builder.append(emitElement(pid));
+                    pids.add(pid);
                 }
 
                 @Override
@@ -60,10 +54,7 @@ public class ReplicationServiceImpl implements ReplicationService{
                     return false;
                 }
             });
-            builder.append("</exported>");
-            
-            return builder.toString();
-            
+            return pids;
         } catch (ProcessSubtreeException e) {
             LOGGER.log(Level.SEVERE,e.getMessage(),e);
             throw new ReplicateException(e);

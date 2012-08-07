@@ -56,6 +56,18 @@
 
 
     <process>
+        <id>parametrized_static_export</id>
+        <description>Parametrized static export</description>
+        <mainClass>cz.incad.kramerius.lp.ParametrizedPDFExport</mainClass>
+        <standardOs>lrOut</standardOs>
+        <errOs>lrErr</errOs>
+        <templates>
+            <input class="cz.incad.kramerius.lp.ParametrizedPDFExportInputTemplate"></input>
+        </templates>
+    </process>
+
+
+    <process>
         <id>static_export_CD</id>
         <description>Statický export do PDF na CD</description>
         <mainClass>cz.incad.kramerius.lp.PDFExport</mainClass>

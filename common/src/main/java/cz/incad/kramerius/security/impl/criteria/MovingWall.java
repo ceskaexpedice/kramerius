@@ -51,7 +51,7 @@ import cz.incad.kramerius.utils.XMLUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 
 /**
- * Stena, ktera pousti vsechny dokumenty ktere jsou po datumu uvedenem v konfiguraci
+ * Stena, ktera pousti vsechny dokumenty, ktere jsou po datumu uvedenem v konfiguraci
  * 
  * Trida vzdy porovnava pouze datum uvedem v metadatech objektu, ktery je s pravem svazan.  
  * Pokud je pravo uvedeno na objetku REPOSITORY, pak zkouma nejvyssi prvek v hierarchii 
@@ -91,6 +91,9 @@ public class MovingWall extends AbstractCriterium implements RightCriterium {
     }
 
     
+    
+    //mods:originInfo 
+    //
     
     public EvaluatingResult resolveInternal(int wallFromConf, String pid) throws IOException, XPathExpressionException {
         if (pid.equals(SpecialObjects.REPOSITORY.getPid())) return EvaluatingResult.FALSE;

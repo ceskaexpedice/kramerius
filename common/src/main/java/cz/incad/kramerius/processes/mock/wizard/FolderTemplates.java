@@ -24,6 +24,7 @@ import java.io.InputStreamReader;
 import java.io.Writer;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Properties;
 import java.util.Stack;
 
 import org.antlr.stringtemplate.StringTemplate;
@@ -42,7 +43,7 @@ public class FolderTemplates implements ProcessInputTemplate {
     KConfiguration configuration;
     
     @Override
-    public void renderInput(LRProcessDefinition definition, Writer writer) throws IOException {
+    public void renderInput(LRProcessDefinition definition, Writer writer, Properties paramsMapping) throws IOException {
         File homeFolder = new File(System.getProperty("user.home")+File.separator+".kramerius4");
         InputStream iStream = this.getClass().getResourceAsStream("wizard.st");
         

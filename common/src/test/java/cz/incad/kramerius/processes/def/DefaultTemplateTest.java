@@ -74,7 +74,7 @@ public class DefaultTemplateTest {
         injector.injectMembers(template);
         
         StringWriter stringWriter = new StringWriter();
-        template.renderInput(definition, stringWriter);
+        template.renderInput(definition, stringWriter, null);
         System.out.println("'"+stringWriter.toString()+"'");
         
         InputStream resStream = DefaultTemplateTest.class.getResourceAsStream("expecting.txt");

@@ -24,7 +24,6 @@ public class K4ReplicationProcess {
 
     ReplicationService replicationService;
     
-    
     @Process
     public static void process(@ParameterName("handle") String handle) {
         System.out.println("Handle it :"+handle);

@@ -31,8 +31,8 @@ public class ProcessAggregator {
     static java.util.logging.Logger LOGGER = java.util.logging.Logger.getLogger(ProcessAggregator.class.getName());
     
     public static void main(String[] args) throws Exception {
-        String token = System.getProperty(ProcessStarter.TOKEN_KEY);
-        // params parsing... 
+        //String token = System.getProperty(ProcessStarter.TOKEN_KEY);
+        String uuid = System.getProperty(ProcessStarter.UUID_KEY);
         
         String def = args[0];
         String[] processDefsParams = Arrays.copyOfRange(args, 1, args.length);
@@ -44,8 +44,9 @@ public class ProcessAggregator {
             
             ProcessUtils.startProcess(def, encodedParams);
         }
-
+        
         //TODO: I18N
         ProcessStarter.updateName("Davkove spusteny process ["+def+"]");
+        ProcessUtils.closeToken(uuid);
     }
 }

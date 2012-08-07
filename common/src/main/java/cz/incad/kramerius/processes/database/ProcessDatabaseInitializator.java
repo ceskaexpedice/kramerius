@@ -71,6 +71,9 @@ public class ProcessDatabaseInitializator {
                     alterProcessTableBatchState(connection);
                     updateProcessTableBatchStates(connection);
                 }
+                if (!DatabaseUtils.columnExists(connection, "PROCESSES","TOKEN_ACTIVE")) {
+                    alterProcessTableTokenActive(connection);
+                }
             } else if (v.equals("4.5.0") ||  v.equals("4.6.0") ||  v.equals("4.7.0") || v.equals("4.8.0") ||  v.equals("4.9.0")) {
                 if (!DatabaseUtils.columnExists(connection, "PROCESSES","PARAMS_MAPPING")) {
                     alterProcessTableParamsMappingToken(connection);
@@ -82,6 +85,9 @@ public class ProcessDatabaseInitializator {
                 if (!DatabaseUtils.columnExists(connection, "PROCESSES","FINISHED")) {
                     alterProcessTableFinished(connection);
                 }
+                if (!DatabaseUtils.columnExists(connection, "PROCESSES","TOKEN_ACTIVE")) {
+                    alterProcessTableTokenActive(connection);
+                }
             } else if ((v.equals("5.0.0")) || (v.equals("5.1.0")))  {
                 if (!DatabaseUtils.columnExists(connection, "PROCESSES","BATCH_STATUS")) {
                     alterProcessTableBatchState(connection);
@@ -90,9 +96,19 @@ public class ProcessDatabaseInitializator {
                 if (!DatabaseUtils.columnExists(connection, "PROCESSES","FINISHED")) {
                     alterProcessTableFinished(connection);
                 }
+                if (!DatabaseUtils.columnExists(connection, "PROCESSES","TOKEN_ACTIVE")) {
+                    alterProcessTableTokenActive(connection);
+                }
             } else if (v.equals("5.1.0"))  {
                 if (!DatabaseUtils.columnExists(connection, "PROCESSES","FINISHED")) {
                     alterProcessTableFinished(connection);
+                }
+                if (!DatabaseUtils.columnExists(connection, "PROCESSES","TOKEN_ACTIVE")) {
+                    alterProcessTableTokenActive(connection);
+                }
+            } else if (v.equals("5.2.0"))  {
+                if (!DatabaseUtils.columnExists(connection, "PROCESSES","TOKEN_ACTIVE")) {
+                    alterProcessTableTokenActive(connection);
                 }
             }
         } catch (SQLException e) {
@@ -151,6 +167,18 @@ public class ProcessDatabaseInitializator {
     public static void alterProcessTableParamsMappingToken(Connection con) throws SQLException {
         PreparedStatement prepareStatement = con.prepareStatement(
             "ALTER TABLE PROCESSES ADD COLUMN PARAMS_MAPPING VARCHAR(4096);");
+        try {
+            int r = prepareStatement.executeUpdate();
+            LOGGER.log(Level.FINEST, "ALTER TABLE: updated rows {0}", r);
+        } finally {
+            DatabaseUtils.tryClose(prepareStatement);
+        }
+    }    
+
+
+    public static void alterProcessTableTokenActive(Connection con) throws SQLException {
+        PreparedStatement prepareStatement = con.prepareStatement(
+            "ALTER TABLE PROCESSES ADD COLUMN TOKEN_ACTIVE BOOLEAN;");
         try {
             int r = prepareStatement.executeUpdate();
             LOGGER.log(Level.FINEST, "ALTER TABLE: updated rows {0}", r);

@@ -61,7 +61,7 @@ public class DefaultTemplate implements ProcessInputTemplate {
     
     
     @Override
-    public void renderInput(LRProcessDefinition definition, Writer writer) throws IOException {
+    public void renderInput(LRProcessDefinition definition, Writer writer, Properties paramsMapping) throws IOException {
         try {
             
             List<FieldDesc> fdescs = new ArrayList<DefaultTemplate.FieldDesc>();
@@ -79,7 +79,7 @@ public class DefaultTemplate implements ProcessInputTemplate {
                 Annotation paramAnnot = ProcessStarter.findNameAnnot(ann);
                 if (paramAnnot!=null) {
                     String name = ((ParameterName)paramAnnot).value();
-                    FieldDesc fdesc = new FieldDesc(name, findDefaultValue(clz, types[i], name));
+                    FieldDesc fdesc = new FieldDesc(name, paramsMapping != null && paramsMapping.containsKey(name)  ?  paramsMapping.get(name) : findDefaultValue(clz, types[i], name));
                     fdescs.add(fdesc);
                 }
             }
