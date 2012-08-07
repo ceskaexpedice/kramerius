@@ -61,6 +61,11 @@
             <artifactId>import-jaxb-dc</artifactId>
             <version>${project.parent.version}</version>
         </dependency>
+        <dependency>
+            <groupId>cz.incad.kramerius</groupId>
+            <artifactId>import-jaxb-srwdc</artifactId>
+            <version>${project.parent.version}</version>
+        </dependency>
 
         <dependency>
             <groupId>cz.incad.kramerius</groupId>

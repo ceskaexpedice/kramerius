@@ -8,6 +8,7 @@ import java.util.Map;
 
 import javax.xml.bind.JAXBElement;
 import javax.xml.bind.JAXBException;
+import javax.xml.bind.UnmarshalException;
 import javax.xml.bind.Unmarshaller;
 
 import org.apache.log4j.Logger;
@@ -17,7 +18,7 @@ import org.kramerius.alto.BlockType;
 import org.kramerius.alto.StringType;
 import org.kramerius.alto.TextBlockType;
 import org.kramerius.alto.TextBlockType.TextLine;
-import org.kramerius.alto.TextBlockType.TextLine.SP;
+import org.kramerius.dc.ElementType;
 import org.kramerius.dc.OaiDcType;
 import org.kramerius.importmets.valueobj.ConvertorConfig;
 import org.kramerius.importmets.valueobj.Foxml;
@@ -37,9 +38,12 @@ import org.kramerius.mets.MetsType.StructLink;
 import org.kramerius.mets.StructLinkType.SmLink;
 import org.kramerius.mets.StructMapType;
 import org.kramerius.mods.DetailDefinition;
+import org.kramerius.mods.ModsCollectionDefinition;
 import org.kramerius.mods.ModsDefinition;
 import org.kramerius.mods.PartDefinition;
 import org.kramerius.mods.XsString;
+import org.kramerius.srwdc.DcCollectionType;
+import org.kramerius.srwdc.SrwDcType;
 import org.w3c.dom.Element;
 
 import cz.incad.kramerius.utils.conf.KConfiguration;
@@ -90,16 +94,36 @@ public class MetsPeriodicalConvertor extends BaseConvertor {
             Element me = ((Element) md.getMdWrap().getXmlData().getAny().get(0));
             String type = md.getMdWrap().getMDTYPE();
             if ("MODS".equalsIgnoreCase(type)) {
-                ModsDefinition mods = (ModsDefinition) ((JAXBElement<?>) unmarshallerMODS
-                        .unmarshal(me)).getValue();
+                Object elementValue = ((JAXBElement<?>) unmarshallerMODS.unmarshal(me)).getValue();
+                ModsDefinition mods = null;
+                if (elementValue instanceof  ModsDefinition){
+                    mods = (ModsDefinition) elementValue ;
+                }else if (elementValue instanceof  ModsCollectionDefinition){
+                    mods = firstItem(((ModsCollectionDefinition) elementValue).getMods());
+                } else{
+                    log.warn("Unsupported MODS element: " + elementValue.getClass());
+                }
                 if (modsMap.put(id, mods) != null) {
                     log.warn("Duplicate MODS record: " + id);
                 } else {
                     modsCounter++;
                 }
             } else if ("DC".equalsIgnoreCase(type)) {
-                OaiDcType dc = (OaiDcType) ((JAXBElement<?>) unmarshallerDC
-                        .unmarshal(me)).getValue();
+                Object elementValue =null;
+                try{
+                    elementValue = ((JAXBElement<?>) unmarshallerDC.unmarshal(me)).getValue();
+                }catch (UnmarshalException ue){
+                    elementValue = ((JAXBElement<?>) unmarshallerSRWDC.unmarshal(me)).getValue();
+                }
+                OaiDcType dc = null;
+                if (elementValue instanceof OaiDcType){
+                    dc = (OaiDcType) elementValue;
+                } else if (elementValue instanceof DcCollectionType){
+                    dc = morphSRWDCtoOAIDC(firstItem(((DcCollectionType) elementValue).getDc()));
+                }else{
+                    log.warn("Unsupported DC element: " + elementValue.getClass());
+                }
+                
                 if (dcMap.put(id, dc) != null) {
                     log.warn("Duplicate DC record: " + id);
                 } else {
@@ -115,6 +139,20 @@ public class MetsPeriodicalConvertor extends BaseConvertor {
             log.warn("Different MODS (" + modsCounter + ") and DC ("
                     + dcCounter + ") records count.");
         }
+    }
+    
+    private OaiDcType morphSRWDCtoOAIDC(SrwDcType srwdc){
+        
+        org.kramerius.dc.ObjectFactory of = new  org.kramerius.dc.ObjectFactory ();
+        OaiDcType dc = of.createOaiDcType();
+        for (JAXBElement<org.kramerius.srwdc.ElementType> srwdcelem:srwdc.getTitleOrCreatorOrSubject()){
+            org.kramerius.dc.ElementType elem = of.createElementType();
+            elem.setLang(srwdcelem.getValue().getLang());
+            elem.setValue(srwdcelem.getValue().getValue());
+            JAXBElement<ElementType> dcjaxb = new JAXBElement<ElementType>(srwdcelem.getName(), org.kramerius.dc.ElementType.class,null, elem);
+            dc.getTitleOrCreatorOrSubject().add(dcjaxb);
+        }
+        return dc;
     }
 
     private void loadFileMap(Mets mets) throws JAXBException {

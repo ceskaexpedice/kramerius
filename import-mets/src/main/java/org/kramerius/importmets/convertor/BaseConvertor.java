@@ -37,7 +37,6 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
-import org.apache.commons.collections.ListUtils;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.math.NumberUtils;
@@ -49,7 +48,6 @@ import org.kramerius.importmets.MetsConvertor;
 import org.kramerius.importmets.MetsConvertor.NamespacePrefixMapperImpl;
 import org.kramerius.importmets.MetsConvertor.NamespacePrefixMapperInternalImpl;
 import org.kramerius.importmets.utils.UUIDManager;
-import org.kramerius.importmets.utils.XMLTools;
 import org.kramerius.importmets.utils.XSLTransformer;
 import org.kramerius.importmets.valueobj.ConvertorConfig;
 import org.kramerius.importmets.valueobj.DublinCore;
@@ -59,12 +57,12 @@ import org.kramerius.importmets.valueobj.ImageRepresentation;
 import org.kramerius.importmets.valueobj.RelsExt;
 import org.kramerius.importmets.valueobj.ServiceException;
 import org.kramerius.importmets.valueobj.StreamFileType;
-import org.kramerius.mets.Mets;
 import org.kramerius.mods.IdentifierDefinition;
 import org.kramerius.mods.ModsCollectionDefinition;
 import org.kramerius.mods.ModsDefinition;
 import org.kramerius.mods.TitleInfoDefinition;
 import org.kramerius.mods.XsString;
+import org.kramerius.srwdc.DcCollectionType;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -221,6 +219,7 @@ public abstract class BaseConvertor {
 
     protected Unmarshaller unmarshallerMODS;
     protected Unmarshaller unmarshallerDC;
+    protected Unmarshaller unmarshallerSRWDC;
     protected Unmarshaller unmarshallerALTO;
     protected Marshaller marshallerMODS;
     protected Marshaller marshallerDC;
@@ -234,6 +233,7 @@ public abstract class BaseConvertor {
         //this.unmarshaller = unmarshaller;
         initMODSJAXB();
         initDCJAXB();
+        initSRWDCJAXB();
         initALTOJAXB();
 
         try {
@@ -295,6 +295,29 @@ public abstract class BaseConvertor {
             throw new RuntimeException(e);
         }
     }
+    
+    private void initSRWDCJAXB(){
+        try {
+            JAXBContext jaxbContext = JAXBContext.newInstance( DcCollectionType.class );
+            /*marshallerDC = jaxbContext.createMarshaller();
+            marshallerDC.setProperty(Marshaller.JAXB_ENCODING, "utf-8");
+            marshallerDC.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
+            try{
+                marshallerDC.setProperty("com.sun.xml.internal.bind.namespacePrefixMapper", new NamespacePrefixMapperInternalImpl());
+            } catch (PropertyException ex){
+                marshallerDC.setProperty("com.sun.xml.bind.namespacePrefixMapper", new NamespacePrefixMapperImpl());
+            }
+            //marshaller.setProperty(Marshaller.JAXB_SCHEMA_LOCATION, "info:fedora/fedora-system:def/foxml# http://www.fedora.info/definitions/1/0/foxml1-1.xsd");
+            */
+            unmarshallerSRWDC = jaxbContext.createUnmarshaller();
+
+
+        } catch (Exception e) {
+            log.error("Cannot init SRWDC JAXB", e);
+            throw new RuntimeException(e);
+        }
+    }
+
 
     private void initALTOJAXB(){
         try {

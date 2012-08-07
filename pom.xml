@@ -119,6 +119,7 @@
         <module>import-jaxb</module>
         <module>import-jaxb-periodical</module>
         <module>import-jaxb-dc</module>
+        <module>import-jaxb-srwdc</module>
         <module>import-jaxb-mets</module>
         <module>import-jaxb-alto</module>
         <module>import-jaxb-mods</module>
