@@ -158,13 +158,13 @@ public class LongRunningProcessServlet extends GuiceServlet {
     }
     
 
-    public static LRProcess planNewProcess(HttpServletRequest request, ServletContext context, LRProcessDefinition definition,  String[] params, User user, String loggedUserKey, Properties properties) {
+    public static LRProcess planNewProcess(HttpServletRequest request, ServletContext context, LRProcessDefinition definition,  String[] params, User user, String loggedUserKey, Properties paramsMapping) {
         String token = request.getParameter("token");
         LRProcess newProcess = definition.createNewProcess(token);
         newProcess.setUser(user);
         newProcess.setLoggedUserKey(loggedUserKey);
         newProcess.setParameters(Arrays.asList(params));
-        newProcess.planMe(properties);
+        newProcess.planMe(paramsMapping);
         return newProcess;
     }
 
@@ -318,19 +318,25 @@ public class LongRunningProcessServlet extends GuiceServlet {
                         resp.setContentType("text/html;charset=UTF-8");
                         String inputTemplateClz = definition.getInputTemplateClass();
                         ProcessInputTemplate template = iTemplateFactory.create(inputTemplateClz);
-                        template.renderInput(definition,  resp.getWriter());
+                        template.renderInput(definition,  resp.getWriter(), getParamsMapping(req));
                     }
                 } catch (IOException e) {
                     LOGGER.log(Level.SEVERE,e.getMessage());
                     resp.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
                 } catch (ClassNotFoundException e) {
-                    LOGGER.log(Level.SEVERE,e.getMessage());
+                    LOGGER.log(Level.SEVERE,e.getMessage(),e);
                     resp.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
                 } catch (InstantiationException e) {
-                    LOGGER.log(Level.SEVERE,e.getMessage());
+                    LOGGER.log(Level.SEVERE,e.getMessage(),e);
                     resp.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
                 } catch (IllegalAccessException e) {
-                    LOGGER.log(Level.SEVERE,e.getMessage());
+                    LOGGER.log(Level.SEVERE,e.getMessage(),e);
+                    resp.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+                } catch (RecognitionException e) {
+                    LOGGER.log(Level.SEVERE,e.getMessage(),e);
+                    resp.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+                } catch (TokenStreamException e) {
+                    LOGGER.log(Level.SEVERE,e.getMessage(),e);
                     resp.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
                 }
                 
@@ -349,7 +355,7 @@ public class LongRunningProcessServlet extends GuiceServlet {
                     String[] params = getParams(req);
                     //TODO: Zjisteni predavane autentizace 
                     SecuredActions actionFromDef = SecuredActions.findByFormalName(def);
-                    String token = req.getParameter("token");
+                    String token = req.getParameter("token"); 
 
                     String loggedUserKey = findLoggedUserKey(req, processManager, token);
                     User user = loggedUserSingleton.getLoggedUser(loggedUserKey);
@@ -527,6 +533,19 @@ public class LongRunningProcessServlet extends GuiceServlet {
             }
         },
 
+        closeToken {
+
+            @Override
+            void doAction(ServletContext context, HttpServletRequest req, HttpServletResponse resp, DefinitionManager defManager, LRProcessManager processManager, UserManager userManager, Provider<User> userProvider, IsActionAllowed actionAllowed, LoggedUsersSingleton loggedUserSingleton,
+                    InputTemplateFactory iTemplateFactory, OutputTemplateFactory oTemplateFactory) {
+                String uuid = req.getParameter("uuid");
+                if (uuid != null) {
+                    LRProcess longRunningProcess = processManager.getLongRunningProcess(uuid);
+                    processManager.closeToken(longRunningProcess.getToken());
+                }
+            }
+        },
+        
         delete {
             @Override
             public void doAction(ServletContext context, HttpServletRequest req, HttpServletResponse resp, DefinitionManager defManager, LRProcessManager processManager, UserManager userManager, Provider<User> userProvider, IsActionAllowed actionAllowed, LoggedUsersSingleton loggedUserSingleton, InputTemplateFactory iTemplateFactory, OutputTemplateFactory oTemplateFactory) {
@@ -555,25 +574,31 @@ public class LongRunningProcessServlet extends GuiceServlet {
 
         public String findLoggedUserKey(HttpServletRequest req, LRProcessManager lrProcessManager, String token) {
             if (token != null) {
-                List<LRProcess> processes = lrProcessManager.getLongRunningProcessesByToken(token);
-                if (!processes.isEmpty()) {
-                    // hledani klice 
-                    List<States> childStates = new ArrayList<States>();
-                    childStates.add(States.PLANNED);
-                    // prvni je master process -> vynechavam
-                    for (int i = 1,ll=processes.size(); i < ll; i++) {
-                        childStates.add(processes.get(i).getProcessState());
-                    }
+                
+                if (!lrProcessManager.isTokenClosed(token)) {
+                    List<LRProcess> processes = lrProcessManager.getLongRunningProcessesByToken(token);
+                    if (!processes.isEmpty()) {
+                        // hledani klice 
+                        List<States> childStates = new ArrayList<States>();
+                        childStates.add(States.PLANNED);
+                        // prvni je master process -> vynechavam
+                        for (int i = 1,ll=processes.size(); i < ll; i++) {
+                            childStates.add(processes.get(i).getProcessState());
+                        }
 
-                    LRProcess process = processes.get(0);
-                    //process.setProcessState(States.calculateBatchState(childStates));
-                    process.setBatchState(BatchStates.calculateBatchState(childStates));
-                    
-                    lrProcessManager.updateLongRunningProcessState(process);
-                    
-                    return lrProcessManager.getSessionKey(process.getToken());
+                        LRProcess process = processes.get(0);
+                        //process.setProcessState(States.calculateBatchState(childStates));
+                        process.setBatchState(BatchStates.calculateBatchState(childStates));
+                        
+                        lrProcessManager.updateLongRunningProcessState(process);
+                        
+                        return lrProcessManager.getSessionKey(process.getToken());
+                    } else {
+                        throw new RuntimeException("cannot find process with token '"+token+"'");
+                    }
                 } else {
-                    throw new RuntimeException("cannot find process with token '"+token+"'");
+                    //TODO: ?? 
+                    return (String) req.getSession().getAttribute(UserUtils.LOGGED_USER_KEY_PARAM);
                 }
             } else {
                 return (String) req.getSession().getAttribute(UserUtils.LOGGED_USER_KEY_PARAM);

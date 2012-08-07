@@ -30,6 +30,7 @@ import cz.incad.Kramerius.exts.menu.context.impl.adm.items.DeletePid;
 import cz.incad.Kramerius.exts.menu.context.impl.adm.items.ExportCD;
 import cz.incad.Kramerius.exts.menu.context.impl.adm.items.ExportDVD;
 import cz.incad.Kramerius.exts.menu.context.impl.adm.items.GenerateDeepZoom;
+import cz.incad.Kramerius.exts.menu.context.impl.adm.items.ParametrizedPDFExport;
 import cz.incad.Kramerius.exts.menu.context.impl.adm.items.Reindex;
 import cz.incad.Kramerius.exts.menu.context.impl.adm.items.Rights;
 import cz.incad.Kramerius.exts.menu.context.impl.adm.items.ServerPrint;
@@ -75,13 +76,16 @@ public class ContextMenuConfiguration extends AbstractModule {
         adminMenuItems.addBinding().to(DeleteFromIndex.class);
         adminMenuItems.addBinding().to(DeletePid.class);
         adminMenuItems.addBinding().to(SetPolicyFlag.class);
-        adminMenuItems.addBinding().to(ExportCD.class);
-        adminMenuItems.addBinding().to(ExportDVD.class);
+//        adminMenuItems.addBinding().to(ExportCD.class);
+//        adminMenuItems.addBinding().to(ExportDVD.class);
+        adminMenuItems.addBinding().to(ParametrizedPDFExport.class);
         adminMenuItems.addBinding().to(GenerateDeepZoom.class);
         adminMenuItems.addBinding().to(DeleteGeneratedDeepZoom.class);
         adminMenuItems.addBinding().to(Rights.class);
         adminMenuItems.addBinding().to(StreamRights.class);
         adminMenuItems.addBinding().to(VirtualCollectionAdd.class);
+        
+
         
         // menu
         bind(ContextMenu.class).to(ContextMenuImpl.class);

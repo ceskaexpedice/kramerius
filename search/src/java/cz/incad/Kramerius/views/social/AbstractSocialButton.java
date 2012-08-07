@@ -120,6 +120,7 @@ public abstract class AbstractSocialButton {
         return false;
     }
 
+    /*
     public String getShareURL() {
         HttpServletRequest request = this.requestProvider.get();
         if (isItemPage()) {
@@ -138,6 +139,7 @@ public abstract class AbstractSocialButton {
             return returnedShareURL;
         }
     }
+    */
 
     public String getPidParam(HttpServletRequest request) {
         String pid = request.getParameter("pid");
