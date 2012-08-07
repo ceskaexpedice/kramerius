@@ -27,6 +27,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Properties;
 import java.util.ResourceBundle;
 import java.util.Set;
 import java.util.Stack;
@@ -55,7 +56,7 @@ public class ParametrizedImportInputTemplate implements ProcessInputTemplate {
     ResourceBundleService resourceBundleService;
     
     @Override
-    public void renderInput(LRProcessDefinition definition, Writer writer) throws IOException {
+    public void renderInput(LRProcessDefinition definition, Writer writer, Properties paramsMapping) throws IOException {
         // root ?
         File homeFolder = new File(KConfiguration.getInstance().getProperty("import.directory")).getParentFile();
         InputStream iStream = this.getClass().getResourceAsStream("parametrizedimport.stg");
