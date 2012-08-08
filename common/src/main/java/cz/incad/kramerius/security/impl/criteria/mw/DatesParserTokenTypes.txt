@@ -1,0 +1,6 @@
+// $ANTLR 2.7.7 (2006-11-01): mwdates.g -> DatesParserTokenTypes.txt$
+DatesParser    // output token vocab name
+MINUS=4
+DIGIT=5
+DOT=6
+WS("white space")=7
