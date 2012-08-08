@@ -94,7 +94,7 @@ public class MovingWall extends AbstractCriterium implements RightCriterium {
                         result = resolveInternal(wallFromConf,pid,xp,biblioMods);
                         if (result !=null) break;
                     }
-                    // next 
+                    // try rest xpaths on dc
                     if(result == null) {
                         Document dc = getEvaluateContext().getFedoraAccess().getDC(pid);
                         for (String xp : DC_XPATHS) {
