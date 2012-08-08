@@ -4,10 +4,10 @@
     import java.util.*;
 
 public interface DatesParserTokenTypes {
-	int EOF = 1;
-	int NULL_TREE_LOOKAHEAD = 3;
-	int MINUS = 4;
-	int DIGIT = 5;
-	int DOT = 6;
-	int WS = 7;
+    int EOF = 1;
+    int NULL_TREE_LOOKAHEAD = 3;
+    int DIGIT = 4;
+    int DOT = 5;
+    int MINUS = 6;
+    int WS = 7;
 }
