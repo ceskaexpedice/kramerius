@@ -17,10 +17,12 @@
 package cz.incad.kramerius.security.impl.criteria;
 
 import java.io.IOException;
+import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 import java.util.logging.Level;
 
@@ -37,6 +39,9 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.w3c.dom.Text;
 
+import antlr.RecognitionException;
+import antlr.TokenStreamException;
+
 import cz.incad.kramerius.FedoraNamespaceContext;
 import cz.incad.kramerius.FedoraNamespaces;
 import cz.incad.kramerius.ObjectPidsPath;
@@ -47,10 +52,14 @@ import cz.incad.kramerius.security.EvaluatingResult;
 import cz.incad.kramerius.security.RightCriteriumPriorityHint;
 import cz.incad.kramerius.security.SecuredActions;
 import cz.incad.kramerius.security.SpecialObjects;
+import cz.incad.kramerius.security.impl.criteria.mw.DateLexer;
+import cz.incad.kramerius.security.impl.criteria.mw.DatesParser;
 import cz.incad.kramerius.utils.XMLUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 
 /**
+ * Stena zkouma elementy 
+ * 
  * Stena, ktera pousti vsechny dokumenty, ktere jsou po datumu uvedenem v konfiguraci
  * 
  * Trida vzdy porovnava pouze datum uvedem v metadatech objektu, ktery je s pravem svazan.  
@@ -60,6 +69,10 @@ import cz.incad.kramerius.utils.conf.KConfiguration;
  */
 public class MovingWall extends AbstractCriterium implements RightCriterium {
 
+    public static String[] MODS_XPATHS={"//mods:originInfo/mods:dateIssued/text()","//mods:originInfo[@transliteration='publisher']/mods:dateIssued/text()"};
+    public static String[] DC_XPATHS={"//dc:date/text()"};
+
+    
     static java.util.logging.Logger LOGGER = java.util.logging.Logger.getLogger(MovingWall.class.getName());
     
     @Override
@@ -67,12 +80,29 @@ public class MovingWall extends AbstractCriterium implements RightCriterium {
         int wallFromConf = Integer.parseInt((String)getObjects()[0]);
         try {
 
+            
+            
             ObjectPidsPath[] pathsToRoot = getEvaluateContext().getPathsToRoot();
             EvaluatingResult result = null;
             for (ObjectPidsPath pth : pathsToRoot) {
                 String[] pids = pth.getPathFromLeafToRoot();
                 for (String pid : pids) {
-                    result = resolveInternal(wallFromConf, pid);
+                    
+                    // try all xpaths on mods
+                    Document biblioMods = getEvaluateContext().getFedoraAccess().getBiblioMods(pid);
+                    for (String xp : MODS_XPATHS) {
+                        result = resolveInternal(wallFromConf,pid,xp,biblioMods);
+                        if (result !=null) break;
+                    }
+                    // next 
+                    if(result == null) {
+                        Document dc = getEvaluateContext().getFedoraAccess().getDC(pid);
+                        for (String xp : DC_XPATHS) {
+                            result = resolveInternal(wallFromConf,pid,xp,dc);
+                            if (result !=null) break;
+                        }                        
+                    } 
+
                     if (result != null && result.equals(EvaluatingResult.TRUE)) return result; 
                 }
             }
@@ -95,32 +125,48 @@ public class MovingWall extends AbstractCriterium implements RightCriterium {
     //mods:originInfo 
     //
     
-    public EvaluatingResult resolveInternal(int wallFromConf, String pid) throws IOException, XPathExpressionException {
+    public EvaluatingResult resolveInternal(int wallFromConf, String pid, String xpath, Document xmlDoc) throws IOException, XPathExpressionException {
         if (pid.equals(SpecialObjects.REPOSITORY.getPid())) return EvaluatingResult.FALSE;
-        Document mods = getEvaluateContext().getFedoraAccess().getBiblioMods(pid);
+        return evaluateDoc(wallFromConf, xmlDoc, xpath);
+    }
 
+
+
+    public EvaluatingResult evaluateDoc(int wallFromConf, Document xmlDoc, String xPathExpression) throws XPathExpressionException {
         XPathFactory xpfactory = XPathFactory.newInstance();
         XPath xpath = xpfactory.newXPath();
         xpath.setNamespaceContext(new FedoraNamespaceContext());
-        XPathExpression expr = xpath.compile("//mods:originInfo[@transliteration='publisher']/mods:dateIssued/text()");
-        Object date = expr.evaluate(mods, XPathConstants.NODE);
+        XPathExpression expr = xpath.compile(xPathExpression);
+        Object date = expr.evaluate(xmlDoc, XPathConstants.NODE);
         if (date != null) {
-            String year = ((Text) date).getData();
+            String patt = ((Text) date).getData();
 
-            int biblioModsYear = Integer.parseInt(year);
-            
-            Calendar calFromMetadata = Calendar.getInstance();
-            calFromMetadata.set(Calendar.YEAR, biblioModsYear);
-            
-            Calendar calFromConf = Calendar.getInstance();
-            calFromConf.add(Calendar.YEAR, -1*wallFromConf);
+            try {
+                DatesParser dateParse = new DatesParser(new DateLexer(new StringReader(patt)));
+                Date parsed = dateParse.dates();
 
-            return calFromMetadata.before(calFromConf) ?  EvaluatingResult.TRUE:EvaluatingResult.FALSE;
+                Calendar calFromMetadata = Calendar.getInstance();
+                calFromMetadata.setTime(parsed);
+
+                Calendar calFromConf = Calendar.getInstance();
+                calFromConf.add(Calendar.YEAR, -1*wallFromConf);
+
+                return calFromMetadata.before(calFromConf) ?  EvaluatingResult.TRUE:EvaluatingResult.FALSE;
+                
+            } catch (RecognitionException e) {
+                LOGGER.log(Level.SEVERE,e.getMessage(),e);
+                LOGGER.log(Level.SEVERE,"Returning FALSE");
+                return EvaluatingResult.FALSE;
+            } catch (TokenStreamException e) {
+                LOGGER.log(Level.SEVERE,e.getMessage(),e);
+                LOGGER.log(Level.SEVERE,"Returning FALSE");
+                return EvaluatingResult.FALSE;
+            }
+            
         }
 
         
         return null;
-        
     }
 
 
