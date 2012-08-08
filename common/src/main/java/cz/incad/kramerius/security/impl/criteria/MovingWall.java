@@ -58,7 +58,6 @@ import cz.incad.kramerius.utils.XMLUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 
 /**
- * Stena zkouma elementy 
  * 
  * Stena, ktera pousti vsechny dokumenty, ktere jsou po datumu uvedenem v konfiguraci
  * 
@@ -107,26 +106,23 @@ public class MovingWall extends AbstractCriterium implements RightCriterium {
                 }
             }
 
-            return result != null ? result :EvaluatingResult.FALSE;
+            return result != null ? result :EvaluatingResult.NOT_APPLICABLE;
         } catch (NumberFormatException e) {
             LOGGER.log(Level.SEVERE,e.getMessage());
-            return EvaluatingResult.FALSE;
+            return EvaluatingResult.NOT_APPLICABLE;
         } catch (IOException e) {
             LOGGER.log(Level.SEVERE,e.getMessage());
-            return EvaluatingResult.FALSE;
+            return EvaluatingResult.NOT_APPLICABLE;
         } catch (XPathExpressionException e) {
             LOGGER.log(Level.SEVERE,e.getMessage());
-            return EvaluatingResult.FALSE;
+            return EvaluatingResult.NOT_APPLICABLE;
         }
     }
 
     
     
-    //mods:originInfo 
-    //
-    
     public EvaluatingResult resolveInternal(int wallFromConf, String pid, String xpath, Document xmlDoc) throws IOException, XPathExpressionException {
-        if (pid.equals(SpecialObjects.REPOSITORY.getPid())) return EvaluatingResult.FALSE;
+        if (pid.equals(SpecialObjects.REPOSITORY.getPid())) return EvaluatingResult.NOT_APPLICABLE;
         return evaluateDoc(wallFromConf, xmlDoc, xpath);
     }
 
@@ -155,12 +151,12 @@ public class MovingWall extends AbstractCriterium implements RightCriterium {
                 
             } catch (RecognitionException e) {
                 LOGGER.log(Level.SEVERE,e.getMessage(),e);
-                LOGGER.log(Level.SEVERE,"Returning FALSE");
-                return EvaluatingResult.FALSE;
+                LOGGER.log(Level.SEVERE,"Returning NOT_APPLICABLE");
+                return EvaluatingResult.NOT_APPLICABLE;
             } catch (TokenStreamException e) {
                 LOGGER.log(Level.SEVERE,e.getMessage(),e);
-                LOGGER.log(Level.SEVERE,"Returning FALSE");
-                return EvaluatingResult.FALSE;
+                LOGGER.log(Level.SEVERE,"Returning NOT_APPLICABLE");
+                return EvaluatingResult.NOT_APPLICABLE;
             }
             
         }
