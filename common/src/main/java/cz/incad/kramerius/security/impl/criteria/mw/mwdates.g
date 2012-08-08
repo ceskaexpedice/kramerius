@@ -74,7 +74,7 @@ dates returns[Date d] {d=null; Date rd=null,dd=null,rm=null,m=null; int ry=0,y=0
 rangeday returns[Date d] {d=null;int dd=0,m=0,y=0;}: dd=rangedaymonth m=daymonthpat y=year {d=dayToDate(dd,m,y);};
 
 /** Zpracuje pattern mm.-mm.yyyy */
-rangemonth returns[Date d] {d=null;int fm=0,sm=0,y=0;}: fm=daymonthpat MINUS sm=daymonthpat  y=year {d=monthToDate(sm,y);};
+rangemonth returns[Date d] {d=null;int sm=0,y=0;}: sm=rangedaymonth  y=year {d=monthToDate(sm,y);};
 
 /** Zpracuje pattern dd.mm.yyyy */
 day returns[Date d] {d=null;int dd=0,m=0,y=0;}: dd=daymonthpat m=daymonthpat y=year {d=dayToDate(dd,m,y);};
