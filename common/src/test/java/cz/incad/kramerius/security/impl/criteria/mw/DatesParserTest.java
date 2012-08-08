@@ -70,7 +70,10 @@ public class DatesParserTest {
 
     @Test
     public void shouldPass5() throws RecognitionException, TokenStreamException {
-        String date ="12. 9. 1991";
+        String date =" " +
+        		"12. " +
+        		"  9. 1991 " +
+        		"  ";
         DatesParser p = new DatesParser(new DateLexer(new StringReader(date)));
         Date parsed = p.dates();
         Assert.assertTrue("expecting year 1991 ",field(parsed,Calendar.YEAR) == 1991);
