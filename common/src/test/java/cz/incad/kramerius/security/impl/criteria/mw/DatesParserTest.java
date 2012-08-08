@@ -46,6 +46,7 @@ public class DatesParserTest {
         Assert.assertTrue("expecting year 1991 ",field(parsed,Calendar.YEAR) == 1991);
         Assert.assertTrue("expecting month december (Calendar.DECEMBER = 11) ",field(parsed,Calendar.MONTH) == 11);
     }
+    
 
     @Test
     public void shouldPass3() throws RecognitionException, TokenStreamException {
@@ -79,6 +80,14 @@ public class DatesParserTest {
         Assert.assertTrue("expecting year 1991 ",field(parsed,Calendar.YEAR) == 1991);
         Assert.assertTrue("expecting month september (Calendar.SEPTEMBER = 8) ",field(parsed,Calendar.MONTH) == 8);
         Assert.assertTrue("expecting day 12 ",field(parsed,Calendar.DAY_OF_MONTH) == 12);
+    }
+
+    @Test
+    public void shouldPass6() throws RecognitionException, TokenStreamException {
+        String date =" 1991 - 1992 ";
+        DatesParser p = new DatesParser(new DateLexer(new StringReader(date)));
+        Date parsed = p.dates();
+        Assert.assertTrue("expecting year 1992 ",field(parsed,Calendar.YEAR) == 1992);
     }
 
     @Test
