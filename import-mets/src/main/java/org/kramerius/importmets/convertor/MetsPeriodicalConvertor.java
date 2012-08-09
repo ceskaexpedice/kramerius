@@ -260,8 +260,17 @@ public class MetsPeriodicalConvertor extends BaseConvertor {
     }
 
     private void setDCModelAndPolicy(OaiDcType dc, String model, String policy){
-        dc.getTitleOrCreatorOrSubject().add(dcObjectFactory.createType(createDcElementType(model)));
-        dc.getTitleOrCreatorOrSubject().add(dcObjectFactory.createRights(createDcElementType(policy)));
+        List<JAXBElement<ElementType>> dclist = dc.getTitleOrCreatorOrSubject();
+        boolean containsTypeElement = false;//check if DC already contains some type element
+        for (JAXBElement<ElementType> el:dclist){
+            if ("type".equalsIgnoreCase(el.getName().getLocalPart())){
+                containsTypeElement=true;
+            }
+        }
+        if (!containsTypeElement){
+            dclist.add(dcObjectFactory.createType(createDcElementType(model)));
+        }
+        dclist.add(dcObjectFactory.createRights(createDcElementType(policy)));
     }
 
 
