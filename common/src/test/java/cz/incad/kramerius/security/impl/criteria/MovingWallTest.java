@@ -97,10 +97,12 @@ public class MovingWallTest {
         .withConstructor(KConfiguration.getInstance())
         .addMockedMethod("getFedoraDescribeStream")
         .addMockedMethod("getBiblioMods")
+        .addMockedMethod("getDC")
         .createMock();
         
         EasyMock.expect(fa33.getFedoraDescribeStream()).andReturn(DataPrepare.fedoraProfile33());
         DataPrepare.drobnustkyMODS(fa33);
+        DataPrepare.drobnustkyDCS(fa33);
         
  
         SolrAccess solrAccess = EasyMock.createMock(SolrAccess.class);
