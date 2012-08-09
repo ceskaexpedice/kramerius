@@ -100,6 +100,7 @@
       <!-- like button -->
       <td id="fbbutton" class="fb">
         <!--  place for fb -->
+        <fb:like id="fbbutton_elm"   send="false" width="16"  layout="button_count" show_faces="false"></fb:like>
       </td>
      </c:if>
 
