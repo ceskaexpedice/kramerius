@@ -68,7 +68,7 @@ import cz.incad.kramerius.utils.conf.KConfiguration;
  */
 public class MovingWall extends AbstractCriterium implements RightCriterium {
 
-    public static String[] MODS_XPATHS={"//mods:originInfo/mods:dateIssued/text()","//mods:originInfo[@transliteration='publisher']/mods:dateIssued/text()"};
+    public static String[] MODS_XPATHS={"//mods:originInfo/mods:dateIssued/text()","//mods:originInfo[@transliteration='publisher']/mods:dateIssued/text()","//mods:part/mods:date/text()"};
     public static String[] DC_XPATHS={"//dc:date/text()"};
 
     
@@ -78,8 +78,6 @@ public class MovingWall extends AbstractCriterium implements RightCriterium {
     public EvaluatingResult evalute() throws RightCriteriumException {
         int wallFromConf = Integer.parseInt((String)getObjects()[0]);
         try {
-
-            
             
             ObjectPidsPath[] pathsToRoot = getEvaluateContext().getPathsToRoot();
             EvaluatingResult result = null;
@@ -93,6 +91,7 @@ public class MovingWall extends AbstractCriterium implements RightCriterium {
                         result = resolveInternal(wallFromConf,pid,xp,biblioMods);
                         if (result !=null) break;
                     }
+                    
                     // try rest xpaths on dc
                     if(result == null) {
                         Document dc = getEvaluateContext().getFedoraAccess().getDC(pid);
@@ -101,8 +100,9 @@ public class MovingWall extends AbstractCriterium implements RightCriterium {
                             if (result !=null) break;
                         }                        
                     } 
-
-                    if (result != null && result.equals(EvaluatingResult.TRUE)) return result; 
+                    
+                    // TRUE or FALSE -> rozhodnul, nevratil NOT_APPLICABLE
+                    if (result != null && (result.equals(EvaluatingResult.TRUE) ||  result.equals(EvaluatingResult.FALSE))) return result; 
                 }
             }
 
