@@ -69,7 +69,6 @@ import cz.incad.kramerius.utils.conf.KConfiguration;
 public class MovingWall extends AbstractCriterium implements RightCriterium {
 
     public static String[] MODS_XPATHS={"//mods:originInfo/mods:dateIssued/text()","//mods:originInfo[@transliteration='publisher']/mods:dateIssued/text()","//mods:part/mods:date/text()"};
-    public static String[] DC_XPATHS={"//dc:date/text()"};
 
     
     static java.util.logging.Logger LOGGER = java.util.logging.Logger.getLogger(MovingWall.class.getName());
@@ -92,14 +91,6 @@ public class MovingWall extends AbstractCriterium implements RightCriterium {
                         if (result !=null) break;
                     }
                     
-                    // try rest xpaths on dc
-                    if(result == null) {
-                        Document dc = getEvaluateContext().getFedoraAccess().getDC(pid);
-                        for (String xp : DC_XPATHS) {
-                            result = resolveInternal(wallFromConf,pid,xp,dc);
-                            if (result !=null) break;
-                        }                        
-                    } 
                     
                     // TRUE or FALSE -> rozhodnul, nevratil NOT_APPLICABLE
                     if (result != null && (result.equals(EvaluatingResult.TRUE) ||  result.equals(EvaluatingResult.FALSE))) return result; 
