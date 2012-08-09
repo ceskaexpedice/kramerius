@@ -58,8 +58,11 @@ public class ProcessStarter {
     public static final String MAIN_CLASS_KEY = "mainClass";
     public static final String UUID_KEY = "uuid";
     public static final String TOKEN_KEY = "token";
+    public static final String AUTOMATIC_CLOSE_TOKEN="shouldCloseToken";
     public static final String CLASSPATH_NAME = "CLASSPATH";
 
+    
+    
     public static final String SOUT_FILE = "SOUT";
     public static final String SERR_FILE = "SERR";
 
@@ -133,6 +136,12 @@ public class ProcessStarter {
                 } catch (Exception e1) {
                     LOGGER.log(Level.SEVERE, e.getMessage(), e);
                 }
+            }
+        } finally {        
+            String uuid = System.getProperty(ProcessStarter.UUID_KEY);
+            String closeTokenFlag = System.getProperty(AUTOMATIC_CLOSE_TOKEN,"true");
+            if (closeTokenFlag != null && closeTokenFlag.trim().toLowerCase().equals("true")) {
+                ProcessUtils.closeToken(uuid);
             }
         }
     }
