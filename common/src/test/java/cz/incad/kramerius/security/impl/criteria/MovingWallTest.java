@@ -46,16 +46,6 @@ import cz.incad.kramerius.utils.pid.LexerException;
 public class MovingWallTest {
 
     
-    public static Map<String, ObjectPidsPath> PATHS_MAPPING = new HashMap<String, ObjectPidsPath>(); static {
-        // monograph -> page
-        PATHS_MAPPING.put(DataPrepare.DROBNUSTKY_PIDS[0], new ObjectPidsPath(DataPrepare.DROBNUSTKY_PIDS[0]));
-        for (int i = 0; i < DataPrepare.DROBNUSTKY_PIDS.length; i++) {
-            String pid = DataPrepare.DROBNUSTKY_PIDS[i];
-            if (i > 0) {
-                PATHS_MAPPING.put(pid, new ObjectPidsPath(DataPrepare.DROBNUSTKY_PIDS[0],pid));
-            }
-        }
-    }
 
     // Drobnustky
     @Test
@@ -91,7 +81,17 @@ public class MovingWallTest {
         EvaluatingResult evaluated = mw(movingWallFromGUI, requestedPID);
         Assert.assertEquals(evaluated, EvaluatingResult.FALSE);
     }
+    
+    
+    @Test
+    public void testMW5() throws IOException, LexerException, ParserConfigurationException, SAXException, RightCriteriumException {
+        String movingWallFromGUI = "270";
+        String requestedPID = "uuid:b2f18fb0-91f6-11dc-9f72-000d606f5dc6";// volume;
+        EvaluatingResult evaluated = mw(movingWallFromGUI, requestedPID);
+        Assert.assertEquals(evaluated, EvaluatingResult.FALSE);
+    }
 
+    
     public EvaluatingResult mw(String movingWallFromGUI, String requestedPID) throws IOException, LexerException, ParserConfigurationException, SAXException, RightCriteriumException {
         FedoraAccessImpl fa33 = createMockBuilder(FedoraAccessImpl.class)
         .withConstructor(KConfiguration.getInstance())
@@ -103,12 +103,14 @@ public class MovingWallTest {
         EasyMock.expect(fa33.getFedoraDescribeStream()).andReturn(DataPrepare.fedoraProfile33());
         DataPrepare.drobnustkyMODS(fa33);
         DataPrepare.drobnustkyDCS(fa33);
-        
+ 
+        DataPrepare.narodniListyMods(fa33);
+        DataPrepare.narodniListyDCs(fa33);
  
         SolrAccess solrAccess = EasyMock.createMock(SolrAccess.class);
-        Set<String> keys = PATHS_MAPPING.keySet();
+        Set<String> keys = DataPrepare.PATHS_MAPPING.keySet();
         for (String key : keys) {
-            EasyMock.expect(solrAccess.getPath(key)).andReturn(new ObjectPidsPath[] { PATHS_MAPPING.get(key)}).anyTimes();
+            EasyMock.expect(solrAccess.getPath(key)).andReturn(new ObjectPidsPath[] { DataPrepare.PATHS_MAPPING.get(key)}).anyTimes();
         }
         
         replay(fa33, solrAccess);

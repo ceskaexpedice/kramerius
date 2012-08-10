@@ -1,0 +1,8 @@
+// $ANTLR 2.7.7 (2006-11-01): nparams.g -> ParamsParserTokenTypes.txt$
+ParamsParser    // output token vocab name
+LPAREN=4
+SEMI=5
+RPAREN=6
+ANY=7
+DOUBLEDOT=8
+ESC=9

@@ -481,4 +481,5 @@ public abstract class AbstractLRProcessImpl implements LRProcess{
     public void setFinishedTime(long finishedtime) {
         this.finishedTime = finishedtime;
     }
+
 }
