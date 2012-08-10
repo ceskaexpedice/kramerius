@@ -16,8 +16,6 @@ import antlr.RecognitionException;
 import antlr.TokenStreamException;
 
 import cz.incad.Kramerius.Initializable;
-import cz.incad.Kramerius.processes.ParamsLexer;
-import cz.incad.Kramerius.processes.ParamsParser;
 import cz.incad.kramerius.processes.BatchStates;
 import cz.incad.kramerius.processes.DefinitionManager;
 import cz.incad.kramerius.processes.LRPRocessFilter;
@@ -31,6 +29,8 @@ import cz.incad.kramerius.processes.TypeOfOrdering;
 import cz.incad.kramerius.processes.LRPRocessFilter.Tripple;
 import cz.incad.kramerius.processes.template.OutputTemplateFactory;
 import cz.incad.kramerius.service.ResourceBundleService;
+import cz.incad.kramerius.utils.params.ParamsLexer;
+import cz.incad.kramerius.utils.params.ParamsParser;
 
 public class ProcessesViewObject implements Initializable {
 

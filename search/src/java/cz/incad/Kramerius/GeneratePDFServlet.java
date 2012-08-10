@@ -35,8 +35,6 @@ import com.google.inject.name.Named;
 import com.lowagie.text.DocumentException;
 
 import cz.incad.Kramerius.backend.guice.GuiceServlet;
-import cz.incad.Kramerius.processes.ParamsLexer;
-import cz.incad.Kramerius.processes.ParamsParser;
 import cz.incad.kramerius.FedoraAccess;
 import cz.incad.kramerius.ObjectPidsPath;
 import cz.incad.kramerius.ProcessSubtreeException;
@@ -49,6 +47,8 @@ import cz.incad.kramerius.pdf.impl.ImageFetcher;
 import cz.incad.kramerius.pdf.utils.pdf.FontMap;
 import cz.incad.kramerius.utils.ApplicationURL;
 import cz.incad.kramerius.utils.conf.KConfiguration;
+import cz.incad.kramerius.utils.params.ParamsLexer;
+import cz.incad.kramerius.utils.params.ParamsParser;
 
 public class GeneratePDFServlet extends GuiceServlet {
 

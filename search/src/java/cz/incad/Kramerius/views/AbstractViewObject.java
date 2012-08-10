@@ -27,8 +27,8 @@ import com.google.inject.Provider;
 
 import antlr.RecognitionException;
 import antlr.TokenStreamException;
-import cz.incad.Kramerius.processes.ParamsLexer;
-import cz.incad.Kramerius.processes.ParamsParser;
+import cz.incad.kramerius.utils.params.ParamsLexer;
+import cz.incad.kramerius.utils.params.ParamsParser;
 
 public class AbstractViewObject {
 
