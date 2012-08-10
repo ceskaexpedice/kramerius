@@ -65,14 +65,6 @@ import cz.incad.kramerius.users.LoggedUsersSingleton;
 import cz.incad.kramerius.utils.params.ParamsLexer;
 import cz.incad.kramerius.utils.params.ParamsParser;
 
-// v komunikaci se nesmi objevit token
-
-// AKCE ze servletu
-//start,stop,form_get,form_post,outputTemplate,updatePID,updateStatus,updateName,delete
-
-//AKCE ze sluzby
-//getLongRunningProcess,getLongRunningProcessesAsGrouped,getLongRunningProcessesByToken -> get longrunning process by uuid
-
 
 @Path("/processes")
 public class LRResource {
