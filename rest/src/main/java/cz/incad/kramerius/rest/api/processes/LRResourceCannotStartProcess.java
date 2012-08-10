@@ -14,26 +14,17 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
-package cz.incad.kramerius.rest.api.guice;
+package cz.incad.kramerius.rest.api.processes;
 
-import com.sun.jersey.guice.JerseyServletModule;
-import com.sun.jersey.guice.spi.container.servlet.GuiceContainer;
+import javax.ws.rs.WebApplicationException;
+import javax.ws.rs.core.Response;
 
-import cz.incad.kramerius.rest.api.processes.LRResource;
-import cz.incad.kramerius.rest.api.replication.ReplicationsResource;
+import com.sun.jersey.api.Responses;
 
-/**
- * REST API module
- * @author pavels
- */
-public class ApiServletModule extends JerseyServletModule {
+public class LRResourceCannotStartProcess extends WebApplicationException{
 
-    @Override
-    protected void configureServlets() {
-        // API Resources
-        bind(ReplicationsResource.class);
-        bind(LRResource.class);
-        // api
-        serve("/api/*").with(GuiceContainer.class);
+    public LRResourceCannotStartProcess(String message) {
+        super(Response.status(Responses.PRECONDITION_FAILED).entity(message).type("text/plain").build());
     }
+
 }
