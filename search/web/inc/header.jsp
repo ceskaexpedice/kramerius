@@ -16,15 +16,17 @@
 </div>
 <c:if test="${cols.current != null}">
 <div id="current_vc">
-     <a title="<fmt:message bundle="${lctx}" key="filter.remove_criteria" />" class="mainNav" href="javascript:removeVirtualCollection();">
+     <span class="mainNav" href="javascript:leaveVirtualCollection();">
          ${cols.currentText}
-     </a>
+     </span>
+     <a id="leave_vc" title="<view:msg>search.leave.virtual.collection</view:msg>" href="javascript:leaveVirtualCollection();" style="float:right;margin-top:5px;margin-left:5px;" class="ui-icon ui-icon-arrowreturnthick-1-w">leave virtual collection</a>
 </div>
 </c:if>
 <script type="text/javascript">
     $('#main_menu_in a').button();
     $('#searchFormDiv a').button();
-    function removeVirtualCollection(){
+    $('#leave_vc').button();
+    function leaveVirtualCollection(){
     
         var page = new PageQuery(window.location.search);
 
