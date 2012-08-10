@@ -131,7 +131,7 @@
             </xsl:choose>
         </xsl:variable>
         <xsl:variable name="model"><xsl:value-of select="concat('fedora.model.', ./str[@name='fedora.model'])" /></xsl:variable>
-        <table><tr><td valign="top">
+        <table><tr><td valign="top" class="cellThumb">
         <div class="resultThumb" valign="top">
             <a>
                 <xsl:attribute name="href"><xsl:value-of select="normalize-space($link)"/></xsl:attribute>

@@ -279,6 +279,8 @@ a.image:hover {
 .resultThumb{
     float:left;
     padding-right:5px;
+    max-width: 150px;
+    overflow: hidden;
 }
 .resultText{
     /*padding:5px;*/
@@ -421,7 +423,8 @@ div.search_result{
         top: 5px;
     }  
 
-    #current_vc a{
+    #current_vc>span{
+        color: #E66C00;
         font-size: 2.2em;
     }
 

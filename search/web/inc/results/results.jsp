@@ -254,6 +254,7 @@ $(document).ready(function(){
         }
         $('.search_result').css('width', w);
         
+        $('.search_result .resultThumb').css('max-width', w/2);
     }
 
     function checkHeight(offset){
