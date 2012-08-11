@@ -13,7 +13,7 @@ public class Foxml {
     private ModsDefinition mods;
     private OaiDcType dc;
     private RelsExt re;
-    private List<ImageRepresentation> files;
+    private List<FileDescriptor> files;
     private StringBuilder ocr = null;
     private StringBuilder struct = null;
 
@@ -47,12 +47,12 @@ public class Foxml {
     public void setRe(RelsExt re) {
         this.re = re;
     }
-    public List<ImageRepresentation> getFiles() {
+    public List<FileDescriptor> getFiles() {
         return files;
     }
-    public void addFiles(ImageRepresentation file) {
+    public void addFiles(FileDescriptor file) {
         if (this.files == null){
-            this.files = new ArrayList<ImageRepresentation>();
+            this.files = new ArrayList<FileDescriptor>();
         }
         this.files.add(file);
     }

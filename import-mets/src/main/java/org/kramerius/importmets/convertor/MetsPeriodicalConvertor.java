@@ -22,9 +22,10 @@ import org.kramerius.dc.ElementType;
 import org.kramerius.dc.OaiDcType;
 import org.kramerius.importmets.valueobj.ConvertorConfig;
 import org.kramerius.importmets.valueobj.Foxml;
-import org.kramerius.importmets.valueobj.ImageRepresentation;
+import org.kramerius.importmets.valueobj.FileDescriptor;
 import org.kramerius.importmets.valueobj.RelsExt;
 import org.kramerius.importmets.valueobj.ServiceException;
+import org.kramerius.importmets.valueobj.StreamFileType;
 import org.kramerius.mets.AreaType;
 import org.kramerius.mets.DivType;
 import org.kramerius.mets.DivType.Fptr;
@@ -159,14 +160,13 @@ public class MetsPeriodicalConvertor extends BaseConvertor {
         int filecounter = 0;
         FileSec fsec = mets.getFileSec();
         for (FileGrp fGrp : fsec.getFileGrp()) {
+            String grpId = fGrp.getID();
+            StreamFileType groupType = getFileType(grpId);
             for (FileType file : fGrp.getFile()) {
                 String id = file.getID();
                 FLocat fl = firstItem(file.getFLocat());
-                String name = fl.getHref();
-                /*if (KConfiguration.getInstance().getConfiguration().getBoolean("convert.userCopy", true)){
-                    name = name.replace("masterCopy/MC", "userCopy/UC");
-                }*/
-                fileMap.put(id, name);
+                String name = fl.getHref().replace("\\", "/");
+                fileMap.put(id, new FileDescriptor(name,groupType));
                 filecounter++;
             }
         }
@@ -233,17 +233,20 @@ public class MetsPeriodicalConvertor extends BaseConvertor {
 
             for (Fptr fptr : pageDiv.getFptr()) {
                     FileType fileId = (FileType) fptr.getFILEID();
-                    String fileName = fileMap.get(fileId.getID());
+                    FileDescriptor fileDesc = fileMap.get(fileId.getID());
+                    if (fileDesc == null){
+                        throw new ServiceException("Invalid file pointer:"+fileId.getID());
+                    }
                     if (KConfiguration.getInstance().getConfiguration().getBoolean("convert.userCopy", true)){
-                        if (fileId.getID().startsWith(MC_PREFIX)){
+                        if (StreamFileType.MASTER_IMAGE.equals(fileDesc.getFileType())){
                             continue;
                         }
                     }else{
-                        if (fileId.getID().startsWith(UC_PREFIX)){
+                        if (StreamFileType.USER_IMAGE.equals(fileDesc.getFileType())){
                             continue;
                         }
                     }
-                    page.addFiles(new ImageRepresentation(fileName, getFileType(fileId.getID())));
+                    page.addFiles(fileDesc);
                     filePageMap.put(fileId.getID(),page.getPid());//map file ID to page uuid - for collecting alto references from struct map in method collectAlto
             }
 
@@ -437,7 +440,7 @@ public class MetsPeriodicalConvertor extends BaseConvertor {
     private Alto getAlto(String id){
         Alto retval = altoMap.get(id);
         if (retval == null){
-            String fileLoc = fileMap.get(id);
+            String fileLoc = fileMap.get(id).getFilename();
             if (fileLoc != null){
                 try {
                     retval = (Alto) unmarshallerALTO.unmarshal(new File(config.getImportFolder()+ System.getProperty("file.separator")+fileLoc));

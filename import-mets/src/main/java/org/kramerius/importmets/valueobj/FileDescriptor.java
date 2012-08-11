@@ -5,7 +5,7 @@ package org.kramerius.importmets.valueobj;
  *
  * @author xholcik
  */
-public class ImageRepresentation {
+public class FileDescriptor {
 
     private String filename;
 
@@ -13,7 +13,7 @@ public class ImageRepresentation {
 
 
 
-    public ImageRepresentation(String filename, StreamFileType fileType) {
+    public FileDescriptor(String filename, StreamFileType fileType) {
         super();
         this.filename = filename;
         this.fileType = fileType;

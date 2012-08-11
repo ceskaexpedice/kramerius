@@ -17,7 +17,7 @@ import org.apache.commons.lang.math.NumberUtils;
 import org.kramerius.importmets.valueobj.ConvertorConfig;
 import org.kramerius.importmets.valueobj.DublinCore;
 import org.kramerius.importmets.valueobj.ImageMetaData;
-import org.kramerius.importmets.valueobj.ImageRepresentation;
+import org.kramerius.importmets.valueobj.FileDescriptor;
 import org.kramerius.importmets.valueobj.RelsExt;
 import org.kramerius.importmets.valueobj.ServiceException;
 
@@ -180,7 +180,7 @@ public class MonographConvertor extends BaseConvertor {
         }
 
 
-        ImageRepresentation[] files = new ImageRepresentation[1];
+        FileDescriptor[] files = new FileDescriptor[1];
         if (mono.getTechnicalDescription() != null) {
           //TODO files[0] = this.createImageRepresentation(null, mono.getTechnicalDescription(), null);
         }
@@ -252,7 +252,7 @@ public class MonographConvertor extends BaseConvertor {
 
         RelsExt re = new RelsExt(pid, MODEL_PAGE);
 
-        List<ImageRepresentation> files = new ArrayList<ImageRepresentation>(2);
+        List<FileDescriptor> files = new ArrayList<FileDescriptor>(2);
         for (PageRepresentation r : page.getPageRepresentation()) {
             if (r.getPageImage() != null) {
               //TODO files.add(this.createImageRepresentation(r.getPageImage().getHref(), r.getTechnicalDescription(), r.getUniqueIdentifier()));
@@ -289,7 +289,7 @@ public class MonographConvertor extends BaseConvertor {
         String uuid = uuid(unit.getUniqueIdentifier());
         String pid = pid(uuid);
         boolean visibility = isPublic(uuid, parentVisibility, "m_monographunit");
-        List<ImageRepresentation> files = new ArrayList<ImageRepresentation>(2);
+        List<FileDescriptor> files = new ArrayList<FileDescriptor>(2);
         for (MonographUnitRepresentation r : unit.getMonographUnitRepresentation()) {
             if (r.getUniqueIdentifier() != null) {
                 log.warn(WARN_MUR_EMPTY_UID + ": pid=" + pid);
@@ -362,7 +362,7 @@ public class MonographConvertor extends BaseConvertor {
         String pid = pid(uuid);
         //String title = first(part.getPageNumber().getContent());
         String title = first((part.getTitle() == null || part.getTitle().getMainTitle() == null) ? null : part.getTitle().getMainTitle().getContent());
-        ImageRepresentation[] binaryObjects = this.getComponentPartBinaryObjects(part.getMonographComponentPartRepresentation());
+        FileDescriptor[] binaryObjects = this.getComponentPartBinaryObjects(part.getMonographComponentPartRepresentation());
 
         RelsExt re = new RelsExt(pid, MODEL_INTERNAL_PART);
 
@@ -387,20 +387,20 @@ public class MonographConvertor extends BaseConvertor {
       //TODO this.marshalDigitalObject(foxmlPart);
     }
 
-    private ImageRepresentation[] getComponentPartBinaryObjects(MonographComponentPartRepresentation representation) {
+    private FileDescriptor[] getComponentPartBinaryObjects(MonographComponentPartRepresentation representation) {
         if (representation != null) {
-            ImageRepresentation image = null;
+            FileDescriptor image = null;
             PartInImage pii = representation.getPartInImage();
             if (pii != null) {
               //TODO image = this.createImageRepresentation(pii.getHref(), representation.getTechnicalDescription(), representation.getUniqueIdentifier());
             }
-            ImageRepresentation text = null;
+            FileDescriptor text = null;
             PartInText pit = representation.getPartInText();
             if (pit != null) {
               //TODO  text = this.createImageRepresentation(pit.getHref(), null, representation.getUniqueIdentifier());
             }
 
-            return new ImageRepresentation[] { image, text };
+            return new FileDescriptor[] { image, text };
         } else {
             return null;
         }

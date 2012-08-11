@@ -53,7 +53,7 @@ import org.kramerius.importmets.valueobj.ConvertorConfig;
 import org.kramerius.importmets.valueobj.DublinCore;
 import org.kramerius.importmets.valueobj.Foxml;
 import org.kramerius.importmets.valueobj.ImageMetaData;
-import org.kramerius.importmets.valueobj.ImageRepresentation;
+import org.kramerius.importmets.valueobj.FileDescriptor;
 import org.kramerius.importmets.valueobj.RelsExt;
 import org.kramerius.importmets.valueobj.ServiceException;
 import org.kramerius.importmets.valueobj.StreamFileType;
@@ -206,7 +206,7 @@ public abstract class BaseConvertor {
     /**
      * mapa fileId -> fileName;
      */
-    protected Map<String, String> fileMap = new HashMap<String, String>();
+    protected Map<String, FileDescriptor> fileMap = new HashMap<String, FileDescriptor>();
 
     /*
      * mapa logicalDivId -> FOXML reprezentace
@@ -388,7 +388,7 @@ public abstract class BaseConvertor {
      * @param files
      * @throws ServiceException
      */
-    protected final void setCommonStreams(DigitalObject foxmlObject,  Element dc, Element re, Element mods, String policyID, ImageRepresentation[] files)
+    protected final void setCommonStreams(DigitalObject foxmlObject,  Element dc, Element re, Element mods, String policyID, FileDescriptor[] files)
             throws ServiceException {
         // /== DUBLIN CORE
         DatastreamType dcStream = this.createDublinCoreStream(dc);
@@ -683,15 +683,16 @@ public abstract class BaseConvertor {
      * @param files
      * @throws ServiceException
      */
-    private void addBase64Streams(DigitalObject foxmlObject, ImageRepresentation[] files) throws ServiceException {
+    private void addBase64Streams(DigitalObject foxmlObject, FileDescriptor[] files) throws ServiceException {
         if (files != null) {
-            for (ImageRepresentation f : files) {
+            for (FileDescriptor f : files) {
                 if (f != null) {
 
                     File imageFile = new File(getConfig().getImportFolder() + System.getProperty("file.separator") + f.getFilename());
                     if (imageFile.exists() && imageFile.canRead()) {
                         switch (f.getFileType()){
-                            case IMAGE:
+                            case MASTER_IMAGE:
+                            case USER_IMAGE:
                                 BufferedImage img = null;
                                 try{
                                     img = readImage(getConfig().getImportFolder() + System.getProperty("file.separator") + f.getFilename());
@@ -825,27 +826,26 @@ public abstract class BaseConvertor {
         return dcid;
     }
 
-    protected static final String MC_PREFIX = "MC_";
-    protected static final String UC_PREFIX = "UC_";
-    protected static final String ALTO_PREFIX = "ALTO_";
-    protected static final String TXT_PREFIX = "TXT_";
-    protected static final String AMD_METS_PREFIX = "AMD_METS_";
+    protected static final String MC_GRP = "MC_IMGGRP";
+    protected static final String UC_GRP = "UC_IMGGRP";
+    protected static final String ALTO_GRP = "ALTOGRP";
+    protected static final String TXT_GRP = "TXTGRP";
+    protected static final String AMD_METS_GRP = "TECHMDGRP";
 
 
-    protected StreamFileType getFileType(String fullPrefix){
-        if (fullPrefix == null){
-            throw new ServiceException("Unknown file type: NULL");
-        }
-        if (fullPrefix.startsWith(MC_PREFIX)||fullPrefix.startsWith(UC_PREFIX)){
-            return StreamFileType.IMAGE;
-        } else if (fullPrefix.startsWith(ALTO_PREFIX)){
+    protected StreamFileType getFileType(String filegrp){
+        if (MC_GRP.equalsIgnoreCase(filegrp)){
+            return StreamFileType.MASTER_IMAGE;
+        } else if (UC_GRP.equalsIgnoreCase(filegrp)){
+            return StreamFileType.USER_IMAGE;
+        } else if (ALTO_GRP.equalsIgnoreCase(filegrp)){
             return StreamFileType.ALTO;
-        } else if (fullPrefix.startsWith(TXT_PREFIX)){
+        } else if (TXT_GRP.equalsIgnoreCase(filegrp)){
             return StreamFileType.OCR;
-        } else if (fullPrefix.startsWith(AMD_METS_PREFIX)){
+        } else if (AMD_METS_GRP.equalsIgnoreCase(filegrp)){
             return StreamFileType.AMD;
         }
-        throw new ServiceException("Unknown file type: "+fullPrefix);
+        throw new ServiceException("Unknown fileGrp: "+filegrp);
     }
 
     /**
@@ -1561,7 +1561,7 @@ public abstract class BaseConvertor {
      * @param foxmlObject
      * @throws ServiceException
      */
-    protected DigitalObject createDigitalObject( String pid, String title, Element dc, Element re, Element mods, ImageRepresentation[] files) throws ServiceException {
+    protected DigitalObject createDigitalObject( String pid, String title, Element dc, Element re, Element mods, FileDescriptor[] files) throws ServiceException {
 
         if (log.isInfoEnabled()) {
             log.info(  "title=" + title + "; pid=" + pid); //TODO: log model
@@ -1580,9 +1580,9 @@ public abstract class BaseConvertor {
     }
 
     protected void exportFoxml(Foxml foxml){
-        ImageRepresentation[] files = null;
+        FileDescriptor[] files = null;
         if (foxml.getFiles()!= null && foxml.getFiles().size()>0){
-            files = foxml.getFiles().toArray(new ImageRepresentation[foxml.getFiles().size()]);
+            files = foxml.getFiles().toArray(new FileDescriptor[foxml.getFiles().size()]);
         }
         try{
         DigitalObject foxmlPeri = this.createDigitalObject( foxml.getPid(),foxml.getTitle(), createDublinCoreElement(foxml.getDc()), createRelsExtElement(foxml.getRe()), createBiblioModsElement(foxml.getMods()), files);
