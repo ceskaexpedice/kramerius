@@ -295,35 +295,47 @@ public class Import {
             Object obj = unmarshaller.unmarshal(importFile);
             if (obj instanceof DigitalObject){
                 DigitalObject dobj = (DigitalObject)obj;
+                boolean isRootObject = false;
+                String title = "";
                 for (DatastreamType ds : dobj.getDatastream()){
-                    if("DC".equals(ds.getID())){
+                    if("DC".equals(ds.getID())){//obtain title from DC stream
                         List<DatastreamVersionType> versions = ds.getDatastreamVersion();
                         if (versions!= null){
                             DatastreamVersionType v = versions.get(versions.size()-1);
                             XmlContentType dcxml = v.getXmlContent();
                             List<Element> elements = dcxml.getAny();
                             for (Element el:elements){
-                                NodeList types = el.getElementsByTagNameNS("http://purl.org/dc/elements/1.1/", "type");
+                                NodeList titles = el.getElementsByTagNameNS("http://purl.org/dc/elements/1.1/", "title");
+                                if (titles.getLength()>0){
+                                    title = titles.item(0).getTextContent();
+                                }
+                            }
+                        }
+                    }
+                    if("RELS-EXT".equals(ds.getID())){ //check for root model in RELS-EXT
+                        List<DatastreamVersionType> versions = ds.getDatastreamVersion();
+                        if (versions!= null){
+                            DatastreamVersionType v = versions.get(versions.size()-1);
+                            XmlContentType dcxml = v.getXmlContent();
+                            List<Element> elements = dcxml.getAny();
+                            for (Element el:elements){
+                                NodeList types = el.getElementsByTagNameNS("info:fedora/fedora-system:def/model#", "hasModel");
                                 for (int i= 0; i<types.getLength();i++){
-                                    String type = types.item(i).getTextContent();
-                                    if (type.startsWith("model:")){
-                                        String model = type.substring(6);
-
-                                        if (rootModels.contains(model)){
-                                            NodeList titles = el.getElementsByTagNameNS("http://purl.org/dc/elements/1.1/", "title");
-                                            String title = "";
-                                            if (titles.getLength()>0){
-                                                title = titles.item(0).getTextContent();
-                                            }
-                                            TitlePidTuple npt = new TitlePidTuple(title, dobj.getPID());
-                                            roots.add(npt);
-                                            log.info("Found object for indexing - "+npt);
-                                        }
+                                    String type = types.item(i).getAttributes().getNamedItemNS("http://www.w3.org/1999/02/22-rdf-syntax-ns#", "resource").getNodeValue();
+                                    if (type.startsWith("info:fedora/model:")){
+                                        String model = type.substring(18);//get the string after info:fedora/model:
+                                        isRootObject = rootModels.contains(model);
                                     }
                                 }
                             }
                         }
                     }
+                   
+                }
+                if (isRootObject){
+                    TitlePidTuple npt = new TitlePidTuple(title, dobj.getPID());
+                    roots.add(npt);
+                    log.info("Found object for indexing - "+npt);
                 }
             }
         }catch (Exception ex){
