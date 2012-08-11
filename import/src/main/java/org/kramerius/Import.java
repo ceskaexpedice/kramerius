@@ -80,7 +80,7 @@ public class Import {
     }
 
     public static void ingest(final String url, final String user, final String pwd, String importRoot) {
-        log.info("INGEST:"+url+user+pwd+importRoot);
+        log.finest("INGEST - url:"+url+" user:"+user+" pwd:"+pwd+" importRoot:"+importRoot);
         if (KConfiguration.getInstance().getConfiguration().getBoolean("ingest.skip",false)){
             log.info("INGEST CONFIGURED TO BE SKIPPED, RETURNING");
             return;
