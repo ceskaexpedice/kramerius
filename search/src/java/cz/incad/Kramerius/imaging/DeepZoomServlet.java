@@ -28,11 +28,17 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 import com.google.inject.Inject;
+import com.google.inject.Provider;
 
 import cz.incad.Kramerius.AbstractImageServlet;
 import cz.incad.kramerius.FedoraNamespaceContext;
+import cz.incad.kramerius.ObjectPidsPath;
+import cz.incad.kramerius.SolrAccess;
 import cz.incad.kramerius.imaging.DeepZoomCacheService;
 import cz.incad.kramerius.imaging.DeepZoomTileSupport;
+import cz.incad.kramerius.security.IsActionAllowed;
+import cz.incad.kramerius.security.SecuredActions;
+import cz.incad.kramerius.security.User;
 import cz.incad.kramerius.utils.FedoraUtils;
 import cz.incad.kramerius.utils.IOUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
@@ -52,6 +58,15 @@ public class DeepZoomServlet extends AbstractImageServlet {
     @Inject
     DeepZoomCacheService cacheService;
 
+    @Inject
+    IsActionAllowed actionAllowed;
+    
+    @Inject
+    Provider<User> userProvider;
+    
+    @Inject
+    SolrAccess solrAccess;
+    
     @Override
     public void init() throws ServletException {
         super.init();
@@ -60,29 +75,43 @@ public class DeepZoomServlet extends AbstractImageServlet {
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         try {
+            
             String requestURL = req.getRequestURL().toString();
             String zoomUrl = disectZoom(requestURL);
             StringTokenizer tokenizer = new StringTokenizer(zoomUrl, "/");
             String uuid = tokenizer.nextToken();
-
-            String stringMimeType = this.fedoraAccess.getImageFULLMimeType(uuid);
-            ImageMimeType mimeType = ImageMimeType.loadFromMimeType(stringMimeType);
-            if ((mimeType != null) && (!hasNoSupportForMimeType(mimeType))) {
-                resp.setStatus(HttpServletResponse.SC_NOT_IMPLEMENTED);
-            } else {
-                if (tokenizer.hasMoreTokens()) {
-                    String files = tokenizer.nextToken();
-                    String level = tokenizer.nextToken();
-                    String tile = tokenizer.nextToken();
-                    renderTile(uuid, level, tile, req, resp);
+            
+            ObjectPidsPath[] paths = solrAccess.getPath(uuid);
+            boolean premited = false;
+            for (ObjectPidsPath pth : paths) {
+                premited = this.actionAllowed.isActionAllowed(userProvider.get(), SecuredActions.READ.getFormalName(),null,uuid,pth);
+                if (premited) return;
+            }
+            
+            if (premited) {
+                String stringMimeType = this.fedoraAccess.getImageFULLMimeType(uuid);
+                ImageMimeType mimeType = ImageMimeType.loadFromMimeType(stringMimeType);
+                if ((mimeType != null) && (!hasNoSupportForMimeType(mimeType))) {
+                    resp.setStatus(HttpServletResponse.SC_NOT_IMPLEMENTED);
                 } else {
-                    if (this.fedoraAccess.isContentAccessible(uuid)) {
-                        renderDZI(uuid, req, resp);
+                    if (tokenizer.hasMoreTokens()) {
+                        String files = tokenizer.nextToken();
+                        String level = tokenizer.nextToken();
+                        String tile = tokenizer.nextToken();
+                        renderTile(uuid, level, tile, req, resp);
                     } else {
-                        resp.setStatus(HttpServletResponse.SC_FORBIDDEN);
+                        if (this.fedoraAccess.isContentAccessible(uuid)) {
+                            renderDZI(uuid, req, resp);
+                        } else {
+                            resp.setStatus(HttpServletResponse.SC_FORBIDDEN);
+                        }
                     }
                 }
+                
+            } else {
+                resp.sendError(HttpServletResponse.SC_FORBIDDEN);
             }
+            
         } catch (XPathExpressionException e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
         }
