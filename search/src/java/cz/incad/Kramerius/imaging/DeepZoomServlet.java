@@ -79,17 +79,17 @@ public class DeepZoomServlet extends AbstractImageServlet {
             String requestURL = req.getRequestURL().toString();
             String zoomUrl = disectZoom(requestURL);
             StringTokenizer tokenizer = new StringTokenizer(zoomUrl, "/");
-            String uuid = tokenizer.nextToken();
+            String pid = tokenizer.nextToken();
             
-            ObjectPidsPath[] paths = solrAccess.getPath(uuid);
+            ObjectPidsPath[] paths = solrAccess.getPath(pid);
             boolean premited = false;
             for (ObjectPidsPath pth : paths) {
-                premited = this.actionAllowed.isActionAllowed(userProvider.get(), SecuredActions.READ.getFormalName(),null,uuid,pth);
-                if (premited) return;
+                premited = this.actionAllowed.isActionAllowed(userProvider.get(), SecuredActions.READ.getFormalName(),null,pid,pth);
+                if (premited) break;
             }
             
             if (premited) {
-                String stringMimeType = this.fedoraAccess.getImageFULLMimeType(uuid);
+                String stringMimeType = this.fedoraAccess.getImageFULLMimeType(pid);
                 ImageMimeType mimeType = ImageMimeType.loadFromMimeType(stringMimeType);
                 if ((mimeType != null) && (!hasNoSupportForMimeType(mimeType))) {
                     resp.setStatus(HttpServletResponse.SC_NOT_IMPLEMENTED);
@@ -98,10 +98,10 @@ public class DeepZoomServlet extends AbstractImageServlet {
                         String files = tokenizer.nextToken();
                         String level = tokenizer.nextToken();
                         String tile = tokenizer.nextToken();
-                        renderTile(uuid, level, tile, req, resp);
+                        renderTile(pid, level, tile, req, resp);
                     } else {
-                        if (this.fedoraAccess.isContentAccessible(uuid)) {
-                            renderDZI(uuid, req, resp);
+                        if (this.fedoraAccess.isContentAccessible(pid)) {
+                            renderDZI(pid, req, resp);
                         } else {
                             resp.setStatus(HttpServletResponse.SC_FORBIDDEN);
                         }
