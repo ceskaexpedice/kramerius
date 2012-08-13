@@ -240,7 +240,7 @@
         </li>
         </xsl:if>
 
-        <xsl:if test="mods:physicalDescription/mods:note/text()">
+        <xsl:if test="mods:physicalDescription/mods:note[@type!='preservationStateOfArt']/text()">
         <h3><xsl:value-of select="$bundle/value[@key='Poznámky']"/></h3>
         <li>
             <span class="value"><xsl:value-of select="mods:physicalDescription/mods:note" /></span>
