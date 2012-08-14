@@ -213,9 +213,10 @@ public class LRProcessDefinitionImpl implements LRProcessDefinition {
 	}
 
 	@Override
-	public LRProcess createNewProcess(String token) {
+	public LRProcess createNewProcess(String authToken, String grpToken) {
 		LRProcess process = createProcessInternal();
-		process.setToken(token != null ? token : UUID.randomUUID().toString());
+		process.setGroupToken(grpToken != null ? grpToken : UUID.randomUUID().toString());
+		process.setAuthToken(authToken != null ? authToken : UUID.randomUUID().toString());
 		return process;
 	}
 

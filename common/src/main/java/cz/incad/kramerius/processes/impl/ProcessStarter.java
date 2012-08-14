@@ -58,6 +58,8 @@ public class ProcessStarter {
     public static final String MAIN_CLASS_KEY = "mainClass";
     public static final String UUID_KEY = "uuid";
     public static final String TOKEN_KEY = "token";
+    public static final String AUTH_TOKEN_KEY="authToken";
+    
     public static final String AUTOMATIC_CLOSE_TOKEN="shouldCloseToken";
     public static final String CLASSPATH_NAME = "CLASSPATH";
 
@@ -189,8 +191,10 @@ public class ProcessStarter {
             ByteArrayOutputStream bos = new ByteArrayOutputStream();
             URL url = new URL(restURL);
             URLConnection connection = url.openConnection();
+            // authentication token -> identify user
+            connection.addRequestProperty("auth-token",System.getProperty(AUTH_TOKEN_KEY));
+
             InputStream inputStream = connection.getInputStream();
-            
             byte[] buffer = new byte[1 << 12];
             int read = -1;
             while ((read = inputStream.read(buffer)) > 0) {

@@ -31,22 +31,22 @@ public class ProcessDatabaseUtils {
     public static final Logger LOGGER = Logger.getLogger(ProcessDatabaseUtils.class.getName());
 
 
-    public static void insertProcessMapping2RolesNotClosingOP(Connection con, String token, Role role) throws SQLException {
-        PreparedStatement prepareStatement = con.prepareStatement(
-            "insert into processes_2_role (token,role_id) values (?,?)");
-        prepareStatement.setString(1, token);
-        prepareStatement.setInt(2, role.getId());
-        
-        int r = prepareStatement.executeUpdate();
-        LOGGER.log(Level.FINEST, "CREATE TABLE: inserted rows {0}", r);
-    }
+//    public static void insertProcessMapping2RolesNotClosingOP(Connection con, String token, Role role) throws SQLException {
+//        PreparedStatement prepareStatement = con.prepareStatement(
+//            "insert into processes_2_role (token,role_id) values (?,?)");
+//        prepareStatement.setString(1, token);
+//        prepareStatement.setInt(2, role.getId());
+//        
+//        int r = prepareStatement.executeUpdate();
+//        LOGGER.log(Level.FINEST, "CREATE TABLE: inserted rows {0}", r);
+//    }
     
 
-    public static void insertProcessMapping2SessionId(Connection con, String token, int processId, int sessionKeyId) throws SQLException {
+    public static void insertProcessMapping2SessionId(Connection con, String authToken, int processId, int sessionKeyId) throws SQLException {
         PreparedStatement prepareStatement = con.prepareStatement(
             "insert into PROCESS_2_TOKEN (PROCESS_2_TOKEN_ID, " +
             "PROCESS_ID, " +
-            "TOKEN," +
+            "AUTH_TOKEN," +
             "SESSION_KEYS_ID) " +
             " " +
             "values (nextval('PROCESS_2_TOKEN_ID_SEQUENCE')," +
@@ -54,7 +54,7 @@ public class ProcessDatabaseUtils {
             "?," +
             "?)");
         prepareStatement.setInt(1, processId);
-        prepareStatement.setString(2, token);
+        prepareStatement.setString(2, authToken);
         prepareStatement.setInt(3, sessionKeyId);
         
         
@@ -108,7 +108,8 @@ public class ProcessDatabaseUtils {
                 "   USER_KEY," +
                 "   PARAMS_MAPPING , " + //11
                 "   BATCH_STATUS ," + //12
-                "   TOKEN_ACTIVE) " + //
+                "   TOKEN_ACTIVE, " + //
+                "   AUTH_TOKEN) " + // 13
                 "       values " +
                 "   (" +
                 "       ?," + //1 - DEFID
@@ -124,7 +125,8 @@ public class ProcessDatabaseUtils {
                 "       ?," + //10 USERKEY
                 "       ?," + //11 PARAMS_MAPPING
                 "       ?," + //12 BATCH_STATUS
-                "       TRUE" + //
+                "       TRUE," + //
+                "       ?" + //13 AUTH_TOKEN
                 "   )");
         try {
             prepareStatement.setString(1, lp.getDefinitionId());
@@ -146,13 +148,14 @@ public class ProcessDatabaseUtils {
             
             //prepareStatement.setInt(6, user.getId());
             
-            prepareStatement.setString(6, lp.getToken());
+            prepareStatement.setString(6, lp.getGroupToken());
             prepareStatement.setString(7, user.getLoginname());
             prepareStatement.setString(8, user.getFirstName());
             prepareStatement.setString(9, user.getSurname());
             prepareStatement.setString(10, loggedUserKey);
             prepareStatement.setString(11, storedParams);
             prepareStatement.setInt(12, lp.getBatchState().getVal());
+            prepareStatement.setString(13, lp.getAuthToken());
             
             prepareStatement.executeUpdate();
         } finally {
@@ -228,7 +231,7 @@ public class ProcessDatabaseUtils {
     public static List<String> getAssociatedTokens(String sessionKey, Connection connection) {
         List<String> list = new JDBCQueryTemplate<String>(connection, false) {
             public boolean handleRow(ResultSet rs, List<String> returnsList) throws SQLException {
-                returnsList.add(rs.getString("TOKEN"));
+                returnsList.add(rs.getString("auth_token"));
                 return true;
             }
         }.executeQuery("select m.*,sk.* from PROCESS_2_TOKEN m" +
@@ -246,7 +249,7 @@ public class ProcessDatabaseUtils {
             }
         }.executeQuery("select m.*,sk.* from PROCESS_2_TOKEN m" +
         		" join session_keys sk on (sk.session_keys_id = m.session_keys_id)" +
-        		" where token = ?", token);
+        		" where auth_token = ?", token);
         return list;
     }
 
@@ -257,17 +260,17 @@ public class ProcessDatabaseUtils {
                 returnsList.add(rs.getInt("process_id"));
                 return true;
             }
-        }.executeQuery("select * from processes where token = ?", lrProcess.getToken());
+        }.executeQuery("select * from processes where token = ?", lrProcess.getGroupToken());
         return !list.isEmpty() ? list.get(0) : -1;
     }
 
 
-    public static void updateTokenMapping(LRProcess lrProcess, Connection con, int sessionKeyId) throws SQLException {
+    public static void updateAuthTokenMapping(LRProcess lrProcess, Connection con, int sessionKeyId) throws SQLException {
         int id = getProcessId(lrProcess, con);
         if (id > -1) {
-            new JDBCUpdateTemplate(con, true).executeUpdate("insert into PROCESS_2_TOKEN (PROCESS_2_TOKEN_ID, PROCESS_ID, TOKEN,SESSION_KEYS_ID) " + "values (nextval('PROCESS_2_TOKEN_ID_SEQUENCE')," + "?,?,?)", id, lrProcess.getToken(), sessionKeyId);
+            new JDBCUpdateTemplate(con, true).executeUpdate("insert into PROCESS_2_TOKEN (PROCESS_2_TOKEN_ID, PROCESS_ID, AUTH_TOKEN,SESSION_KEYS_ID) " + "values (nextval('PROCESS_2_TOKEN_ID_SEQUENCE')," + "?,?,?)", id, lrProcess.getAuthToken(), sessionKeyId);
         } else {
-            throw new ProcessManagerException("cannot find process id associated with token "+lrProcess.getToken());
+            throw new ProcessManagerException("cannot find process id associated with token "+lrProcess.getGroupToken());
         }
     }
 
@@ -285,7 +288,7 @@ public class ProcessDatabaseUtils {
         if (id > -1) {
             new JDBCUpdateTemplate(con, true).executeUpdate("delete from PROCESS_2_TOKEN where process_id = ?", id);
         } else {
-            throw new ProcessManagerException("cannot find process id associated with token "+lrProcess.getToken());
+            throw new ProcessManagerException("cannot find process id associated with token "+lrProcess.getGroupToken());
         }
     }
 
@@ -294,7 +297,7 @@ public class ProcessDatabaseUtils {
     public static String [] QUERY_PROCESS_COLUMNS= {
         "p.DEFID,PID", "p.UUID", "p.STATUS", "p.PLANNED", "p.STARTED",
         "p.NAME AS PNAME", "p.PARAMS", "p.STARTEDBY", "p.TOKEN", "p.FINISHED", 
-        "p.loginname","p.surname","p.firstname","p.user_key","p.params_mapping", "p.batch_status" 
+        "p.loginname","p.surname","p.firstname","p.user_key","p.params_mapping", "p.batch_status","p.AUTH_TOKEN" 
     };
 
 

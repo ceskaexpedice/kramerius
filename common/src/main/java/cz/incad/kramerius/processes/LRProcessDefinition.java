@@ -49,10 +49,11 @@ public interface LRProcessDefinition {
 	
 	/**
 	 * Factory method that create new process
-	 * @param token TODO
+	 * @param authToken TODO
+	 * @param grpToken TODO
 	 * @return
 	 */
-	public LRProcess createNewProcess(String token);
+	public LRProcess createNewProcess(String authToken, String grpToken);
 	
 	/**
 	 * Factory method that crate some old process from given information

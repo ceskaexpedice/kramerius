@@ -8,6 +8,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Arrays;
+import java.util.logging.Level;
 
 import javax.imageio.stream.FileImageOutputStream;
 
@@ -177,9 +178,14 @@ public class FileSystemCacheServiceImpl implements DeepZoomCacheService {
                 
                 @Override
                 public void process(String pid, int level) throws ProcessSubtreeException {
-                    LOGGER.fine("caching page " + (pageIndex++));
-                    prepareCacheImage(pid, levelOverTileSize);
-                    
+                    try {
+                        if (fedoraAccess.isImageFULLAvailable(pid)) {
+                            LOGGER.fine("caching page " + (pageIndex++));
+                            prepareCacheImage(pid, levelOverTileSize);
+                        }
+                    } catch (IOException e) {
+                        LOGGER.log(Level.SEVERE,e.getMessage(),e);
+                    }
                 }
                 
                 @Override

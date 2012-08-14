@@ -243,6 +243,13 @@ public class LRPRocessFilter {
         private String valueOffset;
         private String r;
         
+        public static Op findByString(String opString) {
+            Op[] values = Op.values();
+            for (Op op : values) {
+                if (op.getRawString().equals(opString)) return op;
+            }
+            return null;
+        }
     }
     
     

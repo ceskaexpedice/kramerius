@@ -84,10 +84,10 @@ public interface LRProcessManager {
 	
 	/**
 	 * Returns all process by given token
-	 * @param token
+	 * @param grpToken
 	 * @return
 	 */
-    public List<LRProcess> getLongRunningProcessesByToken(String token);
+    public List<LRProcess> getLongRunningProcessesByGroupToken(String grpToken);
 	
 	/**
 	 * Returns number of running processes
@@ -139,15 +139,15 @@ public interface LRProcessManager {
 	 * @param lrProcess Started processs
 	 * @param sessionKey key represents logged user
 	 */
-	public void updateTokenMapping(LRProcess lrProcess, String sessionKey);
+	public void updateAuthTokenMapping(LRProcess lrProcess, String sessionKey);
 	
 	
 	/**
 	 * Returns session key associated with process
-	 * @param token Token associated with process
+	 * @param authToken Token associated with process
 	 * @return
 	 */
-	public String getSessionKey(String token);
+	public String getSessionKey(String authToken);
 	
 	/**
 	 * Returns true if there is any association betweeen process and session key
@@ -159,17 +159,17 @@ public interface LRProcessManager {
     
     /**
      * Sets given token as inactive
-     * @param token
+     * @param authToken
      */
-    public void closeToken(String token);
+    public void closeAuthToken(String authToken);
 
     
     /**
      * Returns true if given token is closed
-     * @param token
+     * @param authToken
      * @return
      */
-    public boolean isTokenClosed(String token);
+    public boolean isAuthTokenClosed(String authToken);
     
 	
 	/**

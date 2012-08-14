@@ -232,14 +232,19 @@ public interface LRProcess {
      * Returns token associated with this process
      * @return
      */
-    public String getToken();
+    public String getGroupToken();
     
     /**
      * Associate token with this process
      * @param token
      */
-    public void setToken(String token);
+    public void setGroupToken(String token);
 
+    public String getAuthToken();
+    
+    public void setAuthToken(String authToken);
+    
+    
     /**
      * Returns login name of the user (who has started this process)
      * @return

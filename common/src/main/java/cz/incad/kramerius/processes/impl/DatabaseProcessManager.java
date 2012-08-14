@@ -162,20 +162,25 @@ public class DatabaseProcessManager implements LRProcessManager {
     @Override
     public void deleteBatchLongRunningProcess(LRProcess longRunningProcess) {
         try {
-            final String token = longRunningProcess.getToken();
-            final List<LRProcess> childSubprecesses = getLongRunningProcessesByToken(token);
+            List<JDBCCommand> commands = new ArrayList<JDBCCommand>();
+            
+            final String token = longRunningProcess.getGroupToken();
+            final List<LRProcess> childSubprecesses = getLongRunningProcessesByGroupToken(token);
 
-            JDBCCommand deleteTokensMapping = new JDBCCommand() {
-                
-                @Override
-                public Object executeJDBCCommand(Connection con) throws SQLException {
-                    PreparedStatement prepareStatement = con.prepareStatement("delete from PROCESS_2_TOKEN where token = ?");
-                    prepareStatement.setString(1, token);
-                    return prepareStatement.executeUpdate();
-                }
-            };
+            for (final LRProcess lrProcess : childSubprecesses) {
+                commands.add(new JDBCCommand() {
+                    
+                    @Override
+                    public Object executeJDBCCommand(Connection con) throws SQLException {
+                        PreparedStatement prepareStatement = con.prepareStatement("delete from PROCESS_2_TOKEN where auth_token = ?");
+                        prepareStatement.setString(1, lrProcess.getAuthToken());
+                        return prepareStatement.executeUpdate();
+                    }
+                });
+            }
+            
 
-            JDBCCommand deleteProcess = new JDBCCommand() {
+            commands.add(new JDBCCommand() {
                 
                 @Override
                 public Object executeJDBCCommand(Connection con) throws SQLException {
@@ -183,7 +188,8 @@ public class DatabaseProcessManager implements LRProcessManager {
                     prepareStatement.setString(1, token);
                     return prepareStatement.executeUpdate();
                 }
-            };
+            });
+            
             JDBCTransactionTemplate.Callbacks callbacks = new JDBCTransactionTemplate.Callbacks() {
                 
                 @Override
@@ -205,7 +211,7 @@ public class DatabaseProcessManager implements LRProcessManager {
                 }
             };
             
-            new JDBCTransactionTemplate(connectionProvider.get(),true).updateWithTransaction(callbacks, deleteTokensMapping, deleteProcess);
+            new JDBCTransactionTemplate(connectionProvider.get(),true).updateWithTransaction(callbacks, (JDBCCommand[]) commands.toArray(new JDBCCommand[commands.size()]));
         } catch (SQLException e) {
             LOGGER.log(Level.SEVERE,e.getMessage(),e);
         }
@@ -389,6 +395,7 @@ public class DatabaseProcessManager implements LRProcessManager {
         String name = rs.getString("PNAME");
         String params = rs.getString("PARAMS");
         String token = rs.getString("TOKEN");
+        String authToken = rs.getString("AUTH_TOKEN");
         int startedBy = rs.getInt("STARTEDBY");
         String loginname = rs.getString("LOGINNAME");
         String firstname = rs.getString("FIRSTNAME");
@@ -405,7 +412,9 @@ public class DatabaseProcessManager implements LRProcessManager {
         
         LRProcess process = definition.loadProcess(uuid, pid, planned != null ? planned.getTime() : 0, States.load(status), BatchStates.load(batchStatus), name);
 
-        process.setToken(token);
+        process.setGroupToken(token);
+        process.setAuthToken(authToken);
+        
         if (started != null)
             process.setStartTime(started.getTime());
         if (params != null) {
@@ -431,7 +440,7 @@ public class DatabaseProcessManager implements LRProcessManager {
     }
 
     @Override
-    public List<LRProcess> getLongRunningProcessesByToken(String token) {
+    public List<LRProcess> getLongRunningProcessesByGroupToken(String token) {
         try {
             Connection con = this.connectionProvider.get();
             if (con == null)
@@ -567,17 +576,17 @@ public class DatabaseProcessManager implements LRProcessManager {
     
 
     @Override
-    public void closeToken(String token) {
+    public void closeAuthToken(String authToken) {
         Connection connection = connectionProvider.get();
         if (connection == null)
             throw new NotReadyException("connection not ready");
-        ProcessDatabaseUtils.updateTokenActive(connection, token, false);
+        ProcessDatabaseUtils.updateTokenActive(connection, authToken, false);
     }
 
 
     
     @Override
-    public boolean isTokenClosed(String token) {
+    public boolean isAuthTokenClosed(String authToken) {
         Connection connection = connectionProvider.get();
         if (connection == null)
             throw new NotReadyException("connection not ready");
@@ -589,7 +598,7 @@ public class DatabaseProcessManager implements LRProcessManager {
                 returnsList.add(rs.getBoolean("token_active"));
                 return super.handleRow(rs, returnsList);
             }
-        }.executeQuery("select token_active from processes where token=?", token);
+        }.executeQuery("select token_active from processes where auth_token=?", authToken);
         
         for (Boolean flag : flags) {
             if (!flag.booleanValue()) return true;
@@ -624,10 +633,10 @@ public class DatabaseProcessManager implements LRProcessManager {
 
 
     @Override
-    public String getSessionKey(String token) {
+    public String getSessionKey(String authToken) {
         Connection connection = this.connectionProvider.get();
         try {
-            List<String> list = ProcessDatabaseUtils.getAssociatedSessionKeys(token, connection);
+            List<String> list = ProcessDatabaseUtils.getAssociatedSessionKeys(authToken, connection);
             return !list.isEmpty() ? list.get(0) : null;
         } catch (Exception e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
@@ -638,11 +647,11 @@ public class DatabaseProcessManager implements LRProcessManager {
     }
 
     @Override
-    public void updateTokenMapping(LRProcess lrProcess, String sessionKey) {
+    public void updateAuthTokenMapping(LRProcess lrProcess, String sessionKey) {
         try {
             int sessionKeyId = this.loggedUsersSingleton.getSessionKeyId(sessionKey);
             if (sessionKeyId > -1) {
-                ProcessDatabaseUtils.updateTokenMapping(lrProcess, this.connectionProvider.get(), sessionKeyId);
+                ProcessDatabaseUtils.updateAuthTokenMapping(lrProcess, this.connectionProvider.get(), sessionKeyId);
             } else {
                 throw new ProcessManagerException("cannot find session associated with sessionKey '" + sessionKey + "'");
             }

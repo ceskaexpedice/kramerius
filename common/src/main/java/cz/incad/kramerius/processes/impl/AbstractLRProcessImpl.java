@@ -67,8 +67,10 @@ public abstract class AbstractLRProcessImpl implements LRProcess{
 	private User user;
 	private String loggedUserKey;
 	
-	private String token;
+	private String groupToken;
+	private String authToken;
 	private boolean masterProcess;
+
 	
 	private List<String> parameters = new ArrayList<String>();
 	
@@ -143,8 +145,9 @@ public abstract class AbstractLRProcessImpl implements LRProcess{
 
 			command.add("-D"+ProcessStarter.MAIN_CLASS_KEY+"="+this.definition.getMainClass());
 			command.add("-D"+ProcessStarter.UUID_KEY+"="+this.uuid);
-            command.add("-D"+ProcessStarter.TOKEN_KEY+"="+this.getToken());
-			
+            command.add("-D"+ProcessStarter.TOKEN_KEY+"="+this.getGroupToken());
+            command.add("-D"+ProcessStarter.AUTH_TOKEN_KEY+"="+this.getAuthToken());
+            
 			
 			File standardStreamFile = standardOutFile(processWorkingDir);
 			File errStreamFile = errorOutFile(processWorkingDir);
@@ -407,14 +410,28 @@ public abstract class AbstractLRProcessImpl implements LRProcess{
 
 
     @Override
-    public String getToken() {
-        return this.token;
+    public String getGroupToken() {
+        return this.groupToken;
     }
 
 
     @Override
-    public void setToken(String token) {
-        this.token = token;
+    public void setGroupToken(String token) {
+        this.groupToken = token;
+    }
+
+    
+    
+
+    @Override
+    public String getAuthToken() {
+        return this.authToken;
+    }
+
+
+    @Override
+    public void setAuthToken(String authToken) {
+        this.authToken = authToken;
     }
 
 
