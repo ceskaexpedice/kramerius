@@ -10,7 +10,7 @@
 
 
 <div id="socialbuttons_div" class="viewer socialbuttons" style="visibility: hidden; height: 0px;">
-     <c:if test="${gplus.buttonEnabled || fb.buttonEnabled}">
+     <c:if test="${gplus.buttonEnabled || fb.buttonEnabled || tweet.buttonEnabled}">
       <script type="text/javascript">
         // changing og metadata
         $('#socialbuttons_div.viewer').bind('viewReady', function(event, viewerOptions){

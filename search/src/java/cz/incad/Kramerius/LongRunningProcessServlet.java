@@ -66,8 +66,13 @@ import cz.incad.kramerius.utils.params.ParamsParser;
  */
 public class LongRunningProcessServlet extends GuiceServlet {
 
+    private static final String AUTH_TOKEN_HEADER_KEY = "auth-token";
+    private static final String TOKEN_ATTRIBUTE_KEY = "token";
+
+
     private static final long serialVersionUID = 1L;
 
+    
     public static final java.util.logging.Logger LOGGER = java.util.logging.Logger.getLogger(LongRunningProcessServlet.class.getName());
 
     @Inject
@@ -159,8 +164,9 @@ public class LongRunningProcessServlet extends GuiceServlet {
     
 
     public static LRProcess planNewProcess(HttpServletRequest request, ServletContext context, LRProcessDefinition definition,  String[] params, User user, String loggedUserKey, Properties paramsMapping) {
-        String token = request.getParameter("token");
-        LRProcess newProcess = definition.createNewProcess(token);
+        String token = request.getParameter(TOKEN_ATTRIBUTE_KEY);
+        String authToken = request.getHeader(AUTH_TOKEN_HEADER_KEY);
+        LRProcess newProcess = definition.createNewProcess(authToken, token);
         newProcess.setUser(user);
         newProcess.setLoggedUserKey(loggedUserKey);
         newProcess.setParameters(Arrays.asList(params));
@@ -185,7 +191,7 @@ public class LongRunningProcessServlet extends GuiceServlet {
     }
 
     private static void updateProcessTokenMapping(LRProcess nprocess,String loggedUserKey, LRProcessManager lrProcessManager) {
-        lrProcessManager.updateTokenMapping(nprocess, loggedUserKey);
+        lrProcessManager.updateAuthTokenMapping(nprocess, loggedUserKey);
     }
     
     static enum Actions {
@@ -201,8 +207,9 @@ public class LongRunningProcessServlet extends GuiceServlet {
                     String[] params = getParams(req);
                     //TODO: Zjisteni predavane autentizace 
                     SecuredActions actionFromDef = SecuredActions.findByFormalName(def);
-                    String token = req.getParameter("token");
-                    String loggedUserKey = findLoggedUserKey(req, lrProcessManager, token);
+                    String grpToken = req.getParameter(TOKEN_ATTRIBUTE_KEY);
+                    String authToken = req.getHeader(AUTH_TOKEN_HEADER_KEY);
+                    String loggedUserKey = findLoggedUserKey(req, lrProcessManager, grpToken);
                     User user = loggedUserSingleton.getUser(loggedUserKey);
                     if (user == null) {
                         // no user
@@ -355,7 +362,7 @@ public class LongRunningProcessServlet extends GuiceServlet {
                     String[] params = getParams(req);
                     //TODO: Zjisteni predavane autentizace 
                     SecuredActions actionFromDef = SecuredActions.findByFormalName(def);
-                    String token = req.getParameter("token"); 
+                    String token = req.getParameter(TOKEN_ATTRIBUTE_KEY); 
 
                     String loggedUserKey = findLoggedUserKey(req, processManager, token);
                     User user = loggedUserSingleton.getLoggedUser(loggedUserKey);
@@ -483,7 +490,7 @@ public class LongRunningProcessServlet extends GuiceServlet {
                     
                     
                     // nacteni z db ? 
-                    List<LRProcess> processes = processManager.getLongRunningProcessesByToken(longRunningProcess.getToken());
+                    List<LRProcess> processes = processManager.getLongRunningProcessesByGroupToken(longRunningProcess.getGroupToken());
                     if (processes.size() > 1) {
                         LOGGER.fine("calculating new master state");
                         List<States> childStates = new ArrayList<States>();
@@ -541,7 +548,7 @@ public class LongRunningProcessServlet extends GuiceServlet {
                 String uuid = req.getParameter("uuid");
                 if (uuid != null) {
                     LRProcess longRunningProcess = processManager.getLongRunningProcess(uuid);
-                    processManager.closeToken(longRunningProcess.getToken());
+                    processManager.closeAuthToken(longRunningProcess.getGroupToken());
                 }
             }
         },
@@ -560,6 +567,16 @@ public class LongRunningProcessServlet extends GuiceServlet {
                             processManager.deleteBatchLongRunningProcess(longRunningProcess);
                         } else {
                             processManager.deleteLongRunningProcess(longRunningProcess);
+                            
+                            // update state when delete process
+                            List<LRProcess> processes = processManager.getLongRunningProcessesByGroupToken(longRunningProcess.getGroupToken());
+                            if (!processes.isEmpty()) {
+                                List<States> sts = new ArrayList<States>();
+                                for (LRProcess lrProcess : processes) { sts.add(lrProcess.getProcessState()); }
+                                processes.get(0).setBatchState(BatchStates.calculateBatchState(sts));
+                                LOGGER.fine("calculated state '"+processes.get(0)+"'");
+                                processManager.updateLongRunninngProcessBatchState(processes.get(0));
+                            }
                         }
                     }
                     
@@ -575,8 +592,8 @@ public class LongRunningProcessServlet extends GuiceServlet {
         public String findLoggedUserKey(HttpServletRequest req, LRProcessManager lrProcessManager, String token) {
             if (token != null) {
                 
-                if (!lrProcessManager.isTokenClosed(token)) {
-                    List<LRProcess> processes = lrProcessManager.getLongRunningProcessesByToken(token);
+                if (!lrProcessManager.isAuthTokenClosed(token)) {
+                    List<LRProcess> processes = lrProcessManager.getLongRunningProcessesByGroupToken(token);
                     if (!processes.isEmpty()) {
                         // hledani klice 
                         List<States> childStates = new ArrayList<States>();
@@ -592,7 +609,8 @@ public class LongRunningProcessServlet extends GuiceServlet {
                         
                         lrProcessManager.updateLongRunningProcessState(process);
                         
-                        return lrProcessManager.getSessionKey(process.getToken());
+                        String authToken = process.getAuthToken();
+                        return lrProcessManager.getSessionKey(authToken);
                     } else {
                         throw new RuntimeException("cannot find process with token '"+token+"'");
                     }

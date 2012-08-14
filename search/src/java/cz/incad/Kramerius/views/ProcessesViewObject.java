@@ -116,7 +116,7 @@ public class ProcessesViewObject implements Initializable {
             LRProcessDefinition def = this.definitionManager.getLongRunningProcessDefinition(lrProcess.getDefinitionId());
             ProcessViewObject pw = new ProcessViewObject(lrProcess, def, this.ordering, this.offset, this.typeOfOrdering, this.bundleService, this.localesProvider.get(), this.outputTemplateFactory);
             if (lrProcess.isMasterProcess()) {
-                List<LRProcess> childSubprecesses = this.processManager.getLongRunningProcessesByToken(lrProcess.getToken());
+                List<LRProcess> childSubprecesses = this.processManager.getLongRunningProcessesByGroupToken(lrProcess.getGroupToken());
                 for (LRProcess child : childSubprecesses) {
                     if (!child.getUUID().equals(lrProcess.getUUID())) {
                         LRProcessDefinition childDef = this.definitionManager.getLongRunningProcessDefinition(child.getDefinitionId());

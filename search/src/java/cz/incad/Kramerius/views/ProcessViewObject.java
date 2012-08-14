@@ -136,88 +136,81 @@ public class ProcessViewObject {
 
     public String getDuration() throws IOException {
         if (lrProcess.getFinishedTime() != 0) {
+            long startTime =  lrProcess.getStartTime();
+            long finishTime = lrProcess.getFinishedTime();
 
             ResourceBundle bundle = bundleService.getResourceBundle("labels", locale);
-
-            int days = 0;
-            int hours = 0;
-            int minutes = 0;
-            int seconds = 0;
-            long milisconds = 0;
-            
-            long startTime =  lrProcess.getStartTime();
-            Calendar startTimeCal = Calendar.getInstance(); startTimeCal.setTimeInMillis(startTime);
-
-            long finishTime = lrProcess.getFinishedTime();
-            Calendar finishTimeCal = Calendar.getInstance(); finishTimeCal.setTimeInMillis(finishTime);
-
-
-            Calendar processingCal = Calendar.getInstance();
-            processingCal.setTimeInMillis(startTime);
-
-            if (moreThenDay(processingCal.getTimeInMillis(), startTimeCal.getTimeInMillis())) {
-                days = changeCalendar(finishTimeCal, processingCal, Calendar.DAY_OF_MONTH);
-            }
-            
-            if (moreThenHour(finishTimeCal.getTimeInMillis(),startTimeCal.getTimeInMillis())) {
-                hours = changeCalendar(finishTimeCal, processingCal, Calendar.HOUR_OF_DAY);
-            }
-            if (moreThenMinute(finishTimeCal.getTimeInMillis(),startTimeCal.getTimeInMillis())) {
-                minutes = changeCalendar(finishTimeCal, processingCal, Calendar.MINUTE);
-            }
-
-            if (moreThenSecond(finishTimeCal.getTimeInMillis(),startTimeCal.getTimeInMillis())) {
-                seconds = changeCalendar(finishTimeCal, processingCal, Calendar.SECOND);
-            }
-
-            milisconds = processingCal.getTime().getTime() - finishTimeCal.getTime().getTime();
-            
-            StringBuilder builder = new StringBuilder();
-
-
-            if (days > 0) builder.append(days).append(" ").append(bundle.getString("administrator.processes.duration.days")).append(" ");
-            if (hours > 0) builder.append(hours).append(" ").append(bundle.getString("administrator.processes.duration.hours")).append(" ");
-            if (minutes > 0) builder.append(minutes).append(" ").append(bundle.getString("administrator.processes.duration.minutes")).append(" ");
-            if (seconds > 0) builder.append(seconds).append(" ").append(bundle.getString("administrator.processes.duration.seconds")).append(" ");
-            if (milisconds > 0) builder.append(seconds).append(" ").append(bundle.getString("administrator.processes.duration.miliseconds")).append(" ");
+            StringBuilder builder = formatDuration(startTime, finishTime, bundle);
             
             return builder.toString();
+            
         } else return "";
     }
 
-    public int changeCalendar(Calendar finishTimeCal, Calendar processingCal, int calendarField) {
-        int calculated = 0;
-        Calendar tmpCal = Calendar.getInstance();
-        tmpCal.setTime(processingCal.getTime());
-     
-        while(tmpCal.get(calendarField) < finishTimeCal.get(calendarField)) {
-            calculated+= 1;
-            tmpCal.add(calendarField,1);
+    public StringBuilder formatDuration(long startTime, long finishTime, ResourceBundle bundle) {
+        int days = 0;
+        int hours = 0;
+        int minutes = 0;
+        int seconds = 0;
+        long milisconds = 0;
+        
+        Calendar startTimeCal = Calendar.getInstance(); startTimeCal.setTimeInMillis(startTime);
+        Calendar finishTimeCal = Calendar.getInstance(); finishTimeCal.setTimeInMillis(finishTime);
+
+        Calendar processingCal = Calendar.getInstance();
+        processingCal.setTimeInMillis(startTime);
+
+        //final long day = 1000*60*60*24;
+        if (moreThenPeriod(processingCal.getTimeInMillis(), startTimeCal.getTimeInMillis(), 1000*60*60*24)) {
+            days = duration(finishTimeCal, processingCal, 1000*60*60*24);
         }
         
-        processingCal.setTime(tmpCal.getTime());
-        return calculated;
-    }
-    
-    private boolean moreThenDay(long finishTime, long startTime) {
-        final long day = 1000*60*60*24;
-        return (finishTime - startTime) > day;
+        if (moreThenPeriod(finishTimeCal.getTimeInMillis(),startTimeCal.getTimeInMillis(),1000*60*60)) {
+            hours = duration(finishTimeCal, processingCal, 1000*60);
+        }
+
+        if (moreThenPeriod(finishTimeCal.getTimeInMillis(),startTimeCal.getTimeInMillis(), 1000*60)) {
+            minutes = duration(finishTimeCal, processingCal, 1000*60);
+        }
+
+        if (moreThenPeriod(finishTimeCal.getTimeInMillis(),startTimeCal.getTimeInMillis(), 1000)) {
+            seconds = duration(finishTimeCal, processingCal, 1000);
+        }
+
+        milisconds =  finishTimeCal.getTime().getTime()-processingCal.getTime().getTime();
+        
+        StringBuilder builder = new StringBuilder();
+
+
+        if (days > 0) builder.append(days).append(" ").append(bundle.getString("administrator.processes.duration.days")).append(" ");
+        if (hours > 0) builder.append(hours).append(" ").append(bundle.getString("administrator.processes.duration.hours")).append(" ");
+        if (minutes > 0) builder.append(minutes).append(" ").append(bundle.getString("administrator.processes.duration.minutes")).append(" ");
+        if (seconds > 0) builder.append(seconds).append(" ").append(bundle.getString("administrator.processes.duration.seconds")).append(" ");
+        if (milisconds > 0) builder.append(milisconds).append(" ").append(bundle.getString("administrator.processes.duration.miliseconds")).append(" ");
+        return builder;
     }
 
-    private boolean moreThenHour(long finishTime, long startTime) {
-        final long hour = 1000*60*60;
-        return (finishTime - startTime) > hour;
+    private static int duration(Calendar finishTime, Calendar startTime, long period) {
+        int calcualated = 0;
+
+        long ftime = finishTime.getTimeInMillis();
+        long stime = startTime.getTimeInMillis();
+        
+        while((stime+period) < ftime) {
+            stime += period;
+            calcualated +=1;
+        }
+        
+        startTime.setTimeInMillis(stime);
+        return calcualated;
+        
     }
+
+    private static boolean moreThenPeriod(long finishTime, long startTime, long period) {
+        return (finishTime - startTime) > period;
+    }
+
     
-    private boolean moreThenMinute(long finishTime, long startTime) {
-        final long minute = 1000*60;
-        return (finishTime - startTime) > minute;
-    }
-    
-    private boolean moreThenSecond(long finishTime, long startTime) {
-        final long second = 1000;
-        return (finishTime - startTime) > second;
-    }
     
     public String getStart() {
         Date date = new Date(lrProcess.getStartTime());

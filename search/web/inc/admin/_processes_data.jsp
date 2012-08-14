@@ -484,19 +484,28 @@ $(document).ready(function(){
                     <td class="t2" title="${childLrProc.simpleProcessName}">${childLrProc.formatedProcessName} </td>
                     <td title="${childLrProc.pid}">${childLrProc.pid} </td>
 
-                    <c:if test="${childLrProc.failedState}">
-                        <td title="${childLrProc.processState}" style="color: red;"><strong> ${childLrProc.processState}</strong></td>
-                    </c:if>
-                    <c:if test="${!childLrProc.failedState}">
-                        <td title="${childLrProc.processState}">${childLrProc.processState}</td>
-                    </c:if>
 
-                    <c:if test="${childLrProc.failedBatchState}">
+                   <c:choose>
+                       <c:when test="${childLrProc.failedState}">
+                           <td title="${childLrProc.processState}" style="color: red;"><strong> ${childLrProc.processState}</strong></td>
+                       </c:when>
+                       <c:when test="${childLrProc.runningState}">
+                           <td title="${childLrProc.processState}" style="color: green;"><strong> ${childLrProc.processState}</strong></td>
+                       </c:when>
+                       <c:otherwise><td title="${childLrProc.processState}">${childLrProc.processState}</td></c:otherwise>
+                   </c:choose>
+
+
+                <c:choose>
+                    <c:when test="${childLrProc.failedBatchState}">
                         <td title="${childLrProc.batchState}" style="color: red;"><strong> ${childLrProc.batchState}</strong></td>
-                    </c:if>                
-                    <c:if test="${!childLrProc.failedBatchState}">
-                        <td title="${childLrProc.batchState}">${childLrProc.batchState}</td>
-                    </c:if>                
+                    </c:when>
+                    <c:when test="${childLrProc.runningdBatchState}">
+                        <td title="${childLrProc.batchState}" style="color: green;"><strong> ${childLrProc.batchState}</strong></td>
+                    </c:when>
+                    <c:otherwise><td title="${childLrProc.batchState}">${childLrProc.batchState}</td></c:otherwise>
+                </c:choose>
+
 
                     <td title="${childLrProc.start}">${childLrProc.start}</td>
                     <td title="${childLrProc.planned}">${childLrProc.planned}</td>
