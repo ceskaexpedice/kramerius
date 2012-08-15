@@ -18,8 +18,10 @@
 <div id="current_vc">
      <span class="mainNav" href="javascript:leaveVirtualCollection();">
          ${cols.currentText}
-     </span>
-     <a id="leave_vc" title="<view:msg>search.leave.virtual.collection</view:msg>" href="javascript:leaveVirtualCollection();" style="float:right;margin-top:5px;margin-left:5px;" class="ui-icon ui-icon-arrowreturnthick-1-w">leave virtual collection</a>
+     <c:if test="${cols.canLeaveCurrent=='true'}">
+     <a id="leave_vc" title="<view:msg>search.leave.virtual.collection</view:msg>" href="javascript:leaveVirtualCollection();" style="float:right;margin-top:5px;margin-left:5px;" class="ui-icon ui-icon-arrowreturnthick-1-w">leave virtual collection</a>    
+     </c:if>
+     
 </div>
 </c:if>
 <script type="text/javascript">

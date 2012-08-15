@@ -76,6 +76,10 @@ public class VirtualCollectionViewObject {
         
     } 
     
+    public boolean getCanLeaveCurrent(){
+        return this.getCurrent().isCanLeave();
+    }
+    
     public String getCurrentText(){
          VirtualCollection c = this.getCurrent();
          return c.getDescriptionLocale(this.localeProvider.get().getLanguage());

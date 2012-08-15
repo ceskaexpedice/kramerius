@@ -217,8 +217,14 @@ public class VirtualCollectionServlet extends GuiceServlet {
 
             @Override
             void doPerform(VirtualCollectionServlet vc, FedoraAccess fedoraAccess, HttpServletRequest req, HttpServletResponse resp) throws IOException, SecurityException {
-                String label = req.getParameter("label");
+                
                 String pid = VirtualCollectionsManager.create(fedoraAccess);
+                
+                
+                boolean canLeave = Boolean.parseBoolean(req.getParameter("canLeave"));
+                VirtualCollectionsManager.modify(pid, pid, canLeave, fedoraAccess);
+                
+                
                 String[] langs = vc.getLangs();
 
                 String string = req.getRequestURL().toString();
@@ -255,8 +261,9 @@ public class VirtualCollectionServlet extends GuiceServlet {
             void doPerform(VirtualCollectionServlet vc, FedoraAccess fedoraAccess, HttpServletRequest req, HttpServletResponse resp) throws IOException, SecurityException {
                 String[] langs = vc.getLangs();
                 String pid = req.getParameter("pid");
-                String label = req.getParameter("label");
-                VirtualCollectionsManager.modify(pid, label, fedoraAccess);
+                //String label = req.getParameter("label");
+                boolean canLeave = Boolean.parseBoolean(req.getParameter("canLeave"));
+                VirtualCollectionsManager.modify(pid, pid, canLeave, fedoraAccess);
                 String string = req.getRequestURL().toString();
                 URL url = new URL(string);
                 String k4url = url.getProtocol() + "://" + url.getHost() + ":" + url.getPort() + req.getRequestURI();

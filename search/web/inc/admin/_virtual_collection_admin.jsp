@@ -48,6 +48,7 @@
     <c:forEach items="${buttons.languageItems}" var="langitm">
         <th>${langitm.name}</th>
     </c:forEach>
+    <th><view:msg>administrator.dialogs.virtualcollections.canLeave</view:msg></th>
         <th></th>
     </thead>
     <c:forEach var="col" items="${cols.virtualCollections}">
@@ -60,6 +61,11 @@
                     <input type="hidden" class="id" value="${langitm.key}" />
                 </td>
             </c:forEach>
+                <td class="editable canLeave"><span class="ui-icon ui-icon-cancel <c:if test="${col.canLeave}"  >ui-icon-check</c:if> ">canleave</span>
+                    <input style="display:none;" type="checkbox" class="canLeave"
+                       <c:if test="${col.canLeave}"  >checked="checked"</c:if> 
+                        />
+            </td>
             <td class="buttons">
                 <a class="edit" title="<view:msg>administrator.dialogs.virtualcollections.edit</view:msg>" href="javascript:vcBeginEdit('${col.pid}');"><span class="ui-icon ui-icon-pencil">edit</span></a>
                 <a class="save" title="<view:msg>administrator.dialogs.virtualcollections.save</view:msg>" style="display:none;" href="javascript:vcSaveEdit('${col.pid}');"><span class="ui-icon ui-icon-disk">save</span></a>
@@ -75,6 +81,7 @@
             <input type="hidden" class="id" value="${langitm.key}" />
         </td>
     </c:forEach>
+        <td><input type="checkbox" class="canLeave" /></td>
         <td class="buttons">
             <a href="javascript:vcAdd();" title="<view:msg>administrator.dialogs.virtualcollections.add</view:msg>"><span class="ui-icon ui-icon-plus">add</span></a>
         </td>
@@ -106,21 +113,36 @@
 
     function vcSaveEdit(pid){
         var escapedText;
-        var url = "vc?action=CHANGE&pid="+pid;
+        var url = "vc?action=CHANGE&pid="+pid+ "&canLeave=" + $(jq("vc_"+pid)+" input.canLeave").is(":checked");
+        var canAdd = true;
         $(jq("vc_"+pid)+" td.lang").each(function(){
-            escapedText = replaceAll($(this).children("input.val").val(), ',', '');
+            var s = $(this).children("input.val").val();
+            if(s.trim().length==0){
+                canAdd = false;
+                return;
+            }
+            escapedText = replaceAll(s, ',', '');
             escapedText = replaceAll(escapedText, '\n', '');
-            escapedText = escapedText.replace(/ +(?= )/g,'');
+            //escapedText = escapedText.replace(/ +(?= )/g,'');
             escapedText = escapedText.replace(/&/g,'%26');
             url = url + "&text_" + $(this).children("input.id").val() +
                 "=" + escapedText ;
         });
+        if(!canAdd){
+            alert(dictionary['administrator.dialogs.virtualcollections.emptyError']);
+            return;
+        } 
         $("#coll_loading").css("height", $("#vcAdminDialog").height());
         $("#coll_loading").show();
         $.get(url, function(data){
             $(jq("vc_"+pid)+" td.editable").each(function(){
                 $(this).children("span.val").html($(this).children("input.val").val());
             });
+            if($(jq("vc_"+pid)+" input.canLeave").is(":checked")){
+                $(jq("vc_"+pid)+" td.canLeave>span").addClass("ui-icon-check");
+            }else{
+                $(jq("vc_"+pid)+" td.canLeave>span").removeClass("ui-icon-check");
+            }
             vcToggleEdit(pid);
             $("#coll_loading").hide();
         }).error(function(data, msg, status){
@@ -133,20 +155,35 @@
 
     function vcAdd(){
         var escapedText;
-        var url = "vc?action=CREATE";
+        var canLeave = $("#coll_add_row input.canLeave").is(":checked");
+        var check = canLeave ? 'checked="checked"' : '';
+        
+        var url = "vc?action=CREATE&canLeave=" + canLeave;
+        var canAdd = true;
         $(".coll_add_lang").each(function(){
-            escapedText = replaceAll($(this).children("input.val").val(), ',', '');
+            var s = $(this).children("input.val").val();
+            if(s.trim().length==0){
+                canAdd = false;
+                return;
+            }
+            escapedText = replaceAll(encodeURIComponent(s), ',', '');
+            //escapedText = replaceAll(s, '\+', '%2B');
             escapedText = replaceAll(escapedText, '\n', '');
             escapedText = escapedText.replace(/ +(?= )/g,'');
             escapedText = escapedText.replace(/&/g,'%26');
             url = url + "&text_" + $(this).children("input.id").val() +
                 "=" + escapedText;
         });
+        if(!canAdd){
+            alert(dictionary['administrator.dialogs.virtualcollections.emptyError']);
+            return;
+        } 
         $("#coll_loading").css("height", $("#vcAdminDialog").height());
         $("#coll_loading").show();
         $.get(url, function(pid){
             var tr = '<tr id="vc_'+pid+'">' +
                 '<td>'+pid+'</td>';
+                
             $(".coll_add_lang").each(function(){
                 tr = tr +
                     '<td class="editable lang">'+
@@ -155,7 +192,9 @@
                     '<input type="hidden" class="id" value="'+$(this).children("input.val").val()+'" />'+
                     '</td>';
             });
-            tr = tr + '<td class="buttons">'+
+            
+            tr = tr + '<td><input type="checkbox" class="canLeave" ' + check + ' /></td>' +
+                '<td class="buttons">'+
                 '<a class="edit" href="javascript:vcBeginEdit(\''+pid+'\');"><span class="ui-icon ui-icon-pencil">edit</span></a>'+
                 '<a style="display:none;" class="save" href="javascript:vcSaveEdit(\''+pid+'\');"><span class="ui-icon ui-icon-disk">save</span></a>'+
                 '<a href="javascript:vcDelete(\''+pid+'\');"><span class="ui-icon ui-icon-trash">delete</span></a>'+
