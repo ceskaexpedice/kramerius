@@ -68,16 +68,18 @@ public class MPTStoreService implements IResourceIndex {
         //this.adaptor = getTableManager();
         //loadTableNames();
     }
-    String Table_lastModifiedDate;
-    String Table_dcTitle;
-    String Table_model;
+    String table_lastModifiedDate;
+    String table_dcTitle;
+    String table_model;
+    String table_dcType;
 
     private void loadTableNames() {
         try {
-            if (Table_model == null) {
-                Table_dcTitle = adaptor.getTableFor(NTriplesUtil.parsePredicate(PRED_dcTitle));
-                Table_lastModifiedDate = adaptor.getTableFor(NTriplesUtil.parsePredicate(PRED_lastModifiedDate));
-                Table_model = adaptor.getTableFor(NTriplesUtil.parsePredicate(PRED_model));
+            if (table_model == null) {
+                table_dcTitle = adaptor.getTableFor(NTriplesUtil.parsePredicate(PRED_dcTitle));
+                table_lastModifiedDate = adaptor.getTableFor(NTriplesUtil.parsePredicate(PRED_lastModifiedDate));
+                table_model = adaptor.getTableFor(NTriplesUtil.parsePredicate(PRED_model));
+                table_dcType = adaptor.getTableFor(NTriplesUtil.parsePredicate(PRED_dcType));
             }
         } catch (ParseException ex) {
             logger.log(Level.SEVERE, null, ex);
@@ -168,6 +170,7 @@ public class MPTStoreService implements IResourceIndex {
     }
     static final String PRED_lastModifiedDate = "<info:fedora/fedora-system:def/view#lastModifiedDate>";
     static final String PRED_dcTitle = "<http://purl.org/dc/elements/1.1/title>";
+    static final String PRED_dcType= "<http://purl.org/dc/elements/1.1/type>";
     static final String PRED_model = "<info:fedora/fedora-system:def/model#hasModel>";
     static final String SPARQL_NS = "http://www.w3.org/2001/sw/DataAccess/rf1/result";
     static final String OUTPUT_DATE_FORMAT = "dd-MM-yyyy HH:mm:ss";
@@ -194,10 +197,10 @@ public class MPTStoreService implements IResourceIndex {
             this.adaptor = getTableManager();
             loadTableNames();
             c = dataSource.getConnection();
-            String sql = "select " + Table_dcTitle + ".s, " + Table_dcTitle + ".o, " + Table_lastModifiedDate + ".o from ";
-            sql += Table_dcTitle + "," + Table_lastModifiedDate + "," + Table_model;
-            sql += " where " + Table_model + ".o='<info:fedora/fedora-system:ContentModel-3.0>' and " + Table_dcTitle + ".s=" + Table_lastModifiedDate + ".s and " + Table_dcTitle + ".s=" + Table_model + ".s "
-                    + " order by " + Table_dcTitle + ".o ";
+            String sql = "select " + table_dcTitle + ".s, " + table_dcTitle + ".o, " + table_lastModifiedDate + ".o from ";
+            sql += table_dcTitle + "," + table_lastModifiedDate + "," + table_model;
+            sql += " where " + table_model + ".o='<info:fedora/fedora-system:ContentModel-3.0>' and " + table_dcTitle + ".s=" + table_lastModifiedDate + ".s and " + table_dcTitle + ".s=" + table_model + ".s "
+                    + " order by " + table_dcTitle + ".o ";
 
             s = c.prepareStatement(sql,
                     ResultSet.FETCH_FORWARD,
@@ -253,6 +256,107 @@ public class MPTStoreService implements IResourceIndex {
         return xmldoc;
 
     }
+    
+    
+
+    @Override
+    public Document getVirtualCollections() throws Exception {
+        /*
+         * iTQL query
+         * select $object $title $canLeave from <#ri>
+        where  $object <fedora-model:hasModel> <info:fedora/model:collection" >
+        and  $object <dc:title> $title
+        and  $object <dc:type> $canLeave
+         */
+
+        logger.fine("getFedoraObjectsFromModelExt");
+        Document xmldoc;
+        Connection c = null;
+        PreparedStatement s = null;
+        ResultSet r = null;
+        try {
+            this.adaptor = getTableManager();
+            loadTableNames();
+            c = dataSource.getConnection();
+            DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+            factory.setNamespaceAware(true);
+            DocumentBuilder builder = factory.newDocumentBuilder();
+            xmldoc = builder.newDocument();
+            Element root = xmldoc.createElementNS(SPARQL_NS, "sparql");
+            Element results = xmldoc.createElementNS(SPARQL_NS, "results");
+            xmldoc.appendChild(root);
+            root.appendChild(results);
+            
+            String sql = "select " + table_dcTitle + ".s, " + table_dcTitle + ".o, " + table_dcType + ".o from " +
+                    table_dcTitle + "," + table_dcType + "," + table_model;
+            
+            sql += " where " + table_model + ".o='<info:fedora/model:collection>' and " + table_dcTitle + ".s=" + table_dcType + ".s and " + table_dcTitle + ".s=" + table_model + ".s ";
+
+            s = c.prepareStatement(sql,
+                    ResultSet.FETCH_FORWARD,
+                    ResultSet.CONCUR_READ_ONLY);
+            r = s.executeQuery();
+            String uuid;
+
+            /*
+             *
+             * <sparql xmlns="http://www.w3.org/2001/sw/DataAccess/rf1/result">
+            <head>
+            <variable name="object"/>
+            <variable name="title"/>
+            <variable name="date"/>
+            </head>
+            <results>
+            <result>
+            <object uri="info:fedora/uuid:9c1ad6d4-e645-11de-a504-001143e3f55c"/>
+            
+            <title>Spisy Masarykovy Akademie Prace 1921</title>
+            <date datatype="http://www.w3.org/2001/XMLSchema#dateTime">2010-05-03T08:24:40.776Z</date>
+            </result>
+            
+             */
+            Element e, e2;
+            Node n;
+            while (r.next()) {
+                e = xmldoc.createElementNS(SPARQL_NS, "result");
+                uuid = r.getString(1);
+                //uuid = r.getString(1).split("info:fedora/")[1];
+                uuid = uuid.substring(1, uuid.length() - 1);
+
+                e2 = xmldoc.createElementNS(SPARQL_NS, "object");
+                e2.setAttribute("uri", uuid);
+                //n = xmldoc.createTextNode(uuid);
+                //e.appendChild(n);
+                e.appendChild(e2);
+
+                e2 = xmldoc.createElementNS(SPARQL_NS, "title");
+                n = xmldoc.createTextNode(org.nsdl.mptstore.util.NTriplesUtil.unescapeLiteralValue(r.getString(2)));
+                e2.appendChild(n);
+                e.appendChild(e2);
+                
+                e2 = xmldoc.createElementNS(SPARQL_NS, "canLeave");
+                n = xmldoc.createTextNode(r.getString(3));
+                e2.appendChild(n);
+                e.appendChild(e2);
+
+                results.appendChild(e);
+            }
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        } finally {
+            if (r != null) {
+                DatabaseUtils.tryClose(r);
+            }
+            if (s != null) {
+                DatabaseUtils.tryClose(s);
+            }
+            if (c != null) {
+                DatabaseUtils.tryClose(c);
+            }
+        }
+        //return result.toString();
+        return xmldoc;
+    }
 
     @Override
     public Document getFedoraObjectsFromModelExt(String model, int limit, int offset, String orderby, String orderDir) throws Exception {
@@ -275,9 +379,9 @@ public class MPTStoreService implements IResourceIndex {
         try {
             this.adaptor = getTableManager();
             loadTableNames();
-            String torder = Table_lastModifiedDate + ".o";
+            String torder = table_lastModifiedDate + ".o";
             if (orderby.equals("title")) {
-                torder = Table_dcTitle + ".o";
+                torder = table_dcTitle + ".o";
             }
             c = dataSource.getConnection();
             DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
@@ -289,13 +393,13 @@ public class MPTStoreService implements IResourceIndex {
             xmldoc.appendChild(root);
             root.appendChild(results);
             
-            String sql = "select " + Table_dcTitle + ".s, " + Table_dcTitle + ".o, " + Table_lastModifiedDate + ".o from ";
+            String sql = "select " + table_dcTitle + ".s, " + table_dcTitle + ".o, " + table_lastModifiedDate + ".o from ";
             if (orderby.equals("title")) {
-                sql += Table_dcTitle + "," + Table_lastModifiedDate + "," + Table_model;
+                sql += table_dcTitle + "," + table_lastModifiedDate + "," + table_model;
             } else {
-                sql += Table_lastModifiedDate + "," + Table_dcTitle + "," + Table_model;
+                sql += table_lastModifiedDate + "," + table_dcTitle + "," + table_model;
             }
-            sql += " where " + Table_model + ".o='<info:fedora/model:" + model + ">' and " + Table_dcTitle + ".s=" + Table_lastModifiedDate + ".s and " + Table_dcTitle + ".s=" + Table_model + ".s "
+            sql += " where " + table_model + ".o='<info:fedora/model:" + model + ">' and " + table_dcTitle + ".s=" + table_lastModifiedDate + ".s and " + table_dcTitle + ".s=" + table_model + ".s "
                     + " order by " + torder + " " + orderDir
                     + " limit " + limit + " offset " + offset;
 
@@ -400,9 +504,9 @@ public class MPTStoreService implements IResourceIndex {
             Element results = xmldoc.createElementNS(SPARQL_NS, "results");
             xmldoc.appendChild(root);
             root.appendChild(results);
-            String sql = "select " + Table_model + ".s"
-                    + " where " + Table_model + ".o='<info:fedora/model:" + model + ">' "
-                    + " order by " + Table_model + ".s"
+            String sql = "select " + table_model + ".s"
+                    + " where " + table_model + ".o='<info:fedora/model:" + model + ">' "
+                    + " order by " + table_model + ".s"
                     + " limit " + limit + " offset " + offset;
 
             s = c.prepareStatement(sql,
@@ -468,7 +572,7 @@ public class MPTStoreService implements IResourceIndex {
         try {
             this.adaptor = getTableManager();
             loadTableNames();
-            String sql = "select o from " + Table_model
+            String sql = "select o from " + table_model
                     + " where s='<info:fedora/uuid:43101770-b03b-11dd-8673-000d606f5dc6>" + uuid + ">' "
                     + " and o <> '<info:fedora/fedora-system:FedoraObject-3.0>' ";
             c = dataSource.getConnection();

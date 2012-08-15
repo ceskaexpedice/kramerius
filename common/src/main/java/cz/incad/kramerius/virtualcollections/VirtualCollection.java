@@ -26,6 +26,7 @@ public class VirtualCollection {
     protected String label;
     protected String pid;
     protected List<CollectionDescription> descriptions = new ArrayList<CollectionDescription>();
+    private boolean canLeave;
     
     public String getLabel(){
         return this.label;
@@ -47,9 +48,10 @@ public class VirtualCollection {
         return map;
     }
     
-    public VirtualCollection(String label, String pid){
+    public VirtualCollection(String label, String pid, boolean canLeave){
         this.label = label;
         this.pid = pid;
+        this.canLeave = canLeave;
     }
     
     public void addDescription(String lang, String text){
@@ -63,6 +65,13 @@ public class VirtualCollection {
             }
         }
         return null;
+    }
+
+    /**
+     * @return the canLeave
+     */
+    public boolean isCanLeave() {
+        return canLeave;
     }
     
     public class CollectionDescription{

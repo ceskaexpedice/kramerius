@@ -57,17 +57,19 @@ public class VirtualCollectionsManager {
     public static VirtualCollection getVirtualCollection(FedoraAccess fedoraAccess, String collection, ArrayList<String> langs) {
         try {
             IResourceIndex g = ResourceIndexService.getResourceIndexImpl();
-            Document doc = g.getFedoraObjectsFromModelExt("collection", 1000, 0, "title", "");
+            Document doc = g.getVirtualCollections();
 
             NodeList nodes = doc.getDocumentElement().getElementsByTagNameNS(SPARQL_NS, "result");
             NodeList children;
             Node child;
             String name;
             String pid;
+            boolean canLeave;
 
             for (int i = 0; i < nodes.getLength(); i++) {
                 name = null;
                 pid = null;
+                canLeave = false;
                 Node node = nodes.item(i);
                 children = node.getChildNodes();
                 for (int j = 0; j < children.getLength(); j++) {
@@ -76,10 +78,12 @@ public class VirtualCollectionsManager {
                         name = child.getFirstChild().getNodeValue();
                     } else if ("object".equals(child.getLocalName())) {
                         pid = ((Element) child).getAttribute("uri").replaceAll("info:fedora/", "");
+                    }else if ("canLeave".equals(child.getLocalName())) {
+                        canLeave = Boolean.parseBoolean(child.getFirstChild().getNodeValue().replaceAll("\"", "").substring(("canLeave:").length()));
                     }
                 }
                 if (name != null && pid != null && pid.equals(collection)) {
-                    VirtualCollection vc = new VirtualCollection(name, pid);
+                    VirtualCollection vc = new VirtualCollection(name, pid, canLeave);
                     String lang;
                     try{
                         Document textdoc = XMLUtils.parseDocument(fedoraAccess.getDataStream(pid, "TEXT"));
@@ -112,15 +116,17 @@ public class VirtualCollectionsManager {
     public static List<VirtualCollection> getVirtualCollections(FedoraAccess fedoraAccess, ArrayList<String> langs) throws Exception {
         try {
             IResourceIndex g = ResourceIndexService.getResourceIndexImpl();
-            Document doc = g.getFedoraObjectsFromModelExt("collection", 1000, 0, "title", "");
+            Document doc = g.getVirtualCollections();
 
             NodeList nodes = doc.getDocumentElement().getElementsByTagNameNS(SPARQL_NS, "result");
             NodeList children;
             Node child;
             String name;
             String pid;
+            boolean canLeave;
             List<VirtualCollection> vcs = new ArrayList<VirtualCollection>();
             for (int i = 0; i < nodes.getLength(); i++) {
+                canLeave = false;
                 name = null;
                 pid = null;
                 Node node = nodes.item(i);
@@ -131,13 +137,15 @@ public class VirtualCollectionsManager {
                         name = child.getFirstChild().getNodeValue();
                     } else if ("object".equals(child.getLocalName())) {
                         pid = ((Element) child).getAttribute("uri").replaceAll("info:fedora/", "");
+                    } else if ("canLeave".equals(child.getLocalName())) {
+                        canLeave = Boolean.parseBoolean(child.getFirstChild().getNodeValue().replaceAll("\"", "").substring(("canLeave:").length()));
                     }
                 }
                 String lang;
                 
                 if (name != null && pid != null) {
                     try{
-                        VirtualCollection vc = new VirtualCollection(name, pid);
+                        VirtualCollection vc = new VirtualCollection(name, pid, canLeave);
                         Document textdoc = XMLUtils.parseDocument(fedoraAccess.getDataStream(pid, "TEXT"));
                         NodeList textnodes = textdoc.getDocumentElement().getElementsByTagName("text");
                         for (int k = 0; k < textnodes.getLength(); k++) {
@@ -191,12 +199,13 @@ public class VirtualCollectionsManager {
         }
     }
 
-    public static void modify(String pid, String label, FedoraAccess fedoraAccess) throws IOException {
+    public static void modify(String pid, String label, boolean canLeave, FedoraAccess fedoraAccess) throws IOException {
         fedoraAccess.getAPIM().modifyObject(pid, "A", label, "K4", "Virtual collection modified");
         String dcContent = "<oai_dc:dc xmlns:oai_dc=\"http://www.openarchives.org/OAI/2.0/oai_dc/\" "
                 + "xmlns:dc=\"http://purl.org/dc/elements/1.1/\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" "
                 + "xsi:schemaLocation=\"http://www.openarchives.org/OAI/2.0/oai_dc/ http://www.openarchives.org/OAI/2.0/oai_dc.xsd\"> "
                 + "<dc:title>" + StringEscapeUtils.escapeXml(label) + "</dc:title><dc:identifier>" + pid + "</dc:identifier>"
+                + "<dc:type>canLeave:" + canLeave + "</dc:type><dc:identifier>" + pid + "</dc:identifier>"
                 + "</oai_dc:dc>";
         fedoraAccess.getAPIM().modifyDatastreamByValue(pid, "DC", null, "Dublin Core Record for this object", "text/xml", null, dcContent.getBytes(), "DISABLED", null, "Virtual collection modified", true);
     }

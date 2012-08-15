@@ -16,6 +16,21 @@ import org.apache.commons.configuration.Configuration;
  * @author Alberto
  */
 public class MulgaraImpl implements IResourceIndex {
+    
+    @Override
+    public Document getVirtualCollections() throws Exception {
+            Configuration config = KConfiguration.getInstance().getConfiguration();
+            String query = "select $object $title $canLeave from <#ri> " +
+                    " where $object <fedora-model:hasModel> <info:fedora/model:collection>  " + 
+                    " and  $object <dc:title> $title " +
+                    " and  $object <dc:type> $canLeave " +
+                    " order by  $title ";
+            String urlStr = config.getString("FedoraResourceIndex") + "?type=tuples&flush=true&lang=itql&format=Sparql&distinct=off&stream=off" +
+                    "&query=" + java.net.URLEncoder.encode(query, "UTF-8");
+            java.net.URL url = new java.net.URL(urlStr);
+            //TODO: Zrusit 
+            return XMLUtils.parseDocument(url.openStream(), true);
+    }
 
     @Override
     public Document getFedoraObjectsFromModelExt(String model, int limit, int offset, String orderby, String orderDir) throws Exception {
