@@ -48,6 +48,32 @@
 <script type="text/javascript" language="javascript">
 
     var letters = "0,A,B,C,Č,D,E,F,G,H,CH,I,J,K,L,M,N,O,P,Q,R,Ř,S,Š,T,U,V,W,X,Y,Z,Ž";
+    var titleDivTopBorder;
+    var titleDivBottomBorder;
+        
+    $('#intro').tabs();
+    $('#homedabox').tabs();
+    
+    $(document).ready(function(){
+        $('.term').live('click', function(){
+            var field = $(this).parent().attr('id');
+            var value = $(this).children("span").html();
+            if(field.indexOf('browse_title')>-1){
+                window.location = "r.jsp?suggest=true&browse_title=" + value + "&forProfile=search";
+            } else{
+                window.location = "r.jsp?author=\"" + value + "\"&forProfile=search";
+            }
+        });
+
+        $('.letters>div>a').live('click', function(){
+           var field = $(this).parent().parent().attr('id').substring("letters_".length);
+           var value = $(this).html();
+           
+           doBrowse(value, field);
+           
+        });
+
+    });
     
     function hideSuggest(obj){
         $(obj).hide();
@@ -108,32 +134,6 @@
             $('#'+field).append(data);
         });
     }
-
-    var titleDivTopBorder;
-    var titleDivBottomBorder;
-    $(document).ready(function(){
-        $('.term').live('click', function(){
-            var field = $(this).parent().attr('id');
-            var value = $(this).children("span").html();
-            if(field.indexOf('browse_title')>-1){
-                window.location = "r.jsp?suggest=true&browse_title=" + value + "&forProfile=search";
-            } else{
-                window.location = "r.jsp?author=\"" + value + "\"&forProfile=search";
-            }
-        });
-
-        $('.letters>div>a').live('click', function(){
-           var field = $(this).parent().parent().attr('id').substring("letters_".length);
-           var value = $(this).html();
-           
-           doBrowse(value, field);
-           
-        });
-        
-        $('#intro').tabs();
-        $('#homedabox').tabs();
-
-    });
 
     function selectLetter(field){
         var letter = '0';
