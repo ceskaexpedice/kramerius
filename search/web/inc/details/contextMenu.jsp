@@ -491,7 +491,7 @@
                   bgiframe: true,
                   width: 500,
                   modal: true,
-                  title:dictionary['administrator.menu.dialogs.virtualcollections'],
+                  title:dictionary['administrator.menu.dialogs.virtualcollections.title'],
                   buttons: [
                       {
                           text: "Ok",
