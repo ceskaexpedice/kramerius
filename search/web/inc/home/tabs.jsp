@@ -51,7 +51,11 @@
     var titleDivTopBorder;
     var titleDivBottomBorder;
         
-    $('#intro').tabs();
+    $('#intro').tabs({
+        select: function (event, ui) {
+            window.location.hash = ui.tab.hash;
+        }
+    });
     $('#homedabox').tabs();
     
     $(document).ready(function(){

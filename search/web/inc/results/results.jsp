@@ -37,7 +37,7 @@
 
 </style>
 <div class="ui-layout-west">
-<div id="filters" class="ui-layout-west">
+<div id="filters">
     <ul>
         <li><a href="#facets" title="<fmt:message bundle="${lctx}" key="results.filters" />"><span  class="ui-icon ui-icon-scissors" ><fmt:message bundle="${lctx}" key="results.filters" /></span></a></li>
         <li id="dali"><a href="#dadiv" title="<fmt:message bundle="${lctx}" key="Časová osa" />"><span  class="ui-icon ui-icon-calendar" ><fmt:message bundle="${lctx}" key="Časová osa" /></span></a></li>
@@ -66,12 +66,8 @@
 </div>
     </div>
 <script type="text/javascript">
-$(document).ready(function(){
     
-    if($('#dadiv').length==0){
-        $("#dali").remove();
-    }
-    
+    $("#docs").tabs();
     $("#filters").tabs({
         show: function(event, ui){
             var tab = ui.tab.toString().split('#')[1];
@@ -82,7 +78,11 @@ $(document).ready(function(){
             }
         }
     });
-    $("#docs").tabs();
+$(document).ready(function(){
+    
+    if($('#dadiv').length==0){
+        $("#dali").remove();
+    }
     
     var w;
     var w1 = $(window).height() -
