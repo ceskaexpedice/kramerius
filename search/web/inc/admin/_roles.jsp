@@ -32,6 +32,9 @@
 <view:object name="rolesView"
  clz="cz.incad.Kramerius.views.rights.RolesView"></view:object>
 
+
+<scrd:securedContent action="display_admin_menu" sendForbidden="true">
+
 <div>
 <div class="roles-buttons"><a href="javascript:roles.refresh();"
  class="ui-icon ui-icon-transferthick-e-w"></a></div>
@@ -70,4 +73,4 @@
 
 </div>
 </div>
-
+</scrd:securedContent>
