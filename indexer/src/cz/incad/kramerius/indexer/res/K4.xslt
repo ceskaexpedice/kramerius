@@ -100,6 +100,16 @@
                 </xsl:choose>
                 <field name="dc.title" boost="2.0"><xsl:value-of select="$title"/></field>
                 <field name="title_sort" ><xsl:value-of select="exts:prepareCzech($generic, $title)"/></field>
+        
+                <xsl:for-each select="foxml:datastream/foxml:datastreamVersion[last()]/foxml:xmlContent/oai_dc:dc/dc:creator">
+                    <field name="dc.creator" boost="1.5">
+                        <xsl:value-of select="text()"/>
+                    </field>
+                    <field name="browse_autor" >
+                        <xsl:value-of select="exts:prepareCzech($generic, text())"/>##<xsl:value-of select="text()"/>
+                    </field>
+                </xsl:for-each>
+                
             </xsl:when>
             <xsl:otherwise>
                 <field name="PID" boost="2.5">
@@ -128,12 +138,6 @@
         <field name="dostupnost">
             <xsl:value-of select="substring(/foxml:digitalObject/foxml:datastream[@CONTROL_GROUP='X' and @ID='RELS-EXT']/foxml:datastreamVersion[last()]/foxml:xmlContent/rdf:RDF/rdf:Description/kramerius:policy, 8)"/>
         </field>
-        
-        <xsl:for-each select="foxml:datastream/foxml:datastreamVersion[last()]/foxml:xmlContent/oai_dc:dc/dc:creator">
-            <field name="dc.creator" boost="1.5">
-                <xsl:value-of select="text()"/>
-            </field>
-        </xsl:for-each>
         
         <!-- Check params -->
         <xsl:if test="$DATUM and not($DATUM = '')" >
@@ -190,77 +194,78 @@
             <xsl:value-of select="." />
         </field>
         </xsl:for-each>
-        <xsl:for-each select="mods:subject/mods:topic/text()">
-            <field name="keywords" boost="1.2">
-                <xsl:value-of select="."/>
+        <xsl:if test="$PAGENUM=0">
+            <xsl:for-each select="mods:subject/mods:topic/text()">
+                <field name="keywords" boost="1.2">
+                    <xsl:value-of select="."/>
+                </field>
+            </xsl:for-each>
+            <field name="issn">
+                <xsl:value-of select="mods:identifier[@type='isbn']/text()"/>
+                <xsl:value-of select="mods:identifier[@type='issn']/text()"/>
             </field>
-        </xsl:for-each>
-        <field name="issn">
-            <xsl:value-of select="mods:identifier[@type='isbn']/text()"/>
-            <xsl:value-of select="mods:identifier[@type='issn']/text()"/>
-        </field>
-        <field name="mdt">
-            <xsl:value-of select="mods:classification[@authority='udc']/text()"/>
-        </field>
-        <field name="ddt">
-            <xsl:value-of select="mods:classification[@authority='ddc']/text()"/>
-        </field>
-        
-        <xsl:if test="$MODEL = 'monographunit'">
-            <field name="details">
-                <xsl:value-of select="mods:part/mods:detail/mods:title" /><xsl:value-of select="'##'" />
-               <xsl:value-of select="mods:part/mods:detail/mods:number" />
+            <field name="mdt">
+                <xsl:value-of select="mods:classification[@authority='udc']/text()"/>
             </field>
-        </xsl:if>
-        <xsl:if test="$MODEL = 'page'">
-            <field name="details">
-                <xsl:if test="mods:part">
-                    <xsl:value-of select="mods:part/mods:detail[@type = 'pageNumber']/mods:number" /><xsl:value-of select="'##'" />
-                    <xsl:value-of select="mods:part/@type" />
-                </xsl:if>
+            <field name="ddt">
+                <xsl:value-of select="mods:classification[@authority='ddc']/text()"/>
             </field>
-        </xsl:if>
-        <xsl:if test="$MODEL = 'periodicalitem'">
-            <field name="details">
-                <xsl:value-of select="mods:titleInfo/mods:title" /><xsl:value-of select="'##'" />
-                <xsl:value-of select="/mods:titleInfo/mods:subTitle" /><xsl:value-of select="'##'" />
-                <xsl:value-of select="mods:part/mods:date" /><xsl:value-of select="'##'" />
-                <xsl:choose>
-                    <xsl:when test="mods:part/mods:detail[@type = 'issue']/mods:number">
-                        <xsl:value-of select="mods:part/mods:detail[@type = 'issue']/mods:number" />
-                    </xsl:when>
-                    <xsl:otherwise>
-                        <xsl:value-of select="mods:titleInfo/mods:partNumber" />
-                    </xsl:otherwise>
-                </xsl:choose>
-            </field>
-        </xsl:if>
-        <xsl:if test="$MODEL = 'periodicalvolume'">
-            <field name="details">
-                <xsl:choose>
-                    <xsl:when test="mods:part/mods:date">
-                        <xsl:value-of select="mods:part/mods:date" /><xsl:value-of select="'##'" />
-                        <xsl:value-of select="mods:part/mods:detail[@type = 'volume']/mods:number" />
-                    </xsl:when>
-                    <xsl:when test="mods:originInfo[@transliteration='publisher']/mods:dateIssued/text()">
-                        <xsl:value-of select="mods:originInfo[@transliteration='publisher']/mods:dateIssued/text()" /><xsl:value-of select="'##'" />
-                        <xsl:value-of select="mods:part/mods:detail[@type = 'volume']/mods:number" />
-                    </xsl:when>
-                    <xsl:otherwise>
-                        <xsl:value-of select="mods:originInfo/mods:dateIssued" /><xsl:value-of select="'##'" />
-                        <xsl:value-of select="mods:part/mods:detail[@type = 'volume']/mods:number" />
-                    </xsl:otherwise>
-                 </xsl:choose>
-            </field>
-        </xsl:if>
-        
-        <xsl:if test="$MODEL = 'internalpart'">
-            <field name="details">
-                <xsl:value-of select="mods:part/@type" /><xsl:value-of select="'##'" />
-                <xsl:value-of select="mods:titleInfo/mods:title" /><xsl:value-of select="'##'" />
-                <xsl:value-of select="mods:titleInfo/mods:subTitle" /><xsl:value-of select="'##'" />
-                <xsl:value-of select="mods:part/mods:extent/mods:list" />
-            </field>
+            <xsl:if test="$MODEL = 'monographunit'">
+                <field name="details">
+                    <xsl:value-of select="mods:part/mods:detail/mods:title" /><xsl:value-of select="'##'" />
+                   <xsl:value-of select="mods:part/mods:detail/mods:number" />
+                </field>
+            </xsl:if>
+            <xsl:if test="$MODEL = 'page'">
+                <field name="details">
+                    <xsl:if test="mods:part">
+                        <xsl:value-of select="mods:part/mods:detail[@type = 'pageNumber']/mods:number" /><xsl:value-of select="'##'" />
+                        <xsl:value-of select="mods:part/@type" />
+                    </xsl:if>
+                </field>
+            </xsl:if>
+            <xsl:if test="$MODEL = 'periodicalitem'">
+                <field name="details">
+                    <xsl:value-of select="mods:titleInfo/mods:title" /><xsl:value-of select="'##'" />
+                    <xsl:value-of select="/mods:titleInfo/mods:subTitle" /><xsl:value-of select="'##'" />
+                    <xsl:value-of select="mods:part/mods:date" /><xsl:value-of select="'##'" />
+                    <xsl:choose>
+                        <xsl:when test="mods:part/mods:detail[@type = 'issue']/mods:number">
+                            <xsl:value-of select="mods:part/mods:detail[@type = 'issue']/mods:number" />
+                        </xsl:when>
+                        <xsl:otherwise>
+                            <xsl:value-of select="mods:titleInfo/mods:partNumber" />
+                        </xsl:otherwise>
+                    </xsl:choose>
+                </field>
+            </xsl:if>
+            <xsl:if test="$MODEL = 'periodicalvolume'">
+                <field name="details">
+                    <xsl:choose>
+                        <xsl:when test="mods:part/mods:date">
+                            <xsl:value-of select="mods:part/mods:date" /><xsl:value-of select="'##'" />
+                            <xsl:value-of select="mods:part/mods:detail[@type = 'volume']/mods:number" />
+                        </xsl:when>
+                        <xsl:when test="mods:originInfo[@transliteration='publisher']/mods:dateIssued/text()">
+                            <xsl:value-of select="mods:originInfo[@transliteration='publisher']/mods:dateIssued/text()" /><xsl:value-of select="'##'" />
+                            <xsl:value-of select="mods:part/mods:detail[@type = 'volume']/mods:number" />
+                        </xsl:when>
+                        <xsl:otherwise>
+                            <xsl:value-of select="mods:originInfo/mods:dateIssued" /><xsl:value-of select="'##'" />
+                            <xsl:value-of select="mods:part/mods:detail[@type = 'volume']/mods:number" />
+                        </xsl:otherwise>
+                     </xsl:choose>
+                </field>
+            </xsl:if>
+
+            <xsl:if test="$MODEL = 'internalpart'">
+                <field name="details">
+                    <xsl:value-of select="mods:part/@type" /><xsl:value-of select="'##'" />
+                    <xsl:value-of select="mods:titleInfo/mods:title" /><xsl:value-of select="'##'" />
+                    <xsl:value-of select="mods:titleInfo/mods:subTitle" /><xsl:value-of select="'##'" />
+                    <xsl:value-of select="mods:part/mods:extent/mods:list" />
+                </field>
+            </xsl:if>
         </xsl:if>
                 
     </xsl:template>
@@ -285,11 +290,6 @@
         </xsl:if>
     </xsl:template>
     <xsl:template name="browse" >
-        <xsl:for-each select="foxml:digitalObject/foxml:datastream/foxml:datastreamVersion[last()]/foxml:xmlContent/oai_dc:dc/dc:creator">
-            <field name="browse_autor" >
-                <xsl:value-of select="exts:prepareCzech($generic, text())"/>##<xsl:value-of select="text()"/>
-            </field>
-        </xsl:for-each>
         <!--
         <xsl:choose>
             <xsl:when test="$MODEL = 'internalpart'">
@@ -308,7 +308,7 @@
             </xsl:when>
         </xsl:choose>
         -->
-        <xsl:if test="$MODEL = 'monograph' or $MODEL = 'periodical'">
+        <xsl:if test="($MODEL = 'monograph' or $MODEL = 'periodical') and ($PAGENUM = 0)">
             <field name="browse_title" >
                 <xsl:value-of select="exts:prepareCzech($generic, $title)"/>##<xsl:value-of select="$title"/>
             </field>
