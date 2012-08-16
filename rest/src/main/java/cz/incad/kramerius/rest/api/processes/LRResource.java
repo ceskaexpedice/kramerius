@@ -268,36 +268,6 @@ public class LRResource {
     }
 
 
-    private static Map<String,String> MAPPING_KEYS = new HashMap<String, String>(); {
-        MAPPING_KEYS.put("state", "status");
-        MAPPING_KEYS.put("batchState", "batch_status");
-        MAPPING_KEYS.put("def", "defid");
-        MAPPING_KEYS.put("uuid", "uuid");
-        MAPPING_KEYS.put("userid", "loginname");
-        MAPPING_KEYS.put("userFirstname", "firstname");
-        MAPPING_KEYS.put("userSurname", "surname");
-        MAPPING_KEYS.put("finished", "finished");
-        MAPPING_KEYS.put("planned", "planned");
-        MAPPING_KEYS.put("started", "started");
-    }
-    
-    private static Map<String,String> MAPPING_OPERATORS = new HashMap<String, String>(); {
-        for (Op op :  Op.values()) {
-            MAPPING_OPERATORS.put(op.getRawString(), op.name());
-        }
-    }
-    
-    private static Map<String, String> MAPPING_STATES = new HashMap<String, String>(); {
-        for (States st : States.values()) {
-            MAPPING_STATES.put(st.name(), ""+st.getVal());
-        }
-    }
-    
-    private static Map<String, String> MAPPING_BATCH_STATES = new HashMap<String, String>(); {
-        for (BatchStates st : BatchStates.values()) {
-            MAPPING_BATCH_STATES.put(st.name(), ""+st.getVal());
-        }        
-    }
     
     
     private LRPRocessFilter lrPRocessFilter(String f) throws RecognitionException, TokenStreamException {
