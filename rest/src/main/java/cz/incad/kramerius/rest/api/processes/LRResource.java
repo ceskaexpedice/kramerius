@@ -16,9 +16,15 @@
  */
 package cz.incad.kramerius.rest.api.processes;
 
+import java.io.ByteArrayOutputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.StringReader;
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
+import java.net.URLEncoder;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -27,6 +33,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.StringTokenizer;
+import java.util.concurrent.locks.Lock;
 import java.util.logging.Level;
 
 import javax.servlet.http.HttpServletRequest;
@@ -37,19 +45,24 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 
+import jj2000.j2k.entropy.encoder.ByteOutputBuffer;
+
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 
 import org.antlr.stringtemplate.StringTemplate;
 import org.antlr.stringtemplate.StringTemplateGroup;
 import org.antlr.stringtemplate.language.DefaultTemplateLexer;
+import org.fedora.api.Condition;
 
 import antlr.RecognitionException;
 import antlr.TokenStreamException;
+import biz.sourcecode.base64Coder.Base64Coder;
 
 import com.google.inject.Inject;
 import com.google.inject.Provider;
 
+import cz.incad.kramerius.processes.BatchStates;
 import cz.incad.kramerius.processes.DefinitionManager;
 import cz.incad.kramerius.processes.LRPRocessFilter;
 import cz.incad.kramerius.processes.LRProcess;
@@ -57,11 +70,16 @@ import cz.incad.kramerius.processes.LRProcessDefinition;
 import cz.incad.kramerius.processes.LRProcessManager;
 import cz.incad.kramerius.processes.LRProcessOffset;
 import cz.incad.kramerius.processes.LRProcessOrdering;
+import cz.incad.kramerius.processes.States;
 import cz.incad.kramerius.processes.TypeOfOrdering;
+import cz.incad.kramerius.processes.LRPRocessFilter.Op;
 import cz.incad.kramerius.processes.LRPRocessFilter.Tripple;
+import cz.incad.kramerius.rest.api.processes.filter.FilterCondition;
+import cz.incad.kramerius.rest.api.processes.filter.Operand;
 import cz.incad.kramerius.security.User;
 import cz.incad.kramerius.security.utils.UserUtils;
 import cz.incad.kramerius.users.LoggedUsersSingleton;
+import cz.incad.kramerius.utils.IOUtils;
 import cz.incad.kramerius.utils.params.ParamsLexer;
 import cz.incad.kramerius.utils.params.ParamsParser;
 
@@ -69,10 +87,16 @@ import cz.incad.kramerius.utils.params.ParamsParser;
 @Path("/processes")
 public class LRResource {
 
+    public static SimpleDateFormat FORMAT = new SimpleDateFormat("MM/dd/yyyy HH:mm:ss:SSS");
+
+    
+    private static final String AUTH_TOKEN_HEADER_KEY = "auth-token";
+    private static final String TOKEN_ATTRIBUTE_KEY = "token";
+
+    
     private static java.util.logging.Logger LOGGER = java.util.logging.Logger.getLogger(LRResource.class.getName());
     
     private static final String DEFAULT_SIZE = "50";
-
     
     
     @Inject
@@ -87,26 +111,29 @@ public class LRResource {
     @Inject
     LoggedUsersSingleton loggedUsersSingleton;
     
+    @Inject
+    Provider<User> userProvider;
+    
+    
+    
     @GET
     @Path("plainStart/{def}")
+    @Produces(MediaType.APPLICATION_JSON)
     public String plainProcessStart(@PathParam("def")String def, @QueryParam("params") String params){
         definitionManager.load();
         LRProcessDefinition definition = definitionManager.getLongRunningProcessDefinition(def);
         if (!definition.isInputTemplateDefined()) {
+            User user = userProvider.get();
             String loggedUserKey =  (String) this.requestProvider.get().getSession().getAttribute(UserUtils.LOGGED_USER_KEY_PARAM);
-
-            User user = loggedUsersSingleton.getUser(loggedUserKey);
             
+            HttpServletRequest request = this.requestProvider.get();
             
-            LRProcess newProcess = definition.createNewProcess(null);
+            LRProcess newProcess = definition.createNewProcess(request.getHeader(AUTH_TOKEN_HEADER_KEY), request.getParameter(TOKEN_ATTRIBUTE_KEY));
             newProcess.setLoggedUserKey(loggedUserKey);
             newProcess.setParameters(Arrays.asList(params));
-
             newProcess.setUser(user);
-            
             newProcess.planMe(new Properties());
-            lrProcessManager.updateTokenMapping(newProcess, loggedUserKey);
-            
+            lrProcessManager.updateAuthTokenMapping(newProcess, loggedUserKey);
             return lrPRocessToJSONObject(newProcess).toString();
         } else {
             throw new LRResourceCannotStartProcess("not plain process "+def);
@@ -115,26 +142,87 @@ public class LRResource {
 
     @GET
     @Path("parametrizedStart/{def}")
+    @Produces(MediaType.APPLICATION_JSON)
     public String parametrizedProcessStart(@PathParam("def")String def,  @QueryParam("paramsMapping") String paramsMapping){
+        definitionManager.load();
+        
+        
         return null;
     }
     
     @GET
     @Path("stop/{uuid}")
+    @Produces(MediaType.APPLICATION_JSON)
     public String processStop(@PathParam("uuid")String uuid){
-        return null;
+        this.definitionManager.load();
+        LRProcess lrProcess = lrProcessManager.getLongRunningProcess(uuid);
+        if (lrProcess == null) throw new LRResourceProcessNotFound(uuid);
+        lrProcess.stopMe();
+        lrProcessManager.updateLongRunningProcessFinishedDate(lrProcess);
+        LRProcess nLrProcess = lrProcessManager.getLongRunningProcess(uuid);
+        if (nLrProcess != null) return  lrPRocessToJSONObject(nLrProcess).toString();
+        else throw new LRResourceProcessNotFound(uuid);
     }
 
     @GET
     @Path("delete/{uuid}")
+    @Produces(MediaType.APPLICATION_JSON)
     public String deleteProcess(@PathParam("uuid")String uuid){
-        return null;
+        Lock lock = this.lrProcessManager.getSynchronizingLock();
+        lock.lock();
+        try {
+            LRProcess longRunningProcess = this.lrProcessManager.getLongRunningProcess(uuid);
+            if (longRunningProcess != null) {
+                if (BatchStates.expect(longRunningProcess.getBatchState(), BatchStates.BATCH_FAILED, BatchStates.BATCH_FINISHED)) {
+                    lrProcessManager.deleteBatchLongRunningProcess(longRunningProcess);
+                } else {
+                    lrProcessManager.deleteLongRunningProcess(longRunningProcess);
+                }
+            } else {
+                throw new LRResourceProcessNotFound("process not found "+uuid);
+            }
+            JSONObject jsonObject = new JSONObject();
+            jsonObject.put("deleted", uuid);
+            return jsonObject.toString();
+        } finally {
+            lock.unlock();
+        }
     }
 
     @GET
     @Path("logs/{uuid}")
+    @Produces(MediaType.APPLICATION_JSON)
     public String processLogs(@PathParam("uuid")String uuid){
-        return null;
+        try {
+            JSONObject jsonObj = new JSONObject();
+
+            LRProcess lrProcesses = this.lrProcessManager.getLongRunningProcess(uuid);
+            if (lrProcesses != null) {
+                InputStream os = lrProcesses.getErrorProcessOutputStream();
+                ByteArrayOutputStream bos = new ByteArrayOutputStream();
+                
+                IOUtils.copyStreams(os, bos);
+                
+                jsonObj.put("sout", new String(Base64Coder.encode(bos.toByteArray())));
+                
+                InputStream er = lrProcesses.getErrorProcessOutputStream();
+                ByteArrayOutputStream ber = new ByteArrayOutputStream();
+                
+                IOUtils.copyStreams(er, ber);
+                
+                jsonObj.put("serr", new String(Base64Coder.encode(ber.toByteArray())));
+                
+                return jsonObj.toString();
+            } else  throw new LRResourceProcessNotFound("process not found "+uuid);
+
+            
+        } catch (FileNotFoundException e) {
+            LOGGER.log(Level.SEVERE,e.getMessage(),e);
+            throw new LRResourceCannotReadLogs(e.getMessage());
+        } catch (IOException e) {
+            LOGGER.log(Level.SEVERE,e.getMessage(),e);
+            throw new LRResourceCannotReadLogs(e.getMessage());
+        }
     }
 
     @GET
@@ -159,7 +247,7 @@ public class LRResource {
                 JSONObject jsonLrProcess = lrPRocessToJSONObject(lrProcess);
                 if (lrProcess.isMasterProcess()) {
                     JSONArray childrenJSONs = new JSONArray();
-                    List<LRProcess> childSubprecesses = this.lrProcessManager.getLongRunningProcessesByToken(lrProcess.getToken());
+                    List<LRProcess> childSubprecesses = this.lrProcessManager.getLongRunningProcessesByGroupToken(lrProcess.getGroupToken());
                     for (LRProcess child : childSubprecesses) {
                         if (!child.getUUID().equals(lrProcess.getUUID())) {
                             childrenJSONs.add(lrPRocessToJSONObject(child));
@@ -179,32 +267,84 @@ public class LRResource {
         }
     }
 
+
+    private static Map<String,String> MAPPING_KEYS = new HashMap<String, String>(); {
+        MAPPING_KEYS.put("state", "status");
+        MAPPING_KEYS.put("batchState", "batch_status");
+        MAPPING_KEYS.put("def", "defid");
+        MAPPING_KEYS.put("uuid", "uuid");
+        MAPPING_KEYS.put("userid", "loginname");
+        MAPPING_KEYS.put("userFirstname", "firstname");
+        MAPPING_KEYS.put("userSurname", "surname");
+        MAPPING_KEYS.put("finished", "finished");
+        MAPPING_KEYS.put("planned", "planned");
+        MAPPING_KEYS.put("started", "started");
+    }
+    
+    private static Map<String,String> MAPPING_OPERATORS = new HashMap<String, String>(); {
+        for (Op op :  Op.values()) {
+            MAPPING_OPERATORS.put(op.getRawString(), op.name());
+        }
+    }
+    
+    private static Map<String, String> MAPPING_STATES = new HashMap<String, String>(); {
+        for (States st : States.values()) {
+            MAPPING_STATES.put(st.name(), ""+st.getVal());
+        }
+    }
+    
+    private static Map<String, String> MAPPING_BATCH_STATES = new HashMap<String, String>(); {
+        for (BatchStates st : BatchStates.values()) {
+            MAPPING_BATCH_STATES.put(st.name(), ""+st.getVal());
+        }        
+    }
+    
+    
     private LRPRocessFilter lrPRocessFilter(String f) throws RecognitionException, TokenStreamException {
         if (f == null) return null;
         ParamsParser paramsParser = new ParamsParser(new ParamsLexer(new StringReader(f)));
         List params = paramsParser.params();
         List<Tripple> tripples = new ArrayList<LRPRocessFilter.Tripple>();
         for (Object object : params) {
-            List trippleList = (List) object;
-            Tripple tripple = createTripple(trippleList);
-            if (tripple.getVal() != null) {
-                tripples.add(tripple);
+            if (object instanceof List) {
+                List oneParamCondition = (List) object;
+                if (oneParamCondition.size() == 1 ) {
+                    Tripple tripple = createTripple(oneParamCondition.get(0).toString());
+                    if (tripple == null) return null;
+                    else if (tripple.getVal() != null) {
+                        tripples.add(tripple);
+                    }
+                } else {
+                    LOGGER.warning("cannot process '"+object+"'");
+                }
+                
+            } else {
+                LOGGER.warning("cannot process '"+object+"'");
             }
         }
         LRPRocessFilter filter = LRPRocessFilter.createFilter(tripples);
         return filter;
     }
+
     
-    private Tripple createTripple(List trpList) {
-        if (trpList.size() == 3) {
-            String name = (String) trpList.get(0);
-            // mapping
-            String op = (String) trpList.get(1);
-            String val = (String) trpList.get(2);
-            Tripple trp = new Tripple(name, val, op);
-            return trp;
-        } else
-            return null;
+    private Tripple createTripple(String trpl) {
+        StringTokenizer tokenizer = new StringTokenizer(trpl, Op.EQ.getRawString()+Op.GT.getRawString()+Op.LT.getRawString(), true);
+        if(tokenizer.hasMoreTokens()) {
+
+            Operand left = Operand.createOperand(tokenizer.nextToken());
+            Op op = tokenizer.hasMoreTokens() ? Op.findByString(tokenizer.nextToken()): null;
+            Operand right = tokenizer.hasMoreTokens() ? Operand.createOperand(tokenizer.nextToken()) : null;
+
+            if (left != null && op != null && right != null) {
+                FilterCondition cond = new FilterCondition();
+                cond.setOp(op);
+                cond.setLeftOperand(left);
+                cond.setRightOperand(right);
+                return cond.getFilterValue();
+            }
+            
+        } 
+        return null;
     }
 
     private LRProcessOffset offset(String of) {
@@ -226,7 +366,6 @@ public class LRResource {
     }
 
     private JSONObject lrPRocessToJSONObject(LRProcess lrProcess) {
-        SimpleDateFormat format = new SimpleDateFormat("yyyy.MM.dd HH:mm:ss");
         
         JSONObject jsonObject = new JSONObject();
         jsonObject.put("uuid", lrProcess.getUUID());
@@ -235,9 +374,9 @@ public class LRResource {
         jsonObject.put("state", lrProcess.getProcessState().toString());
         jsonObject.put("batchState", lrProcess.getBatchState().toString());
         jsonObject.put("name", lrProcess.getProcessName());
-        jsonObject.put("started", format.format(new Date(lrProcess.getStartTime())));
-        jsonObject.put("planned", format.format(new Date(lrProcess.getPlannedTime())));
-        jsonObject.put("finished", format.format(new Date(lrProcess.getFinishedTime())));
+        jsonObject.put("started", FORMAT.format(new Date(lrProcess.getStartTime())));
+        jsonObject.put("planned", FORMAT.format(new Date(lrProcess.getPlannedTime())));
+        jsonObject.put("finished", FORMAT.format(new Date(lrProcess.getFinishedTime())));
         jsonObject.put("userid", lrProcess.getLoginname());
         jsonObject.put("userFirstname", lrProcess.getFirstname());
         jsonObject.put("userSurname", lrProcess.getSurname());
@@ -247,7 +386,9 @@ public class LRResource {
 
     
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws UnsupportedEncodingException {
+        String t = "{uuid=ABC};{f=date(aaa.bb.cc)}";
+        String tr = URLEncoder.encode(t, "UTF-8");
+        System.out.println(tr);
     }
-
 }
