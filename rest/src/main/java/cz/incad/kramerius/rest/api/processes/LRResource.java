@@ -355,10 +355,4 @@ public class LRResource {
     }
 
     
-
-    public static void main(String[] args) throws UnsupportedEncodingException {
-        String t = "{uuid=ABC};{f=date(aaa.bb.cc)}";
-        String tr = URLEncoder.encode(t, "UTF-8");
-        System.out.println(tr);
-    }
 }
