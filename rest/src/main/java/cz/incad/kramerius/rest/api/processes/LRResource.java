@@ -76,6 +76,8 @@ import cz.incad.kramerius.processes.LRPRocessFilter.Op;
 import cz.incad.kramerius.processes.LRPRocessFilter.Tripple;
 import cz.incad.kramerius.rest.api.processes.filter.FilterCondition;
 import cz.incad.kramerius.rest.api.processes.filter.Operand;
+import cz.incad.kramerius.security.IsActionAllowed;
+import cz.incad.kramerius.security.SecuredActions;
 import cz.incad.kramerius.security.User;
 import cz.incad.kramerius.security.utils.UserUtils;
 import cz.incad.kramerius.users.LoggedUsersSingleton;
@@ -115,28 +117,35 @@ public class LRResource {
     Provider<User> userProvider;
     
     
+    @Inject
+    IsActionAllowed actionAllowed;
+    
     
     @GET
     @Path("plainStart/{def}")
     @Produces(MediaType.APPLICATION_JSON)
     public String plainProcessStart(@PathParam("def")String def, @QueryParam("params") String params){
-        definitionManager.load();
-        LRProcessDefinition definition = definitionManager.getLongRunningProcessDefinition(def);
-        if (!definition.isInputTemplateDefined()) {
-            User user = userProvider.get();
-            String loggedUserKey =  (String) this.requestProvider.get().getSession().getAttribute(UserUtils.LOGGED_USER_KEY_PARAM);
-            
-            HttpServletRequest request = this.requestProvider.get();
-            
-            LRProcess newProcess = definition.createNewProcess(request.getHeader(AUTH_TOKEN_HEADER_KEY), request.getParameter(TOKEN_ATTRIBUTE_KEY));
-            newProcess.setLoggedUserKey(loggedUserKey);
-            newProcess.setParameters(Arrays.asList(params));
-            newProcess.setUser(user);
-            newProcess.planMe(new Properties());
-            lrProcessManager.updateAuthTokenMapping(newProcess, loggedUserKey);
-            return lrPRocessToJSONObject(newProcess).toString();
+        if (this.actionAllowed.isActionAllowed(this.userProvider.get(), SecuredActions.MANAGE_LR_PROCESS.getFormalName())) {
+            definitionManager.load();
+            LRProcessDefinition definition = definitionManager.getLongRunningProcessDefinition(def);
+            if (!definition.isInputTemplateDefined()) {
+                User user = userProvider.get();
+                String loggedUserKey =  (String) this.requestProvider.get().getSession().getAttribute(UserUtils.LOGGED_USER_KEY_PARAM);
+                
+                HttpServletRequest request = this.requestProvider.get();
+                
+                LRProcess newProcess = definition.createNewProcess(request.getHeader(AUTH_TOKEN_HEADER_KEY), request.getParameter(TOKEN_ATTRIBUTE_KEY));
+                newProcess.setLoggedUserKey(loggedUserKey);
+                newProcess.setParameters(Arrays.asList(params));
+                newProcess.setUser(user);
+                newProcess.planMe(new Properties());
+                lrProcessManager.updateAuthTokenMapping(newProcess, loggedUserKey);
+                return lrPRocessToJSONObject(newProcess).toString();
+            } else {
+                throw new LRResourceCannotStartProcess("not plain process "+def);
+            }
         } else {
-            throw new LRResourceCannotStartProcess("not plain process "+def);
+            throw new ActionNotAllowed("not allowed");
         }
     }
 
@@ -144,48 +153,94 @@ public class LRResource {
     @Path("parametrizedStart/{def}")
     @Produces(MediaType.APPLICATION_JSON)
     public String parametrizedProcessStart(@PathParam("def")String def,  @QueryParam("paramsMapping") String paramsMapping){
-        definitionManager.load();
-        
-        
-        return null;
+        if (this.actionAllowed.isActionAllowed(this.userProvider.get(), SecuredActions.MANAGE_LR_PROCESS.getFormalName())) {
+            definitionManager.load();
+
+            try {
+                LRProcessDefinition definition = definitionManager.getLongRunningProcessDefinition(def);
+
+                User user = userProvider.get();
+                String loggedUserKey =  (String) this.requestProvider.get().getSession().getAttribute(UserUtils.LOGGED_USER_KEY_PARAM);
+                
+                HttpServletRequest request = this.requestProvider.get();
+                
+                LRProcess newProcess = definition.createNewProcess(request.getHeader(AUTH_TOKEN_HEADER_KEY), request.getParameter(TOKEN_ATTRIBUTE_KEY));
+                newProcess.setLoggedUserKey(loggedUserKey);
+
+
+                ParamsParser paramsParser = new ParamsParser(new ParamsLexer(new StringReader(paramsMapping)));
+                List params = paramsParser.params();
+                Properties props = new Properties();
+                for (Object paramVal : params) {
+                    if (paramVal instanceof List) {
+                        List alist = (List) paramVal;
+                        if (alist.size() == 1 ) {
+                            String[] pair = alist.get(0).toString().split("=");
+                            props.put(pair[0], pair[1]);
+                        }
+                    }
+                }
+                
+                newProcess.setParameters(Arrays.asList(new String[0]));
+                newProcess.setUser(user);
+
+                newProcess.planMe(props);
+                lrProcessManager.updateAuthTokenMapping(newProcess, loggedUserKey);
+                return lrPRocessToJSONObject(newProcess).toString();
+            } catch (RecognitionException e) {
+                throw new LRResourceCannotStartProcess(e.getMessage());
+            } catch (TokenStreamException e) {
+                throw new LRResourceCannotStartProcess(e.getMessage());
+            }
+        } else {
+            throw new ActionNotAllowed("not allowed");
+        }
     }
     
     @GET
     @Path("stop/{uuid}")
     @Produces(MediaType.APPLICATION_JSON)
     public String processStop(@PathParam("uuid")String uuid){
-        this.definitionManager.load();
-        LRProcess lrProcess = lrProcessManager.getLongRunningProcess(uuid);
-        if (lrProcess == null) throw new LRResourceProcessNotFound(uuid);
-        lrProcess.stopMe();
-        lrProcessManager.updateLongRunningProcessFinishedDate(lrProcess);
-        LRProcess nLrProcess = lrProcessManager.getLongRunningProcess(uuid);
-        if (nLrProcess != null) return  lrPRocessToJSONObject(nLrProcess).toString();
-        else throw new LRResourceProcessNotFound(uuid);
+        if (this.actionAllowed.isActionAllowed(this.userProvider.get(), SecuredActions.MANAGE_LR_PROCESS.getFormalName())) {
+            this.definitionManager.load();
+            LRProcess lrProcess = lrProcessManager.getLongRunningProcess(uuid);
+            if (lrProcess == null) throw new LRResourceProcessNotFound(uuid);
+            lrProcess.stopMe();
+            lrProcessManager.updateLongRunningProcessFinishedDate(lrProcess);
+            LRProcess nLrProcess = lrProcessManager.getLongRunningProcess(uuid);
+            if (nLrProcess != null) return  lrPRocessToJSONObject(nLrProcess).toString();
+            else throw new LRResourceProcessNotFound(uuid);
+        } else {
+            throw new ActionNotAllowed("not allowed");
+        }
     }
 
     @GET
     @Path("delete/{uuid}")
     @Produces(MediaType.APPLICATION_JSON)
     public String deleteProcess(@PathParam("uuid")String uuid){
-        Lock lock = this.lrProcessManager.getSynchronizingLock();
-        lock.lock();
-        try {
-            LRProcess longRunningProcess = this.lrProcessManager.getLongRunningProcess(uuid);
-            if (longRunningProcess != null) {
-                if (BatchStates.expect(longRunningProcess.getBatchState(), BatchStates.BATCH_FAILED, BatchStates.BATCH_FINISHED)) {
-                    lrProcessManager.deleteBatchLongRunningProcess(longRunningProcess);
+        if (this.actionAllowed.isActionAllowed(this.userProvider.get(), SecuredActions.MANAGE_LR_PROCESS.getFormalName())) {
+            Lock lock = this.lrProcessManager.getSynchronizingLock();
+            lock.lock();
+            try {
+                LRProcess longRunningProcess = this.lrProcessManager.getLongRunningProcess(uuid);
+                if (longRunningProcess != null) {
+                    if (BatchStates.expect(longRunningProcess.getBatchState(), BatchStates.BATCH_FAILED, BatchStates.BATCH_FINISHED)) {
+                        lrProcessManager.deleteBatchLongRunningProcess(longRunningProcess);
+                    } else {
+                        lrProcessManager.deleteLongRunningProcess(longRunningProcess);
+                    }
                 } else {
-                    lrProcessManager.deleteLongRunningProcess(longRunningProcess);
+                    throw new LRResourceProcessNotFound("process not found "+uuid);
                 }
-            } else {
-                throw new LRResourceProcessNotFound("process not found "+uuid);
+                JSONObject jsonObject = new JSONObject();
+                jsonObject.put("deleted", uuid);
+                return jsonObject.toString();
+            } finally {
+                lock.unlock();
             }
-            JSONObject jsonObject = new JSONObject();
-            jsonObject.put("deleted", uuid);
-            return jsonObject.toString();
-        } finally {
-            lock.unlock();
+        } else {
+            throw new ActionNotAllowed("not allowed");
         }
     }
 
@@ -193,35 +248,38 @@ public class LRResource {
     @Path("logs/{uuid}")
     @Produces(MediaType.APPLICATION_JSON)
     public String processLogs(@PathParam("uuid")String uuid){
-        try {
-            JSONObject jsonObj = new JSONObject();
-
-            LRProcess lrProcesses = this.lrProcessManager.getLongRunningProcess(uuid);
-            if (lrProcesses != null) {
-                InputStream os = lrProcesses.getErrorProcessOutputStream();
-                ByteArrayOutputStream bos = new ByteArrayOutputStream();
-                
-                IOUtils.copyStreams(os, bos);
-                
-                jsonObj.put("sout", new String(Base64Coder.encode(bos.toByteArray())));
-                
-                InputStream er = lrProcesses.getErrorProcessOutputStream();
-                ByteArrayOutputStream ber = new ByteArrayOutputStream();
-                
-                IOUtils.copyStreams(er, ber);
-                
-                jsonObj.put("serr", new String(Base64Coder.encode(ber.toByteArray())));
-                
-                return jsonObj.toString();
-            } else  throw new LRResourceProcessNotFound("process not found "+uuid);
-
-            
-        } catch (FileNotFoundException e) {
-            LOGGER.log(Level.SEVERE,e.getMessage(),e);
-            throw new LRResourceCannotReadLogs(e.getMessage());
-        } catch (IOException e) {
-            LOGGER.log(Level.SEVERE,e.getMessage(),e);
-            throw new LRResourceCannotReadLogs(e.getMessage());
+        if (this.actionAllowed.isActionAllowed(this.userProvider.get(), SecuredActions.MANAGE_LR_PROCESS.getFormalName())) {
+            try {
+                JSONObject jsonObj = new JSONObject();
+    
+                LRProcess lrProcesses = this.lrProcessManager.getLongRunningProcess(uuid);
+                if (lrProcesses != null) {
+                    InputStream os = lrProcesses.getErrorProcessOutputStream();
+                    ByteArrayOutputStream bos = new ByteArrayOutputStream();
+                    
+                    IOUtils.copyStreams(os, bos);
+                    
+                    jsonObj.put("sout", new String(Base64Coder.encode(bos.toByteArray())));
+                    
+                    InputStream er = lrProcesses.getErrorProcessOutputStream();
+                    ByteArrayOutputStream ber = new ByteArrayOutputStream();
+                    
+                    IOUtils.copyStreams(er, ber);
+                    
+                    jsonObj.put("serr", new String(Base64Coder.encode(ber.toByteArray())));
+                    
+                    return jsonObj.toString();
+                } else  throw new LRResourceProcessNotFound("process not found "+uuid);
+    
+            } catch (FileNotFoundException e) {
+                LOGGER.log(Level.SEVERE,e.getMessage(),e);
+                throw new LRResourceCannotReadLogs(e.getMessage());
+            } catch (IOException e) {
+                LOGGER.log(Level.SEVERE,e.getMessage(),e);
+                throw new LRResourceCannotReadLogs(e.getMessage());
+            }
+        } else {
+            throw new ActionNotAllowed("not allowed");
         }
     }
 
@@ -229,8 +287,12 @@ public class LRResource {
     @Path("desc/{uuid}")
     @Produces(MediaType.APPLICATION_JSON)
     public String getProcessDescription(@PathParam("uuid")String uuid){
-        LRProcess lrProcesses = this.lrProcessManager.getLongRunningProcess(uuid);
-        return lrPRocessToJSONObject(lrProcesses).toString();
+        if (this.actionAllowed.isActionAllowed(this.userProvider.get(), SecuredActions.MANAGE_LR_PROCESS.getFormalName())) {
+            LRProcess lrProcesses = this.lrProcessManager.getLongRunningProcess(uuid);
+            return lrPRocessToJSONObject(lrProcesses).toString();
+        } else {
+            throw new ActionNotAllowed("not allowed");
+        }
     }    
 
     
@@ -240,30 +302,34 @@ public class LRResource {
     @Path("list")
     @Produces(MediaType.APPLICATION_JSON)
     public String getProcessDescriptions(@QueryParam("filter")String filter,@QueryParam("ordering")String ordering, @QueryParam("typeofordering") String type,@QueryParam("offset") String of){
-        try {
-            JSONArray jsonArr = new JSONArray();
-            List<LRProcess> lrProcesses = this.lrProcessManager.getLongRunningProcessesAsGrouped(lrProcessOrdering(ordering), typeOfOrdering(type), offset(of), lrPRocessFilter(filter));
-            for (LRProcess lrProcess : lrProcesses) {
-                JSONObject jsonLrProcess = lrPRocessToJSONObject(lrProcess);
-                if (lrProcess.isMasterProcess()) {
-                    JSONArray childrenJSONs = new JSONArray();
-                    List<LRProcess> childSubprecesses = this.lrProcessManager.getLongRunningProcessesByGroupToken(lrProcess.getGroupToken());
-                    for (LRProcess child : childSubprecesses) {
-                        if (!child.getUUID().equals(lrProcess.getUUID())) {
-                            childrenJSONs.add(lrPRocessToJSONObject(child));
+        if (this.actionAllowed.isActionAllowed(this.userProvider.get(), SecuredActions.MANAGE_LR_PROCESS.getFormalName())) {
+            try {
+                JSONArray jsonArr = new JSONArray();
+                List<LRProcess> lrProcesses = this.lrProcessManager.getLongRunningProcessesAsGrouped(lrProcessOrdering(ordering), typeOfOrdering(type), offset(of), lrPRocessFilter(filter));
+                for (LRProcess lrProcess : lrProcesses) {
+                    JSONObject jsonLrProcess = lrPRocessToJSONObject(lrProcess);
+                    if (lrProcess.isMasterProcess()) {
+                        JSONArray childrenJSONs = new JSONArray();
+                        List<LRProcess> childSubprecesses = this.lrProcessManager.getLongRunningProcessesByGroupToken(lrProcess.getGroupToken());
+                        for (LRProcess child : childSubprecesses) {
+                            if (!child.getUUID().equals(lrProcess.getUUID())) {
+                                childrenJSONs.add(lrPRocessToJSONObject(child));
+                            }
                         }
-                    }
-                    jsonLrProcess.put("children",childrenJSONs);
-                }   
-                jsonArr.add(jsonLrProcess);
+                        jsonLrProcess.put("children",childrenJSONs);
+                    }   
+                    jsonArr.add(jsonLrProcess);
+                }
+                return jsonArr.toString();
+            } catch (RecognitionException e) {
+                LOGGER.log(Level.SEVERE,e.getMessage(),e);
+                throw new LRResourceBadFilterException(e.getMessage());
+            } catch (TokenStreamException e) {
+                LOGGER.log(Level.SEVERE,e.getMessage(),e);
+                throw new LRResourceBadFilterException(e.getMessage());
             }
-            return jsonArr.toString();
-        } catch (RecognitionException e) {
-            LOGGER.log(Level.SEVERE,e.getMessage(),e);
-            throw new LRResourceBadFilterException(e.getMessage());
-        } catch (TokenStreamException e) {
-            LOGGER.log(Level.SEVERE,e.getMessage(),e);
-            throw new LRResourceBadFilterException(e.getMessage());
+        } else {
+            throw new ActionNotAllowed("not allowed");
         }
     }
 
