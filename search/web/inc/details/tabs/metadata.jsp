@@ -1,3 +1,4 @@
+<%@ taglib uri="/WEB-INF/tlds/cmn.tld" prefix="view"%>
 <style type="text/css">
     #extendedMetadata li{
         list-style-type: none;
@@ -59,8 +60,32 @@
     function getModelMetadata(pid, level, model){
         var url = "inc/details/metadata.jsp?pid=" + pid + "&model=" + model + "&level=" + level;
         $.get(url, function(data){
-            $("#extendedMetadata div.level"+level+">div.meta").html(data);
+            var id = "#extendedMetadata div.level"+level+">div.meta";
+            $(id).html(data);
+            setAlephLinks(id);
         }); 
     }
+    <view:kconfig key="search.aleph.baseURL.ISSN" var="issn_url" />
+    <view:kconfig key="search.aleph.baseURL.ISBN" var="isbn_url" />
+    <view:kconfig key="search.aleph.baseURL.CNB" var="cnb_url" />
  
+    function setAlephLinks(id){
+        $(id + ' .aleph').each(function(){
+            var field = $(this).data('field');
+            var value = $(this).text();
+            var url;
+            $(this).css('text-decoration', 'underline');
+            $(this).css('cursor', 'pointer');
+            if(field == 'ISSN'){
+                url = '${issn_url}' + value;
+            }else if(field == 'ISBN'){
+                url = '${isbn_url}' + value;
+            }else if(field == 'ccnb'){
+                url = '${cnb_url}' + value;
+            }
+            $(this).click(function(){
+                window.open(url, 'aleph', '');
+            });
+        });
+    }
 </script>

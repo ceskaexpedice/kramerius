@@ -17,10 +17,23 @@
         <div id="details"><h2><xsl:value-of select="$bundle/value[@key=$model]"/></h2>
         <ul>
         
+        <xsl:if test="./mods:identifier[@type='isbn']/text()">
+        <li>
+            <span class="label">ISBN: </span>
+            <span class="value aleph" data-field="ISBN"><xsl:value-of select="./mods:identifier[@type='isbn']" /></span>
+        </li>
+        </xsl:if>
+        
         <xsl:if test="./mods:identifier[@type='issn']/text()">
         <li>
             <span class="label">ISSN: </span>
-            <span class="value"><xsl:value-of select="./mods:identifier[@type='issn']" /></span>
+            <span class="value aleph" data-field="ISSN"><xsl:value-of select="./mods:identifier[@type='issn']" /></span>
+        </li>
+        </xsl:if>
+        <xsl:if test="./mods:identifier[@type='ccnb']/text()">
+        <li>
+            <span class="label">čČNB: </span>
+            <span class="value aleph" data-field="ccnb"><xsl:value-of select="./mods:identifier[@type='ccnb']" /></span>
         </li>
         </xsl:if>
         <xsl:if test="mods:titleInfo/mods:title/text()">
