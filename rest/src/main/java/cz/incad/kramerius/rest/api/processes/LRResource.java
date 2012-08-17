@@ -62,6 +62,7 @@ import biz.sourcecode.base64Coder.Base64Coder;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
 
+import cz.incad.kramerius.ObjectPidsPath;
 import cz.incad.kramerius.processes.BatchStates;
 import cz.incad.kramerius.processes.DefinitionManager;
 import cz.incad.kramerius.processes.LRPRocessFilter;
@@ -78,6 +79,7 @@ import cz.incad.kramerius.rest.api.processes.filter.FilterCondition;
 import cz.incad.kramerius.rest.api.processes.filter.Operand;
 import cz.incad.kramerius.security.IsActionAllowed;
 import cz.incad.kramerius.security.SecuredActions;
+import cz.incad.kramerius.security.SpecialObjects;
 import cz.incad.kramerius.security.User;
 import cz.incad.kramerius.security.utils.UserUtils;
 import cz.incad.kramerius.users.LoggedUsersSingleton;
@@ -125,7 +127,7 @@ public class LRResource {
     @Path("plainStart/{def}")
     @Produces(MediaType.APPLICATION_JSON)
     public String plainProcessStart(@PathParam("def")String def, @QueryParam("params") String params){
-        if (this.actionAllowed.isActionAllowed(this.userProvider.get(), SecuredActions.MANAGE_LR_PROCESS.getFormalName())) {
+        if (this.actionAllowed.isActionAllowed(this.userProvider.get(),SecuredActions.MANAGE_LR_PROCESS.getFormalName(), SpecialObjects.REPOSITORY.getPid(),null,new ObjectPidsPath(SpecialObjects.REPOSITORY.getPid()))) {
             definitionManager.load();
             LRProcessDefinition definition = definitionManager.getLongRunningProcessDefinition(def);
             if (!definition.isInputTemplateDefined()) {
@@ -153,7 +155,7 @@ public class LRResource {
     @Path("parametrizedStart/{def}")
     @Produces(MediaType.APPLICATION_JSON)
     public String parametrizedProcessStart(@PathParam("def")String def,  @QueryParam("paramsMapping") String paramsMapping){
-        if (this.actionAllowed.isActionAllowed(this.userProvider.get(), SecuredActions.MANAGE_LR_PROCESS.getFormalName())) {
+        if (this.actionAllowed.isActionAllowed(this.userProvider.get(),SecuredActions.MANAGE_LR_PROCESS.getFormalName(), SpecialObjects.REPOSITORY.getPid(),null,new ObjectPidsPath(SpecialObjects.REPOSITORY.getPid()))) {
             definitionManager.load();
 
             try {
@@ -201,7 +203,7 @@ public class LRResource {
     @Path("stop/{uuid}")
     @Produces(MediaType.APPLICATION_JSON)
     public String processStop(@PathParam("uuid")String uuid){
-        if (this.actionAllowed.isActionAllowed(this.userProvider.get(), SecuredActions.MANAGE_LR_PROCESS.getFormalName())) {
+        if (this.actionAllowed.isActionAllowed(this.userProvider.get(),SecuredActions.MANAGE_LR_PROCESS.getFormalName(), SpecialObjects.REPOSITORY.getPid(),null,new ObjectPidsPath(SpecialObjects.REPOSITORY.getPid()))) {
             this.definitionManager.load();
             LRProcess lrProcess = lrProcessManager.getLongRunningProcess(uuid);
             if (lrProcess == null) throw new LRResourceProcessNotFound(uuid);
@@ -219,7 +221,7 @@ public class LRResource {
     @Path("delete/{uuid}")
     @Produces(MediaType.APPLICATION_JSON)
     public String deleteProcess(@PathParam("uuid")String uuid){
-        if (this.actionAllowed.isActionAllowed(this.userProvider.get(), SecuredActions.MANAGE_LR_PROCESS.getFormalName())) {
+        if (this.actionAllowed.isActionAllowed(this.userProvider.get(),SecuredActions.MANAGE_LR_PROCESS.getFormalName(), SpecialObjects.REPOSITORY.getPid(),null,new ObjectPidsPath(SpecialObjects.REPOSITORY.getPid()))) {
             Lock lock = this.lrProcessManager.getSynchronizingLock();
             lock.lock();
             try {
@@ -248,7 +250,7 @@ public class LRResource {
     @Path("logs/{uuid}")
     @Produces(MediaType.APPLICATION_JSON)
     public String processLogs(@PathParam("uuid")String uuid){
-        if (this.actionAllowed.isActionAllowed(this.userProvider.get(), SecuredActions.MANAGE_LR_PROCESS.getFormalName())) {
+        if (this.actionAllowed.isActionAllowed(this.userProvider.get(),SecuredActions.MANAGE_LR_PROCESS.getFormalName(), SpecialObjects.REPOSITORY.getPid(),null,new ObjectPidsPath(SpecialObjects.REPOSITORY.getPid()))) {
             try {
                 JSONObject jsonObj = new JSONObject();
     
@@ -287,7 +289,7 @@ public class LRResource {
     @Path("desc/{uuid}")
     @Produces(MediaType.APPLICATION_JSON)
     public String getProcessDescription(@PathParam("uuid")String uuid){
-        if (this.actionAllowed.isActionAllowed(this.userProvider.get(), SecuredActions.MANAGE_LR_PROCESS.getFormalName())) {
+        if (this.actionAllowed.isActionAllowed(this.userProvider.get(),SecuredActions.MANAGE_LR_PROCESS.getFormalName(), SpecialObjects.REPOSITORY.getPid(),null,new ObjectPidsPath(SpecialObjects.REPOSITORY.getPid()))) {
             LRProcess lrProcesses = this.lrProcessManager.getLongRunningProcess(uuid);
             return lrPRocessToJSONObject(lrProcesses).toString();
         } else {
@@ -302,7 +304,7 @@ public class LRResource {
     @Path("list")
     @Produces(MediaType.APPLICATION_JSON)
     public String getProcessDescriptions(@QueryParam("filter")String filter,@QueryParam("ordering")String ordering, @QueryParam("typeofordering") String type,@QueryParam("offset") String of){
-        if (this.actionAllowed.isActionAllowed(this.userProvider.get(), SecuredActions.MANAGE_LR_PROCESS.getFormalName())) {
+        if (this.actionAllowed.isActionAllowed(this.userProvider.get(),SecuredActions.MANAGE_LR_PROCESS.getFormalName(), SpecialObjects.REPOSITORY.getPid(),null,new ObjectPidsPath(SpecialObjects.REPOSITORY.getPid()))) {
             try {
                 JSONArray jsonArr = new JSONArray();
                 List<LRProcess> lrProcesses = this.lrProcessManager.getLongRunningProcessesAsGrouped(lrProcessOrdering(ordering), typeOfOrdering(type), offset(of), lrPRocessFilter(filter));
