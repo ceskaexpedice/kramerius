@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
 
+import cz.incad.kramerius.lp.utils.ASCIITranslate;
 import cz.incad.kramerius.pdf.Break;
 import cz.incad.kramerius.pdf.impl.OutputStreams;
 
@@ -22,7 +23,7 @@ public class GenerateController implements Break, OutputStreams {
 	public GenerateController(File folder, String name) {
 		super();
 		this.folder = folder;
-		this.name = name.trim();
+		this.name = ASCIITranslate.asciiString(name.trim());
 		this.corruptName();
 	}
 
@@ -56,4 +57,5 @@ public class GenerateController implements Break, OutputStreams {
 		if (this.currentDos.getActualSize() >= this.velikost) return true;
 		return false;
 	}
+	
 }
