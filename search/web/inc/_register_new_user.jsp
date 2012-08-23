@@ -98,7 +98,8 @@ RegUserValidate.prototype.grabData = function() {
     	    'loginName':$('#regUserLoginName').val(),
             'email':$('#regUserEmail').val(),
             'pswd':$('#regUserPswd').val(),
-            'name':$('#regUserName').val()
+            'name':$('#regUserName').val(),
+            'captcha':$('#regUserCaptcha').val()
     };
     return data;
 }
@@ -148,6 +149,14 @@ var regUserValidate = new RegUserValidate();
 
 <tr><td><label><view:msg>registeruser.retypepassword</view:msg></label></td></tr>
 <tr><td><input type="password"  class="reguserform" id='regUserRepeatePswd'></input></td></tr>
+
+
+<tr><td><label><view:msg>registeruser.captcha</view:msg></label></td></tr>
+<tr><td><input type="text"  class="reguserform" id='regUserCaptcha'></input></td></tr>
+
+
+<tr><td style="text-align: center;">
+<img src="<c:url value="simpleCaptcha.png" />"></td></tr>
                 
 </tbody></table>
 

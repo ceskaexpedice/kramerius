@@ -17,6 +17,7 @@
 package cz.incad.Kramerius.security.userscommands.post;
 
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.sql.SQLException;
 import java.text.MessageFormat;
 import java.util.ResourceBundle;
@@ -32,6 +33,9 @@ import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
+
+import nl.captcha.Captcha;
 
 import com.google.inject.Inject;
 
@@ -48,6 +52,7 @@ public class RegisterPublicUser extends AbstractPostUser{
     @Inject
     Mailer mailer;
     
+    
     @Override
     public void doCommand() throws IOException {
         try {
@@ -56,18 +61,40 @@ public class RegisterPublicUser extends AbstractPostUser{
             String name = req.getParameter(NAME);
             String email = req.getParameter(EMAIL);
             String pswd = req.getParameter(PASSWORD);
+            String captcha = req.getParameter(CAPTCHA);
             String firstName = name;
             String surName = "";
-
-            StringTokenizer tokenizer = new StringTokenizer(name," ");
-            firstName = tokenizer.hasMoreTokens() ? tokenizer.nextToken() : name;
-            surName  = tokenizer.hasMoreTokens() ? tokenizer.nextToken() : "";
             
-            UserImpl user = new UserImpl(-1, firstName, surName, loginName, -1);
-            user.setEmail(email);
-            this.userManager.insertPublicUser(user,pswd);
             
-            sendMail(user);
+            if (requestProvider.get().getSession().getAttribute(Captcha.NAME) != null) {
+                Captcha expected = (Captcha) requestProvider.get().getSession().getAttribute(Captcha.NAME);
+                
+                if (expected.getAnswer().equals(captcha)) {
+                    StringTokenizer tokenizer = new StringTokenizer(name," ");
+                    firstName = tokenizer.hasMoreTokens() ? tokenizer.nextToken() : name;
+                    surName  = tokenizer.hasMoreTokens() ? tokenizer.nextToken() : "";
+                    
+                    UserImpl user = new UserImpl(-1, firstName, surName, loginName, -1);
+                    user.setEmail(email);
+                    this.userManager.insertPublicUser(user,pswd);
+                    
+                    sendMail(user);
+                } else {
+                    HttpServletResponse response = this.responseProvider.get();
+                    response.setContentType("application/json");
+                    PrintWriter writer = response.getWriter();
+                    writer.write("{'error':'bad_captcha'}");
+                    response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+                }
+                
+            } else { 
+                HttpServletResponse response = this.responseProvider.get();
+                response.setCharacterEncoding("application/json");
+                PrintWriter writer = response.getWriter();
+                writer.write("{'error':'no_captcha'}");
+                response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            }
+            
             
         } catch (NumberFormatException e) {
             LOGGER.log(Level.SEVERE,e.getMessage(),e);

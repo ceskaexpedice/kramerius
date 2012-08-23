@@ -19,7 +19,10 @@ package cz.incad.Kramerius.views.inc;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.servlet.http.HttpServletRequest;
+
 import com.google.inject.Inject;
+import com.google.inject.Provider;
 
 import cz.incad.kramerius.security.User;
 import cz.incad.kramerius.security.UserManager;
@@ -31,6 +34,8 @@ public class RegisterNewUserView {
     @Inject
     UserManager userManager;
     
+    @Inject
+    Provider<HttpServletRequest> requestProvider;
     
     public RegisterNewUserView() {
         super();
@@ -44,5 +49,8 @@ public class RegisterNewUserView {
             loginNames.add(user.getLoginname());
         }
         return loginNames;
+        
     }
+
+    
 }

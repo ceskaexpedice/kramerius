@@ -445,7 +445,33 @@ var print = new Print();
 
 
 function RegisterUser() {
-	this.dialog = null; this.checkDialog = null;
+	this.dialog = null; this.checkDialog = null; this.badCaptchaDialog = null;
+	
+}
+
+
+RegisterUser.prototype.badCaptcha = function() {
+	if (this.badCaptchaDialog) {
+		this.badCaptchaDialog.dialog('open');
+	} else {
+		$(document.body).append('<div id="badCaptcha"></div>');
+		$("#badCaptcha").html('<div> <h3> '+dictionary['registeruser.message.badcaptchatitle']+'</h3><div> '+dictionary['registeruser.message.badcaptcha']+'</div></div>');
+		this.badCaptchaDialog = $('#badCaptcha').dialog({
+            width:400,
+            height:250,
+            modal:true,
+            title: dictionary['registeruser.message.badcaptchadialogtitle'],
+            buttons: [
+                {
+                    text: dictionary['common.close'],
+                    click: function() {
+                        $(this).dialog("close"); 
+                    }
+                }
+            ]
+		});		
+		
+	}
 	
 }
 
@@ -460,7 +486,7 @@ RegisterUser.prototype.emailCheck = function() {
             width:400,
             height:250,
             modal:true,
-            title: "",
+            title: dictionary['registeruser.message.checkemaildialogtitle'],
             buttons: [
                 {
                     text: dictionary['common.close'],
@@ -485,7 +511,7 @@ RegisterUser.prototype.register = function() {
             
     		this.dialog = $('#registerUser').dialog({
                 width:400,
-                height:400,
+                height:500,
                 modal:true,
                 title: dictionary["registeruser.title"],
                 buttons: [
@@ -501,12 +527,18 @@ RegisterUser.prototype.register = function() {
                                 	'loginName':data.loginName,
                                 	'email':data.email,
                                 	'password':data.pswd,
-                                	'name':data.name
+                                	'name':data.name,
+                                	'captcha':data.captcha
                                 	},
                                 	bind(function() {
                                 		this.emailCheck();
                                 	},this)
-                                );
+                                ).error(bind(function (data) {
+                                	var dataObject = eval('(' +data.responseText + ')');
+                                	if (dataObject && dataObject.error=='bad_captcha') {
+                                		this.badCaptcha();
+                                	}
+                                },this));
                                 
                     			this.dialog.dialog("close");
                         	}

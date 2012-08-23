@@ -27,6 +27,8 @@
         <listener-class>cz.incad.kramerius.users.impl.http.LoggedUserSessionListener</listener-class>
 	</listener>
 
+
+
 	<!-- Servlets -->
 	<servlet>
 		<servlet-name>i18n</servlet-name>
@@ -84,7 +86,8 @@
 		<servlet-class>cz.incad.Kramerius.LongRunningProcessServlet</servlet-class>
 		<load-on-startup>1</load-on-startup>
 	</servlet>
-	
+
+     
 	<!-- METS export -->
 	<servlet>
 		<servlet-name>mets</servlet-name>
@@ -189,10 +192,24 @@
 		<servlet-class>cz.incad.Kramerius.FeedbackServlet</servlet-class>
 	</servlet>
 
+
+    <!-- captcha servlet -->
+    <servlet>
+        <servlet-name>simplecaptcha</servlet-name>
+        <servlet-class>nl.captcha.servlet.SimpleCaptchaServlet</servlet-class>
+            <init-param>
+                <param-name>captcha-width</param-name>
+                <param-value>300</param-value>
+            </init-param>
+            <init-param>
+                <param-name>captcha-height</param-name>
+                <param-value>100</param-value>
+            </init-param>
+    </servlet>
+
 	<!-- 
 		// Mapovani servletu
 	 -->
-    
     <servlet-mapping>
         <servlet-name>imageServlet</servlet-name>
         <url-pattern>/img</url-pattern>
@@ -239,8 +256,8 @@
 		<servlet-name>lr</servlet-name>
 		<url-pattern>/lr</url-pattern>
 	</servlet-mapping>
-
-	<servlet-mapping>
+	
+    <servlet-mapping>
 		<servlet-name>i18n</servlet-name>
 		<url-pattern>/i18n</url-pattern>
 	</servlet-mapping>
@@ -335,6 +352,11 @@
     <servlet-mapping>
         <servlet-name>feedback</servlet-name>
         <url-pattern>/feedback</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>simplecaptcha</servlet-name>
+        <url-pattern>/simpleCaptcha.png</url-pattern>
     </servlet-mapping>
 
 	
