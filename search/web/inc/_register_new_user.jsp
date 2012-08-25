@@ -130,35 +130,39 @@ var regUserValidate = new RegUserValidate();
 
 <h3><view:msg>registeruser.title</view:msg></h3>
 
+
 <table style="width:100%">
 
 <tbody>
 
-
-<tr><td><label><view:msg>registeruser.loginname</view:msg> </label><span id="regUserLoginName_error" class="reguserformerror"></span></td></tr>
+<tr><td title="<view:msg>registeruser.mandatoryfield</view:msg>"><label><view:msg>registeruser.loginname</view:msg><sup>*</sup> </label><span id="regUserLoginName_error" class="reguserformerror"></span></td></tr>
 <tr><td><input class="reguserform" id='regUserLoginName' ></input></td></tr>
 
-<tr><td><label><view:msg>registeruser.namesurname</view:msg> </label><span id="regUserName_error" class="reguserformerror"></span></td></tr>
+<tr><td title="<view:msg>registeruser.optionalfield</view:msg>" ><label><view:msg>registeruser.namesurname</view:msg> </label><span id="regUserName_error" class="reguserformerror"></span></td></tr>
 <tr><td><input class="reguserform" id='regUserName' ></input></td></tr>
 
-<tr><td><label><view:msg>registeruser.email</view:msg></label><span id="regUserEmail_error" class="reguserformerror"></span></td></tr>
+<tr><td title="<view:msg>registeruser.mandatoryfield</view:msg>"><label><view:msg>registeruser.email</view:msg></label><sup>*</sup><span id="regUserEmail_error" class="reguserformerror"></span></td></tr>
 <tr><td><input class="reguserform" id='regUserEmail' ></input></td></tr>
 
-<tr><td><label><view:msg>registeruser.password</view:msg></label><span id="regUserPswd_error" class="reguserformerror"></span></td></tr>
+<tr><td title="<view:msg>registeruser.mandatoryfield</view:msg>"><label><view:msg>registeruser.password</view:msg></label><sup>*</sup><span id="regUserPswd_error" class="reguserformerror"></span></td></tr>
 <tr><td><input type="password" class="reguserform" id='regUserPswd'></input></td></tr>
 
-<tr><td><label><view:msg>registeruser.retypepassword</view:msg></label></td></tr>
+<tr><td title="<view:msg>registeruser.mandatoryfield</view:msg>"><label><view:msg>registeruser.retypepassword</view:msg><sup>*</sup></label></td></tr>
 <tr><td><input type="password"  class="reguserform" id='regUserRepeatePswd'></input></td></tr>
 
 
-<tr><td><label><view:msg>registeruser.captcha</view:msg></label></td></tr>
+<tr><td title="<view:msg>registeruser.mandatoryfield</view:msg>"><label><view:msg>registeruser.captcha</view:msg><sup>*</sup></label></td></tr>
 <tr><td><input type="text"  class="reguserform" id='regUserCaptcha'></input></td></tr>
 
 
 <tr><td style="text-align: center;">
 <img src="<c:url value="simpleCaptcha.png" />"></td></tr>
+
                 
 </tbody></table>
+
+<hr></hr>
+<span style="font-family: cursive;"> <view:msg>registeruser.fieldsdescription</view:msg> </span>
 
 <div>
 

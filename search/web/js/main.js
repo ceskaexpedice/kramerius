@@ -510,8 +510,8 @@ RegisterUser.prototype.register = function() {
     		$(document.body).append('<div id="registerUser"></div>');
             
     		this.dialog = $('#registerUser').dialog({
-                width:400,
-                height:500,
+                width:600,
+                height:550,
                 modal:true,
                 title: dictionary["registeruser.title"],
                 buttons: [
