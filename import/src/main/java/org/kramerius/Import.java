@@ -173,7 +173,7 @@ public class Import {
         }
     }
 
-    private static void ingest(File file) {
+    public static void ingest(File file) {
         if (!file.getName().toLowerCase().endsWith(".xml")){
             return;
         }
