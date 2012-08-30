@@ -1,0 +1,7 @@
+--
+  sample catalog file.
+  
+  double hyphens are used to begin and end a comment section.
+--
+
+SYSTEM "xlink.xsd" "http://www.loc.gov/standards/xlink/xlink.xsd"
