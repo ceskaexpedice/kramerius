@@ -26,15 +26,20 @@ public abstract class AbstractPhase implements Phase{
     public File createIterateFile() throws IOException, PhaseException {
         File iterate = new File(ITERATE_FILE);
         if (!iterate.exists()) iterate.createNewFile();
-        if (!iterate.exists()) throw new PhaseException("cannot create file '"+iterate+"'");
+        if (!iterate.exists()) throw new PhaseException("cannot create file '"+iterate.getAbsolutePath()+"'");
         return iterate;
     }
 
     public File getIterateFile() throws PhaseException {
         File iterate = new File(ITERATE_FILE);
-        if ((!iterate.exists()) && (!iterate.canRead())) throw new PhaseException("cannot create file '"+iterate+"'");
+        //if ((!iterate.exists()) && (!iterate.canRead())) throw new PhaseException(" file '"+iterate.getAbsolutePath()+"' doesnt exist");
         return iterate;
     }
 
+    public File getIterateFile(File rootFolder) throws PhaseException {
+        File iterate = new File(rootFolder, ITERATE_FILE);
+        if ((!iterate.exists()) && (!iterate.canRead())) throw new PhaseException(" file '"+iterate.getAbsolutePath()+"' doesnt exist");
+        return iterate;
+    }
     
 }

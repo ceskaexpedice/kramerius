@@ -18,18 +18,25 @@ package org.kramerius.replications;
 
 import java.io.File;
 
+import org.kramerius.replications.SecondPhase.DONEController;
+
 import cz.incad.kramerius.processes.impl.ProcessStarter;
 import cz.incad.kramerius.service.impl.IndexerProcessStarter;
+import cz.incad.kramerius.utils.IOUtils;
 
 public class ThirdPhase extends AbstractPhase {
 
     @Override
     public void start(String url, String userName, String pswd) throws PhaseException {
+        IOUtils.cleanDirectory(new File(SecondPhase.DONE_FOLDER_NAME));
         String pid = K4ReplicationProcess.pidFrom(url);
         IndexerProcessStarter.spawnIndexer(true, "_", pid);
     }
 
     @Override
-    public void restart(String previousProcessUUID, File previousProcessRoot, String url, String userName, String pswd) throws PhaseException {
+    public void restart(String previousProcessUUID, File previousProcessRoot, boolean phaseCompleted, String url, String userName, String pswd) throws PhaseException {
+        if (!phaseCompleted) {
+            this.start(url, userName, pswd);
+        }
     }
 }

@@ -17,11 +17,13 @@
 package org.kramerius.replications;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.channels.FileChannel;
 
 import org.kramerius.replications.pidlist.PIDsListLexer;
 import org.kramerius.replications.pidlist.PIDsListParser;
@@ -33,6 +35,10 @@ import cz.incad.kramerius.processes.annotations.ParameterName;
 import cz.incad.kramerius.utils.IOUtils;
 import cz.incad.kramerius.utils.RESTHelper;
 
+/**
+ * Get all pids designated for import
+ * @author pavels
+ */
 public class FirstPhase extends AbstractPhase  {
 
     @Override
@@ -78,8 +84,24 @@ public class FirstPhase extends AbstractPhase  {
 
     
     @Override
-    public void restart(String previousProcessUUID,File previousProcessRoot, String url, String userName, String pswd) throws PhaseException {
-        this.start(url, userName, pswd);
+    public void restart(String previousProcessUUID,File previousProcessRoot, boolean phaseCompleted, String url, String userName, String pswd) throws PhaseException {
+        try {
+            if (!getIterateFile().exists()) {
+                File previousIterateFile = getIterateFile(previousProcessRoot);
+                FileChannel fichannel = new FileInputStream(previousIterateFile).getChannel();
+                FileChannel foChannel = new FileOutputStream(createIterateFile()).getChannel();
+
+                long size = fichannel.size();
+                fichannel.transferTo(0, size, foChannel);
+
+                // preparse if scenario is valid
+                preparseIterate();
+            } else {
+                this.start(url, userName, pswd);
+            }
+        } catch (IOException e) {
+            throw new PhaseException(e);
+        }
     }
 
 

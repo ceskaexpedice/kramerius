@@ -69,17 +69,19 @@ public class SecondPhase extends AbstractPhase  {
     static int MAXITEMS=20;
     
     private DONEController controller = null;
-    private DONEController previousProcessController = null;
+    private boolean findPid = false;
     
     @Override
     public void start(String url, String userName, String pswd) throws PhaseException {
+        this.findPid = false;
         this.controller = new DONEController(new File(DONE_FOLDER_NAME), MAXITEMS);
         this.processIterate(url, userName, pswd);
     }
 
     public void pidEmitted(String pid, String url, String userName, String pswd) throws PhaseException {
         LOGGER.info("processing pid '"+pid+"'");
-        if ((previousProcessController == null) || (previousProcessController.findPid(pid)) == null) {
+        boolean shouldSkip = (findPid && this.controller.findPid(pid) != null);
+        if (!shouldSkip) {
             File foxmlfile = null;
             try {
                 InputStream foxmldata = rawFOXMLData(pid, url, userName, pswd);
@@ -136,18 +138,6 @@ public class SecondPhase extends AbstractPhase  {
             IOUtils.tryClose(fos);
         }
     }
-
-//    public File createPhaseDone() throws PhaseException {
-//        try {
-//            File allimported = new File("allimported");
-//            if (!allimported.exists()) allimported.createNewFile();
-//            if (!allimported.exists()) throw new PhaseException("file not exists '"+allimported.getAbsolutePath()+"'");
-//            return allimported;
-//        } catch (IOException e) {
-//            throw new PhaseException(e);
-//        }
-//        
-//    }
     
     public File createFOXMLDone(String pid) throws LexerException, IOException, PhaseException {
         PIDParser pidParser = new PIDParser(pid);
@@ -191,17 +181,23 @@ public class SecondPhase extends AbstractPhase  {
 
 
     @Override
-    public void restart(String previousProcessUUID,File previousProcessRoot, String url, String userName, String pswd) throws PhaseException {
-        this.controller = new DONEController(new File(DONE_FOLDER_NAME), MAXITEMS);
-        this.previousProcessController = new DONEController(new File(DONE_FOLDER_NAME), MAXITEMS);
-        processIterate(url, userName, pswd);
+    public void restart(String previousProcessUUID,File previousProcessRoot, boolean phaseCompleted, String url, String userName, String pswd) throws PhaseException {
+        try {
+            if (!phaseCompleted) {
+                this.findPid = true;
+                IOUtils.copyFolders(new File(DONE_FOLDER_NAME), new File(previousProcessRoot, DONE_FOLDER_NAME));
+                this.controller = new DONEController(new File(DONE_FOLDER_NAME), MAXITEMS);
+                processIterate(url, userName, pswd);
+            }
+        } catch (IOException e) {
+            throw new PhaseException(e);
+        }
     }
     
     class DONEController {
         
         private File doneRoot;
         private int max;
-        
         private int counter = 0;
         
         public DONEController(File doneRoot, int max) {
@@ -234,10 +230,14 @@ public class SecondPhase extends AbstractPhase  {
         
         public File findPid(String pid) {
             Stack<File> procStack = new Stack<File>();
+            LOGGER.info("finding pid '"+pid+"' in '"+this.doneRoot.getAbsolutePath()+"'");
             procStack.push(this.doneRoot);
             while(!procStack.isEmpty()) {
                 File poppedFile = procStack.pop();
-                if (poppedFile.getName().startsWith(pid)) return poppedFile;
+                if (poppedFile.getName().startsWith(pid)) {
+                    LOGGER.info("found file '"+poppedFile.getAbsolutePath()+"'");
+                    return poppedFile;
+                }
                 File[] subfiles = poppedFile.listFiles();
                 if(subfiles != null) {
                     for (File f : subfiles) {
@@ -245,8 +245,10 @@ public class SecondPhase extends AbstractPhase  {
                     }
                 }
             }
+            LOGGER.info("no file  starts with '"+pid+"'");
             return null;
         }
+        
     }
     
     class Emitter implements PidsListCollect {

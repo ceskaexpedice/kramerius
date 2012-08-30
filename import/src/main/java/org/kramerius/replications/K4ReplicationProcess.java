@@ -44,10 +44,15 @@ import cz.incad.kramerius.utils.IOUtils;
 import cz.incad.kramerius.utils.RESTHelper;
 import cz.incad.kramerius.utils.StringUtils;
 
+/**
+ * K4 replication process 
+ * @author pavels
+ */
 public class K4ReplicationProcess {
 
     static java.util.logging.Logger LOGGER = java.util.logging.Logger.getLogger(K4ReplicationProcess.class.getName());
 
+    // all K4 replication phasses
     public static Phase[] PHASES = new Phase[] {
         new FirstPhase(),
         new SecondPhase(),
@@ -56,13 +61,17 @@ public class K4ReplicationProcess {
     
     @Process
     public static void replications(@ParameterName("url") String url, @ParameterName("username") String userName, @ParameterName("pswd")String pswd,@ParameterName("previousProcess")String previousProcessUUID) throws IOException {
+        LOGGER.info("previousProcessUUID = "+previousProcessUUID);
+        // definovane uuid predchoziho procesu => restart
         if ((previousProcessUUID != null) && (!previousProcessUUID.equals(""))) {
+            LOGGER.info("restarting ..");
             String muserDir = System.getProperty("user.dir");
             File previousProcessFolder = new File(new File(muserDir).getParentFile(), previousProcessUUID);
             if (previousProcessFolder.exists()) {
                 restart(previousProcessUUID, previousProcessFolder, url, userName, pswd);
             } else throw new RuntimeException("expect of existing folder '"+previousProcessFolder.getAbsolutePath()+"'");
         } else {
+            // start
             start(url, userName, pswd);
         }
     }
@@ -70,12 +79,9 @@ public class K4ReplicationProcess {
     public static void restart(String processUUID, File previousProcessFolder, String url, String userName, String pswd) throws IOException {
         try {
             for (Phase ph : PHASES) {
-                if (!isPhaseCompleted(previousProcessFolder, ph)) {
-                    ph.restart(processUUID, previousProcessFolder, url, userName, pswd);
-                    phaseCompleted(ph);
-                } else {
-                    LOGGER.info("skipping phase '"+ph.getClass().getName()+"'");
-                }
+                LOGGER.info("RESTARTING PHASE '"+ph.getClass().getName()+"'");
+                ph.restart(processUUID, previousProcessFolder, isPhaseCompleted(previousProcessFolder, ph), url, userName, pswd);
+                phaseCompleted(ph);
             }
         } catch (PhaseException e) {
             // co udelat pri chybe ??
@@ -88,6 +94,7 @@ public class K4ReplicationProcess {
     public static void start(String url, String userName, String pswd) throws IOException {
         try {
             for (Phase ph : PHASES) {
+                LOGGER.info("RESTARTING PHASE '"+ph.getClass().getName()+"'");
                 ph.start(url, userName, pswd);
                 phaseCompleted(ph);
             }
@@ -98,11 +105,14 @@ public class K4ReplicationProcess {
     }
 
     public static boolean isPhaseCompleted(File previousFolder, Phase phase) {
-        File completedFile = phaseCompletedFile(phase);
-        return completedFile.exists();
+        File completedFile = phaseCompletedFile(previousFolder,phase);
+        boolean flag = completedFile.exists();
+        LOGGER.info("checking file '"+completedFile.getAbsolutePath()+"' returning value :"+flag);
+        return flag;
     }
     
     public static File phaseCompleted(Phase phase) throws IOException {
+        LOGGER.info("PHASE '"+phase.getClass().getName()+"' completed");
         File completedFile = phaseCompletedFile(phase);
         completedFile.createNewFile();
         return completedFile;

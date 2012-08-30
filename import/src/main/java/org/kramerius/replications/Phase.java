@@ -18,10 +18,31 @@ package org.kramerius.replications;
 
 import java.io.File;
 
+/**
+ * K4 replication phase
+ * @author pavels
+ */
 public interface Phase {
 
+    /**
+     * Start new phase
+     * @param url Handle url
+     * @param userName User name
+     * @param pswd Password
+     * @throws PhaseException
+     */
     public void start(String url, String userName, String pswd) throws PhaseException;
     
-    public void restart(String previousProcessUUID,File previousProcessRoot, String url, String userName, String pswd) throws PhaseException;
+    /**
+     * Restart previous phase
+     * @param previousProcessUUID Previous process uuid
+     * @param previousProcessRoot Previous process root
+     * @param phaseCompleted TODO
+     * @param url Handle url
+     * @param userName User name
+     * @param pswd Password
+     * @throws PhaseException
+     */
+    public void restart(String previousProcessUUID,File previousProcessRoot, boolean phaseCompleted, String url, String userName, String pswd) throws PhaseException;
 
 }
