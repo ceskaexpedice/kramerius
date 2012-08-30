@@ -41,6 +41,7 @@ import cz.incad.kramerius.SolrAccess;
 import cz.incad.kramerius.service.ResourceBundleService;
 import cz.incad.kramerius.utils.ApplicationURL;
 import cz.incad.kramerius.utils.DCUtils;
+import cz.incad.kramerius.utils.StringUtils;
 import cz.incad.kramerius.utils.pid.LexerException;
 import cz.incad.kramerius.utils.pid.PIDParser;
 import cz.incad.utils.IKeys;
@@ -99,7 +100,7 @@ public abstract class AbstractSocialButton {
             HttpServletRequest request = this.requestProvider.get();
             String requestedURL = request.getRequestURL().toString();
             URL url = new URL(requestedURL);
-            String furl = ApplicationURL.minus(requestedURL, "?"+url.getQuery());
+            String furl = StringUtils.minus(requestedURL, "?"+url.getQuery());
             return furl.endsWith(I_JSP);
         } catch (MalformedURLException e) {
             LOGGER.log(Level.SEVERE,e.getMessage(),e);
@@ -112,7 +113,7 @@ public abstract class AbstractSocialButton {
             HttpServletRequest request = this.requestProvider.get();
             String requestedURL = request.getRequestURL().toString();
             URL url = new URL(requestedURL);
-            String furl = ApplicationURL.minus(requestedURL, "?"+url.getQuery());
+            String furl = StringUtils.minus(requestedURL, "?"+url.getQuery());
             return furl.endsWith(S_JSP);
         } catch (MalformedURLException e) {
             LOGGER.log(Level.SEVERE,e.getMessage(),e);
