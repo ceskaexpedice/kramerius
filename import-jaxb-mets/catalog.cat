@@ -4,4 +4,6 @@
   double hyphens are used to begin and end a comment section.
 --
 
-SYSTEM "xlink.xsd" "http://www.loc.gov/standards/xlink/xlink.xsd"
+PUBLIC "http://www.loc.gov/standards/xlink/xlink.xsd" "/home/pavels/Projekty/import-jaxb-mets/xlink.xsd"
+
+PUBLIC "http://www.w3.org/1999/xlink" "xlink.xsd"
