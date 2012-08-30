@@ -81,6 +81,8 @@
                 </executions>
                 <configuration>
                     <generatePackage>org.kramerius.mods</generatePackage>
+                    <!-- relative to the POM file -->
+                    <catalog>catalog.cat</catalog>
                 </configuration>
             </plugin>
         </plugins>
