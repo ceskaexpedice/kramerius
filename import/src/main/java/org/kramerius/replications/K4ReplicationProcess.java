@@ -94,7 +94,7 @@ public class K4ReplicationProcess {
     public static void start(String url, String userName, String pswd) throws IOException {
         try {
             for (Phase ph : PHASES) {
-                LOGGER.info("RESTARTING PHASE '"+ph.getClass().getName()+"'");
+                LOGGER.info("STARTING PHASE '"+ph.getClass().getName()+"'");
                 ph.start(url, userName, pswd);
                 phaseCompleted(ph);
             }

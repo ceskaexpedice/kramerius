@@ -14,9 +14,9 @@ form(bundle, handle) ::=<<
             var charsThatMustBeEscaped = [':',';','}','{'];
             var handle = \$('#handle').val().escapeChars(charsThatMustBeEscaped);
             var user = \$('#user').val().escapeChars(charsThatMustBeEscaped);
-            var password = \$('#password').val().escapeChars(charsThatMustBeEscaped);
+            var password = \$('#pswd').val().escapeChars(charsThatMustBeEscaped);
             
-            var url = "lr?action=form_post&def=k4_replication&paramsMapping={url="+handle+";user="+user+";password="+passsword}&out=text";
+            var url = "lr?action=form_post&def=k4_replication&paramsMapping={url="+handle+";username="+user+";pswd="+password+"}&out=text";
             processStarter("k4_replication").start(url);
             
         }

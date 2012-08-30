@@ -93,26 +93,9 @@ public class Import {
             throw new RuntimeException("Import root folder or control file doesn't exist: " + importFile.getAbsolutePath());
         }
 
-
-
-        Authenticator.setDefault(new Authenticator() {
-            protected PasswordAuthentication getPasswordAuthentication() {
-               return new PasswordAuthentication(user, pwd.toCharArray());
-             }
-           });
-
-        FedoraAccess fedoraAccess = null;
-        try {
-            fedoraAccess = new FedoraAccessImpl(null);
-            log.info("Instantiated FedoraAccess");
-        } catch (IOException e) {
-            log.log(Level.SEVERE,"Cannot instantiate FedoraAccess",e);
-            throw new RuntimeException(e);
-        }
-        port = fedoraAccess.getAPIM();
-
-
-        of = new ObjectFactory();
+        
+        
+        initialize(user, pwd);
 
         List<TitlePidTuple> roots = new ArrayList<TitlePidTuple>();
         if (importFile.isDirectory()){
@@ -155,6 +138,27 @@ public class Import {
         }else{
             log.info("AUTO INDEXING DISABLED.");
         }
+    }
+
+    public static void initialize(final String user, final String pwd) {
+        Authenticator.setDefault(new Authenticator() {
+            protected PasswordAuthentication getPasswordAuthentication() {
+               return new PasswordAuthentication(user, pwd.toCharArray());
+             }
+           });
+
+        FedoraAccess fedoraAccess = null;
+        try {
+            fedoraAccess = new FedoraAccessImpl(null);
+            log.info("Instantiated FedoraAccess");
+        } catch (IOException e) {
+            log.log(Level.SEVERE,"Cannot instantiate FedoraAccess",e);
+            throw new RuntimeException(e);
+        }
+        port = fedoraAccess.getAPIM();
+
+
+        of = new ObjectFactory();
     }
 
     private static void visitAllDirsAndFiles(File importFile, List<TitlePidTuple> roots) {

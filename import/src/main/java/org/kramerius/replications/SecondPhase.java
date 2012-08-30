@@ -66,7 +66,7 @@ public class SecondPhase extends AbstractPhase  {
     static java.util.logging.Logger LOGGER = java.util.logging.Logger.getLogger(SecondPhase.class.getName());
 
     static String DONE_FOLDER_NAME = "DONE";
-    static int MAXITEMS=20;
+    static int MAXITEMS=30000;
     
     private DONEController controller = null;
     private boolean findPid = false;
@@ -93,7 +93,7 @@ public class SecondPhase extends AbstractPhase  {
             } catch (IOException e) {
                 throw new PhaseException(e);
             } finally {
-                if (foxmlfile != null) foxmlfile.delete();
+                //if (foxmlfile != null) foxmlfile.delete();
             }
         } else {
             LOGGER.info("skipping pid '"+pid+"'");
@@ -103,7 +103,8 @@ public class SecondPhase extends AbstractPhase  {
 
     public void ingest(File foxmlfile) {
         LOGGER.info("ingesting '"+foxmlfile.getAbsolutePath()+"'");
-        //Import.ingest(foxmlfile);
+        Import.initialize(KConfiguration.getInstance().getProperty("ingest.user"), KConfiguration.getInstance().getProperty("ingest.password"));
+        Import.ingest(foxmlfile);
     }
     
     public File foxmlFile(InputStream foxmlStream, String pid) throws LexerException, IOException, PhaseException {
@@ -128,7 +129,7 @@ public class SecondPhase extends AbstractPhase  {
             String rawFOXML = jsonObject.getString("raw");
             
             ByteArrayInputStream barr = new ByteArrayInputStream(rawFOXML.getBytes("UTF-8"));
-            Base64InputStream input = new Base64InputStream(barr, true, 76,  "|".getBytes());
+            Base64InputStream input = new Base64InputStream(barr, false, 76,  "|".getBytes());
             
             return input;
         } catch (IOException e) {
