@@ -76,6 +76,13 @@
         </dependency>
 
         <dependency>
+            <groupId>commons-codec</groupId>
+            <artifactId>commons-codec</artifactId>
+            <version>1.5</version>
+        </dependency>
+
+
+        <dependency>
             <groupId>com.google.inject.extensions</groupId>
             <artifactId>guice-servlet</artifactId>
             <version>${guice.version}</version>
@@ -255,6 +262,8 @@
             <version>1.4</version>
             <type>jar</type>
         </dependency>
+
+
 
 	<!-- jersey guice -->
 	<dependency>
