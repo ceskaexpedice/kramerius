@@ -46,9 +46,9 @@ public class DefaultTemplateTest {
 
     public static String BUNLDE = 
         "# procesy\n"
-        +"first=prvni\n"
-        +"second=druhy\n"
-        +"third=treti\n";
+        +"processes.defaultfields.first=prvni\n"
+        +"processes.defaultfields.second=druhy\n"
+        +"processes.defaultfields.third=treti\n";
 
     @Test
     public void shouldRenderTemplate() throws IOException {

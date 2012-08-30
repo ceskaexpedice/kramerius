@@ -1,8 +1,10 @@
 /** default sablona */
 group defaultTemplate;
 
+bundlekey(name) ::=<<processes.defaultfields.$name$>>
+
 formfield(bundle, field) ::=<<
-    <label>$bundle.(field.name)$</label><br>
+    <label>$bundle.(bundlekey(name=field.name))$</label><br>
     <input type="text" style="width:100%" id="$field.name$" value="$field.value$"></input><br>
 >>
 

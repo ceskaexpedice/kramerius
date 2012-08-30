@@ -14,18 +14,14 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
-package cz.incad.kramerius.service.processes;
+package cz.incad.kramerius.utils;
 
-import cz.incad.kramerius.processes.annotations.ParameterName;
-import cz.incad.kramerius.processes.annotations.Process;
-import cz.incad.kramerius.service.ReplicationService;
+public class StringUtils {
 
-public class K4ReplicationProcess {
-
-    ReplicationService replicationService;
-    
-    @Process
-    public static void process(@ParameterName("handle") String handle) {
-        System.out.println("Handle it :"+handle);
+    public static String minus(String bigger, String smaller) {
+        if (bigger.length() > smaller.length()) {
+            return bigger.replace(smaller, "");
+        } else throw new IllegalArgumentException("");
     }
+
 }

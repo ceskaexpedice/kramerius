@@ -153,6 +153,15 @@ public class IOUtils {
         }
     }
 
+    public static void tryClose(OutputStream os) {
+        try {
+            if (os != null) {os.close();
+            }
+        } catch (IOException ex) {
+            LOGGER.log(Level.SEVERE, null, ex);
+        }
+    }
+
 
     public static void copyBundledResources(Class caller, String[] texts, String prefix, File folder) throws FileNotFoundException,
     		IOException {
@@ -186,5 +195,28 @@ public class IOUtils {
     			}
     		}
     	}
+    }
+
+    public static void copyFiles(File source, File dest) throws IOException {
+        FileChannel fichannel = new FileInputStream(source).getChannel();
+        FileChannel foChannel = new FileOutputStream(dest).getChannel();
+
+        long size = fichannel.size();
+        fichannel.transferTo(0, size, foChannel);
+    }
+
+    public static void copyFolders(File sourceFolder, File destFolder) throws IOException {
+        if (!destFolder.exists()) destFolder.mkdirs();
+        File[] listFiles = sourceFolder.listFiles();
+        if (listFiles != null) {
+            for (File srcFile : listFiles) {
+                if (srcFile.isDirectory()) copyFolders(srcFile, new File(destFolder, srcFile.getName()));
+                if (srcFile.isFile()) {
+                    File destFile = new File(destFolder, srcFile.getName());
+                    destFile.createNewFile();
+                    copyFiles(srcFile, destFile);
+                }
+            }
+        }
     }
 }

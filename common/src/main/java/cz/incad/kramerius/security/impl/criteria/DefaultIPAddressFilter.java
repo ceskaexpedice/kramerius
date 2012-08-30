@@ -53,20 +53,6 @@ public class DefaultIPAddressFilter extends AbstractIPAddressFilter implements R
     }
 
 
-//    @Override
-//    public boolean validate(Object[] objs) {
-//        if ((objs != null) && (objs.length == 1)) {
-//            String val = (String) objs[0];
-//            try {
-//                Integer.parseInt(val);
-//                return true;
-//            } catch (NumberFormatException e) {
-//                LOGGER.log(Level.SEVERE, e.getMessage(), e);
-//                return false;
-//            }
-//        } else return false;
-//    }
-
     @Override
     public RightCriteriumPriorityHint getPriorityHint() {
         return RightCriteriumPriorityHint.MAX;

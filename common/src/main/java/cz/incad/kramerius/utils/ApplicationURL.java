@@ -45,16 +45,20 @@ public class ApplicationURL {
     public static String applicationURL(HttpServletRequest request) {
         try {
             String string = request.getRequestURL().toString();
-            URL url = new URL(string);
-            String application = applicationContextPath(url);
-
-            String port = extractPort(url);
-            String aURL = url.getProtocol() + "://" + url.getHost() + port + "/" + application;
-            return aURL;
+            return applicationURL(string);
         } catch (MalformedURLException e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
             return "<no url>";
         }
+    }
+
+    public static String applicationURL(String string) throws MalformedURLException {
+        URL url = new URL(string);
+        String application = applicationContextPath(url);
+
+        String port = extractPort(url);
+        String aURL = url.getProtocol() + "://" + url.getHost() + port + "/" + application;
+        return aURL;
     }
 
 	/**
@@ -117,13 +121,7 @@ public class ApplicationURL {
         System.out.println(file);
         System.out.println(query);
 
-        System.out.println(minus(surl,"?"+query));
-    }
-
-    public static String minus(String bigger, String smaller) {
-        if (bigger.length() > smaller.length()) {
-            return bigger.replace(smaller, "");
-        } else throw new IllegalArgumentException("");
+        System.out.println(StringUtils.minus(surl,"?"+query));
     }
 
 }

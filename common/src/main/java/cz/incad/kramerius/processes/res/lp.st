@@ -338,13 +338,13 @@
     <process>
         <id>k4_replication</id>
         <description>K4 Replication process</description>
-        <mainClass>cz.incad.kramerius.service.processes.K4ReplicationProcess</mainClass>
+        <mainClass>org.kramerius.replications.K4ReplicationProcess</mainClass>
         <standardOs>lrOut</standardOs>
         <errOs>lrErr</errOs>
         <javaProcessParameters>-Xmx1024m -Xms512m</javaProcessParameters>
         
         <templates>
-            <input class="cz.incad.kramerius.processes.def.DefaultTemplate"></input>
+            <input class="org.kramerius.replications.inputs.InputTemplate"></input>
         </templates>
         
     </process>
