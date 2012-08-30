@@ -66,6 +66,6 @@ public class ReplicationServiceImpl implements ReplicationService{
 
     @Override
     public byte[] getExportedFOXML(String pid) throws ReplicateException {
-        return this.fedoraAccess.getAPIM().getObjectXML(pid);
+        return fedoraAccess.getAPIM().export(pid, "info:fedora/fedora-system:FOXML-1.1", "archive");
     }
 }
