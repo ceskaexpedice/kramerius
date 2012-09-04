@@ -136,6 +136,12 @@ public class K4ReplicationProcess {
         return prepareURL;
     }
 
+    public static String descriptionURL(String url) {
+        String pid = pidFrom(url);
+        String prepareURL = StringUtils.minus(StringUtils.minus(url, pid),"handle/")+"api/replication/"+pid+"/description";
+        return prepareURL;
+    }
+
     public static String foxmlURL(String url, String pid) {
         String oldPid = pidFrom(url);
         String prepareURL = StringUtils.minus(StringUtils.minus(url, oldPid),"handle/")+"api/replication/"+pid+"/exportedFOXML";

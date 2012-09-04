@@ -23,12 +23,12 @@ options{
         this.pidListCollect = col;
     }
     
-    public void ident(String i) throws RecognitionException {
+    public void ident(String i, String expect) throws RecognitionException {
         if ((i.startsWith("'"))  || (i.startsWith("\""))) {
             i = i.substring(1,i.length()-1);
         }
         
-        if (!i.trim().toLowerCase().equals("pids")) {
+        if (!i.trim().toLowerCase().equals(expect)) {
             throw new RecognitionException("expecting pids");
         }
     }    
@@ -45,9 +45,9 @@ options{
 }
 
 
-pids: CURLYL_BRACKET pidsKey DOUBLEDOT  ARRAYL_BRACKET (pidsArray)?  ARRAYR_BRACKET CURLYR_BRACKET;
+pids: CURLYL_BRACKET pidsKey DOUBLEDOT  ARRAYL_BRACKET (pidsArray)?  ARRAYR_BRACKET CURLYR_BRACKET EOF;
 
-pidsKey : s:STRING_LITERAL {ident(s.getText());} | i:IDENT {ident(i.getText());};
+pidsKey : s:STRING_LITERAL {ident(s.getText(), "pids");} | i:IDENT {ident(i.getText(), "pids");};
 
 pidsArray : f:STRING_LITERAL {first(f.getText());} (COMMA r:STRING_LITERAL {rest(r.getText());})*;
 

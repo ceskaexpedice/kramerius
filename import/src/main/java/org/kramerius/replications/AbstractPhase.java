@@ -22,9 +22,17 @@ import java.io.IOException;
 public abstract class AbstractPhase implements Phase{
 
     public static String ITERATE_FILE = "iterate";
+    public static String DESCRIPTION_FILE = "description";
 
     public File createIterateFile() throws IOException, PhaseException {
         File iterate = new File(ITERATE_FILE);
+        if (!iterate.exists()) iterate.createNewFile();
+        if (!iterate.exists()) throw new PhaseException("cannot create file '"+iterate.getAbsolutePath()+"'");
+        return iterate;
+    }
+
+    public File createDescriptionFile() throws IOException, PhaseException {
+        File iterate = new File(DESCRIPTION_FILE);
         if (!iterate.exists()) iterate.createNewFile();
         if (!iterate.exists()) throw new PhaseException("cannot create file '"+iterate.getAbsolutePath()+"'");
         return iterate;

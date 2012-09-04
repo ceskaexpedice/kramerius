@@ -43,10 +43,21 @@ public class FirstPhase extends AbstractPhase  {
 
     @Override
     public void start(String url, String userName, String pswd) throws PhaseException {
-        // download scenario json
-        downloadIterate(url, userName, pswd);
-        // preparse if scenario is valid
-        preparseIterate();
+        try {
+            String prepareURL = K4ReplicationProcess.prepareURL(url);
+            String descriptionURL = K4ReplicationProcess.descriptionURL(url);
+
+            // download description json
+            download(createDescriptionFile(), descriptionURL, userName, pswd);
+
+            // download scenario json
+            download(createIterateFile(),prepareURL, userName, pswd);
+            
+            // preparse if scenario is valid
+            preparseIterate();
+        } catch (IOException e) {
+            throw new PhaseException(e);
+        }
     }
 
 
@@ -66,13 +77,12 @@ public class FirstPhase extends AbstractPhase  {
     }
 
 
-    public void downloadIterate(String url, String user, String pswd) throws PhaseException {
+    public void download(File destFile, String surl, String user, String pswd) throws PhaseException {
         InputStream is = null;
         FileOutputStream fos = null;
         try {
-            is = RESTHelper.inputStream(K4ReplicationProcess.prepareURL(url), user, pswd);
-            File iterate = createIterateFile();
-            fos = new FileOutputStream(iterate);
+            is = RESTHelper.inputStream(surl, user, pswd);
+            fos = new FileOutputStream(destFile);
             IOUtils.copyStreams(is, fos);
         } catch (IOException e) {
             throw new PhaseException(e);
@@ -103,8 +113,4 @@ public class FirstPhase extends AbstractPhase  {
             throw new PhaseException(e);
         }
     }
-
-
-     
-    
 }
