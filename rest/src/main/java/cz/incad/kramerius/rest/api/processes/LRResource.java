@@ -88,6 +88,10 @@ import cz.incad.kramerius.utils.params.ParamsLexer;
 import cz.incad.kramerius.utils.params.ParamsParser;
 
 
+/**
+ * Processes API endpoint
+ * @author pavels
+ */
 @Path("/processes")
 public class LRResource {
 
