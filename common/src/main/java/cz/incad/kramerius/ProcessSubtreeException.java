@@ -16,6 +16,10 @@
  */
 package cz.incad.kramerius;
 
+/**
+ * Represents error during fedora object's tree processing
+ * @author pavels
+ */
 public class ProcessSubtreeException extends Exception {
 
     public ProcessSubtreeException() {

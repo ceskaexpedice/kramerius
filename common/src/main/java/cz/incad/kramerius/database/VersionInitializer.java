@@ -37,6 +37,10 @@ public class VersionInitializer {
 
     static java.util.logging.Logger LOGGER = java.util.logging.Logger.getLogger(VersionInitializer.class.getName());
     
+    /**
+     * Database initialization
+     * @param connection DB connection
+     */
     public static void initDatabase(final Connection connection) {
         try {
             boolean versionTable = DatabaseUtils.tableExists(connection, "DBVERSIONS");

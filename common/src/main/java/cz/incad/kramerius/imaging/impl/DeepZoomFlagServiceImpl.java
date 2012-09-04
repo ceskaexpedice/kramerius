@@ -141,7 +141,7 @@ public class DeepZoomFlagServiceImpl implements DeepZoomFlagService {
     }
 
 
-    public void deleteFlagToPIDInternal(String pid) {
+    void deleteFlagToPIDInternal(String pid) {
         LOGGER.info("deleting uuid '"+pid+"'");
         FedoraAPIM apim = fedoraAccess.getAPIM();
         String tilesUrlNS = FedoraNamespaces.KRAMERIUS_URI+"tiles-url";
@@ -153,7 +153,7 @@ public class DeepZoomFlagServiceImpl implements DeepZoomFlagService {
         }
     }
     
-    public void setFlagToPIDInternal(String pid, String tilesUrl) {
+    void setFlagToPIDInternal(String pid, String tilesUrl) {
         FedoraAPIM apim = fedoraAccess.getAPIM();
         String tilesUrlNS = FedoraNamespaces.KRAMERIUS_URI+"tiles-url";
         List<RelationshipTuple> relationships = apim.getRelationships(pid, tilesUrlNS);

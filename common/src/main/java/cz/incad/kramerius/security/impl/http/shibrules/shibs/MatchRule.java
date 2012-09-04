@@ -21,6 +21,12 @@ import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
 
+
+/**
+ * Represents match rule 
+ * @see Expr
+ * @author pavels
+ */
 public class MatchRule implements Expr {
 
     private Value leftOperand;
@@ -33,42 +39,69 @@ public class MatchRule implements Expr {
     }
 
     
-    
+    /**
+     * Returns left condition operand
+     * @return left condition operand
+     */
     public Value getLeftOperand() {
         return leftOperand;
     }
 
 
 
+    /**
+     * Sets left condition operand
+     * @param leftOperand left condition operand
+     */
     public void setLeftOperand(Value leftOperand) {
         this.leftOperand = leftOperand;
     }
 
 
-
+    
+    /**
+     * Returns right condition operand
+     * @return right condition operand
+     */
     public Value getRightOperand() {
         return rightOperand;
     }
 
 
 
+    /**
+     * Sets right condition operand
+     * @param rightOperand right condition operand
+     */
     public void setRightOperand(Value rightOperand) {
         this.rightOperand = rightOperand;
     }
 
     
+    /**
+     * Returns expressions body
+     * @return expressions body
+     */
     public ExpressionsBody getBody() {
         return body;
     }
 
 
 
+    /**
+     * Sets expressions body
+     * @param body set expressions body
+     */
     public void setBody(ExpressionsBody body) {
         this.body = body;
     }
 
 
-
+    /**
+     * Evaluate match rule
+     * @param ctx Runtime context
+     * @see ShibContext
+     */
     public void evaluate( ShibContext ctx) {
         if (this.leftOperand.match(this.rightOperand, ctx.getHttpServletRequest())) {
             if (body != null) {

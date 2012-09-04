@@ -16,12 +16,18 @@ import com.google.inject.Provider;
 
 import cz.incad.kramerius.utils.database.JDBCQueryTemplate;
 
+/**
+ * Utility class for getting informations from fedora database
+ * @author pavels
+ */
+@Deprecated
 public class FedoraDatabaseUtils {
 
 	static java.util.logging.Logger LOGGER = java.util.logging.Logger
 			.getLogger(FedoraDatabaseUtils.class.getName());
 	
 	private FedoraDatabaseUtils() {}
+	
 	
 	public static List<String> getRelativeDataStreamPath(String uuid, Provider<Connection> provider) throws SQLException {
 		String dataStreamPath = getDataStreamPath(uuid, provider);
@@ -49,6 +55,7 @@ public class FedoraDatabaseUtils {
 	 * @return
 	 * @throws SQLException
 	 */
+	@Deprecated
     public static String getDataStreamPath(String uuid, Provider<Connection> provider) throws SQLException {
         String sql = "select * from datastreampaths where token like ? order by tokendbid ASC";
         List<String> returnList = new JDBCQueryTemplate<String>(provider.get()){

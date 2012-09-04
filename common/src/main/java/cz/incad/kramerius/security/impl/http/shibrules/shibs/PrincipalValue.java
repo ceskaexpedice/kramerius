@@ -18,6 +18,11 @@ package cz.incad.kramerius.security.impl.http.shibrules.shibs;
 
 import javax.servlet.http.HttpServletRequest;
 
+/**
+ * Value returns actual princial from request
+ * @see Value
+ * @author pavels
+ */
 public class PrincipalValue implements Value {
 
     @Override

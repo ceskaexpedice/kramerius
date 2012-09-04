@@ -61,6 +61,10 @@ import cz.incad.kramerius.utils.conf.KConfiguration;
 import cz.incad.kramerius.utils.mods.PageNumbersBuilder;
 import cz.incad.kramerius.utils.pid.LexerException;
 
+/**
+ * Default document service implementation
+ * @author pavels
+ */
 public class DocumentServiceImpl implements DocumentService {
 
     static java.util.logging.Logger LOGGER = java.util.logging.Logger.getLogger(DocumentServiceImpl.class.getName());
@@ -93,7 +97,7 @@ public class DocumentServiceImpl implements DocumentService {
 
     
 
-    public void buildRenderingDocumentAsFlat(final AbstractRenderedDocument renderedDocument, final String pidFrom,  final int howMany ) throws IOException, ProcessSubtreeException {
+    protected void buildRenderingDocumentAsFlat(final AbstractRenderedDocument renderedDocument, final String pidFrom,  final int howMany ) throws IOException, ProcessSubtreeException {
         if (pidFrom != null && fedoraAccess.isImageFULLAvailable(pidFrom)) {
             
             ObjectPidsPath[] path = solrAccess.getPath(pidFrom);
@@ -180,7 +184,7 @@ public class DocumentServiceImpl implements DocumentService {
 
 
 
-    public void buildRenderingDocumentAsTree(/*org.w3c.dom.Document relsExt,*/ final AbstractRenderedDocument renderedDocument , final String pid) throws IOException, ProcessSubtreeException {
+    protected void buildRenderingDocumentAsTree(/*org.w3c.dom.Document relsExt,*/ final AbstractRenderedDocument renderedDocument , final String pid) throws IOException, ProcessSubtreeException {
 
         fedoraAccess.processSubtree(pid, new TreeNodeProcessor() {
             private int previousLevel = -1;

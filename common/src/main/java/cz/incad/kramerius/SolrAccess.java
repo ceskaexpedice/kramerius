@@ -23,18 +23,48 @@ import org.w3c.dom.Document;
 /**
  * Class for access to SOLR
  * @author pavels
- *
  */
 public interface SolrAccess {
 
+        /**
+         * Returns SOLR data document for given pid
+         * @param pid Requested object
+         * @return parsed SOLR document
+         * @throws IOException IO error has been occurred
+         */
         public Document getSolrDataDocument(String pid) throws IOException;
         
+        /**
+         * Returns SOLR data document for given handle
+         * @param handle Handle as object identification
+         * @return parsed SOLR document
+         * @throws IOException IO error has been occurred
+         */
         public Document getSolrDataDocumentByHandle(String handle) throws IOException;
         
+        /**
+         * Returns all paths for given pid
+         * @param pid Object's pid
+         * @return all paths for given pid
+         * @throws IOException IO error has been occurred
+         */
         public ObjectPidsPath[] getPath(String pid) throws IOException;
 
+        /**
+         * Returns all paths disected from given SOLR data
+         * @param datastreamName datastream name
+         * @param solrDataDoc Parsed SOLR document
+         * @return disected path 
+         * @throws IOException IO error has been occurred
+         */
         public ObjectPidsPath[] getPath(String datastreamName, Document solrDataDoc) throws IOException;
         
+        /**
+         * Returns all model's paths
+         * @param pid PID of requested object
+         * @return all model's paths
+         * @throws IOException IO error gas been occurred
+         */
         public ObjectModelsPath[] getPathOfModels(String pid) throws IOException;
         
 }

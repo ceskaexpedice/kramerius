@@ -19,22 +19,42 @@ package cz.incad.kramerius.security.impl.http.shibrules.shibs;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Represents expression body block
+ * @author pavels
+ */
 public class ExpressionsBody implements Expr {
 
+    // expressions inside block
     private List<Expr> expressions = new ArrayList<Expr>();
 
+    /**
+     * Add new expression into block
+     * @param expr
+     */
     public void addExpression(Expr expr) {
         this.expressions.add(expr);
     }
     
+    /**
+     * Remove any old expression from block
+     * @param expr
+     */
     public void removeExpression(Expr expr) {
         this.expressions.remove(expr);
     }
     
+    /**
+     * Returns all expressions inside block
+     * @return
+     */
     public List<Expr> getExpressions() {
         return expressions;
     }
     
+    /**
+     * Evaluate expressions inside block
+     */
     public void evaluate( ShibContext ctx) {
         for (Expr expr : this.expressions) {
             expr.evaluate(ctx);

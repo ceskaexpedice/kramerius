@@ -24,16 +24,22 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.sql.Timestamp;
 
-
+/**
+ * Implementation of JDBCCommand used {@link PreparedStatement}
+ * @author pavels
+ */
 public class JDBCPreparedStatementCommand extends JDBCCommand {
 
     protected PreparedStatement preparedStatement;
     protected int index=0;
     protected Object[] params;
-
+    
+    /**
+     * Enum represents null values
+     * @author pavels
+     */
     public static enum NULLS {
         String, Integer, Timestamp, Long, Array;
-        
     }
 
     
@@ -43,11 +49,22 @@ public class JDBCPreparedStatementCommand extends JDBCCommand {
         this.preparedStatement = createPrepareStatement(connection, sql);
     }
 
+    /**
+     * Creates prepared statement
+     * @param con JDBC connection
+     * @param sql SQL command 
+     * @return return new created prepared statement
+     * @throws SQLException Cannot create PreparedStatement
+     */
     public PreparedStatement createPrepareStatement(Connection con, String sql) throws SQLException {
         return con.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
     }
     
     
+    /**
+     * Prepare PreparedStatement
+     * @throws SQLException Cannot prepare
+     */
     public void prepareStatement() throws SQLException {
         for (int i = 0, index = 1; i < params.length; i++) {
             int changedIndex = setParam(index, params[i], this.preparedStatement);
@@ -68,6 +85,14 @@ public class JDBCPreparedStatementCommand extends JDBCCommand {
     }
 
     
+    /**
+     * Set parameter to prepared statement
+     * @param i Index
+     * @param object Object to set
+     * @param pstm PreparedStatement
+     * @return index
+     * @throws SQLException Cannot set value to preparedStatement
+     */
     protected int setParam(int i, Object object, PreparedStatement pstm) throws SQLException {
         if (object instanceof String) {
             pstm.setString(i, (String) object);

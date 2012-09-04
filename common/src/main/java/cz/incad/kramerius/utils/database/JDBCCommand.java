@@ -19,18 +19,35 @@ package cz.incad.kramerius.utils.database;
 import java.sql.Connection;
 import java.sql.SQLException;
 
+/**
+ * Represents JDBC command used in {@link JDBCTransactionTemplate}
+ * @author pavels
+ */
 public abstract class JDBCCommand {
     
     private Object obj;
     
+    /**
+     * Sets result from previous JDBCommand
+     * @param obj result from previous jdbc command
+     */
     public void setPreviousResult(Object obj) {
         this.obj = obj;
     }
     
+    /**
+     * Returns result from previous JDBCommand
+     * @return result from previous JDBCommand
+     */
     public Object getPreviousResult() {
         return this.obj;
     }
     
-    
+    /**
+     * Executed JDBC command
+     * @param con JDBC connection
+     * @return results of jdbc command execution
+     * @throws SQLException Something happened during jdbc command execution
+     */
     public abstract Object executeJDBCCommand(Connection con) throws SQLException;
 }

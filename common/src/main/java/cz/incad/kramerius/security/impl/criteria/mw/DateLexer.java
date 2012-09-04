@@ -26,7 +26,7 @@ import antlr.ANTLRHashString;
 import antlr.LexerSharedInputState;
 import antlr.collections.impl.BitSet;
 import antlr.SemanticException;
-
+//BEGIN GENERATED CODE
 public class DateLexer extends antlr.CharScanner implements DatesParserTokenTypes, TokenStream
  {
 public DateLexer(InputStream in) {
@@ -192,3 +192,4 @@ tryAgain:
     
     
     }
+//END GENERATED CODE

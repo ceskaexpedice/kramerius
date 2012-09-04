@@ -26,6 +26,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
 
+/**
+ * Represents objects for filtering LRProcess list
+ * @author pavels
+ */
 public class LRPRocessFilter {
     static java.util.logging.Logger LOGGER = java.util.logging.Logger.getLogger(LRPRocessFilter.class.getName());
     
@@ -48,15 +52,28 @@ public class LRPRocessFilter {
     private LRPRocessFilter() {
     }
     
+    /**
+     * Add new filter tripple
+     * @param tripple filter tripple
+     */
     public void addTripple(Tripple tripple) {
         this.tripples.add(tripple);
     }
     
+    /**
+     * Remove the old filter tripple
+     * @param tripple filter triple
+     */
     public void removeTripple(Tripple tripple) {
         this.tripples.remove(tripple);
     }
     
     
+    /**
+     * Find tripple by given name
+     * @param name Tripple name
+     * @return Found tripple
+     */
     public Tripple findTripple(String name) {
         for (Tripple trp : this.tripples) {
             if (trp.name.equals(name)) return trp;
@@ -64,12 +81,20 @@ public class LRPRocessFilter {
         return null;
     }
     
+    /**
+     * REturns all tripples
+     * @return
+     */
     public List<Tripple> getTripples() {
         return this.tripples;
     }
     
     
-    
+    /**
+     * Creates new filter from given tripples array
+     * @param triples Triples
+     * @return new filter object
+     */
     public static LRPRocessFilter createFilter(Tripple...triples) {
         LRPRocessFilter filter = new LRPRocessFilter();
         for (Tripple tr : triples) {
@@ -78,6 +103,11 @@ public class LRPRocessFilter {
         return filter;
     }
     
+    /**
+     * Creates new filter from given tripples list
+     * @param triples Triples
+     * @return new filter object
+     */
     public static LRPRocessFilter createFilter(List<Tripple> triples) {
         LRPRocessFilter filter = new LRPRocessFilter();
         for (Tripple tr : triples) {
@@ -85,12 +115,19 @@ public class LRPRocessFilter {
         }
         return filter;
     }
-
+    
+    /**
+     * Returns objects to JDBC prepared statement
+     * @return returns list
+     */
     public List<Object> getObjectsToPreparedStm() {
         return objectsToPreparedStm;
     }
     
-    
+    /**
+     * Returns filter in sql representation
+     * @return sql represenation
+     */
     public String getSQLOffset() {
         this.objectsToPreparedStm.clear();
         
@@ -107,11 +144,24 @@ public class LRPRocessFilter {
         } else return "";
     }
     
-    
+    /**
+     * Value converter
+     * @author pavels
+     */
     public interface ConverterAndFormatter {
         
+        /**
+         * Convert string value to concrete object
+         * @param strVal String value
+         * @return Created object
+         */
         public Object convert(String strVal);
 
+        /**
+         * Format object to string value
+         * @param val Object val
+         * @return formatted string value
+         */
         public String format(Object val);
     }
     
@@ -149,11 +199,6 @@ public class LRPRocessFilter {
     public static class DateConvereter implements ConverterAndFormatter {
 
         public static SimpleDateFormat FORMATTER = new SimpleDateFormat("MM/dd/yyyy HH:mm");
-//        public static SimpleDateFormat FORMATTER_1 = new SimpleDateFormat("MM/dd/yyyy H:mm");
-//        public static SimpleDateFormat FORMATTER_2 = new SimpleDateFormat("MM/dd/yyyy H:m");
-//        public static SimpleDateFormat FORMATTER_3 = new SimpleDateFormat("MM/dd/yyyy HH:m");
-        
-        //public static SimpleDateFormat[] FORMATS = new SimpleDateFormat[] {FORMATTER, FORMATTER_1, FORMATTER_2, FORMATTER_3};
         
         @Override
         public Object convert(String strVal) {
@@ -184,8 +229,12 @@ public class LRPRocessFilter {
         }
     }
     
-    
+    /**
+     * Represents tripple in filter
+     * @author pavels
+     */
     public static class Tripple {
+        
         private String name;
         private Object val;
         private Op op;
@@ -210,22 +259,47 @@ public class LRPRocessFilter {
             this.op = Op.valueOf(opString);
         }
 
+        /**
+         * Returns name
+         * @return name
+         */
         public String getName() {
             return name;
         }
 
-
+        /**
+         * Returns value
+         * @return value
+         */
         public Object getVal() {
             return val;
         }
-
+        
+        /**
+         * Tripple operator
+         * @return operator
+         */
         public Op getOp() {
             return op;
         }
     }
     
+    /**
+     * Operators value
+     * @author pavels
+     */
     public enum Op {
-        EQ("="," ?"), LT("<", " ?"), GT(">"," ?"), LIKE("like"," ?");
+        /** = operator*/
+        EQ("="," ?"), 
+        
+        /** < operator*/
+        LT("<", " ?"), 
+        
+        /** > operator*/
+        GT(">"," ?"), 
+        
+        /** like operator*/
+        LIKE("like"," ?");
         
         private Op(String r, String valueOffset) {
             this.r = r;
@@ -254,13 +328,5 @@ public class LRPRocessFilter {
     
     
     
-    public static void main(String[] args) throws ParseException {
-        String str= "09/22/2011 06:00";
-        String str1 = "17.07.2012 0:0";
-        
-        DateConvereter converter = new DateConvereter();
-        System.out.println(converter.convert(str));
-        
-    }
 }
 

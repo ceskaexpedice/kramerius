@@ -11,7 +11,6 @@ import java.util.List;
 public  class DCConent {
     
     private String title;
-    // muze byt vicekrat ?? 
     private String type;
     private String date;
     private String[] identifiers;
@@ -19,58 +18,113 @@ public  class DCConent {
     private String[] publishers;
     private String[] creators;
     
+    /**
+     * Returns title from dc
+     * @return
+     */
     public String getTitle() {
         return title;
     }
     
+    /**
+     * Sets title
+     * @param title
+     */
     public void setTitle(String title) {
         this.title = title;
     }
     
+    /**
+     * Returns type
+     * @return
+     */
     public String getType() {
         return type;
     }
     
+    /**
+     * Sets type
+     * @param type
+     */
     public void setType(String type) {
         this.type = type;
     }
     
     
+    /**
+     * Returns date
+     * @return
+     */
     public String getDate() {
         return date;
     }
     
+    /**
+     * Sets date
+     * @param date
+     */
     public void setDate(String date) {
         this.date = date;
     }
     
+    /**
+     * REturns identifiers
+     * @return
+     */
     public String[] getIdentifiers() {
         return identifiers;
     }
     
-    
+    /**
+     * Sets identifiers
+     * @param identifiers
+     */
     public void setIdentifiers(String[] identifiers) {
         this.identifiers = identifiers;
     }
 
+    /**
+     * Returns publishers
+     * @return
+     */
     public String[] getPublishers() {
         return publishers;
     }
 
+    /**
+     * Sets publishers
+     * @param publishers
+     */
     public void setPublishers(String[] publishers) {
         this.publishers = publishers;
     }
 
+    /**
+     * Returns creators
+     * @return
+     */
     public String[] getCreators() {
         return creators;
     }
 
+    /**
+     * Sets creators
+     * @param creators
+     */
     public void setCreators(String[] creators) {
         this.creators = creators;
     }
     
     
     
+    /**
+     * Collects informations from given list and creates new instance of DCContent. 
+     * <p>
+     *  if any single value is presented in more than one object, algorithm takes first one.
+     * </p>
+     * @param contents DCContents collection to construct new one
+     * @return collected DCCpontent object
+     */
     public static DCConent collectFirstWin(List<DCConent> contents) {
         String type = null;
         String title = null;

@@ -2,7 +2,7 @@
 
     package cz.incad.kramerius.security.impl.criteria.mw;
     import java.util.*;
-
+//BEGIN GENERATED CODE
 public interface DatesParserTokenTypes {
     int EOF = 1;
     int NULL_TREE_LOOKAHEAD = 3;
@@ -11,3 +11,4 @@ public interface DatesParserTokenTypes {
     int MINUS = 6;
     int WS = 7;
 }
+//END GENERATED CODE

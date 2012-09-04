@@ -39,14 +39,20 @@ import org.xml.sax.SAXException;
 
 import cz.incad.kramerius.FedoraAccess;
 
+/**
+ * Utility class for getting datastreams
+ * @author pavels
+ *
+ */
 public class FedoraStreamUtils {
 
-    public static String getStreamPath(FedoraAccess fedoraAccess, String uuid) throws IOException, XPathExpressionException {
-        Document profileDoc = fedoraAccess.getImageFULLProfile(uuid);
-//        return getDsCreate(profileDoc);
-        return null;
-    }
-
+    
+    /**
+     * Returns create date from profile
+     * @param profileDoc Profile document
+     * @return Created date
+     * @throws XPathExpressionException Cannot evaluate XPATH expression
+     */
     public static String getDsCreate(Document profileDoc) throws XPathExpressionException {
         XPathFactory factory = XPathFactory.newInstance();
         XPath xpath = factory.newXPath();
@@ -63,20 +69,4 @@ public class FedoraStreamUtils {
         return null;
     }
     
-    public static void main(String[] args) throws ParserConfigurationException, SAXException, IOException, XPathExpressionException, DatatypeConfigurationException {
-        DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-        DocumentBuilder builder = factory.newDocumentBuilder();
-        Document document = builder.parse(new File("/home/pavels/profile.xml"));
-        String createDate = getDsCreate(document);
-        XMLGregorianCalendar xmlGregorianCalendar = DatatypeFactory.newInstance().newXMLGregorianCalendar(createDate);
-        int year = xmlGregorianCalendar.getYear();
-        int month = xmlGregorianCalendar.getMonth();
-        int day = xmlGregorianCalendar.getDay();
-        int hour = xmlGregorianCalendar.getHour();
-        int minute = xmlGregorianCalendar.getMinute();
-        
-        System.out.println(xmlGregorianCalendar.toGregorianCalendar().getTime());
-        System.out.println("datastreams/"+year+"/"+month+day+"/"+hour+"/"+minute);
-        
-    }
 }

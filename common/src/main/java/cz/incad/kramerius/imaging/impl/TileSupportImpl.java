@@ -19,6 +19,10 @@ import cz.incad.kramerius.utils.conf.KConfiguration;
 import cz.incad.kramerius.utils.imgs.KrameriusImageSupport;
 import cz.incad.kramerius.utils.imgs.KrameriusImageSupport.ScalingMethod;
 
+/**
+ * Basic implementation of {@link DeepZoomTileSupport}
+ * @author pavels
+ */
 public class TileSupportImpl implements DeepZoomTileSupport {
 
 	static java.util.logging.Logger LOGGER = java.util.logging.Logger
@@ -45,11 +49,13 @@ public class TileSupportImpl implements DeepZoomTileSupport {
         return getLevels( rawImg,minSize);
     }
 
+    @Override
 	public long getLevels( BufferedImage rawImg,int minSize) {
 		int max = Math.max(rawImg.getHeight(null), rawImg.getWidth(null));
         return getLevelsInternal(max, minSize);
 	}
 
+    @Override
 	public int getLevels(Dimension dim, int minSize) {
         int max = Math.max(dim.width, dim.height);
         return getLevelsInternal(max, minSize);
@@ -95,6 +101,7 @@ public class TileSupportImpl implements DeepZoomTileSupport {
     }
 
     
+    @Override
     public BufferedImage getScaledRawImage(String pid, DeepZoomFullImageScaleFactor factor) throws IOException {
     	LOGGER.info("reading raw image");
     	try {
@@ -129,6 +136,7 @@ public class TileSupportImpl implements DeepZoomTileSupport {
     	return getTileFromBigImage(image, displayLevel, displayTile, minSize, scalingMethod, iterateScaling);
     }
 
+    @Override
 	public BufferedImage getTileFromBigImage(BufferedImage image,int displayLevel, int displayTile,
 			int minSize, ScalingMethod method, boolean iterateScaling) {
 		long maxLevel = getLevels(image, minSize);
@@ -165,18 +173,21 @@ public class TileSupportImpl implements DeepZoomTileSupport {
         return buffImage;
 	}
 
+    @Override
     public int getCols(Dimension scaledDim) {
         int cols = (int) (scaledDim.width / getTileSize());
         if (scaledDim.width % getTileSize() != 0) {cols += 1; }
         return cols;
     }
 
+    @Override
     public int getRows(Dimension scaledDim) {
         int rows = scaledDim.height / getTileSize();
         if (scaledDim.height % getTileSize() != 0) {rows +=1;}
         return rows;
     }
 
+    @Override
     public Dimension getScaledDimension(Dimension originalDim, double scale) {
         int scaledWidth  =(int) (originalDim.getWidth() / scale);
         if (scaledWidth == 0) scaledWidth = 1;
@@ -187,18 +198,21 @@ public class TileSupportImpl implements DeepZoomTileSupport {
         return new Dimension(scaledWidth, scaledHeight);
     }
 
+    @Override
     public double getScale(int displayLevel, long maxLevel) {
         long b = (maxLevel-1)-displayLevel;
         double scale = Math.pow(2, b);
         return scale;
     }
 
+    @Override
     public double getClosestScale(Dimension originalSize, int sizeToFit) {
         long maxLevel = getLevelsInternal(originalSize.width > originalSize.height ? originalSize.width : originalSize.height, 1);
         int level = getClosestLevel(originalSize, sizeToFit);
         return getScale(level, maxLevel);
     }
     
+    @Override
     public int getClosestLevel(Dimension originalSize, int sizeToFit) {
         int maxLevel = getLevelsInternal(originalSize.width > originalSize.height ? originalSize.width : originalSize.height, 1);
         for (int i = maxLevel - 1; i >1; i--) {
@@ -210,28 +224,4 @@ public class TileSupportImpl implements DeepZoomTileSupport {
         return -1;
     }
 
-	public static void main(String[] args) {
-        TileSupportImpl tileSupport = new TileSupportImpl();
-        //4224 x 3168
-        int width = 4224;
-        int height = 3168;
-        long levelsInternal = tileSupport.getLevelsInternal(Math.max(4224, 3168), 1);
-        System.out.println(levelsInternal);
-        
-        double scale = tileSupport.getScale((int) (levelsInternal-1), levelsInternal);
-        System.out.println(scale);
-        int scaledWidth  =(int) (width / scale);
-        int scaledHeight = (int) (height / scale);
-        
-        int rows = scaledHeight / TILE_SIZE;
-        if (scaledHeight % TILE_SIZE != 0) {rows +=1;}
-        
-        int cols = scaledWidth / TILE_SIZE;
-        if (scaledWidth % TILE_SIZE != 0) {cols += 1; }
-        
-        System.out.println("rows:"+rows);
-        System.out.println("cols:"+cols);
-    }
-	
-	
 }

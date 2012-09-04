@@ -20,11 +20,12 @@ package cz.incad.kramerius;
 import cz.incad.kramerius.security.SpecialObjects;
 
 /**
- * Represents path to object. From root to leaf.
+ * Represents objects path
  * @author pavels
  */
 public class ObjectPidsPath extends AbstractObjectPath {
-
+    
+    /** REPOSITORY path constant */
     public static ObjectPidsPath REPOSITORY_PATH = new ObjectPidsPath(SpecialObjects.REPOSITORY.getPid());
     
     public ObjectPidsPath(String ... pathFromRootToLeaf) {
@@ -43,7 +44,7 @@ public class ObjectPidsPath extends AbstractObjectPath {
         return new ObjectPidsPath(super.cutTailInternal(indexFrom));
     }
 
-    
+    @Override
     public ObjectPidsPath injectRepository() {
         if (isEmptyPath()) return REPOSITORY_PATH;
         if (!this.pathFromRootToLeaf[0].equals(SpecialObjects.REPOSITORY.getPid())) {

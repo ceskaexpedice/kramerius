@@ -68,7 +68,15 @@ public class DeleteGeneratedDeepZoomCache {
             }
         }
     }
-
+    
+    /**
+     * Recursive delete 
+     * @param pid Master PID
+     * @param fedoraAccess FedoraAccess implementation
+     * @param discStruct DiscStructure instance 
+     * @throws IOException IO error has been occurred
+     * @throws ProcessSubtreeException Error in tree walking 
+     */
     public static void deleteCacheForPID(String pid, final FedoraAccess fedoraAccess, final DiscStrucutreForStore discStruct) throws IOException, ProcessSubtreeException {
         if (fedoraAccess.isImageFULLAvailable(pid)) {
             try {

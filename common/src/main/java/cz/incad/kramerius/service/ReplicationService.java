@@ -31,7 +31,7 @@ public interface ReplicationService {
      * Preparing list of exporting pids
      * @param pid Root PID
      * @return
-     * @throws ReplicateException
+     * @throws ReplicateException cannot prepare export
      */
     public List<String> prepareExport(String pid) throws ReplicateException;
 
@@ -39,8 +39,16 @@ public interface ReplicationService {
      * Returns data of current pid
      * @param pid PID
      * @return
-     * @throws ReplicateException
+     * @throws ReplicateException cannot return foxml
      */
     public byte[] getExportedFOXML(String pid) throws ReplicateException;
     
+    
+    /**
+     * Returns descriptions of given pid
+     * @param pid PID of the object
+     * @return
+     * @throws ReplicateException cannot return descriptions
+     */
+    public String[] getDescriptions(String pid) throws ReplicateException;
 }

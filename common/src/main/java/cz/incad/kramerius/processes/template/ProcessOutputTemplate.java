@@ -47,6 +47,9 @@ public interface ProcessOutputTemplate {
      */
     public void renderName(LRProcess lrProcess, LRProcessDefinition definition, Writer writer) throws IOException;
     
-    
+    /**
+     * Returns identification of this template
+     * @return
+     */
     public String getOutputTemplateId();
 }

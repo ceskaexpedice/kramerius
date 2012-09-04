@@ -16,12 +16,27 @@
  */
 package cz.incad.kramerius.utils;
 
+import java.util.List;
+
+import org.antlr.stringtemplate.StringTemplate;
+
+/**
+ * String utilities
+ * @author pavels
+ */
 public class StringUtils {
 
+    /**
+     * Minus operator
+     * @param bigger Bigger string
+     * @param smaller Smaller string
+     * @return result of Bigger - Smaller
+     */
     public static String minus(String bigger, String smaller) {
         if (bigger.length() > smaller.length()) {
             return bigger.replace(smaller, "");
         } else throw new IllegalArgumentException("");
     }
-
+    
+    
 }

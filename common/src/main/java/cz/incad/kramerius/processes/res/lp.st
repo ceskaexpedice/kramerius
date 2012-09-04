@@ -345,6 +345,7 @@
         
         <templates>
             <input class="org.kramerius.replications.inputs.InputTemplate"></input>
+            <output class="org.kramerius.replications.outputs.OutputTemplate"></output>
         </templates>
         
     </process>

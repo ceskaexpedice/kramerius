@@ -18,6 +18,11 @@ package cz.incad.kramerius.security.impl.http.shibrules.shibs;
 
 import javax.servlet.http.HttpServletRequest;
 
+/**
+ * Represents attribute value from http request
+ * @see Value
+ * @author pavels
+ */
 public class AttributeValue implements Value {
     
     private String key;

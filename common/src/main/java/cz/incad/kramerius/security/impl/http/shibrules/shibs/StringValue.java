@@ -18,6 +18,11 @@ package cz.incad.kramerius.security.impl.http.shibrules.shibs;
 
 import javax.servlet.http.HttpServletRequest;
 
+/**
+ * Represents string literal
+ * @see Value
+ * @author pavels
+ */
 public class StringValue implements Value {
     
     private String value;

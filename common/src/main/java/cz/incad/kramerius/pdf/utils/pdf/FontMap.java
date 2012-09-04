@@ -27,16 +27,26 @@ import com.lowagie.text.pdf.BaseFont;
 
 import cz.incad.kramerius.Constants;
 
+/**
+ * Mapping between logical name and real fonts
+ * @author pavels
+ */
 public class FontMap {
     
     // different headers' fonts
+    /** Logo font */
     public static final String LOGO_FONT = "logo";
+    /** Header 4 font */
     public static final String HEADER4_FONT = "header4";
 
     // normal texts' fonts
+    /** Strong font */
     public static final String STRONG_FONT = "strong";
+    /** Plain text font */
     public static final String NORMAL_FONT = "normal";
+    /** Smaller font */
     public static final String SMALLER_FONT = "smaller";
+    /** Small font */
     public static final String SMALL_FONT = "small";
 
     private File fontDirectory; 
@@ -75,10 +85,20 @@ public class FontMap {
         this.registerFont(SMALL_FONT, smallFont);
     }
 
+    /**
+     * Register new font 
+     * @param fid Font identificator
+     * @param font Font object
+     */
     private void registerFont(String fid, Font font) {
         map.put(fid, font);
     }
 
+    /**
+     * Returns font associated with given ident
+     * @param fid Font identificator
+     * @return Font object
+     */
     public Font getRegistredFont(String fid) {
         return map.get(fid);
     }
@@ -87,9 +107,6 @@ public class FontMap {
     
 
     private Font createFont(File fontDirectory) throws DocumentException, IOException {
-//        String workingDir = Constants.WORKING_DIR;
-//        File fontFile = new File(workingDir + File.separator + "fonts" + File.separator + "GentiumPlus-R.ttf");
-
         File fontFile = new File(fontDirectory.getAbsolutePath(), "GentiumPlus-R.ttf");
         BaseFont bf = BaseFont.createFont(fontFile.getAbsolutePath(), BaseFont.CP1250, true);
         return new Font(bf);

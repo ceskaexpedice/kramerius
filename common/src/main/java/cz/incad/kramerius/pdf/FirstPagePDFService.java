@@ -23,12 +23,12 @@ import cz.incad.kramerius.document.model.AbstractRenderedDocument;
 import cz.incad.kramerius.pdf.utils.pdf.FontMap;
 
 /**
- * Sluzba pro generovani prvni stranky 
+ * Service for generating first page
  */
 public interface FirstPagePDFService {
 
     /**
-     * Typ prvni stranky
+     * Type of page
      */
     public enum FirstPageType {
         // Textova prvni stranka
@@ -38,12 +38,24 @@ public interface FirstPagePDFService {
     };
 
     /**
-     * Generovani prvni stranky pro vyber
+     * Generate first pdf page for selection
+     * @param rdoc Generating document model
+     * @param os Outputstream
+     * @param pids PIDs selection
+     * @param imgServlet IMG servlet 
+     * @param i18nServlet I18N servlet 
+     * @param fontMap Prepared FontMap object
      */
     public void generateFirstPageForSelection(AbstractRenderedDocument rdoc, OutputStream os, String[] pids, String imgServlet, String i18nServlet, FontMap fontMap);
     
     /**
-     * Generovani prvni stranky pro parent titul
+     * Generate first pdf page for title 
+     * @param rdoc Generating document model
+     * @param os Outputstream
+     * @param path Path for generting object
+     * @param imgServlet IMG servlet 
+     * @param i18nServlet I18N servlet 
+     * @param fontMap Prepared FontMap object
      */
     public void generateFirstPageForParent(AbstractRenderedDocument rdoc, OutputStream os, ObjectPidsPath path,String imgServlet, String i18nServlet, FontMap fontMap);
     

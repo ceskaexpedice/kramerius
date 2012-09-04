@@ -18,6 +18,11 @@ package cz.incad.kramerius.security.impl.http.shibrules.shibs;
 
 import javax.servlet.http.HttpServletRequest;
 
+/**
+ * Returns expression value
+ * @see Value
+ * @author pavels
+ */
 public class ExpressionValue implements Value {
 
     private String exp;

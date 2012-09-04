@@ -27,6 +27,10 @@ import org.w3c.dom.NodeList;
 import cz.incad.kramerius.pdf.commands.lists.GreekList;
 import cz.incad.kramerius.pdf.commands.lists.RomanList;
 
+/**
+ * IText commands 
+ * @author pavels
+ */
 public class ITextCommands extends AbstractITextCommand implements ITextCommand {
     
     static java.util.logging.Logger LOGGER = java.util.logging.Logger.getLogger(ITextCommands.class.getName());

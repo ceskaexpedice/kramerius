@@ -20,22 +20,44 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 
-public abstract class AbstractObjectPath {
+import cz.incad.kramerius.security.SpecialObjects;
 
+/**
+ * Represents path of objects or models
+ * @author pavels
+ */
+public abstract class AbstractObjectPath {
+    
     protected String[] pathFromRootToLeaf;
 
+    /**
+     * Default constructor
+     * @param pathFromRootToLeaf Path from root to leaf
+     */
     public AbstractObjectPath(String ... pathFromRootToLeaf) {
         this.pathFromRootToLeaf = pathFromRootToLeaf;
     }
 
+    /**
+     * Returns length of this path
+     * @return
+     */
     public int getLength() {
         return this.pathFromRootToLeaf.length;
     }
 
+    /**
+     * Returns true if this path is empty
+     * @return true if this path is empty
+     */
     public boolean isEmptyPath() {
         return this.pathFromRootToLeaf != null && this.pathFromRootToLeaf.length == 0;
     }
 
+    /**
+     * Returns root of the path
+     * @return root of the path
+     */
     public String getRoot() {
         if (!isEmptyPath()) {
             return this.pathFromRootToLeaf[0];
@@ -44,6 +66,10 @@ public abstract class AbstractObjectPath {
         }
     }
 
+    /**
+     * Returns leaf of the path
+     * @return leaf of this path
+     */
     public String getLeaf() {
         if (!isEmptyPath()) {
             return this.pathFromRootToLeaf[this.pathFromRootToLeaf.length-1];
@@ -52,15 +78,32 @@ public abstract class AbstractObjectPath {
         }
     }
 
+    /**
+     * Returns true if this path contains given node
+     * @param node Checking node
+     * @return true if this path contains given node
+     */
     public boolean contains(String node) {
         return Arrays.asList(this.pathFromRootToLeaf).contains(node);
     }
     
-    
+    /**
+     * Returns concrete node from this path. <br>
+     * Inner exploring array is sorted from root to leaf 
+     * @param index Index of node
+     * @return node from this path.
+     */
     public String getNodeFromRootToLeaf(int index) {
         return getPathFromRootToLeaf()[index];
     }
     
+    
+    /**
+     * Returns concrete node from this path. <br>
+     * Inner exploring array is sorted from leaf to root 
+     * @param index Index of node
+     * @return node from this path.
+     */
     public String getNodeFromLeafToRoot(int index) {
         return getPathFromLeafToRoot()[index];
     }
@@ -83,24 +126,45 @@ public abstract class AbstractObjectPath {
         return subpath;
     }
 
-    
+    /**
+     * Returns new instance of this path but without its head 
+     * @param indexFrom Cut index
+     * @return new instance of this path
+     */
     public abstract AbstractObjectPath cutHead(int indexFrom);
 
     
+    /**
+     * Returns new instance of this path but without its tail 
+     * @param indexFrom Cut index
+     * @return new instance of this path
+     */
     public abstract AbstractObjectPath cutTail(int indexFrom);
     
-    
+    /**
+     * Returns string representation of this path sorted from root to leaf
+     * @return string representation of this path
+     */
     public String[] getPathFromRootToLeaf() {
         String[] array = Arrays.asList(this.pathFromRootToLeaf).toArray(new String[this.pathFromRootToLeaf.length]);
         return array;
     }
 
+    /**
+     * Returns string representation of this path sorted from leaf to root
+     * @return string representation of this path
+     */
     public String[] getPathFromLeafToRoot() {
         ArrayList<String> list = new ArrayList<String>(Arrays.asList(this.pathFromRootToLeaf));
         Collections.reverse(list);
         return list.toArray(new String[this.pathFromRootToLeaf.length]);
     }
 
+    /**
+     * Creates new path and injet into REPOSITORY object
+     * @return nwe path with REPOSITORY object
+     * @see SpecialObjects#REPOSITORY
+     */
     public abstract AbstractObjectPath injectRepository();
 
     @Override

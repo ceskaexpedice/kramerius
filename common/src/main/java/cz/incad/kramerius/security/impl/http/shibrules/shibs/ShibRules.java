@@ -19,19 +19,35 @@ package cz.incad.kramerius.security.impl.http.shibrules.shibs;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Represents all shibboleth rules
+ * @author pavels
+ *
+ */
 public class ShibRules implements Expr{
 
     private List<MatchRule> rules = new ArrayList<MatchRule>();
 
-    
+    /**
+     * Adds new rule
+     * @param mRule
+     */
     public void addRule(MatchRule mRule) {
         this.rules.add(mRule);
     }
 
+    /**
+     * Remove old rule
+     * @param mRule
+     */
     public void removeRule(MatchRule mRule) {
         this.rules.remove(mRule);
     }
     
+    /**
+     * Returns all rules
+     * @return
+     */
     public List<MatchRule> getRules() {
         return rules;
     }

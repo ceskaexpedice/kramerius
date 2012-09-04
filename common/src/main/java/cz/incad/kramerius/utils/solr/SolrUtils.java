@@ -33,34 +33,62 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
+import cz.incad.kramerius.SolrAccess;
 import cz.incad.kramerius.utils.RESTHelper;
 import cz.incad.kramerius.utils.XMLUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 
+/**
+ * Utility helper class for SolrAccess
+ * @see SolrAccess
+ * @author pavels
+ */
 public class SolrUtils   {
 
+    /** PID query */
     public static final String UUID_QUERY="q=PID:";
+    /** Handle query */
     public static final String HANDLE_QUERY="q=handle:";
     
-    
+    // factory instance
     static XPathFactory fact =XPathFactory.newInstance();
     
+    /** 
+     * Conscturcts XPath for disecting pid path 
+     * @return Compiled XPath expression
+     * @throws XPathExpressionException Cannot compile xpath
+     */
     public static XPathExpression pidPathExpr() throws XPathExpressionException {
         XPathExpression pidPathExpr = fact.newXPath().compile("//arr[@name='pid_path']/str");
         return pidPathExpr;
     }
 
+    /**
+     * Constructs XPath for disecting PID
+     * @return Compiled XPath expression
+     * @throws XPathExpressionException Cannot compile xpath
+     */
     public static XPathExpression pidExpr() throws XPathExpressionException {
         XPathExpression pidExpr = fact.newXPath().compile("//str[@name='PID']");
         return pidExpr;
     }
 
 
+    /**
+     * Constructs XPath for disecting model path
+     * @return Compiled XPath expression
+     * @throws XPathExpressionException Cannot compile xpath
+     */
     public static XPathExpression modelPathExpr() throws XPathExpressionException {
         XPathExpression pathExpr = fact.newXPath().compile("//arr[@name='model_path']/str");
         return pathExpr;
     }
     
+    /**
+     * Disects pid paths from given parsed solr document
+     * @return pid paths
+     * @throws XPathExpressionException cannot disect pid paths
+     */
     public static List<String> disectPidPaths( Document parseDocument) throws XPathExpressionException {
         List<String> list = new ArrayList<String>();
         NodeList paths = (org.w3c.dom.NodeList) pidPathExpr().evaluate(parseDocument, XPathConstants.NODESET);
@@ -75,6 +103,12 @@ public class SolrUtils   {
         return new ArrayList<String>();
     }
     
+    /**
+     * Disect pid from given solr document
+     * @param parseDocument Parsed solr document
+     * @return PID 
+     * @throws XPathExpressionException cannot disect pid
+     */
     public static String disectPid(Document parseDocument) throws XPathExpressionException {
         Node pidNode = (Node) pidExpr().evaluate(parseDocument, XPathConstants.NODE);
         if (pidNode != null) {
@@ -84,6 +118,12 @@ public class SolrUtils   {
         return null;
     }
 
+    /**
+     * Disect models path from given solr document
+     * @param parseDocument Parsed solr document
+     * @return model paths
+     * @throws XPathExpressionException cannot disect models path
+     */
     public static List<String> disectModelPaths(Document parseDocument) throws XPathExpressionException {
         List<String> list = new ArrayList<String>();
         NodeList pathNodes = (NodeList) modelPathExpr().evaluate(parseDocument, XPathConstants.NODESET);
@@ -98,10 +138,6 @@ public class SolrUtils   {
         return new ArrayList<String>();
     }
 
-//    public static Document getSolrData(String uuid) throws IOException, ParserConfigurationException, SAXException {
-//        String query = "q=PID:"+uuid;
-//        return getSolrDataInternal( query);
-//    }
 
     public static Document getSolrDataInternal(String query) throws IOException, ParserConfigurationException, SAXException {
         String solrHost = KConfiguration.getInstance().getSolrHost();
@@ -111,10 +147,5 @@ public class SolrUtils   {
         return parseDocument;
     }
 
-//    public static String[] getPathOfUUIDs(String uuid) throws XPathExpressionException, IOException, ParserConfigurationException, SAXException {
-//        Document parseDocument = getSolrData(uuid);
-//        String pidPath = disectPidPath(parseDocument);
-//        return pidPath.split("/");
-//    }
 
 }

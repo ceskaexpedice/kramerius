@@ -28,14 +28,14 @@ public interface VersionService {
     /**
      * Returns current database model version
      * @return Database model version
-     * @throws SQLException
+     * @throws SQLException SQL error has been occurred
      */
     public String getVersion() throws SQLException;
 
     /**
      * Update database model version
-     * @throws IOException
-     * @throws SQLException
+     * @throws IOException IO error has been occured
+     * @throws SQLException SQL error has been occurred
      */
     public void updateNewVersion() throws IOException, SQLException;
 }

@@ -87,7 +87,7 @@ public class FirstPageAsImagePDFServiceImpl extends AbstractPDFRenderSupport imp
         os.flush();
     }
 
-    public File writeSelectionToPDF(AbstractRenderedDocument rdoc, String[] pids, String imgServlet, String i18nServlet, FontMap fontMap) throws IOException, FileNotFoundException {
+    File writeSelectionToPDF(AbstractRenderedDocument rdoc, String[] pids, String imgServlet, String i18nServlet, FontMap fontMap) throws IOException, FileNotFoundException {
         FileOutputStream pdfFos = null;
         try {
             File tmpFile = File.createTempFile("firstpage", "pdf");

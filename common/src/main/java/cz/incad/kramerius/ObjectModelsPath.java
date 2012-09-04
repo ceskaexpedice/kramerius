@@ -18,9 +18,13 @@ package cz.incad.kramerius;
 
 import cz.incad.kramerius.security.SpecialObjects;
 
+/**
+ * Represents path of models
+ * @author pavels
+ */
 public class ObjectModelsPath extends AbstractObjectPath {
 
-    
+    /** REPOSITORY Path constant */
     public static ObjectModelsPath REPOSITORY_PATH = new ObjectModelsPath(SpecialObjects.REPOSITORY.name());
 
     
@@ -43,7 +47,7 @@ public class ObjectModelsPath extends AbstractObjectPath {
     }
 
 
-
+    @Override
     public ObjectModelsPath injectRepository() {
         if (isEmptyPath()) return REPOSITORY_PATH;
         if (!this.pathFromRootToLeaf[0].equals(SpecialObjects.REPOSITORY.name())) {

@@ -18,14 +18,35 @@ package cz.incad.kramerius.pdf.commands;
 
 import org.w3c.dom.Element;
 
-// abstract iText command
+/**
+ * Represents one IText command 
+ */
 public interface ITextCommand {
 
+    /**
+     * Load command 
+     * @param elm XML element 
+     * @param cmnds Commands container 
+     * @throws InstantiationException Could not initialize command 
+     * @throws IllegalAccessException Could not initalize commnad
+     */
     public void load(Element elm, ITextCommands cmnds) throws InstantiationException, IllegalAccessException;
-
+    
+    /**
+     * Returns parent command
+     * @return parent command
+     */
     public ITextCommand getParent();
 
+    /**
+     * Sets parent command
+     * @param parent parent command
+     */
     public void setParent(ITextCommand parent);
     
+    /**
+     * Process command
+     * @param procsListener Listener for receiving processing informations
+     */
     public void process(ITextCommandProcessListener procsListener);
 }

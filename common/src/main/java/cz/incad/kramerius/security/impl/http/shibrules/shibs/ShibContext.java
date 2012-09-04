@@ -21,6 +21,10 @@ import javax.servlet.http.HttpServletRequest;
 import cz.incad.kramerius.security.User;
 import cz.incad.kramerius.security.UserManager;
 
+/**
+ * Shibboleth runtime context
+ * @author pavels
+ */
 public class ShibContext {
     
     private HttpServletRequest httpServletRequest;
@@ -34,18 +38,27 @@ public class ShibContext {
         this.userManager = userManager;
     }
 
-
+    /**
+     * Returns actual http servlet request
+     * @return
+     */
     public HttpServletRequest getHttpServletRequest() {
         return this.httpServletRequest;
     }
     
-    
+    /**
+     * Returns logged user
+     * @return
+     */
     public User getUser() {
         return this.user;
     }
 
     
-    
+    /**
+     * Returns user manager
+     * @return
+     */
     public UserManager getUserManager() {
         return this.userManager;
     }

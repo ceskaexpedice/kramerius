@@ -5,6 +5,7 @@ import java.io.InputStream;
 import java.util.Properties;
 import java.util.logging.Level;
 
+@Deprecated
 public class InternalConfiguration {
 
     public static final java.util.logging.Logger LOGGER = java.util.logging.Logger.getLogger(InternalConfiguration.class.getName());

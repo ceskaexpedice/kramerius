@@ -12,44 +12,61 @@ import org.w3c.dom.NodeList;
 
 import cz.incad.kramerius.document.model.DCConent;
 
-
+/**
+ * Utility class for collecting dc contents
+ * @author pavels
+ */
 public class DCUtils {
 
     
-
-    public static DCConent contentFromDC(org.w3c.dom.Document dc) {
+    /**
+     * Returns dc content from given document
+     * @param doc parsed DC stream
+     * @return
+     */
+    public static DCConent contentFromDC(org.w3c.dom.Document doc) {
         DCConent content = new DCConent();
-        String title = titleFromDC(dc);
+        String title = titleFromDC(doc);
         if (title != null) content.setTitle(title);
         
-        String model = modelFromDC(dc);
+        String model = modelFromDC(doc);
         if (model != null) content.setType(model);
         
-        String date = dateFromDC(dc);
+        String date = dateFromDC(doc);
         if (date != null) content.setDate(date);
         
-        String[] publishersFromDC = publishersFromDC(dc);
+        String[] publishersFromDC = publishersFromDC(doc);
         if (publishersFromDC != null) content.setPublishers(publishersFromDC);
         
-        String[] creatorsFromDC = creatorsFromDC(dc);
+        String[] creatorsFromDC = creatorsFromDC(doc);
         if (creatorsFromDC != null) content.setCreators(creatorsFromDC);
         
-        String[] identsFromDC = identifierlsFromDC(dc);
+        String[] identsFromDC = identifierlsFromDC(doc);
         if (identsFromDC != null) content.setIdentifiers(identsFromDC);
         
         return content;
          
     }
     
-	public static String titleFromDC(org.w3c.dom.Document dc) {
-		Element elm = findElement(dc.getDocumentElement(), "title", DC_NAMESPACE_URI);	
-		if (elm == null) elm = findElement(dc.getDocumentElement(), "identifier", DC_NAMESPACE_URI);
+    /**
+     * Returns title from dc stream
+     * @param doc parsed DC stream
+     * @return
+     */
+	public static String titleFromDC(org.w3c.dom.Document doc) {
+		Element elm = findElement(doc.getDocumentElement(), "title", DC_NAMESPACE_URI);	
+		if (elm == null) elm = findElement(doc.getDocumentElement(), "identifier", DC_NAMESPACE_URI);
 		String title = elm.getTextContent();
 		return title;
 	}
 	
-	public static String modelFromDC(org.w3c.dom.Document dc) {
-        Element elm = findElement(dc.getDocumentElement(), "type", DC_NAMESPACE_URI);  
+	/**
+	 * Returns model from dc stream
+	 * @param doc parsed DC stream
+	 * @return
+	 */
+	public static String modelFromDC(org.w3c.dom.Document doc) {
+        Element elm = findElement(doc.getDocumentElement(), "type", DC_NAMESPACE_URI);  
         if (elm != null) {
             String type = elm.getTextContent();
             StringTokenizer tokenizer = new StringTokenizer(type,":");
@@ -60,8 +77,13 @@ public class DCUtils {
         } else return null;
 	}
 	
-	public static String[] publishersFromDC(org.w3c.dom.Document dc) {
-        ArrayList<String> texts = findElmTexts(dc, "publisher");
+	/**
+	 * Returns publishers from DC stream
+	 * @param doc parsed DC stream
+	 * @return
+	 */
+	public static String[] publishersFromDC(org.w3c.dom.Document doc) {
+        ArrayList<String> texts = findElmTexts(doc, "publisher");
         return (String[]) texts.toArray(new String[texts.size()]);
 	}
 	

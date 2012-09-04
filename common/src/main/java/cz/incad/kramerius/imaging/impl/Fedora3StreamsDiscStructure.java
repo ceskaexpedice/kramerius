@@ -91,6 +91,7 @@ public class Fedora3StreamsDiscStructure implements DiscStrucutreForStore {
         }
     }
 
+    @Override
     public File getUUIDFile(String uuid,  String rootPath) throws IOException {
         try {
             Document profile = fedoraAccess.getStreamProfile("uuid:"+uuid, FedoraUtils.IMG_FULL_STREAM);

@@ -23,17 +23,41 @@ import cz.incad.kramerius.ProcessSubtreeException;
 import cz.incad.kramerius.document.model.AbstractRenderedDocument;
 
 /**
- * Sluzba pro vytvareni dokumentu
+ * Document model service
  */
 public interface DocumentService {
 
-    // Vytvori model dokumentu s obsahem
+    /**
+     * Creates document model with structure 
+     * @param path Object's pid path
+     * @param pidFrom Pid of first page of resulting document. All pages before has been skipped. It can be null.
+     * @param rect page size
+     * @return Created document model
+     * @throws IOException IO error has been occurred
+     * @throws ProcessSubtreeException Error has been occurred during tree processing
+     */
     AbstractRenderedDocument buildDocumentAsTree(ObjectPidsPath path, String pidFrom, int[]rect) throws IOException, ProcessSubtreeException;
 
-    // vytvori dokument bez obsahu
+    
+    /**
+     * Creates flat document model
+     * @param path Object's pid path
+     * @param pidFrom Pid of first page of resulting document. All pages before has been skipped. It can be null.
+     * @param rect page size
+     * @return Created document model
+     * @throws IOException IO error has been occurred
+     * @throws ProcessSubtreeException Error has been occurred during tree processing
+     */
     AbstractRenderedDocument buildDocumentAsFlat(ObjectPidsPath path, String pidFrom, int howMany, int[] rect) throws IOException, ProcessSubtreeException;
     
-    // vytvori dokument pouze jako vyber objektu
+    /**
+     * Creates flat document model from pids selection
+     * @param selection PID's selection
+     * @param rect page size
+     * @return Created document model
+     * @throws IOException IO error has been occurred
+     * @throws ProcessSubtreeException Error has been occurred during tree processing
+     */
     AbstractRenderedDocument buildDocumentFromSelection(String[] selection, int[] rect) throws IOException, ProcessSubtreeException;
     
 

@@ -38,11 +38,23 @@ public abstract class AbstractITextCommand implements ITextCommand {
     }
     
 
+    /**
+     * Helper method. Returns true if given element contains attribute with any value 
+     * @param elm XML element
+     * @param name Attribute name
+     * @return True if given element contains attributre with any value
+     */
     public boolean notEmptyAttribute(Element elm, String name) {
         String attrVal = elm.getAttribute(name);
         return (attrVal != null && (!attrVal.trim().equals("")));
     }
     
+    /**
+     * Construct Hyphenation object from given element
+     * @param elm XML element
+     * @return Hyphenation object
+     * @see Hyphenation
+     */
     public Hyphenation hyphenationFromAttibutes(Element elm) {
         if (notEmptyAttribute(elm, "hyphenation-lang") && notEmptyAttribute(elm, "hyphenation-country")) {
             String country = elm.getAttribute("hyphenation-lang");
@@ -51,6 +63,10 @@ public abstract class AbstractITextCommand implements ITextCommand {
         } else return null;
     }
 
+    /**
+     * Represents Hyphenation used in PDF generation
+     * @author pavels
+     */
     public static class Hyphenation {
         private String country;
         private String lang;
@@ -61,9 +77,18 @@ public abstract class AbstractITextCommand implements ITextCommand {
             this.lang = lang;
         }
         
+        /**
+         * Returns country code 
+         * @return country code 
+         */
         public String getCountry() {
             return country;
         }
+
+        /**
+         * Returns language code
+         * @return language code
+         */
         public String getLang() {
             return lang;
         }

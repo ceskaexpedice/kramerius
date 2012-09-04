@@ -8,22 +8,20 @@ import com.google.inject.Provider;
 
 /**
  * Implementation of this interface can organize folders for storing and loading
- * uuid objects in disc
+ * objects on disc
  * 
  * @author pavels
  */
 public interface DiscStrucutreForStore {
 
     /**
-     * Returns file for given uuid
+     * Returns file for given pid
      * 
-     * @param uuid
-     *            UUID of the object
-     * @param rootPath
-     *            Root path to where object shoul be stored
-     * @return
-     * @throws IOException
+     * @param pid object's PID
+     * @param rootPath Root path to where the object should be stored
+     * @return file for given pid
+     * @throws IOException IO error has been occurred
      */
-    public File getUUIDFile(String uuid, String rootPath) throws IOException;
+    public File getUUIDFile(String pid, String rootPath) throws IOException;
 
 }

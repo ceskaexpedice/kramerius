@@ -5,6 +5,10 @@ import java.io.IOException;
 
 import cz.incad.kramerius.imaging.DiscStrucutreForStore;
 
+/**
+ * Pure implementation of the interface {@link DiscStrucutreForStore}
+ * @author pavels
+ */
 public class PlainDiscStructure implements DiscStrucutreForStore {
 
     @Override

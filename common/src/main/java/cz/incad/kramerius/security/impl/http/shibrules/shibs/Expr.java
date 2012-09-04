@@ -18,7 +18,15 @@ package cz.incad.kramerius.security.impl.http.shibrules.shibs;
 
 import javax.servlet.http.HttpServletRequest;
 
+/**
+ * Represents shibboleth rule expression
+ * @author pavels
+ */
 public interface Expr {
     
+    /**
+     * Evaluate expression
+     * @param ctx Shibboleth runtime context
+     */
     public void evaluate(ShibContext ctx);
 }

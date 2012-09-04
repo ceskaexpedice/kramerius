@@ -1,6 +1,9 @@
 package cz.incad.kramerius.document.model;
 
-
+/**
+ * Abstract document object
+ * @author pavels
+ */
 public abstract class AbstractObject {
 
 	protected String modelName;
@@ -13,12 +16,25 @@ public abstract class AbstractObject {
 		this.uuid = uuid;
 	}
 	
+	/**
+	 * Returns model
+	 * @return
+	 */
 	public String getModel() {
 		return modelName;
 	}
+	/**
+	 * Returns pid
+	 * @return
+	 */
 	public String getUuid() {
 		return uuid;
 	}
 
+	/**
+	 * Prints debug information
+	 * @param buffer Information string buffer
+	 * @param level Indentation level
+	 */
 	public abstract void debugInformations(StringBuffer buffer, int level);
 }

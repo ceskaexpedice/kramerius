@@ -64,7 +64,7 @@ public class FileSystemCacheServiceImpl implements DeepZoomCacheService {
         }
     }
 
-    public void prepareCacheImage(String pid, int levelsOverTile) {
+    void prepareCacheImage(String pid, int levelsOverTile) {
         try {
             BufferedImage original = createDeepZoomOriginalImageFromFedoraRAW(pid);
             //KrameriusImageSupport.writeImageToStream(original, "jpeg", new FileOutputStream(new File(uuidFolder(uuid), uuid)));
@@ -75,7 +75,7 @@ public class FileSystemCacheServiceImpl implements DeepZoomCacheService {
     }
 
     
-    public void prepareCacheImage(String pid, int levelsOverTile, BufferedImage rawImage) {
+    void prepareCacheImage(String pid, int levelsOverTile, BufferedImage rawImage) {
         try {
             File uuidFolder = uuidFolder(pid);
 
@@ -240,7 +240,7 @@ public class FileSystemCacheServiceImpl implements DeepZoomCacheService {
         }
     }
 
-    public void writeResolution(String pid, Dimension dim) throws IOException {
+    void writeResolution(String pid, Dimension dim) throws IOException {
         File resFile = new File(uuidFolder(pid), dim.width + "_x_" + dim.height + ".resolution");
         if (!resFile.exists()) {
             boolean resFileCreated = resFile.createNewFile();
@@ -321,6 +321,7 @@ public class FileSystemCacheServiceImpl implements DeepZoomCacheService {
         return ilevel;
     }
 
+    @Override
     public Dimension getResolutionFromFile(String pid) throws IOException {
         File[] resolutionFiles = uuidFolder(pid).listFiles(new FileFilter() {
 
@@ -349,6 +350,7 @@ public class FileSystemCacheServiceImpl implements DeepZoomCacheService {
         return file.exists() && file.canRead();
     }
 
+    @Override
     public synchronized BufferedImage getDeepZoomOriginal(String pid) throws IOException {
         if (isDeepZoomOriginalPresent(pid)) {
             File file = new File(uuidFolder(pid), pid);

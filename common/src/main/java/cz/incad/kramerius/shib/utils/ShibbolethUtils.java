@@ -22,8 +22,17 @@ import javax.servlet.http.HttpServletRequest;
 
 import cz.incad.kramerius.security.impl.http.AbstractLoggedUserProvider;
 
+/**
+ * Utils for shibboleth session
+ * @author pavels
+ */
 public class ShibbolethUtils {
 
+    /**
+     * Returns true if current user is under shibboleth session
+     * @param httpServletRequest
+     * @return
+     */
     public static boolean isUnderShibbolethSession(HttpServletRequest httpServletRequest) {
         boolean foundIdentityProvider = false;
         Enumeration headerNames = httpServletRequest.getHeaderNames();

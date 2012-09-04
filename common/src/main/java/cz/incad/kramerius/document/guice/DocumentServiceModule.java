@@ -21,6 +21,10 @@ import com.google.inject.AbstractModule;
 import cz.incad.kramerius.document.DocumentService;
 import cz.incad.kramerius.document.impl.DocumentServiceImpl;
 
+/**
+ * Guice module for document service
+ * @author pavels
+ */
 public class DocumentServiceModule extends AbstractModule {
 
     @Override

@@ -16,12 +16,26 @@
  */
 package cz.incad.kramerius.utils.json;
 
+/**
+ * Utility class for JSON objects
+ * @author pavels
+ */
 public class JSONUtils {
 
+    /**
+     * Escape quotes
+     * @param data Raw data
+     * @return String with escape sequences
+     */
     public static String escapeQuotes(String data) {
         return data.replace("\"", "\\\"");
     }
     
+    /**
+     * Cut quotes
+     * @param data Raw data
+     * @return String without quotes
+     */
     public static String cutQuotes(String data) {
         if (data.startsWith("\"")) {
             data = data.substring(1);

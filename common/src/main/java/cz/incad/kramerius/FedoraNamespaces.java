@@ -20,10 +20,16 @@ public interface FedoraNamespaces {
      */
     public static final String DC_NAMESPACE_URI = "http://purl.org/dc/elements/1.1/";
 
+    /**
+     * Fedora models namespace
+     */
     public static final String FEDORA_MODELS_URI = "info:fedora/fedora-system:def/model#";
 
     public static final String KRAMERIUS_URI = "http://www.nsdl.org/ontologies/relationships#";
 
+    /**
+     * Biblio modesl namespace
+     */
     public static final String BIBILO_MODS_URI = "http://www.loc.gov/mods/v3";
 
     /**

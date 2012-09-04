@@ -22,6 +22,10 @@ import com.google.inject.Scopes;
 import cz.incad.kramerius.database.VersionService;
 import cz.incad.kramerius.database.impl.VersionServiceImpl;
 
+/**
+ * Guice module:  Version service initialization
+ * @author pavels
+ */
 public class DatabaseVersionGuiceModule extends AbstractModule {
 
     @Override

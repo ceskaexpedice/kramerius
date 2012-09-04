@@ -26,6 +26,10 @@ import cz.incad.kramerius.security.Role;
 import cz.incad.kramerius.security.User;
 import cz.incad.kramerius.security.impl.UserImpl;
 
+/**
+ * Expression perform assiciation logged user with declared role
+ * @author pavels
+ */
 public class RoleExpr implements Expr {
     
     private Value value;

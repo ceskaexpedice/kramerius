@@ -29,7 +29,7 @@ public interface DeepZoomFlagService {
     /**
      * Delete deepzoom flag
      * @param pid PID of object
-     * @throws IOException
+     * @throws IOException IO error has been occurred
      */
     public void deleteFlagToPID(final String pid) throws IOException;
     
@@ -37,7 +37,7 @@ public interface DeepZoomFlagService {
      * Sets deepzoom flag
      * @param pid PID of object
      * @param tilesUrl Tiles url
-     * @throws IOException
+     * @throws IOException IO error has been occurred
      */
     public void setFlagToPID(String pid, String tilesUrl) throws IOException;
 }

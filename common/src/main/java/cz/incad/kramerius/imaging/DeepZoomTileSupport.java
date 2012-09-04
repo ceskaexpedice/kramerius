@@ -8,7 +8,7 @@ import java.io.IOException;
 import cz.incad.kramerius.utils.imgs.KrameriusImageSupport.ScalingMethod;
 
 /**
- * Helper class which supports tiles
+ * Helper interface for supporting deep zoom protocol
  * 
  * @author pavels
  */
@@ -17,103 +17,106 @@ public interface DeepZoomTileSupport {
     /**
      * Return default tile size
      * 
-     * @return
+     * @return tilesize
      */
     public int getTileSize();
 
     /**
-     * Returns number of leves for image
+     * Returns number of resolution's leves for image
      * 
-     * @param pid
-     * @param minSize
-     *            the smallest size of image (in deepZoom protocol is 1px, in
-     *            IIP is tileSize)
-     * @return
-     * @throws IOException
+     * @param pid Pid of the object
+     * @param minSize the smallest size of image (in deepZoom protocol is 1px, in IIP is tileSize)
+     * @return number of levels
+     * @throws IOException IO error has been occurred
      */
     public long getLevels(String pid, int minSize, DeepZoomFullImageScaleFactor factor) throws IOException;
 
     /**
      * Calculate and returns number of leves of given image
      * 
-     * @param image
-     *            RAW Image
+     * @param image RAW Image
      * @param minSize
      *            the smallest size of image (in deepZoom protocol is 1px, in
      *            IIP is tileSize)
-     * @return
-     * @throws IOException
+     * @return number of levels
+     * @throws IOException IO error has been occurred
      */
     public long getLevels(BufferedImage image, int minSize) throws IOException;
 
+    /**
+     * Calculate and returns number of leves of given dimension
+     * @param dim dimension
+     * @param minSize
+     *            the smallest size of image (in deepZoom protocol is 1px, in
+     *            IIP is tileSize)
+     */
     public int getLevels(Dimension dim, int minSize);
 
     
     /**
-     * Returns raw image
-     * 
-     * @param pid
-     * @return
-     * @throws IOException
      */
     @Deprecated
     public BufferedImage getRawImage(String pid) throws IOException;
 
+    /**
+     * Returns scaled instance of original image
+     * @param pid PID of object
+     * @param factor Scaling factor
+     * @return scaled image
+     * @throws IOException IO error has been occurred
+     */
     public BufferedImage getScaledRawImage(String pid, DeepZoomFullImageScaleFactor factor) throws IOException;
 
     /**
      * Returns max-size of the image
-     * 
-     * @param pid
-     * @return
-     * @throws IOException
+     * <p>
+     * If the original is too big, you can configurate smaller image  as the original. It is defined by {@link DeepZoomFullImageScaleFactor}
+     * </p>
+     * @param pid PID of the object
+     * @return maximal size of image 
+     * @throws IOException IO error has been occurred
+     * @see DeepZoomFullImageScaleFactor
      */
     public Dimension getMaxSize(String pid, DeepZoomFullImageScaleFactor factor) throws IOException;
 
     /**
      * Calculates and returns scaled dimension
      * 
-     * @param originalDim
-     * @param scale
-     * @return
+     * @param originalDim Original dimension
+     * @param scale Scaled factor
+     * @return scaled dimension
      */
     public Dimension getScaledDimension(Dimension originalDim, double scale);
 
     /**
      * Returns one tile
      * 
-     * @param pid
-     *            UUID of the raw image
-     * @param displayLevel
-     *            Scale level of the image
-     * @param displayTile
-     *            Tile coordinats
+     * @param pid PID of the raw image
+     * @param displayLevel Scale level of the image
+     * @param displayTile Tile coordinats
      * @param minSize
      *            the smallest size of image (in deepZoom protocol is 1px, in
      *            IIP is tileSize)
-     * @param scalingMethod
-     *            TODO
-     * @param iterateScaling
-     *            TODO
-     * @return
-     * @throws IOException
+     * @param scalingMethod Scaling method
+     * @param iterateScaling flag for determine if algorithm should use iterate scaling
+     * @return one tile
+     * @throws IOException IO error has been occurred
      */
     public BufferedImage getTile(String pid, int displayLevel, int displayTile, int minSize, ScalingMethod scalingMethod, boolean iterateScaling, DeepZoomFullImageScaleFactor scaleFactor) throws IOException;
 
     /**
      * Returns tile from given image
      * 
-     * @param displayLevel
-     *            Scale level of the image
-     * @param displayTile
-     *            Tile coordinatns
+     * @param displayLevel Scale level of the image
+     * @param displayTile Tile coordinatns
      * @param minSize
      *            the smallest size of image (in deepZoom protocol is 1px, in
      *            IIP is tileSize)
-     * @param method
-     *            TODO
-     * @param iterateScaling
-     *            TODO
+     * @param method Scaling method
+     * @param iterateScaling flag for determine 
+     * @param iterateScaling flag for determine if algorithm should use iterate scaling
+     * @return one tile
+     * @throws IOException IO error has been occurred
      */
     public BufferedImage getTileFromBigImage(BufferedImage image, int displayLevel, int displayTile, int minSize, ScalingMethod method, boolean iterateScaling) throws IOException;
 
@@ -131,21 +134,28 @@ public interface DeepZoomTileSupport {
     /**
      * Returns number of cols in scaled dimension
      * 
-     * @param scaledDim
-     * @return
+     * @param scaledDim Scaled dimension
+     * @return number of calculated columns
      */
     public int getCols(Dimension scaledDim);
 
     /**
      * Returns number of rows in scaled dimension
      * 
-     * @param scaledDim
+     * @param scaledDim 
      * @return
      */
     public int getRows(Dimension scaledDim);
 
+    
     public double getClosestScale(Dimension originalSize, int sizeToFit);
 
-    public int getClosestLevel(Dimension originalSize, int sizeToFit);
+    /**
+     * Calculate closest level for given dimension
+     * @param originalDimension Original dimension 
+     * @param sizeToFit Size to fit
+     * @return calculated level
+     */
+    public int getClosestLevel(Dimension originalDimension, int sizeToFit);
 
 }

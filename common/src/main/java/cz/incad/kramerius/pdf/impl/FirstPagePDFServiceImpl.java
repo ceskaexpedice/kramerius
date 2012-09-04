@@ -91,7 +91,7 @@ public class FirstPagePDFServiceImpl implements FirstPagePDFService {
     @Inject
     Provider<Locale> localesProvider;
 
-    public Map<String, Map<String, List<String>>> processMods(String... pids) throws IOException, JAXBException, XPathExpressionException {
+    Map<String, Map<String, List<String>>> processMods(String... pids) throws IOException, JAXBException, XPathExpressionException {
         Map<String, Map<String, List<String>>> maps = new HashMap<String, Map<String, List<String>>>();
         for (String pid : pids) {
             ObjectPidsPath selectedPath = selectOnePath(pid);
@@ -101,7 +101,7 @@ public class FirstPagePDFServiceImpl implements FirstPagePDFService {
         return maps;
     }
 
-    public Map<String, Map<String, List<String>>> processModsFromPath(ObjectPidsPath selectedPath, BuilderFilter filter) throws IOException, XPathExpressionException {
+    Map<String, Map<String, List<String>>> processModsFromPath(ObjectPidsPath selectedPath, BuilderFilter filter) throws IOException, XPathExpressionException {
         Map<String, Map<String, List<String>>> maps = new HashMap<String, Map<String, List<String>>>();
         if (selectedPath != null) {
             String[] pathFromLeaf = selectedPath.getPathFromLeafToRoot();
@@ -121,7 +121,7 @@ public class FirstPagePDFServiceImpl implements FirstPagePDFService {
         return maps;
     }
 
-    public ObjectPidsPath selectOnePath(String pid) throws IOException {
+    ObjectPidsPath selectOnePath(String pid) throws IOException {
         ObjectPidsPath[] paths = this.solrAccess.getPath(pid);
         ObjectPidsPath selectedPath = paths.length > 0 ? paths[0] : null;
         return selectedPath;
@@ -156,7 +156,7 @@ public class FirstPagePDFServiceImpl implements FirstPagePDFService {
         }
     }
 
-    public void renderFromTemplate(AbstractRenderedDocument rdoc,Document doc, FontMap fontMap, StringReader reader) throws IOException, InstantiationException, IllegalAccessException, ParserConfigurationException, SAXException {
+    void renderFromTemplate(AbstractRenderedDocument rdoc,Document doc, FontMap fontMap, StringReader reader) throws IOException, InstantiationException, IllegalAccessException, ParserConfigurationException, SAXException {
         ITextCommands cmnds = new ITextCommands();
         cmnds.load(XMLUtils.parseDocument(reader).getDocumentElement(), cmnds);
 
@@ -164,7 +164,7 @@ public class FirstPagePDFServiceImpl implements FirstPagePDFService {
         render.render(doc, cmnds);
     }
 
-    public String templateSelection(AbstractRenderedDocument rdoc, String ... pids) throws XPathExpressionException, IOException, ParserConfigurationException, SAXException {
+    String templateSelection(AbstractRenderedDocument rdoc, String ... pids) throws XPathExpressionException, IOException, ParserConfigurationException, SAXException {
         ResourceBundle resourceBundle = resourceBundleService.getResourceBundle("base", localesProvider.get());
 
         StringTemplate template = new StringTemplate(IOUtils.readAsString(this.getClass().getResourceAsStream("templates/_first_page.st"), Charset.forName("UTF-8"), true));
@@ -274,7 +274,7 @@ public class FirstPagePDFServiceImpl implements FirstPagePDFService {
         return rProps;
     }
 
-    public void itemVals(Map<String, LinkedHashSet<String>> detailItemValues, List<String> list, String key) {
+    void itemVals(Map<String, LinkedHashSet<String>> detailItemValues, List<String> list, String key) {
         LinkedHashSet<String> vals = detailItemValues.get(key);
         if (vals == null) { 
             vals = new LinkedHashSet<String>();
@@ -283,7 +283,7 @@ public class FirstPagePDFServiceImpl implements FirstPagePDFService {
         vals.addAll(list);
     }
 
-    public String templateParent(AbstractRenderedDocument rdoc, ObjectPidsPath path) throws IOException, ParserConfigurationException, SAXException, XPathExpressionException, JAXBException {
+    String templateParent(AbstractRenderedDocument rdoc, ObjectPidsPath path) throws IOException, ParserConfigurationException, SAXException, XPathExpressionException, JAXBException {
         ResourceBundle resourceBundle = resourceBundleService.getResourceBundle("base", localesProvider.get());
 
         StringTemplate template = new StringTemplate(IOUtils.readAsString(this.getClass().getResourceAsStream("templates/_first_page.st"), Charset.forName("UTF-8"), true));
@@ -349,7 +349,7 @@ public class FirstPagePDFServiceImpl implements FirstPagePDFService {
         return templateText;
     }
 
-    public void pagesInParentPdf(AbstractRenderedDocument rdoc, ResourceBundle resourceBundle, List<DetailItem> details) {
+    void pagesInParentPdf(AbstractRenderedDocument rdoc, ResourceBundle resourceBundle, List<DetailItem> details) {
         // tistene stranky
         List<AbstractPage> pages = rdoc.getPages();
         if (pages.size() == 1) {
@@ -360,7 +360,7 @@ public class FirstPagePDFServiceImpl implements FirstPagePDFService {
     }
     
     
-    public void pagesInSelectiontPdf(AbstractRenderedDocument rdoc, ResourceBundle resourceBundle, List<DetailItem> details) {
+    void pagesInSelectiontPdf(AbstractRenderedDocument rdoc, ResourceBundle resourceBundle, List<DetailItem> details) {
         // tistene stranky
         List<AbstractPage> pages = rdoc.getPages();
         if (pages.size() == 1) {
@@ -374,13 +374,13 @@ public class FirstPagePDFServiceImpl implements FirstPagePDFService {
     }
 
 
-    public StringTemplate vals(Collection<String> list) {
+    StringTemplate vals(Collection<String> list) {
         StringTemplate dataTemplate = new StringTemplate("$data;separator=\", \"$");
         dataTemplate.setAttribute("data", list);
         return dataTemplate;
     }
 
-    public FirstPageViewObject prepareViewObject(ResourceBundle resourceBundle) throws IOException, ParserConfigurationException, SAXException, UnsupportedEncodingException {
+    FirstPageViewObject prepareViewObject(ResourceBundle resourceBundle) throws IOException, ParserConfigurationException, SAXException, UnsupportedEncodingException {
         FirstPageViewObject fpvo = new FirstPageViewObject();
 
         String xml = this.textsService.getText("first_page_nolines_xml", this.localesProvider.get());

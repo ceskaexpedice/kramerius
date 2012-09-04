@@ -75,6 +75,7 @@ public class SolrAccessImpl implements SolrAccess {
         }
     }
 
+    @Override
     public ObjectPidsPath[] getPath(String datastreamName, Document solrData) throws IOException  {
         try {
             List<String> disected = SolrUtils.disectPidPaths(solrData);

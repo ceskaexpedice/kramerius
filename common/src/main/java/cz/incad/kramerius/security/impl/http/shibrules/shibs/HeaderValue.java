@@ -18,6 +18,12 @@ package cz.incad.kramerius.security.impl.http.shibrules.shibs;
 
 import javax.servlet.http.HttpServletRequest;
 
+
+/**
+ * Returns value from http request header
+ * @see Value
+ * @author pavels
+ */
 public class HeaderValue implements Value {
     
     private String key;

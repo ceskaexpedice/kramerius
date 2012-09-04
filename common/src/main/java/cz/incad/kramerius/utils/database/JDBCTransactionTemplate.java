@@ -23,6 +23,10 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.logging.Level;
 
+/**
+ * Template for manage transactions
+ * @author pavels
+ */
 public class JDBCTransactionTemplate {
     
     static java.util.logging.Logger LOGGER = java.util.logging.Logger.getLogger(JDBCTransactionTemplate.class.getName());
@@ -39,25 +43,50 @@ public class JDBCTransactionTemplate {
     }
     
 
-    
+    /**
+     * Returns {@link Callbacks} object
+     * @return CallBacks object
+     */
     public Callbacks getCallbacks() {
         return callbacks;
     }
 
+    /**
+     * Sets {@link Callbacks} object
+     * @param callbacks new {@link Callbacks} object
+     */
     public void setCallbacks(Callbacks callbacks) {
         this.callbacks = callbacks;
     }
 
-
+    /**
+     * Update something in one transaction
+     * @param commands Commands to execute
+     * @return Last command result
+     * @throws SQLException SQL error has been occurred
+     */
     public Object updateWithTransaction(final List<JDBCCommand> commands) throws SQLException {
         return this.updateWithTransaction((JDBCCommand[]) commands.toArray(new JDBCCommand[commands.size()]));
     }    
     
+    /**
+     * Update something in one transaction
+     * @param callbacks CallBacks object
+     * @param commands Commands to execute
+     * @return Last command result
+     * @throws SQLException SQL error has been occurred
+     */
     public Object updateWithTransaction(Callbacks callbacks, final JDBCCommand... commands) throws SQLException {
         this.setCallbacks(callbacks);
         return this.updateWithTransaction(commands);
     }
     
+    /**
+     * Update something in one transaction
+     * @param commands Commands to execute
+     * @return Last command result
+     * @throws SQLException SQL error has been occurred
+     */
     public Object updateWithTransaction(final JDBCCommand... commands) throws SQLException {
         boolean previous = this.connection.getAutoCommit();
         try {
@@ -95,9 +124,20 @@ public class JDBCTransactionTemplate {
     }
     
 
+    /**
+     * Listening interface.  Implementation can receives informations about transaction process.
+     * @author pavels
+     */
     public static interface Callbacks {
         
+        /**
+         * Everything is done without error
+         */
         void commited();
+
+        /**
+         * An error has been occured
+         */
         void rollbacked();
     }
 }

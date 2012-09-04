@@ -18,6 +18,10 @@ package cz.incad.kramerius.pdf;
 
 import cz.incad.kramerius.pdf.utils.pdf.FontMap;
 
+/**
+ * PDF rendering runtime context
+ * @author pavels
+ */
 public class PDFContext {
     
     private cz.incad.kramerius.pdf.utils.pdf.FontMap fontMap;
@@ -31,6 +35,11 @@ public class PDFContext {
         this.i18nUrl = i18nUrl;
     }
     
+    /**
+     * Returns fonts used in pdf generation
+     * @return fontmap 
+     * @see FontMap
+     */
     public FontMap getFontMap() {
         return fontMap;
     }

@@ -24,6 +24,7 @@ import java.util.List;
 import java.util.Properties;
 
 import cz.incad.kramerius.security.User;
+import cz.incad.kramerius.users.LoggedUsersSingleton;
 
 /**
  * Represents one running process
@@ -33,47 +34,52 @@ public interface LRProcess {
 	
 	/**
 	 * Parameters to process
-	 * @return
+	 * @return parameters
 	 */
 	public List<String> getParameters();
 
 	/**
 	 * Runtime parameters of this process
-	 * @param params
+	 * @param params new params
 	 */
 	public void setParameters(List<String> params);
 	
 	
 	/**
 	 * Return unique identifier of LRPprocess
-	 * @return
+	 * @return UUID of process
 	 */
 	public String getUUID();
 	
 	/**
 	 * Return process pid
-	 * @return
+	 * @return System PID of process
 	 */
 	public String getPid();
 
 	/**
 	 * Method for setting proceses's pid
-	 * @param pid
+	 * @param pid new system PID
 	 */
 	public void setPid(String pid);
 	
 	/**
 	 * Process definintion id
-	 * @see LRProcessDefinition
-	 * @return
+	 * @see LRProcessDefinition#getId()
+	 * @return returns definition identification
 	 */
 	public String getDefinitionId();
 
 	//TODO: Vyhodit
+	/**
+	 * Returns process description
+	 */
+	@Deprecated
 	public String getDescription();
 
 	/**
 	 * Plan process to start
+	 * @param paramsMapping Parameters mapping
 	 */
 	public void planMe(Properties paramsMapping);
 
@@ -81,9 +87,10 @@ public interface LRProcess {
 	
 	/**
 	 * This method starts underlaying os process and change state from PLANNED to RUNNING;<br>
-	 * @see States
-	 * @param wait
-	 * @param additionalJarFiles TODO
+	 * @see States#PLANNED 
+     * @see States#RUNNING
+	 * @param wait Wait until process stopped
+	 * @param additionalJarFiles Aditional classpath
 	 */
 	public void startMe(boolean wait, String krameriusAppLib, String... additionalJarFiles);
 	
@@ -94,226 +101,239 @@ public interface LRProcess {
 	
 	/**
 	 * Returns timestamp start of process
-	 * @return
+	 * @return returns start timestamp
 	 */
 	public long getStartTime();
 	
 	
 	/**
 	 * Set time of the start of the process 
-	 * @param start
+	 * @param start new start timestamp
 	 */
 	public void setStartTime(long start);
 	
 	/**
-	 * Return time planned time
-	 * @return
+	 * Return planned timestamp
+	 * @return planned timestamp
 	 */
 	public long getPlannedTime();
 	
 	/**
-	 * Sets time planned time
-	 * @param ptime
+	 * Sets planned timestamp
+	 * @param ptime planned timestamp
 	 */
 	public void setPlannedTime(long ptime);
 
 	/**
-     * Returns finished time
-     * @return
+     * Returns finished timestamp
+     * @return finished timestamp
      */
     public long getFinishedTime();
 
 	
     /**
-     * Sets finished time
-     * @param finishedtime
+     * Sets finished timestamp
+     * @param new  finished timestamp
      */
     public void setFinishedTime(long finishedtime);
     
     
 	//TODO: Vyhodit
+    /**
+     * Returns true if underlaying process can be stopped
+     */
+    @Deprecated
 	public boolean canBeStopped();
 	
 	/**
 	 * Returns current processes state
-	 * @return
+	 * @return current process state
+	 * @see States
 	 */
 	public States getProcessState();
 	
 	
 	/**
 	 * Setting process's state
-	 * @param st
+	 * @param st new process state
 	 */
 	public void setProcessState(States st);
 
 	/**
      * Returns current batch state
-     * @return
+     * @return batch state
      */
     public BatchStates getBatchState();
 
     /**
      * Sets batch state
-     * @param st
+     * @param st new batch state
      */
     public void setBatchState(BatchStates st);
     
     
 	/**
 	 * Returns true, if the process is alive
-	 * @return
+	 * @return true if process is alive
 	 */
 	public boolean isLiveProcess();
 
 	/**
 	 * Returns process name
-	 * @return
+	 * @return name of process
 	 */
 	public String getProcessName();
 	
 	/**
 	 * Sets process name
-	 * @param nm
+	 * @param nm new process name
 	 */
 	public void setProcessName(String nm);
 	
 	/**
 	 * Returns stdout as stream
-	 * @return
-	 * @throws FileNotFoundException
+	 * @return Standard output stream
+	 * @throws FileNotFoundException OutputStream file doesn't exist
 	 */
 	public InputStream getStandardProcessOutputStream() throws FileNotFoundException;
 
 	/**
 	 * Returns errout as stream
-	 * @return
-	 * @throws FileNotFoundException
+	 * @return err output stream
+	 * @throws FileNotFoundException ErrStream file doesn't exist
 	 */
 	public InputStream getErrorProcessOutputStream() throws FileNotFoundException;
 	
 	/**
 	 * Retunrs stdout as RandomAccessFile
-	 * @return
-	 * @throws FileNotFoundException
+	 * @return stdout RandomAccessFile
+	 * @throws FileNotFoundException Stdout file doens't exist
 	 */
 	public RandomAccessFile getStandardProcessRAFile() throws FileNotFoundException;
 	
 	/**
 	 * Returns errout as RandomAccessFile
-	 * @return
-	 * @throws FileNotFoundException
+	 * @return Err file as RandomAccessFile
+	 * @throws FileNotFoundException Err file doesn't exist
 	 */
 	public RandomAccessFile getErrorProcessRAFile() throws FileNotFoundException;
 	
 	
 	/**
 	 * Returns process working directory (property 'user.dir')
-	 * @return
+	 * @return process working directory
 	 */
 	public File processWorkingDirectory();
 	
 
 	/**
 	 * Returns user associated with process
-	 * @return
+	 * @return associated user
 	 */
 	@Deprecated
     public User getUser();
     
     /**
      * Associate user with this process
-     * @param user
+     * @param user new user
      */
 	@Deprecated
     public void setUser(User user);
     
     /**
      * Returns token associated with this process
-     * @return
+     * @return Grouping token
      */
     public String getGroupToken();
     
     /**
-     * Associate token with this process
-     * @param token
+     * Associate grouping token with this process
+     * @param token Grouping token
      */
     public void setGroupToken(String token);
 
+    /**
+     * Returns authentication token 
+     * @return Authentication token
+     */
     public String getAuthToken();
     
+    /**
+     * Sets new authentication token
+     * @param authToken authentication token
+     */
     public void setAuthToken(String authToken);
     
     
     /**
      * Returns login name of the user (who has started this process)
-     * @return
+     * @return login name
      */
     public String getLoginname();
     
     /**
      * Sets login name
-     * @return
+     * @return login name
      */
     public void setLoginname(String lname);
     
     /**
      * Returns surname of the user (who has started this process)
-     * @return
+     * @return surname
      */
     public String getSurname();
     
     /**
      * Sets surname
-     * @param sname
+     * @param sname new surname
      */
     public void setSurname(String sname);
     
     /**
      * Returns firstname of the user (who has started this process)
-     * @return
+     * @return firstname
      */
     public String getFirstname();
     
     /**
      * Sets firstname 
-     * @param fname
+     * @param fname firstname
      */
     public void setFirstname(String fname);
     
     /**
      * Returns logged user key
-     * @return
+     * @return logged user key 
      */
     public String getLoggedUserKey();
     
     /**
      * Sets logged user key
-     * @param loggedUserKey
+     * @param loggedUserKey sets loggeduserkey
      */
     public void setLoggedUserKey(String loggedUserKey);
     
     /**
      * Returns true, if this process is mater process
-     * @return
+     * @return true if this process is master process
      */
     public boolean isMasterProcess();
     
     /**
      * Sets flag for master process
-     * @param flag
+     * @param flag master process flag
      */
     public void setMasterProcess(boolean flag);
 
     /**
      * Returns parameters mapping 
-     * @return
+     * @return Parameters mapping
      */
     public Properties getParametersMapping();
 
     /**
      * Sets the parameters mapping
-     * @param parametersMapping
+     * @param parametersMapping new parameters mapping
      */
     public void setParametersMapping(Properties parametersMapping);
 

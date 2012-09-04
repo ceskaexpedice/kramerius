@@ -18,9 +18,24 @@ package cz.incad.kramerius.security.impl.http.shibrules.shibs;
 
 import javax.servlet.http.HttpServletRequest;
 
+/**
+ * Represents any value
+ * @author pavels
+ */
 public interface Value {
     
+    /**
+     * Returns value
+     * @param request HTTP Request
+     * @return
+     */
     public String getValue(HttpServletRequest request);
     
+    /**
+     * Returns true if given value is equals to this one
+     * @param val Other value
+     * @param request HTTP request
+     * @return
+     */
     public boolean match(Value val, HttpServletRequest request);
 }

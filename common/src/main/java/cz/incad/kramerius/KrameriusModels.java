@@ -9,7 +9,6 @@ package cz.incad.kramerius;
  * This enums contains all models used in kramerius
  * @author Administrator
  */
-
 @Deprecated
 public enum KrameriusModels {
 
@@ -26,13 +25,21 @@ public enum KrameriusModels {
     private KrameriusModels(String value) {
 		this.value = value;
 	}
-	private String value;
+    private String value;
 
+    /**
+     * Returns raw value
+     * @return
+     */
 	public String getValue() {
 		return value;
 	}
 
-
+	/**
+	 * Parsing enum object from given raw string 
+	 * @param s raw string
+	 * @return parsed enum object
+	 */
 	public static KrameriusModels parseString(String s) {
 		KrameriusModels[] values = values();
 		for (KrameriusModels model : values) {
@@ -40,8 +47,13 @@ public enum KrameriusModels {
 		}
         throw new RuntimeException("Unsupported type");
     }
-
-    public static String toString(KrameriusModels km) {
+	
+	/**
+	 * String representation method
+	 * @param km enum object instance
+	 * @return string representation
+	 */
+	public static String toString(KrameriusModels km) {
     	return km.getValue();
     }
 }

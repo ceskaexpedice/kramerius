@@ -28,12 +28,26 @@ public interface GeneratePDFService {
      * @param brk Break for dividing pages into more pdfs
      * @param djvuUrl Image serlvet URL
      * @param i18Url I18N servlet URL
-     * @param rect Page sizes
+     * @param rect Page size
+     * @throws IOException IO error has been occurred
+     * @throws ProcessSubtreeException algorithm cannot traverse over tree
+     * @throws DocumentException Error has been occurred in PDF generation
      */
     public void fullPDFExport(ObjectPidsPath path, OutputStreams outputs, Break brk, String djvuUrl, String i18Url, int[] rect) throws IOException, ProcessSubtreeException, DocumentException;
 	
     
-    
+    /**
+     * Generate PDF for title 
+     * @param requestedPid Requested PID
+     * @param numberOfPages Number of pages
+     * @param titlePage Title page
+     * @param os OutputStream
+     * @param imgServletUrl IMG servlet 
+     * @param i18nUrl i18N servlet 
+     * @param rect Page size
+     * @throws IOException IO error has been occured
+     * @throws ProcessSubtreeException algorithm cannot traverse over tree
+     */
 	public void generateParent(String requestedPid, int numberOfPages, String titlePage, OutputStream os, String imgServletUrl, String i18nUrl, int[] rect) throws IOException, ProcessSubtreeException;
 	
 	
@@ -46,17 +60,20 @@ public interface GeneratePDFService {
 	
 	/**
 	 * Folder for templates
-	 * @return
+	 * @return templates folder 
 	 */
 	public File templatesFolder();
 
 	/**
 	 * Folder for fonts
-	 * @return
+	 * @return fonts folder
 	 */
 	public File fontsFolder();
 
 	//TODO: move
+	/**
+	 * Initialization method
+	 */
 	public void init() throws IOException;
 }
 

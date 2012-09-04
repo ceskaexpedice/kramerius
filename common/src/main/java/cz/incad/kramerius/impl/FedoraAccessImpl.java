@@ -413,6 +413,7 @@ public class FedoraAccessImpl implements FedoraAccess {
         }
     }
 
+    @Override
     public InputStream getImageFULL(String pid) throws IOException {
         try {
             pid = makeSureObjectPid(pid);
@@ -440,6 +441,7 @@ public class FedoraAccessImpl implements FedoraAccess {
         }
     }
 
+    @Override
     public InputStream getFedoraDataStreamsList(String pid ) throws IOException {
         try {
             HttpURLConnection con = (HttpURLConnection) openConnection(getFedoraDatastreamsList(configuration, makeSureObjectPid(pid)), configuration.getFedoraUser(), configuration.getFedoraPass());
@@ -451,7 +453,7 @@ public class FedoraAccessImpl implements FedoraAccess {
         }
     }
     
-    
+    @Override
     public boolean isStreamAvailable(String pid, String streamName) throws IOException {
         try {
             Document parseDocument = XMLUtils.parseDocument(getFedoraDataStreamsList(makeSureObjectPid(pid)), true);
@@ -476,6 +478,7 @@ public class FedoraAccessImpl implements FedoraAccess {
         return true;
     }
 
+    @Override
     public String getImageFULLMimeType(String pid) throws IOException, XPathExpressionException {
         try {
             Document profileDoc = getImageFULLProfile(makeSureObjectPid(pid));
@@ -540,51 +543,120 @@ public class FedoraAccessImpl implements FedoraAccess {
         }
     }
 
+    /**
+     * Utility method which returns profile URL for IMG_FULL
+     * @param configuration K4 configuration
+     * @param pid requested pid
+     * @return URL for IMG _FULL profile
+     */
     public static String fullImageProfile(KConfiguration configuration, String pid) {
         return dsProfile(configuration, FedoraUtils.IMG_FULL_STREAM, pid);
     }
 
+    /**
+     * Utility method which returns profile URL for IMG_THUMB
+     * @param configuration K4 configuration
+     * @param pid Requested pid
+     * @return URL for IMG _THUMB profile
+     */
     public static String thumbImageProfile(KConfiguration configuration, String pid) {
         return dsProfile(configuration, FedoraUtils.IMG_THUMB_STREAM , pid);
     }
 
+    /**
+     * Utility method which returns profile URL for DC
+     * @param configuration K4 configuration
+     * @param pid Requested pid
+     * @return URL for DC profile
+     */
     public static String dcProfile(KConfiguration configuration, String pid) {
         return dsProfile(configuration, FedoraUtils.DC_STREAM, pid);
     }
 
+    /**
+     * Utility method which returns profile URL for BIBLIO_MODS
+     * @param configuration K4 configuration
+     * @param pid Requested pid
+     * @return URL for BIBLIO_MODS profile
+     */
     public static String biblioModsProfile(KConfiguration configuration, String pid) {
         return dsProfile(configuration, FedoraUtils.BIBLIO_MODS_STREAM , pid);
     }
 
+    /**
+     * Utility method which returns profile URL for RELS_EXT
+     * @param configuration K4 configuration
+     * @param pid Requested pid
+     * @return URL for RELS_EXT profile
+     */
     public static String relsExtProfile(KConfiguration configuration, String pid) {
         return dsProfile(configuration, FedoraUtils.RELS_EXT_STREAM, pid);
     }
 
+    /**
+     * Utility method which returns object's profile URL for given pid
+     * @param configuration K4 configuration
+     * @param pid Requested pid
+     * @return URL for object's profile
+     */
     public static String profile(KConfiguration configuration,  String pid) {
         String fedoraObject = configuration.getFedoraHost() + "/objects/" + pid;
         return fedoraObject + "?format=text/xml";
     }
 
+    /**
+     * Utility method which returns data stream's profile URL for given pid and stream name
+     * @param configuration K4 configuration
+     * @param pid Requested pid
+     * @param ds Data stream name
+     * @return URL for object datastream's profile
+     */
     public static String dsProfile(KConfiguration configuration, String ds, String pid) {
         String fedoraObject = configuration.getFedoraHost() + "/objects/" + pid;
         return fedoraObject + "/datastreams/" + ds + "?format=text/xml";
     }
 
+    /**
+     * Utility method which returns data stream's profile URL for given pid and stream name
+     * @param configuration K4 configuration
+     * @param pid Requested pid
+     * @param ds Data stream name
+     * @return URL for object datastream's profile
+     */
+    @Deprecated
     public static String dsProfileForPid(KConfiguration configuration, String ds, String pid) {
         String fedoraObject = configuration.getFedoraHost() + "/objects/" + pid;
         return fedoraObject + "/datastreams/" + ds + "?format=text/xml";
     }
 
+    /**
+     * Utility method which returns BIBLIO_MODS's URL for given pid
+     * @param configuration K4 configuration
+     * @param pid Requested PID
+     * @return URL for BIBLIO_MODS
+     */
     public static String biblioMods(KConfiguration configuration, String pid) {
         String fedoraObject = configuration.getFedoraHost() + "/get/" + pid;
         return fedoraObject + "/BIBLIO_MODS";
     }
 
+    /**
+     * Utility method which returns DC's URL for given pid
+     * @param configuration K4 configuration
+     * @param pid Requested PID
+     * @return URL for DC
+     */
     public static String dc(KConfiguration configuration, String pid) {
         String fedoraObject = configuration.getFedoraHost() + "/get/" + pid;
         return fedoraObject + "/DC";
     }
 
+    /**
+     * Utility method which returns RELS_EXT's URL for given pid
+     * @param configuration K4 configuration
+     * @param pid Requested PID
+     * @return URL for RELS_EXT
+     */
     public static String relsExtUrl(KConfiguration configuration, String pid) {
         String url = configuration.getFedoraHost() + "/get/" + pid + "/"+FedoraUtils.RELS_EXT_STREAM;
         return url;
@@ -593,6 +665,7 @@ public class FedoraAccessImpl implements FedoraAccess {
     private FedoraAPIA APIAport;
     private ObjectFactory of;
 
+    @Override
     public FedoraAPIA getAPIA() {
         if (APIAport == null) {
             initAPIA();
@@ -600,6 +673,7 @@ public class FedoraAccessImpl implements FedoraAccess {
         return APIAport;
     }
 
+    @Override
     public FedoraAPIM getAPIM() {
         if (APIMport == null) {
             initAPIM();
@@ -607,6 +681,7 @@ public class FedoraAccessImpl implements FedoraAccess {
         return APIMport;
     }
 
+    @Override
     public ObjectFactory getObjectFactory() {
         if (of == null) {
             of = new ObjectFactory();
@@ -666,6 +741,7 @@ public class FedoraAccessImpl implements FedoraAccess {
         return Arrays.asList(KConfiguration.getInstance().getPropertyList("fedora.treePredicates"));
     }
 
+    @Override
     public void processSubtree(String pid, TreeNodeProcessor processor) throws ProcessSubtreeException, IOException {
         try {
             pid = makeSureObjectPid(pid);
@@ -678,7 +754,8 @@ public class FedoraAccessImpl implements FedoraAccess {
         }
     }
 
-    public boolean processSubtreeInternal(String pid, Document relsExt, TreeNodeProcessor processor, int level) throws XPathExpressionException, LexerException, IOException, ProcessSubtreeException {
+    
+    boolean processSubtreeInternal(String pid, Document relsExt, TreeNodeProcessor processor, int level) throws XPathExpressionException, LexerException, IOException, ProcessSubtreeException {
         processor.process(pid, level);
         boolean breakProcessing = processor.breakProcessing(pid,level);
         if (breakProcessing) return breakProcessing;
@@ -721,6 +798,7 @@ public class FedoraAccessImpl implements FedoraAccess {
     
     
 
+    @Override
     public Set<String> getPids(String pid) throws IOException {
         final Set<String> retval = new HashSet<String>();
         try {

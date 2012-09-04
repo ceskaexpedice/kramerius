@@ -31,6 +31,10 @@ import java.util.logging.Level;
 
 import cz.incad.kramerius.utils.DatabaseUtils;
 
+/**
+ * JDBC update template. Suitable for JDBC updates.
+ * @author pavels
+ */
 public class JDBCUpdateTemplate {
 
     static java.util.logging.Logger LOGGER = java.util.logging.Logger.getLogger(JDBCQueryTemplate.class.getName());
@@ -51,6 +55,13 @@ public class JDBCUpdateTemplate {
     }
 
     
+    /**
+     * Perfrom JDBC update
+     * @param sql SQL command
+     * @param params Parameters to prepared statement
+     * @return Update result
+     * @throws SQLException SQL exception has been occurred
+     */
     public int executeUpdate(String sql, Object... params) throws SQLException {
         PreparedStatement pstm = null;
         ResultSet rs=null;
@@ -88,15 +99,30 @@ public class JDBCUpdateTemplate {
         return result;
     }
 
+    /**
+     * Create PreparedStatement instance
+     * @param con JDBC connection 
+     * @param sql SQL command 
+     * @return new PreparedStatement instance
+     * @throws SQLException SQL exception has been occurred
+     */
     public PreparedStatement createPreparedStatement(Connection con, String sql) throws SQLException {
         return this.useReturningKeys ? 
                 con.prepareStatement(sql,Statement.RETURN_GENERATED_KEYS) : con.prepareStatement(sql);
     }
     
+    /**
+     * Flag Statement.RETURN_GENERATED_KEYS.  Used in  {@link #createPreparedStatement(Connection, String)}
+     * @return current flag
+     */
     public boolean isUseReturningKeys() {
         return useReturningKeys;
     }
     
+    /**
+     * Sets flag Statement.RETURN_GENERATED_KEYS.  Used in  {@link #createPreparedStatement(Connection, String)}
+     * @param useReturningKeys new flag
+     */
     public void setUseReturningKeys(boolean useReturningKeys) {
         this.useReturningKeys = useReturningKeys;
     }

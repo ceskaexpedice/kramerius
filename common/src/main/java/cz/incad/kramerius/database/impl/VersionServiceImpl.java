@@ -35,6 +35,10 @@ import cz.incad.kramerius.utils.IOUtils;
 import cz.incad.kramerius.utils.database.JDBCQueryTemplate;
 import cz.incad.kramerius.utils.database.JDBCUpdateTemplate;
 
+/**
+ * Default version service implementation
+ * @author pavels
+ */
 public class VersionServiceImpl implements VersionService {
     
     

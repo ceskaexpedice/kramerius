@@ -21,6 +21,11 @@ import javax.servlet.http.HttpServletRequest;
 import cz.incad.kramerius.security.User;
 import cz.incad.kramerius.security.impl.UserImpl;
 
+/**
+ * Perform set attributes to actual logged user (firstname and surname)
+ * @see Expr
+ * @author pavels
+ */
 public class UserExpr implements Expr {
 
     public static final String FIRSTNAME = "firstname";

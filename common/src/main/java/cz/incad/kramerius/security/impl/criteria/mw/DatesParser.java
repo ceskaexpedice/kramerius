@@ -16,7 +16,7 @@ import antlr.MismatchedTokenException;
 import antlr.SemanticException;
 import antlr.ParserSharedInputState;
 import antlr.collections.impl.BitSet;
-
+//BEGIN GENERATED CODE
 /**
  * Moving wall dates grammar
  */
@@ -383,3 +383,4 @@ inputState.guessing--;
     
     
     }
+//END GENERATED CODE
