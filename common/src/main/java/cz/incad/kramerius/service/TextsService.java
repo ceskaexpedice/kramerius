@@ -11,6 +11,12 @@ import java.util.Locale;
  */
 public interface TextsService {
 	
+    /**
+     * Returns true if text with given name and locale is defined
+     * @param name Text name
+     * @param locale Locale
+     * @return found text
+     */
     public boolean isAvailable(String name, Locale locale);
     
 	/**
