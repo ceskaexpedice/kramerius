@@ -25,6 +25,7 @@ import java.io.UnsupportedEncodingException;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.StreamingOutput;
 
+import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.codec.binary.Base64OutputStream;
 
 import cz.incad.kramerius.utils.IOUtils;
@@ -45,6 +46,7 @@ public class FOXMLStreamOutput implements StreamingOutput {
     @Override
     public void write(OutputStream os) throws IOException, WebApplicationException {
         os.write("{'raw':'".getBytes("UTF-8"));
+        System.out.println(new String(this.foxml,"UTF-8"));
         Base64OutputStream bos64os = new Base64OutputStream(os,true,76,"|".getBytes("UTF-8"));
         IOUtils.copyStreams(new ByteArrayInputStream(this.foxml), bos64os);
         bos64os.flush();
