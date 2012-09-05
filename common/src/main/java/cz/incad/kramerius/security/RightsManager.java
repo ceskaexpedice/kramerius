@@ -52,7 +52,7 @@ public interface RightsManager {
     
     // interpretuje prava skrz celou cestu.  Od listu az ke korenu.
     /**
-     * Right interpration over given object(pid) 
+     * Right interpretation over given object(pid) 
      * @param ctx Interpreation context
      * @param pid Object's pid
      * @param path Object's path
