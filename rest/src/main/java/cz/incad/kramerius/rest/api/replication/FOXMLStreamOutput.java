@@ -47,6 +47,7 @@ public class FOXMLStreamOutput implements StreamingOutput {
         os.write("{'raw':'".getBytes("UTF-8"));
         Base64OutputStream bos64os = new Base64OutputStream(os,true,76,"|".getBytes("UTF-8"));
         IOUtils.copyStreams(new ByteArrayInputStream(this.foxml), bos64os);
+        bos64os.flush();
         os.write("'}".getBytes("UTF-8"));
     }
     
