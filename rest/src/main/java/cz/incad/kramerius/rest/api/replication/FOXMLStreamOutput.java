@@ -47,7 +47,23 @@ public class FOXMLStreamOutput implements StreamingOutput {
     public void write(OutputStream os) throws IOException, WebApplicationException {
         os.write("{'raw':'".getBytes("UTF-8"));
         System.out.println(new String(this.foxml,"UTF-8"));
-        Base64OutputStream bos64os = new Base64OutputStream(os,true,76,"|".getBytes("UTF-8"));
+        System.out.println(this.foxml.length);
+        Base64OutputStream bos64os = new Base64OutputStream(os,true,76,"|".getBytes("UTF-8")) {
+            
+            private int length = 0;
+            
+            @Override
+            public void write(byte[] b, int offset, int len) throws IOException {
+                super.write(b, offset, len);
+                this.length += len;
+            }
+
+            @Override
+            public void flush() throws IOException {
+                super.flush();
+                System.out.println("Total bytes :"+this.length);
+            }
+        };
         IOUtils.copyStreams(new ByteArrayInputStream(this.foxml), bos64os);
         bos64os.flush();
         os.write("'}".getBytes("UTF-8"));
