@@ -23,57 +23,61 @@ import java.util.Map;
 import cz.incad.kramerius.ObjectPidsPath;
 
 /** 
- * DAO objekt pro spravu prav systemu K4
+ * Rights management
  * @author pavels
  */
 public interface RightsManager {
     
     // najde prava pro uzivatele
     /**
-     * Najde prava vztazena na objekty (definovane pidy), akce a daneho uzivatele
-     * @param pids Objekty pro ktere hledame prava
-     * @param action Chranena akce
-     * @param user Uzivatel
+     * Found rights associated with given pids, actions and given user
+     * @param pids Objects' pids
+     * @param action Secured action
+     * @param user User
+     * @return Found rights
      */
     public Right[] findRights(String[] pids, String action, User user);
 
     // interpretuje prava
     /**
-     * Interpretace prav nad danym objektem
-     * @param ctx Kontext pro interpretaci prav
-     * @param pid PID objektu
-     * @param path Cesta k objektu
-     * @param action Chranena akce
-     * @param user Uzivatel
+     * Right interpretation over given object (pid)
+     * @param ctx Runtime interpration context
+     * @param pid Object's pid
+     * @param path Object's path
+     * @param action Secured action
+     * @param user User
+     * @return Returns result of interpretation
      */
     public EvaluatingResult resolve(RightCriteriumContext ctx, String pid, ObjectPidsPath path, String action, User user) throws RightCriteriumException;
     
     // interpretuje prava skrz celou cestu.  Od listu az ke korenu.
     /**
-     * Interpretace prav pro vsechny objekty v ceste (od listu az ke korenu)
-     * @param ctx Kontext pro interpretaci prav
-     * @param pid PID objektu
-     * @param path Cesta k objektu
-     * @param action Chranena akce
-     * @param user Uzivatel
+     * Right interpration over given object(pid) 
+     * @param ctx Interpreation context
+     * @param pid Object's pid
+     * @param path Object's path
+     * @param action Secured action
+     * @param user User
+     * @return Returns all results for all objects in given path
      */
     public EvaluatingResult[] resolveAllPath(RightCriteriumContext ctx, String pid, ObjectPidsPath path, String action, User user) throws RightCriteriumException;
 
     
     // najde prava pro skupinu
     /**
-     * Najde vsechna prava definovana pro objekty, chranenou akci a roli
-     * @param pids PIDy objektu
-     * @param action Chranena akce
-     * @param role Hledana role
+     * Find all rights associated with given pids, secured action and given role
+     * @param pids Object's pid
+     * @param action Secured action
+     * @param role Role
+     * @return Returns found roles
      */
     public Right[] findRightsForGroup(final String[] pids, final String action, final Role role);
 
     // najde vsechna prava
     /**
-     * Najde vsechna prava pro konkretni objekty a chranenou akci
-     * @param pids PIDy objektu
-     * @param action Chranena akce
+     * Find all rights associated with given pids and secured action
+     * @param pids Object's pid
+     * @param action Secured action
      */
     public Right[] findAllRights(String[] pids, String action);
 
@@ -81,22 +85,22 @@ public interface RightsManager {
     // DAO methods - DAt to jinam !!
     // najde vsechny parametry 
     /**
-     * Najde vsechny parametry
+     * Find all params
      */
     public RightCriteriumParams[] findAllParams();
 
     
     /**
-     * Najde parametr pro dle zadaneho id
-     * @param paramId Identifikator parametru
-     * @return
+     * Find one param by given id
+     * @param paramId Param id
+     * @return Found criterium
      */
     public RightCriteriumParams findParamById(int paramId);
 
     /**
-     * Find criterium by id 
-     * @param critId
-     * @return
+     * Find criterium by given id 
+     * @param critId Criterium id
+     * @return found criterium
      */
     public RightCriteriumWrapper findRightCriteriumById(int critId);
     
@@ -104,93 +108,93 @@ public interface RightsManager {
     public List<String> saturatePathAndCreatesPIDs(String uuid, String[] path);
 
     /**
-     * Vlozit nove pravo
-     * @param right Nove pravo
-     * @return Vraci id nove zalozeneho prava
-     * @throws SQLException
+     * Insert new right into db
+     * @param right New right
+     * @return Returns id of new created right
+     * @throws SQLException SQL error has been occurred
      */
     public int insertRight(Right right) throws SQLException;
 
     /**
-     * Upravi existujici pravo
-     * @param right Upravovane pravo
-     * @throws SQLException
+     * Update existing right
+     * @param right Right which to be updated
+     * @throws SQLException SQL error has been occurred
      */
     public void updateRight(Right right) throws SQLException;
 
     
     /**
-     * Vytvori nove kriterium
-     * @param criterium Nove vkladane kriterium
-     * @return Vraci id nove vlozeneho kriteria
-     * @throws SQLException
+     * Creates new criterium in db
+     * @param criterium New criterium
+     * @return Returns id of new created criterium
+     * @throws SQLException SQL error has been occurred
      */
     public int insertRightCriterium(RightCriteriumWrapper criterium) throws SQLException;
 
     /**
-     * Upravi kriterium
-     * @param criterium Upravovavane kriterium
-     * @throws SQLException
+     * Update right criterium in db
+     * @param criterium Updated criterium
+     * @throws SQLException SQL error has been occurred
      */
     public void updateRightCriterium(RightCriteriumWrapper criterium) throws SQLException;
 
     /**
-     * Vlozi nove parametry
-     * @param criteriumParams Nove vkladane parametry
-     * @return Vraci id nove vlozenych parametru
-     * @throws SQLException
+     * Creates new parameters
+     * @param criteriumParams New inserted params
+     * @return Returns new created id
+     * @throws SQLException SQL error has been occurred
      */
     public int insertRightCriteriumParams(RightCriteriumParams criteriumParams) throws SQLException;
 
     /**
-     * Smaze parametry kriteria
-     * @param id Identifikator parametru kriteria
-     * @throws SQLException
+     * Delete parameters from db
+     * @param id Params identifier
+     * @throws SQLException SQL error has been occurred
      */
     public void deleteRightCriteriumParams(int id) throws SQLException;
     
     
     /**
-     * Smaze kriterium dle zadaneho id
-     * @param id ID kriteria
-     * @throws SQLException
+     * Delete criterium from db
+     * @param id Criterium identifier
+     * @throws SQLException SQL error has been occurred
      */
     public void deleteRightCriterium(int id) throws SQLException;
     
     /**
-     * Upravi parametry kriteria
-     * @param criteriumParams Upravovane parametry
-     * @throws SQLException
+     * Updates criterium params
+     * @param criteriumParams Updating criteriums
+     * @throws SQLException SQL error has been occurred
      */
     public void updateRightCriteriumParams(RightCriteriumParams criteriumParams) throws SQLException;
 
     /**
-     * Smaze pravo 
-     * @param right Mazane pravo
-     * @throws SQLException
+     * Delete rights
+     * @param right Deleting rights
+     * @throws SQLException SQL error has been occurred
      */
     public void deleteRight(Right right) throws SQLException;
     
     
     /**
-     * Najde pravo dle id
-     * @param id Identifikator prava
-     * @return
+     * Find right by given id
+     * @param id Right identifier
+     * @return found right
      */
     public Right findRightById(int id);
     
     
     /**
-     * Najde vsechny pouzivane identifikatory roli
-     * @return
+     * Find all used role identifiers
+     * @return role identifiers
      */
     public int[] findUsedRoleIDs();
     
     
     /**
-     * Najde vsechny pidy ktere pouzivaji dane parametry dodatecne podminky
-     * @param paramId Identifikator parametru dodatecne podminky
-     * @return
+     * Find all pids which using given params (identified by prams identifier)
+     * @param paramId Param identifier
+     * @return Map that contains associtaion PID -> SecuredAction
      */
     public List<Map<String,String>> findObjectUsingParams(int paramId);
 }
