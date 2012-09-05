@@ -22,10 +22,22 @@ import java.security.NoSuchAlgorithmException;
 
 import biz.sourcecode.base64Coder.Base64Coder;
 
+/**
+ * Digesting algorithm
+ * @author pavels
+ */
 public class PasswordDigest {
-
+    
+    /** We are using SHA */
     public static final String ALGORITHM = "SHA";
     
+    /**
+     * Hash function applied on input string
+     * @param input Input string
+     * @return hashed string
+     * @throws NoSuchAlgorithmException Cannot find algorithm
+     * @throws UnsupportedEncodingException System doesn't support UTF-8 encoding
+     */
     public static String messageDigest(String input) throws NoSuchAlgorithmException, UnsupportedEncodingException {
         MessageDigest md = MessageDigest.getInstance(ALGORITHM);
         byte[] digested = md.digest(input.getBytes("UTF-8"));

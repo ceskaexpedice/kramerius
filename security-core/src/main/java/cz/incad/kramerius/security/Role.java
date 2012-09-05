@@ -19,15 +19,23 @@ package cz.incad.kramerius.security;
 import java.io.Serializable;
 
 /**
- * Represents group of users
+ * Represents user's role
  * @author pavels
  */
 public interface Role  extends AbstractUser, Serializable {
     
+    /**
+     * Role name
+     * @return role name
+     */
     public String getName();
-   
-    //TODO: MOVE to group
+    
+
+    /**
+     * Returns this role administrator id
+     */
     public int getPersonalAdminId();
     
     public Boolean isPersonalAdminDefined();
+
 }

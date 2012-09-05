@@ -42,6 +42,10 @@ import cz.incad.kramerius.security.utils.PasswordDigest;
 import cz.incad.kramerius.security.utils.SecurityDBUtils;
 import cz.incad.kramerius.utils.database.JDBCQueryTemplate;
 
+/**
+ * JAAS login module
+ * @author pavels
+ */
 public class K4LoginModule implements LoginModule {
 
     private static final String PSWD_COL = "pswd";
@@ -93,6 +97,12 @@ public class K4LoginModule implements LoginModule {
         return this.logged;
     }
 
+    /**
+     * Find user from database
+     * @param secConnection SQL connection 
+     * @param loginName Login anme
+     * @return found user or null
+     */
     public static HashMap<String, Object> findUser(Connection secConnection, String loginName) {
         List<HashMap<String, Object>> list = new JDBCQueryTemplate<HashMap<String, Object>>(secConnection) {
             @Override
@@ -121,14 +131,24 @@ public class K4LoginModule implements LoginModule {
         return true;
     }
 
+    /**
+     * Principal assignation
+     * @param subject Security subject
+     * @param userUid User's uid
+     */
     public static void associateK4UserPrincipal(Subject subject, String userUid) {
         K4User user = new K4User(userUid);
-        // vyhodit ..
+
         K4RolePrincipal webRole = new K4RolePrincipal("krameriusAdmin");
         assignPrincipal(subject, user);
         assignPrincipal(subject, webRole);
     }
 
+    /**
+     * Principal assignation
+     * @param subject Security subject
+     * @param principal Principal to assignation
+     */
     public static void assignPrincipal(Subject subject, Principal principal) {
         if (!subject.getPrincipals().contains(principal)) {
             subject.getPrincipals().add(principal);

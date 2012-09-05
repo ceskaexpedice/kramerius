@@ -18,6 +18,10 @@ package cz.incad.kramerius.security.jaas;
 
 import java.security.Principal;
 
+/**
+ * K4 role principal
+ * @author pavels
+ */
 public class K4RolePrincipal implements Principal {
 
     private String formalRoleName;

@@ -27,9 +27,20 @@ import java.util.List;
 import java.util.logging.Level;
 
 
-
 /**
- * JDBC Template pattern
+ * JDBC Template pattern. Useful for SQL querying. <br>
+ * Typical usecase:
+ * <pre>
+ *  List<Integer> ids = new JDBCQueryTemplate(connection){
+ *      public boolean handleRow(ResultSet rs, List<Integer> returnsList) throws SQLException {
+ *          returnsList.add(rs.get("id"));
+ *          // should processing continue
+ *          return true;
+ *      }
+ *  }.executeQuery("select id from sometable where name=? and surname=?","karlos","dakos");
+ *  .... 
+ * </pre>
+ * 
  * @author pavels
  */
 public class JDBCQueryTemplate<T> {
@@ -45,8 +56,6 @@ public class JDBCQueryTemplate<T> {
         this.connection = connection;
     }
 
-    
-
     public JDBCQueryTemplate(Connection connection, boolean closeConnection) {
         super();
         this.connection = connection;
@@ -54,7 +63,12 @@ public class JDBCQueryTemplate<T> {
     }
 
 
-
+    /**
+     * Execute query 
+     * @param sql
+     * @param params
+     * @return
+     */
     public List<T> executeQuery(String sql, Object... params) {
 
         List<T> result = new ArrayList<T>();

@@ -31,8 +31,18 @@ import cz.incad.kramerius.security.impl.RoleImpl;
 import cz.incad.kramerius.security.impl.UserImpl;
 import cz.incad.kramerius.security.jaas.K4LoginModule;
 
+/**
+ * Security DB utils
+ * @author pavels
+ */
 public class SecurityDBUtils {
 
+    /**
+     * Creates role instance from given {@link ResultSet}
+     * @param rs ResultSet
+     * @return new role
+     * @throws SQLException SQL error has been occurred
+     */
     public static Role createRole(ResultSet rs) throws SQLException {
         int id = rs.getInt("group_id");
         String gname = rs.getString("gname");    
@@ -41,6 +51,12 @@ public class SecurityDBUtils {
         return grp;
     }
 
+    /**
+     * Creates user instance from given {@link ResultSet}
+     * @param rs ResultSet
+     * @return new User instance
+     * @throws SQLException SQL error has been occurred
+     */
     public static User createUser(ResultSet rs) throws SQLException {
         int id = rs.getInt("user_id");
         String loginName = rs.getString("loginname");    
@@ -51,7 +67,9 @@ public class SecurityDBUtils {
         return user;
     }
     
-
+    /**
+     * JNDI key
+     */
     public static String JNDI_NAME="java:comp/env/jdbc/kramerius4";
 
     // without guice because of classloaders

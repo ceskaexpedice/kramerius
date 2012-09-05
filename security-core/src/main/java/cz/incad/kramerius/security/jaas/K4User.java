@@ -19,6 +19,10 @@ package cz.incad.kramerius.security.jaas;
 import java.io.Serializable;
 import java.security.Principal;
 
+/**
+ * K4 user principal
+ * @author pavels
+ */
 public class K4User implements Principal, Serializable {
 
     private static final long serialVersionUID = 1L;
