@@ -17,6 +17,12 @@
 package org.kramerius.replications;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.nio.charset.Charset;
+
+import net.sf.json.JSONObject;
 
 import org.kramerius.replications.SecondPhase.DONEController;
 
@@ -28,9 +34,22 @@ public class ThirdPhase extends AbstractPhase {
 
     @Override
     public void start(String url, String userName, String pswd) throws PhaseException {
-        IOUtils.cleanDirectory(new File(SecondPhase.DONE_FOLDER_NAME));
-        String pid = K4ReplicationProcess.pidFrom(url);
-        IndexerProcessStarter.spawnIndexer(true, "_", pid);
+        try {
+            String title = "_";
+            IOUtils.cleanDirectory(new File(SecondPhase.DONE_FOLDER_NAME));
+            String pid = K4ReplicationProcess.pidFrom(url);
+            File descFile = getDescriptionFile();
+            if ((descFile != null) && (descFile.canRead())) {
+                String raw = IOUtils.readAsString(new FileInputStream(descFile), Charset.forName("UTF-8"), true);
+                JSONObject jsonObject = JSONObject.fromObject(raw);
+                title = jsonObject.getString("title");
+            }
+            IndexerProcessStarter.spawnIndexer(true, title, pid);
+        } catch (FileNotFoundException e) {
+            throw new PhaseException(this,e);
+        } catch (IOException e) {
+            throw new PhaseException(this,e);
+        }
     }
 
     @Override

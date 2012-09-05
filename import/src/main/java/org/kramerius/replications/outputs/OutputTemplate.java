@@ -17,8 +17,10 @@
 package org.kramerius.replications.outputs;
 
 import java.io.File;
+import java.io.FileFilter;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -78,18 +80,23 @@ public class OutputTemplate implements ProcessOutputTemplate {
         JSONObject jsonObject = description(lrProcess);
 
         Properties props = lrProcess.getParametersMapping();
+        System.out.println(props);
         String url = props.getProperty("url");
         
         OutputContext ctx = new OutputContext(); 
         ctx.setPid(K4ReplicationProcess.pidFrom(url));
-        ctx.setDate(jsonObject.getString("date"));
-        ctx.setTitle(jsonObject.getString("title"));
-        ctx.setType(jsonObject.getString("type"));
-        ctx.setIdentifiers(jsonToArray(jsonObject.getJSONArray("identifiers")));
-        ctx.setPublishers(jsonToArray(jsonObject.getJSONArray("publishers")));
-        ctx.setCreators(jsonToArray(jsonObject.getJSONArray("creators")));
-        setPhasesFlags(ctx, lrProcess.processWorkingDirectory());
-        setErrorFlagAndMessage(lrProcess, ctx);
+        if (jsonObject != null) {
+            ctx.setDate(jsonObject.getString("date"));
+            ctx.setTitle(jsonObject.getString("title"));
+            ctx.setType(jsonObject.getString("type"));
+            ctx.setHandle(jsonObject.getString("handle"));
+            ctx.setIdentifiers(jsonToArray(jsonObject.getJSONArray("identifiers")));
+            ctx.setPublishers(jsonToArray(jsonObject.getJSONArray("publishers")));
+            ctx.setCreators(jsonToArray(jsonObject.getJSONArray("creators")));
+            ctx.setLrProcess(lrProcess);
+            setPhasesFlags(ctx, lrProcess.processWorkingDirectory());
+            setErrorFlagAndMessage(lrProcess, ctx);
+        }
         
         InputStream iStream = this.getClass().getResourceAsStream("replicationtemplate.st");
         StringTemplateGroup templateGroup = new StringTemplateGroup(new InputStreamReader(iStream,"UTF-8"), DefaultTemplateLexer.class);
@@ -101,7 +108,7 @@ public class OutputTemplate implements ProcessOutputTemplate {
     }
 
     public void setErrorFlagAndMessage(LRProcess lrProcess, OutputContext ctx) {
-        ctx.setErrorOccured(lrProcess.getProcessState() == States.FINISHED && lrProcess.getBatchState() == BatchStates.BATCH_FINISHED);
+        ctx.setErrorOccured(lrProcess.getProcessState() != States.FINISHED && lrProcess.getBatchState() != BatchStates.BATCH_FINISHED);
         if (ctx.isErrorOccured()) {
             try {
                 InputStream is = lrProcess.getErrorProcessOutputStream();
@@ -113,16 +120,46 @@ public class OutputTemplate implements ProcessOutputTemplate {
         }
     }
 
+    static class _Filter implements FileFilter {
+
+        private String fname;
+        
+        public _Filter(String fname) {
+            super();
+            this.fname = fname;
+        }
+
+
+        @Override
+        public boolean accept(File pathname) {
+            return pathname.getName().startsWith(this.fname);
+        }
+
+    }
+    
     private void setPhasesFlags(OutputContext ctx, File processWorkingDirectory) {
-        ctx.setFirstPhaseFailed(! new File(processWorkingDirectory,FirstPhase.class.getName()+".completed").exists());
-        ctx.setSecondPhaseFailed(! new File(processWorkingDirectory,SecondPhase.class.getName()+".completed").exists());
-        ctx.setThirdPhaseFailed(! new File(processWorkingDirectory,ThirdPhase.class.getName()+".completed").exists());
+        File[] firstFiles = processWorkingDirectory.listFiles(new _Filter(FirstPhase.class.getName()));
+        if ((firstFiles != null) && (firstFiles.length > 0)) {
+            ctx.setFirstPhaseFile(firstFiles[0]);
+        }
+        
+        File[] secondFiles = processWorkingDirectory.listFiles(new _Filter(SecondPhase.class.getName()));
+        if ((secondFiles != null) && (secondFiles.length > 0)) {
+            ctx.setSecondPhaseFile(secondFiles[0]);
+        }
+
+        File[] thirdFiles = processWorkingDirectory.listFiles(new _Filter(ThirdPhase.class.getName()));
+        if ((thirdFiles != null) && (thirdFiles.length > 0)) {
+            ctx.setThirdPhaseFile(thirdFiles[0]);
+        }
     }
 
     public JSONObject description(LRProcess lrProcess) throws IOException, FileNotFoundException {
         File descriptionFile = new File(lrProcess.processWorkingDirectory(),AbstractPhase.DESCRIPTION_FILE);
-        String stringInput = IOUtils.readAsString(new FileInputStream(descriptionFile), Charset.forName("UTF-8"), true);
-        return JSONObject.fromObject(stringInput);
+        if ((descriptionFile != null) && (descriptionFile.canRead())) {
+            String stringInput = IOUtils.readAsString(new FileInputStream(descriptionFile), Charset.forName("UTF-8"), true);
+            return JSONObject.fromObject(stringInput);
+        } else return null;
     }
 
     @Override
@@ -155,17 +192,19 @@ public class OutputTemplate implements ProcessOutputTemplate {
         private String date;
         private String title;
         private String type;
+        private String handle;
         private String[] identifiers;
         private String[] publishers;
         private String[] creators;
 
-        private boolean firstPhaseFailed = false;
-        private boolean secondPhaseFailed = false;
-        private boolean thirdPhaseFailed = false;
+        private File firstPhaseFile = null;
+        private File secondPhaseFile = null;
+        private File thirdPhaseFile = null;
+        
         private boolean errorOccured = false;
-
         private String formatedErrorMessage = null;
         
+        private LRProcess lrProcess;
         
         public String getType() {
             return type;
@@ -223,32 +262,53 @@ public class OutputTemplate implements ProcessOutputTemplate {
             this.title = title;
         }
 
+        private boolean isFiledFile(File f, String phName) {
+            return f != null && f.getName().startsWith(phName) && f.getName().endsWith("failed");
+        }
+        
+        private boolean isCompletedFile(File f, String phName) {
+            return f != null && f.getName().startsWith(phName) && f.getName().endsWith("completed");
+        }
+        
+        public boolean isFirstPhaseFilePresent() {
+            return this.firstPhaseFile != null;
+        }
+
+        public boolean isSecondPhaseFilePresent() {
+            return this.secondPhaseFile != null;
+        }
+
+        public boolean isThirdPhaseFilePresent() {
+            return this.thirdPhaseFile != null;
+        }
+
         public boolean isFirstPhaseFailed() {
-            return this.firstPhaseFailed;
+            return isFiledFile(this.firstPhaseFile, FirstPhase.class.getName());
         }
         
         public boolean isSecondPhaseFailed() {
-            return this.secondPhaseFailed;
+            return isFiledFile(this.secondPhaseFile, SecondPhase.class.getName());
         }
 
         public boolean isThirdPhaseFailed() {
-            return this.thirdPhaseFailed;
+            return isFiledFile(thirdPhaseFile, ThirdPhase.class.getName());
         }
         
-        public void setFirstPhaseFailed(boolean firstPhaseFailed) {
-            this.firstPhaseFailed = firstPhaseFailed;
+        public boolean isFirstPhaseCompleted() {
+            return isCompletedFile(this.firstPhaseFile, FirstPhase.class.getName());
         }
 
-        public void setSecondPhaseFailed(boolean secondPhaseFailed) {
-            this.secondPhaseFailed = secondPhaseFailed;
+        public boolean isSecondPhaseCompleted() {
+            return isCompletedFile(this.secondPhaseFile, SecondPhase.class.getName());
         }
+        
 
-        public void setThirdPhaseFailed(boolean thirdPhaseFailed) {
-            this.thirdPhaseFailed = thirdPhaseFailed;
+        public boolean isThirdPhaseCompleted() {
+            return isCompletedFile(this.thirdPhaseFile, ThirdPhase.class.getName());
         }
 
         public boolean isRestartButtonEnabled() {
-            return this.secondPhaseFailed || this.thirdPhaseFailed;
+            return this.isErrorOccured();
         }
         
         
@@ -261,7 +321,6 @@ public class OutputTemplate implements ProcessOutputTemplate {
         }
 
         
-        
         public String getFormatedErrorMessage() {
             return formatedErrorMessage;
         }
@@ -270,6 +329,56 @@ public class OutputTemplate implements ProcessOutputTemplate {
             this.formatedErrorMessage = formatedErrorMessage;
         }
 
+        
+        
+        public File getFirstPhaseFile() {
+            return firstPhaseFile;
+        }
+
+        public void setFirstPhaseFile(File firstPhaseFile) {
+            this.firstPhaseFile = firstPhaseFile;
+        }
+
+        public File getSecondPhaseFile() {
+            return secondPhaseFile;
+        }
+
+        public void setSecondPhaseFile(File secondPhaseFile) {
+            this.secondPhaseFile = secondPhaseFile;
+        }
+
+        public File getThirdPhaseFile() {
+            return thirdPhaseFile;
+        }
+
+        public void setThirdPhaseFile(File thirdPhaseFile) {
+            this.thirdPhaseFile = thirdPhaseFile;
+        }
+
+
+        /**
+         * @return the handle
+         */
+        public String getHandle() {
+            return handle;
+        }
+        
+        /**
+         * @param handle the handle to set
+         */
+        public void setHandle(String handle) {
+            this.handle = handle;
+        }
+        
+        
+        public LRProcess getLrProcess() {
+            return lrProcess;
+        }
+        
+        public void setLrProcess(LRProcess lrProcess) {
+            this.lrProcess = lrProcess;
+        }
+        
         @Override
         public String toString() {
             return "OutputContext [pid=" + pid + ", date=" + date + ", title=" + title + ", type=" + type + ", identifiers=" + Arrays.toString(identifiers) + ", publishers=" + Arrays.toString(publishers) + ", creators=" + Arrays.toString(creators) + "]";

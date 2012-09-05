@@ -6,8 +6,8 @@ restartbutton(ctx) ::=<<
     $if(ctx.restartButtonEnabled)$
         "Restart": bind(function() {
             this.dialog.dialog("close");
-            window.close();
             this.restart();
+            window.close();
          },this),
     $endif$
 >>
@@ -18,20 +18,17 @@ dialogscripts(ctx)  ::=<<
                 var dictionary = null;
                 
                 function ReplicationTemplateOutput() {}
-                ReplicationTemplateOutput.prototype.restart=function() {
-                                        
-                }
-                
-                ReplicationTemplateOutput.prototype.processFormSend = function() {
+
+                ReplicationTemplateOutput.prototype.restart = function() {
                     var charsThatMustBeEscaped = [':',';','}','{'];
-                    var handle = \$('#handle').val().escapeChars(charsThatMustBeEscaped);
+                    var handle = '$ctx.handle$'.escapeChars(charsThatMustBeEscaped);;
                     var user = \$('#user').val().escapeChars(charsThatMustBeEscaped);
-                    var password = \$('#pswd').val().escapeChars(charsThatMustBeEscaped);
-                    var restartUUID = "";
+                    var password = \$('#password').val().escapeChars(charsThatMustBeEscaped);
+                    var restartUUID = "$ctx.lrProcess.uUID$".escapeChars(charsThatMustBeEscaped);;
                     
-                    var url = "lr?action=form_post&def=k4_replication&paramsMapping={url="+handle+";username="+user+";pswd="+password+"}&out=text";
+                    var url = "lr?action=form_post&def=k4_replication&paramsMapping={url="+handle+";username="+user+";pswd="+password+"&previousProcess="+restartUUID+"}&out=text";
+                    
                     processStarter("k4_replication").start(url);
-                        
                 }
                 
                 
@@ -84,31 +81,37 @@ dialogcontent(ctx)  ::=<<
                 </ul>
             </div>
                 
-            <div style="margin: 5px; border-left: 1px solid black; height:50">     
+            <div style="margin: 5px">     
+                
+$if(ctx.firstPhaseFilePresent)$
                  <div style="clear:both;" $failed(ctx=ctx,property="firstPhaseFailed")$> $icon(ctx=ctx,property="firstPhaseFailed")$  <span style="float:left; font-size:14; margin-left:15px;">Stahnuti deskriptoru pro replikace</span> </div>
+$endif$
+$if(ctx.secondPhaseFilePresent)$
                  <div style="clear:both;" $failed(ctx=ctx,property="secondPhaseFailed")$> $icon(ctx=ctx,property="secondPhaseFailed")$ <span style="float:left; font-size:14;  margin-left:15px;" >Iteracni faze - import jednotlivych objektu</span> </div> 
+$endif$
+$if(ctx.thirdPhaseFilePresent)$
                  <div style="clear:both;" $failed(ctx=ctx,property="thirdPhaseFailed")$> $icon(ctx=ctx,property="thirdPhaseFailed")$ <span style="float:left; font-size:14;  margin-left:15px;">Indexace replikovaneho</span>  </div>
+$endif$
             </div>
 
         
-            <div id="k4_replication_error_form" style="errordisplay(ctx=ctx)">
-                <h3> Chybovy vystup: </h3>
-                <div id="k4_replication_error_message" style="color:red; width:500px">
-                    <pre style="font-family:Monaco, 'DejaVu Sans Mono', 'Bitstream Vera Sans Mono', 'Lucida Console', monospace">
 $if(ctx.errorOccured)$
+            <div id="k4_replication_error_form" style="clear:both; errordisplay(ctx=ctx)">
+                <div id="k4_replication_error_message" style="color:red; height:250px; width:100%; overflow:scroll;">
+                    <pre style="font-family:Monaco, 'DejaVu Sans Mono', 'Bitstream Vera Sans Mono', 'Lucida Console', monospace">
 $ctx.formatedErrorMessage$    
-$endif$
                     </pre>
                 </div>
                 
                 
-                <table>
-                    <tr><td><label> Uzivatelske jmeno uzivane (pro restart) </label></td></tr>
-                    <tr><td><input type="text">  </input></td></tr>
-                    <tr><td><label> Heslo (pro restart)</label></td></tr>
-                    <tr><td><input type="password">  </input></td></tr>
+                <table width="100%">
+                    <tr width="60%"><td></td><td align="right" width="40%"><label> Uzivatelske jmeno uzivane (pro restart) </label></td></tr>
+                    <tr width="60%"><td></td><td align="right" width="40%"><input id="user" type="text">  </input></td></tr>
+                    <tr width="60%"><td></td><td align="right" width="40%"><label> Heslo (pro restart)</label></td></tr>
+                    <tr width="60%"><td></td><td align="right" width="40%"><input id="password" type="password">  </input></td></tr>
                 </table>
             </div>  
+$endif$
 
         </div>
 >>
@@ -174,7 +177,9 @@ head(ctx) ::=<<
             <script src="js/jquery.layout-latest.js" type="text/javascript" ></script>
 
             <script  src="js/cmn/cmn.js" language="javascript" type="text/javascript"></script>
-
+            <script  src="js/admin/processes/processes.js" language="javascript" type="text/javascript"></script>
+            <script  src="js/admin/processes/starter.js" language="javascript" type="text/javascript"></script>
+            
             $dialogscripts(ctx=ctx)$            
         </head>
 >>

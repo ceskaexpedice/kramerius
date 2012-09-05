@@ -56,7 +56,7 @@ public class FirstPhase extends AbstractPhase  {
             // preparse if scenario is valid
             preparseIterate();
         } catch (IOException e) {
-            throw new PhaseException(e);
+            throw new PhaseException(this,e);
         }
     }
 
@@ -67,12 +67,12 @@ public class FirstPhase extends AbstractPhase  {
             PIDsListParser parser = new PIDsListParser(lexer);
             parser.pids();
         } catch (FileNotFoundException e) {
-            throw new PhaseException(e);
+            throw new PhaseException(this,e);
             
         } catch (RecognitionException e) {
-            throw new PhaseException(e);
+            throw new PhaseException(this,e);
         } catch (TokenStreamException e) {
-            throw new PhaseException(e);
+            throw new PhaseException(this,e);
         }
     }
 
@@ -85,7 +85,7 @@ public class FirstPhase extends AbstractPhase  {
             fos = new FileOutputStream(destFile);
             IOUtils.copyStreams(is, fos);
         } catch (IOException e) {
-            throw new PhaseException(e);
+            throw new PhaseException(this, e);
         } finally {
             IOUtils.tryClose(is);
             IOUtils.tryClose(fos);
@@ -110,7 +110,7 @@ public class FirstPhase extends AbstractPhase  {
                 this.start(url, userName, pswd);
             }
         } catch (IOException e) {
-            throw new PhaseException(e);
+            throw new PhaseException(this,e);
         }
     }
 }

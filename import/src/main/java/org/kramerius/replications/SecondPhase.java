@@ -89,9 +89,18 @@ public class SecondPhase extends AbstractPhase  {
                 ingest(foxmlfile);
                 createFOXMLDone(pid);
             } catch (LexerException e) {
-                throw new PhaseException(e);
+                throw new PhaseException(this,e);
             } catch (IOException e) {
-                throw new PhaseException(e);
+                throw new PhaseException(this,e);
+            } catch(PhaseException e){
+                // forward
+                throw e;
+            }catch(RuntimeException e) {
+                if (e.getCause() != null) throw new PhaseException(this,e.getCause());
+                else throw new PhaseException(this,e);
+            } catch (Exception e) {
+                if (e.getCause() != null) throw new PhaseException(this,e.getCause());
+                else throw new PhaseException(this,e);
             } finally {
                 //if (foxmlfile != null) foxmlfile.delete();
             }
@@ -101,10 +110,15 @@ public class SecondPhase extends AbstractPhase  {
     }
 
 
-    public void ingest(File foxmlfile) {
+    public void ingest(File foxmlfile) throws PhaseException{
         LOGGER.info("ingesting '"+foxmlfile.getAbsolutePath()+"'");
         Import.initialize(KConfiguration.getInstance().getProperty("ingest.user"), KConfiguration.getInstance().getProperty("ingest.password"));
-        Import.ingest(foxmlfile);
+        try {
+            Import.ingest(foxmlfile);
+        } catch (RuntimeException e) {
+            if (e.getCause() != null) throw new PhaseException(this, e.getCause());
+            else throw new PhaseException(this,e);
+        }
     }
     
     public File foxmlFile(InputStream foxmlStream, String pid) throws LexerException, IOException, PhaseException {
@@ -133,7 +147,7 @@ public class SecondPhase extends AbstractPhase  {
             
             return input;
         } catch (IOException e) {
-            throw new PhaseException(e);
+            throw new PhaseException(this,e);
         } finally {
             IOUtils.tryClose(is);
             IOUtils.tryClose(fos);
@@ -146,7 +160,7 @@ public class SecondPhase extends AbstractPhase  {
         String objectId = pidParser.getObjectId();
         File importDoneFile = new File(controller.getCurrentSubFolder(), objectId+".fo.done");
         if (!importDoneFile.exists()) importDoneFile.createNewFile();
-        if (!importDoneFile.exists()) throw new PhaseException("file not exists '"+importDoneFile.getAbsolutePath()+"'");
+        if (!importDoneFile.exists()) throw new PhaseException(this,"file not exists '"+importDoneFile.getAbsolutePath()+"'");
         return importDoneFile;
         
     }
@@ -157,7 +171,7 @@ public class SecondPhase extends AbstractPhase  {
         String objectId = pidParser.getObjectId();
         File foxmlFile = new File(objectId+".fo.xml");
         if (!foxmlFile.exists()) foxmlFile.createNewFile();
-        if (!foxmlFile.exists()) throw new PhaseException("file not exists '"+foxmlFile.getAbsolutePath()+"'");
+        if (!foxmlFile.exists()) throw new PhaseException(this,"file not exists '"+foxmlFile.getAbsolutePath()+"'");
         return foxmlFile;
         
     }
@@ -171,11 +185,18 @@ public class SecondPhase extends AbstractPhase  {
             parser.setPidsListCollect(new Emitter(url, userName, pswd));
             parser.pids();
         } catch (FileNotFoundException e) {
-            throw new PhaseException(e);
+            throw new PhaseException(this,e);
         } catch (RecognitionException e) {
-            throw new PhaseException(e);
+            throw new PhaseException(this,e);
         } catch (TokenStreamException e) {
-            throw new PhaseException(e);
+            throw new PhaseException(this,e);
+        } catch (RuntimeException e) {
+            Throwable thr = e.getCause();
+            if ((thr != null) && (thr instanceof PhaseException)) {
+                throw ((PhaseException)thr);
+            } else if (thr != null) {
+                throw new PhaseException(this,thr);
+            } else throw new PhaseException(this,e);
         }
     }
 
@@ -191,7 +212,7 @@ public class SecondPhase extends AbstractPhase  {
                 processIterate(url, userName, pswd);
             }
         } catch (IOException e) {
-            throw new PhaseException(e);
+            throw new PhaseException(this,e);
         }
     }
     
@@ -266,15 +287,14 @@ public class SecondPhase extends AbstractPhase  {
 
 
         @Override
-        public void pidEmitted(String pid) {
+        public void pidEmitted(String pid)  {
             try {
                 if ((pid.startsWith("'")) || (pid.startsWith("\""))) {
                     pid = pid.substring(1,pid.length()-1);
                 }
                 SecondPhase.this.pidEmitted(pid, this.url, this.userName, this.pswd);
             } catch (PhaseException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
+                throw new RuntimeException(e);
             }
         }
     }

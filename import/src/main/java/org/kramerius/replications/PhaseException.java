@@ -18,20 +18,33 @@ package org.kramerius.replications;
 
 public class PhaseException extends Exception {
 
-    public PhaseException() {
+    private Phase phase;
+    
+    public PhaseException(Phase phase) {
         super();
+        this.phase = phase;
     }
 
-    public PhaseException(String message, Throwable cause) {
+    public PhaseException(Phase phase, String message, Throwable cause) {
         super(message, cause);
+        this.phase = phase;
     }
 
-    public PhaseException(String message) {
+    public PhaseException(Phase phase, String message) {
         super(message);
+        this.phase = phase;
     }
 
-    public PhaseException(Throwable cause) {
+    public PhaseException(Phase phase, Throwable cause) {
         super(cause);
+        this.phase = phase;
+    }
+    
+    /**
+     * @return the phase
+     */
+    public Phase getPhase() {
+        return phase;
     }
     
 }

@@ -16,6 +16,7 @@
  */
 package org.kramerius.replications.pidlist;
 
+
 public interface PidsListCollect {
     
     public void pidEmitted(String pid);
