@@ -30,7 +30,7 @@ public interface RightsManager {
     
     // najde prava pro uzivatele
     /**
-     * Found rights associated with given pids, actions and given user
+     * Find rights associated with given pids, actions and given user
      * @param pids Objects' pids
      * @param action Secured action
      * @param user User
