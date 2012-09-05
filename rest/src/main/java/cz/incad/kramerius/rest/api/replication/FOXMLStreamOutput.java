@@ -18,14 +18,19 @@ package cz.incad.kramerius.rest.api.replication;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
 
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.StreamingOutput;
 
+import org.apache.commons.codec.binary.Base32InputStream;
 import org.apache.commons.codec.binary.Base64;
+import org.apache.commons.codec.binary.Base64InputStream;
 import org.apache.commons.codec.binary.Base64OutputStream;
 
 import cz.incad.kramerius.utils.IOUtils;
@@ -46,28 +51,18 @@ public class FOXMLStreamOutput implements StreamingOutput {
     @Override
     public void write(OutputStream os) throws IOException, WebApplicationException {
         os.write("{'raw':'".getBytes("UTF-8"));
-        System.out.println(new String(this.foxml,"UTF-8"));
-        System.out.println(this.foxml.length);
-        Base64OutputStream bos64os = new Base64OutputStream(os,true,76,"|".getBytes("UTF-8")) {
-            
-            private int length = 0;
-            
-            @Override
-            public void write(byte[] b, int offset, int len) throws IOException {
-                super.write(b, offset, len);
-                this.length += len;
-            }
-
-            @Override
-            public void flush() throws IOException {
-                super.flush();
-                System.out.println("Total bytes :"+this.length);
-            }
-        };
-        IOUtils.copyStreams(new ByteArrayInputStream(this.foxml), bos64os);
-        bos64os.flush();
+        os.write(encode());
         os.write("'}".getBytes("UTF-8"));
+        
     }
-    
+
+    private byte[] encode() throws UnsupportedEncodingException, IOException {
+        ByteArrayOutputStream bos = new ByteArrayOutputStream();
+        Base64OutputStream bos64os = new Base64OutputStream(bos,true,76,"|".getBytes("UTF-8"));
+        IOUtils.copyStreams(new ByteArrayInputStream(this.foxml), bos64os);
+        bos64os.flush(); bos64os.close();
+        return bos.toByteArray();
+    }
+
     
 }
