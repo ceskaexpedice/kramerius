@@ -18,10 +18,21 @@ package cz.incad.kramerius.service;
 
 import java.io.IOException;
 
+/**
+ * Google analytics support
+ * @author pavels
+ */
 public interface GoogleAnalytics {
 
-    
+    /**
+     * Returns google analytics web property defined in configuration
+     * @return google analytics web property
+     */
     public String getWebPropertyId();
     
+    /**
+     * Returns true if the web propety is defined
+     * @return
+     */
     public boolean isWebPropertyIdDefined();
 }
