@@ -32,7 +32,12 @@ import java.util.logging.Level;
 import cz.incad.kramerius.utils.DatabaseUtils;
 
 /**
- * JDBC update template. Suitable for JDBC updates.
+ * JDBC update template. Suitable for JDBC updates.<br>
+ * Typical usecase:
+ * <pre>
+ *    new JDBCUpdateTemplate(this.connectionProvider.get(), true)
+ *      .executeUpdate("update sometable set name=? where id=?","karlos",1);
+ * </pre>
  * @author pavels
  */
 public class JDBCUpdateTemplate {
