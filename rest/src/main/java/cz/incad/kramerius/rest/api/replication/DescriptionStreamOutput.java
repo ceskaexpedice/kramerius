@@ -36,11 +36,12 @@ import cz.incad.kramerius.utils.StringUtils;
 public class DescriptionStreamOutput implements StreamingOutput {
 
     private DCConent dcConent;
+    private String handle;
     
-    
-    public DescriptionStreamOutput(DCConent dcConent) {
+    public DescriptionStreamOutput(DCConent dcConent, String handle) {
         super();
         this.dcConent = dcConent;
+        this.handle = handle;
     }
 
 
@@ -60,12 +61,10 @@ public class DescriptionStreamOutput implements StreamingOutput {
         os.write(formatArray(Arrays.asList(this.dcConent.getIdentifiers())).getBytes("UTF-8")); 
         os.write(",'publishers':".getBytes("UTF-8")); 
         String publishers = formatArray(Arrays.asList(this.dcConent.getPublishers()));
-        System.out.println(publishers);
         os.write(publishers.getBytes("UTF-8")); 
         os.write(",'creators':".getBytes("UTF-8")); 
 
         String array = formatArray(Arrays.asList(this.dcConent.getCreators()));
-        System.out.println(array);
         
         os.write(array.getBytes("UTF-8")); 
 
@@ -75,7 +74,8 @@ public class DescriptionStreamOutput implements StreamingOutput {
         os.write((dcConent.getType()+"'").getBytes("UTF-8")); 
         os.write(",'date':'".getBytes("UTF-8")); 
         os.write((dcConent.getDate()+"'").getBytes("UTF-8")); 
-
+        os.write(",'handle':'".getBytes("UTF-8")); 
+        os.write((this.handle+"'").getBytes("UTF-8")); 
         
         os.write("}".getBytes("UTF-8"));
     }

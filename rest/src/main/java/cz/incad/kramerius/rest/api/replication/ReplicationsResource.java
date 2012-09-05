@@ -24,6 +24,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.ResourceBundle;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
@@ -43,6 +44,7 @@ import cz.incad.kramerius.document.model.utils.DescriptionUtils;
 import cz.incad.kramerius.service.ReplicateException;
 import cz.incad.kramerius.service.ReplicationService;
 import cz.incad.kramerius.service.ResourceBundleService;
+import cz.incad.kramerius.utils.ApplicationURL;
 import cz.incad.kramerius.utils.DCUtils;
 
 /**
@@ -68,7 +70,16 @@ public class ReplicationsResource {
     @Inject
     SolrAccess solrAccess;
     
+
+    @Inject
+    Provider<HttpServletRequest> requestProvider;
     
+    /**
+     * Returns DC content
+     * @param pid PID of object
+     * @return DC content
+     * @throws ReplicateException Cannot get description
+     */
     @GET
     @Path("description")
     @Produces(MediaType.APPLICATION_JSON+ ";charset=utf-8")
@@ -77,13 +88,21 @@ public class ReplicationsResource {
             Map<String, List<DCConent>> dcs = DCContentUtils.getDCS(fedoraAccess, solrAccess, Arrays.asList(pid));
             List<DCConent> list = dcs.get(pid);
             DCConent dcConent = DCConent.collectFirstWin(list);
-            return new DescriptionStreamOutput(dcConent);
+            String appURL = ApplicationURL.applicationURL(this.requestProvider.get());
+            if (!appURL.endsWith("/")) appURL += "/";
+            return new DescriptionStreamOutput(dcConent,appURL+"handle/"+pid);
         } catch (IOException e) {
             throw new ReplicateException(e);
         }
     }
 
     
+    /**
+     * Prepare all pids for replication
+     * @param pid Requested object
+     * @return collection of pids needs to be replicated
+     * @throws ReplicateException Cannot prepare list
+     */
     @GET
     @Path("prepare")
     @Produces(MediaType.APPLICATION_JSON)
@@ -94,6 +113,13 @@ public class ReplicationsResource {
         return new PIDListStreamOutput(pidList);
     }
 
+    /**
+     * Returns exported FOXML enveloped in JSON object
+     * @param pid PID of object
+     * @return FOXML as JSON
+     * @throws ReplicateException Cannot export JSON
+     * @throws UnsupportedEncodingException 
+     */
     @GET
     @Path("exportedFOXML")
     @Produces(MediaType.APPLICATION_JSON)
