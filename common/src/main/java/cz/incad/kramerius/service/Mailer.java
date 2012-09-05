@@ -27,8 +27,18 @@ import javax.mail.Session;
 public interface Mailer {
     
     
+    /**
+     * Returns mail session
+     * @param name User name
+     * @param pswd Password
+     * @return Mail session
+     */
     public Session getSession(String name,String pswd);
 
+    /**
+     * Simple authenticator
+     * @author pavels
+     */
     public class SMTPAuthenticator extends javax.mail.Authenticator {
 
         private String name;
@@ -40,6 +50,7 @@ public interface Mailer {
             this.pass = pass;
         }
 
+        @Override
         public PasswordAuthentication getPasswordAuthentication() {
             return new PasswordAuthentication(name, pass);
         }
