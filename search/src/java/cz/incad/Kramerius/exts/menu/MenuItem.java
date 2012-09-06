@@ -27,14 +27,14 @@ public interface MenuItem {
     
     /**
      * Returns true if this item should be rendered
-     * @return
+     * @return true if this item is renderable
      */
     public boolean isRenderable();
     
     /**
      * Returns html chunk represents this item
-     * @return
-     * @throws IOException
+     * @return rendered item
+     * @throws IOException IO error has been occurred
      */
     public String getRenderedItem() throws IOException;
 }
