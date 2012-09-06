@@ -20,12 +20,17 @@ import java.io.IOException;
 
 import cz.incad.Kramerius.exts.menu.main.impl.AbstractMainMenuItem;
 import cz.incad.Kramerius.exts.menu.main.impl.adm.AdminMenuItem;
+import cz.incad.kramerius.security.SecuredActions;
 
+/**
+ * Parametrized replication
+ * @author pavels
+ */
 public class ParametrizedK4Replication extends AbstractMainMenuItem implements AdminMenuItem {
 
     @Override
     public boolean isRenderable() {
-        return true;
+        return (hasUserAllowedAction(SecuredActions.IMPORT_K4_REPLICATIONS.getFormalName()));
     }
 
     @Override

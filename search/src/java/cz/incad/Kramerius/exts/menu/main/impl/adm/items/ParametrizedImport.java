@@ -20,12 +20,17 @@ import java.io.IOException;
 
 import cz.incad.Kramerius.exts.menu.main.impl.AbstractMainMenuItem;
 import cz.incad.Kramerius.exts.menu.main.impl.adm.AdminMenuItem;
+import cz.incad.kramerius.security.SecuredActions;
 
+/**
+ * Parametrized import
+ * @author pavels
+ */
 public class ParametrizedImport extends AbstractMainMenuItem implements AdminMenuItem {
 
     @Override
     public boolean isRenderable() {
-        return true;
+        return (hasUserAllowedAction(SecuredActions.IMPORT.getFormalName()));
     }
 
     @Override
