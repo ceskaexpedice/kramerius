@@ -4,7 +4,7 @@ group replicationTemplate;
 /** restart button */
 restartbutton(ctx) ::=<<
     $if(ctx.restartButtonEnabled)$
-        "Restart": bind(function() {
+         '$ctx.bundle.("common.restart")$': bind(function() {
             this.dialog.dialog("close");
             this.restart();
             window.close();
@@ -45,7 +45,7 @@ dialogscripts(ctx)  ::=<<
 
                                 $restartbutton(ctx=ctx)$                                 
 
-                                "Close": function() {
+                                '$ctx.bundle.("common.close")$': function() {
                                     \$(this).dialog("close");
                                     window.close();
                                 }
@@ -66,31 +66,34 @@ dialogscripts(ctx)  ::=<<
             </script>
 >>
 
+/* prelozi model */
+model(type) ::=<<fedora.model.$type$>>
+
 /** obsah komentare */
 dialogcontent(ctx)  ::=<<
 
 
         <div id="replicationoutput" style="display:none">
-            <h3> Replikace $ctx.type$: $ctx.title$ </h3>
+            <h3> Replikace $ctx.bundle.(model(type=ctx.type))$: $ctx.title$ </h3>
             <div style="font-size: 85%;font-family:monospace; margin-left: 10px;">
                 <ul>
-                    <li>Vydavatelé:$ctx.publishers;separator=","$ </li>
-                    <li>Tvůrci:$ctx.creators;separator=","$</li>
-                    <li>Identifikátory:<strong>$ctx.identifiers;separator=","$</strong></li>
-                    <li>Datum:$ctx.date;separator=","$</li>
+                    <li>$ctx.bundle.("replication.output.publishers")$:$ctx.publishers;separator=","$ </li>
+                    <li>$ctx.bundle.("replication.output.creators")$:$ctx.creators;separator=","$</li>
+                    <li>$ctx.bundle.("replication.output.identifiers")$:<strong>$ctx.identifiers;separator=","$</strong></li>
+                    <li>$ctx.bundle.("replication.output.date")$:$ctx.date;separator=","$</li>
                 </ul>
             </div>
                 
             <div style="margin: 5px">     
                 
 $if(ctx.firstPhaseFilePresent)$
-                 <div style="clear:both;" $failed(ctx=ctx,property="firstPhaseFailed")$> $icon(ctx=ctx,property="firstPhaseFailed")$  <span style="float:left; font-size:14; margin-left:15px;">Stahnuti deskriptoru pro replikace</span> </div>
+                 <div style="clear:both;" $failed(ctx=ctx,property="firstPhaseFailed")$> $icon(ctx=ctx,property="firstPhaseFailed")$  <span style="float:left; font-size:14; margin-left:15px;">$ctx.bundle.("replication.output.firstphase")$</span> </div>
 $endif$
 $if(ctx.secondPhaseFilePresent)$
-                 <div style="clear:both;" $failed(ctx=ctx,property="secondPhaseFailed")$> $icon(ctx=ctx,property="secondPhaseFailed")$ <span style="float:left; font-size:14;  margin-left:15px;" >Iteracni faze - import jednotlivych objektu</span> </div> 
+                 <div style="clear:both;" $failed(ctx=ctx,property="secondPhaseFailed")$> $icon(ctx=ctx,property="secondPhaseFailed")$ <span style="float:left; font-size:14;  margin-left:15px;" >$ctx.bundle.("replication.output.secondphase")$</span> </div> 
 $endif$
 $if(ctx.thirdPhaseFilePresent)$
-                 <div style="clear:both;" $failed(ctx=ctx,property="thirdPhaseFailed")$> $icon(ctx=ctx,property="thirdPhaseFailed")$ <span style="float:left; font-size:14;  margin-left:15px;">Indexace replikovaneho</span>  </div>
+                 <div style="clear:both;" $failed(ctx=ctx,property="thirdPhaseFailed")$> $icon(ctx=ctx,property="thirdPhaseFailed")$ <span style="float:left; font-size:14;  margin-left:15px;">$ctx.bundle.("replication.output.thirdphase")$</span>  </div>
 $endif$
             </div>
 
@@ -105,9 +108,9 @@ $ctx.formatedErrorMessage$
                 
                 
                 <table width="100%">
-                    <tr width="60%"><td></td><td align="right" width="40%"><label> Uzivatelske jmeno uzivane (pro restart) </label></td></tr>
+                    <tr width="60%"><td></td><td align="right" width="40%"><label> $ctx.bundle.("replication.output.restartuser")$ </label></td></tr>
                     <tr width="60%"><td></td><td align="right" width="40%"><input id="user" type="text">  </input></td></tr>
-                    <tr width="60%"><td></td><td align="right" width="40%"><label> Heslo (pro restart)</label></td></tr>
+                    <tr width="60%"><td></td><td align="right" width="40%"><label> $ctx.bundle.("replication.output.restartpassword")$</label></td></tr>
                     <tr width="60%"><td></td><td align="right" width="40%"><input id="password" type="password">  </input></td></tr>
                 </table>
             </div>  
@@ -115,7 +118,6 @@ $endif$
 
         </div>
 >>
-
 
 
 /** display block | none */

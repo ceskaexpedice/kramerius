@@ -28,6 +28,7 @@ import java.io.Writer;
 import java.nio.charset.Charset;
 import java.util.Arrays;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Properties;
 import java.util.ResourceBundle;
 import java.util.logging.Level;
@@ -56,6 +57,7 @@ import cz.incad.kramerius.processes.States;
 import cz.incad.kramerius.processes.template.ProcessOutputTemplate;
 import cz.incad.kramerius.service.ResourceBundleService;
 import cz.incad.kramerius.utils.IOUtils;
+import cz.incad.kramerius.utils.templates.BundleTemplateUtils;
 
 /**
  * K4 replication output template
@@ -76,11 +78,9 @@ public class OutputTemplate implements ProcessOutputTemplate {
     
     @Override
     public void renderOutput(LRProcess lrProcess, LRProcessDefinition definition, Writer writer) throws IOException {
-
         JSONObject jsonObject = description(lrProcess);
-
         Properties props = lrProcess.getParametersMapping();
-        System.out.println(props);
+
         String url = props.getProperty("url");
         
         OutputContext ctx = new OutputContext(); 
@@ -94,6 +94,7 @@ public class OutputTemplate implements ProcessOutputTemplate {
             ctx.setPublishers(jsonToArray(jsonObject.getJSONArray("publishers")));
             ctx.setCreators(jsonToArray(jsonObject.getJSONArray("creators")));
             ctx.setLrProcess(lrProcess);
+            ctx.setBundle(BundleTemplateUtils.resourceBundleMap(this.resourceBundleService.getResourceBundle("labels", localesProvider.get())));
             setPhasesFlags(ctx, lrProcess.processWorkingDirectory());
             setErrorFlagAndMessage(lrProcess, ctx);
         }
@@ -154,7 +155,7 @@ public class OutputTemplate implements ProcessOutputTemplate {
         }
     }
 
-    public JSONObject description(LRProcess lrProcess) throws IOException, FileNotFoundException {
+    JSONObject description(LRProcess lrProcess) throws IOException, FileNotFoundException {
         File descriptionFile = new File(lrProcess.processWorkingDirectory(),AbstractPhase.DESCRIPTION_FILE);
         if ((descriptionFile != null) && (descriptionFile.canRead())) {
             String stringInput = IOUtils.readAsString(new FileInputStream(descriptionFile), Charset.forName("UTF-8"), true);
@@ -205,6 +206,7 @@ public class OutputTemplate implements ProcessOutputTemplate {
         private String formatedErrorMessage = null;
         
         private LRProcess lrProcess;
+        private Map<String, String> bundle;
         
         public String getType() {
             return type;
@@ -377,6 +379,20 @@ public class OutputTemplate implements ProcessOutputTemplate {
         
         public void setLrProcess(LRProcess lrProcess) {
             this.lrProcess = lrProcess;
+        }
+
+        /**
+         * @return the bundle
+         */
+        public Map<String, String> getBundle() {
+            return bundle;
+        }
+        
+        /**
+         * @param bundle the bundle to set
+         */
+        public void setBundle(Map<String, String> bundle) {
+            this.bundle = bundle;
         }
         
         @Override

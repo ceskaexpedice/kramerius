@@ -25,13 +25,13 @@ form(bundle, handle) ::=<<
 
 <form>
 
-    <label>$bundle.("processes.defaultfields.handle")$</label><br>
+    <label>$bundle.("process.k4_replications.inputs.handle")$</label><br>
     <input type="text" style="width:100%" id="handle" value="$handle$"></input><br>
 
-    <label>$bundle.("processes.defaultfields.user")$</label><br>
+    <label>$bundle.("process.k4_replications.inputs.user")$</label><br>
     <input type="text" style="width:100%" id="user" value=""></input><br>
 
-    <label>$bundle.("processes.defaultfields.pswd")$</label><br>
+    <label>$bundle.("process.k4_replications.inputs.pswd")$</label><br>
     <input type="password" style="width:100%" id="pswd" value=""></input><br>
 
 </form>
