@@ -95,6 +95,7 @@ import cz.incad.kramerius.utils.params.ParamsParser;
 @Path("/processes")
 public class LRResource {
 
+    
     public static SimpleDateFormat FORMAT = new SimpleDateFormat("MM/dd/yyyy HH:mm:ss:SSS");
 
     
@@ -132,22 +133,32 @@ public class LRResource {
     @Produces(MediaType.APPLICATION_JSON)
     public String plainProcessStart(@PathParam("def")String def, @QueryParam("params") String params){
         if (this.actionAllowed.isActionAllowed(this.userProvider.get(),SecuredActions.MANAGE_LR_PROCESS.getFormalName(), SpecialObjects.REPOSITORY.getPid(),null,new ObjectPidsPath(SpecialObjects.REPOSITORY.getPid()))) {
-            definitionManager.load();
-            LRProcessDefinition definition = definitionManager.getLongRunningProcessDefinition(def);
-            if (!definition.isInputTemplateDefined()) {
-                User user = userProvider.get();
-                String loggedUserKey =  (String) this.requestProvider.get().getSession().getAttribute(UserUtils.LOGGED_USER_KEY_PARAM);
-                
-                HttpServletRequest request = this.requestProvider.get();
-                
-                LRProcess newProcess = definition.createNewProcess(request.getHeader(AUTH_TOKEN_HEADER_KEY), request.getParameter(TOKEN_ATTRIBUTE_KEY));
-                newProcess.setLoggedUserKey(loggedUserKey);
-                newProcess.setParameters(Arrays.asList(params));
-                newProcess.setUser(user);
-                newProcess.planMe(new Properties());
-                lrProcessManager.updateAuthTokenMapping(newProcess, loggedUserKey);
-                return lrPRocessToJSONObject(newProcess).toString();
-            } else {
+            try {
+                definitionManager.load();
+                LRProcessDefinition definition = definitionManager.getLongRunningProcessDefinition(def);
+                if (!definition.isInputTemplateDefined()) {
+                    User user = userProvider.get();
+                    String loggedUserKey =  (String) this.requestProvider.get().getSession().getAttribute(UserUtils.LOGGED_USER_KEY_PARAM);
+                    
+                    HttpServletRequest request = this.requestProvider.get();
+                    
+                    LRProcess newProcess = definition.createNewProcess(request.getHeader(AUTH_TOKEN_HEADER_KEY), request.getParameter(TOKEN_ATTRIBUTE_KEY));
+                    newProcess.setLoggedUserKey(loggedUserKey);
+
+                    ParamsParser parser = new ParamsParser(new ParamsLexer(new StringReader(params)));
+                    newProcess.setParameters(parser.params());
+                    newProcess.setUser(user);
+                    newProcess.planMe(new Properties());
+                    lrProcessManager.updateAuthTokenMapping(newProcess, loggedUserKey);
+                    return lrPRocessToJSONObject(newProcess).toString();
+                } else {
+                    throw new LRResourceCannotStartProcess("not plain process "+def);
+                }
+            } catch (RecognitionException e) {
+                LOGGER.log(Level.SEVERE,e.getMessage(),e);
+                throw new LRResourceCannotStartProcess("not plain process "+def);
+            } catch (TokenStreamException e) {
+                LOGGER.log(Level.SEVERE,e.getMessage(),e);
                 throw new LRResourceCannotStartProcess("not plain process "+def);
             }
         } else {
@@ -291,7 +302,7 @@ public class LRResource {
 
     @GET
     @Path("desc/{uuid}")
-    @Produces(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON+ ";charset=utf-8")
     public String getProcessDescription(@PathParam("uuid")String uuid){
         if (this.actionAllowed.isActionAllowed(this.userProvider.get(),SecuredActions.MANAGE_LR_PROCESS.getFormalName(), SpecialObjects.REPOSITORY.getPid(),null,new ObjectPidsPath(SpecialObjects.REPOSITORY.getPid()))) {
             LRProcess lrProcesses = this.lrProcessManager.getLongRunningProcess(uuid);
@@ -306,7 +317,7 @@ public class LRResource {
     
     @GET
     @Path("list")
-    @Produces(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON+ ";charset=utf-8")
     public String getProcessDescriptions(@QueryParam("filter")String filter,@QueryParam("ordering")String ordering, @QueryParam("typeofordering") String type,@QueryParam("offset") String of){
         if (this.actionAllowed.isActionAllowed(this.userProvider.get(),SecuredActions.MANAGE_LR_PROCESS.getFormalName(), SpecialObjects.REPOSITORY.getPid(),null,new ObjectPidsPath(SpecialObjects.REPOSITORY.getPid()))) {
             try {
@@ -393,7 +404,7 @@ public class LRResource {
         if (of != null) {
             LRProcessOffset offset = new LRProcessOffset(of, DEFAULT_SIZE);
             return offset;
-        } else return null;
+        } else return new LRProcessOffset("0", DEFAULT_SIZE);
     }
     
     private TypeOfOrdering typeOfOrdering(String type) {

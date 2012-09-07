@@ -37,10 +37,15 @@ import com.google.inject.Provider;
 import com.google.inject.name.Named;
 
 import cz.incad.kramerius.FedoraAccess;
+import cz.incad.kramerius.ObjectPidsPath;
 import cz.incad.kramerius.SolrAccess;
 import cz.incad.kramerius.document.model.DCConent;
 import cz.incad.kramerius.document.model.utils.DCContentUtils;
 import cz.incad.kramerius.document.model.utils.DescriptionUtils;
+import cz.incad.kramerius.rest.api.processes.ActionNotAllowed;
+import cz.incad.kramerius.security.IsActionAllowed;
+import cz.incad.kramerius.security.SecuredActions;
+import cz.incad.kramerius.security.User;
 import cz.incad.kramerius.service.ReplicateException;
 import cz.incad.kramerius.service.ReplicationService;
 import cz.incad.kramerius.service.ResourceBundleService;
@@ -69,10 +74,16 @@ public class ReplicationsResource {
     
     @Inject
     SolrAccess solrAccess;
-    
+
+    @Inject
+    IsActionAllowed isActionAllowed;
 
     @Inject
     Provider<HttpServletRequest> requestProvider;
+
+    @Inject
+    Provider<User> userProvider;
+    
     
     /**
      * Returns DC content
@@ -85,15 +96,26 @@ public class ReplicationsResource {
     @Produces(MediaType.APPLICATION_JSON+ ";charset=utf-8")
     public StreamingOutput getExportedDescription(@PathParam("pid") String pid) throws ReplicateException {
         try {
-            Map<String, List<DCConent>> dcs = DCContentUtils.getDCS(fedoraAccess, solrAccess, Arrays.asList(pid));
-            List<DCConent> list = dcs.get(pid);
-            DCConent dcConent = DCConent.collectFirstWin(list);
-            String appURL = ApplicationURL.applicationURL(this.requestProvider.get());
-            if (!appURL.endsWith("/")) appURL += "/";
-            return new DescriptionStreamOutput(dcConent,appURL+"handle/"+pid);
+            if (checkPermission(pid)) {
+                Map<String, List<DCConent>> dcs = DCContentUtils.getDCS(fedoraAccess, solrAccess, Arrays.asList(pid));
+                List<DCConent> list = dcs.get(pid);
+                DCConent dcConent = DCConent.collectFirstWin(list);
+                String appURL = ApplicationURL.applicationURL(this.requestProvider.get());
+                if (!appURL.endsWith("/")) appURL += "/";
+                return new DescriptionStreamOutput(dcConent,appURL+"handle/"+pid);
+            }  else throw new ActionNotAllowed("not allowed");
         } catch (IOException e) {
             throw new ReplicateException(e);
         }
+    }
+
+
+    boolean checkPermission(String pid) throws IOException {
+        ObjectPidsPath[] paths = this.solrAccess.getPath(pid);
+        for (ObjectPidsPath pth : paths) {
+            if (this.isActionAllowed.isActionAllowed(SecuredActions.EXPORT_K4_REPLICATIONS.getFormalName(), pid, null, pth)) return true;
+        }
+        return false;
     }
 
     
@@ -107,10 +129,16 @@ public class ReplicationsResource {
     @Path("prepare")
     @Produces(MediaType.APPLICATION_JSON)
     public StreamingOutput prepareExport(@PathParam("pid") String pid) throws ReplicateException {
-        // raw generate to request writer
-        List<String> pidList = replicationService.prepareExport(pid);
-        // cannot use JSON object -> too big data
-        return new PIDListStreamOutput(pidList);
+        try {
+            if (checkPermission(pid)) {
+                // raw generate to request writer
+                List<String> pidList = replicationService.prepareExport(pid);
+                // cannot use JSON object -> too big data
+                return new PIDListStreamOutput(pidList);
+            }  else throw new ActionNotAllowed("not allowed");
+        } catch (IOException e) {
+            throw new ReplicateException(e);
+        }
     }
 
     /**
@@ -124,9 +152,15 @@ public class ReplicationsResource {
     @Path("exportedFOXML")
     @Produces(MediaType.APPLICATION_JSON)
     public StreamingOutput getExportedFOXML(@PathParam("pid")String pid) throws ReplicateException, UnsupportedEncodingException {
-        // musi se vejit do pameti
-        byte[] bytes = replicationService.getExportedFOXML(pid);
-        return new FOXMLStreamOutput(bytes);
+        try {
+            if (checkPermission(pid)) {
+                // musi se vejit do pameti
+                byte[] bytes = replicationService.getExportedFOXML(pid);
+                return new FOXMLStreamOutput(bytes);
+            }  else throw new ActionNotAllowed("not allowed");
+        } catch (IOException e) {
+            throw new ReplicateException(e);
+        }
     }
 }
 
