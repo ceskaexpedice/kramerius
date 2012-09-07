@@ -5,6 +5,16 @@
     <packaging>war</packaging>
 
     <description>System Kramerius</description>
+
+    <repositories>
+        <repository>
+        <id>ourrepo</id>
+            <name>Our repo</name>
+            <url>http://kramerius.googlecode.com/svn/mvnrepo</url>
+          <layout>default</layout>
+        </repository>
+    </repositories>
+
     <developers>
         <developer>
             <id>alberto.en.vlasim</id>
@@ -30,6 +40,7 @@
         <artifactId>kramerius</artifactId>
         <version>4.6.0-SNAPSHOT</version>
     </parent>
+
 
     <dependencies>
 
