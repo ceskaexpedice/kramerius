@@ -6,14 +6,7 @@
 
     <description>System Kramerius</description>
 
-    <repositories>
-        <repository>
-        <id>ourrepo</id>
-            <name>Our repo</name>
-            <url>http://kramerius.googlecode.com/svn/mvnrepo</url>
-          <layout>default</layout>
-        </repository>
-    </repositories>
+
 
     <developers>
         <developer>
@@ -198,8 +191,8 @@
     </dependencies>
 
     <build>
-        <sourceDirectory>${basedir}/src/java</sourceDirectory>
-        <testSourceDirectory>${basedir}/src/test</testSourceDirectory>
+        <sourceDirectory>src/java</sourceDirectory>
+        <testSourceDirectory>src/test</testSourceDirectory>
         <resources>
             <resource>
                 <directory>${basedir}/src/conf</directory>
@@ -269,7 +262,13 @@
                     <verbose>true</verbose>
                 </configuration>
             </plugin>
+
+
         </plugins>
+
+
+
+
     </build>
 
 
@@ -278,15 +277,15 @@
             <plugin>
                 <groupId>nl.windgazer</groupId>
                 <artifactId>jsdoctk-plugin</artifactId>
-                <version>1.0</version>
+                <version>2.3.2</version>
                 <configuration>
                     <template>htm</template> <!-- Alternatives are not pre-installed for version 2.x-->
                     <directory>${project.build.directory}/jsdoc</directory>
                     <recurse>2</recurse>
-                    <ext>js</ext>
+                    <!--ext>js</ext>
                     <allfunctions>true</allfunctions>
                     <Allfunctions>false</Allfunctions>
-                    <privateOption>false</privateOption>
+                    <privateOption>false</privateOption-->
                     <!-- If you're using the maven default setup this alternative is sometimes required
                     to make the plugin work: ${basedir}/src/main/webapp/ -->
                     <srcDir>${basedir}/web/js</srcDir>

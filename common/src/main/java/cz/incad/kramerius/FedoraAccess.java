@@ -152,7 +152,7 @@ public interface FedoraAccess {
      * Parse, find and returns all pages
      * 
      * @param pid Object's pid
-     * @param if should go into deep
+     * @param deep if should go into deep
      * @return all pages
      * @throws IOException IO error has been occurred
      */

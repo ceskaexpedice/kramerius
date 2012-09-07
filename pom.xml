@@ -59,12 +59,27 @@
             <url>http://guiceyfruit.googlecode.com/svn/repo/releases/</url>
         </repository>
 
+        <repository>
+            <id>kramerius4repo</id>
+            <name>Kramerius4 repo</name>
+            <url>http://kramerius.googlecode.com/svn/mvnrepo</url>
+            <layout>default</layout>
+        </repository>
+        <repository>
+            <id>jsdoctk1</id>
+            <url>http://jsdoctk-plugin.googlecode.com/svn/repo</url>
+        </repository>
+
     </repositories>
 
     <pluginRepositories>
         <pluginRepository>
             <id>maven2-repository.dev.java.net</id>
             <url>http://download.java.net/maven/2/</url>
+        </pluginRepository>
+        <pluginRepository>
+            <id>jsdoctk2</id>
+            <url>http://jsdoctk-plugin.googlecode.com/svn/repo</url>
         </pluginRepository>
     </pluginRepositories>
 
