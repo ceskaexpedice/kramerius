@@ -10,7 +10,7 @@
 
 <%@ page isELIgnored="false"%>
 
-<view:object name="pdfView" clz="cz.incad.Kramerius.views.PDFGenerateViewObject"></view:object>
+<view:object name="pdfView" clz="cz.incad.Kramerius.views.PdfGenerateViewObject"></view:object>
 
 <style>
 <!--
