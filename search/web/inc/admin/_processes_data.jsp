@@ -81,7 +81,7 @@
         
         position: absolute; 
         top: 15px;
-        right: 15px;
+        right: 55px;
     }
 
     /* outputTemplates */
@@ -171,17 +171,6 @@ OutputTemplates.prototype.select=function(templateId, processUUID) {
 
 var outoutTemplates = new OutputTemplates();
 
-
-/*
-function _toggle_output_template(uuid) {
-    $(".outputTemplate").hide();
-	$("#outputTemplate_"+uuid).toggle();
-}
-
-function _toggle_close_template(uuid) {
-    $("#outputTemplate_"+uuid).hide();
-}
-*/
 
 
 $(document).ready(function(){
@@ -460,10 +449,10 @@ $(document).ready(function(){
                             <div style="position: relative;">
                                <div id="outputTemplate_${lrProc.UUID}" style="display: none;" class="outputTemplate shadow ui-widget ui-widget-content">
                                     <table style="width: 100%">
-                                        <thead><tr><td colspan="3" align="center" style="text-align: center;"> <strong><view:msg>administrator.processes.templates.output.label</view:msg></strong></td> </thead>
+                                        <thead><tr><td align="center" style="text-align: center;"> <strong><view:msg>administrator.processes.templates.output.label</view:msg></strong></td> </thead>
                                         <tbody>
                                             <c:forEach items="${lrProc.outputTemplateViewObjects}" var="output" varStatus="status">
-                                                <tr> <td width="20px;"></td>  <td width="80%"> <a href="javascript:outoutTemplates.select('${output.id}','${lrProc.UUID}');" target="_blank">${output.name}</a> </td></tr>
+                                                <tr> <td align="center" style="text-align: center;"> <a href="javascript:outoutTemplates.select('${output.id}','${lrProc.UUID}');" target="_blank">${output.name}</a> </td></tr>
                                             </c:forEach>
                                         </tbody>
                                     </table>

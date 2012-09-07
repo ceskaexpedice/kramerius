@@ -602,9 +602,12 @@ SecuredActionTab.prototype.editRightForPath=function(/** ident for right */right
 }
 
 SecuredActionTab.prototype.deleteRightForPath=function(/** ident for right */rightId, path) {
-	this.operation = DELETEOP;
-	rightContainer = {deletedrights:[rightId]};
-	this.post();
+    showConfirmDialog(dictionary['administrator.dialogs.right.delete.confirm'], bind(function(){
+    	this.operation = DELETEOP;
+    	rightContainer = {deletedrights:[rightId]};
+    	this.post();
+    },this));
+
 }
 
 
