@@ -46,7 +46,7 @@ import com.google.inject.Provides;
 import com.google.inject.name.Names;
 
 import cz.incad.Kramerius.views.AbstractPrintViewObject.RadioItem;
-import cz.incad.Kramerius.views.PDFGenerateViewObject;
+import cz.incad.Kramerius.views.PdfGenerateViewObject;
 import cz.incad.kramerius.FedoraAccess;
 import cz.incad.kramerius.ObjectPidsPath;
 import cz.incad.kramerius.SolrAccess;
@@ -111,7 +111,7 @@ public class PDFGenerateViewObjectTest  {
                 "uuid:ab7e5a19-bddb-11e0-bff9-0016e6840575"
         });
 
-        PDFGenerateViewObject view = new PDFGenerateViewObject();
+        PdfGenerateViewObject view = new PdfGenerateViewObject();
         injector.injectMembers(view);
         view.init();
 
@@ -145,7 +145,7 @@ public class PDFGenerateViewObjectTest  {
                 "uuid:00dbc770-8138-11e0-b63f-000d606f5dc6"
         });
 
-        PDFGenerateViewObject view = new PDFGenerateViewObject();
+        PdfGenerateViewObject view = new PdfGenerateViewObject();
         injector.injectMembers(view);
         view.init();
 

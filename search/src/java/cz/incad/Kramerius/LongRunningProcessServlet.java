@@ -637,8 +637,9 @@ public class LongRunningProcessServlet extends GuiceServlet {
                 return (String) req.getSession().getAttribute(UserUtils.LOGGED_USER_KEY_PARAM);
             }
         }
-
+        
         public boolean permitStart(IsActionAllowed rightsResolver, SecuredActions actionFromDef, User user) {
+            //TODO: where are actions ?
             boolean permited = user!= null? (rightsResolver.isActionAllowed(user,SecuredActions.MANAGE_LR_PROCESS.getFormalName(), SpecialObjects.REPOSITORY.getPid(), null , ObjectPidsPath.REPOSITORY_PATH) || 
                                 (actionFromDef != null && rightsResolver.isActionAllowed(user, actionFromDef.getFormalName(), SpecialObjects.REPOSITORY.getPid(),null, ObjectPidsPath.REPOSITORY_PATH))) : false ;
             return permited;

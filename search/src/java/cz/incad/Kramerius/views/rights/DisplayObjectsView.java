@@ -19,7 +19,6 @@ package cz.incad.Kramerius.views.rights;
 
 import static cz.incad.kramerius.security.SecuredActions.ADMINISTRATE;
 import static cz.incad.kramerius.security.SecuredActions.EXPORT_K4_REPLICATIONS;
-import static cz.incad.kramerius.security.SecuredActions.IMPORT_K4_REPLICATIONS;
 import static cz.incad.kramerius.security.SecuredActions.READ;
 
 import java.io.IOException;
@@ -180,9 +179,8 @@ public class DisplayObjectsView extends AbstractRightsView {
             return (SecuredActions[]) secList.toArray(new SecuredActions[secList.size()]);
             
         } else {
-            return new SecuredActions[] {READ,ADMINISTRATE,IMPORT_K4_REPLICATIONS,EXPORT_K4_REPLICATIONS};
+            return new SecuredActions[] {READ,ADMINISTRATE,EXPORT_K4_REPLICATIONS};
         }
-
     }
     
     public class AffectedObject {
