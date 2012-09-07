@@ -100,11 +100,22 @@
         </dependency>
 
         <!-- JPEG2000 support -->
-        <dependency>
+        <!--dependency>
             <groupId>com.sun.media</groupId>
             <artifactId>jai_imageio</artifactId>
             <version>1.1</version>
+        </dependency-->
+        <dependency>
+            <groupId>javax.media.jai</groupId>
+            <artifactId>com.springsource.javax.media.jai.core</artifactId>
+            <version>1.1.3</version>
         </dependency>
+        <dependency>
+            <groupId>javax.media.jai</groupId>
+            <artifactId>com.springsource.javax.media.jai.codec</artifactId>
+            <version>1.1.3</version>
+        </dependency>
+
     </dependencies>
 
     <build>

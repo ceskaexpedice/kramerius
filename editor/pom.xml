@@ -39,7 +39,7 @@ along with this program. If not, see <http://www.gnu.org/licenses />.
     <properties>
 
         <!-- convenience to define GWT version in one place -->
-        <gwt.version>2.0.4</gwt.version>
+        <gwt.version>2.4.0</gwt.version>
     </properties>
 
     <dependencies>
@@ -58,9 +58,9 @@ along with this program. If not, see <http://www.gnu.org/licenses />.
             <scope>provided</scope>
         </dependency>
         <dependency>
-            <groupId>com.google.code.gwt-dnd</groupId>
+            <groupId>com.allen-sauer.gwt.dnd</groupId>
             <artifactId>gwt-dnd</artifactId>
-            <version>3.0.1</version>
+            <version>3.1.2</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
@@ -118,23 +118,35 @@ along with this program. If not, see <http://www.gnu.org/licenses />.
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>gwt-maven-plugin</artifactId>
-                <version>1.2</version>
+                <version>${gwt.version}</version>
+
+                <dependencies>
+                    <dependency>
+                        <groupId>com.google.gwt</groupId>
+                        <artifactId>gwt-user</artifactId>
+                        <version>${gwt.version}</version>
+                    </dependency>
+                    <dependency>
+                        <groupId>com.google.gwt</groupId>
+                        <artifactId>gwt-dev</artifactId>
+                        <version>${gwt.version}</version>
+                    </dependency>
+                </dependencies>
+
                 <executions>
                     <execution>
                         <goals>
                             <goal>compile</goal>
-<!--              <goal>generateAsync</goal>-->
-<!--              <goal>test</goal>-->
                         </goals>
                     </execution>
                     <execution>
                         <id>gwt-clean</id>
                         <phase>clean</phase>
-                        <goals>
-                            <goal>clean</goal>
-                        </goals>
+                        <goals><goal>clean</goal></goals>
                     </execution>
                 </executions>
+
+
                 <configuration>
                     <hostedWebapp>${basedir}/src/main/webapp</hostedWebapp>
                     <webappDirectory>${basedir}/src/main/webapp</webappDirectory>

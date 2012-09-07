@@ -65,9 +65,23 @@
             <url>http://kramerius.googlecode.com/svn/mvnrepo</url>
             <layout>default</layout>
         </repository>
+
+        <repository>
+            <id>aplikatorrepo</id>
+            <name>Aplikator repo</name>
+            <url>http://aplikator.googlecode.com/svn/mvnrepository</url>
+            <layout>default</layout>
+        </repository>
+
         <repository>
             <id>jsdoctk1</id>
             <url>http://jsdoctk-plugin.googlecode.com/svn/repo</url>
+        </repository>
+
+        <repository>
+            <id>com.springsource.repository.bundles.external</id>
+            <name>SpringSource Enterprise Bundle Repository - External Bundle Releases</name>
+            <url>http://repository.springsource.com/maven/bundles/external</url>
         </repository>
 
     </repositories>
