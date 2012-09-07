@@ -207,21 +207,43 @@ public interface UserManager {
      */
     public void editRole(Role role) throws SQLException;
     
-    
+
+    /**
+     * Insert new public user
+     * @param user New public user
+     * @param pswd Password
+     * @throws SQLException SQL error has been occurred
+     */
     public void insertPublicUser(User user, String pswd) throws SQLException;
 
+    /**
+     * Save user's password
+     * @param user User 
+     * @param pswd Password
+     * @throws SQLException SQL error has been occurred
+     */
     public void saveUserPassword(User user, String pswd) throws SQLException;
     
+    /**
+     * Active public user
+     * @param user User
+     * @throws SQLException SQL error has been occurred
+     */
     public void activatePublicUser(User user) throws SQLException;
     
-    public void insertPublicUsersRole() throws SQLException;
     
+    /**
+     * Find public role
+     * @return
+     */
     public Role findPublicUsersRole();
     
     
-    
-    //TODO:  Move it !!
+    //TODO:  remove
     public boolean isLoggedUser(User user);
+    // TODO: remove
+    public void insertPublicUsersRole() throws SQLException;
+    //TODO : remove
     public void registerLoggedUser(User user, String loggedUserKey) throws SQLException;
     
 }

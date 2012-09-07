@@ -29,6 +29,7 @@ import cz.incad.kramerius.ProcessSubtreeException;
 import cz.incad.kramerius.TreeNodeProcessor;
 import cz.incad.kramerius.service.ReplicateException;
 import cz.incad.kramerius.service.ReplicationService;
+import cz.incad.kramerius.service.replication.ReplicationServiceFoxmlFilter;
 
 public class ReplicationServiceImpl implements ReplicationService{
 
@@ -37,6 +38,8 @@ public class ReplicationServiceImpl implements ReplicationService{
     @Inject
     @Named("securedFedoraAccess")
     FedoraAccess fedoraAccess;
+
+    private ReplicationServiceFoxmlFilter foxmlFilter;
 
     
     @Override
@@ -66,15 +69,20 @@ public class ReplicationServiceImpl implements ReplicationService{
 
     @Override
     public byte[] getExportedFOXML(String pid) throws ReplicateException {
-        return fedoraAccess.getAPIM().export(pid, "info:fedora/fedora-system:FOXML-1.1", "archive");
+        byte[] exported = fedoraAccess.getAPIM().export(pid, "info:fedora/fedora-system:FOXML-1.1", "archive");
+        if (this.foxmlFilter != null) {
+            return this.foxmlFilter.filterFoxmlLData(exported);
+        } else return exported;
     }
 
     @Override
-    public String[] getDescriptions(String pid) throws ReplicateException {
-        // TODO Auto-generated method stub
-        return null;
+    public ReplicationServiceFoxmlFilter getReplicationServiceFoxmlFilter() {
+        return this.foxmlFilter;
     }
 
-    
+    @Override
+    public void setReplicationServiceFoxmlFilter(ReplicationServiceFoxmlFilter filter) {
+        this.foxmlFilter = filter;
+    }
 }
 

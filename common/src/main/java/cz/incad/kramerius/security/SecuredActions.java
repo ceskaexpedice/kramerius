@@ -62,9 +62,12 @@ public enum SecuredActions {
     /** Akce umozni spravu procesu */
     MANAGE_LR_PROCESS("manage_lr_process"),
     
-    /** Akce pro replikace do K4 */
+    /** Akce pro exportovani replikacnich souboru (deskriptor, foxml, atd..) */
     EXPORT_K4_REPLICATIONS("export_k4_replications"),
+    
     IMPORT_K4_REPLICATIONS("import_k4_replications"),
+    
+    //K4_REPLICATIONS("k4_replications"),
     
     EDIT_INFO_TEXT("edit_info_text"),
     

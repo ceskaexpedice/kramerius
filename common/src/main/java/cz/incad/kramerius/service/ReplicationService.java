@@ -21,6 +21,8 @@ import java.util.List;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 
+import cz.incad.kramerius.service.replication.ReplicationServiceFoxmlFilter;
+
 /**
  * Main replication service
  * @author pavels
@@ -38,17 +40,22 @@ public interface ReplicationService {
     /**
      * Returns data of current pid
      * @param pid PID
-     * @return
+     * @return raw foxml data 
      * @throws ReplicateException cannot return foxml
      */
     public byte[] getExportedFOXML(String pid) throws ReplicateException;
     
     
+
     /**
-     * Returns descriptions of given pid
-     * @param pid PID of the object
-     * @return
-     * @throws ReplicateException cannot return descriptions
+     * Return replication FOXML filter
+     * @return FOXML filter
      */
-    public String[] getDescriptions(String pid) throws ReplicateException;
+    public ReplicationServiceFoxmlFilter getReplicationServiceFoxmlFilter();
+
+    /**
+     * Sets new FOXML filter instance
+     * @param filter
+     */
+    public void setReplicationServiceFoxmlFilter(ReplicationServiceFoxmlFilter filter);
 }
