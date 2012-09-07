@@ -21,19 +21,29 @@ import java.io.IOException;
 import cz.incad.Kramerius.exts.menu.context.impl.AbstractContextMenuItem;
 import cz.incad.Kramerius.exts.menu.context.impl.adm.AdminContextMenuItem;
 
-public class ExportFOXML extends AbstractContextMenuItem implements AdminContextMenuItem {
+public class ExportCd extends AbstractContextMenuItem implements AdminContextMenuItem  {
 
-    //adminItems.add(new ContextMenuItem("administrator.menu.exportFOXML", "_data_x_role", "exportFOXML", "", true));
+//    if (!isPDFMimeType(mimeType)) {
+//        adminItems.add(new ContextMenuItem("administrator.menu.exportcd", "_data_x_role", "exportToCD",
+//                "'img','" + i18nServlet + "','" + localesProvider.get().getISO3Country() + "','" + localesProvider.get().getISO3Language() + "'", false));
+//
+//        adminItems.add(new ContextMenuItem("administrator.menu.exportdvd", "_data_x_role", "exportToDVD",
+//                "'img','" + i18nServlet + "','" + localesProvider.get().getISO3Country() + "','" + localesProvider.get().getISO3Language() + "'", false));
+//    }
 
+    
     @Override
     public boolean isMultipleSelectSupported() {
-        return true;
+        return false;
     }
 
 
     @Override
     public String getRenderedItem() throws IOException {
-        return super.renderContextMenuItem("javascript:exportFOXML();", "administrator.menu.exportFOXML");
+        String iso3country = localesProvider.get().getISO3Country();
+        String iso3lang =  localesProvider.get().getISO3Language();
+        return super.renderContextMenuItem("javascript:exportToCD('img','i18','"+iso3country+"','"+iso3lang+"');", "administrator.menu.exportcd");
     }
+
     
 }

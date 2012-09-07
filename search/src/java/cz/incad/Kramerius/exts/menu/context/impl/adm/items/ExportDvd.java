@@ -16,15 +16,20 @@
  */
 package cz.incad.Kramerius.exts.menu.context.impl.adm.items;
 
-import java.io.File;
 import java.io.IOException;
 
 import cz.incad.Kramerius.exts.menu.context.impl.AbstractContextMenuItem;
 import cz.incad.Kramerius.exts.menu.context.impl.adm.AdminContextMenuItem;
-import cz.incad.kramerius.processes.annotations.ParameterName;
 
-public class ParametrizedPDFExport extends AbstractContextMenuItem implements AdminContextMenuItem  {
+public class ExportDvd extends AbstractContextMenuItem implements AdminContextMenuItem  {
 
+//    if (!isPDFMimeType(mimeType)) {
+//        adminItems.add(new ContextMenuItem("administrator.menu.exportcd", "_data_x_role", "exportToCD",
+//                "'img','" + i18nServlet + "','" + localesProvider.get().getISO3Country() + "','" + localesProvider.get().getISO3Language() + "'", false));
+//
+//        adminItems.add(new ContextMenuItem("administrator.menu.exportdvd", "_data_x_role", "exportToDVD",
+//                "'img','" + i18nServlet + "','" + localesProvider.get().getISO3Country() + "','" + localesProvider.get().getISO3Language() + "'", false));
+//    }
 
     
     @Override
@@ -37,11 +42,7 @@ public class ParametrizedPDFExport extends AbstractContextMenuItem implements Ad
     public String getRenderedItem() throws IOException {
         String iso3country = localesProvider.get().getISO3Country();
         String iso3lang =  localesProvider.get().getISO3Language();
-
-        return renderContextMenuItem(
-                "javascript:parametrizedProcess.open('parametrized_static_export',{'country':'"+iso3country+"','lang':'"+iso3lang+"'}); javascript:hideAdminMenu();",
-                "administrator.menu.export");
-
+        return super.renderContextMenuItem("javascript:exportToDVD('img','i18','"+iso3country+"','"+iso3lang+"');", "administrator.menu.exportdvd");
     }
 
     
