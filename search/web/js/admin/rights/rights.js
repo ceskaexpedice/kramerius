@@ -777,13 +777,14 @@ CriteriumsSearch.prototype.showCriteriums = function() {
 	            width:720,
 	            height:480,
 	            modal:true,
-	            title:"",
-	            buttons: {
-	            	"Close": bind(function() {
-	            		this.dialog.dialog("close");
-	            	},this)
-	            }
-	    	});
+	            title:dictionary['rights.dialog.criteriumparams.title'],
+	            buttons: [{
+		              	  text:dictionary['common.close'],
+		            	  click:function() {
+		            		  		$(this).dialog("close"); 
+            	  		  }
+	            		}]
+	    		});
 		}
 		$('#criteriumsDialog').html(data);
 	},this));
@@ -839,6 +840,25 @@ CriteriumsSearch.prototype.deleteCriterium=function(id) {
     showConfirmDialog(dictionary['administrator.dialogs.criteriumparams.delete.confirm'], bind(function(){
     	$.post("rights?action=deleteparams", {deletedparams:[id]}, this.refresh);
     },this));
+}
+
+CriteriumsSearch.prototype.renameCriterium=function(id,oldname) {
+	new InputTextDialog({
+		label : dictionary['common.label']+":",
+		value : oldname
+	}).open(bind(function(cVal) {
+
+		$.ajax({
+			  url:"rights?action=renameparams", 
+			  type: "POST", 
+			  data:  {renameparams:[id], name:cVal},
+			  success:this.refresh,
+			  contentType: "application/x-www-form-urlencoded;charset=UTF-8",
+			  dataType:"json"
+		  });
+
+	}, this));
+
 }
 
 var criteriumsSearcher = new CriteriumsSearch();

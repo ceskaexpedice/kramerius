@@ -43,6 +43,7 @@ import cz.incad.Kramerius.security.rightscommands.post.Create;
 import cz.incad.Kramerius.security.rightscommands.post.Delete;
 import cz.incad.Kramerius.security.rightscommands.post.DeleteCriteriumParams;
 import cz.incad.Kramerius.security.rightscommands.post.Edit;
+import cz.incad.Kramerius.security.rightscommands.post.RenameCriteriumParams;
 import cz.incad.Kramerius.security.userscommands.get.EditRoleHtml;
 import cz.incad.Kramerius.security.userscommands.get.ShowRolesHtml;
 import cz.incad.Kramerius.security.utils.UserFieldParser;
@@ -140,7 +141,8 @@ public class RightsServlet extends GuiceServlet {
         delete(Delete.class),
         edit(Edit.class),
         create(Create.class),
-        deleteparams(DeleteCriteriumParams.class);
+        deleteparams(DeleteCriteriumParams.class),
+        renameparams(RenameCriteriumParams.class);
         
         
         private Class<? extends ServletCommand> commandClass;

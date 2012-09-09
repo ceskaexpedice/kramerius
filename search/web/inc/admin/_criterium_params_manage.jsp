@@ -51,26 +51,28 @@
             <td><strong><view:msg>rights.dialog.table.column.id</view:msg></strong></td> 
             <td><strong><view:msg>rights.dialog.table.column.description</view:msg></strong></td> 
             <td><strong><view:msg>rights.dialog.table.column.object</view:msg></strong></td> 
-            <td><strong><view:msg>common.change</view:msg></strong></td>
+            <td align="center"><strong><view:msg>common.change</view:msg></strong></td>
             
       </tr>
       </thead>  
       <tbody>  
       <c:forEach items="${criteriums.criteriumParams}" var="cParam" varStatus="status">
             <tr>
+
                   <td style="width:20px;">${cParam.id}</td>
                   <td>${cParam.shortDescription}</td>   
-                  <td style="width: 60%">
+                  <td style="width: 40%">
                     <c:out value="${cParam.objectsString}"></c:out>
                   </td>
-                  <td style="width:20%"> 
+                  <td style="width:35%"> 
 
+                  <button onclick="criteriumsSearcher.renameCriterium(${cParam.id},'${cParam.shortDescription}');"><view:msg>common.rename</view:msg></button> 
 
                   <c:if test="${fn:length(cParam.usedPids) gt 0}">
-                      <button  onclick="criteriumsSearcher.search(${cParam.usingObjectsAsJSArray})"><view:msg>common.change</view:msg></button> 
+                      <button  onclick="criteriumsSearcher.search(${cParam.usingObjectsAsJSArray})"><view:msg>rights.dialog.criteriumparams.findusage</view:msg></button> 
                   </c:if>  
                   <c:if test="${fn:length(cParam.usedPids) eq 0}">
-                      <button  disabled="disabled" onclick="criteriumsSearcher.search(${cParam.usingObjectsAsJSArray})"><view:msg>common.change</view:msg></button> 
+                      <button  disabled="disabled" onclick="criteriumsSearcher.search(${cParam.usingObjectsAsJSArray})"><view:msg>rights.dialog.criteriumparams.findusage</view:msg></button> 
                   </c:if>
                   
                   <c:if test="${fn:length(cParam.usedPids) eq 0}">
