@@ -1,8 +1,15 @@
 
 function Roles() { this.dialog = null; this.newRoleDialog = null; this.editRoleDialog = null; }
 
-Roles.prototype.post = function(action,struct, retrieveFuncion) {
-	$.post("users?action="+action, struct, retrieveFuncion);
+Roles.prototype.post = function(action,struct, retrieveFucntion) {
+	$.ajax({
+		  url:"users?action="+action, 
+		  type: "POST", 
+		  data: struct,
+		  success:retrieveFucntion,
+		  contentType: "application/x-www-form-urlencoded;charset=UTF-8",
+		  dataType:"json"
+	  });
 }
 
 Roles.prototype.refresh = function() {

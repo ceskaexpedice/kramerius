@@ -524,9 +524,16 @@ SecuredActionTab.prototype.newRight = function() {
 
 SecuredActionTab.prototype.post = function() {
 	var struct = flatten({data:rightContainer.data,affectedObjects:rightContainer.affectedObjects, deletedrights:rightContainer.deletedrights});
-	$.post("rights?action="+this.operation.name, struct, bind(function(){
-		this.retrieve();
-	},this));
+	var successFunction = bind(function(){ this.retrieve(); }, this);
+	$.ajax({
+		  url:"rights?action="+this.operation.name, 
+		  type: "POST", 
+		  data: struct,
+		  success:successFunction,
+		  contentType: "application/x-www-form-urlencoded;charset=UTF-8",
+		  dataType:"json"
+	  });
+
 }
 
 SecuredActionTab.prototype.newRightForPath = function(path) {
