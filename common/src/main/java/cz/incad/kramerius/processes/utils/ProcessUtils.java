@@ -49,6 +49,12 @@ public class ProcessUtils {
         return lrServlet;
     }
 
+    /**
+     * Start new process
+     * @param processDef Process definition
+     * @param nparams nparams parameter 
+     * @throws Exception Any Error has been occured
+     */
     public static void startProcess(String processDef, String nparams) throws Exception{
         LOGGER.info(" spawn process '"+processDef+"'");
         String base = ProcessUtils.getLrServlet();    
@@ -61,6 +67,11 @@ public class ProcessUtils {
         }
     }
 
+    /**
+     * Start new process
+     * @param processDef Process definition
+     * @param params Process parameters
+     */
     public static void startProcess(String processDef, String[] params) {
         LOGGER.info(" spawn process '"+processDef+"'");
         String base = ProcessUtils.getLrServlet();    
@@ -72,6 +83,10 @@ public class ProcessUtils {
         }
     }
 
+    /**
+     * Close auth token
+     * @param processUuid Process uuid
+     */
     public static void closeToken(String processUuid) {
         LOGGER.info(" close token for '"+processUuid+"'");
         String base = ProcessUtils.getLrServlet();    
@@ -83,6 +98,11 @@ public class ProcessUtils {
         }
     }
     
+    /**
+     * Helper method creates nparams string from given params parameters
+     * @param params Params parameters
+     * @return crated string
+     */
     public static String nparams(String[] params) {
         StringBuffer buffer = new StringBuffer("{");
         for (int i = 0; i < params.length; i++) {
@@ -94,7 +114,12 @@ public class ProcessUtils {
         buffer.append("}");
         return buffer.toString();
     }
-
+    
+    /**
+     * Returns parametr with escape sequence
+     * @param string String to be escaped
+     * @return String with escape sequence
+     */
     public static String nparam(String string) {
         String[] escapeChars = {"\\",":",";","{","}"};
         for (String toEscape : escapeChars) {
@@ -106,14 +131,4 @@ public class ProcessUtils {
     }
     
     
-    public static void main(String[] args) {
-        List<States> states = new ArrayList<States>();
-        states.add(States.FINISHED);
-        states.add(States.FINISHED);
-        
-        BatchStates aggr = BatchStates.calculateBatchState(states);
-        System.out.println(aggr);
-        
-        
-    }
 }
