@@ -32,6 +32,10 @@ import cz.incad.kramerius.service.ResourceBundleService;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 
 
+/**
+ * Represents abstract context menu item. 
+ * @author pavels
+ */
 public abstract class AbstractContextMenuItem implements ContextMenuItem {
 
     static java.util.logging.Logger LOGGER = java.util.logging.Logger.getLogger(AbstractContextMenuItem.class.getName());
@@ -48,6 +52,13 @@ public abstract class AbstractContextMenuItem implements ContextMenuItem {
     @Inject
     protected KConfiguration configuration;
 
+    /**
+     * Returns rendered html item chunk
+     * @param href Javascript actions
+     * @param labelKey I18N key
+     * @return rendered html item chunk
+     * @throws IOException IO error has been occurred
+     */
     protected String renderContextMenuItem(String href, String labelKey) throws IOException {
         String label = this.resourceBundleService.getResourceBundle("labels", this.localesProvider.get()).getString(labelKey);
         StringTemplate template = new StringTemplate(
@@ -60,12 +71,12 @@ public abstract class AbstractContextMenuItem implements ContextMenuItem {
         return rendered;
     }
 
+    /**
+     * Disable or enable item in configuration
+     */
     @Override
     public boolean isRenderable() {
         return this.configuration.getConfiguration().getBoolean(this.getClass().getName()+".enabled",true);
     }
-
-    
-    
 }
 
