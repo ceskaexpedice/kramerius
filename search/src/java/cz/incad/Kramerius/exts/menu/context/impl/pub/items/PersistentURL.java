@@ -22,9 +22,12 @@ import java.io.IOException;
 import cz.incad.Kramerius.exts.menu.context.impl.AbstractContextMenuItem;
 import cz.incad.Kramerius.exts.menu.context.impl.pub.PublicContextMenuItem;
 
+/**
+ * Show persistent URL menu item
+ * @author pavels
+ */
 public class PersistentURL extends AbstractContextMenuItem implements PublicContextMenuItem {
 
-    //items.add(new ContextMenuItem("administrator.menu.persistenturl", "", "persistentURL", "", true));
 
     @Override
     public boolean isMultipleSelectSupported() {

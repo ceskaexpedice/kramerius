@@ -21,6 +21,10 @@ import java.io.IOException;
 import cz.incad.Kramerius.exts.menu.context.impl.AbstractContextMenuItem;
 import cz.incad.Kramerius.exts.menu.context.impl.pub.PublicContextMenuItem;
 
+/**
+ * Show metadata metadata
+ * @author pavels
+ */
 public class ShowMetadata extends AbstractContextMenuItem implements PublicContextMenuItem {
 
     

@@ -24,6 +24,10 @@ import cz.incad.Kramerius.exts.menu.context.impl.AbstractContextMenuItem;
 import cz.incad.Kramerius.exts.menu.context.impl.pub.PublicContextMenuItem;
 import cz.incad.kramerius.users.LoggedUsersSingleton;
 
+/**
+ * Represents feedback menu item
+ * @author pavels
+ */
 public class FeedBack extends AbstractContextMenuItem implements PublicContextMenuItem {
 
     

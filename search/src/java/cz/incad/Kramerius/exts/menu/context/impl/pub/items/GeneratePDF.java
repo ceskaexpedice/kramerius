@@ -30,6 +30,10 @@ import cz.incad.Kramerius.exts.menu.context.impl.pub.PublicContextMenuItem;
 import cz.incad.Kramerius.exts.menu.context.impl.utils.MenuMimeTypesUtils;
 import cz.incad.kramerius.FedoraAccess;
 
+/**
+ * Generate PDF menu item
+ * @author pavels
+ */
 public class GeneratePDF extends AbstractContextMenuItem implements PublicContextMenuItem {
 
     static java.util.logging.Logger LOGGER = java.util.logging.Logger.getLogger(GeneratePDF.class.getName());

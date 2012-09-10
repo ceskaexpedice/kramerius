@@ -21,10 +21,12 @@ import java.io.IOException;
 import cz.incad.Kramerius.exts.menu.context.impl.AbstractContextMenuItem;
 import cz.incad.Kramerius.exts.menu.context.impl.pub.PublicContextMenuItem;
 
+/**
+ * Download originals menu item
+ * @author pavels
+ */
 public class DownloadOriginals extends AbstractContextMenuItem implements PublicContextMenuItem {
     
-    //items.add(new ContextMenuItem("administrator.menu.downloadOriginal", "_data_x_role", "downloadOriginalItem", "", true));
-
 
     @Override
     public String getRenderedItem() throws IOException {
