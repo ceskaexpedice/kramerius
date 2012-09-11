@@ -21,11 +21,12 @@ import java.io.IOException;
 import cz.incad.Kramerius.exts.menu.context.impl.AbstractContextMenuItem;
 import cz.incad.Kramerius.exts.menu.context.impl.adm.AdminContextMenuItem;
 
+/**
+ * Delete pid from fedora 
+ * @author pavels
+ */
 public class DeletePid extends AbstractContextMenuItem implements AdminContextMenuItem  {
 
-    //adminItems.add(new ContextMenuItem("administrator.menu.deleteuuid", "_data_x_role", "deletePid", "", true));
-
-    
 
     @Override
     public String getRenderedItem() throws IOException {

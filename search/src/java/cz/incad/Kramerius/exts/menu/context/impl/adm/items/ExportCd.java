@@ -23,14 +23,6 @@ import cz.incad.Kramerius.exts.menu.context.impl.adm.AdminContextMenuItem;
 
 public class ExportCd extends AbstractContextMenuItem implements AdminContextMenuItem  {
 
-//    if (!isPDFMimeType(mimeType)) {
-//        adminItems.add(new ContextMenuItem("administrator.menu.exportcd", "_data_x_role", "exportToCD",
-//                "'img','" + i18nServlet + "','" + localesProvider.get().getISO3Country() + "','" + localesProvider.get().getISO3Language() + "'", false));
-//
-//        adminItems.add(new ContextMenuItem("administrator.menu.exportdvd", "_data_x_role", "exportToDVD",
-//                "'img','" + i18nServlet + "','" + localesProvider.get().getISO3Country() + "','" + localesProvider.get().getISO3Language() + "'", false));
-//    }
-
     
     @Override
     public boolean isMultipleSelectSupported() {

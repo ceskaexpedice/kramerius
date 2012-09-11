@@ -24,10 +24,11 @@ import cz.incad.Kramerius.exts.menu.context.impl.AbstractContextMenuItem;
 import cz.incad.Kramerius.exts.menu.context.impl.adm.AdminContextMenuItem;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 
+/**
+ * Metadata editor
+ * @author pavels
+ */
 public class Editor extends AbstractContextMenuItem implements AdminContextMenuItem {
-
-//    adminItems.add(new ContextMenuItem("administrator.menu.editor", "_data_x_role", "openEditor",
-//            "'" + kconfig.getEditorURL() + "'", true));
 
 
     @Override

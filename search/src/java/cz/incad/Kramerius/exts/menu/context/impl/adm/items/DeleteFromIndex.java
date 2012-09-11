@@ -21,6 +21,10 @@ import java.io.IOException;
 import cz.incad.Kramerius.exts.menu.context.impl.AbstractContextMenuItem;
 import cz.incad.Kramerius.exts.menu.context.impl.adm.AdminContextMenuItem;
 
+/**
+ * Delete from index menu item
+ * @author pavels
+ */
 public class DeleteFromIndex extends AbstractContextMenuItem implements AdminContextMenuItem  {
 
 

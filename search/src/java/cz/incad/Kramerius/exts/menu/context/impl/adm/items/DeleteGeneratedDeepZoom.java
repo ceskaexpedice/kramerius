@@ -21,11 +21,12 @@ import java.io.IOException;
 import cz.incad.Kramerius.exts.menu.context.impl.AbstractContextMenuItem;
 import cz.incad.Kramerius.exts.menu.context.impl.adm.AdminContextMenuItem;
 
+/**
+ * Delete genrated deep zoom cache
+ * @author pavels
+ *
+ */
 public class DeleteGeneratedDeepZoom extends AbstractContextMenuItem implements AdminContextMenuItem {
-
-//  adminItems.add(new ContextMenuItem("administrator.menu.generateDeepZoomTiles", "_data_x_role", "generateDeepZoomTiles", "", true));
-//  adminItems.add(new ContextMenuItem("administrator.menu.deleteGeneratedDeepZoomTiles", "_data_x_role", "deleteGeneratedDeepZoomTiles", "", true));
-
     
     @Override
     public boolean isMultipleSelectSupported() {
