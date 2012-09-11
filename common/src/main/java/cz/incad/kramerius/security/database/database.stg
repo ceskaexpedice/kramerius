@@ -176,7 +176,7 @@ findGlobalAdminsGroup() ::=<<
 >>
 
 findAllCriteriumParams() ::=<<
-    select * from criterium_param_entity; 
+    select * from criterium_param_entity order by crit_param_id; 
 >>
 
 findCriteriumParamsById() ::=<<
