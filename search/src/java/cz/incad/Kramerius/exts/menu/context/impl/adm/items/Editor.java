@@ -33,7 +33,7 @@ public class Editor extends AbstractContextMenuItem implements AdminContextMenuI
 
     @Override
     public String getRenderedItem() throws IOException {
-        return super.renderContextMenuItem("javascript:editor('"+this.configuration.getEditorURL()+"');", "administrator.menu.editor");
+        return super.renderContextMenuItem("javascript:openEditor('"+this.configuration.getEditorURL()+"');", "administrator.menu.editor");
     }
 
     @Override
