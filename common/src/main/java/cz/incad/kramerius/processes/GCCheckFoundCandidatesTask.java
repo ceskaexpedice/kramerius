@@ -1,6 +1,7 @@
 package cz.incad.kramerius.processes;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.TimerTask;
 import java.util.concurrent.locks.Lock;
@@ -38,12 +39,21 @@ public class GCCheckFoundCandidatesTask extends TimerTask {
 							if (!pids.contains(lr.getPid())) {
 							    LOGGER.warning("changing state of process '"+lr.getUUID()+"' to FAILED");
 							    lr.setProcessState(States.FAILED);
-								this.lrProcessManager.updateLongRunningProcessState(lr);
+		                        lr.setFinishedTime(System.currentTimeMillis());
+		                        this.lrProcessManager.updateLongRunningProcessState(lr);
+                                this.lrProcessManager.updateLongRunningProcessFinishedDate(lr);
+
+                                updateMasterState(lr);
+
 							}
 						} else {
 							LOGGER.severe("cannot find pid for process '"+lr.getUUID()+"'");
 							lr.setProcessState(States.FAILED);
-							this.lrProcessManager.updateLongRunningProcessState(lr);
+                            lr.setFinishedTime(System.currentTimeMillis());
+                            this.lrProcessManager.updateLongRunningProcessState(lr);
+                            this.lrProcessManager.updateLongRunningProcessFinishedDate(lr);
+
+                            updateMasterState(lr);
 						}
 					}
                 }
@@ -59,5 +69,20 @@ public class GCCheckFoundCandidatesTask extends TimerTask {
 			LOGGER.log(Level.SEVERE, e.getMessage(), e);
 		}
 	}
+
+    public void updateMasterState(LRProcess lr) {
+        List<LRProcess> processes = this.lrProcessManager.getLongRunningProcessesByGroupToken(lr.getGroupToken());
+        if (processes.size() > 1) {
+            LOGGER.fine("calculating new master state");
+            List<States> childStates = new ArrayList<States>();
+            for (int i = 0, ll = processes.size(); i < ll; i++) {
+                childStates.add(processes.get(i).getProcessState());
+            }
+            processes.get(0).setBatchState(BatchStates.calculateBatchState(childStates));
+            LOGGER.fine("calculated state '"+processes.get(0)+"'");
+            this.lrProcessManager.updateLongRunninngProcessBatchState(processes.get(0));
+        }
+    }
+
 	
 }
