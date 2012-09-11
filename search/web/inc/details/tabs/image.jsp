@@ -79,8 +79,9 @@ function onLoadPlainImage() {
             <view:msg>img.display.downloadOriginal.text</view:msg>
        </div>
        <div>
-           <a id="downloadOriginalHref" href="none">
-            <view:msg>img.display.downloadOriginal</view:msg>
+            <a id="downloadOriginalHref" href="none">
+                <view:msg>img.display.downloadOriginal</view:msg>
+            </a>
         </div>    
     </div>
     
