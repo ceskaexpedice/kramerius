@@ -279,7 +279,7 @@ public class MetsPeriodicalConvertor extends BaseConvertor {
 
     private Foxml processDiv(Foxml parent, DivType div) {
         String divType = div.getTYPE();
-        if ("PICTURE".equalsIgnoreCase(divType)) return null;//divs for PICTURE are not supported in K4
+        //if ("PICTURE".equalsIgnoreCase(divType)) return null;//divs for PICTURE are not supported in K4
         if ("MONOGRAPH".equalsIgnoreCase(divType)){//special hack to ignore extra div for monograph
             List<DivType> volumeDivs = div.getDiv();
             if (volumeDivs == null) return null;
