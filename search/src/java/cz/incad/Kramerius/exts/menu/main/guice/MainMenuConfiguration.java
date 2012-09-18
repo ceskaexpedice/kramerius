@@ -91,7 +91,7 @@ public class MainMenuConfiguration extends AbstractModule {
         
         // pridani parametrizovanych procesu
         adminItems.addBinding().to(ParametrizedImport.class);
-        adminItems.addBinding().to(ParametrizedConvert.class);
+        //adminItems.addBinding().to(ParametrizedConvert.class);
         adminItems.addBinding().to(ParametrizedK4Replication.class);
         
         
