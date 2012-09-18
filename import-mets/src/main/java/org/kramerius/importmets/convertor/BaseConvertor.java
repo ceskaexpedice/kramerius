@@ -381,10 +381,10 @@ public abstract class BaseConvertor {
      * Vytvori streamy pro foxml objekt
      *
      * @param foxmlObject
-     * @param sourceObject
      * @param dc
      * @param re
-     * @param xslFile
+     * @param mods
+     * @param policyID
      * @param files
      * @throws ServiceException
      */
@@ -559,10 +559,9 @@ public abstract class BaseConvertor {
         return document.getDocumentElement();
     }
     /**
-     * Vytvori rels-ext datastream
+     * Vytvori DC datastream
      *
-     * @param foxmlPage
-     * @param dcStream
+     * @param dc
      * @throws ServiceException
      */
     private DatastreamType createDublinCoreStream(Element dc) throws ServiceException {
@@ -645,9 +644,9 @@ public abstract class BaseConvertor {
         return document.getDocumentElement();
     }
     /**
-     * Vytvori MODS datastream pomoci xsl transformace
+     * Vytvori MODS datastream
      *
-     * @param page
+     * @param mods
      * @return
      * @throws ServiceException
      */
@@ -851,7 +850,7 @@ public abstract class BaseConvertor {
     /**
      * Vytvori datastream obsahujici base64 zakodovana binarni data
      *
-     * @param pageHref
+     * @param filename
      * @return stream
      */
     private DatastreamType createBase64Stream(String filename) throws ServiceException {
@@ -941,7 +940,8 @@ public abstract class BaseConvertor {
     /**
      * Vytvori datastream obsahujici base64 zakodovana binarni data pro thumbnail
      *
-     * @param pageHref
+     * @param img
+     * @param filename
      * @return stream
      */
     private DatastreamType createFullStream(BufferedImage img, String filename) throws ServiceException {
@@ -1018,7 +1018,8 @@ public abstract class BaseConvertor {
     /**
      * Vytvori datastream obsahujici base64 zakodovana binarni data pro thumbnail
      *
-     * @param pageHref
+     * @param img
+     * @param filename
      * @return stream
      */
     private DatastreamType createThumbnailStream(BufferedImage img, String filename) throws ServiceException {
@@ -1083,7 +1084,8 @@ public abstract class BaseConvertor {
     /**
      * Vytvori datastream obsahujici base64 zakodovana binarni data pro preview
      *
-     * @param pageHref
+     * @param img
+     * @param filename
      * @return stream
      */
     private DatastreamType createPreviewStream(BufferedImage img, String filename) throws ServiceException {
@@ -1426,8 +1428,7 @@ public abstract class BaseConvertor {
     /**
      * Vytvori rels-ext datastream
      *
-     * @param foxmlPage
-     * @param dcStream
+     * @param root
      * @throws ServiceException
      */
     private DatastreamType createRelsExtStream(Element root) throws ServiceException {
@@ -1535,7 +1536,6 @@ public abstract class BaseConvertor {
      * extracts filename from filename with or without sigla
      *
      * @param siglaName
-     * @param removeDefaultOnly
      * @return
      */
     protected String removeSigla(String siglaName) {
@@ -1549,16 +1549,12 @@ public abstract class BaseConvertor {
     /**
      * Vytvori digitalni objekt dle zadanych parametru vcetne datastreamu
      *
-     * @param sourceObject
      * @param pid
      * @param title
-     * @param creator
-     * @param publisher
-     * @param contributor
+     * @param dc
      * @param re
-     * @param xslFile
+     * @param mods
      * @param files
-     * @param foxmlObject
      * @throws ServiceException
      */
     protected DigitalObject createDigitalObject( String pid, String title, Element dc, Element re, Element mods, FileDescriptor[] files) throws ServiceException {

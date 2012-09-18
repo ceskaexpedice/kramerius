@@ -78,10 +78,20 @@
             <url>http://jsdoctk-plugin.googlecode.com/svn/repo</url>
         </repository>
 
+        <!--publicly available JAI codecs-->
         <repository>
             <id>com.springsource.repository.bundles.external</id>
             <name>SpringSource Enterprise Bundle Repository - External Bundle Releases</name>
             <url>http://repository.springsource.com/maven/bundles/external</url>
+        </repository>
+        <repository>
+            <releases />
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+            <id>mygrid-repository</id>
+            <name>myGrid Repository</name>
+            <url>http://www.mygrid.org.uk/maven/repository</url>
         </repository>
 
     </repositories>
