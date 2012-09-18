@@ -412,16 +412,16 @@ $(document).ready(function(){
             <tr class="${(i.index mod 2 == 0) ? 'result ui-state-default': 'result '}">
                 <td>${lrProc.treeIcon}</td>
                 <td title="${lrProc.simpleProcessName}">${lrProc.formatedProcessName} </td>
-                <td title="${lrProc.pid}">${lrProc.pid} </td>
+                <td title="${lrProc.pid}">${lrProc.pid} &nbsp;</td>
 
                 <c:choose>
                     <c:when test="${lrProc.failedState}">
-                        <td title="${lrProc.processState}" style="color: red;"><strong> ${lrProc.processState}</strong></td>
+                        <td title="${lrProc.processState}" style="color: red;"><strong> ${lrProc.processState}</strong>&nbsp;</td>
                     </c:when>
                     <c:when test="${lrProc.runningState}">
-                        <td title="${lrProc.processState}" style="color: green;"><strong> ${lrProc.processState}</strong></td>
+                        <td title="${lrProc.processState}" style="color: green;"><strong> ${lrProc.processState}</strong>&nbsp;</td>
                     </c:when>
-                    <c:otherwise><td title="${lrProc.processState}">${lrProc.processState}</td></c:otherwise>
+                    <c:otherwise><td title="${lrProc.processState}">${lrProc.processState}&nbsp;</td></c:otherwise>
                 </c:choose>
 
 
