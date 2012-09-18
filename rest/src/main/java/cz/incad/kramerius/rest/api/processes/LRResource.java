@@ -130,8 +130,12 @@ public class LRResource {
                     LRProcess newProcess = definition.createNewProcess(request.getHeader(AUTH_TOKEN_HEADER_KEY), request.getParameter(TOKEN_ATTRIBUTE_KEY));
                     newProcess.setLoggedUserKey(loggedUserKey);
 
-                    ParamsParser parser = new ParamsParser(new ParamsLexer(new StringReader(params)));
-                    newProcess.setParameters(parser.params());
+                    if (params != null) {
+                        ParamsParser parser = new ParamsParser(new ParamsLexer(new StringReader(params)));
+                        newProcess.setParameters(parser.params());
+                    } else {
+                        newProcess.setParameters(new ArrayList<String>());
+                    }
                     newProcess.setUser(user);
                     newProcess.planMe(new Properties());
                     lrProcessManager.updateAuthTokenMapping(newProcess, loggedUserKey);
@@ -170,15 +174,19 @@ public class LRResource {
                 newProcess.setLoggedUserKey(loggedUserKey);
 
 
-                ParamsParser paramsParser = new ParamsParser(new ParamsLexer(new StringReader(paramsMapping)));
-                List params = paramsParser.params();
+                
                 Properties props = new Properties();
-                for (Object paramVal : params) {
-                    if (paramVal instanceof List) {
-                        List alist = (List) paramVal;
-                        if (alist.size() == 1 ) {
-                            String[] pair = alist.get(0).toString().split("=");
-                            props.put(pair[0], pair[1]);
+                if (paramsMapping != null) {
+                    ParamsParser paramsParser = new ParamsParser(new ParamsLexer(new StringReader(paramsMapping)));
+                    List params = paramsParser.params();
+
+                    for (Object paramVal : params) {
+                        if (paramVal instanceof List) {
+                            List alist = (List) paramVal;
+                            if (alist.size() == 1 ) {
+                                String[] pair = alist.get(0).toString().split("=");
+                                props.put(pair[0], pair[1]);
+                            }
                         }
                     }
                 }
