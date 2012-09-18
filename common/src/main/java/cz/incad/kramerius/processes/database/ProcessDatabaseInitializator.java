@@ -71,6 +71,9 @@ public class ProcessDatabaseInitializator {
                     alterProcessTableBatchState(connection);
                     updateProcessTableBatchStates(connection);
                 }
+                if (!DatabaseUtils.columnExists(connection, "PROCESSES","FINISHED")) {
+                    alterProcessTableFinished(connection);
+                }
                 if (!DatabaseUtils.columnExists(connection, "PROCESSES","TOKEN_ACTIVE")) {
                     alterProcessTableTokenActive(connection);
                 }
