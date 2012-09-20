@@ -16,6 +16,8 @@
  */
 package cz.incad.kramerius.security.database;
 
+import static cz.incad.kramerius.database.cond.ConditionsInterpretHelper.*;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -30,6 +32,8 @@ import java.util.List;
 import java.util.logging.Level;
 
 import org.antlr.stringtemplate.StringTemplate;
+
+import com.ibm.icu.util.StringTokenizer;
 
 import cz.incad.kramerius.database.VersionService;
 import cz.incad.kramerius.users.database.LoggedUserDatabaseInitializator;
@@ -68,15 +72,17 @@ public class SecurityDatabaseInitializator {
 
                 // insert right for virtual collection manage
                 insertRightForVirtualCollection(connection);
-
+                
+                // insert right for criteria params manage
+                insertRightForCriteriaParamsManage(connection);
+                
                 
             } else { 
                 
+
                 String v = versionService.getVersion();
-                if (v.equals("4.5.0") || 
-                        v.equals("4.6.0") || 
-                        v.equals("4.7.0") || 
-                        v.equals("4.8.0")) {
+
+                if (versionCondition(v, ">=", "4.5.0") && versionCondition(v, "<=", "4.8.0")) {
 
                     makeSureThatUserEntity_DEACTIVATED(connection);
 
@@ -89,11 +95,16 @@ public class SecurityDatabaseInitializator {
 
                     // create public role
                     insertRightForDisplayAdminMenu(connection);
-
+                    // right for virtual collection
                     insertRightForVirtualCollection(connection);
+                    
+                    // right for criteria params manage
+                    insertRightForCriteriaParamsManage(connection);
 
+                } else if (versionCondition(v, "=", "5.3.0")){
+                    // right for criteria params manage
+                    insertRightForCriteriaParamsManage(connection);
                 }
-                
             }
         } catch (SQLException e) {
             LOGGER.log(Level.SEVERE,e.getMessage(),e);
@@ -102,12 +113,16 @@ public class SecurityDatabaseInitializator {
         }
     }
 
+    private static int insertRightForCriteriaParamsManage(Connection connection) throws SQLException {
+        String sql = SecurityDatabaseUtils.stUdateRightGroup().getInstanceOf("insertRight_DisplayAdminMenu").toString();
+        JDBCUpdateTemplate template = new JDBCUpdateTemplate(connection,false);
+        return template.executeUpdate(sql);
+    }
+
     public static void makeSureThatProfilesTable(Connection connection) throws SQLException, IOException {
         if (!DatabaseUtils.tableExists(connection, "PROFILES")) {
             // create tables for public users - 4.5.0 - version
             createPublicUsersAndProfilesTables(connection); // Zavislost na active users
-
-
         }
     }
     
@@ -206,26 +221,6 @@ public class SecurityDatabaseInitializator {
     }
     
     
-    public static void main(String[] args) throws IOException, ClassNotFoundException, SQLException {
-//        InputStream is = SecurityDatabaseInitializator.class.getResourceAsStream("res/initpublicusers.sql");
-//        String sqlScript = IOUtils.readAsString(is, Charset.forName("UTF-8"), true);
-//        Class<?> clz = Class.forName("org.postgresql.Driver");
-//        Connection conn = DriverManager.getConnection("jdbc:postgresql://localhost/kramerius4","fedoraAdmin","fedoraAdmin");
-//
-//        StringReader reader = new StringReader(sqlScript);
-//        BufferedReader bufReader = new BufferedReader(reader);
-//        String line = null;
-//        while((line = bufReader.readLine())!=null) {
-//            System.out.println(line +" = "+line.length());
-//            
-//        }
-//
-//        createPublicUsersAndProfilesTables(conn);
-//        String str = "ALTER TABLE PROFILES ADD CONSTRAINT PROFILES_ACTIVE_USER_ID_FK FOREIGN KEY (active_users_id) REFERENCES ACTIVE_USERS (ACTIVE_USERS_ID);";
-//        System.out.println(str.substring(0,135));
-    }
-
-
     
     public static void alterSecurityTableActiveColumn(Connection con) throws SQLException {
         PreparedStatement prepareStatement = con.prepareStatement(

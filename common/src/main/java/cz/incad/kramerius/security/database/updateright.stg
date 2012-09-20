@@ -40,3 +40,10 @@ insertRight_VirtualCollections() ::=<<
 >>
 
 
+insertRight_DisplayAdminMenu() ::=<<
+    insert into right_entity (right_id, uuid, "action", group_id)
+        select nextval('right_id_sequence'),'uuid:1','criteria_rights_manage',group_id 
+        from group_entity
+        where gname='k4_admins'
+>>
+
