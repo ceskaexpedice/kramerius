@@ -153,13 +153,14 @@ public class ResourceBundleServiceImpl implements ResourceBundleService {
 					filePropsInputStream = new FileInputStream(propsFile);
 					fileProps.load(new InputStreamReader(filePropsInputStream, CHARSET));
 				}
+				
 				Set<Object> keySet = defaultProps.keySet();
 				for (Object key : keySet) {
 					if (!fileProps.containsKey(key)) {
-						fileProps.setProperty(key.toString(),
-								defaultProps.getProperty(key.toString()));
+						fileProps.setProperty(key.toString(), defaultProps.getProperty(key.toString()));
 					}
 				}
+				
 				ByteArrayOutputStream bos = new ByteArrayOutputStream();
 				fileProps.store(bos, "");
 
