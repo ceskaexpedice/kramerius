@@ -53,7 +53,7 @@ public class DeleteCriteriumParams extends ServletRightsCommand {
 
             Object paramsToDelete = values.get("deletedparams");
 
-            if (this.actionAllowed.isActionAllowed(SecuredActions.CRITERIUMS_RIGHTS_MANAGE.getFormalName(), SpecialObjects.REPOSITORY.getPid(), null, new ObjectPidsPath(SpecialObjects.REPOSITORY.getPid()))) {
+            if (this.actionAllowed.isActionAllowed(SecuredActions.CRITERIA_RIGHTS_MANAGE.getFormalName(), SpecialObjects.REPOSITORY.getPid(), null, new ObjectPidsPath(SpecialObjects.REPOSITORY.getPid()))) {
                 rightsManager.deleteRightCriteriumParams(Integer.parseInt(paramsToDelete.toString()));
                 
             } else {

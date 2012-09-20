@@ -26,7 +26,7 @@ public class CriteriumsEditor extends AbstractMainMenuItem implements AdminMenuI
 
     @Override
     public boolean isRenderable() {
-        return (hasUserAllowedAction(SecuredActions.CRITERIUMS_RIGHTS_MANAGE.getFormalName()));
+        return (hasUserAllowedAction(SecuredActions.CRITERIA_RIGHTS_MANAGE.getFormalName()));
     }
 
     @Override
