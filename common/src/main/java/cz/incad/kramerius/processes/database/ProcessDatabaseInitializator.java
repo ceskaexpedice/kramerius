@@ -43,44 +43,7 @@ public class ProcessDatabaseInitializator {
         try {
             String v = versionService.getVersion();
             if (v == null) {
-                if (!DatabaseUtils.tableExists(connection,"PROCESSES")) {
-                    createProcessTable(connection);
-                }
-                
-                if (!DatabaseUtils.columnExists(connection, "PROCESSES", "STARTEDBY")) {
-                    alterProcessTableStartedByColumn(connection);
-                }
-                
-                if (!DatabaseUtils.columnExists(connection, "PROCESSES", "TOKEN")) {
-                    alterProcessTableProcessToken(connection);
-                }
-                
-                if (!DatabaseUtils.columnExists(connection, "PROCESSES", "PROCESS_ID")) {
-                    changeDatabaseBecauseShibb(connection);
-                }
-                
-                
-                if (!DatabaseUtils.tableExists(connection, "PROCESS_2_TOKEN")) {
-                    createToken2SessionkeysMapping(connection); // zavislost na session_keys
-                }
-
-                if (!DatabaseUtils.columnExists(connection, "PROCESSES","PARAMS_MAPPING")) {
-                    alterProcessTableParamsMappingToken(connection);
-                }
-                if (!DatabaseUtils.columnExists(connection, "PROCESSES","BATCH_STATUS")) {
-                    alterProcessTableBatchState(connection);
-                    updateProcessTableBatchStates(connection);
-                }
-                if (!DatabaseUtils.columnExists(connection, "PROCESSES","FINISHED")) {
-                    alterProcessTableFinished(connection);
-                }
-                if (!DatabaseUtils.columnExists(connection, "PROCESSES","TOKEN_ACTIVE")) {
-                    alterProcessTableTokenActive(connection);
-                }
-                if (!DatabaseUtils.columnExists(connection, "PROCESSES","AUTH_TOKEN")) {
-                    alterProcessTableAuthToken(connection);
-                    alterProcessTableProcess2TokenAuthToken(connection);
-                }
+                nullVersionInitialization(connection);
             } else if (v.equals("4.5.0") ||  v.equals("4.6.0") ||  v.equals("4.7.0") || v.equals("4.8.0") ||  v.equals("4.9.0")) {
                 if (!DatabaseUtils.columnExists(connection, "PROCESSES","PARAMS_MAPPING")) {
                     alterProcessTableParamsMappingToken(connection);
@@ -143,6 +106,48 @@ public class ProcessDatabaseInitializator {
             LOGGER.log(Level.SEVERE,e.getMessage(),e);
         } catch (IOException e) {
             LOGGER.log(Level.SEVERE,e.getMessage(),e);
+        }
+    }
+
+    /** No version defined in db */
+    public static void nullVersionInitialization(Connection connection) throws SQLException, IOException {
+        if (!DatabaseUtils.tableExists(connection,"PROCESSES")) {
+            createProcessTable(connection);
+        }
+        
+        if (!DatabaseUtils.columnExists(connection, "PROCESSES", "STARTEDBY")) {
+            alterProcessTableStartedByColumn(connection);
+        }
+        
+        if (!DatabaseUtils.columnExists(connection, "PROCESSES", "TOKEN")) {
+            alterProcessTableProcessToken(connection);
+        }
+        
+        if (!DatabaseUtils.columnExists(connection, "PROCESSES", "PROCESS_ID")) {
+            changeDatabaseBecauseShibb(connection);
+        }
+        
+        
+        if (!DatabaseUtils.tableExists(connection, "PROCESS_2_TOKEN")) {
+            createToken2SessionkeysMapping(connection); // zavislost na session_keys
+        }
+
+        if (!DatabaseUtils.columnExists(connection, "PROCESSES","PARAMS_MAPPING")) {
+            alterProcessTableParamsMappingToken(connection);
+        }
+        if (!DatabaseUtils.columnExists(connection, "PROCESSES","BATCH_STATUS")) {
+            alterProcessTableBatchState(connection);
+            updateProcessTableBatchStates(connection);
+        }
+        if (!DatabaseUtils.columnExists(connection, "PROCESSES","FINISHED")) {
+            alterProcessTableFinished(connection);
+        }
+        if (!DatabaseUtils.columnExists(connection, "PROCESSES","TOKEN_ACTIVE")) {
+            alterProcessTableTokenActive(connection);
+        }
+        if (!DatabaseUtils.columnExists(connection, "PROCESSES","AUTH_TOKEN")) {
+            alterProcessTableAuthToken(connection);
+            alterProcessTableProcess2TokenAuthToken(connection);
         }
     }
 
