@@ -46,7 +46,5 @@ public class ProcessAggregator {
         
         //TODO: I18N
         ProcessStarter.updateName("Davkove spusteny process ["+def+"]");
-        //jak na to ?
-        //ProcessUtils.closeToken(uuid);
     }
 }
