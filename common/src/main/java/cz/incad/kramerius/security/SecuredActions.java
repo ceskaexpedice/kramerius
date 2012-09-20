@@ -81,7 +81,7 @@ public enum SecuredActions {
     VIRTUALCOLLECTION_MANAGE("virtualcollection_manage"),
     
     /** Akce umoznuje sprav u kriterii */
-    CRITERIUMS_RIGHTS_MANAGE("criteriums_rights_manage"),
+    CRITERIA_RIGHTS_MANAGE("criteria_rights_manage"),
     
     /** Akce umozni zobrazit administratorskou cast menu */
     DISPLAY_ADMIN_MENU("display_admin_menu");
