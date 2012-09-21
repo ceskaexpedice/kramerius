@@ -62,7 +62,8 @@
                     <xsl:attribute name="id"><xsl:value-of select="$model_path" />-<xsl:value-of select="$model" />_<xsl:value-of select="$pid" /></xsl:attribute>
                     <span class="ui-icon ui-icon-triangle-1-e folder" ></span>
                     
-                    <a href="#">
+                    <a>
+                        <xsl:attribute name="href">i.jsp?pid=<xsl:value-of select="$pid" /></xsl:attribute>
                         <xsl:value-of select="$bundle/value[@key=$modelLoc]"/>
                     </a>
                     <xsl:call-template name="model">
@@ -90,7 +91,8 @@
                 <xsl:attribute name="class"><xsl:value-of select="./str[@name='dostupnost']" /><xsl:if test="./bool[@name='viewable']" > viewable</xsl:if></xsl:attribute>
                 <span class="ui-icon ui-icon-triangle-1-e folder" >folder</span>
                 <div style="float:left;"><input type="checkbox"  /></div>
-                <div style="float:left;"><a href="#">
+                <div style="float:left;"><a>
+                    <xsl:attribute name="href">i.jsp?pid=<xsl:value-of select="./str[@name='PID']" /></xsl:attribute>
                     <xsl:call-template name="details">
                         <xsl:with-param name="fmodel">
                             <xsl:value-of select="$fmodel" />
