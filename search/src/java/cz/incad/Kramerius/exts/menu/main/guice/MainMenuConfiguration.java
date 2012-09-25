@@ -33,6 +33,7 @@ import cz.incad.Kramerius.exts.menu.main.impl.adm.items.ImportMonographs;
 import cz.incad.Kramerius.exts.menu.main.impl.adm.items.ImportPeriodicals;
 import cz.incad.Kramerius.exts.menu.main.impl.adm.items.IndexerAdministration;
 import cz.incad.Kramerius.exts.menu.main.impl.adm.items.MetadataEditor;
+import cz.incad.Kramerius.exts.menu.main.impl.adm.items.NDKMetsImport;
 import cz.incad.Kramerius.exts.menu.main.impl.adm.items.ParametrizedConvert;
 import cz.incad.Kramerius.exts.menu.main.impl.adm.items.ParametrizedImport;
 import cz.incad.Kramerius.exts.menu.main.impl.adm.items.ParametrizedK3Replication;
@@ -100,11 +101,9 @@ public class MainMenuConfiguration extends AbstractModule {
         // pridani parametrizovanych procesu
         adminItems.addBinding().to(ParametrizedConvert.class);
         adminItems.addBinding().to(ParametrizedImport.class);
+        adminItems.addBinding().to(NDKMetsImport.class);
         adminItems.addBinding().to(ParametrizedK4Replication.class);
         
-        
-
-        // menu
         bind(MainMenu.class).to(MainMenuImpl.class);
     }
 }
