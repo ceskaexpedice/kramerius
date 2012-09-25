@@ -1,0 +1,43 @@
+/** sablony pro mock process */
+group processes;
+
+
+/** jedna polozka stromu */
+treeNode(item) ::=<<
+    $if(item.leaf)$
+
+    <li id="$item.id$"><a href="#">$item.itemName$</a></li>
+
+    $else$
+    <li id="$item.id$">
+    <a href="#">$item.itemName$</a>
+    $tree(root=item)$
+    </li>
+    $endif$
+
+>>
+
+
+/** strom */
+tree(root) ::=<<
+    <ul>
+        $root.children:{item|$treeNode(item=item)$}$ 
+    </ul>
+>>
+
+/** strom - js inicializace */
+makeJSTree(treeRoot, bindfunction) ::=<<
+        \$(function () {
+            \$("#$treeRoot$").jstree({ 
+                "plugins" : [ "themes", "html_data", "ui" ]
+            })
+            .bind("select_node.jstree", function (event, data) { 
+                var p = data.rslt.obj.attr("id");
+                $(bindfunction)()$;
+            });
+        });
+>>
+
+
+
+

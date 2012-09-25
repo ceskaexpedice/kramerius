@@ -14,7 +14,10 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
-package org.kramerius.processes;
+/**
+ * 
+ */
+package org.kramerius.k3replications.input;
 
 import java.io.File;
 import java.io.FileFilter;
@@ -35,6 +38,9 @@ import java.util.Stack;
 import org.antlr.stringtemplate.StringTemplate;
 import org.antlr.stringtemplate.StringTemplateGroup;
 import org.antlr.stringtemplate.language.DefaultTemplateLexer;
+import org.kramerius.processes.filetree.TreeItem;
+import org.kramerius.processes.filetree.TreeItemFileMap;
+import org.kramerius.processes.utils.ResourceBundleUtils;
 
 import com.google.inject.Inject;
 import com.google.inject.Provider;
@@ -44,7 +50,11 @@ import cz.incad.kramerius.processes.template.ProcessInputTemplate;
 import cz.incad.kramerius.service.ResourceBundleService;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 
-public class ParametrizedImportInputTemplate implements ProcessInputTemplate {
+/**
+ * @author pavels
+ *
+ */
+public class InputTemplate implements ProcessInputTemplate {
 
     @Inject
     KConfiguration configuration;
@@ -59,13 +69,13 @@ public class ParametrizedImportInputTemplate implements ProcessInputTemplate {
     public void renderInput(LRProcessDefinition definition, Writer writer, Properties paramsMapping) throws IOException {
         // root ?
         File homeFolder = new File(KConfiguration.getInstance().getProperty("import.directory")).getParentFile();
-        InputStream iStream = this.getClass().getResourceAsStream("parametrizedimport.stg");
+        InputStream iStream = this.getClass().getResourceAsStream("replicationtemplate.st");
         
         TreeItem rootNode = new TreeItem(homeFolder.getPath(), homeFolder.getName());
-        Stack<Pair> pStack = new Stack<Pair>();
-        pStack.push(new Pair(rootNode,homeFolder));
+        Stack<TreeItemFileMap> pStack = new Stack<TreeItemFileMap>();
+        pStack.push(new TreeItemFileMap(rootNode,homeFolder));
         while(!pStack.isEmpty()) {
-            Pair pair = pStack.pop();
+            TreeItemFileMap pair = pStack.pop();
             File folder = pair.getFoder();
             File[] lFiles = folder.listFiles(new FileFilter() {
                 @Override
@@ -75,9 +85,12 @@ public class ParametrizedImportInputTemplate implements ProcessInputTemplate {
             });
             if (lFiles != null) {
                 for (File subFolder : lFiles) {
+                    if (subFolder.isDirectory() && subFolder.getName().equals("lp")) continue;
+                    if (subFolder.isDirectory() && subFolder.getName().equals("deepZoom")) continue;
+                    if (subFolder.isDirectory() && subFolder.getName().equals("export")) continue;
                     TreeItem subItem = new TreeItem(subFolder.getPath(),subFolder.getName());
                     pair.getItem().addItem(subItem);
-                    Pair subpair = new Pair(subItem,subFolder);
+                    TreeItemFileMap subpair = new TreeItemFileMap(subItem,subFolder);
                     pStack.add(subpair);
                 }
             }
@@ -86,88 +99,17 @@ public class ParametrizedImportInputTemplate implements ProcessInputTemplate {
         StringTemplateGroup templateGroup = new StringTemplateGroup(new InputStreamReader(iStream,"UTF-8"), DefaultTemplateLexer.class);
         StringTemplate template = templateGroup.getInstanceOf("form");
 
-        template.setAttribute("ingestUrl", KConfiguration.getInstance().getProperty("ingest.url"));
-        template.setAttribute("ingestUser", KConfiguration.getInstance().getProperty("ingest.user"));
-        template.setAttribute("ingestPassword", KConfiguration.getInstance().getProperty("ingest.password"));
-        template.setAttribute("importDirectory", KConfiguration.getInstance().getProperty("import.directory"));
-        template.setAttribute("importRootDirectory",  rootNode);
+        //form(migrationDirectory,targetDirectory,importRootDirectory, bundle) ::=<<
+
+        template.setAttribute("migrationDirectory", KConfiguration.getInstance().getProperty("import.directory"));
+        template.setAttribute("targetDirectory",  KConfiguration.getInstance().getProperty("import.directory"));
+        template.setAttribute("importRootDirectory", rootNode);
     
         ResourceBundle resbundle = resourceBundleService.getResourceBundle("labels", localesProvider.get());
-        template.setAttribute("bundle", resourceBundleMap(resbundle));
-
+        template.setAttribute("bundle", ResourceBundleUtils.resourceBundleMap(resbundle));
         
         writer.write(template.toString());
     }
     
-    static class Pair {
-
-        private TreeItem item;
-        private File foder;
-        
-        public Pair(TreeItem item, File foder) {
-            super();
-            this.item = item;
-            this.foder = foder;
-        }
-
-        public TreeItem getItem() {
-            return item;
-        }
-        
-        public File getFoder() {
-            return foder;
-        };
-        
-    }
     
-    
-    public static Map<String, String> resourceBundleMap(ResourceBundle bundle) {
-        Map<String, String> map = new HashMap<String, String>();
-        Set<String> keySet = bundle.keySet();
-        for (String key : keySet) {
-            map.put(key, bundle.getString(key));
-        }
-        return map;
-    }
-
-    
-    public static class TreeItem {
-        
-        private List<TreeItem> children = new ArrayList<TreeItem>();
-        private String itemName;
-        private String id;
-        
-
-        public TreeItem(String id, String itemName) {
-            super();
-            this.itemName = itemName;
-            this.id = id;
-        }
-
-        public void addItem(TreeItem item) {
-            children.add(item);
-        }
-        
-        public void removeItem(TreeItem item) {
-            children.remove(item);
-        }
-        
-        public List<TreeItem> getChildren() {
-            return children;
-        }
-
-        public String getItemName() {
-            return itemName;
-        }
-
-        public String getId() {
-            return id;
-        }
-        
-        public boolean isLeaf() {
-            return this.children.isEmpty(); 
-        }
-
-    }
-
 }

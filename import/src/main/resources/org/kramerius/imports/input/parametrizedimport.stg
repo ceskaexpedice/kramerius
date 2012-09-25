@@ -1,5 +1,5 @@
 /** sablony pro mock process */
-group mockwizard;
+group parametrizedimport;
 
 
 /** jedna polozka stromu */
