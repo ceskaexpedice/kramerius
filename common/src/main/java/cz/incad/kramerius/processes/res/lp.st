@@ -123,7 +123,19 @@
         <mainClass>cz.incad.kramerius.virtualcollections.VirtualCollectionsManager</mainClass>
         <standardOs>lrOut</standardOs>
         <errOs>lrErr</errOs>
+    </process>
 
+    <process>
+        <id>k3_replication</id>
+        <description>Parametrizovany replikator</description>
+        <mainClass>org.kramerius.k3replications.ParametrizedReplication</mainClass>
+        <standardOs>lrOut</standardOs>
+        <errOs>lrErr</errOs>
+        <javaProcessParameters>-Xmx1024m -Xms512m</javaProcessParameters>
+        <parameters></parameters>
+        <templates>
+            <input class="org.kramerius.k3replications.input.InputTemplate"></input>
+        </templates>
     </process>
 
     <process>
@@ -243,13 +255,13 @@
     <process>
         <id>parametrizedconvert</id>
         <description>Convert and import</description>
-        <mainClass>org.kramerius.processes.ParametrizedConvert</mainClass>
+        <mainClass>org.kramerius.convert.ParametrizedConvert</mainClass>
         <standardOs>lrOut</standardOs>
         <errOs>lrErr</errOs>
         <javaProcessParameters>-Xmx1024m -Xms512m</javaProcessParameters>
         
         <templates>
-            <input class="cz.incad.kramerius.processes.def.DefaultTemplate"></input>
+            <input class="org.kramerius.convert.input.ParametrizedConvertInputTemplate"></input>
         </templates>
         
     </process>
@@ -268,11 +280,11 @@
     <process>
         <id>parametrizedimport</id>
         <description>Import FOXML</description>
-        <mainClass>org.kramerius.processes.ParametrizedImport</mainClass>
+        <mainClass>org.kramerius.imports.ParametrizedImport</mainClass>
         <standardOs>lrOut</standardOs>
         <errOs>lrErr</errOs>
         <templates>
-            <input class="org.kramerius.processes.ParametrizedImportInputTemplate"></input>
+            <input class="org.kramerius.imports.input.ParametrizedImportInputTemplate"></input>
         </templates>
 
     </process>

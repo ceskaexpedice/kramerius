@@ -1,30 +1,19 @@
 package cz.incad.kramerius.service.impl;
 
-import static cz.incad.kramerius.utils.IOUtils.*;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.OutputStream;
 import java.io.Reader;
-import java.net.MalformedURLException;
 import java.net.URL;
-import java.security.AccessController;
-import java.security.PrivilegedAction;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Enumeration;
-import java.util.List;
 import java.util.Locale;
-import java.util.Map;
 import java.util.Properties;
-import java.util.PropertyResourceBundle;
 import java.util.ResourceBundle;
 import java.util.Set;
 import java.util.Vector;
@@ -35,10 +24,11 @@ import com.google.inject.name.Named;
 
 import cz.incad.kramerius.Constants;
 import cz.incad.kramerius.service.ResourceBundleService;
-import cz.incad.kramerius.utils.IOUtils;
 
 public class ResourceBundleServiceImpl implements ResourceBundleService {
 
+    static java.util.logging.Logger LOGGER = java.util.logging.Logger.getLogger(ResourceBundleServiceImpl.class.getName());
+    
 	@Inject(optional = true)
 	@Named("workingDir")
 	private String workingDir;
@@ -61,7 +51,8 @@ public class ResourceBundleServiceImpl implements ResourceBundleService {
 	@Override
 	public ResourceBundle getResourceBundle(final String name,
 			final Locale locale) throws IOException {
-		final File resourcesDir = checkFiles(name);
+		LOGGER.fine("resource bundle "+name+"  "+locale);
+	    final File resourcesDir = checkFiles(name);
 		return ResourceBundle.getBundle(name, locale, new ResourceClassLoader(
 				resourcesDir));
 	}
@@ -140,32 +131,39 @@ public class ResourceBundleServiceImpl implements ResourceBundleService {
 
 		@Override
 		public InputStream getResourceAsStream(String name) {
-			InputStream defaultPropsInputStream = null;
+		    LOGGER.fine("reading stream '"+name+"'");
+		    // TODO: HACK - do it another way
+		    if (name.endsWith("_en.properties")) name = name.substring(0, name.length() - "_en.properties".length())+".properties";
+		    InputStream defaultPropsInputStream = null;
 			InputStream filePropsInputStream = null;
 			try {
-				Properties defaultProps = new Properties();
+			    File propsFile = new File(this.folder, name);
+
+			    Properties defaultProps = new Properties();
+				
 				defaultPropsInputStream = this.getClass().getClassLoader().getResourceAsStream(name);
-				defaultProps.load(new InputStreamReader(defaultPropsInputStream, CHARSET));
+				if (defaultPropsInputStream !=null || propsFile.exists()) {
+	                defaultProps.load(new InputStreamReader(defaultPropsInputStream, CHARSET));
 
-				Properties fileProps = new Properties();
-				File propsFile = new File(this.folder, name);
-				if (propsFile.exists()) {
-					filePropsInputStream = new FileInputStream(propsFile);
-					fileProps.load(new InputStreamReader(filePropsInputStream, CHARSET));
-				}
-				
-				Set<Object> keySet = defaultProps.keySet();
-				for (Object key : keySet) {
-					if (!fileProps.containsKey(key)) {
-						fileProps.setProperty(key.toString(), defaultProps.getProperty(key.toString()));
-					}
-				}
-				
-				ByteArrayOutputStream bos = new ByteArrayOutputStream();
-				fileProps.store(bos, "");
+	                Properties fileProps = new Properties();
+	                if (propsFile.exists()) {
+	                    filePropsInputStream = new FileInputStream(propsFile);
+	                    fileProps.load(new InputStreamReader(filePropsInputStream, CHARSET));
+	                }
+	                
+	                Set<Object> keySet = defaultProps.keySet();
+	                for (Object key : keySet) {
+	                    if (!fileProps.containsKey(key)) {
+	                        fileProps.setProperty(key.toString(), defaultProps.getProperty(key.toString()));
+	                    }
+	                }
+	                
+	                ByteArrayOutputStream bos = new ByteArrayOutputStream();
+	                fileProps.store(bos, "");
 
-				return readUTFStreamToEscapedASCII(new ByteArrayInputStream(
-						bos.toByteArray()));
+	                return readUTFStreamToEscapedASCII(new ByteArrayInputStream(
+	                        bos.toByteArray()));
+				} else return null;
 
 			} catch (IOException e) {
 				LOGGER.log(Level.SEVERE, e.getMessage(), e);
