@@ -36,12 +36,14 @@ form(ingestUrl,ingestUser,ingestPassword,importDirectory,importRootDirectory, bu
     <!--    
         // send parameters to server
         window.onProcessFormSend = function() {
+
+            var startIndexer = \$('#startIndexer').attr('checked');
+            
             var charsThatMustBeEscaped = [':',';','}','{'];
 
             var vals = 'importDirectory='+\$('#importDirectory').val()
-                +';ingestUrl='+   \$('#ingestUrl').val().escapeChars(charsThatMustBeEscaped)
-                +';ingestUser='+ \$('#ingestUser').val().escapeChars(charsThatMustBeEscaped)
-                +';ingestPassword='+\$('#ingestPassword').val().escapeChars(charsThatMustBeEscaped);
+                +';startIndexer='+startIndexer
+                ;
             
             var url = "lr?action=form_post&def=parametrizedimport&paramsMapping={"+vals+"}&out=text";
             processStarter("parametrizedimport").start(url);
@@ -117,37 +119,10 @@ form(ingestUrl,ingestUser,ingestPassword,importDirectory,importRootDirectory, bu
                 </tr>
             
                 <tr>
-                    <td colspan="2"> <label>$bundle.("import.url")$</label> </td>
-                </tr>
-    
-                <tr>
-                        <td>
-                            <input  style="width:100%"  type="text"  id="ingestUrl" value="$ingestUrl$"></input>
-                        </td>
-                        <td></td>
+                    <td colspan="2"> <input type="checkbox" id="startIndexer" name="startIndexer" value="startIndexer">$bundle.("import.indexerstart")$</input></td>
                 </tr>
             
-                <tr>
-                    <td colspan="2"> <label>$bundle.("import.user")$</label> </td>
-                </tr>
             
-                <tr>
-                    <td>
-                        <input  style="width:100%"  type="text"  id="ingestUser" value="$ingestUser$"></input>
-                    </td>
-                    <td></td>
-                </tr>
-
-                <tr>
-                    <td colspan="2"> <label>$bundle.("import.password")$</label> </td>
-                </tr>
-            
-                <tr>
-                        <td>
-                                <input style="width:100%" type="text"  id="ingestPassword" value="$ingestPassword$"></input>
-                        </td>
-                        <td></td>
-                </tr>
             </tbody>
         </table>
     

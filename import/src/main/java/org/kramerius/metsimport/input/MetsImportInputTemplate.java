@@ -14,21 +14,19 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
-package org.kramerius.imports.input;
+/**
+ * 
+ */
+package org.kramerius.metsimport.input;
 
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Writer;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
 import java.util.Locale;
-import java.util.Map;
 import java.util.Properties;
 import java.util.ResourceBundle;
-import java.util.Set;
 
 import org.antlr.stringtemplate.StringTemplate;
 import org.antlr.stringtemplate.StringTemplateGroup;
@@ -47,7 +45,11 @@ import cz.incad.kramerius.processes.template.ProcessInputTemplate;
 import cz.incad.kramerius.service.ResourceBundleService;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 
-public class ParametrizedImportInputTemplate implements ProcessInputTemplate {
+/**
+ * @author pavels
+ *
+ */
+public class MetsImportInputTemplate implements ProcessInputTemplate {
 
     @Inject
     KConfiguration configuration;
@@ -57,14 +59,12 @@ public class ParametrizedImportInputTemplate implements ProcessInputTemplate {
     
     @Inject
     ResourceBundleService resourceBundleService;
-    
+
     @Override
     public void renderInput(LRProcessDefinition definition, Writer writer, Properties paramsMapping) throws IOException {
-        // root ?
         File homeFolder = new File(KConfiguration.getInstance().getProperty("import.directory")).getParentFile();
-        InputStream iStream = this.getClass().getResourceAsStream("parametrizedimport.stg");
+        InputStream iStream = this.getClass().getResourceAsStream("metsimport.stg");
         
-
         TreeItem rootNode = TreeModelUtils.prepareTreeModel(homeFolder,new TreeModelFilter() {
             String[] NAMES = { "lp","exported","deepZoom" };
             @Override
@@ -76,20 +76,20 @@ public class ParametrizedImportInputTemplate implements ProcessInputTemplate {
                 return true;
             }
         });
+        StringTemplateGroup parametrizedconvert = new StringTemplateGroup(new InputStreamReader(iStream,"UTF-8"), DefaultTemplateLexer.class);
+        parametrizedconvert.setSuperGroup(BasicStringTemplateGroup.getBasicProcessesGroup());
+        
+        StringTemplate template = parametrizedconvert.getInstanceOf("form");
 
-        StringTemplateGroup parametrizedimport = new StringTemplateGroup(new InputStreamReader(iStream,"UTF-8"), DefaultTemplateLexer.class);
-        StringTemplate template = parametrizedimport.getInstanceOf("form");
-
-        template.setAttribute("ingestUrl", KConfiguration.getInstance().getProperty("ingest.url"));
-        template.setAttribute("ingestUser", KConfiguration.getInstance().getProperty("ingest.user"));
-        template.setAttribute("ingestPassword", KConfiguration.getInstance().getProperty("ingest.password"));
-        template.setAttribute("importDirectory", KConfiguration.getInstance().getProperty("import.directory"));
-        template.setAttribute("importRootDirectory",  rootNode);
+        template.setAttribute("targetDirectory", KConfiguration.getInstance().getProperty("import.directory"));
+        template.setAttribute("convertDirectory", KConfiguration.getInstance().getProperty("import.directory"));
+        template.setAttribute("convertRootDirectory",  rootNode);
     
         ResourceBundle resbundle = resourceBundleService.getResourceBundle("labels", localesProvider.get());
         template.setAttribute("bundle", ResourceBundleUtils.resourceBundleMap(resbundle));
         
         writer.write(template.toString());
+
     }
-    
+
 }

@@ -40,7 +40,9 @@ import org.antlr.stringtemplate.StringTemplateGroup;
 import org.antlr.stringtemplate.language.DefaultTemplateLexer;
 import org.kramerius.processes.filetree.TreeItem;
 import org.kramerius.processes.filetree.TreeItemFileMap;
+import org.kramerius.processes.filetree.TreeModelFilter;
 import org.kramerius.processes.utils.ResourceBundleUtils;
+import org.kramerius.processes.utils.TreeModelUtils;
 
 import com.google.inject.Inject;
 import com.google.inject.Provider;
@@ -71,35 +73,22 @@ public class InputTemplate implements ProcessInputTemplate {
         File homeFolder = new File(KConfiguration.getInstance().getProperty("import.directory")).getParentFile();
         InputStream iStream = this.getClass().getResourceAsStream("replicationtemplate.st");
         
-        TreeItem rootNode = new TreeItem(homeFolder.getPath(), homeFolder.getName());
-        Stack<TreeItemFileMap> pStack = new Stack<TreeItemFileMap>();
-        pStack.push(new TreeItemFileMap(rootNode,homeFolder));
-        while(!pStack.isEmpty()) {
-            TreeItemFileMap pair = pStack.pop();
-            File folder = pair.getFoder();
-            File[] lFiles = folder.listFiles(new FileFilter() {
-                @Override
-                public boolean accept(File pathname) {
-                    return pathname.isDirectory();
+        TreeItem rootNode = TreeModelUtils.prepareTreeModel(homeFolder,new TreeModelFilter() {
+            String[] NAMES = { "lp","exported","deepZoom" };
+            @Override
+            public boolean accept(File file) {
+                String sname = file.getName();
+                for (String nm : NAMES) {
+                    if (nm.equals(sname)) return false;
                 }
-            });
-            if (lFiles != null) {
-                for (File subFolder : lFiles) {
-                    if (subFolder.isDirectory() && subFolder.getName().equals("lp")) continue;
-                    if (subFolder.isDirectory() && subFolder.getName().equals("deepZoom")) continue;
-                    if (subFolder.isDirectory() && subFolder.getName().equals("export")) continue;
-                    TreeItem subItem = new TreeItem(subFolder.getPath(),subFolder.getName());
-                    pair.getItem().addItem(subItem);
-                    TreeItemFileMap subpair = new TreeItemFileMap(subItem,subFolder);
-                    pStack.add(subpair);
-                }
+                return true;
             }
-        }
+        });
+
+        
         
         StringTemplateGroup templateGroup = new StringTemplateGroup(new InputStreamReader(iStream,"UTF-8"), DefaultTemplateLexer.class);
         StringTemplate template = templateGroup.getInstanceOf("form");
-
-        //form(migrationDirectory,targetDirectory,importRootDirectory, bundle) ::=<<
 
         template.setAttribute("migrationDirectory", KConfiguration.getInstance().getProperty("import.directory"));
         template.setAttribute("targetDirectory",  KConfiguration.getInstance().getProperty("import.directory"));
@@ -110,6 +99,5 @@ public class InputTemplate implements ProcessInputTemplate {
         
         writer.write(template.toString());
     }
-    
     
 }

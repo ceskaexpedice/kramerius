@@ -14,26 +14,29 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
-package org.kramerius.imports;
+/**
+ * 
+ */
+package org.kramerius.metsimport;
 
 import java.io.File;
-
-import org.kramerius.Import;
 
 import cz.incad.kramerius.processes.annotations.ParameterName;
 import cz.incad.kramerius.processes.annotations.Process;
 
-public class ParametrizedImport {
+/**
+ * @author pavels
+ *
+ */
+public class ParametrizedMetsNKDImport {
 
-    static java.util.logging.Logger LOGGER = java.util.logging.Logger.getLogger(ParametrizedImport.class.getName());
-    
-
-    
     @Process
-    public static void process( @ParameterName("importDirectory") File importDirectory, 
-            @ParameterName("startIndexer")Boolean startIndexer) {
-        LOGGER.info("importDirectory = "+importDirectory);
-        LOGGER.info("indexer start "+startIndexer);
-        //Import.ingest(ingestUrl, ingestUser, ingestUser, importDirectory.getAbsolutePath());
+    public static void process(
+                @ParameterName("convertDirectory")File convertDirectory, 
+                @ParameterName("convertTargetDirectory")File targetDirectory, 
+                @ParameterName("ingestSkip")Boolean ingestSkip,
+                @ParameterName("startIndexer")Boolean startIndexer,
+                @ParameterName("defaultRights")Boolean defaultRights) {
+        
     }
 }
