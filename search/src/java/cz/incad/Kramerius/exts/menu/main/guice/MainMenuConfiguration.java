@@ -25,7 +25,7 @@ import cz.incad.Kramerius.exts.menu.main.impl.MainMenuImpl;
 import cz.incad.Kramerius.exts.menu.main.impl.adm.AdminMenuItem;
 import cz.incad.Kramerius.exts.menu.main.impl.adm.AdminMenuPartImpl;
 import cz.incad.Kramerius.exts.menu.main.impl.adm.items.Convert;
-import cz.incad.Kramerius.exts.menu.main.impl.adm.items.CriteriumsEditor;
+import cz.incad.Kramerius.exts.menu.main.impl.adm.items.CriteriaEditor;
 import cz.incad.Kramerius.exts.menu.main.impl.adm.items.Enumerator;
 import cz.incad.Kramerius.exts.menu.main.impl.adm.items.GlobalRightsAdministration;
 import cz.incad.Kramerius.exts.menu.main.impl.adm.items.Import;
@@ -35,6 +35,7 @@ import cz.incad.Kramerius.exts.menu.main.impl.adm.items.IndexerAdministration;
 import cz.incad.Kramerius.exts.menu.main.impl.adm.items.MetadataEditor;
 import cz.incad.Kramerius.exts.menu.main.impl.adm.items.ParametrizedConvert;
 import cz.incad.Kramerius.exts.menu.main.impl.adm.items.ParametrizedImport;
+import cz.incad.Kramerius.exts.menu.main.impl.adm.items.ParametrizedK3Replication;
 import cz.incad.Kramerius.exts.menu.main.impl.adm.items.ParametrizedK4Replication;
 import cz.incad.Kramerius.exts.menu.main.impl.adm.items.ProcessesDialog;
 import cz.incad.Kramerius.exts.menu.main.impl.adm.items.ReplicationRights;
@@ -74,24 +75,31 @@ public class MainMenuConfiguration extends AbstractModule {
         Multibinder<AdminMenuItem> adminItems
         = Multibinder.newSetBinder(binder(), AdminMenuItem.class);
         adminItems.addBinding().to(ProcessesDialog.class);
-        adminItems.addBinding().to(ImportMonographs.class);
-        adminItems.addBinding().to(ImportPeriodicals.class);
         adminItems.addBinding().to(IndexerAdministration.class);
+
+        adminItems.addBinding().to(UsersAdministration.class);
+        adminItems.addBinding().to(RolesEditor.class);
         adminItems.addBinding().to(GlobalRightsAdministration.class);
-        adminItems.addBinding().to(CriteriumsEditor.class);
-        
+        adminItems.addBinding().to(CriteriaEditor.class);
+        adminItems.addBinding().to(VirtualCollectionsAdministration.class);
+        adminItems.addBinding().to(MetadataEditor.class);
+
+
         adminItems.addBinding().to(Enumerator.class);
         adminItems.addBinding().to(ReplicationRights.class);
-        adminItems.addBinding().to(Convert.class);
-        adminItems.addBinding().to(Import.class);
-        adminItems.addBinding().to(MetadataEditor.class);
-        adminItems.addBinding().to(RolesEditor.class);
-        adminItems.addBinding().to(UsersAdministration.class);
-        adminItems.addBinding().to(VirtualCollectionsAdministration.class);
+        adminItems.addBinding().to(ParametrizedK3Replication.class);
+        
+        // replicate 
+//      adminItems.addBinding().to(ImportMonographs.class);
+//      adminItems.addBinding().to(ImportPeriodicals.class);
+
+        //adminItems.addBinding().to(ParametrizedConvert.class);
+        //adminItems.addBinding().to(ImportMets.class);
+
         
         // pridani parametrizovanych procesu
+        adminItems.addBinding().to(ParametrizedConvert.class);
         adminItems.addBinding().to(ParametrizedImport.class);
-        //adminItems.addBinding().to(ParametrizedConvert.class);
         adminItems.addBinding().to(ParametrizedK4Replication.class);
         
         

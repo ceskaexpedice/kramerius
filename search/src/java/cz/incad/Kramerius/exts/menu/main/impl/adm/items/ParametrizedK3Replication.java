@@ -14,6 +14,9 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
+/**
+ * 
+ */
 package cz.incad.Kramerius.exts.menu.main.impl.adm.items;
 
 import java.io.IOException;
@@ -22,20 +25,21 @@ import cz.incad.Kramerius.exts.menu.main.impl.AbstractMainMenuItem;
 import cz.incad.Kramerius.exts.menu.main.impl.adm.AdminMenuItem;
 import cz.incad.kramerius.security.SecuredActions;
 
-public class CriteriumsEditor extends AbstractMainMenuItem implements AdminMenuItem {
+/**
+ * @author pavels
+ *
+ */
+public class ParametrizedK3Replication extends AbstractMainMenuItem implements AdminMenuItem {
 
     @Override
     public boolean isRenderable() {
-        return (hasUserAllowedAction(SecuredActions.CRITERIA_RIGHTS_MANAGE.getFormalName()));
+        return true;
     }
 
     @Override
     public String getRenderedItem() throws IOException {
         return renderMainMenuItem(
-                "javascript:criteriumsSearcher.showCriteriums(); javascript:hideAdminMenu();",
-                "rights.criteriumedit.title", false);
+            "javascript:parametrizedProcess.open('k3_replication'); javascript:hideAdminMenu();",
+            "administrator.menu.dialogs.k3replication.title", false);
     }
-
-    
-
 }

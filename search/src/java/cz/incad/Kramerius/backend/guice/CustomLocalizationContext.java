@@ -48,7 +48,8 @@ public class CustomLocalizationContext extends LocalizationContext {
 	@Override
 	public ResourceBundle getResourceBundle() {
 		try {
-			ResourceBundle resourceBundle = this.bundleService.getResourceBundle("labels", this.localeProvider.get());
+			Locale locale = this.localeProvider.get();
+            ResourceBundle resourceBundle = this.bundleService.getResourceBundle("labels", locale);
 			return resourceBundle;
 		} catch (IOException e) {
 			LOGGER.log(Level.SEVERE, e.getMessage(), e);
