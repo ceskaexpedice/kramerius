@@ -267,6 +267,20 @@
     </process>
 
     <process>
+        <id>ndkmets</id>
+        <description>Import NDK METs</description>
+        <mainClass>org.kramerius.metsimport.ParametrizedMetsNKDImport</mainClass>
+        <standardOs>lrOut</standardOs>
+        <errOs>lrErr</errOs>
+        <javaProcessParameters>-Xmx1024m -Xms512m</javaProcessParameters>
+        
+        <templates>
+            <input class="org.kramerius.metsimport.input.MetsImportInputTemplate"></input>
+        </templates>
+        
+    </process>
+
+    <process>
         <id>convert</id>
         <description>Convert and import</description>
         <mainClass>org.kramerius.Convert</mainClass>
