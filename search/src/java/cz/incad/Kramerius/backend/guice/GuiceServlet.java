@@ -9,6 +9,7 @@ import com.google.inject.Injector;
 /**
  * Base servlet for injecting. 
  * @author pavels
+ * TODO: Do it by guice way
  */
 public class GuiceServlet extends HttpServlet {
 
@@ -29,4 +30,6 @@ public class GuiceServlet extends HttpServlet {
 	protected Injector getInjector() {
 		return (Injector) getServletContext().getAttribute(Injector.class.getName());
 	}
+
+	
 }
