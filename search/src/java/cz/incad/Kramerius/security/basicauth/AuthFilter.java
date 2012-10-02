@@ -20,15 +20,11 @@
 package cz.incad.Kramerius.security.basicauth;
 
 import java.io.IOException;
-import java.lang.reflect.Proxy;
 import java.security.NoSuchAlgorithmException;
-import java.security.Principal;
 import java.sql.Connection;
-import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.logging.Level;
 
-import javax.servlet.Filter;
 import javax.servlet.FilterChain;
 import javax.servlet.FilterConfig;
 import javax.servlet.ServletException;
@@ -42,7 +38,6 @@ import biz.sourcecode.base64Coder.Base64Coder;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
 import com.google.inject.name.Named;
-import com.sun.xml.internal.fastinfoset.Decoder;
 
 import cz.incad.Kramerius.backend.guice.K4GuiceFilter;
 import cz.incad.kramerius.security.jaas.K4LoginModule;
@@ -85,13 +80,16 @@ public class AuthFilter extends K4GuiceFilter{
                         HttpServletRequest authenticated = BasicAuthenticatedHTTPServletProxy.newInstance(request, principal);
                         arg2.doFilter(authenticated, response);
                     } else {
-                        arg2.doFilter(request, response);
+                        //arg2.doFilter(request, response);
+                        response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
                     }
                 } else {
-                    arg2.doFilter(request, response);
+                    //arg2.doFilter(request, response);
+                    response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
                 }
             } else {
-                arg2.doFilter(request, response);
+                //arg2.doFilter(request, response);
+                response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
             }
             
         } catch (NoSuchAlgorithmException e) {
@@ -104,5 +102,4 @@ public class AuthFilter extends K4GuiceFilter{
         super.init(arg0);
         LOGGER.info("initializing auth filter...");
     }
-   
 }
