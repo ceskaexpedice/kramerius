@@ -51,6 +51,8 @@ public class AuthFilter extends K4GuiceFilter{
 
     static java.util.logging.Logger LOGGER = java.util.logging.Logger.getLogger(AuthFilter.class.getName());
     
+    private String realm = null;
+    
     
     @Inject
     @Named("kramerius4")
@@ -65,41 +67,48 @@ public class AuthFilter extends K4GuiceFilter{
         try {
             HttpServletRequest request = (HttpServletRequest) arg0;
             HttpServletResponse response = (HttpServletResponse) arg1;
-            String header = request.getHeader("Authorization");
-            if (header!=null && header.trim().startsWith("Basic")) {
-                String uname = header.trim().substring("Basic".length()).trim();
-                byte[] decoded = Base64Coder.decode(uname.toCharArray());
-                String fname = new String(decoded, "UTF-8");
-                if (fname.contains(":")) {
-                    String username = fname.substring(0, fname.indexOf(':'));
-                    String password = fname.substring(fname.indexOf(':')+1);
-                    HashMap<String,Object> user = K4LoginModule.findUser(connectionProvider.get(), username);
-                    boolean checked = K4LoginModule.checkPswd(username, user.get("pswd").toString(), password.toCharArray());
-                    if (checked) {
-                        K4User principal = new K4User(username);
-                        HttpServletRequest authenticated = BasicAuthenticatedHTTPServletProxy.newInstance(request, principal);
-                        arg2.doFilter(authenticated, response);
+            if (request.getUserPrincipal() == null) {
+                String header = request.getHeader("Authorization");
+                if (header!=null && header.trim().startsWith("Basic")) {
+                    String uname = header.trim().substring("Basic".length()).trim();
+                    byte[] decoded = Base64Coder.decode(uname.toCharArray());
+                    String fname = new String(decoded, "UTF-8");
+                    if (fname.contains(":")) {
+                        String username = fname.substring(0, fname.indexOf(':'));
+                        String password = fname.substring(fname.indexOf(':')+1);
+                        HashMap<String,Object> user = K4LoginModule.findUser(connectionProvider.get(), username);
+                        boolean checked = K4LoginModule.checkPswd(username, user.get("pswd").toString(), password.toCharArray());
+                        if (checked) {
+                            K4User principal = new K4User(username);
+                            HttpServletRequest authenticated = BasicAuthenticatedHTTPServletProxy.newInstance(request, principal);
+                            arg2.doFilter(authenticated, response);
+                        } else {
+                            sendError(response);
+                        }
                     } else {
-                        //arg2.doFilter(request, response);
-                        response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
+                        sendError(response);
                     }
                 } else {
-                    //arg2.doFilter(request, response);
-                    response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
+                    sendError(response);
                 }
             } else {
-                //arg2.doFilter(request, response);
-                response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
+                // authenticated user - only forward
+                arg2.doFilter(request, response);
             }
-            
         } catch (NoSuchAlgorithmException e) {
             LOGGER.log(Level.SEVERE, e.getMessage(),e);
         }
     }
 
+    public void sendError(HttpServletResponse response) throws IOException {
+        response.setHeader( "WWW-Authenticate", "Basic realm=\"" + this.realm + "\"" );
+        response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
+    }
+
     @Override
-    public void init(FilterConfig arg0) throws ServletException {
-        super.init(arg0);
+    public void init(FilterConfig conf) throws ServletException {
+        super.init(conf);
         LOGGER.info("initializing auth filter...");
+        this.realm = conf.getInitParameter("realm");
     }
 }
