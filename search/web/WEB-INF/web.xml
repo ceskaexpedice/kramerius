@@ -5,6 +5,10 @@
     <filter>
         <filter-name>basic</filter-name>
         <filter-class>cz.incad.Kramerius.security.basicauth.AuthFilter</filter-class>
+        <init-param>
+            <param-name>realm</param-name>
+            <param-value>Protected</param-value>
+        </init-param>
     </filter>
     <filter-mapping>
         <filter-name>basic</filter-name>
