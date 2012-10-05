@@ -300,6 +300,11 @@ public class LRResource {
         }
     }
 
+    /**
+     * Returns processes logs
+     * @param uuid Process identification
+     * @return JSON object contains logs encoded in base64
+     */
     @GET
     @Path("{uuid}/logs")
     @Produces(MediaType.APPLICATION_JSON)
@@ -334,8 +339,8 @@ public class LRResource {
 
     /**
      * Returns process description
-     * @param uuid
-     * @return
+     * @param uuid Process identification
+     * @return JSON process description
      */
     @GET
     @Path("{uuid}")
@@ -349,7 +354,20 @@ public class LRResource {
             throw new ActionNotAllowed(ExceptionJSONObjectUtils.fromMessage("action is not allowed").toString());
         }
     }
-
+    
+    /**
+     * Returns filtered processes 
+     * @param filterUUID Filter uuid field
+     * @param filterPid Filter pid field
+     * @param filterDef Filter def field
+     * @param filterBatchState Filter batchstate field
+     * @param filterName Filter name field
+     * @param filterUserId filter userid field
+     * @param filterUserFirstname filter userFirstname field
+     * @param filterUserSurname filter userSurname field
+     * @param of Ofset field
+     * @return return filtered json array
+     */
     @GET
     @Produces(MediaType.APPLICATION_JSON+ ";charset=utf-8")
     public Response getProcessDescriptions(
