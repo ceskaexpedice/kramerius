@@ -67,7 +67,4 @@ public class BasicAuthenticatedHTTPServletProxy implements InvocationHandler {
         return (HttpServletRequest) java.lang.reflect.Proxy.newProxyInstance(BasicAuthenticatedHTTPServletProxy.class.getClassLoader(), 
                 new Class[] {ServletRequest.class, HttpServletRequest.class},new BasicAuthenticatedHTTPServletProxy(reqest, principal));  
     }
-
-    
-    
 }
