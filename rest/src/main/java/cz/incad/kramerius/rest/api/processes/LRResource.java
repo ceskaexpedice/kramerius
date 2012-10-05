@@ -79,6 +79,7 @@ import cz.incad.kramerius.rest.api.processes.exceptions.NoDefinitionFound;
 import cz.incad.kramerius.rest.api.processes.exceptions.NoProcessFound;
 import cz.incad.kramerius.rest.api.processes.filter.FilterCondition;
 import cz.incad.kramerius.rest.api.processes.filter.Operand;
+import cz.incad.kramerius.rest.api.replication.exceptions.ObjectNotFound;
 import cz.incad.kramerius.rest.api.utils.ExceptionJSONObjectUtils;
 import cz.incad.kramerius.security.IsActionAllowed;
 import cz.incad.kramerius.security.SecuredActions;
@@ -348,8 +349,9 @@ public class LRResource {
     public Response getProcessDescription(@PathParam("uuid")String uuid){
         if (this.actionAllowed.isActionAllowed(this.userProvider.get(),SecuredActions.MANAGE_LR_PROCESS.getFormalName(), SpecialObjects.REPOSITORY.getPid(),null,new ObjectPidsPath(SpecialObjects.REPOSITORY.getPid()))) {
             LRProcess lrProc = this.lrProcessManager.getLongRunningProcess(uuid);
-            
-            return Response.ok().entity(lrPRocessToJSONObject(lrProc)).build();
+            if (lrProc != null) {
+                return Response.ok().entity(lrPRocessToJSONObject(lrProc)).build();
+            } else throw new NoProcessFound("cannot find process '"+uuid+"'");
         } else {
             throw new ActionNotAllowed(ExceptionJSONObjectUtils.fromMessage("action is not allowed").toString());
         }
