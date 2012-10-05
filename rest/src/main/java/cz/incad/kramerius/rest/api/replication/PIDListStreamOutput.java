@@ -30,8 +30,7 @@ import javax.ws.rs.core.StreamingOutput;
 public class PIDListStreamOutput implements StreamingOutput {
 
     private List<String> pidList;
-    
-    
+
     public PIDListStreamOutput(List<String> pidList) {
         super();
         this.pidList = pidList;
