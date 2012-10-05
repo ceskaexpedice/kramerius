@@ -16,10 +16,8 @@
  */
 package cz.incad.kramerius.service;
 
+import java.io.IOException;
 import java.util.List;
-
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
 
 import cz.incad.kramerius.service.replication.ReplicationServiceFoxmlFilter;
 
@@ -35,15 +33,16 @@ public interface ReplicationService {
      * @return
      * @throws ReplicateException cannot prepare export
      */
-    public List<String> prepareExport(String pid) throws ReplicateException;
+    public List<String> prepareExport(String pid) throws ReplicateException,IOException;
 
     /**
      * Returns data of current pid
      * @param pid PID
      * @return raw foxml data 
      * @throws ReplicateException cannot return foxml
+     * @throws IOException 
      */
-    public byte[] getExportedFOXML(String pid) throws ReplicateException;
+    public byte[] getExportedFOXML(String pid) throws ReplicateException, IOException;
     
     
 
