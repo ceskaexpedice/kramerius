@@ -16,6 +16,10 @@
  */
 package cz.incad.kramerius.rest.api.guice;
 
+import java.util.HashMap;
+import java.util.Map;
+
+import com.sun.jersey.api.json.JSONConfiguration;
 import com.sun.jersey.guice.JerseyServletModule;
 import com.sun.jersey.guice.spi.container.servlet.GuiceContainer;
 
@@ -33,7 +37,12 @@ public class ApiServletModule extends JerseyServletModule {
         // API Resources
         bind(ReplicationsResource.class);
         bind(LRResource.class);
+
         // api
-        serve("/api/*").with(GuiceContainer.class);
+        Map<String, String> parameters = new HashMap<String, String>();
+        parameters.put(JSONConfiguration.FEATURE_POJO_MAPPING, "true");
+        parameters.put("com.sun.jersey.config.property.packages", "cz.incad.kramerius.rest.api.processes.messages");
+
+        serve("/api/*").with(GuiceContainer.class, parameters);
     }
 }
