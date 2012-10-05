@@ -475,9 +475,15 @@ public class LRResource {
         jsonObject.put("state", lrProcess.getProcessState().toString());
         jsonObject.put("batchState", lrProcess.getBatchState().toString());
         jsonObject.put("name", lrProcess.getProcessName());
-        jsonObject.put("started", FORMAT.format(new Date(lrProcess.getStartTime())));
-        jsonObject.put("planned", FORMAT.format(new Date(lrProcess.getPlannedTime())));
-        jsonObject.put("finished", FORMAT.format(new Date(lrProcess.getFinishedTime())));
+        if (lrProcess.getStartTime() > 0) {
+            jsonObject.put("started", FORMAT.format(new Date(lrProcess.getStartTime())));
+        }
+        if (lrProcess.getPlannedTime() > 0) {
+            jsonObject.put("planned", FORMAT.format(new Date(lrProcess.getPlannedTime())));
+        }
+        if (lrProcess.getFinishedTime() > 0) {
+            jsonObject.put("finished", FORMAT.format(new Date(lrProcess.getFinishedTime())));
+        }
         jsonObject.put("userid", lrProcess.getLoginname());
         jsonObject.put("userFirstname", lrProcess.getFirstname());
         jsonObject.put("userSurname", lrProcess.getSurname());
