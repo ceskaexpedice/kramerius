@@ -14,22 +14,19 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
+/**
+ * 
+ */
 package cz.incad.kramerius.rest.api.processes.filter;
 
-public class StringOperand extends Operand {
-
-    public StringOperand(String sval) {
-        super(sval);
-    }
-
-    @Override
-    public String getValue() {
-        return this.sval.substring(1,this.sval.length()-1);
-    }
+/**
+ * @author pavels
+ *
+ */
+public class IntegerConvert implements Convert {
 
     @Override
-    public Convert getConvert() {
-        // no conversion
-        return null;
+    public Object convert(String str) {
+        return Integer.valueOf(str);
     }
 }

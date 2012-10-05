@@ -37,13 +37,9 @@ public abstract class Operand {
         return simpleQuote || doubleQuote;
     }
 
-    
-    //{a=""};{planned=date(12/45/56)};{a=1}
     public static Operand createOperand(String val) {
         if (isString(val)) return new StringOperand(val);
         return new KeywordOperand(val);
     }
-
-    
     
 }

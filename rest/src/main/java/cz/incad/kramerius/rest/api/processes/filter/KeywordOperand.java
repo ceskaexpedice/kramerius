@@ -41,6 +41,7 @@ public class KeywordOperand extends Operand{
         MAPPING_CONVERTS.put("finished", new DateConvert());
         MAPPING_CONVERTS.put("started", new DateConvert());
         MAPPING_CONVERTS.put("planned", new DateConvert());
+        MAPPING_CONVERTS.put("pid", new IntegerConvert());
     }
     
     private Convert convert;
