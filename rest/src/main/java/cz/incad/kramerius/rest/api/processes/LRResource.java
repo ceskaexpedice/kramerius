@@ -350,8 +350,17 @@ public class LRResource {
         if (this.actionAllowed.isActionAllowed(this.userProvider.get(),SecuredActions.MANAGE_LR_PROCESS.getFormalName(), SpecialObjects.REPOSITORY.getPid(),null,new ObjectPidsPath(SpecialObjects.REPOSITORY.getPid()))) {
             LRProcess lrProc = this.lrProcessManager.getLongRunningProcess(uuid);
             if (lrProc != null) {
-                return Response.ok().entity(lrPRocessToJSONObject(lrProc)).build();
-            } else throw new NoProcessFound("cannot find process '"+uuid+"'");
+                JSONObject jsonObject = lrPRocessToJSONObject(lrProc);
+                if (lrProc.isMasterProcess()) {
+                    JSONArray array = new JSONArray();
+                    List<LRProcess> childSubprecesses = this.lrProcessManager.getLongRunningProcessesByGroupToken(lrProc.getGroupToken());
+                    for (LRProcess child : childSubprecesses) {
+                        array.add(lrPRocessToJSONObject(child));
+                    }
+                    jsonObject.put("children", array);
+                }
+                return Response.ok().entity(jsonObject).build();
+            } else throw new NoProcessFound(ExceptionJSONObjectUtils.fromMessage("cannot find process '"+uuid+"'").toString());
         } else {
             throw new ActionNotAllowed(ExceptionJSONObjectUtils.fromMessage("action is not allowed").toString());
         }
