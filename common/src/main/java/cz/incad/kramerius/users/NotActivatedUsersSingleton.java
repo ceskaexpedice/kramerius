@@ -24,10 +24,25 @@ import cz.incad.kramerius.security.User;
  *
  */
 public interface NotActivatedUsersSingleton {
-    
+
+    /**
+     * Creates new but not activated user
+     * @param user Given user object
+     * @return User key
+     */
     public String addNotActivatedUser(User user);
     
+    /**
+     * Remove created but not activated user
+     * @param user Given user 
+     * @param key User key
+     */
     public void removeNotActivatedUser(User user, String key);
     
+    /**
+     * Returns user object associated with given user key
+     * @param key User key
+     * @return User object
+     */
     public User getNotActivatedUser(String key);
 }
