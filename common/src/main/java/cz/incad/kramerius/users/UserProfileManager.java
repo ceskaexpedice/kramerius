@@ -18,19 +18,23 @@ package cz.incad.kramerius.users;
 
 import cz.incad.kramerius.security.User;
 
+/**
+ * User's profiles management class
+ * @author pavels
+ */
 public interface UserProfileManager {
 
     /**
      * Returns user profile 
-     * @param user
-     * @return
+     * @param user Given user object
+     * @return Found user's profile 
      */
     public UserProfile getProfile(User user);
 
     /**
-     * Sets new user profile
-     * @param user
-     * @param profile
+     * Save user and profile association 
+     * @param user Given user object
+     * @param profile Given profile
      */
     public void saveProfile(User user, UserProfile profile);
 
