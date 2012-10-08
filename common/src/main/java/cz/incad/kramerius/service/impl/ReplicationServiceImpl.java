@@ -16,10 +16,16 @@
  */
 package cz.incad.kramerius.service.impl;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
+
+import javax.xml.soap.Detail;
+import javax.xml.soap.SOAPException;
+import javax.xml.soap.SOAPFault;
+import javax.xml.ws.soap.SOAPFaultException;
 
 import com.google.inject.Inject;
 import com.google.inject.name.Named;
@@ -43,13 +49,15 @@ public class ReplicationServiceImpl implements ReplicationService{
 
     
     @Override
-    public List<String> prepareExport(String pid) throws ReplicateException {
+    public List<String> prepareExport(String pid) throws ReplicateException,IOException {
         final List<String> pids = new ArrayList<String>();
         try {
             fedoraAccess.processSubtree(pid, new TreeNodeProcessor() {
                 @Override
                 public void process(String pid, int level) throws ProcessSubtreeException {
-                    pids.add(pid);
+                    if (!pids.contains(pid)) {
+                        pids.add(pid);
+                    }
                 }
 
                 @Override
@@ -61,6 +69,9 @@ public class ReplicationServiceImpl implements ReplicationService{
         } catch (ProcessSubtreeException e) {
             LOGGER.log(Level.SEVERE,e.getMessage(),e);
             throw new ReplicateException(e);
+        } catch (FileNotFoundException e) {
+            LOGGER.log(Level.SEVERE,e.getMessage(),e);
+            throw e;
         } catch (IOException e) {
             LOGGER.log(Level.SEVERE,e.getMessage(),e);
             throw new ReplicateException(e);
@@ -68,11 +79,19 @@ public class ReplicationServiceImpl implements ReplicationService{
     }
 
     @Override
-    public byte[] getExportedFOXML(String pid) throws ReplicateException {
-        byte[] exported = fedoraAccess.getAPIM().export(pid, "info:fedora/fedora-system:FOXML-1.1", "archive");
-        if (this.foxmlFilter != null) {
-            return this.foxmlFilter.filterFoxmlLData(exported);
-        } else return exported;
+    public byte[] getExportedFOXML(String pid) throws ReplicateException,IOException {
+        try {
+            byte[] exported = fedoraAccess.getAPIM().export(pid, "info:fedora/fedora-system:FOXML-1.1", "archive");
+            if (this.foxmlFilter != null) {
+                return this.foxmlFilter.filterFoxmlLData(exported);
+            } else return exported;
+        } catch (SOAPFaultException e) {
+            SOAPFault fault = e.getFault();
+            String str = fault.getFaultString();
+            if (str.startsWith("org.fcrepo.server.errors.ObjectNotInLowlevelStorageException")) {
+                throw new FileNotFoundException(e.getMessage());
+            } else throw new ReplicateException(e);
+        }
     }
 
     @Override
