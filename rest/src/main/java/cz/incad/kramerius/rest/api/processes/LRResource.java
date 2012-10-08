@@ -79,8 +79,6 @@ import cz.incad.kramerius.rest.api.processes.exceptions.NoDefinitionFound;
 import cz.incad.kramerius.rest.api.processes.exceptions.NoProcessFound;
 import cz.incad.kramerius.rest.api.processes.filter.FilterCondition;
 import cz.incad.kramerius.rest.api.processes.filter.Operand;
-import cz.incad.kramerius.rest.api.replication.exceptions.ObjectNotFound;
-import cz.incad.kramerius.rest.api.utils.ExceptionJSONObjectUtils;
 import cz.incad.kramerius.security.IsActionAllowed;
 import cz.incad.kramerius.security.SecuredActions;
 import cz.incad.kramerius.security.SpecialObjects;
