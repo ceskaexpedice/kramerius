@@ -191,18 +191,18 @@ public class LRResource {
                         URI uri = UriBuilder.fromResource(LRResource.class).path("{uuid}").build(newProcess.getUUID());
                         return Response.created(uri).entity(lrPRocessToJSONObject(newProcess).toString()).build();
                     } else {
-                        throw new CannotStartProcess(ExceptionJSONObjectUtils.fromMessage("not plain process "+def).toString());
+                        throw new CannotStartProcess("not plain process "+def);
                     }
-                } else throw new NoDefinitionFound(ExceptionJSONObjectUtils.fromMessage("cannot find definition '"+def+"'").toString());
+                } else throw new NoDefinitionFound("cannot find definition '"+def+"'");
             } catch (IllegalArgumentException e) {
-                throw new CannotStartProcess(ExceptionJSONObjectUtils.fromMessage("not plain process "+def).toString());
+                throw new CannotStartProcess(e.getMessage(),e);
             } catch (UriBuilderException e) {
-                throw new CannotStartProcess(ExceptionJSONObjectUtils.fromMessage("not plain process "+def).toString());
+                throw new CannotStartProcess("not plain process "+def);
             } catch (SecurityException e) {
-                throw new CannotStartProcess(ExceptionJSONObjectUtils.fromMessage("not plain process "+def).toString());
+                throw new ActionNotAllowed("action is not allowed");
             }
         } else {
-            throw new ActionNotAllowed(ExceptionJSONObjectUtils.fromMessage("action is not allowed").toString());
+            throw new ActionNotAllowed("action is not allowed");
         }
     }
 
@@ -233,7 +233,7 @@ public class LRResource {
             URI uri = UriBuilder.fromResource(LRResource.class).path("{uuid}").build(newProcess.getUUID());
             return Response.created(uri).entity(lrPRocessToJSONObject(newProcess).toString()).build();
         } else {
-            throw new ActionNotAllowed(ExceptionJSONObjectUtils.fromMessage("action is not allowed").toString());
+            throw new ActionNotAllowed("action is not allowed");
         }
     }
     
@@ -251,19 +251,19 @@ public class LRResource {
             if (stop != null) {
                 this.definitionManager.load();
                 LRProcess lrProcess = lrProcessManager.getLongRunningProcess(uuid);
-                if (lrProcess == null) throw new NoProcessFound(ExceptionJSONObjectUtils.fromMessage("cannot find process "+uuid).toString());
+                if (lrProcess == null) throw new NoProcessFound("cannot find process "+uuid);
                 if (!States.isFinishState(lrProcess.getProcessState())) {
                     lrProcess.stopMe();
                     lrProcessManager.updateLongRunningProcessFinishedDate(lrProcess);
                     LRProcess nLrProcess = lrProcessManager.getLongRunningProcess(uuid);
                     if (nLrProcess != null) return  Response.ok().entity(lrPRocessToJSONObject(nLrProcess)).build();
-                    else throw new NoProcessFound(ExceptionJSONObjectUtils.fromMessage("cannot find process "+uuid).toString());
+                    else throw new NoProcessFound("cannot find process "+uuid);
                 } else {
-                    throw new CannotStopProcess(ExceptionJSONObjectUtils.fromMessage("cannot stop process "+uuid).toString());
+                    throw new CannotStopProcess("cannot stop process "+uuid);
                 }
-            } else throw new NoProcessFound(ExceptionJSONObjectUtils.fromMessage("cannot find process"+uuid).toString());
+            } else throw new NoProcessFound("cannot find process"+uuid);
         } else {
-            throw new ActionNotAllowed(ExceptionJSONObjectUtils.fromMessage("action is not allowed").toString());
+            throw new ActionNotAllowed("action is not allowed");
         }
     }
 
@@ -288,7 +288,7 @@ public class LRResource {
                         lrProcessManager.deleteLongRunningProcess(longRunningProcess);
                     }
                 } else {
-                    throw new NoProcessFound(ExceptionJSONObjectUtils.fromMessage("cannot find process "+uuid).toString());
+                    throw new NoProcessFound("cannot find process "+uuid);
                 }
                 JSONObject jsonObject = new JSONObject();
                 jsonObject.put("deleted", uuid);
@@ -297,7 +297,7 @@ public class LRResource {
                 lock.unlock();
             }
         } else {
-            throw new ActionNotAllowed(ExceptionJSONObjectUtils.fromMessage("action is not allowed").toString());
+            throw new ActionNotAllowed("action is not allowed");
         }
     }
 
@@ -327,13 +327,13 @@ public class LRResource {
                 } else  throw new NoProcessFound("process not found "+uuid);
             } catch (FileNotFoundException e) {
                 LOGGER.log(Level.SEVERE,e.getMessage(),e);
-                throw new LogsNotFound(e.getMessage());
+                throw new LogsNotFound(e.getMessage(),e);
             } catch (IOException e) {
                 LOGGER.log(Level.SEVERE,e.getMessage(),e);
-                throw new CannotReadLogs(ExceptionJSONObjectUtils.fromMessage(e.getMessage()).toString());
+                throw new CannotReadLogs(e.getMessage());
             }
         } else {
-            throw new ActionNotAllowed(ExceptionJSONObjectUtils.fromMessage("action is not allowed").toString());
+            throw new ActionNotAllowed("action is not allowed");
         }
     }
 
@@ -360,9 +360,9 @@ public class LRResource {
                     jsonObject.put("children", array);
                 }
                 return Response.ok().entity(jsonObject).build();
-            } else throw new NoProcessFound(ExceptionJSONObjectUtils.fromMessage("cannot find process '"+uuid+"'").toString());
+            } else throw new NoProcessFound("cannot find process '"+uuid+"'");
         } else {
-            throw new ActionNotAllowed(ExceptionJSONObjectUtils.fromMessage("action is not allowed").toString());
+            throw new ActionNotAllowed("action is not allowed");
         }
     }
     
@@ -422,7 +422,7 @@ public class LRResource {
                 }
                 return Response.ok().entity(retList).build();
         } else {
-            throw new ActionNotAllowed(ExceptionJSONObjectUtils.fromMessage("action is not allowed").toString());
+            throw new ActionNotAllowed("action is not allowed");
         }
     }
 
