@@ -125,8 +125,8 @@ public class ReplicationsResource {
                     jsonObj.put("handle", appURL+"handle/"+pid);
 
                     return Response.ok().entity(jsonObj).build();
-                } else throw new ObjectNotFound(ExceptionJSONObjectUtils.fromMessage("cannot find pid '"+pid+"'").toString());
-            }  else throw new ActionNotAllowed(ExceptionJSONObjectUtils.fromMessage("action is not allowed").toString());
+                } else throw new ObjectNotFound("cannot find pid '"+pid+"'");
+            }  else throw new ActionNotAllowed("action is not allowed");
         } catch(FileNotFoundException e) {
             throw new ObjectNotFound("cannot find pid '"+pid+"'");
         } catch (IOException e) {
@@ -165,8 +165,8 @@ public class ReplicationsResource {
                     List<String> pidList = replicationService.prepareExport(pid);
                     // cannot use JSON object -> too big data
                     return new PIDListStreamOutput(pidList);
-                } else throw new ObjectNotFound(ExceptionJSONObjectUtils.fromMessage("cannot find pid '"+pid+"'").toString());
-            }  else throw new ActionNotAllowed(ExceptionJSONObjectUtils.fromMessage("action is not allowed").toString());
+                } else throw new ObjectNotFound("cannot find pid '"+pid+"'");
+            }  else throw new ActionNotAllowed("action is not allowed");
         } catch(FileNotFoundException e) {
             throw new ObjectNotFound("cannot find pid '"+pid+"'");
         } catch (IOException e) {
@@ -190,9 +190,9 @@ public class ReplicationsResource {
                 // musi se vejit do pameti
                 byte[] bytes = replicationService.getExportedFOXML(pid);
                 return Response.ok().entity(XMLUtils.parseDocument(new ByteArrayInputStream(bytes), true)).build();
-            }  else throw new ActionNotAllowed(ExceptionJSONObjectUtils.fromMessage("action is not allowed").toString());
+            }  else throw new ActionNotAllowed("action is not allowed");
         } catch(FileNotFoundException e) {
-            throw new ObjectNotFound(ExceptionJSONObjectUtils.fromMessage("cannot find pid '"+pid+"'").toString());
+            throw new ObjectNotFound("cannot find pid '"+pid+"'");
         } catch (IOException e) {
             throw new ReplicateException(e);
         } catch (ParserConfigurationException e) {
@@ -221,9 +221,9 @@ public class ReplicationsResource {
                 JSONObject jsonObj = new JSONObject();
                 jsonObj.put("raw", new String(encoded));
                 return Response.ok().entity(jsonObj).build();
-            }  else throw new ActionNotAllowed(ExceptionJSONObjectUtils.fromMessage("action is not allowed").toString());
+            }  else throw new ActionNotAllowed("action is not allowed");
         } catch(FileNotFoundException e) {
-            throw new ObjectNotFound(ExceptionJSONObjectUtils.fromMessage("cannot find pid '"+pid+"'").toString());
+            throw new ObjectNotFound("cannot find pid '"+pid+"'");
         } catch (IOException e) {
             throw new ReplicateException(e);
         }

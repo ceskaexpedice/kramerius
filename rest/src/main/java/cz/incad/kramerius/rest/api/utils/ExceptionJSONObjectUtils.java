@@ -19,6 +19,9 @@
  */
 package cz.incad.kramerius.rest.api.utils;
 
+import java.io.PrintWriter;
+import java.io.StringWriter;
+
 import net.sf.json.JSONObject;
 
 /**
@@ -28,15 +31,28 @@ import net.sf.json.JSONObject;
 public class ExceptionJSONObjectUtils {
     
     public static final String MESSAGE_KEY ="message";
-    
+    public static final String STATUS_CODE_KEY ="status";
+    public static final String CAUSE_KEY ="cause";
+
     /**
      * Returns json object contains message key
      * @param mess 
      * @return
      */
-    public static JSONObject fromMessage(String mess) {
+    public static JSONObject fromMessage(String mess, int statuscode) {
         JSONObject jsonObject = new JSONObject();
         jsonObject.put(MESSAGE_KEY, mess);
+        jsonObject.put(STATUS_CODE_KEY, statuscode);
+        return jsonObject;
+    }
+
+    public static JSONObject fromMessage(String mess, int statuscode, Exception ex) {
+        JSONObject jsonObject = new JSONObject();
+        jsonObject.put(MESSAGE_KEY, mess);
+        jsonObject.put(STATUS_CODE_KEY, statuscode);
+        StringWriter strWriter = new StringWriter();
+        ex.printStackTrace(new PrintWriter(strWriter));
+        jsonObject.put(CAUSE_KEY, strWriter.toString());
         return jsonObject;
     }
 }
