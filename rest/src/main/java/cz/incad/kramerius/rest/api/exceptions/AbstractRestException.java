@@ -14,6 +14,9 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
+/**
+ * 
+ */
 package cz.incad.kramerius.rest.api.exceptions;
 
 import javax.servlet.http.HttpServletResponse;
@@ -21,14 +24,19 @@ import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
+import cz.incad.kramerius.rest.api.utils.ExceptionJSONObjectUtils;
 
 /**
- * User is not permitted to permorm action
+ * Abstract API exception
  * @author pavels
  */
-public class ActionNotAllowed extends AbstractRestException{
+public class AbstractRestException extends WebApplicationException{
 
-    public ActionNotAllowed(String message) {
-        super(message,HttpServletResponse.SC_FORBIDDEN);
+    public AbstractRestException(String message, int status) {
+        super(Response.status(status).entity(ExceptionJSONObjectUtils.fromMessage(message, status).toString()).type(MediaType.APPLICATION_JSON).build());
+    }
+    
+    public AbstractRestException(String message,Exception ex, int status) {
+        super(Response.status(status).entity(ExceptionJSONObjectUtils.fromMessage(message, status,ex).toString()).type(MediaType.APPLICATION_JSON).build());
     }
 }
