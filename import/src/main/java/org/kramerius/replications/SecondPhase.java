@@ -16,50 +16,31 @@
  */
 package org.kramerius.replications;
 
-import java.io.BufferedReader;
-import java.io.ByteArrayInputStream;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
-import java.lang.reflect.Constructor;
-import java.net.Authenticator;
-import java.net.PasswordAuthentication;
-import java.net.URL;
-import java.nio.charset.Charset;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Stack;
-import java.util.logging.Level;
 
-import javax.xml.ws.soap.SOAPFaultException;
+import javax.ws.rs.core.MediaType;
 
-import org.apache.commons.codec.binary.Base64InputStream;
-import org.fedora.api.FedoraAPIM;
-import org.fedora.api.ObjectFactory;
 import org.kramerius.Import;
 import org.kramerius.replications.pidlist.PIDsListLexer;
 import org.kramerius.replications.pidlist.PIDsListParser;
 import org.kramerius.replications.pidlist.PidsListCollect;
-import org.xml.sax.XMLFilter;
 
 import antlr.RecognitionException;
 import antlr.TokenStreamException;
 
-import cz.incad.kramerius.FedoraAccess;
-import cz.incad.kramerius.impl.FedoraAccessImpl;
-import cz.incad.kramerius.service.impl.IndexerProcessStarter;
+import com.sun.jersey.api.client.Client;
+import com.sun.jersey.api.client.WebResource;
+
 import cz.incad.kramerius.utils.IOUtils;
-import cz.incad.kramerius.utils.RESTHelper;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 import cz.incad.kramerius.utils.pid.LexerException;
 import cz.incad.kramerius.utils.pid.PIDParser;
-
-import net.sf.json.JSONArray;
-import net.sf.json.JSONObject;
 
 public class SecondPhase extends AbstractPhase  {
 
@@ -134,24 +115,11 @@ public class SecondPhase extends AbstractPhase  {
     }
 
     public InputStream rawFOXMLData(String pid, String url, String userName, String pswd) throws PhaseException {
-        InputStream is = null;
-        FileOutputStream fos = null;
-        try {
-            is = RESTHelper.inputStream(K4ReplicationProcess.foxmlURL(url, pid), userName, pswd);
-            String string = IOUtils.readAsString(is, Charset.forName("UTF-8"), true);
-            JSONObject jsonObject = JSONObject.fromObject(string);
-            String rawFOXML = jsonObject.getString("raw");
-            
-            ByteArrayInputStream barr = new ByteArrayInputStream(rawFOXML.getBytes("UTF-8"));
-            Base64InputStream input = new Base64InputStream(barr, false, 76,  "|".getBytes());
-            
-            return input;
-        } catch (IOException e) {
-            throw new PhaseException(this,e);
-        } finally {
-            IOUtils.tryClose(is);
-            IOUtils.tryClose(fos);
-        }
+        Client c = Client.create();
+        WebResource r = c.resource(K4ReplicationProcess.foxmlURL(url, pid));
+        r.addFilter(new BasicAuthenticationClientFilter(userName, pswd));
+        InputStream t = r.accept(MediaType.APPLICATION_XML).get(InputStream.class);
+        return t;
     }
     
     public File createFOXMLDone(String pid) throws LexerException, IOException, PhaseException {
@@ -297,5 +265,13 @@ public class SecondPhase extends AbstractPhase  {
                 throw new RuntimeException(e);
             }
         }
+    }
+    
+    public static void main(String[] args) {
+        Client c = Client.create();
+        WebResource r = c.resource(K4ReplicationProcess.foxmlURL("http://vmkramerius:8080/search/handle/uuid:1a43499e-c953-11df-84b1-001b63bd97ba", "uuid:1a43499e-c953-11df-84b1-001b63bd97ba"));
+        r.addFilter(new BasicAuthenticationClientFilter("krameriusAdmin", "kramet"));
+        String t = r.accept(MediaType.APPLICATION_XML).get(String.class);
+        System.out.println(t);
     }
 }

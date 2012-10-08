@@ -22,8 +22,9 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
-import java.io.InputStream;
 import java.nio.channels.FileChannel;
+
+import javax.ws.rs.core.MediaType;
 
 import org.kramerius.replications.pidlist.PIDsListLexer;
 import org.kramerius.replications.pidlist.PIDsListParser;
@@ -31,9 +32,10 @@ import org.kramerius.replications.pidlist.PIDsListParser;
 import antlr.RecognitionException;
 import antlr.TokenStreamException;
 
-import cz.incad.kramerius.processes.annotations.ParameterName;
+import com.sun.jersey.api.client.Client;
+import com.sun.jersey.api.client.WebResource;
+
 import cz.incad.kramerius.utils.IOUtils;
-import cz.incad.kramerius.utils.RESTHelper;
 
 /**
  * Get all pids designated for import
@@ -77,19 +79,12 @@ public class FirstPhase extends AbstractPhase  {
     }
 
 
-    public void download(File destFile, String surl, String user, String pswd) throws PhaseException {
-        InputStream is = null;
-        FileOutputStream fos = null;
-        try {
-            is = RESTHelper.inputStream(surl, user, pswd);
-            fos = new FileOutputStream(destFile);
-            IOUtils.copyStreams(is, fos);
-        } catch (IOException e) {
-            throw new PhaseException(this, e);
-        } finally {
-            IOUtils.tryClose(is);
-            IOUtils.tryClose(fos);
-        }
+    public void download(File destFile, String surl, String user, String pswd) throws PhaseException, IOException {
+        Client c = Client.create();
+        WebResource r = c.resource(surl);
+        r.addFilter(new BasicAuthenticationClientFilter(user, pswd));
+        String t = r.accept(MediaType.APPLICATION_JSON).get(String.class);
+        IOUtils.saveToFile(t, destFile);
     }
 
     
@@ -112,5 +107,15 @@ public class FirstPhase extends AbstractPhase  {
         } catch (IOException e) {
             throw new PhaseException(this,e);
         }
+    }
+    
+    public static void main(String[] args) {
+        String surl = K4ReplicationProcess.prepareURL("http://vmkramerius:8080/search/handle/uuid:1a43499e-c953-11df-84b1-001b63bd97ba");
+        
+        Client c = Client.create();
+        WebResource r = c.resource(surl);
+        r.addFilter(new BasicAuthenticationClientFilter("krameriusAdmin", "kramet"));
+        String t = r.accept(MediaType.APPLICATION_JSON).get(String.class);
+        System.out.println(t);
     }
 }

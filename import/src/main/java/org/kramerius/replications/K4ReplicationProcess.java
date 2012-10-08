@@ -39,6 +39,7 @@ import org.apache.commons.configuration.SubnodeConfiguration;
 import cz.incad.kramerius.processes.annotations.ParameterName;
 import cz.incad.kramerius.processes.annotations.Process;
 import cz.incad.kramerius.processes.impl.ProcessStarter;
+import cz.incad.kramerius.processes.utils.ProcessUtils;
 import cz.incad.kramerius.utils.ApplicationURL;
 import cz.incad.kramerius.utils.IOUtils;
 import cz.incad.kramerius.utils.RESTHelper;
@@ -95,6 +96,7 @@ public class K4ReplicationProcess {
     
     public static void start(String url, String userName, String pswd) throws IOException {
         try {
+            ProcessStarter.updateName("Replikace titulu '"+url+"'");
             for (Phase ph : PHASES) {
                 LOGGER.info("STARTING PHASE '"+ph.getClass().getName()+"'");
                 ph.start(url, userName, pswd);
@@ -155,19 +157,19 @@ public class K4ReplicationProcess {
 
     public static String prepareURL(String url) {
         String pid = pidFrom(url);
-        String prepareURL = StringUtils.minus(StringUtils.minus(url, pid),"handle/")+"api/replication/"+pid+"/prepare";
+        String prepareURL = StringUtils.minus(StringUtils.minus(url, pid),"handle/")+"api/replication/"+pid+"/tree";
         return prepareURL;
     }
 
     public static String descriptionURL(String url) {
         String pid = pidFrom(url);
-        String prepareURL = StringUtils.minus(StringUtils.minus(url, pid),"handle/")+"api/replication/"+pid+"/description";
+        String prepareURL = StringUtils.minus(StringUtils.minus(url, pid),"handle/")+"api/replication/"+pid;
         return prepareURL;
     }
 
     public static String foxmlURL(String url, String pid) {
         String oldPid = pidFrom(url);
-        String prepareURL = StringUtils.minus(StringUtils.minus(url, oldPid),"handle/")+"api/replication/"+pid+"/exportedFOXML";
+        String prepareURL = StringUtils.minus(StringUtils.minus(url, oldPid),"handle/")+"api/replication/"+pid+"/foxml";
         return prepareURL;
     }    
     
