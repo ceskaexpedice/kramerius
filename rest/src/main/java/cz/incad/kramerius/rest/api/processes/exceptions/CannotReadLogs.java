@@ -16,19 +16,28 @@
  */
 package cz.incad.kramerius.rest.api.processes.exceptions;
 
+import java.io.IOException;
+
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 import com.sun.jersey.api.Responses;
 
+import cz.incad.kramerius.rest.api.exceptions.AbstractRestException;
+
 /**
  * Logs are not readable
  * @author pavels
  */
-public class CannotReadLogs extends WebApplicationException{
+public class CannotReadLogs extends AbstractRestException{
 
     public CannotReadLogs(String message) {
-        super(Response.status(Responses.PRECONDITION_FAILED).entity(message).type(MediaType.APPLICATION_JSON).build());
+        super(message,Responses.PRECONDITION_FAILED);
     }
+
+    public CannotReadLogs(String message, IOException ex) {
+        super(message,ex,Responses.PRECONDITION_FAILED);
+    }
+
 }

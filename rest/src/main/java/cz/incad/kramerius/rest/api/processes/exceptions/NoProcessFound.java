@@ -22,9 +22,15 @@ import javax.ws.rs.core.Response;
 
 import com.sun.jersey.api.Responses;
 
-public class NoProcessFound extends WebApplicationException{
+import cz.incad.kramerius.rest.api.exceptions.AbstractRestException;
+
+/**
+ * No such process found
+ * @author pavels
+ */
+public class NoProcessFound extends AbstractRestException{
 
     public NoProcessFound(String message) {
-        super(Response.status(Responses.NOT_FOUND).entity(message).type(MediaType.APPLICATION_JSON).build());
+        super(message,Responses.NOT_FOUND);
     }
 }

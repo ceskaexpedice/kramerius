@@ -24,15 +24,15 @@ import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
+import cz.incad.kramerius.rest.api.exceptions.AbstractRestException;
+
 /**
  * Cannot stop process
  * @author pavels
  */
-public class CannotStopProcess extends WebApplicationException{
+public class CannotStopProcess extends AbstractRestException{
 
     public CannotStopProcess(String message) {
-        super(Response.status(HttpServletResponse.SC_CONFLICT).entity(ExceptionMessageBuilder.createErrorMessage(409,message)).type(MediaType.APPLICATION_JSON).build());
+        super(message,HttpServletResponse.SC_CONFLICT);
     }
-
-
 }

@@ -24,14 +24,16 @@ import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
+import cz.incad.kramerius.rest.api.exceptions.AbstractRestException;
+
 /**
  * No process definition found
  * @author pavels
  */
-public class NoDefinitionFound extends WebApplicationException{
+public class NoDefinitionFound extends AbstractRestException{
 
     public NoDefinitionFound(String message) {
-        super(Response.status(HttpServletResponse.SC_BAD_REQUEST).entity(ExceptionMessageBuilder.createErrorMessage(HttpServletResponse.SC_BAD_REQUEST,message)).type(MediaType.APPLICATION_JSON).build());
+        super(message, HttpServletResponse.SC_BAD_REQUEST);
     }
 
 }

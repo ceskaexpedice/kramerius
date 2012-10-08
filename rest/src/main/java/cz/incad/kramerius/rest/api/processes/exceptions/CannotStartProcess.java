@@ -22,13 +22,20 @@ import javax.ws.rs.core.Response;
 
 import com.sun.jersey.api.Responses;
 
+import cz.incad.kramerius.rest.api.exceptions.AbstractRestException;
+
 /**
  * Cannot start process
  * @author pavels
  */
-public class CannotStartProcess extends WebApplicationException{
+public class CannotStartProcess extends AbstractRestException{
 
     public CannotStartProcess(String message) {
-        super(Response.status(Responses.PRECONDITION_FAILED).entity(message).type(MediaType.APPLICATION_JSON).build());
+        super(message, Responses.PRECONDITION_FAILED);
     }
+
+    public CannotStartProcess(String message, Exception ex) {
+        super(message,ex, Responses.PRECONDITION_FAILED);
+    }
+
 }

@@ -26,13 +26,15 @@ import javax.ws.rs.core.Response;
 
 import org.antlr.stringtemplate.StringTemplate;
 
+import cz.incad.kramerius.rest.api.exceptions.AbstractRestException;
+
 /**
  * No logs found
  * @author pavels
  */
-public class LogsNotFound extends WebApplicationException {
+public class LogsNotFound extends AbstractRestException {
 
-    public LogsNotFound(String message) {
-        super(Response.status(HttpServletResponse.SC_NOT_FOUND).entity(ExceptionMessageBuilder.createErrorMessage(404,message)).type(MediaType.APPLICATION_JSON).build());
+    public LogsNotFound(String message, Exception ex) {
+        super(message,ex,HttpServletResponse.SC_NOT_FOUND);
     }
 }
