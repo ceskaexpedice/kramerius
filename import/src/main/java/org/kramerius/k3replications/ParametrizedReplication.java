@@ -19,14 +19,20 @@
  */
 package org.kramerius.k3replications;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileReader;
 import java.io.IOException;
+import java.io.StringReader;
 
+import org.kramerius.Download;
 
 import cz.incad.kramerius.processes.annotations.ParameterName;
 import cz.incad.kramerius.processes.annotations.Process;
+import cz.incad.kramerius.service.impl.IndexerProcessStarter;
 
 /**
+ * Parametrized replication process
  * @author pavels
  */
 public class ParametrizedReplication {
@@ -41,7 +47,35 @@ public class ParametrizedReplication {
                                     @ParameterName("indexerStart")Boolean startIndexer, 
                                     @ParameterName("defaultRights")Boolean defaultRights ) throws IOException {
     
-        System.out.println();
-        
+        if (idList != null && (!idList.trim().equals(""))) {
+            if (replicateType.equalsIgnoreCase("monographs")) {
+                
+                System.setProperty("convert.defaultRights", defaultRights.toString());
+                System.setProperty("migration.directory", migrationDirectory.getAbsolutePath());
+                System.setProperty("migration.target.directory", targetDirectory.getAbsolutePath());
+                
+                Download.replicateMonographs(new BufferedReader(new StringReader(idList)));
+            } else {
+                
+                System.setProperty("convert.defaultRights", defaultRights.toString());
+                System.setProperty("migration.directory", migrationDirectory.getAbsolutePath());
+                System.setProperty("migration.target.directory", targetDirectory.getAbsolutePath());
+
+                Download.replicatePeriodicals(new BufferedReader(new StringReader(idList)));
+            }
+            if (startIndexer) {
+                File successFile = new File("replication-success.txt");
+                BufferedReader freader = new BufferedReader(new FileReader(successFile));
+                String line = null;
+                while((line=freader.readLine()) != null ) {
+                    String[] splitted = line.split("\t");
+                    if (splitted.length == 2) {
+                        IndexerProcessStarter.spawnIndexer(false, "title",splitted[1]);
+                    }
+                }
+            }
+        } else throw new RuntimeException("no idlist defined !");
     }
+    
+    
 }

@@ -57,17 +57,13 @@ public class Download {
         replicatePeriodicals();
 
     }
-
     public static void replicateMonographs(){
+        replicateMonographs(defaultMonographsReader());
+    }
+
+    public static void replicateMonographs(BufferedReader reader){
         initLogfiles();
         Download download = new Download();
-        BufferedReader reader = null;
-        try {
-            reader = new BufferedReader(new FileReader(new File(KConfiguration.getInstance().getProperty("migration.monographs"))));
-        } catch (FileNotFoundException e) {
-            log.severe("Monographs file list not found: "+e);
-            return;
-        }
         try {
             for (String line; (line = reader.readLine()) != null;) {
                 if ("".equals(line)) continue;
@@ -79,22 +75,28 @@ public class Download {
         } catch (IOException e) {
             log.severe("Exception reading document list file: " + e);
             throw new RuntimeException(e);
+        } finally {
+            closeLogfiles();
         }
-        closeLogfiles();
+    }
+
+    public static BufferedReader defaultMonographsReader() {
+        try {
+            return  new BufferedReader(new FileReader(new File(KConfiguration.getInstance().getProperty("migration.monographs"))));
+        } catch (FileNotFoundException e) {
+            log.severe("Monographs file list not found: "+e);
+            throw new RuntimeException(e);
+        }
     }
 
 
-
     public static void replicatePeriodicals(){
+        replicatePeriodicals(defaultPeriodicalsReader());
+    }
+
+    public static void replicatePeriodicals(BufferedReader reader){
         initLogfiles();
         Download download = new Download();
-        BufferedReader reader = null;
-        try {
-            reader = new BufferedReader(new FileReader(new File(KConfiguration.getInstance().getProperty("migration.periodicals"))));
-        } catch (FileNotFoundException e) {
-            log.severe("Periodicals file list not found: "+e);
-            return;
-        }
         try {
             for (String line; (line = reader.readLine()) != null;) {
                 if ("".equals(line)) continue;
@@ -109,20 +111,44 @@ public class Download {
         } catch (IOException e) {
             log.severe("Exception reading document list file: " + e);
             throw new RuntimeException(e);
+        } finally {
+            closeLogfiles();
         }
-        closeLogfiles();
     }
 
-    private static void processReplication(Download download, Replication rep){
+    public static BufferedReader defaultPeriodicalsReader() {
+        try {
+            return new BufferedReader(new FileReader(new File(KConfiguration.getInstance().getProperty("migration.periodicals"))));
+        } catch (FileNotFoundException e) {
+            log.severe("Periodicals file list not found: "+e);
+            throw new RuntimeException(e);
+        }
+    }
+
+    private static void processReplication(Download download, Replication rep, String defaultRights,String migrationDirectory,String targetDirectory){
         try{
+            boolean visible = Boolean.parseBoolean(defaultRights);
             download.replicateAll(rep);
-            boolean visible = Boolean.parseBoolean(KConfiguration.getInstance().getProperty("convert.defaultRights","false"));
-            String uuid = Main.convert(KConfiguration.getInstance().getProperty("migration.directory"), KConfiguration.getInstance().getProperty("migration.target.directory"), true, visible, rep.getID());
-            Import.ingest(KConfiguration.getInstance().getProperty("ingest.url"), KConfiguration.getInstance().getProperty("ingest.user"), KConfiguration.getInstance().getProperty("ingest.password"), KConfiguration.getInstance().getProperty("migration.target.directory"));
+            String uuid = Main.convert(migrationDirectory, targetDirectory, true, visible, rep.getID());
+            Import.ingest(KConfiguration.getInstance().getProperty("ingest.url"), KConfiguration.getInstance().getProperty("ingest.user"), KConfiguration.getInstance().getProperty("ingest.password"), targetDirectory);
             logSuccess(rep.getID(), uuid);
             /*if (!KConfiguration.getInstance().getConfiguration().getBoolean("ingest.skip",false)){
                 startIndexing(rep.getID(), uuid);
             }*/
+        }catch (Exception t){
+            if (rep!=null){
+                logFailed(rep.getID(), t);
+            }
+        }
+    }
+
+    private static void processReplication(Download download, Replication rep){
+        try{
+            String defaultRights = System.getProperties().containsKey("convert.defaultRights") ?  System.getProperty("convert.defaultRights") : KConfiguration.getInstance().getProperty("convert.defaultRights","false");
+            String migrationDirectory = System.getProperties().containsKey("migration.directory")  ? System.getProperty("migration.directory") : KConfiguration.getInstance().getProperty("migration.directory");
+            String targetDirectory = System.getProperties().containsKey("migration.target.directory") ? System.getProperty("migration.target.directory") : KConfiguration.getInstance().getProperty("migration.target.directory");
+            //String targetDirectory = System.getProperties().containsKey("migration.target.directory") ? System.getProperty("migration.target.directory") : KConfiguration.getInstance().getProperty("migration.target.directory");
+            processReplication(download, rep,defaultRights, migrationDirectory,targetDirectory);
         }catch (Exception t){
             if (rep!=null){
                 logFailed(rep.getID(), t);
