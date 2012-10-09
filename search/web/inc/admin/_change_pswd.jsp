@@ -10,7 +10,8 @@
 
 <%@ page isELIgnored="false"%>
 
-<div style="width: 100%; height: 100%;">
+    <div style="width: 100%; height: 100%;">
+        <div id="changePswd_form">
         <table style="width: 100%;">
             <tbody>    
                 <tr> <td>
@@ -27,6 +28,15 @@
                 </td></tr>
             </tbody>
         </table>
+        </div>
+        <div id="changePswd_wait" style="margin: 16px; font-family: sans-serif; font-size: 10px; display: none;">
+            <table style='width:100%'>
+                <tbody><tr><td align="center"><img src="img/loading.gif" height="16px" width="16px"></td></tr>
+                <tr><td align="center" id="common_started_text"><view:msg>rights.changepswd.changedpswdwait</view:msg> </td></tr>
+                </tbody>
+            </table>
+        </div>
+
         <div id="checkPswdStatus">
         </div>
     </div>

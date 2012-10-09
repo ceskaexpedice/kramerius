@@ -58,11 +58,39 @@ function ChangePswd() {
 	this.dialog = null;
 }
 
+ChangePswd.prototype.waiting=function() {
+	$('#changePswd_form').hide();
+	$("#checkPswdStatus").hide();
+	$('#changePswd_wait').show();
+}
+
+ChangePswd.prototype.form=function() {
+	$('#changePswd_form').show();
+	$("#checkPswdStatus").show();
+	$('#changePswd_wait').hide();
+}
+ChangePswd.prototype.postChangedPswd=function() {
+	$.post("users?action=savenewpswd", { nswpd:$("#pswd").val()},
+        bind(function (data,textStatus) {
+                if (textStatus =="success") {
+                        this.dialog.dialog("close"); 
+                        $("#changePswd").remove();
+                } else {
+                	$('#changePswd_form').show();
+                	$('#changePswd_wait').hide();
+
+                	$("#checkPswdStatus").css('color','red');
+                    $("#checkPswdStatus").text(dictionary['rights.changepswd.nochangepswd']);
+                }
+        },this));
+}
+
+
 /** Change pswd dialog */
 ChangePswd.prototype.changePassword  = function () {
 	var urlForPost = "users?action=savenewpswd";
 	var url = "inc/admin/_change_pswd.jsp";
-    $.get(url, function(data) {
+    $.get(url, bind(function(data) {
     	if (this.dialog) {
     		this.dialog.dialog('open');
         } else {
@@ -71,35 +99,19 @@ ChangePswd.prototype.changePassword  = function () {
                 width:400,
                 height:250,
                 modal:true,
-                title:"",
+                title:dictionary['administrator.menu.dialogs.changePswd.title'],
                 buttons: [
                     {
                         text: dictionary["rights.changepswd.button"],
-                        click: function() {
-                            if ($("#pswd").val() == $("#pswdRepeat").val()) {
-                                    $.post(urlForPost, {
-                                            nswpd:$("#pswd").val()},
-                                            function (data,textStatus) {
-                                                    if (textStatus =="success") {
-                                                            $("#checkPswdStatus").text('Heslo zmeneno');
-                                                            $("#checkPswdStatus").css('color','black');
-
-                                                            $(this).dialog("close"); 
-                                            $("#changePswd").remove();
-
-                                                    } else {
-                                                            $("#checkPswdStatus").css('color','red');
-                                                            $("#checkPswdStatus").text(dictionary['rights.changepswd.nochangepswd']);
-                                                    }
-                                            }
-                                    );
-
-
-                            } else {
-                                            $("#checkPswdStatus").css('color','red');
-                                    $("#checkPswdStatus").text(dictionary['rights.changepswd.notsamepswd']);
-                            }
-                        }
+                        click: bind(function() {
+                        	if ($("#pswd").val() == $("#pswdRepeat").val()) {
+                        		this.waiting();
+                    			setTimeout(bind(this.postChangedPswd,this), 3000);
+                        	} else {
+                            	$("#checkPswdStatus").css('color','red');
+                                $("#checkPswdStatus").text(dictionary['rights.changepswd.notsamepswd']);
+                            }                        	
+                        },this)
                     },
                     {
                         text: dictionary['common.close'],
@@ -113,7 +125,7 @@ ChangePswd.prototype.changePassword  = function () {
         }
     	$("#changePswd").html(data);
     	$("#changePswd").dialog('option','title',dictionary['rights.changepswd.title']);
-    });
+    },this));
 }
 
 
