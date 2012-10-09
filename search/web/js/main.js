@@ -5,6 +5,7 @@ $(function(){
 
 });
 
+//TODO: poznamka by PS - funguje pouze pro objekty nejnizsi urovne ??
 function jq(myid) { 
     return '#' + myid.replace(/(:|\.|\/)/g,'\\$1');
 }
