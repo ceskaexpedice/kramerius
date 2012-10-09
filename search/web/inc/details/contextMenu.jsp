@@ -243,7 +243,7 @@
     }
     
     function isPrivate(id){
-        return $(jq(id)).hasClass('private');
+    	return $(jq(id)).hasClass('private');
     }
 
     var _feedbackDialog;
@@ -867,8 +867,14 @@
           processStarter(this.policyName).start(u);
       }
 
+      ChangeFlag.prototype.containsPrivateAttribute = function(modelPidIdent) {
+          var al = $(jq(modelPidIdent)+" span[@title='private']");
+          alert(al);
+      }
+          
       ChangeFlag.prototype.change = function() {
-          $.get("inc/admin/_change_flag.jsp", bind(function(data){
+
+    	  $.get("inc/admin/_change_flag.jsp", bind(function(data){
 
               
               if (this.dialog) {
@@ -903,7 +909,12 @@
               $("#changeflagDialog").html(data);
 
               var html = reduce(function(base,element, status) {
-            	  var key = isPrivate(element) ? "administrator.dialogs.changevisibility.private" : "administrator.dialogs.changevisibility.public";
+                  //TODO: isPrivate nefunguje 
+            	  function containsPrivateAttribute(modelPidIdent) {
+                      return $(jq(modelPidIdent)+" >div>a>span[title=\"private\"]").size() > 0;
+                  }
+                  
+                  var key = containsPrivateAttribute(element) ? "administrator.dialogs.changevisibility.private" : "administrator.dialogs.changevisibility.public";
                   var label = $(jq(element)+">div>a>label").text();
                   return base+  "<tr><td><span class='ui-icon ui-icon-triangle-1-e folder'>folder</span></td> <td width='60%'>"+label+"</td> <td><strong>"+dictionary[key]+"</strong></td>  </tr>";                 
                },"<table style='width:100%;'>",getAffectedPids())+"</table>";
