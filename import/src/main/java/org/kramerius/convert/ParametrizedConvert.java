@@ -22,6 +22,7 @@ import java.io.IOException;
 
 import javax.xml.bind.JAXBException;
 
+import org.kramerius.Convert;
 import org.kramerius.Import;
 import org.xml.sax.SAXException;
 
@@ -37,8 +38,6 @@ public class ParametrizedConvert {
 
     static java.util.logging.Logger LOGGER = java.util.logging.Logger.getLogger(ParametrizedConvert.class.getName());
     
-    
-    
     @Process
     public static void process(
             @ParameterName("convertDirectory") File convertDirectory, 
@@ -47,10 +46,14 @@ public class ParametrizedConvert {
             @ParameterName("indexerStart")Boolean startIndexer, 
             @ParameterName("defaultRights")Boolean defaultRights) throws FileNotFoundException, InterruptedException, JAXBException, SAXException, ServiceException {
         
-        LOGGER.info("convert directory "+convertDirectory.getAbsolutePath());
-        LOGGER.info("target directory "+convertTargetDirectory.getAbsolutePath());
-        LOGGER.info("ingest skip "+ingestSkip);
-        LOGGER.info("indexer start "+startIndexer);
-        LOGGER.info("default rights "+defaultRights);
+
+        System.setProperty("convert.target.directory", convertTargetDirectory.getAbsolutePath());
+        System.setProperty("convert.directory", convertDirectory.getAbsolutePath());
+        System.setProperty("convert.defaultRights", defaultRights.toString());
+        System.setProperty("ingest.startIndexer", startIndexer.toString());
+        System.setProperty("ingest.skip", defaultRights.toString());
+            
+        /** Standard convert process */
+        Convert.main(new String[0]);
     }
 }

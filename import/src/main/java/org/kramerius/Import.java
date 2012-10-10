@@ -76,12 +76,15 @@ public class Import {
      * @param args
      */
     public static void main(String[] args) {
-        Import.ingest(KConfiguration.getInstance().getProperty("ingest.url"), KConfiguration.getInstance().getProperty("ingest.user"), KConfiguration.getInstance().getProperty("ingest.password"), KConfiguration.getInstance().getProperty("import.directory"));
+        String importDirectory = System.getProperties().containsKey("import.directory") ? System.getProperty("import.directory") : KConfiguration.getInstance().getProperty("import.directory");
+        Import.ingest(KConfiguration.getInstance().getProperty("ingest.url"), KConfiguration.getInstance().getProperty("ingest.user"), KConfiguration.getInstance().getProperty("ingest.password"), importDirectory);
     }
 
     public static void ingest(final String url, final String user, final String pwd, String importRoot) {
         log.finest("INGEST - url:"+url+" user:"+user+" pwd:"+pwd+" importRoot:"+importRoot);
-        if (KConfiguration.getInstance().getConfiguration().getBoolean("ingest.skip",false)){
+        // system property 
+        String skipIngest = System.getProperties().containsKey("ingest.skip") ? System.getProperty("ingest.skip") : KConfiguration.getInstance().getConfiguration().getString("ingest.skip","false");
+        if (new Boolean(skipIngest)){
             log.info("INGEST CONFIGURED TO BE SKIPPED, RETURNING");
             return;
         }
@@ -130,7 +133,8 @@ public class Import {
             }
         }
         log.info("FINISHED INGESTION IN "+((System.currentTimeMillis()-start)/1000.0)+"s, processed "+counter+" files");
-        if (KConfiguration.getInstance().getConfiguration().getBoolean("ingest.startIndexer",true)){
+        String startIndexerProperty = System.getProperties().containsKey("ingest.startIndexer") ? System.getProperty("ingest.startIndexer") : KConfiguration.getInstance().getConfiguration().getString("ingest.startIndexer","true");
+        if (new Boolean(startIndexerProperty)){
             for (TitlePidTuple tpt :roots){
                 IndexerProcessStarter.spawnIndexer(true, tpt.title, tpt.pid);
             }

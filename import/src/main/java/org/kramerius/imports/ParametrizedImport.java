@@ -23,6 +23,11 @@ import org.kramerius.Import;
 import cz.incad.kramerius.processes.annotations.ParameterName;
 import cz.incad.kramerius.processes.annotations.Process;
 
+/**
+ * Parametrized import proces
+ * @author pavels
+ *
+ */
 public class ParametrizedImport {
 
     static java.util.logging.Logger LOGGER = java.util.logging.Logger.getLogger(ParametrizedImport.class.getName());
@@ -32,8 +37,11 @@ public class ParametrizedImport {
     @Process
     public static void process( @ParameterName("importDirectory") File importDirectory, 
             @ParameterName("startIndexer")Boolean startIndexer) {
-        LOGGER.info("importDirectory = "+importDirectory);
-        LOGGER.info("indexer start "+startIndexer);
-        //Import.ingest(ingestUrl, ingestUser, ingestUser, importDirectory.getAbsolutePath());
+
+        System.setProperty("import.directory", importDirectory.getAbsolutePath());
+        System.setProperty("ingest.startIndexer", startIndexer.toString());
+
+        //standard import program
+        Import.main(new String[0]);
     }
 }

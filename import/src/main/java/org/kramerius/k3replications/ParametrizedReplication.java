@@ -53,6 +53,8 @@ public class ParametrizedReplication {
                 System.setProperty("convert.defaultRights", defaultRights.toString());
                 System.setProperty("migration.directory", migrationDirectory.getAbsolutePath());
                 System.setProperty("migration.target.directory", targetDirectory.getAbsolutePath());
+                System.setProperty("ingest.startIndexer", startIndexer.toString());
+                System.setProperty("ingest.skip", defaultRights.toString());
                 
                 Download.replicateMonographs(new BufferedReader(new StringReader(idList)));
             } else {
@@ -60,19 +62,10 @@ public class ParametrizedReplication {
                 System.setProperty("convert.defaultRights", defaultRights.toString());
                 System.setProperty("migration.directory", migrationDirectory.getAbsolutePath());
                 System.setProperty("migration.target.directory", targetDirectory.getAbsolutePath());
-
+                System.setProperty("ingest.startIndexer", startIndexer.toString());
+                System.setProperty("ingest.skip", defaultRights.toString());
+                
                 Download.replicatePeriodicals(new BufferedReader(new StringReader(idList)));
-            }
-            if (startIndexer) {
-                File successFile = new File("replication-success.txt");
-                BufferedReader freader = new BufferedReader(new FileReader(successFile));
-                String line = null;
-                while((line=freader.readLine()) != null ) {
-                    String[] splitted = line.split("\t");
-                    if (splitted.length == 2) {
-                        IndexerProcessStarter.spawnIndexer(false, "title",splitted[1]);
-                    }
-                }
             }
         } else throw new RuntimeException("no idlist defined !");
     }
