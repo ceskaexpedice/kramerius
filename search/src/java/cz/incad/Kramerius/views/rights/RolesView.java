@@ -23,9 +23,11 @@ import javax.servlet.http.HttpServletRequest;
 
 import com.google.inject.Inject;
 import com.google.inject.Provider;
+import com.lizardtech.djvu.anno.Mapper;
 
 import cz.incad.Kramerius.Initializable;
 import cz.incad.Kramerius.security.strenderers.RoleWrapper;
+import cz.incad.kramerius.security.DefaultRoles;
 import cz.incad.kramerius.security.RightsManager;
 import cz.incad.kramerius.security.Role;
 import cz.incad.kramerius.security.User;
@@ -133,16 +135,22 @@ public class RolesView extends AbstractRightsView implements Initializable {
 
     public List<RoleWrapper> saturateFlags(List<RoleWrapper> retList) {
         final int[] usedRoles = this.rightsManager.findUsedRoleIDs();
+        Arrays.sort(usedRoles);
         List<RoleWrapper> rwraps =  K4Collections.map(retList, 
             new K4Collections.Mapper<RoleWrapper>() {
                 @Override
                 public RoleWrapper process(RoleWrapper t, int index) {
-                    int indx = Arrays.binarySearch(usedRoles, t.getId());
-                    boolean canbedeleted = indx < 0;
-                    t.setCanbedeleted(canbedeleted);
+                    if (DefaultRoles.findByName(t.getName()) != null) {
+                        t.setCanbedeleted(false);
+                    } else {
+                        int indx = Arrays.binarySearch(usedRoles, t.getId());
+                        boolean canbedeleted = indx < 0;
+                        t.setCanbedeleted(canbedeleted);
+                    }
                     return t;
                 }
             });
+        
         
         if (this.role != null) {
             final int  personalAdminId = role.getPersonalAdminId();
