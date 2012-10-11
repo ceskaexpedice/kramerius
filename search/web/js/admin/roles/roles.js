@@ -1,4 +1,4 @@
-
+//TODO: Buttons I18N
 function Roles() { this.dialog = null; this.newRoleDialog = null; this.editRoleDialog = null; }
 
 Roles.prototype.post = function(action,struct, retrieveFucntion) {
