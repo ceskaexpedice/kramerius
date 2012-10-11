@@ -153,7 +153,6 @@
         <parameters>
             <parameter>monographs</parameter>
         </parameters>
-        -->
         <actions>
             <action>
                 <name>imported</name>
@@ -161,6 +160,7 @@
                 <actionURL>processes/imported/_imported.jsp</actionURL>
             </action>
         </actions>
+        -->
 
     </process>
 
@@ -269,13 +269,13 @@
     <process>
         <id>ndkmets</id>
         <description>Import NDK METs</description>
-        <mainClass>org.kramerius.metsimport.ParametrizedMetsNKDImport</mainClass>
+        <mainClass>org.kramerius.importmets.parametrized.ParametrizedMetsNKDImport</mainClass>
         <standardOs>lrOut</standardOs>
         <errOs>lrErr</errOs>
         <javaProcessParameters>-Xmx1024m -Xms512m</javaProcessParameters>
         
         <templates>
-            <input class="org.kramerius.metsimport.input.MetsImportInputTemplate"></input>
+            <input class="org.kramerius.importmets.parametrized.input.MetsImportInputTemplate"></input>
         </templates>
         
     </process>

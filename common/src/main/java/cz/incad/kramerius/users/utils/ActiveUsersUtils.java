@@ -32,9 +32,19 @@ import cz.incad.kramerius.utils.database.JDBCPreparedStatementCommand;
 import cz.incad.kramerius.utils.database.JDBCQueryTemplate;
 import cz.incad.kramerius.utils.database.JDBCTransactionTemplate;
 
+/**
+ * Active user utility class
+ * @author pavels
+ */
 public class ActiveUsersUtils {
 
 
+    /**
+     * Find active user id 
+     * @param user User object
+     * @param con Database connection
+     * @return Database id
+     */
     public static Integer findActiveUser(User user, Connection con) {
         StringTemplate template = LoggedUsersSingletonImpl.stGroup.getInstanceOf("findUserByLoginName");
         List<Integer> list = new JDBCQueryTemplate<Integer>(con, false) {
@@ -48,6 +58,7 @@ public class ActiveUsersUtils {
         return list.isEmpty() ? -1 : list.get(0);
     }
     
+
     public static Integer findAndRegisterActiveUser(User user, Connection con) throws SQLException {
         StringTemplate template = LoggedUsersSingletonImpl.stGroup.getInstanceOf("findUserByLoginName");
         List<Integer> list = new JDBCQueryTemplate<Integer>(con, false) {
