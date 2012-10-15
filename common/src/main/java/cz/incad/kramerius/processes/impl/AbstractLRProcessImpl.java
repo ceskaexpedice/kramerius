@@ -36,6 +36,7 @@ import cz.incad.kramerius.processes.LRProcessDefinition;
 import cz.incad.kramerius.processes.LRProcessManager;
 import cz.incad.kramerius.processes.States;
 import cz.incad.kramerius.security.User;
+import cz.incad.kramerius.utils.StringUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 
 public abstract class AbstractLRProcessImpl implements LRProcess{
@@ -124,6 +125,7 @@ public abstract class AbstractLRProcessImpl implements LRProcess{
 	public void planMe(Properties paramsMapping) {
 		this.state = States.PLANNED;
 		this.setPlannedTime(System.currentTimeMillis());
+		
 		manager.registerLongRunningProcess(this, getLoggedUserKey(), paramsMapping);
 	}
 	
