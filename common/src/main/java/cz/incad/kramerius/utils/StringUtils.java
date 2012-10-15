@@ -42,6 +42,13 @@ public class StringUtils {
     }
     
     
+    /**
+     * Returns string with escape sequences 
+     * @param rawString Given string 
+     * @param escapeChar Escape character
+     * @param charsMustBeEscaped All characters that must be escaped
+     * @return string with escape sequences
+     */
     public static String escape(String rawString, Character escapeChar, Character ... charsMustBeEscaped) {
         StringWriter writer = new StringWriter();
         List<Character> mustBeEscaped = Arrays.asList(charsMustBeEscaped);
@@ -55,6 +62,13 @@ public class StringUtils {
         return writer.toString();
     }
     
+    /**
+     * Remove escape sequences from given string 
+     * @param rawString Given string
+     * @param escapeChar Escape sequnce character
+     * @param charsMustBeEscaped All characters that must be escaped
+     * @return 
+     */
     public static String unescape(String rawString, Character escapeChar, Character ... charsMustBeEscaped) {
         StringWriter writer = new StringWriter();
         List<Character> mustBeEscaped = Arrays.asList(charsMustBeEscaped);
