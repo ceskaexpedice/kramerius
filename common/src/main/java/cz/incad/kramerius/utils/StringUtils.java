@@ -16,7 +16,10 @@
  */
 package cz.incad.kramerius.utils;
 
+import java.io.StringWriter;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Stack;
 
 import org.antlr.stringtemplate.StringTemplate;
 
@@ -36,6 +39,42 @@ public class StringUtils {
         if (bigger.length() > smaller.length()) {
             return bigger.replace(smaller, "");
         } else throw new IllegalArgumentException("");
+    }
+    
+    
+    public static String escape(String rawString, Character escapeChar, Character ... charsMustBeEscaped) {
+        StringWriter writer = new StringWriter();
+        List<Character> mustBeEscaped = Arrays.asList(charsMustBeEscaped);
+        char[] charArray = rawString.toCharArray();
+        for (char c : charArray) {
+            if (mustBeEscaped.contains(new Character(c))) {
+                writer.write('\\');
+            }
+            writer.write(c);
+        }
+        return writer.toString();
+    }
+    
+    public static String unescape(String rawString, Character escapeChar, Character ... charsMustBeEscaped) {
+        StringWriter writer = new StringWriter();
+        List<Character> mustBeEscaped = Arrays.asList(charsMustBeEscaped);
+        Stack<Character> stckChars = new Stack<Character>();
+        char[] charArray = rawString.toCharArray();
+        for (int i = charArray.length-1; i >=0; i--) {
+            stckChars.push(new Character(charArray[i]));
+        }
+        
+        while(!stckChars.isEmpty()) {
+            Character cChar = stckChars.pop();
+            if ((cChar.equals(escapeChar)) && (!stckChars.isEmpty()) && (mustBeEscaped.contains(stckChars.peek()))) {
+                writer.write(stckChars.pop());
+            } else {
+                writer.write(cChar);
+            }
+        }
+        
+        return writer.toString();
+        
     }
     
     

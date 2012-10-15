@@ -17,9 +17,15 @@
 package cz.incad.kramerius.utils.properties;
 
 import java.io.StringWriter;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Properties;
 import java.util.Set;
+import java.util.Stack;
 import java.util.StringTokenizer;
+
+import cz.incad.kramerius.utils.StringUtils;
 
 /**
  * Helper class for storing properties in one line
@@ -41,9 +47,9 @@ public class PropertiesStoreUtils {
         //Set<Object> keys = properties.keySet();
         for (int i = 0,ll=keys.length; i < ll; i++) {
             String key = keys[i].toString();
-            writer.write(key.trim());
+            writer.write(StringUtils.escape( key.trim(), '\\', ';'));
             writer.write("=");
-            writer.write(properties.getProperty(key));
+            writer.write(StringUtils.escape( properties.getProperty(key), '\\', ';'));
             if (i<ll-1) {
                 writer.write(";");
             }
@@ -57,14 +63,38 @@ public class PropertiesStoreUtils {
      * @return Deserialized properites object
      */
     public static Properties loadProperties(String str) {
+        List<Character> mustBeEscaped = Arrays.asList(new Character('\\'),new Character(';'));
+        
+        List<String> tokens = new ArrayList<String>();
+        StringWriter processWriter = new StringWriter();
+        Stack<Character> stckChars = new Stack<Character>();
+        char[] charArray = str.toCharArray();
+        for (int i = charArray.length-1; i >=0; i--) {
+            stckChars.push(new Character(charArray[i]));
+        }
+        
+        while(!stckChars.isEmpty()) {
+            Character cChar = stckChars.pop();
+            if ((cChar.equals(new Character('\\')) && (!stckChars.isEmpty()) && (mustBeEscaped.contains(stckChars.peek())))) {
+                processWriter.write(stckChars.pop());
+            } else if (cChar.equals(new Character(';'))){
+                tokens.add(processWriter.toString());
+                processWriter = new StringWriter();
+            } else {
+                processWriter.write(cChar);
+            }
+        }
+
+        tokens.add(processWriter.toString());
+        
         Properties props = new Properties();
-        StringTokenizer tokenizer = new StringTokenizer(str,";");
-        while(tokenizer.hasMoreTokens()) {
-            String token = tokenizer.nextToken();
+        for (String token : tokens) {
             if (token.indexOf("=") > 0) {
                 String[] vals = token.split("=");
                 if (vals.length == 2) {
-                    props.put(vals[0], vals[1]);
+                    String key = vals[0];
+                    String val = vals[1];
+                    props.put(key, val);
                 } else {
                     LOGGER.warning("no eq character in token '"+token+"'");
                 }
