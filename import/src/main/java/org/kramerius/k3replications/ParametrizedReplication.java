@@ -37,6 +37,7 @@ import cz.incad.kramerius.service.impl.IndexerProcessStarter;
  */
 public class ParametrizedReplication {
 
+    static java.util.logging.Logger LOGGER = java.util.logging.Logger.getLogger(ParametrizedReplication.class.getName());
     
     @Process
     public static void replications(@ParameterName("replicatetype") String replicateType, 
@@ -47,6 +48,8 @@ public class ParametrizedReplication {
                                     @ParameterName("indexerStart")Boolean startIndexer, 
                                     @ParameterName("defaultRights")Boolean defaultRights ) throws IOException {
     
+        
+        LOGGER.info("idList :"+idList);
         if (idList != null && (!idList.trim().equals(""))) {
             if (replicateType.equalsIgnoreCase("monographs")) {
                 
