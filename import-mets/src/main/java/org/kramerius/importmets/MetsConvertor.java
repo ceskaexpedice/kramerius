@@ -7,6 +7,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.Arrays;
 
+import javax.management.RuntimeErrorException;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
@@ -57,26 +58,25 @@ public class MetsConvertor {
         if (args.length  != 3) {
             System.out.println("ANL METS to FOXML conversion tool.\n");
             System.out.println("Usage: conversion-tool defaultVisibility <input-file> <output-folder>");
-            System.exit(1);
-        }
-
-        boolean defaultVisibility = Boolean.parseBoolean(args[0]);
-
-        String importRoot = null;
-        if (args.length == 1){
-            importRoot = KConfiguration.getInstance().getConfiguration().getString("migration.directory");
-        } else{
-            importRoot = args[1];
-        }
-        String exportRoot = null;
-        if (args.length == 3) {
-            exportRoot = args[2];
+            //System.exit(1);
         } else {
-            exportRoot = importRoot + "-converted";
+            boolean defaultVisibility = Boolean.parseBoolean(args[0]);
+            
+            String importRoot = null;
+            if (args.length == 1){
+                importRoot = KConfiguration.getInstance().getConfiguration().getString("migration.directory");
+            } else{
+                importRoot = args[1];
+            }
+            String exportRoot = null;
+            if (args.length == 3) {
+                exportRoot = args[2];
+            } else {
+                exportRoot = importRoot + "-converted";
+            }
+            
+            convert(importRoot, exportRoot,  defaultVisibility, null);
         }
-
-        convert(importRoot, exportRoot,  defaultVisibility, null);
-
     }
 
 
@@ -108,7 +108,8 @@ public class MetsConvertor {
         File importFile = new File(importRoot);
         if (!importFile.exists()) {
             System.err.println("Import root folder doesn't exist: " + importFile.getAbsolutePath());
-            System.exit(1);
+            //System.exit(1);
+            throw new RuntimeException("Import root folder doesn't exist: ");
         }
 
         //visitAllDirsAndFiles(importFile, importRoot, exportRoot,   defaultVisibility,  convertedURI, titleId);
@@ -356,11 +357,11 @@ public class MetsConvertor {
 
 
     public static boolean useContractSubfolders(){
-        return KConfiguration.getInstance().getConfiguration().getBoolean("convert.useContractSubfolders", false);
+        return System.getProperties().containsKey("convert.useContractSubfolders") ?  new Boolean(System.getProperty("convert.useContractSubfolders")) :  KConfiguration.getInstance().getConfiguration().getBoolean("convert.useContractSubfolders", false);
     }
 
     public static boolean copyOriginal(){
-        return KConfiguration.getInstance().getConfiguration().getBoolean("convert.copyOriginal", false);
+        return System.getProperties().containsKey("convert.copyOriginal") ?   new Boolean(System.getProperty("convert.copyOriginal")) : KConfiguration.getInstance().getConfiguration().getBoolean("convert.copyOriginal", false);
     }
 
 }
