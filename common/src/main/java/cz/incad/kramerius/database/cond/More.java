@@ -22,8 +22,8 @@ package cz.incad.kramerius.database.cond;
 import cz.incad.kramerius.database.utils.VersionVal;
 
 /**
+ * Represents '>' condition
  * @author pavels
- *
  */
 public class More implements Condition {
 
