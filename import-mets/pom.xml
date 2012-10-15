@@ -38,6 +38,12 @@
         </dependency>
         <dependency>
             <groupId>cz.incad.kramerius</groupId>
+            <artifactId>import</artifactId>
+            <version>${project.parent.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>cz.incad.kramerius</groupId>
             <artifactId>import-jaxb</artifactId>
             <version>${project.parent.version}</version>
         </dependency>
@@ -146,6 +152,7 @@
                 <directory>${basedir}/src/main/resources</directory>
                 <includes>
                     <include>**/*.xsl</include>
+                    <include>**/*.s*</include>
                 </includes>
             </resource>
         </resources>
