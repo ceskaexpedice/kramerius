@@ -140,7 +140,7 @@ function filterOnItem(e){
         //$("#" + fromField).val(formatDate(el.selectStart));
         //$("#" + toField).val(formatDate(el.selectEnd));
         $("#" + fromField).val("01.01."+el.selectStart);
-        $("#" + toField).val("12.31."+el.selectEnd);
+        $("#" + toField).val("31.12."+el.selectEnd);
         if(el.hits==0){
             return;
         }
@@ -197,7 +197,7 @@ function selectTime(){
 function doFilter(){  
   
     if(!isValidDate($("#" + fromField).val()) || !isValidDate($("#" + toField).val())){
-        alert(dictionary['filter.invalid.date']);
+        alert(dictionary['filter.invalid.date'] + "\n fromfield: " + $("#" + toField).val());
         return;
     }
   

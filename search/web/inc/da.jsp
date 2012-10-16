@@ -118,7 +118,7 @@
             //$("#" + fromField).val(formatDate(id));
             //$("#" + toField).val(formatDate(id));
             $("#" + fromField).val("01.01."+id);
-            $("#" + toField).val("12.31."+id);
+            $("#" + toField).val("31.12."+id);
             if($(this).text()=="0"){
                 return;
             }
