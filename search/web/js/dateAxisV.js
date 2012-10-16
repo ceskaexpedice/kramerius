@@ -197,7 +197,7 @@ function selectTime(){
 function doFilter(){  
   
     if(!isValidDate($("#" + fromField).val()) || !isValidDate($("#" + toField).val())){
-        alert(dictionary['filter.invalid.date'] + "\n fromfield: " + $("#" + toField).val());
+        alert(dictionary['filter.invalid.date'] );
         return;
     }
   
