@@ -49,7 +49,7 @@ function onLoadPlainImage() {
     <div id="container"  class="view_div"  style="display:none;  height: 512px;">
     </div>
 
-    <div id="securityError" style="display:none;">
+    <div id="securityError" class="ui-state-error-text" style="display:none;">
         ${image.notAllowedMessageText}            
     </div>
 
