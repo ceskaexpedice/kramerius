@@ -28,7 +28,7 @@
     </parent>
 
     <properties>
-        <gwt.version>2.4.0</gwt.version>
+        <gwt.version>2.5.0-rc1</gwt.version>
     </properties>
 
     <dependencies>
@@ -81,7 +81,7 @@
                     <runTarget>Rightseditor.html</runTarget>
                 </configuration>
 
-                <dependencies>
+                <!--dependencies>
                     <dependency>
                         <groupId>com.google.gwt</groupId>
                             <artifactId>gwt-user</artifactId>
@@ -92,7 +92,7 @@
                             <artifactId>gwt-dev</artifactId>
                             <version>${gwt.version}</version>
                         </dependency>
-                </dependencies>
+                </dependencies-->
 
                 <executions>
                     <execution>

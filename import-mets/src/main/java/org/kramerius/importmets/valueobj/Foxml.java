@@ -54,6 +54,17 @@ public class Foxml {
         if (this.files == null){
             this.files = new ArrayList<FileDescriptor>();
         }
+        StreamFileType addedType = file.getFileType();
+        for (FileDescriptor existingFile:this.files){
+            StreamFileType existingType = existingFile.getFileType();
+            if (existingType.equals(addedType)){
+                throw new IllegalArgumentException("Duplicate file type: "+file.getFilename());
+            }else if (existingType.equals(StreamFileType.MASTER_IMAGE)||existingType.equals(StreamFileType.USER_IMAGE)){
+                if (addedType.equals(StreamFileType.MASTER_IMAGE)||addedType.equals(StreamFileType.USER_IMAGE)) {
+                    throw new IllegalArgumentException("Duplicate file type: "+file.getFilename());
+                }
+            }
+        }
         this.files.add(file);
     }
 

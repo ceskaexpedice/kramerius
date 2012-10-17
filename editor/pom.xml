@@ -120,7 +120,7 @@ along with this program. If not, see <http://www.gnu.org/licenses />.
                 <artifactId>gwt-maven-plugin</artifactId>
                 <version>${gwt.version}</version>
 
-                <dependencies>
+                <!--dependencies>
                     <dependency>
                         <groupId>com.google.gwt</groupId>
                         <artifactId>gwt-user</artifactId>
@@ -131,7 +131,7 @@ along with this program. If not, see <http://www.gnu.org/licenses />.
                         <artifactId>gwt-dev</artifactId>
                         <version>${gwt.version}</version>
                     </dependency>
-                </dependencies>
+                </dependencies-->
 
                 <executions>
                     <execution>
