@@ -127,32 +127,47 @@
                     (<xsl:value-of select="$bundle/value[@key='Introduction']"/>) - </xsl:when>
             </xsl:choose>
             </span>
-            <span class="value">
-            <xsl:value-of select="mods:part/mods:extent/mods:list" />
-            </span>
+            <span class="value"><xsl:value-of select="mods:part/mods:extent/mods:list" /></span>
         <!-- end internal part -->
-
 
 
         <xsl:if test="mods:language/mods:languageTerm">
         <li>
             <span class="label"><xsl:value-of select="$bundle/value[@key='common.language']"/></span>:&#160;
-            <span class="value"><xsl:value-of select="mods:language/mods:languageTerm" /></span>
+            <span class="value"><xsl:for-each select="mods:language/mods:languageTerm">
+                <xsl:value-of select="." />&#160;
+            </xsl:for-each></span>
         </li>
         </xsl:if>
 
-        <xsl:if test="mods:name[@type='personal']/mods:role/mods:roleTerm = 'Author'">
-        <h3><xsl:value-of select="$bundle/value[@key='common.author']"/></h3>
-        <xsl:for-each select="mods:name[@type='personal']"><li>
-            <span class="value">
-                <xsl:if test="./mods:role/mods:roleTerm = 'Author'">
+        <xsl:if test="./mods:role/mods:roleTerm[@type='code'] = 'cre'">
+            <h3>
+                <xsl:value-of select="$bundle/value[@key='common.author']"/>
+            </h3>
+            <xsl:for-each select="mods:name[@type='personal']"><li>
+                <span class="value">
                     <div>
+                        <xsl:value-of select="./mods:role/mods:roleTerm[@type='text']" />:&#160;
                         <xsl:value-of select="./mods:namePart[@type='family']" />,&#160;
                         <xsl:value-of select="./mods:namePart[@type='given']" />
                     </div>
-                </xsl:if>
-           </span>
-        </li></xsl:for-each>
+               </span>
+            </li></xsl:for-each>
+        </xsl:if>
+
+        <xsl:if test="./mods:role/mods:roleTerm[@type='code'] = 'ctb'">
+            <h3>
+                <xsl:value-of select="$bundle/value[@key='mods.contributor']"/>
+            </h3>
+            <xsl:for-each select="mods:name[@type='personal']"><li>
+                <span class="value">
+                    <div>
+                        <xsl:value-of select="./mods:role/mods:roleTerm[@type='text']" />:&#160;
+                        <xsl:value-of select="./mods:namePart[@type='family']" />,&#160;
+                        <xsl:value-of select="./mods:namePart[@type='given']" />
+                    </div>
+               </span>
+            </li></xsl:for-each>
         </xsl:if>
 
         <xsl:if test="count(mods:originInfo[@transliteration='publisher'])=1">
@@ -196,6 +211,12 @@
 
         <xsl:if test="mods:physicalDescription/mods:extent">
             <h3><xsl:value-of select="$bundle/value[@key='Fyzický popis']"/></h3>
+            <xsl:for-each select="mods:physicalDescription/mods:extent">
+                <li>
+                    <span class="value"><xsl:value-of select="." /></span>
+                </li>
+            </xsl:for-each>
+            <!--
             <xsl:choose>
             <xsl:when test="contains(mods:physicalDescription/mods:extent, ',')">
                 <li>
@@ -214,6 +235,7 @@
                 </li>
             </xsl:otherwise>
         </xsl:choose>
+        -->
         </xsl:if>
 
         <xsl:if test="mods:physicalDescription/mods:note[@type='preservationStateOfArt']">
@@ -228,6 +250,7 @@
         </li>
         </xsl:if>
         <xsl:if test="mods:location/mods:physicalLocation">
+        <h3><xsl:value-of select="$bundle/value[@key='mods.physicalLocation']"/></h3>
         <li>
             <span class="label"><xsl:value-of select="$bundle/value[@key='Místo uložení']"/>: </span>
             <span class="value"><xsl:value-of select="mods:location/mods:physicalLocation" /></span>
