@@ -53,8 +53,8 @@
             if (pathname.startsWith("/")) {
                 pathname=pathname.substring(1,pathname.length);
             }
-            var url = window.location.protocol+"//"+window.location.host+"/"+pathname.split("/")[0]+"/handle/"+viewerOptions.pid;
-            var imgUrl = window.location.protocol+"//"+window.location.host+"/"+pathname.split("/")[0]+"/img?uuid="+viewerOptions.pid+"&stream=IMG_THUMB&action=GETRAW"
+            var url = window.location.protocol+"//"+window.location.host+"/"+pathname.split("/")[0]+"/handle/"+encodeURIComponent(viewerOptions.pid);
+            var imgUrl = window.location.protocol+"//"+window.location.host+"/"+pathname.split("/")[0]+"/img?uuid="+encodeURIComponent(viewerOptions.pid)+"&stream=IMG_THUMB&action=GETRAW"
             return {
                 "url":url,
                 "imgUrl":imgUrl
@@ -65,11 +65,12 @@
         	$('meta[property="og:url"]').attr('content',urls.url);
             $('meta[property="og:image"]').attr("content", urls.imgUrl);
             $('link[rel="canonical"]').attr("href", urls.url);
-
+            
             //Facebook like
             if(typeof(FB) !== 'undefined') {
-                $('#fbbutton').html('<fb:like href="' + urls.url + '" layout="button_count" show_faces="false" width="16" action="like" />');
-                FB.XFBML.parse(document.getElementById('fbbutton'));
+                $('#fbbutton').html('<fb:like href="' + urls.url + '" id="fbbutton_elm" layout="button_count" show_faces="false" width="16" action="like" />');
+                FB.XFBML.parse(document.getElementById('fbbutton'), function()  {
+                });
             }
 
             //Google plus one
@@ -100,7 +101,7 @@
       <!-- like button -->
       <td id="fbbutton" class="fb">
         <!--  place for fb -->
-        <fb:like id="fbbutton_elm"   send="false" width="16"  layout="button_count" show_faces="false"></fb:like>
+        <fb:like id="fbbutton_elm" href="${fb.shareURL} "  send="false" width="16"  layout="button_count" show_faces="false"></fb:like>
       </td>
      </c:if>
 
@@ -149,7 +150,10 @@
 <c:if test="${fb.buttonEnabled}">
 <!-- facebook support  -->
 <div id="fb-root"></div>
-<script>(function(d, s, id) {
+<script>
+
+
+(function(d, s, id) {
   var js, fjs = d.getElementsByTagName(s)[0];
   if (d.getElementById(id)) return;
   js = d.createElement(s); js.id = id;

@@ -17,8 +17,10 @@
 package cz.incad.Kramerius.views.social;
 
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -123,21 +125,27 @@ public abstract class AbstractSocialButton {
 
     
     public String getShareURL() {
-        HttpServletRequest request = this.requestProvider.get();
-        if (isItemPage()) {
-            String pidParameter = request.getParameter(IKeys.PID_PARAMETER);
-            return ApplicationURL.applicationURL(request)+"/handle/"+pidParameter;
-        } else {
-            String requestedURL = request.getRequestURL().toString();
-            String query = request.getQueryString();
-            String returnedShareURL = requestedURL;
-            if (!emptyString(query)) {
-                returnedShareURL = requestedURL+"?"+query;
-                if ((request.getParameter("language") != null) && (!request.getParameter("language").trim().equals(""))) {
-                    returnedShareURL = requestedURL +"&language="+localeProvider.get().getLanguage();
+        try {
+            HttpServletRequest request = this.requestProvider.get();
+            if (isItemPage()) {
+                String pidParameter = request.getParameter(IKeys.PID_PARAMETER);
+                String encoded = URLEncoder.encode(pidParameter, "UTF-8");
+                return ApplicationURL.applicationURL(request)+"/handle/"+encoded;
+            } else {
+                String requestedURL = request.getRequestURL().toString();
+                String query = request.getQueryString();
+                String returnedShareURL = requestedURL;
+                if (!emptyString(query)) {
+                    returnedShareURL = requestedURL+"?"+query;
+                    if ((request.getParameter("language") != null) && (!request.getParameter("language").trim().equals(""))) {
+                        returnedShareURL = requestedURL +"&language="+localeProvider.get().getLanguage();
+                    }
                 }
+                return returnedShareURL;
             }
-            return returnedShareURL;
+        } catch (UnsupportedEncodingException e) {
+            LOGGER.log(Level.SEVERE,e.getMessage(), e);
+            return "#";
         }
     }
 
