@@ -51,14 +51,14 @@
         <meta property="og:title" content="${fb.title}"/>
 
         <meta property="og:type" content="${fb.metadataType}"/>
-        <meta property="og:url" content="#"/>
+        <meta property="og:url" content="${fb.shareURL}"/>
         <meta property="og:image" content="${fb.metadataImage}"/>
         <meta property="og:site_name" content="${fb.applicationTitle}"/>
 
         <meta property="og:description"
               content="${fb.description}"/>
               
-        <link rel="canonical" href="#" />
+        <link rel="canonical" href="${fb.shareURL}" />
     </c:if>
 
 
