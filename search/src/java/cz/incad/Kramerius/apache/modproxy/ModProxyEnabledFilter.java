@@ -53,7 +53,7 @@ public class ModProxyEnabledFilter extends K4GuiceFilter{
                 String requestUri = httpReq.getRequestURI();
                 String protocol = new URL(httpReq.getRequestURL().toString()).getProtocol();
                 String createdURL = createURL(header, protocol, requestUri);
-                HttpServletRequest proxied = AfterModProxyRequest.newInstance(httpReq, createdURL);
+                HttpServletRequest proxied = BehindModProxyRequest.newInstance(httpReq, createdURL);
                 chain.doFilter(proxied, resp);
             } else {
                 // http proxy not defined

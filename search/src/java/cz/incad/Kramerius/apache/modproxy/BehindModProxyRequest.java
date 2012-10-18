@@ -34,12 +34,12 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
 
-public class AfterModProxyRequest implements InvocationHandler {
+public class BehindModProxyRequest implements InvocationHandler {
 
     private HttpServletRequest reqest;
     private String url;
     
-    AfterModProxyRequest(HttpServletRequest request, String url) {
+    BehindModProxyRequest(HttpServletRequest request, String url) {
         super();
         this.reqest = request;
         this.url = url;
@@ -47,7 +47,7 @@ public class AfterModProxyRequest implements InvocationHandler {
     
     @Override
     public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
-        if (method.getName().equals("getRequestURI")) {
+        if (method.getName().equals("getRequestURL")) {
             return new StringBuffer(this.url);
         } else {
             return method.invoke(this.reqest, args);
@@ -56,7 +56,7 @@ public class AfterModProxyRequest implements InvocationHandler {
 
     
     public static HttpServletRequest newInstance(HttpServletRequest reqest, String  url) {
-        return (HttpServletRequest) java.lang.reflect.Proxy.newProxyInstance(AfterModProxyRequest.class.getClassLoader(), 
-                new Class[] {ServletRequest.class, HttpServletRequest.class},new AfterModProxyRequest(reqest, url));  
+        return (HttpServletRequest) java.lang.reflect.Proxy.newProxyInstance(BehindModProxyRequest.class.getClassLoader(), 
+                new Class[] {ServletRequest.class, HttpServletRequest.class},new BehindModProxyRequest(reqest, url));  
     }
 }
