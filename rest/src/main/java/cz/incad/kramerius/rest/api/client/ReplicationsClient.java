@@ -14,9 +14,6 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
-/**
- * 
- */
 package cz.incad.kramerius.rest.api.client;
 
 import javax.ws.rs.core.MediaType;
@@ -25,7 +22,7 @@ import com.sun.jersey.api.client.Client;
 import com.sun.jersey.api.client.WebResource;
 
 /**
- * Testing utility 
+ * Simple testing utility 
  * @author pavels
  */
 public class ReplicationsClient {
@@ -34,7 +31,11 @@ public class ReplicationsClient {
     private static final String DEFAULT_PSWD = "kram";
     
     
-    
+    /**
+     * List of object designated to replication
+     * @param uuid Master uuid 
+     * @return
+     */
     public static String tree(String uuid) {
         Client c = Client.create();
         WebResource r = c.resource("http://localhost:8080/search/api/v4.6/replication/"+uuid+"/tree");
@@ -43,6 +44,11 @@ public class ReplicationsClient {
         return t;
     }
 
+    /**
+     * Returns foxml data as pure xml
+     * @param uuid
+     * @return
+     */
     public static String foxmlAsXML(String uuid) {
         Client c = Client.create();
         WebResource r = c.resource("http://localhost:8080/search/api/v4.6/replication/"+uuid+"/foxml");
@@ -51,6 +57,11 @@ public class ReplicationsClient {
         return t;
     }
 
+    /**
+     * Returns foxml data wrapped in json object
+     * @param uuid
+     * @return
+     */
     public static String foxmlAsJSON(String uuid) {
         Client c = Client.create();
         WebResource r = c.resource("http://localhost:8080/search/api/v4.6/replication/"+uuid+"/foxml");
@@ -59,6 +70,11 @@ public class ReplicationsClient {
         return t;
     }
 
+    /**
+     * Returns json description
+     * @param uuid
+     * @return
+     */
     public static String desc(String uuid) {
         Client c = Client.create();
         WebResource r = c.resource("http://localhost:8080/search/api/v4.6/replication/"+uuid);

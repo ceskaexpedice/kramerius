@@ -14,9 +14,6 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
-/**
- * 
- */
 package cz.incad.kramerius.rest.api.client;
 
 import java.util.ArrayList;
@@ -39,7 +36,6 @@ import com.sun.jersey.core.util.Base64;
 
 /**
  * Simple testing utility
- * 
  * @author pavels
  */
 public class ProcessesClient {
