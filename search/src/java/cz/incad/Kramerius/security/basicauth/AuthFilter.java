@@ -77,11 +77,15 @@ public class AuthFilter extends K4GuiceFilter{
                         String username = fname.substring(0, fname.indexOf(':'));
                         String password = fname.substring(fname.indexOf(':')+1);
                         HashMap<String,Object> user = K4LoginModule.findUser(connectionProvider.get(), username);
-                        boolean checked = K4LoginModule.checkPswd(username, user.get("pswd").toString(), password.toCharArray());
-                        if (checked) {
-                            K4User principal = new K4User(username);
-                            HttpServletRequest authenticated = BasicAuthenticatedHTTPServletProxy.newInstance(request, principal);
-                            arg2.doFilter(authenticated, response);
+                        if (user != null) {
+                            boolean checked = K4LoginModule.checkPswd(username, user.get("pswd").toString(), password.toCharArray());
+                            if (checked) {
+                                K4User principal = new K4User(username);
+                                HttpServletRequest authenticated = BasicAuthenticatedHTTPServletProxy.newInstance(request, principal);
+                                arg2.doFilter(authenticated, response);
+                            } else {
+                                sendError(response);
+                            }
                         } else {
                             sendError(response);
                         }
