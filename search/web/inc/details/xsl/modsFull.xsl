@@ -123,33 +123,37 @@
             </li>
             </xsl:if>
 
-            <xsl:if test="./mods:role/mods:roleTerm[@type='code'] = 'cre'">
+            <xsl:if test="mods:name[@type='personal']/mods:role/mods:roleTerm[@type='code'] = 'cre'">
                 <h3>
                     <xsl:value-of select="$bundle/value[@key='common.author']"/>
                 </h3>
-                <xsl:for-each select="mods:name[@type='personal']"><li>
-                    <span class="value">
-                        <div>
-                            <xsl:value-of select="./mods:role/mods:roleTerm[@type='text']" />:&#160;
-                            <xsl:value-of select="./mods:namePart[@type='family']" />,&#160;
-                            <xsl:value-of select="./mods:namePart[@type='given']" />
-                        </div>
+                <xsl:for-each select="mods:name[@type='personal'][mods:role/mods:roleTerm[@type='code'] = 'cre']"><li>
+                    <div>
+                    <span class="label">
+                        <xsl:value-of select="./mods:role/mods:roleTerm[@type='text']" />:&#160;
                    </span>
+                   <span class="value">
+                        <xsl:value-of select="./mods:namePart[@type='family']" />,&#160;
+                        <xsl:value-of select="./mods:namePart[@type='given']" />
+                   </span>
+                    </div>
                 </li></xsl:for-each>
             </xsl:if>
 
-            <xsl:if test="./mods:role/mods:roleTerm[@type='code'] = 'ctb'">
+            <xsl:if test="mods:name[@type='personal']/mods:role/mods:roleTerm[@type='code'] = 'ctb'">
                 <h3>
                     <xsl:value-of select="$bundle/value[@key='mods.contributor']"/>
                 </h3>
-                <xsl:for-each select="mods:name[@type='personal']"><li>
-                    <span class="value">
-                        <div>
-                            <xsl:value-of select="./mods:role/mods:roleTerm[@type='text']" />:&#160;
-                            <xsl:value-of select="./mods:namePart[@type='family']" />,&#160;
-                            <xsl:value-of select="./mods:namePart[@type='given']" />
-                        </div>
+                <xsl:for-each select="mods:name[@type='personal'][mods:role/mods:roleTerm[@type='code'] = 'ctb']"><li>
+                   <div>
+                   <span class="label">
+                        <xsl:value-of select="./mods:role/mods:roleTerm[@type='text']" />:&#160;
                    </span>
+                   <span class="value">
+                        <xsl:value-of select="./mods:namePart[@type='family']" />,&#160;
+                        <xsl:value-of select="./mods:namePart[@type='given']" />
+                   </span>
+                   </div>
                 </li></xsl:for-each>
             </xsl:if>
 
