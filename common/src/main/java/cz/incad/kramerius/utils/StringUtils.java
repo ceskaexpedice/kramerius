@@ -91,5 +91,13 @@ public class StringUtils {
         
     }
     
-    
+
+    /**
+     * Returns true if given input string contains any characters otherwise returns false
+     * @param input Input string 
+     * @return True if given string contains any character otherwise returns false
+     */
+    public static boolean isAnyString(String input) {
+        return input != null && (!input.trim().equals(""));
+    }
 }

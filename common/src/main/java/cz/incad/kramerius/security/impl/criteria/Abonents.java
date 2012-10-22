@@ -28,6 +28,7 @@ import cz.incad.kramerius.security.UserManager;
 /**
  * Predplatitele
  * @author pavels
+ * @see RightCriterium
  */
 public class Abonents extends AbstractCriterium implements RightCriterium {
 
@@ -73,8 +74,4 @@ public class Abonents extends AbstractCriterium implements RightCriterium {
         }
         return true;
     }
-
-    
-    
-    
 }
