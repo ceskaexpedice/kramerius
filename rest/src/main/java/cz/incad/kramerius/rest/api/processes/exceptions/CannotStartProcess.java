@@ -16,6 +16,8 @@
  */
 package cz.incad.kramerius.rest.api.processes.exceptions;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -31,11 +33,11 @@ import cz.incad.kramerius.rest.api.exceptions.AbstractRestException;
 public class CannotStartProcess extends AbstractRestException{
 
     public CannotStartProcess(String message) {
-        super(message, Responses.PRECONDITION_FAILED);
+        super(message, HttpServletResponse.SC_BAD_REQUEST);
     }
 
     public CannotStartProcess(String message, Exception ex) {
-        super(message,ex, Responses.PRECONDITION_FAILED);
+        super(message,ex, HttpServletResponse.SC_BAD_REQUEST);
     }
 
 }

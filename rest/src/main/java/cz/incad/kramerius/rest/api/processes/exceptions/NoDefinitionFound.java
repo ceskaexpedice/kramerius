@@ -33,7 +33,7 @@ import cz.incad.kramerius.rest.api.exceptions.AbstractRestException;
 public class NoDefinitionFound extends AbstractRestException{
 
     public NoDefinitionFound(String message) {
-        super(message, HttpServletResponse.SC_BAD_REQUEST);
+        super(message, HttpServletResponse.SC_NOT_FOUND);
     }
 
 }

@@ -31,7 +31,7 @@ import cz.incad.kramerius.rest.api.replication.ReplicationsResource;
  */
 public class ApiServletModule extends JerseyServletModule {
 
-    public static String VERSION = "4.6";
+    public static String VERSION = "v4.6";
     
     @Override
     protected void configureServlets() {

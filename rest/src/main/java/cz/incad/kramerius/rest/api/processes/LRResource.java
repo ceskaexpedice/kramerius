@@ -86,6 +86,7 @@ import cz.incad.kramerius.security.User;
 import cz.incad.kramerius.security.utils.UserUtils;
 import cz.incad.kramerius.users.LoggedUsersSingleton;
 import cz.incad.kramerius.utils.IOUtils;
+import cz.incad.kramerius.utils.StringUtils;
 
 
 /**
@@ -142,15 +143,25 @@ public class LRResource {
     @Consumes(MediaType.APPLICATION_JSON)
     public Response start(@QueryParam("def")String def, JSONObject startingOptions) {
         if (startingOptions.containsKey("parameters")) {
-            return plainProcessStart(def,startingOptions.getJSONArray("parameters"));
+            Object parameters = startingOptions.get("parameters");
+            if (parameters instanceof JSONArray) {
+                return plainProcessStart(def,(JSONArray) parameters);
+            } else {
+                throw new CannotStartProcess("invalid parameters key");
+            }
         } else if (startingOptions.containsKey("mapping")) {
-            return parametrizedProcessStart(def,startingOptions.getJSONObject("mapping"));
+            Object mapping = startingOptions.get("mapping");
+            if (mapping instanceof JSONObject) {
+                return parametrizedProcessStart(def,startingOptions.getJSONObject("mapping"));
+            } else {
+                throw new CannotStartProcess("invalid mapping key");
+            }
         } else {
             return plainProcessStart(def, new JSONArray());
         }
     }
-    
-    
+
+
     /**
      * Start process without params
      * @param def Process definition
@@ -313,7 +324,7 @@ public class LRResource {
                 JSONObject jsonObj = new JSONObject();
                 LRProcess lrProcesses = this.lrProcessManager.getLongRunningProcess(uuid);
                 if (lrProcesses != null) {
-                    InputStream os = lrProcesses.getErrorProcessOutputStream();
+                    InputStream os = lrProcesses.getStandardProcessOutputStream();
                     ByteArrayOutputStream bos = new ByteArrayOutputStream();
                     IOUtils.copyStreams(os, bos);
                     jsonObj.put("sout", new String(Base64Coder.encode(bos.toByteArray())));
@@ -384,28 +395,32 @@ public class LRResource {
             @QueryParam("uuid") String filterUUID,
             @QueryParam("pid")  String filterPid,
             @QueryParam("def")  String filterDef,
+            @QueryParam("state")  String filterState,
             @QueryParam("batchState")  String filterBatchState,
             @QueryParam("name")  String filterName,
             @QueryParam("userid")  String filterUserId,
             @QueryParam("userFirstname")  String filterUserFirstname,
             @QueryParam("userSurname")  String filterUserSurname,
 
-            @QueryParam("offset") String of) {
+            @QueryParam("offset") String of,
+            @QueryParam("resultSize") String resultSize) {
         if (this.actionAllowed.isActionAllowed(this.userProvider.get(),SecuredActions.MANAGE_LR_PROCESS.getFormalName(), SpecialObjects.REPOSITORY.getPid(),null,new ObjectPidsPath(SpecialObjects.REPOSITORY.getPid()))) {
 
                 Map<String, String> filterMap = new HashMap<String, String>(); {
-                    filterMap.put("uuid", filterUUID);
-                    filterMap.put("pid", filterPid);
-                    filterMap.put("def", filterDef);
-                    filterMap.put("batchState", filterBatchState);
-                    filterMap.put("name", filterName);
-                    filterMap.put("userid", filterUserId);
-                    filterMap.put("userFirstname", filterUserFirstname);
-                    filterMap.put("userSurname", filterUserSurname);
+                    if (StringUtils.isAnyString(filterUUID)) filterMap.put("uuid", filterUUID);
+                    if (StringUtils.isAnyString(filterPid)) filterMap.put("pid", filterPid);
+                    if (StringUtils.isAnyString(filterDef)) filterMap.put("def", filterDef);
+                    if (StringUtils.isAnyString(filterState)) filterMap.put("state", filterState);
+                    if (StringUtils.isAnyString(filterBatchState)) filterMap.put("batchState", filterBatchState);
+                    if (StringUtils.isAnyString(filterName)) filterMap.put("name", filterName);
+                    if (StringUtils.isAnyString(filterUserId)) filterMap.put("userid", filterUserId);
+                    if (StringUtils.isAnyString(filterUserFirstname)) filterMap.put("userFirstname", filterUserFirstname);
+                    if (StringUtils.isAnyString(filterUserSurname)) filterMap.put("userSurname", filterUserSurname);
                 };
                 LRPRocessFilter filter = lrPRocessFilter(filterMap);
-                List<LRProcess> lrProcesses = this.lrProcessManager.getLongRunningProcessesAsGrouped(lrProcessOrdering(null), typeOfOrdering(null), offset(of), filter);
+                List<LRProcess> lrProcesses = this.lrProcessManager.getLongRunningProcessesAsGrouped(lrProcessOrdering(null), typeOfOrdering(null), offset(of, resultSize), filter);
                 JSONArray retList = new JSONArray();
+
                 for (LRProcess lrProcess : lrProcesses) {
                     JSONObject ent = lrPRocessToJSONObject(lrProcess);
                     if (lrProcess.isMasterProcess()) {
@@ -456,11 +471,10 @@ public class LRResource {
         return null;
     }
 
-    private LRProcessOffset offset(String of) {
-        if (of != null) {
-            LRProcessOffset offset = new LRProcessOffset(of, DEFAULT_SIZE);
-            return offset;
-        } else return new LRProcessOffset("0", DEFAULT_SIZE);
+    private LRProcessOffset offset(String of, String resultSize) {
+        String sof = of != null ? of : "0";
+        String sres = resultSize != null ? resultSize : DEFAULT_SIZE;
+        return new LRProcessOffset(sof, sres);
     }
 
     private TypeOfOrdering typeOfOrdering(String type) {
