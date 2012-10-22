@@ -31,6 +31,8 @@ import cz.incad.kramerius.rest.api.replication.ReplicationsResource;
  */
 public class ApiServletModule extends JerseyServletModule {
 
+    public static String VERSION = "4.6";
+    
     @Override
     protected void configureServlets() {
         // API Resources
@@ -42,6 +44,6 @@ public class ApiServletModule extends JerseyServletModule {
         parameters.put("com.sun.jersey.api.json.POJOMappingFeature", "true");
         parameters.put("com.sun.jersey.config.property.packages", "cz.incad.kramerius.rest.api.processes.messages");
 
-        serve("/api/*").with(GuiceContainer.class, parameters);
+        serve("/api/"+VERSION+"/*").with(GuiceContainer.class, parameters);
     }
 }
