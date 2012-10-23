@@ -153,6 +153,7 @@ public class PolicyServiceImpl implements PolicyService {
     public static void main(String[] args) throws IOException {
         LOGGER.info("PolicyService: "+Arrays.toString(args));
         if (args.length >= 2) {
+            //TODO: I18N
             ProcessStarter.updateName("Priznak  '"+args[0]+" pro titul "+args[1]);
         }
         PolicyServiceImpl inst = new PolicyServiceImpl();
