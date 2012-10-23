@@ -36,6 +36,7 @@ import java.util.logging.Level;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter.DEFAULT;
 
 import net.sf.json.JSONArray;
+import net.sf.json.JSONException;
 import net.sf.json.JSONObject;
 
 import org.antlr.stringtemplate.StringTemplate;
@@ -159,7 +160,12 @@ public class OutputTemplate implements ProcessOutputTemplate {
         File descriptionFile = new File(lrProcess.processWorkingDirectory(),AbstractPhase.DESCRIPTION_FILE);
         if ((descriptionFile != null) && (descriptionFile.canRead())) {
             String stringInput = IOUtils.readAsString(new FileInputStream(descriptionFile), Charset.forName("UTF-8"), true);
-            return JSONObject.fromObject(stringInput);
+            try {
+                return JSONObject.fromObject(stringInput);
+            } catch (JSONException e) {
+                LOGGER.log(Level.SEVERE,e.getMessage(),e);
+                return null;
+            }
         } else return null;
     }
 
@@ -183,6 +189,18 @@ public class OutputTemplate implements ProcessOutputTemplate {
         return strArr;
     }
 
+    public static void main(String[] args) {
+        try {
+            JSONObject object = JSONObject.fromObject("");
+            System.out.println(object);
+        } catch (net.sf.json.JSONException e) {
+            System.out.println("Odchycena chyba...");
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+    }
+    
+    
     /**
      * Output template rendering context
      * @author pavels

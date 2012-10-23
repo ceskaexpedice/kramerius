@@ -51,6 +51,8 @@ import cz.incad.kramerius.utils.StringUtils;
  */
 public class K4ReplicationProcess {
 
+    static String API_VERSION ="v4.6";
+    
     static java.util.logging.Logger LOGGER = java.util.logging.Logger.getLogger(K4ReplicationProcess.class.getName());
 
     // all K4 replication phasses
@@ -157,19 +159,19 @@ public class K4ReplicationProcess {
 
     public static String prepareURL(String url) {
         String pid = pidFrom(url);
-        String prepareURL = StringUtils.minus(StringUtils.minus(url, pid),"handle/")+"api/replication/"+pid+"/tree";
+        String prepareURL = StringUtils.minus(StringUtils.minus(url, pid),"handle/")+"api/"+API_VERSION+"/replication/"+pid+"/tree";
         return prepareURL;
     }
 
     public static String descriptionURL(String url) {
         String pid = pidFrom(url);
-        String prepareURL = StringUtils.minus(StringUtils.minus(url, pid),"handle/")+"api/replication/"+pid;
+        String prepareURL = StringUtils.minus(StringUtils.minus(url, pid),"handle/")+"api/"+API_VERSION+"/replication/"+pid;
         return prepareURL;
     }
 
     public static String foxmlURL(String url, String pid) {
         String oldPid = pidFrom(url);
-        String prepareURL = StringUtils.minus(StringUtils.minus(url, oldPid),"handle/")+"api/replication/"+pid+"/foxml";
+        String prepareURL = StringUtils.minus(StringUtils.minus(url, oldPid),"handle/")+"api/"+API_VERSION+"/replication/"+pid+"/foxml";
         return prepareURL;
     }    
     

@@ -7,7 +7,6 @@ restartbutton(ctx) ::=<<
          '$ctx.bundle.("common.restart")$': bind(function() {
             this.dialog.dialog("close");
             this.restart();
-            window.close();
          },this),
     $endif$
 >>
@@ -28,7 +27,9 @@ dialogscripts(ctx)  ::=<<
                     
                     var url = "lr?action=form_post&def=k4_replication&paramsMapping={url="+handle+";username="+user+";pswd="+password+"&previousProcess="+restartUUID+"}&out=text";
                     
-                    processStarter("k4_replication").start(url);
+                    processStarter("k4_replication").start(url, function() {
+                          window.close();
+                    });
                 }
                 
                 
