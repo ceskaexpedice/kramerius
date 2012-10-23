@@ -17,11 +17,14 @@
 package org.kramerius.imports;
 
 import java.io.File;
+import java.io.IOException;
+import java.util.logging.Level;
 
 import org.kramerius.Import;
 
 import cz.incad.kramerius.processes.annotations.ParameterName;
 import cz.incad.kramerius.processes.annotations.Process;
+import cz.incad.kramerius.processes.impl.ProcessStarter;
 
 /**
  * Parametrized import proces
@@ -40,7 +43,14 @@ public class ParametrizedImport {
 
         System.setProperty("import.directory", importDirectory.getAbsolutePath());
         System.setProperty("ingest.startIndexer", startIndexer.toString());
-
+        
+        try {
+            //TODO: I18N
+            ProcessStarter.updateName("Parametrizovany import z '"+importDirectory.getAbsolutePath()+"'");
+        } catch (IOException e) {
+            LOGGER.log(Level.SEVERE,e.getMessage(), e);
+        }
+        
         //standard import program
         Import.main(new String[0]);
     }
