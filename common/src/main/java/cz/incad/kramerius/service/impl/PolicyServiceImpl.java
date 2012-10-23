@@ -33,6 +33,7 @@ import com.google.inject.name.Named;
 
 import cz.incad.kramerius.FedoraAccess;
 import cz.incad.kramerius.impl.FedoraAccessImpl;
+import cz.incad.kramerius.processes.impl.ProcessStarter;
 import cz.incad.kramerius.service.PolicyService;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 
@@ -151,6 +152,9 @@ public class PolicyServiceImpl implements PolicyService {
 
     public static void main(String[] args) throws IOException {
         LOGGER.info("PolicyService: "+Arrays.toString(args));
+        if (args.length >= 2) {
+            ProcessStarter.updateName("Priznak '"+args[0]+" pro titul "+args[1]);
+        }
         PolicyServiceImpl inst = new PolicyServiceImpl();
         inst.fedoraAccess = new FedoraAccessImpl(null);
         inst.configuration = KConfiguration.getInstance();
