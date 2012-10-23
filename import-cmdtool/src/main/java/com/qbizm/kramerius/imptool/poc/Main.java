@@ -108,7 +108,7 @@ public class Main {
         File importFile = new File(importRoot);
         if (!importFile.exists()) {
             System.err.println("Import root folder doesn't exist: " + importFile.getAbsolutePath());
-            System.exit(1);
+            throw new RuntimeException("Import root folder doesn't exist: " + importFile.getAbsolutePath());
         }
 
         visitAllDirsAndFiles(importFile, importRoot, exportRoot,  useDB, defaultVisibility,  convertedURI, titleId);
