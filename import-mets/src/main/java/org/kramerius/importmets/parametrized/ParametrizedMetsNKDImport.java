@@ -30,6 +30,7 @@ import org.xml.sax.SAXException;
 
 import cz.incad.kramerius.processes.annotations.ParameterName;
 import cz.incad.kramerius.processes.annotations.Process;
+import cz.incad.kramerius.processes.impl.ProcessStarter;
 
 /**
  * Parametrized mets NKD import
@@ -51,7 +52,10 @@ public class ParametrizedMetsNKDImport {
         System.setProperty("ingest.startIndexer", startIndexer.toString());
         System.setProperty("ingest.skip", defaultRights.toString());
 
+        
         try {
+            //TODO: I18N
+            ProcessStarter.updateName("Parametrizovany import NDK METS z '"+convertDirectory.getAbsolutePath()+"'");
             MetsConvertor.main(new String[] {defaultRights.toString(), convertDirectory.getAbsolutePath(), targetDirectory.getAbsolutePath()});
         } catch (Exception e) {
             throw new RuntimeException(e);
