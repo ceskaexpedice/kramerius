@@ -20,6 +20,7 @@ import java.io.File;
 
 import cz.incad.kramerius.processes.annotations.ParameterName;
 import cz.incad.kramerius.processes.annotations.Process;
+import cz.incad.kramerius.processes.impl.ProcessStarter;
 
 public class ParametrizedPDFExport {
 
@@ -33,7 +34,8 @@ public class ParametrizedPDFExport {
                                 @ParameterName("country") String country,
                                 @ParameterName("lang") String lang) throws Exception {
 
-        
+        //TODO: i18N
+        ProcessStarter.updateName("Staticky export titulu "+pid+" na "+medium);
         
         PDFExport.main(new String[] {outputFolder.getAbsolutePath(), medium, pid, imgUrl, i18nUrl, country, lang});
     }
