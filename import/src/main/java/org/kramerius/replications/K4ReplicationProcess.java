@@ -44,6 +44,8 @@ import cz.incad.kramerius.utils.ApplicationURL;
 import cz.incad.kramerius.utils.IOUtils;
 import cz.incad.kramerius.utils.RESTHelper;
 import cz.incad.kramerius.utils.StringUtils;
+import cz.incad.kramerius.utils.pid.LexerException;
+import cz.incad.kramerius.utils.pid.PIDParser;
 
 /**
  * K4 replication process 
@@ -65,6 +67,7 @@ public class K4ReplicationProcess {
     @Process
     public static void replications(@ParameterName("url") String url, @ParameterName("username") String userName, @ParameterName("pswd")String pswd,@ParameterName("previousProcess")String previousProcessUUID) throws IOException {
         LOGGER.info("previousProcessUUID = "+previousProcessUUID);
+        handleValidation(url);
         // definovane uuid predchoziho procesu => restart
         if ((previousProcessUUID != null) && (!previousProcessUUID.equals(""))) {
             LOGGER.info("restarting ..");
@@ -79,6 +82,26 @@ public class K4ReplicationProcess {
         }
     }
 
+    public static void handleValidation(String handle)  {
+        try {
+            // try to parse url
+            new URL(handle);
+            // find handle context
+            if (!handle.contains("handle")) throw new RuntimeException(" '"+handle+"' is not valid hanle url");
+            String pidFrom = pidFrom(handle);
+            PIDParser parser = new PIDParser(pidFrom);
+            parser.objectPid();
+            String objectPid = parser.getObjectPid();
+            if (objectPid == null)  throw new RuntimeException("cannot determine pid");
+        } catch (MalformedURLException e) {
+            LOGGER.severe("cannot parse '"+handle+"'");
+            throw new RuntimeException(e);
+        } catch (LexerException e) {
+            LOGGER.severe("cannot parse pid in'"+handle+"'");
+            throw new RuntimeException(e);
+        }
+    }
+    
     public static void restart(String processUUID, File previousProcessFolder, String url, String userName, String pswd) throws IOException {
         try {
             for (Phase ph : PHASES) {
@@ -175,12 +198,18 @@ public class K4ReplicationProcess {
         return prepareURL;
     }    
     
+    /**
+     * Find pid in given url and returns it
+     * @param urlPath URL with pid
+     * @return found pid
+     */
     public static String pidFrom(String urlPath) {
+        if (urlPath ==null) return "";
         int indexOf = urlPath.indexOf("uuid:");
-        String subString = urlPath.substring(indexOf);
-        if (subString.endsWith("/")) return subString.substring(0, subString.length()-1);
-        else return subString;
+        if (indexOf>=0) {
+            String subString = urlPath.substring(indexOf);
+            if (subString.endsWith("/")) return subString.substring(0, subString.length()-1);
+            else return subString;
+        } else return "";
     }
-    
-    
 }

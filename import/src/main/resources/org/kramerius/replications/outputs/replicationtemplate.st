@@ -108,12 +108,14 @@ $ctx.formatedErrorMessage$
                 </div>
                 
                 
+    $if(ctx.restartButtonEnabled)$
                 <table width="100%">
                     <tr width="60%"><td></td><td align="right" width="40%"><label> $ctx.bundle.("replication.output.restartuser")$ </label></td></tr>
                     <tr width="60%"><td></td><td align="right" width="40%"><input id="user" type="text">  </input></td></tr>
                     <tr width="60%"><td></td><td align="right" width="40%"><label> $ctx.bundle.("replication.output.restartpassword")$</label></td></tr>
                     <tr width="60%"><td></td><td align="right" width="40%"><input id="password" type="password">  </input></td></tr>
                 </table>
+    $endif$
             </div>  
 $endif$
 

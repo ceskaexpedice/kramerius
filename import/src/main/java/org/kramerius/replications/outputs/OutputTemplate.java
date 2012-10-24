@@ -25,6 +25,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Writer;
+import java.net.URL;
 import java.nio.charset.Charset;
 import java.util.Arrays;
 import java.util.Locale;
@@ -83,22 +84,29 @@ public class OutputTemplate implements ProcessOutputTemplate {
         Properties props = lrProcess.getParametersMapping();
 
         String url = props.getProperty("url");
-        
+
         OutputContext ctx = new OutputContext(); 
         ctx.setPid(K4ReplicationProcess.pidFrom(url));
-        if (jsonObject != null) {
-            ctx.setDate(jsonObject.getString("date"));
-            ctx.setTitle(jsonObject.getString("title"));
-            ctx.setType(jsonObject.getString("type"));
-            ctx.setHandle(jsonObject.getString("handle"));
-            ctx.setIdentifiers(jsonToArray(jsonObject.getJSONArray("identifiers")));
-            ctx.setPublishers(jsonToArray(jsonObject.getJSONArray("publishers")));
-            ctx.setCreators(jsonToArray(jsonObject.getJSONArray("creators")));
-            ctx.setLrProcess(lrProcess);
-            ctx.setBundle(BundleTemplateUtils.resourceBundleMap(this.resourceBundleService.getResourceBundle("labels", localesProvider.get())));
-            setPhasesFlags(ctx, lrProcess.processWorkingDirectory());
-            setErrorFlagAndMessage(lrProcess, ctx);
+        ctx.setDate(jsonObject != null ? jsonObject.getString("date"): "-");
+        ctx.setTitle(jsonObject != null ? jsonObject.getString("title"): "-");
+        ctx.setType(jsonObject != null ? jsonObject.getString("type"): "-");
+        ctx.setHandle(jsonObject != null ? jsonObject.getString("handle"): "-");
+        ctx.setIdentifiers(jsonObject != null ? jsonToArray(jsonObject.getJSONArray("identifiers")): new String[0]);
+        ctx.setPublishers(jsonObject != null ? jsonToArray(jsonObject.getJSONArray("publishers")): new String[0]);
+        ctx.setCreators(jsonObject != null ? jsonToArray(jsonObject.getJSONArray("creators")): new String[0]);
+        ctx.setLrProcess(lrProcess);
+        ctx.setBundle(BundleTemplateUtils.resourceBundleMap(this.resourceBundleService.getResourceBundle("labels", localesProvider.get())));
+        setPhasesFlags(ctx, lrProcess.processWorkingDirectory());
+        setErrorFlagAndMessage(lrProcess, ctx);
+
+        try {
+            //TODO: full validation
+            new URL(ctx.getHandle());
+            ctx.setValidHandlePresent(true);
+        } catch (Exception e) {
+            ctx.setValidHandlePresent(false);
         }
+        
         
         InputStream iStream = this.getClass().getResourceAsStream("replicationtemplate.st");
         StringTemplateGroup templateGroup = new StringTemplateGroup(new InputStreamReader(iStream,"UTF-8"), DefaultTemplateLexer.class);
@@ -189,16 +197,6 @@ public class OutputTemplate implements ProcessOutputTemplate {
         return strArr;
     }
 
-    public static void main(String[] args) {
-        try {
-            JSONObject object = JSONObject.fromObject("");
-            System.out.println(object);
-        } catch (net.sf.json.JSONException e) {
-            System.out.println("Odchycena chyba...");
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
-    }
     
     
     /**
@@ -225,6 +223,7 @@ public class OutputTemplate implements ProcessOutputTemplate {
         
         private LRProcess lrProcess;
         private Map<String, String> bundle;
+        private boolean validHandle;
         
         public String getType() {
             return type;
@@ -328,9 +327,16 @@ public class OutputTemplate implements ProcessOutputTemplate {
         }
 
         public boolean isRestartButtonEnabled() {
-            return this.isErrorOccured();
+            return this.isErrorOccured() && this.isValidHandlePresent();
         }
         
+        public boolean isValidHandlePresent() {
+            return this.validHandle;
+        }
+        
+        public void setValidHandlePresent(boolean flag) {
+            this.validHandle = flag;
+        }
         
         public boolean isErrorOccured() {
             return errorOccured;
