@@ -72,13 +72,15 @@ public class MonographConvertor extends BaseConvertor {
      */
     private String uuid(UniqueIdentifier uid) throws ServiceException {
         String pid;
-        if (uid == null || uid.getUniqueIdentifierURNType() == null || !Pattern.matches(PID_PATTERN, PID_PREFIX + first(uid.getUniqueIdentifierURNType().getContent()))) {
+        if ( uid.getUniqueIdentifierURNType() == null || !Pattern.matches(PID_PATTERN, PID_PREFIX + first(uid.getUniqueIdentifierURNType().getContent()))) {
             pid = generateUUID();
             log.info("Assigned new UUID:"+pid);
             if (uid.getUniqueIdentifierURNType() == null) {
                 uid.setUniqueIdentifierURNType(new UniqueIdentifierURNType());
             }
-            uid.getUniqueIdentifierURNType().getContent().add(pid);
+            List<String> content = uid.getUniqueIdentifierURNType().getContent();
+            content.clear();
+            content.add(pid);
         } else {
             pid = first(uid.getUniqueIdentifierURNType().getContent());
         }
