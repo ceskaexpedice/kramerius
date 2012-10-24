@@ -10,7 +10,7 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn" %>
 <%@ taglib uri="/WEB-INF/tlds/cmn.tld" prefix="view" %>
-<%@ page isELIgnored="false"%><view:object name="fav" clz="cz.incad.Kramerius.views.favorites.FavoritesViewObject"></view:object>
+<%@ page isELIgnored="false"%><view:object name="fav" clz="cz.incad.Kramerius.views.FavoritesViewObject"></view:object>
 
 
 
