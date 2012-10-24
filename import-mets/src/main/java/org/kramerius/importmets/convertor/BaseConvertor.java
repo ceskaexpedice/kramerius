@@ -392,7 +392,7 @@ public abstract class BaseConvertor {
             throws ServiceException {
         // /== DUBLIN CORE
         DatastreamType dcStream = this.createDublinCoreStream(dc);
-        foxmlObject.getDatastream().add(dcStream);
+        addCheckedDataStream(foxmlObject, dcStream);
         // \== DUBLIN CORE
 
         // /== BASE64 stream
@@ -401,18 +401,18 @@ public abstract class BaseConvertor {
 
         // /== BIBLIO_MODS stream
         DatastreamType biblioModsStream = this.createBiblioModsStream(mods);
-        foxmlObject.getDatastream().add(biblioModsStream);
+        addCheckedDataStream(foxmlObject, biblioModsStream);
         // \== BIBLIO_MODS stream
 
         // /== RELS-EXT stream
         DatastreamType relsExtStream = this.createRelsExtStream(re);
-        foxmlObject.getDatastream().add(relsExtStream);
+        addCheckedDataStream(foxmlObject, relsExtStream);
         // \== RELS-EXT stream
 
         // /== POLICY stream
         if (policyID != null) {
             DatastreamType policyStream = this.createPolicyStream(policyID);
-            foxmlObject.getDatastream().add(policyStream);
+            addCheckedDataStream(foxmlObject, policyStream);
         }
         // \== POLICY stream
     }
@@ -686,7 +686,6 @@ public abstract class BaseConvertor {
         if (files != null) {
             for (FileDescriptor f : files) {
                 if (f != null) {
-
                     File imageFile = new File(getConfig().getImportFolder() + System.getProperty("file.separator") + f.getFilename());
                     if (imageFile.exists() && imageFile.canRead()) {
                         switch (f.getFileType()){
@@ -700,37 +699,37 @@ public abstract class BaseConvertor {
                                 }
                                 DatastreamType fullStream = this.createFullStream(img, f.getFilename());
                                 if (fullStream != null) {
-                                    foxmlObject.getDatastream().add(fullStream);
+                                    addCheckedDataStream(foxmlObject,fullStream);
                                 }
                                 DatastreamType thumbnailStream = this.createThumbnailStream(img, f.getFilename());
                                 if (thumbnailStream != null) {
-                                    foxmlObject.getDatastream().add(thumbnailStream);
+                                    addCheckedDataStream(foxmlObject,thumbnailStream);
                                 }
                                 if (KConfiguration.getInstance().getConfiguration().getBoolean("convert.generatePreview", true)){
                                     DatastreamType previewStream = this.createPreviewStream(img, f.getFilename());
                                     if (previewStream != null) {
-                                        foxmlObject.getDatastream().add(previewStream);
+                                        addCheckedDataStream(foxmlObject,previewStream);
                                     }
                                 }
                                 break;
                             case ALTO:
                                 DatastreamType altoStream = this.createAltoStream( f.getFilename());
                                 if (altoStream != null) {
-                                    foxmlObject.getDatastream().add(altoStream);
+                                    addCheckedDataStream(foxmlObject,altoStream);
                                 }
                                 break;
                             case OCR:
-                                DatastreamType base64Stream = this.createBase64Stream(f.getFilename());
-                                foxmlObject.getDatastream().add(base64Stream);
+                                DatastreamType base64Stream = this.createOCRStream(f.getFilename());
+                                addCheckedDataStream(foxmlObject,base64Stream);
                                 break;
                             case AMD:
                                 DatastreamType amdStream = this.createAMDStream( f.getFilename());
                                 if (amdStream != null) {
-                                    foxmlObject.getDatastream().add(amdStream);
+                                    addCheckedDataStream(foxmlObject,amdStream);
                                 }
                                 /*if (f.getImageMetaData() != null) {
                                 DatastreamType imageAdmStream = this.createImageMetaStream(getBase64StreamId(f.getFilename()) + "_ADM", f.getImageMetaData());
-                                foxmlObject.getDatastream().add(imageAdmStream);
+                                addCheckedDataStream(foxmlObject, imageAdmStream);
                                 }*/ //TODO support for AMD
                                 break;
                         }
@@ -748,6 +747,19 @@ public abstract class BaseConvertor {
         }
     }
 
+
+    private void addCheckedDataStream(DigitalObject foxml, DatastreamType stream){
+        if (stream == null||foxml == null){
+            return;
+        }
+        for (DatastreamType existing:foxml.getDatastream() ){
+           if(existing.getID().equals(stream.getID())){
+               throw new IllegalStateException("Attempt to add duplicate datastream ID:"+stream.getID()+", PID:"+foxml.getPID());
+           }
+        }
+        foxml.getDatastream().add(stream);
+    }
+
     /**
      * Ziska priponu ze jmena souboru
      *
@@ -758,17 +770,7 @@ public abstract class BaseConvertor {
         return filename.substring(filename.lastIndexOf('.') + 1).toLowerCase();
     }
 
-    /**
-     * Je zadany soubor obrazek?
-     */
-    private boolean isImage(String filename) {
-        if (filename == null) return true;
-        return !SUFFIX_TXT.equals(getSuffix(filename));
-    }
 
-    private String getBase64StreamId(String filename) {
-        return (isImage(filename)) ? FedoraUtils.IMG_FULL_STREAM : STREAM_ID_TXT;
-    }
 
     private String getImageMime(String filename) {
         return mimeMap.get(getSuffix(filename));
@@ -853,12 +855,11 @@ public abstract class BaseConvertor {
      * @param filename
      * @return stream
      */
-    private DatastreamType createBase64Stream(String filename) throws ServiceException {
+    private DatastreamType createOCRStream(String filename) throws ServiceException {
         try {
-            String streamId = getBase64StreamId(filename);
             String streamType = KConfiguration.getInstance().getConfiguration().getString("convert.files", "encoded");
             DatastreamType stream = new DatastreamType();
-            stream.setID(streamId);
+            stream.setID(STREAM_ID_TXT);
             if ("external".equalsIgnoreCase(streamType)){
                 stream.setCONTROLGROUP("E");
             }else{
@@ -869,7 +870,7 @@ public abstract class BaseConvertor {
 
             DatastreamVersionType version = new DatastreamVersionType();
             version.setCREATED(getCurrentXMLGregorianCalendar());
-            version.setID(streamId + STREAM_VERSION_SUFFIX);
+            version.setID(STREAM_ID_TXT + STREAM_VERSION_SUFFIX);
 
             version.setMIMETYPE(getImageMime(filename));
 
@@ -881,13 +882,7 @@ public abstract class BaseConvertor {
                 byte[] binaryContent = FileUtils.readFileToByteArray(pageFile);
                 version.setBinaryContent(binaryContent);
             }else{//external or referenced
-                String subfolderName = "";
-                if (isImage(filename)){
-                    subfolderName= "img";
-                }else{
-                    subfolderName= "txt";
-                }
-                String binaryDirectory = getConfig().getExportFolder() + System.getProperty("file.separator") + subfolderName;
+                String binaryDirectory = getConfig().getExportFolder() + System.getProperty("file.separator") + "txt";
                 // Destination directory
                 File dir = IOUtils.checkDirectory(binaryDirectory);
                 // Move file to new directory
@@ -1583,10 +1578,10 @@ public abstract class BaseConvertor {
         try{
         DigitalObject foxmlPeri = this.createDigitalObject( foxml.getPid(),foxml.getTitle(), createDublinCoreElement(foxml.getDc()), createRelsExtElement(foxml.getRe()), createBiblioModsElement(foxml.getMods()), files);
         if (foxml.getOcr()!= null){
-            foxmlPeri.getDatastream().add(createEncodedStream(STREAM_ID_TXT, "text/plain", foxml.getOcr()));
+            addCheckedDataStream(foxmlPeri, createEncodedStream(STREAM_ID_TXT, "text/plain", foxml.getOcr()));
         }
         if (foxml.getStruct()!= null){
-            foxmlPeri.getDatastream().add(createEncodedStream("STRUCT_MAP", "text/xml", "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<parts>\n"+foxml.getStruct()+"</parts>\n"));
+            addCheckedDataStream(foxmlPeri, createEncodedStream("STRUCT_MAP", "text/xml", "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<parts>\n"+foxml.getStruct()+"</parts>\n"));
             //System.out.print("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<parts>\n"+foxml.getStruct()+"</parts>");
         }
         this.marshalDigitalObject(foxmlPeri);
