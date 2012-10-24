@@ -47,3 +47,18 @@ insertRight_DisplayAdminMenu() ::=<<
         where gname='k4_admins'
 >>
 
+
+
+insertRight_K4ReplicationImport() ::=<<
+    insert into right_entity (right_id, uuid, "action", group_id)
+        select nextval('right_id_sequence'),'uuid:1','import_k4_replications',group_id 
+        from group_entity
+        where gname='k4_admins'
+>>
+
+insertRight_K4ReplicationExport() ::=<<
+    insert into right_entity (right_id, uuid, "action", group_id)
+        select nextval('right_id_sequence'),'uuid:1','export_k4_replications',group_id 
+        from group_entity
+        where gname='k4_admins'
+>>

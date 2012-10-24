@@ -76,6 +76,9 @@ public class SecurityDatabaseInitializator {
                 // insert right for criteria params manage
                 insertRightForCriteriaParamsManage(connection);
                 
+                // k4 replication rights
+                insertRightK4ReplicationExport(connection);
+                insertRightK4ReplicationImport(connection);
                 
             } else { 
                 
@@ -101,9 +104,21 @@ public class SecurityDatabaseInitializator {
                     // right for criteria params manage
                     insertRightForCriteriaParamsManage(connection);
 
+                    // k4 replication rights
+                    insertRightK4ReplicationExport(connection);
+                    insertRightK4ReplicationImport(connection);
+
                 } else if (versionCondition(v, "=", "5.3.0")){
                     // right for criteria params manage
                     insertRightForCriteriaParamsManage(connection);
+                    // k4 replication rights
+                    insertRightK4ReplicationExport(connection);
+                    insertRightK4ReplicationImport(connection);
+
+                } else if (versionCondition(v, "=", "5.4.0")){
+                    // k4 replication rights
+                    insertRightK4ReplicationExport(connection);
+                    insertRightK4ReplicationImport(connection);
                 }
             }
         } catch (SQLException e) {
@@ -111,6 +126,19 @@ public class SecurityDatabaseInitializator {
         } catch (IOException e) {
             LOGGER.log(Level.SEVERE,e.getMessage(),e);
         }
+    }
+
+    
+    private static int insertRightK4ReplicationExport(Connection connection) throws SQLException {
+        String sql = SecurityDatabaseUtils.stUdateRightGroup().getInstanceOf("insertRight_K4ReplicationExport").toString();
+        JDBCUpdateTemplate template = new JDBCUpdateTemplate(connection,false);
+        return template.executeUpdate(sql);
+    }
+
+    private static int insertRightK4ReplicationImport(Connection connection) throws SQLException {
+        String sql = SecurityDatabaseUtils.stUdateRightGroup().getInstanceOf("insertRight_K4ReplicationImport").toString();
+        JDBCUpdateTemplate template = new JDBCUpdateTemplate(connection,false);
+        return template.executeUpdate(sql);
     }
 
     private static int insertRightForCriteriaParamsManage(Connection connection) throws SQLException {
