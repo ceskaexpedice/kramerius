@@ -19,6 +19,7 @@ package org.kramerius.convert;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.util.logging.Level;
 
 import javax.xml.bind.JAXBException;
 
@@ -32,6 +33,7 @@ import com.qbizm.kramerius.imptool.poc.valueobj.ServiceException;
 import cz.incad.kramerius.processes.annotations.DefaultParameterValue;
 import cz.incad.kramerius.processes.annotations.ParameterName;
 import cz.incad.kramerius.processes.annotations.Process;
+import cz.incad.kramerius.processes.impl.ProcessStarter;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 
 public class ParametrizedConvert {
@@ -53,6 +55,13 @@ public class ParametrizedConvert {
         System.setProperty("ingest.startIndexer", startIndexer.toString());
         System.setProperty("ingest.skip", defaultRights.toString());
             
+        try {
+            //TODO: I18N
+            ProcessStarter.updateName("Parametrizovany import z K3 formatu z '"+convertDirectory.getAbsolutePath()+"'");
+        } catch (IOException e) {
+            LOGGER.log(Level.SEVERE,e.getMessage(), e);
+        }
+        
         /** Standard convert process */
         Convert.main(new String[0]);
     }
