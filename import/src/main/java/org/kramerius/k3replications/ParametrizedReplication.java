@@ -24,11 +24,13 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.StringReader;
+import java.util.logging.Level;
 
 import org.kramerius.Download;
 
 import cz.incad.kramerius.processes.annotations.ParameterName;
 import cz.incad.kramerius.processes.annotations.Process;
+import cz.incad.kramerius.processes.impl.ProcessStarter;
 import cz.incad.kramerius.service.impl.IndexerProcessStarter;
 
 /**
@@ -48,6 +50,13 @@ public class ParametrizedReplication {
                                     @ParameterName("indexerStart")Boolean startIndexer, 
                                     @ParameterName("defaultRights")Boolean defaultRights ) throws IOException {
     
+        try {
+            //TODO: I18N
+            ProcessStarter.updateName("Parametrizovany import z K3 formatu z '"+migrationDirectory.getAbsolutePath()+"'");
+        } catch (IOException e) {
+            LOGGER.log(Level.SEVERE,e.getMessage(), e);
+        }
+
         
         LOGGER.info("idList :"+idList);
         if (idList != null && (!idList.trim().equals(""))) {
