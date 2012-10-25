@@ -43,6 +43,7 @@ public class ParametrizedImport {
 
         System.setProperty("import.directory", importDirectory.getAbsolutePath());
         System.setProperty("ingest.startIndexer", startIndexer.toString());
+        System.setProperty("ingest.skip", "false");   //import se bude vždy spouštět
         
         try {
             //TODO: I18N
