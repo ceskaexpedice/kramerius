@@ -67,7 +67,7 @@ public class ParametrizedReplication {
         LOGGER.info("defaultRights "+defaultRights);
 
         if (idList != null && (!idList.trim().equals(""))) {
-            if (replicateType.equalsIgnoreCase("monographs")) {
+            if (replicateType.equalsIgnoreCase("monograph")) {
                 
                 System.setProperty("convert.defaultRights", defaultRights.toString());
                 System.setProperty("migration.directory", migrationDirectory.getAbsolutePath());
