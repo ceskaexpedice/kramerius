@@ -47,7 +47,7 @@ public class ParametrizedReplication {
                                     @ParameterName("migrationDirectory")File migrationDirectory,
                                     @ParameterName("targetDirectory")File targetDirectory, 
                                     @ParameterName("ingestSkip")Boolean ingestSkip, 
-                                    @ParameterName("indexerStart")Boolean startIndexer, 
+                                    @ParameterName("startIndexer")Boolean startIndexer,
                                     @ParameterName("defaultRights")Boolean defaultRights ) throws IOException {
     
         try {
