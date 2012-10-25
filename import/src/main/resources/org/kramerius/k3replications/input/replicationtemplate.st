@@ -67,7 +67,7 @@ form(migrationDirectory,targetDirectory,importRootDirectory, bundle) ::=<<
             var defaultRights = \$('#defaultRights').attr('checked');
             var ingestSkip = \$('#ingestSkip').attr('checked');
             
-            var replTypeId = \$("input[@name=repltype]:checked").attr('id');
+            var replTypeId = \$("input[@name=repltype]:checked").attr('value');
 
             var vals = 'replicatetype='+replTypeId
                 +';idlist='+   \$('#idlist').val().escapeChars(charsThatMustBeEscaped)

@@ -57,8 +57,15 @@ public class ParametrizedReplication {
             LOGGER.log(Level.SEVERE,e.getMessage(), e);
         }
 
-        
-        LOGGER.info("idList :"+idList);
+    
+        LOGGER.info("replicatetype "+replicateType);
+        LOGGER.info("idlist "+idList);
+        LOGGER.info("migrationDirectory "+migrationDirectory.getAbsolutePath());
+        LOGGER.info("targetDirectory "+targetDirectory.getAbsolutePath());
+        LOGGER.info("ingestSkip "+ingestSkip);
+        LOGGER.info("indexerStart "+startIndexer);
+        LOGGER.info("defaultRights "+defaultRights);
+
         if (idList != null && (!idList.trim().equals(""))) {
             if (replicateType.equalsIgnoreCase("monographs")) {
                 
