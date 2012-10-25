@@ -22,6 +22,7 @@ import cz.incad.kramerius.utils.XMLUtils;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.input.BOMInputStream;
 import org.apache.log4j.Logger;
+import org.kramerius.Import;
 import org.kramerius.dc.OaiDcType;
 import org.kramerius.importmets.convertor.MetsPeriodicalConvertor;
 import org.kramerius.importmets.convertor.MonographConvertor;
@@ -81,6 +82,8 @@ public class MetsConvertor {
             }
             
             convert(importRoot, exportRoot,  defaultVisibility, null);
+            Import.ingest(KConfiguration.getInstance().getProperty("ingest.url"), KConfiguration.getInstance().getProperty("ingest.user"), KConfiguration.getInstance().getProperty("ingest.password"), exportRoot);
+
         }
     }
 

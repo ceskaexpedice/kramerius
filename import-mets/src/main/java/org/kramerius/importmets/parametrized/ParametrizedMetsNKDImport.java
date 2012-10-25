@@ -50,7 +50,7 @@ public class ParametrizedMetsNKDImport {
         
         System.setProperty("convert.defaultRights", defaultRights.toString());
         System.setProperty("ingest.startIndexer", startIndexer.toString());
-        System.setProperty("ingest.skip", defaultRights.toString());
+        System.setProperty("ingest.skip", ingestSkip.toString());
 
         
         try {
