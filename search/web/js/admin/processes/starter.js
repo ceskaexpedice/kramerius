@@ -4,10 +4,19 @@ function Starter(processName, keys) {
 	this.processName = processName;
 	this.dialog = null;
 	this.keys = keys;
+	this.callback = null;
 }
 
-Starter.prototype.start=function(url) {
-	if (this.dialog) {
+//TODO: do it better 
+Starter.prototype.notify = function() {
+    if (this.callback) {
+        this.callback.apply(this, arguments);
+    }
+}
+
+Starter.prototype.start=function(url, fc) {
+    this.callback = fc;
+    if (this.dialog) {
 		this.dialog.dialog('open');
 	} else {
 		var prid = "pr"+this.processName;
@@ -21,13 +30,16 @@ Starter.prototype.start=function(url) {
 	        height:  200,
 	        modal: true,
 	        title: dictionary['administrator.menu.dialogs.lrprocesses.title'],
-	        buttons: {
-	            "Close": function() {
-	                $(this).dialog("close"); 
-	            } 
-	        }
+	        buttons: [{
+	                   text:dictionary['common.close'],
+	                   click:  bind(function() {
+	                       this.dialog.dialog("close"); 
+                           this.notify();
+	                   }, this)
+	               }]
 	    });
 	}
+
 
 	this.waiting();
 	
@@ -87,9 +99,11 @@ Starter.prototype.waiting=function() {
 
 Starter.prototype.started=function() {
 	$("#pr"+this.processName).html(this.startedhtml());
+    this.notify();
 }
 Starter.prototype.failed=function() {
     $("#pr"+this.processName).html(this.failedhtml());
+    this.notify();
 }
 
 
