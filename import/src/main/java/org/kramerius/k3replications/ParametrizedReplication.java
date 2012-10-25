@@ -52,7 +52,7 @@ public class ParametrizedReplication {
     
         try {
             //TODO: I18N
-            ProcessStarter.updateName("Parametrizovany import z K3 formatu z '"+migrationDirectory.getAbsolutePath()+"'");
+            ProcessStarter.updateName("Parametrizovana replikace z K3 pres '"+migrationDirectory.getAbsolutePath()+"'");
         } catch (IOException e) {
             LOGGER.log(Level.SEVERE,e.getMessage(), e);
         }

@@ -54,7 +54,7 @@ public class ParametrizedConvert {
         System.setProperty("convert.directory", convertDirectory.getAbsolutePath());
         System.setProperty("convert.defaultRights", defaultRights.toString());
         System.setProperty("ingest.startIndexer", startIndexer.toString());
-        System.setProperty("ingest.skip", defaultRights.toString());
+        System.setProperty("ingest.skip", ingestSkip.toString());
             
         try {
             //TODO: I18N
