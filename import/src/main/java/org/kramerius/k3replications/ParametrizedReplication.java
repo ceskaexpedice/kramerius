@@ -75,7 +75,7 @@ public class ParametrizedReplication {
                 System.setProperty("ingest.startIndexer", startIndexer.toString());
                 System.setProperty("ingest.skip", defaultRights.toString());
                 
-                Download.replicateMonographs(new BufferedReader(new StringReader(idList)));
+                Download.replicateMonographs(new BufferedReader(new StringReader(idList.replaceAll(",","\n"))));
             } else {
                 
                 System.setProperty("convert.defaultRights", defaultRights.toString());
