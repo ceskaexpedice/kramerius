@@ -194,7 +194,6 @@ public class PeriodicalConvertor extends BaseConvertor {
      * Prevede PeriodicalVolume do foxml
      *
      * @param volume
-     * @param prefix
      * @throws ServiceException
      */
     private String convertVolume(PeriodicalVolume volume, boolean parentVisibility) throws ServiceException {
@@ -275,7 +274,6 @@ public class PeriodicalConvertor extends BaseConvertor {
      * Prevede PeriodicalInternalComponentPart do foxml
      *
      * @param part
-     * @param prefix
      * @throws ServiceException
      */
     private void convertInternalPart(PeriodicalInternalComponentPart part, Map<Integer, String> pageIdMap, boolean visibility) throws ServiceException {
@@ -295,8 +293,18 @@ public class PeriodicalConvertor extends BaseConvertor {
         List<PageIndex> pageIndex = part.getPages() != null ? part.getPages().getPageIndex() : null;
         if (pageIndex != null && !part.getPages().getPageIndex().isEmpty()) {
             for (PageIndex pi : pageIndex) {
-                Integer piFrom = Integer.valueOf(pi.getFrom());
-                Integer piTo = Integer.valueOf(pi.getTo());
+                Integer piFrom = -1;
+                try{
+                    piFrom = Integer.valueOf(pi.getFrom());
+                }catch (NumberFormatException e){
+                    log.warn("Ignoring invalid value of <PageIndex From="+pi.getFrom()+"> in internal part "+pid);
+                }
+                Integer piTo = -1;
+                try{
+                    piTo = Integer.valueOf(pi.getTo());
+                }catch (NumberFormatException e){
+                    log.warn("Ignoring invalid value of <PageIndex To="+pi.getTo()+"> in internal part "+pid);
+                }
                 this.processPageIndex(re, piFrom, piTo, pageIdMap);
             }
         }
@@ -327,7 +335,6 @@ public class PeriodicalConvertor extends BaseConvertor {
      * Prevede PeriodicalItem do foxml
      *
      * @param item
-     * @param prefix
      * @throws ServiceException
      */
     private void convertItem(PeriodicalItem item, boolean parentVisibility) throws ServiceException {

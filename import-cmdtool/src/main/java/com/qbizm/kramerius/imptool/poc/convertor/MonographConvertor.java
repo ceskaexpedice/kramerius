@@ -236,9 +236,7 @@ public class MonographConvertor extends BaseConvertor {
      * Konvertuje stranku monografie do foxml
      *
      * @param page
-     * @param monograph
-     * @param prefix
-     * @param foxmlMono
+     * @param visibility
      * @throws ServiceException
      */
     private void convertPage(MonographPage page, boolean visibility) throws ServiceException {
@@ -276,9 +274,7 @@ public class MonographConvertor extends BaseConvertor {
      * Konvertuje monograph unit do foxml
      *
      * @param unit
-     * @param monograph
-     * @param prefix
-     * @param foxmlMono
+     * @param parentVisibility
      * @throws ServiceException
      */
     private void convertUnit(MonographUnit unit, boolean parentVisibility) throws ServiceException {
@@ -369,8 +365,18 @@ public class MonographConvertor extends BaseConvertor {
         List<PageIndex> pageIndex = part.getPages() != null ? part.getPages().getPageIndex() : null;
         if (pageIndex != null && !part.getPages().getPageIndex().isEmpty()) {
             for (PageIndex pi : pageIndex) {
-                Integer piFrom = Integer.valueOf(pi.getFrom());
-                Integer piTo = Integer.valueOf(pi.getTo());
+                Integer piFrom = -1;
+                try{
+                    piFrom = Integer.valueOf(pi.getFrom());
+                }catch (NumberFormatException e){
+                    log.warn("Ignoring invalid value of <PageIndex From="+pi.getFrom()+"> in monograph part "+pid);
+                }
+                Integer piTo = -1;
+                try{
+                    piTo = Integer.valueOf(pi.getTo());
+                }catch (NumberFormatException e){
+                    log.warn("Ignoring invalid value of <PageIndex To="+pi.getTo()+"> in monograph part "+pid);
+                }
                 this.processPageIndex(re, piFrom, piTo, pageIdMap);
             }
         }
@@ -409,7 +415,6 @@ public class MonographConvertor extends BaseConvertor {
     /**
      * Naplni dublin core data z monographu
      *
-     * @param biblio
      * @return
      */
     private DublinCore createMonographDublinCore(String pid, String title, List<Creator> creator, List<Publisher> publisher, List<Contributor> contributor) {
