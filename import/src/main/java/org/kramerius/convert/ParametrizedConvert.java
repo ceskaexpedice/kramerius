@@ -45,10 +45,11 @@ public class ParametrizedConvert {
             @ParameterName("convertDirectory") File convertDirectory, 
             @ParameterName("convertTargetDirectory") File convertTargetDirectory, 
             @ParameterName("ingestSkip") Boolean ingestSkip,
-            @ParameterName("indexerStart")Boolean startIndexer, 
+            @ParameterName("startIndexer")Boolean startIndexer, 
             @ParameterName("defaultRights")Boolean defaultRights) throws FileNotFoundException, InterruptedException, JAXBException, SAXException, ServiceException {
         
 
+        
         System.setProperty("convert.target.directory", convertTargetDirectory.getAbsolutePath());
         System.setProperty("convert.directory", convertDirectory.getAbsolutePath());
         System.setProperty("convert.defaultRights", defaultRights.toString());
