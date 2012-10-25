@@ -103,7 +103,7 @@
             <version>2.0.0</version>
             <classifier>lgpl</classifier>
         </dependency>
-        <dependency>
+        <!--dependency>
             <groupId>com.foxtrottechnologies</groupId>
             <artifactId>javadjvu</artifactId>
             <version>0.8.09</version>
@@ -113,7 +113,7 @@
             <groupId>com.foxtrottechnologies</groupId>
             <artifactId>djvuframe</artifactId>
             <version>0.8.09</version>
-        </dependency>
+        </dependency-->
 
         <dependency>
             <groupId>postgresql</groupId>
@@ -126,7 +126,7 @@
             <groupId>com.sun.media</groupId>
             <artifactId>jai_imageio</artifactId>
             <version>1.1</version>
-        </dependency-->
+        </dependency>
         <dependency>
             <groupId>javax.media.jai</groupId>
             <artifactId>com.springsource.javax.media.jai.core</artifactId>
@@ -141,7 +141,7 @@
             <groupId>net.java.dev.jai-imageio</groupId>
             <artifactId>jai-imageio-core-standalone</artifactId>
             <version>1.2-pre-dr-b04-2010-04-30</version>
-        </dependency>
+        </dependency-->
     </dependencies>
 
     <build>
