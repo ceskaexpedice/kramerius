@@ -22,11 +22,16 @@ form(convertDirectory,targetDirectory,convertRootDirectory, bundle) ::=<<
         window.onProcessFormSend = function() {
             var charsThatMustBeEscaped = [':',';','}','{'];
 
+            var startIndexer = \$('#startIndexer').attr('checked');
+            var defaultRights = \$('#defaultRights').attr('checked');
+            var ingestSkip = \$('#ingestSkip').attr('checked');
+
+
             var vals = 'convertTargetDirectory='+\$('#targetDirectory').val()
                 +';convertDirectory='+   \$('#convertDirectory').val().escapeChars(charsThatMustBeEscaped)
-                +';startIndexer='+   \$('#startIndexer').val()
-                +';defaultRights='+ \$('#defaultRights').val()
-                +';ingestSkip='+\$('#ingestSkip').val();
+                +';startIndexer='+   startIndexer
+                +';defaultRights='+ defaultRights
+                +';ingestSkip='+ingestSkip;
             
             var url = "lr?action=form_post&def=parametrizedconvert&paramsMapping={"+vals+"}&out=text";
             processStarter("parametrizedconvert").start(url);
