@@ -73,7 +73,7 @@ public class ParametrizedReplication {
                 System.setProperty("migration.directory", migrationDirectory.getAbsolutePath());
                 System.setProperty("migration.target.directory", targetDirectory.getAbsolutePath());
                 System.setProperty("ingest.startIndexer", startIndexer.toString());
-                System.setProperty("ingest.skip", defaultRights.toString());
+                System.setProperty("ingest.skip", ingestSkip.toString());
                 
                 Download.replicateMonographs(new BufferedReader(new StringReader(idList.replaceAll(",","\n"))));
             } else {
@@ -82,7 +82,7 @@ public class ParametrizedReplication {
                 System.setProperty("migration.directory", migrationDirectory.getAbsolutePath());
                 System.setProperty("migration.target.directory", targetDirectory.getAbsolutePath());
                 System.setProperty("ingest.startIndexer", startIndexer.toString());
-                System.setProperty("ingest.skip", defaultRights.toString());
+                System.setProperty("ingest.skip", ingestSkip.toString());
                 
                 Download.replicatePeriodicals(new BufferedReader(new StringReader(idList.replaceAll(",","\n"))));
             }
