@@ -75,7 +75,7 @@ form(migrationDirectory,targetDirectory,importRootDirectory, bundle) ::=<<
                 +';targetDirectory='+\$('#targetDirectory').val().escapeChars(charsThatMustBeEscaped)
                 +';defaultRights='+defaultRights
                 +';startIndexer='+startIndexer
-                +';indexSkip='+ingestSkip;
+                +';ingestSkip='+ingestSkip;
     
                 
             var url = "lr?action=form_post&def=k3_replication&paramsMapping={"+vals+"}&out=text";
