@@ -6,6 +6,7 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.logging.Level;
 
 import javax.management.RuntimeErrorException;
 import javax.xml.bind.JAXBContext;
@@ -17,7 +18,9 @@ import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.sax.SAXSource;
 import javax.xml.xpath.XPathExpressionException;
 
+import cz.incad.kramerius.utils.XMLUtils;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.input.BOMInputStream;
 import org.apache.log4j.Logger;
 import org.kramerius.dc.OaiDcType;
 import org.kramerius.importmets.convertor.MetsPeriodicalConvertor;
@@ -27,6 +30,8 @@ import org.kramerius.importmets.valueobj.ConvertorConfig;
 import org.kramerius.importmets.valueobj.ServiceException;
 import org.kramerius.mets.Mets;
 import org.kramerius.mods.ModsDefinition;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
 import org.xml.sax.EntityResolver;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
@@ -105,12 +110,25 @@ public class MetsConvertor {
             throw new RuntimeException(e);
         }
 
-        File importFile = new File(importRoot);
-        if (!importFile.exists()) {
-            System.err.println("Import root folder doesn't exist: " + importFile.getAbsolutePath());
-            //System.exit(1);
-            throw new RuntimeException("Import root folder doesn't exist: ");
+
+        File importFolder = new File(importRoot);
+
+        if (!importFolder.exists()) {
+            log.error("Import root folder doesn't exist: " + importFolder.getAbsolutePath());
+            System.exit(1);
         }
+
+        File infoFile = new File(importFolder, "info.xml");
+
+
+        String packageid = getPackageid(infoFile);
+
+        File importFile = new File(importFolder, "METS_" + packageid + ".xml");
+        if (!importFile.exists()) {
+            log.error("Import METS file doesn't exist: " + importFile.getAbsolutePath());
+            System.exit(1);
+        }
+
 
         //visitAllDirsAndFiles(importFile, importRoot, exportRoot,   defaultVisibility,  convertedURI, titleId);
 
@@ -119,10 +137,7 @@ public class MetsConvertor {
         if (!useContractSubfolders()){
             IOUtils.cleanDirectory(exportFolderFile);
         }
-        String importFolder = importFile.getParent();
-        if (importFolder == null) {
-            importFolder = ".";
-        }
+
         //String subFolderName = importFolder.substring(importRoot.length());
 
         String exportFolder = exportRoot; //+ subFolderName;
@@ -130,12 +145,11 @@ public class MetsConvertor {
         ConvertorConfig config = new ConvertorConfig();
         config.setMarshaller(marshaller);
         config.setExportFolder(exportFolder);
-        config.setImportFolder(importFolder);
+        config.setImportFolder(importRoot);
 
         config.setDefaultVisibility(defaultVisibility);
 
-        String contract = importFile.getName().replace("METS_", "").replace(".xml","");
-        config.setContract(contract);
+        config.setContract(packageid);
         int l=5;
         try{
             l=KConfiguration.getInstance().getConfiguration().getInt("contractNo.length");
@@ -151,7 +165,20 @@ public class MetsConvertor {
 
 
 
+    private static String getPackageid(File infoFile) {
+        try {
+            Document doc = XMLUtils.parseDocument(new BOMInputStream(new FileInputStream(infoFile)));
+            Element elem = XMLUtils.findElement(doc.getDocumentElement(), "packageid");
+            if (elem != null) {
+                return elem.getTextContent();
+            }
 
+        } catch (Exception e) {
+            System.err.println("Invalid import descriptor: " + infoFile.getAbsolutePath());
+            System.exit(1);
+        }
+        return null;
+    }
 
 
 
