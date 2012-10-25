@@ -81,8 +81,8 @@ public class MetsImportInputTemplate implements ProcessInputTemplate {
         
         StringTemplate template = parametrizedconvert.getInstanceOf("form");
 
-        template.setAttribute("targetDirectory", KConfiguration.getInstance().getProperty("import.directory"));
-        template.setAttribute("convertDirectory", KConfiguration.getInstance().getProperty("import.directory"));
+        template.setAttribute("targetDirectory", KConfiguration.getInstance().getProperty("convert.target.directory"));
+        template.setAttribute("convertDirectory", KConfiguration.getInstance().getProperty("convert.directory"));
         template.setAttribute("convertRootDirectory",  rootNode);
     
         ResourceBundle resbundle = resourceBundleService.getResourceBundle("labels", localesProvider.get());

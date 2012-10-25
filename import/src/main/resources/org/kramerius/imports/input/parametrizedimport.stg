@@ -29,7 +29,7 @@ tree(root) ::=<<
 
 
 
-form(ingestUrl,ingestUser,ingestPassword,importDirectory,importRootDirectory, bundle) ::=<<
+form(importDirectory,importRootDirectory, bundle) ::=<<
 
 <div style="width:100%">
     <script language="JavaScript" type="text/javascript"> 

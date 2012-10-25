@@ -80,9 +80,6 @@ public class ParametrizedImportInputTemplate implements ProcessInputTemplate {
         StringTemplateGroup parametrizedimport = new StringTemplateGroup(new InputStreamReader(iStream,"UTF-8"), DefaultTemplateLexer.class);
         StringTemplate template = parametrizedimport.getInstanceOf("form");
 
-        template.setAttribute("ingestUrl", KConfiguration.getInstance().getProperty("ingest.url"));
-        template.setAttribute("ingestUser", KConfiguration.getInstance().getProperty("ingest.user"));
-        template.setAttribute("ingestPassword", KConfiguration.getInstance().getProperty("ingest.password"));
         template.setAttribute("importDirectory", KConfiguration.getInstance().getProperty("import.directory"));
         template.setAttribute("importRootDirectory",  rootNode);
     
