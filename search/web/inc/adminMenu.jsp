@@ -68,6 +68,8 @@
         <input type="button" value="close" class="ui-state-default ui-corner-all"  onclick="hideAdminMenu();" />
     </div>
 </div>
+
+
     
 <!-- vypis procesu -->
 <div id="processes" style="display:none;"></div>
@@ -657,7 +659,10 @@ var saveProfile = new SaveProfile();
  * Parametrized processes
  */
 function ParameterizedProcess() {
+    // input form dialog
     this.dialog = null;
+    // wait dialog
+    this.waitDialog = null;
 }
 
 ParameterizedProcess.prototype._asArr=function(struct) {
@@ -666,10 +671,46 @@ ParameterizedProcess.prototype._asArr=function(struct) {
     return arr;        	 
 }
 
+
+ParameterizedProcess.prototype.openWaitDialog = function() {
+    if (this.waitDialog) {
+        this.waitDialog.dialog('open');
+    } else {
+        var pdiv ='<div id="parametrized_process_form_wait">'+
+                    "<div style=\"margin: 16px; font-family: sans-serif; font-size: 10px;\">"+
+                        "<table style='width:100%'>"+
+                            "<tbody>"+
+                            "<tr><td align=\"center\"><img src=\"img/loading.gif\" height=\"16px\" width=\"16px\"></td></tr>"+
+                            "<tr><td align=\"center\">"+dictionary['parametrizedprocess.dialog.waitForm']+"</td></tr>"+
+                            "</tbody>" +
+                        "</table>" +
+                    "</div>"+
+                  '</div>';
+            
+        $(document.body).append(pdiv);
+        this.waitDialog = $("#parametrized_process_form_wait").dialog({
+            bigframe: true,
+            width:  500,
+            height:  300,
+            modal: true,
+            title: dictionary['common.waitplease'],
+            buttons: [{
+                          text:dictionary['common.close'],
+                          click:bind(function() {
+                             this.waitDialog.dialog("close"); 
+                          },this)
+            }]
+        });
+    }
+}
+
 /**
  * opens parameters dialog
  */
 ParameterizedProcess.prototype.open = function(definition, paramsMapping) {
+
+    this.openWaitDialog();
+    
     paramsMapping = paramsMapping ? paramsMapping : {};
 
     var pMappingsUrl = "{"+reduce(function(base, element, status) {
@@ -684,15 +725,16 @@ ParameterizedProcess.prototype.open = function(definition, paramsMapping) {
 
     if (pMappingsUrl) url = url+"&paramsMapping="+pMappingsUrl;
 
-    $.get(url , function(data){
-
+    $.get(url , bind(function(data){
+        
+        this.waitDialog.dialog('close');
+        
     	if (this.dialog) {
     		this.dialog.dialog('open');
         } else {
             var pdiv = '<div id="parametrized_process"></div>';
             $(document.body).append(pdiv);
-
-            this.openMockDialog = $("#parametrized_process").dialog({
+            this.dialog = $("#parametrized_process").dialog({
                 bgiframe: true,
                 width:  700,
                 height:  500,
@@ -701,25 +743,24 @@ ParameterizedProcess.prototype.open = function(definition, paramsMapping) {
                 buttons: [
                     {
                         text: dictionary['common.start'],
-                        click: function() {
+                        click: bind(function() {
                             window.onProcessFormSend();
-                            $(this).dialog("close"); 
-                        }
+                            this.dialog.dialog("close"); 
+                        }, this)
                     },
                     {
                         text: dictionary["common.close"],
-                        click:function() {
-                            $(this).dialog("close"); 
-                        } 
+                        click:bind(function() {
+                            this.dialog.dialog("close"); 
+                        },this) 
                     }
                 ]
                     
             });
         }
-
     	$("#parametrized_process").dialog( "option", "title", dictionary['parametrizedprocess.dialog.title'] );
         $("#parametrized_process").html(data);
-    });
+    }, this));
 }
 
 
