@@ -46,6 +46,7 @@
             
             <fmm:DatastreamInputParm parmName="DC" passBy="URL_REF" required="true"/>
             <fmm:DatastreamInputParm parmName="XSLT" passBy="URL_REF" required="true"/>
+            <fmm:DefaultInputParm parmName="PID" defaultValue="$pid" passBy="VALUE" required="true"/>
             <fmm:DefaultInputParm defaultValue="no" parmName="CLEAR_CACHE" passBy="VALUE" required="true"/>
             <fmm:MethodReturnType wsdlMsgName="xslt_response" wsdlMsgTOMIME="text/html"/>
           </fmm:Method>
@@ -90,7 +91,7 @@
           xmlns:this="saxon" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
           <wsdl:types>
             <xsd:schema targetNamespace="saxon">
-              <xsd:simpleType name="URLType">
+              <xsd:simpleType name="StringType">
                 <xsd:restriction base="xsd:string"/>
               </xsd:simpleType>
               <xsd:simpleType name="CLEAR_CACHEType">
@@ -102,8 +103,9 @@
             </xsd:schema>
           </wsdl:types>
           <wsdl:message name="getRequest">
-            <wsdl:part name="DC" type="this:URLType"/>
-            <wsdl:part name="XSLT" type="this:URLType"/>
+            <wsdl:part name="PID" type="this:StringType"/>
+            <wsdl:part name="DC" type="this:StringType"/>
+            <wsdl:part name="XSLT" type="this:StringType"/>
             <wsdl:part name="CLEAR_CACHE" type="this:CLEAR_CACHEType"/>
           </wsdl:message>
           <wsdl:message name="response">
@@ -123,7 +125,7 @@
           <wsdl:binding name="FedoraSaxon_http" type="this:FedoraSaxonPortType">
             <http:binding verb="GET"/>
             <wsdl:operation name="get">
-              <http:operation location="SaxonServlet?source=(DC)&amp;style=(XSLT)&amp;clear-stylesheet-cache=(CLEAR_CACHE)&amp;server=http://local.fedora.server/"/>
+              <http:operation location="SaxonServlet?pid=(PID)&amp;source=(DC)&amp;style=(XSLT)&amp;clear-stylesheet-cache=(CLEAR_CACHE)&amp;server=http://local.fedora.server/"/>
               <wsdl:input>
                 <http:urlReplacement/>
               </wsdl:input>
@@ -155,6 +157,8 @@
   <xsl:output indent="yes" method="xml" omit-xml-declaration="no"
     encoding="UTF-8" media-type="text/xml" />
 
+  <xsl:param name="pid" />
+  
   <!-- server location accessible from internet; 'select' is a reasonable fallback
        when wsdl:operation does not declare 'server' parameter -->
   <xsl:param name="server" select="'http://localhost:8080/'" />
@@ -165,15 +169,6 @@
   <xsl:param name="kramerius_url" select="concat($server,'search/')" />
 
   <xsl:template match="/">
-    <xsl:variable name="uuid">
-      <xsl:for-each select=" oai_dc:dc/dc:identifier">
-        <xsl:variable name="dc_id" select="normalize-space(string(.))" />
-        <xsl:if test="starts-with($dc_id, 'uuid')">
-          <xsl:value-of select="substring-after($dc_id, 'uuid:')" />
-        </xsl:if>
-      </xsl:for-each>
-    </xsl:variable>
-    
     <ese:record
       xsi:schemaLocation="http://www.europeana.eu/schemas/ese/ http://www.europeana.eu/schemas/ese/ESE-V3.2.xsd http://purl.org/dc/elements/1.1/ http://www.dublincore.org/schemas/xmls/qdc/dc.xsd http://purl.org/dc/terms/ http://www.dublincore.org/schemas/xmls/qdc/dcterms.xsd http://www.openarchives.org/OAI/2.0/oai_dc/ http://www.openarchives.org/OAI/2.0/oai_dc.xsd"
       >
@@ -196,10 +191,10 @@
         In this case nothing can be mapped to <europeana:object>, the value in
         <europeana:hasObject> will be “False” and a default thumbnail will be used
         in the portal.
-        Example: http://localhost:8080/search/img?uuid=0eaa6730-9068-11dd-97de-000d606f5dc6&action=GETRAW&stream=IMG_THUMB
+        Example: http://localhost:8080/search/img?uuid=uuid:0eaa6730-9068-11dd-97de-000d606f5dc6&action=GETRAW&stream=IMG_THUMB
         See Europeana Portal Image policy for details at http://version1.europeana.eu/web/guest/technical-requirements/
       -->
-      <ese:object><xsl:value-of select="concat($kramerius_url, 'img?uuid=', $uuid, '&amp;stream=IMG_THUMB&amp;action=GETRAW')" /></ese:object>
+      <ese:object><xsl:value-of select="concat($kramerius_url, 'img?uuid=', $pid, '&amp;stream=IMG_THUMB&amp;action=GETRAW')" /></ese:object>
 
       <!--
         This element should contain the name of the organisation that delivers data
@@ -230,7 +225,7 @@
         Example: http://localhost:8080/search/handle/uuid:0eaa6730-9068-11dd-97de-000d606f5dc6
       -->
       
-      <ese:isShownAt><xsl:value-of select="concat($kramerius_url, 'handle/uuid:', $uuid)" /></ese:isShownAt>
+      <ese:isShownAt><xsl:value-of select="concat($kramerius_url, 'handle/', $pid)" /></ese:isShownAt>
 
       <!--
         This element will be active in the portal and will provide a link to the
@@ -242,7 +237,7 @@
         complementary element to <europeana:isShownAt> (above) and it is mandatory
         to provide a URL link in one of these elements.
       -->
-      <ese:isShownBy><xsl:value-of select="concat($kramerius_url, 'img?uuid=', $uuid, '&amp;stream=IMG_FULL&amp;action=TRANSCODE&amp;outputFormat=PNG')" /></ese:isShownBy>
+      <ese:isShownBy><xsl:value-of select="concat($kramerius_url, 'img?uuid=', $pid, '&amp;stream=IMG_FULL&amp;action=TRANSCODE&amp;outputFormat=PNG')" /></ese:isShownBy>
     </ese:record>
   </xsl:template>
 
