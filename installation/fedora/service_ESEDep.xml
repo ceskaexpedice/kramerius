@@ -159,6 +159,11 @@
        when wsdl:operation does not declare 'server' parameter -->
   <xsl:param name="server" select="'http://localhost:8080/'" />
 
+  <!-- FIXME: In case the Fedora is not a public server, replace 'select' with Kramerius URL ending with '/'.
+      Example: <xsl:param name="kramerius_url" select="'http://k4.example.org/search/'" />
+      -->
+  <xsl:param name="kramerius_url" select="concat($server,'search/')" />
+
   <xsl:template match="/">
     <xsl:variable name="uuid">
       <xsl:for-each select=" oai_dc:dc/dc:identifier">
@@ -194,7 +199,7 @@
         Example: http://localhost:8080/search/img?uuid=0eaa6730-9068-11dd-97de-000d606f5dc6&action=GETRAW&stream=IMG_THUMB
         See Europeana Portal Image policy for details at http://version1.europeana.eu/web/guest/technical-requirements/
       -->
-      <ese:object><xsl:value-of select="concat($server, 'search/img?uuid=', $uuid, '&amp;stream=IMG_THUMB&amp;action=GETRAW')" /></ese:object>
+      <ese:object><xsl:value-of select="concat($kramerius_url, 'img?uuid=', $uuid, '&amp;stream=IMG_THUMB&amp;action=GETRAW')" /></ese:object>
 
       <!--
         This element should contain the name of the organisation that delivers data
@@ -225,7 +230,7 @@
         Example: http://localhost:8080/search/handle/uuid:0eaa6730-9068-11dd-97de-000d606f5dc6
       -->
       
-      <ese:isShownAt><xsl:value-of select="concat($server, 'search/handle/uuid:', $uuid)" /></ese:isShownAt>
+      <ese:isShownAt><xsl:value-of select="concat($kramerius_url, 'handle/uuid:', $uuid)" /></ese:isShownAt>
 
       <!--
         This element will be active in the portal and will provide a link to the
@@ -237,7 +242,7 @@
         complementary element to <europeana:isShownAt> (above) and it is mandatory
         to provide a URL link in one of these elements.
       -->
-      <ese:isShownBy><xsl:value-of select="concat($server, 'search/img?uuid=', $uuid, '&amp;stream=IMG_FULL&amp;action=TRANSCODE&amp;outputFormat=PNG')" /></ese:isShownBy>
+      <ese:isShownBy><xsl:value-of select="concat($kramerius_url, 'img?uuid=', $uuid, '&amp;stream=IMG_FULL&amp;action=TRANSCODE&amp;outputFormat=PNG')" /></ese:isShownBy>
     </ese:record>
   </xsl:template>
 
