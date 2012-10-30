@@ -1,5 +1,6 @@
 package cz.incad.Kramerius;
 
+import static cz.incad.utils.IKeys.PID_PARAMETER;
 import static cz.incad.utils.IKeys.UUID_PARAMETER;
 
 import java.io.IOException;
@@ -29,9 +30,12 @@ public class MimeTypeServlet extends GuiceServlet {
 	@Override
 	protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
 		try {
-			String uuid = req.getParameter(UUID_PARAMETER);
-			if ((uuid != null) && (!uuid.equals(""))) {
-				String mimeType = this.fedoraAccess.getImageFULLMimeType(uuid);
+	        String pid = req.getParameter(UUID_PARAMETER);
+	        if (pid == null || pid.trim().equals("")) {
+	            pid = req.getParameter(PID_PARAMETER);
+	        }
+			if ((pid != null) && (!pid.equals(""))) {
+				String mimeType = this.fedoraAccess.getImageFULLMimeType(pid);
 				resp.getWriter().println(mimeType);
 			}
 		} catch (XPathExpressionException e) {
