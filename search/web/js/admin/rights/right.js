@@ -20,12 +20,16 @@ function Right() {
 }
 /** change radio button event */
 Right.prototype.onUserRadioChange = function() {
-	var rb = $("input:radio:checked");
+
+    var rb = $("input:radio:checked");
 	if (rb.val() === "role") {
-		$("#userId").show();
-		$("#userId").val("");
+		$("#userIdDiv").show();
+		var v = $("rolecombo").val();
+		this.roleSelection(v);
 	} else {
-		$("#userId").hide();
+	    //TODO: do it better
+    	this.roleSelection("common_users");
+		$("#userIdDiv").hide();
 	}
 }
 
@@ -54,26 +58,26 @@ Right.prototype.onCriteriumChange = function() {
 Right.prototype.onRolesKeyUp=function(elm) {
 	var userVal = $(elm).val();
     rightContainer.data.role=userVal;
-	var narr = map(function(item) {
-		if (item.startsWith(userVal)) {
-			return item;                                           	    		    
-		} else return null;                                        	    	   
-	},rightContainer.options.roles);
+//	var narr = map(function(item) {
+//		if (item.startsWith(userVal)) {
+//			return item;                                           	    		    
+//		} else return null;                                        	    	   
+//	},rightContainer.options.roles);
 
-	if (narr.length > 0) {
-	    var nhtml = "";
-	    	narr.forEach(function(item) {
-	    		var ritem = item.replaceAll('"','\\"');
-	    		nhtml = nhtml + "<div><a href='javascript:right.roleSelection(\""+ritem+"\");'>"+item+"</a></div>";
-		});
-    	$("#userautocomplete").html(nhtml);                                              
-    	$("#userautocomplete").show();
-	}
+//	if (narr.length > 0) {
+//	    var nhtml = "";
+//	    	narr.forEach(function(item) {
+//	    		var ritem = item.replaceAll('"','\\"');
+//	    		nhtml = nhtml + "<div><a href='javascript:right.roleSelection(\""+ritem+"\");'>"+item+"</a></div>";
+//		});
+//   	$("#userautocomplete").html(nhtml);                                              
+//    	$("#userautocomplete").show();
+//	}
 }
 
 Right.prototype.roleSelection = function(what) {
-    $("#userId").val(what);                                        	    
-    $("#userautocomplete").hide();
+//    $("#userId").val(what);                                        	    
+//    $("#userautocomplete").hide();
     rightContainer.data.role=what;
 }
 

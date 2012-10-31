@@ -563,7 +563,6 @@ SecuredActionTab.prototype.newRightForPath = function(path) {
                 width:640,
                 height:480,
                 modal:true,
-                title:"",
                 buttons: [{
 					text:dictionary['common.apply'],
 					click:bind(function() {
@@ -578,6 +577,9 @@ SecuredActionTab.prototype.newRightForPath = function(path) {
                   }]
             });
     	}
+		
+        this.newRightDialog.dialog( "option", "title", dictionary['rights.new.title'] );
+
     	$('#nRightDialog').html(data);
     	
 	},this));
@@ -699,7 +701,6 @@ GlobalActions.prototype.rigthsForAction=function(action) {
 		        width:800,
 		        height:480,
 		        modal:true,
-		        title:"",
 		        buttons: [{
 		        	text:dictionary['common.close'],
 					click:bind(function() {
@@ -709,6 +710,8 @@ GlobalActions.prototype.rigthsForAction=function(action) {
 		    });
 		    
 		}
+		this.actionDialog.dialog( "option", "title", dictionary['rights.settings.title'] );
+
 		$("#rightsForAction").html(data);
 	}, this));		    	
 }
@@ -735,7 +738,6 @@ GlobalActions.prototype.globalActions=function() {
 		        width:640,
 		        height:480,
 		        modal:true,
-		        title:"",
 		        buttons: [{
                 	  text:dictionary['common.close'],
                 	  click:bind(function() {
@@ -745,7 +747,9 @@ GlobalActions.prototype.globalActions=function() {
 		    });
 		    
 		}
-		
+    
+        this.dialog.dialog( "option", "title", dictionary['rights.global.actions.title'] );
+
 		$("#globalActions").html(data);
 	}, this));
 }

@@ -83,6 +83,7 @@
         var right = new Right();
         right.initUI(rightContainer);
 
+        
     </script>
     
     <form method="post" id="modifyRight">
@@ -100,6 +101,7 @@
                         <img src="img/rights-group.png">
                     </span>
     
+    
                     <span id="allTypeSpan">
                         <input type="radio" onclick="right.onUserRadioChange();" checked="checked" value="all" name="abstractUser" id="allType"><view:msg>rights.dialog.table.column.common_users</view:msg> 
                         <img src="img/rights-person.png">
@@ -111,32 +113,42 @@
             
     
             <tr><td> 
-                <div style="" id="userIdDiv">
-                    <span>
+                <div style="display:none;" id="userIdDiv">
                         <input type="text" onkeyup="right.onRolesKeyUp(this);" value="common_users" style="width: 100%;display: none; " size="10" name="userName" id="userId">
-                    </span>
+                         <select id="rolecombo" style="width:100%">
+                         <c:forEach var="role" items="${newRight.roles}" varStatus="status">
+                             <c:if test="${role != 'common_users'}">
+                                 <option value="${role}" ${newRight.appliedRole eq role ? 'selected="selected"' : ''}>${role}</option>
+                             </c:if>
+                             
+                         </c:forEach>
+                         </select>
                 </div>
-
+                <script type="text/javascript">
+                    $("#rolecombo").change(bind(function() {
+                        var val = $("#rolecombo").val();
+                        this.roleSelection(val);
+                    },right));
+                </script>
+                <!-- 
                 <div style="border-top:1px dashed black;margin-top: 5px; display: none;" id="userautocomplete"> </div>
-
+                 -->
              </td></tr>
     
             </tbody></table>
     
             <hr>
             <table width="100%">
-                <tbody><tr><td> <h3><label for="criterium"><view:msg>rights.dialog.criterium</view:msg>:</label></h3></td></tr>
+                <tbody><tr><td> <h3><label for="criterium"><view:msg>rights.dialog.criterium</view:msg></label></h3></td></tr>
                     <tr><td>
                             <div id="criteriumDiv">
                                 <select size="1" name="criterium" id="criterium" onchange="right.onCriteriumChange();">
                                 <option value=""></option>
                                 <c:forEach var="criteriumWrapper"  items="${newRight.criteriums}"> 
                                 <option value="${criteriumWrapper.rightCriterium.QName}"><view:msg>${criteriumWrapper.rightCriterium.QName}</view:msg></option>
-                                </c:forEach>                                     
+                                </c:forEach>
                               </select>
                             </div>
-                            
-
                 </td></tr>
     
     
