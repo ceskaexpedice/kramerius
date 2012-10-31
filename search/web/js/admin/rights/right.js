@@ -24,7 +24,7 @@ Right.prototype.onUserRadioChange = function() {
     var rb = $("input:radio:checked");
 	if (rb.val() === "role") {
 		$("#userIdDiv").show();
-		var v = $("rolecombo").val();
+		var v = $("#rolecombo").val();
 		this.roleSelection(v);
 	} else {
 	    //TODO: do it better
