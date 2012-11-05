@@ -6,6 +6,8 @@
 <%@ taglib uri="/WEB-INF/tlds/securedContent.tld" prefix="scrd" %>
 <%@ taglib uri="/WEB-INF/tlds/cmn.tld" prefix="view" %>
 
+<view:object name="footerViewObject" clz="cz.incad.Kramerius.views.inc.FooterViewObject"></view:object>
+
 <%@ page isELIgnored="false"%>
 
 
@@ -117,6 +119,7 @@
 <div align="center" >
     ©2008-2012.
     Developed under GNU GPL by <a href="http://www.incad.cz/">Incad</a>, <a href="http://www.nkp.cz/">NKČR</a>, <a href="http://www.lib.cas.cz/">KNAV</a> and <a href="http://www.mzk.cz/">MZK</a> 
+    (version: ${footerViewObject.version}, revision: ${footerViewObject.revision})
 </div>
     </td>
     
