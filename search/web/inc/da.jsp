@@ -31,9 +31,8 @@
 <view:kconfig var="damin" key="search.dateaxis.min" defaultValue="1000" />
 <jsp:useBean id="now" class="java.util.Date" scope="request" />
 <c:set var="year"><fmt:formatDate value="${now}" pattern="yyyy" /></c:set>
-<c:if test="${year=='now'}"><c:set var="year" value="${now}" /></c:if>
-
 <view:kconfig var="damax" key="search.dateaxis.max" defaultValue="${year}" />
+<c:if test="${damax=='now'}"><c:set var="damax" value="${year}" /></c:if>
 <c:catch var="exceptions">
     <c:url var="facetxslurl" value="inc/results/xsl/da.xsl" />
     <c:import url="${facetxslurl}" var="facetxsl" charEncoding="UTF-8"  />
