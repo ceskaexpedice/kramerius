@@ -14,7 +14,7 @@ public interface TreeNodeProcessor {
     public void process(String pid, int level) throws ProcessSubtreeException;
 
     /**
-     * Returns true if the algorithm should skip all branch 
+     * Returns true if the processing algorithm should skip current branch 
      * @param pid OBject's pid to be processed
      * @param level current level
      * @return

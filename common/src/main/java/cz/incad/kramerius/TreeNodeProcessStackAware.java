@@ -14,15 +14,12 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
-/**
- * 
- */
 package cz.incad.kramerius;
 
 import java.util.Stack;
 
 /**
- * Implementation of this interface can receiver informations about current processing stack
+ * Implementation can follow changes in the processing stack
  * @author pavels
  */
 public interface TreeNodeProcessStackAware {
