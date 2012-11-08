@@ -16,16 +16,20 @@
  */
 package cz.incad.kramerius.fedora.impl;
 
-import static cz.incad.kramerius.fedora.impl.DataPrepare.dataStreams;
-import static cz.incad.kramerius.fedora.impl.DataPrepare.drobnustkyRelsExt;
-import static cz.incad.kramerius.fedora.impl.DataPrepare.drobnustkyWithIMGFULL;
-import static cz.incad.kramerius.fedora.impl.DataPrepare.drobnustkyWithOutIMGFULL;
+import static cz.incad.kramerius.fedora.impl.DataPrepare.*;
+
 import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertNull;
 import static org.easymock.EasyMock.createMockBuilder;
 import static org.easymock.EasyMock.replay;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Stack;
 
 import javax.xml.parsers.ParserConfigurationException;
 
@@ -36,6 +40,9 @@ import org.junit.Test;
 import org.xml.sax.SAXException;
 
 import cz.incad.kramerius.FedoraAccess;
+import cz.incad.kramerius.ProcessSubtreeException;
+import cz.incad.kramerius.TreeNodeProcessStackAware;
+import cz.incad.kramerius.TreeNodeProcessor;
 import cz.incad.kramerius.impl.FedoraAccessImpl;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 import cz.incad.kramerius.utils.pid.LexerException;
@@ -213,4 +220,208 @@ public class FedoraAccessImplTest {
     }
     
     
+    @Test
+    public void testProcessTree_SkipBranch() throws IOException, ParserConfigurationException, SAXException, LexerException, ProcessSubtreeException {
+        final Map<String, Integer> mapping = new HashMap<String, Integer>();
+        
+        final List<Integer> order = new ArrayList<Integer>();
+        
+        FedoraAccess fa = createMockBuilder(FedoraAccessImpl.class)
+        .withConstructor(KConfiguration.getInstance())
+        .addMockedMethod("getRelsExt")
+        .createMock();
+        
+        narodniListyRelsExt(fa);
+        
+        replay(fa);
+
+        fa.processSubtree("uuid:ae876087-435d-11dd-b505-00145e5790ea", new TreeNodeProcessor() {
+            
+            @Override
+            public void process(String pid, int level) throws ProcessSubtreeException {
+                mapping.put(pid, new Integer(level));
+                order.add(new Integer(level));
+            }
+
+
+            @Override
+            public boolean skipBranch(String pid, int level) {
+                return  (level >= 3) ? true: false;
+            }
+
+            @Override
+            public boolean breakProcessing(String pid, int level) {
+                return  false;
+            }
+        });
+
+
+        Assert.assertEquals(Arrays.asList(new Integer(0),new Integer(1), new Integer(2),new Integer(2),new Integer(2)), order);
+        Assert.assertEquals(new Integer(0),mapping.get("uuid:ae876087-435d-11dd-b505-00145e5790ea"));
+        Assert.assertEquals(new Integer(1),mapping.get("uuid:b2f18fb0-91f6-11dc-9f72-000d606f5dc6"));
+        Assert.assertEquals(new Integer(2), mapping.get("uuid:b32d1210-91f6-11dc-94d0-000d606f5dc6"));
+        Assert.assertEquals(new Integer(2), mapping.get("uuid:983a4660-938d-11dc-913a-000d606f5dc6"));
+        Assert.assertEquals(new Integer(2),mapping.get("uuid:53255e00-938a-11dc-8b44-000d606f5dc6"));
+    }
+
+
+    
+    @Test
+    public void testProcessTree_SkipBranch2() throws IOException, ParserConfigurationException, SAXException, LexerException, ProcessSubtreeException {
+        final Map<String, Integer> mapping = new HashMap<String, Integer>();
+        
+        final List<Integer> order = new ArrayList<Integer>();
+        
+        FedoraAccess fa = createMockBuilder(FedoraAccessImpl.class)
+        .withConstructor(KConfiguration.getInstance())
+        .addMockedMethod("getRelsExt")
+        .createMock();
+        
+        narodniListyRelsExt(fa);
+        
+        replay(fa);
+
+        fa.processSubtree("uuid:ae876087-435d-11dd-b505-00145e5790ea", new TreeNodeProcessor() {
+            
+            @Override
+            public void process(String pid, int level) throws ProcessSubtreeException {
+                mapping.put(pid, new Integer(level));
+                order.add(new Integer(level));
+            }
+
+
+            @Override
+            public boolean skipBranch(String pid, int level) {
+                // vyzobu dve cisla - jedno necham
+                return ("uuid:983a4660-938d-11dc-913a-000d606f5dc6".equals(pid) || "uuid:53255e00-938a-11dc-8b44-000d606f5dc6".equals(pid));
+            }
+
+            @Override
+            public boolean breakProcessing(String pid, int level) {
+                return  false;
+            }
+        });
+        
+
+        Assert.assertEquals(Arrays.asList(new Integer(0),new Integer(1), new Integer(2),
+                new Integer(3),
+                new Integer(3),
+                new Integer(3),
+                new Integer(3),
+
+                new Integer(3),
+                new Integer(3),
+                new Integer(3),
+                new Integer(3),
+
+                new Integer(3),
+                new Integer(3),
+                new Integer(3),
+                new Integer(3),
+
+                new Integer(3),
+                new Integer(3),
+                new Integer(3),
+                new Integer(3)
+            ), order);
+        
+    }
+
+    @Test
+    public void testProcessTree_StackAware() throws IOException, ParserConfigurationException, SAXException, LexerException, ProcessSubtreeException {
+        final List<String> alist = new ArrayList<String>();
+        
+        FedoraAccess fa = createMockBuilder(FedoraAccessImpl.class)
+        .withConstructor(KConfiguration.getInstance())
+        .addMockedMethod("getRelsExt")
+        .createMock();
+        
+        narodniListyRelsExt(fa);
+        
+        replay(fa);
+
+        class T implements TreeNodeProcessor, TreeNodeProcessStackAware {
+
+            @Override
+            public void changeProcessingStack(Stack<String> pidStack) {
+                alist.add(pidStack.toString());
+            }
+
+            @Override
+            public void process(String pid, int level) throws ProcessSubtreeException {
+                // TODO Auto-generated method stub
+            }
+
+            @Override
+            public boolean skipBranch(String pid, int level) {
+                // TODO Auto-generated method stub
+                return false;
+            }
+            
+            @Override
+            public boolean breakProcessing(String pid, int level) {
+                // TODO Auto-generated method stub
+                return false;
+            }
+        }
+        fa.processSubtree("uuid:ae876087-435d-11dd-b505-00145e5790ea", new T());
+        Assert.assertTrue(alist.remove("[]"));
+
+        Assert.assertFalse(alist.remove("[]"));
+        
+        Assert.assertTrue(alist.remove("[uuid:ae876087-435d-11dd-b505-00145e5790ea]"));
+        Assert.assertTrue(alist.remove("[uuid:ae876087-435d-11dd-b505-00145e5790ea]"));
+        
+        Assert.assertFalse(alist.remove("[uuid:ae876087-435d-11dd-b505-00145e5790ea]"));
+
+        Assert.assertTrue(alist.remove("[uuid:ae876087-435d-11dd-b505-00145e5790ea, uuid:b2f18fb0-91f6-11dc-9f72-000d606f5dc6]"));
+        Assert.assertTrue(alist.remove("[uuid:ae876087-435d-11dd-b505-00145e5790ea, uuid:b2f18fb0-91f6-11dc-9f72-000d606f5dc6]"));
+        Assert.assertTrue(alist.remove("[uuid:ae876087-435d-11dd-b505-00145e5790ea, uuid:b2f18fb0-91f6-11dc-9f72-000d606f5dc6]"));
+        Assert.assertTrue(alist.remove("[uuid:ae876087-435d-11dd-b505-00145e5790ea, uuid:b2f18fb0-91f6-11dc-9f72-000d606f5dc6]"));
+        
+        Assert.assertFalse(alist.remove("[uuid:ae876087-435d-11dd-b505-00145e5790ea, uuid:b2f18fb0-91f6-11dc-9f72-000d606f5dc6]"));
+
+        Assert.assertTrue(alist.remove("[uuid:ae876087-435d-11dd-b505-00145e5790ea, uuid:b2f18fb0-91f6-11dc-9f72-000d606f5dc6, uuid:b32d1210-91f6-11dc-94d0-000d606f5dc6]"));
+        Assert.assertTrue(alist.remove("[uuid:ae876087-435d-11dd-b505-00145e5790ea, uuid:b2f18fb0-91f6-11dc-9f72-000d606f5dc6, uuid:b32d1210-91f6-11dc-94d0-000d606f5dc6]"));
+        Assert.assertTrue(alist.remove("[uuid:ae876087-435d-11dd-b505-00145e5790ea, uuid:b2f18fb0-91f6-11dc-9f72-000d606f5dc6, uuid:b32d1210-91f6-11dc-94d0-000d606f5dc6]"));
+        Assert.assertTrue(alist.remove("[uuid:ae876087-435d-11dd-b505-00145e5790ea, uuid:b2f18fb0-91f6-11dc-9f72-000d606f5dc6, uuid:b32d1210-91f6-11dc-94d0-000d606f5dc6]"));
+        Assert.assertTrue(alist.remove("[uuid:ae876087-435d-11dd-b505-00145e5790ea, uuid:b2f18fb0-91f6-11dc-9f72-000d606f5dc6, uuid:b32d1210-91f6-11dc-94d0-000d606f5dc6]"));
+        Assert.assertTrue(alist.remove("[uuid:ae876087-435d-11dd-b505-00145e5790ea, uuid:b2f18fb0-91f6-11dc-9f72-000d606f5dc6, uuid:b32d1210-91f6-11dc-94d0-000d606f5dc6]"));
+        Assert.assertTrue(alist.remove("[uuid:ae876087-435d-11dd-b505-00145e5790ea, uuid:b2f18fb0-91f6-11dc-9f72-000d606f5dc6, uuid:b32d1210-91f6-11dc-94d0-000d606f5dc6]"));
+        Assert.assertTrue(alist.remove("[uuid:ae876087-435d-11dd-b505-00145e5790ea, uuid:b2f18fb0-91f6-11dc-9f72-000d606f5dc6, uuid:b32d1210-91f6-11dc-94d0-000d606f5dc6]"));
+        Assert.assertTrue(alist.remove("[uuid:ae876087-435d-11dd-b505-00145e5790ea, uuid:b2f18fb0-91f6-11dc-9f72-000d606f5dc6, uuid:b32d1210-91f6-11dc-94d0-000d606f5dc6]"));
+        Assert.assertTrue(alist.remove("[uuid:ae876087-435d-11dd-b505-00145e5790ea, uuid:b2f18fb0-91f6-11dc-9f72-000d606f5dc6, uuid:b32d1210-91f6-11dc-94d0-000d606f5dc6]"));
+        Assert.assertTrue(alist.remove("[uuid:ae876087-435d-11dd-b505-00145e5790ea, uuid:b2f18fb0-91f6-11dc-9f72-000d606f5dc6, uuid:b32d1210-91f6-11dc-94d0-000d606f5dc6]"));
+        Assert.assertTrue(alist.remove("[uuid:ae876087-435d-11dd-b505-00145e5790ea, uuid:b2f18fb0-91f6-11dc-9f72-000d606f5dc6, uuid:b32d1210-91f6-11dc-94d0-000d606f5dc6]"));
+        Assert.assertTrue(alist.remove("[uuid:ae876087-435d-11dd-b505-00145e5790ea, uuid:b2f18fb0-91f6-11dc-9f72-000d606f5dc6, uuid:b32d1210-91f6-11dc-94d0-000d606f5dc6]"));
+        Assert.assertTrue(alist.remove("[uuid:ae876087-435d-11dd-b505-00145e5790ea, uuid:b2f18fb0-91f6-11dc-9f72-000d606f5dc6, uuid:b32d1210-91f6-11dc-94d0-000d606f5dc6]"));
+        Assert.assertTrue(alist.remove("[uuid:ae876087-435d-11dd-b505-00145e5790ea, uuid:b2f18fb0-91f6-11dc-9f72-000d606f5dc6, uuid:b32d1210-91f6-11dc-94d0-000d606f5dc6]"));
+        Assert.assertTrue(alist.remove("[uuid:ae876087-435d-11dd-b505-00145e5790ea, uuid:b2f18fb0-91f6-11dc-9f72-000d606f5dc6, uuid:b32d1210-91f6-11dc-94d0-000d606f5dc6]"));
+        Assert.assertTrue(alist.remove("[uuid:ae876087-435d-11dd-b505-00145e5790ea, uuid:b2f18fb0-91f6-11dc-9f72-000d606f5dc6, uuid:b32d1210-91f6-11dc-94d0-000d606f5dc6]"));
+        
+        Assert.assertFalse(alist.remove("[uuid:ae876087-435d-11dd-b505-00145e5790ea, uuid:b2f18fb0-91f6-11dc-9f72-000d606f5dc6, uuid:b32d1210-91f6-11dc-94d0-000d606f5dc6]"));
+
+        Assert.assertTrue(alist.remove("[uuid:ae876087-435d-11dd-b505-00145e5790ea, uuid:b2f18fb0-91f6-11dc-9f72-000d606f5dc6, uuid:983a4660-938d-11dc-913a-000d606f5dc6]"));
+        Assert.assertTrue(alist.remove("[uuid:ae876087-435d-11dd-b505-00145e5790ea, uuid:b2f18fb0-91f6-11dc-9f72-000d606f5dc6, uuid:983a4660-938d-11dc-913a-000d606f5dc6]"));
+        Assert.assertTrue(alist.remove("[uuid:ae876087-435d-11dd-b505-00145e5790ea, uuid:b2f18fb0-91f6-11dc-9f72-000d606f5dc6, uuid:983a4660-938d-11dc-913a-000d606f5dc6]"));
+        Assert.assertTrue(alist.remove("[uuid:ae876087-435d-11dd-b505-00145e5790ea, uuid:b2f18fb0-91f6-11dc-9f72-000d606f5dc6, uuid:983a4660-938d-11dc-913a-000d606f5dc6]"));
+        Assert.assertTrue(alist.remove("[uuid:ae876087-435d-11dd-b505-00145e5790ea, uuid:b2f18fb0-91f6-11dc-9f72-000d606f5dc6, uuid:983a4660-938d-11dc-913a-000d606f5dc6]"));
+        Assert.assertTrue(alist.remove("[uuid:ae876087-435d-11dd-b505-00145e5790ea, uuid:b2f18fb0-91f6-11dc-9f72-000d606f5dc6, uuid:983a4660-938d-11dc-913a-000d606f5dc6]"));
+        Assert.assertTrue(alist.remove("[uuid:ae876087-435d-11dd-b505-00145e5790ea, uuid:b2f18fb0-91f6-11dc-9f72-000d606f5dc6, uuid:983a4660-938d-11dc-913a-000d606f5dc6]"));
+        Assert.assertTrue(alist.remove("[uuid:ae876087-435d-11dd-b505-00145e5790ea, uuid:b2f18fb0-91f6-11dc-9f72-000d606f5dc6, uuid:983a4660-938d-11dc-913a-000d606f5dc6]"));
+        Assert.assertTrue(alist.remove("[uuid:ae876087-435d-11dd-b505-00145e5790ea, uuid:b2f18fb0-91f6-11dc-9f72-000d606f5dc6, uuid:983a4660-938d-11dc-913a-000d606f5dc6]"));
+        
+        Assert.assertFalse(alist.remove("[uuid:ae876087-435d-11dd-b505-00145e5790ea, uuid:b2f18fb0-91f6-11dc-9f72-000d606f5dc6, uuid:983a4660-938d-11dc-913a-000d606f5dc6]"));
+        
+        Assert.assertTrue(alist.remove("[uuid:ae876087-435d-11dd-b505-00145e5790ea, uuid:b2f18fb0-91f6-11dc-9f72-000d606f5dc6, uuid:53255e00-938a-11dc-8b44-000d606f5dc6]"));
+        Assert.assertTrue(alist.remove("[uuid:ae876087-435d-11dd-b505-00145e5790ea, uuid:b2f18fb0-91f6-11dc-9f72-000d606f5dc6, uuid:53255e00-938a-11dc-8b44-000d606f5dc6]"));
+        Assert.assertTrue(alist.remove("[uuid:ae876087-435d-11dd-b505-00145e5790ea, uuid:b2f18fb0-91f6-11dc-9f72-000d606f5dc6, uuid:53255e00-938a-11dc-8b44-000d606f5dc6]"));
+        Assert.assertTrue(alist.remove("[uuid:ae876087-435d-11dd-b505-00145e5790ea, uuid:b2f18fb0-91f6-11dc-9f72-000d606f5dc6, uuid:53255e00-938a-11dc-8b44-000d606f5dc6]"));
+        Assert.assertTrue(alist.remove("[uuid:ae876087-435d-11dd-b505-00145e5790ea, uuid:b2f18fb0-91f6-11dc-9f72-000d606f5dc6, uuid:53255e00-938a-11dc-8b44-000d606f5dc6]"));
+        Assert.assertTrue(alist.remove("[uuid:ae876087-435d-11dd-b505-00145e5790ea, uuid:b2f18fb0-91f6-11dc-9f72-000d606f5dc6, uuid:53255e00-938a-11dc-8b44-000d606f5dc6]"));
+        Assert.assertTrue(alist.remove("[uuid:ae876087-435d-11dd-b505-00145e5790ea, uuid:b2f18fb0-91f6-11dc-9f72-000d606f5dc6, uuid:53255e00-938a-11dc-8b44-000d606f5dc6]"));
+        
+        Assert.assertFalse(alist.remove("[uuid:ae876087-435d-11dd-b505-00145e5790ea, uuid:b2f18fb0-91f6-11dc-9f72-000d606f5dc6, uuid:53255e00-938a-11dc-8b44-000d606f5dc6]"));
+    }
+
 }

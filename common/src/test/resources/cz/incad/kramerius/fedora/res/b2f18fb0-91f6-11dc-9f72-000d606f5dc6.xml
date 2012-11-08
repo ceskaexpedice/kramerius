@@ -5,10 +5,11 @@
                         <oai:itemID>uuid:b2f18fb0-91f6-11dc-9f72-000d606f5dc6</oai:itemID>
                         <kramerius:hasItem rdf:resource="info:fedora/uuid:b32d1210-91f6-11dc-94d0-000d606f5dc6"></kramerius:hasItem>
                         <kramerius:hasItem rdf:resource="info:fedora/uuid:983a4660-938d-11dc-913a-000d606f5dc6"></kramerius:hasItem>
+                        <kramerius:hasItem rdf:resource="info:fedora/uuid:53255e00-938a-11dc-8b44-000d606f5dc6"></kramerius:hasItem>
+<!-- 
                         <kramerius:hasItem rdf:resource="info:fedora/uuid:016a5060-939f-11dc-895b-000d606f5dc6"></kramerius:hasItem>
                         <kramerius:hasItem rdf:resource="info:fedora/uuid:c0cc0130-9389-11dc-aeff-000d606f5dc6"></kramerius:hasItem>
                         <kramerius:hasItem rdf:resource="info:fedora/uuid:3e1ddd60-939f-11dc-9665-000d606f5dc6"></kramerius:hasItem>
-                        <kramerius:hasItem rdf:resource="info:fedora/uuid:53255e00-938a-11dc-8b44-000d606f5dc6"></kramerius:hasItem>
                         <kramerius:hasItem rdf:resource="info:fedora/uuid:7ccc01e0-939f-11dc-ab98-000d606f5dc6"></kramerius:hasItem>
                         <kramerius:hasItem rdf:resource="info:fedora/uuid:86d7c5d0-938a-11dc-b193-000d606f5dc6"></kramerius:hasItem>
                         <kramerius:hasItem rdf:resource="info:fedora/uuid:f82a4b40-938f-11dc-8f75-000d606f5dc6"></kramerius:hasItem>
@@ -265,6 +266,7 @@
                         <kramerius:hasItem rdf:resource="info:fedora/uuid:903a2190-966e-11dc-8377-000d606f5dc6"></kramerius:hasItem>
                         <kramerius:hasItem rdf:resource="info:fedora/uuid:92985810-9459-11dc-8b26-000d606f5dc6"></kramerius:hasItem>
                         <kramerius:hasItem rdf:resource="info:fedora/uuid:baf21af0-966e-11dc-b0d6-000d606f5dc6"></kramerius:hasItem>
+-->
                         <kramerius:contract>20740</kramerius:contract>
                         <kramerius:handle>BOA001/699925</kramerius:handle>
                         <kramerius:policy>policy:private</kramerius:policy>

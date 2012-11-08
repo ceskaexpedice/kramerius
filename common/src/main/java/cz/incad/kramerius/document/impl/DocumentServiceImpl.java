@@ -138,6 +138,11 @@ public class DocumentServiceImpl implements DocumentService {
                         LOGGER.log(Level.SEVERE, e.getMessage(), e);
                     }
                 }
+            
+                @Override
+                public boolean skipBranch(String pid, int level) {
+                    return false;
+                }
                 
                 @Override
                 public boolean breakProcessing(String pid, int level) {
@@ -172,7 +177,11 @@ public class DocumentServiceImpl implements DocumentService {
                 public boolean breakProcessing(String pid, int level) {
                     return index >= howMany;
                 }
-                  
+
+                @Override
+                public boolean skipBranch(String pid, int level) {
+                    return false;
+                }
               });
         }
     }
@@ -259,6 +268,11 @@ public class DocumentServiceImpl implements DocumentService {
 
             @Override
             public boolean breakProcessing(String pid, int level) {
+                return false;
+            }
+
+            @Override
+            public boolean skipBranch(String pid, int level) {
                 return false;
             }
         });

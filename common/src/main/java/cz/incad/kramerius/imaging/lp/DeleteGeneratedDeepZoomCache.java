@@ -107,6 +107,15 @@ public class DeleteGeneratedDeepZoomCache {
                     }
                 }
 
+                
+                
+                @Override
+                public boolean skipBranch(String pid, int level) {
+                    return false;
+                }
+
+
+
                 @Override
                 public boolean breakProcessing(String pid, int level) {
                     return false;

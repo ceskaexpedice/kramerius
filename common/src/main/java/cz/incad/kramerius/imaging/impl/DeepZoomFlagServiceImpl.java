@@ -56,6 +56,12 @@ public class DeepZoomFlagServiceImpl implements DeepZoomFlagService {
                     }
                     
                     @Override
+                    public boolean skipBranch(String pid, int level) {
+                        return false;
+                    }
+
+
+                    @Override
                     public boolean breakProcessing(String pid, int level) {
                         return false;
                     }
@@ -126,6 +132,12 @@ public class DeepZoomFlagServiceImpl implements DeepZoomFlagService {
                         
                     }
                     
+                    @Override
+                    public boolean skipBranch(String pid, int level) {
+                        return false;
+                    }
+
+
                     @Override
                     public boolean breakProcessing(String pid, int level) {
                         return false;

@@ -37,6 +37,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.Stack;
 import java.util.logging.Level;
 
 import javax.xml.parsers.ParserConfigurationException;
@@ -69,6 +70,7 @@ import cz.incad.kramerius.FedoraAccess;
 import cz.incad.kramerius.FedoraNamespaceContext;
 import cz.incad.kramerius.FedoraNamespaces;
 import cz.incad.kramerius.ProcessSubtreeException;
+import cz.incad.kramerius.TreeNodeProcessStackAware;
 import cz.incad.kramerius.TreeNodeProcessor;
 import cz.incad.kramerius.utils.FedoraUtils;
 import cz.incad.kramerius.utils.IOUtils;
@@ -278,6 +280,13 @@ public class FedoraAccessImpl implements FedoraAccess {
                 public boolean breakProcessing(String pid, int level) {
                     return breakProcess;
                 }
+
+                
+                @Override
+                public boolean skipBranch(String pid, int level) {
+                    return false;
+                }
+
 
                 @Override
                 public void process(String pid, int level) throws ProcessSubtreeException {
@@ -746,7 +755,7 @@ public class FedoraAccessImpl implements FedoraAccess {
         try {
             pid = makeSureObjectPid(pid);
             Document relsExt = getRelsExt(pid);
-            processSubtreeInternal(pid, relsExt, processor,0);
+            processSubtreeInternal(pid, relsExt, processor,0, new Stack<String>());
         } catch (LexerException e) {
             throw new ProcessSubtreeException(e);
         } catch (XPathExpressionException e) {
@@ -755,7 +764,7 @@ public class FedoraAccessImpl implements FedoraAccess {
     }
 
     
-    boolean processSubtreeInternal(String pid, Document relsExt, TreeNodeProcessor processor, int level) throws XPathExpressionException, LexerException, IOException, ProcessSubtreeException {
+    boolean processSubtreeInternal(String pid, Document relsExt, TreeNodeProcessor processor, int level, Stack<String> pidStack) throws XPathExpressionException, LexerException, IOException, ProcessSubtreeException {
         processor.process(pid, level);
         boolean breakProcessing = processor.breakProcessing(pid,level);
         if (breakProcessing) return breakProcessing;
@@ -765,6 +774,8 @@ public class FedoraAccessImpl implements FedoraAccess {
         xpath.setNamespaceContext(new FedoraNamespaceContext());
         XPathExpression expr = xpath.compile("/rdf:RDF/rdf:Description/*");
         NodeList nodes = (NodeList) expr.evaluate(relsExt, XPathConstants.NODESET);
+        pidStack.push(pid);
+        changeStack(processor, pidStack);
         for (int i = 0,ll=nodes.getLength(); i < ll; i++) {
             Node node = nodes.item(i);
             if (node.getNodeType() == Node.ELEMENT_NODE) {
@@ -783,17 +794,30 @@ public class FedoraAccessImpl implements FedoraAccess {
                                 for (int k = 0; k < level; k++) { buffer.append(" "); }
                                 LOGGER.fine(buffer.toString()+" processing pid [" +attVal+"]");
                             }
-                            Document iterationgRelsExt = getRelsExt(objectId);
-                            breakProcessing = processSubtreeInternal(pidParser.getObjectPid(), iterationgRelsExt, processor, level + 1);
-                            if (breakProcessing) break;
+                            if (!processor.skipBranch(objectId, level+1)) {
+                                Document iterationgRelsExt = getRelsExt(objectId);
+                                breakProcessing = processSubtreeInternal(pidParser.getObjectPid(), iterationgRelsExt, processor, level + 1, pidStack);
+
+                                if (breakProcessing) break;
+                            } else {
+                                LOGGER.warning("skipping branch [" +(level+1)+"] and pid ("+objectId+")");
+                            }
                         }
                     }
                     
                 }
             }
         }
-        
+        pidStack.pop();
+        changeStack(processor, pidStack);
         return breakProcessing;
+    }
+
+    private void changeStack(TreeNodeProcessor processor, Stack<String> pidStack) {
+        if (processor instanceof TreeNodeProcessStackAware) {
+            TreeNodeProcessStackAware stackAware = (TreeNodeProcessStackAware) processor;
+            stackAware.changeProcessingStack(pidStack);
+        }
     }
     
     
@@ -811,6 +835,11 @@ public class FedoraAccessImpl implements FedoraAccess {
 
                 @Override
                 public boolean breakProcessing(String pid, int level) {
+                    return false;
+                }
+
+                @Override
+                public boolean skipBranch(String pid, int level) {
                     return false;
                 }
             });

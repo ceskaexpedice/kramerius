@@ -75,6 +75,12 @@ public class GenerateThumbnail {
                     }
                     
                     @Override
+                    public boolean skipBranch(String pid, int level) {
+                        return false;
+                    }
+
+
+                    @Override
                     public boolean breakProcessing(String pid, int level) {
                         // TODO Auto-generated method stub
                         return false;

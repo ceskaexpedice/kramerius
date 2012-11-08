@@ -31,8 +31,11 @@ import com.google.inject.Inject;
 import com.google.inject.name.Named;
 
 import cz.incad.kramerius.FedoraAccess;
+import cz.incad.kramerius.ObjectPidsPath;
 import cz.incad.kramerius.ProcessSubtreeException;
+import cz.incad.kramerius.SolrAccess;
 import cz.incad.kramerius.TreeNodeProcessor;
+import cz.incad.kramerius.security.SpecialObjects;
 import cz.incad.kramerius.service.ReplicateException;
 import cz.incad.kramerius.service.ReplicationService;
 import cz.incad.kramerius.service.replication.ReplicationServiceFoxmlFilter;
@@ -45,6 +48,9 @@ public class ReplicationServiceImpl implements ReplicationService{
     @Named("securedFedoraAccess")
     FedoraAccess fedoraAccess;
 
+    @Inject
+    SolrAccess solrAccess;
+    
     private ReplicationServiceFoxmlFilter foxmlFilter;
 
     
@@ -52,12 +58,31 @@ public class ReplicationServiceImpl implements ReplicationService{
     public List<String> prepareExport(String pid) throws ReplicateException,IOException {
         final List<String> pids = new ArrayList<String>();
         try {
+            ObjectPidsPath[] paths = this.solrAccess.getPath(pid);
+            for (ObjectPidsPath objPath : paths) {
+                if (objPath.contains(SpecialObjects.REPOSITORY.getPid())) {
+                    objPath = objPath.cutHead(1);
+                }
+                String[] pathAsArray = objPath.getPathFromRootToLeaf();
+                for (String pidInArray : pathAsArray) {
+                    if (!pids.contains(pidInArray)) {
+                        pids.add(pidInArray);
+                    }
+                }
+            }
+            
             fedoraAccess.processSubtree(pid, new TreeNodeProcessor() {
                 @Override
                 public void process(String pid, int level) throws ProcessSubtreeException {
                     if (!pids.contains(pid)) {
                         pids.add(pid);
                     }
+                }
+                
+                @Override
+                public boolean skipBranch(String pid, int level) {
+                    // TODO Auto-generated method stub
+                    return false;
                 }
 
                 @Override

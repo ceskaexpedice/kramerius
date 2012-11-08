@@ -189,6 +189,12 @@ public class FileSystemCacheServiceImpl implements DeepZoomCacheService {
                 }
                 
                 @Override
+                public boolean skipBranch(String pid, int level) {
+                    return false;
+                }
+
+
+                @Override
                 public boolean breakProcessing(String pid, int level) {
                     return false;
                 }
@@ -210,7 +216,14 @@ public class FileSystemCacheServiceImpl implements DeepZoomCacheService {
                     LOGGER.fine("caching page " + (pageIndex++));
                     prepareCacheImage(pid, new Dimension(tileSupport.getTileSize(), tileSupport.getTileSize()));
                 }
-                
+
+                @Override
+                public boolean skipBranch(String pid, int level) {
+                    return false;
+                }
+
+
+
                 @Override
                 public boolean breakProcessing(String pid, int level) {
                     return false;

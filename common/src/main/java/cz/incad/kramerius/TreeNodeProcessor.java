@@ -14,6 +14,14 @@ public interface TreeNodeProcessor {
     public void process(String pid, int level) throws ProcessSubtreeException;
 
     /**
+     * Returns true if the algorithm should skip all branch 
+     * @param pid OBject's pid to be processed
+     * @param level current level
+     * @return
+     */
+    public boolean skipBranch(String pid, int level);
+
+    /**
      * Returns true means that processsing algorithm should stop processing. 
      * Calls after method process. 
      * @param pid  Current processed object's pid

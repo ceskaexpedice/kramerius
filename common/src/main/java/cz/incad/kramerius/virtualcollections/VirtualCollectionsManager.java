@@ -275,6 +275,13 @@ public class VirtualCollectionsManager {
                         throw new ProcessSubtreeException(e);
                     }
                 }
+
+                @Override
+                public boolean skipBranch(String pid, int level) {
+                    return false;
+                }
+                
+                
             });
         } catch (ProcessSubtreeException e) {
             throw new IOException(e);
@@ -305,6 +312,11 @@ public class VirtualCollectionsManager {
                         throw new ProcessSubtreeException(e);
                     }
                 }
+
+                @Override
+                public boolean skipBranch(String pid, int level) {
+                    return false;
+                }
             });
         } catch (ProcessSubtreeException e) {
             throw new IOException(e);
@@ -332,6 +344,11 @@ public class VirtualCollectionsManager {
                     } catch (Exception e) {
                         throw new ProcessSubtreeException(e);
                     }
+                }
+
+                @Override
+                public boolean skipBranch(String pid, int level) {
+                    return false;
                 }
             });
         } catch (ProcessSubtreeException e) {
