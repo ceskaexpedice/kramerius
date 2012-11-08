@@ -20,25 +20,12 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Properties;
 import java.util.Stack;
 
-import javax.ws.rs.Consumes;
-import javax.xml.transform.OutputKeys;
-import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerConfigurationException;
-import javax.xml.transform.TransformerException;
-import javax.xml.transform.TransformerFactory;
-import javax.xml.transform.dom.DOMSource;
-import javax.xml.transform.stream.StreamResult;
 
 import org.fedora.api.FedoraAPIM;
 import org.fedora.api.RelationshipTuple;
-import org.w3c.dom.Attr;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
@@ -49,12 +36,9 @@ import com.google.inject.Scopes;
 import cz.incad.kramerius.FedoraAccess;
 import cz.incad.kramerius.ObjectPidsPath;
 import cz.incad.kramerius.ProcessSubtreeException;
-import cz.incad.kramerius.SolrAccess;
 import cz.incad.kramerius.TreeNodeProcessStackAware;
 import cz.incad.kramerius.TreeNodeProcessor;
-import cz.incad.kramerius.imaging.ImagingModuleForTest;
 import cz.incad.kramerius.impl.FedoraAccessImpl;
-import cz.incad.kramerius.impl.SolrAccessImpl;
 import cz.incad.kramerius.processes.annotations.Process;
 import cz.incad.kramerius.security.SpecialObjects;
 import cz.incad.kramerius.utils.conf.KConfiguration;
@@ -62,6 +46,7 @@ import cz.incad.kramerius.utils.pid.LexerException;
 import cz.incad.kramerius.utils.pid.PIDParser;
 
 /**
+ * Constitency check process
  * @author pavels
  */
 public class Consistency {
@@ -72,8 +57,16 @@ public class Consistency {
     FedoraAccess fedoraAccess;
 
     FedoraAPIM port;
-    
-    public void checkConsitency(String rootPid, boolean repair) throws IOException, ProcessSubtreeException, LexerException, TransformerConfigurationException {
+
+   /**
+    * Check consitency of fedora objects
+    * @param rootPid Root pid
+    * @param repair Flag determine if the process should delete broken references
+    * @throws IOException IO error has been occured
+    * @throws ProcessSubtreeException Processing tree error has been occured
+    * @throws LexerException PID Parsing error has been occured
+    */
+    public void checkConsitency(String rootPid, boolean repair) throws IOException, ProcessSubtreeException, LexerException {
         port = fedoraAccess.getAPIM();
         TreeProcess deep = new TreeProcess(this.fedoraAccess);
         this.fedoraAccess.processSubtree(rootPid, deep);
@@ -159,7 +152,12 @@ public class Consistency {
             return relations;
         }
     }
-
+    
+    /**
+     * Non consistent relation class
+     * @author pavels
+     *
+     */
     static class NotConsistentRelation {
         
         private String rootPid;
@@ -197,7 +195,7 @@ public class Consistency {
         } else return objectPidsPath;
     }
 
-
+    /** guice module */
     static class _Module extends AbstractModule {
         @Override
         protected void configure() {
@@ -205,9 +203,17 @@ public class Consistency {
             bind(FedoraAccess.class).to(FedoraAccessImpl.class).in(Scopes.SINGLETON);
         }
     }
-
+    
+    /**
+     * Main process method
+     * @param pid Root pid
+     * @param flag Control flag 
+     * @throws IOException
+     * @throws ProcessSubtreeException
+     * @throws LexerException
+     */
     @Process
-    public static void process(String pid, Boolean flag) throws IOException, ProcessSubtreeException, LexerException, TransformerConfigurationException {
+    public static void process(String pid, Boolean flag) throws IOException, ProcessSubtreeException, LexerException {
         Injector injector = Guice.createInjector(new _Module());
         Consistency consistency = new Consistency();
         injector.injectMembers(consistency);
