@@ -24,17 +24,27 @@ import java.nio.charset.Charset;
 
 import net.sf.json.JSONObject;
 
+import org.kramerius.Consistency;
 import org.kramerius.replications.SecondPhase.DONEController;
 
+import com.sun.org.apache.xml.internal.security.keys.keyresolver.KeyResolverException;
+
+import cz.incad.kramerius.ProcessSubtreeException;
 import cz.incad.kramerius.processes.impl.ProcessStarter;
 import cz.incad.kramerius.service.impl.IndexerProcessStarter;
 import cz.incad.kramerius.utils.IOUtils;
+import cz.incad.kramerius.utils.pid.LexerException;
 
 public class ThirdPhase extends AbstractPhase {
 
     @Override
     public void start(String url, String userName, String pswd) throws PhaseException {
         try {
+            String rootPid = K4ReplicationProcess.pidFrom(url);
+            // check consistency 
+            Consistency consistency = new Consistency();
+            consistency.checkConsitency(rootPid, true);
+            
             String title = "_";
             IOUtils.cleanDirectory(new File(SecondPhase.DONE_FOLDER_NAME));
             String pid = K4ReplicationProcess.pidFrom(url);
@@ -48,6 +58,10 @@ public class ThirdPhase extends AbstractPhase {
         } catch (FileNotFoundException e) {
             throw new PhaseException(this,e);
         } catch (IOException e) {
+            throw new PhaseException(this,e);
+        } catch (ProcessSubtreeException e) {
+            throw new PhaseException(this,e);
+        } catch (LexerException e) {
             throw new PhaseException(this,e);
         }
     }

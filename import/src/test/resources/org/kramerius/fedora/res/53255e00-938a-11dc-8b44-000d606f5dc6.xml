@@ -1,0 +1,16 @@
+
+<rdf:RDF xmlns:fedora-model="info:fedora/fedora-system:def/model#" xmlns:oai="http://www.openarchives.org/OAI/2.0/" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:kramerius="http://www.nsdl.org/ontologies/relationships#">
+                    <rdf:Description rdf:about="info:fedora/uuid:53255e00-938a-11dc-8b44-000d606f5dc6">
+                        <fedora-model:hasModel rdf:resource="info:fedora/model:periodicalitem"></fedora-model:hasModel>
+                        <oai:itemID>uuid:53255e00-938a-11dc-8b44-000d606f5dc6</oai:itemID>
+                        <kramerius:hasPage rdf:resource="info:fedora/uuid:b4204bb0-91f6-11dc-8258-000d606f5dc6"></kramerius:hasPage>
+                        <kramerius:hasPage rdf:resource="info:fedora/uuid:94ccab10-92d6-11dc-b58e-000d606f5dc6"></kramerius:hasPage>
+                        <kramerius:hasPage rdf:resource="info:fedora/uuid:b4297370-91f6-11dc-878b-000d606f5dc6"></kramerius:hasPage>
+                        <kramerius:hasPage rdf:resource="info:fedora/uuid:94cf1c10-92d6-11dc-bb1b-000d606f5dc6"></kramerius:hasPage>
+                        <kramerius:hasPage rdf:resource="info:fedora/uuid:b4307850-91f6-11dc-9b9d-000d606f5dc6"></kramerius:hasPage>
+                        <kramerius:hasPage rdf:resource="info:fedora/uuid:94d1b420-92d6-11dc-8e76-000d606f5dc6"></kramerius:hasPage>
+                        <kramerius:contract>20740</kramerius:contract>
+                        <kramerius:handle>BOA001/699973</kramerius:handle>
+                        <kramerius:policy>policy:private</kramerius:policy>
+                    </rdf:Description>
+                </rdf:RDF>

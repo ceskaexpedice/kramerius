@@ -66,12 +66,12 @@ public class Consistency {
     * @throws ProcessSubtreeException Processing tree error has been occured
     * @throws LexerException PID Parsing error has been occured
     */
-    public void checkConsitency(String rootPid, boolean repair) throws IOException, ProcessSubtreeException, LexerException {
-        port = fedoraAccess.getAPIM();
+    public List<NotConsistentRelation> checkConsitency(String rootPid, boolean repair) throws IOException, ProcessSubtreeException, LexerException {
         TreeProcess deep = new TreeProcess(this.fedoraAccess);
         this.fedoraAccess.processSubtree(rootPid, deep);
         List<NotConsistentRelation> relations = deep.getRelations();
         if (repair) {
+            port = fedoraAccess.getAPIM();
             LOGGER.info("deleting inconsitencies");
             for (NotConsistentRelation nRelation : relations) {
                 
@@ -90,11 +90,8 @@ public class Consistency {
                     }
                 }
             }
-        } else {
-            if (!relations.isEmpty()) {
-                LOGGER.severe("Found inconsitencies ");
-            }
         }
+        return relations;
     }
 
     

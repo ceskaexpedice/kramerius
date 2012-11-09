@@ -1,0 +1,12 @@
+
+<rdf:RDF xmlns:fedora-model="info:fedora/fedora-system:def/model#"
+    xmlns:oai="http://www.openarchives.org/OAI/2.0/" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+    xmlns:kramerius="http://www.nsdl.org/ontologies/relationships#">
+    <rdf:Description
+        rdf:about="info:fedora/uuid:3ee97ce8-e548-11e0-9867-005056be0007">
+        <fedora-model:hasModel rdf:resource="info:fedora/model:monograph"></fedora-model:hasModel>
+        <oai:itemID>uuid:3ee97ce8-e548-11e0-9867-005056be0007
+        </oai:itemID>
+        <kramerius:policy>policy:private</kramerius:policy>
+    </rdf:Description>
+</rdf:RDF>
