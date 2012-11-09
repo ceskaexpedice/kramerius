@@ -35,6 +35,7 @@ import junit.framework.Assert;
 import org.easymock.EasyMock;
 import org.junit.Test;
 import org.kramerius.Consistency.NotConsistentRelation;
+import org.kramerius.fedora.impl.ImportDataPrepare;
 import org.xml.sax.SAXException;
 
 import com.google.inject.AbstractModule;
@@ -45,7 +46,6 @@ import cz.incad.kramerius.FedoraAccess;
 import cz.incad.kramerius.ObjectPidsPath;
 import cz.incad.kramerius.ProcessSubtreeException;
 import cz.incad.kramerius.SolrAccess;
-import cz.incad.kramerius.fedora.impl.DataPrepare;
 import cz.incad.kramerius.impl.FedoraAccessImpl;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 import cz.incad.kramerius.utils.pid.LexerException;
@@ -65,9 +65,9 @@ public class ConsistencyTest {
         narodniListyRelsExt(fa);
 
         SolrAccess solrAccess = EasyMock.createMock(SolrAccess.class);
-        Set<String> keys = DataPrepare.PATHS_MAPPING.keySet();
+        Set<String> keys = ImportDataPrepare.PATHS_MAPPING.keySet();
         for (String key : keys) {
-            EasyMock.expect(solrAccess.getPath(key)).andReturn(new ObjectPidsPath[] { DataPrepare.PATHS_MAPPING.get(key) }).anyTimes();
+            EasyMock.expect(solrAccess.getPath(key)).andReturn(new ObjectPidsPath[] { ImportDataPrepare.PATHS_MAPPING.get(key) }).anyTimes();
         }
         
 
@@ -93,9 +93,9 @@ public class ConsistencyTest {
         notConsistentNarodniListyRelsExt(fa);
 
         SolrAccess solrAccess = EasyMock.createMock(SolrAccess.class);
-        Set<String> keys = DataPrepare.PATHS_MAPPING.keySet();
+        Set<String> keys = ImportDataPrepare.PATHS_MAPPING.keySet();
         for (String key : keys) {
-            EasyMock.expect(solrAccess.getPath(key)).andReturn(new ObjectPidsPath[] { DataPrepare.PATHS_MAPPING.get(key) }).anyTimes();
+            EasyMock.expect(solrAccess.getPath(key)).andReturn(new ObjectPidsPath[] { ImportDataPrepare.PATHS_MAPPING.get(key) }).anyTimes();
         }
         
 
