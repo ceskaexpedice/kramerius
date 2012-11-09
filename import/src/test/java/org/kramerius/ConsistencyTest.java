@@ -107,7 +107,8 @@ public class ConsistencyTest {
         
         List<NotConsistentRelation> notConsitent = consistency.checkConsitency("uuid:b2f18fb0-91f6-11dc-9f72-000d606f5dc6", false);
         Assert.assertTrue(!notConsitent.isEmpty());
-        Assert.assertTrue(notConsitent.size() == 16); // stranky prvniho cisla
+        Assert.assertTrue(notConsitent.size() == ImportDataPrepare.NARODNI_LISTY_NOT_EXISTS.length); 
+        
     }
 
     static class _Module extends AbstractModule {
