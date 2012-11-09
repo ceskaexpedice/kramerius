@@ -25,12 +25,8 @@ import java.nio.charset.Charset;
 import net.sf.json.JSONObject;
 
 import org.kramerius.Consistency;
-import org.kramerius.replications.SecondPhase.DONEController;
-
-import com.sun.org.apache.xml.internal.security.keys.keyresolver.KeyResolverException;
 
 import cz.incad.kramerius.ProcessSubtreeException;
-import cz.incad.kramerius.processes.impl.ProcessStarter;
 import cz.incad.kramerius.service.impl.IndexerProcessStarter;
 import cz.incad.kramerius.utils.IOUtils;
 import cz.incad.kramerius.utils.pid.LexerException;
