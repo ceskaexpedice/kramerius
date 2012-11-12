@@ -19,7 +19,7 @@
  * Grammar for params parsing 
  */
 header {
-    package cz.incad.Kramerius.processes;
+    package cz.incad.kramerius.utils.params;
     import java.util.*;
 }
 
@@ -37,7 +37,7 @@ params returns [List prms]
     List lpr2=null;
 }
 : 
-LPAREN  ( pr1=param {prms.add(pr1); } | lpr1 = params {prms.add(lpr1);} )
+LPAREN  ( pr1=param {prms.add(pr1); } | lpr1 = params {prms.add(lpr1);} ) ?
 
 (SEMI 
   (pr2=param {prms.add(pr2); } | lpr2 = params {prms.add(lpr2);})

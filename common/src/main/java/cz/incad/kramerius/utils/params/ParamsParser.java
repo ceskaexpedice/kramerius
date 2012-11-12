@@ -1,6 +1,5 @@
 // $ANTLR 2.7.7 (2006-11-01): "nparams.g" -> "ParamsParser.java"$
 
-//    package cz.incad.kramerius.utils.params;
     package cz.incad.kramerius.utils.params;
     import java.util.*;
 
@@ -69,6 +68,11 @@ public ParamsParser(ParserSharedInputState state) {
             {
                 lpr1=params();
                 prms.add(lpr1);
+                break;
+            }
+            case SEMI:
+            case RPAREN:
+            {
                 break;
             }
             default:
