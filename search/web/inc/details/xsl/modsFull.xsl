@@ -133,8 +133,15 @@
                         <xsl:value-of select="./mods:role/mods:roleTerm[@type='text']" />:&#160;
                    </span>
                    <span class="value">
-                        <xsl:value-of select="./mods:namePart[@type='family']" />,&#160;
-                        <xsl:value-of select="./mods:namePart[@type='given']" />
+                        <xsl:choose>
+                            <xsl:when test="./mods:namePart[@type='family']">
+                                 <xsl:value-of select="./mods:namePart[@type='family']" />,&#160;
+                                 <xsl:for-each select="./mods:namePart[@type='given']"><xsl:value-of select="." />&#160;</xsl:for-each>
+                            </xsl:when>
+                            <xsl:otherwise>
+                                <xsl:value-of select="./mods:namePart[not(@type)]" />
+                            </xsl:otherwise>
+                        </xsl:choose> 
                    </span>
                     </div>
                 </li></xsl:for-each>
@@ -151,7 +158,7 @@
                    </span>
                    <span class="value">
                         <xsl:value-of select="./mods:namePart[@type='family']" />,&#160;
-                        <xsl:value-of select="./mods:namePart[@type='given']" />
+                        <xsl:for-each select="./mods:namePart[@type='given']"><xsl:value-of select="." />&#160;</xsl:for-each>
                    </span>
                    </div>
                 </li></xsl:for-each>
