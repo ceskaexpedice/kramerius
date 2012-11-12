@@ -71,6 +71,16 @@ public class ParamsParserTest {
         Assert.assertTrue(params.get(1).equals("ingestUrl=http://localhost:8080/fedora"));
         
     }
+ 
+    @Test
+    public void testParser4() throws RecognitionException, TokenStreamException {
+        String string = "{}";
+        ParamsParser paramsParser = new ParamsParser(new ParamsLexer(new StringReader(string)));
+        List params = paramsParser.params();
+        Assert.assertTrue(params.size() == 0);
+        
+    }
+    
     
     private static void assertCollection(Collection<?> testedCol, Object ...objects ) {
         Assert.assertTrue(testedCol.size() == objects.length);
