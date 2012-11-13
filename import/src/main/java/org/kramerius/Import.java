@@ -135,10 +135,14 @@ public class Import {
         log.info("FINISHED INGESTION IN "+((System.currentTimeMillis()-start)/1000.0)+"s, processed "+counter+" files");
         String startIndexerProperty = System.getProperties().containsKey("ingest.startIndexer") ? System.getProperty("ingest.startIndexer") : KConfiguration.getInstance().getConfiguration().getString("ingest.startIndexer","true");
         if (new Boolean(startIndexerProperty)){
-            for (TitlePidTuple tpt :roots){
-                IndexerProcessStarter.spawnIndexer(true, tpt.title, tpt.pid);
+            if (roots.isEmpty()){
+                log.info("NO ROOT OBJECTS FOR INDEXING FOUND.");
+            } else{
+                for (TitlePidTuple tpt :roots){
+                    IndexerProcessStarter.spawnIndexer(true, tpt.title, tpt.pid);
+                }
+                log.info("ALL ROOT OBJECTS SCHEDULED FOR INDEXING.");
             }
-            log.info("ALL ROOT OBJECTS SCHEDULED FOR INDEXING.");
         }else{
             log.info("AUTO INDEXING DISABLED.");
         }
