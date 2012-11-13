@@ -21,10 +21,16 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.charset.Charset;
+import java.util.List;
 
 import net.sf.json.JSONObject;
 
-import org.kramerius.Consistency;
+import org.kramerius.consistency.Consistency;
+import org.kramerius.consistency.Consistency.NotConsistentRelation;
+import org.kramerius.consistency.Consistency._Module;
+
+import com.google.inject.Guice;
+import com.google.inject.Injector;
 
 import cz.incad.kramerius.ProcessSubtreeException;
 import cz.incad.kramerius.service.impl.IndexerProcessStarter;
@@ -39,9 +45,11 @@ public class ThirdPhase extends AbstractPhase {
             String rootPid = K4ReplicationProcess.pidFrom(url);
             // check consistency 
             Consistency consistency = new Consistency();
+            Injector injector = Guice.createInjector(new _Module());
+            injector.injectMembers(consistency);
             consistency.checkConsitency(rootPid, true);
-            
-            String title = "_";
+
+            String title = "_"; //TODO: title
             IOUtils.cleanDirectory(new File(SecondPhase.DONE_FOLDER_NAME));
             String pid = K4ReplicationProcess.pidFrom(url);
             File descFile = getDescriptionFile();

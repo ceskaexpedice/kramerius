@@ -17,7 +17,7 @@
 /**
  * 
  */
-package org.kramerius;
+package org.kramerius.consistency;
 
 import static org.easymock.EasyMock.createMockBuilder;
 import static org.easymock.EasyMock.replay;
@@ -34,7 +34,8 @@ import junit.framework.Assert;
 
 import org.easymock.EasyMock;
 import org.junit.Test;
-import org.kramerius.Consistency.NotConsistentRelation;
+import org.kramerius.consistency.Consistency;
+import org.kramerius.consistency.Consistency.NotConsistentRelation;
 import org.kramerius.fedora.impl.ImportDataPrepare;
 import org.xml.sax.SAXException;
 

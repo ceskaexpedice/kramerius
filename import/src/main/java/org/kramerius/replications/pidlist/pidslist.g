@@ -1,5 +1,5 @@
 header {
-    package cz.incad.kramerius.replications.pidslist;
+    package org.kramerius.replications.pidlist;
     import java.util.*;
 }  
 
@@ -12,9 +12,12 @@ options{
 }
 
 {
-   
-   private PidsListCollect pidListCollect;
     
+    private PidsListCollect pidListCollect;
+
+    private boolean pidsCollecting = false;
+    private boolean pathsCollecting = false;
+
     public PidsListCollect getPidsListCollect() {
         return this.pidListCollect;
     }
@@ -23,33 +26,63 @@ options{
         this.pidListCollect = col;
     }
     
-    public void ident(String i, String expect) throws RecognitionException {
-        if ((i.startsWith("'"))  || (i.startsWith("\""))) {
-            i = i.substring(1,i.length()-1);
+    public void key(String k) {
+        if ( (k.startsWith("'")) || (k.startsWith("\"")) ) {
+            k = k.substring(1,k.length()-1);
         }
-        
-        if (!i.trim().toLowerCase().equals(expect)) {
-            throw new RecognitionException("expecting pids");
-        }
-    }    
+        if (k.equals("pids")) { pidsCollecting = true; pathsCollecting = false; }
+        else if (k.equals("paths")) { pidsCollecting = false; pathsCollecting = true; }
+    }
+
+    public void startOfArray() {}
+
+    public void endOfArray() {
+        if (pidsCollecting) pidsCollecting = false;
+        if (pathsCollecting) pathsCollecting = false;
+    }
+
+    public void value(String i) {
+        /*
+        if (pathsCollecting) {
+            if (this.pidListCollect != null)
+                this.pidListCollect.pathEmitted(i);
+        } else if (
+        */
+    }
 
     public void first(String f) {
-        if (this.pidListCollect != null)
-            this.pidListCollect.pidEmitted(f);
+        if (pidsCollecting) {
+            if (this.pidListCollect != null)
+                this.pidListCollect.pidEmitted(f);
+        } else if (pathsCollecting) {
+            if (this.pidListCollect != null)
+                this.pidListCollect.pathEmitted(f);
+        }
     } 
-    
+
     public void rest(String r) {
-        if (this.pidListCollect != null)
-            this.pidListCollect.pidEmitted(r);
+        if (pidsCollecting) {
+            if (this.pidListCollect != null)
+                this.pidListCollect.pidEmitted(r);
+        } else if (pathsCollecting) {
+            if (this.pidListCollect != null)
+                this.pidListCollect.pathEmitted(f);
+        }
     }   
 }
 
+pids: CURLYL_BRACKET itemDef (COMMA itemDef)*  CURLYR_BRACKET EOF;
 
-pids: CURLYL_BRACKET pidsKey DOUBLEDOT  ARRAYL_BRACKET (pidsArray)?  ARRAYR_BRACKET CURLYR_BRACKET EOF;
+itemDef : keyDef ((ARRAYL_BRACKET) => arrayDef | valueDef);
 
-pidsKey : s:STRING_LITERAL {ident(s.getText(), "pids");} | i:IDENT {ident(i.getText(), "pids");};
+keyDef:  (s:STRING_LITERAL { key(s.getText()); } | i:IDENT { key(i.getText());} ) DOUBLEDOT;
 
-pidsArray : f:STRING_LITERAL {first(f.getText());} (COMMA r:STRING_LITERAL {rest(r.getText());})*;
+arrayDef: ARRAYL_BRACKET { startOfArray(); } (arrayVals)? ARRAYR_BRACKET { endOfArray(); } ;
+
+arrayVals : f:STRING_LITERAL {first(f.getText());} (COMMA r:STRING_LITERAL {rest(r.getText());})*;
+
+valueDef: s:STRING_LITERAL { value(s.getText()); };
+
 
 class PIDsListLexer extends Lexer;
 options{
@@ -80,8 +113,6 @@ STRING_LITERAL
     :   '"' (~('"'|'\\'|'\n'|'\r'|'\''))* '"' | 
        '\'' (~('"'|'\\'|'\n'|'\r'|'\''))* '\''  
     ;
-    
-   
 
 protected SL_COMMENT
     :   "//"

@@ -90,6 +90,16 @@ public class SecondPhase extends AbstractPhase  {
         }
     }
 
+    /**
+     * @param path
+     * @param url
+     * @param userName
+     * @param pswd
+     */
+    public void pathEmmited(String path, String url, String userName, String pswd) {
+        // TODO Auto-generated method stub
+    }
+
 
     public void ingest(File foxmlfile) throws PhaseException{
         LOGGER.info("ingesting '"+foxmlfile.getAbsolutePath()+"'");
@@ -265,6 +275,17 @@ public class SecondPhase extends AbstractPhase  {
                 throw new RuntimeException(e);
             }
         }
+
+
+        @Override
+        public void pathEmitted(String path) {
+            if ((path.startsWith("'")) || (path.startsWith("\""))) {
+                path = path.substring(1,path.length()-1);
+            }
+            SecondPhase.this.pathEmmited(path, this.url, this.userName, this.pswd);
+        }
+        
+        
     }
     
     public static void main(String[] args) {
@@ -274,4 +295,5 @@ public class SecondPhase extends AbstractPhase  {
         String t = r.accept(MediaType.APPLICATION_XML).get(String.class);
         System.out.println(t);
     }
+
 }

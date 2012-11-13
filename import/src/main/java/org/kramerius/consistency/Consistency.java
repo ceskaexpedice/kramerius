@@ -14,7 +14,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
-package org.kramerius;
+package org.kramerius.consistency;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -74,8 +74,6 @@ public class Consistency {
             port = fedoraAccess.getAPIM();
             LOGGER.info("deleting inconsitencies");
             for (NotConsistentRelation nRelation : relations) {
-                
-                
                 List<String> children = nRelation.getChildren();
                 List<RelationshipTuple> existingWS = port.getRelationships(nRelation.getRootPid(), null);
                 for (RelationshipTuple rTuple : existingWS) {
@@ -83,9 +81,9 @@ public class Consistency {
                         PIDParser parser = new PIDParser(rTuple.getObject());
                         parser.disseminationURI();
                         if (children.contains(parser.getObjectPid())) {
+                            LOGGER.info("delete relationship "+rTuple.getSubject()+" "+rTuple.getPredicate()+" "+rTuple.getObject());
                             boolean purgeRelationship = port.purgeRelationship(rTuple.getSubject(), rTuple.getPredicate(), rTuple.getObject(), rTuple.isIsLiteral(), rTuple.getDatatype());
                             if (!purgeRelationship) throw new RuntimeException("cannot delete relation ");
-                            
                         }
                     }
                 }
@@ -155,7 +153,7 @@ public class Consistency {
      * @author pavels
      *
      */
-    static class NotConsistentRelation {
+    public static class NotConsistentRelation {
         
         private String rootPid;
         private List<String> children;
@@ -193,7 +191,7 @@ public class Consistency {
     }
 
     /** guice module */
-    static class _Module extends AbstractModule {
+    public static class _Module extends AbstractModule {
         @Override
         protected void configure() {
             bind(KConfiguration.class).toInstance(KConfiguration.getInstance());
@@ -214,7 +212,8 @@ public class Consistency {
         Injector injector = Guice.createInjector(new _Module());
         Consistency consistency = new Consistency();
         injector.injectMembers(consistency);
-        consistency.checkConsitency(pid, flag.booleanValue());
+        List<NotConsistentRelation> inconsitencies = consistency.checkConsitency(pid, flag.booleanValue());
+        
     }
     
     public static void main(String[] args) throws IOException, ProcessSubtreeException, LexerException, TransformerConfigurationException {

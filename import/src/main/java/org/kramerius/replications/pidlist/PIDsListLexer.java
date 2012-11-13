@@ -1,6 +1,5 @@
 // $ANTLR 2.7.7 (2006-11-01): "pidslist.g" -> "PIDsListLexer.java"$
 
-//    package cz.incad.kramerius.utils.params;
     package org.kramerius.replications.pidlist;
     import java.util.*;
 
@@ -282,8 +281,8 @@ tryAgain:
 		int _saveIndex;
 		
 		{
-		int _cnt19=0;
-		_loop19:
+		int _cnt28=0;
+		_loop28:
 		do {
 			if ((_tokenSet_0.member(LA(1)))) {
 				{
@@ -291,10 +290,10 @@ tryAgain:
 				}
 			}
 			else {
-				if ( _cnt19>=1 ) { break _loop19; } else {throw new NoViableAltForCharException((char)LA(1), getFilename(), getLine(), getColumn());}
+				if ( _cnt28>=1 ) { break _loop28; } else {throw new NoViableAltForCharException((char)LA(1), getFilename(), getLine(), getColumn());}
 			}
 			
-			_cnt19++;
+			_cnt28++;
 		} while (true);
 		}
 		if ( _createToken && _token==null && _ttype!=Token.SKIP ) {
@@ -314,7 +313,7 @@ tryAgain:
 		{
 			match('"');
 			{
-			_loop23:
+			_loop32:
 			do {
 				if ((_tokenSet_1.member(LA(1)))) {
 					{
@@ -322,7 +321,7 @@ tryAgain:
 					}
 				}
 				else {
-					break _loop23;
+					break _loop32;
 				}
 				
 			} while (true);
@@ -334,7 +333,7 @@ tryAgain:
 		{
 			match('\'');
 			{
-			_loop26:
+			_loop35:
 			do {
 				if ((_tokenSet_1.member(LA(1)))) {
 					{
@@ -342,7 +341,7 @@ tryAgain:
 					}
 				}
 				else {
-					break _loop26;
+					break _loop35;
 				}
 				
 			} while (true);
@@ -369,7 +368,7 @@ tryAgain:
 		
 		match("//");
 		{
-		_loop30:
+		_loop39:
 		do {
 			if ((_tokenSet_2.member(LA(1)))) {
 				{
@@ -377,7 +376,7 @@ tryAgain:
 				}
 			}
 			else {
-				break _loop30;
+				break _loop39;
 			}
 			
 		} while (true);
@@ -421,7 +420,7 @@ tryAgain:
 		
 		match("/*");
 		{
-		_loop36:
+		_loop45:
 		do {
 			if (((LA(1)=='*'))&&( LA(2)!='/' )) {
 				match('*');
@@ -451,7 +450,7 @@ tryAgain:
 				}
 			}
 			else {
-				break _loop36;
+				break _loop45;
 			}
 			
 		} while (true);
@@ -469,10 +468,10 @@ tryAgain:
 		_ttype = NEWLINE;
 		int _saveIndex;
 		
-		boolean synPredMatched39 = false;
+		boolean synPredMatched48 = false;
 		if (((LA(1)=='\r'))) {
-			int _m39 = mark();
-			synPredMatched39 = true;
+			int _m48 = mark();
+			synPredMatched48 = true;
 			inputState.guessing++;
 			try {
 				{
@@ -481,12 +480,12 @@ tryAgain:
 				}
 			}
 			catch (RecognitionException pe) {
-				synPredMatched39 = false;
+				synPredMatched48 = false;
 			}
-			rewind(_m39);
+			rewind(_m48);
 inputState.guessing--;
 		}
-		if ( synPredMatched39 ) {
+		if ( synPredMatched48 ) {
 			match('\r');
 			match('\n');
 		}
