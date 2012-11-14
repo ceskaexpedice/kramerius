@@ -159,12 +159,13 @@ public class ReplicationsResource {
     @Produces(MediaType.APPLICATION_JSON)
     public StreamingOutput prepareExport(@PathParam("pid") String pid) throws ReplicateException {
         try {
+            ObjectPidsPath[] paths = this.solrAccess.getPath(pid);
             if (checkPermission(pid)) {
                 if (this.fedoraAccess.getRelsExt(pid) != null) {
                     // raw generate to request writer
                     List<String> pidList = replicationService.prepareExport(pid);
                     // cannot use JSON object -> too big data
-                    return new PIDListStreamOutput(pidList);
+                    return new PIDListStreamOutput(pidList, Arrays.asList(paths));
                 } else throw new ObjectNotFound("cannot find pid '"+pid+"'");
             }  else throw new ActionNotAllowed("action is not allowed");
         } catch(FileNotFoundException e) {
