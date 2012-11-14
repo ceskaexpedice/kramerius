@@ -19,8 +19,10 @@ package org.kramerius.replications;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.FileReader;
 import java.io.IOException;
 import java.nio.charset.Charset;
+import java.util.ArrayList;
 import java.util.List;
 
 import net.sf.json.JSONObject;
@@ -28,6 +30,13 @@ import net.sf.json.JSONObject;
 import org.kramerius.consistency.Consistency;
 import org.kramerius.consistency.Consistency.NotConsistentRelation;
 import org.kramerius.consistency.Consistency._Module;
+import org.kramerius.replications.SecondPhase.Emitter;
+import org.kramerius.replications.pidlist.PIDsListLexer;
+import org.kramerius.replications.pidlist.PIDsListParser;
+import org.kramerius.replications.pidlist.PidsListCollect;
+
+import antlr.RecognitionException;
+import antlr.TokenStreamException;
 
 import com.google.inject.Guice;
 import com.google.inject.Injector;
@@ -39,10 +48,15 @@ import cz.incad.kramerius.utils.pid.LexerException;
 
 public class ThirdPhase extends AbstractPhase {
 
+    static java.util.logging.Logger LOGGER = java.util.logging.Logger.getLogger(ThirdPhase.class.getName());
+    
     @Override
     public void start(String url, String userName, String pswd) throws PhaseException {
         try {
-            String rootPid = K4ReplicationProcess.pidFrom(url);
+            List<String> paths = processIterateToFindRoot(url, userName, pswd);
+            String rootPid = paths.isEmpty() ?  K4ReplicationProcess.pidFrom(url) : rootFromPaths(paths);
+            LOGGER.info(" found root is "+rootPid);
+            
             // check consistency 
             Consistency consistency = new Consistency();
             Injector injector = Guice.createInjector(new _Module());
@@ -51,14 +65,13 @@ public class ThirdPhase extends AbstractPhase {
 
             String title = "_"; //TODO: title
             IOUtils.cleanDirectory(new File(SecondPhase.DONE_FOLDER_NAME));
-            String pid = K4ReplicationProcess.pidFrom(url);
             File descFile = getDescriptionFile();
             if ((descFile != null) && (descFile.canRead())) {
                 String raw = IOUtils.readAsString(new FileInputStream(descFile), Charset.forName("UTF-8"), true);
                 JSONObject jsonObject = JSONObject.fromObject(raw);
                 title = jsonObject.getString("title");
             }
-            IndexerProcessStarter.spawnIndexer(true, title, pid);
+            IndexerProcessStarter.spawnIndexer(true, title, rootPid);
         } catch (FileNotFoundException e) {
             throw new PhaseException(this,e);
         } catch (IOException e) {
@@ -67,13 +80,57 @@ public class ThirdPhase extends AbstractPhase {
             throw new PhaseException(this,e);
         } catch (LexerException e) {
             throw new PhaseException(this,e);
+        } catch (RecognitionException e) {
+            throw new PhaseException(this,e);
+        } catch (TokenStreamException e) {
+            throw new PhaseException(this,e);
         }
+    }
+
+    /**
+     * @param paths
+     * @return
+     */
+    private String rootFromPaths(List<String> paths) {
+        if (!paths.isEmpty()) {
+            String[] patharr = paths.get(0).split("/");
+            return patharr.length > 0 ?  patharr[0] : null; 
+        }
+        return null;
+    }
+
+    public List<String> processIterateToFindRoot(String url, String userName, String pswd) throws FileNotFoundException, PhaseException, RecognitionException, TokenStreamException {
+        PIDsListLexer lexer = new PIDsListLexer(new FileReader(getIterateFile()));
+        PIDsListParser parser = new PIDsListParser(lexer);
+        Paths pth = new Paths();
+        parser.setPidsListCollect(pth);
+        parser.pids();
+        return pth.getPaths();
+        //return parser.getPidsListCollect().
     }
 
     @Override
     public void restart(String previousProcessUUID, File previousProcessRoot, boolean phaseCompleted, String url, String userName, String pswd) throws PhaseException {
         if (!phaseCompleted) {
             this.start(url, userName, pswd);
+        }
+    }
+    
+    public class Paths implements PidsListCollect {
+        private List<String> foundPaths = new ArrayList<String>();
+
+        @Override
+        public void pidEmitted(String pid) {
+            // NOT 
+        }
+
+        @Override
+        public void pathEmitted(String path) {
+            this.foundPaths.add(path);
+        }
+        
+        public List<String> getPaths() {
+            return this.foundPaths;
         }
     }
 }
