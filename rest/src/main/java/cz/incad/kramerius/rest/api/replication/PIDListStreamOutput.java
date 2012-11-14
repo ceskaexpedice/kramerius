@@ -53,7 +53,7 @@ public class PIDListStreamOutput implements StreamingOutput {
             builder.append('\'').append(pidList.get(i)).append('\'');
             os.write(builder.toString().getBytes("UTF-8"));
         }
-        os.write(("], 'path':["+toPathArray(this.paths)+"]}").getBytes("UTF-8"));
+        os.write(("], 'paths':["+toPathArray(this.paths)+"]}").getBytes("UTF-8"));
     }
     
     static String toPathArray(List<ObjectPidsPath> paths) {
