@@ -39,7 +39,7 @@ form(importDirectory,importRootDirectory, bundle) ::=<<
 
             var startIndexer = \$('#startIndexer').attr('checked');
             
-            var charsThatMustBeEscaped = [':',';','}','{'];
+            var charsThatMustBeEscaped = [':',';','}','{','\\\\'];
 
             var vals = 'importDirectory='+\$('#importDirectory').val()
                 +';startIndexer='+startIndexer

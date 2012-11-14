@@ -107,7 +107,7 @@ public class PIDsListParserTest {
         {
             expPath.add("'uuid:0eaa6730-9068-11dd-97de-000d606f5dc6/uuid:4a79bd50-af36-11dd-a60c-000d606f5dc6'");
         }
-        String  input = "{'pids':['uuid:0eaa6730-9068-11dd-97de-000d606f5dc6','uuid:4a79bd50-af36-11dd-a60c-000d606f5dc6'],'path':'uuid:0eaa6730-9068-11dd-97de-000d606f5dc6/uuid:4a79bd50-af36-11dd-a60c-000d606f5dc6'}";
+        String  input = "{'pids':['uuid:0eaa6730-9068-11dd-97de-000d606f5dc6','uuid:4a79bd50-af36-11dd-a60c-000d606f5dc6'],'paths':['uuid:0eaa6730-9068-11dd-97de-000d606f5dc6/uuid:4a79bd50-af36-11dd-a60c-000d606f5dc6']}";
         PIDsListParser parser = new PIDsListParser(new PIDsListLexer(new StringReader(input)));
         PidsListCollect collect = new PidsListCollect() {
             
@@ -131,7 +131,7 @@ public class PIDsListParserTest {
     
     @Test
     public void testPIDParser4() throws RecognitionException, TokenStreamException {
-        String  input = "{'path':'uuid:0eaa6730-9068-11dd-97de-000d606f5dc6/uuid:4a79bd50-af36-11dd-a60c-000d606f5dc6','pids':['uuid:0eaa6730-9068-11dd-97de-000d606f5dc6','uuid:4a79bd50-af36-11dd-a60c-000d606f5dc6']}";
+        String  input = "{'paths':['uuid:0eaa6730-9068-11dd-97de-000d606f5dc6/uuid:4a79bd50-af36-11dd-a60c-000d606f5dc6'],'pids':['uuid:0eaa6730-9068-11dd-97de-000d606f5dc6','uuid:4a79bd50-af36-11dd-a60c-000d606f5dc6']}";
         final List<String> expPids = new ArrayList<String>();
         {
             expPids.add("'uuid:0eaa6730-9068-11dd-97de-000d606f5dc6'");

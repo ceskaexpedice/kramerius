@@ -66,7 +66,7 @@ options{
                 this.pidListCollect.pidEmitted(r);
         } else if (pathsCollecting) {
             if (this.pidListCollect != null)
-                this.pidListCollect.pathEmitted(f);
+                this.pidListCollect.pathEmitted(r);
         }
     }   
 }

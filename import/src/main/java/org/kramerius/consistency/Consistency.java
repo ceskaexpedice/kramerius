@@ -133,7 +133,7 @@ public class Consistency {
                 return false;
             } catch (IOException e) {
                 //e.printStackTrace();
-                LOGGER.severe("current stack "+this.pidsStack.toString()+" and missing pid "+pid+ " and current level "+level);
+                LOGGER.warning("deleting relation  to nonexisting pid "+pid);
                 String peek = this.pidsStack.peek();
                 this.relations.add(new NotConsistentRelation(peek, Arrays.asList(pid)));
                 return true;

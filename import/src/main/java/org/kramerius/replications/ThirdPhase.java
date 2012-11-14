@@ -21,6 +21,8 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.Reader;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
@@ -53,7 +55,7 @@ public class ThirdPhase extends AbstractPhase {
     @Override
     public void start(String url, String userName, String pswd) throws PhaseException {
         try {
-            List<String> paths = processIterateToFindRoot(url, userName, pswd);
+            List<String> paths = processIterateToFindRoot(getIterateFile());
             String rootPid = paths.isEmpty() ?  K4ReplicationProcess.pidFrom(url) : rootFromPaths(paths);
             LOGGER.info(" found root is "+rootPid);
             
@@ -99,8 +101,12 @@ public class ThirdPhase extends AbstractPhase {
         return null;
     }
 
-    public List<String> processIterateToFindRoot(String url, String userName, String pswd) throws FileNotFoundException, PhaseException, RecognitionException, TokenStreamException {
-        PIDsListLexer lexer = new PIDsListLexer(new FileReader(getIterateFile()));
+    public static List<String> processIterateToFindRoot(File iterate) throws FileNotFoundException, PhaseException, RecognitionException, TokenStreamException {
+        return processIterateToFindRoot(new FileReader(iterate));
+    }
+
+    public static List<String> processIterateToFindRoot(Reader iterateReader) throws FileNotFoundException, PhaseException, RecognitionException, TokenStreamException {
+        PIDsListLexer lexer = new PIDsListLexer(iterateReader);
         PIDsListParser parser = new PIDsListParser(lexer);
         Paths pth = new Paths();
         parser.setPidsListCollect(pth);
@@ -116,7 +122,7 @@ public class ThirdPhase extends AbstractPhase {
         }
     }
     
-    public class Paths implements PidsListCollect {
+    static class Paths implements PidsListCollect {
         private List<String> foundPaths = new ArrayList<String>();
 
         @Override
@@ -125,10 +131,15 @@ public class ThirdPhase extends AbstractPhase {
         }
 
         @Override
-        public void pathEmitted(String path) {
+        public void pathEmitted(String  path) {
+            LOGGER.info("emitted path '"+path+"'");
+            if ((path.startsWith("'")) || (path.startsWith("\""))){
+                path = path.substring(1, path.length() - 1);
+                LOGGER.info("changed path is "+path);
+            }
             this.foundPaths.add(path);
         }
-        
+
         public List<String> getPaths() {
             return this.foundPaths;
         }

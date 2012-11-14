@@ -61,7 +61,7 @@ form(migrationDirectory,targetDirectory,importRootDirectory, bundle) ::=<<
     <!--    
         // send parameters to server
         window.onProcessFormSend = function() {
-            var charsThatMustBeEscaped = [':',';','}','{'];
+            var charsThatMustBeEscaped = [':',';','}','{', '\\\\'];
             
             var startIndexer = \$('#startIndexer').attr('checked');
             var defaultRights = \$('#defaultRights').attr('checked');

@@ -10,8 +10,8 @@ form(bundle, handle) ::=<<
     <!--    
 
         window.onProcessFormSend = function() {
-            
-            var charsThatMustBeEscaped = [':',';','}','{'];
+
+            var charsThatMustBeEscaped = [':',';','}','{','\\\\'];
             var handle = \$('#handle').val().escapeChars(charsThatMustBeEscaped);
             var user = \$('#user').val().escapeChars(charsThatMustBeEscaped);
             var password = \$('#pswd').val().escapeChars(charsThatMustBeEscaped);

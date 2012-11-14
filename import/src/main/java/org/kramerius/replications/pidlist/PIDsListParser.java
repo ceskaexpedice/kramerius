@@ -42,26 +42,32 @@ public class PIDsListParser extends antlr.LLkParser       implements PIDsListPar
             k = k.substring(1,k.length()-1);
         }
         if (k.equals("pids")) { pidsCollecting = true; pathsCollecting = false; }
-        else if (k.equals("path")) { pidsCollecting = false; pathsCollecting = true; }
+        else if (k.equals("paths")) { pidsCollecting = false; pathsCollecting = true; }
     }
 
     public void startOfArray() {}
 
     public void endOfArray() {
         if (pidsCollecting) pidsCollecting = false;
+        if (pathsCollecting) pathsCollecting = false;
     }
 
     public void value(String i) {
+        /*
         if (pathsCollecting) {
             if (this.pidListCollect != null)
                 this.pidListCollect.pathEmitted(i);
-        }
+        } else if (
+        */
     }
 
     public void first(String f) {
         if (pidsCollecting) {
             if (this.pidListCollect != null)
                 this.pidListCollect.pidEmitted(f);
+        } else if (pathsCollecting) {
+            if (this.pidListCollect != null)
+                this.pidListCollect.pathEmitted(f);
         }
     } 
 
@@ -69,6 +75,9 @@ public class PIDsListParser extends antlr.LLkParser       implements PIDsListPar
         if (pidsCollecting) {
             if (this.pidListCollect != null)
                 this.pidListCollect.pidEmitted(r);
+        } else if (pathsCollecting) {
+            if (this.pidListCollect != null)
+                this.pidListCollect.pathEmitted(r);
         }
     }   
 
