@@ -26,7 +26,9 @@ import java.io.IOException;
 import java.io.StringReader;
 import java.util.logging.Level;
 
+import org.apache.commons.codec.binary.Base64;
 import org.kramerius.Download;
+
 
 import cz.incad.kramerius.processes.annotations.ParameterName;
 import cz.incad.kramerius.processes.annotations.Process;
@@ -51,6 +53,16 @@ public class ParametrizedReplication {
                                     @ParameterName("defaultRights")Boolean defaultRights ) throws IOException {
     
         try {
+            if (idList != null) {
+                Base64 base64 = new Base64(0);
+                byte[] decoded = base64.decode(idList);
+                idList =  new String(decoded);
+            }
+        } catch (Exception e1) {
+            LOGGER.log(Level.SEVERE,e1.getMessage(), e1);
+        }
+        
+        try {
             //TODO: I18N
             ProcessStarter.updateName("Parametrizovana replikace z K3 pres '"+migrationDirectory.getAbsolutePath()+"'");
         } catch (IOException e) {
@@ -59,7 +71,7 @@ public class ParametrizedReplication {
 
     
         LOGGER.info("replicatetype "+replicateType);
-        LOGGER.info("idlist "+idList);
+        LOGGER.info("idlist :'"+idList+"'");
         LOGGER.info("migrationDirectory "+migrationDirectory.getAbsolutePath());
         LOGGER.info("targetDirectory "+targetDirectory.getAbsolutePath());
         LOGGER.info("ingestSkip "+ingestSkip);
@@ -75,7 +87,7 @@ public class ParametrizedReplication {
                 System.setProperty("ingest.startIndexer", startIndexer.toString());
                 System.setProperty("ingest.skip", ingestSkip.toString());
                 
-                Download.replicateMonographs(new BufferedReader(new StringReader(idList.replaceAll(",","\n"))));
+                Download.replicateMonographs(new BufferedReader(new StringReader(idList)));
             } else {
                 
                 System.setProperty("convert.defaultRights", defaultRights.toString());
@@ -84,7 +96,7 @@ public class ParametrizedReplication {
                 System.setProperty("ingest.startIndexer", startIndexer.toString());
                 System.setProperty("ingest.skip", ingestSkip.toString());
                 
-                Download.replicatePeriodicals(new BufferedReader(new StringReader(idList.replaceAll(",","\n"))));
+                Download.replicatePeriodicals(new BufferedReader(new StringReader(idList)));
             }
         } else throw new RuntimeException("no idlist defined !");
     }

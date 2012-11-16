@@ -81,9 +81,11 @@ form(migrationDirectory,targetDirectory,importRootDirectory,visibility, bundle) 
 
             var ingestSkip = !importToFedora;
             var replTypeId = \$("input[@name=repltype]:checked").attr('value');
-
+            // TODO: idlist encode 
+            var encodedData = Base64.encode(\$('#idlist').val()).escapeChars(charsThatMustBeEscaped);
+            
             var vals = 'replicatetype='+replTypeId
-                +';idlist='+   \$('#idlist').val().escapeChars(charsThatMustBeEscaped)
+                +';idlist='+   encodedData
                 +';migrationDirectory='+ \$('#migrationDirectory').val().escapeChars(charsThatMustBeEscaped)
                 +';targetDirectory='+\$('#targetDirectory').val().escapeChars(charsThatMustBeEscaped)
                 +';defaultRights='+defaultRights
