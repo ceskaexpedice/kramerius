@@ -13,7 +13,7 @@ selectionJSTreeTarget() ::=<<
 >>
 
 
-form(convertDirectory,targetDirectory,convertRootDirectory, bundle) ::=<<
+form(convertDirectory,targetDirectory,convertRootDirectory, visibility, bundle) ::=<<
 
 <div style="width:100%">
     <script language="JavaScript" type="text/javascript"> 
@@ -122,7 +122,7 @@ form(convertDirectory,targetDirectory,convertRootDirectory, bundle) ::=<<
 
 
 <!-- vyber adresaru -->
-<fieldset style="margin-top:10px;">
+<fieldset style="margin-top:10px;border: 1px solid gray;">
     <legend style="border:none">$bundle.("parametrizedconvert.directories.fields")$</legend>
     <label>$bundle.("parametrizedconvert.convert.directory")$</label><br>
     <input style="width:80%" type="text"  id="convertDirectory" value="$convertDirectory$"></input>
@@ -135,15 +135,20 @@ form(convertDirectory,targetDirectory,convertRootDirectory, bundle) ::=<<
 </fieldset>
 
 <!-- public/private; udelat dle nastaveni -->
-<fieldset style="margin-top:10px;">
-    <legend style="border:1px solid gray">$bundle.("k3replication.defaultrights.fields")$</legend>
+<fieldset style="margin-top:10px;border: 1px solid gray;">
+    <legend style="border:none">$bundle.("k3replication.defaultrights.fields")$</legend>
+    $if(visibility)$
     <input type="radio" id="defaultRightsPublic" name="defaultRights" value="$bundle.("k3replication.defaultrights.public")$" checked>$bundle.("k3replication.defaultrights.public")$</input>
     <input type="radio" name="defaultRights" value="$bundle.("k3replication.defaultrights.private")$">$bundle.("k3replication.defaultrights.private")$</input>
+    $else$
+    <input type="radio" id="defaultRightsPublic" name="defaultRights" value="$bundle.("k3replication.defaultrights.public")$">$bundle.("k3replication.defaultrights.public")$</input>
+    <input type="radio" name="defaultRights" value="$bundle.("k3replication.defaultrights.private")$" checked>$bundle.("k3replication.defaultrights.private")$</input>
+    $endif$
 </fieldset>
 
 <!-- ostatni nastaveni  -->
-<fieldset style="margin-top:10px;">
-    <legend style="border:1px solid gray">$bundle.("k3replication.othersettings.fields")$</legend>
+<fieldset style="margin-top:10px;border: 1px solid gray;">
+    <legend style="border:none">$bundle.("k3replication.othersettings.fields")$</legend>
     <input type="checkbox" id="importToFedora" name="importToFedora" value="importToFedora" checked>$bundle.("k3replication.importtofedora")$</input>
     <input type="checkbox" id="startIndexer" name="startIndexer" value="indexer">$bundle.("k3replication.indexerstart")$</input>
 </fieldset>
