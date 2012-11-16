@@ -29,18 +29,15 @@ tree(root) ::=<<
 
 
 
-form(importDirectory,importRootDirectory, bundle) ::=<<
+form(importDirectory,importRootDirectory, visibility, bundle) ::=<<
 
 <div style="width:100%">
     <script language="JavaScript" type="text/javascript"> 
     <!--    
         // send parameters to server
         window.onProcessFormSend = function() {
-
             var startIndexer = \$('#startIndexer').attr('checked');
-            
             var charsThatMustBeEscaped = [':',';','}','{','\\\\'];
-
             var vals = 'importDirectory='+\$('#importDirectory').val()
                 +';startIndexer='+startIndexer
                 ;
@@ -98,33 +95,20 @@ form(importDirectory,importRootDirectory, bundle) ::=<<
     -->        
     </script>
 
+<!-- vyber adresaru -->
+<fieldset style="margin-top:10px;border: 1px solid gray;">
+    <legend style="border:none">$bundle.("parametrizedconvert.directories.fields")$</legend>
+    <label>$bundle.("import.directory")$</label><br>
+    <input style="width:80%" type="text"  id="importDirectory" value="$importDirectory$"></input>
+    <input type="button" onclick="directoryTree.openTree();" value="$bundle.("import.directory.selection")$"></input>
+</fieldset>
 
-        <table style="width:100%;">
-            <thead>
-                <tr> <td width="80%"></td><td></td>
-            </thead>
-            <tbody>
+<!-- ostatni nastaveni  -->
+<fieldset style="margin-top:10px;border: 1px solid gray;">
+    <legend style="border:none">$bundle.("k3replication.othersettings.fields")$</legend>
+    <input type="checkbox" id="startIndexer" name="startIndexer" value="startIndexer">$bundle.("import.indexerstart")$</input>
+</fieldset>
 
-                <tr>
-                    <td colspan="2"> <label>$bundle.("import.directory")$</label> </td>
-                </tr>
-            
-                <tr>
-                        <td>
-                            <input style="width:100%" type="text"  id="importDirectory" value="$importDirectory$"></input>
-                        </td>
-                        <td>
-                            <input type="button" onclick="directoryTree.openTree();" value="$bundle.("import.directory.selection")$"></input>
-                        </td>
-                </tr>
-            
-                <tr>
-                    <td colspan="2"> <input type="checkbox" id="startIndexer" name="startIndexer" value="startIndexer">$bundle.("import.indexerstart")$</input></td>
-                </tr>
-            
-            
-            </tbody>
-        </table>
     
     <div id="_selectImportFolderDialog" style="display:none">
         <h3>  $bundle.("import.selection.dialog")$</h3>

@@ -54,19 +54,32 @@ selectionJSTreeTarget() ::=<<
 
 
 
-form(migrationDirectory,targetDirectory,importRootDirectory, bundle) ::=<<
+form(migrationDirectory,targetDirectory,importRootDirectory,visibility, bundle) ::=<<
 
 <div style="width:100%">
     <script language="JavaScript" type="text/javascript"> 
     <!--    
+
+        \$('#importToFedora').change( function() {
+            var importToFedora = \$('#importToFedora').attr('checked');
+            if (importToFedora) {
+                \$('#startIndexer').removeAttr("disabled");
+            } else {
+                \$('#startIndexer').removeAttr("checked");
+                \$('#startIndexer').attr("disabled", true);
+            }
+        });
+
         // send parameters to server
         window.onProcessFormSend = function() {
             var charsThatMustBeEscaped = [':',';','}','{', '\\\\'];
+
+            var importToFedora = \$('#importToFedora').attr('checked');
             
             var startIndexer = \$('#startIndexer').attr('checked');
-            var defaultRights = \$('#defaultRights').attr('checked');
-            var ingestSkip = \$('#ingestSkip').attr('checked');
-            
+            var defaultRights = \$('#defaultRightsPublic').attr('checked');
+
+            var ingestSkip = !importToFedora;
             var replTypeId = \$("input[@name=repltype]:checked").attr('value');
 
             var vals = 'replicatetype='+replTypeId
@@ -154,73 +167,54 @@ form(migrationDirectory,targetDirectory,importRootDirectory, bundle) ::=<<
     -->        
     </script>
 
+<!-- vyber adresaru -->
+<fieldset style="margin-top:10px;border: 1px solid gray;">
+    <legend style="border:none">$bundle.("parametrizedconvert.directories.fields")$</legend>
 
-        <table style="width:100%;">
-            <thead>
-                <tr> <td width="80%"></td><td></td>
-            </thead>
-            <tbody>
-
-                <tr>
-                    <td colspan="2"> <label>$bundle.("k3replication.migration.directory")$</label> </td>
-                </tr>
-            
-                <tr>
-                        <td>
-                            <input style="width:100%" type="text"  id="migrationDirectory" value="$migrationDirectory$"></input>
-                        </td>
-                        <td>
-                            <input type="button" onclick="trees.openImportTree();" value="$bundle.("k3replication.directory.selection")$"></input>
-                        </td>
-                </tr>
-
-                <tr>
-                    <td colspan="2"> <label>$bundle.("k3replication.target.directory")$</label> </td>
-                </tr>
-
-                <tr>
-                        <td>
-                            <input style="width:100%" type="text"  id="targetDirectory" value="$targetDirectory$"></input>
-                        </td>
-                        <td>
-                            <input type="button" onclick="trees.openTargetTree();" value="$bundle.("k3replication.directory.selection")$"></input>
-                        </td>
-                </tr>
-
-                <tr>
-                    <td colspan="2"> <label>$bundle.("k3replication.type")$</label> </td>
-                </tr>
-
-                <tr>
-                        <td colspan="2">
-                            <input type="radio" name="repltype" id="replTypeMonograph" value="monograph" checked="checked">$bundle.("k3replication.type.monographs")$</input>
-                            <input type="radio" name="repltype" id="replTypePeriodical" value="periodical">$bundle.("k3replication.type.periodicals")$</input>
-                        </td>
-                </tr>
-
-                <tr>
-                    <td colspan="2"> <label>$bundle.("k3replication.idlist")$</label> </td>
-                </tr>
-
-                <tr>
-                    <td> <textarea id="idlist" rows="5" style="width:100%;"></textarea></td>
-                </tr>
-
-                <tr>
-                    <td colspan="2"> <input type="checkbox" id="startIndexer" name="startIndexer" value="indexer">$bundle.("k3replication.indexerstart")$</input></td>
-                </tr>
-
-                <tr>
-                    <td colspan="2"> <input type="checkbox" id="defaultRights" name="defaultRights" value="defaultRights">$bundle.("k3replication.defaultrights")$</input></td>
-                </tr>
-                <tr>
-                    <td colspan="2"> <input type="checkbox" id="ingestSkip" name="ingestSkip" value="ingestSkip">$bundle.("k3replication.ingestskip")$</input></td>
-                </tr>
+    <label>$bundle.("k3replication.migration.directory")$</label><br>
+    <input style="width:80%" type="text"  id="migrationDirectory" value="$migrationDirectory$"></input>
+    <input type="button" onclick="trees.openImportTree();" value="$bundle.("k3replication.directory.selection")$"></input>
+    <br>
     
-            </tbody>
-        </table>
+    <label>$bundle.("k3replication.target.directory")$</label><br>
+    <input style="width:80%" type="text"  id="targetDirectory" value="$targetDirectory$"></input>
+    <input type="button" onclick="trees.openTargetTree();" value="$bundle.("k3replication.directory.selection")$"></input>
+</fieldset>
 
-        
+
+<!-- periodical/monograph; udelat dle nastaveni -->
+<fieldset style="margin-top:10px;border: 1px solid gray;">
+    <legend style="border:none">$bundle.("k3replication.type")$</legend>
+    <input type="radio" name="repltype" id="replTypeMonograph" value="monograph" checked="checked">$bundle.("k3replication.type.monographs")$</input>
+    <input type="radio" name="repltype" id="replTypePeriodical" value="periodical">$bundle.("k3replication.type.periodicals")$</input>
+</fieldset>
+
+<!-- public/private; udelat dle nastaveni -->
+<fieldset style="margin-top:10px;border: 1px solid gray;">
+    <legend style="border:none">$bundle.("k3replication.defaultrights.fields")$</legend>
+    $if(visibility)$
+    <input type="radio" id="defaultRightsPublic" name="defaultRights" value="$bundle.("k3replication.defaultrights.public")$" checked>$bundle.("k3replication.defaultrights.public")$</input>
+    <input type="radio" name="defaultRights" value="$bundle.("k3replication.defaultrights.private")$">$bundle.("k3replication.defaultrights.private")$</input>
+    $else$
+    <input type="radio" id="defaultRightsPublic" name="defaultRights" value="$bundle.("k3replication.defaultrights.public")$">$bundle.("k3replication.defaultrights.public")$</input>
+    <input type="radio" name="defaultRights" value="$bundle.("k3replication.defaultrights.private")$" checked>$bundle.("k3replication.defaultrights.private")$</input>
+    $endif$
+</fieldset>
+
+<!-- idlist -->
+<fieldset style="margin-top:10px;border: 1px solid gray;">
+    <legend style="border:none">$bundle.("k3replication.idlist")$</legend>
+    <textarea id="idlist" rows="5" style="width:100%;"></textarea>
+</fieldset>
+
+<!-- ostatni nastaveni  -->
+<fieldset style="margin-top:10px;border: 1px solid gray;">
+    <legend style="border:none">$bundle.("k3replication.othersettings.fields")$</legend>
+    <input type="checkbox" id="importToFedora" name="importToFedora" value="importToFedora" checked>$bundle.("k3replication.importtofedora")$</input>
+    <input type="checkbox" id="startIndexer" name="startIndexer" value="indexer">$bundle.("k3replication.indexerstart")$</input>
+</fieldset>
+
+
     <div id="_select_migration_directory" style="display:none">
 
         <h3>  $bundle.("import.selection.dialog")$</h3>

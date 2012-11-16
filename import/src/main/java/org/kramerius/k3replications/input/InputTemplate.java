@@ -94,6 +94,8 @@ public class InputTemplate implements ProcessInputTemplate {
         template.setAttribute("targetDirectory",  KConfiguration.getInstance().getProperty("import.directory"));
         template.setAttribute("importRootDirectory", rootNode);
     
+        template.setAttribute("visibility", KConfiguration.getInstance().getProperty("convert.defaultRights"));
+        
         ResourceBundle resbundle = resourceBundleService.getResourceBundle("labels", localesProvider.get());
         template.setAttribute("bundle", ResourceBundleUtils.resourceBundleMap(resbundle));
         
