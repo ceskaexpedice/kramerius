@@ -26,6 +26,7 @@
     </scm>
 
     <repositories>
+
         <repository>
             <id>maven2-repository.dev.java.net</id>
             <name>Java.net Repository for Maven 2</name>
@@ -85,14 +86,11 @@
             <url>http://repository.springsource.com/maven/bundles/external</url>
         </repository>
         <repository>
-            <releases />
-            <snapshots>
-                <enabled>false</enabled>
-            </snapshots>
-            <id>mygrid-repository</id>
-            <name>myGrid Repository</name>
-            <url>http://www.mygrid.org.uk/maven/repository</url>
+            <id>atlassian</id>
+            <name>atlassian public repository</name>
+            <url>https://maven.atlassian.com/content/groups/public</url>
         </repository>
+
 
     </repositories>
 
