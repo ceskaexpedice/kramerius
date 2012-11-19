@@ -65,7 +65,7 @@
 
     </div>
     <div class="footer">
-        <input type="button" value="close" class="ui-state-default ui-corner-all"  onclick="hideAdminMenu();" />
+        <input type="button" value="<view:msg>common.close</view:msg>" class="ui-state-default ui-corner-all"  onclick="hideAdminMenu();" />
     </div>
 </div>
 
