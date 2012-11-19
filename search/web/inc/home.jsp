@@ -24,7 +24,12 @@
 
 <div id="homedabox" style="float:left;width:239px;margin-left:4px;">
     <ul><li><a href="#dadiv"><fmt:message bundle="${lctx}" key="Časová osa" /></a></li></ul>
-<div id="dadiv" style="padding:3px;"><%@ include file="da.jsp" %></div>
+    <div id="dadiv" style="padding:3px;">
+        <p style="text-align: center;">
+            <img src="img/loading.gif" alt="loading date axis" /><br/>Date axis loading...
+        </p>
+        <%--@ include file="da.jsp" --%>
+    </div>
 </div>
 <div style="float:left;width:750px;">
 <div id="dt_home">
@@ -39,10 +44,17 @@
 </div>
 <script type="text/javascript">
     $(document).ready(function(){
+        $.get("inc/da.jsp", function(data){
+            $("#dadiv").html(data);
+            initDateAxis();
+            $("#content-resizable").css("height", (containerHeight+7) + "px");
+            daScrollToMax();
+        });
         resizeAll();
         $(window).resize(function(event, viewerOptions){
             resizeAll();
         });
+        
     });
     function resizeAll(){
         var w = $("#intro>div.ui-tabs-panel:first").height() +

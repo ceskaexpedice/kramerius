@@ -50,7 +50,12 @@
     <%@ include file="../usedFilters.jsp" %>
     <%@ include file="../facets.jsp" %>
     </div>
-    <div id="dadiv" style="padding:3px;"><%@ include file="../da.jsp" %></div>
+    <div id="dadiv" style="padding:3px;"
+        <p style="text-align: center;">
+            <img src="img/loading.gif" alt="loading date axis" /><br/>Date axis loading...
+        </p>
+        <%--@ include file="../da.jsp" --%>
+    </div>
     <scrd:loggedusers>
     <div id="contextMenu"><%@include file="../details/contextMenu.jsp" %></div>
     </scrd:loggedusers>
@@ -79,10 +84,16 @@
         }
     });
 $(document).ready(function(){
-    
-    if($('#dadiv').length==0){
-        $("#dali").remove();
-    }
+    $.get("inc/da.jsp", function(data){
+        if(data.length==0){
+            $("#dali").remove();
+        }else{
+            $("#dadiv").html(data);
+            initDateAxis();
+            $("#content-resizable").css("height", (containerHeight+7) + "px");
+            daScrollToMax();
+        }
+    });
     
     var w;
     var w1 = $(window).height() -

@@ -14,6 +14,18 @@
 <%@page import="cz.incad.kramerius.utils.conf.KConfiguration"%>
 <%@page import="javax.servlet.jsp.jstl.fmt.LocalizationContext"%>
 <%@page import="cz.incad.kramerius.FedoraAccess"%>
+
+<%
+            Injector ctxInj = (Injector) application.getAttribute(Injector.class.getName());
+            KConfiguration kconfig = ctxInj.getProvider(KConfiguration.class).get();
+            pageContext.setAttribute("kconfig", kconfig);
+            LocalizationContext lctx = ctxInj.getProvider(LocalizationContext.class).get();
+            pageContext.setAttribute("lctx", lctx);
+            FedoraAccess fedoraAccess = ctxInj.getInstance(com.google.inject.Key.get(FedoraAccess.class, com.google.inject.name.Names.named("securedFedoraAccess")));
+            String i18nServlet = I18NServlet.i18nServlet(request) + "?action=bundle&lang=" + lctx.getLocale().getLanguage() + "&country=" + lctx.getLocale().getCountry() + "&name=labels";
+            pageContext.setAttribute("i18nServlet", i18nServlet);
+%>
+<%@ include file="searchParams-html.jsp" %>
 <%
     XSLService xsda = (XSLService) ctxInj.getInstance(XSLService.class);
     try {
@@ -34,7 +46,7 @@
 <view:kconfig var="damax" key="search.dateaxis.max" defaultValue="${year}" />
 <c:if test="${damax=='now'}"><c:set var="damax" value="${year}" /></c:if>
 <c:catch var="exceptions">
-    <c:url var="facetxslurl" value="inc/results/xsl/da.xsl" />
+    <c:url var="facetxslurl" value="results/xsl/da.xsl" />
     <c:import url="${facetxslurl}" var="facetxsl" charEncoding="UTF-8"  />
 
 <div id="selectDiv" class="da_select" style="display:none;" ></div>
@@ -140,9 +152,9 @@
             daScrolled();
         });
       
-        initDateAxis();
-        $("#content-resizable").css("height", (containerHeight+7) + "px");
-        daScrollToMax();
+        //initDateAxis();
+        //$("#content-resizable").css("height", (containerHeight+7) + "px");
+        //daScrollToMax();
 
     });
     function checkDoFilter(event){

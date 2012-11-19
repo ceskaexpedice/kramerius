@@ -214,7 +214,6 @@
                 <xsl:value-of select="./mods:place/mods:placeTerm" />
                 </xsl:if></span>
         </li>
-        <h3></h3>
         </xsl:for-each>
         <xsl:if test="mods:originInfo[@transliteration='printer']">
         <li>
