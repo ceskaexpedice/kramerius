@@ -20,12 +20,13 @@ import java.io.IOException;
 
 import cz.incad.Kramerius.exts.menu.main.impl.AbstractMainMenuItem;
 import cz.incad.Kramerius.exts.menu.main.impl.adm.AdminMenuItem;
+import cz.incad.kramerius.security.SecuredActions;
 
 public class ParametrizedConvert extends AbstractMainMenuItem implements AdminMenuItem {
 
     @Override
     public boolean isRenderable() {
-        return true;
+        return (hasUserAllowedAction(SecuredActions.CONVERT.getFormalName()));
     }
 
     @Override

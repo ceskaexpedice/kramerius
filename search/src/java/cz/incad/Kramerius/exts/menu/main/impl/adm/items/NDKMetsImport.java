@@ -23,6 +23,7 @@ import java.io.IOException;
 
 import cz.incad.Kramerius.exts.menu.main.impl.AbstractMainMenuItem;
 import cz.incad.Kramerius.exts.menu.main.impl.adm.AdminMenuItem;
+import cz.incad.kramerius.security.SecuredActions;
 
 /**
  * @author pavels
@@ -32,7 +33,7 @@ public class NDKMetsImport extends AbstractMainMenuItem implements AdminMenuItem
 
     @Override
     public boolean isRenderable() {
-        return true;
+        return (hasUserAllowedAction(SecuredActions.NDK_METS_IMPORT.getFormalName()));
     }
 
     @Override
@@ -41,6 +42,4 @@ public class NDKMetsImport extends AbstractMainMenuItem implements AdminMenuItem
                 "javascript:parametrizedProcess.open('ndkmets'); javascript:hideAdminMenu();",
                 "administrator.menu.dialogs.metsndkimport.title", false);
     }
-
-    
 }

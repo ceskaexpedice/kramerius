@@ -33,7 +33,7 @@ public class ParametrizedK3Replication extends AbstractMainMenuItem implements A
 
     @Override
     public boolean isRenderable() {
-        return true;
+        return (hasUserAllowedAction(SecuredActions.IMPORT.getFormalName()));
     }
 
     @Override
