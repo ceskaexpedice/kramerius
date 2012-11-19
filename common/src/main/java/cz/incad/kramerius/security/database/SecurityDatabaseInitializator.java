@@ -80,9 +80,9 @@ public class SecurityDatabaseInitializator {
                 insertRightK4ReplicationExport(connection);
                 insertRightK4ReplicationImport(connection);
                 
+                // mets ndk import
+                insertNDKMetsImport(connection);
             } else { 
-                
-
                 String v = versionService.getVersion();
 
                 if (versionCondition(v, ">=", "4.5.0") && versionCondition(v, "<=", "4.8.0")) {
@@ -108,6 +108,9 @@ public class SecurityDatabaseInitializator {
                     insertRightK4ReplicationExport(connection);
                     insertRightK4ReplicationImport(connection);
 
+                    // mets ndk import
+                    insertNDKMetsImport(connection);
+
                 } else if (versionCondition(v, "=", "5.3.0")){
                     // right for criteria params manage
                     insertRightForCriteriaParamsManage(connection);
@@ -115,10 +118,19 @@ public class SecurityDatabaseInitializator {
                     insertRightK4ReplicationExport(connection);
                     insertRightK4ReplicationImport(connection);
 
+                    // mets ndk import
+                    insertNDKMetsImport(connection);
+
                 } else if (versionCondition(v, "=", "5.4.0")){
                     // k4 replication rights
                     insertRightK4ReplicationExport(connection);
                     insertRightK4ReplicationImport(connection);
+
+                    // mets ndk import
+                    insertNDKMetsImport(connection);
+                } else if (versionCondition(v, "=", "5.5.0")){
+                    // mets ndk import
+                    insertNDKMetsImport(connection);
                 }
             }
         } catch (SQLException e) {
@@ -143,6 +155,12 @@ public class SecurityDatabaseInitializator {
 
     private static int insertRightForCriteriaParamsManage(Connection connection) throws SQLException {
         String sql = SecurityDatabaseUtils.stUdateRightGroup().getInstanceOf("insertRight_DisplayAdminMenu").toString();
+        JDBCUpdateTemplate template = new JDBCUpdateTemplate(connection,false);
+        return template.executeUpdate(sql);
+    }
+
+    private static int insertNDKMetsImport(Connection connection) throws SQLException {
+        String sql = SecurityDatabaseUtils.stUdateRightGroup().getInstanceOf("insertRight_NDKMetsImport").toString();
         JDBCUpdateTemplate template = new JDBCUpdateTemplate(connection,false);
         return template.executeUpdate(sql);
     }

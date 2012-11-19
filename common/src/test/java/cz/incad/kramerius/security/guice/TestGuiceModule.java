@@ -43,11 +43,8 @@ public class TestGuiceModule extends AbstractGuiceTestCase {
         RightCriteriumWrapper createCriterium = wrapperFactory.createCriteriumWrapper(MovingWall.class.getName());
         org.junit.Assert.assertEquals("cz.incad.kramerius.security.impl.RightCriteriumWrapperImpl", createCriterium.getClass().getName());
 
-        
         RightCriteriumWrapper existingWrapper = wrapperFactory.loadExistingWrapper(CriteriumType.CLASS, MovingWall.class.getName(), -1, null);
         org.junit.Assert.assertEquals("cz.incad.kramerius.security.impl.RightCriteriumWrapperImpl", existingWrapper.getClass().getName());
-        
-        
     }
     
     @Override

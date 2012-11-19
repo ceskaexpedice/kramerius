@@ -82,7 +82,10 @@ public enum SecuredActions {
     
     /** Akce umoznuje sprav u kriterii */
     CRITERIA_RIGHTS_MANAGE("criteria_rights_manage"),
-    
+
+    /** Akce NDK Mets import */
+    NDK_METS_IMPORT("ndk_mets_import"),
+
     /** Akce umozni zobrazit administratorskou cast menu */
     DISPLAY_ADMIN_MENU("display_admin_menu");
     
