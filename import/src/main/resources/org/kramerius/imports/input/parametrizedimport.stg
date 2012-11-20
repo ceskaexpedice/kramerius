@@ -38,7 +38,7 @@ form(importDirectory,importRootDirectory, visibility, bundle) ::=<<
         window.onProcessFormSend = function() {
             var startIndexer = \$('#startIndexer').attr('checked');
             var charsThatMustBeEscaped = [':',';','}','{','\\\\'];
-            var vals = 'importDirectory='+\$('#importDirectory').val()
+            var vals = 'importDirectory='+\$('#importDirectory').val().escapeChars(charsThatMustBeEscaped)
                 +';startIndexer='+startIndexer
                 ;
             
