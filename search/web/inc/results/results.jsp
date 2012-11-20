@@ -52,7 +52,7 @@
     </div>
     <div id="dadiv" style="padding:3px;"
         <p style="text-align: center;">
-            <img src="img/loading.gif" alt="loading date axis" /><br/>Date axis loading...
+            <img src="img/loading.gif" alt="loading date axis" /><br/>Time line loading...
         </p>
         <%--@ include file="../da.jsp" --%>
     </div>
@@ -85,10 +85,11 @@
     });
 $(document).ready(function(){
     $.get("inc/da.jsp", function(data){
-        if(data.length==0){
+        $("#dadiv").html(data);
+        if($("#dadiv").length==0){
             $("#dali").remove();
         }else{
-            $("#dadiv").html(data);
+            resizeAll();
             initDateAxis();
             $("#content-resizable").css("height", (containerHeight+7) + "px");
             daScrollToMax();
