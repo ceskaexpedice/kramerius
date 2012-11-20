@@ -36,17 +36,15 @@ form(convertDirectory,targetDirectory,convertRootDirectory, visibility, bundle) 
             var importToFedora = \$('#importToFedora').attr('checked');
             var ingestSkip = !importToFedora;
 
-            alert(defaultRights);
 
-            var vals = 'convertTargetDirectory='+\$('#targetDirectory').val()
+            var vals = 'convertTargetDirectory='+\$('#targetDirectory').val().escapeChars(charsThatMustBeEscaped)
                 +';convertDirectory='+   \$('#convertDirectory').val().escapeChars(charsThatMustBeEscaped)
                 +';startIndexer='+   startIndexer
                 +';defaultRights='+ defaultRights
                 +';ingestSkip='+ingestSkip;
 
             var url = "lr?action=form_post&def=ndkmets&paramsMapping={"+vals+"}&out=text";
-            alert(url);
-            //processStarter("ndkmets").start(url);
+            processStarter("ndkmets").start(url);
         }
 
         // show directory dialog
