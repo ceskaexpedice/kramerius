@@ -118,7 +118,7 @@ public class MetsConvertor {
 
         if (!importFolder.exists()) {
             log.error("Import root folder doesn't exist: " + importFolder.getAbsolutePath());
-            System.exit(1);
+            throw new RuntimeException("Import root folder doesn't exist: " + importFolder.getAbsolutePath());
         }
 
         File infoFile = new File(importFolder, "info.xml");
@@ -129,7 +129,7 @@ public class MetsConvertor {
         File importFile = new File(importFolder, "METS_" + packageid + ".xml");
         if (!importFile.exists()) {
             log.error("Import METS file doesn't exist: " + importFile.getAbsolutePath());
-            System.exit(1);
+            throw new RuntimeException("Import METS file doesn't exist: " + importFile.getAbsolutePath());
         }
 
 
@@ -177,8 +177,8 @@ public class MetsConvertor {
             }
 
         } catch (Exception e) {
-            System.err.println("Invalid import descriptor: " + infoFile.getAbsolutePath());
-            System.exit(1);
+            log.error("Invalid import descriptor: " + infoFile.getAbsolutePath());
+            throw new RuntimeException("Invalid import descriptor: " + infoFile.getAbsolutePath());
         }
         return null;
     }
