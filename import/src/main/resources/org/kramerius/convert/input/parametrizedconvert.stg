@@ -38,7 +38,7 @@ form(convertDirectory,targetDirectory,convertRootDirectory, visibility, bundle) 
             var ingestSkip = !importToFedora;
 
 
-            var vals = 'convertTargetDirectory='+\$('#targetDirectory').val()
+            var vals = 'convertTargetDirectory='+\$('#targetDirectory').val().escapeChars(charsThatMustBeEscaped)
                 +';convertDirectory='+   \$('#convertDirectory').val().escapeChars(charsThatMustBeEscaped)
                 +';startIndexer='+   startIndexer
                 +';defaultRights='+ defaultRights
