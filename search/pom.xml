@@ -217,14 +217,6 @@
                     <include>**/*.st*</include>
                 </includes>
             </resource>
-            <resource>
-                <directory>${basedir}/src/test</directory>
-                <includes>
-                    <include>**/*.properties</include>
-                    <include>**/*.xml</include>
-                    <include>**/*.st*</include>
-                </includes>
-            </resource>
         <!--
             <resource>
                 <directory>${basedir}/web/js</directory>
@@ -234,6 +226,17 @@
             </resource>
        -->
         </resources>
+        
+        <testResources>
+            <testResource>
+                <directory>${basedir}/src/test</directory>
+                <includes>
+                    <include>**/*.properties</include>
+                    <include>**/*.xml</include>
+                    <include>**/*.st*</include>
+                </includes>
+              </testResource>
+        </testResources>
 
 
         <plugins>
