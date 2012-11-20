@@ -157,7 +157,13 @@
         //var p = '<span class="ui-icon ui-icon-triangle-1-e folder">folder</span>' + $(jq(k4Settings.selectedPath[0])+">a").html();
         var p = '';
         for(var i=0; i<k4Settings.selectedPathTexts.length; i++){
-            p += '<span class="ui-icon ui-icon-triangle-1-e">folder</span><span><a href="javascript:selectBranch(\'' + k4Settings.selectedPath[i] + '\');">' + k4Settings.selectedPathTexts[i] + '</a></span>' ;
+            var maxText = k4Settings.selectedPathTexts[i].toString();
+            maxText = maxText.replaceAll("&nbsp;", " ").replace(/\n/g, "").trim().replace(/\s{2,}/g,' ');
+            //alert(maxText.length + ": " + maxText);
+            if (maxText.length > 40){
+                maxText = maxText.substring(0,40) + "...";
+            } 
+            p += '<span class="ui-icon ui-icon-triangle-1-e">folder</span><span><a href="javascript:selectBranch(\'' + k4Settings.selectedPath[i] + '\');">' + maxText + '</a></span>' ;
         }
         $('#tv_path').html(p);
     }
