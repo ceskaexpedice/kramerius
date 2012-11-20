@@ -86,6 +86,7 @@ ESC
         |   '{' {$setText("{");}
         |   '}' {$setText("}");}
         |   ':' {$setText(":");}
+        |   '\\' {$setText("\\");}
         )
     ;
     

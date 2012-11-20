@@ -29,6 +29,15 @@ public class LRPRocessDefinitionTest {
 
 
     @Test
+    public void shouldHaveSecuredAction() {
+        LRProcessDefinitionManagerImpl impl = new LRProcessDefinitionManagerImpl(KConfiguration.getInstance(), null, null );
+        LRProcessDefinition definition = impl.getLongRunningProcessDefinition("wmock");
+        Assert.assertNotNull(definition);
+        Assert.assertNotNull(definition.getSecuredAction());
+        Assert.assertEquals(definition.getSecuredAction(),"mock");
+    }
+    
+    @Test
     public void shouldLoadMockDefinition() {
         LRProcessDefinitionManagerImpl impl = new LRProcessDefinitionManagerImpl(KConfiguration.getInstance(), null, null );
         LRProcessDefinition definition = impl.getLongRunningProcessDefinition("mock");

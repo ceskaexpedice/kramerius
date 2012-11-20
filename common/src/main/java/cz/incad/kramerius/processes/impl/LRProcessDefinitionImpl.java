@@ -41,7 +41,8 @@ public class LRProcessDefinitionImpl implements LRProcessDefinition {
 	
 	private LRProcessManager pm;
 	private KConfiguration configuration;
-
+	private String securedAction;
+	
 	private List<LRDefinitionAction> actions = new ArrayList<LRDefinitionAction>();
 
 
@@ -125,6 +126,9 @@ public class LRProcessDefinitionImpl implements LRProcessDefinition {
 						newStyleParameters(item);
 					}
 				}
+                if (nodeName.equals("securedaction")) {
+                    this.securedAction = item.getTextContent();
+                }
 				if (nodeName.equals("javaProcessParameters")) {
 					javaProcessParameters(item);
 				}
@@ -286,5 +290,14 @@ public class LRProcessDefinitionImpl implements LRProcessDefinition {
 	public List<String> getJavaProcessParameters() {
 		return this.javaProcessParameters;
 	}
+
+    @Override
+    public String getSecuredAction() {
+        return this.securedAction;
+    }
+	
+    public void setSecuredAction(String act) {
+        this.securedAction = act;
+    }
 	
 }

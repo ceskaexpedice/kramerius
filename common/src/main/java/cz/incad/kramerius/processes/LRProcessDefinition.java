@@ -116,4 +116,10 @@ public interface LRProcessDefinition {
 	 */
 	public boolean isOutputTemplatesDefined();
 	
+
+	/**
+	 * Secured action
+	 * @return
+	 */
+	public String getSecuredAction();
 }

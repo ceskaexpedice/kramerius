@@ -33,6 +33,7 @@
             <output class="cz.incad.kramerius.processes.mock.logs.LogsOutputTemplate"></output>
         </templates>
         
+        <securedaction>mock</securedaction>
     </process>
 
     <process>
@@ -64,6 +65,7 @@
         <templates>
             <input class="cz.incad.kramerius.lp.ParametrizedPDFExportInputTemplate"></input>
         </templates>
+        <secactions></secactions>
     </process>
 
 
@@ -264,6 +266,8 @@
             <input class="org.kramerius.convert.input.ParametrizedConvertInputTemplate"></input>
         </templates>
         
+        <securedaction>convert</securedaction>
+        
     </process>
 
     <process>
@@ -277,6 +281,8 @@
         <templates>
             <input class="org.kramerius.importmets.parametrized.input.MetsImportInputTemplate"></input>
         </templates>
+
+        <securedaction>ndk_mets_import</securedaction>
         
     </process>
 
@@ -300,7 +306,8 @@
         <templates>
             <input class="org.kramerius.imports.input.ParametrizedImportInputTemplate"></input>
         </templates>
-
+        
+        <securedaction>import</securedaction>
     </process>
 
     <process>

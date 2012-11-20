@@ -81,6 +81,29 @@ public class ParamsParserTest {
         
     }
     
+    @Test
+    public void testParser5() throws RecognitionException, TokenStreamException {
+        String string ="{replicatetype=monograph;idlist=;migrationDirectory=C\\:\\\\Users\\\\ps/.kramerius4/import;targetDirectory=C\\:\\\\Users\\\\ps/.kramerius4/import;defaultRights=true;startIndexer=false;ingestSkip=false}";
+        ParamsParser paramsParser = new ParamsParser(new ParamsLexer(new StringReader(string)));
+        List params = paramsParser.params();
+        Assert.assertTrue(params.size() == 7);
+        List<String> expectingPrefixes = new ArrayList<String>(); {
+            expectingPrefixes.add("replicatetype");
+            expectingPrefixes.add("idlist");
+            expectingPrefixes.add("migrationDirectory");
+            expectingPrefixes.add("targetDirectory");
+            expectingPrefixes.add("defaultRights");
+            expectingPrefixes.add("startIndexer");
+            expectingPrefixes.add("ingestSkip");
+        }
+        for (int i = 0; i < params.size(); i++) {
+            String param = params.get(i).toString();
+            param = param.substring(0, param.indexOf('='));
+            boolean removed = expectingPrefixes.remove(param);
+            Assert.assertTrue(removed);
+        }
+        Assert.assertTrue(expectingPrefixes.isEmpty());
+    }
     
     private static void assertCollection(Collection<?> testedCol, Object ...objects ) {
         Assert.assertTrue(testedCol.size() == objects.length);
@@ -89,5 +112,7 @@ public class ParamsParserTest {
             Assert.assertEquals(processList.remove(0), testedObj);
         }
     }
+    
+    
     
 }
