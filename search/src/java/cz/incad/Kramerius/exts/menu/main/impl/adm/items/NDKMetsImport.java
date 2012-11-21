@@ -33,9 +33,10 @@ public class NDKMetsImport extends AbstractMainMenuItem implements AdminMenuItem
 
     @Override
     public boolean isRenderable() {
-        return (hasUserAllowedAction(SecuredActions.NDK_METS_IMPORT.getFormalName()));
+        return (hasUserAllowedPlanProcess("ndkmets"));
     }
 
+    
     @Override
     public String getRenderedItem() throws IOException {
         return renderMainMenuItem(

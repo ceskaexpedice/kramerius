@@ -26,7 +26,7 @@ public class VirtualCollectionsAdministration extends AbstractMainMenuItem imple
 
     @Override
     public boolean isRenderable() {
-        return (hasUserAllowedAction(SecuredActions.VIRTUALCOLLECTION_MANAGE.getFormalName()));
+        return hasUserAllowedPlanProcess("virtualcollections");
     }
 
     @Override

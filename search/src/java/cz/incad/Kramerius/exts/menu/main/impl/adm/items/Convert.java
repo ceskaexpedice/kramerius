@@ -26,7 +26,7 @@ public class Convert extends AbstractMainMenuItem implements AdminMenuItem {
 
     @Override
     public boolean isRenderable() {
-        return (hasUserAllowedAction(SecuredActions.CONVERT.getFormalName()));
+        return (hasUserAllowedPlanProcess("convert"));
     }
 
     @Override

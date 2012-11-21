@@ -30,7 +30,7 @@ public class ParametrizedK4Replication extends AbstractMainMenuItem implements A
 
     @Override
     public boolean isRenderable() {
-        return (hasUserAllowedAction(SecuredActions.IMPORT_K4_REPLICATIONS.getFormalName()));
+        return (hasUserAllowedPlanProcess("k4_replication"));
     }
 
     @Override

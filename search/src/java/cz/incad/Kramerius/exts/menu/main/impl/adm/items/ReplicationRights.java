@@ -26,7 +26,7 @@ public class ReplicationRights extends AbstractMainMenuItem implements AdminMenu
 
     @Override
     public boolean isRenderable() {
-        return (hasUserAllowedAction(SecuredActions.REPLICATIONRIGHTS.getFormalName()));
+        return hasUserAllowedPlanProcess("replicationrights");
     }
 
     @Override

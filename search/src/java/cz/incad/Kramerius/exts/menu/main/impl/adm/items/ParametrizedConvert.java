@@ -26,7 +26,7 @@ public class ParametrizedConvert extends AbstractMainMenuItem implements AdminMe
 
     @Override
     public boolean isRenderable() {
-        return (hasUserAllowedAction(SecuredActions.CONVERT.getFormalName()));
+        return (hasUserAllowedPlanProcess("parametrizedconvert"));
     }
 
     @Override

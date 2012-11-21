@@ -26,7 +26,7 @@ public class IndexerAdministration extends AbstractMainMenuItem implements Admin
 
     @Override
     public boolean isRenderable() {
-        return (hasUserAllowedAction(SecuredActions.REINDEX.getFormalName()));
+        return (hasUserAllowedPlanProcess("reindex"));
     }
 
     @Override

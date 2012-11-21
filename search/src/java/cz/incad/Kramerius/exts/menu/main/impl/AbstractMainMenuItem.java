@@ -26,6 +26,8 @@ import com.google.inject.Provider;
 
 import cz.incad.Kramerius.exts.menu.main.MainMenuItem;
 import cz.incad.Kramerius.exts.menu.utils.GlobalRightsUtils;
+import cz.incad.kramerius.processes.DefinitionManager;
+import cz.incad.kramerius.processes.LRProcessDefinition;
 import cz.incad.kramerius.service.ResourceBundleService;
 
 /**
@@ -43,6 +45,15 @@ public abstract class AbstractMainMenuItem implements MainMenuItem {
     @Inject
     protected Provider<HttpServletRequest> requestProvider;
     
+    @Inject
+    protected DefinitionManager definitionManager;
+    
+
+    protected boolean hasUserAllowedPlanProcess(String processDef) {
+        LRProcessDefinition lrProcess = definitionManager.getLongRunningProcessDefinition(processDef);
+        if (lrProcess != null && lrProcess.getSecuredAction() != null) return hasUserAllowedAction(lrProcess.getSecuredAction());
+        else return hasUserAllowedAction(processDef);
+    }
     
     protected boolean hasUserAllowedAction(String actionFormalName) {
         HttpServletRequest request = this.requestProvider.get();

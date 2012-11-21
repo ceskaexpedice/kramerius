@@ -30,7 +30,7 @@ public class ParametrizedImport extends AbstractMainMenuItem implements AdminMen
 
     @Override
     public boolean isRenderable() {
-        return (hasUserAllowedAction(SecuredActions.IMPORT.getFormalName()));
+        return (hasUserAllowedPlanProcess("parametrizedimport"));
     }
 
     @Override
