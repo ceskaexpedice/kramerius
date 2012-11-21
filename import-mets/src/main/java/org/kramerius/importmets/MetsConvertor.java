@@ -64,7 +64,7 @@ public class MetsConvertor {
         if (args.length  != 3) {
             System.out.println("ANL METS to FOXML conversion tool.\n");
             System.out.println("Usage: conversion-tool defaultVisibility <input-file> <output-folder>");
-            //System.exit(1);
+            throw new RuntimeException("bad usage");
         } else {
             boolean defaultVisibility = Boolean.parseBoolean(args[0]);
             
