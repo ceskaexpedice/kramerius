@@ -288,7 +288,11 @@ public class PeriodicalConvertor extends BaseConvertor {
         String uuid = uuid(part.getUniqueIdentifier());
         String pid = pid(uuid);
 
-        RelsExt re = new RelsExt(pid, MODEL_INTERNAL_PART);
+        String model = "Article".equalsIgnoreCase(part.getType())
+                ? MODEL_ARTICLE
+                : MODEL_INTERNAL_PART;
+
+        RelsExt re = new RelsExt(pid, model);
 
         List<PageIndex> pageIndex = part.getPages() != null ? part.getPages().getPageIndex() : null;
         if (pageIndex != null && !part.getPages().getPageIndex().isEmpty()) {
@@ -312,7 +316,7 @@ public class PeriodicalConvertor extends BaseConvertor {
         DublinCore dc = createPeriodicalDublinCore(pid, title, biblio);
 
         convertHandle(uuid, dc, re);
-        dc.setType(MODEL_INTERNAL_PART);
+        dc.setType(model);
 
         dc.setDescription(biblio.getAnnotation() == null? null:concat(biblio.getAnnotation().getContent()));
         Publisher publ = firstItem(biblio.getPublisher());

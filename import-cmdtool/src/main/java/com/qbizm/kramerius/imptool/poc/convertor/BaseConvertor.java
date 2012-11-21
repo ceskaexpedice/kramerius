@@ -111,6 +111,8 @@ public abstract class BaseConvertor {
 
     protected static final String MODEL_INTERNAL_PART = "model:internalpart";
 
+    protected static final String MODEL_ARTICLE = "model:article";
+
     protected static final String MODEL_PAGE = "model:page";
 
     private static final String CUSTOM_MODEL_PREFIX = "kramerius";
