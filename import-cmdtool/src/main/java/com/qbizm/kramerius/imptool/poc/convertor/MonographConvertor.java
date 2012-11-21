@@ -10,6 +10,7 @@ import java.util.Map;
 import java.util.TreeMap;
 import java.util.regex.Pattern;
 
+import cz.incad.kramerius.utils.conf.KConfiguration;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.math.NumberUtils;
 
@@ -360,7 +361,12 @@ public class MonographConvertor extends BaseConvertor {
         String title = first((part.getTitle() == null || part.getTitle().getMainTitle() == null) ? null : part.getTitle().getMainTitle().getContent());
         ImageRepresentation[] binaryObjects = this.getComponentPartBinaryObjects(part.getMonographComponentPartRepresentation());
 
-        RelsExt re = new RelsExt(pid, MODEL_INTERNAL_PART);
+        String model = MODEL_INTERNAL_PART;
+        if ("Article".equalsIgnoreCase(part.getType()) && "true".equalsIgnoreCase(KConfiguration.getInstance().getProperty("convert.detectArticles", "true"))){
+            model =  MODEL_ARTICLE;
+        }
+
+        RelsExt re = new RelsExt(pid, model);
 
         List<PageIndex> pageIndex = part.getPages() != null ? part.getPages().getPageIndex() : null;
         if (pageIndex != null && !part.getPages().getPageIndex().isEmpty()) {
@@ -383,7 +389,7 @@ public class MonographConvertor extends BaseConvertor {
 
         DublinCore dc = this.createMonographDublinCore(pid, title, part.getCreator(), null, part.getContributor());
         convertHandle(uuid, dc, re);
-        dc.setType(MODEL_INTERNAL_PART);
+        dc.setType(model);
         Language lang = firstItem(part.getLanguage());
         if (lang != null){
             dc.setLanguage(first(lang.getContent()));
