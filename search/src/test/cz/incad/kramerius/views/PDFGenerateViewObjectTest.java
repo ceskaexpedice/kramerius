@@ -169,7 +169,7 @@ public class PDFGenerateViewObjectTest  {
         Locale locale = Locale.getDefault();
         
         TextsService textsService = EasyMock.createMock(TextsService.class);
-        EasyMock.expect(textsService.getText("first_page_xml", locale)).andReturn( TEXT);
+        EasyMock.expect(textsService.getText("first_page_nolines_xml", locale)).andReturn( TEXT);
 
         
         FedoraAccess fedoraAccess = EasyMock.createMock(FedoraAccess.class);
