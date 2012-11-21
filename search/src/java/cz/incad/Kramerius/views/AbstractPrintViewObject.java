@@ -111,7 +111,7 @@ public class AbstractPrintViewObject extends AbstractViewObject implements Initi
                 this.items.get(0).setChecked(true);
             }
 
-            String xml = this.textsService.getText("first_page_xml", this.locale);
+            String xml = this.textsService.getText("first_page_nolines_xml", this.locale);
             Document doc = XMLUtils.parseDocument(new ByteArrayInputStream(xml.getBytes("UTF-8")), false);
             Element head = XMLUtils.findElement(doc.getDocumentElement(), "head");
             Element desc = XMLUtils.findElement(doc.getDocumentElement(), "desc");
