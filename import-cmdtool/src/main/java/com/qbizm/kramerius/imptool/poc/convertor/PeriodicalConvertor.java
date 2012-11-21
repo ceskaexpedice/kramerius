@@ -6,6 +6,7 @@ import java.util.Map;
 import java.util.TreeMap;
 import java.util.regex.Pattern;
 
+import cz.incad.kramerius.utils.conf.KConfiguration;
 import org.apache.commons.lang.StringUtils;
 
 import com.qbizm.kramerius.imp.jaxb.DigitalObject;
@@ -288,9 +289,10 @@ public class PeriodicalConvertor extends BaseConvertor {
         String uuid = uuid(part.getUniqueIdentifier());
         String pid = pid(uuid);
 
-        String model = "Article".equalsIgnoreCase(part.getType())
-                ? MODEL_ARTICLE
-                : MODEL_INTERNAL_PART;
+        String model = MODEL_INTERNAL_PART;
+        if ("Article".equalsIgnoreCase(part.getType()) && "true".equalsIgnoreCase(KConfiguration.getInstance().getProperty("convert.detectArticles", "true"))){
+                model =  MODEL_ARTICLE;
+        }
 
         RelsExt re = new RelsExt(pid, model);
 
