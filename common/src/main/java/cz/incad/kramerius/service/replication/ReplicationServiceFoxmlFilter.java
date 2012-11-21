@@ -31,6 +31,6 @@ public interface ReplicationServiceFoxmlFilter {
      * @param input Input data
      * @return
      */
-    public byte[] filterFoxmlLData(byte[] input);
+    public byte[] filterFoxmlData(byte[] input);
     
 }

@@ -65,7 +65,7 @@
         <templates>
             <input class="cz.incad.kramerius.lp.ParametrizedPDFExportInputTemplate"></input>
         </templates>
-        <secactions></secactions>
+        <secactions>export</secactions>
     </process>
 
 
@@ -82,6 +82,7 @@
             <parameter>CD</parameter>
         </parameters>
         -->
+        <secactions>export</secactions>
     </process>
 
     <process>
@@ -100,6 +101,7 @@
             <parameter>DVD</parameter>
         </parameters>
         -->
+        <secactions>export</secactions>
     </process>
 
     <process>
@@ -125,6 +127,7 @@
         <mainClass>cz.incad.kramerius.virtualcollections.VirtualCollectionsManager</mainClass>
         <standardOs>lrOut</standardOs>
         <errOs>lrErr</errOs>
+        <secactions>virtualcollection_manage</secactions>
     </process>
 
     <process>
@@ -380,6 +383,8 @@
             <input class="org.kramerius.replications.inputs.InputTemplate"></input>
             <output class="org.kramerius.replications.outputs.OutputTemplate"></output>
         </templates>
+
+        <securedaction>import_k4_replications</securedaction>
         
     </process>
 

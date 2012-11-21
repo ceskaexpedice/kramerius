@@ -108,7 +108,7 @@ public class ReplicationServiceImpl implements ReplicationService{
         try {
             byte[] exported = fedoraAccess.getAPIM().export(pid, "info:fedora/fedora-system:FOXML-1.1", "archive");
             if (this.foxmlFilter != null) {
-                return this.foxmlFilter.filterFoxmlLData(exported);
+                return this.foxmlFilter.filterFoxmlData(exported);
             } else return exported;
         } catch (SOAPFaultException e) {
             SOAPFault fault = e.getFault();

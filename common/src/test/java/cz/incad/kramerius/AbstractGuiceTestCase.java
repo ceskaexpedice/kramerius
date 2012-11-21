@@ -24,44 +24,6 @@ public abstract class AbstractGuiceTestCase {
 			.getLogger(AbstractGuiceTestCase.class.getName());
 	
 	
-	protected void dropTables() throws IOException, SQLException {
-	    Connection con = connection();
-	    try {
-	        if (DatabaseUtils.tableExists(con,"PROCESSES")) {
-	            new JDBCUpdateTemplate(con,false){
-                    @Override
-                    public PreparedStatement createPreparedStatement(Connection con, String sql) throws SQLException {
-                        return con.prepareStatement(sql);
-                    }
-	            }.executeUpdate("drop table PROCESSES");
-	        }
-	        if (DatabaseUtils.tableExists(con,"DESIRABLE")) {
-	            new JDBCUpdateTemplate(con,false){
-                    @Override
-                    public PreparedStatement createPreparedStatement(Connection con, String sql) throws SQLException {
-                        return con.prepareStatement(sql);
-                    }
-	                
-	            }.executeUpdate("drop table DESIRABLE");
-	        }
-	        if (DatabaseUtils.tableExists(con,"USER_ENTITY")) {
-	            InputStream is = this.getClass().getClassLoader().getResourceAsStream("cz/incad/kramerius/security/database/res/droptablessecdb.sql");
-	            String sqls = IOUtils.readAsString(is, Charset.forName("UTF-8"), true);
-	            String[] splitted = sqls.split("\n");
-	            for (String oneSql : splitted) {
-	                new JDBCUpdateTemplate(con,false){
-	                    @Override
-	                    public PreparedStatement createPreparedStatement(Connection con, String sql) throws SQLException {
-	                        return con.prepareStatement(sql);
-	                    }
-	                }.executeUpdate(oneSql);
-                }
-	            
-	        }
-	    } finally {
-	        DatabaseUtils.tryClose(con);
-	    }
-	}
 
 	public Connection connection() {
 		Injector inj = injector();

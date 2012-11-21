@@ -113,8 +113,7 @@ public class GeneratePDFServiceImpl extends AbstractPDFRenderSupport implements 
     }
 
     public void init() throws IOException {
-        String[] texts = { "first_page", "first_page_CZ_cs", "first_page_html", "first_page_html_CZ_cs",
-        "first_page_xml", "first_page_xml_CZ_cs",
+        String[] texts = { 
         "security_fail", "security_fail_CZ_cs",
         // TODO: Move to another position
         "logininfo", "logininfo_CZ_cs"
