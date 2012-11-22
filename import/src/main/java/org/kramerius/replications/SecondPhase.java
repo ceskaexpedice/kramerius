@@ -105,7 +105,7 @@ public class SecondPhase extends AbstractPhase  {
         LOGGER.info("ingesting '"+foxmlfile.getAbsolutePath()+"'");
         Import.initialize(KConfiguration.getInstance().getProperty("ingest.user"), KConfiguration.getInstance().getProperty("ingest.password"));
         try {
-            Import.ingest(foxmlfile);
+            Import.ingest(foxmlfile, null);
         } catch (RuntimeException e) {
             if (e.getCause() != null) throw new PhaseException(this, e.getCause());
             else throw new PhaseException(this,e);
