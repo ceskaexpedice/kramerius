@@ -1,12 +1,28 @@
 package org.kramerius;
 
-import java.io.BufferedReader;
-import java.io.ByteArrayInputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.IOException;
+import com.qbizm.kramerius.imp.jaxb.DatastreamType;
+import com.qbizm.kramerius.imp.jaxb.DatastreamVersionType;
+import com.qbizm.kramerius.imp.jaxb.DigitalObject;
+import com.qbizm.kramerius.imp.jaxb.XmlContentType;
+import cz.incad.kramerius.FedoraAccess;
+import cz.incad.kramerius.impl.FedoraAccessImpl;
+import cz.incad.kramerius.service.impl.IndexerProcessStarter;
+import cz.incad.kramerius.utils.RESTHelper;
+import cz.incad.kramerius.utils.conf.KConfiguration;
+import org.fedora.api.FedoraAPIM;
+import org.fedora.api.FedoraAPIMService;
+import org.fedora.api.ObjectFactory;
+import org.fedora.api.RelationshipTuple;
+import org.w3c.dom.Element;
+import org.w3c.dom.NodeList;
+
+import javax.xml.bind.JAXBContext;
+import javax.xml.bind.Unmarshaller;
+import javax.xml.stream.XMLInputFactory;
+import javax.xml.stream.XMLStreamException;
+import javax.xml.stream.XMLStreamReader;
+import javax.xml.ws.soap.SOAPFaultException;
+import java.io.*;
 import java.net.Authenticator;
 import java.net.PasswordAuthentication;
 import java.net.URLConnection;
@@ -15,34 +31,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.Unmarshaller;
-import javax.xml.stream.XMLInputFactory;
-import javax.xml.stream.XMLStreamException;
-import javax.xml.stream.XMLStreamReader;
-import javax.xml.ws.soap.SOAPFaultException;
-
-import cz.incad.kramerius.utils.RESTHelper;
-import cz.incad.kramerius.utils.XMLUtils;
-import org.fedora.api.FedoraAPIM;
-import org.fedora.api.FedoraAPIMService;
-import org.fedora.api.ObjectFactory;
-import org.fedora.api.RelationshipTuple;
-import org.kramerius.Download.DocType;
-import org.kramerius.Download.Replication;
-import org.w3c.dom.Element;
-import org.w3c.dom.NodeList;
-
-import com.qbizm.kramerius.imp.jaxb.DatastreamType;
-import com.qbizm.kramerius.imp.jaxb.DatastreamVersionType;
-import com.qbizm.kramerius.imp.jaxb.DigitalObject;
-import com.qbizm.kramerius.imp.jaxb.XmlContentType;
-
-import cz.incad.kramerius.FedoraAccess;
-import cz.incad.kramerius.impl.FedoraAccessImpl;
-import cz.incad.kramerius.service.impl.IndexerProcessStarter;
-import cz.incad.kramerius.utils.conf.KConfiguration;
 
 public class Import {
     static FedoraAPIMService service;
@@ -239,21 +227,23 @@ public class Import {
 
             // Close the input stream and return bytes
             is.close();
-            if (objectExists(pid)) {
-                log.info("Merging with existing object " + pid);
-                merge(bytes);
-            } else {
-                try {
-                    port.ingest(bytes, "info:fedora/fedora-system:FOXML-1.1", "Initial ingest");
-                } catch (SOAPFaultException sfex) {
 
-                    //if (sfex.getMessage().contains("ObjectExistsException")) {
+            try {
+                port.ingest(bytes, "info:fedora/fedora-system:FOXML-1.1", "Initial ingest");
+            } catch (SOAPFaultException sfex) {
+
+                //if (sfex.getMessage().contains("ObjectExistsException")) {
+                if (objectExists(pid)) {
+                    log.info("Merging with existing object " + pid);
+                    merge(bytes);
+                } else {
 
                     log.severe("Ingest SOAP fault:" + sfex);
                     throw new RuntimeException(sfex);
-
                 }
+
             }
+
             counter++;
             log.info("Ingested:" + pid + " in " + (System.currentTimeMillis() - start) + "ms, count:" + counter);
 
