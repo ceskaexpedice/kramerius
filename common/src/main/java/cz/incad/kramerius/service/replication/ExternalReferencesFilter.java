@@ -41,8 +41,8 @@ import cz.incad.kramerius.utils.IOUtils;
 import cz.incad.kramerius.utils.XMLUtils;
 
 /**
+ * Explore given FOXML data and replace all <code>file:///</code> external referenced datastreams  into internal type datastream (type M)
  * @author pavels
- *
  */
 public class ExternalReferencesFilter implements ReplicationServiceFoxmlFilter {
 
