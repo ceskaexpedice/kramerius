@@ -44,7 +44,7 @@ import cz.incad.kramerius.utils.XMLUtils;
  * @author pavels
  *
  */
-public class ExternalReferenciesFilter implements ReplicationServiceFoxmlFilter {
+public class ExternalReferencesFilter implements ReplicationServiceFoxmlFilter {
 
     @Override
     public byte[] filterFoxmlData(byte[] input) throws ReplicateException{

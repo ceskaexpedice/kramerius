@@ -87,10 +87,8 @@ public class ReplicationsTest {
         
         StringTemplate template = new StringTemplate(IOUtils.readAsString(resource.openConnection().getInputStream(), Charset.forName("UTF-8"),true));
         template.setAttribute("imgfile", new File(file.getParentFile(), "img.jpeg").getAbsolutePath());
-        
-        
-        
-        IOUtils.copyStreams(new ByteArrayInputStream(template.toString().getBytes()), bos);
+
+        IOUtils.copyStreams(new ByteArrayInputStream(template.toString().getBytes("UTF-8")), bos);
         
         EasyMock
             .expect(fedoraApiM.export("uuid:43101770-b03b-11dd-8673-000d606f5dc6", "info:fedora/fedora-system:FOXML-1.1", "archive"))

@@ -38,7 +38,7 @@ import cz.incad.kramerius.TreeNodeProcessor;
 import cz.incad.kramerius.security.SpecialObjects;
 import cz.incad.kramerius.service.ReplicateException;
 import cz.incad.kramerius.service.ReplicationService;
-import cz.incad.kramerius.service.replication.ExternalReferenciesFilter;
+import cz.incad.kramerius.service.replication.ExternalReferencesFilter;
 import cz.incad.kramerius.service.replication.ReplicationServiceFoxmlFilter;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 
@@ -109,7 +109,7 @@ public class ReplicationServiceImpl implements ReplicationService{
 
     @Override
     public byte[] getExportedFOXML(String pid) throws ReplicateException,IOException {
-        String instance = KConfiguration.getInstance().getConfiguration().getString("cz.incad.kramerius.service.replication.ReplicationServiceFoxmlFilter", ExternalReferenciesFilter.class.getName());
+        String instance = KConfiguration.getInstance().getConfiguration().getString("cz.incad.kramerius.service.replication.ReplicationServiceFoxmlFilter", ExternalReferencesFilter.class.getName());
         ReplicationServiceFoxmlFilter  filter = foxmlFilterInstance(instance);
         try {
             byte[] exported = fedoraAccess.getAPIM().export(pid, "info:fedora/fedora-system:FOXML-1.1", "archive");
