@@ -24,16 +24,27 @@ import static cz.incad.kramerius.fedora.impl.DataPrepare.narodniListyRelsExt;
 import static org.easymock.EasyMock.createMockBuilder;
 import static org.easymock.EasyMock.replay;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.StringReader;
+import java.net.URL;
+import java.nio.charset.Charset;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 
 import javax.xml.parsers.ParserConfigurationException;
 
+import org.antlr.stringtemplate.StringTemplate;
 import org.easymock.EasyMock;
+import org.fedora.api.FedoraAPIM;
 import org.junit.Assert;
 import org.junit.Test;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
 import org.xml.sax.SAXException;
 
 import com.google.inject.AbstractModule;
@@ -47,6 +58,8 @@ import cz.incad.kramerius.SolrAccess;
 import cz.incad.kramerius.fedora.impl.DataPrepare;
 import cz.incad.kramerius.impl.FedoraAccessImpl;
 import cz.incad.kramerius.service.impl.ReplicationServiceImpl;
+import cz.incad.kramerius.utils.IOUtils;
+import cz.incad.kramerius.utils.XMLUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 import cz.incad.kramerius.utils.pid.LexerException;
 
@@ -56,6 +69,78 @@ import cz.incad.kramerius.utils.pid.LexerException;
  */
 public class ReplicationsTest {
 
+
+    @Test
+    public void testExportPageDrobnystky() throws IOException, ParserConfigurationException, SAXException, LexerException, ReplicateException {
+        
+        FedoraAccess fa = createMockBuilder(FedoraAccessImpl.class)
+            .withConstructor(KConfiguration.getInstance())
+            .addMockedMethod("getAPIM")
+        .createMock();
+        
+        
+        FedoraAPIM fedoraApiM = EasyMock.createMock(FedoraAPIM.class);
+        ByteArrayOutputStream bos = new ByteArrayOutputStream();
+        URL resource  = ReplicationsTest.class.getResource("impl/foxml_ext.xml");
+
+        File file = new File(resource.getFile());
+        
+        StringTemplate template = new StringTemplate(IOUtils.readAsString(resource.openConnection().getInputStream(), Charset.forName("UTF-8"),true));
+        template.setAttribute("imgfile", new File(file.getParentFile(), "img.jpeg").getAbsolutePath());
+        
+        
+        
+        IOUtils.copyStreams(new ByteArrayInputStream(template.toString().getBytes()), bos);
+        
+        EasyMock
+            .expect(fedoraApiM.export("uuid:43101770-b03b-11dd-8673-000d606f5dc6", "info:fedora/fedora-system:FOXML-1.1", "archive"))
+            .andReturn(bos.toByteArray()).anyTimes();
+        
+        EasyMock.expect(fa.getAPIM()).andReturn(fedoraApiM).anyTimes();
+
+        SolrAccess solrAccess = EasyMock.createMock(SolrAccess.class);
+
+        replay(fa, fedoraApiM, solrAccess);
+
+        Injector injector = Guice.createInjector(new _Module(fa,  solrAccess));
+        ReplicationService replicationService = injector.getInstance(ReplicationService.class);
+
+        byte[] exportedFOXML = replicationService.getExportedFOXML("uuid:43101770-b03b-11dd-8673-000d606f5dc6");
+
+        Document document = XMLUtils.parseDocument(new StringReader(new String(exportedFOXML)), true);
+        Element dataStreamVersion = XMLUtils.findElement(document.getDocumentElement(), new XMLUtils.ElementsFilter() {
+
+            @Override
+            public boolean acceptElement(Element element) {
+                String id = element.getAttribute("ID");
+                return id != null && id.equals("SOME_IMAGE.0");
+            }
+        });
+        
+        //obsahuje atribut size
+        Assert.assertNotNull(dataStreamVersion.hasAttribute("SIZE"));
+        
+        // neni pritomny element location ale je pritomny elemnet binaryContent
+        Assert.assertNull(XMLUtils.findElement(dataStreamVersion, "contentLocation",  dataStreamVersion.getNamespaceURI()));
+        Assert.assertNotNull(XMLUtils.findElement(dataStreamVersion, "binaryContent",  dataStreamVersion.getNamespaceURI()));
+        
+        dataStreamVersion = XMLUtils.findElement(document.getDocumentElement(), new XMLUtils.ElementsFilter() {
+            
+            @Override
+            public boolean acceptElement(Element element) {
+                String id = element.getAttribute("ID");
+                return id != null && id.equals("SOME_IMAGE.1");
+            }
+        });
+        //obsahuje atribut size
+        Assert.assertNotNull(dataStreamVersion.hasAttribute("SIZE"));
+
+        // neni pritomny element location ale je pritomny elemnet binaryContent
+        Assert.assertNull(XMLUtils.findElement(dataStreamVersion, "contentLocation",  dataStreamVersion.getNamespaceURI()));
+        Assert.assertNotNull(XMLUtils.findElement(dataStreamVersion, "binaryContent",  dataStreamVersion.getNamespaceURI()));
+    }
+
+    
     @Test
     public void testPrepareExportDrobnustky() throws IOException, ParserConfigurationException, SAXException, LexerException, ReplicateException {
         FedoraAccess fa = createMockBuilder(FedoraAccessImpl.class)

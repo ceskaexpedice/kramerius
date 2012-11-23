@@ -46,15 +46,4 @@ public interface ReplicationService {
     
     
 
-    /**
-     * Return replication FOXML filter
-     * @return FOXML filter
-     */
-    public ReplicationServiceFoxmlFilter getReplicationServiceFoxmlFilter();
-
-    /**
-     * Sets new FOXML filter instance
-     * @param filter
-     */
-    public void setReplicationServiceFoxmlFilter(ReplicationServiceFoxmlFilter filter);
 }

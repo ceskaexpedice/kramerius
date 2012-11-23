@@ -115,29 +115,4 @@ public class ApplicationURL {
         }
     }
 
-    public static void main(String[] args) throws MalformedURLException {
-        String surl = "http://vmrkamerius/example/";
-//        URL url = new URL(surl);
-//        String file = url.getFile();
-//        String query = url.getQuery();
-//        System.out.println(file);
-//        System.out.println(query);
-
-//        String string = ApplicationURL.applicationURL(surl);
-//        System.out.println(string);
-
-        printBytes("2jEGBiMnxH9KHMPSLMsW1OY4Wnann9fcsM0mWxKqUjI=");
-        System.out.println("..........................");
-        printBytes("ZrR/jLEIrbMScAf7bjqvvwvynbBJsKPvROQ1na4r1Ig=");
-    }
-
-    public static void printBytes(String rstring) {
-        byte[] bytes = Base64Coder.decode(rstring);
-        System.out.println("bytes.length:"+bytes.length);
-        for (byte b : bytes) {
-            System.out.println("0x"+Integer.toHexString(b));
-            //System.out.println(Integer.toBinaryString(b));
-        }
-    }
-
 }

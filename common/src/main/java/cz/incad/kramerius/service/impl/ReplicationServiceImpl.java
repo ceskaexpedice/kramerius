@@ -38,7 +38,9 @@ import cz.incad.kramerius.TreeNodeProcessor;
 import cz.incad.kramerius.security.SpecialObjects;
 import cz.incad.kramerius.service.ReplicateException;
 import cz.incad.kramerius.service.ReplicationService;
+import cz.incad.kramerius.service.replication.ExternalReferenciesFilter;
 import cz.incad.kramerius.service.replication.ReplicationServiceFoxmlFilter;
+import cz.incad.kramerius.utils.conf.KConfiguration;
 
 public class ReplicationServiceImpl implements ReplicationService{
 
@@ -51,8 +53,10 @@ public class ReplicationServiceImpl implements ReplicationService{
     @Inject
     SolrAccess solrAccess;
     
-    private ReplicationServiceFoxmlFilter foxmlFilter;
+    
+//    private ReplicationServiceFoxmlFilter foxmlFilter = new ExternalReferenciesFilter();
 
+    
     
     @Override
     public List<String> prepareExport(String pid) throws ReplicateException,IOException {
@@ -105,10 +109,12 @@ public class ReplicationServiceImpl implements ReplicationService{
 
     @Override
     public byte[] getExportedFOXML(String pid) throws ReplicateException,IOException {
+        String instance = KConfiguration.getInstance().getConfiguration().getString("cz.incad.kramerius.service.replication.ReplicationServiceFoxmlFilter", ExternalReferenciesFilter.class.getName());
+        ReplicationServiceFoxmlFilter  filter = foxmlFilterInstance(instance);
         try {
             byte[] exported = fedoraAccess.getAPIM().export(pid, "info:fedora/fedora-system:FOXML-1.1", "archive");
-            if (this.foxmlFilter != null) {
-                return this.foxmlFilter.filterFoxmlData(exported);
+            if (filter != null) {
+                return filter.filterFoxmlData(exported);
             } else return exported;
         } catch (SOAPFaultException e) {
             SOAPFault fault = e.getFault();
@@ -119,14 +125,16 @@ public class ReplicationServiceImpl implements ReplicationService{
         }
     }
 
-    @Override
-    public ReplicationServiceFoxmlFilter getReplicationServiceFoxmlFilter() {
-        return this.foxmlFilter;
-    }
-
-    @Override
-    public void setReplicationServiceFoxmlFilter(ReplicationServiceFoxmlFilter filter) {
-        this.foxmlFilter = filter;
+    private ReplicationServiceFoxmlFilter foxmlFilterInstance(String instance) throws ReplicateException{
+        try {
+            return (ReplicationServiceFoxmlFilter) Class.forName(instance).newInstance();
+        } catch (InstantiationException e) {
+            throw new ReplicateException(e);
+        } catch (IllegalAccessException e) {
+            throw new ReplicateException(e);
+        } catch (ClassNotFoundException e) {
+            throw new ReplicateException(e);
+        }
     }
 }
 
