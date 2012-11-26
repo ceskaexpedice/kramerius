@@ -34,6 +34,7 @@ import org.antlr.stringtemplate.language.DefaultTemplateLexer;
 import org.kramerius.processes.filetree.TreeItem;
 import org.kramerius.processes.filetree.TreeModelFilter;
 import org.kramerius.processes.utils.BasicStringTemplateGroup;
+import org.kramerius.processes.utils.OtherSettingsTemplate;
 import org.kramerius.processes.utils.ResourceBundleUtils;
 import org.kramerius.processes.utils.TreeModelUtils;
 
@@ -105,13 +106,4 @@ public class ParametrizedConvertInputTemplate implements ProcessInputTemplate {
     }
 
     
-    static enum OtherSettingsTemplate {
-
-        importFedoraNoIndexer, importFedoraStartIndexer,noFedoraNoIndexer;
-        
-        public static OtherSettingsTemplate disectTemplate(Boolean importToFedora, Boolean startIndexer) {
-            OtherSettingsTemplate oSettings = (importToFedora && startIndexer) ? OtherSettingsTemplate.importFedoraStartIndexer : ((importToFedora && !startIndexer) ? OtherSettingsTemplate.importFedoraNoIndexer : OtherSettingsTemplate.noFedoraNoIndexer);
-            return oSettings;
-        }
-    }
 }

@@ -29,7 +29,7 @@ tree(root) ::=<<
 
 
 
-form(importDirectory,importRootDirectory, visibility, bundle) ::=<<
+form(importDirectory,importRootDirectory,  startIndexer, bundle) ::=<<
 
 <div style="width:100%">
     <script language="JavaScript" type="text/javascript"> 
@@ -103,11 +103,18 @@ form(importDirectory,importRootDirectory, visibility, bundle) ::=<<
     <input type="button" onclick="directoryTree.openTree();" value="$bundle.("import.directory.selection")$"></input>
 </fieldset>
 
-<!-- ostatni nastaveni  -->
+<!-- spustit indexer  -->
+$if(startIndexer)$
+<fieldset style="margin-top:10px;border: 1px solid gray;">
+    <legend style="border:none">$bundle.("k3replication.othersettings.fields")$</legend>
+    <input type="checkbox" id="startIndexer" name="startIndexer" value="startIndexer" checked>$bundle.("import.indexerstart")$</input>
+</fieldset>
+$else$
 <fieldset style="margin-top:10px;border: 1px solid gray;">
     <legend style="border:none">$bundle.("k3replication.othersettings.fields")$</legend>
     <input type="checkbox" id="startIndexer" name="startIndexer" value="startIndexer">$bundle.("import.indexerstart")$</input>
 </fieldset>
+$endif$
 
     
     <div id="_selectImportFolderDialog" style="display:none">

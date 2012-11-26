@@ -86,6 +86,9 @@ public class ParametrizedImportInputTemplate implements ProcessInputTemplate {
         ResourceBundle resbundle = resourceBundleService.getResourceBundle("labels", localesProvider.get());
         template.setAttribute("bundle", ResourceBundleUtils.resourceBundleMap(resbundle));
         
+        Boolean startIndexer = configuration.getConfiguration().getBoolean("ingest.startIndexer");
+        template.setAttribute("startIndexer",startIndexer);
+        
         writer.write(template.toString());
     }
     
