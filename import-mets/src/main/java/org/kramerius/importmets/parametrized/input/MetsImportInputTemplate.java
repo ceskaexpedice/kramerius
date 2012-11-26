@@ -34,6 +34,7 @@ import org.antlr.stringtemplate.language.DefaultTemplateLexer;
 import org.kramerius.processes.filetree.TreeItem;
 import org.kramerius.processes.filetree.TreeModelFilter;
 import org.kramerius.processes.utils.BasicStringTemplateGroup;
+import org.kramerius.processes.utils.OtherSettingsTemplate;
 import org.kramerius.processes.utils.ResourceBundleUtils;
 import org.kramerius.processes.utils.TreeModelUtils;
 
@@ -62,7 +63,7 @@ public class MetsImportInputTemplate implements ProcessInputTemplate {
 
     @Override
     public void renderInput(LRProcessDefinition definition, Writer writer, Properties paramsMapping) throws IOException {
-        File homeFolder = new File(KConfiguration.getInstance().getProperty("import.directory")).getParentFile();
+        File homeFolder = new File(configuration.getProperty("import.directory")).getParentFile();
         InputStream iStream = this.getClass().getResourceAsStream("metsimport.stg");
         
         TreeItem rootNode = TreeModelUtils.prepareTreeModel(homeFolder,new TreeModelFilter() {
@@ -81,17 +82,23 @@ public class MetsImportInputTemplate implements ProcessInputTemplate {
         
         StringTemplate template = parametrizedconvert.getInstanceOf("form");
 
-        template.setAttribute("targetDirectory", KConfiguration.getInstance().getProperty("convert.target.directory"));
-        template.setAttribute("convertDirectory", KConfiguration.getInstance().getProperty("convert.directory"));
+        template.setAttribute("targetDirectory", configuration.getProperty("convert.target.directory"));
+        template.setAttribute("convertDirectory", configuration.getProperty("convert.directory"));
         template.setAttribute("convertRootDirectory",  rootNode);
-    
-        template.setAttribute("visibility", KConfiguration.getInstance().getProperty("convert.defaultRights"));
-        
+
+        Boolean val = configuration.getConfiguration().getBoolean("convert.defaultRights");
+        template.setAttribute("visibility", val);
+
         ResourceBundle resbundle = resourceBundleService.getResourceBundle("labels", localesProvider.get());
         template.setAttribute("bundle", ResourceBundleUtils.resourceBundleMap(resbundle));
-        
-        writer.write(template.toString());
 
+        Boolean importToFedora = !configuration.getConfiguration().getBoolean("ingest.skip");
+        Boolean startIndexer = configuration.getConfiguration().getBoolean("ingest.startIndexer");
+
+        OtherSettingsTemplate oSettings = OtherSettingsTemplate.disectTemplate(importToFedora, startIndexer);
+        template.setAttribute("otherSettingsTemplate", oSettings.name());
+
+        writer.write(template.toString());
     }
 
 }
