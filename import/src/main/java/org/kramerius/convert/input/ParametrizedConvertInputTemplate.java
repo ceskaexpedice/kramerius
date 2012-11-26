@@ -51,6 +51,8 @@ import cz.incad.kramerius.utils.conf.KConfiguration;
  */
 public class ParametrizedConvertInputTemplate implements ProcessInputTemplate {
 
+    static java.util.logging.Logger LOGGER = java.util.logging.Logger.getLogger(ParametrizedConvertInputTemplate.class.getName());
+    
     @Inject
     KConfiguration configuration;
     
@@ -62,7 +64,7 @@ public class ParametrizedConvertInputTemplate implements ProcessInputTemplate {
 
     @Override
     public void renderInput(LRProcessDefinition definition, Writer writer, Properties paramsMapping) throws IOException {
-        File homeFolder = new File(KConfiguration.getInstance().getProperty("import.directory")).getParentFile();
+        File homeFolder = new File(configuration.getProperty("import.directory")).getParentFile();
         InputStream iStream = this.getClass().getResourceAsStream("parametrizedconvert.stg");
         
         TreeItem rootNode = TreeModelUtils.prepareTreeModel(homeFolder,new TreeModelFilter() {
@@ -81,14 +83,35 @@ public class ParametrizedConvertInputTemplate implements ProcessInputTemplate {
         
         StringTemplate template = parametrizedconvert.getInstanceOf("form");
 
-        template.setAttribute("targetDirectory", KConfiguration.getInstance().getProperty("convert.target.directory"));
-        template.setAttribute("convertDirectory", KConfiguration.getInstance().getProperty("convert.directory"));
+        template.setAttribute("targetDirectory", configuration.getProperty("convert.target.directory"));
+        template.setAttribute("convertDirectory", configuration.getProperty("convert.directory"));
         template.setAttribute("convertRootDirectory",  rootNode);
     
         ResourceBundle resbundle = resourceBundleService.getResourceBundle("labels", localesProvider.get());
         template.setAttribute("bundle", ResourceBundleUtils.resourceBundleMap(resbundle));
         
+        Boolean visibility = configuration.getConfiguration().getBoolean("convert.defaultRights");
+        template.setAttribute("visibility", visibility);
+        LOGGER.info("visibility :"+visibility);
+
+        Boolean importToFedora = !configuration.getConfiguration().getBoolean("ingest.skip");
+        Boolean startIndexer = configuration.getConfiguration().getBoolean("ingest.startIndexer");
+
+        OtherSettingsTemplate oSettings = OtherSettingsTemplate.disectTemplate(importToFedora, startIndexer);
+        template.setAttribute("otherSettingsTemplate", oSettings.name());
+        
         writer.write(template.toString());
 
+    }
+
+    
+    static enum OtherSettingsTemplate {
+
+        importFedoraNoIndexer, importFedoraStartIndexer,noFedoraNoIndexer;
+        
+        public static OtherSettingsTemplate disectTemplate(Boolean importToFedora, Boolean startIndexer) {
+            OtherSettingsTemplate oSettings = (importToFedora && startIndexer) ? OtherSettingsTemplate.importFedoraStartIndexer : ((importToFedora && !startIndexer) ? OtherSettingsTemplate.importFedoraNoIndexer : OtherSettingsTemplate.noFedoraNoIndexer);
+            return oSettings;
+        }
     }
 }

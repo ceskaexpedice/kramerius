@@ -26,8 +26,12 @@ import java.util.Locale;
 import java.util.Properties;
 import java.util.PropertyResourceBundle;
 
+import junit.framework.Assert;
+
+import org.apache.commons.configuration.Configuration;
 import org.easymock.EasyMock;
 import org.junit.Test;
+import org.kramerius.convert.input.ParametrizedConvertInputTemplate.OtherSettingsTemplate;
 
 import com.google.inject.Provider;
 
@@ -56,17 +60,44 @@ public class ParametrizedConvertInputTemplateTest {
         PropertyResourceBundle resourceBundle = new PropertyResourceBundle(new StringReader(BUNDLES));
         EasyMock.expect(resb.getResourceBundle("labels", Locale.getDefault())).andReturn(resourceBundle).anyTimes();
         
-        EasyMock.replay(localeProvider,resb);
+        KConfiguration  conf = EasyMock.createMock(KConfiguration.class);
+        EasyMock.expect(conf.getProperty("import.directory")).andReturn(System.getProperty("user.dir")).anyTimes();
+
+        EasyMock.expect(conf.getProperty("convert.target.directory")).andReturn(System.getProperty("user.dir")).anyTimes();
+        EasyMock.expect(conf.getProperty("convert.directory")).andReturn(System.getProperty("user.dir")).anyTimes();
+
+        Configuration  subConfObject = EasyMock.createMock(Configuration.class);
+        EasyMock.expect(conf.getConfiguration()).andReturn(subConfObject).anyTimes();
+
+        EasyMock.expect(subConfObject.getBoolean("ingest.skip")).andReturn(true).anyTimes();
+        EasyMock.expect(subConfObject.getBoolean("ingest.startIndexer")).andReturn(true).anyTimes();
+        EasyMock.expect(subConfObject.getBoolean("convert.defaultRights")).andReturn(true).anyTimes();
+
+        EasyMock.replay(localeProvider,resb, conf, subConfObject);
         
         ParametrizedConvertInputTemplate temp = new ParametrizedConvertInputTemplate();
-        temp.configuration=KConfiguration.getInstance();
+        temp.configuration=conf;
         temp.localesProvider = localeProvider;
         temp.resourceBundleService = resb;
         
         StringWriter nstr = new StringWriter();
         temp.renderInput(null,nstr, new Properties());
-        System.out.println(nstr);
-        
+        Assert.assertNotNull(nstr.toString());
     }
+
     
+    @Test
+    public void testTemplateChoose() {
+        OtherSettingsTemplate template1 = ParametrizedConvertInputTemplate.OtherSettingsTemplate.disectTemplate(true, true);
+        Assert.assertEquals(template1, OtherSettingsTemplate.importFedoraStartIndexer);
+
+        OtherSettingsTemplate template2 = ParametrizedConvertInputTemplate.OtherSettingsTemplate.disectTemplate(false, true);
+        Assert.assertEquals(template2, OtherSettingsTemplate.noFedoraNoIndexer);
+
+        OtherSettingsTemplate template3 = ParametrizedConvertInputTemplate.OtherSettingsTemplate.disectTemplate(false, false);
+        Assert.assertEquals(template3, OtherSettingsTemplate.noFedoraNoIndexer);
+
+        OtherSettingsTemplate template4 = ParametrizedConvertInputTemplate.OtherSettingsTemplate.disectTemplate(true, false);
+        Assert.assertEquals(template4, OtherSettingsTemplate.importFedoraNoIndexer);
+    }
 }

@@ -44,6 +44,9 @@ import org.kramerius.processes.filetree.TreeModelFilter;
 import org.kramerius.processes.utils.ResourceBundleUtils;
 import org.kramerius.processes.utils.TreeModelUtils;
 
+import sun.util.LocaleServiceProviderPool.LocalizedObjectGetter;
+
+import com.google.gwt.dom.client.Style.Visibility;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
 
@@ -58,6 +61,8 @@ import cz.incad.kramerius.utils.conf.KConfiguration;
  */
 public class InputTemplate implements ProcessInputTemplate {
 
+    static java.util.logging.Logger LOGGER = java.util.logging.Logger.getLogger(InputTemplate.class.getName());
+    
     @Inject
     KConfiguration configuration;
     
@@ -94,7 +99,9 @@ public class InputTemplate implements ProcessInputTemplate {
         template.setAttribute("targetDirectory",  KConfiguration.getInstance().getProperty("import.directory"));
         template.setAttribute("importRootDirectory", rootNode);
     
-        template.setAttribute("visibility", KConfiguration.getInstance().getProperty("convert.defaultRights"));
+        Boolean visibility = KConfiguration.getInstance().getConfiguration().getBoolean("convert.defaultRights");
+        template.setAttribute("visibility", visibility);
+        LOGGER.info("visibility :"+visibility);
         
         ResourceBundle resbundle = resourceBundleService.getResourceBundle("labels", localesProvider.get());
         template.setAttribute("bundle", ResourceBundleUtils.resourceBundleMap(resbundle));
