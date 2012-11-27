@@ -64,9 +64,10 @@ public class SecondPhase extends AbstractPhase  {
         boolean shouldSkip = (findPid && this.controller.findPid(pid) != null);
         if (!shouldSkip) {
             File foxmlfile = null;
+            InputStream inputStream = null;
             try {
-                InputStream foxmldata = rawFOXMLData(pid, url, userName, pswd);
-                foxmlfile = foxmlFile(foxmldata, pid);
+                inputStream = rawFOXMLData(pid, url, userName, pswd);
+                foxmlfile = foxmlFile(inputStream, pid);
                 ingest(foxmlfile);
                 createFOXMLDone(pid);
             } catch (LexerException e) {
@@ -83,7 +84,7 @@ public class SecondPhase extends AbstractPhase  {
                 if (e.getCause() != null) throw new PhaseException(this,e.getCause());
                 else throw new PhaseException(this,e);
             } finally {
-                //if (foxmlfile != null) foxmlfile.delete();
+                if (inputStream != null) IOUtils.tryClose(inputStream);
             }
         } else {
             LOGGER.info("skipping pid '"+pid+"'");
