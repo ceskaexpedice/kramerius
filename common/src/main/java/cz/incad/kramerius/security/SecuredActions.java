@@ -45,6 +45,8 @@ public enum SecuredActions {
     /** Akce pro proces replikace - monografie */
     REPLIKATOR_MONOGRAPHS( "replikator_monographs"),
     
+    REPLIKATOR_K3("replikator_k3"),
+    
     /** Akce pro proces delete */
     DELETE( "delete"),
     

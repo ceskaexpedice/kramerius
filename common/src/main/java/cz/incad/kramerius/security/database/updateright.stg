@@ -63,6 +63,13 @@ insertRight_K4ReplicationExport() ::=<<
         where gname='k4_admins'
 >>
 
+insertRight_ReplikatorK3()::=<<
+    insert into right_entity (right_id, uuid, "action", group_id)
+        select nextval('right_id_sequence'),'uuid:1','replikator_k3',group_id 
+        from group_entity
+        where gname='k4_admins'
+>>
+
 insertRight_NDKMetsImport() ::=<<
     insert into right_entity (right_id, uuid, "action", group_id)
         select nextval('right_id_sequence'),'uuid:1','ndk_mets_import',group_id 

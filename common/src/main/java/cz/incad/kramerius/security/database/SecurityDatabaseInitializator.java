@@ -82,6 +82,8 @@ public class SecurityDatabaseInitializator {
                 
                 // mets ndk import
                 insertNDKMetsImport(connection);
+                // replikator k3
+                insertReplikatorK3(connection);
             } else { 
                 String v = versionService.getVersion();
 
@@ -110,6 +112,8 @@ public class SecurityDatabaseInitializator {
 
                     // mets ndk import
                     insertNDKMetsImport(connection);
+                    // replikator k3
+                    insertReplikatorK3(connection);
 
                 } else if (versionCondition(v, "=", "5.3.0")){
                     // right for criteria params manage
@@ -120,6 +124,8 @@ public class SecurityDatabaseInitializator {
 
                     // mets ndk import
                     insertNDKMetsImport(connection);
+                    // replikator k3
+                    insertReplikatorK3(connection);
 
                 } else if (versionCondition(v, "=", "5.4.0")){
                     // k4 replication rights
@@ -128,9 +134,16 @@ public class SecurityDatabaseInitializator {
 
                     // mets ndk import
                     insertNDKMetsImport(connection);
+                    // replikator k3
+                    insertReplikatorK3(connection);
                 } else if (versionCondition(v, "=", "5.5.0")){
                     // mets ndk import
                     insertNDKMetsImport(connection);
+                    // replikator k3
+                    insertReplikatorK3(connection);
+                } else if (versionCondition(v, "=", "5.6.0")){
+                    // replikator k3
+                    insertReplikatorK3(connection);
                 }
             }
         } catch (SQLException e) {
@@ -141,6 +154,18 @@ public class SecurityDatabaseInitializator {
     }
 
     
+    /**
+     * @param connection
+     * @return 
+     * @throws SQLException 
+     */
+    private static int insertReplikatorK3(Connection connection) throws SQLException {
+        String sql = SecurityDatabaseUtils.stUdateRightGroup().getInstanceOf("insertRight_ReplikatorK3").toString();
+        JDBCUpdateTemplate template = new JDBCUpdateTemplate(connection,false);
+        return template.executeUpdate(sql);
+    }
+
+
     private static int insertRightK4ReplicationExport(Connection connection) throws SQLException {
         String sql = SecurityDatabaseUtils.stUdateRightGroup().getInstanceOf("insertRight_K4ReplicationExport").toString();
         JDBCUpdateTemplate template = new JDBCUpdateTemplate(connection,false);

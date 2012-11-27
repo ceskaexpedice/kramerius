@@ -141,6 +141,7 @@
         <templates>
             <input class="org.kramerius.k3replications.input.InputTemplate"></input>
         </templates>
+        <securedaction>replikator_k3</securedaction>
     </process>
 
     <process>
