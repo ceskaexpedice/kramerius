@@ -35,26 +35,20 @@ public class FooterViewObject implements Initializable{
 
 
     static java.util.logging.Logger LOGGER = java.util.logging.Logger.getLogger(FooterViewObject.class.getName());
-    private InputStream inputStream;
+
+    private Properties properties;
     
     public FooterViewObject() {
         super();
     }
 
     public String getVersion() {
-        try {
-            if (this.inputStream != null) {
-                Properties props = new Properties();
-                props.load(this.inputStream);
-                return props.getProperty("version");
-            } else return "";
-        } catch (IOException e) {
-            LOGGER.severe(e.getMessage());
-            return "";
-        }
+        if (this.properties != null) {
+            return this.properties.getProperty("version");
+        } else return "";
     }
 
-    public InputStream getInputStream() throws IOException {
+    private InputStream getInputStream() throws IOException {
         InputStream revisions = this.getClass().getClassLoader().getResourceAsStream("revision.properties");
         if (revisions != null) {
             ByteArrayOutputStream bos = new ByteArrayOutputStream();
@@ -64,16 +58,9 @@ public class FooterViewObject implements Initializable{
     }
     
     public String getRevision() {
-        try {
-            if (this.inputStream != null) {
-                Properties props = new Properties();
-                props.load(this.inputStream);
-                return props.getProperty("revision");
-            } else return "";
-        } catch (IOException e) {
-            LOGGER.severe(e.getMessage());
-            return "";
-        }
+        if (this.properties != null) {
+            return this.properties.getProperty("revision");
+        } else return "";
     }
 
     /* (non-Javadoc)
@@ -81,10 +68,17 @@ public class FooterViewObject implements Initializable{
      */
     @Override
     public void init() {
+        InputStream is = null;
         try {
-            this.inputStream = getInputStream();
+            is = getInputStream();
+            if (is != null) {
+                this.properties = new Properties();
+                this.properties.load(is);
+            } else LOGGER.severe("cannot load revision properties ");
         } catch (IOException e) {
             LOGGER.log(Level.SEVERE,e.getMessage(),e);
+        } finally {
+            if (is != null) IOUtils.tryClose(is);
         }
     }
 }
