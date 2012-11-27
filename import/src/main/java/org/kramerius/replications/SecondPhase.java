@@ -85,6 +85,7 @@ public class SecondPhase extends AbstractPhase  {
                 else throw new PhaseException(this,e);
             } finally {
                 if (inputStream != null) IOUtils.tryClose(inputStream);
+                if (foxmlfile != null) foxmlfile.delete();
             }
         } else {
             LOGGER.info("skipping pid '"+pid+"'");
