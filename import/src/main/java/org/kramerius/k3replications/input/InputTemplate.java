@@ -41,6 +41,8 @@ import org.antlr.stringtemplate.language.DefaultTemplateLexer;
 import org.kramerius.processes.filetree.TreeItem;
 import org.kramerius.processes.filetree.TreeItemFileMap;
 import org.kramerius.processes.filetree.TreeModelFilter;
+import org.kramerius.processes.utils.BasicStringTemplateGroup;
+import org.kramerius.processes.utils.OtherSettingsTemplate;
 import org.kramerius.processes.utils.ResourceBundleUtils;
 import org.kramerius.processes.utils.TreeModelUtils;
 
@@ -75,7 +77,7 @@ public class InputTemplate implements ProcessInputTemplate {
     @Override
     public void renderInput(LRProcessDefinition definition, Writer writer, Properties paramsMapping) throws IOException {
         // root ?
-        File homeFolder = new File(KConfiguration.getInstance().getProperty("import.directory")).getParentFile();
+        File homeFolder = new File(KConfiguration.getInstance().getProperty("migration.directory")).getParentFile();
         InputStream iStream = this.getClass().getResourceAsStream("replicationtemplate.st");
         
         TreeItem rootNode = TreeModelUtils.prepareTreeModel(homeFolder,new TreeModelFilter() {
@@ -93,16 +95,23 @@ public class InputTemplate implements ProcessInputTemplate {
         
         
         StringTemplateGroup templateGroup = new StringTemplateGroup(new InputStreamReader(iStream,"UTF-8"), DefaultTemplateLexer.class);
+        templateGroup.setSuperGroup(BasicStringTemplateGroup.getBasicProcessesGroup());
         StringTemplate template = templateGroup.getInstanceOf("form");
 
-        template.setAttribute("migrationDirectory", KConfiguration.getInstance().getProperty("import.directory"));
-        template.setAttribute("targetDirectory",  KConfiguration.getInstance().getProperty("import.directory"));
+        template.setAttribute("migrationDirectory", KConfiguration.getInstance().getProperty("migration.directory"));
+        template.setAttribute("targetDirectory",  KConfiguration.getInstance().getProperty("migration.target.directory"));
         template.setAttribute("importRootDirectory", rootNode);
     
         Boolean visibility = KConfiguration.getInstance().getConfiguration().getBoolean("convert.defaultRights");
         template.setAttribute("visibility", visibility);
         LOGGER.info("visibility :"+visibility);
         
+        Boolean importToFedora = !configuration.getConfiguration().getBoolean("ingest.skip");
+        Boolean startIndexer = configuration.getConfiguration().getBoolean("ingest.startIndexer");
+
+        OtherSettingsTemplate oSettings = OtherSettingsTemplate.disectTemplate(importToFedora, startIndexer);
+        template.setAttribute("otherSettingsTemplate", oSettings.name());
+
         ResourceBundle resbundle = resourceBundleService.getResourceBundle("labels", localesProvider.get());
         template.setAttribute("bundle", ResourceBundleUtils.resourceBundleMap(resbundle));
         

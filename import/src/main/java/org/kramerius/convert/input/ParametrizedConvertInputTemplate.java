@@ -65,7 +65,7 @@ public class ParametrizedConvertInputTemplate implements ProcessInputTemplate {
 
     @Override
     public void renderInput(LRProcessDefinition definition, Writer writer, Properties paramsMapping) throws IOException {
-        File homeFolder = new File(configuration.getProperty("import.directory")).getParentFile();
+        File homeFolder = new File(configuration.getProperty("convert.directory")).getParentFile();
         InputStream iStream = this.getClass().getResourceAsStream("parametrizedconvert.stg");
         
         TreeItem rootNode = TreeModelUtils.prepareTreeModel(homeFolder,new TreeModelFilter() {

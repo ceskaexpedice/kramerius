@@ -54,7 +54,7 @@ selectionJSTreeTarget() ::=<<
 
 
 
-form(migrationDirectory,targetDirectory,importRootDirectory,visibility, bundle) ::=<<
+form(migrationDirectory,targetDirectory,importRootDirectory,visibility,otherSettingsTemplate, bundle) ::=<<
 
 <div style="width:100%">
     <script language="JavaScript" type="text/javascript"> 
@@ -210,11 +210,7 @@ form(migrationDirectory,targetDirectory,importRootDirectory,visibility, bundle) 
 </fieldset>
 
 <!-- ostatni nastaveni  -->
-<fieldset style="margin-top:10px;border: 1px solid gray;">
-    <legend style="border:none">$bundle.("k3replication.othersettings.fields")$</legend>
-    <input type="checkbox" id="importToFedora" name="importToFedora" value="importToFedora" checked>$bundle.("k3replication.importtofedora")$</input>
-    <input type="checkbox" id="startIndexer" name="startIndexer" value="indexer">$bundle.("k3replication.indexerstart")$</input>
-</fieldset>
+$(otherSettingsTemplate)()$
 
 
     <div id="_select_migration_directory" style="display:none">
