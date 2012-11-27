@@ -77,7 +77,7 @@ public class InputTemplate implements ProcessInputTemplate {
     @Override
     public void renderInput(LRProcessDefinition definition, Writer writer, Properties paramsMapping) throws IOException {
         // root ?
-        File homeFolder = new File(KConfiguration.getInstance().getProperty("migration.directory")).getParentFile();
+        File homeFolder = new File(configuration.getProperty("migration.directory")).getParentFile();
         InputStream iStream = this.getClass().getResourceAsStream("replicationtemplate.st");
         
         TreeItem rootNode = TreeModelUtils.prepareTreeModel(homeFolder,new TreeModelFilter() {
@@ -98,11 +98,11 @@ public class InputTemplate implements ProcessInputTemplate {
         templateGroup.setSuperGroup(BasicStringTemplateGroup.getBasicProcessesGroup());
         StringTemplate template = templateGroup.getInstanceOf("form");
 
-        template.setAttribute("migrationDirectory", KConfiguration.getInstance().getProperty("migration.directory"));
-        template.setAttribute("targetDirectory",  KConfiguration.getInstance().getProperty("migration.target.directory"));
+        template.setAttribute("migrationDirectory", configuration.getProperty("migration.directory"));
+        template.setAttribute("targetDirectory",  configuration.getProperty("migration.target.directory"));
         template.setAttribute("importRootDirectory", rootNode);
     
-        Boolean visibility = KConfiguration.getInstance().getConfiguration().getBoolean("convert.defaultRights");
+        Boolean visibility = configuration.getConfiguration().getBoolean("convert.defaultRights");
         template.setAttribute("visibility", visibility);
         LOGGER.info("visibility :"+visibility);
         
