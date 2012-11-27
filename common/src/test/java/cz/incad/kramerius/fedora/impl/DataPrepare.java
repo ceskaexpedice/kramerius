@@ -112,8 +112,21 @@ public class DataPrepare {
         return resStream;
     }
 
+    public static InputStream datastreams36() {
+        String path = "/cz/incad/kramerius/fedora/res/datastreams_3_6";
+        InputStream resStream = FedoraAccessImpl.class.getResourceAsStream(path);
+        return resStream;
+    }
+
+    
     public static InputStream dsProfile33() {
         String path = "/cz/incad/kramerius/fedora/res/dsprofile_3_3";
+        InputStream resStream = FedoraAccessImpl.class.getResourceAsStream(path);
+        return resStream;
+    }
+
+    public static InputStream dsProfile36() {
+        String path = "/cz/incad/kramerius/fedora/res/dsprofile_3_6";
         InputStream resStream = FedoraAccessImpl.class.getResourceAsStream(path);
         return resStream;
     }
@@ -132,6 +145,12 @@ public class DataPrepare {
 
     public static InputStream fedoraProfile34() {
         String path = "/cz/incad/kramerius/fedora/res/describe_3_4";
+        InputStream resStream = FedoraAccessImpl.class.getResourceAsStream(path);
+        return resStream;
+    }
+
+    public static InputStream fedoraProfile36() {
+        String path = "/cz/incad/kramerius/fedora/res/describe_3_6";
         InputStream resStream = FedoraAccessImpl.class.getResourceAsStream(path);
         return resStream;
     }
@@ -628,5 +647,6 @@ public class DataPrepare {
 
 
     }
+
     
 }
