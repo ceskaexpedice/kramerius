@@ -39,10 +39,11 @@ public class MulgaraImpl implements IResourceIndex {
             String query = "select $object $title $date from <#ri> " +
                     " where $object <fedora-model:hasModel> <info:fedora/model:" + model + ">  " + 
                     " and  $object <dc:title> $title " +
-                    " and  $object <fedora-view:lastModifiedDate> $date " +
-                    " order by  $" + orderby + " " + orderDir +
-                    " limit  " + limit +
-                    " offset  " + offset;
+                    " and  $object <fedora-view:lastModifiedDate> $date ";
+            if(orderby != null){
+                query += " order by  $" + orderby + " " + orderDir;
+            }
+            query += " limit  " + limit + " offset  " + offset;
             String urlStr = config.getString("FedoraResourceIndex") + "?type=tuples&flush=true&lang=itql&format=Sparql&distinct=off&stream=off" +
                     "&query=" + java.net.URLEncoder.encode(query, "UTF-8");
             java.net.URL url = new java.net.URL(urlStr);

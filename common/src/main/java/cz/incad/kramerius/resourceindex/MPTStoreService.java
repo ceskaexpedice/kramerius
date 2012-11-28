@@ -380,7 +380,7 @@ public class MPTStoreService implements IResourceIndex {
             this.adaptor = getTableManager();
             loadTableNames();
             String torder = table_lastModifiedDate + ".o";
-            if (orderby.equals("title")) {
+            if ("title".equals(orderby)) {
                 torder = table_dcTitle + ".o";
             }
             c = dataSource.getConnection();
@@ -394,14 +394,17 @@ public class MPTStoreService implements IResourceIndex {
             root.appendChild(results);
             
             String sql = "select " + table_dcTitle + ".s, " + table_dcTitle + ".o, " + table_lastModifiedDate + ".o from ";
-            if (orderby.equals("title")) {
+            if ("title".equals(orderby)) {
                 sql += table_dcTitle + "," + table_lastModifiedDate + "," + table_model;
             } else {
                 sql += table_lastModifiedDate + "," + table_dcTitle + "," + table_model;
             }
-            sql += " where " + table_model + ".o='<info:fedora/model:" + model + ">' and " + table_dcTitle + ".s=" + table_lastModifiedDate + ".s and " + table_dcTitle + ".s=" + table_model + ".s "
-                    + " order by " + torder + " " + orderDir
-                    + " limit " + limit + " offset " + offset;
+            sql += " where " + table_model + ".o='<info:fedora/model:" + model + ">' and " + table_dcTitle + ".s=" + table_lastModifiedDate + ".s and " + table_dcTitle + ".s=" + table_model + ".s ";
+            if (orderby!=null){
+                sql += " order by " + torder + " " + orderDir;
+            }
+            
+            sql += " limit " + limit + " offset " + offset;
 
             s = c.prepareStatement(sql,
                     ResultSet.FETCH_FORWARD,
