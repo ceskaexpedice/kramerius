@@ -255,7 +255,7 @@ public class SecondPhase extends AbstractPhase  {
                     }
                 }
             }
-            LOGGER.info("no file  starts with '"+pid+"'");
+            LOGGER.info("no file  starts with '"+objectId+"'");
             return null;
         }
         

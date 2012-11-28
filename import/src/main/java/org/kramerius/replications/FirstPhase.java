@@ -91,13 +91,21 @@ public class FirstPhase extends AbstractPhase  {
     @Override
     public void restart(String previousProcessUUID,File previousProcessRoot, boolean phaseCompleted, String url, String userName, String pswd) throws PhaseException {
         try {
+            if (!getDescriptionFile().exists()) {
+                File previousDescription = getDescriptionFile(previousProcessRoot);
+                FileChannel fiChannel = new FileInputStream(previousDescription).getChannel();
+                FileChannel foChannel = new FileOutputStream(createDescriptionFile()).getChannel();
+
+                long size = fiChannel.size();
+                fiChannel.transferTo(0, size, foChannel);
+            }
             if (!getIterateFile().exists()) {
                 File previousIterateFile = getIterateFile(previousProcessRoot);
-                FileChannel fichannel = new FileInputStream(previousIterateFile).getChannel();
+                FileChannel fiChannel = new FileInputStream(previousIterateFile).getChannel();
                 FileChannel foChannel = new FileOutputStream(createIterateFile()).getChannel();
 
-                long size = fichannel.size();
-                fichannel.transferTo(0, size, foChannel);
+                long size = fiChannel.size();
+                fiChannel.transferTo(0, size, foChannel);
 
                 // preparse if scenario is valid
                 preparseIterate();

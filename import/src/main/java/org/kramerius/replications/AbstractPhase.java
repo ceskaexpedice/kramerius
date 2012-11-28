@@ -43,6 +43,12 @@ public abstract class AbstractPhase implements Phase{
         return iterate;
     }
     
+    public File getDescriptionFile(File rootFolder) throws PhaseException {
+        File description = new File(rootFolder, DESCRIPTION_FILE);
+        if ((!description.exists()) && (!description.canRead())) throw new PhaseException(this, " file '"+description.getAbsolutePath()+"' doesnt exist");
+        return description;
+    }
+    
     public File getIterateFile() throws PhaseException {
         File iterate = new File(ITERATE_FILE);
         return iterate;
