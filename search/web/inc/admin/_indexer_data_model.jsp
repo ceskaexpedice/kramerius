@@ -56,8 +56,8 @@ if(sort_dir==null){
     sort_dir = "desc";
 }
 String sort = request.getParameter("sort");
-if(sort==null || sort.equals("")){
-    sort = "date";
+if("".equals(sort)){
+    sort = null;
 }
 String selectedModel = request.getParameter("model");
 if(selectedModel==null || selectedModel.length()==0){

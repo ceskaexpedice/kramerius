@@ -7,7 +7,7 @@ version="1.0">
     <xsl:template match="/">
         <xsl:variable name="q" >'</xsl:variable>
         <xsl:variable name="qescaped" ></xsl:variable>
-        <select id="top_models_select" onChange="loadFedoraDocuments($('#top_models_select').val(), 0);">
+        <select id="top_models_select" onChange="loadFedoraDocuments($('#top_models_select').val(), 0, '');">
             <option>--</option>
         <xsl:for-each select="/sp:sparql/sp:results/sp:result">
             <xsl:variable name="title" select="normalize-space(./sp:title)" />

@@ -39,6 +39,8 @@
 <%
     String[] models = kconfig.getPropertyList("fedora.topLevelModels");
     String selectedModel = request.getParameter("model");
+    String canSort = kconfig.getProperty("search.index.canSort", "true");
+    
     if(selectedModel==null || selectedModel.length()==0){
         selectedModel = models[0];
     }
@@ -46,6 +48,7 @@
     int rows = 40;
     pageContext.setAttribute("rows", rows);
     pageContext.setAttribute("top_models", models);
+    pageContext.setAttribute("canSort", canSort);
 %>
 <style type="text/css">
     #indexerContent div.section{
@@ -116,7 +119,15 @@
                 <th style="min-width:138px;" align="left">
                     <input type="hidden" id="indexer_order_dir" value="${order_dir}" />
                     <input type="hidden" id="indexer_offset" value="0" />
-                    <a href="javascript:orderDocuments('date')"><fmt:message>common.date</fmt:message></a>
+                    <c:choose>
+                        <c:when test="${canSort}">
+                        <a href="javascript:orderDocuments('date')"><fmt:message>common.date</fmt:message></a>
+                        </c:when>
+                        <c:otherwise>
+                            <fmt:message>common.date</fmt:message>
+                        </c:otherwise>
+                    </c:choose>
+                    
                     <span id="date_order_arrow" class="ui-icon ui-icon-arrowthick-1-n">order</span>
                 </th></tr></thead>
             <tbody style="overflow:auto;display:block;width:100%;"><tr><td align="center" colspan="3" width="768"><img src="img/loading.gif" /></td></tr></tbody>
@@ -169,11 +180,11 @@
     $('#indexer_tabs').tabs();
 function prevFedoraDocuments(){
     var rows = parseInt($('#doc_rows').val());
-    loadFedoraDocuments($('#top_models_select').val(), parseInt($('#indexer_offset').val())-rows);
+    loadFedoraDocuments($('#top_models_select').val(), parseInt($('#indexer_offset').val())-rows, "");
 }
 function nextFedoraDocuments(){
     var rows = parseInt($('#doc_rows').val());
-    loadFedoraDocuments($('#top_models_select').val(), parseInt($('#indexer_offset').val())+rows);
+    loadFedoraDocuments($('#top_models_select').val(), parseInt($('#indexer_offset').val())+rows, "");
 }
 function orderDocuments(field){
     var sort_dir = $("#indexer_order_dir").val()=="asc"?"desc":"asc";
@@ -204,7 +215,7 @@ function loadFedoraDocuments(model, offset, sort, rows){
     if(!rows) rows = $('#doc_rows').val();
     
     var sort_dir = $("#indexer_order_dir").val()=="asc"?"asc":"desc";
-    var url = "inc/admin/_indexer_data_model.jsp?model="+model+"&offset="+offset+"&sort=date&sort_dir="+sort_dir+"&rows="+rows;
+    var url = "inc/admin/_indexer_data_model.jsp?model="+model+"&offset="+offset+"&sort="+sort+"&sort_dir="+sort_dir+"&rows="+rows;
     $("#indexer_data_model>tbody").html('<tr><td align="center" colspan="3" width="768"><img src="img/loading.gif" /></td></tr>');
     var diff = $("#indexer_browse_models.indexer_data_container").outerHeight(true)
         - $("#indexer_browse_models.indexer_data_container").height();
