@@ -191,7 +191,7 @@ public class SecondPhase extends AbstractPhase  {
         try {
             if (!phaseCompleted) {
                 this.findPid = true;
-                IOUtils.copyFolders(new File(DONE_FOLDER_NAME), new File(previousProcessRoot, DONE_FOLDER_NAME));
+                IOUtils.copyFolders(new File(previousProcessRoot, DONE_FOLDER_NAME),new File(DONE_FOLDER_NAME));
                 this.controller = new DONEController(new File(DONE_FOLDER_NAME), MAXITEMS);
                 processIterate(url, userName, pswd);
             }
@@ -200,7 +200,7 @@ public class SecondPhase extends AbstractPhase  {
         }
     }
     
-    class DONEController {
+    static class DONEController {
         
         private File doneRoot;
         private int max;
