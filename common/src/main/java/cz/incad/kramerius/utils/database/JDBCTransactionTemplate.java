@@ -133,7 +133,7 @@ public class JDBCTransactionTemplate {
             this.connection.setAutoCommit(previous);
             if (closeConnectionFlag ) {
                 try {
-                    LOGGER.info("Closing connection !");
+                    LOGGER.fine("Closing connection !");
                     this.connection.close();
                 } catch (SQLException e) {
                     LOGGER.log(Level.SEVERE, e.getMessage(), e);
