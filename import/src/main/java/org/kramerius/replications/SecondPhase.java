@@ -60,35 +60,39 @@ public class SecondPhase extends AbstractPhase  {
     }
 
     public void pidEmitted(String pid, String url, String userName, String pswd) throws PhaseException {
-        LOGGER.info("processing pid '"+pid+"'");
-        boolean shouldSkip = (findPid && this.controller.findPid(pid) != null);
-        if (!shouldSkip) {
-            File foxmlfile = null;
-            InputStream inputStream = null;
-            try {
-                inputStream = rawFOXMLData(pid, url, userName, pswd);
-                foxmlfile = foxmlFile(inputStream, pid);
-                ingest(foxmlfile);
-                createFOXMLDone(pid);
-            } catch (LexerException e) {
-                throw new PhaseException(this,e);
-            } catch (IOException e) {
-                throw new PhaseException(this,e);
-            } catch(PhaseException e){
-                // forward
-                throw e;
-            }catch(RuntimeException e) {
-                if (e.getCause() != null) throw new PhaseException(this,e.getCause());
-                else throw new PhaseException(this,e);
-            } catch (Exception e) {
-                if (e.getCause() != null) throw new PhaseException(this,e.getCause());
-                else throw new PhaseException(this,e);
-            } finally {
-                if (inputStream != null) IOUtils.tryClose(inputStream);
-                if (foxmlfile != null) foxmlfile.delete();
+        try {
+            LOGGER.info("processing pid '"+pid+"'");
+            boolean shouldSkip = (findPid && this.controller.findPid(pid) != null);
+            if (!shouldSkip) {
+                File foxmlfile = null;
+                InputStream inputStream = null;
+                try {
+                    inputStream = rawFOXMLData(pid, url, userName, pswd);
+                    foxmlfile = foxmlFile(inputStream, pid);
+                    ingest(foxmlfile);
+                    createFOXMLDone(pid);
+                } catch (LexerException e) {
+                    throw new PhaseException(this,e);
+                } catch (IOException e) {
+                    throw new PhaseException(this,e);
+                } catch(PhaseException e){
+                    // forward
+                    throw e;
+                }catch(RuntimeException e) {
+                    if (e.getCause() != null) throw new PhaseException(this,e.getCause());
+                    else throw new PhaseException(this,e);
+                } catch (Exception e) {
+                    if (e.getCause() != null) throw new PhaseException(this,e.getCause());
+                    else throw new PhaseException(this,e);
+                } finally {
+                    if (inputStream != null) IOUtils.tryClose(inputStream);
+                    if (foxmlfile != null) foxmlfile.delete();
+                }
+            } else {
+                LOGGER.info("skipping pid '"+pid+"'");
             }
-        } else {
-            LOGGER.info("skipping pid '"+pid+"'");
+        } catch (LexerException e) {
+            throw new PhaseException(this,e);
         }
     }
 
@@ -230,13 +234,17 @@ public class SecondPhase extends AbstractPhase  {
             return sub;
         }
         
-        public File findPid(String pid) {
+        public File findPid(String pid) throws LexerException {
+            PIDParser pidParser = new PIDParser(pid);
+            pidParser.objectPid();
+            String objectId = pidParser.getObjectId();
+
             Stack<File> procStack = new Stack<File>();
-            LOGGER.info("finding pid '"+pid+"' in '"+this.doneRoot.getAbsolutePath()+"'");
+            LOGGER.info("finding pid '"+pid+"' ("+objectId+") in '"+this.doneRoot.getAbsolutePath()+"'");
             procStack.push(this.doneRoot);
             while(!procStack.isEmpty()) {
                 File poppedFile = procStack.pop();
-                if (poppedFile.getName().startsWith(pid)) {
+                if (poppedFile.getName().startsWith(objectId)) {
                     LOGGER.info("found file '"+poppedFile.getAbsolutePath()+"'");
                     return poppedFile;
                 }
@@ -290,12 +298,18 @@ public class SecondPhase extends AbstractPhase  {
         
     }
     
-    public static void main(String[] args) {
-        Client c = Client.create();
-        WebResource r = c.resource(K4ReplicationProcess.foxmlURL("http://vmkramerius:8080/search/handle/uuid:1a43499e-c953-11df-84b1-001b63bd97ba", "uuid:1a43499e-c953-11df-84b1-001b63bd97ba"));
-        r.addFilter(new BasicAuthenticationClientFilter("krameriusAdmin", "kramet"));
-        String t = r.accept(MediaType.APPLICATION_XML).get(String.class);
-        System.out.println(t);
+    public static void main(String[] args) throws LexerException {
+//        Client c = Client.create();
+//        WebResource r = c.resource(K4ReplicationProcess.foxmlURL("http://vmkramerius:8080/search/handle/uuid:1a43499e-c953-11df-84b1-001b63bd97ba", "uuid:1a43499e-c953-11df-84b1-001b63bd97ba"));
+//        r.addFilter(new BasicAuthenticationClientFilter("krameriusAdmin", "kramet"));
+//        String t = r.accept(MediaType.APPLICATION_XML).get(String.class);
+//        System.out.println(t);
+        
+        PIDParser pidParser = new PIDParser("uuid:6b767ab8-c1a7-11df-b7b5-001b63bd97ba");
+        pidParser.objectPid();
+        String objectId = pidParser.getObjectId();
+        System.out.println(objectId);
+        
     }
 
 }
