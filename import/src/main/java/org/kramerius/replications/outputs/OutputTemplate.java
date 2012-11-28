@@ -88,7 +88,7 @@ public class OutputTemplate implements ProcessOutputTemplate {
         OutputContext ctx = new OutputContext(); 
         ctx.setPid(K4ReplicationProcess.pidFrom(url));
         ctx.setDate((jsonObject != null && (jsonObject.containsKey("date")))? jsonObject.getString("date"): "-");
-        ctx.setTitle((jsonObject != null && (jsonObject.containsKey("title"))) ? jsonObject.getString("title"): "-");
+        ctx.setTitle((jsonObject != null && (jsonObject.containsKey("title"))) ? escapedJavascriptString(jsonObject): "-");
         ctx.setType( (jsonObject != null && (jsonObject.containsKey("type"))) ? jsonObject.getString("type"): "-");
         ctx.setHandle((jsonObject != null && (jsonObject.containsKey("handle"))) ? jsonObject.getString("handle"): "-");
         ctx.setIdentifiers((jsonObject != null && (jsonObject.containsKey("identifiers"))) ?  jsonToArray(jsonObject.getJSONArray("identifiers")): new String[0]);
@@ -115,6 +115,13 @@ public class OutputTemplate implements ProcessOutputTemplate {
         
         writer.write(template.toString());
         
+    }
+
+    public String escapedJavascriptString(JSONObject jsonObject) {
+        String str = jsonObject.getString("title");
+        str = str.replaceAll("'", "\\'");
+        str = str.replaceAll("\"", "\\\"");
+        return str;
     }
 
     public void setErrorFlagAndMessage(LRProcess lrProcess, OutputContext ctx) {
