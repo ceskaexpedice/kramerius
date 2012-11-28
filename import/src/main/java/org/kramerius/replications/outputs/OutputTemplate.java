@@ -124,12 +124,12 @@ public class OutputTemplate implements ProcessOutputTemplate {
 
     public String escapedJavascriptString(String input) {
         List<Character> escaping = new ArrayList<Character>(); {
-            escaping.add('\'');escaping.add('"');
+            escaping.add('\'');escaping.add('"');escaping.add('\n');
         }
         Map<Character, String> replacemets = new HashMap<Character, String>(); {
             replacemets.put('\'', "\\'");
             replacemets.put('"', "\\\"");
-            
+            replacemets.put('\n', "\\n");
         }
         return escapeString(input, escaping, replacemets);
     }

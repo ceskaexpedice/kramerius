@@ -1,0 +1,1 @@
+{"identifiers":["uuid:cd2b2ad0-62d4-11dd-ac0e-000d606f5dc6","contract:2904100001.djvu"],"publishers":[],"creators":["Kramerius Václav Rodomil"],"title":"Kniha zlatá, anebo, Nowý Zwěstowatel wsseho\n                dobrého a vžitečného pro Národ Slowenský","type":"monograph","handle":"http://krameriusdemo.mzk.cz/search/handle/uuid:cd2b2ad0-62d4-11dd-ac0e-000d606f5dc6"}

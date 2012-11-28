@@ -68,7 +68,7 @@ public class OutputTemplateTest {
             .addMockedMethod("description")
             .createMock();
         
-        JSONObject jsonObject = description();
+        JSONObject jsonObject = description1();
         LRProcess lrPRocess = lrProcess();
         
         EasyMock.expect(oTemplate.description(lrPRocess)).andReturn(jsonObject).anyTimes();
@@ -91,9 +91,39 @@ public class OutputTemplateTest {
         StringWriter writer = new StringWriter();
         oTemplate.renderOutput(lrPRocess, null, writer);
         String rendered = writer.toString();
-        System.out.println(rendered);
+        Assert.assertNotNull(rendered);
+    }
+
+    @Test
+    public void shouldRenderTemplate2() throws FileNotFoundException, IOException {
+        OutputTemplate oTemplate = EasyMock.createMockBuilder(OutputTemplate.class)
+            .addMockedMethod("description")
+            .createMock();
         
+        JSONObject jsonObject = description2();
+        LRProcess lrPRocess = lrProcess();
         
+        EasyMock.expect(oTemplate.description(lrPRocess)).andReturn(jsonObject).anyTimes();
+
+        ResourceBundleService resb = EasyMock.createMock(ResourceBundleService.class);
+        PropertyResourceBundle resourceBundle = new PropertyResourceBundle(new StringReader(BUNDLES));
+        EasyMock.expect(resb.getResourceBundle("labels", Locale.getDefault())).andReturn(resourceBundle).anyTimes();
+
+        Provider<Locale> localeProvider = EasyMock.createMock(_TestLocaleProvider.class);
+        EasyMock.expect(localeProvider.get()).andReturn(Locale.getDefault()).anyTimes();
+
+        
+        EasyMock.replay(lrPRocess, oTemplate, resb,localeProvider);
+        
+        Assert.assertNotNull(oTemplate.description(lrPRocess));
+        
+        oTemplate.resourceBundleService = resb;
+        oTemplate.localesProvider = localeProvider;
+        
+        StringWriter writer = new StringWriter();
+        oTemplate.renderOutput(lrPRocess, null, writer);
+        String rendered = writer.toString();
+        Assert.assertNotNull(rendered);
     }
 
     @Test
@@ -103,7 +133,15 @@ public class OutputTemplateTest {
         String escaped = template.escapedJavascriptString(str);
         Assert.assertEquals("Akafist\\' Svatěj Velikomučenice Varvare", escaped);
     }
-    
+
+    @Test
+    public void testReplace2() {
+        String str = "Kniha zlatá, anebo, Nowý Zwěstowatel wsseho \n dobrého a vžitečného pro Národ Slowenský";
+        OutputTemplate template = new OutputTemplate();
+        String escaped = template.escapedJavascriptString(str);
+        Assert.assertEquals("Kniha zlatá, anebo, Nowý Zwěstowatel wsseho \\n dobrého a vžitečného pro Národ Slowenský", escaped);
+    }
+
     public LRProcess lrProcess() throws FileNotFoundException {
         LRProcess lrPRocess = EasyMock.createMock(LRProcess.class);
         Properties props = new Properties();
@@ -119,8 +157,19 @@ public class OutputTemplateTest {
         return lrPRocess;
     }
 
-    public JSONObject description() throws IOException {
+    public JSONObject description1() throws IOException {
         InputStream is = OutputTemplate.class.getClassLoader().getResourceAsStream("org/kramerius/replications/description.txt");
+        String stringInput = IOUtils.readAsString(is, Charset.forName("UTF-8"), true);
+
+        Assert.assertNotNull(is);
+        JSONObject jsonObject = JSONObject.fromObject(stringInput);
+        System.out.println(jsonObject);
+        Assert.assertNotNull(jsonObject);
+        return jsonObject;
+    }
+
+    public JSONObject description2() throws IOException {
+        InputStream is = OutputTemplate.class.getClassLoader().getResourceAsStream("org/kramerius/replications/description2.txt");
         String stringInput = IOUtils.readAsString(is, Charset.forName("UTF-8"), true);
 
         Assert.assertNotNull(is);
