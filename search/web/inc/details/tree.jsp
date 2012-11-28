@@ -185,6 +185,9 @@
             });
 </c:if>            
             loadInitNodes();
+            $(window).bind( 'hashchange', function(e) {
+                checkHashChanged(e);
+            });
         });
         var cur = 1;
         var initView = true;
@@ -266,10 +269,15 @@
         }
 
         function nodeClick(id){
+            
+            //alert(id+" -> " + $(jq(id)).hasClass('viewable'));
             initView = false;
             if($(jq(id)).hasClass('viewable')){
                 selectNodeView(id);
                 nodeOpen(id);
+                if(window.location.hash != id){
+                    window.location.hash = id;
+                }
                 $(".viewer").trigger('viewChanged', [id]);
             }else{
                 nodeOpen(id);
@@ -315,6 +323,19 @@
                 setActiveUuids(id);
             }
             setSelectedPath(id);
+            
+        }
+        
+        function checkHashChanged(e){
+            var id =  k4Settings.activePidPath;
+            var newid =  window.location.hash.toString().substring(1);
+            //alert(newid + " \n" + id);
+            if(id != newid){
+                if(newid.length==0){
+                    loadInitNodes();
+                }
+                nodeClick(newid);
+            }
         }
 
         function nodeOpen(id){
