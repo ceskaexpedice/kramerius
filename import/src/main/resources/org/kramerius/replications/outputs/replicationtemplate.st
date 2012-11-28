@@ -41,7 +41,7 @@ dialogscripts(ctx)  ::=<<
                             width:800,
                             height:600,
                             modal:true,
-                            title: '$ctx.title$ ($ctx.pid$)',
+                            title: '$ctx.escapedTitle$ ($ctx.pid$)',
                             buttons: {
 
                                 $restartbutton(ctx=ctx)$                                 

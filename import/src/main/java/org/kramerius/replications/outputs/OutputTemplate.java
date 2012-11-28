@@ -27,7 +27,10 @@ import java.io.InputStreamReader;
 import java.io.Writer;
 import java.net.URL;
 import java.nio.charset.Charset;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Properties;
@@ -88,7 +91,9 @@ public class OutputTemplate implements ProcessOutputTemplate {
         OutputContext ctx = new OutputContext(); 
         ctx.setPid(K4ReplicationProcess.pidFrom(url));
         ctx.setDate((jsonObject != null && (jsonObject.containsKey("date")))? jsonObject.getString("date"): "-");
-        ctx.setTitle((jsonObject != null && (jsonObject.containsKey("title"))) ? escapedJavascriptString(jsonObject): "-");
+        ctx.setTitle((jsonObject != null && (jsonObject.containsKey("title"))) ? jsonObject.getString("title"): "-");
+        ctx.setEscapedTitle((jsonObject != null && (jsonObject.containsKey("title"))) ? escapedJavascriptString(jsonObject.getString("title")): "-");
+
         ctx.setType( (jsonObject != null && (jsonObject.containsKey("type"))) ? jsonObject.getString("type"): "-");
         ctx.setHandle((jsonObject != null && (jsonObject.containsKey("handle"))) ? jsonObject.getString("handle"): "-");
         ctx.setIdentifiers((jsonObject != null && (jsonObject.containsKey("identifiers"))) ?  jsonToArray(jsonObject.getJSONArray("identifiers")): new String[0]);
@@ -117,13 +122,33 @@ public class OutputTemplate implements ProcessOutputTemplate {
         
     }
 
-    public String escapedJavascriptString(JSONObject jsonObject) {
-        String str = jsonObject.getString("title");
-        str = str.replaceAll("'", "\\'");
-        str = str.replaceAll("\"", "\\\"");
-        return str;
+    public String escapedJavascriptString(String input) {
+        List<Character> escaping = new ArrayList<Character>(); {
+            escaping.add('\'');escaping.add('"');
+        }
+        Map<Character, String> replacemets = new HashMap<Character, String>(); {
+            replacemets.put('\'', "\\'");
+            replacemets.put('"', "\\\"");
+            
+        }
+        return escapeString(input, escaping, replacemets);
     }
 
+    public String escapeString(String str, List<Character> escapeCharatectes, Map<Character, String> replacements) {
+        StringBuilder builder = new StringBuilder();
+        char[] array = str.toCharArray();
+        for (char c : array) {
+            Character cObj = new Character(c);
+            if (escapeCharatectes.contains(cObj)) {
+                String repl = replacements.get(cObj);
+                builder.append(repl);
+            } else {
+                builder.append(cObj);
+            }
+        }
+        return builder.toString();
+    }
+    
     public void setErrorFlagAndMessage(LRProcess lrProcess, OutputContext ctx) {
         ctx.setErrorOccured(lrProcess.getProcessState() != States.FINISHED && lrProcess.getBatchState() != BatchStates.BATCH_FINISHED);
         if (ctx.isErrorOccured()) {
@@ -215,6 +240,7 @@ public class OutputTemplate implements ProcessOutputTemplate {
         private String pid;
         private String date;
         private String title;
+        private String escapedTitle;
         private String type;
         private String handle;
         private String[] identifiers;
@@ -286,6 +312,16 @@ public class OutputTemplate implements ProcessOutputTemplate {
         
         public void setTitle(String title) {
             this.title = title;
+        }
+
+        
+        
+        public String getEscapedTitle() {
+            return escapedTitle;
+        }
+
+        public void setEscapedTitle(String escapedTitle) {
+            this.escapedTitle = escapedTitle;
         }
 
         private boolean isFiledFile(File f, String phName) {

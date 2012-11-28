@@ -1,0 +1,1 @@
+{"identifiers":["uuid:6b767ab8-c1a7-11df-b7b5-001b63bd97ba","contract:26193"],"publishers":["Pečerskaja Lavra"],"creators":[""],"title":"Akafist' Svatěj Velikomučenice Varvare","type":"monograph","date":"1795","handle":"http://krameriusdemo.mzk.cz/search/handle/uuid:6b767ab8-c1a7-11df-b7b5-001b63bd97ba"}
