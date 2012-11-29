@@ -711,7 +711,7 @@
 
       function deletefromindex(){
 
-          showConfirmDialog(dictionary['administrator.dialogs.deleteconfirm'], function(){
+          showConfirmDialog(dictionary['administrator.dialogs.indexdeleteconfirm'], function(){
               var pids = getAffectedPids();
 
               var action = "deleteDocument";
