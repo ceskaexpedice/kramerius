@@ -3,6 +3,7 @@ package cz.incad.kramerius.service.impl;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.logging.Logger;
 
@@ -12,7 +13,12 @@ import com.google.inject.Inject;
 import com.google.inject.name.Named;
 
 import cz.incad.kramerius.FedoraAccess;
+import cz.incad.kramerius.SolrAccess;
+import cz.incad.kramerius.document.model.DCConent;
+import cz.incad.kramerius.document.model.utils.DCContentUtils;
 import cz.incad.kramerius.impl.FedoraAccessImpl;
+import cz.incad.kramerius.impl.SolrAccessImpl;
+import cz.incad.kramerius.processes.impl.ProcessStarter;
 import cz.incad.kramerius.service.DeleteService;
 import cz.incad.kramerius.utils.FedoraUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
@@ -51,9 +57,20 @@ public class DeleteServiceImpl implements DeleteService {
      */
     public static void main(String[] args) throws IOException{
         LOGGER.info("DeleteService: "+Arrays.toString(args));
+
+
         DeleteServiceImpl inst = new DeleteServiceImpl();
         inst.fedoraAccess = new FedoraAccessImpl(null);
+        SolrAccess solrAccess = new SolrAccessImpl();
+        
+        Map<String, List<DCConent>> dcs = DCContentUtils.getDCS(inst.fedoraAccess, solrAccess, Arrays.asList(args[0]));
+        List<DCConent> list = dcs.get(args[0]);
+        DCConent dcConent = DCConent.collectFirstWin(list);
+        ProcessStarter.updateName("Mazani objektu '"+dcConent.getTitle()+"'");
+
         inst.deleteTree(args[0], null);
+
+        
         List<RelationshipTuple> parents = FedoraUtils.getSubjectPids(/*"uuid:"+*/args[0]);
         for (RelationshipTuple parent:parents){
             try{
