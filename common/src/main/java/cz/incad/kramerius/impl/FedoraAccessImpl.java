@@ -800,7 +800,7 @@ public class FedoraAccessImpl implements FedoraAccess {
 
                                 if (breakProcessing) break;
                             } else {
-                                LOGGER.warning("skipping branch [" +(level+1)+"] and pid ("+objectId+")");
+                                LOGGER.fine("skipping branch [" +(level+1)+"] and pid ("+objectId+")");
                             }
                         }
                     }
