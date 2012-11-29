@@ -72,6 +72,7 @@ public class HeaderViewObject {
                 if (changedValue.contains("'")) {
                     changedValue = changedValue.replace("'", "\\'");
                 }
+                changedValue =  changedValue.replace("\n", "\\n");
                 resourceBundleMap.put(key,changedValue);
             }
         } catch (IOException e) {
