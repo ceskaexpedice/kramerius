@@ -39,7 +39,7 @@
 <%
     String[] models = kconfig.getPropertyList("fedora.topLevelModels");
     String selectedModel = request.getParameter("model");
-    String canSort = kconfig.getProperty("search.index.canSort", "true");
+    boolean canSort = Boolean.parseBoolean(kconfig.getProperty("search.index.canSort", "true"));
     
     if(selectedModel==null || selectedModel.length()==0){
         selectedModel = models[0];
@@ -167,7 +167,7 @@
 <script type="text/javascript">
     $(document).ready(function(){
         $('.indexer_result_indexed').live('click', function(){
-            var pid = $(this).parent().attr('pid');
+            var pid = $(this).parent().attr('pid').replace("info:fedora/", "");
             window.location = "i.jsp?pid="+pid;
         });
         $('#search_fedora_text').keypress(function(key){
