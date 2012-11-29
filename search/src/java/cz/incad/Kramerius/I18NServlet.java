@@ -163,7 +163,8 @@ public class I18NServlet extends GuiceServlet {
                 if (changedValue.contains("\"")) {
                     changedValue = changedValue.replace("\"", "\\\"");
                 }
-		        map.put(key, changedValue);
+                changedValue =  changedValue.replace("\n", "\\n");
+                map.put(key, changedValue);
             }
 		    
 		    StringTemplate template = new StringTemplate(
