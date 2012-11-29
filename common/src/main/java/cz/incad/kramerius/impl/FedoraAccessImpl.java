@@ -754,7 +754,12 @@ public class FedoraAccessImpl implements FedoraAccess {
     public void processSubtree(String pid, TreeNodeProcessor processor) throws ProcessSubtreeException, IOException {
         try {
             pid = makeSureObjectPid(pid);
-            Document relsExt = getRelsExt(pid);
+            Document relsExt = null;
+            try{
+                relsExt = getRelsExt(pid);
+            }catch (Exception ex){
+                LOGGER.warning("could not read root RELS-EXT, skipping object  ("+pid+"):"+ex);
+            }
             processSubtreeInternal(pid, relsExt, processor,0, new Stack<String>());
         } catch (LexerException e) {
             throw new ProcessSubtreeException(e);
@@ -795,7 +800,13 @@ public class FedoraAccessImpl implements FedoraAccess {
                                 LOGGER.fine(buffer.toString()+" processing pid [" +attVal+"]");
                             }
                             if (!processor.skipBranch(objectId, level+1)) {
-                                Document iterationgRelsExt = getRelsExt(objectId);
+                                Document iterationgRelsExt = null;
+
+                                try{
+                                    iterationgRelsExt = getRelsExt(objectId);
+                                }catch (Exception ex){
+                                    LOGGER.warning("could not read RELS-EXT, skipping branch [" +(level+1)+"] and pid ("+objectId+"):"+ex);
+                                }
                                 breakProcessing = processSubtreeInternal(pidParser.getObjectPid(), iterationgRelsExt, processor, level + 1, pidStack);
 
                                 if (breakProcessing) break;
