@@ -209,7 +209,7 @@ public class LongRunningProcessServlet extends GuiceServlet {
                     SecuredActions actionFromDef = SecuredActions.findByFormalName(def);
                     String grpToken = req.getParameter(TOKEN_ATTRIBUTE_KEY);
                     String authToken = req.getHeader(AUTH_TOKEN_HEADER_KEY);
-                    String loggedUserKey = findLoggedUserKey(req, lrProcessManager, grpToken);
+                    String loggedUserKey = findLoggedUserKey(req, lrProcessManager, grpToken,userProvider);
                     User user = loggedUserSingleton.getUser(loggedUserKey);
                     if (user == null) {
                         // no user
@@ -368,7 +368,7 @@ public class LongRunningProcessServlet extends GuiceServlet {
                         SecuredActions actionFromDef = SecuredActions.findByFormalName(def);
                         String token = req.getParameter(TOKEN_ATTRIBUTE_KEY); 
     
-                        String loggedUserKey = findLoggedUserKey(req, processManager, token);
+                        String loggedUserKey = findLoggedUserKey(req, processManager, token,userProvider);
                         User user = loggedUserSingleton.getLoggedUser(loggedUserKey);
                         
                         boolean permited = permitStart(actionAllowed, actionFromDef, user);
@@ -604,7 +604,7 @@ public class LongRunningProcessServlet extends GuiceServlet {
 
         abstract void doAction(ServletContext context, HttpServletRequest req, HttpServletResponse resp, DefinitionManager defManager, LRProcessManager processManager, UserManager userManager, Provider<User> userProvider, IsActionAllowed actionAllowed, LoggedUsersSingleton loggedUserSingleton, InputTemplateFactory iTemplateFactory, OutputTemplateFactory oTemplateFactory);
 
-        public String findLoggedUserKey(HttpServletRequest req, LRProcessManager lrProcessManager, String token) {
+        public String findLoggedUserKey(HttpServletRequest req, LRProcessManager lrProcessManager, String token, Provider<User> userProvider) {
             if (token != null) {
                 
                 if (!lrProcessManager.isAuthTokenClosed(token)) {
@@ -630,10 +630,12 @@ public class LongRunningProcessServlet extends GuiceServlet {
                         throw new RuntimeException("cannot find process with token '"+token+"'");
                     }
                 } else {
+                    userProvider.get();
                     //TODO: ?? 
                     return (String) req.getSession().getAttribute(UserUtils.LOGGED_USER_KEY_PARAM);
                 }
             } else {
+                userProvider.get();
                 return (String) req.getSession().getAttribute(UserUtils.LOGGED_USER_KEY_PARAM);
             }
         }
