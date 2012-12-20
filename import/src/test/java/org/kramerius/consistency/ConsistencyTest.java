@@ -48,6 +48,9 @@ import cz.incad.kramerius.ObjectPidsPath;
 import cz.incad.kramerius.ProcessSubtreeException;
 import cz.incad.kramerius.SolrAccess;
 import cz.incad.kramerius.impl.FedoraAccessImpl;
+import cz.incad.kramerius.statistics.StatisticReport;
+import cz.incad.kramerius.statistics.StatisticsAccessLog;
+import cz.incad.kramerius.statistics.StatisticsAccessLogSupport;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 import cz.incad.kramerius.utils.pid.LexerException;
 
@@ -56,10 +59,59 @@ import cz.incad.kramerius.utils.pid.LexerException;
  */
 public class ConsistencyTest {
 
+    class _NoStatistics implements StatisticsAccessLog {
+
+        /* (non-Javadoc)
+         * @see cz.incad.kramerius.statistics.StatisticsAccessLog#reportAccess(java.lang.String, java.lang.String)
+         */
+        @Override
+        public void reportAccess(String pid, String streamName) throws IOException {
+            // TODO Auto-generated method stub
+            
+        }
+
+        /* (non-Javadoc)
+         * @see cz.incad.kramerius.statistics.StatisticsAccessLog#isReportingAccess(java.lang.String, java.lang.String)
+         */
+        @Override
+        public boolean isReportingAccess(String pid, String streamName) {
+            // TODO Auto-generated method stub
+            return false;
+        }
+
+        /* (non-Javadoc)
+         * @see cz.incad.kramerius.statistics.StatisticsAccessLog#processAccessLog(cz.incad.kramerius.statistics.StatisticsAccessLogSupport)
+         */
+        @Override
+        public void processAccessLog(StatisticsAccessLogSupport sup) {
+            // TODO Auto-generated method stub
+            
+        }
+
+        /* (non-Javadoc)
+         * @see cz.incad.kramerius.statistics.StatisticsAccessLog#getAllReports()
+         */
+        @Override
+        public StatisticReport[] getAllReports() {
+            // TODO Auto-generated method stub
+            return null;
+        }
+
+        /* (non-Javadoc)
+         * @see cz.incad.kramerius.statistics.StatisticsAccessLog#getReportById(java.lang.String)
+         */
+        @Override
+        public StatisticReport getReportById(String reportId) {
+            // TODO Auto-generated method stub
+            return null;
+        }
+        
+    }
+    
     @Test
     public void shouldPassProcess() throws IOException, ProcessSubtreeException, LexerException, ParserConfigurationException, SAXException {
         FedoraAccess fa = createMockBuilder(FedoraAccessImpl.class)
-        .withConstructor(KConfiguration.getInstance(),null)
+        .withConstructor(KConfiguration.getInstance(),new _NoStatistics())
         .addMockedMethod("getRelsExt")
         .createMock();
 
@@ -87,7 +139,7 @@ public class ConsistencyTest {
     @Test
     public void shouldFailProcess() throws IOException, ProcessSubtreeException, LexerException, ParserConfigurationException, SAXException {
         FedoraAccess fa = createMockBuilder(FedoraAccessImpl.class)
-        .withConstructor(KConfiguration.getInstance(), null)
+        .withConstructor(KConfiguration.getInstance(), new _NoStatistics())
         .addMockedMethod("getRelsExt")
         .createMock();
 
