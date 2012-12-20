@@ -37,7 +37,7 @@ public class FedoraOperations {
     UTFSort utf_sort;
 
     public FedoraOperations() throws Exception {
-        fa = new FedoraAccessImpl(KConfiguration.getInstance());
+        fa = new FedoraAccessImpl(KConfiguration.getInstance(),null);
         foxmlFormat = KConfiguration.getInstance().getConfiguration().getString("FOXMLFormat");
         utf_sort = new UTFSort();
         utf_sort.init();
