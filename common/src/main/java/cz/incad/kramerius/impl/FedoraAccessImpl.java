@@ -85,6 +85,7 @@ import cz.incad.kramerius.utils.pid.PIDParser;
 
 /**
  * Default implementation of fedoraAccess
+ *
  * @see FedoraAccess
  * @author pavels
  */
@@ -92,10 +93,8 @@ public class FedoraAccessImpl implements FedoraAccess {
 
     public static final java.util.logging.Logger LOGGER = java.util.logging.Logger.getLogger(FedoraAccessImpl.class.getName());
     private final KConfiguration configuration;
-
     private String fedoraVersion;
     private StringTemplateGroup xpaths;
-    
     private XPathFactory xPathFactory;
     
     private StatisticsAccessLog accessLog;
@@ -112,16 +111,12 @@ public class FedoraAccessImpl implements FedoraAccess {
         this.accessLog = accessLog;
     }
 
-    
-
     @Override
     public List<Element> getPages(String pid, boolean deep) throws IOException {
         Document relsExt = getRelsExt(pid);
         return getPages(pid, relsExt.getDocumentElement());
     }
 
-    
-    
     @Override
     public String getKrameriusModelName(Document relsExt) throws IOException {
         try {
@@ -168,16 +163,12 @@ public class FedoraAccessImpl implements FedoraAccess {
         }
     }
 
-
     private String makeSureObjectPid(String pid) throws LexerException {
         PIDParser pidParser = new PIDParser(pid);
         pidParser.objectPid();
         String sureObjectPid = pidParser.isPagePid() ? pidParser.getParentObjectPid() : pidParser.getObjectPid();
         return sureObjectPid;
     }
-
-    
-
 
     @Override
     public List<String> getModelsOfRel(Document relsExt) {
@@ -198,7 +189,6 @@ public class FedoraAccessImpl implements FedoraAccess {
             throw new IllegalArgumentException(e);
         }
     }
-
 
     @Override
     public List<String> getModelsOfRel(String pid) throws IOException {
@@ -270,34 +260,30 @@ public class FedoraAccessImpl implements FedoraAccess {
             throw new IOException(e);
         }
     }
-    
+
     @Override
-    public String findFirstViewablePid(String pid) throws IOException{
+    public String findFirstViewablePid(String pid) throws IOException {
         final List<String> foundPids = new ArrayList<String>();
         try {
             processSubtree(makeSureObjectPid(pid), new TreeNodeProcessor() {
-                
                 boolean breakProcess = false;
                 int previousLevel = 0;
-                
 
                 @Override
                 public boolean breakProcessing(String pid, int level) {
                     return breakProcess;
                 }
 
-                
                 @Override
                 public boolean skipBranch(String pid, int level) {
                     return false;
                 }
 
-
                 @Override
                 public void process(String pid, int level) throws ProcessSubtreeException {
                     try {
                         if (previousLevel < level || level == 0) {
-                            if(FedoraAccessImpl.this.isImageFULLAvailable(pid)) {
+                            if (FedoraAccessImpl.this.isImageFULLAvailable(pid)) {
                                 foundPids.add(pid);
                                 breakProcess = true;
                             }
@@ -311,7 +297,6 @@ public class FedoraAccessImpl implements FedoraAccess {
                         throw new ProcessSubtreeException(e);
                     }
                 }
-                
             });
         } catch (ProcessSubtreeException e) {
             throw new IOException(e);
@@ -323,33 +308,33 @@ public class FedoraAccessImpl implements FedoraAccess {
     }
 
     @Override
-    public boolean getFirstViewablePath(List<String> pids, List<String> models) throws IOException{
+    public boolean getFirstViewablePath(List<String> pids, List<String> models) throws IOException {
         try {
             String pid = pids.get(pids.size() - 1);
             pid = makeSureObjectPid(pid);
-            if(isImageFULLAvailable(pid)){
+            if (isImageFULLAvailable(pid)) {
                 return true;
             }
             Document relsExt = getRelsExt(pid);
             Element descEl = XMLUtils.findElement(relsExt.getDocumentElement(), "Description", FedoraNamespaces.RDF_NAMESPACE_URI);
             List<Element> els = XMLUtils.getElements(descEl);
-            for(Element el: els){
-                if (getTreePredicates().contains( el.getLocalName())) {
-                    if(el.hasAttribute("rdf:resource")){
+            for (Element el : els) {
+                if (getTreePredicates().contains(el.getLocalName())) {
+                    if (el.hasAttribute("rdf:resource")) {
                         pid = el.getAttributes().getNamedItem("rdf:resource").getNodeValue();
                         pids.add(pid);
                         models.add(getKrameriusModelName(pid));
                         //return getFirstViewablePath(pids, models);
                         boolean hit = getFirstViewablePath(pids, models);
-                        if(hit){
+                        if (hit) {
                             return true;
-                        }else{
+                        } else {
                             pids.remove(pids.size() - 1);
                             models.remove(pids.size() - 1);
                         }
                     }
                 }
-             }
+            }
             return false;
         } catch (DOMException e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
@@ -358,11 +343,8 @@ public class FedoraAccessImpl implements FedoraAccess {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
             throw new IOException(e);
         }
-        
+
     }
-
-
-
 
     @Override
     public List<Element> getPages(String pid, Element rootElementOfRelsExt)
@@ -394,7 +376,7 @@ public class FedoraAccessImpl implements FedoraAccess {
         } catch (LexerException e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
             throw new IOException(e);
-         }
+        }
     }
 
     @Override
@@ -420,7 +402,7 @@ public class FedoraAccessImpl implements FedoraAccess {
     public String getSmallThumbnailMimeType(String pid) throws IOException, XPathExpressionException {
         try {
             Document profileDoc = getSmallThumbnailProfile(makeSureObjectPid(pid));
-            return disectMimetypeFromProfile(profileDoc,getFedoraVersion());
+            return disectMimetypeFromProfile(profileDoc, getFedoraVersion());
         } catch (LexerException e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
             throw new IOException(e);
@@ -459,7 +441,7 @@ public class FedoraAccessImpl implements FedoraAccess {
     }
 
     @Override
-    public InputStream getFedoraDataStreamsList(String pid ) throws IOException {
+    public InputStream getFedoraDataStreamsList(String pid) throws IOException {
         try {
             HttpURLConnection con = (HttpURLConnection) openConnection(getFedoraDatastreamsList(configuration, makeSureObjectPid(pid)), configuration.getFedoraUser(), configuration.getFedoraPass());
             InputStream stream = con.getInputStream();
@@ -469,7 +451,21 @@ public class FedoraAccessImpl implements FedoraAccess {
             throw new IOException(e);
         }
     }
-    
+
+    @Override
+    public Document getFedoraDataStreamsListAsDocument(String pid) throws IOException {
+        try {
+            InputStream stream = getFedoraDataStreamsList(pid);
+            return XMLUtils.parseDocument(stream, true);
+        } catch (ParserConfigurationException e) {
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+            throw new IOException(e);
+        } catch (SAXException e) {
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+            throw new IOException(e);
+        }
+    }
+
     @Override
     public boolean isStreamAvailable(String pid, String streamName) throws IOException {
         try {
@@ -508,7 +504,7 @@ public class FedoraAccessImpl implements FedoraAccess {
     boolean disectDatastreamInListOfDatastreams(Document datastreams, String dsId, String fedoraVersion) throws XPathExpressionException, IOException {
         XPath xpath = this.xPathFactory.newXPath();
         xpath.setNamespaceContext(new FedoraNamespaceContext());
-        String templateName = "find_datastream"+FedoraUtils.getVersionCompatibilityPrefix(fedoraVersion);
+        String templateName = "find_datastream" + FedoraUtils.getVersionCompatibilityPrefix(fedoraVersion);
         StringTemplate xpathTemplate = xpaths.getInstanceOf(templateName);
         xpathTemplate.setAttribute("dsid", dsId);
         String xpathStringExp = xpathTemplate.toString();
@@ -523,7 +519,7 @@ public class FedoraAccessImpl implements FedoraAccess {
         XPath xpath = factory.newXPath();
         xpath.setNamespaceContext(new FedoraNamespaceContext());
 
-        String templateName = "find_mimetype"+FedoraUtils.getVersionCompatibilityPrefix(fedoraVersion);
+        String templateName = "find_mimetype" + FedoraUtils.getVersionCompatibilityPrefix(fedoraVersion);
         StringTemplate xpathTemplate = xpaths.getInstanceOf(templateName);
         String xpathStringExp = xpathTemplate.toString();
         XPathExpression expr = xpath.compile(xpathStringExp);
@@ -539,7 +535,6 @@ public class FedoraAccessImpl implements FedoraAccess {
         }
         return null;
     }
-
 
     @Override
     public Document getImageFULLProfile(String pid) throws IOException {
@@ -562,6 +557,7 @@ public class FedoraAccessImpl implements FedoraAccess {
 
     /**
      * Utility method which returns profile URL for IMG_FULL
+     *
      * @param configuration K4 configuration
      * @param pid requested pid
      * @return URL for IMG _FULL profile
@@ -572,16 +568,18 @@ public class FedoraAccessImpl implements FedoraAccess {
 
     /**
      * Utility method which returns profile URL for IMG_THUMB
+     *
      * @param configuration K4 configuration
      * @param pid Requested pid
      * @return URL for IMG _THUMB profile
      */
     public static String thumbImageProfile(KConfiguration configuration, String pid) {
-        return dsProfile(configuration, FedoraUtils.IMG_THUMB_STREAM , pid);
+        return dsProfile(configuration, FedoraUtils.IMG_THUMB_STREAM, pid);
     }
 
     /**
      * Utility method which returns profile URL for DC
+     *
      * @param configuration K4 configuration
      * @param pid Requested pid
      * @return URL for DC profile
@@ -592,16 +590,18 @@ public class FedoraAccessImpl implements FedoraAccess {
 
     /**
      * Utility method which returns profile URL for BIBLIO_MODS
+     *
      * @param configuration K4 configuration
      * @param pid Requested pid
      * @return URL for BIBLIO_MODS profile
      */
     public static String biblioModsProfile(KConfiguration configuration, String pid) {
-        return dsProfile(configuration, FedoraUtils.BIBLIO_MODS_STREAM , pid);
+        return dsProfile(configuration, FedoraUtils.BIBLIO_MODS_STREAM, pid);
     }
 
     /**
      * Utility method which returns profile URL for RELS_EXT
+     *
      * @param configuration K4 configuration
      * @param pid Requested pid
      * @return URL for RELS_EXT profile
@@ -612,17 +612,20 @@ public class FedoraAccessImpl implements FedoraAccess {
 
     /**
      * Utility method which returns object's profile URL for given pid
+     *
      * @param configuration K4 configuration
      * @param pid Requested pid
      * @return URL for object's profile
      */
-    public static String profile(KConfiguration configuration,  String pid) {
+    public static String profile(KConfiguration configuration, String pid) {
         String fedoraObject = configuration.getFedoraHost() + "/objects/" + pid;
         return fedoraObject + "?format=text/xml";
     }
 
     /**
-     * Utility method which returns data stream's profile URL for given pid and stream name
+     * Utility method which returns data stream's profile URL for given pid and
+     * stream name
+     *
      * @param configuration K4 configuration
      * @param pid Requested pid
      * @param ds Data stream name
@@ -634,7 +637,9 @@ public class FedoraAccessImpl implements FedoraAccess {
     }
 
     /**
-     * Utility method which returns data stream's profile URL for given pid and stream name
+     * Utility method which returns data stream's profile URL for given pid and
+     * stream name
+     *
      * @param configuration K4 configuration
      * @param pid Requested pid
      * @param ds Data stream name
@@ -648,6 +653,7 @@ public class FedoraAccessImpl implements FedoraAccess {
 
     /**
      * Utility method which returns BIBLIO_MODS's URL for given pid
+     *
      * @param configuration K4 configuration
      * @param pid Requested PID
      * @return URL for BIBLIO_MODS
@@ -659,6 +665,7 @@ public class FedoraAccessImpl implements FedoraAccess {
 
     /**
      * Utility method which returns DC's URL for given pid
+     *
      * @param configuration K4 configuration
      * @param pid Requested PID
      * @return URL for DC
@@ -670,12 +677,13 @@ public class FedoraAccessImpl implements FedoraAccess {
 
     /**
      * Utility method which returns RELS_EXT's URL for given pid
+     *
      * @param configuration K4 configuration
      * @param pid Requested PID
      * @return URL for RELS_EXT
      */
     public static String relsExtUrl(KConfiguration configuration, String pid) {
-        String url = configuration.getFedoraHost() + "/get/" + pid + "/"+FedoraUtils.RELS_EXT_STREAM;
+        String url = configuration.getFedoraHost() + "/get/" + pid + "/" + FedoraUtils.RELS_EXT_STREAM;
         return url;
     }
     private FedoraAPIM APIMport;
@@ -719,7 +727,7 @@ public class FedoraAccessImpl implements FedoraAccess {
         connectFedora((BindingProvider) APIMport,
                 KConfiguration.getInstance().getFedoraHost() + "/services/management");
     }
-    
+
     private static void connectFedora(BindingProvider portBinding, String endpointAddress) {
         final String user = KConfiguration.getInstance().getFedoraUser();
         final String pwd = KConfiguration.getInstance().getFedoraPass();
@@ -728,15 +736,15 @@ public class FedoraAccessImpl implements FedoraAccess {
         context.put(BindingProvider.USERNAME_PROPERTY, user);
         context.put(BindingProvider.PASSWORD_PROPERTY, pwd);
     }
-    
+
     /*
-    private List<String> treePredicates = Arrays.asList(new String[]{
-    "http://www.nsdl.org/ontologies/relationships#hasPage",
-    "http://www.nsdl.org/ontologies/relationships#hasPart",
-    "http://www.nsdl.org/ontologies/relationships#hasVolume",
-    "http://www.nsdl.org/ontologies/relationships#hasItem",
-    "http://www.nsdl.org/ontologies/relationships#hasUnit"
-    });
+     private List<String> treePredicates = Arrays.asList(new String[]{
+     "http://www.nsdl.org/ontologies/relationships#hasPage",
+     "http://www.nsdl.org/ontologies/relationships#hasPart",
+     "http://www.nsdl.org/ontologies/relationships#hasVolume",
+     "http://www.nsdl.org/ontologies/relationships#hasItem",
+     "http://www.nsdl.org/ontologies/relationships#hasUnit"
+     });
      */
 //    private ArrayList<String> treePredicates;
 //
@@ -753,7 +761,6 @@ public class FedoraAccessImpl implements FedoraAccess {
 //        }
 //        return treePredicates;
 //    }
-    
     private List<String> getTreePredicates() {
         return Arrays.asList(KConfiguration.getInstance().getPropertyList("fedora.treePredicates"));
     }
@@ -763,12 +770,12 @@ public class FedoraAccessImpl implements FedoraAccess {
         try {
             pid = makeSureObjectPid(pid);
             Document relsExt = null;
-            try{
+            try {
                 relsExt = getRelsExt(pid);
-            }catch (Exception ex){
-                LOGGER.warning("could not read root RELS-EXT, skipping object  ("+pid+"):"+ex);
+            } catch (Exception ex) {
+                LOGGER.warning("could not read root RELS-EXT, skipping object  (" + pid + "):" + ex);
             }
-            processSubtreeInternal(pid, relsExt, processor,0, new Stack<String>());
+            processSubtreeInternal(pid, relsExt, processor, 0, new Stack<String>());
         } catch (LexerException e) {
             throw new ProcessSubtreeException(e);
         } catch (XPathExpressionException e) {
@@ -776,12 +783,15 @@ public class FedoraAccessImpl implements FedoraAccess {
         }
     }
 
-    
     boolean processSubtreeInternal(String pid, Document relsExt, TreeNodeProcessor processor, int level, Stack<String> pidStack) throws XPathExpressionException, LexerException, IOException, ProcessSubtreeException {
         processor.process(pid, level);
-        boolean breakProcessing = processor.breakProcessing(pid,level);
-        if (breakProcessing) return breakProcessing;
-        if (relsExt == null) return false; 
+        boolean breakProcessing = processor.breakProcessing(pid, level);
+        if (breakProcessing) {
+            return breakProcessing;
+        }
+        if (relsExt == null) {
+            return false;
+        }
         XPathFactory factory = this.xPathFactory;
         XPath xpath = factory.newXPath();
         xpath.setNamespaceContext(new FedoraNamespaceContext());
@@ -789,13 +799,13 @@ public class FedoraAccessImpl implements FedoraAccess {
         NodeList nodes = (NodeList) expr.evaluate(relsExt, XPathConstants.NODESET);
         pidStack.push(pid);
         changeStack(processor, pidStack);
-        for (int i = 0,ll=nodes.getLength(); i < ll; i++) {
+        for (int i = 0, ll = nodes.getLength(); i < ll; i++) {
             Node node = nodes.item(i);
             if (node.getNodeType() == Node.ELEMENT_NODE) {
                 Element iteratingElm = (Element) node;
                 String namespaceURI = iteratingElm.getNamespaceURI();
-                if (namespaceURI != null && (namespaceURI.equals(FedoraNamespaces.ONTOLOGY_RELATIONSHIP_NAMESPACE_URI)  || 
-                    namespaceURI.equals(FedoraNamespaces.RDF_NAMESPACE_URI))) {
+                if (namespaceURI != null && (namespaceURI.equals(FedoraNamespaces.ONTOLOGY_RELATIONSHIP_NAMESPACE_URI)
+                        || namespaceURI.equals(FedoraNamespaces.RDF_NAMESPACE_URI))) {
                     String attVal = iteratingElm.getAttributeNS(FedoraNamespaces.RDF_NAMESPACE_URI, "resource");
                     if (!attVal.trim().equals("")) {
                         PIDParser pidParser = new PIDParser(attVal);
@@ -804,26 +814,30 @@ public class FedoraAccessImpl implements FedoraAccess {
                         if (pidParser.getNamespaceId().equals("uuid")) {
                             StringBuffer buffer = new StringBuffer();
                             {   // debug print
-                                for (int k = 0; k < level; k++) { buffer.append(" "); }
-                                LOGGER.fine(buffer.toString()+" processing pid [" +attVal+"]");
+                                for (int k = 0; k < level; k++) {
+                                    buffer.append(" ");
+                                }
+                                LOGGER.fine(buffer.toString() + " processing pid [" + attVal + "]");
                             }
-                            if (!processor.skipBranch(objectId, level+1)) {
+                            if (!processor.skipBranch(objectId, level + 1)) {
                                 Document iterationgRelsExt = null;
 
-                                try{
+                                try {
                                     iterationgRelsExt = getRelsExt(objectId);
-                                }catch (Exception ex){
-                                    LOGGER.warning("could not read RELS-EXT, skipping branch [" +(level+1)+"] and pid ("+objectId+"):"+ex);
+                                } catch (Exception ex) {
+                                    LOGGER.warning("could not read RELS-EXT, skipping branch [" + (level + 1) + "] and pid (" + objectId + "):" + ex);
                                 }
                                 breakProcessing = processSubtreeInternal(pidParser.getObjectPid(), iterationgRelsExt, processor, level + 1, pidStack);
 
-                                if (breakProcessing) break;
+                                if (breakProcessing) {
+                                    break;
+                                }
                             } else {
-                                LOGGER.fine("skipping branch [" +(level+1)+"] and pid ("+objectId+")");
+                                LOGGER.fine("skipping branch [" + (level + 1) + "] and pid (" + objectId + ")");
                             }
                         }
                     }
-                    
+
                 }
             }
         }
@@ -838,15 +852,12 @@ public class FedoraAccessImpl implements FedoraAccess {
             stackAware.changeProcessingStack(pidStack);
         }
     }
-    
-    
 
     @Override
     public Set<String> getPids(String pid) throws IOException {
         final Set<String> retval = new HashSet<String>();
         try {
             processSubtree(pid, new TreeNodeProcessor() {
-
                 @Override
                 public void process(String pid, int level) {
                     retval.add(pid);
@@ -888,6 +899,37 @@ public class FedoraAccessImpl implements FedoraAccess {
         }
     }
 
+    @Override
+    public InputStream getDataStreamXml(String pid, String datastreamName) throws IOException {
+        try {
+            pid = makeSureObjectPid(pid);
+            String datastream = configuration.getFedoraHost() + "/objects/" + pid + "/datastreams/" + datastreamName + "?format=xml";
+            HttpURLConnection con = (HttpURLConnection) openConnection(datastream, configuration.getFedoraUser(), configuration.getFedoraPass());
+            con.connect();
+            if (con.getResponseCode() == HttpURLConnection.HTTP_OK) {
+                InputStream thumbInputStream = con.getInputStream();
+                return thumbInputStream;
+            }
+            throw new FileNotFoundException(datastream);
+        } catch (LexerException e) {
+            throw new IOException(e);
+        }
+    }
+
+    @Override
+    public Document getDataStreamXmlAsDocument(String pid, String datastreamName) throws IOException {
+        try {
+            InputStream stream = getDataStreamXml(pid, datastreamName);
+            return XMLUtils.parseDocument(stream, true);
+        } catch (ParserConfigurationException e) {
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+            throw new IOException(e);
+        } catch (SAXException e) {
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+            throw new IOException(e);
+        }
+    }
+
     public InputStream getDsProfileForPIDStream(String pid, String streamName) throws MalformedURLException, IOException {
         try {
             pid = makeSureObjectPid(pid);
@@ -899,8 +941,6 @@ public class FedoraAccessImpl implements FedoraAccess {
         }
     }
 
-    
-    
     @Override
     public String getMimeTypeForStream(String pid, String datastreamName) throws IOException {
         try {
@@ -932,16 +972,14 @@ public class FedoraAccessImpl implements FedoraAccess {
         }
     }
 
-
     @Override
     public String getFullThumbnailMimeType(String pid) throws IOException,
             XPathExpressionException {
         throw new UnsupportedOperationException("");
     }
 
-
     @Override
-    public Document getObjectProfile(String pid) throws  IOException {
+    public Document getObjectProfile(String pid) throws IOException {
         try {
             HttpURLConnection con = (HttpURLConnection) openConnection(profile(configuration, pid), configuration.getFedoraUser(), configuration.getFedoraPass());
             con.connect();
@@ -952,14 +990,14 @@ public class FedoraAccessImpl implements FedoraAccess {
                 throw new IOException("404");
             }
         } catch (ParserConfigurationException e) {
-            LOGGER.log(Level.SEVERE, e.getMessage(),e);
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
             throw new IOException(e);
         } catch (SAXException e) {
-            LOGGER.log(Level.SEVERE, e.getMessage(),e);
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
             throw new IOException(e);
         }
     }
-    
+
     @Override
     public Document getStreamProfile(String pid, String stream) throws IOException {
         try {
@@ -972,10 +1010,10 @@ public class FedoraAccessImpl implements FedoraAccess {
                 throw new IOException("404");
             }
         } catch (ParserConfigurationException e) {
-            LOGGER.log(Level.SEVERE, e.getMessage(),e);
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
             throw new IOException(e);
         } catch (SAXException e) {
-            LOGGER.log(Level.SEVERE, e.getMessage(),e);
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
             throw new IOException(e);
         }
 
@@ -991,7 +1029,7 @@ public class FedoraAccessImpl implements FedoraAccess {
             throw new IOException("404");
         }
     }
-    
+
     @Override
     public String getFedoraVersion() throws IOException {
         if (fedoraVersion == null) {
@@ -1008,13 +1046,13 @@ public class FedoraAccessImpl implements FedoraAccess {
         return fedoraVersion;
     }
 
-    public String  disectFedoraVersionFromStream(InputStream stream) throws ParserConfigurationException, SAXException, IOException, XPathExpressionException {
+    public String disectFedoraVersionFromStream(InputStream stream) throws ParserConfigurationException, SAXException, IOException, XPathExpressionException {
         // do not use namespaces
         Document parseDocument = XMLUtils.parseDocument(stream, false);
         XPathFactory factory = this.xPathFactory;
         XPath xpath = factory.newXPath();
         XPathExpression expr = xpath.compile("/fedoraRepository/repositoryVersion/text()");
         Node oneNode = (Node) expr.evaluate(parseDocument, XPathConstants.NODE);
-        return (oneNode != null && oneNode.getNodeType() == Node.TEXT_NODE) ? ((Text)oneNode).getData() : "";
+        return (oneNode != null && oneNode.getNodeType() == Node.TEXT_NODE) ? ((Text) oneNode).getData() : "";
     }
 }

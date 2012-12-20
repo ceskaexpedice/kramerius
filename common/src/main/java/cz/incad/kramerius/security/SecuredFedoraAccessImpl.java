@@ -16,11 +16,8 @@
  */
 package cz.incad.kramerius.security;
 
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
@@ -47,16 +44,17 @@ import cz.incad.kramerius.utils.FedoraUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 
 /**
- * This is secured variant of class FedoraAccessImpl {@link FedoraAccessImpl}. <br>
- * 
+ * This is secured variant of class FedoraAccessImpl {@link FedoraAccessImpl}.
+ * <br>
+ *
  * @author pavels
  */
 public class SecuredFedoraAccessImpl implements FedoraAccess {
 
+    public static final java.util.logging.Logger LOGGER = java.util.logging.Logger.getLogger(SecuredFedoraAccessImpl.class.getName());
     private FedoraAccess rawAccess;
     private IsActionAllowed isActionAllowed;
     private SolrAccess solrAccess;
-    
     private DiscStrucutreForStore discStrucutreForStore;
 
     @Inject
@@ -68,22 +66,27 @@ public class SecuredFedoraAccessImpl implements FedoraAccess {
         this.isActionAllowed = actionAllowed;
     }
 
+    @Override
     public Document getBiblioMods(String pid) throws IOException {
         return rawAccess.getBiblioMods(pid);
     }
 
+    @Override
     public Document getDC(String pid) throws IOException {
         return rawAccess.getDC(pid);
     }
 
+    @Override
     public String findFirstViewablePid(String pid) throws IOException {
         return rawAccess.findFirstViewablePid(pid);
     }
 
-    public boolean getFirstViewablePath(List<String> pids, List<String> models) throws IOException{
+    @Override
+    public boolean getFirstViewablePath(List<String> pids, List<String> models) throws IOException {
         return rawAccess.getFirstViewablePath(pids, models);
     }
 
+    @Override
     public InputStream getImageFULL(String pid) throws IOException {
 
         ObjectPidsPath[] paths = this.solrAccess.getPath(pid);
@@ -93,59 +96,70 @@ public class SecuredFedoraAccessImpl implements FedoraAccess {
             }
         }
         throw new SecurityException("access denided");
-        
+
     }
 
-
+    @Override
     public String getImageFULLMimeType(String pid) throws IOException, XPathExpressionException {
         return rawAccess.getImageFULLMimeType(pid);
     }
 
+    @Override
     public Document getImageFULLProfile(String pid) throws IOException {
         return rawAccess.getImageFULLProfile(pid);
     }
 
-
-    public List<String> getModelsOfRel(Document relsExt){
+    @Override
+    public List<String> getModelsOfRel(Document relsExt) {
         return rawAccess.getModelsOfRel(relsExt);
     }
-    
-    public List<String> getModelsOfRel(String pid) throws IOException{
+
+    @Override
+    public List<String> getModelsOfRel(String pid) throws IOException {
         return rawAccess.getModelsOfRel(pid);
     }
 
+    @Override
     public String getDonator(Document relsExt) {
         return rawAccess.getDonator(relsExt);
     }
 
+    @Override
     public String getDonator(String pid) throws IOException {
         return rawAccess.getDonator(pid);
     }
 
+    @Override
     public List<Element> getPages(String pid, boolean deep) throws IOException {
         return rawAccess.getPages(pid, deep);
     }
 
+    @Override
     public List<Element> getPages(String pid, Element rootElementOfRelsExt) throws IOException {
         return rawAccess.getPages(pid, rootElementOfRelsExt);
     }
 
+    @Override
     public Document getRelsExt(String pid) throws IOException {
         return rawAccess.getRelsExt(pid);
     }
 
+    @Override
     public InputStream getSmallThumbnail(String pid) throws IOException {
         return rawAccess.getSmallThumbnail(pid);
     }
 
+    @Override
     public String getSmallThumbnailMimeType(String pid) throws IOException, XPathExpressionException {
         return rawAccess.getSmallThumbnailMimeType(pid);
     }
 
+    @Override
     public Document getSmallThumbnailProfile(String pid) throws IOException {
         return rawAccess.getSmallThumbnailProfile(pid);
     }
 
+    @Override
     public boolean isImageFULLAvailable(String pid) throws IOException {
         // not checked method
         return rawAccess.isImageFULLAvailable(pid);
@@ -162,55 +176,56 @@ public class SecuredFedoraAccessImpl implements FedoraAccess {
         return false;
     }
 
-
-
+    @Override
     public FedoraAPIA getAPIA() {
         return rawAccess.getAPIA();
     }
 
+    @Override
     public FedoraAPIM getAPIM() {
         return rawAccess.getAPIM();
     }
 
+    @Override
     public ObjectFactory getObjectFactory() {
         return rawAccess.getObjectFactory();
     }
 
+    @Override
     public void processSubtree(String pid, TreeNodeProcessor processor) throws ProcessSubtreeException, IOException {
         rawAccess.processSubtree(pid, processor);
     }
 
+    @Override
     public Set<String> getPids(String pid) throws IOException {
         return rawAccess.getPids(pid);
     }
 
-    
-    
     static boolean isDefaultSecuredStream(String streamName) {
-        return FedoraUtils.IMG_FULL_STREAM.equals(streamName) || 
-            FedoraUtils.IMG_PREVIEW_STREAM.equals(streamName) || 
-            FedoraUtils.TEXT_OCR_STREAM.equals(streamName);
+        return FedoraUtils.IMG_FULL_STREAM.equals(streamName)
+                || FedoraUtils.IMG_PREVIEW_STREAM.equals(streamName)
+                || FedoraUtils.TEXT_OCR_STREAM.equals(streamName);
     }
 
-    
+    @Override
     public InputStream getDataStream(String pid, String datastreamName) throws IOException {
         if (isDefaultSecuredStream(datastreamName)) {
             ObjectPidsPath[] paths = this.solrAccess.getPath(pid);
             for (int i = 0; i < paths.length; i++) {
-                if (this.isActionAllowed.isActionAllowed(SecuredActions.READ.getFormalName(), pid, datastreamName, paths[i])) { 
+                if (this.isActionAllowed.isActionAllowed(SecuredActions.READ.getFormalName(), pid, datastreamName, paths[i])) {
                     return rawAccess.getDataStream(pid, datastreamName);
-                } 
+                }
             }
             throw new SecurityException("access denided");
         } else {
             String[] securedStreamsExtension = KConfiguration.getInstance().getSecuredAditionalStreams();
             int indexOf = Arrays.asList(securedStreamsExtension).indexOf(datastreamName);
             if (indexOf >= 0) {
-                ObjectPidsPath[] paths = this.solrAccess.getPath(pid+"/"+datastreamName);
+                ObjectPidsPath[] paths = this.solrAccess.getPath(pid + "/" + datastreamName);
                 for (int i = 0; i < paths.length; i++) {
-                    if (this.isActionAllowed.isActionAllowed(SecuredActions.READ.getFormalName(), pid, datastreamName, paths[i])) { 
+                    if (this.isActionAllowed.isActionAllowed(SecuredActions.READ.getFormalName(), pid, datastreamName, paths[i])) {
                         return rawAccess.getDataStream(pid, datastreamName);
-                    } 
+                    }
                 }
                 throw new SecurityException("access denided");
             } else {
@@ -219,15 +234,22 @@ public class SecuredFedoraAccessImpl implements FedoraAccess {
         }
     }
 
-    
-    
+    @Override
+    public InputStream getDataStreamXml(String pid, String datastreamName) throws IOException {
+        return rawAccess.getDataStreamXml(pid, datastreamName);
+    }
+
+    @Override
+    public Document getDataStreamXmlAsDocument(String pid, String datastreamName) throws IOException {
+        return rawAccess.getDataStreamXmlAsDocument(pid, datastreamName);
+    }
+
     @Override
     public boolean isStreamAvailable(String pid, String streamName) throws IOException {
         return this.rawAccess.isStreamAvailable(pid, streamName);
     }
-    
-    
 
+    @Override
     public String getMimeTypeForStream(String pid, String datastreamName) throws IOException {
         return rawAccess.getMimeTypeForStream(pid, datastreamName);
     }
@@ -238,22 +260,23 @@ public class SecuredFedoraAccessImpl implements FedoraAccess {
         ObjectPidsPath[] paths = this.solrAccess.getPath(pid);
         for (ObjectPidsPath path : paths) {
             if (this.isActionAllowed.isActionAllowed(SecuredActions.READ.getFormalName(), pid, FedoraUtils.IMG_PREVIEW_STREAM, path)) {
-                accessed  = true;
+                accessed = true;
                 break;
             }
         }
-        
+
         if (accessed) {
             if (this.isStreamAvailable(pid, FedoraUtils.IMG_PREVIEW_STREAM)) {
                 return rawAccess.getFullThumbnail(pid);
-            } else throw new IOException("preview not found");
+            } else {
+                throw new IOException("preview not found");
+            }
         } else {
             throw new SecurityException("access denided");
         }
-        
-        
-    }
 
+
+    }
 
     @Override
     public String getFullThumbnailMimeType(String pid) throws IOException, XPathExpressionException {
@@ -280,10 +303,12 @@ public class SecuredFedoraAccessImpl implements FedoraAccess {
         return rawAccess.getFedoraVersion();
     }
 
+    @Override
     public Document getStreamProfile(String pid, String stream) throws IOException {
         return rawAccess.getStreamProfile(pid, stream);
     }
 
+    @Override
     public Document getObjectProfile(String pid) throws IOException {
         return rawAccess.getObjectProfile(pid);
     }
@@ -292,6 +317,9 @@ public class SecuredFedoraAccessImpl implements FedoraAccess {
     public InputStream getFedoraDataStreamsList(String pid) throws IOException {
         return rawAccess.getFedoraDataStreamsList(pid);
     }
-    
-    
+
+    @Override
+    public Document getFedoraDataStreamsListAsDocument(String pid) throws IOException {
+        return rawAccess.getFedoraDataStreamsListAsDocument(pid);
+    }
 }

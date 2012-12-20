@@ -16,27 +16,22 @@
  */
 package cz.incad.kramerius;
 
+import cz.incad.kramerius.impl.FedoraAccessImpl;
+import cz.incad.kramerius.security.SecuredFedoraAccessImpl;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.MalformedURLException;
 import java.util.List;
 import java.util.Set;
-
 import javax.xml.xpath.XPathExpressionException;
-
 import org.fedora.api.FedoraAPIA;
 import org.fedora.api.FedoraAPIM;
 import org.fedora.api.ObjectFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
-import cz.incad.kramerius.impl.FedoraAccessImpl;
-import cz.incad.kramerius.security.SecuredFedoraAccessImpl;
-import cz.incad.kramerius.utils.imgs.KrameriusImageSupport;
-
 /**
  * This is main point to access to fedora through REST-API
- * 
+ *
  * @see FedoraAccessImpl
  * @see SecuredFedoraAccessImpl
  * @author pavels
@@ -45,9 +40,8 @@ public interface FedoraAccess {
 
     /**
      * Returns parsed RELS-EXT
-     * 
-     * @param pid
-     *            Object pid
+     *
+     * @param pid Object pid
      * @return parsed RELS-EXT
      * @throws IOException IO error has been occurred
      */
@@ -55,22 +49,21 @@ public interface FedoraAccess {
 
     /**
      * Returns model's name of given object relsext
+     *
      * @param relsExt parsed RELS-EXT stream
      * @return model's name
      * @throws IOException IO error has been occurred
      */
     public String getKrameriusModelName(Document relsExt) throws IOException;
-    
+
     /**
      * Returns model's name of given pid
+     *
      * @param pid Object's pid
-     * @return model's name 
+     * @return model's name
      * @throws IOException IO error has been occurred
      */
     public String getKrameriusModelName(String pid) throws IOException;
-    
-
-    
 
     /**
      * Returns models parsed from given document
@@ -88,28 +81,29 @@ public interface FedoraAccess {
      * @throws IOException IO error has been occurred
      */
     public List<String> getModelsOfRel(String pid) throws IOException;
-    
+
     /**
      * Returns Donator parsed from given document
-     * 
+     *
      * @param relsExt RELS-EXT document
-     * @return donator or empty string (if hasDonator relationship doesn't exist)
+     * @return donator or empty string (if hasDonator relationship doesn't
+     * exist)
      */
     public String getDonator(Document relsExt);
 
     /**
      * Returns Donator of given object
-     * 
+     *
      * @param pid Object's pid
-     * @return donator or empty string (if hasDonator relationship doesn't exist)
+     * @return donator or empty string (if hasDonator relationship doesn't
+     * exist)
      * @throws IOException IO error has been occurred
      */
     public String getDonator(String pid) throws IOException;
 
-
     /**
      * Return parsed biblio mods stream
-     * 
+     *
      * @param pid Object's pid
      * @return return biblio mods stream
      * @throws IOException IO erro has been occurred
@@ -118,25 +112,27 @@ public interface FedoraAccess {
 
     /**
      * Returns DC stream
-     * 
-     * @param pid Object's pid 
+     *
+     * @param pid Object's pid
      * @return parsed DC stream
      * @throws IOException IO erro has been occurred
      */
     public Document getDC(String pid) throws IOException;
 
-
     /**
-     * Returns pid of first document through rels-ext, which has IMG_FULL datastream
+     * Returns pid of first document through rels-ext, which has IMG_FULL
+     * datastream
+     *
      * @param pid Object's pid
      * @return first page pid
      * @throws IOException IO error has been occurred
      */
     public String findFirstViewablePid(String pid) throws IOException;
 
-
     /**
-     * Fill path of pids and models up to first document throw rels-ext, which has IMG_FULL datastream
+     * Fill path of pids and models up to first document throw rels-ext, which
+     * has IMG_FULL datastream
+     *
      * @param pids xxx
      * @param models xxx
      * @return true to stop recursion
@@ -145,12 +141,9 @@ public interface FedoraAccess {
     @Deprecated
     public boolean getFirstViewablePath(List<String> pids, List<String> models) throws IOException;
 
-    
-    
-
     /**
      * Parse, find and returns all pages
-     * 
+     *
      * @param pid Object's pid
      * @param deep if should go into deep
      * @return all pages
@@ -161,9 +154,9 @@ public interface FedoraAccess {
 
     /**
      * Find and returns all pages
-     * 
+     *
      * @param pid pid of object
-     * @param rootElementOfRelsExt  Root element of RelsExt
+     * @param rootElementOfRelsExt Root element of RelsExt
      * @return all pages
      * @throws IOException IO error has been occurred
      */
@@ -172,32 +165,36 @@ public interface FedoraAccess {
 
     /**
      * Returns input stream of thumbnail
-     * 
+     *
      * @param pid Object's pid
-     * @return IMG_THUMBs stream 
+     * @return IMG_THUMBs stream
      * @throws IOException IO error has been occurred
      */
     public InputStream getSmallThumbnail(String pid) throws IOException;
 
     /**
      * Returns profile for thumbnail
+     *
      * @param pid PID of requested object
-     * @return parsed profile 
+     * @return parsed profile
      * @throws IOException IO error has been occurred
      */
     Document getSmallThumbnailProfile(String pid) throws IOException;
 
     /**
      * Returns mime type of mime type
+     *
      * @param pid PID of requested object
-     * @return mime type 
+     * @return mime type
      * @throws IOException IO error has been occurred
-     * @throws XPathExpressionException Error during xpath evaluation has been occurred
+     * @throws XPathExpressionException Error during xpath evaluation has been
+     * occurred
      */
     public String getSmallThumbnailMimeType(String pid) throws IOException, XPathExpressionException;
 
     /**
      * Tests whether IMG_PREVIEW is available
+     *
      * @param pid PID of reqested object
      * @return true if IMG_PREVIEW is available
      * @throws IOException IO error has been occurred
@@ -206,25 +203,27 @@ public interface FedoraAccess {
 
     /**
      * Returns data of IMG_PREVIEW stream
+     *
      * @param pid PID of requested object
      * @return data of IMG_PREVIEW stream
      * @throws IOException IO error has been occurred
      */
     public InputStream getFullThumbnail(String pid) throws IOException;
 
-    
     /**
      * Returns mime type of requested IMG_PREVIEW
+     *
      * @param pid PID of reqested object
-     * @return mimetype 
-     * @throws IOException IO error has been occurred 
-     * @throws XPathExpressionException Error during xpath evaluation has been occurred
+     * @return mimetype
+     * @throws IOException IO error has been occurred
+     * @throws XPathExpressionException Error during xpath evaluation has been
+     * occurred
      */
     public String getFullThumbnailMimeType(String pid) throws IOException, XPathExpressionException;
 
     /**
-     * Returns data of  IMG_FULL stream
-     * 
+     * Returns data of IMG_FULL stream
+     *
      * @param pid Requested pid
      * @return IMG_FULL data
      * @throws IOException IO error has been occurred
@@ -233,36 +232,36 @@ public interface FedoraAccess {
 
     /**
      * Returns IMG_FULL profile
-     * 
+     *
      * @param pid Requested pid
-     * @return parsed profile 
+     * @return parsed profile
      * @throws IOException IO error has been occurred
      */
     public Document getImageFULLProfile(String pid) throws IOException;
 
     /**
      * Returns IMG_FULL mimetype
-     * 
+     *
      * @param pid Requested object
      * @return mime type
      * @throws IOException IO error has been occurred
-     * @throws XPathExpressionException Error during xpath evaluation has been occurred
+     * @throws XPathExpressionException Error during xpath evaluation has been
+     * occurred
      */
     public String getImageFULLMimeType(String pid) throws IOException, XPathExpressionException;
 
     /**
      * Check whether IMG_FULL is available, is present and accessible
-     * 
+     *
      * @param pid Requested object
      * @return true if IMG_FULL is available
      * @throws IOException IO error has been occurred
      */
     public boolean isImageFULLAvailable(String pid) throws IOException;
 
-    
     /**
      * Check whether stream is available, is present and accessible
-     * 
+     *
      * @param pid Requested object
      * @param streamName Stream name
      * @return true if stream is available
@@ -270,11 +269,9 @@ public interface FedoraAccess {
      */
     public boolean isStreamAvailable(String pid, String streamName) throws IOException;
 
-
-    
     /**
      * Checks whether content is acessiable
-     * 
+     *
      * @param pid Tested object
      * @return true if object is accessible
      * @throws IOException IO error has been occurred
@@ -283,24 +280,28 @@ public interface FedoraAccess {
 
     /**
      * Creates and returns API-A stub
+     *
      * @return API-A stub
      */
     public FedoraAPIA getAPIA();
 
     /**
      * Creates and returns API-M stub
+     *
      * @return API-M stub
      */
     public FedoraAPIM getAPIM();
 
     /**
      * Creates and returns objectFactory
+     *
      * @return {@link ObjectFactory}
      */
     public ObjectFactory getObjectFactory();
 
     /**
      * Process fedora object tree
+     *
      * @param pid PID of processing object
      * @param processor Processing tree handler (receives callbacks)
      * @throws ProcessSubtreeException Something happened during tree walking
@@ -310,6 +311,7 @@ public interface FedoraAccess {
 
     /**
      * Collects and returns subtree as one set
+     *
      * @param pid Root pid
      * @return all subtree as set
      * @throws IOException IO error has been occurred
@@ -317,37 +319,58 @@ public interface FedoraAccess {
     public Set<String> getPids(String pid) throws IOException;
 
     /**
-     * Returns data from datastream 
-     * @param pid pid of reqested object 
+     * Returns data from datastream
+     *
+     * @param pid pid of reqested object
      * @param datastreamName datastream name
      * @return data
      * @throws IOException IO error has been occurred
      */
     public InputStream getDataStream(String pid, String datastreamName) throws IOException;
 
-    
+    /**
+     * Returns xml containing datastream data
+     *
+     * @param pid pid of reqested object
+     * @param datastreamName datastream name
+     * @return datastream xml as stored in Fedora
+     * @throws IOException IO error has been occurred
+     */
+    public InputStream getDataStreamXml(String pid, String datastreamName) throws IOException;
+
+    /**
+     * Returns xml containing datastream data
+     *
+     * @param pid pid of reqested object
+     * @param datastreamName datastream name
+     * @return datastream xml as stored in Fedora
+     * @throws IOException IO error has been occurred
+     */
+    public Document getDataStreamXmlAsDocument(String pid, String datastreamName) throws IOException;
+
     /**
      * Returns mimeType of given datastream
+     *
      * @param pid pid of requested object
      * @param datastreamName Datastream name
-     * @return mimetype of datastream 
+     * @return mimetype of datastream
      * @throws IOException IO error has been occurred
      */
     public String getMimeTypeForStream(String pid, String datastreamName) throws IOException;
 
- 
     /**
      * Returns current version of fedora
-     * @return version 
-     * @throws IOException Cannot detect current version 
+     *
+     * @return version
+     * @throws IOException Cannot detect current version
      */
     public String getFedoraVersion() throws IOException;
 
-    
     /**
-     * Returns profile for stream 
+     * Returns profile for stream
+     *
      * @param pid Requested pid
-     * @param stream Requested stream 
+     * @param stream Requested stream
      * @return Parsed profile
      * @throws IOException IO error has been occurred
      */
@@ -355,19 +378,28 @@ public interface FedoraAccess {
 
     /**
      * Datastreams description document
+     *
      * @param pid PID of requested object
-     * @return Parsed profile 
+     * @return Parsed profile
      * @throws IOException IO error has been occurred
      */
     Document getObjectProfile(String pid) throws IOException;
 
-    
     /**
      * Returns document which describes datastrem of requested pid
+     *
      * @param pid requested pid
-     * @return returns list of datastreams 
-     * @throws IOException  IO error has been occurred
+     * @return returns list of datastreams
+     * @throws IOException IO error has been occurred
      */
-    InputStream getFedoraDataStreamsList(String pid ) throws IOException;
+    InputStream getFedoraDataStreamsList(String pid) throws IOException;
 
+    /**
+     * Returns document which describes datastrem of requested pid
+     *
+     * @param pid requested pid
+     * @return returns list of datastreams in document
+     * @throws IOException IO error has been occurred
+     */
+    Document getFedoraDataStreamsListAsDocument(String pid) throws IOException;
 }
