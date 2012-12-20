@@ -89,7 +89,17 @@
         <tr><td colspan="3"> <strong> <view:msg>statistics.report.exports</view:msg></strong></td></tr>    
         <tr>
             <td colspan="2"></td>
-            <td style="text-align: right;"><table><tr><td> <a href="#" class="buttons">CSV</a></td> <td> <a href="#" class="buttons">XSL</a></td> </tr></table></td>
+            <td style="text-align: right;">
+            <script type="text/javascript">
+             function _CSV() {
+                window.open('stats?format=CSV', '_blank');
+             }
+             function _XML() {
+                window.open('stats?format=XML', '_blank');
+             }
+             </script>
+            
+            <table><tr><td> <a href="javascript:_CSV();" class="buttons">CSV</a></td> <td> <a href="javascript:_XML();" class="buttons">XML</a></td> </tr></table></td>
         </tr>
 
         </tbody>

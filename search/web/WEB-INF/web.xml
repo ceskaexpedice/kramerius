@@ -233,6 +233,12 @@
         <servlet-class>cz.incad.Kramerius.FeedbackServlet</servlet-class>
     </servlet>
 
+    <!-- feedback servlet -->
+    <servlet>
+        <servlet-name>statisticExport</servlet-name>
+        <servlet-class>cz.incad.Kramerius.StatisticsExportServlet</servlet-class>
+    </servlet>
+
 
     <!-- captcha servlet -->
     <servlet>
@@ -427,6 +433,11 @@
     <servlet-mapping>
         <servlet-name>audioTracksServlet</servlet-name>
         <url-pattern>/audioTracks/*</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>statisticExport</servlet-name>
+        <url-pattern>/stats</url-pattern>
     </servlet-mapping>
 
 	
