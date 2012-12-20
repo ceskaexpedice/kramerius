@@ -22,6 +22,7 @@ import com.google.inject.Inject;
 
 import cz.incad.Kramerius.exts.menu.context.impl.AbstractContextMenuItem;
 import cz.incad.Kramerius.exts.menu.context.impl.adm.AdminContextMenuItem;
+import cz.incad.kramerius.security.SecuredActions;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 
 /**
@@ -34,6 +35,13 @@ public class Editor extends AbstractContextMenuItem implements AdminContextMenuI
     @Override
     public String getRenderedItem() throws IOException {
         return super.renderContextMenuItem("javascript:openEditor('"+this.configuration.getEditorURL()+"');", "administrator.menu.editor");
+    }
+    
+    @Override
+    public boolean isRenderable() {
+        boolean flag =  super.isRenderable();
+        if (flag) return this.hasUserAllowedAction(SecuredActions.EDITOR.getFormalName());
+        return flag;
     }
 
     @Override

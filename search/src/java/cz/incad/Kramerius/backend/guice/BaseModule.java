@@ -9,9 +9,12 @@ import javax.servlet.jsp.jstl.fmt.LocalizationContext;
 import com.google.inject.AbstractModule;
 import com.google.inject.Provides;
 import com.google.inject.Scopes;
+import com.google.inject.multibindings.Multibinder;
 import com.google.inject.name.Named;
 import com.google.inject.name.Names;
 
+import cz.incad.Kramerius.exts.menu.main.MainMenuPart;
+import cz.incad.Kramerius.exts.menu.main.impl.pub.PublicMenuPartImpl;
 import cz.incad.kramerius.Constants;
 import cz.incad.kramerius.FedoraAccess;
 import cz.incad.kramerius.MostDesirable;
@@ -42,6 +45,12 @@ import cz.incad.kramerius.service.impl.GoogleAnalyticsImpl;
 import cz.incad.kramerius.service.impl.METSServiceImpl;
 import cz.incad.kramerius.service.impl.PolicyServiceImpl;
 import cz.incad.kramerius.service.impl.XSLServiceImpl;
+import cz.incad.kramerius.statistics.StatisticReport;
+import cz.incad.kramerius.statistics.StatisticsAccessLog;
+import cz.incad.kramerius.statistics.impl.AuthorReport;
+import cz.incad.kramerius.statistics.impl.DatabaseStatisticsAccessLogImpl;
+import cz.incad.kramerius.statistics.impl.DateDurationReport;
+import cz.incad.kramerius.statistics.impl.ModelStatisticReport;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 import cz.incad.kramerius.virtualcollections.VirtualCollection;
 
@@ -54,7 +63,13 @@ public class BaseModule extends AbstractModule {
     protected void configure() {
         bind(FedoraAccess.class).annotatedWith(Names.named("rawFedoraAccess")).to(FedoraAccessImpl.class).in(Scopes.SINGLETON);
         bind(FedoraAccess.class).annotatedWith(Names.named("securedFedoraAccess")).to(SecuredFedoraAccessImpl.class).in(Scopes.SINGLETON);
-
+        bind(StatisticsAccessLog.class).to(DatabaseStatisticsAccessLogImpl.class).in(Scopes.SINGLETON);
+        
+        Multibinder<StatisticReport> reports = Multibinder.newSetBinder(binder(), StatisticReport.class);
+        reports.addBinding().to(ModelStatisticReport.class);
+        reports.addBinding().to(DateDurationReport.class);
+        reports.addBinding().to(AuthorReport.class);
+        
         bind(SolrAccess.class).to(SolrAccessImpl.class).in(Scopes.SINGLETON);
 
         bind(METSService.class).to(METSServiceImpl.class);
@@ -67,7 +82,6 @@ public class BaseModule extends AbstractModule {
         bind(ProcessScheduler.class).to(ProcessSchedulerImpl.class).in(Scopes.SINGLETON);
         bind(GCScheduler.class).to(GCSchedulerImpl.class).in(Scopes.SINGLETON);
 
-
         // TODO: MOVE
         bind(LocalizationContext.class).toProvider(CustomLocalizedContextProvider.class);
 
@@ -76,10 +90,9 @@ public class BaseModule extends AbstractModule {
         bind(VirtualCollection.class).toProvider(VirtualCollectionProvider.class);
         bind(RelationService.class).to(RelationServiceImpl.class).in(Scopes.SINGLETON);
         bind(GoogleAnalytics.class).to(GoogleAnalyticsImpl.class).in(Scopes.SINGLETON);
-        
+
     }
-    
-    
+
     @Provides
     @Named("fontsDir")
     public File getProcessFontsFolder() {

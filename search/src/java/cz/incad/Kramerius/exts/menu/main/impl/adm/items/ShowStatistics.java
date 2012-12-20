@@ -14,37 +14,32 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
-package cz.incad.Kramerius.exts.menu.context.impl.adm.items;
+/**
+ * 
+ */
+package cz.incad.Kramerius.exts.menu.main.impl.adm.items;
 
 import java.io.IOException;
 
-import cz.incad.Kramerius.exts.menu.context.impl.AbstractContextMenuItem;
-import cz.incad.Kramerius.exts.menu.context.impl.adm.AdminContextMenuItem;
-import cz.incad.kramerius.security.SecuredActions;
+import cz.incad.Kramerius.exts.menu.main.impl.AbstractMainMenuItem;
+import cz.incad.Kramerius.exts.menu.main.impl.adm.AdminMenuItem;
 
 /**
- * Delete genrated deep zoom cache
  * @author pavels
  *
  */
-public class DeleteGeneratedDeepZoom extends AbstractContextMenuItem implements AdminContextMenuItem {
-    
-    @Override
-    public boolean isMultipleSelectSupported() {
-        return true;
-    }
-    
+public class ShowStatistics extends AbstractMainMenuItem implements AdminMenuItem {
+
     @Override
     public boolean isRenderable() {
-        boolean flag =  super.isRenderable();
-        if (flag) return this.hasUserAllowedAction(SecuredActions.MANAGE_LR_PROCESS.getFormalName());
-        return flag;
+        return true;
     }
-
-
 
     @Override
     public String getRenderedItem() throws IOException {
-        return super.renderContextMenuItem("javascript:deleteGeneratedDeepZoomTiles();", "administrator.menu.deleteGeneratedDeepZoomTiles");
+        return renderMainMenuItem(
+                "javascript:statistics.showDialog(); javascript:hideAdminMenu();",
+                "administrator.menu.dialogs.statistics.title", false);
     }
+
 }

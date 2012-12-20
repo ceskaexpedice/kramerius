@@ -30,6 +30,13 @@ public class ExportFoxml extends AbstractContextMenuItem implements AdminContext
         return true;
     }
 
+    @Override
+    public boolean isRenderable() {
+        boolean flag =  super.isRenderable();
+        if (flag) return this.hasUserAllowedPlanProcess("export");
+        return flag;
+    }
+
 
     @Override
     public String getRenderedItem() throws IOException {

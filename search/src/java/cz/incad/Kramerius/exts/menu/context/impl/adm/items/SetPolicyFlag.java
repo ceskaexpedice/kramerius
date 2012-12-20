@@ -31,6 +31,14 @@ public class SetPolicyFlag extends AbstractContextMenuItem implements AdminConte
     }
 
     @Override
+    public boolean isRenderable() {
+        boolean flag =  super.isRenderable();
+        if (flag) return (this.hasUserAllowedPlanProcess("setpublic") && this.hasUserAllowedPlanProcess("setprivate"));
+        return flag;
+    }
+
+    
+    @Override
     public boolean isMultipleSelectSupported() {
         return true;
     }

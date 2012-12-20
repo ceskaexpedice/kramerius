@@ -20,6 +20,7 @@ import java.io.IOException;
 
 import cz.incad.Kramerius.exts.menu.context.impl.AbstractContextMenuItem;
 import cz.incad.Kramerius.exts.menu.context.impl.adm.AdminContextMenuItem;
+import cz.incad.kramerius.security.SecuredActions;
 
 /**
  * Delete pid from fedora 
@@ -32,6 +33,17 @@ public class DeletePid extends AbstractContextMenuItem implements AdminContextMe
     public String getRenderedItem() throws IOException {
         return super.renderContextMenuItem("javascript:deletePid();", "administrator.menu.deleteuuid");
     }
+
+    
+    
+    @Override
+    public boolean isRenderable() {
+        boolean flag =  super.isRenderable();
+        if (flag) return this.hasUserAllowedPlanProcess("delete");
+        return flag;
+    }
+
+
 
     @Override
     public boolean isMultipleSelectSupported() {

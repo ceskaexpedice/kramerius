@@ -28,6 +28,9 @@ import com.google.inject.Inject;
 import com.google.inject.Provider;
 
 import cz.incad.Kramerius.exts.menu.context.ContextMenuItem;
+import cz.incad.Kramerius.exts.menu.utils.GlobalRightsUtils;
+import cz.incad.kramerius.processes.DefinitionManager;
+import cz.incad.kramerius.processes.LRProcessDefinition;
 import cz.incad.kramerius.service.ResourceBundleService;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 
@@ -52,6 +55,9 @@ public abstract class AbstractContextMenuItem implements ContextMenuItem {
     @Inject
     protected KConfiguration configuration;
 
+    @Inject
+    protected DefinitionManager definitionManager;
+    
     /**
      * Returns rendered html item chunk
      * @param href Javascript actions
@@ -78,5 +84,17 @@ public abstract class AbstractContextMenuItem implements ContextMenuItem {
     public boolean isRenderable() {
         return this.configuration.getConfiguration().getBoolean(this.getClass().getName()+".enabled",true);
     }
+    
+    protected boolean hasUserAllowedPlanProcess(String processDef) {
+        LRProcessDefinition lrProcess = definitionManager.getLongRunningProcessDefinition(processDef);
+        if (lrProcess != null && lrProcess.getSecuredAction() != null) return hasUserAllowedAction(lrProcess.getSecuredAction());
+        else return hasUserAllowedAction(processDef);
+    }
+    
+    protected boolean hasUserAllowedAction(String actionFormalName) {
+        HttpServletRequest request = this.requestProvider.get();
+        return GlobalRightsUtils.hasUserAllowedAction(actionFormalName, request);
+    }
+
 }
 

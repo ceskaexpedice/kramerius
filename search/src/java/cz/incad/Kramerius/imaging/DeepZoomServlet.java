@@ -137,8 +137,6 @@ public class DeepZoomServlet extends AbstractImageServlet {
         }
     }
     
-
-
 //    public IIPConfig getIIPConfig(String uuid) {
 //        try {
 //            String relsExtLiteral = getRelsExtTilesUrl(uuid);

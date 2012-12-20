@@ -32,6 +32,7 @@ import cz.incad.kramerius.service.ResourceBundleService;
 
 /**
  * Abstract main menu item
+ * 
  * @author pavels
  */
 public abstract class AbstractMainMenuItem implements MainMenuItem {
@@ -41,30 +42,29 @@ public abstract class AbstractMainMenuItem implements MainMenuItem {
 
     @Inject
     protected Provider<Locale> localesProvider;
-    
+
     @Inject
     protected Provider<HttpServletRequest> requestProvider;
-    
+
     @Inject
     protected DefinitionManager definitionManager;
-    
 
     protected boolean hasUserAllowedPlanProcess(String processDef) {
         LRProcessDefinition lrProcess = definitionManager.getLongRunningProcessDefinition(processDef);
-        if (lrProcess != null && lrProcess.getSecuredAction() != null) return hasUserAllowedAction(lrProcess.getSecuredAction());
-        else return hasUserAllowedAction(processDef);
+        if (lrProcess != null && lrProcess.getSecuredAction() != null)
+            return hasUserAllowedAction(lrProcess.getSecuredAction());
+        else
+            return hasUserAllowedAction(processDef);
     }
-    
+
     protected boolean hasUserAllowedAction(String actionFormalName) {
         HttpServletRequest request = this.requestProvider.get();
         return GlobalRightsUtils.hasUserAllowedAction(actionFormalName, request);
     }
 
-
     protected String renderMainMenuItem(String href, String labelKey, boolean newWindow) throws IOException {
         String label = this.resourceBundleService.getResourceBundle("labels", this.localesProvider.get()).getString(labelKey);
-        return String.format("<div align=\"left\"> <a href=\"%s\""+(newWindow?" target=\"_blank\"":"")+"> %s </a> </div>",
-                href, label);
+        return String.format("<div align=\"left\"> <a href=\"%s\"" + (newWindow ? " target=\"_blank\"" : "") + "> %s </a> </div>", href, label);
     }
-    
+
 }

@@ -20,6 +20,7 @@ import java.io.IOException;
 
 import cz.incad.Kramerius.exts.menu.context.impl.AbstractContextMenuItem;
 import cz.incad.Kramerius.exts.menu.context.impl.adm.AdminContextMenuItem;
+import cz.incad.kramerius.security.SecuredActions;
 
 public class GenerateDeepZoom extends AbstractContextMenuItem implements AdminContextMenuItem {
 
@@ -29,6 +30,13 @@ public class GenerateDeepZoom extends AbstractContextMenuItem implements AdminCo
     @Override
     public boolean isMultipleSelectSupported() {
         return true;
+    }
+
+    @Override
+    public boolean isRenderable() {
+        boolean flag =  super.isRenderable();
+        if (flag) return this.hasUserAllowedAction(SecuredActions.MANAGE_LR_PROCESS.getFormalName());
+        return flag;
     }
 
 

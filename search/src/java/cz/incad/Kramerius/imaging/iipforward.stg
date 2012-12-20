@@ -1,7 +1,16 @@
 group iipserver;
 
+/** DeepZoom url */
 ndzi(url) ::="$url$/deepzoom.dzi"
+
+/** Zoomify url */
+zoomify(url) ::="$url$/ImageProperties.xml"
+
+/** DeepZoom tile */
 ntile(url,level,tile) ::="$url$/deepzoom_files/$level$/$tile$"
+
+/** DeepZoom tile */
+zoomifytile(url,level,x,y,ext) ::="$url$/TileGroup0/$level$-$x$-$y$.$ext$"
 
 
 fileurl(dataPath, folderList,iipServer,extension) ::= <<

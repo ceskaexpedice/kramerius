@@ -33,6 +33,13 @@ public class DeleteFromIndex extends AbstractContextMenuItem implements AdminCon
     public String getRenderedItem() throws IOException {
         return super.renderContextMenuItem("javascript:deletefromindex();", "administrator.menu.deletefromindex");
     }
+    
+    @Override
+    public boolean isRenderable() {
+        boolean flag =  super.isRenderable();
+        if (flag) return this.hasUserAllowedPlanProcess("reindex");
+        return flag;
+    }
 
     @Override
     public boolean isMultipleSelectSupported() {

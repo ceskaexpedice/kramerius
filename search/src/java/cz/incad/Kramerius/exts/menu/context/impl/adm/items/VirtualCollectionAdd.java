@@ -32,6 +32,13 @@ public class VirtualCollectionAdd extends AbstractContextMenuItem implements Adm
         return true;
     }
 
+    @Override
+    public boolean isRenderable() {
+        boolean flag =  super.isRenderable();
+        if (flag) return this.hasUserAllowedPlanProcess("virtualcollections");
+        return flag;
+    }
+
 
     @Override
     public String getRenderedItem() throws IOException {

@@ -41,6 +41,7 @@ import cz.incad.Kramerius.exts.menu.main.impl.adm.items.ParametrizedK4Replicatio
 import cz.incad.Kramerius.exts.menu.main.impl.adm.items.ProcessesDialog;
 import cz.incad.Kramerius.exts.menu.main.impl.adm.items.ReplicationRights;
 import cz.incad.Kramerius.exts.menu.main.impl.adm.items.RolesEditor;
+import cz.incad.Kramerius.exts.menu.main.impl.adm.items.ShowStatistics;
 import cz.incad.Kramerius.exts.menu.main.impl.adm.items.UsersAdministration;
 import cz.incad.Kramerius.exts.menu.main.impl.adm.items.VirtualCollectionsAdministration;
 import cz.incad.Kramerius.exts.menu.main.impl.pub.PublicMainMenuItem;
@@ -103,6 +104,8 @@ public class MainMenuConfiguration extends AbstractModule {
         adminItems.addBinding().to(ParametrizedImport.class);
         adminItems.addBinding().to(NDKMetsImport.class);
         adminItems.addBinding().to(ParametrizedK4Replication.class);
+        
+        adminItems.addBinding().to(ShowStatistics.class);
         
         bind(MainMenu.class).to(MainMenuImpl.class);
     }

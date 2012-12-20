@@ -17,6 +17,8 @@
 package cz.incad.Kramerius.views.inc.details.tabs;
 
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Locale;
 import java.util.logging.Level;
 
@@ -27,6 +29,7 @@ import com.google.inject.Provider;
 
 import cz.incad.kramerius.service.ResourceBundleService;
 import cz.incad.kramerius.service.TextsService;
+import cz.incad.kramerius.utils.conf.KConfiguration;
 import cz.incad.kramerius.utils.pid.LexerException;
 import cz.incad.kramerius.utils.pid.PIDParser;
 
@@ -54,6 +57,9 @@ public class ImageViewObject {
     @Inject
     Provider<HttpServletRequest> requestProvider;
     
+    
+    @Inject
+    KConfiguration configuration;
     
     public String getNotAllowedMessageText() throws IOException {
         Locale locale = this.localeProvider.get();
@@ -83,6 +89,7 @@ public class ImageViewObject {
         return "";
     }
     
+    
     public boolean isPagePid() {
         try {
             String pidParam = this.requestProvider.get().getParameter(PID);
@@ -94,6 +101,49 @@ public class ImageViewObject {
         } catch (LexerException e) {
             LOGGER.log(Level.SEVERE, e.getMessage(),e);
             return false;
+        }
+    }
+    
+    
+    public ZoomViewer getZoomingViewer() {
+        // There are only two options :  zoomify and deepzoom
+        String zoomViewer = this.configuration.getConfiguration().getString("zoom.viewer", "zoomify");
+        return ZoomViewer.valueOf(zoomViewer);
+    }
+
+    public List<String> getScripturls() {
+        return getZoomingViewer().getScripturls();
+    }
+
+    public String getDivContainer() {
+        return getZoomingViewer().getDivContainer();
+    }
+    
+    static enum ZoomViewer {
+
+        zoomify(new String[] {"js/zoom/OpenLayers.js","js/zoom/zoomify.js"},"ol-wrapper"), 
+        deepzoom( new String[] {"js/zoom/deepzoom.js"}, "container");
+
+        private String[] scripturls;
+        private String divcontainer;
+        
+        private ZoomViewer(String[] scripturls, String divcontainer) {
+            this.scripturls = scripturls;
+            this.divcontainer = divcontainer;
+        }
+        
+        /**
+         * @return the scripturls
+         */
+        public List<String> getScripturls() {
+            return Arrays.asList(scripturls);
+        }
+        
+        /**
+         * @return the divcontainer
+         */
+        public String getDivContainer() {
+            return divcontainer;
         }
     }
 }
