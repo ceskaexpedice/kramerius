@@ -26,7 +26,7 @@
                     <tr>
 	                <td>${ga.formalName}</td>
                     <td>${ga.description}</td>
-                    <td><button type="button" onclick="globalActions.rigthsForAction('${ga.formalName}');">Editace</button></td>
+                    <td><button type="button" onclick="globalActions.rigthsForAction('${ga.formalName}');"><view:msg>common.edit</view:msg></button></td>
                     </tr>
 	            </c:forEach>
         </tbody>
