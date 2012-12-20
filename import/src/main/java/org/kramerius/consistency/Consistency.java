@@ -43,6 +43,7 @@ import cz.incad.kramerius.processes.annotations.Process;
 import cz.incad.kramerius.security.SpecialObjects;
 import cz.incad.kramerius.statistics.StatisticReport;
 import cz.incad.kramerius.statistics.StatisticsAccessLog;
+import cz.incad.kramerius.statistics.StatisticsAccessLogSupport;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 import cz.incad.kramerius.utils.pid.LexerException;
 import cz.incad.kramerius.utils.pid.PIDParser;
@@ -223,6 +224,13 @@ public class Consistency {
         public boolean isReportingAccess(String pid, String streamName) {
             return true;
         }
+
+        @Override
+        public void processAccessLog(StatisticsAccessLogSupport sup) {
+            // TODO Auto-generated method stub
+            
+        }
+        
         
     }
     
