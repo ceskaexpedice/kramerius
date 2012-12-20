@@ -59,7 +59,7 @@ public class ConsistencyTest {
     @Test
     public void shouldPassProcess() throws IOException, ProcessSubtreeException, LexerException, ParserConfigurationException, SAXException {
         FedoraAccess fa = createMockBuilder(FedoraAccessImpl.class)
-        .withConstructor(KConfiguration.getInstance())
+        .withConstructor(KConfiguration.getInstance(),null)
         .addMockedMethod("getRelsExt")
         .createMock();
 
