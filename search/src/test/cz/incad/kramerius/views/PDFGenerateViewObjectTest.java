@@ -162,8 +162,6 @@ public class PDFGenerateViewObjectTest  {
         
     }
 
-
-
     public Injector prepare(String[] processedPids) throws IOException, ParserConfigurationException, SAXException {
 
         Locale locale = Locale.getDefault();
@@ -258,6 +256,4 @@ public class PDFGenerateViewObjectTest  {
             return this.request;
         }
     }
-
-    
 }
