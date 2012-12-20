@@ -41,6 +41,8 @@ import cz.incad.kramerius.TreeNodeProcessor;
 import cz.incad.kramerius.impl.FedoraAccessImpl;
 import cz.incad.kramerius.processes.annotations.Process;
 import cz.incad.kramerius.security.SpecialObjects;
+import cz.incad.kramerius.statistics.StatisticReport;
+import cz.incad.kramerius.statistics.StatisticsAccessLog;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 import cz.incad.kramerius.utils.pid.LexerException;
 import cz.incad.kramerius.utils.pid.PIDParser;
@@ -72,7 +74,7 @@ public class Consistency {
         List<NotConsistentRelation> relations = deep.getRelations();
         if (repair) {
             port = fedoraAccess.getAPIM();
-            LOGGER.info("deleting inconsitencies");
+            LOGGER.fine("deleting inconsitencies");
             for (NotConsistentRelation nRelation : relations) {
                 List<String> children = nRelation.getChildren();
                 List<RelationshipTuple> existingWS = port.getRelationships(nRelation.getRootPid(), null);
@@ -81,7 +83,7 @@ public class Consistency {
                         PIDParser parser = new PIDParser(rTuple.getObject());
                         parser.disseminationURI();
                         if (children.contains(parser.getObjectPid())) {
-                            LOGGER.info("delete relationship "+rTuple.getSubject()+" "+rTuple.getPredicate()+" "+rTuple.getObject());
+                            LOGGER.fine("delete relationship "+rTuple.getSubject()+" "+rTuple.getPredicate()+" "+rTuple.getObject());
                             boolean purgeRelationship = port.purgeRelationship(rTuple.getSubject(), rTuple.getPredicate(), rTuple.getObject(), rTuple.isIsLiteral(), rTuple.getDatatype());
                             if (!purgeRelationship) throw new RuntimeException("cannot delete relation ");
                         }
@@ -111,7 +113,7 @@ public class Consistency {
 
         @Override
         public void process(String pid, int level) throws ProcessSubtreeException {
-            LOGGER.info("exploring '"+pid+"'");
+            LOGGER.fine("exploring '"+pid+"'");
         }
 
         @Override
@@ -196,7 +198,32 @@ public class Consistency {
         protected void configure() {
             bind(KConfiguration.class).toInstance(KConfiguration.getInstance());
             bind(FedoraAccess.class).to(FedoraAccessImpl.class).in(Scopes.SINGLETON);
+            bind(StatisticsAccessLog.class).to(NoStatistics.class).in(Scopes.SINGLETON);
         }
+    }
+    
+    public static class NoStatistics implements StatisticsAccessLog {
+
+        @Override
+        public StatisticReport[] getAllReports() {
+            return new StatisticReport[0];
+        }
+
+        @Override
+        public StatisticReport getReportById(String reportId) {
+            // TODO Auto-generated method stub
+            return null;
+        }
+
+        @Override
+        public void reportAccess(String pid, String streamName) throws IOException {
+        }
+
+        @Override
+        public boolean isReportingAccess(String pid, String streamName) {
+            return true;
+        }
+        
     }
     
     /**

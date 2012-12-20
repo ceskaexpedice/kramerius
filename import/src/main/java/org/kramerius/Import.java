@@ -147,7 +147,7 @@ public class Import {
 
         FedoraAccess fedoraAccess = null;
         try {
-            fedoraAccess = new FedoraAccessImpl(null);
+            fedoraAccess = new FedoraAccessImpl(null, null);
             log.info("Instantiated FedoraAccess");
         } catch (IOException e) {
             log.log(Level.SEVERE, "Cannot instantiate FedoraAccess", e);
