@@ -203,13 +203,20 @@ public class LongRunningProcessServlet extends GuiceServlet {
             public void doAction(ServletContext context, HttpServletRequest req, HttpServletResponse resp, DefinitionManager defManager, LRProcessManager lrProcessManager, UserManager userManager, Provider<User> userProvider, IsActionAllowed rightsResolver, LoggedUsersSingleton loggedUserSingleton, InputTemplateFactory iTemplateFactory, OutputTemplateFactory oTemplateFactory) {
                 try {
                     String def = req.getParameter("def");
+                    //String def, DefinitionManager definitionManager,
+                    defManager.load();
+             
+                    LRProcessDefinition definition = defManager.getLongRunningProcessDefinition(def);
+             
                     String out = req.getParameter("out");
                     String[] params = getParams(req);
                     //TODO: Zjisteni predavane autentizace 
-                    SecuredActions actionFromDef = SecuredActions.findByFormalName(def);
+                    SecuredActions actionFromDef = securedAction(def, definition);
+
                     String grpToken = req.getParameter(TOKEN_ATTRIBUTE_KEY);
                     String authToken = req.getHeader(AUTH_TOKEN_HEADER_KEY);
-                    String loggedUserKey = findLoggedUserKey(req, lrProcessManager, grpToken,userProvider);
+
+                    String loggedUserKey = findLoggedUserKey(req, lrProcessManager, grpToken, userProvider);
                     User user = loggedUserSingleton.getUser(loggedUserKey);
                     if (user == null) {
                         // no user
@@ -219,9 +226,6 @@ public class LongRunningProcessServlet extends GuiceServlet {
                     boolean permited = permitStart(rightsResolver, actionFromDef, user);
                     if (permited) {
                         
-                        //String def, DefinitionManager definitionManager,
-                        defManager.load();
-                        LRProcessDefinition definition = defManager.getLongRunningProcessDefinition(def);
 
                         if (definition == null) {
                             throw new RuntimeException("cannot find process definition '" + def + "'");
@@ -317,11 +321,24 @@ public class LongRunningProcessServlet extends GuiceServlet {
 
             @Override
             void doAction(ServletContext context, HttpServletRequest req, HttpServletResponse resp, DefinitionManager defManager, LRProcessManager processManager, UserManager userManager, Provider<User> userProvider, IsActionAllowed actionAllowed, LoggedUsersSingleton loggedUserSingleton, InputTemplateFactory iTemplateFactory, OutputTemplateFactory oTemplateFactory) {
-                if (actionAllowed.isActionAllowed(SecuredActions.MANAGE_LR_PROCESS.getFormalName(), SpecialObjects.REPOSITORY.getPid(),null, ObjectPidsPath.REPOSITORY_PATH)) {
+                String def = req.getParameter("def");
+                LRProcessDefinition definition = defManager.getLongRunningProcessDefinition(def);
+                
+                SecuredActions actionFromDef = securedAction(def, definition);
+                String grpToken = req.getParameter(TOKEN_ATTRIBUTE_KEY);
+                String authToken = req.getHeader(AUTH_TOKEN_HEADER_KEY);
+
+                String loggedUserKey = findLoggedUserKey(req, processManager, grpToken,userProvider);
+                User user = loggedUserSingleton.getUser(loggedUserKey);
+                if (user == null) {
+                    // no user
+                    throw new SecurityException("access denided");
+                }
+
+                boolean permitted = permitStart(actionAllowed, actionFromDef, user);
+                if (permitted) {
                     try {
                         
-                        String def = req.getParameter("def");
-                        LRProcessDefinition definition = defManager.getLongRunningProcessDefinition(def);
                         if (definition.isInputTemplateDefined()) {
                             resp.setContentType("text/html;charset=UTF-8");
                             String inputTemplateClz = definition.getInputTemplateClass();
@@ -358,49 +375,55 @@ public class LongRunningProcessServlet extends GuiceServlet {
 
             @Override
             void doAction(ServletContext context, HttpServletRequest req, HttpServletResponse resp, DefinitionManager defManager, LRProcessManager processManager, UserManager userManager, Provider<User> userProvider, IsActionAllowed actionAllowed, LoggedUsersSingleton loggedUserSingleton, InputTemplateFactory iTemplateFactory, OutputTemplateFactory oTemplateFactory) {
-                if (actionAllowed.isActionAllowed(SecuredActions.MANAGE_LR_PROCESS.getFormalName(), SpecialObjects.REPOSITORY.getPid(),null, ObjectPidsPath.REPOSITORY_PATH)) {
+
+                String def = req.getParameter("def");
+                //String def, DefinitionManager definitionManager,
+                defManager.load();
+                LRProcessDefinition definition = defManager.getLongRunningProcessDefinition(def);
+                
+                SecuredActions actionFromDef = securedAction(def, definition);
+                String grpToken = req.getParameter(TOKEN_ATTRIBUTE_KEY);
+                String authToken = req.getHeader(AUTH_TOKEN_HEADER_KEY);
+
+                String loggedUserKey = findLoggedUserKey(req, processManager, grpToken, userProvider);
+                User user = loggedUserSingleton.getUser(loggedUserKey);
+                if (user == null) {
+                    // no user
+                    throw new SecurityException("access denided");
+                }
+
+                boolean permitted = permitStart(actionAllowed, actionFromDef, user);
+                if (permitted) {
 
                     try {
-                        String def = req.getParameter("def");
                         String out = req.getParameter("out");
                         String[] params = getParams(req);
                         //TODO: Zjisteni predavane autentizace 
-                        SecuredActions actionFromDef = SecuredActions.findByFormalName(def);
-                        String token = req.getParameter(TOKEN_ATTRIBUTE_KEY); 
-    
-                        String loggedUserKey = findLoggedUserKey(req, processManager, token,userProvider);
-                        User user = loggedUserSingleton.getLoggedUser(loggedUserKey);
-                        
-                        boolean permited = permitStart(actionAllowed, actionFromDef, user);
-                        if (permited) {
-                            //String def, DefinitionManager definitionManager,
-                            defManager.load();
-                            LRProcessDefinition definition = defManager.getLongRunningProcessDefinition(def);
-    
-                            LRProcess nprocess = planNewProcess(req, context, definition, params, user,loggedUserKey, getParamsMapping(req));
-    
-                            // update process and token mapping
-                            updateProcessTokenMapping(nprocess,  loggedUserKey,processManager);
-                            if ((out != null) && (out.equals("text"))) {
-                                resp.setContentType("text/plain");
-                                resp.getOutputStream().print("[" + nprocess.getDefinitionId() + "]" + nprocess.getProcessState().name());
-                            } else {
-                                StringBuffer buffer = new StringBuffer();
-                                buffer.append("<html><body>");
-                                buffer.append("<ul>");
-                                buffer.append("<li>").append(nprocess.getDefinitionId());
-                                buffer.append("<li>").append(nprocess.getUUID());
-                                buffer.append("<li>").append(nprocess.getPid());
-                                buffer.append("<li>").append(new Date(nprocess.getStartTime()));
-                                buffer.append("<li>").append(nprocess.getProcessState());
-                                buffer.append("</ul>");
-                                buffer.append("</body></html>");
-                                resp.setContentType("text/html");
-                                resp.getOutputStream().println(buffer.toString());
-                            }
+
+
+                        LRProcess nprocess = planNewProcess(req, context, definition, params, user,loggedUserKey, getParamsMapping(req));
+
+                        // update process and token mapping
+                        updateProcessTokenMapping(nprocess,  loggedUserKey,processManager);
+                        if ((out != null) && (out.equals("text"))) {
+                            resp.setContentType("text/plain");
+                            resp.getOutputStream().print("[" + nprocess.getDefinitionId() + "]" + nprocess.getProcessState().name());
                         } else {
-                            throw new SecurityException("access denided");
+                            StringBuffer buffer = new StringBuffer();
+                            buffer.append("<html><body>");
+                            buffer.append("<ul>");
+                            buffer.append("<li>").append(nprocess.getDefinitionId());
+                            buffer.append("<li>").append(nprocess.getUUID());
+                            buffer.append("<li>").append(nprocess.getPid());
+                            buffer.append("<li>").append(new Date(nprocess.getStartTime()));
+                            buffer.append("<li>").append(nprocess.getProcessState());
+                            buffer.append("</ul>");
+                            buffer.append("</body></html>");
+                            resp.setContentType("text/html");
+                            resp.getOutputStream().println(buffer.toString());
                         }
+                    
+                        
                     } catch (RecognitionException e) {
                         LOGGER.log(Level.SEVERE,e.getMessage());
                         resp.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
@@ -606,33 +629,26 @@ public class LongRunningProcessServlet extends GuiceServlet {
 
         public String findLoggedUserKey(HttpServletRequest req, LRProcessManager lrProcessManager, String token, Provider<User> userProvider) {
             if (token != null) {
-                
-                if (!lrProcessManager.isAuthTokenClosed(token)) {
-                    List<LRProcess> processes = lrProcessManager.getLongRunningProcessesByGroupToken(token);
-                    if (!processes.isEmpty()) {
-                        // hledani klice 
-                        List<States> childStates = new ArrayList<States>();
-                        childStates.add(States.PLANNED);
-                        // prvni je master process -> vynechavam
-                        for (int i = 1,ll=processes.size(); i < ll; i++) {
-                            childStates.add(processes.get(i).getProcessState());
-                        }
-
-                        LRProcess process = processes.get(0);
-                        //process.setProcessState(States.calculateBatchState(childStates));
-                        process.setBatchState(BatchStates.calculateBatchState(childStates));
-                        
-                        lrProcessManager.updateLongRunningProcessState(process);
-                        
-                        String authToken = process.getAuthToken();
-                        return lrProcessManager.getSessionKey(authToken);
-                    } else {
-                        throw new RuntimeException("cannot find process with token '"+token+"'");
+                List<LRProcess> processes = lrProcessManager.getLongRunningProcessesByGroupToken(token);
+                if (!processes.isEmpty()) {
+                    // hledani klice 
+                    List<States> childStates = new ArrayList<States>();
+                    childStates.add(States.PLANNED);
+                    // prvni je master process -> vynechavam
+                    for (int i = 1,ll=processes.size(); i < ll; i++) {
+                        childStates.add(processes.get(i).getProcessState());
                     }
+
+                    LRProcess process = processes.get(0);
+                    //process.setProcessState(States.calculateBatchState(childStates));
+                    process.setBatchState(BatchStates.calculateBatchState(childStates));
+                    
+                    lrProcessManager.updateLongRunningProcessState(process);
+                    
+                    String authToken = process.getAuthToken();
+                    return lrProcessManager.getSessionKey(authToken);
                 } else {
-                    userProvider.get();
-                    //TODO: ?? 
-                    return (String) req.getSession().getAttribute(UserUtils.LOGGED_USER_KEY_PARAM);
+                    throw new RuntimeException("cannot find process with token '"+token+"'");
                 }
             } else {
                 userProvider.get();
@@ -645,6 +661,10 @@ public class LongRunningProcessServlet extends GuiceServlet {
             boolean permited = user!= null? (rightsResolver.isActionAllowed(user,SecuredActions.MANAGE_LR_PROCESS.getFormalName(), SpecialObjects.REPOSITORY.getPid(), null , ObjectPidsPath.REPOSITORY_PATH) || 
                                 (actionFromDef != null && rightsResolver.isActionAllowed(user, actionFromDef.getFormalName(), SpecialObjects.REPOSITORY.getPid(),null, ObjectPidsPath.REPOSITORY_PATH))) : false ;
             return permited;
+        }
+
+        public SecuredActions securedAction(String def, LRProcessDefinition definition) {
+            return definition.getSecuredAction() != null ? SecuredActions.findByFormalName(definition.getSecuredAction()) : SecuredActions.findByFormalName(def);
         }
     }
 

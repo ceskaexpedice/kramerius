@@ -39,6 +39,7 @@ import cz.incad.kramerius.processes.database.MostDesirableDatabaseInitializator;
 import cz.incad.kramerius.processes.database.ProcessDatabaseInitializator;
 import cz.incad.kramerius.security.database.SecurityDatabaseInitializator;
 import cz.incad.kramerius.service.TextsService;
+import cz.incad.kramerius.statistics.database.StatisticDatabaseInitializator;
 import cz.incad.kramerius.users.database.LoggedUserDatabaseInitializator;
 import cz.incad.kramerius.utils.DatabaseUtils;
 import cz.incad.kramerius.utils.IOUtils;
@@ -95,7 +96,9 @@ public class StartupServlet extends GuiceServlet {
             SecurityDatabaseInitializator.initDatabase(connection, versionService);
             // process tables - > must be after security tables and must be after logged user tables
             ProcessDatabaseInitializator.initDatabase(connection, versionService);
-
+            
+            StatisticDatabaseInitializator.initDatabase(connection, versionService);
+            
             // stores new db version to doatabase
             versionService.updateNewVersion();
             

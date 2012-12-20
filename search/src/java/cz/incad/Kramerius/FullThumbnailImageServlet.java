@@ -1,6 +1,6 @@
 package cz.incad.Kramerius;
+import static cz.incad.kramerius.utils.IOUtils.*;
 
-import static cz.incad.kramerius.utils.IOUtils.copyStreams;
 import static cz.incad.utils.IKeys.UUID_PARAMETER;
 
 import java.awt.image.BufferedImage;

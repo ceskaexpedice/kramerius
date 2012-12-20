@@ -48,6 +48,7 @@ import cz.incad.kramerius.imaging.utils.ImageUtils;
 import cz.incad.kramerius.impl.fedora.FedoraDatabaseUtils;
 import cz.incad.kramerius.security.SecurityException;
 import cz.incad.kramerius.utils.FedoraUtils;
+import cz.incad.kramerius.utils.IOUtils;
 import cz.incad.kramerius.utils.RESTHelper;
 import cz.incad.kramerius.utils.XMLUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
@@ -211,13 +212,18 @@ public abstract class AbstractImageServlet extends GuiceServlet {
 	
 	
 	public void copyFromImageServer(String urlString, HttpServletResponse resp) throws MalformedURLException, IOException {
-        System.out.println(urlString);
-        URLConnection con = RESTHelper.openConnection(urlString, "", "");
-        String contentType = con.getContentType();
-        ByteArrayOutputStream bos = new ByteArrayOutputStream();
-        copyStreams(con.getInputStream(), bos);
-        copyStreams(new ByteArrayInputStream(bos.toByteArray()), resp.getOutputStream());
-        resp.setContentType(contentType);
+	    InputStream inputStream = null;
+	    try {
+            URLConnection con = RESTHelper.openConnection(urlString, "", "");
+            inputStream = con.getInputStream();
+            String contentType = con.getContentType();
+            ByteArrayOutputStream bos = new ByteArrayOutputStream();
+            copyStreams(inputStream, bos);
+            copyStreams(new ByteArrayInputStream(bos.toByteArray()), resp.getOutputStream());
+            resp.setContentType(contentType);
+        } finally {
+            IOUtils.tryClose(inputStream);
+        }
     }
 
 
