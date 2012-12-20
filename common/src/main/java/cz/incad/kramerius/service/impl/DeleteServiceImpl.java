@@ -60,7 +60,7 @@ public class DeleteServiceImpl implements DeleteService {
 
 
         DeleteServiceImpl inst = new DeleteServiceImpl();
-        inst.fedoraAccess = new FedoraAccessImpl(null);
+        inst.fedoraAccess = new FedoraAccessImpl(null, null);
         SolrAccess solrAccess = new SolrAccessImpl();
         
         Map<String, List<DCConent>> dcs = DCContentUtils.getDCS(inst.fedoraAccess, solrAccess, Arrays.asList(args[0]));

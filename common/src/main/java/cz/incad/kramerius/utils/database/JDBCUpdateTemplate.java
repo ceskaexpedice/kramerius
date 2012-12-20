@@ -18,11 +18,13 @@ package cz.incad.kramerius.utils.database;
 
 import java.lang.reflect.Array;
 import java.sql.Connection;
+import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.sql.Time;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -131,6 +133,25 @@ public class JDBCUpdateTemplate {
     public void setUseReturningKeys(boolean useReturningKeys) {
         this.useReturningKeys = useReturningKeys;
     }
+
+    private void setNullParam(int i, NullObject nObj, PreparedStatement pstm) throws SQLException {
+        Class clz = nObj.getClz();
+        if (clz.equals(String.class)) {
+            pstm.setString(i, null);
+        } else if (clz.equals(Integer.class)) {
+            pstm.setInt(i, (Integer)null);
+        } else if (clz.equals(Timestamp.class)) {
+            pstm.setTimestamp(i, (java.sql.Timestamp) null);
+        } else if (clz.equals(Time.class)) {
+            pstm.setTime(i, (java.sql.Time)  null);
+        } else if (clz.equals(Date.class)) {
+            pstm.setDate(i, (java.sql.Date)  null);
+        } else if (clz.equals(Long.class)) {
+            pstm.setLong(i, (Long)  null);
+        } else if (clz.equals(Boolean.class)) {
+            pstm.setBoolean(i, false);
+        } else throw new IllegalArgumentException("unsupported type of argument "+clz);
+    }
     
     private void setParam(int i, Object object, PreparedStatement pstm) throws SQLException {
         if (object instanceof String) {
@@ -140,15 +161,44 @@ public class JDBCUpdateTemplate {
             pstm.setInt(i, (Integer) object);
         } else if (object instanceof Timestamp) {
             pstm.setTimestamp(i, (java.sql.Timestamp) object);
+        } else if (object instanceof Time) {
+            pstm.setTime(i, (java.sql.Time) object);
+        } else if (object instanceof Date) {
+            pstm.setDate(i, (java.sql.Date) object);
         } else if (object instanceof Long) {
             pstm.setLong(i, (Long) object);
         } else if (object instanceof Boolean) {
             pstm.setBoolean(i, ((Boolean) object).booleanValue());
+        } else if (object instanceof NullObject) {
+            setNullParam(i, (NullObject)object, pstm);
         } else if (object.getClass().isArray()) {
             int length = Array.getLength(object);
             for (int j = 0; j < length; j++) {
                 setParam(i+j, Array.get(object, j), pstm);
             }
         } else throw new IllegalArgumentException("unsupported type of argument "+object.getClass().getName());
+    }
+    
+    /**
+     * Represents null object
+     * @author pavels
+     */
+    public static class NullObject {
+        
+        private Class clz;
+        
+        public NullObject(Class clz) {
+            super();
+            this.clz = clz;
+        }
+        
+        /**
+         * @return the clz
+         */
+        public Class getClz() {
+            return clz;
+        }
+        
+        
     }
 }

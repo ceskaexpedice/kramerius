@@ -64,6 +64,7 @@ import cz.incad.kramerius.document.model.OutlineItem;
 import cz.incad.kramerius.fedora.impl.DataPrepare;
 import cz.incad.kramerius.impl.FedoraAccessImpl;
 import cz.incad.kramerius.service.ResourceBundleService;
+import cz.incad.kramerius.statistics.StatisticsAccessLog;
 import cz.incad.kramerius.utils.IOUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 import cz.incad.kramerius.utils.pid.LexerException;
@@ -99,11 +100,13 @@ public class DocumentServiceTest {
     // vytvori dokument od urciteho pidu
     @Test
     public void testDocumentServiceFromPid() throws IOException, ParserConfigurationException, SAXException, LexerException, ProcessSubtreeException, SecurityException, NoSuchMethodException {
+        
+        StatisticsAccessLog acLog = EasyMock.createMock(StatisticsAccessLog.class);
 
         Locale locale = Locale.getDefault();
         
         FedoraAccessImpl fa33 = createMockBuilder(FedoraAccessImpl.class)
-        .withConstructor(KConfiguration.getInstance())
+        .withConstructor(KConfiguration.getInstance(),acLog)
         .addMockedMethod("getFedoraDescribeStream")
         .addMockedMethod("getRelsExt")
         .addMockedMethod("isImageFULLAvailable")
@@ -140,7 +143,7 @@ public class DocumentServiceTest {
             EasyMock.expect(solrAccess.getPath(key)).andReturn(new ObjectPidsPath[] { PATHS_MAPPING.get(key)}).anyTimes();
         }
         
-        replay(fa33, solrAccess, bundleService);
+        replay(fa33, solrAccess, bundleService,acLog);
         
         Injector injector = Guice.createInjector(new _Module(locale, fa33, bundleService,solrAccess));
         
@@ -165,9 +168,11 @@ public class DocumentServiceTest {
     // vytovori cely dokument od prvniho pidu
     @Test
     public void testDocumentServiceFromPid2() throws IOException, ParserConfigurationException, SAXException, LexerException, ProcessSubtreeException, SecurityException, NoSuchMethodException {
+        StatisticsAccessLog acLog = EasyMock.createMock(StatisticsAccessLog.class);
+
         Locale locale = Locale.getDefault();
         FedoraAccessImpl fa33 = createMockBuilder(FedoraAccessImpl.class)
-        .withConstructor(KConfiguration.getInstance())
+        .withConstructor(KConfiguration.getInstance(),acLog)
         .addMockedMethod("getFedoraDescribeStream")
         .addMockedMethod("getRelsExt")
         .addMockedMethod("isImageFULLAvailable")
@@ -205,7 +210,7 @@ public class DocumentServiceTest {
             EasyMock.expect(solrAccess.getPath(key)).andReturn(new ObjectPidsPath[] { PATHS_MAPPING.get(key)}).anyTimes();
         }
         
-        replay(fa33, solrAccess, bundleService);
+        replay(fa33, solrAccess, bundleService, acLog);
         
         Injector injector = Guice.createInjector(new _Module(locale, fa33, bundleService,solrAccess));
         
@@ -246,9 +251,11 @@ public class DocumentServiceTest {
     // vytvori cely dokument.. 
     @Test
     public void testDocumentServiceFromNonPagePid() throws IOException, ParserConfigurationException, SAXException, LexerException, ProcessSubtreeException, SecurityException, NoSuchMethodException {
+        StatisticsAccessLog acLog = EasyMock.createMock(StatisticsAccessLog.class);
+
         Locale locale = Locale.getDefault();
         FedoraAccessImpl fa33 = createMockBuilder(FedoraAccessImpl.class)
-        .withConstructor(KConfiguration.getInstance())
+        .withConstructor(KConfiguration.getInstance(),acLog)
         .addMockedMethod("getFedoraDescribeStream")
         .addMockedMethod("getRelsExt")
         .addMockedMethod("isImageFULLAvailable")
@@ -284,7 +291,7 @@ public class DocumentServiceTest {
             EasyMock.expect(solrAccess.getPath(key)).andReturn(new ObjectPidsPath[] { PATHS_MAPPING.get(key)}).anyTimes();
         }
         
-        replay(fa33, solrAccess, bundleService);
+        replay(fa33, solrAccess, bundleService,acLog);
         
         Injector injector = Guice.createInjector(new _Module(locale, fa33, bundleService,solrAccess));
         
@@ -325,11 +332,12 @@ public class DocumentServiceTest {
     // vytvori dokument od urciteho pidu
     @Test
     public void testDocumentServiceTreeFromPid() throws IOException, ParserConfigurationException, SAXException, LexerException, ProcessSubtreeException, SecurityException, NoSuchMethodException {
+        StatisticsAccessLog acLog = EasyMock.createMock(StatisticsAccessLog.class);
 
         Locale locale = Locale.getDefault();
         
         FedoraAccessImpl fa33 = createMockBuilder(FedoraAccessImpl.class)
-        .withConstructor(KConfiguration.getInstance())
+        .withConstructor(KConfiguration.getInstance(),acLog)
         .addMockedMethod("getFedoraDescribeStream")
         .addMockedMethod("getRelsExt")
         .addMockedMethod("isImageFULLAvailable")
@@ -366,7 +374,7 @@ public class DocumentServiceTest {
             EasyMock.expect(solrAccess.getPath(key)).andReturn(new ObjectPidsPath[] { PATHS_MAPPING.get(key)}).anyTimes();
         }
         
-        replay(fa33, solrAccess, bundleService);
+        replay(fa33, solrAccess, bundleService,acLog);
         
         Injector injector = Guice.createInjector(new _Module(locale, fa33, bundleService,solrAccess));
         

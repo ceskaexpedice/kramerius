@@ -56,8 +56,10 @@ import javax.print.attribute.HashPrintRequestAttributeSet;
 import javax.print.attribute.PrintJobAttributeSet;
 import javax.print.attribute.PrintRequestAttributeSet;
 import javax.print.attribute.standard.Copies;
+import javax.print.attribute.standard.JobOriginatingUserName;
 import javax.print.attribute.standard.MediaSize;
 import javax.print.attribute.standard.PrinterResolution;
+import javax.print.attribute.standard.RequestingUserName;
 import javax.print.attribute.standard.Sides;
 import javax.print.attribute.standard.MediaSize.ISO;
 import javax.servlet.http.HttpServletRequest;
@@ -89,6 +91,7 @@ import cz.incad.kramerius.pdf.utils.TitlesUtils;
 import cz.incad.kramerius.pdf.utils.pdf.FontMap;
 import cz.incad.kramerius.printing.PrintingService;
 import cz.incad.kramerius.printing.utils.Utils;
+import cz.incad.kramerius.security.User;
 import cz.incad.kramerius.service.ResourceBundleService;
 import cz.incad.kramerius.service.TextsService;
 import cz.incad.kramerius.utils.ApplicationURL;
@@ -109,9 +112,12 @@ public class PrintingServiceImpl implements PrintingService {
 
     private DocumentService documentService;
     private GeneratePDFService pdfService;
-
+    
+    private Provider<User> userProvider;
+    private Provider<Locale> localesProvider;
+    
     @Inject
-    public PrintingServiceImpl(@Named("securedFedoraAccess") FedoraAccess fedoraAccess, SolrAccess solrAccess, KConfiguration configuration, Provider<Locale> localeProvider, TextsService textsService, ResourceBundleService resourceBundleService, DocumentService documentService, GeneratePDFService pdfService) {
+    public PrintingServiceImpl(@Named("securedFedoraAccess") FedoraAccess fedoraAccess, SolrAccess solrAccess, KConfiguration configuration, Provider<Locale> localeProvider, TextsService textsService, ResourceBundleService resourceBundleService, DocumentService documentService, GeneratePDFService pdfService, Provider<User> userProvider) {
         super();
         this.fedoraAccess = fedoraAccess;
         this.configuration = configuration;
@@ -119,6 +125,8 @@ public class PrintingServiceImpl implements PrintingService {
         this.solrAccess = solrAccess;
         this.documentService = documentService;
         this.pdfService = pdfService;
+        this.userProvider = userProvider;
+        this.localesProvider = localeProvider;
         try {
             this.init();
         } catch (IOException e) {
@@ -156,14 +164,19 @@ public class PrintingServiceImpl implements PrintingService {
         this.pdfService.generateCustomPDF(document, new FileOutputStream(pdfFile), fontMap, imgUrl, i18nUrl, ImageFetcher.WEB);
 
         PrintService lps = PrintServiceLookup.lookupDefaultPrintService();
+        
         DocPrintJob printJob = lps.createPrintJob();
+        printJob.getAttributes().add(new JobOriginatingUserName(this.userProvider.get().getLoginname(), localesProvider.get()));
+        
         Doc doc = new SimpleDoc(new FileInputStream(pdfFile), DocFlavor.INPUT_STREAM.PDF, null);
 
         PrintRequestAttributeSet aset = new HashPrintRequestAttributeSet();
         aset.add(new Copies(KConfiguration.getInstance().getConfiguration().getInt("print.copies", 1)));
         aset.add(resolveSidesConfiguration());
-
+        aset.add(new RequestingUserName(this.userProvider.get().getLoginname(), localesProvider.get()));
+        
         printJob.print(doc, aset);
+        
     }
 
     public Sides resolveSidesConfiguration() {
@@ -293,4 +306,9 @@ public class PrintingServiceImpl implements PrintingService {
 
     }
 
+    public static void main(String[] args) {
+
+        PrintService lps = PrintServiceLookup.lookupDefaultPrintService();
+        lps.getAttributes().add(new JobOriginatingUserName("troubelin", Locale.getDefault()));
+    }
 }

@@ -1,0 +1,66 @@
+group statistics;
+
+
+insertStatisticRecord() ::=<<
+insert into statistics_access_log
+    (record_ID, PID,DATE,REMOTE_IP_ADDRESS,"USER",REQUESTED_URL)
+    values(nextval('statistics_access_log_ID_SEQUENCE'),?,?,?,?,?);
+>>
+
+
+insertStatisticRecordDetail() ::=<<
+insert into statistic_access_log_detail
+      (detail_ID, PID,model,ISSUED_DATE,RIGHTS, LANG, TITLE, BRANCH_ID,RECORD_ID)
+values(nextval('statistic_access_log_detail_id_sequence'),?,?,?,?,?,?, ?,?);
+>>
+
+
+insertStatisticRecordDetailAuthor() ::=<<
+insert into statistic_access_log_detail_authors
+      (author_id,AUTHOR_NAME,DETAIL_ID,RECORD_ID)
+values(nextval('statistic_access_log_detail_authors_ID_SEQUENCE'),?,?,?);
+>>
+
+
+
+/** vybrany model */
+selectModelReport(model) ::=<<
+    SELECT count(*) as count, pid, model, title  from  
+    statistic_access_log_detail 
+    where model='$model$'
+    group by pid, model,title order by count DESC 
+    offset ? limit ?
+>> 
+
+selectModels() ::=<<
+    select distinct model from statistic_access_log_detail
+>>
+
+/** datum - datum */
+selectDateDurationReport_1(from, to) ::=<<
+    select count(*) as count, pid from statistics_access_log 
+        where date>? and date < ?
+        group by pid order by count DESC
+        offset ? limit ?
+>>
+
+selectDateDurationReport_2(pids) ::=<<
+    select * from statistics_access_log sa
+    join statistic_access_log_detail detail on (sa.record_id=detail.record_id)
+    where   sa.pid in ( $pids:{p|'$p$'};separator=", "$) and sa.pid = detail.pid
+>>
+
+/** author */ 
+selectAuthorReport() ::=<<
+select count(*) as count, author_name from statistic_access_log_detail_authors
+group by author_name order by count DESC
+        offset ? limit ?
+>>
+
+
+"periodicalvolume"
+"page"
+"periodical"
+"monograph"
+"periodicalitem"
+"monographunit"

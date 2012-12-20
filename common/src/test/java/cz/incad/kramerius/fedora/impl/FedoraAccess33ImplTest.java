@@ -29,6 +29,7 @@ import org.easymock.EasyMock;
 import org.junit.Test;
 
 import cz.incad.kramerius.impl.FedoraAccessImpl;
+import cz.incad.kramerius.statistics.StatisticsAccessLog;
 import cz.incad.kramerius.utils.FedoraUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 
@@ -36,14 +37,16 @@ public class FedoraAccess33ImplTest {
 
     @Test
     public void testGetFedoraAccessVersion33() throws IOException {
+        StatisticsAccessLog acLog = EasyMock.createMock(StatisticsAccessLog.class);
+        
         // fedora 3.3
         FedoraAccessImpl fa33 = createMockBuilder(FedoraAccessImpl.class)
-        .withConstructor(KConfiguration.getInstance())
+        .withConstructor(KConfiguration.getInstance(), acLog)
         .addMockedMethod("getFedoraDescribeStream")
         .createMock();
         
         EasyMock.expect(fa33.getFedoraDescribeStream()).andReturn(DataPrepare.fedoraProfile33());
-        replay(fa33);
+        replay(fa33, acLog);
         
         assertEquals(fa33.getFedoraVersion(),"3.3");
     }
@@ -51,9 +54,10 @@ public class FedoraAccess33ImplTest {
 
     @Test
     public void testIsStreamAvailable33() throws IOException, MalformedURLException {
+        StatisticsAccessLog acLog = EasyMock.createMock(StatisticsAccessLog.class);
         // fedora 3.3
         FedoraAccessImpl fa33 = createMockBuilder(FedoraAccessImpl.class)
-        .withConstructor(KConfiguration.getInstance())
+        .withConstructor(KConfiguration.getInstance(),acLog)
         .addMockedMethod("getFedoraDescribeStream")
         .addMockedMethod("getFedoraDataStreamsList")
         .createMock();
@@ -63,7 +67,7 @@ public class FedoraAccess33ImplTest {
         EasyMock.expect(fa33.getFedoraDataStreamsList("uuid:0eaa6730-9068-11dd-97de-000d606f5dc6")).andReturn(DataPrepare.datastreams33());
         EasyMock.expect(fa33.getFedoraDataStreamsList("uuid:0eaa6730-9068-11dd-97de-000d606f5dc6")).andReturn(DataPrepare.datastreams33());
         
-        replay(fa33);
+        replay(fa33, acLog);
         
         
         assertEquals(fa33.isStreamAvailable("uuid:0eaa6730-9068-11dd-97de-000d606f5dc6", FedoraUtils.IMG_FULL_STREAM),false);
@@ -73,9 +77,10 @@ public class FedoraAccess33ImplTest {
 
     @Test
     public void testGetMimetypeForStream33() throws IOException {
+        StatisticsAccessLog acLog = EasyMock.createMock(StatisticsAccessLog.class);
         // fedora 3.3
         FedoraAccessImpl fa33 = createMockBuilder(FedoraAccessImpl.class)
-        .withConstructor(KConfiguration.getInstance())
+        .withConstructor(KConfiguration.getInstance(),acLog)
         .addMockedMethod("getFedoraDescribeStream")
         .addMockedMethod("getDsProfileForPIDStream")
         .createMock();
@@ -83,7 +88,7 @@ public class FedoraAccess33ImplTest {
         EasyMock.expect(fa33.getFedoraDescribeStream()).andReturn(DataPrepare.fedoraProfile33());
         EasyMock.expect(fa33.getDsProfileForPIDStream("uuid:0eaa6730-9068-11dd-97de-000d606f5dc6", FedoraUtils.IMG_FULL_STREAM)).andReturn(DataPrepare.dsProfile33());
         
-        replay(fa33);
+        replay(fa33,acLog);
         
         
         String mimeType33 = fa33.getMimeTypeForStream("uuid:0eaa6730-9068-11dd-97de-000d606f5dc6", FedoraUtils.IMG_FULL_STREAM);

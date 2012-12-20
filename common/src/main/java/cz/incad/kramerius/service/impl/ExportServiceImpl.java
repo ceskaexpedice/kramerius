@@ -82,7 +82,7 @@ public class ExportServiceImpl implements ExportService {
     public static void main(String[] args) throws IOException {
         LOGGER.info("Export service: "+Arrays.toString(args));
         ExportServiceImpl inst = new ExportServiceImpl();
-        inst.fedoraAccess = new FedoraAccessImpl(null);
+        inst.fedoraAccess = new FedoraAccessImpl(null, null);
         inst.configuration = KConfiguration.getInstance();
         inst.exportTree(args[0]);
         LOGGER.info("ExportService finished.");

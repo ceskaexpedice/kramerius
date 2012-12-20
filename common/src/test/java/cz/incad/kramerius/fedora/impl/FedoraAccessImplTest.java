@@ -44,6 +44,7 @@ import cz.incad.kramerius.ProcessSubtreeException;
 import cz.incad.kramerius.TreeNodeProcessStackAware;
 import cz.incad.kramerius.TreeNodeProcessor;
 import cz.incad.kramerius.impl.FedoraAccessImpl;
+import cz.incad.kramerius.statistics.StatisticsAccessLog;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 import cz.incad.kramerius.utils.pid.LexerException;
 
@@ -54,8 +55,10 @@ public class FedoraAccessImplTest {
      * @throws LexerException */
     @Test
     public void testIsFullthumbnailAvailableWithPage() throws IOException, ParserConfigurationException, SAXException, LexerException {
+        StatisticsAccessLog aclog = EasyMock.createMock(StatisticsAccessLog.class);
+
         FedoraAccessImpl fa = createMockBuilder(FedoraAccessImpl.class)
-        .withConstructor(KConfiguration.getInstance())
+        .withConstructor(KConfiguration.getInstance(), aclog)
         .addMockedMethod("getFedoraVersion")
         .addMockedMethod("getFedoraDataStreamsList")
         .createMock();
@@ -64,7 +67,8 @@ public class FedoraAccessImplTest {
         EasyMock.expect(fa.getFedoraVersion()).andReturn("3.4.2");
         dataStreams(fa, "uuid:3ee97ce8-e548-11e0-9867-005056be0007");
         
-        replay(fa);
+        
+        replay(fa, aclog);
 
         boolean flag = fa.isFullthumbnailAvailable("uuid:3ee97ce8-e548-11e0-9867-005056be0007/@886");
         Assert.assertTrue(flag);
@@ -74,8 +78,10 @@ public class FedoraAccessImplTest {
      * @throws LexerException */
     @Test
     public void testIsFullThumbnailAvailableWithoutPage() throws IOException, ParserConfigurationException, SAXException, LexerException {
+        StatisticsAccessLog aclog = EasyMock.createMock(StatisticsAccessLog.class);
+
         FedoraAccessImpl fa = createMockBuilder(FedoraAccessImpl.class)
-        .withConstructor(KConfiguration.getInstance())
+        .withConstructor(KConfiguration.getInstance(), aclog)
         .addMockedMethod("getFedoraVersion")
         .addMockedMethod("getFedoraDataStreamsList")
         .createMock();
@@ -83,7 +89,7 @@ public class FedoraAccessImplTest {
         EasyMock.expect(fa.getFedoraVersion()).andReturn("3.4.2");
         dataStreams(fa, "uuid:3ee97ce8-e548-11e0-9867-005056be0007");
         
-        replay(fa);
+        replay(fa, aclog);
 
         boolean flag = fa.isFullthumbnailAvailable("uuid:3ee97ce8-e548-11e0-9867-005056be0007");
         Assert.assertTrue(flag);
@@ -94,8 +100,10 @@ public class FedoraAccessImplTest {
      * @throws LexerException */
     @Test
     public void testIsFullImageAvailableWithPage() throws IOException, ParserConfigurationException, SAXException, LexerException {
+        StatisticsAccessLog aclog = EasyMock.createMock(StatisticsAccessLog.class);
+
         FedoraAccessImpl fa = createMockBuilder(FedoraAccessImpl.class)
-        .withConstructor(KConfiguration.getInstance())
+        .withConstructor(KConfiguration.getInstance(), aclog)
         .addMockedMethod("getFedoraVersion")
         .addMockedMethod("getFedoraDataStreamsList")
         .createMock();
@@ -104,7 +112,7 @@ public class FedoraAccessImplTest {
         EasyMock.expect(fa.getFedoraVersion()).andReturn("3.4.2");
         dataStreams(fa, "uuid:3ee97ce8-e548-11e0-9867-005056be0007");
         
-        replay(fa);
+        replay(fa,aclog);
 
         boolean flag = fa.isFullthumbnailAvailable("uuid:3ee97ce8-e548-11e0-9867-005056be0007/@886");
         Assert.assertTrue(flag);
@@ -115,8 +123,9 @@ public class FedoraAccessImplTest {
      * @throws LexerException */
     @Test
     public void testIsFullImageAvailableWithoutPage() throws IOException, ParserConfigurationException, SAXException, LexerException {
+        StatisticsAccessLog aclog = EasyMock.createMock(StatisticsAccessLog.class);
         FedoraAccessImpl fa = createMockBuilder(FedoraAccessImpl.class)
-        .withConstructor(KConfiguration.getInstance())
+        .withConstructor(KConfiguration.getInstance(), aclog)
         .addMockedMethod("getFedoraVersion")
         .addMockedMethod("getFedoraDataStreamsList")
         .createMock();
@@ -124,7 +133,7 @@ public class FedoraAccessImplTest {
         EasyMock.expect(fa.getFedoraVersion()).andReturn("3.4.2");
         dataStreams(fa, "uuid:3ee97ce8-e548-11e0-9867-005056be0007");
         
-        replay(fa);
+        replay(fa,aclog);
 
         boolean flag = fa.isFullthumbnailAvailable("uuid:3ee97ce8-e548-11e0-9867-005056be0007");
         Assert.assertTrue(flag);
@@ -136,14 +145,16 @@ public class FedoraAccessImplTest {
      * @throws LexerException */
     @Test
     public void testGetKrameriusModelName() throws IOException, ParserConfigurationException, SAXException, LexerException {
+        StatisticsAccessLog aclog = EasyMock.createMock(StatisticsAccessLog.class);
+
         FedoraAccess fa = createMockBuilder(FedoraAccessImpl.class)
-        .withConstructor(KConfiguration.getInstance())
+        .withConstructor(KConfiguration.getInstance(), aclog)
         .addMockedMethod("getRelsExt")
         .createMock();
         
         drobnustkyRelsExt(fa);
         
-        replay(fa);
+        replay(fa,aclog);
 
         String monographModel = fa.getKrameriusModelName(fa.getRelsExt("uuid:0eaa6730-9068-11dd-97de-000d606f5dc6"));
         assertEquals("monograph", monographModel);
@@ -162,14 +173,16 @@ public class FedoraAccessImplTest {
      * @throws LexerException */
     @Test
     public void testGetDonator() throws IOException, ParserConfigurationException, SAXException, LexerException {
+        StatisticsAccessLog aclog = EasyMock.createMock(StatisticsAccessLog.class);
+
         FedoraAccess fa = createMockBuilder(FedoraAccessImpl.class)
-        .withConstructor(KConfiguration.getInstance())
+        .withConstructor(KConfiguration.getInstance(), aclog)
         .addMockedMethod("getRelsExt")
         .createMock();
         
         drobnustkyRelsExt(fa);
         
-        replay(fa);
+        replay(fa,aclog);
 
         String donator = fa.getDonator(fa.getRelsExt("uuid:0eaa6730-9068-11dd-97de-000d606f5dc6"));
         assertEquals("norway", donator);
@@ -179,9 +192,10 @@ public class FedoraAccessImplTest {
      * @throws LexerException */
     @Test
     public void testFindFirstViewablePid_good() throws IOException, ParserConfigurationException, SAXException, LexerException {
+        StatisticsAccessLog aclog = EasyMock.createMock(StatisticsAccessLog.class);
         // test correct data - IMG_FULL in pages
         FedoraAccess fa = createMockBuilder(FedoraAccessImpl.class)
-        .withConstructor(KConfiguration.getInstance())
+        .withConstructor(KConfiguration.getInstance(), aclog)
         .addMockedMethod("isStreamAvailable")
         .addMockedMethod("getRelsExt")
         .createMock();
@@ -189,7 +203,7 @@ public class FedoraAccessImplTest {
         drobnustkyWithIMGFULL(fa);
         drobnustkyRelsExt(fa);
         
-        replay(fa);
+        replay(fa,aclog);
         
         String firstPageForDrobnustky = fa.findFirstViewablePid("uuid:0eaa6730-9068-11dd-97de-000d606f5dc6");
         // accept right page
@@ -202,9 +216,11 @@ public class FedoraAccessImplTest {
      * @throws LexerException */
     @Test
     public void testFindFirstViewablePid_bad() throws IOException, ParserConfigurationException, SAXException, LexerException {
+        StatisticsAccessLog aclog = EasyMock.createMock(StatisticsAccessLog.class);
+
         // test correct data - IMG_FULL in pages
         FedoraAccess fa = createMockBuilder(FedoraAccessImpl.class)
-        .withConstructor(KConfiguration.getInstance())
+        .withConstructor(KConfiguration.getInstance(), aclog)
         .addMockedMethod("isStreamAvailable")
         .addMockedMethod("getRelsExt")
         .createMock();
@@ -212,7 +228,7 @@ public class FedoraAccessImplTest {
         drobnustkyWithOutIMGFULL(fa);
         drobnustkyRelsExt(fa);
         
-        replay(fa);
+        replay(fa,aclog);
         
         String firstPageForDrobnustky = fa.findFirstViewablePid("uuid:0eaa6730-9068-11dd-97de-000d606f5dc6");
         // nic nenalezeno.. 
@@ -225,15 +241,17 @@ public class FedoraAccessImplTest {
         final Map<String, Integer> mapping = new HashMap<String, Integer>();
         
         final List<Integer> order = new ArrayList<Integer>();
-        
+
+        StatisticsAccessLog aclog = EasyMock.createMock(StatisticsAccessLog.class);
+
         FedoraAccess fa = createMockBuilder(FedoraAccessImpl.class)
-        .withConstructor(KConfiguration.getInstance())
+        .withConstructor(KConfiguration.getInstance(),aclog)
         .addMockedMethod("getRelsExt")
         .createMock();
         
         narodniListyRelsExt(fa);
         
-        replay(fa);
+        replay(fa,aclog);
 
         fa.processSubtree("uuid:ae876087-435d-11dd-b505-00145e5790ea", new TreeNodeProcessor() {
             
@@ -268,18 +286,20 @@ public class FedoraAccessImplTest {
     
     @Test
     public void testProcessTree_SkipBranch2() throws IOException, ParserConfigurationException, SAXException, LexerException, ProcessSubtreeException {
+        StatisticsAccessLog aclog = EasyMock.createMock(StatisticsAccessLog.class);
+
         final Map<String, Integer> mapping = new HashMap<String, Integer>();
         
         final List<Integer> order = new ArrayList<Integer>();
         
         FedoraAccess fa = createMockBuilder(FedoraAccessImpl.class)
-        .withConstructor(KConfiguration.getInstance())
+        .withConstructor(KConfiguration.getInstance(), aclog)
         .addMockedMethod("getRelsExt")
         .createMock();
         
         narodniListyRelsExt(fa);
         
-        replay(fa);
+        replay(fa,aclog);
 
         fa.processSubtree("uuid:ae876087-435d-11dd-b505-00145e5790ea", new TreeNodeProcessor() {
             
@@ -329,16 +349,17 @@ public class FedoraAccessImplTest {
 
     @Test
     public void testProcessTree_StackAware() throws IOException, ParserConfigurationException, SAXException, LexerException, ProcessSubtreeException {
+        StatisticsAccessLog aclog = EasyMock.createMock(StatisticsAccessLog.class);
         final List<String> alist = new ArrayList<String>();
         
         FedoraAccess fa = createMockBuilder(FedoraAccessImpl.class)
-        .withConstructor(KConfiguration.getInstance())
+        .withConstructor(KConfiguration.getInstance(), aclog)
         .addMockedMethod("getRelsExt")
         .createMock();
         
         narodniListyRelsExt(fa);
         
-        replay(fa);
+        replay(fa,aclog);
 
         class T implements TreeNodeProcessor, TreeNodeProcessStackAware {
 

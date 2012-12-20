@@ -74,6 +74,7 @@ import cz.incad.kramerius.pdf.utils.pdf.FontMap;
 import cz.incad.kramerius.service.ResourceBundleService;
 import cz.incad.kramerius.service.TextsService;
 import cz.incad.kramerius.service.impl.TextsServiceImpl;
+import cz.incad.kramerius.statistics.StatisticsAccessLog;
 import cz.incad.kramerius.utils.IOUtils;
 import cz.incad.kramerius.utils.XMLUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
@@ -191,10 +192,13 @@ public class FirstPagePDFServiceImplTest {
 
     @Test
     public void testGenerateParent_DROBNUSTKY() throws SecurityException, NoSuchMethodException, IOException, ParserConfigurationException, SAXException, LexerException, ProcessSubtreeException, DocumentException, XPathExpressionException, JAXBException {
+        StatisticsAccessLog acLog = EasyMock.createMock(StatisticsAccessLog.class);
         //hyph-country="CZ" hyph-lang="cs"
         Locale locale = new Locale("cs","CZ");
 
-        FedoraAccessImpl fa33 = createMockBuilder(FedoraAccessImpl.class).withConstructor(KConfiguration.getInstance()).addMockedMethod("getFedoraDescribeStream").addMockedMethod("getRelsExt").addMockedMethod("isImageFULLAvailable").addMockedMethod("getDC").addMockedMethod("getBiblioMods")
+        FedoraAccessImpl fa33 = createMockBuilder(FedoraAccessImpl.class)
+        .withConstructor(KConfiguration.getInstance(),acLog)
+        .addMockedMethod("getFedoraDescribeStream").addMockedMethod("getRelsExt").addMockedMethod("isImageFULLAvailable").addMockedMethod("getDC").addMockedMethod("getBiblioMods")
                 //.addMockedMethod(FedoraAccessImpl.class.getMethod("getKrameriusModelName", String.class))
                 .createMock();
 
@@ -217,7 +221,7 @@ public class FirstPagePDFServiceImplTest {
             EasyMock.expect(solrAccess.getPath(key)).andReturn(new ObjectPidsPath[] { DataPrepare.PATHS_MAPPING.get(key) }).anyTimes();
         }
 
-        replay(fa33, solrAccess, bundleService);
+        replay(fa33, solrAccess, bundleService,acLog);
 
         Injector injector = Guice.createInjector(new _Module(locale, fa33, bundleService, solrAccess));
 
@@ -249,9 +253,12 @@ public class FirstPagePDFServiceImplTest {
 
     @Test
     public void testGenerateParent_DROBNUSTKYPage() throws SecurityException, NoSuchMethodException, IOException, ParserConfigurationException, SAXException, LexerException, ProcessSubtreeException, DocumentException, XPathExpressionException, JAXBException {
+        StatisticsAccessLog acLog = EasyMock.createMock(StatisticsAccessLog.class);
         Locale locale = new Locale("cs","CZ");
 
-        FedoraAccessImpl fa33 = createMockBuilder(FedoraAccessImpl.class).withConstructor(KConfiguration.getInstance()).addMockedMethod("getFedoraDescribeStream").addMockedMethod("getRelsExt").addMockedMethod("isImageFULLAvailable").addMockedMethod("getDC").addMockedMethod("getBiblioMods")
+        FedoraAccessImpl fa33 = createMockBuilder(FedoraAccessImpl.class)
+        .withConstructor(KConfiguration.getInstance(), acLog)
+        .addMockedMethod("getFedoraDescribeStream").addMockedMethod("getRelsExt").addMockedMethod("isImageFULLAvailable").addMockedMethod("getDC").addMockedMethod("getBiblioMods")
                 .addMockedMethod(FedoraAccessImpl.class.getMethod("getKrameriusModelName", String.class))
                 .createMock();
 
@@ -284,7 +291,7 @@ public class FirstPagePDFServiceImplTest {
             EasyMock.expect(solrAccess.getPath(key)).andReturn(new ObjectPidsPath[] { DataPrepare.PATHS_MAPPING.get(key) }).anyTimes();
         }
 
-        replay(fa33, solrAccess, bundleService);
+        replay(fa33, solrAccess, bundleService,acLog);
 
         Injector injector = Guice.createInjector(new _Module(locale, fa33, bundleService, solrAccess));
 
@@ -317,9 +324,10 @@ public class FirstPagePDFServiceImplTest {
 
     @Test
     public void testGenerateSelection_NarodniListy() throws SecurityException, NoSuchMethodException, IOException, ParserConfigurationException, SAXException, LexerException, ProcessSubtreeException, DocumentException, InstantiationException, IllegalAccessException, XPathExpressionException, JAXBException {
+        StatisticsAccessLog acLog = EasyMock.createMock(StatisticsAccessLog.class);
         Locale locale = new Locale("cs","CZ");
 
-        FedoraAccessImpl fa33 = createMockBuilder(FedoraAccessImpl.class).withConstructor(KConfiguration.getInstance())
+        FedoraAccessImpl fa33 = createMockBuilder(FedoraAccessImpl.class).withConstructor(KConfiguration.getInstance(),acLog)
         .addMockedMethod("getFedoraDescribeStream")
         .addMockedMethod("getRelsExt").addMockedMethod("isImageFULLAvailable")
         .addMockedMethod("getDC").addMockedMethod("getBiblioMods")
@@ -372,7 +380,7 @@ public class FirstPagePDFServiceImplTest {
 
 
 
-        replay(fa33, solrAccess, bundleService);
+        replay(fa33, solrAccess, bundleService,acLog);
 
         Injector injector = Guice.createInjector(new _Module(locale, fa33, bundleService, solrAccess));
 
@@ -418,9 +426,10 @@ public class FirstPagePDFServiceImplTest {
 
     @Test
     public void testGenerateParent_NarodniListy() throws SecurityException, NoSuchMethodException, IOException, ParserConfigurationException, SAXException, LexerException, ProcessSubtreeException, DocumentException, InstantiationException, IllegalAccessException, XPathExpressionException, JAXBException {
+        StatisticsAccessLog acLog = EasyMock.createMock(StatisticsAccessLog.class);
         Locale locale = new Locale("cs","CZ");
 
-        FedoraAccessImpl fa33 = createMockBuilder(FedoraAccessImpl.class).withConstructor(KConfiguration.getInstance())
+        FedoraAccessImpl fa33 = createMockBuilder(FedoraAccessImpl.class).withConstructor(KConfiguration.getInstance(),acLog)
         .addMockedMethod("getFedoraDescribeStream")
         .addMockedMethod("getRelsExt").addMockedMethod("isImageFULLAvailable")
         .addMockedMethod("getDC").addMockedMethod("getBiblioMods")
@@ -474,7 +483,7 @@ public class FirstPagePDFServiceImplTest {
 
 
 
-        replay(fa33, solrAccess, bundleService);
+        replay(fa33, solrAccess, bundleService,acLog);
         Injector injector = Guice.createInjector(new _Module(locale, fa33, bundleService, solrAccess));
         FirstPagePDFService fpageService = injector.getInstance(FirstPagePDFService.class);
         DocumentService docService = injector.getInstance(DocumentService.class);
@@ -527,9 +536,10 @@ public class FirstPagePDFServiceImplTest {
 
     @Test
     public void testGenerateSelection_NarodniListyDrobnustky() throws SecurityException, NoSuchMethodException, IOException, ParserConfigurationException, SAXException, LexerException, ProcessSubtreeException, DocumentException, InstantiationException, IllegalAccessException, XPathExpressionException, JAXBException {
+        StatisticsAccessLog acLog = EasyMock.createMock(StatisticsAccessLog.class);
         Locale locale = new Locale("cs","CZ");
 
-        FedoraAccessImpl fa33 = createMockBuilder(FedoraAccessImpl.class).withConstructor(KConfiguration.getInstance())
+        FedoraAccessImpl fa33 = createMockBuilder(FedoraAccessImpl.class).withConstructor(KConfiguration.getInstance(),acLog)
         .addMockedMethod("getFedoraDescribeStream")
         .addMockedMethod("getRelsExt").addMockedMethod("isImageFULLAvailable")
         .addMockedMethod("getDC").addMockedMethod("getBiblioMods")
@@ -583,7 +593,7 @@ public class FirstPagePDFServiceImplTest {
 
 
 
-        replay(fa33, solrAccess, bundleService);
+        replay(fa33, solrAccess, bundleService,acLog);
 
         Injector injector = Guice.createInjector(new _Module(locale, fa33, bundleService, solrAccess));
 

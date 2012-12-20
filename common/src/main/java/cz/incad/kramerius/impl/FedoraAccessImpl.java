@@ -40,6 +40,7 @@ import java.util.Set;
 import java.util.Stack;
 import java.util.logging.Level;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.ws.BindingProvider;
 import javax.xml.xpath.XPath;
@@ -65,6 +66,7 @@ import org.w3c.dom.Text;
 import org.xml.sax.SAXException;
 
 import com.google.inject.Inject;
+import com.google.inject.Provider;
 
 import cz.incad.kramerius.FedoraAccess;
 import cz.incad.kramerius.FedoraNamespaceContext;
@@ -72,6 +74,7 @@ import cz.incad.kramerius.FedoraNamespaces;
 import cz.incad.kramerius.ProcessSubtreeException;
 import cz.incad.kramerius.TreeNodeProcessStackAware;
 import cz.incad.kramerius.TreeNodeProcessor;
+import cz.incad.kramerius.statistics.StatisticsAccessLog;
 import cz.incad.kramerius.utils.FedoraUtils;
 import cz.incad.kramerius.utils.IOUtils;
 import cz.incad.kramerius.utils.RESTHelper;
@@ -95,9 +98,10 @@ public class FedoraAccessImpl implements FedoraAccess {
     
     private XPathFactory xPathFactory;
     
+    private StatisticsAccessLog accessLog;
     
     @Inject
-    public FedoraAccessImpl(KConfiguration configuration) throws IOException {
+    public FedoraAccessImpl(KConfiguration configuration, StatisticsAccessLog accessLog) throws IOException {
         super();
         this.configuration = configuration;
         this.xPathFactory = XPathFactory.newInstance();
@@ -105,6 +109,7 @@ public class FedoraAccessImpl implements FedoraAccess {
         InputStream stream = FedoraAccessImpl.class.getResourceAsStream("fedora_xpaths.stg");
         String string = IOUtils.readAsString(stream, Charset.forName("UTF-8"), true);
         xpaths = new StringTemplateGroup(new StringReader(string), DefaultTemplateLexer.class);
+        this.accessLog = accessLog;
     }
 
     
@@ -426,6 +431,9 @@ public class FedoraAccessImpl implements FedoraAccess {
     public InputStream getImageFULL(String pid) throws IOException {
         try {
             pid = makeSureObjectPid(pid);
+            if (this.accessLog.isReportingAccess(pid,IMG_FULL_STREAM)) {
+                this.accessLog.reportAccess(pid,IMG_FULL_STREAM);
+            }
             HttpURLConnection con = (HttpURLConnection) openConnection(getFedoraStreamPath(configuration, makeSureObjectPid(pid), IMG_FULL_STREAM), configuration.getFedoraUser(), configuration.getFedoraPass());
             con.connect();
             if (con.getResponseCode() == HttpURLConnection.HTTP_OK) {
@@ -864,6 +872,9 @@ public class FedoraAccessImpl implements FedoraAccess {
     public InputStream getDataStream(String pid, String datastreamName) throws IOException {
         try {
             pid = makeSureObjectPid(pid);
+            if (this.accessLog.isReportingAccess(pid,datastreamName)) {
+                this.accessLog.reportAccess(pid,datastreamName);
+            }
             String datastream = configuration.getFedoraHost() + "/get/" + pid + "/" + datastreamName;
             HttpURLConnection con = (HttpURLConnection) openConnection(datastream, configuration.getFedoraUser(), configuration.getFedoraPass());
             con.connect();

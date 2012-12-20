@@ -33,6 +33,7 @@ import org.junit.Test;
 import org.xml.sax.SAXException;
 
 import cz.incad.kramerius.impl.FedoraAccessImpl;
+import cz.incad.kramerius.statistics.StatisticsAccessLog;
 import cz.incad.kramerius.utils.FedoraUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 
@@ -41,14 +42,15 @@ public class FedoraAccess34ImplTest {
     /** Test getFedoraVersion method - fa 3.3 and also 3.4.x */
     @Test
     public void testGetFedoraAccessVersion34() throws IOException, XPathExpressionException, ParserConfigurationException, SAXException {
+        StatisticsAccessLog acLog = EasyMock.createMock(StatisticsAccessLog.class);
         // fedora 3.4
         FedoraAccessImpl fa34 = createMockBuilder(FedoraAccessImpl.class)
-        .withConstructor(KConfiguration.getInstance())
+        .withConstructor(KConfiguration.getInstance(), acLog)
         .addMockedMethod("getFedoraDescribeStream")
         .createMock();
         
         EasyMock.expect(fa34.getFedoraDescribeStream()).andReturn(DataPrepare.fedoraProfile34());
-        replay(fa34);
+        replay(fa34,acLog);
         
         assertEquals(fa34.getFedoraVersion(),"3.4.2");
     }
@@ -56,10 +58,11 @@ public class FedoraAccess34ImplTest {
     
     @Test
     public void testIsStreamAvailable34() throws MalformedURLException, IOException {
+        StatisticsAccessLog acLog = EasyMock.createMock(StatisticsAccessLog.class);
 
         // fedora 3.4
         FedoraAccessImpl fa34 = createMockBuilder(FedoraAccessImpl.class)
-        .withConstructor(KConfiguration.getInstance())
+        .withConstructor(KConfiguration.getInstance(),acLog)
         .addMockedMethod("getFedoraDescribeStream")
         .addMockedMethod("getFedoraDataStreamsList")
         .createMock();
@@ -69,7 +72,7 @@ public class FedoraAccess34ImplTest {
         EasyMock.expect(fa34.getFedoraDataStreamsList("uuid:0eaa6730-9068-11dd-97de-000d606f5dc6")).andReturn(DataPrepare.datastreams34());
         EasyMock.expect(fa34.getFedoraDataStreamsList("uuid:0eaa6730-9068-11dd-97de-000d606f5dc6")).andReturn(DataPrepare.datastreams34());
         
-        replay(fa34);
+        replay(fa34,acLog);
 
 
         assertEquals(fa34.isStreamAvailable("uuid:0eaa6730-9068-11dd-97de-000d606f5dc6", FedoraUtils.IMG_FULL_STREAM),false);
@@ -80,10 +83,11 @@ public class FedoraAccess34ImplTest {
 
     @Test
     public void testGetMimeTypeForStream34() throws XPathExpressionException, ParserConfigurationException, SAXException, IOException {
+        StatisticsAccessLog acLog = EasyMock.createMock(StatisticsAccessLog.class);
         
         // fedora 3.4
         FedoraAccessImpl fa34 = createMockBuilder(FedoraAccessImpl.class)
-        .withConstructor(KConfiguration.getInstance())
+        .withConstructor(KConfiguration.getInstance(),acLog)
         .addMockedMethod("getFedoraDescribeStream")
         .addMockedMethod("getDsProfileForPIDStream")
         .createMock();
@@ -91,7 +95,7 @@ public class FedoraAccess34ImplTest {
         EasyMock.expect(fa34.getFedoraDescribeStream()).andReturn(DataPrepare.fedoraProfile34());
         EasyMock.expect(fa34.getDsProfileForPIDStream("uuid:0eaa6730-9068-11dd-97de-000d606f5dc6", FedoraUtils.IMG_FULL_STREAM)).andReturn(DataPrepare.dsProfile34());
         
-        replay(fa34);
+        replay(fa34,acLog);
         
         
         String mimeType34 = fa34.getMimeTypeForStream("uuid:0eaa6730-9068-11dd-97de-000d606f5dc6", FedoraUtils.IMG_FULL_STREAM);

@@ -40,6 +40,7 @@ import cz.incad.kramerius.security.EvaluatingResult;
 import cz.incad.kramerius.security.RightCriteriumContext;
 import cz.incad.kramerius.security.RightCriteriumException;
 import cz.incad.kramerius.security.impl.RightCriteriumContextFactoryImpl;
+import cz.incad.kramerius.statistics.StatisticsAccessLog;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 import cz.incad.kramerius.utils.pid.LexerException;
 
@@ -93,8 +94,9 @@ public class MovingWallTest {
 
     
     public EvaluatingResult mw(String movingWallFromGUI, String requestedPID) throws IOException, LexerException, ParserConfigurationException, SAXException, RightCriteriumException {
+        StatisticsAccessLog acLog = EasyMock.createMock(StatisticsAccessLog.class);
         FedoraAccessImpl fa33 = createMockBuilder(FedoraAccessImpl.class)
-        .withConstructor(KConfiguration.getInstance())
+        .withConstructor(KConfiguration.getInstance(), acLog)
         .addMockedMethod("getFedoraDescribeStream")
         .addMockedMethod("getBiblioMods")
         .addMockedMethod("getDC")
@@ -113,7 +115,7 @@ public class MovingWallTest {
             EasyMock.expect(solrAccess.getPath(key)).andReturn(new ObjectPidsPath[] { DataPrepare.PATHS_MAPPING.get(key)}).anyTimes();
         }
         
-        replay(fa33, solrAccess);
+        replay(fa33, solrAccess,acLog);
 
         RightCriteriumContextFactoryImpl contextFactory = new RightCriteriumContextFactoryImpl();
         contextFactory.setFedoraAccess(fa33);

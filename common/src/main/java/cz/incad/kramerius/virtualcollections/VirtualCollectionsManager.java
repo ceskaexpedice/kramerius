@@ -377,7 +377,7 @@ public class VirtualCollectionsManager {
 
     public static void main(String[] args) throws Exception {
         logger.log(Level.INFO, "process args: {0}", Arrays.toString(args));
-        FedoraAccess fa = new FedoraAccessImpl(KConfiguration.getInstance());
+        FedoraAccess fa = new FedoraAccessImpl(KConfiguration.getInstance(), null);
         String action = args[0];
         String pid = args[1];
         String collection = args[2];

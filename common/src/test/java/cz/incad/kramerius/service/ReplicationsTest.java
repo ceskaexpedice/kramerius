@@ -58,6 +58,7 @@ import cz.incad.kramerius.SolrAccess;
 import cz.incad.kramerius.fedora.impl.DataPrepare;
 import cz.incad.kramerius.impl.FedoraAccessImpl;
 import cz.incad.kramerius.service.impl.ReplicationServiceImpl;
+import cz.incad.kramerius.statistics.StatisticsAccessLog;
 import cz.incad.kramerius.utils.IOUtils;
 import cz.incad.kramerius.utils.XMLUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
@@ -72,9 +73,10 @@ public class ReplicationsTest {
 
     @Test
     public void testExportPageDrobnystky() throws IOException, ParserConfigurationException, SAXException, LexerException, ReplicateException {
-        
+        StatisticsAccessLog acLog = EasyMock.createMock(StatisticsAccessLog.class);
+
         FedoraAccess fa = createMockBuilder(FedoraAccessImpl.class)
-            .withConstructor(KConfiguration.getInstance())
+            .withConstructor(KConfiguration.getInstance(),acLog)
             .addMockedMethod("getAPIM")
         .createMock();
         
@@ -98,7 +100,7 @@ public class ReplicationsTest {
 
         SolrAccess solrAccess = EasyMock.createMock(SolrAccess.class);
 
-        replay(fa, fedoraApiM, solrAccess);
+        replay(fa, fedoraApiM, solrAccess,acLog);
 
         Injector injector = Guice.createInjector(new _Module(fa,  solrAccess));
         ReplicationService replicationService = injector.getInstance(ReplicationService.class);
@@ -141,8 +143,9 @@ public class ReplicationsTest {
     
     @Test
     public void testPrepareExportDrobnustky() throws IOException, ParserConfigurationException, SAXException, LexerException, ReplicateException {
+        StatisticsAccessLog acLog = EasyMock.createMock(StatisticsAccessLog.class);
         FedoraAccess fa = createMockBuilder(FedoraAccessImpl.class)
-        .withConstructor(KConfiguration.getInstance())
+        .withConstructor(KConfiguration.getInstance(),acLog)
         .addMockedMethod("getRelsExt")
         .createMock();
         
@@ -154,7 +157,7 @@ public class ReplicationsTest {
             EasyMock.expect(solrAccess.getPath(key)).andReturn(new ObjectPidsPath[] { DataPrepare.PATHS_MAPPING.get(key) }).anyTimes();
         }
 
-        replay(fa, solrAccess);
+        replay(fa, solrAccess,acLog);
 
         Injector injector = Guice.createInjector(new _Module(fa,  solrAccess));
         ReplicationService replicationService = injector.getInstance(ReplicationService.class);
@@ -169,8 +172,9 @@ public class ReplicationsTest {
 
     @Test
     public void testPrepareExportNarodniListy() throws IOException, ParserConfigurationException, SAXException, LexerException, ReplicateException {
+        StatisticsAccessLog acLog = EasyMock.createMock(StatisticsAccessLog.class);
         FedoraAccess fa = createMockBuilder(FedoraAccessImpl.class)
-        .withConstructor(KConfiguration.getInstance())
+        .withConstructor(KConfiguration.getInstance(),acLog)
         .addMockedMethod("getRelsExt")
         .createMock();
         
@@ -182,7 +186,7 @@ public class ReplicationsTest {
             EasyMock.expect(solrAccess.getPath(key)).andReturn(new ObjectPidsPath[] { DataPrepare.PATHS_MAPPING.get(key) }).anyTimes();
         }
 
-        replay(fa, solrAccess);
+        replay(fa, solrAccess,acLog);
 
         Injector injector = Guice.createInjector(new _Module(fa,  solrAccess));
         ReplicationService replicationService = injector.getInstance(ReplicationService.class);

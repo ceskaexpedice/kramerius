@@ -157,7 +157,7 @@ public class PolicyServiceImpl implements PolicyService {
             ProcessStarter.updateName("Priznak  '"+args[0]+" pro titul "+args[1]);
         }
         PolicyServiceImpl inst = new PolicyServiceImpl();
-        inst.fedoraAccess = new FedoraAccessImpl(null);
+        inst.fedoraAccess = new FedoraAccessImpl(null, null);
         inst.configuration = KConfiguration.getInstance();
         inst.setPolicy(args[1], args[0]);
         IndexerProcessStarter.spawnIndexer(true, "Reindex policy "+args[1]+":"+args[0], args[1]);

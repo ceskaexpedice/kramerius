@@ -48,7 +48,7 @@ public class METSServiceImpl implements METSService {
 	public static void main(String[] args) throws IOException {
 		LOGGER.info("METS Service: "+Arrays.toString(args));
 		METSServiceImpl inst = new METSServiceImpl();
-		inst.fedoraAccess = new FedoraAccessImpl(null);
+		inst.fedoraAccess = new FedoraAccessImpl(null, null);
 		inst.configuration = KConfiguration.getInstance();
 		inst.exportMETS("uuid:" + args[0],System.out);
 		LOGGER.info("METS Service finished.");
