@@ -8,7 +8,7 @@
 
 <%@ page isELIgnored="false"%>
 <view:object name="statistics"
-    clz="cz.incad.Kramerius.views.statistics.StatisticsViewObject"></view:object>
+    clz="cz.incad.Kramerius.views.statistics.ModelStatisticsViewObject"></view:object>
 
 <script>
     $(document).ready(function(){
