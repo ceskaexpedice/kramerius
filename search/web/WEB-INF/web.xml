@@ -156,6 +156,12 @@
 		<servlet-class>cz.incad.Kramerius.imaging.DeepZoomServlet</servlet-class>
 	</servlet>
 
+    <!-- zoomify servlet -->
+    <servlet>
+        <servlet-name>zoomifyServlet</servlet-name>
+        <servlet-class>cz.incad.Kramerius.imaging.ZoomifyServlet</servlet-class>
+    </servlet>
+
 	<!-- private content servlet -->
 	<servlet>
 		<servlet-name>privateContentServlet</servlet-name>
@@ -332,6 +338,11 @@
 		<servlet-name>deepZoomServlet</servlet-name>
 		<url-pattern>/deepZoom/*</url-pattern>
 	</servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>zoomifyServlet</servlet-name>
+        <url-pattern>/zoomify/*</url-pattern>
+    </servlet-mapping>
 
 	<servlet-mapping>
 		<servlet-name>privateContentServlet</servlet-name>

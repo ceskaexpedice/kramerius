@@ -45,9 +45,20 @@ function onLoadPlainImage() {
 
 </script>
 
+
+<c:forEach var="script" items="${image.scripturls}">
+    <script type="text/javascript" src="${script}"></script>
+</c:forEach>
+
 <div id="bigThumbZone" class="viewer">
     <div id="container"  class="view_div"  style="display:none;  height: 512px;">
     </div>
+    
+    <div id="ol-wrapper" style="display:none;  height: 512px;">
+        <div id="ol-image" style="width: 100%; height: 100%""></div>
+        <div id="ol-overview"></div>
+    </div>
+
 
     <div id="securityError" class="ui-state-error-text" style="display:none;">
         ${image.notAllowedMessageText}            
@@ -120,6 +131,7 @@ function onLoadPlainImage() {
             "#plainImage",
             "#pdfImage",
             "#container",
+            "#ol-wrapper",
             "#noImageError",
             "#securityError",
             "#download"],
@@ -171,11 +183,11 @@ function onLoadPlainImage() {
                 var tilesPrepared = viewerOptions.deepZoomGenerated || viewerOptions.imageServerConfigured;
                 var deepZoomDisplay = ((viewerOptions.deepZoomCofigurationEnabled) && (tilesPrepared));
                 if (deepZoomDisplay) {
-                    if (viewer == null) {
-                        initViewer();
+                    if (zoomInit) {
+                        zoomInit.init();
                     }
-                    displayImageContainer("#container");
-                    viewer.openDzi("deepZoom/"+viewerOptions.uuid+"/");
+                    displayImageContainer('#${image.divContainer}');
+                    zoomInit.open(viewerOptions.uuid);
                 } else {
                     displayImageContainer("#plainImage");
                     
@@ -248,220 +260,10 @@ function onLoadPlainImage() {
         });
     }
 
-    var viewer = null;
+    // deep zoom viewer ?? 
+    // TODO:CHANGE IT
+//    var viewer = null;
 
-    
-    
-    function initViewer() {
-
-    	var zooming = false; // whether we should be continuously zooming
-    	var zoomFactor = null; // how much we should be continuously zooming by
-    	var lastZoomTime = null;
-     
-        function prevButton() {
-            var control = document.createElement("a");
-            $(control).html("<span class='ui-icon ui-icon-arrowthick-1-w' >full</span>")
-
-            control.onclick = function(event) {
-                previousImage();
-            };
-
-            $(control).attr('id','seadragonButtonPrev');
-            $(control).button();
-            return control;
-        }
-
-        function goHomeButton() {
-            var control = document.createElement("a");
-            $(control).html("<span class='ui-icon ui-icon-home' >full</span>")
-            control.setAttribute('id','goHome');
-            control.onclick = function(event) {
-                if (viewer.viewport) {
-                    viewer.viewport.goHome();
-                }
-            };
-            $(control).button();
-            
-            return control;
-        }
-        
-        function nextButton() {
-            var control = document.createElement("a");
-            
-            var span = document.createElement("span");
-            $(control).html("<span class='ui-icon ui-icon-arrowthick-1-e' >full</span>")
-            control.setAttribute('id','nextButton');
-
-            control.className = "control";
-            control.onclick = function(event) {
-                nextImage();
-            };
-
-            $(control).attr('id','seadragonButtonNext');
-            $(control).button();
-            return control;
-        }
-
-
-        function fullPageButton() {
-            var control = document.createElement("a");
-            $(control).html("<span class='ui-icon ui-icon-arrowthick-2-ne-sw' >full</span>")
-            control.setAttribute('id','fullPageButton');
-         
-            control.className = "control";
-            control.onclick = function(event) {
-            	viewer.setFullPage(!viewer.isFullPage());
-                 
-                if (viewer.viewport) {
-                    viewer.viewport.ensureVisible();
-                }
-            };
-
-            $(control).button();
-            return control;
-        }    	
-
-        function endZooming() {
-        	zooming = false;
-      	}
-
-        function scheduleZoom() {
-        	window.setTimeout(doZoom, 10);
-       	}
-
-        function doZoom() {
-            if (zooming && viewer.viewport) {
-             var currentTime = new Date().getTime();
-             var deltaTime = currentTime - lastZoomTime;
-             var adjustedFactor = Math.pow(zoomFactor, deltaTime / 1000);
-             
-             viewer.viewport.zoomBy(adjustedFactor);
-             viewer.viewport.ensureVisible();
-             lastZoomTime = currentTime;
-             scheduleZoom();
-             }
-       	}
-
-
-        function beginZoomingIn() {
-        	lastZoomTime = new Date().getTime();
-        	zoomFactor = Seadragon.Config.zoomPerSecond;
-        	zooming = true;
-        	scheduleZoom();
-       	}
-        	 
-
-      	function beginZoomingOut() {
-        	lastZoomTime = new Date().getTime();
-        	zoomFactor = 1.0 / Seadragon.Config.zoomPerSecond;
-        	zooming = true;
-        	scheduleZoom();
-      	}
-           
-        function zoomInButton() {
-        	var control = document.createElement("a");
-            var span = document.createElement("span");
-            $(control).html("<span class='ui-icon ui-icon-plusthick' >full</span>")
-            control.setAttribute('id','plusButton');
-         
-            control.className = "control";
-
-            var tracker = new Seadragon.MouseTracker(control);
-            tracker.clickHandler = function(tracker, position, quick, shift) {
-                if (viewer.viewport) {
-                    zooming = false;
-                    viewer.viewport.zoomBy(Seadragon.Config.zoomPerClick / 1.0);
-                    viewer.viewport.ensureVisible();
-                }
-            }         
-
-            tracker.pressHandler = function(tracker, position) {
-            	beginZoomingIn();
-            }
-
-            tracker.enterHandler = function(tracker,position, buttonDownElm, buttonDownAny) {
-                beginZoomingIn();
-            }
-
-
-            tracker.releaseHandler = function(tracker, position, insideElmtPress,insideElmtRelease ) {
-            	endZooming();
-            }
-
-            tracker.exitHandler = function(tracker, position, buttonDownElmt, buttonDownAny) {
-                endZooming();
-            }
-            
-            
-            $(control).button();
-            tracker.setTracking(true);
-            return control;
-        }
-        
-
-        function zoomOutButton() {
-            var control = document.createElement("a");
-            var span = document.createElement("span");
-            $(control).html("<span class='ui-icon ui-icon-minusthick' >full</span>")
-            control.setAttribute('id','plusButton');
-         
-            control.className = "control";
-
-            var tracker = new Seadragon.MouseTracker(control);
-            tracker.clickHandler = function(tracker, position, quick, shift) {
-            	if (viewer.viewport) {
-            		zooming = false;
-            		viewer.viewport.zoomBy(1.0 / Seadragon.Config.zoomPerClick);
-            		viewer.viewport.ensureVisible();
-           		}           
-          }   
-
-            tracker.pressHandler = function(tracker, position) {
-                beginZoomingOut();
-            }
-
-            tracker.enterHandler = function(tracker,position, buttonDownElm, buttonDownAny) {
-                beginZoomingOut();
-            }
-
-
-            tracker.releaseHandler = function(tracker, position, insideElmtPress,insideElmtRelease ) {
-                endZooming();
-            }
-
-            tracker.exitHandler = function(tracker, position, buttonDownElmt, buttonDownAny) {
-                endZooming();
-            }
-            
-            
-            $(control).button();
-            tracker.setTracking(true);
-            return control;
-        }
-        
-        viewer = new Seadragon.Viewer("container");
-        viewer.clearControls();
-        viewer.addControl(nextButton(),Seadragon.ControlAnchor.TOP_RIGHT);
-        viewer.addControl(prevButton(),Seadragon.ControlAnchor.TOP_RIGHT);
-        viewer.addControl(goHomeButton(),  Seadragon.ControlAnchor.TOP_RIGHT);
-        viewer.addControl(fullPageButton(),  Seadragon.ControlAnchor.TOP_RIGHT);
-        viewer.addControl(zoomOutButton(),Seadragon.ControlAnchor.TOP_RIGHT);
-        viewer.addControl(zoomInButton(),Seadragon.ControlAnchor.TOP_RIGHT);
-
-        
-        
-
-        // lokalizacenextImage
-        Seadragon.Strings.setString("Tooltips.FullPage",dictionary["deep.zoom.Tooltips.FullPage"]);
-        Seadragon.Strings.setString("Tooltips.Home",dictionary["deep.zoom.Tooltips.Home"]);
-        Seadragon.Strings.setString("Tooltips.ZoomIn",dictionary["deep.zoom.Tooltips.ZoomIn"]);
-        Seadragon.Strings.setString("Tooltips.ZoomOut",dictionary["deep.zoom.Tooltips.ZoomOut"]);
-
-        Seadragon.Strings.setString("Errors.Failure",dictionary["deep.zoom.Errors.Failure"]);
-        Seadragon.Strings.setString("Errors.Xml",dictionary["deep.zoom.Errors.Xml"]);
-        Seadragon.Strings.setString("Errors.Empty",dictionary["deep.zoom.Errors.Empty"]);
-        Seadragon.Strings.setString("Errors.ImageFormat",dictionary["deep.zoom.Errors.ImageFormat"]);
-    }
 
     function hideAlto(){
         $("#alto").html('');

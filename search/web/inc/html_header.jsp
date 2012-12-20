@@ -131,6 +131,8 @@
        <script  src="js/admin/rights/rights.js" language="javascript" type="text/javascript"></script>
        <script  src="js/admin/rights/right.js" language="javascript" type="text/javascript"></script>
 
+       <script  src="js/admin/statistics/statistics.js" language="javascript" type="text/javascript"></script>
+
     </scrd:loggedusers>
     
     ${headerViewObject.localizationScripts}
