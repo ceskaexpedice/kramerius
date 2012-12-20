@@ -23,8 +23,8 @@ import java.util.List;
 import java.util.Map;
 
 /**
+ * Represents one report
  * @author pavels
- *
  */
 public interface StatisticReport {
     
@@ -33,10 +33,22 @@ public interface StatisticReport {
     public static final String TITLE_KEY = "title";
     public static final String MODEL_KEY = "model";
     
-    
+    /**
+     * Returns reporting page
+     * @param reportOffset Offset and size
+     * @return
+     */
     public List<Map<String,Object>> getReportPage(StatisticReportOffset reportOffset);
     
+    /**
+     * Returns optional filtering values
+     * @return
+     */
     public List<String> getOptionalValues();
     
+    /**
+     * Return report identifier
+     * @return
+     */
     public String getReportId();
 }

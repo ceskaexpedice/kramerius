@@ -14,47 +14,25 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
-/**
- * 
- */
 package cz.incad.kramerius.statistics;
 
-import javax.ws.rs.GET;
+import java.util.Map;
 
 /**
- * Report offset 
+ * Processing support
  * @author pavels
  */
-public class StatisticReportOffset {
-    
-    private int offset;
-    private int size;
-    
-    private Object filteringValue;
-    
-    public StatisticReportOffset(int offset, int size, Object filteringValue) {
-        super();
-        this.offset = offset;
-        this.size = size;
-        this.filteringValue = filteringValue;
-    }
-
-    /**
-     * @return the offset
-     */
-    public int getOffset() {
-        return offset;
-    }
+public interface StatisticsAccessLogSupport {
     
     /**
-     * @return the size
+     * Process main record
+     * @param record
      */
-    public int getSize() {
-        return size;
-    }
-
-    public Object getFilteringValue() {
-        return filteringValue;
-    }
-
+    public void processMainRecord(Map<String, Object> record);
+    
+    /**
+     * Process detail records associated with main record
+     * @param detail
+     */
+    public void processDetailRecord(Map<String, Object> detail);
 }

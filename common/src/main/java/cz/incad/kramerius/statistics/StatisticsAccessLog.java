@@ -23,16 +23,43 @@ import java.util.Date;
 import javax.servlet.http.HttpServletRequest;
 
 /**
- * Implementations of this interface can receive infomrations about 
+ * Accesslog for statistics usages
  * @author pavels
  */
 public interface StatisticsAccessLog {
 
+    /**
+     * Report one access 
+     * @param pid accessing pid 
+     * @param streamName accessing stream
+     * @throws IOException IO error has been occured
+     */
     public void reportAccess(String pid, String streamName) throws IOException;
     
+    /**
+     * Returns true if access to  given pid and stream should be reported
+     * @param pid accessing pid
+     * @param streamName accessing stream
+     * @return
+     */
     public boolean isReportingAccess(String pid, String streamName);
 
+    /**
+     * Process all log
+     * @param sup
+     */
+    public void processAccessLog(StatisticsAccessLogSupport sup);
+    
+    /**
+     * Returns all predefined reports
+     * @return
+     */
     public StatisticReport[] getAllReports();
     
+    /**
+     * Find report by given id
+     * @param reportId
+     * @return
+     */
     public StatisticReport getReportById(String reportId);
 }

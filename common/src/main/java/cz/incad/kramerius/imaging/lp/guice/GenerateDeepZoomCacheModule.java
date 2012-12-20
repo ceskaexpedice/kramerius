@@ -22,6 +22,7 @@ import cz.incad.kramerius.processes.database.Fedora3ConnectionProvider;
 import cz.incad.kramerius.security.SecuredFedoraAccessImpl;
 import cz.incad.kramerius.statistics.StatisticReport;
 import cz.incad.kramerius.statistics.StatisticsAccessLog;
+import cz.incad.kramerius.statistics.StatisticsAccessLogSupport;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 
 public class GenerateDeepZoomCacheModule extends AbstractModule {
@@ -59,6 +60,13 @@ public class GenerateDeepZoomCacheModule extends AbstractModule {
         public boolean isReportingAccess(String pid, String streamName) {
             return true;
         }
+
+        @Override
+        public void processAccessLog(StatisticsAccessLogSupport sup) {
+            // TODO Auto-generated method stub
+            
+        }
+        
     }
 
 }

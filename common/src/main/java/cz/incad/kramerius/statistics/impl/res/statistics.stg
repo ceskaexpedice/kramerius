@@ -21,6 +21,27 @@ insert into statistic_access_log_detail_authors
 values(nextval('statistic_access_log_detail_authors_ID_SEQUENCE'),?,?,?);
 >>
 
+exportAllRecord() ::=<<
+
+select 
+    sa.record_id as record_id, 
+    sa.pid as spid, 
+    sa.date as sdate, 
+    sa."USER" as suser, 
+    sa.remote_ip_address as sremote_ip_address,
+    sa.requested_url as srequested_url,
+    detail.pid as dpid,
+    detail.model as dmodel,
+    detail.issued_date as dissued_date,
+    detail.rights as drights,
+    detail.lang as dlang,
+    detail.title as dtitle
+    
+ from statistics_access_log sa
+ join statistic_access_log_detail detail on (sa.record_id=detail.record_id)
+
+>>
+
 
 
 /** vybrany model */

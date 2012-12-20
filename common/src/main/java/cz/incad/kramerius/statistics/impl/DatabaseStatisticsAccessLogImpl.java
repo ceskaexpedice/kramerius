@@ -23,6 +23,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.sql.Connection;
+import java.sql.Date;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -52,9 +54,11 @@ import cz.incad.kramerius.security.SpecialObjects;
 import cz.incad.kramerius.security.User;
 import cz.incad.kramerius.statistics.StatisticReport;
 import cz.incad.kramerius.statistics.StatisticsAccessLog;
+import cz.incad.kramerius.statistics.StatisticsAccessLogSupport;
 import cz.incad.kramerius.users.LoggedUsersSingleton;
 import cz.incad.kramerius.utils.DCUtils;
 import cz.incad.kramerius.utils.database.JDBCCommand;
+import cz.incad.kramerius.utils.database.JDBCQueryTemplate;
 import cz.incad.kramerius.utils.database.JDBCTransactionTemplate;
 import cz.incad.kramerius.utils.database.JDBCUpdateTemplate;
 
@@ -150,6 +154,71 @@ public class DatabaseStatisticsAccessLogImpl implements StatisticsAccessLog {
     
 
     
+    
+    
+    @Override
+    public void processAccessLog(final StatisticsAccessLogSupport sup) {
+        // TODO Auto-generated method stub
+        final StringTemplate records = stGroup.getInstanceOf("exportAllRecord");
+        String sql = records.toString();
+
+        new JDBCQueryTemplate<String>(this.connectionProvider.get()) {
+            
+            private int record_id=-1;
+            
+            @Override
+            public boolean handleRow(ResultSet rs, List<String> returnsList) throws SQLException {
+                int record_id = rs.getInt("record_id");
+                if (this.record_id == -1 || this.record_id != record_id) {
+                    processMaster(rs);
+                    processDetail(rs);
+                } else {
+                    processDetail(rs);
+                }
+                this.record_id = record_id;
+                
+                return super.handleRow(rs, returnsList);
+            }
+
+            private void processDetail(ResultSet rs) throws SQLException {
+                String model = rs.getString("dmodel");
+                String pid = rs.getString("dpid");
+                String issuedDate = rs.getString("dissued_date");
+                String rights = rs.getString("drights");
+                String lang = rs.getString("dlang");
+                String title = rs.getString("dtitle");
+
+                Map<String, Object> record = new HashMap<String, Object>(); {
+                    record.put("model", model);
+                    record.put("pid", pid);
+                    record.put("issued_date", issuedDate);
+                    record.put("rights", rights);
+                    record.put("lang", lang);
+                    record.put("title", title);
+                }
+                sup.processDetailRecord(record);
+            } 
+
+            private void processMaster(ResultSet rs) throws SQLException {
+                String pid = rs.getString("spid");
+                Date d = rs.getDate("sdate");
+                String remote = rs.getString("sremote_ip_address");
+                String user = rs.getString("suser");
+                String requestedUrl = rs.getString("srequested_url");
+                Map<String, Object> record = new HashMap<String, Object>(); {
+                    record.put("pid", pid);
+                    record.put("date", d);
+                    record.put("remote_ip_address", remote);
+                    record.put("user", user);
+                }
+                sup.processMainRecord(record);
+                
+            }
+            
+        }.executeQuery(sql);
+        
+    }
+
     @Override
     public StatisticReport[] getAllReports() {
         return (StatisticReport[]) this.reports.toArray(new StatisticReport[this.reports.size()]);
