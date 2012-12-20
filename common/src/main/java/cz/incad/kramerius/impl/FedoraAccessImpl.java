@@ -431,7 +431,7 @@ public class FedoraAccessImpl implements FedoraAccess {
     public InputStream getImageFULL(String pid) throws IOException {
         try {
             pid = makeSureObjectPid(pid);
-            if (this.accessLog.isReportingAccess(pid,IMG_FULL_STREAM)) {
+            if (this.accessLog != null && this.accessLog.isReportingAccess(pid,IMG_FULL_STREAM)) {
                 this.accessLog.reportAccess(pid,IMG_FULL_STREAM);
             }
             HttpURLConnection con = (HttpURLConnection) openConnection(getFedoraStreamPath(configuration, makeSureObjectPid(pid), IMG_FULL_STREAM), configuration.getFedoraUser(), configuration.getFedoraPass());
@@ -872,7 +872,7 @@ public class FedoraAccessImpl implements FedoraAccess {
     public InputStream getDataStream(String pid, String datastreamName) throws IOException {
         try {
             pid = makeSureObjectPid(pid);
-            if (this.accessLog.isReportingAccess(pid,datastreamName)) {
+            if (this.accessLog != null && this.accessLog.isReportingAccess(pid,datastreamName)) {
                 this.accessLog.reportAccess(pid,datastreamName);
             }
             String datastream = configuration.getFedoraHost() + "/get/" + pid + "/" + datastreamName;
